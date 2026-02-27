@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playboy Output</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="output-shell">
+    <main id="output-stage" class="output-stage">
+      <video id="output-video" playsinline preload="auto"></video>
+      <img id="output-image" alt="" />
+      <div id="output-slate" class="output-slate">
+        <p class="eyebrow">Playboy Output</p>
+        <h1>Waiting for a cue</h1>
+        <p>Use the controller window to take media live.</p>
+      </div>
+      <div id="output-overlay" class="output-overlay">
+        <div>
+          <p class="eyebrow">Output</p>
+          <strong id="overlay-title">Black</strong>
+        </div>
+        <span id="overlay-status" class="status-pill">Idle</span>
+      </div>
+    </main>
+
+    <script type="module" src="/output.js"></script>
+  </body>
+  </html>

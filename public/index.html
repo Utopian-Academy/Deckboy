@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playboy Control</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="control-shell">
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+    <div class="chrome-frame">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Cue playback</p>
+          <div class="title-row">
+            <input id="project-title" class="project-title" maxlength="120" />
+            <button id="save-project" class="ghost-button">Save</button>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="import-pick" class="accent-button">Import Media</button>
+          <button id="import-paths" class="ghost-button">Paste Paths</button>
+          <button id="open-output" class="ghost-button">Open Output</button>
+          <button id="toggle-fullscreen" class="ghost-button">Fullscreen</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="panel cue-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Playlist</p>
+              <h1>Cues</h1>
+            </div>
+            <div id="cue-count" class="panel-pill">0 cues</div>
+          </div>
+          <div id="cue-list" class="cue-list"></div>
+        </section>
+
+        <section class="panel main-panel">
+          <div class="transport-card">
+            <div>
+              <p class="eyebrow">On air</p>
+              <h2 id="now-playing-title">No cue loaded</h2>
+              <p id="now-playing-meta" class="muted">Open the output window, then take a cue.</p>
+            </div>
+            <div class="transport-actions">
+              <button id="take-button" class="accent-button">Take</button>
+              <button id="go-button" class="ghost-button">Go / Pause</button>
+              <button id="stop-button" class="ghost-button">Stop</button>
+              <button id="clear-button" class="ghost-button">Clear</button>
+            </div>
+            <div class="meter-block">
+              <div class="meter-label-row">
+                <span id="transport-status" class="status-pill">Stopped</span>
+                <span id="time-readout" class="mono">00:00.0 / 00:00.0</span>
+              </div>
+              <input id="scrub" type="range" min="0" max="1" value="0" step="0.01" />
+            </div>
+            <div class="meter-block">
+              <div class="meter-label-row">
+                <span>Output volume</span>
+                <span id="volume-readout" class="mono">100%</span>
+              </div>
+              <input id="volume" type="range" min="0" max="1" value="1" step="0.01" />
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <article class="panel inset-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Selected cue</p>
+                  <h2 id="selected-name">Nothing selected</h2>
+                </div>
+              </div>
+              <div class="poster-card">
+                <div class="poster-wrap">
+                  <img id="selected-poster" alt="" />
+                </div>
+                <div id="selected-facts" class="facts"></div>
+              </div>
+              <label class="field">
+                <span>Name</span>
+                <input id="cue-name" type="text" maxlength="120" />
+              </label>
+              <label class="field">
+                <span>Label color</span>
+                <input id="cue-color" type="color" value="#ff9d48" />
+              </label>
+              <label class="field">
+                <span>Notes</span>
+                <textarea id="cue-notes" rows="5" maxlength="4000"></textarea>
+              </label>
+              <div class="detail-actions">
+                <button id="save-cue" class="ghost-button">Save Cue</button>
+                <button id="delete-cue" class="danger-button">Delete Cue</button>
+              </div>
+            </article>
+
+            <article class="panel inset-panel shortcuts-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Hotkeys</p>
+                  <h2>Live ops</h2>
+                </div>
+              </div>
+              <div class="shortcut-list">
+                <div><span class="shortcut-key">Space</span><span>Go / pause the active cue</span></div>
+                <div><span class="shortcut-key">Enter</span><span>Take the selected cue</span></div>
+                <div><span class="shortcut-key">S</span><span>Stop and rewind</span></div>
+                <div><span class="shortcut-key">Arrow Up</span><span>Select previous cue</span></div>
+                <div><span class="shortcut-key">Arrow Down</span><span>Select next cue</span></div>
+                <div><span class="shortcut-key">O</span><span>Open output window</span></div>
+                <div><span class="shortcut-key">F</span><span>Toggle output fullscreen</span></div>
+              </div>
+              <p class="support-note">
+                Best playback results come from browser-friendly files such as H.264/AAC `.mp4`
+                or `.webm`.
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="cue-item-template">
+      <button class="cue-item" draggable="true" type="button">
+        <span class="cue-chip"></span>
+        <span class="cue-copy">
+          <strong class="cue-name"></strong>
+          <span class="cue-meta"></span>
+        </span>
+      </button>
+    </template>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+  </html>
