@@ -108,17 +108,24 @@ struct Cue {
   bool pauseOnLastFrame = false;
 };
 
-struct Project {
-  std::string title = std::string(kAppTitle);
+struct Deck {
+  std::string name = "Deck 1";
   std::vector<Cue> cues;
   int selectedIndex = -1;
   int activeIndex = -1;
   bool autoAdvance = false;
   bool playlistLoop = false;
-  bool uiSoundsEnabled = true;
-  bool uiTransitionsEnabled = true;
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;
+};
+
+struct Project {
+  std::string title = std::string(kAppTitle);
+  std::vector<Deck> decks {Deck {}};
+  int focusedDeckIndex = 0;
+  bool advancedOutputMode = false;
+  bool uiSoundsEnabled = true;
+  bool uiTransitionsEnabled = true;
 };
 
 struct DecodedFrame {
@@ -812,6 +819,37 @@ bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallbac
   return fields[index] == "1" || fields[index] == "true";
 }
 
+std::string deckDefaultName(int index) {
+  return "Deck " + std::to_string(index + 1);
+}
+
+void normalizeDeck(Deck& deck, int index) {
+  if (deck.name.empty()) {
+    deck.name = deckDefaultName(index);
+  }
+  if (deck.cues.empty()) {
+    deck.selectedIndex = -1;
+    deck.activeIndex = -1;
+  } else {
+    deck.selectedIndex = std::clamp(deck.selectedIndex, 0, static_cast<int>(deck.cues.size()) - 1);
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      deck.activeIndex = -1;
+    }
+  }
+  deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
+}
+
+void normalizeProject(Project& project) {
+  if (project.decks.empty()) {
+    project.decks.push_back(Deck {});
+  }
+  for (size_t index = 0; index < project.decks.size(); ++index) {
+    normalizeDeck(project.decks[index], static_cast<int>(index));
+  }
+  project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
+  project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
+}
+
 bool isImagePath(const fs::path& path) {
   std::string ext = path.extension().string();
   std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
@@ -918,36 +956,48 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   }
 
   output << "title\t" << escapeField(project.title) << '\n';
-  output << "selected\t" << project.selectedIndex << '\n';
-  output << "active\t" << project.activeIndex << '\n';
-  output << "auto_advance\t" << (project.autoAdvance ? 1 : 0) << '\n';
-  output << "playlist_loop\t" << (project.playlistLoop ? 1 : 0) << '\n';
+  output << "focused_deck\t" << project.focusedDeckIndex << '\n';
+  output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
-  output << "audio_output\t" << escapeField(project.audioOutputDeviceName) << '\n';
-  output << "display_index\t" << project.outputDisplayIndex << '\n';
 
-  for (const auto& cue : project.cues) {
+  for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
+    const auto& deck = project.decks[deckIndex];
     output
-      << "cue\t"
-      << escapeField(cue.path) << '\t'
-      << escapeField(cue.name) << '\t'
-      << cueKindToken(cue.kind) << '\t'
-      << cue.duration << '\t'
-      << cue.width << '\t'
-      << cue.height << '\t'
-      << cue.fps << '\t'
-      << escapeField(cue.formatName) << '\t'
-      << escapeField(cue.videoCodec) << '\t'
-      << escapeField(cue.audioCodec) << '\t'
-      << (cue.hasAudio ? "1" : "0") << '\t'
-      << cue.sizeBytes << '\t'
-      << colorToHex(cue.color) << '\t'
-      << cue.fadeInSeconds << '\t'
-      << cue.fadeOutSeconds << '\t'
-      << (cue.loop ? "1" : "0") << '\t'
-      << (cue.pauseOnLastFrame ? "1" : "0")
+      << "deck\t"
+      << deckIndex << '\t'
+      << escapeField(deck.name) << '\t'
+      << deck.selectedIndex << '\t'
+      << deck.activeIndex << '\t'
+      << (deck.autoAdvance ? 1 : 0) << '\t'
+      << (deck.playlistLoop ? 1 : 0) << '\t'
+      << escapeField(deck.audioOutputDeviceName) << '\t'
+      << deck.outputDisplayIndex
       << '\n';
+
+    for (const auto& cue : deck.cues) {
+      output
+        << "cue\t"
+        << deckIndex << '\t'
+        << escapeField(cue.path) << '\t'
+        << escapeField(cue.name) << '\t'
+        << cueKindToken(cue.kind) << '\t'
+        << cue.duration << '\t'
+        << cue.width << '\t'
+        << cue.height << '\t'
+        << cue.fps << '\t'
+        << escapeField(cue.formatName) << '\t'
+        << escapeField(cue.videoCodec) << '\t'
+        << escapeField(cue.audioCodec) << '\t'
+        << (cue.hasAudio ? "1" : "0") << '\t'
+        << cue.sizeBytes << '\t'
+        << colorToHex(cue.color) << '\t'
+        << cue.fadeInSeconds << '\t'
+        << cue.fadeOutSeconds << '\t'
+        << (cue.loop ? "1" : "0") << '\t'
+        << (cue.pauseOnLastFrame ? "1" : "0")
+        << '\n';
+    }
   }
 
   return true;
@@ -961,6 +1011,19 @@ Project loadProject(const fs::path& projectFile) {
     return project;
   }
 
+  project.decks.clear();
+  project.decks.push_back(Deck {});
+
+  auto ensureDeck = [&](int deckIndex) -> Deck& {
+    int normalizedIndex = std::max(0, deckIndex);
+    while (normalizedIndex >= static_cast<int>(project.decks.size())) {
+      Deck deck;
+      deck.name = deckDefaultName(static_cast<int>(project.decks.size()));
+      project.decks.push_back(deck);
+    }
+    return project.decks[normalizedIndex];
+  };
+
   std::string line;
   while (std::getline(input, line)) {
     if (!line.empty() && line.back() == '\r') {
@@ -973,66 +1036,82 @@ Project loadProject(const fs::path& projectFile) {
 
     if (fields[0] == "title") {
       project.title = safeString(fields, 1);
+    } else if (fields[0] == "focused_deck") {
+      project.focusedDeckIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "advanced_mode") {
+      project.advancedOutputMode = safeBool(fields, 1, false);
     } else if (fields[0] == "selected") {
-      project.selectedIndex = safeInt(fields, 1, -1);
+      ensureDeck(0).selectedIndex = safeInt(fields, 1, -1);
     } else if (fields[0] == "active") {
-      project.activeIndex = safeInt(fields, 1, -1);
+      ensureDeck(0).activeIndex = safeInt(fields, 1, -1);
     } else if (fields[0] == "auto_advance") {
-      project.autoAdvance = safeBool(fields, 1, false);
+      ensureDeck(0).autoAdvance = safeBool(fields, 1, false);
     } else if (fields[0] == "playlist_loop") {
-      project.playlistLoop = safeBool(fields, 1, false);
+      ensureDeck(0).playlistLoop = safeBool(fields, 1, false);
     } else if (fields[0] == "ui_sounds") {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "audio_output") {
-      project.audioOutputDeviceName = safeString(fields, 1);
+      ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
-      project.outputDisplayIndex = safeInt(fields, 1, 0);
+      ensureDeck(0).outputDisplayIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "deck") {
+      int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
+      Deck& deck = ensureDeck(deckIndex);
+      deck.name = safeString(fields, 2);
+      deck.selectedIndex = safeInt(fields, 3, -1);
+      deck.activeIndex = safeInt(fields, 4, -1);
+      deck.autoAdvance = safeBool(fields, 5, false);
+      deck.playlistLoop = safeBool(fields, 6, false);
+      deck.audioOutputDeviceName = safeString(fields, 7);
+      deck.outputDisplayIndex = safeInt(fields, 8, 0);
     } else if (fields[0] == "cue") {
+      int deckIndex = 0;
+      size_t offset = 1;
+      if (fields.size() >= 19) {
+        try {
+          deckIndex = std::stoi(fields[1]);
+          offset = 2;
+        } catch (...) {
+          deckIndex = 0;
+          offset = 1;
+        }
+      }
+
       Cue cue;
-      cue.path = safeString(fields, 1);
-      cue.name = safeString(fields, 2);
-      std::string kind = safeString(fields, 3);
+      cue.path = safeString(fields, offset + 0);
+      cue.name = safeString(fields, offset + 1);
+      std::string kind = safeString(fields, offset + 2);
       cue.kind =
         kind == "image" ? CueKind::Image :
         kind == "pattern" ? CueKind::Pattern :
         kind == "browser" ? CueKind::Browser :
         CueKind::Video;
-      cue.duration = safeDouble(fields, 4, 0.0);
-      cue.width = safeInt(fields, 5, 0);
-      cue.height = safeInt(fields, 6, 0);
-      cue.fps = safeDouble(fields, 7, cue.kind == CueKind::Video ? 30.0 : 0.0);
-      cue.formatName = safeString(fields, 8);
-      cue.videoCodec = safeString(fields, 9);
-      cue.audioCodec = safeString(fields, 10);
-      cue.hasAudio = safeBool(fields, 11, false);
-      cue.sizeBytes = safeSize(fields, 12, 0);
-      cue.color = parseColor(safeString(fields, 13));
-      cue.fadeInSeconds = std::max(0.0, safeDouble(fields, 14, 0.0));
-      cue.fadeOutSeconds = std::max(0.0, safeDouble(fields, 15, 0.0));
-      cue.loop = safeBool(fields, 16, false);
-      cue.pauseOnLastFrame = safeBool(fields, 17, false);
+      cue.duration = safeDouble(fields, offset + 3, 0.0);
+      cue.width = safeInt(fields, offset + 4, 0);
+      cue.height = safeInt(fields, offset + 5, 0);
+      cue.fps = safeDouble(fields, offset + 6, cue.kind == CueKind::Video ? 30.0 : 0.0);
+      cue.formatName = safeString(fields, offset + 7);
+      cue.videoCodec = safeString(fields, offset + 8);
+      cue.audioCodec = safeString(fields, offset + 9);
+      cue.hasAudio = safeBool(fields, offset + 10, false);
+      cue.sizeBytes = safeSize(fields, offset + 11, 0);
+      cue.color = parseColor(safeString(fields, offset + 12));
+      cue.fadeInSeconds = std::max(0.0, safeDouble(fields, offset + 13, 0.0));
+      cue.fadeOutSeconds = std::max(0.0, safeDouble(fields, offset + 14, 0.0));
+      cue.loop = safeBool(fields, offset + 15, false);
+      cue.pauseOnLastFrame = safeBool(fields, offset + 16, false);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
         }
-        project.cues.push_back(cue);
+        ensureDeck(deckIndex).cues.push_back(cue);
       }
     }
   }
 
-  if (project.cues.empty()) {
-    project.selectedIndex = -1;
-    project.activeIndex = -1;
-  } else {
-    project.selectedIndex = std::clamp(project.selectedIndex, 0, static_cast<int>(project.cues.size()) - 1);
-    if (project.activeIndex < 0 || project.activeIndex >= static_cast<int>(project.cues.size())) {
-      project.activeIndex = -1;
-    }
-  }
-  project.outputDisplayIndex = std::max(0, project.outputDisplayIndex);
-
+  normalizeProject(project);
   return project;
 }
 
@@ -1740,14 +1819,11 @@ class App {
 
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
-    if (!project_.cues.empty() && project_.selectedIndex < 0) {
-      project_.selectedIndex = 0;
-    }
-    if (!reopenAudioOutputs(project_.audioOutputDeviceName)) {
+    normalizeProject(project_);
+    if (!applyFocusedDeckRouting(false)) {
       std::cerr << "Audio device open failed: " << SDL_GetError() << '\n';
       return false;
     }
-    applyOutputDisplaySelection();
     selectionChangedAt_ = SDL_GetTicks64();
     startCompanionControl();
     layoutButtons(kControlHeight);
@@ -1825,6 +1901,77 @@ class App {
   }
 
  private:
+  Deck& focusedDeckMutable() {
+    normalizeProject(project_);
+    return project_.decks[project_.focusedDeckIndex];
+  }
+
+  const Deck& focusedDeck() const {
+    if (project_.decks.empty()) {
+      static Deck fallback;
+      return fallback;
+    }
+    int index = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    return project_.decks[index];
+  }
+
+  std::string focusedDeckLabel() const {
+    const Deck& deck = focusedDeck();
+    return deck.name.empty() ? deckDefaultName(project_.focusedDeckIndex) : deck.name;
+  }
+
+  bool applyFocusedDeckRouting(bool clearTransport = true) {
+    Deck& deck = focusedDeckMutable();
+    if (!reopenAudioOutputs(deck.audioOutputDeviceName)) {
+      deck.audioOutputDeviceName.clear();
+      if (!reopenAudioOutputs("")) {
+        return false;
+      }
+    }
+    applyOutputDisplaySelection();
+    if (clearTransport && mediaEngine_) {
+      stopBrowserCue();
+      mediaEngine_->clear();
+    }
+    return true;
+  }
+
+  bool setFocusedDeckIndex(int deckIndex, bool clearTransport = true) {
+    normalizeProject(project_);
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    project_.focusedDeckIndex = deckIndex;
+    if (!applyFocusedDeckRouting(clearTransport)) {
+      return false;
+    }
+    selectionChangedAt_ = SDL_GetTicks64();
+    triggerToast("deck: " + focusedDeckLabel());
+    persistProject();
+    return true;
+  }
+
+  void cycleFocusedDeck(int direction) {
+    normalizeProject(project_);
+    if (project_.decks.empty()) {
+      return;
+    }
+    int deckCount = static_cast<int>(project_.decks.size());
+    int nextIndex = (project_.focusedDeckIndex + direction + deckCount) % deckCount;
+    setFocusedDeckIndex(nextIndex);
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
+  void addDeck() {
+    normalizeProject(project_);
+    Deck deck;
+    deck.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+    project_.decks.push_back(deck);
+    project_.advancedOutputMode = true;
+    setFocusedDeckIndex(static_cast<int>(project_.decks.size()) - 1);
+    playUiSound(UiSoundEffect::Import);
+  }
+
   bool openAudioPair(const std::string& preferredDeviceName, SDL_AudioDeviceID& mainOut, SDL_AudioDeviceID& uiOut, std::string& effectiveName) {
     SDL_AudioSpec desired {};
     desired.freq = kAudioRate;
@@ -1888,7 +2035,7 @@ class App {
 
     audioDevice_ = newMain;
     uiAudioDevice_ = newUi;
-    project_.audioOutputDeviceName = effectiveName;
+    focusedDeckMutable().audioOutputDeviceName = effectiveName;
     mediaEngine_ = std::make_unique<MediaEngine>(outputRenderer_, audioDevice_);
     if (uiAudioDevice_ == 0) {
       project_.uiSoundsEnabled = false;
@@ -1915,7 +2062,7 @@ class App {
       return;
     }
 
-    auto current = std::find(choices.begin(), choices.end(), project_.audioOutputDeviceName);
+    auto current = std::find(choices.begin(), choices.end(), focusedDeck().audioOutputDeviceName);
     int currentIndex = current == choices.end() ? 0 : static_cast<int>(std::distance(choices.begin(), current));
     int nextIndex = (currentIndex + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
     if (!reopenAudioOutputs(choices[nextIndex])) {
@@ -1929,13 +2076,14 @@ class App {
 
   void applyOutputDisplaySelection() {
     int displayCount = SDL_GetNumVideoDisplays();
+    Deck& deck = focusedDeckMutable();
     if (displayCount <= 0) {
-      project_.outputDisplayIndex = 0;
+      deck.outputDisplayIndex = 0;
       return;
     }
-    project_.outputDisplayIndex = std::clamp(project_.outputDisplayIndex, 0, displayCount - 1);
+    deck.outputDisplayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
     SDL_Rect bounds {};
-    if (SDL_GetDisplayBounds(project_.outputDisplayIndex, &bounds) != 0) {
+    if (SDL_GetDisplayBounds(deck.outputDisplayIndex, &bounds) != 0) {
       return;
     }
     Uint32 flags = SDL_GetWindowFlags(outputWindow_);
@@ -1954,11 +2102,11 @@ class App {
     if (displayCount <= 0) {
       return;
     }
-    project_.outputDisplayIndex =
-      (project_.outputDisplayIndex + direction + displayCount) % displayCount;
+    Deck& deck = focusedDeckMutable();
+    deck.outputDisplayIndex = (deck.outputDisplayIndex + direction + displayCount) % displayCount;
     applyOutputDisplaySelection();
-    std::string label = SDL_GetDisplayName(project_.outputDisplayIndex);
-    triggerToast("display: " + (label.empty() ? std::to_string(project_.outputDisplayIndex + 1) : label));
+    std::string label = SDL_GetDisplayName(deck.outputDisplayIndex);
+    triggerToast("display: " + (label.empty() ? std::to_string(deck.outputDisplayIndex + 1) : label));
     playUiSound(UiSoundEffect::Toggle);
     persistProject();
 
@@ -1973,7 +2121,7 @@ class App {
     if (displayCount <= 0 || index < 0 || index >= displayCount) {
       return false;
     }
-    project_.outputDisplayIndex = index;
+    focusedDeckMutable().outputDisplayIndex = index;
     applyOutputDisplaySelection();
     triggerToast("display: " + currentDisplayLabel());
     persistProject();
@@ -1996,11 +2144,11 @@ class App {
   }
 
   std::string currentDisplayLabel() const {
-    const char* name = SDL_GetDisplayName(project_.outputDisplayIndex);
+    const char* name = SDL_GetDisplayName(focusedDeck().outputDisplayIndex);
     if (name && *name) {
       return name;
     }
-    return "display " + std::to_string(project_.outputDisplayIndex + 1);
+    return "display " + std::to_string(focusedDeck().outputDisplayIndex + 1);
   }
 
   std::string browserExecutablePath() const {
@@ -2074,7 +2222,7 @@ class App {
     stopBrowserCue();
 
     SDL_Rect bounds {0, 0, kOutputWidth, kOutputHeight};
-    SDL_GetDisplayBounds(project_.outputDisplayIndex, &bounds);
+    SDL_GetDisplayBounds(focusedDeck().outputDisplayIndex, &bounds);
     browserProfileDir_ = nextBrowserProfilePath();
     std::error_code error;
     fs::create_directories(browserProfileDir_, error);
@@ -2131,10 +2279,15 @@ class App {
   }
 
   std::string currentAudioOutputLabel() const {
-    return project_.audioOutputDeviceName.empty() ? "system default" : project_.audioOutputDeviceName;
+    return focusedDeck().audioOutputDeviceName.empty() ? "system default" : focusedDeck().audioOutputDeviceName;
+  }
+
+  std::string deckSummaryLabel() const {
+    return focusedDeckLabel() + "  (" + std::to_string(project_.focusedDeckIndex + 1) + "/" + std::to_string(project_.decks.size()) + ")";
   }
 
   void persistProject() {
+    normalizeProject(project_);
     saveProject(currentProjectFile_, project_);
   }
 
@@ -2239,31 +2392,33 @@ class App {
   }
 
   void setAutoAdvance(bool enabled) {
-    if (project_.autoAdvance == enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.autoAdvance == enabled) {
       return;
     }
-    project_.autoAdvance = enabled;
-    triggerToast(project_.autoAdvance ? "auto next on" : "auto next off");
+    deck.autoAdvance = enabled;
+    triggerToast(deck.autoAdvance ? "auto next on" : "auto next off");
     playUiSound(UiSoundEffect::Toggle);
     persistProject();
   }
 
   void toggleAutoAdvance() {
-    setAutoAdvance(!project_.autoAdvance);
+    setAutoAdvance(!focusedDeck().autoAdvance);
   }
 
   void setPlaylistLoop(bool enabled) {
-    if (project_.playlistLoop == enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.playlistLoop == enabled) {
       return;
     }
-    project_.playlistLoop = enabled;
-    triggerToast(project_.playlistLoop ? "playlist loop on" : "playlist loop off");
+    deck.playlistLoop = enabled;
+    triggerToast(deck.playlistLoop ? "playlist loop on" : "playlist loop off");
     playUiSound(UiSoundEffect::Toggle);
     persistProject();
   }
 
   void togglePlaylistLoop() {
-    setPlaylistLoop(!project_.playlistLoop);
+    setPlaylistLoop(!focusedDeck().playlistLoop);
   }
 
   void onSelectionChanged() {
@@ -2472,7 +2627,7 @@ class App {
       }
       try {
         int index = std::stoi(parts[tokenIndex]);
-        if (index < 1 || index > static_cast<int>(project_.cues.size())) {
+        if (index < 1 || index > static_cast<int>(focusedDeck().cues.size())) {
           return std::nullopt;
         }
         return index - 1;
@@ -2506,6 +2661,34 @@ class App {
 
     if (command == "PING") {
       triggerToast("companion ping");
+      return;
+    }
+    if (command == "DECK") {
+      if (parts.size() < 2) {
+        return;
+      }
+      try {
+        int deckIndex = std::stoi(parts[1]) - 1;
+        if (!setFocusedDeckIndex(deckIndex)) {
+          return;
+        }
+        if (parts.size() > 2) {
+          handleRemoteCommand(joinParts(parts, 2));
+        }
+      } catch (...) {
+      }
+      return;
+    }
+    if (command == "DECKNEXT") {
+      cycleFocusedDeck(1);
+      return;
+    }
+    if (command == "DECKPREV" || command == "DECKPREVIOUS") {
+      cycleFocusedDeck(-1);
+      return;
+    }
+    if (command == "DECKADD" || command == "NEWDECK") {
+      addDeck();
       return;
     }
     if (command == "GO" || command == "TOGGLE") {
@@ -2543,8 +2726,9 @@ class App {
     if (command == "SELECT") {
       auto index = parseCueIndex(1);
       if (index) {
-        if (project_.selectedIndex != *index) {
-          project_.selectedIndex = *index;
+        Deck& deck = focusedDeckMutable();
+        if (deck.selectedIndex != *index) {
+          deck.selectedIndex = *index;
           onSelectionChanged();
           triggerToast("cue " + std::to_string(*index + 1) + " armed");
           persistProject();
@@ -2555,7 +2739,7 @@ class App {
     if (command == "TAKE") {
       auto index = parseCueIndex(1);
       if (index) {
-        project_.selectedIndex = *index;
+        focusedDeckMutable().selectedIndex = *index;
         onSelectionChanged();
       }
       takeSelected(parts.size() > 2 && toUpper(parts[2]) == "AUTO");
@@ -2753,21 +2937,22 @@ class App {
     if (mediaEngine_) {
       mediaEngine_->update();
       if (mediaEngine_->reachedEnd()) {
-        if (project_.activeIndex >= 0 && !project_.cues.empty()) {
+        Deck& deck = focusedDeckMutable();
+        if (deck.activeIndex >= 0 && !deck.cues.empty()) {
           int nextIndex = -1;
-          if (project_.activeIndex + 1 < static_cast<int>(project_.cues.size())) {
-            nextIndex = project_.activeIndex + 1;
-          } else if (project_.playlistLoop) {
+          if (deck.activeIndex + 1 < static_cast<int>(deck.cues.size())) {
+            nextIndex = deck.activeIndex + 1;
+          } else if (deck.playlistLoop) {
             nextIndex = 0;
           }
 
           if (nextIndex >= 0) {
-            if (project_.selectedIndex != nextIndex) {
-              project_.selectedIndex = nextIndex;
+            if (deck.selectedIndex != nextIndex) {
+              deck.selectedIndex = nextIndex;
               onSelectionChanged();
             }
             persistProject();
-            if (project_.autoAdvance) {
+            if (deck.autoAdvance) {
               takeSelected(true);
             }
           }
@@ -2783,6 +2968,7 @@ class App {
   }
 
   void renderControlWindow() {
+    const Deck& deck = focusedDeck();
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
@@ -2805,24 +2991,25 @@ class App {
     std::string fxStatus =
       std::string("1 sfx ") + (project_.uiSoundsEnabled ? "on" : "off") +
       "   2 anim " + (project_.uiTransitionsEnabled ? "on" : "off") +
-      "   3 auto " + (project_.autoAdvance ? "on" : "off") +
-      "   4 plist " + (project_.playlistLoop ? "on" : "off");
+      "   3 auto " + (deck.autoAdvance ? "on" : "off") +
+      "   4 plist " + (deck.playlistLoop ? "on" : "off");
     drawText(controlRenderer_, fontSmall_, fxStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 190, sidebar.y + 76);
     drawText(controlRenderer_, fontSmall_, "playlist: " + currentProjectLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 94);
+    drawText(controlRenderer_, fontSmall_, "deck: " + deckSummaryLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 112);
     std::string companionStatus = companionReady_
       ? "companion tcp/udp " + std::to_string(companionPort_)
       : "companion control unavailable";
     drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
-    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(project_.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
+    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
     drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
 
-    int listTop = sidebar.y + 110;
+    int listTop = sidebar.y + 128;
     SDL_Rect clipFrame {sidebar.x + 14, listTop - 8, sidebar.w - 28, sidebar.h - 182};
     drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     SDL_Rect clipRect {clipFrame.x + 10, clipFrame.y + 10, clipFrame.w - 20, clipFrame.h - 20};
     SDL_RenderSetClipRect(controlRenderer_, &clipRect);
     int y = clipRect.y - listScroll_;
-    for (int index = 0; index < static_cast<int>(project_.cues.size()); ++index) {
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
       SDL_Rect row {clipRect.x, y, clipRect.w, kRowHeight};
       renderCueRow(row, index);
       y += kRowHeight + 10;
@@ -2842,16 +3029,17 @@ class App {
       return;
     }
 
-    const auto& cue = project_.cues[index];
+    const Deck& deck = focusedDeck();
+    const auto& cue = deck.cues[index];
     SDL_Color fill = colorFromRgba(kScreenLightColor);
-    if (index == project_.selectedIndex) {
+    if (index == deck.selectedIndex) {
       fill = colorFromRgba(kScreenMidColor);
-    } else if (index == project_.activeIndex) {
+    } else if (index == deck.activeIndex) {
       fill = colorFromRgba(kScreenDarkColor);
     }
 
     drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
-    if (project_.uiTransitionsEnabled && index == project_.selectedIndex) {
+    if (project_.uiTransitionsEnabled && index == deck.selectedIndex) {
       double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
       SDL_Color glow {155, 188, 15, static_cast<Uint8>(60 + pulse * 80.0)};
       strokeRect(controlRenderer_, insetRect(row, 1), glow);
@@ -2860,8 +3048,8 @@ class App {
     SDL_Rect chip {row.x + 12, row.y + 10, 10, row.h - 20};
     fillRect(controlRenderer_, chip, cue.color);
 
-    SDL_Color ink = index == project_.activeIndex ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-    SDL_Color subInk = index == project_.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenInkSoftColor);
+    SDL_Color ink = index == deck.activeIndex ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+    SDL_Color subInk = index == deck.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenInkSoftColor);
     drawText(controlRenderer_, fontBase_, cue.name, ink, row.x + 34, row.y + 13);
     std::string meta = cueKindLabel(cue.kind);
     if (cue.kind == CueKind::Video) {
@@ -2908,6 +3096,7 @@ class App {
   }
 
   void renderMainPanel(const SDL_Rect& panel) {
+    const Deck& deck = focusedDeck();
     const Cue* selectedCue = selectedCuePtr();
     const Cue* activeCue = activeCuePtr();
     int x = panel.x + 26;
@@ -2936,12 +3125,12 @@ class App {
     drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "waiting...", colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 42);
     drawText(controlRenderer_, fontBase_, activeCue ? transportStatusLabel() : "take a cue to wake it up", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 88);
     drawText(controlRenderer_, fontSmall_, "output stays in the second window so the live path stays clean.", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 126);
-    drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  b browser  |  p pattern", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
-    drawText(controlRenderer_, fontSmall_, "l loop  |  e hold last  |  [ ] fade in  |  shift+[ ] fade out  |  a audio  |  d display", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
+    drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  ctrl+n new deck", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
+    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
     SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
     drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(project_.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
-    drawText(controlRenderer_, fontMono_, "vol:" + std::to_string(static_cast<int>(std::round(mediaEngine_->volume() * 100.0f))) + "%  auto:" + (project_.autoAdvance ? std::string("on") : std::string("off")), colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 44);
+    drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
+    drawText(controlRenderer_, fontMono_, "vol:" + std::to_string(static_cast<int>(std::round(mediaEngine_->volume() * 100.0f))) + "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")), colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 44);
 
     int detailX = x;
     int detailY = preview.y + preview.h + 26;
@@ -3007,6 +3196,7 @@ class App {
   }
 
   void handleMouseDown(int x, int y) {
+    const Deck& deck = focusedDeck();
     for (const auto& button : buttons_) {
       if (pointInRect(x, y, button.rect)) {
         triggerButton(button.label);
@@ -3021,16 +3211,16 @@ class App {
     }
 
     int sidebarY = kPadding + 18;
-    int listTop = sidebarY + 110;
+    int listTop = sidebarY + 128;
     int clipRectX = kPadding + 12 + 14 + 10;
     int clipRectY = listTop - 8 + 10;
     int clipRectW = kSidebarWidth - 28 - 20;
     int listY = clipRectY - listScroll_;
-    for (int index = 0; index < static_cast<int>(project_.cues.size()); ++index) {
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
       SDL_Rect row {clipRectX, listY, clipRectW, kRowHeight};
       if (pointInRect(x, y, row)) {
-        if (project_.selectedIndex != index) {
-          project_.selectedIndex = index;
+        if (focusedDeckMutable().selectedIndex != index) {
+          focusedDeckMutable().selectedIndex = index;
           onSelectionChanged();
           persistProject();
         }
@@ -3046,26 +3236,27 @@ class App {
     if (!drag_.active || drag_.cueIndex < 0) {
       return;
     }
+    Deck& deck = focusedDeckMutable();
     int sidebarY = kPadding + 18;
-    int listTop = sidebarY + 110;
+    int listTop = sidebarY + 128;
     int clipRectX = kPadding + 12 + 14 + 10;
     int clipRectY = listTop - 8 + 10;
     int clipRectW = kSidebarWidth - 28 - 20;
     int listY = clipRectY - listScroll_;
-    for (int index = 0; index < static_cast<int>(project_.cues.size()); ++index) {
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
       SDL_Rect row {clipRectX, listY, clipRectW, kRowHeight};
       if (pointInRect(x, y, row) && index != drag_.cueIndex) {
-        auto cue = project_.cues[drag_.cueIndex];
-        project_.cues.erase(project_.cues.begin() + drag_.cueIndex);
-        project_.cues.insert(project_.cues.begin() + index, cue);
-        project_.selectedIndex = index;
-        if (project_.activeIndex == drag_.cueIndex) {
-          project_.activeIndex = index;
-        } else if (project_.activeIndex >= 0) {
-          if (drag_.cueIndex < project_.activeIndex && index >= project_.activeIndex) {
-            project_.activeIndex -= 1;
-          } else if (drag_.cueIndex > project_.activeIndex && index <= project_.activeIndex) {
-            project_.activeIndex += 1;
+        auto cue = deck.cues[drag_.cueIndex];
+        deck.cues.erase(deck.cues.begin() + drag_.cueIndex);
+        deck.cues.insert(deck.cues.begin() + index, cue);
+        deck.selectedIndex = index;
+        if (deck.activeIndex == drag_.cueIndex) {
+          deck.activeIndex = index;
+        } else if (deck.activeIndex >= 0) {
+          if (drag_.cueIndex < deck.activeIndex && index >= deck.activeIndex) {
+            deck.activeIndex -= 1;
+          } else if (drag_.cueIndex > deck.activeIndex && index <= deck.activeIndex) {
+            deck.activeIndex += 1;
           }
         }
         drag_.cueIndex = index;
@@ -3085,6 +3276,10 @@ class App {
       openProjectFromPicker();
       return;
     }
+    if (ctrl && key == SDLK_n) {
+      addDeck();
+      return;
+    }
     if (ctrl && !shift && key == SDLK_s) {
       persistProject();
       triggerToast("playlist saved");
@@ -3098,6 +3293,9 @@ class App {
     switch (key) {
       case SDLK_ESCAPE:
         gShouldQuit.store(true);
+        break;
+      case SDLK_TAB:
+        cycleFocusedDeck(shift ? -1 : 1);
         break;
       case SDLK_UP:
         selectRelative(-1, shift);
@@ -3279,7 +3477,7 @@ class App {
 
   void clearOutput() {
     stopBrowserCue();
-    project_.activeIndex = -1;
+    focusedDeckMutable().activeIndex = -1;
     mediaEngine_->clear();
     triggerToast("screen cleared");
     playUiSound(UiSoundEffect::Clear);
@@ -3287,11 +3485,12 @@ class App {
   }
 
   void takeSelected(bool autoplay) {
-    if (project_.selectedIndex < 0 || project_.selectedIndex >= static_cast<int>(project_.cues.size())) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return;
     }
-    project_.activeIndex = project_.selectedIndex;
-    const Cue& cue = project_.cues[project_.activeIndex];
+    deck.activeIndex = deck.selectedIndex;
+    const Cue& cue = deck.cues[deck.activeIndex];
     stopBrowserCue();
     mediaEngine_->loadCue(&cue, autoplay);
     if (cue.kind == CueKind::Browser) {
@@ -3305,40 +3504,42 @@ class App {
   }
 
   void selectRelative(int direction, bool reorder) {
-    if (project_.cues.empty()) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
       return;
     }
 
-    if (project_.selectedIndex < 0) {
-      project_.selectedIndex = 0;
+    if (deck.selectedIndex < 0) {
+      deck.selectedIndex = 0;
       onSelectionChanged();
       persistProject();
       return;
     }
 
-    int nextIndex = std::clamp(project_.selectedIndex + direction, 0, static_cast<int>(project_.cues.size()) - 1);
-    if (reorder && nextIndex != project_.selectedIndex) {
-      std::swap(project_.cues[project_.selectedIndex], project_.cues[nextIndex]);
-      if (project_.activeIndex == project_.selectedIndex) {
-        project_.activeIndex = nextIndex;
-      } else if (project_.activeIndex == nextIndex) {
-        project_.activeIndex = project_.selectedIndex;
+    int nextIndex = std::clamp(deck.selectedIndex + direction, 0, static_cast<int>(deck.cues.size()) - 1);
+    if (reorder && nextIndex != deck.selectedIndex) {
+      std::swap(deck.cues[deck.selectedIndex], deck.cues[nextIndex]);
+      if (deck.activeIndex == deck.selectedIndex) {
+        deck.activeIndex = nextIndex;
+      } else if (deck.activeIndex == nextIndex) {
+        deck.activeIndex = deck.selectedIndex;
       }
       triggerToast("cart shuffled");
       playUiSound(UiSoundEffect::Toggle);
     }
-    if (project_.selectedIndex != nextIndex) {
-      project_.selectedIndex = nextIndex;
+    if (deck.selectedIndex != nextIndex) {
+      deck.selectedIndex = nextIndex;
       onSelectionChanged();
     }
     persistProject();
   }
 
   Cue* selectedCueMutable() {
-    if (project_.selectedIndex < 0 || project_.selectedIndex >= static_cast<int>(project_.cues.size())) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return nullptr;
     }
-    return &project_.cues[project_.selectedIndex];
+    return &deck.cues[deck.selectedIndex];
   }
 
   void toggleSelectedLoop() {
@@ -3412,21 +3613,22 @@ class App {
   }
 
   void deleteSelected() {
-    if (project_.selectedIndex < 0 || project_.selectedIndex >= static_cast<int>(project_.cues.size())) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return;
     }
-    int index = project_.selectedIndex;
-    bool removedActive = index == project_.activeIndex;
-    project_.cues.erase(project_.cues.begin() + index);
-    if (project_.cues.empty()) {
-      project_.selectedIndex = -1;
-      project_.activeIndex = -1;
+    int index = deck.selectedIndex;
+    bool removedActive = index == deck.activeIndex;
+    deck.cues.erase(deck.cues.begin() + index);
+    if (deck.cues.empty()) {
+      deck.selectedIndex = -1;
+      deck.activeIndex = -1;
     } else {
-      project_.selectedIndex = std::min(index, static_cast<int>(project_.cues.size()) - 1);
-      if (project_.activeIndex > index) {
-        project_.activeIndex -= 1;
+      deck.selectedIndex = std::min(index, static_cast<int>(deck.cues.size()) - 1);
+      if (deck.activeIndex > index) {
+        deck.activeIndex -= 1;
       } else if (removedActive) {
-        project_.activeIndex = -1;
+        deck.activeIndex = -1;
         mediaEngine_->clear();
       }
     }
@@ -3506,16 +3708,11 @@ class App {
     fs::path normalized = normalizeProjectPath(projectPath);
     currentProjectFile_ = normalized;
     project_ = loadProject(normalized);
-    if (!project_.cues.empty() && project_.selectedIndex < 0) {
-      project_.selectedIndex = 0;
-    }
+    normalizeProject(project_);
     selectionChangedAt_ = SDL_GetTicks64();
-    if (!reopenAudioOutputs(project_.audioOutputDeviceName)) {
-      project_.audioOutputDeviceName.clear();
-      reopenAudioOutputs("");
+    if (!applyFocusedDeckRouting()) {
+      std::cerr << "Audio device open failed: " << SDL_GetError() << '\n';
     }
-    applyOutputDisplaySelection();
-    mediaEngine_->clear();
     triggerToast("playlist: " + currentProjectLabel());
   }
 
@@ -3649,8 +3846,9 @@ class App {
     cue.videoCodec = "chromium";
     cue.audioCodec = "system";
     cue.hasAudio = true;
-    project_.cues.push_back(cue);
-    project_.selectedIndex = static_cast<int>(project_.cues.size()) - 1;
+    Deck& deck = focusedDeckMutable();
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
     triggerToast("browser cue added");
     playUiSound(UiSoundEffect::Import);
@@ -3674,8 +3872,9 @@ class App {
     cue.height = 720;
     cue.color = colorFromRgba(kScreenDarkColor);
     cue.formatName = "generated";
-    project_.cues.push_back(cue);
-    project_.selectedIndex = static_cast<int>(project_.cues.size()) - 1;
+    Deck& deck = focusedDeckMutable();
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
     triggerToast("kawaii test pattern added");
     playUiSound(UiSoundEffect::Import);
@@ -3683,6 +3882,7 @@ class App {
   }
 
   void importPaths(const std::vector<std::string>& rawPaths) {
+    Deck& deck = focusedDeckMutable();
     bool changed = false;
     int addedCount = 0;
     for (const auto& raw : rawPaths) {
@@ -3696,14 +3896,14 @@ class App {
         continue;
       }
 
-      auto duplicate = std::find_if(project_.cues.begin(), project_.cues.end(), [&](const Cue& existing) {
+      auto duplicate = std::find_if(deck.cues.begin(), deck.cues.end(), [&](const Cue& existing) {
         return existing.path == cue->path;
       });
-      if (duplicate != project_.cues.end()) {
+      if (duplicate != deck.cues.end()) {
         continue;
       }
 
-      project_.cues.push_back(*cue);
+      deck.cues.push_back(*cue);
       changed = true;
       addedCount += 1;
     }
@@ -3712,8 +3912,8 @@ class App {
       return;
     }
 
-    if (project_.selectedIndex < 0 && !project_.cues.empty()) {
-      project_.selectedIndex = 0;
+    if (deck.selectedIndex < 0 && !deck.cues.empty()) {
+      deck.selectedIndex = 0;
       onSelectionChanged();
     }
     triggerToast(addedCount == 1 ? "1 new cart loaded" : std::to_string(addedCount) + " new carts loaded");
@@ -3755,17 +3955,19 @@ class App {
   }
 
   const Cue* selectedCuePtr() const {
-    if (project_.selectedIndex < 0 || project_.selectedIndex >= static_cast<int>(project_.cues.size())) {
+    const Deck& deck = focusedDeck();
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return nullptr;
     }
-    return &project_.cues[project_.selectedIndex];
+    return &deck.cues[deck.selectedIndex];
   }
 
   const Cue* activeCuePtr() const {
-    if (project_.activeIndex < 0 || project_.activeIndex >= static_cast<int>(project_.cues.size())) {
+    const Deck& deck = focusedDeck();
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
       return nullptr;
     }
-    return &project_.cues[project_.activeIndex];
+    return &deck.cues[deck.activeIndex];
   }
 
   void drawText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
