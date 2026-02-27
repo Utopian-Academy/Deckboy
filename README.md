@@ -15,6 +15,7 @@ Cute extras are now optional:
 - Drag-and-drop import or native file picker import
 - Playlist save, save-as, and open for different `.playboy` show files
 - Optional multi-deck show file model with deck-local playlist state and routing
+- Simultaneous independent deck runtimes with one output window and one audio path per deck
 - FFprobe metadata ingest for video clips and stills
 - FFmpeg-driven video frame decode and audio decode
 - Cue list, selection, drag reorder, take, play/pause, stop, clear, seek, volume
@@ -80,6 +81,7 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `Ctrl+N`: add a new deck
 - `Tab`: focus next deck
 - `Shift+Tab`: focus previous deck
+- Click a deck card in the control window to focus it
 
 ## Companion
 
@@ -133,6 +135,8 @@ DECK 2 SELECT 3
 DECKNEXT
 DECKPREV
 NEWDECK
+STATUS
+STATE
 ```
 
 Notes:
@@ -145,6 +149,7 @@ Notes:
 - `AUDIO ...` uses SDL output device names; `DEFAULT` returns to the system default output.
 - `DISPLAY 2` means the second display.
 - `DECK 2 TAKE` switches focus to deck 2 and runs the nested command there.
+- `STATUS` and `STATE` return a multi-line TCP snapshot of all decks and their transport state.
 
 ## Notes
 
@@ -152,6 +157,6 @@ Notes:
 - The older browser prototype is still on disk for reference and can be launched with `./bin/playboy-web`, but it is no longer the default path.
 - Browser cues currently rely on a Chromium-family browser already being available on the machine.
 - If a Dante or network audio device appears to the OS as a normal output device, Playboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
-- Multi-output is still optional. `Playboy_0.01` now saves multiple decks in the project file, and each deck has its own playlist, selection, active cue pointer, auto-advance, loop setting, audio target, and display target.
-- The runtime is still focused-deck based today: one deck is live in the native engine at a time, and switching decks rebinds the current output/audio path to that deck. Simultaneous independent program outputs are the next stage of the refactor.
-- For deeper PlaybackPro/Mitti parity, the next logical upgrades are timecode, simultaneous multi-output deck runtimes, cue transitions, and a more robust decode backend than subprocess-driven FFmpeg piping.
+- NDI output is not implemented yet on this machine because the NDI SDK/runtime is not installed locally. The deck model now gives us the right place to add it once those libraries are available.
+- Multi-output is still optional. `Playboy_0.01` now saves multiple decks in the project file, and each deck has its own playlist, selection, active cue pointer, auto-advance, loop setting, audio target, display target, output window, and transport runtime.
+- For deeper PlaybackPro/Mitti parity, the next logical upgrades are timecode, NDI/DeckLink class outputs, cue transitions, and a more robust decode backend than subprocess-driven FFmpeg piping.
