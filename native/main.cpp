@@ -542,6 +542,18 @@ struct ChildProcess {
   }
 };
 
+class MediaEngine;
+
+struct DeckRuntime {
+  SDL_Window* outputWindow = nullptr;
+  SDL_Renderer* outputRenderer = nullptr;
+  SDL_AudioDeviceID audioDevice = 0;
+  std::unique_ptr<MediaEngine> mediaEngine;
+  ChildProcess browserProcess;
+  bool browserCueLive = false;
+  fs::path browserProfileDir;
+};
+
 std::optional<std::string> readAllText(const std::vector<std::string>& args) {
 #ifdef _WIN32
   (void) args;
@@ -1788,22 +1800,13 @@ class App {
       kControlHeight,
       SDL_WINDOW_RESIZABLE
     );
-    outputWindow_ = SDL_CreateWindow(
-      kOutputTitle.data(),
-      SDL_WINDOWPOS_CENTERED + 40,
-      SDL_WINDOWPOS_CENTERED + 40,
-      kOutputWidth,
-      kOutputHeight,
-      SDL_WINDOW_RESIZABLE
-    );
-    if (!controlWindow_ || !outputWindow_) {
+    if (!controlWindow_) {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
       return false;
     }
 
     controlRenderer_ = SDL_CreateRenderer(controlWindow_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    outputRenderer_ = SDL_CreateRenderer(outputWindow_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!controlRenderer_ || !outputRenderer_) {
+    if (!controlRenderer_) {
       std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
       return false;
     }
@@ -1820,8 +1823,9 @@ class App {
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
-    if (!applyFocusedDeckRouting(false)) {
-      std::cerr << "Audio device open failed: " << SDL_GetError() << '\n';
+    ensureUiAudioDevice();
+    if (!rebuildDeckRuntimes()) {
+      std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
       return false;
     }
     selectionChangedAt_ = SDL_GetTicks64();
@@ -1832,14 +1836,10 @@ class App {
 
   void shutdown() {
     stopCompanionControl();
-    stopBrowserCue();
-    if (mediaEngine_) {
-      mediaEngine_->stopAll();
+    for (auto& runtime : deckRuntimes_) {
+      destroyDeckRuntime(runtime);
     }
-    if (audioDevice_ != 0) {
-      SDL_CloseAudioDevice(audioDevice_);
-      audioDevice_ = 0;
-    }
+    deckRuntimes_.clear();
     if (uiAudioDevice_ != 0) {
       SDL_CloseAudioDevice(uiAudioDevice_);
       uiAudioDevice_ = 0;
@@ -1864,17 +1864,9 @@ class App {
       SDL_DestroyRenderer(controlRenderer_);
       controlRenderer_ = nullptr;
     }
-    if (outputRenderer_) {
-      SDL_DestroyRenderer(outputRenderer_);
-      outputRenderer_ = nullptr;
-    }
     if (controlWindow_) {
       SDL_DestroyWindow(controlWindow_);
       controlWindow_ = nullptr;
-    }
-    if (outputWindow_) {
-      SDL_DestroyWindow(outputWindow_);
-      outputWindow_ = nullptr;
     }
     TTF_Quit();
     SDL_Quit();
@@ -1920,31 +1912,54 @@ class App {
     return deck.name.empty() ? deckDefaultName(project_.focusedDeckIndex) : deck.name;
   }
 
-  bool applyFocusedDeckRouting(bool clearTransport = true) {
-    Deck& deck = focusedDeckMutable();
-    if (!reopenAudioOutputs(deck.audioOutputDeviceName)) {
-      deck.audioOutputDeviceName.clear();
-      if (!reopenAudioOutputs("")) {
-        return false;
-      }
+  DeckRuntime* runtimeForDeck(int deckIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckRuntimes_.size())) {
+      return nullptr;
     }
-    applyOutputDisplaySelection();
-    if (clearTransport && mediaEngine_) {
-      stopBrowserCue();
-      mediaEngine_->clear();
-    }
-    return true;
+    return &deckRuntimes_[deckIndex];
   }
 
-  bool setFocusedDeckIndex(int deckIndex, bool clearTransport = true) {
+  const DeckRuntime* runtimeForDeck(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckRuntimes_.size())) {
+      return nullptr;
+    }
+    return &deckRuntimes_[deckIndex];
+  }
+
+  DeckRuntime* focusedRuntime() {
+    return runtimeForDeck(project_.focusedDeckIndex);
+  }
+
+  const DeckRuntime* focusedRuntime() const {
+    return runtimeForDeck(project_.focusedDeckIndex);
+  }
+
+  MediaEngine* focusedMediaEngine() {
+    auto* runtime = focusedRuntime();
+    return runtime ? runtime->mediaEngine.get() : nullptr;
+  }
+
+  const MediaEngine* focusedMediaEngine() const {
+    auto* runtime = focusedRuntime();
+    return runtime ? runtime->mediaEngine.get() : nullptr;
+  }
+
+  MediaEngine* mediaEngineForDeck(int deckIndex) {
+    auto* runtime = runtimeForDeck(deckIndex);
+    return runtime ? runtime->mediaEngine.get() : nullptr;
+  }
+
+  const MediaEngine* mediaEngineForDeck(int deckIndex) const {
+    auto* runtime = runtimeForDeck(deckIndex);
+    return runtime ? runtime->mediaEngine.get() : nullptr;
+  }
+
+  bool setFocusedDeckIndex(int deckIndex) {
     normalizeProject(project_);
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return false;
     }
     project_.focusedDeckIndex = deckIndex;
-    if (!applyFocusedDeckRouting(clearTransport)) {
-      return false;
-    }
     selectionChangedAt_ = SDL_GetTicks64();
     triggerToast("deck: " + focusedDeckLabel());
     persistProject();
@@ -1968,11 +1983,30 @@ class App {
     deck.name = deckDefaultName(static_cast<int>(project_.decks.size()));
     project_.decks.push_back(deck);
     project_.advancedOutputMode = true;
+    rebuildDeckRuntimes();
     setFocusedDeckIndex(static_cast<int>(project_.decks.size()) - 1);
     playUiSound(UiSoundEffect::Import);
   }
 
-  bool openAudioPair(const std::string& preferredDeviceName, SDL_AudioDeviceID& mainOut, SDL_AudioDeviceID& uiOut, std::string& effectiveName) {
+  bool ensureUiAudioDevice() {
+    if (uiAudioDevice_ != 0) {
+      return true;
+    }
+
+    SDL_AudioSpec desired {};
+    desired.freq = kAudioRate;
+    desired.format = kAudioFormat;
+    desired.channels = kAudioChannels;
+    desired.samples = 2048;
+    uiAudioDevice_ = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
+    if (uiAudioDevice_ != 0) {
+      SDL_PauseAudioDevice(uiAudioDevice_, 1);
+      return true;
+    }
+    return false;
+  }
+
+  SDL_AudioDeviceID openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName) {
     SDL_AudioSpec desired {};
     desired.freq = kAudioRate;
     desired.format = kAudioFormat;
@@ -1984,9 +2018,8 @@ class App {
       return SDL_OpenAudioDevice(deviceName, 0, &desired, &obtained, 0);
     };
 
-    mainOut = 0;
-    uiOut = 0;
     effectiveName = preferredDeviceName;
+    SDL_AudioDeviceID mainOut = 0;
 
     if (!preferredDeviceName.empty()) {
       mainOut = openMain(preferredDeviceName.c_str());
@@ -1998,47 +2031,108 @@ class App {
       effectiveName.clear();
       mainOut = openMain(nullptr);
     }
+    SDL_PauseAudioDevice(mainOut, 1);
+    return mainOut;
+  }
 
-    if (mainOut == 0) {
+  void destroyDeckRuntime(DeckRuntime& runtime) {
+    if (runtime.mediaEngine) {
+      runtime.mediaEngine->stopAll();
+      runtime.mediaEngine.reset();
+    }
+    runtime.browserProcess.stop();
+    runtime.browserCueLive = false;
+    if (!runtime.browserProfileDir.empty()) {
+      std::error_code error;
+      fs::remove_all(runtime.browserProfileDir, error);
+      runtime.browserProfileDir.clear();
+    }
+    if (runtime.audioDevice != 0) {
+      SDL_CloseAudioDevice(runtime.audioDevice);
+      runtime.audioDevice = 0;
+    }
+    if (runtime.outputRenderer) {
+      SDL_DestroyRenderer(runtime.outputRenderer);
+      runtime.outputRenderer = nullptr;
+    }
+    if (runtime.outputWindow) {
+      SDL_DestroyWindow(runtime.outputWindow);
+      runtime.outputWindow = nullptr;
+    }
+  }
+
+  bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
+    Deck& deck = project_.decks[deckIndex];
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime) {
       return false;
     }
 
-    const char* uiDeviceName = effectiveName.empty() ? nullptr : effectiveName.c_str();
-    uiOut = SDL_OpenAudioDevice(uiDeviceName, 0, &desired, nullptr, 0);
-    SDL_PauseAudioDevice(mainOut, 1);
-    if (uiOut != 0) {
-      SDL_PauseAudioDevice(uiOut, 1);
+    std::string effectiveName;
+    SDL_AudioDeviceID newMain = openMainAudioDevice(preferredDeviceName, effectiveName);
+    if (newMain == 0) {
+      return false;
     }
+
+    if (runtime->mediaEngine) {
+      runtime->mediaEngine->stopAll();
+      runtime->mediaEngine.reset();
+    }
+    if (runtime->audioDevice != 0) {
+      SDL_CloseAudioDevice(runtime->audioDevice);
+      runtime->audioDevice = 0;
+    }
+    runtime->audioDevice = newMain;
+    deck.audioOutputDeviceName = effectiveName;
+    runtime->mediaEngine = std::make_unique<MediaEngine>(runtime->outputRenderer, runtime->audioDevice);
     return true;
   }
 
-  bool reopenAudioOutputs(const std::string& preferredDeviceName) {
-    SDL_AudioDeviceID newMain = 0;
-    SDL_AudioDeviceID newUi = 0;
-    std::string effectiveName;
-    if (!openAudioPair(preferredDeviceName, newMain, newUi, effectiveName)) {
+  bool createDeckRuntime(int deckIndex) {
+    Deck& deck = project_.decks[deckIndex];
+    DeckRuntime& runtime = deckRuntimes_[deckIndex];
+    destroyDeckRuntime(runtime);
+
+    std::string title = std::string(kOutputTitle) + " - " + (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name);
+    runtime.outputWindow = SDL_CreateWindow(
+      title.c_str(),
+      SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_CENTERED,
+      kOutputWidth,
+      kOutputHeight,
+      SDL_WINDOW_RESIZABLE
+    );
+    if (!runtime.outputWindow) {
       return false;
     }
 
-    if (mediaEngine_) {
-      mediaEngine_->stopAll();
-      mediaEngine_.reset();
-    }
-    if (audioDevice_ != 0) {
-      SDL_CloseAudioDevice(audioDevice_);
-      audioDevice_ = 0;
-    }
-    if (uiAudioDevice_ != 0) {
-      SDL_CloseAudioDevice(uiAudioDevice_);
-      uiAudioDevice_ = 0;
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!runtime.outputRenderer) {
+      destroyDeckRuntime(runtime);
+      return false;
     }
 
-    audioDevice_ = newMain;
-    uiAudioDevice_ = newUi;
-    focusedDeckMutable().audioOutputDeviceName = effectiveName;
-    mediaEngine_ = std::make_unique<MediaEngine>(outputRenderer_, audioDevice_);
-    if (uiAudioDevice_ == 0) {
-      project_.uiSoundsEnabled = false;
+    if (!reopenDeckAudioOutput(deckIndex, deck.audioOutputDeviceName)) {
+      destroyDeckRuntime(runtime);
+      return false;
+    }
+
+    applyOutputDisplaySelection(deckIndex);
+    return true;
+  }
+
+  bool rebuildDeckRuntimes() {
+    normalizeProject(project_);
+    for (auto& runtime : deckRuntimes_) {
+      destroyDeckRuntime(runtime);
+    }
+    deckRuntimes_.clear();
+    deckRuntimes_.resize(project_.decks.size());
+
+    for (size_t index = 0; index < project_.decks.size(); ++index) {
+      if (!createDeckRuntime(static_cast<int>(index))) {
+        return false;
+      }
     }
     return true;
   }
@@ -2065,7 +2159,7 @@ class App {
     auto current = std::find(choices.begin(), choices.end(), focusedDeck().audioOutputDeviceName);
     int currentIndex = current == choices.end() ? 0 : static_cast<int>(std::distance(choices.begin(), current));
     int nextIndex = (currentIndex + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
-    if (!reopenAudioOutputs(choices[nextIndex])) {
+    if (!reopenDeckAudioOutput(project_.focusedDeckIndex, choices[nextIndex])) {
       triggerToast("audio switch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
       return;
     }
@@ -2074,9 +2168,13 @@ class App {
     persistProject();
   }
 
-  void applyOutputDisplaySelection() {
+  void applyOutputDisplaySelection(int deckIndex) {
     int displayCount = SDL_GetNumVideoDisplays();
-    Deck& deck = focusedDeckMutable();
+    Deck& deck = project_.decks[deckIndex];
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputWindow) {
+      return;
+    }
     if (displayCount <= 0) {
       deck.outputDisplayIndex = 0;
       return;
@@ -2086,14 +2184,14 @@ class App {
     if (SDL_GetDisplayBounds(deck.outputDisplayIndex, &bounds) != 0) {
       return;
     }
-    Uint32 flags = SDL_GetWindowFlags(outputWindow_);
+    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
     if (fullscreen) {
-      SDL_SetWindowFullscreen(outputWindow_, 0);
+      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
     }
-    SDL_SetWindowPosition(outputWindow_, bounds.x + 40, bounds.y + 40);
+    SDL_SetWindowPosition(runtime->outputWindow, bounds.x + 40 + deckIndex * 20, bounds.y + 40 + deckIndex * 20);
     if (fullscreen) {
-      SDL_SetWindowFullscreen(outputWindow_, SDL_WINDOW_FULLSCREEN_DESKTOP);
+      SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
   }
 
@@ -2104,15 +2202,18 @@ class App {
     }
     Deck& deck = focusedDeckMutable();
     deck.outputDisplayIndex = (deck.outputDisplayIndex + direction + displayCount) % displayCount;
-    applyOutputDisplaySelection();
+    applyOutputDisplaySelection(project_.focusedDeckIndex);
     std::string label = SDL_GetDisplayName(deck.outputDisplayIndex);
     triggerToast("display: " + (label.empty() ? std::to_string(deck.outputDisplayIndex + 1) : label));
     playUiSound(UiSoundEffect::Toggle);
     persistProject();
 
     const Cue* active = activeCuePtr();
-    if (browserCueLive_ && active && active->kind == CueKind::Browser) {
-      startBrowserCue(*active);
+    if (active && active->kind == CueKind::Browser) {
+      auto* runtime = focusedRuntime();
+      if (runtime && runtime->browserCueLive) {
+        startBrowserCue(project_.focusedDeckIndex, *active);
+      }
     }
   }
 
@@ -2122,18 +2223,21 @@ class App {
       return false;
     }
     focusedDeckMutable().outputDisplayIndex = index;
-    applyOutputDisplaySelection();
+    applyOutputDisplaySelection(project_.focusedDeckIndex);
     triggerToast("display: " + currentDisplayLabel());
     persistProject();
     const Cue* active = activeCuePtr();
-    if (browserCueLive_ && active && active->kind == CueKind::Browser) {
-      startBrowserCue(*active);
+    if (active && active->kind == CueKind::Browser) {
+      auto* runtime = focusedRuntime();
+      if (runtime && runtime->browserCueLive) {
+        startBrowserCue(project_.focusedDeckIndex, *active);
+      }
     }
     return true;
   }
 
   bool setAudioOutputDevice(const std::string& deviceName) {
-    if (!reopenAudioOutputs(deviceName)) {
+    if (!reopenDeckAudioOutput(project_.focusedDeckIndex, deviceName)) {
       triggerToast("audio switch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
       return false;
     }
@@ -2194,20 +2298,32 @@ class App {
     return fs::path("/tmp") / ("playboy-browser-" + std::to_string(static_cast<unsigned long long>(SDL_GetTicks64())));
   }
 
-  void stopBrowserCue() {
-    browserProcess_.stop();
-    browserCueLive_ = false;
-    if (!browserProfileDir_.empty()) {
-      std::error_code error;
-      fs::remove_all(browserProfileDir_, error);
-      browserProfileDir_.clear();
+  void stopBrowserCue(int deckIndex) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime) {
+      return;
     }
-    if (outputWindow_) {
-      SDL_ShowWindow(outputWindow_);
+    runtime->browserProcess.stop();
+    runtime->browserCueLive = false;
+    if (!runtime->browserProfileDir.empty()) {
+      std::error_code error;
+      fs::remove_all(runtime->browserProfileDir, error);
+      runtime->browserProfileDir.clear();
+    }
+    if (runtime->outputWindow) {
+      SDL_ShowWindow(runtime->outputWindow);
     }
   }
 
-  bool startBrowserCue(const Cue& cue) {
+  void stopBrowserCue() {
+    stopBrowserCue(project_.focusedDeckIndex);
+  }
+
+  bool startBrowserCue(int deckIndex, const Cue& cue) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputWindow) {
+      return false;
+    }
     std::string browserUrl = normalizeBrowserUrl(cue.path);
     if (browserUrl.empty()) {
       return false;
@@ -2219,13 +2335,13 @@ class App {
       return false;
     }
 
-    stopBrowserCue();
+    stopBrowserCue(deckIndex);
 
     SDL_Rect bounds {0, 0, kOutputWidth, kOutputHeight};
-    SDL_GetDisplayBounds(focusedDeck().outputDisplayIndex, &bounds);
-    browserProfileDir_ = nextBrowserProfilePath();
+    SDL_GetDisplayBounds(project_.decks[deckIndex].outputDisplayIndex, &bounds);
+    runtime->browserProfileDir = nextBrowserProfilePath();
     std::error_code error;
-    fs::create_directories(browserProfileDir_, error);
+    fs::create_directories(runtime->browserProfileDir, error);
 
     std::vector<std::string> args {
       executable,
@@ -2236,21 +2352,25 @@ class App {
       "--app=" + browserUrl,
       "--window-position=" + std::to_string(bounds.x) + "," + std::to_string(bounds.y),
       "--window-size=" + std::to_string(std::max(320, bounds.w)) + "," + std::to_string(std::max(180, bounds.h)),
-      "--user-data-dir=" + browserProfileDir_.string(),
+      "--user-data-dir=" + runtime->browserProfileDir.string(),
       "--start-fullscreen"
     };
-    if (!spawnDetachedProcess(browserProcess_, args)) {
+    if (!spawnDetachedProcess(runtime->browserProcess, args)) {
       std::error_code cleanupError;
-      fs::remove_all(browserProfileDir_, cleanupError);
-      browserProfileDir_.clear();
+      fs::remove_all(runtime->browserProfileDir, cleanupError);
+      runtime->browserProfileDir.clear();
       triggerToast("browser launch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
       return false;
     }
 
-    browserCueLive_ = true;
-    SDL_HideWindow(outputWindow_);
+    runtime->browserCueLive = true;
+    SDL_HideWindow(runtime->outputWindow);
     triggerToast("browser live");
     return true;
+  }
+
+  bool startBrowserCue(const Cue& cue) {
+    return startBrowserCue(project_.focusedDeckIndex, cue);
   }
 
   fs::path defaultProjectFile() const {
@@ -2284,6 +2404,60 @@ class App {
 
   std::string deckSummaryLabel() const {
     return focusedDeckLabel() + "  (" + std::to_string(project_.focusedDeckIndex + 1) + "/" + std::to_string(project_.decks.size()) + ")";
+  }
+
+  std::string deckStatusSummary(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "offline";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    std::ostringstream output;
+    output << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << " | " << transportStatusLabel(deckIndex);
+    if (activeCue) {
+      output << " | " << activeCue->name;
+    } else {
+      output << " | idle";
+    }
+    if (engine) {
+      output << " | " << formatSeconds(engine->position()) << "/" << formatSeconds(engine->duration());
+    }
+    return output.str();
+  }
+
+  std::string buildStatusSnapshot() const {
+    std::ostringstream output;
+    output << "PLAYBOY_0.01"
+           << " focus=" << (project_.focusedDeckIndex + 1)
+           << " decks=" << project_.decks.size()
+           << '\n';
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      const Cue* activeCue = activeCuePtr(deckIndex);
+      const Cue* selectedCue = selectedCuePtr(deckIndex);
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      output << "DECK " << (deckIndex + 1)
+             << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
+             << " status=" << transportStatusLabel(deckIndex)
+             << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
+             << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
+             << " display=" << (deck.outputDisplayIndex + 1)
+             << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
+             << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+      if (engine) {
+        output << " pos=" << formatSeconds(engine->position())
+               << " dur=" << formatSeconds(engine->duration())
+               << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f));
+      }
+      output << '\n';
+    }
+    return output.str();
+  }
+
+  void updateStatusSnapshot() {
+    std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+    statusSnapshot_ = buildStatusSnapshot();
   }
 
   void persistProject() {
@@ -2450,6 +2624,26 @@ class App {
     }
   }
 
+#ifndef _WIN32
+  bool maybeRespondToCompanionQuery(SocketHandle client, const std::string& line) {
+    std::string upper = toUpper(trim(line));
+    if (upper != "STATUS" && upper != "STATE" && upper != "STATUS ALL") {
+      return false;
+    }
+
+    std::string snapshot;
+    {
+      std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+      snapshot = statusSnapshot_;
+    }
+    if (snapshot.empty()) {
+      snapshot = "PLAYBOY_0.01 decks=0\n";
+    }
+    send(client, snapshot.c_str(), snapshot.size(), 0);
+    return true;
+  }
+#endif
+
   bool startCompanionControl() {
 #ifdef _WIN32
     companionReady_ = false;
@@ -2576,7 +2770,9 @@ class App {
           std::string line = trim(pending.substr(0, newlinePos));
           pending.erase(0, newlinePos + 1);
           if (!line.empty()) {
-            enqueueRemoteCommand(line);
+            if (!maybeRespondToCompanionQuery(client, line)) {
+              enqueueRemoteCommand(line);
+            }
           }
         }
       }
@@ -2587,7 +2783,9 @@ class App {
           if (pendingIt != companionClientBuffers_.end()) {
             std::string leftover = trim(pendingIt->second);
             if (!leftover.empty()) {
-              enqueueRemoteCommand(leftover);
+              if (!maybeRespondToCompanionQuery(client, leftover)) {
+                enqueueRemoteCommand(leftover);
+              }
             }
             companionClientBuffers_.erase(pendingIt);
           }
@@ -2748,16 +2946,24 @@ class App {
     if (command == "VOLUME") {
       auto value = parseNumber(1);
       if (value) {
+        MediaEngine* engine = focusedMediaEngine();
+        if (!engine) {
+          return;
+        }
         double normalized = *value > 1.0 ? *value / 100.0 : *value;
-        mediaEngine_->setVolume(static_cast<float>(std::clamp(normalized, 0.0, 1.0)));
-        triggerToast("speaker " + std::to_string(static_cast<int>(std::round(mediaEngine_->volume() * 100.0f))) + "%");
+        engine->setVolume(static_cast<float>(std::clamp(normalized, 0.0, 1.0)));
+        triggerToast("speaker " + std::to_string(static_cast<int>(std::round(engine->volume() * 100.0f))) + "%");
       }
       return;
     }
     if (command == "SEEK") {
       auto value = parseNumber(1);
       if (value) {
-        mediaEngine_->seek(*value);
+        MediaEngine* engine = focusedMediaEngine();
+        if (!engine) {
+          return;
+        }
+        engine->seek(*value);
         triggerToast("jump to " + formatSeconds(*value));
       }
       return;
@@ -2934,10 +3140,14 @@ class App {
 
   void update() {
     processRemoteCommands();
-    if (mediaEngine_) {
-      mediaEngine_->update();
-      if (mediaEngine_->reachedEnd()) {
-        Deck& deck = focusedDeckMutable();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (!engine) {
+        continue;
+      }
+      engine->update();
+      if (engine->reachedEnd()) {
+        Deck& deck = project_.decks[deckIndex];
         if (deck.activeIndex >= 0 && !deck.cues.empty()) {
           int nextIndex = -1;
           if (deck.activeIndex + 1 < static_cast<int>(deck.cues.size())) {
@@ -2949,22 +3159,30 @@ class App {
           if (nextIndex >= 0) {
             if (deck.selectedIndex != nextIndex) {
               deck.selectedIndex = nextIndex;
-              onSelectionChanged();
+              if (deckIndex == project_.focusedDeckIndex) {
+                onSelectionChanged();
+              }
             }
             persistProject();
             if (deck.autoAdvance) {
+              int previousFocus = project_.focusedDeckIndex;
+              project_.focusedDeckIndex = deckIndex;
               takeSelected(true);
+              project_.focusedDeckIndex = previousFocus;
             }
           }
         }
       }
     }
+    updateStatusSnapshot();
   }
 
   void render() {
     animationNow_ = SDL_GetTicks64();
     renderControlWindow();
-    renderOutputWindow();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      renderOutputWindow(deckIndex);
+    }
   }
 
   void renderControlWindow() {
@@ -3095,25 +3313,53 @@ class App {
     drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 28);
   }
 
+  void renderDeckTabs(const SDL_Rect& panel) {
+    deckTabRects_.clear();
+    int cardsPerRow = std::max(1, (panel.w - 52) / 250);
+    int cardWidth = std::max(160, (panel.w - 52 - (cardsPerRow - 1) * 12) / cardsPerRow);
+    int x = panel.x + 26;
+    int y = panel.y + 18;
+
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      int column = deckIndex % cardsPerRow;
+      int row = deckIndex / cardsPerRow;
+      SDL_Rect rect {
+        x + column * (cardWidth + 12),
+        y + row * 62,
+        cardWidth,
+        50
+      };
+      deckTabRects_.push_back(rect);
+
+      SDL_Color fill = deckIndex == project_.focusedDeckIndex ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenLightColor);
+      drawFramedPanel(controlRenderer_, rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+      drawText(controlRenderer_, fontSmall_, project_.decks[deckIndex].name, colorFromRgba(kScreenDeepColor), rect.x + 12, rect.y + 8);
+      drawText(controlRenderer_, fontSmall_, deckStatusSummary(deckIndex), colorFromRgba(kScreenInkSoftColor), rect.x + 12, rect.y + 26);
+    }
+  }
+
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
+    const MediaEngine* engine = focusedMediaEngine();
     const Cue* selectedCue = selectedCuePtr();
     const Cue* activeCue = activeCuePtr();
+    renderDeckTabs(panel);
     int x = panel.x + 26;
-    int y = panel.y + 22;
+    int rows = std::max(1, static_cast<int>((project_.decks.size() + std::max(1, (panel.w - 52) / 250) - 1) / std::max(1, (panel.w - 52) / 250)));
+    int y = panel.y + 22 + rows * 62;
 
     drawText(controlRenderer_, fontSmall_, "little screen", colorFromRgba(kScreenDeepColor), x, y);
     drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "No cue loaded", colorFromRgba(kScreenDeepColor), x, y + 22);
 
     std::string status = transportStatusLabel();
-    std::string clock = formatSeconds(mediaEngine_->position()) + " / " + formatSeconds(mediaEngine_->duration());
+    std::string clock = formatSeconds(engine ? engine->position() : 0.0) + " / " + formatSeconds(engine ? engine->duration() : 0.0);
     drawText(controlRenderer_, fontBase_, status, colorFromRgba(kScreenInkSoftColor), x, y + 70);
     drawText(controlRenderer_, fontMono_, clock, colorFromRgba(kScreenInkSoftColor), x + 150, y + 72);
 
     progressBarRect_ = {x, y + 108, panel.w - 52, 20};
     drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    double duration = mediaEngine_->duration();
-    double fraction = duration > 0.0 ? mediaEngine_->position() / duration : 0.0;
+    double duration = engine ? engine->duration() : 0.0;
+    double fraction = duration > 0.0 ? (engine ? engine->position() / duration : 0.0) : 0.0;
     fraction = std::clamp(fraction, 0.0, 1.0);
     SDL_Rect fillBar = insetRect(progressBarRect_, 3);
     fillBar.w = static_cast<int>(std::round(progressBarRect_.w * fraction));
@@ -3130,7 +3376,7 @@ class App {
     SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
     drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
-    drawText(controlRenderer_, fontMono_, "vol:" + std::to_string(static_cast<int>(std::round(mediaEngine_->volume() * 100.0f))) + "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")), colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 44);
+    drawText(controlRenderer_, fontMono_, "vol:" + std::to_string(static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f))) + "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")), colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 44);
 
     int detailX = x;
     int detailY = preview.y + preview.h + 26;
@@ -3161,42 +3407,54 @@ class App {
     }
   }
 
-  void renderOutputWindow() {
-    int width = 0;
-    int height = 0;
-    SDL_GetWindowSize(outputWindow_, &width, &height);
-    SDL_SetRenderDrawColor(outputRenderer_, red(kScreenDeepColor), green(kScreenDeepColor), blue(kScreenDeepColor), 255);
-    SDL_RenderClear(outputRenderer_);
-
-    SDL_Rect bounds {0, 0, width, height};
-    mediaEngine_->render(bounds);
-
-    const Cue* activeCue = activeCuePtr();
-    if (!activeCue) {
-      SDL_Rect screen {24, 24, width - 48, height - 48};
-      drawFramedPanel(outputRenderer_, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(outputRenderer_, fontSmall_, std::string(kOutputTitle), colorFromRgba(kScreenDeepColor), 46, 44);
-      drawText(outputRenderer_, fontLarge_, "waiting for a cue", colorFromRgba(kScreenDeepColor), 46, 72);
-      drawText(outputRenderer_, fontBase_, "use the control window to take media live.", colorFromRgba(kScreenInkSoftColor), 46, 112);
-    } else if (activeCue->kind == CueKind::Browser && !browserCueLive_) {
-      SDL_Rect screen {24, 24, width - 48, height - 48};
-      drawFramedPanel(outputRenderer_, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(outputRenderer_, fontSmall_, "browser cue standby", colorFromRgba(kScreenDeepColor), 46, 44);
-      drawText(outputRenderer_, fontLarge_, activeCue->name, colorFromRgba(kScreenDeepColor), 46, 72);
-      drawText(outputRenderer_, fontBase_, "press space or GO to launch the page on this output.", colorFromRgba(kScreenInkSoftColor), 46, 112);
-      drawText(outputRenderer_, fontSmall_, activeCue->path, colorFromRgba(kScreenInkSoftColor), 46, 148);
-    } else {
-      SDL_Rect overlay {24, height - 68, width - 48, 44};
-      drawFramedPanel(outputRenderer_, overlay, {155, 188, 15, 185}, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(outputRenderer_, fontBase_, activeCue->name, colorFromRgba(kScreenDeepColor), overlay.x + 16, overlay.y + 10);
-      drawText(outputRenderer_, fontSmall_, transportStatusLabel(), colorFromRgba(kScreenInkSoftColor), overlay.x + overlay.w - 140, overlay.y + 13);
+  void renderOutputWindow(int deckIndex) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    const Deck& deck = project_.decks[deckIndex];
+    if (!runtime || !runtime->outputWindow || !runtime->outputRenderer || !runtime->mediaEngine) {
+      return;
     }
 
-    SDL_RenderPresent(outputRenderer_);
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    SDL_SetRenderDrawColor(runtime->outputRenderer, red(kScreenDeepColor), green(kScreenDeepColor), blue(kScreenDeepColor), 255);
+    SDL_RenderClear(runtime->outputRenderer);
+
+    SDL_Rect bounds {0, 0, width, height};
+    runtime->mediaEngine->render(bounds);
+
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    if (!activeCue) {
+      SDL_Rect screen {24, 24, width - 48, height - 48};
+      drawFramedPanel(runtime->outputRenderer, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(runtime->outputRenderer, fontSmall_, std::string(kOutputTitle), colorFromRgba(kScreenDeepColor), 46, 44);
+      drawText(runtime->outputRenderer, fontLarge_, "waiting for a cue", colorFromRgba(kScreenDeepColor), 46, 72);
+      drawText(runtime->outputRenderer, fontBase_, "use the control window to take media live.", colorFromRgba(kScreenInkSoftColor), 46, 112);
+    } else if (activeCue->kind == CueKind::Browser && !runtime->browserCueLive) {
+      SDL_Rect screen {24, 24, width - 48, height - 48};
+      drawFramedPanel(runtime->outputRenderer, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(runtime->outputRenderer, fontSmall_, "browser cue standby", colorFromRgba(kScreenDeepColor), 46, 44);
+      drawText(runtime->outputRenderer, fontLarge_, activeCue->name, colorFromRgba(kScreenDeepColor), 46, 72);
+      drawText(runtime->outputRenderer, fontBase_, "press space or GO to launch the page on this output.", colorFromRgba(kScreenInkSoftColor), 46, 112);
+      drawText(runtime->outputRenderer, fontSmall_, activeCue->path, colorFromRgba(kScreenInkSoftColor), 46, 148);
+    } else {
+      SDL_Rect overlay {24, height - 68, width - 48, 44};
+      drawFramedPanel(runtime->outputRenderer, overlay, {155, 188, 15, 185}, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(runtime->outputRenderer, fontBase_, deck.name, colorFromRgba(kScreenDeepColor), overlay.x + 16, overlay.y + 10);
+      drawText(runtime->outputRenderer, fontSmall_, transportStatusLabel(deckIndex), colorFromRgba(kScreenInkSoftColor), overlay.x + overlay.w - 140, overlay.y + 13);
+    }
+
+    SDL_RenderPresent(runtime->outputRenderer);
   }
 
   void handleMouseDown(int x, int y) {
     const Deck& deck = focusedDeck();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(deckTabRects_.size()); ++deckIndex) {
+      if (pointInRect(x, y, deckTabRects_[deckIndex])) {
+        setFocusedDeckIndex(deckIndex);
+        return;
+      }
+    }
     for (const auto& button : buttons_) {
       if (pointInRect(x, y, button.rect)) {
         triggerButton(button.label);
@@ -3205,8 +3463,12 @@ class App {
     }
 
     if (pointInRect(x, y, progressBarRect_)) {
+      MediaEngine* engine = focusedMediaEngine();
+      if (!engine) {
+        return;
+      }
       double fraction = static_cast<double>(x - progressBarRect_.x) / static_cast<double>(progressBarRect_.w);
-      mediaEngine_->seek(mediaEngine_->duration() * std::clamp(fraction, 0.0, 1.0));
+      engine->seek(engine->duration() * std::clamp(fraction, 0.0, 1.0));
       return;
     }
 
@@ -3364,12 +3626,16 @@ class App {
         break;
       case SDLK_EQUALS:
       case SDLK_PLUS:
-        mediaEngine_->setVolume(mediaEngine_->volume() + 0.05f);
-        triggerToast("speaker up");
+        if (MediaEngine* engine = focusedMediaEngine()) {
+          engine->setVolume(engine->volume() + 0.05f);
+          triggerToast("speaker up");
+        }
         break;
       case SDLK_MINUS:
-        mediaEngine_->setVolume(mediaEngine_->volume() - 0.05f);
-        triggerToast("speaker down");
+        if (MediaEngine* engine = focusedMediaEngine()) {
+          engine->setVolume(engine->volume() - 0.05f);
+          triggerToast("speaker down");
+        }
         break;
       default:
         break;
@@ -3398,87 +3664,110 @@ class App {
     }
   }
 
-  std::string transportStatusLabel() const {
-    const Cue* activeCue = activeCuePtr();
+  std::string transportStatusLabel(int deckIndex) const {
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (activeCue && activeCue->kind == CueKind::Browser) {
-      return browserCueLive_ ? "Live Browser" : "Browser Ready";
+      return runtime && runtime->browserCueLive ? "Live Browser" : "Browser Ready";
     }
-    return transportLabel(mediaEngine_->state());
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    return engine ? transportLabel(engine->state()) : transportLabel(TransportState::Stopped);
+  }
+
+  std::string transportStatusLabel() const {
+    return transportStatusLabel(project_.focusedDeckIndex);
   }
 
   void playTransport() {
+    MediaEngine* engine = focusedMediaEngine();
+    DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
     if (!activeCue && selectedCuePtr()) {
       takeSelected(true);
       return;
     }
-    if (!activeCue) {
+    if (!activeCue || !engine || !runtime) {
       return;
     }
     if (activeCue->kind == CueKind::Browser) {
-      if (startBrowserCue(*activeCue)) {
+      if (startBrowserCue(project_.focusedDeckIndex, *activeCue)) {
         playUiSound(UiSoundEffect::Toggle);
       }
       return;
     }
-    mediaEngine_->play();
+    engine->play();
     triggerToast("rolling");
     playUiSound(UiSoundEffect::Toggle);
   }
 
   void pauseTransport() {
+    MediaEngine* engine = focusedMediaEngine();
+    DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
-    if (activeCue && activeCue->kind == CueKind::Browser) {
+    if (activeCue && runtime && activeCue->kind == CueKind::Browser) {
       stopBrowserCue();
       triggerToast("browser parked");
       playUiSound(UiSoundEffect::Toggle);
       return;
     }
-    mediaEngine_->pause();
+    if (!engine) {
+      return;
+    }
+    engine->pause();
     triggerToast("tiny pause");
     playUiSound(UiSoundEffect::Toggle);
   }
 
   void stopTransport() {
+    MediaEngine* engine = focusedMediaEngine();
+    DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
-    if (activeCue && activeCue->kind == CueKind::Browser) {
+    if (!engine) {
+      return;
+    }
+    if (activeCue && runtime && activeCue->kind == CueKind::Browser) {
       stopBrowserCue();
-      mediaEngine_->stop();
+      engine->stop();
       triggerToast("browser parked");
       playUiSound(UiSoundEffect::Stop);
       return;
     }
-    mediaEngine_->stop();
+    engine->stop();
     triggerToast("rewound");
     playUiSound(UiSoundEffect::Stop);
   }
 
   void toggleTransport() {
+    MediaEngine* engine = focusedMediaEngine();
+    DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
     if (!activeCue && selectedCuePtr()) {
       takeSelected(true);
       return;
     }
-    if (!activeCue) {
+    if (!activeCue || !engine || !runtime) {
       return;
     }
     if (activeCue->kind == CueKind::Browser) {
-      if (browserCueLive_) {
+      if (runtime->browserCueLive) {
         pauseTransport();
       } else {
         playTransport();
       }
       return;
     }
-    mediaEngine_->toggle();
-    triggerToast(mediaEngine_->state() == TransportState::Playing ? "go go go" : "tiny pause");
+    engine->toggle();
+    triggerToast(engine->state() == TransportState::Playing ? "go go go" : "tiny pause");
     playUiSound(UiSoundEffect::Toggle);
   }
 
   void clearOutput() {
+    MediaEngine* engine = focusedMediaEngine();
     stopBrowserCue();
     focusedDeckMutable().activeIndex = -1;
-    mediaEngine_->clear();
+    if (engine) {
+      engine->clear();
+    }
     triggerToast("screen cleared");
     playUiSound(UiSoundEffect::Clear);
     persistProject();
@@ -3486,15 +3775,19 @@ class App {
 
   void takeSelected(bool autoplay) {
     Deck& deck = focusedDeckMutable();
+    MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    if (!engine) {
       return;
     }
     deck.activeIndex = deck.selectedIndex;
     const Cue& cue = deck.cues[deck.activeIndex];
     stopBrowserCue();
-    mediaEngine_->loadCue(&cue, autoplay);
+    engine->loadCue(&cue, autoplay);
     if (cue.kind == CueKind::Browser) {
-      startBrowserCue(cue);
+      startBrowserCue(project_.focusedDeckIndex, cue);
       triggerToast("browser jumped live");
     } else {
       triggerToast(autoplay ? "cue jumped live" : "cue loaded");
@@ -3629,7 +3922,9 @@ class App {
         deck.activeIndex -= 1;
       } else if (removedActive) {
         deck.activeIndex = -1;
-        mediaEngine_->clear();
+        if (MediaEngine* engine = focusedMediaEngine()) {
+          engine->clear();
+        }
       }
     }
     triggerToast("cart popped");
@@ -3704,14 +3999,13 @@ class App {
   }
 
   void openProjectFromPath(const fs::path& projectPath) {
-    stopBrowserCue();
     fs::path normalized = normalizeProjectPath(projectPath);
     currentProjectFile_ = normalized;
     project_ = loadProject(normalized);
     normalizeProject(project_);
     selectionChangedAt_ = SDL_GetTicks64();
-    if (!applyFocusedDeckRouting()) {
-      std::cerr << "Audio device open failed: " << SDL_GetError() << '\n';
+    if (!rebuildDeckRuntimes()) {
+      std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
     }
     triggerToast("playlist: " + currentProjectLabel());
   }
@@ -3922,9 +4216,13 @@ class App {
   }
 
   void toggleOutputFullscreen() {
-    Uint32 flags = SDL_GetWindowFlags(outputWindow_);
+    DeckRuntime* runtime = focusedRuntime();
+    if (!runtime || !runtime->outputWindow) {
+      return;
+    }
+    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
-    SDL_SetWindowFullscreen(outputWindow_, fullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_SetWindowFullscreen(runtime->outputWindow, fullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
     triggerToast(fullscreen ? "tiny screen" : "big screen");
     playUiSound(UiSoundEffect::Toggle);
   }
@@ -3954,12 +4252,34 @@ class App {
     push("ANIM", project_.uiTransitionsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kButtonBezelColor));
   }
 
+  const Cue* selectedCuePtr(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    return &deck.cues[deck.selectedIndex];
+  }
+
   const Cue* selectedCuePtr() const {
     const Deck& deck = focusedDeck();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return nullptr;
     }
     return &deck.cues[deck.selectedIndex];
+  }
+
+  const Cue* activeCuePtr(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return nullptr;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return nullptr;
+    }
+    return &deck.cues[deck.activeIndex];
   }
 
   const Cue* activeCuePtr() const {
@@ -4014,22 +4334,17 @@ class App {
   }
 
   SDL_Window* controlWindow_ = nullptr;
-  SDL_Window* outputWindow_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
-  SDL_Renderer* outputRenderer_ = nullptr;
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;
   TTF_Font* fontMono_ = nullptr;
-  SDL_AudioDeviceID audioDevice_ = 0;
   SDL_AudioDeviceID uiAudioDevice_ = 0;
-  ChildProcess browserProcess_;
-  bool browserCueLive_ = false;
-  fs::path browserProfileDir_;
   fs::path currentProjectFile_;
   Project project_;
-  std::unique_ptr<MediaEngine> mediaEngine_;
+  std::vector<DeckRuntime> deckRuntimes_;
   std::vector<Button> buttons_;
+  std::vector<SDL_Rect> deckTabRects_;
   SDL_Rect progressBarRect_ {};
   int listScroll_ = 0;
   DragState drag_;
@@ -4042,6 +4357,8 @@ class App {
   std::thread companionThread_;
   std::mutex remoteCommandMutex_;
   std::deque<std::string> remoteCommands_;
+  std::mutex statusSnapshotMutex_;
+  std::string statusSnapshot_;
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
