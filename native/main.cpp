@@ -27,17 +27,23 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #ifndef _WIN32
 #include <arpa/inet.h>
+#include <dlfcn.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#endif
+
+#if defined(PLAYBOY_HAS_NDI_SDK)
+#include <Processing.NDI.Lib.h>
 #endif
 
 namespace fs = std::filesystem;
@@ -117,6 +123,8 @@ struct Deck {
   bool playlistLoop = false;
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;
+  bool ndiEnabled = false;
+  std::string ndiSourceName;
 };
 
 struct Project {
@@ -542,6 +550,105 @@ struct ChildProcess {
   }
 };
 
+#if defined(PLAYBOY_HAS_NDI_SDK)
+struct NdiApi {
+  void* libraryHandle = nullptr;
+  bool loaded = false;
+  bool attempted = false;
+  std::string loadError = "not initialized";
+  bool (*initializeFn)(void) = nullptr;
+  void (*destroyFn)(void) = nullptr;
+  NDIlib_send_instance_t (*sendCreateFn)(const NDIlib_send_create_t*) = nullptr;
+  void (*sendDestroyFn)(NDIlib_send_instance_t) = nullptr;
+  void (*sendVideoFn)(NDIlib_send_instance_t, const NDIlib_video_frame_v2_t*) = nullptr;
+  int (*sendConnectionsFn)(NDIlib_send_instance_t, uint32_t) = nullptr;
+
+  bool ensureLoaded() {
+    if (attempted) {
+      return loaded;
+    }
+    attempted = true;
+
+    std::vector<std::string> candidates;
+    if (const char* env = std::getenv("PLAYBOY_NDI_LIB"); env && *env) {
+      candidates.emplace_back(env);
+    }
+#ifdef __APPLE__
+    candidates.emplace_back("libndi.dylib");
+#else
+    candidates.emplace_back("libndi.so.6");
+    candidates.emplace_back("libndi.so");
+    candidates.emplace_back("/home/user/NDI SDK for Linux/lib/x86_64-linux-gnu/libndi.so.6.3.1");
+    candidates.emplace_back("/usr/local/lib/libndi.so.6");
+    candidates.emplace_back("/usr/lib/libndi.so.6");
+#endif
+
+    for (const auto& candidate : candidates) {
+      if (candidate.empty()) {
+        continue;
+      }
+      libraryHandle = dlopen(candidate.c_str(), RTLD_NOW | RTLD_LOCAL);
+      if (libraryHandle) {
+        break;
+      }
+    }
+
+    if (!libraryHandle) {
+      const char* error = dlerror();
+      loadError = error ? error : "unable to load libndi";
+      return false;
+    }
+
+    auto loadSymbol = [&](auto& target, const char* symbol) -> bool {
+      target = reinterpret_cast<std::decay_t<decltype(target)>>(dlsym(libraryHandle, symbol));
+      return target != nullptr;
+    };
+
+    if (!loadSymbol(initializeFn, "NDIlib_initialize") ||
+        !loadSymbol(destroyFn, "NDIlib_destroy") ||
+        !loadSymbol(sendCreateFn, "NDIlib_send_create") ||
+        !loadSymbol(sendDestroyFn, "NDIlib_send_destroy") ||
+        !loadSymbol(sendVideoFn, "NDIlib_send_send_video_v2") ||
+        !loadSymbol(sendConnectionsFn, "NDIlib_send_get_no_connections")) {
+      loadError = "missing NDI symbols in runtime";
+      dlclose(libraryHandle);
+      libraryHandle = nullptr;
+      return false;
+    }
+
+    if (!initializeFn()) {
+      loadError = "NDIlib_initialize failed";
+      dlclose(libraryHandle);
+      libraryHandle = nullptr;
+      return false;
+    }
+
+    loaded = true;
+    loadError.clear();
+    return true;
+  }
+
+  void shutdown() {
+    if (loaded && destroyFn) {
+      destroyFn();
+    }
+    if (libraryHandle) {
+      dlclose(libraryHandle);
+    }
+    libraryHandle = nullptr;
+    loaded = false;
+    attempted = false;
+    loadError = "not initialized";
+    initializeFn = nullptr;
+    destroyFn = nullptr;
+    sendCreateFn = nullptr;
+    sendDestroyFn = nullptr;
+    sendVideoFn = nullptr;
+    sendConnectionsFn = nullptr;
+  }
+};
+#endif
+
 class MediaEngine;
 
 struct DeckRuntime {
@@ -552,6 +659,11 @@ struct DeckRuntime {
   ChildProcess browserProcess;
   bool browserCueLive = false;
   fs::path browserProfileDir;
+#if defined(PLAYBOY_HAS_NDI_SDK)
+  NDIlib_send_instance_t ndiSender = nullptr;
+  std::string ndiSenderName;
+  std::vector<std::uint8_t> ndiFrameBuffer;
+#endif
 };
 
 std::optional<std::string> readAllText(const std::vector<std::string>& args) {
@@ -831,8 +943,54 @@ bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallbac
   return fields[index] == "1" || fields[index] == "true";
 }
 
+std::string escapeJson(const std::string& value) {
+  std::string out;
+  out.reserve(value.size() + 8);
+  for (char ch : value) {
+    switch (ch) {
+      case '\\':
+        out += "\\\\";
+        break;
+      case '"':
+        out += "\\\"";
+        break;
+      case '\b':
+        out += "\\b";
+        break;
+      case '\f':
+        out += "\\f";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
+        break;
+      default:
+        if (static_cast<unsigned char>(ch) < 0x20) {
+          std::ostringstream escaped;
+          escaped << "\\u" << std::hex << std::setw(4) << std::setfill('0')
+                  << static_cast<int>(static_cast<unsigned char>(ch));
+          out += escaped.str();
+        } else {
+          out.push_back(ch);
+        }
+        break;
+    }
+  }
+  return out;
+}
+
 std::string deckDefaultName(int index) {
   return "Deck " + std::to_string(index + 1);
+}
+
+std::string defaultNdiSourceName(const Deck& deck, int index) {
+  std::string base = deck.name.empty() ? deckDefaultName(index) : deck.name;
+  return "Playboy - " + base;
 }
 
 void normalizeDeck(Deck& deck, int index) {
@@ -849,6 +1007,9 @@ void normalizeDeck(Deck& deck, int index) {
     }
   }
   deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
+  if (deck.ndiSourceName.empty()) {
+    deck.ndiSourceName = defaultNdiSourceName(deck, index);
+  }
 }
 
 void normalizeProject(Project& project) {
@@ -984,7 +1145,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.autoAdvance ? 1 : 0) << '\t'
       << (deck.playlistLoop ? 1 : 0) << '\t'
       << escapeField(deck.audioOutputDeviceName) << '\t'
-      << deck.outputDisplayIndex
+      << deck.outputDisplayIndex << '\t'
+      << (deck.ndiEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.ndiSourceName)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1068,6 +1231,10 @@ Project loadProject(const fs::path& projectFile) {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
       ensureDeck(0).outputDisplayIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "ndi_enabled") {
+      ensureDeck(0).ndiEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "ndi_name") {
+      ensureDeck(0).ndiSourceName = safeString(fields, 1);
     } else if (fields[0] == "deck") {
       int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
       Deck& deck = ensureDeck(deckIndex);
@@ -1078,6 +1245,8 @@ Project loadProject(const fs::path& projectFile) {
       deck.playlistLoop = safeBool(fields, 6, false);
       deck.audioOutputDeviceName = safeString(fields, 7);
       deck.outputDisplayIndex = safeInt(fields, 8, 0);
+      deck.ndiEnabled = safeBool(fields, 9, false);
+      deck.ndiSourceName = safeString(fields, 10);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -1840,6 +2009,9 @@ class App {
       destroyDeckRuntime(runtime);
     }
     deckRuntimes_.clear();
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    ndiApi_.shutdown();
+#endif
     if (uiAudioDevice_ != 0) {
       SDL_CloseAudioDevice(uiAudioDevice_);
       uiAudioDevice_ = 0;
@@ -1887,6 +2059,11 @@ class App {
     std::cout << "font-mono: " << (fs::exists(kFontMono) ? "ok" : "missing") << '\n';
     std::cout << "ffmpeg: " << (readAllText({"ffmpeg", "-version"}).has_value() ? "ok" : "missing") << '\n';
     std::cout << "ffprobe: " << (readAllText({"ffprobe", "-version"}).has_value() ? "ok" : "missing") << '\n';
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    std::cout << "ndi-sdk: headers detected (runtime loads when NDI is enabled)\n";
+#else
+    std::cout << "ndi-sdk: not built (set PLAYBOY_NDI_SDK or install SDK headers)\n";
+#endif
     std::cout << "ui-sfx: enabled by separate SDL audio device when available\n";
     std::cout << "companion-control: tcp/udp port 5510 by default (override with PLAYBOY_COMPANION_PORT)\n";
     return 0;
@@ -2047,6 +2224,14 @@ class App {
       fs::remove_all(runtime.browserProfileDir, error);
       runtime.browserProfileDir.clear();
     }
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    if (runtime.ndiSender && ndiApi_.sendDestroyFn) {
+      ndiApi_.sendDestroyFn(runtime.ndiSender);
+      runtime.ndiSender = nullptr;
+    }
+    runtime.ndiSenderName.clear();
+    runtime.ndiFrameBuffer.clear();
+#endif
     if (runtime.audioDevice != 0) {
       SDL_CloseAudioDevice(runtime.audioDevice);
       runtime.audioDevice = 0;
@@ -2088,6 +2273,202 @@ class App {
     return true;
   }
 
+  bool ensureNdiRuntimeReady(std::string* errorMessage = nullptr) {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    if (ndiApi_.ensureLoaded()) {
+      return true;
+    }
+    if (errorMessage) {
+      *errorMessage = ndiApi_.loadError;
+    }
+    return false;
+#else
+    if (errorMessage) {
+      *errorMessage = "built without NDI SDK headers";
+    }
+    return false;
+#endif
+  }
+
+  void applyDeckNdiSettings(int deckIndex, bool withToast) {
+    Deck& deck = project_.decks[deckIndex];
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime) {
+      return;
+    }
+
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    auto clearSender = [&]() {
+      if (runtime->ndiSender && ndiApi_.sendDestroyFn) {
+        ndiApi_.sendDestroyFn(runtime->ndiSender);
+      }
+      runtime->ndiSender = nullptr;
+      runtime->ndiSenderName.clear();
+      runtime->ndiFrameBuffer.clear();
+    };
+
+    if (!deck.ndiEnabled) {
+      clearSender();
+      if (withToast) {
+        triggerToast("ndi off");
+      }
+      return;
+    }
+
+    std::string loadError;
+    if (!ensureNdiRuntimeReady(&loadError)) {
+      deck.ndiEnabled = false;
+      clearSender();
+      if (withToast) {
+        triggerToast("ndi unavailable");
+      }
+      return;
+    }
+
+    if (deck.ndiSourceName.empty()) {
+      deck.ndiSourceName = defaultNdiSourceName(deck, deckIndex);
+    }
+    if (runtime->ndiSender && runtime->ndiSenderName == deck.ndiSourceName) {
+      if (withToast) {
+        triggerToast("ndi live: " + deck.ndiSourceName);
+      }
+      return;
+    }
+
+    clearSender();
+    NDIlib_send_create_t create {};
+    create.p_ndi_name = deck.ndiSourceName.c_str();
+    create.p_groups = nullptr;
+    create.clock_video = false;
+    create.clock_audio = false;
+    runtime->ndiSender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&create) : nullptr;
+    if (!runtime->ndiSender) {
+      deck.ndiEnabled = false;
+      if (withToast) {
+        triggerToast("ndi sender failed");
+      }
+      return;
+    }
+    runtime->ndiSenderName = deck.ndiSourceName;
+    if (withToast) {
+      triggerToast("ndi live: " + runtime->ndiSenderName);
+    }
+#else
+    (void) deck;
+    (void) runtime;
+    if (withToast) {
+      triggerToast("ndi unsupported build");
+    }
+#endif
+  }
+
+  void setFocusedDeckNdiEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.ndiEnabled == enabled) {
+      return;
+    }
+    deck.ndiEnabled = enabled;
+    applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    playUiSound(UiSoundEffect::Toggle);
+    persistProject();
+  }
+
+  void toggleFocusedDeckNdi() {
+    setFocusedDeckNdiEnabled(!focusedDeck().ndiEnabled);
+  }
+
+  void setFocusedDeckNdiName(const std::string& requestedName) {
+    Deck& deck = focusedDeckMutable();
+    std::string normalized = trim(requestedName);
+    if (normalized.empty()) {
+      normalized = defaultNdiSourceName(deck, project_.focusedDeckIndex);
+    }
+    if (deck.ndiSourceName == normalized) {
+      return;
+    }
+    deck.ndiSourceName = normalized;
+    if (deck.ndiEnabled) {
+      applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    } else {
+      triggerToast("ndi name: " + deck.ndiSourceName);
+    }
+    playUiSound(UiSoundEffect::Toggle);
+    persistProject();
+  }
+
+  void sendDeckNdiFrame(int deckIndex, int width, int height, double fpsHint) {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (!deck.ndiEnabled) {
+      return;
+    }
+    if (!runtime->ndiSender) {
+      applyDeckNdiSettings(deckIndex, false);
+      if (!runtime->ndiSender) {
+        return;
+      }
+    }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    size_t stride = static_cast<size_t>(width) * 4u;
+    size_t frameBytes = stride * static_cast<size_t>(height);
+    if (runtime->ndiFrameBuffer.size() != frameBytes) {
+      runtime->ndiFrameBuffer.resize(frameBytes);
+    }
+    if (runtime->ndiFrameBuffer.empty()) {
+      return;
+    }
+    if (SDL_RenderReadPixels(runtime->outputRenderer, nullptr, SDL_PIXELFORMAT_BGRA32, runtime->ndiFrameBuffer.data(), static_cast<int>(stride)) != 0) {
+      return;
+    }
+
+    int frameRateN = 30000;
+    int frameRateD = 1000;
+    if (std::isfinite(fpsHint) && fpsHint > 1.0) {
+      frameRateN = std::max(1, static_cast<int>(std::round(fpsHint * 1000.0)));
+    }
+
+    NDIlib_video_frame_v2_t frame {};
+    frame.xres = width;
+    frame.yres = height;
+    frame.FourCC = NDIlib_FourCC_video_type_BGRA;
+    frame.frame_rate_N = frameRateN;
+    frame.frame_rate_D = frameRateD;
+    frame.picture_aspect_ratio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : (16.0f / 9.0f);
+    frame.frame_format_type = NDIlib_frame_format_type_progressive;
+    frame.timecode = NDIlib_send_timecode_synthesize;
+    frame.p_data = runtime->ndiFrameBuffer.data();
+    frame.line_stride_in_bytes = static_cast<int>(stride);
+    frame.p_metadata = nullptr;
+    frame.timestamp = 0;
+    ndiApi_.sendVideoFn(runtime->ndiSender, &frame);
+#else
+    (void) deckIndex;
+    (void) width;
+    (void) height;
+    (void) fpsHint;
+#endif
+  }
+
+  int ndiConnectionCount(int deckIndex) const {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->ndiSender || !ndiApi_.sendConnectionsFn) {
+      return 0;
+    }
+    return std::max(0, ndiApi_.sendConnectionsFn(runtime->ndiSender, 0));
+#else
+    (void) deckIndex;
+    return 0;
+#endif
+  }
+
   bool createDeckRuntime(int deckIndex) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime& runtime = deckRuntimes_[deckIndex];
@@ -2118,6 +2499,7 @@ class App {
     }
 
     applyOutputDisplaySelection(deckIndex);
+    applyDeckNdiSettings(deckIndex, false);
     return true;
   }
 
@@ -2402,6 +2784,26 @@ class App {
     return focusedDeck().audioOutputDeviceName.empty() ? "system default" : focusedDeck().audioOutputDeviceName;
   }
 
+  std::string currentNdiOutputLabel() const {
+    const Deck& deck = focusedDeck();
+    std::string source = deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, project_.focusedDeckIndex) : deck.ndiSourceName;
+    if (!deck.ndiEnabled) {
+      return "off";
+    }
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    const DeckRuntime* runtime = focusedRuntime();
+    bool live = runtime && runtime->ndiSender;
+    int listeners = ndiConnectionCount(project_.focusedDeckIndex);
+    std::string suffix = live ? "on" : "pending";
+    if (listeners > 0) {
+      suffix += " (" + std::to_string(listeners) + " rx)";
+    }
+    return suffix + " / " + source;
+#else
+    return "unavailable";
+#endif
+  }
+
   std::string deckSummaryLabel() const {
     return focusedDeckLabel() + "  (" + std::to_string(project_.focusedDeckIndex + 1) + "/" + std::to_string(project_.decks.size()) + ")";
   }
@@ -2422,6 +2824,9 @@ class App {
     }
     if (engine) {
       output << " | " << formatSeconds(engine->position()) << "/" << formatSeconds(engine->duration());
+    }
+    if (deck.ndiEnabled) {
+      output << " | ndi:" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName);
     }
     return output.str();
   }
@@ -2444,6 +2849,9 @@ class App {
              << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
              << " display=" << (deck.outputDisplayIndex + 1)
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
+             << " ndi=" << (deck.ndiEnabled ? "on" : "off")
+             << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
+             << " ndi_rx=" << ndiConnectionCount(deckIndex)
              << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
       if (engine) {
         output << " pos=" << formatSeconds(engine->position())
@@ -2455,9 +2863,86 @@ class App {
     return output.str();
   }
 
+  std::string buildDeckStatusSnapshot(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "DECK offline\n";
+    }
+    std::ostringstream output;
+    const Deck& deck = project_.decks[deckIndex];
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    const Cue* selectedCue = selectedCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    output << "PLAYBOY_0.01"
+           << " focus=" << (project_.focusedDeckIndex + 1)
+           << " decks=" << project_.decks.size()
+           << '\n';
+    output << "DECK " << (deckIndex + 1)
+           << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
+           << " status=" << transportStatusLabel(deckIndex)
+           << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
+           << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
+           << " display=" << (deck.outputDisplayIndex + 1)
+           << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
+           << " ndi=" << (deck.ndiEnabled ? "on" : "off")
+           << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
+           << " ndi_rx=" << ndiConnectionCount(deckIndex)
+           << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+    if (engine) {
+      output << " pos=" << formatSeconds(engine->position())
+             << " dur=" << formatSeconds(engine->duration())
+             << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f));
+    }
+    output << '\n';
+    return output.str();
+  }
+
+  std::string buildStatusSnapshotJson() const {
+    std::ostringstream output;
+    output << "{"
+           << "\"app\":\"PLAYBOY_0.01\","
+           << "\"focusedDeck\":" << (project_.focusedDeckIndex + 1) << ","
+           << "\"deckCount\":" << project_.decks.size() << ","
+           << "\"decks\":[";
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (deckIndex > 0) {
+        output << ",";
+      }
+      const Deck& deck = project_.decks[deckIndex];
+      const Cue* activeCue = activeCuePtr(deckIndex);
+      const Cue* selectedCue = selectedCuePtr(deckIndex);
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      output << "{"
+             << "\"index\":" << (deckIndex + 1) << ","
+             << "\"name\":\"" << escapeJson(deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\","
+             << "\"status\":\"" << escapeJson(transportStatusLabel(deckIndex)) << "\","
+             << "\"selected\":" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0) << ","
+             << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
+             << "\"display\":" << (deck.outputDisplayIndex + 1) << ","
+             << "\"audio\":\"" << escapeJson(deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\","
+             << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
+             << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
+             << "\"ndiReceivers\":" << ndiConnectionCount(deckIndex) << ","
+             << "\"cue\":\"" << escapeJson(activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+      if (engine) {
+        output << ",\"position\":\"" << escapeJson(formatSeconds(engine->position())) << "\""
+               << ",\"duration\":\"" << escapeJson(formatSeconds(engine->duration())) << "\""
+               << ",\"volume\":" << static_cast<int>(std::round(engine->volume() * 100.0f));
+      }
+      output << "}";
+    }
+    output << "]}\n";
+    return output.str();
+  }
+
   void updateStatusSnapshot() {
     std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
     statusSnapshot_ = buildStatusSnapshot();
+    statusSnapshotJson_ = buildStatusSnapshotJson();
+    statusDeckSnapshots_.clear();
+    statusDeckSnapshots_.reserve(project_.decks.size());
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      statusDeckSnapshots_.push_back(buildDeckStatusSnapshot(deckIndex));
+    }
   }
 
   void persistProject() {
@@ -2626,21 +3111,62 @@ class App {
 
 #ifndef _WIN32
   bool maybeRespondToCompanionQuery(SocketHandle client, const std::string& line) {
-    std::string upper = toUpper(trim(line));
-    if (upper != "STATUS" && upper != "STATE" && upper != "STATUS ALL") {
-      return false;
+    std::string query = trim(line);
+    std::string upper = toUpper(query);
+
+    auto sendSnapshot = [&](const std::string& payload) {
+      if (!payload.empty()) {
+        send(client, payload.c_str(), payload.size(), 0);
+      }
+    };
+
+    if (upper == "STATUS JSON" || upper == "STATE JSON") {
+      std::string snapshotJson;
+      {
+        std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+        snapshotJson = statusSnapshotJson_;
+      }
+      if (snapshotJson.empty()) {
+        snapshotJson = "{\"app\":\"PLAYBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
+      }
+      sendSnapshot(snapshotJson);
+      return true;
+    }
+    if (upper == "STATUS" || upper == "STATE" || upper == "STATUS ALL" || upper == "STATE ALL") {
+      std::string snapshot;
+      {
+        std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+        snapshot = statusSnapshot_;
+      }
+      if (snapshot.empty()) {
+        snapshot = "PLAYBOY_0.01 decks=0\n";
+      }
+      sendSnapshot(snapshot);
+      return true;
     }
 
-    std::string snapshot;
-    {
-      std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
-      snapshot = statusSnapshot_;
+    if (upper.rfind("STATUS ", 0) == 0 || upper.rfind("STATE ", 0) == 0) {
+      auto parts = splitWhitespace(query);
+      if (parts.size() >= 2) {
+        try {
+          int deckIndex = std::stoi(parts[1]) - 1;
+          std::string deckSnapshot;
+          {
+            std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+            if (deckIndex >= 0 && deckIndex < static_cast<int>(statusDeckSnapshots_.size())) {
+              deckSnapshot = statusDeckSnapshots_[deckIndex];
+            }
+          }
+          if (!deckSnapshot.empty()) {
+            sendSnapshot(deckSnapshot);
+            return true;
+          }
+        } catch (...) {
+        }
+      }
     }
-    if (snapshot.empty()) {
-      snapshot = "PLAYBOY_0.01 decks=0\n";
-    }
-    send(client, snapshot.c_str(), snapshot.size(), 0);
-    return true;
+
+    return false;
   }
 #endif
 
@@ -3095,6 +3621,31 @@ class App {
       }
       return;
     }
+    if (command == "NDI") {
+      if (parts.size() == 1) {
+        toggleFocusedDeckNdi();
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "ON") {
+        setFocusedDeckNdiEnabled(true);
+      } else if (value == "OFF") {
+        setFocusedDeckNdiEnabled(false);
+      } else if (value == "TOGGLE") {
+        toggleFocusedDeckNdi();
+      } else if (value == "NAME") {
+        setFocusedDeckNdiName(joinParts(parts, 2));
+      } else if (value == "DEFAULT" || value == "CLEAR") {
+        setFocusedDeckNdiName("");
+      } else if (value == "STATUS") {
+        triggerToast("ndi: " + currentNdiOutputLabel());
+      }
+      return;
+    }
+    if (command == "NDINAME") {
+      setFocusedDeckNdiName(joinParts(parts, 1));
+      return;
+    }
   }
 
   void processEvents() {
@@ -3217,8 +3768,9 @@ class App {
     std::string companionStatus = companionReady_
       ? "companion tcp/udp " + std::to_string(companionPort_)
       : "companion control unavailable";
-    drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
-    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
+    drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 64);
+    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
+    drawText(controlRenderer_, fontSmall_, "ndi: " + currentNdiOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
     drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
 
     int listTop = sidebar.y + 128;
@@ -3372,7 +3924,7 @@ class App {
     drawText(controlRenderer_, fontBase_, activeCue ? transportStatusLabel() : "take a cue to wake it up", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 88);
     drawText(controlRenderer_, fontSmall_, "output stays in the second window so the live path stays clean.", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 126);
     drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  ctrl+n new deck", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
-    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
+    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
     SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
     drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
@@ -3444,6 +3996,8 @@ class App {
       drawText(runtime->outputRenderer, fontSmall_, transportStatusLabel(deckIndex), colorFromRgba(kScreenInkSoftColor), overlay.x + overlay.w - 140, overlay.y + 13);
     }
 
+    double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
+    sendDeckNdiFrame(deckIndex, width, height, fpsHint);
     SDL_RenderPresent(runtime->outputRenderer);
   }
 
@@ -3619,6 +4173,9 @@ class App {
         break;
       case SDLK_d:
         cycleOutputDisplay(1);
+        break;
+      case SDLK_n:
+        toggleFocusedDeckNdi();
         break;
       case SDLK_DELETE:
       case SDLK_BACKSPACE:
@@ -4343,6 +4900,9 @@ class App {
   fs::path currentProjectFile_;
   Project project_;
   std::vector<DeckRuntime> deckRuntimes_;
+#if defined(PLAYBOY_HAS_NDI_SDK)
+  NdiApi ndiApi_;
+#endif
   std::vector<Button> buttons_;
   std::vector<SDL_Rect> deckTabRects_;
   SDL_Rect progressBarRect_ {};
@@ -4359,6 +4919,8 @@ class App {
   std::deque<std::string> remoteCommands_;
   std::mutex statusSnapshotMutex_;
   std::string statusSnapshot_;
+  std::string statusSnapshotJson_;
+  std::vector<std::string> statusDeckSnapshots_;
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
