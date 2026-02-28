@@ -28,7 +28,9 @@
 #include <string_view>
 #include <thread>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #ifndef _WIN32
@@ -95,6 +97,7 @@ enum class TransportState {
 };
 
 struct Cue {
+  std::string id;
   std::string path;
   std::string name;
   CueKind kind = CueKind::Video;
@@ -112,6 +115,8 @@ struct Cue {
   double fadeOutSeconds = 0.0;
   bool loop = false;
   bool pauseOnLastFrame = false;
+  double inPointSeconds = 0.0;
+  double outPointSeconds = 0.0;
 };
 
 struct Deck {
@@ -125,6 +130,7 @@ struct Deck {
   int outputDisplayIndex = 0;
   bool ndiEnabled = false;
   std::string ndiSourceName;
+  bool timeOverlayEnabled = false;
 };
 
 struct Project {
@@ -446,6 +452,276 @@ std::string joinParts(const std::vector<std::string>& parts, size_t startIndex) 
     joined += parts[index];
   }
   return joined;
+}
+
+using OscArg = std::variant<std::int32_t, float, std::string, bool>;
+
+struct OscMessage {
+  std::string address;
+  std::vector<OscArg> args;
+};
+
+size_t alignOscOffset(size_t offset) {
+  return (offset + 3u) & ~size_t(3u);
+}
+
+bool readOscString(const std::uint8_t* bytes, size_t size, size_t& offset, std::string& out) {
+  if (offset >= size) {
+    return false;
+  }
+  size_t end = offset;
+  while (end < size && bytes[end] != 0) {
+    ++end;
+  }
+  if (end >= size) {
+    return false;
+  }
+  out.assign(reinterpret_cast<const char*>(bytes + offset), end - offset);
+  offset = alignOscOffset(end + 1u);
+  return offset <= size;
+}
+
+std::uint32_t readOscU32(const std::uint8_t* bytes, size_t offset) {
+  return
+    (static_cast<std::uint32_t>(bytes[offset]) << 24u) |
+    (static_cast<std::uint32_t>(bytes[offset + 1]) << 16u) |
+    (static_cast<std::uint32_t>(bytes[offset + 2]) << 8u) |
+    (static_cast<std::uint32_t>(bytes[offset + 3]));
+}
+
+std::optional<OscMessage> parseOscMessage(const std::string& payload) {
+  if (payload.empty() || payload[0] != '/') {
+    return std::nullopt;
+  }
+  const auto* bytes = reinterpret_cast<const std::uint8_t*>(payload.data());
+  size_t size = payload.size();
+  size_t offset = 0;
+
+  OscMessage message;
+  if (!readOscString(bytes, size, offset, message.address) || message.address.empty()) {
+    return std::nullopt;
+  }
+
+  std::string typeTags;
+  if (!readOscString(bytes, size, offset, typeTags) || typeTags.empty() || typeTags[0] != ',') {
+    return std::nullopt;
+  }
+
+  for (size_t index = 1; index < typeTags.size(); ++index) {
+    char tag = typeTags[index];
+    switch (tag) {
+      case 'i': {
+        if (offset + 4u > size) {
+          return std::nullopt;
+        }
+        message.args.emplace_back(static_cast<std::int32_t>(readOscU32(bytes, offset)));
+        offset += 4u;
+        break;
+      }
+      case 'f': {
+        if (offset + 4u > size) {
+          return std::nullopt;
+        }
+        std::uint32_t raw = readOscU32(bytes, offset);
+        float value = 0.0f;
+        std::memcpy(&value, &raw, sizeof(float));
+        message.args.emplace_back(value);
+        offset += 4u;
+        break;
+      }
+      case 's': {
+        std::string value;
+        if (!readOscString(bytes, size, offset, value)) {
+          return std::nullopt;
+        }
+        message.args.emplace_back(value);
+        break;
+      }
+      case 'T':
+        message.args.emplace_back(true);
+        break;
+      case 'F':
+        message.args.emplace_back(false);
+        break;
+      default:
+        return std::nullopt;
+    }
+  }
+
+  return message;
+}
+
+std::optional<double> oscArgAsNumber(const OscArg& arg) {
+  if (std::holds_alternative<std::int32_t>(arg)) {
+    return static_cast<double>(std::get<std::int32_t>(arg));
+  }
+  if (std::holds_alternative<float>(arg)) {
+    return static_cast<double>(std::get<float>(arg));
+  }
+  if (std::holds_alternative<bool>(arg)) {
+    return std::get<bool>(arg) ? 1.0 : 0.0;
+  }
+  if (std::holds_alternative<std::string>(arg)) {
+    try {
+      return std::stod(std::get<std::string>(arg));
+    } catch (...) {
+      return std::nullopt;
+    }
+  }
+  return std::nullopt;
+}
+
+std::optional<std::string> oscArgAsString(const OscArg& arg) {
+  if (std::holds_alternative<std::string>(arg)) {
+    return std::get<std::string>(arg);
+  }
+  if (std::holds_alternative<std::int32_t>(arg)) {
+    return std::to_string(std::get<std::int32_t>(arg));
+  }
+  if (std::holds_alternative<float>(arg)) {
+    return std::to_string(std::get<float>(arg));
+  }
+  if (std::holds_alternative<bool>(arg)) {
+    return std::get<bool>(arg) ? "1" : "0";
+  }
+  return std::nullopt;
+}
+
+std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
+  std::string path = toUpper(trim(message.address));
+  auto argNumber = [&](size_t index) -> std::optional<double> {
+    if (index >= message.args.size()) {
+      return std::nullopt;
+    }
+    return oscArgAsNumber(message.args[index]);
+  };
+  auto argString = [&](size_t index) -> std::optional<std::string> {
+    if (index >= message.args.size()) {
+      return std::nullopt;
+    }
+    return oscArgAsString(message.args[index]);
+  };
+  auto argToggleWord = [&](size_t index) -> std::optional<std::string> {
+    auto number = argNumber(index);
+    if (!number) {
+      return std::nullopt;
+    }
+    return *number >= 0.5 ? "ON" : "OFF";
+  };
+
+  if (path == "/GO" || path == "/TOGGLE") {
+    return "GO";
+  }
+  if (path == "/PLAY") {
+    return "PLAY";
+  }
+  if (path == "/PAUSE") {
+    return "PAUSE";
+  }
+  if (path == "/STOP") {
+    return "STOP";
+  }
+  if (path == "/CLEAR") {
+    return "CLEAR";
+  }
+  if (path == "/NEXT") {
+    return "NEXT";
+  }
+  if (path == "/PREV" || path == "/PREVIOUS") {
+    return "PREV";
+  }
+  if (path == "/FULLSCREEN") {
+    return "FULLSCREEN";
+  }
+  if (path == "/SELECT") {
+    if (auto value = argString(0)) {
+      return "SELECT " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TAKE") {
+    if (auto value = argString(0)) {
+      return "TAKE " + *value;
+    }
+    return "TAKE";
+  }
+  if (path == "/GOTO") {
+    if (auto value = argString(0)) {
+      return "GOTO " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/DECK") {
+    if (auto value = argString(0)) {
+      return "DECK " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/DECK/NEXT") {
+    return "DECKNEXT";
+  }
+  if (path == "/DECK/PREV") {
+    return "DECKPREV";
+  }
+  if (path == "/VOLUME") {
+    if (auto value = argString(0)) {
+      return "VOLUME " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/SEEK") {
+    if (auto value = argString(0)) {
+      return "SEEK " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/AUTONEXT") {
+    if (auto value = argToggleWord(0)) {
+      return "AUTONEXT " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/PLAYLISTLOOP") {
+    if (auto value = argToggleWord(0)) {
+      return "PLAYLISTLOOP " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/OVERLAY" || path == "/TIMEOVERLAY") {
+    if (auto value = argToggleWord(0)) {
+      return "OVERLAY " + *value;
+    }
+    return "OVERLAY";
+  }
+  if (path == "/NDI") {
+    if (auto value = argToggleWord(0)) {
+      return "NDI " + *value;
+    }
+    return "NDI";
+  }
+  if (path == "/NDI/NAME") {
+    if (auto value = argString(0)) {
+      return "NDI NAME " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/IN") {
+    if (auto value = argString(0)) {
+      return "IN " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/OUT") {
+    if (auto value = argString(0)) {
+      return "OUT " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TRIM/CLEAR") {
+    return "TRIM CLEAR";
+  }
+
+  return std::nullopt;
 }
 
 std::string normalizeBrowserUrl(std::string value) {
@@ -988,6 +1264,47 @@ std::string deckDefaultName(int index) {
   return "Deck " + std::to_string(index + 1);
 }
 
+std::string makeCueId(const Cue& cue, int deckIndex, int cueIndex) {
+  std::string seed =
+    cue.path + "|" +
+    cue.name + "|" +
+    std::to_string(deckIndex) + "|" +
+    std::to_string(cueIndex) + "|" +
+    std::to_string(cue.width) + "x" + std::to_string(cue.height);
+  size_t hashValue = std::hash<std::string> {}(seed);
+  std::ostringstream output;
+  output << "cue-" << std::hex << std::nouppercase << hashValue;
+  return output.str();
+}
+
+void normalizeCueTiming(Cue& cue) {
+  if (!std::isfinite(cue.inPointSeconds)) {
+    cue.inPointSeconds = 0.0;
+  }
+  if (!std::isfinite(cue.outPointSeconds)) {
+    cue.outPointSeconds = 0.0;
+  }
+
+  cue.inPointSeconds = std::max(0.0, cue.inPointSeconds);
+  cue.outPointSeconds = std::max(0.0, cue.outPointSeconds);
+
+  if (cue.kind != CueKind::Video || cue.duration <= 0.0) {
+    cue.inPointSeconds = 0.0;
+    cue.outPointSeconds = 0.0;
+    return;
+  }
+
+  if (cue.outPointSeconds <= 0.0) {
+    cue.outPointSeconds = cue.duration;
+  }
+
+  cue.inPointSeconds = std::clamp(cue.inPointSeconds, 0.0, cue.duration);
+  cue.outPointSeconds = std::clamp(cue.outPointSeconds, cue.inPointSeconds, cue.duration);
+  if (cue.outPointSeconds - cue.inPointSeconds < 0.01) {
+    cue.outPointSeconds = std::min(cue.duration, cue.inPointSeconds + 0.01);
+  }
+}
+
 std::string defaultNdiSourceName(const Deck& deck, int index) {
   std::string base = deck.name.empty() ? deckDefaultName(index) : deck.name;
   return "Playboy - " + base;
@@ -1004,6 +1321,21 @@ void normalizeDeck(Deck& deck, int index) {
     deck.selectedIndex = std::clamp(deck.selectedIndex, 0, static_cast<int>(deck.cues.size()) - 1);
     if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
       deck.activeIndex = -1;
+    }
+
+    std::unordered_set<std::string> usedIds;
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      Cue& cue = deck.cues[cueIndex];
+      normalizeCueTiming(cue);
+      if (cue.id.empty()) {
+        cue.id = makeCueId(cue, index, cueIndex);
+      }
+      std::string baseId = cue.id;
+      int dedupe = 2;
+      while (usedIds.find(cue.id) != usedIds.end()) {
+        cue.id = baseId + "-" + std::to_string(dedupe++);
+      }
+      usedIds.insert(cue.id);
     }
   }
   deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
@@ -1147,7 +1479,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << escapeField(deck.audioOutputDeviceName) << '\t'
       << deck.outputDisplayIndex << '\t'
       << (deck.ndiEnabled ? 1 : 0) << '\t'
-      << escapeField(deck.ndiSourceName)
+      << escapeField(deck.ndiSourceName) << '\t'
+      << (deck.timeOverlayEnabled ? 1 : 0)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1170,7 +1503,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << cue.fadeInSeconds << '\t'
         << cue.fadeOutSeconds << '\t'
         << (cue.loop ? "1" : "0") << '\t'
-        << (cue.pauseOnLastFrame ? "1" : "0")
+        << (cue.pauseOnLastFrame ? "1" : "0") << '\t'
+        << escapeField(cue.id) << '\t'
+        << cue.inPointSeconds << '\t'
+        << cue.outPointSeconds
         << '\n';
     }
   }
@@ -1235,6 +1571,8 @@ Project loadProject(const fs::path& projectFile) {
       ensureDeck(0).ndiEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "ndi_name") {
       ensureDeck(0).ndiSourceName = safeString(fields, 1);
+    } else if (fields[0] == "time_overlay") {
+      ensureDeck(0).timeOverlayEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "deck") {
       int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
       Deck& deck = ensureDeck(deckIndex);
@@ -1247,6 +1585,7 @@ Project loadProject(const fs::path& projectFile) {
       deck.outputDisplayIndex = safeInt(fields, 8, 0);
       deck.ndiEnabled = safeBool(fields, 9, false);
       deck.ndiSourceName = safeString(fields, 10);
+      deck.timeOverlayEnabled = safeBool(fields, 11, false);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -1283,6 +1622,9 @@ Project loadProject(const fs::path& projectFile) {
       cue.fadeOutSeconds = std::max(0.0, safeDouble(fields, offset + 14, 0.0));
       cue.loop = safeBool(fields, offset + 15, false);
       cue.pauseOnLastFrame = safeBool(fields, offset + 16, false);
+      cue.id = safeString(fields, offset + 17);
+      cue.inPointSeconds = std::max(0.0, safeDouble(fields, offset + 18, 0.0));
+      cue.outPointSeconds = std::max(0.0, safeDouble(fields, offset + 19, 0.0));
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1312,6 +1654,8 @@ class MediaEngine {
     state_ = TransportState::Stopped;
     currentPosition_ = 0.0;
     duration_ = 0.0;
+    cueInPointSeconds_ = 0.0;
+    cueOutPointSeconds_ = 0.0;
     activeCue_ = nullptr;
     frameRate_ = 0.0;
     lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
@@ -1328,6 +1672,8 @@ class MediaEngine {
     pausedPosition_ = 0.0;
     playbackStartPosition_ = 0.0;
     duration_ = cue ? cue->duration : 0.0;
+    cueInPointSeconds_ = 0.0;
+    cueOutPointSeconds_ = cue ? cue->duration : 0.0;
     frameRate_ = cue && cue->kind == CueKind::Video && cue->fps > 1.0 ? cue->fps : 30.0;
     lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
     decoderEof_ = false;
@@ -1355,7 +1701,12 @@ class MediaEngine {
       return;
     }
 
-    startDecoderThreads(*cue, 0.0);
+    cueInPointSeconds_ = std::clamp(cue->inPointSeconds, 0.0, std::max(0.0, cue->duration));
+    cueOutPointSeconds_ = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : cue->duration;
+    cueOutPointSeconds_ = std::clamp(cueOutPointSeconds_, cueInPointSeconds_, std::max(cueInPointSeconds_, cue->duration));
+    duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
+
+    startDecoderThreads(*cue, cueInPointSeconds_, 0.0);
     state_ = autoplay ? TransportState::Playing : TransportState::Paused;
     playbackClockStart_ = std::chrono::steady_clock::now();
     playbackStartPosition_ = 0.0;
@@ -1455,7 +1806,7 @@ class MediaEngine {
     }
 
     stopDecoderThreads();
-    startDecoderThreads(*activeCue_, clamped);
+    startDecoderThreads(*activeCue_, cueInPointSeconds_ + clamped, clamped);
     SDL_PauseAudioDevice(audioDevice_, state_ == TransportState::Playing ? 0 : 1);
   }
 
@@ -1808,14 +2159,14 @@ class MediaEngine {
     decoderEof_ = false;
   }
 
-  void startDecoderThreads(const Cue& cue, double startSeconds) {
+  void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
     if (!spawnPipeProcess(videoProcess_, {
       "ffmpeg",
       "-hide_banner",
       "-loglevel",
       "error",
       "-ss",
-      std::to_string(startSeconds),
+      std::to_string(mediaStartSeconds),
       "-i",
       cue.path,
       "-an",
@@ -1829,8 +2180,8 @@ class MediaEngine {
     }
 
     const size_t frameBytes = static_cast<size_t>(cue.width) * static_cast<size_t>(cue.height) * 4u;
-    videoThread_ = std::thread([this, cue, frameBytes]() {
-      std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(playbackStartPosition_ * frameRate_));
+    videoThread_ = std::thread([this, cue, frameBytes, cueStartSeconds]() {
+      std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
       while (!decoderStop_.load()) {
         while (!decoderStop_.load()) {
           bool hasRoom = false;
@@ -1871,7 +2222,7 @@ class MediaEngine {
         "-loglevel",
         "error",
         "-ss",
-        std::to_string(startSeconds),
+        std::to_string(mediaStartSeconds),
         "-i",
         cue.path,
         "-vn",
@@ -1885,9 +2236,9 @@ class MediaEngine {
         "48000",
         "pipe:1"
       })) {
-        audioThread_ = std::thread([this, startSeconds]() {
+        audioThread_ = std::thread([this, cueStartSeconds]() {
           std::vector<std::uint8_t> buffer(8192);
-          double audioTime = startSeconds;
+          double audioTime = cueStartSeconds;
           while (!decoderStop_.load()) {
             if (SDL_GetQueuedAudioSize(audioDevice_) > 384000) {
               SDL_Delay(4);
@@ -1932,6 +2283,8 @@ class MediaEngine {
   double pausedPosition_ = 0.0;
   double playbackStartPosition_ = 0.0;
   double duration_ = 0.0;
+  double cueInPointSeconds_ = 0.0;
+  double cueOutPointSeconds_ = 0.0;
   double frameRate_ = 30.0;
   std::chrono::steady_clock::time_point playbackClockStart_ = std::chrono::steady_clock::now();
   std::optional<DecodedFrame> displayFrame_;
@@ -2852,7 +3205,13 @@ class App {
              << " ndi=" << (deck.ndiEnabled ? "on" : "off")
              << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
              << " ndi_rx=" << ndiConnectionCount(deckIndex)
+             << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
              << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+      if (activeCue) {
+        output << " cue_id=\"" << activeCue->id << "\""
+               << " in=" << formatSeconds(activeCue->inPointSeconds)
+               << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration);
+      }
       if (engine) {
         output << " pos=" << formatSeconds(engine->position())
                << " dur=" << formatSeconds(engine->duration())
@@ -2886,7 +3245,13 @@ class App {
            << " ndi=" << (deck.ndiEnabled ? "on" : "off")
            << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
            << " ndi_rx=" << ndiConnectionCount(deckIndex)
+           << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
            << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+    if (activeCue) {
+      output << " cue_id=\"" << activeCue->id << "\""
+             << " in=" << formatSeconds(activeCue->inPointSeconds)
+             << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration);
+    }
     if (engine) {
       output << " pos=" << formatSeconds(engine->position())
              << " dur=" << formatSeconds(engine->duration())
@@ -2922,7 +3287,13 @@ class App {
              << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
              << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
              << "\"ndiReceivers\":" << ndiConnectionCount(deckIndex) << ","
+             << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
              << "\"cue\":\"" << escapeJson(activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
+      if (activeCue) {
+        output << ",\"cueId\":\"" << escapeJson(activeCue->id) << "\""
+               << ",\"cueIn\":\"" << escapeJson(formatSeconds(activeCue->inPointSeconds)) << "\""
+               << ",\"cueOut\":\"" << escapeJson(formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)) << "\"";
+      }
       if (engine) {
         output << ",\"position\":\"" << escapeJson(formatSeconds(engine->position())) << "\""
                << ",\"duration\":\"" << escapeJson(formatSeconds(engine->duration())) << "\""
@@ -3269,9 +3640,29 @@ class App {
 
       if (FD_ISSET(companionUdpSocket_, &readFds)) {
         std::array<char, 2048> buffer {};
-        ssize_t bytes = recvfrom(companionUdpSocket_, buffer.data(), buffer.size(), 0, nullptr, nullptr);
+        sockaddr_in sender {};
+        socklen_t senderLen = sizeof(sender);
+        ssize_t bytes = recvfrom(
+          companionUdpSocket_,
+          buffer.data(),
+          buffer.size(),
+          0,
+          reinterpret_cast<sockaddr*>(&sender),
+          &senderLen
+        );
         if (bytes > 0) {
-          enqueueRemoteCommandBatch(std::string(buffer.data(), static_cast<size_t>(bytes)));
+          std::string payload(buffer.data(), static_cast<size_t>(bytes));
+          auto osc = parseOscMessage(payload);
+          if (osc) {
+            auto mapped = mapOscToRemoteCommand(*osc);
+            if (mapped && !mapped->empty()) {
+              enqueueRemoteCommand(*mapped);
+            }
+          } else if (payload.find('\0') != std::string::npos) {
+            continue;
+          } else {
+            enqueueRemoteCommandBatch(payload);
+          }
         }
       }
 
@@ -3460,6 +3851,10 @@ class App {
       }
       return;
     }
+    if (command == "SELECTID" || command == "CUEID") {
+      selectCueById(joinParts(parts, 1));
+      return;
+    }
     if (command == "TAKE") {
       auto index = parseCueIndex(1);
       if (index) {
@@ -3467,6 +3862,25 @@ class App {
         onSelectionChanged();
       }
       takeSelected(parts.size() > 2 && toUpper(parts[2]) == "AUTO");
+      return;
+    }
+    if (command == "TAKEID") {
+      takeCueById(joinParts(parts, 1), true);
+      return;
+    }
+    if (command == "GOTO") {
+      std::string token = joinParts(parts, 1);
+      if (token.empty()) {
+        return;
+      }
+      Deck& deck = focusedDeckMutable();
+      auto index = cueIndexByToken(deck, token);
+      if (!index) {
+        return;
+      }
+      deck.selectedIndex = *index;
+      onSelectionChanged();
+      takeSelected(true);
       return;
     }
     if (command == "VOLUME") {
@@ -3491,6 +3905,49 @@ class App {
         }
         engine->seek(*value);
         triggerToast("jump to " + formatSeconds(*value));
+      }
+      return;
+    }
+    if (command == "IN" || command == "TRIMIN") {
+      auto value = parseNumber(1);
+      if (value) {
+        setSelectedTrimIn(*value);
+      }
+      return;
+    }
+    if (command == "OUT" || command == "TRIMOUT") {
+      auto value = parseNumber(1);
+      if (value) {
+        setSelectedTrimOut(*value);
+      }
+      return;
+    }
+    if (command == "TRIM") {
+      if (parts.size() < 2) {
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "CLEAR" || value == "RESET") {
+        clearSelectedTrim();
+      } else if (value == "IN") {
+        auto number = parseNumber(2);
+        if (number) {
+          setSelectedTrimIn(*number);
+        }
+      } else if (value == "OUT") {
+        auto number = parseNumber(2);
+        if (number) {
+          setSelectedTrimOut(*number);
+        }
+      }
+      return;
+    }
+    if (command == "OVERLAY" || command == "TIMEOVERLAY") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleTimeOverlayEnabled();
+      } else {
+        setTimeOverlayEnabled(*state);
       }
       return;
     }
@@ -3771,7 +4228,8 @@ class App {
     drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 64);
     drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
     drawText(controlRenderer_, fontSmall_, "ndi: " + currentNdiOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
-    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
+    drawText(controlRenderer_, fontSmall_, "overlay: " + std::string(deck.timeOverlayEnabled ? "on" : "off"), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
+    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 16);
 
     int listTop = sidebar.y + 128;
     SDL_Rect clipFrame {sidebar.x + 14, listTop - 8, sidebar.w - 28, sidebar.h - 182};
@@ -3924,7 +4382,7 @@ class App {
     drawText(controlRenderer_, fontBase_, activeCue ? transportStatusLabel() : "take a cue to wake it up", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 88);
     drawText(controlRenderer_, fontSmall_, "output stays in the second window so the live path stays clean.", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 126);
     drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  ctrl+n new deck", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
-    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
+    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi  |  o overlay", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
     SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
     drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
@@ -3950,6 +4408,8 @@ class App {
       "Audio codec: " + (selectedCue->audioCodec.empty() ? "none" : selectedCue->audioCodec),
       "Duration: " + formatSeconds(selectedCue->duration),
       "Size: " + std::to_string(static_cast<unsigned long long>(selectedCue->sizeBytes / 1024)) + " KB",
+      "Cue ID: " + selectedCue->id,
+      "In: " + formatSeconds(selectedCue->inPointSeconds) + "   Out: " + formatSeconds(selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration),
       "Fade in: " + formatSeconds(selectedCue->fadeInSeconds) + "   Fade out: " + formatSeconds(selectedCue->fadeOutSeconds),
       std::string("Loop: ") + (selectedCue->loop ? "on" : "off") + "   Hold last: " + (selectedCue->pauseOnLastFrame ? "on" : "off")
     };
@@ -3994,6 +4454,18 @@ class App {
       drawFramedPanel(runtime->outputRenderer, overlay, {155, 188, 15, 185}, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawText(runtime->outputRenderer, fontBase_, deck.name, colorFromRgba(kScreenDeepColor), overlay.x + 16, overlay.y + 10);
       drawText(runtime->outputRenderer, fontSmall_, transportStatusLabel(deckIndex), colorFromRgba(kScreenInkSoftColor), overlay.x + overlay.w - 140, overlay.y + 13);
+    }
+
+    if (deck.timeOverlayEnabled) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      std::string position = formatSeconds(engine ? engine->position() : 0.0);
+      std::string total = formatSeconds(engine ? engine->duration() : 0.0);
+      std::string timeLine = position + " / " + total;
+      std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
+      SDL_Rect overlay {26, 26, std::max(280, width / 3), 58};
+      drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
+      drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
+      drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
     }
 
     double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
@@ -4176,6 +4648,9 @@ class App {
         break;
       case SDLK_n:
         toggleFocusedDeckNdi();
+        break;
+      case SDLK_o:
+        toggleTimeOverlayEnabled();
         break;
       case SDLK_DELETE:
       case SDLK_BACKSPACE:
@@ -4390,6 +4865,126 @@ class App {
       return nullptr;
     }
     return &deck.cues[deck.selectedIndex];
+  }
+
+  std::optional<int> cueIndexById(const Deck& deck, const std::string& cueId) const {
+    std::string needle = toUpper(trim(cueId));
+    if (needle.empty()) {
+      return std::nullopt;
+    }
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (toUpper(deck.cues[index].id) == needle) {
+        return index;
+      }
+    }
+    return std::nullopt;
+  }
+
+  std::optional<int> cueIndexByToken(const Deck& deck, const std::string& token) const {
+    std::string trimmed = trim(token);
+    if (trimmed.empty()) {
+      return std::nullopt;
+    }
+
+    try {
+      int index = std::stoi(trimmed);
+      if (index >= 1 && index <= static_cast<int>(deck.cues.size())) {
+        return index - 1;
+      }
+    } catch (...) {
+    }
+
+    if (auto byId = cueIndexById(deck, trimmed); byId) {
+      return byId;
+    }
+
+    std::string needle = toUpper(trimmed);
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (toUpper(deck.cues[index].name).find(needle) != std::string::npos) {
+        return index;
+      }
+    }
+    return std::nullopt;
+  }
+
+  bool selectCueById(const std::string& cueId) {
+    Deck& deck = focusedDeckMutable();
+    auto index = cueIndexById(deck, cueId);
+    if (!index) {
+      return false;
+    }
+    if (deck.selectedIndex != *index) {
+      deck.selectedIndex = *index;
+      onSelectionChanged();
+    }
+    triggerToast("cue " + std::to_string(*index + 1) + " armed");
+    persistProject();
+    return true;
+  }
+
+  bool takeCueById(const std::string& cueId, bool autoplay) {
+    Deck& deck = focusedDeckMutable();
+    auto index = cueIndexById(deck, cueId);
+    if (!index) {
+      return false;
+    }
+    deck.selectedIndex = *index;
+    onSelectionChanged();
+    takeSelected(autoplay);
+    return true;
+  }
+
+  void setSelectedTrimIn(double seconds) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) {
+      return;
+    }
+    double duration = std::max(0.0, cue->duration);
+    double next = std::clamp(seconds, 0.0, duration);
+    double out = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : duration;
+    out = std::clamp(out, next, duration);
+    cue->inPointSeconds = next;
+    cue->outPointSeconds = out;
+    triggerToast("in " + formatSeconds(cue->inPointSeconds));
+    persistProject();
+  }
+
+  void setSelectedTrimOut(double seconds) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) {
+      return;
+    }
+    double duration = std::max(0.0, cue->duration);
+    double next = std::clamp(seconds, cue->inPointSeconds, duration);
+    cue->outPointSeconds = next;
+    triggerToast("out " + formatSeconds(cue->outPointSeconds));
+    persistProject();
+  }
+
+  void clearSelectedTrim() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) {
+      return;
+    }
+    cue->inPointSeconds = 0.0;
+    cue->outPointSeconds = cue->duration;
+    triggerToast("trim reset");
+    persistProject();
+  }
+
+  void setTimeOverlayEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.timeOverlayEnabled == enabled) {
+      return;
+    }
+    deck.timeOverlayEnabled = enabled;
+    triggerToast(deck.timeOverlayEnabled ? "time overlay on" : "time overlay off");
+    playUiSound(UiSoundEffect::Toggle);
+    persistProject();
+  }
+
+  void toggleTimeOverlayEnabled() {
+    setTimeOverlayEnabled(!focusedDeck().timeOverlayEnabled);
   }
 
   void toggleSelectedLoop() {
