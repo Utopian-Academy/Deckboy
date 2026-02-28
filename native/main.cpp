@@ -96,6 +96,12 @@ enum class TransportState {
   Playing
 };
 
+enum class TransitionStyle {
+  Cut,
+  Crossfade,
+  DipBlack
+};
+
 struct Cue {
   std::string id;
   std::string path;
@@ -117,6 +123,7 @@ struct Cue {
   bool pauseOnLastFrame = false;
   double inPointSeconds = 0.0;
   double outPointSeconds = 0.0;
+  double triggerTimecodeSeconds = -1.0;
 };
 
 struct Deck {
@@ -131,6 +138,15 @@ struct Deck {
   bool ndiEnabled = false;
   std::string ndiSourceName;
   bool timeOverlayEnabled = false;
+  double transitionSeconds = 0.0;
+  std::string transitionStyle = "crossfade";
+  bool timecodeChaseEnabled = false;
+  bool timecodeRunEnabled = false;
+  bool timecodeTriggerEnabled = true;
+  double timecodeFps = 30.0;
+  double timecodeCurrentSeconds = 0.0;
+  double timecodeLastSeconds = 0.0;
+  bool timecodeDirty = false;
 };
 
 struct Project {
@@ -232,6 +248,95 @@ std::string formatSeconds(double seconds) {
   return output.str();
 }
 
+std::string formatTimecode(double seconds, double fps) {
+  double safeFps = std::isfinite(fps) && fps > 1.0 ? fps : 30.0;
+  double clamped = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
+  int totalFrames = static_cast<int>(std::floor(clamped * safeFps + 0.0001));
+  int fpsInt = std::max(1, static_cast<int>(std::round(safeFps)));
+  int frame = totalFrames % fpsInt;
+  int totalSeconds = totalFrames / fpsInt;
+  int secs = totalSeconds % 60;
+  int mins = (totalSeconds / 60) % 60;
+  int hours = totalSeconds / 3600;
+  std::ostringstream output;
+  output << std::setfill('0')
+         << std::setw(2) << hours << ':'
+         << std::setw(2) << mins << ':'
+         << std::setw(2) << secs << ':'
+         << std::setw(2) << frame;
+  return output.str();
+}
+
+std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
+  value = trim(value);
+  if (value.empty()) {
+    return std::nullopt;
+  }
+
+  if (value.find(':') == std::string::npos) {
+    try {
+      return std::max(0.0, std::stod(value));
+    } catch (...) {
+      return std::nullopt;
+    }
+  }
+
+  auto parts = splitByChar(value, ':');
+  if (parts.size() < 2 || parts.size() > 4) {
+    return std::nullopt;
+  }
+
+  auto parseIntPart = [&](const std::string& part) -> std::optional<int> {
+    try {
+      return std::max(0, std::stoi(part));
+    } catch (...) {
+      return std::nullopt;
+    }
+  };
+
+  double safeFps = std::isfinite(fps) && fps > 1.0 ? fps : 30.0;
+  int hours = 0;
+  int mins = 0;
+  int secs = 0;
+  int frames = 0;
+
+  if (parts.size() == 4) {
+    auto h = parseIntPart(parts[0]);
+    auto m = parseIntPart(parts[1]);
+    auto s = parseIntPart(parts[2]);
+    auto f = parseIntPart(parts[3]);
+    if (!h || !m || !s || !f) {
+      return std::nullopt;
+    }
+    hours = *h;
+    mins = *m;
+    secs = *s;
+    frames = *f;
+  } else if (parts.size() == 3) {
+    auto h = parseIntPart(parts[0]);
+    auto m = parseIntPart(parts[1]);
+    auto s = parseIntPart(parts[2]);
+    if (!h || !m || !s) {
+      return std::nullopt;
+    }
+    hours = *h;
+    mins = *m;
+    secs = *s;
+  } else {
+    auto m = parseIntPart(parts[0]);
+    auto s = parseIntPart(parts[1]);
+    if (!m || !s) {
+      return std::nullopt;
+    }
+    mins = *m;
+    secs = *s;
+  }
+
+  double result = static_cast<double>(hours * 3600 + mins * 60 + secs);
+  result += static_cast<double>(frames) / safeFps;
+  return std::max(0.0, result);
+}
+
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
     case CueKind::Image:
@@ -270,6 +375,32 @@ std::string transportLabel(TransportState state) {
     default:
       return "Stopped";
   }
+}
+
+std::string transitionStyleToken(TransitionStyle style) {
+  switch (style) {
+    case TransitionStyle::DipBlack:
+      return "dip";
+    case TransitionStyle::Cut:
+      return "cut";
+    case TransitionStyle::Crossfade:
+    default:
+      return "crossfade";
+  }
+}
+
+TransitionStyle parseTransitionStyleToken(std::string token) {
+  token = trim(token);
+  std::transform(token.begin(), token.end(), token.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::toupper(ch));
+  });
+  if (token == "CUT") {
+    return TransitionStyle::Cut;
+  }
+  if (token == "DIP" || token == "DIPBLACK" || token == "DIP_BLACK") {
+    return TransitionStyle::DipBlack;
+  }
+  return TransitionStyle::Crossfade;
 }
 
 double easeOutCubic(double value) {
@@ -489,6 +620,29 @@ std::uint32_t readOscU32(const std::uint8_t* bytes, size_t offset) {
     (static_cast<std::uint32_t>(bytes[offset + 3]));
 }
 
+void appendOscU32(std::vector<std::uint8_t>& out, std::uint32_t value) {
+  out.push_back(static_cast<std::uint8_t>((value >> 24u) & 0xFFu));
+  out.push_back(static_cast<std::uint8_t>((value >> 16u) & 0xFFu));
+  out.push_back(static_cast<std::uint8_t>((value >> 8u) & 0xFFu));
+  out.push_back(static_cast<std::uint8_t>(value & 0xFFu));
+}
+
+void appendOscString(std::vector<std::uint8_t>& out, const std::string& value) {
+  out.insert(out.end(), value.begin(), value.end());
+  out.push_back(0);
+  while (out.size() % 4u != 0u) {
+    out.push_back(0);
+  }
+}
+
+std::vector<std::uint8_t> buildOscStringMessage(const std::string& address, const std::string& value) {
+  std::vector<std::uint8_t> bytes;
+  appendOscString(bytes, address);
+  appendOscString(bytes, ",s");
+  appendOscString(bytes, value);
+  return bytes;
+}
+
 std::optional<OscMessage> parseOscMessage(const std::string& payload) {
   if (payload.empty() || payload[0] != '/') {
     return std::nullopt;
@@ -549,6 +703,37 @@ std::optional<OscMessage> parseOscMessage(const std::string& payload) {
   }
 
   return message;
+}
+
+std::vector<OscMessage> parseOscPacket(const std::string& payload) {
+  std::vector<OscMessage> messages;
+  if (payload.empty()) {
+    return messages;
+  }
+
+  const auto* bytes = reinterpret_cast<const std::uint8_t*>(payload.data());
+  size_t size = payload.size();
+  if (size >= 16 && std::memcmp(bytes, "#bundle\0", 8) == 0) {
+    size_t offset = 16;  // "#bundle\0" + timetag (8 bytes)
+    while (offset + 4u <= size) {
+      std::uint32_t elementSize = readOscU32(bytes, offset);
+      offset += 4u;
+      if (elementSize == 0 || offset + elementSize > size) {
+        break;
+      }
+      std::string element(payload.data() + offset, payload.data() + offset + elementSize);
+      auto nested = parseOscPacket(element);
+      messages.insert(messages.end(), nested.begin(), nested.end());
+      offset += elementSize;
+    }
+    return messages;
+  }
+
+  auto single = parseOscMessage(payload);
+  if (single) {
+    messages.push_back(*single);
+  }
+  return messages;
 }
 
 std::optional<double> oscArgAsNumber(const OscArg& arg) {
@@ -639,11 +824,23 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/SELECTID" || path == "/CUEID") {
+    if (auto value = argString(0)) {
+      return "SELECTID " + *value;
+    }
+    return std::nullopt;
+  }
   if (path == "/TAKE") {
     if (auto value = argString(0)) {
       return "TAKE " + *value;
     }
     return "TAKE";
+  }
+  if (path == "/TAKEID") {
+    if (auto value = argString(0)) {
+      return "TAKEID " + *value;
+    }
+    return std::nullopt;
   }
   if (path == "/GOTO") {
     if (auto value = argString(0)) {
@@ -687,6 +884,18 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/TRANSITION") {
+    if (auto value = argString(0)) {
+      return "TRANSITION " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TRANSITION/STYLE") {
+    if (auto value = argString(0)) {
+      return "TRANSITION STYLE " + *value;
+    }
+    return std::nullopt;
+  }
   if (path == "/OVERLAY" || path == "/TIMEOVERLAY") {
     if (auto value = argToggleWord(0)) {
       return "OVERLAY " + *value;
@@ -719,6 +928,36 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
   }
   if (path == "/TRIM/CLEAR") {
     return "TRIM CLEAR";
+  }
+  if (path == "/TIMECODE") {
+    if (auto value = argString(0)) {
+      return "TIMECODE " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/CHASE") {
+    if (auto value = argToggleWord(0)) {
+      return "TIMECODE CHASE " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/RUN") {
+    if (auto value = argToggleWord(0)) {
+      return "TIMECODE RUN " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/FPS") {
+    if (auto value = argString(0)) {
+      return "TIMECODE FPS " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/MARK") {
+    if (auto value = argString(0)) {
+      return "TCMARK " + *value;
+    }
+    return std::nullopt;
   }
 
   return std::nullopt;
@@ -837,6 +1076,7 @@ struct NdiApi {
   NDIlib_send_instance_t (*sendCreateFn)(const NDIlib_send_create_t*) = nullptr;
   void (*sendDestroyFn)(NDIlib_send_instance_t) = nullptr;
   void (*sendVideoFn)(NDIlib_send_instance_t, const NDIlib_video_frame_v2_t*) = nullptr;
+  void (*sendAudioInterleaved16sFn)(NDIlib_send_instance_t, const NDIlib_audio_frame_interleaved_16s_t*) = nullptr;
   int (*sendConnectionsFn)(NDIlib_send_instance_t, uint32_t) = nullptr;
 
   bool ensureLoaded() {
@@ -885,6 +1125,7 @@ struct NdiApi {
         !loadSymbol(sendCreateFn, "NDIlib_send_create") ||
         !loadSymbol(sendDestroyFn, "NDIlib_send_destroy") ||
         !loadSymbol(sendVideoFn, "NDIlib_send_send_video_v2") ||
+        !loadSymbol(sendAudioInterleaved16sFn, "NDIlib_util_send_send_audio_interleaved_16s") ||
         !loadSymbol(sendConnectionsFn, "NDIlib_send_get_no_connections")) {
       loadError = "missing NDI symbols in runtime";
       dlclose(libraryHandle);
@@ -920,6 +1161,7 @@ struct NdiApi {
     sendCreateFn = nullptr;
     sendDestroyFn = nullptr;
     sendVideoFn = nullptr;
+    sendAudioInterleaved16sFn = nullptr;
     sendConnectionsFn = nullptr;
   }
 };
@@ -1278,6 +1520,10 @@ std::string makeCueId(const Cue& cue, int deckIndex, int cueIndex) {
 }
 
 void normalizeCueTiming(Cue& cue) {
+  if (!std::isfinite(cue.triggerTimecodeSeconds) || cue.triggerTimecodeSeconds < 0.0) {
+    cue.triggerTimecodeSeconds = -1.0;
+  }
+
   if (!std::isfinite(cue.inPointSeconds)) {
     cue.inPointSeconds = 0.0;
   }
@@ -1342,6 +1588,18 @@ void normalizeDeck(Deck& deck, int index) {
   if (deck.ndiSourceName.empty()) {
     deck.ndiSourceName = defaultNdiSourceName(deck, index);
   }
+  deck.transitionSeconds = std::clamp(deck.transitionSeconds, 0.0, 10.0);
+  deck.transitionStyle = transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle));
+  if (!std::isfinite(deck.timecodeFps) || deck.timecodeFps < 1.0) {
+    deck.timecodeFps = 30.0;
+  }
+  if (!std::isfinite(deck.timecodeCurrentSeconds) || deck.timecodeCurrentSeconds < 0.0) {
+    deck.timecodeCurrentSeconds = 0.0;
+  }
+  if (!std::isfinite(deck.timecodeLastSeconds) || deck.timecodeLastSeconds < 0.0) {
+    deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
+  }
+  deck.timecodeDirty = false;
 }
 
 void normalizeProject(Project& project) {
@@ -1480,7 +1738,14 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.outputDisplayIndex << '\t'
       << (deck.ndiEnabled ? 1 : 0) << '\t'
       << escapeField(deck.ndiSourceName) << '\t'
-      << (deck.timeOverlayEnabled ? 1 : 0)
+      << (deck.timeOverlayEnabled ? 1 : 0) << '\t'
+      << deck.transitionSeconds << '\t'
+      << escapeField(deck.transitionStyle) << '\t'
+      << (deck.timecodeChaseEnabled ? 1 : 0) << '\t'
+      << (deck.timecodeRunEnabled ? 1 : 0) << '\t'
+      << (deck.timecodeTriggerEnabled ? 1 : 0) << '\t'
+      << deck.timecodeFps << '\t'
+      << deck.timecodeCurrentSeconds
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1506,7 +1771,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << (cue.pauseOnLastFrame ? "1" : "0") << '\t'
         << escapeField(cue.id) << '\t'
         << cue.inPointSeconds << '\t'
-        << cue.outPointSeconds
+        << cue.outPointSeconds << '\t'
+        << cue.triggerTimecodeSeconds
         << '\n';
     }
   }
@@ -1573,6 +1839,20 @@ Project loadProject(const fs::path& projectFile) {
       ensureDeck(0).ndiSourceName = safeString(fields, 1);
     } else if (fields[0] == "time_overlay") {
       ensureDeck(0).timeOverlayEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "transition_seconds") {
+      ensureDeck(0).transitionSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
+    } else if (fields[0] == "transition_style") {
+      ensureDeck(0).transitionStyle = safeString(fields, 1);
+    } else if (fields[0] == "timecode_chase") {
+      ensureDeck(0).timecodeChaseEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "timecode_run") {
+      ensureDeck(0).timecodeRunEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "timecode_trigger") {
+      ensureDeck(0).timecodeTriggerEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "timecode_fps") {
+      ensureDeck(0).timecodeFps = safeDouble(fields, 1, 30.0);
+    } else if (fields[0] == "timecode_current") {
+      ensureDeck(0).timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
     } else if (fields[0] == "deck") {
       int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
       Deck& deck = ensureDeck(deckIndex);
@@ -1586,6 +1866,14 @@ Project loadProject(const fs::path& projectFile) {
       deck.ndiEnabled = safeBool(fields, 9, false);
       deck.ndiSourceName = safeString(fields, 10);
       deck.timeOverlayEnabled = safeBool(fields, 11, false);
+      deck.transitionSeconds = std::max(0.0, safeDouble(fields, 12, 0.0));
+      deck.transitionStyle = safeString(fields, 13);
+      deck.timecodeChaseEnabled = safeBool(fields, 14, false);
+      deck.timecodeRunEnabled = safeBool(fields, 15, false);
+      deck.timecodeTriggerEnabled = safeBool(fields, 16, true);
+      deck.timecodeFps = safeDouble(fields, 17, 30.0);
+      deck.timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 18, 0.0));
+      deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -1625,6 +1913,7 @@ Project loadProject(const fs::path& projectFile) {
       cue.id = safeString(fields, offset + 17);
       cue.inPointSeconds = std::max(0.0, safeDouble(fields, offset + 18, 0.0));
       cue.outPointSeconds = std::max(0.0, safeDouble(fields, offset + 19, 0.0));
+      cue.triggerTimecodeSeconds = safeDouble(fields, offset + 20, -1.0);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1640,8 +1929,10 @@ Project loadProject(const fs::path& projectFile) {
 
 class MediaEngine {
  public:
-  explicit MediaEngine(SDL_Renderer* outputRenderer, SDL_AudioDeviceID audioDevice)
-    : outputRenderer_(outputRenderer), audioDevice_(audioDevice) {}
+  using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
+
+  explicit MediaEngine(SDL_Renderer* outputRenderer, SDL_AudioDeviceID audioDevice, AudioTapCallback audioTap = {})
+    : outputRenderer_(outputRenderer), audioDevice_(audioDevice), audioTap_(std::move(audioTap)) {}
 
   ~MediaEngine() {
     stopAll();
@@ -1650,6 +1941,7 @@ class MediaEngine {
   void stopAll() {
     stopDecoderThreads();
     clearTexture();
+    clearTransitionTexture();
     clearAudio();
     state_ = TransportState::Stopped;
     currentPosition_ = 0.0;
@@ -1662,8 +1954,9 @@ class MediaEngine {
     displayFrame_.reset();
   }
 
-  void loadCue(const Cue* cue, bool autoplay) {
+  void loadCue(const Cue* cue, bool autoplay, double transitionSeconds = 0.0, TransitionStyle transitionStyle = TransitionStyle::Cut) {
     stopDecoderThreads();
+    beginTransition(transitionSeconds, transitionStyle);
     clearTexture();
     clearAudio();
     activeCue_ = cue;
@@ -1787,6 +2080,7 @@ class MediaEngine {
     playbackClockStart_ = std::chrono::steady_clock::now();
     lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
     displayFrame_.reset();
+    clearTransitionTexture();
     clearTexture();
     clearAudio();
 
@@ -1886,38 +2180,14 @@ class MediaEngine {
   }
 
   void render(SDL_Rect target) {
-    if (!texture_) {
-      SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
-      SDL_RenderFillRect(outputRenderer_, nullptr);
-      return;
-    }
-
     SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
     SDL_RenderFillRect(outputRenderer_, nullptr);
 
-    int texW = 0;
-    int texH = 0;
-    SDL_QueryTexture(texture_, nullptr, nullptr, &texW, &texH);
-    if (texW <= 0 || texH <= 0) {
-      return;
-    }
-
-    double scale = std::min(
-      static_cast<double>(target.w) / static_cast<double>(texW),
-      static_cast<double>(target.h) / static_cast<double>(texH)
-    );
-    int drawW = std::max(1, static_cast<int>(std::round(texW * scale)));
-    int drawH = std::max(1, static_cast<int>(std::round(texH * scale)));
-    SDL_Rect destination {
-      target.x + (target.w - drawW) / 2,
-      target.y + (target.h - drawH) / 2,
-      drawW,
-      drawH
-    };
-    SDL_RenderCopy(outputRenderer_, texture_, nullptr, &destination);
+    bool drewCurrent = drawTextureFitted(texture_, textureWidth_, textureHeight_, target, 255);
+    drawTransitionOverlay(target, drewCurrent);
 
     double gain = fadeGainAt(position());
-    if (gain < 0.999) {
+    if (drewCurrent && gain < 0.999) {
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>((1.0 - gain) * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
@@ -1925,6 +2195,95 @@ class MediaEngine {
   }
 
  private:
+  void beginTransition(double seconds, TransitionStyle style) {
+    clearTransitionTexture();
+    if (seconds <= 0.001 || !texture_) {
+      return;
+    }
+
+    transitionTexture_ = texture_;
+    transitionTextureWidth_ = textureWidth_;
+    transitionTextureHeight_ = textureHeight_;
+    texture_ = nullptr;
+    textureWidth_ = 0;
+    textureHeight_ = 0;
+    transitionDurationSeconds_ = std::clamp(seconds, 0.0, 10.0);
+    transitionStyle_ = style;
+    transitionStartedAt_ = std::chrono::steady_clock::now();
+    transitionActive_ = true;
+  }
+
+  void clearTransitionTexture() {
+    if (transitionTexture_) {
+      SDL_DestroyTexture(transitionTexture_);
+      transitionTexture_ = nullptr;
+    }
+    transitionTextureWidth_ = 0;
+    transitionTextureHeight_ = 0;
+    transitionActive_ = false;
+    transitionDurationSeconds_ = 0.0;
+    transitionStyle_ = TransitionStyle::Cut;
+  }
+
+  bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue) {
+    if (!texture || width <= 0 || height <= 0) {
+      return false;
+    }
+    double scale = std::min(
+      static_cast<double>(target.w) / static_cast<double>(width),
+      static_cast<double>(target.h) / static_cast<double>(height)
+    );
+    int drawW = std::max(1, static_cast<int>(std::round(width * scale)));
+    int drawH = std::max(1, static_cast<int>(std::round(height * scale)));
+    SDL_Rect destination {
+      target.x + (target.w - drawW) / 2,
+      target.y + (target.h - drawH) / 2,
+      drawW,
+      drawH
+    };
+
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(texture, alphaValue);
+    SDL_RenderCopy(outputRenderer_, texture, nullptr, &destination);
+    SDL_SetTextureAlphaMod(texture, 255);
+    return true;
+  }
+
+  void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent) {
+    if (!transitionActive_) {
+      return;
+    }
+
+    double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
+    double progress = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
+    if (progress >= 1.0) {
+      clearTransitionTexture();
+      return;
+    }
+
+    if (transitionStyle_ == TransitionStyle::DipBlack) {
+      if (progress < 0.5) {
+        drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, 255);
+        SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(std::clamp(progress * 2.0, 0.0, 1.0) * 255.0));
+        SDL_RenderFillRect(outputRenderer_, nullptr);
+      } else {
+        if (!drewCurrent) {
+          SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
+          SDL_RenderFillRect(outputRenderer_, nullptr);
+        }
+        double fadeOutBlack = std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0);
+        SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(fadeOutBlack * 255.0));
+        SDL_RenderFillRect(outputRenderer_, nullptr);
+      }
+      return;
+    }
+
+    Uint8 alphaValue = static_cast<Uint8>(std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
+    drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue);
+  }
+
   double fadeGainAt(double positionSeconds) const {
     if (!activeCue_) {
       return 1.0;
@@ -2264,6 +2623,9 @@ class MediaEngine {
               }
               audioTime += 1.0 / 48000.0;
             }
+            if (audioTap_) {
+              audioTap_(scaled);
+            }
             SDL_QueueAudio(audioDevice_, scaled.data(), static_cast<Uint32>(scaled.size() * sizeof(std::int16_t)));
           }
         });
@@ -2277,6 +2639,13 @@ class MediaEngine {
   SDL_Texture* texture_ = nullptr;
   int textureWidth_ = 0;
   int textureHeight_ = 0;
+  SDL_Texture* transitionTexture_ = nullptr;
+  int transitionTextureWidth_ = 0;
+  int transitionTextureHeight_ = 0;
+  bool transitionActive_ = false;
+  double transitionDurationSeconds_ = 0.0;
+  TransitionStyle transitionStyle_ = TransitionStyle::Cut;
+  std::chrono::steady_clock::time_point transitionStartedAt_ = std::chrono::steady_clock::now();
   std::atomic<float> volume_ {1.0f};
   TransportState state_ = TransportState::Stopped;
   double currentPosition_ = 0.0;
@@ -2295,6 +2664,7 @@ class MediaEngine {
   ChildProcess audioProcess_;
   std::thread videoThread_;
   std::thread audioThread_;
+  AudioTapCallback audioTap_;
   std::atomic<bool> decoderStop_ {false};
   std::atomic<bool> decoderEof_ {false};
   bool reachedEnd_ = false;
@@ -2351,6 +2721,7 @@ class App {
       return false;
     }
     selectionChangedAt_ = SDL_GetTicks64();
+    lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
     layoutButtons(kControlHeight);
     return true;
@@ -2420,6 +2791,87 @@ class App {
     std::cout << "ui-sfx: enabled by separate SDL audio device when available\n";
     std::cout << "companion-control: tcp/udp port 5510 by default (override with PLAYBOY_COMPANION_PORT)\n";
     return 0;
+  }
+
+  static int runSmoke() {
+    int failures = 0;
+    auto expect = [&](bool condition, const std::string& label) {
+      if (condition) {
+        std::cout << "[ok] " << label << '\n';
+      } else {
+        std::cout << "[fail] " << label << '\n';
+        failures += 1;
+      }
+    };
+
+    {
+      auto osc = buildOscStringMessage("/take", "3");
+      std::string packet(reinterpret_cast<const char*>(osc.data()), osc.size());
+      auto parsed = parseOscPacket(packet);
+      expect(parsed.size() == 1 && toUpper(parsed[0].address) == "/TAKE", "osc message parse");
+      auto mapped = parsed.empty() ? std::optional<std::string> {} : mapOscToRemoteCommand(parsed[0]);
+      expect(mapped && *mapped == "TAKE 3", "osc command mapping");
+    }
+
+    {
+      auto one = buildOscStringMessage("/go", "1");
+      auto two = buildOscStringMessage("/overlay", "1");
+      std::vector<std::uint8_t> bundle;
+      bundle.insert(bundle.end(), {'#', 'b', 'u', 'n', 'd', 'l', 'e', '\0'});
+      bundle.insert(bundle.end(), 8, 0);
+      appendOscU32(bundle, static_cast<std::uint32_t>(one.size()));
+      bundle.insert(bundle.end(), one.begin(), one.end());
+      appendOscU32(bundle, static_cast<std::uint32_t>(two.size()));
+      bundle.insert(bundle.end(), two.begin(), two.end());
+      std::string packet(reinterpret_cast<const char*>(bundle.data()), bundle.size());
+      auto parsed = parseOscPacket(packet);
+      expect(parsed.size() == 2, "osc bundle parse");
+    }
+
+    {
+      Project project;
+      Deck deck;
+      deck.name = "Deck Smoke";
+      deck.transitionSeconds = 1.5;
+      deck.transitionStyle = "dip";
+      deck.timecodeChaseEnabled = true;
+      deck.timecodeRunEnabled = false;
+      deck.timecodeTriggerEnabled = true;
+      deck.timecodeFps = 25.0;
+      deck.timecodeCurrentSeconds = 12.0;
+      Cue cue;
+      cue.path = "/tmp/test.mp4";
+      cue.name = "Smoke Cue";
+      cue.kind = CueKind::Video;
+      cue.duration = 20.0;
+      cue.width = 1920;
+      cue.height = 1080;
+      cue.inPointSeconds = 2.0;
+      cue.outPointSeconds = 8.0;
+      cue.triggerTimecodeSeconds = 13.0;
+      deck.cues.push_back(cue);
+      project.decks = {deck};
+      normalizeProject(project);
+
+      fs::path smokePath = fs::path("/tmp") / "playboy-smoke.playboy";
+      expect(saveProject(smokePath, project), "project save");
+      Project loaded = loadProject(smokePath);
+      expect(!loaded.decks.empty(), "project load");
+      if (!loaded.decks.empty() && !loaded.decks[0].cues.empty()) {
+        const Deck& loadedDeck = loaded.decks[0];
+        const Cue& loadedCue = loadedDeck.cues[0];
+        expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
+        expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
+        expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
+        expect(std::abs(loadedCue.inPointSeconds - 2.0) < 0.01 && std::abs(loadedCue.outPointSeconds - 8.0) < 0.01, "trim persisted");
+        expect(std::abs(loadedCue.triggerTimecodeSeconds - 13.0) < 0.01, "cue tc mark persisted");
+      }
+      std::error_code ignored;
+      fs::remove(smokePath, ignored);
+    }
+
+    std::cout << "smoke failures: " << failures << '\n';
+    return failures == 0 ? 0 : 1;
   }
 
  private:
@@ -2622,7 +3074,13 @@ class App {
     }
     runtime->audioDevice = newMain;
     deck.audioOutputDeviceName = effectiveName;
-    runtime->mediaEngine = std::make_unique<MediaEngine>(runtime->outputRenderer, runtime->audioDevice);
+    runtime->mediaEngine = std::make_unique<MediaEngine>(
+      runtime->outputRenderer,
+      runtime->audioDevice,
+      [this, deckIndex](const std::vector<std::int16_t>& samples) {
+        sendDeckNdiAudioSamples(deckIndex, samples);
+      }
+    );
     return true;
   }
 
@@ -2806,6 +3264,46 @@ class App {
     (void) width;
     (void) height;
     (void) fpsHint;
+#endif
+  }
+
+  void sendDeckNdiAudioSamples(int deckIndex, const std::vector<std::int16_t>& samples) {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    if (samples.empty()) {
+      return;
+    }
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (!deck.ndiEnabled || !ndiApi_.sendAudioInterleaved16sFn) {
+      return;
+    }
+    if (!runtime->ndiSender) {
+      applyDeckNdiSettings(deckIndex, false);
+      if (!runtime->ndiSender) {
+        return;
+      }
+    }
+
+    int channels = 2;
+    int sampleCount = static_cast<int>(samples.size() / static_cast<size_t>(channels));
+    if (sampleCount <= 0) {
+      return;
+    }
+
+    NDIlib_audio_frame_interleaved_16s_t frame {};
+    frame.sample_rate = kAudioRate;
+    frame.no_channels = channels;
+    frame.no_samples = sampleCount;
+    frame.timecode = NDIlib_send_timecode_synthesize;
+    frame.reference_level = 0;
+    frame.p_data = const_cast<std::int16_t*>(samples.data());
+    ndiApi_.sendAudioInterleaved16sFn(runtime->ndiSender, &frame);
+#else
+    (void) deckIndex;
+    (void) samples;
 #endif
   }
 
@@ -3157,6 +3655,18 @@ class App {
 #endif
   }
 
+  std::string currentTransitionLabel() const {
+    const Deck& deck = focusedDeck();
+    return transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle)) + " " + formatSeconds(deck.transitionSeconds);
+  }
+
+  std::string currentTimecodeLabel() const {
+    const Deck& deck = focusedDeck();
+    return formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps) +
+           " @" + std::to_string(static_cast<int>(std::round(deck.timecodeFps))) +
+           (deck.timecodeChaseEnabled ? " chase" : " free");
+  }
+
   std::string deckSummaryLabel() const {
     return focusedDeckLabel() + "  (" + std::to_string(project_.focusedDeckIndex + 1) + "/" + std::to_string(project_.decks.size()) + ")";
   }
@@ -3180,6 +3690,9 @@ class App {
     }
     if (deck.ndiEnabled) {
       output << " | ndi:" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName);
+    }
+    if (deck.timecodeChaseEnabled) {
+      output << " | tc:" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
     }
     return output.str();
   }
@@ -3206,11 +3719,18 @@ class App {
              << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
              << " ndi_rx=" << ndiConnectionCount(deckIndex)
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
+             << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
+             << " transition_s=" << deck.transitionSeconds
+             << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
+             << " tc_chase=" << (deck.timecodeChaseEnabled ? "on" : "off")
+             << " tc_run=" << (deck.timecodeRunEnabled ? "on" : "off")
+             << " tc_trigger=" << (deck.timecodeTriggerEnabled ? "on" : "off")
              << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
       if (activeCue) {
         output << " cue_id=\"" << activeCue->id << "\""
                << " in=" << formatSeconds(activeCue->inPointSeconds)
-               << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration);
+               << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)
+               << " tc_mark=" << (activeCue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(activeCue->triggerTimecodeSeconds, deck.timecodeFps) : "--:--:--:--");
       }
       if (engine) {
         output << " pos=" << formatSeconds(engine->position())
@@ -3246,11 +3766,18 @@ class App {
            << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
            << " ndi_rx=" << ndiConnectionCount(deckIndex)
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
+           << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
+           << " transition_s=" << deck.transitionSeconds
+           << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
+           << " tc_chase=" << (deck.timecodeChaseEnabled ? "on" : "off")
+           << " tc_run=" << (deck.timecodeRunEnabled ? "on" : "off")
+           << " tc_trigger=" << (deck.timecodeTriggerEnabled ? "on" : "off")
            << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
     if (activeCue) {
       output << " cue_id=\"" << activeCue->id << "\""
              << " in=" << formatSeconds(activeCue->inPointSeconds)
-             << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration);
+             << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)
+             << " tc_mark=" << (activeCue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(activeCue->triggerTimecodeSeconds, deck.timecodeFps) : "--:--:--:--");
     }
     if (engine) {
       output << " pos=" << formatSeconds(engine->position())
@@ -3288,11 +3815,19 @@ class App {
              << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
              << "\"ndiReceivers\":" << ndiConnectionCount(deckIndex) << ","
              << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
+             << "\"transitionStyle\":\"" << escapeJson(transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))) << "\","
+             << "\"transitionSeconds\":" << deck.transitionSeconds << ","
+             << "\"timecode\":\"" << escapeJson(formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)) << "\","
+             << "\"timecodeFps\":" << deck.timecodeFps << ","
+             << "\"timecodeChase\":" << (deck.timecodeChaseEnabled ? "true" : "false") << ","
+             << "\"timecodeRun\":" << (deck.timecodeRunEnabled ? "true" : "false") << ","
+             << "\"timecodeTrigger\":" << (deck.timecodeTriggerEnabled ? "true" : "false") << ","
              << "\"cue\":\"" << escapeJson(activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
       if (activeCue) {
         output << ",\"cueId\":\"" << escapeJson(activeCue->id) << "\""
                << ",\"cueIn\":\"" << escapeJson(formatSeconds(activeCue->inPointSeconds)) << "\""
-               << ",\"cueOut\":\"" << escapeJson(formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)) << "\"";
+               << ",\"cueOut\":\"" << escapeJson(formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)) << "\""
+               << ",\"cueTriggerTc\":\"" << (activeCue->triggerTimecodeSeconds >= 0.0 ? escapeJson(formatTimecode(activeCue->triggerTimecodeSeconds, deck.timecodeFps)) : std::string("")) << "\"";
       }
       if (engine) {
         output << ",\"position\":\"" << escapeJson(formatSeconds(engine->position())) << "\""
@@ -3481,6 +4016,70 @@ class App {
   }
 
 #ifndef _WIN32
+  std::string oscSenderKey(const sockaddr_in& sender) const {
+    char host[INET_ADDRSTRLEN] {};
+    const char* text = inet_ntop(AF_INET, &sender.sin_addr, host, sizeof(host));
+    if (!text) {
+      return "unknown:" + std::to_string(ntohs(sender.sin_port));
+    }
+    return std::string(text) + ":" + std::to_string(ntohs(sender.sin_port));
+  }
+
+  void rememberOscSubscriber(const sockaddr_in& sender) {
+    oscSubscribers_[oscSenderKey(sender)] = {sender, SDL_GetTicks64()};
+  }
+
+  void sendOscStringTo(const sockaddr_in& target, const std::string& address, const std::string& payload) {
+    if (companionUdpSocket_ == kInvalidSocket) {
+      return;
+    }
+    std::vector<std::uint8_t> message = buildOscStringMessage(address, payload);
+    sendto(
+      companionUdpSocket_,
+      message.data(),
+      message.size(),
+      0,
+      reinterpret_cast<const sockaddr*>(&target),
+      sizeof(target)
+    );
+  }
+
+  std::string snapshotJsonForFeedback() {
+    std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+    if (!statusSnapshotJson_.empty()) {
+      return statusSnapshotJson_;
+    }
+    return "{\"app\":\"PLAYBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
+  }
+
+  void maybeBroadcastOscState() {
+    Uint64 now = SDL_GetTicks64();
+    if (oscSubscribers_.empty()) {
+      return;
+    }
+
+    std::string snapshot = snapshotJsonForFeedback();
+    bool changed = snapshot != lastOscFeedbackPayload_;
+    if (!changed && now - lastOscFeedbackBroadcastMs_ < 2000) {
+      return;
+    }
+
+    std::vector<std::string> stale;
+    for (const auto& [key, entry] : oscSubscribers_) {
+      if (now > entry.second + 30000) {
+        stale.push_back(key);
+        continue;
+      }
+      sendOscStringTo(entry.first, "/playboy/state", snapshot);
+    }
+    for (const auto& key : stale) {
+      oscSubscribers_.erase(key);
+    }
+
+    lastOscFeedbackPayload_ = snapshot;
+    lastOscFeedbackBroadcastMs_ = now;
+  }
+
   bool maybeRespondToCompanionQuery(SocketHandle client, const std::string& line) {
     std::string query = trim(line);
     std::string upper = toUpper(query);
@@ -3588,6 +4187,9 @@ class App {
     }
     companionClients_.clear();
     companionClientBuffers_.clear();
+    oscSubscribers_.clear();
+    lastOscFeedbackPayload_.clear();
+    lastOscFeedbackBroadcastMs_ = 0;
     closeSocket(companionTcpListen_);
     closeSocket(companionUdpSocket_);
     companionTcpListen_ = kInvalidSocket;
@@ -3625,6 +4227,7 @@ class App {
         break;
       }
       if (ready == 0) {
+        maybeBroadcastOscState();
         continue;
       }
 
@@ -3652,11 +4255,24 @@ class App {
         );
         if (bytes > 0) {
           std::string payload(buffer.data(), static_cast<size_t>(bytes));
-          auto osc = parseOscMessage(payload);
-          if (osc) {
-            auto mapped = mapOscToRemoteCommand(*osc);
-            if (mapped && !mapped->empty()) {
-              enqueueRemoteCommand(*mapped);
+          auto oscMessages = parseOscPacket(payload);
+          if (!oscMessages.empty()) {
+            rememberOscSubscriber(sender);
+            for (const auto& osc : oscMessages) {
+              std::string path = toUpper(trim(osc.address));
+              if (path == "/STATUS" || path == "/STATE" || path == "/PLAYBOY/STATUS" || path == "/PLAYBOY/STATE") {
+                sendOscStringTo(sender, "/playboy/state", snapshotJsonForFeedback());
+                continue;
+              }
+              if (path == "/PING" || path == "/PLAYBOY/PING") {
+                sendOscStringTo(sender, "/playboy/pong", "PLAYBOY_0.01");
+                continue;
+              }
+              auto mapped = mapOscToRemoteCommand(osc);
+              if (mapped && !mapped->empty()) {
+                enqueueRemoteCommand(*mapped);
+                sendOscStringTo(sender, "/playboy/ack", *mapped);
+              }
             }
           } else if (payload.find('\0') != std::string::npos) {
             continue;
@@ -3713,6 +4329,7 @@ class App {
           );
         }
       }
+      maybeBroadcastOscState();
     }
   }
 #endif
@@ -3840,6 +4457,9 @@ class App {
     }
     if (command == "SELECT") {
       auto index = parseCueIndex(1);
+      if (!index && parts.size() > 1) {
+        index = cueIndexByToken(focusedDeck(), joinParts(parts, 1));
+      }
       if (index) {
         Deck& deck = focusedDeckMutable();
         if (deck.selectedIndex != *index) {
@@ -3857,6 +4477,9 @@ class App {
     }
     if (command == "TAKE") {
       auto index = parseCueIndex(1);
+      if (!index && parts.size() > 1) {
+        index = cueIndexByToken(focusedDeck(), joinParts(parts, 1));
+      }
       if (index) {
         focusedDeckMutable().selectedIndex = *index;
         onSelectionChanged();
@@ -4035,6 +4658,107 @@ class App {
       }
       return;
     }
+    if (command == "TRANSITION" || command == "XFADE") {
+      if (parts.size() < 2) {
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "OFF" || value == "0" || value == "CUT") {
+        setTransitionSeconds(0.0);
+        if (value == "CUT") {
+          setTransitionStyle(TransitionStyle::Cut);
+        }
+      } else if (value == "STYLE") {
+        if (parts.size() > 2) {
+          setTransitionStyle(parseTransitionStyleToken(parts[2]));
+        }
+      } else {
+        auto seconds = parseNumber(1);
+        if (seconds) {
+          setTransitionSeconds(*seconds);
+          if (focusedDeck().transitionStyle == "cut" && *seconds > 0.0) {
+            setTransitionStyle(TransitionStyle::Crossfade);
+          }
+        } else {
+          setTransitionStyle(parseTransitionStyleToken(parts[1]));
+        }
+      }
+      return;
+    }
+    if (command == "TRANSITIONSTYLE") {
+      if (parts.size() > 1) {
+        setTransitionStyle(parseTransitionStyleToken(parts[1]));
+      }
+      return;
+    }
+    if (command == "TCMARK" || command == "TIMECODEMARK") {
+      if (parts.size() < 2) {
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "NOW" || value == "HERE") {
+        setSelectedCueTimecodeTrigger(focusedDeck().timecodeCurrentSeconds);
+        return;
+      }
+      if (value == "CLEAR" || value == "NONE" || value == "OFF") {
+        clearSelectedCueTimecodeTrigger();
+        return;
+      }
+      auto parsed = parseTimecodeSeconds(joinParts(parts, 1), focusedDeck().timecodeFps);
+      if (parsed) {
+        setSelectedCueTimecodeTrigger(*parsed);
+      }
+      return;
+    }
+    if (command == "TIMECODE" || command == "TC") {
+      if (parts.size() < 2) {
+        triggerToast("tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps));
+        return;
+      }
+      std::string sub = toUpper(parts[1]);
+      if (sub == "CHASE") {
+        auto state = parseToggleWord(2);
+        if (state) {
+          setTimecodeChaseEnabled(*state);
+        }
+        return;
+      }
+      if (sub == "RUN") {
+        auto state = parseToggleWord(2);
+        if (state) {
+          setTimecodeRunEnabled(*state);
+        }
+        return;
+      }
+      if (sub == "TRIGGER") {
+        auto state = parseToggleWord(2);
+        if (state) {
+          focusedDeckMutable().timecodeTriggerEnabled = *state;
+          triggerToast(*state ? "tc trigger on" : "tc trigger off");
+          persistProject();
+        }
+        return;
+      }
+      if (sub == "FPS") {
+        auto value = parseNumber(2);
+        if (value) {
+          setTimecodeFps(*value);
+        }
+        return;
+      }
+      if (sub == "SET") {
+        auto parsed = parseTimecodeSeconds(joinParts(parts, 2), focusedDeck().timecodeFps);
+        if (parsed) {
+          setFocusedDeckTimecode(*parsed);
+        }
+        return;
+      }
+      auto parsed = parseTimecodeSeconds(joinParts(parts, 1), focusedDeck().timecodeFps);
+      if (parsed) {
+        setFocusedDeckTimecode(*parsed);
+      }
+      return;
+    }
     if (command == "PATTERN") {
       addKawaiiPatternCue();
       return;
@@ -4148,6 +4872,32 @@ class App {
 
   void update() {
     processRemoteCommands();
+    Uint64 now = SDL_GetTicks64();
+    double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
+    lastUpdateTickMs_ = now;
+
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      double fromTc = deck.timecodeCurrentSeconds;
+      if (deck.timecodeDirty) {
+        fromTc = deck.timecodeLastSeconds;
+      }
+      if (deck.timecodeRunEnabled && deltaSeconds > 0.0) {
+        if (deck.timecodeDirty) {
+          fromTc = deck.timecodeLastSeconds;
+        } else {
+          fromTc = deck.timecodeCurrentSeconds;
+        }
+        deck.timecodeCurrentSeconds = std::max(0.0, deck.timecodeCurrentSeconds + deltaSeconds);
+      }
+
+      if (deck.timecodeChaseEnabled && deck.timecodeTriggerEnabled) {
+        processTimecodeTriggersForDeck(deckIndex, fromTc, deck.timecodeCurrentSeconds);
+      }
+      deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
+      deck.timecodeDirty = false;
+    }
+
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       MediaEngine* engine = mediaEngineForDeck(deckIndex);
       if (!engine) {
@@ -4218,18 +4968,21 @@ class App {
       std::string("1 sfx ") + (project_.uiSoundsEnabled ? "on" : "off") +
       "   2 anim " + (project_.uiTransitionsEnabled ? "on" : "off") +
       "   3 auto " + (deck.autoAdvance ? "on" : "off") +
-      "   4 plist " + (deck.playlistLoop ? "on" : "off");
+      "   4 plist " + (deck.playlistLoop ? "on" : "off") +
+      "   5 tc " + (deck.timecodeChaseEnabled ? "chase" : "free");
     drawText(controlRenderer_, fontSmall_, fxStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 190, sidebar.y + 76);
     drawText(controlRenderer_, fontSmall_, "playlist: " + currentProjectLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 94);
     drawText(controlRenderer_, fontSmall_, "deck: " + deckSummaryLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 112);
     std::string companionStatus = companionReady_
       ? "companion tcp/udp " + std::to_string(companionPort_)
       : "companion control unavailable";
-    drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 64);
-    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
-    drawText(controlRenderer_, fontSmall_, "ndi: " + currentNdiOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
-    drawText(controlRenderer_, fontSmall_, "overlay: " + std::string(deck.timeOverlayEnabled ? "on" : "off"), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
-    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 16);
+    drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 76);
+    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 64);
+    drawText(controlRenderer_, fontSmall_, "ndi: " + currentNdiOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
+    drawText(controlRenderer_, fontSmall_, "overlay: " + std::string(deck.timeOverlayEnabled ? "on" : "off"), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
+    drawText(controlRenderer_, fontSmall_, "transition: " + currentTransitionLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
+    drawText(controlRenderer_, fontSmall_, "tc: " + currentTimecodeLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 16);
+    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 10);
 
     int listTop = sidebar.y + 128;
     SDL_Rect clipFrame {sidebar.x + 14, listTop - 8, sidebar.w - 28, sidebar.h - 182};
@@ -4382,11 +5135,20 @@ class App {
     drawText(controlRenderer_, fontBase_, activeCue ? transportStatusLabel() : "take a cue to wake it up", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 88);
     drawText(controlRenderer_, fontSmall_, "output stays in the second window so the live path stays clean.", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 126);
     drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  ctrl+n new deck", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
-    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi  |  o overlay", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
+    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi  |  o overlay  |  t tc-run", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
     SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
     drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
-    drawText(controlRenderer_, fontMono_, "vol:" + std::to_string(static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f))) + "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")), colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 44);
+    drawText(
+      controlRenderer_,
+      fontMono_,
+      "vol:" + std::to_string(static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f))) +
+      "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")) +
+      "  tc:" + (deck.timecodeRunEnabled ? std::string("run") : std::string("hold")),
+      colorFromRgba(kScreenDeepColor),
+      fauxScreen.x + 16,
+      fauxScreen.y + 44
+    );
 
     int detailX = x;
     int detailY = preview.y + preview.h + 26;
@@ -4410,6 +5172,7 @@ class App {
       "Size: " + std::to_string(static_cast<unsigned long long>(selectedCue->sizeBytes / 1024)) + " KB",
       "Cue ID: " + selectedCue->id,
       "In: " + formatSeconds(selectedCue->inPointSeconds) + "   Out: " + formatSeconds(selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration),
+      "TC Mark: " + (selectedCue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(selectedCue->triggerTimecodeSeconds, deck.timecodeFps) : std::string("--:--:--:--")),
       "Fade in: " + formatSeconds(selectedCue->fadeInSeconds) + "   Fade out: " + formatSeconds(selectedCue->fadeOutSeconds),
       std::string("Loop: ") + (selectedCue->loop ? "on" : "off") + "   Hold last: " + (selectedCue->pauseOnLastFrame ? "on" : "off")
     };
@@ -4462,10 +5225,12 @@ class App {
       std::string total = formatSeconds(engine ? engine->duration() : 0.0);
       std::string timeLine = position + " / " + total;
       std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
-      SDL_Rect overlay {26, 26, std::max(280, width / 3), 58};
+      std::string tcLine = "tc: " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+      SDL_Rect overlay {26, 26, std::max(300, width / 3), 72};
       drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
       drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
       drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
+      drawText(runtime->outputRenderer, fontSmall_, tcLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 50);
     }
 
     double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
@@ -4652,6 +5417,12 @@ class App {
       case SDLK_o:
         toggleTimeOverlayEnabled();
         break;
+      case SDLK_t:
+        setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
+        break;
+      case SDLK_5:
+        setTimecodeChaseEnabled(!focusedDeck().timecodeChaseEnabled);
+        break;
       case SDLK_DELETE:
       case SDLK_BACKSPACE:
         deleteSelected();
@@ -4817,7 +5588,12 @@ class App {
     deck.activeIndex = deck.selectedIndex;
     const Cue& cue = deck.cues[deck.activeIndex];
     stopBrowserCue();
-    engine->loadCue(&cue, autoplay);
+    engine->loadCue(
+      &cue,
+      autoplay,
+      deck.transitionSeconds,
+      parseTransitionStyleToken(deck.transitionStyle)
+    );
     if (cue.kind == CueKind::Browser) {
       startBrowserCue(project_.focusedDeckIndex, cue);
       triggerToast("browser jumped live");
@@ -4985,6 +5761,146 @@ class App {
 
   void toggleTimeOverlayEnabled() {
     setTimeOverlayEnabled(!focusedDeck().timeOverlayEnabled);
+  }
+
+  void setTransitionSeconds(double seconds) {
+    Deck& deck = focusedDeckMutable();
+    double next = std::clamp(seconds, 0.0, 10.0);
+    if (std::abs(deck.transitionSeconds - next) < 0.001) {
+      return;
+    }
+    deck.transitionSeconds = next;
+    triggerToast("transition " + formatSeconds(deck.transitionSeconds));
+    playUiSound(UiSoundEffect::Toggle);
+    persistProject();
+  }
+
+  void setTransitionStyle(TransitionStyle style) {
+    Deck& deck = focusedDeckMutable();
+    std::string token = transitionStyleToken(style);
+    if (deck.transitionStyle == token) {
+      return;
+    }
+    deck.transitionStyle = token;
+    triggerToast("style " + deck.transitionStyle);
+    playUiSound(UiSoundEffect::Toggle);
+    persistProject();
+  }
+
+  bool setSelectedCueTimecodeTrigger(double seconds) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return false;
+    }
+    cue->triggerTimecodeSeconds = std::max(0.0, seconds);
+    triggerToast("tc mark " + formatTimecode(cue->triggerTimecodeSeconds, focusedDeck().timecodeFps));
+    persistProject();
+    return true;
+  }
+
+  void clearSelectedCueTimecodeTrigger() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    cue->triggerTimecodeSeconds = -1.0;
+    triggerToast("tc mark cleared");
+    persistProject();
+  }
+
+  void setTimecodeFps(double fps) {
+    Deck& deck = focusedDeckMutable();
+    double next = std::clamp(fps, 1.0, 120.0);
+    if (std::abs(deck.timecodeFps - next) < 0.001) {
+      return;
+    }
+    deck.timecodeFps = next;
+    triggerToast("tc fps " + std::to_string(static_cast<int>(std::round(deck.timecodeFps))));
+    persistProject();
+  }
+
+  void setTimecodeChaseEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.timecodeChaseEnabled == enabled) {
+      return;
+    }
+    deck.timecodeChaseEnabled = enabled;
+    triggerToast(deck.timecodeChaseEnabled ? "tc chase on" : "tc chase off");
+    persistProject();
+  }
+
+  void setTimecodeRunEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.timecodeRunEnabled == enabled) {
+      return;
+    }
+    deck.timecodeRunEnabled = enabled;
+    triggerToast(deck.timecodeRunEnabled ? "tc run on" : "tc run off");
+    persistProject();
+  }
+
+  void setDeckTimecode(int deckIndex, double seconds) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    double normalized = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
+    if (normalized + 0.0001 < deck.timecodeCurrentSeconds) {
+      timecodeTriggeredCueIds_.erase(deckIndex);
+    }
+    deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
+    deck.timecodeCurrentSeconds = normalized;
+    deck.timecodeDirty = true;
+  }
+
+  void processTimecodeTriggersForDeck(int deckIndex, double fromSeconds, double toSeconds) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.cues.empty()) {
+      return;
+    }
+
+    auto& fired = timecodeTriggeredCueIds_[deckIndex];
+    if (toSeconds + 0.0001 < fromSeconds) {
+      fired.clear();
+      return;
+    }
+
+    std::optional<int> bestIndex;
+    double bestTc = 0.0;
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      const Cue& cue = deck.cues[cueIndex];
+      if (cue.triggerTimecodeSeconds < 0.0) {
+        continue;
+      }
+      if (cue.triggerTimecodeSeconds <= toSeconds + 0.0001 && cue.triggerTimecodeSeconds > fromSeconds + 0.0001) {
+        if (fired.find(cue.id) != fired.end()) {
+          continue;
+        }
+        if (!bestIndex || cue.triggerTimecodeSeconds < bestTc) {
+          bestIndex = cueIndex;
+          bestTc = cue.triggerTimecodeSeconds;
+        }
+      }
+    }
+
+    if (!bestIndex) {
+      return;
+    }
+
+    fired.insert(deck.cues[*bestIndex].id);
+    deck.selectedIndex = *bestIndex;
+    int previousFocus = project_.focusedDeckIndex;
+    project_.focusedDeckIndex = deckIndex;
+    takeSelected(true);
+    project_.focusedDeckIndex = previousFocus;
+  }
+
+  void setFocusedDeckTimecode(double seconds) {
+    setDeckTimecode(project_.focusedDeckIndex, seconds);
+    triggerToast("tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps));
   }
 
   void toggleSelectedLoop() {
@@ -5155,6 +6071,7 @@ class App {
     currentProjectFile_ = normalized;
     project_ = loadProject(normalized);
     normalizeProject(project_);
+    timecodeTriggeredCueIds_.clear();
     selectionChangedAt_ = SDL_GetTicks64();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
@@ -5506,6 +6423,7 @@ class App {
   ToastState toast_;
   Uint64 animationNow_ = 0;
   Uint64 selectionChangedAt_ = 0;
+  Uint64 lastUpdateTickMs_ = 0;
   int companionPort_ = 5510;
   bool companionReady_ = false;
   std::atomic<bool> companionStop_ {false};
@@ -5516,11 +6434,15 @@ class App {
   std::string statusSnapshot_;
   std::string statusSnapshotJson_;
   std::vector<std::string> statusDeckSnapshots_;
+  std::map<int, std::unordered_set<std::string>> timecodeTriggeredCueIds_;
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
+  std::map<std::string, std::pair<sockaddr_in, Uint64>> oscSubscribers_;
+  Uint64 lastOscFeedbackBroadcastMs_ = 0;
+  std::string lastOscFeedbackPayload_;
 #endif
 };
 
@@ -5529,6 +6451,9 @@ class App {
 int main(int argc, char** argv) {
   if (argc > 1 && std::string_view(argv[1]) == "--self-check") {
     return App::runSelfCheck();
+  }
+  if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
+    return App::runSmoke();
   }
 
   App app;
