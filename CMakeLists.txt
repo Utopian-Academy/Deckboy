@@ -21,6 +21,19 @@ if(NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
   message(FATAL_ERROR "SDL2_ttf development files are required")
 endif()
 
+option(PLAYBOY_ENABLE_NDI "Enable optional NDI SDK integration" ON)
+if(PLAYBOY_ENABLE_NDI)
+  find_path(PLAYBOY_NDI_INCLUDE_DIR
+    NAMES Processing.NDI.Lib.h
+    PATHS
+      "$ENV{PLAYBOY_NDI_SDK}/include"
+      "/home/james/NDI SDK for Linux/include"
+      "/opt/NDI SDK for Linux/include"
+      "/usr/local/include"
+      "/usr/include"
+  )
+endif()
+
 add_executable(playboy-native
   native/main.cpp
 )
@@ -29,6 +42,15 @@ target_include_directories(playboy-native PRIVATE
   ${SDL2_INCLUDE_DIRS}
   ${SDL2_TTF_INCLUDE_DIR}
 )
+
+if(PLAYBOY_ENABLE_NDI AND PLAYBOY_NDI_INCLUDE_DIR)
+  target_include_directories(playboy-native PRIVATE
+    ${PLAYBOY_NDI_INCLUDE_DIR}
+  )
+  target_compile_definitions(playboy-native PRIVATE
+    PLAYBOY_HAS_NDI_SDK=1
+  )
+endif()
 
 target_compile_options(playboy-native PRIVATE
   ${SDL2_CFLAGS_OTHER}
@@ -42,6 +64,10 @@ target_link_libraries(playboy-native PRIVATE
   ${SDL2_LIBRARIES}
   ${SDL2_TTF_LIBRARY}
 )
+
+if(UNIX AND NOT APPLE)
+  target_link_libraries(playboy-native PRIVATE dl)
+endif()
 
 target_compile_definitions(playboy-native PRIVATE
   $<$<CONFIG:Debug>:PLAYBOY_DEBUG=1>

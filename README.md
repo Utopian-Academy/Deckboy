@@ -24,6 +24,7 @@ Cute extras are now optional:
 - Built-in kawaii test pattern cue
 - Browser cues that launch a clean Chromium-style output window on the target display
 - Audio output device selection and output display selection
+- Optional per-deck NDI output (video sender name + enable/disable)
 - Output fullscreen toggle
 - Companion control over a native TCP/UDP command port
 - Persistent show file in `data/project.playboy`
@@ -75,6 +76,7 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `4`: toggle playlist loop
 - `A`: cycle audio output device
 - `D`: cycle output display
+- `N`: toggle NDI output for the focused deck
 - `Ctrl+S`: save current playlist
 - `Ctrl+O`: open playlist
 - `Ctrl+Shift+S`: save playlist as
@@ -129,14 +131,21 @@ AUDIO NEXT
 AUDIO DEFAULT
 DISPLAY NEXT
 DISPLAY 2
+NDI ON
+NDI OFF
+NDI NAME Stage Left Feed
 DECK 2
 DECK 2 TAKE
 DECK 2 SELECT 3
+DECK 2 NDI ON
 DECKNEXT
 DECKPREV
 NEWDECK
 STATUS
+STATUS 2
+STATUS JSON
 STATE
+STATE JSON
 ```
 
 Notes:
@@ -148,8 +157,11 @@ Notes:
 - `BROWSER ...` adds a new browser cue to the current playlist.
 - `AUDIO ...` uses SDL output device names; `DEFAULT` returns to the system default output.
 - `DISPLAY 2` means the second display.
+- `NDI NAME ...` renames the NDI sender for the focused deck.
 - `DECK 2 TAKE` switches focus to deck 2 and runs the nested command there.
-- `STATUS` and `STATE` return a multi-line TCP snapshot of all decks and their transport state.
+- `STATUS` and `STATE` return a multi-line TCP snapshot of all decks.
+- `STATUS 2` or `STATE 2` returns a single deck snapshot.
+- `STATUS JSON` or `STATE JSON` returns a JSON snapshot.
 
 ## Notes
 
@@ -157,6 +169,8 @@ Notes:
 - The older browser prototype is still on disk for reference and can be launched with `./bin/playboy-web`, but it is no longer the default path.
 - Browser cues currently rely on a Chromium-family browser already being available on the machine.
 - If a Dante or network audio device appears to the OS as a normal output device, Playboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
-- NDI output is not implemented yet on this machine because the NDI SDK/runtime is not installed locally. The deck model now gives us the right place to add it once those libraries are available.
+- NDI output is now optional and deck-local. If the app finds NDI SDK headers at build time, it can dynamically load `libndi` at runtime and publish each enabled deck as a network source.
+- NDI in this version is video-only (audio over NDI is not wired yet).
+- If NDI runtime libraries are not on your system path, set `PLAYBOY_NDI_LIB` to the full path for `libndi.so.6`.
 - Multi-output is still optional. `Playboy_0.01` now saves multiple decks in the project file, and each deck has its own playlist, selection, active cue pointer, auto-advance, loop setting, audio target, display target, output window, and transport runtime.
-- For deeper PlaybackPro/Mitti parity, the next logical upgrades are timecode, NDI/DeckLink class outputs, cue transitions, and a more robust decode backend than subprocess-driven FFmpeg piping.
+- For deeper PlaybackPro/Mitti parity, the next logical upgrades are timecode, DeckLink class outputs, cue transitions, and a more robust decode backend than subprocess-driven FFmpeg piping.
