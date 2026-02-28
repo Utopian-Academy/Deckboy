@@ -19,14 +19,17 @@ Cute extras are now optional:
 - FFprobe metadata ingest for video clips and stills
 - FFmpeg-driven video frame decode and audio decode
 - Cue list, selection, drag reorder, take, play/pause, stop, clear, seek, volume
-- Cue controls for fade in, fade out, loop, and hold on last frame
+- Cue controls for fade in, fade out, loop, hold on last frame, in-point, and out-point
 - Playlist controls for auto-advance and playlist loop
 - Built-in kawaii test pattern cue
 - Browser cues that launch a clean Chromium-style output window on the target display
 - Audio output device selection and output display selection
 - Optional per-deck NDI output (video sender name + enable/disable)
+- Optional deck-local time overlay in output
+- Cue IDs with ID-targeted select/take and `GOTO` search
 - Output fullscreen toggle
 - Companion control over a native TCP/UDP command port
+- OSC input support (UDP OSC messages mapped to transport/control commands)
 - Persistent show file in `data/project.playboy`
 
 ## Run
@@ -77,6 +80,7 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `A`: cycle audio output device
 - `D`: cycle output display
 - `N`: toggle NDI output for the focused deck
+- `O`: toggle time overlay for the focused deck
 - `Ctrl+S`: save current playlist
 - `Ctrl+O`: open playlist
 - `Ctrl+Shift+S`: save playlist as
@@ -106,10 +110,18 @@ FULLSCREEN
 NEXT
 PREV
 SELECT 3
+SELECTID cue-abc123
 TAKE
 TAKE 3
+TAKEID cue-abc123
+GOTO 3
+GOTO cue-abc123
+GOTO opener
 VOLUME 75
 SEEK 12.5
+IN 2.0
+OUT 8.5
+TRIM CLEAR
 SFX ON
 SFX OFF
 ANIM ON
@@ -134,6 +146,8 @@ DISPLAY 2
 NDI ON
 NDI OFF
 NDI NAME Stage Left Feed
+OVERLAY ON
+OVERLAY OFF
 DECK 2
 DECK 2 TAKE
 DECK 2 SELECT 3
@@ -158,10 +172,33 @@ Notes:
 - `AUDIO ...` uses SDL output device names; `DEFAULT` returns to the system default output.
 - `DISPLAY 2` means the second display.
 - `NDI NAME ...` renames the NDI sender for the focused deck.
+- `OVERLAY ...` toggles the output time/ID overlay for the focused deck.
+- `SELECTID`/`TAKEID` target cues by stored cue ID.
+- `GOTO` accepts cue number, cue ID, or partial cue name.
+- `IN`/`OUT` and `TRIM CLEAR` control selected cue trim points.
 - `DECK 2 TAKE` switches focus to deck 2 and runs the nested command there.
 - `STATUS` and `STATE` return a multi-line TCP snapshot of all decks.
 - `STATUS 2` or `STATE 2` returns a single deck snapshot.
 - `STATUS JSON` or `STATE JSON` returns a JSON snapshot.
+
+### OSC Input
+
+Playboy also accepts OSC over UDP on the Companion port (`5510` by default).
+Supported OSC addresses include:
+
+- `/go`, `/play`, `/pause`, `/stop`, `/clear`, `/next`, `/prev`
+- `/select i`, `/take i`, `/goto s`
+- `/deck i`, `/deck/next`, `/deck/prev`
+- `/volume f`, `/seek f`
+- `/autonext i`, `/playlistloop i`
+- `/ndi i`, `/ndi/name s`
+- `/overlay i`, `/timeoverlay i`
+- `/in f`, `/out f`, `/trim/clear`
+
+Notes:
+
+- This version handles single OSC messages (not OSC bundles).
+- OSC values are mapped into the same internal command path used by Companion text commands.
 
 ## Notes
 
