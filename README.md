@@ -20,16 +20,19 @@ Cute extras are now optional:
 - FFmpeg-driven video frame decode and audio decode
 - Cue list, selection, drag reorder, take, play/pause, stop, clear, seek, volume
 - Cue controls for fade in, fade out, loop, hold on last frame, in-point, and out-point
+- Deck transition engine with `cut` / `crossfade` / `dip` styles
 - Playlist controls for auto-advance and playlist loop
 - Built-in kawaii test pattern cue
 - Browser cues that launch a clean Chromium-style output window on the target display
 - Audio output device selection and output display selection
-- Optional per-deck NDI output (video sender name + enable/disable)
+- Optional per-deck NDI output (video + audio sender name + enable/disable)
 - Optional deck-local time overlay in output
 - Cue IDs with ID-targeted select/take and `GOTO` search
+- Timecode chase layer (manual or OSC-fed), cue timecode marks, and trigger take
 - Output fullscreen toggle
 - Companion control over a native TCP/UDP command port
-- OSC input support (UDP OSC messages mapped to transport/control commands)
+- OSC input support (single messages + bundles) and OSC state feedback/ack replies
+- Built-in smoke harness (`--smoke` and `scripts/smoke.sh`)
 - Persistent show file in `data/project.playboy`
 
 ## Run
@@ -48,6 +51,8 @@ Useful options:
 
 ```bash
 ./build/native/playboy-native --self-check
+./build/native/playboy-native --smoke
+./scripts/smoke.sh
 ```
 
 To change the Companion port:
@@ -81,6 +86,8 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `D`: cycle output display
 - `N`: toggle NDI output for the focused deck
 - `O`: toggle time overlay for the focused deck
+- `T`: toggle focused deck timecode run mode
+- `5`: toggle focused deck timecode chase mode
 - `Ctrl+S`: save current playlist
 - `Ctrl+O`: open playlist
 - `Ctrl+Shift+S`: save playlist as
@@ -137,6 +144,18 @@ AUTONEXT ON
 AUTONEXT OFF
 PLAYLISTLOOP ON
 PLAYLISTLOOP OFF
+TRANSITION 0.75
+TRANSITION STYLE DIP
+TRANSITIONSTYLE CROSSFADE
+TCMARK NOW
+TCMARK 00:00:12:10
+TCMARK CLEAR
+TIMECODE 00:01:02:12
+TIMECODE SET 12.5
+TIMECODE CHASE ON
+TIMECODE RUN ON
+TIMECODE FPS 29.97
+TIMECODE TRIGGER ON
 PATTERN
 BROWSER https://example.com
 AUDIO NEXT
@@ -173,6 +192,9 @@ Notes:
 - `DISPLAY 2` means the second display.
 - `NDI NAME ...` renames the NDI sender for the focused deck.
 - `OVERLAY ...` toggles the output time/ID overlay for the focused deck.
+- `TRANSITION ...` controls deck transition time/style.
+- `TIMECODE ...` controls deck timecode clock/chase behavior.
+- `TCMARK ...` sets or clears the selected cue's timecode trigger mark.
 - `SELECTID`/`TAKEID` target cues by stored cue ID.
 - `GOTO` accepts cue number, cue ID, or partial cue name.
 - `IN`/`OUT` and `TRIM CLEAR` control selected cue trim points.
@@ -191,14 +213,20 @@ Supported OSC addresses include:
 - `/deck i`, `/deck/next`, `/deck/prev`
 - `/volume f`, `/seek f`
 - `/autonext i`, `/playlistloop i`
+- `/transition f`, `/transition/style s`
 - `/ndi i`, `/ndi/name s`
 - `/overlay i`, `/timeoverlay i`
 - `/in f`, `/out f`, `/trim/clear`
+- `/timecode s|f`, `/timecode/chase i`, `/timecode/run i`, `/timecode/fps f`, `/timecode/mark s`
+- `/status`, `/state`, `/ping`
 
 Notes:
 
-- This version handles single OSC messages (not OSC bundles).
+- OSC supports both single messages and `#bundle` packets.
 - OSC values are mapped into the same internal command path used by Companion text commands.
+- OSC senders receive `/playboy/ack` replies for accepted commands.
+- OSC senders can query `/status` or `/state` and receive `/playboy/state` JSON replies.
+- Recent OSC senders also receive periodic `/playboy/state` feedback broadcasts.
 
 ## Notes
 
@@ -207,7 +235,7 @@ Notes:
 - Browser cues currently rely on a Chromium-family browser already being available on the machine.
 - If a Dante or network audio device appears to the OS as a normal output device, Playboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
 - NDI output is now optional and deck-local. If the app finds NDI SDK headers at build time, it can dynamically load `libndi` at runtime and publish each enabled deck as a network source.
-- NDI in this version is video-only (audio over NDI is not wired yet).
+- NDI output includes the deck audio stream for video cues.
 - If NDI runtime libraries are not on your system path, set `PLAYBOY_NDI_LIB` to the full path for `libndi.so.6`.
 - Multi-output is still optional. `Playboy_0.01` now saves multiple decks in the project file, and each deck has its own playlist, selection, active cue pointer, auto-advance, loop setting, audio target, display target, output window, and transport runtime.
-- For deeper PlaybackPro/Mitti parity, the next logical upgrades are timecode, DeckLink class outputs, cue transitions, and a more robust decode backend than subprocess-driven FFmpeg piping.
+- For deeper PlaybackPro/Mitti parity, the next logical upgrades are LTC/MTC ingest, DeckLink class outputs, and a more robust decode backend than subprocess-driven FFmpeg piping.
