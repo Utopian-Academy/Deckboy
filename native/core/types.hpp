@@ -135,6 +135,7 @@ struct Project {
   std::string title = std::string(kAppTitle);
   std::vector<Deck> decks {Deck {}};
   int focusedDeckIndex = 0;
+  std::vector<std::string> layerNames {"BG", "LayerA", "LayerB", "LayerC", "LayerD"};
   bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;
   bool uiTransitionsEnabled = true;
