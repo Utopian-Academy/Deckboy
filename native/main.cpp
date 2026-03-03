@@ -1369,7 +1369,8 @@ void normalizeDeck(Deck& deck, int index) {
     for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
       Cue& cue = deck.cues[cueIndex];
       normalizeCueTiming(cue);
-      cue.outputScale = std::clamp(cue.outputScale, 0.25f, 4.0f);
+      cue.outputScaleX = std::clamp(cue.outputScaleX, 0.25f, 4.0f);
+      cue.outputScaleY = std::clamp(cue.outputScaleY, 0.25f, 4.0f);
       cue.outputRotationDegrees = std::clamp(cue.outputRotationDegrees, -180.0f, 180.0f);
       cue.cropLeft = std::clamp(cue.cropLeft, 0.0f, 0.90f);
       cue.cropRight = std::clamp(cue.cropRight, 0.0f, 0.90f);
@@ -1668,7 +1669,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << cue.playbackSpeed << '\t'
         << escapeField(cue.colorTag)
         << '\t' << escapeField(cue.notes)
-        << '\t' << cue.outputScale
+        << '\t' << cue.outputScaleX
+        << '\t' << cue.outputScaleY
         << '\t' << cue.outputOffsetX
         << '\t' << cue.outputOffsetY
         << '\t' << escapeField(cue.cueNumber)
@@ -1887,12 +1889,13 @@ Project loadProject(const fs::path& projectFile) {
       cue.playbackSpeed = std::clamp(safeDouble(fields, offset + 29, 1.0), 0.25, 4.0);
       cue.colorTag = safeString(fields, offset + 30);
       cue.notes = safeString(fields, offset + 31);
-      cue.outputScale = static_cast<float>(std::clamp(safeDouble(fields, offset + 32, 1.0), 0.25, 4.0));
-      cue.outputOffsetX = static_cast<float>(safeDouble(fields, offset + 33, 0.0));
-      cue.outputOffsetY = static_cast<float>(safeDouble(fields, offset + 34, 0.0));
-      cue.cueNumber = safeString(fields, offset + 35);
+      cue.outputScaleX = static_cast<float>(std::clamp(safeDouble(fields, offset + 32, 1.0), 0.25, 4.0));
+      cue.outputScaleY = static_cast<float>(std::clamp(safeDouble(fields, offset + 33, 1.0), 0.25, 4.0));
+      cue.outputOffsetX = static_cast<float>(safeDouble(fields, offset + 34, 0.0));
+      cue.outputOffsetY = static_cast<float>(safeDouble(fields, offset + 35, 0.0));
+      cue.cueNumber = safeString(fields, offset + 36);
       {
-        std::string ppStr = safeString(fields, offset + 36);
+        std::string ppStr = safeString(fields, offset + 37);
         if (!ppStr.empty()) {
           std::istringstream ss(ppStr);
           std::string tok;
@@ -1902,15 +1905,15 @@ Project loadProject(const fs::path& projectFile) {
           std::sort(cue.pausePoints.begin(), cue.pausePoints.end());
         }
       }
-      cue.outputRotationDegrees = static_cast<float>(safeDouble(fields, offset + 37, 0.0));
-      cue.cropLeft = static_cast<float>(safeDouble(fields, offset + 38, 0.0));
-      cue.cropRight = static_cast<float>(safeDouble(fields, offset + 39, 0.0));
-      cue.cropTop = static_cast<float>(safeDouble(fields, offset + 40, 0.0));
-      cue.cropBottom = static_cast<float>(safeDouble(fields, offset + 41, 0.0));
-      cue.chromaKeyEnabled = safeBool(fields, offset + 42, false);
-      cue.chromaKeyColor = parseColor(safeString(fields, offset + 43));
-      cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 44, 60.0));
-      cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 45, 20.0));
+      cue.outputRotationDegrees = static_cast<float>(safeDouble(fields, offset + 38, 0.0));
+      cue.cropLeft = static_cast<float>(safeDouble(fields, offset + 39, 0.0));
+      cue.cropRight = static_cast<float>(safeDouble(fields, offset + 40, 0.0));
+      cue.cropTop = static_cast<float>(safeDouble(fields, offset + 41, 0.0));
+      cue.cropBottom = static_cast<float>(safeDouble(fields, offset + 42, 0.0));
+      cue.chromaKeyEnabled = safeBool(fields, offset + 43, false);
+      cue.chromaKeyColor = parseColor(safeString(fields, offset + 44));
+      cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 45, 60.0));
+      cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 46, 20.0));
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1959,7 +1962,8 @@ class MediaEngine {
     clearTexture();
     clearAudio();
     activeCue_ = cue;
-    outputScale_   = cue ? cue->outputScale   : 1.0f;
+    outputScaleX_ = cue ? cue->outputScaleX : 1.0f;
+    outputScaleY_ = cue ? cue->outputScaleY : 1.0f;
     outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
     outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
     outputRotationDegrees_ = cue ? cue->outputRotationDegrees : 0.0f;
@@ -2321,7 +2325,8 @@ class MediaEngine {
 
   void render(SDL_Rect target) {
     if (activeCue_) {
-      outputScale_ = activeCue_->outputScale;
+      outputScaleX_ = activeCue_->outputScaleX;
+      outputScaleY_ = activeCue_->outputScaleY;
       outputOffsetX_ = activeCue_->outputOffsetX;
       outputOffsetY_ = activeCue_->outputOffsetY;
       outputRotationDegrees_ = activeCue_->outputRotationDegrees;
@@ -2423,8 +2428,8 @@ class MediaEngine {
     int drawW = std::max(1, static_cast<int>(std::round(srcW * scale)));
     int drawH = std::max(1, static_cast<int>(std::round(srcH * scale)));
     // Apply per-cue output geometry
-    int scaledW = std::max(1, static_cast<int>(drawW * outputScale_));
-    int scaledH = std::max(1, static_cast<int>(drawH * outputScale_));
+    int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX_));
+    int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY_));
     SDL_Rect destination {
       target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX_),
       target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY_),
@@ -3322,7 +3327,8 @@ class MediaEngine {
   double transitionDurationSeconds_ = 0.0;
   TransitionStyle transitionStyle_ = TransitionStyle::Cut;
   float transitionSourceGain_ = 1.0f;  // fade gain of outgoing frame at transition start
-  float outputScale_   = 1.0f;         // per-cue output scale (applied in drawTextureFitted)
+  float outputScaleX_ = 1.0f;          // per-cue output X scale (applied in drawTextureFitted)
+  float outputScaleY_ = 1.0f;          // per-cue output Y scale (applied in drawTextureFitted)
   float outputOffsetX_ = 0.0f;         // per-cue output X offset (pixels)
   float outputOffsetY_ = 0.0f;         // per-cue output Y offset (pixels)
   float outputRotationDegrees_ = 0.0f; // per-cue rotation angle
@@ -7899,6 +7905,47 @@ class App {
       }
       return;
     }
+    if (command == "SCALE") {
+      // Backward compatibility: SCALE sets both X and Y
+      auto value = parseNumber(1);
+      if (value && *value > 0.0) {
+        if (Cue* cue = selectedCueMutable()) {
+          cue->outputScaleX = std::clamp(*value, 0.25, 4.0);
+          cue->outputScaleY = std::clamp(*value, 0.25, 4.0);
+          std::ostringstream ss;
+          ss << std::fixed << std::setprecision(2) << cue->outputScaleX;
+          triggerToast("scale " + ss.str() + "x");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "SCALEX") {
+      auto value = parseNumber(1);
+      if (value && *value > 0.0) {
+        if (Cue* cue = selectedCueMutable()) {
+          cue->outputScaleX = std::clamp(*value, 0.25, 4.0);
+          std::ostringstream ss;
+          ss << std::fixed << std::setprecision(2) << cue->outputScaleX;
+          triggerToast("scale X " + ss.str() + "x");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "SCALEY") {
+      auto value = parseNumber(1);
+      if (value && *value > 0.0) {
+        if (Cue* cue = selectedCueMutable()) {
+          cue->outputScaleY = std::clamp(*value, 0.25, 4.0);
+          std::ostringstream ss;
+          ss << std::fixed << std::setprecision(2) << cue->outputScaleY;
+          triggerToast("scale Y " + ss.str() + "x");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
     if (command == "COLOR" || command == "COLORTAG") {
       std::string tag = parts.size() > 1 ? toLower(parts[1]) : "";
       if (tag == "none" || tag == "clear") tag = "";
@@ -9131,8 +9178,11 @@ class App {
       constexpr int kRowStep = 28;
       int rowY = startY;
       if (includeScaleOffset) {
-        drawQuickRow(rowY, "scale", QuickAction::ScaleDec, formatFloat(cue.outputScale, 2) + "x", QuickAction::ScaleInc,
-                     QuickAction::ToggleLoop, false, false, "Output scale (0.25–4.0×)");
+        drawQuickRow(rowY, "scale X", QuickAction::ScaleXDec, formatFloat(cue.outputScaleX, 2) + "x", QuickAction::ScaleXInc,
+                     QuickAction::ToggleLoop, false, false, "Output X scale (0.25–4.0×)");
+        rowY += kRowStep;
+        drawQuickRow(rowY, "scale Y", QuickAction::ScaleYDec, formatFloat(cue.outputScaleY, 2) + "x", QuickAction::ScaleYInc,
+                     QuickAction::ToggleLoop, false, false, "Output Y scale (0.25–4.0×)");
         rowY += kRowStep;
         drawQuickRow(rowY, "off X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
                      QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels");
@@ -9876,7 +9926,9 @@ class App {
       static_cast<double>(target.w) / static_cast<double>(srcW),
       static_cast<double>(target.h) / static_cast<double>(srcH)
     );
-    float outputScale = cue ? cue->outputScale : 1.0f;
+    float outputScaleX = cue ? cue->outputScaleX : 1.0f;
+    float outputScaleY = cue ? cue->outputScaleY : 1.0f;
+    float outputScale = std::max(outputScaleX, outputScaleY);  // Use max for thumbnail to show full size
     float offsetX = cue ? cue->outputOffsetX : 0.0f;
     float offsetY = cue ? cue->outputOffsetY : 0.0f;
     float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
@@ -11706,11 +11758,17 @@ class App {
         }
         break;
       }
-      case QuickAction::ScaleDec:
-        if (Cue* sel = selectedCueMutable()) { sel->outputScale = std::clamp(sel->outputScale - 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+      case QuickAction::ScaleXDec:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScaleX = std::clamp(sel->outputScaleX - 0.05f, 0.25f, 4.0f); markProjectDirty(); }
         break;
-      case QuickAction::ScaleInc:
-        if (Cue* sel = selectedCueMutable()) { sel->outputScale = std::clamp(sel->outputScale + 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+      case QuickAction::ScaleXInc:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScaleX = std::clamp(sel->outputScaleX + 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+        break;
+      case QuickAction::ScaleYDec:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScaleY = std::clamp(sel->outputScaleY - 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+        break;
+      case QuickAction::ScaleYInc:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScaleY = std::clamp(sel->outputScaleY + 0.05f, 0.25f, 4.0f); markProjectDirty(); }
         break;
       case QuickAction::OffsetXDec:
         if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX -= 10.0f; markProjectDirty(); }
