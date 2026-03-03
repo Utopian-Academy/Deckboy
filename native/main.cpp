@@ -787,6 +787,18 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/ROUTE") {
+    if (auto value = argString(0)) {
+      return "ROUTE " + *value;
+    }
+    return "ROUTE";
+  }
+  if (path == "/LAYER") {
+    if (auto value = argString(0)) {
+      return "LAYER " + *value;
+    }
+    return "LAYER";
+  }
   if (path == "/DECK/NEXT") {
     return "DECKNEXT";
   }
@@ -1118,6 +1130,10 @@ struct DeckRuntime {
   int compositorHeight = 0;
   Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
   int compositorBitDepth = 8;
+  std::map<int, SDL_Texture*> layerBridgeTextures;
+  std::map<int, int> layerBridgeTextureWidths;
+  std::map<int, int> layerBridgeTextureHeights;
+  std::vector<std::uint8_t> layerBridgeScratchPixels;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
   // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
@@ -1600,6 +1616,14 @@ void normalizeProject(Project& project) {
   for (size_t index = 0; index < project.decks.size(); ++index) {
     normalizeDeck(project.decks[index], static_cast<int>(index));
   }
+  for (size_t index = 0; index < project.decks.size(); ++index) {
+    Deck& deck = project.decks[index];
+    if (deck.outputRouteDeckIndex < 0 ||
+        deck.outputRouteDeckIndex >= static_cast<int>(project.decks.size())) {
+      deck.outputRouteDeckIndex = static_cast<int>(index);
+    }
+    deck.outputLayerIndex = std::clamp(deck.outputLayerIndex, 0, 255);
+  }
   project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
   project.outputRenderWidth = std::clamp(project.outputRenderWidth, 320, 7680);
   project.outputRenderHeight = std::clamp(project.outputRenderHeight, 180, 4320);
@@ -1783,7 +1807,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.edgeBlendLeft << '\t'
       << deck.edgeBlendRight << '\t'
       << deck.edgeBlendTop << '\t'
-      << deck.edgeBlendBottom
+      << deck.edgeBlendBottom << '\t'
+      << deck.outputRouteDeckIndex << '\t'
+      << deck.outputLayerIndex
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1986,6 +2012,8 @@ Project loadProject(const fs::path& projectFile) {
       deck.edgeBlendRight = static_cast<float>(safeDouble(fields, 34, 0.0));
       deck.edgeBlendTop = static_cast<float>(safeDouble(fields, 35, 0.0));
       deck.edgeBlendBottom = static_cast<float>(safeDouble(fields, 36, 0.0));
+      deck.outputRouteDeckIndex = safeInt(fields, 37, deckIndex);
+      deck.outputLayerIndex = safeInt(fields, 38, 0);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -3778,6 +3806,8 @@ class App {
       project.outputCanvasHeight = 2160;
       Deck deck;
       deck.name = "Deck Smoke";
+      deck.outputRouteDeckIndex = 0;
+      deck.outputLayerIndex = 3;
       deck.transitionSeconds = 1.5;
       deck.transitionStyle = "dip";
       deck.ndiEnabled = true;
@@ -3857,6 +3887,7 @@ class App {
         expect(loadedDeck.ndiEnabled && loadedDeck.ndiSourceName == "Smoke Fill", "ndi fill persisted");
         expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
         expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
+        expect(loadedDeck.outputRouteDeckIndex == 0 && loadedDeck.outputLayerIndex == 3, "deck route/layer persisted");
         expect(loadedDeck.warpEnabled &&
                std::abs(loadedDeck.warpTopLeftX + 12.0f) < 0.01f &&
                std::abs(loadedDeck.warpBottomRightY + 6.0f) < 0.01f, "warp persisted");
@@ -3965,6 +3996,99 @@ class App {
     return runtime ? runtime->mediaEngine.get() : nullptr;
   }
 
+  int resolveDeckOutputHostIndex(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return deckIndex;
+    }
+    int current = deckIndex;
+    std::vector<bool> visited(project_.decks.size(), false);
+    while (current >= 0 && current < static_cast<int>(project_.decks.size())) {
+      if (visited[current]) {
+        return deckIndex;
+      }
+      visited[current] = true;
+      int next = project_.decks[current].outputRouteDeckIndex;
+      if (next < 0 || next >= static_cast<int>(project_.decks.size()) || next == current) {
+        return current;
+      }
+      current = next;
+    }
+    return deckIndex;
+  }
+
+  std::vector<int> layeredDeckIndicesForOutputHost(int outputDeckIndex) const {
+    std::vector<int> indices;
+    if (outputDeckIndex < 0 || outputDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return indices;
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (resolveDeckOutputHostIndex(deckIndex) == outputDeckIndex) {
+        indices.push_back(deckIndex);
+      }
+    }
+    std::sort(indices.begin(), indices.end(), [&](int a, int b) {
+      const Deck& deckA = project_.decks[a];
+      const Deck& deckB = project_.decks[b];
+      if (deckA.outputLayerIndex != deckB.outputLayerIndex) {
+        return deckA.outputLayerIndex < deckB.outputLayerIndex;
+      }
+      return a < b;
+    });
+    return indices;
+  }
+
+  int nextLayerIndexForOutputHost(int outputDeckIndex, int ignoreDeckIndex = -1) const {
+    int nextLayer = 0;
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (deckIndex == ignoreDeckIndex) {
+        continue;
+      }
+      if (resolveDeckOutputHostIndex(deckIndex) == outputDeckIndex) {
+        nextLayer = std::max(nextLayer, project_.decks[deckIndex].outputLayerIndex + 1);
+      }
+    }
+    return std::clamp(nextLayer, 0, 255);
+  }
+
+  std::string deckOutputRoutingLabel(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "out:-- layer:--";
+    }
+    int hostIndex = resolveDeckOutputHostIndex(deckIndex);
+    const Deck& deck = project_.decks[deckIndex];
+    return "out:" + std::to_string(hostIndex + 1) + " layer:" + std::to_string(deck.outputLayerIndex);
+  }
+
+  std::optional<int> parseDeckReferenceToken(const std::string& token) const {
+    std::string trimmed = trim(token);
+    if (trimmed.empty()) {
+      return std::nullopt;
+    }
+    std::string upper = toUpper(trimmed);
+    if (upper == "SELF" || upper == "THIS" || upper == "FOCUSED" || upper == "FOCUS") {
+      return project_.focusedDeckIndex;
+    }
+    if (upper == "HOST" || upper == "OUTPUT") {
+      return resolveDeckOutputHostIndex(project_.focusedDeckIndex);
+    }
+    try {
+      int index = std::stoi(trimmed);
+      if (index >= 1 && index <= static_cast<int>(project_.decks.size())) {
+        return index - 1;
+      }
+    } catch (...) {
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      std::string deckName = project_.decks[deckIndex].name.empty()
+        ? deckDefaultName(deckIndex)
+        : project_.decks[deckIndex].name;
+      if (toUpper(deckName) == upper) {
+        return deckIndex;
+      }
+    }
+    return std::nullopt;
+  }
+
   bool setFocusedDeckIndex(int deckIndex) {
     normalizeProject(project_);
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
@@ -3990,10 +4114,64 @@ class App {
     playUiSound(UiSoundEffect::Navigate);
   }
 
+  bool setFocusedDeckOutputRoute(int targetDeckIndex, std::optional<int> requestedLayerIndex = std::nullopt) {
+    normalizeProject(project_);
+    if (targetDeckIndex < 0 || targetDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    int focusedIndex = project_.focusedDeckIndex;
+    Deck& deck = project_.decks[focusedIndex];
+    int previousRoute = deck.outputRouteDeckIndex;
+    int previousLayer = deck.outputLayerIndex;
+    deck.outputRouteDeckIndex = targetDeckIndex;
+    if (requestedLayerIndex) {
+      deck.outputLayerIndex = std::clamp(*requestedLayerIndex, 0, 255);
+    } else if (previousRoute != targetDeckIndex) {
+      int hostIndex = resolveDeckOutputHostIndex(targetDeckIndex);
+      deck.outputLayerIndex = nextLayerIndexForOutputHost(hostIndex, focusedIndex);
+    }
+    normalizeProject(project_);
+    int hostIndex = resolveDeckOutputHostIndex(focusedIndex);
+    const Deck& hostDeck = project_.decks[hostIndex];
+    std::string hostLabel = hostDeck.name.empty() ? deckDefaultName(hostIndex) : hostDeck.name;
+    triggerToast("route: " + hostLabel + " L" + std::to_string(project_.decks[focusedIndex].outputLayerIndex));
+    playUiSound(UiSoundEffect::Toggle);
+    if (previousRoute != project_.decks[focusedIndex].outputRouteDeckIndex ||
+        previousLayer != project_.decks[focusedIndex].outputLayerIndex) {
+      markProjectDirty();
+    }
+    return true;
+  }
+
+  bool setFocusedDeckLayerIndex(int layerIndex) {
+    normalizeProject(project_);
+    Deck& deck = focusedDeckMutable();
+    int clamped = std::clamp(layerIndex, 0, 255);
+    if (deck.outputLayerIndex == clamped) {
+      triggerToast("layer " + std::to_string(clamped));
+      return false;
+    }
+    deck.outputLayerIndex = clamped;
+    triggerToast("layer " + std::to_string(deck.outputLayerIndex));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  void nudgeFocusedDeckLayerIndex(int delta) {
+    setFocusedDeckLayerIndex(focusedDeck().outputLayerIndex + delta);
+  }
+
   void addDeck() {
     normalizeProject(project_);
+    int routeHostIndex = resolveDeckOutputHostIndex(project_.focusedDeckIndex);
     Deck deck;
     deck.name = deckDefaultName(static_cast<int>(project_.decks.size()));
+    if (routeHostIndex >= 0 && routeHostIndex < static_cast<int>(project_.decks.size())) {
+      deck.outputDisplayIndex = project_.decks[routeHostIndex].outputDisplayIndex;
+      deck.outputRouteDeckIndex = routeHostIndex;
+      deck.outputLayerIndex = nextLayerIndexForOutputHost(routeHostIndex);
+    }
     project_.decks.push_back(deck);
     project_.advancedOutputMode = true;
     rebuildDeckRuntimes();
@@ -4078,6 +4256,16 @@ class App {
       SDL_CloseAudioDevice(runtime.audioDevice);
       runtime.audioDevice = 0;
     }
+    for (auto& [sourceDeckIndex, texture] : runtime.layerBridgeTextures) {
+      (void) sourceDeckIndex;
+      if (texture) {
+        SDL_DestroyTexture(texture);
+      }
+    }
+    runtime.layerBridgeTextures.clear();
+    runtime.layerBridgeTextureWidths.clear();
+    runtime.layerBridgeTextureHeights.clear();
+    runtime.layerBridgeScratchPixels.clear();
     if (runtime.compositorTexture) {
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
@@ -5597,6 +5785,7 @@ class App {
     if (engine) {
       output << " | " << formatSeconds(engine->position()) << "/" << formatSeconds(engine->duration());
     }
+    output << " | " << deckOutputRoutingLabel(deckIndex);
     if (deck.ndiEnabled) {
       output << " | ndi:" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName);
     }
@@ -5629,6 +5818,8 @@ class App {
              << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
              << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
              << " display=" << (deck.outputDisplayIndex + 1)
+             << " route=" << (resolveDeckOutputHostIndex(deckIndex) + 1)
+             << " layer=" << deck.outputLayerIndex
              << " raster=" << outputResolutionLabel(deckIndex)
              << " depth=" << outputBitDepthActiveLabel(deckIndex)
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
@@ -5693,6 +5884,8 @@ class App {
            << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
            << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
            << " display=" << (deck.outputDisplayIndex + 1)
+           << " route=" << (resolveDeckOutputHostIndex(deckIndex) + 1)
+           << " layer=" << deck.outputLayerIndex
            << " raster=" << outputResolutionLabel(deckIndex)
            << " depth=" << outputBitDepthActiveLabel(deckIndex)
            << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
@@ -5759,6 +5952,8 @@ class App {
              << "\"selected\":" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0) << ","
              << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
              << "\"display\":" << (deck.outputDisplayIndex + 1) << ","
+             << "\"routeOutput\":" << (resolveDeckOutputHostIndex(deckIndex) + 1) << ","
+             << "\"layer\":" << deck.outputLayerIndex << ","
              << "\"raster\":\"" << outputResolutionLabel(deckIndex) << "\","
              << "\"outputDepth\":\"" << outputBitDepthActiveLabel(deckIndex) << "\","
              << "\"audio\":\"" << escapeJson(deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\","
@@ -7378,6 +7573,57 @@ class App {
       }
       return;
     }
+    if (command == "ROUTE") {
+      if (parts.size() <= 1) {
+        triggerToast(deckOutputRoutingLabel(project_.focusedDeckIndex));
+        return;
+      }
+      std::optional<int> targetDeck = parseDeckReferenceToken(parts[1]);
+      std::optional<int> requestedLayer;
+      if (targetDeck && parts.size() > 2) {
+        try {
+          requestedLayer = std::stoi(parts[2]);
+        } catch (...) {
+          requestedLayer = std::nullopt;
+        }
+      } else if (!targetDeck) {
+        targetDeck = parseDeckReferenceToken(joinParts(parts, 1));
+      }
+      if (targetDeck) {
+        setFocusedDeckOutputRoute(*targetDeck, requestedLayer);
+      }
+      return;
+    }
+    if (command == "LAYER") {
+      if (parts.size() <= 1) {
+        triggerToast(deckOutputRoutingLabel(project_.focusedDeckIndex));
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "UP" || value == "NEXT" || value == "+") {
+        nudgeFocusedDeckLayerIndex(1);
+        return;
+      }
+      if (value == "DOWN" || value == "PREV" || value == "PREVIOUS" || value == "-") {
+        nudgeFocusedDeckLayerIndex(-1);
+        return;
+      }
+      if (value == "TOP" || value == "FRONT") {
+        int hostIndex = resolveDeckOutputHostIndex(project_.focusedDeckIndex);
+        int nextTop = nextLayerIndexForOutputHost(hostIndex, project_.focusedDeckIndex);
+        setFocusedDeckLayerIndex(nextTop);
+        return;
+      }
+      if (value == "BOTTOM" || value == "BACK") {
+        setFocusedDeckLayerIndex(0);
+        return;
+      }
+      try {
+        setFocusedDeckLayerIndex(std::stoi(parts[1]));
+      } catch (...) {
+      }
+      return;
+    }
     if (command == "CANVAS" || command == "VIEW" || command == "WARP" || command == "BLEND") {
       std::string forwarded = "VIDEO " + command;
       if (parts.size() > 1) {
@@ -8328,7 +8574,8 @@ class App {
     SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
     SDL_Color headerFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
     drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    drawText(controlRenderer_, fontBase_, deck.name, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 8);
+    std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
+    drawText(controlRenderer_, fontBase_, deckName, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 8);
     const Cue* activeCue = activeCuePtr(deckIndex);
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
     std::string stateStr = "■ ";
@@ -8371,7 +8618,8 @@ class App {
     int footerY = col.y + col.h - kColFooterH;
     SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
     drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    std::string routing = "disp:" + std::to_string(deck.outputDisplayIndex + 1)
+    std::string routing = deckOutputRoutingLabel(deckIndex)
+      + "  disp:" + std::to_string(deck.outputDisplayIndex + 1)
       + "  res:" + outputResolutionLabel(deckIndex)
       + "  " + (deck.autoAdvance ? "auto" : "man")
       + "  " + (deck.playlistLoop ? "loop" : "once")
@@ -9720,6 +9968,151 @@ class App {
     SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
   }
 
+  SDL_Texture* ensureLayerBridgeTexture(DeckRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
+    if (width <= 0 || height <= 0) {
+      return nullptr;
+    }
+    auto texIt = outputRuntime.layerBridgeTextures.find(sourceDeckIndex);
+    bool needsRecreate = texIt == outputRuntime.layerBridgeTextures.end();
+    if (!needsRecreate) {
+      int prevW = outputRuntime.layerBridgeTextureWidths[sourceDeckIndex];
+      int prevH = outputRuntime.layerBridgeTextureHeights[sourceDeckIndex];
+      needsRecreate = prevW != width || prevH != height;
+    }
+    if (needsRecreate) {
+      if (texIt != outputRuntime.layerBridgeTextures.end() && texIt->second) {
+        SDL_DestroyTexture(texIt->second);
+      }
+      SDL_Texture* texture = SDL_CreateTexture(
+        outputRuntime.outputRenderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        width,
+        height
+      );
+      if (!texture) {
+        outputRuntime.layerBridgeTextures.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeTextureWidths.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeTextureHeights.erase(sourceDeckIndex);
+        return nullptr;
+      }
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+      outputRuntime.layerBridgeTextures[sourceDeckIndex] = texture;
+      outputRuntime.layerBridgeTextureWidths[sourceDeckIndex] = width;
+      outputRuntime.layerBridgeTextureHeights[sourceDeckIndex] = height;
+      return texture;
+    }
+    return texIt->second;
+  }
+
+  static void applyCueChromaKeyToPixels(std::vector<std::uint8_t>& pixels, const Cue& cue) {
+    if (!cue.chromaKeyEnabled || pixels.empty()) {
+      return;
+    }
+    float tolerance = std::clamp(cue.chromaKeyTolerance, 0.0f, 441.0f);
+    float softness = std::clamp(cue.chromaKeySoftness, 0.0f, 200.0f);
+    float inner = std::max(0.0f, tolerance - softness);
+    float outer = tolerance + softness;
+    float span = std::max(0.0001f, outer - inner);
+    for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
+      float dr = static_cast<float>(pixels[i + 0]) - static_cast<float>(cue.chromaKeyColor.r);
+      float dg = static_cast<float>(pixels[i + 1]) - static_cast<float>(cue.chromaKeyColor.g);
+      float db = static_cast<float>(pixels[i + 2]) - static_cast<float>(cue.chromaKeyColor.b);
+      float distance = std::sqrt(dr * dr + dg * dg + db * db);
+      float keep = 1.0f;
+      if (distance <= inner) {
+        keep = 0.0f;
+      } else if (distance < outer) {
+        keep = (distance - inner) / span;
+      }
+      pixels[i + 3] = static_cast<std::uint8_t>(std::clamp(
+        static_cast<int>(std::lround(static_cast<float>(pixels[i + 3]) * keep)),
+        0,
+        255));
+    }
+  }
+
+  void renderTextureWithCueGeometry(SDL_Renderer* renderer,
+                                    SDL_Texture* texture,
+                                    int textureWidth,
+                                    int textureHeight,
+                                    const Cue* cue,
+                                    const SDL_Rect& target) {
+    if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
+      return;
+    }
+    float cropLeft = cue ? cue->cropLeft : 0.0f;
+    float cropRight = cue ? cue->cropRight : 0.0f;
+    float cropTop = cue ? cue->cropTop : 0.0f;
+    float cropBottom = cue ? cue->cropBottom : 0.0f;
+    int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropLeft)), 0, textureWidth - 1);
+    int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropRight)), 0, textureWidth - 1);
+    int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropTop)), 0, textureHeight - 1);
+    int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropBottom)), 0, textureHeight - 1);
+    int srcW = std::max(1, textureWidth - cropL - cropR);
+    int srcH = std::max(1, textureHeight - cropT - cropB);
+    SDL_Rect source {cropL, cropT, srcW, srcH};
+    double scale = std::min(
+      static_cast<double>(target.w) / static_cast<double>(srcW),
+      static_cast<double>(target.h) / static_cast<double>(srcH)
+    );
+    float outputScale = cue ? cue->outputScale : 1.0f;
+    float offsetX = cue ? cue->outputOffsetX : 0.0f;
+    float offsetY = cue ? cue->outputOffsetY : 0.0f;
+    float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
+    int drawW = std::max(1, static_cast<int>(std::round(srcW * scale * outputScale)));
+    int drawH = std::max(1, static_cast<int>(std::round(srcH * scale * outputScale)));
+    SDL_Rect destination {
+      target.x + (target.w - drawW) / 2 + static_cast<int>(offsetX),
+      target.y + (target.h - drawH) / 2 + static_cast<int>(offsetY),
+      drawW,
+      drawH
+    };
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_Point center {destination.w / 2, destination.h / 2};
+    SDL_RenderCopyEx(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+  }
+
+  void renderDeckLayerIntoOutput(int outputDeckIndex, int sourceDeckIndex, const SDL_Rect& target) {
+    DeckRuntime* outputRuntime = runtimeForDeck(outputDeckIndex);
+    if (!outputRuntime || !outputRuntime->outputRenderer) {
+      return;
+    }
+    if (sourceDeckIndex < 0 || sourceDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Cue* sourceCue = activeCuePtr(sourceDeckIndex);
+    if (!sourceCue) {
+      return;
+    }
+    if (sourceDeckIndex == outputDeckIndex) {
+      if (outputRuntime->mediaEngine) {
+        outputRuntime->mediaEngine->render(target);
+      }
+      return;
+    }
+    DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
+    if (!sourceRuntime || !sourceRuntime->mediaEngine) {
+      return;
+    }
+    const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();
+    if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 || sourceFrame->pixels.empty()) {
+      return;
+    }
+    SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(*outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height);
+    if (!bridgeTexture) {
+      return;
+    }
+    const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
+    if (sourceCue->chromaKeyEnabled) {
+      outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
+      applyCueChromaKeyToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+      uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
+    }
+    SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
+  }
+
   void renderOutputWindow(int deckIndex) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     const Deck& deck = project_.decks[deckIndex];
@@ -9757,7 +10150,13 @@ class App {
     SDL_RenderClear(runtime->outputRenderer);
 
     SDL_Rect bounds {0, 0, renderW, renderH};
-    runtime->mediaEngine->render(bounds);
+    auto outputLayers = layeredDeckIndicesForOutputHost(deckIndex);
+    if (outputLayers.empty()) {
+      outputLayers.push_back(deckIndex);
+    }
+    for (int sourceDeckIndex : outputLayers) {
+      renderDeckLayerIntoOutput(deckIndex, sourceDeckIndex, bounds);
+    }
 
     // Output window is always clean black — no status overlays or decorations.
     // The only things drawn here are the media content itself, cue overlays, and
@@ -9863,7 +10262,14 @@ class App {
       SDL_RenderClear(runtime->outputRenderer);
       presentDeckCompositorToWindow(deckIndex, width, height);
     }
-    double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
+    double fpsHint = 30.0;
+    for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
+      const Cue* layerCue = activeCuePtr(*it);
+      if (layerCue && layerCue->kind == CueKind::Video) {
+        fpsHint = std::max(1.0, layerCue->fps);
+        break;
+      }
+    }
     sendDeckNdiFrame(deckIndex, width, height, fpsHint);
     SDL_RenderPresent(runtime->outputRenderer);
   }
