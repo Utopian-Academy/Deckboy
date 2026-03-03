@@ -307,7 +307,33 @@ See: RENDER_EXTRACTION_PLAN.md (in session workspace)
 
 ---
 
-## Phase 9: Control Module Planning 📋 (Complete)
+## Phase 10: Text Rendering Module 📝 (Complete!)
+
+### Status: TextRenderer Extracted ✅
+
+**TextRenderer Module** (135 LOC):
+- Created native/render/text_renderer.hpp/cpp
+- Extracted: drawText(), drawCenteredText(), getTextDimensions(), textToTexture()
+- Consolidated from scattered App methods
+- Build: Clean, 2.3M binary
+
+**Impact**: UNBLOCKS Critical Path
+- ✅ Waveform renderer can now be completed
+- ✅ Control renderer extraction can now proceed
+- ✅ Removes circular dependency on App for text operations
+
+**Files Created**:
+- native/render/text_renderer.hpp/cpp (135 LOC)
+
+**Public API**:
+```cpp
+void drawText(renderer, font, text, color, x, y)
+void drawCenteredText(renderer, font, text, color, bounds)
+void getTextDimensions(font, text, width, height)
+SDL_Texture* textToTexture(renderer, font, text, color)
+```
+
+---
 
 ### Status: Extraction Plan Created for Next Developer
 
