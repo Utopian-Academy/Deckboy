@@ -740,10 +740,16 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     return "FULLSCREEN";
   }
   if (path == "/VIDEO" || path == "/OUTPUTMODE") {
-    if (auto value = argString(0)) {
-      return "VIDEO " + *value;
+    std::string output = "VIDEO";
+    for (size_t i = 0; i < message.args.size(); ++i) {
+      auto value = argString(i);
+      if (!value) {
+        continue;
+      }
+      output += " ";
+      output += *value;
     }
-    return "VIDEO";
+    return output;
   }
   if (path == "/SELECT") {
     if (auto value = argString(0)) {
@@ -1554,6 +1560,10 @@ void normalizeProject(Project& project) {
   project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
   project.outputRenderWidth = std::clamp(project.outputRenderWidth, 320, 7680);
   project.outputRenderHeight = std::clamp(project.outputRenderHeight, 180, 4320);
+  if (!std::isfinite(project.outputRefreshRateHz) || project.outputRefreshRateHz < 0.0) {
+    project.outputRefreshRateHz = 0.0;
+  }
+  project.outputRefreshRateHz = std::min(project.outputRefreshRateHz, 240.0);
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
 }
 
@@ -1680,6 +1690,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "output_follow_display\t" << (project.outputFollowDisplay ? 1 : 0) << '\n';
   output << "output_render_width\t" << project.outputRenderWidth << '\n';
   output << "output_render_height\t" << project.outputRenderHeight << '\n';
+  output << "output_refresh_hz\t" << project.outputRefreshRateHz << '\n';
 
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
@@ -1820,6 +1831,8 @@ Project loadProject(const fs::path& projectFile) {
       project.outputRenderWidth = safeInt(fields, 1, 1920);
     } else if (fields[0] == "output_render_height") {
       project.outputRenderHeight = safeInt(fields, 1, 1080);
+    } else if (fields[0] == "output_refresh_hz") {
+      project.outputRefreshRateHz = std::max(0.0, safeDouble(fields, 1, 0.0));
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -4147,6 +4160,141 @@ class App {
     return project_.outputFollowDisplay ? "display native" : "fixed";
   }
 
+  std::string formatRefreshRateLabel(double hz) const {
+    if (!std::isfinite(hz) || hz <= 0.0) {
+      return "auto";
+    }
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(hz < 100.0 ? 2 : 1) << hz;
+    std::string text = ss.str();
+    while (!text.empty() && text.back() == '0') text.pop_back();
+    if (!text.empty() && text.back() == '.') text.pop_back();
+    return text + " Hz";
+  }
+
+  std::string outputRefreshRateLabel() const {
+    return formatRefreshRateLabel(project_.outputRefreshRateHz);
+  }
+
+  std::vector<int> refreshChoicesForDeck(int deckIndex) const {
+    std::vector<int> refreshes;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return refreshes;
+    }
+
+    const Deck& deck = project_.decks[deckIndex];
+    int displayCount = SDL_GetNumVideoDisplays();
+    if (displayCount <= 0) {
+      return refreshes;
+    }
+    int displayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
+    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+
+    int modeCount = SDL_GetNumDisplayModes(displayIndex);
+    for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
+      SDL_DisplayMode mode {};
+      if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0) {
+        continue;
+      }
+      if (mode.w != targetW || mode.h != targetH) {
+        continue;
+      }
+      if (mode.refresh_rate > 0) {
+        refreshes.push_back(mode.refresh_rate);
+      }
+    }
+    std::sort(refreshes.begin(), refreshes.end());
+    refreshes.erase(std::unique(refreshes.begin(), refreshes.end()), refreshes.end());
+    return refreshes;
+  }
+
+  bool selectDisplayModeForDeck(int deckIndex, SDL_DisplayMode& selectedMode) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    int displayCount = SDL_GetNumVideoDisplays();
+    if (displayCount <= 0) {
+      return false;
+    }
+    int displayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
+    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    double targetHz = project_.outputRefreshRateHz;
+
+    SDL_DisplayMode desktopMode {};
+    bool hasDesktop = SDL_GetDesktopDisplayMode(displayIndex, &desktopMode) == 0;
+    if (targetHz <= 0.0 && hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH) {
+      selectedMode = desktopMode;
+      return true;
+    }
+
+    int modeCount = SDL_GetNumDisplayModes(displayIndex);
+    bool found = false;
+    SDL_DisplayMode best {};
+    double bestScore = 1e9;
+
+    for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
+      SDL_DisplayMode mode {};
+      if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0) {
+        continue;
+      }
+      if (mode.w != targetW || mode.h != targetH) {
+        continue;
+      }
+
+      double hz = mode.refresh_rate > 0 ? static_cast<double>(mode.refresh_rate) : 60.0;
+      double score = 0.0;
+      if (targetHz > 0.0) {
+        score = std::abs(hz - targetHz);
+      } else {
+        // Auto: prefer desktop refresh if available, then highest refresh.
+        if (hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH && desktopMode.refresh_rate > 0) {
+          score = std::abs(hz - static_cast<double>(desktopMode.refresh_rate));
+        } else {
+          score = -hz;
+        }
+      }
+
+      if (!found || score < bestScore) {
+        found = true;
+        best = mode;
+        bestScore = score;
+      }
+    }
+
+    if (!found) {
+      return false;
+    }
+    selectedMode = best;
+    return true;
+  }
+
+  bool enableDeckFullscreen(int deckIndex, bool withToast) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputWindow) {
+      return false;
+    }
+
+    SDL_DisplayMode selectedMode {};
+    if (selectDisplayModeForDeck(deckIndex, selectedMode)) {
+      SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
+      if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
+        if (withToast) {
+          triggerToast("big screen @" + formatRefreshRateLabel(selectedMode.refresh_rate));
+        }
+        return true;
+      }
+    }
+
+    if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
+      if (withToast) {
+        triggerToast("big screen");
+      }
+      return true;
+    }
+    return false;
+  }
+
   bool createDeckRuntime(int deckIndex) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime& runtime = deckRuntimes_[deckIndex];
@@ -4263,7 +4411,7 @@ class App {
     targetH = std::max(1, targetH);
 
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
+    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
     if (fullscreen) {
       SDL_SetWindowFullscreen(runtime->outputWindow, 0);
     }
@@ -4278,7 +4426,7 @@ class App {
     }
 
     if (fullscreen) {
-      SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+      enableDeckFullscreen(deckIndex, false);
     }
   }
 
@@ -4326,6 +4474,58 @@ class App {
     restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
     triggerToast("output sized: " + outputResolutionLabel(project_.focusedDeckIndex));
     playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void setOutputRefreshRate(double hz) {
+    double normalized = (!std::isfinite(hz) || hz <= 0.0) ? 0.0 : std::clamp(hz, 1.0, 240.0);
+    bool changed = std::abs(project_.outputRefreshRateHz - normalized) > 0.0001;
+    project_.outputRefreshRateHz = normalized;
+    applyOutputDisplaySelectionAllDecks(false);
+    triggerToast("video refresh: " + outputRefreshRateLabel());
+    playUiSound(UiSoundEffect::Toggle);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
+  void cycleOutputRefreshRate(int direction) {
+    auto choices = refreshChoicesForDeck(project_.focusedDeckIndex);
+    if (choices.empty()) {
+      triggerToast("no refresh choices for raster");
+      return;
+    }
+
+    int current = project_.outputRefreshRateHz > 0.0
+      ? static_cast<int>(std::lround(project_.outputRefreshRateHz))
+      : 0;
+
+    int currentIndex = -1;
+    for (int i = 0; i < static_cast<int>(choices.size()); ++i) {
+      if (choices[i] == current) {
+        currentIndex = i;
+        break;
+      }
+    }
+
+    int nextIndex = 0;
+    if (currentIndex >= 0) {
+      nextIndex = (currentIndex + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
+    } else if (current > 0) {
+      int nearest = 0;
+      int bestDelta = std::abs(choices[0] - current);
+      for (int i = 1; i < static_cast<int>(choices.size()); ++i) {
+        int delta = std::abs(choices[i] - current);
+        if (delta < bestDelta) {
+          bestDelta = delta;
+          nearest = i;
+        }
+      }
+      nextIndex = (nearest + direction + static_cast<int>(choices.size())) % static_cast<int>(choices.size());
+    } else {
+      nextIndex = direction >= 0 ? 0 : static_cast<int>(choices.size()) - 1;
+    }
+
+    setOutputRefreshRate(static_cast<double>(choices[nextIndex]));
   }
 
   void cycleOutputDisplay(int direction) {
@@ -4705,6 +4905,7 @@ class App {
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
+           << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -4759,6 +4960,7 @@ class App {
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
+           << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
@@ -4801,6 +5003,7 @@ class App {
            << "\"focusedDeck\":" << (project_.focusedDeckIndex + 1) << ","
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"outputMode\":\"" << (project_.outputFollowDisplay ? "native" : "fixed") << "\","
+           << "\"outputRefreshHz\":" << project_.outputRefreshRateHz << ","
            << "\"decks\":[";
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (deckIndex > 0) {
@@ -6417,12 +6620,23 @@ class App {
     }
     if (command == "VIDEO" || command == "OUTPUTMODE") {
       if (parts.size() <= 1) {
-        triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex));
+        triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex)
+          + " @" + outputRefreshRateLabel());
         return;
       }
 
       auto applyRasterToken = [&](std::string token) -> bool {
         token = toUpper(trim(token));
+        double hzOverride = -1.0;
+        auto atPos = token.find('@');
+        if (atPos != std::string::npos && atPos + 1 < token.size()) {
+          try {
+            hzOverride = std::stod(token.substr(atPos + 1));
+          } catch (...) {
+            hzOverride = -1.0;
+          }
+          token = token.substr(0, atPos);
+        }
         auto xPos = token.find('X');
         if (xPos == std::string::npos || xPos == 0 || xPos + 1 >= token.size()) {
           return false;
@@ -6432,6 +6646,9 @@ class App {
           int h = std::stoi(token.substr(xPos + 1));
           if (w > 0 && h > 0) {
             setOutputSizingModeFixed(w, h);
+            if (hzOverride >= 0.0) {
+              setOutputRefreshRate(hzOverride);
+            }
             return true;
           }
         } catch (...) {
@@ -6440,6 +6657,30 @@ class App {
       };
 
       std::string value = toUpper(parts[1]);
+      if (value == "REFRESH" || value == "RATE" || value == "HZ") {
+        if (parts.size() <= 2) {
+          triggerToast("video refresh: " + outputRefreshRateLabel());
+          return;
+        }
+        std::string rateArg = toUpper(parts[2]);
+        if (rateArg == "AUTO") {
+          setOutputRefreshRate(0.0);
+          return;
+        }
+        if (rateArg == "NEXT") {
+          cycleOutputRefreshRate(1);
+          return;
+        }
+        if (rateArg == "PREV" || rateArg == "PREVIOUS") {
+          cycleOutputRefreshRate(-1);
+          return;
+        }
+        try {
+          setOutputRefreshRate(std::stod(parts[2]));
+        } catch (...) {
+        }
+        return;
+      }
       if (value == "NATIVE" || value == "AUTO" || value == "DISPLAY") {
         setOutputSizingModeDisplayNative();
         return;
@@ -8580,27 +8821,56 @@ class App {
       drawText(controlRenderer_, fontSmall_,
                "Output raster: " + std::to_string(targetW) + "x" + std::to_string(targetH) + "  (" + outputSizingModeLabel() + ")",
                soft, cx, cy + 36);
+      drawText(controlRenderer_, fontSmall_,
+               "Refresh target: " + outputRefreshRateLabel(),
+               soft, cx, cy + 54);
 
-      SDL_Rect nativeBtn {cx, cy + 66, 170, 28};
+      SDL_Rect nativeBtn {cx, cy + 82, 170, 28};
       bool nativeActive = project_.outputFollowDisplay;
       drawFramedPanel(controlRenderer_, nativeBtn, nativeActive ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Display Native", nativeActive ? colorFromRgba(kScreenLightColor) : ink, nativeBtn);
       settingsBtns_.push_back({nativeBtn, 230, "video_native"});
 
-      SDL_Rect sizeBtn {cx + 186, cy + 66, 160, 28};
+      SDL_Rect sizeBtn {cx + 186, cy + 82, 160, 28};
       drawFramedPanel(controlRenderer_, sizeBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Size To Display", ink, sizeBtn);
       settingsBtns_.push_back({sizeBtn, 235, "video_size_display"});
 
-      SDL_Rect fsBtn {cx + 362, cy + 66, 150, 28};
+      SDL_Rect fsBtn {cx + 362, cy + 82, 150, 28};
       drawFramedPanel(controlRenderer_, fsBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Toggle Fullscreen", ink, fsBtn);
       settingsBtns_.push_back({fsBtn, 236, "video_fullscreen"});
 
-      drawText(controlRenderer_, fontSmall_, "Fixed raster presets:", ink, cx, cy + 112);
+      SDL_Rect rateAutoBtn {cx, cy + 118, 90, 26};
+      drawFramedPanel(controlRenderer_, rateAutoBtn,
+                      project_.outputRefreshRateHz <= 0.0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Hz Auto",
+                       project_.outputRefreshRateHz <= 0.0 ? colorFromRgba(kScreenLightColor) : ink, rateAutoBtn);
+      settingsBtns_.push_back({rateAutoBtn, 238, "video_rate_auto"});
+
+      SDL_Rect ratePrevBtn {cx + 104, cy + 118, 64, 26};
+      drawFramedPanel(controlRenderer_, ratePrevBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Hz -", ink, ratePrevBtn);
+      settingsBtns_.push_back({ratePrevBtn, 239, "video_rate_prev"});
+
+      SDL_Rect rateNextBtn {cx + 178, cy + 118, 64, 26};
+      drawFramedPanel(controlRenderer_, rateNextBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Hz +", ink, rateNextBtn);
+      settingsBtns_.push_back({rateNextBtn, 240, "video_rate_next"});
+
+      SDL_Rect rateCustomBtn {cx + 254, cy + 118, 180, 26};
+      drawFramedPanel(controlRenderer_, rateCustomBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Set Hz...", ink, rateCustomBtn);
+      settingsBtns_.push_back({rateCustomBtn, 241, "video_rate_custom"});
+
+      drawText(controlRenderer_, fontSmall_, "Fixed raster presets:", ink, cx, cy + 154);
       auto drawPreset = [&](int x, int y, int w, int h, const std::string& label, int action,
                             int presetW, int presetH) {
         bool active = !project_.outputFollowDisplay
@@ -8612,19 +8882,19 @@ class App {
         drawCenteredText(controlRenderer_, fontSmall_, label, active ? colorFromRgba(kScreenLightColor) : ink, btn);
         settingsBtns_.push_back({btn, action, label});
       };
-      int py = cy + 132;
+      int py = cy + 172;
       drawPreset(cx,      py, 120, 28, "720p",   231, 1280, 720);
       drawPreset(cx + 132,py, 120, 28, "1080p",  232, 1920, 1080);
       drawPreset(cx + 264,py, 120, 28, "1440p",  233, 2560, 1440);
       drawPreset(cx + 396,py, 120, 28, "4K UHD", 234, 3840, 2160);
 
-      SDL_Rect customBtn {cx, cy + 168, 180, 28};
+      SDL_Rect customBtn {cx, cy + 204, 180, 28};
       drawFramedPanel(controlRenderer_, customBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Custom WxH...", ink, customBtn);
       settingsBtns_.push_back({customBtn, 237, "video_custom"});
 
-      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 206);
+      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 242);
 
     } else if (settingsTab_ == 4) {
       // About tab
@@ -8715,6 +8985,25 @@ class App {
               if (w > 0 && h > 0) {
                 setOutputSizingModeFixed(w, h);
               }
+            } catch (...) {
+            }
+          }
+        }
+      } else if (sb.action == 238) {
+        setOutputRefreshRate(0.0);
+      } else if (sb.action == 239) {
+        cycleOutputRefreshRate(-1);
+      } else if (sb.action == 240) {
+        cycleOutputRefreshRate(1);
+      } else if (sb.action == 241) {
+        auto value = pickTextInput("Output refresh", "Hz or AUTO (e.g. 60 or 59.94)", outputRefreshRateLabel());
+        if (value) {
+          std::string token = toUpper(trim(*value));
+          if (token == "AUTO") {
+            setOutputRefreshRate(0.0);
+          } else {
+            try {
+              setOutputRefreshRate(std::stod(*value));
             } catch (...) {
             }
           }
@@ -10332,9 +10621,13 @@ class App {
       return;
     }
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
-    SDL_SetWindowFullscreen(runtime->outputWindow, fullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
-    triggerToast(fullscreen ? "tiny screen" : "big screen");
+    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+    if (fullscreen) {
+      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      triggerToast("tiny screen");
+    } else {
+      enableDeckFullscreen(project_.focusedDeckIndex, true);
+    }
     playUiSound(UiSoundEffect::Toggle);
   }
 
