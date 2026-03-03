@@ -275,48 +275,31 @@ This document summarizes the comprehensive modular refactoring of Playboy_0.01 t
 ✅ self-check: Fonts, ffmpeg, ffprobe, UI SFX, Companion control - all OK
 ✅ CI/CD: 12 configurations ready
 
-## Phase 8: Render Module Extraction 🎨 (Planned)
+## Phase 8: Render Module Extraction 🎨 (Step 1 Complete)
 
-### Status: Documented for next developer
+### Status: Primitives Extracted ✅
 
-**Scope**: 930 LOC of rendering code across App class
-- Control window rendering: App::renderControlWindow() + helpers (~400 LOC)
-- Output window rendering: App::renderOutputWindow() + helpers (~300 LOC)
-- Helper utilities: fillRect, strokeRect, drawFramedPanel, drawSpeakerGrille (~50 LOC)
-- Waveform visualization: drawWaveform() (~80 LOC)
+**Step 1 Complete** (30 min):
+- Created native/render/primitives.hpp/cpp (105 LOC)
+- Extracted: fillRect, strokeRect, drawFramedPanel, drawSpeakerGrille
+- 29 call sites updated to use Primitives::
+- Build: Clean, self-check passes
+- Files: +2 created, +1 modified (CMakeLists.txt)
 
-### 5-Phase Extraction Plan
-1. **Extract Primitives** (30 min) - Basic drawing functions
-   - Files: native/render/primitives.hpp/cpp
-   - Includes: fillRect, strokeRect, drawFramedPanel, drawSpeakerGrille
+### Remaining Steps (4-5):
+2. **Waveform Renderer** (30 min) - Deferred (depends on App::drawCenteredText)
+3. **Output Renderer** (1 hour) - Next candidate
+4. **Control Renderer** (1.5 hours) - Complex, many interdependencies
+5. **Master Renderer** (1 hour) - Facade after extraction complete
 
-2. **Extract Waveform Renderer** (30 min) - Audio visualization
-   - Files: native/render/waveform.hpp/cpp
-   - Class: WaveformRenderer
-
-3. **Extract Output Renderer** (1 hour) - Media + overlays
-   - Files: native/render/output_renderer.hpp/cpp
-   - Includes: Media frame rendering, time overlay, NDI indicator
-
-4. **Extract Control Renderer** (1.5 hours) - UI panels
-   - Files: native/render/control_renderer.hpp/cpp
-   - Includes: Deck cards, playlist, transport controls, volume
-
-5. **Create Master Renderer** (1 hour) - Facade layer
-   - Files: native/render/renderer.hpp/cpp
-   - Composes all renderers, manages animation state
-
-**Total Estimated**: 5 hours for complete extraction
+### Complexity Notes
+- Waveform rendering depends on App::drawCenteredText() and main.cpp color constants
+- Output window rendering depends on MediaEngine::render()
+- Control window rendering highly interdependent with App state
+- Recommendation: Extract in order of dependency minimization (output → control → master)
 
 ### Detailed Guide
 See: RENDER_EXTRACTION_PLAN.md (in session workspace)
-
-### Benefits
-- Separation of concerns: Rendering isolated from App logic
-- Testability: Can unit test without UI event loop
-- Reusability: Renderers work standalone
-- Modularity: Can swap renderers (e.g., for debug UI)
-- Maintainability: Focused, single-purpose classes
 
 ### Code Extracted
 - **55 utility functions** → core/utils (450 LOC)
