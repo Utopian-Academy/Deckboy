@@ -1521,6 +1521,18 @@ void normalizeDeck(Deck& deck, int index) {
     for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
       Cue& cue = deck.cues[cueIndex];
       normalizeCueTiming(cue);
+      cue.outputScale = std::clamp(cue.outputScale, 0.25f, 4.0f);
+      cue.outputRotationDegrees = std::clamp(cue.outputRotationDegrees, -180.0f, 180.0f);
+      cue.cropLeft = std::clamp(cue.cropLeft, 0.0f, 0.90f);
+      cue.cropRight = std::clamp(cue.cropRight, 0.0f, 0.90f);
+      cue.cropTop = std::clamp(cue.cropTop, 0.0f, 0.90f);
+      cue.cropBottom = std::clamp(cue.cropBottom, 0.0f, 0.90f);
+      float maxHorizontal = std::max(0.0f, 0.95f - cue.cropLeft);
+      cue.cropRight = std::min(cue.cropRight, maxHorizontal);
+      float maxVertical = std::max(0.0f, 0.95f - cue.cropTop);
+      cue.cropBottom = std::min(cue.cropBottom, maxVertical);
+      cue.chromaKeyTolerance = std::clamp(cue.chromaKeyTolerance, 0.0f, 441.0f);
+      cue.chromaKeySoftness = std::clamp(cue.chromaKeySoftness, 0.0f, 200.0f);
       if (cue.id.empty()) {
         cue.id = makeCueId(cue, index, cueIndex);
       }
@@ -1765,6 +1777,15 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
              }
              return pp.str();
            }()
+        << '\t' << cue.outputRotationDegrees
+        << '\t' << cue.cropLeft
+        << '\t' << cue.cropRight
+        << '\t' << cue.cropTop
+        << '\t' << cue.cropBottom
+        << '\t' << (cue.chromaKeyEnabled ? "1" : "0")
+        << '\t' << colorToHex(cue.chromaKeyColor)
+        << '\t' << cue.chromaKeyTolerance
+        << '\t' << cue.chromaKeySoftness
         << '\n';
     }
   }
@@ -1947,6 +1968,15 @@ Project loadProject(const fs::path& projectFile) {
           std::sort(cue.pausePoints.begin(), cue.pausePoints.end());
         }
       }
+      cue.outputRotationDegrees = static_cast<float>(safeDouble(fields, offset + 37, 0.0));
+      cue.cropLeft = static_cast<float>(safeDouble(fields, offset + 38, 0.0));
+      cue.cropRight = static_cast<float>(safeDouble(fields, offset + 39, 0.0));
+      cue.cropTop = static_cast<float>(safeDouble(fields, offset + 40, 0.0));
+      cue.cropBottom = static_cast<float>(safeDouble(fields, offset + 41, 0.0));
+      cue.chromaKeyEnabled = safeBool(fields, offset + 42, false);
+      cue.chromaKeyColor = parseColor(safeString(fields, offset + 43));
+      cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 44, 60.0));
+      cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 45, 20.0));
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1998,6 +2028,15 @@ class MediaEngine {
     outputScale_   = cue ? cue->outputScale   : 1.0f;
     outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
     outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
+    outputRotationDegrees_ = cue ? cue->outputRotationDegrees : 0.0f;
+    cropLeft_ = cue ? cue->cropLeft : 0.0f;
+    cropRight_ = cue ? cue->cropRight : 0.0f;
+    cropTop_ = cue ? cue->cropTop : 0.0f;
+    cropBottom_ = cue ? cue->cropBottom : 0.0f;
+    chromaKeyEnabled_ = cue ? cue->chromaKeyEnabled : false;
+    chromaKeyColor_ = cue ? cue->chromaKeyColor : SDL_Color {0, 255, 0, 255};
+    chromaKeyTolerance_ = cue ? cue->chromaKeyTolerance : 60.0f;
+    chromaKeySoftness_ = cue ? cue->chromaKeySoftness : 20.0f;
     pausePoints_   = cue ? cue->pausePoints   : std::vector<double>{};
     nextPausePointIdx_ = 0;
     displayFrame_.reset();
@@ -2347,6 +2386,21 @@ class MediaEngine {
   }
 
   void render(SDL_Rect target) {
+    if (activeCue_) {
+      outputScale_ = activeCue_->outputScale;
+      outputOffsetX_ = activeCue_->outputOffsetX;
+      outputOffsetY_ = activeCue_->outputOffsetY;
+      outputRotationDegrees_ = activeCue_->outputRotationDegrees;
+      cropLeft_ = activeCue_->cropLeft;
+      cropRight_ = activeCue_->cropRight;
+      cropTop_ = activeCue_->cropTop;
+      cropBottom_ = activeCue_->cropBottom;
+      chromaKeyEnabled_ = activeCue_->chromaKeyEnabled;
+      chromaKeyColor_ = activeCue_->chromaKeyColor;
+      chromaKeyTolerance_ = activeCue_->chromaKeyTolerance;
+      chromaKeySoftness_ = activeCue_->chromaKeySoftness;
+    }
+
     SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
     SDL_RenderFillRect(outputRenderer_, nullptr);
 
@@ -2420,12 +2474,20 @@ class MediaEngine {
     if (!texture || width <= 0 || height <= 0) {
       return false;
     }
+    int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft_)), 0, width - 1);
+    int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropRight_)), 0, width - 1);
+    int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropTop_)), 0, height - 1);
+    int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropBottom_)), 0, height - 1);
+    int srcW = std::max(1, width - cropL - cropR);
+    int srcH = std::max(1, height - cropT - cropB);
+    SDL_Rect source {cropL, cropT, srcW, srcH};
+
     double scale = std::min(
-      static_cast<double>(target.w) / static_cast<double>(width),
-      static_cast<double>(target.h) / static_cast<double>(height)
+      static_cast<double>(target.w) / static_cast<double>(srcW),
+      static_cast<double>(target.h) / static_cast<double>(srcH)
     );
-    int drawW = std::max(1, static_cast<int>(std::round(width * scale)));
-    int drawH = std::max(1, static_cast<int>(std::round(height * scale)));
+    int drawW = std::max(1, static_cast<int>(std::round(srcW * scale)));
+    int drawH = std::max(1, static_cast<int>(std::round(srcH * scale)));
     // Apply per-cue output geometry
     int scaledW = std::max(1, static_cast<int>(drawW * outputScale_));
     int scaledH = std::max(1, static_cast<int>(drawH * outputScale_));
@@ -2438,7 +2500,8 @@ class MediaEngine {
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureAlphaMod(texture, alphaValue);
-    SDL_RenderCopy(outputRenderer_, texture, nullptr, &destination);
+    SDL_Point center {destination.w / 2, destination.h / 2};
+    SDL_RenderCopyEx(outputRenderer_, texture, &source, &destination, outputRotationDegrees_, &center, SDL_FLIP_NONE);
     SDL_SetTextureAlphaMod(texture, 255);
     return true;
   }
@@ -2584,7 +2647,33 @@ class MediaEngine {
     if (!texture_) {
       return;
     }
-    SDL_UpdateTexture(texture_, nullptr, frame.pixels.data(), frame.width * 4);
+    const std::uint8_t* uploadPixels = frame.pixels.data();
+    if (chromaKeyEnabled_) {
+      keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
+      float tolerance = std::clamp(chromaKeyTolerance_, 0.0f, 441.0f);
+      float softness = std::clamp(chromaKeySoftness_, 0.0f, 200.0f);
+      float inner = std::max(0.0f, tolerance - softness);
+      float outer = tolerance + softness;
+      float span = std::max(0.0001f, outer - inner);
+
+      for (size_t i = 0; i + 3 < keyedPixelsScratch_.size(); i += 4) {
+        float dr = static_cast<float>(keyedPixelsScratch_[i + 0]) - static_cast<float>(chromaKeyColor_.r);
+        float dg = static_cast<float>(keyedPixelsScratch_[i + 1]) - static_cast<float>(chromaKeyColor_.g);
+        float db = static_cast<float>(keyedPixelsScratch_[i + 2]) - static_cast<float>(chromaKeyColor_.b);
+        float distance = std::sqrt(dr * dr + dg * dg + db * db);
+        float keep = 1.0f;
+        if (distance <= inner) {
+          keep = 0.0f;
+        } else if (distance < outer) {
+          keep = (distance - inner) / span;
+        }
+        keyedPixelsScratch_[i + 3] = static_cast<std::uint8_t>(
+          std::clamp(static_cast<int>(std::lround(static_cast<float>(keyedPixelsScratch_[i + 3]) * keep)), 0, 255)
+        );
+      }
+      uploadPixels = keyedPixelsScratch_.data();
+    }
+    SDL_UpdateTexture(texture_, nullptr, uploadPixels, frame.width * 4);
   }
 
   void stopImageThread() {
@@ -3302,6 +3391,16 @@ class MediaEngine {
   float outputScale_   = 1.0f;         // per-cue output scale (applied in drawTextureFitted)
   float outputOffsetX_ = 0.0f;         // per-cue output X offset (pixels)
   float outputOffsetY_ = 0.0f;         // per-cue output Y offset (pixels)
+  float outputRotationDegrees_ = 0.0f; // per-cue rotation angle
+  float cropLeft_ = 0.0f;              // fractional crop 0..1 from left
+  float cropRight_ = 0.0f;             // fractional crop 0..1 from right
+  float cropTop_ = 0.0f;               // fractional crop 0..1 from top
+  float cropBottom_ = 0.0f;            // fractional crop 0..1 from bottom
+  bool chromaKeyEnabled_ = false;
+  SDL_Color chromaKeyColor_ {0, 255, 0, 255};
+  float chromaKeyTolerance_ = 60.0f;   // RGB distance threshold (0..441)
+  float chromaKeySoftness_ = 20.0f;    // feather width around threshold
+  std::vector<std::uint8_t> keyedPixelsScratch_;
   std::vector<double> pausePoints_;    // sorted pause point positions for active cue
   size_t nextPausePointIdx_ = 0;       // index of next unpassed pause point
   std::chrono::steady_clock::time_point transitionStartedAt_ = std::chrono::steady_clock::now();
@@ -3609,6 +3708,15 @@ class App {
       cue.triggerTimecodeSeconds = 13.0;
       cue.cueTransitionSeconds = 1.25;
       cue.cueTransitionStyle = "crossfade";
+      cue.outputRotationDegrees = 17.5f;
+      cue.cropLeft = 0.10f;
+      cue.cropRight = 0.05f;
+      cue.cropTop = 0.02f;
+      cue.cropBottom = 0.03f;
+      cue.chromaKeyEnabled = true;
+      cue.chromaKeyColor = SDL_Color {20, 220, 45, 255};
+      cue.chromaKeyTolerance = 88.5f;
+      cue.chromaKeySoftness = 14.0f;
       Cue imgCue;
       imgCue.path = "/tmp/test.jpg";
       imgCue.name = "Smoke Still";
@@ -3641,6 +3749,17 @@ class App {
         expect(std::abs(loadedCue.triggerTimecodeSeconds - 13.0) < 0.01, "cue tc mark persisted");
         expect(std::abs(loadedCue.cueTransitionSeconds - 1.25) < 0.01, "cue transition persisted");
         expect(loadedCue.cueTransitionStyle == "crossfade", "cue transition style persisted");
+        expect(std::abs(loadedCue.outputRotationDegrees - 17.5f) < 0.01f, "cue rotation persisted");
+        expect(std::abs(loadedCue.cropLeft - 0.10f) < 0.001f &&
+               std::abs(loadedCue.cropRight - 0.05f) < 0.001f &&
+               std::abs(loadedCue.cropTop - 0.02f) < 0.001f &&
+               std::abs(loadedCue.cropBottom - 0.03f) < 0.001f, "cue crop persisted");
+        expect(loadedCue.chromaKeyEnabled &&
+               loadedCue.chromaKeyColor.r == 20 &&
+               loadedCue.chromaKeyColor.g == 220 &&
+               loadedCue.chromaKeyColor.b == 45 &&
+               std::abs(loadedCue.chromaKeyTolerance - 88.5f) < 0.01f &&
+               std::abs(loadedCue.chromaKeySoftness - 14.0f) < 0.01f, "cue chroma key persisted");
         if (loadedDeck.cues.size() > 1) {
           const Cue& img = loadedDeck.cues[1];
           expect(img.kind == CueKind::Image, "still image kind persisted");
@@ -3731,6 +3850,8 @@ class App {
     }
     project_.focusedDeckIndex = deckIndex;
     selectionChangedAt_ = SDL_GetTicks64();
+    cueSettingsScroll_ = 0;
+    cueSettingsScrollMax_ = 0;
     triggerToast("deck: " + focusedDeckLabel());
     markProjectDirty();
     return true;
@@ -5290,6 +5411,8 @@ class App {
 
   void onSelectionChanged() {
     selectionChangedAt_ = SDL_GetTicks64();
+    cueSettingsScroll_ = 0;
+    cueSettingsScrollMax_ = 0;
     playUiSound(UiSoundEffect::Navigate);
     if (const Cue* cue = selectedCuePtr()) {
       requestThumbnail(*cue);
@@ -6846,6 +6969,15 @@ class App {
           break;
         case SDL_MOUSEWHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
+            if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
+                pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
+                cueSettingsScrollMax_ > 0) {
+              cueSettingsScroll_ = std::clamp(
+                cueSettingsScroll_ - event.wheel.y * 36,
+                0,
+                cueSettingsScrollMax_);
+              break;
+            }
             for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
               if (pointInRect(mouseX_, mouseY_, deckColumnRects_[di])) {
                 if (di < static_cast<int>(deckScrolls_.size())) {
@@ -7723,6 +7855,8 @@ class App {
     int y = panel.y + 18;
 
     quickButtons_.clear();
+    cueSettingsQuickButtonStartIndex_ = 0;
+    cueSettingsViewportRect_ = SDL_Rect {};
 
     drawText(controlRenderer_, fontSmall_, "little screen", colorFromRgba(kScreenDeepColor), x, y);
     drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "No cue loaded", colorFromRgba(kScreenDeepColor), x, y + 22);
@@ -7975,9 +8109,94 @@ class App {
       }
     };
 
+    int settingsContentTopY = ctrlSettingsY + 18;
+    int settingsContentBottomY = ctrl.y + ctrl.h - 10;
+    cueSettingsViewportRect_ = {
+      ctrl.x + 6,
+      settingsContentTopY - 2,
+      kCtrlW - 12,
+      std::max(0, settingsContentBottomY - settingsContentTopY + 2)
+    };
+    cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
+    cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
+    SDL_RenderSetClipRect(controlRenderer_,
+      cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
+
+    auto formatFloat = [](float value, int decimals = 2) {
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(decimals) << value;
+      return ss.str();
+    };
+    auto formatPercent = [&](float value) {
+      return formatFloat(value * 100.0f, 1) + "%";
+    };
+
+    auto drawKeyColorRow = [&](int rowY, const Cue& cue) {
+      SDL_Rect colorBtn {ctrl.x + 10, rowY, kCtrlW - 20, 30};
+      SDL_Color fill = cue.chromaKeyEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color ink = cue.chromaKeyEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      drawFramedPanel(controlRenderer_, colorBtn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontSmall_, "key color: " + colorToHex(cue.chromaKeyColor), ink, colorBtn.x + 10, colorBtn.y + 8);
+      quickButtons_.push_back({colorBtn, QuickAction::EditKeyColor, "Click to set chroma-key color"});
+    };
+
+    auto drawGeometryRows = [&](int startY, const Cue& cue, bool includeScaleOffset) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (includeScaleOffset) {
+        drawQuickRow(rowY, "scale", QuickAction::ScaleDec, formatFloat(cue.outputScale, 2) + "x", QuickAction::ScaleInc,
+                     QuickAction::ToggleLoop, false, false, "Output scale (0.25–4.0×)");
+        rowY += kRowStep;
+        drawQuickRow(rowY, "off X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
+                     QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels");
+        rowY += kRowStep;
+        drawQuickRow(rowY, "off Y", QuickAction::OffsetYDec, std::to_string(static_cast<int>(cue.outputOffsetY)) + "px", QuickAction::OffsetYInc,
+                     QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels");
+        rowY += kRowStep;
+      }
+      drawQuickRow(rowY, "rot", QuickAction::RotDec, formatFloat(cue.outputRotationDegrees, 1) + " deg", QuickAction::RotInc,
+                   QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop L", QuickAction::CropLDec, formatPercent(cue.cropLeft), QuickAction::CropLInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from left");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop R", QuickAction::CropRDec, formatPercent(cue.cropRight), QuickAction::CropRInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from right");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop T", QuickAction::CropTDec, formatPercent(cue.cropTop), QuickAction::CropTInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from top");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop B", QuickAction::CropBDec, formatPercent(cue.cropBottom), QuickAction::CropBInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from bottom");
+      rowY += kRowStep;
+      return rowY;
+    };
+
+    auto drawKeyRows = [&](int startY, const Cue& cue) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (!cueSupportsKeying(&cue)) {
+        return rowY;
+      }
+      drawQuickRow(rowY, "key", QuickAction::KeyToggle,
+                   cue.chromaKeyEnabled ? "on" : "off",
+                   QuickAction::KeyToggle, QuickAction::KeyToggle, true, cue.chromaKeyEnabled,
+                   "Toggle chroma key");
+      rowY += kRowStep;
+      drawKeyColorRow(rowY, cue);
+      rowY += kRowStep;
+      drawQuickRow(rowY, "tol", QuickAction::KeyTolDec, formatFloat(cue.chromaKeyTolerance, 1), QuickAction::KeyTolInc,
+                   QuickAction::ToggleLoop, false, false, "Key tolerance (RGB distance)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "soft", QuickAction::KeySoftDec, formatFloat(cue.chromaKeySoftness, 1), QuickAction::KeySoftInc,
+                   QuickAction::ToggleLoop, false, false, "Key edge softness");
+      rowY += kRowStep;
+      return rowY;
+    };
+
     if (selectedCue && selectedCue->kind == CueKind::Video) {
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
-      int ry = ctrlSettingsY + 18;
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
       drawQuickRow(ry,                "vol",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
       drawQuickRow(ry + kRowStep,     "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),  QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "[ / ] keys — fade-in duration");
@@ -8101,9 +8320,14 @@ class App {
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
       }
+      {
+        int geoY = ry + kRowStep * 14;
+        int nextY = drawGeometryRows(geoY, *selectedCue, true);
+        drawKeyRows(nextY, *selectedCue);
+      }
     } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
       // Lower-third / graphic cue settings
-      int ry = ctrlSettingsY + 18;
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       SDL_Color inkC = colorFromRgba(kScreenDeepColor);
       SDL_Color softC = colorFromRgba(kScreenInkSoftColor);
       drawText(controlRenderer_, fontSmall_, "graphic overlay cue", inkC, ctrl.x + 10, ry);
@@ -8146,7 +8370,7 @@ class App {
       drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
     } else if (selectedCue && (selectedCue->kind == CueKind::Image || selectedCue->kind == CueKind::Pattern)) {
       // Still image / pattern settings — full parity with video panel + duration
-      int ry = ctrlSettingsY + 18;
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
       // Row 0: duration
       {
@@ -8238,20 +8462,11 @@ class App {
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
-      // Geometry rows (scale + offset) — compact 24px step to fit
       {
-        constexpr int kGeoStep = 24;
-        int gy = ry + kRowStep * 9;
-        std::ostringstream ssSc;
-        ssSc << std::fixed << std::setprecision(2) << selectedCue->outputScale << "x";
-        drawQuickRow(gy,             "scale",  QuickAction::ScaleDec,   ssSc.str(),                                QuickAction::ScaleInc,   QuickAction::ToggleLoop, false, false, "Output scale (0.25–4.0×)");
-        drawQuickRow(gy + kGeoStep,  "off X",  QuickAction::OffsetXDec, std::to_string((int)selectedCue->outputOffsetX) + "px", QuickAction::OffsetXInc, QuickAction::ToggleLoop, false, false, "Horizontal offset on output (pixels)");
-        drawQuickRow(gy + kGeoStep*2,"off Y",  QuickAction::OffsetYDec, std::to_string((int)selectedCue->outputOffsetY) + "px", QuickAction::OffsetYInc, QuickAction::ToggleLoop, false, false, "Vertical offset on output (pixels)");
-      }
-      // Cue number row
-      {
-        constexpr int kGeoStep = 24;
-        int cnY = ry + kRowStep * 9 + kGeoStep * 3 + 4;
+        int rowY = ry + kRowStep * 9;
+        rowY = drawGeometryRows(rowY, *selectedCue, true);
+        rowY = drawKeyRows(rowY, *selectedCue);
+        int cnY = rowY + 2;
         SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
@@ -8264,7 +8479,7 @@ class App {
         quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
       }
     } else if (selectedCue && selectedCue->kind == CueKind::Browser) {
-      int ry = ctrlSettingsY + 18;
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
       {
         std::string durVal = selectedCue->stillDurationSeconds > 0.0
@@ -8307,9 +8522,25 @@ class App {
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
+      {
+        int rowY = ry + kRowStep * 3;
+        rowY = drawGeometryRows(rowY, *selectedCue, true);
+        rowY = drawKeyRows(rowY, *selectedCue);
+        int cnY = rowY + 2;
+        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
+        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
+        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
+        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
+      }
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings
-      int ry = ctrlSettingsY + 18;
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       drawQuickRow(ry, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
@@ -8412,6 +8643,35 @@ class App {
                colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 24);
     }
 
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    int settingsContentLogicalBottom = settingsContentTopY;
+    for (size_t i = cueSettingsQuickButtonStartIndex_; i < quickButtons_.size(); ++i) {
+      settingsContentLogicalBottom = std::max(
+        settingsContentLogicalBottom,
+        quickButtons_[i].rect.y + quickButtons_[i].rect.h + cueSettingsScroll_);
+    }
+    int viewportBottom = cueSettingsViewportRect_.y + cueSettingsViewportRect_.h;
+    cueSettingsScrollMax_ = std::max(0, settingsContentLogicalBottom - viewportBottom + 6);
+    cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
+    if (cueSettingsScrollMax_ > 0 && cueSettingsViewportRect_.h > 10) {
+      SDL_Rect rail {
+        ctrl.x + kCtrlW - 8,
+        cueSettingsViewportRect_.y + 2,
+        4,
+        cueSettingsViewportRect_.h - 4
+      };
+      fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
+      int thumbH = std::max(24, (cueSettingsViewportRect_.h * cueSettingsViewportRect_.h) /
+                                 std::max(1, cueSettingsViewportRect_.h + cueSettingsScrollMax_));
+      thumbH = std::min(thumbH, rail.h);
+      int travel = std::max(1, rail.h - thumbH);
+      int thumbOffset = static_cast<int>(std::lround(
+        static_cast<double>(cueSettingsScroll_) / static_cast<double>(cueSettingsScrollMax_) * travel));
+      SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
+      drawFramedPanel(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    }
+
     // --- Cart details --- (anchored to bottom of panel, always kDetailAreaH px tall)
     int detailX = x;
     int detailY = panel.y + panel.h - kDetailAreaH + 4;
@@ -8424,7 +8684,12 @@ class App {
       drawHoverTip("Click to seek — drag to scrub", progressBarRect_.x + progressBarRect_.w / 2, progressBarRect_.y);
     }
     // Quick button tips
-    for (const auto& qb : quickButtons_) {
+    for (size_t i = 0; i < quickButtons_.size(); ++i) {
+      const auto& qb = quickButtons_[i];
+      bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
+      if (isCueSettingsButton && !pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_)) {
+        continue;
+      }
       if (!qb.tip.empty() && pointInRect(mouseX_, mouseY_, qb.rect)) {
         drawHoverTip(qb.tip, qb.rect.x + qb.rect.w / 2, qb.rect.y);
         break;
@@ -9097,7 +9362,12 @@ class App {
       return;
     }
 
-    for (const auto& qb : quickButtons_) {
+    for (size_t i = 0; i < quickButtons_.size(); ++i) {
+      const auto& qb = quickButtons_[i];
+      bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
+      if (isCueSettingsButton && !pointInRect(x, y, cueSettingsViewportRect_)) {
+        continue;
+      }
       if (pointInRect(x, y, qb.rect)) {
         dispatchQuickAction(qb.action);
         return;
@@ -9922,6 +10192,103 @@ class App {
     markProjectDirty();
   }
 
+  bool cueSupportsGeometry(const Cue* cue) const {
+    return cue && (cue->kind == CueKind::Video
+      || cue->kind == CueKind::Image
+      || cue->kind == CueKind::Pattern
+      || cue->kind == CueKind::Browser);
+  }
+
+  bool cueSupportsKeying(const Cue* cue) const {
+    return cue && (cue->kind == CueKind::Video
+      || cue->kind == CueKind::Image
+      || cue->kind == CueKind::Pattern
+      || cue->kind == CueKind::Browser);
+  }
+
+  void normalizeCueCrop(Cue& cue) {
+    cue.cropLeft = std::clamp(cue.cropLeft, 0.0f, 0.90f);
+    cue.cropRight = std::clamp(cue.cropRight, 0.0f, 0.90f);
+    cue.cropTop = std::clamp(cue.cropTop, 0.0f, 0.90f);
+    cue.cropBottom = std::clamp(cue.cropBottom, 0.0f, 0.90f);
+    cue.cropRight = std::min(cue.cropRight, std::max(0.0f, 0.95f - cue.cropLeft));
+    cue.cropBottom = std::min(cue.cropBottom, std::max(0.0f, 0.95f - cue.cropTop));
+  }
+
+  void adjustSelectedRotation(float deltaDegrees) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    cue->outputRotationDegrees = std::clamp(cue->outputRotationDegrees + deltaDegrees, -180.0f, 180.0f);
+    markProjectDirty();
+  }
+
+  void adjustSelectedCrop(char edge, float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    switch (edge) {
+      case 'L': cue->cropLeft += delta; break;
+      case 'R': cue->cropRight += delta; break;
+      case 'T': cue->cropTop += delta; break;
+      case 'B': cue->cropBottom += delta; break;
+      default: return;
+    }
+    normalizeCueCrop(*cue);
+    markProjectDirty();
+  }
+
+  void setSelectedChromaKeyEnabled(bool enabled) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsKeying(cue) || cue->chromaKeyEnabled == enabled) {
+      return;
+    }
+    cue->chromaKeyEnabled = enabled;
+    triggerToast(enabled ? "key on" : "key off");
+    markProjectDirty();
+  }
+
+  void toggleSelectedChromaKey() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsKeying(cue)) {
+      return;
+    }
+    setSelectedChromaKeyEnabled(!cue->chromaKeyEnabled);
+  }
+
+  void adjustSelectedKeyTolerance(float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsKeying(cue)) {
+      return;
+    }
+    cue->chromaKeyTolerance = std::clamp(cue->chromaKeyTolerance + delta, 0.0f, 441.0f);
+    markProjectDirty();
+  }
+
+  void adjustSelectedKeySoftness(float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsKeying(cue)) {
+      return;
+    }
+    cue->chromaKeySoftness = std::clamp(cue->chromaKeySoftness + delta, 0.0f, 200.0f);
+    markProjectDirty();
+  }
+
+  void editSelectedKeyColor() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsKeying(cue)) {
+      return;
+    }
+    auto value = pickTextInput("Key Color", "Hex color (#RRGGBB)", colorToHex(cue->chromaKeyColor));
+    if (!value) {
+      return;
+    }
+    cue->chromaKeyColor = parseColor(*value);
+    markProjectDirty();
+  }
+
   void dispatchQuickAction(QuickAction action) {
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
@@ -9989,6 +10356,54 @@ class App {
         break;
       case QuickAction::OffsetYInc:
         if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY += 10.0f; markProjectDirty(); }
+        break;
+      case QuickAction::RotDec:
+        adjustSelectedRotation(-1.0f);
+        break;
+      case QuickAction::RotInc:
+        adjustSelectedRotation(1.0f);
+        break;
+      case QuickAction::CropLDec:
+        adjustSelectedCrop('L', -0.01f);
+        break;
+      case QuickAction::CropLInc:
+        adjustSelectedCrop('L', 0.01f);
+        break;
+      case QuickAction::CropRDec:
+        adjustSelectedCrop('R', -0.01f);
+        break;
+      case QuickAction::CropRInc:
+        adjustSelectedCrop('R', 0.01f);
+        break;
+      case QuickAction::CropTDec:
+        adjustSelectedCrop('T', -0.01f);
+        break;
+      case QuickAction::CropTInc:
+        adjustSelectedCrop('T', 0.01f);
+        break;
+      case QuickAction::CropBDec:
+        adjustSelectedCrop('B', -0.01f);
+        break;
+      case QuickAction::CropBInc:
+        adjustSelectedCrop('B', 0.01f);
+        break;
+      case QuickAction::KeyToggle:
+        toggleSelectedChromaKey();
+        break;
+      case QuickAction::KeyTolDec:
+        adjustSelectedKeyTolerance(-5.0f);
+        break;
+      case QuickAction::KeyTolInc:
+        adjustSelectedKeyTolerance(5.0f);
+        break;
+      case QuickAction::KeySoftDec:
+        adjustSelectedKeySoftness(-2.0f);
+        break;
+      case QuickAction::KeySoftInc:
+        adjustSelectedKeySoftness(2.0f);
+        break;
+      case QuickAction::EditKeyColor:
+        editSelectedKeyColor();
         break;
       case QuickAction::EditCueNumber: {
         Cue* sel = selectedCueMutable();
@@ -10802,6 +11217,10 @@ class App {
   int controlPreviewTexH_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
+  size_t cueSettingsQuickButtonStartIndex_ = 0;
+  SDL_Rect cueSettingsViewportRect_ {};
+  int cueSettingsScroll_ = 0;
+  int cueSettingsScrollMax_ = 0;
   // Per-selection thumbnail (decoded from the selected cue via ffmpeg)
   ChildProcess thumbnailProcess_;
   std::thread thumbnailThread_;

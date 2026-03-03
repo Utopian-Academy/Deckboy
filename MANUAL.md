@@ -141,6 +141,8 @@ Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
 ## 7. Cue Settings
 
 Select a cue (click or `Up`/`Down` arrows) to see its settings in the right panel.
+If the settings list is longer than the panel, use the mouse wheel over the
+settings area to scroll.
 
 ### Video cues
 
@@ -155,6 +157,19 @@ Select a cue (click or `Up`/`Down` arrows) to see its settings in the right pane
 | Loop | `L` | Loop the cue indefinitely |
 | Hold on last frame | `E` | Freeze on the last frame instead of stopping |
 | End action | `X` | Cycle: inherit → stop → loop → hold → auto-next |
+
+### Output geometry and keying (video / image / pattern / browser)
+
+| Control | Description |
+|---------|-------------|
+| Scale | Per-cue output scale (0.25x to 4.0x) |
+| Offset X / Y | Per-cue output position offset in pixels |
+| Rotation | Per-cue rotation angle (-180 to +180 degrees) |
+| Crop L / R / T / B | Per-edge crop percentage |
+| Key on/off | Enable/disable per-cue chroma key |
+| Key color | Pick chroma key target color (`#RRGGBB`) |
+| Key tolerance | RGB distance threshold for removal |
+| Key softness | Feather width around the threshold |
 
 ### Still / pattern / browser cues
 

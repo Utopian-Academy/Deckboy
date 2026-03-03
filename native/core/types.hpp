@@ -67,6 +67,15 @@ struct Cue {
   float outputScale = 1.0f;
   float outputOffsetX = 0.0f;
   float outputOffsetY = 0.0f;
+  float outputRotationDegrees = 0.0f;
+  float cropLeft = 0.0f;
+  float cropRight = 0.0f;
+  float cropTop = 0.0f;
+  float cropBottom = 0.0f;
+  bool chromaKeyEnabled = false;
+  SDL_Color chromaKeyColor {0, 255, 0, 255};
+  float chromaKeyTolerance = 60.0f;
+  float chromaKeySoftness = 20.0f;
   std::string cueNumber;
   std::vector<double> pausePoints;
 };
@@ -143,6 +152,15 @@ enum class QuickAction {
   ScaleDec, ScaleInc,
   OffsetXDec, OffsetXInc,
   OffsetYDec, OffsetYInc,
+  RotDec, RotInc,
+  CropLDec, CropLInc,
+  CropRDec, CropRInc,
+  CropTDec, CropTInc,
+  CropBDec, CropBInc,
+  KeyToggle,
+  KeyTolDec, KeyTolInc,
+  KeySoftDec, KeySoftInc,
+  EditKeyColor,
   EditCueNumber,
   AddPausePoint, ClearPausePoints
 };
