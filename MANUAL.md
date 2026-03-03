@@ -343,8 +343,12 @@ each deck can publish a network NDI source.
 |--------|-----|-----------|
 | Toggle NDI for focused deck | `N` | `NDI ON / OFF` |
 | Rename NDI source | — | `NDI NAME Stage Left Feed` |
+| Toggle NDI key output | — | `NDI KEY ON / OFF` |
+| Rename NDI key source | — | `NDI KEY NAME Stage Left Key` |
 
-The NDI stream carries video + audio for video cues.
+The fill NDI stream carries video + audio for video cues.
+When key output is enabled, Playboy also publishes a second NDI stream with
+grayscale key matte (white = opaque, black = transparent).
 
 ---
 
@@ -617,6 +621,11 @@ VIDEO SIZE DISPLAY  resize/reposition focused output to selected display
 ```
 NDI ON|OFF
 NDI NAME Stage Left Feed   rename NDI sender
+NDI KEY ON|OFF             enable/disable paired key sender
+NDI KEY NAME Stage Left Key  rename key sender
+NDI KEY TOGGLE
+NDIKEY ON|OFF              alias for NDI KEY ON|OFF
+NDIKEYNAME Stage Left Key  set key sender name
 ```
 
 ### Timecode
