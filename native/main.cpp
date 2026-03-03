@@ -1563,6 +1563,22 @@ void normalizeDeck(Deck& deck, int index) {
   if (deck.ndiKeySourceName.empty()) {
     deck.ndiKeySourceName = defaultNdiKeySourceName(deck, index);
   }
+  deck.canvasViewX = std::clamp(deck.canvasViewX, 0, 32768);
+  deck.canvasViewY = std::clamp(deck.canvasViewY, 0, 32768);
+  deck.warpTopLeftX = std::clamp(deck.warpTopLeftX, -4096.0f, 4096.0f);
+  deck.warpTopLeftY = std::clamp(deck.warpTopLeftY, -4096.0f, 4096.0f);
+  deck.warpTopRightX = std::clamp(deck.warpTopRightX, -4096.0f, 4096.0f);
+  deck.warpTopRightY = std::clamp(deck.warpTopRightY, -4096.0f, 4096.0f);
+  deck.warpBottomRightX = std::clamp(deck.warpBottomRightX, -4096.0f, 4096.0f);
+  deck.warpBottomRightY = std::clamp(deck.warpBottomRightY, -4096.0f, 4096.0f);
+  deck.warpBottomLeftX = std::clamp(deck.warpBottomLeftX, -4096.0f, 4096.0f);
+  deck.warpBottomLeftY = std::clamp(deck.warpBottomLeftY, -4096.0f, 4096.0f);
+  deck.edgeBlendLeft = std::clamp(deck.edgeBlendLeft, 0.0f, 0.49f);
+  deck.edgeBlendRight = std::clamp(deck.edgeBlendRight, 0.0f, 0.49f);
+  deck.edgeBlendTop = std::clamp(deck.edgeBlendTop, 0.0f, 0.49f);
+  deck.edgeBlendBottom = std::clamp(deck.edgeBlendBottom, 0.0f, 0.49f);
+  deck.edgeBlendRight = std::min(deck.edgeBlendRight, std::max(0.0f, 0.95f - deck.edgeBlendLeft));
+  deck.edgeBlendBottom = std::min(deck.edgeBlendBottom, std::max(0.0f, 0.95f - deck.edgeBlendTop));
   deck.transitionSeconds = std::clamp(deck.transitionSeconds, 0.0, 10.0);
   deck.transitionStyle = transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle));
   if (!std::isfinite(deck.timecodeFps) || deck.timecodeFps < 1.0) {
@@ -1594,6 +1610,8 @@ void normalizeProject(Project& project) {
   if (project.outputBitDepth != 0 && project.outputBitDepth != 8 && project.outputBitDepth != 10) {
     project.outputBitDepth = 0;
   }
+  project.outputCanvasWidth = std::clamp(project.outputCanvasWidth, 320, 16384);
+  project.outputCanvasHeight = std::clamp(project.outputCanvasHeight, 180, 16384);
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
 }
 
@@ -1722,6 +1740,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "output_render_height\t" << project.outputRenderHeight << '\n';
   output << "output_refresh_hz\t" << project.outputRefreshRateHz << '\n';
   output << "output_bit_depth\t" << project.outputBitDepth << '\n';
+  output << "output_canvas_enabled\t" << (project.outputCanvasEnabled ? 1 : 0) << '\n';
+  output << "output_canvas_width\t" << project.outputCanvasWidth << '\n';
+  output << "output_canvas_height\t" << project.outputCanvasHeight << '\n';
 
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
@@ -1747,7 +1768,22 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.timecodeCurrentSeconds << '\t'
       << (deck.shuffle ? 1 : 0) << '\t'
       << (deck.ndiKeyEnabled ? 1 : 0) << '\t'
-      << escapeField(deck.ndiKeySourceName)
+      << escapeField(deck.ndiKeySourceName) << '\t'
+      << deck.canvasViewX << '\t'
+      << deck.canvasViewY << '\t'
+      << (deck.warpEnabled ? 1 : 0) << '\t'
+      << deck.warpTopLeftX << '\t'
+      << deck.warpTopLeftY << '\t'
+      << deck.warpTopRightX << '\t'
+      << deck.warpTopRightY << '\t'
+      << deck.warpBottomRightX << '\t'
+      << deck.warpBottomRightY << '\t'
+      << deck.warpBottomLeftX << '\t'
+      << deck.warpBottomLeftY << '\t'
+      << deck.edgeBlendLeft << '\t'
+      << deck.edgeBlendRight << '\t'
+      << deck.edgeBlendTop << '\t'
+      << deck.edgeBlendBottom
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1877,6 +1913,12 @@ Project loadProject(const fs::path& projectFile) {
       project.outputRefreshRateHz = std::max(0.0, safeDouble(fields, 1, 0.0));
     } else if (fields[0] == "output_bit_depth") {
       project.outputBitDepth = safeInt(fields, 1, 0);
+    } else if (fields[0] == "output_canvas_enabled") {
+      project.outputCanvasEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "output_canvas_width") {
+      project.outputCanvasWidth = safeInt(fields, 1, 3840);
+    } else if (fields[0] == "output_canvas_height") {
+      project.outputCanvasHeight = safeInt(fields, 1, 2160);
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -1929,6 +1971,21 @@ Project loadProject(const fs::path& projectFile) {
       deck.shuffle = safeBool(fields, 19, false);
       deck.ndiKeyEnabled = safeBool(fields, 20, false);
       deck.ndiKeySourceName = safeString(fields, 21);
+      deck.canvasViewX = safeInt(fields, 22, 0);
+      deck.canvasViewY = safeInt(fields, 23, 0);
+      deck.warpEnabled = safeBool(fields, 24, false);
+      deck.warpTopLeftX = static_cast<float>(safeDouble(fields, 25, 0.0));
+      deck.warpTopLeftY = static_cast<float>(safeDouble(fields, 26, 0.0));
+      deck.warpTopRightX = static_cast<float>(safeDouble(fields, 27, 0.0));
+      deck.warpTopRightY = static_cast<float>(safeDouble(fields, 28, 0.0));
+      deck.warpBottomRightX = static_cast<float>(safeDouble(fields, 29, 0.0));
+      deck.warpBottomRightY = static_cast<float>(safeDouble(fields, 30, 0.0));
+      deck.warpBottomLeftX = static_cast<float>(safeDouble(fields, 31, 0.0));
+      deck.warpBottomLeftY = static_cast<float>(safeDouble(fields, 32, 0.0));
+      deck.edgeBlendLeft = static_cast<float>(safeDouble(fields, 33, 0.0));
+      deck.edgeBlendRight = static_cast<float>(safeDouble(fields, 34, 0.0));
+      deck.edgeBlendTop = static_cast<float>(safeDouble(fields, 35, 0.0));
+      deck.edgeBlendBottom = static_cast<float>(safeDouble(fields, 36, 0.0));
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -3716,6 +3773,9 @@ class App {
 
     {
       Project project;
+      project.outputCanvasEnabled = true;
+      project.outputCanvasWidth = 5760;
+      project.outputCanvasHeight = 2160;
       Deck deck;
       deck.name = "Deck Smoke";
       deck.transitionSeconds = 1.5;
@@ -3724,6 +3784,21 @@ class App {
       deck.ndiSourceName = "Smoke Fill";
       deck.ndiKeyEnabled = true;
       deck.ndiKeySourceName = "Smoke Key";
+      deck.canvasViewX = 320;
+      deck.canvasViewY = 40;
+      deck.warpEnabled = true;
+      deck.warpTopLeftX = -12.0f;
+      deck.warpTopLeftY = 8.0f;
+      deck.warpTopRightX = 10.0f;
+      deck.warpTopRightY = 5.0f;
+      deck.warpBottomRightX = 14.0f;
+      deck.warpBottomRightY = -6.0f;
+      deck.warpBottomLeftX = -9.0f;
+      deck.warpBottomLeftY = -7.0f;
+      deck.edgeBlendLeft = 0.08f;
+      deck.edgeBlendRight = 0.12f;
+      deck.edgeBlendTop = 0.03f;
+      deck.edgeBlendBottom = 0.05f;
       deck.timecodeChaseEnabled = true;
       deck.timecodeRunEnabled = false;
       deck.timecodeTriggerEnabled = true;
@@ -3777,8 +3852,18 @@ class App {
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
+        expect(loaded.outputCanvasEnabled && loaded.outputCanvasWidth == 5760 && loaded.outputCanvasHeight == 2160,
+               "output canvas persisted");
         expect(loadedDeck.ndiEnabled && loadedDeck.ndiSourceName == "Smoke Fill", "ndi fill persisted");
         expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
+        expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
+        expect(loadedDeck.warpEnabled &&
+               std::abs(loadedDeck.warpTopLeftX + 12.0f) < 0.01f &&
+               std::abs(loadedDeck.warpBottomRightY + 6.0f) < 0.01f, "warp persisted");
+        expect(std::abs(loadedDeck.edgeBlendLeft - 0.08f) < 0.001f &&
+               std::abs(loadedDeck.edgeBlendRight - 0.12f) < 0.001f &&
+               std::abs(loadedDeck.edgeBlendTop - 0.03f) < 0.001f &&
+               std::abs(loadedDeck.edgeBlendBottom - 0.05f) < 0.001f, "edge blend persisted");
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
@@ -4533,7 +4618,24 @@ class App {
     int targetW = width;
     int targetH = height;
     if (targetW <= 0 || targetH <= 0) {
-      SDL_GetWindowSize(runtime->outputWindow, &targetW, &targetH);
+      int windowW = 0;
+      int windowH = 0;
+      if (runtime->outputWindow) {
+        SDL_GetWindowSize(runtime->outputWindow, &windowW, &windowH);
+      }
+      if (project_.outputCanvasEnabled) {
+        auto [canvasW, canvasH] = outputCanvasRenderSize();
+        targetW = canvasW;
+        targetH = canvasH;
+      } else {
+        if (windowW <= 0 || windowH <= 0) {
+          auto [rasterW, rasterH] = outputRenderSizeForDeck(deckIndex);
+          windowW = rasterW;
+          windowH = rasterH;
+        }
+        targetW = windowW;
+        targetH = windowH;
+      }
     }
     targetW = std::max(1, targetW);
     targetH = std::max(1, targetH);
@@ -4588,6 +4690,177 @@ class App {
     if (changed) {
       markProjectDirty();
     }
+  }
+
+  std::pair<int, int> outputCanvasRenderSize() const {
+    int w = std::clamp(project_.outputCanvasWidth, 320, 16384);
+    int h = std::clamp(project_.outputCanvasHeight, 180, 16384);
+    return {w, h};
+  }
+
+  void clampDeckCanvasViewToWindow(int deckIndex, int windowW, int windowH) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (!project_.outputCanvasEnabled) {
+      deck.canvasViewX = 0;
+      deck.canvasViewY = 0;
+      return;
+    }
+    auto [canvasW, canvasH] = outputCanvasRenderSize();
+    int maxX = std::max(0, canvasW - std::max(1, windowW));
+    int maxY = std::max(0, canvasH - std::max(1, windowH));
+    deck.canvasViewX = std::clamp(deck.canvasViewX, 0, maxX);
+    deck.canvasViewY = std::clamp(deck.canvasViewY, 0, maxY);
+  }
+
+  void setOutputCanvasMode(bool enabled, int width = 0, int height = 0) {
+    bool changed = false;
+    if (enabled) {
+      int targetW = width;
+      int targetH = height;
+      if (targetW <= 0 || targetH <= 0) {
+        auto [nativeW, nativeH] = displayNativeRenderSize(focusedDeck().outputDisplayIndex);
+        targetW = std::max(nativeW * 2, nativeW);
+        targetH = nativeH;
+      }
+      targetW = std::clamp(targetW, 320, 16384);
+      targetH = std::clamp(targetH, 180, 16384);
+      changed = !project_.outputCanvasEnabled
+        || project_.outputCanvasWidth != targetW
+        || project_.outputCanvasHeight != targetH;
+      project_.outputCanvasEnabled = true;
+      project_.outputCanvasWidth = targetW;
+      project_.outputCanvasHeight = targetH;
+    } else {
+      changed = project_.outputCanvasEnabled;
+      project_.outputCanvasEnabled = false;
+      for (auto& deck : project_.decks) {
+        deck.canvasViewX = 0;
+        deck.canvasViewY = 0;
+      }
+    }
+
+    applyOutputBitDepthAllDecks();
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      DeckRuntime* runtime = runtimeForDeck(deckIndex);
+      if (!runtime || !runtime->outputWindow) {
+        continue;
+      }
+      int ww = 0;
+      int wh = 0;
+      SDL_GetWindowSize(runtime->outputWindow, &ww, &wh);
+      clampDeckCanvasViewToWindow(deckIndex, ww, wh);
+    }
+
+    std::string label = project_.outputCanvasEnabled
+      ? ("canvas " + std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+      : "canvas off";
+    triggerToast("video: " + label);
+    playUiSound(UiSoundEffect::Toggle);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
+  void setFocusedDeckCanvasView(int x, int y) {
+    if (!project_.outputCanvasEnabled) {
+      triggerToast("canvas mode off");
+      return;
+    }
+    Deck& deck = focusedDeckMutable();
+    deck.canvasViewX = std::max(0, x);
+    deck.canvasViewY = std::max(0, y);
+    DeckRuntime* runtime = focusedRuntime();
+    if (runtime && runtime->outputWindow) {
+      int ww = 0;
+      int wh = 0;
+      SDL_GetWindowSize(runtime->outputWindow, &ww, &wh);
+      clampDeckCanvasViewToWindow(project_.focusedDeckIndex, ww, wh);
+    }
+    triggerToast("view: " + std::to_string(deck.canvasViewX) + "," + std::to_string(deck.canvasViewY));
+    markProjectDirty();
+  }
+
+  void nudgeFocusedDeckCanvasView(int dx, int dy) {
+    const Deck& deck = focusedDeck();
+    setFocusedDeckCanvasView(deck.canvasViewX + dx, deck.canvasViewY + dy);
+  }
+
+  void setFocusedDeckWarpEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.warpEnabled == enabled) {
+      return;
+    }
+    deck.warpEnabled = enabled;
+    triggerToast(deck.warpEnabled ? "warp on" : "warp off");
+    markProjectDirty();
+  }
+
+  void toggleFocusedDeckWarpEnabled() {
+    setFocusedDeckWarpEnabled(!focusedDeck().warpEnabled);
+  }
+
+  void resetFocusedDeckWarp() {
+    Deck& deck = focusedDeckMutable();
+    deck.warpTopLeftX = 0.0f;
+    deck.warpTopLeftY = 0.0f;
+    deck.warpTopRightX = 0.0f;
+    deck.warpTopRightY = 0.0f;
+    deck.warpBottomRightX = 0.0f;
+    deck.warpBottomRightY = 0.0f;
+    deck.warpBottomLeftX = 0.0f;
+    deck.warpBottomLeftY = 0.0f;
+    deck.edgeBlendLeft = 0.0f;
+    deck.edgeBlendRight = 0.0f;
+    deck.edgeBlendTop = 0.0f;
+    deck.edgeBlendBottom = 0.0f;
+    triggerToast("warp/blend reset");
+    markProjectDirty();
+  }
+
+  void adjustFocusedDeckWarpCorner(const std::string& cornerToken, float dx, float dy) {
+    Deck& deck = focusedDeckMutable();
+    std::string corner = toUpper(cornerToken);
+    if (corner == "TL" || corner == "TOPLEFT") {
+      deck.warpTopLeftX += dx;
+      deck.warpTopLeftY += dy;
+    } else if (corner == "TR" || corner == "TOPRIGHT") {
+      deck.warpTopRightX += dx;
+      deck.warpTopRightY += dy;
+    } else if (corner == "BR" || corner == "BOTTOMRIGHT") {
+      deck.warpBottomRightX += dx;
+      deck.warpBottomRightY += dy;
+    } else if (corner == "BL" || corner == "BOTTOMLEFT") {
+      deck.warpBottomLeftX += dx;
+      deck.warpBottomLeftY += dy;
+    } else {
+      return;
+    }
+    normalizeDeck(deck, project_.focusedDeckIndex);
+    triggerToast("warp " + corner + " " + std::to_string(static_cast<int>(std::lround(dx))) + "," + std::to_string(static_cast<int>(std::lround(dy))));
+    markProjectDirty();
+  }
+
+  void setFocusedDeckEdgeBlend(const std::string& edgeToken, float value) {
+    Deck& deck = focusedDeckMutable();
+    float v = std::clamp(value, 0.0f, 0.49f);
+    std::string edge = toUpper(edgeToken);
+    if (edge == "L" || edge == "LEFT") {
+      deck.edgeBlendLeft = v;
+    } else if (edge == "R" || edge == "RIGHT") {
+      deck.edgeBlendRight = v;
+    } else if (edge == "T" || edge == "TOP") {
+      deck.edgeBlendTop = v;
+    } else if (edge == "B" || edge == "BOTTOM") {
+      deck.edgeBlendBottom = v;
+    } else {
+      return;
+    }
+    normalizeDeck(deck, project_.focusedDeckIndex);
+    triggerToast("blend " + edge + " " + std::to_string(static_cast<int>(std::lround(v * 100.0f))) + "%");
+    markProjectDirty();
   }
 
   std::vector<int> refreshChoicesForDeck(int deckIndex) const {
@@ -4733,7 +5006,7 @@ class App {
       destroyDeckRuntime(runtime);
       return false;
     }
-    if (!configureDeckCompositor(deckIndex, targetW, targetH)) {
+    if (!configureDeckCompositor(deckIndex)) {
       destroyDeckRuntime(runtime);
       return false;
     }
@@ -5341,6 +5614,9 @@ class App {
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << " video_depth=" << outputBitDepthModeLabel()
+           << " canvas=" << (project_.outputCanvasEnabled
+                ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+                : "off")
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -5363,6 +5639,12 @@ class App {
              << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
              << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
+             << " view=" << deck.canvasViewX << "," << deck.canvasViewY
+             << " warp=" << (deck.warpEnabled ? "on" : "off")
+             << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
+             << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
+             << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
+             << "," << static_cast<int>(std::lround(deck.edgeBlendBottom * 100.0f))
              << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
              << " transition_s=" << deck.transitionSeconds
              << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
@@ -5401,6 +5683,9 @@ class App {
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << " video_depth=" << outputBitDepthModeLabel()
+           << " canvas=" << (project_.outputCanvasEnabled
+                ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+                : "off")
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
@@ -5418,6 +5703,12 @@ class App {
            << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
            << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
+           << " view=" << deck.canvasViewX << "," << deck.canvasViewY
+           << " warp=" << (deck.warpEnabled ? "on" : "off")
+           << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
+           << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
+           << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
+           << "," << static_cast<int>(std::lround(deck.edgeBlendBottom * 100.0f))
            << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
            << " transition_s=" << deck.transitionSeconds
            << " tc=" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)
@@ -5449,6 +5740,9 @@ class App {
            << "\"outputMode\":\"" << (project_.outputFollowDisplay ? "native" : "fixed") << "\","
            << "\"outputRefreshHz\":" << project_.outputRefreshRateHz << ","
            << "\"outputBitDepthMode\":\"" << escapeJson(outputBitDepthModeLabel()) << "\","
+           << "\"outputCanvasEnabled\":" << (project_.outputCanvasEnabled ? "true" : "false") << ","
+           << "\"outputCanvasWidth\":" << project_.outputCanvasWidth << ","
+           << "\"outputCanvasHeight\":" << project_.outputCanvasHeight << ","
            << "\"decks\":[";
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (deckIndex > 0) {
@@ -5475,6 +5769,21 @@ class App {
              << "\"ndiKeyName\":\"" << escapeJson(deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\","
              << "\"ndiKeyReceivers\":" << ndiKeyConnectionCount(deckIndex) << ","
              << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
+             << "\"canvasViewX\":" << deck.canvasViewX << ","
+             << "\"canvasViewY\":" << deck.canvasViewY << ","
+             << "\"warpEnabled\":" << (deck.warpEnabled ? "true" : "false") << ","
+             << "\"warpTopLeftX\":" << deck.warpTopLeftX << ","
+             << "\"warpTopLeftY\":" << deck.warpTopLeftY << ","
+             << "\"warpTopRightX\":" << deck.warpTopRightX << ","
+             << "\"warpTopRightY\":" << deck.warpTopRightY << ","
+             << "\"warpBottomRightX\":" << deck.warpBottomRightX << ","
+             << "\"warpBottomRightY\":" << deck.warpBottomRightY << ","
+             << "\"warpBottomLeftX\":" << deck.warpBottomLeftX << ","
+             << "\"warpBottomLeftY\":" << deck.warpBottomLeftY << ","
+             << "\"edgeBlendLeft\":" << deck.edgeBlendLeft << ","
+             << "\"edgeBlendRight\":" << deck.edgeBlendRight << ","
+             << "\"edgeBlendTop\":" << deck.edgeBlendTop << ","
+             << "\"edgeBlendBottom\":" << deck.edgeBlendBottom << ","
              << "\"transitionStyle\":\"" << escapeJson(transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))) << "\","
              << "\"transitionSeconds\":" << deck.transitionSeconds << ","
              << "\"timecode\":\"" << escapeJson(formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps)) << "\","
@@ -7069,10 +7378,21 @@ class App {
       }
       return;
     }
+    if (command == "CANVAS" || command == "VIEW" || command == "WARP" || command == "BLEND") {
+      std::string forwarded = "VIDEO " + command;
+      if (parts.size() > 1) {
+        forwarded += " " + joinParts(parts, 1);
+      }
+      handleRemoteCommand(forwarded);
+      return;
+    }
     if (command == "VIDEO" || command == "OUTPUTMODE") {
       if (parts.size() <= 1) {
+        std::string canvasLabel = project_.outputCanvasEnabled
+          ? (" canvas " + std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+          : " canvas off";
         triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex)
-          + " @" + outputRefreshRateLabel() + " " + outputBitDepthModeLabel());
+          + " @" + outputRefreshRateLabel() + " " + outputBitDepthModeLabel() + canvasLabel);
         return;
       }
 
@@ -7107,7 +7427,208 @@ class App {
         return false;
       };
 
+      auto parsePointToken = [&](std::string token) -> std::optional<std::pair<int, int>> {
+        token = trim(token);
+        if (token.empty()) {
+          return std::nullopt;
+        }
+        size_t split = token.find(',');
+        if (split == std::string::npos) {
+          split = token.find('x');
+        }
+        if (split == std::string::npos) {
+          split = token.find('X');
+        }
+        if (split == std::string::npos || split == 0 || split + 1 >= token.size()) {
+          return std::nullopt;
+        }
+        try {
+          int x = std::stoi(token.substr(0, split));
+          int y = std::stoi(token.substr(split + 1));
+          return std::make_pair(x, y);
+        } catch (...) {
+          return std::nullopt;
+        }
+      };
+
+      auto parseBlendValue = [&](size_t tokenIndex) -> std::optional<float> {
+        auto value = parseNumber(tokenIndex);
+        if (!value) {
+          return std::nullopt;
+        }
+        float normalized = static_cast<float>(*value);
+        if (std::abs(normalized) > 1.0f) {
+          normalized /= 100.0f;
+        }
+        return normalized;
+      };
+
       std::string value = toUpper(parts[1]);
+      if (value == "CANVAS") {
+        if (parts.size() <= 2) {
+          std::string label = project_.outputCanvasEnabled
+            ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+            : "off";
+          triggerToast("canvas: " + label);
+          return;
+        }
+        std::string canvasArg = toUpper(parts[2]);
+        if (canvasArg == "OFF" || canvasArg == "0") {
+          setOutputCanvasMode(false);
+          return;
+        }
+        if (canvasArg == "ON" || canvasArg == "1") {
+          if (parts.size() > 3) {
+            if (auto size = parsePointToken(parts[3]); size) {
+              setOutputCanvasMode(true, size->first, size->second);
+              return;
+            }
+          }
+          setOutputCanvasMode(true, project_.outputCanvasWidth, project_.outputCanvasHeight);
+          return;
+        }
+        if (canvasArg == "DISPLAY" || canvasArg == "NATIVE") {
+          auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+          setOutputCanvasMode(true, rasterW, rasterH);
+          return;
+        }
+        if (canvasArg == "DOUBLE" || canvasArg == "2X") {
+          auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+          setOutputCanvasMode(true, std::max(320, rasterW * 2), std::max(180, rasterH));
+          return;
+        }
+        if ((canvasArg == "SIZE" || canvasArg == "SET") && parts.size() > 3) {
+          if (auto size = parsePointToken(parts[3]); size) {
+            setOutputCanvasMode(true, size->first, size->second);
+          }
+          return;
+        }
+        if (auto size = parsePointToken(parts[2]); size) {
+          setOutputCanvasMode(true, size->first, size->second);
+        }
+        return;
+      }
+      if (value == "VIEW" || value == "PAN") {
+        if (parts.size() <= 2) {
+          const Deck& focused = focusedDeck();
+          triggerToast("view: " + std::to_string(focused.canvasViewX) + "," + std::to_string(focused.canvasViewY));
+          return;
+        }
+        std::string viewArg = toUpper(parts[2]);
+        if (viewArg == "LEFT" || viewArg == "RIGHT" || viewArg == "UP" || viewArg == "DOWN") {
+          int amount = 100;
+          if (parts.size() > 3) {
+            try {
+              amount = std::stoi(parts[3]);
+            } catch (...) {
+              amount = 100;
+            }
+          }
+          amount = std::clamp(std::abs(amount), 1, 8192);
+          if (viewArg == "LEFT") nudgeFocusedDeckCanvasView(-amount, 0);
+          if (viewArg == "RIGHT") nudgeFocusedDeckCanvasView(amount, 0);
+          if (viewArg == "UP") nudgeFocusedDeckCanvasView(0, -amount);
+          if (viewArg == "DOWN") nudgeFocusedDeckCanvasView(0, amount);
+          return;
+        }
+        if (viewArg == "NUDGE" && parts.size() > 4) {
+          try {
+            int dx = std::stoi(parts[3]);
+            int dy = std::stoi(parts[4]);
+            nudgeFocusedDeckCanvasView(dx, dy);
+          } catch (...) {
+          }
+          return;
+        }
+        if (auto point = parsePointToken(parts[2]); point) {
+          setFocusedDeckCanvasView(point->first, point->second);
+          return;
+        }
+        if (parts.size() > 3) {
+          try {
+            int x = std::stoi(parts[2]);
+            int y = std::stoi(parts[3]);
+            setFocusedDeckCanvasView(x, y);
+          } catch (...) {
+          }
+        }
+        return;
+      }
+      if (value == "WARP") {
+        if (parts.size() <= 2) {
+          triggerToast(std::string("warp: ") + (focusedDeck().warpEnabled ? "on" : "off"));
+          return;
+        }
+        std::string warpArg = toUpper(parts[2]);
+        if (warpArg == "ON") {
+          setFocusedDeckWarpEnabled(true);
+          return;
+        }
+        if (warpArg == "OFF") {
+          setFocusedDeckWarpEnabled(false);
+          return;
+        }
+        if (warpArg == "TOGGLE") {
+          toggleFocusedDeckWarpEnabled();
+          return;
+        }
+        if (warpArg == "RESET") {
+          resetFocusedDeckWarp();
+          return;
+        }
+        std::string corner = warpArg;
+        size_t deltaIndex = 3;
+        if ((warpArg == "MOVE" || warpArg == "ADJUST" || warpArg == "SET") && parts.size() > 3) {
+          corner = parts[3];
+          deltaIndex = 4;
+        }
+        if (parts.size() <= deltaIndex + 1) {
+          return;
+        }
+        try {
+          float dx = static_cast<float>(std::stod(parts[deltaIndex]));
+          float dy = static_cast<float>(std::stod(parts[deltaIndex + 1]));
+          adjustFocusedDeckWarpCorner(corner, dx, dy);
+        } catch (...) {
+        }
+        return;
+      }
+      if (value == "BLEND") {
+        if (parts.size() <= 2) {
+          const Deck& focused = focusedDeck();
+          triggerToast(
+            "blend: L" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendLeft * 100.0f))) +
+            " R" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendRight * 100.0f))) +
+            " T" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendTop * 100.0f))) +
+            " B" + std::to_string(static_cast<int>(std::lround(focused.edgeBlendBottom * 100.0f)))
+          );
+          return;
+        }
+        std::string edge = toUpper(parts[2]);
+        if (edge == "RESET") {
+          setFocusedDeckEdgeBlend("L", 0.0f);
+          setFocusedDeckEdgeBlend("R", 0.0f);
+          setFocusedDeckEdgeBlend("T", 0.0f);
+          setFocusedDeckEdgeBlend("B", 0.0f);
+          triggerToast("blend reset");
+          return;
+        }
+        if (edge == "ALL" && parts.size() > 3) {
+          if (auto amount = parseBlendValue(3); amount) {
+            setFocusedDeckEdgeBlend("L", *amount);
+            setFocusedDeckEdgeBlend("R", *amount);
+            setFocusedDeckEdgeBlend("T", *amount);
+            setFocusedDeckEdgeBlend("B", *amount);
+          }
+          return;
+        }
+        if (parts.size() > 3) {
+          if (auto amount = parseBlendValue(3); amount) {
+            setFocusedDeckEdgeBlend(edge, *amount);
+          }
+        }
+        return;
+      }
       if (value == "REFRESH" || value == "RATE" || value == "HZ") {
         if (parts.size() <= 2) {
           triggerToast("video refresh: " + outputRefreshRateLabel());
@@ -9123,6 +9644,82 @@ class App {
     }
   }
 
+  static Uint8 edgeBlendAlphaForUv(const Deck& deck, float u, float v) {
+    float ax = 1.0f;
+    if (deck.edgeBlendLeft > 0.0001f && u < deck.edgeBlendLeft) {
+      ax = std::min(ax, u / deck.edgeBlendLeft);
+    }
+    if (deck.edgeBlendRight > 0.0001f && u > 1.0f - deck.edgeBlendRight) {
+      ax = std::min(ax, (1.0f - u) / deck.edgeBlendRight);
+    }
+    float ay = 1.0f;
+    if (deck.edgeBlendTop > 0.0001f && v < deck.edgeBlendTop) {
+      ay = std::min(ay, v / deck.edgeBlendTop);
+    }
+    if (deck.edgeBlendBottom > 0.0001f && v > 1.0f - deck.edgeBlendBottom) {
+      ay = std::min(ay, (1.0f - v) / deck.edgeBlendBottom);
+    }
+    float alphaValue = std::clamp(ax * ay, 0.0f, 1.0f);
+    return static_cast<Uint8>(std::lround(alphaValue * 255.0f));
+  }
+
+  void presentDeckCompositorToWindow(int deckIndex, int windowW, int windowH) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    int texW = runtime->compositorWidth;
+    int texH = runtime->compositorHeight;
+    if (texW <= 0 || texH <= 0 || windowW <= 0 || windowH <= 0) {
+      return;
+    }
+
+    SDL_Rect src {0, 0, std::min(windowW, texW), std::min(windowH, texH)};
+    if (project_.outputCanvasEnabled) {
+      src.x = std::clamp(deck.canvasViewX, 0, std::max(0, texW - src.w));
+      src.y = std::clamp(deck.canvasViewY, 0, std::max(0, texH - src.h));
+    }
+
+    bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
+      || deck.edgeBlendTop > 0.0001f || deck.edgeBlendBottom > 0.0001f;
+    bool hasWarp = deck.warpEnabled;
+
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+    if (hasWarp || hasBlend) {
+      float u0 = static_cast<float>(src.x) / static_cast<float>(texW);
+      float v0 = static_cast<float>(src.y) / static_cast<float>(texH);
+      float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texW);
+      float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texH);
+
+      SDL_FPoint p0 {0.0f, 0.0f};
+      SDL_FPoint p1 {static_cast<float>(windowW), 0.0f};
+      SDL_FPoint p2 {static_cast<float>(windowW), static_cast<float>(windowH)};
+      SDL_FPoint p3 {0.0f, static_cast<float>(windowH)};
+      if (hasWarp) {
+        p0.x += deck.warpTopLeftX;      p0.y += deck.warpTopLeftY;
+        p1.x += deck.warpTopRightX;     p1.y += deck.warpTopRightY;
+        p2.x += deck.warpBottomRightX;  p2.y += deck.warpBottomRightY;
+        p3.x += deck.warpBottomLeftX;   p3.y += deck.warpBottomLeftY;
+      }
+
+      SDL_Vertex verts[4] {
+        {p0, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 0.0f, 0.0f)}, SDL_FPoint {u0, v0}},
+        {p1, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 1.0f, 0.0f)}, SDL_FPoint {u1, v0}},
+        {p2, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 1.0f, 1.0f)}, SDL_FPoint {u1, v1}},
+        {p3, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 0.0f, 1.0f)}, SDL_FPoint {u0, v1}},
+      };
+      const int indices[6] {0, 1, 2, 0, 2, 3};
+      SDL_SetTextureBlendMode(runtime->compositorTexture, SDL_BLENDMODE_BLEND);
+      if (SDL_RenderGeometry(runtime->outputRenderer, runtime->compositorTexture, verts, 4, indices, 6) == 0) {
+        return;
+      }
+    }
+#endif
+
+    SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+  }
+
   void renderOutputWindow(int deckIndex) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     const Deck& deck = project_.decks[deckIndex];
@@ -9133,19 +9730,33 @@ class App {
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    width = std::max(1, width);
+    height = std::max(1, height);
+    if (project_.outputCanvasEnabled) {
+      clampDeckCanvasViewToWindow(deckIndex, width, height);
+    }
+    int targetCompositorW = width;
+    int targetCompositorH = height;
+    if (project_.outputCanvasEnabled) {
+      auto [canvasW, canvasH] = outputCanvasRenderSize();
+      targetCompositorW = canvasW;
+      targetCompositorH = canvasH;
+    }
     if (!runtime->compositorTexture
-        || runtime->compositorWidth != width
-        || runtime->compositorHeight != height) {
-      configureDeckCompositor(deckIndex, width, height);
+        || runtime->compositorWidth != targetCompositorW
+        || runtime->compositorHeight != targetCompositorH) {
+      configureDeckCompositor(deckIndex, targetCompositorW, targetCompositorH);
     }
     bool usingCompositor = runtime->compositorTexture != nullptr;
     if (usingCompositor) {
       SDL_SetRenderTarget(runtime->outputRenderer, runtime->compositorTexture);
     }
+    int renderW = usingCompositor ? runtime->compositorWidth : width;
+    int renderH = usingCompositor ? runtime->compositorHeight : height;
     SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
     SDL_RenderClear(runtime->outputRenderer);
 
-    SDL_Rect bounds {0, 0, width, height};
+    SDL_Rect bounds {0, 0, renderW, renderH};
     runtime->mediaEngine->render(bounds);
 
     // Output window is always clean black — no status overlays or decorations.
@@ -9155,8 +9766,8 @@ class App {
 
     // Audio-only cue: draw a centred waveform + info on the output window
     if (activeCue && activeCue->kind == CueKind::Audio) {
-      int margin = width / 10;
-      SDL_Rect wfRect {margin, height / 4, width - margin * 2, height / 3};
+      int margin = renderW / 10;
+      SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
       std::vector<float> peaks;
       { std::lock_guard<std::mutex> lk(waveformMutex_);
         auto it = waveformCache_.find(activeCue->path);
@@ -9192,9 +9803,9 @@ class App {
       const Cue& lc = deck.cues[ovIdx];
       if (lc.kind == CueKind::LowerThird) {
         // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
-        int barH = height / 6;
-        int barY = height - barH - height / 20 - overlaySlot * (barH + 8);
-        SDL_Rect bar {0, barY, width, barH};
+        int barH = renderH / 6;
+        int barY = renderH - barH - renderH / 20 - overlaySlot * (barH + 8);
+        SDL_Rect bar {0, barY, renderW, barH};
 
         SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
@@ -9231,7 +9842,7 @@ class App {
       std::string timeLine = position + " / " + total;
       std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
       std::string tcLine = "tc: " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
-      SDL_Rect overlay {26, 26, std::max(300, width / 3), 72};
+      SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
       drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
       drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
       drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
@@ -9250,7 +9861,7 @@ class App {
       SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
       SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
       SDL_RenderClear(runtime->outputRenderer);
-      SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, nullptr, nullptr);
+      presentDeckCompositorToWindow(deckIndex, width, height);
     }
     double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
     sendDeckNdiFrame(deckIndex, width, height, fpsHint);
@@ -9599,7 +10210,49 @@ class App {
                        project_.outputBitDepth == 10 ? colorFromRgba(kScreenLightColor) : ink, depth10Btn);
       settingsBtns_.push_back({depth10Btn, 244, "video_depth_10"});
 
-      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 274);
+      const Deck& focused = focusedDeck();
+      std::string canvasLabel = project_.outputCanvasEnabled
+        ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+        : "off";
+      drawText(controlRenderer_, fontSmall_,
+               "Canvas span: " + canvasLabel + "  view " + std::to_string(focused.canvasViewX) + "," + std::to_string(focused.canvasViewY),
+               soft, cx, cy + 274);
+
+      SDL_Rect canvasOffBtn {cx, cy + 292, 88, 26};
+      drawFramedPanel(controlRenderer_, canvasOffBtn,
+                      !project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Canvas Off",
+                       !project_.outputCanvasEnabled ? colorFromRgba(kScreenLightColor) : ink, canvasOffBtn);
+      settingsBtns_.push_back({canvasOffBtn, 245, "video_canvas_off"});
+
+      SDL_Rect canvasOnBtn {cx + 98, cy + 292, 88, 26};
+      drawFramedPanel(controlRenderer_, canvasOnBtn,
+                      project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Canvas On",
+                       project_.outputCanvasEnabled ? colorFromRgba(kScreenLightColor) : ink, canvasOnBtn);
+      settingsBtns_.push_back({canvasOnBtn, 246, "video_canvas_on"});
+
+      SDL_Rect canvasSizeBtn {cx + 196, cy + 292, 150, 26};
+      drawFramedPanel(controlRenderer_, canvasSizeBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Canvas WxH...", ink, canvasSizeBtn);
+      settingsBtns_.push_back({canvasSizeBtn, 247, "video_canvas_custom"});
+
+      SDL_Rect canvasViewBtn {cx + 356, cy + 292, 120, 26};
+      drawFramedPanel(controlRenderer_, canvasViewBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "View XY...", ink, canvasViewBtn);
+      settingsBtns_.push_back({canvasViewBtn, 248, "video_canvas_view"});
+
+      SDL_Rect warpBtn {cx + 486, cy + 292, 90, 26};
+      drawFramedPanel(controlRenderer_, warpBtn,
+                      focused.warpEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, focused.warpEnabled ? "Warp On" : "Warp Off",
+                       focused.warpEnabled ? colorFromRgba(kScreenLightColor) : ink, warpBtn);
+      settingsBtns_.push_back({warpBtn, 249, "video_warp_toggle"});
 
     } else if (settingsTab_ == 4) {
       // About tab
@@ -9719,6 +10372,48 @@ class App {
         setOutputBitDepthMode(8);
       } else if (sb.action == 244) {
         setOutputBitDepthMode(10);
+      } else if (sb.action == 245) {
+        setOutputCanvasMode(false);
+      } else if (sb.action == 246) {
+        setOutputCanvasMode(true, project_.outputCanvasWidth, project_.outputCanvasHeight);
+      } else if (sb.action == 247) {
+        std::string initial = std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight);
+        auto value = pickTextInput("Output canvas", "WIDTHxHEIGHT (e.g. 5760x2160)", initial);
+        if (value) {
+          std::string token = toUpper(trim(*value));
+          auto xPos = token.find('X');
+          if (xPos != std::string::npos && xPos > 0 && xPos + 1 < token.size()) {
+            try {
+              int w = std::stoi(token.substr(0, xPos));
+              int h = std::stoi(token.substr(xPos + 1));
+              if (w > 0 && h > 0) {
+                setOutputCanvasMode(true, w, h);
+              }
+            } catch (...) {
+            }
+          }
+        }
+      } else if (sb.action == 248) {
+        const Deck& deck = focusedDeck();
+        std::string initial = std::to_string(deck.canvasViewX) + "," + std::to_string(deck.canvasViewY);
+        auto value = pickTextInput("Canvas view", "X,Y offset in pixels", initial);
+        if (value) {
+          std::string token = trim(*value);
+          size_t split = token.find(',');
+          if (split == std::string::npos) {
+            split = token.find(' ');
+          }
+          if (split != std::string::npos && split > 0 && split + 1 < token.size()) {
+            try {
+              int x = std::stoi(token.substr(0, split));
+              int y = std::stoi(token.substr(split + 1));
+              setFocusedDeckCanvasView(x, y);
+            } catch (...) {
+            }
+          }
+        }
+      } else if (sb.action == 249) {
+        toggleFocusedDeckWarpEnabled();
       }
       return;
     }
