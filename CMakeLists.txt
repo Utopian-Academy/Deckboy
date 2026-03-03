@@ -154,6 +154,7 @@ add_executable(playboy-native
   native/core/subprocess.cpp
   native/render/primitives.cpp
   native/render/text_renderer.cpp
+  native/render/waveform_renderer.cpp
   native/render/output_renderer.cpp
 )
 
