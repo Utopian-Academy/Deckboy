@@ -232,52 +232,48 @@ This document summarizes the comprehensive modular refactoring of Playboy_0.01 t
 
 ---
 
-## Phase 7: Media Module Foundation 🚀 (In Progress)
+## Phase 7: Media Module Foundation 🚀 (Subprocess Complete, Engine Documented)
 
-### Completed
-- **native/core/subprocess.hpp/cpp**
+### Completed ✅
+- **native/core/subprocess.hpp/cpp** (210 LOC)
   - Extracted subprocess management from main.cpp
-  - Foundation for MediaEngine extraction
+  - ChildProcess struct with full lifecycle (start, stop, move semantics)
+  - readAllText() - Execute command and capture output
+  - spawnPipeProcess() - Spawn subprocess with piped stdout
+  - Foundation for FFmpeg integration and future decoder modules
   - Build: Clean, self-check passes
 
-### Planned
-- **native/media/engine.hpp** (expand header)
-  - Full public API for MediaEngine
-  - State machine, playback control, rendering
-  - Audio tap callbacks
+### MediaEngine Extraction (Deferred - Requires Incremental Approach)
+**Status**: Planned for next developer with detailed implementation guide
 
-- **native/media/engine.cpp** (1445 LOC)
-  - Complete extraction from main.cpp lines 1953-2459
-  - Helper methods: loadStillFrame, loadPatternFrame, decoderMain, audioMain
-  - Subprocess integration, SDL rendering, audio buffering
-  - Transition logic and pause point tracking
+**Reason for Deferral**: MediaEngine (1445 LOC) is more complex than expected:
+- 30+ private member variables (state, textures, threads, buffers)
+- 20+ helper methods with interdependencies
+- Fragile subprocess/threading management (video + audio threads)
+- Multiple SDL rendering paths (still frames, patterns, transitions, browser)
+- Cannot safely extract as single operation (high risk of breaking playback)
 
-- **CMakeLists.txt** (update)
-  - Add native/media/engine.cpp to compilation
-  - Link against SDL2, subprocess, core modules
+**Solution**: Incremental extraction with 7 steps (est. 7.75 hours total)
+1. Extract pattern frame generation (30 min)
+2. Extract image loading (30 min)
+3. Extract FFmpeg subprocess (1.5 hours) - **Hardest part**
+4. Extract SDL rendering (1 hour)
+5. Extract audio pipeline (45 min)
+6. Create MediaEngine facade (1 hour)
+7. Cleanup & testing (30 min)
 
-### Dependencies
-- ✅ core/types.hpp - Cue, TransitionStyle, TransportState
-- ✅ core/utils.hpp - Utility functions
-- ✅ core/subprocess.hpp - ChildProcess, spawnPipeProcess
-- ✅ SDL2 - Rendering, audio device
-- POSIX - fork, pipe, waitpid (Unix-only)
+### Detailed Guide Created
+- **MEDIA_ENGINE_EXTRACTION_DETAILED.md** (300+ lines)
+  - Step-by-step implementation for each phase
+  - Code examples and API signatures
+  - Risk mitigation strategies
+  - Testing checklist
+  - Complete member/method inventory
 
-### Estimation
-- Header expansion: 30 min
-- Implementation extraction: 2.5 hours
-- Integration with main.cpp: 1 hour
-- Testing and verification: 1 hour
-- **Total: ~4 hours**
-
-### Next Steps for Next Developer
-1. Review native/media/engine.hpp for full public API
-2. Extract full MediaEngine class from main.cpp (lines 1953-2459)
-3. Move to native/media/engine.cpp with proper namespacing
-4. Update CMakeLists.txt to compile new module
-5. Remove MediaEngine class definition from main.cpp
-6. Test: `./playboy-native --self-check` and manual playback testing
-7. Verify transitions, pause points, audio still work identically
+### Build Status
+✅ All systems passing
+✅ self-check: Fonts, ffmpeg, ffprobe, UI SFX, Companion control - all OK
+✅ CI/CD: 12 configurations ready
 
 ---
 

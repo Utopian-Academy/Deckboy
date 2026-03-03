@@ -1,4 +1,3 @@
 I've analyzed the project: it's a Linux-first C++ app using SDL2 and FFmpeg subprocesses, with a massive 496KB main.cpp monolith. It has a newer native
-  version and an older Node.js prototype. Key issues include Linux-only browser and MIDI implementations, missing pro features like DeckLink and Siphon/Spout,
-  and a bug with still image cue progression. My strategy involves refactoring main.cpp, transitioning to FFmpeg LibAV, implementing cross-platform MIDI and
+  version and an older Node.js prototype. Key issues include Linux-only browser and MIDI implementations, missing pro features like DeckLink and Siphon/Spout. My strategy involves refactoring main.cpp, transitioning to FFmpeg LibAV, implementing cross-platform MIDI and
   browser cues, adding professional features and a GPLv3 license, and fixing the reported bug. I'll now update the user.
