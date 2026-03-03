@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(playboy_native VERSION 0.0.1 LANGUAGES CXX)
+project(playboy_native VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -27,18 +27,33 @@ if(PLAYBOY_ENABLE_NDI)
     NAMES Processing.NDI.Lib.h
     PATHS
       "$ENV{PLAYBOY_NDI_SDK}/include"
-      "/home/james/NDI SDK for Linux/include"
       "/opt/NDI SDK for Linux/include"
       "/usr/local/include"
       "/usr/include"
   )
 endif()
 
+option(PLAYBOY_ENABLE_ALSA_MTC "Enable optional ALSA MTC ingest integration" ON)
+if(UNIX AND NOT APPLE AND PLAYBOY_ENABLE_ALSA_MTC)
+  find_path(PLAYBOY_ALSA_INCLUDE_DIR
+    NAMES asoundlib.h
+    PATH_SUFFIXES alsa
+    PATHS
+      /usr/include
+      /usr/local/include
+  )
+  find_library(PLAYBOY_ALSA_LIBRARY
+    NAMES asound
+  )
+endif()
+
 add_executable(playboy-native
   native/main.cpp
+  native/core/paths.cpp
 )
 
 target_include_directories(playboy-native PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/native
   ${SDL2_INCLUDE_DIRS}
   ${SDL2_TTF_INCLUDE_DIR}
 )
@@ -49,6 +64,18 @@ if(PLAYBOY_ENABLE_NDI AND PLAYBOY_NDI_INCLUDE_DIR)
   )
   target_compile_definitions(playboy-native PRIVATE
     PLAYBOY_HAS_NDI_SDK=1
+  )
+endif()
+
+if(UNIX AND NOT APPLE AND PLAYBOY_ENABLE_ALSA_MTC AND PLAYBOY_ALSA_INCLUDE_DIR AND PLAYBOY_ALSA_LIBRARY)
+  target_include_directories(playboy-native PRIVATE
+    ${PLAYBOY_ALSA_INCLUDE_DIR}
+  )
+  target_link_libraries(playboy-native PRIVATE
+    ${PLAYBOY_ALSA_LIBRARY}
+  )
+  target_compile_definitions(playboy-native PRIVATE
+    PLAYBOY_HAS_ALSA=1
   )
 endif()
 

@@ -22,9 +22,12 @@ Cute extras are now optional:
 - Cue controls for fade in, fade out, loop, hold on last frame, in-point, and out-point
 - Deck transition engine with `cut` / `crossfade` / `dip` styles
 - Playlist controls for auto-advance and playlist loop
-- Built-in kawaii test pattern cue
-- Browser cues that launch a clean Chromium-style output window on the target display
+- Browser cues rendered **into** the output window via Xvfb + ffmpeg x11grab — smooth transitions and program monitor preview, just like any other cue
+- Engineering test patterns: SMPTE 75% colour bars, crosshatch, checkerboard, full-field (white/black/red/green/blue)
+- **Pocket Test** — full-colour animated kawaii procedural scene (day/night cycle, walking girl, clouds, sparkles) plus signal reference strip at bottom
+- Multi-layer overlay compositor: stack up to 4 lower-third/graphic cues in z-order (`OVERLAY PUSH/POP/CLEAR`)
 - Audio output device selection and output display selection
+- Video output mode control (display-native EDID mode or fixed raster presets up to 4K UHD)
 - Optional per-deck NDI output (video + audio sender name + enable/disable)
 - Optional deck-local time overlay in output
 - Cue IDs with ID-targeted select/take and `GOTO` search
@@ -92,6 +95,8 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `Ctrl+O`: open playlist
 - `Ctrl+Shift+S`: save playlist as
 - `Ctrl+N`: add a new deck
+- `Ctrl+Enter`: take selected cue on **all** decks simultaneously
+- `Ctrl+Space`: play/pause **all** decks simultaneously
 - `Tab`: focus next deck
 - `Shift+Tab`: focus previous deck
 - Click a deck card in the control window to focus it
@@ -157,16 +162,36 @@ TIMECODE RUN ON
 TIMECODE FPS 29.97
 TIMECODE TRIGGER ON
 PATTERN
+PATTERN pocket-test
+PATTERN smpte-bars
+PATTERN crosshatch
+PATTERN checkerboard
+PATTERN full-white
+PATTERN full-black
 BROWSER https://example.com
+ALLTAKE
+ALLGO
+ALLPLAY
+ALLPAUSE
+ALLSTOP
 AUDIO NEXT
 AUDIO DEFAULT
 DISPLAY NEXT
 DISPLAY 2
+VIDEO
+VIDEO NATIVE
+VIDEO 4K
+VIDEO 1920x1080
+VIDEO CUSTOM 3440x1440
+VIDEO SIZE DISPLAY
 NDI ON
 NDI OFF
 NDI NAME Stage Left Feed
 OVERLAY ON
 OVERLAY OFF
+OVERLAY PUSH 3
+OVERLAY POP
+OVERLAY CLEAR
 DECK 2
 DECK 2 TAKE
 DECK 2 SELECT 3
@@ -190,6 +215,11 @@ Notes:
 - `BROWSER ...` adds a new browser cue to the current playlist.
 - `AUDIO ...` uses SDL output device names; `DEFAULT` returns to the system default output.
 - `DISPLAY 2` means the second display.
+- `VIDEO NATIVE` follows the selected display desktop mode (EDID/OS resolution).
+- `VIDEO 4K` sets a fixed 3840x2160 output raster.
+- `VIDEO 1920x1080` (or any `WIDTHxHEIGHT`) sets a fixed custom raster.
+- `VIDEO CUSTOM 3440x1440` is an alias form for custom EDID/timing rasters.
+- `VIDEO SIZE DISPLAY` repositions/resizes the focused output to the selected display.
 - `NDI NAME ...` renames the NDI sender for the focused deck.
 - `OVERLAY ...` toggles the output time/ID overlay for the focused deck.
 - `TRANSITION ...` controls deck transition time/style.
@@ -215,6 +245,7 @@ Supported OSC addresses include:
 - `/autonext i`, `/playlistloop i`
 - `/transition f`, `/transition/style s`
 - `/ndi i`, `/ndi/name s`
+- `/video s`
 - `/overlay i`, `/timeoverlay i`
 - `/in f`, `/out f`, `/trim/clear`
 - `/timecode s|f`, `/timecode/chase i`, `/timecode/run i`, `/timecode/fps f`, `/timecode/mark s`

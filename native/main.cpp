@@ -1,6 +1,10 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include "core/constants.hpp"
+#include "core/types.hpp"
+#include "core/paths.hpp"
+
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -17,6 +21,7 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -25,6 +30,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <string_view>
 #include <thread>
 #include <type_traits>
@@ -48,154 +54,17 @@
 #include <Processing.NDI.Lib.h>
 #endif
 
+#if defined(PLAYBOY_HAS_ALSA)
+#include <alsa/asoundlib.h>
+#endif
+
 namespace fs = std::filesystem;
+
+using playboy::core::Paths;
 
 namespace {
 
-constexpr int kControlWidth = 1440;
-constexpr int kControlHeight = 900;
-constexpr int kOutputWidth = 1280;
-constexpr int kOutputHeight = 720;
-constexpr int kSidebarWidth = 420;
-constexpr int kRowHeight = 68;
-constexpr int kPadding = 20;
-constexpr int kAudioRate = 48000;
-constexpr int kAudioChannels = 2;
 constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
-constexpr size_t kMaxVideoFrames = 6;
-constexpr Uint32 kShellOuterColor = 0xC9CFB3FFu;
-constexpr Uint32 kShellInnerColor = 0xB0B98DFFu;
-constexpr Uint32 kShellShadowColor = 0x7B8167FFu;
-constexpr Uint32 kScreenLightColor = 0x9BBC0FFFu;
-constexpr Uint32 kScreenMidColor = 0x8BAC0FFFu;
-constexpr Uint32 kScreenDarkColor = 0x306230FFu;
-constexpr Uint32 kScreenDeepColor = 0x0F380FFFu;
-constexpr Uint32 kScreenInkSoftColor = 0x234A23FFu;
-constexpr Uint32 kButtonBezelColor = 0x5E6954FFu;
-constexpr Uint32 kDeleteBezelColor = 0x3B4B38FFu;
-constexpr std::string_view kAppTitle = "Playboy_0.01";
-constexpr std::string_view kOutputTitle = "Playboy_0.01 Output";
-constexpr std::string_view kAppModelLabel = "model pb-001 / v0.01";
-
-const fs::path kProjectRoot = "/home/james/playboy";
-const fs::path kDataDir = kProjectRoot / "data";
-const fs::path kStoreFile = kDataDir / "project.playboy";
-const fs::path kFontSans = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-const fs::path kFontMono = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
-
-enum class CueKind {
-  Video,
-  Image,
-  Pattern,
-  Browser
-};
-
-enum class TransportState {
-  Stopped,
-  Paused,
-  Playing
-};
-
-enum class TransitionStyle {
-  Cut,
-  Crossfade,
-  DipBlack
-};
-
-struct Cue {
-  std::string id;
-  std::string path;
-  std::string name;
-  CueKind kind = CueKind::Video;
-  double duration = 0.0;
-  int width = 0;
-  int height = 0;
-  double fps = 30.0;
-  std::string formatName;
-  std::string videoCodec;
-  std::string audioCodec;
-  bool hasAudio = false;
-  std::uintmax_t sizeBytes = 0;
-  SDL_Color color {48, 98, 48, 255};
-  double fadeInSeconds = 0.0;
-  double fadeOutSeconds = 0.0;
-  bool loop = false;
-  bool pauseOnLastFrame = false;
-  double inPointSeconds = 0.0;
-  double outPointSeconds = 0.0;
-  double triggerTimecodeSeconds = -1.0;
-};
-
-struct Deck {
-  std::string name = "Deck 1";
-  std::vector<Cue> cues;
-  int selectedIndex = -1;
-  int activeIndex = -1;
-  bool autoAdvance = false;
-  bool playlistLoop = false;
-  std::string audioOutputDeviceName;
-  int outputDisplayIndex = 0;
-  bool ndiEnabled = false;
-  std::string ndiSourceName;
-  bool timeOverlayEnabled = false;
-  double transitionSeconds = 0.0;
-  std::string transitionStyle = "crossfade";
-  bool timecodeChaseEnabled = false;
-  bool timecodeRunEnabled = false;
-  bool timecodeTriggerEnabled = true;
-  double timecodeFps = 30.0;
-  double timecodeCurrentSeconds = 0.0;
-  double timecodeLastSeconds = 0.0;
-  bool timecodeDirty = false;
-};
-
-struct Project {
-  std::string title = std::string(kAppTitle);
-  std::vector<Deck> decks {Deck {}};
-  int focusedDeckIndex = 0;
-  bool advancedOutputMode = false;
-  bool uiSoundsEnabled = true;
-  bool uiTransitionsEnabled = true;
-};
-
-struct DecodedFrame {
-  int width = 0;
-  int height = 0;
-  std::uint64_t index = 0;
-  std::vector<std::uint8_t> pixels;
-};
-
-struct Button {
-  std::string label;
-  SDL_Rect rect {};
-  SDL_Color fill {48, 40, 31, 255};
-  SDL_Color outline {255, 255, 255, 20};
-  SDL_Color text {245, 234, 215, 255};
-};
-
-struct DragState {
-  bool active = false;
-  int cueIndex = -1;
-};
-
-struct ToastState {
-  bool active = false;
-  Uint64 startedAt = 0;
-  Uint32 durationMs = 1200;
-  std::string message;
-  SDL_Color fill {155, 188, 15, 220};
-  SDL_Color ink {15, 56, 15, 255};
-};
-
-enum class UiSoundEffect {
-  Navigate,
-  Import,
-  Take,
-  Toggle,
-  Stop,
-  Clear,
-  Delete
-};
 
 std::atomic<bool> gShouldQuit = false;
 
@@ -339,30 +208,56 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
 
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
-    case CueKind::Image:
-      return "Still";
-    case CueKind::Pattern:
-      return "Pattern";
-    case CueKind::Browser:
-      return "Browser";
+    case CueKind::Image:      return "Still";
+    case CueKind::Pattern:    return "Pattern";
+    case CueKind::Browser:    return "Browser";
+    case CueKind::LowerThird: return "Lower Third";
+    case CueKind::Audio:      return "Audio";
     case CueKind::Video:
-    default:
-      return "Video";
+    default:                  return "Video";
   }
 }
 
 std::string cueKindToken(CueKind kind) {
   switch (kind) {
-    case CueKind::Image:
-      return "image";
-    case CueKind::Pattern:
-      return "pattern";
-    case CueKind::Browser:
-      return "browser";
+    case CueKind::Image:      return "image";
+    case CueKind::Pattern:    return "pattern";
+    case CueKind::Browser:    return "browser";
+    case CueKind::LowerThird: return "lower_third";
+    case CueKind::Audio:      return "audio";
     case CueKind::Video:
-    default:
-      return "video";
+    default:                  return "video";
   }
+}
+
+std::string cueEndActionToken(CueEndAction a) {
+  switch (a) {
+    case CueEndAction::Stop:       return "stop";
+    case CueEndAction::Loop:       return "loop";
+    case CueEndAction::PauseOnLast: return "hold";
+    case CueEndAction::AutoNext:   return "next";
+    case CueEndAction::Inherit:
+    default:                       return "inherit";
+  }
+}
+
+std::string cueEndActionLabel(CueEndAction a) {
+  switch (a) {
+    case CueEndAction::Stop:       return "stop";
+    case CueEndAction::Loop:       return "loop";
+    case CueEndAction::PauseOnLast: return "hold last";
+    case CueEndAction::AutoNext:   return "auto next";
+    case CueEndAction::Inherit:
+    default:                       return "inherit";
+  }
+}
+
+CueEndAction parseCueEndAction(const std::string& s) {
+  if (s == "stop")    return CueEndAction::Stop;
+  if (s == "loop")    return CueEndAction::Loop;
+  if (s == "hold")    return CueEndAction::PauseOnLast;
+  if (s == "next")    return CueEndAction::AutoNext;
+  return CueEndAction::Inherit;
 }
 
 std::string transportLabel(TransportState state) {
@@ -475,6 +370,25 @@ SDL_Color colorFromRgba(Uint32 rgba) {
   return {red(rgba), green(rgba), blue(rgba), alpha(rgba)};
 }
 
+SDL_Color colorTagToSdl(const std::string& tag, Uint8 alpha = 255) {
+  if (tag == "red")    return {180,  40,  40, alpha};
+  if (tag == "orange") return {190, 100,  20, alpha};
+  if (tag == "yellow") return {160, 145,  10, alpha};
+  if (tag == "cyan")   return { 15, 140, 140, alpha};
+  if (tag == "blue")   return { 20,  60, 175, alpha};
+  if (tag == "purple") return {110,  30, 150, alpha};
+  if (tag == "pink")   return {175,  45, 115, alpha};
+  return {48, 98, 48, alpha};
+}
+
+std::string nextColorTag(const std::string& current) {
+  static const std::vector<std::string> kTags =
+    {"", "red", "orange", "yellow", "cyan", "blue", "purple", "pink"};
+  auto it = std::find(kTags.begin(), kTags.end(), current);
+  if (it == kTags.end() || std::next(it) == kTags.end()) return "";
+  return *std::next(it);
+}
+
 SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
   return {
     rect.x + amount,
@@ -567,6 +481,13 @@ std::vector<std::string> splitWhitespace(const std::string& text) {
 std::string toUpper(std::string value) {
   std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
     return static_cast<char>(std::toupper(ch));
+  });
+  return value;
+}
+
+std::string toLower(std::string value) {
+  std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
   });
   return value;
 }
@@ -818,6 +739,12 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
   if (path == "/FULLSCREEN") {
     return "FULLSCREEN";
   }
+  if (path == "/VIDEO" || path == "/OUTPUTMODE") {
+    if (auto value = argString(0)) {
+      return "VIDEO " + *value;
+    }
+    return "VIDEO";
+  }
   if (path == "/SELECT") {
     if (auto value = argString(0)) {
       return "SELECT " + *value;
@@ -1040,16 +967,22 @@ struct ChildProcess {
 #ifndef _WIN32
     if (pid > 0) {
       pid_t target = pid;
+      // Close the read end FIRST so any thread blocked in read() unblocks via
+      // EBADF, allowing it to exit quickly before we join it.
+      if (readFd >= 0) {
+        close(readFd);
+        readFd = -1;
+      }
+      // SIGKILL cannot be ignored or caught, so waitpid() always returns
+      // promptly. SIGTERM could block if ffmpeg is stuck writing to a full
+      // pipe that nobody is draining — causing a permanent hang.
       if (processGroup) {
-        kill(-target, SIGTERM);
+        kill(-target, SIGKILL);
       } else {
-        kill(target, SIGTERM);
+        kill(target, SIGKILL);
       }
       int status = 0;
       waitpid(target, &status, 0);
-      if (processGroup) {
-        kill(-target, SIGKILL);
-      }
       pid = -1;
       processGroup = false;
     }
@@ -1094,7 +1027,6 @@ struct NdiApi {
 #else
     candidates.emplace_back("libndi.so.6");
     candidates.emplace_back("libndi.so");
-    candidates.emplace_back("/home/james/NDI SDK for Linux/lib/x86_64-linux-gnu/libndi.so.6.3.1");
     candidates.emplace_back("/usr/local/lib/libndi.so.6");
     candidates.emplace_back("/usr/lib/libndi.so.6");
 #endif
@@ -1169,14 +1101,24 @@ struct NdiApi {
 
 class MediaEngine;
 
+// Phased startup for browser cues via virtual framebuffer.
+enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
+
 struct DeckRuntime {
   SDL_Window* outputWindow = nullptr;
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
+  // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
   ChildProcess browserProcess;
+  ChildProcess xvfbProcess;
   bool browserCueLive = false;
   fs::path browserProfileDir;
+  std::string virtualDisplayId;        // e.g. ":22"
+  BrowserStartPhase browserStartPhase = BrowserStartPhase::None;
+  Uint64 browserPhaseStartedAt = 0;
+  int pendingBrowserW = 1280;
+  int pendingBrowserH = 720;
 #if defined(PLAYBOY_HAS_NDI_SDK)
   NDIlib_send_instance_t ndiSender = nullptr;
   std::string ndiSenderName;
@@ -1610,6 +1552,8 @@ void normalizeProject(Project& project) {
     normalizeDeck(project.decks[index], static_cast<int>(index));
   }
   project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
+  project.outputRenderWidth = std::clamp(project.outputRenderWidth, 320, 7680);
+  project.outputRenderHeight = std::clamp(project.outputRenderHeight, 180, 4320);
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
 }
 
@@ -1690,8 +1634,9 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
       if (fps && *fps > 1.0) {
         cue.fps = *fps;
       }
-    } else if (key == "duration" && cue.kind == CueKind::Video) {
-      cue.duration = std::max(0.0, std::atof(value.c_str()));
+    } else if (key == "duration" && (cue.kind == CueKind::Video || cue.duration == 0.0)) {
+      double d = std::atof(value.c_str());
+      if (d > 0.0) cue.duration = d;
     } else if (key == "format_name") {
       cue.formatName = value;
     } else if (key == "size") {
@@ -1699,17 +1644,24 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     }
   }
 
+  // Auto-detect audio-only: no video stream but has audio
+  if (cue.videoCodec.empty() && cue.hasAudio) {
+    cue.kind = CueKind::Audio;
+    // Audio cues don't have video dimensions — give them nominal size
+    if (cue.width <= 0) cue.width = 1;
+    if (cue.height <= 0) cue.height = 1;
+  }
   if (cue.width <= 0 || cue.height <= 0) {
     return std::nullopt;
   }
-  if (cue.kind == CueKind::Video && cue.duration <= 0.0) {
+  if ((cue.kind == CueKind::Video || cue.kind == CueKind::Audio) && cue.duration <= 0.0) {
     cue.duration = 0.0;
   }
   return cue;
 }
 
 bool saveProject(const fs::path& projectFile, const Project& project) {
-  fs::path resolved = projectFile.empty() ? (kDataDir / "default.playboy") : projectFile;
+  fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
   if (resolved.has_parent_path()) {
     fs::create_directories(resolved.parent_path());
   }
@@ -1723,6 +1675,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
+  output << "master_volume\t" << project.masterVolume << '\n';
+  output << "master_dimmer\t" << project.masterDimmer << '\n';
+  output << "output_follow_display\t" << (project.outputFollowDisplay ? 1 : 0) << '\n';
+  output << "output_render_width\t" << project.outputRenderWidth << '\n';
+  output << "output_render_height\t" << project.outputRenderHeight << '\n';
 
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
@@ -1745,7 +1702,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.timecodeRunEnabled ? 1 : 0) << '\t'
       << (deck.timecodeTriggerEnabled ? 1 : 0) << '\t'
       << deck.timecodeFps << '\t'
-      << deck.timecodeCurrentSeconds
+      << deck.timecodeCurrentSeconds << '\t'
+      << (deck.shuffle ? 1 : 0)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1772,7 +1730,30 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << escapeField(cue.id) << '\t'
         << cue.inPointSeconds << '\t'
         << cue.outPointSeconds << '\t'
-        << cue.triggerTimecodeSeconds
+        << cue.triggerTimecodeSeconds << '\t'
+        << cueEndActionToken(cue.endAction) << '\t'
+        << cue.cueTransitionSeconds << '\t'
+        << escapeField(cue.cueTransitionStyle) << '\t'
+        << escapeField(cue.lowerThirdText) << '\t'
+        << escapeField(cue.lowerThirdSubtext) << '\t'
+        << cue.lowerThirdBgAlpha << '\t'
+        << cue.stillDurationSeconds << '\t'
+        << cue.loopCount << '\t'
+        << cue.playbackSpeed << '\t'
+        << escapeField(cue.colorTag)
+        << '\t' << escapeField(cue.notes)
+        << '\t' << cue.outputScale
+        << '\t' << cue.outputOffsetX
+        << '\t' << cue.outputOffsetY
+        << '\t' << escapeField(cue.cueNumber)
+        << '\t' << [&]() {
+             std::ostringstream pp;
+             for (size_t i = 0; i < cue.pausePoints.size(); ++i) {
+               if (i) pp << ',';
+               pp << cue.pausePoints[i];
+             }
+             return pp.str();
+           }()
         << '\n';
     }
   }
@@ -1782,7 +1763,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
 
 Project loadProject(const fs::path& projectFile) {
   Project project;
-  fs::path resolved = projectFile.empty() ? (kDataDir / "default.playboy") : projectFile;
+  fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
   std::ifstream input(resolved, std::ios::binary);
   if (!input) {
     return project;
@@ -1829,6 +1810,16 @@ Project loadProject(const fs::path& projectFile) {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "master_volume") {
+      project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
+    } else if (fields[0] == "master_dimmer") {
+      project.masterDimmer = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
+    } else if (fields[0] == "output_follow_display") {
+      project.outputFollowDisplay = safeBool(fields, 1, true);
+    } else if (fields[0] == "output_render_width") {
+      project.outputRenderWidth = safeInt(fields, 1, 1920);
+    } else if (fields[0] == "output_render_height") {
+      project.outputRenderHeight = safeInt(fields, 1, 1080);
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -1874,6 +1865,7 @@ Project loadProject(const fs::path& projectFile) {
       deck.timecodeFps = safeDouble(fields, 17, 30.0);
       deck.timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 18, 0.0));
       deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
+      deck.shuffle = safeBool(fields, 19, false);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -1895,6 +1887,8 @@ Project loadProject(const fs::path& projectFile) {
         kind == "image" ? CueKind::Image :
         kind == "pattern" ? CueKind::Pattern :
         kind == "browser" ? CueKind::Browser :
+        kind == "lower_third" ? CueKind::LowerThird :
+        kind == "audio" ? CueKind::Audio :
         CueKind::Video;
       cue.duration = safeDouble(fields, offset + 3, 0.0);
       cue.width = safeInt(fields, offset + 4, 0);
@@ -1914,6 +1908,32 @@ Project loadProject(const fs::path& projectFile) {
       cue.inPointSeconds = std::max(0.0, safeDouble(fields, offset + 18, 0.0));
       cue.outPointSeconds = std::max(0.0, safeDouble(fields, offset + 19, 0.0));
       cue.triggerTimecodeSeconds = safeDouble(fields, offset + 20, -1.0);
+      cue.endAction = parseCueEndAction(safeString(fields, offset + 21));
+      cue.cueTransitionSeconds = safeDouble(fields, offset + 22, -1.0);
+      cue.cueTransitionStyle = safeString(fields, offset + 23);
+      cue.lowerThirdText = safeString(fields, offset + 24);
+      cue.lowerThirdSubtext = safeString(fields, offset + 25);
+      cue.lowerThirdBgAlpha = safeInt(fields, offset + 26, 180);
+      cue.stillDurationSeconds = std::max(0.0, safeDouble(fields, offset + 27, 0.0));
+      cue.loopCount = safeInt(fields, offset + 28, 0);
+      cue.playbackSpeed = std::clamp(safeDouble(fields, offset + 29, 1.0), 0.25, 4.0);
+      cue.colorTag = safeString(fields, offset + 30);
+      cue.notes = safeString(fields, offset + 31);
+      cue.outputScale = static_cast<float>(std::clamp(safeDouble(fields, offset + 32, 1.0), 0.25, 4.0));
+      cue.outputOffsetX = static_cast<float>(safeDouble(fields, offset + 33, 0.0));
+      cue.outputOffsetY = static_cast<float>(safeDouble(fields, offset + 34, 0.0));
+      cue.cueNumber = safeString(fields, offset + 35);
+      {
+        std::string ppStr = safeString(fields, offset + 36);
+        if (!ppStr.empty()) {
+          std::istringstream ss(ppStr);
+          std::string tok;
+          while (std::getline(ss, tok, ',')) {
+            try { cue.pausePoints.push_back(std::stod(tok)); } catch (...) {}
+          }
+          std::sort(cue.pausePoints.begin(), cue.pausePoints.end());
+        }
+      }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1955,11 +1975,18 @@ class MediaEngine {
   }
 
   void loadCue(const Cue* cue, bool autoplay, double transitionSeconds = 0.0, TransitionStyle transitionStyle = TransitionStyle::Cut) {
+    // Capture outgoing fade gain BEFORE stopping decoder (position is still valid now).
+    float outgoingGain = static_cast<float>(fadeGainAt(position()));
     stopDecoderThreads();
-    beginTransition(transitionSeconds, transitionStyle);
+    beginTransition(transitionSeconds, transitionStyle, outgoingGain);
     clearTexture();
     clearAudio();
     activeCue_ = cue;
+    outputScale_   = cue ? cue->outputScale   : 1.0f;
+    outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
+    outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
+    pausePoints_   = cue ? cue->pausePoints   : std::vector<double>{};
+    nextPausePointIdx_ = 0;
     displayFrame_.reset();
     currentPosition_ = 0.0;
     pausedPosition_ = 0.0;
@@ -1979,18 +2006,18 @@ class MediaEngine {
 
     if (cue->kind == CueKind::Image) {
       loadStillFrame(*cue);
-      state_ = TransportState::Paused;
+      initStillTimer(*cue, autoplay);
       return;
     }
 
     if (cue->kind == CueKind::Pattern) {
       loadPatternFrame(*cue);
-      state_ = TransportState::Paused;
+      initStillTimer(*cue, autoplay);
       return;
     }
 
-    if (cue->kind == CueKind::Browser) {
-      state_ = TransportState::Paused;
+    if (cue->kind == CueKind::Browser || cue->kind == CueKind::LowerThird) {
+      initStillTimer(*cue, autoplay);
       return;
     }
 
@@ -2008,22 +2035,21 @@ class MediaEngine {
   }
 
   void play() {
-    if (!activeCue_ || activeCue_->kind != CueKind::Video) {
-      return;
-    }
-    if (state_ == TransportState::Playing) {
-      return;
-    }
+    if (!activeCue_) return;
+    bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
+    if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
+    if (state_ == TransportState::Playing) return;
     playbackClockStart_ = std::chrono::steady_clock::now();
     playbackStartPosition_ = pausedPosition_;
     state_ = TransportState::Playing;
-    SDL_PauseAudioDevice(audioDevice_, 0);
+    if (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio) SDL_PauseAudioDevice(audioDevice_, 0);
   }
 
   void pause() {
-    if (!activeCue_ || activeCue_->kind != CueKind::Video) {
-      return;
-    }
+    if (!activeCue_) return;
+    bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;
+    bool isTimedStill = !isAV && duration_ > 0.0;
+    if (!isAV && !isTimedStill) return;
     if (state_ != TransportState::Playing) {
       state_ = TransportState::Paused;
       return;
@@ -2031,21 +2057,14 @@ class MediaEngine {
     pausedPosition_ = position();
     currentPosition_ = pausedPosition_;
     state_ = TransportState::Paused;
-    SDL_PauseAudioDevice(audioDevice_, 1);
+    if (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio) SDL_PauseAudioDevice(audioDevice_, 1);
   }
 
   void toggle() {
-    if (!activeCue_) {
-      return;
-    }
-    if (activeCue_->kind != CueKind::Video) {
-      return;
-    }
-    if (state_ == TransportState::Playing) {
-      pause();
-    } else {
-      play();
-    }
+    if (!activeCue_) return;
+    bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
+    if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
+    if (state_ == TransportState::Playing) { pause(); } else { play(); }
   }
 
   void stop() {
@@ -2073,6 +2092,10 @@ class MediaEngine {
     if (!activeCue_) {
       return;
     }
+    // Stills have no seek position — keep the loaded frame as-is.
+    if (activeCue_->kind == CueKind::Image) {
+      return;
+    }
     double clamped = std::clamp(seconds, 0.0, duration_);
     pausedPosition_ = clamped;
     currentPosition_ = clamped;
@@ -2080,15 +2103,14 @@ class MediaEngine {
     playbackClockStart_ = std::chrono::steady_clock::now();
     lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
     displayFrame_.reset();
+    // Reset to first pause point strictly after the new position
+    nextPausePointIdx_ = 0;
+    while (nextPausePointIdx_ < pausePoints_.size() && pausePoints_[nextPausePointIdx_] <= clamped) {
+      ++nextPausePointIdx_;
+    }
     clearTransitionTexture();
     clearTexture();
     clearAudio();
-
-    if (activeCue_->kind == CueKind::Image) {
-      loadStillFrame(*activeCue_);
-      state_ = TransportState::Paused;
-      return;
-    }
     if (activeCue_->kind == CueKind::Pattern) {
       loadPatternFrame(*activeCue_);
       state_ = TransportState::Paused;
@@ -2106,6 +2128,17 @@ class MediaEngine {
 
   void setVolume(float value) {
     volume_.store(std::clamp(value, 0.0f, 1.0f));
+  }
+
+  void setPausePoints(std::vector<double> points) {
+    std::sort(points.begin(), points.end());
+    pausePoints_ = std::move(points);
+    // Reset index to first point strictly after current position
+    double pos = position();
+    nextPausePointIdx_ = 0;
+    while (nextPausePointIdx_ < pausePoints_.size() && pausePoints_[nextPausePointIdx_] <= pos) {
+      ++nextPausePointIdx_;
+    }
   }
 
   float volume() const {
@@ -2128,10 +2161,11 @@ class MediaEngine {
     if (!activeCue_) {
       return 0.0;
     }
-    if (state_ == TransportState::Playing && activeCue_->kind == CueKind::Video) {
+    if (state_ == TransportState::Playing) {
       auto now = std::chrono::steady_clock::now();
       double elapsed = std::chrono::duration<double>(now - playbackClockStart_).count();
-      return std::clamp(playbackStartPosition_ + elapsed, 0.0, duration_);
+      return std::clamp(playbackStartPosition_ + elapsed, 0.0,
+                        duration_ > 0.0 ? duration_ : elapsed);
     }
     return currentPosition_;
   }
@@ -2145,16 +2179,50 @@ class MediaEngine {
   }
 
   void update() {
+    // Upload any image frame that finished decoding on the background thread.
+    if (imageFramePending_.exchange(false)) {
+      std::lock_guard<std::mutex> lk(imageMutex_);
+      if (pendingImageFrame_) {
+        displayFrame_ = std::move(pendingImageFrame_);
+        uploadFrame(*displayFrame_);
+      }
+    }
+
     if (!activeCue_) {
       return;
     }
 
-    if (activeCue_->kind != CueKind::Video) {
-      currentPosition_ = 0.0;
+    if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_) {
+      // Timed stills and audio-only: advance position via wall clock, handle end.
+      if (duration_ > 0.0 && state_ == TransportState::Playing) {
+        currentPosition_ = position();
+        // Pause points (applies to audio cues as well)
+        if (nextPausePointIdx_ < pausePoints_.size() &&
+            currentPosition_ >= pausePoints_[nextPausePointIdx_]) {
+          ++nextPausePointIdx_;
+          pause();
+          return;
+        }
+        if (currentPosition_ >= duration_ - 0.01) {
+          handlePlaybackEnd();
+        }
+      } else {
+        currentPosition_ = 0.0;
+      }
       return;
     }
 
     currentPosition_ = position();
+
+    // Auto-pause at pause points
+    if (state_ == TransportState::Playing && nextPausePointIdx_ < pausePoints_.size()) {
+      if (currentPosition_ >= pausePoints_[nextPausePointIdx_]) {
+        ++nextPausePointIdx_;
+        pause();
+        return;
+      }
+    }
+
     std::uint64_t targetFrame = static_cast<std::uint64_t>(std::floor(currentPosition_ * frameRate_));
 
     {
@@ -2179,6 +2247,92 @@ class MediaEngine {
     }
   }
 
+  const DecodedFrame* currentFrame() const {
+    return displayFrame_.has_value() ? &(*displayFrame_) : nullptr;
+  }
+
+  // Start capturing a virtual X11 display via ffmpeg x11grab.
+  // Called after Xvfb + browser are running; frames feed the normal pipeline.
+  void startBrowserCapture(const std::string& displayId, int w, int h,
+                           double /*fadeInSeconds*/, double /*fadeOutSeconds*/,
+                           double transSecs, TransitionStyle transStyle) {
+    stopDecoderThreads();
+    isBrowserCapturing_ = true;
+    frameRate_ = 30.0;
+    duration_ = 0.0;  // infinite
+    browserCaptureW_ = w;
+    browserCaptureH_ = h;
+    // Trigger transition from whatever was on screen before browser boots.
+    if (transSecs > 0.0 && texture_) {
+      beginTransition(transSecs, transStyle);
+    }
+
+    if (!spawnPipeProcess(videoProcess_, {
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel", "error",
+      "-f", "x11grab",
+      "-display", displayId,
+      "-r", "30",
+      "-i", "0+0,0",
+      "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h),
+      "-f", "rawvideo",
+      "-pix_fmt", "rgba",
+      "pipe:1"
+    })) {
+      isBrowserCapturing_ = false;
+      return;
+    }
+
+    const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
+    int videoFd = videoProcess_.readFd;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    playbackStartPosition_ = 0.0;
+    state_ = TransportState::Playing;
+
+    videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+      std::uint64_t frameIdx = 0;
+      while (!decoderStop_.load()) {
+        while (!decoderStop_.load()) {
+          bool hasRoom = false;
+          { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
+          if (hasRoom) break;
+          SDL_Delay(4);
+        }
+        if (decoderStop_.load()) break;
+        DecodedFrame frame;
+        frame.width = w;
+        frame.height = h;
+        frame.index = frameIdx++;
+        frame.pixels.resize(frameBytes);
+        if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
+          decoderEof_ = true;
+          break;
+        }
+        std::lock_guard<std::mutex> lk(frameMutex_);
+        frameQueue_.push_back(std::move(frame));
+      }
+      decoderEof_ = true;
+    });
+  }
+
+  void stopBrowserCapture() {
+    isBrowserCapturing_ = false;
+    stopDecoderThreads();
+  }
+
+  bool isBrowserCapturing() const { return isBrowserCapturing_; }
+
+  // Rebuild the current pattern frame with a wall-clock timestamp (for animation).
+  void rebuildPatternFrame(const Cue& cue, double wallSeconds) {
+    auto [fallbackW, fallbackH] = currentOutputSizeHint();
+    auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
+    if (frame) {
+      displayFrame_ = std::move(frame);
+      uploadFrame(*displayFrame_);
+    }
+  }
+
   void render(SDL_Rect target) {
     SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
     SDL_RenderFillRect(outputRenderer_, nullptr);
@@ -2195,12 +2349,32 @@ class MediaEngine {
   }
 
  private:
-  void beginTransition(double seconds, TransitionStyle style) {
+  // Called after loading any still cue (Image, Pattern, Browser, LowerThird).
+  // If stillDurationSeconds > 0 it arms a countdown timer so the cue
+  // auto-advances after that long — making stills usable in playlists.
+  void initStillTimer(const Cue& cue, bool autoplay) {
+    if (cue.stillDurationSeconds > 0.0) {
+      duration_ = cue.stillDurationSeconds;
+      if (autoplay) {
+        playbackClockStart_ = std::chrono::steady_clock::now();
+        playbackStartPosition_ = 0.0;
+        pausedPosition_ = 0.0;
+        state_ = TransportState::Playing;
+      } else {
+        state_ = TransportState::Paused;
+      }
+    } else {
+      duration_ = 0.0;
+      state_ = TransportState::Paused;
+    }
+  }
+
+  void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f) {
     clearTransitionTexture();
-    if (seconds <= 0.001 || !texture_) {
+    if (!texture_) {
       return;
     }
-
+    // Steal the last frame so we never flash black between cues.
     transitionTexture_ = texture_;
     transitionTextureWidth_ = textureWidth_;
     transitionTextureHeight_ = textureHeight_;
@@ -2209,8 +2383,10 @@ class MediaEngine {
     textureHeight_ = 0;
     transitionDurationSeconds_ = std::clamp(seconds, 0.0, 10.0);
     transitionStyle_ = style;
-    transitionStartedAt_ = std::chrono::steady_clock::now();
+    transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
+    // Timer doesn't start until the first new frame arrives (see drawTransitionOverlay).
     transitionActive_ = true;
+    transitionWaitingForFirstFrame_ = true;
   }
 
   void clearTransitionTexture() {
@@ -2221,8 +2397,10 @@ class MediaEngine {
     transitionTextureWidth_ = 0;
     transitionTextureHeight_ = 0;
     transitionActive_ = false;
+    transitionWaitingForFirstFrame_ = false;
     transitionDurationSeconds_ = 0.0;
     transitionStyle_ = TransitionStyle::Cut;
+    transitionSourceGain_ = 1.0f;
   }
 
   bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue) {
@@ -2235,11 +2413,14 @@ class MediaEngine {
     );
     int drawW = std::max(1, static_cast<int>(std::round(width * scale)));
     int drawH = std::max(1, static_cast<int>(std::round(height * scale)));
+    // Apply per-cue output geometry
+    int scaledW = std::max(1, static_cast<int>(drawW * outputScale_));
+    int scaledH = std::max(1, static_cast<int>(drawH * outputScale_));
     SDL_Rect destination {
-      target.x + (target.w - drawW) / 2,
-      target.y + (target.h - drawH) / 2,
-      drawW,
-      drawH
+      target.x + (target.w - scaledW) / 2 + static_cast<int>(outputOffsetX_),
+      target.y + (target.h - scaledH) / 2 + static_cast<int>(outputOffsetY_),
+      scaledW,
+      scaledH
     };
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -2254,6 +2435,31 @@ class MediaEngine {
       return;
     }
 
+    if (transitionWaitingForFirstFrame_) {
+      if (drewCurrent) {
+        // First new frame arrived — start timed transition now.
+        transitionWaitingForFirstFrame_ = false;
+        transitionStartedAt_ = std::chrono::steady_clock::now();
+        if (transitionDurationSeconds_ <= 0.001) {
+          clearTransitionTexture();  // cut: instantly done
+          return;
+        }
+        // fall through to begin the timed transition immediately
+      } else {
+        // New frame not ready yet — keep showing old frame, respecting its fade gain.
+        Uint8 waitAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
+        drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, waitAlpha);
+        // If outgoing was partially/fully faded, fill black on top.
+        if (waitAlpha < 255) {
+          SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255 - waitAlpha);
+          SDL_RenderFillRect(outputRenderer_, nullptr);
+          SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_NONE);
+        }
+        return;
+      }
+    }
+
     double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
     double progress = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
     if (progress >= 1.0) {
@@ -2263,9 +2469,13 @@ class MediaEngine {
 
     if (transitionStyle_ == TransitionStyle::DipBlack) {
       if (progress < 0.5) {
-        drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, 255);
+        Uint8 srcA = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
+        drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, srcA);
         SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(std::clamp(progress * 2.0, 0.0, 1.0) * 255.0));
+        double blackAlpha = std::clamp(progress * 2.0, 0.0, 1.0);
+        // Also account for already-faded source
+        if (transitionSourceGain_ < 1.0f) blackAlpha = std::max(blackAlpha, 1.0 - transitionSourceGain_);
+        SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(blackAlpha * 255.0));
         SDL_RenderFillRect(outputRenderer_, nullptr);
       } else {
         if (!drewCurrent) {
@@ -2280,7 +2490,8 @@ class MediaEngine {
       return;
     }
 
-    Uint8 alphaValue = static_cast<Uint8>(std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
+    // Crossfade: old frame alpha starts at sourceGain and fades to 0.
+    Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
     drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue);
   }
 
@@ -2303,25 +2514,30 @@ class MediaEngine {
     if (!activeCue_) {
       return;
     }
-    if (activeCue_->loop) {
-      bool wasPlaying = true;
+    // Resolve effective end behaviour from endAction, falling back to per-cue flags.
+    CueEndAction act = activeCue_->endAction;
+    if (act == CueEndAction::Inherit) {
+      if (activeCue_->loop)             act = CueEndAction::Loop;
+      else if (activeCue_->pauseOnLastFrame) act = CueEndAction::PauseOnLast;
+    }
+
+    if (act == CueEndAction::Loop) {
       seek(0.0);
-      if (wasPlaying) {
-        state_ = TransportState::Playing;
-        playbackClockStart_ = std::chrono::steady_clock::now();
-        playbackStartPosition_ = 0.0;
-        pausedPosition_ = 0.0;
-        SDL_PauseAudioDevice(audioDevice_, 0);
-      }
+      state_ = TransportState::Playing;
+      playbackClockStart_ = std::chrono::steady_clock::now();
+      playbackStartPosition_ = 0.0;
+      pausedPosition_ = 0.0;
+      SDL_PauseAudioDevice(audioDevice_, 0);
       return;
     }
-    if (activeCue_->pauseOnLastFrame) {
+    if (act == CueEndAction::PauseOnLast) {
       state_ = TransportState::Paused;
       pausedPosition_ = duration_;
       currentPosition_ = duration_;
       SDL_PauseAudioDevice(audioDevice_, 1);
       return;
     }
+    // Stop, AutoNext, or Inherit-with-no-flags: stop and let the App decide advance.
     state_ = TransportState::Stopped;
     pausedPosition_ = duration_;
     currentPosition_ = duration_;
@@ -2337,6 +2553,9 @@ class MediaEngine {
   }
 
   void uploadFrame(const DecodedFrame& frame) {
+    if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
+      return;
+    }
     if (!texture_ || textureWidth_ != frame.width || textureHeight_ != frame.height) {
       clearTexture();
       texture_ = SDL_CreateTexture(
@@ -2355,16 +2574,77 @@ class MediaEngine {
     SDL_UpdateTexture(texture_, nullptr, frame.pixels.data(), frame.width * 4);
   }
 
-  void loadStillFrame(const Cue& cue) {
-    auto frame = decodeSingleFrame(cue.path, cue.width, cue.height, 0.0);
-    if (frame) {
-      displayFrame_ = std::move(frame);
-      uploadFrame(*displayFrame_);
+  void stopImageThread() {
+    imageProcess_.stop();   // closes pipe → readExact in thread returns → thread exits
+    if (imageThread_.joinable()) {
+      imageThread_.join();
     }
+    std::lock_guard<std::mutex> lk(imageMutex_);
+    pendingImageFrame_.reset();
+    imageFramePending_.store(false);
+  }
+
+  std::pair<int, int> currentOutputSizeHint() const {
+    int w = kOutputWidth;
+    int h = kOutputHeight;
+    if (outputRenderer_) {
+      int rw = 0;
+      int rh = 0;
+      if (SDL_GetRendererOutputSize(outputRenderer_, &rw, &rh) == 0 && rw > 0 && rh > 0) {
+        w = rw;
+        h = rh;
+      }
+    }
+    return {w, h};
+  }
+
+  void loadStillFrame(const Cue& cue) {
+    stopImageThread();
+
+    auto [capW, capH] = currentOutputSizeHint();
+    int w = cue.width > 0 ? cue.width : capW;
+    int h = cue.height > 0 ? cue.height : capH;
+    if (w > capW || h > capH) {
+      double scale = std::min(
+        static_cast<double>(capW) / w,
+        static_cast<double>(capH) / h
+      );
+      w = std::max(1, static_cast<int>(w * scale));
+      h = std::max(1, static_cast<int>(h * scale));
+    }
+
+    // Spawn ffmpeg on the main thread so imageProcess_ is fully set up before the
+    // reader thread starts — avoids any race on imageProcess_.pid / readFd.
+    if (!spawnPipeProcess(imageProcess_, {
+      "ffmpeg", "-hide_banner", "-loglevel", "error",
+      "-i", cue.path,
+      "-frames:v", "1",
+      "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
+      "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
+    })) {
+      return;
+    }
+
+    const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
+    // Capture fd by value to avoid a data race with the main thread calling stop().
+    int imageFd = imageProcess_.readFd;
+    imageThread_ = std::thread([this, w, h, frameBytes, imageFd]() {
+      DecodedFrame frame;
+      frame.width = w;
+      frame.height = h;
+      frame.index = 0;
+      frame.pixels.resize(frameBytes);
+      if (readExact(imageFd, frame.pixels.data(), frameBytes)) {
+        std::lock_guard<std::mutex> lk(imageMutex_);
+        pendingImageFrame_ = std::move(frame);
+        imageFramePending_.store(true);
+      }
+    });
   }
 
   void loadPatternFrame(const Cue& cue) {
-    auto frame = buildPatternFrame(cue);
+    auto [fallbackW, fallbackH] = currentOutputSizeHint();
+    auto frame = buildPatternFrame(cue, 0.0, fallbackW, fallbackH);
     if (frame) {
       displayFrame_ = std::move(frame);
       uploadFrame(*displayFrame_);
@@ -2403,49 +2683,394 @@ class MediaEngine {
     }
   }
 
-  static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue) {
-    DecodedFrame frame;
-    frame.width = std::max(320, cue.width > 0 ? cue.width : 1280);
-    frame.height = std::max(180, cue.height > 0 ? cue.height : 720);
-    frame.index = 0;
-    frame.pixels.resize(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
+  // ── Pattern frame builder ────────────────────────────────────────────────
 
-    SDL_Color light {155, 188, 15, 255};
-    SDL_Color mid {139, 172, 15, 255};
-    SDL_Color dark {48, 98, 48, 255};
-    SDL_Color deep {15, 56, 15, 255};
+  // Full-color SMPTE 75% HD color bars (SMPTE RP 219 arrangement).
+  static void buildSmpte75Bars(DecodedFrame& frame) {
+    int W = frame.width, H = frame.height;
+    // 7 bar colours at 75% saturation, in standard SMPTE order.
+    struct Bar { Uint8 r, g, b; };
+    constexpr std::array<Bar, 7> bars {{
+      {191,191,191}, // 75% White
+      {191,191,  0}, // Yellow
+      {  0,191,191}, // Cyan
+      {  0,191,  0}, // Green
+      {191,  0,191}, // Magenta
+      {191,  0,  0}, // Red
+      {  0,  0,191}, // Blue
+    }};
+    int topH   = H * 2 / 3;
+    int midH   = H / 12;
+    int botH   = H - topH - midH;
+    int barW   = W / 7;
+    // Top section — 7 bars
+    for (int i = 0; i < 7; ++i) {
+      SDL_Color c {bars[i].r, bars[i].g, bars[i].b, 255};
+      fillPixelRect(frame, i * barW, 0, barW + (i == 6 ? W - 6 * barW : 0), topH, c);
+    }
+    // Middle band — reverse blue order (cyan, black, magenta, black, white, black, blue)
+    constexpr std::array<Bar, 7> midBars {{
+      {  0,191,191}, // Cyan
+      {  0,  0,  0}, // Black
+      {191,  0,191}, // Magenta
+      {  0,  0,  0},
+      {191,191,191}, // White
+      {  0,  0,  0},
+      {  0,  0,191}, // Blue
+    }};
+    for (int i = 0; i < 7; ++i) {
+      SDL_Color c {midBars[i].r, midBars[i].g, midBars[i].b, 255};
+      fillPixelRect(frame, i * barW, topH, barW + (i == 6 ? W - 6 * barW : 0), midH, c);
+    }
+    // Bottom band — PLUGE: near-black, black, slightly-above-black strip + white reference
+    int botBarW = W / 4;
+    fillPixelRect(frame, 0,          topH + midH, botBarW, botH, {  0,  0,  0, 255}); // Black
+    fillPixelRect(frame, botBarW,    topH + midH, botBarW, botH, {255,255,255, 255}); // White ref
+    fillPixelRect(frame, botBarW*2,  topH + midH, botBarW, botH, { 10, 10, 10, 255}); // Near-black
+    fillPixelRect(frame, botBarW*3,  topH + midH, W - botBarW*3, botH, { 4,  4,  4, 255}); // PLUGE
+    // Thin label text baked in — just draw a coloured ID marker per bar
+    for (int i = 0; i < 7; ++i) {
+      SDL_Color label {bars[i].r > 100 ? Uint8(0) : Uint8(230),
+                       bars[i].g > 100 ? Uint8(0) : Uint8(230),
+                       bars[i].b > 100 ? Uint8(0) : Uint8(230), 255};
+      fillPixelRect(frame, i * barW + 2, topH - 14, barW - 4, 10, label);
+    }
+  }
 
-    fillPixelRect(frame, 0, 0, frame.width, frame.height, light);
-    int stripeWidth = frame.width / 6;
-    std::array<SDL_Color, 6> stripes {light, mid, dark, deep, mid, light};
-    for (int index = 0; index < 6; ++index) {
-      fillPixelRect(frame, index * stripeWidth, 0, stripeWidth + 1, frame.height / 3, stripes[index]);
+  static void buildCrosshatch(DecodedFrame& frame) {
+    int W = frame.width, H = frame.height;
+    // Black background
+    fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+    // White lines every 64px, 2px thick
+    for (int x = 0; x < W; x += 64) {
+      fillPixelRect(frame, x, 0, 2, H, {255, 255, 255, 255});
+    }
+    for (int y = 0; y < H; y += 64) {
+      fillPixelRect(frame, 0, y, W, 2, {255, 255, 255, 255});
+    }
+    // Centre cross in red
+    fillPixelRect(frame, W / 2 - 1, 0,     2, H, {220,  40,  40, 255});
+    fillPixelRect(frame, 0,     H / 2 - 1, W, 2, {220,  40,  40, 255});
+    // Corner safe-area marks (80% safe)
+    int sx = W / 10, sy = H / 10;
+    fillPixelRect(frame, sx, sy, W - sx * 2, 2, {60, 180, 60, 200});
+    fillPixelRect(frame, sx, sy, 2, H - sy * 2, {60, 180, 60, 200});
+    fillPixelRect(frame, W - sx - 2, sy, 2, H - sy * 2, {60, 180, 60, 200});
+    fillPixelRect(frame, sx, H - sy - 2, W - sx * 2, 2, {60, 180, 60, 200});
+  }
+
+  static void buildCheckerboard(DecodedFrame& frame) {
+    int W = frame.width, H = frame.height;
+    int cell = 64;
+    for (int y = 0; y < H; y += cell) {
+      for (int x = 0; x < W; x += cell) {
+        bool white = (((x / cell) + (y / cell)) % 2) == 0;
+        SDL_Color c = white ? SDL_Color{255,255,255,255} : SDL_Color{0,0,0,255};
+        fillPixelRect(frame, x, y, std::min(cell, W - x), std::min(cell, H - y), c);
+      }
+    }
+  }
+
+  // Pocket Test — full-colour animated kawaii procedural scene.
+  // Pocket Test — authentic 4-colour Game Boy aesthetic.
+  // Uses only the classic GB green palette, 8×8 tile grid, chunky sprites.
+  static void buildPocketTest(DecodedFrame& frame, double t) {
+    const int W = frame.width, H = frame.height;
+    // 4-colour GB palette (indices 0–3, lightest to darkest)
+    const SDL_Color P[4] = {
+      {155, 188,  15, 255},  // 0  lightest (screen-on green)
+      {139, 172,  15, 255},  // 1  light
+      { 48,  98,  48, 255},  // 2  dark
+      { 15,  56,  15, 255},  // 3  darkest
+    };
+
+    // Scale factor: each "GB pixel" = S×S screen pixels.
+    // Pick S so the virtual resolution is ~160×144 (authentic GB) scaled up to fill frame.
+    const int S = std::max(1, std::min(W / 160, H / 144));
+    // Virtual dims in GB pixels
+    const int VW = W / S, VH = H / S;
+
+    // Helper: fill one GB pixel
+    auto gbp = [&](int gx, int gy, int p) {
+      if (gx < 0 || gy < 0 || gx >= VW || gy >= VH) return;
+      fillPixelRect(frame, gx * S, gy * S, S, S, P[p & 3]);
+    };
+    // Fill a rect in GB pixels
+    auto gbr = [&](int gx, int gy, int gw, int gh, int p) {
+      fillPixelRect(frame, gx * S, gy * S, gw * S, gh * S, P[p & 3]);
+    };
+
+    // ── Background: sky / ground tiles ─────────────────────────────────────
+    // Sky (colour 0 — lightest)
+    gbr(0, 0, VW, VH * 2 / 3, 0);
+    // Ground (colour 1)
+    gbr(0, VH * 2 / 3, VW, VH / 3 + 1, 1);
+    // Ground top strip (colour 0 — highlight)
+    gbr(0, VH * 2 / 3, VW, 1, 0);
+
+    // ── Scrolling tile map (8×8 tiles) ─────────────────────────────────────
+    int scrollX = static_cast<int>(t * 16.0) % 8;  // 2 GB px/s scroll
+    int groundY = VH * 2 / 3;
+
+    // Draw grass ground tiles
+    for (int tx = -1; tx <= VW / 8 + 1; ++tx) {
+      int tileX = tx * 8 - scrollX;
+      // Grass tuft pattern on ground row
+      gbp(tileX + 1, groundY + 1, 2);
+      gbp(tileX + 3, groundY + 1, 2);
+      gbp(tileX + 5, groundY + 1, 2);
+      gbp(tileX + 2, groundY + 2, 2);
+      gbp(tileX + 4, groundY + 2, 2);
     }
 
-    for (int y = frame.height / 3; y < frame.height; y += 24) {
-      for (int x = 0; x < frame.width; x += 24) {
-        SDL_Color cell = ((x / 24) + (y / 24)) % 2 == 0 ? mid : light;
-        fillPixelRect(frame, x, y, 24, 24, cell);
+    // Draw trees along the horizon (every 24 px, deterministic)
+    for (int tx = -1; tx <= VW / 24 + 2; ++tx) {
+      int baseX = tx * 24 - (static_cast<int>(t * 16.0) % 24);
+      int baseY = groundY - 12;
+      // Tree trunk (colour 2)
+      gbr(baseX + 3, baseY + 8, 2, 4, 2);
+      // Leaves (colour 2 with colour 3 outline)
+      //  top
+      gbr(baseX + 1, baseY + 4, 6, 5, 2);
+      gbr(baseX + 2, baseY + 2, 4, 3, 2);
+      gbp(baseX + 3, baseY + 1, 2);  gbp(baseX + 4, baseY + 1, 2);
+      // shadow pixels (colour 3)
+      gbp(baseX + 6, baseY + 4, 3); gbp(baseX + 6, baseY + 5, 3);
+      gbp(baseX + 6, baseY + 6, 3); gbp(baseX + 6, baseY + 7, 3);
+      gbp(baseX + 5, baseY + 8, 3); gbp(baseX + 6, baseY + 8, 3);
+    }
+
+    // ── Stars / small moon in sky ─────────────────────────────────────────
+    // Static star pattern — twinkle via frame parity
+    bool starFrame = (static_cast<int>(t * 3.0) % 2) == 0;
+    int stars[][2] = {{12,4},{30,2},{48,6},{65,3},{82,5},{100,2},{115,6},{130,4}};
+    for (auto& s : stars) {
+      gbp(s[0], s[1], starFrame ? 2 : 3);
+      if (starFrame) { gbp(s[0]+1, s[1], 2); }
+    }
+
+    // Moon (top-right area)
+    int moonX = VW - 28 + static_cast<int>(std::sin(t * 0.1) * 2);
+    int moonY = 5;
+    for (int my = 0; my < 7; ++my) {
+      for (int mx = 0; mx < 7; ++mx) {
+        // Circular moon mask
+        int dx = mx - 3, dy = my - 3;
+        if (dx*dx + dy*dy <= 9) gbp(moonX + mx, moonY + my, 1);
+      }
+    }
+    // Moon crater details
+    gbp(moonX + 1, moonY + 2, 2);
+    gbp(moonX + 4, moonY + 4, 2);
+
+    // ── Clouds (scrolling, colour 0/1 dithered) ──────────────────────────
+    auto drawGBCloud = [&](int cx, int cy) {
+      // Cloud body in colour 0 (lightest) on colour-0 sky — outline in colour 1
+      gbr(cx+1, cy+1, 4, 2, 1);  gbr(cx, cy+2, 6, 2, 1);  // darker outline
+      gbr(cx+1, cy+1, 3, 2, 0);  gbr(cx+1, cy+2, 4, 1, 0);  // light fill
+    };
+    for (int c = 0; c < 3; ++c) {
+      int cx = (c * 50 - static_cast<int>(t * 8.0 + c * 37)) % (VW + 16) - 8;
+      drawGBCloud(cx, 8 + c * 3);
+    }
+
+    // ── Girl character sprite (16×16 GB pixels, 2-frame walk) ───────────
+    // GB sprites use 4 shades. Design inspired by LOZLA/Pokemon heroine.
+    int walkSpeed = 24;  // GB pixels per second
+    int cycleW = VW + 20;
+    double walkPhase = std::fmod(t * walkSpeed, static_cast<double>(cycleW * 2));
+    int sprX, flip = 0;
+    if (walkPhase < cycleW) {
+      sprX = static_cast<int>(walkPhase) - 10;
+      flip = 0;
+    } else {
+      sprX = cycleW - static_cast<int>(walkPhase - cycleW) - 10;
+      flip = 1;
+    }
+    int sprY = groundY - 16;
+    int wf = (static_cast<int>(t * 8.0)) % 2;  // walk frame 0/1
+
+    // Sprite: 10 wide × 16 tall, defined as 2-bit colour indices
+    // 0=light, 1=mid, 2=dark, 3=darkest; X=skip (transparent / background)
+    // Row 0–3: hair + head
+    static const std::array<std::array<int,10>,16> spr = {{
+      {{99,99, 1, 1, 1, 1, 1,99,99,99}},  // hair top
+      {{99, 1, 2, 2, 2, 2, 2, 1,99,99}},
+      {{ 1, 2, 0, 0, 0, 0, 0, 2, 1,99}},  // face (colour 0 = skin highlight)
+      {{ 1, 2, 0, 2, 0, 2, 0, 2, 1,99}},  // eyes (colour 2 = eye)
+      {{ 1, 2, 0, 0, 0, 0, 0, 2, 1,99}},
+      {{ 1, 1, 0, 0, 3, 0, 0, 1, 1,99}},  // mouth
+      {{ 1, 1, 1, 1, 1, 1, 1, 1,99,99}},  // hair bottom
+      {{99, 2, 2, 2, 2, 2, 2, 2,99,99}},  // collar
+      {{99, 2, 1, 1, 1, 1, 1, 2,99,99}},  // body
+      {{99, 2, 1, 1, 1, 1, 1, 2,99,99}},
+      {{99, 1, 2, 1, 1, 1, 2, 1,99,99}},  // belt
+      {{99, 1, 2, 1, 1, 1, 2, 1,99,99}},  // skirt
+      {{99, 1, 1, 2, 1, 2, 1, 1,99,99}},
+      {{99,99, 2, 0,99, 0, 2,99,99,99}},  // legs
+      {{99,99, 2, 0,99, 0, 2,99,99,99}},
+      {{99,99, 3, 3,99, 3, 3,99,99,99}},  // shoes
+    }};
+    // Walk frame shifts one leg forward
+    for (int row = 0; row < 16; ++row) {
+      for (int col = 0; col < 10; ++col) {
+        int px_col = col;
+        int val = spr[row][px_col];
+        if (val > 90) continue;  // transparent
+        // Animate legs on rows 13-15 in frame 1
+        if (wf == 1 && row >= 13) {
+          // Swap leg positions
+          if (col == 3) px_col = 5;
+          else if (col == 5) px_col = 3;
+          val = spr[row][px_col];
+          if (val > 90) continue;
+        }
+        int drawX = flip ? sprX + (9 - col) : sprX + col;
+        gbp(drawX, sprY + row, val & 3);
       }
     }
 
-    fillPixelRect(frame, frame.width / 6, frame.height / 2 - 90, frame.width * 2 / 3, 180, light);
-    fillPixelRect(frame, frame.width / 6 + 10, frame.height / 2 - 80, frame.width * 2 / 3 - 20, 160, mid);
-    fillPixelRect(frame, frame.width / 6 + 24, frame.height / 2 - 64, frame.width * 2 / 3 - 48, 128, light);
-    drawHeart(frame, frame.width / 2, frame.height / 2 + 16, 24, dark);
-    drawHeart(frame, frame.width / 2 - 170, frame.height / 2 - 28, 14, deep);
-    drawHeart(frame, frame.width / 2 + 170, frame.height / 2 - 28, 14, deep);
+    // ── Top HUD bar (status panel, colour 3 bg) ─────────────────────────
+    gbr(0, 0, VW, 9, 3);
+    // HP label (crude pixel text via rectangles)
+    // "HP" — H
+    gbp(2,1,0); gbp(2,2,0); gbp(2,3,0); gbp(3,2,0); gbp(4,1,0); gbp(4,2,0); gbp(4,3,0);
+    // "P"
+    gbp(6,1,0); gbp(6,2,0); gbp(6,3,0); gbp(7,1,0); gbp(8,1,0); gbp(7,2,0); gbp(8,2,0);
+    // HP hearts (alternating fill/outline, 3 hearts)
+    for (int h = 0; h < 3; ++h) {
+      int hx = 12 + h * 8;
+      // full heart (both sides up + bottom triangle) in colour 1
+      gbp(hx+1,2,1); gbp(hx+2,1,1); gbp(hx+3,2,1);
+      gbp(hx,3,1); gbp(hx+1,3,1); gbp(hx+2,3,1); gbp(hx+3,3,1); gbp(hx+4,3,1);
+      gbp(hx+1,4,1); gbp(hx+2,5,1); gbp(hx+3,4,1);
+      gbp(hx+2,4,1);
+    }
+    // Score ticker top-right
+    int score = static_cast<int>(t * 10.0) % 10000;
+    std::string scoreStr = std::to_string(score);
+    while (scoreStr.size() < 5) scoreStr = "0" + scoreStr;
+    // Draw score digits (tiny 3×5 pixel digits)
+    static const std::array<std::array<int,15>, 10> digits {{
+      {{1,1,1, 1,0,1, 1,0,1, 1,0,1, 1,1,1}}, // 0
+      {{0,1,0, 1,1,0, 0,1,0, 0,1,0, 1,1,1}}, // 1
+      {{1,1,1, 0,0,1, 1,1,1, 1,0,0, 1,1,1}}, // 2
+      {{1,1,1, 0,0,1, 0,1,1, 0,0,1, 1,1,1}}, // 3
+      {{1,0,1, 1,0,1, 1,1,1, 0,0,1, 0,0,1}}, // 4
+      {{1,1,1, 1,0,0, 1,1,1, 0,0,1, 1,1,1}}, // 5
+      {{1,1,1, 1,0,0, 1,1,1, 1,0,1, 1,1,1}}, // 6
+      {{1,1,1, 0,0,1, 0,1,0, 0,1,0, 0,1,0}}, // 7
+      {{1,1,1, 1,0,1, 1,1,1, 1,0,1, 1,1,1}}, // 8
+      {{1,1,1, 1,0,1, 1,1,1, 0,0,1, 1,1,1}}, // 9
+    }};
+    int digitX = VW - 28;
+    for (char ch : scoreStr) {
+      int d = ch - '0';
+      for (int row = 0; row < 5; ++row) {
+        for (int col = 0; col < 3; ++col) {
+          if (digits[d][row * 3 + col]) gbp(digitX + col, 2 + row, 0);
+        }
+      }
+      digitX += 4;
+    }
 
-    fillPixelRect(frame, frame.width / 2 - 74, frame.height / 2 - 38, 18, 18, deep);
-    fillPixelRect(frame, frame.width / 2 + 56, frame.height / 2 - 38, 18, 18, deep);
-    fillPixelRect(frame, frame.width / 2 - 42, frame.height / 2 + 24, 84, 10, dark);
-    fillPixelRect(frame, frame.width / 2 - 58, frame.height / 2 + 34, 116, 10, deep);
+    // ── Bottom text box (message window, GB style) ───────────────────────
+    int boxY = VH - 20;
+    gbr(0, boxY, VW, 20, 3);
+    // Inner border (colour 2)
+    gbr(2, boxY + 2, VW - 4, 1, 2);
+    gbr(2, boxY + 2, 1, 16, 2);
+    gbr(VW - 3, boxY + 2, 1, 16, 2);
+    gbr(2, boxY + 17, VW - 4, 1, 2);
+    // Blinking cursor ▶ (colour 0)
+    bool cursorOn = std::fmod(t, 1.0) < 0.6;
+    if (cursorOn) {
+      gbp(VW - 6, boxY + 13, 0); gbp(VW - 5, boxY + 14, 0); gbp(VW - 6, boxY + 15, 0);
+    }
+    // Static message text (pixel dots approximation)
+    // "POCKET TEST v1" — just draw a decorative text-like row of pixels
+    // Use horizontal bar pattern to suggest text without needing a font
+    for (int ch = 0; ch < 14; ++ch) {
+      // Each char = 3 wide, 5 tall, separated by 1px
+      static const std::array<int, 14> textCols {{ 0,1,0, 0,1,1, 0,1,0, 0,1,0, 1,0 }};
+      (void)textCols;
+      int cx = 5 + ch * 4;
+      // Draw simple high-contrast pixel bar for each "letter"
+      gbp(cx, boxY + 5, 0); gbp(cx+1, boxY + 5, 0); gbp(cx+2, boxY + 5, 0);
+      gbp(cx, boxY + 6, 0);
+      gbp(cx, boxY + 7, 0); gbp(cx+1, boxY + 7, 0);
+      gbp(cx, boxY + 8, 0);
+      gbp(cx, boxY + 9, 0); gbp(cx+1, boxY + 9, 0); gbp(cx+2, boxY + 9, 0);
+    }
+
+    // ── Tile grid ghost (subtle 8×8 grid lines in colour 3) ─────────────
+    // Very faint to give "tile map" feel without dominating
+    for (int tx = 0; tx < VW; tx += 8) {
+      gbp(tx, groundY - 1, 2);  // just the horizon column dots
+    }
+  }
+
+  static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
+                                                       int fallbackWidth = kOutputWidth,
+                                                       int fallbackHeight = kOutputHeight) {
+    int sourceW = cue.width > 0 ? cue.width : fallbackWidth;
+    int sourceH = cue.height > 0 ? cue.height : fallbackHeight;
+    bool legacyRaster = cue.width == kOutputWidth && cue.height == kOutputHeight;
+    if (legacyRaster && (fallbackWidth != kOutputWidth || fallbackHeight != kOutputHeight)) {
+      sourceW = fallbackWidth;
+      sourceH = fallbackHeight;
+    }
+
+    DecodedFrame frame;
+    frame.width  = std::max(320, sourceW);
+    frame.height = std::max(180, sourceH);
+    frame.index  = 0;
+    frame.pixels.assign(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
+
+    const std::string& path = cue.path;
+
+    if (path.find("smpte-bars") != std::string::npos ||
+        path.find("smpte_bars") != std::string::npos ||
+        path.find("colorbars")  != std::string::npos ||
+        path.find("colourbars") != std::string::npos) {
+      buildSmpte75Bars(frame);
+    } else if (path.find("crosshatch") != std::string::npos) {
+      buildCrosshatch(frame);
+    } else if (path.find("checkerboard") != std::string::npos ||
+               path.find("checker")      != std::string::npos) {
+      buildCheckerboard(frame);
+    } else if (path.find("full-white") != std::string::npos) {
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {255, 255, 255, 255});
+    } else if (path.find("full-black") != std::string::npos) {
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 0, 255});
+    } else if (path.find("full-red")   != std::string::npos) {
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {255, 0, 0, 255});
+    } else if (path.find("full-green") != std::string::npos) {
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 255, 0, 255});
+    } else if (path.find("full-blue")  != std::string::npos) {
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 255, 255});
+    } else {
+      // Default / "pocket-test" / "kawaii-pocket": animated full-colour scene.
+      buildPocketTest(frame, animTime);
+    }
 
     return frame;
   }
 
-  std::optional<DecodedFrame> decodeSingleFrame(const std::string& path, int width, int height, double seconds) {
-    ChildProcess process;
+  std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path, int width, int height, double seconds) {
+    auto [capW, capH] = currentOutputSizeHint();
+    int w = width > 0 ? width : capW;
+    int h = height > 0 ? height : capH;
+    // Cap to output dimensions — decoding huge media at native resolution can block UI and GPU
+    // for no visible benefit.
+    if (w > capW || h > capH) {
+      double scale = std::min(
+        static_cast<double>(capW) / w,
+        static_cast<double>(capH) / h
+      );
+      w = std::max(1, static_cast<int>(w * scale));
+      h = std::max(1, static_cast<int>(h * scale));
+    }
     std::vector<std::string> args {
       "ffmpeg",
       "-hide_banner",
@@ -2461,6 +3086,8 @@ class MediaEngine {
       path,
       "-frames:v",
       "1",
+      "-vf",
+      "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
       "-f",
       "rawvideo",
       "-pix_fmt",
@@ -2472,10 +3099,10 @@ class MediaEngine {
       return std::nullopt;
     }
 
-    const size_t frameBytes = static_cast<size_t>(width) * static_cast<size_t>(height) * 4u;
+    const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
     DecodedFrame frame;
-    frame.width = width;
-    frame.height = height;
+    frame.width = w;
+    frame.height = h;
     frame.index = 0;
     frame.pixels.resize(frameBytes);
     bool ok = readExact(process.readFd, frame.pixels.data(), frameBytes);
@@ -2499,6 +3126,7 @@ class MediaEngine {
   }
 
   void stopDecoderThreads() {
+    stopImageThread();
     decoderStop_.store(true);
     videoProcess_.stop();
     audioProcess_.stop();
@@ -2539,7 +3167,15 @@ class MediaEngine {
     }
 
     const size_t frameBytes = static_cast<size_t>(cue.width) * static_cast<size_t>(cue.height) * 4u;
-    videoThread_ = std::thread([this, cue, frameBytes, cueStartSeconds]() {
+    if (frameBytes == 0) {
+      videoProcess_.stop();
+      decoderEof_ = true;  // prevent engine stalling waiting for frames that can never arrive
+      return;
+    }
+    // Capture fd by value to avoid a data race: the main thread sets
+    // videoProcess_.readFd = -1 in stop() while this thread reads it.
+    int videoFd = videoProcess_.readFd;
+    videoThread_ = std::thread([this, cue, frameBytes, cueStartSeconds, videoFd]() {
       std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
       while (!decoderStop_.load()) {
         while (!decoderStop_.load()) {
@@ -2563,7 +3199,7 @@ class MediaEngine {
         frame.index = frameIndex++;
         frame.pixels.resize(frameBytes);
 
-        if (!readExact(videoProcess_.readFd, frame.pixels.data(), frameBytes)) {
+        if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
           decoderEof_ = true;
           break;
         }
@@ -2595,16 +3231,19 @@ class MediaEngine {
         "48000",
         "pipe:1"
       })) {
-        audioThread_ = std::thread([this, cueStartSeconds]() {
+        // Capture fd by value to avoid a data race: the main thread sets
+        // audioProcess_.readFd = -1 in stop() while this thread reads it.
+        int audioFd = audioProcess_.readFd;
+        audioThread_ = std::thread([this, cueStartSeconds, audioFd]() {
           std::vector<std::uint8_t> buffer(8192);
           double audioTime = cueStartSeconds;
           while (!decoderStop_.load()) {
-            if (SDL_GetQueuedAudioSize(audioDevice_) > 384000) {
+            if (SDL_GetQueuedAudioSize(audioDevice_) > 23040) {  // ~120ms at 48kHz stereo s16
               SDL_Delay(4);
               continue;
             }
 
-            ssize_t bytesRead = read(audioProcess_.readFd, buffer.data(), buffer.size());
+            ssize_t bytesRead = read(audioFd, buffer.data(), buffer.size());
             if (bytesRead <= 0) {
               break;
             }
@@ -2643,8 +3282,15 @@ class MediaEngine {
   int transitionTextureWidth_ = 0;
   int transitionTextureHeight_ = 0;
   bool transitionActive_ = false;
+  bool transitionWaitingForFirstFrame_ = false;
   double transitionDurationSeconds_ = 0.0;
   TransitionStyle transitionStyle_ = TransitionStyle::Cut;
+  float transitionSourceGain_ = 1.0f;  // fade gain of outgoing frame at transition start
+  float outputScale_   = 1.0f;         // per-cue output scale (applied in drawTextureFitted)
+  float outputOffsetX_ = 0.0f;         // per-cue output X offset (pixels)
+  float outputOffsetY_ = 0.0f;         // per-cue output Y offset (pixels)
+  std::vector<double> pausePoints_;    // sorted pause point positions for active cue
+  size_t nextPausePointIdx_ = 0;       // index of next unpassed pause point
   std::chrono::steady_clock::time_point transitionStartedAt_ = std::chrono::steady_clock::now();
   std::atomic<float> volume_ {1.0f};
   TransportState state_ = TransportState::Stopped;
@@ -2662,13 +3308,50 @@ class MediaEngine {
   std::deque<DecodedFrame> frameQueue_;
   ChildProcess videoProcess_;
   ChildProcess audioProcess_;
+  ChildProcess imageProcess_;
   std::thread videoThread_;
   std::thread audioThread_;
+  std::thread imageThread_;
+  std::mutex imageMutex_;
+  std::optional<DecodedFrame> pendingImageFrame_;
+  std::atomic<bool> imageFramePending_ {false};
   AudioTapCallback audioTap_;
   std::atomic<bool> decoderStop_ {false};
   std::atomic<bool> decoderEof_ {false};
   bool reachedEnd_ = false;
+  bool isBrowserCapturing_ = false;
+  int browserCaptureW_ = 1280;
+  int browserCaptureH_ = 720;
 };
+
+// Offline waveform analysis: runs ffmpeg to extract mono PCM and compute per-bucket peaks.
+// Returns empty vector on failure or if the file has no audio.
+static std::vector<float> computeWaveformPeaks(const std::string& path, int numBuckets = 512) {
+  std::string cmd = "ffmpeg -i \"" + path + "\" -ac 1 -ar 4000 -f s16le -vn -loglevel quiet pipe:1";
+  FILE* pipe = popen(cmd.c_str(), "r");
+  if (!pipe) return {};
+  std::vector<int16_t> samples;
+  constexpr size_t kChunk = 4096;
+  int16_t buf[kChunk];
+  size_t n;
+  while ((n = fread(buf, sizeof(int16_t), kChunk, pipe)) > 0) {
+    samples.insert(samples.end(), buf, buf + n);
+    if (samples.size() > 4000u * 600u) break; // cap at 10 min
+  }
+  pclose(pipe);
+  if (samples.empty()) return {};
+  std::vector<float> peaks(numBuckets, 0.0f);
+  size_t perBucket = std::max<size_t>(1, samples.size() / numBuckets);
+  for (int b = 0; b < numBuckets; ++b) {
+    size_t start = b * perBucket;
+    size_t end   = std::min(start + perBucket, samples.size());
+    float mx = 0.0f;
+    for (size_t i = start; i < end; ++i)
+      mx = std::max(mx, std::abs(samples[i]) / 32768.0f);
+    peaks[b] = mx;
+  }
+  return peaks;
+}
 
 class App {
  public:
@@ -2683,6 +3366,9 @@ class App {
     }
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+#ifndef _WIN32
+    signal(SIGPIPE, SIG_IGN);
+#endif
 
     controlWindow_ = SDL_CreateWindow(
       kAppTitle.data(),
@@ -2690,7 +3376,7 @@ class App {
       SDL_WINDOWPOS_CENTERED,
       kControlWidth,
       kControlHeight,
-      SDL_WINDOW_RESIZABLE
+      0
     );
     if (!controlWindow_) {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
@@ -2703,18 +3389,24 @@ class App {
       return false;
     }
 
-    fontLarge_ = TTF_OpenFont(kFontSans.string().c_str(), 28);
-    fontBase_ = TTF_OpenFont(kFontSans.string().c_str(), 18);
-    fontSmall_ = TTF_OpenFont(kFontSans.string().c_str(), 15);
-    fontMono_ = TTF_OpenFont(kFontMono.string().c_str(), 16);
+    fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 28);
+    fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 18);
+    fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 15);
+    fontMono_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 16);
+    fontPixel_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 20);
     if (!fontLarge_ || !fontBase_ || !fontSmall_ || !fontMono_) {
       std::cerr << "Font load failed: " << TTF_GetError() << '\n';
       return false;
     }
 
+    Paths::ensureDataDir();
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
+    // Output starts black — no cue is active until the operator takes one
+    for (auto& deck : project_.decks) { deck.activeIndex = -1; }
+    // Show startup dialog so operator can choose to load or start fresh
+    showStartupDialog_ = true;
     ensureUiAudioDevice();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
@@ -2723,11 +3415,14 @@ class App {
     selectionChangedAt_ = SDL_GetTicks64();
     lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
+    startHyperDeckServer();
     layoutButtons(kControlHeight);
     return true;
   }
 
   void shutdown() {
+    stopHyperDeckServer();
+    stopMidiInput();
     stopCompanionControl();
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
@@ -2756,6 +3451,22 @@ class App {
       TTF_CloseFont(fontMono_);
       fontMono_ = nullptr;
     }
+    if (fontPixel_) {
+      TTF_CloseFont(fontPixel_);
+      fontPixel_ = nullptr;
+    }
+    if (thumbnailThread_.joinable()) {
+      thumbnailProcess_.stop();
+      thumbnailThread_.join();
+    }
+    if (selectedThumbnailTex_) {
+      SDL_DestroyTexture(selectedThumbnailTex_);
+      selectedThumbnailTex_ = nullptr;
+    }
+    if (controlPreviewTex_) {
+      SDL_DestroyTexture(controlPreviewTex_);
+      controlPreviewTex_ = nullptr;
+    }
     if (controlRenderer_) {
       SDL_DestroyRenderer(controlRenderer_);
       controlRenderer_ = nullptr;
@@ -2770,17 +3481,51 @@ class App {
 
   void run() {
     while (!gShouldQuit.load()) {
+      auto frameStart = std::chrono::steady_clock::now();
       processEvents();
+      drainPickers();
       update();
       render();
+      // Prevent CPU spin when vsync isn't gating (hidden window, browser cue, etc.)
+      auto frameElapsed = std::chrono::steady_clock::now() - frameStart;
+      if (frameElapsed < std::chrono::milliseconds(1)) {
+        SDL_Delay(1);
+      }
+    }
+  }
+
+  void drainPickers() {
+    if (pendingImport_.valid() &&
+        pendingImport_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+      auto paths = pendingImport_.get();
+      if (!paths.empty()) {
+        importPaths(paths);
+      }
+    }
+    if (pendingProjectOpen_.valid() &&
+        pendingProjectOpen_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+      auto path = pendingProjectOpen_.get();
+      if (path) {
+        openProjectFromPath(*path);
+      }
+    }
+    if (pendingProjectSaveAs_.valid() &&
+        pendingProjectSaveAs_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+      auto path = pendingProjectSaveAs_.get();
+      if (path) {
+        currentProjectFile_ = *path;
+        markProjectDirty();
+        triggerToast("saved as " + currentProjectLabel());
+      }
     }
   }
 
   static int runSelfCheck() {
     std::cout << "playboy-native self-check\n";
-    std::cout << "project-root: " << kProjectRoot << '\n';
-    std::cout << "font-sans: " << (fs::exists(kFontSans) ? "ok" : "missing") << '\n';
-    std::cout << "font-mono: " << (fs::exists(kFontMono) ? "ok" : "missing") << '\n';
+    std::cout << "project-root: " << Paths::projectRoot() << '\n';
+    std::cout << "font-sans: " << (fs::exists(Paths::fontPath(Paths::FontName::Sans)) ? "ok" : "missing") << '\n';
+    std::cout << "font-mono: " << (fs::exists(Paths::fontPath(Paths::FontName::Mono)) ? "ok" : "missing") << '\n';
+    std::cout << "font-pixel: " << (fs::exists(Paths::fontPath(Paths::FontName::Pixel)) ? "ok" : "missing") << '\n';
     std::cout << "ffmpeg: " << (readAllText({"ffmpeg", "-version"}).has_value() ? "ok" : "missing") << '\n';
     std::cout << "ffprobe: " << (readAllText({"ffprobe", "-version"}).has_value() ? "ok" : "missing") << '\n';
 #if defined(PLAYBOY_HAS_NDI_SDK)
@@ -2849,7 +3594,23 @@ class App {
       cue.inPointSeconds = 2.0;
       cue.outPointSeconds = 8.0;
       cue.triggerTimecodeSeconds = 13.0;
-      deck.cues.push_back(cue);
+      cue.cueTransitionSeconds = 1.25;
+      cue.cueTransitionStyle = "crossfade";
+      Cue imgCue;
+      imgCue.path = "/tmp/test.jpg";
+      imgCue.name = "Smoke Still";
+      imgCue.kind = CueKind::Image;
+      imgCue.stillDurationSeconds = 5.0;
+      Cue ltCue;
+      ltCue.path = "graphic://lower-third";
+      ltCue.name = "Smoke Lower Third";
+      ltCue.kind = CueKind::LowerThird;
+      ltCue.lowerThirdText = "Hello World";
+      ltCue.lowerThirdSubtext = "subtitle here";
+      ltCue.lowerThirdBgAlpha = 200;
+      deck.cues.push_back(cue);      // [0]: video — trim/tc/transition tests
+      deck.cues.push_back(imgCue);   // [1]: image still — stillDuration test
+      deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
       project.decks = {deck};
       normalizeProject(project);
 
@@ -2865,6 +3626,20 @@ class App {
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
         expect(std::abs(loadedCue.inPointSeconds - 2.0) < 0.01 && std::abs(loadedCue.outPointSeconds - 8.0) < 0.01, "trim persisted");
         expect(std::abs(loadedCue.triggerTimecodeSeconds - 13.0) < 0.01, "cue tc mark persisted");
+        expect(std::abs(loadedCue.cueTransitionSeconds - 1.25) < 0.01, "cue transition persisted");
+        expect(loadedCue.cueTransitionStyle == "crossfade", "cue transition style persisted");
+        if (loadedDeck.cues.size() > 1) {
+          const Cue& img = loadedDeck.cues[1];
+          expect(img.kind == CueKind::Image, "still image kind persisted");
+          expect(std::abs(img.stillDurationSeconds - 5.0) < 0.01, "still duration persisted");
+        }
+        if (loadedDeck.cues.size() > 2) {
+          const Cue& lt = loadedDeck.cues[2];
+          expect(lt.kind == CueKind::LowerThird, "lower third kind persisted");
+          expect(lt.lowerThirdText == "Hello World", "lower third text persisted");
+          expect(lt.lowerThirdSubtext == "subtitle here", "lower third subtext persisted");
+          expect(lt.lowerThirdBgAlpha == 200, "lower third alpha persisted");
+        }
       }
       std::error_code ignored;
       fs::remove(smokePath, ignored);
@@ -2944,7 +3719,7 @@ class App {
     project_.focusedDeckIndex = deckIndex;
     selectionChangedAt_ = SDL_GetTicks64();
     triggerToast("deck: " + focusedDeckLabel());
-    persistProject();
+    markProjectDirty();
     return true;
   }
 
@@ -3079,6 +3854,11 @@ class App {
       runtime->audioDevice,
       [this, deckIndex](const std::vector<std::int16_t>& samples) {
         sendDeckNdiAudioSamples(deckIndex, samples);
+        // Capture samples for VU meter (only from focused deck)
+        if (deckIndex == project_.focusedDeckIndex) {
+          std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+          vuSamples_ = samples;
+        }
       }
     );
     return true;
@@ -3181,7 +3961,7 @@ class App {
     deck.ndiEnabled = enabled;
     applyDeckNdiSettings(project_.focusedDeckIndex, true);
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleFocusedDeckNdi() {
@@ -3204,7 +3984,7 @@ class App {
       triggerToast("ndi name: " + deck.ndiSourceName);
     }
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void sendDeckNdiFrame(int deckIndex, int width, int height, double fpsHint) {
@@ -3320,18 +4100,66 @@ class App {
 #endif
   }
 
+  std::pair<int, int> fixedOutputRenderSize() const {
+    int w = std::clamp(project_.outputRenderWidth, 320, 7680);
+    int h = std::clamp(project_.outputRenderHeight, 180, 4320);
+    return {w, h};
+  }
+
+  std::pair<int, int> displayNativeRenderSize(int displayIndex) const {
+    int displayCount = SDL_GetNumVideoDisplays();
+    if (displayCount <= 0) {
+      return fixedOutputRenderSize();
+    }
+    int normalizedIndex = std::clamp(displayIndex, 0, displayCount - 1);
+
+    SDL_DisplayMode desktopMode {};
+    if (SDL_GetDesktopDisplayMode(normalizedIndex, &desktopMode) == 0 &&
+        desktopMode.w > 0 && desktopMode.h > 0) {
+      return {desktopMode.w, desktopMode.h};
+    }
+
+    SDL_Rect bounds {};
+    if (SDL_GetDisplayBounds(normalizedIndex, &bounds) == 0 &&
+        bounds.w > 0 && bounds.h > 0) {
+      return {bounds.w, bounds.h};
+    }
+    return fixedOutputRenderSize();
+  }
+
+  std::pair<int, int> outputRenderSizeForDeck(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return fixedOutputRenderSize();
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (project_.outputFollowDisplay) {
+      return displayNativeRenderSize(deck.outputDisplayIndex);
+    }
+    return fixedOutputRenderSize();
+  }
+
+  std::string outputResolutionLabel(int deckIndex) const {
+    auto [w, h] = outputRenderSizeForDeck(deckIndex);
+    return std::to_string(w) + "x" + std::to_string(h);
+  }
+
+  std::string outputSizingModeLabel() const {
+    return project_.outputFollowDisplay ? "display native" : "fixed";
+  }
+
   bool createDeckRuntime(int deckIndex) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime& runtime = deckRuntimes_[deckIndex];
     destroyDeckRuntime(runtime);
+    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
 
     std::string title = std::string(kOutputTitle) + " - " + (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name);
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
-      kOutputWidth,
-      kOutputHeight,
+      targetW,
+      targetH,
       SDL_WINDOW_RESIZABLE
     );
     if (!runtime.outputWindow) {
@@ -3398,34 +4226,106 @@ class App {
     }
     triggerToast("audio: " + currentAudioOutputLabel());
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
+  }
+
+  void restartLiveBrowserCueIfNeeded(int deckIndex) {
+    const Cue* active = activeCuePtr(deckIndex);
+    if (!active || active->kind != CueKind::Browser) {
+      return;
+    }
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->browserCueLive) {
+      return;
+    }
+    startBrowserCue(deckIndex, *active);
   }
 
   void applyOutputDisplaySelection(int deckIndex) {
-    int displayCount = SDL_GetNumVideoDisplays();
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (!runtime || !runtime->outputWindow) {
       return;
     }
-    if (displayCount <= 0) {
-      deck.outputDisplayIndex = 0;
-      return;
-    }
-    deck.outputDisplayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
+
+    int displayCount = SDL_GetNumVideoDisplays();
+    bool haveDisplayBounds = false;
     SDL_Rect bounds {};
-    if (SDL_GetDisplayBounds(deck.outputDisplayIndex, &bounds) != 0) {
-      return;
+    if (displayCount > 0) {
+      deck.outputDisplayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
+      haveDisplayBounds = (SDL_GetDisplayBounds(deck.outputDisplayIndex, &bounds) == 0);
+    } else {
+      deck.outputDisplayIndex = 0;
     }
+
+    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    targetW = std::max(1, targetW);
+    targetH = std::max(1, targetH);
+
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
     if (fullscreen) {
       SDL_SetWindowFullscreen(runtime->outputWindow, 0);
     }
-    SDL_SetWindowPosition(runtime->outputWindow, bounds.x + 40 + deckIndex * 20, bounds.y + 40 + deckIndex * 20);
+
+    SDL_SetWindowSize(runtime->outputWindow, targetW, targetH);
+    if (haveDisplayBounds) {
+      int x = bounds.x + std::max(0, (bounds.w - targetW) / 2) + deckIndex * 20;
+      int y = bounds.y + std::max(0, (bounds.h - targetH) / 2) + deckIndex * 20;
+      if (targetW > bounds.w) x = bounds.x + 20 + deckIndex * 20;
+      if (targetH > bounds.h) y = bounds.y + 20 + deckIndex * 20;
+      SDL_SetWindowPosition(runtime->outputWindow, x, y);
+    }
+
     if (fullscreen) {
       SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
+  }
+
+  void applyOutputDisplaySelectionAllDecks(bool restartLiveBrowsers) {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      applyOutputDisplaySelection(deckIndex);
+    }
+    if (restartLiveBrowsers) {
+      for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+        restartLiveBrowserCueIfNeeded(deckIndex);
+      }
+    }
+  }
+
+  void setOutputSizingModeDisplayNative() {
+    bool changed = !project_.outputFollowDisplay;
+    project_.outputFollowDisplay = true;
+    applyOutputDisplaySelectionAllDecks(true);
+    triggerToast("video mode: native (" + currentDisplayLabel() + ")");
+    playUiSound(UiSoundEffect::Toggle);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
+  void setOutputSizingModeFixed(int width, int height) {
+    int w = std::clamp(width, 320, 7680);
+    int h = std::clamp(height, 180, 4320);
+    bool changed = project_.outputFollowDisplay
+      || project_.outputRenderWidth != w
+      || project_.outputRenderHeight != h;
+    project_.outputFollowDisplay = false;
+    project_.outputRenderWidth = w;
+    project_.outputRenderHeight = h;
+    applyOutputDisplaySelectionAllDecks(true);
+    triggerToast("video mode: fixed " + std::to_string(w) + "x" + std::to_string(h));
+    playUiSound(UiSoundEffect::Toggle);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
+  void sizeFocusedOutputToSelectedDisplay() {
+    applyOutputDisplaySelection(project_.focusedDeckIndex);
+    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
+    triggerToast("output sized: " + outputResolutionLabel(project_.focusedDeckIndex));
+    playUiSound(UiSoundEffect::Toggle);
   }
 
   void cycleOutputDisplay(int direction) {
@@ -3436,18 +4336,13 @@ class App {
     Deck& deck = focusedDeckMutable();
     deck.outputDisplayIndex = (deck.outputDisplayIndex + direction + displayCount) % displayCount;
     applyOutputDisplaySelection(project_.focusedDeckIndex);
+    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
     std::string label = SDL_GetDisplayName(deck.outputDisplayIndex);
-    triggerToast("display: " + (label.empty() ? std::to_string(deck.outputDisplayIndex + 1) : label));
+    triggerToast("display: "
+      + (label.empty() ? std::to_string(deck.outputDisplayIndex + 1) : label)
+      + "  " + outputResolutionLabel(project_.focusedDeckIndex));
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
-
-    const Cue* active = activeCuePtr();
-    if (active && active->kind == CueKind::Browser) {
-      auto* runtime = focusedRuntime();
-      if (runtime && runtime->browserCueLive) {
-        startBrowserCue(project_.focusedDeckIndex, *active);
-      }
-    }
+    markProjectDirty();
   }
 
   bool setOutputDisplayIndex(int index) {
@@ -3457,15 +4352,9 @@ class App {
     }
     focusedDeckMutable().outputDisplayIndex = index;
     applyOutputDisplaySelection(project_.focusedDeckIndex);
-    triggerToast("display: " + currentDisplayLabel());
-    persistProject();
-    const Cue* active = activeCuePtr();
-    if (active && active->kind == CueKind::Browser) {
-      auto* runtime = focusedRuntime();
-      if (runtime && runtime->browserCueLive) {
-        startBrowserCue(project_.focusedDeckIndex, *active);
-      }
-    }
+    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
+    triggerToast("display: " + currentDisplayLabel() + "  " + outputResolutionLabel(project_.focusedDeckIndex));
+    markProjectDirty();
     return true;
   }
 
@@ -3476,7 +4365,7 @@ class App {
     }
     triggerToast("audio: " + currentAudioOutputLabel());
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
     return true;
   }
 
@@ -3531,30 +4420,48 @@ class App {
     return fs::path("/tmp") / ("playboy-browser-" + std::to_string(static_cast<unsigned long long>(SDL_GetTicks64())));
   }
 
+  // Find a virtual display number not currently in use.
+  static int findFreeVirtualDisplay() {
+    for (int n = 20; n < 100; ++n) {
+      std::string lock = "/tmp/.X" + std::to_string(n) + "-lock";
+      if (!fs::exists(lock)) {
+        return n;
+      }
+    }
+    return -1;
+  }
+
   void stopBrowserCue(int deckIndex) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (!runtime) {
       return;
     }
+    // Stop x11grab capture in the media engine
+    if (runtime->mediaEngine && runtime->mediaEngine->isBrowserCapturing()) {
+      runtime->mediaEngine->stopBrowserCapture();
+    }
     runtime->browserProcess.stop();
+    runtime->xvfbProcess.stop();
+    runtime->virtualDisplayId.clear();
+    runtime->browserStartPhase = BrowserStartPhase::None;
     runtime->browserCueLive = false;
     if (!runtime->browserProfileDir.empty()) {
       std::error_code error;
       fs::remove_all(runtime->browserProfileDir, error);
       runtime->browserProfileDir.clear();
     }
-    if (runtime->outputWindow) {
-      SDL_ShowWindow(runtime->outputWindow);
-    }
+    // Output window is always visible now — never hidden for browser cues
   }
 
   void stopBrowserCue() {
     stopBrowserCue(project_.focusedDeckIndex);
   }
 
+  // Phase 1: start Xvfb on a free virtual display + begin phased chromium launch.
+  // Frame capture (x11grab) kicks in automatically via App::update() after delays.
   bool startBrowserCue(int deckIndex, const Cue& cue) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
-    if (!runtime || !runtime->outputWindow) {
+    if (!runtime) {
       return false;
     }
     std::string browserUrl = normalizeBrowserUrl(cue.path);
@@ -3570,35 +4477,53 @@ class App {
 
     stopBrowserCue(deckIndex);
 
-    SDL_Rect bounds {0, 0, kOutputWidth, kOutputHeight};
-    SDL_GetDisplayBounds(project_.decks[deckIndex].outputDisplayIndex, &bounds);
+    int dispNum = findFreeVirtualDisplay();
+    if (dispNum < 0) {
+      triggerToast("no free virtual display", {79, 98, 48, 230}, {223, 248, 185, 255});
+      return false;
+    }
+
+    runtime->virtualDisplayId = ":" + std::to_string(dispNum);
+
+    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    int w = cue.width > 0 ? cue.width : targetW;
+    int h = cue.height > 0 ? cue.height : targetH;
+    bool legacyRaster = cue.width == kOutputWidth && cue.height == kOutputHeight;
+    if (legacyRaster && (targetW != kOutputWidth || targetH != kOutputHeight)) {
+      w = targetW;
+      h = targetH;
+    }
+    runtime->pendingBrowserW = w;
+    runtime->pendingBrowserH = h;
+
+    // Start Xvfb synchronously (it backgrounds itself).
+    if (!spawnDetachedProcess(runtime->xvfbProcess, {
+      "Xvfb", runtime->virtualDisplayId,
+      "-screen", "0",
+      std::to_string(w) + "x" + std::to_string(h) + "x24",
+      "-nolisten", "tcp"
+    })) {
+      triggerToast("Xvfb launch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
+      runtime->virtualDisplayId.clear();
+      return false;
+    }
+
+    // Store URL + profile dir for deferred Chromium launch in update().
     runtime->browserProfileDir = nextBrowserProfilePath();
     std::error_code error;
     fs::create_directories(runtime->browserProfileDir, error);
 
-    std::vector<std::string> args {
-      executable,
-      "--no-first-run",
-      "--disable-session-crashed-bubble",
-      "--disable-infobars",
-      "--new-window",
-      "--app=" + browserUrl,
-      "--window-position=" + std::to_string(bounds.x) + "," + std::to_string(bounds.y),
-      "--window-size=" + std::to_string(std::max(320, bounds.w)) + "," + std::to_string(std::max(180, bounds.h)),
-      "--user-data-dir=" + runtime->browserProfileDir.string(),
-      "--start-fullscreen"
-    };
-    if (!spawnDetachedProcess(runtime->browserProcess, args)) {
-      std::error_code cleanupError;
-      fs::remove_all(runtime->browserProfileDir, cleanupError);
-      runtime->browserProfileDir.clear();
-      triggerToast("browser launch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
-      return false;
+    // Store URL in a slot accessible to the update loop.
+    // Reuse browserProfileDir parent as a signal, but we need the URL.
+    // Write it to a temp file so the update loop can read it.
+    {
+      std::ofstream uf(runtime->browserProfileDir / ".pending_url");
+      uf << browserUrl;
     }
 
-    runtime->browserCueLive = true;
-    SDL_HideWindow(runtime->outputWindow);
-    triggerToast("browser live");
+    runtime->browserStartPhase = BrowserStartPhase::WaitXvfb;
+    runtime->browserPhaseStartedAt = SDL_GetTicks64();
+    triggerToast("browser loading…");
     return true;
   }
 
@@ -3606,22 +4531,99 @@ class App {
     return startBrowserCue(project_.focusedDeckIndex, cue);
   }
 
+  // Called from App::update() to advance the phased browser startup.
+  void tickBrowserStartup(int deckIndex) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || runtime->browserStartPhase == BrowserStartPhase::None ||
+        runtime->browserStartPhase == BrowserStartPhase::Live) {
+      return;
+    }
+
+    Uint64 now = SDL_GetTicks64();
+    Uint64 elapsed = now - runtime->browserPhaseStartedAt;
+
+    if (runtime->browserStartPhase == BrowserStartPhase::WaitXvfb) {
+      if (elapsed < 400) return;  // let Xvfb start
+      // Read back the pending URL
+      std::string browserUrl;
+      {
+        std::ifstream uf(runtime->browserProfileDir / ".pending_url");
+        std::getline(uf, browserUrl);
+      }
+      if (browserUrl.empty()) {
+        stopBrowserCue(deckIndex);
+        return;
+      }
+      std::string executable = browserExecutablePath();
+      int w = runtime->pendingBrowserW;
+      int h = runtime->pendingBrowserH;
+      std::vector<std::string> args {
+        executable,
+        "--no-first-run",
+        "--disable-session-crashed-bubble",
+        "--disable-infobars",
+        "--disable-gpu",
+        "--app=" + browserUrl,
+        "--window-size=" + std::to_string(w) + "," + std::to_string(h),
+        "--window-position=0,0",
+        "--user-data-dir=" + runtime->browserProfileDir.string(),
+        "--start-maximized"
+      };
+      // Set DISPLAY to virtual display via environment variable prefix trick.
+      // spawnDetachedProcess takes a plain argv; prepend env via a shell wrapper.
+      std::vector<std::string> envArgs {
+        "env",
+        "DISPLAY=" + runtime->virtualDisplayId,
+        "LIBGL_ALWAYS_SOFTWARE=1"
+      };
+      envArgs.insert(envArgs.end(), args.begin(), args.end());
+      spawnDetachedProcess(runtime->browserProcess, envArgs);
+      runtime->browserStartPhase = BrowserStartPhase::WaitChrome;
+      runtime->browserPhaseStartedAt = now;
+      return;
+    }
+
+    if (runtime->browserStartPhase == BrowserStartPhase::WaitChrome) {
+      if (elapsed < 1200) return;  // let Chrome render first frame
+      // Begin x11grab capture via the media engine.
+      MediaEngine* eng = runtime->mediaEngine.get();
+      if (!eng) { stopBrowserCue(deckIndex); return; }
+      // Get transition params from the active cue if available.
+      const Deck& deck = project_.decks[deckIndex];
+      double transSecs = deck.transitionSeconds;
+      TransitionStyle transStyle = parseTransitionStyleToken(deck.transitionStyle);
+      if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+        const Cue& ac = deck.cues[deck.activeIndex];
+        if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
+        if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
+      }
+      eng->startBrowserCapture(
+        runtime->virtualDisplayId,
+        runtime->pendingBrowserW,
+        runtime->pendingBrowserH,
+        deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeInSeconds : 0.0,
+        deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeOutSeconds : 0.0,
+        transSecs,
+        transStyle
+      );
+      runtime->browserStartPhase = BrowserStartPhase::Live;
+      runtime->browserCueLive = true;
+      triggerToast("browser live");
+      return;
+    }
+  }
+
   fs::path defaultProjectFile() const {
     const char* envPath = std::getenv("PLAYBOY_PROJECT");
     if (envPath && *envPath) {
-      return normalizeProjectPath(fs::absolute(envPath));
+      std::error_code ec;
+      return Paths::normalizeProjectPath(fs::absolute(envPath, ec));
     }
-    return kDataDir / "default.playboy";
+    return Paths::defaultProjectFile();
   }
 
   fs::path normalizeProjectPath(fs::path path) const {
-    if (path.empty()) {
-      return kDataDir / "default.playboy";
-    }
-    if (path.extension().empty()) {
-      path += ".playboy";
-    }
-    return path;
+    return Paths::normalizeProjectPath(path);
   }
 
   std::string currentProjectLabel() const {
@@ -3702,6 +4704,7 @@ class App {
     output << "PLAYBOY_0.01"
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
+           << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -3714,6 +4717,7 @@ class App {
              << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
              << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
              << " display=" << (deck.outputDisplayIndex + 1)
+             << " raster=" << outputResolutionLabel(deckIndex)
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
              << " ndi=" << (deck.ndiEnabled ? "on" : "off")
              << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
@@ -3754,6 +4758,7 @@ class App {
     output << "PLAYBOY_0.01"
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
+           << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
@@ -3761,6 +4766,7 @@ class App {
            << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
            << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
            << " display=" << (deck.outputDisplayIndex + 1)
+           << " raster=" << outputResolutionLabel(deckIndex)
            << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
            << " ndi=" << (deck.ndiEnabled ? "on" : "off")
            << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
@@ -3794,6 +4800,7 @@ class App {
            << "\"app\":\"PLAYBOY_0.01\","
            << "\"focusedDeck\":" << (project_.focusedDeckIndex + 1) << ","
            << "\"deckCount\":" << project_.decks.size() << ","
+           << "\"outputMode\":\"" << (project_.outputFollowDisplay ? "native" : "fixed") << "\","
            << "\"decks\":[";
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (deckIndex > 0) {
@@ -3810,6 +4817,7 @@ class App {
              << "\"selected\":" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0) << ","
              << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
              << "\"display\":" << (deck.outputDisplayIndex + 1) << ","
+             << "\"raster\":\"" << outputResolutionLabel(deckIndex) << "\","
              << "\"audio\":\"" << escapeJson(deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\","
              << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
              << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
@@ -3854,6 +4862,97 @@ class App {
   void persistProject() {
     normalizeProject(project_);
     saveProject(currentProjectFile_, project_);
+    projectDirty_ = false;
+  }
+
+  void markProjectDirty() {
+    if (!projectDirty_) {
+      projectDirty_ = true;
+      projectDirtyAt_ = std::chrono::steady_clock::now();
+    }
+  }
+
+  void flushDirtyProject() {
+    if (!projectDirty_) {
+      return;
+    }
+    auto age = std::chrono::steady_clock::now() - projectDirtyAt_;
+    if (age >= std::chrono::milliseconds(300)) {
+      persistProject();
+    }
+  }
+
+  float computeVuLevel() const {
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(vuSamplesMutex_));
+    if (vuSamples_.empty()) return 0.0f;
+    double sum = 0.0;
+    for (auto s : vuSamples_) sum += static_cast<double>(s) * s;
+    return static_cast<float>(std::sqrt(sum / vuSamples_.size()) / 32768.0);
+  }
+
+  void triggerWaveformAnalysis(const std::string& path) {
+    if (path.empty()) return;
+    std::lock_guard<std::mutex> lk(waveformMutex_);
+    if (waveformCache_.count(path) || waveformFutures_.count(path)) return;
+    waveformFutures_[path] = std::async(std::launch::async,
+      [path]() { return computeWaveformPeaks(path); });
+  }
+
+  // Draw a waveform bar graph into dest. playFrac/inFrac/outFrac in [0,1].
+  void drawWaveform(SDL_Renderer* ren, SDL_Rect dest, const std::vector<float>& peaks,
+                    float playFrac, float inFrac, float outFrac,
+                    const std::vector<double>& pausePoints = {}, double duration = 0.0) {
+    fillRect(ren, dest, colorFromRgba(kScreenDeepColor));
+    strokeRect(ren, dest, colorFromRgba(kScreenMidColor));
+    if (peaks.empty()) {
+      drawCenteredText(ren, fontSmall_, "analyzing...", colorFromRgba(kScreenInkSoftColor), dest);
+      return;
+    }
+    int n  = static_cast<int>(peaks.size());
+    int x0 = dest.x + 2, y0 = dest.y + 2;
+    int w  = dest.w - 4, h = dest.h - 4;
+    int cy = y0 + h / 2; // center line for symmetric waveform
+
+    // Draw centre line
+    SDL_SetRenderDrawColor(ren, 30, 50, 30, 255);
+    SDL_RenderDrawLine(ren, x0, cy, x0 + w, cy);
+
+    for (int i = 0; i < w; ++i) {
+      int   pi   = std::min(i * n / std::max(1, w), n - 1);
+      float peak = peaks[pi];
+      int   halfH = std::max(1, static_cast<int>(peak * h / 2));
+      float frac = static_cast<float>(i) / std::max(1, w);
+      bool  inRange = (frac >= inFrac && frac <= outFrac);
+      SDL_Color c = inRange ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_SetRenderDrawColor(ren, c.r, c.g, c.b, c.a);
+      // Symmetric: draw bar from centre up and down
+      SDL_RenderDrawLine(ren, x0 + i, cy - halfH, x0 + i, cy + halfH);
+    }
+    // Pause point ticks (orange verticals)
+    if (!pausePoints.empty() && duration > 0.0) {
+      SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_BLEND);
+      for (double pp : pausePoints) {
+        float ppFrac = static_cast<float>(std::clamp(pp / duration, 0.0, 1.0));
+        int px = x0 + static_cast<int>(ppFrac * w);
+        SDL_SetRenderDrawColor(ren, 220, 120, 30, 200);
+        SDL_RenderDrawLine(ren, px, y0, px, y0 + h);
+      }
+      SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
+    }
+    // Playhead
+    if (playFrac >= 0.0f && playFrac <= 1.0f) {
+      int px = x0 + static_cast<int>(playFrac * w);
+      SDL_SetRenderDrawColor(ren, 200, 220, 80, 255);
+      SDL_RenderDrawLine(ren, px, y0, px, y0 + h);
+    }
+    // In/out markers
+    auto drawMarker = [&](float frac, Uint8 r, Uint8 g, Uint8 b) {
+      int mx = x0 + static_cast<int>(frac * std::max(1, w));
+      SDL_SetRenderDrawColor(ren, r, g, b, 255);
+      SDL_RenderDrawLine(ren, mx, y0, mx, y0 + h);
+    };
+    if (inFrac > 0.0f)  drawMarker(inFrac,  80, 220, 80);
+    if (outFrac < 1.0f) drawMarker(outFrac, 220, 80, 80);
   }
 
   void triggerToast(std::string message, SDL_Color fill = {155, 188, 15, 220}, SDL_Color ink = {15, 56, 15, 255}, Uint32 durationMs = 1200) {
@@ -3941,7 +5040,7 @@ class App {
       playUiSound(UiSoundEffect::Toggle);
     }
     triggerToast(project_.uiSoundsEnabled ? "little bloops on" : "little bloops off");
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleUiTransitions() {
@@ -3953,7 +5052,7 @@ class App {
     } else {
       toast_.active = false;
     }
-    persistProject();
+    markProjectDirty();
   }
 
   void setAutoAdvance(bool enabled) {
@@ -3964,7 +5063,7 @@ class App {
     deck.autoAdvance = enabled;
     triggerToast(deck.autoAdvance ? "auto next on" : "auto next off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleAutoAdvance() {
@@ -3979,7 +5078,7 @@ class App {
     deck.playlistLoop = enabled;
     triggerToast(deck.playlistLoop ? "playlist loop on" : "playlist loop off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void togglePlaylistLoop() {
@@ -3989,6 +5088,86 @@ class App {
   void onSelectionChanged() {
     selectionChangedAt_ = SDL_GetTicks64();
     playUiSound(UiSoundEffect::Navigate);
+    if (const Cue* cue = selectedCuePtr()) {
+      requestThumbnail(*cue);
+    } else {
+      clearSelectedThumbnail();
+    }
+  }
+
+  void clearSelectedThumbnail() {
+    selectedThumbnailCueId_.clear();
+    if (thumbnailThread_.joinable()) {
+      thumbnailProcess_.stop();
+      thumbnailThread_.join();
+    }
+    {
+      std::lock_guard<std::mutex> lk(thumbnailMutex_);
+      pendingThumbnail_.reset();
+    }
+    thumbnailPending_.store(false);
+    if (selectedThumbnailTex_) {
+      SDL_DestroyTexture(selectedThumbnailTex_);
+      selectedThumbnailTex_ = nullptr;
+      selectedThumbnailTexW_ = 0;
+      selectedThumbnailTexH_ = 0;
+    }
+  }
+
+  void requestThumbnail(const Cue& cue) {
+    if (cue.kind != CueKind::Video && cue.kind != CueKind::Image) {
+      clearSelectedThumbnail();
+      return;
+    }
+    if (selectedThumbnailCueId_ == cue.id) {
+      return;  // already loaded or loading
+    }
+    selectedThumbnailCueId_ = cue.id;
+    if (thumbnailThread_.joinable()) {
+      thumbnailProcess_.stop();
+      thumbnailThread_.join();
+    }
+    {
+      std::lock_guard<std::mutex> lk(thumbnailMutex_);
+      pendingThumbnail_.reset();
+    }
+    thumbnailPending_.store(false);
+
+    constexpr int kThumbW = 320;
+    constexpr int kThumbH = 180;
+    std::string scaleFilter =
+      "scale=" + std::to_string(kThumbW) + ":" + std::to_string(kThumbH) +
+      ":force_original_aspect_ratio=decrease:flags=lanczos,"
+      "pad=" + std::to_string(kThumbW) + ":" + std::to_string(kThumbH) + ":(ow-iw)/2:(oh-ih)/2";
+
+    std::vector<std::string> args = {"ffmpeg", "-hide_banner", "-loglevel", "error"};
+    if (cue.kind == CueKind::Video && cue.duration > 0.5) {
+      double seekPos = std::min(cue.duration * 0.1, cue.duration - 0.1);
+      args.push_back("-ss");
+      args.push_back(std::to_string(std::max(0.0, seekPos)));
+    }
+    args.insert(args.end(), {"-i", cue.path, "-frames:v", "1",
+                             "-vf", scaleFilter,
+                             "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"});
+
+    if (!spawnPipeProcess(thumbnailProcess_, args)) {
+      return;
+    }
+    int fd = thumbnailProcess_.readFd;
+    thumbnailThread_ = std::thread([this, fd]() {
+      constexpr int kThumbW = 320;
+      constexpr int kThumbH = 180;
+      DecodedFrame frame;
+      frame.width = kThumbW;
+      frame.height = kThumbH;
+      frame.index = 0;
+      frame.pixels.resize(static_cast<size_t>(kThumbW) * kThumbH * 4u);
+      if (readExact(fd, frame.pixels.data(), frame.pixels.size())) {
+        std::lock_guard<std::mutex> lk(thumbnailMutex_);
+        pendingThumbnail_ = std::move(frame);
+        thumbnailPending_.store(true);
+      }
+    });
   }
 
   void enqueueRemoteCommand(std::string command) {
@@ -4086,7 +5265,7 @@ class App {
 
     auto sendSnapshot = [&](const std::string& payload) {
       if (!payload.empty()) {
-        send(client, payload.c_str(), payload.size(), 0);
+        send(client, payload.c_str(), payload.size(), MSG_NOSIGNAL);
       }
     };
 
@@ -4197,6 +5376,299 @@ class App {
     companionReady_ = false;
 #endif
   }
+
+  void startHyperDeckServer() {
+#ifndef _WIN32
+    const char* portEnv = std::getenv("PLAYBOY_HYPERDECK_PORT");
+    if (portEnv && *portEnv) {
+      try { hyperDeckPort_ = std::clamp(std::stoi(portEnv), 1, 65535); } catch (...) {}
+    }
+    hyperDeckListenFd_ = createBoundSocket(SOCK_STREAM, hyperDeckPort_, true);
+    if (hyperDeckListenFd_ == kInvalidSocket) return;
+    hyperDeckRunning_.store(true);
+    hyperDeckThread_ = std::thread([this]() { hyperDeckLoop(); });
+#endif
+  }
+
+  void stopHyperDeckServer() {
+#ifndef _WIN32
+    hyperDeckRunning_.store(false);
+    if (hyperDeckListenFd_ != kInvalidSocket) {
+      closeSocket(hyperDeckListenFd_);
+      hyperDeckListenFd_ = kInvalidSocket;
+    }
+    if (hyperDeckThread_.joinable()) hyperDeckThread_.join();
+#endif
+  }
+
+  bool startMidiInput() {
+#if defined(PLAYBOY_HAS_ALSA)
+    stopMidiInput();
+    midiStop_ = false;
+    int err = snd_seq_open(&midiSeq_, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
+    if (err < 0) { midiSeq_ = nullptr; return false; }
+    snd_seq_set_client_name(midiSeq_, "Playboy");
+    midiSeqPort_ = snd_seq_create_simple_port(midiSeq_, "input",
+      SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
+      SND_SEQ_PORT_TYPE_APPLICATION);
+    if (midiSeqPort_ < 0) { snd_seq_close(midiSeq_); midiSeq_ = nullptr; return false; }
+
+    // If a specific port was configured, connect it
+    if (!midiDeviceName_.empty()) {
+      snd_seq_addr_t sender;
+      if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_.c_str()) == 0) {
+        snd_seq_port_subscribe_t* sub;
+        snd_seq_port_subscribe_alloca(&sub);
+        snd_seq_port_subscribe_set_sender(sub, &sender);
+        snd_seq_addr_t dest {static_cast<unsigned char>(snd_seq_client_id(midiSeq_)), static_cast<unsigned char>(midiSeqPort_)};
+        snd_seq_port_subscribe_set_dest(sub, &dest);
+        snd_seq_subscribe_port(midiSeq_, sub);
+      }
+    }
+
+    midiThread_ = std::thread([this]() { midiLoop(); });
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  void stopMidiInput() {
+#if defined(PLAYBOY_HAS_ALSA)
+    midiStop_ = true;
+    if (midiThread_.joinable()) midiThread_.join();
+    if (midiSeq_) {
+      if (midiSeqPort_ >= 0) snd_seq_delete_port(midiSeq_, midiSeqPort_);
+      snd_seq_close(midiSeq_);
+      midiSeq_ = nullptr;
+      midiSeqPort_ = -1;
+    }
+#endif
+  }
+
+  void midiLoop() {
+#if defined(PLAYBOY_HAS_ALSA)
+    while (!midiStop_) {
+      snd_seq_event_t* ev = nullptr;
+      int r = snd_seq_event_input(midiSeq_, &ev);
+      if (r < 0) {
+        if (r == -EAGAIN) { std::this_thread::sleep_for(std::chrono::milliseconds(5)); continue; }
+        break;
+      }
+      if (!ev) continue;
+
+      std::string cmd;
+      switch (ev->type) {
+        case SND_SEQ_EVENT_NOTEON:
+          if (ev->data.note.velocity > 0) {
+            // Note On: trigger cue at note index (1-based for GOTO)
+            cmd = "GOTO " + std::to_string(ev->data.note.note + 1);
+          }
+          break;
+        case SND_SEQ_EVENT_CONTROLLER:
+          if (ev->data.control.param == 7) {
+            // CC7 = volume: 0-127 -> 0-200%
+            int pct = static_cast<int>(ev->data.control.value * 200.0 / 127.0);
+            cmd = "MASTERVOL " + std::to_string(pct);
+          } else if (ev->data.control.param == 20) {
+            // CC20 = speed: 0-127 -> 0.5x-2.0x
+            double spd = 0.5 + ev->data.control.value * 1.5 / 127.0;
+            std::ostringstream ss; ss << std::fixed << std::setprecision(2) << spd;
+            cmd = "SPEED " + ss.str();
+          }
+          break;
+        case SND_SEQ_EVENT_SYSEX: {
+          // Check for MMC (F0 7F <dev> 06 <cmd> F7)
+          auto* data = static_cast<unsigned char*>(ev->data.ext.ptr);
+          size_t len = ev->data.ext.len;
+          if (len >= 6 && data[0] == 0xF0 && data[1] == 0x7F && data[3] == 0x06) {
+            switch (data[4]) {
+              case 0x01: cmd = "STOP"; break;   // MMC Stop
+              case 0x02: cmd = "PLAY"; break;   // MMC Play
+              case 0x03: cmd = "PLAY"; break;   // MMC Deferred Play
+              case 0x05: cmd = "STOP"; break;   // MMC Record Exit (treat as stop)
+              case 0x44: {                        // MMC Goto
+                if (len >= 12 && data[5] == 0x06) {
+                  // Timecode target: data[7]=hr, data[8]=min, data[9]=sec, data[10]=fr
+                  double secs = data[7] * 3600.0 + data[8] * 60.0 + data[9] + data[10] / 30.0;
+                  cmd = "SEEKPOS " + std::to_string(secs);
+                }
+                break;
+              }
+              default: break;
+            }
+          }
+          // Check for MSC (F0 7F <dev> 02 <cmdFmt> 01 <cueNum> F7)
+          if (len >= 7 && data[0] == 0xF0 && data[1] == 0x7F && data[3] == 0x02 && data[5] == 0x01) {
+            int cueNum = data[6]; // cue number
+            cmd = "GOTO " + std::to_string(cueNum);
+          }
+          break;
+        }
+        default: break;
+      }
+
+      if (!cmd.empty()) {
+        std::lock_guard<std::mutex> lk(remoteCommandMutex_);
+        remoteCommands_.push_back(std::move(cmd));
+      }
+      snd_seq_free_event(ev);
+    }
+#endif
+  }
+
+#ifndef _WIN32
+  void hyperDeckLoop() {
+    // Each connected client gets a simple blocking handler in this loop.
+    // We only handle one client at a time (sufficient for HyperDeck use).
+    while (hyperDeckRunning_.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      FD_SET(hyperDeckListenFd_, &readFds);
+      timeval tv {0, 100000};  // 100ms timeout
+      if (select(hyperDeckListenFd_ + 1, &readFds, nullptr, nullptr, &tv) <= 0) continue;
+      sockaddr_in clientAddr {};
+      socklen_t addrLen = sizeof(clientAddr);
+      int clientFd = accept(hyperDeckListenFd_, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+      if (clientFd < 0) continue;
+      // Greet
+      const char* greeting =
+        "500 connection info:\r\n"
+        "protocol version: 1.11\r\n"
+        "model: HyperDeck Studio Mini\r\n"
+        "\r\n";
+      send(clientFd, greeting, strlen(greeting), MSG_NOSIGNAL);
+      // Handle client
+      std::string buf;
+      while (hyperDeckRunning_.load()) {
+        char tmp[256];
+        int n = recv(clientFd, tmp, sizeof(tmp) - 1, 0);
+        if (n <= 0) break;
+        tmp[n] = '\0';
+        buf += tmp;
+        // Process complete lines (\r\n terminated)
+        size_t pos;
+        while ((pos = buf.find("\r\n")) != std::string::npos) {
+          std::string line = buf.substr(0, pos);
+          buf.erase(0, pos + 2);
+          // Trim trailing \r if any
+          while (!line.empty() && (line.back() == '\r' || line.back() == '\n')) line.pop_back();
+          if (line.empty()) continue;
+
+          std::string resp = hyperDeckHandleCommand(line);
+          if (!resp.empty()) {
+            send(clientFd, resp.c_str(), resp.size(), MSG_NOSIGNAL);
+          }
+        }
+      }
+      close(clientFd);
+    }
+  }
+
+  std::string hyperDeckHandleCommand(const std::string& line) {
+    // Parse "verb: key: val" style
+    std::string cmd = line;
+    // Lowercase for matching
+    std::string cmdL;
+    for (char ch : cmd) cmdL += std::tolower(static_cast<unsigned char>(ch));
+
+    auto enqueueAndWait = [this](const std::string& rc) {
+      enqueueRemoteCommand(rc);
+    };
+
+    if (cmdL == "play") {
+      enqueueAndWait("PLAY");
+      return "200 ok\r\n\r\n";
+    }
+    if (cmdL == "stop") {
+      enqueueAndWait("STOP");
+      return "200 ok\r\n\r\n";
+    }
+    if (cmdL.rfind("goto:", 0) == 0) {
+      // "goto: clip id: N" or "goto: timeline: HH:MM:SS:FF"
+      size_t ci = cmdL.find("clip id:");
+      if (ci != std::string::npos) {
+        std::string numStr = cmd.substr(ci + 8);
+        while (!numStr.empty() && (numStr[0] == ' ' || numStr[0] == '\t')) numStr.erase(0, 1);
+        enqueueAndWait("GOTO " + numStr);
+        return "200 ok\r\n\r\n";
+      }
+      size_t ti = cmdL.find("timeline:");
+      if (ti != std::string::npos) {
+        std::string tcStr = cmd.substr(ti + 9);
+        while (!tcStr.empty() && (tcStr[0] == ' ' || tcStr[0] == '\t')) tcStr.erase(0, 1);
+        enqueueAndWait("TC SET " + tcStr);
+        return "200 ok\r\n\r\n";
+      }
+      return "200 ok\r\n\r\n";
+    }
+    if (cmdL.rfind("play range:", 0) == 0) {
+      size_t ci = cmdL.find("clip id:");
+      if (ci != std::string::npos) {
+        std::string numStr = cmd.substr(ci + 8);
+        while (!numStr.empty() && (numStr[0] == ' ' || numStr[0] == '\t')) numStr.erase(0, 1);
+        enqueueAndWait("GOTO " + numStr);
+        enqueueAndWait("PLAY");
+        return "200 ok\r\n\r\n";
+      }
+      return "200 ok\r\n\r\n";
+    }
+    if (cmdL == "transport info") {
+      // Build response with current state
+      std::string status = "stopped";
+      {
+        std::lock_guard<std::mutex> lk(statusSnapshotMutex_);
+        if (statusSnapshot_.find("playing") != std::string::npos) status = "play";
+        else if (statusSnapshot_.find("paused") != std::string::npos) status = "paused";
+      }
+      const Deck& deck = focusedDeck();
+      int clipId = deck.activeIndex + 1;
+      std::ostringstream resp;
+      resp << "208 transport info:\r\n"
+           << "status: " << status << "\r\n"
+           << "speed: 100\r\n"
+           << "slot id: 1\r\n"
+           << "clip id: " << clipId << "\r\n"
+           << "single clip: false\r\n"
+           << "display timecode: 00:00:00:00\r\n"
+           << "timecode: 00:00:00:00\r\n"
+           << "video format: 1080p25\r\n"
+           << "loop: " << (deck.playlistLoop ? "true" : "false") << "\r\n"
+           << "\r\n";
+      return resp.str();
+    }
+    if (cmdL == "clips count") {
+      const Deck& deck = focusedDeck();
+      std::ostringstream resp;
+      resp << "214 clips count:\r\n"
+           << "clip count: " << deck.cues.size() << "\r\n"
+           << "\r\n";
+      return resp.str();
+    }
+    if (cmdL == "clips get") {
+      const Deck& deck = focusedDeck();
+      std::ostringstream resp;
+      resp << "205 clips info:\r\n"
+           << "clip count: " << deck.cues.size() << "\r\n";
+      for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
+        const Cue& cue = deck.cues[i];
+        resp << (i + 1) << ": " << cue.name << " 00:00:00:00 "
+             << formatSeconds(cue.duration) << "\r\n";
+      }
+      resp << "\r\n";
+      return resp.str();
+    }
+    if (cmdL == "device info") {
+      return "500 device info:\r\n"
+             "protocol version: 1.11\r\n"
+             "model: HyperDeck Studio Mini\r\n"
+             "unique id: PLAYBOY00001\r\n"
+             "\r\n";
+    }
+    // Unknown command
+    return "109 unsupported parameter\r\n\r\n";
+  }
+#endif
 
 #ifndef _WIN32
   void companionLoop() {
@@ -4439,6 +5911,36 @@ class App {
       stopTransport();
       return;
     }
+    // ── All-deck simultaneous commands ─────────────────────────────
+    if (command == "ALLTAKE" || command == "SYNCTAKE") {
+      takeAllDecks(true);
+      return;
+    }
+    if (command == "ALLGO" || command == "SYNCGO") {
+      goAllDecks();
+      return;
+    }
+    if (command == "ALLPLAY") {
+      for (int di = 0; di < static_cast<int>(project_.decks.size()); ++di) {
+        if (auto* e = mediaEngineForDeck(di)) e->play();
+      }
+      triggerToast("all decks play");
+      return;
+    }
+    if (command == "ALLPAUSE") {
+      for (int di = 0; di < static_cast<int>(project_.decks.size()); ++di) {
+        if (auto* e = mediaEngineForDeck(di)) e->pause();
+      }
+      triggerToast("all decks paused");
+      return;
+    }
+    if (command == "ALLSTOP") {
+      for (int di = 0; di < static_cast<int>(project_.decks.size()); ++di) {
+        if (auto* e = mediaEngineForDeck(di)) e->stop();
+      }
+      triggerToast("all decks stopped");
+      return;
+    }
     if (command == "CLEAR") {
       clearOutput();
       return;
@@ -4466,7 +5968,7 @@ class App {
           deck.selectedIndex = *index;
           onSelectionChanged();
           triggerToast("cue " + std::to_string(*index + 1) + " armed");
-          persistProject();
+          markProjectDirty();
         }
       }
       return;
@@ -4519,7 +6021,7 @@ class App {
       }
       return;
     }
-    if (command == "SEEK") {
+    if (command == "SEEK" || command == "SEEKPOS") {
       auto value = parseNumber(1);
       if (value) {
         MediaEngine* engine = focusedMediaEngine();
@@ -4584,7 +6086,7 @@ class App {
           playUiSound(UiSoundEffect::Toggle);
         }
         triggerToast(project_.uiSoundsEnabled ? "little bloops on" : "little bloops off");
-        persistProject();
+        markProjectDirty();
       }
       return;
     }
@@ -4600,7 +6102,7 @@ class App {
         } else {
           toast_.active = false;
         }
-        persistProject();
+        markProjectDirty();
       }
       return;
     }
@@ -4655,6 +6157,32 @@ class App {
         togglePlaylistLoop();
       } else {
         setPlaylistLoop(*state);
+      }
+      return;
+    }
+    if (command == "SHUFFLE") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleShuffle();
+      } else {
+        Deck& deck = focusedDeckMutable();
+        if (deck.shuffle != *state) {
+          deck.shuffle = *state;
+          triggerToast(deck.shuffle ? "shuffle on" : "shuffle off");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "ENDACTION") {
+      if (parts.size() >= 2) {
+        setSelectedEndAction(parseCueEndAction(toUpper(parts[1]) == "INHERIT" ? "inherit" :
+                                               toUpper(parts[1]) == "STOP"    ? "stop"    :
+                                               toUpper(parts[1]) == "LOOP"    ? "loop"    :
+                                               toUpper(parts[1]) == "HOLD"    ? "hold"    :
+                                               toUpper(parts[1]) == "NEXT"    ? "next"    : "inherit"));
+      } else {
+        cycleSelectedEndAction();
       }
       return;
     }
@@ -4735,7 +6263,7 @@ class App {
         if (state) {
           focusedDeckMutable().timecodeTriggerEnabled = *state;
           triggerToast(*state ? "tc trigger on" : "tc trigger off");
-          persistProject();
+          markProjectDirty();
         }
         return;
       }
@@ -4760,7 +6288,92 @@ class App {
       return;
     }
     if (command == "PATTERN") {
-      addKawaiiPatternCue();
+      std::string typeId = parts.size() > 1 ? toLower(joinParts(parts, 1)) : "pocket-test";
+      addPatternCue(typeId);
+      return;
+    }
+    if (command == "STILLDUR" || command == "DURATION") {
+      if (parts.size() > 1) {
+        try {
+          double dur = std::stod(parts[1]);
+          if (Cue* cue = selectedCueMutable()) {
+            if (cue->kind != CueKind::Video) {
+              cue->stillDurationSeconds = std::max(0.0, dur);
+              triggerToast(cue->stillDurationSeconds > 0.0
+                ? "still dur " + formatSeconds(cue->stillDurationSeconds)
+                : "still dur: hold");
+              markProjectDirty();
+            }
+          }
+        } catch (...) {}
+      }
+      return;
+    }
+    if (command == "GRAPHIC" || command == "LOWERTHIRD") {
+      addLowerThirdCue();
+      return;
+    }
+    if (command == "LOWERTEXT") {
+      std::string txt = joinParts(parts, 1);
+      if (Cue* cue = selectedCueMutable()) {
+        if (cue->kind == CueKind::LowerThird) {
+          cue->lowerThirdText = txt;
+          triggerToast("lower text set");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "LOWERSUB") {
+      std::string txt = joinParts(parts, 1);
+      if (Cue* cue = selectedCueMutable()) {
+        if (cue->kind == CueKind::LowerThird) {
+          cue->lowerThirdSubtext = txt;
+          triggerToast("lower sub set");
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "LOWERALPHA") {
+      if (parts.size() > 1) {
+        try {
+          int alpha = std::stoi(parts[1]);
+          if (Cue* cue = selectedCueMutable()) {
+            if (cue->kind == CueKind::LowerThird) {
+              cue->lowerThirdBgAlpha = std::clamp(alpha, 0, 255);
+              triggerToast("overlay alpha " + std::to_string(cue->lowerThirdBgAlpha));
+              markProjectDirty();
+            }
+          }
+        } catch (...) {}
+      }
+      return;
+    }
+    if (command == "CLEAROVERLAY") {
+      clearOverlay();
+      return;
+    }
+    if (command == "OVERLAY" && parts.size() > 1) {
+      std::string sub = toUpper(parts[1]);
+      if (sub == "CLEAR") { clearOverlay(); return; }
+      if (sub == "POP")   { popOverlay();   return; }
+      if (sub == "PUSH" && parts.size() > 2) {
+        try {
+          int idx = std::stoi(parts[2]) - 1;  // 1-based
+          Deck& deck = focusedDeckMutable();
+          if (idx >= 0 && idx < static_cast<int>(deck.cues.size())) {
+            auto& ov = deck.overlayActiveIndices;
+            if (std::find(ov.begin(), ov.end(), idx) == ov.end()) {
+              if (ov.size() >= 4) ov.erase(ov.begin());
+              ov.push_back(idx);
+              triggerToast("overlay pushed: " + deck.cues[idx].name);
+              markProjectDirty();
+            }
+          }
+        } catch (...) {}
+        return;
+      }
       return;
     }
     if (command == "BROWSER") {
@@ -4802,6 +6415,71 @@ class App {
       }
       return;
     }
+    if (command == "VIDEO" || command == "OUTPUTMODE") {
+      if (parts.size() <= 1) {
+        triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex));
+        return;
+      }
+
+      auto applyRasterToken = [&](std::string token) -> bool {
+        token = toUpper(trim(token));
+        auto xPos = token.find('X');
+        if (xPos == std::string::npos || xPos == 0 || xPos + 1 >= token.size()) {
+          return false;
+        }
+        try {
+          int w = std::stoi(token.substr(0, xPos));
+          int h = std::stoi(token.substr(xPos + 1));
+          if (w > 0 && h > 0) {
+            setOutputSizingModeFixed(w, h);
+            return true;
+          }
+        } catch (...) {
+        }
+        return false;
+      };
+
+      std::string value = toUpper(parts[1]);
+      if (value == "NATIVE" || value == "AUTO" || value == "DISPLAY") {
+        setOutputSizingModeDisplayNative();
+        return;
+      }
+      if (value == "SIZE") {
+        if (parts.size() > 2) {
+          std::string sub = toUpper(parts[2]);
+          if (sub == "DISPLAY" || sub == "NATIVE") {
+            setOutputSizingModeDisplayNative();
+            return;
+          }
+        }
+        sizeFocusedOutputToSelectedDisplay();
+        return;
+      }
+      if (value == "4K" || value == "UHD" || value == "2160P" || value == "2160") {
+        setOutputSizingModeFixed(3840, 2160);
+        return;
+      }
+      if (value == "1440P" || value == "1440") {
+        setOutputSizingModeFixed(2560, 1440);
+        return;
+      }
+      if (value == "1080P" || value == "1080") {
+        setOutputSizingModeFixed(1920, 1080);
+        return;
+      }
+      if (value == "720P" || value == "720") {
+        setOutputSizingModeFixed(1280, 720);
+        return;
+      }
+      if ((value == "CUSTOM" || value == "SET") && parts.size() > 2) {
+        applyRasterToken(parts[2]);
+        return;
+      }
+      if (applyRasterToken(value)) {
+        return;
+      }
+      return;
+    }
     if (command == "NDI") {
       if (parts.size() == 1) {
         toggleFocusedDeckNdi();
@@ -4827,6 +6505,91 @@ class App {
       setFocusedDeckNdiName(joinParts(parts, 1));
       return;
     }
+    if (command == "BLACKOUT") {
+      std::string val = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
+      if (val == "ON")           masterDimmerTarget_ = 0.0;
+      else if (val == "OFF")     masterDimmerTarget_ = 1.0;
+      else if (val == "TOGGLE")  masterDimmerTarget_ = (masterDimmerTarget_ < 0.5) ? 1.0 : 0.0;
+      else if (auto v = parseNumber(1); v) masterDimmerTarget_ = std::clamp(*v, 0.0, 1.0);
+      triggerToast(masterDimmerTarget_ < 0.5 ? "blackout ON" : "blackout off");
+      markProjectDirty();
+      return;
+    }
+    if (command == "DIMMER") {
+      auto value = parseNumber(1);
+      if (value) {
+        // 0-100 range
+        masterDimmerTarget_ = std::clamp(*value / 100.0, 0.0, 1.0);
+        triggerToast("dimmer " + std::to_string(static_cast<int>(std::round(masterDimmerTarget_ * 100.0))) + "%");
+        markProjectDirty();
+      }
+      return;
+    }
+    if (command == "MASTERVOL" || command == "MASTERVOLUME") {
+      auto value = parseNumber(1);
+      if (value) {
+        project_.masterVolume = std::clamp(*value, 0.0, 2.0);
+        int pct = static_cast<int>(std::round(project_.masterVolume * 100.0));
+        triggerToast("master vol " + std::to_string(pct) + "%");
+        markProjectDirty();
+      }
+      return;
+    }
+    if (command == "SPEED") {
+      auto value = parseNumber(1);
+      if (value && *value > 0.0) {
+        if (Cue* cue = selectedCueMutable()) {
+          if (cue->kind == CueKind::Video) {
+            cue->playbackSpeed = std::clamp(*value, 0.25, 4.0);
+            std::ostringstream ss;
+            ss << std::fixed << std::setprecision(2) << cue->playbackSpeed;
+            triggerToast("speed " + ss.str() + "x");
+            markProjectDirty();
+          }
+        }
+      }
+      return;
+    }
+    if (command == "COLOR" || command == "COLORTAG") {
+      std::string tag = parts.size() > 1 ? toLower(parts[1]) : "";
+      if (tag == "none" || tag == "clear") tag = "";
+      static const std::vector<std::string> kValid =
+        {"", "red", "orange", "yellow", "cyan", "blue", "purple", "pink"};
+      if (std::find(kValid.begin(), kValid.end(), tag) != kValid.end()) {
+        if (Cue* cue = selectedCueMutable()) {
+          cue->colorTag = tag;
+          triggerToast("color: " + (tag.empty() ? "none" : tag));
+          markProjectDirty();
+        }
+      }
+      return;
+    }
+    if (command == "LOOPCOUNT") {
+      auto value = parseNumber(1);
+      if (value) {
+        if (Cue* cue = selectedCueMutable()) {
+          if (cue->kind == CueKind::Video) {
+            cue->loopCount = std::max(0, static_cast<int>(*value));
+            triggerToast(cue->loopCount == 0 ? "repeats: inf" : "repeats: " + std::to_string(cue->loopCount));
+            markProjectDirty();
+          }
+        }
+      }
+      return;
+    }
+    if (command == "CUENOTES") {
+      if (parts.size() < 2) return;
+      std::string token = parts[1];
+      std::string text = parts.size() > 2 ? joinParts(parts, 2) : "";
+      Deck& deck = focusedDeckMutable();
+      auto index = cueIndexByToken(deck, token);
+      if (index) {
+        deck.cues[*index].notes = text;
+        triggerToast("notes set");
+        markProjectDirty();
+      }
+      return;
+    }
   }
 
   void processEvents() {
@@ -4834,7 +6597,7 @@ class App {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT:
-          gShouldQuit.store(true);
+          confirmQuit_ = true;
           break;
         case SDL_DROPFILE:
           handleDropFile(event.drop.file);
@@ -4842,12 +6605,27 @@ class App {
           break;
         case SDL_MOUSEWHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
-            listScroll_ = std::max(0, listScroll_ - event.wheel.y * 36);
+            for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
+              if (pointInRect(mouseX_, mouseY_, deckColumnRects_[di])) {
+                if (di < static_cast<int>(deckScrolls_.size())) {
+                  deckScrolls_[di] = std::max(0, deckScrolls_[di] - event.wheel.y * 36);
+                }
+                break;
+              }
+            }
           }
           break;
         case SDL_MOUSEBUTTONDOWN:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
-            handleMouseDown(event.button.x, event.button.y);
+            if (event.button.button == SDL_BUTTON_RIGHT) {
+              handleRightClick(event.button.x, event.button.y);
+            } else {
+              if (contextMenuOpen_) {
+                handleContextMenuClick(event.button.x, event.button.y);
+              } else {
+                handleMouseDown(event.button.x, event.button.y);
+              }
+            }
           }
           break;
         case SDL_MOUSEBUTTONUP:
@@ -4858,6 +6636,8 @@ class App {
           break;
         case SDL_MOUSEMOTION:
           if (event.motion.windowID == SDL_GetWindowID(controlWindow_)) {
+            mouseX_ = event.motion.x;
+            mouseY_ = event.motion.y;
             handleMouseMotion(event.motion.x, event.motion.y);
           }
           break;
@@ -4871,10 +6651,37 @@ class App {
   }
 
   void update() {
+    flushDirtyProject();
     processRemoteCommands();
+    // Poll waveform analysis futures
+    {
+      std::lock_guard<std::mutex> lk(waveformMutex_);
+      for (auto it = waveformFutures_.begin(); it != waveformFutures_.end(); ) {
+        if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+          waveformCache_[it->first] = it->second.get();
+          it = waveformFutures_.erase(it);
+        } else ++it;
+      }
+    }
+    // Trigger waveform analysis for selected/active cue
+    {
+      const Cue* sel = selectedCuePtr();
+      if (sel && sel->hasAudio) triggerWaveformAnalysis(sel->path);
+      const Cue* act = activeCuePtr();
+      if (act && act->hasAudio && act != sel) triggerWaveformAnalysis(act->path);
+    }
     Uint64 now = SDL_GetTicks64();
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
+
+    // Animate master video dimmer toward target (0.5 seconds to full black/restore)
+    if (std::abs(project_.masterDimmer - masterDimmerTarget_) > 0.001) {
+      constexpr double kDimSpeed = 2.0; // units per second (0→1 in 0.5s)
+      double step = kDimSpeed * std::max(deltaSeconds, 1.0 / 120.0);
+      project_.masterDimmer = std::clamp(
+        project_.masterDimmer + std::copysign(std::min(step, std::abs(masterDimmerTarget_ - project_.masterDimmer)), masterDimmerTarget_ - project_.masterDimmer),
+        0.0, 1.0);
+    }
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       Deck& deck = project_.decks[deckIndex];
@@ -4899,16 +6706,45 @@ class App {
     }
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      // Advance browser cue Xvfb startup state machine.
+      tickBrowserStartup(deckIndex);
+
       MediaEngine* engine = mediaEngineForDeck(deckIndex);
       if (!engine) {
         continue;
       }
       engine->update();
+
+      // Animate pattern cues: rebuild frame every tick using wall-clock time.
+      const Cue* activeCue = activeCuePtr(deckIndex);
+      if (activeCue && activeCue->kind == CueKind::Pattern) {
+        // Only animated patterns need continuous rebuilds.
+        const std::string& pt = activeCue->path;
+        bool animated = pt.find("pocket-test") != std::string::npos ||
+                        pt.find("kawaii")      != std::string::npos;
+        if (animated) {
+          engine->rebuildPatternFrame(*activeCue, static_cast<double>(now) / 1000.0);
+        }
+      }
       if (engine->reachedEnd()) {
         Deck& deck = project_.decks[deckIndex];
         if (deck.activeIndex >= 0 && !deck.cues.empty()) {
+          const Cue& activeCue = deck.cues[deck.activeIndex];
+
+          // Per-cue endAction can force or block auto-advance regardless of deck setting.
+          bool shouldAdvance = deck.autoAdvance;
+          if (activeCue.endAction == CueEndAction::AutoNext) shouldAdvance = true;
+          if (activeCue.endAction == CueEndAction::Stop)     shouldAdvance = false;
+
           int nextIndex = -1;
-          if (deck.activeIndex + 1 < static_cast<int>(deck.cues.size())) {
+          int n = static_cast<int>(deck.cues.size());
+          if (deck.shuffle && shouldAdvance && n > 1) {
+            // Pick a random cue that isn't the current one.
+            nextIndex = deck.activeIndex;
+            while (nextIndex == deck.activeIndex) {
+              nextIndex = std::rand() % n;
+            }
+          } else if (deck.activeIndex + 1 < n) {
             nextIndex = deck.activeIndex + 1;
           } else if (deck.playlistLoop) {
             nextIndex = 0;
@@ -4921,8 +6757,8 @@ class App {
                 onSelectionChanged();
               }
             }
-            persistProject();
-            if (deck.autoAdvance) {
+            markProjectDirty();
+            if (shouldAdvance) {
               int previousFocus = project_.focusedDeckIndex;
               project_.focusedDeckIndex = deckIndex;
               takeSelected(true);
@@ -4933,6 +6769,56 @@ class App {
       }
     }
     updateStatusSnapshot();
+    // Update control window preview texture from focused engine's current frame.
+    {
+      const MediaEngine* eng = focusedMediaEngine();
+      const DecodedFrame* frame = eng ? eng->currentFrame() : nullptr;
+      if (frame && frame->width > 0 && frame->height > 0 &&
+          frame->index != controlPreviewFrameIdx_) {
+        controlPreviewFrameIdx_ = frame->index;
+        if (!controlPreviewTex_ || controlPreviewTexW_ != frame->width ||
+            controlPreviewTexH_ != frame->height) {
+          if (controlPreviewTex_) SDL_DestroyTexture(controlPreviewTex_);
+          controlPreviewTex_ = SDL_CreateTexture(
+            controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+            SDL_TEXTUREACCESS_STREAMING, frame->width, frame->height);
+          controlPreviewTexW_ = frame->width;
+          controlPreviewTexH_ = frame->height;
+        }
+        if (controlPreviewTex_) {
+          SDL_UpdateTexture(controlPreviewTex_, nullptr,
+                            frame->pixels.data(), frame->width * 4);
+        }
+      } else if (!frame) {
+        // Clear preview when nothing is loaded
+        if (controlPreviewTex_) {
+          SDL_DestroyTexture(controlPreviewTex_);
+          controlPreviewTex_ = nullptr;
+          controlPreviewTexW_ = 0;
+          controlPreviewTexH_ = 0;
+        }
+        controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+      }
+    }
+    // Upload thumbnail if one finished decoding
+    if (thumbnailPending_.exchange(false)) {
+      std::lock_guard<std::mutex> lk(thumbnailMutex_);
+      if (pendingThumbnail_) {
+        if (selectedThumbnailTex_) {
+          SDL_DestroyTexture(selectedThumbnailTex_);
+          selectedThumbnailTex_ = nullptr;
+        }
+        const auto& f = *pendingThumbnail_;
+        selectedThumbnailTex_ = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                                  SDL_TEXTUREACCESS_STREAMING, f.width, f.height);
+        if (selectedThumbnailTex_) {
+          SDL_UpdateTexture(selectedThumbnailTex_, nullptr, f.pixels.data(), f.width * 4);
+          selectedThumbnailTexW_ = f.width;
+          selectedThumbnailTexH_ = f.height;
+        }
+        pendingThumbnail_.reset();
+      }
+    }
   }
 
   void render() {
@@ -4943,10 +6829,87 @@ class App {
     }
   }
 
+  void renderQuitConfirm() {
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+
+    // Semi-transparent dark overlay
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0x0F, 0x38, 0x0F, 160);
+    SDL_Rect overlay {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &overlay);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // Dialog panel: 340x180, centred
+    SDL_Rect dialog {(width - 340) / 2, (height - 180) / 2, 340, 180};
+    drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    drawText(controlRenderer_, fontLarge_, "QUIT PLAYBOY?", colorFromRgba(kScreenDeepColor), dialog.x + 24, dialog.y + 28);
+
+    // YES / NO buttons
+    quitYesBtn_ = {dialog.x + 26,  dialog.y + 90, 118, 44};
+    quitNoBtn_  = {dialog.x + 196, dialog.y + 90, 118, 44};
+    drawFramedPanel(controlRenderer_, quitYesBtn_, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawFramedPanel(controlRenderer_, quitNoBtn_,  colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredText(controlRenderer_, fontBase_, "YES", colorFromRgba(kScreenLightColor), quitYesBtn_);
+    drawCenteredText(controlRenderer_, fontBase_, "NO",  colorFromRgba(kScreenLightColor), quitNoBtn_);
+
+    drawText(controlRenderer_, fontSmall_, "esc or N to cancel", colorFromRgba(kScreenInkSoftColor), dialog.x + 26, dialog.y + 152);
+  }
+
+  void renderStartupDialog() {
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+
+    // Full-screen dim
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0x0F, 0x38, 0x0F, 200);
+    SDL_Rect overlay {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &overlay);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // Dialog panel
+    const int kDW = 520, kDH = 340;
+    SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
+    drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    // Title + file name
+    int tx = dialog.x + 160;
+    TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+    drawText(controlRenderer_, titleFont, "PLAYBOY_0.01", colorFromRgba(kScreenDeepColor), tx, dialog.y + 36);
+    drawText(controlRenderer_, fontSmall_, "dot-matrix cue deck", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 70);
+
+    std::string fname = currentProjectFile_.empty() ? "default.playboy" : currentProjectFile_.filename().string();
+    bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+    if (hasSavedFile) {
+      drawText(controlRenderer_, fontBase_, "saved show found:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 106);
+      drawText(controlRenderer_, fontSmall_, fname, colorFromRgba(kScreenDarkColor), tx, dialog.y + 128);
+    } else {
+      drawText(controlRenderer_, fontBase_, "no saved show found", colorFromRgba(kScreenDeepColor), tx, dialog.y + 106);
+    }
+
+    // Buttons
+    startupLoadBtn_ = {tx, dialog.y + 210, 156, 48};
+    startupNewBtn_  = {tx + 172, dialog.y + 210, 156, 48};
+
+    SDL_Color loadFill = hasSavedFile ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+    SDL_Color loadText = hasSavedFile ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+    drawFramedPanel(controlRenderer_, startupLoadBtn_, loadFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredText(controlRenderer_, fontBase_, hasSavedFile ? "LOAD SHOW" : "NO FILE", loadText, startupLoadBtn_);
+
+    drawFramedPanel(controlRenderer_, startupNewBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontBase_, "NEW SHOW", colorFromRgba(kScreenDeepColor), startupNewBtn_);
+
+    drawText(controlRenderer_, fontSmall_, "Enter = load   N = new show", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 282);
+  }
+
   void renderControlWindow() {
-    const Deck& deck = focusedDeck();
-    int width = 0;
-    int height = 0;
+    int numDecks = static_cast<int>(project_.decks.size());
+    deckScrolls_.resize(numDecks, 0);
+    deckColumnRects_.resize(numDecks);
+    deckListClipRects_.resize(numDecks);
+
+    int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
     layoutButtons(height);
 
@@ -4956,67 +6919,201 @@ class App {
     SDL_Rect shell {10, 10, width - 20, height - 20};
     drawFramedPanel(controlRenderer_, shell, colorFromRgba(kShellOuterColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
 
-    SDL_Rect sidebar {kPadding + 12, kPadding + 18, kSidebarWidth, height - kPadding * 2 - 26};
-    SDL_Rect mainPanel {sidebar.x + sidebar.w + kPadding, sidebar.y, width - sidebar.w - kPadding * 3 - 24, sidebar.h};
-    drawFramedPanel(controlRenderer_, sidebar, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-
-    drawText(controlRenderer_, fontSmall_, "dot-matrix cue deck", colorFromRgba(kScreenDeepColor), sidebar.x + 20, sidebar.y + 18);
-    drawText(controlRenderer_, fontLarge_, project_.title, colorFromRgba(kScreenDeepColor), sidebar.x + 20, sidebar.y + 42);
-    drawText(controlRenderer_, fontSmall_, std::string(kAppModelLabel), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 76);
-    std::string fxStatus =
-      std::string("1 sfx ") + (project_.uiSoundsEnabled ? "on" : "off") +
-      "   2 anim " + (project_.uiTransitionsEnabled ? "on" : "off") +
-      "   3 auto " + (deck.autoAdvance ? "on" : "off") +
-      "   4 plist " + (deck.playlistLoop ? "on" : "off") +
-      "   5 tc " + (deck.timecodeChaseEnabled ? "chase" : "free");
-    drawText(controlRenderer_, fontSmall_, fxStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 190, sidebar.y + 76);
-    drawText(controlRenderer_, fontSmall_, "playlist: " + currentProjectLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 94);
-    drawText(controlRenderer_, fontSmall_, "deck: " + deckSummaryLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + 112);
-    std::string companionStatus = companionReady_
-      ? "companion tcp/udp " + std::to_string(companionPort_)
-      : "companion control unavailable";
-    drawText(controlRenderer_, fontSmall_, "audio: " + currentAudioOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 76);
-    drawText(controlRenderer_, fontSmall_, "display: " + std::to_string(deck.outputDisplayIndex + 1), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 64);
-    drawText(controlRenderer_, fontSmall_, "ndi: " + currentNdiOutputLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 52);
-    drawText(controlRenderer_, fontSmall_, "overlay: " + std::string(deck.timeOverlayEnabled ? "on" : "off"), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 40);
-    drawText(controlRenderer_, fontSmall_, "transition: " + currentTransitionLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 28);
-    drawText(controlRenderer_, fontSmall_, "tc: " + currentTimecodeLabel(), colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 16);
-    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenInkSoftColor), sidebar.x + 20, sidebar.y + sidebar.h - 10);
-
-    int listTop = sidebar.y + 128;
-    SDL_Rect clipFrame {sidebar.x + 14, listTop - 8, sidebar.w - 28, sidebar.h - 182};
-    drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    SDL_Rect clipRect {clipFrame.x + 10, clipFrame.y + 10, clipFrame.w - 20, clipFrame.h - 20};
-    SDL_RenderSetClipRect(controlRenderer_, &clipRect);
-    int y = clipRect.y - listScroll_;
-    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
-      SDL_Rect row {clipRect.x, y, clipRect.w, kRowHeight};
-      renderCueRow(row, index);
-      y += kRowHeight + 10;
+    // Global header strip
+    SDL_Rect header {shell.x + 4, shell.y + 4, shell.w - 8, kGlobalHeaderH};
+    drawFramedPanel(controlRenderer_, header, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    // Pixel-font title with animated sparkle stars
+    {
+      TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+      drawText(controlRenderer_, titleFont, project_.title, colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 8);
+      if (project_.uiTransitionsEnabled) {
+        SDL_Color starC = colorFromRgba(kScreenDeepColor);
+        // Three orbiting sparkles with phase offsets
+        int titleW = 0;
+        if (fontPixel_) { TTF_SizeUTF8(fontPixel_, project_.title.c_str(), &titleW, nullptr); }
+        else { titleW = 120; }
+        int starBaseX = header.x + 14 + titleW + 8;
+        int starBaseY = header.y + 22;
+        for (int s = 0; s < 3; ++s) {
+          double phase = static_cast<double>(animationNow_) * 0.0018 + s * 2.094;
+          int sx = starBaseX + 14 * s + static_cast<int>(std::sin(phase) * 5.0);
+          int sy = starBaseY + static_cast<int>(std::cos(phase * 1.3) * 4.0);
+          int arm = 3 + (s % 2);
+          starC.a = static_cast<Uint8>(140 + 115 * std::abs(std::sin(phase * 0.7)));
+          drawStar(controlRenderer_, sx, sy, arm, starC);
+        }
+      }
     }
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
-    drawText(controlRenderer_, fontSmall_, "cart shelf", colorFromRgba(kScreenDeepColor), clipFrame.x + 10, clipFrame.y - 22);
-    drawSpeakerGrille(controlRenderer_, sidebar.x + sidebar.w - 56, sidebar.y + sidebar.h - 84, 26, 5, colorFromRgba(kScreenDeepColor));
+    drawText(controlRenderer_, fontSmall_, std::string(kAppModelLabel) + "  ·  dot-matrix cue deck", colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 36);
+    const Deck& focDeck = focusedDeck();
+    std::string fxStatus =
+      std::string("1·sfx:") + (project_.uiSoundsEnabled ? "on" : "off") +
+      "  2·anim:" + (project_.uiTransitionsEnabled ? "on" : "off") +
+      "  3·auto:" + (focDeck.autoAdvance ? "on" : "off") +
+      "  4·loop:" + (focDeck.playlistLoop ? "on" : "off") +
+      "  5·tc:" + (focDeck.timecodeChaseEnabled ? "chase" : "free");
+    std::string companionStatus = companionReady_
+      ? "companion " + std::to_string(companionPort_)
+      : "companion off";
+    drawText(controlRenderer_, fontSmall_, fxStatus, colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 6);
+    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 22);
+    drawText(controlRenderer_, fontSmall_, "file: " + currentProjectLabel(), colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 38);
+    // Master volume fader (horizontal slider at right of header)
+    {
+      constexpr int kFaderW = 110;
+      constexpr int kFaderH = 14;
+      int fx = header.x + header.w - 130;
+      int fy = header.y + header.h - kFaderH - 8;
+      masterFaderRect_ = {fx, fy, kFaderW, kFaderH};
+      SDL_Rect track = masterFaderRect_;
+      fillRect(controlRenderer_, track, colorFromRgba(kScreenDeepColor));
+      int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * kFaderW);
+      SDL_Rect fill {track.x, track.y, fillW, track.h};
+      SDL_Color faderCol = project_.masterVolume > 1.0 ? SDL_Color{180, 80, 20, 255} : colorFromRgba(kScreenDarkColor);
+      fillRect(controlRenderer_, fill, faderCol);
+      strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
+      int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
+      drawText(controlRenderer_, fontSmall_, "vol " + std::to_string(volPct) + "%",
+               colorFromRgba(kScreenDeepColor), track.x, track.y - 14);
+    }
+    // Settings gear button
+    {
+      settingsGearRect_ = {header.x + header.w - 560, header.y + 6, 52, 40};
+      SDL_Color gearFill = settingsOpen_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
+      SDL_Color gearInk  = settingsOpen_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      drawFramedPanel(controlRenderer_, settingsGearRect_, gearFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "prefs", gearInk, settingsGearRect_);
+      // BLK (blackout) button
+      {
+        blackoutBtnRect_ = {header.x + header.w - 614, header.y + 6, 48, 40};
+        bool isBlacked = masterDimmerTarget_ < 0.5;
+        SDL_Color blkFill = isBlacked ? SDL_Color{160, 18, 18, 255} : colorFromRgba(kShellInnerColor);
+        SDL_Color blkInk  = isBlacked ? SDL_Color{255, 180, 180, 255} : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, blackoutBtnRect_, blkFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "BLK", blkInk, blackoutBtnRect_);
+      }
+    }
+
+    // Content area: below header, above buttons
+    int contentY = header.y + kGlobalHeaderH + 4;
+    int contentH = (height - 74) - contentY - 4;
+
+    // Deck columns
+    int colStartX = shell.x + 4;
+    for (int di = 0; di < numDecks; ++di) {
+      SDL_Rect col {colStartX + di * (kColWidth + 4), contentY, kColWidth, contentH};
+      deckColumnRects_[di] = col;
+      renderPlaylistColumn(col, di);
+    }
+
+    // Main panel (program monitor + transport)
+    int mainX = colStartX + numDecks * (kColWidth + 4);
+    SDL_Rect mainPanel {mainX, contentY, shell.x + shell.w - 4 - mainX, contentH};
+    if (mainPanel.w > 0) {
+      drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+      renderMainPanel(mainPanel);
+    }
 
     renderButtons();
-    renderMainPanel(mainPanel);
     renderToast(width);
+    if (confirmQuit_) {
+      renderQuitConfirm();
+    }
+    if (showStartupDialog_) {
+      renderStartupDialog();
+    }
+    // Popups rendered last (on top)
+    renderContextMenu();
+    renderSettingsModal();
     SDL_RenderPresent(controlRenderer_);
   }
 
-  void renderCueRow(const SDL_Rect& row, int index) {
+  void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
+    const Deck& deck = project_.decks[deckIndex];
+    bool focused = (deckIndex == project_.focusedDeckIndex);
+
+    // Column header (deck name + active cue status)
+    SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
+    SDL_Color headerFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
+    drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    drawText(controlRenderer_, fontBase_, deck.name, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 8);
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    std::string stateStr = "■ ";
+    if (engine) {
+      switch (engine->state()) {
+        case TransportState::Playing: stateStr = "▶ "; break;
+        case TransportState::Paused:  stateStr = "‖ "; break;
+        default: break;
+      }
+    }
+    std::string activeName = activeCue ? activeCue->name : "no cue loaded";
+    drawText(controlRenderer_, fontSmall_, stateStr + activeName, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 34);
+
+    // Cue list area
+    int listAreaY = col.y + kColHeaderH + 4;
+    int listAreaH = col.h - kColHeaderH - 4 - kColFooterH - 4;
+    SDL_Rect clipFrame {col.x + 4, listAreaY, col.w - 8, std::max(0, listAreaH)};
+    deckListClipRects_[deckIndex] = clipFrame;
+
+    drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
+    SDL_RenderSetClipRect(controlRenderer_, &clipRect);
+    int y = clipRect.y - deckScrolls_[deckIndex];
+    for (int ci = 0; ci < static_cast<int>(deck.cues.size()); ++ci) {
+      SDL_Rect row {clipRect.x, y, clipRect.w, kRowHeight};
+      renderCueRow(row, deckIndex, ci);
+      y += kRowHeight + 8;
+    }
+    // Empty deck — show import hints.
+    if (deck.cues.empty()) {
+      int hx = clipRect.x + clipRect.w / 2 - 30;
+      int hy = clipRect.y + clipRect.h / 2 - 20;
+      drawText(controlRenderer_, fontSmall_, "I  import", colorFromRgba(kScreenDeepColor), hx, hy);
+      drawText(controlRenderer_, fontSmall_, "B  browser", colorFromRgba(kScreenDeepColor), hx, hy + 20);
+      drawText(controlRenderer_, fontSmall_, "P  pattern", colorFromRgba(kScreenDeepColor), hx, hy + 40);
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    // Column footer (routing info)
+    int footerY = col.y + col.h - kColFooterH;
+    SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
+    drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    std::string routing = "disp:" + std::to_string(deck.outputDisplayIndex + 1)
+      + "  res:" + outputResolutionLabel(deckIndex)
+      + "  " + (deck.autoAdvance ? "auto" : "man")
+      + "  " + (deck.playlistLoop ? "loop" : "once")
+      + "  " + (deck.shuffle ? "shuf" : "seq");
+    drawText(controlRenderer_, fontSmall_, routing, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 8);
+    std::string routing2 = std::string("tc:") + (deck.timecodeChaseEnabled ? "chase" : "free")
+      + "  ndi:" + currentNdiOutputLabel();
+    drawText(controlRenderer_, fontSmall_, routing2, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 24);
+    // Animated shuffle sparkle when enabled
+    if (deck.shuffle && project_.uiTransitionsEnabled) {
+      double phase = static_cast<double>(animationNow_) * 0.002;
+      int sy = footerY + kColFooterH / 2 + static_cast<int>(std::sin(phase) * 2.0);
+      SDL_Color sc = colorFromRgba(kScreenDeepColor);
+      sc.a = static_cast<Uint8>(160 + 95 * std::abs(std::sin(phase * 0.8)));
+      drawStar(controlRenderer_, col.x + col.w - 14, sy, 3, sc);
+    }
+  }
+
+  void renderCueRow(const SDL_Rect& row, int deckIndex, int index) {
     if (row.y + row.h < kPadding || row.y > 2000) {
       return;
     }
 
-    const Deck& deck = focusedDeck();
+    const Deck& deck = project_.decks[deckIndex];
     const auto& cue = deck.cues[index];
+    bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
+                                  [&](int i) { return i == index; });
     SDL_Color fill = colorFromRgba(kScreenLightColor);
     if (index == deck.selectedIndex) {
       fill = colorFromRgba(kScreenMidColor);
     } else if (index == deck.activeIndex) {
       fill = colorFromRgba(kScreenDarkColor);
+    } else if (isOverlay) {
+      fill = {48, 80, 48, 255};  // distinct teal-ish tint for active overlay
     }
 
     drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
@@ -5027,22 +7124,106 @@ class App {
     }
 
     SDL_Rect chip {row.x + 12, row.y + 10, 10, row.h - 20};
-    fillRect(controlRenderer_, chip, cue.color);
+    SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
+    fillRect(controlRenderer_, chip, chipColor);
 
     SDL_Color ink = index == deck.activeIndex ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-    SDL_Color subInk = index == deck.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenInkSoftColor);
-    drawText(controlRenderer_, fontBase_, cue.name, ink, row.x + 34, row.y + 13);
+    SDL_Color subInk = index == deck.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
+    // Cue number badge (user-assigned label)
+    int nameX = row.x + 34;
+    if (!cue.cueNumber.empty()) {
+      std::string numBadge = cue.cueNumber;
+      drawText(controlRenderer_, fontSmall_, numBadge, colorFromRgba(kScreenInkSoftColor), nameX, row.y + 4);
+      nameX += static_cast<int>(numBadge.size()) * 7 + 4;
+    }
+    drawText(controlRenderer_, fontBase_, cue.name, ink, nameX, row.y + 13);
     std::string meta = cueKindLabel(cue.kind);
     if (cue.kind == CueKind::Video) {
       meta += "  ";
       meta += formatSeconds(cue.duration);
-      if (cue.hasAudio) {
-        meta += "  + beep";
-      }
+      if (cue.hasAudio) meta += "  + audio";
     } else if (cue.kind == CueKind::Browser) {
       meta += "  web";
+      if (cue.stillDurationSeconds > 0.0) meta += "  " + formatSeconds(cue.stillDurationSeconds);
+    } else if (cue.kind == CueKind::Image || cue.kind == CueKind::Pattern) {
+      if (cue.stillDurationSeconds > 0.0) meta += "  " + formatSeconds(cue.stillDurationSeconds);
+      else meta += "  hold";
+    } else if (cue.kind == CueKind::LowerThird) {
+      if (!cue.lowerThirdText.empty()) meta += "  \"" + cue.lowerThirdText + "\"";
+      if (isOverlay) meta += "  [LIVE]";
     }
     drawText(controlRenderer_, fontSmall_, meta, subInk, row.x + 34, row.y + 39);
+
+    // End-action glyph (top-right corner of row, small pixel indicator)
+    if (cue.endAction != CueEndAction::Inherit) {
+      const char* glyph = nullptr;
+      switch (cue.endAction) {
+        case CueEndAction::Loop:        glyph = "↻"; break;
+        case CueEndAction::PauseOnLast: glyph = "‖"; break;
+        case CueEndAction::AutoNext:    glyph = "▶▶"; break;
+        case CueEndAction::Stop:        glyph = "■"; break;
+        default: break;
+      }
+      if (glyph) {
+        drawText(controlRenderer_, fontSmall_, glyph, subInk, row.x + row.w - 28, row.y + 10);
+      }
+    }
+
+    // Remaining time badge on the active cue row
+    if (index == deck.activeIndex) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->duration() > 0.0 && engine->state() == TransportState::Playing) {
+        double remaining = std::max(0.0, engine->duration() - engine->position());
+        std::string remStr = "-" + formatSeconds(remaining);
+        bool urgent = remaining < 10.0;
+        SDL_Color remInk = urgent ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
+        if (urgent) {
+          double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 120.0);
+          Uint8 alpha = static_cast<Uint8>(180 + pulse * 75.0);
+          SDL_Rect badge {row.x + row.w - 96, row.y + 8, 88, row.h - 16};
+          SDL_Color badgeFill {15, 56, 15, alpha};
+          fillRect(controlRenderer_, badge, badgeFill);
+        }
+        drawText(controlRenderer_, fontMono_, remStr, remInk, row.x + row.w - 90, row.y + 28);
+      }
+    }
+
+    // Cue row hover tip
+    if (pointInRect(mouseX_, mouseY_, row)) {
+      std::string rowTip;
+      switch (cue.kind) {
+        case CueKind::Video:      rowTip = "Enter=take  Space=play/pause  L=loop  E=hold  K=color tag  Right-click=menu"; break;
+        case CueKind::Image:      rowTip = "Enter=take  Duration 0 = hold until next Take"; break;
+        case CueKind::Pattern:    rowTip = "Enter=take  Test pattern — hold or auto-advance"; break;
+        case CueKind::Browser:    rowTip = "Enter=take  Browser cue — renders into output via Xvfb"; break;
+        case CueKind::LowerThird: rowTip = "Enter=push overlay  Backspace=pop  LOWERTEXT via Companion"; break;
+        default: rowTip = "Enter=take  Delete=remove"; break;
+      }
+      drawHoverTip(rowTip, row.x + row.w / 2, row.y);
+    }
+  }
+
+  // Draw a small floating tooltip panel anchored below/above (ax, ay).
+  void drawHoverTip(const std::string& tip, int ax, int ay) {
+    if (tip.empty()) return;
+    int w = 0;
+    TTF_SizeUTF8(fontSmall_, tip.c_str(), &w, nullptr);
+    w += 20;
+    int h = 26;
+    int x = ax - w / 2;
+    int y = ay - h - 6;
+    // Keep on screen
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+    x = std::clamp(x, 6, winW - w - 6);
+    y = std::max(y, 6);
+    SDL_Rect panel {x, y, w, h};
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_Color bg {15, 56, 15, 230};
+    fillRect(controlRenderer_, panel, bg);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    strokeRect(controlRenderer_, panel, colorFromRgba(kScreenDarkColor));
+    drawText(controlRenderer_, fontSmall_, tip, colorFromRgba(kScreenLightColor), panel.x + 10, panel.y + 6);
   }
 
   void renderButtons() {
@@ -5050,6 +7231,13 @@ class App {
       fillRect(controlRenderer_, button.rect, button.fill);
       strokeRect(controlRenderer_, button.rect, button.outline);
       drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, button.rect);
+    }
+    // Hover tip for bottom-bar buttons
+    for (const auto& button : buttons_) {
+      if (!button.tip.empty() && pointInRect(mouseX_, mouseY_, button.rect)) {
+        drawHoverTip(button.tip, button.rect.x + button.rect.w / 2, button.rect.y);
+        break;
+      }
     }
   }
 
@@ -5076,48 +7264,256 @@ class App {
     drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 28);
   }
 
-  void renderDeckTabs(const SDL_Rect& panel) {
-    deckTabRects_.clear();
-    int cardsPerRow = std::max(1, (panel.w - 52) / 250);
-    int cardWidth = std::max(160, (panel.w - 52 - (cardsPerRow - 1) * 12) / cardsPerRow);
-    int x = panel.x + 26;
-    int y = panel.y + 18;
-
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      int column = deckIndex % cardsPerRow;
-      int row = deckIndex / cardsPerRow;
-      SDL_Rect rect {
-        x + column * (cardWidth + 12),
-        y + row * 62,
-        cardWidth,
-        50
-      };
-      deckTabRects_.push_back(rect);
-
-      SDL_Color fill = deckIndex == project_.focusedDeckIndex ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenLightColor);
-      drawFramedPanel(controlRenderer_, rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
-      drawText(controlRenderer_, fontSmall_, project_.decks[deckIndex].name, colorFromRgba(kScreenDeepColor), rect.x + 12, rect.y + 8);
-      drawText(controlRenderer_, fontSmall_, deckStatusSummary(deckIndex), colorFromRgba(kScreenInkSoftColor), rect.x + 12, rect.y + 26);
+  // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.
+  void drawStar(SDL_Renderer* r, int cx, int cy, int S, SDL_Color c) {
+    // Center pixel
+    SDL_Rect center {cx - 1, cy - 1, 2, 2};
+    fillRect(r, center, c);
+    // Four arms
+    for (int i = 1; i <= S; ++i) {
+      Uint8 fade = static_cast<Uint8>(c.a * (S - i + 1) / (S + 1));
+      SDL_Color arm {c.r, c.g, c.b, fade};
+      SDL_Rect h {cx + i, cy - 1, 2, 2}; fillRect(r, h, arm);
+      SDL_Rect hl{cx - i - 1, cy - 1, 2, 2}; fillRect(r, hl, arm);
+      SDL_Rect v {cx - 1, cy + i, 2, 2}; fillRect(r, v, arm);
+      SDL_Rect vt{cx - 1, cy - i - 1, 2, 2}; fillRect(r, vt, arm);
     }
   }
+
+  // ── Pixel-art character system ───────────────────────────────────────────────
+  // Playboy-bunny style pixel art women. Full RGB, no palette restrictions.
+  // Three variants (0,1,2) used across different panels.
+  //   cy = hip centre. Crown (excl ears) at cy-20*S. Heel tips at cy+24*S.
+
+  void drawPixelLady(SDL_Renderer* r, int cx, int cy, int S, Uint64 now,
+                     Uint8 alpha, int variant = 0) {
+    // Portrait bust view — chunky retro pixel art, limited palette.
+    // cy = face-centre (approximately mid-eye level).
+    // Art bounds: x -10..+10, y -16..+14  →  21×31 art units.
+    if (alpha == 0 || S <= 0) return;
+    bool blink = (now % 4500) < 120;
+
+    auto a = [&](Uint8 base) -> Uint8 {
+      return static_cast<Uint8>(static_cast<int>(base) * alpha / 255);
+    };
+    auto fb = [&](int ax, int ay, int aw, int ah, SDL_Color c) {
+      fillRect(r, {cx + ax * S, cy + ay * S, aw * S, ah * S}, c);
+    };
+
+    // ── Palette (4-5 colours + outline, high contrast) ───────────────────
+    SDL_Color hair  = variant == 0 ? SDL_Color{  0, 178, 200, a(255)}  // teal
+                    : variant == 1 ? SDL_Color{155,  28, 155, a(255)}  // purple
+                    :                SDL_Color{205, 158,  18, a(255)}; // blonde
+    SDL_Color hairD = {static_cast<Uint8>(hair.r >> 1),
+                       static_cast<Uint8>(hair.g >> 1),
+                       static_cast<Uint8>(hair.b >> 1), a(255)};
+    SDL_Color outl  = {12,   8,  20, a(255)};   // near-black outline
+    SDL_Color earPk = {255, 138, 168, a(255)};  // bunny ear pink
+    SDL_Color earLt = {255, 200, 215, a(255)};  // ear inner light
+    SDL_Color skin  = {240, 198, 158, a(255)};  // face skin
+    SDL_Color skinD = {192, 148, 108, a(255)};  // skin shadow
+    SDL_Color eyeW  = {255, 255, 255, a(255)};
+    SDL_Color iris  = { 48, 105, 218, a(255)};
+    SDL_Color pupil = {10,   8,  20, a(255)};
+    SDL_Color lash  = outl;
+    SDL_Color lip   = {218,  45,  72, a(255)};
+    SDL_Color blush = {255, 138, 148, a(100)};
+    SDL_Color leot  = {244, 244, 252, a(255)};  // white leotard
+    SDL_Color leotS = {188, 188, 210, a(255)};  // leotard side shadow
+    SDL_Color cuff  = leot;
+
+    // ── Dark poster card ─────────────────────────────────────────────────
+    SDL_Rect card {cx - 10*S, cy - 16*S, 21*S, 31*S};
+    fillRect(r, card, {0x0C, 0x05, 0x18, a(225)});
+    SDL_Color bord = {188, 28, 82, a(90)};
+    fillRect(r, {card.x - S,      card.y - S,     card.w + 2*S, S      }, bord);
+    fillRect(r, {card.x - S,      card.y+card.h,  card.w + 2*S, S      }, bord);
+    fillRect(r, {card.x - S,      card.y,         S,  card.h           }, bord);
+    fillRect(r, {card.x+card.w,   card.y,         S,  card.h           }, bord);
+
+    // ── BUNNY EARS (tall, slender, pink) ─────────────────────────────────
+    fb(-4, -16,  2,  7, earPk);   // left ear outer
+    fb(-3, -15,  1,  5, earLt);   // left ear inner
+    fb( 3, -16,  2,  7, earPk);   // right ear outer
+    fb( 4, -15,  1,  5, earLt);   // right ear inner
+
+    // ── HAIR (wide mass either side, back layer) ──────────────────────────
+    fb(-9,  -9,  5, 19, hairD);   // left hair dark mass
+    fb(-8,  -8,  3, 17, hair);    // left hair fill
+    fb( 5,  -9,  5, 19, hairD);   // right dark mass
+    fb( 6,  -8,  3, 17, hair);    // right hair fill
+    fb(-5, -12, 11,  4, hair);    // crown cap
+    // Crown highlight streak
+    fb(-3, -12,  5,  1, {static_cast<Uint8>(std::min(255,(int)hair.r+50)),
+                          static_cast<Uint8>(std::min(255,(int)hair.g+50)),
+                          static_cast<Uint8>(std::min(255,(int)hair.b+50)), a(190)});
+
+    // ── FACE (main skin area) ─────────────────────────────────────────────
+    fb(-5, -11, 11, 10, skin);   // face fill
+    fb(-4,  -1,  9,  1, skin);   // chin row 1
+    fb(-3,   0,  7,  1, skin);   // chin row 2
+    fb(-2,   1,  5,  1, skin);   // chin tip
+    // Ear lobes (sides of face)
+    fb(-6,  -8,  1,  3, skinD);
+    fb( 6,  -8,  1,  3, skinD);
+    // Blush
+    fb(-5,  -6,  2,  1, blush);
+    fb( 4,  -6,  2,  1, blush);
+
+    // ── EYEBROWS ─────────────────────────────────────────────────────────
+    fb(-5, -10,  3,  1, outl);
+    fb( 3, -10,  3,  1, outl);
+
+    // ── EYES (5×5 each — BIG portrait anime eyes) ─────────────────────────
+    if (!blink) {
+      // Left eye
+      fb(-5,  -9,  5,  5, eyeW);
+      fb(-5,  -9,  5,  1, lash);    // top lash line
+      fb(-5,  -8,  5,  3, iris);    // iris
+      fb(-5,  -7,  5,  2, {static_cast<Uint8>(iris.r>>1),
+                            static_cast<Uint8>(iris.g>>1),
+                            static_cast<Uint8>(iris.b>>1), a(255)});
+      fb(-4,  -8,  3,  2, pupil);   // pupil
+      fb(-4,  -8,  1,  1, eyeW);    // top-left shine
+      fb(-2,  -6,  1,  1, {200, 218, 255, a(155)});  // lower shine
+      fb(-5,  -4,  5,  1, lash);    // bottom lash
+      fb(-6,  -9,  1,  2, lash);    // outer corner flick
+      // Right eye
+      fb( 1,  -9,  5,  5, eyeW);
+      fb( 1,  -9,  5,  1, lash);
+      fb( 1,  -8,  5,  3, iris);
+      fb( 1,  -7,  5,  2, {static_cast<Uint8>(iris.r>>1),
+                            static_cast<Uint8>(iris.g>>1),
+                            static_cast<Uint8>(iris.b>>1), a(255)});
+      fb( 2,  -8,  3,  2, pupil);
+      fb( 2,  -8,  1,  1, eyeW);
+      fb( 4,  -6,  1,  1, {200, 218, 255, a(155)});
+      fb( 1,  -4,  5,  1, lash);
+      fb( 6,  -9,  1,  2, lash);
+    } else {
+      fb(-5,  -7,  5,  1, lash);
+      fb( 1,  -7,  5,  1, lash);
+    }
+
+    // ── NOSE ─────────────────────────────────────────────────────────────
+    fb( 0,  -3,  1,  1, skinD);
+
+    // ── LIPS ─────────────────────────────────────────────────────────────
+    fb(-3,  -2,  7,  1, lip);
+    fb(-2,  -1,  5,  1, lip);
+    fb(-3,  -2,  2,  1, {static_cast<Uint8>(std::min(255,(int)lip.r+30)),
+                          lip.g, lip.b, a(175)});  // cupid's bow
+
+    // ── NECK ─────────────────────────────────────────────────────────────
+    fb(-2,   2,  5,  3, skin);
+    fb(-1,   2,  1,  2, skinD);
+    fb( 3,   2,  1,  2, skinD);
+
+    // ── BOW TIE ──────────────────────────────────────────────────────────
+    fb(-4,   5,  3,  2, outl);
+    fb( 2,   5,  3,  2, outl);
+    fb(-1,   4,  3,  4, outl);
+    fb( 0,   5,  1,  2, {178, 178, 198, a(198)});
+
+    // ── DÉCOLLETAGE (skin above leotard) ──────────────────────────────────
+    fb(-7,   7, 15,  5, skin);    // wide chest
+    fb(-6,   8,  6,  3, skinD);   // left shadow curve
+    fb( 1,   8,  6,  3, skinD);   // right shadow curve
+    fb(-5,   8,  5,  3, skin);    // left highlight
+    fb( 1,   8,  5,  3, skin);    // right highlight
+    fb(-1,   8,  3,  4, skinD);   // cleavage centre
+
+    // ── STRAPLESS LEOTARD (just the top band, bust-view) ──────────────────
+    fb(-8,  12, 17,  1, {255, 255, 255, a(252)});  // bright neckline
+    fb(-8,  13, 17,  2, leot);
+    fb(-8,  12,  1,  3, leotS);   // left edge shadow
+    fb( 8,  12,  1,  3, leotS);   // right edge shadow
+
+    // ── WRIST CUFFS (arms partially in frame) ────────────────────────────
+    fb(-10, 13,  3,  2, cuff);
+    fb(  8, 13,  3,  2, cuff);
+  }
+
+  // ── Wrapper helpers ────────────────────────────────────────────────────────
+
+  void drawMascot(SDL_Renderer* r, int cx, int cy, int S, Uint64 now, bool /*lightBg*/) {
+    int floatY = static_cast<int>(std::sin(static_cast<double>(now) * 0.0013) * 2.5);
+    drawPixelLady(r, cx, cy + floatY, S, now, 255, 0);
+  }
+
+  void drawStandbyFigure(SDL_Renderer* r, int cx, int baseY, Uint64 now) {
+    // Figure: heel-tip = cy+24*S → cy = baseY - 24*S
+    constexpr int S = 3;
+    int floatY = static_cast<int>(std::sin(static_cast<double>(now) * 0.0011) * 4.0);
+    int cy = baseY - 24 * S + floatY;
+    drawPixelLady(r, cx, cy, S, now, 255, 0);
+  }
+
+  void drawHeaderIcon(SDL_Renderer* r, int cx, int cy, Uint64 now) {
+    // Tiny S=1 figure in the header bar; shift so face is visible
+    drawPixelLady(r, cx, cy - 2, 1, now, 200, 0);
+  }
+
+  // Draw as semi-transparent background watermark.
+  // variant 0=black bunny, 1=magenta bunny, 2=blue bunny.
+  void drawGirlBg(SDL_Renderer* r, const SDL_Rect& panelRect, Uint64 now,
+                  Uint8 alpha = 45, int variant = 0) {
+    if (alpha == 0) return;
+    // Scale so figure is ~55% of panel height (total span = 46 art-units)
+    int S = std::max(1, panelRect.h / 84);
+    int cx = panelRect.x + panelRect.w * 2 / 3;
+    int cy = panelRect.y + panelRect.h / 2;
+    drawPixelLady(r, cx, cy, S, now, alpha, variant);
+  }
+
+  // Stub so any remaining drawAnimeGirl calls compile
+  void drawAnimeGirl(SDL_Renderer* r, int cx, int cy, int S, Uint64 now, Uint8 alpha) {
+    drawPixelLady(r, cx, cy, S, now, alpha, 0);
+  }
+
+
 
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
     const Cue* selectedCue = selectedCuePtr();
     const Cue* activeCue = activeCuePtr();
-    renderDeckTabs(panel);
-    int x = panel.x + 26;
-    int rows = std::max(1, static_cast<int>((project_.decks.size() + std::max(1, (panel.w - 52) / 250) - 1) / std::max(1, (panel.w - 52) / 250)));
-    int y = panel.y + 22 + rows * 62;
+    int x = panel.x + 18;
+    int y = panel.y + 18;
+
+    quickButtons_.clear();
 
     drawText(controlRenderer_, fontSmall_, "little screen", colorFromRgba(kScreenDeepColor), x, y);
     drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "No cue loaded", colorFromRgba(kScreenDeepColor), x, y + 22);
 
     std::string status = transportStatusLabel();
     std::string clock = formatSeconds(engine ? engine->position() : 0.0) + " / " + formatSeconds(engine ? engine->duration() : 0.0);
-    drawText(controlRenderer_, fontBase_, status, colorFromRgba(kScreenInkSoftColor), x, y + 70);
-    drawText(controlRenderer_, fontMono_, clock, colorFromRgba(kScreenInkSoftColor), x + 150, y + 72);
+    drawText(controlRenderer_, fontBase_, status, colorFromRgba(kScreenDeepColor), x, y + 70);
+    drawText(controlRenderer_, fontMono_, clock, colorFromRgba(kScreenDeepColor), x + 150, y + 72);
+
+    // Remaining time countdown
+    double engDuration = engine ? engine->duration() : 0.0;
+    double engPosition = engine ? engine->position() : 0.0;
+    double remaining = engDuration > 0.0 ? std::max(0.0, engDuration - engPosition) : 0.0;
+    bool isPlaying = engine && engine->state() == TransportState::Playing;
+    if (activeCue && engDuration > 0.0) {
+      bool urgent = remaining < 10.0 && isPlaying;
+      std::string remStr = "-" + formatSeconds(remaining);
+      SDL_Color remColor = colorFromRgba(kScreenDeepColor);
+      if (urgent) {
+        double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 100.0);
+        Uint8 brightness = static_cast<Uint8>(80 + pulse * 175.0);
+        remColor = {brightness, static_cast<Uint8>(std::min(255, static_cast<int>(brightness) + 20)), 15, 255};
+        SDL_Rect glowPanel {x + panel.w - 180, y + 58, 140, 28};
+        SDL_Color glowFill {15, 56, 15, static_cast<Uint8>(40 + pulse * 100.0)};
+        fillRect(controlRenderer_, glowPanel, glowFill);
+        bool tick = (static_cast<int>(remaining) % 2) == 0;
+        std::string tickChar = tick ? ">" : "<";
+        drawText(controlRenderer_, fontMono_, tickChar, remColor, x + panel.w - 195, y + 62);
+        drawText(controlRenderer_, fontMono_, tickChar, remColor, x + panel.w - 50, y + 62);
+      }
+      drawText(controlRenderer_, fontMono_, remStr, remColor, x + panel.w - 174, y + 62);
+    }
 
     progressBarRect_ = {x, y + 108, panel.w - 52, 20};
     drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
@@ -5128,57 +7524,698 @@ class App {
     fillBar.w = static_cast<int>(std::round(progressBarRect_.w * fraction));
     fillRect(controlRenderer_, fillBar, colorFromRgba(kScreenDarkColor));
 
-    SDL_Rect preview {x, y + 150, panel.w - 52, 300};
-    drawFramedPanel(controlRenderer_, preview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    drawText(controlRenderer_, fontSmall_, "program monitor", colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 16);
-    drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "waiting...", colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 42);
-    drawText(controlRenderer_, fontBase_, activeCue ? transportStatusLabel() : "take a cue to wake it up", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 88);
-    drawText(controlRenderer_, fontSmall_, "output stays in the second window so the live path stays clean.", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 126);
-    drawText(controlRenderer_, fontSmall_, "ctrl+o open  |  ctrl+s save  |  ctrl+shift+s save as  |  ctrl+n new deck", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 150);
-    drawText(controlRenderer_, fontSmall_, "tab deck +/-  |  b browser  |  p pattern  |  a audio  |  d display  |  n ndi  |  o overlay  |  t tc-run", colorFromRgba(kScreenInkSoftColor), preview.x + 16, preview.y + 172);
-    SDL_Rect fauxScreen {preview.x + 18, preview.y + 190, preview.w - 36, 86};
-    drawFramedPanel(controlRenderer_, fauxScreen, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawText(controlRenderer_, fontMono_, activeCue ? ("cue:" + std::to_string(deck.activeIndex + 1)) : "cue:--", colorFromRgba(kScreenDeepColor), fauxScreen.x + 16, fauxScreen.y + 18);
-    drawText(
-      controlRenderer_,
-      fontMono_,
-      "vol:" + std::to_string(static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f))) +
-      "%  auto:" + (deck.autoAdvance ? std::string("on") : std::string("off")) +
-      "  tc:" + (deck.timecodeRunEnabled ? std::string("run") : std::string("hold")),
-      colorFromRgba(kScreenDeepColor),
-      fauxScreen.x + 16,
-      fauxScreen.y + 44
-    );
+    // Pause point tick marks on progress bar
+    if (activeCue && !activeCue->pausePoints.empty() && duration > 0.0) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      for (double pp : activeCue->pausePoints) {
+        double ppFrac = std::clamp(pp / duration, 0.0, 1.0);
+        int tickX = progressBarRect_.x + static_cast<int>(progressBarRect_.w * ppFrac);
+        SDL_SetRenderDrawColor(controlRenderer_, 220, 120, 30, 200);
+        SDL_RenderDrawLine(controlRenderer_, tickX, progressBarRect_.y + 2, tickX, progressBarRect_.y + progressBarRect_.h - 2);
+      }
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    }
 
+    // Goto-last buttons: -30 / -20 / -10 (placed below progress bar)
+    {
+      int btnY = y + 130;
+      int btnW = 46;
+      int btnX = x;
+      for (auto& [label, gotoAction] : std::vector<std::pair<std::string, QuickAction>>{
+        {"-30s", QuickAction::GotoMinus30}, {"-20s", QuickAction::GotoMinus20}, {"-10s", QuickAction::GotoMinus10}
+      }) {
+        SDL_Rect btn {btnX, btnY, btnW, 18};
+        drawFramedPanel(controlRenderer_, btn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), btn);
+        quickButtons_.push_back({btn, gotoAction, label + " from end"});
+        btnX += btnW + 4;
+      }
+    }
+
+    // Middle section: video preview (left) + per-cue controls with thumbnail (right)
+    int midY = y + 150;
+    constexpr int kDetailAreaH = 120; // always reserve this many px at bottom for cart details
+    int midH = panel.h - (midY - panel.y) - kDetailAreaH;
+    midH = std::max(320, midH); // floor so settings panel stays usable
+    constexpr int kCtrlW = 330;
+    int previewW = panel.w - 52 - 12 - kCtrlW;
+
+    // --- Program monitor / live video preview ---
+    bool hasLiveVideo = controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
+    SDL_Color previewBg = hasLiveVideo ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
+    SDL_Color previewBorder = hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+    SDL_Rect preview {x, midY, previewW, midH};
+    drawFramedPanel(controlRenderer_, preview, previewBg, colorFromRgba(kScreenDeepColor), previewBorder);
+    drawText(controlRenderer_, fontSmall_, "program monitor",
+             hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenDeepColor),
+             preview.x + 10, preview.y + 6);
+
+    if (hasLiveVideo) {
+      SDL_Rect inner {preview.x + 4, preview.y + 24, preview.w - 8, preview.h - 28};
+      float aspect = static_cast<float>(controlPreviewTexW_) / static_cast<float>(controlPreviewTexH_);
+      int drawW = inner.w;
+      int drawH = static_cast<int>(drawW / aspect);
+      if (drawH > inner.h) {
+        drawH = inner.h;
+        drawW = static_cast<int>(drawH * aspect);
+      }
+      SDL_Rect dst {inner.x + (inner.w - drawW) / 2, inner.y + (inner.h - drawH) / 2, drawW, drawH};
+      SDL_SetTextureBlendMode(controlPreviewTex_, SDL_BLENDMODE_NONE);
+      SDL_RenderCopy(controlRenderer_, controlPreviewTex_, nullptr, &dst);
+    } else if (!activeCue) {
+      drawText(controlRenderer_, fontSmall_, "drop media or press I to import",
+               colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + preview.h - 28);
+    } else if (activeCue->kind == CueKind::Audio) {
+      // Audio-only cue: show full waveform as main preview
+      SDL_Rect inner {preview.x + 4, preview.y + 24, preview.w - 8, preview.h - 48};
+      std::vector<float> peaks;
+      { std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(activeCue->path);
+        if (it != waveformCache_.end()) peaks = it->second; }
+      double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
+      float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
+      float outFrac = activeCue->outPointSeconds > 0.0
+                    ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
+      float playFrac = engine ? static_cast<float>(std::clamp(engine->position() / dur, 0.0, 1.0)) : -1.0f;
+      drawWaveform(controlRenderer_, inner, peaks, playFrac, inFrac, outFrac,
+                   activeCue->pausePoints, dur);
+      drawText(controlRenderer_, fontSmall_, activeCue->name,
+               colorFromRgba(kScreenLightColor), preview.x + 10, preview.y + preview.h - 36);
+      drawText(controlRenderer_, fontSmall_, transportStatusLabel(),
+               colorFromRgba(kScreenMidColor), preview.x + 10, preview.y + preview.h - 20);
+    } else {
+      drawText(controlRenderer_, fontBase_, activeCue->name, colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 80);
+      drawText(controlRenderer_, fontSmall_, transportStatusLabel(), colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 110);
+    }
+
+    // VU meter at bottom of program monitor
+    {
+      float rms = computeVuLevel();
+      int vuY = preview.y + preview.h - 14;
+      int vuW = preview.w - 8;
+      SDL_Rect vuBg {preview.x + 4, vuY, vuW, 10};
+      drawFramedPanel(controlRenderer_, vuBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      int fillW = static_cast<int>(vuW * std::clamp(rms * 4.0f, 0.0f, 1.0f));
+      SDL_Color vuColor = rms > 0.7f ? SDL_Color{220, 60, 60, 255}
+                        : rms > 0.5f ? SDL_Color{220, 180, 0, 255}
+                        : colorFromRgba(kScreenDarkColor);
+      if (fillW > 0) {
+        SDL_Rect vuFill {vuBg.x + 2, vuBg.y + 2, std::min(fillW, vuW - 4), vuBg.h - 4};
+        fillRect(controlRenderer_, vuFill, vuColor);
+      }
+    }
+
+    // NO characters inside the program monitor — output-adjacent areas stay clean.
+
+    // --- Per-cue settings panel (with thumbnail at top) ---
+    int ctrlX = x + previewW + 12;
+    SDL_Rect ctrl {ctrlX, midY, kCtrlW, midH};
+    drawFramedPanel(controlRenderer_, ctrl, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    // Thumbnail of selected cue (top portion)
+    constexpr int kThumbAreaH = 110;
+    SDL_Rect thumbArea {ctrl.x + 4, ctrl.y + 4, kCtrlW - 8, kThumbAreaH};
+    drawFramedPanel(controlRenderer_, thumbArea, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+    if (selectedCue && selectedCue->kind == CueKind::Audio) {
+      // Audio cue: fill entire thumb area with waveform
+      std::vector<float> peaks;
+      bool pending = false;
+      { std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(selectedCue->path);
+        if (it != waveformCache_.end()) peaks = it->second;
+        else pending = waveformFutures_.count(selectedCue->path) > 0; }
+      double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
+      float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
+      float outFrac = selectedCue->outPointSeconds > 0.0
+                    ? static_cast<float>(selectedCue->outPointSeconds / dur) : 1.0f;
+      float playFrac = -1.0f;
+      if (const MediaEngine* eng = focusedMediaEngine())
+        playFrac = static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0));
+      drawWaveform(controlRenderer_, thumbArea, peaks, playFrac, inFrac, outFrac,
+                   selectedCue->pausePoints, dur);
+      drawText(controlRenderer_, fontSmall_, selectedCue->name,
+               colorFromRgba(kScreenMidColor), thumbArea.x + 6, thumbArea.y + 4);
+    } else if (selectedThumbnailTex_) {
+      float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
+      int drawW = thumbArea.w - 4;
+      int drawH = static_cast<int>(drawW / aspect);
+      if (drawH > thumbArea.h - 4) {
+        drawH = thumbArea.h - 4;
+        drawW = static_cast<int>(drawH * aspect);
+      }
+      SDL_Rect dst {thumbArea.x + (thumbArea.w - drawW) / 2, thumbArea.y + (thumbArea.h - drawH) / 2, drawW, drawH};
+      SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
+      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+    } else if (selectedCue) {
+      drawText(controlRenderer_, fontSmall_, selectedCue->name,
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 8);
+      drawText(controlRenderer_, fontSmall_, "loading preview...",
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 28);
+    } else {
+      drawText(controlRenderer_, fontSmall_, "no cue selected",
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 8);
+    }
+
+    // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
+    if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
+      std::vector<float> peaks;
+      bool pending = false;
+      {
+        std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(selectedCue->path);
+        if (it != waveformCache_.end()) peaks = it->second;
+        else pending = waveformFutures_.count(selectedCue->path) > 0;
+      }
+      SDL_Rect waveRect {thumbArea.x + 2, thumbArea.y + thumbArea.h - 34, thumbArea.w - 4, 32};
+      double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
+      float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
+      float outFrac = selectedCue->outPointSeconds > 0.0
+                    ? static_cast<float>(selectedCue->outPointSeconds / dur) : 1.0f;
+      float playFrac = -1.0f;
+      if (const MediaEngine* eng = focusedMediaEngine())
+        playFrac = static_cast<float>(eng->position() / dur);
+      if (!peaks.empty() || pending)
+        drawWaveform(controlRenderer_, waveRect, peaks, playFrac, inFrac, outFrac,
+                     selectedCue->pausePoints, dur);
+    }
+
+    // Label "cue settings" below thumb
+    int ctrlSettingsY = ctrl.y + kThumbAreaH + 10;
+    drawText(controlRenderer_, fontSmall_, "cue settings", colorFromRgba(kScreenDeepColor), ctrl.x + 10, ctrlSettingsY);
+
+    auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
+                            QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
+                            bool isToggle = false, bool toggleOn = false, std::string tip = "") {
+      constexpr int kLabelW = 64;
+      constexpr int kBtnW = 32;
+      constexpr int kValW = 98;
+      constexpr int kRowH = 30;
+      int rx = ctrl.x + 10;
+
+      if (isToggle) {
+        SDL_Rect btn {rx, rowY, kCtrlW - 20, kRowH};
+        SDL_Color fill = toggleOn ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color ink  = toggleOn ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, label + ": " + value, ink, btn.x + 10, btn.y + 8);
+        quickButtons_.push_back({btn, toggleAction, tip});
+      } else {
+        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), rx, rowY + 8);
+        SDL_Rect decBtn {rx + kLabelW, rowY, kBtnW, kRowH};
+        drawFramedPanel(controlRenderer_, decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "-", colorFromRgba(kScreenDeepColor), decBtn);
+        quickButtons_.push_back({decBtn, decAction, tip});
+        SDL_Rect valRect {rx + kLabelW + kBtnW + 4, rowY, kValW, kRowH};
+        drawFramedPanel(controlRenderer_, valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, value, colorFromRgba(kScreenDeepColor), valRect);
+        SDL_Rect incBtn {rx + kLabelW + kBtnW + 4 + kValW + 4, rowY, kBtnW, kRowH};
+        drawFramedPanel(controlRenderer_, incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        quickButtons_.push_back({incBtn, incAction, tip});
+      }
+    };
+
+    if (selectedCue && selectedCue->kind == CueKind::Video) {
+      int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
+      int ry = ctrlSettingsY + 18;
+      constexpr int kRowStep = 28;
+      drawQuickRow(ry,                "vol",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+      drawQuickRow(ry + kRowStep,     "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),  QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "[ / ] keys — fade-in duration");
+      drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds), QuickAction::FadeOutInc,QuickAction::ToggleLoop, false, false, "Shift+[ / ] — fade-out duration");
+      drawQuickRow(ry + kRowStep * 3, "in",       QuickAction::InDec,      formatSeconds(selectedCue->inPointSeconds), QuickAction::InInc,     QuickAction::ToggleLoop, false, false, "In-point: cue starts playback here");
+      {
+        double outVal = selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration;
+        drawQuickRow(ry + kRowStep * 4, "out",    QuickAction::OutDec,     formatSeconds(outVal),                      QuickAction::OutInc,    QuickAction::ToggleLoop, false, false, "Out-point: cue stops playback here");
+      }
+      {
+        // Per-cue transition: duration [-][+] on the left, style cycle button on the right
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans
+          ? formatSeconds(selectedCue->cueTransitionSeconds)
+          : "deck";
+        drawQuickRow(ry + kRowStep * 5, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        // Style button: shows cut / crossfade / dip, cycles on click
+        {
+          constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
+          int rx = ctrl.x + 10;
+          int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+          int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+          SDL_Rect styleBtn {styleX, ry + kRowStep * 5, styleW, 30};
+          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+            ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+          // Abbreviate for space
+          std::string styleLabel = (curStyle == "crossfade") ? "xfade"
+                                 : (curStyle == "dip")       ? "dip"
+                                 : (curStyle == "cut")       ? "cut"
+                                 : "deck";
+          SDL_Color styleFill = hasCueTrans
+            ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color styleInk = hasCueTrans
+            ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
+          quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
+            "Click to cycle: cut / crossfade / dip  (sets per-cue style)"});
+        }
+      }
+      // loop / hold toggles side by side
+      {
+        int rx = ctrl.x + 10;
+        int ty = ry + kRowStep * 6;
+        int halfW = (kCtrlW - 24) / 2;
+        SDL_Rect loopBtn {rx, ty, halfW, 30};
+        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
+        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue continuously"});
+        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
+        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — freeze on last frame instead of stopping"});
+      }
+      SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 30};
+      drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+               colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+      quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action: stop / next / loop"});
+      // Loop count, speed, color tag
+      {
+        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+        drawQuickRow(ry + kRowStep * 8, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+        std::ostringstream spdSS;
+        spdSS << std::fixed << std::setprecision(2) << selectedCue->playbackSpeed;
+        drawQuickRow(ry + kRowStep * 9, "speed", QuickAction::SpeedDec, spdSS.str() + "x", QuickAction::SpeedInc,
+                     QuickAction::ToggleLoop, false, false, "Playback speed: 0.25–4.0×");
+        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 10, kCtrlW - 20, 28};
+        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
+        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
+        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C — cycle cue color tag"});
+      }
+      // Notes row
+      {
+        int notesY = ry + kRowStep * 11;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      }
+      // Cue number row
+      {
+        int cnY = ry + kRowStep * 12;
+        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
+        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
+        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
+        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
+      }
+      // Pause points row
+      {
+        int ppY = ry + kRowStep * 13;
+        int ppCount = static_cast<int>(selectedCue->pausePoints.size());
+        SDL_Rect label {ctrl.x + 10, ppY, 72, 26};
+        SDL_Rect addBtn {ctrl.x + 88, ppY, 46, 26};
+        SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
+        drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
+                 colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+        drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "+now", colorFromRgba(kScreenLightColor), addBtn);
+        drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
+        quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
+        quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+      }
+    } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
+      // Lower-third / graphic cue settings
+      int ry = ctrlSettingsY + 18;
+      SDL_Color inkC = colorFromRgba(kScreenDeepColor);
+      SDL_Color softC = colorFromRgba(kScreenInkSoftColor);
+      drawText(controlRenderer_, fontSmall_, "graphic overlay cue", inkC, ctrl.x + 10, ry);
+      // Preview main text line
+      SDL_Rect txtPreview {ctrl.x + 10, ry + 24, kCtrlW - 20, 28};
+      drawFramedPanel(controlRenderer_, txtPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      std::string mainTxt = selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText;
+      drawCenteredText(controlRenderer_, fontSmall_, mainTxt, inkC, txtPreview);
+      // Sub text
+      SDL_Rect subPreview {ctrl.x + 10, ry + 56, kCtrlW - 20, 24};
+      drawFramedPanel(controlRenderer_, subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext, softC, subPreview);
+      // Background alpha + duration controls
+      drawQuickRow(ry + 90, "bg alpha", QuickAction::LowerBgDec,
+                   std::to_string(selectedCue->lowerThirdBgAlpha), QuickAction::LowerBgInc,
+                   QuickAction::ToggleLoop, false, false, "Lower-third background opacity (0-255)");
+      {
+        std::string durVal = selectedCue->stillDurationSeconds > 0.0 ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+        drawQuickRow(ry + 128, "dur", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+      }
+      drawText(controlRenderer_, fontSmall_, "LOWERTEXT / LOWERSUB via Companion",
+               softC, ctrl.x + 10, ry + 170);
+      // Notes row
+      {
+        int notesY = ry + 192;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      }
+      // Clear overlay button
+      SDL_Rect clearBtn {ctrl.x + 10, ry + 226, kCtrlW - 20, 28};
+      drawFramedPanel(controlRenderer_, clearBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
+    } else if (selectedCue && (selectedCue->kind == CueKind::Image || selectedCue->kind == CueKind::Pattern)) {
+      // Still image / pattern settings — full parity with video panel + duration
+      int ry = ctrlSettingsY + 18;
+      constexpr int kRowStep = 28;
+      // Row 0: duration
+      {
+        std::string durVal = selectedCue->stillDurationSeconds > 0.0
+          ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+        drawQuickRow(ry, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+      }
+      // Row 1: trans + style button
+      {
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
+        drawQuickRow(ry + kRowStep, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
+        int rx = ctrl.x + 10;
+        int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+        int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+        SDL_Rect styleBtn {styleX, ry + kRowStep, styleW, 30};
+        std::string curStyle = selectedCue->cueTransitionStyle.empty()
+          ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+        std::string styleLabel = (curStyle == "crossfade") ? "xfade"
+                               : (curStyle == "dip")       ? "dip"
+                               : (curStyle == "cut")       ? "cut" : "deck";
+        SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
+        quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
+          "Click to cycle: cut / crossfade / dip"});
+      }
+      // Row 2: fade in
+      drawQuickRow(ry + kRowStep * 2, "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),
+                   QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this still");
+      // Row 3: fade out
+      drawQuickRow(ry + kRowStep * 3, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                   QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
+      // Row 4: loop / hold buttons side by side
+      {
+        int rx = ctrl.x + 10;
+        int ty = ry + kRowStep * 4;
+        int halfW = (kCtrlW - 24) / 2;
+        SDL_Rect loopBtn {rx, ty, halfW, 30};
+        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
+        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this still"});
+        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
+        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this still indefinitely"});
+      }
+      // Row 5: end action
+      {
+        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 5, kCtrlW - 20, 30};
+        drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                 colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+      }
+      // Row 6: repeats
+      {
+        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+        drawQuickRow(ry + kRowStep * 6, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+      }
+      // Row 7: color tag
+      {
+        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 28};
+        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
+        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
+        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
+      }
+      // Notes row
+      {
+        int notesY = ry + kRowStep * 8;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      }
+      // Geometry rows (scale + offset) — compact 24px step to fit
+      {
+        constexpr int kGeoStep = 24;
+        int gy = ry + kRowStep * 9;
+        std::ostringstream ssSc;
+        ssSc << std::fixed << std::setprecision(2) << selectedCue->outputScale << "x";
+        drawQuickRow(gy,             "scale",  QuickAction::ScaleDec,   ssSc.str(),                                QuickAction::ScaleInc,   QuickAction::ToggleLoop, false, false, "Output scale (0.25–4.0×)");
+        drawQuickRow(gy + kGeoStep,  "off X",  QuickAction::OffsetXDec, std::to_string((int)selectedCue->outputOffsetX) + "px", QuickAction::OffsetXInc, QuickAction::ToggleLoop, false, false, "Horizontal offset on output (pixels)");
+        drawQuickRow(gy + kGeoStep*2,"off Y",  QuickAction::OffsetYDec, std::to_string((int)selectedCue->outputOffsetY) + "px", QuickAction::OffsetYInc, QuickAction::ToggleLoop, false, false, "Vertical offset on output (pixels)");
+      }
+      // Cue number row
+      {
+        constexpr int kGeoStep = 24;
+        int cnY = ry + kRowStep * 9 + kGeoStep * 3 + 4;
+        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
+        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
+        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
+        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
+      }
+    } else if (selectedCue && selectedCue->kind == CueKind::Browser) {
+      int ry = ctrlSettingsY + 18;
+      constexpr int kRowStep = 28;
+      {
+        std::string durVal = selectedCue->stillDurationSeconds > 0.0
+          ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+        drawQuickRow(ry, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+      }
+      {
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
+        drawQuickRow(ry + kRowStep, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
+        int rx = ctrl.x + 10;
+        int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+        int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+        SDL_Rect styleBtn {styleX, ry + kRowStep, styleW, 30};
+        std::string curStyle = selectedCue->cueTransitionStyle.empty()
+          ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+        std::string styleLabel = (curStyle == "crossfade") ? "xfade"
+                               : (curStyle == "dip")       ? "dip"
+                               : (curStyle == "cut")       ? "cut" : "deck";
+        SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
+        quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
+          "Click to cycle: cut / crossfade / dip"});
+      }
+      // Notes row
+      {
+        int notesY = ry + kRowStep * 2;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      }
+    } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
+      // Audio-only cue settings
+      int ry = ctrlSettingsY + 18;
+      constexpr int kRowStep = 28;
+      int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
+      drawQuickRow(ry, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
+                   QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+      drawQuickRow(ry + kRowStep, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                   QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration");
+      drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                   QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration");
+      // loop / hold toggles
+      {
+        int rx = ctrl.x + 10;
+        int ty = ry + kRowStep * 3;
+        int halfW = (kCtrlW - 24) / 2;
+        SDL_Rect loopBtn {rx, ty, halfW, 30};
+        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
+        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
+        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
+        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
+      }
+      // End action
+      {
+        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 4, kCtrlW - 20, 30};
+        drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                 colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+      }
+      // Loop count
+      {
+        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+        drawQuickRow(ry + kRowStep * 5, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = infinite");
+      }
+      // Color tag
+      {
+        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 6, kCtrlW - 20, 28};
+        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
+        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
+        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
+      }
+      // Notes row
+      {
+        int notesY = ry + kRowStep * 7;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      }
+      // Cue number row
+      {
+        int cnY = ry + kRowStep * 8;
+        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
+        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
+        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
+        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
+      }
+      // Pause points row
+      {
+        int ppY = ry + kRowStep * 9;
+        int ppCount = static_cast<int>(selectedCue->pausePoints.size());
+        SDL_Rect addBtn {ctrl.x + 10, ppY, 80, 26};
+        SDL_Rect clrBtn {ctrl.x + 96, ppY, 46, 26};
+        SDL_Rect infoLbl {ctrl.x + 148, ppY, kCtrlW - 158, 26};
+        drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "+pause pt", colorFromRgba(kScreenLightColor), addBtn);
+        drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
+        drawText(controlRenderer_, fontSmall_, std::to_string(ppCount) + " pts",
+                 colorFromRgba(kScreenInkSoftColor), infoLbl.x + 4, infoLbl.y + 6);
+        quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add auto-pause at current playback position"});
+        quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+      }
+    } else if (!selectedCue) {
+      drawText(controlRenderer_, fontSmall_, "select a cue to edit settings",
+               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 18);
+      drawText(controlRenderer_, fontSmall_, "G = add lower-third / graphic cue",
+               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 38);
+    } else {
+      drawText(controlRenderer_, fontSmall_, "no per-cue settings for this type",
+               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 24);
+    }
+
+    // --- Cart details --- (anchored to bottom of panel, always kDetailAreaH px tall)
     int detailX = x;
-    int detailY = preview.y + preview.h + 26;
+    int detailY = panel.y + panel.h - kDetailAreaH + 4;
+    int detailBottom = panel.y + panel.h - 4;
     drawText(controlRenderer_, fontSmall_, "cart details", colorFromRgba(kScreenDeepColor), detailX, detailY);
-    drawText(controlRenderer_, fontBase_, selectedCue ? selectedCue->name : "Drop or import some media", colorFromRgba(kScreenDeepColor), detailX, detailY + 22);
+    drawText(controlRenderer_, fontBase_, selectedCue ? selectedCue->name : "Drop or import some media", colorFromRgba(kScreenDeepColor), detailX, detailY + 16);
+
+    // Progress bar tip
+    if (pointInRect(mouseX_, mouseY_, progressBarRect_)) {
+      drawHoverTip("Click to seek — drag to scrub", progressBarRect_.x + progressBarRect_.w / 2, progressBarRect_.y);
+    }
+    // Quick button tips
+    for (const auto& qb : quickButtons_) {
+      if (!qb.tip.empty() && pointInRect(mouseX_, mouseY_, qb.rect)) {
+        drawHoverTip(qb.tip, qb.rect.x + qb.rect.w / 2, qb.rect.y);
+        break;
+      }
+    }
 
     if (!selectedCue) {
-      drawText(controlRenderer_, fontSmall_, "Drop files into the shell or tap LOAD to add some carts.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 60);
-      drawText(controlRenderer_, fontSmall_, "Shift + arrows shuffles the selected cue up or down.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 84);
+      if (detailY + 40 < detailBottom)
+        drawText(controlRenderer_, fontSmall_, "Drop files into the shell or tap Import to add some carts.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 40);
+      if (detailY + 56 < detailBottom)
+        drawText(controlRenderer_, fontSmall_, "Shift + arrows shuffles the selected cue up or down.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 56);
       return;
     }
 
     std::vector<std::string> lines {
       std::string(selectedCue->kind == CueKind::Browser ? "URL: " : "Path: ") + selectedCue->path,
-      "Kind: " + cueKindLabel(selectedCue->kind),
-      "Dimensions: " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height),
-      "Format: " + selectedCue->formatName,
-      "Video codec: " + selectedCue->videoCodec,
-      "Audio codec: " + (selectedCue->audioCodec.empty() ? "none" : selectedCue->audioCodec),
-      "Duration: " + formatSeconds(selectedCue->duration),
-      "Size: " + std::to_string(static_cast<unsigned long long>(selectedCue->sizeBytes / 1024)) + " KB",
-      "Cue ID: " + selectedCue->id,
-      "In: " + formatSeconds(selectedCue->inPointSeconds) + "   Out: " + formatSeconds(selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration),
-      "TC Mark: " + (selectedCue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(selectedCue->triggerTimecodeSeconds, deck.timecodeFps) : std::string("--:--:--:--")),
-      "Fade in: " + formatSeconds(selectedCue->fadeInSeconds) + "   Fade out: " + formatSeconds(selectedCue->fadeOutSeconds),
-      std::string("Loop: ") + (selectedCue->loop ? "on" : "off") + "   Hold last: " + (selectedCue->pauseOnLastFrame ? "on" : "off")
+      "Kind: " + cueKindLabel(selectedCue->kind) + "   " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height) + "   Duration: " + formatSeconds(selectedCue->duration),
+      "Format: " + selectedCue->formatName + "   Video: " + selectedCue->videoCodec + "   Audio: " + (selectedCue->audioCodec.empty() ? "none" : selectedCue->audioCodec),
+      "In: " + formatSeconds(selectedCue->inPointSeconds) + "   Out: " + formatSeconds(selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration) + "   Size: " + std::to_string(static_cast<unsigned long long>(selectedCue->sizeBytes / 1024)) + " KB",
     };
 
     for (size_t i = 0; i < lines.size(); ++i) {
-      drawText(controlRenderer_, fontSmall_, lines[i], colorFromRgba(kScreenInkSoftColor), detailX, detailY + 58 + static_cast<int>(i) * 24);
+      int lineY = detailY + 38 + static_cast<int>(i) * 18;
+      if (lineY + 14 > detailBottom) break;
+      drawText(controlRenderer_, fontSmall_, lines[i], colorFromRgba(kScreenInkSoftColor), detailX, lineY);
+    }
+    if (selectedCue && !selectedCue->notes.empty()) {
+      int notesLineY = detailY + 38 + static_cast<int>(lines.size()) * 18;
+      if (notesLineY + 14 <= detailBottom) {
+        std::string notesStr = "\xe2\x80\x9c" + selectedCue->notes + "\xe2\x80\x9d";
+        drawText(controlRenderer_, fontSmall_, notesStr, colorFromRgba(kScreenDeepColor), detailX, notesLineY);
+      }
     }
   }
 
@@ -5192,31 +8229,86 @@ class App {
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(runtime->outputWindow, &width, &height);
-    SDL_SetRenderDrawColor(runtime->outputRenderer, red(kScreenDeepColor), green(kScreenDeepColor), blue(kScreenDeepColor), 255);
+    SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
     SDL_RenderClear(runtime->outputRenderer);
 
     SDL_Rect bounds {0, 0, width, height};
     runtime->mediaEngine->render(bounds);
 
+    // Output window is always clean black — no status overlays or decorations.
+    // The only things drawn here are the media content itself, cue overlays, and
+    // the optional time/ID overlay that the operator explicitly enables.
     const Cue* activeCue = activeCuePtr(deckIndex);
-    if (!activeCue) {
-      SDL_Rect screen {24, 24, width - 48, height - 48};
-      drawFramedPanel(runtime->outputRenderer, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(runtime->outputRenderer, fontSmall_, std::string(kOutputTitle), colorFromRgba(kScreenDeepColor), 46, 44);
-      drawText(runtime->outputRenderer, fontLarge_, "waiting for a cue", colorFromRgba(kScreenDeepColor), 46, 72);
-      drawText(runtime->outputRenderer, fontBase_, "use the control window to take media live.", colorFromRgba(kScreenInkSoftColor), 46, 112);
-    } else if (activeCue->kind == CueKind::Browser && !runtime->browserCueLive) {
-      SDL_Rect screen {24, 24, width - 48, height - 48};
-      drawFramedPanel(runtime->outputRenderer, screen, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(runtime->outputRenderer, fontSmall_, "browser cue standby", colorFromRgba(kScreenDeepColor), 46, 44);
-      drawText(runtime->outputRenderer, fontLarge_, activeCue->name, colorFromRgba(kScreenDeepColor), 46, 72);
-      drawText(runtime->outputRenderer, fontBase_, "press space or GO to launch the page on this output.", colorFromRgba(kScreenInkSoftColor), 46, 112);
-      drawText(runtime->outputRenderer, fontSmall_, activeCue->path, colorFromRgba(kScreenInkSoftColor), 46, 148);
-    } else {
-      SDL_Rect overlay {24, height - 68, width - 48, 44};
-      drawFramedPanel(runtime->outputRenderer, overlay, {155, 188, 15, 185}, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(runtime->outputRenderer, fontBase_, deck.name, colorFromRgba(kScreenDeepColor), overlay.x + 16, overlay.y + 10);
-      drawText(runtime->outputRenderer, fontSmall_, transportStatusLabel(deckIndex), colorFromRgba(kScreenInkSoftColor), overlay.x + overlay.w - 140, overlay.y + 13);
+
+    // Audio-only cue: draw a centred waveform + info on the output window
+    if (activeCue && activeCue->kind == CueKind::Audio) {
+      int margin = width / 10;
+      SDL_Rect wfRect {margin, height / 4, width - margin * 2, height / 3};
+      std::vector<float> peaks;
+      { std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(activeCue->path);
+        if (it != waveformCache_.end()) peaks = it->second; }
+      double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
+      const MediaEngine* eng = runtime->mediaEngine.get();
+      float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
+      float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
+      float outFrac = activeCue->outPointSeconds > 0.0
+                    ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
+      drawWaveform(runtime->outputRenderer, wfRect, peaks, playFrac, inFrac, outFrac,
+                   activeCue->pausePoints, dur);
+      // Cue name
+      drawText(runtime->outputRenderer, fontBase_, activeCue->name,
+               colorFromRgba(kScreenLightColor), wfRect.x, wfRect.y - 36);
+      // Transport position + duration
+      std::string posStr = (eng ? formatSeconds(eng->position()) : "0:00")
+                         + "  /  " + formatSeconds(activeCue->duration);
+      drawText(runtime->outputRenderer, fontSmall_, posStr,
+               colorFromRgba(kScreenMidColor), wfRect.x, wfRect.y + wfRect.h + 10);
+      // State badge
+      std::string stateLbl = !eng ? "stopped"
+                           : eng->state() == TransportState::Playing ? "playing"
+                           : eng->state() == TransportState::Paused  ? "paused" : "stopped";
+      drawText(runtime->outputRenderer, fontSmall_, stateLbl,
+               colorFromRgba(kScreenDarkColor), wfRect.x + wfRect.w - 60, wfRect.y - 36);
+    }
+
+    // Overlay layer stack — rendered bottom to top in push order.
+    int overlaySlot = 0;
+    for (int ovIdx : deck.overlayActiveIndices) {
+      if (ovIdx < 0 || ovIdx >= static_cast<int>(deck.cues.size())) continue;
+      const Cue& lc = deck.cues[ovIdx];
+      if (lc.kind == CueKind::LowerThird) {
+        // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
+        int barH = height / 6;
+        int barY = height - barH - height / 20 - overlaySlot * (barH + 8);
+        SDL_Rect bar {0, barY, width, barH};
+
+        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
+        SDL_RenderFillRect(runtime->outputRenderer, &bar);
+
+        // Coloured accent strip (hue shifts per slot for differentiation)
+        static constexpr std::array<SDL_Color, 4> accentColors {{
+          {155, 188,  15, 220},
+          { 15, 155, 188, 220},
+          {188,  15, 155, 220},
+          {188, 155,  15, 220},
+        }};
+        SDL_Color acc = accentColors[static_cast<size_t>(overlaySlot) % accentColors.size()];
+        SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b, acc.a);
+        SDL_Rect strip {bar.x, bar.y, 8, bar.h};
+        SDL_RenderFillRect(runtime->outputRenderer, &strip);
+        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+
+        std::string mainTxt = lc.lowerThirdText.empty() ? lc.name : lc.lowerThirdText;
+        drawText(runtime->outputRenderer, fontLarge_, mainTxt,
+                 {255, 255, 255, 255}, bar.x + 24, bar.y + 14);
+        if (!lc.lowerThirdSubtext.empty()) {
+          drawText(runtime->outputRenderer, fontBase_, lc.lowerThirdSubtext,
+                   {200, 220, 200, 255}, bar.x + 26, bar.y + barH - 36);
+        }
+        ++overlaySlot;
+      }
     }
 
     if (deck.timeOverlayEnabled) {
@@ -5233,19 +8325,496 @@ class App {
       drawText(runtime->outputRenderer, fontSmall_, tcLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 50);
     }
 
+    // Master video dimmer overlay
+    if (project_.masterDimmer < 0.999) {
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
+        static_cast<Uint8>((1.0 - project_.masterDimmer) * 255.0));
+      SDL_RenderFillRect(runtime->outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+    }
     double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
     sendDeckNdiFrame(deckIndex, width, height, fpsHint);
     SDL_RenderPresent(runtime->outputRenderer);
   }
 
-  void handleMouseDown(int x, int y) {
-    const Deck& deck = focusedDeck();
-    for (int deckIndex = 0; deckIndex < static_cast<int>(deckTabRects_.size()); ++deckIndex) {
-      if (pointInRect(x, y, deckTabRects_[deckIndex])) {
-        setFocusedDeckIndex(deckIndex);
+  void handleRightClick(int x, int y) {
+    // Determine which cue was right-clicked
+    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
+      const SDL_Rect& clipFrame = deckListClipRects_[di];
+      SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
+      if (!pointInRect(x, y, clipRect)) continue;
+      int listY = clipRect.y - deckScrolls_[di];
+      for (int ci = 0; ci < static_cast<int>(project_.decks[di].cues.size()); ++ci) {
+        SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
+        if (pointInRect(x, y, row)) {
+          openContextMenu(di, ci, x, y);
+          return;
+        }
+        listY += kRowHeight + 8;
+      }
+    }
+    contextMenuOpen_ = false;
+  }
+
+  void openContextMenu(int deckIdx, int cueIdx, int mx, int my) {
+    contextMenuOpen_ = true;
+    contextMenuDeckIdx_ = deckIdx;
+    contextMenuCueIdx_ = cueIdx;
+    contextItems_.clear();
+
+    Deck& deck = project_.decks[deckIdx];
+    Cue& cue = deck.cues[cueIdx];
+
+    // Color tag items
+    static const std::vector<std::pair<std::string, SDL_Color>> kTagOpts = {
+      {"no color",  {48,  98,  48,  255}},
+      {"red",       {180, 40,  40,  255}},
+      {"orange",    {190, 100, 20,  255}},
+      {"yellow",    {160, 145, 10,  255}},
+      {"cyan",      {15,  140, 140, 255}},
+      {"blue",      {20,  60,  175, 255}},
+      {"purple",    {110, 30,  150, 255}},
+      {"pink",      {175, 45,  115, 255}},
+    };
+    for (const auto& [label, col] : kTagOpts) {
+      std::string tag = label == "no color" ? "" : label;
+      bool isCurrent = cue.colorTag == tag;
+      contextItems_.push_back({
+        (isCurrent ? "* " : "  ") + label,
+        col,
+        [this, deckIdx, cueIdx, tag]() {
+          project_.decks[deckIdx].cues[cueIdx].colorTag = tag;
+          triggerToast("tag: " + (tag.empty() ? "none" : tag));
+          markProjectDirty();
+        }
+      });
+    }
+    contextItems_.push_back({"— delete cue", {80, 30, 30, 255}, [this, deckIdx, cueIdx]() {
+      Deck& d = project_.decks[deckIdx];
+      if (cueIdx >= 0 && cueIdx < static_cast<int>(d.cues.size())) {
+        d.cues.erase(d.cues.begin() + cueIdx);
+        d.selectedIndex = std::clamp(d.selectedIndex, 0, static_cast<int>(d.cues.size()) - 1);
+        d.activeIndex = std::clamp(d.activeIndex, -1, static_cast<int>(d.cues.size()) - 1);
+        onSelectionChanged();
+        markProjectDirty();
+      }
+    }});
+
+    // Position menu so it fits on screen
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+    constexpr int kItemH = 26;
+    constexpr int kMenuW = 160;
+    int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
+    int mx2 = std::min(mx, winW - kMenuW - 4);
+    int my2 = std::min(my, winH - menuH - 4);
+    contextMenuRect_ = {mx2, my2, kMenuW, menuH};
+    int iy = my2 + 4;
+    for (auto& item : contextItems_) {
+      item.rect = {mx2 + 4, iy, kMenuW - 8, kItemH - 2};
+      iy += kItemH;
+    }
+  }
+
+  void handleContextMenuClick(int x, int y) {
+    if (!contextMenuOpen_) return;
+    if (!pointInRect(x, y, contextMenuRect_)) {
+      contextMenuOpen_ = false;
+      return;
+    }
+    for (auto& item : contextItems_) {
+      if (pointInRect(x, y, item.rect)) {
+        if (item.action) item.action();
+        contextMenuOpen_ = false;
         return;
       }
     }
+    contextMenuOpen_ = false;
+  }
+
+  void renderContextMenu() {
+    if (!contextMenuOpen_) return;
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_Color bg {20, 50, 20, 245};
+    fillRect(controlRenderer_, contextMenuRect_, bg);
+    strokeRect(controlRenderer_, contextMenuRect_, colorFromRgba(kScreenDarkColor));
+    for (const auto& item : contextItems_) {
+      bool hover = pointInRect(mouseX_, mouseY_, item.rect);
+      if (hover) {
+        SDL_Color hov {48, 90, 48, 200};
+        fillRect(controlRenderer_, item.rect, hov);
+      }
+      // Color swatch (small square on left)
+      if (item.swatch.a > 0) {
+        SDL_Rect sw {item.rect.x, item.rect.y + 4, 10, item.rect.h - 8};
+        fillRect(controlRenderer_, sw, item.swatch);
+      }
+      drawText(controlRenderer_, fontSmall_, item.label,
+               hover ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor),
+               item.rect.x + 14, item.rect.y + 6);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  void renderSettingsModal() {
+    if (!settingsOpen_) return;
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+
+    // Dim backdrop
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 160);
+    SDL_Rect full {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &full);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // Modal panel
+    constexpr int kModalW = 640, kModalH = 440;
+    SDL_Rect modal {(width - kModalW) / 2, (height - kModalH) / 2, kModalW, kModalH};
+    drawFramedPanel(controlRenderer_, modal, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    // Title
+    drawText(controlRenderer_, fontBase_, "Preferences", colorFromRgba(kScreenDeepColor), modal.x + 16, modal.y + 10);
+
+    // Close button [X]
+    settingsCloseBtn_ = {modal.x + modal.w - 36, modal.y + 6, 28, 26};
+    drawFramedPanel(controlRenderer_, settingsCloseBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontSmall_, "X", colorFromRgba(kScreenDeepColor), settingsCloseBtn_);
+
+    // Tab bar
+    constexpr int kTabW = 100, kTabH = 30;
+    int tabY = modal.y + 40;
+    settingsBtns_.clear();
+    const std::vector<std::string> tabs {"Audio", "MIDI", "OSC/Net", "Video", "About"};
+    for (int t = 0; t < (int)tabs.size(); ++t) {
+      SDL_Rect tab {modal.x + 16 + t * (kTabW + 4), tabY, kTabW, kTabH};
+      bool active = (t == settingsTab_);
+      drawFramedPanel(controlRenderer_, tab, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, tabs[t],
+                       active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), tab);
+      settingsBtns_.push_back({tab, 100 + t, tabs[t]});
+    }
+
+    // Content area
+    SDL_Rect content {modal.x + 16, tabY + kTabH + 10, modal.w - 32, modal.h - kTabH - 70};
+    drawFramedPanel(controlRenderer_, content, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    int cx = content.x + 12, cy = content.y + 10;
+    SDL_Color ink = colorFromRgba(kScreenDeepColor);
+    SDL_Color soft = colorFromRgba(kScreenInkSoftColor);
+
+    if (settingsTab_ == 0) {
+      // Audio tab
+      drawText(controlRenderer_, fontSmall_, "Master volume: set with the header fader (vol XX%)", soft, cx, cy);
+      drawText(controlRenderer_, fontSmall_, "Audio output device:", ink, cx, cy + 22);
+      std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default)" : focusedDeck().audioOutputDeviceName;
+      drawText(controlRenderer_, fontSmall_, devName, soft, cx, cy + 38);
+      SDL_Rect devBtn {cx, cy + 60, 180, 26};
+      drawFramedPanel(controlRenderer_, devBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Change device...", ink, devBtn);
+      settingsBtns_.push_back({devBtn, 200, "audio_device"});
+
+      drawText(controlRenderer_, fontSmall_, "UI sounds (key 1):", ink, cx, cy + 100);
+      SDL_Rect sfxBtn {cx, cy + 118, 80, 24};
+      drawFramedPanel(controlRenderer_, sfxBtn, project_.uiSoundsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, project_.uiSoundsEnabled ? "ON" : "OFF",
+                       project_.uiSoundsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), sfxBtn);
+      settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
+
+      drawText(controlRenderer_, fontSmall_, "UI animations (key 2):", ink, cx, cy + 155);
+      SDL_Rect animBtn {cx, cy + 173, 80, 24};
+      drawFramedPanel(controlRenderer_, animBtn, project_.uiTransitionsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, project_.uiTransitionsEnabled ? "ON" : "OFF",
+                       project_.uiTransitionsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), animBtn);
+      settingsBtns_.push_back({animBtn, 202, "anim_toggle"});
+
+    } else if (settingsTab_ == 1) {
+      // MIDI tab
+      drawText(controlRenderer_, fontSmall_, "ALSA MIDI Input", ink, cx, cy);
+      SDL_Rect midiEnBtn {cx, cy + 22, 100, 26};
+      drawFramedPanel(controlRenderer_, midiEnBtn, midiEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, midiEnabled_ ? "Enabled" : "Disabled",
+                       midiEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), midiEnBtn);
+      settingsBtns_.push_back({midiEnBtn, 210, "midi_toggle"});
+
+      drawText(controlRenderer_, fontSmall_, "MIDI port: " + (midiDeviceName_.empty() ? "(auto)" : midiDeviceName_), soft, cx, cy + 60);
+      SDL_Rect midiPortBtn {cx, cy + 78, 200, 26};
+      drawFramedPanel(controlRenderer_, midiPortBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Set port (e.g. 20:0)...", ink, midiPortBtn);
+      settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
+
+      drawText(controlRenderer_, fontSmall_, "MIDI mappings:", ink, cx, cy + 120);
+      drawText(controlRenderer_, fontSmall_, "Note 0-127 -> Trigger cue at that index in focused deck", soft, cx, cy + 138);
+      drawText(controlRenderer_, fontSmall_, "CC 7 (Volume) -> Master volume", soft, cx, cy + 154);
+      drawText(controlRenderer_, fontSmall_, "CC 20 -> Playback speed (0-127 = 0.5x-2x)", soft, cx, cy + 170);
+      drawText(controlRenderer_, fontSmall_, "MMC Play/Stop/Goto -> Transport control", soft, cx, cy + 186);
+      drawText(controlRenderer_, fontSmall_, "MSC Go -> Trigger cue by cue number", soft, cx, cy + 202);
+
+    } else if (settingsTab_ == 2) {
+      // OSC/Net tab
+      drawText(controlRenderer_, fontSmall_, "Companion / OSC port:", ink, cx, cy);
+      drawText(controlRenderer_, fontSmall_, std::to_string(companionPort_), soft, cx, cy + 18);
+      SDL_Rect portBtn {cx, cy + 40, 160, 26};
+      drawFramedPanel(controlRenderer_, portBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Change port...", ink, portBtn);
+      settingsBtns_.push_back({portBtn, 220, "osc_port"});
+
+      drawText(controlRenderer_, fontSmall_, "HyperDeck emulation: port 9992 (always on)", soft, cx, cy + 80);
+      drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /playboy/subscribe from your OSC app", soft, cx, cy + 100);
+      drawText(controlRenderer_, fontSmall_, "NDI: configured per deck (N key)", soft, cx, cy + 120);
+
+    } else if (settingsTab_ == 3) {
+      // Video tab
+      auto [nativeW, nativeH] = displayNativeRenderSize(focusedDeck().outputDisplayIndex);
+      auto [targetW, targetH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+
+      drawText(controlRenderer_, fontSmall_, "Focused deck display: " + currentDisplayLabel(), ink, cx, cy);
+      drawText(controlRenderer_, fontSmall_,
+               "Desktop mode (EDID/OS): " + std::to_string(nativeW) + "x" + std::to_string(nativeH),
+               soft, cx, cy + 18);
+      drawText(controlRenderer_, fontSmall_,
+               "Output raster: " + std::to_string(targetW) + "x" + std::to_string(targetH) + "  (" + outputSizingModeLabel() + ")",
+               soft, cx, cy + 36);
+
+      SDL_Rect nativeBtn {cx, cy + 66, 170, 28};
+      bool nativeActive = project_.outputFollowDisplay;
+      drawFramedPanel(controlRenderer_, nativeBtn, nativeActive ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Display Native", nativeActive ? colorFromRgba(kScreenLightColor) : ink, nativeBtn);
+      settingsBtns_.push_back({nativeBtn, 230, "video_native"});
+
+      SDL_Rect sizeBtn {cx + 186, cy + 66, 160, 28};
+      drawFramedPanel(controlRenderer_, sizeBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Size To Display", ink, sizeBtn);
+      settingsBtns_.push_back({sizeBtn, 235, "video_size_display"});
+
+      SDL_Rect fsBtn {cx + 362, cy + 66, 150, 28};
+      drawFramedPanel(controlRenderer_, fsBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Toggle Fullscreen", ink, fsBtn);
+      settingsBtns_.push_back({fsBtn, 236, "video_fullscreen"});
+
+      drawText(controlRenderer_, fontSmall_, "Fixed raster presets:", ink, cx, cy + 112);
+      auto drawPreset = [&](int x, int y, int w, int h, const std::string& label, int action,
+                            int presetW, int presetH) {
+        bool active = !project_.outputFollowDisplay
+          && project_.outputRenderWidth == presetW
+          && project_.outputRenderHeight == presetH;
+        SDL_Rect btn {x, y, w, h};
+        drawFramedPanel(controlRenderer_, btn, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, label, active ? colorFromRgba(kScreenLightColor) : ink, btn);
+        settingsBtns_.push_back({btn, action, label});
+      };
+      int py = cy + 132;
+      drawPreset(cx,      py, 120, 28, "720p",   231, 1280, 720);
+      drawPreset(cx + 132,py, 120, 28, "1080p",  232, 1920, 1080);
+      drawPreset(cx + 264,py, 120, 28, "1440p",  233, 2560, 1440);
+      drawPreset(cx + 396,py, 120, 28, "4K UHD", 234, 3840, 2160);
+
+      SDL_Rect customBtn {cx, cy + 168, 180, 28};
+      drawFramedPanel(controlRenderer_, customBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Custom WxH...", ink, customBtn);
+      settingsBtns_.push_back({customBtn, 237, "video_custom"});
+
+      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 206);
+
+    } else if (settingsTab_ == 4) {
+      // About tab
+      drawText(controlRenderer_, fontSmall_, "Playboy  v0.01", ink, cx, cy);
+      drawText(controlRenderer_, fontSmall_, "dot-matrix show control", soft, cx, cy + 18);
+      drawText(controlRenderer_, fontSmall_, "Companion port: " + std::to_string(companionPort_), soft, cx, cy + 40);
+      drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, cx, cy + 56);
+      drawText(controlRenderer_, fontSmall_, "Keyboard shortcuts:", ink, cx, cy + 80);
+      const char* shortcuts[] = {
+        "Enter = Take/Load   Space = Go/Pause   S = Stop",
+        "L = Loop   E = Hold   X = Cycle end action   K = Color tag",
+        "F = Fullscreen   D = Next display   G = Add graphic cue",
+        "Ctrl+G = Goto cue   Ctrl+Shift+Space = All stop",
+        "[ / ] = fade in   Shift+[ / ] = fade out",
+        "-30s/-20s/-10s buttons = jump to end   N = edit notes",
+        "1/2/3/4/5/6 = SFX/Anim/AutoNext/Loop/TC/Shuffle toggles",
+      };
+      for (int i = 0; i < 7; ++i)
+        drawText(controlRenderer_, fontSmall_, shortcuts[i], soft, cx, cy + 100 + i * 16);
+    }
+  }
+
+  void handleSettingsClick(int mx, int my) {
+    // Check close button
+    if (pointInRect(mx, my, settingsCloseBtn_)) {
+      settingsOpen_ = false;
+      return;
+    }
+    for (const auto& sb : settingsBtns_) {
+      if (!pointInRect(mx, my, sb.rect)) continue;
+      if (sb.action >= 100 && sb.action <= 104) {
+        // Tab switch
+        settingsTab_ = sb.action - 100;
+      } else if (sb.action == 200) {
+        // Change audio device
+        auto dev = pickTextInput("Audio output device", "device name or empty for default", focusedDeck().audioOutputDeviceName);
+        if (dev) {
+          focusedDeckMutable().audioOutputDeviceName = *dev;
+          markProjectDirty();
+        }
+      } else if (sb.action == 201) {
+        project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
+        markProjectDirty();
+      } else if (sb.action == 202) {
+        project_.uiTransitionsEnabled = !project_.uiTransitionsEnabled;
+        markProjectDirty();
+      } else if (sb.action == 210) {
+        // Toggle MIDI
+        midiEnabled_ = !midiEnabled_;
+        if (midiEnabled_) startMidiInput(); else stopMidiInput();
+      } else if (sb.action == 211) {
+        // Set MIDI port
+        auto port = pickTextInput("ALSA MIDI port", "e.g. 20:0 or client name", midiDeviceName_);
+        if (port) {
+          midiDeviceName_ = *port;
+          if (midiEnabled_) { stopMidiInput(); startMidiInput(); }
+        }
+      } else if (sb.action == 220) {
+        // Change OSC/Companion port
+        auto portStr = pickTextInput("Companion/OSC port", "port number (default 5510)", std::to_string(companionPort_));
+        if (portStr) {
+          try { int p = std::stoi(*portStr); if (p > 0 && p < 65536) companionPort_ = p; } catch (...) {}
+        }
+      } else if (sb.action == 230) {
+        setOutputSizingModeDisplayNative();
+      } else if (sb.action == 231) {
+        setOutputSizingModeFixed(1280, 720);
+      } else if (sb.action == 232) {
+        setOutputSizingModeFixed(1920, 1080);
+      } else if (sb.action == 233) {
+        setOutputSizingModeFixed(2560, 1440);
+      } else if (sb.action == 234) {
+        setOutputSizingModeFixed(3840, 2160);
+      } else if (sb.action == 235) {
+        sizeFocusedOutputToSelectedDisplay();
+      } else if (sb.action == 236) {
+        toggleOutputFullscreen();
+      } else if (sb.action == 237) {
+        std::string initial = std::to_string(project_.outputRenderWidth) + "x" + std::to_string(project_.outputRenderHeight);
+        auto value = pickTextInput("Custom output raster", "WIDTHxHEIGHT (e.g. 2560x1080)", initial);
+        if (value) {
+          std::string token = toUpper(trim(*value));
+          auto xPos = token.find('X');
+          if (xPos != std::string::npos && xPos > 0 && xPos + 1 < token.size()) {
+            try {
+              int w = std::stoi(token.substr(0, xPos));
+              int h = std::stoi(token.substr(xPos + 1));
+              if (w > 0 && h > 0) {
+                setOutputSizingModeFixed(w, h);
+              }
+            } catch (...) {
+            }
+          }
+        }
+      }
+      return;
+    }
+    // Click outside modal = close
+    constexpr int kModalW = 640, kModalH = 440;
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+    SDL_Rect modal {(width - kModalW) / 2, (height - kModalH) / 2, kModalW, kModalH};
+    if (!pointInRect(mx, my, modal)) settingsOpen_ = false;
+  }
+
+  void handleMouseDown(int x, int y) {
+    if (showStartupDialog_) {
+      if (pointInRect(x, y, startupLoadBtn_)) {
+        // Keep loaded project as-is
+        showStartupDialog_ = false;
+      } else if (pointInRect(x, y, startupNewBtn_)) {
+        // Start fresh
+        project_ = Project{};
+        normalizeProject(project_);
+        rebuildDeckRuntimes();
+        showStartupDialog_ = false;
+      }
+      return;
+    }
+    if (confirmQuit_) {
+      if (pointInRect(x, y, quitYesBtn_)) {
+        gShouldQuit.store(true);
+      } else {
+        confirmQuit_ = false;
+      }
+      return;
+    }
+
+    // Settings modal intercepts all clicks when open
+    if (settingsOpen_) {
+      handleSettingsClick(x, y);
+      return;
+    }
+    // Settings gear button
+    if (pointInRect(x, y, settingsGearRect_)) {
+      settingsOpen_ = !settingsOpen_;
+      return;
+    }
+    // BLK (blackout) button
+    if (pointInRect(x, y, blackoutBtnRect_)) {
+      masterDimmerTarget_ = (masterDimmerTarget_ < 0.5) ? 1.0 : 0.0;
+      triggerToast(masterDimmerTarget_ < 0.5 ? "blackout ON" : "blackout off");
+      return;
+    }
+
+    // Deck column headers: click to focus deck
+    for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
+      const SDL_Rect& col = deckColumnRects_[di];
+      SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
+      if (pointInRect(x, y, colHeader)) {
+        setFocusedDeckIndex(di);
+        return;
+      }
+    }
+
+    // Deck column cue lists: click to focus deck + select cue
+    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
+      const SDL_Rect& clipFrame = deckListClipRects_[di];
+      SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
+      if (!pointInRect(x, y, clipRect)) {
+        continue;
+      }
+      int listY = clipRect.y - deckScrolls_[di];
+      for (int ci = 0; ci < static_cast<int>(project_.decks[di].cues.size()); ++ci) {
+        SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
+        if (pointInRect(x, y, row)) {
+          setFocusedDeckIndex(di);
+          Deck& deck = project_.decks[di];
+          if (deck.selectedIndex != ci) {
+            deck.selectedIndex = ci;
+            onSelectionChanged();
+            markProjectDirty();
+          }
+          drag_.active = true;
+          drag_.cueIndex = ci;
+          drag_.deckIndex = di;
+          return;
+        }
+        listY += kRowHeight + 8;
+      }
+      return;
+    }
+
+    for (const auto& qb : quickButtons_) {
+      if (pointInRect(x, y, qb.rect)) {
+        dispatchQuickAction(qb.action);
+        return;
+      }
+    }
+
     for (const auto& button : buttons_) {
       if (pointInRect(x, y, button.rect)) {
         triggerButton(button.label);
@@ -5253,6 +8822,12 @@ class App {
       }
     }
 
+    if (pointInRect(x, y, masterFaderRect_) && masterFaderRect_.w > 0) {
+      double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
+      project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
+      markProjectDirty();
+      return;
+    }
     if (pointInRect(x, y, progressBarRect_)) {
       MediaEngine* engine = focusedMediaEngine();
       if (!engine) {
@@ -5260,28 +8835,6 @@ class App {
       }
       double fraction = static_cast<double>(x - progressBarRect_.x) / static_cast<double>(progressBarRect_.w);
       engine->seek(engine->duration() * std::clamp(fraction, 0.0, 1.0));
-      return;
-    }
-
-    int sidebarY = kPadding + 18;
-    int listTop = sidebarY + 128;
-    int clipRectX = kPadding + 12 + 14 + 10;
-    int clipRectY = listTop - 8 + 10;
-    int clipRectW = kSidebarWidth - 28 - 20;
-    int listY = clipRectY - listScroll_;
-    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
-      SDL_Rect row {clipRectX, listY, clipRectW, kRowHeight};
-      if (pointInRect(x, y, row)) {
-        if (focusedDeckMutable().selectedIndex != index) {
-          focusedDeckMutable().selectedIndex = index;
-          onSelectionChanged();
-          persistProject();
-        }
-        drag_.active = true;
-        drag_.cueIndex = index;
-        return;
-      }
-      listY += kRowHeight + 10;
     }
   }
 
@@ -5289,15 +8842,16 @@ class App {
     if (!drag_.active || drag_.cueIndex < 0) {
       return;
     }
-    Deck& deck = focusedDeckMutable();
-    int sidebarY = kPadding + 18;
-    int listTop = sidebarY + 128;
-    int clipRectX = kPadding + 12 + 14 + 10;
-    int clipRectY = listTop - 8 + 10;
-    int clipRectW = kSidebarWidth - 28 - 20;
-    int listY = clipRectY - listScroll_;
+    int di = drag_.deckIndex;
+    if (di < 0 || di >= static_cast<int>(deckListClipRects_.size())) {
+      return;
+    }
+    const SDL_Rect& clipFrame = deckListClipRects_[di];
+    SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
+    Deck& deck = project_.decks[di];
+    int listY = clipRect.y - deckScrolls_[di];
     for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
-      SDL_Rect row {clipRectX, listY, clipRectW, kRowHeight};
+      SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
       if (pointInRect(x, y, row) && index != drag_.cueIndex) {
         auto cue = deck.cues[drag_.cueIndex];
         deck.cues.erase(deck.cues.begin() + drag_.cueIndex);
@@ -5314,16 +8868,72 @@ class App {
         }
         drag_.cueIndex = index;
         triggerToast("cart shuffle");
-        persistProject();
+        markProjectDirty();
         return;
       }
-      listY += kRowHeight + 10;
+      listY += kRowHeight + 8;
     }
   }
 
   void handleKeyDown(SDL_Keycode key, Uint16 mod) {
     bool ctrl = (mod & KMOD_CTRL) != 0;
     bool shift = (mod & KMOD_SHIFT) != 0;
+
+    if (showStartupDialog_) {
+      bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+      if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && hasSavedFile) {
+        showStartupDialog_ = false;
+      } else if (key == SDLK_n) {
+        project_ = Project{};
+        normalizeProject(project_);
+        rebuildDeckRuntimes();
+        showStartupDialog_ = false;
+      } else if (key == SDLK_ESCAPE) {
+        showStartupDialog_ = false;
+      }
+      return;
+    }
+
+    if (settingsOpen_) {
+      if (key == SDLK_ESCAPE) settingsOpen_ = false;
+      return;
+    }
+
+    if (confirmQuit_) {
+      if (key == SDLK_y || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+        gShouldQuit.store(true);
+      } else {
+        confirmQuit_ = false;
+      }
+      return;
+    }
+
+    if (ctrl && key == SDLK_q) {
+      confirmQuit_ = true;
+      return;
+    }
+
+    // Ctrl+Enter / Ctrl+Return — simultaneous all-deck take
+    if (ctrl && (key == SDLK_RETURN || key == SDLK_KP_ENTER)) {
+      takeAllDecks(true);
+      return;
+    }
+    // Ctrl+Shift+Space — stop all decks (must be checked before Ctrl+Space)
+    if (ctrl && shift && key == SDLK_SPACE) {
+      allStop();
+      return;
+    }
+    // Ctrl+Space — all-deck go (play/pause toggle)
+    if (ctrl && key == SDLK_SPACE) {
+      goAllDecks();
+      return;
+    }
+    // Ctrl+G — GOTO (jump to cue number via dialog)
+    if (ctrl && key == SDLK_g) {
+      auto r = pickTextInput("GOTO Cue", "Jump to cue number:");
+      if (r) handleRemoteCommand("GOTO " + *r);
+      return;
+    }
 
     if (ctrl && key == SDLK_o) {
       openProjectFromPicker();
@@ -5334,7 +8944,7 @@ class App {
       return;
     }
     if (ctrl && !shift && key == SDLK_s) {
-      persistProject();
+      markProjectDirty();
       triggerToast("playlist saved");
       return;
     }
@@ -5345,7 +8955,7 @@ class App {
 
     switch (key) {
       case SDLK_ESCAPE:
-        gShouldQuit.store(true);
+        confirmQuit_ = true;
         break;
       case SDLK_TAB:
         cycleFocusedDeck(shift ? -1 : 1);
@@ -5370,7 +8980,7 @@ class App {
         break;
       case SDLK_RETURN:
       case SDLK_KP_ENTER:
-        takeSelected(false);
+        takeSelected(true);
         break;
       case SDLK_SPACE:
         toggleTransport();
@@ -5390,6 +9000,9 @@ class App {
       case SDLK_b:
         addBrowserCueFromPrompt();
         break;
+      case SDLK_g:
+        addLowerThirdCue();
+        break;
       case SDLK_p:
         addKawaiiPatternCue();
         break;
@@ -5398,6 +9011,15 @@ class App {
         break;
       case SDLK_e:
         toggleSelectedPauseOnLastFrame();
+        break;
+      case SDLK_x:
+        cycleSelectedEndAction();
+        break;
+      case SDLK_6:
+        toggleShuffle();
+        break;
+      case SDLK_k:
+        cycleSelectedColorTag();
         break;
       case SDLK_LEFTBRACKET:
         adjustSelectedFade(!shift, -0.25);
@@ -5424,8 +9046,14 @@ class App {
         setTimecodeChaseEnabled(!focusedDeck().timecodeChaseEnabled);
         break;
       case SDLK_DELETE:
-      case SDLK_BACKSPACE:
         deleteSelected();
+        break;
+      case SDLK_BACKSPACE:
+        if (!focusedDeck().overlayActiveIndices.empty()) {
+          clearOverlay();
+        } else {
+          deleteSelected();
+        }
         break;
       case SDLK_EQUALS:
       case SDLK_PLUS:
@@ -5462,8 +9090,6 @@ class App {
       deleteSelected();
     } else if (label == "SFX") {
       toggleUiSounds();
-    } else if (label == "ANIM") {
-      toggleUiTransitions();
     }
   }
 
@@ -5573,7 +9199,7 @@ class App {
     }
     triggerToast("screen cleared");
     playUiSound(UiSoundEffect::Clear);
-    persistProject();
+    markProjectDirty();
   }
 
   void takeSelected(bool autoplay) {
@@ -5585,14 +9211,34 @@ class App {
     if (!engine) {
       return;
     }
+    const Cue& cue = deck.cues[deck.selectedIndex];
+
+    // Lower-third cues go to the overlay slot, not the main slot
+    if (cue.kind == CueKind::LowerThird) {
+      // Push to overlay stack (max 4; avoid duplicates).
+      auto& ov = deck.overlayActiveIndices;
+      if (std::find(ov.begin(), ov.end(), deck.selectedIndex) == ov.end()) {
+        if (ov.size() >= 4) ov.erase(ov.begin());
+        ov.push_back(deck.selectedIndex);
+      }
+      triggerToast("overlay live: " + cue.name);
+      playUiSound(UiSoundEffect::Take);
+      markProjectDirty();
+      return;
+    }
+
     deck.activeIndex = deck.selectedIndex;
-    const Cue& cue = deck.cues[deck.activeIndex];
     stopBrowserCue();
+    // Use per-cue transition override if set, else deck default
+    double transSecs = (cue.cueTransitionSeconds >= 0.0)
+      ? cue.cueTransitionSeconds : deck.transitionSeconds;
+    std::string transStyleStr = !cue.cueTransitionStyle.empty()
+      ? cue.cueTransitionStyle : deck.transitionStyle;
     engine->loadCue(
       &cue,
       autoplay,
-      deck.transitionSeconds,
-      parseTransitionStyleToken(deck.transitionStyle)
+      transSecs,
+      parseTransitionStyleToken(transStyleStr)
     );
     if (cue.kind == CueKind::Browser) {
       startBrowserCue(project_.focusedDeckIndex, cue);
@@ -5601,7 +9247,54 @@ class App {
       triggerToast(autoplay ? "cue jumped live" : "cue loaded");
     }
     playUiSound(UiSoundEffect::Take);
-    persistProject();
+    markProjectDirty();
+  }
+
+  // Fire the selected cue on every deck simultaneously.
+  // Useful for synced multi-layer playback (e.g. video + audio on separate decks).
+  void takeAllDecks(bool autoplay) {
+    int savedFocus = project_.focusedDeckIndex;
+    for (int di = 0; di < static_cast<int>(project_.decks.size()); ++di) {
+      Deck& deck = project_.decks[di];
+      if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      project_.focusedDeckIndex = di;
+      takeSelected(autoplay);
+    }
+    project_.focusedDeckIndex = savedFocus;
+    triggerToast("all decks fired");
+  }
+
+  // Toggle play/pause on every deck simultaneously.
+  void goAllDecks() {
+    int savedFocus = project_.focusedDeckIndex;
+    for (int di = 0; di < static_cast<int>(project_.decks.size()); ++di) {
+      project_.focusedDeckIndex = di;
+      MediaEngine* engine = focusedMediaEngine();
+      const Cue* activeCue = activeCuePtr();
+      if (engine && activeCue) {
+        if (engine->state() == TransportState::Playing) {
+          engine->pause();
+        } else {
+          engine->play();
+        }
+      } else {
+        takeSelected(true);
+      }
+    }
+    project_.focusedDeckIndex = savedFocus;
+    triggerToast("all decks go");
+  }
+
+  void allStop() {
+    int saved = project_.focusedDeckIndex;
+    for (int di = 0; di < (int)project_.decks.size(); ++di) {
+      project_.focusedDeckIndex = di;
+      if (auto* e = focusedMediaEngine()) e->stop();
+    }
+    project_.focusedDeckIndex = saved;
+    triggerToast("all decks stopped");
   }
 
   void selectRelative(int direction, bool reorder) {
@@ -5613,7 +9306,7 @@ class App {
     if (deck.selectedIndex < 0) {
       deck.selectedIndex = 0;
       onSelectionChanged();
-      persistProject();
+      markProjectDirty();
       return;
     }
 
@@ -5632,7 +9325,7 @@ class App {
       deck.selectedIndex = nextIndex;
       onSelectionChanged();
     }
-    persistProject();
+    markProjectDirty();
   }
 
   Cue* selectedCueMutable() {
@@ -5674,7 +9367,15 @@ class App {
       return byId;
     }
 
+    // Exact match on user-assigned cue number
     std::string needle = toUpper(trimmed);
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (!deck.cues[index].cueNumber.empty() && toUpper(deck.cues[index].cueNumber) == needle) {
+        return index;
+      }
+    }
+
+    // Partial match on name
     for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
       if (toUpper(deck.cues[index].name).find(needle) != std::string::npos) {
         return index;
@@ -5694,7 +9395,7 @@ class App {
       onSelectionChanged();
     }
     triggerToast("cue " + std::to_string(*index + 1) + " armed");
-    persistProject();
+    markProjectDirty();
     return true;
   }
 
@@ -5722,7 +9423,7 @@ class App {
     cue->inPointSeconds = next;
     cue->outPointSeconds = out;
     triggerToast("in " + formatSeconds(cue->inPointSeconds));
-    persistProject();
+    markProjectDirty();
   }
 
   void setSelectedTrimOut(double seconds) {
@@ -5734,7 +9435,7 @@ class App {
     double next = std::clamp(seconds, cue->inPointSeconds, duration);
     cue->outPointSeconds = next;
     triggerToast("out " + formatSeconds(cue->outPointSeconds));
-    persistProject();
+    markProjectDirty();
   }
 
   void clearSelectedTrim() {
@@ -5745,7 +9446,7 @@ class App {
     cue->inPointSeconds = 0.0;
     cue->outPointSeconds = cue->duration;
     triggerToast("trim reset");
-    persistProject();
+    markProjectDirty();
   }
 
   void setTimeOverlayEnabled(bool enabled) {
@@ -5756,7 +9457,7 @@ class App {
     deck.timeOverlayEnabled = enabled;
     triggerToast(deck.timeOverlayEnabled ? "time overlay on" : "time overlay off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleTimeOverlayEnabled() {
@@ -5772,7 +9473,7 @@ class App {
     deck.transitionSeconds = next;
     triggerToast("transition " + formatSeconds(deck.transitionSeconds));
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void setTransitionStyle(TransitionStyle style) {
@@ -5784,7 +9485,7 @@ class App {
     deck.transitionStyle = token;
     triggerToast("style " + deck.transitionStyle);
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   bool setSelectedCueTimecodeTrigger(double seconds) {
@@ -5794,7 +9495,7 @@ class App {
     }
     cue->triggerTimecodeSeconds = std::max(0.0, seconds);
     triggerToast("tc mark " + formatTimecode(cue->triggerTimecodeSeconds, focusedDeck().timecodeFps));
-    persistProject();
+    markProjectDirty();
     return true;
   }
 
@@ -5805,7 +9506,7 @@ class App {
     }
     cue->triggerTimecodeSeconds = -1.0;
     triggerToast("tc mark cleared");
-    persistProject();
+    markProjectDirty();
   }
 
   void setTimecodeFps(double fps) {
@@ -5816,7 +9517,7 @@ class App {
     }
     deck.timecodeFps = next;
     triggerToast("tc fps " + std::to_string(static_cast<int>(std::round(deck.timecodeFps))));
-    persistProject();
+    markProjectDirty();
   }
 
   void setTimecodeChaseEnabled(bool enabled) {
@@ -5826,7 +9527,7 @@ class App {
     }
     deck.timecodeChaseEnabled = enabled;
     triggerToast(deck.timecodeChaseEnabled ? "tc chase on" : "tc chase off");
-    persistProject();
+    markProjectDirty();
   }
 
   void setTimecodeRunEnabled(bool enabled) {
@@ -5836,7 +9537,7 @@ class App {
     }
     deck.timecodeRunEnabled = enabled;
     triggerToast(deck.timecodeRunEnabled ? "tc run on" : "tc run off");
-    persistProject();
+    markProjectDirty();
   }
 
   void setDeckTimecode(int deckIndex, double seconds) {
@@ -5903,59 +9604,320 @@ class App {
     triggerToast("tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps));
   }
 
+  void cycleSelectedEndAction() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
+      return;
+    }
+    // Cycle: Inherit → Stop → Loop → PauseOnLast → AutoNext → Inherit
+    switch (cue->endAction) {
+      case CueEndAction::Inherit:     cue->endAction = CueEndAction::Stop;       break;
+      case CueEndAction::Stop:        cue->endAction = CueEndAction::Loop;       break;
+      case CueEndAction::Loop:        cue->endAction = CueEndAction::PauseOnLast; break;
+      case CueEndAction::PauseOnLast: cue->endAction = CueEndAction::AutoNext;   break;
+      case CueEndAction::AutoNext:    cue->endAction = CueEndAction::Inherit;    break;
+    }
+    triggerToast("end: " + cueEndActionLabel(cue->endAction));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setSelectedEndAction(CueEndAction action) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video || cue->endAction == action) {
+      return;
+    }
+    cue->endAction = action;
+    triggerToast("end: " + cueEndActionLabel(cue->endAction));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void dispatchQuickAction(QuickAction action) {
+    switch (action) {
+      case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
+      case QuickAction::ToggleHold:      toggleSelectedPauseOnLastFrame(); break;
+      case QuickAction::CycleEndAction:  cycleSelectedEndAction(); break;
+      case QuickAction::FadeInDec:       adjustSelectedFade(true,  -0.25); break;
+      case QuickAction::FadeInInc:       adjustSelectedFade(true,   0.25); break;
+      case QuickAction::FadeOutDec:      adjustSelectedFade(false, -0.25); break;
+      case QuickAction::FadeOutInc:      adjustSelectedFade(false,  0.25); break;
+      case QuickAction::InDec:           adjustSelectedIn(-0.5); break;
+      case QuickAction::InInc:           adjustSelectedIn( 0.5); break;
+      case QuickAction::OutDec:          adjustSelectedOut(-0.5); break;
+      case QuickAction::OutInc:          adjustSelectedOut( 0.5); break;
+      case QuickAction::TransDec:        adjustSelectedCueTransition(-0.25); break;
+      case QuickAction::TransInc:        adjustSelectedCueTransition( 0.25); break;
+      case QuickAction::CycleTransStyle: cycleSelectedCueTransStyle(); break;
+      case QuickAction::LowerBgDec:      adjustSelectedLowerAlpha(-16); break;
+      case QuickAction::LowerBgInc:      adjustSelectedLowerAlpha( 16); break;
+      case QuickAction::DurDec:          adjustSelectedStillDuration(-1.0); break;
+      case QuickAction::DurInc:          adjustSelectedStillDuration( 1.0); break;
+      case QuickAction::LoopCountDec:    adjustSelectedLoopCount(-1); break;
+      case QuickAction::LoopCountInc:    adjustSelectedLoopCount( 1); break;
+      case QuickAction::SpeedDec:        adjustSelectedSpeed(-0.25); break;
+      case QuickAction::SpeedInc:        adjustSelectedSpeed( 0.25); break;
+      case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
+      case QuickAction::EditNotes: {
+        Cue* sel = selectedCueMutable();
+        if (sel) {
+          auto result = pickTextInput("Cue Notes", "Enter notes for cue:", sel->notes);
+          if (result) {
+            sel->notes = *result;
+            markProjectDirty();
+          }
+        }
+        break;
+      }
+      case QuickAction::GotoMinus10:
+      case QuickAction::GotoMinus20:
+      case QuickAction::GotoMinus30: {
+        MediaEngine* eng = focusedMediaEngine();
+        if (eng) {
+          double dur = eng->duration();
+          double offset = (action == QuickAction::GotoMinus10) ? 10.0
+                        : (action == QuickAction::GotoMinus20) ? 20.0 : 30.0;
+          double target = std::max(0.0, dur - offset);
+          eng->seek(target);
+          triggerToast("jumped to -" + std::to_string(static_cast<int>(offset)) + "s");
+        }
+        break;
+      }
+      case QuickAction::ScaleDec:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScale = std::clamp(sel->outputScale - 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+        break;
+      case QuickAction::ScaleInc:
+        if (Cue* sel = selectedCueMutable()) { sel->outputScale = std::clamp(sel->outputScale + 0.05f, 0.25f, 4.0f); markProjectDirty(); }
+        break;
+      case QuickAction::OffsetXDec:
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX -= 10.0f; markProjectDirty(); }
+        break;
+      case QuickAction::OffsetXInc:
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX += 10.0f; markProjectDirty(); }
+        break;
+      case QuickAction::OffsetYDec:
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY -= 10.0f; markProjectDirty(); }
+        break;
+      case QuickAction::OffsetYInc:
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY += 10.0f; markProjectDirty(); }
+        break;
+      case QuickAction::EditCueNumber: {
+        Cue* sel = selectedCueMutable();
+        if (sel) {
+          auto result = pickTextInput("Cue Number", "Short cue label (e.g. Q1, 2A, INTRO):", sel->cueNumber);
+          if (result) {
+            sel->cueNumber = *result;
+            markProjectDirty();
+          }
+        }
+        break;
+      }
+      case QuickAction::AddPausePoint: {
+        Cue* sel = selectedCueMutable();
+        if (sel) {
+          MediaEngine* eng = focusedMediaEngine();
+          double pos = eng ? eng->position() : 0.0;
+          sel->pausePoints.push_back(pos);
+          std::sort(sel->pausePoints.begin(), sel->pausePoints.end());
+          // Update engine's live pause points
+          if (eng) eng->setPausePoints(sel->pausePoints);
+          triggerToast("pause point added at " + formatSeconds(pos));
+          markProjectDirty();
+        }
+        break;
+      }
+      case QuickAction::ClearPausePoints: {
+        Cue* sel = selectedCueMutable();
+        if (sel && !sel->pausePoints.empty()) {
+          sel->pausePoints.clear();
+          if (MediaEngine* eng = focusedMediaEngine()) eng->setPausePoints({});
+          triggerToast("pause points cleared");
+          markProjectDirty();
+        }
+        break;
+      }
+      case QuickAction::VolDec:
+        if (MediaEngine* eng = focusedMediaEngine()) {
+          eng->setVolume(eng->volume() - 0.05f);
+          triggerToast("vol " + std::to_string(static_cast<int>(std::round(eng->volume() * 100.0f))) + "%");
+        }
+        break;
+      case QuickAction::VolInc:
+        if (MediaEngine* eng = focusedMediaEngine()) {
+          eng->setVolume(eng->volume() + 0.05f);
+          triggerToast("vol " + std::to_string(static_cast<int>(std::round(eng->volume() * 100.0f))) + "%");
+        }
+        break;
+    }
+  }
+
+  void toggleShuffle() {
+    Deck& deck = focusedDeckMutable();
+    deck.shuffle = !deck.shuffle;
+    triggerToast(deck.shuffle ? "shuffle on" : "shuffle off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   void toggleSelectedLoop() {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
     cue->loop = !cue->loop;
     triggerToast(cue->loop ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void setSelectedLoop(bool enabled) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video || cue->loop == enabled) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio) || cue->loop == enabled) {
       return;
     }
     cue->loop = enabled;
     triggerToast(cue->loop ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleSelectedPauseOnLastFrame() {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
     cue->pauseOnLastFrame = !cue->pauseOnLastFrame;
-    triggerToast(cue->pauseOnLastFrame ? "hold frame on" : "hold frame off");
+    triggerToast(cue->pauseOnLastFrame ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void setSelectedPauseOnLastFrame(bool enabled) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video || cue->pauseOnLastFrame == enabled) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio) || cue->pauseOnLastFrame == enabled) {
       return;
     }
     cue->pauseOnLastFrame = enabled;
-    triggerToast(cue->pauseOnLastFrame ? "hold frame on" : "hold frame off");
+    triggerToast(cue->pauseOnLastFrame ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);
-    persistProject();
+    markProjectDirty();
   }
 
   void adjustSelectedFade(bool fadeIn, double deltaSeconds) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
     double& target = fadeIn ? cue->fadeInSeconds : cue->fadeOutSeconds;
     target = std::clamp(target + deltaSeconds, 0.0, 10.0);
     triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(target));
-    persistProject();
+    markProjectDirty();
+  }
+
+  void adjustSelectedIn(double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) return;
+    cue->inPointSeconds = std::clamp(cue->inPointSeconds + delta, 0.0, cue->duration > 0.0 ? cue->duration : 3600.0);
+    triggerToast("in " + formatSeconds(cue->inPointSeconds));
+    markProjectDirty();
+  }
+
+  void adjustSelectedOut(double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) return;
+    double cur = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : cue->duration;
+    cur = std::clamp(cur + delta, 0.0, cue->duration > 0.0 ? cue->duration : 3600.0);
+    cue->outPointSeconds = cur;
+    triggerToast("out " + formatSeconds(cue->outPointSeconds));
+    markProjectDirty();
+  }
+
+  void adjustSelectedCueTransition(double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) return;
+    if (cue->cueTransitionSeconds < 0.0) {
+      // First nudge: initialize from deck default
+      cue->cueTransitionSeconds = focusedDeck().transitionSeconds;
+    }
+    cue->cueTransitionSeconds = std::clamp(cue->cueTransitionSeconds + delta, 0.0, 10.0);
+    triggerToast("cue trans " + formatSeconds(cue->cueTransitionSeconds));
+    markProjectDirty();
+  }
+
+  void cycleSelectedCueTransStyle() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) return;
+    static const std::vector<std::string> kStyles = {"cut", "crossfade", "dip"};
+    std::string cur = cue->cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue->cueTransitionStyle;
+    auto it = std::find(kStyles.begin(), kStyles.end(), cur);
+    if (it == kStyles.end() || std::next(it) == kStyles.end()) {
+      cue->cueTransitionStyle = kStyles.front();
+    } else {
+      cue->cueTransitionStyle = *std::next(it);
+    }
+    triggerToast("cue style: " + cue->cueTransitionStyle);
+    markProjectDirty();
+  }
+
+  void adjustSelectedLowerAlpha(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::LowerThird) return;
+    cue->lowerThirdBgAlpha = std::clamp(cue->lowerThirdBgAlpha + delta, 0, 255);
+    triggerToast("overlay alpha " + std::to_string(cue->lowerThirdBgAlpha));
+    markProjectDirty();
+  }
+
+  void adjustSelectedStillDuration(double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind == CueKind::Video) return;
+    cue->stillDurationSeconds = std::max(0.0, cue->stillDurationSeconds + delta);
+    if (cue->stillDurationSeconds < 0.5 && delta < 0) cue->stillDurationSeconds = 0.0;
+    triggerToast(cue->stillDurationSeconds > 0.0
+      ? "still dur " + formatSeconds(cue->stillDurationSeconds)
+      : "still dur: hold");
+    markProjectDirty();
+  }
+
+  void adjustSelectedLoopCount(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) return;
+    cue->loopCount = std::max(0, cue->loopCount + delta);
+    triggerToast(cue->loopCount == 0 ? "repeats: inf" : "repeats: " + std::to_string(cue->loopCount) + "x");
+    markProjectDirty();
+  }
+
+  void adjustSelectedSpeed(double delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Video) return;
+    cue->playbackSpeed = std::clamp(std::round((cue->playbackSpeed + delta) * 4.0) / 4.0, 0.25, 4.0);
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2) << cue->playbackSpeed;
+    triggerToast("speed: " + ss.str() + "x");
+    markProjectDirty();
+  }
+
+  void cycleSelectedColorTag() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) return;
+    cue->colorTag = nextColorTag(cue->colorTag);
+    triggerToast("tag: " + (cue->colorTag.empty() ? "none" : cue->colorTag));
+    markProjectDirty();
+  }
+
+  void clearOverlay() {
+    Deck& deck = focusedDeckMutable();
+    deck.overlayActiveIndices.clear();
+    triggerToast("overlay cleared");
+    markProjectDirty();
+  }
+
+  void popOverlay() {
+    Deck& deck = focusedDeckMutable();
+    if (!deck.overlayActiveIndices.empty()) {
+      deck.overlayActiveIndices.pop_back();
+      triggerToast("overlay popped");
+      markProjectDirty();
+    }
   }
 
   void setSelectedFade(bool fadeIn, double seconds) {
@@ -5970,7 +9932,7 @@ class App {
     }
     target = next;
     triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(target));
-    persistProject();
+    markProjectDirty();
   }
 
   void deleteSelected() {
@@ -5997,7 +9959,7 @@ class App {
     }
     triggerToast("cart popped");
     playUiSound(UiSoundEffect::Delete);
-    persistProject();
+    markProjectDirty();
   }
 
   void handleDropFile(const char* rawPath) {
@@ -6008,14 +9970,16 @@ class App {
   }
 
   void importWithPicker() {
-    auto result = pickFiles();
-    if (result.empty()) {
-      return;
+    if (pendingImport_.valid() &&
+        pendingImport_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+      return;  // already picking
     }
-    importPaths(result);
+    pendingImport_ = std::async(std::launch::async, [this] {
+      return pickFiles();
+    });
   }
 
-  std::optional<fs::path> pickProjectPath(bool saveMode) {
+  std::optional<fs::path> pickProjectPath(bool saveMode, std::string initialPath = {}) {
 #ifdef _WIN32
     std::string script = saveMode
       ? "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Filter = 'Playboy Playlist (*.playboy)|*.playboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
@@ -6046,14 +10010,14 @@ class App {
           "--confirm-overwrite",
           "--title=Save Playboy playlist",
           "--filename",
-          currentProjectFile_.string()
+          initialPath
         })
       : readAllText({
           "zenity",
           "--file-selection",
           "--title=Open Playboy playlist",
           "--filename",
-          currentProjectFile_.string()
+          initialPath
         });
 #endif
     if (!text) {
@@ -6080,21 +10044,25 @@ class App {
   }
 
   void openProjectFromPicker() {
-    auto picked = pickProjectPath(false);
-    if (!picked) {
+    if (pendingProjectOpen_.valid() &&
+        pendingProjectOpen_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
       return;
     }
-    openProjectFromPath(*picked);
+    std::string ip = currentProjectFile_.string();  // capture on main thread — no race
+    pendingProjectOpen_ = std::async(std::launch::async, [this, ip = std::move(ip)] {
+      return pickProjectPath(false, ip);
+    });
   }
 
   void saveProjectAsFromPicker() {
-    auto picked = pickProjectPath(true);
-    if (!picked) {
+    if (pendingProjectSaveAs_.valid() &&
+        pendingProjectSaveAs_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
       return;
     }
-    currentProjectFile_ = *picked;
-    persistProject();
-    triggerToast("saved as " + currentProjectLabel());
+    std::string ip = currentProjectFile_.string();  // capture on main thread — no race
+    pendingProjectSaveAs_ = std::async(std::launch::async, [this, ip = std::move(ip)] {
+      return pickProjectPath(true, ip);
+    });
   }
 
   std::optional<std::string> pickBrowserUrl() {
@@ -6129,6 +10097,34 @@ class App {
       return std::nullopt;
     }
     return value;
+  }
+
+  std::optional<std::string> pickTextInput(const std::string& title,
+                                            const std::string& prompt,
+                                            const std::string& defaultVal = "") {
+    auto shellEscape = [](const std::string& s) {
+      std::string out;
+      for (char ch : s) {
+        if (ch == '\'') out += "'\"'\"'";
+        else out += ch;
+      }
+      return out;
+    };
+    std::string safeTitle   = shellEscape(title);
+    std::string safePrompt  = shellEscape(prompt);
+    std::string safeDefault = shellEscape(defaultVal);
+    std::string cmd = "zenity --entry --title='" + safeTitle +
+                      "' --text='" + safePrompt +
+                      "' --entry-text='" + safeDefault + "' 2>/dev/null";
+    FILE* pipe = popen(cmd.c_str(), "r");
+    if (!pipe) return std::nullopt;
+    char buf[2048] = {};
+    std::string result;
+    while (fgets(buf, sizeof(buf), pipe)) result += buf;
+    pclose(pipe);
+    if (!result.empty() && result.back() == '\n') result.pop_back();
+    if (result.empty()) return std::nullopt;
+    return std::optional<std::string>(result);
   }
 
   std::vector<std::string> pickFiles() {
@@ -6197,13 +10193,14 @@ class App {
     if (url.empty()) {
       return;
     }
+    auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
 
     Cue cue;
     cue.kind = CueKind::Browser;
     cue.path = url;
     cue.name = browserCueNameForUrl(url);
-    cue.width = 1280;
-    cue.height = 720;
+    cue.width = rasterW;
+    cue.height = rasterH;
     cue.color = SDL_Color {139, 172, 15, 255};
     cue.formatName = "browser";
     cue.videoCodec = "chromium";
@@ -6215,7 +10212,7 @@ class App {
     onSelectionChanged();
     triggerToast("browser cue added");
     playUiSound(UiSoundEffect::Import);
-    persistProject();
+    markProjectDirty();
   }
 
   void addBrowserCueFromPrompt() {
@@ -6226,22 +10223,67 @@ class App {
     addBrowserCue(*url);
   }
 
-  void addKawaiiPatternCue() {
+  void addLowerThirdCue() {
+    Cue cue;
+    cue.kind = CueKind::LowerThird;
+    cue.path = "graphic://lower-third";
+    cue.name = "Lower Third";
+    cue.lowerThirdText = "Lower Third Title";
+    cue.lowerThirdSubtext = "";
+    cue.lowerThirdBgAlpha = 180;
+    cue.color = colorFromRgba(kScreenDeepColor);
+    cue.formatName = "graphic";
+    Deck& deck = focusedDeckMutable();
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("lower third cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  // Named pattern types and their pretty labels.
+  static const std::vector<std::pair<std::string, std::string>>& patternTypes() {
+    static const std::vector<std::pair<std::string, std::string>> types {
+      {"pocket-test",   "Pocket Test (animated)"},
+      {"smpte-bars",    "SMPTE 75% Colour Bars"},
+      {"crosshatch",    "Crosshatch"},
+      {"checkerboard",  "Checkerboard"},
+      {"full-white",    "Full White"},
+      {"full-black",    "Full Black"},
+      {"full-red",      "Full Red"},
+      {"full-green",    "Full Green"},
+      {"full-blue",     "Full Blue"},
+    };
+    return types;
+  }
+
+  void addPatternCue(const std::string& typeId) {
+    const auto& types = patternTypes();
+    std::string label = typeId;
+    for (const auto& [id, lbl] : types) {
+      if (id == typeId) { label = lbl; break; }
+    }
+    auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
     Cue cue;
     cue.kind = CueKind::Pattern;
-    cue.path = "pattern://kawaii-pocket";
-    cue.name = "Kawaii Pocket Pattern";
-    cue.width = 1280;
-    cue.height = 720;
-    cue.color = colorFromRgba(kScreenDarkColor);
+    cue.path = "pattern://" + typeId;
+    cue.name = label;
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {50, 50, 120, 255};
     cue.formatName = "generated";
     Deck& deck = focusedDeckMutable();
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
-    triggerToast("kawaii test pattern added");
+    triggerToast("pattern: " + label);
     playUiSound(UiSoundEffect::Import);
-    persistProject();
+    markProjectDirty();
+  }
+
+  void addKawaiiPatternCue() {
+    addPatternCue("pocket-test");
   }
 
   void importPaths(const std::vector<std::string>& rawPaths) {
@@ -6281,7 +10323,7 @@ class App {
     }
     triggerToast(addedCount == 1 ? "1 new cart loaded" : std::to_string(addedCount) + " new carts loaded");
     playUiSound(UiSoundEffect::Import);
-    persistProject();
+    markProjectDirty();
   }
 
   void toggleOutputFullscreen() {
@@ -6300,9 +10342,10 @@ class App {
     buttons_.clear();
     int x = kPadding + 16;
     int y = windowHeight - 74;
-    auto push = [&](std::string label, SDL_Color fill) {
+    auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
       button.label = std::move(label);
+      button.tip   = std::move(tip);
       button.rect = {x, y, 118, 44};
       button.fill = fill;
       button.outline = colorFromRgba(kScreenDeepColor);
@@ -6310,15 +10353,15 @@ class App {
       buttons_.push_back(button);
       x += button.rect.w + 10;
     };
-    push("Import", colorFromRgba(kScreenMidColor));
-    push("Take", colorFromRgba(kScreenLightColor));
-    push("Go/Pause", colorFromRgba(kScreenMidColor));
-    push("Stop", colorFromRgba(kScreenMidColor));
-    push("Clear", colorFromRgba(kScreenMidColor));
-    push("Fullscreen", colorFromRgba(kScreenMidColor));
-    push("Delete", colorFromRgba(kDeleteBezelColor));
-    push("SFX", project_.uiSoundsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kButtonBezelColor));
-    push("ANIM", project_.uiTransitionsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kButtonBezelColor));
+    push("Import",     colorFromRgba(kScreenMidColor),   "I — import media files (drag-and-drop also works)");
+    push("Take",       colorFromRgba(kScreenLightColor),  "Enter — load & play the selected cue");
+    push("Go/Pause",   colorFromRgba(kScreenMidColor),   "Space — play, pause, or resume active cue");
+    push("Stop",       colorFromRgba(kScreenMidColor),   "S — stop and rewind active cue");
+    push("Clear",      colorFromRgba(kScreenMidColor),   "C — cut to black, clear the output");
+    push("Fullscreen", colorFromRgba(kScreenMidColor),   "F — toggle output window fullscreen");
+    push("Delete",     colorFromRgba(kDeleteBezelColor), "Delete — remove selected cue from playlist");
+    push("SFX",    project_.uiSoundsEnabled   ? colorFromRgba(kScreenLightColor) : colorFromRgba(kButtonBezelColor),
+         "1 — toggle UI click sounds  |  2 — toggle UI animations");
   }
 
   const Cue* selectedCuePtr(int deckIndex) const {
@@ -6408,6 +10451,7 @@ class App {
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;
   TTF_Font* fontMono_ = nullptr;
+  TTF_Font* fontPixel_ = nullptr;
   SDL_AudioDeviceID uiAudioDevice_ = 0;
   fs::path currentProjectFile_;
   Project project_;
@@ -6416,14 +10460,84 @@ class App {
   NdiApi ndiApi_;
 #endif
   std::vector<Button> buttons_;
-  std::vector<SDL_Rect> deckTabRects_;
+  std::vector<SDL_Rect> deckColumnRects_;
+  std::vector<SDL_Rect> deckListClipRects_;
   SDL_Rect progressBarRect_ {};
-  int listScroll_ = 0;
+  SDL_Rect mascotRect_ {};
+
+  // Context menu
+  bool contextMenuOpen_ = false;
+  int contextMenuDeckIdx_ = 0;
+  int contextMenuCueIdx_ = 0;
+  SDL_Rect contextMenuRect_ {};
+  struct ContextItem {
+    std::string label;
+    SDL_Color swatch {0,0,0,0};
+    std::function<void()> action;
+    SDL_Rect rect {};
+  };
+  std::vector<ContextItem> contextItems_;
+
+  // Pattern picker popup
+  bool patternPickerOpen_ = false;
+  SDL_Rect patternPickerRect_ {};
+  struct PatternItem { std::string label; std::string typeId; SDL_Rect rect {}; };
+  std::vector<PatternItem> patternItems_;
+
+  // Deck settings modal
+  bool deckSettingsOpen_ = false;
+  int deckSettingsDeckIdx_ = 0;
+  SDL_Rect deckSettingsCloseBtn_ {};
+  std::vector<SDL_Rect> deckGearBtns_;
+  SDL_Rect dsTransDurMinus_ {}, dsTransDurPlus_ {};
+  std::vector<SDL_Rect> dsTransStyleBtns_;
+  SDL_Rect dsTcFpsCycle_ {}, dsTcChaseBtn_ {}, dsTcRunBtn_ {}, dsTcTrigBtn_ {};
+  SDL_Rect dsTcSetBtn_ {};
+  SDL_Rect dsNdiToggle_ {}, dsNdiRename_ {};
+
+  // Master fader
+  SDL_Rect masterFaderRect_ {};
+
+  // HyperDeck server
+  int hyperDeckPort_ = 9992;
+  std::thread hyperDeckThread_;
+  std::atomic<bool> hyperDeckRunning_ {false};
+  int hyperDeckListenFd_ = -1;
+
+  SDL_Texture* controlPreviewTex_ = nullptr;
+  int controlPreviewTexW_ = 0;
+  int controlPreviewTexH_ = 0;
+  std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+  std::vector<QuickButton> quickButtons_;
+  // Per-selection thumbnail (decoded from the selected cue via ffmpeg)
+  ChildProcess thumbnailProcess_;
+  std::thread thumbnailThread_;
+  std::mutex thumbnailMutex_;
+  std::optional<DecodedFrame> pendingThumbnail_;
+  std::atomic<bool> thumbnailPending_ {false};
+  SDL_Texture* selectedThumbnailTex_ = nullptr;
+  int selectedThumbnailTexW_ = 0;
+  int selectedThumbnailTexH_ = 0;
+  std::string selectedThumbnailCueId_;
+  std::vector<int> deckScrolls_;
+  int mouseX_ = 0;
+  int mouseY_ = 0;
+  bool confirmQuit_ = false;
+  SDL_Rect quitYesBtn_ {};
+  SDL_Rect quitNoBtn_ {};
+  bool showStartupDialog_ = false;
+  SDL_Rect startupLoadBtn_ {};
+  SDL_Rect startupNewBtn_ {};
+  std::future<std::vector<std::string>> pendingImport_;
+  std::future<std::optional<fs::path>> pendingProjectOpen_;
+  std::future<std::optional<fs::path>> pendingProjectSaveAs_;
   DragState drag_;
   ToastState toast_;
   Uint64 animationNow_ = 0;
   Uint64 selectionChangedAt_ = 0;
   Uint64 lastUpdateTickMs_ = 0;
+  bool projectDirty_ = false;
+  std::chrono::steady_clock::time_point projectDirtyAt_;
   int companionPort_ = 5510;
   bool companionReady_ = false;
   std::atomic<bool> companionStop_ {false};
@@ -6435,6 +10549,29 @@ class App {
   std::string statusSnapshotJson_;
   std::vector<std::string> statusDeckSnapshots_;
   std::map<int, std::unordered_set<std::string>> timecodeTriggeredCueIds_;
+  std::vector<std::int16_t> vuSamples_;
+  std::mutex vuSamplesMutex_;
+  // Waveform analysis cache (path → peaks vector)
+  std::map<std::string, std::vector<float>> waveformCache_;
+  std::map<std::string, std::future<std::vector<float>>> waveformFutures_;
+  std::mutex waveformMutex_;
+  // Settings modal
+  bool settingsOpen_ = false;
+  int settingsTab_ = 0; // 0=Audio 1=MIDI 2=OSC 3=Video 4=About
+  SDL_Rect settingsCloseBtn_ {};
+  SDL_Rect settingsGearRect_ {};
+  SDL_Rect blackoutBtnRect_ {};
+  double masterDimmerTarget_ = 1.0;  // target for animated masterDimmer (0=black, 1=full)
+  struct SettingsButton { SDL_Rect rect; int action; std::string label; };
+  std::vector<SettingsButton> settingsBtns_;
+  bool midiEnabled_ = false;
+  std::string midiDeviceName_;
+#if defined(PLAYBOY_HAS_ALSA)
+  snd_seq_t* midiSeq_ = nullptr;
+  int midiSeqPort_ = -1;
+  std::thread midiThread_;
+  std::atomic<bool> midiStop_ {false};
+#endif
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
