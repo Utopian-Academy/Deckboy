@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Playboy Contributors
+// This file is part of Playboy, a cue deck for live events.
+// See LICENSE for details.
+
+
 #include "paths.hpp"
 #include <cstdlib>
 #include <string>

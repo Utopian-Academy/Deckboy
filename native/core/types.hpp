@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Playboy Contributors
+// This file is part of Playboy, a cue deck for live events.
+// See LICENSE for details.
+
+
 #ifndef PLAYBOY_CORE_TYPES_HPP
 #define PLAYBOY_CORE_TYPES_HPP
 

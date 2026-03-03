@@ -1,0 +1,233 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  linux-build:
+    name: Linux Build (Ubuntu)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: [none, midi, decklink, all]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            pkg-config \
+            libsdl2-dev \
+            libsdl2-ttf-dev \
+            libfmt-dev
+      
+      - name: Install RtMidi (MIDI tests)
+        if: matrix.features == 'midi' || matrix.features == 'all'
+        run: sudo apt-get install -y librtmidi-dev
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure (no features)
+        if: matrix.features == 'none'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+      
+      - name: Configure (with MIDI)
+        if: matrix.features == 'midi'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON
+      
+      - name: Configure (with DeckLink stubs)
+        if: matrix.features == 'decklink'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_DECKLINK=ON
+      
+      - name: Configure (all features)
+        if: matrix.features == 'all'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+            -DENABLE_MIDI=ON \
+            -DENABLE_DECKLINK=ON
+      
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc)
+      
+      - name: Self-check
+        run: |
+          cd build
+          ./playboy-native --self-check
+      
+      - name: Upload artifact
+        if: matrix.features == 'none'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playboy-native-linux
+          path: build/playboy-native
+
+  macos-build:
+    name: macOS Build (Apple Silicon/Intel)
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        features: [none, midi, siphon, all]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          brew install cmake sdl2 sdl2_ttf pkg-config
+      
+      - name: Install RtMidi (MIDI tests)
+        if: matrix.features == 'midi' || matrix.features == 'all'
+        run: brew install rtmidi
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure (no features)
+        if: matrix.features == 'none'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+      
+      - name: Configure (with MIDI)
+        if: matrix.features == 'midi'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+            -DENABLE_MIDI=ON
+      
+      - name: Configure (with Siphon stubs)
+        if: matrix.features == 'siphon'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+            -DENABLE_SIPHON=ON
+      
+      - name: Configure (all features)
+        if: matrix.features == 'all'
+        run: |
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
+            -DENABLE_MIDI=ON \
+            -DENABLE_SIPHON=ON
+      
+      - name: Build
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu)
+      
+      - name: Self-check
+        run: |
+          cd build
+          ./playboy-native --self-check
+      
+      - name: Upload artifact
+        if: matrix.features == 'none'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playboy-native-macos
+          path: build/playboy-native
+
+  windows-build:
+    name: Windows Build (MSVC)
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        features: [none, midi, spout, all]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          .\bootstrap-vcpkg.bat
+      
+      - name: Install dependencies
+        run: |
+          .\vcpkg\vcpkg install `
+            sdl2:x64-windows `
+            sdl2-ttf:x64-windows
+      
+      - name: Install RtMidi (MIDI tests)
+        if: matrix.features == 'midi' || matrix.features == 'all'
+        run: |
+          .\vcpkg\vcpkg install rtmidi:x64-windows
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure (no features)
+        if: matrix.features == 'none'
+        run: |
+          cd build
+          cmake .. `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
+      
+      - name: Configure (with MIDI)
+        if: matrix.features == 'midi'
+        run: |
+          cd build
+          cmake .. `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DENABLE_MIDI=ON
+      
+      - name: Configure (with Spout stubs)
+        if: matrix.features == 'spout'
+        run: |
+          cd build
+          cmake .. `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DENABLE_SPOUT=ON
+      
+      - name: Configure (all features)
+        if: matrix.features == 'all'
+        run: |
+          cd build
+          cmake .. `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DENABLE_MIDI=ON `
+            -DENABLE_SPOUT=ON
+      
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release -j (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+      
+      - name: Self-check
+        run: |
+          cd build\Release
+          .\playboy-native.exe --self-check
+      
+      - name: Upload artifact
+        if: matrix.features == 'none'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playboy-native-windows
+          path: build\Release\playboy-native.exe
