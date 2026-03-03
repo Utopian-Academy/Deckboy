@@ -1113,6 +1113,11 @@ enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
 struct DeckRuntime {
   SDL_Window* outputWindow = nullptr;
   SDL_Renderer* outputRenderer = nullptr;
+  SDL_Texture* compositorTexture = nullptr;
+  int compositorWidth = 0;
+  int compositorHeight = 0;
+  Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
+  int compositorBitDepth = 8;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
   // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
@@ -1576,6 +1581,9 @@ void normalizeProject(Project& project) {
     project.outputRefreshRateHz = 0.0;
   }
   project.outputRefreshRateHz = std::min(project.outputRefreshRateHz, 240.0);
+  if (project.outputBitDepth != 0 && project.outputBitDepth != 8 && project.outputBitDepth != 10) {
+    project.outputBitDepth = 0;
+  }
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
 }
 
@@ -1703,6 +1711,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "output_render_width\t" << project.outputRenderWidth << '\n';
   output << "output_render_height\t" << project.outputRenderHeight << '\n';
   output << "output_refresh_hz\t" << project.outputRefreshRateHz << '\n';
+  output << "output_bit_depth\t" << project.outputBitDepth << '\n';
 
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
@@ -1854,6 +1863,8 @@ Project loadProject(const fs::path& projectFile) {
       project.outputRenderHeight = safeInt(fields, 1, 1080);
     } else if (fields[0] == "output_refresh_hz") {
       project.outputRefreshRateHz = std::max(0.0, safeDouble(fields, 1, 0.0));
+    } else if (fields[0] == "output_bit_depth") {
+      project.outputBitDepth = safeInt(fields, 1, 0);
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -3733,6 +3744,7 @@ class App {
       deck.cues.push_back(imgCue);   // [1]: image still — stillDuration test
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
       project.decks = {deck};
+      project.outputBitDepth = 10;
       normalizeProject(project);
 
       fs::path smokePath = fs::path("/tmp") / "playboy-smoke.playboy";
@@ -3742,6 +3754,7 @@ class App {
       if (!loaded.decks.empty() && !loaded.decks[0].cues.empty()) {
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
+        expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
@@ -3950,6 +3963,14 @@ class App {
       SDL_CloseAudioDevice(runtime.audioDevice);
       runtime.audioDevice = 0;
     }
+    if (runtime.compositorTexture) {
+      SDL_DestroyTexture(runtime.compositorTexture);
+      runtime.compositorTexture = nullptr;
+    }
+    runtime.compositorWidth = 0;
+    runtime.compositorHeight = 0;
+    runtime.compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
+    runtime.compositorBitDepth = 8;
     if (runtime.outputRenderer) {
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
@@ -4297,6 +4318,129 @@ class App {
     return formatRefreshRateLabel(project_.outputRefreshRateHz);
   }
 
+  static bool isTenBitFormat(Uint32 format) {
+    return format == SDL_PIXELFORMAT_ARGB2101010;
+  }
+
+  static int normalizeOutputBitDepthMode(int mode) {
+    if (mode == 8 || mode == 10) {
+      return mode;
+    }
+    return 0;
+  }
+
+  std::string outputBitDepthModeLabel() const {
+    int mode = normalizeOutputBitDepthMode(project_.outputBitDepth);
+    if (mode == 8) return "8-bit";
+    if (mode == 10) return "10-bit";
+    return "auto";
+  }
+
+  std::string outputBitDepthActiveLabel(int deckIndex) const {
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return "n/a";
+    }
+    return std::to_string(runtime->compositorBitDepth) + "-bit";
+  }
+
+  static bool rendererSupportsTextureFormat(SDL_Renderer* renderer, Uint32 format) {
+    if (!renderer || format == SDL_PIXELFORMAT_UNKNOWN) {
+      return false;
+    }
+    SDL_RendererInfo info {};
+    if (SDL_GetRendererInfo(renderer, &info) != 0) {
+      return false;
+    }
+    for (Uint32 i = 0; i < info.num_texture_formats; ++i) {
+      if (info.texture_formats[i] == format) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Uint32 preferredCompositorFormat(SDL_Renderer* renderer) const {
+    if (!renderer) {
+      return SDL_PIXELFORMAT_RGBA32;
+    }
+    int mode = normalizeOutputBitDepthMode(project_.outputBitDepth);
+    bool supportsArgb2101010 = rendererSupportsTextureFormat(renderer, SDL_PIXELFORMAT_ARGB2101010);
+    if (mode == 10) {
+      if (supportsArgb2101010) return SDL_PIXELFORMAT_ARGB2101010;
+      return SDL_PIXELFORMAT_RGBA32;
+    }
+    if (mode == 0) {
+      if (supportsArgb2101010) return SDL_PIXELFORMAT_ARGB2101010;
+    }
+    return SDL_PIXELFORMAT_RGBA32;
+  }
+
+  bool configureDeckCompositor(int deckIndex, int width = -1, int height = -1) {
+    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return false;
+    }
+    int targetW = width;
+    int targetH = height;
+    if (targetW <= 0 || targetH <= 0) {
+      SDL_GetWindowSize(runtime->outputWindow, &targetW, &targetH);
+    }
+    targetW = std::max(1, targetW);
+    targetH = std::max(1, targetH);
+
+    Uint32 format = preferredCompositorFormat(runtime->outputRenderer);
+    SDL_Texture* compositor = SDL_CreateTexture(
+      runtime->outputRenderer,
+      format,
+      SDL_TEXTUREACCESS_TARGET,
+      targetW,
+      targetH
+    );
+    if (!compositor && format != SDL_PIXELFORMAT_RGBA32) {
+      format = SDL_PIXELFORMAT_RGBA32;
+      compositor = SDL_CreateTexture(
+        runtime->outputRenderer,
+        format,
+        SDL_TEXTUREACCESS_TARGET,
+        targetW,
+        targetH
+      );
+    }
+    if (!compositor) {
+      return false;
+    }
+    SDL_SetTextureBlendMode(compositor, SDL_BLENDMODE_BLEND);
+
+    if (runtime->compositorTexture) {
+      SDL_DestroyTexture(runtime->compositorTexture);
+    }
+    runtime->compositorTexture = compositor;
+    runtime->compositorWidth = targetW;
+    runtime->compositorHeight = targetH;
+    runtime->compositorFormat = format;
+    runtime->compositorBitDepth = isTenBitFormat(format) ? 10 : 8;
+    return true;
+  }
+
+  void applyOutputBitDepthAllDecks() {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(deckRuntimes_.size()); ++deckIndex) {
+      configureDeckCompositor(deckIndex);
+    }
+  }
+
+  void setOutputBitDepthMode(int mode) {
+    int normalized = normalizeOutputBitDepthMode(mode);
+    bool changed = normalized != normalizeOutputBitDepthMode(project_.outputBitDepth);
+    project_.outputBitDepth = normalized;
+    applyOutputBitDepthAllDecks();
+    triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")");
+    playUiSound(UiSoundEffect::Toggle);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
   std::vector<int> refreshChoicesForDeck(int deckIndex) const {
     std::vector<int> refreshes;
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
@@ -4440,6 +4584,10 @@ class App {
       destroyDeckRuntime(runtime);
       return false;
     }
+    if (!configureDeckCompositor(deckIndex, targetW, targetH)) {
+      destroyDeckRuntime(runtime);
+      return false;
+    }
 
     if (!reopenDeckAudioOutput(deckIndex, deck.audioOutputDeviceName)) {
       destroyDeckRuntime(runtime);
@@ -4549,6 +4697,7 @@ class App {
     if (fullscreen) {
       enableDeckFullscreen(deckIndex, false);
     }
+    configureDeckCompositor(deckIndex);
   }
 
   void applyOutputDisplaySelectionAllDecks(bool restartLiveBrowsers) {
@@ -5027,6 +5176,7 @@ class App {
            << " decks=" << project_.decks.size()
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
+           << " video_depth=" << outputBitDepthModeLabel()
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -5040,6 +5190,7 @@ class App {
              << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
              << " display=" << (deck.outputDisplayIndex + 1)
              << " raster=" << outputResolutionLabel(deckIndex)
+             << " depth=" << outputBitDepthActiveLabel(deckIndex)
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
              << " ndi=" << (deck.ndiEnabled ? "on" : "off")
              << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
@@ -5082,6 +5233,7 @@ class App {
            << " decks=" << project_.decks.size()
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
+           << " video_depth=" << outputBitDepthModeLabel()
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
@@ -5090,6 +5242,7 @@ class App {
            << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
            << " display=" << (deck.outputDisplayIndex + 1)
            << " raster=" << outputResolutionLabel(deckIndex)
+           << " depth=" << outputBitDepthActiveLabel(deckIndex)
            << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
            << " ndi=" << (deck.ndiEnabled ? "on" : "off")
            << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
@@ -5125,6 +5278,7 @@ class App {
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"outputMode\":\"" << (project_.outputFollowDisplay ? "native" : "fixed") << "\","
            << "\"outputRefreshHz\":" << project_.outputRefreshRateHz << ","
+           << "\"outputBitDepthMode\":\"" << escapeJson(outputBitDepthModeLabel()) << "\","
            << "\"decks\":[";
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (deckIndex > 0) {
@@ -5142,6 +5296,7 @@ class App {
              << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
              << "\"display\":" << (deck.outputDisplayIndex + 1) << ","
              << "\"raster\":\"" << outputResolutionLabel(deckIndex) << "\","
+             << "\"outputDepth\":\"" << outputBitDepthActiveLabel(deckIndex) << "\","
              << "\"audio\":\"" << escapeJson(deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\","
              << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
              << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
@@ -6744,7 +6899,7 @@ class App {
     if (command == "VIDEO" || command == "OUTPUTMODE") {
       if (parts.size() <= 1) {
         triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex)
-          + " @" + outputRefreshRateLabel());
+          + " @" + outputRefreshRateLabel() + " " + outputBitDepthModeLabel());
         return;
       }
 
@@ -6802,6 +6957,34 @@ class App {
           setOutputRefreshRate(std::stod(parts[2]));
         } catch (...) {
         }
+        return;
+      }
+      if (value == "BITDEPTH" || value == "DEPTH" || value == "FORMAT") {
+        if (parts.size() <= 2) {
+          triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")");
+          return;
+        }
+        std::string depthArg = toUpper(parts[2]);
+        if (depthArg == "AUTO") {
+          setOutputBitDepthMode(0);
+          return;
+        }
+        if (depthArg == "8" || depthArg == "8BIT" || depthArg == "8BPC") {
+          setOutputBitDepthMode(8);
+          return;
+        }
+        if (depthArg == "10" || depthArg == "10BIT" || depthArg == "10BPC") {
+          setOutputBitDepthMode(10);
+          return;
+        }
+        return;
+      }
+      if (value == "8BIT" || value == "8BPC") {
+        setOutputBitDepthMode(8);
+        return;
+      }
+      if (value == "10BIT" || value == "10BPC") {
+        setOutputBitDepthMode(10);
         return;
       }
       if (value == "NATIVE" || value == "AUTO" || value == "DISPLAY") {
@@ -8735,6 +8918,15 @@ class App {
     int width = 0;
     int height = 0;
     SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    if (!runtime->compositorTexture
+        || runtime->compositorWidth != width
+        || runtime->compositorHeight != height) {
+      configureDeckCompositor(deckIndex, width, height);
+    }
+    bool usingCompositor = runtime->compositorTexture != nullptr;
+    if (usingCompositor) {
+      SDL_SetRenderTarget(runtime->outputRenderer, runtime->compositorTexture);
+    }
     SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
     SDL_RenderClear(runtime->outputRenderer);
 
@@ -8838,6 +9030,12 @@ class App {
         static_cast<Uint8>((1.0 - project_.masterDimmer) * 255.0));
       SDL_RenderFillRect(runtime->outputRenderer, nullptr);
       SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+    }
+    if (usingCompositor) {
+      SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+      SDL_RenderClear(runtime->outputRenderer);
+      SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, nullptr, nullptr);
     }
     double fpsHint = activeCue && activeCue->kind == CueKind::Video ? std::max(1.0, activeCue->fps) : 30.0;
     sendDeckNdiFrame(deckIndex, width, height, fpsHint);
@@ -9089,6 +9287,9 @@ class App {
       drawText(controlRenderer_, fontSmall_,
                "Refresh target: " + outputRefreshRateLabel(),
                soft, cx, cy + 54);
+      drawText(controlRenderer_, fontSmall_,
+               "Output depth: " + outputBitDepthModeLabel() + " (active " + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")",
+               soft, cx, cy + 72);
 
       SDL_Rect nativeBtn {cx, cy + 82, 170, 28};
       bool nativeActive = project_.outputFollowDisplay;
@@ -9159,7 +9360,31 @@ class App {
       drawCenteredText(controlRenderer_, fontSmall_, "Custom WxH...", ink, customBtn);
       settingsBtns_.push_back({customBtn, 237, "video_custom"});
 
-      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 242);
+      SDL_Rect depthAutoBtn {cx, cy + 242, 90, 26};
+      drawFramedPanel(controlRenderer_, depthAutoBtn,
+                      project_.outputBitDepth == 0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Depth Auto",
+                       project_.outputBitDepth == 0 ? colorFromRgba(kScreenLightColor) : ink, depthAutoBtn);
+      settingsBtns_.push_back({depthAutoBtn, 242, "video_depth_auto"});
+
+      SDL_Rect depth8Btn {cx + 104, cy + 242, 90, 26};
+      drawFramedPanel(controlRenderer_, depth8Btn,
+                      project_.outputBitDepth == 8 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Depth 8-bit",
+                       project_.outputBitDepth == 8 ? colorFromRgba(kScreenLightColor) : ink, depth8Btn);
+      settingsBtns_.push_back({depth8Btn, 243, "video_depth_8"});
+
+      SDL_Rect depth10Btn {cx + 208, cy + 242, 100, 26};
+      drawFramedPanel(controlRenderer_, depth10Btn,
+                      project_.outputBitDepth == 10 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Depth 10-bit",
+                       project_.outputBitDepth == 10 ? colorFromRgba(kScreenLightColor) : ink, depth10Btn);
+      settingsBtns_.push_back({depth10Btn, 244, "video_depth_10"});
+
+      drawText(controlRenderer_, fontSmall_, "Tip: D key or DISPLAY command changes the target screen.", soft, cx, cy + 274);
 
     } else if (settingsTab_ == 4) {
       // About tab
@@ -9273,6 +9498,12 @@ class App {
             }
           }
         }
+      } else if (sb.action == 242) {
+        setOutputBitDepthMode(0);
+      } else if (sb.action == 243) {
+        setOutputBitDepthMode(8);
+      } else if (sb.action == 244) {
+        setOutputBitDepthMode(10);
       }
       return;
     }
