@@ -152,6 +152,7 @@ add_executable(playboy-native
   native/core/paths.cpp
   native/core/utils.cpp
   native/core/subprocess.cpp
+  native/render/primitives.cpp
 )
 
 # Platform modules (conditional)

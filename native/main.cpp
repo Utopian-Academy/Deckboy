@@ -5,6 +5,7 @@
 #include "core/types.hpp"
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
+#include "render/primitives.hpp"
 
 #include <algorithm>
 #include <array>
@@ -64,6 +65,8 @@ namespace fs = std::filesystem;
 using playboy::core::Paths;
 
 namespace {
+  using playboy::render::Primitives;
+
 
 constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
 
@@ -398,35 +401,6 @@ SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
     std::max(0, rect.h - amount * 2)
   };
 }
-
-void fillRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-  SDL_RenderFillRect(renderer, &rect);
-}
-
-void strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-  SDL_RenderDrawRect(renderer, &rect);
-}
-
-void drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color body, SDL_Color border, SDL_Color innerBorder) {
-  fillRect(renderer, rect, body);
-  strokeRect(renderer, rect, border);
-  SDL_Rect inner = insetRect(rect, 2);
-  if (inner.w > 0 && inner.h > 0) {
-    strokeRect(renderer, inner, innerBorder);
-  }
-}
-
-void drawSpeakerGrille(SDL_Renderer* renderer, int x, int y, int width, int bars, SDL_Color color) {
-  for (int index = 0; index < bars; ++index) {
-    SDL_Rect slot {x, y + index * 7, width, 3};
-    fillRect(renderer, slot, color);
-  }
-}
-
 bool pointInRect(int x, int y, const SDL_Rect& rect) {
   return x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h;
 }
@@ -5904,8 +5878,8 @@ class App {
   void drawWaveform(SDL_Renderer* ren, SDL_Rect dest, const std::vector<float>& peaks,
                     float playFrac, float inFrac, float outFrac,
                     const std::vector<double>& pausePoints = {}, double duration = 0.0) {
-    fillRect(ren, dest, colorFromRgba(kScreenDeepColor));
-    strokeRect(ren, dest, colorFromRgba(kScreenMidColor));
+    Primitives::fillRect(ren, dest, colorFromRgba(kScreenDeepColor));
+    Primitives::strokeRect(ren, dest, colorFromRgba(kScreenMidColor));
     if (peaks.empty()) {
       drawCenteredText(ren, fontSmall_, "analyzing...", colorFromRgba(kScreenInkSoftColor), dest);
       return;
@@ -8226,15 +8200,15 @@ class App {
 
     // Dialog panel: 340x180, centred
     SDL_Rect dialog {(width - 340) / 2, (height - 180) / 2, 340, 180};
-    drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
     drawText(controlRenderer_, fontLarge_, "QUIT PLAYBOY?", colorFromRgba(kScreenDeepColor), dialog.x + 24, dialog.y + 28);
 
     // YES / NO buttons
     quitYesBtn_ = {dialog.x + 26,  dialog.y + 90, 118, 44};
     quitNoBtn_  = {dialog.x + 196, dialog.y + 90, 118, 44};
-    drawFramedPanel(controlRenderer_, quitYesBtn_, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    drawFramedPanel(controlRenderer_, quitNoBtn_,  colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, quitYesBtn_, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, quitNoBtn_,  colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     drawCenteredText(controlRenderer_, fontBase_, "YES", colorFromRgba(kScreenLightColor), quitYesBtn_);
     drawCenteredText(controlRenderer_, fontBase_, "NO",  colorFromRgba(kScreenLightColor), quitNoBtn_);
 
@@ -8255,7 +8229,7 @@ class App {
     // Dialog panel
     const int kDW = 520, kDH = 340;
     SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
-    drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Title + file name
     int tx = dialog.x + 160;
@@ -8278,10 +8252,10 @@ class App {
 
     SDL_Color loadFill = hasSavedFile ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
     SDL_Color loadText = hasSavedFile ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
-    drawFramedPanel(controlRenderer_, startupLoadBtn_, loadFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, startupLoadBtn_, loadFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     drawCenteredText(controlRenderer_, fontBase_, hasSavedFile ? "LOAD SHOW" : "NO FILE", loadText, startupLoadBtn_);
 
-    drawFramedPanel(controlRenderer_, startupNewBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawCenteredText(controlRenderer_, fontBase_, "NEW SHOW", colorFromRgba(kScreenDeepColor), startupNewBtn_);
 
     drawText(controlRenderer_, fontSmall_, "Enter = load   N = new show", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 282);
@@ -8301,11 +8275,11 @@ class App {
     SDL_RenderClear(controlRenderer_);
 
     SDL_Rect shell {10, 10, width - 20, height - 20};
-    drawFramedPanel(controlRenderer_, shell, colorFromRgba(kShellOuterColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+    Primitives::drawFramedPanel(controlRenderer_, shell, colorFromRgba(kShellOuterColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
 
     // Global header strip
     SDL_Rect header {shell.x + 4, shell.y + 4, shell.w - 8, kGlobalHeaderH};
-    drawFramedPanel(controlRenderer_, header, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, header, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     // Pixel-font title with animated sparkle stars
     {
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
@@ -8350,12 +8324,12 @@ class App {
       int fy = header.y + header.h - kFaderH - 8;
       masterFaderRect_ = {fx, fy, kFaderW, kFaderH};
       SDL_Rect track = masterFaderRect_;
-      fillRect(controlRenderer_, track, colorFromRgba(kScreenDeepColor));
+      Primitives::fillRect(controlRenderer_, track, colorFromRgba(kScreenDeepColor));
       int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * kFaderW);
       SDL_Rect fill {track.x, track.y, fillW, track.h};
       SDL_Color faderCol = project_.masterVolume > 1.0 ? SDL_Color{180, 80, 20, 255} : colorFromRgba(kScreenDarkColor);
-      fillRect(controlRenderer_, fill, faderCol);
-      strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
+      Primitives::fillRect(controlRenderer_, fill, faderCol);
+      Primitives::strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
       int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
       drawText(controlRenderer_, fontSmall_, "vol " + std::to_string(volPct) + "%",
                colorFromRgba(kScreenDeepColor), track.x, track.y - 14);
@@ -8365,7 +8339,7 @@ class App {
       settingsGearRect_ = {header.x + header.w - 560, header.y + 6, 52, 40};
       SDL_Color gearFill = settingsOpen_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
       SDL_Color gearInk  = settingsOpen_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      drawFramedPanel(controlRenderer_, settingsGearRect_, gearFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, settingsGearRect_, gearFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, "prefs", gearInk, settingsGearRect_);
       // BLK (blackout) button
       {
@@ -8373,7 +8347,7 @@ class App {
         bool isBlacked = masterDimmerTarget_ < 0.5;
         SDL_Color blkFill = isBlacked ? SDL_Color{160, 18, 18, 255} : colorFromRgba(kShellInnerColor);
         SDL_Color blkInk  = isBlacked ? SDL_Color{255, 180, 180, 255} : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, blackoutBtnRect_, blkFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, blackoutBtnRect_, blkFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "BLK", blkInk, blackoutBtnRect_);
       }
     }
@@ -8394,7 +8368,7 @@ class App {
     int mainX = colStartX + numDecks * (kColWidth + 4);
     SDL_Rect mainPanel {mainX, contentY, shell.x + shell.w - 4 - mainX, contentH};
     if (mainPanel.w > 0) {
-      drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+      Primitives::drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
       renderMainPanel(mainPanel);
     }
 
@@ -8419,7 +8393,7 @@ class App {
     // Column header (deck name + active cue status)
     SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
     SDL_Color headerFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
-    drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
     drawText(controlRenderer_, fontBase_, deckName, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 8);
     const Cue* activeCue = activeCuePtr(deckIndex);
@@ -8441,7 +8415,7 @@ class App {
     SDL_Rect clipFrame {col.x + 4, listAreaY, col.w - 8, std::max(0, listAreaH)};
     deckListClipRects_[deckIndex] = clipFrame;
 
-    drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
     SDL_RenderSetClipRect(controlRenderer_, &clipRect);
     int y = clipRect.y - deckScrolls_[deckIndex];
@@ -8463,7 +8437,7 @@ class App {
     // Column footer (routing info)
     int footerY = col.y + col.h - kColFooterH;
     SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
-    drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     std::string routing = deckOutputRoutingLabel(deckIndex)
       + "  disp:" + std::to_string(deck.outputDisplayIndex + 1)
       + "  res:" + outputResolutionLabel(deckIndex)
@@ -8502,16 +8476,16 @@ class App {
       fill = {48, 80, 48, 255};  // distinct teal-ish tint for active overlay
     }
 
-    drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+    Primitives::drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
     if (project_.uiTransitionsEnabled && index == deck.selectedIndex) {
       double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
       SDL_Color glow {155, 188, 15, static_cast<Uint8>(60 + pulse * 80.0)};
-      strokeRect(controlRenderer_, insetRect(row, 1), glow);
+      Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
     }
 
     SDL_Rect chip {row.x + 12, row.y + 10, 10, row.h - 20};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
-    fillRect(controlRenderer_, chip, chipColor);
+    Primitives::fillRect(controlRenderer_, chip, chipColor);
 
     SDL_Color ink = index == deck.activeIndex ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
     SDL_Color subInk = index == deck.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
@@ -8568,7 +8542,7 @@ class App {
           Uint8 alpha = static_cast<Uint8>(180 + pulse * 75.0);
           SDL_Rect badge {row.x + row.w - 96, row.y + 8, 88, row.h - 16};
           SDL_Color badgeFill {15, 56, 15, alpha};
-          fillRect(controlRenderer_, badge, badgeFill);
+          Primitives::fillRect(controlRenderer_, badge, badgeFill);
         }
         drawText(controlRenderer_, fontMono_, remStr, remInk, row.x + row.w - 90, row.y + 28);
       }
@@ -8606,16 +8580,16 @@ class App {
     SDL_Rect panel {x, y, w, h};
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
     SDL_Color bg {15, 56, 15, 230};
-    fillRect(controlRenderer_, panel, bg);
+    Primitives::fillRect(controlRenderer_, panel, bg);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-    strokeRect(controlRenderer_, panel, colorFromRgba(kScreenDarkColor));
+    Primitives::strokeRect(controlRenderer_, panel, colorFromRgba(kScreenDarkColor));
     drawText(controlRenderer_, fontSmall_, tip, colorFromRgba(kScreenLightColor), panel.x + 10, panel.y + 6);
   }
 
   void renderButtons() {
     for (const auto& button : buttons_) {
-      fillRect(controlRenderer_, button.rect, button.fill);
-      strokeRect(controlRenderer_, button.rect, button.outline);
+      Primitives::fillRect(controlRenderer_, button.rect, button.fill);
+      Primitives::strokeRect(controlRenderer_, button.rect, button.outline);
       drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, button.rect);
     }
     // Hover tip for bottom-bar buttons
@@ -8645,7 +8619,7 @@ class App {
 
     SDL_Rect panel {windowWidth - 344, 36 + static_cast<int>((1.0 - visibility) * -24.0), 300, 58};
     panel.x = windowWidth - 44 - static_cast<int>(300.0 * visibility);
-    drawFramedPanel(controlRenderer_, panel, toast_.fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, panel, toast_.fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     drawText(controlRenderer_, fontSmall_, "cute mode", toast_.ink, panel.x + 14, panel.y + 10);
     drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 28);
   }
@@ -8654,15 +8628,15 @@ class App {
   void drawStar(SDL_Renderer* r, int cx, int cy, int S, SDL_Color c) {
     // Center pixel
     SDL_Rect center {cx - 1, cy - 1, 2, 2};
-    fillRect(r, center, c);
+    Primitives::fillRect(r, center, c);
     // Four arms
     for (int i = 1; i <= S; ++i) {
       Uint8 fade = static_cast<Uint8>(c.a * (S - i + 1) / (S + 1));
       SDL_Color arm {c.r, c.g, c.b, fade};
-      SDL_Rect h {cx + i, cy - 1, 2, 2}; fillRect(r, h, arm);
-      SDL_Rect hl{cx - i - 1, cy - 1, 2, 2}; fillRect(r, hl, arm);
-      SDL_Rect v {cx - 1, cy + i, 2, 2}; fillRect(r, v, arm);
-      SDL_Rect vt{cx - 1, cy - i - 1, 2, 2}; fillRect(r, vt, arm);
+      SDL_Rect h {cx + i, cy - 1, 2, 2}; Primitives::fillRect(r, h, arm);
+      SDL_Rect hl{cx - i - 1, cy - 1, 2, 2}; Primitives::fillRect(r, hl, arm);
+      SDL_Rect v {cx - 1, cy + i, 2, 2}; Primitives::fillRect(r, v, arm);
+      SDL_Rect vt{cx - 1, cy - i - 1, 2, 2}; Primitives::fillRect(r, vt, arm);
     }
   }
 
@@ -8683,7 +8657,7 @@ class App {
       return static_cast<Uint8>(static_cast<int>(base) * alpha / 255);
     };
     auto fb = [&](int ax, int ay, int aw, int ah, SDL_Color c) {
-      fillRect(r, {cx + ax * S, cy + ay * S, aw * S, ah * S}, c);
+      Primitives::fillRect(r, {cx + ax * S, cy + ay * S, aw * S, ah * S}, c);
     };
 
     // ── Palette (4-5 colours + outline, high contrast) ───────────────────
@@ -8710,12 +8684,12 @@ class App {
 
     // ── Dark poster card ─────────────────────────────────────────────────
     SDL_Rect card {cx - 10*S, cy - 16*S, 21*S, 31*S};
-    fillRect(r, card, {0x0C, 0x05, 0x18, a(225)});
+    Primitives::fillRect(r, card, {0x0C, 0x05, 0x18, a(225)});
     SDL_Color bord = {188, 28, 82, a(90)};
-    fillRect(r, {card.x - S,      card.y - S,     card.w + 2*S, S      }, bord);
-    fillRect(r, {card.x - S,      card.y+card.h,  card.w + 2*S, S      }, bord);
-    fillRect(r, {card.x - S,      card.y,         S,  card.h           }, bord);
-    fillRect(r, {card.x+card.w,   card.y,         S,  card.h           }, bord);
+    Primitives::fillRect(r, {card.x - S,      card.y - S,     card.w + 2*S, S      }, bord);
+    Primitives::fillRect(r, {card.x - S,      card.y+card.h,  card.w + 2*S, S      }, bord);
+    Primitives::fillRect(r, {card.x - S,      card.y,         S,  card.h           }, bord);
+    Primitives::fillRect(r, {card.x+card.w,   card.y,         S,  card.h           }, bord);
 
     // ── BUNNY EARS (tall, slender, pink) ─────────────────────────────────
     fb(-4, -16,  2,  7, earPk);   // left ear outer
@@ -8894,7 +8868,7 @@ class App {
         remColor = {brightness, static_cast<Uint8>(std::min(255, static_cast<int>(brightness) + 20)), 15, 255};
         SDL_Rect glowPanel {x + panel.w - 180, y + 58, 140, 28};
         SDL_Color glowFill {15, 56, 15, static_cast<Uint8>(40 + pulse * 100.0)};
-        fillRect(controlRenderer_, glowPanel, glowFill);
+        Primitives::fillRect(controlRenderer_, glowPanel, glowFill);
         bool tick = (static_cast<int>(remaining) % 2) == 0;
         std::string tickChar = tick ? ">" : "<";
         drawText(controlRenderer_, fontMono_, tickChar, remColor, x + panel.w - 195, y + 62);
@@ -8904,13 +8878,13 @@ class App {
     }
 
     progressBarRect_ = {x, y + 108, panel.w - 52, 20};
-    drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     double duration = engine ? engine->duration() : 0.0;
     double fraction = duration > 0.0 ? (engine ? engine->position() / duration : 0.0) : 0.0;
     fraction = std::clamp(fraction, 0.0, 1.0);
     SDL_Rect fillBar = insetRect(progressBarRect_, 3);
     fillBar.w = static_cast<int>(std::round(progressBarRect_.w * fraction));
-    fillRect(controlRenderer_, fillBar, colorFromRgba(kScreenDarkColor));
+    Primitives::fillRect(controlRenderer_, fillBar, colorFromRgba(kScreenDarkColor));
 
     // Pause point tick marks on progress bar
     if (activeCue && !activeCue->pausePoints.empty() && duration > 0.0) {
@@ -8933,7 +8907,7 @@ class App {
         {"-30s", QuickAction::GotoMinus30}, {"-20s", QuickAction::GotoMinus20}, {"-10s", QuickAction::GotoMinus10}
       }) {
         SDL_Rect btn {btnX, btnY, btnW, 18};
-        drawFramedPanel(controlRenderer_, btn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, btn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), btn);
         quickButtons_.push_back({btn, gotoAction, label + " from end"});
         btnX += btnW + 4;
@@ -8953,7 +8927,7 @@ class App {
     SDL_Color previewBg = hasLiveVideo ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
     SDL_Color previewBorder = hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
     SDL_Rect preview {x, midY, previewW, midH};
-    drawFramedPanel(controlRenderer_, preview, previewBg, colorFromRgba(kScreenDeepColor), previewBorder);
+    Primitives::drawFramedPanel(controlRenderer_, preview, previewBg, colorFromRgba(kScreenDeepColor), previewBorder);
     drawText(controlRenderer_, fontSmall_, "program monitor",
              hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenDeepColor),
              preview.x + 10, preview.y + 6);
@@ -9002,14 +8976,14 @@ class App {
       int vuY = preview.y + preview.h - 14;
       int vuW = preview.w - 8;
       SDL_Rect vuBg {preview.x + 4, vuY, vuW, 10};
-      drawFramedPanel(controlRenderer_, vuBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, vuBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       int fillW = static_cast<int>(vuW * std::clamp(rms * 4.0f, 0.0f, 1.0f));
       SDL_Color vuColor = rms > 0.7f ? SDL_Color{220, 60, 60, 255}
                         : rms > 0.5f ? SDL_Color{220, 180, 0, 255}
                         : colorFromRgba(kScreenDarkColor);
       if (fillW > 0) {
         SDL_Rect vuFill {vuBg.x + 2, vuBg.y + 2, std::min(fillW, vuW - 4), vuBg.h - 4};
-        fillRect(controlRenderer_, vuFill, vuColor);
+        Primitives::fillRect(controlRenderer_, vuFill, vuColor);
       }
     }
 
@@ -9018,12 +8992,12 @@ class App {
     // --- Per-cue settings panel (with thumbnail at top) ---
     int ctrlX = x + previewW + 12;
     SDL_Rect ctrl {ctrlX, midY, kCtrlW, midH};
-    drawFramedPanel(controlRenderer_, ctrl, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, ctrl, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Thumbnail of selected cue (top portion)
     constexpr int kThumbAreaH = 110;
     SDL_Rect thumbArea {ctrl.x + 4, ctrl.y + 4, kCtrlW - 8, kThumbAreaH};
-    drawFramedPanel(controlRenderer_, thumbArea, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+    Primitives::drawFramedPanel(controlRenderer_, thumbArea, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
     if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio cue: fill entire thumb area with waveform
       std::vector<float> peaks;
@@ -9104,20 +9078,20 @@ class App {
         SDL_Rect btn {rx, rowY, kCtrlW - 20, kRowH};
         SDL_Color fill = toggleOn ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color ink  = toggleOn ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, label + ": " + value, ink, btn.x + 10, btn.y + 8);
         quickButtons_.push_back({btn, toggleAction, tip});
       } else {
         drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), rx, rowY + 8);
         SDL_Rect decBtn {rx + kLabelW, rowY, kBtnW, kRowH};
-        drawFramedPanel(controlRenderer_, decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "-", colorFromRgba(kScreenDeepColor), decBtn);
         quickButtons_.push_back({decBtn, decAction, tip});
         SDL_Rect valRect {rx + kLabelW + kBtnW + 4, rowY, kValW, kRowH};
-        drawFramedPanel(controlRenderer_, valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        Primitives::drawFramedPanel(controlRenderer_, valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
         drawCenteredText(controlRenderer_, fontSmall_, value, colorFromRgba(kScreenDeepColor), valRect);
         SDL_Rect incBtn {rx + kLabelW + kBtnW + 4 + kValW + 4, rowY, kBtnW, kRowH};
-        drawFramedPanel(controlRenderer_, incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         quickButtons_.push_back({incBtn, incAction, tip});
       }
     };
@@ -9148,7 +9122,7 @@ class App {
       SDL_Rect colorBtn {ctrl.x + 10, rowY, kCtrlW - 20, 30};
       SDL_Color fill = cue.chromaKeyEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
       SDL_Color ink = cue.chromaKeyEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      drawFramedPanel(controlRenderer_, colorBtn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, colorBtn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawText(controlRenderer_, fontSmall_, "key color: " + colorToHex(cue.chromaKeyColor), ink, colorBtn.x + 10, colorBtn.y + 8);
       quickButtons_.push_back({colorBtn, QuickAction::EditKeyColor, "Click to set chroma-key color"});
     };
@@ -9245,7 +9219,7 @@ class App {
             ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
           SDL_Color styleInk = hasCueTrans
             ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-          drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
           drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
           quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
             "Click to cycle: cut / crossfade / dip  (sets per-cue style)"});
@@ -9262,15 +9236,15 @@ class App {
         SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
         SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
         quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue continuously"});
-        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
         quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — freeze on last frame instead of stopping"});
       }
       SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 30};
-      drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
                colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
       quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action: stop / next / loop"});
@@ -9286,7 +9260,7 @@ class App {
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
         SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 10, kCtrlW - 20, 28};
         SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C — cycle cue color tag"});
       }
@@ -9297,9 +9271,9 @@ class App {
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
         if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
@@ -9311,9 +9285,9 @@ class App {
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
         std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
-        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
         quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
       }
@@ -9326,9 +9300,9 @@ class App {
         SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
         drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
                  colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "+now", colorFromRgba(kScreenLightColor), addBtn);
-        drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
@@ -9346,12 +9320,12 @@ class App {
       drawText(controlRenderer_, fontSmall_, "graphic overlay cue", inkC, ctrl.x + 10, ry);
       // Preview main text line
       SDL_Rect txtPreview {ctrl.x + 10, ry + 24, kCtrlW - 20, 28};
-      drawFramedPanel(controlRenderer_, txtPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      Primitives::drawFramedPanel(controlRenderer_, txtPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       std::string mainTxt = selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText;
       drawCenteredText(controlRenderer_, fontSmall_, mainTxt, inkC, txtPreview);
       // Sub text
       SDL_Rect subPreview {ctrl.x + 10, ry + 56, kCtrlW - 20, 24};
-      drawFramedPanel(controlRenderer_, subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext, softC, subPreview);
       // Background alpha + duration controls
       drawQuickRow(ry + 90, "bg alpha", QuickAction::LowerBgDec,
@@ -9371,15 +9345,15 @@ class App {
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
         if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
       // Clear overlay button
       SDL_Rect clearBtn {ctrl.x + 10, ry + 226, kCtrlW - 20, 28};
-      drawFramedPanel(controlRenderer_, clearBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(controlRenderer_, clearBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
     } else if (selectedCue && (selectedCue->kind == CueKind::Image || selectedCue->kind == CueKind::Pattern)) {
       // Still image / pattern settings — full parity with video panel + duration
@@ -9410,7 +9384,7 @@ class App {
                                : (curStyle == "cut")       ? "cut" : "deck";
         SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
         quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
           "Click to cycle: cut / crossfade / dip"});
@@ -9432,17 +9406,17 @@ class App {
         SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
         SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
         quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this still"});
-        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
         quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this still indefinitely"});
       }
       // Row 5: end action
       {
         SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 5, kCtrlW - 20, 30};
-        drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
                  colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
         quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
@@ -9458,7 +9432,7 @@ class App {
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
         SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 28};
         SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
       }
@@ -9469,9 +9443,9 @@ class App {
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
         if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
@@ -9485,9 +9459,9 @@ class App {
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
         std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
-        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
         quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
       }
@@ -9517,7 +9491,7 @@ class App {
                                : (curStyle == "cut")       ? "cut" : "deck";
         SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
         quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
           "Click to cycle: cut / crossfade / dip"});
@@ -9529,9 +9503,9 @@ class App {
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
         if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
@@ -9545,9 +9519,9 @@ class App {
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
         std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
-        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
         quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
       }
@@ -9573,17 +9547,17 @@ class App {
         SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
         SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
         quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
-        drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
         quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
       }
       // End action
       {
         SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 4, kCtrlW - 20, 30};
-        drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
                  colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
         quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
@@ -9599,7 +9573,7 @@ class App {
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
         SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 6, kCtrlW - 20, 28};
         SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
       }
@@ -9610,9 +9584,9 @@ class App {
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
         if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
@@ -9624,9 +9598,9 @@ class App {
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
         std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
-        drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
         quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
       }
@@ -9637,9 +9611,9 @@ class App {
         SDL_Rect addBtn {ctrl.x + 10, ppY, 80, 26};
         SDL_Rect clrBtn {ctrl.x + 96, ppY, 46, 26};
         SDL_Rect infoLbl {ctrl.x + 148, ppY, kCtrlW - 158, 26};
-        drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "+pause pt", colorFromRgba(kScreenLightColor), addBtn);
-        drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        Primitives::drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
         drawText(controlRenderer_, fontSmall_, std::to_string(ppCount) + " pts",
                  colorFromRgba(kScreenInkSoftColor), infoLbl.x + 4, infoLbl.y + 6);
@@ -9673,7 +9647,7 @@ class App {
         4,
         cueSettingsViewportRect_.h - 4
       };
-      fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
+      Primitives::fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
       int thumbH = std::max(24, (cueSettingsViewportRect_.h * cueSettingsViewportRect_.h) /
                                  std::max(1, cueSettingsViewportRect_.h + cueSettingsScrollMax_));
       thumbH = std::min(thumbH, rail.h);
@@ -9681,7 +9655,7 @@ class App {
       int thumbOffset = static_cast<int>(std::lround(
         static_cast<double>(cueSettingsScroll_) / static_cast<double>(cueSettingsScrollMax_) * travel));
       SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
-      drawFramedPanel(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor),
+      Primitives::drawFramedPanel(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     }
 
@@ -10088,7 +10062,7 @@ class App {
       std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
       std::string tcLine = "tc: " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
       SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
-      drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
+      Primitives::drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
       drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
       drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
       drawText(runtime->outputRenderer, fontSmall_, tcLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 50);
@@ -10219,18 +10193,18 @@ class App {
     if (!contextMenuOpen_) return;
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
     SDL_Color bg {20, 50, 20, 245};
-    fillRect(controlRenderer_, contextMenuRect_, bg);
-    strokeRect(controlRenderer_, contextMenuRect_, colorFromRgba(kScreenDarkColor));
+    Primitives::fillRect(controlRenderer_, contextMenuRect_, bg);
+    Primitives::strokeRect(controlRenderer_, contextMenuRect_, colorFromRgba(kScreenDarkColor));
     for (const auto& item : contextItems_) {
       bool hover = pointInRect(mouseX_, mouseY_, item.rect);
       if (hover) {
         SDL_Color hov {48, 90, 48, 200};
-        fillRect(controlRenderer_, item.rect, hov);
+        Primitives::fillRect(controlRenderer_, item.rect, hov);
       }
       // Color swatch (small square on left)
       if (item.swatch.a > 0) {
         SDL_Rect sw {item.rect.x, item.rect.y + 4, 10, item.rect.h - 8};
-        fillRect(controlRenderer_, sw, item.swatch);
+        Primitives::fillRect(controlRenderer_, sw, item.swatch);
       }
       drawText(controlRenderer_, fontSmall_, item.label,
                hover ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor),
@@ -10254,14 +10228,14 @@ class App {
     // Modal panel
     constexpr int kModalW = 640, kModalH = 440;
     SDL_Rect modal {(width - kModalW) / 2, (height - kModalH) / 2, kModalW, kModalH};
-    drawFramedPanel(controlRenderer_, modal, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    Primitives::drawFramedPanel(controlRenderer_, modal, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Title
     drawText(controlRenderer_, fontBase_, "Preferences", colorFromRgba(kScreenDeepColor), modal.x + 16, modal.y + 10);
 
     // Close button [X]
     settingsCloseBtn_ = {modal.x + modal.w - 36, modal.y + 6, 28, 26};
-    drawFramedPanel(controlRenderer_, settingsCloseBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    Primitives::drawFramedPanel(controlRenderer_, settingsCloseBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawCenteredText(controlRenderer_, fontSmall_, "X", colorFromRgba(kScreenDeepColor), settingsCloseBtn_);
 
     // Tab bar
@@ -10272,7 +10246,7 @@ class App {
     for (int t = 0; t < (int)tabs.size(); ++t) {
       SDL_Rect tab {modal.x + 16 + t * (kTabW + 4), tabY, kTabW, kTabH};
       bool active = (t == settingsTab_);
-      drawFramedPanel(controlRenderer_, tab, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor),
+      Primitives::drawFramedPanel(controlRenderer_, tab, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, tabs[t],
                        active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), tab);
@@ -10281,7 +10255,7 @@ class App {
 
     // Content area
     SDL_Rect content {modal.x + 16, tabY + kTabH + 10, modal.w - 32, modal.h - kTabH - 70};
-    drawFramedPanel(controlRenderer_, content, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    Primitives::drawFramedPanel(controlRenderer_, content, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
     int cx = content.x + 12, cy = content.y + 10;
     SDL_Color ink = colorFromRgba(kScreenDeepColor);
@@ -10294,13 +10268,13 @@ class App {
       std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default)" : focusedDeck().audioOutputDeviceName;
       drawText(controlRenderer_, fontSmall_, devName, soft, cx, cy + 38);
       SDL_Rect devBtn {cx, cy + 60, 180, 26};
-      drawFramedPanel(controlRenderer_, devBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      Primitives::drawFramedPanel(controlRenderer_, devBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Change device...", ink, devBtn);
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
 
       drawText(controlRenderer_, fontSmall_, "UI sounds (key 1):", ink, cx, cy + 100);
       SDL_Rect sfxBtn {cx, cy + 118, 80, 24};
-      drawFramedPanel(controlRenderer_, sfxBtn, project_.uiSoundsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, sfxBtn, project_.uiSoundsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, project_.uiSoundsEnabled ? "ON" : "OFF",
                        project_.uiSoundsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), sfxBtn);
@@ -10308,7 +10282,7 @@ class App {
 
       drawText(controlRenderer_, fontSmall_, "UI animations (key 2):", ink, cx, cy + 155);
       SDL_Rect animBtn {cx, cy + 173, 80, 24};
-      drawFramedPanel(controlRenderer_, animBtn, project_.uiTransitionsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, animBtn, project_.uiTransitionsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, project_.uiTransitionsEnabled ? "ON" : "OFF",
                        project_.uiTransitionsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), animBtn);
@@ -10318,7 +10292,7 @@ class App {
       // MIDI tab
       drawText(controlRenderer_, fontSmall_, "ALSA MIDI Input", ink, cx, cy);
       SDL_Rect midiEnBtn {cx, cy + 22, 100, 26};
-      drawFramedPanel(controlRenderer_, midiEnBtn, midiEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, midiEnBtn, midiEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, midiEnabled_ ? "Enabled" : "Disabled",
                        midiEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), midiEnBtn);
@@ -10326,7 +10300,7 @@ class App {
 
       drawText(controlRenderer_, fontSmall_, "MIDI port: " + (midiDeviceName_.empty() ? "(auto)" : midiDeviceName_), soft, cx, cy + 60);
       SDL_Rect midiPortBtn {cx, cy + 78, 200, 26};
-      drawFramedPanel(controlRenderer_, midiPortBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      Primitives::drawFramedPanel(controlRenderer_, midiPortBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Set port (e.g. 20:0)...", ink, midiPortBtn);
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
 
@@ -10342,7 +10316,7 @@ class App {
       drawText(controlRenderer_, fontSmall_, "Companion / OSC port:", ink, cx, cy);
       drawText(controlRenderer_, fontSmall_, std::to_string(companionPort_), soft, cx, cy + 18);
       SDL_Rect portBtn {cx, cy + 40, 160, 26};
-      drawFramedPanel(controlRenderer_, portBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      Primitives::drawFramedPanel(controlRenderer_, portBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Change port...", ink, portBtn);
       settingsBtns_.push_back({portBtn, 220, "osc_port"});
 
@@ -10371,25 +10345,25 @@ class App {
 
       SDL_Rect nativeBtn {cx, cy + 82, 170, 28};
       bool nativeActive = project_.outputFollowDisplay;
-      drawFramedPanel(controlRenderer_, nativeBtn, nativeActive ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, nativeBtn, nativeActive ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Display Native", nativeActive ? colorFromRgba(kScreenLightColor) : ink, nativeBtn);
       settingsBtns_.push_back({nativeBtn, 230, "video_native"});
 
       SDL_Rect sizeBtn {cx + 186, cy + 82, 160, 28};
-      drawFramedPanel(controlRenderer_, sizeBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, sizeBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Size To Display", ink, sizeBtn);
       settingsBtns_.push_back({sizeBtn, 235, "video_size_display"});
 
       SDL_Rect fsBtn {cx + 362, cy + 82, 150, 28};
-      drawFramedPanel(controlRenderer_, fsBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, fsBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Toggle Fullscreen", ink, fsBtn);
       settingsBtns_.push_back({fsBtn, 236, "video_fullscreen"});
 
       SDL_Rect rateAutoBtn {cx, cy + 118, 90, 26};
-      drawFramedPanel(controlRenderer_, rateAutoBtn,
+      Primitives::drawFramedPanel(controlRenderer_, rateAutoBtn,
                       project_.outputRefreshRateHz <= 0.0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Hz Auto",
@@ -10397,19 +10371,19 @@ class App {
       settingsBtns_.push_back({rateAutoBtn, 238, "video_rate_auto"});
 
       SDL_Rect ratePrevBtn {cx + 104, cy + 118, 64, 26};
-      drawFramedPanel(controlRenderer_, ratePrevBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, ratePrevBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Hz -", ink, ratePrevBtn);
       settingsBtns_.push_back({ratePrevBtn, 239, "video_rate_prev"});
 
       SDL_Rect rateNextBtn {cx + 178, cy + 118, 64, 26};
-      drawFramedPanel(controlRenderer_, rateNextBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, rateNextBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Hz +", ink, rateNextBtn);
       settingsBtns_.push_back({rateNextBtn, 240, "video_rate_next"});
 
       SDL_Rect rateCustomBtn {cx + 254, cy + 118, 180, 26};
-      drawFramedPanel(controlRenderer_, rateCustomBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, rateCustomBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Set Hz...", ink, rateCustomBtn);
       settingsBtns_.push_back({rateCustomBtn, 241, "video_rate_custom"});
@@ -10421,7 +10395,7 @@ class App {
           && project_.outputRenderWidth == presetW
           && project_.outputRenderHeight == presetH;
         SDL_Rect btn {x, y, w, h};
-        drawFramedPanel(controlRenderer_, btn, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+        Primitives::drawFramedPanel(controlRenderer_, btn, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                         colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
         drawCenteredText(controlRenderer_, fontSmall_, label, active ? colorFromRgba(kScreenLightColor) : ink, btn);
         settingsBtns_.push_back({btn, action, label});
@@ -10433,13 +10407,13 @@ class App {
       drawPreset(cx + 396,py, 120, 28, "4K UHD", 234, 3840, 2160);
 
       SDL_Rect customBtn {cx, cy + 204, 180, 28};
-      drawFramedPanel(controlRenderer_, customBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, customBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Custom WxH...", ink, customBtn);
       settingsBtns_.push_back({customBtn, 237, "video_custom"});
 
       SDL_Rect depthAutoBtn {cx, cy + 242, 90, 26};
-      drawFramedPanel(controlRenderer_, depthAutoBtn,
+      Primitives::drawFramedPanel(controlRenderer_, depthAutoBtn,
                       project_.outputBitDepth == 0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Depth Auto",
@@ -10447,7 +10421,7 @@ class App {
       settingsBtns_.push_back({depthAutoBtn, 242, "video_depth_auto"});
 
       SDL_Rect depth8Btn {cx + 104, cy + 242, 90, 26};
-      drawFramedPanel(controlRenderer_, depth8Btn,
+      Primitives::drawFramedPanel(controlRenderer_, depth8Btn,
                       project_.outputBitDepth == 8 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Depth 8-bit",
@@ -10455,7 +10429,7 @@ class App {
       settingsBtns_.push_back({depth8Btn, 243, "video_depth_8"});
 
       SDL_Rect depth10Btn {cx + 208, cy + 242, 100, 26};
-      drawFramedPanel(controlRenderer_, depth10Btn,
+      Primitives::drawFramedPanel(controlRenderer_, depth10Btn,
                       project_.outputBitDepth == 10 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Depth 10-bit",
@@ -10471,7 +10445,7 @@ class App {
                soft, cx, cy + 274);
 
       SDL_Rect canvasOffBtn {cx, cy + 292, 88, 26};
-      drawFramedPanel(controlRenderer_, canvasOffBtn,
+      Primitives::drawFramedPanel(controlRenderer_, canvasOffBtn,
                       !project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Canvas Off",
@@ -10479,7 +10453,7 @@ class App {
       settingsBtns_.push_back({canvasOffBtn, 245, "video_canvas_off"});
 
       SDL_Rect canvasOnBtn {cx + 98, cy + 292, 88, 26};
-      drawFramedPanel(controlRenderer_, canvasOnBtn,
+      Primitives::drawFramedPanel(controlRenderer_, canvasOnBtn,
                       project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Canvas On",
@@ -10487,19 +10461,19 @@ class App {
       settingsBtns_.push_back({canvasOnBtn, 246, "video_canvas_on"});
 
       SDL_Rect canvasSizeBtn {cx + 196, cy + 292, 150, 26};
-      drawFramedPanel(controlRenderer_, canvasSizeBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, canvasSizeBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "Canvas WxH...", ink, canvasSizeBtn);
       settingsBtns_.push_back({canvasSizeBtn, 247, "video_canvas_custom"});
 
       SDL_Rect canvasViewBtn {cx + 356, cy + 292, 120, 26};
-      drawFramedPanel(controlRenderer_, canvasViewBtn, colorFromRgba(kScreenMidColor),
+      Primitives::drawFramedPanel(controlRenderer_, canvasViewBtn, colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, "View XY...", ink, canvasViewBtn);
       settingsBtns_.push_back({canvasViewBtn, 248, "video_canvas_view"});
 
       SDL_Rect warpBtn {cx + 486, cy + 292, 90, 26};
-      drawFramedPanel(controlRenderer_, warpBtn,
+      Primitives::drawFramedPanel(controlRenderer_, warpBtn,
                       focused.warpEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawCenteredText(controlRenderer_, fontSmall_, focused.warpEnabled ? "Warp On" : "Warp Off",
