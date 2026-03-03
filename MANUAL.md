@@ -171,6 +171,19 @@ settings area to scroll.
 | Key tolerance | RGB distance threshold for removal |
 | Key softness | Feather width around the threshold |
 
+### Output canvas and edge treatment (deck output)
+
+| Control | Description |
+|---------|-------------|
+| Canvas span | Project-level compositor size (for example `5760x2160`) |
+| View X / Y | Focused deck viewport offset inside the canvas |
+| Warp | Deck-level 4-corner output warp (`TL/TR/BR/BL` offsets) |
+| Edge blend L/R/T/B | Deck-level per-edge blend softening (0-49%) |
+
+Use **Preferences -> Video** for quick canvas/view/warp controls, or Companion
+commands (`VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`) for
+precise values.
+
 ### Still / pattern / browser cues
 
 | Control | Description |
@@ -614,6 +627,19 @@ VIDEO DEPTH AUTO    automatic bit-depth selection (prefer 10-bit)
 VIDEO DEPTH 8       force 8-bit compositing
 VIDEO DEPTH 10      request 10-bit compositing (falls back if unsupported)
 VIDEO SIZE DISPLAY  resize/reposition focused output to selected display
+VIDEO CANVAS OFF
+VIDEO CANVAS ON
+VIDEO CANVAS 5760x2160
+VIDEO CANVAS DISPLAY         use focused deck raster as canvas size
+VIDEO VIEW 320,40            set focused deck viewport inside canvas
+VIDEO VIEW LEFT 200          nudge viewport
+VIDEO WARP ON|OFF|TOGGLE
+VIDEO WARP TL -12 8          move one corner (TL/TR/BR/BL)
+VIDEO WARP RESET
+VIDEO BLEND L 8              set edge blend (% or 0.0-0.49)
+VIDEO BLEND ALL 5
+VIDEO BLEND RESET
+CANVAS ... / VIEW ... / WARP ... / BLEND ...   aliases for VIDEO subcommands
 ```
 
 ### NDI

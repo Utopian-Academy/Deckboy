@@ -95,6 +95,21 @@ struct Deck {
   std::string ndiSourceName;
   bool ndiKeyEnabled = false;
   std::string ndiKeySourceName;
+  int canvasViewX = 0;
+  int canvasViewY = 0;
+  bool warpEnabled = false;
+  float warpTopLeftX = 0.0f;
+  float warpTopLeftY = 0.0f;
+  float warpTopRightX = 0.0f;
+  float warpTopRightY = 0.0f;
+  float warpBottomRightX = 0.0f;
+  float warpBottomRightY = 0.0f;
+  float warpBottomLeftX = 0.0f;
+  float warpBottomLeftY = 0.0f;
+  float edgeBlendLeft = 0.0f;
+  float edgeBlendRight = 0.0f;
+  float edgeBlendTop = 0.0f;
+  float edgeBlendBottom = 0.0f;
   bool timeOverlayEnabled = false;
   double transitionSeconds = 0.0;
   std::string transitionStyle = "crossfade";
@@ -121,6 +136,9 @@ struct Project {
   int outputRenderHeight = 1080;
   double outputRefreshRateHz = 0.0; // 0 = auto
   int outputBitDepth = 0; // 0=auto, 8=8-bit, 10=10-bit
+  bool outputCanvasEnabled = false;
+  int outputCanvasWidth = 3840;
+  int outputCanvasHeight = 2160;
 };
 
 struct DecodedFrame {
