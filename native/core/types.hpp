@@ -93,6 +93,8 @@ struct Deck {
   int outputDisplayIndex = 0;
   bool ndiEnabled = false;
   std::string ndiSourceName;
+  bool ndiKeyEnabled = false;
+  std::string ndiKeySourceName;
   bool timeOverlayEnabled = false;
   double transitionSeconds = 0.0;
   std::string transitionStyle = "crossfade";

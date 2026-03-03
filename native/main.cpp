@@ -1134,6 +1134,9 @@ struct DeckRuntime {
   NDIlib_send_instance_t ndiSender = nullptr;
   std::string ndiSenderName;
   std::vector<std::uint8_t> ndiFrameBuffer;
+  NDIlib_send_instance_t ndiKeySender = nullptr;
+  std::string ndiKeySenderName;
+  std::vector<std::uint8_t> ndiKeyFrameBuffer;
 #endif
 };
 
@@ -1509,6 +1512,10 @@ std::string defaultNdiSourceName(const Deck& deck, int index) {
   return "Playboy - " + base;
 }
 
+std::string defaultNdiKeySourceName(const Deck& deck, int index) {
+  return defaultNdiSourceName(deck, index) + " Key";
+}
+
 void normalizeDeck(Deck& deck, int index) {
   if (deck.name.empty()) {
     deck.name = deckDefaultName(index);
@@ -1552,6 +1559,9 @@ void normalizeDeck(Deck& deck, int index) {
   deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
   if (deck.ndiSourceName.empty()) {
     deck.ndiSourceName = defaultNdiSourceName(deck, index);
+  }
+  if (deck.ndiKeySourceName.empty()) {
+    deck.ndiKeySourceName = defaultNdiKeySourceName(deck, index);
   }
   deck.transitionSeconds = std::clamp(deck.transitionSeconds, 0.0, 10.0);
   deck.transitionStyle = transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle));
@@ -1735,7 +1745,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.timecodeTriggerEnabled ? 1 : 0) << '\t'
       << deck.timecodeFps << '\t'
       << deck.timecodeCurrentSeconds << '\t'
-      << (deck.shuffle ? 1 : 0)
+      << (deck.shuffle ? 1 : 0) << '\t'
+      << (deck.ndiKeyEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.ndiKeySourceName)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1873,6 +1885,10 @@ Project loadProject(const fs::path& projectFile) {
       ensureDeck(0).ndiEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "ndi_name") {
       ensureDeck(0).ndiSourceName = safeString(fields, 1);
+    } else if (fields[0] == "ndi_key_enabled") {
+      ensureDeck(0).ndiKeyEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "ndi_key_name") {
+      ensureDeck(0).ndiKeySourceName = safeString(fields, 1);
     } else if (fields[0] == "time_overlay") {
       ensureDeck(0).timeOverlayEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "transition_seconds") {
@@ -1911,6 +1927,8 @@ Project loadProject(const fs::path& projectFile) {
       deck.timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 18, 0.0));
       deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
       deck.shuffle = safeBool(fields, 19, false);
+      deck.ndiKeyEnabled = safeBool(fields, 20, false);
+      deck.ndiKeySourceName = safeString(fields, 21);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -3702,6 +3720,10 @@ class App {
       deck.name = "Deck Smoke";
       deck.transitionSeconds = 1.5;
       deck.transitionStyle = "dip";
+      deck.ndiEnabled = true;
+      deck.ndiSourceName = "Smoke Fill";
+      deck.ndiKeyEnabled = true;
+      deck.ndiKeySourceName = "Smoke Key";
       deck.timecodeChaseEnabled = true;
       deck.timecodeRunEnabled = false;
       deck.timecodeTriggerEnabled = true;
@@ -3755,6 +3777,8 @@ class App {
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
+        expect(loadedDeck.ndiEnabled && loadedDeck.ndiSourceName == "Smoke Fill", "ndi fill persisted");
+        expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
@@ -3952,6 +3976,12 @@ class App {
       runtime.browserProfileDir.clear();
     }
 #if defined(PLAYBOY_HAS_NDI_SDK)
+    if (runtime.ndiKeySender && ndiApi_.sendDestroyFn) {
+      ndiApi_.sendDestroyFn(runtime.ndiKeySender);
+      runtime.ndiKeySender = nullptr;
+    }
+    runtime.ndiKeySenderName.clear();
+    runtime.ndiKeyFrameBuffer.clear();
     if (runtime.ndiSender && ndiApi_.sendDestroyFn) {
       ndiApi_.sendDestroyFn(runtime.ndiSender);
       runtime.ndiSender = nullptr;
@@ -4044,7 +4074,7 @@ class App {
     }
 
 #if defined(PLAYBOY_HAS_NDI_SDK)
-    auto clearSender = [&]() {
+    auto clearFillSender = [&]() {
       if (runtime->ndiSender && ndiApi_.sendDestroyFn) {
         ndiApi_.sendDestroyFn(runtime->ndiSender);
       }
@@ -4052,9 +4082,21 @@ class App {
       runtime->ndiSenderName.clear();
       runtime->ndiFrameBuffer.clear();
     };
+    auto clearKeySender = [&]() {
+      if (runtime->ndiKeySender && ndiApi_.sendDestroyFn) {
+        ndiApi_.sendDestroyFn(runtime->ndiKeySender);
+      }
+      runtime->ndiKeySender = nullptr;
+      runtime->ndiKeySenderName.clear();
+      runtime->ndiKeyFrameBuffer.clear();
+    };
+    auto clearSenders = [&]() {
+      clearFillSender();
+      clearKeySender();
+    };
 
     if (!deck.ndiEnabled) {
-      clearSender();
+      clearSenders();
       if (withToast) {
         triggerToast("ndi off");
       }
@@ -4064,7 +4106,7 @@ class App {
     std::string loadError;
     if (!ensureNdiRuntimeReady(&loadError)) {
       deck.ndiEnabled = false;
-      clearSender();
+      clearSenders();
       if (withToast) {
         triggerToast("ndi unavailable");
       }
@@ -4074,20 +4116,18 @@ class App {
     if (deck.ndiSourceName.empty()) {
       deck.ndiSourceName = defaultNdiSourceName(deck, deckIndex);
     }
-    if (runtime->ndiSender && runtime->ndiSenderName == deck.ndiSourceName) {
-      if (withToast) {
-        triggerToast("ndi live: " + deck.ndiSourceName);
-      }
-      return;
+    if (deck.ndiKeySourceName.empty()) {
+      deck.ndiKeySourceName = defaultNdiKeySourceName(deck, deckIndex);
     }
 
-    clearSender();
-    NDIlib_send_create_t create {};
-    create.p_ndi_name = deck.ndiSourceName.c_str();
-    create.p_groups = nullptr;
-    create.clock_video = false;
-    create.clock_audio = false;
-    runtime->ndiSender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&create) : nullptr;
+    clearSenders();
+
+    NDIlib_send_create_t fillCreate {};
+    fillCreate.p_ndi_name = deck.ndiSourceName.c_str();
+    fillCreate.p_groups = nullptr;
+    fillCreate.clock_video = false;
+    fillCreate.clock_audio = false;
+    runtime->ndiSender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&fillCreate) : nullptr;
     if (!runtime->ndiSender) {
       deck.ndiEnabled = false;
       if (withToast) {
@@ -4096,8 +4136,23 @@ class App {
       return;
     }
     runtime->ndiSenderName = deck.ndiSourceName;
+
+    if (deck.ndiKeyEnabled) {
+      NDIlib_send_create_t keyCreate {};
+      keyCreate.p_ndi_name = deck.ndiKeySourceName.c_str();
+      keyCreate.p_groups = nullptr;
+      keyCreate.clock_video = false;
+      keyCreate.clock_audio = false;
+      runtime->ndiKeySender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&keyCreate) : nullptr;
+      if (!runtime->ndiKeySender) {
+        deck.ndiKeyEnabled = false;
+      } else {
+        runtime->ndiKeySenderName = deck.ndiKeySourceName;
+      }
+    }
+
     if (withToast) {
-      triggerToast("ndi live: " + runtime->ndiSenderName);
+      triggerToast("ndi: " + currentNdiOutputLabel());
     }
 #else
     (void) deck;
@@ -4142,6 +4197,46 @@ class App {
     markProjectDirty();
   }
 
+  void setFocusedDeckNdiKeyEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.ndiKeyEnabled == enabled && (!enabled || deck.ndiEnabled)) {
+      return;
+    }
+    if (enabled) {
+      deck.ndiEnabled = true;
+      if (deck.ndiKeySourceName.empty()) {
+        deck.ndiKeySourceName = defaultNdiKeySourceName(deck, project_.focusedDeckIndex);
+      }
+    }
+    deck.ndiKeyEnabled = enabled;
+    applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleFocusedDeckNdiKey() {
+    setFocusedDeckNdiKeyEnabled(!focusedDeck().ndiKeyEnabled);
+  }
+
+  void setFocusedDeckNdiKeyName(const std::string& requestedName) {
+    Deck& deck = focusedDeckMutable();
+    std::string normalized = trim(requestedName);
+    if (normalized.empty()) {
+      normalized = defaultNdiKeySourceName(deck, project_.focusedDeckIndex);
+    }
+    if (deck.ndiKeySourceName == normalized) {
+      return;
+    }
+    deck.ndiKeySourceName = normalized;
+    if (deck.ndiEnabled && deck.ndiKeyEnabled) {
+      applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    } else {
+      triggerToast("ndi key name: " + deck.ndiKeySourceName);
+    }
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   void sendDeckNdiFrame(int deckIndex, int width, int height, double fpsHint) {
 #if defined(PLAYBOY_HAS_NDI_SDK)
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
@@ -4152,9 +4247,9 @@ class App {
     if (!deck.ndiEnabled) {
       return;
     }
-    if (!runtime->ndiSender) {
+    if (!runtime->ndiSender || (deck.ndiKeyEnabled && !runtime->ndiKeySender)) {
       applyDeckNdiSettings(deckIndex, false);
-      if (!runtime->ndiSender) {
+      if (!runtime->ndiSender || (deck.ndiKeyEnabled && !runtime->ndiKeySender)) {
         return;
       }
     }
@@ -4170,8 +4265,20 @@ class App {
     if (runtime->ndiFrameBuffer.empty()) {
       return;
     }
-    if (SDL_RenderReadPixels(runtime->outputRenderer, nullptr, SDL_PIXELFORMAT_BGRA32, runtime->ndiFrameBuffer.data(), static_cast<int>(stride)) != 0) {
+
+    SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime->outputRenderer);
+    if (runtime->compositorTexture) {
+      SDL_SetRenderTarget(runtime->outputRenderer, runtime->compositorTexture);
+    }
+    if (SDL_RenderReadPixels(runtime->outputRenderer, nullptr, SDL_PIXELFORMAT_BGRA32,
+                             runtime->ndiFrameBuffer.data(), static_cast<int>(stride)) != 0) {
+      if (runtime->compositorTexture) {
+        SDL_SetRenderTarget(runtime->outputRenderer, previousTarget);
+      }
       return;
+    }
+    if (runtime->compositorTexture) {
+      SDL_SetRenderTarget(runtime->outputRenderer, previousTarget);
     }
 
     int frameRateN = 30000;
@@ -4194,6 +4301,35 @@ class App {
     frame.p_metadata = nullptr;
     frame.timestamp = 0;
     ndiApi_.sendVideoFn(runtime->ndiSender, &frame);
+
+    if (deck.ndiKeyEnabled && runtime->ndiKeySender) {
+      if (runtime->ndiKeyFrameBuffer.size() != frameBytes) {
+        runtime->ndiKeyFrameBuffer.resize(frameBytes);
+      }
+      if (!runtime->ndiKeyFrameBuffer.empty()) {
+        for (size_t i = 0; i + 3 < runtime->ndiFrameBuffer.size(); i += 4) {
+          Uint8 a = runtime->ndiFrameBuffer[i + 3];
+          runtime->ndiKeyFrameBuffer[i + 0] = a;
+          runtime->ndiKeyFrameBuffer[i + 1] = a;
+          runtime->ndiKeyFrameBuffer[i + 2] = a;
+          runtime->ndiKeyFrameBuffer[i + 3] = 255;
+        }
+        NDIlib_video_frame_v2_t keyFrame {};
+        keyFrame.xres = width;
+        keyFrame.yres = height;
+        keyFrame.FourCC = NDIlib_FourCC_video_type_BGRA;
+        keyFrame.frame_rate_N = frameRateN;
+        keyFrame.frame_rate_D = frameRateD;
+        keyFrame.picture_aspect_ratio = frame.picture_aspect_ratio;
+        keyFrame.frame_format_type = NDIlib_frame_format_type_progressive;
+        keyFrame.timecode = NDIlib_send_timecode_synthesize;
+        keyFrame.p_data = runtime->ndiKeyFrameBuffer.data();
+        keyFrame.line_stride_in_bytes = static_cast<int>(stride);
+        keyFrame.p_metadata = nullptr;
+        keyFrame.timestamp = 0;
+        ndiApi_.sendVideoFn(runtime->ndiKeySender, &keyFrame);
+      }
+    }
 #else
     (void) deckIndex;
     (void) width;
@@ -4249,6 +4385,19 @@ class App {
       return 0;
     }
     return std::max(0, ndiApi_.sendConnectionsFn(runtime->ndiSender, 0));
+#else
+    (void) deckIndex;
+    return 0;
+#endif
+  }
+
+  int ndiKeyConnectionCount(int deckIndex) const {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime || !runtime->ndiKeySender || !ndiApi_.sendConnectionsFn) {
+      return 0;
+    }
+    return std::max(0, ndiApi_.sendConnectionsFn(runtime->ndiKeySender, 0));
 #else
     (void) deckIndex;
     return 0;
@@ -5109,19 +5258,34 @@ class App {
 
   std::string currentNdiOutputLabel() const {
     const Deck& deck = focusedDeck();
-    std::string source = deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, project_.focusedDeckIndex) : deck.ndiSourceName;
+    std::string source = deck.ndiSourceName.empty()
+      ? defaultNdiSourceName(deck, project_.focusedDeckIndex)
+      : deck.ndiSourceName;
+    std::string keySource = deck.ndiKeySourceName.empty()
+      ? defaultNdiKeySourceName(deck, project_.focusedDeckIndex)
+      : deck.ndiKeySourceName;
     if (!deck.ndiEnabled) {
       return "off";
     }
 #if defined(PLAYBOY_HAS_NDI_SDK)
     const DeckRuntime* runtime = focusedRuntime();
     bool live = runtime && runtime->ndiSender;
+    bool keyLive = runtime && runtime->ndiKeySender;
     int listeners = ndiConnectionCount(project_.focusedDeckIndex);
+    int keyListeners = ndiKeyConnectionCount(project_.focusedDeckIndex);
     std::string suffix = live ? "on" : "pending";
     if (listeners > 0) {
       suffix += " (" + std::to_string(listeners) + " rx)";
     }
-    return suffix + " / " + source;
+    std::string label = suffix + " / fill:" + source;
+    if (deck.ndiKeyEnabled) {
+      std::string keySuffix = keyLive ? "on" : "pending";
+      if (keyListeners > 0) {
+        keySuffix += " (" + std::to_string(keyListeners) + " rx)";
+      }
+      label += "  key:" + keySource + " [" + keySuffix + "]";
+    }
+    return label;
 #else
     return "unavailable";
 #endif
@@ -5195,6 +5359,9 @@ class App {
              << " ndi=" << (deck.ndiEnabled ? "on" : "off")
              << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
              << " ndi_rx=" << ndiConnectionCount(deckIndex)
+             << " ndi_key=" << (deck.ndiKeyEnabled ? "on" : "off")
+             << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
+             << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
              << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
              << " transition_s=" << deck.transitionSeconds
@@ -5247,6 +5414,9 @@ class App {
            << " ndi=" << (deck.ndiEnabled ? "on" : "off")
            << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
            << " ndi_rx=" << ndiConnectionCount(deckIndex)
+           << " ndi_key=" << (deck.ndiKeyEnabled ? "on" : "off")
+           << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
+           << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
            << " transition=" << transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))
            << " transition_s=" << deck.transitionSeconds
@@ -5301,6 +5471,9 @@ class App {
              << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
              << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
              << "\"ndiReceivers\":" << ndiConnectionCount(deckIndex) << ","
+             << "\"ndiKeyEnabled\":" << (deck.ndiKeyEnabled ? "true" : "false") << ","
+             << "\"ndiKeyName\":\"" << escapeJson(deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\","
+             << "\"ndiKeyReceivers\":" << ndiKeyConnectionCount(deckIndex) << ","
              << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
              << "\"transitionStyle\":\"" << escapeJson(transitionStyleToken(parseTransitionStyleToken(deck.transitionStyle))) << "\","
              << "\"transitionSeconds\":" << deck.transitionSeconds << ","
@@ -7039,8 +7212,27 @@ class App {
         setFocusedDeckNdiEnabled(false);
       } else if (value == "TOGGLE") {
         toggleFocusedDeckNdi();
+      } else if (value == "KEY") {
+        if (parts.size() == 2) {
+          toggleFocusedDeckNdiKey();
+        } else {
+          std::string keyValue = toUpper(parts[2]);
+          if (keyValue == "ON") {
+            setFocusedDeckNdiKeyEnabled(true);
+          } else if (keyValue == "OFF") {
+            setFocusedDeckNdiKeyEnabled(false);
+          } else if (keyValue == "TOGGLE") {
+            toggleFocusedDeckNdiKey();
+          } else if (keyValue == "NAME") {
+            setFocusedDeckNdiKeyName(joinParts(parts, 3));
+          } else if (keyValue == "DEFAULT" || keyValue == "CLEAR") {
+            setFocusedDeckNdiKeyName("");
+          }
+        }
       } else if (value == "NAME") {
         setFocusedDeckNdiName(joinParts(parts, 2));
+      } else if (value == "KEYNAME") {
+        setFocusedDeckNdiKeyName(joinParts(parts, 2));
       } else if (value == "DEFAULT" || value == "CLEAR") {
         setFocusedDeckNdiName("");
       } else if (value == "STATUS") {
@@ -7050,6 +7242,29 @@ class App {
     }
     if (command == "NDINAME") {
       setFocusedDeckNdiName(joinParts(parts, 1));
+      return;
+    }
+    if (command == "NDIKEY" || command == "NDIKEYER") {
+      if (parts.size() <= 1) {
+        toggleFocusedDeckNdiKey();
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "ON") {
+        setFocusedDeckNdiKeyEnabled(true);
+      } else if (value == "OFF") {
+        setFocusedDeckNdiKeyEnabled(false);
+      } else if (value == "TOGGLE") {
+        toggleFocusedDeckNdiKey();
+      } else if (value == "NAME") {
+        setFocusedDeckNdiKeyName(joinParts(parts, 2));
+      } else if (value == "DEFAULT" || value == "CLEAR") {
+        setFocusedDeckNdiKeyName("");
+      }
+      return;
+    }
+    if (command == "NDIKEYNAME") {
+      setFocusedDeckNdiKeyName(joinParts(parts, 1));
       return;
     }
     if (command == "BLACKOUT") {
