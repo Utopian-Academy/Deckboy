@@ -275,31 +275,66 @@ This document summarizes the comprehensive modular refactoring of Playboy_0.01 t
 ✅ self-check: Fonts, ffmpeg, ffprobe, UI SFX, Companion control - all OK
 ✅ CI/CD: 12 configurations ready
 
-## Phase 8: Render Module Extraction 🎨 (Step 1 Complete)
+## Phase 8: Render Module Extraction 🎨 (Steps 1-2 Complete)
 
-### Status: Primitives Extracted ✅
+### Status: Primitives + Output Interface Complete
 
-**Step 1 Complete** (30 min):
-- Created native/render/primitives.hpp/cpp (105 LOC)
+**Step 1 Complete** ✅ (105 LOC):
+- Created native/render/primitives.hpp/cpp
 - Extracted: fillRect, strokeRect, drawFramedPanel, drawSpeakerGrille
 - 29 call sites updated to use Primitives::
 - Build: Clean, self-check passes
-- Files: +2 created, +1 modified (CMakeLists.txt)
 
-### Remaining Steps (4-5):
-2. **Waveform Renderer** (30 min) - Deferred (depends on App::drawCenteredText)
-3. **Output Renderer** (1 hour) - Next candidate
-4. **Control Renderer** (1.5 hours) - Complex, many interdependencies
-5. **Master Renderer** (1 hour) - Facade after extraction complete
+**Step 2 Complete** ✅ (200 LOC):
+- Created native/render/output_renderer.hpp/cpp
+- Abstract interface defining 8-step rendering sequence
+- Stateless facade documenting rendering order
+- Ready for App-side implementation
 
-### Complexity Notes
-- Waveform rendering depends on App::drawCenteredText() and main.cpp color constants
-- Output window rendering depends on MediaEngine::render()
-- Control window rendering highly interdependent with App state
-- Recommendation: Extract in order of dependency minimization (output → control → master)
+### Remaining Steps (3-5):
+- 3. **Output Renderer Implementation** (1 hour) - Refactor renderOutputWindow()
+- 4. **Control Renderer** (2 hours) - After TextRenderer extracted
+- 5. **Master Renderer** (1 hour) - Facade combining output + control
+
+### Key Architectural Decisions
+- Primitives are static utility functions (no state needed)
+- OutputRenderer is abstract interface (decouples from SDL details)
+- Output rendering sequence: Clear → Layers → Overlays → Time → Dimmer → Present
+- Deferred: Waveform renderer (needs TextRenderer module first)
 
 ### Detailed Guide
 See: RENDER_EXTRACTION_PLAN.md (in session workspace)
+
+---
+
+## Phase 9: Control Module Planning 📋 (Complete)
+
+### Status: Extraction Plan Created for Next Developer
+
+**Scope**: 600 LOC of control UI code
+- Deck cards, playlist, transport controls, volume, waveform visualization
+
+**Key Insight**: Control extraction is BLOCKED by text rendering utilities
+- Solution: Extract TextRenderer module FIRST (1 hour, unblocks waveform + control)
+- This solves circular dependency: colorFromRgba, drawText, font management scattered in App
+
+**Extraction Phases** (Total ~4.5 hours):
+1. A: Identify helper functions (15 min)
+2. B: Extract TextRenderer (1 hour) 🔑 CRITICAL PATH
+3. C: Extract ControlRenderer interface (30 min)
+4. D: Extract control helper functions (2 hours)
+5. E: App integration (30 min)
+6. F: Testing (30 min)
+
+**Detailed Guide**: CONTROL_EXTRACTION_PLAN.md (in session workspace, 9KB)
+
+**Files to Create**:
+- native/render/text_renderer.hpp/cpp (230 LOC)
+- native/render/control_renderer.hpp/cpp (500 LOC)
+
+**Status**: Ready for next developer to start with TextRenderer extraction
+
+---
 
 ### Code Extracted
 - **55 utility functions** → core/utils (450 LOC)
@@ -334,14 +369,15 @@ See: RENDER_EXTRACTION_PLAN.md (in session workspace)
 
 For developers continuing this work:
 
-1. **MEDIA_EXTRACTION.md** - Next phase: Full MediaEngine extraction
-2. **MIDI_INTEGRATION.md** - RtMidi integration guide
-3. **DECKLINK_INTEGRATION.md** - DeckLink SDK integration
-4. **SIPHON_SPOUT_INTEGRATION.md** - Siphon/Spout integration
-5. **CI_CD_GUIDE.md** - GitHub Actions reference
-6. **INTEGRATION_GUIDE.md** - Overall SDK roadmap
-7. **module_design.md** - Architecture and API specifications
-8. **monolith_analysis.md** - Original codebase analysis
+1. **RENDER_EXTRACTION_PLAN.md** - 5-phase render module refactoring (next after this doc)
+2. **CONTROL_EXTRACTION_PLAN.md** - 5-phase control UI refactoring (4.5 hours, after TextRenderer)
+3. **MEDIA_ENGINE_EXTRACTION_DETAILED.md** - 7-step MediaEngine refactoring (7.75 hours, complex)
+4. **MIDI_INTEGRATION.md** - RtMidi integration guide
+5. **DECKLINK_INTEGRATION.md** - DeckLink SDK integration
+6. **SIPHON_SPOUT_INTEGRATION.md** - Siphon/Spout integration
+7. **CI_CD_GUIDE.md** - GitHub Actions reference
+8. **module_design.md** - Architecture and API specifications
+9. **monolith_analysis.md** - Original codebase analysis
 
 ---
 
@@ -403,13 +439,14 @@ cmake -DENABLE_MIDI=ON -DENABLE_SIPHON=ON -DENABLE_SPOUT=ON ..
 - Limited DeckLink support (stubs until SDK installed)
 
 ### Future Phases
-1. **Render module extraction** - SDL rendering pipeline
-2. **Control module extraction** - OSC/Companion integration
-3. **UI module extraction** - App class refactoring
-4. **Decoder specialization** - Separate FFmpeg, image, pattern, browser decoders
-5. **Transition abstraction** - Modular cut/fade/push/wipe transitions
-6. **LTC/MTC ingest** - Timecode input from broadcast sources
-7. **Direct DeckLink integration** - Full 10-bit workflow support
+1. ✅ **Render module extraction** (In Progress) - Step 1-2 complete, steps 3-5 planned
+2. ⏸ **TextRenderer extraction** (Blocking) - MUST do before control extraction
+3. **Control module extraction** - OSC/Companion UI (4.5 hours, documented)
+4. **MediaEngine extraction** - FFmpeg subprocess (7.75 hours, fully documented)
+5. **UI module extraction** - App class refactoring (highest risk, defer until 1-4 complete)
+6. **Decoder specialization** - Separate FFmpeg, image, pattern, browser decoders
+7. **Transition abstraction** - Modular cut/fade/push/wipe transitions
+8. **LTC/MTC ingest** - Timecode input from broadcast sources
 
 ---
 
