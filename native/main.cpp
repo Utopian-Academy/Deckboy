@@ -1575,6 +1575,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
 
   output << "title\t" << escapeField(project.title) << '\n';
   output << "focused_deck\t" << project.focusedDeckIndex << '\n';
+  output << "layer_names";
+  for (const auto& name : project.layerNames) {
+    output << '\t' << escapeField(name);
+  }
+  output << '\n';
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
@@ -1733,6 +1738,14 @@ Project loadProject(const fs::path& projectFile) {
       project.title = safeString(fields, 1);
     } else if (fields[0] == "focused_deck") {
       project.focusedDeckIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "layer_names") {
+      project.layerNames.clear();
+      for (size_t i = 1; i < fields.size(); ++i) {
+        project.layerNames.push_back(fields[i]);
+      }
+      if (project.layerNames.empty()) {
+        project.layerNames = {"BG", "LayerA", "LayerB", "LayerC", "LayerD"};
+      }
     } else if (fields[0] == "advanced_mode") {
       project.advancedOutputMode = safeBool(fields, 1, false);
     } else if (fields[0] == "selected") {
