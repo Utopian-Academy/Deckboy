@@ -91,6 +91,8 @@ struct Deck {
   bool shuffle = false;
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;
+  int outputRouteDeckIndex = -1;
+  int outputLayerIndex = 0;
   bool ndiEnabled = false;
   std::string ndiSourceName;
   bool ndiKeyEnabled = false;

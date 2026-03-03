@@ -34,8 +34,9 @@
 
 Playboy_0.01 is a native Linux desktop cue deck for live events. It uses SDL2
 for the UI and FFmpeg for media decode. Each _deck_ has its own playlist,
-output window, audio path, and transport runtime. Multiple decks can run
-simultaneously for multi-screen or multi-zone shows.
+audio path, and transport runtime, and can render to its own output or as a
+layer on another deck's output. Multiple decks can run simultaneously for
+multi-screen or multi-zone shows.
 
 The UI is styled with a Game Boy–inspired look: monochrome green palette,
 chunky framing, and a "cartridge shelf" vocabulary.
@@ -179,6 +180,7 @@ settings area to scroll.
 | View X / Y | Focused deck viewport offset inside the canvas |
 | Warp | Deck-level 4-corner output warp (`TL/TR/BR/BL` offsets) |
 | Edge blend L/R/T/B | Deck-level per-edge blend softening (0-49%) |
+| Output route / layer | Route playlist to an output host deck and set layer order |
 
 Use **Preferences -> Video** for quick canvas/view/warp controls, or Companion
 commands (`VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`) for
@@ -233,13 +235,16 @@ if playing, pauses; if paused, resumes.
 
 Each deck has its own:
 - Playlist and cue selection
-- Output window and display assignment
+- Output display assignment
 - Audio device
 - Transport state (play/pause/stop)
 - NDI sender
 - Timecode clock
 
 **Add a deck**: `Ctrl+N` or Companion `NEWDECK`
+
+New decks auto-route to the currently focused output host and are placed at the
+top layer for that output.
 
 **Switch focused deck**: `Tab` / `Shift+Tab`, or click the deck column header,
 or Companion `DECK 2`.
@@ -248,6 +253,17 @@ or Companion `DECK 2`.
 deck column header shows the active cue and transport state for that deck.
 
 Commands can be prefixed: `DECK 2 TAKE` switches focus to deck 2 and takes.
+
+### Output Routing & Layering
+
+Use these Companion commands on the focused deck:
+
+- `ROUTE <deck>`: route this playlist to another deck's output host (e.g. `ROUTE 1`, `ROUTE SELF`)
+- `LAYER <n>`: set z-layer index (`0` = bottom)
+- `LAYER UP|DOWN|TOP|BOTTOM`: quick layer nudges
+
+Layering lets you run multiple playlists on one output (for example a keyed bug
+playlist over a full-screen program playlist).
 
 ### Video Output Mode (Preferences → Video)
 
@@ -426,6 +442,7 @@ Supported OSC addresses:
 /go  /play  /pause  /stop  /clear  /next  /prev
 /select i  /take i  /goto s
 /deck i  /deck/next  /deck/prev
+/route s  /layer s|i
 /volume f  /seek f
 /autonext i  /playlistloop i
 /transition f  /transition/style s
@@ -614,6 +631,10 @@ AUDIO NEXT          cycle audio output device
 AUDIO DEFAULT       return to system default audio
 DISPLAY NEXT        cycle output display
 DISPLAY 2           use second display
+ROUTE 1             route focused playlist to output host deck 1
+ROUTE SELF          route focused playlist back to its own output
+LAYER 2             place focused playlist on layer 2
+LAYER UP            move focused playlist one layer up
 VIDEO               show current video output mode
 VIDEO NATIVE        follow selected display's desktop mode (EDID path)
 VIDEO 4K            fixed 3840x2160 output
@@ -678,6 +699,8 @@ DECK 2 NDI ON       toggle NDI on deck 2
 DECKNEXT            focus next deck
 DECKPREV            focus previous deck
 NEWDECK             add a new deck
+ROUTE 2             route focused deck to output host deck 2
+LAYER TOP           move focused deck to top layer on its routed output
 ```
 
 ### UI toggles
