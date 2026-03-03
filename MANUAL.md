@@ -229,6 +229,8 @@ The **Video** tab controls output raster sizing for all decks:
   (OS/EDID-negotiated resolution).
 - **Fixed presets**: `720p`, `1080p`, `1440p`, `4K UHD (3840x2160)`.
 - **Custom WxH**: enter any raster (for custom EDID/timing workflows).
+- **Refresh target**: Auto, cycle available rates for the selected display mode,
+  or set custom Hz.
 - **Size To Display**: repositions and resizes the focused output window to
   the selected display immediately.
 - **Toggle Fullscreen**: same as `F`, but available in the Video tab.
@@ -583,6 +585,10 @@ VIDEO NATIVE        follow selected display's desktop mode (EDID path)
 VIDEO 4K            fixed 3840x2160 output
 VIDEO 1920x1080     fixed custom raster (WIDTHxHEIGHT also accepted)
 VIDEO CUSTOM 3440x1440   fixed ultrawide/custom EDID raster
+VIDEO 3840x2160@50  set raster + target refresh in one command
+VIDEO REFRESH AUTO  follow desktop/default refresh for selected mode
+VIDEO REFRESH NEXT  cycle available refresh rates for current raster
+VIDEO REFRESH 59.94 set explicit refresh target (Hz)
 VIDEO SIZE DISPLAY  resize/reposition focused output to selected display
 ```
 

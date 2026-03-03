@@ -28,6 +28,7 @@ Cute extras are now optional:
 - Multi-layer overlay compositor: stack up to 4 lower-third/graphic cues in z-order (`OVERLAY PUSH/POP/CLEAR`)
 - Audio output device selection and output display selection
 - Video output mode control (display-native EDID mode or fixed raster presets up to 4K UHD)
+- Refresh-rate-aware fullscreen mode targeting for custom EDID timings
 - Optional per-deck NDI output (video + audio sender name + enable/disable)
 - Optional deck-local time overlay in output
 - Cue IDs with ID-targeted select/take and `GOTO` search
@@ -183,6 +184,10 @@ VIDEO NATIVE
 VIDEO 4K
 VIDEO 1920x1080
 VIDEO CUSTOM 3440x1440
+VIDEO 3840x2160@50
+VIDEO REFRESH AUTO
+VIDEO REFRESH NEXT
+VIDEO REFRESH 59.94
 VIDEO SIZE DISPLAY
 NDI ON
 NDI OFF
@@ -219,6 +224,8 @@ Notes:
 - `VIDEO 4K` sets a fixed 3840x2160 output raster.
 - `VIDEO 1920x1080` (or any `WIDTHxHEIGHT`) sets a fixed custom raster.
 - `VIDEO CUSTOM 3440x1440` is an alias form for custom EDID/timing rasters.
+- `VIDEO 3840x2160@50` sets raster and target refresh together.
+- `VIDEO REFRESH ...` controls target fullscreen refresh (auto/next/prev/specific Hz).
 - `VIDEO SIZE DISPLAY` repositions/resizes the focused output to the selected display.
 - `NDI NAME ...` renames the NDI sender for the focused deck.
 - `OVERLAY ...` toggles the output time/ID overlay for the focused deck.

@@ -108,6 +108,7 @@ struct Project {
   bool outputFollowDisplay = true;
   int outputRenderWidth = 1920;
   int outputRenderHeight = 1080;
+  double outputRefreshRateHz = 0.0; // 0 = auto
 };
 
 struct DecodedFrame {
