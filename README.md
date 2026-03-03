@@ -22,6 +22,8 @@ Cute extras are now optional:
 - FFmpeg-driven video frame decode and audio decode
 - Cue list, selection, drag reorder, take, play/pause, stop, clear, seek, volume
 - Cue controls for fade in, fade out, loop, hold on last frame, in-point, and out-point
+- **Per-cue separate X/Y scaling** for aspect ratio correction and distortion effects (0.25x to 4.0x)
+- Per-cue geometry: offset, rotation, crop, chroma key with per-edge parameters
 - Deck transition engine with `cut` / `crossfade` / `dip` styles
 - Playlist controls for auto-advance and playlist loop
 - Browser cues rendered **into** the output window via Xvfb + ffmpeg x11grab — smooth transitions and program monitor preview, just like any other cue
