@@ -70,7 +70,8 @@ struct Cue {
   double playbackSpeed = 1.0;
   std::string colorTag;
   std::string notes;
-  float outputScale = 1.0f;
+  float outputScaleX = 1.0f;
+  float outputScaleY = 1.0f;
   float outputOffsetX = 0.0f;
   float outputOffsetY = 0.0f;
   float outputRotationDegrees = 0.0f;
@@ -178,7 +179,8 @@ enum class QuickAction {
   CycleColorTag,
   EditNotes,
   GotoMinus10, GotoMinus20, GotoMinus30,
-  ScaleDec, ScaleInc,
+  ScaleXDec, ScaleXInc,
+  ScaleYDec, ScaleYInc,
   OffsetXDec, OffsetXInc,
   OffsetYDec, OffsetYInc,
   RotDec, RotInc,
