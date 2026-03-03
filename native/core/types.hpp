@@ -118,6 +118,7 @@ struct Project {
   int outputRenderWidth = 1920;
   int outputRenderHeight = 1080;
   double outputRefreshRateHz = 0.0; // 0 = auto
+  int outputBitDepth = 0; // 0=auto, 8=8-bit, 10=10-bit
 };
 
 struct DecodedFrame {

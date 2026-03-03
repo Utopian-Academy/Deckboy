@@ -246,6 +246,8 @@ The **Video** tab controls output raster sizing for all decks:
 - **Custom WxH**: enter any raster (for custom EDID/timing workflows).
 - **Refresh target**: Auto, cycle available rates for the selected display mode,
   or set custom Hz.
+- **Bit depth mode**: `Auto`, `8-bit`, or `10-bit` output compositing.
+  `Auto` prefers 10-bit when the renderer/GPU supports it.
 - **Size To Display**: repositions and resizes the focused output window to
   the selected display immediately.
 - **Toggle Fullscreen**: same as `F`, but available in the Video tab.
@@ -604,6 +606,9 @@ VIDEO 3840x2160@50  set raster + target refresh in one command
 VIDEO REFRESH AUTO  follow desktop/default refresh for selected mode
 VIDEO REFRESH NEXT  cycle available refresh rates for current raster
 VIDEO REFRESH 59.94 set explicit refresh target (Hz)
+VIDEO DEPTH AUTO    automatic bit-depth selection (prefer 10-bit)
+VIDEO DEPTH 8       force 8-bit compositing
+VIDEO DEPTH 10      request 10-bit compositing (falls back if unsupported)
 VIDEO SIZE DISPLAY  resize/reposition focused output to selected display
 ```
 
