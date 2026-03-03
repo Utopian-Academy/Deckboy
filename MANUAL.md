@@ -163,7 +163,7 @@ settings area to scroll.
 
 | Control | Description |
 |---------|-------------|
-| Scale | Per-cue output scale (0.25x to 4.0x) |
+| Scale X / Y | Per-cue independent horizontal and vertical scaling (0.25x to 4.0x each) |
 | Offset X / Y | Per-cue output position offset in pixels |
 | Rotation | Per-cue rotation angle (-180 to +180 degrees) |
 | Crop L / R / T / B | Per-edge crop percentage |
@@ -569,6 +569,10 @@ LOOP ON|OFF
 HOLD ON|OFF
 FADEIN 1.5      set fade-in duration
 FADEOUT 1.0     set fade-out duration
+SPEED 1.5       set playback speed (0.25–4.0×)
+SCALE 1.5       set output scale X and Y equally (0.25–4.0×)
+SCALEX 1.2      set output scale X only (0.25–4.0×)
+SCALEY 1.8      set output scale Y only (0.25–4.0×)
 ```
 
 ### Playlist
