@@ -153,6 +153,7 @@ add_executable(playboy-native
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/render/primitives.cpp
+  native/render/text_renderer.cpp
   native/render/output_renderer.cpp
 )
 
