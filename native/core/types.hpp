@@ -37,6 +37,13 @@ enum class TransitionStyle {
   DipBlack
 };
 
+enum class ScaleMode {
+  Fit,         // letterbox: fit entire image, maintain aspect ratio
+  Fill,        // fill screen and crop, maintain aspect ratio
+  Stretch,     // fill screen, ignore aspect ratio (distort)
+  Unscaled     // 1:1 pixel mapping (no scaling)
+};
+
 struct Cue {
   std::string id;
   std::string path;
@@ -72,6 +79,7 @@ struct Cue {
   std::string notes;
   float outputScaleX = 1.0f;
   float outputScaleY = 1.0f;
+  ScaleMode scaleMode = ScaleMode::Fit;
   float outputOffsetX = 0.0f;
   float outputOffsetY = 0.0f;
   float outputRotationDegrees = 0.0f;
@@ -180,6 +188,7 @@ enum class QuickAction {
   CycleColorTag,
   EditNotes,
   GotoMinus10, GotoMinus20, GotoMinus30,
+  CycleScaleMode,
   ScaleXDec, ScaleXInc,
   ScaleYDec, ScaleYInc,
   OffsetXDec, OffsetXInc,
