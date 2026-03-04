@@ -3454,6 +3454,23 @@ class App {
       return false;
     }
 
+    // Create optional Decks Panel window
+    decksPanelWindow_ = SDL_CreateWindow(
+      "Playboy Decks",
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      400,
+      600,
+      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+    );
+    if (decksPanelWindow_) {
+      decksPanelRenderer_ = SDL_CreateRenderer(decksPanelWindow_, -1, SDL_RENDERER_ACCELERATED);
+      if (!decksPanelRenderer_) {
+        SDL_DestroyWindow(decksPanelWindow_);
+        decksPanelWindow_ = nullptr;
+      }
+    }
+
     fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 28);
     fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 18);
     fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 15);
@@ -3531,6 +3548,14 @@ class App {
     if (controlPreviewTex_) {
       SDL_DestroyTexture(controlPreviewTex_);
       controlPreviewTex_ = nullptr;
+    }
+    if (decksPanelRenderer_) {
+      SDL_DestroyRenderer(decksPanelRenderer_);
+      decksPanelRenderer_ = nullptr;
+    }
+    if (decksPanelWindow_) {
+      SDL_DestroyWindow(decksPanelWindow_);
+      decksPanelWindow_ = nullptr;
     }
     if (controlRenderer_) {
       SDL_DestroyRenderer(controlRenderer_);
@@ -8242,6 +8267,7 @@ class App {
   void render() {
     animationNow_ = SDL_GetTicks64();
     renderControlWindow();
+    renderDecksPanel();
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       renderOutputWindow(deckIndex);
     }
@@ -8319,6 +8345,71 @@ class App {
     drawCenteredText(controlRenderer_, fontBase_, "NEW SHOW", colorFromRgba(kScreenDeepColor), startupNewBtn_);
 
     drawText(controlRenderer_, fontSmall_, "Enter = load   N = new show", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 282);
+  }
+
+  void renderDecksPanel() {
+    if (!decksPanelWindow_ || !decksPanelRenderer_) {
+      return;
+    }
+
+    int panelW = 0, panelH = 0;
+    SDL_GetWindowSize(decksPanelWindow_, &panelW, &panelH);
+
+    // Clear to background
+    SDL_SetRenderDrawColor(decksPanelRenderer_, 0x0F, 0x38, 0x0F, 0xFF);
+    SDL_RenderClear(decksPanelRenderer_);
+
+    // Header
+    int headerH = 32;
+    SDL_Rect headerRect {0, 0, panelW, headerH};
+    SDL_SetRenderDrawColor(decksPanelRenderer_, 0x1F, 0x48, 0x1F, 0xFF);
+    SDL_RenderFillRect(decksPanelRenderer_, &headerRect);
+    drawText(decksPanelRenderer_, fontSmall_, "DECKS | LAYER | STATUS", colorFromRgba(kScreenLightColor), 10, 8);
+
+    // Deck list
+    int y = headerH + 10;
+    int deckPanelH = 160;  // height for each deck row including thumbnail
+    int rowH = 24;
+
+    for (int i = 0; i < static_cast<int>(project_.decks.size()); ++i) {
+      const auto& deck = project_.decks[i];
+      
+      // Deck name
+      SDL_Rect nameRect {10, y, 90, rowH};
+      std::string deckDisplay = deck.name.length() > 12 ? deck.name.substr(0, 12) : deck.name;
+      drawText(decksPanelRenderer_, fontSmall_, deckDisplay, colorFromRgba(kScreenLightColor), nameRect.x, nameRect.y + 4);
+
+      // Layer dropdown (simplified: just show current)
+      std::string layerName = (deck.outputLayerIndex >= 0 && deck.outputLayerIndex < static_cast<int>(project_.layerNames.size()))
+        ? project_.layerNames[deck.outputLayerIndex]
+        : "?";
+      SDL_Rect layerRect {110, y, 80, rowH};
+      drawText(decksPanelRenderer_, fontSmall_, layerName, colorFromRgba(kScreenMidColor), layerRect.x, layerRect.y + 4);
+
+      // Status indicator
+      std::string statusStr = "STOP";
+      if (deckRuntimes_[i].mediaEngine) {
+        if (deckRuntimes_[i].mediaEngine->state() == TransportState::Playing) {
+          statusStr = "PLAY";
+        } else if (deckRuntimes_[i].mediaEngine->state() == TransportState::Paused) {
+          statusStr = "PAUS";
+        }
+      }
+      SDL_Rect statusRect {200, y, 60, rowH};
+      drawText(decksPanelRenderer_, fontSmall_, statusStr, colorFromRgba(kScreenInkSoftColor), statusRect.x, statusRect.y + 4);
+
+      y += deckPanelH;
+
+      // Stop if we run out of vertical space
+      if (y > panelH - 40) {
+        break;
+      }
+    }
+
+    // Footer
+    drawText(decksPanelRenderer_, fontSmall_, "[R] Rename deck  [D] Delete deck", colorFromRgba(kScreenInkSoftColor), 10, panelH - 30);
+
+    SDL_RenderPresent(decksPanelRenderer_);
   }
 
   void renderControlWindow() {
@@ -12593,6 +12684,8 @@ class App {
 
   SDL_Window* controlWindow_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
+  SDL_Window* decksPanelWindow_ = nullptr;
+  SDL_Renderer* decksPanelRenderer_ = nullptr;
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;
