@@ -163,7 +163,8 @@ settings area to scroll.
 
 | Control | Description |
 |---------|-------------|
-| Scale X / Y | Per-cue independent horizontal and vertical scaling (0.25x to 4.0x each) |
+| Scale Mode | Fit/Fill/Stretch/Unscaled — how to scale to canvas: Fit maintains aspect ratio with letterbox, Fill maintains ratio but crops edges, Stretch ignores aspect ratio to fill completely, Unscaled is 1:1 pixel mapping |
+| Scale X / Y | Per-cue independent horizontal and vertical scaling (0.25x to 4.0x each, applied after scale mode) |
 | Offset X / Y | Per-cue output position offset in pixels |
 | Rotation | Per-cue rotation angle (-180 to +180 degrees) |
 | Crop L / R / T / B | Per-edge crop percentage |
