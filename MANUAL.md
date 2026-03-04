@@ -639,6 +639,8 @@ ROUTE 1             route focused playlist to output host deck 1
 ROUTE SELF          route focused playlist back to its own output
 LAYER 2             place focused playlist on layer 2
 LAYER UP            move focused playlist one layer up
+LAYERNAME 0 BG      rename layer 0 to "BG"
+LAYERNAME "LayerA" "Video1"   rename "LayerA" to "Video1"
 VIDEO               show current video output mode
 VIDEO NATIVE        follow selected display's desktop mode (EDID path)
 VIDEO 4K            fixed 3840x2160 output
