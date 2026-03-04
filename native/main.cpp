@@ -7488,6 +7488,33 @@ class App {
       }
       return;
     }
+    if (command == "LAYERNAME") {
+      if (parts.size() < 3) {
+        triggerToast("LAYERNAME: need layer_index/name and new_name");
+        return;
+      }
+      std::string layerRef = toUpper(parts[1]);
+      std::string newName = joinParts(parts, 2);
+      int layerIdx = -1;
+      // Try parse as number first
+      try {
+        layerIdx = std::stoi(layerRef);
+      } catch (...) {
+        // Try find by name
+        for (int i = 0; i < static_cast<int>(project_.layerNames.size()); ++i) {
+          if (toUpper(project_.layerNames[i]) == layerRef) {
+            layerIdx = i;
+            break;
+          }
+        }
+      }
+      if (layerIdx >= 0 && layerIdx < static_cast<int>(project_.layerNames.size())) {
+        project_.layerNames[layerIdx] = newName;
+        triggerToast("layer " + std::to_string(layerIdx) + " renamed to: " + newName);
+        markProjectDirty();
+      }
+      return;
+    }
     if (command == "CANVAS" || command == "VIEW" || command == "WARP" || command == "BLEND") {
       std::string forwarded = "VIDEO " + command;
       if (parts.size() > 1) {
@@ -8589,7 +8616,11 @@ class App {
     int footerY = col.y + col.h - kColFooterH;
     SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
     Primitives::drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    std::string layerName = (deck.outputLayerIndex >= 0 && deck.outputLayerIndex < static_cast<int>(project_.layerNames.size()))
+      ? project_.layerNames[deck.outputLayerIndex]
+      : "?";
     std::string routing = deckOutputRoutingLabel(deckIndex)
+      + "  layer:" + layerName
       + "  disp:" + std::to_string(deck.outputDisplayIndex + 1)
       + "  res:" + outputResolutionLabel(deckIndex)
       + "  " + (deck.autoAdvance ? "auto" : "man")
