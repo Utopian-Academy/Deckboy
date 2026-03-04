@@ -1676,6 +1676,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.notes)
         << '\t' << cue.outputScaleX
         << '\t' << cue.outputScaleY
+        << '\t' << static_cast<int>(cue.scaleMode)
         << '\t' << cue.outputOffsetX
         << '\t' << cue.outputOffsetY
         << '\t' << escapeField(cue.cueNumber)
@@ -1904,11 +1905,12 @@ Project loadProject(const fs::path& projectFile) {
       cue.notes = safeString(fields, offset + 31);
       cue.outputScaleX = static_cast<float>(std::clamp(safeDouble(fields, offset + 32, 1.0), 0.25, 4.0));
       cue.outputScaleY = static_cast<float>(std::clamp(safeDouble(fields, offset + 33, 1.0), 0.25, 4.0));
-      cue.outputOffsetX = static_cast<float>(safeDouble(fields, offset + 34, 0.0));
-      cue.outputOffsetY = static_cast<float>(safeDouble(fields, offset + 35, 0.0));
-      cue.cueNumber = safeString(fields, offset + 36);
+      cue.scaleMode = static_cast<ScaleMode>(safeInt(fields, offset + 34, 0));
+      cue.outputOffsetX = static_cast<float>(safeDouble(fields, offset + 35, 0.0));
+      cue.outputOffsetY = static_cast<float>(safeDouble(fields, offset + 36, 0.0));
+      cue.cueNumber = safeString(fields, offset + 37);
       {
-        std::string ppStr = safeString(fields, offset + 37);
+        std::string ppStr = safeString(fields, offset + 38);
         if (!ppStr.empty()) {
           std::istringstream ss(ppStr);
           std::string tok;
@@ -1918,15 +1920,15 @@ Project loadProject(const fs::path& projectFile) {
           std::sort(cue.pausePoints.begin(), cue.pausePoints.end());
         }
       }
-      cue.outputRotationDegrees = static_cast<float>(safeDouble(fields, offset + 38, 0.0));
-      cue.cropLeft = static_cast<float>(safeDouble(fields, offset + 39, 0.0));
-      cue.cropRight = static_cast<float>(safeDouble(fields, offset + 40, 0.0));
-      cue.cropTop = static_cast<float>(safeDouble(fields, offset + 41, 0.0));
-      cue.cropBottom = static_cast<float>(safeDouble(fields, offset + 42, 0.0));
-      cue.chromaKeyEnabled = safeBool(fields, offset + 43, false);
-      cue.chromaKeyColor = parseColor(safeString(fields, offset + 44));
-      cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 45, 60.0));
-      cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 46, 20.0));
+      cue.outputRotationDegrees = static_cast<float>(safeDouble(fields, offset + 39, 0.0));
+      cue.cropLeft = static_cast<float>(safeDouble(fields, offset + 40, 0.0));
+      cue.cropRight = static_cast<float>(safeDouble(fields, offset + 41, 0.0));
+      cue.cropTop = static_cast<float>(safeDouble(fields, offset + 42, 0.0));
+      cue.cropBottom = static_cast<float>(safeDouble(fields, offset + 43, 0.0));
+      cue.chromaKeyEnabled = safeBool(fields, offset + 44, false);
+      cue.chromaKeyColor = parseColor(safeString(fields, offset + 45));
+      cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 46, 60.0));
+      cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 47, 20.0));
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1977,6 +1979,7 @@ class MediaEngine {
     activeCue_ = cue;
     outputScaleX_ = cue ? cue->outputScaleX : 1.0f;
     outputScaleY_ = cue ? cue->outputScaleY : 1.0f;
+    scaleMode_ = cue ? cue->scaleMode : ScaleMode::Fit;
     outputOffsetX_ = cue ? cue->outputOffsetX : 0.0f;
     outputOffsetY_ = cue ? cue->outputOffsetY : 0.0f;
     outputRotationDegrees_ = cue ? cue->outputRotationDegrees : 0.0f;
@@ -2340,6 +2343,7 @@ class MediaEngine {
     if (activeCue_) {
       outputScaleX_ = activeCue_->outputScaleX;
       outputScaleY_ = activeCue_->outputScaleY;
+       scaleMode_ = activeCue_->scaleMode;
       outputOffsetX_ = activeCue_->outputOffsetX;
       outputOffsetY_ = activeCue_->outputOffsetY;
       outputRotationDegrees_ = activeCue_->outputRotationDegrees;
@@ -2434,12 +2438,39 @@ class MediaEngine {
     int srcH = std::max(1, height - cropT - cropB);
     SDL_Rect source {cropL, cropT, srcW, srcH};
 
-    double scale = std::min(
-      static_cast<double>(target.w) / static_cast<double>(srcW),
-      static_cast<double>(target.h) / static_cast<double>(srcH)
-    );
-    int drawW = std::max(1, static_cast<int>(std::round(srcW * scale)));
-    int drawH = std::max(1, static_cast<int>(std::round(srcH * scale)));
+    // Calculate scale based on scaleMode_
+    double scale;
+    if (scaleMode_ == ScaleMode::Fit) {
+      // Letterbox: fit entire image, maintain aspect ratio
+      scale = std::min(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+    } else if (scaleMode_ == ScaleMode::Fill) {
+      // Fill screen and crop, maintain aspect ratio
+      scale = std::max(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+    } else if (scaleMode_ == ScaleMode::Stretch) {
+      // Fill screen, ignore aspect ratio (distort)
+      scale = 1.0;  // Will be handled separately per dimension
+    } else {  // Unscaled
+      scale = 1.0;
+    }
+    
+    int drawW, drawH;
+    if (scaleMode_ == ScaleMode::Stretch) {
+      drawW = target.w;
+      drawH = target.h;
+    } else if (scaleMode_ == ScaleMode::Unscaled) {
+      drawW = srcW;
+      drawH = srcH;
+    } else {
+      drawW = std::max(1, static_cast<int>(std::round(srcW * scale)));
+      drawH = std::max(1, static_cast<int>(std::round(srcH * scale)));
+    }
+    
     // Apply per-cue output geometry
     int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX_));
     int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY_));
@@ -3342,6 +3373,7 @@ class MediaEngine {
   float transitionSourceGain_ = 1.0f;  // fade gain of outgoing frame at transition start
   float outputScaleX_ = 1.0f;          // per-cue output X scale (applied in drawTextureFitted)
   float outputScaleY_ = 1.0f;          // per-cue output Y scale (applied in drawTextureFitted)
+  ScaleMode scaleMode_ = ScaleMode::Fit;  // Fit/Fill/Stretch/Unscaled mode
   float outputOffsetX_ = 0.0f;         // per-cue output X offset (pixels)
   float outputOffsetY_ = 0.0f;         // per-cue output Y offset (pixels)
   float outputRotationDegrees_ = 0.0f; // per-cue rotation angle
@@ -9299,6 +9331,15 @@ class App {
     auto formatPercent = [&](float value) {
       return formatFloat(value * 100.0f, 1) + "%";
     };
+    auto formatScaleMode = [](ScaleMode mode) {
+      switch (mode) {
+        case ScaleMode::Fit: return "Fit";
+        case ScaleMode::Fill: return "Fill";
+        case ScaleMode::Stretch: return "Stretch";
+        case ScaleMode::Unscaled: return "Unscaled";
+      }
+      return "?";
+    };
 
     auto drawKeyColorRow = [&](int rowY, const Cue& cue) {
       SDL_Rect colorBtn {ctrl.x + 10, rowY, kCtrlW - 20, 30};
@@ -9313,6 +9354,9 @@ class App {
       constexpr int kRowStep = 28;
       int rowY = startY;
       if (includeScaleOffset) {
+         drawQuickRow(rowY, "mode", QuickAction::CycleScaleMode, formatScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
+                      QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
+         rowY += kRowStep;
         drawQuickRow(rowY, "scale X", QuickAction::ScaleXDec, formatFloat(cue.outputScaleX, 2) + "x", QuickAction::ScaleXInc,
                      QuickAction::ToggleLoop, false, false, "Output X scale (0.25–4.0×)");
         rowY += kRowStep;
@@ -11868,6 +11912,13 @@ class App {
       case QuickAction::SpeedDec:        adjustSelectedSpeed(-0.25); break;
       case QuickAction::SpeedInc:        adjustSelectedSpeed( 0.25); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
+       case QuickAction::CycleScaleMode: {
+         if (Cue* sel = selectedCueMutable()) {
+           sel->scaleMode = static_cast<ScaleMode>((static_cast<int>(sel->scaleMode) + 1) % 4);
+           markProjectDirty();
+         }
+         break;
+       }
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {
