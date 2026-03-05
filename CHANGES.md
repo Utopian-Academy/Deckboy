@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (browser cue take/capture reliability fix)
+
+- Fixed browser cue output path when taking a browser cue:
+  - Browser capture now uses the same platform capture planner used by source/window capture backends (instead of a separate custom x11grab invocation).
+  - This aligns browser cue ffmpeg arguments with the known-good Linux `x11grab` backend path.
+- Added explicit startup failure handling:
+  - if browser capture cannot start, Deckboy now stops the browser startup sequence and toasts `browser capture failed` instead of silently staying black.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (browser cue URL edit in Cue Panel)
 
 - Added in-menu browser cue URL editing in the Cue Panel (no hidden command syntax required).
