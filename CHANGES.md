@@ -30,7 +30,8 @@
 - `SOURCE` button now adds using selected default source type (`window/camera/syphon|spout`) with non-blocking defaults.
 - Cue settings panel updates:
   - pattern cue `Pattern Type` now uses dropdown instead of +/- cycling row
-  - transition style controls now use dropdown selectors (multi-select + single cue flows).
+  - transition style controls now use dropdown selectors (multi-select + single cue flows)
+  - source cues now include in-menu `source` value editing via non-blocking inline text editor.
 
 ### Layout cleanup
 - Refactored bottom bar layout to grouped sections: `MEDIA`, `TRANSPORT`, `OUTPUT`.

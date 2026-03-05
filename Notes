@@ -14,6 +14,8 @@
 - Cue panel now uses dropdown selectors for:
   - pattern type
   - cue transition style.
+- Source cues now have in-menu `source` reference editing (`edit` in cue panel)
+  through a non-blocking inline text editor.
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:
