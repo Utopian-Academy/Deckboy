@@ -5858,7 +5858,7 @@ class App {
       SDL_WINDOWPOS_UNDEFINED,
       1760,
       1020,
-      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
     );
     if (decksPanelWindow_) {
       SDL_SetWindowMinimumSize(decksPanelWindow_, 1400, 780);
@@ -8286,6 +8286,7 @@ class App {
 
   void addDeck() {
     normalizeProject(project_);
+    int previousDeckCount = static_cast<int>(project_.decks.size());
     int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
     int routeHostIndex = std::clamp(project_.outputs[focusedOutputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     Deck deck;
@@ -8305,7 +8306,8 @@ class App {
     assignment.enabled = true;
     project_.layerAssignments.push_back(assignment);
     project_.advancedOutputMode = true;
-    updateDecksPanelVisibility();
+    bool crossedIntoMultiDeck = previousDeckCount < 2 && static_cast<int>(project_.decks.size()) >= 2;
+    updateDecksPanelVisibility(crossedIntoMultiDeck);
     rebuildDeckRuntimes();
     normalizeProject(project_);
     setFocusedDeckIndex(newDeckIndex);
@@ -11952,6 +11954,7 @@ class App {
       deck.activeIndex = -1;
     }
     currentProjectFile_ = defaultProjectFile();
+    decksPanelManualOpen_ = false;
     updateDecksPanelVisibility();
     timecodeTriggeredCueIds_.clear();
     resetTimecodeFollowerState();
@@ -15877,8 +15880,8 @@ class App {
               break;
             }
             if (decksPanelWindow_ && closingWindowId == SDL_GetWindowID(decksPanelWindow_)) {
-              // Keep Decks workspace available; treat window close as a show/raise request.
-              setDecksPanelVisible(true, true);
+              decksPanelManualOpen_ = false;
+              setDecksPanelVisible(false, false);
               break;
             }
             if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
@@ -16287,12 +16290,12 @@ class App {
     }
   }
 
-  void updateDecksPanelVisibility() {
+  void updateDecksPanelVisibility(bool raiseWindow = false) {
     if (!decksPanelWindow_) {
       return;
     }
-    // Deck window is now a primary always-on workspace.
-    setDecksPanelVisible(true, false);
+    bool shouldShow = static_cast<int>(project_.decks.size()) >= 2 || decksPanelManualOpen_;
+    setDecksPanelVisible(shouldShow, shouldShow && raiseWindow);
   }
 
   void renderQuitConfirm() {
@@ -16446,6 +16449,9 @@ class App {
 
   void renderDecksPanel() {
     if (!decksPanelWindow_ || !decksPanelRenderer_) {
+      return;
+    }
+    if (!decksPanelVisible()) {
       return;
     }
     decksPanelButtons_.clear();
@@ -22581,7 +22587,9 @@ class App {
       return;
     }
     if (pointInRect(x, y, decksPanelToggleRect_)) {
-      setDecksPanelVisible(true, true);
+      bool open = decksPanelVisible();
+      decksPanelManualOpen_ = !open;
+      setDecksPanelVisible(!open, true);
       return;
     }
     if (pointInRect(x, y, deckSidebarToggleRect_)) {
@@ -25601,6 +25609,7 @@ class App {
     project_ = loadProject(normalized);
     normalizeProject(project_);
     disarmAllOutputsForStartup();
+    decksPanelManualOpen_ = false;
     updateDecksPanelVisibility();
     timecodeTriggeredCueIds_.clear();
     resetTimecodeFollowerState();
@@ -27096,6 +27105,7 @@ class App {
   bool confirmQuit_ = false;
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};
+  bool decksPanelManualOpen_ = false;
   bool showStartupDialog_ = false;
   bool showSplashOverlay_ = true;
   Uint64 splashStartedAt_ = 0;

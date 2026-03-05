@@ -139,6 +139,7 @@ Main-window output strip quick controls (always visible):
 - Bottom row: focused-route controls (`Link/Unlink`, `Layer-`, `Layer+`) and plain-English status:
   - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`
 - Main header includes `decks` toggle for the separate deck panel.
+  - With a single deck, the deck panel stays hidden by default unless toggled open.
   - When a second deck is created, Deckboy auto-opens and raises the deck panel.
 - Header also includes compact per-deck live summary (`D1 LIVE ...`) for quick
   cross-deck awareness.
