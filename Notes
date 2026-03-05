@@ -1086,3 +1086,23 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 ui cleanup sprint (browser diagnostics + cue-panel row refactor + regression smoke):
+- Browser cue diagnostics in cue panel:
+  - Added browser `state` row in cue settings (still/pattern/source/browser branch).
+  - Status labels now show startup phases and explicit failure summary (`failed: ...`).
+- Browser runtime reason tracking:
+  - `DeckRuntime` now tracks `browserLastError`.
+  - Startup/launch/capture failure paths now populate reason strings for operator visibility.
+  - Browser startup phase now explicitly transitions through `WaitCapture` before live.
+- Cue panel cleanup/refactor:
+  - Added reusable local row helpers in render path for metadata rows with edit actions and status-only rows.
+  - Replaced duplicated `source`, `url`, `notes` row drawing in still/pattern/source/browser branch.
+  - Removed redundant old browser-only settings branch (unreachable after browser-unified branch).
+- Regression smoke additions:
+  - `decks panel visibility policy`
+  - `transition source gain policy`
+  - `browser status summary`
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
