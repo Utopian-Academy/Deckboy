@@ -1106,3 +1106,12 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 toggleable per-output FPS counter:
+- Added rolling per-output FPS sampling fields to `OutputRuntime` and update hook during output render.
+- Added output-strip `FPS ON/OFF` control button (main control window, output arm row).
+- Output chips now display per-output FPS (`xx.xfps`) when FPS display is enabled.
+- Added small output-chip text clipping improvements while rendering status/FPS labels.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)

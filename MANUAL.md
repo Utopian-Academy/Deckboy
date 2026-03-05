@@ -135,6 +135,7 @@ details (deck, cue number, cue name, or bypass) and direct in-row `Take`.
 
 Main-window output strip quick controls (always visible):
 - Top row: output chips (`O1`, `O2`, ...) with target/state labels plus per-output arm switch and `Add Output`.
+- Top row includes `FPS ON/OFF` toggle; when enabled each output chip shows that output's live render FPS (`xx.xfps`).
 - When the optional UI pack is installed, output chips use sprite backgrounds for `idle/armed/live/warn/offline`.
 - Bottom row: focused-route controls (`Link/Unlink`, `Layer-`, `Layer+`) and plain-English status:
   - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`

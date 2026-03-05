@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (toggleable per-output FPS counter)
+
+- Added per-output FPS measurement in runtime (`OutputRuntime`) with rolling sampling.
+- Added `FPS ON/OFF` toggle button in the output strip.
+- When enabled, each output chip now shows an FPS readout (`xx.xfps`) for that specific output.
+- FPS display is non-blocking and updates continuously while outputs render.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (UI cleanup sprint: browser diagnostics + cue-panel refactor + regression smoke)
 
 - Added live browser startup diagnostics into cue settings for browser cues:
