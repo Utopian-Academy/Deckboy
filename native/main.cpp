@@ -78,6 +78,8 @@ constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
 constexpr int kDefaultAtemBridgePort = 9910;
 constexpr int kDefaultArtNetPort = 6454;
 constexpr int kDmxTriggerThreshold = 127;
+const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";
+const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";
 
 std::atomic<bool> gShouldQuit = false;
 
@@ -5876,6 +5878,8 @@ class App {
     }
 
     Paths::ensureDataDir();
+    initUiAssetPackPaths();
+    preloadUiAssets();
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
@@ -5967,6 +5971,7 @@ class App {
       SDL_DestroyTexture(controlPreviewTex_);
       controlPreviewTex_ = nullptr;
     }
+    releaseUiAssets();
     if (decksPanelRenderer_) {
       SDL_DestroyRenderer(decksPanelRenderer_);
       decksPanelRenderer_ = nullptr;
@@ -16359,7 +16364,15 @@ class App {
     drawText(controlRenderer_, titleFont, "DECKBOY", colorFromRgba(kScreenDeepColor), card.x + 36, card.y + 34);
     drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", colorFromRgba(kScreenDarkColor), card.x + 38, card.y + 82);
 
-    SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72, 184};
+    int splashArtReserve = 0;
+    if (uiPackAvailable_) {
+      SDL_Rect splashArtRect {card.x + card.w - 286, card.y + 22, 250, card.h - 114};
+      if (drawUiImageContain(uiSplashArt_, splashArtRect, 240)) {
+        splashArtReserve = splashArtRect.w + 10;
+      }
+    }
+
+    SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72 - splashArtReserve, 184};
     Primitives::drawFramedPanel(controlRenderer_, bootRect, colorFromRgba(kScreenLightColor),
                                 colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
@@ -16968,6 +16981,10 @@ class App {
     // Global header strip
     SDL_Rect header {shell.x + 4, shell.y + 4, shell.w - 8, kGlobalHeaderH};
     Primitives::drawFramedPanel(controlRenderer_, header, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    if (uiPackAvailable_) {
+      SDL_Rect headerArtRect {header.x + 8, header.y + 4, 212, header.h - 8};
+      drawUiImageContain(uiHeaderArt_, headerArtRect, 150);
+    }
     // Pixel-font title with animated sparkle stars
     {
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
@@ -17152,8 +17169,6 @@ class App {
       SDL_Rect cellRect {toggleX, topRowY, kOutputToggleCellW, kOutputToggleCellH};
       SDL_Color cellFill = focusedOutput ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
       SDL_Color cellInk = focusedOutput ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, cellRect, cellFill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       std::string typeToken = normalizeOutputType(output.outputType) == "stream"
         ? toUpper(normalizeOutputStreamProtocol(output.streamProtocol))
         : "HDMI";
@@ -17170,6 +17185,24 @@ class App {
       int orientation = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
       if (orientation != 0) {
         stateToken += " R" + std::to_string(orientation);
+      }
+      bool drewChipArt = false;
+      if (uiPackAvailable_) {
+        UiImageAsset* chip = &uiOutputChipIdleArt_;
+        if (!output.enabled) {
+          chip = &uiOutputChipOffArt_;
+        } else if (normalizeOutputType(output.outputType) == "stream" && output.streamEnabled) {
+          chip = &uiOutputChipLiveArt_;
+        } else if (output.outputTestCardEnabled || orientation != 0) {
+          chip = &uiOutputChipWarnArt_;
+        } else if (output.enabled) {
+          chip = &uiOutputChipArmedArt_;
+        }
+        drewChipArt = drawUiImageContain(*chip, cellRect, 255);
+      }
+      if (!drewChipArt) {
+        Primitives::drawFramedPanel(controlRenderer_, cellRect, cellFill,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       }
       drawText(controlRenderer_, fontSmall_,
                "O" + std::to_string(outputIndex + 1) + " " + typeToken,
@@ -17499,7 +17532,16 @@ class App {
     drawText(controlRenderer_, fontMono_,
              ellipsizeToPixelWidth(fontMono_, cueToken, kNumColW - 8),
              subInk, numX, row.y + 14);
-    drawText(controlRenderer_, fontSmall_, typeIcon, subInk, typeX, row.y + 17);
+    bool drewCueIcon = false;
+    if (uiPackAvailable_) {
+      if (UiImageAsset* iconAsset = cueIconAssetForKind(cue.kind)) {
+        SDL_Rect iconRect {typeX, row.y + 16, 14, 14};
+        drewCueIcon = drawUiImageContain(*iconAsset, iconRect, isLive ? 230 : 255);
+      }
+    }
+    if (!drewCueIcon) {
+      drawText(controlRenderer_, fontSmall_, typeIcon, subInk, typeX, row.y + 17);
+    }
 
     std::string nameTrimmed = ellipsizeToPixelWidth(fontBase_, cue.name, nameW);
     drawText(controlRenderer_, fontBase_, nameTrimmed, ink, nameX, row.y + 13);
@@ -17897,6 +17939,10 @@ class App {
         SDL_Rect vuFill {vuBg.x + 2, vuBg.y + 2, std::min(fillW, vuW - 4), vuBg.h - 4};
         Primitives::fillRect(controlRenderer_, vuFill, vuColor);
       }
+    }
+    if (uiPackAvailable_) {
+      SDL_Rect monitorArtRect {preview.x + 2, preview.y + 2, preview.w - 4, preview.h - 4};
+      drawUiImageContain(uiMonitorFrameArt_, monitorArtRect, 170);
     }
 
     SDL_Rect stackRect {preview.x, preview.y + preview.h + 6, preview.w, kStackViewH};
@@ -21453,6 +21499,10 @@ class App {
       SDL_Rect logoRect {cx, cy, content.w - 24, 116};
       Primitives::drawFramedPanel(controlRenderer_, logoRect, colorFromRgba(kShellInnerColor),
                                   colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      if (uiPackAvailable_) {
+        SDL_Rect logoArtRect {logoRect.x + logoRect.w - 204, logoRect.y + 10, 190, logoRect.h - 20};
+        drawUiImageContain(uiHeaderArt_, logoArtRect, 215);
+      }
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
       drawText(controlRenderer_, titleFont, "DECKBOY", ink, logoRect.x + 14, logoRect.y + 14);
       drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", soft, logoRect.x + 16, logoRect.y + 58);
@@ -21466,6 +21516,12 @@ class App {
       drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, infoRect.x + 8, infoRect.y + 48);
       drawText(controlRenderer_, fontSmall_, "UI mascot/sprite art is disabled in live control panels.", soft, infoRect.x + 8, infoRect.y + 64);
       drawText(controlRenderer_, fontSmall_, "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft, infoRect.x + 8, infoRect.y + 88);
+      std::string packStatus = uiPackAvailable_
+        ? ("UI pack: " + uiPackRoot_.string())
+        : "UI pack: not found (data/ui/deckboy_ui_pack_v3 preferred)";
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, packStatus, infoRect.w - 16),
+               soft, infoRect.x + 8, infoRect.y + 104);
     }
   }
 
@@ -26454,6 +26510,253 @@ class App {
     SDL_DestroyTexture(texture);
   }
 
+  struct UiImageAsset {
+    fs::path path;
+    SDL_Texture* texture = nullptr;
+    int width = 0;
+    int height = 0;
+    bool attemptedLoad = false;
+  };
+
+  std::optional<std::pair<int, int>> probeStillImageSize(const fs::path& path) const {
+    auto output = readAllText({
+      "ffprobe", "-v", "error",
+      "-select_streams", "v:0",
+      "-show_entries", "stream=width,height",
+      "-of", "csv=p=0:s=x",
+      path.string()
+    });
+    if (!output) {
+      return std::nullopt;
+    }
+    std::string text = trim(*output);
+    size_t sep = text.find('x');
+    if (sep == std::string::npos) {
+      return std::nullopt;
+    }
+    try {
+      int w = std::stoi(text.substr(0, sep));
+      int h = std::stoi(text.substr(sep + 1));
+      if (w <= 0 || h <= 0) {
+        return std::nullopt;
+      }
+      return std::make_pair(w, h);
+    } catch (...) {
+      return std::nullopt;
+    }
+  }
+
+  bool decodeStillImageRgba(const fs::path& path, int width, int height, std::vector<std::uint8_t>& outPixels) const {
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    constexpr size_t kMaxUiDecodeBytes = 64u * 1024u * 1024u;
+    size_t byteCount = static_cast<size_t>(width) * static_cast<size_t>(height) * 4u;
+    if (byteCount == 0 || byteCount > kMaxUiDecodeBytes) {
+      return false;
+    }
+
+    ChildProcess process;
+    if (!spawnPipeProcess(process, {
+      "ffmpeg", "-hide_banner", "-loglevel", "error",
+      "-i", path.string(),
+      "-frames:v", "1",
+      "-f", "rawvideo",
+      "-pix_fmt", "rgba",
+      "pipe:1"
+    })) {
+      return false;
+    }
+
+    outPixels.resize(byteCount);
+    bool ok = readExact(process.readFd, outPixels.data(), outPixels.size());
+    process.stop();
+    return ok;
+  }
+
+  void releaseUiImage(UiImageAsset& asset) {
+    if (asset.texture) {
+      SDL_DestroyTexture(asset.texture);
+      asset.texture = nullptr;
+    }
+    asset.width = 0;
+    asset.height = 0;
+    asset.attemptedLoad = false;
+  }
+
+  bool ensureUiImageLoaded(UiImageAsset& asset) {
+    if (asset.texture) {
+      return true;
+    }
+    if (asset.attemptedLoad) {
+      return false;
+    }
+    asset.attemptedLoad = true;
+    if (asset.path.empty() || !fs::exists(asset.path)) {
+      return false;
+    }
+    auto size = probeStillImageSize(asset.path);
+    if (!size) {
+      return false;
+    }
+    std::vector<std::uint8_t> rgba;
+    if (!decodeStillImageRgba(asset.path, size->first, size->second, rgba)) {
+      return false;
+    }
+    SDL_Texture* texture = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                             SDL_TEXTUREACCESS_STATIC, size->first, size->second);
+    if (!texture) {
+      return false;
+    }
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_UpdateTexture(texture, nullptr, rgba.data(), size->first * 4);
+    asset.texture = texture;
+    asset.width = size->first;
+    asset.height = size->second;
+    return true;
+  }
+
+  bool drawUiImageContain(UiImageAsset& asset, const SDL_Rect& bounds, Uint8 alpha = 255) {
+    if (bounds.w <= 0 || bounds.h <= 0) {
+      return false;
+    }
+    if (!ensureUiImageLoaded(asset) || !asset.texture || asset.width <= 0 || asset.height <= 0) {
+      return false;
+    }
+    double sx = static_cast<double>(bounds.w) / static_cast<double>(asset.width);
+    double sy = static_cast<double>(bounds.h) / static_cast<double>(asset.height);
+    double scale = std::min(sx, sy);
+    int drawW = std::max(1, static_cast<int>(std::lround(static_cast<double>(asset.width) * scale)));
+    int drawH = std::max(1, static_cast<int>(std::lround(static_cast<double>(asset.height) * scale)));
+    SDL_Rect dst {
+      bounds.x + (bounds.w - drawW) / 2,
+      bounds.y + (bounds.h - drawH) / 2,
+      drawW,
+      drawH
+    };
+    SDL_SetTextureAlphaMod(asset.texture, alpha);
+    SDL_RenderCopy(controlRenderer_, asset.texture, nullptr, &dst);
+    SDL_SetTextureAlphaMod(asset.texture, 255);
+    return true;
+  }
+
+  void initUiAssetPackPaths() {
+    fs::path dataDir = Paths::dataDir();
+    fs::path root = dataDir / kUiPackRelativePathV3;
+    if (!fs::exists(root)) {
+      root = dataDir / kUiPackRelativePathV2;
+    }
+    uiPackRoot_ = root;
+    uiPackAvailable_ = fs::exists(root);
+    if (!uiPackAvailable_) {
+      return;
+    }
+
+    auto pick = [&](const std::vector<fs::path>& relativeCandidates) -> fs::path {
+      for (const auto& rel : relativeCandidates) {
+        fs::path candidate = root / rel;
+        if (fs::exists(candidate)) {
+          return candidate;
+        }
+      }
+      return root / relativeCandidates.front();
+    };
+
+    uiHeaderArt_.path = pick({
+      fs::path("header") / "header_default.png",
+      fs::path("header") / "header_default@1x.png"
+    });
+    uiSplashArt_.path = pick({
+      fs::path("splash") / "deckboy_splash_deckgirl.png",
+      fs::path("splash") / "splash_boot_deckgirl@1x.png"
+    });
+    uiMonitorFrameArt_.path = pick({
+      fs::path("monitor") / "monitor_frame.png",
+      fs::path("monitor") / "monitor_frame@1x.png"
+    });
+    uiOutputChipIdleArt_.path = pick({
+      fs::path("outputs") / "chip_idle.png",
+      fs::path("outputs") / "output_chip_idle@1x.png"
+    });
+    uiOutputChipArmedArt_.path = pick({
+      fs::path("outputs") / "chip_armed.png",
+      fs::path("outputs") / "output_chip_armed@1x.png"
+    });
+    uiOutputChipLiveArt_.path = pick({
+      fs::path("outputs") / "chip_live.png",
+      fs::path("outputs") / "output_chip_live@1x.png"
+    });
+    uiOutputChipWarnArt_.path = pick({
+      fs::path("outputs") / "chip_warning.png",
+      fs::path("outputs") / "output_chip_warn@1x.png"
+    });
+    uiOutputChipOffArt_.path = pick({
+      fs::path("outputs") / "chip_offline.png",
+      fs::path("outputs") / "output_chip_off@1x.png"
+    });
+    uiCueIconVideo_.path = pick({fs::path("cue_icons") / "video.png"});
+    uiCueIconImage_.path = pick({fs::path("cue_icons") / "image.png"});
+    uiCueIconBrowser_.path = pick({fs::path("cue_icons") / "browser.png"});
+    uiCueIconPattern_.path = pick({fs::path("cue_icons") / "pattern.png"});
+    uiCueIconLowerThird_.path = pick({fs::path("cue_icons") / "lowerthird.png"});
+    uiCueIconSource_.path = pick({fs::path("cue_icons") / "source.png"});
+    uiCueIconAudio_.path = pick({fs::path("cue_icons") / "audio.png"});
+  }
+
+  void preloadUiAssets() {
+    if (!uiPackAvailable_) {
+      return;
+    }
+    ensureUiImageLoaded(uiHeaderArt_);
+    ensureUiImageLoaded(uiSplashArt_);
+    ensureUiImageLoaded(uiMonitorFrameArt_);
+    ensureUiImageLoaded(uiOutputChipIdleArt_);
+    ensureUiImageLoaded(uiOutputChipArmedArt_);
+    ensureUiImageLoaded(uiOutputChipLiveArt_);
+    ensureUiImageLoaded(uiOutputChipWarnArt_);
+    ensureUiImageLoaded(uiOutputChipOffArt_);
+    ensureUiImageLoaded(uiCueIconVideo_);
+    ensureUiImageLoaded(uiCueIconImage_);
+    ensureUiImageLoaded(uiCueIconBrowser_);
+    ensureUiImageLoaded(uiCueIconPattern_);
+    ensureUiImageLoaded(uiCueIconLowerThird_);
+    ensureUiImageLoaded(uiCueIconSource_);
+    ensureUiImageLoaded(uiCueIconAudio_);
+  }
+
+  void releaseUiAssets() {
+    releaseUiImage(uiHeaderArt_);
+    releaseUiImage(uiSplashArt_);
+    releaseUiImage(uiMonitorFrameArt_);
+    releaseUiImage(uiOutputChipIdleArt_);
+    releaseUiImage(uiOutputChipArmedArt_);
+    releaseUiImage(uiOutputChipLiveArt_);
+    releaseUiImage(uiOutputChipWarnArt_);
+    releaseUiImage(uiOutputChipOffArt_);
+    releaseUiImage(uiCueIconVideo_);
+    releaseUiImage(uiCueIconImage_);
+    releaseUiImage(uiCueIconBrowser_);
+    releaseUiImage(uiCueIconPattern_);
+    releaseUiImage(uiCueIconLowerThird_);
+    releaseUiImage(uiCueIconSource_);
+    releaseUiImage(uiCueIconAudio_);
+  }
+
+  UiImageAsset* cueIconAssetForKind(CueKind kind) {
+    switch (kind) {
+      case CueKind::Video:      return &uiCueIconVideo_;
+      case CueKind::Image:      return &uiCueIconImage_;
+      case CueKind::Browser:    return &uiCueIconBrowser_;
+      case CueKind::Pattern:    return &uiCueIconPattern_;
+      case CueKind::LowerThird: return &uiCueIconLowerThird_;
+      case CueKind::Audio:      return &uiCueIconAudio_;
+      case CueKind::WindowSource:
+      case CueKind::Camera:
+      case CueKind::Syphon:     return &uiCueIconSource_;
+      default:                  return nullptr;
+    }
+  }
+
   struct DecksPanelButton {
     SDL_Rect rect {};
     int action = 0;
@@ -26690,6 +26993,24 @@ class App {
   std::thread hyperDeckThread_;
   std::atomic<bool> hyperDeckRunning_ {false};
   int hyperDeckListenFd_ = -1;
+
+  fs::path uiPackRoot_;
+  bool uiPackAvailable_ = false;
+  UiImageAsset uiHeaderArt_;
+  UiImageAsset uiSplashArt_;
+  UiImageAsset uiMonitorFrameArt_;
+  UiImageAsset uiOutputChipIdleArt_;
+  UiImageAsset uiOutputChipArmedArt_;
+  UiImageAsset uiOutputChipLiveArt_;
+  UiImageAsset uiOutputChipWarnArt_;
+  UiImageAsset uiOutputChipOffArt_;
+  UiImageAsset uiCueIconVideo_;
+  UiImageAsset uiCueIconImage_;
+  UiImageAsset uiCueIconBrowser_;
+  UiImageAsset uiCueIconPattern_;
+  UiImageAsset uiCueIconLowerThird_;
+  UiImageAsset uiCueIconSource_;
+  UiImageAsset uiCueIconAudio_;
 
   SDL_Texture* controlPreviewTex_ = nullptr;
   int controlPreviewTexW_ = 0;
