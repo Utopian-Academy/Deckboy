@@ -10622,7 +10622,12 @@ class App {
       ? std::clamp(output.displayIndex, 0, displayCount - 1)
       : 0;
     int windowDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
-    bool wrongDisplay = displayCount > 0 && (windowDisplay < 0 || windowDisplay != targetDisplay);
+    // SDL can report -1 transiently during/fullscreen transitions.
+    // Treat unknown index as non-actionable to avoid recovery loops.
+    bool wrongDisplay = false;
+    if (displayCount > 0 && !fullscreen && windowDisplay >= 0) {
+      wrongDisplay = windowDisplay != targetDisplay;
+    }
 
     bool needsRecovery = hidden || minimized || !fullscreen || wrongDisplay;
     if (!needsRecovery) {
