@@ -7430,7 +7430,7 @@ class App {
       // re-fullscreen window outputs, and raise the window.
       if (enabled) {
         if (autoSwitchedToNative) {
-          applyOutputDisplaySelectionAllOutputs(true);
+          applyOutputDisplaySelectionAllOutputs(true, true);
         }
         setOutputRecoveryPausedByEscape(outputIndex, false);
         if (windowOutput) {
@@ -7461,14 +7461,20 @@ class App {
       }
     }
     if (autoSwitchedToNative) {
-      applyOutputDisplaySelectionAllOutputs(true);
+      applyOutputDisplaySelectionAllOutputs(true, true);
     } else {
-      applyOutputDisplaySelection(outputIndex);
+      // When disabling a fullscreen output we allow a fullscreen transition so
+      // SDL/WM state is cleaned up before hiding the window.
+      applyOutputDisplaySelection(outputIndex, !enabled);
     }
 
     if (enabled && autoFullscreenWhenEnabling && windowOutput) {
-      enableOutputFullscreen(outputIndex, false);
-      triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
+      bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
+      if (fullscreenOk) {
+        triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
+      } else {
+        triggerToast("output on (windowed): fullscreen failed");
+      }
     } else {
       triggerToast(std::string("output: ") + (enabled ? "on" : "off"));
     }
@@ -10332,7 +10338,7 @@ class App {
     startBrowserCue(deckIndex, *active);
   }
 
-  void applyOutputDisplaySelection(int outputIndex) {
+  void applyOutputDisplaySelection(int outputIndex, bool allowFullscreenTransition = false) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
@@ -10361,12 +10367,19 @@ class App {
 
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-    if (!streamType && fullscreen) {
-      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+    bool transitionedOutOfFullscreen = false;
+    if (!streamType && fullscreen && allowFullscreenTransition) {
+      if (SDL_SetWindowFullscreen(runtime->outputWindow, 0) == 0) {
+        fullscreen = false;
+        transitionedOutOfFullscreen = true;
+      }
     }
 
-    SDL_SetWindowSize(runtime->outputWindow, targetW, targetH);
-    if (!streamType && haveDisplayBounds) {
+    bool canApplyGeometry = !fullscreen || allowFullscreenTransition;
+    if (streamType || canApplyGeometry) {
+      SDL_SetWindowSize(runtime->outputWindow, targetW, targetH);
+    }
+    if (!streamType && haveDisplayBounds && canApplyGeometry) {
       int x = bounds.x + std::max(0, (bounds.w - targetW) / 2) + outputIndex * 20;
       int y = bounds.y + std::max(0, (bounds.h - targetH) / 2) + outputIndex * 20;
       if (targetW > bounds.w) x = bounds.x + 20 + outputIndex * 20;
@@ -10374,7 +10387,7 @@ class App {
       SDL_SetWindowPosition(runtime->outputWindow, x, y);
     }
 
-    if (windowOutputEnabled && fullscreen) {
+    if (windowOutputEnabled && transitionedOutOfFullscreen) {
       enableOutputFullscreen(outputIndex, false);
     }
     if (windowOutputEnabled) {
@@ -10392,9 +10405,10 @@ class App {
     SDL_SetWindowTitle(runtime->outputWindow, title.c_str());
   }
 
-  void applyOutputDisplaySelectionAllOutputs(bool restartLiveBrowsers) {
+  void applyOutputDisplaySelectionAllOutputs(bool restartLiveBrowsers,
+                                             bool allowFullscreenTransition = false) {
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
-      applyOutputDisplaySelection(outputIndex);
+      applyOutputDisplaySelection(outputIndex, allowFullscreenTransition);
     }
     if (restartLiveBrowsers) {
       for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
@@ -10406,7 +10420,7 @@ class App {
   void setOutputSizingModeDisplayNative() {
     bool changed = !project_.outputFollowDisplay;
     project_.outputFollowDisplay = true;
-    applyOutputDisplaySelectionAllOutputs(true);
+    applyOutputDisplaySelectionAllOutputs(true, true);
     triggerToast("video mode: native (" + currentDisplayLabel() + ")");
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -10423,7 +10437,7 @@ class App {
     project_.outputFollowDisplay = false;
     project_.outputRenderWidth = w;
     project_.outputRenderHeight = h;
-    applyOutputDisplaySelectionAllOutputs(true);
+    applyOutputDisplaySelectionAllOutputs(true, true);
     triggerToast("video mode: fixed " + std::to_string(w) + "x" + std::to_string(h));
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -10432,7 +10446,7 @@ class App {
   }
 
   void sizeFocusedOutputToSelectedDisplay() {
-    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
         restartLiveBrowserCueIfNeeded(deckIndex);
@@ -10446,7 +10460,7 @@ class App {
     double normalized = (!std::isfinite(hz) || hz <= 0.0) ? 0.0 : std::clamp(hz, 1.0, 240.0);
     bool changed = std::abs(project_.outputRefreshRateHz - normalized) > 0.0001;
     project_.outputRefreshRateHz = normalized;
-    applyOutputDisplaySelectionAllOutputs(false);
+    applyOutputDisplaySelectionAllOutputs(false, true);
     triggerToast("video refresh: " + outputRefreshRateLabel());
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -10506,7 +10520,7 @@ class App {
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
       enableOutputFullscreen(project_.focusedOutputIndex, false);
     }
@@ -10536,7 +10550,7 @@ class App {
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
       enableOutputFullscreen(project_.focusedOutputIndex, false);
     }
@@ -10562,7 +10576,7 @@ class App {
           changed = true;
         }
       }
-      applyOutputDisplaySelectionAllOutputs(true);
+      applyOutputDisplaySelectionAllOutputs(true, true);
       if (changed) {
         markProjectDirty();
       }
@@ -10580,7 +10594,7 @@ class App {
       }
     }
 
-    applyOutputDisplaySelectionAllOutputs(true);
+    applyOutputDisplaySelectionAllOutputs(true, true);
     if (changed) {
       markProjectDirty();
     }
@@ -10652,10 +10666,16 @@ class App {
     }
     runtime->lastRecoveryAttemptMs = now;
 
-    applyOutputDisplaySelection(outputIndex);
+    applyOutputDisplaySelection(outputIndex, false);
     SDL_ShowWindow(runtime->outputWindow);
     SDL_RaiseWindow(runtime->outputWindow);
-    enableOutputFullscreen(outputIndex, false);
+    bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
+    if (!fullscreenOk) {
+      if (withToast) {
+        triggerToast("output recover failed: fullscreen unavailable");
+      }
+      return false;
+    }
     if (withToast) {
       std::string displayLabel = "display " + std::to_string(targetDisplay + 1);
       if (displayCount > 0) {
@@ -11813,11 +11833,11 @@ class App {
       if (output.enabled) {
         anyEnabled = true;
       }
-      output.enabled = false;
-      setOutputRecoveryPausedByEscape(outputIndex, false);
-      stopOutputStream(outputIndex);
-      applyOutputDisplaySelection(outputIndex);
-    }
+	      output.enabled = false;
+	      setOutputRecoveryPausedByEscape(outputIndex, false);
+	      stopOutputStream(outputIndex);
+	      applyOutputDisplaySelection(outputIndex, true);
+	    }
 
     panicProfilePending_ = false;
     pendingPanicProfileToken_.clear();
@@ -26246,15 +26266,18 @@ class App {
     }
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-    if (fullscreen) {
-      // Fullscreen button now acts as "reassert fullscreen on target display"
-      // to avoid losing output windows off-screen.
-      recoverWindowOutputIfNeeded(project_.focusedOutputIndex, true);
-    } else {
-      enableOutputFullscreen(project_.focusedOutputIndex, true);
-      SDL_ShowWindow(runtime->outputWindow);
-      SDL_RaiseWindow(runtime->outputWindow);
-    }
+	    if (fullscreen) {
+	      // Fullscreen button now acts as "reassert fullscreen on target display"
+	      // to avoid losing output windows off-screen.
+	      recoverWindowOutputIfNeeded(project_.focusedOutputIndex, true);
+	    } else {
+	      if (enableOutputFullscreen(project_.focusedOutputIndex, true)) {
+	        SDL_ShowWindow(runtime->outputWindow);
+	        SDL_RaiseWindow(runtime->outputWindow);
+	      } else {
+	        triggerToast("fullscreen failed");
+	      }
+	    }
     playUiSound(UiSoundEffect::Toggle);
   }
 
