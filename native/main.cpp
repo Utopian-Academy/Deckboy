@@ -5,6 +5,8 @@
 #include "core/types.hpp"
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
+#include "platform/capture_backend.hpp"
+#include "platform/output_backend.hpp"
 #include "render/primitives.hpp"
 
 #include <algorithm>
@@ -5691,6 +5693,27 @@ class App {
 #endif
     std::cout << "ui-sfx: enabled by separate SDL audio device when available\n";
     std::cout << "companion-control: tcp/udp port 5510 by default (override with PLAYBOY_COMPANION_PORT)\n";
+
+    {
+      auto captureCatalog = deckboy::platform::createCaptureBackendCatalog();
+      std::ostringstream line;
+      line << "capture-backends:";
+      for (const auto& info : captureCatalog->list()) {
+        line << ' ' << info.id << '[' << (info.supported ? "ok" : "stub") << ']';
+      }
+      std::cout << line.str() << '\n';
+    }
+
+    {
+      auto outputCatalog = deckboy::platform::createOutputBackendCatalog();
+      std::ostringstream line;
+      line << "output-backends:";
+      for (const auto& info : outputCatalog->list()) {
+        line << ' ' << info.id << '[' << (info.supported ? "ok" : "stub") << ']';
+      }
+      std::cout << line.str() << '\n';
+    }
+
     return 0;
   }
 
