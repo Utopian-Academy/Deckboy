@@ -1,3 +1,748 @@
+2026-03-05 ui clarity pass (header/stack/routing/splash):
+- Main header now includes compact per-deck live summary while keeping show + net/tc state.
+- Output chips are clearer (`O#`, target type, ARMED/LIVE/OFF) with stronger focused-output indication.
+- Deck column header now shows routed output/layer and audio device.
+- Cue rows switched to fixed scanning columns with truncation + hover full-name tooltips.
+- Program monitor now includes focused-output info and a new stack view list (`STACK VIEW (Output X)`).
+- Progress bar updated to chunkier style with time text overlay.
+- Cue panel now has grouped section headers and collapsible behavior for Playback/Geometry/Key/Routing where applicable.
+- Cue panel now includes direct routing controls (output prev/next, layer +/- , link/unlink).
+- Video Outputs tab now has an inline routing table:
+  - `Deck | Output | Layer | Assigned`
+  - per-row output/layer edits + assign toggle.
+- Master Cue scene rows now use two-line layout + bigger `TAKE` button for readability.
+- Added startup splash overlay with boot lines and skip controls (`Enter`/`Esc`/click).
+- Removed sprite-character rendering functions from operational UI code paths.
+- Added `DEVNOTES.md` with layout/palette/icon/routing extension notes.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 output fx controls pass (alpha/delay/overlay/color-space):
+- Added per-output FX fields and persistence:
+  - `outputAlpha` (`0.0-1.0`)
+  - `outputDelayMs` (`0-5000`)
+  - `outputTimeOverlayEnabled`
+  - `outputColorSpace` (`auto|bt709|srgb`)
+- Video Outputs tab now has focused-output FX controls:
+  - `Overlay ON/OFF`
+  - `Alpha %` prompt
+  - `Delay ms` prompt + `Delay +100`
+  - `Color` cycle (`AUTO/BT709/SRGB`)
+- Runtime behavior:
+  - per-output alpha dimmer now applies post-composite.
+  - output-scoped overlay can be toggled independently of deck overlay.
+  - delayed frame queue added for output egress:
+    - NDI send path now uses delayed/live output frame.
+    - Stream send path now uses delayed/live output frame.
+    - window output presentation remains immediate in this pass.
+  - stream encoder color metadata now follows output color-space mode.
+- Command/status additions:
+  - `VIDEO OUTPUT ALPHA ...`
+  - `VIDEO OUTPUT DELAY ...`
+  - `VIDEO OUTPUT OVERLAY ...`
+  - `VIDEO OUTPUT COLORSPACE ...`
+  - `STATUS` / `STATUS JSON` output entities now include alpha/delay/overlay/color-space.
+- Docs updated:
+  - `MANUAL.md`, `README.md`, `CHANGES.md`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 live source runtime pass (window/camera/syphon):
+- Implemented active source-capture runtime path in `MediaEngine` (not placeholder-only):
+  - `Window Source` now uses ffmpeg `x11grab` on Linux.
+  - `Camera` now uses ffmpeg `v4l2` on Linux.
+  - `Syphon/Spout` now uses the same source-transport flow with Linux desktop-capture fallback.
+- Transport behavior now works for source cues:
+  - `Take` with autoplay starts capture.
+  - `Play` starts/restarts capture.
+  - `Pause` parks capture and holds frame.
+  - `Stop` parks capture and restores source slate.
+- Operator status polish:
+  - deck transport text shows `Live Source` / `Source Ready`.
+  - source row hover tips no longer call these cues scaffolds.
+  - source toasts distinguish loaded/live/unavailable.
+- Docs updated:
+  - `MANUAL.md`, `README.md`, `CHANGES.md`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 output operations flow + source cue scaffold:
+- Video Outputs workflow cleanup:
+  - added `Create Standard` and `Create Stream`.
+  - added explicit `Set Window` / `Set Stream` actions.
+  - added focused-output signal flow line (deck stack -> output -> display).
+- Source cue scaffold (shared path):
+  - new cue kinds: `Window Source`, `Camera`, `Syphon/Spout`.
+  - unified commands: `SOURCE WINDOW/CAMERA/SYPHON ...` + aliases.
+  - UI entry points:
+    - main control bar `SOURCE` button
+    - Preferences -> System -> `Add Source Cue...`
+  - OSC mappings: `/source`, `/source/window`, `/source/camera`, `/source/syphon`, `/source/spout`.
+  - runtime now renders source cues via a common placeholder frame path so routing/transport/save-load can be exercised end-to-end while capture backends are implemented.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 ndi refactor follow-up (output-scoped + portability guardrails):
+- NDI runtime path is now output-scoped only:
+  - removed active deck-runtime NDI sender path.
+  - `N` + `NDI...` commands now operate on focused output.
+  - Video Outputs tab NDI controls and status are output-first.
+- Added legacy migration during normalize:
+  - deck-era NDI config auto-maps to output NDI when output NDI is not already explicitly configured.
+- Output NDI now sends:
+  - composited fill video
+  - optional key video
+  - mixed stereo audio from the output assignment stack.
+- Deck status snapshots no longer include deck NDI fields; NDI status is exposed under output entities.
+- Docs updated:
+  - `MANUAL.md`, `README.md`, `PORTABILITY.md`, and `CHANGES.md` now reflect per-output NDI and cross-platform roadmap constraints.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 ui declutter + i/o workflow clarity follow-up:
+- Removed sprite/mascot rendering from live control/menu surfaces.
+  - no-cue state now uses text prompts only (`Insert cartridge`, `Drop media here`, `Press A to take cue`).
+- Video Outputs panel cleanup:
+  - fixed accidental action collision on `Routing In Main Strip` label.
+  - added `Show Advanced`/`Hide Advanced` toggle so dense controls are opt-in.
+- Decks workspace cleanup:
+  - window title simplified to `Deckboy Decks`.
+  - removed decorative star marker and reduced repeated helper copy.
+- Operator workflow clarified in docs:
+  - MANUAL now includes explicit paths for:
+    - standard output (`window`)
+    - stream output (`SRT`/`RTMP`)
+    - NDI (superseded later the same day by output-scoped NDI)
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 demo show generator + preset layouts:
+- Added `scripts/generate_demo_shows.sh` to create repeatable demo `.playboy` files.
+- Generated demos in `data/demos/`:
+  - `demo_70_30_4pip_bg_5deck.playboy` (full BG + 4 right-column PiPs, 5 decks)
+  - `demo_quad_2x2_4pip_bg_5deck.playboy` (full BG + 2x2 PiP quad, 5 decks)
+  - `demo_program_preview_clean_3deck.playboy` (program + preview PiP + bug, 3 decks)
+- Added `data/demos/README.md` with quick layout notes.
+- Validation:
+  - Generator ran successfully and wrote all expected files.
+
+2026-03-05 safety + output quality + no-popup master-cue follow-up:
+- Added single-instance launch lock (prevents accidental duplicate app/runaway spawn scenarios).
+  - default behavior: second launch is refused with terminal message.
+  - debug override: `--allow-multi-instance`.
+- Output quality safeguard:
+  - enabling/re-arming a `window` output now auto-switches to display-native raster if fixed mode was active.
+  - ON/recovery toasts now indicate `auto native` when this switch occurs.
+- Master-cue sidebar no-popup programming speedup:
+  - click a programmer row (outside action buttons) to assign from that deck's selected cue.
+  - mouse wheel over programmer row cycles slot cue up/down.
+  - removed unused popup-based master-slot picker function path.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 mitti parity p1 follow-up (panic timing + find + timecode follower):
+- Completed panic timing/options wiring:
+  - panic fade duration now drives panic fade profile timeout.
+  - added `panic auto restore` option (restore dimmer target after fade-action panic).
+  - added menu controls in Preferences -> Audio:
+    - `Panic fade (sec)` (`-` / `+`)
+    - `Panic auto restore` toggle.
+  - added commands:
+    - `PANICFADE <seconds>`
+    - `PANICAUTORESTORE ON|OFF|TOGGLE`.
+- Completed cue-find / cue-number tooling:
+  - commands: `FIND`, `FINDNEXT`, `FINDPREV`, `FINDTAKE`.
+  - commands: `RENUMBER [prefix] [start]`, `RENUMBER CLEAR`, aliases `AUTOID`, `CUEAUTOID`.
+  - cue token resolver now supports `FIRST`, `LAST`, `NEXT`, `PREV`, `SEL`, `ACT`, relative `+N/-N`, and cue-number prefix matching.
+- Completed timecode follower hardening:
+  - per-deck options persisted: `timecodeJamSyncEnabled`, `timecodeFreewheelSeconds`.
+  - added Preferences -> Audio controls for focused deck:
+    - `TC jam` toggle
+    - `TC freewheel (sec)` (`-` / `+`).
+  - added commands:
+    - `TIMECODE JAM ON|OFF`
+    - `TIMECODE FREEWHEEL <seconds>`.
+  - added OSC mappings:
+    - `/timecode/jam`
+    - `/timecode/freewheel`.
+  - chase+run decks now hold after freewheel timeout when external TC drops.
+  - `TIMECODE SET ...` now forces a direct operator jam.
+- Status snapshots now expose panic + timecode follower details:
+  - text status includes panic profile/fade/restore and per-deck `tc_jam` / `tc_freewheel_s`.
+  - JSON status includes top-level panic fields and per-deck `timecodeJam` / `timecodeFreewheelSeconds`.
+- Preferences -> Audio layout polish + menu-only cue workflow:
+  - grouped sections (`System+UI`, `Playback Semantics`, `Safety+Timecode`, `Cue Tools`).
+  - cue tool buttons added: `Find Cue...`, `Next`, `Prev`, `Find+Take`, `Renumber...`, `Clear Numbers`, `Clear Find`.
+- Added remote/status parity coverage:
+  - command aliases: `CUEFIND*` family.
+  - added `FINDCLEAR` / `FINDSTATUS`.
+  - new status queries: `STATUS CUES`, `STATUS FIND` (plus `STATE` aliases).
+  - status payload expanded with per-deck selected/active cue number+id and top-level find state.
+- Added OSC parity mappings for cue tooling:
+  - `/find`, `/find/next`, `/find/prev`, `/find/take`, `/find/clear`, `/renumber`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 mitti parity p0 (playback semantics):
+- Added Preferences -> Audio playback controls:
+  - Jump Mode (`Trigger`/`Load`)
+  - Jump Transition (`ON`/`OFF`)
+  - Panic Profile (`Outputs Off`, `Fade+Pause`, `Fade+Rewind`, `Fade+LoadNext`) + `Run Panic`.
+- `Take`/`Goto` now obey Jump Mode and Jump Transition behavior.
+- Added remote commands:
+  - `JUMPMODE TRIGGER|LOAD|TOGGLE`
+  - `JUMPTRANSITION ON|OFF|TOGGLE`
+  - `PANICPROFILE <name>|NEXT|PREV`
+  - `PANIC` or `PANIC <profile>`.
+- Project persistence updated:
+  - `jump_mode`
+  - `jump_transition`
+  - `panic_profile`
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 single-mode + bigger/cuter decks refresh:
+- Kept one operating flow (Super Deckboy) in this pass; did not add a two-mode split.
+- Dedicated deck workspace refresh:
+  - window title now `Super Deckboy Decks`
+  - larger default/min window sizing (`1560x920`, min `1260x700`)
+  - Game Boy green palette with playful star accents
+  - larger deck tracker rows, wider deck cards, bigger transport buttons, larger cue rows.
+- Flow/clarity updates:
+  - removed per-deck `Go` button from deck cards (cards now `Take` + `Stop`)
+  - main transport wording updated to `Play/Pause`
+  - master-cue programmer now uses inline `-` / `+` cue cycling per deck slot (replacing popup-heavy `Pick` in sidebar path).
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 pocket test creature/scene expansion:
+- Expanded procedural test-pattern adventure scene (Nintendo-like vibe, original sprites only).
+- Added new animated pattern variants:
+  - `pocket-day`
+  - `pocket-sunset`
+  - `pocket-night`
+  - `pocket-storm`
+- `pocket-test` now auto-cycles those scenes over time.
+- Added creatures/elements in scene generator:
+  - crab, jumping fish, parrot, turtle, dino-style enemy, puff friend
+  - plus existing explorer + coin line + tropical environment.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 output display auto-native quality pass:
+- Changing focused output display target now auto-enables display-native sizing if fixed raster mode was active.
+  - applies to display cycle (`Prev`/`Next`) and direct display pick.
+  - toast includes `auto native` when this switch occurs.
+- Added Video-tab info hint:
+  - "Display assign auto-switches to native mode for quality."
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 always-visible sidebar + master-cue programming clarity:
+- Main-window master-cue sidebar is now always visible (no hide toggle path).
+- Sidebar widened and controls enlarged for clearer operation.
+- Added explicit focused-master programming actions in sidebar:
+  - `Name` (rename focused master cue)
+  - `CapSel` (capture selected cues from all decks)
+  - `CapAct` (capture active cues from all decks)
+- Programmer area remains expandable and keeps per-deck slot controls:
+  - `Sel`, `Act`, `Byp`, `Pick`
+- Decks window readability pass:
+  - larger tracker rows/labels
+  - larger deck column headers/buttons/cue rows
+  - added cue interaction hint text.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 decks always-on + sidebar programming pass:
+- Deck window behavior updated:
+  - `Deckboy Decks` is now always shown (no auto-hide when only one deck exists).
+  - window close on that panel is treated as keep-visible behavior.
+  - default/min deck-window sizes increased for clearer deck operation.
+- Master-cue sidebar now supports direct programming again:
+  - added expandable `Prog+` / `Prog-` area
+  - per deck slot controls: `Sel`, `Act`, `Byp`, `Pick`
+  - keeps focused master cue selection/firing in sidebar list rows.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j2`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 sidebar role swap (user-requested):
+- Switched UI split per user direction:
+  - keep decks in separate `Deckboy Decks` window
+  - move master-cue workflow to main-window left sidebar (`side` toggle).
+- Main sidebar is now master-cue focused:
+  - controls: `<MC`, `MC>`, `New`, `Del`, `Take`
+  - per-preset rows with `MC#`, name, and compact deck-slot summaries
+  - row click focuses preset; row `Take` fires preset.
+- `Deckboy Decks` window simplified back toward deck operations:
+  - removed dedicated master-cue list/footer controls from that window
+  - tracker column now shows `tc` (timecode) instead of master-cue columns.
+  - window title now reads `Deckboy Decks`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 close/quit stuck-instance fix:
+- Confirmed two orphaned running instances (`playboy-native`) that did not exit on window-close path.
+- Immediate recovery during session:
+  - terminated stuck instances via `kill -9`.
+- Code fix:
+  - `SDL_QUIT` now exits immediately (`gShouldQuit = true`) instead of only setting quit-confirm state.
+  - main-window close now exits immediately.
+  - decks-window close now hides that window cleanly.
+  - output-window close now disarms that output (`output off`) for safer runtime cleanup.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 left sidebar deck control pass:
+- Added collapsible left deck sidebar in main window (`side` button in header).
+- Sidebar rows provide deck-at-a-glance status:
+  - selected/active cue numbers
+  - transport status
+  - timecode
+- Added direct per-deck controls in sidebar rows:
+  - `Take`, `Go`, `Stop`
+- Sidebar paging follows focused deck for larger deck counts.
+- Moved `side` toggle to the left-side outputs strip so the control lives on the same side as the sidebar.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 per-deck transport/timecode follow-up:
+- Added per-deck transport controls directly in `Deckboy Master Cues` deck columns:
+  - `Take`, `Go`, `Stop` buttons per deck.
+- Added per-deck transport/timecode readout in each deck column header:
+  - transport state
+  - `tc` + fps
+  - chase/free and run/hold.
+- Main output/program panel now shows focused-deck context/timecode line for the selected deck.
+- Added large-deck safety in decks panel:
+  - top tracker now pages around the focused deck
+  - reserved minimum space for deck playlist grid so it remains visible with high deck counts.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 decks window split follow-up:
+- Main control window layout changed to output/program-first:
+  - removed focused deck playlist column from main surface
+  - main panel now uses freed horizontal space for program/controls.
+- Separate `Deckboy Master Cues` window now includes deck playlist control:
+  - per-deck playlist columns rendered in-window
+  - click cue row = select cue for that deck
+  - per-deck `Take` button = fire selected cue (menu-only friendly).
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 menu-first pattern follow-up:
+- Shifted pattern access toward UI menus (per user preference):
+  - main control bar now has `Pattern` button that opens pattern type picker
+  - selected Pattern cues now have `pattern` quick row in cue settings:
+    - `- / +` cycles pattern type
+    - center toggle switches motion on/off (where supported)
+- Added motion-capable standard pattern variants:
+  - `smpte-bars-motion`
+  - `crosshatch-motion`
+  - `checkerboard-motion`
+  - `full-white/black/red/green/blue-motion`
+- Pattern animation update loop now treats all `*-motion` patterns as animated.
+- Companion/remote pattern command additions:
+  - `PATTERN SET <type>` default pattern for bare `PATTERN` and `P`
+  - `PATTERN LIST` quick count
+  - `PATTERN <type> MOTION` shorthand.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 I've analyzed the project: it's a Linux-first C++ app using SDL2 and FFmpeg subprocesses, with a massive 496KB main.cpp monolith. It has a newer native
   version and an older Node.js prototype. Key issues include Linux-only browser and MIDI implementations, missing pro features like DeckLink and Siphon/Spout. My strategy involves refactoring main.cpp, transitioning to FFmpeg LibAV, implementing cross-platform MIDI and
   browser cues, adding professional features and a GPLv3 license, and fixing the reported bug. I'll now update the user.
+
+
+ i see, and i like. likely too big to fix now, but i wwant to be able to see
+  all decks and cue numbers at a glance, so i think the decks need to have
+  their own window that expands with each new deck. the decks could be slight
+  cuter and more gameboy themed. the window that is currently "deckboy decks"
+  could be a group control playlist/transport, where you can build presets by
+  selecting a cue number per deck, (or choosing to bypass) and simultaneously
+  firing all cues across the decks. i also notice scaling isn't working as
+  expeted. (x and y are not individually chamging) most of the menu seems to be
+  quantized to 10pixel increments, i'd prefer it to change whole numbers.(maybe
+  you can even click to type in the numbers yourslef, and it can function as a
+  simple calculator as well)
+
+
+2026-03-04 wrap-up for next agent:
+- Implemented and validated output entity evolution:
+  - Output types: `window` / `stream`
+  - Stream outputs can mirror another output (`mirrorSourceOutputIndex`) or render their own assignments.
+  - Video-tab controls + commands updated (`VIDEO OUTPUT TYPE`, `VIDEO OUTPUT MIRROR`, `VIDEO STREAM ...`).
+- Fixed cue geometry precision issues requested by user:
+  - Output compositor now applies independent `scale X` and `scale Y` (bug fix).
+  - `off X` / `off Y` nudge changed from 10px to 1px.
+  - Value-cell click-to-edit added for `scale X`, `scale Y`, `off X`, `off Y`, `rot`.
+  - Numeric entry accepts simple calculator expressions (`+ - * / ()`).
+- Status visibility expanded for remote/control:
+  - `STATUS` text now includes `OUTPUT ...` rows (type, host, display, mirror, stream details).
+  - `STATUS JSON` now includes `focusedOutput`, `outputCount`, and `outputs[]`.
+- Build verification:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` passed
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` passed (`smoke failures: 0`)
+
+User intent that remains:
+- Major UX shift: separate, expandable decks-at-a-glance window with cue numbers visible.
+- Latest user layout preference: the tracker-style decks overview may live in the main window area where deck columns used to dominate.
+- Repurpose current "Deckboy Decks" window into group control preset launcher:
+  - per-deck cue number (or bypass),
+  - fire all selected cues simultaneously.
+- Continue Mitti parity roadmap and streaming outputs (SRT/RTMP already started, audio mux still pending).
+
+2026-03-04 additional functional pass:
+- Added persistent Group Preset system for simultaneous multi-deck firing.
+  - New project entities: `GroupPreset` (name + slots) and `GroupSlot` (`cueId` or bypass).
+  - Save/load keys: `focused_group`, `group_preset`, `group_slot`.
+  - Smoke test now validates focused-group + group-slot persistence.
+- Added remote commands:
+  - `GROUP ADD|ADDEMPTY|SELECT|NEXT|PREV|NAME|DELETE`
+  - `GROUP SET <deck> <cue-token|SEL|ACTIVE|BYPASS>`
+  - `GROUP BYPASS <deck> ON|OFF|TOGGLE`
+  - `GROUP CAPTURE SEL|ACTIVE`
+  - `GROUP FIRE [index]`
+- Added keyboard shortcuts:
+  - `Ctrl+Shift+G` fire focused group
+  - `Ctrl+Shift+N` add group from selected cues
+  - `Ctrl+Shift+[` / `Ctrl+Shift+]` cycle groups
+- Decks tracker window now shows focused-group assignment per deck in `grp` column.
+
+Latest user product direction:
+- Keep cue/deck overview as a separate window for now.
+- Functional reliability first, then visual polish.
+
+2026-03-04 interactive decks-window upgrade:
+- Decks tracker window is now directly operable for groups:
+  - Buttons: `G<-`, `G->`, `New`, `CapSel`, `CapAct`, `Fire`
+  - Click `grp` cell = assign slot from selected cue on that deck
+  - `Shift+click` `grp` = assign from active cue
+  - Right-click `grp` = toggle bypass
+- This keeps the cue/deck window separate while moving group workflows out of command-line-only operation.
+
+2026-03-04 completion slice (all three pending items):
+- Implemented deck-window group slot cue picker popup:
+  - In `Deckboy Decks` tracker window, `Ctrl+click` or middle-click on `grp` cell now opens token input popup.
+  - Accepts `SEL`, `ACTIVE`, cue number/token, and `BYPASS`.
+- Added in-window group management buttons:
+  - New buttons in decks tracker footer: `Name` (rename focused group) and `Del` (delete focused group).
+  - Existing buttons unchanged: `G<-`, `G->`, `New`, `CapSel`, `CapAct`, `Fire`.
+- Implemented stream audio mux for SRT/RTMP outputs:
+  - ffmpeg stream command now ingests raw video + raw PCM audio and muxes H.264 + AAC.
+  - Audio samples are tapped from deck media engines and buffered per deck.
+  - Stream outputs read from routed deck assignment stack (with host deck fallback when no assignments).
+  - Linux pipe path uses per-output FIFO in `/tmp` and is created/cleaned with stream lifecycle.
+- Stability/validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+Next practical UX target (still open):
+- Richer cue picker in decks window (scrollable/list-based chooser rather than token-entry popup).
+- Mirror target direct picker in Preferences -> Video (`Mir` is currently cycle-only).
+
+2026-03-04 usability follow-up (user requested "do both"):
+- Implemented visual `grp` cue picker in decks tracker:
+  - `Ctrl+click` or middle-click on `grp` opens a selectable list popup.
+  - List includes `BYPASS`, `SEL`, `ACTIVE`, and all cues from that deck.
+  - Selection writes directly to focused group slot for that deck.
+- Implemented direct mirror target picker in Preferences -> Video:
+  - `Mir` now opens a selectable list (`Off` or any other output) instead of cycling.
+  - Selected source is applied via existing mirror assignment path and persists.
+- Validation:
+  - Build passed (`cmake --build ... -j4`)
+  - Smoke passed (`--smoke`, failures: 0)
+
+2026-03-04 master-cue window pass (latest):
+- Deck companion window now behaves as a dedicated **Master Cue** panel:
+  - title changed to `Deckboy Master Cues`
+  - default size raised to `980x560`; minimum size set to `920x360` to prevent cramped controls
+  - auto-hides when only 1 deck exists; auto-shows and raises when deck count becomes 2+
+- Deck window programming controls are clearer:
+  - footer nav labels now `<MC` / `MC>`
+  - `New` creates an empty (all-bypass) master cue for manual per-deck assignment
+  - added `Browser` cue-create button in the deck window footer
+  - fire bank now pages by focused master cue when there are more master cues than visible button slots
+  - `mc` cell behavior:
+    - click opens cue picker list
+    - `Shift+click` assigns active cue
+    - `Alt+click` assigns selected cue
+    - right-click toggles bypass
+- Terminology and command aliases:
+  - default preset naming now `Master Cue N`
+  - toasts/prompts now use `master cue` language
+  - command aliases added: `MASTER ...` / `MASTERCUE ...` (existing `GROUP ...` remains supported)
+
+Latest unresolved UX reported by user:
+- output/deck assignment editing is still confusing in current menus when a deck is assigned to multiple outputs/layers
+- menu density is improved in this pass for Master Cue window, but wider routing-edit UX may still need a dedicated panel
+
+2026-03-04 trim UX pass (frame-accurate):
+- Added direct playhead trim marking on active video cues:
+  - `I` = mark trim-in at current playhead
+  - `O` = mark trim-out at current playhead
+- Both trim marks now snap to frame boundaries using cue FPS (not arbitrary fractional seconds).
+- Preserved prior hotkeys with modifiers:
+  - `Shift+I` still opens import picker
+  - `Shift+O` still toggles focused-deck time overlay
+- Added paused scrubbing nudge controls:
+  - `Left/Right` = +/-1 frame
+  - `Shift+Left/Right` = +/-5 frames
+  - `Ctrl+Left/Right` = +/-10 frames
+  - `Alt+Left/Right` = +/-1.0s (frame-snapped)
+
+2026-03-04 routing UX + video tab layout pass:
+- Video preferences modal is now larger on the Video tab to avoid cramped controls.
+- Added in-UI Deck x Output routing matrix (no command-only dependency):
+  - click deck row labels to focus deck
+  - click output headers to focus output
+  - click route cells to assign/unassign directly
+- Added routing mode toggle in Video tab:
+  - `MOVE` mode: route deck to one output (clears other output assignments for that deck)
+  - `ADD` mode: additive fan-out assignments with direct unassign
+  - unassign guard: deck keeps at least one enabled route
+- Added `Shift+click` on assigned route cells to set layer index (`0..255`).
+- Added small pixel-art garden in the Video tab as requested (decorative).
+
+Refactor note:
+- Most edits remain in `native/main.cpp` because the current settings/render/event path is still centralized there.
+- Next cleanup step should extract this to dedicated UI/routing units (e.g. `ui/settings_video.*` + `routing_matrix.*`) once interaction behavior is stable.
+
+2026-03-04 output UX + master-cue cleanup pass:
+- Output behavior aligned with user direction for safer startup:
+  - output windows are created hidden
+  - default/new outputs now start `OFF`
+  - focused output can be toggled in Video tab via `Out ON/OFF`
+  - enabling a window output now immediately fullscreenes it on selected display
+  - added `Disp -` / `Disp +` in Video tab for display assignment from UI
+  - command support added: `VIDEO OUTPUT ON|OFF|TOGGLE`
+- Routing matrix usability tweak:
+  - output headers show `Ox` when that output is disabled
+  - in `MOVE` mode, clicking an assigned cell opens direct layer edit prompt
+- Master cue window simplified to reduce operator confusion:
+  - bottom controls reduced to `<MC`, `MC>`, `New`, `Del`, `Take`
+  - removed non-master-cue controls (`CapSel`, `CapAct`, `Name`, `Import`, `Pattern`, `Browser`) from this window
+  - `mc` interaction simplified: click to choose cue, right-click to bypass
+  - row cue-name column now reflects focused master-cue slot assignment (not selected cue)
+- Removed static `cute mode` text from toast overlay.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 follow-up fix (user-reported regressions):
+- Addressed fullscreen takeover on startup/open:
+  - loaded shows are now explicitly disarmed (`output.enabled=false`) during app startup and project-open path
+  - output windows remain hidden until operator arms output from Video tab toggle
+- Updated Video tab output state control to a real toggle-switch style UI (`Out` switch), aligned with Mitti-style expectation.
+- Added always-visible UI file controls in the main header:
+  - `New`, `Open`, `Save`, `SaveAs`
+- Save behavior tightened:
+  - `Save` now writes immediately
+  - `SaveAs` now writes immediately once path is chosen
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 plain-English Video tab pass:
+- Video preferences layout adjusted so output controls no longer obscure status text at top of tab.
+- Output control labels expanded for clarity (`Window`, `Mirror`, `Display -/+`), reducing shorthand.
+- Routing matrix labels switched from shorthand to plain language:
+  - `Deck / Output`, `Output 1`/`Output 2`, `Deck 1`/`Deck 2`, `None`, `Layer N`
+  - removed cryptic `O1x` and `L0*` labels
+- Added explicit hint text in matrix:
+  - dark assigned cell = primary route for that deck
+  - mode explanation rewritten in plain English
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 follow-up polish (video menu legibility):
+- Added pixel-width ellipsis on Video-tab status lines so long text is clipped to the left info panel instead of drawing under right-side controls.
+- Rebalanced focused-output button cluster sizing/positions:
+  - `Prev Out`, `Next Out`, `Add Output`, `Enabled`
+  - `Host Deck`, `Window/Stream`, stream `ON/OFF`, protocol
+  - `Stream URL...`, `Mirror`, `Bitrate`
+- Routing matrix wording clarified further:
+  - mode button now reads `Move` / `Add`
+  - assigned layer label now reads `Background` for layer 0, then `Layer N` for higher layers
+  - mode hints now explicitly explain move-vs-add click behavior in plain English
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 routing/display reliability patch:
+- Removed blocking layer-index popup flow from Video-tab routing interactions (this was causing "freeze" behavior if external dialogs were hidden/focus-blocked).
+- Layer control is now direct and non-blocking:
+  - assigned route cell click = layer `+1`
+  - `Shift+click` = layer `-1`
+  - `Ctrl` modifier multiplies step by `10`
+  - matrix header has focused-route controls: `-`, `+`, `Assign/Unassign`
+- Display assignment clarity improved in Video tab:
+  - new top-right display controls: `Prev`, current display label, `Next`, `Rescan`
+- Added display hot-plug handling:
+  - runtime checks now detect display count changes after launch and auto-refresh output display mapping
+  - `Rescan` button performs manual display topology refresh without restart
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 routing manager cleanup (user screenshot feedback):
+- Replaced dense Deck x Output matrix workflow with a clearer Routing Manager layout in Video tab:
+  - left `Decks` list (click to focus deck)
+  - middle `Outputs` list (click to focus output; row shows ON/OFF, type, target display)
+  - right `Route Editor` for focused deck/output (`Assign/Unassign`, layer `-`/`+`, plain-English layer label)
+  - bottom `Routes For Deck X` list for at-a-glance per-output assignment state
+- Removed extra clutter text around display controls; top-right display controls remain `Prev`, `Next`, `Rescan` with live label.
+- Kept layer edit non-blocking (no popup) to avoid freeze-style behavior.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 output-to-display reliability tweak:
+- For enabled `window` outputs, changing display target now immediately forces fullscreen on that display.
+- Enabled output windows are explicitly raised after display-apply to avoid hidden-window scenarios.
+- This addresses user report: routed output assigned to display 2 but no visible program on that display.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 master-cue assignment lockup fix:
+- Root cause: `mc` click in Deckboy Master Cues still opened external picker dialog (`pickChoiceFromList`), which could steal/block focus and appear as lockup.
+- Fix: removed popup dependency from `mc` interaction.
+  - click `mc` = next cue assignment
+  - `Shift+click` or middle-click `mc` = previous cue assignment
+  - right-click `mc` = bypass toggle
+- Updated in-window hint text accordingly.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 all-output recovery hardening:
+- Added `recoverWindowOutputIfNeeded(outputIndex)` and applied it globally for enabled `window` outputs.
+- Repeated output enable now acts as a recovery operation:
+  - if operator toggles `Enabled` while already ON (or sends `VIDEO OUTPUT ON` again), Deckboy re-applies display target, raises the window, and re-fullscreens.
+- Fullscreen button behavior adjusted for reliability:
+  - `F` now re-asserts fullscreen on the selected display when already fullscreen (instead of dropping to windowed mode).
+- Added periodic output self-heal loop:
+  - once per second, all enabled window outputs are checked and auto-recovered if hidden, minimized, not fullscreen, or off the selected display.
+- Reliability polish:
+  - recovery now treats SDL "unknown display index" (`<0`) as mismatch and repairs placement.
+  - recovery toast now names the target display for the output being recovered.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 output control discoverability pass (user feedback):
+- Problem reported: output creation and deck->output layer routing were present but not apparent in UI.
+- Main-window `outputs` strip upgraded to explicit controls:
+  - `Add Output` button always visible
+  - focused route `Link/Unlink`
+  - focused route `Layer-` / `Layer+`
+  - plain-English focused route status line (`Deck N -> Output N ...`)
+- Existing output focus/arm toggles (`O1`, `O2`, ...) remain unchanged.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 deck-window visibility reliability pass:
+- Added explicit `decks` toggle button in main header so operator can show/hide the separate decks panel directly.
+- Hardened auto-pop behavior for multi-deck mode:
+  - when deck count > 1, deck panel now uses force show/restore/raise path.
+- Added clear operator feedback:
+  - clicking `decks` with only one deck shows toast: `add deck 2 to open decks panel`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 emergency control-display escape:
+- User requirement: when an output fullscreen takes over internal display/control monitor, operator needs fast way out.
+- Added `Esc` safety behavior:
+  - first tries to exit fullscreen on the output window that currently has keyboard focus
+  - fallback checks fullscreen outputs on the same display as control window
+  - if neither applies, `Esc` remains quit-confirm path
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 docs sync pass:
+- Reviewed `CHANGES.md`, `README.md`, `MANUAL.md`, and `Notes` to rebuild latest session context in this working copy.
+- Corrected one stale line in `PORTABILITY.md`:
+  - removed old note saying stream path was video-only.
+  - documented current behavior: stream outputs mux H.264 video + AAC stereo audio, with assignment-stack audio source (host-deck fallback).
+- Ongoing documentation rule for future changes in this repo:
+  - update `CHANGES.md` for chronological change log entries.
+  - update `README.md` for current capabilities and quick operator guidance.
+  - update `MANUAL.md` for detailed controls/commands behavior.
+  - update `PORTABILITY.md` for deployment/runtime caveats.
+
+2026-03-04 escape/recovery regression fix (operator lockup prevention):
+- Root issue: output `Esc` fullscreen escape could be undone by the 1 Hz all-output recovery loop, forcing fullscreen back and trapping operator control.
+- Implemented runtime guard in `OutputRuntime`:
+  - new state `recoveryPausedByEscape`
+  - set when `Esc` successfully exits fullscreen on a window output
+  - checked by `recoverWindowOutputIfNeeded(...)` to skip forced recovery while operator is intentionally windowed
+- Re-arm behavior:
+  - `F` fullscreen action clears escape pause and re-enters fullscreen
+  - repeated `VIDEO OUTPUT ON` now also clears escape pause before recovery
+- Safety behavior refinement:
+  - pressing `Esc` from an output window that is already windowed is treated as handled output-safety input (no fall-through to quit-confirm path)
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 triple-Esc panic safety:
+- Added repeated-`Esc` output safety shortcut:
+  - if `Esc` is pressed three times with ~`0.9s` gaps, Deckboy now performs panic disarm (`outputs off`) in output safety context.
+- Implementation details:
+  - ignores key-repeat generated by holding `Esc` (requires discrete key presses).
+  - new helper `emergencyDisarmOutputsFromEsc(...)` disables outputs, clears escape-recovery pause flags, stops stream outputs, and hides output windows.
+  - keeps single-`Esc` behavior: escape fullscreen first; only repeated `Esc` triggers panic disarm.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-04 master-cue line view + tropical pattern pass:
+- Clarified UX target:
+  - keep overall menu structure as-is (not one giant horizontal menu)
+  - represent each multi-deck master cue as one line with deck/cue details.
+- Decks panel update:
+  - added master-cue line list (`MASTER CUE LINES`) with one row per preset.
+  - each row now shows preset label/name, per-deck slot summaries (`Deck`, cue number, cue name, bypass/missing), and in-row `Take`.
+  - direct slot editing from line view:
+    - click slot = selected cue
+    - `Shift+click` slot = active cue
+    - middle or `Ctrl+click` slot = cue picker
+    - right-click slot = bypass toggle
+  - row click focuses the preset without requiring the old fire-bank-only workflow.
+- Control window sizing tweak:
+  - increased header file action button size
+  - increased bottom transport/action button size
+- Pocket Test pattern redesign:
+  - replaced older kawaii/text-bar style with procedural tropical retro scene:
+    - sky/ocean/beach gradients, island silhouette, palm trees, moving coins, explorer sprite
+    - kept bottom signal reference strip
+  - no random text/noise bars in this path.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
