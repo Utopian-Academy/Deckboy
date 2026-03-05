@@ -1,5 +1,30 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Multi-select inspector parity pass)
+
+### Cue inspector multi-select behavior
+- Added dedicated multi-selection inspector mode when more than one cue is selected.
+- Inspector now shows a common-controls workflow with mixed-state visibility:
+  - `mixed` labels for conflicting values across selection
+  - grouped sections for Playback / Geometry / Key / Routing
+  - compatibility masking for geometry/key controls when selection contains incompatible cue kinds.
+
+### Multi-apply editing completion
+- Completed multi-apply behavior for quick-action inspector edits that previously touched only the anchor cue:
+  - trim in/out and trim clear (video cues)
+  - cue timecode mark set/clear
+  - loop / hold / pause begin / cue audio / transition-to-next toggles
+  - fade in/out, transition duration/style, end action
+  - geometry (scale mode, scale X/Y, offsets, rotation, crop)
+  - key controls (enable, key color, tolerance, softness)
+  - color controls (brightness, contrast, saturation, hue)
+  - lower-third alpha, still duration, repeats, playback speed.
+- Added first-eligible cue resolution for mixed selections so toggles still work when the focused cue is not compatible (for example audio toggle with mixed media).
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (OSC Query + OSC feedback mirror pass)
 
 ### Network / OSC integration parity
