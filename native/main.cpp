@@ -75,6 +75,9 @@ namespace {
 
 
 constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
+constexpr int kDefaultAtemBridgePort = 9910;
+constexpr int kDefaultArtNetPort = 6454;
+constexpr int kDmxTriggerThreshold = 127;
 
 std::atomic<bool> gShouldQuit = false;
 
@@ -5801,11 +5804,13 @@ class App {
     }
 #endif
     startHyperDeckServer();
+    startIntegrationBridges();
     layoutButtons(kControlHeight);
     return true;
   }
 
   void shutdown() {
+    stopIntegrationBridges();
     stopHyperDeckServer();
     stopMidiInput();
 #ifndef _WIN32
@@ -6151,14 +6156,23 @@ class App {
       auto route = deckboy::platform::planIntegrationBackendRoute(request, *integrationCatalog);
       bool hasAtem = false;
       bool hasArtNet = false;
+      bool atemSupported = false;
+      bool artNetSupported = false;
       for (const auto& step : route.steps) {
         if (step.backendId == "atem") {
           hasAtem = true;
+          atemSupported = step.supported;
         } else if (step.backendId == "dmx-artnet") {
           hasArtNet = true;
+          artNetSupported = step.supported;
         }
       }
       expect(hasAtem && hasArtNet, "integration backend route plan");
+#if defined(_WIN32)
+      expect(!atemSupported && !artNetSupported, "integration runtime support flags");
+#else
+      expect(atemSupported && artNetSupported, "integration runtime support flags");
+#endif
     }
 
     {
@@ -11568,6 +11582,13 @@ class App {
       return;
     }
     *target = enabled;
+#ifndef _WIN32
+    if (backendId == "atem" && enabled && atemBridgeSocket_ == kInvalidSocket) {
+      startAtemBridgeListener();
+    } else if (backendId == "dmx-artnet" && enabled) {
+      restartArtNetBridgeListener();
+    }
+#endif
     bool supported = isIntegrationBackendSupported(backendId);
     triggerToast(label + ": " + (enabled ? "on" : "off") + (enabled && !supported ? " (stub)" : ""));
     playUiSound(UiSoundEffect::Toggle);
@@ -11589,6 +11610,14 @@ class App {
     apply(project_.mtcIngestEnabled);
     apply(project_.ltcIngestEnabled);
     apply(project_.dmxArtNetEnabled);
+#ifndef _WIN32
+    if (enabled && project_.atemTriggerEnabled && atemBridgeSocket_ == kInvalidSocket) {
+      startAtemBridgeListener();
+    }
+    if (enabled && project_.dmxArtNetEnabled) {
+      restartArtNetBridgeListener();
+    }
+#endif
     triggerToast(std::string("integrations: ") + (enabled ? "on" : "off"));
     if (changed) {
       playUiSound(UiSoundEffect::Toggle);
@@ -11604,6 +11633,9 @@ class App {
       return;
     }
     project_.artNetPort = normalized;
+#ifndef _WIN32
+    restartArtNetBridgeListener();
+#endif
     triggerToast("artnet port: " + std::to_string(project_.artNetPort));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
@@ -12799,6 +12831,237 @@ class App {
 #endif
   }
 
+  void startIntegrationBridges() {
+#ifndef _WIN32
+    startAtemBridgeListener();
+    startArtNetBridgeListener();
+#endif
+  }
+
+  void stopIntegrationBridges() {
+#ifndef _WIN32
+    stopAtemBridgeListener();
+    stopArtNetBridgeListener();
+#endif
+  }
+
+#ifndef _WIN32
+  int resolvedAtemBridgePort() const {
+    int port = kDefaultAtemBridgePort;
+    const char* env = std::getenv("PLAYBOY_ATEM_BRIDGE_PORT");
+    if (env && *env) {
+      try {
+        port = std::stoi(env);
+      } catch (...) {
+      }
+    }
+    return std::clamp(port, 1, 65535);
+  }
+
+  int resolvedArtNetBridgePort() const {
+    return normalizeArtNetPort(project_.artNetPort);
+  }
+
+  void startAtemBridgeListener() {
+    stopAtemBridgeListener();
+    atemBridgeListenPort_ = resolvedAtemBridgePort();
+    atemBridgeSocket_ = createBoundSocket(SOCK_DGRAM, atemBridgeListenPort_, false);
+    if (atemBridgeSocket_ == kInvalidSocket) {
+      return;
+    }
+    atemBridgeStop_.store(false);
+    atemBridgeThread_ = std::thread([this]() { atemBridgeLoop(); });
+  }
+
+  void stopAtemBridgeListener() {
+    atemBridgeStop_.store(true);
+    if (atemBridgeSocket_ != kInvalidSocket) {
+      closeSocket(atemBridgeSocket_);
+      atemBridgeSocket_ = kInvalidSocket;
+    }
+    if (atemBridgeThread_.joinable()) {
+      atemBridgeThread_.join();
+    }
+  }
+
+  void atemBridgeLoop() {
+    while (!atemBridgeStop_.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      FD_SET(atemBridgeSocket_, &readFds);
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 200000;
+      int ready = select(atemBridgeSocket_ + 1, &readFds, nullptr, nullptr, &timeout);
+      if (ready <= 0) {
+        continue;
+      }
+      if (!FD_ISSET(atemBridgeSocket_, &readFds)) {
+        continue;
+      }
+      std::array<char, 1024> buffer {};
+      sockaddr_in sourceAddr {};
+      socklen_t sourceLen = sizeof(sourceAddr);
+      int bytes = recvfrom(
+        atemBridgeSocket_,
+        buffer.data(),
+        static_cast<int>(buffer.size() - 1),
+        0,
+        reinterpret_cast<sockaddr*>(&sourceAddr),
+        &sourceLen);
+      if (bytes <= 0) {
+        continue;
+      }
+      buffer[bytes] = '\0';
+      std::string payload = trim(std::string(buffer.data(), static_cast<size_t>(bytes)));
+      if (payload.empty()) {
+        continue;
+      }
+      enqueueRemoteCommand("ATEMEVENT " + payload);
+    }
+  }
+
+  void startArtNetBridgeListener() {
+    stopArtNetBridgeListener();
+    artNetListenPort_ = resolvedArtNetBridgePort();
+    artNetSocket_ = createBoundSocket(SOCK_DGRAM, artNetListenPort_, false);
+    if (artNetSocket_ == kInvalidSocket) {
+      return;
+    }
+    std::fill(artNetLastDmx_.begin(), artNetLastDmx_.end(), 0);
+    artNetBridgeStop_.store(false);
+    artNetBridgeThread_ = std::thread([this]() { artNetBridgeLoop(); });
+  }
+
+  void stopArtNetBridgeListener() {
+    artNetBridgeStop_.store(true);
+    if (artNetSocket_ != kInvalidSocket) {
+      closeSocket(artNetSocket_);
+      artNetSocket_ = kInvalidSocket;
+    }
+    if (artNetBridgeThread_.joinable()) {
+      artNetBridgeThread_.join();
+    }
+  }
+
+  void restartArtNetBridgeListener() {
+    if (artNetSocket_ == kInvalidSocket && !artNetBridgeThread_.joinable()) {
+      startArtNetBridgeListener();
+      return;
+    }
+    stopArtNetBridgeListener();
+    startArtNetBridgeListener();
+  }
+
+  void artNetBridgeLoop() {
+    while (!artNetBridgeStop_.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      FD_SET(artNetSocket_, &readFds);
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 200000;
+      int ready = select(artNetSocket_ + 1, &readFds, nullptr, nullptr, &timeout);
+      if (ready <= 0) {
+        continue;
+      }
+      if (!FD_ISSET(artNetSocket_, &readFds)) {
+        continue;
+      }
+      std::array<std::uint8_t, 1024> packet {};
+      sockaddr_in sourceAddr {};
+      socklen_t sourceLen = sizeof(sourceAddr);
+      int bytes = recvfrom(
+        artNetSocket_,
+        reinterpret_cast<char*>(packet.data()),
+        static_cast<int>(packet.size()),
+        0,
+        reinterpret_cast<sockaddr*>(&sourceAddr),
+        &sourceLen);
+      if (bytes < 18) {
+        continue;
+      }
+      if (std::memcmp(packet.data(), "Art-Net\0", 8) != 0) {
+        continue;
+      }
+      std::uint16_t opCode = static_cast<std::uint16_t>(packet[8]) |
+                             (static_cast<std::uint16_t>(packet[9]) << 8);
+      if (opCode != 0x5000) {  // ArtDMX
+        continue;
+      }
+      int length = (static_cast<int>(packet[16]) << 8) | static_cast<int>(packet[17]);
+      length = std::clamp(length, 0, std::min(512, bytes - 18));
+      const std::uint8_t* data = packet.data() + 18;
+
+      for (int ch = 0; ch < 8; ++ch) {
+        std::uint8_t previous = artNetLastDmx_[ch];
+        std::uint8_t current = ch < length ? data[ch] : 0;
+        if (previous < kDmxTriggerThreshold && current >= kDmxTriggerThreshold) {
+          enqueueRemoteCommand("ARTNETEVENT " + std::to_string(ch + 1) + " " + std::to_string(current));
+        }
+        artNetLastDmx_[ch] = current;
+      }
+      for (int ch = 8; ch < 10; ++ch) {
+        std::uint8_t previous = artNetLastDmx_[ch];
+        std::uint8_t current = ch < length ? data[ch] : 0;
+        if (current > 0 && current != previous) {
+          enqueueRemoteCommand("ARTNETEVENT " + std::to_string(ch + 1) + " " + std::to_string(current));
+        }
+        artNetLastDmx_[ch] = current;
+      }
+    }
+  }
+#else
+  void restartArtNetBridgeListener() {}
+#endif
+
+  void resetMidiMtcDecoder() {
+#if defined(PLAYBOY_HAS_ALSA)
+    midiMtcQuarterFrameNibbles_.fill(-1);
+    midiMtcLastSentSeconds_ = -1.0;
+    midiMtcLastSentFps_ = 0.0;
+#endif
+  }
+
+#if defined(PLAYBOY_HAS_ALSA)
+  std::optional<std::pair<double, double>> decodeMidiMtcQuarterFrame(int qfByte) {
+    int messageType = (qfByte >> 4) & 0x07;
+    int nibbleValue = qfByte & 0x0F;
+    midiMtcQuarterFrameNibbles_[messageType] = nibbleValue;
+    for (int nibble : midiMtcQuarterFrameNibbles_) {
+      if (nibble < 0) {
+        return std::nullopt;
+      }
+    }
+
+    int frames = (midiMtcQuarterFrameNibbles_[1] << 4) | midiMtcQuarterFrameNibbles_[0];
+    int seconds = (midiMtcQuarterFrameNibbles_[3] << 4) | midiMtcQuarterFrameNibbles_[2];
+    int minutes = (midiMtcQuarterFrameNibbles_[5] << 4) | midiMtcQuarterFrameNibbles_[4];
+    int hourLow = midiMtcQuarterFrameNibbles_[6];
+    int hourHighAndRate = midiMtcQuarterFrameNibbles_[7];
+    int hours = ((hourHighAndRate & 0x01) << 4) | hourLow;
+    int rateCode = (hourHighAndRate >> 1) & 0x03;
+
+    double fps = 30.0;
+    switch (rateCode) {
+      case 0: fps = 24.0; break;
+      case 1: fps = 25.0; break;
+      case 2: fps = 29.97; break;
+      case 3: fps = 30.0; break;
+      default: break;
+    }
+    if (fps < 1.0) {
+      return std::nullopt;
+    }
+    frames = std::clamp(frames, 0, static_cast<int>(std::ceil(fps)));
+    seconds = std::clamp(seconds, 0, 59);
+    minutes = std::clamp(minutes, 0, 59);
+    hours = std::clamp(hours, 0, 23);
+    double tcSeconds = hours * 3600.0 + minutes * 60.0 + seconds + (frames / fps);
+    return std::make_pair(tcSeconds, fps);
+  }
+#endif
+
   void startHyperDeckServer() {
 #ifndef _WIN32
     const char* portEnv = std::getenv("PLAYBOY_HYPERDECK_PORT");
@@ -12827,6 +13090,7 @@ class App {
 #if defined(PLAYBOY_HAS_ALSA)
     stopMidiInput();
     midiStop_ = false;
+    resetMidiMtcDecoder();
     int err = snd_seq_open(&midiSeq_, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
     if (err < 0) { midiSeq_ = nullptr; return false; }
     snd_seq_set_client_name(midiSeq_, "Deckboy");
@@ -12865,6 +13129,7 @@ class App {
       midiSeq_ = nullptr;
       midiSeqPort_ = -1;
     }
+    resetMidiMtcDecoder();
 #endif
   }
 
@@ -12899,6 +13164,29 @@ class App {
             cmd = "SPEED " + ss.str();
           }
           break;
+        case SND_SEQ_EVENT_QFRAME: {
+          auto decoded = decodeMidiMtcQuarterFrame(ev->data.control.value);
+          if (decoded) {
+            double seconds = decoded->first;
+            double fps = decoded->second;
+            bool changed = std::fabs(seconds - midiMtcLastSentSeconds_) > (0.5 / std::max(1.0, fps))
+                        || std::fabs(fps - midiMtcLastSentFps_) > 0.01;
+            if (changed) {
+              midiMtcLastSentSeconds_ = seconds;
+              midiMtcLastSentFps_ = fps;
+              std::ostringstream ss;
+              ss << std::fixed << std::setprecision(6) << seconds;
+              std::ostringstream fpsText;
+              if (std::fabs(fps - 29.97) < 0.01) {
+                fpsText << "29.97";
+              } else {
+                fpsText << std::fixed << std::setprecision(2) << fps;
+              }
+              cmd = "MTCEXT " + ss.str() + " " + fpsText.str();
+            }
+          }
+          break;
+        }
         case SND_SEQ_EVENT_SYSEX: {
           // Check for MMC (F0 7F <dev> 06 <cmd> F7)
           auto* data = static_cast<unsigned char*>(ev->data.ext.ptr);
@@ -13284,6 +13572,37 @@ class App {
       }
       return std::nullopt;
     };
+
+    if (command == "ATEMEVENT") {
+      if (parts.size() > 1) {
+        handleAtemEventPayload(joinParts(parts, 1));
+      }
+      return;
+    }
+    if (command == "ARTNETEVENT") {
+      if (parts.size() > 2) {
+        try {
+          int channel = std::stoi(parts[1]);
+          int value = std::stoi(parts[2]);
+          handleArtNetEvent(channel, value);
+        } catch (...) {
+        }
+      }
+      return;
+    }
+    if (command == "MTCEXT" || command == "TIMECODEEXT") {
+      if (!project_.mtcIngestEnabled) {
+        return;
+      }
+      if (auto seconds = parseNumber(1); seconds) {
+        double fpsHint = focusedDeck().timecodeFps;
+        if (auto fps = parseNumber(2); fps) {
+          fpsHint = *fps;
+        }
+        ingestIntegrationTimecode(*seconds, fpsHint);
+      }
+      return;
+    }
 
     if (command == "PING") {
       triggerToast("companion ping");
@@ -19898,7 +20217,7 @@ class App {
 
       rowY += feedbackRect.h + 8;
       IntegrationBackendRuntimeRoute integrationRoute = resolveIntegrationBackendRuntimeRoute();
-      SDL_Rect integrationRect {cx, rowY, content.w - 24, 118};
+      SDL_Rect integrationRect {cx, rowY, content.w - 24, 130};
       Primitives::drawFramedPanel(controlRenderer_, integrationRect, colorFromRgba(kShellInnerColor),
                                   colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       drawText(controlRenderer_, fontBase_, "INTEGRATION ADAPTERS", ink, integrationRect.x + 8, integrationRect.y + 6);
@@ -19908,11 +20227,19 @@ class App {
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, integrationRoute.summary, integrationRect.w - 16),
                soft, integrationRect.x + 8, integrationRect.y + 44);
+      int atemBridgePortDisplay = kDefaultAtemBridgePort;
+#ifndef _WIN32
+      atemBridgePortDisplay = atemBridgeListenPort_;
+#endif
+      drawText(controlRenderer_, fontSmall_,
+               "bridge ports: atem " + std::to_string(atemBridgePortDisplay)
+               + "  artnet " + std::to_string(project_.artNetPort),
+               soft, integrationRect.x + 8, integrationRect.y + 58);
 
       int pillW = std::max(90, (integrationRect.w - 16 - 8 * 2) / 3);
       int pillH = 22;
       int pillGap = 8;
-      int pillY1 = integrationRect.y + 64;
+      int pillY1 = integrationRect.y + 78;
       int pillY2 = pillY1 + pillH + 6;
       SDL_Rect atemBtn {integrationRect.x + 8, pillY1, pillW, pillH};
       SDL_Rect ndiTrigBtn {atemBtn.x + pillW + pillGap, pillY1, pillW, pillH};
@@ -22723,6 +23050,106 @@ class App {
     deck.timecodeDirty = true;
   }
 
+  void ingestIntegrationTimecode(double seconds, double fpsHint) {
+    if (project_.decks.empty()) {
+      return;
+    }
+    double normalizedSeconds = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
+    double normalizedFps = std::isfinite(fpsHint) && fpsHint > 1.0 ? fpsHint : focusedDeck().timecodeFps;
+    bool shouldSkip = std::fabs(normalizedSeconds - lastMtcIngestSeconds_) < 0.0005
+                   && std::fabs(normalizedFps - lastMtcIngestFps_) < 0.01;
+    if (shouldSkip) {
+      return;
+    }
+    lastMtcIngestSeconds_ = normalizedSeconds;
+    lastMtcIngestFps_ = normalizedFps;
+
+    bool applied = false;
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (!project_.decks[deckIndex].timecodeChaseEnabled) {
+        continue;
+      }
+      setDeckTimecode(deckIndex, normalizedSeconds, false);
+      applied = true;
+    }
+    if (!applied) {
+      setDeckTimecode(project_.focusedDeckIndex, normalizedSeconds, false);
+    }
+  }
+
+  void handleAtemEventPayload(const std::string& payloadRaw) {
+    if (!project_.atemTriggerEnabled) {
+      return;
+    }
+    std::string payload = toUpper(trim(payloadRaw));
+    if (payload.empty()) {
+      return;
+    }
+    if (payload.rfind("DECKBOY ", 0) == 0) {
+      handleRemoteCommand(payload.substr(8));
+      return;
+    }
+    if (payload == "CUT" || payload == "AUTO" || payload == "TAKE") {
+      handleRemoteCommand("TAKE");
+      return;
+    }
+    if (payload == "BLACK" || payload == "FTB") {
+      handleRemoteCommand("CLEAR");
+      return;
+    }
+    if (payload == "PLAY" || payload == "PAUSE" || payload == "STOP"
+        || payload == "NEXT" || payload == "PREV" || payload == "GO"
+        || payload == "CLEAR" || payload == "PANIC") {
+      handleRemoteCommand(payload);
+      return;
+    }
+    if (payload.rfind("SCENE ", 0) == 0) {
+      std::string token = trim(payload.substr(6));
+      if (!token.empty()) {
+        handleRemoteCommand("GROUP " + token + " FIRE");
+      }
+      return;
+    }
+
+    static const std::array<const char*, 8> kDeckboyPrefixes {{
+      "DECK ", "TAKE ", "GOTO ", "GROUP ", "MASTER ", "SELECT ", "FIND ", "VIDEO "
+    }};
+    for (const char* prefix : kDeckboyPrefixes) {
+      if (payload.rfind(prefix, 0) == 0) {
+        handleRemoteCommand(payload);
+        return;
+      }
+    }
+  }
+
+  void handleArtNetEvent(int channel, int value) {
+    if (!project_.dmxArtNetEnabled) {
+      return;
+    }
+    switch (channel) {
+      case 1: handleRemoteCommand("TAKE"); break;
+      case 2: handleRemoteCommand("PLAY"); break;
+      case 3: handleRemoteCommand("STOP"); break;
+      case 4: handleRemoteCommand("GO"); break;
+      case 5: handleRemoteCommand("NEXT"); break;
+      case 6: handleRemoteCommand("PREV"); break;
+      case 7: handleRemoteCommand("CLEAR"); break;
+      case 8: handleRemoteCommand("PANIC"); break;
+      case 9:
+        if (value > 0) {
+          handleRemoteCommand("TAKE " + std::to_string(std::clamp(value, 1, 255)));
+        }
+        break;
+      case 10:
+        if (value > 0) {
+          handleRemoteCommand("GROUP " + std::to_string(std::clamp(value, 1, 255)) + " FIRE");
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   void processTimecodeTriggersForDeck(int deckIndex, double fromSeconds, double toSeconds) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
@@ -25307,6 +25734,8 @@ class App {
   std::vector<Uint64> deckTimecodeLastExternalMs_;
   std::vector<double> deckTimecodeLastExternalSeconds_;
   std::vector<bool> deckTimecodeHasExternal_;
+  double lastMtcIngestSeconds_ = -1.0;
+  double lastMtcIngestFps_ = 0.0;
   std::string lastCueFindToken_;
   std::vector<int> lastCueFindMatches_;
   int lastCueFindCursor_ = -1;
@@ -25351,6 +25780,9 @@ class App {
   int midiSeqPort_ = -1;
   std::thread midiThread_;
   std::atomic<bool> midiStop_ {false};
+  std::array<int, 8> midiMtcQuarterFrameNibbles_ {{-1, -1, -1, -1, -1, -1, -1, -1}};
+  double midiMtcLastSentSeconds_ = -1.0;
+  double midiMtcLastSentFps_ = 0.0;
 #endif
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
@@ -25366,6 +25798,15 @@ class App {
   std::string lastOscFeedbackPayload_;
   Uint64 lastOscMirrorFeedbackBroadcastMs_ = 0;
   std::string lastOscMirrorFeedbackPayload_;
+  SocketHandle atemBridgeSocket_ = kInvalidSocket;
+  SocketHandle artNetSocket_ = kInvalidSocket;
+  std::thread atemBridgeThread_;
+  std::thread artNetBridgeThread_;
+  std::atomic<bool> atemBridgeStop_ {false};
+  std::atomic<bool> artNetBridgeStop_ {false};
+  int atemBridgeListenPort_ = kDefaultAtemBridgePort;
+  int artNetListenPort_ = kDefaultArtNetPort;
+  std::array<std::uint8_t, 512> artNetLastDmx_ {};
 #endif
 };
 

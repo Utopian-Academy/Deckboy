@@ -92,3 +92,13 @@ Click handling lives in `handleSettingsClick()`.
 - Companion/OSC command wiring is in `handleRemoteCommand(...)` and
   `mapOscToRemoteCommand(...)` for:
   - `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`, `ARTNETPORT`, `INTEGRATIONS`.
+- Runtime listeners (Linux/macOS path) live in `native/main.cpp`:
+  - `startAtemBridgeListener()` / `atemBridgeLoop()`
+  - `startArtNetBridgeListener()` / `artNetBridgeLoop()`
+  - bridge lifecycle wrappers: `startIntegrationBridges()` / `stopIntegrationBridges()`.
+- MTC ingest runtime is decoded in `midiLoop()`:
+  - `SND_SEQ_EVENT_QFRAME` -> `decodeMidiMtcQuarterFrame(...)`
+  - internal command ingress `MTCEXT <seconds> <fps>`
+  - applied via `ingestIntegrationTimecode(...)`.
+- Art-Net runtime command mapping is centralized in `handleArtNetEvent(...)`
+  (ch1-10 mapping to transport/master cue commands).
