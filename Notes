@@ -1,3 +1,16 @@
+2026-03-05 stream deck profile package pass:
+- Added official Stream Deck + Companion mapping bundle:
+  - `docs/streamdeck/README.md`
+  - `docs/streamdeck/deckboy_companion_profile_map.json`
+  - `docs/streamdeck/deckboy_main_page.csv`
+- Profile map defines page-by-page key layouts (Main / Deck Focus / Outputs / Master Cues)
+  with canonical Deckboy plain-text commands for Generic TCP/UDP transport.
+- Updated operator docs:
+  - `README.md` Companion section now links to the mapping bundle
+  - `MANUAL.md` section 18 now references official mapping files
+- Updated parity matrix:
+  - Stream Deck story moved from Partial to complete via published profile/docs package.
+
 2026-03-05 warp mode split pass (linear/perspective):
 - Added `Deck.warpMode` (`linear|perspective`) with normalization and backward-compatible deck-row persistence.
 - Render path now branches by warp mode:
