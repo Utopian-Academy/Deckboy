@@ -773,3 +773,21 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 portability backend catalog scaffold:
+- Added explicit platform backend catalog interfaces:
+  - `native/platform/capture_backend.hpp/.cpp`
+  - `native/platform/output_backend.hpp/.cpp`
+- Purpose: keep Linux-first behavior intact while exposing OS-agnostic backend inventory for parity work.
+- Capture catalog currently advertises:
+  - Linux: `x11grab` (window), `v4l2` (camera), desktop fallback for Syphon/Spout cue transport
+  - macOS/Windows: scaffold entries with unsupported markers for planned native backends.
+- Output catalog advertises:
+  - window, stream, ndi (SDK-gated), decklink (feature-gated).
+- `--self-check` now prints backend readiness lines:
+  - `capture-backends: ...`
+  - `output-backends: ...`
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Self-check passed with backend inventory lines
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)

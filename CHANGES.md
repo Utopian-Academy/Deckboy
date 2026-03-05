@@ -1,5 +1,33 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Portability architecture scaffold: capture/output backend catalogs)
+
+### Backend abstraction scaffolding
+- Added platform backend catalog interfaces:
+  - `native/platform/capture_backend.hpp/.cpp`
+  - `native/platform/output_backend.hpp/.cpp`
+- Capture catalog now reports planned backend families by platform:
+  - window capture (Linux `x11grab`, macOS ScreenCaptureKit scaffold, Windows DXGI scaffold)
+  - camera capture (Linux `v4l2`, macOS AVFoundation scaffold, Windows Media Foundation scaffold)
+  - app texture transport (Syphon/Spout scaffold paths)
+- Output catalog now reports backend families:
+  - SDL window output
+  - FFmpeg stream output
+  - NDI output (SDK-gated)
+  - DeckLink output (feature-gated)
+
+### Build/runtime integration
+- Wired new platform catalog sources into `CMakeLists.txt`.
+- Extended `--self-check` output with backend catalog status lines:
+  - `capture-backends: ...`
+  - `output-backends: ...`
+- This provides a single place to audit Linux/macOS/Windows backend readiness without changing current runtime behavior.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Self-check passed with backend status lines.
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (Mitti parity foundation: cue metadata + toggles + deck opacity)
 
 ### Cue parity fields and persistence
