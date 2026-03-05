@@ -32,6 +32,8 @@
   - display mismatch recovery now requires non-fullscreen + valid window display index.
   - added recovery throttle + recent-fullscreen-request gating to stop repeated
     fullscreen reapply storms on unstable WM/driver transitions.
+  - added fullscreen-preserving display-apply path for recovery
+  - fullscreen toggles now report failures instead of silently pretending recovery succeeded.
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:

@@ -64,6 +64,10 @@
   - non-fullscreen auto-recovery now only triggers shortly after an explicit fullscreen request
   - hidden/minimized/wrong-display recovery remains active
   - recovery attempts are throttled to avoid repeated toggle storms.
+- Recovery/enable behavior hardening:
+  - output display-apply path now supports a non-transition mode that preserves fullscreen state
+  - recovery path uses non-transition display apply (no forced fullscreen tear-down/reapply)
+  - output enable/recover/fullscreen actions now check fullscreen apply success and show explicit failure toasts when fullscreen cannot be entered.
 
 ## 2026-03-05 (Integration runtime pass: ATEM bridge + MTC ingest + Art-Net triggers)
 
