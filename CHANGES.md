@@ -1,5 +1,42 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Integration runtime pass: ATEM bridge + MTC ingest + Art-Net triggers)
+
+### Runtime integration backends (implemented)
+- Added live ATEM UDP trigger bridge runtime:
+  - listener thread on UDP port `9910` by default (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - inbound payloads enqueue into remote command path (`ATEMEVENT ...`)
+  - supported trigger payloads include `CUT`, `AUTO`, `TAKE`, `PLAY`, `STOP`,
+    `NEXT`, `PREV`, `CLEAR`, `PANIC`, `SCENE <n>`, and `DECKBOY <command>`.
+- Added live Art-Net trigger bridge runtime:
+  - listener thread on configured `artNetPort`
+  - parses `ArtDMX` packets and edge-triggers command events (`ARTNETEVENT ...`)
+  - default channel mapping:
+    - ch1 `TAKE`, ch2 `PLAY`, ch3 `STOP`, ch4 `GO`,
+      ch5 `NEXT`, ch6 `PREV`, ch7 `CLEAR`, ch8 `PANIC`
+    - ch9 `TAKE <value>`, ch10 `GROUP <value> FIRE` on value changes.
+- Added ALSA MTC quarter-frame ingest path:
+  - MIDI loop now decodes `SND_SEQ_EVENT_QFRAME` to `MTCEXT <seconds> <fps>`
+  - integration ingest applies to chase-enabled decks (fallback: focused deck).
+
+### Integration backend support flags
+- Updated integration planner support matrix (`native/platform/integration_backend.cpp`):
+  - `atem`: supported on non-Windows builds
+  - `mtc`: supported when ALSA backend is compiled
+  - `dmx-artnet`: supported on non-Windows builds
+  - `ndi-trigger`, `nmc`, `ltc` remain scaffolded.
+
+### Operator UI + controls
+- Network tab `INTEGRATION ADAPTERS` panel now shows bridge ports:
+  - ATEM UDP port
+  - Art-Net UDP port
+- Art-Net port edits now restart the Art-Net listener at runtime.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Integration adapter foundation: ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet)
 
 ### Platform/backend scaffolding

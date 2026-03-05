@@ -1,3 +1,24 @@
+2026-03-05 integration runtime pass (ATEM + MTC + Art-Net):
+- Implemented ATEM UDP trigger bridge runtime:
+  - default UDP listen port `9910` (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - payloads mapped via internal `ATEMEVENT` command ingress.
+- Implemented Art-Net trigger runtime:
+  - listens on configured Art-Net port
+  - parses `ArtDMX` packets and emits `ARTNETEVENT` triggers
+  - channel mapping:
+    - 1=TAKE 2=PLAY 3=STOP 4=GO 5=NEXT 6=PREV 7=CLEAR 8=PANIC
+    - 9=`TAKE <value>` and 10=`GROUP <value> FIRE` on value change.
+- Implemented MTC ingest path:
+  - ALSA MIDI quarter-frame decode (`SND_SEQ_EVENT_QFRAME`)
+  - emits internal `MTCEXT` ingress for timecode chase handling.
+- Integration backend support updated:
+  - `atem`, `mtc` (ALSA), `dmx-artnet` now report supported on Linux build.
+- Network settings panel now shows bridge ports and Art-Net port edits hot-restart listener.
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 integration adapter foundation (ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet):
 - Added platform integration backend planner module:
   - `native/platform/integration_backend.*`
