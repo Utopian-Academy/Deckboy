@@ -183,6 +183,10 @@ playlist with a "web" type.
 - The editor accepts plain words:
   - `focused` or `recommended` (window cues) -> focused window capture
   - `default` (camera/syphon cues) -> default device/bus
+- You can ignore advanced source refs during normal operation:
+  - Window cue: type `focused`
+  - Camera cue: type `default`
+  - Syphon cue: type `default`
 - Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
 - Linux source-ref quick examples:
   - `SOURCE WINDOW active-window` (full desktop capture)
