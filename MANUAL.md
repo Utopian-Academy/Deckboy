@@ -690,6 +690,10 @@ Network tab notes:
 - OSC Query HTTP is separate and optional (see section 19).
 - Integration adapter toggles (ATEM/NDI trigger/NMC/MTC/LTC/DMX-ArtNet) live in
   `Settings -> Network -> INTEGRATION ADAPTERS`.
+- Runtime bridges in this build:
+  - ATEM UDP trigger bridge on port `9910` (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - Art-Net trigger bridge on configured `ARTNETPORT`
+  - MTC ingest from ALSA MIDI quarter-frame events when `MTC ON`.
 
 See [Section 21](#21-companion-command-reference) for the full command list.
 
@@ -729,6 +733,19 @@ Supported OSC addresses:
 /artnet i  /artnet/port i
 /integration s
 ```
+
+Integration runtime bridge behavior:
+- `ATEM ON`: bridge payload mapping:
+  - `CUT`/`AUTO`/`TAKE` -> `TAKE`
+  - `PLAY`/`STOP`/`NEXT`/`PREV`/`CLEAR`/`PANIC` -> matching command
+  - `SCENE <n>` -> `GROUP <n> FIRE`
+  - `DECKBOY <command>` -> forwards the command tail directly.
+- `MTC ON`: ALSA MIDI quarter-frame ingest updates Deckboy timecode
+  (chase-enabled decks, or focused deck fallback).
+- `ARTNET ON`: Art-Net `ArtDMX` default channel map:
+  - ch1 `TAKE`, ch2 `PLAY`, ch3 `STOP`, ch4 `GO`
+  - ch5 `NEXT`, ch6 `PREV`, ch7 `CLEAR`, ch8 `PANIC`
+  - ch9 `TAKE <value>`, ch10 `GROUP <value> FIRE`.
 
 OSC bundles (`#bundle`) are supported. Accepted commands receive a
 `/playboy/ack` reply. The `/status` and `/state` addresses return
@@ -1124,6 +1141,10 @@ ARTNET ON|OFF             toggle DMX/Art-Net adapter
 ARTNETPORT 6454           set/query Art-Net adapter port
 INTEGRATIONS [STATUS]     show adapter route summary
 ```
+
+Runtime note:
+- `ATEM`, `MTC`, and `ARTNET` are live in this Linux build.
+- `NDITRIGGER`, `NMC`, and `LTC` remain scaffolded command surfaces.
 
 ### Status
 

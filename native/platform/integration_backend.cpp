@@ -14,8 +14,13 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       IntegrationBackendKind::AtemTrigger,
       "atem",
       "ATEM Trigger Bridge",
+ #if defined(_WIN32)
       false,
-      "ATEM trigger backend pending"
+      "ATEM UDP bridge backend currently Linux/macOS only"
+ #else
+      true,
+      ""
+ #endif
     });
 #if defined(PLAYBOY_HAS_NDI_SDK)
     out.push_back({
@@ -46,8 +51,8 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       IntegrationBackendKind::MtcIngest,
       "mtc",
       "MTC Ingest",
-      false,
-      "MTC decoder backend pending (ALSA available)"
+      true,
+      ""
     });
 #else
     out.push_back({
@@ -69,8 +74,13 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       IntegrationBackendKind::DmxArtNet,
       "dmx-artnet",
       "DMX / Art-Net Trigger Bridge",
+#if defined(_WIN32)
       false,
-      "DMX/Art-Net backend pending"
+      "DMX/Art-Net UDP bridge currently Linux/macOS only"
+#else
+      true,
+      ""
+#endif
     });
     return out;
   }
