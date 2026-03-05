@@ -1,5 +1,50 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Output parity UX: span/duplicate + orientation + test cards)
+
+### Per-output model additions (backward-compatible)
+- Extended `OutputTarget` with:
+  - `outputLayoutMode` (`span` | `duplicate`)
+  - `outputOrientationDegrees` (`0/90/180/270`)
+  - `outputTestCardEnabled` (`bool`)
+- Updated `output_target` serialization (append-only columns) and load defaults for older show files.
+- Added normalization for new fields during project load/normalize.
+
+### Render + egress behavior
+- Window presentation now respects per-output orientation (`0/90/180/270`) without changing deck terminology/workflow.
+- Added explicit duplicate/span semantics per output:
+  - `span`: uses host-deck canvas view offsets when canvas mode is enabled
+  - `duplicate`: locks to origin view (`0,0`) on the output canvas.
+- Added per-output test-card feed rendered in output compositor path.
+- Egress capture path (NDI/stream/delay) now captures the same output view region and applies orientation before send.
+
+### UI + command surface
+- Video Outputs tab now includes direct controls for:
+  - `Span` / `Duplicate`
+  - `Rotate 0°/90°/180°/270°` (cycle)
+  - `Test Card ON/OFF` (focused output)
+  - `All Cards ON/OFF` (batch)
+- Output status line now includes layout/orientation/test-card state.
+- Added commands:
+  - `VIDEO OUTPUT LAYOUT SPAN|DUPLICATE|NEXT|PREV`
+  - `VIDEO OUTPUT ORIENTATION 0|90|180|270|NEXT|PREV|RESET`
+  - `VIDEO OUTPUT TESTCARD ON|OFF|TOGGLE`
+  - `VIDEO OUTPUT TESTCARD ALL ON|OFF`
+
+### Status/OSC feedback updates
+- `STATUS` / `STATUS JSON` output entries now expose:
+  - `layout`
+  - `orientation`
+  - `test_card`
+- OSC mirror feedback now includes:
+  - `/playboy/output/<n>/layout`
+  - `/playboy/output/<n>/orientation`
+  - `/playboy/output/<n>/testcard`
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (Multi-select inspector parity pass)
 
 ### Cue inspector multi-select behavior

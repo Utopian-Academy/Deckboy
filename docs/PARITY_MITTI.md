@@ -28,10 +28,10 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Outputs / Rendering | Multiple outputs with layer stacking | Yes | Implemented via `OutputTarget` + `LayerAssignment`. |
 | Outputs / Rendering | NDI per output | Yes | Implemented at `OutputTarget` level + migration from legacy deck NDI. |
 | Outputs / Rendering | Stream output (SRT/RTMP) | Yes | Implemented per output. |
-| Outputs / Rendering | Canvas + view panning / span semantics | Partial | Canvas exists; formal duplicate/span UX mode labeling can be improved in settings. |
+| Outputs / Rendering | Canvas + view panning / span semantics | Partial+ | Added explicit per-output `span` vs `duplicate` mode in Video Outputs + command surface; still uses current canvas/view architecture under the hood. |
 | Outputs / Rendering | Edge blend + warp/corner pin | Partial | Warp/blend implemented; explicit perspective vs linear mode not yet split. |
-| Outputs / Rendering | Per-output test card toggle | Partial | Pattern cues exist; add output-scoped test card toggle for parity convenience. |
-| Outputs / Rendering | Per-output orientation 0/90/180/270 | Missing | Add output orientation field and final present transform. |
+| Outputs / Rendering | Per-output test card toggle | Yes | Added `outputTestCardEnabled` with focused/all-output UI toggles and command support. |
+| Outputs / Rendering | Per-output orientation 0/90/180/270 | Yes | Added per-output orientation model + window present and egress transform. |
 | Outputs / Rendering | Blackmagic output | Partial (scaffold) | Backend stubs exist in `native/platform/decklink.*`; integrate behind feature flag + output backend abstraction usage. |
 | Outputs / Rendering | Syphon/Spout output transport | Partial (scaffold) | Cue/type + sender stubs exist (`native/platform/siphon_spout.*`); runtime output backend path still pending. |
 | Integrations / Remote | OSC command control + feedback | Yes (extended) | Added optional canonical OSC feedback mirror mode with configurable rate limit (`oscFeedbackRateMs`) while preserving `/playboy/state` JSON feedback. |
@@ -57,8 +57,7 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 
 ## Immediate Implementation Order
 
-1. Finish remaining multi-select inspector parity (common-control masking in right panel for all fields).
-2. Output parity UX follow-through (orientation/test-card/span semantics + warp-mode split).
-3. Stream Deck profile/preset publishing + docs package.
-4. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
-5. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
+1. Warp mode split (explicit `perspective` vs `linear`) and corresponding UI/docs.
+2. Stream Deck profile/preset publishing + docs package.
+3. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
+4. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.

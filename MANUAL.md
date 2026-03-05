@@ -260,13 +260,17 @@ Precision input notes:
 |---------|-------------|
 | Canvas span | Project-level compositor size (for example `5760x2160`) |
 | View X / Y | Focused deck viewport offset inside the canvas |
+| Output layout | Per-output canvas view mode: `span` (uses view offset) or `duplicate` (locks to `0,0`) |
+| Output orientation | Per-output final output rotation (`0`, `90`, `180`, `270`) |
+| Output test card | Per-output test signal feed toggle (`on`/`off`) |
 | Warp | Deck-level 4-corner output warp (`TL/TR/BR/BL` offsets) |
 | Edge blend L/R/T/B | Deck-level per-edge blend softening (0-49%) |
 | Output route / layer | Route playlist to an output host deck and set layer order |
 
 Use **Preferences -> Video** for output focus/create/assign, stream controls,
 and canvas/view/warp controls, or Companion commands (`VIDEO OUTPUT ...`,
-`VIDEO STREAM ...`, `VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`)
+`VIDEO STREAM ...`, `VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`,
+`VIDEO OUTPUT LAYOUT`, `VIDEO OUTPUT ORIENTATION`, `VIDEO OUTPUT TESTCARD`)
 for precise values.
 
 ### Still / pattern / browser cues
@@ -340,6 +344,9 @@ Each output has its own:
 - Output target type (`window` or `stream`)
 - Optional mirror source output index (stream outputs)
 - Optional NDI fill/key senders
+- Layout mode (`span`/`duplicate`)
+- Orientation (`0/90/180/270`)
+- Test card state (`on`/`off`)
 
 Entity model (current architecture):
 - `Deck`: media + transport + audio + cue list
@@ -454,6 +461,13 @@ The **Video** tab controls output raster sizing and display targeting for output
   - `Alpha`: per-output dimmer (`0-100%`) over composited output.
   - `Delay`: per-output delay (`0-5000 ms`) for NDI/stream egress frame path.
   - `Color`: `AUTO` / `BT709` / `SRGB` color-space mode (stream metadata path).
+- **Layout row** (per focused output):
+  - `Span` / `Duplicate`: explicit output canvas semantic mode.
+  - `Rotate`: cycle `0° -> 90° -> 180° -> 270°`.
+  - `Test Card ON/OFF`: force output test signal feed.
+  - `All Cards ON/OFF`: batch test-card toggle for all outputs.
+- **Egress parity note**:
+  - NDI/stream/delayed egress follows focused output view semantics (`span`/`duplicate`) and orientation.
 - **Operational Routing Strip (main window, always visible)**:
   - Deck rows are edited inline as: `Deck -> Output -> Layer`.
   - `LINK/UNLINK` toggles assignment for that deck/output pair.
@@ -491,6 +505,7 @@ Current stream implementation notes:
 - Stream outputs can mirror another output feed, or render their own assignments when mirror is `off`.
 - Stream ffmpeg path now muxes H.264 video + AAC stereo audio.
 - Audio source follows the output assignment stack (host deck fallback if no assignments are present).
+- Output transforms for that output (`layout`, `orientation`, and `test card`) are applied before stream/NDI egress.
 
 ---
 
@@ -1000,6 +1015,10 @@ VIDEO OUTPUT DELAY 250
 VIDEO OUTPUT DELAY OFF
 VIDEO OUTPUT OVERLAY ON|OFF|TOGGLE
 VIDEO OUTPUT COLORSPACE AUTO|BT709|SRGB
+VIDEO OUTPUT LAYOUT SPAN|DUPLICATE|NEXT|PREV
+VIDEO OUTPUT ORIENTATION 0|90|180|270|NEXT|PREV|RESET
+VIDEO OUTPUT TESTCARD ON|OFF|TOGGLE
+VIDEO OUTPUT TESTCARD ALL ON|OFF
 VIDEO STREAM ON|OFF
 VIDEO STREAM SRT|RTMP
 VIDEO STREAM URL srt://127.0.0.1:9000?mode=caller
