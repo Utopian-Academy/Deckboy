@@ -54,6 +54,13 @@
 - Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
 - Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
 
+## 2026-03-05 (output activation stability fix)
+
+- Fixed a window-output recovery loop that could make output activation appear to "freak out":
+  - recovery logic no longer treats `SDL_GetWindowDisplayIndex(...) == -1` as an automatic display mismatch
+  - display-mismatch recovery is now only evaluated when the output window is non-fullscreen and the window display index is valid.
+- This prevents repeated fullscreen tear-down/reapply cycles during output arming/recovery on some SDL/display-driver combinations.
+
 ## 2026-03-05 (Integration runtime pass: ATEM bridge + MTC ingest + Art-Net triggers)
 
 ### Runtime integration backends (implemented)
