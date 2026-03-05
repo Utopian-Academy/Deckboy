@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "profileId": "deckboy_companion_generic_v001",
+  "profileName": "Deckboy 0.01 Companion Map",
+  "description": "Official Stream Deck key map for Deckboy using Bitfocus Companion Generic TCP/UDP.",
+  "connection": {
+    "module": "generic-tcp-udp",
+    "host": "127.0.0.1",
+    "port": 5510,
+    "transport": "tcp"
+  },
+  "grid": {
+    "columns": 5,
+    "rows": 3
+  },
+  "pages": [
+    {
+      "id": "main",
+      "name": "Main",
+      "buttons": [
+        {"key": "0,0", "label": "TAKE", "command": "TAKE", "note": "Take selected cue"},
+        {"key": "0,1", "label": "GO", "command": "GO", "note": "Play/pause or take when idle"},
+        {"key": "0,2", "label": "PLAY", "command": "PLAY", "note": "Play/resume"},
+        {"key": "0,3", "label": "STOP", "command": "STOP", "note": "Stop and rewind"},
+        {"key": "0,4", "label": "CLEAR", "command": "CLEAR", "note": "Cut output to black"},
+
+        {"key": "1,0", "label": "PREV", "command": "PREV", "note": "Select previous cue"},
+        {"key": "1,1", "label": "NEXT", "command": "NEXT", "note": "Select next cue"},
+        {"key": "1,2", "label": "FIND", "command": "FIND intro", "note": "Set find token (edit token per show)"},
+        {"key": "1,3", "label": "FIND >", "command": "FINDNEXT", "note": "Next find result"},
+        {"key": "1,4", "label": "FIND <", "command": "FINDPREV", "note": "Previous find result"},
+
+        {"key": "2,0", "label": "PANIC", "command": "PANIC", "note": "Playlist panic profile action"},
+        {"key": "2,1", "label": "JUMP", "command": "JUMPMODE TOGGLE", "note": "Toggle jump load/trigger"},
+        {"key": "2,2", "label": "MC TAKE", "command": "MASTER FIRE", "note": "Fire focused Master Cue"},
+        {"key": "2,3", "label": "MC NEXT", "command": "MASTER NEXT", "note": "Focus next Master Cue"},
+        {"key": "2,4", "label": "OUT +", "command": "VIDEO OUTPUT NEXT", "note": "Focus next output"}
+      ]
+    },
+    {
+      "id": "decks",
+      "name": "Deck Focus",
+      "buttons": [
+        {"key": "0,0", "label": "DECK 1", "command": "DECK 1"},
+        {"key": "0,1", "label": "DECK 2", "command": "DECK 2"},
+        {"key": "0,2", "label": "DECK 3", "command": "DECK 3"},
+        {"key": "0,3", "label": "DECK +", "command": "DECKNEXT"},
+        {"key": "0,4", "label": "DECK -", "command": "DECKPREV"},
+
+        {"key": "1,0", "label": "SEL 1", "command": "SELECT 1"},
+        {"key": "1,1", "label": "SEL 2", "command": "SELECT 2"},
+        {"key": "1,2", "label": "SEL 3", "command": "SELECT 3"},
+        {"key": "1,3", "label": "TAKE", "command": "TAKE"},
+        {"key": "1,4", "label": "GOTO 1", "command": "GOTO 1"},
+
+        {"key": "2,0", "label": "AUTO", "command": "AUTONEXT TOGGLE"},
+        {"key": "2,1", "label": "LOOP", "command": "PLAYLISTLOOP TOGGLE"},
+        {"key": "2,2", "label": "SHUFF", "command": "SHUFFLE TOGGLE"},
+        {"key": "2,3", "label": "DIM 75", "command": "DECKOPACITY 75"},
+        {"key": "2,4", "label": "DIM 100", "command": "DECKOPACITY 100"}
+      ]
+    },
+    {
+      "id": "outputs",
+      "name": "Outputs",
+      "buttons": [
+        {"key": "0,0", "label": "OUT 1", "command": "VIDEO OUTPUT 1"},
+        {"key": "0,1", "label": "OUT 2", "command": "VIDEO OUTPUT 2"},
+        {"key": "0,2", "label": "OUT 3", "command": "VIDEO OUTPUT 3"},
+        {"key": "0,3", "label": "OUT ON", "command": "VIDEO OUTPUT ON"},
+        {"key": "0,4", "label": "OUT OFF", "command": "VIDEO OUTPUT OFF"},
+
+        {"key": "1,0", "label": "NDI ON", "command": "NDI ON"},
+        {"key": "1,1", "label": "NDI OFF", "command": "NDI OFF"},
+        {"key": "1,2", "label": "STREAM", "command": "VIDEO STREAM TOGGLE"},
+        {"key": "1,3", "label": "TESTCARD", "command": "VIDEO OUTPUT TESTCARD TOGGLE"},
+        {"key": "1,4", "label": "ROTATE", "command": "VIDEO OUTPUT ORIENTATION NEXT"},
+
+        {"key": "2,0", "label": "SPAN", "command": "VIDEO OUTPUT LAYOUT SPAN"},
+        {"key": "2,1", "label": "DUP", "command": "VIDEO OUTPUT LAYOUT DUPLICATE"},
+        {"key": "2,2", "label": "ALPHA 85", "command": "VIDEO OUTPUT ALPHA 85"},
+        {"key": "2,3", "label": "DELAY+100", "command": "VIDEO OUTPUT DELAY UP"},
+        {"key": "2,4", "label": "OVERLAY", "command": "VIDEO OUTPUT OVERLAY TOGGLE"}
+      ]
+    },
+    {
+      "id": "master",
+      "name": "Master Cues",
+      "buttons": [
+        {"key": "0,0", "label": "MC PREV", "command": "MASTER PREV"},
+        {"key": "0,1", "label": "MC NEXT", "command": "MASTER NEXT"},
+        {"key": "0,2", "label": "MC FIRE", "command": "MASTER FIRE"},
+        {"key": "0,3", "label": "MC CAP S", "command": "MASTER CAPTURE SEL"},
+        {"key": "0,4", "label": "MC CAP A", "command": "MASTER CAPTURE ACTIVE"},
+
+        {"key": "1,0", "label": "MC 1", "command": "MASTER FIRE 1"},
+        {"key": "1,1", "label": "MC 2", "command": "MASTER FIRE 2"},
+        {"key": "1,2", "label": "MC 3", "command": "MASTER FIRE 3"},
+        {"key": "1,3", "label": "MC ADD", "command": "MASTER ADD New Scene"},
+        {"key": "1,4", "label": "MC EMPTY", "command": "MASTER ADDEMPTY"},
+
+        {"key": "2,0", "label": "BYP D1", "command": "MASTER BYPASS 1 TOGGLE"},
+        {"key": "2,1", "label": "BYP D2", "command": "MASTER BYPASS 2 TOGGLE"},
+        {"key": "2,2", "label": "BYP D3", "command": "MASTER BYPASS 3 TOGGLE"},
+        {"key": "2,3", "label": "MC LIST", "command": "MASTER LIST"},
+        {"key": "2,4", "label": "STATUS", "command": "STATUS"}
+      ]
+    }
+  ]
+}

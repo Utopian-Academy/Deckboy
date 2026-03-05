@@ -36,7 +36,7 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Outputs / Rendering | Syphon/Spout output transport | Partial (scaffold) | Cue/type + sender stubs exist (`native/platform/siphon_spout.*`); runtime output backend path still pending. |
 | Integrations / Remote | OSC command control + feedback | Yes (extended) | Added optional canonical OSC feedback mirror mode with configurable rate limit (`oscFeedbackRateMs`) while preserving `/playboy/state` JSON feedback. |
 | Integrations / Remote | OSC Query server | Yes (baseline) | Optional HTTP OSC Query server now exposes endpoint docs + live state (`/oscquery.json`, `/state.json`) and lightweight browser page. |
-| Integrations / Remote | Stream Deck direct story | Partial | Companion works; add official Companion preset / Stream Deck profile docs package. |
+| Integrations / Remote | Stream Deck direct story | Yes (Companion profile) | Published official Companion/Stream Deck mapping bundle in `docs/streamdeck/` (JSON manifest + CSV + setup notes), no proprietary plugin required. |
 | Integrations / Remote | Trigger from ATEM | Missing | Add command ingress adapter (ATEM tally/trigger bridge) as optional module. |
 | Integrations / Remote | Trigger by NDI metadata | Missing | Add optional NDI metadata/trigger listener backend with command mapping. |
 | Integrations / Remote | NMC transport sync | Missing | Add NMC ingest adapter and mapping to deck transport. |
@@ -57,6 +57,5 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 
 ## Immediate Implementation Order
 
-1. Stream Deck profile/preset publishing + docs package.
-2. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
-3. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
+1. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
+2. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
