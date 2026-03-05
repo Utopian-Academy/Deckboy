@@ -1074,3 +1074,15 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 browser cue take/capture reliability fix:
+- Root issue: browser cue capture path used a separate custom x11grab ffmpeg invocation, not the shared platform capture planner used by source/window cues.
+- Fix:
+  - `MediaEngine::startBrowserCapture(...)` now builds capture args via `deckboy::platform::planSourceCapture(...)` with window-capture request.
+  - capture source ref normalized from virtual display id (`:N` -> `:N.0`) before planning.
+- Startup safety improvement:
+  - browser startup wait phase now checks capture start result.
+  - on failure, startup is aborted and operator gets toast: `browser capture failed`.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
