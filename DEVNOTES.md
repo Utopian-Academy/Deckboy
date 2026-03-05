@@ -52,3 +52,18 @@ Click handling lives in `handleSettingsClick()`.
   - `linear`: existing quad geometry path
   - `perspective`: tessellated projective UV mapping via `renderPerspectiveWarp(...)`.
   - Mesh density is controlled by `kCols` / `kRows` inside `renderPerspectiveWarp(...)`.
+
+## Portability Backends
+- Capture backend interfaces now live in:
+  - `native/platform/capture_backend.hpp/.cpp`
+  - Catalog API: `createCaptureBackendCatalog()`
+  - Runtime planning API: `planSourceCapture(const SourceCaptureRequest&)`
+- `MediaEngine::buildSourceCaptureArgs(...)` now delegates source cue FFmpeg arg
+  planning to `planSourceCapture(...)` (Linux backends active, other OSes stubbed).
+- Output backend interfaces now live in:
+  - `native/platform/output_backend.hpp/.cpp`
+  - Catalog API: `createOutputBackendCatalog()`
+  - Route planning API: `planOutputBackendRoute(const OutputBackendRouteRequest&)`
+- `--self-check` prints backend introspection lines:
+  - `capture-plan-defaults: ...`
+  - `output-route-defaults: ...`
