@@ -1,0 +1,16 @@
+page,row,col,label,command,note
+Main,0,0,TAKE,TAKE,Take selected cue
+Main,0,1,GO,GO,Play/pause or take if idle
+Main,0,2,PLAY,PLAY,Play/resume
+Main,0,3,STOP,STOP,Stop and rewind
+Main,0,4,CLEAR,CLEAR,Cut output to black
+Main,1,0,PREV,PREV,Select previous cue
+Main,1,1,NEXT,NEXT,Select next cue
+Main,1,2,FIND,FIND intro,Set find token
+Main,1,3,FIND >,FINDNEXT,Next find match
+Main,1,4,FIND <,FINDPREV,Previous find match
+Main,2,0,PANIC,PANIC,Run panic profile
+Main,2,1,JUMP,JUMPMODE TOGGLE,Toggle jump mode
+Main,2,2,MC TAKE,MASTER FIRE,Fire focused master cue
+Main,2,3,MC NEXT,MASTER NEXT,Focus next master cue
+Main,2,4,OUT +,VIDEO OUTPUT NEXT,Focus next output

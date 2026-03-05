@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Official Stream Deck + Companion profile package)
+
+### Documentation bundle
+- Added new profile docs folder:
+  - `docs/streamdeck/README.md`
+  - `docs/streamdeck/deckboy_companion_profile_map.json`
+  - `docs/streamdeck/deckboy_main_page.csv`
+- The JSON manifest is the canonical Deckboy key map for Stream Deck workflows
+  through Bitfocus Companion (`Generic TCP/UDP`), grouped into pages:
+  - Main transport
+  - Deck focus
+  - Output control
+  - Master Cue control
+
+### Operator docs integration
+- Updated `README.md` Companion section with direct links to the Stream Deck mapping bundle.
+- Updated `MANUAL.md` Companion Control section with official mapping file references.
+- Updated parity tracker (`docs/PARITY_MITTI.md`):
+  - Stream Deck integration story now marked complete via published profile package.
+
 ## 2026-03-05 (Warp mode split: linear vs perspective)
 
 ### Deck warp model + persistence
