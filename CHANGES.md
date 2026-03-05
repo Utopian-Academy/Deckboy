@@ -1,5 +1,44 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Warp mode split: linear vs perspective)
+
+### Deck warp model + persistence
+- Added `Deck.warpMode` with normalized values:
+  - `linear` (default)
+  - `perspective`
+- Extended `deck` serialization with append-only `warpMode` column after `warpEnabled`.
+- Load remains backward-compatible with older show files (old deck rows still parse with default `linear` mode).
+
+### Render behavior
+- Output present path now supports explicit warp mode behavior:
+  - `linear`: existing quad-geometry path
+  - `perspective`: tessellated projective UV mapping (`renderPerspectiveWarp`) for improved corner-pin behavior.
+- Existing orientation + edge blend behavior remains intact.
+
+### UI + command surface
+- Video Outputs -> Advanced now includes a deck warp mode control:
+  - `Mode Linear` / `Mode Perspective`
+- Added/extended commands:
+  - `VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV`
+  - `VIDEO WARP LINEAR|PERSPECTIVE` (direct aliases)
+- `VIDEO WARP` status toast now reports both enable state and active mode.
+
+### Status + feedback
+- Deck status snapshots now include `warp_mode` in text output.
+- `STATUS JSON` now includes deck `warpMode`.
+- OSC mirror feedback now includes:
+  - `/playboy/deck/<n>/warp_mode`
+
+### Docs + notes
+- Updated `MANUAL.md` warp command reference.
+- Updated `docs/PARITY_MITTI.md` warp parity row + immediate order.
+- Updated `DEVNOTES.md` with warp mode implementation map.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Output parity UX: span/duplicate + orientation + test cards)
 
 ### Per-output model additions (backward-compatible)

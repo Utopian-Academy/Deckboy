@@ -263,7 +263,7 @@ Precision input notes:
 | Output layout | Per-output canvas view mode: `span` (uses view offset) or `duplicate` (locks to `0,0`) |
 | Output orientation | Per-output final output rotation (`0`, `90`, `180`, `270`) |
 | Output test card | Per-output test signal feed toggle (`on`/`off`) |
-| Warp | Deck-level 4-corner output warp (`TL/TR/BR/BL` offsets) |
+| Warp | Deck-level 4-corner output warp (`TL/TR/BR/BL` offsets) with mode `linear` (default) or `perspective` |
 | Edge blend L/R/T/B | Deck-level per-edge blend softening (0-49%) |
 | Output route / layer | Route playlist to an output host deck and set layer order |
 
@@ -1033,6 +1033,7 @@ VIDEO CANVAS DISPLAY         use focused output raster as canvas size
 VIDEO VIEW 320,40            set focused deck viewport inside canvas
 VIDEO VIEW LEFT 200          nudge viewport
 VIDEO WARP ON|OFF|TOGGLE
+VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV
 VIDEO WARP TL -12 8          move one corner (TL/TR/BR/BL)
 VIDEO WARP RESET
 VIDEO BLEND L 8              set edge blend (% or 0.0-0.49)

@@ -1,3 +1,23 @@
+2026-03-05 warp mode split pass (linear/perspective):
+- Added `Deck.warpMode` (`linear|perspective`) with normalization and backward-compatible deck-row persistence.
+- Render path now branches by warp mode:
+  - `linear`: existing quad geometry
+  - `perspective`: tessellated projective UV mapping for corner-pin.
+- Video Outputs advanced controls now include warp mode cycle (`Mode Linear` / `Mode Perspective`).
+- Command surface additions:
+  - `VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV`
+  - `VIDEO WARP LINEAR|PERSPECTIVE`
+- Status/feedback additions:
+  - `STATUS` deck lines include `warp_mode`
+  - `STATUS JSON` deck payload includes `warpMode`
+  - OSC mirror includes `/playboy/deck/<n>/warp_mode`
+- Docs updated:
+  - `MANUAL.md`, `CHANGES.md`, `DEVNOTES.md`, `docs/PARITY_MITTI.md`
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 output parity ux pass (span/duplicate + orientation + test card):
 - Extended `OutputTarget` with:
   - `outputLayoutMode` (`span|duplicate`)
