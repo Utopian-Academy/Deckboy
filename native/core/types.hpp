@@ -19,6 +19,9 @@ enum class CueKind {
   Image,
   Pattern,
   Browser,
+  WindowSource,
+  Camera,
+  Syphon,
   LowerThird,
   Audio
 };
@@ -91,6 +94,10 @@ struct Cue {
   SDL_Color chromaKeyColor {0, 255, 0, 255};
   float chromaKeyTolerance = 60.0f;
   float chromaKeySoftness = 20.0f;
+  float brightness = 1.0f;        // 0.0 (black) to 2.0 (bright)
+  float contrast = 1.0f;          // 0.0 (gray) to 2.0 (high)
+  float saturation = 1.0f;        // 0.0 (grayscale) to 2.0 (vibrant)
+  float hueShift = 0.0f;          // -180 to +180 degrees
   std::string cueNumber;
   std::vector<double> pausePoints;
 };
@@ -133,20 +140,77 @@ struct Deck {
   bool timecodeChaseEnabled = false;
   bool timecodeRunEnabled = false;
   bool timecodeTriggerEnabled = true;
+  bool timecodeJamSyncEnabled = true;
+  double timecodeFreewheelSeconds = 1.0;
   double timecodeFps = 30.0;
   double timecodeCurrentSeconds = 0.0;
   double timecodeLastSeconds = 0.0;
   bool timecodeDirty = false;
 };
 
+// Transitional output entity: decouples output routing intent from Deck internals.
+// hostDeckIndex keeps compatibility with the current renderer (one output window per host deck).
+struct OutputTarget {
+  std::string name = "Output 1";
+  int hostDeckIndex = 0;
+  int displayIndex = 0;
+  bool enabled = false;
+  std::string outputType = "window"; // window | stream
+  int mirrorSourceOutputIndex = -1;  // -1 = render own layer assignments
+  bool streamEnabled = false;
+  std::string streamProtocol = "srt"; // srt | rtmp
+  std::string streamUrl;
+  int streamBitrateKbps = 6000;
+  bool ndiEnabled = false;
+  std::string ndiSourceName;
+  bool ndiKeyEnabled = false;
+  std::string ndiKeySourceName;
+  std::string outputId;
+  float outputAlpha = 1.0f;          // 0.0-1.0 output dimmer (per output)
+  int outputDelayMs = 0;             // 0-5000 egress delay (ms)
+  bool outputTimeOverlayEnabled = false; // output-scoped time/ID overlay
+  std::string outputColorSpace = "auto"; // auto | bt709 | srgb
+};
+
+// Deck-to-output layer assignment.
+// Multiple assignments for one deck are allowed (fan-out to multiple outputs).
+struct LayerAssignment {
+  int deckIndex = 0;
+  int outputIndex = 0;
+  int layerIndex = 0;
+  bool enabled = true;
+  std::string outputId;
+  std::string layerId;
+};
+
+struct GroupSlot {
+  bool bypass = false;
+  std::string cueId;
+};
+
+struct GroupPreset {
+  std::string name = "Group 1";
+  std::vector<GroupSlot> slots;
+};
+
 struct Project {
   std::string title = std::string(kAppTitle);
   std::vector<Deck> decks {Deck {}};
   int focusedDeckIndex = 0;
+  std::vector<OutputTarget> outputs {OutputTarget {}};
+  int focusedOutputIndex = 0;
+  std::vector<LayerAssignment> layerAssignments;
+  std::vector<GroupPreset> groupPresets;
+  int focusedGroupPresetIndex = 0;
   std::vector<std::string> layerNames {"BG", "LayerA", "LayerB", "LayerC", "LayerD"};
   bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;
   bool uiTransitionsEnabled = true;
+  std::string jumpMode = "trigger"; // trigger | load
+  bool jumpTransitionEnabled = true;
+  std::string panicProfile = "outputs_off"; // outputs_off | fade_pause | fade_rewind | fade_load_next
+  double panicFadeSeconds = 0.9;
+  bool panicAutoRestore = false;
   double masterVolume = 1.0;
   double masterDimmer = 1.0;
   bool outputFollowDisplay = true;
@@ -191,9 +255,12 @@ enum class QuickAction {
   CycleScaleMode,
   ScaleXDec, ScaleXInc,
   ScaleYDec, ScaleYInc,
+  EditScaleX, EditScaleY,
   OffsetXDec, OffsetXInc,
   OffsetYDec, OffsetYInc,
+  EditOffsetX, EditOffsetY,
   RotDec, RotInc,
+  EditRotation,
   CropLDec, CropLInc,
   CropRDec, CropRInc,
   CropTDec, CropTInc,
@@ -203,7 +270,22 @@ enum class QuickAction {
   KeySoftDec, KeySoftInc,
   EditKeyColor,
   EditCueNumber,
-  AddPausePoint, ClearPausePoints
+  AddPausePoint, ClearPausePoints,
+  BrightnessDec, BrightnessInc,
+  ContrastDec, ContrastInc,
+  SaturationDec, SaturationInc,
+  HueShiftDec, HueShiftInc,
+  PatternTypePrev, PatternTypeNext,
+  TogglePatternMotion,
+  CueSectionPlaybackToggle,
+  CueSectionGeometryToggle,
+  CueSectionKeyToggle,
+  CueSectionRoutingToggle,
+  CueRouteOutputPrev,
+  CueRouteOutputNext,
+  CueRouteLayerDec,
+  CueRouteLayerInc,
+  CueRouteAssignToggle
 };
 
 struct QuickButton {

@@ -26,6 +26,7 @@
 #include <future>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -46,7 +47,9 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <sys/file.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -71,6 +74,59 @@ namespace {
 constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
 
 std::atomic<bool> gShouldQuit = false;
+
+#ifndef _WIN32
+class SingleInstanceGuard {
+ public:
+  bool acquire(const fs::path& path) {
+    if (locked_) {
+      return true;
+    }
+
+    fd_ = ::open(path.c_str(), O_CREAT | O_RDWR, 0666);
+    if (fd_ < 0) {
+      lastError_ = std::string("open failed: ") + std::strerror(errno);
+      return false;
+    }
+
+    if (::flock(fd_, LOCK_EX | LOCK_NB) != 0) {
+      if (errno == EWOULDBLOCK || errno == EAGAIN) {
+        lastError_ = "another Deckboy instance is already running";
+      } else {
+        lastError_ = std::string("lock failed: ") + std::strerror(errno);
+      }
+      ::close(fd_);
+      fd_ = -1;
+      return false;
+    }
+
+    std::string pidText = std::to_string(static_cast<long long>(::getpid())) + "\n";
+    (void) ::ftruncate(fd_, 0);
+    (void) ::write(fd_, pidText.c_str(), pidText.size());
+    locked_ = true;
+    return true;
+  }
+
+  const std::string& lastError() const {
+    return lastError_;
+  }
+
+  ~SingleInstanceGuard() {
+    if (fd_ >= 0) {
+      if (locked_) {
+        (void) ::flock(fd_, LOCK_UN);
+      }
+      ::close(fd_);
+      fd_ = -1;
+    }
+  }
+
+ private:
+  std::string lastError_;
+  int fd_ = -1;
+  bool locked_ = false;
+};
+#endif
 
 std::string trim(const std::string& value) {
   auto begin = value.find_first_not_of(" \t\r\n");
@@ -107,6 +163,38 @@ std::vector<std::string> splitByChar(const std::string& text, char separator) {
   }
   parts.push_back(current);
   return parts;
+}
+
+std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int maxWidth) {
+  if (!font || maxWidth <= 0 || text.empty()) {
+    return "";
+  }
+
+  int textW = 0;
+  int textH = 0;
+  if (TTF_SizeUTF8(font, text.c_str(), &textW, &textH) == 0 && textW <= maxWidth) {
+    return text;
+  }
+
+  const std::string kEllipsis = "...";
+  int ellipsisW = 0;
+  if (TTF_SizeUTF8(font, kEllipsis.c_str(), &ellipsisW, &textH) != 0) {
+    return text;
+  }
+  if (ellipsisW > maxWidth) {
+    return "";
+  }
+
+  std::string clipped = text;
+  while (!clipped.empty()) {
+    clipped.pop_back();
+    std::string candidate = clipped + kEllipsis;
+    if (TTF_SizeUTF8(font, candidate.c_str(), &textW, &textH) == 0 && textW <= maxWidth) {
+      return candidate;
+    }
+  }
+
+  return kEllipsis;
 }
 
 std::string formatSeconds(double seconds) {
@@ -210,11 +298,137 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
   return std::max(0.0, result);
 }
 
+std::optional<double> parseNumericExpression(std::string expression) {
+  expression = trim(expression);
+  if (expression.empty()) {
+    return std::nullopt;
+  }
+
+  struct Parser {
+    const std::string& text;
+    size_t pos = 0;
+
+    void skipWs() {
+      while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) {
+        ++pos;
+      }
+    }
+
+    std::optional<double> parseExpr() {
+      auto lhs = parseTerm();
+      if (!lhs) {
+        return std::nullopt;
+      }
+      while (true) {
+        skipWs();
+        if (pos >= text.size() || (text[pos] != '+' && text[pos] != '-')) {
+          break;
+        }
+        char op = text[pos++];
+        auto rhs = parseTerm();
+        if (!rhs) {
+          return std::nullopt;
+        }
+        if (op == '+') {
+          *lhs += *rhs;
+        } else {
+          *lhs -= *rhs;
+        }
+      }
+      return lhs;
+    }
+
+    std::optional<double> parseTerm() {
+      auto lhs = parseFactor();
+      if (!lhs) {
+        return std::nullopt;
+      }
+      while (true) {
+        skipWs();
+        if (pos >= text.size() || (text[pos] != '*' && text[pos] != '/')) {
+          break;
+        }
+        char op = text[pos++];
+        auto rhs = parseFactor();
+        if (!rhs) {
+          return std::nullopt;
+        }
+        if (op == '*') {
+          *lhs *= *rhs;
+        } else {
+          if (std::fabs(*rhs) < 1e-12) {
+            return std::nullopt;
+          }
+          *lhs /= *rhs;
+        }
+      }
+      return lhs;
+    }
+
+    std::optional<double> parseFactor() {
+      skipWs();
+      if (pos >= text.size()) {
+        return std::nullopt;
+      }
+
+      char ch = text[pos];
+      if (ch == '+' || ch == '-') {
+        ++pos;
+        auto value = parseFactor();
+        if (!value) {
+          return std::nullopt;
+        }
+        if (ch == '-') {
+          *value = -*value;
+        }
+        return value;
+      }
+
+      if (ch == '(') {
+        ++pos;
+        auto value = parseExpr();
+        if (!value) {
+          return std::nullopt;
+        }
+        skipWs();
+        if (pos >= text.size() || text[pos] != ')') {
+          return std::nullopt;
+        }
+        ++pos;
+        return value;
+      }
+
+      const char* start = text.c_str() + pos;
+      char* end = nullptr;
+      double value = std::strtod(start, &end);
+      if (end == start) {
+        return std::nullopt;
+      }
+      pos = static_cast<size_t>(end - text.c_str());
+      return value;
+    }
+  };
+
+  Parser parser {expression, 0};
+  auto value = parser.parseExpr();
+  if (!value) {
+    return std::nullopt;
+  }
+  parser.skipWs();
+  if (parser.pos != expression.size() || !std::isfinite(*value)) {
+    return std::nullopt;
+  }
+  return value;
+}
+
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
     case CueKind::Image:      return "Still";
     case CueKind::Pattern:    return "Pattern";
     case CueKind::Browser:    return "Browser";
+    case CueKind::WindowSource: return "Window Source";
+    case CueKind::Camera:     return "Camera";
+    case CueKind::Syphon:     return "Syphon/Spout";
     case CueKind::LowerThird: return "Lower Third";
     case CueKind::Audio:      return "Audio";
     case CueKind::Video:
@@ -227,11 +441,53 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Image:      return "image";
     case CueKind::Pattern:    return "pattern";
     case CueKind::Browser:    return "browser";
+    case CueKind::WindowSource: return "window_source";
+    case CueKind::Camera:     return "camera";
+    case CueKind::Syphon:     return "syphon";
     case CueKind::LowerThird: return "lower_third";
     case CueKind::Audio:      return "audio";
     case CueKind::Video:
     default:                  return "video";
   }
+}
+
+bool isSourceCueKind(CueKind kind) {
+  return kind == CueKind::WindowSource
+    || kind == CueKind::Camera
+    || kind == CueKind::Syphon;
+}
+
+std::string sourceCueTokenForKind(CueKind kind) {
+  switch (kind) {
+    case CueKind::WindowSource: return "window";
+    case CueKind::Camera:       return "camera";
+    case CueKind::Syphon:       return "syphon";
+    default:                    return "source";
+  }
+}
+
+std::string defaultSourceRefForKind(CueKind kind) {
+  switch (kind) {
+    case CueKind::WindowSource: return "active-window";
+    case CueKind::Camera:       return "default-camera";
+    case CueKind::Syphon:       return "default-bus";
+    default:                    return "source";
+  }
+}
+
+std::string sourceCueRefFromCue(const Cue& cue) {
+  if (!isSourceCueKind(cue.kind)) {
+    return "";
+  }
+  std::string path = trim(cue.path);
+  if (path.rfind("source://", 0) == 0) {
+    size_t kindStart = std::string("source://").size();
+    size_t slash = path.find('/', kindStart);
+    if (slash != std::string::npos && slash + 1 < path.size()) {
+      return trim(path.substr(slash + 1));
+    }
+  }
+  return "";
 }
 
 std::string cueEndActionToken(CueEndAction a) {
@@ -300,6 +556,52 @@ TransitionStyle parseTransitionStyleToken(std::string token) {
     return TransitionStyle::DipBlack;
   }
   return TransitionStyle::Crossfade;
+}
+
+std::string normalizeJumpModeToken(std::string token) {
+  token = trim(token);
+  std::transform(token.begin(), token.end(), token.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::toupper(ch));
+  });
+  if (token == "LOAD" || token == "ARM" || token == "READY") {
+    return "load";
+  }
+  return "trigger";
+}
+
+std::string jumpModeLabelFromToken(const std::string& token) {
+  return normalizeJumpModeToken(token) == "load" ? "Load" : "Trigger";
+}
+
+std::string normalizePanicProfileToken(std::string token) {
+  token = trim(token);
+  std::transform(token.begin(), token.end(), token.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::toupper(ch));
+  });
+  if (token == "FADE_PAUSE" || token == "FADEPAUSE" || token == "PAUSE") {
+    return "fade_pause";
+  }
+  if (token == "FADE_REWIND" || token == "FADEREWIND" || token == "REWIND" || token == "STOP") {
+    return "fade_rewind";
+  }
+  if (token == "FADE_LOAD_NEXT" || token == "FADELOADNEXT" || token == "LOAD_NEXT" || token == "LOADNEXT" || token == "NEXT") {
+    return "fade_load_next";
+  }
+  return "outputs_off";
+}
+
+std::string panicProfileLabelFromToken(const std::string& token) {
+  std::string normalized = normalizePanicProfileToken(token);
+  if (normalized == "fade_pause") {
+    return "Fade+Pause";
+  }
+  if (normalized == "fade_rewind") {
+    return "Fade+Rewind";
+  }
+  if (normalized == "fade_load_next") {
+    return "Fade+LoadNext";
+  }
+  return "Outputs Off";
 }
 
 double easeOutCubic(double value) {
@@ -393,6 +695,146 @@ std::string nextColorTag(const std::string& current) {
   return *std::next(it);
 }
 
+bool colorControlsActive(float brightness, float contrast, float saturation, float hueShiftDegrees) {
+  constexpr float kEpsilon = 0.001f;
+  return std::fabs(brightness - 1.0f) > kEpsilon
+    || std::fabs(contrast - 1.0f) > kEpsilon
+    || std::fabs(saturation - 1.0f) > kEpsilon
+    || std::fabs(hueShiftDegrees) > kEpsilon;
+}
+
+bool cueHasColorControls(const Cue& cue) {
+  return colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift);
+}
+
+bool cueHasPixelEffects(const Cue& cue) {
+  return cue.chromaKeyEnabled || cueHasColorControls(cue);
+}
+
+void applyChromaKeyToPixels(std::vector<std::uint8_t>& pixels,
+                            SDL_Color keyColor,
+                            float tolerance,
+                            float softness) {
+  if (pixels.empty()) {
+    return;
+  }
+  tolerance = std::clamp(tolerance, 0.0f, 441.0f);
+  softness = std::clamp(softness, 0.0f, 200.0f);
+  float inner = std::max(0.0f, tolerance - softness);
+  float outer = tolerance + softness;
+  float span = std::max(0.0001f, outer - inner);
+  for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
+    float dr = static_cast<float>(pixels[i + 0]) - static_cast<float>(keyColor.r);
+    float dg = static_cast<float>(pixels[i + 1]) - static_cast<float>(keyColor.g);
+    float db = static_cast<float>(pixels[i + 2]) - static_cast<float>(keyColor.b);
+    float distance = std::sqrt(dr * dr + dg * dg + db * db);
+    float keep = 1.0f;
+    if (distance <= inner) {
+      keep = 0.0f;
+    } else if (distance < outer) {
+      keep = (distance - inner) / span;
+    }
+    pixels[i + 3] = static_cast<std::uint8_t>(std::clamp(
+      static_cast<int>(std::lround(static_cast<float>(pixels[i + 3]) * keep)),
+      0,
+      255));
+  }
+}
+
+void applyColorControlsToPixels(std::vector<std::uint8_t>& pixels,
+                                float brightness,
+                                float contrast,
+                                float saturation,
+                                float hueShiftDegrees) {
+  if (pixels.empty()) {
+    return;
+  }
+  brightness = std::clamp(brightness, 0.0f, 2.0f);
+  contrast = std::clamp(contrast, 0.0f, 2.0f);
+  saturation = std::clamp(saturation, 0.0f, 2.0f);
+  hueShiftDegrees = std::clamp(hueShiftDegrees, -180.0f, 180.0f);
+  if (!colorControlsActive(brightness, contrast, saturation, hueShiftDegrees)) {
+    return;
+  }
+
+  constexpr float kPi = 3.14159265358979323846f;
+  float hueRadians = hueShiftDegrees * (kPi / 180.0f);
+  float cosHue = std::cos(hueRadians);
+  float sinHue = std::sin(hueRadians);
+  bool applyHue = std::fabs(hueShiftDegrees) > 0.001f;
+
+  auto toByte = [](float value) -> std::uint8_t {
+    float clamped = std::clamp(value, 0.0f, 1.0f);
+    return static_cast<std::uint8_t>(std::lround(clamped * 255.0f));
+  };
+
+  for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
+    float r = static_cast<float>(pixels[i + 0]) / 255.0f;
+    float g = static_cast<float>(pixels[i + 1]) / 255.0f;
+    float b = static_cast<float>(pixels[i + 2]) / 255.0f;
+
+    r *= brightness;
+    g *= brightness;
+    b *= brightness;
+
+    r = (r - 0.5f) * contrast + 0.5f;
+    g = (g - 0.5f) * contrast + 0.5f;
+    b = (b - 0.5f) * contrast + 0.5f;
+
+    float luma = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+    r = luma + (r - luma) * saturation;
+    g = luma + (g - luma) * saturation;
+    b = luma + (b - luma) * saturation;
+
+    if (applyHue) {
+      float y = 0.299f * r + 0.587f * g + 0.114f * b;
+      float iCh = 0.596f * r - 0.274f * g - 0.322f * b;
+      float qCh = 0.211f * r - 0.523f * g + 0.312f * b;
+      float iRot = iCh * cosHue - qCh * sinHue;
+      float qRot = iCh * sinHue + qCh * cosHue;
+      r = y + 0.956f * iRot + 0.621f * qRot;
+      g = y - 0.272f * iRot - 0.647f * qRot;
+      b = y - 1.106f * iRot + 1.703f * qRot;
+    }
+
+    pixels[i + 0] = toByte(r);
+    pixels[i + 1] = toByte(g);
+    pixels[i + 2] = toByte(b);
+  }
+}
+
+void applyCueVisualEffectsToPixels(std::vector<std::uint8_t>& pixels,
+                                   bool chromaKeyEnabled,
+                                   SDL_Color chromaKeyColor,
+                                   float chromaKeyTolerance,
+                                   float chromaKeySoftness,
+                                   float brightness,
+                                   float contrast,
+                                   float saturation,
+                                   float hueShiftDegrees) {
+  if (pixels.empty()) {
+    return;
+  }
+  if (chromaKeyEnabled) {
+    applyChromaKeyToPixels(pixels, chromaKeyColor, chromaKeyTolerance, chromaKeySoftness);
+  }
+  applyColorControlsToPixels(pixels, brightness, contrast, saturation, hueShiftDegrees);
+}
+
+void applyCueVisualEffectsToPixels(std::vector<std::uint8_t>& pixels, const Cue& cue) {
+  applyCueVisualEffectsToPixels(
+    pixels,
+    cue.chromaKeyEnabled,
+    cue.chromaKeyColor,
+    cue.chromaKeyTolerance,
+    cue.chromaKeySoftness,
+    cue.brightness,
+    cue.contrast,
+    cue.saturation,
+    cue.hueShift
+  );
+}
+
 SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
   return {
     rect.x + amount,
@@ -465,6 +907,71 @@ std::string toLower(std::string value) {
     return static_cast<char>(std::tolower(ch));
   });
   return value;
+}
+
+bool endsWith(const std::string& value, const std::string& suffix) {
+  return value.size() >= suffix.size() &&
+         value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+std::string normalizePatternTypeId(std::string value) {
+  value = toLower(trim(std::move(value)));
+  if (value.rfind("pattern://", 0) == 0) {
+    value = value.substr(10);
+  }
+  std::replace(value.begin(), value.end(), '_', '-');
+  if (value == "colourbars" || value == "colorbars" || value == "smpte75") {
+    value = "smpte-bars";
+  } else if (value == "kawaii" || value == "kawaii-pocket") {
+    value = "pocket-test";
+  } else if (value == "pocket-daytime" || value == "pocket-sunny") {
+    value = "pocket-day";
+  } else if (value == "pocket-dusk" || value == "pocket-golden") {
+    value = "pocket-sunset";
+  } else if (value == "pocket-moon" || value == "pocket-evening") {
+    value = "pocket-night";
+  } else if (value == "pocket-rain" || value == "pocket-tempest") {
+    value = "pocket-storm";
+  } else if (value == "smpte-bars-animated") {
+    value = "smpte-bars-motion";
+  } else if (value == "crosshatch-animated") {
+    value = "crosshatch-motion";
+  } else if (value == "checkerboard-animated") {
+    value = "checkerboard-motion";
+  } else if (value == "full-white-animated") {
+    value = "full-white-motion";
+  } else if (value == "full-black-animated") {
+    value = "full-black-motion";
+  } else if (value == "full-red-animated") {
+    value = "full-red-motion";
+  } else if (value == "full-green-animated") {
+    value = "full-green-motion";
+  } else if (value == "full-blue-animated") {
+    value = "full-blue-motion";
+  }
+  return value;
+}
+
+std::string stripPatternMotionSuffix(std::string typeId) {
+  typeId = normalizePatternTypeId(std::move(typeId));
+  if (endsWith(typeId, "-motion")) {
+    typeId = typeId.substr(0, typeId.size() - 7);
+  }
+  return typeId;
+}
+
+bool patternTypeSupportsMotion(const std::string& typeId) {
+  std::string base = stripPatternMotionSuffix(typeId);
+  return base == "smpte-bars" || base == "crosshatch" || base == "checkerboard" ||
+         base == "full-white" || base == "full-black" || base == "full-red" ||
+         base == "full-green" || base == "full-blue";
+}
+
+bool patternTypeIsAnimated(const std::string& typeId) {
+  std::string normalized = normalizePatternTypeId(typeId);
+  return normalized.rfind("pocket-", 0) == 0 ||
+         normalized.find("kawaii") != std::string::npos ||
+         endsWith(normalized, "-motion");
 }
 
 std::string joinParts(const std::vector<std::string>& parts, size_t startIndex) {
@@ -756,6 +1263,39 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/FIND" || path == "/CUE/FIND") {
+    if (auto value = argString(0)) {
+      return "FIND " + *value;
+    }
+    return "FIND";
+  }
+  if (path == "/FIND/NEXT" || path == "/CUE/FIND/NEXT") {
+    return "FINDNEXT";
+  }
+  if (path == "/FIND/PREV" || path == "/CUE/FIND/PREV") {
+    return "FINDPREV";
+  }
+  if (path == "/FIND/TAKE" || path == "/CUE/FIND/TAKE") {
+    if (auto value = argString(0)) {
+      return "FINDTAKE " + *value;
+    }
+    return "FINDTAKE";
+  }
+  if (path == "/FIND/CLEAR" || path == "/CUE/FIND/CLEAR") {
+    return "FINDCLEAR";
+  }
+  if (path == "/RENUMBER" || path == "/CUE/RENUMBER" || path == "/CUE/AUTOID") {
+    if (message.args.empty()) {
+      return "RENUMBER";
+    }
+    std::string output = "RENUMBER";
+    for (size_t i = 0; i < message.args.size(); ++i) {
+      if (auto value = argString(i)) {
+        output += " " + *value;
+      }
+    }
+    return output;
+  }
   if (path == "/DECK") {
     if (auto value = argString(0)) {
       return "DECK " + *value;
@@ -834,6 +1374,30 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/SOURCE") {
+    if (auto value = argString(0)) {
+      return "SOURCE " + *value;
+    }
+    return "SOURCE";
+  }
+  if (path == "/SOURCE/WINDOW") {
+    if (auto value = argString(0)) {
+      return "SOURCE WINDOW " + *value;
+    }
+    return "SOURCE WINDOW";
+  }
+  if (path == "/SOURCE/CAMERA") {
+    if (auto value = argString(0)) {
+      return "SOURCE CAMERA " + *value;
+    }
+    return "SOURCE CAMERA";
+  }
+  if (path == "/SOURCE/SYPHON" || path == "/SOURCE/SPOUT") {
+    if (auto value = argString(0)) {
+      return "SOURCE SYPHON " + *value;
+    }
+    return "SOURCE SYPHON";
+  }
   if (path == "/IN") {
     if (auto value = argString(0)) {
       return "IN " + *value;
@@ -870,6 +1434,18 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
   if (path == "/TIMECODE/FPS") {
     if (auto value = argString(0)) {
       return "TIMECODE FPS " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/JAM") {
+    if (auto value = argToggleWord(0)) {
+      return "TIMECODE JAM " + *value;
+    }
+    return std::nullopt;
+  }
+  if (path == "/TIMECODE/FREEWHEEL") {
+    if (auto value = argString(0)) {
+      return "TIMECODE FREEWHEEL " + *value;
     }
     return std::nullopt;
   }
@@ -1047,7 +1623,14 @@ class MediaEngine;
 // Phased startup for browser cues via virtual framebuffer.
 enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
 
-struct DeckRuntime {
+struct OutputRuntime {
+  struct CapturedFrame {
+    int width = 0;
+    int height = 0;
+    Uint64 capturedAtMs = 0;
+    std::vector<std::uint8_t> pixels;
+  };
+
   SDL_Window* outputWindow = nullptr;
   SDL_Renderer* outputRenderer = nullptr;
   SDL_Texture* compositorTexture = nullptr;
@@ -1059,6 +1642,42 @@ struct DeckRuntime {
   std::map<int, int> layerBridgeTextureWidths;
   std::map<int, int> layerBridgeTextureHeights;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
+#ifndef _WIN32
+  FILE* streamPipe = nullptr;
+  int streamAudioPipeFd = -1;
+#endif
+  std::string streamAudioPipePath;
+  std::map<int, std::uint64_t> streamAudioReadSamplesByDeck;
+  double streamAudioSampleRemainder = 0.0;
+  std::map<int, std::uint64_t> ndiAudioReadSamplesByDeck;
+  double ndiAudioSampleRemainder = 0.0;
+  std::string streamSpec;
+  std::string streamCommand;
+  std::vector<std::uint8_t> streamFrameBuffer;
+  int streamFrameWidth = 0;
+  int streamFrameHeight = 0;
+  bool streamStartFailed = false;
+  CapturedFrame latestCapturedFrame;
+  std::deque<CapturedFrame> delayFrames;
+#if defined(PLAYBOY_HAS_NDI_SDK)
+  NDIlib_send_instance_t ndiSender = nullptr;
+  std::string ndiSenderName;
+  std::vector<std::uint8_t> ndiFrameBuffer;
+  NDIlib_send_instance_t ndiKeySender = nullptr;
+  std::string ndiKeySenderName;
+  std::vector<std::uint8_t> ndiKeyFrameBuffer;
+#endif
+  bool recoveryPausedByEscape = false;
+};
+
+struct DeckStreamAudioBuffer {
+  std::vector<std::int16_t> samples;
+  std::uint64_t droppedSamples = 0;
+};
+
+struct DeckRuntime {
+  SDL_Window* outputWindow = nullptr;
+  SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
   // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
@@ -1071,14 +1690,6 @@ struct DeckRuntime {
   Uint64 browserPhaseStartedAt = 0;
   int pendingBrowserW = 1280;
   int pendingBrowserH = 720;
-#if defined(PLAYBOY_HAS_NDI_SDK)
-  NDIlib_send_instance_t ndiSender = nullptr;
-  std::string ndiSenderName;
-  std::vector<std::uint8_t> ndiFrameBuffer;
-  NDIlib_send_instance_t ndiKeySender = nullptr;
-  std::string ndiKeySenderName;
-  std::vector<std::uint8_t> ndiKeyFrameBuffer;
-#endif
 };
 
 bool spawnDetachedProcess(ChildProcess& process, const std::vector<std::string>& args) {
@@ -1345,11 +1956,22 @@ void normalizeCueTiming(Cue& cue) {
 
 std::string defaultNdiSourceName(const Deck& deck, int index) {
   std::string base = deck.name.empty() ? deckDefaultName(index) : deck.name;
-  return "Playboy - " + base;
+  return "Deckboy - " + base;
 }
 
 std::string defaultNdiKeySourceName(const Deck& deck, int index) {
   return defaultNdiSourceName(deck, index) + " Key";
+}
+
+std::string defaultOutputNdiSourceName(const OutputTarget& output, int index) {
+  std::string base = trim(output.name).empty()
+    ? ("Output " + std::to_string(index + 1))
+    : output.name;
+  return "Deckboy Out - " + base;
+}
+
+std::string defaultOutputNdiKeySourceName(const OutputTarget& output, int index) {
+  return defaultOutputNdiSourceName(output, index) + " Key";
 }
 
 void normalizeDeck(Deck& deck, int index) {
@@ -1382,6 +2004,10 @@ void normalizeDeck(Deck& deck, int index) {
       cue.cropBottom = std::min(cue.cropBottom, maxVertical);
       cue.chromaKeyTolerance = std::clamp(cue.chromaKeyTolerance, 0.0f, 441.0f);
       cue.chromaKeySoftness = std::clamp(cue.chromaKeySoftness, 0.0f, 200.0f);
+      cue.brightness = std::clamp(cue.brightness, 0.0f, 2.0f);
+      cue.contrast = std::clamp(cue.contrast, 0.0f, 2.0f);
+      cue.saturation = std::clamp(cue.saturation, 0.0f, 2.0f);
+      cue.hueShift = std::clamp(cue.hueShift, -180.0f, 180.0f);
       if (cue.id.empty()) {
         cue.id = makeCueId(cue, index, cueIndex);
       }
@@ -1421,6 +2047,9 @@ void normalizeDeck(Deck& deck, int index) {
   if (!std::isfinite(deck.timecodeFps) || deck.timecodeFps < 1.0) {
     deck.timecodeFps = 30.0;
   }
+  deck.timecodeFreewheelSeconds = std::clamp(
+    std::isfinite(deck.timecodeFreewheelSeconds) ? deck.timecodeFreewheelSeconds : 1.0,
+    0.0, 10.0);
   if (!std::isfinite(deck.timecodeCurrentSeconds) || deck.timecodeCurrentSeconds < 0.0) {
     deck.timecodeCurrentSeconds = 0.0;
   }
@@ -1428,6 +2057,489 @@ void normalizeDeck(Deck& deck, int index) {
     deck.timecodeLastSeconds = deck.timecodeCurrentSeconds;
   }
   deck.timecodeDirty = false;
+}
+
+std::string outputDefaultName(int index) {
+  return "Output " + std::to_string(index + 1);
+}
+
+std::string makeOutputId(const OutputTarget& output, int outputIndex) {
+  std::string seed =
+    output.name + "|" +
+    std::to_string(output.hostDeckIndex) + "|" +
+    std::to_string(output.displayIndex) + "|" +
+    std::to_string(outputIndex);
+  size_t hashValue = std::hash<std::string> {}(seed);
+  std::ostringstream outputId;
+  outputId << "out-" << std::hex << std::nouppercase << hashValue;
+  return outputId.str();
+}
+
+std::string makeLayerAssignmentId(const LayerAssignment& assignment, int assignmentIndex) {
+  std::string seed =
+    std::to_string(assignment.deckIndex) + "|" +
+    std::to_string(assignment.outputIndex) + "|" +
+    std::to_string(assignment.layerIndex) + "|" +
+    std::to_string(assignmentIndex);
+  size_t hashValue = std::hash<std::string> {}(seed);
+  std::ostringstream layerId;
+  layerId << "lay-" << std::hex << std::nouppercase << hashValue;
+  return layerId.str();
+}
+
+std::string groupPresetDefaultName(int index) {
+  return "Master Cue " + std::to_string(index + 1);
+}
+
+std::string normalizeOutputStreamProtocol(std::string protocol) {
+  std::transform(protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  if (protocol == "rtmp") {
+    return "rtmp";
+  }
+  return "srt";
+}
+
+std::string normalizeOutputType(std::string outputType) {
+  std::transform(outputType.begin(), outputType.end(), outputType.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  if (outputType == "stream") {
+    return "stream";
+  }
+  return "window";
+}
+
+std::string normalizeOutputColorSpace(std::string colorSpace) {
+  colorSpace = toLower(trim(colorSpace));
+  if (colorSpace == "709" || colorSpace == "bt709" || colorSpace == "rec709" || colorSpace == "rec-709") {
+    return "bt709";
+  }
+  if (colorSpace == "srgb" || colorSpace == "rgb") {
+    return "srgb";
+  }
+  return "auto";
+}
+
+std::string defaultOutputStreamUrl(const std::string& protocol, int outputIndex) {
+  int normalizedIndex = std::max(0, outputIndex) + 1;
+  if (normalizeOutputStreamProtocol(protocol) == "rtmp") {
+    return "rtmp://127.0.0.1/live/output" + std::to_string(normalizedIndex);
+  }
+  return "srt://127.0.0.1:9000?mode=caller&transtype=live&streamid=output" + std::to_string(normalizedIndex);
+}
+
+int resolveLegacyOutputHostIndexForProject(const Project& project, int deckIndex) {
+  if (deckIndex < 0 || deckIndex >= static_cast<int>(project.decks.size())) {
+    return deckIndex;
+  }
+  int current = deckIndex;
+  std::vector<bool> visited(project.decks.size(), false);
+  while (current >= 0 && current < static_cast<int>(project.decks.size())) {
+    if (visited[current]) {
+      return deckIndex;
+    }
+    visited[current] = true;
+    int next = project.decks[current].outputRouteDeckIndex;
+    if (next < 0 || next >= static_cast<int>(project.decks.size()) || next == current) {
+      return current;
+    }
+    current = next;
+  }
+  return deckIndex;
+}
+
+void normalizeProjectOutputsAndLayers(Project& project) {
+  int deckCount = static_cast<int>(project.decks.size());
+  if (deckCount <= 0) {
+    project.outputs.clear();
+    project.layerAssignments.clear();
+    project.focusedOutputIndex = 0;
+    return;
+  }
+
+  if (project.outputs.empty()) {
+    std::vector<int> hostDeckOrder;
+    hostDeckOrder.reserve(project.decks.size());
+    auto addHost = [&](int hostDeckIndex) {
+      if (std::find(hostDeckOrder.begin(), hostDeckOrder.end(), hostDeckIndex) == hostDeckOrder.end()) {
+        hostDeckOrder.push_back(hostDeckIndex);
+      }
+    };
+    for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
+      addHost(resolveLegacyOutputHostIndexForProject(project, deckIndex));
+    }
+    if (hostDeckOrder.empty()) {
+      hostDeckOrder.push_back(0);
+    }
+    project.outputs.clear();
+    for (size_t i = 0; i < hostDeckOrder.size(); ++i) {
+      OutputTarget output;
+      output.name = outputDefaultName(static_cast<int>(i));
+      output.hostDeckIndex = std::clamp(hostDeckOrder[i], 0, deckCount - 1);
+      output.displayIndex = std::max(0, project.decks[output.hostDeckIndex].outputDisplayIndex);
+      output.enabled = false;
+      project.outputs.push_back(output);
+    }
+  }
+
+  auto dedupeOutputId = [](std::unordered_set<std::string>& usedIds, const std::string& preferred) {
+    std::string normalized = trim(preferred);
+    if (normalized.empty()) {
+      normalized = "out";
+    }
+    std::string base = normalized;
+    int dedupe = 2;
+    while (usedIds.find(normalized) != usedIds.end()) {
+      normalized = base + "-" + std::to_string(dedupe++);
+    }
+    usedIds.insert(normalized);
+    return normalized;
+  };
+
+  for (size_t i = 0; i < project.outputs.size(); ++i) {
+    OutputTarget& output = project.outputs[i];
+    if (output.name.empty()) {
+      output.name = outputDefaultName(static_cast<int>(i));
+    }
+    output.hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    output.displayIndex = std::max(0, output.displayIndex);
+    output.outputType = normalizeOutputType(output.outputType);
+    output.mirrorSourceOutputIndex = std::clamp(output.mirrorSourceOutputIndex, -1, static_cast<int>(project.outputs.size()) - 1);
+    if (output.outputType != "stream") {
+      output.mirrorSourceOutputIndex = -1;
+    }
+    if (output.mirrorSourceOutputIndex == static_cast<int>(i)) {
+      output.mirrorSourceOutputIndex = -1;
+    }
+    output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
+    output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
+    output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    if (trim(output.streamUrl).empty()) {
+      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(i));
+    }
+    if (output.ndiSourceName.empty()) {
+      output.ndiSourceName = defaultOutputNdiSourceName(output, static_cast<int>(i));
+    }
+    if (output.ndiKeySourceName.empty()) {
+      output.ndiKeySourceName = defaultOutputNdiKeySourceName(output, static_cast<int>(i));
+    }
+    if (!output.ndiEnabled) {
+      output.ndiKeyEnabled = false;
+    }
+  }
+
+  {
+    std::unordered_set<std::string> usedOutputIds;
+    for (size_t i = 0; i < project.outputs.size(); ++i) {
+      OutputTarget& output = project.outputs[i];
+      if (trim(output.outputId).empty()) {
+        output.outputId = makeOutputId(output, static_cast<int>(i));
+      }
+      output.outputId = dedupeOutputId(usedOutputIds, output.outputId);
+    }
+  }
+  project.focusedOutputIndex = std::clamp(project.focusedOutputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
+
+  if (project.layerAssignments.empty()) {
+    for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
+      int hostDeckIndex = resolveLegacyOutputHostIndexForProject(project, deckIndex);
+      int outputIndex = 0;
+      auto it = std::find_if(project.outputs.begin(), project.outputs.end(), [&](const OutputTarget& output) {
+        return output.hostDeckIndex == hostDeckIndex;
+      });
+      if (it != project.outputs.end()) {
+        outputIndex = static_cast<int>(it - project.outputs.begin());
+      }
+      LayerAssignment assignment;
+      assignment.deckIndex = deckIndex;
+      assignment.outputIndex = outputIndex;
+      assignment.outputId = project.outputs[outputIndex].outputId;
+      assignment.layerIndex = std::clamp(project.decks[deckIndex].outputLayerIndex, 0, 255);
+      assignment.enabled = true;
+      project.layerAssignments.push_back(assignment);
+    }
+  }
+
+  std::map<std::string, int> outputIndexById;
+  for (int outputIndex = 0; outputIndex < static_cast<int>(project.outputs.size()); ++outputIndex) {
+    const std::string id = trim(project.outputs[outputIndex].outputId);
+    if (!id.empty()) {
+      outputIndexById[id] = outputIndex;
+    }
+  }
+
+  std::vector<LayerAssignment> normalizedAssignments;
+  normalizedAssignments.reserve(project.layerAssignments.size());
+  for (const auto& assignment : project.layerAssignments) {
+    if (assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
+      continue;
+    }
+    int resolvedOutputIndex = -1;
+    std::string outputId = trim(assignment.outputId);
+    if (!outputId.empty()) {
+      auto it = outputIndexById.find(outputId);
+      if (it != outputIndexById.end()) {
+        resolvedOutputIndex = it->second;
+      }
+    }
+    if (resolvedOutputIndex < 0 &&
+        assignment.outputIndex >= 0 &&
+        assignment.outputIndex < static_cast<int>(project.outputs.size())) {
+      resolvedOutputIndex = assignment.outputIndex;
+    }
+    if (resolvedOutputIndex < 0 || resolvedOutputIndex >= static_cast<int>(project.outputs.size())) {
+      continue;
+    }
+    LayerAssignment normalized = assignment;
+    normalized.outputIndex = resolvedOutputIndex;
+    normalized.outputId = project.outputs[resolvedOutputIndex].outputId;
+    normalized.layerIndex = std::clamp(normalized.layerIndex, 0, 255);
+    normalizedAssignments.push_back(normalized);
+  }
+  if (normalizedAssignments.empty()) {
+    LayerAssignment fallback;
+    fallback.deckIndex = 0;
+    fallback.outputIndex = 0;
+    fallback.outputId = project.outputs[0].outputId;
+    fallback.layerIndex = 0;
+    fallback.enabled = true;
+    normalizedAssignments.push_back(fallback);
+  }
+  project.layerAssignments = std::move(normalizedAssignments);
+
+  {
+    std::unordered_set<std::string> usedLayerIds;
+    for (int assignmentIndex = 0; assignmentIndex < static_cast<int>(project.layerAssignments.size()); ++assignmentIndex) {
+      LayerAssignment& assignment = project.layerAssignments[assignmentIndex];
+      if (trim(assignment.layerId).empty()) {
+        assignment.layerId = makeLayerAssignmentId(assignment, assignmentIndex);
+      }
+      assignment.layerId = dedupeOutputId(usedLayerIds, assignment.layerId);
+    }
+  }
+
+  auto ensureOutputIndexForHost = [&](int hostDeckIndex) -> int {
+    int clampedHost = std::clamp(hostDeckIndex, 0, deckCount - 1);
+    auto it = std::find_if(project.outputs.begin(), project.outputs.end(), [&](const OutputTarget& output) {
+      return output.hostDeckIndex == clampedHost;
+    });
+    if (it != project.outputs.end()) {
+      return static_cast<int>(it - project.outputs.begin());
+    }
+    OutputTarget created;
+    created.name = outputDefaultName(static_cast<int>(project.outputs.size()));
+    created.hostDeckIndex = clampedHost;
+    created.displayIndex = std::max(0, project.decks[clampedHost].outputDisplayIndex);
+    created.enabled = true;
+    created.outputId = makeOutputId(created, static_cast<int>(project.outputs.size()));
+    project.outputs.push_back(created);
+    return static_cast<int>(project.outputs.size()) - 1;
+  };
+
+  std::vector<int> primaryAssignmentIndex(deckCount, -1);
+  for (int i = 0; i < static_cast<int>(project.layerAssignments.size()); ++i) {
+    const auto& assignment = project.layerAssignments[i];
+    if (!assignment.enabled || assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
+      continue;
+    }
+    int existing = primaryAssignmentIndex[assignment.deckIndex];
+    if (existing < 0 ||
+        assignment.layerIndex < project.layerAssignments[existing].layerIndex) {
+      primaryAssignmentIndex[assignment.deckIndex] = i;
+    }
+  }
+  for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
+    if (primaryAssignmentIndex[deckIndex] >= 0) {
+      continue;
+    }
+    int hostDeckIndex = resolveLegacyOutputHostIndexForProject(project, deckIndex);
+    int outputIndex = ensureOutputIndexForHost(hostDeckIndex);
+    LayerAssignment synthesized;
+    synthesized.deckIndex = deckIndex;
+    synthesized.outputIndex = outputIndex;
+    synthesized.outputId = project.outputs[outputIndex].outputId;
+    synthesized.layerIndex = std::clamp(project.decks[deckIndex].outputLayerIndex, 0, 255);
+    synthesized.enabled = true;
+    synthesized.layerId = makeLayerAssignmentId(synthesized, static_cast<int>(project.layerAssignments.size()));
+    project.layerAssignments.push_back(synthesized);
+    primaryAssignmentIndex[deckIndex] = static_cast<int>(project.layerAssignments.size()) - 1;
+  }
+
+  for (size_t i = 0; i < project.outputs.size(); ++i) {
+    OutputTarget& output = project.outputs[i];
+    if (output.name.empty()) {
+      output.name = outputDefaultName(static_cast<int>(i));
+    }
+    output.hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    output.displayIndex = std::max(0, output.displayIndex);
+    output.outputType = normalizeOutputType(output.outputType);
+    output.mirrorSourceOutputIndex = std::clamp(output.mirrorSourceOutputIndex, -1, static_cast<int>(project.outputs.size()) - 1);
+    if (output.outputType != "stream") {
+      output.mirrorSourceOutputIndex = -1;
+    }
+    if (output.mirrorSourceOutputIndex == static_cast<int>(i)) {
+      output.mirrorSourceOutputIndex = -1;
+    }
+    output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
+    output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
+    output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    if (trim(output.streamUrl).empty()) {
+      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(i));
+    }
+    if (trim(output.outputId).empty()) {
+      output.outputId = makeOutputId(output, static_cast<int>(i));
+    }
+  }
+  project.focusedOutputIndex = std::clamp(project.focusedOutputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
+
+  {
+    std::unordered_set<std::string> usedOutputIds;
+    for (size_t i = 0; i < project.outputs.size(); ++i) {
+      OutputTarget& output = project.outputs[i];
+      output.outputId = dedupeOutputId(usedOutputIds, output.outputId);
+    }
+    for (auto& assignment : project.layerAssignments) {
+      int outputIndex = std::clamp(assignment.outputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
+      assignment.outputIndex = outputIndex;
+      assignment.outputId = project.outputs[outputIndex].outputId;
+    }
+  }
+
+  std::vector<bool> hostDisplayAssigned(deckCount, false);
+  for (const auto& output : project.outputs) {
+    if (!output.enabled) {
+      continue;
+    }
+    int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    if (!hostDisplayAssigned[hostDeckIndex]) {
+      project.decks[hostDeckIndex].outputDisplayIndex = std::max(0, output.displayIndex);
+      hostDisplayAssigned[hostDeckIndex] = true;
+    }
+  }
+
+  for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
+    int primaryIndex = primaryAssignmentIndex[deckIndex];
+    if (primaryIndex < 0 || primaryIndex >= static_cast<int>(project.layerAssignments.size())) {
+      project.decks[deckIndex].outputRouteDeckIndex = deckIndex;
+      project.decks[deckIndex].outputLayerIndex = 0;
+      continue;
+    }
+    const LayerAssignment& primary = project.layerAssignments[primaryIndex];
+    const OutputTarget& output = project.outputs[primary.outputIndex];
+    project.decks[deckIndex].outputRouteDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    project.decks[deckIndex].outputLayerIndex = std::clamp(primary.layerIndex, 0, 255);
+  }
+}
+
+bool outputHasExplicitNdiSettings(const OutputTarget& output, int outputIndex) {
+  std::string fillName = trim(output.ndiSourceName);
+  std::string keyName = trim(output.ndiKeySourceName);
+  std::string defaultFill = defaultOutputNdiSourceName(output, outputIndex);
+  std::string defaultKey = defaultOutputNdiKeySourceName(output, outputIndex);
+  bool fillCustom = !fillName.empty() && fillName != defaultFill;
+  bool keyCustom = !keyName.empty() && keyName != defaultKey;
+  return output.ndiEnabled || output.ndiKeyEnabled || fillCustom || keyCustom;
+}
+
+void migrateLegacyDeckNdiToOutputs(Project& project) {
+  int deckCount = static_cast<int>(project.decks.size());
+  int outputCount = static_cast<int>(project.outputs.size());
+  if (deckCount <= 0 || outputCount <= 0) {
+    return;
+  }
+
+  std::vector<int> primaryDeckForOutput(outputCount, -1);
+  std::vector<int> bestLayerForOutput(outputCount, std::numeric_limits<int>::max());
+  for (const auto& assignment : project.layerAssignments) {
+    if (!assignment.enabled) {
+      continue;
+    }
+    if (assignment.outputIndex < 0 || assignment.outputIndex >= outputCount) {
+      continue;
+    }
+    if (assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
+      continue;
+    }
+    int& currentDeck = primaryDeckForOutput[assignment.outputIndex];
+    int& currentLayer = bestLayerForOutput[assignment.outputIndex];
+    bool shouldReplace = assignment.layerIndex < currentLayer
+      || (assignment.layerIndex == currentLayer && (currentDeck < 0 || assignment.deckIndex < currentDeck));
+    if (shouldReplace) {
+      currentDeck = assignment.deckIndex;
+      currentLayer = assignment.layerIndex;
+    }
+  }
+
+  for (int outputIndex = 0; outputIndex < outputCount; ++outputIndex) {
+    OutputTarget& output = project.outputs[outputIndex];
+    if (outputHasExplicitNdiSettings(output, outputIndex)) {
+      continue;
+    }
+
+    int sourceDeckIndex = primaryDeckForOutput[outputIndex];
+    if (sourceDeckIndex < 0 || sourceDeckIndex >= deckCount) {
+      sourceDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
+    }
+    const Deck& deck = project.decks[sourceDeckIndex];
+    std::string legacyFillName = trim(deck.ndiSourceName);
+    std::string legacyKeyName = trim(deck.ndiKeySourceName);
+    bool hasLegacy = deck.ndiEnabled || deck.ndiKeyEnabled || !legacyFillName.empty() || !legacyKeyName.empty();
+    if (!hasLegacy) {
+      continue;
+    }
+
+    output.ndiEnabled = deck.ndiEnabled || deck.ndiKeyEnabled;
+    output.ndiKeyEnabled = deck.ndiKeyEnabled;
+    if (!legacyFillName.empty()) {
+      output.ndiSourceName = legacyFillName;
+    }
+    if (!legacyKeyName.empty()) {
+      output.ndiKeySourceName = legacyKeyName;
+    }
+    if (trim(output.ndiSourceName).empty()) {
+      output.ndiSourceName = defaultOutputNdiSourceName(output, outputIndex);
+    }
+    if (trim(output.ndiKeySourceName).empty()) {
+      output.ndiKeySourceName = defaultOutputNdiKeySourceName(output, outputIndex);
+    }
+    if (!output.ndiEnabled) {
+      output.ndiKeyEnabled = false;
+    }
+  }
+}
+
+void normalizeProjectGroupPresets(Project& project) {
+  int deckCount = static_cast<int>(project.decks.size());
+  if (deckCount <= 0) {
+    project.groupPresets.clear();
+    project.focusedGroupPresetIndex = 0;
+    return;
+  }
+  for (size_t presetIndex = 0; presetIndex < project.groupPresets.size(); ++presetIndex) {
+    GroupPreset& preset = project.groupPresets[presetIndex];
+    if (preset.name.empty()) {
+      preset.name = groupPresetDefaultName(static_cast<int>(presetIndex));
+    }
+    if (static_cast<int>(preset.slots.size()) < deckCount) {
+      preset.slots.resize(deckCount);
+    } else if (static_cast<int>(preset.slots.size()) > deckCount) {
+      preset.slots.resize(deckCount);
+    }
+  }
+  if (project.groupPresets.empty()) {
+    project.focusedGroupPresetIndex = 0;
+  } else {
+    project.focusedGroupPresetIndex = std::clamp(
+      project.focusedGroupPresetIndex,
+      0,
+      static_cast<int>(project.groupPresets.size()) - 1);
+  }
 }
 
 void normalizeProject(Project& project) {
@@ -1445,6 +2557,9 @@ void normalizeProject(Project& project) {
     }
     deck.outputLayerIndex = std::clamp(deck.outputLayerIndex, 0, 255);
   }
+  normalizeProjectOutputsAndLayers(project);
+  migrateLegacyDeckNdiToOutputs(project);
+  normalizeProjectGroupPresets(project);
   project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
   project.outputRenderWidth = std::clamp(project.outputRenderWidth, 320, 7680);
   project.outputRenderHeight = std::clamp(project.outputRenderHeight, 180, 4320);
@@ -1458,6 +2573,11 @@ void normalizeProject(Project& project) {
   project.outputCanvasWidth = std::clamp(project.outputCanvasWidth, 320, 16384);
   project.outputCanvasHeight = std::clamp(project.outputCanvasHeight, 180, 16384);
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
+  project.jumpMode = normalizeJumpModeToken(project.jumpMode);
+  project.panicProfile = normalizePanicProfileToken(project.panicProfile);
+  project.panicFadeSeconds = std::clamp(
+    std::isfinite(project.panicFadeSeconds) ? project.panicFadeSeconds : 0.9,
+    0.1, 5.0);
 }
 
 bool isImagePath(const fs::path& path) {
@@ -1575,6 +2695,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
 
   output << "title\t" << escapeField(project.title) << '\n';
   output << "focused_deck\t" << project.focusedDeckIndex << '\n';
+  output << "focused_output\t" << project.focusedOutputIndex << '\n';
+  output << "focused_group\t" << project.focusedGroupPresetIndex << '\n';
   output << "layer_names";
   for (const auto& name : project.layerNames) {
     output << '\t' << escapeField(name);
@@ -1583,6 +2705,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
+  output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
+  output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
+  output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
+  output << "panic_fade_seconds\t" << project.panicFadeSeconds << '\n';
+  output << "panic_auto_restore\t" << (project.panicAutoRestore ? 1 : 0) << '\n';
   output << "master_volume\t" << project.masterVolume << '\n';
   output << "master_dimmer\t" << project.masterDimmer << '\n';
   output << "output_follow_display\t" << (project.outputFollowDisplay ? 1 : 0) << '\n';
@@ -1593,6 +2720,61 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "output_canvas_enabled\t" << (project.outputCanvasEnabled ? 1 : 0) << '\n';
   output << "output_canvas_width\t" << project.outputCanvasWidth << '\n';
   output << "output_canvas_height\t" << project.outputCanvasHeight << '\n';
+  for (size_t outputIndex = 0; outputIndex < project.outputs.size(); ++outputIndex) {
+    const auto& outputTarget = project.outputs[outputIndex];
+    output
+      << "output_target\t"
+      << outputIndex << '\t'
+      << escapeField(outputTarget.name) << '\t'
+      << outputTarget.hostDeckIndex << '\t'
+      << outputTarget.displayIndex << '\t'
+      << (outputTarget.enabled ? 1 : 0) << '\t'
+      << (outputTarget.streamEnabled ? 1 : 0) << '\t'
+      << escapeField(outputTarget.streamProtocol) << '\t'
+      << escapeField(outputTarget.streamUrl) << '\t'
+      << outputTarget.streamBitrateKbps << '\t'
+      << (outputTarget.ndiEnabled ? 1 : 0) << '\t'
+      << escapeField(outputTarget.ndiSourceName) << '\t'
+      << (outputTarget.ndiKeyEnabled ? 1 : 0) << '\t'
+      << escapeField(outputTarget.ndiKeySourceName) << '\t'
+      << escapeField(outputTarget.outputType) << '\t'
+      << outputTarget.mirrorSourceOutputIndex << '\t'
+      << escapeField(outputTarget.outputId) << '\t'
+      << outputTarget.outputAlpha << '\t'
+      << outputTarget.outputDelayMs << '\t'
+      << (outputTarget.outputTimeOverlayEnabled ? 1 : 0) << '\t'
+      << escapeField(outputTarget.outputColorSpace)
+      << '\n';
+  }
+  for (const auto& assignment : project.layerAssignments) {
+    output
+      << "layer_assignment\t"
+      << assignment.deckIndex << '\t'
+      << assignment.outputIndex << '\t'
+      << assignment.layerIndex << '\t'
+      << (assignment.enabled ? 1 : 0) << '\t'
+      << escapeField(assignment.outputId) << '\t'
+      << escapeField(assignment.layerId)
+      << '\n';
+  }
+  for (size_t presetIndex = 0; presetIndex < project.groupPresets.size(); ++presetIndex) {
+    const auto& preset = project.groupPresets[presetIndex];
+    output
+      << "group_preset\t"
+      << presetIndex << '\t'
+      << escapeField(preset.name)
+      << '\n';
+    for (size_t deckIndex = 0; deckIndex < preset.slots.size(); ++deckIndex) {
+      const auto& slot = preset.slots[deckIndex];
+      output
+        << "group_slot\t"
+        << presetIndex << '\t'
+        << deckIndex << '\t'
+        << (slot.bypass ? 1 : 0) << '\t'
+        << escapeField(slot.cueId)
+        << '\n';
+    }
+  }
 
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
@@ -1635,7 +2817,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.edgeBlendTop << '\t'
       << deck.edgeBlendBottom << '\t'
       << deck.outputRouteDeckIndex << '\t'
-      << deck.outputLayerIndex
+      << deck.outputLayerIndex << '\t'
+      << deck.timecodeFreewheelSeconds << '\t'
+      << (deck.timecodeJamSyncEnabled ? 1 : 0)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1697,6 +2881,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << colorToHex(cue.chromaKeyColor)
         << '\t' << cue.chromaKeyTolerance
         << '\t' << cue.chromaKeySoftness
+        << '\t' << cue.brightness
+        << '\t' << cue.contrast
+        << '\t' << cue.saturation
+        << '\t' << cue.hueShift
         << '\n';
     }
   }
@@ -1714,6 +2902,9 @@ Project loadProject(const fs::path& projectFile) {
 
   project.decks.clear();
   project.decks.push_back(Deck {});
+  project.outputs.clear();
+  project.layerAssignments.clear();
+  project.groupPresets.clear();
 
   auto ensureDeck = [&](int deckIndex) -> Deck& {
     int normalizedIndex = std::max(0, deckIndex);
@@ -1739,6 +2930,10 @@ Project loadProject(const fs::path& projectFile) {
       project.title = safeString(fields, 1);
     } else if (fields[0] == "focused_deck") {
       project.focusedDeckIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "focused_output") {
+      project.focusedOutputIndex = safeInt(fields, 1, 0);
+    } else if (fields[0] == "focused_group") {
+      project.focusedGroupPresetIndex = safeInt(fields, 1, 0);
     } else if (fields[0] == "layer_names") {
       project.layerNames.clear();
       for (size_t i = 1; i < fields.size(); ++i) {
@@ -1761,6 +2956,16 @@ Project loadProject(const fs::path& projectFile) {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "jump_mode") {
+      project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
+    } else if (fields[0] == "jump_transition") {
+      project.jumpTransitionEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "panic_profile") {
+      project.panicProfile = normalizePanicProfileToken(safeString(fields, 1));
+    } else if (fields[0] == "panic_fade_seconds") {
+      project.panicFadeSeconds = safeDouble(fields, 1, 0.9);
+    } else if (fields[0] == "panic_auto_restore") {
+      project.panicAutoRestore = safeBool(fields, 1, false);
     } else if (fields[0] == "master_volume") {
       project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
     } else if (fields[0] == "master_dimmer") {
@@ -1781,6 +2986,74 @@ Project loadProject(const fs::path& projectFile) {
       project.outputCanvasWidth = safeInt(fields, 1, 3840);
     } else if (fields[0] == "output_canvas_height") {
       project.outputCanvasHeight = safeInt(fields, 1, 2160);
+    } else if (fields[0] == "output_target") {
+      int outputIndex = safeInt(fields, 1, static_cast<int>(project.outputs.size()));
+      int normalizedIndex = std::max(0, outputIndex);
+      while (normalizedIndex >= static_cast<int>(project.outputs.size())) {
+        project.outputs.push_back(OutputTarget {});
+      }
+      OutputTarget& outputTarget = project.outputs[normalizedIndex];
+      outputTarget.name = safeString(fields, 2);
+      outputTarget.hostDeckIndex = safeInt(fields, 3, 0);
+      outputTarget.displayIndex = safeInt(fields, 4, 0);
+      outputTarget.enabled = safeBool(fields, 5, false);
+      outputTarget.streamEnabled = safeBool(fields, 6, false);
+      outputTarget.streamProtocol = safeString(fields, 7);
+      outputTarget.streamUrl = safeString(fields, 8);
+      outputTarget.streamBitrateKbps = safeInt(fields, 9, 6000);
+      if (fields.size() >= 17) {
+        outputTarget.ndiEnabled = safeBool(fields, 10, false);
+        outputTarget.ndiSourceName = safeString(fields, 11);
+        outputTarget.ndiKeyEnabled = safeBool(fields, 12, false);
+        outputTarget.ndiKeySourceName = safeString(fields, 13);
+        outputTarget.outputType = safeString(fields, 14);
+        outputTarget.mirrorSourceOutputIndex = safeInt(fields, 15, -1);
+        outputTarget.outputId = safeString(fields, 16);
+        if (fields.size() >= 21) {
+          outputTarget.outputAlpha = static_cast<float>(safeDouble(fields, 17, 1.0));
+          outputTarget.outputDelayMs = safeInt(fields, 18, 0);
+          outputTarget.outputTimeOverlayEnabled = safeBool(fields, 19, false);
+          outputTarget.outputColorSpace = safeString(fields, 20);
+        }
+      } else {
+        // Backward compatibility with older 13-column output_target lines.
+        outputTarget.outputType = safeString(fields, 10);
+        outputTarget.mirrorSourceOutputIndex = safeInt(fields, 11, -1);
+        outputTarget.outputId = safeString(fields, 12);
+      }
+    } else if (fields[0] == "layer_assignment") {
+      LayerAssignment assignment;
+      assignment.deckIndex = safeInt(fields, 1, 0);
+      assignment.outputIndex = safeInt(fields, 2, 0);
+      assignment.layerIndex = safeInt(fields, 3, 0);
+      assignment.enabled = safeBool(fields, 4, true);
+      assignment.outputId = safeString(fields, 5);
+      assignment.layerId = safeString(fields, 6);
+      project.layerAssignments.push_back(assignment);
+    } else if (fields[0] == "group_preset") {
+      int presetIndex = safeInt(fields, 1, static_cast<int>(project.groupPresets.size()));
+      int normalizedPresetIndex = std::max(0, presetIndex);
+      while (normalizedPresetIndex >= static_cast<int>(project.groupPresets.size())) {
+        project.groupPresets.push_back(GroupPreset {});
+      }
+      GroupPreset& preset = project.groupPresets[normalizedPresetIndex];
+      preset.name = safeString(fields, 2);
+    } else if (fields[0] == "group_slot") {
+      int presetIndex = safeInt(fields, 1, 0);
+      int deckIndex = safeInt(fields, 2, 0);
+      if (presetIndex < 0 || deckIndex < 0) {
+        continue;
+      }
+      while (presetIndex >= static_cast<int>(project.groupPresets.size())) {
+        project.groupPresets.push_back(GroupPreset {});
+      }
+      GroupPreset& preset = project.groupPresets[presetIndex];
+      if (deckIndex >= static_cast<int>(preset.slots.size())) {
+        preset.slots.resize(deckIndex + 1);
+      }
+      GroupSlot& slot = preset.slots[deckIndex];
+      slot.bypass = safeBool(fields, 3, false);
+      slot.cueId = safeString(fields, 4);
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -1805,6 +3078,10 @@ Project loadProject(const fs::path& projectFile) {
       ensureDeck(0).timecodeRunEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "timecode_trigger") {
       ensureDeck(0).timecodeTriggerEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "timecode_jam") {
+      ensureDeck(0).timecodeJamSyncEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "timecode_freewheel") {
+      ensureDeck(0).timecodeFreewheelSeconds = safeDouble(fields, 1, 1.0);
     } else if (fields[0] == "timecode_fps") {
       ensureDeck(0).timecodeFps = safeDouble(fields, 1, 30.0);
     } else if (fields[0] == "timecode_current") {
@@ -1850,6 +3127,8 @@ Project loadProject(const fs::path& projectFile) {
       deck.edgeBlendBottom = static_cast<float>(safeDouble(fields, 36, 0.0));
       deck.outputRouteDeckIndex = safeInt(fields, 37, deckIndex);
       deck.outputLayerIndex = safeInt(fields, 38, 0);
+      deck.timecodeFreewheelSeconds = safeDouble(fields, 39, 1.0);
+      deck.timecodeJamSyncEnabled = safeBool(fields, 40, true);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -1871,6 +3150,9 @@ Project loadProject(const fs::path& projectFile) {
         kind == "image" ? CueKind::Image :
         kind == "pattern" ? CueKind::Pattern :
         kind == "browser" ? CueKind::Browser :
+        (kind == "window_source" || kind == "window") ? CueKind::WindowSource :
+        kind == "camera" ? CueKind::Camera :
+        (kind == "syphon" || kind == "spout") ? CueKind::Syphon :
         kind == "lower_third" ? CueKind::LowerThird :
         kind == "audio" ? CueKind::Audio :
         CueKind::Video;
@@ -1929,6 +3211,10 @@ Project loadProject(const fs::path& projectFile) {
       cue.chromaKeyColor = parseColor(safeString(fields, offset + 45));
       cue.chromaKeyTolerance = static_cast<float>(safeDouble(fields, offset + 46, 60.0));
       cue.chromaKeySoftness = static_cast<float>(safeDouble(fields, offset + 47, 20.0));
+      cue.brightness = std::clamp(static_cast<float>(safeDouble(fields, offset + 48, 1.0)), 0.0f, 2.0f);
+      cue.contrast = std::clamp(static_cast<float>(safeDouble(fields, offset + 49, 1.0)), 0.0f, 2.0f);
+      cue.saturation = std::clamp(static_cast<float>(safeDouble(fields, offset + 50, 1.0)), 0.0f, 2.0f);
+      cue.hueShift = std::clamp(static_cast<float>(safeDouble(fields, offset + 51, 0.0)), -180.0f, 180.0f);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -1955,6 +3241,8 @@ class MediaEngine {
 
   void stopAll() {
     stopDecoderThreads();
+    isBrowserCapturing_ = false;
+    isSourceCapturing_ = false;
     clearTexture();
     clearTransitionTexture();
     clearAudio();
@@ -1991,6 +3279,10 @@ class MediaEngine {
     chromaKeyColor_ = cue ? cue->chromaKeyColor : SDL_Color {0, 255, 0, 255};
     chromaKeyTolerance_ = cue ? cue->chromaKeyTolerance : 60.0f;
     chromaKeySoftness_ = cue ? cue->chromaKeySoftness : 20.0f;
+    brightness_ = cue ? std::clamp(cue->brightness, 0.0f, 2.0f) : 1.0f;
+    contrast_ = cue ? std::clamp(cue->contrast, 0.0f, 2.0f) : 1.0f;
+    saturation_ = cue ? std::clamp(cue->saturation, 0.0f, 2.0f) : 1.0f;
+    hueShift_ = cue ? std::clamp(cue->hueShift, -180.0f, 180.0f) : 0.0f;
     pausePoints_   = cue ? cue->pausePoints   : std::vector<double>{};
     nextPausePointIdx_ = 0;
     displayFrame_.reset();
@@ -2022,6 +3314,18 @@ class MediaEngine {
       return;
     }
 
+    if (isSourceCueKind(cue->kind)) {
+      loadSourceFrame(*cue);
+      duration_ = 0.0;
+      pausedPosition_ = 0.0;
+      currentPosition_ = 0.0;
+      state_ = TransportState::Paused;
+      if (autoplay) {
+        startSourceCapture(*cue);
+      }
+      return;
+    }
+
     if (cue->kind == CueKind::Browser || cue->kind == CueKind::LowerThird) {
       initStillTimer(*cue, autoplay);
       return;
@@ -2042,6 +3346,16 @@ class MediaEngine {
 
   void play() {
     if (!activeCue_) return;
+    if (isSourceCueKind(activeCue_->kind)) {
+      if (isSourceCapturing_) {
+        state_ = TransportState::Playing;
+        return;
+      }
+      if (startSourceCapture(*activeCue_)) {
+        state_ = TransportState::Playing;
+      }
+      return;
+    }
     bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
     if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
     if (state_ == TransportState::Playing) return;
@@ -2053,6 +3367,16 @@ class MediaEngine {
 
   void pause() {
     if (!activeCue_) return;
+    if (isSourceCueKind(activeCue_->kind)) {
+      if (isSourceCapturing_) {
+        stopDecoderThreads();
+      }
+      isSourceCapturing_ = false;
+      pausedPosition_ = 0.0;
+      currentPosition_ = 0.0;
+      state_ = TransportState::Paused;
+      return;
+    }
     bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;
     bool isTimedStill = !isAV && duration_ > 0.0;
     if (!isAV && !isTimedStill) return;
@@ -2068,6 +3392,14 @@ class MediaEngine {
 
   void toggle() {
     if (!activeCue_) return;
+    if (isSourceCueKind(activeCue_->kind)) {
+      if (isSourceCapturing_ || state_ == TransportState::Playing) {
+        pause();
+      } else {
+        play();
+      }
+      return;
+    }
     bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
     if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
     if (state_ == TransportState::Playing) { pause(); } else { play(); }
@@ -2075,6 +3407,17 @@ class MediaEngine {
 
   void stop() {
     if (!activeCue_) {
+      return;
+    }
+    if (isSourceCueKind(activeCue_->kind)) {
+      if (isSourceCapturing_) {
+        stopDecoderThreads();
+      }
+      isSourceCapturing_ = false;
+      loadSourceFrame(*activeCue_);
+      state_ = TransportState::Paused;
+      pausedPosition_ = 0.0;
+      currentPosition_ = 0.0;
       return;
     }
     if (activeCue_->kind != CueKind::Video) {
@@ -2099,7 +3442,7 @@ class MediaEngine {
       return;
     }
     // Stills have no seek position — keep the loaded frame as-is.
-    if (activeCue_->kind == CueKind::Image) {
+    if (activeCue_->kind == CueKind::Image || isSourceCueKind(activeCue_->kind)) {
       return;
     }
     double clamped = std::clamp(seconds, 0.0, duration_);
@@ -2198,7 +3541,7 @@ class MediaEngine {
       return;
     }
 
-    if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_) {
+    if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ && !isSourceCapturing_) {
       // Timed stills and audio-only: advance position via wall clock, handle end.
       if (duration_ > 0.0 && state_ == TransportState::Playing) {
         currentPosition_ = position();
@@ -2328,6 +3671,76 @@ class MediaEngine {
   }
 
   bool isBrowserCapturing() const { return isBrowserCapturing_; }
+  bool isSourceCapturing() const { return isSourceCapturing_; }
+
+  bool startSourceCapture(const Cue& cue) {
+#ifdef _WIN32
+    (void) cue;
+    return false;
+#else
+    if (!isSourceCueKind(cue.kind)) {
+      return false;
+    }
+
+    auto [fallbackW, fallbackH] = currentOutputSizeHint();
+    int w = cue.width > 0 ? cue.width : fallbackW;
+    int h = cue.height > 0 ? cue.height : fallbackH;
+    w = std::clamp(w, 160, 3840);
+    h = std::clamp(h, 90, 2160);
+
+    std::vector<std::string> args;
+    if (!buildSourceCaptureArgs(cue, w, h, args)) {
+      return false;
+    }
+
+    stopDecoderThreads();
+    isSourceCapturing_ = false;
+
+    if (!spawnPipeProcess(videoProcess_, args)) {
+      return false;
+    }
+
+    const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
+    int videoFd = videoProcess_.readFd;
+    frameRate_ = 30.0;
+    duration_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    playbackStartPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    currentPosition_ = 0.0;
+    state_ = TransportState::Playing;
+    isSourceCapturing_ = true;
+
+    videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+      std::uint64_t frameIdx = 0;
+      while (!decoderStop_.load()) {
+        while (!decoderStop_.load()) {
+          bool hasRoom = false;
+          { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
+          if (hasRoom) break;
+          SDL_Delay(4);
+        }
+        if (decoderStop_.load()) break;
+
+        DecodedFrame frame;
+        frame.width = w;
+        frame.height = h;
+        frame.index = frameIdx++;
+        frame.pixels.resize(frameBytes);
+        if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
+          decoderEof_ = true;
+          break;
+        }
+
+        std::lock_guard<std::mutex> lk(frameMutex_);
+        frameQueue_.push_back(std::move(frame));
+      }
+      decoderEof_ = true;
+    });
+
+    return true;
+#endif
+  }
 
   // Rebuild the current pattern frame with a wall-clock timestamp (for animation).
   void rebuildPatternFrame(const Cue& cue, double wallSeconds) {
@@ -2340,10 +3753,20 @@ class MediaEngine {
   }
 
   void render(SDL_Rect target) {
+    bool pixelEffectsChanged = false;
     if (activeCue_) {
+      bool prevKeyEnabled = chromaKeyEnabled_;
+      SDL_Color prevKeyColor = chromaKeyColor_;
+      float prevKeyTolerance = chromaKeyTolerance_;
+      float prevKeySoftness = chromaKeySoftness_;
+      float prevBrightness = brightness_;
+      float prevContrast = contrast_;
+      float prevSaturation = saturation_;
+      float prevHueShift = hueShift_;
+
       outputScaleX_ = activeCue_->outputScaleX;
       outputScaleY_ = activeCue_->outputScaleY;
-       scaleMode_ = activeCue_->scaleMode;
+      scaleMode_ = activeCue_->scaleMode;
       outputOffsetX_ = activeCue_->outputOffsetX;
       outputOffsetY_ = activeCue_->outputOffsetY;
       outputRotationDegrees_ = activeCue_->outputRotationDegrees;
@@ -2355,6 +3778,25 @@ class MediaEngine {
       chromaKeyColor_ = activeCue_->chromaKeyColor;
       chromaKeyTolerance_ = activeCue_->chromaKeyTolerance;
       chromaKeySoftness_ = activeCue_->chromaKeySoftness;
+      brightness_ = std::clamp(activeCue_->brightness, 0.0f, 2.0f);
+      contrast_ = std::clamp(activeCue_->contrast, 0.0f, 2.0f);
+      saturation_ = std::clamp(activeCue_->saturation, 0.0f, 2.0f);
+      hueShift_ = std::clamp(activeCue_->hueShift, -180.0f, 180.0f);
+
+      pixelEffectsChanged =
+        prevKeyEnabled != chromaKeyEnabled_
+        || prevKeyColor.r != chromaKeyColor_.r
+        || prevKeyColor.g != chromaKeyColor_.g
+        || prevKeyColor.b != chromaKeyColor_.b
+        || std::fabs(prevKeyTolerance - chromaKeyTolerance_) > 0.001f
+        || std::fabs(prevKeySoftness - chromaKeySoftness_) > 0.001f
+        || std::fabs(prevBrightness - brightness_) > 0.001f
+        || std::fabs(prevContrast - contrast_) > 0.001f
+        || std::fabs(prevSaturation - saturation_) > 0.001f
+        || std::fabs(prevHueShift - hueShift_) > 0.001f;
+    }
+    if (pixelEffectsChanged && displayFrame_) {
+      uploadFrame(*displayFrame_);
     }
 
     SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
@@ -2631,29 +4073,18 @@ class MediaEngine {
       return;
     }
     const std::uint8_t* uploadPixels = frame.pixels.data();
-    if (chromaKeyEnabled_) {
+    if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
       keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
-      float tolerance = std::clamp(chromaKeyTolerance_, 0.0f, 441.0f);
-      float softness = std::clamp(chromaKeySoftness_, 0.0f, 200.0f);
-      float inner = std::max(0.0f, tolerance - softness);
-      float outer = tolerance + softness;
-      float span = std::max(0.0001f, outer - inner);
-
-      for (size_t i = 0; i + 3 < keyedPixelsScratch_.size(); i += 4) {
-        float dr = static_cast<float>(keyedPixelsScratch_[i + 0]) - static_cast<float>(chromaKeyColor_.r);
-        float dg = static_cast<float>(keyedPixelsScratch_[i + 1]) - static_cast<float>(chromaKeyColor_.g);
-        float db = static_cast<float>(keyedPixelsScratch_[i + 2]) - static_cast<float>(chromaKeyColor_.b);
-        float distance = std::sqrt(dr * dr + dg * dg + db * db);
-        float keep = 1.0f;
-        if (distance <= inner) {
-          keep = 0.0f;
-        } else if (distance < outer) {
-          keep = (distance - inner) / span;
-        }
-        keyedPixelsScratch_[i + 3] = static_cast<std::uint8_t>(
-          std::clamp(static_cast<int>(std::lround(static_cast<float>(keyedPixelsScratch_[i + 3]) * keep)), 0, 255)
-        );
-      }
+      applyCueVisualEffectsToPixels(
+        keyedPixelsScratch_,
+        chromaKeyEnabled_,
+        chromaKeyColor_,
+        chromaKeyTolerance_,
+        chromaKeySoftness_,
+        brightness_,
+        contrast_,
+        saturation_,
+        hueShift_);
       uploadPixels = keyedPixelsScratch_.data();
     }
     SDL_UpdateTexture(texture_, nullptr, uploadPixels, frame.width * 4);
@@ -2734,6 +4165,64 @@ class MediaEngine {
       displayFrame_ = std::move(frame);
       uploadFrame(*displayFrame_);
     }
+  }
+
+  void loadSourceFrame(const Cue& cue) {
+    auto [fallbackW, fallbackH] = currentOutputSizeHint();
+    int w = cue.width > 0 ? cue.width : fallbackW;
+    int h = cue.height > 0 ? cue.height : fallbackH;
+    w = std::clamp(w, 64, 3840);
+    h = std::clamp(h, 64, 2160);
+
+    DecodedFrame frame;
+    frame.width = w;
+    frame.height = h;
+    frame.index = 0;
+    frame.pixels.resize(static_cast<size_t>(w) * static_cast<size_t>(h) * 4u, 0);
+
+    SDL_Color bg {48, 98, 48, 255};
+    SDL_Color stripe {15, 56, 15, 255};
+    SDL_Color accent {139, 172, 15, 255};
+    if (cue.kind == CueKind::Camera) {
+      bg = SDL_Color {36, 82, 54, 255};
+      stripe = SDL_Color {16, 38, 28, 255};
+      accent = SDL_Color {155, 208, 125, 255};
+    } else if (cue.kind == CueKind::Syphon) {
+      bg = SDL_Color {56, 62, 30, 255};
+      stripe = SDL_Color {28, 34, 16, 255};
+      accent = SDL_Color {177, 188, 94, 255};
+    }
+
+    for (int y = 0; y < h; ++y) {
+      bool stripeRow = ((y / 14) % 2) == 0;
+      SDL_Color rowColor = stripeRow ? bg : stripe;
+      for (int x = 0; x < w; ++x) {
+        size_t offset = static_cast<size_t>(y * w + x) * 4u;
+        frame.pixels[offset + 0] = rowColor.r;
+        frame.pixels[offset + 1] = rowColor.g;
+        frame.pixels[offset + 2] = rowColor.b;
+        frame.pixels[offset + 3] = 255;
+      }
+    }
+
+    int margin = std::max(6, std::min(w, h) / 18);
+    for (int y = margin; y < h - margin; ++y) {
+      for (int x = margin; x < w - margin; ++x) {
+        bool border = (x - margin < 2) || (h - margin - 1 - y < 2)
+          || (y - margin < 2) || (w - margin - 1 - x < 2);
+        if (!border) {
+          continue;
+        }
+        size_t offset = static_cast<size_t>(y * w + x) * 4u;
+        frame.pixels[offset + 0] = accent.r;
+        frame.pixels[offset + 1] = accent.g;
+        frame.pixels[offset + 2] = accent.b;
+        frame.pixels[offset + 3] = 255;
+      }
+    }
+
+    displayFrame_ = std::move(frame);
+    uploadFrame(*displayFrame_);
   }
 
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color) {
@@ -2822,276 +4311,517 @@ class MediaEngine {
     }
   }
 
-  static void buildCrosshatch(DecodedFrame& frame) {
-    int W = frame.width, H = frame.height;
+  static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0) {
+    int W = frame.width;
+    int H = frame.height;
+    constexpr int kStep = 64;
+    int shiftX = ((phaseX % kStep) + kStep) % kStep;
+    int shiftY = ((phaseY % kStep) + kStep) % kStep;
     // Black background
     fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
     // White lines every 64px, 2px thick
-    for (int x = 0; x < W; x += 64) {
+    for (int x = -shiftX; x < W; x += kStep) {
       fillPixelRect(frame, x, 0, 2, H, {255, 255, 255, 255});
     }
-    for (int y = 0; y < H; y += 64) {
+    for (int y = -shiftY; y < H; y += kStep) {
       fillPixelRect(frame, 0, y, W, 2, {255, 255, 255, 255});
     }
     // Centre cross in red
     fillPixelRect(frame, W / 2 - 1, 0,     2, H, {220,  40,  40, 255});
     fillPixelRect(frame, 0,     H / 2 - 1, W, 2, {220,  40,  40, 255});
     // Corner safe-area marks (80% safe)
-    int sx = W / 10, sy = H / 10;
+    int sx = W / 10;
+    int sy = H / 10;
     fillPixelRect(frame, sx, sy, W - sx * 2, 2, {60, 180, 60, 200});
     fillPixelRect(frame, sx, sy, 2, H - sy * 2, {60, 180, 60, 200});
     fillPixelRect(frame, W - sx - 2, sy, 2, H - sy * 2, {60, 180, 60, 200});
     fillPixelRect(frame, sx, H - sy - 2, W - sx * 2, 2, {60, 180, 60, 200});
   }
 
-  static void buildCheckerboard(DecodedFrame& frame) {
-    int W = frame.width, H = frame.height;
-    int cell = 64;
-    for (int y = 0; y < H; y += cell) {
-      for (int x = 0; x < W; x += cell) {
-        bool white = (((x / cell) + (y / cell)) % 2) == 0;
-        SDL_Color c = white ? SDL_Color{255,255,255,255} : SDL_Color{0,0,0,255};
-        fillPixelRect(frame, x, y, std::min(cell, W - x), std::min(cell, H - y), c);
+  static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0) {
+    int W = frame.width;
+    int H = frame.height;
+    constexpr int cell = 64;
+    int shiftX = ((phaseX % cell) + cell) % cell;
+    int shiftY = ((phaseY % cell) + cell) % cell;
+    for (int row = 0;; ++row) {
+      int y = row * cell - shiftY;
+      if (y >= H) {
+        break;
+      }
+      int y0 = std::max(0, y);
+      int y1 = std::min(H, y + cell);
+      if (y1 <= y0) {
+        continue;
+      }
+      for (int col = 0;; ++col) {
+        int x = col * cell - shiftX;
+        if (x >= W) {
+          break;
+        }
+        int x0 = std::max(0, x);
+        int x1 = std::min(W, x + cell);
+        if (x1 <= x0) {
+          continue;
+        }
+        bool white = ((row + col) % 2) == 0;
+        SDL_Color c = white ? SDL_Color{255, 255, 255, 255}
+                            : SDL_Color{0, 0, 0, 255};
+        fillPixelRect(frame, x0, y0, x1 - x0, y1 - y0, c);
       }
     }
   }
 
-  // Pocket Test — full-colour animated kawaii procedural scene.
-  // Pocket Test — authentic 4-colour Game Boy aesthetic.
-  // Uses only the classic GB green palette, 8×8 tile grid, chunky sprites.
-  static void buildPocketTest(DecodedFrame& frame, double t) {
-    const int W = frame.width, H = frame.height;
-    // 4-colour GB palette (indices 0–3, lightest to darkest)
-    const SDL_Color P[4] = {
-      {155, 188,  15, 255},  // 0  lightest (screen-on green)
-      {139, 172,  15, 255},  // 1  light
-      { 48,  98,  48, 255},  // 2  dark
-      { 15,  56,  15, 255},  // 3  darkest
-    };
+  // Pocket Test - tropical retro platform-adventure inspired scene.
+  // Full RGB, deterministic animation, no random text/noise bars.
+  // `forcedScene`:
+  //   -1 = automatic scene cycle
+  //    0 = day
+  //    1 = sunset
+  //    2 = night
+  //    3 = storm
+  static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1) {
+    const int W = frame.width;
+    const int H = frame.height;
 
-    // Scale factor: each "GB pixel" = S×S screen pixels.
-    // Pick S so the virtual resolution is ~160×144 (authentic GB) scaled up to fill frame.
-    const int S = std::max(1, std::min(W / 160, H / 144));
-    // Virtual dims in GB pixels
-    const int VW = W / S, VH = H / S;
-
-    // Helper: fill one GB pixel
-    auto gbp = [&](int gx, int gy, int p) {
-      if (gx < 0 || gy < 0 || gx >= VW || gy >= VH) return;
-      fillPixelRect(frame, gx * S, gy * S, S, S, P[p & 3]);
-    };
-    // Fill a rect in GB pixels
-    auto gbr = [&](int gx, int gy, int gw, int gh, int p) {
-      fillPixelRect(frame, gx * S, gy * S, gw * S, gh * S, P[p & 3]);
-    };
-
-    // ── Background: sky / ground tiles ─────────────────────────────────────
-    // Sky (colour 0 — lightest)
-    gbr(0, 0, VW, VH * 2 / 3, 0);
-    // Ground (colour 1)
-    gbr(0, VH * 2 / 3, VW, VH / 3 + 1, 1);
-    // Ground top strip (colour 0 — highlight)
-    gbr(0, VH * 2 / 3, VW, 1, 0);
-
-    // ── Scrolling tile map (8×8 tiles) ─────────────────────────────────────
-    int scrollX = static_cast<int>(t * 16.0) % 8;  // 2 GB px/s scroll
-    int groundY = VH * 2 / 3;
-
-    // Draw grass ground tiles
-    for (int tx = -1; tx <= VW / 8 + 1; ++tx) {
-      int tileX = tx * 8 - scrollX;
-      // Grass tuft pattern on ground row
-      gbp(tileX + 1, groundY + 1, 2);
-      gbp(tileX + 3, groundY + 1, 2);
-      gbp(tileX + 5, groundY + 1, 2);
-      gbp(tileX + 2, groundY + 2, 2);
-      gbp(tileX + 4, groundY + 2, 2);
-    }
-
-    // Draw trees along the horizon (every 24 px, deterministic)
-    for (int tx = -1; tx <= VW / 24 + 2; ++tx) {
-      int baseX = tx * 24 - (static_cast<int>(t * 16.0) % 24);
-      int baseY = groundY - 12;
-      // Tree trunk (colour 2)
-      gbr(baseX + 3, baseY + 8, 2, 4, 2);
-      // Leaves (colour 2 with colour 3 outline)
-      //  top
-      gbr(baseX + 1, baseY + 4, 6, 5, 2);
-      gbr(baseX + 2, baseY + 2, 4, 3, 2);
-      gbp(baseX + 3, baseY + 1, 2);  gbp(baseX + 4, baseY + 1, 2);
-      // shadow pixels (colour 3)
-      gbp(baseX + 6, baseY + 4, 3); gbp(baseX + 6, baseY + 5, 3);
-      gbp(baseX + 6, baseY + 6, 3); gbp(baseX + 6, baseY + 7, 3);
-      gbp(baseX + 5, baseY + 8, 3); gbp(baseX + 6, baseY + 8, 3);
-    }
-
-    // ── Stars / small moon in sky ─────────────────────────────────────────
-    // Static star pattern — twinkle via frame parity
-    bool starFrame = (static_cast<int>(t * 3.0) % 2) == 0;
-    int stars[][2] = {{12,4},{30,2},{48,6},{65,3},{82,5},{100,2},{115,6},{130,4}};
-    for (auto& s : stars) {
-      gbp(s[0], s[1], starFrame ? 2 : 3);
-      if (starFrame) { gbp(s[0]+1, s[1], 2); }
-    }
-
-    // Moon (top-right area)
-    int moonX = VW - 28 + static_cast<int>(std::sin(t * 0.1) * 2);
-    int moonY = 5;
-    for (int my = 0; my < 7; ++my) {
-      for (int mx = 0; mx < 7; ++mx) {
-        // Circular moon mask
-        int dx = mx - 3, dy = my - 3;
-        if (dx*dx + dy*dy <= 9) gbp(moonX + mx, moonY + my, 1);
+    auto put = [&](int x, int y, const SDL_Color& color) {
+      if (x < 0 || y < 0 || x >= W || y >= H) {
+        return;
       }
-    }
-    // Moon crater details
-    gbp(moonX + 1, moonY + 2, 2);
-    gbp(moonX + 4, moonY + 4, 2);
-
-    // ── Clouds (scrolling, colour 0/1 dithered) ──────────────────────────
-    auto drawGBCloud = [&](int cx, int cy) {
-      // Cloud body in colour 0 (lightest) on colour-0 sky — outline in colour 1
-      gbr(cx+1, cy+1, 4, 2, 1);  gbr(cx, cy+2, 6, 2, 1);  // darker outline
-      gbr(cx+1, cy+1, 3, 2, 0);  gbr(cx+1, cy+2, 4, 1, 0);  // light fill
+      size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(W) + static_cast<size_t>(x)) * 4u;
+      frame.pixels[idx + 0] = color.r;
+      frame.pixels[idx + 1] = color.g;
+      frame.pixels[idx + 2] = color.b;
+      frame.pixels[idx + 3] = color.a;
     };
-    for (int c = 0; c < 3; ++c) {
-      int cx = (c * 50 - static_cast<int>(t * 8.0 + c * 37)) % (VW + 16) - 8;
-      drawGBCloud(cx, 8 + c * 3);
-    }
 
-    // ── Girl character sprite (16×16 GB pixels, 2-frame walk) ───────────
-    // GB sprites use 4 shades. Design inspired by LOZLA/Pokemon heroine.
-    int walkSpeed = 24;  // GB pixels per second
-    int cycleW = VW + 20;
-    double walkPhase = std::fmod(t * walkSpeed, static_cast<double>(cycleW * 2));
-    int sprX, flip = 0;
-    if (walkPhase < cycleW) {
-      sprX = static_cast<int>(walkPhase) - 10;
-      flip = 0;
-    } else {
-      sprX = cycleW - static_cast<int>(walkPhase - cycleW) - 10;
-      flip = 1;
-    }
-    int sprY = groundY - 16;
-    int wf = (static_cast<int>(t * 8.0)) % 2;  // walk frame 0/1
-
-    // Sprite: 10 wide × 16 tall, defined as 2-bit colour indices
-    // 0=light, 1=mid, 2=dark, 3=darkest; X=skip (transparent / background)
-    // Row 0–3: hair + head
-    static const std::array<std::array<int,10>,16> spr = {{
-      {{99,99, 1, 1, 1, 1, 1,99,99,99}},  // hair top
-      {{99, 1, 2, 2, 2, 2, 2, 1,99,99}},
-      {{ 1, 2, 0, 0, 0, 0, 0, 2, 1,99}},  // face (colour 0 = skin highlight)
-      {{ 1, 2, 0, 2, 0, 2, 0, 2, 1,99}},  // eyes (colour 2 = eye)
-      {{ 1, 2, 0, 0, 0, 0, 0, 2, 1,99}},
-      {{ 1, 1, 0, 0, 3, 0, 0, 1, 1,99}},  // mouth
-      {{ 1, 1, 1, 1, 1, 1, 1, 1,99,99}},  // hair bottom
-      {{99, 2, 2, 2, 2, 2, 2, 2,99,99}},  // collar
-      {{99, 2, 1, 1, 1, 1, 1, 2,99,99}},  // body
-      {{99, 2, 1, 1, 1, 1, 1, 2,99,99}},
-      {{99, 1, 2, 1, 1, 1, 2, 1,99,99}},  // belt
-      {{99, 1, 2, 1, 1, 1, 2, 1,99,99}},  // skirt
-      {{99, 1, 1, 2, 1, 2, 1, 1,99,99}},
-      {{99,99, 2, 0,99, 0, 2,99,99,99}},  // legs
-      {{99,99, 2, 0,99, 0, 2,99,99,99}},
-      {{99,99, 3, 3,99, 3, 3,99,99,99}},  // shoes
-    }};
-    // Walk frame shifts one leg forward
-    for (int row = 0; row < 16; ++row) {
-      for (int col = 0; col < 10; ++col) {
-        int px_col = col;
-        int val = spr[row][px_col];
-        if (val > 90) continue;  // transparent
-        // Animate legs on rows 13-15 in frame 1
-        if (wf == 1 && row >= 13) {
-          // Swap leg positions
-          if (col == 3) px_col = 5;
-          else if (col == 5) px_col = 3;
-          val = spr[row][px_col];
-          if (val > 90) continue;
-        }
-        int drawX = flip ? sprX + (9 - col) : sprX + col;
-        gbp(drawX, sprY + row, val & 3);
+    auto rect = [&](int x, int y, int w, int h, const SDL_Color& color) {
+      if (w <= 0 || h <= 0) {
+        return;
       }
-    }
-
-    // ── Top HUD bar (status panel, colour 3 bg) ─────────────────────────
-    gbr(0, 0, VW, 9, 3);
-    // HP label (crude pixel text via rectangles)
-    // "HP" — H
-    gbp(2,1,0); gbp(2,2,0); gbp(2,3,0); gbp(3,2,0); gbp(4,1,0); gbp(4,2,0); gbp(4,3,0);
-    // "P"
-    gbp(6,1,0); gbp(6,2,0); gbp(6,3,0); gbp(7,1,0); gbp(8,1,0); gbp(7,2,0); gbp(8,2,0);
-    // HP hearts (alternating fill/outline, 3 hearts)
-    for (int h = 0; h < 3; ++h) {
-      int hx = 12 + h * 8;
-      // full heart (both sides up + bottom triangle) in colour 1
-      gbp(hx+1,2,1); gbp(hx+2,1,1); gbp(hx+3,2,1);
-      gbp(hx,3,1); gbp(hx+1,3,1); gbp(hx+2,3,1); gbp(hx+3,3,1); gbp(hx+4,3,1);
-      gbp(hx+1,4,1); gbp(hx+2,5,1); gbp(hx+3,4,1);
-      gbp(hx+2,4,1);
-    }
-    // Score ticker top-right
-    int score = static_cast<int>(t * 10.0) % 10000;
-    std::string scoreStr = std::to_string(score);
-    while (scoreStr.size() < 5) scoreStr = "0" + scoreStr;
-    // Draw score digits (tiny 3×5 pixel digits)
-    static const std::array<std::array<int,15>, 10> digits {{
-      {{1,1,1, 1,0,1, 1,0,1, 1,0,1, 1,1,1}}, // 0
-      {{0,1,0, 1,1,0, 0,1,0, 0,1,0, 1,1,1}}, // 1
-      {{1,1,1, 0,0,1, 1,1,1, 1,0,0, 1,1,1}}, // 2
-      {{1,1,1, 0,0,1, 0,1,1, 0,0,1, 1,1,1}}, // 3
-      {{1,0,1, 1,0,1, 1,1,1, 0,0,1, 0,0,1}}, // 4
-      {{1,1,1, 1,0,0, 1,1,1, 0,0,1, 1,1,1}}, // 5
-      {{1,1,1, 1,0,0, 1,1,1, 1,0,1, 1,1,1}}, // 6
-      {{1,1,1, 0,0,1, 0,1,0, 0,1,0, 0,1,0}}, // 7
-      {{1,1,1, 1,0,1, 1,1,1, 1,0,1, 1,1,1}}, // 8
-      {{1,1,1, 1,0,1, 1,1,1, 0,0,1, 1,1,1}}, // 9
-    }};
-    int digitX = VW - 28;
-    for (char ch : scoreStr) {
-      int d = ch - '0';
-      for (int row = 0; row < 5; ++row) {
-        for (int col = 0; col < 3; ++col) {
-          if (digits[d][row * 3 + col]) gbp(digitX + col, 2 + row, 0);
+      int x0 = std::max(0, x);
+      int y0 = std::max(0, y);
+      int x1 = std::min(W, x + w);
+      int y1 = std::min(H, y + h);
+      for (int yy = y0; yy < y1; ++yy) {
+        for (int xx = x0; xx < x1; ++xx) {
+          put(xx, yy, color);
         }
       }
-      digitX += 4;
+    };
+
+    auto lerpColor = [&](const SDL_Color& a, const SDL_Color& b, double v) -> SDL_Color {
+      double tClamped = std::clamp(v, 0.0, 1.0);
+      auto mix = [&](Uint8 aa, Uint8 bb) -> Uint8 {
+        return static_cast<Uint8>(std::round(static_cast<double>(aa) * (1.0 - tClamped) + static_cast<double>(bb) * tClamped));
+      };
+      return SDL_Color {mix(a.r, b.r), mix(a.g, b.g), mix(a.b, b.b), 255};
+    };
+
+    auto disc = [&](int cx, int cy, int radius, const SDL_Color& color) {
+      int r2 = radius * radius;
+      for (int dy = -radius; dy <= radius; ++dy) {
+        for (int dx = -radius; dx <= radius; ++dx) {
+          if (dx * dx + dy * dy <= r2) {
+            put(cx + dx, cy + dy, color);
+          }
+        }
+      }
+    };
+
+    const int oceanTop = H * 52 / 100;
+    const int beachTop = H * 83 / 100;
+    int scene = forcedScene;
+    if (scene < 0 || scene > 3) {
+      scene = static_cast<int>(std::floor(t / 14.0)) % 4;
+      if (scene < 0) {
+        scene += 4;
+      }
     }
 
-    // ── Bottom text box (message window, GB style) ───────────────────────
-    int boxY = VH - 20;
-    gbr(0, boxY, VW, 20, 3);
-    // Inner border (colour 2)
-    gbr(2, boxY + 2, VW - 4, 1, 2);
-    gbr(2, boxY + 2, 1, 16, 2);
-    gbr(VW - 3, boxY + 2, 1, 16, 2);
-    gbr(2, boxY + 17, VW - 4, 1, 2);
-    // Blinking cursor ▶ (colour 0)
-    bool cursorOn = std::fmod(t, 1.0) < 0.6;
-    if (cursorOn) {
-      gbp(VW - 6, boxY + 13, 0); gbp(VW - 5, boxY + 14, 0); gbp(VW - 6, boxY + 15, 0);
-    }
-    // Static message text (pixel dots approximation)
-    // "POCKET TEST v1" — just draw a decorative text-like row of pixels
-    // Use horizontal bar pattern to suggest text without needing a font
-    for (int ch = 0; ch < 14; ++ch) {
-      // Each char = 3 wide, 5 tall, separated by 1px
-      static const std::array<int, 14> textCols {{ 0,1,0, 0,1,1, 0,1,0, 0,1,0, 1,0 }};
-      (void)textCols;
-      int cx = 5 + ch * 4;
-      // Draw simple high-contrast pixel bar for each "letter"
-      gbp(cx, boxY + 5, 0); gbp(cx+1, boxY + 5, 0); gbp(cx+2, boxY + 5, 0);
-      gbp(cx, boxY + 6, 0);
-      gbp(cx, boxY + 7, 0); gbp(cx+1, boxY + 7, 0);
-      gbp(cx, boxY + 8, 0);
-      gbp(cx, boxY + 9, 0); gbp(cx+1, boxY + 9, 0); gbp(cx+2, boxY + 9, 0);
+    SDL_Color skyTop {60, 170, 225, 255};
+    SDL_Color skyBottom {190, 245, 255, 255};
+    SDL_Color oceanNear {15, 95, 170, 255};
+    SDL_Color oceanFar {25, 130, 195, 255};
+    SDL_Color sandTop {248, 226, 154, 255};
+    SDL_Color sandBottom {226, 186, 108, 255};
+    SDL_Color sunCore {255, 241, 150, 255};
+    SDL_Color sunGlow {255, 226, 120, 120};
+    SDL_Color cloudMain {245, 255, 255, 255};
+    SDL_Color cloudShadow {205, 235, 245, 255};
+    bool drawMoon = false;
+
+    if (scene == 1) {
+      skyTop = SDL_Color {246, 134, 98, 255};
+      skyBottom = SDL_Color {255, 205, 142, 255};
+      oceanNear = SDL_Color {40, 82, 156, 255};
+      oceanFar = SDL_Color {76, 122, 198, 255};
+      sandTop = SDL_Color {255, 214, 144, 255};
+      sandBottom = SDL_Color {234, 172, 108, 255};
+      sunCore = SDL_Color {255, 216, 114, 255};
+      sunGlow = SDL_Color {255, 145, 92, 140};
+      cloudMain = SDL_Color {255, 235, 224, 255};
+      cloudShadow = SDL_Color {236, 193, 183, 255};
+    } else if (scene == 2) {
+      skyTop = SDL_Color {24, 38, 102, 255};
+      skyBottom = SDL_Color {92, 136, 206, 255};
+      oceanNear = SDL_Color {10, 50, 110, 255};
+      oceanFar = SDL_Color {25, 76, 150, 255};
+      sandTop = SDL_Color {164, 148, 115, 255};
+      sandBottom = SDL_Color {132, 114, 90, 255};
+      sunCore = SDL_Color {235, 242, 255, 255};
+      sunGlow = SDL_Color {170, 198, 255, 120};
+      cloudMain = SDL_Color {170, 188, 240, 255};
+      cloudShadow = SDL_Color {120, 136, 188, 255};
+      drawMoon = true;
+    } else if (scene == 3) {
+      skyTop = SDL_Color {34, 78, 108, 255};
+      skyBottom = SDL_Color {102, 166, 180, 255};
+      oceanNear = SDL_Color {22, 86, 124, 255};
+      oceanFar = SDL_Color {38, 122, 156, 255};
+      sandTop = SDL_Color {198, 184, 142, 255};
+      sandBottom = SDL_Color {164, 142, 108, 255};
+      sunCore = SDL_Color {230, 236, 245, 255};
+      sunGlow = SDL_Color {184, 206, 238, 124};
+      cloudMain = SDL_Color {186, 216, 224, 255};
+      cloudShadow = SDL_Color {140, 168, 176, 255};
+      drawMoon = true;
     }
 
-    // ── Tile grid ghost (subtle 8×8 grid lines in colour 3) ─────────────
-    // Very faint to give "tile map" feel without dominating
-    for (int tx = 0; tx < VW; tx += 8) {
-      gbp(tx, groundY - 1, 2);  // just the horizon column dots
+    for (int y = 0; y < oceanTop; ++y) {
+      double v = oceanTop > 1 ? static_cast<double>(y) / static_cast<double>(oceanTop - 1) : 0.0;
+      rect(0, y, W, 1, lerpColor(skyTop, skyBottom, v));
+    }
+
+    if (scene >= 2) {
+      int starCount = std::max(18, W / 54);
+      for (int i = 0; i < starCount; ++i) {
+        int sx = (i * 73 + 19) % std::max(1, W);
+        int sy = 4 + ((i * 47 + 13) % std::max(8, oceanTop - 10));
+        double twinkle = 0.5 + 0.5 * std::sin(t * 2.8 + static_cast<double>(i) * 0.71);
+        Uint8 a = static_cast<Uint8>(120 + twinkle * 120.0);
+        rect(sx, sy, 1, 1, SDL_Color {236, 242, 255, a});
+        if ((i % 3) == 0) {
+          rect(sx - 1, sy, 3, 1, SDL_Color {210, 226, 255, static_cast<Uint8>(a / 2)});
+        }
+      }
+    }
+
+    int sunX = static_cast<int>(W * 0.78 + std::sin(t * 0.14) * (W * 0.04));
+    int sunY = static_cast<int>(H * 0.17 + std::cos(t * 0.11) * (H * 0.03));
+    int sunR = std::max(12, H / 16);
+    disc(sunX, sunY, sunR + 6, sunGlow);
+    disc(sunX, sunY, sunR, sunCore);
+    if (drawMoon) {
+      disc(sunX + sunR / 3, sunY - sunR / 4, std::max(5, sunR / 2), skyTop);
+      disc(sunX - sunR / 3, sunY + sunR / 5, std::max(2, sunR / 8), SDL_Color {210, 216, 226, 200});
+      disc(sunX, sunY - sunR / 6, std::max(2, sunR / 10), SDL_Color {190, 202, 214, 200});
+    }
+
+    auto drawCloud = [&](int x, int y, int scale) {
+      rect(x + scale, y + scale * 2, scale * 9, scale * 2, cloudShadow);
+      disc(x + scale * 2, y + scale * 2, scale * 2, cloudMain);
+      disc(x + scale * 5, y + scale * 2, scale * 3, cloudMain);
+      disc(x + scale * 8, y + scale * 2, scale * 2, cloudMain);
+      rect(x + scale * 2, y + scale * 2, scale * 6, scale * 2, cloudMain);
+    };
+
+    int cloudCount = scene == 3 ? 6 : (scene >= 2 ? 3 : 4);
+    for (int i = 0; i < cloudCount; ++i) {
+      int cx = ((i * 280) - static_cast<int>(t * (16.0 + i * 3.0))) % (W + 260) - 180;
+      int cy = H / 10 + i * (H / 18);
+      drawCloud(cx, cy, std::max(2, H / 120));
+    }
+
+    for (int y = oceanTop; y < beachTop; ++y) {
+      double v = beachTop > oceanTop + 1
+        ? static_cast<double>(y - oceanTop) / static_cast<double>(beachTop - oceanTop - 1)
+        : 0.0;
+      rect(0, y, W, 1, lerpColor(oceanFar, oceanNear, v));
+    }
+
+    for (int x = -8; x < W + 8; x += 6) {
+      double waveA = std::sin(static_cast<double>(x) * 0.035 + t * 1.8);
+      double waveB = std::sin(static_cast<double>(x) * 0.018 + t * 1.1 + 1.8);
+      int y = oceanTop + 14 + static_cast<int>((waveA + waveB) * 4.0);
+      rect(x, y, 4, 2, SDL_Color {184, 244, 255, 190});
+    }
+
+    int islandCenter = W / 2 + static_cast<int>(std::sin(t * 0.09) * (W * 0.03));
+    int islandHalfW = std::max(40, W / 5);
+    int islandBaseY = beachTop - 4;
+    SDL_Color islandDark {36, 92, 64, 255};
+    SDL_Color islandLight {62, 135, 88, 255};
+    for (int dx = -islandHalfW; dx <= islandHalfW; ++dx) {
+      double u = std::abs(static_cast<double>(dx)) / static_cast<double>(islandHalfW);
+      int height = std::max(2, static_cast<int>((1.0 - u * u) * (H * 0.11)));
+      rect(islandCenter + dx, islandBaseY - height, 1, height, islandDark);
+      if (height > 5 && dx % 3 == 0) {
+        rect(islandCenter + dx, islandBaseY - height, 1, 2, islandLight);
+      }
+    }
+
+    for (int y = beachTop; y < H; ++y) {
+      double v = H > beachTop + 1
+        ? static_cast<double>(y - beachTop) / static_cast<double>(H - beachTop - 1)
+        : 0.0;
+      SDL_Color sand = lerpColor(sandTop, sandBottom, v);
+      rect(0, y, W, 1, sand);
+    }
+    for (int x = 0; x < W; x += 5) {
+      int y = beachTop + 2 + static_cast<int>(std::sin(static_cast<double>(x) * 0.09 + t * 0.8) * 2.0);
+      rect(x, y, 3, 1, SDL_Color {255, 240, 186, 170});
+    }
+
+    auto drawPalm = [&](int baseX, int baseY, int trunkH, double sway, bool backLayer) {
+      SDL_Color trunkA = backLayer ? SDL_Color{96, 72, 44, 255} : SDL_Color{116, 84, 52, 255};
+      SDL_Color trunkB = backLayer ? SDL_Color{130, 95, 58, 255} : SDL_Color{148, 108, 65, 255};
+      SDL_Color leafA = backLayer ? SDL_Color{38, 118, 70, 255} : SDL_Color{46, 146, 82, 255};
+      SDL_Color leafB = backLayer ? SDL_Color{64, 154, 90, 255} : SDL_Color{82, 176, 108, 255};
+
+      int x = baseX;
+      for (int i = 0; i < trunkH; ++i) {
+        double bend = std::sin(static_cast<double>(i) * 0.18 + sway) * 0.7;
+        x = baseX + static_cast<int>(bend * (1.0 + static_cast<double>(i) / static_cast<double>(trunkH)));
+        rect(x - 1, baseY - i, 3, 1, (i % 3 == 0) ? trunkB : trunkA);
+      }
+
+      int crownX = x;
+      int crownY = baseY - trunkH;
+      for (int frond = 0; frond < 6; ++frond) {
+        double angle = (-1.25 + frond * 0.48) + std::sin(t * 0.9 + frond) * 0.08;
+        int len = std::max(12, H / 14) + (frond % 2 == 0 ? 2 : -1);
+        for (int step = 0; step < len; ++step) {
+          double s = static_cast<double>(step) / static_cast<double>(len);
+          int fx = crownX + static_cast<int>(std::cos(angle) * step);
+          int fy = crownY + static_cast<int>(std::sin(angle) * step + s * s * 3.0);
+          rect(fx, fy, 2, 1, (step % 2 == 0) ? leafA : leafB);
+        }
+      }
+    };
+
+    drawPalm(W / 2 - W / 7, beachTop + 3, std::max(26, H / 7), t * 0.8 + 0.6, true);
+    drawPalm(W / 2 + W / 8, beachTop + 3, std::max(24, H / 8), t * 0.85 + 1.8, true);
+    drawPalm(W / 4, H - std::max(16, H / 8), std::max(28, H / 6), t * 0.9 + 0.2, false);
+    drawPalm(W * 3 / 4, H - std::max(18, H / 8), std::max(30, H / 6), t * 0.95 + 2.1, false);
+
+    int blockSize = std::max(5, H / 34);
+    auto drawBrickPlatform = [&](int x, int y, int blocks, bool glowing) {
+      SDL_Color a = glowing ? SDL_Color {232, 188, 92, 255} : SDL_Color {176, 108, 66, 255};
+      SDL_Color b = glowing ? SDL_Color {255, 228, 136, 255} : SDL_Color {214, 140, 84, 255};
+      SDL_Color stroke = glowing ? SDL_Color {132, 82, 42, 255} : SDL_Color {104, 62, 36, 255};
+      for (int i = 0; i < blocks; ++i) {
+        int bx = x + i * blockSize;
+        rect(bx, y, blockSize - 1, blockSize - 1, ((i + static_cast<int>(t * 2.0)) & 1) ? a : b);
+        rect(bx, y + blockSize / 2, blockSize - 1, 1, stroke);
+        rect(bx + blockSize / 2, y, 1, blockSize - 1, stroke);
+      }
+    };
+
+    auto drawPipe = [&](int x, int baseY, int height, bool enemyPipe) {
+      int pipeW = std::max(16, blockSize * 3);
+      SDL_Color body = enemyPipe ? SDL_Color {80, 188, 98, 255} : SDL_Color {70, 168, 208, 255};
+      SDL_Color lip = enemyPipe ? SDL_Color {122, 236, 128, 255} : SDL_Color {118, 218, 252, 255};
+      SDL_Color dark = enemyPipe ? SDL_Color {38, 110, 56, 255} : SDL_Color {30, 108, 142, 255};
+      rect(x, baseY - height, pipeW, height, body);
+      rect(x + pipeW / 2 - 1, baseY - height, 2, height, lip);
+      rect(x - 3, baseY - height - 4, pipeW + 6, 5, lip);
+      rect(x + 1, baseY - height - 2, pipeW - 2, 1, dark);
+    };
+
+    int platformY = beachTop - std::max(20, H / 9);
+    drawBrickPlatform(W / 8, platformY, 6, scene == 1);
+    drawBrickPlatform(W / 2 + W / 16, platformY - blockSize * 2, 5, scene == 1);
+    drawPipe(W / 3, beachTop + std::max(8, H / 40), std::max(18, H / 11), true);
+    drawPipe(W * 3 / 5, beachTop + std::max(9, H / 38), std::max(15, H / 12), false);
+
+    auto drawCrab = [&](int x, int y, bool clawsUp) {
+      SDL_Color shellA {214, 78, 68, 255};
+      SDL_Color shellB {242, 118, 98, 255};
+      disc(x, y, std::max(4, H / 55), shellA);
+      rect(x - 4, y - 1, 8, 3, shellB);
+      rect(x - 6, y + 2, 2, 2, shellA);
+      rect(x + 4, y + 2, 2, 2, shellA);
+      rect(x - 5, y + 4, 2, 1, SDL_Color {84, 42, 30, 255});
+      rect(x + 3, y + 4, 2, 1, SDL_Color {84, 42, 30, 255});
+      if (clawsUp) {
+        rect(x - 8, y - 5, 2, 4, shellA);
+        rect(x + 6, y - 5, 2, 4, shellA);
+      } else {
+        rect(x - 9, y - 2, 3, 2, shellA);
+        rect(x + 6, y - 2, 3, 2, shellA);
+      }
+      rect(x - 2, y - 5, 1, 2, SDL_Color {255, 255, 255, 255});
+      rect(x + 1, y - 5, 1, 2, SDL_Color {255, 255, 255, 255});
+      rect(x - 2, y - 4, 1, 1, SDL_Color {0, 0, 0, 255});
+      rect(x + 1, y - 4, 1, 1, SDL_Color {0, 0, 0, 255});
+    };
+
+    auto drawFish = [&](int x, int y, bool facingRight, SDL_Color body) {
+      auto toneDown = [](Uint8 v) -> Uint8 {
+        return static_cast<Uint8>(std::max(0, static_cast<int>(v) - 30));
+      };
+      SDL_Color fin {toneDown(body.r), toneDown(body.g), toneDown(body.b), 255};
+      rect(x - 4, y - 2, 8, 4, body);
+      rect(x - 2, y - 3, 4, 1, body);
+      rect(x - 1, y + 2, 2, 1, body);
+      if (facingRight) {
+        rect(x - 6, y - 1, 2, 2, fin);
+        rect(x + 3, y - 1, 2, 2, fin);
+        rect(x + 2, y - 1, 1, 1, SDL_Color {255, 255, 255, 255});
+      } else {
+        rect(x + 4, y - 1, 2, 2, fin);
+        rect(x - 5, y - 1, 2, 2, fin);
+        rect(x - 3, y - 1, 1, 1, SDL_Color {255, 255, 255, 255});
+      }
+    };
+
+    auto drawParrot = [&](int x, int y, bool wingUp) {
+      SDL_Color body {70, 214, 120, 255};
+      SDL_Color beak {246, 182, 78, 255};
+      rect(x - 4, y - 3, 8, 6, body);
+      rect(x + 3, y - 1, 3, 2, beak);
+      rect(x - 2, y - 1, 1, 1, SDL_Color {0, 0, 0, 255});
+      if (wingUp) {
+        rect(x - 7, y - 6, 3, 4, SDL_Color {52, 166, 98, 255});
+        rect(x + 1, y - 6, 3, 4, SDL_Color {52, 166, 98, 255});
+      } else {
+        rect(x - 7, y + 0, 3, 4, SDL_Color {52, 166, 98, 255});
+        rect(x + 1, y + 0, 3, 4, SDL_Color {52, 166, 98, 255});
+      }
+      rect(x - 1, y + 3, 1, 2, SDL_Color {170, 102, 54, 255});
+      rect(x + 1, y + 3, 1, 2, SDL_Color {170, 102, 54, 255});
+    };
+
+    auto drawTurtle = [&](int x, int y, bool stepA) {
+      SDL_Color shell {66, 172, 80, 255};
+      SDL_Color shellDark {36, 116, 58, 255};
+      SDL_Color skin {176, 214, 122, 255};
+      rect(x - 7, y - 4, 14, 8, shell);
+      rect(x - 5, y - 2, 10, 4, shellDark);
+      rect(x + 7, y - 2, 3, 3, skin);
+      rect(x + 8, y - 1, 1, 1, SDL_Color {0, 0, 0, 255});
+      rect(x - 6, y + 4, 3, 2, skin);
+      rect(x + 2, y + 4, 3, 2, skin);
+      rect(x - 6 + (stepA ? 0 : 1), y + 6, 3, 1, SDL_Color {88, 72, 46, 255});
+      rect(x + 2 + (stepA ? 1 : 0), y + 6, 3, 1, SDL_Color {88, 72, 46, 255});
+    };
+
+    auto drawDino = [&](int x, int y, bool blink) {
+      SDL_Color body {102, 198, 98, 255};
+      SDL_Color belly {186, 236, 154, 255};
+      rect(x - 8, y - 8, 16, 10, body);
+      rect(x - 4, y - 3, 8, 5, belly);
+      rect(x + 6, y - 11, 8, 7, body);
+      rect(x + 10, y - 9, 1, 1, blink ? SDL_Color {80, 110, 80, 255} : SDL_Color {0, 0, 0, 255});
+      rect(x - 9, y + 2, 4, 4, body);
+      rect(x + 1, y + 2, 4, 4, body);
+      rect(x - 8, y + 6, 3, 1, SDL_Color {88, 72, 46, 255});
+      rect(x + 1, y + 6, 3, 1, SDL_Color {88, 72, 46, 255});
+      rect(x - 12, y - 5, 4, 2, body);
+    };
+
+    auto drawPuffFriend = [&](int x, int y) {
+      disc(x, y, std::max(5, H / 62), SDL_Color {255, 152, 198, 255});
+      rect(x - 3, y + 4, 2, 2, SDL_Color {220, 76, 126, 255});
+      rect(x + 1, y + 4, 2, 2, SDL_Color {220, 76, 126, 255});
+      rect(x - 2, y - 1, 1, 1, SDL_Color {20, 20, 20, 255});
+      rect(x + 1, y - 1, 1, 1, SDL_Color {20, 20, 20, 255});
+      rect(x - 1, y + 1, 2, 1, SDL_Color {224, 82, 122, 255});
+    };
+
+    auto drawCoin = [&](int cx, int cy, int radius) {
+      disc(cx, cy, radius, SDL_Color {255, 206, 62, 255});
+      disc(cx, cy, std::max(1, radius - 2), SDL_Color {255, 236, 132, 255});
+      rect(cx - 1, cy - radius + 2, 2, radius * 2 - 3, SDL_Color {244, 180, 46, 255});
+      rect(cx - radius + 2, cy - 1, radius * 2 - 3, 2, SDL_Color {255, 248, 188, 255});
+    };
+
+    for (int i = 0; i < 5; ++i) {
+      int cx = ((i * (W / 4) + static_cast<int>(t * 34.0)) % (W + 60)) - 30;
+      int cy = beachTop - 18 + static_cast<int>(std::sin(t * 2.4 + i * 1.3) * 6.0);
+      drawCoin(cx, cy, std::max(4, H / 48));
+    }
+
+    int heroX = static_cast<int>(std::fmod(t * 26.0, static_cast<double>(W + 24))) - 12;
+    int heroY = beachTop - std::max(16, H / 12);
+    int step = (static_cast<int>(t * 8.0) & 1);
+    SDL_Color skin {255, 224, 189, 255};
+    SDL_Color hat {212, 62, 68, 255};
+    SDL_Color shirt {46, 124, 222, 255};
+    SDL_Color shorts {34, 78, 138, 255};
+    SDL_Color boots {88, 60, 34, 255};
+    rect(heroX + 3, heroY + 0, 6, 2, hat);
+    rect(heroX + 2, heroY + 2, 8, 2, hat);
+    rect(heroX + 3, heroY + 4, 6, 3, skin);
+    rect(heroX + 2, heroY + 7, 8, 4, shirt);
+    rect(heroX + 3, heroY + 11, 6, 3, shorts);
+    rect(heroX + 1, heroY + 8, 2, 4, skin);
+    rect(heroX + 9, heroY + 8, 2, 4, skin);
+    rect(heroX + 3, heroY + 14, 2, 3, shorts);
+    rect(heroX + 7, heroY + 14, 2, 3, shorts);
+    rect(heroX + 2 + step, heroY + 17, 3, 2, boots);
+    rect(heroX + 6 - step, heroY + 17, 3, 2, boots);
+
+    int crabX = (static_cast<int>(t * 24.0) % (W + 80)) - 40;
+    drawCrab(crabX, beachTop + std::max(8, H / 40), (static_cast<int>(t * 4.0) & 1) != 0);
+
+    int turtleX = W - ((static_cast<int>(t * 18.0) + 20) % (W + 90)) + 24;
+    drawTurtle(turtleX, beachTop + std::max(5, H / 52), (static_cast<int>(t * 6.0) & 1) != 0);
+
+    int dinoX = ((static_cast<int>(t * 11.0) + W / 3) % (W + 120)) - 60;
+    drawDino(dinoX, beachTop - std::max(18, H / 11), (static_cast<int>(t * 2.4) % 5) == 0);
+
+    int puffX = heroX + 28 + static_cast<int>(std::sin(t * 1.7) * 10.0);
+    int puffY = heroY + 6 + static_cast<int>(std::fabs(std::sin(t * 3.4)) * 4.0);
+    drawPuffFriend(puffX, puffY);
+
+    int parrotX = W - ((static_cast<int>(t * 34.0) + 60) % (W + 120));
+    int parrotY = std::max(12, H / 9) + static_cast<int>(std::sin(t * 2.1) * (H / 28.0));
+    drawParrot(parrotX, parrotY, (static_cast<int>(t * 8.0) & 1) == 0);
+
+    for (int i = 0; i < 4; ++i) {
+      int fishX = ((i * (W / 4) + static_cast<int>(t * 28.0)) % (W + 80)) - 40;
+      double jump = std::sin(t * 2.5 + static_cast<double>(i) * 1.2);
+      if (jump > -0.2) {
+        int fishY = oceanTop + 20 - static_cast<int>(std::max(0.0, jump) * 16.0);
+        SDL_Color fishColor = (i % 2 == 0) ? SDL_Color {255, 178, 88, 255} : SDL_Color {96, 230, 220, 255};
+        drawFish(fishX, fishY, (i % 2) == 0, fishColor);
+      }
+    }
+
+    if (scene == 3) {
+      for (int i = 0; i < W; i += 14) {
+        int rx = (i + static_cast<int>(t * 220.0)) % std::max(1, W);
+        int ry = oceanTop / 2 + (i % 24);
+        rect(rx, ry, 1, std::max(8, H / 28), SDL_Color {178, 222, 244, 140});
+      }
+      if (std::sin(t * 3.2) > 0.93) {
+        int boltX = W / 3 + static_cast<int>(std::sin(t * 4.4) * (W / 10.0));
+        rect(boltX, 0, 3, oceanTop + 24, SDL_Color {242, 248, 255, 170});
+        rect(boltX + 3, oceanTop / 3, 2, oceanTop / 3, SDL_Color {242, 248, 255, 140});
+      }
+    }
+
+    int stripH = std::max(16, H / 14);
+    int stripY = H - stripH;
+    rect(0, stripY, W, stripH, SDL_Color {12, 30, 56, 230});
+
+    const std::array<SDL_Color, 8> bars {{
+      SDL_Color{232, 78, 72, 255},
+      SDL_Color{246, 160, 70, 255},
+      SDL_Color{252, 226, 96, 255},
+      SDL_Color{104, 202, 108, 255},
+      SDL_Color{78, 198, 212, 255},
+      SDL_Color{70, 144, 244, 255},
+      SDL_Color{152, 116, 232, 255},
+      SDL_Color{244, 244, 244, 255},
+    }};
+    int barW = std::max(10, (W - 24) / static_cast<int>(bars.size()));
+    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
+      rect(8 + i * barW, stripY + 4, barW - 2, stripH - 8, bars[i]);
+      int pulseY = stripY + stripH / 2 + static_cast<int>(std::sin(t * 3.0 + i * 0.7) * (stripH / 4));
+      rect(8 + i * barW + 2, pulseY, barW - 6, 1, SDL_Color {255, 255, 255, 255});
     }
   }
 
@@ -3112,31 +4842,64 @@ class MediaEngine {
     frame.index  = 0;
     frame.pixels.assign(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
 
-    const std::string& path = cue.path;
+    std::string patternType = normalizePatternTypeId(cue.path);
+    std::string basePatternType = stripPatternMotionSuffix(patternType);
+    bool motion = endsWith(patternType, "-motion");
 
-    if (path.find("smpte-bars") != std::string::npos ||
-        path.find("smpte_bars") != std::string::npos ||
-        path.find("colorbars")  != std::string::npos ||
-        path.find("colourbars") != std::string::npos) {
+    auto pulseByte = [&](Uint8 fullScale, double speed, double minScale = 0.40, double maxScale = 1.0) -> Uint8 {
+      double wave = 0.5 + 0.5 * std::sin(animTime * speed);
+      double scaled = minScale + (maxScale - minScale) * wave;
+      return static_cast<Uint8>(std::clamp(std::lround(static_cast<double>(fullScale) * scaled), 0l, 255l));
+    };
+
+    if (basePatternType == "smpte-bars") {
       buildSmpte75Bars(frame);
-    } else if (path.find("crosshatch") != std::string::npos) {
-      buildCrosshatch(frame);
-    } else if (path.find("checkerboard") != std::string::npos ||
-               path.find("checker")      != std::string::npos) {
-      buildCheckerboard(frame);
-    } else if (path.find("full-white") != std::string::npos) {
-      fillPixelRect(frame, 0, 0, frame.width, frame.height, {255, 255, 255, 255});
-    } else if (path.find("full-black") != std::string::npos) {
-      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 0, 255});
-    } else if (path.find("full-red")   != std::string::npos) {
-      fillPixelRect(frame, 0, 0, frame.width, frame.height, {255, 0, 0, 255});
-    } else if (path.find("full-green") != std::string::npos) {
-      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 255, 0, 255});
-    } else if (path.find("full-blue")  != std::string::npos) {
-      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 255, 255});
+      if (motion) {
+        int scanX = static_cast<int>(std::fmod(animTime * 230.0, static_cast<double>(frame.width + 120))) - 60;
+        fillPixelRect(frame, scanX, 0, 4, frame.height, {255, 255, 255, 255});
+        int scanY = static_cast<int>(std::fmod(animTime * 140.0, static_cast<double>(frame.height + 80))) - 40;
+        fillPixelRect(frame, 0, scanY, frame.width, 2, {8, 8, 8, 255});
+      }
+    } else if (basePatternType == "crosshatch") {
+      int phase = motion ? static_cast<int>(std::fmod(animTime * 92.0, 64.0)) : 0;
+      buildCrosshatch(frame, phase, phase / 2);
+      if (motion) {
+        int markerX = static_cast<int>(std::fmod(animTime * 170.0, static_cast<double>(frame.width + 40))) - 20;
+        fillPixelRect(frame, markerX, frame.height / 2 - 4, 10, 8, {245, 220, 80, 255});
+      }
+    } else if (basePatternType == "checkerboard" || basePatternType == "checker") {
+      int phase = motion ? static_cast<int>(std::fmod(animTime * 110.0, 64.0)) : 0;
+      buildCheckerboard(frame, phase, phase / 2);
+      if (motion) {
+        int y = static_cast<int>(frame.height * (0.5 + 0.35 * std::sin(animTime * 1.9)));
+        fillPixelRect(frame, 0, y, frame.width, 2, {255, 96, 32, 255});
+      }
+    } else if (basePatternType == "full-white") {
+      Uint8 v = motion ? pulseByte(255, 2.5, 0.55, 1.0) : 255;
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {v, v, v, 255});
+    } else if (basePatternType == "full-black") {
+      Uint8 v = motion ? pulseByte(80, 2.3, 0.05, 1.0) : 0;
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {v, v, v, 255});
+    } else if (basePatternType == "full-red") {
+      Uint8 r = motion ? pulseByte(255, 2.6, 0.30, 1.0) : 255;
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {r, 0, 0, 255});
+    } else if (basePatternType == "full-green") {
+      Uint8 g = motion ? pulseByte(255, 2.7, 0.30, 1.0) : 255;
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, g, 0, 255});
+    } else if (basePatternType == "full-blue") {
+      Uint8 b = motion ? pulseByte(255, 2.8, 0.30, 1.0) : 255;
+      fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, b, 255});
+    } else if (basePatternType == "pocket-day") {
+      buildPocketTest(frame, animTime, 0);
+    } else if (basePatternType == "pocket-sunset") {
+      buildPocketTest(frame, animTime, 1);
+    } else if (basePatternType == "pocket-night") {
+      buildPocketTest(frame, animTime, 2);
+    } else if (basePatternType == "pocket-storm") {
+      buildPocketTest(frame, animTime, 3);
     } else {
-      // Default / "pocket-test" / "kawaii-pocket": animated full-colour scene.
-      buildPocketTest(frame, animTime);
+      // Default / "pocket-test" / "kawaii-pocket": animated full-colour scene cycle.
+      buildPocketTest(frame, animTime, -1);
     }
 
     return frame;
@@ -3229,6 +4992,130 @@ class MediaEngine {
     }
     decoderStop_.store(false);
     decoderEof_ = false;
+    isSourceCapturing_ = false;
+    isBrowserCapturing_ = false;
+  }
+
+  bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const {
+#ifdef _WIN32
+    (void) cue;
+    (void) w;
+    (void) h;
+    (void) args;
+    return false;
+#else
+    std::string sourceRef = sourceCueRefFromCue(cue);
+    if (sourceRef.empty()) {
+      sourceRef = defaultSourceRefForKind(cue.kind);
+    }
+    sourceRef = trim(sourceRef);
+    std::string sourceRefLower = toLower(sourceRef);
+
+    auto cameraDeviceForRef = [&](const std::string& refLower, const std::string& rawRef) -> std::string {
+      if (refLower.empty() || refLower == "default-camera" || refLower == "default") {
+        return "/dev/video0";
+      }
+      if (refLower.rfind("v4l2:", 0) == 0 && rawRef.size() > 5) {
+        return trim(rawRef.substr(5));
+      }
+      if (refLower.rfind("/dev/video", 0) == 0) {
+        return rawRef;
+      }
+      bool numeric = !rawRef.empty() &&
+        std::all_of(rawRef.begin(), rawRef.end(), [](unsigned char ch) { return std::isdigit(ch); });
+      if (numeric) {
+        return "/dev/video" + rawRef;
+      }
+      return rawRef;
+    };
+
+    if (cue.kind == CueKind::Camera) {
+      std::string device = cameraDeviceForRef(sourceRefLower, sourceRef);
+      if (device.empty()) {
+        device = "/dev/video0";
+      }
+      args = {
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel", "error",
+        "-f", "v4l2",
+        "-thread_queue_size", "64",
+        "-framerate", "30",
+        "-i", device,
+        "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
+        "-f", "rawvideo",
+        "-pix_fmt", "rgba",
+        "pipe:1"
+      };
+      return true;
+    }
+
+    std::string displayEnv = ":0.0";
+    if (const char* envDisplay = std::getenv("DISPLAY"); envDisplay && *envDisplay) {
+      std::string trimmed = trim(envDisplay);
+      if (!trimmed.empty()) {
+        displayEnv = trimmed;
+      }
+    }
+
+    std::string inputSpec = displayEnv + "+0,0";
+    bool useWindowId = false;
+    std::string windowId;
+    if (sourceRefLower.rfind("x11:", 0) == 0 && sourceRef.size() > 4) {
+      inputSpec = trim(sourceRef.substr(4));
+      if (inputSpec.empty()) {
+        inputSpec = displayEnv + "+0,0";
+      }
+    } else if (sourceRefLower.rfind("id:", 0) == 0 && sourceRef.size() > 3) {
+      useWindowId = true;
+      windowId = trim(sourceRef.substr(3));
+      inputSpec = displayEnv;
+    } else if (sourceRefLower.rfind("window_id:", 0) == 0 && sourceRef.size() > 10) {
+      useWindowId = true;
+      windowId = trim(sourceRef.substr(10));
+      inputSpec = displayEnv;
+    } else if (!sourceRef.empty() && sourceRef[0] == ':') {
+      inputSpec = sourceRef;
+      if (inputSpec.find('+') == std::string::npos) {
+        inputSpec += "+0,0";
+      }
+    } else if (!sourceRef.empty() && sourceRef[0] == '+') {
+      inputSpec = displayEnv + sourceRef;
+    } else if (sourceRefLower == "active-window" || sourceRefLower == "default-window"
+               || sourceRefLower == "screen" || sourceRefLower == "desktop"
+               || sourceRefLower == "default-bus" || sourceRefLower == "default-source"
+               || sourceRefLower.empty()) {
+      inputSpec = displayEnv + "+0,0";
+    }
+
+    args = {
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel", "error",
+      "-f", "x11grab",
+      "-framerate", "30",
+      "-draw_mouse", "1"
+    };
+    if (useWindowId && !windowId.empty()) {
+      args.push_back("-window_id");
+      args.push_back(windowId);
+      args.push_back("-i");
+      args.push_back(inputSpec);
+    } else {
+      args.push_back("-video_size");
+      args.push_back(std::to_string(w) + "x" + std::to_string(h));
+      args.push_back("-i");
+      args.push_back(inputSpec);
+    }
+    args.push_back("-vf");
+    args.push_back("scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor");
+    args.push_back("-f");
+    args.push_back("rawvideo");
+    args.push_back("-pix_fmt");
+    args.push_back("rgba");
+    args.push_back("pipe:1");
+    return true;
+#endif
   }
 
   void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
@@ -3385,6 +5272,10 @@ class MediaEngine {
   SDL_Color chromaKeyColor_ {0, 255, 0, 255};
   float chromaKeyTolerance_ = 60.0f;   // RGB distance threshold (0..441)
   float chromaKeySoftness_ = 20.0f;    // feather width around threshold
+  float brightness_ = 1.0f;             // per-cue brightness (0..2)
+  float contrast_ = 1.0f;               // per-cue contrast (0..2)
+  float saturation_ = 1.0f;             // per-cue saturation (0..2)
+  float hueShift_ = 0.0f;               // per-cue hue shift (-180..180)
   std::vector<std::uint8_t> keyedPixelsScratch_;
   std::vector<double> pausePoints_;    // sorted pause point positions for active cue
   size_t nextPausePointIdx_ = 0;       // index of next unpassed pause point
@@ -3419,6 +5310,7 @@ class MediaEngine {
   bool isBrowserCapturing_ = false;
   int browserCaptureW_ = 1280;
   int browserCaptureH_ = 720;
+  bool isSourceCapturing_ = false;
 };
 
 // Offline waveform analysis: runs ffmpeg to extract mono PCM and compute per-bucket peaks.
@@ -3479,6 +5371,7 @@ class App {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    SDL_SetWindowMinimumSize(controlWindow_, 1320, 780);
 
     controlRenderer_ = SDL_CreateRenderer(controlWindow_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!controlRenderer_) {
@@ -3488,14 +5381,15 @@ class App {
 
     // Create optional Decks Panel window
     decksPanelWindow_ = SDL_CreateWindow(
-      "Playboy Decks",
+      "Deckboy Decks",
       SDL_WINDOWPOS_UNDEFINED,
       SDL_WINDOWPOS_UNDEFINED,
-      400,
-      600,
+      1760,
+      1020,
       SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
     if (decksPanelWindow_) {
+      SDL_SetWindowMinimumSize(decksPanelWindow_, 1400, 780);
       decksPanelRenderer_ = SDL_CreateRenderer(decksPanelWindow_, -1, SDL_RENDERER_ACCELERATED);
       if (!decksPanelRenderer_) {
         SDL_DestroyWindow(decksPanelWindow_);
@@ -3503,11 +5397,11 @@ class App {
       }
     }
 
-    fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 28);
-    fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 18);
-    fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 15);
-    fontMono_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 16);
-    fontPixel_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 20);
+    fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 32);
+    fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 21);
+    fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 17);
+    fontMono_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 18);
+    fontPixel_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 24);
     if (!fontLarge_ || !fontBase_ || !fontSmall_ || !fontMono_) {
       std::cerr << "Font load failed: " << TTF_GetError() << '\n';
       return false;
@@ -3517,6 +5411,8 @@ class App {
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
+    disarmAllOutputsForStartup();
+    updateDecksPanelVisibility();
     // Output starts black — no cue is active until the operator takes one
     for (auto& deck : project_.decks) { deck.activeIndex = -1; }
     // Show startup dialog so operator can choose to load or start fresh
@@ -3526,6 +5422,12 @@ class App {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    if (!rebuildOutputRuntimes()) {
+      std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
+      return false;
+    }
+    observedDisplayCount_ = SDL_GetNumVideoDisplays();
+    refreshDisplayTopology(false);
     selectionChangedAt_ = SDL_GetTicks64();
     lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
@@ -3542,6 +5444,10 @@ class App {
       destroyDeckRuntime(runtime);
     }
     deckRuntimes_.clear();
+    for (auto& runtime : outputRuntimes_) {
+      destroyOutputRuntime(runtime);
+    }
+    outputRuntimes_.clear();
 #if defined(PLAYBOY_HAS_NDI_SDK)
     ndiApi_.shutdown();
 #endif
@@ -3636,14 +5542,13 @@ class App {
       auto path = pendingProjectSaveAs_.get();
       if (path) {
         currentProjectFile_ = *path;
-        markProjectDirty();
-        triggerToast("saved as " + currentProjectLabel());
+        saveProjectNow(true);
       }
     }
   }
 
   static int runSelfCheck() {
-    std::cout << "playboy-native self-check\n";
+    std::cout << "deckboy-native self-check\n";
     std::cout << "project-root: " << Paths::projectRoot() << '\n';
     std::cout << "font-sans: " << (fs::exists(Paths::fontPath(Paths::FontName::Sans)) ? "ok" : "missing") << '\n';
     std::cout << "font-mono: " << (fs::exists(Paths::fontPath(Paths::FontName::Mono)) ? "ok" : "missing") << '\n';
@@ -3700,6 +5605,12 @@ class App {
       project.outputCanvasEnabled = true;
       project.outputCanvasWidth = 5760;
       project.outputCanvasHeight = 2160;
+      project.focusedOutputIndex = 1;
+      project.jumpMode = "load";
+      project.jumpTransitionEnabled = false;
+      project.panicProfile = "fade_rewind";
+      project.panicFadeSeconds = 1.4;
+      project.panicAutoRestore = true;
       Deck deck;
       deck.name = "Deck Smoke";
       deck.outputRouteDeckIndex = 0;
@@ -3728,11 +5639,14 @@ class App {
       deck.timecodeChaseEnabled = true;
       deck.timecodeRunEnabled = false;
       deck.timecodeTriggerEnabled = true;
+      deck.timecodeJamSyncEnabled = false;
+      deck.timecodeFreewheelSeconds = 2.5;
       deck.timecodeFps = 25.0;
       deck.timecodeCurrentSeconds = 12.0;
       Cue cue;
       cue.path = "/tmp/test.mp4";
       cue.name = "Smoke Cue";
+      cue.id = "smoke-cue-1";
       cue.kind = CueKind::Video;
       cue.duration = 20.0;
       cue.width = 1920;
@@ -3751,9 +5665,14 @@ class App {
       cue.chromaKeyColor = SDL_Color {20, 220, 45, 255};
       cue.chromaKeyTolerance = 88.5f;
       cue.chromaKeySoftness = 14.0f;
+      cue.brightness = 1.25f;
+      cue.contrast = 0.85f;
+      cue.saturation = 1.40f;
+      cue.hueShift = -22.0f;
       Cue imgCue;
       imgCue.path = "/tmp/test.jpg";
       imgCue.name = "Smoke Still";
+      imgCue.id = "smoke-cue-2";
       imgCue.kind = CueKind::Image;
       imgCue.stillDurationSeconds = 5.0;
       Cue ltCue;
@@ -3767,6 +5686,38 @@ class App {
       deck.cues.push_back(imgCue);   // [1]: image still — stillDuration test
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
       project.decks = {deck};
+      project.outputs = {
+        OutputTarget {"Program Out", 0, 1, true, "window", -1, true, "srt", "srt://127.0.0.1:9100?mode=caller", 7200},
+        OutputTarget {"Stage Left Stream", 0, 2, true, "stream", 0, true, "rtmp", "rtmp://127.0.0.1/live/stage-left", 4200}
+      };
+      project.outputs[0].ndiEnabled = true;
+      project.outputs[0].ndiSourceName = "Program Fill";
+      project.outputs[0].ndiKeyEnabled = true;
+      project.outputs[0].ndiKeySourceName = "Program Key";
+      project.outputs[0].outputId = "out-smoke-program";
+      project.outputs[0].outputAlpha = 0.82f;
+      project.outputs[0].outputDelayMs = 240;
+      project.outputs[0].outputTimeOverlayEnabled = true;
+      project.outputs[0].outputColorSpace = "bt709";
+      project.outputs[1].outputId = "out-smoke-stream";
+      project.outputs[1].outputAlpha = 0.67f;
+      project.outputs[1].outputDelayMs = 120;
+      project.outputs[1].outputTimeOverlayEnabled = false;
+      project.outputs[1].outputColorSpace = "srgb";
+      project.layerAssignments = {
+        LayerAssignment {0, 0, 3, true},
+        LayerAssignment {0, 1, 9, true}
+      };
+      project.layerAssignments[0].outputId = project.outputs[0].outputId;
+      project.layerAssignments[0].layerId = "lay-smoke-main";
+      project.layerAssignments[1].outputId = project.outputs[1].outputId;
+      project.layerAssignments[1].layerId = "lay-smoke-stream";
+      project.groupPresets = {
+        GroupPreset {"Preset Smoke", std::vector<GroupSlot> {
+          GroupSlot {false, "smoke-cue-2"}
+        }}
+      };
+      project.focusedGroupPresetIndex = 0;
       project.outputBitDepth = 10;
       normalizeProject(project);
 
@@ -3780,6 +5731,59 @@ class App {
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.outputCanvasEnabled && loaded.outputCanvasWidth == 5760 && loaded.outputCanvasHeight == 2160,
                "output canvas persisted");
+        expect(loaded.jumpMode == "load" && !loaded.jumpTransitionEnabled, "jump mode persisted");
+        expect(loaded.panicProfile == "fade_rewind", "panic profile persisted");
+        expect(std::abs(loaded.panicFadeSeconds - 1.4) < 0.01 && loaded.panicAutoRestore, "panic options persisted");
+        expect(loaded.focusedOutputIndex == 1, "focused output persisted");
+        expect(loaded.focusedGroupPresetIndex == 0, "focused group preset persisted");
+        expect(loaded.outputs.size() == 2 &&
+               loaded.outputs[0].name == "Program Out" &&
+               loaded.outputs[1].name == "Stage Left Stream" &&
+               loaded.outputs[0].hostDeckIndex == 0 &&
+               loaded.outputs[1].displayIndex == 2 &&
+               loaded.outputs[0].streamEnabled &&
+               loaded.outputs[0].streamProtocol == "srt" &&
+               loaded.outputs[0].streamUrl == "srt://127.0.0.1:9100?mode=caller" &&
+               loaded.outputs[0].streamBitrateKbps == 7200 &&
+               loaded.outputs[0].outputType == "window" &&
+               loaded.outputs[0].mirrorSourceOutputIndex == -1 &&
+               loaded.outputs[1].streamEnabled &&
+               loaded.outputs[1].streamProtocol == "rtmp" &&
+               loaded.outputs[1].streamBitrateKbps == 4200 &&
+               loaded.outputs[1].outputType == "stream" &&
+               loaded.outputs[1].mirrorSourceOutputIndex == 0 &&
+               loaded.outputs[0].outputId == "out-smoke-program" &&
+               loaded.outputs[1].outputId == "out-smoke-stream" &&
+               std::abs(loaded.outputs[0].outputAlpha - 0.82f) < 0.01f &&
+               loaded.outputs[0].outputDelayMs == 240 &&
+               loaded.outputs[0].outputTimeOverlayEnabled &&
+               loaded.outputs[0].outputColorSpace == "bt709" &&
+               std::abs(loaded.outputs[1].outputAlpha - 0.67f) < 0.01f &&
+               loaded.outputs[1].outputDelayMs == 120 &&
+               !loaded.outputs[1].outputTimeOverlayEnabled &&
+               loaded.outputs[1].outputColorSpace == "srgb",
+               "output targets persisted");
+        expect(loaded.outputs[0].ndiEnabled &&
+               loaded.outputs[0].ndiSourceName == "Program Fill" &&
+               loaded.outputs[0].ndiKeyEnabled &&
+               loaded.outputs[0].ndiKeySourceName == "Program Key",
+               "output ndi persisted");
+        expect(loaded.groupPresets.size() == 1 &&
+               loaded.groupPresets[0].name == "Preset Smoke" &&
+               loaded.groupPresets[0].slots.size() == loaded.decks.size() &&
+               !loaded.groupPresets[0].slots[0].bypass &&
+               loaded.groupPresets[0].slots[0].cueId == "smoke-cue-2",
+               "group presets persisted");
+        expect(loaded.layerAssignments.size() == 2 &&
+               loaded.layerAssignments[0].deckIndex == 0 &&
+               loaded.layerAssignments[0].outputIndex == 0 &&
+               loaded.layerAssignments[0].outputId == "out-smoke-program" &&
+               loaded.layerAssignments[0].layerIndex == 3 &&
+               loaded.layerAssignments[0].layerId == "lay-smoke-main" &&
+               loaded.layerAssignments[1].outputIndex == 1 &&
+               loaded.layerAssignments[1].outputId == "out-smoke-stream" &&
+               loaded.layerAssignments[1].layerIndex == 9 &&
+               loaded.layerAssignments[1].layerId == "lay-smoke-stream", "layer assignments persisted");
         expect(loadedDeck.ndiEnabled && loadedDeck.ndiSourceName == "Smoke Fill", "ndi fill persisted");
         expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
         expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
@@ -3794,6 +5798,8 @@ class App {
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
+        expect(!loadedDeck.timecodeJamSyncEnabled && std::abs(loadedDeck.timecodeFreewheelSeconds - 2.5) < 0.01,
+               "timecode follower options persisted");
         expect(std::abs(loadedCue.inPointSeconds - 2.0) < 0.01 && std::abs(loadedCue.outPointSeconds - 8.0) < 0.01, "trim persisted");
         expect(std::abs(loadedCue.triggerTimecodeSeconds - 13.0) < 0.01, "cue tc mark persisted");
         expect(std::abs(loadedCue.cueTransitionSeconds - 1.25) < 0.01, "cue transition persisted");
@@ -3809,6 +5815,10 @@ class App {
                loadedCue.chromaKeyColor.b == 45 &&
                std::abs(loadedCue.chromaKeyTolerance - 88.5f) < 0.01f &&
                std::abs(loadedCue.chromaKeySoftness - 14.0f) < 0.01f, "cue chroma key persisted");
+        expect(std::abs(loadedCue.brightness - 1.25f) < 0.01f &&
+               std::abs(loadedCue.contrast - 0.85f) < 0.01f &&
+               std::abs(loadedCue.saturation - 1.40f) < 0.01f &&
+               std::abs(loadedCue.hueShift + 22.0f) < 0.01f, "cue color controls persisted");
         if (loadedDeck.cues.size() > 1) {
           const Cue& img = loadedDeck.cues[1];
           expect(img.kind == CueKind::Image, "still image kind persisted");
@@ -3824,6 +5834,26 @@ class App {
       }
       std::error_code ignored;
       fs::remove(smokePath, ignored);
+    }
+
+    {
+      Project legacy;
+      Deck legacyDeck;
+      legacyDeck.name = "Legacy Deck";
+      legacyDeck.ndiEnabled = true;
+      legacyDeck.ndiSourceName = "Legacy Fill";
+      legacyDeck.ndiKeyEnabled = true;
+      legacyDeck.ndiKeySourceName = "Legacy Key";
+      legacy.decks = {legacyDeck};
+      legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, false, "window", -1, false, "srt", "", 6000}};
+      legacy.layerAssignments = {LayerAssignment {0, 0, 0, true}};
+      normalizeProject(legacy);
+      expect(!legacy.outputs.empty()
+               && legacy.outputs[0].ndiEnabled
+               && legacy.outputs[0].ndiSourceName == "Legacy Fill"
+               && legacy.outputs[0].ndiKeyEnabled
+               && legacy.outputs[0].ndiKeySourceName == "Legacy Key",
+             "legacy deck ndi migrated to output");
     }
 
     std::cout << "smoke failures: " << failures << '\n';
@@ -3892,56 +5922,229 @@ class App {
     return runtime ? runtime->mediaEngine.get() : nullptr;
   }
 
+  OutputRuntime* runtimeForOutput(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(outputRuntimes_.size())) {
+      return nullptr;
+    }
+    return &outputRuntimes_[outputIndex];
+  }
+
+  const OutputRuntime* runtimeForOutput(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(outputRuntimes_.size())) {
+      return nullptr;
+    }
+    return &outputRuntimes_[outputIndex];
+  }
+
+  void setOutputRecoveryPausedByEscape(int outputIndex, bool paused) {
+    if (OutputRuntime* runtime = runtimeForOutput(outputIndex); runtime) {
+      runtime->recoveryPausedByEscape = paused;
+    }
+  }
+
+  const OutputTarget& focusedOutput() const {
+    static OutputTarget fallback;
+    if (project_.outputs.empty()) {
+      return fallback;
+    }
+    int index = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    return project_.outputs[index];
+  }
+
+  OutputTarget& focusedOutputMutable() {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      project_.outputs.push_back(OutputTarget {});
+      project_.focusedOutputIndex = 0;
+    }
+    int index = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    return project_.outputs[index];
+  }
+
+  std::string outputLabel(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return outputDefaultName(0);
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    return output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+  }
+
+  std::string deckLabel(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return deckDefaultName(0);
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    return deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
+  }
+
+  int outputIndexById(const std::string& outputId) const {
+    std::string needle = trim(outputId);
+    if (needle.empty()) {
+      return -1;
+    }
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (project_.outputs[outputIndex].outputId == needle) {
+        return outputIndex;
+      }
+    }
+    return -1;
+  }
+
+  int resolveAssignmentOutputIndex(const LayerAssignment& assignment) const {
+    int fromId = outputIndexById(assignment.outputId);
+    if (fromId >= 0) {
+      return fromId;
+    }
+    if (assignment.outputIndex >= 0 && assignment.outputIndex < static_cast<int>(project_.outputs.size())) {
+      return assignment.outputIndex;
+    }
+    return -1;
+  }
+
+  void syncAssignmentOutputReference(LayerAssignment& assignment) {
+    int resolved = resolveAssignmentOutputIndex(assignment);
+    if (resolved < 0) {
+      return;
+    }
+    assignment.outputIndex = resolved;
+    assignment.outputId = project_.outputs[resolved].outputId;
+  }
+
+  std::optional<int> primaryAssignmentIndexForDeck(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return std::nullopt;
+    }
+    std::optional<int> best;
+    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
+      const LayerAssignment& assignment = project_.layerAssignments[i];
+      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
+        continue;
+      }
+      if (resolveAssignmentOutputIndex(assignment) < 0) {
+        continue;
+      }
+      if (!best || assignment.layerIndex < project_.layerAssignments[*best].layerIndex) {
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  std::optional<int> primaryOutputIndexForDeck(int deckIndex) const {
+    if (auto assignmentIndex = primaryAssignmentIndexForDeck(deckIndex); assignmentIndex) {
+      int resolved = resolveAssignmentOutputIndex(project_.layerAssignments[*assignmentIndex]);
+      if (resolved >= 0) {
+        return resolved;
+      }
+    }
+    return std::nullopt;
+  }
+
+  int primaryLayerIndexForDeck(int deckIndex) const {
+    if (auto assignmentIndex = primaryAssignmentIndexForDeck(deckIndex); assignmentIndex) {
+      return std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return 0;
+    }
+    return std::clamp(project_.decks[deckIndex].outputLayerIndex, 0, 255);
+  }
+
   int resolveDeckOutputHostIndex(int deckIndex) const {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return deckIndex;
     }
-    int current = deckIndex;
-    std::vector<bool> visited(project_.decks.size(), false);
-    while (current >= 0 && current < static_cast<int>(project_.decks.size())) {
-      if (visited[current]) {
-        return deckIndex;
-      }
-      visited[current] = true;
-      int next = project_.decks[current].outputRouteDeckIndex;
-      if (next < 0 || next >= static_cast<int>(project_.decks.size()) || next == current) {
-        return current;
-      }
-      current = next;
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    if (!outputIndex || *outputIndex < 0 || *outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return std::clamp(project_.decks[deckIndex].outputRouteDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     }
-    return deckIndex;
+    return std::clamp(project_.outputs[*outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
   }
 
-  std::vector<int> layeredDeckIndicesForOutputHost(int outputDeckIndex) const {
-    std::vector<int> indices;
-    if (outputDeckIndex < 0 || outputDeckIndex >= static_cast<int>(project_.decks.size())) {
-      return indices;
-    }
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      if (resolveDeckOutputHostIndex(deckIndex) == outputDeckIndex) {
-        indices.push_back(deckIndex);
+  int outputIndexForHostDeck(int hostDeckIndex) const {
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (project_.outputs[i].hostDeckIndex == hostDeckIndex) {
+        return i;
       }
     }
-    std::sort(indices.begin(), indices.end(), [&](int a, int b) {
-      const Deck& deckA = project_.decks[a];
-      const Deck& deckB = project_.decks[b];
-      if (deckA.outputLayerIndex != deckB.outputLayerIndex) {
-        return deckA.outputLayerIndex < deckB.outputLayerIndex;
-      }
-      return a < b;
-    });
-    return indices;
+    return -1;
   }
 
-  int nextLayerIndexForOutputHost(int outputDeckIndex, int ignoreDeckIndex = -1) const {
-    int nextLayer = 0;
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      if (deckIndex == ignoreDeckIndex) {
+  int ensureOutputIndexForHostDeck(int hostDeckIndex, bool* created = nullptr) {
+    normalizeProject(project_);
+    if (created) {
+      *created = false;
+    }
+    int clampedHost = std::clamp(hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    int existing = outputIndexForHostDeck(clampedHost);
+    if (existing >= 0) {
+      return existing;
+    }
+    OutputTarget output;
+    output.name = outputDefaultName(static_cast<int>(project_.outputs.size()));
+    output.hostDeckIndex = clampedHost;
+    output.displayIndex = std::max(0, project_.decks[clampedHost].outputDisplayIndex);
+    output.enabled = false;
+    output.outputId = makeOutputId(output, static_cast<int>(project_.outputs.size()));
+    project_.outputs.push_back(output);
+    if (created) {
+      *created = true;
+    }
+    return static_cast<int>(project_.outputs.size()) - 1;
+  }
+
+  int ensurePrimaryAssignmentIndexForDeck(int deckIndex) {
+    normalizeProject(project_);
+    if (auto existing = primaryAssignmentIndexForDeck(deckIndex); existing) {
+      syncAssignmentOutputReference(project_.layerAssignments[*existing]);
+      return *existing;
+    }
+    LayerAssignment assignment;
+    assignment.deckIndex = std::clamp(deckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    assignment.outputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    assignment.outputId = project_.outputs[assignment.outputIndex].outputId;
+    assignment.layerIndex = std::clamp(project_.decks[assignment.deckIndex].outputLayerIndex, 0, 255);
+    assignment.enabled = true;
+    project_.layerAssignments.push_back(assignment);
+    return static_cast<int>(project_.layerAssignments.size()) - 1;
+  }
+
+  std::vector<std::pair<int, int>> layeredDeckEntriesForOutput(int outputIndex) const {
+    std::vector<std::pair<int, int>> entries;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return entries;
+    }
+    for (const auto& assignment : project_.layerAssignments) {
+      if (!assignment.enabled) {
         continue;
       }
-      if (resolveDeckOutputHostIndex(deckIndex) == outputDeckIndex) {
-        nextLayer = std::max(nextLayer, project_.decks[deckIndex].outputLayerIndex + 1);
+      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
+        continue;
       }
+      if (assignment.deckIndex < 0 || assignment.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      entries.emplace_back(std::clamp(assignment.layerIndex, 0, 255), assignment.deckIndex);
+    }
+    std::sort(entries.begin(), entries.end(), [](const auto& a, const auto& b) {
+      if (a.first != b.first) {
+        return a.first < b.first;
+      }
+      return a.second < b.second;
+    });
+    return entries;
+  }
+
+  int nextLayerIndexForOutput(int outputIndex, int ignoreDeckIndex = -1) const {
+    int nextLayer = 0;
+    for (const auto& assignment : project_.layerAssignments) {
+      if (!assignment.enabled || resolveAssignmentOutputIndex(assignment) != outputIndex) {
+        continue;
+      }
+      if (assignment.deckIndex == ignoreDeckIndex) {
+        continue;
+      }
+      nextLayer = std::max(nextLayer, assignment.layerIndex + 1);
     }
     return std::clamp(nextLayer, 0, 255);
   }
@@ -3950,9 +6153,11 @@ class App {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return "out:-- layer:--";
     }
-    int hostIndex = resolveDeckOutputHostIndex(deckIndex);
-    const Deck& deck = project_.decks[deckIndex];
-    return "out:" + std::to_string(hostIndex + 1) + " layer:" + std::to_string(deck.outputLayerIndex);
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    if (!outputIndex) {
+      return "out:-- layer:" + std::to_string(primaryLayerIndexForDeck(deckIndex));
+    }
+    return "out:" + std::to_string(*outputIndex + 1) + " layer:" + std::to_string(primaryLayerIndexForDeck(deckIndex));
   }
 
   std::optional<int> parseDeckReferenceToken(const std::string& token) const {
@@ -3991,9 +6196,13 @@ class App {
       return false;
     }
     project_.focusedDeckIndex = deckIndex;
+    if (auto outputIndex = primaryOutputIndexForDeck(deckIndex); outputIndex) {
+      project_.focusedOutputIndex = *outputIndex;
+    }
     selectionChangedAt_ = SDL_GetTicks64();
     cueSettingsScroll_ = 0;
     cueSettingsScrollMax_ = 0;
+    clearCueFindState();
     triggerToast("deck: " + focusedDeckLabel());
     markProjectDirty();
     return true;
@@ -4010,6 +6219,1106 @@ class App {
     playUiSound(UiSoundEffect::Navigate);
   }
 
+  bool setFocusedOutputIndex(int outputIndex) {
+    normalizeProject(project_);
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    if (project_.focusedOutputIndex == outputIndex) {
+      triggerToast("output: " + outputLabel(outputIndex));
+      return false;
+    }
+    project_.focusedOutputIndex = outputIndex;
+    triggerToast("output: " + outputLabel(outputIndex));
+    markProjectDirty();
+    return true;
+  }
+
+  void cycleFocusedOutput(int direction) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    int outputCount = static_cast<int>(project_.outputs.size());
+    int nextIndex = (project_.focusedOutputIndex + direction + outputCount) % outputCount;
+    if (setFocusedOutputIndex(nextIndex)) {
+      playUiSound(UiSoundEffect::Navigate);
+    }
+  }
+
+  int addOutput(int hostDeckIndex = -1, std::string outputType = "window") {
+    normalizeProject(project_);
+    if (project_.decks.empty()) {
+      return 0;
+    }
+    int normalizedHost = hostDeckIndex;
+    if (normalizedHost < 0 || normalizedHost >= static_cast<int>(project_.decks.size())) {
+      normalizedHost = project_.focusedDeckIndex;
+    }
+    normalizedHost = std::clamp(normalizedHost, 0, static_cast<int>(project_.decks.size()) - 1);
+
+    OutputTarget output;
+    output.name = outputDefaultName(static_cast<int>(project_.outputs.size()));
+    output.hostDeckIndex = normalizedHost;
+    output.displayIndex = std::max(0, project_.decks[normalizedHost].outputDisplayIndex);
+    output.enabled = false;
+    output.outputType = normalizeOutputType(outputType);
+    output.mirrorSourceOutputIndex = -1;
+    output.streamEnabled = (output.outputType == "stream");
+    output.streamProtocol = "srt";
+    output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(project_.outputs.size()));
+    output.streamBitrateKbps = 6000;
+    output.outputId = makeOutputId(output, static_cast<int>(project_.outputs.size()));
+    project_.outputs.push_back(output);
+    int newIndex = static_cast<int>(project_.outputs.size()) - 1;
+    project_.focusedOutputIndex = newIndex;
+
+    if (!rebuildOutputRuntimes()) {
+      triggerToast("output create failed");
+      return project_.focusedOutputIndex;
+    }
+    triggerToast("output added (off): " + outputLabel(newIndex));
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+    return newIndex;
+  }
+
+  bool removeOutput(int outputIndex) {
+    normalizeProject(project_);
+    int outputCount = static_cast<int>(project_.outputs.size());
+    if (outputCount <= 1) {
+      triggerToast("keep at least one output");
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= outputCount) {
+      return false;
+    }
+
+    int fallbackIndex = (outputIndex + 1 < outputCount) ? outputIndex + 1 : outputIndex - 1;
+    fallbackIndex = std::clamp(fallbackIndex, 0, outputCount - 1);
+    int fallbackHostDeck = std::clamp(project_.outputs[fallbackIndex].hostDeckIndex, 0,
+                                      static_cast<int>(project_.decks.size()) - 1);
+    std::string removedLabel = outputLabel(outputIndex);
+    std::string removedOutputId = trim(project_.outputs[outputIndex].outputId);
+
+    std::vector<bool> deckTouched(project_.decks.size(), false);
+    for (const LayerAssignment& assignment : project_.layerAssignments) {
+      bool removeAssignment = false;
+      if (!removedOutputId.empty() && trim(assignment.outputId) == removedOutputId) {
+        removeAssignment = true;
+      } else if (removedOutputId.empty() && assignment.outputIndex == outputIndex) {
+        removeAssignment = true;
+      }
+      if (removeAssignment &&
+          assignment.deckIndex >= 0 &&
+          assignment.deckIndex < static_cast<int>(deckTouched.size())) {
+        deckTouched[assignment.deckIndex] = true;
+      }
+    }
+
+    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
+      bool removeAssignment = false;
+      if (!removedOutputId.empty() && trim(it->outputId) == removedOutputId) {
+        removeAssignment = true;
+      } else if (removedOutputId.empty() && it->outputIndex == outputIndex) {
+        removeAssignment = true;
+      }
+      if (removeAssignment) {
+        it = project_.layerAssignments.erase(it);
+      } else {
+        if (it->outputIndex > outputIndex) {
+          it->outputIndex -= 1;
+        }
+        ++it;
+      }
+    }
+
+    project_.outputs.erase(project_.outputs.begin() + outputIndex);
+
+    for (OutputTarget& output : project_.outputs) {
+      if (output.mirrorSourceOutputIndex == outputIndex) {
+        output.mirrorSourceOutputIndex = -1;
+      } else if (output.mirrorSourceOutputIndex > outputIndex) {
+        output.mirrorSourceOutputIndex -= 1;
+      }
+    }
+
+    if (project_.focusedOutputIndex > outputIndex) {
+      project_.focusedOutputIndex -= 1;
+    } else if (project_.focusedOutputIndex >= static_cast<int>(project_.outputs.size())) {
+      project_.focusedOutputIndex = static_cast<int>(project_.outputs.size()) - 1;
+    }
+
+    int fallbackNewIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (!deckTouched[deckIndex]) {
+        continue;
+      }
+      project_.decks[deckIndex].outputRouteDeckIndex = fallbackHostDeck;
+      bool hasAssignment = false;
+      for (const LayerAssignment& assignment : project_.layerAssignments) {
+        if (!assignment.enabled || assignment.deckIndex != deckIndex) {
+          continue;
+        }
+        hasAssignment = true;
+        break;
+      }
+      if (!hasAssignment) {
+        LayerAssignment assignment;
+        assignment.deckIndex = deckIndex;
+        assignment.outputIndex = fallbackNewIndex;
+        assignment.outputId = project_.outputs[fallbackNewIndex].outputId;
+        assignment.layerIndex = std::clamp(project_.decks[deckIndex].outputLayerIndex, 0, 255);
+        assignment.enabled = true;
+        project_.layerAssignments.push_back(assignment);
+      }
+    }
+
+    normalizeProject(project_);
+    if (!rebuildOutputRuntimes()) {
+      triggerToast("output remove failed");
+      return false;
+    }
+    triggerToast("output removed: " + removedLabel);
+    playUiSound(UiSoundEffect::Delete);
+    markProjectDirty();
+    return true;
+  }
+
+  bool assignDeckToOutput(int deckIndex, int outputIndex, std::optional<int> requestedLayer = std::nullopt) {
+    normalizeProject(project_);
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+
+    int assignmentIndex = -1;
+    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
+      LayerAssignment& candidate = project_.layerAssignments[i];
+      if (candidate.deckIndex == deckIndex && resolveAssignmentOutputIndex(candidate) == outputIndex) {
+        assignmentIndex = i;
+        break;
+      }
+    }
+
+    bool created = false;
+    if (assignmentIndex < 0) {
+      LayerAssignment assignment;
+      assignment.deckIndex = deckIndex;
+      assignment.outputIndex = outputIndex;
+      assignment.outputId = project_.outputs[outputIndex].outputId;
+      assignment.layerIndex = nextLayerIndexForOutput(outputIndex);
+      assignment.enabled = true;
+      project_.layerAssignments.push_back(assignment);
+      assignmentIndex = static_cast<int>(project_.layerAssignments.size()) - 1;
+      created = true;
+    }
+
+    LayerAssignment& assignment = project_.layerAssignments[assignmentIndex];
+    int nextLayer = assignment.layerIndex;
+    if (requestedLayer) {
+      nextLayer = std::clamp(*requestedLayer, 0, 255);
+    } else if (created || !assignment.enabled) {
+      nextLayer = nextLayerIndexForOutput(outputIndex, deckIndex);
+    }
+
+    bool changed = created
+      || !assignment.enabled
+      || assignment.layerIndex != nextLayer;
+    assignment.deckIndex = deckIndex;
+    assignment.outputIndex = outputIndex;
+    assignment.outputId = project_.outputs[outputIndex].outputId;
+    assignment.layerIndex = nextLayer;
+    assignment.enabled = true;
+    project_.focusedOutputIndex = outputIndex;
+    project_.decks[deckIndex].outputRouteDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    project_.decks[deckIndex].outputLayerIndex = std::clamp(nextLayer, 0, 255);
+
+    triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex) + " L" + std::to_string(nextLayer));
+    if (changed) {
+      playUiSound(UiSoundEffect::Toggle);
+      markProjectDirty();
+    }
+    return changed;
+  }
+
+  bool assignFocusedDeckToFocusedOutput(std::optional<int> requestedLayer = std::nullopt) {
+    return assignDeckToOutput(project_.focusedDeckIndex, project_.focusedOutputIndex, requestedLayer);
+  }
+
+  std::optional<int> assignmentIndexForDeckOutput(int deckIndex, int outputIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return std::nullopt;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return std::nullopt;
+    }
+    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
+      const LayerAssignment& assignment = project_.layerAssignments[i];
+      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
+        continue;
+      }
+      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
+        continue;
+      }
+      return i;
+    }
+    return std::nullopt;
+  }
+
+  int enabledAssignmentCountForDeck(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return 0;
+    }
+    int count = 0;
+    for (const LayerAssignment& assignment : project_.layerAssignments) {
+      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
+        continue;
+      }
+      if (resolveAssignmentOutputIndex(assignment) < 0) {
+        continue;
+      }
+      ++count;
+    }
+    return count;
+  }
+
+  bool setDeckOutputAssignmentLayer(int deckIndex, int outputIndex, int layerIndex) {
+    normalizeProject(project_);
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    int clamped = std::clamp(layerIndex, 0, 255);
+    bool changed = false;
+    for (LayerAssignment& assignment : project_.layerAssignments) {
+      if (assignment.deckIndex != deckIndex || !assignment.enabled) {
+        continue;
+      }
+      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
+        continue;
+      }
+      if (assignment.layerIndex != clamped) {
+        assignment.layerIndex = clamped;
+        changed = true;
+      }
+    }
+    if (!changed) {
+      triggerToast("layer " + std::to_string(clamped));
+      return false;
+    }
+    if (auto primaryOutput = primaryOutputIndexForDeck(deckIndex); primaryOutput && *primaryOutput == outputIndex) {
+      project_.decks[deckIndex].outputLayerIndex = clamped;
+    }
+    triggerToast("layer set d" + std::to_string(deckIndex + 1)
+      + " -> " + outputLabel(outputIndex) + " L" + std::to_string(clamped));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool unassignDeckFromOutput(int deckIndex, int outputIndex) {
+    normalizeProject(project_);
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    int remainingElsewhere = 0;
+    for (const LayerAssignment& assignment : project_.layerAssignments) {
+      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
+        continue;
+      }
+      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
+        ++remainingElsewhere;
+      }
+    }
+    if (remainingElsewhere <= 0) {
+      triggerToast("routing: keep at least one output");
+      return false;
+    }
+
+    bool removed = false;
+    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
+      if (it->deckIndex == deckIndex && resolveAssignmentOutputIndex(*it) == outputIndex) {
+        it = project_.layerAssignments.erase(it);
+        removed = true;
+      } else {
+        ++it;
+      }
+    }
+    if (!removed) {
+      return false;
+    }
+    normalizeProject(project_);
+    triggerToast("unassign: " + deckLabel(deckIndex) + " x " + outputLabel(outputIndex));
+    playUiSound(UiSoundEffect::Delete);
+    markProjectDirty();
+    return true;
+  }
+
+  bool moveDeckToOutput(int deckIndex, int outputIndex, std::optional<int> requestedLayer = std::nullopt) {
+    normalizeProject(project_);
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    bool changed = assignDeckToOutput(deckIndex, outputIndex, requestedLayer);
+
+    bool removedOthers = false;
+    bool keptOneForTarget = false;
+    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
+      if (it->deckIndex != deckIndex) {
+        ++it;
+        continue;
+      }
+      int resolved = resolveAssignmentOutputIndex(*it);
+      if (resolved != outputIndex) {
+        it = project_.layerAssignments.erase(it);
+        removedOthers = true;
+        continue;
+      }
+      if (!keptOneForTarget) {
+        keptOneForTarget = true;
+        ++it;
+        continue;
+      }
+      it = project_.layerAssignments.erase(it);
+      removedOthers = true;
+    }
+
+    if (removedOthers) {
+      normalizeProject(project_);
+      triggerToast("move: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex));
+      playUiSound(UiSoundEffect::Toggle);
+      markProjectDirty();
+    }
+    return changed || removedOthers;
+  }
+
+  bool setFocusedOutputHostDeck(int hostDeckIndex) {
+    normalizeProject(project_);
+    if (hostDeckIndex < 0 || hostDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    int clampedHost = std::clamp(hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    if (output.hostDeckIndex == clampedHost) {
+      triggerToast("host: " + deckLabel(clampedHost));
+      return false;
+    }
+    output.hostDeckIndex = clampedHost;
+    project_.decks[clampedHost].outputDisplayIndex = std::max(0, output.displayIndex);
+    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    triggerToast("host: " + deckLabel(clampedHost));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedOutputEnabled(bool enabled, bool autoFullscreenWhenEnabling = true) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return false;
+    }
+    int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    OutputTarget& output = project_.outputs[outputIndex];
+    bool windowOutput = normalizeOutputType(output.outputType) == "window";
+    bool autoSwitchedToNative = false;
+    if (enabled && windowOutput && !project_.outputFollowDisplay) {
+      project_.outputFollowDisplay = true;
+      autoSwitchedToNative = true;
+    }
+
+    if (output.enabled == enabled) {
+      // Treat repeated ON as a recovery operation: re-apply display placement,
+      // re-fullscreen window outputs, and raise the window.
+      if (enabled) {
+        if (autoSwitchedToNative) {
+          applyOutputDisplaySelectionAllOutputs(true);
+        }
+        setOutputRecoveryPausedByEscape(outputIndex, false);
+        if (windowOutput) {
+          recoverWindowOutputIfNeeded(outputIndex, true);
+          if (autoSwitchedToNative) {
+            triggerToast("output recovered: auto native");
+          }
+        } else {
+          triggerToast("output: on (stream)");
+        }
+        playUiSound(UiSoundEffect::Toggle);
+        if (autoSwitchedToNative) {
+          markProjectDirty();
+        }
+        return true;
+      }
+      triggerToast("output: off");
+      return false;
+    }
+
+    output.enabled = enabled;
+    setOutputRecoveryPausedByEscape(outputIndex, false);
+    if (!enabled) {
+      stopOutputStream(outputIndex);
+      if (auto* runtime = runtimeForOutput(outputIndex)) {
+        runtime->delayFrames.clear();
+        runtime->latestCapturedFrame = {};
+      }
+    }
+    if (autoSwitchedToNative) {
+      applyOutputDisplaySelectionAllOutputs(true);
+    } else {
+      applyOutputDisplaySelection(outputIndex);
+    }
+
+    if (enabled && autoFullscreenWhenEnabling && windowOutput) {
+      enableOutputFullscreen(outputIndex, false);
+      triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
+    } else {
+      triggerToast(std::string("output: ") + (enabled ? "on" : "off"));
+    }
+
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  void toggleFocusedOutputEnabled() {
+    setFocusedOutputEnabled(!focusedOutput().enabled);
+  }
+
+  bool setFocusedOutputType(const std::string& outputType) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return false;
+    }
+    int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    OutputTarget& output = project_.outputs[outputIndex];
+    std::string current = normalizeOutputType(output.outputType);
+    std::string nextType = normalizeOutputType(outputType);
+    if (current == nextType) {
+      triggerToast("output type: " + current);
+      return false;
+    }
+    output.outputType = nextType;
+    if (nextType == "stream") {
+      output.streamEnabled = true;
+    } else {
+      output.mirrorSourceOutputIndex = -1;
+    }
+    stopOutputStream(outputIndex);
+    if (rebuildOutputRuntimes()) {
+      if (project_.outputs[outputIndex].enabled && nextType == "window") {
+        enableOutputFullscreen(outputIndex, false);
+      }
+      triggerToast("output type: " + nextType);
+      playUiSound(UiSoundEffect::Toggle);
+      markProjectDirty();
+      return true;
+    }
+    triggerToast("output type change failed");
+    return false;
+  }
+
+  bool setFocusedOutputMirrorSource(int sourceOutputIndex) {
+    normalizeProject(project_);
+    int normalized = sourceOutputIndex;
+    if (normalized < 0 || normalized >= static_cast<int>(project_.outputs.size()) ||
+        normalized == project_.focusedOutputIndex) {
+      normalized = -1;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    if (output.mirrorSourceOutputIndex == normalized) {
+      std::string label = normalized >= 0 ? ("out " + std::to_string(normalized + 1)) : "off";
+      triggerToast("mirror: " + label);
+      return false;
+    }
+    output.mirrorSourceOutputIndex = normalized;
+    stopOutputStream(project_.focusedOutputIndex);
+    std::string label = normalized >= 0 ? ("out " + std::to_string(normalized + 1)) : "off";
+    triggerToast("mirror: " + label);
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  void cycleFocusedOutputMirrorSource(int direction) {
+    normalizeProject(project_);
+    std::vector<int> candidates;
+    candidates.push_back(-1);
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (i == project_.focusedOutputIndex) {
+        continue;
+      }
+      candidates.push_back(i);
+    }
+    if (candidates.empty()) {
+      return;
+    }
+    int current = focusedOutput().mirrorSourceOutputIndex;
+    auto it = std::find(candidates.begin(), candidates.end(), current);
+    int index = (it == candidates.end()) ? 0 : static_cast<int>(std::distance(candidates.begin(), it));
+    int next = (index + direction + static_cast<int>(candidates.size())) % static_cast<int>(candidates.size());
+    setFocusedOutputMirrorSource(candidates[next]);
+  }
+
+  bool promptFocusedOutputMirrorSourcePicker() {
+    normalizeProject(project_);
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.emplace_back("Off (render own assignments)", "-1");
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (outputIndex == project_.focusedOutputIndex) {
+        continue;
+      }
+      std::string label = "Out " + std::to_string(outputIndex + 1) + " - " + outputLabel(outputIndex);
+      choices.emplace_back(label, std::to_string(outputIndex));
+    }
+    std::string initial = std::to_string(focusedOutput().mirrorSourceOutputIndex);
+    auto choice = pickChoiceFromList("Mirror Source", "Choose output feed to mirror", choices, initial);
+    if (!choice) {
+      return false;
+    }
+    try {
+      int mirrorIndex = std::stoi(trim(*choice));
+      return setFocusedOutputMirrorSource(mirrorIndex);
+    } catch (...) {
+      triggerToast("mirror: invalid");
+      return false;
+    }
+  }
+
+  bool setFocusedOutputStreamEnabled(bool enabled) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    if (output.streamEnabled == enabled) {
+      triggerToast("stream: " + std::string(enabled ? "on" : "off"));
+      return false;
+    }
+    output.streamEnabled = enabled;
+    output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    if (trim(output.streamUrl).empty()) {
+      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex);
+    }
+    if (!enabled) {
+      stopOutputStream(project_.focusedOutputIndex);
+    } else {
+      stopOutputStream(project_.focusedOutputIndex);
+    }
+    triggerToast("stream: " + std::string(enabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  void toggleFocusedOutputStreamEnabled() {
+    setFocusedOutputStreamEnabled(!focusedOutput().streamEnabled);
+  }
+
+  bool setFocusedOutputStreamProtocol(const std::string& protocol) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    std::string current = normalizeOutputStreamProtocol(output.streamProtocol);
+    std::string nextProtocol = normalizeOutputStreamProtocol(protocol);
+    if (nextProtocol == current) {
+      triggerToast("stream proto: " + toUpper(current));
+      return false;
+    }
+    output.streamProtocol = nextProtocol;
+    if (trim(output.streamUrl).empty() || output.streamUrl == defaultOutputStreamUrl(current, project_.focusedOutputIndex)) {
+      output.streamUrl = defaultOutputStreamUrl(nextProtocol, project_.focusedOutputIndex);
+    }
+    stopOutputStream(project_.focusedOutputIndex);
+    triggerToast("stream proto: " + toUpper(nextProtocol));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool cycleFocusedOutputStreamProtocol(int direction) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    static const std::array<std::string, 2> protocols {"srt", "rtmp"};
+    std::string current = normalizeOutputStreamProtocol(output.streamProtocol);
+    int index = 0;
+    for (int i = 0; i < static_cast<int>(protocols.size()); ++i) {
+      if (protocols[i] == current) {
+        index = i;
+        break;
+      }
+    }
+    int next = (index + direction + static_cast<int>(protocols.size())) % static_cast<int>(protocols.size());
+    return setFocusedOutputStreamProtocol(protocols[next]);
+  }
+
+  bool setFocusedOutputStreamUrl(const std::string& streamUrl) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    std::string normalized = trim(streamUrl);
+    if (normalized.empty()) {
+      normalized = defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex);
+    }
+    if (output.streamUrl == normalized) {
+      triggerToast("stream url unchanged");
+      return false;
+    }
+    output.streamUrl = normalized;
+    stopOutputStream(project_.focusedOutputIndex);
+    triggerToast("stream url set");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedOutputStreamBitrateKbps(int bitrateKbps) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    int clamped = std::clamp(bitrateKbps, 500, 50000);
+    if (output.streamBitrateKbps == clamped) {
+      triggerToast("stream bitrate: " + std::to_string(clamped) + " kbps");
+      return false;
+    }
+    output.streamBitrateKbps = clamped;
+    stopOutputStream(project_.focusedOutputIndex);
+    triggerToast("stream bitrate: " + std::to_string(clamped) + " kbps");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedOutputAlpha(float alpha) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    float clamped = std::clamp(alpha, 0.0f, 1.0f);
+    if (std::fabs(output.outputAlpha - clamped) < 0.001f) {
+      int pct = static_cast<int>(std::lround(clamped * 100.0f));
+      triggerToast("output alpha: " + std::to_string(pct) + "%");
+      return false;
+    }
+    output.outputAlpha = clamped;
+    int pct = static_cast<int>(std::lround(clamped * 100.0f));
+    triggerToast("output alpha: " + std::to_string(pct) + "%");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedOutputDelayMs(int delayMs) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    int clamped = std::clamp(delayMs, 0, 5000);
+    if (output.outputDelayMs == clamped) {
+      triggerToast("output delay: " + std::to_string(clamped) + " ms");
+      return false;
+    }
+    output.outputDelayMs = clamped;
+    if (auto* runtime = runtimeForOutput(project_.focusedOutputIndex)) {
+      runtime->delayFrames.clear();
+    }
+    triggerToast("output delay: " + std::to_string(clamped) + " ms");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedOutputTimeOverlayEnabled(bool enabled) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    if (output.outputTimeOverlayEnabled == enabled) {
+      triggerToast(enabled ? "output overlay on" : "output overlay off");
+      return false;
+    }
+    output.outputTimeOverlayEnabled = enabled;
+    triggerToast(enabled ? "output overlay on" : "output overlay off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool toggleFocusedOutputTimeOverlayEnabled() {
+    return setFocusedOutputTimeOverlayEnabled(!focusedOutput().outputTimeOverlayEnabled);
+  }
+
+  bool setFocusedOutputColorSpace(const std::string& colorSpaceToken) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    std::string next = normalizeOutputColorSpace(colorSpaceToken);
+    if (output.outputColorSpace == next) {
+      triggerToast("color space: " + toUpper(next));
+      return false;
+    }
+    output.outputColorSpace = next;
+    stopOutputStream(project_.focusedOutputIndex);
+    triggerToast("color space: " + toUpper(next));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool cycleFocusedOutputColorSpace(int direction) {
+    normalizeProject(project_);
+    static const std::array<std::string, 3> kColorSpaces {"auto", "bt709", "srgb"};
+    std::string current = normalizeOutputColorSpace(focusedOutput().outputColorSpace);
+    int index = 0;
+    for (int i = 0; i < static_cast<int>(kColorSpaces.size()); ++i) {
+      if (kColorSpaces[i] == current) {
+        index = i;
+        break;
+      }
+    }
+    int next = (index + direction + static_cast<int>(kColorSpaces.size())) % static_cast<int>(kColorSpaces.size());
+    return setFocusedOutputColorSpace(kColorSpaces[next]);
+  }
+
+  const GroupPreset* focusedGroupPreset() const {
+    if (project_.groupPresets.empty()) {
+      return nullptr;
+    }
+    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+    return &project_.groupPresets[index];
+  }
+
+  GroupPreset* focusedGroupPresetMutable() {
+    normalizeProject(project_);
+    if (project_.groupPresets.empty()) {
+      return nullptr;
+    }
+    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+    return &project_.groupPresets[index];
+  }
+
+  std::string groupPresetLabel(int presetIndex) const {
+    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+      return groupPresetDefaultName(0);
+    }
+    const GroupPreset& preset = project_.groupPresets[presetIndex];
+    return preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name;
+  }
+
+  int ensureGroupPreset(bool captureSelected = true, const std::string& preferredName = "") {
+    normalizeProject(project_);
+    if (!project_.groupPresets.empty()) {
+      project_.focusedGroupPresetIndex = std::clamp(
+        project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+      return project_.focusedGroupPresetIndex;
+    }
+    GroupPreset preset;
+    preset.name = trim(preferredName).empty() ? groupPresetDefaultName(0) : trim(preferredName);
+    preset.slots.resize(project_.decks.size());
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      GroupSlot& slot = preset.slots[deckIndex];
+      if (!captureSelected) {
+        slot.bypass = true;
+        continue;
+      }
+      const Deck& deck = project_.decks[deckIndex];
+      if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+        slot.bypass = false;
+        slot.cueId = deck.cues[deck.selectedIndex].id;
+      } else {
+        slot.bypass = true;
+      }
+    }
+    project_.groupPresets.push_back(preset);
+    project_.focusedGroupPresetIndex = 0;
+    markProjectDirty();
+    return 0;
+  }
+
+  bool setFocusedGroupPresetIndex(int presetIndex) {
+    normalizeProject(project_);
+    if (project_.groupPresets.empty()) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+      return false;
+    }
+    if (project_.focusedGroupPresetIndex == presetIndex) {
+      triggerToast("master cue: " + groupPresetLabel(presetIndex));
+      return false;
+    }
+    project_.focusedGroupPresetIndex = presetIndex;
+    triggerToast("master cue: " + groupPresetLabel(presetIndex));
+    markProjectDirty();
+    return true;
+  }
+
+  void cycleFocusedGroupPreset(int direction) {
+    normalizeProject(project_);
+    if (project_.groupPresets.empty()) {
+      return;
+    }
+    int count = static_cast<int>(project_.groupPresets.size());
+    int next = (project_.focusedGroupPresetIndex + direction + count) % count;
+    if (setFocusedGroupPresetIndex(next)) {
+      playUiSound(UiSoundEffect::Navigate);
+    }
+  }
+
+  int addGroupPreset(const std::string& name = "", bool captureSelected = true) {
+    normalizeProject(project_);
+    GroupPreset preset;
+    std::string trimmedName = trim(name);
+    preset.name = trimmedName.empty() ? groupPresetDefaultName(static_cast<int>(project_.groupPresets.size())) : trimmedName;
+    preset.slots.resize(project_.decks.size());
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      GroupSlot& slot = preset.slots[deckIndex];
+      if (!captureSelected) {
+        slot.bypass = true;
+        continue;
+      }
+      const Deck& deck = project_.decks[deckIndex];
+      if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+        slot.bypass = false;
+        slot.cueId = deck.cues[deck.selectedIndex].id;
+      } else {
+        slot.bypass = true;
+      }
+    }
+    project_.groupPresets.push_back(preset);
+    project_.focusedGroupPresetIndex = static_cast<int>(project_.groupPresets.size()) - 1;
+    triggerToast("master cue add: " + groupPresetLabel(project_.focusedGroupPresetIndex));
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+    return project_.focusedGroupPresetIndex;
+  }
+
+  bool deleteFocusedGroupPreset() {
+    normalizeProject(project_);
+    if (project_.groupPresets.empty()) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+    std::string removedName = groupPresetLabel(index);
+    project_.groupPresets.erase(project_.groupPresets.begin() + index);
+    if (project_.groupPresets.empty()) {
+      project_.focusedGroupPresetIndex = 0;
+    } else {
+      project_.focusedGroupPresetIndex = std::clamp(index, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+    }
+    triggerToast("master cue del: " + removedName);
+    playUiSound(UiSoundEffect::Delete);
+    markProjectDirty();
+    return true;
+  }
+
+  bool renameFocusedGroupPreset(const std::string& name) {
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    std::string trimmedName = trim(name);
+    if (trimmedName.empty()) {
+      trimmedName = groupPresetDefaultName(project_.focusedGroupPresetIndex);
+    }
+    if (preset->name == trimmedName) {
+      triggerToast("master cue: " + trimmedName);
+      return false;
+    }
+    preset->name = trimmedName;
+    triggerToast("master cue name: " + trimmedName);
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedGroupSlotBypass(int deckIndex, bool bypass) {
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    if (deckIndex >= static_cast<int>(preset->slots.size())) {
+      preset->slots.resize(project_.decks.size());
+    }
+    GroupSlot& slot = preset->slots[deckIndex];
+    if (slot.bypass == bypass) {
+      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": " + (bypass ? "bypass" : "armed"));
+      return false;
+    }
+    slot.bypass = bypass;
+    if (bypass) {
+      slot.cueId.clear();
+    }
+    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": " + (bypass ? "bypass" : "armed"));
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedGroupSlotFromCueIndex(int deckIndex, int cueIndex) {
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    if (deckIndex >= static_cast<int>(preset->slots.size())) {
+      preset->slots.resize(project_.decks.size());
+    }
+    GroupSlot& slot = preset->slots[deckIndex];
+    std::string nextCueId = deck.cues[cueIndex].id;
+    if (!slot.bypass && slot.cueId == nextCueId) {
+      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": cue " + std::to_string(cueIndex + 1));
+      return false;
+    }
+    slot.bypass = false;
+    slot.cueId = nextCueId;
+    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": cue " + std::to_string(cueIndex + 1));
+    markProjectDirty();
+    return true;
+  }
+
+  bool setFocusedGroupSlotByToken(int deckIndex, const std::string& token) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    std::string value = trim(token);
+    std::string upper = toUpper(value);
+    if (upper == "BYPASS" || upper == "OFF" || upper == "SKIP" || upper == "NONE" || upper == "--") {
+      return setFocusedGroupSlotBypass(deckIndex, true);
+    }
+    if (upper == "SEL" || upper == "SELECTED") {
+      return setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].selectedIndex);
+    }
+    if (upper == "ACT" || upper == "ACTIVE" || upper == "LIVE") {
+      return setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].activeIndex);
+    }
+    auto cueIndex = cueIndexByToken(project_.decks[deckIndex], value);
+    if (!cueIndex) {
+      return false;
+    }
+    return setFocusedGroupSlotFromCueIndex(deckIndex, *cueIndex);
+  }
+
+  bool cycleFocusedGroupSlotCue(int deckIndex, int direction) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    ensureGroupPreset(true);
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.cues.empty()) {
+      return setFocusedGroupSlotBypass(deckIndex, true);
+    }
+
+    int optionCount = static_cast<int>(deck.cues.size()) + 1; // 0=bypass, 1..N=cues
+    int currentOption = 0;
+    if (const GroupPreset* preset = focusedGroupPreset()) {
+      if (deckIndex >= 0 && deckIndex < static_cast<int>(preset->slots.size())) {
+        const GroupSlot& slot = preset->slots[deckIndex];
+        if (!slot.bypass && !slot.cueId.empty()) {
+          for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+            if (deck.cues[cueIndex].id == slot.cueId) {
+              currentOption = cueIndex + 1;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    int step = direction >= 0 ? 1 : -1;
+    int nextOption = (currentOption + step + optionCount) % optionCount;
+    if (nextOption == 0) {
+      return setFocusedGroupSlotBypass(deckIndex, true);
+    }
+    return setFocusedGroupSlotFromCueIndex(deckIndex, nextOption - 1);
+  }
+
+  bool captureFocusedGroupPreset(bool useActiveCues) {
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    if (static_cast<int>(preset->slots.size()) < static_cast<int>(project_.decks.size())) {
+      preset->slots.resize(project_.decks.size());
+    }
+    bool any = false;
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      int cueIndex = useActiveCues ? deck.activeIndex : deck.selectedIndex;
+      GroupSlot& slot = preset->slots[deckIndex];
+      if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size())) {
+        slot.bypass = false;
+        slot.cueId = deck.cues[cueIndex].id;
+        any = true;
+      } else {
+        slot.bypass = true;
+        slot.cueId.clear();
+      }
+    }
+    triggerToast(any
+      ? std::string("master cue capture ") + (useActiveCues ? "active" : "selected")
+      : "master cue capture: empty");
+    markProjectDirty();
+    return any;
+  }
+
+  bool fireGroupPreset(int presetIndex, bool autoplay = true) {
+    normalizeProject(project_);
+    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+      return false;
+    }
+    GroupPreset& preset = project_.groupPresets[presetIndex];
+    if (static_cast<int>(preset.slots.size()) < static_cast<int>(project_.decks.size())) {
+      preset.slots.resize(project_.decks.size());
+    }
+    int savedFocus = project_.focusedDeckIndex;
+    int fired = 0;
+    int missing = 0;
+    int bypassed = 0;
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const GroupSlot& slot = preset.slots[deckIndex];
+      if (slot.bypass) {
+        ++bypassed;
+        continue;
+      }
+      Deck& deck = project_.decks[deckIndex];
+      auto cueIndex = cueIndexById(deck, slot.cueId);
+      if (!cueIndex || *cueIndex < 0 || *cueIndex >= static_cast<int>(deck.cues.size())) {
+        ++missing;
+        continue;
+      }
+      deck.selectedIndex = *cueIndex;
+      project_.focusedDeckIndex = deckIndex;
+      takeSelected(autoplay);
+      ++fired;
+    }
+    project_.focusedDeckIndex = std::clamp(savedFocus, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
+    onSelectionChanged();
+    triggerToast("master cue fire " + std::to_string(fired)
+      + " (miss " + std::to_string(missing)
+      + ", bypass " + std::to_string(bypassed) + ")");
+    markProjectDirty();
+    return fired > 0;
+  }
+
+  bool fireFocusedGroupPreset(bool autoplay = true) {
+    if (project_.groupPresets.empty()) {
+      triggerToast("master cue: none");
+      return false;
+    }
+    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+    return fireGroupPreset(index, autoplay);
+  }
+
   bool setFocusedDeckOutputRoute(int targetDeckIndex, std::optional<int> requestedLayerIndex = std::nullopt) {
     normalizeProject(project_);
     if (targetDeckIndex < 0 || targetDeckIndex >= static_cast<int>(project_.decks.size())) {
@@ -4017,23 +7326,35 @@ class App {
     }
     int focusedIndex = project_.focusedDeckIndex;
     Deck& deck = project_.decks[focusedIndex];
-    int previousRoute = deck.outputRouteDeckIndex;
-    int previousLayer = deck.outputLayerIndex;
-    deck.outputRouteDeckIndex = targetDeckIndex;
+    int previousRoute = resolveDeckOutputHostIndex(focusedIndex);
+    int previousLayer = primaryLayerIndexForDeck(focusedIndex);
+    bool createdOutput = false;
+    int targetOutputIndex = ensureOutputIndexForHostDeck(targetDeckIndex, &createdOutput);
+    int assignmentIndex = ensurePrimaryAssignmentIndexForDeck(focusedIndex);
+    LayerAssignment& primary = project_.layerAssignments[assignmentIndex];
+    int previousOutputIndex = primary.outputIndex;
+    primary.outputIndex = targetOutputIndex;
+    primary.outputId = project_.outputs[targetOutputIndex].outputId;
+    primary.enabled = true;
     if (requestedLayerIndex) {
-      deck.outputLayerIndex = std::clamp(*requestedLayerIndex, 0, 255);
-    } else if (previousRoute != targetDeckIndex) {
-      int hostIndex = resolveDeckOutputHostIndex(targetDeckIndex);
-      deck.outputLayerIndex = nextLayerIndexForOutputHost(hostIndex, focusedIndex);
+      primary.layerIndex = std::clamp(*requestedLayerIndex, 0, 255);
+    } else if (previousOutputIndex != targetOutputIndex) {
+      primary.layerIndex = nextLayerIndexForOutput(targetOutputIndex, focusedIndex);
     }
+    deck.outputRouteDeckIndex = targetDeckIndex;
+    deck.outputLayerIndex = std::clamp(primary.layerIndex, 0, 255);
+    project_.focusedOutputIndex = targetOutputIndex;
     normalizeProject(project_);
     int hostIndex = resolveDeckOutputHostIndex(focusedIndex);
     const Deck& hostDeck = project_.decks[hostIndex];
     std::string hostLabel = hostDeck.name.empty() ? deckDefaultName(hostIndex) : hostDeck.name;
-    triggerToast("route: " + hostLabel + " L" + std::to_string(project_.decks[focusedIndex].outputLayerIndex));
+    triggerToast("route: " + hostLabel + " L" + std::to_string(primaryLayerIndexForDeck(focusedIndex)));
     playUiSound(UiSoundEffect::Toggle);
-    if (previousRoute != project_.decks[focusedIndex].outputRouteDeckIndex ||
-        previousLayer != project_.decks[focusedIndex].outputLayerIndex) {
+    if (createdOutput) {
+      rebuildOutputRuntimes();
+    }
+    if (previousRoute != resolveDeckOutputHostIndex(focusedIndex) ||
+        previousLayer != primaryLayerIndexForDeck(focusedIndex)) {
       markProjectDirty();
     }
     return true;
@@ -4041,37 +7362,50 @@ class App {
 
   bool setFocusedDeckLayerIndex(int layerIndex) {
     normalizeProject(project_);
-    Deck& deck = focusedDeckMutable();
     int clamped = std::clamp(layerIndex, 0, 255);
-    if (deck.outputLayerIndex == clamped) {
+    int assignmentIndex = ensurePrimaryAssignmentIndexForDeck(project_.focusedDeckIndex);
+    LayerAssignment& primary = project_.layerAssignments[assignmentIndex];
+    if (primary.layerIndex == clamped) {
       triggerToast("layer " + std::to_string(clamped));
       return false;
     }
-    deck.outputLayerIndex = clamped;
-    triggerToast("layer " + std::to_string(deck.outputLayerIndex));
+    primary.layerIndex = clamped;
+    focusedDeckMutable().outputLayerIndex = clamped;
+    triggerToast("layer " + std::to_string(clamped));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
     return true;
   }
 
   void nudgeFocusedDeckLayerIndex(int delta) {
-    setFocusedDeckLayerIndex(focusedDeck().outputLayerIndex + delta);
+    setFocusedDeckLayerIndex(primaryLayerIndexForDeck(project_.focusedDeckIndex) + delta);
   }
 
   void addDeck() {
     normalizeProject(project_);
-    int routeHostIndex = resolveDeckOutputHostIndex(project_.focusedDeckIndex);
+    int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    int routeHostIndex = std::clamp(project_.outputs[focusedOutputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     Deck deck;
     deck.name = deckDefaultName(static_cast<int>(project_.decks.size()));
-    if (routeHostIndex >= 0 && routeHostIndex < static_cast<int>(project_.decks.size())) {
+    if (routeHostIndex >= 0 && routeHostIndex < static_cast<int>(project_.decks.size()) && focusedOutputIndex >= 0) {
       deck.outputDisplayIndex = project_.decks[routeHostIndex].outputDisplayIndex;
       deck.outputRouteDeckIndex = routeHostIndex;
-      deck.outputLayerIndex = nextLayerIndexForOutputHost(routeHostIndex);
+      deck.outputLayerIndex = nextLayerIndexForOutput(focusedOutputIndex);
     }
+    int newDeckIndex = static_cast<int>(project_.decks.size());
     project_.decks.push_back(deck);
+    LayerAssignment assignment;
+    assignment.deckIndex = newDeckIndex;
+    assignment.outputIndex = focusedOutputIndex;
+    assignment.outputId = project_.outputs[focusedOutputIndex].outputId;
+    assignment.layerIndex = deck.outputLayerIndex;
+    assignment.enabled = true;
+    project_.layerAssignments.push_back(assignment);
     project_.advancedOutputMode = true;
+    updateDecksPanelVisibility();
     rebuildDeckRuntimes();
-    setFocusedDeckIndex(static_cast<int>(project_.decks.size()) - 1);
+    normalizeProject(project_);
+    setFocusedDeckIndex(newDeckIndex);
     playUiSound(UiSoundEffect::Import);
   }
 
@@ -4128,12 +7462,569 @@ class App {
       runtime.mediaEngine.reset();
     }
     runtime.browserProcess.stop();
+    runtime.xvfbProcess.stop();
+    runtime.virtualDisplayId.clear();
+    runtime.browserStartPhase = BrowserStartPhase::None;
     runtime.browserCueLive = false;
     if (!runtime.browserProfileDir.empty()) {
       std::error_code error;
       fs::remove_all(runtime.browserProfileDir, error);
       runtime.browserProfileDir.clear();
     }
+    if (runtime.audioDevice != 0) {
+      SDL_CloseAudioDevice(runtime.audioDevice);
+      runtime.audioDevice = 0;
+    }
+    if (runtime.outputRenderer) {
+      SDL_DestroyRenderer(runtime.outputRenderer);
+      runtime.outputRenderer = nullptr;
+    }
+    if (runtime.outputWindow) {
+      SDL_DestroyWindow(runtime.outputWindow);
+      runtime.outputWindow = nullptr;
+    }
+  }
+
+  static std::string shellQuoteSingle(const std::string& value) {
+    std::string escaped;
+    escaped.reserve(value.size() + 8);
+    escaped.push_back('\'');
+    for (char ch : value) {
+      if (ch == '\'') {
+        escaped += "'\"'\"'";
+      } else {
+        escaped.push_back(ch);
+      }
+    }
+    escaped.push_back('\'');
+    return escaped;
+  }
+
+  double outputStreamFps(double fpsHint) const {
+    if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
+      return std::clamp(project_.outputRefreshRateHz, 1.0, 120.0);
+    }
+    if (std::isfinite(fpsHint) && fpsHint > 1.0) {
+      return std::clamp(fpsHint, 1.0, 120.0);
+    }
+    return 30.0;
+  }
+
+  void pushDeckStreamAudioSamples(int deckIndex, const std::vector<std::int16_t>& samples) {
+    if (deckIndex < 0 || samples.empty()) {
+      return;
+    }
+    static constexpr size_t kMaxBufferedSamplesPerDeck = static_cast<size_t>(48000 * 2 * 10); // ~10s stereo
+    std::lock_guard<std::mutex> lock(streamAudioMutex_);
+    if (deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
+      deckStreamAudioBuffers_.resize(deckIndex + 1);
+    }
+    DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
+    buffer.samples.insert(buffer.samples.end(), samples.begin(), samples.end());
+    if (buffer.samples.size() > kMaxBufferedSamplesPerDeck) {
+      size_t dropCount = buffer.samples.size() - kMaxBufferedSamplesPerDeck;
+      buffer.samples.erase(buffer.samples.begin(), buffer.samples.begin() + static_cast<std::ptrdiff_t>(dropCount));
+      buffer.droppedSamples += static_cast<std::uint64_t>(dropCount);
+    }
+  }
+
+  void clearDeckStreamAudioBuffers() {
+    std::lock_guard<std::mutex> lock(streamAudioMutex_);
+    deckStreamAudioBuffers_.clear();
+    deckStreamAudioBuffers_.resize(project_.decks.size());
+  }
+
+  std::vector<int> streamAudioDecksForOutput(int outputIndex) const {
+    std::vector<int> deckIndices;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || project_.decks.empty()) {
+      return deckIndices;
+    }
+    int routedOutputIndex = outputIndex;
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (output.mirrorSourceOutputIndex >= 0 &&
+        output.mirrorSourceOutputIndex < static_cast<int>(project_.outputs.size())) {
+      routedOutputIndex = output.mirrorSourceOutputIndex;
+    }
+    for (const auto& entry : layeredDeckEntriesForOutput(routedOutputIndex)) {
+      if (entry.second >= 0 && entry.second < static_cast<int>(project_.decks.size())) {
+        deckIndices.push_back(entry.second);
+      }
+    }
+    if (deckIndices.empty()) {
+      int hostDeck = std::clamp(project_.outputs[routedOutputIndex].hostDeckIndex, 0,
+                                static_cast<int>(project_.decks.size()) - 1);
+      deckIndices.push_back(hostDeck);
+    }
+    std::sort(deckIndices.begin(), deckIndices.end());
+    deckIndices.erase(std::unique(deckIndices.begin(), deckIndices.end()), deckIndices.end());
+    return deckIndices;
+  }
+
+  std::string buildOutputStreamSpec(int outputIndex, int width, int height, double fpsHint) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return {};
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    std::string protocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    std::string url = trim(output.streamUrl);
+    if (url.empty()) {
+      url = defaultOutputStreamUrl(protocol, outputIndex);
+    }
+    int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    double fps = outputStreamFps(fpsHint);
+    std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    std::ostringstream spec;
+    spec << protocol << '|'
+         << url << '|'
+         << width << 'x' << height << '|'
+         << std::fixed << std::setprecision(2) << fps << '|'
+         << bitrateKbps << '|'
+         << colorSpace;
+    return spec.str();
+  }
+
+#ifndef _WIN32
+  std::string outputStreamAudioPipePath(int outputIndex) const {
+    std::ostringstream path;
+    path << "/tmp/deckboy_stream_audio_" << static_cast<long long>(getpid()) << "_" << outputIndex << ".fifo";
+    return path.str();
+  }
+#endif
+
+  std::string buildOutputStreamCommand(int outputIndex, int width, int height, double fpsHint,
+                                       const std::string& audioPipePath) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return {};
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    std::string protocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    std::string url = trim(output.streamUrl);
+    if (url.empty()) {
+      url = defaultOutputStreamUrl(protocol, outputIndex);
+    }
+    int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);
+    double fps = outputStreamFps(fpsHint);
+    int gop = std::max(1, static_cast<int>(std::lround(fps)));
+    std::string mux = (protocol == "rtmp") ? "flv" : "mpegts";
+    std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+
+    std::ostringstream command;
+    command << "ffmpeg -hide_banner -loglevel error "
+            << "-thread_queue_size 2048 "
+            << "-f rawvideo -pix_fmt bgra "
+            << "-video_size " << width << "x" << height << ' '
+            << "-framerate " << std::fixed << std::setprecision(2) << fps << ' '
+            << "-i - "
+            << "-thread_queue_size 2048 "
+            << "-f s16le -ar 48000 -ac 2 "
+            << "-i " << shellQuoteSingle(audioPipePath) << ' '
+            << "-map 0:v:0 -map 1:a:0 "
+            << "-c:v libx264 -preset veryfast -tune zerolatency "
+            << "-pix_fmt yuv420p "
+            << (colorSpace == "bt709"
+                  ? "-colorspace bt709 -color_primaries bt709 -color_trc bt709 "
+                  : (colorSpace == "srgb"
+                      ? "-colorspace bt709 -color_primaries bt709 -color_trc iec61966-2-1 "
+                      : ""))
+            << "-g " << gop << ' '
+            << "-b:v " << bitrateKbps << "k "
+            << "-maxrate " << bitrateKbps << "k "
+            << "-bufsize " << bufferKbps << "k "
+            << "-c:a aac -b:a 160k -ar 48000 -ac 2 "
+            << "-f " << mux << ' '
+            << shellQuoteSingle(url)
+            << " 2>/dev/null";
+    return command.str();
+  }
+
+  void stopOutputStreamRuntime(OutputRuntime& runtime) {
+#ifndef _WIN32
+    if (runtime.streamPipe) {
+      pclose(runtime.streamPipe);
+      runtime.streamPipe = nullptr;
+    }
+    if (runtime.streamAudioPipeFd >= 0) {
+      close(runtime.streamAudioPipeFd);
+      runtime.streamAudioPipeFd = -1;
+    }
+    if (!runtime.streamAudioPipePath.empty()) {
+      unlink(runtime.streamAudioPipePath.c_str());
+      runtime.streamAudioPipePath.clear();
+    }
+#endif
+    runtime.streamSpec.clear();
+    runtime.streamCommand.clear();
+    runtime.streamFrameBuffer.clear();
+    runtime.streamAudioReadSamplesByDeck.clear();
+    runtime.streamAudioSampleRemainder = 0.0;
+    runtime.streamFrameWidth = 0;
+    runtime.streamFrameHeight = 0;
+  }
+
+  void stopOutputStream(int outputIndex) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return;
+    }
+    stopOutputStreamRuntime(*runtime);
+  }
+
+#ifndef _WIN32
+  bool prepareOutputStreamAudioPipe(OutputRuntime& runtime, int outputIndex) {
+    std::string pipePath = outputStreamAudioPipePath(outputIndex);
+    if (!runtime.streamAudioPipePath.empty() && runtime.streamAudioPipePath != pipePath) {
+      unlink(runtime.streamAudioPipePath.c_str());
+    }
+    runtime.streamAudioPipePath = pipePath;
+    runtime.streamAudioPipeFd = -1;
+    unlink(pipePath.c_str());
+    if (mkfifo(pipePath.c_str(), 0600) != 0) {
+      runtime.streamAudioPipePath.clear();
+      return false;
+    }
+    return true;
+  }
+
+  bool ensureOutputStreamAudioPipeOpen(OutputRuntime& runtime) {
+    if (runtime.streamAudioPipeFd >= 0) {
+      return true;
+    }
+    if (runtime.streamAudioPipePath.empty()) {
+      return false;
+    }
+    int fd = open(runtime.streamAudioPipePath.c_str(), O_WRONLY | O_NONBLOCK);
+    if (fd < 0) {
+      return false;
+    }
+    runtime.streamAudioPipeFd = fd;
+    return true;
+  }
+
+  void primeOutputStreamAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
+    runtime.streamAudioReadSamplesByDeck.clear();
+    auto deckIndices = streamAudioDecksForOutput(outputIndex);
+    std::lock_guard<std::mutex> lock(streamAudioMutex_);
+    for (int deckIndex : deckIndices) {
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
+        runtime.streamAudioReadSamplesByDeck[deckIndex] = 0;
+        continue;
+      }
+      const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
+      runtime.streamAudioReadSamplesByDeck[deckIndex] = buffer.droppedSamples + static_cast<std::uint64_t>(buffer.samples.size());
+    }
+  }
+
+  void primeOutputNdiAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
+    runtime.ndiAudioReadSamplesByDeck.clear();
+    auto deckIndices = streamAudioDecksForOutput(outputIndex);
+    std::lock_guard<std::mutex> lock(streamAudioMutex_);
+    for (int deckIndex : deckIndices) {
+      if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
+        runtime.ndiAudioReadSamplesByDeck[deckIndex] = 0;
+        continue;
+      }
+      const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
+      runtime.ndiAudioReadSamplesByDeck[deckIndex] = buffer.droppedSamples + static_cast<std::uint64_t>(buffer.samples.size());
+    }
+  }
+
+  std::vector<std::int16_t> collectOutputAudioFrameSamples(
+      int outputIndex,
+      std::map<int, std::uint64_t>& readSamplesByDeck,
+      double& sampleRemainder,
+      double fpsHint) {
+    constexpr int kSampleRate = 48000;
+    constexpr int kChannels = 2;
+
+    double fps = outputStreamFps(fpsHint);
+    double exactFrames = (static_cast<double>(kSampleRate) / std::max(1.0, fps)) + sampleRemainder;
+    int sampleFrames = std::max(1, static_cast<int>(std::floor(exactFrames)));
+    sampleRemainder = exactFrames - static_cast<double>(sampleFrames);
+    int interleavedSamples = sampleFrames * kChannels;
+    std::vector<std::int32_t> mixed(interleavedSamples, 0);
+
+    auto deckIndices = streamAudioDecksForOutput(outputIndex);
+    {
+      std::lock_guard<std::mutex> lock(streamAudioMutex_);
+      if (deckStreamAudioBuffers_.size() < project_.decks.size()) {
+        deckStreamAudioBuffers_.resize(project_.decks.size());
+      }
+      for (int deckIndex : deckIndices) {
+        if (deckIndex < 0 || deckIndex >= static_cast<int>(deckStreamAudioBuffers_.size())) {
+          continue;
+        }
+        const DeckStreamAudioBuffer& buffer = deckStreamAudioBuffers_[deckIndex];
+        std::uint64_t availableBegin = buffer.droppedSamples;
+        std::uint64_t availableEnd = availableBegin + static_cast<std::uint64_t>(buffer.samples.size());
+        auto [it, inserted] = readSamplesByDeck.try_emplace(deckIndex, availableEnd);
+        std::uint64_t& readPos = it->second;
+        if (inserted) {
+          continue;
+        }
+        if (readPos < availableBegin) {
+          readPos = availableBegin;
+        } else if (readPos > availableEnd) {
+          readPos = availableEnd;
+        }
+        std::uint64_t available = availableEnd - readPos;
+        size_t toMix = static_cast<size_t>(std::min<std::uint64_t>(available, static_cast<std::uint64_t>(interleavedSamples)));
+        size_t sourceOffset = static_cast<size_t>(readPos - availableBegin);
+        for (size_t i = 0; i < toMix; ++i) {
+          mixed[i] += static_cast<std::int32_t>(buffer.samples[sourceOffset + i]);
+        }
+        readPos += static_cast<std::uint64_t>(toMix);
+      }
+    }
+
+    std::vector<std::int16_t> out(interleavedSamples, 0);
+    for (int i = 0; i < interleavedSamples; ++i) {
+      out[i] = static_cast<std::int16_t>(std::clamp(mixed[i], -32768, 32767));
+    }
+    return out;
+  }
+
+  void sendOutputStreamAudioFrame(int outputIndex, double fpsHint) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->streamPipe) {
+      return;
+    }
+    if (!ensureOutputStreamAudioPipeOpen(*runtime)) {
+      return;
+    }
+    std::vector<std::int16_t> out = collectOutputAudioFrameSamples(
+      outputIndex,
+      runtime->streamAudioReadSamplesByDeck,
+      runtime->streamAudioSampleRemainder,
+      fpsHint);
+    if (out.empty()) {
+      return;
+    }
+    const std::uint8_t* bytes = reinterpret_cast<const std::uint8_t*>(out.data());
+    size_t bytesRemaining = out.size() * sizeof(std::int16_t);
+    while (bytesRemaining > 0) {
+      ssize_t written = write(runtime->streamAudioPipeFd, bytes, bytesRemaining);
+      if (written > 0) {
+        bytes += static_cast<size_t>(written);
+        bytesRemaining -= static_cast<size_t>(written);
+        continue;
+      }
+      if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+        break;
+      }
+      if (outputIndex == project_.focusedOutputIndex) {
+        triggerToast("stream audio stopped");
+      }
+      stopOutputStreamRuntime(*runtime);
+      break;
+    }
+  }
+#endif
+
+  bool ensureOutputStreamRunning(int outputIndex, int width, int height, double fpsHint) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return false;
+    }
+    if (!output.streamEnabled) {
+      stopOutputStreamRuntime(*runtime);
+      return false;
+    }
+    width = std::max(1, width);
+    height = std::max(1, height);
+    output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
+    output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
+    if (trim(output.streamUrl).empty()) {
+      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, outputIndex);
+    }
+    std::string desiredSpec = buildOutputStreamSpec(outputIndex, width, height, fpsHint);
+    if (runtime->streamPipe && runtime->streamSpec == desiredSpec) {
+#ifndef _WIN32
+      ensureOutputStreamAudioPipeOpen(*runtime);
+#endif
+      return true;
+    }
+
+    stopOutputStreamRuntime(*runtime);
+#ifdef _WIN32
+    (void) desiredSpec;
+    runtime->streamStartFailed = true;
+    return false;
+#else
+    if (!prepareOutputStreamAudioPipe(*runtime, outputIndex)) {
+      runtime->streamStartFailed = true;
+      return false;
+    }
+    std::string command = buildOutputStreamCommand(outputIndex, width, height, fpsHint, runtime->streamAudioPipePath);
+    if (command.empty()) {
+      runtime->streamStartFailed = true;
+      stopOutputStreamRuntime(*runtime);
+      return false;
+    }
+    runtime->streamPipe = popen(command.c_str(), "w");
+    if (!runtime->streamPipe) {
+      stopOutputStreamRuntime(*runtime);
+      if (!runtime->streamStartFailed && outputIndex == project_.focusedOutputIndex) {
+        triggerToast("stream failed");
+      }
+      runtime->streamStartFailed = true;
+      return false;
+    }
+    setvbuf(runtime->streamPipe, nullptr, _IONBF, 0);
+    runtime->streamSpec = desiredSpec;
+    runtime->streamCommand = command;
+    runtime->streamFrameWidth = width;
+    runtime->streamFrameHeight = height;
+    runtime->streamAudioSampleRemainder = 0.0;
+    primeOutputStreamAudioReadPositions(outputIndex, *runtime);
+    ensureOutputStreamAudioPipeOpen(*runtime);
+    runtime->streamFrameBuffer.clear();
+    runtime->streamStartFailed = false;
+    return true;
+#endif
+  }
+
+  bool captureOutputFrameForEgress(int outputIndex, OutputRuntime& runtime, int width, int height) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !runtime.outputRenderer) {
+      return false;
+    }
+    width = std::max(1, width);
+    height = std::max(1, height);
+    size_t stride = static_cast<size_t>(width) * 4u;
+    size_t frameBytes = stride * static_cast<size_t>(height);
+    if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
+      runtime.latestCapturedFrame.pixels.resize(frameBytes);
+    }
+    if (runtime.latestCapturedFrame.pixels.empty()) {
+      return false;
+    }
+
+    SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
+    if (runtime.compositorTexture) {
+      SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
+    }
+    bool ok = SDL_RenderReadPixels(
+      runtime.outputRenderer,
+      nullptr,
+      SDL_PIXELFORMAT_BGRA32,
+      runtime.latestCapturedFrame.pixels.data(),
+      static_cast<int>(stride)) == 0;
+    if (runtime.compositorTexture) {
+      SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
+    }
+    if (!ok) {
+      return false;
+    }
+
+    Uint64 nowMs = SDL_GetTicks64();
+    runtime.latestCapturedFrame.width = width;
+    runtime.latestCapturedFrame.height = height;
+    runtime.latestCapturedFrame.capturedAtMs = nowMs;
+
+    int delayMs = std::clamp(project_.outputs[outputIndex].outputDelayMs, 0, 5000);
+    if (delayMs <= 0) {
+      runtime.delayFrames.clear();
+      return true;
+    }
+
+    OutputRuntime::CapturedFrame delayedFrame;
+    delayedFrame.width = width;
+    delayedFrame.height = height;
+    delayedFrame.capturedAtMs = nowMs;
+    delayedFrame.pixels = runtime.latestCapturedFrame.pixels;
+    runtime.delayFrames.push_back(std::move(delayedFrame));
+
+    size_t maxFrames = static_cast<size_t>(std::clamp(delayMs / 8 + 12, 16, 900));
+    while (runtime.delayFrames.size() > maxFrames) {
+      runtime.delayFrames.pop_front();
+    }
+    while (runtime.delayFrames.size() > 2 &&
+           nowMs > runtime.delayFrames.front().capturedAtMs + static_cast<Uint64>(delayMs + 2500)) {
+      runtime.delayFrames.pop_front();
+    }
+    return true;
+  }
+
+  const OutputRuntime::CapturedFrame* outputFrameForEgress(int outputIndex, OutputRuntime& runtime) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return nullptr;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    int delayMs = std::clamp(output.outputDelayMs, 0, 5000);
+    if (delayMs > 0) {
+      Uint64 nowMs = SDL_GetTicks64();
+      const OutputRuntime::CapturedFrame* selected = nullptr;
+      for (const auto& frame : runtime.delayFrames) {
+        if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
+          continue;
+        }
+        if (nowMs >= frame.capturedAtMs + static_cast<Uint64>(delayMs)) {
+          selected = &frame;
+        }
+      }
+      if (selected) {
+        return selected;
+      }
+    }
+    if (runtime.latestCapturedFrame.width > 0 &&
+        runtime.latestCapturedFrame.height > 0 &&
+        !runtime.latestCapturedFrame.pixels.empty()) {
+      return &runtime.latestCapturedFrame;
+    }
+    return nullptr;
+  }
+
+  void sendOutputStreamFrame(int outputIndex, int width, int height, double fpsHint) {
+#ifdef _WIN32
+    (void) outputIndex;
+    (void) width;
+    (void) height;
+    (void) fpsHint;
+#else
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return;
+    }
+    const OutputRuntime::CapturedFrame* frame = outputFrameForEgress(outputIndex, *runtime);
+    if (!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) {
+      return;
+    }
+    if (!ensureOutputStreamRunning(outputIndex, frame->width, frame->height, fpsHint)) {
+      return;
+    }
+    runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->streamPipe) {
+      return;
+    }
+    width = frame->width;
+    height = frame->height;
+    size_t stride = static_cast<size_t>(width) * 4u;
+    size_t frameBytes = stride * static_cast<size_t>(height);
+    if (runtime->streamFrameBuffer.size() != frameBytes) {
+      runtime->streamFrameBuffer.resize(frameBytes);
+    }
+    if (runtime->streamFrameBuffer.empty()) {
+      return;
+    }
+    std::memcpy(runtime->streamFrameBuffer.data(), frame->pixels.data(), frameBytes);
+    size_t written = fwrite(runtime->streamFrameBuffer.data(), 1, frameBytes, runtime->streamPipe);
+    if (written != frameBytes) {
+      stopOutputStreamRuntime(*runtime);
+      if (outputIndex == project_.focusedOutputIndex) {
+        triggerToast("stream stopped");
+      }
+      return;
+    }
+    sendOutputStreamAudioFrame(outputIndex, fpsHint);
+#endif
+  }
+
+  void destroyOutputRuntime(OutputRuntime& runtime) {
+    stopOutputStreamRuntime(runtime);
 #if defined(PLAYBOY_HAS_NDI_SDK)
     if (runtime.ndiKeySender && ndiApi_.sendDestroyFn) {
       ndiApi_.sendDestroyFn(runtime.ndiKeySender);
@@ -4148,10 +8039,10 @@ class App {
     runtime.ndiSenderName.clear();
     runtime.ndiFrameBuffer.clear();
 #endif
-    if (runtime.audioDevice != 0) {
-      SDL_CloseAudioDevice(runtime.audioDevice);
-      runtime.audioDevice = 0;
-    }
+    runtime.ndiAudioReadSamplesByDeck.clear();
+    runtime.ndiAudioSampleRemainder = 0.0;
+    runtime.latestCapturedFrame = {};
+    runtime.delayFrames.clear();
     for (auto& [sourceDeckIndex, texture] : runtime.layerBridgeTextures) {
       (void) sourceDeckIndex;
       if (texture) {
@@ -4178,6 +8069,7 @@ class App {
       SDL_DestroyWindow(runtime.outputWindow);
       runtime.outputWindow = nullptr;
     }
+    runtime.recoveryPausedByEscape = false;
   }
 
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
@@ -4207,7 +8099,7 @@ class App {
       runtime->outputRenderer,
       runtime->audioDevice,
       [this, deckIndex](const std::vector<std::int16_t>& samples) {
-        sendDeckNdiAudioSamples(deckIndex, samples);
+        pushDeckStreamAudioSamples(deckIndex, samples);
         // Capture samples for VU meter (only from focused deck)
         if (deckIndex == project_.focusedDeckIndex) {
           std::lock_guard<std::mutex> lock(vuSamplesMutex_);
@@ -4235,9 +8127,12 @@ class App {
 #endif
   }
 
-  void applyDeckNdiSettings(int deckIndex, bool withToast) {
-    Deck& deck = project_.decks[deckIndex];
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  void applyOutputNdiSettings(int outputIndex, bool withToast) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime) {
       return;
     }
@@ -4250,6 +8145,8 @@ class App {
       runtime->ndiSender = nullptr;
       runtime->ndiSenderName.clear();
       runtime->ndiFrameBuffer.clear();
+      runtime->ndiAudioReadSamplesByDeck.clear();
+      runtime->ndiAudioSampleRemainder = 0.0;
     };
     auto clearKeySender = [&]() {
       if (runtime->ndiKeySender && ndiApi_.sendDestroyFn) {
@@ -4264,8 +8161,9 @@ class App {
       clearKeySender();
     };
 
-    if (!deck.ndiEnabled) {
+    if (!output.ndiEnabled) {
       clearSenders();
+      output.ndiKeyEnabled = false;
       if (withToast) {
         triggerToast("ndi off");
       }
@@ -4274,7 +8172,8 @@ class App {
 
     std::string loadError;
     if (!ensureNdiRuntimeReady(&loadError)) {
-      deck.ndiEnabled = false;
+      output.ndiEnabled = false;
+      output.ndiKeyEnabled = false;
       clearSenders();
       if (withToast) {
         triggerToast("ndi unavailable");
@@ -4282,41 +8181,44 @@ class App {
       return;
     }
 
-    if (deck.ndiSourceName.empty()) {
-      deck.ndiSourceName = defaultNdiSourceName(deck, deckIndex);
+    if (trim(output.ndiSourceName).empty()) {
+      output.ndiSourceName = defaultOutputNdiSourceName(output, outputIndex);
     }
-    if (deck.ndiKeySourceName.empty()) {
-      deck.ndiKeySourceName = defaultNdiKeySourceName(deck, deckIndex);
+    if (trim(output.ndiKeySourceName).empty()) {
+      output.ndiKeySourceName = defaultOutputNdiKeySourceName(output, outputIndex);
     }
 
     clearSenders();
 
     NDIlib_send_create_t fillCreate {};
-    fillCreate.p_ndi_name = deck.ndiSourceName.c_str();
+    fillCreate.p_ndi_name = output.ndiSourceName.c_str();
     fillCreate.p_groups = nullptr;
     fillCreate.clock_video = false;
     fillCreate.clock_audio = false;
     runtime->ndiSender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&fillCreate) : nullptr;
     if (!runtime->ndiSender) {
-      deck.ndiEnabled = false;
+      output.ndiEnabled = false;
+      output.ndiKeyEnabled = false;
       if (withToast) {
         triggerToast("ndi sender failed");
       }
       return;
     }
-    runtime->ndiSenderName = deck.ndiSourceName;
+    runtime->ndiSenderName = output.ndiSourceName;
+    primeOutputNdiAudioReadPositions(outputIndex, *runtime);
+    runtime->ndiAudioSampleRemainder = 0.0;
 
-    if (deck.ndiKeyEnabled) {
+    if (output.ndiKeyEnabled) {
       NDIlib_send_create_t keyCreate {};
-      keyCreate.p_ndi_name = deck.ndiKeySourceName.c_str();
+      keyCreate.p_ndi_name = output.ndiKeySourceName.c_str();
       keyCreate.p_groups = nullptr;
       keyCreate.clock_video = false;
       keyCreate.clock_audio = false;
       runtime->ndiKeySender = ndiApi_.sendCreateFn ? ndiApi_.sendCreateFn(&keyCreate) : nullptr;
       if (!runtime->ndiKeySender) {
-        deck.ndiKeyEnabled = false;
+        output.ndiKeyEnabled = false;
       } else {
-        runtime->ndiKeySenderName = deck.ndiKeySourceName;
+        runtime->ndiKeySenderName = output.ndiKeySourceName;
       }
     }
 
@@ -4324,7 +8226,7 @@ class App {
       triggerToast("ndi: " + currentNdiOutputLabel());
     }
 #else
-    (void) deck;
+    (void) output;
     (void) runtime;
     if (withToast) {
       triggerToast("ndi unsupported build");
@@ -4332,123 +8234,164 @@ class App {
 #endif
   }
 
-  void setFocusedDeckNdiEnabled(bool enabled) {
-    Deck& deck = focusedDeckMutable();
-    if (deck.ndiEnabled == enabled) {
+  void setFocusedOutputNdiEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
       return;
     }
-    deck.ndiEnabled = enabled;
-    applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    OutputTarget& output = focusedOutputMutable();
+    if (output.ndiEnabled == enabled) {
+      return;
+    }
+    output.ndiEnabled = enabled;
+    if (!output.ndiEnabled) {
+      output.ndiKeyEnabled = false;
+    }
+    applyOutputNdiSettings(project_.focusedOutputIndex, true);
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
 
-  void toggleFocusedDeckNdi() {
-    setFocusedDeckNdiEnabled(!focusedDeck().ndiEnabled);
+  void toggleFocusedOutputNdi() {
+    setFocusedOutputNdiEnabled(!focusedOutput().ndiEnabled);
   }
 
-  void setFocusedDeckNdiName(const std::string& requestedName) {
-    Deck& deck = focusedDeckMutable();
+  void setFocusedOutputNdiName(const std::string& requestedName) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
     std::string normalized = trim(requestedName);
     if (normalized.empty()) {
-      normalized = defaultNdiSourceName(deck, project_.focusedDeckIndex);
+      normalized = defaultOutputNdiSourceName(output, project_.focusedOutputIndex);
     }
-    if (deck.ndiSourceName == normalized) {
+    if (output.ndiSourceName == normalized) {
       return;
     }
-    deck.ndiSourceName = normalized;
-    if (deck.ndiEnabled) {
-      applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    output.ndiSourceName = normalized;
+    if (output.ndiEnabled) {
+      applyOutputNdiSettings(project_.focusedOutputIndex, true);
     } else {
-      triggerToast("ndi name: " + deck.ndiSourceName);
+      triggerToast("ndi name: " + output.ndiSourceName);
     }
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
 
-  void setFocusedDeckNdiKeyEnabled(bool enabled) {
-    Deck& deck = focusedDeckMutable();
-    if (deck.ndiKeyEnabled == enabled && (!enabled || deck.ndiEnabled)) {
+  void setFocusedOutputNdiKeyEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    if (output.ndiKeyEnabled == enabled && (!enabled || output.ndiEnabled)) {
       return;
     }
     if (enabled) {
-      deck.ndiEnabled = true;
-      if (deck.ndiKeySourceName.empty()) {
-        deck.ndiKeySourceName = defaultNdiKeySourceName(deck, project_.focusedDeckIndex);
+      output.ndiEnabled = true;
+      if (trim(output.ndiKeySourceName).empty()) {
+        output.ndiKeySourceName = defaultOutputNdiKeySourceName(output, project_.focusedOutputIndex);
       }
     }
-    deck.ndiKeyEnabled = enabled;
-    applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    output.ndiKeyEnabled = enabled;
+    applyOutputNdiSettings(project_.focusedOutputIndex, true);
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
 
-  void toggleFocusedDeckNdiKey() {
-    setFocusedDeckNdiKeyEnabled(!focusedDeck().ndiKeyEnabled);
+  void toggleFocusedOutputNdiKey() {
+    setFocusedOutputNdiKeyEnabled(!focusedOutput().ndiKeyEnabled);
   }
 
-  void setFocusedDeckNdiKeyName(const std::string& requestedName) {
-    Deck& deck = focusedDeckMutable();
+  void setFocusedOutputNdiKeyName(const std::string& requestedName) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
     std::string normalized = trim(requestedName);
     if (normalized.empty()) {
-      normalized = defaultNdiKeySourceName(deck, project_.focusedDeckIndex);
+      normalized = defaultOutputNdiKeySourceName(output, project_.focusedOutputIndex);
     }
-    if (deck.ndiKeySourceName == normalized) {
+    if (output.ndiKeySourceName == normalized) {
       return;
     }
-    deck.ndiKeySourceName = normalized;
-    if (deck.ndiEnabled && deck.ndiKeyEnabled) {
-      applyDeckNdiSettings(project_.focusedDeckIndex, true);
+    output.ndiKeySourceName = normalized;
+    if (output.ndiEnabled && output.ndiKeyEnabled) {
+      applyOutputNdiSettings(project_.focusedOutputIndex, true);
     } else {
-      triggerToast("ndi key name: " + deck.ndiKeySourceName);
+      triggerToast("ndi key name: " + output.ndiKeySourceName);
     }
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
 
-  void sendDeckNdiFrame(int deckIndex, int width, int height, double fpsHint) {
+  void sendOutputNdiAudioFrame(int outputIndex, double fpsHint) {
 #if defined(PLAYBOY_HAS_NDI_SDK)
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
-    if (!runtime || !runtime->outputRenderer) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->ndiSender || !ndiApi_.sendAudioInterleaved16sFn) {
       return;
     }
-    const Deck& deck = project_.decks[deckIndex];
-    if (!deck.ndiEnabled) {
+    std::vector<std::int16_t> samples = collectOutputAudioFrameSamples(
+      outputIndex,
+      runtime->ndiAudioReadSamplesByDeck,
+      runtime->ndiAudioSampleRemainder,
+      fpsHint);
+    if (samples.empty()) {
       return;
     }
-    if (!runtime->ndiSender || (deck.ndiKeyEnabled && !runtime->ndiKeySender)) {
-      applyDeckNdiSettings(deckIndex, false);
-      if (!runtime->ndiSender || (deck.ndiKeyEnabled && !runtime->ndiKeySender)) {
+    constexpr int kChannels = 2;
+    int sampleCount = static_cast<int>(samples.size() / static_cast<size_t>(kChannels));
+    if (sampleCount <= 0) {
+      return;
+    }
+    NDIlib_audio_frame_interleaved_16s_t frame {};
+    frame.sample_rate = kAudioRate;
+    frame.no_channels = kChannels;
+    frame.no_samples = sampleCount;
+    frame.timecode = NDIlib_send_timecode_synthesize;
+    frame.reference_level = 0;
+    frame.p_data = samples.data();
+    ndiApi_.sendAudioInterleaved16sFn(runtime->ndiSender, &frame);
+#else
+    (void) outputIndex;
+    (void) fpsHint;
+#endif
+  }
+
+  void sendOutputNdiFrame(int outputIndex, OutputRuntime& outputRuntime, int width, int height, double fpsHint) {
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !outputRuntime.outputRenderer) {
+      return;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.ndiEnabled) {
+      return;
+    }
+    if (!outputRuntime.ndiSender || (output.ndiKeyEnabled && !outputRuntime.ndiKeySender)) {
+      applyOutputNdiSettings(outputIndex, false);
+      if (!outputRuntime.ndiSender || (output.ndiKeyEnabled && !outputRuntime.ndiKeySender)) {
         return;
       }
     }
-    if (width <= 0 || height <= 0) {
+    const OutputRuntime::CapturedFrame* frameCapture = outputFrameForEgress(outputIndex, outputRuntime);
+    if (!frameCapture || frameCapture->width <= 0 || frameCapture->height <= 0 || frameCapture->pixels.empty()) {
       return;
     }
+    width = frameCapture->width;
+    height = frameCapture->height;
 
     size_t stride = static_cast<size_t>(width) * 4u;
     size_t frameBytes = stride * static_cast<size_t>(height);
-    if (runtime->ndiFrameBuffer.size() != frameBytes) {
-      runtime->ndiFrameBuffer.resize(frameBytes);
+    if (outputRuntime.ndiFrameBuffer.size() != frameBytes) {
+      outputRuntime.ndiFrameBuffer.resize(frameBytes);
     }
-    if (runtime->ndiFrameBuffer.empty()) {
+    if (outputRuntime.ndiFrameBuffer.empty()) {
       return;
     }
 
-    SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime->outputRenderer);
-    if (runtime->compositorTexture) {
-      SDL_SetRenderTarget(runtime->outputRenderer, runtime->compositorTexture);
-    }
-    if (SDL_RenderReadPixels(runtime->outputRenderer, nullptr, SDL_PIXELFORMAT_BGRA32,
-                             runtime->ndiFrameBuffer.data(), static_cast<int>(stride)) != 0) {
-      if (runtime->compositorTexture) {
-        SDL_SetRenderTarget(runtime->outputRenderer, previousTarget);
-      }
-      return;
-    }
-    if (runtime->compositorTexture) {
-      SDL_SetRenderTarget(runtime->outputRenderer, previousTarget);
-    }
+    std::memcpy(outputRuntime.ndiFrameBuffer.data(), frameCapture->pixels.data(), frameBytes);
 
     int frameRateN = 30000;
     int frameRateD = 1000;
@@ -4465,23 +8408,23 @@ class App {
     frame.picture_aspect_ratio = height > 0 ? static_cast<float>(width) / static_cast<float>(height) : (16.0f / 9.0f);
     frame.frame_format_type = NDIlib_frame_format_type_progressive;
     frame.timecode = NDIlib_send_timecode_synthesize;
-    frame.p_data = runtime->ndiFrameBuffer.data();
+    frame.p_data = outputRuntime.ndiFrameBuffer.data();
     frame.line_stride_in_bytes = static_cast<int>(stride);
     frame.p_metadata = nullptr;
     frame.timestamp = 0;
-    ndiApi_.sendVideoFn(runtime->ndiSender, &frame);
+    ndiApi_.sendVideoFn(outputRuntime.ndiSender, &frame);
 
-    if (deck.ndiKeyEnabled && runtime->ndiKeySender) {
-      if (runtime->ndiKeyFrameBuffer.size() != frameBytes) {
-        runtime->ndiKeyFrameBuffer.resize(frameBytes);
+    if (output.ndiKeyEnabled && outputRuntime.ndiKeySender) {
+      if (outputRuntime.ndiKeyFrameBuffer.size() != frameBytes) {
+        outputRuntime.ndiKeyFrameBuffer.resize(frameBytes);
       }
-      if (!runtime->ndiKeyFrameBuffer.empty()) {
-        for (size_t i = 0; i + 3 < runtime->ndiFrameBuffer.size(); i += 4) {
-          Uint8 a = runtime->ndiFrameBuffer[i + 3];
-          runtime->ndiKeyFrameBuffer[i + 0] = a;
-          runtime->ndiKeyFrameBuffer[i + 1] = a;
-          runtime->ndiKeyFrameBuffer[i + 2] = a;
-          runtime->ndiKeyFrameBuffer[i + 3] = 255;
+      if (!outputRuntime.ndiKeyFrameBuffer.empty()) {
+        for (size_t i = 0; i + 3 < outputRuntime.ndiFrameBuffer.size(); i += 4) {
+          Uint8 a = outputRuntime.ndiFrameBuffer[i + 3];
+          outputRuntime.ndiKeyFrameBuffer[i + 0] = a;
+          outputRuntime.ndiKeyFrameBuffer[i + 1] = a;
+          outputRuntime.ndiKeyFrameBuffer[i + 2] = a;
+          outputRuntime.ndiKeyFrameBuffer[i + 3] = 255;
         }
         NDIlib_video_frame_v2_t keyFrame {};
         keyFrame.xres = width;
@@ -4492,83 +8435,45 @@ class App {
         keyFrame.picture_aspect_ratio = frame.picture_aspect_ratio;
         keyFrame.frame_format_type = NDIlib_frame_format_type_progressive;
         keyFrame.timecode = NDIlib_send_timecode_synthesize;
-        keyFrame.p_data = runtime->ndiKeyFrameBuffer.data();
+        keyFrame.p_data = outputRuntime.ndiKeyFrameBuffer.data();
         keyFrame.line_stride_in_bytes = static_cast<int>(stride);
         keyFrame.p_metadata = nullptr;
         keyFrame.timestamp = 0;
-        ndiApi_.sendVideoFn(runtime->ndiKeySender, &keyFrame);
+        ndiApi_.sendVideoFn(outputRuntime.ndiKeySender, &keyFrame);
       }
     }
+    sendOutputNdiAudioFrame(outputIndex, fpsHint);
 #else
-    (void) deckIndex;
+    (void) outputIndex;
+    (void) outputRuntime;
     (void) width;
     (void) height;
     (void) fpsHint;
 #endif
   }
 
-  void sendDeckNdiAudioSamples(int deckIndex, const std::vector<std::int16_t>& samples) {
+  int ndiConnectionCountForOutput(int outputIndex) const {
 #if defined(PLAYBOY_HAS_NDI_SDK)
-    if (samples.empty()) {
-      return;
-    }
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
-    if (!runtime) {
-      return;
-    }
-    const Deck& deck = project_.decks[deckIndex];
-    if (!deck.ndiEnabled || !ndiApi_.sendAudioInterleaved16sFn) {
-      return;
-    }
-    if (!runtime->ndiSender) {
-      applyDeckNdiSettings(deckIndex, false);
-      if (!runtime->ndiSender) {
-        return;
-      }
-    }
-
-    int channels = 2;
-    int sampleCount = static_cast<int>(samples.size() / static_cast<size_t>(channels));
-    if (sampleCount <= 0) {
-      return;
-    }
-
-    NDIlib_audio_frame_interleaved_16s_t frame {};
-    frame.sample_rate = kAudioRate;
-    frame.no_channels = channels;
-    frame.no_samples = sampleCount;
-    frame.timecode = NDIlib_send_timecode_synthesize;
-    frame.reference_level = 0;
-    frame.p_data = const_cast<std::int16_t*>(samples.data());
-    ndiApi_.sendAudioInterleaved16sFn(runtime->ndiSender, &frame);
-#else
-    (void) deckIndex;
-    (void) samples;
-#endif
-  }
-
-  int ndiConnectionCount(int deckIndex) const {
-#if defined(PLAYBOY_HAS_NDI_SDK)
-    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->ndiSender || !ndiApi_.sendConnectionsFn) {
       return 0;
     }
     return std::max(0, ndiApi_.sendConnectionsFn(runtime->ndiSender, 0));
 #else
-    (void) deckIndex;
+    (void) outputIndex;
     return 0;
 #endif
   }
 
-  int ndiKeyConnectionCount(int deckIndex) const {
+  int ndiKeyConnectionCountForOutput(int outputIndex) const {
 #if defined(PLAYBOY_HAS_NDI_SDK)
-    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->ndiKeySender || !ndiApi_.sendConnectionsFn) {
       return 0;
     }
     return std::max(0, ndiApi_.sendConnectionsFn(runtime->ndiKeySender, 0));
 #else
-    (void) deckIndex;
+    (void) outputIndex;
     return 0;
 #endif
   }
@@ -4600,20 +8505,42 @@ class App {
     return fixedOutputRenderSize();
   }
 
-  std::pair<int, int> outputRenderSizeForDeck(int deckIndex) const {
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+  int outputDisplayIndex(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return 0;
+    }
+    return std::max(0, project_.outputs[outputIndex].displayIndex);
+  }
+
+  std::pair<int, int> outputRenderSizeForOutput(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return fixedOutputRenderSize();
     }
-    const Deck& deck = project_.decks[deckIndex];
     if (project_.outputFollowDisplay) {
-      return displayNativeRenderSize(deck.outputDisplayIndex);
+      return displayNativeRenderSize(outputDisplayIndex(outputIndex));
     }
     return fixedOutputRenderSize();
   }
 
-  std::string outputResolutionLabel(int deckIndex) const {
-    auto [w, h] = outputRenderSizeForDeck(deckIndex);
+  std::pair<int, int> outputRenderSizeForDeck(int deckIndex) const {
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    if (!outputIndex) {
+      return fixedOutputRenderSize();
+    }
+    return outputRenderSizeForOutput(*outputIndex);
+  }
+
+  std::string outputResolutionLabelForOutput(int outputIndex) const {
+    auto [w, h] = outputRenderSizeForOutput(outputIndex);
     return std::to_string(w) + "x" + std::to_string(h);
+  }
+
+  std::string outputResolutionLabel(int deckIndex) const {
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    if (!outputIndex) {
+      return outputResolutionLabelForOutput(project_.focusedOutputIndex);
+    }
+    return outputResolutionLabelForOutput(*outputIndex);
   }
 
   std::string outputSizingModeLabel() const {
@@ -4654,12 +8581,17 @@ class App {
     return "auto";
   }
 
-  std::string outputBitDepthActiveLabel(int deckIndex) const {
-    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  std::string outputBitDepthActiveLabelForOutput(int outputIndex) const {
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer) {
       return "n/a";
     }
     return std::to_string(runtime->compositorBitDepth) + "-bit";
+  }
+
+  std::string outputBitDepthActiveLabel(int deckIndex) const {
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    return outputBitDepthActiveLabelForOutput(outputIndex ? *outputIndex : project_.focusedOutputIndex);
   }
 
   static bool rendererSupportsTextureFormat(SDL_Renderer* renderer, Uint32 format) {
@@ -4694,8 +8626,8 @@ class App {
     return SDL_PIXELFORMAT_RGBA32;
   }
 
-  bool configureDeckCompositor(int deckIndex, int width = -1, int height = -1) {
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  bool configureOutputCompositor(int outputIndex, int width = -1, int height = -1) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer) {
       return false;
     }
@@ -4713,7 +8645,7 @@ class App {
         targetH = canvasH;
       } else {
         if (windowW <= 0 || windowH <= 0) {
-          auto [rasterW, rasterH] = outputRenderSizeForDeck(deckIndex);
+          auto [rasterW, rasterH] = outputRenderSizeForOutput(outputIndex);
           windowW = rasterW;
           windowH = rasterH;
         }
@@ -4755,12 +8687,14 @@ class App {
     runtime->compositorHeight = targetH;
     runtime->compositorFormat = format;
     runtime->compositorBitDepth = isTenBitFormat(format) ? 10 : 8;
+    runtime->delayFrames.clear();
+    runtime->latestCapturedFrame = {};
     return true;
   }
 
-  void applyOutputBitDepthAllDecks() {
-    for (int deckIndex = 0; deckIndex < static_cast<int>(deckRuntimes_.size()); ++deckIndex) {
-      configureDeckCompositor(deckIndex);
+  void applyOutputBitDepthAllOutputs() {
+    for (int outputIndex = 0; outputIndex < static_cast<int>(outputRuntimes_.size()); ++outputIndex) {
+      configureOutputCompositor(outputIndex);
     }
   }
 
@@ -4768,8 +8702,8 @@ class App {
     int normalized = normalizeOutputBitDepthMode(mode);
     bool changed = normalized != normalizeOutputBitDepthMode(project_.outputBitDepth);
     project_.outputBitDepth = normalized;
-    applyOutputBitDepthAllDecks();
-    triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")");
+    applyOutputBitDepthAllOutputs();
+    triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabelForOutput(project_.focusedOutputIndex) + ")");
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
       markProjectDirty();
@@ -4805,7 +8739,7 @@ class App {
       int targetW = width;
       int targetH = height;
       if (targetW <= 0 || targetH <= 0) {
-        auto [nativeW, nativeH] = displayNativeRenderSize(focusedDeck().outputDisplayIndex);
+        auto [nativeW, nativeH] = displayNativeRenderSize(outputDisplayIndex(project_.focusedOutputIndex));
         targetW = std::max(nativeW * 2, nativeW);
         targetH = nativeH;
       }
@@ -4826,16 +8760,17 @@ class App {
       }
     }
 
-    applyOutputBitDepthAllDecks();
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    applyOutputBitDepthAllOutputs();
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputRuntime* runtime = runtimeForOutput(outputIndex);
       if (!runtime || !runtime->outputWindow) {
         continue;
       }
+      int hostDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
       int ww = 0;
       int wh = 0;
       SDL_GetWindowSize(runtime->outputWindow, &ww, &wh);
-      clampDeckCanvasViewToWindow(deckIndex, ww, wh);
+      clampDeckCanvasViewToWindow(hostDeckIndex, ww, wh);
     }
 
     std::string label = project_.outputCanvasEnabled
@@ -4856,7 +8791,8 @@ class App {
     Deck& deck = focusedDeckMutable();
     deck.canvasViewX = std::max(0, x);
     deck.canvasViewY = std::max(0, y);
-    DeckRuntime* runtime = focusedRuntime();
+    int outputIndex = primaryOutputIndexForDeck(project_.focusedDeckIndex).value_or(project_.focusedOutputIndex);
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (runtime && runtime->outputWindow) {
       int ww = 0;
       int wh = 0;
@@ -4947,19 +8883,17 @@ class App {
     markProjectDirty();
   }
 
-  std::vector<int> refreshChoicesForDeck(int deckIndex) const {
+  std::vector<int> refreshChoicesForOutput(int outputIndex) const {
     std::vector<int> refreshes;
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return refreshes;
     }
-
-    const Deck& deck = project_.decks[deckIndex];
     int displayCount = SDL_GetNumVideoDisplays();
     if (displayCount <= 0) {
       return refreshes;
     }
-    int displayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
-    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    int displayIndex = std::clamp(outputDisplayIndex(outputIndex), 0, displayCount - 1);
+    auto [targetW, targetH] = outputRenderSizeForOutput(outputIndex);
 
     int modeCount = SDL_GetNumDisplayModes(displayIndex);
     for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
@@ -4979,17 +8913,16 @@ class App {
     return refreshes;
   }
 
-  bool selectDisplayModeForDeck(int deckIndex, SDL_DisplayMode& selectedMode) const {
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+  bool selectDisplayModeForOutput(int outputIndex, SDL_DisplayMode& selectedMode) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return false;
     }
-    const Deck& deck = project_.decks[deckIndex];
     int displayCount = SDL_GetNumVideoDisplays();
     if (displayCount <= 0) {
       return false;
     }
-    int displayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
-    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    int displayIndex = std::clamp(outputDisplayIndex(outputIndex), 0, displayCount - 1);
+    auto [targetW, targetH] = outputRenderSizeForOutput(outputIndex);
     double targetHz = project_.outputRefreshRateHz;
 
     SDL_DisplayMode desktopMode {};
@@ -5040,14 +8973,15 @@ class App {
     return true;
   }
 
-  bool enableDeckFullscreen(int deckIndex, bool withToast) {
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  bool enableOutputFullscreen(int outputIndex, bool withToast) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputWindow) {
       return false;
     }
+    runtime->recoveryPausedByEscape = false;
 
     SDL_DisplayMode selectedMode {};
-    if (selectDisplayModeForDeck(deckIndex, selectedMode)) {
+    if (selectDisplayModeForOutput(outputIndex, selectedMode)) {
       SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
         if (withToast) {
@@ -5071,26 +9005,28 @@ class App {
     DeckRuntime& runtime = deckRuntimes_[deckIndex];
     destroyDeckRuntime(runtime);
     auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    targetW = std::max(1, targetW);
+    targetH = std::max(1, targetH);
 
-    std::string title = std::string(kOutputTitle) + " - " + (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name);
+    // Hidden per-deck renderer used by the media engine decode/upload pipeline.
+    std::string title = std::string("Deckboy Deck Runtime - ") + (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name);
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
       targetW,
       targetH,
-      SDL_WINDOW_RESIZABLE
+      SDL_WINDOW_HIDDEN
     );
     if (!runtime.outputWindow) {
       return false;
     }
 
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_ACCELERATED);
     if (!runtime.outputRenderer) {
-      destroyDeckRuntime(runtime);
-      return false;
+      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_SOFTWARE);
     }
-    if (!configureDeckCompositor(deckIndex)) {
+    if (!runtime.outputRenderer) {
       destroyDeckRuntime(runtime);
       return false;
     }
@@ -5100,8 +9036,57 @@ class App {
       return false;
     }
 
-    applyOutputDisplaySelection(deckIndex);
-    applyDeckNdiSettings(deckIndex, false);
+    return true;
+  }
+
+  bool createOutputRuntime(int outputIndex) {
+    OutputTarget& output = project_.outputs[outputIndex];
+    OutputRuntime& runtime = outputRuntimes_[outputIndex];
+    destroyOutputRuntime(runtime);
+    output.outputType = normalizeOutputType(output.outputType);
+    auto [targetW, targetH] = outputRenderSizeForOutput(outputIndex);
+    targetW = std::max(1, targetW);
+    targetH = std::max(1, targetH);
+
+    std::string label = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+    bool streamType = output.outputType == "stream";
+    bool windowOutputEnabled = output.enabled && !streamType;
+    std::string title = std::string(kOutputTitle) + " - " + label + (streamType ? " [stream]" : "");
+    Uint32 windowFlags = streamType
+      ? SDL_WINDOW_HIDDEN
+      : (SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
+    runtime.outputWindow = SDL_CreateWindow(
+      title.c_str(),
+      streamType ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED,
+      streamType ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED,
+      targetW,
+      targetH,
+      windowFlags
+    );
+    if (!runtime.outputWindow) {
+      return false;
+    }
+
+    Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | (streamType ? 0u : SDL_RENDERER_PRESENTVSYNC);
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, rendererFlags);
+    if (!runtime.outputRenderer) {
+      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_SOFTWARE);
+    }
+    if (!runtime.outputRenderer) {
+      destroyOutputRuntime(runtime);
+      return false;
+    }
+
+    if (!configureOutputCompositor(outputIndex)) {
+      destroyOutputRuntime(runtime);
+      return false;
+    }
+
+    applyOutputDisplaySelection(outputIndex);
+    applyOutputNdiSettings(outputIndex, false);
+    if (output.enabled && !streamType) {
+      enableOutputFullscreen(outputIndex, false);
+    }
     return true;
   }
 
@@ -5110,11 +9095,29 @@ class App {
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
     }
+    clearDeckStreamAudioBuffers();
     deckRuntimes_.clear();
     deckRuntimes_.resize(project_.decks.size());
+    ensureTimecodeFollowerStateSize();
 
     for (size_t index = 0; index < project_.decks.size(); ++index) {
       if (!createDeckRuntime(static_cast<int>(index))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool rebuildOutputRuntimes() {
+    normalizeProject(project_);
+    for (auto& runtime : outputRuntimes_) {
+      destroyOutputRuntime(runtime);
+    }
+    outputRuntimes_.clear();
+    outputRuntimes_.resize(project_.outputs.size());
+
+    for (size_t index = 0; index < project_.outputs.size(); ++index) {
+      if (!createOutputRuntime(static_cast<int>(index))) {
         return false;
       }
     }
@@ -5164,9 +9167,15 @@ class App {
     startBrowserCue(deckIndex, *active);
   }
 
-  void applyOutputDisplaySelection(int deckIndex) {
-    Deck& deck = project_.decks[deckIndex];
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  void applyOutputDisplaySelection(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    output.outputType = normalizeOutputType(output.outputType);
+    bool streamType = output.outputType == "stream";
+    bool windowOutputEnabled = output.enabled && !streamType;
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputWindow) {
       return;
     }
@@ -5175,40 +9184,52 @@ class App {
     bool haveDisplayBounds = false;
     SDL_Rect bounds {};
     if (displayCount > 0) {
-      deck.outputDisplayIndex = std::clamp(deck.outputDisplayIndex, 0, displayCount - 1);
-      haveDisplayBounds = (SDL_GetDisplayBounds(deck.outputDisplayIndex, &bounds) == 0);
+      output.displayIndex = std::clamp(output.displayIndex, 0, displayCount - 1);
+      haveDisplayBounds = (SDL_GetDisplayBounds(output.displayIndex, &bounds) == 0);
     } else {
-      deck.outputDisplayIndex = 0;
+      output.displayIndex = 0;
     }
 
-    auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
+    auto [targetW, targetH] = outputRenderSizeForOutput(outputIndex);
     targetW = std::max(1, targetW);
     targetH = std::max(1, targetH);
 
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-    if (fullscreen) {
+    if (!streamType && fullscreen) {
       SDL_SetWindowFullscreen(runtime->outputWindow, 0);
     }
 
     SDL_SetWindowSize(runtime->outputWindow, targetW, targetH);
-    if (haveDisplayBounds) {
-      int x = bounds.x + std::max(0, (bounds.w - targetW) / 2) + deckIndex * 20;
-      int y = bounds.y + std::max(0, (bounds.h - targetH) / 2) + deckIndex * 20;
-      if (targetW > bounds.w) x = bounds.x + 20 + deckIndex * 20;
-      if (targetH > bounds.h) y = bounds.y + 20 + deckIndex * 20;
+    if (!streamType && haveDisplayBounds) {
+      int x = bounds.x + std::max(0, (bounds.w - targetW) / 2) + outputIndex * 20;
+      int y = bounds.y + std::max(0, (bounds.h - targetH) / 2) + outputIndex * 20;
+      if (targetW > bounds.w) x = bounds.x + 20 + outputIndex * 20;
+      if (targetH > bounds.h) y = bounds.y + 20 + outputIndex * 20;
       SDL_SetWindowPosition(runtime->outputWindow, x, y);
     }
 
-    if (fullscreen) {
-      enableDeckFullscreen(deckIndex, false);
+    if (windowOutputEnabled && fullscreen) {
+      enableOutputFullscreen(outputIndex, false);
     }
-    configureDeckCompositor(deckIndex);
+    if (windowOutputEnabled) {
+      SDL_ShowWindow(runtime->outputWindow);
+      SDL_RaiseWindow(runtime->outputWindow);
+    } else {
+      SDL_HideWindow(runtime->outputWindow);
+    }
+    configureOutputCompositor(outputIndex);
+
+    int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    project_.decks[hostDeckIndex].outputDisplayIndex = output.displayIndex;
+    std::string titleLabel = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+    std::string title = std::string(kOutputTitle) + " - " + titleLabel;
+    SDL_SetWindowTitle(runtime->outputWindow, title.c_str());
   }
 
-  void applyOutputDisplaySelectionAllDecks(bool restartLiveBrowsers) {
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      applyOutputDisplaySelection(deckIndex);
+  void applyOutputDisplaySelectionAllOutputs(bool restartLiveBrowsers) {
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      applyOutputDisplaySelection(outputIndex);
     }
     if (restartLiveBrowsers) {
       for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
@@ -5220,7 +9241,7 @@ class App {
   void setOutputSizingModeDisplayNative() {
     bool changed = !project_.outputFollowDisplay;
     project_.outputFollowDisplay = true;
-    applyOutputDisplaySelectionAllDecks(true);
+    applyOutputDisplaySelectionAllOutputs(true);
     triggerToast("video mode: native (" + currentDisplayLabel() + ")");
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -5237,7 +9258,7 @@ class App {
     project_.outputFollowDisplay = false;
     project_.outputRenderWidth = w;
     project_.outputRenderHeight = h;
-    applyOutputDisplaySelectionAllDecks(true);
+    applyOutputDisplaySelectionAllOutputs(true);
     triggerToast("video mode: fixed " + std::to_string(w) + "x" + std::to_string(h));
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -5246,9 +9267,13 @@ class App {
   }
 
   void sizeFocusedOutputToSelectedDisplay() {
-    applyOutputDisplaySelection(project_.focusedDeckIndex);
-    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
-    triggerToast("output sized: " + outputResolutionLabel(project_.focusedDeckIndex));
+    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
+        restartLiveBrowserCueIfNeeded(deckIndex);
+      }
+    }
+    triggerToast("output sized: " + outputResolutionLabelForOutput(project_.focusedOutputIndex));
     playUiSound(UiSoundEffect::Toggle);
   }
 
@@ -5256,7 +9281,7 @@ class App {
     double normalized = (!std::isfinite(hz) || hz <= 0.0) ? 0.0 : std::clamp(hz, 1.0, 240.0);
     bool changed = std::abs(project_.outputRefreshRateHz - normalized) > 0.0001;
     project_.outputRefreshRateHz = normalized;
-    applyOutputDisplaySelectionAllDecks(false);
+    applyOutputDisplaySelectionAllOutputs(false);
     triggerToast("video refresh: " + outputRefreshRateLabel());
     playUiSound(UiSoundEffect::Toggle);
     if (changed) {
@@ -5265,7 +9290,7 @@ class App {
   }
 
   void cycleOutputRefreshRate(int direction) {
-    auto choices = refreshChoicesForDeck(project_.focusedDeckIndex);
+    auto choices = refreshChoicesForOutput(project_.focusedOutputIndex);
     if (choices.empty()) {
       triggerToast("no refresh choices for raster");
       return;
@@ -5309,14 +9334,27 @@ class App {
     if (displayCount <= 0) {
       return;
     }
-    Deck& deck = focusedDeckMutable();
-    deck.outputDisplayIndex = (deck.outputDisplayIndex + direction + displayCount) % displayCount;
-    applyOutputDisplaySelection(project_.focusedDeckIndex);
-    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
-    std::string label = SDL_GetDisplayName(deck.outputDisplayIndex);
+    OutputTarget& output = focusedOutputMutable();
+    output.displayIndex = (output.displayIndex + direction + displayCount) % displayCount;
+    bool autoSwitchedToNative = false;
+    if (!project_.outputFollowDisplay) {
+      project_.outputFollowDisplay = true;
+      autoSwitchedToNative = true;
+    }
+    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    if (output.enabled && normalizeOutputType(output.outputType) == "window") {
+      enableOutputFullscreen(project_.focusedOutputIndex, false);
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
+        restartLiveBrowserCueIfNeeded(deckIndex);
+      }
+    }
+    std::string label = SDL_GetDisplayName(output.displayIndex);
     triggerToast("display: "
-      + (label.empty() ? std::to_string(deck.outputDisplayIndex + 1) : label)
-      + "  " + outputResolutionLabel(project_.focusedDeckIndex));
+      + (label.empty() ? std::to_string(output.displayIndex + 1) : label)
+      + "  " + outputResolutionLabelForOutput(project_.focusedOutputIndex)
+      + (autoSwitchedToNative ? "  auto native" : ""));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -5326,12 +9364,65 @@ class App {
     if (displayCount <= 0 || index < 0 || index >= displayCount) {
       return false;
     }
-    focusedDeckMutable().outputDisplayIndex = index;
-    applyOutputDisplaySelection(project_.focusedDeckIndex);
-    restartLiveBrowserCueIfNeeded(project_.focusedDeckIndex);
-    triggerToast("display: " + currentDisplayLabel() + "  " + outputResolutionLabel(project_.focusedDeckIndex));
+    OutputTarget& output = focusedOutputMutable();
+    output.displayIndex = index;
+    bool autoSwitchedToNative = false;
+    if (!project_.outputFollowDisplay) {
+      project_.outputFollowDisplay = true;
+      autoSwitchedToNative = true;
+    }
+    applyOutputDisplaySelection(project_.focusedOutputIndex);
+    if (output.enabled && normalizeOutputType(output.outputType) == "window") {
+      enableOutputFullscreen(project_.focusedOutputIndex, false);
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
+        restartLiveBrowserCueIfNeeded(deckIndex);
+      }
+    }
+    triggerToast("display: " + currentDisplayLabel() + "  "
+      + outputResolutionLabelForOutput(project_.focusedOutputIndex)
+      + (autoSwitchedToNative ? "  auto native" : ""));
     markProjectDirty();
     return true;
+  }
+
+  void refreshDisplayTopology(bool withToast = false) {
+    int displayCount = SDL_GetNumVideoDisplays();
+    bool changed = false;
+    if (displayCount <= 0) {
+      for (auto& output : project_.outputs) {
+        if (output.displayIndex != 0) {
+          output.displayIndex = 0;
+          changed = true;
+        }
+      }
+      applyOutputDisplaySelectionAllOutputs(true);
+      if (changed) {
+        markProjectDirty();
+      }
+      if (withToast) {
+        triggerToast("display scan: no displays reported");
+      }
+      return;
+    }
+
+    for (auto& output : project_.outputs) {
+      int clamped = std::clamp(output.displayIndex, 0, displayCount - 1);
+      if (output.displayIndex != clamped) {
+        output.displayIndex = clamped;
+        changed = true;
+      }
+    }
+
+    applyOutputDisplaySelectionAllOutputs(true);
+    if (changed) {
+      markProjectDirty();
+    }
+    if (withToast) {
+      triggerToast("display scan: " + std::to_string(displayCount) + " detected");
+      playUiSound(UiSoundEffect::Toggle);
+    }
   }
 
   bool setAudioOutputDevice(const std::string& deviceName) {
@@ -5345,12 +9436,62 @@ class App {
     return true;
   }
 
+  bool recoverWindowOutputIfNeeded(int outputIndex, bool withToast = false) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.enabled || normalizeOutputType(output.outputType) != "window") {
+      return false;
+    }
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputWindow) {
+      return false;
+    }
+    if (runtime->recoveryPausedByEscape) {
+      return false;
+    }
+
+    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
+    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+    bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
+    bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
+
+    int displayCount = SDL_GetNumVideoDisplays();
+    int targetDisplay = displayCount > 0
+      ? std::clamp(output.displayIndex, 0, displayCount - 1)
+      : 0;
+    int windowDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
+    bool wrongDisplay = displayCount > 0 && (windowDisplay < 0 || windowDisplay != targetDisplay);
+
+    bool needsRecovery = hidden || minimized || !fullscreen || wrongDisplay;
+    if (!needsRecovery) {
+      return false;
+    }
+
+    applyOutputDisplaySelection(outputIndex);
+    SDL_ShowWindow(runtime->outputWindow);
+    SDL_RaiseWindow(runtime->outputWindow);
+    enableOutputFullscreen(outputIndex, false);
+    if (withToast) {
+      std::string displayLabel = "display " + std::to_string(targetDisplay + 1);
+      if (displayCount > 0) {
+        const char* displayName = SDL_GetDisplayName(targetDisplay);
+        if (displayName && *displayName) {
+          displayLabel = displayName;
+        }
+      }
+      triggerToast("output recovered: " + outputLabel(outputIndex) + " -> " + displayLabel);
+    }
+    return true;
+  }
+
   std::string currentDisplayLabel() const {
-    const char* name = SDL_GetDisplayName(focusedDeck().outputDisplayIndex);
+    const char* name = SDL_GetDisplayName(outputDisplayIndex(project_.focusedOutputIndex));
     if (name && *name) {
       return name;
     }
-    return "display " + std::to_string(focusedDeck().outputDisplayIndex + 1);
+    return "display " + std::to_string(outputDisplayIndex(project_.focusedOutputIndex) + 1);
   }
 
   std::string browserExecutablePath() const {
@@ -5614,28 +9755,32 @@ class App {
   }
 
   std::string currentNdiOutputLabel() const {
-    const Deck& deck = focusedDeck();
-    std::string source = deck.ndiSourceName.empty()
-      ? defaultNdiSourceName(deck, project_.focusedDeckIndex)
-      : deck.ndiSourceName;
-    std::string keySource = deck.ndiKeySourceName.empty()
-      ? defaultNdiKeySourceName(deck, project_.focusedDeckIndex)
-      : deck.ndiKeySourceName;
-    if (!deck.ndiEnabled) {
+    if (project_.outputs.empty()) {
+      return "off";
+    }
+    int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    const OutputTarget& output = project_.outputs[outputIndex];
+    std::string source = output.ndiSourceName.empty()
+      ? defaultOutputNdiSourceName(output, outputIndex)
+      : output.ndiSourceName;
+    std::string keySource = output.ndiKeySourceName.empty()
+      ? defaultOutputNdiKeySourceName(output, outputIndex)
+      : output.ndiKeySourceName;
+    if (!output.ndiEnabled) {
       return "off";
     }
 #if defined(PLAYBOY_HAS_NDI_SDK)
-    const DeckRuntime* runtime = focusedRuntime();
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
     bool live = runtime && runtime->ndiSender;
     bool keyLive = runtime && runtime->ndiKeySender;
-    int listeners = ndiConnectionCount(project_.focusedDeckIndex);
-    int keyListeners = ndiKeyConnectionCount(project_.focusedDeckIndex);
+    int listeners = ndiConnectionCountForOutput(outputIndex);
+    int keyListeners = ndiKeyConnectionCountForOutput(outputIndex);
     std::string suffix = live ? "on" : "pending";
     if (listeners > 0) {
       suffix += " (" + std::to_string(listeners) + " rx)";
     }
     std::string label = suffix + " / fill:" + source;
-    if (deck.ndiKeyEnabled) {
+    if (output.ndiKeyEnabled) {
       std::string keySuffix = keyLive ? "on" : "pending";
       if (keyListeners > 0) {
         keySuffix += " (" + std::to_string(keyListeners) + " rx)";
@@ -5682,20 +9827,84 @@ class App {
       output << " | " << formatSeconds(engine->position()) << "/" << formatSeconds(engine->duration());
     }
     output << " | " << deckOutputRoutingLabel(deckIndex);
-    if (deck.ndiEnabled) {
-      output << " | ndi:" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName);
-    }
     if (deck.timecodeChaseEnabled) {
       output << " | tc:" << formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
     }
     return output.str();
   }
 
+  std::string cueNumberLabelForStatus(const Deck& deck, int cueIndex) const {
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "";
+    }
+    std::string cueNumber = trim(deck.cues[cueIndex].cueNumber);
+    if (cueNumber.empty()) {
+      cueNumber = std::to_string(cueIndex + 1);
+    }
+    return cueNumber;
+  }
+
+  std::string cueIdForStatus(const Deck& deck, int cueIndex) const {
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "";
+    }
+    return deck.cues[cueIndex].id;
+  }
+
+  std::string buildCueProgrammingSnapshot() const {
+    std::ostringstream output;
+    output << "DECKBOY_0.01 cues"
+           << " focus=" << (project_.focusedDeckIndex + 1)
+           << " decks=" << project_.decks.size();
+    if (!lastCueFindToken_.empty() && !lastCueFindMatches_.empty()) {
+      int cursor = std::clamp(lastCueFindCursor_, 0, static_cast<int>(lastCueFindMatches_.size()) - 1);
+      output << " find=\"" << lastCueFindToken_ << "\""
+             << " match=" << (cursor + 1) << "/" << lastCueFindMatches_.size()
+             << " find_deck=" << (lastCueFindDeckIndex_ >= 0 ? lastCueFindDeckIndex_ + 1 : 0);
+    } else {
+      output << " find=none";
+    }
+    output << '\n';
+
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      std::string selectedNum = cueNumberLabelForStatus(deck, deck.selectedIndex);
+      std::string selectedId = cueIdForStatus(deck, deck.selectedIndex);
+      std::string activeNum = cueNumberLabelForStatus(deck, deck.activeIndex);
+      std::string activeId = cueIdForStatus(deck, deck.activeIndex);
+      output << "CUEDECK " << (deckIndex + 1)
+             << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
+             << " selected_num=\"" << selectedNum << "\""
+             << " selected_id=\"" << selectedId << "\""
+             << " active_num=\"" << activeNum << "\""
+             << " active_id=\"" << activeId << "\"";
+      if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+        output << " selected_name=\"" << deck.cues[deck.selectedIndex].name << "\"";
+      }
+      if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+        output << " active_name=\"" << deck.cues[deck.activeIndex].name << "\"";
+      }
+      output << '\n';
+    }
+    return output.str();
+  }
+
   std::string buildStatusSnapshot() const {
     std::ostringstream output;
-    output << "PLAYBOY_0.01"
+    output << "DECKBOY_0.01"
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
+           << " focused_output=" << (project_.focusedOutputIndex + 1)
+           << " outputs=" << project_.outputs.size()
+           << " focused_group=" << (project_.groupPresets.empty() ? 0 : project_.focusedGroupPresetIndex + 1)
+           << " groups=" << project_.groupPresets.size()
+           << " panic_profile=" << normalizePanicProfileToken(project_.panicProfile)
+           << " panic_fade_s=" << project_.panicFadeSeconds
+           << " panic_restore=" << (project_.panicAutoRestore ? "on" : "off")
+           << " find=\"" << lastCueFindToken_ << "\""
+           << " find_matches=" << lastCueFindMatches_.size()
+           << " find_cursor=" << (lastCueFindCursor_ >= 0 ? lastCueFindCursor_ + 1 : 0)
+           << " find_deck=" << (lastCueFindDeckIndex_ >= 0 ? lastCueFindDeckIndex_ + 1 : 0)
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << " video_depth=" << outputBitDepthModeLabel()
@@ -5705,26 +9914,35 @@ class App {
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
+      auto outputIndexOpt = primaryOutputIndexForDeck(deckIndex);
+      int outputIndex = outputIndexOpt ? *outputIndexOpt : -1;
+      int displayIndex = outputIndex >= 0 ? outputDisplayIndex(outputIndex) : deck.outputDisplayIndex;
+      int layerIndex = primaryLayerIndexForDeck(deckIndex);
+      std::string routeLabel = outputIndex >= 0 ? std::to_string(outputIndex + 1) : "--";
+      std::string rasterLabel = outputIndex >= 0 ? outputResolutionLabelForOutput(outputIndex) : outputResolutionLabel(deckIndex);
+      std::string depthLabel = outputIndex >= 0 ? outputBitDepthActiveLabelForOutput(outputIndex) : outputBitDepthActiveLabel(deckIndex);
       const Cue* activeCue = activeCuePtr(deckIndex);
       const Cue* selectedCue = selectedCuePtr(deckIndex);
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      std::string selectedNum = cueNumberLabelForStatus(deck, deck.selectedIndex);
+      std::string selectedId = cueIdForStatus(deck, deck.selectedIndex);
+      std::string activeNum = cueNumberLabelForStatus(deck, deck.activeIndex);
+      std::string activeId = cueIdForStatus(deck, deck.activeIndex);
       output << "DECK " << (deckIndex + 1)
              << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
              << " status=" << transportStatusLabel(deckIndex)
              << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
              << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
-             << " display=" << (deck.outputDisplayIndex + 1)
-             << " route=" << (resolveDeckOutputHostIndex(deckIndex) + 1)
-             << " layer=" << deck.outputLayerIndex
-             << " raster=" << outputResolutionLabel(deckIndex)
-             << " depth=" << outputBitDepthActiveLabel(deckIndex)
+             << " selected_num=\"" << selectedNum << "\""
+             << " selected_id=\"" << selectedId << "\""
+             << " active_num=\"" << activeNum << "\""
+             << " active_id=\"" << activeId << "\""
+             << " display=" << (displayIndex + 1)
+             << " route=" << routeLabel
+             << " layer=" << layerIndex
+             << " raster=" << rasterLabel
+             << " depth=" << depthLabel
              << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
-             << " ndi=" << (deck.ndiEnabled ? "on" : "off")
-             << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
-             << " ndi_rx=" << ndiConnectionCount(deckIndex)
-             << " ndi_key=" << (deck.ndiKeyEnabled ? "on" : "off")
-             << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
-             << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
              << " view=" << deck.canvasViewX << "," << deck.canvasViewY
              << " warp=" << (deck.warpEnabled ? "on" : "off")
@@ -5738,6 +9956,8 @@ class App {
              << " tc_chase=" << (deck.timecodeChaseEnabled ? "on" : "off")
              << " tc_run=" << (deck.timecodeRunEnabled ? "on" : "off")
              << " tc_trigger=" << (deck.timecodeTriggerEnabled ? "on" : "off")
+             << " tc_jam=" << (deck.timecodeJamSyncEnabled ? "on" : "off")
+             << " tc_freewheel_s=" << deck.timecodeFreewheelSeconds
              << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
       if (activeCue) {
         output << " cue_id=\"" << activeCue->id << "\""
@@ -5752,6 +9972,66 @@ class App {
       }
       output << '\n';
     }
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      const OutputTarget& out = project_.outputs[outputIndex];
+      int hostDeckIndex = std::clamp(out.hostDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
+      int layerCount = 0;
+      for (const auto& assignment : project_.layerAssignments) {
+        if (assignment.enabled && resolveAssignmentOutputIndex(assignment) == outputIndex) {
+          ++layerCount;
+        }
+      }
+      std::string type = normalizeOutputType(out.outputType);
+      std::string protocol = normalizeOutputStreamProtocol(out.streamProtocol);
+      std::string mirror = out.mirrorSourceOutputIndex >= 0 ? std::to_string(out.mirrorSourceOutputIndex + 1) : "off";
+      std::string url = trim(out.streamUrl);
+      int alphaPct = static_cast<int>(std::lround(std::clamp(out.outputAlpha, 0.0f, 1.0f) * 100.0f));
+      std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
+      std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
+      if (url.empty()) {
+        url = defaultOutputStreamUrl(protocol, outputIndex);
+      }
+      output << "OUTPUT " << (outputIndex + 1)
+             << " name=\"" << (out.name.empty() ? outputDefaultName(outputIndex) : out.name) << "\""
+             << " id=\"" << out.outputId << "\""
+             << " enabled=" << (out.enabled ? "on" : "off")
+             << " type=" << type
+             << " host=" << (hostDeckIndex + 1)
+             << " display=" << (outputDisplayIndex(outputIndex) + 1)
+             << " layers=" << layerCount
+             << " mirror=" << mirror
+             << " stream=" << (out.streamEnabled ? "on" : "off")
+             << " proto=" << protocol
+             << " bitrate=" << out.streamBitrateKbps
+             << " url=\"" << url << "\""
+             << " ndi=" << (out.ndiEnabled ? "on" : "off")
+             << " ndi_name=\"" << ndiSource << "\""
+             << " ndi_rx=" << ndiConnectionCountForOutput(outputIndex)
+             << " ndi_key=" << (out.ndiKeyEnabled ? "on" : "off")
+             << " ndi_key_name=\"" << ndiKeySource << "\""
+             << " ndi_key_rx=" << ndiKeyConnectionCountForOutput(outputIndex)
+             << " alpha=" << alphaPct
+             << " delay_ms=" << std::clamp(out.outputDelayMs, 0, 5000)
+             << " overlay=" << (out.outputTimeOverlayEnabled ? "on" : "off")
+             << " color_space=" << normalizeOutputColorSpace(out.outputColorSpace)
+             << '\n';
+    }
+    for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
+      const GroupPreset& preset = project_.groupPresets[presetIndex];
+      int slotCount = std::min(static_cast<int>(preset.slots.size()), static_cast<int>(project_.decks.size()));
+      int armed = 0;
+      for (int deckIndex = 0; deckIndex < slotCount; ++deckIndex) {
+        const GroupSlot& slot = preset.slots[deckIndex];
+        if (!slot.bypass && !slot.cueId.empty()) {
+          ++armed;
+        }
+      }
+      output << "GROUP " << (presetIndex + 1)
+             << " name=\"" << (preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name) << "\""
+             << " slots=" << slotCount
+             << " armed=" << armed
+             << '\n';
+    }
     return output.str();
   }
 
@@ -5761,12 +10041,30 @@ class App {
     }
     std::ostringstream output;
     const Deck& deck = project_.decks[deckIndex];
+    auto outputIndexOpt = primaryOutputIndexForDeck(deckIndex);
+    int outputIndex = outputIndexOpt ? *outputIndexOpt : -1;
+    int displayIndex = outputIndex >= 0 ? outputDisplayIndex(outputIndex) : deck.outputDisplayIndex;
+    int layerIndex = primaryLayerIndexForDeck(deckIndex);
+    std::string routeLabel = outputIndex >= 0 ? std::to_string(outputIndex + 1) : "--";
+    std::string rasterLabel = outputIndex >= 0 ? outputResolutionLabelForOutput(outputIndex) : outputResolutionLabel(deckIndex);
+    std::string depthLabel = outputIndex >= 0 ? outputBitDepthActiveLabelForOutput(outputIndex) : outputBitDepthActiveLabel(deckIndex);
     const Cue* activeCue = activeCuePtr(deckIndex);
     const Cue* selectedCue = selectedCuePtr(deckIndex);
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
-    output << "PLAYBOY_0.01"
+    std::string selectedNum = cueNumberLabelForStatus(deck, deck.selectedIndex);
+    std::string selectedId = cueIdForStatus(deck, deck.selectedIndex);
+    std::string activeNum = cueNumberLabelForStatus(deck, deck.activeIndex);
+    std::string activeId = cueIdForStatus(deck, deck.activeIndex);
+    output << "DECKBOY_0.01"
            << " focus=" << (project_.focusedDeckIndex + 1)
            << " decks=" << project_.decks.size()
+           << " panic_profile=" << normalizePanicProfileToken(project_.panicProfile)
+           << " panic_fade_s=" << project_.panicFadeSeconds
+           << " panic_restore=" << (project_.panicAutoRestore ? "on" : "off")
+           << " find=\"" << lastCueFindToken_ << "\""
+           << " find_matches=" << lastCueFindMatches_.size()
+           << " find_cursor=" << (lastCueFindCursor_ >= 0 ? lastCueFindCursor_ + 1 : 0)
+           << " find_deck=" << (lastCueFindDeckIndex_ >= 0 ? lastCueFindDeckIndex_ + 1 : 0)
            << " video_mode=" << (project_.outputFollowDisplay ? "native" : "fixed")
            << " video_hz=" << formatRefreshRateLabel(project_.outputRefreshRateHz)
            << " video_depth=" << outputBitDepthModeLabel()
@@ -5779,18 +10077,16 @@ class App {
            << " status=" << transportStatusLabel(deckIndex)
            << " selected=" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0)
            << " active=" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0)
-           << " display=" << (deck.outputDisplayIndex + 1)
-           << " route=" << (resolveDeckOutputHostIndex(deckIndex) + 1)
-           << " layer=" << deck.outputLayerIndex
-           << " raster=" << outputResolutionLabel(deckIndex)
-           << " depth=" << outputBitDepthActiveLabel(deckIndex)
+           << " selected_num=\"" << selectedNum << "\""
+           << " selected_id=\"" << selectedId << "\""
+           << " active_num=\"" << activeNum << "\""
+           << " active_id=\"" << activeId << "\""
+           << " display=" << (displayIndex + 1)
+           << " route=" << routeLabel
+           << " layer=" << layerIndex
+           << " raster=" << rasterLabel
+           << " depth=" << depthLabel
            << " audio=\"" << (deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\""
-           << " ndi=" << (deck.ndiEnabled ? "on" : "off")
-           << " ndi_name=\"" << (deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\""
-           << " ndi_rx=" << ndiConnectionCount(deckIndex)
-           << " ndi_key=" << (deck.ndiKeyEnabled ? "on" : "off")
-           << " ndi_key_name=\"" << (deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\""
-           << " ndi_key_rx=" << ndiKeyConnectionCount(deckIndex)
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
            << " view=" << deck.canvasViewX << "," << deck.canvasViewY
            << " warp=" << (deck.warpEnabled ? "on" : "off")
@@ -5804,6 +10100,8 @@ class App {
            << " tc_chase=" << (deck.timecodeChaseEnabled ? "on" : "off")
            << " tc_run=" << (deck.timecodeRunEnabled ? "on" : "off")
            << " tc_trigger=" << (deck.timecodeTriggerEnabled ? "on" : "off")
+           << " tc_jam=" << (deck.timecodeJamSyncEnabled ? "on" : "off")
+           << " tc_freewheel_s=" << deck.timecodeFreewheelSeconds
            << " cue=\"" << (activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
     if (activeCue) {
       output << " cue_id=\"" << activeCue->id << "\""
@@ -5823,42 +10121,135 @@ class App {
   std::string buildStatusSnapshotJson() const {
     std::ostringstream output;
     output << "{"
-           << "\"app\":\"PLAYBOY_0.01\","
+           << "\"app\":\"DECKBOY_0.01\","
            << "\"focusedDeck\":" << (project_.focusedDeckIndex + 1) << ","
            << "\"deckCount\":" << project_.decks.size() << ","
+           << "\"focusedOutput\":" << (project_.focusedOutputIndex + 1) << ","
+           << "\"outputCount\":" << project_.outputs.size() << ","
+           << "\"focusedGroupPreset\":" << (project_.groupPresets.empty() ? 0 : project_.focusedGroupPresetIndex + 1) << ","
+           << "\"groupPresetCount\":" << project_.groupPresets.size() << ","
+           << "\"panicProfile\":\"" << escapeJson(normalizePanicProfileToken(project_.panicProfile)) << "\","
+           << "\"panicFadeSeconds\":" << project_.panicFadeSeconds << ","
+           << "\"panicAutoRestore\":" << (project_.panicAutoRestore ? "true" : "false") << ","
+           << "\"findToken\":\"" << escapeJson(lastCueFindToken_) << "\","
+           << "\"findMatchCount\":" << lastCueFindMatches_.size() << ","
+           << "\"findCursor\":" << (lastCueFindCursor_ >= 0 ? lastCueFindCursor_ + 1 : 0) << ","
+           << "\"findDeck\":" << (lastCueFindDeckIndex_ >= 0 ? lastCueFindDeckIndex_ + 1 : 0) << ","
            << "\"outputMode\":\"" << (project_.outputFollowDisplay ? "native" : "fixed") << "\","
            << "\"outputRefreshHz\":" << project_.outputRefreshRateHz << ","
            << "\"outputBitDepthMode\":\"" << escapeJson(outputBitDepthModeLabel()) << "\","
            << "\"outputCanvasEnabled\":" << (project_.outputCanvasEnabled ? "true" : "false") << ","
            << "\"outputCanvasWidth\":" << project_.outputCanvasWidth << ","
            << "\"outputCanvasHeight\":" << project_.outputCanvasHeight << ","
+           << "\"outputs\":[";
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (outputIndex > 0) {
+        output << ",";
+      }
+      const OutputTarget& out = project_.outputs[outputIndex];
+      int hostDeckIndex = std::clamp(out.hostDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
+      int layerCount = 0;
+      for (const auto& assignment : project_.layerAssignments) {
+        if (assignment.enabled && resolveAssignmentOutputIndex(assignment) == outputIndex) {
+          ++layerCount;
+        }
+      }
+      std::string type = normalizeOutputType(out.outputType);
+      std::string protocol = normalizeOutputStreamProtocol(out.streamProtocol);
+      std::string url = trim(out.streamUrl);
+      int alphaPct = static_cast<int>(std::lround(std::clamp(out.outputAlpha, 0.0f, 1.0f) * 100.0f));
+      std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
+      std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
+      if (url.empty()) {
+        url = defaultOutputStreamUrl(protocol, outputIndex);
+      }
+      output << "{"
+             << "\"index\":" << (outputIndex + 1) << ","
+             << "\"name\":\"" << escapeJson(out.name.empty() ? outputDefaultName(outputIndex) : out.name) << "\","
+             << "\"outputId\":\"" << escapeJson(out.outputId) << "\","
+             << "\"type\":\"" << escapeJson(type) << "\","
+             << "\"hostDeck\":" << (hostDeckIndex + 1) << ","
+             << "\"display\":" << (outputDisplayIndex(outputIndex) + 1) << ","
+             << "\"enabled\":" << (out.enabled ? "true" : "false") << ","
+             << "\"mirrorSourceOutput\":" << (out.mirrorSourceOutputIndex >= 0 ? out.mirrorSourceOutputIndex + 1 : 0) << ","
+             << "\"layerCount\":" << layerCount << ","
+             << "\"streamEnabled\":" << (out.streamEnabled ? "true" : "false") << ","
+             << "\"streamProtocol\":\"" << escapeJson(protocol) << "\","
+             << "\"streamUrl\":\"" << escapeJson(url) << "\","
+             << "\"streamBitrateKbps\":" << out.streamBitrateKbps << ","
+             << "\"ndiEnabled\":" << (out.ndiEnabled ? "true" : "false") << ","
+             << "\"ndiName\":\"" << escapeJson(ndiSource) << "\","
+             << "\"ndiReceivers\":" << ndiConnectionCountForOutput(outputIndex) << ","
+             << "\"ndiKeyEnabled\":" << (out.ndiKeyEnabled ? "true" : "false") << ","
+             << "\"ndiKeyName\":\"" << escapeJson(ndiKeySource) << "\","
+             << "\"ndiKeyReceivers\":" << ndiKeyConnectionCountForOutput(outputIndex) << ","
+             << "\"outputAlphaPercent\":" << alphaPct << ","
+             << "\"outputDelayMs\":" << std::clamp(out.outputDelayMs, 0, 5000) << ","
+             << "\"outputTimeOverlay\":" << (out.outputTimeOverlayEnabled ? "true" : "false") << ","
+             << "\"outputColorSpace\":\"" << escapeJson(normalizeOutputColorSpace(out.outputColorSpace)) << "\""
+             << "}";
+    }
+    output << "],"
+           << "\"groupPresets\":[";
+    for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
+      if (presetIndex > 0) {
+        output << ",";
+      }
+      const GroupPreset& preset = project_.groupPresets[presetIndex];
+      output << "{"
+             << "\"index\":" << (presetIndex + 1) << ","
+             << "\"name\":\"" << escapeJson(preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name) << "\","
+             << "\"slots\":[";
+      int slotCount = std::min(static_cast<int>(preset.slots.size()), static_cast<int>(project_.decks.size()));
+      for (int deckIndex = 0; deckIndex < slotCount; ++deckIndex) {
+        if (deckIndex > 0) {
+          output << ",";
+        }
+        const GroupSlot& slot = preset.slots[deckIndex];
+        output << "{"
+               << "\"deck\":" << (deckIndex + 1) << ","
+               << "\"bypass\":" << (slot.bypass ? "true" : "false") << ","
+               << "\"cueId\":\"" << escapeJson(slot.cueId) << "\""
+               << "}";
+      }
+      output << "]}";
+    }
+    output << "],"
            << "\"decks\":[";
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (deckIndex > 0) {
         output << ",";
       }
       const Deck& deck = project_.decks[deckIndex];
+      auto outputIndexOpt = primaryOutputIndexForDeck(deckIndex);
+      int outputIndex = outputIndexOpt ? *outputIndexOpt : -1;
+      int displayIndex = outputIndex >= 0 ? outputDisplayIndex(outputIndex) : deck.outputDisplayIndex;
+      int layerIndex = primaryLayerIndexForDeck(deckIndex);
+      std::string rasterLabel = outputIndex >= 0 ? outputResolutionLabelForOutput(outputIndex) : outputResolutionLabel(deckIndex);
+      std::string depthLabel = outputIndex >= 0 ? outputBitDepthActiveLabelForOutput(outputIndex) : outputBitDepthActiveLabel(deckIndex);
       const Cue* activeCue = activeCuePtr(deckIndex);
       const Cue* selectedCue = selectedCuePtr(deckIndex);
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      std::string selectedNum = cueNumberLabelForStatus(deck, deck.selectedIndex);
+      std::string selectedId = cueIdForStatus(deck, deck.selectedIndex);
+      std::string activeNum = cueNumberLabelForStatus(deck, deck.activeIndex);
+      std::string activeId = cueIdForStatus(deck, deck.activeIndex);
       output << "{"
              << "\"index\":" << (deckIndex + 1) << ","
              << "\"name\":\"" << escapeJson(deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\","
              << "\"status\":\"" << escapeJson(transportStatusLabel(deckIndex)) << "\","
              << "\"selected\":" << (deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0) << ","
              << "\"active\":" << (deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0) << ","
-             << "\"display\":" << (deck.outputDisplayIndex + 1) << ","
-             << "\"routeOutput\":" << (resolveDeckOutputHostIndex(deckIndex) + 1) << ","
-             << "\"layer\":" << deck.outputLayerIndex << ","
-             << "\"raster\":\"" << outputResolutionLabel(deckIndex) << "\","
-             << "\"outputDepth\":\"" << outputBitDepthActiveLabel(deckIndex) << "\","
+             << "\"selectedCueNumber\":\"" << escapeJson(selectedNum) << "\","
+             << "\"selectedCueId\":\"" << escapeJson(selectedId) << "\","
+             << "\"activeCueNumber\":\"" << escapeJson(activeNum) << "\","
+             << "\"activeCueId\":\"" << escapeJson(activeId) << "\","
+             << "\"display\":" << (displayIndex + 1) << ","
+             << "\"routeOutput\":" << (outputIndex + 1) << ","
+             << "\"layer\":" << layerIndex << ","
+             << "\"raster\":\"" << rasterLabel << "\","
+             << "\"outputDepth\":\"" << depthLabel << "\","
              << "\"audio\":\"" << escapeJson(deck.audioOutputDeviceName.empty() ? "system default" : deck.audioOutputDeviceName) << "\","
-             << "\"ndiEnabled\":" << (deck.ndiEnabled ? "true" : "false") << ","
-             << "\"ndiName\":\"" << escapeJson(deck.ndiSourceName.empty() ? defaultNdiSourceName(deck, deckIndex) : deck.ndiSourceName) << "\","
-             << "\"ndiReceivers\":" << ndiConnectionCount(deckIndex) << ","
-             << "\"ndiKeyEnabled\":" << (deck.ndiKeyEnabled ? "true" : "false") << ","
-             << "\"ndiKeyName\":\"" << escapeJson(deck.ndiKeySourceName.empty() ? defaultNdiKeySourceName(deck, deckIndex) : deck.ndiKeySourceName) << "\","
-             << "\"ndiKeyReceivers\":" << ndiKeyConnectionCount(deckIndex) << ","
              << "\"timeOverlay\":" << (deck.timeOverlayEnabled ? "true" : "false") << ","
              << "\"canvasViewX\":" << deck.canvasViewX << ","
              << "\"canvasViewY\":" << deck.canvasViewY << ","
@@ -5882,6 +10273,8 @@ class App {
              << "\"timecodeChase\":" << (deck.timecodeChaseEnabled ? "true" : "false") << ","
              << "\"timecodeRun\":" << (deck.timecodeRunEnabled ? "true" : "false") << ","
              << "\"timecodeTrigger\":" << (deck.timecodeTriggerEnabled ? "true" : "false") << ","
+             << "\"timecodeJam\":" << (deck.timecodeJamSyncEnabled ? "true" : "false") << ","
+             << "\"timecodeFreewheelSeconds\":" << deck.timecodeFreewheelSeconds << ","
              << "\"cue\":\"" << escapeJson(activeCue ? activeCue->name : (selectedCue ? selectedCue->name : "")) << "\"";
       if (activeCue) {
         output << ",\"cueId\":\"" << escapeJson(activeCue->id) << "\""
@@ -5904,11 +10297,261 @@ class App {
     std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
     statusSnapshot_ = buildStatusSnapshot();
     statusSnapshotJson_ = buildStatusSnapshotJson();
+    statusCueSnapshot_ = buildCueProgrammingSnapshot();
     statusDeckSnapshots_.clear();
     statusDeckSnapshots_.reserve(project_.decks.size());
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       statusDeckSnapshots_.push_back(buildDeckStatusSnapshot(deckIndex));
     }
+  }
+
+  void disarmAllOutputsForStartup() {
+    normalizeProject(project_);
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      output.enabled = false;
+      stopOutputStream(outputIndex);
+    }
+  }
+
+  bool jumpTriggersPlayback() const {
+    return normalizeJumpModeToken(project_.jumpMode) == "trigger";
+  }
+
+  void setJumpModeToken(const std::string& token) {
+    std::string normalized = normalizeJumpModeToken(token);
+    if (project_.jumpMode == normalized) {
+      triggerToast("jump mode: " + jumpModeLabelFromToken(project_.jumpMode));
+      return;
+    }
+    project_.jumpMode = normalized;
+    triggerToast("jump mode: " + jumpModeLabelFromToken(project_.jumpMode));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleJumpMode() {
+    setJumpModeToken(jumpTriggersPlayback() ? "load" : "trigger");
+  }
+
+  void setJumpTransitionEnabled(bool enabled) {
+    if (project_.jumpTransitionEnabled == enabled) {
+      triggerToast(std::string("jump transition: ") + (project_.jumpTransitionEnabled ? "on" : "off"));
+      return;
+    }
+    project_.jumpTransitionEnabled = enabled;
+    triggerToast(std::string("jump transition: ") + (project_.jumpTransitionEnabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void cyclePanicProfile(int direction) {
+    static const std::array<std::string, 4> kProfiles {
+      "outputs_off", "fade_pause", "fade_rewind", "fade_load_next"
+    };
+    std::string current = normalizePanicProfileToken(project_.panicProfile);
+    int currentIndex = 0;
+    for (int i = 0; i < static_cast<int>(kProfiles.size()); ++i) {
+      if (kProfiles[i] == current) {
+        currentIndex = i;
+        break;
+      }
+    }
+    int nextIndex = (currentIndex + direction + static_cast<int>(kProfiles.size())) % static_cast<int>(kProfiles.size());
+    project_.panicProfile = kProfiles[nextIndex];
+    triggerToast("panic profile: " + panicProfileLabelFromToken(project_.panicProfile));
+    playUiSound(UiSoundEffect::Navigate);
+    markProjectDirty();
+  }
+
+  void setPanicFadeSeconds(double seconds) {
+    double next = std::clamp(std::isfinite(seconds) ? seconds : 0.9, 0.1, 5.0);
+    if (std::abs(project_.panicFadeSeconds - next) < 0.001) {
+      std::ostringstream msg;
+      msg << std::fixed << std::setprecision(1) << next;
+      triggerToast("panic fade " + msg.str() + "s");
+      return;
+    }
+    project_.panicFadeSeconds = next;
+    std::ostringstream msg;
+    msg << std::fixed << std::setprecision(1) << project_.panicFadeSeconds;
+    triggerToast("panic fade " + msg.str() + "s");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void adjustPanicFadeSeconds(double deltaSeconds) {
+    setPanicFadeSeconds(project_.panicFadeSeconds + deltaSeconds);
+  }
+
+  void setPanicAutoRestoreEnabled(bool enabled) {
+    if (project_.panicAutoRestore == enabled) {
+      triggerToast(std::string("panic auto restore: ") + (enabled ? "on" : "off"));
+      return;
+    }
+    project_.panicAutoRestore = enabled;
+    triggerToast(std::string("panic auto restore: ") + (enabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  bool runPanicOutputsOff(bool requireSafetyContext, Uint32 sourceWindowId) {
+    normalizeProject(project_);
+
+    bool fromOutputWindow = outputIndexForWindowId(sourceWindowId).has_value();
+    bool anyWindowOutputEnabled = false;
+    for (const auto& output : project_.outputs) {
+      if (output.enabled && normalizeOutputType(output.outputType) == "window") {
+        anyWindowOutputEnabled = true;
+        break;
+      }
+    }
+    if (requireSafetyContext && !fromOutputWindow && !anyWindowOutputEnabled) {
+      return false;
+    }
+
+    bool anyEnabled = false;
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      if (output.enabled) {
+        anyEnabled = true;
+      }
+      output.enabled = false;
+      setOutputRecoveryPausedByEscape(outputIndex, false);
+      stopOutputStream(outputIndex);
+      applyOutputDisplaySelection(outputIndex);
+    }
+
+    panicProfilePending_ = false;
+    pendingPanicProfileToken_.clear();
+    panicProfileRequestedAt_ = 0;
+    SDL_RaiseWindow(controlWindow_);
+    triggerToast(anyEnabled ? "panic: outputs off" : "panic: outputs already off");
+    playUiSound(UiSoundEffect::Toggle);
+    if (anyEnabled) {
+      markProjectDirty();
+    }
+    return true;
+  }
+
+  bool emergencyDisarmOutputsFromEsc(Uint32 sourceWindowId) {
+    return runPanicOutputsOff(true, sourceWindowId);
+  }
+
+  void executePanicDeckAction(const std::string& token) {
+    std::string profile = normalizePanicProfileToken(token);
+    int savedFocus = project_.focusedDeckIndex;
+    bool changed = false;
+    if (profile == "fade_pause") {
+      for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+        if (const Cue* activeCue = activeCuePtr(deckIndex); activeCue && activeCue->kind == CueKind::Browser) {
+          stopBrowserCue(deckIndex);
+          changed = true;
+        }
+        if (auto* engine = mediaEngineForDeck(deckIndex)) {
+          engine->pause();
+          changed = true;
+        }
+      }
+    } else if (profile == "fade_rewind") {
+      for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+        stopBrowserCue(deckIndex);
+        if (auto* engine = mediaEngineForDeck(deckIndex)) {
+          engine->stop();
+          changed = true;
+        }
+      }
+    } else if (profile == "fade_load_next") {
+      for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+        Deck& deck = project_.decks[deckIndex];
+        if (deck.cues.empty()) {
+          continue;
+        }
+        int nextIndex = deck.selectedIndex < 0
+          ? 0
+          : std::clamp(deck.selectedIndex + 1, 0, static_cast<int>(deck.cues.size()) - 1);
+        if (deck.selectedIndex != nextIndex) {
+          deck.selectedIndex = nextIndex;
+          changed = true;
+        }
+        project_.focusedDeckIndex = deckIndex;
+        takeSelected(false, false);
+        changed = true;
+      }
+    }
+    project_.focusedDeckIndex = savedFocus;
+    onSelectionChanged();
+    if (project_.panicAutoRestore) {
+      masterDimmerTarget_ = std::clamp(panicRestoreDimmerTarget_, 0.0, 1.0);
+    }
+    triggerToast("panic: " + panicProfileLabelFromToken(profile));
+    playUiSound(UiSoundEffect::Stop);
+    if (changed) {
+      markProjectDirty();
+    }
+  }
+
+  void triggerPanicProfile(std::optional<std::string> overrideProfile = std::nullopt) {
+    normalizeProject(project_);
+    std::string profile = overrideProfile
+      ? normalizePanicProfileToken(*overrideProfile)
+      : normalizePanicProfileToken(project_.panicProfile);
+    if (profile == "outputs_off") {
+      runPanicOutputsOff(false, 0);
+      return;
+    }
+    pendingPanicProfileToken_ = profile;
+    panicProfilePending_ = true;
+    panicProfileRequestedAt_ = SDL_GetTicks64();
+    panicRestoreDimmerTarget_ = std::clamp(masterDimmerTarget_, 0.0, 1.0);
+    masterDimmerTarget_ = 0.0;
+    triggerToast("panic arm: " + panicProfileLabelFromToken(profile));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  bool saveProjectNow(bool withToast = true) {
+    normalizeProject(project_);
+    if (currentProjectFile_.empty()) {
+      currentProjectFile_ = defaultProjectFile();
+    }
+    bool ok = saveProject(currentProjectFile_, project_);
+    if (ok) {
+      projectDirty_ = false;
+      if (withToast) {
+        triggerToast("saved " + currentProjectLabel());
+      }
+    } else if (withToast) {
+      triggerToast("save failed");
+    }
+    return ok;
+  }
+
+  bool startNewShow(bool withToast = true) {
+    project_ = Project {};
+    normalizeProject(project_);
+    disarmAllOutputsForStartup();
+    for (auto& deck : project_.decks) {
+      deck.activeIndex = -1;
+    }
+    currentProjectFile_ = defaultProjectFile();
+    updateDecksPanelVisibility();
+    timecodeTriggeredCueIds_.clear();
+    resetTimecodeFollowerState();
+    selectionChangedAt_ = SDL_GetTicks64();
+    if (!rebuildDeckRuntimes()) {
+      std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
+      return false;
+    }
+    if (!rebuildOutputRuntimes()) {
+      std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
+      return false;
+    }
+    projectDirty_ = false;
+    if (withToast) {
+      triggerToast("new show");
+    }
+    return true;
   }
 
   void persistProject() {
@@ -6282,7 +10925,7 @@ class App {
     if (!statusSnapshotJson_.empty()) {
       return statusSnapshotJson_;
     }
-    return "{\"app\":\"PLAYBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
+    return "{\"app\":\"DECKBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
   }
 
   void maybeBroadcastOscState() {
@@ -6330,7 +10973,7 @@ class App {
         snapshotJson = statusSnapshotJson_;
       }
       if (snapshotJson.empty()) {
-        snapshotJson = "{\"app\":\"PLAYBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
+        snapshotJson = "{\"app\":\"DECKBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
       }
       sendSnapshot(snapshotJson);
       return true;
@@ -6342,9 +10985,38 @@ class App {
         snapshot = statusSnapshot_;
       }
       if (snapshot.empty()) {
-        snapshot = "PLAYBOY_0.01 decks=0\n";
+        snapshot = "DECKBOY_0.01 decks=0\n";
       }
       sendSnapshot(snapshot);
+      return true;
+    }
+    if (upper == "STATUS CUES" || upper == "STATE CUES") {
+      std::string cueSnapshot;
+      {
+        std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+        cueSnapshot = statusCueSnapshot_;
+      }
+      if (cueSnapshot.empty()) {
+        cueSnapshot = "DECKBOY_0.01 cues decks=0\n";
+      }
+      sendSnapshot(cueSnapshot);
+      return true;
+    }
+    if (upper == "FINDSTATUS" || upper == "STATUS FIND" || upper == "STATE FIND") {
+      std::string cueSnapshot;
+      {
+        std::lock_guard<std::mutex> lock(statusSnapshotMutex_);
+        cueSnapshot = statusCueSnapshot_;
+      }
+      if (cueSnapshot.empty()) {
+        cueSnapshot = "DECKBOY_0.01 cues find=none\n";
+      } else {
+        size_t newline = cueSnapshot.find('\n');
+        cueSnapshot = newline == std::string::npos
+          ? cueSnapshot + "\n"
+          : cueSnapshot.substr(0, newline + 1);
+      }
+      sendSnapshot(cueSnapshot);
       return true;
     }
 
@@ -6461,7 +11133,7 @@ class App {
     midiStop_ = false;
     int err = snd_seq_open(&midiSeq_, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
     if (err < 0) { midiSeq_ = nullptr; return false; }
-    snd_seq_set_client_name(midiSeq_, "Playboy");
+    snd_seq_set_client_name(midiSeq_, "Deckboy");
     midiSeqPort_ = snd_seq_create_simple_port(midiSeq_, "input",
       SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE,
       SND_SEQ_PORT_TYPE_APPLICATION);
@@ -6791,7 +11463,7 @@ class App {
                 continue;
               }
               if (path == "/PING" || path == "/PLAYBOY/PING") {
-                sendOscStringTo(sender, "/playboy/pong", "PLAYBOY_0.01");
+                sendOscStringTo(sender, "/playboy/pong", "DECKBOY_0.01");
                 continue;
               }
               auto mapped = mapOscToRemoteCommand(osc);
@@ -6965,6 +11637,73 @@ class App {
       stopTransport();
       return;
     }
+    if (command == "JUMPMODE" || command == "JUMP_MODE") {
+      if (parts.size() < 2) {
+        triggerToast("jump mode: " + jumpModeLabelFromToken(project_.jumpMode));
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "TOGGLE") {
+        toggleJumpMode();
+      } else {
+        setJumpModeToken(value);
+      }
+      return;
+    }
+    if (command == "JUMPTRANS" || command == "JUMPTRANSITION" || command == "JUMP_XFADE") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setJumpTransitionEnabled(!project_.jumpTransitionEnabled);
+      } else {
+        setJumpTransitionEnabled(*state);
+      }
+      return;
+    }
+    if (command == "PANICPROFILE" || command == "PANIC_PROFILE") {
+      if (parts.size() < 2) {
+        triggerToast("panic profile: " + panicProfileLabelFromToken(project_.panicProfile));
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "NEXT") {
+        cyclePanicProfile(1);
+      } else if (value == "PREV" || value == "PREVIOUS") {
+        cyclePanicProfile(-1);
+      } else {
+        project_.panicProfile = normalizePanicProfileToken(value);
+        triggerToast("panic profile: " + panicProfileLabelFromToken(project_.panicProfile));
+        playUiSound(UiSoundEffect::Toggle);
+        markProjectDirty();
+      }
+      return;
+    }
+    if (command == "PANICFADE" || command == "PANIC_FADE") {
+      if (parts.size() < 2) {
+        std::ostringstream label;
+        label << std::fixed << std::setprecision(1) << project_.panicFadeSeconds;
+        triggerToast("panic fade " + label.str() + "s");
+      } else if (auto value = parseNumber(1); value) {
+        setPanicFadeSeconds(*value);
+      }
+      return;
+    }
+    if (command == "PANICAUTORESTORE" || command == "PANIC_RESTORE") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setPanicAutoRestoreEnabled(!project_.panicAutoRestore);
+      } else {
+        setPanicAutoRestoreEnabled(*state);
+      }
+      return;
+    }
+    if (command == "PANIC") {
+      if (parts.size() > 1) {
+        triggerPanicProfile(parts[1]);
+      } else {
+        triggerPanicProfile();
+      }
+      return;
+    }
     // ── All-deck simultaneous commands ─────────────────────────────
     if (command == "ALLTAKE" || command == "SYNCTAKE") {
       takeAllDecks(true);
@@ -6993,6 +11732,143 @@ class App {
         if (auto* e = mediaEngineForDeck(di)) e->stop();
       }
       triggerToast("all decks stopped");
+      return;
+    }
+    if (command == "GROUP" || command == "MASTER" || command == "MASTERCUE" ||
+        command == "PRESET" || command == "GROUPPRESET") {
+      if (parts.size() == 1) {
+        if (project_.groupPresets.empty()) {
+          triggerToast("master cue: none");
+        } else {
+          int idx = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+          triggerToast("master cue " + std::to_string(idx + 1) + "/" + std::to_string(project_.groupPresets.size())
+            + ": " + groupPresetLabel(idx));
+        }
+        return;
+      }
+
+      std::string sub = toUpper(parts[1]);
+      if (sub == "ADD" || sub == "NEW") {
+        std::string name = parts.size() > 2 ? joinParts(parts, 2) : "";
+        addGroupPreset(name, true);
+        return;
+      }
+      if (sub == "ADDEMPTY") {
+        std::string name = parts.size() > 2 ? joinParts(parts, 2) : "";
+        addGroupPreset(name, false);
+        return;
+      }
+      if (sub == "NEXT") {
+        ensureGroupPreset(true);
+        cycleFocusedGroupPreset(1);
+        return;
+      }
+      if (sub == "PREV" || sub == "PREVIOUS") {
+        ensureGroupPreset(true);
+        cycleFocusedGroupPreset(-1);
+        return;
+      }
+      if (sub == "DELETE" || sub == "DEL" || sub == "REMOVE") {
+        deleteFocusedGroupPreset();
+        return;
+      }
+      if (sub == "FIRE" || sub == "TAKE" || sub == "GO") {
+        if (parts.size() > 2) {
+          try {
+            int idx = std::stoi(parts[2]) - 1;
+            fireGroupPreset(idx, true);
+          } catch (...) {
+          }
+        } else {
+          fireFocusedGroupPreset(true);
+        }
+        return;
+      }
+      if (sub == "CAPTURE") {
+        ensureGroupPreset(true);
+        std::string mode = parts.size() > 2 ? toUpper(parts[2]) : "SEL";
+        captureFocusedGroupPreset(mode == "ACTIVE" || mode == "ACT" || mode == "LIVE");
+        return;
+      }
+      if (sub == "NAME") {
+        ensureGroupPreset(true);
+        if (parts.size() > 2) {
+          renameFocusedGroupPreset(joinParts(parts, 2));
+        }
+        return;
+      }
+      if (sub == "SET" && parts.size() > 3) {
+        ensureGroupPreset(true);
+        auto deckRef = parseDeckReferenceToken(parts[2]);
+        if (deckRef) {
+          if (!setFocusedGroupSlotByToken(*deckRef, joinParts(parts, 3))) {
+            triggerToast("master cue set failed");
+          }
+        }
+        return;
+      }
+      if (sub == "BYPASS" && parts.size() > 3) {
+        ensureGroupPreset(true);
+        auto deckRef = parseDeckReferenceToken(parts[2]);
+        if (!deckRef) {
+          return;
+        }
+        std::string mode = toUpper(parts[3]);
+        bool nextBypass = true;
+        if (mode == "ON" || mode == "TRUE" || mode == "1") {
+          nextBypass = true;
+        } else if (mode == "OFF" || mode == "FALSE" || mode == "0") {
+          nextBypass = false;
+        } else {
+          bool current = false;
+          if (const GroupPreset* preset = focusedGroupPreset()) {
+            if (*deckRef >= 0 && *deckRef < static_cast<int>(preset->slots.size())) {
+              current = preset->slots[*deckRef].bypass;
+            }
+          }
+          nextBypass = !current;
+        }
+        setFocusedGroupSlotBypass(*deckRef, nextBypass);
+        return;
+      }
+      if (sub == "SELECT" || sub == "FOCUS") {
+        ensureGroupPreset(true);
+        if (parts.size() > 2) {
+          std::string indexToken = toUpper(parts[2]);
+          if (indexToken == "NEXT") {
+            cycleFocusedGroupPreset(1);
+          } else if (indexToken == "PREV" || indexToken == "PREVIOUS") {
+            cycleFocusedGroupPreset(-1);
+          } else {
+            try {
+              setFocusedGroupPresetIndex(std::stoi(parts[2]) - 1);
+            } catch (...) {
+            }
+          }
+        }
+        return;
+      }
+      if (sub == "LIST") {
+        if (project_.groupPresets.empty()) {
+          triggerToast("master cues: 0");
+          return;
+        }
+        int focus = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+        triggerToast("master cues: " + std::to_string(project_.groupPresets.size()) + " focus " + std::to_string(focus + 1));
+        return;
+      }
+
+      // GROUP 2 [nested-command...]
+      try {
+        int idx = std::stoi(parts[1]) - 1;
+        if (!setFocusedGroupPresetIndex(idx)) {
+          return;
+        }
+        if (parts.size() > 2) {
+          handleRemoteCommand(command + " " + joinParts(parts, 2));
+        }
+      } catch (...) {
+      }
       return;
     }
     if (command == "CLEAR") {
@@ -7027,6 +11903,80 @@ class App {
       }
       return;
     }
+    if (command == "FIND" || command == "CUEFIND") {
+      if (parts.size() < 2) {
+        if (!lastCueFindToken_.empty()) {
+          findCueToken(lastCueFindToken_, 1, false);
+        } else {
+          triggerToast("find: token required");
+        }
+      } else {
+        findCueToken(joinParts(parts, 1), 1, false);
+      }
+      return;
+    }
+    if (command == "FINDNEXT" || command == "CUEFINDNEXT") {
+      if (lastCueFindToken_.empty()) {
+        triggerToast("find: run FIND first");
+      } else {
+        findCueToken(lastCueFindToken_, 1, false);
+      }
+      return;
+    }
+    if (command == "FINDPREV" || command == "FINDPREVIOUS" || command == "CUEFINDPREV") {
+      if (lastCueFindToken_.empty()) {
+        triggerToast("find: run FIND first");
+      } else {
+        findCueToken(lastCueFindToken_, -1, false);
+      }
+      return;
+    }
+    if (command == "FINDTAKE" || command == "CUEFINDTAKE") {
+      if (parts.size() < 2) {
+        if (!lastCueFindToken_.empty()) {
+          findCueToken(lastCueFindToken_, 1, true);
+        } else {
+          triggerToast("find: token required");
+        }
+      } else {
+        findCueToken(joinParts(parts, 1), 1, true);
+      }
+      return;
+    }
+    if (command == "FINDCLEAR" || command == "FINDRESET" || command == "CUEFINDCLEAR") {
+      clearCueFindState();
+      triggerToast("find cleared");
+      return;
+    }
+    if (command == "FINDSTATUS" || command == "CUEFINDSTATUS") {
+      if (lastCueFindToken_.empty() || lastCueFindMatches_.empty()) {
+        triggerToast("find: none");
+      } else {
+        int cursor = std::clamp(lastCueFindCursor_, 0, static_cast<int>(lastCueFindMatches_.size()) - 1);
+        triggerToast("find \"" + lastCueFindToken_ + "\" "
+          + std::to_string(cursor + 1) + "/" + std::to_string(lastCueFindMatches_.size()));
+      }
+      return;
+    }
+    if (command == "RENUMBER" || command == "CUEAUTOID" || command == "AUTOID") {
+      if (parts.size() > 1 && toUpper(parts[1]) == "CLEAR") {
+        clearFocusedDeckCueNumbers();
+        return;
+      }
+      std::string prefix;
+      int startAt = 1;
+      if (parts.size() > 1) {
+        prefix = parts[1];
+      }
+      if (parts.size() > 2) {
+        try {
+          startAt = std::stoi(parts[2]);
+        } catch (...) {
+        }
+      }
+      renumberFocusedDeckCueNumbers(prefix, startAt);
+      return;
+    }
     if (command == "SELECTID" || command == "CUEID") {
       selectCueById(joinParts(parts, 1));
       return;
@@ -7040,11 +11990,17 @@ class App {
         focusedDeckMutable().selectedIndex = *index;
         onSelectionChanged();
       }
-      takeSelected(parts.size() > 2 && toUpper(parts[2]) == "AUTO");
+      if (parts.size() > 2 && toUpper(parts[2]) == "AUTO") {
+        takeSelected(true);
+      } else {
+        jumpSelectedCue();
+      }
       return;
     }
     if (command == "TAKEID") {
-      takeCueById(joinParts(parts, 1), true);
+      if (selectCueById(joinParts(parts, 1))) {
+        jumpSelectedCue();
+      }
       return;
     }
     if (command == "GOTO") {
@@ -7059,7 +12015,7 @@ class App {
       }
       deck.selectedIndex = *index;
       onSelectionChanged();
-      takeSelected(true);
+      jumpSelectedCue();
       return;
     }
     if (command == "VOLUME") {
@@ -7321,6 +12277,25 @@ class App {
         }
         return;
       }
+      if (sub == "JAM") {
+        auto state = parseToggleWord(2);
+        if (state) {
+          setTimecodeJamSyncEnabled(*state);
+        } else {
+          triggerToast(focusedDeck().timecodeJamSyncEnabled ? "tc jam on" : "tc jam off");
+        }
+        return;
+      }
+      if (sub == "FREEWHEEL" || sub == "FREE") {
+        if (parts.size() < 3) {
+          std::ostringstream label;
+          label << std::fixed << std::setprecision(1) << focusedDeck().timecodeFreewheelSeconds;
+          triggerToast("tc freewheel " + label.str() + "s");
+        } else if (auto value = parseNumber(2); value) {
+          setTimecodeFreewheelSeconds(*value);
+        }
+        return;
+      }
       if (sub == "FPS") {
         auto value = parseNumber(2);
         if (value) {
@@ -7331,19 +12306,74 @@ class App {
       if (sub == "SET") {
         auto parsed = parseTimecodeSeconds(joinParts(parts, 2), focusedDeck().timecodeFps);
         if (parsed) {
-          setFocusedDeckTimecode(*parsed);
+          setFocusedDeckTimecode(*parsed, true);
         }
         return;
       }
       auto parsed = parseTimecodeSeconds(joinParts(parts, 1), focusedDeck().timecodeFps);
       if (parsed) {
-        setFocusedDeckTimecode(*parsed);
+        setFocusedDeckTimecode(*parsed, false);
       }
       return;
     }
     if (command == "PATTERN") {
-      std::string typeId = parts.size() > 1 ? toLower(joinParts(parts, 1)) : "pocket-test";
+      if (parts.size() > 1) {
+        std::string sub = toUpper(parts[1]);
+        if (sub == "LIST") {
+          triggerToast("patterns: " + std::to_string(patternTypes().size()) + " types");
+          return;
+        }
+        if (sub == "SET") {
+          std::string typeId = parts.size() > 2 ? normalizePatternTypeId(joinParts(parts, 2)) : "";
+          if (typeId == "checker") {
+            typeId = "checkerboard";
+          }
+          if (typeId.empty() || !isKnownPatternType(typeId)) {
+            triggerToast("pattern default: invalid");
+            return;
+          }
+          patternDefaultTypeId_ = typeId;
+          triggerToast("pattern default: " + patternLabelForType(typeId));
+          return;
+        }
+      }
+
+      std::string typeId;
+      if (parts.size() > 2) {
+        std::string tail = toUpper(parts.back());
+        if (tail == "MOTION" || tail == "ANIM" || tail == "ANIMATED") {
+          typeId = normalizePatternTypeId(parts[1] + "-motion");
+        }
+      }
+      if (typeId.empty()) {
+        typeId = parts.size() > 1 ? normalizePatternTypeId(joinParts(parts, 1)) : patternDefaultTypeId_;
+      }
       addPatternCue(typeId);
+      return;
+    }
+    if (command == "SOURCE" || command == "SRC" || command == "WINDOWSOURCE" ||
+        command == "CAMERACUE" || command == "SYPHONCUE" || command == "SPOUTCUE") {
+      CueKind kind = CueKind::WindowSource;
+      size_t refStartIndex = 1;
+      if (command == "CAMERACUE") {
+        kind = CueKind::Camera;
+      } else if (command == "SYPHONCUE" || command == "SPOUTCUE") {
+        kind = CueKind::Syphon;
+      } else if (parts.size() > 1) {
+        std::string typeArg = toUpper(parts[1]);
+        if (typeArg == "WINDOW" || typeArg == "WINDOWSOURCE" || typeArg == "WINDOWS") {
+          kind = CueKind::WindowSource;
+          refStartIndex = 2;
+        } else if (typeArg == "CAMERA" || typeArg == "CAM" || typeArg == "WEBCAM") {
+          kind = CueKind::Camera;
+          refStartIndex = 2;
+        } else if (typeArg == "SYPHON" || typeArg == "SIPHON" || typeArg == "SPOUT") {
+          kind = CueKind::Syphon;
+          refStartIndex = 2;
+        }
+      }
+      std::string sourceRef = parts.size() > refStartIndex ? joinParts(parts, refStartIndex) : "";
+      addSourceCue(kind, sourceRef);
       return;
     }
     if (command == "STILLDUR" || command == "DURATION") {
@@ -7505,8 +12535,8 @@ class App {
         return;
       }
       if (value == "TOP" || value == "FRONT") {
-        int hostIndex = resolveDeckOutputHostIndex(project_.focusedDeckIndex);
-        int nextTop = nextLayerIndexForOutputHost(hostIndex, project_.focusedDeckIndex);
+        int outputIndex = primaryOutputIndexForDeck(project_.focusedDeckIndex).value_or(project_.focusedOutputIndex);
+        int nextTop = nextLayerIndexForOutput(outputIndex, project_.focusedDeckIndex);
         setFocusedDeckLayerIndex(nextTop);
         return;
       }
@@ -7560,7 +12590,7 @@ class App {
         std::string canvasLabel = project_.outputCanvasEnabled
           ? (" canvas " + std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
           : " canvas off";
-        triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabel(project_.focusedDeckIndex)
+        triggerToast("video: " + outputSizingModeLabel() + " " + outputResolutionLabelForOutput(project_.focusedOutputIndex)
           + " @" + outputRefreshRateLabel() + " " + outputBitDepthModeLabel() + canvasLabel);
         return;
       }
@@ -7633,6 +12663,251 @@ class App {
       };
 
       std::string value = toUpper(parts[1]);
+      if (value == "OUTPUT" || value == "OUT") {
+        if (parts.size() <= 2) {
+          triggerToast("output: " + outputLabel(project_.focusedOutputIndex)
+            + " host:" + deckLabel(focusedOutput().hostDeckIndex));
+          return;
+        }
+        std::string outputArg = toUpper(parts[2]);
+        if (outputArg == "NEXT") {
+          cycleFocusedOutput(1);
+          return;
+        }
+        if (outputArg == "PREV" || outputArg == "PREVIOUS") {
+          cycleFocusedOutput(-1);
+          return;
+        }
+        if (outputArg == "ADD" || outputArg == "NEW" || outputArg == "CREATE") {
+          std::string newType = "window";
+          if (parts.size() > 3) {
+            std::string typeArg = toUpper(parts[3]);
+            if (typeArg == "STREAM") {
+              newType = "stream";
+            }
+          }
+          addOutput(project_.focusedDeckIndex, newType);
+          return;
+        }
+        if (outputArg == "ON" || outputArg == "ENABLE") {
+          setFocusedOutputEnabled(true);
+          return;
+        }
+        if (outputArg == "OFF" || outputArg == "DISABLE") {
+          setFocusedOutputEnabled(false);
+          return;
+        }
+        if (outputArg == "TOGGLE") {
+          toggleFocusedOutputEnabled();
+          return;
+        }
+        if (outputArg == "ASSIGN") {
+          std::optional<int> layer;
+          if (parts.size() > 3) {
+            try {
+              layer = std::stoi(parts[3]);
+            } catch (...) {
+              layer = std::nullopt;
+            }
+          }
+          assignFocusedDeckToFocusedOutput(layer);
+          return;
+        }
+        if (outputArg == "HOST") {
+          if (parts.size() <= 3) {
+            setFocusedOutputHostDeck(project_.focusedDeckIndex);
+            return;
+          }
+          std::optional<int> targetDeck = parseDeckReferenceToken(parts[3]);
+          if (!targetDeck && parts.size() > 4) {
+            targetDeck = parseDeckReferenceToken(joinParts(parts, 3));
+          }
+          if (targetDeck) {
+            setFocusedOutputHostDeck(*targetDeck);
+          }
+          return;
+        }
+        if (outputArg == "TYPE") {
+          if (parts.size() <= 3) {
+            const OutputTarget& focused = focusedOutput();
+            triggerToast("type: " + normalizeOutputType(focused.outputType));
+            return;
+          }
+          std::string typeArg = toUpper(parts[3]);
+          if (typeArg == "WINDOW" || typeArg == "DISPLAY") {
+            setFocusedOutputType("window");
+            return;
+          }
+          if (typeArg == "STREAM") {
+            setFocusedOutputType("stream");
+            return;
+          }
+          return;
+        }
+        if (outputArg == "MIRROR") {
+          if (parts.size() <= 3) {
+            cycleFocusedOutputMirrorSource(1);
+            return;
+          }
+          std::string mirrorArg = toUpper(parts[3]);
+          if (mirrorArg == "OFF" || mirrorArg == "NONE") {
+            setFocusedOutputMirrorSource(-1);
+            return;
+          }
+          if (mirrorArg == "NEXT") {
+            cycleFocusedOutputMirrorSource(1);
+            return;
+          }
+          if (mirrorArg == "PREV" || mirrorArg == "PREVIOUS") {
+            cycleFocusedOutputMirrorSource(-1);
+            return;
+          }
+          try {
+            int sourceOutput = std::stoi(parts[3]);
+            setFocusedOutputMirrorSource(std::max(0, sourceOutput - 1));
+          } catch (...) {
+          }
+          return;
+        }
+        if (outputArg == "ALPHA" || outputArg == "DIM" || outputArg == "OPACITY") {
+          if (parts.size() <= 3) {
+            int pct = static_cast<int>(std::lround(std::clamp(focusedOutput().outputAlpha, 0.0f, 1.0f) * 100.0f));
+            triggerToast("output alpha: " + std::to_string(pct) + "%");
+            return;
+          }
+          std::string alphaArg = toUpper(parts[3]);
+          if (alphaArg == "UP" || alphaArg == "+" || alphaArg == "INC") {
+            setFocusedOutputAlpha(focusedOutput().outputAlpha + 0.05f);
+            return;
+          }
+          if (alphaArg == "DOWN" || alphaArg == "-" || alphaArg == "DEC") {
+            setFocusedOutputAlpha(focusedOutput().outputAlpha - 0.05f);
+            return;
+          }
+          if (alphaArg == "ON") {
+            setFocusedOutputAlpha(1.0f);
+            return;
+          }
+          if (alphaArg == "OFF") {
+            setFocusedOutputAlpha(0.0f);
+            return;
+          }
+          try {
+            double value = std::stod(parts[3]);
+            if (value > 1.0) {
+              value /= 100.0;
+            }
+            setFocusedOutputAlpha(static_cast<float>(value));
+          } catch (...) {
+          }
+          return;
+        }
+        if (outputArg == "DELAY" || outputArg == "LATENCY") {
+          if (parts.size() <= 3) {
+            triggerToast("output delay: " + std::to_string(focusedOutput().outputDelayMs) + " ms");
+            return;
+          }
+          std::string delayArg = toUpper(parts[3]);
+          if (delayArg == "OFF" || delayArg == "NONE") {
+            setFocusedOutputDelayMs(0);
+            return;
+          }
+          if (delayArg == "UP" || delayArg == "+" || delayArg == "INC") {
+            setFocusedOutputDelayMs(focusedOutput().outputDelayMs + 100);
+            return;
+          }
+          if (delayArg == "DOWN" || delayArg == "-" || delayArg == "DEC") {
+            setFocusedOutputDelayMs(focusedOutput().outputDelayMs - 100);
+            return;
+          }
+          try {
+            setFocusedOutputDelayMs(std::stoi(parts[3]));
+          } catch (...) {
+          }
+          return;
+        }
+        if (outputArg == "OVERLAY" || outputArg == "TIMEOVERLAY") {
+          if (parts.size() <= 3) {
+            toggleFocusedOutputTimeOverlayEnabled();
+            return;
+          }
+          if (auto state = parseToggleWord(3); state) {
+            setFocusedOutputTimeOverlayEnabled(*state);
+          }
+          return;
+        }
+        if (outputArg == "COLORSPACE" || outputArg == "COLOR" || outputArg == "SPACE") {
+          size_t colorTokenIndex = 3;
+          if (outputArg == "COLOR" && parts.size() > 4 && toUpper(parts[3]) == "SPACE") {
+            colorTokenIndex = 4;
+          }
+          if (parts.size() <= colorTokenIndex) {
+            triggerToast("color space: " + toUpper(normalizeOutputColorSpace(focusedOutput().outputColorSpace)));
+            return;
+          }
+          std::string colorArg = toUpper(parts[colorTokenIndex]);
+          if (colorArg == "NEXT") {
+            cycleFocusedOutputColorSpace(1);
+            return;
+          }
+          if (colorArg == "PREV" || colorArg == "PREVIOUS") {
+            cycleFocusedOutputColorSpace(-1);
+            return;
+          }
+          setFocusedOutputColorSpace(parts[colorTokenIndex]);
+          return;
+        }
+        try {
+          int outputIndex = std::stoi(parts[2]);
+          setFocusedOutputIndex(std::max(0, outputIndex - 1));
+        } catch (...) {
+        }
+        return;
+      }
+      if (value == "STREAM") {
+        if (parts.size() <= 2) {
+          const OutputTarget& output = focusedOutput();
+          std::string protocol = normalizeOutputStreamProtocol(output.streamProtocol);
+          triggerToast("stream: "
+            + std::string(output.streamEnabled ? "on " : "off ")
+            + toUpper(protocol)
+            + " " + std::to_string(output.streamBitrateKbps) + "k");
+          return;
+        }
+        std::string streamArg = toUpper(parts[2]);
+        if (streamArg == "ON") {
+          setFocusedOutputStreamEnabled(true);
+          return;
+        }
+        if (streamArg == "OFF") {
+          setFocusedOutputStreamEnabled(false);
+          return;
+        }
+        if (streamArg == "TOGGLE") {
+          toggleFocusedOutputStreamEnabled();
+          return;
+        }
+        if (streamArg == "SRT" || streamArg == "RTMP") {
+          setFocusedOutputStreamProtocol(toLower(streamArg));
+          return;
+        }
+        if ((streamArg == "PROTO" || streamArg == "PROTOCOL") && parts.size() > 3) {
+          setFocusedOutputStreamProtocol(toLower(parts[3]));
+          return;
+        }
+        if ((streamArg == "URL" || streamArg == "TARGET") && parts.size() > 3) {
+          setFocusedOutputStreamUrl(joinParts(parts, 3));
+          return;
+        }
+        if ((streamArg == "BITRATE" || streamArg == "RATE") && parts.size() > 3) {
+          try {
+            setFocusedOutputStreamBitrateKbps(std::stoi(parts[3]));
+          } catch (...) {
+          }
+          return;
+        }
+        return;
+      }
       if (value == "CANVAS") {
         if (parts.size() <= 2) {
           std::string label = project_.outputCanvasEnabled
@@ -7657,12 +12932,12 @@ class App {
           return;
         }
         if (canvasArg == "DISPLAY" || canvasArg == "NATIVE") {
-          auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+          auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
           setOutputCanvasMode(true, rasterW, rasterH);
           return;
         }
         if (canvasArg == "DOUBLE" || canvasArg == "2X") {
-          auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+          auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
           setOutputCanvasMode(true, std::max(320, rasterW * 2), std::max(180, rasterH));
           return;
         }
@@ -7824,7 +13099,7 @@ class App {
       }
       if (value == "BITDEPTH" || value == "DEPTH" || value == "FORMAT") {
         if (parts.size() <= 2) {
-          triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")");
+          triggerToast("video depth: " + outputBitDepthModeLabel() + " (" + outputBitDepthActiveLabelForOutput(project_.focusedOutputIndex) + ")");
           return;
         }
         std::string depthArg = toUpper(parts[2]);
@@ -7892,69 +13167,69 @@ class App {
     }
     if (command == "NDI") {
       if (parts.size() == 1) {
-        toggleFocusedDeckNdi();
+        toggleFocusedOutputNdi();
         return;
       }
       std::string value = toUpper(parts[1]);
       if (value == "ON") {
-        setFocusedDeckNdiEnabled(true);
+        setFocusedOutputNdiEnabled(true);
       } else if (value == "OFF") {
-        setFocusedDeckNdiEnabled(false);
+        setFocusedOutputNdiEnabled(false);
       } else if (value == "TOGGLE") {
-        toggleFocusedDeckNdi();
+        toggleFocusedOutputNdi();
       } else if (value == "KEY") {
         if (parts.size() == 2) {
-          toggleFocusedDeckNdiKey();
+          toggleFocusedOutputNdiKey();
         } else {
           std::string keyValue = toUpper(parts[2]);
           if (keyValue == "ON") {
-            setFocusedDeckNdiKeyEnabled(true);
+            setFocusedOutputNdiKeyEnabled(true);
           } else if (keyValue == "OFF") {
-            setFocusedDeckNdiKeyEnabled(false);
+            setFocusedOutputNdiKeyEnabled(false);
           } else if (keyValue == "TOGGLE") {
-            toggleFocusedDeckNdiKey();
+            toggleFocusedOutputNdiKey();
           } else if (keyValue == "NAME") {
-            setFocusedDeckNdiKeyName(joinParts(parts, 3));
+            setFocusedOutputNdiKeyName(joinParts(parts, 3));
           } else if (keyValue == "DEFAULT" || keyValue == "CLEAR") {
-            setFocusedDeckNdiKeyName("");
+            setFocusedOutputNdiKeyName("");
           }
         }
       } else if (value == "NAME") {
-        setFocusedDeckNdiName(joinParts(parts, 2));
+        setFocusedOutputNdiName(joinParts(parts, 2));
       } else if (value == "KEYNAME") {
-        setFocusedDeckNdiKeyName(joinParts(parts, 2));
+        setFocusedOutputNdiKeyName(joinParts(parts, 2));
       } else if (value == "DEFAULT" || value == "CLEAR") {
-        setFocusedDeckNdiName("");
+        setFocusedOutputNdiName("");
       } else if (value == "STATUS") {
         triggerToast("ndi: " + currentNdiOutputLabel());
       }
       return;
     }
     if (command == "NDINAME") {
-      setFocusedDeckNdiName(joinParts(parts, 1));
+      setFocusedOutputNdiName(joinParts(parts, 1));
       return;
     }
     if (command == "NDIKEY" || command == "NDIKEYER") {
       if (parts.size() <= 1) {
-        toggleFocusedDeckNdiKey();
+        toggleFocusedOutputNdiKey();
         return;
       }
       std::string value = toUpper(parts[1]);
       if (value == "ON") {
-        setFocusedDeckNdiKeyEnabled(true);
+        setFocusedOutputNdiKeyEnabled(true);
       } else if (value == "OFF") {
-        setFocusedDeckNdiKeyEnabled(false);
+        setFocusedOutputNdiKeyEnabled(false);
       } else if (value == "TOGGLE") {
-        toggleFocusedDeckNdiKey();
+        toggleFocusedOutputNdiKey();
       } else if (value == "NAME") {
-        setFocusedDeckNdiKeyName(joinParts(parts, 2));
+        setFocusedOutputNdiKeyName(joinParts(parts, 2));
       } else if (value == "DEFAULT" || value == "CLEAR") {
-        setFocusedDeckNdiKeyName("");
+        setFocusedOutputNdiKeyName("");
       }
       return;
     }
     if (command == "NDIKEYNAME") {
-      setFocusedDeckNdiKeyName(joinParts(parts, 1));
+      setFocusedOutputNdiKeyName(joinParts(parts, 1));
       return;
     }
     if (command == "BLACKOUT") {
@@ -8090,7 +13365,28 @@ class App {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT:
-          confirmQuit_ = true;
+          // OS/app close request should quit immediately.
+          gShouldQuit.store(true);
+          break;
+        case SDL_WINDOWEVENT:
+          if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+            Uint32 closingWindowId = event.window.windowID;
+            if (closingWindowId == SDL_GetWindowID(controlWindow_)) {
+              // Closing the main window should exit immediately (no hidden confirm trap).
+              gShouldQuit.store(true);
+              break;
+            }
+            if (decksPanelWindow_ && closingWindowId == SDL_GetWindowID(decksPanelWindow_)) {
+              // Keep Decks workspace available; treat window close as a show/raise request.
+              setDecksPanelVisible(true, true);
+              break;
+            }
+            if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
+              setFocusedOutputIndex(*outputIndex);
+              setFocusedOutputEnabled(false, false);
+              break;
+            }
+          }
           break;
         case SDL_DROPFILE:
           handleDropFile(event.drop.file);
@@ -8106,6 +13402,28 @@ class App {
                 0,
                 cueSettingsScrollMax_);
               break;
+            }
+            if (!settingsOpen_ && masterCueProgrammerExpanded_) {
+              bool handledMasterCueWheel = false;
+              for (const auto& hit : masterCueSidebarProgramHits_) {
+                if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
+                  continue;
+                }
+                if (!pointInRect(mouseX_, mouseY_, hit.rowRect)) {
+                  continue;
+                }
+                setFocusedDeckIndex(hit.deckIndex);
+                ensureGroupPreset(true);
+                int direction = event.wheel.y < 0 ? 1 : -1;
+                if (direction != 0) {
+                  cycleFocusedGroupSlotCue(hit.deckIndex, direction);
+                }
+                handledMasterCueWheel = true;
+                break;
+              }
+              if (handledMasterCueWheel) {
+                break;
+              }
             }
             for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
               if (pointInRect(mouseX_, mouseY_, deckColumnRects_[di])) {
@@ -8128,6 +13446,9 @@ class App {
                 handleMouseDown(event.button.x, event.button.y);
               }
             }
+          } else if (decksPanelWindow_ &&
+                     event.button.windowID == SDL_GetWindowID(decksPanelWindow_)) {
+            handleDecksPanelMouseDown(event.button.x, event.button.y, event.button.button);
           }
           break;
         case SDL_MOUSEBUTTONUP:
@@ -8144,7 +13465,19 @@ class App {
           }
           break;
         case SDL_KEYDOWN:
-          handleKeyDown(event.key.keysym.sym, event.key.keysym.mod);
+          handleKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.windowID, event.key.repeat != 0);
+          break;
+        case SDL_DISPLAYEVENT:
+#if defined(SDL_DISPLAYEVENT_CONNECTED) && defined(SDL_DISPLAYEVENT_DISCONNECTED)
+          if (event.display.event == SDL_DISPLAYEVENT_CONNECTED ||
+              event.display.event == SDL_DISPLAYEVENT_DISCONNECTED) {
+            observedDisplayCount_ = SDL_GetNumVideoDisplays();
+            refreshDisplayTopology(true);
+          }
+#else
+          observedDisplayCount_ = SDL_GetNumVideoDisplays();
+          refreshDisplayTopology(true);
+#endif
           break;
         default:
           break;
@@ -8176,13 +13509,47 @@ class App {
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
 
-    // Animate master video dimmer toward target (0.5 seconds to full black/restore)
+    if (now - lastDisplayPollMs_ >= 1200) {
+      lastDisplayPollMs_ = now;
+      int displayCount = SDL_GetNumVideoDisplays();
+      if (observedDisplayCount_ < 0) {
+        observedDisplayCount_ = displayCount;
+      } else if (displayCount != observedDisplayCount_) {
+        observedDisplayCount_ = displayCount;
+        refreshDisplayTopology(true);
+      }
+    }
+
+    if (now - lastOutputRecoveryPollMs_ >= 1000) {
+      lastOutputRecoveryPollMs_ = now;
+      for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+        recoverWindowOutputIfNeeded(outputIndex, false);
+      }
+    }
+
+    ensureTimecodeFollowerStateSize();
+
+    // Animate master video dimmer toward target.
     if (std::abs(project_.masterDimmer - masterDimmerTarget_) > 0.001) {
-      constexpr double kDimSpeed = 2.0; // units per second (0→1 in 0.5s)
-      double step = kDimSpeed * std::max(deltaSeconds, 1.0 / 120.0);
+      double dimDuration = panicProfilePending_
+        ? std::clamp(project_.panicFadeSeconds, 0.1, 5.0)
+        : 0.5;
+      double dimSpeed = 1.0 / std::max(0.05, dimDuration);
+      double step = dimSpeed * std::max(deltaSeconds, 1.0 / 120.0);
       project_.masterDimmer = std::clamp(
         project_.masterDimmer + std::copysign(std::min(step, std::abs(masterDimmerTarget_ - project_.masterDimmer)), masterDimmerTarget_ - project_.masterDimmer),
         0.0, 1.0);
+    }
+    if (panicProfilePending_) {
+      bool faded = project_.masterDimmer <= 0.05;
+      Uint64 timeoutMs = static_cast<Uint64>(
+        std::llround(std::clamp(project_.panicFadeSeconds, 0.1, 5.0) * 1000.0 + 150.0));
+      bool timeout = panicProfileRequestedAt_ > 0 && (now - panicProfileRequestedAt_) >= timeoutMs;
+      if (faded || timeout) {
+        panicProfilePending_ = false;
+        panicProfileRequestedAt_ = 0;
+        executePanicDeckAction(pendingPanicProfileToken_);
+      }
     }
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
@@ -8191,7 +13558,22 @@ class App {
       if (deck.timecodeDirty) {
         fromTc = deck.timecodeLastSeconds;
       }
-      if (deck.timecodeRunEnabled && deltaSeconds > 0.0) {
+      bool shouldRunTimecode = deck.timecodeRunEnabled && deltaSeconds > 0.0;
+      if (shouldRunTimecode && deck.timecodeChaseEnabled &&
+          deckIndex >= 0 && deckIndex < static_cast<int>(deckTimecodeHasExternal_.size())) {
+        if (!deckTimecodeHasExternal_[deckIndex]) {
+          shouldRunTimecode = false;
+        } else {
+          Uint64 lastExternalMs = deckTimecodeLastExternalMs_[deckIndex];
+          Uint64 ageMs = now >= lastExternalMs ? (now - lastExternalMs) : 0;
+          Uint64 freewheelMs = static_cast<Uint64>(
+            std::llround(std::max(0.0, deck.timecodeFreewheelSeconds) * 1000.0));
+          if (ageMs > freewheelMs) {
+            shouldRunTimecode = false;
+          }
+        }
+      }
+      if (shouldRunTimecode) {
         if (deck.timecodeDirty) {
           fromTc = deck.timecodeLastSeconds;
         } else {
@@ -8221,10 +13603,7 @@ class App {
       const Cue* activeCue = activeCuePtr(deckIndex);
       if (activeCue && activeCue->kind == CueKind::Pattern) {
         // Only animated patterns need continuous rebuilds.
-        const std::string& pt = activeCue->path;
-        bool animated = pt.find("pocket-test") != std::string::npos ||
-                        pt.find("kawaii")      != std::string::npos;
-        if (animated) {
+        if (patternTypeIsAnimated(activeCue->path)) {
           engine->rebuildPatternFrame(*activeCue, static_cast<double>(now) / 1000.0);
         }
       }
@@ -8327,9 +13706,48 @@ class App {
     animationNow_ = SDL_GetTicks64();
     renderControlWindow();
     renderDecksPanel();
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      renderOutputWindow(deckIndex);
+    if (outputRuntimes_.size() != project_.outputs.size()) {
+      rebuildOutputRuntimes();
     }
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (!project_.outputs[outputIndex].enabled) {
+        continue;
+      }
+      renderOutputWindow(outputIndex);
+    }
+  }
+
+  bool decksPanelVisible() const {
+    if (!decksPanelWindow_) {
+      return false;
+    }
+    Uint32 flags = SDL_GetWindowFlags(decksPanelWindow_);
+    return (flags & SDL_WINDOW_HIDDEN) == 0;
+  }
+
+  void setDecksPanelVisible(bool visible, bool raiseWindow = false) {
+    if (!decksPanelWindow_) {
+      return;
+    }
+    if (visible) {
+      SDL_ShowWindow(decksPanelWindow_);
+      if ((SDL_GetWindowFlags(decksPanelWindow_) & SDL_WINDOW_MINIMIZED) != 0) {
+        SDL_RestoreWindow(decksPanelWindow_);
+      }
+      if (raiseWindow) {
+        SDL_RaiseWindow(decksPanelWindow_);
+      }
+    } else {
+      SDL_HideWindow(decksPanelWindow_);
+    }
+  }
+
+  void updateDecksPanelVisibility() {
+    if (!decksPanelWindow_) {
+      return;
+    }
+    // Deck window is now a primary always-on workspace.
+    setDecksPanelVisible(true, false);
   }
 
   void renderQuitConfirm() {
@@ -8343,21 +13761,21 @@ class App {
     SDL_RenderFillRect(controlRenderer_, &overlay);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    // Dialog panel: 340x180, centred
-    SDL_Rect dialog {(width - 340) / 2, (height - 180) / 2, 340, 180};
+    // Dialog panel: larger default sizing for legibility.
+    SDL_Rect dialog {(width - 420) / 2, (height - 232) / 2, 420, 232};
     Primitives::drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
-    drawText(controlRenderer_, fontLarge_, "QUIT PLAYBOY?", colorFromRgba(kScreenDeepColor), dialog.x + 24, dialog.y + 28);
+    drawText(controlRenderer_, fontLarge_, "QUIT DECKBOY?", colorFromRgba(kScreenDeepColor), dialog.x + 28, dialog.y + 36);
 
     // YES / NO buttons
-    quitYesBtn_ = {dialog.x + 26,  dialog.y + 90, 118, 44};
-    quitNoBtn_  = {dialog.x + 196, dialog.y + 90, 118, 44};
+    quitYesBtn_ = {dialog.x + 32,  dialog.y + 130, 156, 54};
+    quitNoBtn_  = {dialog.x + 232, dialog.y + 130, 156, 54};
     Primitives::drawFramedPanel(controlRenderer_, quitYesBtn_, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     Primitives::drawFramedPanel(controlRenderer_, quitNoBtn_,  colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     drawCenteredText(controlRenderer_, fontBase_, "YES", colorFromRgba(kScreenLightColor), quitYesBtn_);
     drawCenteredText(controlRenderer_, fontBase_, "NO",  colorFromRgba(kScreenLightColor), quitNoBtn_);
 
-    drawText(controlRenderer_, fontSmall_, "esc or N to cancel", colorFromRgba(kScreenInkSoftColor), dialog.x + 26, dialog.y + 152);
+    drawText(controlRenderer_, fontSmall_, "esc or N to cancel", colorFromRgba(kScreenInkSoftColor), dialog.x + 32, dialog.y + 200);
   }
 
   void renderStartupDialog() {
@@ -8372,103 +13790,614 @@ class App {
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
     // Dialog panel
-    const int kDW = 520, kDH = 340;
+    const int kDW = 660;
+    const int kDH = 440;
     SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
     Primitives::drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Title + file name
-    int tx = dialog.x + 160;
+    int tx = dialog.x + 36;
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-    drawText(controlRenderer_, titleFont, "PLAYBOY_0.01", colorFromRgba(kScreenDeepColor), tx, dialog.y + 36);
-    drawText(controlRenderer_, fontSmall_, "dot-matrix cue deck", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 70);
+    drawText(controlRenderer_, titleFont, "DECKBOY_0.01", colorFromRgba(kScreenDeepColor), tx, dialog.y + 44);
+    drawText(controlRenderer_, fontSmall_, "dot-matrix cue deck", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 82);
+    drawText(controlRenderer_, fontBase_, "Choose startup mode:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 122);
 
     std::string fname = currentProjectFile_.empty() ? "default.playboy" : currentProjectFile_.filename().string();
     bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
     if (hasSavedFile) {
-      drawText(controlRenderer_, fontBase_, "saved show found:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 106);
-      drawText(controlRenderer_, fontSmall_, fname, colorFromRgba(kScreenDarkColor), tx, dialog.y + 128);
+      drawText(controlRenderer_, fontSmall_, "Previous show file:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 156);
+      drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, fname, dialog.w - 72),
+               colorFromRgba(kScreenDarkColor), tx, dialog.y + 180);
     } else {
-      drawText(controlRenderer_, fontBase_, "no saved show found", colorFromRgba(kScreenDeepColor), tx, dialog.y + 106);
+      drawText(controlRenderer_, fontSmall_, "No previous show file found at startup path.", colorFromRgba(kScreenDarkColor),
+               tx, dialog.y + 164);
     }
 
     // Buttons
-    startupLoadBtn_ = {tx, dialog.y + 210, 156, 48};
-    startupNewBtn_  = {tx + 172, dialog.y + 210, 156, 48};
+    int buttonY = dialog.y + 270;
+    int buttonW = 184;
+    int buttonH = 58;
+    startupNewBtn_ = {dialog.x + 36, buttonY, buttonW, buttonH};
+    startupLoadBtn_ = {startupNewBtn_.x + buttonW + 10, buttonY, buttonW, buttonH};
+    startupOpenSavedBtn_ = {startupLoadBtn_.x + buttonW + 10, buttonY, buttonW, buttonH};
+
+    Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontBase_, "NEW SHOW FILE", colorFromRgba(kScreenDeepColor), startupNewBtn_);
 
     SDL_Color loadFill = hasSavedFile ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
     SDL_Color loadText = hasSavedFile ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
     Primitives::drawFramedPanel(controlRenderer_, startupLoadBtn_, loadFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    drawCenteredText(controlRenderer_, fontBase_, hasSavedFile ? "LOAD SHOW" : "NO FILE", loadText, startupLoadBtn_);
+    drawCenteredText(controlRenderer_, fontBase_, hasSavedFile ? "OPEN PREVIOUS" : "NO PREVIOUS", loadText, startupLoadBtn_);
 
-    Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawCenteredText(controlRenderer_, fontBase_, "NEW SHOW", colorFromRgba(kScreenDeepColor), startupNewBtn_);
+    Primitives::drawFramedPanel(controlRenderer_, startupOpenSavedBtn_, colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED...", colorFromRgba(kScreenDeepColor), startupOpenSavedBtn_);
 
-    drawText(controlRenderer_, fontSmall_, "Enter = load   N = new show", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 282);
+    drawText(controlRenderer_, fontSmall_, "N=new  Enter/P=previous  O=open saved picker",
+             colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 356);
+    drawText(controlRenderer_, fontSmall_, "Esc=continue with current session",
+             colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 378);
   }
 
   void renderDecksPanel() {
     if (!decksPanelWindow_ || !decksPanelRenderer_) {
       return;
     }
+    decksPanelButtons_.clear();
+    decksPanelRowHits_.clear();
+    decksPanelCueHits_.clear();
+    decksPanelDeckButtonHits_.clear();
+    masterCueRowHits_.clear();
 
     int panelW = 0, panelH = 0;
     SDL_GetWindowSize(decksPanelWindow_, &panelW, &panelH);
 
-    // Clear to background
+    // Keep this workspace in the same Game Boy green family as the control UI.
     SDL_SetRenderDrawColor(decksPanelRenderer_, 0x0F, 0x38, 0x0F, 0xFF);
     SDL_RenderClear(decksPanelRenderer_);
+    SDL_Rect skyBand {0, 0, panelW, std::max(64, panelH / 4)};
+    SDL_SetRenderDrawColor(decksPanelRenderer_, 0x1F, 0x48, 0x1F, 0xFF);
+    SDL_RenderFillRect(decksPanelRenderer_, &skyBand);
 
-    // Header
-    int headerH = 32;
+    int headerH = 54;
     SDL_Rect headerRect {0, 0, panelW, headerH};
     SDL_SetRenderDrawColor(decksPanelRenderer_, 0x1F, 0x48, 0x1F, 0xFF);
     SDL_RenderFillRect(decksPanelRenderer_, &headerRect);
-    drawText(decksPanelRenderer_, fontSmall_, "DECKS | LAYER | STATUS", colorFromRgba(kScreenLightColor), 10, 8);
+    drawText(decksPanelRenderer_, fontBase_, "DECKS", colorFromRgba(kScreenLightColor), 10, 10);
+    drawText(decksPanelRenderer_, fontSmall_, "deck list + playlist view", colorFromRgba(kScreenLightColor), 12, 31);
 
-    // Deck list
-    int y = headerH + 10;
-    int deckPanelH = 160;  // height for each deck row including thumbnail
-    int rowH = 24;
+    SDL_Rect colHeader {0, headerH, panelW, 30};
+    SDL_SetRenderDrawColor(decksPanelRenderer_, 0x17, 0x42, 0x17, 0xFF);
+    SDL_RenderFillRect(decksPanelRenderer_, &colHeader);
+    const int colXIndex = 12;
+    const int colXDeck = 52;
+    const int colXSel = 292;
+    const int colXAct = 386;
+    const int colXLayer = 484;
+    const int colXState = 560;
+    const int colXTc = 648;
+    drawText(decksPanelRenderer_, fontSmall_, "#", colorFromRgba(kScreenMidColor), colXIndex, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "deck", colorFromRgba(kScreenMidColor), colXDeck, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "selected", colorFromRgba(kScreenMidColor), colXSel, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "active", colorFromRgba(kScreenMidColor), colXAct, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "layer", colorFromRgba(kScreenMidColor), colXLayer, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "state", colorFromRgba(kScreenMidColor), colXState, headerH + 7);
+    drawText(decksPanelRenderer_, fontSmall_, "timecode", colorFromRgba(kScreenMidColor), colXTc, headerH + 7);
 
-    for (int i = 0; i < static_cast<int>(project_.decks.size()); ++i) {
+    const int footerTop = panelH - 46;
+    int y = headerH + 28;
+    int rowH = 34;
+
+    auto cueLabel = [&](const Deck& deck, int cueIndex) -> std::string {
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        return "--";
+      }
+      const Cue& cue = deck.cues[cueIndex];
+      if (!trim(cue.cueNumber).empty()) {
+        return cue.cueNumber;
+      }
+      return std::to_string(cueIndex + 1);
+    };
+
+    int deckCount = static_cast<int>(project_.decks.size());
+    constexpr int kDeckGridMinH = 132;
+    int trackerTopY = y;
+    int trackerBottomLimit = std::max(trackerTopY + rowH, footerTop - kDeckGridMinH - 6);
+    int trackerRowsVisible = std::max(1, (trackerBottomLimit - trackerTopY + 1) / (rowH + 2));
+    int trackerStart = 0;
+    if (deckCount > trackerRowsVisible) {
+      int focusedDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
+      trackerStart = std::clamp(focusedDeck - trackerRowsVisible / 2, 0, deckCount - trackerRowsVisible);
+    }
+
+    int trackerRowsRendered = 0;
+    for (int slot = 0; slot < trackerRowsVisible; ++slot) {
+      int i = trackerStart + slot;
+      if (i >= deckCount) {
+        break;
+      }
       const auto& deck = project_.decks[i];
-      
-      // Deck name
-      SDL_Rect nameRect {10, y, 90, rowH};
-      std::string deckDisplay = deck.name.length() > 12 ? deck.name.substr(0, 12) : deck.name;
-      drawText(decksPanelRenderer_, fontSmall_, deckDisplay, colorFromRgba(kScreenLightColor), nameRect.x, nameRect.y + 4);
+      y = trackerTopY + slot * (rowH + 2);
 
-      // Layer dropdown (simplified: just show current)
-      std::string layerName = (deck.outputLayerIndex >= 0 && deck.outputLayerIndex < static_cast<int>(project_.layerNames.size()))
-        ? project_.layerNames[deck.outputLayerIndex]
-        : "?";
-      SDL_Rect layerRect {110, y, 80, rowH};
-      drawText(decksPanelRenderer_, fontSmall_, layerName, colorFromRgba(kScreenMidColor), layerRect.x, layerRect.y + 4);
+      bool focused = i == project_.focusedDeckIndex;
+      SDL_Rect rowRect {6, y, panelW - 12, rowH};
+      SDL_Color rowFill = focused
+        ? SDL_Color {48, 98, 48, 255}
+        : ((i % 2) == 0 ? SDL_Color {20, 56, 20, 255} : SDL_Color {16, 48, 16, 255});
+      Primitives::fillRect(decksPanelRenderer_, rowRect, rowFill);
+      Primitives::strokeRect(decksPanelRenderer_, rowRect, colorFromRgba(kScreenDeepColor));
 
-      // Status indicator
+      // Compact tracker-style status fields.
+      std::ostringstream idx;
+      idx << std::setw(2) << std::setfill('0') << (i + 1);
+      std::string deckDisplay = deck.name.empty() ? deckDefaultName(i) : deck.name;
+      if (deckDisplay.size() > 24) {
+        deckDisplay = deckDisplay.substr(0, 23) + "~";
+      }
+      std::string selCue = cueLabel(deck, deck.selectedIndex);
+      std::string actCue = cueLabel(deck, deck.activeIndex);
+      int layerIndex = primaryLayerIndexForDeck(i);
+
       std::string statusStr = "STOP";
-      if (deckRuntimes_[i].mediaEngine) {
+      if (i >= 0 && i < static_cast<int>(deckRuntimes_.size()) && deckRuntimes_[i].mediaEngine) {
         if (deckRuntimes_[i].mediaEngine->state() == TransportState::Playing) {
           statusStr = "PLAY";
         } else if (deckRuntimes_[i].mediaEngine->state() == TransportState::Paused) {
           statusStr = "PAUS";
         }
       }
-      SDL_Rect statusRect {200, y, 60, rowH};
-      drawText(decksPanelRenderer_, fontSmall_, statusStr, colorFromRgba(kScreenInkSoftColor), statusRect.x, statusRect.y + 4);
+      std::string tcStr = formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+      tcStr = ellipsizeToPixelWidth(fontSmall_, tcStr, std::max(48, panelW - colXTc - 12));
 
-      y += deckPanelH;
+      SDL_Color rowInk = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+      drawText(decksPanelRenderer_, fontSmall_, idx.str(), rowInk, colXIndex, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, deckDisplay, rowInk, colXDeck, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, selCue, rowInk, colXSel, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, actCue, rowInk, colXAct, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, std::to_string(layerIndex), rowInk, colXLayer, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, statusStr, rowInk, colXState, y + 8);
+      drawText(decksPanelRenderer_, fontSmall_, tcStr, rowInk, colXTc, y + 8);
 
-      // Stop if we run out of vertical space
-      if (y > panelH - 40) {
-        break;
+      DecksPanelRowHit rowHit;
+      rowHit.deckIndex = i;
+      rowHit.rowRect = rowRect;
+      rowHit.groupRect = {0, 0, 0, 0};
+      decksPanelRowHits_.push_back(rowHit);
+      trackerRowsRendered += 1;
+    }
+
+    if (deckCount > trackerRowsRendered) {
+      std::string trackerPage = "Deck rows " + std::to_string(trackerStart + 1) + "-" +
+        std::to_string(trackerStart + trackerRowsRendered) + "/" + std::to_string(deckCount);
+      drawText(decksPanelRenderer_, fontSmall_, trackerPage, colorFromRgba(kScreenInkSoftColor),
+               std::max(8, panelW - 170), headerH + 4);
+    }
+
+    // Deck playlists now live in this separate window.
+    int deckGridTop = trackerTopY + trackerRowsRendered * (rowH + 2) + 10;
+    int deckGridBottom = footerTop - 8;
+    if (deckGridBottom > deckGridTop + 72) {
+      SDL_Rect deckGridRect {8, deckGridTop, panelW - 16, deckGridBottom - deckGridTop};
+      Primitives::drawFramedPanel(decksPanelRenderer_, deckGridRect, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(decksPanelRenderer_, fontBase_, "DECK PLAYLISTS", colorFromRgba(kScreenDeepColor),
+               deckGridRect.x + 8, deckGridRect.y + 3);
+      drawText(decksPanelRenderer_, fontSmall_, "click cue: select   right-click cue: take",
+               colorFromRgba(kScreenInkSoftColor), deckGridRect.x + 154, deckGridRect.y + 7);
+
+      int colGap = 10;
+      int availableW = deckGridRect.w - 10;
+      int maxVisibleCols = std::max(1, availableW / 360);
+      int visibleCols = std::max(1, std::min(deckCount, maxVisibleCols));
+      int focusedDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
+      int deckStart = 0;
+      if (deckCount > visibleCols) {
+        deckStart = std::clamp(focusedDeck - visibleCols / 2, 0, deckCount - visibleCols);
+      }
+      int colW = (availableW - (visibleCols - 1) * colGap) / std::max(1, visibleCols);
+      int colH = deckGridRect.h - 44;
+      int colY = deckGridRect.y + 40;
+
+      for (int slot = 0; slot < visibleCols; ++slot) {
+        int deckIndex = deckStart + slot;
+        if (deckIndex >= deckCount) {
+          break;
+        }
+        const Deck& deck = project_.decks[deckIndex];
+        int colX = deckGridRect.x + 4 + slot * (colW + colGap);
+        SDL_Rect colRect {colX, colY, colW, colH};
+        bool focused = deckIndex == project_.focusedDeckIndex;
+
+        SDL_Color colFill = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellInnerColor);
+        Primitives::drawFramedPanel(decksPanelRenderer_, colRect, colFill,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+        SDL_Rect hdr {colRect.x + 2, colRect.y + 2, colRect.w - 4, 88};
+        SDL_Color hdrFill = focused ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+        SDL_Color hdrInk = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        Primitives::drawFramedPanel(decksPanelRenderer_, hdr, hdrFill,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+
+        std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
+        std::string sel = cueLabel(deck, deck.selectedIndex);
+        std::string act = cueLabel(deck, deck.activeIndex);
+        std::string hdrText = deckName + "  S:" + sel + " A:" + act;
+        std::string hdrInfo = transportStatusLabel(deckIndex) + "  tc "
+          + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+
+        constexpr int btnGap = 6;
+        constexpr int takeW = 74;
+        constexpr int stopW = 74;
+        constexpr int btnH = 22;
+        int btnY = hdr.y + hdr.h - btnH - 3;
+        int stopX = hdr.x + hdr.w - 4 - stopW;
+        int takeX = stopX - btnGap - takeW;
+        int textMaxW = std::max(36, takeX - (hdr.x + 4) - 4);
+
+        drawText(decksPanelRenderer_, fontBase_,
+                 ellipsizeToPixelWidth(fontBase_, hdrText, textMaxW),
+                 hdrInk, hdr.x + 4, hdr.y + 4);
+        drawText(decksPanelRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, hdrInfo, textMaxW),
+                 hdrInk, hdr.x + 4, hdr.y + 26);
+        drawText(decksPanelRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, "layer " + std::to_string(primaryLayerIndexForDeck(deckIndex)), textMaxW),
+                 hdrInk, hdr.x + 4, hdr.y + 42);
+
+        SDL_Rect takeBtn {takeX, btnY, takeW, btnH};
+        Primitives::drawFramedPanel(decksPanelRenderer_, takeBtn,
+                                    focused ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(decksPanelRenderer_, fontSmall_, "Take",
+                         focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), takeBtn);
+        decksPanelDeckButtonHits_.push_back({deckIndex, kDecksPanelDeckActionTake, takeBtn});
+
+        SDL_Rect stopBtn {stopX, btnY, stopW, btnH};
+        Primitives::drawFramedPanel(decksPanelRenderer_, stopBtn,
+                                    colorFromRgba(kScreenMidColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(decksPanelRenderer_, fontSmall_, "Stop",
+                         colorFromRgba(kScreenDeepColor), stopBtn);
+        decksPanelDeckButtonHits_.push_back({deckIndex, kDecksPanelDeckActionStop, stopBtn});
+
+        int listTop = hdr.y + hdr.h + 4;
+        int listH = std::max(0, (colRect.y + colRect.h) - listTop - 4);
+        SDL_Rect listRect {colRect.x + 4, listTop, colRect.w - 8, listH};
+        Primitives::drawFramedPanel(decksPanelRenderer_, listRect, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        if (listRect.h <= 10) {
+          drawText(decksPanelRenderer_, fontSmall_, "(resize for cues)",
+                   colorFromRgba(kScreenInkSoftColor), listRect.x + 6, listRect.y + 6);
+        } else if (deck.cues.empty()) {
+          drawText(decksPanelRenderer_, fontSmall_, "(empty deck)",
+                   colorFromRgba(kScreenInkSoftColor), listRect.x + 6, listRect.y + 6);
+        } else {
+          int rowGap = 3;
+          int cueRowH = 26;
+          int rowsVisible = std::max(1, (listRect.h - 6) / (cueRowH + rowGap));
+          int cueStart = 0;
+          if (static_cast<int>(deck.cues.size()) > rowsVisible) {
+            int anchor = deck.selectedIndex >= 0 ? deck.selectedIndex : 0;
+            cueStart = std::clamp(anchor - rowsVisible / 2, 0, static_cast<int>(deck.cues.size()) - rowsVisible);
+          }
+          for (int rowSlot = 0; rowSlot < rowsVisible; ++rowSlot) {
+            int cueIndex = cueStart + rowSlot;
+            if (cueIndex >= static_cast<int>(deck.cues.size())) {
+              break;
+            }
+            SDL_Rect cueRect {listRect.x + 3, listRect.y + 3 + rowSlot * (cueRowH + rowGap), listRect.w - 6, cueRowH};
+            bool selectedCue = cueIndex == deck.selectedIndex;
+            bool activeCue = cueIndex == deck.activeIndex;
+            SDL_Color cueFill = selectedCue
+              ? colorFromRgba(kScreenMidColor)
+              : (activeCue ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor));
+            SDL_Color cueInk = activeCue ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+            Primitives::drawFramedPanel(decksPanelRenderer_, cueRect, cueFill,
+                                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+            const Cue& cue = deck.cues[cueIndex];
+            std::string cueNum = cueLabel(deck, cueIndex);
+            std::string cueText = cueNum + "  " + cue.name;
+            if (activeCue) {
+              cueText = "> " + cueText;
+            }
+            drawText(decksPanelRenderer_, fontSmall_,
+                     ellipsizeToPixelWidth(fontSmall_, cueText, cueRect.w - 6),
+                     cueInk, cueRect.x + 4, cueRect.y + 5);
+            decksPanelCueHits_.push_back({deckIndex, cueIndex, cueRect});
+          }
+        }
+      }
+
+      if (deckCount > visibleCols) {
+        std::string pageLabel = "Decks " + std::to_string(deckStart + 1) + "-" +
+          std::to_string(deckStart + visibleCols) + "/" + std::to_string(deckCount);
+        drawText(decksPanelRenderer_, fontSmall_, pageLabel, colorFromRgba(kScreenInkSoftColor),
+                 deckGridRect.x + deckGridRect.w - 120, deckGridRect.y + 3);
       }
     }
 
-    // Footer
-    drawText(decksPanelRenderer_, fontSmall_, "[R] Rename deck  [D] Delete deck", colorFromRgba(kScreenInkSoftColor), 10, panelH - 30);
+    drawText(decksPanelRenderer_, fontSmall_,
+             "master scenes live in the main sidebar",
+             colorFromRgba(kScreenInkSoftColor), 10, panelH - 22);
 
     SDL_RenderPresent(decksPanelRenderer_);
+  }
+
+  void renderDeckSidebar(const SDL_Rect& panel) {
+    masterCueSidebarButtons_.clear();
+    masterCueSidebarRows_.clear();
+    masterCueSidebarProgramHits_.clear();
+    if (panel.w <= 0 || panel.h <= 0) {
+      return;
+    }
+    Primitives::drawFramedPanel(controlRenderer_, panel, colorFromRgba(kShellInnerColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    SDL_Rect head {panel.x + 2, panel.y + 2, panel.w - 4, 24};
+    Primitives::drawFramedPanel(controlRenderer_, head, colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawText(controlRenderer_, fontSmall_, "MASTER SCENES", colorFromRgba(kScreenDeepColor), head.x + 6, head.y + 4);
+    if (!project_.groupPresets.empty()) {
+      int focus = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
+      std::string label = "SCN" + std::to_string(focus + 1);
+      drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor),
+               head.x + head.w - 42, head.y + 4);
+    }
+
+    auto cueLabel = [&](const Deck& deck, int cueIndex) -> std::string {
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        return "--";
+      }
+      const Cue& cue = deck.cues[cueIndex];
+      if (!trim(cue.cueNumber).empty()) {
+        return cue.cueNumber;
+      }
+      return std::to_string(cueIndex + 1);
+    };
+
+    auto drawMasterSidebarButton = [&](int x, int y, int w, int h, const std::string& label, int action,
+                                       bool emphasized = false) {
+      SDL_Rect rect {x, y, w, h};
+      SDL_Color fill = emphasized ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_Color ink = emphasized ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, rect, fill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, label, ink, rect);
+      masterCueSidebarButtons_.push_back({rect, action, -1});
+    };
+
+    int controlsY = panel.y + 30;
+    constexpr int btnGap = 4;
+    constexpr int btnH = 22;
+    int innerX = panel.x + 6;
+    int innerW = std::max(120, panel.w - 12);
+
+    int row1BtnW = std::max(34, (innerW - btnGap * 4) / 5);
+    int bx = innerX;
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "<SC", kDecksPanelActionGroupPrev);
+    bx += row1BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "SC>", kDecksPanelActionGroupNext);
+    bx += row1BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "New", kDecksPanelActionGroupNew);
+    bx += row1BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "Del", kDecksPanelActionGroupDelete);
+    bx += row1BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "SCENE", kDecksPanelActionGroupFire, true);
+
+    controlsY += btnH + btnGap;
+    int row2BtnW = std::max(44, (innerW - btnGap * 3) / 4);
+    bx = innerX;
+    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "Name", kDecksPanelActionGroupRename);
+    bx += row2BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "CapSel", kDecksPanelActionGroupCaptureSelected);
+    bx += row2BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "CapAct", kDecksPanelActionGroupCaptureActive);
+    bx += row2BtnW + btnGap;
+    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH,
+                            masterCueProgrammerExpanded_ ? "Prog-" : "Prog+",
+                            kDecksPanelActionGroupProgramToggle);
+
+    int listTopY = controlsY + btnH + 6;
+
+    if (masterCueProgrammerExpanded_) {
+      int availableBelow = panel.h - (listTopY - panel.y) - 112;
+      int progH = std::clamp(availableBelow, 112, 208);
+      SDL_Rect progRect {panel.x + 4, listTopY, panel.w - 8, progH};
+      Primitives::drawFramedPanel(controlRenderer_, progRect, colorFromRgba(kScreenLightColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontSmall_, "PROGRAM FOCUSED SCENE", colorFromRgba(kScreenDeepColor),
+               progRect.x + 6, progRect.y + 3);
+      drawText(controlRenderer_, fontSmall_, "Sel/Act assign, Byp skips, -/+ cycles slot cue",
+               colorFromRgba(kScreenInkSoftColor), progRect.x + 6, progRect.y + 17);
+
+      const GroupPreset* preset = focusedGroupPreset();
+      if (!preset) {
+        drawText(controlRenderer_, fontSmall_, "No scene selected", colorFromRgba(kScreenInkSoftColor),
+                 progRect.x + 8, progRect.y + 38);
+        drawText(controlRenderer_, fontSmall_, "Press New, then assign deck slots", colorFromRgba(kScreenInkSoftColor),
+                 progRect.x + 8, progRect.y + 54);
+      } else {
+        std::string presetName = groupPresetLabel(std::clamp(project_.focusedGroupPresetIndex, 0,
+                                      static_cast<int>(project_.groupPresets.size()) - 1));
+        drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, "Editing: " + presetName, progRect.w - 18),
+                 colorFromRgba(kScreenDeepColor), progRect.x + 6, progRect.y + 31);
+
+        int deckCount = static_cast<int>(project_.decks.size());
+        int rowH = 24;
+        int rowGap = 3;
+        int rowsTop = progRect.y + 48;
+        int rowsBottom = progRect.y + progRect.h - 4;
+        int rowsVisible = std::max(1, (rowsBottom - rowsTop) / (rowH + rowGap));
+        int focusedDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
+        int rowStart = 0;
+        if (deckCount > rowsVisible) {
+          rowStart = std::clamp(focusedDeck - rowsVisible / 2, 0, deckCount - rowsVisible);
+        }
+
+        for (int slot = 0; slot < rowsVisible; ++slot) {
+          int deckIndex = rowStart + slot;
+          if (deckIndex >= deckCount) {
+            break;
+          }
+          const Deck& deck = project_.decks[deckIndex];
+          SDL_Rect rowRect {progRect.x + 3, rowsTop + slot * (rowH + rowGap), progRect.w - 6, rowH};
+          bool focused = deckIndex == project_.focusedDeckIndex;
+          SDL_Color rowFill = focused
+            ? SDL_Color {48, 98, 48, 255}
+            : ((deckIndex % 2) == 0 ? SDL_Color {20, 56, 20, 255} : SDL_Color {16, 48, 16, 255});
+          Primitives::fillRect(controlRenderer_, rowRect, rowFill);
+          Primitives::strokeRect(controlRenderer_, rowRect, colorFromRgba(kScreenDeepColor));
+
+          constexpr int kBtnGap = 2;
+          constexpr int kSelW = 34;
+          constexpr int kActW = 34;
+          constexpr int kBypW = 38;
+          constexpr int kStepW = 24;
+          constexpr int kBtnH = 18;
+          int by = rowRect.y + (rowRect.h - kBtnH) / 2;
+          int plusX = rowRect.x + rowRect.w - 4 - kStepW;
+          int minusX = plusX - kBtnGap - kStepW;
+          int bypX = minusX - kBtnGap - kBypW;
+          int actX = bypX - kBtnGap - kActW;
+          int selX = actX - kBtnGap - kSelW;
+
+          SDL_Rect selectedRect {selX, by, kSelW, kBtnH};
+          SDL_Rect activeRect {actX, by, kActW, kBtnH};
+          SDL_Rect bypassRect {bypX, by, kBypW, kBtnH};
+          SDL_Rect minusRect {minusX, by, kStepW, kBtnH};
+          SDL_Rect plusRect {plusX, by, kStepW, kBtnH};
+
+          auto drawProgBtn = [&](const SDL_Rect& r, const std::string& text) {
+            Primitives::drawFramedPanel(controlRenderer_, r, colorFromRgba(kScreenMidColor),
+                                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+            drawCenteredText(controlRenderer_, fontSmall_, text, colorFromRgba(kScreenDeepColor), r);
+          };
+          drawProgBtn(selectedRect, "Sel");
+          drawProgBtn(activeRect, "Act");
+          drawProgBtn(bypassRect, "Byp");
+          drawProgBtn(minusRect, "-");
+          drawProgBtn(plusRect, "+");
+
+          std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
+          std::string slotText = "\xc3\x97";
+          if (deckIndex < static_cast<int>(preset->slots.size())) {
+            const GroupSlot& slotDef = preset->slots[deckIndex];
+            if (!slotDef.bypass) {
+              auto cueIndex = cueIndexById(deck, slotDef.cueId);
+              if (cueIndex) {
+                slotText = cueLabel(deck, *cueIndex) + " " + deck.cues[*cueIndex].name;
+              } else {
+                slotText = "?? missing";
+              }
+            }
+          }
+          std::string rowText = "D" + std::to_string(deckIndex + 1) + " " + deckName + " -> " + slotText;
+          int textMaxW = std::max(42, selectedRect.x - (rowRect.x + 4) - 4);
+          drawText(controlRenderer_, fontSmall_,
+                   ellipsizeToPixelWidth(fontSmall_, rowText, textMaxW),
+                   focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor),
+                   rowRect.x + 4, rowRect.y + 4);
+
+          masterCueSidebarProgramHits_.push_back(
+            {deckIndex, rowRect, selectedRect, activeRect, bypassRect, minusRect, plusRect});
+        }
+      }
+
+      listTopY = progRect.y + progRect.h + 6;
+    }
+
+    SDL_Rect listRect {panel.x + 4, listTopY, panel.w - 8, panel.h - (listTopY - panel.y) - 8};
+    if (listRect.w <= 0 || listRect.h <= 24) {
+      return;
+    }
+    Primitives::drawFramedPanel(controlRenderer_, listRect, colorFromRgba(kScreenLightColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    int totalMasters = static_cast<int>(project_.groupPresets.size());
+    int lineRowH = 40;
+    int lineRowsPerPage = std::max(1, (listRect.h - 6) / (lineRowH + 2));
+    int focusMaster = std::clamp(project_.focusedGroupPresetIndex, 0, std::max(0, totalMasters - 1));
+    int pageStart = (lineRowsPerPage > 0) ? (focusMaster / lineRowsPerPage) * lineRowsPerPage : 0;
+    int visibleRows = std::max(0, std::min(totalMasters - pageStart, lineRowsPerPage));
+
+    if (visibleRows <= 0) {
+      drawText(controlRenderer_, fontSmall_, "no scenes yet",
+               colorFromRgba(kScreenInkSoftColor), listRect.x + 8, listRect.y + 10);
+      drawText(controlRenderer_, fontSmall_, "Use New to add one",
+               colorFromRgba(kScreenInkSoftColor), listRect.x + 8, listRect.y + 26);
+      return;
+    }
+
+    int deckCount = static_cast<int>(project_.decks.size());
+    int rowY = listRect.y + 4;
+    for (int i = 0; i < visibleRows; ++i) {
+      int presetIndex = pageStart + i;
+      const GroupPreset& preset = project_.groupPresets[presetIndex];
+      bool focusedMaster = presetIndex == project_.focusedGroupPresetIndex;
+
+      SDL_Rect rowRect {listRect.x + 2, rowY, listRect.w - 4, lineRowH};
+      SDL_Color rowFill = focusedMaster
+        ? SDL_Color {48, 98, 48, 255}
+        : ((i % 2) == 0 ? SDL_Color {20, 56, 20, 255} : SDL_Color {16, 48, 16, 255});
+      Primitives::fillRect(controlRenderer_, rowRect, rowFill);
+      Primitives::strokeRect(controlRenderer_, rowRect, colorFromRgba(kScreenDeepColor));
+
+      SDL_Rect fireRect {rowRect.x + rowRect.w - 58, rowRect.y + 4, 54, rowRect.h - 8};
+      SDL_Color fireFill = focusedMaster ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_Color fireInk = focusedMaster ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, fireRect, fireFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "TAKE", fireInk, fireRect);
+
+      std::string masterName = preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name;
+      std::string prefix = "[" + std::to_string(presetIndex + 1) + "] " + masterName;
+
+      std::string slotSummary;
+      int deckPreviewCount = std::min(deckCount, 3);
+      for (int deckIndex = 0; deckIndex < deckPreviewCount; ++deckIndex) {
+        std::string chunk = " D" + std::to_string(deckIndex + 1) + ":";
+        if (deckIndex < static_cast<int>(preset.slots.size())) {
+          const GroupSlot& slot = preset.slots[deckIndex];
+          if (slot.bypass) {
+            chunk += "\xc3\x97";
+          } else {
+            const Deck& deck = project_.decks[deckIndex];
+            auto cueIndex = cueIndexById(deck, slot.cueId);
+            if (cueIndex) {
+              chunk += cueLabel(deck, *cueIndex);
+            } else {
+              chunk += "??";
+            }
+          }
+        } else {
+          chunk += "--";
+        }
+        slotSummary += chunk;
+      }
+      if (deckCount > deckPreviewCount) {
+        slotSummary += " ...";
+      }
+
+      int textMaxW = std::max(40, fireRect.x - (rowRect.x + 4) - 4);
+      std::string line = prefix;
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, line, textMaxW),
+               colorFromRgba(kScreenLightColor), rowRect.x + 3, rowRect.y + 4);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, slotSummary, textMaxW),
+               colorFromRgba(kScreenMidColor), rowRect.x + 3, rowRect.y + 20);
+
+      masterCueSidebarRows_.push_back({presetIndex, rowRect, fireRect});
+      rowY += lineRowH + 3;
+    }
+
+    if (totalMasters > lineRowsPerPage) {
+      std::string page = std::to_string(pageStart + 1) + "-" +
+        std::to_string(pageStart + visibleRows) + "/" + std::to_string(totalMasters);
+      drawText(controlRenderer_, fontSmall_, page, colorFromRgba(kScreenInkSoftColor),
+               listRect.x + listRect.w - 84, listRect.y + listRect.h - 16);
+    }
   }
 
   void renderControlWindow() {
@@ -8476,6 +14405,13 @@ class App {
     deckScrolls_.resize(numDecks, 0);
     deckColumnRects_.resize(numDecks);
     deckListClipRects_.resize(numDecks);
+    outputMenuButtons_.clear();
+    masterCueSidebarButtons_.clear();
+    masterCueSidebarRows_.clear();
+    masterCueSidebarProgramHits_.clear();
+    deckSidebarToggleRect_ = SDL_Rect {};
+    std::fill(deckColumnRects_.begin(), deckColumnRects_.end(), SDL_Rect {0, 0, 0, 0});
+    std::fill(deckListClipRects_.begin(), deckListClipRects_.end(), SDL_Rect {0, 0, 0, 0});
 
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
@@ -8493,12 +14429,13 @@ class App {
     // Pixel-font title with animated sparkle stars
     {
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-      drawText(controlRenderer_, titleFont, project_.title, colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 8);
+      const std::string appTitle = std::string(kAppTitle);
+      drawText(controlRenderer_, titleFont, appTitle, colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 8);
       if (project_.uiTransitionsEnabled) {
         SDL_Color starC = colorFromRgba(kScreenDeepColor);
         // Three orbiting sparkles with phase offsets
         int titleW = 0;
-        if (fontPixel_) { TTF_SizeUTF8(fontPixel_, project_.title.c_str(), &titleW, nullptr); }
+        if (fontPixel_) { TTF_SizeUTF8(fontPixel_, appTitle.c_str(), &titleW, nullptr); }
         else { titleW = 120; }
         int starBaseX = header.x + 14 + titleW + 8;
         int starBaseY = header.y + 22;
@@ -8514,23 +14451,49 @@ class App {
     }
     drawText(controlRenderer_, fontSmall_, std::string(kAppModelLabel) + "  ·  dot-matrix cue deck", colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 36);
     const Deck& focDeck = focusedDeck();
-    std::string fxStatus =
-      std::string("1·sfx:") + (project_.uiSoundsEnabled ? "on" : "off") +
-      "  2·anim:" + (project_.uiTransitionsEnabled ? "on" : "off") +
-      "  3·auto:" + (focDeck.autoAdvance ? "on" : "off") +
-      "  4·loop:" + (focDeck.playlistLoop ? "on" : "off") +
-      "  5·tc:" + (focDeck.timecodeChaseEnabled ? "chase" : "free");
+    std::string outputStatus = "outputs:";
+    int outputPreview = std::min(static_cast<int>(project_.outputs.size()), 4);
+    for (int i = 0; i < outputPreview; ++i) {
+      outputStatus += " O" + std::to_string(i + 1);
+      outputStatus += project_.outputs[i].enabled ? "*" : "-";
+    }
+    if (static_cast<int>(project_.outputs.size()) > outputPreview) {
+      outputStatus += " +" + std::to_string(static_cast<int>(project_.outputs.size()) - outputPreview);
+    }
+    std::string tcStatus = "tc " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps);
     std::string companionStatus = companionReady_
-      ? "companion " + std::to_string(companionPort_)
-      : "companion off";
-    drawText(controlRenderer_, fontSmall_, fxStatus, colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 6);
-    drawText(controlRenderer_, fontSmall_, companionStatus, colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 22);
-    drawText(controlRenderer_, fontSmall_, "file: " + currentProjectLabel(), colorFromRgba(kScreenDeepColor), header.x + header.w - 480, header.y + 38);
+      ? "net " + std::to_string(companionPort_)
+      : "net off";
+    int rightMetaX = header.x + header.w - 560;
+    drawText(controlRenderer_, fontSmall_, outputStatus, colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 6);
+    drawText(controlRenderer_, fontSmall_, companionStatus + "  " + tcStatus,
+             colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 22);
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, "show: " + currentProjectLabel(), 540),
+             colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 38);
+
+    std::string deckSummary = "decks: ";
+    int deckPreview = std::min(3, static_cast<int>(project_.decks.size()));
+    for (int i = 0; i < deckPreview; ++i) {
+      if (i > 0) {
+        deckSummary += " | ";
+      }
+      const Deck& deck = project_.decks[i];
+      const Cue* liveCue = activeCuePtr(i);
+      std::string liveName = liveCue ? liveCue->name : "--";
+      deckSummary += "D" + std::to_string(i + 1) + " LIVE " + liveName;
+    }
+    if (static_cast<int>(project_.decks.size()) > deckPreview) {
+      deckSummary += " | +" + std::to_string(static_cast<int>(project_.decks.size()) - deckPreview);
+    }
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, deckSummary, std::max(120, rightMetaX - (header.x + 316))),
+             colorFromRgba(kScreenDarkColor), header.x + 316, header.y + 38);
     // Master volume fader (horizontal slider at right of header)
     {
-      constexpr int kFaderW = 110;
-      constexpr int kFaderH = 14;
-      int fx = header.x + header.w - 130;
+      constexpr int kFaderW = 132;
+      constexpr int kFaderH = 16;
+      int fx = header.x + header.w - 150;
       int fy = header.y + header.h - kFaderH - 8;
       masterFaderRect_ = {fx, fy, kFaderW, kFaderH};
       SDL_Rect track = masterFaderRect_;
@@ -8542,18 +14505,44 @@ class App {
       Primitives::strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
       int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
       drawText(controlRenderer_, fontSmall_, "vol " + std::to_string(volPct) + "%",
-               colorFromRgba(kScreenDeepColor), track.x, track.y - 14);
+               colorFromRgba(kScreenDeepColor), track.x, track.y - 18);
     }
     // Settings gear button
     {
-      settingsGearRect_ = {header.x + header.w - 560, header.y + 6, 52, 40};
+      auto drawHeaderActionButton = [&](SDL_Rect& rect, const std::string& label) {
+        Primitives::drawFramedPanel(controlRenderer_, rect, colorFromRgba(kShellInnerColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), rect);
+      };
+
+      int fileBtnY = header.y + 7;
+      int fileBtnH = 28;
+      int fileStartX = std::max(header.x + 220, header.x + header.w - 960);
+      fileNewBtnRect_ = {fileStartX, fileBtnY, 62, fileBtnH};
+      fileOpenBtnRect_ = {fileStartX + 70, fileBtnY, 66, fileBtnH};
+      fileSaveBtnRect_ = {fileStartX + 144, fileBtnY, 66, fileBtnH};
+      fileSaveAsBtnRect_ = {fileStartX + 218, fileBtnY, 82, fileBtnH};
+      drawHeaderActionButton(fileNewBtnRect_, "New");
+      drawHeaderActionButton(fileOpenBtnRect_, "Open");
+      drawHeaderActionButton(fileSaveBtnRect_, "Save");
+      drawHeaderActionButton(fileSaveAsBtnRect_, "SaveAs");
+
+      decksPanelToggleRect_ = {header.x + header.w - 698, header.y + 6, 62, 46};
+      bool decksShown = decksPanelVisible();
+      SDL_Color decksFill = decksShown ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
+      SDL_Color decksInk = decksShown ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, decksPanelToggleRect_, decksFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "decks", decksInk, decksPanelToggleRect_);
+
+      settingsGearRect_ = {header.x + header.w - 622, header.y + 6, 62, 46};
       SDL_Color gearFill = settingsOpen_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
       SDL_Color gearInk  = settingsOpen_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
       Primitives::drawFramedPanel(controlRenderer_, settingsGearRect_, gearFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, "prefs", gearInk, settingsGearRect_);
       // BLK (blackout) button
       {
-        blackoutBtnRect_ = {header.x + header.w - 614, header.y + 6, 48, 40};
+        blackoutBtnRect_ = {header.x + header.w - 684, header.y + 6, 58, 46};
         bool isBlacked = masterDimmerTarget_ < 0.5;
         SDL_Color blkFill = isBlacked ? SDL_Color{160, 18, 18, 255} : colorFromRgba(kShellInnerColor);
         SDL_Color blkInk  = isBlacked ? SDL_Color{255, 180, 180, 255} : colorFromRgba(kScreenDeepColor);
@@ -8562,25 +14551,209 @@ class App {
       }
     }
 
-    // Content area: below header, above buttons
-    int contentY = header.y + kGlobalHeaderH + 4;
-    int contentH = (height - 74) - contentY - 4;
+    // Operational strip: workflow + signal flow + output routing rows.
+    int routeDeckCount = std::max(1, static_cast<int>(project_.decks.size()));
+    int routeRowsVisible = std::max(1, std::min(routeDeckCount, 4));
+    int outputStripH = 84 + routeRowsVisible * 24;
+    SDL_Rect outputStrip {shell.x + 4, header.y + kGlobalHeaderH + 4, shell.w - 8, outputStripH};
+    Primitives::drawFramedPanel(controlRenderer_, outputStrip, colorFromRgba(kShellInnerColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
-    // Deck columns
-    int colStartX = shell.x + 4;
-    for (int di = 0; di < numDecks; ++di) {
-      SDL_Rect col {colStartX + di * (kColWidth + 4), contentY, kColWidth, contentH};
-      deckColumnRects_[di] = col;
-      renderPlaylistColumn(col, di);
+    deckSidebarToggleRect_ = SDL_Rect {};
+    drawText(controlRenderer_, fontSmall_,
+             "WORKFLOW: IMPORT -> CUES -> ROUTE -> TAKE -> LAYERS -> MASTER SCENES",
+             colorFromRgba(kScreenDeepColor), outputStrip.x + 8, outputStrip.y + 6);
+
+    std::string signalFlow = "Signal Flow: ";
+    int flowDeckCount = std::min(static_cast<int>(project_.decks.size()), 3);
+    for (int deckIndex = 0; deckIndex < flowDeckCount; ++deckIndex) {
+      auto out = primaryOutputIndexForDeck(deckIndex);
+      int layer = primaryLayerIndexForDeck(deckIndex);
+      if (deckIndex > 0) {
+        signalFlow += "   ";
+      }
+      signalFlow += "Deck " + std::to_string(deckIndex + 1) + " -> ";
+      signalFlow += out ? outputLabel(*out) : "Unrouted";
+      signalFlow += " -> ";
+      signalFlow += (layer <= 0 ? "BG" : ("L" + std::to_string(layer)));
+    }
+    if (flowDeckCount == 0) {
+      signalFlow += "No decks";
+    }
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, signalFlow, outputStrip.w - 16),
+             colorFromRgba(kScreenDarkColor), outputStrip.x + 8, outputStrip.y + 24);
+
+    int topRowY = outputStrip.y + 42;
+    drawText(controlRenderer_, fontSmall_, "OUTPUT ARM",
+             colorFromRgba(kScreenDeepColor), outputStrip.x + 8, topRowY + 4);
+
+    SDL_Rect addOutputBtn {outputStrip.x + outputStrip.w - 84, topRowY, 78, 22};
+    Primitives::drawFramedPanel(controlRenderer_, addOutputBtn, colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontSmall_, "+OUTPUT", colorFromRgba(kScreenDeepColor), addOutputBtn);
+    outputMenuButtons_.push_back({addOutputBtn, -1, -1, kOutputMenuActionAddOutput});
+
+    int toggleX = outputStrip.x + 96;
+    constexpr int kOutputToggleCellW = 132;
+    constexpr int kOutputToggleCellH = 24;
+    constexpr int kOutputToggleGap = 4;
+    int toggleLimitX = addOutputBtn.x - 6;
+    int hiddenOutputs = 0;
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (toggleX + kOutputToggleCellW > toggleLimitX) {
+        hiddenOutputs = static_cast<int>(project_.outputs.size()) - outputIndex;
+        break;
+      }
+      const OutputTarget& output = project_.outputs[outputIndex];
+      bool focusedOutput = outputIndex == project_.focusedOutputIndex;
+      SDL_Rect cellRect {toggleX, topRowY, kOutputToggleCellW, kOutputToggleCellH};
+      SDL_Color cellFill = focusedOutput ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_Color cellInk = focusedOutput ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, cellRect, cellFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      std::string typeToken = normalizeOutputType(output.outputType) == "stream"
+        ? toUpper(normalizeOutputStreamProtocol(output.streamProtocol))
+        : "HDMI";
+      std::string stateToken = output.enabled ? "ARMED" : "OFF";
+      if (normalizeOutputType(output.outputType) == "stream" && output.streamEnabled) {
+        stateToken = "LIVE";
+      }
+      if (output.ndiEnabled) {
+        stateToken += " NDI";
+      }
+      drawText(controlRenderer_, fontSmall_,
+               "O" + std::to_string(outputIndex + 1) + " " + typeToken,
+               cellInk, cellRect.x + 5, cellRect.y + 3);
+      drawText(controlRenderer_, fontSmall_, stateToken, cellInk, cellRect.x + 5, cellRect.y + 12);
+
+      SDL_Rect armBtn {cellRect.x + cellRect.w - 44, cellRect.y + 3, 40, cellRect.h - 6};
+      SDL_Color armFill = output.enabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
+      SDL_Color armInk = output.enabled ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
+      Primitives::drawFramedPanel(controlRenderer_, armBtn, armFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, output.enabled ? "ON" : "OFF", armInk, armBtn);
+      if (focusedOutput) {
+        Primitives::strokeRect(controlRenderer_, insetRect(cellRect, 1), colorFromRgba(kScreenLightColor));
+      }
+
+      outputMenuButtons_.push_back({armBtn, -1, outputIndex, kOutputMenuActionToggle});
+      outputMenuButtons_.push_back({cellRect, -1, outputIndex, kOutputMenuActionFocus});
+      toggleX += kOutputToggleCellW + kOutputToggleGap;
+    }
+    if (hiddenOutputs > 0) {
+      drawText(controlRenderer_, fontSmall_, "+" + std::to_string(hiddenOutputs),
+               colorFromRgba(kScreenInkSoftColor), addOutputBtn.x - 26, topRowY + 4);
     }
 
-    // Main panel (program monitor + transport)
-    int mainX = colStartX + numDecks * (kColWidth + 4);
-    SDL_Rect mainPanel {mainX, contentY, shell.x + shell.w - 4 - mainX, contentH};
+    // Single routing strip: Deck -> Output -> Layer (editable inline).
+    int rowBaseY = topRowY + 26;
+    int deckCount = static_cast<int>(project_.decks.size());
+    int deckStart = 0;
+    if (deckCount > routeRowsVisible) {
+      int focusDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
+      deckStart = std::clamp(focusDeck - routeRowsVisible / 2, 0, deckCount - routeRowsVisible);
+    }
+    for (int slot = 0; slot < routeRowsVisible; ++slot) {
+      int deckIndex = deckStart + slot;
+      if (deckIndex >= deckCount) {
+        break;
+      }
+      bool focusedDeck = deckIndex == project_.focusedDeckIndex;
+      SDL_Rect rowRect {outputStrip.x + 8, rowBaseY + slot * 24, outputStrip.w - 16, 22};
+      SDL_Color rowFill = focusedDeck ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_Color rowInk = focusedDeck ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, rowRect, rowFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+
+      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+      int currentOutput = primaryOut ? *primaryOut : -1;
+      int outputCount = static_cast<int>(project_.outputs.size());
+      int routeOutput = currentOutput >= 0
+        ? currentOutput
+        : (outputCount > 0
+            ? std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1))
+            : -1);
+      auto assignment = (routeOutput >= 0 && outputCount > 0)
+        ? assignmentIndexForDeckOutput(deckIndex, routeOutput)
+        : std::nullopt;
+      bool assigned = assignment.has_value();
+      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignment].layerIndex, 0, 255) : 0;
+      std::string layerLabel = assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--";
+      std::string outputLabelText = routeOutput >= 0 ? ("O" + std::to_string(routeOutput + 1)) : "--";
+
+      std::string lead = (focusedDeck ? "\xe2\x96\xb8 " : "  ")
+        + deckLabel(deckIndex) + " -> ";
+      drawText(controlRenderer_, fontSmall_, lead, rowInk, rowRect.x + 6, rowRect.y + 4);
+
+      int bx = rowRect.x + 118;
+      SDL_Rect outPrevBtn {bx, rowRect.y + 2, 18, 18};
+      SDL_Rect outValBtn {bx + 20, rowRect.y + 2, 56, 18};
+      SDL_Rect outNextBtn {bx + 78, rowRect.y + 2, 18, 18};
+      SDL_Rect layerDecBtn {bx + 104, rowRect.y + 2, 18, 18};
+      SDL_Rect layerValBtn {bx + 124, rowRect.y + 2, 42, 18};
+      SDL_Rect layerIncBtn {bx + 168, rowRect.y + 2, 18, 18};
+      SDL_Rect assignBtn {bx + 194, rowRect.y + 2, 74, 18};
+
+      auto drawMiniBtn = [&](const SDL_Rect& rect, const std::string& text, bool lit = false) {
+        SDL_Color fill = lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
+        SDL_Color ink = lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        Primitives::drawFramedPanel(controlRenderer_, rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, text, ink, rect);
+      };
+      drawMiniBtn(outPrevBtn, "<");
+      drawMiniBtn(outValBtn, outputLabelText, routeOutput == project_.focusedOutputIndex);
+      drawMiniBtn(outNextBtn, ">");
+      drawMiniBtn(layerDecBtn, "-");
+      drawMiniBtn(layerValBtn, layerLabel, assigned);
+      drawMiniBtn(layerIncBtn, "+");
+      drawMiniBtn(assignBtn, assigned ? "UNLINK" : "LINK", assigned);
+
+      outputMenuButtons_.push_back({outPrevBtn, deckIndex, routeOutput, kOutputMenuActionRouteOutputPrev});
+      outputMenuButtons_.push_back({outValBtn, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+      outputMenuButtons_.push_back({outNextBtn, deckIndex, routeOutput, kOutputMenuActionRouteOutputNext});
+      outputMenuButtons_.push_back({layerDecBtn, deckIndex, routeOutput, kOutputMenuActionRouteLayerDec});
+      outputMenuButtons_.push_back({layerIncBtn, deckIndex, routeOutput, kOutputMenuActionRouteLayerInc});
+      outputMenuButtons_.push_back({assignBtn, deckIndex, routeOutput, kOutputMenuActionRouteAssignToggle});
+      outputMenuButtons_.push_back({rowRect, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+    }
+
+    // Content area: below header + output strip, above buttons
+    int contentY = outputStrip.y + outputStrip.h + 4;
+    int contentH = (height - 74) - contentY - 4;
+    int contentLeft = shell.x + 4;
+    int contentRight = shell.x + shell.w - 4;
+    int colGap = 6;
+
+    int shelfW = std::clamp(shell.w / 5, 260, 320);
+    int sidebarW = std::clamp(shell.w / 4, 280, 380);
+    int mainW = contentRight - contentLeft - shelfW - sidebarW - colGap * 2;
+    if (mainW < 560) {
+      int deficit = 560 - mainW;
+      int shaveShelf = std::min(deficit / 2, std::max(0, shelfW - 220));
+      shelfW -= shaveShelf;
+      deficit -= shaveShelf;
+      int shaveSidebar = std::min(deficit, std::max(0, sidebarW - 240));
+      sidebarW -= shaveSidebar;
+      mainW = contentRight - contentLeft - shelfW - sidebarW - colGap * 2;
+    }
+
+    int playlistDeckIndex = project_.decks.empty()
+      ? -1
+      : std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    if (playlistDeckIndex >= 0) {
+      SDL_Rect shelfRect {contentLeft, contentY, shelfW, contentH};
+      deckColumnRects_[playlistDeckIndex] = shelfRect;
+      renderPlaylistColumn(shelfRect, playlistDeckIndex);
+    }
+
+    SDL_Rect mainPanel {contentLeft + shelfW + colGap, contentY, mainW, contentH};
     if (mainPanel.w > 0) {
       Primitives::drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
       renderMainPanel(mainPanel);
     }
+
+    SDL_Rect sidebarRect {mainPanel.x + mainPanel.w + colGap, contentY, sidebarW, contentH};
+    renderDeckSidebar(sidebarRect);
 
     renderButtons();
     renderToast(width);
@@ -8600,12 +14773,24 @@ class App {
     const Deck& deck = project_.decks[deckIndex];
     bool focused = (deckIndex == project_.focusedDeckIndex);
 
-    // Column header (deck name + active cue status)
+    // Cartridge shelf header.
     SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
     SDL_Color headerFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
     Primitives::drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
-    drawText(controlRenderer_, fontBase_, deckName, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 8);
+    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+    int layerIndex = primaryLayerIndexForDeck(deckIndex);
+    std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
+    std::string headerLine = "Deck " + std::to_string(deckIndex + 1) + "  " + deckName
+      + "  |  " + (outputIndex ? outputLabel(*outputIndex) : "Unrouted")
+      + "  |  " + layerToken;
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, headerLine, col.w - 20),
+             colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 7);
+    std::string audioLabel = deck.audioOutputDeviceName.empty() ? "(default audio)" : deck.audioOutputDeviceName;
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, "audio: " + audioLabel, col.w - 20),
+             colorFromRgba(kScreenDarkColor), col.x + 10, col.y + 24);
     const Cue* activeCue = activeCuePtr(deckIndex);
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
     std::string stateStr = "■ ";
@@ -8617,7 +14802,8 @@ class App {
       }
     }
     std::string activeName = activeCue ? activeCue->name : "no cue loaded";
-    drawText(controlRenderer_, fontSmall_, stateStr + activeName, colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 34);
+    drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, stateStr + activeName, col.w - 20),
+             colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 42);
 
     // Cue list area
     int listAreaY = col.y + kColHeaderH + 4;
@@ -8648,13 +14834,15 @@ class App {
     int footerY = col.y + col.h - kColFooterH;
     SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
     Primitives::drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    std::string layerName = (deck.outputLayerIndex >= 0 && deck.outputLayerIndex < static_cast<int>(project_.layerNames.size()))
-      ? project_.layerNames[deck.outputLayerIndex]
+    int displayIndex = outputIndex ? outputDisplayIndex(*outputIndex) : deck.outputDisplayIndex;
+    std::string layerName = (layerIndex >= 0 && layerIndex < static_cast<int>(project_.layerNames.size()))
+      ? project_.layerNames[layerIndex]
       : "?";
+    std::string rasterLabel = outputIndex ? outputResolutionLabelForOutput(*outputIndex) : outputResolutionLabel(deckIndex);
     std::string routing = deckOutputRoutingLabel(deckIndex)
       + "  layer:" + layerName
-      + "  disp:" + std::to_string(deck.outputDisplayIndex + 1)
-      + "  res:" + outputResolutionLabel(deckIndex)
+      + "  disp:" + std::to_string(displayIndex + 1)
+      + "  res:" + rasterLabel
       + "  " + (deck.autoAdvance ? "auto" : "man")
       + "  " + (deck.playlistLoop ? "loop" : "once")
       + "  " + (deck.shuffle ? "shuf" : "seq");
@@ -8681,17 +14869,20 @@ class App {
     const auto& cue = deck.cues[index];
     bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
                                   [&](int i) { return i == index; });
+    bool isSelected = index == deck.selectedIndex;
+    bool isLive = index == deck.activeIndex;
+    bool isQueued = !isLive && !isSelected && deck.selectedIndex >= 0 && index == deck.selectedIndex + 1;
     SDL_Color fill = colorFromRgba(kScreenLightColor);
-    if (index == deck.selectedIndex) {
+    if (isSelected) {
       fill = colorFromRgba(kScreenMidColor);
-    } else if (index == deck.activeIndex) {
+    } else if (isLive) {
       fill = colorFromRgba(kScreenDarkColor);
     } else if (isOverlay) {
       fill = {48, 80, 48, 255};  // distinct teal-ish tint for active overlay
     }
 
     Primitives::drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
-    if (project_.uiTransitionsEnabled && index == deck.selectedIndex) {
+    if (project_.uiTransitionsEnabled && isSelected) {
       double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
       SDL_Color glow {155, 188, 15, static_cast<Uint8>(60 + pulse * 80.0)};
       Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
@@ -8701,32 +14892,66 @@ class App {
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
     Primitives::fillRect(controlRenderer_, chip, chipColor);
 
-    SDL_Color ink = index == deck.activeIndex ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-    SDL_Color subInk = index == deck.activeIndex ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
-    // Cue number badge (user-assigned label)
-    int nameX = row.x + 34;
-    if (!cue.cueNumber.empty()) {
-      std::string numBadge = cue.cueNumber;
-      drawText(controlRenderer_, fontSmall_, numBadge, colorFromRgba(kScreenInkSoftColor), nameX, row.y + 4);
-      nameX += static_cast<int>(numBadge.size()) * 7 + 4;
+    SDL_Color ink = isLive ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+    SDL_Color subInk = isLive ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
+    std::string indicator = " ";
+    if (isLive) {
+      bool blinkOn = ((animationNow_ / 280) % 2) == 0;
+      indicator = blinkOn ? "\xe2\x96\xa3" : "\xe2\x96\xa1"; // ▣ / □
+    } else if (isSelected) {
+      indicator = "\xe2\x96\xb8"; // ▸
+    } else if (isQueued) {
+      indicator = "\xe2\x97\x8f"; // ●
     }
-    drawText(controlRenderer_, fontBase_, cue.name, ink, nameX, row.y + 13);
-    std::string meta = cueKindLabel(cue.kind);
-    if (cue.kind == CueKind::Video) {
-      meta += "  ";
-      meta += formatSeconds(cue.duration);
-      if (cue.hasAudio) meta += "  + audio";
-    } else if (cue.kind == CueKind::Browser) {
-      meta += "  web";
-      if (cue.stillDurationSeconds > 0.0) meta += "  " + formatSeconds(cue.stillDurationSeconds);
-    } else if (cue.kind == CueKind::Image || cue.kind == CueKind::Pattern) {
-      if (cue.stillDurationSeconds > 0.0) meta += "  " + formatSeconds(cue.stillDurationSeconds);
-      else meta += "  hold";
-    } else if (cue.kind == CueKind::LowerThird) {
-      if (!cue.lowerThirdText.empty()) meta += "  \"" + cue.lowerThirdText + "\"";
-      if (isOverlay) meta += "  [LIVE]";
+    drawText(controlRenderer_, fontBase_, indicator, ink, row.x + 28, row.y + 13);
+
+    std::string typeIcon = "VID";
+    switch (cue.kind) {
+      case CueKind::Video:        typeIcon = "VID"; break;
+      case CueKind::Image:        typeIcon = "IMG"; break;
+      case CueKind::Browser:      typeIcon = "WEB"; break;
+      case CueKind::WindowSource: typeIcon = "WIN"; break;
+      case CueKind::Camera:       typeIcon = "CAM"; break;
+      case CueKind::Syphon:       typeIcon = "SYP"; break;
+      case CueKind::Pattern:      typeIcon = "PAT"; break;
+      case CueKind::LowerThird:   typeIcon = "L3"; break;
+      case CueKind::Audio:        typeIcon = "AUD"; break;
+      default: break;
     }
-    drawText(controlRenderer_, fontSmall_, meta, subInk, row.x + 34, row.y + 39);
+    std::string cueToken = !trim(cue.cueNumber).empty() ? cue.cueNumber : std::to_string(index + 1);
+    constexpr int kNumColW = 58;
+    constexpr int kTypeColW = 46;
+    constexpr int kStateColW = 102;
+    int numX = row.x + 48;
+    int typeX = numX + kNumColW;
+    int nameX = typeX + kTypeColW;
+    int stateX = row.x + row.w - kStateColW;
+    int nameW = std::max(44, stateX - nameX - 6);
+
+    drawText(controlRenderer_, fontMono_,
+             ellipsizeToPixelWidth(fontMono_, cueToken, kNumColW - 8),
+             subInk, numX, row.y + 14);
+    drawText(controlRenderer_, fontSmall_, typeIcon, subInk, typeX, row.y + 17);
+
+    std::string nameTrimmed = ellipsizeToPixelWidth(fontBase_, cue.name, nameW);
+    drawText(controlRenderer_, fontBase_, nameTrimmed, ink, nameX, row.y + 13);
+
+    std::string stateMeta = "--";
+    if (cue.kind == CueKind::Video || cue.kind == CueKind::Audio) {
+      stateMeta = cue.duration > 0.0 ? formatSeconds(cue.duration) : "hold";
+    } else if (cue.kind == CueKind::Image || cue.kind == CueKind::Pattern ||
+               cue.kind == CueKind::Browser || isSourceCueKind(cue.kind)) {
+      stateMeta = cue.stillDurationSeconds > 0.0 ? formatSeconds(cue.stillDurationSeconds) : "hold";
+    }
+    if (isLive) {
+      stateMeta = "LIVE";
+    } else if (isSelected) {
+      stateMeta = "SEL";
+    } else if (isQueued) {
+      stateMeta = "NEXT";
+    }
+    drawText(controlRenderer_, fontMono_, ellipsizeToPixelWidth(fontMono_, stateMeta, kStateColW - 8),
+             subInk, stateX, row.y + 14);
 
     // End-action glyph (top-right corner of row, small pixel indicator)
     if (cue.endAction != CueEndAction::Inherit) {
@@ -8744,7 +14969,7 @@ class App {
     }
 
     // Remaining time badge on the active cue row
-    if (index == deck.activeIndex) {
+    if (isLive) {
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
       if (engine && engine->duration() > 0.0 && engine->state() == TransportState::Playing) {
         double remaining = std::max(0.0, engine->duration() - engine->position());
@@ -8770,8 +14995,14 @@ class App {
         case CueKind::Image:      rowTip = "Enter=take  Duration 0 = hold until next Take"; break;
         case CueKind::Pattern:    rowTip = "Enter=take  Test pattern — hold or auto-advance"; break;
         case CueKind::Browser:    rowTip = "Enter=take  Browser cue — renders into output via Xvfb"; break;
+        case CueKind::WindowSource: rowTip = "Enter=take  Window source cue (x11 capture)"; break;
+        case CueKind::Camera:     rowTip = "Enter=take  Camera source cue (v4l2 capture)"; break;
+        case CueKind::Syphon:     rowTip = "Enter=take  Syphon/Spout cue (desktop fallback on Linux)"; break;
         case CueKind::LowerThird: rowTip = "Enter=push overlay  Backspace=pop  LOWERTEXT via Companion"; break;
         default: rowTip = "Enter=take  Delete=remove"; break;
+      }
+      if (nameTrimmed != cue.name) {
+        rowTip = cue.name + "  |  " + rowTip;
       }
       drawHoverTip(rowTip, row.x + row.w / 2, row.y);
     }
@@ -8804,7 +15035,21 @@ class App {
     for (const auto& button : buttons_) {
       Primitives::fillRect(controlRenderer_, button.rect, button.fill);
       Primitives::strokeRect(controlRenderer_, button.rect, button.outline);
-      drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, button.rect);
+      SDL_Rect topRect {button.rect.x, button.rect.y + 2, button.rect.w, 28};
+      drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, topRect);
+      std::string keyHint;
+      if (button.label == "IMPORT") keyHint = "Shift+I";
+      else if (button.label == "SOURCE") keyHint = "Menu";
+      else if (button.label == "PATTERN") keyHint = "P";
+      else if (button.label == "(A) TAKE") keyHint = "Enter";
+      else if (button.label == "(B) STOP") keyHint = "S";
+      else if (button.label == "START PLAY") keyHint = "Space";
+      else if (button.label == "SELECT CLR") keyHint = "C";
+      else if (button.label == "OUTPUT") keyHint = "Prefs";
+      if (!keyHint.empty()) {
+        SDL_Rect hintRect {button.rect.x, button.rect.y + 30, button.rect.w, 20};
+        drawCenteredText(controlRenderer_, fontSmall_, keyHint, colorFromRgba(kScreenDeepColor), hintRect);
+      }
     }
     // Hover tip for bottom-bar buttons
     for (const auto& button : buttons_) {
@@ -8834,8 +15079,7 @@ class App {
     SDL_Rect panel {windowWidth - 344, 36 + static_cast<int>((1.0 - visibility) * -24.0), 300, 58};
     panel.x = windowWidth - 44 - static_cast<int>(300.0 * visibility);
     Primitives::drawFramedPanel(controlRenderer_, panel, toast_.fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    drawText(controlRenderer_, fontSmall_, "cute mode", toast_.ink, panel.x + 14, panel.y + 10);
-    drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 28);
+    drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 20);
   }
 
   // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.
@@ -8854,196 +15098,7 @@ class App {
     }
   }
 
-  // ── Pixel-art character system ───────────────────────────────────────────────
-  // Playboy-bunny style pixel art women. Full RGB, no palette restrictions.
-  // Three variants (0,1,2) used across different panels.
-  //   cy = hip centre. Crown (excl ears) at cy-20*S. Heel tips at cy+24*S.
-
-  void drawPixelLady(SDL_Renderer* r, int cx, int cy, int S, Uint64 now,
-                     Uint8 alpha, int variant = 0) {
-    // Portrait bust view — chunky retro pixel art, limited palette.
-    // cy = face-centre (approximately mid-eye level).
-    // Art bounds: x -10..+10, y -16..+14  →  21×31 art units.
-    if (alpha == 0 || S <= 0) return;
-    bool blink = (now % 4500) < 120;
-
-    auto a = [&](Uint8 base) -> Uint8 {
-      return static_cast<Uint8>(static_cast<int>(base) * alpha / 255);
-    };
-    auto fb = [&](int ax, int ay, int aw, int ah, SDL_Color c) {
-      Primitives::fillRect(r, {cx + ax * S, cy + ay * S, aw * S, ah * S}, c);
-    };
-
-    // ── Palette (4-5 colours + outline, high contrast) ───────────────────
-    SDL_Color hair  = variant == 0 ? SDL_Color{  0, 178, 200, a(255)}  // teal
-                    : variant == 1 ? SDL_Color{155,  28, 155, a(255)}  // purple
-                    :                SDL_Color{205, 158,  18, a(255)}; // blonde
-    SDL_Color hairD = {static_cast<Uint8>(hair.r >> 1),
-                       static_cast<Uint8>(hair.g >> 1),
-                       static_cast<Uint8>(hair.b >> 1), a(255)};
-    SDL_Color outl  = {12,   8,  20, a(255)};   // near-black outline
-    SDL_Color earPk = {255, 138, 168, a(255)};  // bunny ear pink
-    SDL_Color earLt = {255, 200, 215, a(255)};  // ear inner light
-    SDL_Color skin  = {240, 198, 158, a(255)};  // face skin
-    SDL_Color skinD = {192, 148, 108, a(255)};  // skin shadow
-    SDL_Color eyeW  = {255, 255, 255, a(255)};
-    SDL_Color iris  = { 48, 105, 218, a(255)};
-    SDL_Color pupil = {10,   8,  20, a(255)};
-    SDL_Color lash  = outl;
-    SDL_Color lip   = {218,  45,  72, a(255)};
-    SDL_Color blush = {255, 138, 148, a(100)};
-    SDL_Color leot  = {244, 244, 252, a(255)};  // white leotard
-    SDL_Color leotS = {188, 188, 210, a(255)};  // leotard side shadow
-    SDL_Color cuff  = leot;
-
-    // ── Dark poster card ─────────────────────────────────────────────────
-    SDL_Rect card {cx - 10*S, cy - 16*S, 21*S, 31*S};
-    Primitives::fillRect(r, card, {0x0C, 0x05, 0x18, a(225)});
-    SDL_Color bord = {188, 28, 82, a(90)};
-    Primitives::fillRect(r, {card.x - S,      card.y - S,     card.w + 2*S, S      }, bord);
-    Primitives::fillRect(r, {card.x - S,      card.y+card.h,  card.w + 2*S, S      }, bord);
-    Primitives::fillRect(r, {card.x - S,      card.y,         S,  card.h           }, bord);
-    Primitives::fillRect(r, {card.x+card.w,   card.y,         S,  card.h           }, bord);
-
-    // ── BUNNY EARS (tall, slender, pink) ─────────────────────────────────
-    fb(-4, -16,  2,  7, earPk);   // left ear outer
-    fb(-3, -15,  1,  5, earLt);   // left ear inner
-    fb( 3, -16,  2,  7, earPk);   // right ear outer
-    fb( 4, -15,  1,  5, earLt);   // right ear inner
-
-    // ── HAIR (wide mass either side, back layer) ──────────────────────────
-    fb(-9,  -9,  5, 19, hairD);   // left hair dark mass
-    fb(-8,  -8,  3, 17, hair);    // left hair fill
-    fb( 5,  -9,  5, 19, hairD);   // right dark mass
-    fb( 6,  -8,  3, 17, hair);    // right hair fill
-    fb(-5, -12, 11,  4, hair);    // crown cap
-    // Crown highlight streak
-    fb(-3, -12,  5,  1, {static_cast<Uint8>(std::min(255,(int)hair.r+50)),
-                          static_cast<Uint8>(std::min(255,(int)hair.g+50)),
-                          static_cast<Uint8>(std::min(255,(int)hair.b+50)), a(190)});
-
-    // ── FACE (main skin area) ─────────────────────────────────────────────
-    fb(-5, -11, 11, 10, skin);   // face fill
-    fb(-4,  -1,  9,  1, skin);   // chin row 1
-    fb(-3,   0,  7,  1, skin);   // chin row 2
-    fb(-2,   1,  5,  1, skin);   // chin tip
-    // Ear lobes (sides of face)
-    fb(-6,  -8,  1,  3, skinD);
-    fb( 6,  -8,  1,  3, skinD);
-    // Blush
-    fb(-5,  -6,  2,  1, blush);
-    fb( 4,  -6,  2,  1, blush);
-
-    // ── EYEBROWS ─────────────────────────────────────────────────────────
-    fb(-5, -10,  3,  1, outl);
-    fb( 3, -10,  3,  1, outl);
-
-    // ── EYES (5×5 each — BIG portrait anime eyes) ─────────────────────────
-    if (!blink) {
-      // Left eye
-      fb(-5,  -9,  5,  5, eyeW);
-      fb(-5,  -9,  5,  1, lash);    // top lash line
-      fb(-5,  -8,  5,  3, iris);    // iris
-      fb(-5,  -7,  5,  2, {static_cast<Uint8>(iris.r>>1),
-                            static_cast<Uint8>(iris.g>>1),
-                            static_cast<Uint8>(iris.b>>1), a(255)});
-      fb(-4,  -8,  3,  2, pupil);   // pupil
-      fb(-4,  -8,  1,  1, eyeW);    // top-left shine
-      fb(-2,  -6,  1,  1, {200, 218, 255, a(155)});  // lower shine
-      fb(-5,  -4,  5,  1, lash);    // bottom lash
-      fb(-6,  -9,  1,  2, lash);    // outer corner flick
-      // Right eye
-      fb( 1,  -9,  5,  5, eyeW);
-      fb( 1,  -9,  5,  1, lash);
-      fb( 1,  -8,  5,  3, iris);
-      fb( 1,  -7,  5,  2, {static_cast<Uint8>(iris.r>>1),
-                            static_cast<Uint8>(iris.g>>1),
-                            static_cast<Uint8>(iris.b>>1), a(255)});
-      fb( 2,  -8,  3,  2, pupil);
-      fb( 2,  -8,  1,  1, eyeW);
-      fb( 4,  -6,  1,  1, {200, 218, 255, a(155)});
-      fb( 1,  -4,  5,  1, lash);
-      fb( 6,  -9,  1,  2, lash);
-    } else {
-      fb(-5,  -7,  5,  1, lash);
-      fb( 1,  -7,  5,  1, lash);
-    }
-
-    // ── NOSE ─────────────────────────────────────────────────────────────
-    fb( 0,  -3,  1,  1, skinD);
-
-    // ── LIPS ─────────────────────────────────────────────────────────────
-    fb(-3,  -2,  7,  1, lip);
-    fb(-2,  -1,  5,  1, lip);
-    fb(-3,  -2,  2,  1, {static_cast<Uint8>(std::min(255,(int)lip.r+30)),
-                          lip.g, lip.b, a(175)});  // cupid's bow
-
-    // ── NECK ─────────────────────────────────────────────────────────────
-    fb(-2,   2,  5,  3, skin);
-    fb(-1,   2,  1,  2, skinD);
-    fb( 3,   2,  1,  2, skinD);
-
-    // ── BOW TIE ──────────────────────────────────────────────────────────
-    fb(-4,   5,  3,  2, outl);
-    fb( 2,   5,  3,  2, outl);
-    fb(-1,   4,  3,  4, outl);
-    fb( 0,   5,  1,  2, {178, 178, 198, a(198)});
-
-    // ── DÉCOLLETAGE (skin above leotard) ──────────────────────────────────
-    fb(-7,   7, 15,  5, skin);    // wide chest
-    fb(-6,   8,  6,  3, skinD);   // left shadow curve
-    fb( 1,   8,  6,  3, skinD);   // right shadow curve
-    fb(-5,   8,  5,  3, skin);    // left highlight
-    fb( 1,   8,  5,  3, skin);    // right highlight
-    fb(-1,   8,  3,  4, skinD);   // cleavage centre
-
-    // ── STRAPLESS LEOTARD (just the top band, bust-view) ──────────────────
-    fb(-8,  12, 17,  1, {255, 255, 255, a(252)});  // bright neckline
-    fb(-8,  13, 17,  2, leot);
-    fb(-8,  12,  1,  3, leotS);   // left edge shadow
-    fb( 8,  12,  1,  3, leotS);   // right edge shadow
-
-    // ── WRIST CUFFS (arms partially in frame) ────────────────────────────
-    fb(-10, 13,  3,  2, cuff);
-    fb(  8, 13,  3,  2, cuff);
-  }
-
-  // ── Wrapper helpers ────────────────────────────────────────────────────────
-
-  void drawMascot(SDL_Renderer* r, int cx, int cy, int S, Uint64 now, bool /*lightBg*/) {
-    int floatY = static_cast<int>(std::sin(static_cast<double>(now) * 0.0013) * 2.5);
-    drawPixelLady(r, cx, cy + floatY, S, now, 255, 0);
-  }
-
-  void drawStandbyFigure(SDL_Renderer* r, int cx, int baseY, Uint64 now) {
-    // Figure: heel-tip = cy+24*S → cy = baseY - 24*S
-    constexpr int S = 3;
-    int floatY = static_cast<int>(std::sin(static_cast<double>(now) * 0.0011) * 4.0);
-    int cy = baseY - 24 * S + floatY;
-    drawPixelLady(r, cx, cy, S, now, 255, 0);
-  }
-
-  void drawHeaderIcon(SDL_Renderer* r, int cx, int cy, Uint64 now) {
-    // Tiny S=1 figure in the header bar; shift so face is visible
-    drawPixelLady(r, cx, cy - 2, 1, now, 200, 0);
-  }
-
-  // Draw as semi-transparent background watermark.
-  // variant 0=black bunny, 1=magenta bunny, 2=blue bunny.
-  void drawGirlBg(SDL_Renderer* r, const SDL_Rect& panelRect, Uint64 now,
-                  Uint8 alpha = 45, int variant = 0) {
-    if (alpha == 0) return;
-    // Scale so figure is ~55% of panel height (total span = 46 art-units)
-    int S = std::max(1, panelRect.h / 84);
-    int cx = panelRect.x + panelRect.w * 2 / 3;
-    int cy = panelRect.y + panelRect.h / 2;
-    drawPixelLady(r, cx, cy, S, now, alpha, variant);
-  }
-
-  // Stub so any remaining drawAnimeGirl calls compile
-  void drawAnimeGirl(SDL_Renderer* r, int cx, int cy, int S, Uint64 now, Uint8 alpha) {
-    drawPixelLady(r, cx, cy, S, now, alpha, 0);
-  }
+  // Character-art rendering has been intentionally removed from operational UI paths.
 
 
 
@@ -9059,8 +15114,18 @@ class App {
     cueSettingsQuickButtonStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
 
-    drawText(controlRenderer_, fontSmall_, "little screen", colorFromRgba(kScreenDeepColor), x, y);
-    drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "No cue loaded", colorFromRgba(kScreenDeepColor), x, y + 22);
+    drawText(controlRenderer_, fontSmall_, "SCREEN / PROGRAM OUTPUT", colorFromRgba(kScreenDeepColor), x, y);
+    drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "Insert cartridge", colorFromRgba(kScreenDeepColor), x, y + 22);
+
+    std::string focusedDeckName = deck.name.empty() ? deckDefaultName(project_.focusedDeckIndex) : deck.name;
+    std::string deckTcLine = "deck " + std::to_string(project_.focusedDeckIndex + 1) + ": " + focusedDeckName;
+    deckTcLine += "   |   tc " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+    deckTcLine += " @" + std::to_string(static_cast<int>(std::round(deck.timecodeFps)));
+    deckTcLine += (deck.timecodeChaseEnabled ? " chase" : " free");
+    deckTcLine += (deck.timecodeRunEnabled ? " run" : " hold");
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, deckTcLine, std::max(80, panel.w - 52)),
+             colorFromRgba(kScreenDeepColor), x, y + 50);
 
     std::string status = transportStatusLabel();
     std::string clock = formatSeconds(engine ? engine->position() : 0.0) + " / " + formatSeconds(engine ? engine->duration() : 0.0);
@@ -9091,14 +15156,19 @@ class App {
       drawText(controlRenderer_, fontMono_, remStr, remColor, x + panel.w - 174, y + 62);
     }
 
-    progressBarRect_ = {x, y + 108, panel.w - 52, 20};
+    progressBarRect_ = {x, y + 106, panel.w - 52, 26};
     Primitives::drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     double duration = engine ? engine->duration() : 0.0;
     double fraction = duration > 0.0 ? (engine ? engine->position() / duration : 0.0) : 0.0;
     fraction = std::clamp(fraction, 0.0, 1.0);
     SDL_Rect fillBar = insetRect(progressBarRect_, 3);
-    fillBar.w = static_cast<int>(std::round(progressBarRect_.w * fraction));
+    fillBar.w = static_cast<int>(std::round(fillBar.w * fraction));
     Primitives::fillRect(controlRenderer_, fillBar, colorFromRgba(kScreenDarkColor));
+    if (duration > 0.0) {
+      std::string progressClock = formatSeconds(engine ? engine->position() : 0.0)
+        + " / " + formatSeconds(duration);
+      drawCenteredText(controlRenderer_, fontMono_, progressClock, colorFromRgba(kScreenDeepColor), progressBarRect_);
+    }
 
     // Pause point tick marks on progress bar
     if (activeCue && !activeCue->pausePoints.empty() && duration > 0.0) {
@@ -9114,7 +15184,7 @@ class App {
 
     // Goto-last buttons: -30 / -20 / -10 (placed below progress bar)
     {
-      int btnY = y + 130;
+      int btnY = y + 138;
       int btnW = 46;
       int btnX = x;
       for (auto& [label, gotoAction] : std::vector<std::pair<std::string, QuickAction>>{
@@ -9135,29 +15205,40 @@ class App {
     midH = std::max(320, midH); // floor so settings panel stays usable
     constexpr int kCtrlW = 330;
     int previewW = panel.w - 52 - 12 - kCtrlW;
+    constexpr int kStackViewH = 102;
+    int previewH = std::max(190, midH - kStackViewH - 6);
 
     // --- Program monitor / live video preview ---
     bool hasLiveVideo = controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
     SDL_Color previewBg = hasLiveVideo ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
     SDL_Color previewBorder = hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-    SDL_Rect preview {x, midY, previewW, midH};
+    SDL_Rect preview {x, midY, previewW, previewH};
     Primitives::drawFramedPanel(controlRenderer_, preview, previewBg, colorFromRgba(kScreenDeepColor), previewBorder);
     drawText(controlRenderer_, fontSmall_, "program monitor",
              hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenDeepColor),
              preview.x + 10, preview.y + 6);
+    {
+      int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+      auto [outW, outH] = outputRenderSizeForOutput(focusedOutputIndex);
+      std::string outInfo = outputLabel(focusedOutputIndex)
+        + "  " + std::to_string(outW) + "x" + std::to_string(outH)
+        + "  " + outputRefreshRateLabel();
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, outInfo, std::max(60, preview.w - 180)),
+               hasLiveVideo ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDarkColor),
+               preview.x + 146, preview.y + 6);
+    }
 
     if (hasLiveVideo) {
       SDL_Rect inner {preview.x + 4, preview.y + 24, preview.w - 8, preview.h - 28};
-      float aspect = static_cast<float>(controlPreviewTexW_) / static_cast<float>(controlPreviewTexH_);
-      int drawW = inner.w;
-      int drawH = static_cast<int>(drawW / aspect);
-      if (drawH > inner.h) {
-        drawH = inner.h;
-        drawW = static_cast<int>(drawH * aspect);
-      }
-      SDL_Rect dst {inner.x + (inner.w - drawW) / 2, inner.y + (inner.h - drawH) / 2, drawW, drawH};
-      SDL_SetTextureBlendMode(controlPreviewTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, controlPreviewTex_, nullptr, &dst);
+      // Mirror output geometry (scale/crop/offset/rotation) in the control preview.
+      renderTextureWithCueGeometry(
+        controlRenderer_,
+        controlPreviewTex_,
+        controlPreviewTexW_,
+        controlPreviewTexH_,
+        activeCue,
+        inner);
     } else if (!activeCue) {
       drawText(controlRenderer_, fontSmall_, "drop media or press I to import",
                colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + preview.h - 28);
@@ -9201,7 +15282,36 @@ class App {
       }
     }
 
-    // NO characters inside the program monitor — output-adjacent areas stay clean.
+    SDL_Rect stackRect {preview.x, preview.y + preview.h + 6, preview.w, kStackViewH};
+    Primitives::drawFramedPanel(controlRenderer_, stackRect, colorFromRgba(kScreenLightColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    drawText(controlRenderer_, fontSmall_,
+             "STACK VIEW (" + outputLabel(focusedOutputIndex) + ")",
+             colorFromRgba(kScreenDeepColor), stackRect.x + 8, stackRect.y + 6);
+    std::vector<std::pair<int, int>> stackEntries = layeredDeckEntriesForOutput(focusedOutputIndex);
+    int stackY = stackRect.y + 26;
+    if (stackEntries.empty()) {
+      drawText(controlRenderer_, fontSmall_, "no active deck-layer links for this output",
+               colorFromRgba(kScreenInkSoftColor), stackRect.x + 10, stackY);
+    } else {
+      for (auto it = stackEntries.rbegin(); it != stackEntries.rend(); ++it) {
+        if (stackY + 14 > stackRect.y + stackRect.h - 6) {
+          break;
+        }
+        int layerIndex = it->first;
+        int deckIndex = it->second;
+        const Deck& stackDeck = project_.decks[deckIndex];
+        const Cue* liveCue = activeCuePtr(deckIndex);
+        std::string cueName = liveCue ? liveCue->name : "--";
+        std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
+        std::string rowText = layerToken + "  " + deckLabel(deckIndex) + "  ->  " + cueName;
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, rowText, stackRect.w - 16),
+                 colorFromRgba(kScreenDeepColor), stackRect.x + 10, stackY);
+        stackY += 16;
+      }
+    }
 
     // --- Per-cue settings panel (with thumbnail at top) ---
     int ctrlX = x + previewW + 12;
@@ -9248,8 +15358,12 @@ class App {
       drawText(controlRenderer_, fontSmall_, "loading preview...",
                colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 28);
     } else {
-      drawText(controlRenderer_, fontSmall_, "no cue selected",
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 8);
+      drawText(controlRenderer_, fontSmall_, "Insert cartridge",
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 44);
+      drawText(controlRenderer_, fontSmall_, "Drop media here",
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 30);
+      drawText(controlRenderer_, fontSmall_, "Press A to take cue",
+               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 16);
     }
 
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
@@ -9275,13 +15389,14 @@ class App {
                      selectedCue->pausePoints, dur);
     }
 
-    // Label "cue settings" below thumb
+    // Label "cue panel" below thumb
     int ctrlSettingsY = ctrl.y + kThumbAreaH + 10;
-    drawText(controlRenderer_, fontSmall_, "cue settings", colorFromRgba(kScreenDeepColor), ctrl.x + 10, ctrlSettingsY);
+    drawText(controlRenderer_, fontSmall_, "CUE PANEL", colorFromRgba(kScreenDeepColor), ctrl.x + 10, ctrlSettingsY);
 
     auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
                             QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
-                            bool isToggle = false, bool toggleOn = false, std::string tip = "") {
+                            bool isToggle = false, bool toggleOn = false, std::string tip = "",
+                            bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
       constexpr int kLabelW = 64;
       constexpr int kBtnW = 32;
       constexpr int kValW = 98;
@@ -9304,8 +15419,13 @@ class App {
         SDL_Rect valRect {rx + kLabelW + kBtnW + 4, rowY, kValW, kRowH};
         Primitives::drawFramedPanel(controlRenderer_, valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
         drawCenteredText(controlRenderer_, fontSmall_, value, colorFromRgba(kScreenDeepColor), valRect);
+        if (valueEditable) {
+          std::string valueTip = tip.empty() ? "Click value to type an exact number" : tip + " | click value to type exact value";
+          quickButtons_.push_back({valRect, valueAction, valueTip});
+        }
         SDL_Rect incBtn {rx + kLabelW + kBtnW + 4 + kValW + 4, rowY, kBtnW, kRowH};
         Primitives::drawFramedPanel(controlRenderer_, incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "+", colorFromRgba(kScreenDeepColor), incBtn);
         quickButtons_.push_back({incBtn, incAction, tip});
       }
     };
@@ -9354,24 +15474,24 @@ class App {
       constexpr int kRowStep = 28;
       int rowY = startY;
       if (includeScaleOffset) {
-         drawQuickRow(rowY, "mode", QuickAction::CycleScaleMode, formatScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
-                      QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
-         rowY += kRowStep;
+        drawQuickRow(rowY, "mode", QuickAction::CycleScaleMode, formatScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
+                     QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
+        rowY += kRowStep;
         drawQuickRow(rowY, "scale X", QuickAction::ScaleXDec, formatFloat(cue.outputScaleX, 2) + "x", QuickAction::ScaleXInc,
-                     QuickAction::ToggleLoop, false, false, "Output X scale (0.25–4.0×)");
+                     QuickAction::ToggleLoop, false, false, "Output X scale (0.25–4.0×)", true, QuickAction::EditScaleX);
         rowY += kRowStep;
         drawQuickRow(rowY, "scale Y", QuickAction::ScaleYDec, formatFloat(cue.outputScaleY, 2) + "x", QuickAction::ScaleYInc,
-                     QuickAction::ToggleLoop, false, false, "Output Y scale (0.25–4.0×)");
+                     QuickAction::ToggleLoop, false, false, "Output Y scale (0.25–4.0×)", true, QuickAction::EditScaleY);
         rowY += kRowStep;
         drawQuickRow(rowY, "off X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
-                     QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels");
+                     QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels", true, QuickAction::EditOffsetX);
         rowY += kRowStep;
         drawQuickRow(rowY, "off Y", QuickAction::OffsetYDec, std::to_string(static_cast<int>(cue.outputOffsetY)) + "px", QuickAction::OffsetYInc,
-                     QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels");
+                     QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels", true, QuickAction::EditOffsetY);
         rowY += kRowStep;
       }
       drawQuickRow(rowY, "rot", QuickAction::RotDec, formatFloat(cue.outputRotationDegrees, 1) + " deg", QuickAction::RotInc,
-                   QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)");
+                   QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)", true, QuickAction::EditRotation);
       rowY += kRowStep;
       drawQuickRow(rowY, "crop L", QuickAction::CropLDec, formatPercent(cue.cropLeft), QuickAction::CropLInc,
                    QuickAction::ToggleLoop, false, false, "Crop from left");
@@ -9384,6 +15504,27 @@ class App {
       rowY += kRowStep;
       drawQuickRow(rowY, "crop B", QuickAction::CropBDec, formatPercent(cue.cropBottom), QuickAction::CropBInc,
                    QuickAction::ToggleLoop, false, false, "Crop from bottom");
+      rowY += kRowStep;
+      return rowY;
+    };
+
+    auto drawColorRows = [&](int startY, const Cue& cue) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (!cueSupportsColorControls(&cue)) {
+        return rowY;
+      }
+      drawQuickRow(rowY, "bright", QuickAction::BrightnessDec, formatFloat(cue.brightness, 2) + "x", QuickAction::BrightnessInc,
+                   QuickAction::ToggleLoop, false, false, "Brightness multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "contrast", QuickAction::ContrastDec, formatFloat(cue.contrast, 2) + "x", QuickAction::ContrastInc,
+                   QuickAction::ToggleLoop, false, false, "Contrast multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "sat", QuickAction::SaturationDec, formatFloat(cue.saturation, 2) + "x", QuickAction::SaturationInc,
+                   QuickAction::ToggleLoop, false, false, "Saturation multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "hue", QuickAction::HueShiftDec, formatFloat(cue.hueShift, 0) + " deg", QuickAction::HueShiftInc,
+                   QuickAction::ToggleLoop, false, false, "Hue rotation (-180 to +180 degrees)");
       rowY += kRowStep;
       return rowY;
     };
@@ -9410,10 +15551,60 @@ class App {
       return rowY;
     };
 
+    auto drawSectionHeader = [&](int rowY, const std::string& title, bool open,
+                                 QuickAction toggleAction, const std::string& tip) {
+      SDL_Rect hdr {ctrl.x + 10, rowY, kCtrlW - 20, 24};
+      SDL_Color fill = open ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color ink = open ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
+      Primitives::drawFramedPanel(controlRenderer_, hdr, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+      drawText(controlRenderer_, fontSmall_, std::string(open ? "[-] " : "[+] ") + title, ink, hdr.x + 8, hdr.y + 5);
+      quickButtons_.push_back({hdr, toggleAction, tip});
+      return rowY + 28;
+    };
+
+    auto drawCueRoutingRows = [&](int startY) {
+      constexpr int kRowStep = 28;
+      if (project_.decks.empty() || project_.outputs.empty()) {
+        return startY;
+      }
+      int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+      int outputCount = static_cast<int>(project_.outputs.size());
+      int routeOutput = primaryOut
+        ? *primaryOut
+        : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+      auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+      bool assigned = assignmentIndex.has_value();
+      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+
+      drawQuickRow(startY, "output", QuickAction::CueRouteOutputPrev,
+                   outputLabel(routeOutput), QuickAction::CueRouteOutputNext,
+                   QuickAction::CueSectionRoutingToggle, false, false,
+                   "Route this deck to previous/next output");
+      drawQuickRow(startY + kRowStep, "layer", QuickAction::CueRouteLayerDec,
+                   assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--",
+                   QuickAction::CueRouteLayerInc,
+                   QuickAction::CueSectionRoutingToggle, false, false,
+                   "Adjust assignment layer");
+      SDL_Rect assignBtn {ctrl.x + 10, startY + kRowStep * 2, kCtrlW - 20, 28};
+      SDL_Color assignFill = assigned ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color assignInk = assigned ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, assignBtn, assignFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, assigned ? "UNLINK" : "LINK", assignInk, assignBtn);
+      quickButtons_.push_back({assignBtn, QuickAction::CueRouteAssignToggle, "Assign/Unassign deck routing"});
+      return startY + kRowStep * 3;
+    };
+
     if (selectedCue && selectedCue->kind == CueKind::Video) {
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
+      int playbackBodyY = drawSectionHeader(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                            QuickAction::CueSectionPlaybackToggle,
+                                            "Collapse/expand playback settings");
+      if (cueSectionPlaybackOpen_) {
+        ry = playbackBodyY;
       drawQuickRow(ry,                "vol",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
       drawQuickRow(ry + kRowStep,     "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),  QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "[ / ] keys — fade-in duration");
       drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds), QuickAction::FadeOutInc,QuickAction::ToggleLoop, false, false, "Shift+[ / ] — fade-out duration");
@@ -9536,10 +15727,26 @@ class App {
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
       }
-      {
-        int geoY = ry + kRowStep * 14;
-        int nextY = drawGeometryRows(geoY, *selectedCue, true);
-        drawKeyRows(nextY, *selectedCue);
+      }
+      int geoY = cueSectionPlaybackOpen_ ? (ry + kRowStep * 14) : (playbackBodyY + 4);
+      geoY = drawSectionHeader(geoY, "GEOMETRY", cueSectionGeometryOpen_,
+                               QuickAction::CueSectionGeometryToggle,
+                               "Collapse/expand geometry controls");
+      if (cueSectionGeometryOpen_) {
+        geoY = drawGeometryRows(geoY, *selectedCue, true);
+        geoY = drawColorRows(geoY, *selectedCue);
+      }
+      geoY = drawSectionHeader(geoY, "KEY", cueSectionKeyOpen_,
+                               QuickAction::CueSectionKeyToggle,
+                               "Collapse/expand key controls");
+      if (cueSectionKeyOpen_) {
+        geoY = drawKeyRows(geoY, *selectedCue);
+      }
+      geoY = drawSectionHeader(geoY, "ROUTING", cueSectionRoutingOpen_,
+                               QuickAction::CueSectionRoutingToggle,
+                               "Deck -> Output -> Layer route controls");
+      if (cueSectionRoutingOpen_) {
+        drawCueRoutingRows(geoY);
       }
     } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
       // Lower-third / graphic cue settings
@@ -9584,28 +15791,44 @@ class App {
       SDL_Rect clearBtn {ctrl.x + 10, ry + 226, kCtrlW - 20, 28};
       Primitives::drawFramedPanel(controlRenderer_, clearBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
-    } else if (selectedCue && (selectedCue->kind == CueKind::Image || selectedCue->kind == CueKind::Pattern)) {
+    } else if (selectedCue && (selectedCue->kind == CueKind::Image
+                               || selectedCue->kind == CueKind::Pattern
+                               || isSourceCueKind(selectedCue->kind))) {
       // Still image / pattern settings — full parity with video panel + duration
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
+      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
+      int rowOffset = 0;
+      if (selectedCue->kind == CueKind::Pattern) {
+        std::string typeId = normalizePatternTypeId(selectedCue->path);
+        bool motionEnabled = endsWith(typeId, "-motion");
+        std::string label = patternLabelForType(typeId);
+        if (label.size() > 26) {
+          label = label.substr(0, 23) + "...";
+        }
+        drawQuickRow(ry, "pattern", QuickAction::PatternTypePrev, label, QuickAction::PatternTypeNext,
+                     QuickAction::TogglePatternMotion, true, motionEnabled,
+                     "Cycle pattern with +/-; center toggles motion");
+        rowOffset = 1;
+      }
       // Row 0: duration
       {
         std::string durVal = selectedCue->stillDurationSeconds > 0.0
           ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
-        drawQuickRow(ry, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+        drawQuickRow(ry + kRowStep * rowOffset, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
                      QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
       }
       // Row 1: trans + style button
       {
         bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
         std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
-        drawQuickRow(ry + kRowStep, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+        drawQuickRow(ry + kRowStep * (rowOffset + 1), "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
                      QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
         constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
         int rx = ctrl.x + 10;
         int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
         int styleW = (ctrl.x + kCtrlW - 10) - styleX;
-        SDL_Rect styleBtn {styleX, ry + kRowStep, styleW, 30};
+        SDL_Rect styleBtn {styleX, ry + kRowStep * (rowOffset + 1), styleW, 30};
         std::string curStyle = selectedCue->cueTransitionStyle.empty()
           ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
         std::string styleLabel = (curStyle == "crossfade") ? "xfade"
@@ -9619,15 +15842,15 @@ class App {
           "Click to cycle: cut / crossfade / dip"});
       }
       // Row 2: fade in
-      drawQuickRow(ry + kRowStep * 2, "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),
+      drawQuickRow(ry + kRowStep * (rowOffset + 2), "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),
                    QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this still");
       // Row 3: fade out
-      drawQuickRow(ry + kRowStep * 3, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+      drawQuickRow(ry + kRowStep * (rowOffset + 3), "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
                    QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
       // Row 4: loop / hold buttons side by side
       {
         int rx = ctrl.x + 10;
-        int ty = ry + kRowStep * 4;
+        int ty = ry + kRowStep * (rowOffset + 4);
         int halfW = (kCtrlW - 24) / 2;
         SDL_Rect loopBtn {rx, ty, halfW, 30};
         SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
@@ -9644,7 +15867,7 @@ class App {
       }
       // Row 5: end action
       {
-        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 5, kCtrlW - 20, 30};
+        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * (rowOffset + 5), kCtrlW - 20, 30};
         Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
                  colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
@@ -9653,13 +15876,13 @@ class App {
       // Row 6: repeats
       {
         std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
-        drawQuickRow(ry + kRowStep * 6, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+        drawQuickRow(ry + kRowStep * (rowOffset + 6), "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
                      QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
       }
       // Row 7: color tag
       {
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
-        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 28};
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * (rowOffset + 7), kCtrlW - 20, 28};
         SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
         Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
@@ -9667,7 +15890,7 @@ class App {
       }
       // Notes row
       {
-        int notesY = ry + kRowStep * 8;
+        int notesY = ry + kRowStep * (rowOffset + 8);
         SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
@@ -9679,9 +15902,26 @@ class App {
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
       {
-        int rowY = ry + kRowStep * 9;
-        rowY = drawGeometryRows(rowY, *selectedCue, true);
-        rowY = drawKeyRows(rowY, *selectedCue);
+        int rowY = ry + kRowStep * (rowOffset + 9);
+        rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
+                                 QuickAction::CueSectionGeometryToggle,
+                                 "Collapse/expand geometry controls");
+        if (cueSectionGeometryOpen_) {
+          rowY = drawGeometryRows(rowY, *selectedCue, true);
+          rowY = drawColorRows(rowY, *selectedCue);
+        }
+        rowY = drawSectionHeader(rowY, "KEY", cueSectionKeyOpen_,
+                                 QuickAction::CueSectionKeyToggle,
+                                 "Collapse/expand key controls");
+        if (cueSectionKeyOpen_) {
+          rowY = drawKeyRows(rowY, *selectedCue);
+        }
+        rowY = drawSectionHeader(rowY, "ROUTING", cueSectionRoutingOpen_,
+                                 QuickAction::CueSectionRoutingToggle,
+                                 "Deck -> Output -> Layer route controls");
+        if (cueSectionRoutingOpen_) {
+          rowY = drawCueRoutingRows(rowY);
+        }
         int cnY = rowY + 2;
         SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
@@ -9697,6 +15937,7 @@ class App {
     } else if (selectedCue && selectedCue->kind == CueKind::Browser) {
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
+      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
       {
         std::string durVal = selectedCue->stillDurationSeconds > 0.0
           ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
@@ -9740,8 +15981,25 @@ class App {
       }
       {
         int rowY = ry + kRowStep * 3;
-        rowY = drawGeometryRows(rowY, *selectedCue, true);
-        rowY = drawKeyRows(rowY, *selectedCue);
+        rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
+                                 QuickAction::CueSectionGeometryToggle,
+                                 "Collapse/expand geometry controls");
+        if (cueSectionGeometryOpen_) {
+          rowY = drawGeometryRows(rowY, *selectedCue, true);
+          rowY = drawColorRows(rowY, *selectedCue);
+        }
+        rowY = drawSectionHeader(rowY, "KEY", cueSectionKeyOpen_,
+                                 QuickAction::CueSectionKeyToggle,
+                                 "Collapse/expand key controls");
+        if (cueSectionKeyOpen_) {
+          rowY = drawKeyRows(rowY, *selectedCue);
+        }
+        rowY = drawSectionHeader(rowY, "ROUTING", cueSectionRoutingOpen_,
+                                 QuickAction::CueSectionRoutingToggle,
+                                 "Deck -> Output -> Layer route controls");
+        if (cueSectionRoutingOpen_) {
+          rowY = drawCueRoutingRows(rowY);
+        }
         int cnY = rowY + 2;
         SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
@@ -9758,6 +16016,7 @@ class App {
       // Audio-only cue settings
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
+      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       drawQuickRow(ry, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
                    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
@@ -9848,6 +16107,13 @@ class App {
                  colorFromRgba(kScreenInkSoftColor), infoLbl.x + 4, infoLbl.y + 6);
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add auto-pause at current playback position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+      }
+      int routeY = ry + kRowStep * 10 + 4;
+      routeY = drawSectionHeader(routeY, "ROUTING", cueSectionRoutingOpen_,
+                                 QuickAction::CueSectionRoutingToggle,
+                                 "Deck -> Output -> Layer route controls");
+      if (cueSectionRoutingOpen_) {
+        drawCueRoutingRows(routeY);
       }
     } else if (!selectedCue) {
       drawText(controlRenderer_, fontSmall_, "select a cue to edit settings",
@@ -9960,12 +16226,16 @@ class App {
     return static_cast<Uint8>(std::lround(alphaValue * 255.0f));
   }
 
-  void presentDeckCompositorToWindow(int deckIndex, int windowW, int windowH) {
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
+  void presentOutputCompositorToWindow(int outputIndex, int windowW, int windowH) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
       return;
     }
-    const Deck& deck = project_.decks[deckIndex];
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    int hostDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    const Deck& deck = project_.decks[hostDeckIndex];
     int texW = runtime->compositorWidth;
     int texH = runtime->compositorHeight;
     if (texW <= 0 || texH <= 0 || windowW <= 0 || windowH <= 0) {
@@ -10017,7 +16287,7 @@ class App {
     SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
   }
 
-  SDL_Texture* ensureLayerBridgeTexture(DeckRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
+  SDL_Texture* ensureLayerBridgeTexture(OutputRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
     if (width <= 0 || height <= 0) {
       return nullptr;
     }
@@ -10054,33 +16324,6 @@ class App {
     return texIt->second;
   }
 
-  static void applyCueChromaKeyToPixels(std::vector<std::uint8_t>& pixels, const Cue& cue) {
-    if (!cue.chromaKeyEnabled || pixels.empty()) {
-      return;
-    }
-    float tolerance = std::clamp(cue.chromaKeyTolerance, 0.0f, 441.0f);
-    float softness = std::clamp(cue.chromaKeySoftness, 0.0f, 200.0f);
-    float inner = std::max(0.0f, tolerance - softness);
-    float outer = tolerance + softness;
-    float span = std::max(0.0001f, outer - inner);
-    for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
-      float dr = static_cast<float>(pixels[i + 0]) - static_cast<float>(cue.chromaKeyColor.r);
-      float dg = static_cast<float>(pixels[i + 1]) - static_cast<float>(cue.chromaKeyColor.g);
-      float db = static_cast<float>(pixels[i + 2]) - static_cast<float>(cue.chromaKeyColor.b);
-      float distance = std::sqrt(dr * dr + dg * dg + db * db);
-      float keep = 1.0f;
-      if (distance <= inner) {
-        keep = 0.0f;
-      } else if (distance < outer) {
-        keep = (distance - inner) / span;
-      }
-      pixels[i + 3] = static_cast<std::uint8_t>(std::clamp(
-        static_cast<int>(std::lround(static_cast<float>(pixels[i + 3]) * keep)),
-        0,
-        255));
-    }
-  }
-
   void renderTextureWithCueGeometry(SDL_Renderer* renderer,
                                     SDL_Texture* texture,
                                     int textureWidth,
@@ -10101,18 +16344,34 @@ class App {
     int srcW = std::max(1, textureWidth - cropL - cropR);
     int srcH = std::max(1, textureHeight - cropT - cropB);
     SDL_Rect source {cropL, cropT, srcW, srcH};
-    double scale = std::min(
-      static_cast<double>(target.w) / static_cast<double>(srcW),
-      static_cast<double>(target.h) / static_cast<double>(srcH)
-    );
+    ScaleMode scaleMode = cue ? cue->scaleMode : ScaleMode::Fit;
+    double baseScaleX = 1.0;
+    double baseScaleY = 1.0;
+    if (scaleMode == ScaleMode::Fit) {
+      double fit = std::min(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+      baseScaleX = fit;
+      baseScaleY = fit;
+    } else if (scaleMode == ScaleMode::Fill) {
+      double fill = std::max(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+      baseScaleX = fill;
+      baseScaleY = fill;
+    } else if (scaleMode == ScaleMode::Stretch) {
+      baseScaleX = static_cast<double>(target.w) / static_cast<double>(srcW);
+      baseScaleY = static_cast<double>(target.h) / static_cast<double>(srcH);
+    }
     float outputScaleX = cue ? cue->outputScaleX : 1.0f;
     float outputScaleY = cue ? cue->outputScaleY : 1.0f;
-    float outputScale = std::max(outputScaleX, outputScaleY);  // Use max for thumbnail to show full size
     float offsetX = cue ? cue->outputOffsetX : 0.0f;
     float offsetY = cue ? cue->outputOffsetY : 0.0f;
     float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
-    int drawW = std::max(1, static_cast<int>(std::round(srcW * scale * outputScale)));
-    int drawH = std::max(1, static_cast<int>(std::round(srcH * scale * outputScale)));
+    int drawW = std::max(1, static_cast<int>(std::round(srcW * baseScaleX * static_cast<double>(outputScaleX))));
+    int drawH = std::max(1, static_cast<int>(std::round(srcH * baseScaleY * static_cast<double>(outputScaleY))));
     SDL_Rect destination {
       target.x + (target.w - drawW) / 2 + static_cast<int>(offsetX),
       target.y + (target.h - drawH) / 2 + static_cast<int>(offsetY),
@@ -10124,8 +16383,8 @@ class App {
     SDL_RenderCopyEx(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
   }
 
-  void renderDeckLayerIntoOutput(int outputDeckIndex, int sourceDeckIndex, const SDL_Rect& target) {
-    DeckRuntime* outputRuntime = runtimeForDeck(outputDeckIndex);
+  void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
+    OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
       return;
     }
@@ -10134,12 +16393,6 @@ class App {
     }
     const Cue* sourceCue = activeCuePtr(sourceDeckIndex);
     if (!sourceCue) {
-      return;
-    }
-    if (sourceDeckIndex == outputDeckIndex) {
-      if (outputRuntime->mediaEngine) {
-        outputRuntime->mediaEngine->render(target);
-      }
       return;
     }
     DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
@@ -10155,29 +16408,53 @@ class App {
       return;
     }
     const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
-    if (sourceCue->chromaKeyEnabled) {
+    if (cueHasPixelEffects(*sourceCue)) {
       outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
-      applyCueChromaKeyToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+      applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
       uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
     }
     SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
     renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
   }
 
-  void renderOutputWindow(int deckIndex) {
-    DeckRuntime* runtime = runtimeForDeck(deckIndex);
-    const Deck& deck = project_.decks[deckIndex];
-    if (!runtime || !runtime->outputWindow || !runtime->outputRenderer || !runtime->mediaEngine) {
+  void renderOutputWindow(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.enabled) {
+      return;
+    }
+    std::string outputType = normalizeOutputType(output.outputType);
+    bool streamType = outputType == "stream";
+    int compositionOutputIndex = outputIndex;
+    if (streamType &&
+        output.mirrorSourceOutputIndex >= 0 &&
+        output.mirrorSourceOutputIndex < static_cast<int>(project_.outputs.size()) &&
+        output.mirrorSourceOutputIndex != outputIndex) {
+      compositionOutputIndex = output.mirrorSourceOutputIndex;
+    }
+    const OutputTarget& compositionOutput = project_.outputs[compositionOutputIndex];
+    int hostDeckIndex = std::clamp(compositionOutput.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    const Deck& hostDeck = project_.decks[hostDeckIndex];
 
     int width = 0;
     int height = 0;
-    SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    if (!streamType && runtime->outputWindow) {
+      SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    } else {
+      auto [rasterW, rasterH] = outputRenderSizeForOutput(compositionOutputIndex);
+      width = rasterW;
+      height = rasterH;
+    }
     width = std::max(1, width);
     height = std::max(1, height);
     if (project_.outputCanvasEnabled) {
-      clampDeckCanvasViewToWindow(deckIndex, width, height);
+      clampDeckCanvasViewToWindow(hostDeckIndex, width, height);
     }
     int targetCompositorW = width;
     int targetCompositorH = height;
@@ -10189,7 +16466,7 @@ class App {
     if (!runtime->compositorTexture
         || runtime->compositorWidth != targetCompositorW
         || runtime->compositorHeight != targetCompositorH) {
-      configureDeckCompositor(deckIndex, targetCompositorW, targetCompositorH);
+      configureOutputCompositor(outputIndex, targetCompositorW, targetCompositorH);
     }
     bool usingCompositor = runtime->compositorTexture != nullptr;
     if (usingCompositor) {
@@ -10201,18 +16478,18 @@ class App {
     SDL_RenderClear(runtime->outputRenderer);
 
     SDL_Rect bounds {0, 0, renderW, renderH};
-    auto outputLayers = layeredDeckIndicesForOutputHost(deckIndex);
+    auto outputLayers = layeredDeckEntriesForOutput(compositionOutputIndex);
     if (outputLayers.empty()) {
-      outputLayers.push_back(deckIndex);
+      outputLayers.emplace_back(0, hostDeckIndex);
     }
-    for (int sourceDeckIndex : outputLayers) {
-      renderDeckLayerIntoOutput(deckIndex, sourceDeckIndex, bounds);
+    for (const auto& entry : outputLayers) {
+      renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
     }
 
     // Output window is always clean black — no status overlays or decorations.
     // The only things drawn here are the media content itself, cue overlays, and
     // the optional time/ID overlay that the operator explicitly enables.
-    const Cue* activeCue = activeCuePtr(deckIndex);
+    const Cue* activeCue = activeCuePtr(hostDeckIndex);
 
     // Audio-only cue: draw a centred waveform + info on the output window
     if (activeCue && activeCue->kind == CueKind::Audio) {
@@ -10223,7 +16500,7 @@ class App {
         auto it = waveformCache_.find(activeCue->path);
         if (it != waveformCache_.end()) peaks = it->second; }
       double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
-      const MediaEngine* eng = runtime->mediaEngine.get();
+      const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
       float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
       float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
       float outFrac = activeCue->outPointSeconds > 0.0
@@ -10248,9 +16525,9 @@ class App {
 
     // Overlay layer stack — rendered bottom to top in push order.
     int overlaySlot = 0;
-    for (int ovIdx : deck.overlayActiveIndices) {
-      if (ovIdx < 0 || ovIdx >= static_cast<int>(deck.cues.size())) continue;
-      const Cue& lc = deck.cues[ovIdx];
+    for (int ovIdx : hostDeck.overlayActiveIndices) {
+      if (ovIdx < 0 || ovIdx >= static_cast<int>(hostDeck.cues.size())) continue;
+      const Cue& lc = hostDeck.cues[ovIdx];
       if (lc.kind == CueKind::LowerThird) {
         // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
         int barH = renderH / 6;
@@ -10285,13 +16562,13 @@ class App {
       }
     }
 
-    if (deck.timeOverlayEnabled) {
-      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (output.outputTimeOverlayEnabled || hostDeck.timeOverlayEnabled) {
+      const MediaEngine* engine = mediaEngineForDeck(hostDeckIndex);
       std::string position = formatSeconds(engine ? engine->position() : 0.0);
       std::string total = formatSeconds(engine ? engine->duration() : 0.0);
       std::string timeLine = position + " / " + total;
       std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
-      std::string tcLine = "tc: " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+      std::string tcLine = "tc: " + formatTimecode(hostDeck.timecodeCurrentSeconds, hostDeck.timecodeFps);
       SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
       Primitives::drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
       drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
@@ -10307,22 +16584,44 @@ class App {
       SDL_RenderFillRect(runtime->outputRenderer, nullptr);
       SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
     }
+    float outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
+    if (outputAlpha < 0.999f) {
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
+        static_cast<Uint8>((1.0f - outputAlpha) * 255.0f));
+      SDL_RenderFillRect(runtime->outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+    }
     if (usingCompositor) {
       SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
-      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
-      SDL_RenderClear(runtime->outputRenderer);
-      presentDeckCompositorToWindow(deckIndex, width, height);
+      if (!streamType) {
+        SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(runtime->outputRenderer);
+        presentOutputCompositorToWindow(outputIndex, width, height);
+      }
+    }
+    bool needsEgressCapture =
+      output.streamEnabled || output.ndiEnabled || output.ndiKeyEnabled
+      || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+    if (needsEgressCapture) {
+      captureOutputFrameForEgress(outputIndex, *runtime, renderW, renderH);
+    } else {
+      runtime->latestCapturedFrame = {};
+      runtime->delayFrames.clear();
     }
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
-      const Cue* layerCue = activeCuePtr(*it);
+      const Cue* layerCue = activeCuePtr(it->second);
       if (layerCue && layerCue->kind == CueKind::Video) {
         fpsHint = std::max(1.0, layerCue->fps);
         break;
       }
     }
-    sendDeckNdiFrame(deckIndex, width, height, fpsHint);
-    SDL_RenderPresent(runtime->outputRenderer);
+    sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
+    sendOutputStreamFrame(outputIndex, width, height, fpsHint);
+    if (!streamType) {
+      SDL_RenderPresent(runtime->outputRenderer);
+    }
   }
 
   void handleRightClick(int x, int y) {
@@ -10391,8 +16690,8 @@ class App {
     // Position menu so it fits on screen
     int winW = 0, winH = 0;
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    constexpr int kItemH = 26;
-    constexpr int kMenuW = 160;
+    constexpr int kItemH = 32;
+    constexpr int kMenuW = 212;
     int menuH = static_cast<int>(contextItems_.size()) * kItemH + 8;
     int mx2 = std::min(mx, winW - kMenuW - 4);
     int my2 = std::min(my, winH - menuH - 4);
@@ -10434,14 +16733,30 @@ class App {
       }
       // Color swatch (small square on left)
       if (item.swatch.a > 0) {
-        SDL_Rect sw {item.rect.x, item.rect.y + 4, 10, item.rect.h - 8};
+        SDL_Rect sw {item.rect.x, item.rect.y + 5, 12, item.rect.h - 10};
         Primitives::fillRect(controlRenderer_, sw, item.swatch);
       }
       drawText(controlRenderer_, fontSmall_, item.label,
                hover ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor),
-               item.rect.x + 14, item.rect.y + 6);
+               item.rect.x + 18, item.rect.y + 7);
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  SDL_Rect settingsModalRect() const {
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+    bool videoTab = settingsTab_ == 3;
+    int margin = videoTab ? 10 : 20;
+    int minW = videoTab ? 1160 : 760;
+    int minH = videoTab ? 670 : 520;
+    int maxW = videoTab ? 1560 : 1140;
+    int maxH = videoTab ? 940 : 760;
+    int modalW = std::clamp(width - margin * 2, minW, maxW);
+    int modalH = std::clamp(height - margin * 2, minH, maxH);
+    modalW = std::min(modalW, std::max(320, width - 12));
+    modalH = std::min(modalH, std::max(260, height - 12));
+    return SDL_Rect {(width - modalW) / 2, (height - modalH) / 2, modalW, modalH};
   }
 
   void renderSettingsModal() {
@@ -10457,23 +16772,23 @@ class App {
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
     // Modal panel
-    constexpr int kModalW = 640, kModalH = 440;
-    SDL_Rect modal {(width - kModalW) / 2, (height - kModalH) / 2, kModalW, kModalH};
+    SDL_Rect modal = settingsModalRect();
     Primitives::drawFramedPanel(controlRenderer_, modal, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Title
-    drawText(controlRenderer_, fontBase_, "Preferences", colorFromRgba(kScreenDeepColor), modal.x + 16, modal.y + 10);
+    drawText(controlRenderer_, fontBase_, "SYSTEM SETTINGS", colorFromRgba(kScreenDeepColor), modal.x + 16, modal.y + 10);
 
     // Close button [X]
-    settingsCloseBtn_ = {modal.x + modal.w - 36, modal.y + 6, 28, 26};
+    settingsCloseBtn_ = {modal.x + modal.w - 42, modal.y + 6, 34, 30};
     Primitives::drawFramedPanel(controlRenderer_, settingsCloseBtn_, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawCenteredText(controlRenderer_, fontSmall_, "X", colorFromRgba(kScreenDeepColor), settingsCloseBtn_);
 
     // Tab bar
-    constexpr int kTabW = 100, kTabH = 30;
-    int tabY = modal.y + 40;
+    constexpr int kTabW = 118;
+    constexpr int kTabH = 36;
+    int tabY = modal.y + 44;
     settingsBtns_.clear();
-    const std::vector<std::string> tabs {"Audio", "MIDI", "OSC/Net", "Video", "About"};
+    const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About"};
     for (int t = 0; t < (int)tabs.size(); ++t) {
       SDL_Rect tab {modal.x + 16 + t * (kTabW + 4), tabY, kTabW, kTabH};
       bool active = (t == settingsTab_);
@@ -10485,7 +16800,7 @@ class App {
     }
 
     // Content area
-    SDL_Rect content {modal.x + 16, tabY + kTabH + 10, modal.w - 32, modal.h - kTabH - 70};
+    SDL_Rect content {modal.x + 16, tabY + kTabH + 10, modal.w - 32, modal.h - kTabH - 82};
     Primitives::drawFramedPanel(controlRenderer_, content, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
     int cx = content.x + 12, cy = content.y + 10;
@@ -10493,31 +16808,164 @@ class App {
     SDL_Color soft = colorFromRgba(kScreenInkSoftColor);
 
     if (settingsTab_ == 0) {
-      // Audio tab
-      drawText(controlRenderer_, fontSmall_, "Master volume: set with the header fader (vol XX%)", soft, cx, cy);
-      drawText(controlRenderer_, fontSmall_, "Audio output device:", ink, cx, cy + 22);
-      std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default)" : focusedDeck().audioOutputDeviceName;
-      drawText(controlRenderer_, fontSmall_, devName, soft, cx, cy + 38);
-      SDL_Rect devBtn {cx, cy + 60, 180, 26};
+      // System tab (clean two-column layout)
+      const Deck& tcDeck = focusedDeck();
+      auto drawPillToggle = [&](const SDL_Rect& rect, bool on, const std::string& onLabel = "ON", const std::string& offLabel = "OFF") {
+        Primitives::drawFramedPanel(controlRenderer_, rect, on ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, on ? onLabel : offLabel,
+                         on ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), rect);
+      };
+
+      int colGap = 12;
+      int leftW = std::max(320, (content.w - 12 - colGap) / 2);
+      int rightW = std::max(320, content.w - 12 - colGap - leftW);
+      SDL_Rect leftCol {cx, cy, leftW, content.h - 20};
+      SDL_Rect rightCol {cx + leftW + colGap, cy, rightW, content.h - 20};
+      Primitives::drawFramedPanel(controlRenderer_, leftCol, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      Primitives::drawFramedPanel(controlRenderer_, rightCol, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+
+      SDL_Rect sysRect {leftCol.x + 8, leftCol.y + 8, leftCol.w - 16, 126};
+      Primitives::drawFramedPanel(controlRenderer_, sysRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "SYSTEM", ink, sysRect.x + 8, sysRect.y + 6);
+      drawText(controlRenderer_, fontSmall_, "Audio device and UI feedback", soft, sysRect.x + 8, sysRect.y + 28);
+      SDL_Rect devBtn {sysRect.x + 8, sysRect.y + 48, sysRect.w - 16, 26};
       Primitives::drawFramedPanel(controlRenderer_, devBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Change device...", ink, devBtn);
+      std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default)" : focusedDeck().audioOutputDeviceName;
+      drawCenteredText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, devName, devBtn.w - 14), ink, devBtn);
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
-
-      drawText(controlRenderer_, fontSmall_, "UI sounds (key 1):", ink, cx, cy + 100);
-      SDL_Rect sfxBtn {cx, cy + 118, 80, 24};
-      Primitives::drawFramedPanel(controlRenderer_, sfxBtn, project_.uiSoundsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, project_.uiSoundsEnabled ? "ON" : "OFF",
-                       project_.uiSoundsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), sfxBtn);
+      int toggleW = std::max(84, (sysRect.w - 24) / 2);
+      SDL_Rect sfxBtn {sysRect.x + 8, sysRect.y + 84, toggleW, 24};
+      SDL_Rect animBtn {sfxBtn.x + toggleW + 8, sysRect.y + 84, sysRect.w - 16 - toggleW - 8, 24};
+      drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
+      drawPillToggle(animBtn, project_.uiTransitionsEnabled, "ANIM ON", "ANIM OFF");
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
-
-      drawText(controlRenderer_, fontSmall_, "UI animations (key 2):", ink, cx, cy + 155);
-      SDL_Rect animBtn {cx, cy + 173, 80, 24};
-      Primitives::drawFramedPanel(controlRenderer_, animBtn, project_.uiTransitionsEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, project_.uiTransitionsEnabled ? "ON" : "OFF",
-                       project_.uiTransitionsEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), animBtn);
       settingsBtns_.push_back({animBtn, 202, "anim_toggle"});
+
+      SDL_Rect playRect {leftCol.x + 8, sysRect.y + sysRect.h + 8, leftCol.w - 16, leftCol.h - (sysRect.h + 24)};
+      Primitives::drawFramedPanel(controlRenderer_, playRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "PLAYBACK", ink, playRect.x + 8, playRect.y + 6);
+      SDL_Rect jumpModeBtn {playRect.x + 8, playRect.y + 32, 132, 24};
+      SDL_Rect jumpTransBtn {jumpModeBtn.x + jumpModeBtn.w + 8, playRect.y + 32, playRect.w - 16 - jumpModeBtn.w - 8, 24};
+      Primitives::drawFramedPanel(controlRenderer_, jumpModeBtn, colorFromRgba(kScreenMidColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, jumpModeLabelFromToken(project_.jumpMode), ink, jumpModeBtn);
+      settingsBtns_.push_back({jumpModeBtn, 203, "jump_mode"});
+      drawPillToggle(jumpTransBtn, project_.jumpTransitionEnabled, "XFADE ON", "XFADE OFF");
+      settingsBtns_.push_back({jumpTransBtn, 204, "jump_transition"});
+
+      drawText(controlRenderer_, fontSmall_, "panic profile", soft, playRect.x + 8, playRect.y + 64);
+      SDL_Rect panicPrevBtn {playRect.x + 8, playRect.y + 82, 24, 24};
+      SDL_Rect panicNextBtn {playRect.x + playRect.w - 32, playRect.y + 82, 24, 24};
+      SDL_Rect panicLabelRect {panicPrevBtn.x + panicPrevBtn.w + 6, playRect.y + 82, panicNextBtn.x - (panicPrevBtn.x + panicPrevBtn.w + 12), 24};
+      Primitives::drawFramedPanel(controlRenderer_, panicPrevBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "<", ink, panicPrevBtn);
+      settingsBtns_.push_back({panicPrevBtn, 205, "panic_profile_prev"});
+      Primitives::drawFramedPanel(controlRenderer_, panicLabelRect, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, panicProfileLabelFromToken(project_.panicProfile), ink, panicLabelRect);
+      Primitives::drawFramedPanel(controlRenderer_, panicNextBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, ">", ink, panicNextBtn);
+      settingsBtns_.push_back({panicNextBtn, 206, "panic_profile_next"});
+
+      SDL_Rect panicRunBtn {playRect.x + 8, playRect.y + 114, playRect.w - 16, 26};
+      Primitives::drawFramedPanel(controlRenderer_, panicRunBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Run Panic", ink, panicRunBtn);
+      settingsBtns_.push_back({panicRunBtn, 207, "panic_run"});
+
+      SDL_Rect safetyRect {rightCol.x + 8, rightCol.y + 8, rightCol.w - 16, 142};
+      Primitives::drawFramedPanel(controlRenderer_, safetyRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "TIMECODE / SAFETY", ink, safetyRect.x + 8, safetyRect.y + 6);
+      drawText(controlRenderer_, fontSmall_, "panic fade", soft, safetyRect.x + 8, safetyRect.y + 32);
+      SDL_Rect panicFadeDecBtn {safetyRect.x + 8, safetyRect.y + 50, 24, 22};
+      SDL_Rect panicFadeValRect {panicFadeDecBtn.x + 28, panicFadeDecBtn.y, 66, 22};
+      SDL_Rect panicFadeIncBtn {panicFadeValRect.x + panicFadeValRect.w + 4, panicFadeDecBtn.y, 24, 22};
+      Primitives::drawFramedPanel(controlRenderer_, panicFadeDecBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "-", ink, panicFadeDecBtn);
+      settingsBtns_.push_back({panicFadeDecBtn, 208, "panic_fade_dec"});
+      std::ostringstream panicFadeLabel;
+      panicFadeLabel << std::fixed << std::setprecision(1) << project_.panicFadeSeconds << "s";
+      Primitives::drawFramedPanel(controlRenderer_, panicFadeValRect, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, panicFadeLabel.str(), ink, panicFadeValRect);
+      Primitives::drawFramedPanel(controlRenderer_, panicFadeIncBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "+", ink, panicFadeIncBtn);
+      settingsBtns_.push_back({panicFadeIncBtn, 209, "panic_fade_inc"});
+
+      SDL_Rect panicRestoreBtn {safetyRect.x + 110, safetyRect.y + 50, safetyRect.w - 118, 22};
+      drawPillToggle(panicRestoreBtn, project_.panicAutoRestore, "AUTO RESTORE ON", "AUTO RESTORE OFF");
+      settingsBtns_.push_back({panicRestoreBtn, 212, "panic_restore_toggle"});
+
+      SDL_Rect tcJamBtn {safetyRect.x + 8, safetyRect.y + 84, 130, 22};
+      drawPillToggle(tcJamBtn, tcDeck.timecodeJamSyncEnabled, "TC JAM ON", "TC JAM OFF");
+      settingsBtns_.push_back({tcJamBtn, 213, "tc_jam_toggle"});
+      SDL_Rect tcFwDecBtn {safetyRect.x + 146, safetyRect.y + 84, 24, 22};
+      SDL_Rect tcFwValRect {tcFwDecBtn.x + 28, tcFwDecBtn.y, 66, 22};
+      SDL_Rect tcFwIncBtn {tcFwValRect.x + tcFwValRect.w + 4, tcFwDecBtn.y, 24, 22};
+      Primitives::drawFramedPanel(controlRenderer_, tcFwDecBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "-", ink, tcFwDecBtn);
+      settingsBtns_.push_back({tcFwDecBtn, 214, "tc_freewheel_dec"});
+      std::ostringstream tcFreewheelLabel;
+      tcFreewheelLabel << std::fixed << std::setprecision(1) << tcDeck.timecodeFreewheelSeconds << "s";
+      Primitives::drawFramedPanel(controlRenderer_, tcFwValRect, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, tcFreewheelLabel.str(), ink, tcFwValRect);
+      Primitives::drawFramedPanel(controlRenderer_, tcFwIncBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "+", ink, tcFwIncBtn);
+      settingsBtns_.push_back({tcFwIncBtn, 215, "tc_freewheel_inc"});
+
+      SDL_Rect cuesRect {rightCol.x + 8, safetyRect.y + safetyRect.h + 8, rightCol.w - 16, rightCol.h - (safetyRect.h + 24)};
+      Primitives::drawFramedPanel(controlRenderer_, cuesRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "CUE TOOLS", ink, cuesRect.x + 8, cuesRect.y + 6);
+      SDL_Rect findPromptBtn {cuesRect.x + 8, cuesRect.y + 32, cuesRect.w - 16, 24};
+      Primitives::drawFramedPanel(controlRenderer_, findPromptBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Find Cue...", ink, findPromptBtn);
+      settingsBtns_.push_back({findPromptBtn, 216, "cue_find_prompt"});
+
+      int navBtnW = std::max(60, (cuesRect.w - 16 - 12) / 3);
+      SDL_Rect findNextBtn {cuesRect.x + 8, cuesRect.y + 62, navBtnW, 24};
+      SDL_Rect findPrevBtn {findNextBtn.x + navBtnW + 6, findNextBtn.y, navBtnW, 24};
+      SDL_Rect findTakeBtn {findPrevBtn.x + navBtnW + 6, findNextBtn.y, cuesRect.x + cuesRect.w - 8 - (findPrevBtn.x + navBtnW + 6), 24};
+      Primitives::drawFramedPanel(controlRenderer_, findNextBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Next", ink, findNextBtn);
+      settingsBtns_.push_back({findNextBtn, 217, "cue_find_next"});
+      Primitives::drawFramedPanel(controlRenderer_, findPrevBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Prev", ink, findPrevBtn);
+      settingsBtns_.push_back({findPrevBtn, 218, "cue_find_prev"});
+      Primitives::drawFramedPanel(controlRenderer_, findTakeBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Find+Take", ink, findTakeBtn);
+      settingsBtns_.push_back({findTakeBtn, 219, "cue_find_take"});
+
+      SDL_Rect renumberBtn {cuesRect.x + 8, cuesRect.y + 92, cuesRect.w - 16, 24};
+      Primitives::drawFramedPanel(controlRenderer_, renumberBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Renumber...", ink, renumberBtn);
+      settingsBtns_.push_back({renumberBtn, 221, "cue_renumber"});
+      SDL_Rect clearNumBtn {cuesRect.x + 8, cuesRect.y + 122, (cuesRect.w - 22) / 2, 24};
+      SDL_Rect clearFindBtn {clearNumBtn.x + clearNumBtn.w + 6, clearNumBtn.y, cuesRect.x + cuesRect.w - 8 - (clearNumBtn.x + clearNumBtn.w + 6), 24};
+      Primitives::drawFramedPanel(controlRenderer_, clearNumBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Clear Numbers", ink, clearNumBtn);
+      settingsBtns_.push_back({clearNumBtn, 222, "cue_numbers_clear"});
+      Primitives::drawFramedPanel(controlRenderer_, clearFindBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Clear Find", ink, clearFindBtn);
+      settingsBtns_.push_back({clearFindBtn, 224, "cue_find_clear"});
+
+      SDL_Rect sourceCueBtn {cuesRect.x + 8, cuesRect.y + 152, cuesRect.w - 16, 24};
+      Primitives::drawFramedPanel(controlRenderer_, sourceCueBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Add Source Cue...", ink, sourceCueBtn);
+      settingsBtns_.push_back({sourceCueBtn, 223, "cue_source_add"});
+
+      std::string findStatus = "find: none";
+      if (!lastCueFindToken_.empty() && !lastCueFindMatches_.empty()) {
+        int cursor = std::clamp(lastCueFindCursor_, 0, static_cast<int>(lastCueFindMatches_.size()) - 1);
+        findStatus = "find \"" + lastCueFindToken_ + "\" " + std::to_string(cursor + 1) + "/" + std::to_string(lastCueFindMatches_.size());
+      }
+      drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, findStatus, cuesRect.w - 16), soft, cuesRect.x + 8, cuesRect.y + 182);
+      const Cue* selectedCue = selectedCuePtr();
+      std::string selectedStatus = "selected: none";
+      if (selectedCue) {
+        std::string cueNum = trim(selectedCue->cueNumber).empty()
+          ? std::to_string(focusedDeck().selectedIndex + 1)
+          : selectedCue->cueNumber;
+        selectedStatus = "selected " + cueNum + "  " + selectedCue->name;
+      }
+      drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, selectedStatus, cuesRect.w - 16), soft, cuesRect.x + 8, cuesRect.y + 200);
 
     } else if (settingsTab_ == 1) {
       // MIDI tab
@@ -10540,7 +16988,7 @@ class App {
       drawText(controlRenderer_, fontSmall_, "CC 7 (Volume) -> Master volume", soft, cx, cy + 154);
       drawText(controlRenderer_, fontSmall_, "CC 20 -> Playback speed (0-127 = 0.5x-2x)", soft, cx, cy + 170);
       drawText(controlRenderer_, fontSmall_, "MMC Play/Stop/Goto -> Transport control", soft, cx, cy + 186);
-      drawText(controlRenderer_, fontSmall_, "MSC Go -> Trigger cue by cue number", soft, cx, cy + 202);
+      drawText(controlRenderer_, fontSmall_, "MSC Trigger -> cue by cue number", soft, cx, cy + 202);
 
     } else if (settingsTab_ == 2) {
       // OSC/Net tab
@@ -10553,178 +17001,346 @@ class App {
 
       drawText(controlRenderer_, fontSmall_, "HyperDeck emulation: port 9992 (always on)", soft, cx, cy + 80);
       drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /playboy/subscribe from your OSC app", soft, cx, cy + 100);
-      drawText(controlRenderer_, fontSmall_, "NDI: configured per deck (N key)", soft, cx, cy + 120);
+      drawText(controlRenderer_, fontSmall_, "NDI: configured per output (N key)", soft, cx, cy + 120);
 
     } else if (settingsTab_ == 3) {
-      // Video tab
-      auto [nativeW, nativeH] = displayNativeRenderSize(focusedDeck().outputDisplayIndex);
-      auto [targetW, targetH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
-
-      drawText(controlRenderer_, fontSmall_, "Focused deck display: " + currentDisplayLabel(), ink, cx, cy);
-      drawText(controlRenderer_, fontSmall_,
-               "Desktop mode (EDID/OS): " + std::to_string(nativeW) + "x" + std::to_string(nativeH),
-               soft, cx, cy + 18);
-      drawText(controlRenderer_, fontSmall_,
-               "Output raster: " + std::to_string(targetW) + "x" + std::to_string(targetH) + "  (" + outputSizingModeLabel() + ")",
-               soft, cx, cy + 36);
-      drawText(controlRenderer_, fontSmall_,
-               "Refresh target: " + outputRefreshRateLabel(),
-               soft, cx, cy + 54);
-      drawText(controlRenderer_, fontSmall_,
-               "Output depth: " + outputBitDepthModeLabel() + " (active " + outputBitDepthActiveLabel(project_.focusedDeckIndex) + ")",
-               soft, cx, cy + 72);
-
-      SDL_Rect nativeBtn {cx, cy + 82, 170, 28};
-      bool nativeActive = project_.outputFollowDisplay;
-      Primitives::drawFramedPanel(controlRenderer_, nativeBtn, nativeActive ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Display Native", nativeActive ? colorFromRgba(kScreenLightColor) : ink, nativeBtn);
-      settingsBtns_.push_back({nativeBtn, 230, "video_native"});
-
-      SDL_Rect sizeBtn {cx + 186, cy + 82, 160, 28};
-      Primitives::drawFramedPanel(controlRenderer_, sizeBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Size To Display", ink, sizeBtn);
-      settingsBtns_.push_back({sizeBtn, 235, "video_size_display"});
-
-      SDL_Rect fsBtn {cx + 362, cy + 82, 150, 28};
-      Primitives::drawFramedPanel(controlRenderer_, fsBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Toggle Fullscreen", ink, fsBtn);
-      settingsBtns_.push_back({fsBtn, 236, "video_fullscreen"});
-
-      SDL_Rect rateAutoBtn {cx, cy + 118, 90, 26};
-      Primitives::drawFramedPanel(controlRenderer_, rateAutoBtn,
-                      project_.outputRefreshRateHz <= 0.0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Hz Auto",
-                       project_.outputRefreshRateHz <= 0.0 ? colorFromRgba(kScreenLightColor) : ink, rateAutoBtn);
-      settingsBtns_.push_back({rateAutoBtn, 238, "video_rate_auto"});
-
-      SDL_Rect ratePrevBtn {cx + 104, cy + 118, 64, 26};
-      Primitives::drawFramedPanel(controlRenderer_, ratePrevBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Hz -", ink, ratePrevBtn);
-      settingsBtns_.push_back({ratePrevBtn, 239, "video_rate_prev"});
-
-      SDL_Rect rateNextBtn {cx + 178, cy + 118, 64, 26};
-      Primitives::drawFramedPanel(controlRenderer_, rateNextBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Hz +", ink, rateNextBtn);
-      settingsBtns_.push_back({rateNextBtn, 240, "video_rate_next"});
-
-      SDL_Rect rateCustomBtn {cx + 254, cy + 118, 180, 26};
-      Primitives::drawFramedPanel(controlRenderer_, rateCustomBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Set Hz...", ink, rateCustomBtn);
-      settingsBtns_.push_back({rateCustomBtn, 241, "video_rate_custom"});
-
-      drawText(controlRenderer_, fontSmall_, "Fixed raster presets:", ink, cx, cy + 154);
-      auto drawPreset = [&](int x, int y, int w, int h, const std::string& label, int action,
-                            int presetW, int presetH) {
-        bool active = !project_.outputFollowDisplay
-          && project_.outputRenderWidth == presetW
-          && project_.outputRenderHeight == presetH;
-        SDL_Rect btn {x, y, w, h};
-        Primitives::drawFramedPanel(controlRenderer_, btn, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-        drawCenteredText(controlRenderer_, fontSmall_, label, active ? colorFromRgba(kScreenLightColor) : ink, btn);
-        settingsBtns_.push_back({btn, action, label});
-      };
-      int py = cy + 172;
-      drawPreset(cx,      py, 120, 28, "720p",   231, 1280, 720);
-      drawPreset(cx + 132,py, 120, 28, "1080p",  232, 1920, 1080);
-      drawPreset(cx + 264,py, 120, 28, "1440p",  233, 2560, 1440);
-      drawPreset(cx + 396,py, 120, 28, "4K UHD", 234, 3840, 2160);
-
-      SDL_Rect customBtn {cx, cy + 204, 180, 28};
-      Primitives::drawFramedPanel(controlRenderer_, customBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Custom WxH...", ink, customBtn);
-      settingsBtns_.push_back({customBtn, 237, "video_custom"});
-
-      SDL_Rect depthAutoBtn {cx, cy + 242, 90, 26};
-      Primitives::drawFramedPanel(controlRenderer_, depthAutoBtn,
-                      project_.outputBitDepth == 0 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Depth Auto",
-                       project_.outputBitDepth == 0 ? colorFromRgba(kScreenLightColor) : ink, depthAutoBtn);
-      settingsBtns_.push_back({depthAutoBtn, 242, "video_depth_auto"});
-
-      SDL_Rect depth8Btn {cx + 104, cy + 242, 90, 26};
-      Primitives::drawFramedPanel(controlRenderer_, depth8Btn,
-                      project_.outputBitDepth == 8 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Depth 8-bit",
-                       project_.outputBitDepth == 8 ? colorFromRgba(kScreenLightColor) : ink, depth8Btn);
-      settingsBtns_.push_back({depth8Btn, 243, "video_depth_8"});
-
-      SDL_Rect depth10Btn {cx + 208, cy + 242, 100, 26};
-      Primitives::drawFramedPanel(controlRenderer_, depth10Btn,
-                      project_.outputBitDepth == 10 ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Depth 10-bit",
-                       project_.outputBitDepth == 10 ? colorFromRgba(kScreenLightColor) : ink, depth10Btn);
-      settingsBtns_.push_back({depth10Btn, 244, "video_depth_10"});
-
-      const Deck& focused = focusedDeck();
-      std::string canvasLabel = project_.outputCanvasEnabled
-        ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
+      // Video Outputs tab (simplified)
+      const OutputTarget& outputTarget = focusedOutput();
+      int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+      auto [nativeW, nativeH] = displayNativeRenderSize(outputDisplayIndex(project_.focusedOutputIndex));
+      auto [targetW, targetH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+      std::string outputTypeLabel = normalizeOutputType(outputTarget.outputType);
+      std::string mirrorLabel = outputTarget.mirrorSourceOutputIndex >= 0
+        ? outputLabel(outputTarget.mirrorSourceOutputIndex)
         : "off";
+      std::string streamProtocol = normalizeOutputStreamProtocol(outputTarget.streamProtocol);
+      std::string streamUrl = trim(outputTarget.streamUrl);
+      if (streamUrl.empty()) {
+        streamUrl = defaultOutputStreamUrl(streamProtocol, focusedOutputIndex);
+      }
+      int outputAlphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
+      int outputDelayMs = std::clamp(outputTarget.outputDelayMs, 0, 5000);
+      std::string outputColorSpace = normalizeOutputColorSpace(outputTarget.outputColorSpace);
+      std::string ndiSource = trim(outputTarget.ndiSourceName).empty()
+        ? defaultOutputNdiSourceName(outputTarget, focusedOutputIndex)
+        : outputTarget.ndiSourceName;
+      auto drawActionBtn = [&](const SDL_Rect& rect, const std::string& label, int action, bool active = false) {
+        SDL_Color fill = active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+        SDL_Color txt = active ? colorFromRgba(kScreenLightColor) : ink;
+        Primitives::drawFramedPanel(controlRenderer_, rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, label, txt, rect);
+        settingsBtns_.push_back({rect, action, label});
+      };
+
+      std::vector<std::pair<int, int>> focusedFlowDecks;
+      for (const auto& assignment : project_.layerAssignments) {
+        if (!assignment.enabled) {
+          continue;
+        }
+        if (resolveAssignmentOutputIndex(assignment) != focusedOutputIndex) {
+          continue;
+        }
+        focusedFlowDecks.emplace_back(
+          std::clamp(assignment.layerIndex, 0, 255),
+          std::clamp(assignment.deckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1)));
+      }
+      std::sort(focusedFlowDecks.begin(), focusedFlowDecks.end(), [](const auto& a, const auto& b) {
+        if (a.first != b.first) {
+          return a.first < b.first;
+        }
+        return a.second < b.second;
+      });
+      std::string flowLine = "Signal flow: ";
+      if (focusedFlowDecks.empty()) {
+        flowLine += "no deck links";
+      } else {
+        for (size_t i = 0; i < focusedFlowDecks.size(); ++i) {
+          if (i > 0) {
+            flowLine += " + ";
+          }
+          flowLine += deckLabel(focusedFlowDecks[i].second);
+          flowLine += " (L";
+          flowLine += std::to_string(focusedFlowDecks[i].first);
+          flowLine += ")";
+        }
+      }
+      flowLine += " -> ";
+      flowLine += outputLabel(focusedOutputIndex);
+      flowLine += " -> Display ";
+      flowLine += std::to_string(outputDisplayIndex(project_.focusedOutputIndex) + 1);
+
+      SDL_Rect summaryRect {cx, cy, content.w - 24, 156};
+      Primitives::drawFramedPanel(controlRenderer_, summaryRect,
+                      colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontBase_, "OUTPUT STATUS", ink, summaryRect.x + 8, summaryRect.y + 8);
       drawText(controlRenderer_, fontSmall_,
-               "Canvas span: " + canvasLabel + "  view " + std::to_string(focused.canvasViewX) + "," + std::to_string(focused.canvasViewY),
-               soft, cx, cy + 274);
+               "Focused: " + outputLabel(focusedOutputIndex) + "  (" + std::to_string(focusedOutputIndex + 1) + "/" + std::to_string(project_.outputs.size()) + ")",
+               ink, summaryRect.x + 8, summaryRect.y + 32);
+      drawText(controlRenderer_, fontSmall_,
+               "Type: " + outputTypeLabel + "  enabled: " + std::string(outputTarget.enabled ? "on" : "off")
+               + "  host: " + deckLabel(outputTarget.hostDeckIndex) + "  display: " + currentDisplayLabel(),
+               soft, summaryRect.x + 8, summaryRect.y + 50);
+      drawText(controlRenderer_, fontSmall_,
+               "Raster: " + std::to_string(targetW) + "x" + std::to_string(targetH)
+               + "  native: " + std::to_string(nativeW) + "x" + std::to_string(nativeH)
+               + "  refresh: " + outputRefreshRateLabel() + "  depth: " + outputBitDepthModeLabel(),
+               soft, summaryRect.x + 8, summaryRect.y + 68);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, flowLine, summaryRect.w - 16),
+               soft, summaryRect.x + 8, summaryRect.y + 86);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_,
+                 "NDI: " + std::string(outputTarget.ndiEnabled ? "on" : "off")
+                 + "  fill: " + ndiSource
+                 + "  key: " + std::string(outputTarget.ndiKeyEnabled ? "on" : "off"),
+                 summaryRect.w - 16),
+               soft, summaryRect.x + 8, summaryRect.y + 104);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, "Stream: " + streamProtocol + "  " + streamUrl + "  mirror: " + mirrorLabel, summaryRect.w - 16),
+               soft, summaryRect.x + 8, summaryRect.y + 122);
+      drawText(controlRenderer_, fontSmall_,
+               "FX: alpha " + std::to_string(outputAlphaPct) + "%  delay " + std::to_string(outputDelayMs)
+               + " ms  overlay: " + std::string(outputTarget.outputTimeOverlayEnabled ? "on" : "off")
+               + "  color: " + toUpper(outputColorSpace),
+               soft, summaryRect.x + 8, summaryRect.y + 140);
 
-      SDL_Rect canvasOffBtn {cx, cy + 292, 88, 26};
-      Primitives::drawFramedPanel(controlRenderer_, canvasOffBtn,
-                      !project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Canvas Off",
-                       !project_.outputCanvasEnabled ? colorFromRgba(kScreenLightColor) : ink, canvasOffBtn);
-      settingsBtns_.push_back({canvasOffBtn, 245, "video_canvas_off"});
+      int rowY = summaryRect.y + summaryRect.h + 8;
+      int leftW = content.w - 24;
+      int gap = 6;
 
-      SDL_Rect canvasOnBtn {cx + 98, cy + 292, 88, 26};
-      Primitives::drawFramedPanel(controlRenderer_, canvasOnBtn,
-                      project_.outputCanvasEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Canvas On",
-                       project_.outputCanvasEnabled ? colorFromRgba(kScreenLightColor) : ink, canvasOnBtn);
-      settingsBtns_.push_back({canvasOnBtn, 246, "video_canvas_on"});
+      int row1W = (leftW - gap * 4) / 5;
+      SDL_Rect outputPrevBtn {cx, rowY, row1W, 26};
+      SDL_Rect outputNextBtn {outputPrevBtn.x + row1W + gap, rowY, row1W, 26};
+      SDL_Rect outputAddBtn {outputNextBtn.x + row1W + gap, rowY, row1W, 26};
+      SDL_Rect outputRemoveBtn {outputAddBtn.x + row1W + gap, rowY, row1W, 26};
+      SDL_Rect outputEnableBtn {outputRemoveBtn.x + row1W + gap, rowY, leftW - (outputRemoveBtn.x + row1W + gap - cx), 26};
+      drawActionBtn(outputPrevBtn, "Prev Output", 250);
+      drawActionBtn(outputNextBtn, "Next Output", 251);
+      drawActionBtn(outputAddBtn, "Add Output", 252);
+      drawActionBtn(outputRemoveBtn, "Remove", kSettingsActionOutputRemove, project_.outputs.size() <= 1);
+      drawActionBtn(outputEnableBtn, outputTarget.enabled ? "Enabled" : "Disabled", kSettingsActionOutputToggle, outputTarget.enabled);
 
-      SDL_Rect canvasSizeBtn {cx + 196, cy + 292, 150, 26};
-      Primitives::drawFramedPanel(controlRenderer_, canvasSizeBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "Canvas WxH...", ink, canvasSizeBtn);
-      settingsBtns_.push_back({canvasSizeBtn, 247, "video_canvas_custom"});
+      rowY += 32;
+      int createW = (leftW - gap) / 2;
+      drawActionBtn({cx, rowY, createW, 26}, "Create Standard", 275);
+      drawActionBtn({cx + createW + gap, rowY, leftW - createW - gap, 26}, "Create Stream", 276);
 
-      SDL_Rect canvasViewBtn {cx + 356, cy + 292, 120, 26};
-      Primitives::drawFramedPanel(controlRenderer_, canvasViewBtn, colorFromRgba(kScreenMidColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "View XY...", ink, canvasViewBtn);
-      settingsBtns_.push_back({canvasViewBtn, 248, "video_canvas_view"});
+      rowY += 32;
+      int row2W = (leftW - gap * 5) / 6;
+      drawActionBtn({cx, rowY, row2W, 26}, "Host Deck", 254);
+      drawActionBtn({cx + (row2W + gap), rowY, row2W, 26}, "Set Window", 281, outputTypeLabel != "stream");
+      drawActionBtn({cx + (row2W + gap) * 2, rowY, row2W, 26}, "Set Stream", 282, outputTypeLabel == "stream");
+      drawActionBtn({cx + (row2W + gap) * 3, rowY, row2W, 26}, "Fullscreen", 236);
+      drawActionBtn({cx + (row2W + gap) * 4, rowY, row2W, 26}, "Size To Display", 235);
+      drawActionBtn({cx + (row2W + gap) * 5, rowY, leftW - (row2W + gap) * 5, 26},
+                    "Display Native", 230, project_.outputFollowDisplay);
 
-      SDL_Rect warpBtn {cx + 486, cy + 292, 90, 26};
-      Primitives::drawFramedPanel(controlRenderer_, warpBtn,
-                      focused.warpEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+      int displayCount = SDL_GetNumVideoDisplays();
+      int focusedDisplayIndex = displayCount > 0
+        ? std::clamp(outputDisplayIndex(project_.focusedOutputIndex), 0, displayCount - 1)
+        : 0;
+      std::string displayLabel = displayCount <= 0
+        ? "Display none"
+        : ("Display " + std::to_string(focusedDisplayIndex + 1));
+      if (displayCount > 0) {
+        const char* displayName = SDL_GetDisplayName(focusedDisplayIndex);
+        if (displayName && *displayName) {
+          displayLabel += ": ";
+          displayLabel += displayName;
+        }
+      }
+
+      rowY += 32;
+      SDL_Rect displayPrevBtn {cx, rowY, 72, 26};
+      SDL_Rect displayLabelRect {displayPrevBtn.x + displayPrevBtn.w + gap, rowY, leftW - 72 - 72 - 90 - gap * 3, 26};
+      SDL_Rect displayNextBtn {displayLabelRect.x + displayLabelRect.w + gap, rowY, 72, 26};
+      SDL_Rect displayRescanBtn {displayNextBtn.x + displayNextBtn.w + gap, rowY, leftW - (displayNextBtn.x + displayNextBtn.w + gap - cx), 26};
+      drawActionBtn(displayPrevBtn, "Disp -", kSettingsActionOutputDisplayPrev);
+      Primitives::drawFramedPanel(controlRenderer_, displayLabelRect, colorFromRgba(kShellInnerColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, focused.warpEnabled ? "Warp On" : "Warp Off",
-                       focused.warpEnabled ? colorFromRgba(kScreenLightColor) : ink, warpBtn);
-      settingsBtns_.push_back({warpBtn, 249, "video_warp_toggle"});
+      drawCenteredText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, displayLabel, displayLabelRect.w - 8), ink, displayLabelRect);
+      drawActionBtn(displayNextBtn, "Disp +", kSettingsActionOutputDisplayNext);
+      drawActionBtn(displayRescanBtn, "Rescan Displays", kSettingsActionOutputDisplayRescan);
+
+      rowY += 32;
+      auto drawPreset = [&](const SDL_Rect& rect, const std::string& label, int action, int w, int h) {
+        bool active = !project_.outputFollowDisplay
+          && project_.outputRenderWidth == w
+          && project_.outputRenderHeight == h;
+        drawActionBtn(rect, label, action, active);
+      };
+      int presetW = (leftW - gap * 5) / 6;
+      drawPreset({cx, rowY, presetW, 26}, "720p", 231, 1280, 720);
+      drawPreset({cx + (presetW + gap), rowY, presetW, 26}, "1080p", 232, 1920, 1080);
+      drawPreset({cx + (presetW + gap) * 2, rowY, presetW, 26}, "1440p", 233, 2560, 1440);
+      drawPreset({cx + (presetW + gap) * 3, rowY, presetW, 26}, "4K", 234, 3840, 2160);
+      drawActionBtn({cx + (presetW + gap) * 4, rowY, presetW, 26}, "Custom", 237);
+      drawActionBtn({cx + (presetW + gap) * 5, rowY, leftW - (presetW + gap) * 5, 26}, "Set Hz...", 241);
+
+      rowY += 32;
+      int streamW = (leftW - gap * 4) / 5;
+      drawActionBtn({cx, rowY, streamW, 26}, outputTarget.streamEnabled ? "Stream ON" : "Stream OFF", 255, outputTarget.streamEnabled);
+      drawActionBtn({cx + (streamW + gap), rowY, streamW, 26}, toUpper(streamProtocol), 256);
+      drawActionBtn({cx + (streamW + gap) * 2, rowY, streamW, 26}, "Stream URL...", 257);
+      drawActionBtn({cx + (streamW + gap) * 3, rowY, streamW, 26}, "Bitrate", 258);
+      drawActionBtn({cx + (streamW + gap) * 4, rowY, leftW - (streamW + gap) * 4, 26}, "Mirror", 260, outputTarget.mirrorSourceOutputIndex >= 0);
+
+      rowY += 32;
+      int ndiW = (leftW - gap * 3) / 4;
+      drawActionBtn({cx, rowY, ndiW, 26}, outputTarget.ndiEnabled ? "NDI ON" : "NDI OFF", 271, outputTarget.ndiEnabled);
+      drawActionBtn({cx + (ndiW + gap), rowY, ndiW, 26}, "NDI Name...", 272);
+      drawActionBtn({cx + (ndiW + gap) * 2, rowY, ndiW, 26}, outputTarget.ndiKeyEnabled ? "NDI Key ON" : "NDI Key OFF", 273, outputTarget.ndiKeyEnabled);
+      drawActionBtn({cx + (ndiW + gap) * 3, rowY, leftW - (ndiW + gap) * 3, 26}, "NDI Key Name...", 274);
+
+      rowY += 32;
+      int fxW = (leftW - gap * 4) / 5;
+      drawActionBtn({cx, rowY, fxW, 26},
+                    "Overlay " + std::string(outputTarget.outputTimeOverlayEnabled ? "ON" : "OFF"),
+                    kSettingsActionOutputOverlayToggle, outputTarget.outputTimeOverlayEnabled);
+      drawActionBtn({cx + (fxW + gap), rowY, fxW, 26},
+                    "Alpha " + std::to_string(outputAlphaPct) + "%",
+                    kSettingsActionOutputAlphaPrompt);
+      drawActionBtn({cx + (fxW + gap) * 2, rowY, fxW, 26},
+                    "Delay " + std::to_string(outputDelayMs) + "ms",
+                    kSettingsActionOutputDelayPrompt, outputDelayMs > 0);
+      drawActionBtn({cx + (fxW + gap) * 3, rowY, fxW, 26},
+                    "Color " + toUpper(outputColorSpace),
+                    kSettingsActionOutputColorSpaceCycle, outputColorSpace != "auto");
+      drawActionBtn({cx + (fxW + gap) * 4, rowY, leftW - (fxW + gap) * 4, 26},
+                    "Delay +100",
+                    kSettingsActionOutputDelayInc);
+
+      rowY += 34;
+      SDL_Rect advancedBtn {cx, rowY, 196, 26};
+      drawActionBtn(advancedBtn,
+                    videoOutputsAdvanced_ ? "Hide Advanced" : "Show Advanced",
+                    kSettingsActionOutputAdvancedToggle,
+                    videoOutputsAdvanced_);
+      SDL_Rect advancedHint {advancedBtn.x + advancedBtn.w + gap, rowY,
+                             leftW - advancedBtn.w - gap, 26};
+      Primitives::drawFramedPanel(controlRenderer_, advancedHint, colorFromRgba(kShellInnerColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontSmall_, "advanced: refresh, depth, canvas, warp, output fx",
+               soft, advancedHint.x + 8, advancedHint.y + 7);
+
+      rowY += 32;
+      if (videoOutputsAdvanced_) {
+        int advW = (leftW - gap * 6) / 7;
+        drawActionBtn({cx, rowY, advW, 26}, "Hz Auto", 238, project_.outputRefreshRateHz <= 0.0);
+        drawActionBtn({cx + (advW + gap), rowY, advW, 26}, "Hz -", 239);
+        drawActionBtn({cx + (advW + gap) * 2, rowY, advW, 26}, "Hz +", 240);
+        drawActionBtn({cx + (advW + gap) * 3, rowY, advW, 26}, "Depth Auto", 242, project_.outputBitDepth == 0);
+        drawActionBtn({cx + (advW + gap) * 4, rowY, advW, 26}, "Depth 8", 243, project_.outputBitDepth == 8);
+        drawActionBtn({cx + (advW + gap) * 5, rowY, advW, 26}, "Depth 10", 244, project_.outputBitDepth == 10);
+        drawActionBtn({cx + (advW + gap) * 6, rowY, leftW - (advW + gap) * 6, 26}, "Canvas WxH...", 247);
+
+        rowY += 32;
+        const Deck& focused = focusedDeck();
+        int canvasW = (leftW - gap * 4) / 5;
+        drawActionBtn({cx, rowY, canvasW, 26}, "Canvas Off", 245, !project_.outputCanvasEnabled);
+        drawActionBtn({cx + (canvasW + gap), rowY, canvasW, 26}, "Canvas On", 246, project_.outputCanvasEnabled);
+        drawActionBtn({cx + (canvasW + gap) * 2, rowY, canvasW, 26}, "View XY...", 248);
+        drawActionBtn({cx + (canvasW + gap) * 3, rowY, canvasW, 26},
+                      focused.warpEnabled ? "Warp On" : "Warp Off", 249, focused.warpEnabled);
+        SDL_Rect routingStripTag {cx + (canvasW + gap) * 4, rowY, leftW - (canvasW + gap) * 4, 26};
+        Primitives::drawFramedPanel(controlRenderer_, routingStripTag, colorFromRgba(kShellInnerColor),
+                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "Routing In Main Strip", ink, routingStripTag);
+        rowY += 36;
+      } else {
+        rowY += 4;
+      }
+
+      SDL_Rect routingTable {cx, rowY, leftW, std::max(72, (content.y + content.h - 10) - rowY)};
+      Primitives::drawFramedPanel(controlRenderer_, routingTable,
+                      colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "ROUTING", ink, routingTable.x + 8, routingTable.y + 6);
+      drawText(controlRenderer_, fontSmall_, "Deck -> Output -> Layer (inline edit)", soft, routingTable.x + 112, routingTable.y + 8);
+
+      SDL_Rect tableHeader {routingTable.x + 6, routingTable.y + 28, routingTable.w - 12, 22};
+      Primitives::drawFramedPanel(controlRenderer_, tableHeader, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      int colDeckX = tableHeader.x + 8;
+      int colOutputX = tableHeader.x + tableHeader.w / 3;
+      int colLayerX = tableHeader.x + tableHeader.w * 2 / 3 - 42;
+      int colAssignX = tableHeader.x + tableHeader.w - 86;
+      drawText(controlRenderer_, fontSmall_, "Deck", ink, colDeckX, tableHeader.y + 4);
+      drawText(controlRenderer_, fontSmall_, "Output", ink, colOutputX, tableHeader.y + 4);
+      drawText(controlRenderer_, fontSmall_, "Layer", ink, colLayerX, tableHeader.y + 4);
+      drawText(controlRenderer_, fontSmall_, "Assigned", ink, colAssignX, tableHeader.y + 4);
+
+      int rowYTable = tableHeader.y + tableHeader.h + 4;
+      int rowH = 24;
+      int rowGap = 3;
+      int visibleRows = std::max(1, (routingTable.y + routingTable.h - 6 - rowYTable) / (rowH + rowGap));
+      int deckCount = static_cast<int>(project_.decks.size());
+      int focusedDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
+      int deckStart = 0;
+      if (deckCount > visibleRows) {
+        deckStart = std::clamp(focusedDeck - visibleRows / 2, 0, deckCount - visibleRows);
+      }
+      for (int slot = 0; slot < visibleRows; ++slot) {
+        int deckIndex = deckStart + slot;
+        if (deckIndex >= deckCount) {
+          break;
+        }
+        SDL_Rect rowRect {routingTable.x + 6, rowYTable + slot * (rowH + rowGap), routingTable.w - 12, rowH};
+        bool focusedRow = deckIndex == project_.focusedDeckIndex;
+        SDL_Color rowFill = focusedRow ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
+        Primitives::drawFramedPanel(controlRenderer_, rowRect, rowFill,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        SDL_Color rowInk = focusedRow ? colorFromRgba(kScreenDeepColor) : soft;
+        drawText(controlRenderer_, fontSmall_, deckLabel(deckIndex), rowInk, rowRect.x + 6, rowRect.y + 5);
+        settingsBtns_.push_back({SDL_Rect {rowRect.x + 2, rowRect.y + 2, std::max(40, colOutputX - rowRect.x - 4), rowRect.h - 4},
+                                 kSettingsActionRoutingDeckFocusBase + deckIndex, "route_focus_deck"});
+
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : (outputCount > 0 ? std::clamp(project_.focusedOutputIndex, 0, outputCount - 1) : -1);
+        auto assignmentIndex = (routeOutput >= 0 && outputCount > 0)
+          ? assignmentIndexForDeckOutput(deckIndex, routeOutput)
+          : std::nullopt;
+        bool assigned = assignmentIndex.has_value();
+        int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+
+        SDL_Rect outPrev {colOutputX, rowRect.y + 3, 18, rowRect.h - 6};
+        SDL_Rect outVal {outPrev.x + outPrev.w + 2, rowRect.y + 3, 52, rowRect.h - 6};
+        SDL_Rect outNext {outVal.x + outVal.w + 2, rowRect.y + 3, 18, rowRect.h - 6};
+        drawActionBtn(outPrev, "<", kSettingsActionRoutingTableOutputPrevBase + deckIndex);
+        drawActionBtn(outVal, routeOutput >= 0 ? outputLabel(routeOutput) : "--",
+                      kSettingsActionRoutingOutputFocusBase + std::max(0, routeOutput),
+                      routeOutput == project_.focusedOutputIndex);
+        drawActionBtn(outNext, ">", kSettingsActionRoutingTableOutputNextBase + deckIndex);
+
+        SDL_Rect layerDec {colLayerX, rowRect.y + 3, 18, rowRect.h - 6};
+        SDL_Rect layerVal {layerDec.x + layerDec.w + 2, rowRect.y + 3, 44, rowRect.h - 6};
+        SDL_Rect layerInc {layerVal.x + layerVal.w + 2, rowRect.y + 3, 18, rowRect.h - 6};
+        drawActionBtn(layerDec, "-", kSettingsActionRoutingTableLayerDecBase + deckIndex);
+        drawActionBtn(layerVal, assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--",
+                      kSettingsActionRoutingTableAssignToggleBase + deckIndex, assigned);
+        drawActionBtn(layerInc, "+", kSettingsActionRoutingTableLayerIncBase + deckIndex);
+
+        SDL_Rect assignBtn {colAssignX, rowRect.y + 3, rowRect.x + rowRect.w - colAssignX - 4, rowRect.h - 6};
+        drawActionBtn(assignBtn, assigned ? "UNLINK" : "LINK",
+                      kSettingsActionRoutingTableAssignToggleBase + deckIndex, assigned);
+      }
 
     } else if (settingsTab_ == 4) {
       // About tab
-      drawText(controlRenderer_, fontSmall_, "Playboy  v0.01", ink, cx, cy);
+      drawText(controlRenderer_, fontSmall_, "Deckboy  v0.01", ink, cx, cy);
       drawText(controlRenderer_, fontSmall_, "dot-matrix show control", soft, cx, cy + 18);
       drawText(controlRenderer_, fontSmall_, "Companion port: " + std::to_string(companionPort_), soft, cx, cy + 40);
       drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, cx, cy + 56);
       drawText(controlRenderer_, fontSmall_, "Keyboard shortcuts:", ink, cx, cy + 80);
       const char* shortcuts[] = {
-        "Enter = Take/Load   Space = Go/Pause   S = Stop",
+        "Enter = Take/Load   Space = Play/Pause   S = Stop",
         "L = Loop   E = Hold   X = Cycle end action   K = Color tag",
         "F = Fullscreen   D = Next display   G = Add graphic cue",
         "Ctrl+G = Goto cue   Ctrl+Shift+Space = All stop",
         "[ / ] = fade in   Shift+[ / ] = fade out",
-        "-30s/-20s/-10s buttons = jump to end   N = edit notes",
+        "-30s/-20s/-10s buttons = jump to end   N = output NDI toggle",
         "1/2/3/4/5/6 = SFX/Anim/AutoNext/Loop/TC/Shuffle toggles",
       };
       for (int i = 0; i < 7; ++i)
@@ -10756,6 +17372,89 @@ class App {
       } else if (sb.action == 202) {
         project_.uiTransitionsEnabled = !project_.uiTransitionsEnabled;
         markProjectDirty();
+      } else if (sb.action == 203) {
+        toggleJumpMode();
+      } else if (sb.action == 204) {
+        setJumpTransitionEnabled(!project_.jumpTransitionEnabled);
+      } else if (sb.action == 205) {
+        cyclePanicProfile(-1);
+      } else if (sb.action == 206) {
+        cyclePanicProfile(1);
+      } else if (sb.action == 207) {
+        triggerPanicProfile();
+      } else if (sb.action == 208) {
+        adjustPanicFadeSeconds(-0.1);
+      } else if (sb.action == 209) {
+        adjustPanicFadeSeconds(0.1);
+      } else if (sb.action == 212) {
+        setPanicAutoRestoreEnabled(!project_.panicAutoRestore);
+      } else if (sb.action == 213) {
+        setTimecodeJamSyncEnabled(!focusedDeck().timecodeJamSyncEnabled);
+      } else if (sb.action == 214) {
+        setTimecodeFreewheelSeconds(focusedDeck().timecodeFreewheelSeconds - 0.1);
+      } else if (sb.action == 215) {
+        setTimecodeFreewheelSeconds(focusedDeck().timecodeFreewheelSeconds + 0.1);
+      } else if (sb.action == 216) {
+        auto token = pickTextInput("Find Cue", "Cue number, cue id, or name contains:", lastCueFindToken_);
+        if (token) {
+          findCueToken(*token, 1, false);
+        }
+      } else if (sb.action == 217) {
+        if (!lastCueFindToken_.empty()) {
+          findCueToken(lastCueFindToken_, 1, false);
+        } else {
+          triggerToast("find: run Find Cue first");
+        }
+      } else if (sb.action == 218) {
+        if (!lastCueFindToken_.empty()) {
+          findCueToken(lastCueFindToken_, -1, false);
+        } else {
+          triggerToast("find: run Find Cue first");
+        }
+      } else if (sb.action == 219) {
+        if (!lastCueFindToken_.empty()) {
+          findCueToken(lastCueFindToken_, 1, true);
+        } else {
+          auto token = pickTextInput("Find+Take Cue", "Cue number, cue id, or name contains:", "");
+          if (token) {
+            findCueToken(*token, 1, true);
+          }
+        }
+      } else if (sb.action == 221) {
+        auto input = pickTextInput("Renumber Cues", "Prefix and optional start (example: Q 100)", "");
+        if (input) {
+          std::string trimmedInput = trim(*input);
+          if (trimmedInput.empty()) {
+            renumberFocusedDeckCueNumbers("", 1);
+          } else {
+            auto parts = splitWhitespace(trimmedInput);
+            std::string prefix = parts.empty() ? "" : parts[0];
+            int start = 1;
+            bool numericOnly = false;
+            if (parts.size() == 1) {
+              try {
+                start = std::stoi(parts[0]);
+                prefix.clear();
+                numericOnly = true;
+              } catch (...) {
+              }
+            }
+            if (!numericOnly && parts.size() > 1) {
+              try {
+                start = std::stoi(parts[1]);
+              } catch (...) {
+              }
+            }
+            renumberFocusedDeckCueNumbers(prefix, start);
+          }
+        }
+      } else if (sb.action == 222) {
+        clearFocusedDeckCueNumbers();
+      } else if (sb.action == 223) {
+        addSourceCueFromMenu();
+      } else if (sb.action == 224) {
+        clearCueFindState();
+        triggerToast("find cleared");
       } else if (sb.action == 210) {
         // Toggle MIDI
         midiEnabled_ = !midiEnabled_;
@@ -10871,27 +17570,466 @@ class App {
         }
       } else if (sb.action == 249) {
         toggleFocusedDeckWarpEnabled();
+      } else if (sb.action == 250) {
+        cycleFocusedOutput(-1);
+      } else if (sb.action == 251) {
+        cycleFocusedOutput(1);
+      } else if (sb.action == 252) {
+        addOutput(project_.focusedDeckIndex);
+      } else if (sb.action == 275) {
+        addOutput(project_.focusedDeckIndex, "window");
+      } else if (sb.action == 276) {
+        addOutput(project_.focusedDeckIndex, "stream");
+      } else if (sb.action == kSettingsActionOutputRemove) {
+        removeOutput(project_.focusedOutputIndex);
+      } else if (sb.action == 254) {
+        setFocusedOutputHostDeck(project_.focusedDeckIndex);
+      } else if (sb.action == 255) {
+        toggleFocusedOutputStreamEnabled();
+      } else if (sb.action == 256) {
+        cycleFocusedOutputStreamProtocol(1);
+      } else if (sb.action == 257) {
+        const OutputTarget& output = focusedOutput();
+        std::string initial = trim(output.streamUrl).empty()
+          ? defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex)
+          : output.streamUrl;
+        auto value = pickTextInput("Stream URL", "srt://... or rtmp://...", initial);
+        if (value) {
+          setFocusedOutputStreamUrl(*value);
+        }
+      } else if (sb.action == 258) {
+        const OutputTarget& output = focusedOutput();
+        auto value = pickTextInput("Stream bitrate", "kbps (500-50000)", std::to_string(output.streamBitrateKbps));
+        if (value) {
+          try {
+            setFocusedOutputStreamBitrateKbps(std::stoi(trim(*value)));
+          } catch (...) {
+          }
+        }
+      } else if (sb.action == 259) {
+        const OutputTarget& output = focusedOutput();
+        std::string nextType = normalizeOutputType(output.outputType) == "stream" ? "window" : "stream";
+        setFocusedOutputType(nextType);
+      } else if (sb.action == 281) {
+        setFocusedOutputType("window");
+      } else if (sb.action == 282) {
+        setFocusedOutputType("stream");
+      } else if (sb.action == kSettingsActionOutputOverlayToggle) {
+        toggleFocusedOutputTimeOverlayEnabled();
+      } else if (sb.action == kSettingsActionOutputAlphaPrompt) {
+        int initialPct = static_cast<int>(std::lround(std::clamp(focusedOutput().outputAlpha, 0.0f, 1.0f) * 100.0f));
+        auto value = pickTextInput("Output alpha", "Percent 0-100", std::to_string(initialPct));
+        if (value) {
+          try {
+            setFocusedOutputAlpha(static_cast<float>(std::stod(trim(*value)) / 100.0));
+          } catch (...) {
+          }
+        }
+      } else if (sb.action == kSettingsActionOutputDelayPrompt) {
+        auto value = pickTextInput("Output delay", "Milliseconds 0-5000", std::to_string(focusedOutput().outputDelayMs));
+        if (value) {
+          try {
+            setFocusedOutputDelayMs(std::stoi(trim(*value)));
+          } catch (...) {
+          }
+        }
+      } else if (sb.action == kSettingsActionOutputColorSpaceCycle) {
+        cycleFocusedOutputColorSpace(1);
+      } else if (sb.action == kSettingsActionOutputDelayInc) {
+        setFocusedOutputDelayMs(focusedOutput().outputDelayMs + 100);
+      } else if (sb.action == 260) {
+        promptFocusedOutputMirrorSourcePicker();
+      } else if (sb.action == 271) {
+        setFocusedOutputNdiEnabled(!focusedOutput().ndiEnabled);
+      } else if (sb.action == 272) {
+        const OutputTarget& output = focusedOutput();
+        std::string initial = trim(output.ndiSourceName).empty()
+          ? defaultOutputNdiSourceName(output, project_.focusedOutputIndex)
+          : output.ndiSourceName;
+        auto value = pickTextInput("NDI Name", "Sender source name", initial);
+        if (value) {
+          setFocusedOutputNdiName(*value);
+        }
+      } else if (sb.action == 273) {
+        setFocusedOutputNdiKeyEnabled(!focusedOutput().ndiKeyEnabled);
+      } else if (sb.action == 274) {
+        const OutputTarget& output = focusedOutput();
+        std::string initial = trim(output.ndiKeySourceName).empty()
+          ? defaultOutputNdiKeySourceName(output, project_.focusedOutputIndex)
+          : output.ndiKeySourceName;
+        auto value = pickTextInput("NDI Key Name", "Key sender source name", initial);
+        if (value) {
+          setFocusedOutputNdiKeyName(*value);
+        }
+      } else if (sb.action == kSettingsActionOutputAdvancedToggle) {
+        videoOutputsAdvanced_ = !videoOutputsAdvanced_;
+      } else if (sb.action == kSettingsActionOutputToggle) {
+        toggleFocusedOutputEnabled();
+      } else if (sb.action == kSettingsActionOutputDisplayPrev) {
+        cycleOutputDisplay(-1);
+      } else if (sb.action == kSettingsActionOutputDisplayNext) {
+        cycleOutputDisplay(1);
+      } else if (sb.action == kSettingsActionOutputDisplayRescan) {
+        observedDisplayCount_ = SDL_GetNumVideoDisplays();
+        refreshDisplayTopology(true);
+      } else if (sb.action >= kSettingsActionOutputDisplayFocusBase &&
+                 sb.action < kSettingsActionOutputDisplayFocusBase + 64) {
+        int displayIndex = sb.action - kSettingsActionOutputDisplayFocusBase;
+        setOutputDisplayIndex(displayIndex);
+      } else if (sb.action >= kSettingsActionRoutingTableOutputPrevBase &&
+                 sb.action < kSettingsActionRoutingTableOutputPrevBase + static_cast<int>(project_.decks.size())) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = sb.action - kSettingsActionRoutingTableOutputPrevBase;
+        setFocusedDeckIndex(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        int nextOutput = (routeOutput - 1 + outputCount) % outputCount;
+        moveDeckToOutput(deckIndex, nextOutput);
+        setFocusedOutputIndex(nextOutput);
+      } else if (sb.action >= kSettingsActionRoutingTableOutputNextBase &&
+                 sb.action < kSettingsActionRoutingTableOutputNextBase + static_cast<int>(project_.decks.size())) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = sb.action - kSettingsActionRoutingTableOutputNextBase;
+        setFocusedDeckIndex(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        int nextOutput = (routeOutput + 1) % outputCount;
+        moveDeckToOutput(deckIndex, nextOutput);
+        setFocusedOutputIndex(nextOutput);
+      } else if (sb.action >= kSettingsActionRoutingTableLayerDecBase &&
+                 sb.action < kSettingsActionRoutingTableLayerDecBase + static_cast<int>(project_.decks.size())) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = sb.action - kSettingsActionRoutingTableLayerDecBase;
+        setFocusedDeckIndex(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (!assignmentIndex) {
+          assignDeckToOutput(deckIndex, routeOutput);
+          assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        }
+        if (!assignmentIndex) {
+          return;
+        }
+        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer - 1);
+      } else if (sb.action >= kSettingsActionRoutingTableLayerIncBase &&
+                 sb.action < kSettingsActionRoutingTableLayerIncBase + static_cast<int>(project_.decks.size())) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = sb.action - kSettingsActionRoutingTableLayerIncBase;
+        setFocusedDeckIndex(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (!assignmentIndex) {
+          assignDeckToOutput(deckIndex, routeOutput);
+          assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        }
+        if (!assignmentIndex) {
+          return;
+        }
+        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + 1);
+      } else if (sb.action >= kSettingsActionRoutingTableAssignToggleBase &&
+                 sb.action < kSettingsActionRoutingTableAssignToggleBase + static_cast<int>(project_.decks.size())) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = sb.action - kSettingsActionRoutingTableAssignToggleBase;
+        setFocusedDeckIndex(deckIndex);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (assignmentIndex) {
+          unassignDeckFromOutput(deckIndex, routeOutput);
+        } else {
+          assignDeckToOutput(deckIndex, routeOutput);
+        }
+      } else if (sb.action == kSettingsActionRoutingLayerDec ||
+                 sb.action == kSettingsActionRoutingLayerInc) {
+        int deckIndex = std::clamp(project_.focusedDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
+        int outputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+        if (!assignmentIndex) {
+          triggerToast("assign route first");
+        } else {
+          int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          int step = ctrlHeld ? 10 : 1;
+          int delta = (sb.action == kSettingsActionRoutingLayerDec) ? -step : step;
+          if (shiftHeld) {
+            delta = -delta;
+          }
+          setDeckOutputAssignmentLayer(deckIndex, outputIndex, currentLayer + delta);
+        }
+      } else if (sb.action == kSettingsActionRoutingAssignToggle) {
+        int deckIndex = std::clamp(project_.focusedDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
+        int outputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+        if (assignmentIndex) {
+          unassignDeckFromOutput(deckIndex, outputIndex);
+        } else {
+          assignDeckToOutput(deckIndex, outputIndex);
+        }
+      } else if (sb.action == kSettingsActionRoutingModeToggle) {
+        routingMoveMode_ = !routingMoveMode_;
+        triggerToast(std::string("routing mode: ") + (routingMoveMode_ ? "Move" : "Add"));
+        playUiSound(UiSoundEffect::Toggle);
+      } else if (sb.action >= kSettingsActionRoutingDeckFocusBase &&
+                 sb.action < kSettingsActionRoutingDeckFocusBase + static_cast<int>(project_.decks.size())) {
+        int deckIndex = sb.action - kSettingsActionRoutingDeckFocusBase;
+        setFocusedDeckIndex(deckIndex);
+      } else if (sb.action >= kSettingsActionRoutingOutputFocusBase &&
+                 sb.action < kSettingsActionRoutingOutputFocusBase + static_cast<int>(project_.outputs.size())) {
+        int outputIndex = sb.action - kSettingsActionRoutingOutputFocusBase;
+        setFocusedOutputIndex(outputIndex);
+      } else if (sb.action >= kSettingsActionRoutingCellBase) {
+        int packed = sb.action - kSettingsActionRoutingCellBase;
+        int deckIndex = packed / kSettingsActionRoutingCellStride;
+        int outputIndex = packed % kSettingsActionRoutingCellStride;
+        if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size()) &&
+            outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size())) {
+          setFocusedDeckIndex(deckIndex);
+          setFocusedOutputIndex(outputIndex);
+          auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, outputIndex);
+          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          if (routingMoveMode_) {
+            if (assignmentIndex) {
+              int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+              int step = ctrlHeld ? 10 : 1;
+              int delta = shiftHeld ? -step : step;
+              setDeckOutputAssignmentLayer(deckIndex, outputIndex, currentLayer + delta);
+            } else {
+              moveDeckToOutput(deckIndex, outputIndex);
+            }
+          } else {
+            if (assignmentIndex) {
+              if (shiftHeld || ctrlHeld) {
+                int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+                int step = ctrlHeld ? 10 : 1;
+                int delta = shiftHeld ? -step : step;
+                setDeckOutputAssignmentLayer(deckIndex, outputIndex, currentLayer + delta);
+              } else {
+                unassignDeckFromOutput(deckIndex, outputIndex);
+              }
+            } else {
+              assignDeckToOutput(deckIndex, outputIndex);
+            }
+          }
+        }
       }
       return;
     }
     // Click outside modal = close
-    constexpr int kModalW = 640, kModalH = 440;
-    int width = 0, height = 0;
-    SDL_GetWindowSize(controlWindow_, &width, &height);
-    SDL_Rect modal {(width - kModalW) / 2, (height - kModalH) / 2, kModalW, kModalH};
+    SDL_Rect modal = settingsModalRect();
     if (!pointInRect(mx, my, modal)) settingsOpen_ = false;
+  }
+
+  void handleDecksPanelMouseDown(int x, int y, Uint8 mouseButton) {
+    auto focusMasterCueSilently = [&](int presetIndex) -> bool {
+      normalizeProject(project_);
+      if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+        return false;
+      }
+      if (project_.focusedGroupPresetIndex != presetIndex) {
+        project_.focusedGroupPresetIndex = presetIndex;
+        markProjectDirty();
+      }
+      return true;
+    };
+
+    for (const auto& hit : decksPanelDeckButtonHits_) {
+      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      if (!pointInRect(x, y, hit.rect)) {
+        continue;
+      }
+      setFocusedDeckIndex(hit.deckIndex);
+      switch (hit.action) {
+        case kDecksPanelDeckActionTake:
+          jumpSelectedCue();
+          break;
+        case kDecksPanelDeckActionStop:
+          stopTransport();
+          break;
+        default:
+          break;
+      }
+      return;
+    }
+
+    for (const auto& hit : decksPanelCueHits_) {
+      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      if (!pointInRect(x, y, hit.rowRect)) {
+        continue;
+      }
+      setFocusedDeckIndex(hit.deckIndex);
+      Deck& deck = project_.decks[hit.deckIndex];
+      if (hit.cueIndex >= 0 && hit.cueIndex < static_cast<int>(deck.cues.size()) &&
+          deck.selectedIndex != hit.cueIndex) {
+        deck.selectedIndex = hit.cueIndex;
+        onSelectionChanged();
+        markProjectDirty();
+      }
+      if (mouseButton == SDL_BUTTON_RIGHT) {
+        jumpSelectedCue();
+      }
+      return;
+    }
+
+    for (const auto& btn : decksPanelButtons_) {
+      if (!pointInRect(x, y, btn.rect)) {
+        continue;
+      }
+      if (btn.action >= kDecksPanelActionMasterFireBase &&
+          btn.action < kDecksPanelActionMasterFireBase + static_cast<int>(project_.groupPresets.size())) {
+        int presetIndex = btn.action - kDecksPanelActionMasterFireBase;
+        setFocusedGroupPresetIndex(presetIndex);
+        fireGroupPreset(presetIndex, true);
+        return;
+      }
+      switch (btn.action) {
+        case kDecksPanelActionGroupPrev:
+          ensureGroupPreset(true);
+          cycleFocusedGroupPreset(-1);
+          break;
+        case kDecksPanelActionGroupNext:
+          ensureGroupPreset(true);
+          cycleFocusedGroupPreset(1);
+          break;
+        case kDecksPanelActionGroupNew:
+          addGroupPreset("", false);
+          break;
+        case kDecksPanelActionGroupFire:
+          ensureGroupPreset(true);
+          fireFocusedGroupPreset(true);
+          break;
+        case kDecksPanelActionGroupDelete:
+          deleteFocusedGroupPreset();
+          break;
+        default:
+          break;
+      }
+      return;
+    }
+
+    for (const auto& hit : masterCueRowHits_) {
+      if (hit.presetIndex < 0 || hit.presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+        continue;
+      }
+      if (!pointInRect(x, y, hit.rowRect)) {
+        continue;
+      }
+      focusMasterCueSilently(hit.presetIndex);
+
+      if (pointInRect(x, y, hit.fireRect)) {
+        fireGroupPreset(hit.presetIndex, true);
+        return;
+      }
+
+      bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+      bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+      for (int deckIndex = 0; deckIndex < static_cast<int>(hit.slotRects.size()); ++deckIndex) {
+        if (!pointInRect(x, y, hit.slotRects[deckIndex])) {
+          continue;
+        }
+        setFocusedDeckIndex(deckIndex);
+
+        if (mouseButton == SDL_BUTTON_RIGHT) {
+          bool bypass = false;
+          if (const GroupPreset* preset = focusedGroupPreset()) {
+            if (deckIndex >= 0 && deckIndex < static_cast<int>(preset->slots.size())) {
+              bypass = preset->slots[deckIndex].bypass;
+            }
+          }
+          setFocusedGroupSlotBypass(deckIndex, !bypass);
+          return;
+        }
+
+        if (mouseButton == SDL_BUTTON_MIDDLE || ctrlHeld) {
+          int direction = shiftHeld ? -1 : 1;
+          cycleFocusedGroupSlotCue(deckIndex, direction);
+          return;
+        }
+
+        if (shiftHeld) {
+          setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].activeIndex);
+        } else {
+          setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].selectedIndex);
+        }
+        return;
+      }
+      return;
+    }
+
+    for (const auto& hit : decksPanelRowHits_) {
+      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      if (pointInRect(x, y, hit.groupRect)) {
+        setFocusedDeckIndex(hit.deckIndex);
+        ensureGroupPreset(true);
+        bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+        if (mouseButton == SDL_BUTTON_RIGHT) {
+          bool bypass = false;
+          if (const GroupPreset* preset = focusedGroupPreset()) {
+            if (hit.deckIndex >= 0 && hit.deckIndex < static_cast<int>(preset->slots.size())) {
+              bypass = preset->slots[hit.deckIndex].bypass;
+            }
+          }
+          setFocusedGroupSlotBypass(hit.deckIndex, !bypass);
+          return;
+        }
+        int direction = (mouseButton == SDL_BUTTON_MIDDLE || shiftHeld) ? -1 : 1;
+        cycleFocusedGroupSlotCue(hit.deckIndex, direction);
+        return;
+      }
+      if (pointInRect(x, y, hit.rowRect)) {
+        setFocusedDeckIndex(hit.deckIndex);
+        return;
+      }
+    }
   }
 
   void handleMouseDown(int x, int y) {
     if (showStartupDialog_) {
-      if (pointInRect(x, y, startupLoadBtn_)) {
-        // Keep loaded project as-is
+      bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
+      if (pointInRect(x, y, startupNewBtn_)) {
+        startNewShow(false);
         showStartupDialog_ = false;
-      } else if (pointInRect(x, y, startupNewBtn_)) {
-        // Start fresh
-        project_ = Project{};
-        normalizeProject(project_);
-        rebuildDeckRuntimes();
+      } else if (pointInRect(x, y, startupLoadBtn_) && hasSavedFile) {
+        // Open previous show file already loaded from startup path.
+        showStartupDialog_ = false;
+      } else if (pointInRect(x, y, startupOpenSavedBtn_)) {
+        openProjectFromPicker();
         showStartupDialog_ = false;
       }
       return;
@@ -10910,6 +18048,242 @@ class App {
       handleSettingsClick(x, y);
       return;
     }
+    for (const auto& outputBtn : outputMenuButtons_) {
+      if (!pointInRect(x, y, outputBtn.rect)) {
+        continue;
+      }
+      if (outputBtn.action == kOutputMenuActionAddOutput) {
+        addOutput(project_.focusedDeckIndex);
+        return;
+      }
+      if (outputBtn.action == kOutputMenuActionFocus) {
+        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
+          setFocusedOutputIndex(outputBtn.outputIndex);
+        }
+        return;
+      }
+      if (outputBtn.action == kOutputMenuActionToggle) {
+        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
+          setFocusedOutputIndex(outputBtn.outputIndex);
+          setFocusedOutputEnabled(!project_.outputs[outputBtn.outputIndex].enabled);
+        }
+        return;
+      }
+      if (outputBtn.action == kOutputMenuActionRouteFocusDeck ||
+          outputBtn.action == kOutputMenuActionRouteAssignToggle ||
+          outputBtn.action == kOutputMenuActionRouteLayerDec ||
+          outputBtn.action == kOutputMenuActionRouteLayerInc ||
+          outputBtn.action == kOutputMenuActionRouteOutputPrev ||
+          outputBtn.action == kOutputMenuActionRouteOutputNext) {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          return;
+        }
+        int deckIndex = std::clamp(outputBtn.deckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+        setFocusedDeckIndex(deckIndex);
+
+        int outputCount = static_cast<int>(project_.outputs.size());
+        int routeOutput = outputBtn.outputIndex;
+        if (routeOutput < 0 || routeOutput >= outputCount) {
+          routeOutput = std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        }
+
+        if (outputBtn.action == kOutputMenuActionRouteOutputPrev ||
+            outputBtn.action == kOutputMenuActionRouteOutputNext) {
+          int delta = outputBtn.action == kOutputMenuActionRouteOutputPrev ? -1 : 1;
+          int nextOutput = (routeOutput + delta + outputCount) % outputCount;
+          moveDeckToOutput(deckIndex, nextOutput);
+          setFocusedOutputIndex(nextOutput);
+          return;
+        }
+
+        setFocusedOutputIndex(routeOutput);
+        auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (outputBtn.action == kOutputMenuActionRouteFocusDeck) {
+          return;
+        }
+        if (outputBtn.action == kOutputMenuActionRouteAssignToggle) {
+          if (assignmentIndex) {
+            unassignDeckFromOutput(deckIndex, routeOutput);
+          } else {
+            assignDeckToOutput(deckIndex, routeOutput);
+          }
+          return;
+        }
+        if (!assignmentIndex) {
+          assignDeckToOutput(deckIndex, routeOutput);
+          assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+          if (!assignmentIndex) {
+            return;
+          }
+        }
+        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        int delta = outputBtn.action == kOutputMenuActionRouteLayerDec ? -1 : 1;
+        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
+        return;
+      }
+      return;
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(deckColumnRects_.size()); ++deckIndex) {
+      if (!pointInRect(x, y, deckColumnRects_[deckIndex])) {
+        continue;
+      }
+      setFocusedDeckIndex(deckIndex);
+      const SDL_Rect& clipFrame = deckListClipRects_[deckIndex];
+      SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
+      if (!pointInRect(x, y, clipRect)) {
+        return;
+      }
+      int listY = clipRect.y - deckScrolls_[deckIndex];
+      Deck& deck = project_.decks[deckIndex];
+      for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+        SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
+        if (pointInRect(x, y, row)) {
+          if (deck.selectedIndex != cueIndex) {
+            deck.selectedIndex = cueIndex;
+            onSelectionChanged();
+            markProjectDirty();
+          }
+          drag_.active = true;
+          drag_.deckIndex = deckIndex;
+          drag_.cueIndex = cueIndex;
+          return;
+        }
+        listY += kRowHeight + 8;
+      }
+      return;
+    }
+    if (pointInRect(x, y, fileNewBtnRect_)) {
+      startNewShow(true);
+      return;
+    }
+    if (pointInRect(x, y, fileOpenBtnRect_)) {
+      openProjectFromPicker();
+      return;
+    }
+    if (pointInRect(x, y, fileSaveBtnRect_)) {
+      saveProjectNow(true);
+      return;
+    }
+    if (pointInRect(x, y, fileSaveAsBtnRect_)) {
+      saveProjectAsFromPicker();
+      return;
+    }
+    if (pointInRect(x, y, decksPanelToggleRect_)) {
+      setDecksPanelVisible(true, true);
+      return;
+    }
+    if (pointInRect(x, y, deckSidebarToggleRect_)) {
+      // Sidebar is fixed-visible; keep click handler as a no-op safety.
+      return;
+    }
+    for (const auto& btn : masterCueSidebarButtons_) {
+      if (!pointInRect(x, y, btn.rect)) {
+        continue;
+      }
+      switch (btn.action) {
+        case kDecksPanelActionGroupPrev:
+          ensureGroupPreset(true);
+          cycleFocusedGroupPreset(-1);
+          return;
+        case kDecksPanelActionGroupNext:
+          ensureGroupPreset(true);
+          cycleFocusedGroupPreset(1);
+          return;
+        case kDecksPanelActionGroupNew:
+          addGroupPreset("", false);
+          return;
+        case kDecksPanelActionGroupFire:
+          ensureGroupPreset(true);
+          fireFocusedGroupPreset(true);
+          return;
+        case kDecksPanelActionGroupDelete:
+          deleteFocusedGroupPreset();
+          return;
+        case kDecksPanelActionGroupCaptureSelected:
+          ensureGroupPreset(false);
+          captureFocusedGroupPreset(false);
+          return;
+        case kDecksPanelActionGroupCaptureActive:
+          ensureGroupPreset(false);
+          captureFocusedGroupPreset(true);
+          return;
+        case kDecksPanelActionGroupRename: {
+          ensureGroupPreset(false);
+          int presetIndex = std::clamp(project_.focusedGroupPresetIndex, 0,
+                                       static_cast<int>(project_.groupPresets.size()) - 1);
+          std::string currentName = groupPresetLabel(presetIndex);
+          auto value = pickTextInput("Scene Name", "Enter name for focused scene", currentName);
+          if (value) {
+            renameFocusedGroupPreset(*value);
+          }
+          return;
+        }
+        case kDecksPanelActionGroupProgramToggle:
+          masterCueProgrammerExpanded_ = !masterCueProgrammerExpanded_;
+          return;
+        default:
+          break;
+      }
+      if (btn.action >= kDecksPanelActionMasterFireBase &&
+          btn.action < kDecksPanelActionMasterFireBase + static_cast<int>(project_.groupPresets.size())) {
+        int presetIndex = btn.action - kDecksPanelActionMasterFireBase;
+        setFocusedGroupPresetIndex(presetIndex);
+        fireGroupPreset(presetIndex, true);
+        return;
+      }
+    }
+    for (const auto& hit : masterCueSidebarProgramHits_) {
+      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
+        continue;
+      }
+      if (!pointInRect(x, y, hit.rowRect)) {
+        continue;
+      }
+      setFocusedDeckIndex(hit.deckIndex);
+      ensureGroupPreset(true);
+      if (pointInRect(x, y, hit.selectedRect)) {
+        setFocusedGroupSlotFromCueIndex(hit.deckIndex, project_.decks[hit.deckIndex].selectedIndex);
+        return;
+      }
+      if (pointInRect(x, y, hit.activeRect)) {
+        setFocusedGroupSlotFromCueIndex(hit.deckIndex, project_.decks[hit.deckIndex].activeIndex);
+        return;
+      }
+      if (pointInRect(x, y, hit.bypassRect)) {
+        bool bypass = false;
+        if (const GroupPreset* preset = focusedGroupPreset()) {
+          if (hit.deckIndex >= 0 && hit.deckIndex < static_cast<int>(preset->slots.size())) {
+            bypass = preset->slots[hit.deckIndex].bypass;
+          }
+        }
+        setFocusedGroupSlotBypass(hit.deckIndex, !bypass);
+        return;
+      }
+      if (pointInRect(x, y, hit.prevRect)) {
+        cycleFocusedGroupSlotCue(hit.deckIndex, -1);
+        return;
+      }
+      if (pointInRect(x, y, hit.nextRect)) {
+        cycleFocusedGroupSlotCue(hit.deckIndex, 1);
+        return;
+      }
+      // Row click (outside buttons): assign this deck's currently selected cue.
+      setFocusedGroupSlotFromCueIndex(hit.deckIndex, project_.decks[hit.deckIndex].selectedIndex);
+      return;
+    }
+    for (const auto& row : masterCueSidebarRows_) {
+      if (row.presetIndex < 0 || row.presetIndex >= static_cast<int>(project_.groupPresets.size())) {
+        continue;
+      }
+      if (!pointInRect(x, y, row.rowRect)) {
+        continue;
+      }
+      setFocusedGroupPresetIndex(row.presetIndex);
+      if (pointInRect(x, y, row.fireRect)) {
+        fireGroupPreset(row.presetIndex, true);
+      }
+      return;
+    }
     // Settings gear button
     if (pointInRect(x, y, settingsGearRect_)) {
       settingsOpen_ = !settingsOpen_;
@@ -10919,44 +18293,6 @@ class App {
     if (pointInRect(x, y, blackoutBtnRect_)) {
       masterDimmerTarget_ = (masterDimmerTarget_ < 0.5) ? 1.0 : 0.0;
       triggerToast(masterDimmerTarget_ < 0.5 ? "blackout ON" : "blackout off");
-      return;
-    }
-
-    // Deck column headers: click to focus deck
-    for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
-      const SDL_Rect& col = deckColumnRects_[di];
-      SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
-      if (pointInRect(x, y, colHeader)) {
-        setFocusedDeckIndex(di);
-        return;
-      }
-    }
-
-    // Deck column cue lists: click to focus deck + select cue
-    for (int di = 0; di < static_cast<int>(deckListClipRects_.size()); ++di) {
-      const SDL_Rect& clipFrame = deckListClipRects_[di];
-      SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
-      if (!pointInRect(x, y, clipRect)) {
-        continue;
-      }
-      int listY = clipRect.y - deckScrolls_[di];
-      for (int ci = 0; ci < static_cast<int>(project_.decks[di].cues.size()); ++ci) {
-        SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
-        if (pointInRect(x, y, row)) {
-          setFocusedDeckIndex(di);
-          Deck& deck = project_.decks[di];
-          if (deck.selectedIndex != ci) {
-            deck.selectedIndex = ci;
-            onSelectionChanged();
-            markProjectDirty();
-          }
-          drag_.active = true;
-          drag_.cueIndex = ci;
-          drag_.deckIndex = di;
-          return;
-        }
-        listY += kRowHeight + 8;
-      }
       return;
     }
 
@@ -11032,19 +18368,27 @@ class App {
     }
   }
 
-  void handleKeyDown(SDL_Keycode key, Uint16 mod) {
+  void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
     bool ctrl = (mod & KMOD_CTRL) != 0;
     bool shift = (mod & KMOD_SHIFT) != 0;
 
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
-      if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && hasSavedFile) {
+      if (key == SDLK_n) {
+        startNewShow(false);
         showStartupDialog_ = false;
-      } else if (key == SDLK_n) {
-        project_ = Project{};
-        normalizeProject(project_);
-        rebuildDeckRuntimes();
+      } else if (key == SDLK_o) {
+        openProjectFromPicker();
         showStartupDialog_ = false;
+      } else if (key == SDLK_p && hasSavedFile) {
+        showStartupDialog_ = false;
+      } else if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+        if (hasSavedFile) {
+          showStartupDialog_ = false;
+        } else {
+          openProjectFromPicker();
+          showStartupDialog_ = false;
+        }
       } else if (key == SDLK_ESCAPE) {
         showStartupDialog_ = false;
       }
@@ -11080,6 +18424,28 @@ class App {
       allStop();
       return;
     }
+    // Ctrl+Shift+G — fire focused group preset
+    if (ctrl && shift && key == SDLK_g) {
+      ensureGroupPreset(true);
+      fireFocusedGroupPreset(true);
+      return;
+    }
+    // Ctrl+Shift+N — new group preset from selected cues
+    if (ctrl && shift && key == SDLK_n) {
+      addGroupPreset("", true);
+      return;
+    }
+    // Ctrl+Shift+[ / ] — cycle focused group preset
+    if (ctrl && shift && key == SDLK_LEFTBRACKET) {
+      ensureGroupPreset(true);
+      cycleFocusedGroupPreset(-1);
+      return;
+    }
+    if (ctrl && shift && key == SDLK_RIGHTBRACKET) {
+      ensureGroupPreset(true);
+      cycleFocusedGroupPreset(1);
+      return;
+    }
     // Ctrl+Space — all-deck go (play/pause toggle)
     if (ctrl && key == SDLK_SPACE) {
       goAllDecks();
@@ -11091,9 +18457,35 @@ class App {
       if (r) handleRemoteCommand("GOTO " + *r);
       return;
     }
+    if (ctrl && !shift && key == SDLK_f) {
+      auto r = pickTextInput("Find Cue", "Cue number, cue id, or name contains:", lastCueFindToken_);
+      if (r) {
+        findCueToken(*r, 1, false);
+      }
+      return;
+    }
+    if (ctrl && shift && key == SDLK_f) {
+      if (!lastCueFindToken_.empty()) {
+        findCueToken(lastCueFindToken_, 1, false);
+      } else {
+        triggerToast("find: press Ctrl+F first");
+      }
+      return;
+    }
+    if (ctrl && shift && key == SDLK_r) {
+      auto prefix = pickTextInput("Renumber Cues", "Prefix (optional). Example: Q", "");
+      if (prefix) {
+        renumberFocusedDeckCueNumbers(*prefix, 1);
+      }
+      return;
+    }
 
     if (ctrl && key == SDLK_o) {
       openProjectFromPicker();
+      return;
+    }
+    if (ctrl && key == SDLK_i) {
+      importWithPicker();
       return;
     }
     if (ctrl && key == SDLK_n) {
@@ -11101,8 +18493,7 @@ class App {
       return;
     }
     if (ctrl && !shift && key == SDLK_s) {
-      markProjectDirty();
-      triggerToast("playlist saved");
+      saveProjectNow(true);
       return;
     }
     if (ctrl && shift && key == SDLK_s) {
@@ -11112,7 +18503,30 @@ class App {
 
     switch (key) {
       case SDLK_ESCAPE:
-        confirmQuit_ = true;
+        if (keyRepeat) {
+          break;
+        }
+        {
+          constexpr Uint64 kEscRepeatMs = 900;
+          Uint64 now = SDL_GetTicks64();
+          bool quickEsc = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscRepeatMs;
+          escapePressStreak_ = quickEsc ? (escapePressStreak_ + 1) : 1;
+          lastEscapeKeyMs_ = now;
+          if (escapePressStreak_ >= 3) {
+            if (emergencyDisarmOutputsFromEsc(sourceWindowId)) {
+              escapePressStreak_ = 0;
+              confirmQuit_ = false;
+              break;
+            }
+            // No active output-safety context: treat this press as a new sequence start.
+            escapePressStreak_ = 1;
+          }
+        }
+        if (!escapeOutputFullscreen(sourceWindowId)) {
+          confirmQuit_ = true;
+        } else {
+          confirmQuit_ = false;
+        }
         break;
       case SDLK_TAB:
         cycleFocusedDeck(shift ? -1 : 1);
@@ -11122,6 +18536,12 @@ class App {
         break;
       case SDLK_DOWN:
         selectRelative(1, shift);
+        break;
+      case SDLK_LEFT:
+        nudgeFocusedPausedPlayback(-1, mod);
+        break;
+      case SDLK_RIGHT:
+        nudgeFocusedPausedPlayback(1, mod);
         break;
       case SDLK_1:
         toggleUiSounds();
@@ -11137,7 +18557,7 @@ class App {
         break;
       case SDLK_RETURN:
       case SDLK_KP_ENTER:
-        takeSelected(true);
+        jumpSelectedCue();
         break;
       case SDLK_SPACE:
         toggleTransport();
@@ -11152,7 +18572,11 @@ class App {
         toggleOutputFullscreen();
         break;
       case SDLK_i:
-        importWithPicker();
+        if (shift) {
+          importWithPicker();
+        } else if (!setActiveTrimFromPlayhead(true)) {
+          importWithPicker();
+        }
         break;
       case SDLK_b:
         addBrowserCueFromPrompt();
@@ -11191,10 +18615,14 @@ class App {
         cycleOutputDisplay(1);
         break;
       case SDLK_n:
-        toggleFocusedDeckNdi();
+        toggleFocusedOutputNdi();
         break;
       case SDLK_o:
-        toggleTimeOverlayEnabled();
+        if (shift) {
+          toggleTimeOverlayEnabled();
+        } else if (!setActiveTrimFromPlayhead(false)) {
+          toggleTimeOverlayEnabled();
+        }
         break;
       case SDLK_t:
         setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
@@ -11231,22 +18659,23 @@ class App {
   }
 
   void triggerButton(const std::string& label) {
-    if (label == "Import") {
+    if (label == "IMPORT") {
       importWithPicker();
-    } else if (label == "Take") {
-      takeSelected(false);
-    } else if (label == "Go/Pause") {
+    } else if (label == "SOURCE") {
+      addSourceCueFromMenu();
+    } else if (label == "PATTERN") {
+      addPatternCueFromMenu();
+    } else if (label == "(A) TAKE") {
+      jumpSelectedCue();
+    } else if (label == "START PLAY") {
       toggleTransport();
-    } else if (label == "Stop") {
+    } else if (label == "(B) STOP") {
       stopTransport();
-    } else if (label == "Clear") {
+    } else if (label == "SELECT CLR") {
       clearOutput();
-    } else if (label == "Fullscreen") {
-      toggleOutputFullscreen();
-    } else if (label == "Delete") {
-      deleteSelected();
-    } else if (label == "SFX") {
-      toggleUiSounds();
+    } else if (label == "OUTPUT") {
+      settingsOpen_ = true;
+      settingsTab_ = 3;
     }
   }
 
@@ -11255,6 +18684,10 @@ class App {
     const DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (activeCue && activeCue->kind == CueKind::Browser) {
       return runtime && runtime->browserCueLive ? "Live Browser" : "Browser Ready";
+    }
+    if (activeCue && isSourceCueKind(activeCue->kind)) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      return (engine && engine->isSourceCapturing()) ? "Live Source" : "Source Ready";
     }
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
     return engine ? transportLabel(engine->state()) : transportLabel(TransportState::Stopped);
@@ -11359,7 +18792,7 @@ class App {
     markProjectDirty();
   }
 
-  void takeSelected(bool autoplay) {
+  void takeSelected(bool autoplay, bool useTransition = true) {
     Deck& deck = focusedDeckMutable();
     MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
@@ -11387,10 +18820,14 @@ class App {
     deck.activeIndex = deck.selectedIndex;
     stopBrowserCue();
     // Use per-cue transition override if set, else deck default
-    double transSecs = (cue.cueTransitionSeconds >= 0.0)
-      ? cue.cueTransitionSeconds : deck.transitionSeconds;
-    std::string transStyleStr = !cue.cueTransitionStyle.empty()
-      ? cue.cueTransitionStyle : deck.transitionStyle;
+    double transSecs = 0.0;
+    std::string transStyleStr = "cut";
+    if (useTransition) {
+      transSecs = (cue.cueTransitionSeconds >= 0.0)
+        ? cue.cueTransitionSeconds : deck.transitionSeconds;
+      transStyleStr = !cue.cueTransitionStyle.empty()
+        ? cue.cueTransitionStyle : deck.transitionStyle;
+    }
     engine->loadCue(
       &cue,
       autoplay,
@@ -11400,11 +18837,24 @@ class App {
     if (cue.kind == CueKind::Browser) {
       startBrowserCue(project_.focusedDeckIndex, cue);
       triggerToast("browser jumped live");
+    } else if (isSourceCueKind(cue.kind)) {
+      bool live = engine->isSourceCapturing();
+      if (autoplay && live) {
+        triggerToast("source live");
+      } else if (autoplay && !live) {
+        triggerToast("source unavailable");
+      } else {
+        triggerToast("source loaded");
+      }
     } else {
       triggerToast(autoplay ? "cue jumped live" : "cue loaded");
     }
     playUiSound(UiSoundEffect::Take);
     markProjectDirty();
+  }
+
+  void jumpSelectedCue() {
+    takeSelected(jumpTriggersPlayback(), project_.jumpTransitionEnabled);
   }
 
   // Fire the selected cue on every deck simultaneously.
@@ -11512,6 +18962,51 @@ class App {
       return std::nullopt;
     }
 
+    std::string upperToken = toUpper(trimmed);
+    if (upperToken == "FIRST") {
+      return deck.cues.empty() ? std::nullopt : std::optional<int> {0};
+    }
+    if (upperToken == "LAST") {
+      return deck.cues.empty() ? std::nullopt : std::optional<int> {static_cast<int>(deck.cues.size()) - 1};
+    }
+    if (upperToken == "NEXT") {
+      if (deck.cues.empty()) {
+        return std::nullopt;
+      }
+      if (deck.selectedIndex < 0) {
+        return 0;
+      }
+      return std::clamp(deck.selectedIndex + 1, 0, static_cast<int>(deck.cues.size()) - 1);
+    }
+    if (upperToken == "PREV" || upperToken == "PREVIOUS") {
+      if (deck.cues.empty()) {
+        return std::nullopt;
+      }
+      if (deck.selectedIndex < 0) {
+        return 0;
+      }
+      return std::clamp(deck.selectedIndex - 1, 0, static_cast<int>(deck.cues.size()) - 1);
+    }
+    if (upperToken == "SEL" || upperToken == "SELECTED") {
+      if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+        return deck.selectedIndex;
+      }
+      return std::nullopt;
+    }
+    if (upperToken == "ACT" || upperToken == "ACTIVE") {
+      if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+        return deck.activeIndex;
+      }
+      return std::nullopt;
+    }
+    if ((trimmed[0] == '+' || trimmed[0] == '-') && deck.selectedIndex >= 0) {
+      try {
+        int delta = std::stoi(trimmed);
+        return std::clamp(deck.selectedIndex + delta, 0, static_cast<int>(deck.cues.size()) - 1);
+      } catch (...) {
+      }
+    }
+
     try {
       int index = std::stoi(trimmed);
       if (index >= 1 && index <= static_cast<int>(deck.cues.size())) {
@@ -11532,6 +19027,16 @@ class App {
       }
     }
 
+    // Prefix match on cue number (operator-friendly shorthand)
+    for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (!deck.cues[index].cueNumber.empty()) {
+        std::string cueNum = toUpper(deck.cues[index].cueNumber);
+        if (cueNum.rfind(needle, 0) == 0) {
+          return index;
+        }
+      }
+    }
+
     // Partial match on name
     for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
       if (toUpper(deck.cues[index].name).find(needle) != std::string::npos) {
@@ -11539,6 +19044,154 @@ class App {
       }
     }
     return std::nullopt;
+  }
+
+  std::vector<int> cueFindMatches(const Deck& deck, const std::string& token) const {
+    std::string needle = toUpper(trim(token));
+    if (needle.empty()) {
+      return {};
+    }
+
+    std::vector<int> matches;
+    std::unordered_set<int> seen;
+    auto pushMatch = [&](int cueIndex) {
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        return;
+      }
+      if (seen.insert(cueIndex).second) {
+        matches.push_back(cueIndex);
+      }
+    };
+
+    auto isExact = [&](const Cue& cue) {
+      return toUpper(cue.id) == needle || toUpper(cue.cueNumber) == needle || toUpper(cue.name) == needle;
+    };
+    auto isPrefix = [&](const Cue& cue) {
+      std::string cueId = toUpper(cue.id);
+      std::string cueNum = toUpper(cue.cueNumber);
+      std::string cueName = toUpper(cue.name);
+      return cueId.rfind(needle, 0) == 0 || cueNum.rfind(needle, 0) == 0 || cueName.rfind(needle, 0) == 0;
+    };
+    auto isContains = [&](const Cue& cue) {
+      std::string cueId = toUpper(cue.id);
+      std::string cueNum = toUpper(cue.cueNumber);
+      std::string cueName = toUpper(cue.name);
+      return cueId.find(needle) != std::string::npos ||
+        cueNum.find(needle) != std::string::npos ||
+        cueName.find(needle) != std::string::npos;
+    };
+
+    if (auto direct = cueIndexByToken(deck, token); direct) {
+      pushMatch(*direct);
+    }
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      if (isExact(deck.cues[cueIndex])) {
+        pushMatch(cueIndex);
+      }
+    }
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      if (isPrefix(deck.cues[cueIndex])) {
+        pushMatch(cueIndex);
+      }
+    }
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      if (isContains(deck.cues[cueIndex])) {
+        pushMatch(cueIndex);
+      }
+    }
+
+    return matches;
+  }
+
+  bool findCueToken(const std::string& token, int direction = 1, bool triggerJump = false) {
+    normalizeProject(project_);
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
+      triggerToast("find: empty deck");
+      return false;
+    }
+    std::string trimmed = trim(token);
+    if (trimmed.empty()) {
+      triggerToast("find: enter cue id/number/name");
+      return false;
+    }
+
+    bool tokenChanged = toUpper(trimmed) != toUpper(lastCueFindToken_) ||
+      lastCueFindDeckIndex_ != project_.focusedDeckIndex || lastCueFindMatches_.empty();
+    if (tokenChanged) {
+      lastCueFindToken_ = trimmed;
+      lastCueFindDeckIndex_ = project_.focusedDeckIndex;
+      lastCueFindMatches_ = cueFindMatches(deck, trimmed);
+      lastCueFindCursor_ = -1;
+    }
+    if (lastCueFindMatches_.empty()) {
+      triggerToast("find: none");
+      return false;
+    }
+
+    if (lastCueFindCursor_ < 0 || tokenChanged) {
+      lastCueFindCursor_ = direction < 0
+        ? static_cast<int>(lastCueFindMatches_.size()) - 1
+        : 0;
+    } else if (direction != 0) {
+      int count = static_cast<int>(lastCueFindMatches_.size());
+      lastCueFindCursor_ = (lastCueFindCursor_ + (direction > 0 ? 1 : -1) + count) % count;
+    }
+
+    int cueIndex = lastCueFindMatches_[lastCueFindCursor_];
+    if (deck.selectedIndex != cueIndex) {
+      deck.selectedIndex = cueIndex;
+      onSelectionChanged();
+      markProjectDirty();
+    }
+
+    std::string cueNum = trim(deck.cues[cueIndex].cueNumber);
+    if (cueNum.empty()) {
+      cueNum = std::to_string(cueIndex + 1);
+    }
+    triggerToast("find " + std::to_string(lastCueFindCursor_ + 1) + "/" +
+      std::to_string(lastCueFindMatches_.size()) + " -> " + cueNum + " " + deck.cues[cueIndex].name);
+    if (triggerJump) {
+      jumpSelectedCue();
+    }
+    return true;
+  }
+
+  void clearCueFindState() {
+    lastCueFindToken_.clear();
+    lastCueFindMatches_.clear();
+    lastCueFindCursor_ = -1;
+    lastCueFindDeckIndex_ = -1;
+  }
+
+  void renumberFocusedDeckCueNumbers(const std::string& prefix = "", int startAt = 1) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
+      triggerToast("renumber: empty deck");
+      return;
+    }
+    int start = std::max(1, startAt);
+    for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
+      deck.cues[cueIndex].cueNumber = prefix + std::to_string(start + cueIndex);
+    }
+    clearCueFindState();
+    triggerToast("renumbered " + std::to_string(deck.cues.size()) + " cues");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void clearFocusedDeckCueNumbers() {
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
+      return;
+    }
+    for (auto& cue : deck.cues) {
+      cue.cueNumber.clear();
+    }
+    clearCueFindState();
+    triggerToast("cue numbers cleared");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
   }
 
   bool selectCueById(const std::string& cueId) {
@@ -11568,15 +19221,27 @@ class App {
     return true;
   }
 
+  double snapToCueFrame(const Cue& cue, double seconds) const {
+    double duration = std::max(0.0, cue.duration);
+    double clamped = std::clamp(seconds, 0.0, duration);
+    double fps = cue.fps;
+    if (!std::isfinite(fps) || fps <= 0.0) {
+      return clamped;
+    }
+    double frameIndex = std::round(clamped * fps);
+    double snapped = frameIndex / fps;
+    return std::clamp(snapped, 0.0, duration);
+  }
+
   void setSelectedTrimIn(double seconds) {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Video) {
       return;
     }
     double duration = std::max(0.0, cue->duration);
-    double next = std::clamp(seconds, 0.0, duration);
+    double next = snapToCueFrame(*cue, seconds);
     double out = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : duration;
-    out = std::clamp(out, next, duration);
+    out = std::clamp(snapToCueFrame(*cue, out), next, duration);
     cue->inPointSeconds = next;
     cue->outPointSeconds = out;
     triggerToast("in " + formatSeconds(cue->inPointSeconds));
@@ -11589,7 +19254,7 @@ class App {
       return;
     }
     double duration = std::max(0.0, cue->duration);
-    double next = std::clamp(seconds, cue->inPointSeconds, duration);
+    double next = std::clamp(snapToCueFrame(*cue, seconds), cue->inPointSeconds, duration);
     cue->outPointSeconds = next;
     triggerToast("out " + formatSeconds(cue->outPointSeconds));
     markProjectDirty();
@@ -11604,6 +19269,67 @@ class App {
     cue->outPointSeconds = cue->duration;
     triggerToast("trim reset");
     markProjectDirty();
+  }
+
+  bool setActiveTrimFromPlayhead(bool setInPoint) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    Cue& cue = deck.cues[deck.activeIndex];
+    if (cue.kind != CueKind::Video) {
+      return false;
+    }
+    MediaEngine* engine = focusedMediaEngine();
+    if (!engine) {
+      return false;
+    }
+    double duration = std::max(0.0, cue.duration);
+    double playhead = snapToCueFrame(cue, engine->position());
+    if (setInPoint) {
+      double out = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : duration;
+      cue.inPointSeconds = playhead;
+      cue.outPointSeconds = std::clamp(snapToCueFrame(cue, out), cue.inPointSeconds, duration);
+      triggerToast("in " + formatSeconds(cue.inPointSeconds));
+    } else {
+      cue.outPointSeconds = std::clamp(playhead, cue.inPointSeconds, duration);
+      triggerToast("out " + formatSeconds(cue.outPointSeconds));
+    }
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool nudgeFocusedPausedPlayback(int direction, Uint16 mod) {
+    if (direction == 0) {
+      return false;
+    }
+    MediaEngine* engine = focusedMediaEngine();
+    const Cue* cue = activeCuePtr();
+    if (!engine || !cue || cue->kind != CueKind::Video) {
+      return false;
+    }
+    if (engine->state() != TransportState::Paused) {
+      return false;
+    }
+    double fps = (std::isfinite(cue->fps) && cue->fps > 1.0) ? cue->fps : 30.0;
+    double stepSeconds = 1.0 / fps;
+    std::string stepLabel = "1f";
+    if ((mod & KMOD_ALT) != 0) {
+      stepSeconds = 1.0;
+      stepLabel = "1s";
+    } else if ((mod & KMOD_CTRL) != 0) {
+      stepSeconds = 10.0 / fps;
+      stepLabel = "10f";
+    } else if ((mod & KMOD_SHIFT) != 0) {
+      stepSeconds = 5.0 / fps;
+      stepLabel = "5f";
+    }
+    double target = snapToCueFrame(*cue, engine->position() + static_cast<double>(direction) * stepSeconds);
+    engine->seek(target);
+    triggerToast((direction > 0 ? ">> " : "<< ") + stepLabel + "  " + formatTimecode(target, fps));
+    playUiSound(UiSoundEffect::Toggle);
+    return true;
   }
 
   void setTimeOverlayEnabled(bool enabled) {
@@ -11666,6 +19392,26 @@ class App {
     markProjectDirty();
   }
 
+  void ensureTimecodeFollowerStateSize() {
+    size_t deckCount = project_.decks.size();
+    if (deckTimecodeLastExternalMs_.size() != deckCount) {
+      deckTimecodeLastExternalMs_.resize(deckCount, 0);
+    }
+    if (deckTimecodeLastExternalSeconds_.size() != deckCount) {
+      deckTimecodeLastExternalSeconds_.resize(deckCount, 0.0);
+    }
+    if (deckTimecodeHasExternal_.size() != deckCount) {
+      deckTimecodeHasExternal_.resize(deckCount, false);
+    }
+  }
+
+  void resetTimecodeFollowerState() {
+    ensureTimecodeFollowerStateSize();
+    std::fill(deckTimecodeLastExternalMs_.begin(), deckTimecodeLastExternalMs_.end(), 0);
+    std::fill(deckTimecodeLastExternalSeconds_.begin(), deckTimecodeLastExternalSeconds_.end(), 0.0);
+    std::fill(deckTimecodeHasExternal_.begin(), deckTimecodeHasExternal_.end(), false);
+  }
+
   void setTimecodeFps(double fps) {
     Deck& deck = focusedDeckMutable();
     double next = std::clamp(fps, 1.0, 120.0);
@@ -11697,12 +19443,59 @@ class App {
     markProjectDirty();
   }
 
-  void setDeckTimecode(int deckIndex, double seconds) {
+  void setTimecodeJamSyncEnabled(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.timecodeJamSyncEnabled == enabled) {
+      triggerToast(enabled ? "tc jam on" : "tc jam off");
+      return;
+    }
+    deck.timecodeJamSyncEnabled = enabled;
+    triggerToast(deck.timecodeJamSyncEnabled ? "tc jam on" : "tc jam off");
+    markProjectDirty();
+  }
+
+  void setTimecodeFreewheelSeconds(double seconds) {
+    Deck& deck = focusedDeckMutable();
+    double next = std::clamp(std::isfinite(seconds) ? seconds : 1.0, 0.0, 10.0);
+    if (std::abs(deck.timecodeFreewheelSeconds - next) < 0.001) {
+      std::ostringstream label;
+      label << std::fixed << std::setprecision(1) << next;
+      triggerToast("tc freewheel " + label.str() + "s");
+      return;
+    }
+    deck.timecodeFreewheelSeconds = next;
+    std::ostringstream label;
+    label << std::fixed << std::setprecision(1) << deck.timecodeFreewheelSeconds;
+    triggerToast("tc freewheel " + label.str() + "s");
+    markProjectDirty();
+  }
+
+  void setDeckTimecode(int deckIndex, double seconds, bool forceApply = false) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
     }
+    ensureTimecodeFollowerStateSize();
     Deck& deck = project_.decks[deckIndex];
     double normalized = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
+    Uint64 now = SDL_GetTicks64();
+    bool hadExternal = deckTimecodeHasExternal_[deckIndex];
+    Uint64 previousExternalMs = deckTimecodeLastExternalMs_[deckIndex];
+    Uint64 freewheelMs = static_cast<Uint64>(
+      std::llround(std::max(0.0, deck.timecodeFreewheelSeconds) * 1000.0));
+    bool withinFreewheel = hadExternal && now >= previousExternalMs && (now - previousExternalMs) <= freewheelMs;
+    bool suppressJam = !forceApply
+      && !deck.timecodeJamSyncEnabled
+      && deck.timecodeChaseEnabled
+      && deck.timecodeRunEnabled
+      && withinFreewheel;
+
+    deckTimecodeHasExternal_[deckIndex] = true;
+    deckTimecodeLastExternalMs_[deckIndex] = now;
+    deckTimecodeLastExternalSeconds_[deckIndex] = normalized;
+    if (suppressJam) {
+      return;
+    }
+
     if (normalized + 0.0001 < deck.timecodeCurrentSeconds) {
       timecodeTriggeredCueIds_.erase(deckIndex);
     }
@@ -11756,8 +19549,8 @@ class App {
     project_.focusedDeckIndex = previousFocus;
   }
 
-  void setFocusedDeckTimecode(double seconds) {
-    setDeckTimecode(project_.focusedDeckIndex, seconds);
+  void setFocusedDeckTimecode(double seconds, bool forceApply = false) {
+    setDeckTimecode(project_.focusedDeckIndex, seconds, forceApply);
     triggerToast("tc " + formatTimecode(focusedDeck().timecodeCurrentSeconds, focusedDeck().timecodeFps));
   }
 
@@ -11794,14 +19587,119 @@ class App {
     return cue && (cue->kind == CueKind::Video
       || cue->kind == CueKind::Image
       || cue->kind == CueKind::Pattern
-      || cue->kind == CueKind::Browser);
+      || cue->kind == CueKind::Browser
+      || isSourceCueKind(cue->kind));
   }
 
   bool cueSupportsKeying(const Cue* cue) const {
     return cue && (cue->kind == CueKind::Video
       || cue->kind == CueKind::Image
       || cue->kind == CueKind::Pattern
-      || cue->kind == CueKind::Browser);
+      || cue->kind == CueKind::Browser
+      || isSourceCueKind(cue->kind));
+  }
+
+  bool cueSupportsColorControls(const Cue* cue) const {
+    return cueSupportsKeying(cue);
+  }
+
+  std::optional<double> promptNumericExpression(const std::string& title,
+                                                const std::string& prompt,
+                                                const std::string& currentValue) {
+    auto text = pickTextInput(title, prompt, currentValue);
+    if (!text) {
+      return std::nullopt;
+    }
+    auto parsed = parseNumericExpression(*text);
+    if (!parsed) {
+      triggerToast("invalid number");
+      return std::nullopt;
+    }
+    return parsed;
+  }
+
+  void editSelectedScaleX() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    std::ostringstream current;
+    current << std::fixed << std::setprecision(2) << cue->outputScaleX;
+    auto parsed = promptNumericExpression("Scale X", "Factor 0.25-4.0 (supports + - * / and ())", current.str());
+    if (!parsed) {
+      return;
+    }
+    cue->outputScaleX = std::clamp(static_cast<float>(*parsed), 0.25f, 4.0f);
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2) << cue->outputScaleX;
+    triggerToast("scale X " + ss.str() + "x");
+    markProjectDirty();
+  }
+
+  void editSelectedScaleY() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    std::ostringstream current;
+    current << std::fixed << std::setprecision(2) << cue->outputScaleY;
+    auto parsed = promptNumericExpression("Scale Y", "Factor 0.25-4.0 (supports + - * / and ())", current.str());
+    if (!parsed) {
+      return;
+    }
+    cue->outputScaleY = std::clamp(static_cast<float>(*parsed), 0.25f, 4.0f);
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2) << cue->outputScaleY;
+    triggerToast("scale Y " + ss.str() + "x");
+    markProjectDirty();
+  }
+
+  void editSelectedOffsetX() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    int current = static_cast<int>(std::lround(cue->outputOffsetX));
+    auto parsed = promptNumericExpression("Offset X", "Pixels (supports + - * / and ())", std::to_string(current));
+    if (!parsed) {
+      return;
+    }
+    cue->outputOffsetX = static_cast<float>(std::lround(*parsed));
+    triggerToast("off X " + std::to_string(static_cast<int>(std::lround(cue->outputOffsetX))) + "px");
+    markProjectDirty();
+  }
+
+  void editSelectedOffsetY() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    int current = static_cast<int>(std::lround(cue->outputOffsetY));
+    auto parsed = promptNumericExpression("Offset Y", "Pixels (supports + - * / and ())", std::to_string(current));
+    if (!parsed) {
+      return;
+    }
+    cue->outputOffsetY = static_cast<float>(std::lround(*parsed));
+    triggerToast("off Y " + std::to_string(static_cast<int>(std::lround(cue->outputOffsetY))) + "px");
+    markProjectDirty();
+  }
+
+  void editSelectedRotation() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsGeometry(cue)) {
+      return;
+    }
+    std::ostringstream current;
+    current << std::fixed << std::setprecision(1) << cue->outputRotationDegrees;
+    auto parsed = promptNumericExpression("Rotation", "Degrees -180..180 (supports + - * / and ())", current.str());
+    if (!parsed) {
+      return;
+    }
+    cue->outputRotationDegrees = std::clamp(static_cast<float>(*parsed), -180.0f, 180.0f);
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(1) << cue->outputRotationDegrees;
+    triggerToast("rot " + ss.str() + " deg");
+    markProjectDirty();
   }
 
   void normalizeCueCrop(Cue& cue) {
@@ -11887,6 +19785,42 @@ class App {
     markProjectDirty();
   }
 
+  void adjustSelectedBrightness(float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsColorControls(cue)) {
+      return;
+    }
+    cue->brightness = std::clamp(cue->brightness + delta, 0.0f, 2.0f);
+    markProjectDirty();
+  }
+
+  void adjustSelectedContrast(float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsColorControls(cue)) {
+      return;
+    }
+    cue->contrast = std::clamp(cue->contrast + delta, 0.0f, 2.0f);
+    markProjectDirty();
+  }
+
+  void adjustSelectedSaturation(float delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsColorControls(cue)) {
+      return;
+    }
+    cue->saturation = std::clamp(cue->saturation + delta, 0.0f, 2.0f);
+    markProjectDirty();
+  }
+
+  void adjustSelectedHueShift(float deltaDegrees) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueSupportsColorControls(cue)) {
+      return;
+    }
+    cue->hueShift = std::clamp(cue->hueShift + deltaDegrees, -180.0f, 180.0f);
+    markProjectDirty();
+  }
+
   void dispatchQuickAction(QuickAction action) {
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
@@ -11912,13 +19846,13 @@ class App {
       case QuickAction::SpeedDec:        adjustSelectedSpeed(-0.25); break;
       case QuickAction::SpeedInc:        adjustSelectedSpeed( 0.25); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
-       case QuickAction::CycleScaleMode: {
-         if (Cue* sel = selectedCueMutable()) {
-           sel->scaleMode = static_cast<ScaleMode>((static_cast<int>(sel->scaleMode) + 1) % 4);
-           markProjectDirty();
-         }
-         break;
-       }
+      case QuickAction::CycleScaleMode: {
+        if (Cue* sel = selectedCueMutable()) {
+          sel->scaleMode = static_cast<ScaleMode>((static_cast<int>(sel->scaleMode) + 1) % 4);
+          markProjectDirty();
+        }
+        break;
+      }
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {
@@ -11956,23 +19890,38 @@ class App {
       case QuickAction::ScaleYInc:
         if (Cue* sel = selectedCueMutable()) { sel->outputScaleY = std::clamp(sel->outputScaleY + 0.05f, 0.25f, 4.0f); markProjectDirty(); }
         break;
+      case QuickAction::EditScaleX:
+        editSelectedScaleX();
+        break;
+      case QuickAction::EditScaleY:
+        editSelectedScaleY();
+        break;
       case QuickAction::OffsetXDec:
-        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX -= 10.0f; markProjectDirty(); }
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX -= 1.0f; markProjectDirty(); }
         break;
       case QuickAction::OffsetXInc:
-        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX += 10.0f; markProjectDirty(); }
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetX += 1.0f; markProjectDirty(); }
         break;
       case QuickAction::OffsetYDec:
-        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY -= 10.0f; markProjectDirty(); }
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY -= 1.0f; markProjectDirty(); }
         break;
       case QuickAction::OffsetYInc:
-        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY += 10.0f; markProjectDirty(); }
+        if (Cue* sel = selectedCueMutable()) { sel->outputOffsetY += 1.0f; markProjectDirty(); }
+        break;
+      case QuickAction::EditOffsetX:
+        editSelectedOffsetX();
+        break;
+      case QuickAction::EditOffsetY:
+        editSelectedOffsetY();
         break;
       case QuickAction::RotDec:
         adjustSelectedRotation(-1.0f);
         break;
       case QuickAction::RotInc:
         adjustSelectedRotation(1.0f);
+        break;
+      case QuickAction::EditRotation:
+        editSelectedRotation();
         break;
       case QuickAction::CropLDec:
         adjustSelectedCrop('L', -0.01f);
@@ -12016,6 +19965,110 @@ class App {
       case QuickAction::EditKeyColor:
         editSelectedKeyColor();
         break;
+      case QuickAction::BrightnessDec:
+        adjustSelectedBrightness(-0.05f);
+        break;
+      case QuickAction::BrightnessInc:
+        adjustSelectedBrightness(0.05f);
+        break;
+      case QuickAction::ContrastDec:
+        adjustSelectedContrast(-0.05f);
+        break;
+      case QuickAction::ContrastInc:
+        adjustSelectedContrast(0.05f);
+        break;
+      case QuickAction::SaturationDec:
+        adjustSelectedSaturation(-0.05f);
+        break;
+      case QuickAction::SaturationInc:
+        adjustSelectedSaturation(0.05f);
+        break;
+      case QuickAction::HueShiftDec:
+        adjustSelectedHueShift(-5.0f);
+        break;
+      case QuickAction::HueShiftInc:
+        adjustSelectedHueShift(5.0f);
+        break;
+      case QuickAction::PatternTypePrev:
+        cycleSelectedPatternType(-1);
+        break;
+      case QuickAction::PatternTypeNext:
+        cycleSelectedPatternType(1);
+        break;
+      case QuickAction::TogglePatternMotion:
+        toggleSelectedPatternMotion();
+        break;
+      case QuickAction::CueSectionPlaybackToggle:
+        cueSectionPlaybackOpen_ = !cueSectionPlaybackOpen_;
+        break;
+      case QuickAction::CueSectionGeometryToggle:
+        cueSectionGeometryOpen_ = !cueSectionGeometryOpen_;
+        break;
+      case QuickAction::CueSectionKeyToggle:
+        cueSectionKeyOpen_ = !cueSectionKeyOpen_;
+        break;
+      case QuickAction::CueSectionRoutingToggle:
+        cueSectionRoutingOpen_ = !cueSectionRoutingOpen_;
+        break;
+      case QuickAction::CueRouteOutputPrev:
+      case QuickAction::CueRouteOutputNext: {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          break;
+        }
+        int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        int delta = (action == QuickAction::CueRouteOutputPrev) ? -1 : 1;
+        int nextOutput = (routeOutput + delta + outputCount) % outputCount;
+        moveDeckToOutput(deckIndex, nextOutput);
+        setFocusedOutputIndex(nextOutput);
+        break;
+      }
+      case QuickAction::CueRouteLayerDec:
+      case QuickAction::CueRouteLayerInc: {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          break;
+        }
+        int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        auto assignment = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (!assignment) {
+          assignDeckToOutput(deckIndex, routeOutput);
+          assignment = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        }
+        if (!assignment) {
+          break;
+        }
+        int currentLayer = std::clamp(project_.layerAssignments[*assignment].layerIndex, 0, 255);
+        int delta = (action == QuickAction::CueRouteLayerDec) ? -1 : 1;
+        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
+        break;
+      }
+      case QuickAction::CueRouteAssignToggle: {
+        if (project_.decks.empty() || project_.outputs.empty()) {
+          break;
+        }
+        int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+        int outputCount = static_cast<int>(project_.outputs.size());
+        auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+        int routeOutput = primaryOut
+          ? *primaryOut
+          : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+        auto assignment = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+        if (assignment) {
+          unassignDeckFromOutput(deckIndex, routeOutput);
+        } else {
+          assignDeckToOutput(deckIndex, routeOutput);
+        }
+        break;
+      }
       case QuickAction::EditCueNumber: {
         Cue* sel = selectedCueMutable();
         if (sel) {
@@ -12297,22 +20350,22 @@ class App {
   std::optional<fs::path> pickProjectPath(bool saveMode, std::string initialPath = {}) {
 #ifdef _WIN32
     std::string script = saveMode
-      ? "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Filter = 'Playboy Playlist (*.playboy)|*.playboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
-      : "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.OpenFileDialog;$dialog.Filter = 'Playboy Playlist (*.playboy)|*.playboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName";
+      ? "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Filter = 'Deckboy Playlist (*.playboy)|*.playboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
+      : "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.OpenFileDialog;$dialog.Filter = 'Deckboy Playlist (*.playboy)|*.playboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName";
     auto text = readAllText({"powershell.exe", "-NoProfile", "-Command", script});
 #elif __APPLE__
     auto text = saveMode
       ? readAllText({
           "osascript",
           "-e",
-          "set targetFile to choose file name with prompt \"Save Playboy playlist\"",
+          "set targetFile to choose file name with prompt \"Save Deckboy playlist\"",
           "-e",
           "return POSIX path of targetFile"
         })
       : readAllText({
           "osascript",
           "-e",
-          "set pickedFile to choose file with prompt \"Open Playboy playlist\"",
+          "set pickedFile to choose file with prompt \"Open Deckboy playlist\"",
           "-e",
           "return POSIX path of pickedFile"
         });
@@ -12323,14 +20376,14 @@ class App {
           "--file-selection",
           "--save",
           "--confirm-overwrite",
-          "--title=Save Playboy playlist",
+          "--title=Save Deckboy playlist",
           "--filename",
           initialPath
         })
       : readAllText({
           "zenity",
           "--file-selection",
-          "--title=Open Playboy playlist",
+          "--title=Open Deckboy playlist",
           "--filename",
           initialPath
         });
@@ -12350,10 +20403,16 @@ class App {
     currentProjectFile_ = normalized;
     project_ = loadProject(normalized);
     normalizeProject(project_);
+    disarmAllOutputsForStartup();
+    updateDecksPanelVisibility();
     timecodeTriggeredCueIds_.clear();
+    resetTimecodeFollowerState();
     selectionChangedAt_ = SDL_GetTicks64();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
+    }
+    if (!rebuildOutputRuntimes()) {
+      std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
     }
     triggerToast("playlist: " + currentProjectLabel());
   }
@@ -12442,6 +20501,47 @@ class App {
     return std::optional<std::string>(result);
   }
 
+  std::optional<std::string> pickChoiceFromList(
+      const std::string& title,
+      const std::string& prompt,
+      const std::vector<std::pair<std::string, std::string>>& options,
+      const std::string& defaultValue = "") {
+    if (options.empty()) {
+      return std::nullopt;
+    }
+#ifdef __linux__
+    std::vector<std::string> args {
+      "zenity",
+      "--list",
+      "--title=" + title,
+      "--text=" + prompt,
+      "--column=Choice",
+      "--column=Value",
+      "--print-column=2",
+      "--hide-column=2"
+    };
+    for (const auto& option : options) {
+      args.push_back(option.first);
+      args.push_back(option.second);
+    }
+    auto text = readAllText(args);
+    if (text) {
+      std::string value = trim(*text);
+      if (!value.empty()) {
+        return value;
+      }
+    }
+#endif
+    std::string fallbackPrompt = prompt + "\nEnter value token:";
+    for (size_t i = 0; i < options.size() && i < 24; ++i) {
+      fallbackPrompt += "\n" + options[i].second + "  -  " + options[i].first;
+    }
+    if (!defaultValue.empty()) {
+      fallbackPrompt += "\n(default: " + defaultValue + ")";
+    }
+    return pickTextInput(title, fallbackPrompt, defaultValue);
+  }
+
   std::vector<std::string> pickFiles() {
 #ifdef _WIN32
     auto text = readAllText({
@@ -12478,7 +20578,7 @@ class App {
       "--file-selection",
       "--multiple",
       "--separator=|",
-      "--title=Import media into Playboy Native"
+      "--title=Import media into Deckboy Native"
     });
 #endif
 
@@ -12508,7 +20608,7 @@ class App {
     if (url.empty()) {
       return;
     }
-    auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
 
     Cue cue;
     cue.kind = CueKind::Browser;
@@ -12538,6 +20638,74 @@ class App {
     addBrowserCue(*url);
   }
 
+  void addSourceCue(CueKind kind, const std::string& rawRef) {
+    if (!isSourceCueKind(kind)) {
+      return;
+    }
+    std::string sourceRef = trim(rawRef);
+    if (sourceRef.empty()) {
+      if (kind == CueKind::WindowSource) {
+        sourceRef = "active-window";
+      } else if (kind == CueKind::Camera) {
+        sourceRef = "default-camera";
+      } else {
+        sourceRef = "default-bus";
+      }
+    }
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = kind;
+    cue.path = "source://" + sourceCueTokenForKind(kind) + "/" + sourceRef;
+    cue.name = cueKindLabel(kind) + " · " + sourceRef;
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.duration = 0.0;
+    cue.stillDurationSeconds = 0.0;
+    cue.hasAudio = (kind == CueKind::Camera);
+    cue.formatName = "source";
+    cue.videoCodec = sourceCueTokenForKind(kind);
+    cue.audioCodec = cue.hasAudio ? "source" : "";
+    cue.color = SDL_Color {139, 172, 15, 255};
+    Deck& deck = focusedDeckMutable();
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("source cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  void addSourceCueFromMenu() {
+    std::vector<std::pair<std::string, std::string>> choices {
+      {"Window Source", "window"},
+      {"Camera Source", "camera"},
+#ifdef _WIN32
+      {"Spout Source", "spout"}
+#else
+      {"Syphon Source", "syphon"}
+#endif
+    };
+    auto picked = pickChoiceFromList("Add Source Cue", "Choose source type", choices, "window");
+    if (!picked) {
+      return;
+    }
+    std::string token = toLower(trim(*picked));
+    CueKind kind = CueKind::WindowSource;
+    std::string prompt = "Window title / id (blank = active-window)";
+    std::string initial = "active-window";
+    if (token == "camera" || token == "cam") {
+      kind = CueKind::Camera;
+      prompt = "Camera device path/name (blank = default-camera)";
+      initial = "default-camera";
+    } else if (token == "syphon" || token == "spout" || token == "siphon") {
+      kind = CueKind::Syphon;
+      prompt = "Syphon/Spout source id (blank = default-bus)";
+      initial = "default-bus";
+    }
+    auto source = pickTextInput("Source Cue", prompt, initial);
+    addSourceCue(kind, source ? *source : initial);
+  }
+
   void addLowerThirdCue() {
     Cue cue;
     cue.kind = CueKind::LowerThird;
@@ -12558,28 +20726,165 @@ class App {
   }
 
   // Named pattern types and their pretty labels.
-  static const std::vector<std::pair<std::string, std::string>>& patternTypes() {
+  static const std::vector<std::pair<std::string, std::string>>& patternBaseTypes() {
     static const std::vector<std::pair<std::string, std::string>> types {
-      {"pocket-test",   "Pocket Test (animated)"},
-      {"smpte-bars",    "SMPTE 75% Colour Bars"},
-      {"crosshatch",    "Crosshatch"},
-      {"checkerboard",  "Checkerboard"},
-      {"full-white",    "Full White"},
-      {"full-black",    "Full Black"},
-      {"full-red",      "Full Red"},
-      {"full-green",    "Full Green"},
-      {"full-blue",     "Full Blue"},
+      {"pocket-test",   "Pocket Test (scene cycle + creatures)"},
+      {"pocket-day",    "Pocket Day Quest (animated)"},
+      {"pocket-sunset", "Pocket Sunset Quest (animated)"},
+      {"pocket-night",  "Pocket Night Quest (animated)"},
+      {"pocket-storm",  "Pocket Storm Quest (animated)"},
+      {"smpte-bars",   "SMPTE 75% Colour Bars"},
+      {"crosshatch",   "Crosshatch"},
+      {"checkerboard", "Checkerboard"},
+      {"full-white",   "Full White"},
+      {"full-black",   "Full Black"},
+      {"full-red",     "Full Red"},
+      {"full-green",   "Full Green"},
+      {"full-blue",    "Full Blue"},
     };
     return types;
   }
 
-  void addPatternCue(const std::string& typeId) {
-    const auto& types = patternTypes();
-    std::string label = typeId;
-    for (const auto& [id, lbl] : types) {
-      if (id == typeId) { label = lbl; break; }
+  static const std::vector<std::pair<std::string, std::string>>& patternTypes() {
+    static const std::vector<std::pair<std::string, std::string>> types = [] {
+      std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
+      list.emplace_back("smpte-bars-motion", "SMPTE 75% Colour Bars (motion)");
+      list.emplace_back("crosshatch-motion", "Crosshatch (motion)");
+      list.emplace_back("checkerboard-motion", "Checkerboard (motion)");
+      list.emplace_back("full-white-motion", "Full White (motion)");
+      list.emplace_back("full-black-motion", "Full Black (motion)");
+      list.emplace_back("full-red-motion", "Full Red (motion)");
+      list.emplace_back("full-green-motion", "Full Green (motion)");
+      list.emplace_back("full-blue-motion", "Full Blue (motion)");
+      return list;
+    }();
+    return types;
+  }
+
+  bool isKnownPatternType(const std::string& rawTypeId) const {
+    std::string typeId = normalizePatternTypeId(rawTypeId);
+    if (typeId == "checker") {
+      typeId = "checkerboard";
     }
-    auto [rasterW, rasterH] = outputRenderSizeForDeck(project_.focusedDeckIndex);
+    const auto& types = patternTypes();
+    return std::any_of(types.begin(), types.end(), [&](const auto& item) {
+      return item.first == typeId;
+    });
+  }
+
+  std::string patternLabelForType(const std::string& rawTypeId) const {
+    std::string typeId = normalizePatternTypeId(rawTypeId);
+    if (typeId == "checker") {
+      typeId = "checkerboard";
+    }
+    const auto& types = patternTypes();
+    for (const auto& [id, lbl] : types) {
+      if (id == typeId) {
+        return lbl;
+      }
+    }
+    return typeId;
+  }
+
+  bool applyPatternTypeToSelectedCue(const std::string& rawTypeId, bool announce) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    Cue& cue = deck.cues[deck.selectedIndex];
+    if (cue.kind != CueKind::Pattern) {
+      return false;
+    }
+
+    std::string typeId = normalizePatternTypeId(rawTypeId);
+    if (typeId == "checker") {
+      typeId = "checkerboard";
+    }
+    if (typeId.empty() || !isKnownPatternType(typeId)) {
+      triggerToast("pattern: invalid");
+      return false;
+    }
+
+    std::string previousType = normalizePatternTypeId(cue.path);
+    std::string previousLabel = patternLabelForType(previousType);
+    std::string nextLabel = patternLabelForType(typeId);
+    cue.path = "pattern://" + typeId;
+    if (cue.name.empty() || cue.name == previousLabel || cue.name == previousType) {
+      cue.name = nextLabel;
+    }
+    patternDefaultTypeId_ = typeId;
+    markProjectDirty();
+
+    if (deck.activeIndex == deck.selectedIndex) {
+      if (MediaEngine* engine = focusedMediaEngine()) {
+        bool autoplay = engine->state() == TransportState::Playing;
+        engine->loadCue(&cue, autoplay);
+      }
+    }
+    if (announce) {
+      triggerToast("pattern: " + nextLabel);
+    }
+    return true;
+  }
+
+  void cycleSelectedPatternType(int direction) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || cue->kind != CueKind::Pattern) {
+      return;
+    }
+    std::string currentType = normalizePatternTypeId(cue->path);
+    bool motion = endsWith(currentType, "-motion");
+    std::string baseType = stripPatternMotionSuffix(currentType);
+    const auto& bases = patternBaseTypes();
+    if (bases.empty()) {
+      return;
+    }
+    int currentIndex = 0;
+    for (int i = 0; i < static_cast<int>(bases.size()); ++i) {
+      if (bases[i].first == baseType) {
+        currentIndex = i;
+        break;
+      }
+    }
+    int step = direction < 0 ? -1 : 1;
+    int nextIndex = (currentIndex + step + static_cast<int>(bases.size())) % static_cast<int>(bases.size());
+    std::string nextType = bases[nextIndex].first;
+    if (motion && patternTypeSupportsMotion(nextType)) {
+      nextType += "-motion";
+    }
+    applyPatternTypeToSelectedCue(nextType, true);
+  }
+
+  void toggleSelectedPatternMotion() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || cue->kind != CueKind::Pattern) {
+      return;
+    }
+    std::string currentType = normalizePatternTypeId(cue->path);
+    std::string baseType = stripPatternMotionSuffix(currentType);
+    if (!patternTypeSupportsMotion(baseType)) {
+      triggerToast("pattern motion: n/a");
+      return;
+    }
+    bool motion = endsWith(currentType, "-motion");
+    applyPatternTypeToSelectedCue(motion ? baseType : (baseType + "-motion"), true);
+  }
+
+  void addPatternCue(const std::string& rawTypeId) {
+    std::string typeId = normalizePatternTypeId(rawTypeId);
+    if (typeId.empty()) {
+      typeId = patternDefaultTypeId_;
+    }
+    if (typeId == "checker") {
+      typeId = "checkerboard";
+    }
+    if (!isKnownPatternType(typeId)) {
+      triggerToast("pattern: invalid");
+      return;
+    }
+    patternDefaultTypeId_ = typeId;
+    std::string label = patternLabelForType(typeId);
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
     Cue cue;
     cue.kind = CueKind::Pattern;
     cue.path = "pattern://" + typeId;
@@ -12597,8 +20902,21 @@ class App {
     markProjectDirty();
   }
 
+  void addPatternCueFromMenu() {
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.reserve(patternTypes().size());
+    for (const auto& [id, label] : patternTypes()) {
+      choices.push_back({label, id});
+    }
+    auto picked = pickChoiceFromList("Add Pattern", "Choose test pattern type", choices, patternDefaultTypeId_);
+    if (!picked) {
+      return;
+    }
+    addPatternCue(*picked);
+  }
+
   void addKawaiiPatternCue() {
-    addPatternCue("pocket-test");
+    addPatternCue(patternDefaultTypeId_);
   }
 
   void importPaths(const std::vector<std::string>& rawPaths) {
@@ -12642,45 +20960,162 @@ class App {
   }
 
   void toggleOutputFullscreen() {
-    DeckRuntime* runtime = focusedRuntime();
+    if (project_.focusedOutputIndex >= 0 &&
+        project_.focusedOutputIndex < static_cast<int>(project_.outputs.size())) {
+      const OutputTarget& output = project_.outputs[project_.focusedOutputIndex];
+      if (normalizeOutputType(output.outputType) == "stream") {
+        triggerToast("fullscreen: stream output");
+        return;
+      }
+      if (!output.enabled) {
+        setFocusedOutputEnabled(true);
+        return;
+      }
+    }
+    OutputRuntime* runtime = runtimeForOutput(project_.focusedOutputIndex);
     if (!runtime || !runtime->outputWindow) {
       return;
     }
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
     if (fullscreen) {
-      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
-      triggerToast("tiny screen");
+      // Fullscreen button now acts as "reassert fullscreen on target display"
+      // to avoid losing output windows off-screen.
+      recoverWindowOutputIfNeeded(project_.focusedOutputIndex, true);
     } else {
-      enableDeckFullscreen(project_.focusedDeckIndex, true);
+      enableOutputFullscreen(project_.focusedOutputIndex, true);
+      SDL_ShowWindow(runtime->outputWindow);
+      SDL_RaiseWindow(runtime->outputWindow);
     }
     playUiSound(UiSoundEffect::Toggle);
+  }
+
+  std::optional<int> outputIndexForWindowId(Uint32 windowId) const {
+    if (windowId == 0) {
+      return std::nullopt;
+    }
+    for (int outputIndex = 0; outputIndex < static_cast<int>(outputRuntimes_.size()); ++outputIndex) {
+      const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+      if (!runtime || !runtime->outputWindow) {
+        continue;
+      }
+      if (SDL_GetWindowID(runtime->outputWindow) == windowId) {
+        return outputIndex;
+      }
+    }
+    return std::nullopt;
+  }
+
+  bool escapeOutputFullscreen(Uint32 sourceWindowId) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return false;
+    }
+
+    int targetOutputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    std::optional<int> sourceOutputIndex = outputIndexForWindowId(sourceWindowId);
+    if (sourceOutputIndex) {
+      targetOutputIndex = *sourceOutputIndex;
+    }
+
+    auto tryExitFullscreen = [&](int outputIndex) -> bool {
+      if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+        return false;
+      }
+      OutputTarget& output = project_.outputs[outputIndex];
+      if (!output.enabled || normalizeOutputType(output.outputType) != "window") {
+        return false;
+      }
+      OutputRuntime* runtime = runtimeForOutput(outputIndex);
+      if (!runtime || !runtime->outputWindow) {
+        return false;
+      }
+      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      if (!fullscreen) {
+        return false;
+      }
+      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      runtime->recoveryPausedByEscape = true;
+      SDL_ShowWindow(runtime->outputWindow);
+      SDL_RaiseWindow(controlWindow_);
+      triggerToast("escape: " + outputLabel(outputIndex) + " windowed");
+      playUiSound(UiSoundEffect::Toggle);
+      project_.focusedOutputIndex = outputIndex;
+      return true;
+    };
+
+    if (tryExitFullscreen(targetOutputIndex)) {
+      return true;
+    }
+
+    if (sourceOutputIndex &&
+        *sourceOutputIndex >= 0 &&
+        *sourceOutputIndex < static_cast<int>(project_.outputs.size())) {
+      OutputTarget& sourceOutput = project_.outputs[*sourceOutputIndex];
+      if (sourceOutput.enabled && normalizeOutputType(sourceOutput.outputType) == "window") {
+        if (OutputRuntime* runtime = runtimeForOutput(*sourceOutputIndex); runtime && runtime->outputWindow) {
+          // Esc from an output window should remain an output-safety action,
+          // not fall through to app quit confirmation.
+          runtime->recoveryPausedByEscape = true;
+          SDL_ShowWindow(runtime->outputWindow);
+          SDL_RaiseWindow(controlWindow_);
+          project_.focusedOutputIndex = *sourceOutputIndex;
+          return true;
+        }
+      }
+    }
+
+    int controlDisplay = SDL_GetWindowDisplayIndex(controlWindow_);
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (!project_.outputs[outputIndex].enabled ||
+          normalizeOutputType(project_.outputs[outputIndex].outputType) != "window") {
+        continue;
+      }
+      OutputRuntime* runtime = runtimeForOutput(outputIndex);
+      if (!runtime || !runtime->outputWindow) {
+        continue;
+      }
+      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      if (!fullscreen) {
+        continue;
+      }
+      int outputDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
+      if (controlDisplay >= 0 && outputDisplay >= 0 && outputDisplay != controlDisplay) {
+        continue;
+      }
+      if (tryExitFullscreen(outputIndex)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   void layoutButtons(int windowHeight) {
     buttons_.clear();
     int x = kPadding + 16;
-    int y = windowHeight - 74;
+    int y = windowHeight - 94;
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
       button.label = std::move(label);
       button.tip   = std::move(tip);
-      button.rect = {x, y, 118, 44};
+      button.rect = {x, y, 138, 56};
       button.fill = fill;
       button.outline = colorFromRgba(kScreenDeepColor);
       button.text = colorFromRgba(kScreenDeepColor);
       buttons_.push_back(button);
-      x += button.rect.w + 10;
+      x += button.rect.w + 12;
     };
-    push("Import",     colorFromRgba(kScreenMidColor),   "I — import media files (drag-and-drop also works)");
-    push("Take",       colorFromRgba(kScreenLightColor),  "Enter — load & play the selected cue");
-    push("Go/Pause",   colorFromRgba(kScreenMidColor),   "Space — play, pause, or resume active cue");
-    push("Stop",       colorFromRgba(kScreenMidColor),   "S — stop and rewind active cue");
-    push("Clear",      colorFromRgba(kScreenMidColor),   "C — cut to black, clear the output");
-    push("Fullscreen", colorFromRgba(kScreenMidColor),   "F — toggle output window fullscreen");
-    push("Delete",     colorFromRgba(kDeleteBezelColor), "Delete — remove selected cue from playlist");
-    push("SFX",    project_.uiSoundsEnabled   ? colorFromRgba(kScreenLightColor) : colorFromRgba(kButtonBezelColor),
-         "1 — toggle UI click sounds  |  2 — toggle UI animations");
+    push("IMPORT",     colorFromRgba(kScreenMidColor), "Shift+I — import media files");
+    push("SOURCE",     colorFromRgba(kScreenMidColor), "Add live source cue (window/camera/syphon-spout)");
+    push("PATTERN",    colorFromRgba(kScreenMidColor), "Open test pattern menu");
+    push("(A) TAKE",   colorFromRgba(kScreenLightColor), "Enter — take selected cue live");
+    push("(B) STOP",   colorFromRgba(kScreenMidColor), "S — stop and rewind active cue");
+    push("START PLAY", colorFromRgba(kScreenMidColor), "Space — play/pause active cue");
+    push("SELECT CLR", colorFromRgba(kScreenMidColor), "C — clear output to black");
+    push("OUTPUT",     colorFromRgba(kScreenMidColor), "Open video output settings");
   }
 
   const Cue* selectedCuePtr(int deckIndex) const {
@@ -12764,6 +21199,112 @@ class App {
     SDL_DestroyTexture(texture);
   }
 
+  struct DecksPanelButton {
+    SDL_Rect rect {};
+    int action = 0;
+  };
+
+  struct DecksPanelRowHit {
+    int deckIndex = -1;
+    SDL_Rect rowRect {};
+    SDL_Rect groupRect {};
+  };
+
+  struct MasterCueSidebarButtonHit {
+    SDL_Rect rect {};
+    int action = 0;
+    int presetIndex = -1;
+  };
+
+  struct MasterCueSidebarRowHit {
+    int presetIndex = -1;
+    SDL_Rect rowRect {};
+    SDL_Rect fireRect {};
+  };
+
+  struct MasterCueSidebarProgramHit {
+    int deckIndex = -1;
+    SDL_Rect rowRect {};
+    SDL_Rect selectedRect {};
+    SDL_Rect activeRect {};
+    SDL_Rect bypassRect {};
+    SDL_Rect prevRect {};
+    SDL_Rect nextRect {};
+  };
+
+  struct DecksPanelCueHit {
+    int deckIndex = -1;
+    int cueIndex = -1;
+    SDL_Rect rowRect {};
+  };
+
+  struct DecksPanelDeckButtonHit {
+    int deckIndex = -1;
+    int action = 0;
+    SDL_Rect rect {};
+  };
+
+  struct MasterCueRowHit {
+    int presetIndex = -1;
+    SDL_Rect rowRect {};
+    SDL_Rect fireRect {};
+    std::vector<SDL_Rect> slotRects;
+  };
+
+  struct OutputMenuButton {
+    SDL_Rect rect {};
+    int deckIndex = -1;
+    int outputIndex = -1;
+    int action = 0;
+  };
+
+  static constexpr int kDecksPanelActionGroupPrev = 1;
+  static constexpr int kDecksPanelActionGroupNext = 2;
+  static constexpr int kDecksPanelActionGroupNew = 3;
+  static constexpr int kDecksPanelActionGroupFire = 4;
+  static constexpr int kDecksPanelActionGroupDelete = 5;
+  static constexpr int kDecksPanelActionGroupProgramToggle = 6;
+  static constexpr int kDecksPanelActionGroupCaptureSelected = 7;
+  static constexpr int kDecksPanelActionGroupCaptureActive = 8;
+  static constexpr int kDecksPanelActionGroupRename = 9;
+  static constexpr int kDecksPanelActionMasterFireBase = 1000;
+  static constexpr int kDecksPanelDeckActionTake = 200;
+  static constexpr int kDecksPanelDeckActionStop = 201;
+  static constexpr int kOutputMenuActionFocus = 1;
+  static constexpr int kOutputMenuActionToggle = 2;
+  static constexpr int kOutputMenuActionAddOutput = 3;
+  static constexpr int kOutputMenuActionRouteFocusDeck = 4;
+  static constexpr int kOutputMenuActionRouteAssignToggle = 5;
+  static constexpr int kOutputMenuActionRouteLayerDec = 6;
+  static constexpr int kOutputMenuActionRouteLayerInc = 7;
+  static constexpr int kOutputMenuActionRouteOutputPrev = 8;
+  static constexpr int kOutputMenuActionRouteOutputNext = 9;
+  static constexpr int kSettingsActionOutputRemove = 269;
+  static constexpr int kSettingsActionOutputToggle = 262;
+  static constexpr int kSettingsActionOutputDisplayPrev = 263;
+  static constexpr int kSettingsActionOutputDisplayNext = 264;
+  static constexpr int kSettingsActionOutputDisplayRescan = 265;
+  static constexpr int kSettingsActionRoutingLayerDec = 266;
+  static constexpr int kSettingsActionRoutingLayerInc = 267;
+  static constexpr int kSettingsActionRoutingAssignToggle = 268;
+  static constexpr int kSettingsActionOutputOverlayToggle = 283;
+  static constexpr int kSettingsActionOutputAlphaPrompt = 284;
+  static constexpr int kSettingsActionOutputDelayPrompt = 285;
+  static constexpr int kSettingsActionOutputColorSpaceCycle = 286;
+  static constexpr int kSettingsActionOutputDelayInc = 287;
+  static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
+  static constexpr int kSettingsActionOutputAdvancedToggle = 270;
+  static constexpr int kSettingsActionRoutingModeToggle = 261;
+  static constexpr int kSettingsActionRoutingCellBase = 20000;
+  static constexpr int kSettingsActionRoutingCellStride = 256;
+  static constexpr int kSettingsActionRoutingDeckFocusBase = 26000;
+  static constexpr int kSettingsActionRoutingOutputFocusBase = 28000;
+  static constexpr int kSettingsActionRoutingTableOutputPrevBase = 34000;
+  static constexpr int kSettingsActionRoutingTableOutputNextBase = 35000;
+  static constexpr int kSettingsActionRoutingTableLayerDecBase = 36000;
+  static constexpr int kSettingsActionRoutingTableLayerIncBase = 37000;
+  static constexpr int kSettingsActionRoutingTableAssignToggleBase = 38000;
+
   SDL_Window* controlWindow_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Window* decksPanelWindow_ = nullptr;
@@ -12777,6 +21318,9 @@ class App {
   fs::path currentProjectFile_;
   Project project_;
   std::vector<DeckRuntime> deckRuntimes_;
+  std::vector<OutputRuntime> outputRuntimes_;
+  std::mutex streamAudioMutex_;
+  std::vector<DeckStreamAudioBuffer> deckStreamAudioBuffers_;
 #if defined(PLAYBOY_HAS_NDI_SDK)
   NdiApi ndiApi_;
 #endif
@@ -12784,7 +21328,6 @@ class App {
   std::vector<SDL_Rect> deckColumnRects_;
   std::vector<SDL_Rect> deckListClipRects_;
   SDL_Rect progressBarRect_ {};
-  SDL_Rect mascotRect_ {};
 
   // Context menu
   bool contextMenuOpen_ = false;
@@ -12804,6 +21347,7 @@ class App {
   SDL_Rect patternPickerRect_ {};
   struct PatternItem { std::string label; std::string typeId; SDL_Rect rect {}; };
   std::vector<PatternItem> patternItems_;
+  std::string patternDefaultTypeId_ = "pocket-test";
 
   // Deck settings modal
   bool deckSettingsOpen_ = false;
@@ -12830,10 +21374,23 @@ class App {
   int controlPreviewTexH_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
+  std::vector<MasterCueSidebarButtonHit> masterCueSidebarButtons_;
+  std::vector<MasterCueSidebarRowHit> masterCueSidebarRows_;
+  std::vector<MasterCueSidebarProgramHit> masterCueSidebarProgramHits_;
+  std::vector<DecksPanelButton> decksPanelButtons_;
+  std::vector<DecksPanelRowHit> decksPanelRowHits_;
+  std::vector<DecksPanelCueHit> decksPanelCueHits_;
+  std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
+  std::vector<MasterCueRowHit> masterCueRowHits_;
+  std::vector<OutputMenuButton> outputMenuButtons_;
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
   int cueSettingsScrollMax_ = 0;
+  bool cueSectionPlaybackOpen_ = true;
+  bool cueSectionGeometryOpen_ = true;
+  bool cueSectionKeyOpen_ = false;
+  bool cueSectionRoutingOpen_ = true;
   // Per-selection thumbnail (decoded from the selected cue via ffmpeg)
   ChildProcess thumbnailProcess_;
   std::thread thumbnailThread_;
@@ -12853,6 +21410,7 @@ class App {
   bool showStartupDialog_ = false;
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
+  SDL_Rect startupOpenSavedBtn_ {};
   std::future<std::vector<std::string>> pendingImport_;
   std::future<std::optional<fs::path>> pendingProjectOpen_;
   std::future<std::optional<fs::path>> pendingProjectSaveAs_;
@@ -12861,6 +21419,11 @@ class App {
   Uint64 animationNow_ = 0;
   Uint64 selectionChangedAt_ = 0;
   Uint64 lastUpdateTickMs_ = 0;
+  Uint64 lastDisplayPollMs_ = 0;
+  Uint64 lastOutputRecoveryPollMs_ = 0;
+  Uint64 lastEscapeKeyMs_ = 0;
+  int escapePressStreak_ = 0;
+  int observedDisplayCount_ = -1;
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
   int companionPort_ = 5510;
@@ -12872,8 +21435,16 @@ class App {
   std::mutex statusSnapshotMutex_;
   std::string statusSnapshot_;
   std::string statusSnapshotJson_;
+  std::string statusCueSnapshot_;
   std::vector<std::string> statusDeckSnapshots_;
   std::map<int, std::unordered_set<std::string>> timecodeTriggeredCueIds_;
+  std::vector<Uint64> deckTimecodeLastExternalMs_;
+  std::vector<double> deckTimecodeLastExternalSeconds_;
+  std::vector<bool> deckTimecodeHasExternal_;
+  std::string lastCueFindToken_;
+  std::vector<int> lastCueFindMatches_;
+  int lastCueFindCursor_ = -1;
+  int lastCueFindDeckIndex_ = -1;
   std::vector<std::int16_t> vuSamples_;
   std::mutex vuSamplesMutex_;
   // Waveform analysis cache (path → peaks vector)
@@ -12882,11 +21453,25 @@ class App {
   std::mutex waveformMutex_;
   // Settings modal
   bool settingsOpen_ = false;
-  int settingsTab_ = 0; // 0=Audio 1=MIDI 2=OSC 3=Video 4=About
+  int settingsTab_ = 0; // 0=System 1=Audio 2=Network 3=Video Outputs 4=About
+  bool videoOutputsAdvanced_ = false;
+  bool routingMoveMode_ = true; // true=single-output move, false=add/remove fan-out
+  bool deckSidebarOpen_ = true;
+  bool masterCueProgrammerExpanded_ = true;
   SDL_Rect settingsCloseBtn_ {};
   SDL_Rect settingsGearRect_ {};
+  SDL_Rect decksPanelToggleRect_ {};
+  SDL_Rect deckSidebarToggleRect_ {};
   SDL_Rect blackoutBtnRect_ {};
+  SDL_Rect fileNewBtnRect_ {};
+  SDL_Rect fileOpenBtnRect_ {};
+  SDL_Rect fileSaveBtnRect_ {};
+  SDL_Rect fileSaveAsBtnRect_ {};
   double masterDimmerTarget_ = 1.0;  // target for animated masterDimmer (0=black, 1=full)
+  bool panicProfilePending_ = false;
+  std::string pendingPanicProfileToken_;
+  Uint64 panicProfileRequestedAt_ = 0;
+  double panicRestoreDimmerTarget_ = 1.0;
   struct SettingsButton { SDL_Rect rect; int action; std::string label; };
   std::vector<SettingsButton> settingsBtns_;
   bool midiEnabled_ = false;
@@ -12917,6 +21502,30 @@ int main(int argc, char** argv) {
   if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
     return App::runSmoke();
   }
+
+  bool allowMultiInstance = false;
+  for (int i = 1; i < argc; ++i) {
+    if (std::string_view(argv[i]) == "--allow-multi-instance") {
+      allowMultiInstance = true;
+      break;
+    }
+  }
+#ifndef _WIN32
+  SingleInstanceGuard instanceGuard;
+  if (!allowMultiInstance) {
+    fs::path lockPath = "/tmp/playboy-native.instance.lock";
+    try {
+      lockPath = fs::temp_directory_path() / "playboy-native.instance.lock";
+    } catch (...) {
+    }
+    if (!instanceGuard.acquire(lockPath)) {
+      std::cerr << "Refusing to launch another instance (" << lockPath.string() << "): "
+                << instanceGuard.lastError() << '\n';
+      std::cerr << "Use --allow-multi-instance to bypass this safety lock.\n";
+      return 2;
+    }
+  }
+#endif
 
   App app;
   if (!app.init()) {
