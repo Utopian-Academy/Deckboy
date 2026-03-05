@@ -119,6 +119,17 @@ struct Deck {
   float playlistOpacity = 1.0f;    // 0.0 - 1.0 per-deck contribution
   bool playlistAutoFade = false;   // auto-fade deck in on take
   double playlistFadeSeconds = 0.8;
+  double playlistTimebaseFps = 30.0;             // operator playlist SMPTE base (24/25/29.97/30)
+  double playlistStartOffsetSeconds = 0.0;       // playlist start timecode offset
+  double playlistDefaultCueFadeSeconds = 0.5;    // default fade duration for new cues
+  double playlistDefaultStillDurationSeconds = 8.0; // default duration for non-movie cues
+  bool playlistDefaultLoop = false;
+  bool playlistDefaultFadeInEnabled = true;
+  bool playlistDefaultFadeOutEnabled = true;
+  bool playlistDefaultAudioEnabled = true;
+  bool playlistDefaultPauseAtBeginning = false;
+  bool playlistDefaultPauseAtEnd = false;
+  bool playlistDefaultTransitionToNext = true;
   std::vector<int> selectedIndices;  // optional multi-selection in cue list
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;

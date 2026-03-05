@@ -309,6 +309,14 @@ if playing, pauses; if paused, resumes.
 | Playlist loop | `4` | After the last cue, wrap back to cue 1 |
 | Shuffle | Companion `SHUFFLE ON` | Randomise playback order |
 | Reorder cue | `Shift+Up / Shift+Down` | Move selected cue in the list |
+| Playlist timebase | `Prefs -> System -> Playlist Prefs` | Select deck playlist SMPTE base (`24`, `25`, `29.97`, `30`) |
+| Playlist start TC | `Prefs -> System -> Playlist Prefs` | Set per-deck start offset (`hh:mm:ss:ff` or seconds) |
+| Default cue fade | `Prefs -> System -> Playlist Prefs` | Default fade duration for newly imported/added cues |
+| Default non-movie duration | `Prefs -> System -> Playlist Prefs` | Default duration for new image/pattern/browser/lower-third cues (`0` = hold) |
+| New-cue toggles | `Prefs -> System -> Playlist Prefs` | Default loop, fade-in/out on/off, audio on/off, pause-begin/end, transition-to-next |
+
+Playlist preferences are per-deck. New cues added by import or cue-creation
+tools inherit the focused deck's playlist defaults.
 
 ---
 

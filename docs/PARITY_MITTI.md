@@ -13,7 +13,7 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Category | Mitti behavior (reference) | Deckboy today | Implementation notes / file area |
 |---|---|---|---|
 | UI / Playlist | Playlist-first workflow with clear live/next/preview state | Partial | Keep deck-column UI; continue clarity work in `native/main.cpp` deck/monitor render blocks. |
-| UI / Playlist | Playlist Preferences (FPS/timebase, defaults for new cues, still duration) | Partial | Add deck/show playlist prefs model + UI in settings/cue tools (`native/core/types.hpp`, `native/main.cpp` save/load + settings panel). |
+| UI / Playlist | Playlist Preferences (FPS/timebase, defaults for new cues, still duration) | Partial+ | Deck-level playlist preferences implemented in System settings (timebase/start/fade/still + default toggles) with persistence + new-cue apply. Remaining gap: full dedicated dialog UX and show-level/global preset options. |
 | Cues | Cue ID search / jump by ID | Yes (operator ID) | Added short operator cue IDs (`cueId`), typed ID search buffer, and token lookup by `cueId`/number/name in `native/main.cpp`. |
 | Cues | Color tags + notes | Yes (extended) | Already implemented (`Cue.colorTag`, `Cue.notes`) with UI + persistence. Extend to multi-edit path. |
 | Cues | Multi-select cue edit | Partial | Shift-range/Ctrl-toggle multi-select and batch apply for key cue edits (notes/id/loop/hold/fade/tag + new parity toggles). Remaining inspector rows still single-cue in some areas. |

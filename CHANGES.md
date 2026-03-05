@@ -1,5 +1,32 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Playlist Preferences pass: deck-level timebase/defaults)
+
+### Deck playlist preference model (persisted)
+- Added per-deck playlist preference fields:
+  - playlist timebase FPS (`24`, `25`, `29.97`, `30`)
+  - playlist start timecode offset
+  - default cue fade duration
+  - default non-movie duration
+  - default new-cue toggles: loop, fade in, fade out, audio, pause begin, pause end, transition-to-next
+- Extended deck serialization with append-only fields (backward-compatible load defaults for older show files).
+
+### UI integration (System settings)
+- Added `PLAYLIST PREFS` block in `Prefs -> System` for focused deck:
+  - edit dialog for timebase/start/fade/still defaults
+  - direct toggle buttons for default new-cue behavior flags
+  - inline summary showing SMPTE base + start TC + default timings.
+
+### New-cue workflow integration
+- New cue creation paths now apply focused deck playlist defaults automatically:
+  - media import (`importPaths`)
+  - browser/source/lower-third/pattern cue creation flows
+- This keeps default behavior predictable for long playlists and repeated show setup.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (Portability architecture scaffold: capture/output backend catalogs)
 
 ### Backend abstraction scaffolding
