@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (browser cue URL edit in Cue Panel)
+
+- Added in-menu browser cue URL editing in the Cue Panel (no hidden command syntax required).
+- Browser cues now use the same right-side settings flow as still/pattern/source cues:
+  - `url` row with `edit` button in the cue settings panel.
+  - Prompt accepts URL or local file path and normalizes to browser-safe URL format.
+- If the edited browser cue is currently active/live, Deckboy now reloads that cue using the new URL so the change can be applied immediately.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (transport black-frame continuity fix)
 
 - Fixed a playback continuity issue where pressing `STOP` or `TAKE` during/after active playback could flash output to black.

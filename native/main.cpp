@@ -18895,6 +18895,7 @@ class App {
       drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
     } else if (selectedCue && (selectedCue->kind == CueKind::Image
                                || selectedCue->kind == CueKind::Pattern
+                               || selectedCue->kind == CueKind::Browser
                                || isSourceCueKind(selectedCue->kind))) {
       // Still image / pattern settings — full parity with video panel + duration
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
@@ -19028,6 +19029,29 @@ class App {
         drawCenteredText(controlRenderer_, fontSmall_, "edit",
                          colorFromRgba(kScreenLightColor), sourceEdit);
         quickButtons_.push_back({sourceEdit, QuickAction::EditSourceRef, "Set source (type focused/default)"});
+        metaRowIndex += 1;
+      }
+      if (selectedCue->kind == CueKind::Browser) {
+        std::string urlValue = selectedCue->path.empty() ? "(unset)" : selectedCue->path;
+        SDL_Rect urlLabelRect {ctrl.x + 10, ry + kRowStep * metaRowIndex, 48, 26};
+        SDL_Rect urlVal {ctrl.x + 60, ry + kRowStep * metaRowIndex, kCtrlW - 128, 26};
+        SDL_Rect urlEdit {ctrl.x + kCtrlW - 64, ry + kRowStep * metaRowIndex, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "url", colorFromRgba(kScreenInkSoftColor),
+                 urlLabelRect.x + 2, urlLabelRect.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, urlVal,
+                                    colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, urlValue, urlVal.w - 10),
+                 colorFromRgba(kScreenDeepColor), urlVal.x + 6, urlVal.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, urlEdit,
+                                    colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit",
+                         colorFromRgba(kScreenLightColor), urlEdit);
+        quickButtons_.push_back({urlEdit, QuickAction::EditBrowserUrl, "Set browser URL/path"});
         metaRowIndex += 1;
       }
       // Notes row
@@ -24765,6 +24789,51 @@ class App {
     markProjectDirty();
   }
 
+  void setSelectedBrowserCueUrl(const std::string& rawUrl) {
+    Cue* selected = selectedCueMutable();
+    if (!selected || selected->kind != CueKind::Browser) {
+      return;
+    }
+    std::string normalizedUrl = normalizeBrowserUrl(rawUrl);
+    if (normalizedUrl.empty()) {
+      triggerToast("browser url required");
+      return;
+    }
+    bool changed = false;
+    forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
+      if (cue.kind != CueKind::Browser) {
+        return;
+      }
+      cue.path = normalizedUrl;
+      if (cue.name.empty() || cue.name == "Browser Cue" || cue.name.rfind("Browser:", 0) == 0) {
+        cue.name = browserCueNameForUrl(normalizedUrl);
+      }
+      changed = true;
+    });
+    if (!changed) {
+      return;
+    }
+
+    Deck& deck = focusedDeckMutable();
+    bool selectedIsActiveBrowser =
+      deck.activeIndex >= 0 &&
+      deck.activeIndex == deck.selectedIndex &&
+      deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+      deck.cues[deck.activeIndex].kind == CueKind::Browser;
+    if (selectedIsActiveBrowser) {
+      bool shouldAutoplay = false;
+      if (const DeckRuntime* runtime = focusedRuntime()) {
+        shouldAutoplay = runtime->browserCueLive;
+      }
+      if (const MediaEngine* engine = focusedMediaEngine()) {
+        shouldAutoplay = shouldAutoplay || engine->state() == TransportState::Playing;
+      }
+      takeSelected(shouldAutoplay);
+    }
+    triggerToast("browser url updated");
+    markProjectDirty();
+  }
+
   void dispatchQuickAction(QuickAction action) {
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
@@ -24834,6 +24903,17 @@ class App {
           [this](const std::string& value) {
             setSelectedSourceCueRef(value);
           });
+        break;
+      }
+      case QuickAction::EditBrowserUrl: {
+        Cue* sel = selectedCueMutable();
+        if (!sel || sel->kind != CueKind::Browser) {
+          break;
+        }
+        auto result = pickTextInput("Browser URL", "Enter URL or local file path:", sel->path);
+        if (result) {
+          setSelectedBrowserCueUrl(*result);
+        }
         break;
       }
       case QuickAction::GotoMinus10:
