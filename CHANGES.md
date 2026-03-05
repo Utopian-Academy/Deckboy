@@ -1,5 +1,59 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Mitti parity foundation: cue metadata + toggles + deck opacity)
+
+### Cue parity fields and persistence
+- Added new cue fields (backward-compatible show format extension):
+  - `cue_id` (short operator-facing ID, max 6 chars, normalized uppercase)
+  - `audio enabled`
+  - `pause at beginning`
+  - `transition to next`
+  - `goto target`
+- Added deck-level playlist fader fields:
+  - `playlist opacity` (0-100%)
+  - `playlist auto fade`
+  - `playlist fade seconds`
+- Save/load remains backward-compatible (new fields are append-only; older files still load with defaults).
+
+### Runtime behavior updates
+- `pause at beginning` now forces load-without-autoplay on take.
+- `transition to next` now controls whether auto-advance/goto transition uses transition timing or cut.
+- `goto target` now resolves by cue token (`cue_id`, cue number, or name token) when cue reaches end.
+- `audio enabled` now gates cue audio decode path (muted cue can run video-only decode).
+- Deck playlist opacity now multiplies deck contribution in compositor, with optional fade-to-target animation.
+
+### UI and controls
+- Cue rows now display operator cue token preference (`cue_id` -> cue number -> index fallback).
+- Added cue-list multi-select foundations:
+  - `Shift+click` range selection
+  - `Ctrl/Cmd+click` toggle selection
+  - batch apply for key cue edits (notes, cue id, loop/hold, fades, color tag, parity toggles).
+- Added deck footer opacity rail:
+  - click/drag set deck opacity
+  - `Alt+click` snap 0%/100%.
+- Added playback inspector rows for video cues:
+  - `pause in`, `audio`, `next xfade`, and `goto` edit action.
+
+### Command/OSC extensions
+- Added/extended commands:
+  - `PAUSEBEGIN`
+  - `PAUSEEND` (alias into hold-at-end behavior)
+  - `CUEAUDIO`
+  - `NEXTTRANS`
+  - `CUEGOTO`
+  - `CUEIDSHORT`
+  - `PLAYLISTOPACITY` / `DECKOPACITY` / `DECKDIM`
+  - `PLAYLISTAUTOFADE` / `DECKAUTOFADE`
+  - `PLAYLISTFADE` / `DECKFADE`
+- Added OSC path mappings:
+  - `/cue/id`, `/cue/audio`, `/cue/pausebegin`, `/cue/pauseend`, `/cue/nexttrans`, `/cue/goto`
+  - `/deck/opacity`, `/deck/autofade`, `/deck/fade`
+  - `/playlist/opacity`, `/playlist/autofade`, `/playlist/fade`
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (UI Clarity Pass: Header/Stack/Routing Table/Splash)
 
 ### Main UI clarity improvements
