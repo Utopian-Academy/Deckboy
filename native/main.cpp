@@ -527,6 +527,71 @@ std::string sourceCueRefFriendlyLabel(CueKind kind, const std::string& rawRef) {
   return ref;
 }
 
+std::string sourceCueRefFromAlias(CueKind kind, const std::string& rawRef) {
+  std::string ref = trim(rawRef);
+  std::string lower = ref;
+  std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  if (ref.empty() || lower == "default") {
+    return defaultSourceRefForKind(kind);
+  }
+  if (kind == CueKind::WindowSource) {
+    if (lower == "focused"
+        || lower == "recommended"
+        || lower == "focused window"
+        || lower == "window"
+        || lower == "active") {
+      return "active-window";
+    }
+  } else if (kind == CueKind::Camera) {
+    if (lower == "camera"
+        || lower == "cam"
+        || lower == "recommended") {
+      return "default-camera";
+    }
+  } else if (kind == CueKind::Syphon) {
+    if (lower == "syphon"
+        || lower == "spout"
+        || lower == "app"
+        || lower == "feed"
+        || lower == "bus"
+        || lower == "recommended") {
+      return "default-bus";
+    }
+  }
+  return ref;
+}
+
+std::string sourceCueEditorInputDefault(CueKind kind, const std::string& rawRef) {
+  std::string resolved = sourceCueRefFromAlias(kind, rawRef);
+  std::string lower = resolved;
+  std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  if (kind == CueKind::WindowSource && lower == "active-window") {
+    return "focused";
+  }
+  if ((kind == CueKind::Camera && lower == "default-camera")
+      || (kind == CueKind::Syphon && lower == "default-bus")) {
+    return "default";
+  }
+  return resolved;
+}
+
+std::string sourceCueEditorPrompt(CueKind kind) {
+  switch (kind) {
+    case CueKind::WindowSource:
+      return "Type focused, then press Enter.";
+    case CueKind::Camera:
+      return "Type default, then press Enter.";
+    case CueKind::Syphon:
+      return "Type default, then press Enter.";
+    default:
+      return "Set source";
+  }
+}
+
 std::string cueEndActionToken(CueEndAction a) {
   switch (a) {
     case CueEndAction::Stop:       return "stop";
@@ -18857,7 +18922,7 @@ class App {
                                     colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit",
                          colorFromRgba(kScreenLightColor), sourceEdit);
-        quickButtons_.push_back({sourceEdit, QuickAction::EditSourceRef, "Edit source reference"});
+        quickButtons_.push_back({sourceEdit, QuickAction::EditSourceRef, "Set source (type focused/default)"});
         metaRowIndex += 1;
       }
       // Notes row
@@ -24553,21 +24618,14 @@ class App {
     if (!selected || !isSourceCueKind(selected->kind)) {
       return;
     }
-    std::string sourceRef = trim(rawRef);
-    std::string sourceRefLower = toLower(sourceRef);
-    if (sourceRef.empty()
-        || sourceRefLower == "recommended"
-        || sourceRefLower == "focused"
-        || sourceRefLower == "focused window"
-        || sourceRefLower == "window"
-        || sourceRefLower == "default") {
-      sourceRef = defaultSourceRefForKind(selected->kind);
-    }
+    std::string typedRef = trim(rawRef);
+    std::string selectedSourceRef = sourceCueRefFromAlias(selected->kind, typedRef);
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
       if (!isSourceCueKind(cue.kind)) {
         return;
       }
+      std::string sourceRef = sourceCueRefFromAlias(cue.kind, typedRef);
       cue.path = "source://" + sourceCueTokenForKind(cue.kind) + "/" + sourceRef;
       std::string prefix = cueKindLabel(cue.kind) + " · ";
       if (cue.name.empty() || cue.name.rfind(prefix, 0) == 0) {
@@ -24586,7 +24644,7 @@ class App {
         engine->loadCue(&activeCue, autoplay);
       }
     }
-    triggerToast("source: " + sourceCueRefFriendlyLabel(selected->kind, sourceRef));
+    triggerToast("source: " + sourceCueRefFriendlyLabel(selected->kind, selectedSourceRef));
     markProjectDirty();
   }
 
@@ -24648,18 +24706,9 @@ class App {
           break;
         }
         std::string initial = sourceCueRefFromCue(*sel);
-        if (initial.empty()) {
-          initial = defaultSourceRefForKind(sel->kind);
-        }
+        initial = sourceCueEditorInputDefault(sel->kind, initial);
         std::string title = cueKindLabel(sel->kind) + " Source";
-        std::string prompt = "Set source";
-        if (sel->kind == CueKind::WindowSource) {
-          prompt = "Use: active-window (recommended)";
-        } else if (sel->kind == CueKind::Camera) {
-          prompt = "Use: default-camera (recommended)";
-        } else if (sel->kind == CueKind::Syphon) {
-          prompt = "Use: default-bus (recommended)";
-        }
+        std::string prompt = sourceCueEditorPrompt(sel->kind);
         openInlineTextEditor(
           "cue.source_ref",
           title,
