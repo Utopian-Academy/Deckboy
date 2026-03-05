@@ -5417,6 +5417,8 @@ class App {
     for (auto& deck : project_.decks) { deck.activeIndex = -1; }
     // Show startup dialog so operator can choose to load or start fresh
     showStartupDialog_ = true;
+    showSplashOverlay_ = true;
+    splashStartedAt_ = SDL_GetTicks64();
     ensureUiAudioDevice();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
@@ -13506,6 +13508,9 @@ class App {
       if (act && act->hasAudio && act != sel) triggerWaveformAnalysis(act->path);
     }
     Uint64 now = SDL_GetTicks64();
+    if (showSplashOverlay_ && splashStartedAt_ > 0 && now - splashStartedAt_ > 2600) {
+      showSplashOverlay_ = false;
+    }
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
 
@@ -13838,6 +13843,57 @@ class App {
              colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 356);
     drawText(controlRenderer_, fontSmall_, "Esc=continue with current session",
              colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 378);
+  }
+
+  void renderSplashOverlay() {
+    if (!showSplashOverlay_) {
+      return;
+    }
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0x0F, 0x38, 0x0F, 245);
+    SDL_Rect full {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &full);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    SDL_Rect card {(width - 760) / 2, (height - 430) / 2, 760, 430};
+    Primitives::drawFramedPanel(controlRenderer_, card, colorFromRgba(kShellInnerColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+    drawText(controlRenderer_, titleFont, "DECKBOY", colorFromRgba(kScreenDeepColor), card.x + 36, card.y + 34);
+    drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", colorFromRgba(kScreenDarkColor), card.x + 38, card.y + 82);
+
+    SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72, 184};
+    Primitives::drawFramedPanel(controlRenderer_, bootRect, colorFromRgba(kScreenLightColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    static const std::array<const char*, 5> kBootLines {
+      "initializing deck runtime...",
+      "loading outputs...",
+      "starting compositor...",
+      "opening companion port 5510...",
+      "arming safety guards..."
+    };
+    Uint64 now = SDL_GetTicks64();
+    Uint64 elapsed = splashStartedAt_ > 0 ? (now - splashStartedAt_) : 0;
+    int visibleLines = std::clamp(static_cast<int>(elapsed / 380), 1, static_cast<int>(kBootLines.size()));
+    for (int i = 0; i < visibleLines; ++i) {
+      drawText(controlRenderer_, fontMono_, kBootLines[i], colorFromRgba(kScreenDeepColor),
+               bootRect.x + 12, bootRect.y + 14 + i * 30);
+    }
+    if (((now / 300) % 2) == 0) {
+      drawText(controlRenderer_, fontMono_, "_", colorFromRgba(kScreenDeepColor),
+               bootRect.x + 12 + 9 * 14, bootRect.y + 14 + (visibleLines - 1) * 30);
+    }
+
+    drawText(controlRenderer_, fontBase_, "press ENTER to start",
+             colorFromRgba(kScreenDeepColor), card.x + 36, card.y + card.h - 74);
+    drawText(controlRenderer_, fontSmall_, "Esc or click to skip",
+             colorFromRgba(kScreenDarkColor), card.x + 36, card.y + card.h - 44);
   }
 
   void renderDecksPanel() {
@@ -14760,12 +14816,13 @@ class App {
     if (confirmQuit_) {
       renderQuitConfirm();
     }
-    if (showStartupDialog_) {
+    if (showStartupDialog_ && !showSplashOverlay_) {
       renderStartupDialog();
     }
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();
+    renderSplashOverlay();
     SDL_RenderPresent(controlRenderer_);
   }
 
@@ -17329,22 +17386,22 @@ class App {
 
     } else if (settingsTab_ == 4) {
       // About tab
-      drawText(controlRenderer_, fontSmall_, "Deckboy  v0.01", ink, cx, cy);
-      drawText(controlRenderer_, fontSmall_, "dot-matrix show control", soft, cx, cy + 18);
-      drawText(controlRenderer_, fontSmall_, "Companion port: " + std::to_string(companionPort_), soft, cx, cy + 40);
-      drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, cx, cy + 56);
-      drawText(controlRenderer_, fontSmall_, "Keyboard shortcuts:", ink, cx, cy + 80);
-      const char* shortcuts[] = {
-        "Enter = Take/Load   Space = Play/Pause   S = Stop",
-        "L = Loop   E = Hold   X = Cycle end action   K = Color tag",
-        "F = Fullscreen   D = Next display   G = Add graphic cue",
-        "Ctrl+G = Goto cue   Ctrl+Shift+Space = All stop",
-        "[ / ] = fade in   Shift+[ / ] = fade out",
-        "-30s/-20s/-10s buttons = jump to end   N = output NDI toggle",
-        "1/2/3/4/5/6 = SFX/Anim/AutoNext/Loop/TC/Shuffle toggles",
-      };
-      for (int i = 0; i < 7; ++i)
-        drawText(controlRenderer_, fontSmall_, shortcuts[i], soft, cx, cy + 100 + i * 16);
+      SDL_Rect logoRect {cx, cy, content.w - 24, 116};
+      Primitives::drawFramedPanel(controlRenderer_, logoRect, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+      drawText(controlRenderer_, titleFont, "DECKBOY", ink, logoRect.x + 14, logoRect.y + 14);
+      drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", soft, logoRect.x + 16, logoRect.y + 58);
+      drawText(controlRenderer_, fontSmall_, "build: " + std::string(kAppModelLabel), soft, logoRect.x + 16, logoRect.y + 82);
+
+      SDL_Rect infoRect {cx, logoRect.y + logoRect.h + 8, content.w - 24, content.h - logoRect.h - 18};
+      Primitives::drawFramedPanel(controlRenderer_, infoRect, colorFromRgba(kScreenLightColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontBase_, "RUNTIME", ink, infoRect.x + 8, infoRect.y + 8);
+      drawText(controlRenderer_, fontSmall_, "Companion port: " + std::to_string(companionPort_), soft, infoRect.x + 8, infoRect.y + 32);
+      drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, infoRect.x + 8, infoRect.y + 48);
+      drawText(controlRenderer_, fontSmall_, "UI mascot/sprite art is disabled in live control panels.", soft, infoRect.x + 8, infoRect.y + 64);
+      drawText(controlRenderer_, fontSmall_, "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft, infoRect.x + 8, infoRect.y + 88);
     }
   }
 
@@ -18020,6 +18077,10 @@ class App {
   }
 
   void handleMouseDown(int x, int y) {
+    if (showSplashOverlay_) {
+      showSplashOverlay_ = false;
+      return;
+    }
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
       if (pointInRect(x, y, startupNewBtn_)) {
@@ -18371,6 +18432,13 @@ class App {
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
     bool ctrl = (mod & KMOD_CTRL) != 0;
     bool shift = (mod & KMOD_SHIFT) != 0;
+
+    if (showSplashOverlay_) {
+      if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
+        showSplashOverlay_ = false;
+      }
+      return;
+    }
 
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
@@ -21408,6 +21476,8 @@ class App {
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};
   bool showStartupDialog_ = false;
+  bool showSplashOverlay_ = true;
+  Uint64 splashStartedAt_ = 0;
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
   SDL_Rect startupOpenSavedBtn_ {};
