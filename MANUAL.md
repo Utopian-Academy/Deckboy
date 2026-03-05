@@ -198,6 +198,10 @@ If the settings list is longer than the panel, use the mouse wheel over the
 settings area to scroll.
 You can multi-select cues with `Shift+click` (range) and `Ctrl/Cmd+click`
 (toggle). Supported inspector actions apply to all selected cues.
+When multiple cues are selected, the inspector enters a common-controls view:
+- shared controls remain editable
+- incompatible control groups are hidden/disabled
+- conflicting values are shown as `mixed`.
 
 Cue settings are grouped into collapsible blocks:
 - `Playback`
