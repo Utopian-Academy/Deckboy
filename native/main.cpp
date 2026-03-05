@@ -6,6 +6,7 @@
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
 #include "platform/capture_backend.hpp"
+#include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
 #include "render/primitives.hpp"
 
@@ -1059,7 +1060,7 @@ struct OscQueryEndpointDoc {
   const char* notes;
 };
 
-constexpr std::array<OscQueryEndpointDoc, 33> kOscQueryEndpoints {{
+constexpr std::array<OscQueryEndpointDoc, 41> kOscQueryEndpoints {{
   {"/play", "PLAY", "", "Start focused deck"},
   {"/pause", "PAUSE", "", "Pause focused deck"},
   {"/stop", "STOP", "", "Stop focused deck"},
@@ -1092,7 +1093,15 @@ constexpr std::array<OscQueryEndpointDoc, 33> kOscQueryEndpoints {{
   {"/state", "STATE", "", "Request status snapshot"},
   {"/oscquery", "OSCQUERY [on|off]", "toggle", "Enable OSC Query HTTP server"},
   {"/oscquery/port", "OSCQUERYPORT [port]", "number", "Set/query OSC Query HTTP port"},
-  {"/osc/feedback", "OSCFEEDBACK [on|off]", "toggle", "Enable canonical OSC feedback mirror"}
+  {"/osc/feedback", "OSCFEEDBACK [on|off]", "toggle", "Enable canonical OSC feedback mirror"},
+  {"/atem", "ATEM [on|off]", "toggle", "Toggle ATEM trigger adapter"},
+  {"/ndi/trigger", "NDITRIGGER [on|off]", "toggle", "Toggle NDI metadata trigger adapter"},
+  {"/nmc", "NMC [on|off]", "toggle", "Toggle NMC transport sync adapter"},
+  {"/mtc", "MTC [on|off]", "toggle", "Toggle MTC ingest adapter"},
+  {"/ltc", "LTC [on|off]", "toggle", "Toggle LTC ingest adapter"},
+  {"/artnet", "ARTNET [on|off]", "toggle", "Toggle DMX/Art-Net adapter"},
+  {"/artnet/port", "ARTNETPORT [port]", "number", "Set/query Art-Net adapter port"},
+  {"/integration", "INTEGRATIONS [STATUS]", "string", "Show integration adapter route status"}
 }};
 
 size_t alignOscOffset(size_t offset) {
@@ -1443,6 +1452,54 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
       return "OSCFEEDBACKRATE " + *value;
     }
     return "OSCFEEDBACKRATE";
+  }
+  if (path == "/ATEM" || path == "/PLAYBOY/ATEM") {
+    if (auto value = argToggleWord(0)) {
+      return "ATEM " + *value;
+    }
+    return "ATEM";
+  }
+  if (path == "/NDI/TRIGGER" || path == "/NDITRIGGER" || path == "/PLAYBOY/NDITRIGGER") {
+    if (auto value = argToggleWord(0)) {
+      return "NDITRIGGER " + *value;
+    }
+    return "NDITRIGGER";
+  }
+  if (path == "/NMC" || path == "/PLAYBOY/NMC") {
+    if (auto value = argToggleWord(0)) {
+      return "NMC " + *value;
+    }
+    return "NMC";
+  }
+  if (path == "/MTC" || path == "/PLAYBOY/MTC") {
+    if (auto value = argToggleWord(0)) {
+      return "MTC " + *value;
+    }
+    return "MTC";
+  }
+  if (path == "/LTC" || path == "/PLAYBOY/LTC") {
+    if (auto value = argToggleWord(0)) {
+      return "LTC " + *value;
+    }
+    return "LTC";
+  }
+  if (path == "/ARTNET" || path == "/DMX/ARTNET" || path == "/PLAYBOY/ARTNET") {
+    if (auto value = argToggleWord(0)) {
+      return "ARTNET " + *value;
+    }
+    return "ARTNET";
+  }
+  if (path == "/ARTNET/PORT" || path == "/PLAYBOY/ARTNET/PORT") {
+    if (auto value = argString(0)) {
+      return "ARTNETPORT " + *value;
+    }
+    return "ARTNETPORT";
+  }
+  if (path == "/INTEGRATION" || path == "/INTEGRATIONS" || path == "/PLAYBOY/INTEGRATION") {
+    if (auto value = argString(0)) {
+      return "INTEGRATIONS " + *value;
+    }
+    return "INTEGRATIONS";
   }
   if (path == "/ROUTE") {
     if (auto value = argString(0)) {
@@ -2418,6 +2475,10 @@ int normalizeOscFeedbackRateMs(int value) {
   return std::clamp(value, 40, 2000);
 }
 
+int normalizeArtNetPort(int value) {
+  return std::clamp(value, 1, 65535);
+}
+
 std::string defaultOutputStreamUrl(const std::string& protocol, int outputIndex) {
   int normalizedIndex = std::max(0, outputIndex) + 1;
   if (normalizeOutputStreamProtocol(protocol) == "rtmp") {
@@ -2877,6 +2938,7 @@ void normalizeProject(Project& project) {
   project.panicProfile = normalizePanicProfileToken(project.panicProfile);
   project.oscQueryPort = normalizeOscQueryPort(project.oscQueryPort);
   project.oscFeedbackRateMs = normalizeOscFeedbackRateMs(project.oscFeedbackRateMs);
+  project.artNetPort = normalizeArtNetPort(project.artNetPort);
   project.panicFadeSeconds = std::clamp(
     std::isfinite(project.panicFadeSeconds) ? project.panicFadeSeconds : 0.9,
     0.1, 5.0);
@@ -3011,6 +3073,13 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
   output << "osc_feedback_mirror\t" << (project.oscFeedbackMirrorEnabled ? 1 : 0) << '\n';
   output << "osc_feedback_rate_ms\t" << project.oscFeedbackRateMs << '\n';
+  output << "integration_atem_trigger\t" << (project.atemTriggerEnabled ? 1 : 0) << '\n';
+  output << "integration_ndi_trigger\t" << (project.ndiTriggerEnabled ? 1 : 0) << '\n';
+  output << "integration_nmc_sync\t" << (project.nmcSyncEnabled ? 1 : 0) << '\n';
+  output << "integration_mtc_ingest\t" << (project.mtcIngestEnabled ? 1 : 0) << '\n';
+  output << "integration_ltc_ingest\t" << (project.ltcIngestEnabled ? 1 : 0) << '\n';
+  output << "integration_dmx_artnet\t" << (project.dmxArtNetEnabled ? 1 : 0) << '\n';
+  output << "integration_artnet_port\t" << project.artNetPort << '\n';
   output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
@@ -3293,6 +3362,20 @@ Project loadProject(const fs::path& projectFile) {
       project.oscFeedbackMirrorEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "osc_feedback_rate_ms") {
       project.oscFeedbackRateMs = safeInt(fields, 1, 120);
+    } else if (fields[0] == "integration_atem_trigger") {
+      project.atemTriggerEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_ndi_trigger") {
+      project.ndiTriggerEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_nmc_sync") {
+      project.nmcSyncEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_mtc_ingest") {
+      project.mtcIngestEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_ltc_ingest") {
+      project.ltcIngestEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_dmx_artnet") {
+      project.dmxArtNetEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_artnet_port") {
+      project.artNetPort = safeInt(fields, 1, 6454);
     } else if (fields[0] == "jump_mode") {
       project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
     } else if (fields[0] == "jump_transition") {
@@ -5926,6 +6009,41 @@ class App {
                 << '\n';
     }
 
+    {
+      auto integrationCatalog = deckboy::platform::createIntegrationBackendCatalog();
+      std::ostringstream line;
+      line << "integration-backends:";
+      for (const auto& info : integrationCatalog->list()) {
+        line << ' ' << info.id << '[' << (info.supported ? "ok" : "stub") << ']';
+      }
+      std::cout << line.str() << '\n';
+
+      auto describeRoute = [](const deckboy::platform::IntegrationBackendRoutePlan& route) {
+        std::ostringstream value;
+        for (size_t i = 0; i < route.steps.size(); ++i) {
+          if (i) {
+            value << '+';
+          }
+          value << route.steps[i].backendId
+                << '[' << (route.steps[i].enabled ? "on" : "off") << ','
+                << (route.steps[i].supported ? "ok" : "stub") << ']';
+        }
+        return value.str();
+      };
+      deckboy::platform::IntegrationBackendRouteRequest defaultsReq;
+      deckboy::platform::IntegrationBackendRouteRequest triggerReq;
+      triggerReq.atemTriggerEnabled = true;
+      triggerReq.ndiTriggerEnabled = true;
+      triggerReq.mtcIngestEnabled = true;
+      deckboy::platform::IntegrationBackendRouteRequest lightingReq;
+      lightingReq.dmxArtNetEnabled = true;
+      std::cout << "integration-route-defaults:"
+                << " base=" << describeRoute(deckboy::platform::planIntegrationBackendRoute(defaultsReq, *integrationCatalog))
+                << " trigger=" << describeRoute(deckboy::platform::planIntegrationBackendRoute(triggerReq, *integrationCatalog))
+                << " lighting=" << describeRoute(deckboy::platform::planIntegrationBackendRoute(lightingReq, *integrationCatalog))
+                << '\n';
+    }
+
     return 0;
   }
 
@@ -5963,6 +6081,14 @@ class App {
       auto parsed = parseOscPacket(packet);
       auto mapped = parsed.empty() ? std::optional<std::string> {} : mapOscToRemoteCommand(parsed[0]);
       expect(mapped && *mapped == "DECKOPACITY 75", "osc deck opacity mapping");
+    }
+
+    {
+      auto osc = buildOscStringMessage("/atem", "1");
+      std::string packet(reinterpret_cast<const char*>(osc.data()), osc.size());
+      auto parsed = parseOscPacket(packet);
+      auto mapped = parsed.empty() ? std::optional<std::string> {} : mapOscToRemoteCommand(parsed[0]);
+      expect(mapped && *mapped == "ATEM ON", "osc integration mapping");
     }
 
     {
@@ -6018,6 +6144,24 @@ class App {
     }
 
     {
+      auto integrationCatalog = deckboy::platform::createIntegrationBackendCatalog();
+      deckboy::platform::IntegrationBackendRouteRequest request;
+      request.atemTriggerEnabled = true;
+      request.dmxArtNetEnabled = true;
+      auto route = deckboy::platform::planIntegrationBackendRoute(request, *integrationCatalog);
+      bool hasAtem = false;
+      bool hasArtNet = false;
+      for (const auto& step : route.steps) {
+        if (step.backendId == "atem") {
+          hasAtem = true;
+        } else if (step.backendId == "dmx-artnet") {
+          hasArtNet = true;
+        }
+      }
+      expect(hasAtem && hasArtNet, "integration backend route plan");
+    }
+
+    {
       Project project;
       project.outputCanvasEnabled = true;
       project.outputCanvasWidth = 5760;
@@ -6027,6 +6171,13 @@ class App {
       project.oscQueryPort = 6410;
       project.oscFeedbackMirrorEnabled = true;
       project.oscFeedbackRateMs = 90;
+      project.atemTriggerEnabled = true;
+      project.ndiTriggerEnabled = true;
+      project.nmcSyncEnabled = false;
+      project.mtcIngestEnabled = true;
+      project.ltcIngestEnabled = false;
+      project.dmxArtNetEnabled = true;
+      project.artNetPort = 16454;
       project.jumpMode = "load";
       project.jumpTransitionEnabled = false;
       project.panicProfile = "fade_rewind";
@@ -6185,6 +6336,14 @@ class App {
                loaded.oscFeedbackMirrorEnabled &&
                loaded.oscFeedbackRateMs == 90,
                "osc query settings persisted");
+        expect(loaded.atemTriggerEnabled &&
+               loaded.ndiTriggerEnabled &&
+               !loaded.nmcSyncEnabled &&
+               loaded.mtcIngestEnabled &&
+               !loaded.ltcIngestEnabled &&
+               loaded.dmxArtNetEnabled &&
+               loaded.artNetPort == 16454,
+               "integration settings persisted");
         expect(loaded.jumpMode == "load" && !loaded.jumpTransitionEnabled, "jump mode persisted");
         expect(loaded.panicProfile == "fade_rewind", "panic profile persisted");
         expect(std::abs(loaded.panicFadeSeconds - 1.4) < 0.01 && loaded.panicAutoRestore, "panic options persisted");
@@ -8158,6 +8317,89 @@ class App {
 
   std::string outputBackendRouteSummary(int outputIndex) const {
     return resolveOutputBackendRuntimeRoute(outputIndex).summary;
+  }
+
+  struct IntegrationBackendRuntimeRoute {
+    bool atemEnabled = false;
+    bool atemSupported = false;
+    bool ndiTriggerEnabled = false;
+    bool ndiTriggerSupported = false;
+    bool nmcSyncEnabled = false;
+    bool nmcSyncSupported = false;
+    bool mtcIngestEnabled = false;
+    bool mtcIngestSupported = false;
+    bool ltcIngestEnabled = false;
+    bool ltcIngestSupported = false;
+    bool dmxArtNetEnabled = false;
+    bool dmxArtNetSupported = false;
+    std::string summary;
+  };
+
+  const deckboy::platform::IntegrationBackendCatalog& integrationBackendCatalog() const {
+    static std::unique_ptr<deckboy::platform::IntegrationBackendCatalog> catalog =
+      deckboy::platform::createIntegrationBackendCatalog();
+    return *catalog;
+  }
+
+  deckboy::platform::IntegrationBackendRouteRequest integrationBackendRouteRequest() const {
+    deckboy::platform::IntegrationBackendRouteRequest request;
+    request.atemTriggerEnabled = project_.atemTriggerEnabled;
+    request.ndiTriggerEnabled = project_.ndiTriggerEnabled;
+    request.nmcSyncEnabled = project_.nmcSyncEnabled;
+    request.mtcIngestEnabled = project_.mtcIngestEnabled;
+    request.ltcIngestEnabled = project_.ltcIngestEnabled;
+    request.dmxArtNetEnabled = project_.dmxArtNetEnabled;
+    return request;
+  }
+
+  IntegrationBackendRuntimeRoute resolveIntegrationBackendRuntimeRoute() const {
+    IntegrationBackendRuntimeRoute route;
+    auto plan = deckboy::platform::planIntegrationBackendRoute(
+      integrationBackendRouteRequest(),
+      integrationBackendCatalog());
+    std::ostringstream summary;
+    bool wroteToken = false;
+    for (const auto& step : plan.steps) {
+      if (wroteToken) {
+        summary << ',';
+      }
+      summary << step.backendId
+              << '[' << (step.enabled ? "on" : "off") << ','
+              << (step.supported ? "ok" : "stub") << ']';
+      wroteToken = true;
+      switch (step.kind) {
+        case deckboy::platform::IntegrationBackendKind::AtemTrigger:
+          route.atemEnabled = step.enabled;
+          route.atemSupported = step.supported;
+          break;
+        case deckboy::platform::IntegrationBackendKind::NdiTrigger:
+          route.ndiTriggerEnabled = step.enabled;
+          route.ndiTriggerSupported = step.supported;
+          break;
+        case deckboy::platform::IntegrationBackendKind::NmcSync:
+          route.nmcSyncEnabled = step.enabled;
+          route.nmcSyncSupported = step.supported;
+          break;
+        case deckboy::platform::IntegrationBackendKind::MtcIngest:
+          route.mtcIngestEnabled = step.enabled;
+          route.mtcIngestSupported = step.supported;
+          break;
+        case deckboy::platform::IntegrationBackendKind::LtcIngest:
+          route.ltcIngestEnabled = step.enabled;
+          route.ltcIngestSupported = step.supported;
+          break;
+        case deckboy::platform::IntegrationBackendKind::DmxArtNet:
+          route.dmxArtNetEnabled = step.enabled;
+          route.dmxArtNetSupported = step.supported;
+          break;
+      }
+    }
+    route.summary = wroteToken ? summary.str() : "none";
+    return route;
+  }
+
+  std::string integrationBackendRouteSummary() const {
+    return resolveIntegrationBackendRuntimeRoute().summary;
   }
 
   double outputStreamFps(double fpsHint) const {
@@ -10683,6 +10925,7 @@ class App {
            << " canvas=" << (project_.outputCanvasEnabled
                 ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
                 : "off")
+           << " integrations=\"" << integrationBackendRouteSummary() << "\""
            << '\n';
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -10849,6 +11092,7 @@ class App {
            << " canvas=" << (project_.outputCanvasEnabled
                 ? (std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight))
                 : "off")
+           << " integrations=\"" << integrationBackendRouteSummary() << "\""
            << '\n';
     output << "DECK " << (deckIndex + 1)
            << " name=\"" << (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name) << "\""
@@ -10898,6 +11142,7 @@ class App {
   }
 
   std::string buildStatusSnapshotJson() const {
+    IntegrationBackendRuntimeRoute integrationRoute = resolveIntegrationBackendRuntimeRoute();
     std::ostringstream output;
     output << "{"
            << "\"app\":\"DECKBOY_0.01\","
@@ -10920,6 +11165,22 @@ class App {
            << "\"outputCanvasEnabled\":" << (project_.outputCanvasEnabled ? "true" : "false") << ","
            << "\"outputCanvasWidth\":" << project_.outputCanvasWidth << ","
            << "\"outputCanvasHeight\":" << project_.outputCanvasHeight << ","
+           << "\"integrationRoute\":\"" << escapeJson(integrationRoute.summary) << "\","
+           << "\"integrations\":{"
+           << "\"atem\":" << (project_.atemTriggerEnabled ? "true" : "false") << ","
+           << "\"ndiTrigger\":" << (project_.ndiTriggerEnabled ? "true" : "false") << ","
+           << "\"nmc\":" << (project_.nmcSyncEnabled ? "true" : "false") << ","
+           << "\"mtc\":" << (project_.mtcIngestEnabled ? "true" : "false") << ","
+           << "\"ltc\":" << (project_.ltcIngestEnabled ? "true" : "false") << ","
+           << "\"dmxArtNet\":" << (project_.dmxArtNetEnabled ? "true" : "false") << ","
+           << "\"artNetPort\":" << project_.artNetPort << ","
+           << "\"atemSupported\":" << (integrationRoute.atemSupported ? "true" : "false") << ","
+           << "\"ndiTriggerSupported\":" << (integrationRoute.ndiTriggerSupported ? "true" : "false") << ","
+           << "\"nmcSupported\":" << (integrationRoute.nmcSyncSupported ? "true" : "false") << ","
+           << "\"mtcSupported\":" << (integrationRoute.mtcIngestSupported ? "true" : "false") << ","
+           << "\"ltcSupported\":" << (integrationRoute.ltcIngestSupported ? "true" : "false") << ","
+           << "\"dmxArtNetSupported\":" << (integrationRoute.dmxArtNetSupported ? "true" : "false")
+           << "},"
            << "\"outputs\":[";
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (outputIndex > 0) {
@@ -11255,6 +11516,95 @@ class App {
     }
     project_.oscFeedbackRateMs = normalized;
     triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  bool isIntegrationBackendSupported(const std::string& backendId) const {
+    auto list = integrationBackendCatalog().list();
+    auto it = std::find_if(list.begin(), list.end(), [&](const auto& info) {
+      return info.id == backendId;
+    });
+    return it != list.end() && it->supported;
+  }
+
+  void setIntegrationAdapterEnabled(const std::string& adapterToken, bool enabled) {
+    normalizeProject(project_);
+    bool* target = nullptr;
+    std::string label;
+    std::string backendId;
+    std::string token = toUpper(trim(adapterToken));
+    if (token == "ATEM") {
+      target = &project_.atemTriggerEnabled;
+      label = "atem trigger";
+      backendId = "atem";
+    } else if (token == "NDI" || token == "NDITRIGGER" || token == "NDI_TRIGGER") {
+      target = &project_.ndiTriggerEnabled;
+      label = "ndi trigger";
+      backendId = "ndi-trigger";
+    } else if (token == "NMC") {
+      target = &project_.nmcSyncEnabled;
+      label = "nmc sync";
+      backendId = "nmc";
+    } else if (token == "MTC") {
+      target = &project_.mtcIngestEnabled;
+      label = "mtc ingest";
+      backendId = "mtc";
+    } else if (token == "LTC") {
+      target = &project_.ltcIngestEnabled;
+      label = "ltc ingest";
+      backendId = "ltc";
+    } else if (token == "ARTNET" || token == "DMX" || token == "DMXARTNET" || token == "DMX_ARTNET") {
+      target = &project_.dmxArtNetEnabled;
+      label = "dmx/artnet";
+      backendId = "dmx-artnet";
+    }
+    if (!target) {
+      return;
+    }
+    if (*target == enabled) {
+      bool supported = isIntegrationBackendSupported(backendId);
+      triggerToast(label + ": " + (enabled ? "on" : "off") + (enabled && !supported ? " (stub)" : ""));
+      return;
+    }
+    *target = enabled;
+    bool supported = isIntegrationBackendSupported(backendId);
+    triggerToast(label + ": " + (enabled ? "on" : "off") + (enabled && !supported ? " (stub)" : ""));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setAllIntegrationAdaptersEnabled(bool enabled) {
+    normalizeProject(project_);
+    bool changed = false;
+    auto apply = [&](bool& value) {
+      if (value != enabled) {
+        value = enabled;
+        changed = true;
+      }
+    };
+    apply(project_.atemTriggerEnabled);
+    apply(project_.ndiTriggerEnabled);
+    apply(project_.nmcSyncEnabled);
+    apply(project_.mtcIngestEnabled);
+    apply(project_.ltcIngestEnabled);
+    apply(project_.dmxArtNetEnabled);
+    triggerToast(std::string("integrations: ") + (enabled ? "on" : "off"));
+    if (changed) {
+      playUiSound(UiSoundEffect::Toggle);
+      markProjectDirty();
+    }
+  }
+
+  void setArtNetPort(int port) {
+    normalizeProject(project_);
+    int normalized = normalizeArtNetPort(port);
+    if (project_.artNetPort == normalized) {
+      triggerToast("artnet port: " + std::to_string(project_.artNetPort));
+      return;
+    }
+    project_.artNetPort = normalized;
+    triggerToast("artnet port: " + std::to_string(project_.artNetPort));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -11990,13 +12340,21 @@ class App {
 
   std::vector<std::pair<std::string, std::string>> buildOscMirrorFeedbackValues() const {
     std::vector<std::pair<std::string, std::string>> values;
-    values.reserve(8 + project_.decks.size() * 7 + project_.outputs.size() * 8);
+    values.reserve(16 + project_.decks.size() * 7 + project_.outputs.size() * 8);
     values.emplace_back("/playboy/focus/deck", std::to_string(project_.focusedDeckIndex + 1));
     values.emplace_back("/playboy/focus/output", std::to_string(project_.focusedOutputIndex + 1));
     values.emplace_back("/playboy/decks/count", std::to_string(project_.decks.size()));
     values.emplace_back("/playboy/outputs/count", std::to_string(project_.outputs.size()));
     values.emplace_back("/playboy/jump_mode", normalizeJumpModeToken(project_.jumpMode));
     values.emplace_back("/playboy/panic_profile", normalizePanicProfileToken(project_.panicProfile));
+    values.emplace_back("/playboy/integration/route", integrationBackendRouteSummary());
+    values.emplace_back("/playboy/integration/atem", project_.atemTriggerEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/ndi_trigger", project_.ndiTriggerEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/nmc", project_.nmcSyncEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/mtc", project_.mtcIngestEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/ltc", project_.ltcIngestEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/dmx_artnet", project_.dmxArtNetEnabled ? "1" : "0");
+    values.emplace_back("/playboy/integration/artnet_port", std::to_string(project_.artNetPort));
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const Deck& deck = project_.decks[deckIndex];
@@ -12040,6 +12398,7 @@ class App {
            << "\"httpPort\":" << project_.oscQueryPort << ","
            << "\"feedbackMirror\":" << (project_.oscFeedbackMirrorEnabled ? "true" : "false") << ","
            << "\"feedbackRateMs\":" << project_.oscFeedbackRateMs << ","
+           << "\"integrationRoute\":\"" << escapeJson(integrationBackendRouteSummary()) << "\","
            << "\"endpoints\":[";
     for (size_t i = 0; i < kOscQueryEndpoints.size(); ++i) {
       if (i > 0) {
@@ -13072,6 +13431,83 @@ class App {
         triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
       } else if (auto value = parseNumber(1); value) {
         setOscFeedbackRateMs(static_cast<int>(std::lround(*value)));
+      }
+      return;
+    }
+    if (command == "ATEM" || command == "ATEMTRIGGER") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("ATEM", !project_.atemTriggerEnabled);
+      } else {
+        setIntegrationAdapterEnabled("ATEM", *state);
+      }
+      return;
+    }
+    if (command == "NDITRIGGER" || command == "NDI_TRIGGER") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("NDI", !project_.ndiTriggerEnabled);
+      } else {
+        setIntegrationAdapterEnabled("NDI", *state);
+      }
+      return;
+    }
+    if (command == "NMC" || command == "NMCSYNC" || command == "NMC_SYNC") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("NMC", !project_.nmcSyncEnabled);
+      } else {
+        setIntegrationAdapterEnabled("NMC", *state);
+      }
+      return;
+    }
+    if (command == "MTC" || command == "MTCINGEST" || command == "MTC_INGEST") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("MTC", !project_.mtcIngestEnabled);
+      } else {
+        setIntegrationAdapterEnabled("MTC", *state);
+      }
+      return;
+    }
+    if (command == "LTC" || command == "LTCINGEST" || command == "LTC_INGEST") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("LTC", !project_.ltcIngestEnabled);
+      } else {
+        setIntegrationAdapterEnabled("LTC", *state);
+      }
+      return;
+    }
+    if (command == "ARTNET" || command == "DMXARTNET" || command == "DMX_ARTNET" || command == "DMX") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setIntegrationAdapterEnabled("ARTNET", !project_.dmxArtNetEnabled);
+      } else {
+        setIntegrationAdapterEnabled("ARTNET", *state);
+      }
+      return;
+    }
+    if (command == "ARTNETPORT" || command == "DMXPORT" || command == "ART_NET_PORT") {
+      if (parts.size() < 2) {
+        triggerToast("artnet port: " + std::to_string(project_.artNetPort));
+      } else if (auto value = parseNumber(1); value) {
+        setArtNetPort(static_cast<int>(std::lround(*value)));
+      }
+      return;
+    }
+    if (command == "INTEGRATION" || command == "INTEGRATIONS") {
+      if (parts.size() < 2 || toUpper(parts[1]) == "STATUS") {
+        triggerToast("integrations: " + integrationBackendRouteSummary());
+      } else {
+        std::string mode = toUpper(parts[1]);
+        if (mode == "ON") {
+          setAllIntegrationAdaptersEnabled(true);
+        } else if (mode == "OFF") {
+          setAllIntegrationAdaptersEnabled(false);
+        } else {
+          triggerToast("integrations: " + integrationBackendRouteSummary());
+        }
       }
       return;
     }
@@ -19461,9 +19897,51 @@ class App {
       settingsBtns_.push_back({fbRateBtn, kSettingsActionOscFeedbackRatePrompt, "osc_feedback_rate"});
 
       rowY += feedbackRect.h + 8;
+      IntegrationBackendRuntimeRoute integrationRoute = resolveIntegrationBackendRuntimeRoute();
+      SDL_Rect integrationRect {cx, rowY, content.w - 24, 118};
+      Primitives::drawFramedPanel(controlRenderer_, integrationRect, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontBase_, "INTEGRATION ADAPTERS", ink, integrationRect.x + 8, integrationRect.y + 6);
+      drawText(controlRenderer_, fontSmall_,
+               "ATEM / NDI trigger / NMC / MTC / LTC / DMX-ArtNet",
+               soft, integrationRect.x + 8, integrationRect.y + 28);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, integrationRoute.summary, integrationRect.w - 16),
+               soft, integrationRect.x + 8, integrationRect.y + 44);
+
+      int pillW = std::max(90, (integrationRect.w - 16 - 8 * 2) / 3);
+      int pillH = 22;
+      int pillGap = 8;
+      int pillY1 = integrationRect.y + 64;
+      int pillY2 = pillY1 + pillH + 6;
+      SDL_Rect atemBtn {integrationRect.x + 8, pillY1, pillW, pillH};
+      SDL_Rect ndiTrigBtn {atemBtn.x + pillW + pillGap, pillY1, pillW, pillH};
+      SDL_Rect nmcBtn {ndiTrigBtn.x + pillW + pillGap, pillY1, pillW, pillH};
+      SDL_Rect mtcBtn {integrationRect.x + 8, pillY2, pillW, pillH};
+      SDL_Rect ltcBtn {mtcBtn.x + pillW + pillGap, pillY2, pillW, pillH};
+      SDL_Rect artNetBtn {ltcBtn.x + pillW + pillGap, pillY2, pillW, pillH};
+      drawPill(atemBtn, project_.atemTriggerEnabled, "ATEM ON", "ATEM OFF", kSettingsActionIntegrationAtemToggle);
+      drawPill(ndiTrigBtn, project_.ndiTriggerEnabled, "NDI TRIG ON", "NDI TRIG OFF", kSettingsActionIntegrationNdiTriggerToggle);
+      drawPill(nmcBtn, project_.nmcSyncEnabled, "NMC ON", "NMC OFF", kSettingsActionIntegrationNmcToggle);
+      drawPill(mtcBtn, project_.mtcIngestEnabled, "MTC ON", "MTC OFF", kSettingsActionIntegrationMtcToggle);
+      drawPill(ltcBtn, project_.ltcIngestEnabled, "LTC ON", "LTC OFF", kSettingsActionIntegrationLtcToggle);
+      drawPill(artNetBtn, project_.dmxArtNetEnabled, "ARTNET ON", "ARTNET OFF", kSettingsActionIntegrationArtNetToggle);
+
+      SDL_Rect artNetPortBtn {integrationRect.x + integrationRect.w - 140, integrationRect.y + 6, 132, 22};
+      Primitives::drawFramedPanel(controlRenderer_, artNetPortBtn, colorFromRgba(kScreenMidColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Port " + std::to_string(project_.artNetPort), ink, artNetPortBtn);
+      settingsBtns_.push_back({artNetPortBtn, kSettingsActionIntegrationArtNetPortPrompt, "integration_artnet_port"});
+
+      SDL_Rect allToggleBtn {integrationRect.x + integrationRect.w - 98, integrationRect.y + 30, 90, 22};
+      bool allAdaptersEnabled = project_.atemTriggerEnabled && project_.ndiTriggerEnabled && project_.nmcSyncEnabled &&
+                                project_.mtcIngestEnabled && project_.ltcIngestEnabled && project_.dmxArtNetEnabled;
+      drawPill(allToggleBtn, allAdaptersEnabled, "ALL ON", "ALL OFF", kSettingsActionIntegrationAllToggle);
+
+      rowY += integrationRect.h + 8;
       drawText(controlRenderer_, fontSmall_, "HyperDeck emulation: port 9992 (always on)", soft, cx, rowY);
       drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /playboy/subscribe from your OSC app", soft, cx, rowY + 20);
-      drawText(controlRenderer_, fontSmall_, "NDI: configured per output (N key)", soft, cx, rowY + 40);
+      drawText(controlRenderer_, fontSmall_, "NDI output transport is configured per output (N key)", soft, cx, rowY + 40);
 
     } else if (settingsTab_ == 3) {
       // Video Outputs tab (simplified)
@@ -20030,6 +20508,30 @@ class App {
             setOscFeedbackRateMs(std::stoi(*rate));
           } catch (...) {}
         }
+      } else if (sb.action == kSettingsActionIntegrationAtemToggle) {
+        setIntegrationAdapterEnabled("ATEM", !project_.atemTriggerEnabled);
+      } else if (sb.action == kSettingsActionIntegrationNdiTriggerToggle) {
+        setIntegrationAdapterEnabled("NDI", !project_.ndiTriggerEnabled);
+      } else if (sb.action == kSettingsActionIntegrationNmcToggle) {
+        setIntegrationAdapterEnabled("NMC", !project_.nmcSyncEnabled);
+      } else if (sb.action == kSettingsActionIntegrationMtcToggle) {
+        setIntegrationAdapterEnabled("MTC", !project_.mtcIngestEnabled);
+      } else if (sb.action == kSettingsActionIntegrationLtcToggle) {
+        setIntegrationAdapterEnabled("LTC", !project_.ltcIngestEnabled);
+      } else if (sb.action == kSettingsActionIntegrationArtNetToggle) {
+        setIntegrationAdapterEnabled("ARTNET", !project_.dmxArtNetEnabled);
+      } else if (sb.action == kSettingsActionIntegrationArtNetPortPrompt) {
+        auto portStr = pickTextInput("Art-Net port", "port number (default 6454)", std::to_string(project_.artNetPort));
+        if (portStr) {
+          try {
+            setArtNetPort(std::stoi(*portStr));
+          } catch (...) {}
+        }
+      } else if (sb.action == kSettingsActionIntegrationAllToggle) {
+        bool allAdaptersEnabled = project_.atemTriggerEnabled && project_.ndiTriggerEnabled &&
+                                  project_.nmcSyncEnabled && project_.mtcIngestEnabled &&
+                                  project_.ltcIngestEnabled && project_.dmxArtNetEnabled;
+        setAllIntegrationAdaptersEnabled(!allAdaptersEnabled);
       } else if (sb.action == 230) {
         setOutputSizingModeDisplayNative();
       } else if (sb.action == 231) {
@@ -24646,6 +25148,14 @@ class App {
   static constexpr int kSettingsActionOscQueryPortPrompt = 509;
   static constexpr int kSettingsActionOscFeedbackMirrorToggle = 510;
   static constexpr int kSettingsActionOscFeedbackRatePrompt = 511;
+  static constexpr int kSettingsActionIntegrationAtemToggle = 512;
+  static constexpr int kSettingsActionIntegrationNdiTriggerToggle = 513;
+  static constexpr int kSettingsActionIntegrationNmcToggle = 514;
+  static constexpr int kSettingsActionIntegrationMtcToggle = 515;
+  static constexpr int kSettingsActionIntegrationLtcToggle = 516;
+  static constexpr int kSettingsActionIntegrationArtNetToggle = 517;
+  static constexpr int kSettingsActionIntegrationArtNetPortPrompt = 518;
+  static constexpr int kSettingsActionIntegrationAllToggle = 519;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
