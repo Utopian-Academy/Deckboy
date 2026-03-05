@@ -311,6 +311,7 @@ for precise values.
 |---------|-------------|
 | Duration | Seconds to display before auto-advancing. 0 = hold until taken. |
 | Browser URL | For browser cues, edit from cue panel `url -> edit` (accepts URL or local file path). |
+| Browser State | Cue panel `state` row shows startup/live/failure status for browser capture (`starting ...`, `live`, `failed: ...`). |
 
 ### Lower-third cues
 

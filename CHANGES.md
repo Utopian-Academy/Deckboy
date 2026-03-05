@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (UI cleanup sprint: browser diagnostics + cue-panel refactor + regression smoke)
+
+- Added live browser startup diagnostics into cue settings for browser cues:
+  - New `state` row in cue panel shows `starting xvfb`, `starting browser`, `starting capture`, `live`, or `failed: <reason>`.
+  - Browser startup now stores concise failure reasons in deck runtime (`url missing`, `browser not found`, `xvfb launch failed`, `browser launch failed`, `capture start failed`, etc).
+- Refactored duplicated cue-panel metadata row drawing:
+  - Introduced shared local helpers in the still/pattern/source/browser settings branch for labeled value + edit rows and status rows.
+  - Replaced duplicated manual row blocks for `source`, `url`, and `notes` in that branch.
+  - Removed obsolete duplicate browser-only settings branch that became unreachable after browser cue unification.
+- Added smoke regression checks for recent fixes:
+  - Decks window visibility policy (`1 deck hidden unless manual`, `>=2 decks visible`).
+  - Transport transition source-gain policy (prevents stop/take black flash behavior).
+  - Browser status summary label mapping.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (browser cue take/capture reliability fix)
 
 - Fixed browser cue output path when taking a browser cue:

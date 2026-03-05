@@ -1959,6 +1959,38 @@ class MediaEngine;
 // Phased startup for browser cues via virtual framebuffer.
 enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
 
+static std::string browserPhaseLabel(BrowserStartPhase phase) {
+  switch (phase) {
+    case BrowserStartPhase::None: return "idle";
+    case BrowserStartPhase::WaitXvfb: return "starting xvfb";
+    case BrowserStartPhase::WaitChrome: return "starting browser";
+    case BrowserStartPhase::WaitCapture: return "starting capture";
+    case BrowserStartPhase::Live: return "live";
+  }
+  return "idle";
+}
+
+static std::string browserCueStatusSummary(BrowserStartPhase phase, bool live, const std::string& lastError) {
+  if (!lastError.empty()) {
+    return "failed: " + lastError;
+  }
+  if (live || phase == BrowserStartPhase::Live) {
+    return "live";
+  }
+  return browserPhaseLabel(phase);
+}
+
+static bool shouldShowDecksPanelForState(int deckCount, bool manualOpen) {
+  return deckCount >= 2 || manualOpen;
+}
+
+static float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState state, double fadeGainAtPosition) {
+  if (activeCue && state == TransportState::Playing) {
+    return static_cast<float>(std::clamp(fadeGainAtPosition, 0.0, 1.0));
+  }
+  return 1.0f;
+}
+
 struct OutputRuntime {
   struct CapturedFrame {
     int width = 0;
@@ -2028,6 +2060,7 @@ struct DeckRuntime {
   Uint64 browserPhaseStartedAt = 0;
   int pendingBrowserW = 1280;
   int pendingBrowserH = 720;
+  std::string browserLastError;
 };
 
 bool spawnDetachedProcess(ChildProcess& process, const std::vector<std::string>& args) {
@@ -3811,12 +3844,9 @@ class MediaEngine {
 
   void loadCue(const Cue* cue, bool autoplay, double transitionSeconds = 0.0, TransitionStyle transitionStyle = TransitionStyle::Cut) {
     // Capture outgoing fade gain BEFORE stopping decoder (position is still valid now).
-    // When transport is paused/stopped (e.g. rewound to frame 0), keep transition source
-    // fully visible so TAKE does not flash to black.
-    float outgoingGain = 1.0f;
-    if (activeCue_ && state_ == TransportState::Playing) {
-      outgoingGain = static_cast<float>(fadeGainAt(position()));
-    }
+    // When transport is paused/stopped (e.g. rewound to frame 0), keep transition
+    // source fully visible so TAKE does not flash to black.
+    float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, fadeGainAt(position()));
     stopDecoderThreads();
     beginTransition(transitionSeconds, transitionStyle, outgoingGain);
     clearTexture();
@@ -6206,6 +6236,31 @@ class App {
         failures += 1;
       }
     };
+
+    {
+      bool singleDeckHidden = !shouldShowDecksPanelForState(1, false);
+      bool manualOpenVisible = shouldShowDecksPanelForState(1, true);
+      bool multiDeckVisible = shouldShowDecksPanelForState(2, false);
+      expect(singleDeckHidden && manualOpenVisible && multiDeckVisible, "decks panel visibility policy");
+    }
+
+    {
+      Cue cue;
+      float pausedGain = transitionSourceGainForLoadCue(&cue, TransportState::Paused, 0.0);
+      float stoppedGain = transitionSourceGainForLoadCue(&cue, TransportState::Stopped, 0.0);
+      float playingGain = transitionSourceGainForLoadCue(&cue, TransportState::Playing, 0.25);
+      expect(std::abs(pausedGain - 1.0f) < 0.001f &&
+               std::abs(stoppedGain - 1.0f) < 0.001f &&
+               std::abs(playingGain - 0.25f) < 0.001f,
+             "transition source gain policy");
+    }
+
+    {
+      bool startupLabelOk = browserCueStatusSummary(BrowserStartPhase::WaitXvfb, false, "").find("xvfb") != std::string::npos;
+      bool liveLabelOk = browserCueStatusSummary(BrowserStartPhase::Live, true, "") == "live";
+      bool failedLabelOk = browserCueStatusSummary(BrowserStartPhase::WaitChrome, false, "capture start failed").rfind("failed:", 0) == 0;
+      expect(startupLabelOk && liveLabelOk && failedLabelOk, "browser status summary");
+    }
 
     {
       auto osc = buildOscStringMessage("/take", "3");
@@ -10800,21 +10855,26 @@ class App {
     if (!runtime) {
       return false;
     }
+    runtime->browserLastError.clear();
     std::string browserUrl = normalizeBrowserUrl(cue.path);
     if (browserUrl.empty()) {
+      runtime->browserLastError = "url missing";
       return false;
     }
 
     std::string executable = browserExecutablePath();
     if (executable.empty()) {
+      runtime->browserLastError = "browser not found";
       triggerToast("no browser found", {79, 98, 48, 230}, {223, 248, 185, 255});
       return false;
     }
 
     stopBrowserCue(deckIndex);
+    runtime->browserLastError.clear();
 
     int dispNum = findFreeVirtualDisplay();
     if (dispNum < 0) {
+      runtime->browserLastError = "virtual display unavailable";
       triggerToast("no free virtual display", {79, 98, 48, 230}, {223, 248, 185, 255});
       return false;
     }
@@ -10839,6 +10899,7 @@ class App {
       std::to_string(w) + "x" + std::to_string(h) + "x24",
       "-nolisten", "tcp"
     })) {
+      runtime->browserLastError = "xvfb launch failed";
       triggerToast("Xvfb launch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
       runtime->virtualDisplayId.clear();
       return false;
@@ -10887,6 +10948,7 @@ class App {
         std::getline(uf, browserUrl);
       }
       if (browserUrl.empty()) {
+        runtime->browserLastError = "pending url missing";
         stopBrowserCue(deckIndex);
         return;
       }
@@ -10913,7 +10975,12 @@ class App {
         "LIBGL_ALWAYS_SOFTWARE=1"
       };
       envArgs.insert(envArgs.end(), args.begin(), args.end());
-      spawnDetachedProcess(runtime->browserProcess, envArgs);
+      if (!spawnDetachedProcess(runtime->browserProcess, envArgs)) {
+        runtime->browserLastError = "browser launch failed";
+        stopBrowserCue(deckIndex);
+        triggerToast("browser launch failed");
+        return;
+      }
       runtime->browserStartPhase = BrowserStartPhase::WaitChrome;
       runtime->browserPhaseStartedAt = now;
       return;
@@ -10923,7 +10990,11 @@ class App {
       if (elapsed < 1200) return;  // let Chrome render first frame
       // Begin x11grab capture via the media engine.
       MediaEngine* eng = runtime->mediaEngine.get();
-      if (!eng) { stopBrowserCue(deckIndex); return; }
+      if (!eng) {
+        runtime->browserLastError = "media engine unavailable";
+        stopBrowserCue(deckIndex);
+        return;
+      }
       // Get transition params from the active cue if available.
       const Deck& deck = project_.decks[deckIndex];
       double transSecs = deck.transitionSeconds;
@@ -10933,6 +11004,8 @@ class App {
         if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
         if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
       }
+      runtime->browserStartPhase = BrowserStartPhase::WaitCapture;
+      runtime->browserPhaseStartedAt = now;
       bool captureStarted = eng->startBrowserCapture(
         runtime->virtualDisplayId,
         runtime->pendingBrowserW,
@@ -10943,12 +11016,14 @@ class App {
         transStyle
       );
       if (!captureStarted) {
+        runtime->browserLastError = "capture start failed";
         stopBrowserCue(deckIndex);
         triggerToast("browser capture failed");
         return;
       }
       runtime->browserStartPhase = BrowserStartPhase::Live;
       runtime->browserCueLive = true;
+      runtime->browserLastError.clear();
       triggerToast("browser live");
       return;
     }
@@ -16313,7 +16388,7 @@ class App {
     if (!decksPanelWindow_) {
       return;
     }
-    bool shouldShow = static_cast<int>(project_.decks.size()) >= 2 || decksPanelManualOpen_;
+    bool shouldShow = shouldShowDecksPanelForState(static_cast<int>(project_.decks.size()), decksPanelManualOpen_);
     setDecksPanelVisible(shouldShow, shouldShow && raiseWindow);
   }
 
@@ -19013,149 +19088,80 @@ class App {
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
       }
       int metaRowIndex = rowOffset + 8;
+      auto drawMetaEditableRow = [&](int rowIndex,
+                                     const std::string& label,
+                                     const std::string& value,
+                                     QuickAction action,
+                                     const std::string& tip,
+                                     SDL_Color valueColor = colorFromRgba(kScreenDeepColor)) {
+        int rowY = ry + kRowStep * rowIndex;
+        SDL_Rect labelRect {ctrl.x + 10, rowY, 66, 26};
+        SDL_Rect valueRect {ctrl.x + 78, rowY, kCtrlW - 146, 26};
+        SDL_Rect editRect {ctrl.x + kCtrlW - 64, rowY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenInkSoftColor),
+                 labelRect.x + 2, labelRect.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, valueRect,
+                                    colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, value, valueRect.w - 10),
+                 valueColor, valueRect.x + 6, valueRect.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, editRect,
+                                    colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editRect);
+        quickButtons_.push_back({editRect, action, tip});
+      };
+      auto drawMetaStatusRow = [&](int rowIndex, const std::string& label, const std::string& value, bool warning) {
+        int rowY = ry + kRowStep * rowIndex;
+        SDL_Rect labelRect {ctrl.x + 10, rowY, 66, 26};
+        SDL_Rect valueRect {ctrl.x + 78, rowY, kCtrlW - 88, 26};
+        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenInkSoftColor),
+                 labelRect.x + 2, labelRect.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, valueRect,
+                                    colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        SDL_Color valueColor = warning ? SDL_Color{140, 40, 20, 255} : colorFromRgba(kScreenDeepColor);
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, value, valueRect.w - 10),
+                 valueColor, valueRect.x + 6, valueRect.y + 6);
+      };
+
+      if (selectedCue->kind == CueKind::Browser) {
+        std::string browserState = browserCueStatusLabel(project_.focusedDeckIndex);
+        bool browserWarn = browserState.rfind("failed:", 0) == 0;
+        drawMetaStatusRow(metaRowIndex++, "state", browserState, browserWarn);
+      }
+
       if (isSourceCueKind(selectedCue->kind)) {
         std::string sourceRef = sourceCueRefFromCue(*selectedCue);
         if (sourceRef.empty()) {
           sourceRef = defaultSourceRefForKind(selectedCue->kind);
         }
-        std::string sourcePretty = sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef);
-        SDL_Rect sourceLabelRect {ctrl.x + 10, ry + kRowStep * metaRowIndex, 66, 26};
-        SDL_Rect sourceVal {ctrl.x + 78, ry + kRowStep * metaRowIndex, kCtrlW - 146, 26};
-        SDL_Rect sourceEdit {ctrl.x + kCtrlW - 64, ry + kRowStep * metaRowIndex, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "source", colorFromRgba(kScreenInkSoftColor),
-                 sourceLabelRect.x + 2, sourceLabelRect.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, sourceVal,
-                                    colorFromRgba(kScreenLightColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, sourcePretty, sourceVal.w - 10),
-                 colorFromRgba(kScreenDeepColor), sourceVal.x + 6, sourceVal.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, sourceEdit,
-                                    colorFromRgba(kScreenDarkColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit",
-                         colorFromRgba(kScreenLightColor), sourceEdit);
-        quickButtons_.push_back({sourceEdit, QuickAction::EditSourceRef, "Set source (type focused/default)"});
-        metaRowIndex += 1;
+        drawMetaEditableRow(metaRowIndex++,
+                            "source",
+                            sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
+                            QuickAction::EditSourceRef,
+                            "Set source (type focused/default)");
       }
       if (selectedCue->kind == CueKind::Browser) {
-        std::string urlValue = selectedCue->path.empty() ? "(unset)" : selectedCue->path;
-        SDL_Rect urlLabelRect {ctrl.x + 10, ry + kRowStep * metaRowIndex, 48, 26};
-        SDL_Rect urlVal {ctrl.x + 60, ry + kRowStep * metaRowIndex, kCtrlW - 128, 26};
-        SDL_Rect urlEdit {ctrl.x + kCtrlW - 64, ry + kRowStep * metaRowIndex, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "url", colorFromRgba(kScreenInkSoftColor),
-                 urlLabelRect.x + 2, urlLabelRect.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, urlVal,
-                                    colorFromRgba(kScreenLightColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, urlValue, urlVal.w - 10),
-                 colorFromRgba(kScreenDeepColor), urlVal.x + 6, urlVal.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, urlEdit,
-                                    colorFromRgba(kScreenDarkColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit",
-                         colorFromRgba(kScreenLightColor), urlEdit);
-        quickButtons_.push_back({urlEdit, QuickAction::EditBrowserUrl, "Set browser URL/path"});
-        metaRowIndex += 1;
+        drawMetaEditableRow(metaRowIndex++,
+                            "url",
+                            selectedCue->path.empty() ? "(unset)" : selectedCue->path,
+                            QuickAction::EditBrowserUrl,
+                            "Set browser URL/path");
       }
-      // Notes row
-      {
-        int notesY = ry + kRowStep * metaRowIndex;
-        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
-        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
-        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
-      }
+      drawMetaEditableRow(metaRowIndex,
+                          "notes",
+                          selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                          QuickAction::EditNotes,
+                          "Click to edit cue notes",
+                          colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
       {
         int rowY = ry + kRowStep * (metaRowIndex + 1);
-        rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
-                                 QuickAction::CueSectionGeometryToggle,
-                                 "Collapse/expand geometry controls");
-        if (cueSectionGeometryOpen_) {
-          rowY = drawGeometryRows(rowY, *selectedCue, true);
-          rowY = drawColorRows(rowY, *selectedCue);
-        }
-        rowY = drawSectionHeader(rowY, "KEY", cueSectionKeyOpen_,
-                                 QuickAction::CueSectionKeyToggle,
-                                 "Collapse/expand key controls");
-        if (cueSectionKeyOpen_) {
-          rowY = drawKeyRows(rowY, *selectedCue);
-        }
-        rowY = drawSectionHeader(rowY, "ROUTING", cueSectionRoutingOpen_,
-                                 QuickAction::CueSectionRoutingToggle,
-                                 "Deck -> Output -> Layer route controls");
-        if (cueSectionRoutingOpen_) {
-          rowY = drawCueRoutingRows(rowY);
-        }
-        int cnY = rowY + 2;
-        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
-        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
-        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
-        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
-        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
-      }
-    } else if (selectedCue && selectedCue->kind == CueKind::Browser) {
-      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
-      constexpr int kRowStep = 28;
-      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
-      {
-        std::string durVal = selectedCue->stillDurationSeconds > 0.0
-          ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
-        drawQuickRow(ry, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
-                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
-      }
-      {
-        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
-        std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
-        drawQuickRow(ry + kRowStep, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
-                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
-        constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
-        int rx = ctrl.x + 10;
-        int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
-        int styleW = (ctrl.x + kCtrlW - 10) - styleX;
-        SDL_Rect styleBtn {styleX, ry + kRowStep, styleW, 30};
-        std::string curStyle = selectedCue->cueTransitionStyle.empty()
-          ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-        std::string styleLabel = transitionStyleLabel(curStyle);
-        SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
-                 styleInk, styleBtn.x + 6, styleBtn.y + 7);
-        drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
-        cueTransitionStyleDropdownRect_ = styleBtn;
-      }
-      // Notes row
-      {
-        int notesY = ry + kRowStep * 2;
-        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
-        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
-        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
-      }
-      {
-        int rowY = ry + kRowStep * 3;
         rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
                                  QuickAction::CueSectionGeometryToggle,
                                  "Collapse/expand geometry controls");
@@ -23180,6 +23186,14 @@ class App {
     }
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
     return engine ? transportLabel(engine->state()) : transportLabel(TransportState::Stopped);
+  }
+
+  std::string browserCueStatusLabel(int deckIndex) const {
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    if (!runtime) {
+      return "offline";
+    }
+    return browserCueStatusSummary(runtime->browserStartPhase, runtime->browserCueLive, runtime->browserLastError);
   }
 
   std::string transportStatusLabel() const {
