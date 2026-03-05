@@ -2038,6 +2038,9 @@ struct OutputRuntime {
   bool recoveryPausedByEscape = false;
   Uint64 lastFullscreenRequestMs = 0;
   Uint64 lastRecoveryAttemptMs = 0;
+  Uint64 fpsSampleStartedAtMs = 0;
+  Uint32 fpsFrameCount = 0;
+  double fpsMeasured = 0.0;
 };
 
 struct DeckStreamAudioBuffer {
@@ -6826,6 +6829,38 @@ class App {
     return output.name.empty() ? outputDefaultName(outputIndex) : output.name;
   }
 
+  void recordOutputFramePresented(int outputIndex) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return;
+    }
+    Uint64 now = SDL_GetTicks64();
+    if (runtime->fpsSampleStartedAtMs == 0) {
+      runtime->fpsSampleStartedAtMs = now;
+      runtime->fpsFrameCount = 0;
+      runtime->fpsMeasured = 0.0;
+    }
+    runtime->fpsFrameCount += 1;
+    Uint64 elapsedMs = now - runtime->fpsSampleStartedAtMs;
+    if (elapsedMs >= 750) {
+      runtime->fpsMeasured = elapsedMs > 0
+        ? (static_cast<double>(runtime->fpsFrameCount) * 1000.0 / static_cast<double>(elapsedMs))
+        : runtime->fpsMeasured;
+      runtime->fpsFrameCount = 0;
+      runtime->fpsSampleStartedAtMs = now;
+    }
+  }
+
+  std::string outputFpsLabel(int outputIndex) const {
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || runtime->fpsMeasured <= 0.01) {
+      return "--.-";
+    }
+    std::ostringstream fps;
+    fps << std::fixed << std::setprecision(1) << runtime->fpsMeasured;
+    return fps.str();
+  }
+
   std::string deckLabel(int deckIndex) const {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return deckDefaultName(0);
@@ -9283,6 +9318,9 @@ class App {
       runtime.outputWindow = nullptr;
     }
     runtime.recoveryPausedByEscape = false;
+    runtime.fpsSampleStartedAtMs = 0;
+    runtime.fpsFrameCount = 0;
+    runtime.fpsMeasured = 0.0;
   }
 
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
@@ -17296,11 +17334,19 @@ class App {
     drawCenteredText(controlRenderer_, fontSmall_, "+OUTPUT", colorFromRgba(kScreenDeepColor), addOutputBtn);
     outputMenuButtons_.push_back({addOutputBtn, -1, -1, kOutputMenuActionAddOutput});
 
+    SDL_Rect fpsToggleBtn {addOutputBtn.x - 74, topRowY, 68, 22};
+    SDL_Color fpsFill = outputFpsCounterEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+    SDL_Color fpsInk = outputFpsCounterEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDarkColor);
+    Primitives::drawFramedPanel(controlRenderer_, fpsToggleBtn, fpsFill,
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontSmall_, outputFpsCounterEnabled_ ? "FPS ON" : "FPS OFF", fpsInk, fpsToggleBtn);
+    outputMenuButtons_.push_back({fpsToggleBtn, -1, -1, kOutputMenuActionToggleFps});
+
     int toggleX = outputStrip.x + 96;
     constexpr int kOutputToggleCellW = 132;
     constexpr int kOutputToggleCellH = 24;
     constexpr int kOutputToggleGap = 4;
-    int toggleLimitX = addOutputBtn.x - 6;
+    int toggleLimitX = fpsToggleBtn.x - 6;
     int hiddenOutputs = 0;
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (toggleX + kOutputToggleCellW > toggleLimitX) {
@@ -17347,12 +17393,24 @@ class App {
         Primitives::drawFramedPanel(controlRenderer_, cellRect, cellFill,
                                     colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       }
-      drawText(controlRenderer_, fontSmall_,
-               "O" + std::to_string(outputIndex + 1) + " " + typeToken,
-               cellInk, cellRect.x + 5, cellRect.y + 3);
-      drawText(controlRenderer_, fontSmall_, stateToken, cellInk, cellRect.x + 5, cellRect.y + 12);
-
       SDL_Rect armBtn {cellRect.x + cellRect.w - 44, cellRect.y + 3, 40, cellRect.h - 6};
+      std::string topLine = "O" + std::to_string(outputIndex + 1) + " " + typeToken;
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, topLine, cellRect.w - 52),
+               cellInk, cellRect.x + 5, cellRect.y + 3);
+      if (outputFpsCounterEnabled_) {
+        std::string fpsToken = (output.enabled ? outputFpsLabel(outputIndex) : std::string("--.-")) + "fps";
+        int fpsW = 0;
+        if (fontSmall_ && TTF_SizeUTF8(fontSmall_, fpsToken.c_str(), &fpsW, nullptr) != 0) {
+          fpsW = 0;
+        }
+        int fpsX = armBtn.x - fpsW - 3;
+        drawText(controlRenderer_, fontSmall_, fpsToken, cellInk, std::max(cellRect.x + 46, fpsX), cellRect.y + 3);
+      }
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, stateToken, cellRect.w - 52),
+               cellInk, cellRect.x + 5, cellRect.y + 12);
+
       SDL_Color armFill = output.enabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
       SDL_Color armInk = output.enabled ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
       Primitives::drawFramedPanel(controlRenderer_, armBtn, armFill,
@@ -20117,6 +20175,7 @@ class App {
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);
     }
+    recordOutputFramePresented(outputIndex);
   }
 
   void handleRightClick(int x, int y) {
@@ -22508,6 +22567,11 @@ class App {
       }
       if (outputBtn.action == kOutputMenuActionAddOutput) {
         addOutput(project_.focusedDeckIndex);
+        return;
+      }
+      if (outputBtn.action == kOutputMenuActionToggleFps) {
+        outputFpsCounterEnabled_ = !outputFpsCounterEnabled_;
+        triggerToast(std::string("output fps ") + (outputFpsCounterEnabled_ ? "on" : "off"));
         return;
       }
       if (outputBtn.action == kOutputMenuActionFocus) {
@@ -27005,6 +27069,7 @@ class App {
   static constexpr int kOutputMenuActionRouteLayerInc = 7;
   static constexpr int kOutputMenuActionRouteOutputPrev = 8;
   static constexpr int kOutputMenuActionRouteOutputNext = 9;
+  static constexpr int kOutputMenuActionToggleFps = 10;
   static constexpr int kSettingsActionOutputRemove = 269;
   static constexpr int kSettingsActionOutputToggle = 262;
   static constexpr int kSettingsActionOutputDisplayPrev = 263;
@@ -27194,6 +27259,7 @@ class App {
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
   std::vector<MasterCueRowHit> masterCueRowHits_;
   std::vector<OutputMenuButton> outputMenuButtons_;
+  bool outputFpsCounterEnabled_ = true;
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
