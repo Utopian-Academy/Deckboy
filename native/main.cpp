@@ -2004,6 +2004,8 @@ struct OutputRuntime {
   std::vector<std::uint8_t> ndiKeyFrameBuffer;
 #endif
   bool recoveryPausedByEscape = false;
+  Uint64 lastFullscreenRequestMs = 0;
+  Uint64 lastRecoveryAttemptMs = 0;
 };
 
 struct DeckStreamAudioBuffer {
@@ -10139,11 +10141,13 @@ class App {
       return false;
     }
     runtime->recoveryPausedByEscape = false;
+    runtime->lastFullscreenRequestMs = SDL_GetTicks64();
 
     SDL_DisplayMode selectedMode {};
     if (selectDisplayModeForOutput(outputIndex, selectedMode)) {
       SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
+        runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
         if (withToast) {
           triggerToast("big screen @" + formatRefreshRateLabel(selectedMode.refresh_rate));
         }
@@ -10152,6 +10156,7 @@ class App {
     }
 
     if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
+      runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
       if (withToast) {
         triggerToast("big screen");
       }
@@ -10616,6 +10621,7 @@ class App {
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
     bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
     bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
+    Uint64 now = SDL_GetTicks64();
 
     int displayCount = SDL_GetNumVideoDisplays();
     int targetDisplay = displayCount > 0
@@ -10629,10 +10635,22 @@ class App {
       wrongDisplay = windowDisplay != targetDisplay;
     }
 
-    bool needsRecovery = hidden || minimized || !fullscreen || wrongDisplay;
+    // Avoid infinite fullscreen thrash loops on WMs/drivers that transiently reject
+    // fullscreen state. We only auto-recover non-fullscreen right after an explicit
+    // fullscreen request, while always recovering hidden/minimized/wrong-display.
+    bool recentFullscreenRequest =
+      runtime->lastFullscreenRequestMs > 0 &&
+      (now - runtime->lastFullscreenRequestMs) <= 2500;
+    bool needsFullscreenRecovery = (!fullscreen) && recentFullscreenRequest;
+    bool needsRecovery = hidden || minimized || wrongDisplay || needsFullscreenRecovery;
     if (!needsRecovery) {
       return false;
     }
+    if (runtime->lastRecoveryAttemptMs > 0 &&
+        (now - runtime->lastRecoveryAttemptMs) < 1200) {
+      return false;
+    }
+    runtime->lastRecoveryAttemptMs = now;
 
     applyOutputDisplaySelection(outputIndex);
     SDL_ShowWindow(runtime->outputWindow);
