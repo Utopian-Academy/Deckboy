@@ -15796,6 +15796,9 @@ class App {
           break;
         case SDL_MOUSEBUTTONDOWN:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
+            if (handleInlineTextEditorMouseDown(event.button.x, event.button.y)) {
+              break;
+            }
             if (handleDropdownMouseDown(event.button.x, event.button.y)) {
               break;
             }
@@ -15832,6 +15835,11 @@ class App {
           break;
         case SDL_KEYDOWN:
           handleKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.windowID, event.key.repeat != 0);
+          break;
+        case SDL_TEXTINPUT:
+          if (event.text.windowID == SDL_GetWindowID(controlWindow_)) {
+            handleInlineTextEditorTextInput(event.text.text);
+          }
           break;
         case SDL_DISPLAYEVENT:
 #if defined(SDL_DISPLAYEVENT_CONNECTED) && defined(SDL_DISPLAYEVENT_DISCONNECTED)
@@ -17213,6 +17221,7 @@ class App {
     renderDropdownPopover();
     renderContextMenu();
     renderSettingsModal();
+    renderInlineTextEditor();
     renderSplashOverlay();
     SDL_RenderPresent(controlRenderer_);
     auto uiFrameEnd = std::chrono::steady_clock::now();
@@ -18792,9 +18801,36 @@ class App {
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
       }
+      int metaRowIndex = rowOffset + 8;
+      if (isSourceCueKind(selectedCue->kind)) {
+        std::string sourceRef = sourceCueRefFromCue(*selectedCue);
+        if (sourceRef.empty()) {
+          sourceRef = defaultSourceRefForKind(selectedCue->kind);
+        }
+        SDL_Rect sourceLabel {ctrl.x + 10, ry + kRowStep * metaRowIndex, 66, 26};
+        SDL_Rect sourceVal {ctrl.x + 78, ry + kRowStep * metaRowIndex, kCtrlW - 146, 26};
+        SDL_Rect sourceEdit {ctrl.x + kCtrlW - 64, ry + kRowStep * metaRowIndex, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "source", colorFromRgba(kScreenInkSoftColor),
+                 sourceLabel.x + 2, sourceLabel.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, sourceVal,
+                                    colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, sourceRef, sourceVal.w - 10),
+                 colorFromRgba(kScreenDeepColor), sourceVal.x + 6, sourceVal.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, sourceEdit,
+                                    colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit",
+                         colorFromRgba(kScreenLightColor), sourceEdit);
+        quickButtons_.push_back({sourceEdit, QuickAction::EditSourceRef, "Edit source reference"});
+        metaRowIndex += 1;
+      }
       // Notes row
       {
-        int notesY = ry + kRowStep * (rowOffset + 8);
+        int notesY = ry + kRowStep * metaRowIndex;
         SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
@@ -18806,7 +18842,7 @@ class App {
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
       }
       {
-        int rowY = ry + kRowStep * (rowOffset + 9);
+        int rowY = ry + kRowStep * (metaRowIndex + 1);
         rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
                                  QuickAction::CueSectionGeometryToggle,
                                  "Collapse/expand geometry controls");
@@ -20010,6 +20046,37 @@ class App {
     return std::nullopt;
   }
 
+  static std::optional<char> inlineEditorCharFromKey(SDL_Keycode key, Uint16 mod) {
+    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+      return std::nullopt;
+    }
+    bool shift = (mod & KMOD_SHIFT) != 0;
+    if (key >= SDLK_a && key <= SDLK_z) {
+      char base = static_cast<char>('a' + (key - SDLK_a));
+      return shift ? static_cast<char>(std::toupper(static_cast<unsigned char>(base))) : base;
+    }
+    if (key >= SDLK_0 && key <= SDLK_9) {
+      static const std::string shifted = ")!@#$%^&*(";
+      int idx = static_cast<int>(key - SDLK_0);
+      return shift ? shifted[idx] : static_cast<char>('0' + idx);
+    }
+    switch (key) {
+      case SDLK_SPACE: return ' ';
+      case SDLK_MINUS: return shift ? '_' : '-';
+      case SDLK_UNDERSCORE: return '_';
+      case SDLK_EQUALS: return shift ? '+' : '=';
+      case SDLK_PLUS: return '+';
+      case SDLK_PERIOD: return shift ? '>' : '.';
+      case SDLK_COMMA: return shift ? '<' : ',';
+      case SDLK_COLON: return ':';
+      case SDLK_SEMICOLON: return shift ? ':' : ';';
+      case SDLK_SLASH: return shift ? '?' : '/';
+      case SDLK_BACKSLASH: return shift ? '|' : '\\';
+      default: break;
+    }
+    return std::nullopt;
+  }
+
   std::vector<std::pair<std::string, std::string>> sourceCueTypeChoices() const {
     std::vector<std::pair<std::string, std::string>> choices {
       {"window", "Window Source"},
@@ -20364,6 +20431,155 @@ class App {
         + " items=" + std::to_string(renderedItems)
         + " visible=" + std::to_string(visibleRows));
     }
+  }
+
+  void openInlineTextEditor(const std::string& owner,
+                            const std::string& title,
+                            const std::string& prompt,
+                            const std::string& initialValue,
+                            std::function<void(const std::string&)> onSubmit) {
+    closeDropdown(true);
+    inlineEditor_ = InlineTextEditorState {};
+    inlineEditor_.open = true;
+    inlineEditor_.owner = owner;
+    inlineEditor_.title = title;
+    inlineEditor_.prompt = prompt;
+    inlineEditor_.value = initialValue;
+    inlineEditor_.onSubmit = std::move(onSubmit);
+    SDL_StartTextInput();
+    uiWatchdogPopupEvent("inline_text:" + owner, true);
+  }
+
+  void closeInlineTextEditor(bool apply) {
+    if (!inlineEditor_.open) {
+      return;
+    }
+    auto owner = inlineEditor_.owner;
+    auto submit = inlineEditor_.onSubmit;
+    std::string value = inlineEditor_.value;
+    inlineEditor_ = InlineTextEditorState {};
+    SDL_StopTextInput();
+    uiWatchdogPopupEvent("inline_text:" + owner, false);
+    if (apply && submit) {
+      submit(value);
+    }
+  }
+
+  bool handleInlineTextEditorMouseDown(int x, int y) {
+    if (!inlineEditor_.open) {
+      return false;
+    }
+    if (pointInRect(x, y, inlineEditor_.applyRect)) {
+      closeInlineTextEditor(true);
+      return true;
+    }
+    if (pointInRect(x, y, inlineEditor_.cancelRect)) {
+      closeInlineTextEditor(false);
+      return true;
+    }
+    if (!pointInRect(x, y, inlineEditor_.panelRect)) {
+      closeInlineTextEditor(false);
+      return true;
+    }
+    return true;
+  }
+
+  bool handleInlineTextEditorKey(SDL_Keycode key, Uint16 mod) {
+    if (!inlineEditor_.open) {
+      return false;
+    }
+    if (key == SDLK_ESCAPE) {
+      closeInlineTextEditor(false);
+      return true;
+    }
+    if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+      closeInlineTextEditor(true);
+      return true;
+    }
+    if (key == SDLK_BACKSPACE) {
+      if (!inlineEditor_.value.empty()) {
+        inlineEditor_.value.pop_back();
+      }
+      return true;
+    }
+    if (key == SDLK_DELETE) {
+      inlineEditor_.value.clear();
+      return true;
+    }
+    if (auto typed = inlineEditorCharFromKey(key, mod); typed) {
+      inlineEditor_.value.push_back(*typed);
+      if (inlineEditor_.value.size() > 180) {
+        inlineEditor_.value.resize(180);
+      }
+      return true;
+    }
+    return true;
+  }
+
+  void handleInlineTextEditorTextInput(const std::string& text) {
+    if (!inlineEditor_.open || text.empty()) {
+      return;
+    }
+    inlineEditor_.value += text;
+    if (inlineEditor_.value.size() > 180) {
+      inlineEditor_.value.resize(180);
+    }
+  }
+
+  void renderInlineTextEditor() {
+    if (!inlineEditor_.open) {
+      return;
+    }
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 140);
+    SDL_Rect shade {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &shade);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    SDL_Rect panel {width / 2 - 280, height / 2 - 82, 560, 164};
+    inlineEditor_.panelRect = panel;
+    Primitives::drawFramedPanel(controlRenderer_, panel,
+                                colorFromRgba(kScreenLightColor),
+                                colorFromRgba(kScreenDeepColor),
+                                colorFromRgba(kScreenMidColor));
+    drawText(controlRenderer_, fontBase_, inlineEditor_.title, colorFromRgba(kScreenDeepColor), panel.x + 14, panel.y + 12);
+    drawText(controlRenderer_, fontSmall_,
+             ellipsizeToPixelWidth(fontSmall_, inlineEditor_.prompt, panel.w - 28),
+             colorFromRgba(kScreenDarkColor), panel.x + 14, panel.y + 44);
+
+    SDL_Rect inputRect {panel.x + 14, panel.y + 68, panel.w - 28, 34};
+    inlineEditor_.inputRect = inputRect;
+    Primitives::drawFramedPanel(controlRenderer_, inputRect,
+                                colorFromRgba(kShellInnerColor),
+                                colorFromRgba(kScreenDeepColor),
+                                colorFromRgba(kScreenMidColor));
+    std::string shown = inlineEditor_.value;
+    if ((animationNow_ / 450) % 2 == 0) {
+      shown += "_";
+    }
+    drawText(controlRenderer_, fontMono_,
+             ellipsizeToPixelWidth(fontMono_, shown, inputRect.w - 12),
+             colorFromRgba(kScreenLightColor), inputRect.x + 6, inputRect.y + 8);
+
+    SDL_Rect applyRect {panel.x + panel.w - 136, panel.y + panel.h - 42, 58, 28};
+    SDL_Rect cancelRect {panel.x + panel.w - 72, panel.y + panel.h - 42, 58, 28};
+    inlineEditor_.applyRect = applyRect;
+    inlineEditor_.cancelRect = cancelRect;
+    Primitives::drawFramedPanel(controlRenderer_, applyRect,
+                                colorFromRgba(kScreenDarkColor),
+                                colorFromRgba(kScreenDeepColor),
+                                colorFromRgba(kScreenLightColor));
+    Primitives::drawFramedPanel(controlRenderer_, cancelRect,
+                                colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor),
+                                colorFromRgba(kScreenLightColor));
+    drawCenteredText(controlRenderer_, fontSmall_, "Apply",
+                     colorFromRgba(kScreenLightColor), applyRect);
+    drawCenteredText(controlRenderer_, fontSmall_, "Cancel",
+                     colorFromRgba(kScreenDeepColor), cancelRect);
   }
 
   SDL_Rect settingsModalRect() const {
@@ -21964,6 +22180,10 @@ class App {
       return;
     }
 
+    if (handleInlineTextEditorMouseDown(x, y)) {
+      return;
+    }
+
     if (handleDropdownMouseDown(x, y)) {
       return;
     }
@@ -22398,6 +22618,10 @@ class App {
       } else if (key == SDLK_ESCAPE) {
         showStartupDialog_ = false;
       }
+      return;
+    }
+
+    if (handleInlineTextEditorKey(key, mod)) {
       return;
     }
 
@@ -24292,6 +24516,42 @@ class App {
     markProjectDirty();
   }
 
+  void setSelectedSourceCueRef(const std::string& rawRef) {
+    Cue* selected = selectedCueMutable();
+    if (!selected || !isSourceCueKind(selected->kind)) {
+      return;
+    }
+    std::string sourceRef = trim(rawRef);
+    if (sourceRef.empty()) {
+      sourceRef = defaultSourceRefForKind(selected->kind);
+    }
+    bool changed = false;
+    forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
+      if (!isSourceCueKind(cue.kind)) {
+        return;
+      }
+      cue.path = "source://" + sourceCueTokenForKind(cue.kind) + "/" + sourceRef;
+      std::string prefix = cueKindLabel(cue.kind) + " · ";
+      if (cue.name.empty() || cue.name.rfind(prefix, 0) == 0) {
+        cue.name = prefix + sourceRef;
+      }
+      changed = true;
+    });
+    if (!changed) {
+      return;
+    }
+    Deck& deck = focusedDeckMutable();
+    if (deck.activeIndex >= 0 && deck.activeIndex == deck.selectedIndex) {
+      if (MediaEngine* engine = focusedMediaEngine()) {
+        bool autoplay = engine->state() == TransportState::Playing;
+        Cue& activeCue = deck.cues[deck.activeIndex];
+        engine->loadCue(&activeCue, autoplay);
+      }
+    }
+    triggerToast("source ref: " + sourceRef);
+    markProjectDirty();
+  }
+
   void dispatchQuickAction(QuickAction action) {
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
@@ -24342,6 +24602,25 @@ class App {
             }
           }
         }
+        break;
+      }
+      case QuickAction::EditSourceRef: {
+        Cue* sel = selectedCueMutable();
+        if (!sel || !isSourceCueKind(sel->kind)) {
+          break;
+        }
+        std::string initial = sourceCueRefFromCue(*sel);
+        if (initial.empty()) {
+          initial = defaultSourceRefForKind(sel->kind);
+        }
+        openInlineTextEditor(
+          "cue.source_ref",
+          "Source Reference",
+          "Window/Camera/Syphon source token",
+          initial,
+          [this](const std::string& value) {
+            setSelectedSourceCueRef(value);
+          });
         break;
       }
       case QuickAction::GotoMinus10:
@@ -26272,6 +26551,19 @@ class App {
 
   DropdownState dropdown_;
   int dropdownLastRenderedItemCount_ = -1;
+  struct InlineTextEditorState {
+    bool open = false;
+    std::string owner;
+    std::string title;
+    std::string prompt;
+    std::string value;
+    SDL_Rect panelRect {};
+    SDL_Rect inputRect {};
+    SDL_Rect applyRect {};
+    SDL_Rect cancelRect {};
+    std::function<void(const std::string&)> onSubmit;
+  };
+  InlineTextEditorState inlineEditor_;
   SDL_Rect bottomBarRect_ {};
   SDL_Rect mediaGroupRect_ {};
   SDL_Rect transportGroupRect_ {};
