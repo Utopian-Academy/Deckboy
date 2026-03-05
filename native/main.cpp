@@ -496,6 +496,37 @@ std::string sourceCueRefFromCue(const Cue& cue) {
   return "";
 }
 
+std::string sourceCueRefFriendlyLabel(CueKind kind, const std::string& rawRef) {
+  std::string ref = trim(rawRef);
+  if (ref.empty()) {
+    ref = defaultSourceRefForKind(kind);
+  }
+  std::string lower = ref;
+  std::transform(lower.begin(), lower.end(), lower.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  if (kind == CueKind::WindowSource) {
+    if (lower == "active-window") {
+      return "Focused Window (recommended)";
+    }
+    if (lower.rfind("id:", 0) == 0) {
+      return "Specific Window (advanced)";
+    }
+    if (!lower.empty() && lower.front() == ':') {
+      return "Screen Region (advanced)";
+    }
+  } else if (kind == CueKind::Camera) {
+    if (lower == "default-camera" || lower == "default") {
+      return "Default Camera";
+    }
+  } else if (kind == CueKind::Syphon) {
+    if (lower == "default-bus" || lower == "default") {
+      return "Default App Feed";
+    }
+  }
+  return ref;
+}
+
 std::string cueEndActionToken(CueEndAction a) {
   switch (a) {
     case CueEndAction::Stop:       return "stop";
@@ -18807,17 +18838,18 @@ class App {
         if (sourceRef.empty()) {
           sourceRef = defaultSourceRefForKind(selectedCue->kind);
         }
-        SDL_Rect sourceLabel {ctrl.x + 10, ry + kRowStep * metaRowIndex, 66, 26};
+        std::string sourcePretty = sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef);
+        SDL_Rect sourceLabelRect {ctrl.x + 10, ry + kRowStep * metaRowIndex, 66, 26};
         SDL_Rect sourceVal {ctrl.x + 78, ry + kRowStep * metaRowIndex, kCtrlW - 146, 26};
         SDL_Rect sourceEdit {ctrl.x + kCtrlW - 64, ry + kRowStep * metaRowIndex, 54, 26};
         drawText(controlRenderer_, fontSmall_, "source", colorFromRgba(kScreenInkSoftColor),
-                 sourceLabel.x + 2, sourceLabel.y + 6);
+                 sourceLabelRect.x + 2, sourceLabelRect.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, sourceVal,
                                     colorFromRgba(kScreenLightColor),
                                     colorFromRgba(kScreenDeepColor),
                                     colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, sourceRef, sourceVal.w - 10),
+                 ellipsizeToPixelWidth(fontSmall_, sourcePretty, sourceVal.w - 10),
                  colorFromRgba(kScreenDeepColor), sourceVal.x + 6, sourceVal.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, sourceEdit,
                                     colorFromRgba(kScreenDarkColor),
@@ -24522,7 +24554,13 @@ class App {
       return;
     }
     std::string sourceRef = trim(rawRef);
-    if (sourceRef.empty()) {
+    std::string sourceRefLower = toLower(sourceRef);
+    if (sourceRef.empty()
+        || sourceRefLower == "recommended"
+        || sourceRefLower == "focused"
+        || sourceRefLower == "focused window"
+        || sourceRefLower == "window"
+        || sourceRefLower == "default") {
       sourceRef = defaultSourceRefForKind(selected->kind);
     }
     bool changed = false;
@@ -24548,7 +24586,7 @@ class App {
         engine->loadCue(&activeCue, autoplay);
       }
     }
-    triggerToast("source ref: " + sourceRef);
+    triggerToast("source: " + sourceCueRefFriendlyLabel(selected->kind, sourceRef));
     markProjectDirty();
   }
 
@@ -24613,10 +24651,19 @@ class App {
         if (initial.empty()) {
           initial = defaultSourceRefForKind(sel->kind);
         }
+        std::string title = cueKindLabel(sel->kind) + " Source";
+        std::string prompt = "Set source";
+        if (sel->kind == CueKind::WindowSource) {
+          prompt = "Use: active-window (recommended)";
+        } else if (sel->kind == CueKind::Camera) {
+          prompt = "Use: default-camera (recommended)";
+        } else if (sel->kind == CueKind::Syphon) {
+          prompt = "Use: default-bus (recommended)";
+        }
         openInlineTextEditor(
           "cue.source_ref",
-          "Source Reference",
-          "Window/Camera/Syphon source token",
+          title,
+          prompt,
           initial,
           [this](const std::string& value) {
             setSelectedSourceCueRef(value);

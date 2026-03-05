@@ -180,6 +180,9 @@ playlist with a "web" type.
   - `camera -> default-camera`
   - `syphon/spout -> default-bus`
 - For an existing source cue, use the cue panel `source` row and click `edit` to set the source reference directly in-menu (non-blocking inline editor).
+- The editor accepts plain words:
+  - `focused` or `recommended` (window cues) -> focused window capture
+  - `default` (camera/syphon cues) -> default device/bus
 - Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
 - Linux source-ref quick examples:
   - `SOURCE WINDOW active-window` (full desktop capture)
