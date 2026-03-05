@@ -234,6 +234,13 @@ struct Project {
   int oscQueryPort = 5511;
   bool oscFeedbackMirrorEnabled = false;
   int oscFeedbackRateMs = 120;
+  bool atemTriggerEnabled = false;
+  bool ndiTriggerEnabled = false;
+  bool nmcSyncEnabled = false;
+  bool mtcIngestEnabled = false;
+  bool ltcIngestEnabled = false;
+  bool dmxArtNetEnabled = false;
+  int artNetPort = 6454;
   std::string jumpMode = "trigger"; // trigger | load
   bool jumpTransitionEnabled = true;
   std::string panicProfile = "outputs_off"; // outputs_off | fade_pause | fade_rewind | fade_load_next

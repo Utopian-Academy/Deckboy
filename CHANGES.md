@@ -1,5 +1,60 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Integration adapter foundation: ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet)
+
+### Platform/backend scaffolding
+- Added integration backend planning module:
+  - `native/platform/integration_backend.hpp/.cpp`
+  - catalog API: `createIntegrationBackendCatalog()`
+  - route planner API: `planIntegrationBackendRoute(...)`
+- Added build wiring for the new platform module in `CMakeLists.txt`.
+
+### Project model + persistence
+- Added backward-compatible project fields:
+  - `atemTriggerEnabled`
+  - `ndiTriggerEnabled`
+  - `nmcSyncEnabled`
+  - `mtcIngestEnabled`
+  - `ltcIngestEnabled`
+  - `dmxArtNetEnabled`
+  - `artNetPort`
+- Save/load support added with new keys:
+  - `integration_atem_trigger`
+  - `integration_ndi_trigger`
+  - `integration_nmc_sync`
+  - `integration_mtc_ingest`
+  - `integration_ltc_ingest`
+  - `integration_dmx_artnet`
+  - `integration_artnet_port`
+
+### UI + command/OSC surface
+- Added `Settings -> Network -> INTEGRATION ADAPTERS` panel with direct toggles:
+  - ATEM, NDI trigger, NMC, MTC, LTC, Art-Net
+  - Art-Net port prompt
+  - All adapters ON/OFF quick toggle
+- Added Companion/plain-text commands:
+  - `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`, `ARTNETPORT`, `INTEGRATIONS`
+- Added OSC mappings/endpoints:
+  - `/atem`, `/ndi/trigger`, `/nmc`, `/mtc`, `/ltc`, `/artnet`, `/artnet/port`, `/integration`
+
+### Status + diagnostics
+- `STATUS` and `STATUS JSON` now include integration route summary:
+  - `integrations` (text)
+  - `integrationRoute` + `integrations{...}` (JSON)
+- OSC feedback mirror now publishes `/playboy/integration/*` values.
+- `--self-check` now prints:
+  - `integration-backends: ...`
+  - `integration-route-defaults: ...`
+- Smoke suite now validates:
+  - OSC mapping for `/atem`
+  - integration backend route planning
+  - integration settings save/load persistence
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Portability follow-up: runtime egress route wrappers)
 
 ### Runtime output dispatch wiring
