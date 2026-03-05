@@ -2359,6 +2359,38 @@ std::string normalizeOutputColorSpace(std::string colorSpace) {
   return "auto";
 }
 
+std::string normalizeOutputLayoutMode(std::string mode) {
+  mode = toLower(trim(mode));
+  if (mode == "duplicate" || mode == "dup" || mode == "clone") {
+    return "duplicate";
+  }
+  return "span";
+}
+
+int normalizeOutputOrientationDegrees(int degrees) {
+  int normalized = degrees % 360;
+  if (normalized < 0) {
+    normalized += 360;
+  }
+  if (normalized < 45) {
+    return 0;
+  }
+  if (normalized < 135) {
+    return 90;
+  }
+  if (normalized < 225) {
+    return 180;
+  }
+  if (normalized < 315) {
+    return 270;
+  }
+  return 0;
+}
+
+std::string outputOrientationLabel(int degrees) {
+  return std::to_string(normalizeOutputOrientationDegrees(degrees)) + "°";
+}
+
 int normalizeOscQueryPort(int port) {
   return std::clamp(port, 1, 65535);
 }
@@ -2463,6 +2495,8 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
     output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
     output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    output.outputLayoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
+    output.outputOrientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
     if (trim(output.streamUrl).empty()) {
       output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(i));
     }
@@ -2634,6 +2668,8 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
     output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
     output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
+    output.outputLayoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
+    output.outputOrientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
     if (trim(output.streamUrl).empty()) {
       output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(i));
     }
@@ -2994,7 +3030,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << outputTarget.outputAlpha << '\t'
       << outputTarget.outputDelayMs << '\t'
       << (outputTarget.outputTimeOverlayEnabled ? 1 : 0) << '\t'
-      << escapeField(outputTarget.outputColorSpace)
+      << escapeField(outputTarget.outputColorSpace) << '\t'
+      << escapeField(outputTarget.outputLayoutMode) << '\t'
+      << outputTarget.outputOrientationDegrees << '\t'
+      << (outputTarget.outputTestCardEnabled ? 1 : 0)
       << '\n';
   }
   for (const auto& assignment : project.layerAssignments) {
@@ -3292,6 +3331,11 @@ Project loadProject(const fs::path& projectFile) {
           outputTarget.outputDelayMs = safeInt(fields, 18, 0);
           outputTarget.outputTimeOverlayEnabled = safeBool(fields, 19, false);
           outputTarget.outputColorSpace = safeString(fields, 20);
+          if (fields.size() >= 24) {
+            outputTarget.outputLayoutMode = safeString(fields, 21);
+            outputTarget.outputOrientationDegrees = safeInt(fields, 22, 0);
+            outputTarget.outputTestCardEnabled = safeBool(fields, 23, false);
+          }
         }
       } else {
         // Backward compatibility with older 13-column output_target lines.
@@ -6068,11 +6112,17 @@ class App {
       project.outputs[0].outputDelayMs = 240;
       project.outputs[0].outputTimeOverlayEnabled = true;
       project.outputs[0].outputColorSpace = "bt709";
+      project.outputs[0].outputLayoutMode = "span";
+      project.outputs[0].outputOrientationDegrees = 90;
+      project.outputs[0].outputTestCardEnabled = true;
       project.outputs[1].outputId = "out-smoke-stream";
       project.outputs[1].outputAlpha = 0.67f;
       project.outputs[1].outputDelayMs = 120;
       project.outputs[1].outputTimeOverlayEnabled = false;
       project.outputs[1].outputColorSpace = "srgb";
+      project.outputs[1].outputLayoutMode = "duplicate";
+      project.outputs[1].outputOrientationDegrees = 270;
+      project.outputs[1].outputTestCardEnabled = false;
       project.layerAssignments = {
         LayerAssignment {0, 0, 3, true},
         LayerAssignment {0, 1, 9, true}
@@ -6132,10 +6182,16 @@ class App {
                loaded.outputs[0].outputDelayMs == 240 &&
                loaded.outputs[0].outputTimeOverlayEnabled &&
                loaded.outputs[0].outputColorSpace == "bt709" &&
+               loaded.outputs[0].outputLayoutMode == "span" &&
+               loaded.outputs[0].outputOrientationDegrees == 90 &&
+               loaded.outputs[0].outputTestCardEnabled &&
                std::abs(loaded.outputs[1].outputAlpha - 0.67f) < 0.01f &&
                loaded.outputs[1].outputDelayMs == 120 &&
                !loaded.outputs[1].outputTimeOverlayEnabled &&
-               loaded.outputs[1].outputColorSpace == "srgb",
+               loaded.outputs[1].outputColorSpace == "srgb" &&
+               loaded.outputs[1].outputLayoutMode == "duplicate" &&
+               loaded.outputs[1].outputOrientationDegrees == 270 &&
+               !loaded.outputs[1].outputTestCardEnabled,
                "output targets persisted");
         expect(loaded.outputs[0].ndiEnabled &&
                loaded.outputs[0].ndiSourceName == "Program Fill" &&
@@ -7374,6 +7430,115 @@ class App {
     return setFocusedOutputColorSpace(kColorSpaces[next]);
   }
 
+  bool setFocusedOutputLayoutMode(const std::string& modeToken) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    std::string next = normalizeOutputLayoutMode(modeToken);
+    if (normalizeOutputLayoutMode(output.outputLayoutMode) == next) {
+      triggerToast("layout: " + next);
+      return false;
+    }
+    output.outputLayoutMode = next;
+    triggerToast("layout: " + next);
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool cycleFocusedOutputLayoutMode(int direction) {
+    normalizeProject(project_);
+    static const std::array<std::string, 2> kModes {"span", "duplicate"};
+    std::string current = normalizeOutputLayoutMode(focusedOutput().outputLayoutMode);
+    int index = 0;
+    for (int i = 0; i < static_cast<int>(kModes.size()); ++i) {
+      if (kModes[i] == current) {
+        index = i;
+        break;
+      }
+    }
+    int next = (index + direction + static_cast<int>(kModes.size())) % static_cast<int>(kModes.size());
+    return setFocusedOutputLayoutMode(kModes[next]);
+  }
+
+  bool setFocusedOutputOrientationDegrees(int degrees) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    int normalized = normalizeOutputOrientationDegrees(degrees);
+    if (normalizeOutputOrientationDegrees(output.outputOrientationDegrees) == normalized) {
+      triggerToast("orientation: " + outputOrientationLabel(normalized));
+      return false;
+    }
+    output.outputOrientationDegrees = normalized;
+    if (auto* runtime = runtimeForOutput(project_.focusedOutputIndex)) {
+      runtime->delayFrames.clear();
+      runtime->latestCapturedFrame = {};
+    }
+    triggerToast("orientation: " + outputOrientationLabel(normalized));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool cycleFocusedOutputOrientation(int direction) {
+    normalizeProject(project_);
+    static const std::array<int, 4> kOrientations {0, 90, 180, 270};
+    int current = normalizeOutputOrientationDegrees(focusedOutput().outputOrientationDegrees);
+    int index = 0;
+    for (int i = 0; i < static_cast<int>(kOrientations.size()); ++i) {
+      if (kOrientations[i] == current) {
+        index = i;
+        break;
+      }
+    }
+    int next = (index + direction + static_cast<int>(kOrientations.size())) % static_cast<int>(kOrientations.size());
+    return setFocusedOutputOrientationDegrees(kOrientations[next]);
+  }
+
+  bool setFocusedOutputTestCardEnabled(bool enabled) {
+    normalizeProject(project_);
+    OutputTarget& output = focusedOutputMutable();
+    if (output.outputTestCardEnabled == enabled) {
+      triggerToast(std::string("test card: ") + (enabled ? "on" : "off"));
+      return false;
+    }
+    output.outputTestCardEnabled = enabled;
+    if (auto* runtime = runtimeForOutput(project_.focusedOutputIndex)) {
+      runtime->delayFrames.clear();
+      runtime->latestCapturedFrame = {};
+    }
+    triggerToast(std::string("test card: ") + (enabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
+  }
+
+  bool toggleFocusedOutputTestCardEnabled() {
+    return setFocusedOutputTestCardEnabled(!focusedOutput().outputTestCardEnabled);
+  }
+
+  bool setAllOutputsTestCardEnabled(bool enabled) {
+    normalizeProject(project_);
+    bool changed = false;
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      if (output.outputTestCardEnabled == enabled) {
+        continue;
+      }
+      output.outputTestCardEnabled = enabled;
+      if (auto* runtime = runtimeForOutput(outputIndex)) {
+        runtime->delayFrames.clear();
+        runtime->latestCapturedFrame = {};
+      }
+      changed = true;
+    }
+    triggerToast(std::string("test cards: ") + (enabled ? "on" : "off"));
+    if (changed) {
+      playUiSound(UiSoundEffect::Toggle);
+      markProjectDirty();
+    }
+    return changed;
+  }
+
   const GroupPreset* focusedGroupPreset() const {
     if (project_.groupPresets.empty()) {
       return nullptr;
@@ -8286,14 +8451,84 @@ class App {
 #endif
   }
 
-  bool captureOutputFrameForEgress(int outputIndex, OutputRuntime& runtime, int width, int height) {
+  bool rotateCapturedFramePixels(const std::vector<std::uint8_t>& sourcePixels,
+                                 int sourceW,
+                                 int sourceH,
+                                 int orientationDegrees,
+                                 std::vector<std::uint8_t>& destPixels,
+                                 int& destW,
+                                 int& destH) const {
+    int normalized = normalizeOutputOrientationDegrees(orientationDegrees);
+    if (sourceW <= 0 || sourceH <= 0) {
+      return false;
+    }
+    if (normalized == 0) {
+      destW = sourceW;
+      destH = sourceH;
+      destPixels = sourcePixels;
+      return true;
+    }
+
+    if (normalized == 90 || normalized == 270) {
+      destW = sourceH;
+      destH = sourceW;
+    } else {
+      destW = sourceW;
+      destH = sourceH;
+    }
+    destPixels.assign(static_cast<size_t>(destW) * static_cast<size_t>(destH) * 4u, 0);
+    if (destPixels.empty()) {
+      return false;
+    }
+
+    for (int y = 0; y < sourceH; ++y) {
+      for (int x = 0; x < sourceW; ++x) {
+        int dx = x;
+        int dy = y;
+        if (normalized == 90) {
+          dx = sourceH - 1 - y;
+          dy = x;
+        } else if (normalized == 180) {
+          dx = sourceW - 1 - x;
+          dy = sourceH - 1 - y;
+        } else if (normalized == 270) {
+          dx = y;
+          dy = sourceW - 1 - x;
+        }
+        size_t srcOffset = (static_cast<size_t>(y) * static_cast<size_t>(sourceW) + static_cast<size_t>(x)) * 4u;
+        size_t dstOffset = (static_cast<size_t>(dy) * static_cast<size_t>(destW) + static_cast<size_t>(dx)) * 4u;
+        std::memcpy(destPixels.data() + dstOffset, sourcePixels.data() + srcOffset, 4u);
+      }
+    }
+    return true;
+  }
+
+  bool captureOutputFrameForEgress(int outputIndex, OutputRuntime& runtime, const SDL_Rect& requestedRect) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !runtime.outputRenderer) {
       return false;
     }
-    width = std::max(1, width);
-    height = std::max(1, height);
-    size_t stride = static_cast<size_t>(width) * 4u;
-    size_t frameBytes = stride * static_cast<size_t>(height);
+    SDL_Rect captureRect = requestedRect;
+    captureRect.w = std::max(1, captureRect.w);
+    captureRect.h = std::max(1, captureRect.h);
+    captureRect.x = std::max(0, captureRect.x);
+    captureRect.y = std::max(0, captureRect.y);
+    if (runtime.compositorTexture) {
+      int texW = std::max(1, runtime.compositorWidth);
+      int texH = std::max(1, runtime.compositorHeight);
+      if (captureRect.x >= texW || captureRect.y >= texH) {
+        return false;
+      }
+      captureRect.w = std::min(captureRect.w, texW - captureRect.x);
+      captureRect.h = std::min(captureRect.h, texH - captureRect.y);
+    } else {
+      captureRect.x = 0;
+      captureRect.y = 0;
+    }
+
+    int captureW = std::max(1, captureRect.w);
+    int captureH = std::max(1, captureRect.h);
+    size_t stride = static_cast<size_t>(captureW) * 4u;
+    size_t frameBytes = stride * static_cast<size_t>(captureH);
     if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
       runtime.latestCapturedFrame.pixels.resize(frameBytes);
     }
@@ -8307,7 +8542,7 @@ class App {
     }
     bool ok = SDL_RenderReadPixels(
       runtime.outputRenderer,
-      nullptr,
+      &captureRect,
       SDL_PIXELFORMAT_BGRA32,
       runtime.latestCapturedFrame.pixels.data(),
       static_cast<int>(stride)) == 0;
@@ -8318,9 +8553,29 @@ class App {
       return false;
     }
 
+    int orientationDegrees = normalizeOutputOrientationDegrees(project_.outputs[outputIndex].outputOrientationDegrees);
+    if (orientationDegrees != 0) {
+      std::vector<std::uint8_t> rotatedPixels;
+      int rotatedW = captureW;
+      int rotatedH = captureH;
+      if (!rotateCapturedFramePixels(
+            runtime.latestCapturedFrame.pixels,
+            captureW,
+            captureH,
+            orientationDegrees,
+            rotatedPixels,
+            rotatedW,
+            rotatedH)) {
+        return false;
+      }
+      runtime.latestCapturedFrame.pixels.swap(rotatedPixels);
+      captureW = rotatedW;
+      captureH = rotatedH;
+    }
+
     Uint64 nowMs = SDL_GetTicks64();
-    runtime.latestCapturedFrame.width = width;
-    runtime.latestCapturedFrame.height = height;
+    runtime.latestCapturedFrame.width = captureW;
+    runtime.latestCapturedFrame.height = captureH;
     runtime.latestCapturedFrame.capturedAtMs = nowMs;
 
     int delayMs = std::clamp(project_.outputs[outputIndex].outputDelayMs, 0, 5000);
@@ -8330,8 +8585,8 @@ class App {
     }
 
     OutputRuntime::CapturedFrame delayedFrame;
-    delayedFrame.width = width;
-    delayedFrame.height = height;
+    delayedFrame.width = captureW;
+    delayedFrame.height = captureH;
     delayedFrame.capturedAtMs = nowMs;
     delayedFrame.pixels = runtime.latestCapturedFrame.pixels;
     runtime.delayFrames.push_back(std::move(delayedFrame));
@@ -10408,6 +10663,9 @@ class App {
              << " delay_ms=" << std::clamp(out.outputDelayMs, 0, 5000)
              << " overlay=" << (out.outputTimeOverlayEnabled ? "on" : "off")
              << " color_space=" << normalizeOutputColorSpace(out.outputColorSpace)
+             << " layout=" << normalizeOutputLayoutMode(out.outputLayoutMode)
+             << " orientation=" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees)
+             << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
              << '\n';
     }
     for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
@@ -10580,7 +10838,10 @@ class App {
              << "\"outputAlphaPercent\":" << alphaPct << ","
              << "\"outputDelayMs\":" << std::clamp(out.outputDelayMs, 0, 5000) << ","
              << "\"outputTimeOverlay\":" << (out.outputTimeOverlayEnabled ? "true" : "false") << ","
-             << "\"outputColorSpace\":\"" << escapeJson(normalizeOutputColorSpace(out.outputColorSpace)) << "\""
+             << "\"outputColorSpace\":\"" << escapeJson(normalizeOutputColorSpace(out.outputColorSpace)) << "\","
+             << "\"outputLayoutMode\":\"" << escapeJson(normalizeOutputLayoutMode(out.outputLayoutMode)) << "\","
+             << "\"outputOrientation\":" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees) << ","
+             << "\"outputTestCard\":" << (out.outputTestCardEnabled ? "true" : "false")
              << "}";
     }
     output << "],"
@@ -11599,7 +11860,7 @@ class App {
 
   std::vector<std::pair<std::string, std::string>> buildOscMirrorFeedbackValues() const {
     std::vector<std::pair<std::string, std::string>> values;
-    values.reserve(8 + project_.decks.size() * 5 + project_.outputs.size() * 5);
+    values.reserve(8 + project_.decks.size() * 5 + project_.outputs.size() * 8);
     values.emplace_back("/playboy/focus/deck", std::to_string(project_.focusedDeckIndex + 1));
     values.emplace_back("/playboy/focus/output", std::to_string(project_.focusedOutputIndex + 1));
     values.emplace_back("/playboy/decks/count", std::to_string(project_.decks.size()));
@@ -11627,6 +11888,9 @@ class App {
       values.emplace_back(prefix + "/ndi", output.ndiEnabled ? "1" : "0");
       values.emplace_back(prefix + "/stream", output.streamEnabled ? "1" : "0");
       values.emplace_back(prefix + "/alpha", std::to_string(static_cast<int>(std::lround(std::clamp(output.outputAlpha, 0.0f, 1.0f) * 100.0f))));
+      values.emplace_back(prefix + "/layout", normalizeOutputLayoutMode(output.outputLayoutMode));
+      values.emplace_back(prefix + "/orientation", std::to_string(normalizeOutputOrientationDegrees(output.outputOrientationDegrees)));
+      values.emplace_back(prefix + "/testcard", output.outputTestCardEnabled ? "1" : "0");
     }
     return values;
   }
@@ -13933,6 +14197,86 @@ class App {
           setFocusedOutputColorSpace(parts[colorTokenIndex]);
           return;
         }
+        if (outputArg == "LAYOUT" || outputArg == "MODE") {
+          if (parts.size() <= 3) {
+            triggerToast("layout: " + normalizeOutputLayoutMode(focusedOutput().outputLayoutMode));
+            return;
+          }
+          std::string modeArg = toUpper(parts[3]);
+          if (modeArg == "NEXT") {
+            cycleFocusedOutputLayoutMode(1);
+            return;
+          }
+          if (modeArg == "PREV" || modeArg == "PREVIOUS") {
+            cycleFocusedOutputLayoutMode(-1);
+            return;
+          }
+          if (modeArg == "SPAN") {
+            setFocusedOutputLayoutMode("span");
+            return;
+          }
+          if (modeArg == "DUP" || modeArg == "DUPLICATE" || modeArg == "CLONE") {
+            setFocusedOutputLayoutMode("duplicate");
+            return;
+          }
+          return;
+        }
+        if (outputArg == "ORIENTATION" || outputArg == "ORIENT" || outputArg == "ROTATE" || outputArg == "ROT") {
+          if (parts.size() <= 3) {
+            triggerToast("orientation: " + outputOrientationLabel(focusedOutput().outputOrientationDegrees));
+            return;
+          }
+          std::string rotateArg = toUpper(parts[3]);
+          if (rotateArg == "NEXT" || rotateArg == "CW" || rotateArg == "RIGHT") {
+            cycleFocusedOutputOrientation(1);
+            return;
+          }
+          if (rotateArg == "PREV" || rotateArg == "PREVIOUS" || rotateArg == "CCW" || rotateArg == "LEFT") {
+            cycleFocusedOutputOrientation(-1);
+            return;
+          }
+          if (rotateArg == "RESET" || rotateArg == "NORMAL") {
+            setFocusedOutputOrientationDegrees(0);
+            return;
+          }
+          try {
+            setFocusedOutputOrientationDegrees(std::stoi(parts[3]));
+          } catch (...) {
+          }
+          return;
+        }
+        if (outputArg == "TESTCARD" || outputArg == "TEST") {
+          if (parts.size() <= 3) {
+            toggleFocusedOutputTestCardEnabled();
+            return;
+          }
+          std::string testArg = toUpper(parts[3]);
+          if (testArg == "ALL") {
+            if (parts.size() > 4) {
+              if (auto state = parseToggleWord(4); state) {
+                setAllOutputsTestCardEnabled(*state);
+              }
+            } else {
+              bool anyOff = false;
+              for (const auto& out : project_.outputs) {
+                if (!out.outputTestCardEnabled) {
+                  anyOff = true;
+                  break;
+                }
+              }
+              setAllOutputsTestCardEnabled(anyOff);
+            }
+            return;
+          }
+          if (testArg == "TOGGLE") {
+            toggleFocusedOutputTestCardEnabled();
+            return;
+          }
+          if (auto state = parseToggleWord(3); state) {
+            setFocusedOutputTestCardEnabled(*state);
+          }
+          return;
+        }
         try {
           int outputIndex = std::stoi(parts[2]);
           setFocusedOutputIndex(std::max(0, outputIndex - 1));
@@ -15767,6 +16111,13 @@ class App {
       }
       if (output.ndiEnabled) {
         stateToken += " NDI";
+      }
+      if (output.outputTestCardEnabled) {
+        stateToken += " TEST";
+      }
+      int orientation = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
+      if (orientation != 0) {
+        stateToken += " R" + std::to_string(orientation);
       }
       drawText(controlRenderer_, fontSmall_,
                "O" + std::to_string(outputIndex + 1) + " " + typeToken,
@@ -17772,7 +18123,8 @@ class App {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
-    int hostDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    const OutputTarget& output = project_.outputs[outputIndex];
+    int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     const Deck& deck = project_.decks[hostDeckIndex];
     int texW = runtime->compositorWidth;
     int texH = runtime->compositorHeight;
@@ -17781,7 +18133,8 @@ class App {
     }
 
     SDL_Rect src {0, 0, std::min(windowW, texW), std::min(windowH, texH)};
-    if (project_.outputCanvasEnabled) {
+    std::string layoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
+    if (project_.outputCanvasEnabled && layoutMode == "span") {
       src.x = std::clamp(deck.canvasViewX, 0, std::max(0, texW - src.w));
       src.y = std::clamp(deck.canvasViewY, 0, std::max(0, texH - src.h));
     }
@@ -17789,13 +18142,36 @@ class App {
     bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
       || deck.edgeBlendTop > 0.0001f || deck.edgeBlendBottom > 0.0001f;
     bool hasWarp = deck.warpEnabled;
+    int orientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
+    bool hasOrientation = orientationDegrees != 0;
 
 #if SDL_VERSION_ATLEAST(2, 0, 18)
-    if (hasWarp || hasBlend) {
+    if (hasWarp || hasBlend || hasOrientation) {
       float u0 = static_cast<float>(src.x) / static_cast<float>(texW);
       float v0 = static_cast<float>(src.y) / static_cast<float>(texH);
       float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texW);
       float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texH);
+
+      SDL_FPoint uvTL {u0, v0};
+      SDL_FPoint uvTR {u1, v0};
+      SDL_FPoint uvBR {u1, v1};
+      SDL_FPoint uvBL {u0, v1};
+      if (orientationDegrees == 90) {
+        uvTL = SDL_FPoint {u0, v1};
+        uvTR = SDL_FPoint {u0, v0};
+        uvBR = SDL_FPoint {u1, v0};
+        uvBL = SDL_FPoint {u1, v1};
+      } else if (orientationDegrees == 180) {
+        uvTL = SDL_FPoint {u1, v1};
+        uvTR = SDL_FPoint {u0, v1};
+        uvBR = SDL_FPoint {u0, v0};
+        uvBL = SDL_FPoint {u1, v0};
+      } else if (orientationDegrees == 270) {
+        uvTL = SDL_FPoint {u1, v0};
+        uvTR = SDL_FPoint {u1, v1};
+        uvBR = SDL_FPoint {u0, v1};
+        uvBL = SDL_FPoint {u0, v0};
+      }
 
       SDL_FPoint p0 {0.0f, 0.0f};
       SDL_FPoint p1 {static_cast<float>(windowW), 0.0f};
@@ -17808,11 +18184,15 @@ class App {
         p3.x += deck.warpBottomLeftX;   p3.y += deck.warpBottomLeftY;
       }
 
+      Uint8 aTL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 0.0f) : 255;
+      Uint8 aTR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 0.0f) : 255;
+      Uint8 aBR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 1.0f) : 255;
+      Uint8 aBL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 1.0f) : 255;
       SDL_Vertex verts[4] {
-        {p0, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 0.0f, 0.0f)}, SDL_FPoint {u0, v0}},
-        {p1, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 1.0f, 0.0f)}, SDL_FPoint {u1, v0}},
-        {p2, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 1.0f, 1.0f)}, SDL_FPoint {u1, v1}},
-        {p3, SDL_Color {255, 255, 255, edgeBlendAlphaForUv(deck, 0.0f, 1.0f)}, SDL_FPoint {u0, v1}},
+        {p0, SDL_Color {255, 255, 255, aTL}, uvTL},
+        {p1, SDL_Color {255, 255, 255, aTR}, uvTR},
+        {p2, SDL_Color {255, 255, 255, aBR}, uvBR},
+        {p3, SDL_Color {255, 255, 255, aBL}, uvBL},
       };
       const int indices[6] {0, 1, 2, 0, 2, 3};
       SDL_SetTextureBlendMode(runtime->compositorTexture, SDL_BLENDMODE_BLEND);
@@ -17822,7 +18202,12 @@ class App {
     }
 #endif
 
-    SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+    if (hasOrientation) {
+      SDL_RenderCopyEx(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr,
+                       static_cast<double>(orientationDegrees), nullptr, SDL_FLIP_NONE);
+    } else {
+      SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+    }
   }
 
   SDL_Texture* ensureLayerBridgeTexture(OutputRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
@@ -17959,6 +18344,70 @@ class App {
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
   }
 
+  void renderOutputTestCard(int outputIndex, SDL_Renderer* renderer, int width, int height) {
+    if (!renderer || width <= 0 || height <= 0) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[std::clamp(outputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1))];
+    auto fill = [&](int x, int y, int w, int h, SDL_Color color) {
+      SDL_Rect rect {x, y, w, h};
+      SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+      SDL_RenderFillRect(renderer, &rect);
+    };
+
+    const std::array<SDL_Color, 7> bars {{
+      SDL_Color {191, 191, 191, 255},
+      SDL_Color {191, 191,   0, 255},
+      SDL_Color {  0, 191, 191, 255},
+      SDL_Color {  0, 191,   0, 255},
+      SDL_Color {191,   0, 191, 255},
+      SDL_Color {191,   0,   0, 255},
+      SDL_Color {  0,   0, 191, 255},
+    }};
+    int topH = height * 2 / 3;
+    int barW = std::max(1, width / static_cast<int>(bars.size()));
+    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
+      int x = i * barW;
+      int w = (i == static_cast<int>(bars.size()) - 1) ? (width - x) : barW;
+      fill(x, 0, w, topH, bars[static_cast<size_t>(i)]);
+    }
+
+    int midY = topH;
+    int midH = std::max(10, height / 10);
+    fill(0, midY, width, midH, SDL_Color {18, 18, 18, 255});
+    for (int i = 0; i < 8; ++i) {
+      int x = i * width / 8;
+      int w = (i == 7) ? (width - x) : (width / 8);
+      Uint8 gray = static_cast<Uint8>(i * 255 / 7);
+      fill(x, midY + 2, w, midH - 4, SDL_Color {gray, gray, gray, 255});
+    }
+
+    int botY = midY + midH;
+    int botH = std::max(1, height - botY);
+    fill(0, botY, width / 4, botH, SDL_Color {0, 0, 0, 255});
+    fill(width / 4, botY, width / 4, botH, SDL_Color {255, 255, 255, 255});
+    fill(width / 2, botY, width / 4, botH, SDL_Color {18, 18, 18, 255});
+    fill((width * 3) / 4, botY, width - (width * 3) / 4, botH, SDL_Color {36, 36, 36, 255});
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 190);
+    SDL_RenderDrawLine(renderer, width / 2, 0, width / 2, height);
+    SDL_RenderDrawLine(renderer, 0, height / 2, width, height / 2);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 130);
+    SDL_Rect safe80 {width / 10, height / 10, width - (width / 10) * 2, height - (height / 10) * 2};
+    SDL_RenderDrawRect(renderer, &safe80);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+    std::string outName = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+    std::string line1 = "OUTPUT TEST CARD";
+    std::string line2 = "Output " + std::to_string(outputIndex + 1) + " - " + outName;
+    std::string line3 = "layout: " + normalizeOutputLayoutMode(output.outputLayoutMode)
+      + "  rot: " + outputOrientationLabel(output.outputOrientationDegrees);
+    drawText(renderer, fontLarge_, line1, SDL_Color {245, 245, 245, 255}, 22, 20);
+    drawText(renderer, fontSmall_, line2, SDL_Color {245, 245, 245, 240}, 24, 52);
+    drawText(renderer, fontSmall_, line3, SDL_Color {220, 220, 220, 220}, 24, 70);
+  }
+
   void renderOutputWindow(int outputIndex) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
@@ -18024,98 +18473,102 @@ class App {
     if (outputLayers.empty()) {
       outputLayers.emplace_back(0, hostDeckIndex);
     }
-    for (const auto& entry : outputLayers) {
-      renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
-    }
-
-    // Output window is always clean black — no status overlays or decorations.
-    // The only things drawn here are the media content itself, cue overlays, and
-    // the optional time/ID overlay that the operator explicitly enables.
-    const Cue* activeCue = activeCuePtr(hostDeckIndex);
-
-    // Audio-only cue: draw a centred waveform + info on the output window
-    if (activeCue && activeCue->kind == CueKind::Audio) {
-      int margin = renderW / 10;
-      SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
-      std::vector<float> peaks;
-      { std::lock_guard<std::mutex> lk(waveformMutex_);
-        auto it = waveformCache_.find(activeCue->path);
-        if (it != waveformCache_.end()) peaks = it->second; }
-      double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
-      const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
-      float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
-      float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
-      float outFrac = activeCue->outPointSeconds > 0.0
-                    ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
-      drawWaveform(runtime->outputRenderer, wfRect, peaks, playFrac, inFrac, outFrac,
-                   activeCue->pausePoints, dur);
-      // Cue name
-      drawText(runtime->outputRenderer, fontBase_, activeCue->name,
-               colorFromRgba(kScreenLightColor), wfRect.x, wfRect.y - 36);
-      // Transport position + duration
-      std::string posStr = (eng ? formatSeconds(eng->position()) : "0:00")
-                         + "  /  " + formatSeconds(activeCue->duration);
-      drawText(runtime->outputRenderer, fontSmall_, posStr,
-               colorFromRgba(kScreenMidColor), wfRect.x, wfRect.y + wfRect.h + 10);
-      // State badge
-      std::string stateLbl = !eng ? "stopped"
-                           : eng->state() == TransportState::Playing ? "playing"
-                           : eng->state() == TransportState::Paused  ? "paused" : "stopped";
-      drawText(runtime->outputRenderer, fontSmall_, stateLbl,
-               colorFromRgba(kScreenDarkColor), wfRect.x + wfRect.w - 60, wfRect.y - 36);
-    }
-
-    // Overlay layer stack — rendered bottom to top in push order.
-    int overlaySlot = 0;
-    for (int ovIdx : hostDeck.overlayActiveIndices) {
-      if (ovIdx < 0 || ovIdx >= static_cast<int>(hostDeck.cues.size())) continue;
-      const Cue& lc = hostDeck.cues[ovIdx];
-      if (lc.kind == CueKind::LowerThird) {
-        // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
-        int barH = renderH / 6;
-        int barY = renderH - barH - renderH / 20 - overlaySlot * (barH + 8);
-        SDL_Rect bar {0, barY, renderW, barH};
-
-        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
-        SDL_RenderFillRect(runtime->outputRenderer, &bar);
-
-        // Coloured accent strip (hue shifts per slot for differentiation)
-        static constexpr std::array<SDL_Color, 4> accentColors {{
-          {155, 188,  15, 220},
-          { 15, 155, 188, 220},
-          {188,  15, 155, 220},
-          {188, 155,  15, 220},
-        }};
-        SDL_Color acc = accentColors[static_cast<size_t>(overlaySlot) % accentColors.size()];
-        SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b, acc.a);
-        SDL_Rect strip {bar.x, bar.y, 8, bar.h};
-        SDL_RenderFillRect(runtime->outputRenderer, &strip);
-        SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
-
-        std::string mainTxt = lc.lowerThirdText.empty() ? lc.name : lc.lowerThirdText;
-        drawText(runtime->outputRenderer, fontLarge_, mainTxt,
-                 {255, 255, 255, 255}, bar.x + 24, bar.y + 14);
-        if (!lc.lowerThirdSubtext.empty()) {
-          drawText(runtime->outputRenderer, fontBase_, lc.lowerThirdSubtext,
-                   {200, 220, 200, 255}, bar.x + 26, bar.y + barH - 36);
-        }
-        ++overlaySlot;
+    if (output.outputTestCardEnabled) {
+      renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
+    } else {
+      for (const auto& entry : outputLayers) {
+        renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
       }
-    }
 
-    if (output.outputTimeOverlayEnabled || hostDeck.timeOverlayEnabled) {
-      const MediaEngine* engine = mediaEngineForDeck(hostDeckIndex);
-      std::string position = formatSeconds(engine ? engine->position() : 0.0);
-      std::string total = formatSeconds(engine ? engine->duration() : 0.0);
-      std::string timeLine = position + " / " + total;
-      std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
-      std::string tcLine = "tc: " + formatTimecode(hostDeck.timecodeCurrentSeconds, hostDeck.timecodeFps);
-      SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
-      Primitives::drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
-      drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
-      drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
-      drawText(runtime->outputRenderer, fontSmall_, tcLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 50);
+      // Output window is always clean black — no status overlays or decorations.
+      // The only things drawn here are the media content itself, cue overlays, and
+      // the optional time/ID overlay that the operator explicitly enables.
+      const Cue* activeCue = activeCuePtr(hostDeckIndex);
+
+      // Audio-only cue: draw a centred waveform + info on the output window
+      if (activeCue && activeCue->kind == CueKind::Audio) {
+        int margin = renderW / 10;
+        SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
+        std::vector<float> peaks;
+        { std::lock_guard<std::mutex> lk(waveformMutex_);
+          auto it = waveformCache_.find(activeCue->path);
+          if (it != waveformCache_.end()) peaks = it->second; }
+        double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
+        const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
+        float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
+        float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
+        float outFrac = activeCue->outPointSeconds > 0.0
+                      ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
+        drawWaveform(runtime->outputRenderer, wfRect, peaks, playFrac, inFrac, outFrac,
+                     activeCue->pausePoints, dur);
+        // Cue name
+        drawText(runtime->outputRenderer, fontBase_, activeCue->name,
+                 colorFromRgba(kScreenLightColor), wfRect.x, wfRect.y - 36);
+        // Transport position + duration
+        std::string posStr = (eng ? formatSeconds(eng->position()) : "0:00")
+                           + "  /  " + formatSeconds(activeCue->duration);
+        drawText(runtime->outputRenderer, fontSmall_, posStr,
+                 colorFromRgba(kScreenMidColor), wfRect.x, wfRect.y + wfRect.h + 10);
+        // State badge
+        std::string stateLbl = !eng ? "stopped"
+                             : eng->state() == TransportState::Playing ? "playing"
+                             : eng->state() == TransportState::Paused  ? "paused" : "stopped";
+        drawText(runtime->outputRenderer, fontSmall_, stateLbl,
+                 colorFromRgba(kScreenDarkColor), wfRect.x + wfRect.w - 60, wfRect.y - 36);
+      }
+
+      // Overlay layer stack — rendered bottom to top in push order.
+      int overlaySlot = 0;
+      for (int ovIdx : hostDeck.overlayActiveIndices) {
+        if (ovIdx < 0 || ovIdx >= static_cast<int>(hostDeck.cues.size())) continue;
+        const Cue& lc = hostDeck.cues[ovIdx];
+        if (lc.kind == CueKind::LowerThird) {
+          // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
+          int barH = renderH / 6;
+          int barY = renderH - barH - renderH / 20 - overlaySlot * (barH + 8);
+          SDL_Rect bar {0, barY, renderW, barH};
+
+          SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
+          SDL_RenderFillRect(runtime->outputRenderer, &bar);
+
+          // Coloured accent strip (hue shifts per slot for differentiation)
+          static constexpr std::array<SDL_Color, 4> accentColors {{
+            {155, 188,  15, 220},
+            { 15, 155, 188, 220},
+            {188,  15, 155, 220},
+            {188, 155,  15, 220},
+          }};
+          SDL_Color acc = accentColors[static_cast<size_t>(overlaySlot) % accentColors.size()];
+          SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b, acc.a);
+          SDL_Rect strip {bar.x, bar.y, 8, bar.h};
+          SDL_RenderFillRect(runtime->outputRenderer, &strip);
+          SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+
+          std::string mainTxt = lc.lowerThirdText.empty() ? lc.name : lc.lowerThirdText;
+          drawText(runtime->outputRenderer, fontLarge_, mainTxt,
+                   {255, 255, 255, 255}, bar.x + 24, bar.y + 14);
+          if (!lc.lowerThirdSubtext.empty()) {
+            drawText(runtime->outputRenderer, fontBase_, lc.lowerThirdSubtext,
+                     {200, 220, 200, 255}, bar.x + 26, bar.y + barH - 36);
+          }
+          ++overlaySlot;
+        }
+      }
+
+      if (output.outputTimeOverlayEnabled || hostDeck.timeOverlayEnabled) {
+        const MediaEngine* engine = mediaEngineForDeck(hostDeckIndex);
+        std::string position = formatSeconds(engine ? engine->position() : 0.0);
+        std::string total = formatSeconds(engine ? engine->duration() : 0.0);
+        std::string timeLine = position + " / " + total;
+        std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
+        std::string tcLine = "tc: " + formatTimecode(hostDeck.timecodeCurrentSeconds, hostDeck.timecodeFps);
+        SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
+        Primitives::drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
+        drawText(runtime->outputRenderer, fontMono_, timeLine, colorFromRgba(kScreenLightColor), overlay.x + 14, overlay.y + 9);
+        drawText(runtime->outputRenderer, fontSmall_, cueIdLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 34);
+        drawText(runtime->outputRenderer, fontSmall_, tcLine, colorFromRgba(kScreenMidColor), overlay.x + 14, overlay.y + 50);
+      }
     }
 
     // Master video dimmer overlay
@@ -18145,8 +18598,18 @@ class App {
     bool needsEgressCapture =
       output.streamEnabled || output.ndiEnabled || output.ndiKeyEnabled
       || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+    SDL_Rect egressRect {0, 0, renderW, renderH};
+    if (usingCompositor) {
+      egressRect.w = std::max(1, std::min(width, renderW));
+      egressRect.h = std::max(1, std::min(height, renderH));
+      if (project_.outputCanvasEnabled &&
+          normalizeOutputLayoutMode(output.outputLayoutMode) == "span") {
+        egressRect.x = std::clamp(hostDeck.canvasViewX, 0, std::max(0, renderW - egressRect.w));
+        egressRect.y = std::clamp(hostDeck.canvasViewY, 0, std::max(0, renderH - egressRect.h));
+      }
+    }
     if (needsEgressCapture) {
-      captureOutputFrameForEgress(outputIndex, *runtime, renderW, renderH);
+      captureOutputFrameForEgress(outputIndex, *runtime, egressRect);
     } else {
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();
@@ -18668,9 +19131,20 @@ class App {
       int outputAlphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
       int outputDelayMs = std::clamp(outputTarget.outputDelayMs, 0, 5000);
       std::string outputColorSpace = normalizeOutputColorSpace(outputTarget.outputColorSpace);
+      std::string outputLayoutMode = normalizeOutputLayoutMode(outputTarget.outputLayoutMode);
+      int outputOrientation = normalizeOutputOrientationDegrees(outputTarget.outputOrientationDegrees);
       std::string ndiSource = trim(outputTarget.ndiSourceName).empty()
         ? defaultOutputNdiSourceName(outputTarget, focusedOutputIndex)
         : outputTarget.ndiSourceName;
+      bool anyOutputTestCardsOn = false;
+      bool anyOutputTestCardsOff = false;
+      for (const auto& out : project_.outputs) {
+        if (out.outputTestCardEnabled) {
+          anyOutputTestCardsOn = true;
+        } else {
+          anyOutputTestCardsOff = true;
+        }
+      }
       auto drawActionBtn = [&](const SDL_Rect& rect, const std::string& label, int action, bool active = false) {
         SDL_Color fill = active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
         SDL_Color txt = active ? colorFromRgba(kScreenLightColor) : ink;
@@ -18748,7 +19222,10 @@ class App {
       drawText(controlRenderer_, fontSmall_,
                "FX: alpha " + std::to_string(outputAlphaPct) + "%  delay " + std::to_string(outputDelayMs)
                + " ms  overlay: " + std::string(outputTarget.outputTimeOverlayEnabled ? "on" : "off")
-               + "  color: " + toUpper(outputColorSpace),
+               + "  color: " + toUpper(outputColorSpace)
+               + "  layout: " + outputLayoutMode
+               + "  rot: " + outputOrientationLabel(outputOrientation)
+               + "  test: " + std::string(outputTarget.outputTestCardEnabled ? "on" : "off"),
                soft, summaryRect.x + 8, summaryRect.y + 140);
 
       int rowY = summaryRect.y + summaryRect.h + 8;
@@ -18781,6 +19258,21 @@ class App {
       drawActionBtn({cx + (row2W + gap) * 4, rowY, row2W, 26}, "Size To Display", 235);
       drawActionBtn({cx + (row2W + gap) * 5, rowY, leftW - (row2W + gap) * 5, 26},
                     "Display Native", 230, project_.outputFollowDisplay);
+
+      rowY += 32;
+      int modeW = (leftW - gap * 4) / 5;
+      drawActionBtn({cx, rowY, modeW, 26}, "Span", kSettingsActionOutputLayoutSpan, outputLayoutMode == "span");
+      drawActionBtn({cx + (modeW + gap), rowY, modeW, 26}, "Duplicate", kSettingsActionOutputLayoutDuplicate, outputLayoutMode == "duplicate");
+      drawActionBtn({cx + (modeW + gap) * 2, rowY, modeW, 26},
+                    "Rotate " + outputOrientationLabel(outputOrientation),
+                    kSettingsActionOutputOrientationCycle, outputOrientation != 0);
+      drawActionBtn({cx + (modeW + gap) * 3, rowY, modeW, 26},
+                    outputTarget.outputTestCardEnabled ? "Test Card ON" : "Test Card OFF",
+                    kSettingsActionOutputTestCardToggle, outputTarget.outputTestCardEnabled);
+      drawActionBtn({cx + (modeW + gap) * 4, rowY, leftW - (modeW + gap) * 4, 26},
+                    anyOutputTestCardsOff ? "All Cards ON" : "All Cards OFF",
+                    kSettingsActionOutputTestCardAllToggle,
+                    anyOutputTestCardsOn && !anyOutputTestCardsOff);
 
       int displayCount = SDL_GetNumVideoDisplays();
       int focusedDisplayIndex = displayCount > 0
@@ -19350,6 +19842,23 @@ class App {
         cycleFocusedOutputColorSpace(1);
       } else if (sb.action == kSettingsActionOutputDelayInc) {
         setFocusedOutputDelayMs(focusedOutput().outputDelayMs + 100);
+      } else if (sb.action == kSettingsActionOutputLayoutSpan) {
+        setFocusedOutputLayoutMode("span");
+      } else if (sb.action == kSettingsActionOutputLayoutDuplicate) {
+        setFocusedOutputLayoutMode("duplicate");
+      } else if (sb.action == kSettingsActionOutputOrientationCycle) {
+        cycleFocusedOutputOrientation(1);
+      } else if (sb.action == kSettingsActionOutputTestCardToggle) {
+        toggleFocusedOutputTestCardEnabled();
+      } else if (sb.action == kSettingsActionOutputTestCardAllToggle) {
+        bool anyOff = false;
+        for (const auto& out : project_.outputs) {
+          if (!out.outputTestCardEnabled) {
+            anyOff = true;
+            break;
+          }
+        }
+        setAllOutputsTestCardEnabled(anyOff);
       } else if (sb.action == 260) {
         promptFocusedOutputMirrorSourcePicker();
       } else if (sb.action == 271) {
@@ -23764,6 +24273,11 @@ class App {
   static constexpr int kSettingsActionOutputDelayPrompt = 285;
   static constexpr int kSettingsActionOutputColorSpaceCycle = 286;
   static constexpr int kSettingsActionOutputDelayInc = 287;
+  static constexpr int kSettingsActionOutputLayoutSpan = 288;
+  static constexpr int kSettingsActionOutputLayoutDuplicate = 289;
+  static constexpr int kSettingsActionOutputOrientationCycle = 290;
+  static constexpr int kSettingsActionOutputTestCardToggle = 291;
+  static constexpr int kSettingsActionOutputTestCardAllToggle = 292;
   static constexpr int kSettingsActionPlaylistPrefsEdit = 500;
   static constexpr int kSettingsActionPlaylistDefaultLoopToggle = 501;
   static constexpr int kSettingsActionPlaylistDefaultFadeInToggle = 502;
