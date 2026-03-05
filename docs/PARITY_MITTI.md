@@ -34,6 +34,8 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Outputs / Rendering | Per-output orientation 0/90/180/270 | Yes | Added per-output orientation model + window present and egress transform. |
 | Outputs / Rendering | Blackmagic output | Partial (scaffold) | Backend stubs exist in `native/platform/decklink.*`; integrate behind feature flag + output backend abstraction usage. |
 | Outputs / Rendering | Syphon/Spout output transport | Partial (scaffold) | Cue/type + sender stubs exist (`native/platform/siphon_spout.*`); runtime output backend path still pending. |
+| Outputs / Rendering | Capture backend abstraction (window/camera/app-texture) | Partial+ | Source cue FFmpeg argument planning now delegates to `native/platform/capture_backend.*` via `planSourceCapture(...)`; Linux backends are live, macOS/Windows remain scaffolded. |
+| Outputs / Rendering | Output backend route planning abstraction | Partial+ | `native/platform/output_backend.*` now exposes `planOutputBackendRoute(...)` for window/stream/ndi/decklink path planning with support/stub visibility; runtime execution path extraction remains incremental. |
 | Integrations / Remote | OSC command control + feedback | Yes (extended) | Added optional canonical OSC feedback mirror mode with configurable rate limit (`oscFeedbackRateMs`) while preserving `/playboy/state` JSON feedback. |
 | Integrations / Remote | OSC Query server | Yes (baseline) | Optional HTTP OSC Query server now exposes endpoint docs + live state (`/oscquery.json`, `/state.json`) and lightweight browser page. |
 | Integrations / Remote | Stream Deck direct story | Yes (Companion profile) | Published official Companion/Stream Deck mapping bundle in `docs/streamdeck/` (JSON manifest + CSV + setup notes), no proprietary plugin required. |
@@ -57,5 +59,5 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 
 ## Immediate Implementation Order
 
-1. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
+1. Continue backend extraction from planning APIs into runtime backend execution wrappers (especially output egress path) for Linux/macOS/Windows parity.
 2. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
