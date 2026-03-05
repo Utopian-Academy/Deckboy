@@ -286,6 +286,7 @@ enum class QuickAction {
   SpeedDec, SpeedInc,
   CycleColorTag,
   EditNotes,
+  EditSourceRef,
   GotoMinus10, GotoMinus20, GotoMinus30,
   CycleScaleMode,
   ScaleXDec, ScaleXInc,

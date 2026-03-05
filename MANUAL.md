@@ -179,6 +179,7 @@ playlist with a "web" type.
   - `window -> active-window`
   - `camera -> default-camera`
   - `syphon/spout -> default-bus`
+- For an existing source cue, use the cue panel `source` row and click `edit` to set the source reference directly in-menu (non-blocking inline editor).
 - Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
 - Linux source-ref quick examples:
   - `SOURCE WINDOW active-window` (full desktop capture)
@@ -219,6 +220,9 @@ Cue settings are grouped into collapsible blocks:
 - `Geometry`
 - `Key`
 - `Routing`
+
+For source cues (`Window Source`, `Camera`, `Syphon/Spout`), the playback area includes:
+- `source` value + `edit` button for changing the source reference without leaving the menu.
 
 `Routing` in cue settings edits the focused deck route inline (`Output`,
 `Layer`, `Assign/Unassign`) without opening separate route manager popups.
