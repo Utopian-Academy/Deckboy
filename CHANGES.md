@@ -1,5 +1,46 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Portability architecture pass: capture/output backend planning APIs)
+
+### Capture backend extraction
+- Extended `native/platform/capture_backend.*` from catalog-only metadata into
+  executable planning interfaces:
+  - `SourceCaptureRequest`
+  - `SourceCapturePlan`
+  - `SourceCaptureBackend` factory set
+  - `planSourceCapture(...)`
+- Implemented platform backends:
+  - Linux: `x11grab` window capture, `v4l2` camera capture, `desktop-fallback`
+    app-texture capture path
+  - macOS/Windows: explicit scaffold/stub plans with reason strings
+- Refactored source cue runtime:
+  - `MediaEngine::buildSourceCaptureArgs(...)` now delegates FFmpeg capture arg
+    planning to `planSourceCapture(...)` instead of inline Linux-specific logic.
+
+### Output backend route planning
+- Extended `native/platform/output_backend.*` with route planning interfaces:
+  - `OutputBackendRouteRequest`
+  - `OutputBackendRoutePlan`
+  - `planOutputBackendRoute(...)`
+- Route plans now describe active backend chain intent for
+  `window` / `stream` / `ndi` / `decklink` based on output settings and
+  backend support catalog.
+
+### Diagnostics and docs
+- `--self-check` now reports:
+  - `capture-plan-defaults: ...`
+  - `output-route-defaults: ...`
+- Updated:
+  - `MANUAL.md`
+  - `DEVNOTES.md`
+  - `docs/PARITY_MITTI.md`
+  - `Notes`
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Official Stream Deck + Companion profile package)
 
 ### Documentation bundle
