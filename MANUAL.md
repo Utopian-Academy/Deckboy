@@ -673,6 +673,11 @@ or any plain-text client.
 3. Port: `5510` (or your override)
 4. Protocol: TCP or UDP
 
+Official Stream Deck + Companion mapping bundle:
+- `docs/streamdeck/deckboy_companion_profile_map.json`
+- `docs/streamdeck/deckboy_main_page.csv`
+- `docs/streamdeck/README.md`
+
 Each Companion button sends a plain-text command string. Commands are
 case-insensitive.
 
