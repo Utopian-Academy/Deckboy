@@ -83,6 +83,11 @@ Deckboy now opens with a short splash overlay first (`DECKBOY`, boot lines, and
 `press ENTER to start`). The splash can be skipped with `Enter`, `Esc`, or a
 mouse click.
 
+Optional art-pack override:
+- Deckboy auto-loads UI art from `data/ui/deckboy_ui_pack_v3` when present.
+- If v3 is missing, it falls back to `data/ui/deckboy_ui_pack_v2`.
+- Mascot/character art is restricted to splash branding; live control panels stay operator-clean.
+
 On every launch a dialog appears in front of the interface with two choices:
 
 | Button | Key | Effect |
@@ -130,6 +135,7 @@ details (deck, cue number, cue name, or bypass) and direct in-row `Take`.
 
 Main-window output strip quick controls (always visible):
 - Top row: output chips (`O1`, `O2`, ...) with target/state labels plus per-output arm switch and `Add Output`.
+- When the optional UI pack is installed, output chips use sprite backgrounds for `idle/armed/live/warn/offline`.
 - Bottom row: focused-route controls (`Link/Unlink`, `Layer-`, `Layer+`) and plain-English status:
   - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`
 - Main header includes `decks` toggle for the separate deck panel.
@@ -141,6 +147,7 @@ Main-window output strip quick controls (always visible):
 - Bottom control strip is grouped for scanability:
   - `MEDIA`, `TRANSPORT`, `OUTPUT`
   - includes default selectors for `Source` and `Pattern` cue type.
+- Cue rows use compact cue-type icons (`video/image/browser/pattern/lower-third/source/audio`) when pack icons are available.
 
 **Hover tips**: hover over any button, cue row, or progress bar to see a
 contextual tip.

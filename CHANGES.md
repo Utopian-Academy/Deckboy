@@ -38,6 +38,11 @@
     - Window cue prompt: `Type focused, then press Enter.`
     - Camera/Syphon prompt: `Type default, then press Enter.`
     - default aliases now resolve per cue type across multi-select updates.
+- Added optional external UI art pack support:
+  - prefers `data/ui/deckboy_ui_pack_v3`
+  - falls back to `data/ui/deckboy_ui_pack_v2` if v3 is not present
+  - integrates header art, output-chip backgrounds, cue-type icons, monitor frame, and splash image
+  - keeps mascot art out of live control panels (splash only).
 
 ### Layout cleanup
 - Refactored bottom bar layout to grouped sections: `MEDIA`, `TRANSPORT`, `OUTPUT`.
