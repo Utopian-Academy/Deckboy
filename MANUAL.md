@@ -657,6 +657,10 @@ or any plain-text client.
 Each Companion button sends a plain-text command string. Commands are
 case-insensitive.
 
+Network tab notes:
+- `Settings -> Network -> Change port...` updates Companion/OSC UDP+TCP port live.
+- OSC Query HTTP is separate and optional (see section 19).
+
 See [Section 21](#21-companion-command-reference) for the full command list.
 
 ---
@@ -664,6 +668,8 @@ See [Section 21](#21-companion-command-reference) for the full command list.
 ## 19. OSC Input
 
 Deckboy also accepts OSC over UDP on the same port as Companion (`5510`).
+Deckboy can optionally run an OSC Query HTTP endpoint (default `5511`) from
+`Settings -> Network -> OSC QUERY`.
 
 Supported OSC addresses:
 
@@ -687,12 +693,22 @@ Supported OSC addresses:
 /timecode s|f  /timecode/chase i  /timecode/run i
 /timecode/fps f  /timecode/jam i  /timecode/freewheel f  /timecode/mark s
 /status  /state  /ping
+/oscquery i  /oscquery/port i
+/osc/feedback i  /osc/feedback/rate f
 ```
 
 OSC bundles (`#bundle`) are supported. Accepted commands receive a
 `/playboy/ack` reply. The `/status` and `/state` addresses return
 `/playboy/state` JSON replies. Recent OSC senders also receive periodic
 `/playboy/state` feedback broadcasts.
+
+When OSC Query is enabled:
+- `http://127.0.0.1:<oscQueryPort>/` shows a simple endpoint browser.
+- `http://127.0.0.1:<oscQueryPort>/oscquery.json` returns endpoint docs + live state.
+- `http://127.0.0.1:<oscQueryPort>/state.json` returns live status JSON only.
+
+Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
+(`/playboy/deck/*`, `/playboy/output/*`) at the configured rate limit.
 
 ---
 
@@ -1052,6 +1068,15 @@ LAYER TOP           move focused deck to top layer on its routed output
 SFX ON|OFF
 ANIM ON|OFF
 FULLSCREEN
+```
+
+### Network / OSC Query
+
+```
+OSCQUERY ON|OFF           enable/disable OSC Query HTTP server
+OSCQUERYPORT 5511         set/query OSC Query HTTP port
+OSCFEEDBACK ON|OFF        canonical OSC feedback mirror mode
+OSCFEEDBACKRATE 120       mirror feedback rate limit in milliseconds
 ```
 
 ### Status
