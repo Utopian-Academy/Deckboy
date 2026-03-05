@@ -1050,3 +1050,13 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 transport black-frame continuity fix:
+- Addressed operator-reported black output when pressing STOP or TAKE while/after a clip is running.
+- MediaEngine behavior updates:
+  - `stop()` now rewinds via `seek(0.0, false)` to preserve the visible frame while frame 0 is re-decoded.
+  - `loadCue()` transition source gain now uses full alpha when transport is paused/stopped, preventing zero-alpha source after stop-at-zero.
+  - `seek()` now accepts `clearVisualFrame` (default true) so stop/rewind paths can preserve frame continuity.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)

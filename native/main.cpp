@@ -3811,7 +3811,12 @@ class MediaEngine {
 
   void loadCue(const Cue* cue, bool autoplay, double transitionSeconds = 0.0, TransitionStyle transitionStyle = TransitionStyle::Cut) {
     // Capture outgoing fade gain BEFORE stopping decoder (position is still valid now).
-    float outgoingGain = static_cast<float>(fadeGainAt(position()));
+    // When transport is paused/stopped (e.g. rewound to frame 0), keep transition source
+    // fully visible so TAKE does not flash to black.
+    float outgoingGain = 1.0f;
+    if (activeCue_ && state_ == TransportState::Playing) {
+      outgoingGain = static_cast<float>(fadeGainAt(position()));
+    }
     stopDecoderThreads();
     beginTransition(transitionSeconds, transitionStyle, outgoingGain);
     clearTexture();
@@ -3978,7 +3983,8 @@ class MediaEngine {
       currentPosition_ = 0.0;
       return;
     }
-    seek(0.0);
+    // Preserve currently visible frame until frame 0 is decoded to avoid black flashes.
+    seek(0.0, false);
     state_ = TransportState::Stopped;
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
@@ -3989,7 +3995,7 @@ class MediaEngine {
     stopAll();
   }
 
-  void seek(double seconds) {
+  void seek(double seconds, bool clearVisualFrame = true) {
     if (!activeCue_) {
       return;
     }
@@ -4003,14 +4009,18 @@ class MediaEngine {
     playbackStartPosition_ = clamped;
     playbackClockStart_ = std::chrono::steady_clock::now();
     lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
-    displayFrame_.reset();
+    if (clearVisualFrame) {
+      displayFrame_.reset();
+    }
     // Reset to first pause point strictly after the new position
     nextPausePointIdx_ = 0;
     while (nextPausePointIdx_ < pausePoints_.size() && pausePoints_[nextPausePointIdx_] <= clamped) {
       ++nextPausePointIdx_;
     }
     clearTransitionTexture();
-    clearTexture();
+    if (clearVisualFrame) {
+      clearTexture();
+    }
     clearAudio();
     if (activeCue_->kind == CueKind::Pattern) {
       loadPatternFrame(*activeCue_);
