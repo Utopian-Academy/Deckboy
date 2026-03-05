@@ -64,6 +64,10 @@ Click handling lives in `handleSettingsClick()`.
   - `native/platform/output_backend.hpp/.cpp`
   - Catalog API: `createOutputBackendCatalog()`
   - Route planning API: `planOutputBackendRoute(const OutputBackendRouteRequest&)`
+- Runtime egress dispatch now uses backend route planning in `renderOutputWindow()`:
+  - stream send is gated by `route.streamSupported`
+  - NDI send is gated by `route.ndiSupported`
+  - stream runtime is stopped automatically when stream route is not available.
 - `--self-check` prints backend introspection lines:
   - `capture-plan-defaults: ...`
   - `output-route-defaults: ...`

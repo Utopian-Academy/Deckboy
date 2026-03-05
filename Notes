@@ -1,3 +1,19 @@
+2026-03-05 portability follow-up (runtime egress route wrappers):
+- Output runtime dispatch now uses backend route planning:
+  - stream send gated by `route.streamSupported`
+  - NDI send gated by `route.ndiSupported`
+  - stream runtime auto-stops when route unsupported.
+- Status visibility:
+  - `STATUS` output includes `backend=...`
+  - `STATUS JSON` output includes `backendRoute`.
+- Smoke coverage expanded:
+  - capture backend planning check
+  - output backend route planning check.
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 portability architecture pass (capture/output backend planning APIs):
 - Capture backend interfaces expanded from catalog-only into executable plan APIs:
   - `SourceCaptureRequest`, `SourceCapturePlan`, `SourceCaptureBackend`
