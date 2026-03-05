@@ -1,3 +1,30 @@
+2026-03-05 output parity ux pass (span/duplicate + orientation + test card):
+- Extended `OutputTarget` with:
+  - `outputLayoutMode` (`span|duplicate`)
+  - `outputOrientationDegrees` (`0/90/180/270`)
+  - `outputTestCardEnabled`
+- Save/load updated with append-only `output_target` columns (older shows still load with defaults).
+- Render path updates:
+  - window presentation now applies per-output orientation.
+  - explicit duplicate/span semantics in canvas-view handling.
+  - per-output test-card compositor path.
+- Egress path updates:
+  - capture region now follows output view semantics (span/duplicate).
+  - orientation is applied before delayed/NDI/stream frame send.
+- Video Outputs tab updates:
+  - `Span` / `Duplicate`
+  - `Rotate <deg>`
+  - `Test Card ON/OFF`
+  - `All Cards ON/OFF`
+- Command surface additions:
+  - `VIDEO OUTPUT LAYOUT ...`
+  - `VIDEO OUTPUT ORIENTATION ...`
+  - `VIDEO OUTPUT TESTCARD ...`
+- Status + OSC mirror now include output layout/orientation/test-card fields.
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+
 2026-03-05 multi-select inspector parity pass:
 - Added multi-selection cue inspector mode with:
   - common-controls rendering

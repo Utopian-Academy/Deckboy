@@ -190,6 +190,9 @@ struct OutputTarget {
   int outputDelayMs = 0;             // 0-5000 egress delay (ms)
   bool outputTimeOverlayEnabled = false; // output-scoped time/ID overlay
   std::string outputColorSpace = "auto"; // auto | bt709 | srgb
+  std::string outputLayoutMode = "span"; // span | duplicate (canvas/view behavior)
+  int outputOrientationDegrees = 0;      // 0 | 90 | 180 | 270
+  bool outputTestCardEnabled = false;    // force output test card feed
 };
 
 // Deck-to-output layer assignment.
