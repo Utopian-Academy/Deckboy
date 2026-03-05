@@ -695,6 +695,30 @@ std::string nextColorTag(const std::string& current) {
   return *std::next(it);
 }
 
+std::string normalizeCueIdShort(std::string value) {
+  std::string out;
+  out.reserve(value.size());
+  for (char ch : value) {
+    if (std::isalnum(static_cast<unsigned char>(ch)) || ch == '_' || ch == '-') {
+      out.push_back(static_cast<char>(std::toupper(static_cast<unsigned char>(ch))));
+    }
+  }
+  if (out.size() > 6) {
+    out.resize(6);
+  }
+  return out;
+}
+
+std::string cueDisplayToken(const Cue& cue, int index) {
+  if (!trim(cue.cueId).empty()) {
+    return cue.cueId;
+  }
+  if (!trim(cue.cueNumber).empty()) {
+    return cue.cueNumber;
+  }
+  return std::to_string(index + 1);
+}
+
 bool colorControlsActive(float brightness, float contrast, float saturation, float hueShiftDegrees) {
   constexpr float kEpsilon = 0.001f;
   return std::fabs(brightness - 1.0f) > kEpsilon
@@ -1302,6 +1326,24 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
     }
     return std::nullopt;
   }
+  if (path == "/DECK/OPACITY" || path == "/PLAYLIST/OPACITY") {
+    if (auto value = argString(0)) {
+      return "DECKOPACITY " + *value;
+    }
+    return "DECKOPACITY";
+  }
+  if (path == "/DECK/AUTOFADE" || path == "/PLAYLIST/AUTOFADE") {
+    if (auto value = argToggleWord(0)) {
+      return "DECKAUTOFADE " + *value;
+    }
+    return "DECKAUTOFADE";
+  }
+  if (path == "/DECK/FADE" || path == "/PLAYLIST/FADE") {
+    if (auto value = argString(0)) {
+      return "DECKFADE " + *value;
+    }
+    return "DECKFADE";
+  }
   if (path == "/ROUTE") {
     if (auto value = argString(0)) {
       return "ROUTE " + *value;
@@ -1325,6 +1367,42 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
       return "VOLUME " + *value;
     }
     return std::nullopt;
+  }
+  if (path == "/CUE/ID" || path == "/CUE/SHORTID") {
+    if (auto value = argString(0)) {
+      return "CUEIDSHORT " + *value;
+    }
+    return "CUEIDSHORT";
+  }
+  if (path == "/CUE/AUDIO") {
+    if (auto value = argToggleWord(0)) {
+      return "CUEAUDIO " + *value;
+    }
+    return "CUEAUDIO";
+  }
+  if (path == "/CUE/PAUSEBEGIN") {
+    if (auto value = argToggleWord(0)) {
+      return "PAUSEBEGIN " + *value;
+    }
+    return "PAUSEBEGIN";
+  }
+  if (path == "/CUE/PAUSEEND") {
+    if (auto value = argToggleWord(0)) {
+      return "PAUSEEND " + *value;
+    }
+    return "PAUSEEND";
+  }
+  if (path == "/CUE/NEXTTRANS") {
+    if (auto value = argToggleWord(0)) {
+      return "NEXTTRANS " + *value;
+    }
+    return "NEXTTRANS";
+  }
+  if (path == "/CUE/GOTO") {
+    if (auto value = argString(0)) {
+      return "CUEGOTO " + *value;
+    }
+    return "CUEGOTO";
   }
   if (path == "/SEEK") {
     if (auto value = argString(0)) {
@@ -1991,6 +2069,13 @@ void normalizeDeck(Deck& deck, int index) {
     for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
       Cue& cue = deck.cues[cueIndex];
       normalizeCueTiming(cue);
+      cue.cueId = normalizeCueIdShort(cue.cueId);
+      if (cue.cueId.empty()) {
+        cue.cueId = normalizeCueIdShort(cue.cueNumber);
+      }
+      if (!cue.hasAudio) {
+        cue.audioEnabled = false;
+      }
       cue.outputScaleX = std::clamp(cue.outputScaleX, 0.25f, 4.0f);
       cue.outputScaleY = std::clamp(cue.outputScaleY, 0.25f, 4.0f);
       cue.outputRotationDegrees = std::clamp(cue.outputRotationDegrees, -180.0f, 180.0f);
@@ -2008,6 +2093,7 @@ void normalizeDeck(Deck& deck, int index) {
       cue.contrast = std::clamp(cue.contrast, 0.0f, 2.0f);
       cue.saturation = std::clamp(cue.saturation, 0.0f, 2.0f);
       cue.hueShift = std::clamp(cue.hueShift, -180.0f, 180.0f);
+      cue.gotoTarget = trim(cue.gotoTarget);
       if (cue.id.empty()) {
         cue.id = makeCueId(cue, index, cueIndex);
       }
@@ -2018,7 +2104,32 @@ void normalizeDeck(Deck& deck, int index) {
       }
       usedIds.insert(cue.id);
     }
+    std::vector<int> normalizedSelection;
+    normalizedSelection.reserve(deck.selectedIndices.size());
+    std::unordered_set<int> seenIndices;
+    for (int selected : deck.selectedIndices) {
+      if (selected < 0 || selected >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      if (seenIndices.insert(selected).second) {
+        normalizedSelection.push_back(selected);
+      }
+    }
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+      if (seenIndices.insert(deck.selectedIndex).second) {
+        normalizedSelection.push_back(deck.selectedIndex);
+      }
+    }
+    if (normalizedSelection.empty() && !deck.cues.empty()) {
+      normalizedSelection.push_back(deck.selectedIndex);
+    }
+    std::sort(normalizedSelection.begin(), normalizedSelection.end());
+    deck.selectedIndices = std::move(normalizedSelection);
   }
+  deck.playlistOpacity = std::clamp(deck.playlistOpacity, 0.0f, 1.0f);
+  deck.playlistFadeSeconds = std::clamp(
+    std::isfinite(deck.playlistFadeSeconds) ? deck.playlistFadeSeconds : 0.8,
+    0.05, 10.0);
   deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
   if (deck.ndiSourceName.empty()) {
     deck.ndiSourceName = defaultNdiSourceName(deck, index);
@@ -2819,7 +2930,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.outputRouteDeckIndex << '\t'
       << deck.outputLayerIndex << '\t'
       << deck.timecodeFreewheelSeconds << '\t'
-      << (deck.timecodeJamSyncEnabled ? 1 : 0)
+      << (deck.timecodeJamSyncEnabled ? 1 : 0) << '\t'
+      << deck.playlistOpacity << '\t'
+      << (deck.playlistAutoFade ? 1 : 0) << '\t'
+      << deck.playlistFadeSeconds
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -2885,6 +2999,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.contrast
         << '\t' << cue.saturation
         << '\t' << cue.hueShift
+        << '\t' << escapeField(cue.cueId)
+        << '\t' << (cue.audioEnabled ? "1" : "0")
+        << '\t' << (cue.pauseAtBeginning ? "1" : "0")
+        << '\t' << (cue.transitionToNext ? "1" : "0")
+        << '\t' << escapeField(cue.gotoTarget)
         << '\n';
     }
   }
@@ -3129,6 +3248,9 @@ Project loadProject(const fs::path& projectFile) {
       deck.outputLayerIndex = safeInt(fields, 38, 0);
       deck.timecodeFreewheelSeconds = safeDouble(fields, 39, 1.0);
       deck.timecodeJamSyncEnabled = safeBool(fields, 40, true);
+      deck.playlistOpacity = static_cast<float>(safeDouble(fields, 41, 1.0));
+      deck.playlistAutoFade = safeBool(fields, 42, false);
+      deck.playlistFadeSeconds = safeDouble(fields, 43, 0.8);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -3215,6 +3337,11 @@ Project loadProject(const fs::path& projectFile) {
       cue.contrast = std::clamp(static_cast<float>(safeDouble(fields, offset + 49, 1.0)), 0.0f, 2.0f);
       cue.saturation = std::clamp(static_cast<float>(safeDouble(fields, offset + 50, 1.0)), 0.0f, 2.0f);
       cue.hueShift = std::clamp(static_cast<float>(safeDouble(fields, offset + 51, 0.0)), -180.0f, 180.0f);
+      cue.cueId = normalizeCueIdShort(safeString(fields, offset + 52));
+      cue.audioEnabled = safeBool(fields, offset + 53, true);
+      cue.pauseAtBeginning = safeBool(fields, offset + 54, false);
+      cue.transitionToNext = safeBool(fields, offset + 55, true);
+      cue.gotoTarget = safeString(fields, offset + 56);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -5182,7 +5309,7 @@ class MediaEngine {
       decoderEof_ = true;
     });
 
-    if (cue.hasAudio) {
+    if (cue.hasAudio && cue.audioEnabled) {
       if (spawnPipeProcess(audioProcess_, {
         "ffmpeg",
         "-hide_banner",
@@ -5588,6 +5715,22 @@ class App {
     }
 
     {
+      auto osc = buildOscStringMessage("/cue/audio", "on");
+      std::string packet(reinterpret_cast<const char*>(osc.data()), osc.size());
+      auto parsed = parseOscPacket(packet);
+      auto mapped = parsed.empty() ? std::optional<std::string> {} : mapOscToRemoteCommand(parsed[0]);
+      expect(mapped && (*mapped == "CUEAUDIO ON" || *mapped == "CUEAUDIO"), "osc cue audio mapping");
+    }
+
+    {
+      auto osc = buildOscStringMessage("/deck/opacity", "75");
+      std::string packet(reinterpret_cast<const char*>(osc.data()), osc.size());
+      auto parsed = parseOscPacket(packet);
+      auto mapped = parsed.empty() ? std::optional<std::string> {} : mapOscToRemoteCommand(parsed[0]);
+      expect(mapped && *mapped == "DECKOPACITY 75", "osc deck opacity mapping");
+    }
+
+    {
       auto one = buildOscStringMessage("/go", "1");
       auto two = buildOscStringMessage("/overlay", "1");
       std::vector<std::uint8_t> bundle;
@@ -5619,6 +5762,9 @@ class App {
       deck.outputLayerIndex = 3;
       deck.transitionSeconds = 1.5;
       deck.transitionStyle = "dip";
+      deck.playlistOpacity = 0.62f;
+      deck.playlistAutoFade = true;
+      deck.playlistFadeSeconds = 1.7;
       deck.ndiEnabled = true;
       deck.ndiSourceName = "Smoke Fill";
       deck.ndiKeyEnabled = true;
@@ -5649,12 +5795,19 @@ class App {
       cue.path = "/tmp/test.mp4";
       cue.name = "Smoke Cue";
       cue.id = "smoke-cue-1";
+      cue.cueId = "A1";
       cue.kind = CueKind::Video;
       cue.duration = 20.0;
       cue.width = 1920;
       cue.height = 1080;
+      cue.hasAudio = true;
+      cue.audioEnabled = false;
       cue.inPointSeconds = 2.0;
       cue.outPointSeconds = 8.0;
+      cue.pauseAtBeginning = true;
+      cue.pauseOnLastFrame = true;
+      cue.transitionToNext = false;
+      cue.gotoTarget = "Q12";
       cue.triggerTimecodeSeconds = 13.0;
       cue.cueTransitionSeconds = 1.25;
       cue.cueTransitionStyle = "crossfade";
@@ -5799,6 +5952,10 @@ class App {
                std::abs(loadedDeck.edgeBlendBottom - 0.05f) < 0.001f, "edge blend persisted");
         expect(std::abs(loadedDeck.transitionSeconds - 1.5) < 0.01, "transition persisted");
         expect(parseTransitionStyleToken(loadedDeck.transitionStyle) == TransitionStyle::DipBlack, "transition style persisted");
+        expect(std::abs(loadedDeck.playlistOpacity - 0.62f) < 0.01f &&
+               loadedDeck.playlistAutoFade &&
+               std::abs(loadedDeck.playlistFadeSeconds - 1.7) < 0.01,
+               "playlist opacity settings persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
         expect(!loadedDeck.timecodeJamSyncEnabled && std::abs(loadedDeck.timecodeFreewheelSeconds - 2.5) < 0.01,
                "timecode follower options persisted");
@@ -5806,6 +5963,14 @@ class App {
         expect(std::abs(loadedCue.triggerTimecodeSeconds - 13.0) < 0.01, "cue tc mark persisted");
         expect(std::abs(loadedCue.cueTransitionSeconds - 1.25) < 0.01, "cue transition persisted");
         expect(loadedCue.cueTransitionStyle == "crossfade", "cue transition style persisted");
+        expect(loadedCue.cueId == "A1" &&
+               loadedCue.hasAudio &&
+               !loadedCue.audioEnabled &&
+               loadedCue.pauseAtBeginning &&
+               loadedCue.pauseOnLastFrame &&
+               !loadedCue.transitionToNext &&
+               loadedCue.gotoTarget == "Q12",
+               "cue parity fields persisted");
         expect(std::abs(loadedCue.outputRotationDegrees - 17.5f) < 0.01f, "cue rotation persisted");
         expect(std::abs(loadedCue.cropLeft - 0.10f) < 0.001f &&
                std::abs(loadedCue.cropRight - 0.05f) < 0.001f &&
@@ -9839,11 +10004,7 @@ class App {
     if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
       return "";
     }
-    std::string cueNumber = trim(deck.cues[cueIndex].cueNumber);
-    if (cueNumber.empty()) {
-      cueNumber = std::to_string(cueIndex + 1);
-    }
-    return cueNumber;
+    return cueDisplayToken(deck.cues[cueIndex], cueIndex);
   }
 
   std::string cueIdForStatus(const Deck& deck, int cueIndex) const {
@@ -10782,7 +10943,187 @@ class App {
     setPlaylistLoop(!focusedDeck().playlistLoop);
   }
 
+  void ensureDeckOpacityTargetsSize() {
+    if (deckPlaylistOpacityTargets_.size() < project_.decks.size()) {
+      size_t previous = deckPlaylistOpacityTargets_.size();
+      deckPlaylistOpacityTargets_.resize(project_.decks.size(), 1.0f);
+      for (size_t i = previous; i < project_.decks.size(); ++i) {
+        deckPlaylistOpacityTargets_[i] = std::clamp(project_.decks[i].playlistOpacity, 0.0f, 1.0f);
+      }
+    } else if (deckPlaylistOpacityTargets_.size() > project_.decks.size()) {
+      deckPlaylistOpacityTargets_.resize(project_.decks.size(), 1.0f);
+    }
+  }
+
+  float deckPlaylistOpacityTarget(int deckIndex) {
+    ensureDeckOpacityTargetsSize();
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckPlaylistOpacityTargets_.size())) {
+      return 1.0f;
+    }
+    return std::clamp(deckPlaylistOpacityTargets_[deckIndex], 0.0f, 1.0f);
+  }
+
+  void setDeckPlaylistOpacityTarget(int deckIndex, float value) {
+    ensureDeckOpacityTargetsSize();
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(deckPlaylistOpacityTargets_.size())) {
+      return;
+    }
+    deckPlaylistOpacityTargets_[deckIndex] = std::clamp(value, 0.0f, 1.0f);
+  }
+
+  void setDeckPlaylistOpacity(int deckIndex, float value, bool immediate = true) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    float clamped = std::clamp(value, 0.0f, 1.0f);
+    if (std::fabs(deck.playlistOpacity - clamped) < 0.001f && std::fabs(deckPlaylistOpacityTarget(deckIndex) - clamped) < 0.001f) {
+      int pct = static_cast<int>(std::lround(clamped * 100.0f));
+      triggerToast("deck opacity: " + std::to_string(pct) + "%");
+      return;
+    }
+    if (immediate) {
+      deck.playlistOpacity = clamped;
+    }
+    setDeckPlaylistOpacityTarget(deckIndex, clamped);
+    int pct = static_cast<int>(std::lround(clamped * 100.0f));
+    triggerToast("deck opacity: " + std::to_string(pct) + "%");
+    markProjectDirty();
+  }
+
+  void setFocusedDeckPlaylistOpacity(float value, bool immediate = true) {
+    setDeckPlaylistOpacity(project_.focusedDeckIndex, value, immediate);
+  }
+
+  void setFocusedDeckPlaylistAutoFade(bool enabled) {
+    Deck& deck = focusedDeckMutable();
+    if (deck.playlistAutoFade == enabled) {
+      return;
+    }
+    deck.playlistAutoFade = enabled;
+    triggerToast(deck.playlistAutoFade ? "auto fade: on" : "auto fade: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleFocusedDeckPlaylistAutoFade() {
+    setFocusedDeckPlaylistAutoFade(!focusedDeck().playlistAutoFade);
+  }
+
+  void setFocusedDeckPlaylistFadeSeconds(double seconds) {
+    Deck& deck = focusedDeckMutable();
+    double clamped = std::clamp(std::isfinite(seconds) ? seconds : deck.playlistFadeSeconds, 0.05, 10.0);
+    if (std::abs(deck.playlistFadeSeconds - clamped) < 0.001) {
+      std::ostringstream label;
+      label << std::fixed << std::setprecision(2) << deck.playlistFadeSeconds;
+      triggerToast("deck fade: " + label.str() + "s");
+      return;
+    }
+    deck.playlistFadeSeconds = clamped;
+    std::ostringstream label;
+    label << std::fixed << std::setprecision(2) << deck.playlistFadeSeconds;
+    triggerToast("deck fade: " + label.str() + "s");
+    markProjectDirty();
+  }
+
+  std::vector<int> selectedCueIndices(const Deck& deck) const {
+    std::vector<int> result;
+    result.reserve(deck.selectedIndices.size() + 1);
+    std::unordered_set<int> seen;
+    for (int index : deck.selectedIndices) {
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      if (seen.insert(index).second) {
+        result.push_back(index);
+      }
+    }
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+      if (seen.insert(deck.selectedIndex).second) {
+        result.push_back(deck.selectedIndex);
+      }
+    }
+    std::sort(result.begin(), result.end());
+    return result;
+  }
+
+  bool cueIndexSelected(const Deck& deck, int cueIndex) const {
+    if (cueIndex < 0) {
+      return false;
+    }
+    if (deck.selectedIndex == cueIndex) {
+      return true;
+    }
+    return std::find(deck.selectedIndices.begin(), deck.selectedIndices.end(), cueIndex) != deck.selectedIndices.end();
+  }
+
+  template <typename Fn>
+  bool forEachFocusedSelectedCueMutable(Fn&& fn) {
+    Deck& deck = focusedDeckMutable();
+    auto indices = selectedCueIndices(deck);
+    if (indices.empty()) {
+      return false;
+    }
+    bool changed = false;
+    for (int index : indices) {
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      fn(deck.cues[index], index);
+      changed = true;
+    }
+    return changed;
+  }
+
+  void selectCueInDeck(int deckIndex, int cueIndex, bool extendRange, bool toggleSingle) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    if (extendRange) {
+      int anchor = deck.selectedIndex >= 0 ? deck.selectedIndex : cueIndex;
+      int start = std::min(anchor, cueIndex);
+      int end = std::max(anchor, cueIndex);
+      deck.selectedIndices.clear();
+      for (int i = start; i <= end; ++i) {
+        deck.selectedIndices.push_back(i);
+      }
+      deck.selectedIndex = cueIndex;
+    } else if (toggleSingle) {
+      auto it = std::find(deck.selectedIndices.begin(), deck.selectedIndices.end(), cueIndex);
+      if (it == deck.selectedIndices.end()) {
+        deck.selectedIndices.push_back(cueIndex);
+      } else if (deck.selectedIndices.size() > 1 || deck.selectedIndex != cueIndex) {
+        deck.selectedIndices.erase(it);
+      }
+      deck.selectedIndex = cueIndex;
+    } else {
+      deck.selectedIndex = cueIndex;
+      deck.selectedIndices.clear();
+      deck.selectedIndices.push_back(cueIndex);
+    }
+    onSelectionChanged();
+    markProjectDirty();
+  }
+
   void onSelectionChanged() {
+    Deck& deck = focusedDeckMutable();
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < static_cast<int>(deck.cues.size())) {
+      if (std::find(deck.selectedIndices.begin(), deck.selectedIndices.end(), deck.selectedIndex) == deck.selectedIndices.end()) {
+        deck.selectedIndices.push_back(deck.selectedIndex);
+      }
+    }
+    deck.selectedIndices.erase(
+      std::remove_if(deck.selectedIndices.begin(), deck.selectedIndices.end(), [&](int index) {
+        return index < 0 || index >= static_cast<int>(deck.cues.size());
+      }),
+      deck.selectedIndices.end());
+    std::sort(deck.selectedIndices.begin(), deck.selectedIndices.end());
+    deck.selectedIndices.erase(std::unique(deck.selectedIndices.begin(), deck.selectedIndices.end()), deck.selectedIndices.end());
+
     selectionChangedAt_ = SDL_GetTicks64();
     cueSettingsScroll_ = 0;
     cueSettingsScrollMax_ = 0;
@@ -11896,11 +12237,9 @@ class App {
       }
       if (index) {
         Deck& deck = focusedDeckMutable();
-        if (deck.selectedIndex != *index) {
-          deck.selectedIndex = *index;
-          onSelectionChanged();
+        if (deck.selectedIndex != *index || !cueIndexSelected(deck, *index)) {
+          selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
           triggerToast("cue " + std::to_string(*index + 1) + " armed");
-          markProjectDirty();
         }
       }
       return;
@@ -11989,8 +12328,7 @@ class App {
         index = cueIndexByToken(focusedDeck(), joinParts(parts, 1));
       }
       if (index) {
-        focusedDeckMutable().selectedIndex = *index;
-        onSelectionChanged();
+        selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
       }
       if (parts.size() > 2 && toUpper(parts[2]) == "AUTO") {
         takeSelected(true);
@@ -12015,8 +12353,7 @@ class App {
       if (!index) {
         return;
       }
-      deck.selectedIndex = *index;
-      onSelectionChanged();
+      selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
       jumpSelectedCue();
       return;
     }
@@ -12131,12 +12468,68 @@ class App {
       }
       return;
     }
-    if (command == "HOLD" || command == "HOLDLAST") {
+    if (command == "HOLD" || command == "HOLDLAST" || command == "PAUSEEND" || command == "PAUSEATEND") {
       auto state = parseToggleWord(1);
       if (!state) {
         toggleSelectedPauseOnLastFrame();
       } else {
         setSelectedPauseOnLastFrame(*state);
+      }
+      return;
+    }
+    if (command == "PAUSEBEGIN" || command == "PAUSEATBEGIN" || command == "PAUSESTART") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleSelectedPauseAtBeginning();
+      } else {
+        setSelectedPauseAtBeginning(*state);
+      }
+      return;
+    }
+    if (command == "CUEAUDIO" || command == "AUDIOCUE" || command == "AUDIOENABLED") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleSelectedAudioEnabled();
+      } else {
+        setSelectedAudioEnabled(*state);
+      }
+      return;
+    }
+    if (command == "NEXTTRANS" || command == "TRANSITIONTONEXT" || command == "CUEXNEXT") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleSelectedTransitionToNext();
+      } else {
+        setSelectedTransitionToNext(*state);
+      }
+      return;
+    }
+    if (command == "CUEGOTO" || command == "GOTOTARGET") {
+      if (parts.size() <= 1) {
+        Cue* cue = selectedCueMutable();
+        if (!cue) {
+          return;
+        }
+        triggerToast(cue->gotoTarget.empty() ? "goto target: none" : ("goto target: " + cue->gotoTarget));
+      } else {
+        setSelectedGotoTarget(joinParts(parts, 1));
+      }
+      return;
+    }
+    if (command == "CUEIDSHORT" || command == "SHORTID" || command == "CUESHORTID") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        return;
+      }
+      if (parts.size() <= 1) {
+        triggerToast("cue id: " + (cue->cueId.empty() ? std::string("(none)") : cue->cueId));
+      } else {
+        std::string cueIdShort = normalizeCueIdShort(parts[1]);
+        forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+          each.cueId = cueIdShort;
+        });
+        triggerToast("cue id: " + (cueIdShort.empty() ? std::string("(none)") : cueIdShort));
+        markProjectDirty();
       }
       return;
     }
@@ -12169,6 +12562,54 @@ class App {
         togglePlaylistLoop();
       } else {
         setPlaylistLoop(*state);
+      }
+      return;
+    }
+    if (command == "PLAYLISTOPACITY" || command == "DECKOPACITY" || command == "DECKDIM") {
+      if (parts.size() <= 1) {
+        int pct = static_cast<int>(std::lround(std::clamp(focusedDeck().playlistOpacity, 0.0f, 1.0f) * 100.0f));
+        triggerToast("deck opacity: " + std::to_string(pct) + "%");
+        return;
+      }
+      std::string value = toUpper(parts[1]);
+      if (value == "UP" || value == "+" || value == "INC") {
+        setFocusedDeckPlaylistOpacity(focusedDeck().playlistOpacity + 0.05f, true);
+        return;
+      }
+      if (value == "DOWN" || value == "-" || value == "DEC") {
+        setFocusedDeckPlaylistOpacity(focusedDeck().playlistOpacity - 0.05f, true);
+        return;
+      }
+      if (value == "ON" || value == "100") {
+        setFocusedDeckPlaylistOpacity(1.0f, true);
+        return;
+      }
+      if (value == "OFF" || value == "0") {
+        setFocusedDeckPlaylistOpacity(0.0f, true);
+        return;
+      }
+      if (auto parsed = parseNumber(1); parsed) {
+        double normalized = *parsed > 1.0 ? *parsed / 100.0 : *parsed;
+        setFocusedDeckPlaylistOpacity(static_cast<float>(normalized), true);
+      }
+      return;
+    }
+    if (command == "PLAYLISTAUTOFADE" || command == "DECKAUTOFADE") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        toggleFocusedDeckPlaylistAutoFade();
+      } else {
+        setFocusedDeckPlaylistAutoFade(*state);
+      }
+      return;
+    }
+    if (command == "PLAYLISTFADE" || command == "DECKFADE") {
+      if (parts.size() <= 1) {
+        setFocusedDeckPlaylistFadeSeconds(focusedDeck().playlistFadeSeconds);
+        return;
+      }
+      if (auto parsed = parseNumber(1); parsed) {
+        setFocusedDeckPlaylistFadeSeconds(*parsed);
       }
       return;
     }
@@ -13533,6 +13974,7 @@ class App {
     }
 
     ensureTimecodeFollowerStateSize();
+    ensureDeckOpacityTargetsSize();
 
     // Animate master video dimmer toward target.
     if (std::abs(project_.masterDimmer - masterDimmerTarget_) > 0.001) {
@@ -13555,6 +13997,22 @@ class App {
         panicProfileRequestedAt_ = 0;
         executePanicDeckAction(pendingPanicProfileToken_);
       }
+    }
+
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      float target = deckPlaylistOpacityTarget(deckIndex);
+      if (std::fabs(deck.playlistOpacity - target) <= 0.001f) {
+        deck.playlistOpacity = target;
+        continue;
+      }
+      double fadeTime = std::max(0.05, deck.playlistFadeSeconds);
+      double speed = 1.0 / fadeTime;
+      double step = speed * std::max(deltaSeconds, 1.0 / 120.0);
+      float delta = static_cast<float>(std::copysign(
+        std::min(step, static_cast<double>(std::fabs(deck.playlistOpacity - target))),
+        static_cast<double>(target - deck.playlistOpacity)));
+      deck.playlistOpacity = std::clamp(deck.playlistOpacity + delta, 0.0f, 1.0f);
     }
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
@@ -13624,16 +14082,23 @@ class App {
 
           int nextIndex = -1;
           int n = static_cast<int>(deck.cues.size());
-          if (deck.shuffle && shouldAdvance && n > 1) {
-            // Pick a random cue that isn't the current one.
-            nextIndex = deck.activeIndex;
-            while (nextIndex == deck.activeIndex) {
-              nextIndex = std::rand() % n;
+          if (!trim(activeCue.gotoTarget).empty()) {
+            if (auto resolved = cueIndexByToken(deck, activeCue.gotoTarget); resolved) {
+              nextIndex = *resolved;
             }
-          } else if (deck.activeIndex + 1 < n) {
-            nextIndex = deck.activeIndex + 1;
-          } else if (deck.playlistLoop) {
-            nextIndex = 0;
+          }
+          if (nextIndex < 0) {
+            if (deck.shuffle && shouldAdvance && n > 1) {
+              // Pick a random cue that isn't the current one.
+              nextIndex = deck.activeIndex;
+              while (nextIndex == deck.activeIndex) {
+                nextIndex = std::rand() % n;
+              }
+            } else if (deck.activeIndex + 1 < n) {
+              nextIndex = deck.activeIndex + 1;
+            } else if (deck.playlistLoop) {
+              nextIndex = 0;
+            }
           }
 
           if (nextIndex >= 0) {
@@ -13647,7 +14112,7 @@ class App {
             if (shouldAdvance) {
               int previousFocus = project_.focusedDeckIndex;
               project_.focusedDeckIndex = deckIndex;
-              takeSelected(true);
+              takeSelected(true, activeCue.transitionToNext);
               project_.focusedDeckIndex = previousFocus;
             }
           }
@@ -13949,11 +14414,7 @@ class App {
       if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
         return "--";
       }
-      const Cue& cue = deck.cues[cueIndex];
-      if (!trim(cue.cueNumber).empty()) {
-        return cue.cueNumber;
-      }
-      return std::to_string(cueIndex + 1);
+      return cueDisplayToken(deck.cues[cueIndex], cueIndex);
     };
 
     int deckCount = static_cast<int>(project_.decks.size());
@@ -14205,11 +14666,7 @@ class App {
       if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
         return "--";
       }
-      const Cue& cue = deck.cues[cueIndex];
-      if (!trim(cue.cueNumber).empty()) {
-        return cue.cueNumber;
-      }
-      return std::to_string(cueIndex + 1);
+      return cueDisplayToken(deck.cues[cueIndex], cueIndex);
     };
 
     auto drawMasterSidebarButton = [&](int x, int y, int w, int h, const std::string& label, int action,
@@ -14829,6 +15286,9 @@ class App {
   void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
     const Deck& deck = project_.decks[deckIndex];
     bool focused = (deckIndex == project_.focusedDeckIndex);
+    if (deckOpacityFaderRects_.size() < project_.decks.size()) {
+      deckOpacityFaderRects_.resize(project_.decks.size(), SDL_Rect {});
+    }
 
     // Cartridge shelf header.
     SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
@@ -14905,8 +15365,17 @@ class App {
       + "  " + (deck.shuffle ? "shuf" : "seq");
     drawText(controlRenderer_, fontSmall_, routing, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 8);
     std::string routing2 = std::string("tc:") + (deck.timecodeChaseEnabled ? "chase" : "free")
-      + "  ndi:" + currentNdiOutputLabel();
-    drawText(controlRenderer_, fontSmall_, routing2, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 24);
+      + "  op:" + std::to_string(static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))) + "%"
+      + (deck.playlistAutoFade ? " af:on" : " af:off");
+    drawText(controlRenderer_, fontSmall_, routing2, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 22);
+    SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
+    Primitives::drawFramedPanel(controlRenderer_, opacityRail, colorFromRgba(kScreenLightColor),
+                    colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    int fillW = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opacityRail.w - 4)));
+    fillW = std::clamp(fillW, 0, opacityRail.w - 4);
+    SDL_Rect opacityFill {opacityRail.x + 2, opacityRail.y + 2, fillW, opacityRail.h - 4};
+    Primitives::fillRect(controlRenderer_, opacityFill, colorFromRgba(kScreenDarkColor));
+    deckOpacityFaderRects_[deckIndex] = opacityRail;
     // Animated shuffle sparkle when enabled
     if (deck.shuffle && project_.uiTransitionsEnabled) {
       double phase = static_cast<double>(animationNow_) * 0.002;
@@ -14926,7 +15395,7 @@ class App {
     const auto& cue = deck.cues[index];
     bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
                                   [&](int i) { return i == index; });
-    bool isSelected = index == deck.selectedIndex;
+    bool isSelected = cueIndexSelected(deck, index);
     bool isLive = index == deck.activeIndex;
     bool isQueued = !isLive && !isSelected && deck.selectedIndex >= 0 && index == deck.selectedIndex + 1;
     SDL_Color fill = colorFromRgba(kScreenLightColor);
@@ -14975,7 +15444,7 @@ class App {
       case CueKind::Audio:        typeIcon = "AUD"; break;
       default: break;
     }
-    std::string cueToken = !trim(cue.cueNumber).empty() ? cue.cueNumber : std::to_string(index + 1);
+    std::string cueToken = cueDisplayToken(cue, index);
     constexpr int kNumColW = 58;
     constexpr int kTypeColW = 46;
     constexpr int kStateColW = 102;
@@ -15660,6 +16129,7 @@ class App {
       int playbackBodyY = drawSectionHeader(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
                                             QuickAction::CueSectionPlaybackToggle,
                                             "Collapse/expand playback settings");
+      int playbackRowsUsed = 8;
       if (cueSectionPlaybackOpen_) {
         ry = playbackBodyY;
       drawQuickRow(ry,                "vol",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
@@ -15725,25 +16195,67 @@ class App {
       drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
                colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
       quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action: stop / next / loop"});
-      // Loop count, speed, color tag
       {
+        int rowCursor = 8;
         std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
-        drawQuickRow(ry + kRowStep * 8, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+        drawQuickRow(ry + kRowStep * rowCursor, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
                      QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+        rowCursor += 1;
+
         std::ostringstream spdSS;
         spdSS << std::fixed << std::setprecision(2) << selectedCue->playbackSpeed;
-        drawQuickRow(ry + kRowStep * 9, "speed", QuickAction::SpeedDec, spdSS.str() + "x", QuickAction::SpeedInc,
+        drawQuickRow(ry + kRowStep * rowCursor, "speed", QuickAction::SpeedDec, spdSS.str() + "x", QuickAction::SpeedInc,
                      QuickAction::ToggleLoop, false, false, "Playback speed: 0.25–4.0×");
+        rowCursor += 1;
+
+        drawQuickRow(ry + kRowStep * rowCursor, "pause in", QuickAction::TogglePauseBegin,
+                     selectedCue->pauseAtBeginning ? "on" : "off",
+                     QuickAction::TogglePauseBegin, QuickAction::TogglePauseBegin, true, selectedCue->pauseAtBeginning,
+                     "Load the cue and hold first frame when taken");
+        rowCursor += 1;
+
+        std::string cueAudioLabel = selectedCue->hasAudio
+          ? (selectedCue->audioEnabled ? "on" : "off")
+          : "n/a";
+        drawQuickRow(ry + kRowStep * rowCursor, "audio", QuickAction::ToggleCueAudio,
+                     cueAudioLabel,
+                     QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                     selectedCue->hasAudio && selectedCue->audioEnabled,
+                     "Toggle cue audio track for this cue");
+        rowCursor += 1;
+
+        drawQuickRow(ry + kRowStep * rowCursor, "next xfade", QuickAction::ToggleNextTransition,
+                     selectedCue->transitionToNext ? "on" : "off",
+                     QuickAction::ToggleNextTransition, QuickAction::ToggleNextTransition, true,
+                     selectedCue->transitionToNext,
+                     "Use transition when auto-advancing or goto-taking next cue");
+        rowCursor += 1;
+
+        int gotoY = ry + kRowStep * rowCursor;
+        SDL_Rect gotoBox {ctrl.x + 10, gotoY, kCtrlW - 80, 26};
+        SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, gotoY, 54, 26};
+        std::string gotoDisplay = selectedCue->gotoTarget.empty() ? "(next cue)" : selectedCue->gotoTarget;
+        if (gotoDisplay.size() > 28) {
+          gotoDisplay = gotoDisplay.substr(0, 25) + "...";
+        }
+        Primitives::drawFramedPanel(controlRenderer_, gotoBox, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, gotoDisplay, colorFromRgba(kScreenDeepColor), gotoBox.x + 6, gotoBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, gotoEdit, colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "goto", colorFromRgba(kScreenLightColor), gotoEdit);
+        quickButtons_.push_back({gotoEdit, QuickAction::EditGotoTarget, "Set cue token to jump to when cue ends"});
+        rowCursor += 1;
+
         std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
-        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 10, kCtrlW - 20, 28};
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 28};
         SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
         Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
         quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C — cycle cue color tag"});
-      }
-      // Notes row
-      {
-        int notesY = ry + kRowStep * 11;
+        rowCursor += 1;
+
+        int notesY = ry + kRowStep * rowCursor;
         SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
         SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
         std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
@@ -15753,39 +16265,40 @@ class App {
         Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
         quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
-      }
-      // Cue number row
-      {
-        int cnY = ry + kRowStep * 12;
-        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
+        rowCursor += 1;
+
+        int cnY = ry + kRowStep * rowCursor;
+        SDL_Rect idLabel {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        drawText(controlRenderer_, fontSmall_, "id", colorFromRgba(kScreenInkSoftColor), idLabel.x + 4, idLabel.y + 6);
+        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
-        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
-      }
-      // Pause points row
-      {
-        int ppY = ry + kRowStep * 13;
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue id for search/goto"});
+        rowCursor += 1;
+
+        int ppY = ry + kRowStep * rowCursor;
         int ppCount = static_cast<int>(selectedCue->pausePoints.size());
-        SDL_Rect label {ctrl.x + 10, ppY, 72, 26};
+        SDL_Rect ppLabel {ctrl.x + 10, ppY, 72, 26};
         SDL_Rect addBtn {ctrl.x + 88, ppY, 46, 26};
         SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
         drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
-                 colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
+                 colorFromRgba(kScreenInkSoftColor), ppLabel.x + 4, ppLabel.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "+now", colorFromRgba(kScreenLightColor), addBtn);
         Primitives::drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+        rowCursor += 1;
+
+        playbackRowsUsed = rowCursor;
       }
       }
-      int geoY = cueSectionPlaybackOpen_ ? (ry + kRowStep * 14) : (playbackBodyY + 4);
+      int geoY = cueSectionPlaybackOpen_ ? (ry + kRowStep * playbackRowsUsed) : (playbackBodyY + 4);
       geoY = drawSectionHeader(geoY, "GEOMETRY", cueSectionGeometryOpen_,
                                QuickAction::CueSectionGeometryToggle,
                                "Collapse/expand geometry controls");
@@ -15984,7 +16497,7 @@ class App {
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
@@ -16062,7 +16575,7 @@ class App {
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
@@ -16142,7 +16655,7 @@ class App {
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
         drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = selectedCue->cueNumber.empty() ? "--" : selectedCue->cueNumber;
+        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
@@ -16471,7 +16984,11 @@ class App {
       uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
     }
     SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
+    float deckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
+    Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * 255.0f));
+    SDL_SetTextureAlphaMod(bridgeTexture, alpha);
     renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
+    SDL_SetTextureAlphaMod(bridgeTexture, 255);
   }
 
   void renderOutputWindow(int outputIndex) {
@@ -17017,9 +17534,7 @@ class App {
       const Cue* selectedCue = selectedCuePtr();
       std::string selectedStatus = "selected: none";
       if (selectedCue) {
-        std::string cueNum = trim(selectedCue->cueNumber).empty()
-          ? std::to_string(focusedDeck().selectedIndex + 1)
-          : selectedCue->cueNumber;
+        std::string cueNum = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         selectedStatus = "selected " + cueNum + "  " + selectedCue->name;
       }
       drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, selectedStatus, cuesRect.w - 16), soft, cuesRect.x + 8, cuesRect.y + 200);
@@ -17950,11 +18465,10 @@ class App {
       }
       setFocusedDeckIndex(hit.deckIndex);
       Deck& deck = project_.decks[hit.deckIndex];
-      if (hit.cueIndex >= 0 && hit.cueIndex < static_cast<int>(deck.cues.size()) &&
-          deck.selectedIndex != hit.cueIndex) {
-        deck.selectedIndex = hit.cueIndex;
-        onSelectionChanged();
-        markProjectDirty();
+      if (hit.cueIndex >= 0 && hit.cueIndex < static_cast<int>(deck.cues.size())) {
+        bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+        bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+        selectCueInDeck(hit.deckIndex, hit.cueIndex, shiftHeld, ctrlHeld);
       }
       if (mouseButton == SDL_BUTTON_RIGHT) {
         jumpSelectedCue();
@@ -18189,6 +18703,21 @@ class App {
         continue;
       }
       setFocusedDeckIndex(deckIndex);
+      if (deckIndex < static_cast<int>(deckOpacityFaderRects_.size()) &&
+          pointInRect(x, y, deckOpacityFaderRects_[deckIndex]) &&
+          deckOpacityFaderRects_[deckIndex].w > 0) {
+        bool altHeld = (SDL_GetModState() & KMOD_ALT) != 0;
+        const SDL_Rect& rail = deckOpacityFaderRects_[deckIndex];
+        float value = static_cast<float>(std::clamp(
+          static_cast<double>(x - rail.x) / static_cast<double>(rail.w),
+          0.0,
+          1.0));
+        if (altHeld) {
+          value = value >= 0.5f ? 1.0f : 0.0f;
+        }
+        setDeckPlaylistOpacity(deckIndex, value, true);
+        return;
+      }
       const SDL_Rect& clipFrame = deckListClipRects_[deckIndex];
       SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
       if (!pointInRect(x, y, clipRect)) {
@@ -18199,11 +18728,9 @@ class App {
       for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
         SDL_Rect row {clipRect.x, listY, clipRect.w, kRowHeight};
         if (pointInRect(x, y, row)) {
-          if (deck.selectedIndex != cueIndex) {
-            deck.selectedIndex = cueIndex;
-            onSelectionChanged();
-            markProjectDirty();
-          }
+          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          selectCueInDeck(deckIndex, cueIndex, shiftHeld, ctrlHeld);
           drag_.active = true;
           drag_.deckIndex = deckIndex;
           drag_.cueIndex = cueIndex;
@@ -18411,6 +18938,8 @@ class App {
         deck.cues.erase(deck.cues.begin() + drag_.cueIndex);
         deck.cues.insert(deck.cues.begin() + index, cue);
         deck.selectedIndex = index;
+        deck.selectedIndices.clear();
+        deck.selectedIndices.push_back(index);
         if (deck.activeIndex == drag_.cueIndex) {
           deck.activeIndex = index;
         } else if (deck.activeIndex >= 0) {
@@ -18722,6 +19251,9 @@ class App {
         }
         break;
       default:
+        if (handleCueTypeAheadKey(key, mod)) {
+          return;
+        }
         break;
     }
   }
@@ -18862,6 +19394,7 @@ class App {
 
   void takeSelected(bool autoplay, bool useTransition = true) {
     Deck& deck = focusedDeckMutable();
+    int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     MediaEngine* engine = focusedMediaEngine();
     if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
       return;
@@ -18887,6 +19420,11 @@ class App {
 
     deck.activeIndex = deck.selectedIndex;
     stopBrowserCue();
+    bool effectiveAutoplay = autoplay && !cue.pauseAtBeginning;
+    if (deck.playlistAutoFade && autoplay) {
+      deck.playlistOpacity = 0.0f;
+      setDeckPlaylistOpacityTarget(deckIndex, 1.0f);
+    }
     // Use per-cue transition override if set, else deck default
     double transSecs = 0.0;
     std::string transStyleStr = "cut";
@@ -18898,7 +19436,7 @@ class App {
     }
     engine->loadCue(
       &cue,
-      autoplay,
+      effectiveAutoplay,
       transSecs,
       parseTransitionStyleToken(transStyleStr)
     );
@@ -18907,15 +19445,15 @@ class App {
       triggerToast("browser jumped live");
     } else if (isSourceCueKind(cue.kind)) {
       bool live = engine->isSourceCapturing();
-      if (autoplay && live) {
+      if (effectiveAutoplay && live) {
         triggerToast("source live");
-      } else if (autoplay && !live) {
+      } else if (effectiveAutoplay && !live) {
         triggerToast("source unavailable");
       } else {
         triggerToast("source loaded");
       }
     } else {
-      triggerToast(autoplay ? "cue jumped live" : "cue loaded");
+      triggerToast(effectiveAutoplay ? "cue jumped live" : "cue loaded");
     }
     playUiSound(UiSoundEffect::Take);
     markProjectDirty();
@@ -18998,6 +19536,8 @@ class App {
     }
     if (deck.selectedIndex != nextIndex) {
       deck.selectedIndex = nextIndex;
+      deck.selectedIndices.clear();
+      deck.selectedIndices.push_back(nextIndex);
       onSelectionChanged();
     }
     markProjectDirty();
@@ -19087,16 +19627,25 @@ class App {
       return byId;
     }
 
-    // Exact match on user-assigned cue number
+    // Exact match on operator-facing short cue id / cue number
     std::string needle = toUpper(trimmed);
     for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (!deck.cues[index].cueId.empty() && toUpper(deck.cues[index].cueId) == needle) {
+        return index;
+      }
       if (!deck.cues[index].cueNumber.empty() && toUpper(deck.cues[index].cueNumber) == needle) {
         return index;
       }
     }
 
-    // Prefix match on cue number (operator-friendly shorthand)
+    // Prefix match on short cue id / cue number (operator-friendly shorthand)
     for (int index = 0; index < static_cast<int>(deck.cues.size()); ++index) {
+      if (!deck.cues[index].cueId.empty()) {
+        std::string cueIdShort = toUpper(deck.cues[index].cueId);
+        if (cueIdShort.rfind(needle, 0) == 0) {
+          return index;
+        }
+      }
       if (!deck.cues[index].cueNumber.empty()) {
         std::string cueNum = toUpper(deck.cues[index].cueNumber);
         if (cueNum.rfind(needle, 0) == 0) {
@@ -19132,19 +19681,28 @@ class App {
     };
 
     auto isExact = [&](const Cue& cue) {
-      return toUpper(cue.id) == needle || toUpper(cue.cueNumber) == needle || toUpper(cue.name) == needle;
+      return toUpper(cue.id) == needle
+        || toUpper(cue.cueId) == needle
+        || toUpper(cue.cueNumber) == needle
+        || toUpper(cue.name) == needle;
     };
     auto isPrefix = [&](const Cue& cue) {
       std::string cueId = toUpper(cue.id);
+      std::string cueIdShort = toUpper(cue.cueId);
       std::string cueNum = toUpper(cue.cueNumber);
       std::string cueName = toUpper(cue.name);
-      return cueId.rfind(needle, 0) == 0 || cueNum.rfind(needle, 0) == 0 || cueName.rfind(needle, 0) == 0;
+      return cueId.rfind(needle, 0) == 0
+        || cueIdShort.rfind(needle, 0) == 0
+        || cueNum.rfind(needle, 0) == 0
+        || cueName.rfind(needle, 0) == 0;
     };
     auto isContains = [&](const Cue& cue) {
       std::string cueId = toUpper(cue.id);
+      std::string cueIdShort = toUpper(cue.cueId);
       std::string cueNum = toUpper(cue.cueNumber);
       std::string cueName = toUpper(cue.name);
       return cueId.find(needle) != std::string::npos ||
+        cueIdShort.find(needle) != std::string::npos ||
         cueNum.find(needle) != std::string::npos ||
         cueName.find(needle) != std::string::npos;
     };
@@ -19213,10 +19771,7 @@ class App {
       markProjectDirty();
     }
 
-    std::string cueNum = trim(deck.cues[cueIndex].cueNumber);
-    if (cueNum.empty()) {
-      cueNum = std::to_string(cueIndex + 1);
-    }
+    std::string cueNum = cueDisplayToken(deck.cues[cueIndex], cueIndex);
     triggerToast("find " + std::to_string(lastCueFindCursor_ + 1) + "/" +
       std::to_string(lastCueFindMatches_.size()) + " -> " + cueNum + " " + deck.cues[cueIndex].name);
     if (triggerJump) {
@@ -19232,6 +19787,54 @@ class App {
     lastCueFindDeckIndex_ = -1;
   }
 
+  bool handleCueTypeAheadKey(SDL_Keycode key, Uint16 mod) {
+    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+      return false;
+    }
+    auto toSearchChar = [&](SDL_Keycode code) -> char {
+      if (code >= SDLK_0 && code <= SDLK_9) {
+        return static_cast<char>('0' + (code - SDLK_0));
+      }
+      if (code >= SDLK_a && code <= SDLK_z) {
+        return static_cast<char>('A' + (code - SDLK_a));
+      }
+      if (code == SDLK_MINUS) return '-';
+      if (code == SDLK_UNDERSCORE) return '_';
+      return '\0';
+    };
+
+    Uint64 now = SDL_GetTicks64();
+    if (now > typedCueSearchLastKeyAtMs_ + 1200) {
+      typedCueSearchBuffer_.clear();
+    }
+    typedCueSearchLastKeyAtMs_ = now;
+
+    if (key == SDLK_BACKSPACE) {
+      if (!typedCueSearchBuffer_.empty()) {
+        typedCueSearchBuffer_.pop_back();
+        if (!typedCueSearchBuffer_.empty()) {
+          findCueToken(typedCueSearchBuffer_, 1, false);
+          triggerToast("id: " + typedCueSearchBuffer_);
+        } else {
+          triggerToast("id: cleared");
+        }
+      }
+      return true;
+    }
+
+    char ch = toSearchChar(key);
+    if (ch == '\0') {
+      return false;
+    }
+    typedCueSearchBuffer_.push_back(ch);
+    if (typedCueSearchBuffer_.size() > 6) {
+      typedCueSearchBuffer_.erase(typedCueSearchBuffer_.begin());
+    }
+    findCueToken(typedCueSearchBuffer_, 1, false);
+    triggerToast("id: " + typedCueSearchBuffer_);
+    return true;
+  }
+
   void renumberFocusedDeckCueNumbers(const std::string& prefix = "", int startAt = 1) {
     Deck& deck = focusedDeckMutable();
     if (deck.cues.empty()) {
@@ -19240,7 +19843,9 @@ class App {
     }
     int start = std::max(1, startAt);
     for (int cueIndex = 0; cueIndex < static_cast<int>(deck.cues.size()); ++cueIndex) {
-      deck.cues[cueIndex].cueNumber = prefix + std::to_string(start + cueIndex);
+      std::string token = prefix + std::to_string(start + cueIndex);
+      deck.cues[cueIndex].cueNumber = token;
+      deck.cues[cueIndex].cueId = normalizeCueIdShort(token);
     }
     clearCueFindState();
     triggerToast("renumbered " + std::to_string(deck.cues.size()) + " cues");
@@ -19255,6 +19860,7 @@ class App {
     }
     for (auto& cue : deck.cues) {
       cue.cueNumber.clear();
+      cue.cueId.clear();
     }
     clearCueFindState();
     triggerToast("cue numbers cleared");
@@ -19268,12 +19874,8 @@ class App {
     if (!index) {
       return false;
     }
-    if (deck.selectedIndex != *index) {
-      deck.selectedIndex = *index;
-      onSelectionChanged();
-    }
+    selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
     triggerToast("cue " + std::to_string(*index + 1) + " armed");
-    markProjectDirty();
     return true;
   }
 
@@ -19283,8 +19885,7 @@ class App {
     if (!index) {
       return false;
     }
-    deck.selectedIndex = *index;
-    onSelectionChanged();
+    selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
     takeSelected(autoplay);
     return true;
   }
@@ -19893,6 +20494,20 @@ class App {
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
       case QuickAction::ToggleHold:      toggleSelectedPauseOnLastFrame(); break;
+      case QuickAction::TogglePauseBegin: toggleSelectedPauseAtBeginning(); break;
+      case QuickAction::ToggleCueAudio:   toggleSelectedAudioEnabled(); break;
+      case QuickAction::ToggleNextTransition: toggleSelectedTransitionToNext(); break;
+      case QuickAction::EditGotoTarget: {
+        Cue* sel = selectedCueMutable();
+        if (!sel) {
+          break;
+        }
+        auto result = pickTextInput("Cue Goto", "Target cue token on end (blank = next):", sel->gotoTarget);
+        if (result) {
+          setSelectedGotoTarget(*result);
+        }
+        break;
+      }
       case QuickAction::CycleEndAction:  cycleSelectedEndAction(); break;
       case QuickAction::FadeInDec:       adjustSelectedFade(true,  -0.25); break;
       case QuickAction::FadeInInc:       adjustSelectedFade(true,   0.25); break;
@@ -19924,10 +20539,11 @@ class App {
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {
-          auto result = pickTextInput("Cue Notes", "Enter notes for cue:", sel->notes);
+          auto result = pickTextInput("Cue Notes", "Enter notes for selected cue(s):", sel->notes);
           if (result) {
-            sel->notes = *result;
-            markProjectDirty();
+            if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) { cue.notes = *result; })) {
+              markProjectDirty();
+            }
           }
         }
         break;
@@ -20140,10 +20756,13 @@ class App {
       case QuickAction::EditCueNumber: {
         Cue* sel = selectedCueMutable();
         if (sel) {
-          auto result = pickTextInput("Cue Number", "Short cue label (e.g. Q1, 2A, INTRO):", sel->cueNumber);
+          std::string initial = sel->cueId.empty() ? cueDisplayToken(*sel, focusedDeck().selectedIndex) : sel->cueId;
+          auto result = pickTextInput("Cue ID", "Short cue id (max 6 chars, letters/numbers):", initial);
           if (result) {
-            sel->cueNumber = *result;
-            markProjectDirty();
+            std::string normalized = normalizeCueIdShort(*result);
+            if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) { cue.cueId = normalized; })) {
+              markProjectDirty();
+            }
           }
         }
         break;
@@ -20200,8 +20819,13 @@ class App {
     if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
-    cue->loop = !cue->loop;
-    triggerToast(cue->loop ? "loop on" : "loop off");
+    bool next = !cue->loop;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Video || each.kind == CueKind::Audio) {
+        each.loop = next;
+      }
+    });
+    triggerToast(next ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -20211,8 +20835,12 @@ class App {
     if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio) || cue->loop == enabled) {
       return;
     }
-    cue->loop = enabled;
-    triggerToast(cue->loop ? "loop on" : "loop off");
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Video || each.kind == CueKind::Audio) {
+        each.loop = enabled;
+      }
+    });
+    triggerToast(enabled ? "loop on" : "loop off");
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -20222,8 +20850,13 @@ class App {
     if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
-    cue->pauseOnLastFrame = !cue->pauseOnLastFrame;
-    triggerToast(cue->pauseOnLastFrame ? "hold on" : "hold off");
+    bool next = !cue->pauseOnLastFrame;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Video || each.kind == CueKind::Audio) {
+        each.pauseOnLastFrame = next;
+      }
+    });
+    triggerToast(next ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -20233,9 +20866,109 @@ class App {
     if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio) || cue->pauseOnLastFrame == enabled) {
       return;
     }
-    cue->pauseOnLastFrame = enabled;
-    triggerToast(cue->pauseOnLastFrame ? "hold on" : "hold off");
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Video || each.kind == CueKind::Audio) {
+        each.pauseOnLastFrame = enabled;
+      }
+    });
+    triggerToast(enabled ? "hold on" : "hold off");
     playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleSelectedPauseAtBeginning() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    bool next = !cue->pauseAtBeginning;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.pauseAtBeginning = next;
+    });
+    triggerToast(next ? "pause at begin: on" : "pause at begin: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setSelectedPauseAtBeginning(bool enabled) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->pauseAtBeginning == enabled) {
+      return;
+    }
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.pauseAtBeginning = enabled;
+    });
+    triggerToast(enabled ? "pause at begin: on" : "pause at begin: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleSelectedAudioEnabled() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    bool next = !cue->audioEnabled;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioEnabled = next;
+      }
+    });
+    triggerToast(next ? "cue audio: on" : "cue audio: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setSelectedAudioEnabled(bool enabled) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cue->hasAudio || cue->audioEnabled == enabled) {
+      return;
+    }
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioEnabled = enabled;
+      }
+    });
+    triggerToast(enabled ? "cue audio: on" : "cue audio: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleSelectedTransitionToNext() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return;
+    }
+    bool next = !cue->transitionToNext;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.transitionToNext = next;
+    });
+    triggerToast(next ? "next transition: on" : "next transition: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setSelectedTransitionToNext(bool enabled) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->transitionToNext == enabled) {
+      return;
+    }
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.transitionToNext = enabled;
+    });
+    triggerToast(enabled ? "next transition: on" : "next transition: off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setSelectedGotoTarget(const std::string& token) {
+    std::string trimmed = trim(token);
+    if (!forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.gotoTarget = trimmed;
+    })) {
+      return;
+    }
+    triggerToast(trimmed.empty() ? "goto target: cleared" : ("goto target: " + trimmed));
     markProjectDirty();
   }
 
@@ -20244,9 +20977,15 @@ class App {
     if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
-    double& target = fadeIn ? cue->fadeInSeconds : cue->fadeOutSeconds;
-    target = std::clamp(target + deltaSeconds, 0.0, 10.0);
-    triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(target));
+    double sampleTarget = std::clamp((fadeIn ? cue->fadeInSeconds : cue->fadeOutSeconds) + deltaSeconds, 0.0, 10.0);
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind != CueKind::Video && each.kind != CueKind::Audio) {
+        return;
+      }
+      double& target = fadeIn ? each.fadeInSeconds : each.fadeOutSeconds;
+      target = std::clamp(target + deltaSeconds, 0.0, 10.0);
+    });
+    triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(sampleTarget));
     markProjectDirty();
   }
 
@@ -20335,8 +21074,11 @@ class App {
   void cycleSelectedColorTag() {
     Cue* cue = selectedCueMutable();
     if (!cue) return;
-    cue->colorTag = nextColorTag(cue->colorTag);
-    triggerToast("tag: " + (cue->colorTag.empty() ? "none" : cue->colorTag));
+    std::string next = nextColorTag(cue->colorTag);
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.colorTag = next;
+    });
+    triggerToast("tag: " + (next.empty() ? "none" : next));
     markProjectDirty();
   }
 
@@ -20358,42 +21100,60 @@ class App {
 
   void setSelectedFade(bool fadeIn, double seconds) {
     Cue* cue = selectedCueMutable();
-    if (!cue || cue->kind != CueKind::Video) {
+    if (!cue || (cue->kind != CueKind::Video && cue->kind != CueKind::Audio)) {
       return;
     }
-    double& target = fadeIn ? cue->fadeInSeconds : cue->fadeOutSeconds;
     double next = std::clamp(seconds, 0.0, 10.0);
-    if (std::abs(target - next) < 0.001) {
-      return;
-    }
-    target = next;
-    triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(target));
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Video || each.kind == CueKind::Audio) {
+        double& target = fadeIn ? each.fadeInSeconds : each.fadeOutSeconds;
+        target = next;
+      }
+    });
+    triggerToast(std::string(fadeIn ? "fade in " : "fade out ") + formatSeconds(next));
     markProjectDirty();
   }
 
   void deleteSelected() {
     Deck& deck = focusedDeckMutable();
-    if (deck.selectedIndex < 0 || deck.selectedIndex >= static_cast<int>(deck.cues.size())) {
+    auto indices = selectedCueIndices(deck);
+    if (indices.empty()) {
       return;
     }
-    int index = deck.selectedIndex;
-    bool removedActive = index == deck.activeIndex;
-    deck.cues.erase(deck.cues.begin() + index);
+    std::sort(indices.begin(), indices.end());
+    int firstDeleted = indices.front();
+    bool removedActive = std::find(indices.begin(), indices.end(), deck.activeIndex) != indices.end();
+    int activeShift = 0;
+    for (int idx : indices) {
+      if (idx < deck.activeIndex) {
+        ++activeShift;
+      }
+    }
+    for (auto it = indices.rbegin(); it != indices.rend(); ++it) {
+      deck.cues.erase(deck.cues.begin() + *it);
+    }
     if (deck.cues.empty()) {
       deck.selectedIndex = -1;
       deck.activeIndex = -1;
+      deck.selectedIndices.clear();
     } else {
-      deck.selectedIndex = std::min(index, static_cast<int>(deck.cues.size()) - 1);
-      if (deck.activeIndex > index) {
-        deck.activeIndex -= 1;
-      } else if (removedActive) {
+      deck.selectedIndex = std::min(firstDeleted, static_cast<int>(deck.cues.size()) - 1);
+      if (removedActive) {
         deck.activeIndex = -1;
         if (MediaEngine* engine = focusedMediaEngine()) {
           engine->clear();
         }
+      } else if (deck.activeIndex >= 0) {
+        deck.activeIndex = std::max(0, deck.activeIndex - activeShift);
       }
+      deck.selectedIndices.clear();
+      deck.selectedIndices.push_back(deck.selectedIndex);
     }
-    triggerToast("cart popped");
+    if (indices.size() == 1) {
+      triggerToast("cart popped");
+    } else {
+      triggerToast(std::to_string(indices.size()) + " carts popped");
+    }
     playUiSound(UiSoundEffect::Delete);
     markProjectDirty();
   }
@@ -21515,6 +22275,10 @@ class App {
   std::vector<int> lastCueFindMatches_;
   int lastCueFindCursor_ = -1;
   int lastCueFindDeckIndex_ = -1;
+  std::string typedCueSearchBuffer_;
+  Uint64 typedCueSearchLastKeyAtMs_ = 0;
+  std::vector<float> deckPlaylistOpacityTargets_;
+  std::vector<SDL_Rect> deckOpacityFaderRects_;
   std::vector<std::int16_t> vuSamples_;
   std::mutex vuSamplesMutex_;
   // Waveform analysis cache (path → peaks vector)

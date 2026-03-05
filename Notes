@@ -746,3 +746,30 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 mitti parity foundation follow-up (cue parity + playlist opacity):
+- Added cue parity fields to runtime model + serialization:
+  - `cueId` (short operator cue token, max 6)
+  - `audioEnabled`
+  - `pauseAtBeginning`
+  - `transitionToNext`
+  - `gotoTarget`
+- Added deck playlist fader model:
+  - `playlistOpacity`
+  - `playlistAutoFade`
+  - `playlistFadeSeconds`
+- Added multi-select state on deck (`selectedIndices`) with shift-range/ctrl-toggle selection handling.
+- Cue find/token pipeline now prefers operator cue token (`cueId`) and typed ID search supports short token workflow.
+- End-of-cue behavior now resolves goto target token first, then auto-advance with per-cue transition toggle.
+- Added per-deck opacity rail in deck column footer; compositing path multiplies deck alpha contribution by playlist opacity.
+- Added command + OSC surface for new cue/playlist fields:
+  - `PAUSEBEGIN`, `PAUSEEND`, `CUEAUDIO`, `NEXTTRANS`, `CUEGOTO`, `CUEIDSHORT`
+  - `DECKOPACITY`/`PLAYLISTOPACITY`, `DECKAUTOFADE`, `DECKFADE`
+  - OSC mappings for `/cue/*` parity paths and `/deck|/playlist` opacity/fade paths.
+- Video cue inspector now includes parity rows (`pause in`, `audio`, `next xfade`, `goto`) and applies via existing batch-edit path.
+- Smoke harness expanded:
+  - new OSC mapping checks for cue audio + deck opacity
+  - new persistence checks for cue parity fields + deck playlist opacity fields.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
