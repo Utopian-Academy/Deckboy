@@ -1,3 +1,25 @@
+2026-03-05 osc query + osc mirror feedback pass:
+- Implemented optional OSC Query HTTP server (Linux path) with:
+  - `/` html endpoint page
+  - `/oscquery.json` docs + live state
+  - `/state.json` live state only
+- Added optional canonical OSC feedback mirror broadcasts for subscribed OSC senders.
+  - New project fields: `oscQueryEnabled`, `oscQueryPort`, `oscFeedbackMirrorEnabled`, `oscFeedbackRateMs`
+  - Added persistence + normalization + smoke assertions.
+- Network settings tab now includes explicit toggles/prompts for:
+  - OSC Query enable
+  - OSC Query port
+  - OSC feedback mirror enable
+  - OSC feedback mirror rate
+- Companion port change in settings now restarts listener immediately.
+- Added command/OSC surface:
+  - `OSCQUERY`, `OSCQUERYPORT`, `OSCFEEDBACK`, `OSCFEEDBACKRATE`
+  - `/oscquery`, `/oscquery/port`, `/osc/feedback`, `/osc/feedback/rate`
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 ui clarity pass (header/stack/routing/splash):
 - Main header now includes compact per-deck live summary while keeping show + net/tc state.
 - Output chips are clearer (`O#`, target type, ARMED/LIVE/OFF) with stronger focused-output indication.
