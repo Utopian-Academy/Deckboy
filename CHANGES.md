@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (transport black-frame continuity fix)
+
+- Fixed a playback continuity issue where pressing `STOP` or `TAKE` during/after active playback could flash output to black.
+- Media engine changes:
+  - `STOP` rewind now preserves the currently visible frame until frame 0 is decoded (no immediate black clear).
+  - `TAKE` transition source gain now stays full when transport is paused/stopped, avoiding zero-alpha transition source after rewind-to-zero.
+  - `seek(...)` now supports preserving visual frame content during decoder restart paths used by stop/rewind.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (Decks window visibility behavior)
 
 - Updated Decks window default behavior for single-deck shows:
