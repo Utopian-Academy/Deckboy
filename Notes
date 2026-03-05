@@ -23,6 +23,10 @@
   - Window prompt now says: `Type focused, then press Enter.`
   - Camera/Syphon prompt now says: `Type default, then press Enter.`
   - Per-kind alias resolution now applies correctly across multi-select source edits.
+- UI asset pack integration now prefers v3:
+  - pack root detection: `data/ui/deckboy_ui_pack_v3` -> fallback `..._v2`
+  - integrated art: header, output chips, cue icons, monitor frame, splash
+  - mascot art stays out of live controls (splash branding only).
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:
