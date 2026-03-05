@@ -1052,6 +1052,49 @@ struct OscMessage {
   std::vector<OscArg> args;
 };
 
+struct OscQueryEndpointDoc {
+  const char* path;
+  const char* command;
+  const char* args;
+  const char* notes;
+};
+
+constexpr std::array<OscQueryEndpointDoc, 33> kOscQueryEndpoints {{
+  {"/play", "PLAY", "", "Start focused deck"},
+  {"/pause", "PAUSE", "", "Pause focused deck"},
+  {"/stop", "STOP", "", "Stop focused deck"},
+  {"/go", "GO", "", "Toggle play/pause"},
+  {"/toggle", "GO", "", "Alias for GO"},
+  {"/take", "TAKE [cue]", "string", "Take selected or cue token"},
+  {"/takeid", "TAKEID <cue-id>", "string", "Take by operator cue ID"},
+  {"/goto", "GOTO <cue>", "string", "Load/play cue index/token"},
+  {"/next", "NEXT", "", "Select next cue"},
+  {"/prev", "PREV", "", "Select previous cue"},
+  {"/select", "SELECT <cue>", "string", "Select cue without taking"},
+  {"/selectid", "SELECTID <cue-id>", "string", "Select by cue ID"},
+  {"/deck", "DECK <index>", "int/string", "Focus deck"},
+  {"/deck/next", "DECKNEXT", "", "Cycle focused deck forward"},
+  {"/deck/prev", "DECKPREV", "", "Cycle focused deck backward"},
+  {"/deck/opacity", "DECKOPACITY [0..100]", "number", "Set/query deck opacity"},
+  {"/deck/autofade", "DECKAUTOFADE [on|off]", "toggle", "Toggle deck auto fade"},
+  {"/deck/fade", "DECKFADE [seconds]", "number", "Set/query deck auto-fade time"},
+  {"/route", "ROUTE <output>", "string", "Route focused deck"},
+  {"/layer", "LAYER <index>", "int", "Set deck layer index"},
+  {"/cue/audio", "CUEAUDIO [on|off]", "toggle", "Per-cue audio enable"},
+  {"/cue/pausebegin", "CUEPAUSEBEGIN [on|off]", "toggle", "Per-cue pause at beginning"},
+  {"/cue/pauseend", "CUEPAUSEEND [on|off]", "toggle", "Per-cue pause at end"},
+  {"/cue/transition", "CUENEXTTRANS [on|off]", "toggle", "Per-cue transition-to-next"},
+  {"/cue/goto", "CUEGOTO [target]", "string", "Per-cue goto target token"},
+  {"/jumpmode", "JUMPMODE [TRIGGER|LOAD]", "string", "Jump behavior"},
+  {"/panic", "PANIC [profile]", "string", "Run panic profile"},
+  {"/output", "OUTPUT <index> ...", "string", "Output command namespace"},
+  {"/status", "STATUS", "", "Request status snapshot"},
+  {"/state", "STATE", "", "Request status snapshot"},
+  {"/oscquery", "OSCQUERY [on|off]", "toggle", "Enable OSC Query HTTP server"},
+  {"/oscquery/port", "OSCQUERYPORT [port]", "number", "Set/query OSC Query HTTP port"},
+  {"/osc/feedback", "OSCFEEDBACK [on|off]", "toggle", "Enable canonical OSC feedback mirror"}
+}};
+
 size_t alignOscOffset(size_t offset) {
   return (offset + 3u) & ~size_t(3u);
 }
@@ -1376,6 +1419,30 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
       return "DECKFADE " + *value;
     }
     return "DECKFADE";
+  }
+  if (path == "/OSCQUERY" || path == "/PLAYBOY/OSCQUERY") {
+    if (auto value = argToggleWord(0)) {
+      return "OSCQUERY " + *value;
+    }
+    return "OSCQUERY";
+  }
+  if (path == "/OSCQUERY/PORT" || path == "/PLAYBOY/OSCQUERY/PORT") {
+    if (auto value = argString(0)) {
+      return "OSCQUERYPORT " + *value;
+    }
+    return "OSCQUERYPORT";
+  }
+  if (path == "/OSC/FEEDBACK" || path == "/OSCFEEDBACK" || path == "/PLAYBOY/OSCFEEDBACK") {
+    if (auto value = argToggleWord(0)) {
+      return "OSCFEEDBACK " + *value;
+    }
+    return "OSCFEEDBACK";
+  }
+  if (path == "/OSC/FEEDBACK/RATE" || path == "/OSCFEEDBACK/RATE" || path == "/PLAYBOY/OSCFEEDBACK/RATE") {
+    if (auto value = argString(0)) {
+      return "OSCFEEDBACKRATE " + *value;
+    }
+    return "OSCFEEDBACKRATE";
   }
   if (path == "/ROUTE") {
     if (auto value = argString(0)) {
@@ -2016,6 +2083,22 @@ std::string escapeJson(const std::string& value) {
   return out;
 }
 
+std::string escapeHtml(const std::string& value) {
+  std::string out;
+  out.reserve(value.size() + 16);
+  for (char ch : value) {
+    switch (ch) {
+      case '&': out += "&amp;"; break;
+      case '<': out += "&lt;"; break;
+      case '>': out += "&gt;"; break;
+      case '"': out += "&quot;"; break;
+      case '\'': out += "&#39;"; break;
+      default: out.push_back(ch); break;
+    }
+  }
+  return out;
+}
+
 std::string deckDefaultName(int index) {
   return "Deck " + std::to_string(index + 1);
 }
@@ -2274,6 +2357,14 @@ std::string normalizeOutputColorSpace(std::string colorSpace) {
     return "srgb";
   }
   return "auto";
+}
+
+int normalizeOscQueryPort(int port) {
+  return std::clamp(port, 1, 65535);
+}
+
+int normalizeOscFeedbackRateMs(int value) {
+  return std::clamp(value, 40, 2000);
 }
 
 std::string defaultOutputStreamUrl(const std::string& protocol, int outputIndex) {
@@ -2729,6 +2820,8 @@ void normalizeProject(Project& project) {
   project.advancedOutputMode = project.advancedOutputMode || project.decks.size() > 1;
   project.jumpMode = normalizeJumpModeToken(project.jumpMode);
   project.panicProfile = normalizePanicProfileToken(project.panicProfile);
+  project.oscQueryPort = normalizeOscQueryPort(project.oscQueryPort);
+  project.oscFeedbackRateMs = normalizeOscFeedbackRateMs(project.oscFeedbackRateMs);
   project.panicFadeSeconds = std::clamp(
     std::isfinite(project.panicFadeSeconds) ? project.panicFadeSeconds : 0.9,
     0.1, 5.0);
@@ -2859,6 +2952,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
+  output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
+  output << "osc_query_port\t" << project.oscQueryPort << '\n';
+  output << "osc_feedback_mirror\t" << (project.oscFeedbackMirrorEnabled ? 1 : 0) << '\n';
+  output << "osc_feedback_rate_ms\t" << project.oscFeedbackRateMs << '\n';
   output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
@@ -3129,6 +3226,14 @@ Project loadProject(const fs::path& projectFile) {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "osc_query_enabled") {
+      project.oscQueryEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "osc_query_port") {
+      project.oscQueryPort = safeInt(fields, 1, 5511);
+    } else if (fields[0] == "osc_feedback_mirror") {
+      project.oscFeedbackMirrorEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "osc_feedback_rate_ms") {
+      project.oscFeedbackRateMs = safeInt(fields, 1, 120);
     } else if (fields[0] == "jump_mode") {
       project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
     } else if (fields[0] == "jump_transition") {
@@ -5625,6 +5730,11 @@ class App {
     selectionChangedAt_ = SDL_GetTicks64();
     lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
+#ifndef _WIN32
+    if (project_.oscQueryEnabled) {
+      startOscQueryServer();
+    }
+#endif
     startHyperDeckServer();
     layoutButtons(kControlHeight);
     return true;
@@ -5633,6 +5743,9 @@ class App {
   void shutdown() {
     stopHyperDeckServer();
     stopMidiInput();
+#ifndef _WIN32
+    stopOscQueryServer();
+#endif
     stopCompanionControl();
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
@@ -5837,6 +5950,10 @@ class App {
       project.outputCanvasWidth = 5760;
       project.outputCanvasHeight = 2160;
       project.focusedOutputIndex = 1;
+      project.oscQueryEnabled = true;
+      project.oscQueryPort = 6410;
+      project.oscFeedbackMirrorEnabled = true;
+      project.oscFeedbackRateMs = 90;
       project.jumpMode = "load";
       project.jumpTransitionEnabled = false;
       project.panicProfile = "fade_rewind";
@@ -5983,6 +6100,11 @@ class App {
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
         expect(loaded.outputCanvasEnabled && loaded.outputCanvasWidth == 5760 && loaded.outputCanvasHeight == 2160,
                "output canvas persisted");
+        expect(loaded.oscQueryEnabled &&
+               loaded.oscQueryPort == 6410 &&
+               loaded.oscFeedbackMirrorEnabled &&
+               loaded.oscFeedbackRateMs == 90,
+               "osc query settings persisted");
         expect(loaded.jumpMode == "load" && !loaded.jumpTransitionEnabled, "jump mode persisted");
         expect(loaded.panicProfile == "fade_rewind", "panic profile persisted");
         expect(std::abs(loaded.panicFadeSeconds - 1.4) < 0.01 && loaded.panicAutoRestore, "panic options persisted");
@@ -10667,6 +10789,85 @@ class App {
     markProjectDirty();
   }
 
+  void setOscQueryEnabled(bool enabled) {
+    normalizeProject(project_);
+#if defined(_WIN32)
+    project_.oscQueryEnabled = false;
+    if (enabled) {
+      triggerToast("osc query: unavailable");
+      playUiSound(UiSoundEffect::Toggle);
+    } else {
+      triggerToast("osc query: off");
+    }
+    return;
+#else
+    if (project_.oscQueryEnabled == enabled) {
+      triggerToast(std::string("osc query: ") + (enabled ? "on" : "off"));
+      return;
+    }
+    project_.oscQueryEnabled = enabled;
+    if (project_.oscQueryEnabled) {
+      if (!startOscQueryServer()) {
+        project_.oscQueryEnabled = false;
+        triggerToast("osc query: unavailable");
+        playUiSound(UiSoundEffect::Toggle);
+        return;
+      }
+    } else {
+      stopOscQueryServer();
+    }
+    triggerToast(std::string("osc query: ") + (project_.oscQueryEnabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+#endif
+  }
+
+  void setOscQueryPort(int port) {
+    normalizeProject(project_);
+    int normalized = normalizeOscQueryPort(port);
+    if (project_.oscQueryPort == normalized) {
+      triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
+      return;
+    }
+    project_.oscQueryPort = normalized;
+#if !defined(_WIN32)
+    if (project_.oscQueryEnabled) {
+      stopOscQueryServer();
+      startOscQueryServer();
+    }
+#endif
+    triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setOscFeedbackMirrorEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.oscFeedbackMirrorEnabled == enabled) {
+      triggerToast(std::string("osc feedback mirror: ") + (enabled ? "on" : "off"));
+      return;
+    }
+    project_.oscFeedbackMirrorEnabled = enabled;
+    lastOscMirrorFeedbackPayload_.clear();
+    lastOscMirrorFeedbackBroadcastMs_ = 0;
+    triggerToast(std::string("osc feedback mirror: ") + (enabled ? "on" : "off"));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void setOscFeedbackRateMs(int rateMs) {
+    normalizeProject(project_);
+    int normalized = normalizeOscFeedbackRateMs(rateMs);
+    if (project_.oscFeedbackRateMs == normalized) {
+      triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
+      return;
+    }
+    project_.oscFeedbackRateMs = normalized;
+    triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   bool runPanicOutputsOff(bool requireSafetyContext, Uint32 sourceWindowId) {
     normalizeProject(project_);
 
@@ -11380,6 +11581,244 @@ class App {
     return "{\"app\":\"DECKBOY_0.01\",\"deckCount\":0,\"decks\":[]}\n";
   }
 
+  std::vector<std::pair<std::string, std::string>> buildOscMirrorFeedbackValues() const {
+    std::vector<std::pair<std::string, std::string>> values;
+    values.reserve(8 + project_.decks.size() * 5 + project_.outputs.size() * 5);
+    values.emplace_back("/playboy/focus/deck", std::to_string(project_.focusedDeckIndex + 1));
+    values.emplace_back("/playboy/focus/output", std::to_string(project_.focusedOutputIndex + 1));
+    values.emplace_back("/playboy/decks/count", std::to_string(project_.decks.size()));
+    values.emplace_back("/playboy/outputs/count", std::to_string(project_.outputs.size()));
+    values.emplace_back("/playboy/jump_mode", normalizeJumpModeToken(project_.jumpMode));
+    values.emplace_back("/playboy/panic_profile", normalizePanicProfileToken(project_.panicProfile));
+
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      std::string prefix = "/playboy/deck/" + std::to_string(deckIndex + 1);
+      values.emplace_back(prefix + "/status", transportStatusLabel(deckIndex));
+      values.emplace_back(prefix + "/selected", std::to_string(deck.selectedIndex >= 0 ? deck.selectedIndex + 1 : 0));
+      values.emplace_back(prefix + "/active", std::to_string(deck.activeIndex >= 0 ? deck.activeIndex + 1 : 0));
+      values.emplace_back(prefix + "/opacity", std::to_string(static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))));
+      auto outputIndex = primaryOutputIndexForDeck(deckIndex);
+      values.emplace_back(prefix + "/route_output", std::to_string(outputIndex ? *outputIndex + 1 : 0));
+      values.emplace_back(prefix + "/layer", std::to_string(primaryLayerIndexForDeck(deckIndex)));
+    }
+
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      const OutputTarget& output = project_.outputs[outputIndex];
+      std::string prefix = "/playboy/output/" + std::to_string(outputIndex + 1);
+      values.emplace_back(prefix + "/enabled", output.enabled ? "1" : "0");
+      values.emplace_back(prefix + "/type", normalizeOutputType(output.outputType));
+      values.emplace_back(prefix + "/ndi", output.ndiEnabled ? "1" : "0");
+      values.emplace_back(prefix + "/stream", output.streamEnabled ? "1" : "0");
+      values.emplace_back(prefix + "/alpha", std::to_string(static_cast<int>(std::lround(std::clamp(output.outputAlpha, 0.0f, 1.0f) * 100.0f))));
+    }
+    return values;
+  }
+
+  std::string buildOscQueryDocumentJson() {
+    std::string stateJson = trim(snapshotJsonForFeedback());
+    if (stateJson.empty()) {
+      stateJson = "{\"app\":\"DECKBOY_0.01\",\"deckCount\":0,\"decks\":[]}";
+    }
+
+    std::ostringstream output;
+    output << "{"
+           << "\"name\":\"Deckboy OSC Query\","
+           << "\"app\":\"DECKBOY_0.01\","
+           << "\"oscUdpPort\":" << companionPort_ << ","
+           << "\"httpPort\":" << project_.oscQueryPort << ","
+           << "\"feedbackMirror\":" << (project_.oscFeedbackMirrorEnabled ? "true" : "false") << ","
+           << "\"feedbackRateMs\":" << project_.oscFeedbackRateMs << ","
+           << "\"endpoints\":[";
+    for (size_t i = 0; i < kOscQueryEndpoints.size(); ++i) {
+      if (i > 0) {
+        output << ",";
+      }
+      const auto& endpoint = kOscQueryEndpoints[i];
+      output << "{"
+             << "\"path\":\"" << escapeJson(endpoint.path) << "\","
+             << "\"command\":\"" << escapeJson(endpoint.command) << "\","
+             << "\"args\":\"" << escapeJson(endpoint.args) << "\","
+             << "\"notes\":\"" << escapeJson(endpoint.notes) << "\""
+             << "}";
+    }
+    output << "],"
+           << "\"state\":" << stateJson
+           << "}\n";
+    return output.str();
+  }
+
+  std::string buildOscQueryHtmlPage() {
+    std::ostringstream html;
+    html << "<!doctype html><html><head><meta charset='utf-8'>"
+         << "<title>Deckboy OSC Query</title>"
+         << "<style>"
+         << "body{font-family:monospace;background:#0f380f;color:#9bbc0f;margin:0;padding:18px;}"
+         << "h1{margin:0 0 6px 0;font-size:22px;}"
+         << "p{margin:4px 0;}"
+         << "a{color:#c9d7a3;text-decoration:none;}"
+         << "table{border-collapse:collapse;width:100%;margin-top:10px;}"
+         << "th,td{border:1px solid #306230;padding:6px;text-align:left;font-size:12px;}"
+         << "th{background:#306230;color:#9bbc0f;}"
+         << "pre{background:#101410;border:1px solid #306230;padding:8px;overflow:auto;}"
+         << "</style></head><body>";
+    html << "<h1>DECKBOY OSC QUERY</h1>";
+    html << "<p>OSC UDP Port: " << companionPort_ << " | HTTP Port: " << project_.oscQueryPort << "</p>";
+    html << "<p>Feedback Mirror: " << (project_.oscFeedbackMirrorEnabled ? "ON" : "OFF")
+         << " @ " << project_.oscFeedbackRateMs << " ms</p>";
+    html << "<p><a href='/oscquery.json'>/oscquery.json</a> | <a href='/state.json'>/state.json</a></p>";
+    html << "<table><tr><th>Path</th><th>Command</th><th>Args</th><th>Notes</th></tr>";
+    for (const auto& endpoint : kOscQueryEndpoints) {
+      html << "<tr><td>" << escapeHtml(endpoint.path) << "</td>"
+           << "<td>" << escapeHtml(endpoint.command) << "</td>"
+           << "<td>" << escapeHtml(endpoint.args) << "</td>"
+           << "<td>" << escapeHtml(endpoint.notes) << "</td></tr>";
+    }
+    html << "</table>";
+    html << "<h2>State</h2><pre>" << escapeHtml(trim(snapshotJsonForFeedback())) << "</pre>";
+    html << "</body></html>";
+    return html.str();
+  }
+
+  void sendHttpResponse(SocketHandle client,
+                        const std::string& statusLine,
+                        const std::string& contentType,
+                        const std::string& body) {
+    std::ostringstream header;
+    header << "HTTP/1.1 " << statusLine << "\r\n"
+           << "Content-Type: " << contentType << "\r\n"
+           << "Content-Length: " << body.size() << "\r\n"
+           << "Connection: close\r\n"
+           << "Cache-Control: no-cache\r\n"
+           << "\r\n";
+    std::string response = header.str();
+    response += body;
+    send(client, response.c_str(), response.size(), MSG_NOSIGNAL);
+  }
+
+  void handleOscQueryHttpClient(SocketHandle client) {
+    std::string request;
+    std::array<char, 2048> buffer {};
+    while (request.find("\r\n\r\n") == std::string::npos && request.size() < 16384) {
+      ssize_t bytes = recv(client, buffer.data(), buffer.size(), 0);
+      if (bytes <= 0) {
+        break;
+      }
+      request.append(buffer.data(), static_cast<size_t>(bytes));
+    }
+    if (request.empty()) {
+      return;
+    }
+
+    size_t lineEnd = request.find("\r\n");
+    if (lineEnd == std::string::npos) {
+      lineEnd = request.find('\n');
+    }
+    std::string requestLine = lineEnd == std::string::npos ? request : request.substr(0, lineEnd);
+    auto parts = splitWhitespace(requestLine);
+    if (parts.size() < 2 || toUpper(parts[0]) != "GET") {
+      sendHttpResponse(client, "405 Method Not Allowed", "text/plain; charset=utf-8",
+                       "Only GET is supported.\n");
+      return;
+    }
+
+    std::string path = parts[1];
+    size_t queryPos = path.find('?');
+    if (queryPos != std::string::npos) {
+      path = path.substr(0, queryPos);
+    }
+    if (path.empty()) {
+      path = "/";
+    }
+
+    if (path == "/") {
+      sendHttpResponse(client, "200 OK", "text/html; charset=utf-8", buildOscQueryHtmlPage());
+      return;
+    }
+    if (path == "/oscquery" || path == "/oscquery.json") {
+      sendHttpResponse(client, "200 OK", "application/json; charset=utf-8", buildOscQueryDocumentJson());
+      return;
+    }
+    if (path == "/state" || path == "/state.json") {
+      sendHttpResponse(client, "200 OK", "application/json; charset=utf-8", snapshotJsonForFeedback());
+      return;
+    }
+
+    sendHttpResponse(client, "404 Not Found", "text/plain; charset=utf-8",
+                     "Deckboy OSC Query endpoint not found.\n");
+  }
+
+  bool startOscQueryServer() {
+    if (!project_.oscQueryEnabled) {
+      oscQueryReady_ = false;
+      return false;
+    }
+    if (oscQueryTcpListen_ != kInvalidSocket) {
+      return true;
+    }
+
+    oscQueryTcpListen_ = createBoundSocket(SOCK_STREAM, project_.oscQueryPort, true);
+    if (oscQueryTcpListen_ == kInvalidSocket) {
+      oscQueryReady_ = false;
+      return false;
+    }
+
+    oscQueryStop_.store(false);
+    oscQueryThread_ = std::thread([this]() {
+      oscQueryLoop();
+    });
+    oscQueryReady_ = true;
+    return true;
+  }
+
+  void stopOscQueryServer() {
+    oscQueryStop_.store(true);
+    if (oscQueryTcpListen_ != kInvalidSocket) {
+      closeSocket(oscQueryTcpListen_);
+      oscQueryTcpListen_ = kInvalidSocket;
+    }
+    if (oscQueryThread_.joinable()) {
+      oscQueryThread_.join();
+    }
+    oscQueryReady_ = false;
+  }
+
+  void oscQueryLoop() {
+    while (!oscQueryStop_.load()) {
+      if (oscQueryTcpListen_ == kInvalidSocket) {
+        break;
+      }
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      FD_SET(oscQueryTcpListen_, &readFds);
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 200000;
+      int ready = select(oscQueryTcpListen_ + 1, &readFds, nullptr, nullptr, &timeout);
+      if (ready < 0) {
+        if (errno == EINTR) {
+          continue;
+        }
+        break;
+      }
+      if (ready == 0) {
+        continue;
+      }
+      if (!FD_ISSET(oscQueryTcpListen_, &readFds)) {
+        continue;
+      }
+
+      sockaddr_in clientAddress {};
+      socklen_t clientLength = sizeof(clientAddress);
+      SocketHandle client = accept(oscQueryTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
+      if (client < 0) {
+        continue;
+      }
+      handleOscQueryHttpClient(client);
+      closeSocket(client);
+    }
+  }
+
   void maybeBroadcastOscState() {
     Uint64 now = SDL_GetTicks64();
     if (oscSubscribers_.empty()) {
@@ -11387,8 +11826,28 @@ class App {
     }
 
     std::string snapshot = snapshotJsonForFeedback();
-    bool changed = snapshot != lastOscFeedbackPayload_;
-    if (!changed && now - lastOscFeedbackBroadcastMs_ < 2000) {
+    bool stateChanged = snapshot != lastOscFeedbackPayload_;
+    bool shouldBroadcastState = stateChanged || now - lastOscFeedbackBroadcastMs_ >= 2000;
+
+    std::vector<std::pair<std::string, std::string>> mirrorValues;
+    std::string mirrorDigest;
+    bool mirrorChanged = false;
+    Uint64 mirrorInterval = static_cast<Uint64>(normalizeOscFeedbackRateMs(project_.oscFeedbackRateMs));
+    bool shouldBroadcastMirror = false;
+    if (project_.oscFeedbackMirrorEnabled) {
+      mirrorValues = buildOscMirrorFeedbackValues();
+      std::ostringstream mirrorDigestStream;
+      for (const auto& value : mirrorValues) {
+        mirrorDigestStream << value.first << '=' << value.second << '\n';
+      }
+      mirrorDigest = mirrorDigestStream.str();
+      mirrorChanged = mirrorDigest != lastOscMirrorFeedbackPayload_;
+      shouldBroadcastMirror =
+        (mirrorChanged && now - lastOscMirrorFeedbackBroadcastMs_ >= mirrorInterval) ||
+        (!mirrorChanged && now - lastOscMirrorFeedbackBroadcastMs_ >= 2000);
+    }
+
+    if (!shouldBroadcastState && !shouldBroadcastMirror) {
       return;
     }
 
@@ -11398,14 +11857,27 @@ class App {
         stale.push_back(key);
         continue;
       }
-      sendOscStringTo(entry.first, "/playboy/state", snapshot);
+      if (shouldBroadcastState) {
+        sendOscStringTo(entry.first, "/playboy/state", snapshot);
+      }
+      if (shouldBroadcastMirror) {
+        for (const auto& value : mirrorValues) {
+          sendOscStringTo(entry.first, value.first, value.second);
+        }
+      }
     }
     for (const auto& key : stale) {
       oscSubscribers_.erase(key);
     }
 
-    lastOscFeedbackPayload_ = snapshot;
-    lastOscFeedbackBroadcastMs_ = now;
+    if (shouldBroadcastState) {
+      lastOscFeedbackPayload_ = snapshot;
+      lastOscFeedbackBroadcastMs_ = now;
+    }
+    if (shouldBroadcastMirror) {
+      lastOscMirrorFeedbackPayload_ = mirrorDigest;
+      lastOscMirrorFeedbackBroadcastMs_ = now;
+    }
   }
 
   bool maybeRespondToCompanionQuery(SocketHandle client, const std::string& line) {
@@ -11547,6 +12019,8 @@ class App {
     oscSubscribers_.clear();
     lastOscFeedbackPayload_.clear();
     lastOscFeedbackBroadcastMs_ = 0;
+    lastOscMirrorFeedbackPayload_.clear();
+    lastOscMirrorFeedbackBroadcastMs_ = 0;
     closeSocket(companionTcpListen_);
     closeSocket(companionUdpSocket_);
     companionTcpListen_ = kInvalidSocket;
@@ -12153,6 +12627,40 @@ class App {
         triggerPanicProfile(parts[1]);
       } else {
         triggerPanicProfile();
+      }
+      return;
+    }
+    if (command == "OSCQUERY" || command == "OSC_QUERY") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setOscQueryEnabled(!project_.oscQueryEnabled);
+      } else {
+        setOscQueryEnabled(*state);
+      }
+      return;
+    }
+    if (command == "OSCQUERYPORT" || command == "OSC_QUERY_PORT") {
+      if (parts.size() < 2) {
+        triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
+      } else if (auto value = parseNumber(1); value) {
+        setOscQueryPort(static_cast<int>(std::lround(*value)));
+      }
+      return;
+    }
+    if (command == "OSCFEEDBACK" || command == "OSC_FEEDBACK") {
+      auto state = parseToggleWord(1);
+      if (!state) {
+        setOscFeedbackMirrorEnabled(!project_.oscFeedbackMirrorEnabled);
+      } else {
+        setOscFeedbackMirrorEnabled(*state);
+      }
+      return;
+    }
+    if (command == "OSCFEEDBACKRATE" || command == "OSC_FEEDBACK_RATE") {
+      if (parts.size() < 2) {
+        triggerToast("osc feedback rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms");
+      } else if (auto value = parseNumber(1); value) {
+        setOscFeedbackRateMs(static_cast<int>(std::lround(*value)));
       }
       return;
     }
@@ -17731,9 +18239,65 @@ class App {
       drawCenteredText(controlRenderer_, fontSmall_, "Change port...", ink, portBtn);
       settingsBtns_.push_back({portBtn, 220, "osc_port"});
 
-      drawText(controlRenderer_, fontSmall_, "HyperDeck emulation: port 9992 (always on)", soft, cx, cy + 80);
-      drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /playboy/subscribe from your OSC app", soft, cx, cy + 100);
-      drawText(controlRenderer_, fontSmall_, "NDI: configured per output (N key)", soft, cx, cy + 120);
+      auto drawPill = [&](const SDL_Rect& rect, bool active, const std::string& onLabel, const std::string& offLabel, int action) {
+        Primitives::drawFramedPanel(controlRenderer_, rect,
+                        active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, active ? onLabel : offLabel,
+                         active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), rect);
+        settingsBtns_.push_back({rect, action, onLabel});
+      };
+
+      int rowY = cy + 78;
+      SDL_Rect queryRect {cx, rowY, content.w - 24, 92};
+      Primitives::drawFramedPanel(controlRenderer_, queryRect, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontBase_, "OSC QUERY", ink, queryRect.x + 8, queryRect.y + 6);
+#if defined(_WIN32)
+      std::string queryStatus = project_.oscQueryEnabled ? "unsupported" : "off";
+#else
+      std::string queryStatus = project_.oscQueryEnabled ? (oscQueryReady_ ? "running" : "error") : "off";
+#endif
+      drawText(controlRenderer_, fontSmall_,
+               "HTTP " + std::to_string(project_.oscQueryPort) + "  status: " + queryStatus,
+               soft, queryRect.x + 8, queryRect.y + 30);
+#ifndef _WIN32
+      drawText(controlRenderer_, fontSmall_,
+               "URL: http://127.0.0.1:" + std::to_string(project_.oscQueryPort) + "/oscquery.json",
+               soft, queryRect.x + 8, queryRect.y + 48);
+#else
+      drawText(controlRenderer_, fontSmall_, "OSC Query server is currently disabled on this build.", soft,
+               queryRect.x + 8, queryRect.y + 48);
+#endif
+      SDL_Rect queryToggle {queryRect.x + 8, queryRect.y + 64, 140, 22};
+      SDL_Rect queryPortBtn {queryToggle.x + queryToggle.w + 8, queryToggle.y, 170, 22};
+      drawPill(queryToggle, project_.oscQueryEnabled, "QUERY ON", "QUERY OFF", kSettingsActionOscQueryToggle);
+      Primitives::drawFramedPanel(controlRenderer_, queryPortBtn, colorFromRgba(kScreenMidColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Set HTTP Port...", ink, queryPortBtn);
+      settingsBtns_.push_back({queryPortBtn, kSettingsActionOscQueryPortPrompt, "osc_query_port"});
+
+      rowY += queryRect.h + 8;
+      SDL_Rect feedbackRect {cx, rowY, content.w - 24, 74};
+      Primitives::drawFramedPanel(controlRenderer_, feedbackRect, colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontBase_, "OSC FEEDBACK", ink, feedbackRect.x + 8, feedbackRect.y + 6);
+      drawText(controlRenderer_, fontSmall_,
+               std::string("mirror canonical values: ") + (project_.oscFeedbackMirrorEnabled ? "on" : "off")
+               + "  rate: " + std::to_string(project_.oscFeedbackRateMs) + " ms",
+               soft, feedbackRect.x + 8, feedbackRect.y + 30);
+      SDL_Rect fbToggle {feedbackRect.x + 8, feedbackRect.y + 48, 170, 22};
+      SDL_Rect fbRateBtn {fbToggle.x + fbToggle.w + 8, fbToggle.y, 170, 22};
+      drawPill(fbToggle, project_.oscFeedbackMirrorEnabled, "MIRROR ON", "MIRROR OFF", kSettingsActionOscFeedbackMirrorToggle);
+      Primitives::drawFramedPanel(controlRenderer_, fbRateBtn, colorFromRgba(kScreenMidColor),
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "Set Mirror Rate...", ink, fbRateBtn);
+      settingsBtns_.push_back({fbRateBtn, kSettingsActionOscFeedbackRatePrompt, "osc_feedback_rate"});
+
+      rowY += feedbackRect.h + 8;
+      drawText(controlRenderer_, fontSmall_, "HyperDeck emulation: port 9992 (always on)", soft, cx, rowY);
+      drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /playboy/subscribe from your OSC app", soft, cx, rowY + 20);
+      drawText(controlRenderer_, fontSmall_, "NDI: configured per output (N key)", soft, cx, rowY + 40);
 
     } else if (settingsTab_ == 3) {
       // Video Outputs tab (simplified)
@@ -18239,7 +18803,36 @@ class App {
         // Change OSC/Companion port
         auto portStr = pickTextInput("Companion/OSC port", "port number (default 5510)", std::to_string(companionPort_));
         if (portStr) {
-          try { int p = std::stoi(*portStr); if (p > 0 && p < 65536) companionPort_ = p; } catch (...) {}
+          try {
+            int p = std::stoi(*portStr);
+            if (p > 0 && p < 65536 && p != companionPort_) {
+              companionPort_ = p;
+              stopCompanionControl();
+              startCompanionControl();
+              triggerToast("companion port: " + std::to_string(companionPort_));
+            }
+          } catch (...) {}
+        }
+      } else if (sb.action == kSettingsActionOscQueryToggle) {
+        setOscQueryEnabled(!project_.oscQueryEnabled);
+      } else if (sb.action == kSettingsActionOscQueryPortPrompt) {
+        auto portStr = pickTextInput("OSC Query HTTP port", "port number (default 5511)", std::to_string(project_.oscQueryPort));
+        if (portStr) {
+          try {
+            int p = std::stoi(*portStr);
+            if (p > 0 && p < 65536) {
+              setOscQueryPort(p);
+            }
+          } catch (...) {}
+        }
+      } else if (sb.action == kSettingsActionOscFeedbackMirrorToggle) {
+        setOscFeedbackMirrorEnabled(!project_.oscFeedbackMirrorEnabled);
+      } else if (sb.action == kSettingsActionOscFeedbackRatePrompt) {
+        auto rate = pickTextInput("OSC feedback mirror rate", "milliseconds (40..2000)", std::to_string(project_.oscFeedbackRateMs));
+        if (rate) {
+          try {
+            setOscFeedbackRateMs(std::stoi(*rate));
+          } catch (...) {}
         }
       } else if (sb.action == 230) {
         setOutputSizingModeDisplayNative();
@@ -22451,6 +23044,10 @@ class App {
   static constexpr int kSettingsActionPlaylistDefaultPauseBeginToggle = 505;
   static constexpr int kSettingsActionPlaylistDefaultPauseEndToggle = 506;
   static constexpr int kSettingsActionPlaylistDefaultNextTransitionToggle = 507;
+  static constexpr int kSettingsActionOscQueryToggle = 508;
+  static constexpr int kSettingsActionOscQueryPortPrompt = 509;
+  static constexpr int kSettingsActionOscFeedbackMirrorToggle = 510;
+  static constexpr int kSettingsActionOscFeedbackRatePrompt = 511;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -22650,11 +23247,17 @@ class App {
 #ifndef _WIN32
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
+  SocketHandle oscQueryTcpListen_ = kInvalidSocket;
+  bool oscQueryReady_ = false;
+  std::atomic<bool> oscQueryStop_ {false};
+  std::thread oscQueryThread_;
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
   std::map<std::string, std::pair<sockaddr_in, Uint64>> oscSubscribers_;
   Uint64 lastOscFeedbackBroadcastMs_ = 0;
   std::string lastOscFeedbackPayload_;
+  Uint64 lastOscMirrorFeedbackBroadcastMs_ = 0;
+  std::string lastOscMirrorFeedbackPayload_;
 #endif
 };
 

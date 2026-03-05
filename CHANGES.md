@@ -1,5 +1,46 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (OSC Query + OSC feedback mirror pass)
+
+### Network / OSC integration parity
+- Added optional OSC Query HTTP server (Linux build path):
+  - `/` lightweight endpoint browser
+  - `/oscquery.json` endpoint docs + live state payload
+  - `/state.json` live status payload
+- Added optional canonical OSC feedback mirror mode:
+  - emits value-based `/playboy/deck/*` + `/playboy/output/*` updates to subscribed OSC senders
+  - configurable rate limiter (`40-2000 ms`, default `120 ms`)
+  - existing `/playboy/state` JSON feedback retained.
+
+### UI + command surface
+- Network settings tab now has explicit controls for:
+  - OSC Query on/off
+  - OSC Query HTTP port
+  - OSC feedback mirror on/off
+  - OSC feedback mirror rate
+- Companion/OSC port change now restarts the control listener immediately.
+- Added Companion/OSC command support:
+  - `OSCQUERY ON|OFF`
+  - `OSCQUERYPORT <port>`
+  - `OSCFEEDBACK ON|OFF`
+  - `OSCFEEDBACKRATE <ms>`
+  - OSC address mappings for `/oscquery`, `/oscquery/port`, `/osc/feedback`, `/osc/feedback/rate`.
+
+### Show-file persistence
+- Added backward-compatible project fields:
+  - `osc_query_enabled`
+  - `osc_query_port`
+  - `osc_feedback_mirror`
+  - `osc_feedback_rate_ms`
+- Normalization clamps:
+  - query port `1..65535`
+  - mirror rate `40..2000 ms`.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Playlist Preferences pass: deck-level timebase/defaults)
 
 ### Deck playlist preference model (persisted)

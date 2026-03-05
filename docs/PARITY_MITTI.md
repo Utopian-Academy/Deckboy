@@ -34,8 +34,8 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Outputs / Rendering | Per-output orientation 0/90/180/270 | Missing | Add output orientation field and final present transform. |
 | Outputs / Rendering | Blackmagic output | Partial (scaffold) | Backend stubs exist in `native/platform/decklink.*`; integrate behind feature flag + output backend abstraction usage. |
 | Outputs / Rendering | Syphon/Spout output transport | Partial (scaffold) | Cue/type + sender stubs exist (`native/platform/siphon_spout.*`); runtime output backend path still pending. |
-| Integrations / Remote | OSC command control + feedback | Partial+ | Command surface + `/playboy/state` JSON feedback present; add canonical OSC mirror mode + stronger rate controls. |
-| Integrations / Remote | OSC Query server | Missing | Add optional HTTP OSC Query endpoint exposing command tree + live values. |
+| Integrations / Remote | OSC command control + feedback | Yes (extended) | Added optional canonical OSC feedback mirror mode with configurable rate limit (`oscFeedbackRateMs`) while preserving `/playboy/state` JSON feedback. |
+| Integrations / Remote | OSC Query server | Yes (baseline) | Optional HTTP OSC Query server now exposes endpoint docs + live state (`/oscquery.json`, `/state.json`) and lightweight browser page. |
 | Integrations / Remote | Stream Deck direct story | Partial | Companion works; add official Companion preset / Stream Deck profile docs package. |
 | Integrations / Remote | Trigger from ATEM | Missing | Add command ingress adapter (ATEM tally/trigger bridge) as optional module. |
 | Integrations / Remote | Trigger by NDI metadata | Missing | Add optional NDI metadata/trigger listener backend with command mapping. |
@@ -58,7 +58,7 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 ## Immediate Implementation Order
 
 1. Finish remaining multi-select inspector parity (common-control masking in right panel for all fields).
-2. Add playlist preferences model/UI (fps/timebase/default cue values/start offset).
-3. Implement OSC Query server + optional OSC feedback mirror mode.
-4. Output parity UX follow-through (orientation/test-card/span semantics + warp-mode split).
-5. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
+2. Output parity UX follow-through (orientation/test-card/span semantics + warp-mode split).
+3. Stream Deck profile/preset publishing + docs package.
+4. Backend interface extraction for capture/output parity across Linux/macOS/Windows.
+5. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
