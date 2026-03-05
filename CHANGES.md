@@ -34,6 +34,10 @@
   - source cues now include in-menu `source` value editing via non-blocking inline text editor.
   - source editor now uses human-friendly labels/prompts and accepts plain aliases:
     - `focused`/`recommended` (window) and `default` (camera/syphon).
+  - source editor prompt text is now operator-first:
+    - Window cue prompt: `Type focused, then press Enter.`
+    - Camera/Syphon prompt: `Type default, then press Enter.`
+    - default aliases now resolve per cue type across multi-select updates.
 
 ### Layout cleanup
 - Refactored bottom bar layout to grouped sections: `MEDIA`, `TRANSPORT`, `OUTPUT`.
