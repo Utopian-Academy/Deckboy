@@ -2168,6 +2168,8 @@ std::string defaultOutputNdiKeySourceName(const OutputTarget& output, int index)
   return defaultOutputNdiSourceName(output, index) + " Key";
 }
 
+std::string normalizeWarpMode(std::string mode);
+
 void normalizeDeck(Deck& deck, int index) {
   if (deck.name.empty()) {
     deck.name = deckDefaultName(index);
@@ -2273,6 +2275,7 @@ void normalizeDeck(Deck& deck, int index) {
   deck.warpBottomRightY = std::clamp(deck.warpBottomRightY, -4096.0f, 4096.0f);
   deck.warpBottomLeftX = std::clamp(deck.warpBottomLeftX, -4096.0f, 4096.0f);
   deck.warpBottomLeftY = std::clamp(deck.warpBottomLeftY, -4096.0f, 4096.0f);
+  deck.warpMode = normalizeWarpMode(deck.warpMode);
   deck.edgeBlendLeft = std::clamp(deck.edgeBlendLeft, 0.0f, 0.49f);
   deck.edgeBlendRight = std::clamp(deck.edgeBlendRight, 0.0f, 0.49f);
   deck.edgeBlendTop = std::clamp(deck.edgeBlendTop, 0.0f, 0.49f);
@@ -2365,6 +2368,22 @@ std::string normalizeOutputLayoutMode(std::string mode) {
     return "duplicate";
   }
   return "span";
+}
+
+std::string normalizeWarpMode(std::string mode) {
+  mode = toLower(trim(mode));
+  if (mode == "perspective" || mode == "persp" || mode == "projective") {
+    return "perspective";
+  }
+  return "linear";
+}
+
+std::string warpModeLabel(std::string mode) {
+  std::string normalized = normalizeWarpMode(std::move(mode));
+  if (normalized == "perspective") {
+    return "Perspective";
+  }
+  return "Linear";
 }
 
 int normalizeOutputOrientationDegrees(int degrees) {
@@ -3094,6 +3113,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << deck.canvasViewX << '\t'
       << deck.canvasViewY << '\t'
       << (deck.warpEnabled ? 1 : 0) << '\t'
+      << escapeField(deck.warpMode) << '\t'
       << deck.warpTopLeftX << '\t'
       << deck.warpTopLeftY << '\t'
       << deck.warpTopRightX << '\t'
@@ -3435,36 +3455,41 @@ Project loadProject(const fs::path& projectFile) {
       deck.canvasViewX = safeInt(fields, 22, 0);
       deck.canvasViewY = safeInt(fields, 23, 0);
       deck.warpEnabled = safeBool(fields, 24, false);
-      deck.warpTopLeftX = static_cast<float>(safeDouble(fields, 25, 0.0));
-      deck.warpTopLeftY = static_cast<float>(safeDouble(fields, 26, 0.0));
-      deck.warpTopRightX = static_cast<float>(safeDouble(fields, 27, 0.0));
-      deck.warpTopRightY = static_cast<float>(safeDouble(fields, 28, 0.0));
-      deck.warpBottomRightX = static_cast<float>(safeDouble(fields, 29, 0.0));
-      deck.warpBottomRightY = static_cast<float>(safeDouble(fields, 30, 0.0));
-      deck.warpBottomLeftX = static_cast<float>(safeDouble(fields, 31, 0.0));
-      deck.warpBottomLeftY = static_cast<float>(safeDouble(fields, 32, 0.0));
-      deck.edgeBlendLeft = static_cast<float>(safeDouble(fields, 33, 0.0));
-      deck.edgeBlendRight = static_cast<float>(safeDouble(fields, 34, 0.0));
-      deck.edgeBlendTop = static_cast<float>(safeDouble(fields, 35, 0.0));
-      deck.edgeBlendBottom = static_cast<float>(safeDouble(fields, 36, 0.0));
-      deck.outputRouteDeckIndex = safeInt(fields, 37, deckIndex);
-      deck.outputLayerIndex = safeInt(fields, 38, 0);
-      deck.timecodeFreewheelSeconds = safeDouble(fields, 39, 1.0);
-      deck.timecodeJamSyncEnabled = safeBool(fields, 40, true);
-      deck.playlistOpacity = static_cast<float>(safeDouble(fields, 41, 1.0));
-      deck.playlistAutoFade = safeBool(fields, 42, false);
-      deck.playlistFadeSeconds = safeDouble(fields, 43, 0.8);
-      deck.playlistTimebaseFps = safeDouble(fields, 44, deck.timecodeFps);
-      deck.playlistStartOffsetSeconds = safeDouble(fields, 45, 0.0);
-      deck.playlistDefaultCueFadeSeconds = safeDouble(fields, 46, 0.5);
-      deck.playlistDefaultStillDurationSeconds = safeDouble(fields, 47, 8.0);
-      deck.playlistDefaultLoop = safeBool(fields, 48, false);
-      deck.playlistDefaultFadeInEnabled = safeBool(fields, 49, true);
-      deck.playlistDefaultFadeOutEnabled = safeBool(fields, 50, true);
-      deck.playlistDefaultAudioEnabled = safeBool(fields, 51, true);
-      deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52, false);
-      deck.playlistDefaultPauseAtEnd = safeBool(fields, 53, false);
-      deck.playlistDefaultTransitionToNext = safeBool(fields, 54, true);
+      size_t warpFieldOffset = 0;
+      if (fields.size() >= 56) {
+        deck.warpMode = safeString(fields, 25);
+        warpFieldOffset = 1;
+      }
+      deck.warpTopLeftX = static_cast<float>(safeDouble(fields, 25 + warpFieldOffset, 0.0));
+      deck.warpTopLeftY = static_cast<float>(safeDouble(fields, 26 + warpFieldOffset, 0.0));
+      deck.warpTopRightX = static_cast<float>(safeDouble(fields, 27 + warpFieldOffset, 0.0));
+      deck.warpTopRightY = static_cast<float>(safeDouble(fields, 28 + warpFieldOffset, 0.0));
+      deck.warpBottomRightX = static_cast<float>(safeDouble(fields, 29 + warpFieldOffset, 0.0));
+      deck.warpBottomRightY = static_cast<float>(safeDouble(fields, 30 + warpFieldOffset, 0.0));
+      deck.warpBottomLeftX = static_cast<float>(safeDouble(fields, 31 + warpFieldOffset, 0.0));
+      deck.warpBottomLeftY = static_cast<float>(safeDouble(fields, 32 + warpFieldOffset, 0.0));
+      deck.edgeBlendLeft = static_cast<float>(safeDouble(fields, 33 + warpFieldOffset, 0.0));
+      deck.edgeBlendRight = static_cast<float>(safeDouble(fields, 34 + warpFieldOffset, 0.0));
+      deck.edgeBlendTop = static_cast<float>(safeDouble(fields, 35 + warpFieldOffset, 0.0));
+      deck.edgeBlendBottom = static_cast<float>(safeDouble(fields, 36 + warpFieldOffset, 0.0));
+      deck.outputRouteDeckIndex = safeInt(fields, 37 + warpFieldOffset, deckIndex);
+      deck.outputLayerIndex = safeInt(fields, 38 + warpFieldOffset, 0);
+      deck.timecodeFreewheelSeconds = safeDouble(fields, 39 + warpFieldOffset, 1.0);
+      deck.timecodeJamSyncEnabled = safeBool(fields, 40 + warpFieldOffset, true);
+      deck.playlistOpacity = static_cast<float>(safeDouble(fields, 41 + warpFieldOffset, 1.0));
+      deck.playlistAutoFade = safeBool(fields, 42 + warpFieldOffset, false);
+      deck.playlistFadeSeconds = safeDouble(fields, 43 + warpFieldOffset, 0.8);
+      deck.playlistTimebaseFps = safeDouble(fields, 44 + warpFieldOffset, deck.timecodeFps);
+      deck.playlistStartOffsetSeconds = safeDouble(fields, 45 + warpFieldOffset, 0.0);
+      deck.playlistDefaultCueFadeSeconds = safeDouble(fields, 46 + warpFieldOffset, 0.5);
+      deck.playlistDefaultStillDurationSeconds = safeDouble(fields, 47 + warpFieldOffset, 8.0);
+      deck.playlistDefaultLoop = safeBool(fields, 48 + warpFieldOffset, false);
+      deck.playlistDefaultFadeInEnabled = safeBool(fields, 49 + warpFieldOffset, true);
+      deck.playlistDefaultFadeOutEnabled = safeBool(fields, 50 + warpFieldOffset, true);
+      deck.playlistDefaultAudioEnabled = safeBool(fields, 51 + warpFieldOffset, true);
+      deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52 + warpFieldOffset, false);
+      deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, false);
+      deck.playlistDefaultTransitionToNext = safeBool(fields, 54 + warpFieldOffset, true);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -6030,6 +6055,7 @@ class App {
       deck.canvasViewX = 320;
       deck.canvasViewY = 40;
       deck.warpEnabled = true;
+      deck.warpMode = "perspective";
       deck.warpTopLeftX = -12.0f;
       deck.warpTopLeftY = 8.0f;
       deck.warpTopRightX = 10.0f;
@@ -6219,6 +6245,7 @@ class App {
         expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
         expect(loadedDeck.outputRouteDeckIndex == 0 && loadedDeck.outputLayerIndex == 3, "deck route/layer persisted");
         expect(loadedDeck.warpEnabled &&
+               loadedDeck.warpMode == "perspective" &&
                std::abs(loadedDeck.warpTopLeftX + 12.0f) < 0.01f &&
                std::abs(loadedDeck.warpBottomRightY + 6.0f) < 0.01f, "warp persisted");
         expect(std::abs(loadedDeck.edgeBlendLeft - 0.08f) < 0.001f &&
@@ -9467,12 +9494,38 @@ class App {
       return;
     }
     deck.warpEnabled = enabled;
-    triggerToast(deck.warpEnabled ? "warp on" : "warp off");
+    if (deck.warpEnabled) {
+      triggerToast("warp on (" + toLower(warpModeLabel(deck.warpMode)) + ")");
+    } else {
+      triggerToast("warp off");
+    }
     markProjectDirty();
   }
 
   void toggleFocusedDeckWarpEnabled() {
     setFocusedDeckWarpEnabled(!focusedDeck().warpEnabled);
+  }
+
+  bool setFocusedDeckWarpMode(const std::string& modeToken) {
+    Deck& deck = focusedDeckMutable();
+    std::string normalized = normalizeWarpMode(modeToken);
+    if (deck.warpMode == normalized) {
+      triggerToast("warp mode: " + toLower(warpModeLabel(normalized)));
+      return false;
+    }
+    deck.warpMode = normalized;
+    triggerToast("warp mode: " + toLower(warpModeLabel(deck.warpMode)));
+    markProjectDirty();
+    return true;
+  }
+
+  void cycleFocusedDeckWarpMode(int direction) {
+    static constexpr std::array<const char*, 2> kModes {"linear", "perspective"};
+    std::string current = normalizeWarpMode(focusedDeck().warpMode);
+    int index = current == "perspective" ? 1 : 0;
+    int step = direction < 0 ? -1 : 1;
+    int next = (index + step + static_cast<int>(kModes.size())) % static_cast<int>(kModes.size());
+    setFocusedDeckWarpMode(kModes[static_cast<size_t>(next)]);
   }
 
   void resetFocusedDeckWarp() {
@@ -10595,6 +10648,7 @@ class App {
              << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
              << " view=" << deck.canvasViewX << "," << deck.canvasViewY
              << " warp=" << (deck.warpEnabled ? "on" : "off")
+             << " warp_mode=" << normalizeWarpMode(deck.warpMode)
              << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
              << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
              << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
@@ -10742,6 +10796,7 @@ class App {
            << " overlay=" << (deck.timeOverlayEnabled ? "on" : "off")
            << " view=" << deck.canvasViewX << "," << deck.canvasViewY
            << " warp=" << (deck.warpEnabled ? "on" : "off")
+           << " warp_mode=" << normalizeWarpMode(deck.warpMode)
            << " blend=" << static_cast<int>(std::lround(deck.edgeBlendLeft * 100.0f))
            << "," << static_cast<int>(std::lround(deck.edgeBlendRight * 100.0f))
            << "," << static_cast<int>(std::lround(deck.edgeBlendTop * 100.0f))
@@ -10909,6 +10964,7 @@ class App {
              << "\"canvasViewX\":" << deck.canvasViewX << ","
              << "\"canvasViewY\":" << deck.canvasViewY << ","
              << "\"warpEnabled\":" << (deck.warpEnabled ? "true" : "false") << ","
+             << "\"warpMode\":\"" << escapeJson(normalizeWarpMode(deck.warpMode)) << "\","
              << "\"warpTopLeftX\":" << deck.warpTopLeftX << ","
              << "\"warpTopLeftY\":" << deck.warpTopLeftY << ","
              << "\"warpTopRightX\":" << deck.warpTopRightX << ","
@@ -11860,7 +11916,7 @@ class App {
 
   std::vector<std::pair<std::string, std::string>> buildOscMirrorFeedbackValues() const {
     std::vector<std::pair<std::string, std::string>> values;
-    values.reserve(8 + project_.decks.size() * 5 + project_.outputs.size() * 8);
+    values.reserve(8 + project_.decks.size() * 7 + project_.outputs.size() * 8);
     values.emplace_back("/playboy/focus/deck", std::to_string(project_.focusedDeckIndex + 1));
     values.emplace_back("/playboy/focus/output", std::to_string(project_.focusedOutputIndex + 1));
     values.emplace_back("/playboy/decks/count", std::to_string(project_.decks.size()));
@@ -11878,6 +11934,7 @@ class App {
       auto outputIndex = primaryOutputIndexForDeck(deckIndex);
       values.emplace_back(prefix + "/route_output", std::to_string(outputIndex ? *outputIndex + 1 : 0));
       values.emplace_back(prefix + "/layer", std::to_string(primaryLayerIndexForDeck(deckIndex)));
+      values.emplace_back(prefix + "/warp_mode", normalizeWarpMode(deck.warpMode));
     }
 
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
@@ -14420,7 +14477,9 @@ class App {
       }
       if (value == "WARP") {
         if (parts.size() <= 2) {
-          triggerToast(std::string("warp: ") + (focusedDeck().warpEnabled ? "on" : "off"));
+          const Deck& deck = focusedDeck();
+          triggerToast(std::string("warp: ") + (deck.warpEnabled ? "on" : "off")
+                       + " (" + toLower(warpModeLabel(deck.warpMode)) + ")");
           return;
         }
         std::string warpArg = toUpper(parts[2]);
@@ -14438,6 +14497,27 @@ class App {
         }
         if (warpArg == "RESET") {
           resetFocusedDeckWarp();
+          return;
+        }
+        if (warpArg == "MODE") {
+          if (parts.size() <= 3) {
+            triggerToast("warp mode: " + toLower(warpModeLabel(focusedDeck().warpMode)));
+            return;
+          }
+          std::string modeArg = toUpper(parts[3]);
+          if (modeArg == "NEXT") {
+            cycleFocusedDeckWarpMode(1);
+            return;
+          }
+          if (modeArg == "PREV" || modeArg == "PREVIOUS") {
+            cycleFocusedDeckWarpMode(-1);
+            return;
+          }
+          setFocusedDeckWarpMode(parts[3]);
+          return;
+        }
+        if (warpArg == "LINEAR" || warpArg == "PERSPECTIVE" || warpArg == "PERSP" || warpArg == "PROJECTIVE") {
+          setFocusedDeckWarpMode(warpArg);
           return;
         }
         std::string corner = warpArg;
@@ -18115,6 +18195,186 @@ class App {
     return static_cast<Uint8>(std::lround(alphaValue * 255.0f));
   }
 
+  static SDL_FPoint bilerpPoint(const SDL_FPoint& p0,
+                                const SDL_FPoint& p1,
+                                const SDL_FPoint& p2,
+                                const SDL_FPoint& p3,
+                                float s,
+                                float t) {
+    float oneMinusS = 1.0f - s;
+    float oneMinusT = 1.0f - t;
+    return SDL_FPoint {
+      p0.x * oneMinusS * oneMinusT + p1.x * s * oneMinusT + p2.x * s * t + p3.x * oneMinusS * t,
+      p0.y * oneMinusS * oneMinusT + p1.y * s * oneMinusT + p2.y * s * t + p3.y * oneMinusS * t
+    };
+  }
+
+  static bool solve8x8(double matrix[8][9]) {
+    for (int pivot = 0; pivot < 8; ++pivot) {
+      int pivotRow = pivot;
+      double pivotAbs = std::abs(matrix[pivot][pivot]);
+      for (int row = pivot + 1; row < 8; ++row) {
+        double candidateAbs = std::abs(matrix[row][pivot]);
+        if (candidateAbs > pivotAbs) {
+          pivotAbs = candidateAbs;
+          pivotRow = row;
+        }
+      }
+      if (pivotAbs < 1.0e-9) {
+        return false;
+      }
+      if (pivotRow != pivot) {
+        for (int col = pivot; col <= 8; ++col) {
+          std::swap(matrix[pivot][col], matrix[pivotRow][col]);
+        }
+      }
+      double invPivot = 1.0 / matrix[pivot][pivot];
+      for (int col = pivot; col <= 8; ++col) {
+        matrix[pivot][col] *= invPivot;
+      }
+      for (int row = 0; row < 8; ++row) {
+        if (row == pivot) {
+          continue;
+        }
+        double factor = matrix[row][pivot];
+        if (std::abs(factor) < 1.0e-12) {
+          continue;
+        }
+        for (int col = pivot; col <= 8; ++col) {
+          matrix[row][col] -= factor * matrix[pivot][col];
+        }
+      }
+    }
+    return true;
+  }
+
+  static bool computeProjectiveUvCoefficients(const SDL_FPoint& p0,
+                                              const SDL_FPoint& p1,
+                                              const SDL_FPoint& p2,
+                                              const SDL_FPoint& p3,
+                                              const SDL_FPoint& uvTL,
+                                              const SDL_FPoint& uvTR,
+                                              const SDL_FPoint& uvBR,
+                                              const SDL_FPoint& uvBL,
+                                              std::array<double, 8>& coeffs) {
+    const SDL_FPoint positions[4] {p0, p1, p2, p3};
+    const SDL_FPoint texCoords[4] {uvTL, uvTR, uvBR, uvBL};
+    double matrix[8][9] {};
+    for (int i = 0; i < 4; ++i) {
+      double x = static_cast<double>(positions[i].x);
+      double y = static_cast<double>(positions[i].y);
+      double u = static_cast<double>(texCoords[i].x);
+      double v = static_cast<double>(texCoords[i].y);
+      int row = i * 2;
+      matrix[row + 0][0] = x;
+      matrix[row + 0][1] = y;
+      matrix[row + 0][2] = 1.0;
+      matrix[row + 0][3] = 0.0;
+      matrix[row + 0][4] = 0.0;
+      matrix[row + 0][5] = 0.0;
+      matrix[row + 0][6] = -u * x;
+      matrix[row + 0][7] = -u * y;
+      matrix[row + 0][8] = u;
+
+      matrix[row + 1][0] = 0.0;
+      matrix[row + 1][1] = 0.0;
+      matrix[row + 1][2] = 0.0;
+      matrix[row + 1][3] = x;
+      matrix[row + 1][4] = y;
+      matrix[row + 1][5] = 1.0;
+      matrix[row + 1][6] = -v * x;
+      matrix[row + 1][7] = -v * y;
+      matrix[row + 1][8] = v;
+    }
+    if (!solve8x8(matrix)) {
+      return false;
+    }
+    for (int i = 0; i < 8; ++i) {
+      coeffs[static_cast<size_t>(i)] = matrix[i][8];
+    }
+    return true;
+  }
+
+  static bool renderPerspectiveWarp(SDL_Renderer* renderer,
+                                    SDL_Texture* texture,
+                                    const Deck& deck,
+                                    const SDL_FPoint& uvTL,
+                                    const SDL_FPoint& uvTR,
+                                    const SDL_FPoint& uvBR,
+                                    const SDL_FPoint& uvBL,
+                                    const SDL_FPoint& p0,
+                                    const SDL_FPoint& p1,
+                                    const SDL_FPoint& p2,
+                                    const SDL_FPoint& p3,
+                                    bool hasBlend) {
+    if (!renderer || !texture) {
+      return false;
+    }
+    std::array<double, 8> coeffs {};
+    if (!computeProjectiveUvCoefficients(p0, p1, p2, p3, uvTL, uvTR, uvBR, uvBL, coeffs)) {
+      return false;
+    }
+
+    constexpr int kCols = 18;
+    constexpr int kRows = 18;
+    std::vector<SDL_Vertex> vertices;
+    vertices.resize(static_cast<size_t>(kCols + 1) * static_cast<size_t>(kRows + 1));
+    std::vector<int> indices;
+    indices.reserve(static_cast<size_t>(kCols * kRows * 6));
+
+    float minU = std::min(std::min(uvTL.x, uvTR.x), std::min(uvBR.x, uvBL.x));
+    float maxU = std::max(std::max(uvTL.x, uvTR.x), std::max(uvBR.x, uvBL.x));
+    float minV = std::min(std::min(uvTL.y, uvTR.y), std::min(uvBR.y, uvBL.y));
+    float maxV = std::max(std::max(uvTL.y, uvTR.y), std::max(uvBR.y, uvBL.y));
+
+    size_t vertexIndex = 0;
+    for (int row = 0; row <= kRows; ++row) {
+      float t = static_cast<float>(row) / static_cast<float>(kRows);
+      for (int col = 0; col <= kCols; ++col) {
+        float s = static_cast<float>(col) / static_cast<float>(kCols);
+        SDL_FPoint position = bilerpPoint(p0, p1, p2, p3, s, t);
+        double x = static_cast<double>(position.x);
+        double y = static_cast<double>(position.y);
+        double denom = coeffs[6] * x + coeffs[7] * y + 1.0;
+        SDL_FPoint texCoord = bilerpPoint(uvTL, uvTR, uvBR, uvBL, s, t);
+        if (std::abs(denom) > 1.0e-6) {
+          texCoord.x = static_cast<float>((coeffs[0] * x + coeffs[1] * y + coeffs[2]) / denom);
+          texCoord.y = static_cast<float>((coeffs[3] * x + coeffs[4] * y + coeffs[5]) / denom);
+        }
+        texCoord.x = std::clamp(texCoord.x, minU, maxU);
+        texCoord.y = std::clamp(texCoord.y, minV, maxV);
+        Uint8 alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 255;
+        vertices[vertexIndex++] = SDL_Vertex {position, SDL_Color {255, 255, 255, alpha}, texCoord};
+      }
+    }
+
+    for (int row = 0; row < kRows; ++row) {
+      for (int col = 0; col < kCols; ++col) {
+        int rowBase = row * (kCols + 1);
+        int nextRowBase = (row + 1) * (kCols + 1);
+        int tl = rowBase + col;
+        int tr = tl + 1;
+        int bl = nextRowBase + col;
+        int br = bl + 1;
+        indices.push_back(tl);
+        indices.push_back(tr);
+        indices.push_back(br);
+        indices.push_back(tl);
+        indices.push_back(br);
+        indices.push_back(bl);
+      }
+    }
+
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    return SDL_RenderGeometry(
+      renderer,
+      texture,
+      vertices.data(),
+      static_cast<int>(vertices.size()),
+      indices.data(),
+      static_cast<int>(indices.size())) == 0;
+  }
+
   void presentOutputCompositorToWindow(int outputIndex, int windowW, int windowH) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
@@ -18142,6 +18402,8 @@ class App {
     bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
       || deck.edgeBlendTop > 0.0001f || deck.edgeBlendBottom > 0.0001f;
     bool hasWarp = deck.warpEnabled;
+    std::string warpMode = normalizeWarpMode(deck.warpMode);
+    bool usePerspectiveWarp = hasWarp && warpMode == "perspective";
     int orientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
     bool hasOrientation = orientationDegrees != 0;
 
@@ -18182,6 +18444,13 @@ class App {
         p1.x += deck.warpTopRightX;     p1.y += deck.warpTopRightY;
         p2.x += deck.warpBottomRightX;  p2.y += deck.warpBottomRightY;
         p3.x += deck.warpBottomLeftX;   p3.y += deck.warpBottomLeftY;
+      }
+
+      if (usePerspectiveWarp) {
+        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, deck,
+                                  uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
+          return;
+        }
       }
 
       Uint8 aTL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 0.0f) : 255;
@@ -19381,10 +19650,11 @@ class App {
         drawActionBtn({cx + (canvasW + gap) * 2, rowY, canvasW, 26}, "View XY...", 248);
         drawActionBtn({cx + (canvasW + gap) * 3, rowY, canvasW, 26},
                       focused.warpEnabled ? "Warp On" : "Warp Off", 249, focused.warpEnabled);
-        SDL_Rect routingStripTag {cx + (canvasW + gap) * 4, rowY, leftW - (canvasW + gap) * 4, 26};
-        Primitives::drawFramedPanel(controlRenderer_, routingStripTag, colorFromRgba(kShellInnerColor),
-                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "Routing In Main Strip", ink, routingStripTag);
+        std::string warpMode = normalizeWarpMode(focused.warpMode);
+        drawActionBtn({cx + (canvasW + gap) * 4, rowY, leftW - (canvasW + gap) * 4, 26},
+                      "Mode " + warpModeLabel(warpMode),
+                      kSettingsActionOutputWarpModeCycle,
+                      warpMode == "perspective");
         rowY += 36;
       } else {
         rowY += 4;
@@ -19775,6 +20045,8 @@ class App {
         }
       } else if (sb.action == 249) {
         toggleFocusedDeckWarpEnabled();
+      } else if (sb.action == kSettingsActionOutputWarpModeCycle) {
+        cycleFocusedDeckWarpMode(1);
       } else if (sb.action == 250) {
         cycleFocusedOutput(-1);
       } else if (sb.action == 251) {
@@ -24278,6 +24550,7 @@ class App {
   static constexpr int kSettingsActionOutputOrientationCycle = 290;
   static constexpr int kSettingsActionOutputTestCardToggle = 291;
   static constexpr int kSettingsActionOutputTestCardAllToggle = 292;
+  static constexpr int kSettingsActionOutputWarpModeCycle = 293;
   static constexpr int kSettingsActionPlaylistPrefsEdit = 500;
   static constexpr int kSettingsActionPlaylistDefaultLoopToggle = 501;
   static constexpr int kSettingsActionPlaylistDefaultFadeInToggle = 502;

@@ -142,6 +142,7 @@ struct Deck {
   int canvasViewX = 0;
   int canvasViewY = 0;
   bool warpEnabled = false;
+  std::string warpMode = "linear"; // linear | perspective
   float warpTopLeftX = 0.0f;
   float warpTopLeftY = 0.0f;
   float warpTopRightX = 0.0f;
