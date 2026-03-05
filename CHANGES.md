@@ -1,5 +1,28 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Portability follow-up: runtime egress route wrappers)
+
+### Runtime output dispatch wiring
+- Wired output runtime egress through the output backend route planner:
+  - stream send now runs only when route includes supported `stream` backend
+  - NDI send now runs only when route includes supported `ndi` backend
+  - stream runtime is stopped automatically when stream routing is unsupported/inactive
+- This keeps Linux behavior unchanged while making unsupported backend paths
+  explicit for cross-platform builds.
+
+### Status / diagnostics
+- Added backend route visibility to output status snapshots:
+  - text `STATUS` output now includes `backend=...`
+  - `STATUS JSON` output now includes `backendRoute`
+- Added smoke coverage for:
+  - source capture backend planning
+  - output backend route planning
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Portability architecture pass: capture/output backend planning APIs)
 
 ### Capture backend extraction

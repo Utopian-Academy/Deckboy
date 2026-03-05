@@ -1125,6 +1125,10 @@ STATE                   alias for STATUS
 STATE JSON              alias for STATUS JSON
 ```
 
+`STATUS`/`STATUS JSON` output entries now include a backend route summary
+(`backend` / `backendRoute`) showing the active runtime dispatch chain
+(for example `window[ok]+ndi[stub]`).
+
 ---
 
 *Deckboy_0.01 — dot-matrix cue deck — model db-001*
