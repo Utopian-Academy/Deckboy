@@ -688,6 +688,8 @@ case-insensitive.
 Network tab notes:
 - `Settings -> Network -> Change port...` updates Companion/OSC UDP+TCP port live.
 - OSC Query HTTP is separate and optional (see section 19).
+- Integration adapter toggles (ATEM/NDI trigger/NMC/MTC/LTC/DMX-ArtNet) live in
+  `Settings -> Network -> INTEGRATION ADAPTERS`.
 
 See [Section 21](#21-companion-command-reference) for the full command list.
 
@@ -723,6 +725,9 @@ Supported OSC addresses:
 /status  /state  /ping
 /oscquery i  /oscquery/port i
 /osc/feedback i  /osc/feedback/rate f
+/atem i  /ndi/trigger i  /nmc i  /mtc i  /ltc i
+/artnet i  /artnet/port i
+/integration s
 ```
 
 OSC bundles (`#bundle`) are supported. Accepted commands receive a
@@ -736,7 +741,7 @@ When OSC Query is enabled:
 - `http://127.0.0.1:<oscQueryPort>/state.json` returns live status JSON only.
 
 Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
-(`/playboy/deck/*`, `/playboy/output/*`) at the configured rate limit.
+(`/playboy/deck/*`, `/playboy/output/*`, `/playboy/integration/*`) at the configured rate limit.
 
 ---
 
@@ -1110,6 +1115,14 @@ OSCQUERY ON|OFF           enable/disable OSC Query HTTP server
 OSCQUERYPORT 5511         set/query OSC Query HTTP port
 OSCFEEDBACK ON|OFF        canonical OSC feedback mirror mode
 OSCFEEDBACKRATE 120       mirror feedback rate limit in milliseconds
+ATEM ON|OFF               toggle ATEM trigger adapter
+NDITRIGGER ON|OFF         toggle NDI metadata trigger adapter
+NMC ON|OFF                toggle NMC transport sync adapter
+MTC ON|OFF                toggle MTC ingest adapter
+LTC ON|OFF                toggle LTC ingest adapter
+ARTNET ON|OFF             toggle DMX/Art-Net adapter
+ARTNETPORT 6454           set/query Art-Net adapter port
+INTEGRATIONS [STATUS]     show adapter route summary
 ```
 
 ### Status
@@ -1120,14 +1133,15 @@ STATUS                  multi-line snapshot of all decks and outputs
 STATUS 2                snapshot of deck 2 only
 STATUS CUES             cue-programming snapshot (selected/active cue number+id per deck)
 STATUS FIND             current find token/match cursor summary
-STATUS JSON             JSON snapshot (includes outputs, panic, timecode follower, and find state fields)
+STATUS JSON             JSON snapshot (includes outputs, panic, timecode follower, find state, and integrations)
 STATE                   alias for STATUS
 STATE JSON              alias for STATUS JSON
 ```
 
 `STATUS`/`STATUS JSON` output entries now include a backend route summary
 (`backend` / `backendRoute`) showing the active runtime dispatch chain
-(for example `window[ok]+ndi[stub]`).
+(for example `window[ok]+ndi[stub]`), plus integration adapter route state
+(`integrations` / `integrationRoute`).
 
 ---
 

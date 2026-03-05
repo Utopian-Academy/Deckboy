@@ -39,11 +39,11 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | Integrations / Remote | OSC command control + feedback | Yes (extended) | Added optional canonical OSC feedback mirror mode with configurable rate limit (`oscFeedbackRateMs`) while preserving `/playboy/state` JSON feedback. |
 | Integrations / Remote | OSC Query server | Yes (baseline) | Optional HTTP OSC Query server now exposes endpoint docs + live state (`/oscquery.json`, `/state.json`) and lightweight browser page. |
 | Integrations / Remote | Stream Deck direct story | Yes (Companion profile) | Published official Companion/Stream Deck mapping bundle in `docs/streamdeck/` (JSON manifest + CSV + setup notes), no proprietary plugin required. |
-| Integrations / Remote | Trigger from ATEM | Missing | Add command ingress adapter (ATEM tally/trigger bridge) as optional module. |
-| Integrations / Remote | Trigger by NDI metadata | Missing | Add optional NDI metadata/trigger listener backend with command mapping. |
-| Integrations / Remote | NMC transport sync | Missing | Add NMC ingest adapter and mapping to deck transport. |
-| Integrations / Remote | MTC/LTC ingest | Partial | Timecode chase/run exists; explicit MTC/LTC ingest backend parity still incomplete. |
-| Integrations / Remote | DMX / Art-Net | Missing | Add optional control adapter backend; keep core app decoupled. |
+| Integrations / Remote | Trigger from ATEM | Partial (scaffold) | Integration backend planner + project/settings/command/OSC surface added (`native/platform/integration_backend.*`, Network tab). Runtime ATEM bridge still pending. |
+| Integrations / Remote | Trigger by NDI metadata | Partial (scaffold) | Integration adapter toggle + route planning present; runtime metadata listener backend still pending. |
+| Integrations / Remote | NMC transport sync | Partial (scaffold) | Integration adapter toggle + route planning present; runtime sync backend still pending. |
+| Integrations / Remote | MTC/LTC ingest | Partial (scaffold) | Timecode chase/run exists and integration adapter toggles/routes now persist; dedicated ingest decoders/backends still pending. |
+| Integrations / Remote | DMX / Art-Net | Partial (scaffold) | Integration adapter toggle + configurable Art-Net port now persist; runtime DMX/Art-Net trigger bridge still pending. |
 | Integrations / Remote | MIDI cross-platform parity | Partial | ALSA-focused implementation exists; abstract MIDI backends for macOS/Windows parity. |
 | Timecode | Chase / run / jam / freewheel / cue trigger | Yes | Implemented and documented in manual/commands. |
 | Show Files | Backward-compatible load/save and unknown field tolerance | Yes (for current schema) | Continue append-only schema evolution in `saveProject/loadProject` with defaults and no destructive migrations. |
@@ -60,4 +60,4 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 ## Immediate Implementation Order
 
 1. Continue backend extraction from planning APIs into runtime backend execution wrappers (especially output egress path) for Linux/macOS/Windows parity.
-2. Integrations backlog: ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net.
+2. Implement runtime adapter backends behind integration planner toggles (ATEM, NDI metadata trigger, NMC, MTC/LTC ingest, DMX/Art-Net).

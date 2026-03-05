@@ -1,3 +1,27 @@
+2026-03-05 integration adapter foundation (ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet):
+- Added platform integration backend planner module:
+  - `native/platform/integration_backend.*`
+  - `createIntegrationBackendCatalog()`
+  - `planIntegrationBackendRoute(...)`
+- Added persisted project settings:
+  - `integration_atem_trigger`, `integration_ndi_trigger`, `integration_nmc_sync`
+  - `integration_mtc_ingest`, `integration_ltc_ingest`
+  - `integration_dmx_artnet`, `integration_artnet_port`
+- Added Network tab `INTEGRATION ADAPTERS` block with toggles, Art-Net port prompt,
+  and all-on/off control.
+- Added command surface:
+  - `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`, `ARTNETPORT`, `INTEGRATIONS`
+- Added OSC surface:
+  - `/atem`, `/ndi/trigger`, `/nmc`, `/mtc`, `/ltc`, `/artnet`, `/artnet/port`, `/integration`
+- Status/feedback visibility:
+  - `STATUS` now includes `integrations="..."`
+  - `STATUS JSON` includes `integrationRoute` + `integrations{...}`
+  - OSC mirror now includes `/playboy/integration/*`
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 portability follow-up (runtime egress route wrappers):
 - Output runtime dispatch now uses backend route planning:
   - stream send gated by `route.streamSupported`

@@ -71,3 +71,24 @@ Click handling lives in `handleSettingsClick()`.
 - `--self-check` prints backend introspection lines:
   - `capture-plan-defaults: ...`
   - `output-route-defaults: ...`
+  - `integration-route-defaults: ...`
+
+## Integration Adapter Foundation
+- Integration backend planning APIs now live in:
+  - `native/platform/integration_backend.hpp/.cpp`
+  - Catalog API: `createIntegrationBackendCatalog()`
+  - Route planning API: `planIntegrationBackendRoute(const IntegrationBackendRouteRequest&)`
+- Network tab integration controls are rendered in `renderSettingsModal()`
+  (`settingsTab_ == 2`, `INTEGRATION ADAPTERS` block).
+- Actions are handled in `handleSettingsClick()`:
+  - `kSettingsActionIntegrationAtemToggle`
+  - `kSettingsActionIntegrationNdiTriggerToggle`
+  - `kSettingsActionIntegrationNmcToggle`
+  - `kSettingsActionIntegrationMtcToggle`
+  - `kSettingsActionIntegrationLtcToggle`
+  - `kSettingsActionIntegrationArtNetToggle`
+  - `kSettingsActionIntegrationArtNetPortPrompt`
+  - `kSettingsActionIntegrationAllToggle`
+- Companion/OSC command wiring is in `handleRemoteCommand(...)` and
+  `mapOscToRemoteCommand(...)` for:
+  - `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, `ARTNET`, `ARTNETPORT`, `INTEGRATIONS`.
