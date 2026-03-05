@@ -4164,11 +4164,11 @@ class MediaEngine {
 
   // Start capturing a virtual X11 display via ffmpeg x11grab.
   // Called after Xvfb + browser are running; frames feed the normal pipeline.
-  void startBrowserCapture(const std::string& displayId, int w, int h,
+  bool startBrowserCapture(const std::string& displayId, int w, int h,
                            double /*fadeInSeconds*/, double /*fadeOutSeconds*/,
                            double transSecs, TransitionStyle transStyle) {
     stopDecoderThreads();
-    isBrowserCapturing_ = true;
+    isBrowserCapturing_ = false;
     frameRate_ = 30.0;
     duration_ = 0.0;  // infinite
     browserCaptureW_ = w;
@@ -4178,21 +4178,23 @@ class MediaEngine {
       beginTransition(transSecs, transStyle);
     }
 
-    if (!spawnPipeProcess(videoProcess_, {
-      "ffmpeg",
-      "-hide_banner",
-      "-loglevel", "error",
-      "-f", "x11grab",
-      "-display", displayId,
-      "-r", "30",
-      "-i", "0+0,0",
-      "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h),
-      "-f", "rawvideo",
-      "-pix_fmt", "rgba",
-      "pipe:1"
-    })) {
-      isBrowserCapturing_ = false;
-      return;
+    deckboy::platform::SourceCaptureRequest request;
+    request.kind = deckboy::platform::SourceCaptureKind::Window;
+    request.sourceRef = trim(displayId);
+    if (!request.sourceRef.empty() && request.sourceRef.front() == ':' &&
+        request.sourceRef.find('.') == std::string::npos) {
+      request.sourceRef += ".0";
+    }
+    request.width = w;
+    request.height = h;
+    request.frameRate = 30;
+    request.drawMouse = false;
+    auto plan = deckboy::platform::planSourceCapture(request);
+    if (!plan.supported || plan.ffmpegArgs.empty()) {
+      return false;
+    }
+    if (!spawnPipeProcess(videoProcess_, plan.ffmpegArgs)) {
+      return false;
     }
 
     const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
@@ -4200,6 +4202,7 @@ class MediaEngine {
     playbackClockStart_ = std::chrono::steady_clock::now();
     playbackStartPosition_ = 0.0;
     state_ = TransportState::Playing;
+    isBrowserCapturing_ = true;
 
     videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
       std::uint64_t frameIdx = 0;
@@ -4225,6 +4228,7 @@ class MediaEngine {
       }
       decoderEof_ = true;
     });
+    return true;
   }
 
   void stopBrowserCapture() {
@@ -10929,7 +10933,7 @@ class App {
         if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
         if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
       }
-      eng->startBrowserCapture(
+      bool captureStarted = eng->startBrowserCapture(
         runtime->virtualDisplayId,
         runtime->pendingBrowserW,
         runtime->pendingBrowserH,
@@ -10938,6 +10942,11 @@ class App {
         transSecs,
         transStyle
       );
+      if (!captureStarted) {
+        stopBrowserCue(deckIndex);
+        triggerToast("browser capture failed");
+        return;
+      }
       runtime->browserStartPhase = BrowserStartPhase::Live;
       runtime->browserCueLive = true;
       triggerToast("browser live");
