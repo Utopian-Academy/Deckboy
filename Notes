@@ -791,3 +791,28 @@ Refactor note:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Self-check passed with backend inventory lines
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 playlist preferences implementation (deck-level):
+- Added persisted deck playlist preference fields:
+  - `playlistTimebaseFps`
+  - `playlistStartOffsetSeconds`
+  - `playlistDefaultCueFadeSeconds`
+  - `playlistDefaultStillDurationSeconds`
+  - `playlistDefaultLoop`
+  - `playlistDefaultFadeInEnabled`
+  - `playlistDefaultFadeOutEnabled`
+  - `playlistDefaultAudioEnabled`
+  - `playlistDefaultPauseAtBeginning`
+  - `playlistDefaultPauseAtEnd`
+  - `playlistDefaultTransitionToNext`
+- Added focused-deck `PLAYLIST PREFS` UI block in `Prefs -> System`:
+  - edit dialog for timebase/start/fade/still defaults
+  - direct toggle buttons for new-cue default flags
+  - summary line with SMPTE base + start TC.
+- Added default propagation for new cues:
+  - import path (`importPaths`)
+  - browser/source/lower-third/pattern cue creation.
+- Smoke test expanded to verify playlist preference field persistence on save/load.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
