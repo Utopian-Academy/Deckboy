@@ -1,6 +1,6 @@
-# Playboy_0.01 — User Manual
+# Deckboy_0.01 — User Manual
 
-> dot-matrix cue deck · model pb-001 · v0.01
+> dot-matrix cue deck · model db-001 · v0.01
 
 ---
 
@@ -32,11 +32,14 @@
 
 ## 1. Overview
 
-Playboy_0.01 is a native Linux desktop cue deck for live events. It uses SDL2
-for the UI and FFmpeg for media decode. Each _deck_ has its own playlist,
-audio path, and transport runtime, and can render to its own output or as a
-layer on another deck's output. Multiple decks can run simultaneously for
-multi-screen or multi-zone shows.
+Deckboy_0.01 is a native SDL desktop cue deck for live events. Current builds
+are Linux-first, with cross-platform parity work in progress for macOS and
+Windows. It uses SDL2 for the UI and FFmpeg for media decode. Deck runtimes own playlist/audio/transport,
+and output runtimes are separate entities with their own windows/compositor.
+Decks are assigned to outputs via layer assignments, so multiple decks can
+stack on one output and one deck can be assigned to multiple outputs. Outputs
+can be `window` or `stream` targets; stream outputs can also mirror another
+output feed.
 
 The UI is styled with a Game Boy–inspired look: monochrome green palette,
 chunky framing, and a "cartridge shelf" vocabulary.
@@ -55,13 +58,25 @@ Useful flags:
 ```bash
 ./build/native/playboy-native --self-check   # verify dependencies
 ./build/native/playboy-native --smoke        # automated smoke test
+./build/native/playboy-native --allow-multi-instance  # bypass safety lock (debug only)
+./scripts/generate_demo_shows.sh  # generate demo .playboy show files
 PLAYBOY_COMPANION_PORT=5610 ./bin/playboy    # custom Companion port
 PLAYBOY_PROJECT=/path/to/show.playboy ./bin/playboy  # open specific show
 ```
 
+By default, Deckboy now enforces a single-instance launch lock to prevent
+runaway duplicate app spawns.
+
+Generated demo shows are written to `data/demos/` (for example
+`demo_70_30_4pip_bg_5deck.playboy`).
+
 ---
 
 ## 3. Startup Dialog
+
+Deckboy now opens with a short splash overlay first (`DECKBOY`, boot lines, and
+`press ENTER to start`). The splash can be skipped with `Enter`, `Esc`, or a
+mouse click.
 
 On every launch a dialog appears in front of the interface with two choices:
 
@@ -94,16 +109,33 @@ be loaded.
 │  footer:      │  ─── progress bar ───    │  transition override     │
 │  routing info │  status · timecode       │  loop / hold / end act.  │
 │               │                          │                          │
-│               │                          │  (mascot + tips when     │
+│               │                          │  (text prompts when      │
 │               │                          │   no cue is selected)    │
 ├───────────────┴──────────────────────────┴──────────────────────────┤
 │  Import │ Take │ Go/Pause │ Stop │ Clear │ Fullscreen │ Delete │ ... │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Hover tips**: hover over any button, cue row, progress bar, or the mascot to
-see a contextual tip. The mascot in the cue settings panel shows the full
-keyboard cheatsheet on hover.
+The main control window is now program/output-focused and no longer carries the
+deck playlist column. Deck playlists are in the separate **Deckboy Decks**
+window for multi-deck operation (click cue rows to select; per-deck `Take`
+button to fire selection). The same window also includes a dedicated
+multi-deck line view: one row per master cue preset with inline per-deck slot
+details (deck, cue number, cue name, or bypass) and direct in-row `Take`.
+
+Main-window output strip quick controls (always visible):
+- Top row: output chips (`O1`, `O2`, ...) with target/state labels plus per-output arm switch and `Add Output`.
+- Bottom row: focused-route controls (`Link/Unlink`, `Layer-`, `Layer+`) and plain-English status:
+  - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`
+- Main header includes `decks` toggle for the separate deck panel.
+  - When a second deck is created, Deckboy auto-opens and raises the deck panel.
+- Header also includes compact per-deck live summary (`D1 LIVE ...`) for quick
+  cross-deck awareness.
+- Program monitor includes `STACK VIEW (Output X)` so deck/layer occupancy for
+  the focused output is visible at a glance.
+
+**Hover tips**: hover over any button, cue row, or progress bar to see a
+contextual tip.
 
 ---
 
@@ -115,6 +147,9 @@ keyboard cheatsheet on hover.
 | **Image** | Still image (JPEG, PNG, etc.) held until taken off or auto-advanced. |
 | **Pattern** | Procedurally generated test pattern — no file required. |
 | **Browser** | Web URL rendered via Xvfb + ffmpeg x11grab into the output window. |
+| **Window Source** | Live window/screen capture cue (`source://window/...`) using ffmpeg `x11grab` on Linux. |
+| **Camera** | Live camera cue (`source://camera/...`) using ffmpeg `v4l2` on Linux. |
+| **Syphon/Spout** | Inter-app source cue path (`source://syphon/...`); Linux currently uses desktop capture fallback while native Syphon/Spout backends remain roadmap work. |
 | **LowerThird** | Graphic overlay pushed into the 4-slot overlay stack. |
 
 ---
@@ -124,14 +159,31 @@ keyboard cheatsheet on hover.
 **Drag and drop** files directly onto the control window shell — they are
 probed with ffprobe and added to the focused deck's playlist.
 
-**Keyboard import**: press `I` to open the native file picker. Multiple files
+**Keyboard import**: press `Shift+I` to open the native file picker. Multiple files
 can be selected.
 
 **Browser cue**: press `B`, enter a URL in the dialog. The cue is added to the
 playlist with a "web" type.
 
-**Pattern cue**: press `P` to add a Kawaii Pocket Test pattern. Use the
-Companion command `PATTERN <type>` to add other pattern types.
+**Source cue**:
+- Click the main control bar `SOURCE` button.
+- Pick source kind (`Window`, `Camera`, `Syphon/Spout`) and enter a source ref.
+- Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
+- Linux source-ref quick examples:
+  - `SOURCE WINDOW active-window` (full desktop capture)
+  - `SOURCE WINDOW :0.0+100,100` (explicit X11 display+offset spec)
+  - `SOURCE WINDOW id:0x3e00007` (capture one X11 window id)
+  - `SOURCE CAMERA default-camera` (maps to `/dev/video0`)
+  - `SOURCE CAMERA 1` (maps to `/dev/video1`)
+  - `SOURCE SYPHON default-bus` (desktop fallback on Linux)
+
+**Pattern cue**:
+- Click the main control bar `Pattern` button to open the in-app pattern menu.
+- Press `P` to add the currently selected default pattern (keyboard optional).
+- Use Companion `PATTERN <type>` for direct type add.
+- For an existing pattern cue, use the cue-settings `pattern` row:
+  - `- / +` cycles pattern type
+  - center toggle switches motion on/off (for supported types)
 
 **Lower-third / graphic**: press `G` to add a blank lower-third overlay cue.
 Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
@@ -144,6 +196,15 @@ Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
 Select a cue (click or `Up`/`Down` arrows) to see its settings in the right panel.
 If the settings list is longer than the panel, use the mouse wheel over the
 settings area to scroll.
+
+Cue settings are grouped into collapsible blocks:
+- `Playback`
+- `Geometry`
+- `Key`
+- `Routing`
+
+`Routing` in cue settings edits the focused deck route inline (`Output`,
+`Layer`, `Assign/Unassign`) without opening separate route manager popups.
 
 ### Video cues
 
@@ -159,7 +220,7 @@ settings area to scroll.
 | Hold on last frame | `E` | Freeze on the last frame instead of stopping |
 | End action | `X` | Cycle: inherit → stop → loop → hold → auto-next |
 
-### Output geometry and keying (video / image / pattern / browser)
+### Output geometry, keying, and color controls (video / image / pattern / browser)
 
 | Control | Description |
 |---------|-------------|
@@ -172,6 +233,15 @@ settings area to scroll.
 | Key color | Pick chroma key target color (`#RRGGBB`) |
 | Key tolerance | RGB distance threshold for removal |
 | Key softness | Feather width around the threshold |
+| Brightness | Per-cue brightness gain (0.0 to 2.0) |
+| Contrast | Per-cue contrast gain (0.0 to 2.0) |
+| Saturation | Per-cue saturation gain (0.0 to 2.0) |
+| Hue | Per-cue hue rotation (-180 to +180 degrees) |
+
+Precision input notes:
+- `off X` / `off Y` quick buttons now nudge in `1px` steps.
+- Click the value cell for `scale X`, `scale Y`, `off X`, `off Y`, or `rot` to type an exact number.
+- Numeric input supports simple expressions (`+`, `-`, `*`, `/`, and parentheses).
 
 ### Output canvas and edge treatment (deck output)
 
@@ -183,9 +253,10 @@ settings area to scroll.
 | Edge blend L/R/T/B | Deck-level per-edge blend softening (0-49%) |
 | Output route / layer | Route playlist to an output host deck and set layer order |
 
-Use **Preferences -> Video** for quick canvas/view/warp controls, or Companion
-commands (`VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`) for
-precise values.
+Use **Preferences -> Video** for output focus/create/assign, stream controls,
+and canvas/view/warp controls, or Companion commands (`VIDEO OUTPUT ...`,
+`VIDEO STREAM ...`, `VIDEO CANVAS`, `VIDEO VIEW`, `VIDEO WARP`, `VIDEO BLEND`)
+for precise values.
 
 ### Still / pattern / browser cues
 
@@ -213,6 +284,8 @@ precise values.
 | Stop | `S` | **Stop** |
 | Cut to black | `C` | **Clear** |
 | Toggle fullscreen output | `F` | **Fullscreen** |
+| Emergency exit fullscreen takeover | `Esc` | exits fullscreen output safely and pauses auto-recovery for that output (so it stays windowed until re-armed) |
+| Panic output disarm | `Esc` x3 (quickly, ~0.9s gaps) | disarms all outputs when output safety context is active |
 | Seek | Click/drag progress bar | — |
 | Volume up / down | `+ / -` | — |
 
@@ -236,15 +309,27 @@ if playing, pauses; if paused, resumes.
 
 Each deck has its own:
 - Playlist and cue selection
-- Output display assignment
 - Audio device
 - Transport state (play/pause/stop)
-- NDI sender
 - Timecode clock
+
+Each output has its own:
+- Window and compositor runtime
+- Display assignment
+- Host deck (for output-level view/warp/blend state)
+- Layer stack membership from `LayerAssignment`
+- Output target type (`window` or `stream`)
+- Optional mirror source output index (stream outputs)
+- Optional NDI fill/key senders
+
+Entity model (current architecture):
+- `Deck`: media + transport + audio + cue list
+- `OutputTarget`: output window/stream target + display target + host deck
+- `LayerAssignment`: deck-to-output layer mapping (`deckIndex`, `outputIndex`, `layerIndex`)
 
 **Add a deck**: `Ctrl+N` or Companion `NEWDECK`
 
-New decks auto-route to the currently focused output host and are placed at the
+New decks auto-route to the currently focused output and are placed at the
 top layer for that output.
 
 **Switch focused deck**: `Tab` / `Shift+Tab`, or click the deck column header,
@@ -259,17 +344,69 @@ Commands can be prefixed: `DECK 2 TAKE` switches focus to deck 2 and takes.
 
 Use these Companion commands on the focused deck:
 
-- `ROUTE <deck>`: route this playlist to another deck's output host (e.g. `ROUTE 1`, `ROUTE SELF`)
+- `ROUTE <deck>`: route this playlist to the output hosted by that deck (e.g. `ROUTE 1`, `ROUTE SELF`)
 - `LAYER <n>`: set z-layer index (`0` = bottom)
 - `LAYER UP|DOWN|TOP|BOTTOM`: quick layer nudges
 
 Layering lets you run multiple playlists on one output (for example a keyed bug
 playlist over a full-screen program playlist).
 
+### Master Cues (Simultaneous Multi-Deck Cues)
+
+Master cues store one slot per deck:
+- each slot can point at a specific cue on that deck, or
+- be marked as `bypass` (skip that deck when firing).
+
+Current controls:
+- Companion/remote `MASTER ...` commands (alias: `GROUP ...`) for add/select/set/capture/bypass/fire.
+- Main-window master-cue sidebar programmer:
+  - `Sel`, `Act`, `Byp`, `-`, `+` per deck slot
+  - row click (outside buttons): assign slot from that deck's selected cue
+  - mouse wheel over a programmer row: cycle slot cue up/down
+- Decks tracker window shows master cues as one line per preset:
+  - each line includes preset index/name plus per-deck slot summaries (`Deck`, `cue #`, `cue name` or `BYPASS`)
+  - each line includes direct `Take` trigger for that preset
+- Decks tracker window controls:
+  - buttons: `<MC`, `MC>`, `New`, `Del`, `Take`
+  - click a per-deck slot cell in a master-cue line: assign that deck slot from selected cue
+  - `Shift+click` slot cell: assign from active cue
+  - middle-click or `Ctrl+click` slot cell: open cue picker
+  - right-click slot cell: toggle bypass
+- Keyboard:
+  - `Ctrl+Shift+G`: fire focused master cue
+  - `Ctrl+Shift+N`: add master cue from current selected cues
+  - `Ctrl+Shift+[` / `Ctrl+Shift+]`: previous/next master cue
+
 ### Video Output Mode (Preferences → Video)
 
-The **Video** tab controls output raster sizing for all decks:
+The **Video** tab controls output raster sizing and display targeting for outputs:
 
+- The Video preferences panel now opens in a larger layout (to reduce cramped controls).
+- Routing is now directly editable in the same tab via a table:
+  - `Deck | Output | Layer | Assigned`
+  - inline per-row controls for output prev/next, layer +/- and link/unlink.
+- **Prev Out / Next Out**: cycle focused output.
+- **Add Output**: create a new output entity/window.
+- **Enabled** (toggle): arm/disarm focused output.
+  - Implemented as a dedicated toggle switch in the Video tab.
+  - Outputs default to `OFF` to avoid immediate screen takeover at startup.
+  - Loaded shows are also disarmed at open; operator must explicitly arm outputs in UI.
+  - Turning `ON` a `window` output immediately fullscreenes it on the selected display.
+  - If fixed raster mode was active, turning `ON` (or re-arming `ON`) auto-switches to **Display Native** for quality.
+  - Repeating `ON` while already enabled triggers output recovery (re-apply display, raise, re-fullscreen).
+  - After `Esc` windowed escape, repeated `ON` also re-arms fullscreen/recovery for that output.
+- **Host Deck**: set the focused output host deck to the currently focused deck.
+- **Window / Stream**: toggle focused output target type (`window` / `stream`).
+- **Mirror**: open mirror source picker for focused output (`off` or another output).
+- **Display target (top-right block)**:
+  - `Prev` / `Next` chooses the monitor for the focused output.
+  - middle display label shows the currently targeted monitor.
+  - `Rescan` refreshes connected-display detection without restarting Deckboy.
+  - changing display target auto-switches output sizing to **Display Native** (`auto native`) for quality.
+- **Connected Displays** panel:
+  - lists currently detected displays (for example HDMI sink / switcher endpoints).
+  - click a display row to assign that display to the focused output directly.
+  - if the focused output is enabled and type `window`, display change automatically re-fullscreens and raises that output on the selected display.
 - **Display Native**: uses the selected display's current desktop mode
   (OS/EDID-negotiated resolution).
 - **Fixed presets**: `720p`, `1080p`, `1440p`, `4K UHD (3840x2160)`.
@@ -281,6 +418,60 @@ The **Video** tab controls output raster sizing for all decks:
 - **Size To Display**: repositions and resizes the focused output window to
   the selected display immediately.
 - **Toggle Fullscreen**: same as `F`, but available in the Video tab.
+  - If output is already fullscreen, `F` now re-asserts fullscreen on the selected display (recovery behavior).
+- **Background recovery**:
+  - Enabled `window` outputs are checked once per second.
+  - If an output becomes hidden, minimized, off-display, or leaves fullscreen, Deckboy auto-recovers it.
+  - Exception: if operator escaped that output with `Esc`, recovery is paused until operator re-arms (`F` or repeated `VIDEO OUTPUT ON`).
+- **Triple-Esc panic safety**:
+  - Press `Esc` three times quickly (`~0.9s` gaps) to force output disarm (`outputs off`) when output safety context is active.
+- **Display note**: both quick controls (`Prev`, `Next`, `Rescan`) and direct display row-pick are in the Video tab.
+- **Stream On/Off**: enable/disable focused-output ffmpeg network stream.
+- **Protocol**: switch focused-output stream between `SRT` and `RTMP`.
+- **Set Stream URL**: set focused-output stream target URL.
+- **Bitrate**: set focused-output stream bitrate (`500-50000` kbps).
+- **Output FX row** (per focused output):
+  - `Overlay ON/OFF`: output-scoped time/ID overlay toggle.
+  - `Alpha`: per-output dimmer (`0-100%`) over composited output.
+  - `Delay`: per-output delay (`0-5000 ms`) for NDI/stream egress frame path.
+  - `Color`: `AUTO` / `BT709` / `SRGB` color-space mode (stream metadata path).
+- **Operational Routing Strip (main window, always visible)**:
+  - Deck rows are edited inline as: `Deck -> Output -> Layer`.
+  - `LINK/UNLINK` toggles assignment for that deck/output pair.
+  - Output `<` `>` moves that deck route to previous/next output.
+  - Layer `-` `+` adjusts layer for the current assignment.
+  - This strip is the live routing surface during operation.
+- **Routing Table (Prefs -> Video Outputs)**:
+  - same route model, but in a compact table for quick auditing during setup.
+  - useful when checking all deck assignments at once before show start.
+
+### Standard vs Stream vs NDI (current operator path)
+
+Use this exact flow:
+
+1. **Standard output (window/display)**  
+   - In `Prefs -> Video Outputs`: click `Create Standard` (creates a new `window` output, initially `off`).
+   - In `Prefs -> Video Outputs`: select output, keep type as `Window`, assign display, then arm `Enabled`.
+
+2. **Stream output (SRT/RTMP)**  
+   - In `Prefs -> Video Outputs`: click `Create Stream` (new output target with type `stream`).
+   - If needed, use `Set Stream` on an existing output.
+   - Set `Stream URL...`, protocol (`SRT`/`RTMP`), bitrate, then `Stream ON`.
+   - Optional: set `Mirror` to mirror another output feed.
+
+3. **NDI output**  
+   - NDI is **per output target**.
+   - Focus the output (`VIDEO OUTPUT <n>` or `Prev Output` / `Next Output` in Video Outputs), then press `N` (`NDI ON/OFF`).
+   - Optional commands:
+     - `NDI NAME <name>`
+     - `NDI KEY ON|OFF`
+     - `NDI KEY NAME <name>`
+
+Current stream implementation notes:
+- Streaming is per-output.
+- Stream outputs can mirror another output feed, or render their own assignments when mirror is `off`.
+- Stream ffmpeg path now muxes H.264 video + AAC stereo audio.
+- Audio source follows the output assignment stack (host deck fallback if no assignments are present).
 
 ---
 
@@ -301,23 +492,31 @@ Each slot fades independently based on the cue's fade-in/fade-out settings.
 
 ## 12. Test Patterns
 
-Press `P` to add a **Kawaii Pocket Test** cue, or use `PATTERN <type>` via
-Companion.
+Use the main control bar **Pattern** button to pick any test pattern from a
+menu, or use `PATTERN <type>` via Companion.
 
 | Type ID | Description |
 |---------|-------------|
-| `pocket-test` | Animated GB-style scene (4-colour Game Boy palette, scrolling tiles, walking girl, HUD) |
+| `pocket-test` | Animated tropical platform-adventure scene cycle (day/sunset/night/storm + creatures + signal strip) |
+| `pocket-day` | Animated day variant of Pocket Test |
+| `pocket-sunset` | Animated sunset variant of Pocket Test |
+| `pocket-night` | Animated night variant of Pocket Test |
+| `pocket-storm` | Animated storm variant of Pocket Test |
 | `smpte-bars` | SMPTE 75% HD colour bars with PLUGE strip |
+| `smpte-bars-motion` | SMPTE bars with moving scan overlays |
 | `crosshatch` | White grid on black with red centre cross and green safe-area markers |
+| `crosshatch-motion` | Crosshatch with animated grid phase and marker sweep |
 | `checkerboard` | 64 px alternating black/white squares |
+| `checkerboard-motion` | Checkerboard with animated phase shift and sweep line |
 | `full-white` | 100 % white field |
 | `full-black` | 100 % black field |
 | `full-red` | 100 % red field |
 | `full-green` | 100 % green field |
 | `full-blue` | 100 % blue field |
+| `full-*-motion` | Pulsing full-field motion variants (`white/black/red/green/blue`) |
 
 Pattern cues are generated in-process — no external file needed. Animated
-patterns (Pocket Test) rebuild every frame.
+patterns rebuild every frame.
 
 ---
 
@@ -353,38 +552,46 @@ Each deck maintains an independent timecode clock.
 | Chase mode | `5` | `TIMECODE CHASE ON/OFF` |
 | Set timecode | — | `TIMECODE 00:01:02:12` |
 | Set FPS | — | `TIMECODE FPS 29.97` |
+| Jam sync | — | `TIMECODE JAM ON/OFF` |
+| Freewheel window | — | `TIMECODE FREEWHEEL 1.5` |
 | Set TC mark on cue | — | `TCMARK NOW` or `TCMARK 00:00:12:10` |
 | Clear TC mark | — | `TCMARK CLEAR` |
 | Trigger on TC mark | — | `TIMECODE TRIGGER ON` |
 
-When **chase mode** is on, Playboy reads timecode from OSC (`/timecode`) and
+When **chase mode** is on, Deckboy reads timecode from OSC (`/timecode`) and
 keeps its internal clock aligned. Cues with a TC mark trigger automatically
 when the timecode clock reaches the mark.
+
+`TIMECODE FREEWHEEL` controls how long a chase+run deck keeps advancing after
+external TC updates stop. `TIMECODE JAM OFF` reduces continuous re-jamming so
+the clock can run smoothly between updates.
 
 ---
 
 ## 15. NDI Output
 
-NDI output is optional and per-deck. If NDI SDK headers were present at build
-time and `libndi.so.6` is on the library path (or `PLAYBOY_NDI_LIB` is set),
-each deck can publish a network NDI source.
+NDI output is optional and per-output. If NDI SDK headers were present at build
+time and a valid NDI runtime library is available (or `PLAYBOY_NDI_LIB` is
+set), each output target can publish a network NDI source.
 
 | Action | Key | Companion |
 |--------|-----|-----------|
-| Toggle NDI for focused deck | `N` | `NDI ON / OFF` |
+| Toggle NDI for focused output | `N` | `NDI ON / OFF` |
 | Rename NDI source | — | `NDI NAME Stage Left Feed` |
 | Toggle NDI key output | — | `NDI KEY ON / OFF` |
 | Rename NDI key source | — | `NDI KEY NAME Stage Left Key` |
 
-The fill NDI stream carries video + audio for video cues.
-When key output is enabled, Playboy also publishes a second NDI stream with
+The fill NDI stream carries composited output video + mixed stereo audio for
+that output's assigned deck stack.
+When key output is enabled, Deckboy also publishes a second NDI stream with
 grayscale key matte (white = opaque, black = transparent).
+If `VIDEO OUTPUT DELAY` is set, that delay is applied to NDI egress frames.
 
 ---
 
 ## 16. Audio
 
-Playboy uses SDL2 for audio output. All video and browser cues play audio
+Deckboy uses SDL2 for audio output. All video and browser cues play audio
 through the focused deck's selected audio device.
 
 UI click sounds use a **separate** SDL audio device so they never interfere
@@ -410,6 +617,12 @@ Show files use the `.playboy` extension (plain text, tab-delimited).
 | Save As | `Ctrl+Shift+S` |
 | Open show | `Ctrl+O` |
 
+UI equivalents are always visible in the main header:
+- `New` starts a blank show.
+- `Open` loads a `.playboy` show from picker.
+- `Save` writes the current show file immediately.
+- `SaveAs` chooses a new `.playboy` path and writes immediately.
+
 The default show file is `data/default.playboy` in the project directory. Set
 `PLAYBOY_PROJECT=/path/to/show.playboy` to use a different path at launch.
 
@@ -417,12 +630,12 @@ The default show file is `data/default.playboy` in the project directory. Set
 
 ## 18. Companion Control
 
-Playboy opens a TCP/UDP control port (default **5510**) for Bitfocus Companion
+Deckboy opens a TCP/UDP control port (default **5510**) for Bitfocus Companion
 or any plain-text client.
 
 **Setup in Companion**:
 1. Add a `Generic TCP/UDP` connection
-2. Host: IP of the Playboy machine
+2. Host: IP of the Deckboy machine
 3. Port: `5510` (or your override)
 4. Protocol: TCP or UDP
 
@@ -435,13 +648,15 @@ See [Section 21](#21-companion-command-reference) for the full command list.
 
 ## 19. OSC Input
 
-Playboy also accepts OSC over UDP on the same port as Companion (`5510`).
+Deckboy also accepts OSC over UDP on the same port as Companion (`5510`).
 
 Supported OSC addresses:
 
 ```
 /go  /play  /pause  /stop  /clear  /next  /prev
 /select i  /take i  /goto s
+/find s  /find/next  /find/prev  /find/take s  /find/clear
+/renumber s
 /deck i  /deck/next  /deck/prev
 /route s  /layer s|i
 /volume f  /seek f
@@ -452,7 +667,7 @@ Supported OSC addresses:
 /overlay i  /timeoverlay i
 /in f  /out f  /trim/clear
 /timecode s|f  /timecode/chase i  /timecode/run i
-/timecode/fps f  /timecode/mark s
+/timecode/fps f  /timecode/jam i  /timecode/freewheel f  /timecode/mark s
 /status  /state  /ping
 ```
 
@@ -480,6 +695,10 @@ OSC bundles (`#bundle`) are supported. Accepted commands receive a
 | `S` | Stop |
 | `C` | Clear output (cut to black) |
 | `F` | Toggle output fullscreen |
+| `Left / Right` (paused, active video) | Nudge playhead by 1 frame |
+| `Shift+Left / Shift+Right` (paused, active video) | Nudge by 5 frames |
+| `Ctrl+Left / Ctrl+Right` (paused, active video) | Nudge by 10 frames |
+| `Alt+Left / Alt+Right` (paused, active video) | Nudge by 1.0s (frame-snapped) |
 
 ### Cue settings
 | Key | Action |
@@ -487,6 +706,8 @@ OSC bundles (`#bundle`) are supported. Accepted commands receive a
 | `L` | Toggle loop |
 | `E` | Toggle hold on last frame |
 | `X` | Cycle end action |
+| `O` | Set trim-out at current playhead on active video cue (frame-snapped) |
+| `Shift+O` | Toggle time overlay for focused deck |
 | `[ / ]` | Fade-in −/+ 0.25 s |
 | `Shift+[ / Shift+]` | Fade-out −/+ 0.25 s |
 | `+ / -` | Volume up / down |
@@ -495,9 +716,10 @@ OSC bundles (`#bundle`) are supported. Accepted commands receive a
 ### Adding cues
 | Key | Action |
 |-----|--------|
-| `I` | Import media (file picker) |
+| `I` | Set trim-in at current playhead on active video cue (frame-snapped) |
+| `Shift+I` | Import media (file picker) |
 | `B` | Add browser cue |
-| `P` | Add Kawaii Pocket Test pattern |
+| `P` | Add Pocket Test pattern |
 | `G` | Add lower-third / graphic cue |
 
 ### UI toggles
@@ -516,8 +738,11 @@ OSC bundles (`#bundle`) are supported. Accepted commands receive a
 | `Tab` | Focus next deck |
 | `Shift+Tab` | Focus previous deck |
 | `Ctrl+N` | Add new deck |
-| `N` | Toggle NDI for focused deck |
-| `O` | Toggle time overlay for focused deck |
+| `Ctrl+Shift+G` | Fire focused master cue |
+| `Ctrl+Shift+N` | Add master cue from selected cues |
+| `Ctrl+Shift+[` | Focus previous master cue |
+| `Ctrl+Shift+]` | Focus next master cue |
+| `N` | Toggle NDI for focused output |
 | `A` | Cycle audio output device |
 | `D` | Cycle output display |
 
@@ -556,6 +781,14 @@ SELECTID cue-abc123     select cue by ID
 GOTO 3          select cue 3
 GOTO cue-abc123 select cue by ID
 GOTO opener     select first cue whose name contains "opener"
+FIND opener     find by cue number, ID, or name token
+FINDNEXT        cycle to next find match
+FINDPREV        cycle to previous find match
+FINDTAKE intro  find first match and take it
+FINDCLEAR       clear stored find token/matches
+FINDSTATUS      show current find token + match cursor
+RENUMBER Q 1    set cue numbers to Q1, Q2, Q3...
+RENUMBER CLEAR  clear all cue numbers in focused deck
 ```
 
 ### Playback settings
@@ -584,6 +817,31 @@ PLAYLISTLOOP ON|OFF
 SHUFFLE ON|OFF
 ```
 
+### Master Cues / Simul-Fire
+
+```
+MASTER                  show focused master cue summary
+MASTER LIST             show master cue count/focus
+MASTER ADD Opener       create master cue, capture selected cues for each deck
+MASTER ADDEMPTY         create empty (all-bypass) master cue
+MASTER SELECT 2         focus master cue 2
+MASTER NEXT|PREV        cycle focused master cue
+MASTER NAME Main Opener rename focused master cue
+MASTER SET 1 12         set deck 1 slot to cue token "12"
+MASTER SET 2 SEL        set deck 2 slot to currently selected cue
+MASTER SET 3 ACTIVE     set deck 3 slot to currently active cue
+MASTER SET 4 BYPASS     bypass deck 4 in this master cue
+MASTER BYPASS 4 ON|OFF|TOGGLE
+MASTER CAPTURE SEL      capture selected cues from all decks
+MASTER CAPTURE ACTIVE   capture active/live cues from all decks
+MASTER FIRE             fire focused master cue
+MASTER FIRE 2           fire master cue 2
+MASTER DELETE           delete focused master cue
+
+# Alias:
+GROUP ...               all MASTER commands also accept GROUP
+```
+
 ### Transitions
 
 ```
@@ -595,16 +853,31 @@ TRANSITIONSTYLE CROSSFADE    (alias)
 ### Patterns
 
 ```
-PATTERN                 add pocket-test pattern
+PATTERN                 add default pattern type
+PATTERN LIST            show pattern type count
+PATTERN SET smpte-bars  set default pattern type
 PATTERN pocket-test
+PATTERN pocket-day
+PATTERN pocket-sunset
+PATTERN pocket-night
+PATTERN pocket-storm
 PATTERN smpte-bars
+PATTERN smpte-bars-motion
 PATTERN crosshatch
+PATTERN crosshatch-motion
 PATTERN checkerboard
+PATTERN checkerboard-motion
 PATTERN full-white
 PATTERN full-black
 PATTERN full-red
 PATTERN full-green
 PATTERN full-blue
+PATTERN full-white-motion
+PATTERN full-black-motion
+PATTERN full-red-motion
+PATTERN full-green-motion
+PATTERN full-blue-motion
+PATTERN smpte-bars MOTION
 ```
 
 ### Browser
@@ -655,10 +928,39 @@ VIDEO DEPTH AUTO    automatic bit-depth selection (prefer 10-bit)
 VIDEO DEPTH 8       force 8-bit compositing
 VIDEO DEPTH 10      request 10-bit compositing (falls back if unsupported)
 VIDEO SIZE DISPLAY  resize/reposition focused output to selected display
+VIDEO OUTPUT NEXT   focus next output
+VIDEO OUTPUT PREV   focus previous output
+VIDEO OUTPUT 2      focus output index (1-based)
+VIDEO OUTPUT ADD    create a new output
+VIDEO OUTPUT ADD STREAM   create a new stream output
+VIDEO OUTPUT ON     enable focused output (window outputs go fullscreen)
+VIDEO OUTPUT OFF    disable focused output
+VIDEO OUTPUT TOGGLE toggle focused output on/off
+VIDEO OUTPUT ASSIGN assign focused deck to focused output (next layer)
+VIDEO OUTPUT ASSIGN 5  assign to explicit layer
+VIDEO OUTPUT HOST 1 set focused output host deck
+DISPLAY / VIDEO OUTPUT display changes auto-switch to VIDEO NATIVE sizing
+VIDEO OUTPUT TYPE WINDOW
+VIDEO OUTPUT TYPE STREAM
+VIDEO OUTPUT MIRROR 1
+VIDEO OUTPUT MIRROR OFF
+VIDEO OUTPUT ALPHA 85
+VIDEO OUTPUT ALPHA DOWN
+VIDEO OUTPUT DELAY 250
+VIDEO OUTPUT DELAY OFF
+VIDEO OUTPUT OVERLAY ON|OFF|TOGGLE
+VIDEO OUTPUT COLORSPACE AUTO|BT709|SRGB
+VIDEO STREAM ON|OFF
+VIDEO STREAM SRT|RTMP
+VIDEO STREAM URL srt://127.0.0.1:9000?mode=caller
+VIDEO STREAM BITRATE 6500
+SOURCE WINDOW active-window
+SOURCE CAMERA default-camera
+SOURCE SYPHON default-bus
 VIDEO CANVAS OFF
 VIDEO CANVAS ON
 VIDEO CANVAS 5760x2160
-VIDEO CANVAS DISPLAY         use focused deck raster as canvas size
+VIDEO CANVAS DISPLAY         use focused output raster as canvas size
 VIDEO VIEW 320,40            set focused deck viewport inside canvas
 VIDEO VIEW LEFT 200          nudge viewport
 VIDEO WARP ON|OFF|TOGGLE
@@ -680,6 +982,7 @@ NDI KEY NAME Stage Left Key  rename key sender
 NDI KEY TOGGLE
 NDIKEY ON|OFF              alias for NDI KEY ON|OFF
 NDIKEYNAME Stage Left Key  set key sender name
+VIDEO OUTPUT 2             focus output 2 before running NDI commands
 ```
 
 ### Timecode
@@ -691,6 +994,8 @@ TIMECODE CHASE ON|OFF
 TIMECODE RUN ON|OFF
 TIMECODE FPS 29.97
 TIMECODE TRIGGER ON|OFF
+TIMECODE JAM ON|OFF
+TIMECODE FREEWHEEL 1.5
 TCMARK NOW                  set TC mark to current timecode
 TCMARK 00:00:12:10          set TC mark at specific time
 TCMARK CLEAR                clear TC mark on selected cue
@@ -702,7 +1007,8 @@ TCMARK CLEAR                clear TC mark on selected cue
 DECK 2              focus deck 2
 DECK 2 TAKE         focus deck 2 and take
 DECK 2 SELECT 3     focus deck 2 and select cue 3
-DECK 2 NDI ON       toggle NDI on deck 2
+VIDEO OUTPUT 2      focus output 2
+NDI ON              toggle NDI on focused output
 DECKNEXT            focus next deck
 DECKPREV            focus previous deck
 NEWDECK             add a new deck
@@ -722,13 +1028,15 @@ FULLSCREEN
 
 ```
 PING                    returns PONG
-STATUS                  multi-line snapshot of all decks
+STATUS                  multi-line snapshot of all decks and outputs
 STATUS 2                snapshot of deck 2 only
-STATUS JSON             JSON snapshot
+STATUS CUES             cue-programming snapshot (selected/active cue number+id per deck)
+STATUS FIND             current find token/match cursor summary
+STATUS JSON             JSON snapshot (includes outputs, panic, timecode follower, and find state fields)
 STATE                   alias for STATUS
 STATE JSON              alias for STATUS JSON
 ```
 
 ---
 
-*Playboy_0.01 — dot-matrix cue deck — model pb-001*
+*Deckboy_0.01 — dot-matrix cue deck — model db-001*

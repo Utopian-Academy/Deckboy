@@ -1,3 +1,782 @@
+# CHANGES - Incremental Updates (March 2026)
+
+## 2026-03-05 (UI Clarity Pass: Header/Stack/Routing Table/Splash)
+
+### Main UI clarity improvements
+- Header now includes compact per-deck live summary (`D1 LIVE ...`) while keeping show file + Companion/TC state visible.
+- Output chips were redesigned for quicker scanning:
+  - chip shows output index + target type + armed/live state
+  - focused output has stronger highlight
+  - inline `ON/OFF` arm button remains one-click.
+- Deck column header now shows:
+  - `Deck N`
+  - routed output and layer token
+  - audio device label.
+- Cue rows now use fixed scan columns:
+  - cue token / type token / cue name / dur-state
+  - truncation + hover tooltip for long cue names.
+
+### Program monitor and stack visibility
+- Program monitor now shows focused output info (`Output`, raster, refresh).
+- Added `STACK VIEW (Output X)` under monitor:
+  - displays deck/layer occupancy top->bottom for focused output.
+- Progress bar made chunkier and includes direct time text.
+
+### Cue settings panel cleanup
+- Added grouped section headers in cue settings:
+  - `Playback`, `Geometry`, `Key`, `Routing`.
+- Added collapsible behavior for section headers (video/image/browser/audio coverage where applicable).
+- Added cue-panel routing controls:
+  - output prev/next
+  - layer +/- 
+  - assign/unassign.
+- Existing per-cue edit controls remain available (numeric/edit/prompt-based controls unchanged).
+
+### Video Outputs settings routing table
+- Replaced passive routing notice with inline editable table:
+  - `Deck | Output | Layer | Assigned`
+  - per-row output prev/next, layer +/- and link/unlink toggle.
+- Routing table actions are wired directly to existing assignment/move logic (no route-model regressions).
+
+### Master cues readability
+- Scene rows now render in a two-line style:
+  - top: indexed scene name
+  - bottom: deck slot summary
+  - right: larger `TAKE` button.
+
+### Splash/About and mascot policy
+- Added launch splash overlay with boot messages + `press ENTER to start`.
+- Splash is skippable via `Enter`, `Esc`, or click.
+- Removed sprite-character rendering routines from operational UI code paths.
+- About tab now uses text/logo runtime info only (no live-control mascot content).
+
+### Dev notes
+- Added `DEVNOTES.md` documenting:
+  - layout component map
+  - palette tuning points
+  - cue-type icon hook location
+  - routing table action wiring.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (Output FX Controls Pass: Alpha / Delay / Overlay / Color Space)
+
+### New per-output operational controls (Video Outputs tab)
+- Added focused-output FX controls:
+  - `Overlay ON/OFF` (output-scoped time/ID overlay)
+  - `Alpha` (`0-100%` output dimmer)
+  - `Delay` (`0-5000 ms`)
+  - `Color` (`AUTO`, `BT709`, `SRGB`)
+- Added a one-tap `Delay +100` operator button for quick tuning.
+
+### Runtime behavior
+- Per-output alpha is now applied as a post-composite dimmer layer.
+- Output-scoped overlay can now be toggled independently from deck-local overlay.
+- Added per-output delayed frame queue for egress:
+  - NDI send path now uses delayed-or-live captured output frame.
+  - Stream send path now uses delayed-or-live captured output frame.
+  - current implementation keeps window-output presentation immediate while delaying NDI/stream egress.
+- Stream encoder now applies color metadata flags from output color-space mode:
+  - `BT709` -> `bt709` matrix/primaries/trc
+  - `SRGB` -> `bt709` matrix/primaries + `iec61966-2-1` transfer
+
+### Commands and status
+- Added `VIDEO OUTPUT` command extensions:
+  - `VIDEO OUTPUT ALPHA ...`
+  - `VIDEO OUTPUT DELAY ...`
+  - `VIDEO OUTPUT OVERLAY ...`
+  - `VIDEO OUTPUT COLORSPACE ...`
+- Expanded status snapshots (`STATUS` and `STATUS JSON`) with output FX fields:
+  - alpha percent
+  - delay ms
+  - output overlay on/off
+  - output color-space token
+
+### Persistence
+- Extended `output_target` serialization with:
+  - `outputAlpha`
+  - `outputDelayMs`
+  - `outputTimeOverlayEnabled`
+  - `outputColorSpace`
+- Backward compatibility preserved for older output-target row formats.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (Live Source Cue Runtime Pass)
+
+### Source cues are now runtime-active (not placeholder-only)
+- `Window Source` cues now run live capture via ffmpeg `x11grab` on Linux.
+- `Camera` cues now run live capture via ffmpeg `v4l2` on Linux.
+- `Syphon/Spout` cues now run through the source transport path; Linux currently uses desktop-capture fallback while native Syphon/Spout backends remain planned.
+
+### Transport integration for source cues
+- Source cues now participate in normal transport:
+  - `Take` with autoplay starts live capture
+  - `Play` starts/restarts source capture
+  - `Pause` parks capture and holds frame
+  - `Stop` parks capture and restores source slate frame
+- Deck transport status now shows source-specific state:
+  - `Live Source` / `Source Ready`
+
+### Operator-facing copy cleanup
+- Cue-row hover tips now describe source cues as active live cues instead of scaffolds.
+- Runtime toasts now distinguish source-loaded / source-live / source-unavailable outcomes.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (Output Operations Flow + Source Cue Scaffold)
+
+### Video Outputs workflow cleanup
+- Added explicit creation actions in Video Outputs:
+  - `Create Standard` (window output)
+  - `Create Stream` (stream output)
+- Added direct type buttons:
+  - `Set Window`
+  - `Set Stream`
+- Added focused-output signal-flow line in status:
+  - deck layer stack -> output -> display
+
+### Source cue architecture scaffold (shared path)
+- Added new cue kinds:
+  - `Window Source`
+  - `Camera`
+  - `Syphon/Spout`
+- Added one shared source-cue creation path:
+  - UI: main control bar `SOURCE` button + Preferences -> System -> `Add Source Cue...`
+  - Commands: `SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`
+  - Aliases: `WINDOWSOURCE`, `CAMERACUE`, `SYPHONCUE`, `SPOUTCUE`
+- Added shared persistence/serialization tokens:
+  - `window_source`, `camera`, `syphon`
+- Added OSC mappings:
+  - `/source`, `/source/window`, `/source/camera`, `/source/syphon`, `/source/spout`
+- Runtime behavior:
+  - source cues now render through a common generated placeholder frame path
+  - transport/routing/save-load/status all run through normal cue flow
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (NDI Output Refactor + Cross-Platform Alignment)
+
+### NDI is now output-scoped end-to-end
+- Removed live deck-runtime NDI sender path from native runtime.
+- NDI controls now resolve only through focused output target state:
+  - `N` key
+  - `NDI ...`, `NDINAME`, `NDIKEY...` commands
+  - Video Outputs tab `NDI` actions
+- Output runtime now sends:
+  - fill video
+  - optional key video stream
+  - mixed stereo audio for the output assignment stack
+
+### Legacy project compatibility
+- Added migration shim during project normalization:
+  - legacy deck NDI settings are mapped to output NDI when output NDI is not already explicitly configured.
+- Kept legacy deck NDI fields in save/load for backward compatibility with older show files.
+
+### Status and operator clarity
+- Removed deck-level NDI fields from deck status snapshots (`STATUS`, `STATUS <deck>`, `STATUS JSON` deck blocks).
+- NDI status is now reported only under output entities.
+
+### Documentation updates
+- Updated `MANUAL.md` and `README.md` to describe NDI as per-output.
+- Updated operator examples to focus output first (`VIDEO OUTPUT <n>`, then `NDI ...`).
+- Updated portability notes to keep Linux/macOS runtime loader details explicit and Windows parity as roadmap work.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (UI Declutter Pass + Output Workflow Clarity)
+
+### Removed character art from live control UI
+- Removed sprite/mascot rendering from the no-cue control/menu state.
+- No-cue panel now shows text-only prompts:
+  - `Insert cartridge`
+  - `Drop media here`
+  - `Press A to take cue`
+
+### Video Outputs panel cleanup
+- Fixed action collision in Video Outputs tab:
+  - `Routing In Main Strip` is now informational (no accidental action trigger).
+- Added `Show Advanced` / `Hide Advanced` toggle in Video Outputs:
+  - hides dense refresh/depth/canvas/warp controls by default.
+  - keeps core output/type/display/stream controls visible first.
+
+### Decks window readability cleanup
+- Decks window title simplified to `Deckboy Decks`.
+- Header cleaned up to `DECKS` + `deck list + playlist view`.
+- Removed decorative star highlight and reduced duplicated helper copy in deck cards.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (Demo Show Generator + Layout Presets)
+
+### Added repeatable demo show generation
+- New script:
+  - `scripts/generate_demo_shows.sh`
+- Script writes demo files to:
+  - `data/demos/`
+
+### Included demo layout presets
+- `demo_70_30_4pip_bg_5deck.playboy`
+  - 5-deck show with full background + 4 right-column PiPs (70/30 style)
+  - master cues: `Open - BG + 4 PiP`, `BG Only`, `PiP Motion Sweep`
+- `demo_quad_2x2_4pip_bg_5deck.playboy`
+  - 5-deck show with full background + 2x2 PiP quad
+  - master cues: `Quad Open`, `Quad Motion`
+- `demo_program_preview_clean_3deck.playboy`
+  - 3-deck show with program background + preview PiP + corner bug
+  - master cues: `Program + Preview + Bug`, `Program + Bug`, `Program Clean`
+
+## 2026-03-05 (Safety + Output Quality + Master-Cue No-Popup Polish)
+
+### Single-instance safety lock
+- Added a startup lock to prevent accidental duplicate app launches (runaway multi-instance behavior).
+- If another instance is active, launch now exits with a clear terminal message.
+- Added explicit bypass flag for intentional debugging:
+  - `--allow-multi-instance`
+
+### Output quality auto-native on arm/re-arm
+- Enabling a `window` output now auto-switches global output sizing to **display native** when fixed mode was active.
+- Repeating `VIDEO OUTPUT ON` while already enabled also applies this auto-native safety path before recovery.
+- Output toasts now reflect this with `auto native` wording.
+
+### Master-cue sidebar programming speedup (no popup)
+- Master-cue programmer row click (outside buttons) now assigns the slot from that deck's currently selected cue.
+- Mouse wheel over a programmer row now cycles that slot cue directly (`up/down`), avoiding picker dialogs.
+- Removed the remaining unused popup-based master-slot picker code path.
+
+## 2026-03-05 (Mitti Parity P1 - Panic Timing + Cue Find + Timecode Follower)
+
+### Panic timing/options now fully wired
+- Added new Preferences -> Audio controls:
+  - `Panic fade (sec)` (`-` / `+`)
+  - `Panic auto restore` (`ON` / `OFF`)
+- Panic fade profiles now use configured fade duration instead of a hardcoded timeout.
+- Optional dimmer restore now runs automatically after panic deck action execution when enabled.
+- Added panic control commands:
+  - `PANICFADE <seconds>`
+  - `PANICAUTORESTORE ON|OFF|TOGGLE`
+
+### Cue find and renumber command workflow completed
+- Added find commands:
+  - `FIND <token>`
+  - `FINDNEXT`
+  - `FINDPREV`
+  - `FINDTAKE <token>`
+- Added cue number automation commands:
+  - `RENUMBER [prefix] [start]`
+  - `RENUMBER CLEAR`
+  - aliases: `AUTOID`, `CUEAUTOID`
+- Cue token matching now supports:
+  - `FIRST`, `LAST`, `NEXT`, `PREV`, `SEL`, `ACT`
+  - relative offsets (`+N`, `-N`)
+  - cue-number prefix matching for fast operator shorthand.
+
+### Timecode follower hardening (`jam` + `freewheel`)
+- Added per-deck persistent follower options:
+  - `timecodeJamSyncEnabled`
+  - `timecodeFreewheelSeconds`
+- Added menu-first controls in Preferences -> Audio (focused deck):
+  - `TC jam (focused deck)` toggle
+  - `TC freewheel (sec)` `-` / `+`
+- Added commands:
+  - `TIMECODE JAM ON|OFF`
+  - `TIMECODE FREEWHEEL <seconds>`
+- Added OSC mapping:
+  - `/timecode/jam i`
+  - `/timecode/freewheel f`
+- Runtime behavior updates:
+  - chase+run decks now hold after freewheel timeout when external TC stops.
+  - with `TC JAM OFF`, incoming TC updates inside freewheel no longer constantly re-jam the running clock.
+  - `TIMECODE SET ...` remains a forced operator jam.
+
+### Status snapshot coverage
+- `STATUS`/`STATE` text snapshots now include:
+  - panic profile/fade/restore status
+  - per-deck `tc_jam` and `tc_freewheel_s`
+- `STATUS JSON`/`STATE JSON` now include:
+  - top-level panic fields
+  - per-deck `timecodeJam` and `timecodeFreewheelSeconds`.
+
+### Audio-tab polish + menu-only cue programming flow
+- Reworked Preferences -> Audio layout into clearer grouped sections:
+  - `System + UI`
+  - `Playback Semantics`
+  - `Safety + Timecode Follower`
+  - `Cue Tools (menu-first)`
+- Added menu-first cue tools in Preferences -> Audio:
+  - `Find Cue...`, `Next`, `Prev`, `Find+Take`
+  - `Renumber...`, `Clear Numbers`, `Clear Find`
+- Added command/query coverage for find-state operations:
+  - `FINDCLEAR` / `FINDRESET`
+  - `FINDSTATUS`
+  - aliases: `CUEFIND`, `CUEFINDNEXT`, `CUEFINDPREV`, `CUEFINDTAKE`, `CUEFINDCLEAR`, `CUEFINDSTATUS`
+- Added new status endpoints:
+  - `STATUS CUES` / `STATE CUES`
+  - `STATUS FIND` / `STATE FIND` (and `FINDSTATUS`)
+- Expanded status payload fields:
+  - text status now includes find token/cursor metadata and per-deck `selected_num`, `selected_id`, `active_num`, `active_id`
+  - JSON status now includes top-level find state and per-deck selected/active cue number/id fields.
+
+### OSC parity expansion for cue programming
+- Added OSC mappings:
+  - `/find`, `/find/next`, `/find/prev`, `/find/take`, `/find/clear`
+  - `/renumber`.
+
+## 2026-03-04 (Mitti Parity P0 - Playback Semantics)
+
+### Jump mode and panic profile controls (menu-driven)
+- Added playback-semantics controls to Preferences -> Audio:
+  - `Jump Mode`: `Trigger` or `Load`
+  - `Jump Transition`: `ON`/`OFF`
+  - `Panic Profile`: `Outputs Off`, `Fade+Pause`, `Fade+Rewind`, `Fade+LoadNext`
+  - `Run Panic` action button.
+- These values are now persisted in show files:
+  - `jump_mode`
+  - `jump_transition`
+  - `panic_profile`
+
+### Operational behavior changes
+- `Take`/`Goto` now run through Jump Mode semantics:
+  - `Trigger` mode: jumps selected cue live.
+  - `Load` mode: loads selected cue without autoplay.
+- Jump Transition toggle controls whether jumps use cue/deck transition timing or force cut.
+- Added panic profile execution path:
+  - `Outputs Off` disarms all outputs.
+  - fade profiles arm dimmer fade then execute deck action (`pause`, `rewind`, or `load next`).
+
+### Remote command additions
+- Added new commands for show-control parity:
+  - `JUMPMODE TRIGGER|LOAD|TOGGLE`
+  - `JUMPTRANSITION ON|OFF|TOGGLE`
+  - `PANICPROFILE <name>|NEXT|PREV`
+  - `PANIC` (or `PANIC <profile>` for one-shot override).
+
+## 2026-03-04 (Single-Mode Super Deckboy Decks Visual Refresh)
+
+### Kept single-mode workflow
+- No Mode A/Mode B split was introduced in this pass.
+- Continued with one `Super Deckboy` operating flow to avoid adding mode complexity.
+
+### Bigger and cuter dedicated deck workspace
+- Renamed the companion deck window title to `Super Deckboy Decks`.
+- Increased default deck window size to `1560x920` and minimum size to `1260x700`.
+- Refreshed deck window art direction with Game Boy green tones plus playful star accents.
+- Increased deck readability and interaction size:
+  - larger tracker rows and deck-name width
+  - larger deck cards (fewer columns per page, wider cards)
+  - larger per-deck header block and transport buttons (`Take`, `Stop`)
+  - larger cue rows in each deck playlist card.
+
+### Transport wording and master-cue programming flow cleanup
+- Removed per-deck `Go` button from `Super Deckboy Decks` cards to avoid overlap/confusion with `Take`.
+- Main transport button label now reads `Play/Pause` (same behavior as before, clearer wording).
+- Reworked master-cue slot programming to avoid popup-heavy cue pickers in the sidebar path:
+  - replaced `Pick` button with inline `-` / `+` cue cycling per deck slot
+  - middle/ctrl slot interactions now cycle cues instead of opening external cue picker dialogs.
+
+## 2026-03-04 (Always-On Sidebar + Master-Cue Programming Clarity)
+
+### Main-window master-cue sidebar is now permanent and wider
+- Removed sidebar hide/toggle behavior; the master-cue sidebar now stays visible as a core operator panel.
+- Increased sidebar width allocation for readability and button hit-target size.
+- Added fixed `Master Cues` badge in the output strip to indicate persistent location.
+
+### Explicit menu-driven master-cue programming actions
+- Added direct sidebar actions:
+  - `Name` (rename focused master cue)
+  - `CapSel` (capture selected cue from each deck into focused master cue)
+  - `CapAct` (capture active cue from each deck into focused master cue)
+- Kept expandable programmer (`Prog+` / `Prog-`) and improved copy/layout.
+- Programmer rows remain per-deck with `Sel`, `Act`, `Byp`, `-`, `+` actions.
+
+### Deck readability pass in `Deckboy Decks`
+- Increased tracker/header sizing and expanded labels (`selected`, `active`, `layer`, `state`, `timecode`).
+- Increased deck-card header/button/cue-row sizing for easier multi-deck operation.
+- Added in-window playlist interaction hint (`click cue to select, right-click cue to take`).
+
+### Output display assignment now auto-native
+- When changing a focused output's display target (`Prev`/`Next`/display pick), Deckboy now auto-switches video sizing mode to `display native` if it was on fixed raster.
+- Toast now shows `auto native` on that display change event.
+
+### Pocket Test creature + scene expansion
+- Expanded procedural Pocket Test with a Nintendo-like platform adventure vibe (original art, no IP characters).
+- Added automatic scene cycle and selectable variants:
+  - `pocket-test` (cycles day/sunset/night/storm)
+  - `pocket-day`, `pocket-sunset`, `pocket-night`, `pocket-storm`
+- Added procedural animated creatures/elements:
+  - crab, jumping fish, parrot, turtle, dino-style enemy, puff friend
+  - retained explorer + coin line + signal strip
+
+## 2026-03-04 (Deck/Output Separation + Stream Outputs)
+
+### Output startup/fullscreen behavior + Video-tab output controls cleanup
+- Window outputs now default to `OFF` in new project state and in newly created outputs.
+- Output runtime windows are now created hidden by default (no startup display takeover).
+- Loaded shows are now disarmed on app launch/open (saved output-on states no longer auto-take over screens).
+- Added explicit focused-output state control in Preferences -> Video:
+  - `Enabled` toggle switch (Mitti-style operator flow)
+  - enabling a window output immediately fullscreenes it on the selected display
+- Added focused-output display assignment controls directly in Video tab:
+  - `Prev` / `Next` / `Rescan` with live display label
+- `F` fullscreen behavior now auto-enables focused window output if it is currently off.
+- Added command support:
+  - `VIDEO OUTPUT ON|OFF|TOGGLE`
+- Routing UI clarity updates:
+  - route labels now read `None`, `Background`, or `Layer N` (no short codes)
+  - deck/output routing is now managed through explicit Decks/Outputs lists plus a focused route editor
+
+### Main UI file controls
+- Added explicit file-management controls in main header:
+  - `New`, `Open`, `Save`, `SaveAs`
+- `Save` now performs an immediate write of the active show path.
+- `SaveAs` now writes immediately after choosing path (instead of deferred dirty-save behavior only).
+
+### Video tab readability + plain-English routing labels
+- Repositioned focused-output controls to the right side and constrained status text to the left panel, so labels no longer render under buttons.
+- Expanded plain-English button labels in Video tab (for example `Prev Out`, `Next Out`, `Add Output`, `Enabled`, `Window`, `Mirror`).
+- Routing labels now avoid shorthand codes:
+  - explicit `Deck 1`, `Deck 2`, `Output 1`, `Output 2`
+  - route values `None`, `Background`, `Layer N` (no `L0*` shorthand)
+
+### Layer edit freeze fix + display assignment reliability
+- Removed blocking layer-index popup from routing edits in Preferences -> Video.
+- Layer edits are now direct in the Route Editor:
+  - layer `-` / `+` controls
+  - `Ctrl` modifier applies `x10` step
+  - `Shift` modifier reverses direction
+  - focused route uses explicit `Assign` / `Unassign` buttons.
+- Added top-right display target controls in Video tab:
+  - `Prev`, `Next`, live display label, `Rescan`
+- Added a dedicated `Connected Displays` list in Video tab:
+  - shows currently detected displays
+  - click display row to assign focused output directly.
+- Added runtime display topology refresh behavior:
+  - hot-plug monitor changes are detected and outputs are re-clamped/re-applied automatically
+  - manual `Rescan` performs the same refresh path.
+- Display assignment reliability update:
+  - changing focused-output display now forces fullscreen when that output is enabled (`window` type)
+  - enabled output windows are raised after display apply, to avoid hidden/off-screen confusion.
+
+### All-output recovery hardening
+- Added `recoverWindowOutputIfNeeded(outputIndex)` path for enabled `window` outputs.
+- Repeated `VIDEO OUTPUT ON` (or re-toggling ON in Video tab) now acts as recovery:
+  - re-applies display placement
+  - raises window if hidden/minimized
+  - re-asserts fullscreen on the target display
+- `F` fullscreen action now re-asserts fullscreen when already fullscreen instead of dropping to windowed mode.
+- Added background recovery poll (1 Hz) across all outputs:
+  - enabled `window` outputs are automatically recovered if they drift off target display, lose fullscreen, or become hidden/minimized.
+
+### Main-window output controls clarity pass
+- Expanded the top `outputs` strip into an explicit two-row control block.
+- Added always-visible `Add Output` button in the main window (no need to open Preferences -> Video to create outputs).
+- Added explicit focused-route controls in the main window:
+  - `Link` / `Unlink` for focused deck -> focused output routing
+  - `Layer-` / `Layer+` to adjust that route's layer directly
+- Added plain-English route status text in-strip:
+  - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`
+- Keeps existing output toggles (`O1`, `O2`, ...) while making routing actions discoverable.
+
+### Deck-panel visibility reliability + direct toggle
+- Added main-header `decks` button for explicit deck-panel show/hide control.
+- Deck panel auto-pop path hardened:
+  - when deck count goes above 1, Deckboy now forces `show + restore + raise` for the separate decks window.
+- Deck-panel toggle feedback:
+  - if only one deck exists, clicking `decks` shows guidance toast (`add deck 2 to open decks panel`).
+
+### Emergency fullscreen escape (`Esc`)
+- Added a safety path so `Esc` can recover operator control when an output fullscreen takes over the control display.
+- `Esc` now first attempts to exit fullscreen on the active output window (based on key event window focus).
+- Fallback path also checks fullscreen outputs on the same display as the control window.
+- If no fullscreen output needs escaping, `Esc` keeps its prior behavior (quit confirmation).
+
+### Escape/recovery trap fix (crash-loop prevention)
+- Fixed `Esc`/auto-recovery interaction where escaped outputs could be forced back to fullscreen by the 1 Hz recovery loop.
+- `Esc` now marks that output as intentionally windowed (`recovery paused`) so auto-recovery does not immediately re-fullscreen it.
+- Pressing `Esc` from an output window that is already windowed is now treated as handled safety input (no fall-through to quit confirmation).
+- Repeated `Esc` safety path added:
+  - pressing `Esc` three times within `~0.9s` gaps now triggers panic disarm (`outputs off`) when output safety context is active.
+- Explicit operator re-arm clears pause:
+  - `F` (fullscreen) on that output
+  - repeated `VIDEO OUTPUT ON` on that output
+
+### Master Cue line-view workflow + UI sizing pass
+- Updated `Deckboy Master Cues` window to show master cues as line items (one row per preset), not only per-preset fire buttons.
+- Each master-cue row now displays multi-deck slot details inline:
+  - preset index/name
+  - per-deck slot summary (`Deck`, cue number, cue name, or `BYPASS`)
+  - direct `Take` trigger on the same row
+- Added direct slot editing from the row:
+  - click slot = assign selected cue
+  - `Shift+click` slot = assign active cue
+  - middle-click or `Ctrl+click` slot = cue picker
+  - right-click slot = bypass toggle
+- Increased control-window menu sizing for better readability:
+  - larger bottom transport/action buttons
+  - larger header file action buttons (`New/Open/Save/SaveAs`)
+
+### Pocket Test visual direction update
+- Reworked Pocket Test pattern into a deterministic tropical retro scene:
+  - sky/ocean/beach gradients
+  - procedural palms and island silhouette
+  - animated coin line + retro explorer sprite
+  - retained bottom signal reference strip
+- Removed old "kawaii day/night + text-bar" style artifacts from this pattern path.
+
+### Pattern menu-first workflow + motion variants
+- Added menu-driven pattern workflow in main control surface:
+  - new bottom action button `Pattern` opens an in-app type picker (no shortcut required).
+- Pattern cue settings now include a dedicated `pattern` row:
+  - `- / +` cycles base type in-menu
+  - center toggle switches motion on/off for supported types.
+- Added animated motion variants for standard engineering patterns:
+  - `smpte-bars-motion`
+  - `crosshatch-motion`
+  - `checkerboard-motion`
+  - `full-white-motion`, `full-black-motion`, `full-red-motion`, `full-green-motion`, `full-blue-motion`
+- Pattern animation loop now auto-rebuilds for any animated type (Pocket Test and `*-motion`).
+- Companion command extensions:
+  - `PATTERN SET <type>` sets default pattern type
+  - `PATTERN LIST` reports available pattern type count
+  - `PATTERN <type> MOTION` shorthand for `*-motion` add.
+
+### Deck playlist split (main vs decks window)
+- Main control window now uses output/program-first layout (deck playlist column removed).
+- Separate `Deckboy Master Cues` window now also renders deck playlists for multi-deck operation:
+  - per-deck playlist columns with cue-number/name rows
+  - click cue row to select on that deck
+  - per-deck `Take` button for menu-only firing flow.
+
+### Per-deck transport/timecode controls (menu-first)
+- `Deckboy Master Cues` deck columns now include per-deck transport buttons:
+  - `Take` (fire selected cue on that deck)
+  - `Go` (play/pause on that deck)
+  - `Stop` (stop/rewind on that deck)
+- Deck column headers now show per-deck transport/timecode state:
+  - transport status
+  - `tc` value + fps
+  - chase/free and run/hold flags
+- Main output/program panel now shows focused-deck context in the top status area:
+  - deck number/name
+  - focused deck timecode state line
+- Deck tracker/list robustness for large deck counts:
+  - top tracker rows now page around focused deck instead of rendering only from deck 1 downward
+  - tracker area now reserves minimum height for the per-deck playlist grid so the lower deck columns stay visible with many decks
+
+### Main-window collapsible master-cue sidebar (left)
+- Added a collapsible left sidebar in the main window (`side` toggle in the outputs strip).
+- Sidebar is now master-cue focused (not deck-row focused):
+  - quick controls: `<MC`, `MC>`, `New`, `Del`, `Take`
+  - one row per master cue (`MC#`, name, deck-slot summary)
+  - row click focuses that master cue
+  - row `Take` button fires that master cue
+- Sidebar paging follows focused master cue for larger preset counts.
+- Spatial consistency tweak:
+  - `side` toggle remains on the left side of the main control area, aligned with the sidebar.
+
+### Deck window re-focused on decks
+- `Deckboy Decks` window is now deck-focused again:
+  - tracker + deck playlists + per-deck transport controls remain
+  - dedicated master-cue line list and master-cue footer controls were removed from this window
+- Deck tracker columns now end with `tc` instead of `mc/cue` to emphasize deck status.
+- Window title updated from `Deckboy Master Cues` to `Deckboy Decks`.
+- Deck workspace visibility/legibility updates:
+  - deck window is now always shown (no auto-hide when only one deck exists)
+  - deck window default size and minimum size increased for clearer operation.
+
+### Master-cue sidebar programming controls
+- Added in-sidebar focused master-cue programmer (`Prog+` / `Prog-`):
+  - one row per deck with current slot assignment preview
+  - direct actions per deck slot: `Sel`, `Act`, `Byp`, `Pick`
+- This restores menu-driven master-cue programming without relying on the separate deck window.
+
+### Quit/close reliability fix
+- Fixed close-path behavior that could leave instances running after window close:
+  - `SDL_QUIT` now exits immediately (`gShouldQuit = true`) instead of opening the in-app quit confirm state.
+  - Closing the main window now exits immediately.
+  - Closing the Decks window now hides that window cleanly.
+  - Closing an output window now disarms that output (`output off`) instead of leaving a stuck runtime.
+
+### Master Cue no-popup assignment flow
+- Removed external cue-picker popup from Deckboy Master Cues `mc` cell clicks (prevents dialog-focus lockups).
+- `mc` assignment is now fully in-window:
+  - click `mc` = next cue assignment
+  - `Shift+click` or middle-click `mc` = previous cue assignment
+  - right-click `mc` = bypass toggle
+
+### Master Cue window simplification pass
+- Simplified bottom control strip in `Deckboy Master Cues`:
+  - kept: `<MC`, `MC>`, `New`, `Del`, `Take`
+  - removed clutter controls from this window: `CapSel`, `CapAct`, `Name`, `Import`, `Pattern`, `Browser`
+- Simplified `mc` cell interaction:
+  - click = cue picker
+  - right-click = bypass toggle
+- Cue picker list for master-cue slots now emphasizes direct cue/bypass selection (no `SEL`/`ACTIVE` options).
+- Master-cue row now displays the cue assigned to the focused master cue slot (or bypass/missing state), not just the deck's current selected cue.
+
+### Toast cleanup
+- Removed the confusing static `cute mode` label from toast popups; toasts now render only their actual message.
+
+### Output entity controls (Preferences -> Video)
+- Added focused-output controls directly in the Video tab:
+  - output focus cycle (`Prev Out`, `Next Out`)
+  - create output (`Add Output`)
+  - focused deck routing is now done via Routing Manager lists + Route Editor (legacy `VIDEO OUTPUT ASSIGN` command remains)
+  - set output host deck from focused deck (`Host Deck`)
+  - output type toggle (`Window` / `Stream`)
+  - direct mirror source picker (`Mirror`)
+- Added Companion/remote command support:
+  - `VIDEO OUTPUT NEXT|PREV|<index>`
+  - `VIDEO OUTPUT ADD [STREAM]`
+  - `VIDEO OUTPUT ASSIGN [layer]`
+  - `VIDEO OUTPUT HOST <deck>`
+  - `VIDEO OUTPUT TYPE WINDOW|STREAM`
+  - `VIDEO OUTPUT MIRROR <index>|OFF`
+
+### Group presets (functional multi-deck simultaneous firing)
+- Added persistent `GroupPreset` + `GroupSlot` project entities:
+  - one slot per deck (`cueId` or `bypass`)
+  - focused group index persisted in show file
+- Added Companion/remote command support:
+  - `GROUP ADD [name]`, `GROUP ADDEMPTY`
+  - `GROUP SELECT <index>|NEXT|PREV`
+  - `GROUP NAME ...`, `GROUP DELETE`
+  - `GROUP SET <deck> <cue-token|SEL|ACTIVE|BYPASS>`
+  - `GROUP BYPASS <deck> ON|OFF|TOGGLE`
+  - `GROUP CAPTURE SEL|ACTIVE`
+  - `GROUP FIRE [index]`
+- Added keyboard shortcuts:
+  - `Ctrl+Shift+G` fire focused group preset
+  - `Ctrl+Shift+N` create group from selected cues
+  - `Ctrl+Shift+[` / `Ctrl+Shift+]` cycle focused group preset
+- Decks tracker window now exposes focused-group slot assignment per deck via `grp` column.
+- Decks tracker window now includes direct group controls:
+  - bottom buttons: `G<-`, `G->`, `New`, `CapSel`, `CapAct`, `Fire`, `Name`, `Del`
+  - click `grp` cell: assign focused-group slot from that deck's selected cue
+  - `Shift+click` `grp`: assign from active cue
+  - `Ctrl+click` or middle-click `grp`: cue picker list popup (`BYPASS`, `SEL`, `ACTIVE`, or any cue on that deck)
+  - right-click `grp`: toggle bypass for that deck slot
+
+### Master Cue UX pass (Deckboy Master Cues window)
+- Deck companion window retitled and resized for usability:
+  - window title is now `Deckboy Master Cues`
+  - larger default size (`980x560`) plus minimum size guard (`920x360`) to avoid cramped controls
+- Window visibility behavior tightened:
+  - hidden when only one deck exists
+  - auto-shown and raised when a second deck is created
+- Group-preset workflow surfaced as operator-facing **Master Cues**:
+  - default preset names now `Master Cue 1`, `Master Cue 2`, ...
+  - `MASTER` / `MASTERCUE` command aliases added (existing `GROUP` commands still supported)
+  - user toasts/prompts now speak in master-cue terminology
+- Deck window control updates:
+  - footer buttons now use `<MC` / `MC>` labels
+  - `New` creates an empty (all-bypass) master cue for manual per-deck programming
+  - added `Browser` cue-create button alongside `Import`/`Pattern`
+  - master-cue fire bank now pages with focus when total presets exceed visible button slots
+  - `mc` cell interaction is more direct:
+    - click = cue picker list
+    - `Shift+click` = assign active cue
+    - `Alt+click` = assign selected cue
+    - right-click = bypass toggle
+
+### Frame-accurate trim workflow improvements
+- Added scrub-to-mark trim behavior for active video cues:
+  - `I` sets trim-in at current playhead
+  - `O` sets trim-out at current playhead
+  - both marks now snap to cue frame boundaries using cue FPS
+- Legacy key actions remain available with modifiers:
+  - `Shift+I` import media picker
+  - `Shift+O` toggle time overlay
+- Added paused nudge controls for frame-accurate scrub:
+  - `Left/Right` = `-1/+1` frame
+  - `Shift+Left/Right` = `-5/+5` frames
+  - `Ctrl+Left/Right` = `-10/+10` frames
+  - `Alt+Left/Right` = `-1.0/+1.0` seconds (frame-snapped)
+
+### Video tab usability + routing matrix controls
+- Preferences -> Video modal sizing increased (especially on Video tab) to reduce cramped controls.
+- Added a direct Deck x Output routing matrix in the Video tab:
+  - click row labels to focus decks
+  - click column headers to focus outputs
+  - click matrix cells for direct assignment operations
+- Added routing mode toggle:
+  - `MOVE` (single-output routing): cell click moves deck route to that output and removes other output assignments for that deck
+  - `ADD` (fan-out routing): empty cell assigns, assigned cell unassigns (while preserving at least one route)
+- Assigned matrix cells now support direct layer nudging (`click +1`, `Shift+click -1`, `Ctrl` = x10 step), with no blocking popup.
+- Added decorative pixel-art garden in Video tab (visual only).
+
+### Per-output network streaming (SRT + RTMP)
+- Added ffmpeg-backed stream output per `OutputTarget`.
+- Added focused-output stream controls in Video tab:
+  - stream enable/disable
+  - protocol switch (`SRT` / `RTMP`)
+  - stream URL edit
+  - stream bitrate edit
+- Added Companion/remote command support:
+  - `VIDEO STREAM ON|OFF|TOGGLE`
+  - `VIDEO STREAM SRT|RTMP`
+  - `VIDEO STREAM URL ...`
+  - `VIDEO STREAM BITRATE ...`
+- Stream path now muxes H.264 video + AAC stereo audio.
+- Audio follows the output assignment stack (host deck fallback when no assignments are present).
+
+### Project schema + persistence
+- Extended `OutputTarget` with output-type and stream fields:
+  - `outputType` (`window` or `stream`)
+  - `mirrorSourceOutputIndex` (`-1` = own assignments)
+  - `streamEnabled`
+  - `streamProtocol`
+  - `streamUrl`
+  - `streamBitrateKbps`
+- Save/load updated (`output_target` rows include stream settings).
+- Normalization updated:
+  - protocol normalization (`srt`/`rtmp`)
+  - bitrate clamping (`500..50000` kbps)
+  - default URL generation per output index/protocol.
+
+### Validation
+- `cmake --build '/home/user/playboy (another copy)/build' -j4` passed.
+- `build/playboy-native --smoke` passed (`smoke failures: 0`).
+
+### Small Wrap-Up (Scale Precision + Status Visibility)
+- Fixed a compositor regression where output rendering collapsed per-cue `scaleX/scaleY` into one uniform scale.
+  - Output path now applies independent X/Y scaling and respects cue scale mode (`Fit/Fill/Stretch/Unscaled`).
+- Cue geometry controls are less quantized:
+  - `off X` / `off Y` quick-step changed from `10px` to `1px`.
+- Added direct numeric entry on geometry value cells:
+  - Click value cells for `scale X`, `scale Y`, `off X`, `off Y`, `rot` to type exact values.
+  - Numeric entry supports simple calculator expressions (`+`, `-`, `*`, `/`, parentheses).
+- Status output now includes output entities:
+  - text `STATUS` includes `OUTPUT ...` rows (`type`, `host`, `display`, `layers`, `mirror`, stream state/url/bitrate).
+  - `STATUS JSON` now includes `focusedOutput`, `outputCount`, and an `outputs[]` array.
+- `Deckboy Decks` window got a denser tracker-style pass (LSDJ-inspired):
+  - compact rows for all decks in view
+  - columns for selected/active cue numbers (`sel`/`act`)
+  - focused-deck highlight for quick scanning.
+
+## Next Agent Handoff (2026-03-04)
+- User direction is clear:
+  - Deck list needs a dedicated expandable "all decks + cue numbers at a glance" window.
+  - Existing `Deckboy Decks` window should evolve toward group-control preset launching (per-deck cue index or bypass, then fire all).
+- Current high-value follow-ups:
+  - move tracker-style deck overview into the main window area where deck columns previously dominated, while keeping detailed cue lists in the dedicated decks window.
+  - add a proper output/deck overview layout in the separate decks window (not only layer/status labels).
+  - continue Mitti parity features after deck/output UX split.
+
+---
+
 # CHANGES - Refactoring Summary (March 2025)
 
 ## Overview
