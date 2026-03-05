@@ -1,3 +1,23 @@
+2026-03-05 portability architecture pass (capture/output backend planning APIs):
+- Capture backend interfaces expanded from catalog-only into executable plan APIs:
+  - `SourceCaptureRequest`, `SourceCapturePlan`, `SourceCaptureBackend`
+  - `planSourceCapture(...)` in `native/platform/capture_backend.*`
+- Source cue runtime refactor:
+  - `MediaEngine::buildSourceCaptureArgs(...)` now delegates to
+    `planSourceCapture(...)` instead of embedded Linux-specific argument logic.
+- Output backend planning API added:
+  - `OutputBackendRouteRequest`, `OutputBackendRoutePlan`
+  - `planOutputBackendRoute(...)` in `native/platform/output_backend.*`
+- Self-check diagnostics expanded:
+  - `capture-plan-defaults: ...`
+  - `output-route-defaults: ...`
+- Docs updated:
+  - `MANUAL.md`, `DEVNOTES.md`, `docs/PARITY_MITTI.md`, `CHANGES.md`
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 stream deck profile package pass:
 - Added official Stream Deck + Companion mapping bundle:
   - `docs/streamdeck/README.md`

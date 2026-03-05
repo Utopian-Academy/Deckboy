@@ -5363,60 +5363,11 @@ class MediaEngine {
   }
 
   bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const {
-#ifdef _WIN32
-    (void) cue;
-    (void) w;
-    (void) h;
-    (void) args;
-    return false;
-#else
     std::string sourceRef = sourceCueRefFromCue(cue);
     if (sourceRef.empty()) {
       sourceRef = defaultSourceRefForKind(cue.kind);
     }
-    sourceRef = trim(sourceRef);
-    std::string sourceRefLower = toLower(sourceRef);
-
-    auto cameraDeviceForRef = [&](const std::string& refLower, const std::string& rawRef) -> std::string {
-      if (refLower.empty() || refLower == "default-camera" || refLower == "default") {
-        return "/dev/video0";
-      }
-      if (refLower.rfind("v4l2:", 0) == 0 && rawRef.size() > 5) {
-        return trim(rawRef.substr(5));
-      }
-      if (refLower.rfind("/dev/video", 0) == 0) {
-        return rawRef;
-      }
-      bool numeric = !rawRef.empty() &&
-        std::all_of(rawRef.begin(), rawRef.end(), [](unsigned char ch) { return std::isdigit(ch); });
-      if (numeric) {
-        return "/dev/video" + rawRef;
-      }
-      return rawRef;
-    };
-
-    if (cue.kind == CueKind::Camera) {
-      std::string device = cameraDeviceForRef(sourceRefLower, sourceRef);
-      if (device.empty()) {
-        device = "/dev/video0";
-      }
-      args = {
-        "ffmpeg",
-        "-hide_banner",
-        "-loglevel", "error",
-        "-f", "v4l2",
-        "-thread_queue_size", "64",
-        "-framerate", "30",
-        "-i", device,
-        "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
-        "-f", "rawvideo",
-        "-pix_fmt", "rgba",
-        "pipe:1"
-      };
-      return true;
-    }
-
-    std::string displayEnv = ":0.0";
+    std::string displayEnv;
     if (const char* envDisplay = std::getenv("DISPLAY"); envDisplay && *envDisplay) {
       std::string trimmed = trim(envDisplay);
       if (!trimmed.empty()) {
@@ -5424,64 +5375,26 @@ class MediaEngine {
       }
     }
 
-    std::string inputSpec = displayEnv + "+0,0";
-    bool useWindowId = false;
-    std::string windowId;
-    if (sourceRefLower.rfind("x11:", 0) == 0 && sourceRef.size() > 4) {
-      inputSpec = trim(sourceRef.substr(4));
-      if (inputSpec.empty()) {
-        inputSpec = displayEnv + "+0,0";
-      }
-    } else if (sourceRefLower.rfind("id:", 0) == 0 && sourceRef.size() > 3) {
-      useWindowId = true;
-      windowId = trim(sourceRef.substr(3));
-      inputSpec = displayEnv;
-    } else if (sourceRefLower.rfind("window_id:", 0) == 0 && sourceRef.size() > 10) {
-      useWindowId = true;
-      windowId = trim(sourceRef.substr(10));
-      inputSpec = displayEnv;
-    } else if (!sourceRef.empty() && sourceRef[0] == ':') {
-      inputSpec = sourceRef;
-      if (inputSpec.find('+') == std::string::npos) {
-        inputSpec += "+0,0";
-      }
-    } else if (!sourceRef.empty() && sourceRef[0] == '+') {
-      inputSpec = displayEnv + sourceRef;
-    } else if (sourceRefLower == "active-window" || sourceRefLower == "default-window"
-               || sourceRefLower == "screen" || sourceRefLower == "desktop"
-               || sourceRefLower == "default-bus" || sourceRefLower == "default-source"
-               || sourceRefLower.empty()) {
-      inputSpec = displayEnv + "+0,0";
-    }
-
-    args = {
-      "ffmpeg",
-      "-hide_banner",
-      "-loglevel", "error",
-      "-f", "x11grab",
-      "-framerate", "30",
-      "-draw_mouse", "1"
-    };
-    if (useWindowId && !windowId.empty()) {
-      args.push_back("-window_id");
-      args.push_back(windowId);
-      args.push_back("-i");
-      args.push_back(inputSpec);
+    deckboy::platform::SourceCaptureRequest request;
+    if (cue.kind == CueKind::Camera) {
+      request.kind = deckboy::platform::SourceCaptureKind::Camera;
+    } else if (cue.kind == CueKind::Syphon) {
+      request.kind = deckboy::platform::SourceCaptureKind::AppTexture;
     } else {
-      args.push_back("-video_size");
-      args.push_back(std::to_string(w) + "x" + std::to_string(h));
-      args.push_back("-i");
-      args.push_back(inputSpec);
+      request.kind = deckboy::platform::SourceCaptureKind::Window;
     }
-    args.push_back("-vf");
-    args.push_back("scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor");
-    args.push_back("-f");
-    args.push_back("rawvideo");
-    args.push_back("-pix_fmt");
-    args.push_back("rgba");
-    args.push_back("pipe:1");
+    request.sourceRef = sourceRef;
+    request.width = w;
+    request.height = h;
+    request.frameRate = 30;
+    request.drawMouse = true;
+    request.display = displayEnv;
+    auto plan = deckboy::platform::planSourceCapture(request);
+    if (!plan.supported || plan.ffmpegArgs.empty()) {
+      return false;
+    }
+    args = std::move(plan.ffmpegArgs);
     return true;
-#endif
   }
 
   void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
@@ -5947,6 +5860,29 @@ class App {
         line << ' ' << info.id << '[' << (info.supported ? "ok" : "stub") << ']';
       }
       std::cout << line.str() << '\n';
+
+      auto describeSourcePlan = [](const deckboy::platform::SourceCapturePlan& plan) {
+        return plan.backendId + "[" + (plan.supported ? "ok" : "stub") + "]";
+      };
+      deckboy::platform::SourceCaptureRequest windowReq;
+      windowReq.kind = deckboy::platform::SourceCaptureKind::Window;
+      windowReq.sourceRef = "active-window";
+      windowReq.width = 1280;
+      windowReq.height = 720;
+      windowReq.frameRate = 30;
+      windowReq.drawMouse = true;
+      windowReq.display = ":0.0";
+      deckboy::platform::SourceCaptureRequest cameraReq = windowReq;
+      cameraReq.kind = deckboy::platform::SourceCaptureKind::Camera;
+      cameraReq.sourceRef = "default-camera";
+      deckboy::platform::SourceCaptureRequest appReq = windowReq;
+      appReq.kind = deckboy::platform::SourceCaptureKind::AppTexture;
+      appReq.sourceRef = "default-bus";
+      std::cout << "capture-plan-defaults:"
+                << " window=" << describeSourcePlan(deckboy::platform::planSourceCapture(windowReq))
+                << " camera=" << describeSourcePlan(deckboy::platform::planSourceCapture(cameraReq))
+                << " app=" << describeSourcePlan(deckboy::platform::planSourceCapture(appReq))
+                << '\n';
     }
 
     {
@@ -5957,6 +5893,37 @@ class App {
         line << ' ' << info.id << '[' << (info.supported ? "ok" : "stub") << ']';
       }
       std::cout << line.str() << '\n';
+
+      auto describeRoute = [](const deckboy::platform::OutputBackendRoutePlan& route) {
+        std::ostringstream value;
+        for (size_t i = 0; i < route.steps.size(); ++i) {
+          if (i) {
+            value << '+';
+          }
+          value << route.steps[i].backendId << '[' << (route.steps[i].supported ? "ok" : "stub") << ']';
+        }
+        return value.str();
+      };
+      deckboy::platform::OutputBackendRouteRequest standardReq;
+      standardReq.outputType = "window";
+      standardReq.streamEnabled = false;
+      standardReq.ndiEnabled = false;
+      standardReq.deckLinkEnabled = false;
+      deckboy::platform::OutputBackendRouteRequest streamReq;
+      streamReq.outputType = "stream";
+      streamReq.streamEnabled = true;
+      streamReq.ndiEnabled = false;
+      streamReq.deckLinkEnabled = false;
+      deckboy::platform::OutputBackendRouteRequest ndiReq;
+      ndiReq.outputType = "window";
+      ndiReq.streamEnabled = false;
+      ndiReq.ndiEnabled = true;
+      ndiReq.deckLinkEnabled = false;
+      std::cout << "output-route-defaults:"
+                << " standard=" << describeRoute(deckboy::platform::planOutputBackendRoute(standardReq, *outputCatalog))
+                << " stream=" << describeRoute(deckboy::platform::planOutputBackendRoute(streamReq, *outputCatalog))
+                << " ndi=" << describeRoute(deckboy::platform::planOutputBackendRoute(ndiReq, *outputCatalog))
+                << '\n';
     }
 
     return 0;

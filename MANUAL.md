@@ -64,6 +64,10 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy    # custom Companion port
 PLAYBOY_PROJECT=/path/to/show.playboy ./bin/playboy  # open specific show
 ```
 
+`--self-check` now includes backend wiring diagnostics, including:
+- `capture-backends` and `capture-plan-defaults`
+- `output-backends` and `output-route-defaults`
+
 By default, Deckboy now enforces a single-instance launch lock to prevent
 runaway duplicate app spawns.
 
