@@ -180,6 +180,8 @@ can be selected.
 
 **Browser cue**: press `B`, enter a URL in the dialog. The cue is added to the
 playlist with a "web" type.
+- To edit an existing browser cue URL in-menu: select the cue, then use the
+  cue panel `url` row and click `edit`.
 
 **Source cue**:
 - Use the bottom-bar `Source` selector to choose default source kind (`Window`, `Camera`, `Syphon/Spout`).
@@ -308,6 +310,7 @@ for precise values.
 | Control | Description |
 |---------|-------------|
 | Duration | Seconds to display before auto-advancing. 0 = hold until taken. |
+| Browser URL | For browser cues, edit from cue panel `url -> edit` (accepts URL or local file path). |
 
 ### Lower-third cues
 
