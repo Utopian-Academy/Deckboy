@@ -1,3 +1,26 @@
+2026-03-05 UI cleanup + non-blocking dropdown pass:
+- Added `DECKBOY_UI_PROFILE=1` logging:
+  - frame dt logs for >50ms
+  - events/update/layout/render timings
+  - popup watchdog open/close + item counts.
+- Implemented reusable non-blocking dropdown popover (state-driven, no modal loop):
+  - click open/close, outside click close, Esc close
+  - wheel scroll, Up/Down/Enter nav
+  - type-to-filter + backspace.
+- Replaced blocking pattern/source menu flow in live UI:
+  - `PATTERN` now adds selected default pattern directly
+  - `SOURCE` now adds selected default source type directly
+  - added bottom bar selectors: `Source: ...` and `Pattern: ...`.
+- Cue panel now uses dropdown selectors for:
+  - pattern type
+  - cue transition style.
+- Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
+- Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
+- Validation:
+  - build: `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - smoke: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - self-check: `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+
 2026-03-05 integration runtime pass (ATEM + MTC + Art-Net):
 - Implemented ATEM UDP trigger bridge runtime:
   - default UDP listen port `9910` (`PLAYBOY_ATEM_BRIDGE_PORT` override)
