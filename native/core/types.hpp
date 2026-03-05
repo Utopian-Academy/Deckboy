@@ -49,6 +49,7 @@ enum class ScaleMode {
 
 struct Cue {
   std::string id;
+  std::string cueId;  // operator-facing short cue id (max 6 chars)
   std::string path;
   std::string name;
   CueKind kind = CueKind::Video;
@@ -60,12 +61,16 @@ struct Cue {
   std::string videoCodec;
   std::string audioCodec;
   bool hasAudio = false;
+  bool audioEnabled = true;
   std::uintmax_t sizeBytes = 0;
   SDL_Color color {48, 98, 48, 255};
   double fadeInSeconds = 0.0;
   double fadeOutSeconds = 0.0;
   bool loop = false;
+  bool pauseAtBeginning = false;
   bool pauseOnLastFrame = false;
+  bool transitionToNext = true;
+  std::string gotoTarget;
   double inPointSeconds = 0.0;
   double outPointSeconds = 0.0;
   double triggerTimecodeSeconds = -1.0;
@@ -111,6 +116,10 @@ struct Deck {
   bool autoAdvance = false;
   bool playlistLoop = false;
   bool shuffle = false;
+  float playlistOpacity = 1.0f;    // 0.0 - 1.0 per-deck contribution
+  bool playlistAutoFade = false;   // auto-fade deck in on take
+  double playlistFadeSeconds = 0.8;
+  std::vector<int> selectedIndices;  // optional multi-selection in cue list
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;
   int outputRouteDeckIndex = -1;
@@ -240,7 +249,7 @@ struct Button {
 };
 
 enum class QuickAction {
-  ToggleLoop, ToggleHold, CycleEndAction,
+  ToggleLoop, ToggleHold, TogglePauseBegin, ToggleCueAudio, ToggleNextTransition, EditGotoTarget, CycleEndAction,
   FadeInDec, FadeInInc, FadeOutDec, FadeOutInc,
   VolDec, VolInc,
   InDec, InInc, OutDec, OutInc,

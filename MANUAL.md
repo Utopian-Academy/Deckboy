@@ -196,6 +196,8 @@ Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
 Select a cue (click or `Up`/`Down` arrows) to see its settings in the right panel.
 If the settings list is longer than the panel, use the mouse wheel over the
 settings area to scroll.
+You can multi-select cues with `Shift+click` (range) and `Ctrl/Cmd+click`
+(toggle). Supported inspector actions apply to all selected cues.
 
 Cue settings are grouped into collapsible blocks:
 - `Playback`
@@ -218,6 +220,11 @@ Cue settings are grouped into collapsible blocks:
 | Transition | `−/+` buttons in panel | Per-cue transition duration/style override |
 | Loop | `L` | Loop the cue indefinitely |
 | Hold on last frame | `E` | Freeze on the last frame instead of stopping |
+| Pause at beginning | cue panel toggle / `PAUSEBEGIN` | Load first frame when taken (do not autoplay) |
+| Pause at end | cue panel hold toggle / `PAUSEEND` | Pause on last frame at end of cue |
+| Cue audio | cue panel toggle / `CUEAUDIO` | Enable/disable cue audio track without removing media |
+| Transition to next | cue panel toggle / `NEXTTRANS` | Use transition timing when advancing to the next cue |
+| Goto target | cue panel `goto` button / `CUEGOTO` | On cue end, jump to cue token (ID/number/name token) instead of next |
 | End action | `X` | Cycle: inherit → stop → loop → hold → auto-next |
 
 ### Output geometry, keying, and color controls (video / image / pattern / browser)
@@ -655,9 +662,12 @@ Supported OSC addresses:
 ```
 /go  /play  /pause  /stop  /clear  /next  /prev
 /select i  /take i  /goto s
+/cue/id s  /cue/audio i  /cue/pausebegin i  /cue/pauseend i  /cue/nexttrans i  /cue/goto s
 /find s  /find/next  /find/prev  /find/take s  /find/clear
 /renumber s
 /deck i  /deck/next  /deck/prev
+/deck/opacity f  /deck/autofade i  /deck/fade f
+/playlist/opacity f  /playlist/autofade i  /playlist/fade f
 /route s  /layer s|i
 /volume f  /seek f
 /autonext i  /playlistloop i
@@ -687,6 +697,7 @@ OSC bundles (`#bundle`) are supported. Accepted commands receive a
 | `Shift+Up / Shift+Down` | Reorder selected cue |
 | `Enter` | Take selected cue |
 | `Delete` | Remove selected cue |
+| `Type A-Z/0-9/-/_` | Cue ID type-ahead search (find/select matching cue token) |
 
 ### Transport
 | Key | Action |
@@ -801,6 +812,13 @@ OUT 8.5         set out-point
 TRIM CLEAR      clear in/out points
 LOOP ON|OFF
 HOLD ON|OFF
+PAUSEBEGIN ON|OFF
+PAUSEEND ON|OFF
+CUEAUDIO ON|OFF
+NEXTTRANS ON|OFF
+CUEGOTO Q12
+CUEGOTO        show current goto target
+CUEIDSHORT A1
 FADEIN 1.5      set fade-in duration
 FADEOUT 1.0     set fade-out duration
 SPEED 1.5       set playback speed (0.25–4.0×)
@@ -815,6 +833,10 @@ SCALEY 1.8      set output scale Y only (0.25–4.0×)
 AUTONEXT ON|OFF
 PLAYLISTLOOP ON|OFF
 SHUFFLE ON|OFF
+PLAYLISTOPACITY 75
+DECKOPACITY 75
+DECKAUTOFADE ON|OFF
+DECKFADE 1.2
 ```
 
 ### Master Cues / Simul-Fire
