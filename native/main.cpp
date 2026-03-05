@@ -5723,6 +5723,13 @@ class App {
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
 #endif
+    if (const char* env = std::getenv("DECKBOY_UI_PROFILE"); env && *env) {
+      std::string token = toLower(trim(env));
+      uiProfileEnabled_ = !(token == "0" || token == "false" || token == "off" || token == "no");
+    }
+    if (uiProfileEnabled_) {
+      uiProfileLog("ui profiling enabled (DECKBOY_UI_PROFILE)");
+    }
 
     controlWindow_ = SDL_CreateWindow(
       kAppTitle.data(),
@@ -5805,7 +5812,7 @@ class App {
 #endif
     startHyperDeckServer();
     startIntegrationBridges();
-    layoutButtons(kControlHeight);
+    layoutButtons(kControlWidth, kControlHeight);
     return true;
   }
 
@@ -5887,10 +5894,30 @@ class App {
   void run() {
     while (!gShouldQuit.load()) {
       auto frameStart = std::chrono::steady_clock::now();
+      auto ms = [](const auto& duration) {
+        return std::chrono::duration<double, std::milli>(duration).count();
+      };
       processEvents();
+      auto afterEvents = std::chrono::steady_clock::now();
       drainPickers();
+      auto afterPickers = std::chrono::steady_clock::now();
       update();
+      auto afterUpdate = std::chrono::steady_clock::now();
       render();
+      auto afterRender = std::chrono::steady_clock::now();
+      if (uiProfileEnabled_) {
+        double frameMs = ms(afterRender - frameStart);
+        if (frameMs > 50.0) {
+          std::ostringstream line;
+          line << std::fixed << std::setprecision(2)
+               << "frame dt=" << frameMs << "ms"
+               << " events=" << ms(afterEvents - frameStart) << "ms"
+               << " update=" << ms(afterUpdate - afterPickers) << "ms"
+               << " layout=" << lastUiLayoutMs_ << "ms"
+               << " render=" << lastUiRenderMs_ << "ms";
+          uiProfileLog(line.str());
+        }
+      }
       // Prevent CPU spin when vsync isn't gating (hidden window, browser cue, etc.)
       auto frameElapsed = std::chrono::steady_clock::now() - frameStart;
       if (frameElapsed < std::chrono::milliseconds(1)) {
@@ -15723,6 +15750,9 @@ class App {
           break;
         case SDL_MOUSEWHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
+            if (handleDropdownMouseWheel(event.wheel.y)) {
+              break;
+            }
             if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
                 pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
                 cueSettingsScrollMax_ > 0) {
@@ -15766,8 +15796,15 @@ class App {
           break;
         case SDL_MOUSEBUTTONDOWN:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
+            if (handleDropdownMouseDown(event.button.x, event.button.y)) {
+              break;
+            }
             if (event.button.button == SDL_BUTTON_RIGHT) {
-              handleRightClick(event.button.x, event.button.y);
+              if (settingsOpen_) {
+                handleSettingsClick(event.button.x, event.button.y);
+              } else {
+                handleRightClick(event.button.x, event.button.y);
+              }
             } else {
               if (contextMenuOpen_) {
                 handleContextMenuClick(event.button.x, event.button.y);
@@ -16800,6 +16837,7 @@ class App {
   }
 
   void renderControlWindow() {
+    auto uiFrameStart = std::chrono::steady_clock::now();
     int numDecks = static_cast<int>(project_.decks.size());
     deckScrolls_.resize(numDecks, 0);
     deckColumnRects_.resize(numDecks);
@@ -16814,7 +16852,8 @@ class App {
 
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
-    layoutButtons(height);
+    layoutButtons(width, height);
+    auto uiLayoutDone = std::chrono::steady_clock::now();
 
     SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
@@ -17125,7 +17164,8 @@ class App {
 
     // Content area: below header + output strip, above buttons
     int contentY = outputStrip.y + outputStrip.h + 4;
-    int contentH = (height - 74) - contentY - 4;
+    int contentBottom = bottomBarRect_.w > 0 ? bottomBarRect_.y - 8 : (height - 74);
+    int contentH = std::max(120, contentBottom - contentY);
     int contentLeft = shell.x + 4;
     int contentRight = shell.x + shell.w - 4;
     int colGap = 6;
@@ -17170,10 +17210,14 @@ class App {
       renderStartupDialog();
     }
     // Popups rendered last (on top)
+    renderDropdownPopover();
     renderContextMenu();
     renderSettingsModal();
     renderSplashOverlay();
     SDL_RenderPresent(controlRenderer_);
+    auto uiFrameEnd = std::chrono::steady_clock::now();
+    lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
+    lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
   }
 
   void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
@@ -17451,6 +17495,48 @@ class App {
   }
 
   void renderButtons() {
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0) {
+      Primitives::drawFramedPanel(controlRenderer_, bottomBarRect_,
+                                  colorFromRgba(kShellInnerColor),
+                                  colorFromRgba(kScreenDeepColor),
+                                  colorFromRgba(kShellOuterColor));
+    }
+    auto drawGroupFrame = [&](const SDL_Rect& rect, const std::string& label) {
+      if (rect.w <= 0 || rect.h <= 0) {
+        return;
+      }
+      Primitives::drawFramedPanel(controlRenderer_, rect,
+                                  colorFromRgba(kScreenLightColor),
+                                  colorFromRgba(kScreenDeepColor),
+                                  colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontSmall_, label,
+               colorFromRgba(kScreenDarkColor), rect.x + 6, rect.y - 18);
+    };
+    drawGroupFrame(mediaGroupRect_, "MEDIA");
+    drawGroupFrame(transportGroupRect_, "TRANSPORT");
+    drawGroupFrame(outputGroupRect_, "OUTPUT");
+
+    auto drawSelector = [&](const SDL_Rect& rect,
+                            const std::string& label,
+                            const std::string& value,
+                            const std::string& owner) {
+      if (rect.w <= 0 || rect.h <= 0) {
+        return;
+      }
+      bool active = dropdown_.open && dropdown_.owner == owner;
+      SDL_Color fill = active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      SDL_Color ink = active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, rect, fill,
+                                  colorFromRgba(kScreenDeepColor),
+                                  colorFromRgba(kScreenLightColor));
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, label + ": " + value, rect.w - 22),
+               ink, rect.x + 6, rect.y + 3);
+      drawText(controlRenderer_, fontSmall_, "v", ink, rect.x + rect.w - 12, rect.y + 3);
+    };
+    drawSelector(sourceDefaultDropdownRect_, "Source", sourceCueLabelForType(sourceDefaultTypeId_), "bottom.source");
+    drawSelector(patternDefaultDropdownRect_, "Pattern", patternLabelForType(patternDefaultTypeId_), "bottom.pattern");
+
     for (const auto& button : buttons_) {
       Primitives::fillRect(controlRenderer_, button.rect, button.fill);
       Primitives::strokeRect(controlRenderer_, button.rect, button.outline);
@@ -17458,7 +17544,7 @@ class App {
       drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, topRect);
       std::string keyHint;
       if (button.label == "IMPORT") keyHint = "Shift+I";
-      else if (button.label == "SOURCE") keyHint = "Menu";
+      else if (button.label == "SOURCE") keyHint = "Default";
       else if (button.label == "PATTERN") keyHint = "P";
       else if (button.label == "(A) TAKE") keyHint = "Enter";
       else if (button.label == "(B) STOP") keyHint = "S";
@@ -17476,6 +17562,11 @@ class App {
         drawHoverTip(button.tip, button.rect.x + button.rect.w / 2, button.rect.y);
         break;
       }
+    }
+    if (pointInRect(mouseX_, mouseY_, sourceDefaultDropdownRect_)) {
+      drawHoverTip("Set default source type for SOURCE button", sourceDefaultDropdownRect_.x + sourceDefaultDropdownRect_.w / 2, sourceDefaultDropdownRect_.y);
+    } else if (pointInRect(mouseX_, mouseY_, patternDefaultDropdownRect_)) {
+      drawHoverTip("Set default pattern used by PATTERN/P", patternDefaultDropdownRect_.x + patternDefaultDropdownRect_.w / 2, patternDefaultDropdownRect_.y);
     }
   }
 
@@ -17532,6 +17623,8 @@ class App {
     quickButtons_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
+    cuePatternTypeDropdownRect_ = SDL_Rect {};
+    cueTransitionStyleDropdownRect_ = SDL_Rect {};
 
     drawText(controlRenderer_, fontSmall_, "SCREEN / PROGRAM OUTPUT", colorFromRgba(kScreenDeepColor), x, y);
     drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "Insert cartridge", colorFromRgba(kScreenDeepColor), x, y + 22);
@@ -18224,12 +18317,15 @@ class App {
           std::string styleLabel = stringMixedLabel([&](const Cue& cue) {
             return cue.cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue.cueTransitionStyle;
           }, "deck");
-          if (styleLabel == "crossfade") styleLabel = "xfade";
+          styleLabel = transitionStyleLabel(styleLabel);
           SDL_Color styleFill = colorFromRgba(kScreenLightColor);
           SDL_Color styleInk = colorFromRgba(kScreenDeepColor);
           Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-          drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
-          quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle, "Cycle transition style for selected cues"});
+          drawText(controlRenderer_, fontSmall_,
+                   ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                   styleInk, styleBtn.x + 6, styleBtn.y + 7);
+          drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+          cueTransitionStyleDropdownRect_ = styleBtn;
         }
         ry += kRowStep;
 
@@ -18376,7 +18472,7 @@ class App {
           : "deck";
         drawQuickRow(ry + kRowStep * 5, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
                      QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
-        // Style button: shows cut / crossfade / dip, cycles on click
+        // Style selector dropdown
         {
           constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
           int rx = ctrl.x + 10;
@@ -18385,19 +18481,17 @@ class App {
           SDL_Rect styleBtn {styleX, ry + kRowStep * 5, styleW, 30};
           std::string curStyle = selectedCue->cueTransitionStyle.empty()
             ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-          // Abbreviate for space
-          std::string styleLabel = (curStyle == "crossfade") ? "xfade"
-                                 : (curStyle == "dip")       ? "dip"
-                                 : (curStyle == "cut")       ? "cut"
-                                 : "deck";
+          std::string styleLabel = transitionStyleLabel(curStyle);
           SDL_Color styleFill = hasCueTrans
             ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
           SDL_Color styleInk = hasCueTrans
             ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
           Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-          drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
-          quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
-            "Click to cycle: cut / crossfade / dip  (sets per-cue style)"});
+          drawText(controlRenderer_, fontSmall_,
+                   ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                   styleInk, styleBtn.x + 6, styleBtn.y + 7);
+          drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+          cueTransitionStyleDropdownRect_ = styleBtn;
         }
       }
       // loop / hold toggles side by side
@@ -18601,13 +18695,25 @@ class App {
         std::string typeId = normalizePatternTypeId(selectedCue->path);
         bool motionEnabled = endsWith(typeId, "-motion");
         std::string label = patternLabelForType(typeId);
-        if (label.size() > 26) {
-          label = label.substr(0, 23) + "...";
-        }
-        drawQuickRow(ry, "pattern", QuickAction::PatternTypePrev, label, QuickAction::PatternTypeNext,
+        SDL_Rect patternTypeLabel {ctrl.x + 10, ry, 92, 30};
+        SDL_Rect patternTypeBtn {ctrl.x + 104, ry, kCtrlW - 114, 30};
+        drawText(controlRenderer_, fontSmall_, "pattern", colorFromRgba(kScreenDeepColor),
+                 patternTypeLabel.x + 2, patternTypeLabel.y + 8);
+        Primitives::drawFramedPanel(controlRenderer_, patternTypeBtn,
+                                    colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor),
+                                    colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, label, patternTypeBtn.w - 18),
+                 colorFromRgba(kScreenDeepColor), patternTypeBtn.x + 6, patternTypeBtn.y + 7);
+        drawText(controlRenderer_, fontSmall_, "v", colorFromRgba(kScreenDeepColor),
+                 patternTypeBtn.x + patternTypeBtn.w - 12, patternTypeBtn.y + 7);
+        cuePatternTypeDropdownRect_ = patternTypeBtn;
+        drawQuickRow(ry + kRowStep, "motion", QuickAction::TogglePatternMotion,
+                     motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
                      QuickAction::TogglePatternMotion, true, motionEnabled,
-                     "Cycle pattern with +/-; center toggles motion");
-        rowOffset = 1;
+                     "Pattern motion toggle");
+        rowOffset = 2;
       }
       // Row 0: duration
       {
@@ -18629,15 +18735,15 @@ class App {
         SDL_Rect styleBtn {styleX, ry + kRowStep * (rowOffset + 1), styleW, 30};
         std::string curStyle = selectedCue->cueTransitionStyle.empty()
           ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-        std::string styleLabel = (curStyle == "crossfade") ? "xfade"
-                               : (curStyle == "dip")       ? "dip"
-                               : (curStyle == "cut")       ? "cut" : "deck";
+        std::string styleLabel = transitionStyleLabel(curStyle);
         SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
         Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
-        quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
-          "Click to cycle: cut / crossfade / dip"});
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                 styleInk, styleBtn.x + 6, styleBtn.y + 7);
+        drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+        cueTransitionStyleDropdownRect_ = styleBtn;
       }
       // Row 2: fade in
       drawQuickRow(ry + kRowStep * (rowOffset + 2), "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),
@@ -18754,15 +18860,15 @@ class App {
         SDL_Rect styleBtn {styleX, ry + kRowStep, styleW, 30};
         std::string curStyle = selectedCue->cueTransitionStyle.empty()
           ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-        std::string styleLabel = (curStyle == "crossfade") ? "xfade"
-                               : (curStyle == "dip")       ? "dip"
-                               : (curStyle == "cut")       ? "cut" : "deck";
+        std::string styleLabel = transitionStyleLabel(curStyle);
         SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
         Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, styleLabel, styleInk, styleBtn);
-        quickButtons_.push_back({styleBtn, QuickAction::CycleTransStyle,
-          "Click to cycle: cut / crossfade / dip"});
+        drawText(controlRenderer_, fontSmall_,
+                 ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                 styleInk, styleBtn.x + 6, styleBtn.y + 7);
+        drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+        cueTransitionStyleDropdownRect_ = styleBtn;
       }
       // Notes row
       {
@@ -19752,7 +19858,10 @@ class App {
         listY += kRowHeight + 8;
       }
     }
-    contextMenuOpen_ = false;
+    if (contextMenuOpen_) {
+      contextMenuOpen_ = false;
+      uiWatchdogPopupEvent("context_menu", false);
+    }
   }
 
   void openContextMenu(int deckIdx, int cueIdx, int mx, int my) {
@@ -19813,22 +19922,26 @@ class App {
       item.rect = {mx2 + 4, iy, kMenuW - 8, kItemH - 2};
       iy += kItemH;
     }
+    uiWatchdogPopupEvent("context_menu", true, static_cast<int>(contextItems_.size()));
   }
 
   void handleContextMenuClick(int x, int y) {
     if (!contextMenuOpen_) return;
     if (!pointInRect(x, y, contextMenuRect_)) {
       contextMenuOpen_ = false;
+      uiWatchdogPopupEvent("context_menu", false);
       return;
     }
     for (auto& item : contextItems_) {
       if (pointInRect(x, y, item.rect)) {
         if (item.action) item.action();
         contextMenuOpen_ = false;
+        uiWatchdogPopupEvent("context_menu", false);
         return;
       }
     }
     contextMenuOpen_ = false;
+    uiWatchdogPopupEvent("context_menu", false);
   }
 
   void renderContextMenu() {
@@ -19853,6 +19966,404 @@ class App {
                item.rect.x + 18, item.rect.y + 7);
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+  }
+
+  void uiProfileLog(const std::string& message) const {
+    if (!uiProfileEnabled_) {
+      return;
+    }
+    std::cerr << "[DECKBOY_UI_PROFILE " << SDL_GetTicks64() << "ms] " << message << '\n';
+  }
+
+  void uiWatchdogPopupEvent(const std::string& popupName, bool opening, int itemCount = -1) const {
+    if (!uiProfileEnabled_) {
+      return;
+    }
+    std::ostringstream line;
+    line << (opening ? "open " : "close ") << popupName;
+    if (itemCount >= 0) {
+      line << " items=" << itemCount;
+    }
+    uiProfileLog(line.str());
+  }
+
+  static std::optional<char> dropdownFilterCharFromKey(SDL_Keycode key, Uint16 mod) {
+    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+      return std::nullopt;
+    }
+    bool shift = (mod & KMOD_SHIFT) != 0;
+    if (key >= SDLK_a && key <= SDLK_z) {
+      char base = static_cast<char>('a' + (key - SDLK_a));
+      return shift ? static_cast<char>(std::toupper(static_cast<unsigned char>(base))) : base;
+    }
+    if (key >= SDLK_0 && key <= SDLK_9) {
+      return static_cast<char>('0' + (key - SDLK_0));
+    }
+    switch (key) {
+      case SDLK_MINUS: return shift ? '_' : '-';
+      case SDLK_UNDERSCORE: return '_';
+      case SDLK_PERIOD: return '.';
+      case SDLK_SPACE: return ' ';
+      case SDLK_SLASH: return '/';
+      default: break;
+    }
+    return std::nullopt;
+  }
+
+  std::vector<std::pair<std::string, std::string>> sourceCueTypeChoices() const {
+    std::vector<std::pair<std::string, std::string>> choices {
+      {"window", "Window Source"},
+      {"camera", "Camera Source"},
+    };
+#ifdef _WIN32
+    choices.push_back({"spout", "Spout Source"});
+#else
+    choices.push_back({"syphon", "Syphon Source"});
+#endif
+    return choices;
+  }
+
+  std::string sourceCueLabelForType(std::string token) const {
+    token = toLower(trim(token));
+    if (token == "camera") {
+      return "Camera Source";
+    }
+#ifdef _WIN32
+    if (token == "spout" || token == "syphon") {
+      return "Spout Source";
+    }
+#else
+    if (token == "spout" || token == "syphon") {
+      return "Syphon Source";
+    }
+#endif
+    return "Window Source";
+  }
+
+  CueKind sourceCueKindFromToken(std::string token) const {
+    token = toLower(trim(token));
+    if (token == "camera" || token == "cam") {
+      return CueKind::Camera;
+    }
+    if (token == "syphon" || token == "spout" || token == "siphon") {
+      return CueKind::Syphon;
+    }
+    return CueKind::WindowSource;
+  }
+
+  std::vector<std::pair<std::string, std::string>> transitionStyleChoices() const {
+    return {
+      {"cut", "cut"},
+      {"crossfade", "crossfade"},
+      {"dip", "dip black"},
+    };
+  }
+
+  std::string transitionStyleLabel(std::string token) const {
+    token = toLower(trim(token));
+    if (token == "mixed") return "mixed";
+    if (token == "deck") return "deck";
+    if (token == "cut") return "cut";
+    if (token == "dip" || token == "dipblack" || token == "dip_black") return "dip black";
+    return "crossfade";
+  }
+
+  void setSelectedCueTransitionStyle(const std::string& rawStyle) {
+    std::string style = toLower(trim(rawStyle));
+    if (style != "cut" && style != "crossfade" && style != "dip") {
+      return;
+    }
+    bool changed = false;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.cueTransitionStyle = style;
+      changed = true;
+    });
+    if (!changed) {
+      return;
+    }
+    triggerToast("cue style: " + style);
+    markProjectDirty();
+  }
+
+  void closeDropdown(bool announceClose = true) {
+    if (!dropdown_.open) {
+      return;
+    }
+    if (announceClose) {
+      uiWatchdogPopupEvent("dropdown:" + dropdown_.owner, false);
+    }
+    dropdown_ = DropdownState {};
+    dropdownLastRenderedItemCount_ = -1;
+    SDL_StopTextInput();
+  }
+
+  int dropdownVisibleRowCount() const {
+    if (!dropdown_.open) {
+      return 0;
+    }
+    int count = static_cast<int>(dropdown_.filteredIndices.size());
+    return std::max(1, std::min(dropdown_.maxVisibleRows, std::max(1, count)));
+  }
+
+  void ensureDropdownHighlightVisible() {
+    int itemCount = static_cast<int>(dropdown_.filteredIndices.size());
+    if (itemCount <= 0) {
+      dropdown_.highlightedFilteredIndex = 0;
+      dropdown_.scrollRow = 0;
+      return;
+    }
+    dropdown_.highlightedFilteredIndex = std::clamp(dropdown_.highlightedFilteredIndex, 0, itemCount - 1);
+    int visibleRows = dropdownVisibleRowCount();
+    if (dropdown_.highlightedFilteredIndex < dropdown_.scrollRow) {
+      dropdown_.scrollRow = dropdown_.highlightedFilteredIndex;
+    } else if (dropdown_.highlightedFilteredIndex >= dropdown_.scrollRow + visibleRows) {
+      dropdown_.scrollRow = dropdown_.highlightedFilteredIndex - visibleRows + 1;
+    }
+    int maxScroll = std::max(0, itemCount - visibleRows);
+    dropdown_.scrollRow = std::clamp(dropdown_.scrollRow, 0, maxScroll);
+  }
+
+  void rebuildDropdownFilteredIndices() {
+    dropdown_.filteredIndices.clear();
+    std::string filterToken = toLower(trim(dropdown_.filter));
+    for (int index = 0; index < static_cast<int>(dropdown_.options.size()); ++index) {
+      const auto& item = dropdown_.options[index];
+      if (filterToken.empty() || item.searchLabel.find(filterToken) != std::string::npos) {
+        dropdown_.filteredIndices.push_back(index);
+      }
+    }
+    if (dropdown_.filteredIndices.empty()) {
+      dropdown_.highlightedFilteredIndex = 0;
+      dropdown_.scrollRow = 0;
+    }
+    ensureDropdownHighlightVisible();
+  }
+
+  void refreshDropdownPopoverRect() {
+    if (!dropdown_.open) {
+      return;
+    }
+    int winW = 0;
+    int winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+
+    int widest = dropdown_.anchorRect.w;
+    for (const auto& item : dropdown_.options) {
+      widest = std::max(widest, item.textWidth + 28);
+    }
+    widest = std::clamp(widest, 160, std::max(220, winW - 24));
+
+    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    int visibleRows = dropdownVisibleRowCount();
+    int popH = 8 + filterH + visibleRows * dropdown_.rowHeight;
+    int popX = std::clamp(dropdown_.anchorRect.x, 6, std::max(6, winW - widest - 6));
+    int popY = dropdown_.anchorRect.y + dropdown_.anchorRect.h + 2;
+    if (popY + popH > winH - 6) {
+      popY = dropdown_.anchorRect.y - popH - 2;
+      if (popY < 6) {
+        popY = 6;
+      }
+    }
+    dropdown_.popoverRect = {popX, popY, widest, popH};
+  }
+
+  void openDropdown(const std::string& owner,
+                    const SDL_Rect& anchorRect,
+                    const std::vector<std::pair<std::string, std::string>>& options,
+                    const std::string& selectedId,
+                    std::function<void(const std::string&)> onSelect) {
+    if (dropdown_.open && dropdown_.owner == owner) {
+      closeDropdown(true);
+      return;
+    }
+
+    DropdownState next;
+    next.open = true;
+    next.owner = owner;
+    next.anchorRect = anchorRect;
+    next.options.reserve(options.size());
+    for (const auto& [id, label] : options) {
+      DropdownOptionItem item;
+      item.id = id;
+      item.label = label;
+      item.searchLabel = toLower(label + " " + id);
+      if (fontSmall_) {
+        int textW = 0;
+        TTF_SizeUTF8(fontSmall_, label.c_str(), &textW, nullptr);
+        item.textWidth = textW;
+      }
+      next.options.push_back(std::move(item));
+    }
+    next.onSelect = std::move(onSelect);
+    dropdown_ = std::move(next);
+    dropdown_.highlightedFilteredIndex = 0;
+    for (int i = 0; i < static_cast<int>(dropdown_.options.size()); ++i) {
+      if (dropdown_.options[i].id == selectedId) {
+        dropdown_.highlightedFilteredIndex = i;
+        break;
+      }
+    }
+    rebuildDropdownFilteredIndices();
+    refreshDropdownPopoverRect();
+    dropdownLastRenderedItemCount_ = -1;
+    SDL_StartTextInput();
+    uiWatchdogPopupEvent("dropdown:" + owner, true, static_cast<int>(dropdown_.options.size()));
+  }
+
+  bool handleDropdownMouseDown(int x, int y) {
+    if (!dropdown_.open) {
+      return false;
+    }
+    if (pointInRect(x, y, dropdown_.anchorRect)) {
+      closeDropdown(true);
+      return true;
+    }
+    if (!pointInRect(x, y, dropdown_.popoverRect)) {
+      closeDropdown(true);
+      return true;
+    }
+    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    int listY = dropdown_.popoverRect.y + 4 + filterH;
+    int relativeY = y - listY;
+    if (relativeY < 0) {
+      return true;
+    }
+    int row = relativeY / dropdown_.rowHeight;
+    int filteredIndex = dropdown_.scrollRow + row;
+    if (filteredIndex < 0 || filteredIndex >= static_cast<int>(dropdown_.filteredIndices.size())) {
+      return true;
+    }
+    int optionIndex = dropdown_.filteredIndices[filteredIndex];
+    std::string selectedId = dropdown_.options[optionIndex].id;
+    auto onSelect = dropdown_.onSelect;
+    closeDropdown(true);
+    if (onSelect) {
+      onSelect(selectedId);
+    }
+    return true;
+  }
+
+  bool handleDropdownMouseWheel(int wheelY) {
+    if (!dropdown_.open || !pointInRect(mouseX_, mouseY_, dropdown_.popoverRect)) {
+      return false;
+    }
+    int visibleRows = dropdownVisibleRowCount();
+    int itemCount = static_cast<int>(dropdown_.filteredIndices.size());
+    int maxScroll = std::max(0, itemCount - visibleRows);
+    dropdown_.scrollRow = std::clamp(dropdown_.scrollRow - wheelY, 0, maxScroll);
+    if (itemCount > 0) {
+      dropdown_.highlightedFilteredIndex = std::clamp(dropdown_.highlightedFilteredIndex,
+                                                      dropdown_.scrollRow,
+                                                      std::min(maxScroll + visibleRows - 1, itemCount - 1));
+    }
+    return true;
+  }
+
+  bool handleDropdownKey(SDL_Keycode key, Uint16 mod) {
+    if (!dropdown_.open) {
+      return false;
+    }
+    int itemCount = static_cast<int>(dropdown_.filteredIndices.size());
+    if (key == SDLK_ESCAPE) {
+      closeDropdown(true);
+      return true;
+    }
+    if (key == SDLK_UP && itemCount > 0) {
+      dropdown_.highlightedFilteredIndex =
+        std::max(0, dropdown_.highlightedFilteredIndex - 1);
+      ensureDropdownHighlightVisible();
+      return true;
+    }
+    if (key == SDLK_DOWN && itemCount > 0) {
+      dropdown_.highlightedFilteredIndex =
+        std::min(itemCount - 1, dropdown_.highlightedFilteredIndex + 1);
+      ensureDropdownHighlightVisible();
+      return true;
+    }
+    if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && itemCount > 0) {
+      int optionIndex = dropdown_.filteredIndices[dropdown_.highlightedFilteredIndex];
+      std::string selectedId = dropdown_.options[optionIndex].id;
+      auto onSelect = dropdown_.onSelect;
+      closeDropdown(true);
+      if (onSelect) {
+        onSelect(selectedId);
+      }
+      return true;
+    }
+    if (key == SDLK_BACKSPACE) {
+      if (!dropdown_.filter.empty()) {
+        dropdown_.filter.pop_back();
+        rebuildDropdownFilteredIndices();
+        refreshDropdownPopoverRect();
+      }
+      return true;
+    }
+    if (auto typed = dropdownFilterCharFromKey(key, mod); typed) {
+      dropdown_.filter.push_back(*typed);
+      rebuildDropdownFilteredIndices();
+      refreshDropdownPopoverRect();
+      return true;
+    }
+    return false;
+  }
+
+  void renderDropdownPopover() {
+    if (!dropdown_.open) {
+      return;
+    }
+    refreshDropdownPopoverRect();
+    Primitives::drawFramedPanel(controlRenderer_, dropdown_.popoverRect,
+                                colorFromRgba(kScreenLightColor),
+                                colorFromRgba(kScreenDeepColor),
+                                colorFromRgba(kScreenMidColor));
+    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    if (filterH > 0) {
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, "filter: " + dropdown_.filter, dropdown_.popoverRect.w - 12),
+               colorFromRgba(kScreenDarkColor),
+               dropdown_.popoverRect.x + 6,
+               dropdown_.popoverRect.y + 3);
+    }
+
+    SDL_Rect listRect {
+      dropdown_.popoverRect.x + 3,
+      dropdown_.popoverRect.y + 4 + filterH,
+      dropdown_.popoverRect.w - 6,
+      dropdown_.popoverRect.h - 7 - filterH
+    };
+    SDL_RenderSetClipRect(controlRenderer_, &listRect);
+    int drawY = listRect.y;
+    int visibleRows = dropdownVisibleRowCount();
+    for (int row = 0; row < visibleRows; ++row) {
+      int filteredIndex = dropdown_.scrollRow + row;
+      if (filteredIndex >= static_cast<int>(dropdown_.filteredIndices.size())) {
+        break;
+      }
+      int optionIndex = dropdown_.filteredIndices[filteredIndex];
+      bool highlighted = filteredIndex == dropdown_.highlightedFilteredIndex;
+      SDL_Rect rowRect {listRect.x, drawY, listRect.w, dropdown_.rowHeight};
+      SDL_Color rowFill = highlighted ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color rowInk = highlighted ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::fillRect(controlRenderer_, rowRect, rowFill);
+      drawText(controlRenderer_, fontSmall_,
+               ellipsizeToPixelWidth(fontSmall_, dropdown_.options[optionIndex].label, rowRect.w - 12),
+               rowInk, rowRect.x + 6, rowRect.y + 5);
+      drawY += dropdown_.rowHeight;
+    }
+    if (dropdown_.filteredIndices.empty()) {
+      drawText(controlRenderer_, fontSmall_, "(no matches)",
+               colorFromRgba(kScreenInkSoftColor),
+               listRect.x + 6, listRect.y + 5);
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    int renderedItems = static_cast<int>(dropdown_.filteredIndices.size());
+    if (renderedItems != dropdownLastRenderedItemCount_) {
+      dropdownLastRenderedItemCount_ = renderedItems;
+      uiProfileLog("popup render " + dropdown_.owner
+        + " items=" + std::to_string(renderedItems)
+        + " visible=" + std::to_string(visibleRows));
+    }
   }
 
   SDL_Rect settingsModalRect() const {
@@ -20649,6 +21160,7 @@ class App {
     // Check close button
     if (pointInRect(mx, my, settingsCloseBtn_)) {
       settingsOpen_ = false;
+      uiWatchdogPopupEvent("settings_modal", false);
       return;
     }
     for (const auto& sb : settingsBtns_) {
@@ -21452,9 +21964,71 @@ class App {
       return;
     }
 
+    if (handleDropdownMouseDown(x, y)) {
+      return;
+    }
+
     // Settings modal intercepts all clicks when open
     if (settingsOpen_) {
       handleSettingsClick(x, y);
+      return;
+    }
+
+    if (pointInRect(x, y, sourceDefaultDropdownRect_)) {
+      openDropdown(
+        "bottom.source",
+        sourceDefaultDropdownRect_,
+        sourceCueTypeChoices(),
+        sourceDefaultTypeId_,
+        [this](const std::string& nextType) {
+          sourceDefaultTypeId_ = trim(nextType).empty() ? "window" : trim(nextType);
+          triggerToast("source default: " + sourceCueLabelForType(sourceDefaultTypeId_));
+        });
+      return;
+    }
+    if (pointInRect(x, y, patternDefaultDropdownRect_)) {
+      openDropdown(
+        "bottom.pattern",
+        patternDefaultDropdownRect_,
+        patternTypes(),
+        patternDefaultTypeId_,
+        [this](const std::string& nextType) {
+          std::string typeId = normalizePatternTypeId(nextType);
+          if (typeId.empty() || !isKnownPatternType(typeId)) {
+            return;
+          }
+          patternDefaultTypeId_ = typeId;
+          triggerToast("pattern default: " + patternLabelForType(typeId));
+        });
+      return;
+    }
+    if (pointInRect(x, y, cuePatternTypeDropdownRect_)) {
+      const Cue* cue = selectedCuePtr();
+      if (cue && cue->kind == CueKind::Pattern) {
+        openDropdown(
+          "cue.pattern",
+          cuePatternTypeDropdownRect_,
+          patternTypes(),
+          normalizePatternTypeId(cue->path),
+          [this](const std::string& nextType) {
+            applyPatternTypeToSelectedCue(nextType, true);
+          });
+        return;
+      }
+    }
+    if (pointInRect(x, y, cueTransitionStyleDropdownRect_)) {
+      const Cue* cue = selectedCuePtr();
+      std::string currentStyle = cue
+        ? (cue->cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue->cueTransitionStyle)
+        : focusedDeck().transitionStyle;
+      openDropdown(
+        "cue.transition_style",
+        cueTransitionStyleDropdownRect_,
+        transitionStyleChoices(),
+        toLower(trim(currentStyle)),
+        [this](const std::string& nextStyle) {
+          setSelectedCueTransitionStyle(nextStyle);
+        });
       return;
     }
     for (const auto& outputBtn : outputMenuButtons_) {
@@ -21709,6 +22283,7 @@ class App {
     // Settings gear button
     if (pointInRect(x, y, settingsGearRect_)) {
       settingsOpen_ = !settingsOpen_;
+      uiWatchdogPopupEvent("settings_modal", settingsOpen_);
       return;
     }
     // BLK (blackout) button
@@ -21826,8 +22401,15 @@ class App {
       return;
     }
 
+    if (handleDropdownKey(key, mod)) {
+      return;
+    }
+
     if (settingsOpen_) {
-      if (key == SDLK_ESCAPE) settingsOpen_ = false;
+      if (key == SDLK_ESCAPE) {
+        settingsOpen_ = false;
+        uiWatchdogPopupEvent("settings_modal", false);
+      }
       return;
     }
 
@@ -22096,9 +22678,10 @@ class App {
     if (label == "IMPORT") {
       importWithPicker();
     } else if (label == "SOURCE") {
-      addSourceCueFromMenu();
+      CueKind kind = sourceCueKindFromToken(sourceDefaultTypeId_);
+      addSourceCue(kind, defaultSourceRefForKind(kind));
     } else if (label == "PATTERN") {
-      addPatternCueFromMenu();
+      addKawaiiPatternCue();
     } else if (label == "(A) TAKE") {
       jumpSelectedCue();
     } else if (label == "START PLAY") {
@@ -22110,6 +22693,7 @@ class App {
     } else if (label == "OUTPUT") {
       settingsOpen_ = true;
       settingsTab_ = 3;
+      uiWatchdogPopupEvent("settings_modal", true);
     }
   }
 
@@ -24938,34 +25522,8 @@ class App {
   }
 
   void addSourceCueFromMenu() {
-    std::vector<std::pair<std::string, std::string>> choices {
-      {"Window Source", "window"},
-      {"Camera Source", "camera"},
-#ifdef _WIN32
-      {"Spout Source", "spout"}
-#else
-      {"Syphon Source", "syphon"}
-#endif
-    };
-    auto picked = pickChoiceFromList("Add Source Cue", "Choose source type", choices, "window");
-    if (!picked) {
-      return;
-    }
-    std::string token = toLower(trim(*picked));
-    CueKind kind = CueKind::WindowSource;
-    std::string prompt = "Window title / id (blank = active-window)";
-    std::string initial = "active-window";
-    if (token == "camera" || token == "cam") {
-      kind = CueKind::Camera;
-      prompt = "Camera device path/name (blank = default-camera)";
-      initial = "default-camera";
-    } else if (token == "syphon" || token == "spout" || token == "siphon") {
-      kind = CueKind::Syphon;
-      prompt = "Syphon/Spout source id (blank = default-bus)";
-      initial = "default-bus";
-    }
-    auto source = pickTextInput("Source Cue", prompt, initial);
-    addSourceCue(kind, source ? *source : initial);
+    CueKind kind = sourceCueKindFromToken(sourceDefaultTypeId_);
+    addSourceCue(kind, defaultSourceRefForKind(kind));
   }
 
   void addLowerThirdCue() {
@@ -25167,16 +25725,7 @@ class App {
   }
 
   void addPatternCueFromMenu() {
-    std::vector<std::pair<std::string, std::string>> choices;
-    choices.reserve(patternTypes().size());
-    for (const auto& [id, label] : patternTypes()) {
-      choices.push_back({label, id});
-    }
-    auto picked = pickChoiceFromList("Add Pattern", "Choose test pattern type", choices, patternDefaultTypeId_);
-    if (!picked) {
-      return;
-    }
-    addPatternCue(*picked);
+    addPatternCue(patternDefaultTypeId_);
   }
 
   void addKawaiiPatternCue() {
@@ -25358,29 +25907,95 @@ class App {
     return false;
   }
 
-  void layoutButtons(int windowHeight) {
+  void layoutButtons(int windowWidth, int windowHeight) {
     buttons_.clear();
-    int x = kPadding + 16;
-    int y = windowHeight - 94;
+    bottomBarRect_ = SDL_Rect {};
+    mediaGroupRect_ = SDL_Rect {};
+    transportGroupRect_ = SDL_Rect {};
+    outputGroupRect_ = SDL_Rect {};
+    sourceDefaultDropdownRect_ = SDL_Rect {};
+    patternDefaultDropdownRect_ = SDL_Rect {};
+
+    int barX = kPadding + 8;
+    int barW = std::max(540, windowWidth - (kPadding + 8) * 2);
+    int barH = 104;
+    int barY = std::max(8, windowHeight - barH - 12);
+    bottomBarRect_ = {barX, barY, barW, barH};
+
+    constexpr int kButtonCount = 8;
+    constexpr int kGroup1 = 3;
+    constexpr int kGroup2 = 3;
+    constexpr int kGroup3 = 2;
+    int buttonY = barY + 40;
+    int buttonH = 56;
+    int itemGap = 8;
+    int groupGap = 16;
+    int totalGap = itemGap * (kButtonCount - 1) + groupGap * 2;
+    int buttonW = std::clamp((barW - 24 - totalGap) / kButtonCount, 96, 136);
+    int usedW = buttonW * kButtonCount + totalGap;
+    int x = barX + (barW - usedW) / 2;
+    SDL_Rect sourceButtonRect {};
+    SDL_Rect patternButtonRect {};
+    int buttonIndex = 0;
+
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
       button.label = std::move(label);
       button.tip   = std::move(tip);
-      button.rect = {x, y, 138, 56};
+      button.rect = {x, buttonY, buttonW, buttonH};
       button.fill = fill;
       button.outline = colorFromRgba(kScreenDeepColor);
       button.text = colorFromRgba(kScreenDeepColor);
       buttons_.push_back(button);
-      x += button.rect.w + 12;
+      if (buttons_.back().label == "SOURCE") {
+        sourceButtonRect = button.rect;
+      } else if (buttons_.back().label == "PATTERN") {
+        patternButtonRect = button.rect;
+      }
+      ++buttonIndex;
+      x += button.rect.w;
+      if (buttonIndex == kGroup1 || buttonIndex == kGroup1 + kGroup2) {
+        x += groupGap;
+      } else {
+        x += itemGap;
+      }
     };
     push("IMPORT",     colorFromRgba(kScreenMidColor), "Shift+I — import media files");
-    push("SOURCE",     colorFromRgba(kScreenMidColor), "Add live source cue (window/camera/syphon-spout)");
-    push("PATTERN",    colorFromRgba(kScreenMidColor), "Open test pattern menu");
+    push("SOURCE",     colorFromRgba(kScreenMidColor), "Add source cue using selected source type");
+    push("PATTERN",    colorFromRgba(kScreenMidColor), "Add default pattern cue");
     push("(A) TAKE",   colorFromRgba(kScreenLightColor), "Enter — take selected cue live");
     push("(B) STOP",   colorFromRgba(kScreenMidColor), "S — stop and rewind active cue");
     push("START PLAY", colorFromRgba(kScreenMidColor), "Space — play/pause active cue");
     push("SELECT CLR", colorFromRgba(kScreenMidColor), "C — clear output to black");
     push("OUTPUT",     colorFromRgba(kScreenMidColor), "Open video output settings");
+
+    if (!buttons_.empty()) {
+      mediaGroupRect_ = {
+        buttons_[0].rect.x - 6,
+        barY + 30,
+        (buttons_[kGroup1 - 1].rect.x + buttons_[kGroup1 - 1].rect.w) - buttons_[0].rect.x + 12,
+        buttonH + 10
+      };
+      transportGroupRect_ = {
+        buttons_[kGroup1].rect.x - 6,
+        barY + 30,
+        (buttons_[kGroup1 + kGroup2 - 1].rect.x + buttons_[kGroup1 + kGroup2 - 1].rect.w)
+          - buttons_[kGroup1].rect.x + 12,
+        buttonH + 10
+      };
+      outputGroupRect_ = {
+        buttons_[kGroup1 + kGroup2].rect.x - 6,
+        barY + 30,
+        (buttons_.back().rect.x + buttons_.back().rect.w) - buttons_[kGroup1 + kGroup2].rect.x + 12,
+        buttonH + 10
+      };
+    }
+    if (sourceButtonRect.w > 0) {
+      sourceDefaultDropdownRect_ = {sourceButtonRect.x, barY + 8, sourceButtonRect.w, 20};
+    }
+    if (patternButtonRect.w > 0) {
+      patternDefaultDropdownRect_ = {patternButtonRect.x, barY + 8, patternButtonRect.w, 20};
+    }
   }
 
   const Cue* selectedCuePtr(int deckIndex) const {
@@ -25633,11 +26248,39 @@ class App {
   };
   std::vector<ContextItem> contextItems_;
 
-  // Pattern picker popup
-  bool patternPickerOpen_ = false;
-  SDL_Rect patternPickerRect_ {};
-  struct PatternItem { std::string label; std::string typeId; SDL_Rect rect {}; };
-  std::vector<PatternItem> patternItems_;
+  struct DropdownOptionItem {
+    std::string id;
+    std::string label;
+    std::string searchLabel;
+    int textWidth = 0;
+  };
+
+  struct DropdownState {
+    bool open = false;
+    std::string owner;
+    SDL_Rect anchorRect {};
+    SDL_Rect popoverRect {};
+    std::vector<DropdownOptionItem> options;
+    std::vector<int> filteredIndices;
+    int highlightedFilteredIndex = 0;
+    int scrollRow = 0;
+    int rowHeight = 24;
+    int maxVisibleRows = 10;
+    std::string filter;
+    std::function<void(const std::string&)> onSelect;
+  };
+
+  DropdownState dropdown_;
+  int dropdownLastRenderedItemCount_ = -1;
+  SDL_Rect bottomBarRect_ {};
+  SDL_Rect mediaGroupRect_ {};
+  SDL_Rect transportGroupRect_ {};
+  SDL_Rect outputGroupRect_ {};
+  SDL_Rect sourceDefaultDropdownRect_ {};
+  SDL_Rect patternDefaultDropdownRect_ {};
+  SDL_Rect cuePatternTypeDropdownRect_ {};
+  SDL_Rect cueTransitionStyleDropdownRect_ {};
+  std::string sourceDefaultTypeId_ = "window";
   std::string patternDefaultTypeId_ = "pocket-test";
 
   // Deck settings modal
@@ -25711,6 +26354,9 @@ class App {
   ToastState toast_;
   Uint64 animationNow_ = 0;
   Uint64 selectionChangedAt_ = 0;
+  bool uiProfileEnabled_ = false;
+  double lastUiLayoutMs_ = 0.0;
+  double lastUiRenderMs_ = 0.0;
   Uint64 lastUpdateTickMs_ = 0;
   Uint64 lastDisplayPollMs_ = 0;
   Uint64 lastOutputRecoveryPollMs_ = 0;
