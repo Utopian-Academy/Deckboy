@@ -19,6 +19,10 @@
 - Source editor prompts/labels were simplified for humans:
   - "Focused Window (recommended)" display label
   - alias input support (`focused`, `recommended`, `default`).
+- Source entry was simplified further:
+  - Window prompt now says: `Type focused, then press Enter.`
+  - Camera/Syphon prompt now says: `Type default, then press Enter.`
+  - Per-kind alias resolution now applies correctly across multi-select source edits.
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:
