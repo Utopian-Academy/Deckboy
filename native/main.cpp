@@ -5981,6 +5981,43 @@ class App {
     }
 
     {
+      deckboy::platform::SourceCaptureRequest request;
+      request.kind = deckboy::platform::SourceCaptureKind::Window;
+      request.sourceRef = "active-window";
+      request.width = 1280;
+      request.height = 720;
+      request.frameRate = 30;
+      request.drawMouse = true;
+      request.display = ":0.0";
+      auto plan = deckboy::platform::planSourceCapture(request);
+#if defined(__linux__)
+      expect(plan.supported && !plan.ffmpegArgs.empty() && plan.backendId == "x11grab", "capture backend plan");
+#else
+      expect(!plan.supported && !plan.backendId.empty(), "capture backend plan");
+#endif
+    }
+
+    {
+      auto outputCatalog = deckboy::platform::createOutputBackendCatalog();
+      deckboy::platform::OutputBackendRouteRequest request;
+      request.outputType = "stream";
+      request.streamEnabled = true;
+      request.ndiEnabled = true;
+      request.deckLinkEnabled = false;
+      auto route = deckboy::platform::planOutputBackendRoute(request, *outputCatalog);
+      bool hasStream = false;
+      bool hasNdi = false;
+      for (const auto& step : route.steps) {
+        if (step.backendId == "stream") {
+          hasStream = true;
+        } else if (step.backendId == "ndi") {
+          hasNdi = true;
+        }
+      }
+      expect(hasStream && hasNdi, "output backend route plan");
+    }
+
+    {
       Project project;
       project.outputCanvasEnabled = true;
       project.outputCanvasWidth = 5760;
@@ -8055,6 +8092,72 @@ class App {
     }
     escaped.push_back('\'');
     return escaped;
+  }
+
+  struct OutputBackendRuntimeRoute {
+    bool windowSupported = true;
+    bool streamSupported = false;
+    bool ndiSupported = false;
+    bool deckLinkSupported = false;
+    std::string summary;
+  };
+
+  const deckboy::platform::OutputBackendCatalog& outputBackendCatalog() const {
+    static std::unique_ptr<deckboy::platform::OutputBackendCatalog> catalog =
+      deckboy::platform::createOutputBackendCatalog();
+    return *catalog;
+  }
+
+  deckboy::platform::OutputBackendRouteRequest outputBackendRouteRequestForOutput(int outputIndex) const {
+    deckboy::platform::OutputBackendRouteRequest request;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return request;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    request.outputType = normalizeOutputType(output.outputType);
+    request.streamEnabled = output.streamEnabled;
+    request.ndiEnabled = output.ndiEnabled || output.ndiKeyEnabled;
+    request.deckLinkEnabled = false;
+    return request;
+  }
+
+  OutputBackendRuntimeRoute resolveOutputBackendRuntimeRoute(int outputIndex) const {
+    OutputBackendRuntimeRoute route;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      route.summary = "invalid";
+      return route;
+    }
+    auto request = outputBackendRouteRequestForOutput(outputIndex);
+    auto plan = deckboy::platform::planOutputBackendRoute(request, outputBackendCatalog());
+    std::ostringstream summary;
+    bool wroteToken = false;
+    for (const auto& step : plan.steps) {
+      if (wroteToken) {
+        summary << '+';
+      }
+      summary << step.backendId << '[' << (step.supported ? "ok" : "stub") << ']';
+      wroteToken = true;
+      switch (step.kind) {
+        case deckboy::platform::OutputRouteKind::Window:
+          route.windowSupported = step.supported;
+          break;
+        case deckboy::platform::OutputRouteKind::Stream:
+          route.streamSupported = step.supported;
+          break;
+        case deckboy::platform::OutputRouteKind::Ndi:
+          route.ndiSupported = step.supported;
+          break;
+        case deckboy::platform::OutputRouteKind::DeckLink:
+          route.deckLinkSupported = step.supported;
+          break;
+      }
+    }
+    route.summary = wroteToken ? summary.str() : "none";
+    return route;
+  }
+
+  std::string outputBackendRouteSummary(int outputIndex) const {
+    return resolveOutputBackendRuntimeRoute(outputIndex).summary;
   }
 
   double outputStreamFps(double fpsHint) const {
@@ -10656,6 +10759,7 @@ class App {
       std::string mirror = out.mirrorSourceOutputIndex >= 0 ? std::to_string(out.mirrorSourceOutputIndex + 1) : "off";
       std::string url = trim(out.streamUrl);
       int alphaPct = static_cast<int>(std::lround(std::clamp(out.outputAlpha, 0.0f, 1.0f) * 100.0f));
+      std::string backendRoute = outputBackendRouteSummary(outputIndex);
       std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
       std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
       if (url.empty()) {
@@ -10687,6 +10791,7 @@ class App {
              << " layout=" << normalizeOutputLayoutMode(out.outputLayoutMode)
              << " orientation=" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees)
              << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
+             << " backend=" << backendRoute
              << '\n';
     }
     for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
@@ -10832,6 +10937,7 @@ class App {
       std::string protocol = normalizeOutputStreamProtocol(out.streamProtocol);
       std::string url = trim(out.streamUrl);
       int alphaPct = static_cast<int>(std::lround(std::clamp(out.outputAlpha, 0.0f, 1.0f) * 100.0f));
+      std::string backendRoute = outputBackendRouteSummary(outputIndex);
       std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
       std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
       if (url.empty()) {
@@ -10863,7 +10969,8 @@ class App {
              << "\"outputColorSpace\":\"" << escapeJson(normalizeOutputColorSpace(out.outputColorSpace)) << "\","
              << "\"outputLayoutMode\":\"" << escapeJson(normalizeOutputLayoutMode(out.outputLayoutMode)) << "\","
              << "\"outputOrientation\":" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees) << ","
-             << "\"outputTestCard\":" << (out.outputTestCardEnabled ? "true" : "false")
+             << "\"outputTestCard\":" << (out.outputTestCardEnabled ? "true" : "false") << ","
+             << "\"backendRoute\":\"" << escapeJson(backendRoute) << "\""
              << "}";
     }
     output << "],"
@@ -18656,6 +18763,7 @@ class App {
     if (!output.enabled) {
       return;
     }
+    OutputBackendRuntimeRoute backendRoute = resolveOutputBackendRuntimeRoute(outputIndex);
     std::string outputType = normalizeOutputType(output.outputType);
     bool streamType = outputType == "stream";
     int compositionOutputIndex = outputIndex;
@@ -18831,9 +18939,13 @@ class App {
         presentOutputCompositorToWindow(outputIndex, width, height);
       }
     }
+    bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
+    bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
+    if (!streamRouteActive) {
+      stopOutputStreamRuntime(*runtime);
+    }
     bool needsEgressCapture =
-      output.streamEnabled || output.ndiEnabled || output.ndiKeyEnabled
-      || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      streamRouteActive || ndiRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
     SDL_Rect egressRect {0, 0, renderW, renderH};
     if (usingCompositor) {
       egressRect.w = std::max(1, std::min(width, renderW));
@@ -18858,8 +18970,12 @@ class App {
         break;
       }
     }
-    sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
-    sendOutputStreamFrame(outputIndex, width, height, fpsHint);
+    if (ndiRouteActive) {
+      sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
+    }
+    if (streamRouteActive) {
+      sendOutputStreamFrame(outputIndex, width, height, fpsHint);
+    }
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);
     }
