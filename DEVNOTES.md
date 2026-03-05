@@ -36,3 +36,19 @@ Video Outputs routing rows use per-deck action ranges in `native/main.cpp`:
 - `kSettingsActionRoutingTableAssignToggleBase`
 
 Click handling lives in `handleSettingsClick()`.
+
+## Warp Mode Implementation
+- Deck warp state now includes `Deck.warpMode` (`linear` | `perspective`) in `native/core/types.hpp`.
+- Normalize/save/load wiring lives in:
+  - `normalizeWarpMode(...)`
+  - `saveProject(...)` / `loadProject(...)` deck row handling in `native/main.cpp`.
+- UI control lives in Video Outputs -> Advanced row:
+  - action id `kSettingsActionOutputWarpModeCycle`
+  - handled in `handleSettingsClick()`.
+- Command control lives in `handleRemoteCommand(...)`:
+  - `VIDEO WARP MODE LINEAR|PERSPECTIVE|NEXT|PREV`
+  - direct aliases: `VIDEO WARP LINEAR|PERSPECTIVE`.
+- Render behavior:
+  - `linear`: existing quad geometry path
+  - `perspective`: tessellated projective UV mapping via `renderPerspectiveWarp(...)`.
+  - Mesh density is controlled by `kCols` / `kRows` inside `renderPerspectiveWarp(...)`.
