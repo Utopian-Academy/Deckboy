@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (Decks window visibility behavior)
+
+- Updated Decks window default behavior for single-deck shows:
+  - Decks window now starts hidden by default.
+  - It auto-opens when the show crosses from 1 deck to 2 decks.
+  - Operators can still open it manually from the `decks` header toggle.
+- Improved operator control behavior:
+  - Header `decks` button now toggles open/close instead of only opening.
+  - Closing the Decks window now keeps it closed (no forced auto-reopen loop).
+- New/open show handling:
+  - Manual Decks-window-open state resets on `New` and `Open` show actions, then visibility is re-evaluated from deck count.
+- Minor render hygiene:
+  - Decks panel renderer now skips render work while hidden.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (UI de-clutter + non-blocking dropdown pass)
 
 ### Freeze fix + instrumentation

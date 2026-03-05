@@ -1039,3 +1039,14 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 decks window visibility behavior cleanup:
+- Updated Decks window visibility logic so single-deck shows start with Decks window hidden.
+- Auto-open behavior now triggers when deck count crosses from 1 to 2 (new second deck created).
+- Header `decks` button now toggles window open/close instead of only opening.
+- Decks window close event now hides the window and keeps it closed (no forced immediate reopen).
+- `New` / `Open` show actions now reset manual Decks-window-open state before re-evaluating visibility.
+- Render path now skips Decks panel drawing when the Decks window is hidden.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
