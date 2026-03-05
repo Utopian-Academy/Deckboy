@@ -29,7 +29,11 @@ class DefaultOutputBackendCatalog final : public OutputBackendCatalog {
   std::vector<OutputBackendInfo> list() const override {
     std::vector<OutputBackendInfo> out;
     out.push_back({"window", "SDL Window Output", true, ""});
+#if defined(_WIN32)
+    out.push_back({"stream", "FFmpeg Stream Output", false, "runtime backend pending on Windows"});
+#else
     out.push_back({"stream", "FFmpeg Stream Output", true, ""});
+#endif
 #if defined(PLAYBOY_HAS_NDI_SDK)
     out.push_back({"ndi", "NDI Output", true, ""});
 #else
