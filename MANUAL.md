@@ -62,6 +62,7 @@ Useful flags:
 ./scripts/generate_demo_shows.sh  # generate demo .playboy show files
 PLAYBOY_COMPANION_PORT=5610 ./bin/playboy    # custom Companion port
 PLAYBOY_PROJECT=/path/to/show.playboy ./bin/playboy  # open specific show
+DECKBOY_UI_PROFILE=1 ./bin/playboy  # UI timing + popup watchdog logs
 ```
 
 `--self-check` now includes backend wiring diagnostics, including:
@@ -116,7 +117,7 @@ be loaded.
 │               │                          │  (text prompts when      │
 │               │                          │   no cue is selected)    │
 ├───────────────┴──────────────────────────┴──────────────────────────┤
-│  Import │ Take │ Go/Pause │ Stop │ Clear │ Fullscreen │ Delete │ ... │
+│  MEDIA (Import/Source/Pattern) | TRANSPORT (A/B/Start) | OUTPUT (Clear/Output) │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -137,6 +138,9 @@ Main-window output strip quick controls (always visible):
   cross-deck awareness.
 - Program monitor includes `STACK VIEW (Output X)` so deck/layer occupancy for
   the focused output is visible at a glance.
+- Bottom control strip is grouped for scanability:
+  - `MEDIA`, `TRANSPORT`, `OUTPUT`
+  - includes default selectors for `Source` and `Pattern` cue type.
 
 **Hover tips**: hover over any button, cue row, or progress bar to see a
 contextual tip.
@@ -170,8 +174,11 @@ can be selected.
 playlist with a "web" type.
 
 **Source cue**:
-- Click the main control bar `SOURCE` button.
-- Pick source kind (`Window`, `Camera`, `Syphon/Spout`) and enter a source ref.
+- Use the bottom-bar `Source` selector to choose default source kind (`Window`, `Camera`, `Syphon/Spout`).
+- Click `SOURCE` to add immediately with default refs:
+  - `window -> active-window`
+  - `camera -> default-camera`
+  - `syphon/spout -> default-bus`
 - Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
 - Linux source-ref quick examples:
   - `SOURCE WINDOW active-window` (full desktop capture)
@@ -182,12 +189,12 @@ playlist with a "web" type.
   - `SOURCE SYPHON default-bus` (desktop fallback on Linux)
 
 **Pattern cue**:
-- Click the main control bar `Pattern` button to open the in-app pattern menu.
-- Press `P` to add the currently selected default pattern (keyboard optional).
+- Use the bottom-bar `Pattern` selector to choose the default pattern type.
+- Click `PATTERN` (or press `P`) to add that default pattern immediately.
 - Use Companion `PATTERN <type>` for direct type add.
-- For an existing pattern cue, use the cue-settings `pattern` row:
-  - `- / +` cycles pattern type
-  - center toggle switches motion on/off (for supported types)
+- For an existing pattern cue, use the cue-settings dropdown:
+  - `Pattern Type: ... v` selects type
+  - `motion` row toggles motion on/off (for supported types).
 
 **Lower-third / graphic**: press `G` to add a blank lower-third overlay cue.
 Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
@@ -225,7 +232,7 @@ Cue settings are grouped into collapsible blocks:
 | Fade Out | `Shift+[ / Shift+]` | Automatic fade-out duration |
 | In-point | `−/+` buttons in panel | Where playback begins |
 | Out-point | `−/+` buttons in panel | Where playback ends (0 = end of file) |
-| Transition | `−/+` buttons in panel | Per-cue transition duration/style override |
+| Transition | `−/+` + style dropdown | Per-cue transition duration override and style (`cut/crossfade/dip`) |
 | Loop | `L` | Loop the cue indefinitely |
 | Hold on last frame | `E` | Freeze on the last frame instead of stopping |
 | Pause at beginning | cue panel toggle / `PAUSEBEGIN` | Load first frame when taken (do not autoplay) |
