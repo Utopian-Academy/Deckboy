@@ -1060,3 +1060,17 @@ Refactor note:
 - Validation:
   - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
   - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+2026-03-05 browser cue URL editability fix:
+- Implemented in-menu URL editing for browser cues in the Cue Panel.
+- Browser cues now appear in the still/pattern/source settings branch and show:
+  - `url` value row
+  - `edit` action button
+- Added `QuickAction::EditBrowserUrl` and action handling via prompt:
+  - prompt text: `Enter URL or local file path:`
+  - input is normalized through existing `normalizeBrowserUrl(...)` logic.
+- Active browser cue behavior:
+  - if edited cue is currently active, Deckboy retakes/reloads that browser cue so URL updates can apply immediately.
+- Validation:
+  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)

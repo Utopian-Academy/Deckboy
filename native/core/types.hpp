@@ -287,6 +287,7 @@ enum class QuickAction {
   CycleColorTag,
   EditNotes,
   EditSourceRef,
+  EditBrowserUrl,
   GotoMinus10, GotoMinus20, GotoMinus30,
   CycleScaleMode,
   ScaleXDec, ScaleXInc,
