@@ -1,3 +1,20 @@
+2026-03-05 multi-select inspector parity pass:
+- Added multi-selection cue inspector mode with:
+  - common-controls rendering
+  - mixed-value tokens for conflicting fields
+  - compatibility masking for geometry/key sections.
+- Completed multi-apply behavior for inspector quick actions that were previously anchor-only:
+  - trim in/out/reset, cue tc mark set/clear
+  - loop/hold/pause-begin/audio/next-transition toggles
+  - fade in/out, per-cue transition duration/style, end action
+  - geometry (scale mode, scale x/y, offsets, rotation, crop)
+  - key + color controls
+  - still duration, lower-third alpha, repeat count, speed.
+- Added first-eligible cue lookup for mixed selections to avoid noop when focused cue kind is incompatible.
+- Validation:
+  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
+  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+
 2026-03-05 osc query + osc mirror feedback pass:
 - Implemented optional OSC Query HTTP server (Linux path) with:
   - `/` html endpoint page

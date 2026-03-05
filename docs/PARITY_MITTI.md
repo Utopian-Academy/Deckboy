@@ -16,7 +16,7 @@ Deckboy currently ships the core live workflow: media import, cue lists, deck ru
 | UI / Playlist | Playlist Preferences (FPS/timebase, defaults for new cues, still duration) | Partial+ | Deck-level playlist preferences implemented in System settings (timebase/start/fade/still + default toggles) with persistence + new-cue apply. Remaining gap: full dedicated dialog UX and show-level/global preset options. |
 | Cues | Cue ID search / jump by ID | Yes (operator ID) | Added short operator cue IDs (`cueId`), typed ID search buffer, and token lookup by `cueId`/number/name in `native/main.cpp`. |
 | Cues | Color tags + notes | Yes (extended) | Already implemented (`Cue.colorTag`, `Cue.notes`) with UI + persistence. Extend to multi-edit path. |
-| Cues | Multi-select cue edit | Partial | Shift-range/Ctrl-toggle multi-select and batch apply for key cue edits (notes/id/loop/hold/fade/tag + new parity toggles). Remaining inspector rows still single-cue in some areas. |
+| Cues | Multi-select cue edit | Partial+ | Multi-select inspector now shows shared/common controls with mixed-value display and applies quick edits across selection for playback/geometry/key/metadata fields. Remaining gap: richer per-field “set absolute” dialogs for every numeric control. |
 | Cues | Pause at beginning | Yes | Added `Cue.pauseAtBeginning` and take path integration (`takeSelected`) with load-without-autoplay behavior. |
 | Cues | Pause at end | Yes | Already implemented (`pauseOnLastFrame`, endAction). |
 | Cues | Per-cue audio enable/disable | Yes | Added `Cue.audioEnabled`; decode path now honors per-cue audio enable and persists/commands/UI toggle exist. |
