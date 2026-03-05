@@ -27,6 +27,9 @@
   - pack root detection: `data/ui/deckboy_ui_pack_v3` -> fallback `..._v2`
   - integrated art: header, output chips, cue icons, monitor frame, splash
   - mascot art stays out of live controls (splash branding only).
+- Output arming stability fix:
+  - recovery no longer loops when SDL reports transient window display index `-1`
+  - display mismatch recovery now requires non-fullscreen + valid window display index.
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:
