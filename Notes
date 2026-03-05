@@ -30,6 +30,8 @@
 - Output arming stability fix:
   - recovery no longer loops when SDL reports transient window display index `-1`
   - display mismatch recovery now requires non-fullscreen + valid window display index.
+  - added recovery throttle + recent-fullscreen-request gating to stop repeated
+    fullscreen reapply storms on unstable WM/driver transitions.
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:

@@ -60,6 +60,10 @@
   - recovery logic no longer treats `SDL_GetWindowDisplayIndex(...) == -1` as an automatic display mismatch
   - display-mismatch recovery is now only evaluated when the output window is non-fullscreen and the window display index is valid.
 - This prevents repeated fullscreen tear-down/reapply cycles during output arming/recovery on some SDL/display-driver combinations.
+- Added anti-thrash recovery gating:
+  - non-fullscreen auto-recovery now only triggers shortly after an explicit fullscreen request
+  - hidden/minimized/wrong-display recovery remains active
+  - recovery attempts are throttled to avoid repeated toggle storms.
 
 ## 2026-03-05 (Integration runtime pass: ATEM bridge + MTC ingest + Art-Net triggers)
 
