@@ -32,6 +32,8 @@
   - pattern cue `Pattern Type` now uses dropdown instead of +/- cycling row
   - transition style controls now use dropdown selectors (multi-select + single cue flows)
   - source cues now include in-menu `source` value editing via non-blocking inline text editor.
+  - source editor now uses human-friendly labels/prompts and accepts plain aliases:
+    - `focused`/`recommended` (window) and `default` (camera/syphon).
 
 ### Layout cleanup
 - Refactored bottom bar layout to grouped sections: `MEDIA`, `TRANSPORT`, `OUTPUT`.
