@@ -1,5 +1,47 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-05 (UI de-clutter + non-blocking dropdown pass)
+
+### Freeze fix + instrumentation
+- Added `DECKBOY_UI_PROFILE=1` instrumentation for UI-thread timing and popup watchdog logs:
+  - frame timing logs when `dt > 50ms`
+  - segmented timings: event handling, update, layout, render
+  - popup open/close logs with item counts
+  - popup render count logs for dropdown lists.
+- Confirmed lockup root cause in operational flow was blocking picker usage on menu actions (`pickChoiceFromList`/`pickTextInput` paths for pattern/source menu flows).
+- Removed blocking pattern/source menu usage from live control path:
+  - `PATTERN` and `SOURCE` button actions now run immediately without blocking subprocess dialogs.
+
+### New non-blocking dropdown widget
+- Added reusable state-driven dropdown/popover widget in `native/main.cpp`:
+  - click-to-open popover
+  - close on outside click, `Esc`, or selection
+  - mouse wheel scrolling
+  - keyboard navigation (`Up/Down/Enter/Esc`)
+  - type-to-filter (`Backspace` supported)
+  - clipped visible-row rendering.
+- No nested modal event loops introduced.
+
+### UI integrations
+- Bottom bar now includes non-blocking default selectors:
+  - `Source: ... v`
+  - `Pattern: ... v`
+- `PATTERN` button and `P` key now add the currently selected default pattern directly.
+- `SOURCE` button now adds using selected default source type (`window/camera/syphon|spout`) with non-blocking defaults.
+- Cue settings panel updates:
+  - pattern cue `Pattern Type` now uses dropdown instead of +/- cycling row
+  - transition style controls now use dropdown selectors (multi-select + single cue flows).
+
+### Layout cleanup
+- Refactored bottom bar layout to grouped sections: `MEDIA`, `TRANSPORT`, `OUTPUT`.
+- Added explicit bottom-bar reserved space in main layout so content panels no longer overlap control buttons.
+- Added compact selector chips above bottom controls for source/pattern defaults.
+
+### Validation
+- Build passed: `cmake --build '/home/user/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/user/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/user/playboy (another copy)/build/playboy-native' --self-check`
+
 ## 2026-03-05 (Integration runtime pass: ATEM bridge + MTC ingest + Art-Net triggers)
 
 ### Runtime integration backends (implemented)
