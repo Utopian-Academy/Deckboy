@@ -721,6 +721,37 @@ std::string cueDisplayToken(const Cue& cue, int index) {
   return std::to_string(index + 1);
 }
 
+double normalizePlaylistTimebaseFps(double fps) {
+  static constexpr std::array<double, 4> kChoices {24.0, 25.0, 29.97, 30.0};
+  double candidate = std::isfinite(fps) ? fps : 30.0;
+  double best = kChoices.front();
+  double bestDiff = std::fabs(candidate - best);
+  for (double choice : kChoices) {
+    double diff = std::fabs(candidate - choice);
+    if (diff < bestDiff) {
+      best = choice;
+      bestDiff = diff;
+    }
+  }
+  return best;
+}
+
+std::string playlistTimebaseLabel(double fps) {
+  double normalized = normalizePlaylistTimebaseFps(fps);
+  if (std::fabs(normalized - 29.97) < 0.01) {
+    return "29.97";
+  }
+  int whole = static_cast<int>(std::lround(normalized));
+  return std::to_string(whole);
+}
+
+bool isDefaultStillDurationCueKind(CueKind kind) {
+  return kind == CueKind::Image
+    || kind == CueKind::Pattern
+    || kind == CueKind::Browser
+    || kind == CueKind::LowerThird;
+}
+
 bool colorControlsActive(float brightness, float contrast, float saturation, float hueShiftDegrees) {
   constexpr float kEpsilon = 0.001f;
   return std::fabs(brightness - 1.0f) > kEpsilon
@@ -2132,6 +2163,16 @@ void normalizeDeck(Deck& deck, int index) {
   deck.playlistFadeSeconds = std::clamp(
     std::isfinite(deck.playlistFadeSeconds) ? deck.playlistFadeSeconds : 0.8,
     0.05, 10.0);
+  deck.playlistTimebaseFps = normalizePlaylistTimebaseFps(deck.playlistTimebaseFps);
+  deck.playlistStartOffsetSeconds = std::clamp(
+    std::isfinite(deck.playlistStartOffsetSeconds) ? deck.playlistStartOffsetSeconds : 0.0,
+    0.0, 24.0 * 60.0 * 60.0);
+  deck.playlistDefaultCueFadeSeconds = std::clamp(
+    std::isfinite(deck.playlistDefaultCueFadeSeconds) ? deck.playlistDefaultCueFadeSeconds : 0.5,
+    0.0, 10.0);
+  deck.playlistDefaultStillDurationSeconds = std::clamp(
+    std::isfinite(deck.playlistDefaultStillDurationSeconds) ? deck.playlistDefaultStillDurationSeconds : 8.0,
+    0.0, 3600.0);
   deck.outputDisplayIndex = std::max(0, deck.outputDisplayIndex);
   if (deck.ndiSourceName.empty()) {
     deck.ndiSourceName = defaultNdiSourceName(deck, index);
@@ -2935,7 +2976,18 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.timecodeJamSyncEnabled ? 1 : 0) << '\t'
       << deck.playlistOpacity << '\t'
       << (deck.playlistAutoFade ? 1 : 0) << '\t'
-      << deck.playlistFadeSeconds
+      << deck.playlistFadeSeconds << '\t'
+      << deck.playlistTimebaseFps << '\t'
+      << deck.playlistStartOffsetSeconds << '\t'
+      << deck.playlistDefaultCueFadeSeconds << '\t'
+      << deck.playlistDefaultStillDurationSeconds << '\t'
+      << (deck.playlistDefaultLoop ? 1 : 0) << '\t'
+      << (deck.playlistDefaultFadeInEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultFadeOutEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultAudioEnabled ? 1 : 0) << '\t'
+      << (deck.playlistDefaultPauseAtBeginning ? 1 : 0) << '\t'
+      << (deck.playlistDefaultPauseAtEnd ? 1 : 0) << '\t'
+      << (deck.playlistDefaultTransitionToNext ? 1 : 0)
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -3253,6 +3305,17 @@ Project loadProject(const fs::path& projectFile) {
       deck.playlistOpacity = static_cast<float>(safeDouble(fields, 41, 1.0));
       deck.playlistAutoFade = safeBool(fields, 42, false);
       deck.playlistFadeSeconds = safeDouble(fields, 43, 0.8);
+      deck.playlistTimebaseFps = safeDouble(fields, 44, deck.timecodeFps);
+      deck.playlistStartOffsetSeconds = safeDouble(fields, 45, 0.0);
+      deck.playlistDefaultCueFadeSeconds = safeDouble(fields, 46, 0.5);
+      deck.playlistDefaultStillDurationSeconds = safeDouble(fields, 47, 8.0);
+      deck.playlistDefaultLoop = safeBool(fields, 48, false);
+      deck.playlistDefaultFadeInEnabled = safeBool(fields, 49, true);
+      deck.playlistDefaultFadeOutEnabled = safeBool(fields, 50, true);
+      deck.playlistDefaultAudioEnabled = safeBool(fields, 51, true);
+      deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52, false);
+      deck.playlistDefaultPauseAtEnd = safeBool(fields, 53, false);
+      deck.playlistDefaultTransitionToNext = safeBool(fields, 54, true);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -5788,6 +5851,17 @@ class App {
       deck.playlistOpacity = 0.62f;
       deck.playlistAutoFade = true;
       deck.playlistFadeSeconds = 1.7;
+      deck.playlistTimebaseFps = 29.97;
+      deck.playlistStartOffsetSeconds = 3600.0;
+      deck.playlistDefaultCueFadeSeconds = 0.75;
+      deck.playlistDefaultStillDurationSeconds = 6.5;
+      deck.playlistDefaultLoop = true;
+      deck.playlistDefaultFadeInEnabled = true;
+      deck.playlistDefaultFadeOutEnabled = false;
+      deck.playlistDefaultAudioEnabled = false;
+      deck.playlistDefaultPauseAtBeginning = true;
+      deck.playlistDefaultPauseAtEnd = true;
+      deck.playlistDefaultTransitionToNext = false;
       deck.ndiEnabled = true;
       deck.ndiSourceName = "Smoke Fill";
       deck.ndiKeyEnabled = true;
@@ -5979,6 +6053,18 @@ class App {
                loadedDeck.playlistAutoFade &&
                std::abs(loadedDeck.playlistFadeSeconds - 1.7) < 0.01,
                "playlist opacity settings persisted");
+        expect(std::abs(loadedDeck.playlistTimebaseFps - 29.97) < 0.01 &&
+               std::abs(loadedDeck.playlistStartOffsetSeconds - 3600.0) < 0.01 &&
+               std::abs(loadedDeck.playlistDefaultCueFadeSeconds - 0.75) < 0.01 &&
+               std::abs(loadedDeck.playlistDefaultStillDurationSeconds - 6.5) < 0.01 &&
+               loadedDeck.playlistDefaultLoop &&
+               loadedDeck.playlistDefaultFadeInEnabled &&
+               !loadedDeck.playlistDefaultFadeOutEnabled &&
+               !loadedDeck.playlistDefaultAudioEnabled &&
+               loadedDeck.playlistDefaultPauseAtBeginning &&
+               loadedDeck.playlistDefaultPauseAtEnd &&
+               !loadedDeck.playlistDefaultTransitionToNext,
+               "playlist preference defaults persisted");
         expect(loadedDeck.timecodeChaseEnabled, "timecode chase persisted");
         expect(!loadedDeck.timecodeJamSyncEnabled && std::abs(loadedDeck.timecodeFreewheelSeconds - 2.5) < 0.01,
                "timecode follower options persisted");
@@ -17562,6 +17648,57 @@ class App {
       }
       drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, selectedStatus, cuesRect.w - 16), soft, cuesRect.x + 8, cuesRect.y + 200);
 
+      int prefsTop = cuesRect.y + 224;
+      int prefsHeight = (cuesRect.y + cuesRect.h - 8) - prefsTop;
+      if (prefsHeight >= 96) {
+        SDL_Rect prefsRect {cuesRect.x + 8, prefsTop, cuesRect.w - 16, prefsHeight};
+        Primitives::drawFramedPanel(controlRenderer_, prefsRect, colorFromRgba(kShellInnerColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        const Deck& prefDeck = focusedDeck();
+        drawText(controlRenderer_, fontBase_, "PLAYLIST PREFS", ink, prefsRect.x + 8, prefsRect.y + 6);
+
+        SDL_Rect prefsEditBtn {prefsRect.x + 8, prefsRect.y + 28, prefsRect.w - 16, 24};
+        Primitives::drawFramedPanel(controlRenderer_, prefsEditBtn, colorFromRgba(kScreenMidColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "Edit Timebase/Start/Fade/Duration...", ink, prefsEditBtn);
+        settingsBtns_.push_back({prefsEditBtn, kSettingsActionPlaylistPrefsEdit, "playlist_prefs_edit"});
+
+        std::string prefSummary = "tc " + playlistTimebaseLabel(prefDeck.playlistTimebaseFps)
+          + "  start " + formatTimecode(prefDeck.playlistStartOffsetSeconds, prefDeck.playlistTimebaseFps)
+          + "  fade " + formatSeconds(prefDeck.playlistDefaultCueFadeSeconds)
+          + "  still " + formatSeconds(prefDeck.playlistDefaultStillDurationSeconds);
+        drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, prefSummary, prefsRect.w - 16),
+                 soft, prefsRect.x + 8, prefsRect.y + 56);
+
+        int toggleY = prefsRect.y + 74;
+        int toggleGap = 4;
+        int toggleW = std::max(72, (prefsRect.w - 16 - toggleGap * 3) / 4);
+        SDL_Rect loopT {prefsRect.x + 8, toggleY, toggleW, 22};
+        SDL_Rect fadeInT {loopT.x + toggleW + toggleGap, toggleY, toggleW, 22};
+        SDL_Rect fadeOutT {fadeInT.x + toggleW + toggleGap, toggleY, toggleW, 22};
+        SDL_Rect audioT {fadeOutT.x + toggleW + toggleGap, toggleY, prefsRect.x + prefsRect.w - 8 - (fadeOutT.x + toggleW + toggleGap), 22};
+        drawPillToggle(loopT, prefDeck.playlistDefaultLoop, "LOOP ON", "LOOP OFF");
+        drawPillToggle(fadeInT, prefDeck.playlistDefaultFadeInEnabled, "FI ON", "FI OFF");
+        drawPillToggle(fadeOutT, prefDeck.playlistDefaultFadeOutEnabled, "FO ON", "FO OFF");
+        drawPillToggle(audioT, prefDeck.playlistDefaultAudioEnabled, "AUD ON", "AUD OFF");
+        settingsBtns_.push_back({loopT, kSettingsActionPlaylistDefaultLoopToggle, "playlist_default_loop"});
+        settingsBtns_.push_back({fadeInT, kSettingsActionPlaylistDefaultFadeInToggle, "playlist_default_fadein"});
+        settingsBtns_.push_back({fadeOutT, kSettingsActionPlaylistDefaultFadeOutToggle, "playlist_default_fadeout"});
+        settingsBtns_.push_back({audioT, kSettingsActionPlaylistDefaultAudioToggle, "playlist_default_audio"});
+
+        int toggleY2 = toggleY + 26;
+        int toggleW2 = std::max(100, (prefsRect.w - 16 - toggleGap * 2) / 3);
+        SDL_Rect pauseBeginT {prefsRect.x + 8, toggleY2, toggleW2, 22};
+        SDL_Rect pauseEndT {pauseBeginT.x + toggleW2 + toggleGap, toggleY2, toggleW2, 22};
+        SDL_Rect nextTransT {pauseEndT.x + toggleW2 + toggleGap, toggleY2, prefsRect.x + prefsRect.w - 8 - (pauseEndT.x + toggleW2 + toggleGap), 22};
+        drawPillToggle(pauseBeginT, prefDeck.playlistDefaultPauseAtBeginning, "P-BEGIN ON", "P-BEGIN OFF");
+        drawPillToggle(pauseEndT, prefDeck.playlistDefaultPauseAtEnd, "P-END ON", "P-END OFF");
+        drawPillToggle(nextTransT, prefDeck.playlistDefaultTransitionToNext, "NEXT X ON", "NEXT X OFF");
+        settingsBtns_.push_back({pauseBeginT, kSettingsActionPlaylistDefaultPauseBeginToggle, "playlist_default_pausebegin"});
+        settingsBtns_.push_back({pauseEndT, kSettingsActionPlaylistDefaultPauseEndToggle, "playlist_default_pauseend"});
+        settingsBtns_.push_back({nextTransT, kSettingsActionPlaylistDefaultNextTransitionToggle, "playlist_default_nexttrans"});
+      }
+
     } else if (settingsTab_ == 1) {
       // MIDI tab
       drawText(controlRenderer_, fontSmall_, "ALSA MIDI Input", ink, cx, cy);
@@ -18050,6 +18187,43 @@ class App {
       } else if (sb.action == 224) {
         clearCueFindState();
         triggerToast("find cleared");
+      } else if (sb.action == kSettingsActionPlaylistPrefsEdit) {
+        editFocusedDeckPlaylistPreferences();
+      } else if (sb.action == kSettingsActionPlaylistDefaultLoopToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultLoop = !deck.playlistDefaultLoop;
+        triggerToast(std::string("new cues loop: ") + (deck.playlistDefaultLoop ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultFadeInToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultFadeInEnabled = !deck.playlistDefaultFadeInEnabled;
+        triggerToast(std::string("new cues fade in: ") + (deck.playlistDefaultFadeInEnabled ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultFadeOutToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultFadeOutEnabled = !deck.playlistDefaultFadeOutEnabled;
+        triggerToast(std::string("new cues fade out: ") + (deck.playlistDefaultFadeOutEnabled ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultAudioToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultAudioEnabled = !deck.playlistDefaultAudioEnabled;
+        triggerToast(std::string("new cues audio: ") + (deck.playlistDefaultAudioEnabled ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultPauseBeginToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultPauseAtBeginning = !deck.playlistDefaultPauseAtBeginning;
+        triggerToast(std::string("new cues pause begin: ") + (deck.playlistDefaultPauseAtBeginning ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultPauseEndToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultPauseAtEnd = !deck.playlistDefaultPauseAtEnd;
+        triggerToast(std::string("new cues pause end: ") + (deck.playlistDefaultPauseAtEnd ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionPlaylistDefaultNextTransitionToggle) {
+        Deck& deck = focusedDeckMutable();
+        deck.playlistDefaultTransitionToNext = !deck.playlistDefaultTransitionToNext;
+        triggerToast(std::string("new cues next transition: ") + (deck.playlistDefaultTransitionToNext ? "on" : "off"));
+        markProjectDirty();
       } else if (sb.action == 210) {
         // Toggle MIDI
         midiEnabled_ = !midiEnabled_;
@@ -21454,6 +21628,127 @@ class App {
     return paths;
   }
 
+  void applyDeckDefaultsToCue(Cue& cue, const Deck& deck) {
+    cue.loop = deck.playlistDefaultLoop;
+    cue.pauseAtBeginning = deck.playlistDefaultPauseAtBeginning;
+    cue.pauseOnLastFrame = deck.playlistDefaultPauseAtEnd;
+    cue.transitionToNext = deck.playlistDefaultTransitionToNext;
+    cue.audioEnabled = cue.hasAudio ? deck.playlistDefaultAudioEnabled : false;
+
+    double fadeDefault = std::clamp(deck.playlistDefaultCueFadeSeconds, 0.0, 10.0);
+    cue.fadeInSeconds = deck.playlistDefaultFadeInEnabled ? fadeDefault : 0.0;
+    cue.fadeOutSeconds = deck.playlistDefaultFadeOutEnabled ? fadeDefault : 0.0;
+
+    if (isDefaultStillDurationCueKind(cue.kind)) {
+      cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
+    }
+  }
+
+  void editFocusedDeckPlaylistPreferences() {
+    Deck& deck = focusedDeckMutable();
+    bool changed = false;
+
+    std::vector<std::pair<std::string, std::string>> fpsChoices {
+      {"24", "24"},
+      {"25", "25"},
+      {"29.97", "29.97"},
+      {"30", "30"},
+    };
+    auto fpsChoice = pickChoiceFromList(
+      "Playlist Timebase",
+      "Choose playlist SMPTE FPS",
+      fpsChoices,
+      playlistTimebaseLabel(deck.playlistTimebaseFps));
+    if (fpsChoice) {
+      try {
+        double next = normalizePlaylistTimebaseFps(std::stod(trim(*fpsChoice)));
+        if (std::fabs(deck.playlistTimebaseFps - next) > 0.001) {
+          deck.playlistTimebaseFps = next;
+          deck.timecodeFps = next;  // keep follower display base aligned with playlist base
+          changed = true;
+        }
+      } catch (...) {
+      }
+    }
+
+    std::string startDefault = formatTimecode(deck.playlistStartOffsetSeconds, deck.playlistTimebaseFps);
+    auto startTc = pickTextInput(
+      "Playlist Start TC",
+      "SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)",
+      startDefault);
+    if (startTc) {
+      std::string token = trim(*startTc);
+      double parsed = 0.0;
+      bool valid = false;
+      if (token.empty()) {
+        valid = true;
+      } else if (auto tc = parseTimecodeSeconds(token, deck.playlistTimebaseFps)) {
+        parsed = *tc;
+        valid = true;
+      } else {
+        try {
+          parsed = std::max(0.0, std::stod(token));
+          valid = true;
+        } catch (...) {
+        }
+      }
+      if (valid) {
+        parsed = std::clamp(parsed, 0.0, 24.0 * 60.0 * 60.0);
+        if (std::fabs(deck.playlistStartOffsetSeconds - parsed) > 0.001) {
+          deck.playlistStartOffsetSeconds = parsed;
+          changed = true;
+        }
+      }
+    }
+
+    auto fadeValue = pickTextInput(
+      "Default Cue Fade",
+      "Seconds for new-cue fade in/out defaults",
+      [&]() {
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(2) << deck.playlistDefaultCueFadeSeconds;
+        return ss.str();
+      }());
+    if (fadeValue) {
+      try {
+        double next = std::clamp(std::stod(trim(*fadeValue)), 0.0, 10.0);
+        if (std::fabs(deck.playlistDefaultCueFadeSeconds - next) > 0.001) {
+          deck.playlistDefaultCueFadeSeconds = next;
+          changed = true;
+        }
+      } catch (...) {
+      }
+    }
+
+    auto stillValue = pickTextInput(
+      "Default Non-Movie Duration",
+      "Seconds for new image/pattern/browser/lower-third cues (0 = hold)",
+      [&]() {
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(2) << deck.playlistDefaultStillDurationSeconds;
+        return ss.str();
+      }());
+    if (stillValue) {
+      try {
+        double next = std::clamp(std::stod(trim(*stillValue)), 0.0, 3600.0);
+        if (std::fabs(deck.playlistDefaultStillDurationSeconds - next) > 0.001) {
+          deck.playlistDefaultStillDurationSeconds = next;
+          changed = true;
+        }
+      } catch (...) {
+      }
+    }
+
+    if (changed) {
+      markProjectDirty();
+      triggerToast(
+        "playlist prefs: "
+        + playlistTimebaseLabel(deck.playlistTimebaseFps)
+        + " start "
+        + formatTimecode(deck.playlistStartOffsetSeconds, deck.playlistTimebaseFps));
+    }
+  }
+
   void addBrowserCue(const std::string& rawUrl) {
     std::string url = normalizeBrowserUrl(rawUrl);
     if (url.empty()) {
@@ -21473,6 +21768,7 @@ class App {
     cue.audioCodec = "system";
     cue.hasAudio = true;
     Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -21518,6 +21814,7 @@ class App {
     cue.audioCodec = cue.hasAudio ? "source" : "";
     cue.color = SDL_Color {139, 172, 15, 255};
     Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -21568,6 +21865,7 @@ class App {
     cue.color = colorFromRgba(kScreenDeepColor);
     cue.formatName = "graphic";
     Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -21745,6 +22043,7 @@ class App {
     cue.color = {50, 50, 120, 255};
     cue.formatName = "generated";
     Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -21792,6 +22091,7 @@ class App {
         continue;
       }
 
+      applyDeckDefaultsToCue(*cue, deck);
       deck.cues.push_back(*cue);
       changed = true;
       addedCount += 1;
@@ -22143,6 +22443,14 @@ class App {
   static constexpr int kSettingsActionOutputDelayPrompt = 285;
   static constexpr int kSettingsActionOutputColorSpaceCycle = 286;
   static constexpr int kSettingsActionOutputDelayInc = 287;
+  static constexpr int kSettingsActionPlaylistPrefsEdit = 500;
+  static constexpr int kSettingsActionPlaylistDefaultLoopToggle = 501;
+  static constexpr int kSettingsActionPlaylistDefaultFadeInToggle = 502;
+  static constexpr int kSettingsActionPlaylistDefaultFadeOutToggle = 503;
+  static constexpr int kSettingsActionPlaylistDefaultAudioToggle = 504;
+  static constexpr int kSettingsActionPlaylistDefaultPauseBeginToggle = 505;
+  static constexpr int kSettingsActionPlaylistDefaultPauseEndToggle = 506;
+  static constexpr int kSettingsActionPlaylistDefaultNextTransitionToggle = 507;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
