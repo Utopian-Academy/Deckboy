@@ -1,0 +1,45 @@
+title	Demo - Program + Preview + Bug (3 Decks)
+focused_deck	0
+focused_output	0
+focused_group	0
+layer_names	BG	LayerA	LayerB	LayerC	LayerD
+advanced_mode	1
+ui_sounds	1
+ui_transitions	1
+jump_mode	trigger
+jump_transition	1
+panic_profile	outputs_off
+panic_fade_seconds	0.9
+panic_auto_restore	0
+master_volume	1
+master_dimmer	1
+output_follow_display	0
+output_render_width	1920
+output_render_height	1080
+output_refresh_hz	0
+output_bit_depth	0
+output_canvas_enabled	0
+output_canvas_width	3840
+output_canvas_height	2160
+output_target	0	Program Out	0	0	0	0	srt	srt://127.0.0.1:9000?mode=caller&transtype=live&streamid=output1	6000	window	-1	out-demo-main
+layer_assignment	0	0	0	1	out-demo-main	lay-demo-0-0
+layer_assignment	1	0	1	1	out-demo-main	lay-demo-1-1
+layer_assignment	2	0	2	1	out-demo-main	lay-demo-2-2
+group_preset	0	Program + Preview + Bug
+group_slot	0	0	0	cue-demo-pp-bg
+group_slot	0	1	0	cue-demo-pp-preview
+group_slot	0	2	0	cue-demo-pp-bug
+group_preset	1	Program + Bug
+group_slot	1	0	0	cue-demo-pp-bg
+group_slot	1	1	1	
+group_slot	1	2	0	cue-demo-pp-bug
+group_preset	2	Program Clean
+group_slot	2	0	0	cue-demo-pp-bg
+group_slot	2	1	1	
+group_slot	2	2	1	
+deck	0	Deck 1 Program	0	-1	0	0		0	0	Deckboy - Deck 1 Program	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 1 Program Key
+cue	0	pattern://pocket-night	Program BG Pocket Night	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-pp-bg	0	0	-1	inherit	-1				180	0	0	1		Main background feed.	1	1	0	0	0	PGM		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	1	Deck 2 Preview	0	-1	0	0		0	0	Deckboy - Deck 2 Preview	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 2 Preview Key
+cue	1	pattern://full-white-motion	Preview Window	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-pp-preview	0	0	-1	inherit	-1				180	0	0	1		Top-right preview PiP.	0.34	0.34	0	560	-280	PRV		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	2	Deck 3 Bug	0	-1	0	0		0	0	Deckboy - Deck 3 Bug	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 3 Bug Key
+cue	2	pattern://full-red	Corner Bug	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-pp-bug	0	0	-1	inherit	-1				180	0	0	1		Bottom-left corner bug.	0.16	0.16	0	-810	430	BUG		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0

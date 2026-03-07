@@ -1,5 +1,290 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-06 (Phase 4 inline editing + floating panel workspace)
+
+- Added real persisted panel presentation/visibility state on top of the Phase 1
+  workspace model instead of overwriting panel mode every frame.
+- Added a `PANELS` control row in the status strip:
+  - `PGM[D/F]`
+  - `INS[D/F]`
+  - `OUT[D/F/H]`
+  - `RTG[D/F/H]`
+  - `MSC[D/F/H]`
+- Added a secondary `Deckboy Panels` floating workspace window for popped-out
+  operational panels with per-panel `DOCK` return controls.
+- Added panel-local focus badges/highlighting so focused Deck / Output / Cue
+  state is visible in panel headers and cue rows, not only in the global strip.
+- Replaced the remaining high-friction operational text prompts with the inline
+  editor overlay for:
+  - custom output raster
+  - output refresh
+  - output canvas size
+  - canvas view offset
+  - stream URL
+  - stream bitrate
+  - output alpha
+  - output delay
+  - NDI name
+  - NDI key name
+  - cue goto target
+  - cue notes
+  - browser URL
+  - cue ID
+- Continued safe-text cleanup in remaining modal/secondary UI surfaces:
+  - quit confirmation
+  - startup dialog
+  - splash overlay headings
+  - About tab
+  - video output advanced/routing headers
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-06 (Phase 3 workflow polish + selector cleanup)
+
+- Replaced the remaining operational list-selector path with the shared
+  non-blocking dropdown system and expanded dropdown use in the settings UI:
+  - audio output device
+  - output display selection
+  - stream protocol
+  - mirror source
+- Removed the old blocking `pickChoiceFromList(...)` operational path from the
+  live UI flow.
+- Improved operator clarity in `Program / Transport`:
+  - explicit `CURRENT`
+  - explicit `NEXT`
+  - labeled `TRANSPORT`, `TIMELINE`, and `REMAIN`
+- Unified `next cue` logic so Program summary and Deck Playlist rows now use the
+  same next-cue rule.
+- Rebalanced the default workspace so `Program / Transport` is more visually
+  dominant in the main control window.
+- Performed a text-safe / overlap pass in the heaviest UI paths:
+  - Decks window tracker columns
+  - Decks window playlist headers/rows
+  - Master Scene programmer/list rows
+  - Program / Preview labels
+  - Cue thumbnail placeholders and cue details footer
+  - settings modal title/tabs/output summary
+  - dropdown popovers
+- Replaced more raw text draws with bounded `drawTextSafe(...)` usage so long
+  labels ellipsize instead of colliding with borders or neighboring columns.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-06 (Phase 2 operational panel split)
+
+- Refactored the control UI around the Phase 1 panel/workspace foundation instead
+  of one overloaded monolithic shell.
+- Main operational layout now splits into explicit panels:
+  - `Deck Playlist` panel for the focused deck in the control window
+  - `Program / Transport` panel with:
+    - current cue summary
+    - next cue summary
+    - focused Deck / Output route summary
+    - Program monitor
+    - Preview monitor
+    - progress / remaining time
+    - stack view
+  - `Cue Inspector` panel as a separate singleton panel
+  - `Output Panels` repeating operational panel list
+  - `Routing Matrix` singleton operational panel (no longer modeled as a Preferences-only surface)
+  - `Master Scene` panel in the right-side operational column
+- Added reusable operational panel chrome via `drawOperationalPanel(...)` and
+  started recording actual rendered frames for docked/floating panel instances.
+- Deck Playlist repeating panels now record frames in both:
+  - the docked control-window playlist column
+  - the floating Decks window playlist columns
+- Added scrollable, non-blocking operational views for:
+  - `Output Panels`
+  - `Routing Matrix`
+- Added Output-panel controls for:
+  - focus
+  - recover
+  - disarm
+  - FPS on/off toggle
+- `renderMainPanel()` now uses the full Program panel width correctly after the
+  Inspector extraction, instead of reserving dead space for the old embedded
+  cue-settings block.
+- No playback, routing, OSC, Companion, shortcut, or output-safety behavior was changed.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-06 (workspace foundation slice: panel registry + persistence scaffold)
+
+- Added a real Phase 1 panel/workspace foundation in `native/main.cpp`:
+  - `UiPanelDefinition`
+  - `UiPanelState`
+  - `UiPanelManager`
+  - `UiWorkspaceState`
+  - `UiFocusState`
+- Registered logical panel kinds for:
+  - Program / Transport
+  - Preview
+  - Cue Inspector
+  - Routing
+  - Master Scene
+  - Preferences
+  - Deck Playlist
+  - Output
+- Added always-visible workspace/focus summary lines to the operational strip:
+  - `WORKSPACE ...`
+  - `FOCUS: DECK ... | OUTPUT ... | CUE ...`
+- Added basic workspace save/load scaffolding at `data/deckboy.workspace`:
+  - panel visibility
+  - panel presentation (`docked` / `floating` / `modal`)
+  - panel frames
+  - control/decks window geometry
+  - focused panel
+  - focused Deck / Output / Cue context
+  - last Master Scene sidebar/programmer state
+- Workspace state now loads during app init, applies window geometry/focus, and auto-flushes from the update loop without changing show-file format.
+- Added a workspace serialization smoke test.
+- Existing non-blocking dropdown/popover scaffolding remains the model for selector migration; the Pattern selector path continues to use it.
+- No playback/routing/OSC/Companion behavior changed.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-06 (operator terminology normalization pass)
+
+- Normalized active operator-facing terminology across the live UI and current docs:
+  - `Master Scene` -> `Master Cue`
+  - `MASTER SCENES` sidebar -> `MASTER CUES`
+  - `Create Standard` -> `Create Window`
+  - `Camera` / `Syphon/Spout` source labels -> `Camera Source` / `Syphon/Spout Source`
+  - `lower-third / graphic` operator copy -> `Lower Third`
+  - `Decks panel` / `tracker window` copy -> `Decks window`
+- Updated the Master Cue sidebar copy and controls so they read consistently:
+  - focus badge now uses `MC#`
+  - nav buttons now use `<MC` / `MC>`
+  - fire button now reads `TAKE`
+  - rename prompt now reads `Master Cue Name`
+- Kept compatibility aliases and transport/protocol identifiers unchanged:
+  - `GROUP` and `SCENE` command aliases still work
+  - `.playboy`, `PLAYBOY_*`, `/playboy/*`, and `playboy-native` remain as-is.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (audio inspector metadata section pass)
+
+- Audio cue inspector now matches the newer section model:
+  - `PLAYBACK` contains transport/audio behavior controls
+  - `METADATA` contains tag, notes, cue id, and pause-point controls
+  - `ROUTING` remains separate below.
+- Audio loop/hold/end rows now use the shared panel rendering helpers, and
+  pause points now render in the aligned metadata row style.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (inspector metadata section pass for lower-third/browser/source)
+
+- Finished the remaining cue-inspector cleanup for non-video cue types:
+  - lower-third cues now use boxed `PLAYBACK` and `METADATA` sections
+  - still/pattern/browser/source cues now split playback controls from metadata/source rows
+  - browser/source metadata rows now use the same aligned panel style as the rest of the inspector.
+- Added shared inspector row helpers for:
+  - message/info rows
+  - edit rows
+  - status rows
+  - action rows
+  - tag rows.
+- Lower-third `CLEAR OVERLAY` is now a real clickable inspector action instead of a visual-only row.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (inspector section pass + routing strip alignment + control styling)
+
+- Cue inspector readability pass:
+  - added scoped inspector section cards for `PLAYBACK`, `GEOMETRY`, `KEY`, and `ROUTING`
+  - section headers now use consistent collapse affordances and boxed grouping
+  - section bodies now share a cleaner row style with aligned labels and +/- controls.
+- Cue inspector routing controls now use a compact table-style row layout instead of ad-hoc placements.
+- Output-strip routing rows now use `UITable` alignment for:
+  - deck label
+  - output selector
+  - layer selector
+  - assigned/link action.
+- Control styling pass:
+  - bottom-bar buttons now use stronger top-band weighting and adaptive title font sizing
+  - dropdowns/buttons now share the same panel treatment and safer text rendering.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (grid layout cleanup pass: safer spacing + clearer control window)
+
+- Added reusable layout/safety primitives in `native/main.cpp`:
+  - `VerticalLayout`
+  - `HorizontalLayout`
+  - `GridLayout`
+  - `UITable`
+  - `drawTextSafe(...)`
+  - shared `drawUIPanel(...)`, `drawUIButton(...)`, `drawUIDropdown(...)`.
+- Main control window now snaps to an 8px grid with consistent layout rules:
+  - panel padding `16`
+  - panel gap `12`
+  - chunky `2px` panel framing
+  - shared bottom-bar button height `40`
+  - compact global header height `56`.
+- Reduced overlap/clutter in the live UI:
+  - header is now split into clear title / output+TC / controls zones
+  - content area reserves space for selectors and bottom controls before laying out columns
+  - deck header/footer text and cue rows now use safe ellipsized text drawing inside bounds.
+- Bottom bar cleanup:
+  - consistent-width buttons
+  - `MEDIA / TRANSPORT / OUTPUT` grouping preserved
+  - labels simplified to `IMPORT / SOURCE / PATTERN / TAKE / STOP / PLAY / CLEAR / PREFS`.
+- Program area cleanup:
+  - clearer title/time/progress hierarchy
+  - program monitor uses a single frame (removed extra monitor-art nesting from the live view)
+  - stack view / cue inspector spacing aligned to the new layout constants.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
+## 2026-03-05 (output activation UX pass: explicit health + recover/disarm)
+
+- Added explicit per-output health model in runtime:
+  - `OFF`, `ARMED`, `LIVE`, `RECOVERING`, `ERROR`
+  - stores last health reason for operator-visible diagnostics.
+- Reworked main output chips to make activation state obvious:
+  - state token now comes from health model (not ad-hoc stream flags)
+  - inline reason text shown directly on chip (ellipsized)
+  - focused output highlight preserved.
+- Added direct per-chip controls:
+  - `REC` = one-click recover/re-arm for that output
+  - `OFF` = one-click disarm for that output.
+- Added health transition wiring across failure/recovery paths:
+  - fullscreen enable/recover success/failure
+  - stream start/write/audio failures
+  - NDI unavailable/sender failure
+  - escape-to-windowed state now reports as armed with reason.
+- Repeated `ON` on stream outputs now performs a real recovery path
+  (egress restart) instead of a no-op toast.
+- Status snapshots now expose output health:
+  - text `STATUS`: `health=` + optional `health_reason="..."`
+  - `STATUS JSON`: `health` + `healthReason` per output.
+- Cleanup:
+  - removed stale, unused `kOutputMenuActionToggle` handler path from output-strip click routing after `REC/OFF` action migration.
+
+### Validation
+- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+
 ## 2026-03-05 (toggleable per-output FPS counter)
 
 - Added per-output FPS measurement in runtime (`OutputRuntime`) with rolling sampling.
