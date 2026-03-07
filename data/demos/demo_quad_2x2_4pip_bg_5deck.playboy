@@ -1,0 +1,55 @@
+title	Demo - 2x2 PiP Quad Over BG (5 Decks)
+focused_deck	0
+focused_output	0
+focused_group	0
+layer_names	BG	LayerA	LayerB	LayerC	LayerD
+advanced_mode	1
+ui_sounds	1
+ui_transitions	1
+jump_mode	trigger
+jump_transition	1
+panic_profile	outputs_off
+panic_fade_seconds	0.9
+panic_auto_restore	0
+master_volume	1
+master_dimmer	1
+output_follow_display	0
+output_render_width	1920
+output_render_height	1080
+output_refresh_hz	0
+output_bit_depth	0
+output_canvas_enabled	0
+output_canvas_width	3840
+output_canvas_height	2160
+output_target	0	Program Out	0	0	0	0	srt	srt://127.0.0.1:9000?mode=caller&transtype=live&streamid=output1	6000	window	-1	out-demo-main
+layer_assignment	0	0	0	1	out-demo-main	lay-demo-0-0
+layer_assignment	1	0	1	1	out-demo-main	lay-demo-1-1
+layer_assignment	2	0	2	1	out-demo-main	lay-demo-2-2
+layer_assignment	3	0	3	1	out-demo-main	lay-demo-3-3
+layer_assignment	4	0	4	1	out-demo-main	lay-demo-4-4
+group_preset	0	Quad Open
+group_slot	0	0	0	cue-demo-quad-bg
+group_slot	0	1	0	cue-demo-quad-a
+group_slot	0	2	0	cue-demo-quad-b
+group_slot	0	3	0	cue-demo-quad-c
+group_slot	0	4	0	cue-demo-quad-d
+group_preset	1	Quad Motion
+group_slot	1	0	0	cue-demo-quad-bg
+group_slot	1	1	0	cue-demo-quad-am
+group_slot	1	2	0	cue-demo-quad-bm
+group_slot	1	3	0	cue-demo-quad-cm
+group_slot	1	4	0	cue-demo-quad-dm
+deck	0	Deck 1 BG	0	-1	0	0		0	0	Deckboy - Deck 1 BG	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 1 BG Key
+cue	0	pattern://pocket-sunset	BG Pocket Sunset	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-bg	0	0	-1	inherit	-1				180	0	0	1		Animated background layer.	1	1	0	0	0	BG		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	1	Deck 2 PiP-A	0	-1	0	0		0	0	Deckboy - Deck 2 PiP-A	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 2 PiP-A Key
+cue	1	pattern://smpte-bars	Quad A	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-a	0	0	-1	inherit	-1				180	0	0	1		Top-left PiP.	0.40	0.40	0	-430	-250	A1		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	1	pattern://smpte-bars-motion	Quad A Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-am	0	0	-1	inherit	-1				180	0	0	1		Top-left PiP motion alt.	0.40	0.40	0	-430	-250	A1M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	2	Deck 3 PiP-B	0	-1	0	0		0	0	Deckboy - Deck 3 PiP-B	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 3 PiP-B Key
+cue	2	pattern://crosshatch	Quad B	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-b	0	0	-1	inherit	-1				180	0	0	1		Top-right PiP.	0.40	0.40	0	430	-250	B1		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	2	pattern://crosshatch-motion	Quad B Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-bm	0	0	-1	inherit	-1				180	0	0	1		Top-right PiP motion alt.	0.40	0.40	0	430	-250	B1M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	3	Deck 4 PiP-C	0	-1	0	0		0	0	Deckboy - Deck 4 PiP-C	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 4 PiP-C Key
+cue	3	pattern://checkerboard	Quad C	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-c	0	0	-1	inherit	-1				180	0	0	1		Bottom-left PiP.	0.40	0.40	0	-430	250	C1		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	3	pattern://checkerboard-motion	Quad C Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-cm	0	0	-1	inherit	-1				180	0	0	1		Bottom-left PiP motion alt.	0.40	0.40	0	-430	250	C1M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	4	Deck 5 PiP-D	0	-1	0	0		0	0	Deckboy - Deck 5 PiP-D	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 5 PiP-D Key
+cue	4	pattern://full-green	Quad D	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-d	0	0	-1	inherit	-1				180	0	0	1		Bottom-right PiP.	0.40	0.40	0	430	250	D1		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	4	pattern://full-green-motion	Quad D Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-quad-dm	0	0	-1	inherit	-1				180	0	0	1		Bottom-right PiP motion alt.	0.40	0.40	0	430	250	D1M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0

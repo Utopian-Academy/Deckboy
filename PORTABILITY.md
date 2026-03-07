@@ -1,6 +1,6 @@
-# Playboy — Portability
+# Deckboy — Portability
 
-This document describes how to run Playboy on different machines and install layouts without hardcoded paths.
+This document describes how to run Deckboy on different machines and install layouts without hardcoded paths.
 
 ## Project root and data directory
 
@@ -43,8 +43,40 @@ Ship **PressStart2P.ttf** in `data/` for the pixel font. Sans/mono can come from
 
 ## NDI
 
-- **Build**: NDI SDK include path via **`PLAYBOY_NDI_SDK`** (e.g. `PLAYBOY_NDI_SDK=/opt/NDI\ SDK\ for\ Linux`). CMake also checks `/opt/NDI SDK for Linux`, `/usr/local`, `/usr`.
-- **Runtime**: NDI library is loaded dynamically. **`PLAYBOY_NDI_LIB`** can point at the exact `.so` path. Otherwise the loader tries `libndi.so.6`, `libndi.so`, `/usr/local/lib/libndi.so.6`, `/usr/lib/libndi.so.6`.
+- **Build**: NDI SDK include path via **`PLAYBOY_NDI_SDK`** (for example the SDK install root). CMake probes common include roots as fallback.
+- **Runtime**:
+  - Linux loader candidates: `libndi.so.6`, `libndi.so`, `/usr/local/lib/libndi.so.6`, `/usr/lib/libndi.so.6`
+  - macOS loader candidate: `libndi.dylib`
+  - Override any platform by setting **`PLAYBOY_NDI_LIB`** to an absolute library path.
+- Current runtime dynamic-loader path is implemented for Linux/macOS builds; Windows loader parity is part of the cross-platform roadmap.
+
+## Streaming outputs (SRT / RTMP)
+
+- Deckboy can publish per-output network streams through ffmpeg (`VIDEO STREAM ...` controls).
+- Your ffmpeg build must include the relevant protocol support:
+  - **SRT** (`libsrt`) for `srt://...` URLs
+  - **RTMP** support for `rtmp://...` URLs
+- Quick verification:
+
+```bash
+ffmpeg -protocols | rg "srt|rtmp"
+```
+
+- Stream path muxes H.264 video + AAC stereo audio.
+- Audio follows output assignment stack (host deck fallback when no assignments are present).
+- `VIDEO OUTPUT DELAY` currently applies to NDI/stream egress frames.
+- `VIDEO OUTPUT COLORSPACE` maps to stream encoder color metadata flags (`AUTO`/`BT709`/`SRGB`).
+
+## Live source cues (Window / Camera / Syphon-Spout)
+
+- Source cues now run through native transport in the runtime:
+  - `Window Source` uses ffmpeg `x11grab` on Linux.
+  - `Camera` uses ffmpeg `v4l2` on Linux.
+  - `Syphon/Spout` currently uses desktop-capture fallback on Linux.
+- Practical Linux requirements:
+  - `DISPLAY` must be set for window/screen capture cues.
+  - Camera cues require readable `/dev/video*` devices (user permissions/group access).
+- Native Syphon (macOS) and Spout (Windows) capture backends are still roadmap work.
 
 ## Other environment variables
 
@@ -53,7 +85,7 @@ Ship **PressStart2P.ttf** in `data/` for the pixel font. Sans/mono can come from
 | `PLAYBOY_ROOT` | Project root directory (overrides executable/cwd). |
 | `PLAYBOY_PROJECT` | Path to show file to open at launch (default: `data/default.playboy`). |
 | `PLAYBOY_FONT_SANS` / `PLAYBOY_FONT_MONO` / `PLAYBOY_FONT_PIXEL` | Override font paths. |
-| `PLAYBOY_NDI_LIB` | Path to NDI runtime library (e.g. `libndi.so.6`). |
+| `PLAYBOY_NDI_LIB` | Path to NDI runtime library (for example `libndi.so.6` or `libndi.dylib`). |
 | `PLAYBOY_COMPANION_PORT` | Companion TCP/UDP port (default 5510). |
 | `PLAYBOY_HYPERDECK_PORT` | HyperDeck server port. |
 | `XDG_DATA_HOME` | Optional; used for font search under `playboy/fonts/`. |

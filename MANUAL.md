@@ -105,51 +105,154 @@ be loaded.
 ## 4. Interface Layout
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Global header — title · status bits · companion port · file name   │
-├───────────────┬─────────────────────────────────────────────────────┤
-│  Deck column  │  Program monitor         │  Cue settings panel      │
-│  (cue list)   │  (live preview)          │  (selected cue)          │
-│               │                          │                          │
-│  Cue 1        │  ┌──────────────────┐    │  Thumbnail               │
-│  Cue 2 ◀LIVE  │  │  live frame      │    │  ──────────────────────  │
-│  Cue 3 ●SEL   │  └──────────────────┘    │  vol  [ - ]  85%  [ + ] │
-│  ...          │                          │  fade in / fade out      │
-│               │                          │  in / out points         │
-│  footer:      │  ─── progress bar ───    │  transition override     │
-│  routing info │  status · timecode       │  loop / hold / end act.  │
-│               │                          │                          │
-│               │                          │  (text prompts when      │
-│               │                          │   no cue is selected)    │
-├───────────────┴──────────────────────────┴──────────────────────────┤
-│  MEDIA (Import/Source/Pattern) | TRANSPORT (A/B/Start) | OUTPUT (Clear/Output) │
-└─────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Header: Deckboy | show file | output state | companion/timecode | tools     │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Status strip: workspace | focus | workflow | signal flow                    │
+├───────────────┬──────────────────────────────────────────┬───────────────────┤
+│ Deck Playlist │ Program / Transport + Cue Inspector      │ Output Panels     │
+│ cue list      │ Program + Preview + timeline + stack     │ + Master Scenes   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Routing Matrix                                                            │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ MEDIA: Import / Source / Pattern | TRANSPORT: Take / Stop / Play            │
+│ OUTPUT: Clear / Prefs                                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The main control window is now program/output-focused and no longer carries the
-deck playlist column. Deck playlists are in the separate **Deckboy Decks**
-window for multi-deck operation (click cue rows to select; per-deck `Take`
-button to fire selection). The same window also includes a dedicated
-multi-deck line view: one row per master cue preset with inline per-deck slot
-details (deck, cue number, cue name, or bypass) and direct in-row `Take`.
+The control window now follows a stricter grid layout to reduce overlap:
+- 8px spacing grid
+- 16px panel padding
+- 12px panel gaps
+- 2px panel borders
+- safe text clipping/ellipsis inside headers, rows, and buttons.
 
-Main-window output strip quick controls (always visible):
-- Top row: output chips (`O1`, `O2`, ...) with target/state labels plus per-output arm switch and `Add Output`.
-- Top row includes `FPS ON/OFF` toggle; when enabled each output chip shows that output's live render FPS (`xx.xfps`).
-- When the optional UI pack is installed, output chips use sprite backgrounds for `idle/armed/live/warn/offline`.
-- Bottom row: focused-route controls (`Link/Unlink`, `Layer-`, `Layer+`) and plain-English status:
-  - `Focused Route: Deck N -> Output N  Background/Layer N/Not Linked`
-- Main header includes `decks` toggle for the separate deck panel.
-  - With a single deck, the deck panel stays hidden by default unless toggled open.
-  - When a second deck is created, Deckboy auto-opens and raises the deck panel.
-- Header also includes compact per-deck live summary (`D1 LIVE ...`) for quick
-  cross-deck awareness.
-- Program monitor includes `STACK VIEW (Output X)` so deck/layer occupancy for
-  the focused output is visible at a glance.
+The control workspace is now split into operational panels instead of one
+monolithic content block:
+- `Deck Playlist` for the focused deck in the main window
+- `Program / Transport`
+- `Cue Inspector`
+- `Output Panels`
+- `Routing Matrix`
+- `Master Scene`
+
+Deck playlists are still scalable. The main control window shows the focused
+deck, while the separate **Deckboy Decks** window remains available as the
+**Decks window** for multi-deck oversight and direct per-deck taking.
+That Decks window is currently the only true floating repeating panel surface;
+the other operational panels are modular and workspace-persisted but still
+render docked inside the main control window.
+
+Deckboy now also exposes a workspace/focus status strip in the operational area:
+- `WORKSPACE ...` shows the active runtime workspace profile and current module counts.
+- `FOCUS: DECK ... | OUTPUT ... | CUE ...` makes the current deck/output/cue target explicit at all times.
+- `PANELS ...` lets you cycle operational panels between docked, floating, and
+  hidden states directly from the main workspace.
+- This is the first foundation step toward a modular multi-panel workspace model.
+- Phase 1 workspace persistence is now enabled:
+  - Deckboy saves a runtime workspace scaffold to `data/deckboy.workspace`
+  - this stores panel visibility/presentation, control-window + Decks-window +
+    floating-panels window geometry, focused panel, and focused Deck/Output/Cue context
+  - it does not yet provide full docking or multiple named workspace presets
+
+Floating operational panels:
+- `Deckboy Panels` is the secondary workspace window for popped-out singleton panels.
+- Panels can be returned with `DOCK`.
+- Current floating coverage:
+  - `Program / Transport` summary
+  - `Cue Inspector` summary
+  - `Output Panels`
+  - `Routing Matrix`
+  - `Master Scene`
+- The floating `Program / Transport` and `Cue Inspector` views are live
+  summaries in this pass; full independent interactive clones are still future work.
+
+Output Panels (operational, always visible in the default workspace):
+- one row per Output
+- each row shows:
+  - Output number/name
+  - health state (`OFF`, `ARMED`, `LIVE`, `RECOVERING`, `ERROR`)
+  - target display or stream destination
+  - raster / refresh / format summary
+  - layer summary
+  - optional per-output FPS (`FPS ON/OFF` toggle)
+- per-output controls:
+  - `REC`: recover/re-arm that output
+  - `OFF`: disarm that output
+- rows scroll if the show contains more Outputs than fit vertically.
+
+Routing Matrix (operational, not Preferences-only):
+- one row per Deck
+- columns:
+  - `Deck`
+  - `Output`
+  - `Layer`
+  - `Assigned`
+- inline route controls use the existing route actions:
+  - previous/next Output
+  - layer down/up
+  - assign/unassign
+- the view scrolls when there are more Decks than fit in the visible region.
+- Main header includes:
+  - show file
+  - output state summary
+  - Companion port + timecode
+  - file/tool buttons
+  - master volume slider.
+- Main header includes `decks` toggle for the separate Decks window.
+  - With a single deck, the Decks window stays hidden by default unless toggled open.
+  - When a second deck is created, Deckboy auto-opens and raises the Decks window.
+- `Program / Transport` now contains:
+  - `CURRENT` cue summary
+  - `NEXT` cue summary
+  - focused Deck / Output route summary
+  - `Program Monitor`
+  - `Preview Monitor`
+  - labeled `TRANSPORT`
+  - labeled `TIMELINE`
+  - labeled `REMAIN`
+  - `STACK VIEW (Output X)` so deck/layer occupancy for the focused output is visible at a glance.
+- Cue inspector is grouped into clearer sections:
+  - `PLAYBACK`
+  - `METADATA`
+  - `GEOMETRY`
+  - `KEY`
+  - `ROUTING`
+  Each section can collapse, and rows inside each section now align consistently.
+- `Master Scene` remains a dedicated operational panel in the right column for
+  scene programming and firing.
 - Bottom control strip is grouped for scanability:
   - `MEDIA`, `TRANSPORT`, `OUTPUT`
   - includes default selectors for `Source` and `Pattern` cue type.
+- Settings and output-selection surfaces now favor dropdown selectors over
+  ad-hoc list pickers or cycling-only controls for operational choices such as:
+  - audio output device
+  - output display
+  - stream protocol
+  - mirror source
+- Operational text edits now use the inline editor overlay instead of external
+  blocking prompts for common live tasks such as:
+  - output raster / refresh / canvas / view
+  - stream URL / bitrate
+  - NDI names
+  - cue goto target / notes / browser URL / cue ID
+- Dropdowns are non-blocking:
+  - click to open
+  - click outside or `Esc` to close
+  - arrow keys + `Enter` to choose
+  - type-to-filter when applicable
+- Bottom buttons now use consistent sizing and labels:
+  - `IMPORT`
+  - `SOURCE`
+  - `PATTERN`
+  - `TAKE`
+  - `STOP`
+  - `PLAY`
+  - `CLEAR`
+  - `PREFS`
 - Cue rows use compact cue-type icons (`video/image/browser/pattern/lower-third/source/audio`) when pack icons are available.
+- Deck Playlist rows now use the same next-cue rule as the Program summary, so
+  `NEXT` is consistent between the playlist and the center transport panel.
 
 **Hover tips**: hover over any button, cue row, or progress bar to see a
 contextual tip.
@@ -165,9 +268,9 @@ contextual tip.
 | **Pattern** | Procedurally generated test pattern — no file required. |
 | **Browser** | Web URL rendered via Xvfb + ffmpeg x11grab into the output window. |
 | **Window Source** | Live window/screen capture cue (`source://window/...`) using ffmpeg `x11grab` on Linux. |
-| **Camera** | Live camera cue (`source://camera/...`) using ffmpeg `v4l2` on Linux. |
-| **Syphon/Spout** | Inter-app source cue path (`source://syphon/...`); Linux currently uses desktop capture fallback while native Syphon/Spout backends remain roadmap work. |
-| **LowerThird** | Graphic overlay pushed into the 4-slot overlay stack. |
+| **Camera Source** | Live camera cue (`source://camera/...`) using ffmpeg `v4l2` on Linux. |
+| **Syphon/Spout Source** | Inter-app source cue path (`source://syphon/...`); Linux currently uses desktop capture fallback while native Syphon/Spout backends remain roadmap work. |
+| **Lower Third** | Graphic overlay pushed into the 4-slot overlay stack. |
 
 ---
 
@@ -182,22 +285,22 @@ can be selected.
 **Browser cue**: press `B`, enter a URL in the dialog. The cue is added to the
 playlist with a "web" type.
 - To edit an existing browser cue URL in-menu: select the cue, then use the
-  cue panel `url` row and click `edit`.
+  cue panel `METADATA -> url` row and click `edit`.
 
 **Source cue**:
-- Use the bottom-bar `Source` selector to choose default source kind (`Window`, `Camera`, `Syphon/Spout`).
+- Use the bottom-bar `Source` selector to choose default source kind (`Window Source`, `Camera Source`, `Syphon/Spout Source`).
 - Click `SOURCE` to add immediately with default refs:
   - `window -> active-window`
   - `camera -> default-camera`
   - `syphon/spout -> default-bus`
-- For an existing source cue, use the cue panel `source` row and click `edit` to set the source reference directly in-menu (non-blocking inline editor).
+- For an existing source cue, use the cue panel `METADATA -> source` row and click `edit` to set the source reference directly in-menu (non-blocking inline editor).
 - The editor accepts plain words:
   - `focused` or `recommended` (window cues) -> focused window capture
   - `default` (camera/syphon cues) -> default device/bus
 - You can ignore advanced source refs during normal operation:
   - Window cue: type `focused`
-  - Camera cue: type `default`
-  - Syphon cue: type `default`
+  - Camera Source cue: type `default`
+  - Syphon/Spout Source cue: type `default`
 - Or use commands (`SOURCE WINDOW ...`, `SOURCE CAMERA ...`, `SOURCE SYPHON ...`).
 - Linux source-ref quick examples:
   - `SOURCE WINDOW active-window` (full desktop capture)
@@ -215,9 +318,12 @@ playlist with a "web" type.
   - `Pattern Type: ... v` selects type
   - `motion` row toggles motion on/off (for supported types).
 
-**Lower-third / graphic**: press `G` to add a blank lower-third overlay cue.
+**Lower Third**: press `G` to add a blank Lower Third overlay cue.
 Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
 `lowertext` directly in the show file.
+- In the cue panel:
+  - `PLAYBACK` shows the preview, background alpha, duration, and `CLEAR OVERLAY`
+  - `METADATA` shows tag, notes, cue id, and the Companion text hint.
 
 ---
 
@@ -235,12 +341,19 @@ When multiple cues are selected, the inspector enters a common-controls view:
 
 Cue settings are grouped into collapsible blocks:
 - `Playback`
+- `Metadata`
 - `Geometry`
 - `Key`
 - `Routing`
 
-For source cues (`Window Source`, `Camera`, `Syphon/Spout`), the playback area includes:
+For source cues (`Window Source`, `Camera Source`, `Syphon/Spout Source`), the metadata area includes:
 - `source` value + `edit` button for changing the source reference without leaving the menu.
+
+For audio cues, the metadata area includes:
+- color tag
+- notes
+- cue id
+- pause-point add/clear controls
 
 `Routing` in cue settings edits the focused deck route inline (`Output`,
 `Layer`, `Assign/Unassign`) without opening separate route manager popups.
@@ -314,7 +427,7 @@ for precise values.
 | Browser URL | For browser cues, edit from cue panel `url -> edit` (accepts URL or local file path). |
 | Browser State | Cue panel `state` row shows startup/live/failure status for browser capture (`starting ...`, `live`, `failed: ...`). |
 
-### Lower-third cues
+### Lower Third cues
 
 | Control | Description |
 |---------|-------------|
@@ -322,6 +435,16 @@ for precise values.
 | Sub text | Set via Companion `LOWERSUB <text>` |
 | BG Alpha | Background band opacity (0–255) |
 | Duration | 0 = hold until taken |
+
+### Audio cues
+
+| Control | Description |
+|---------|-------------|
+| Volume | Output gain for the active audio cue |
+| Fade In / Fade Out | Cue fade timing |
+| Loop / Hold / End | Audio end behavior controls in `PLAYBACK` |
+| Tag / Notes / Cue ID | Audio cue metadata in `METADATA` |
+| Pause Points | Add or clear auto-pause markers from `METADATA` |
 
 ---
 
@@ -355,7 +478,7 @@ if playing, pauses; if paused, resumes.
 | Playlist timebase | `Prefs -> System -> Playlist Prefs` | Select deck playlist SMPTE base (`24`, `25`, `29.97`, `30`) |
 | Playlist start TC | `Prefs -> System -> Playlist Prefs` | Set per-deck start offset (`hh:mm:ss:ff` or seconds) |
 | Default cue fade | `Prefs -> System -> Playlist Prefs` | Default fade duration for newly imported/added cues |
-| Default non-movie duration | `Prefs -> System -> Playlist Prefs` | Default duration for new image/pattern/browser/lower-third cues (`0` = hold) |
+| Default non-movie duration | `Prefs -> System -> Playlist Prefs` | Default duration for new image/pattern/browser/Lower Third cues (`0` = hold) |
 | New-cue toggles | `Prefs -> System -> Playlist Prefs` | Default loop, fade-in/out on/off, audio on/off, pause-begin/end, transition-to-next |
 
 Playlist preferences are per-deck. New cues added by import or cue-creation
@@ -424,10 +547,10 @@ Current controls:
   - `Sel`, `Act`, `Byp`, `-`, `+` per deck slot
   - row click (outside buttons): assign slot from that deck's selected cue
   - mouse wheel over a programmer row: cycle slot cue up/down
-- Decks tracker window shows master cues as one line per preset:
+- Decks window shows master cues as one line per preset:
   - each line includes preset index/name plus per-deck slot summaries (`Deck`, `cue #`, `cue name` or `BYPASS`)
   - each line includes direct `Take` trigger for that preset
-- Decks tracker window controls:
+- Decks window controls:
   - buttons: `<MC`, `MC>`, `New`, `Del`, `Take`
   - click a per-deck slot cell in a master-cue line: assign that deck slot from selected cue
   - `Shift+click` slot cell: assign from active cue
@@ -513,21 +636,21 @@ The **Video** tab controls output raster sizing and display targeting for output
   - same route model, but in a compact table for quick auditing during setup.
   - useful when checking all deck assignments at once before show start.
 
-### Standard vs Stream vs NDI (current operator path)
+### Window vs Stream vs NDI (current operator path)
 
 Use this exact flow:
 
-1. **Standard output (window/display)**  
-   - In `Prefs -> Video Outputs`: click `Create Standard` (creates a new `window` output, initially `off`).
+1. **Window Output**  
+   - In `Prefs -> Video Outputs`: click `Create Window` (creates a new `window` output, initially `off`).
    - In `Prefs -> Video Outputs`: select output, keep type as `Window`, assign display, then arm `Enabled`.
 
-2. **Stream output (SRT/RTMP)**  
+2. **Stream Output (SRT/RTMP)**  
    - In `Prefs -> Video Outputs`: click `Create Stream` (new output target with type `stream`).
    - If needed, use `Set Stream` on an existing output.
    - Set `Stream URL...`, protocol (`SRT`/`RTMP`), bitrate, then `Stream ON`.
    - Optional: set `Mirror` to mirror another output feed.
 
-3. **NDI output**  
+3. **NDI Output**  
    - NDI is **per output target**.
    - Focus the output (`VIDEO OUTPUT <n>` or `Prev Output` / `Next Output` in Video Outputs), then press `N` (`NDI ON/OFF`).
    - Optional commands:
@@ -546,7 +669,7 @@ Current stream implementation notes:
 
 ## 11. Overlay Compositor
 
-Up to 4 lower-third / graphic cues can be stacked simultaneously in z-order.
+Up to 4 Lower Third cues can be stacked simultaneously in z-order.
 
 | Action | Key | Companion |
 |--------|-----|-----------|
@@ -769,7 +892,7 @@ Integration runtime bridge behavior:
 - `ATEM ON`: bridge payload mapping:
   - `CUT`/`AUTO`/`TAKE` -> `TAKE`
   - `PLAY`/`STOP`/`NEXT`/`PREV`/`CLEAR`/`PANIC` -> matching command
-  - `SCENE <n>` -> `GROUP <n> FIRE`
+  - `SCENE <n>` -> `GROUP <n> FIRE` (legacy alias for Master Cue fire)
   - `DECKBOY <command>` -> forwards the command tail directly.
 - `MTC ON`: ALSA MIDI quarter-frame ingest updates Deckboy timecode
   (chase-enabled decks, or focused deck fallback).
@@ -836,7 +959,7 @@ Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
 | `Shift+I` | Import media (file picker) |
 | `B` | Add browser cue |
 | `P` | Add Pocket Test pattern |
-| `G` | Add lower-third / graphic cue |
+| `G` | Add Lower Third cue |
 
 ### UI toggles
 | Key | Action |
@@ -1022,7 +1145,7 @@ OVERLAY POP             pop top overlay
 OVERLAY CLEAR           clear all overlays
 ```
 
-### Lower-third content
+### Lower Third content
 
 ```
 LOWERTEXT Hello world!        set main text line
@@ -1193,7 +1316,8 @@ STATE JSON              alias for STATUS JSON
 `STATUS`/`STATUS JSON` output entries now include a backend route summary
 (`backend` / `backendRoute`) showing the active runtime dispatch chain
 (for example `window[ok]+ndi[stub]`), plus integration adapter route state
-(`integrations` / `integrationRoute`).
+(`integrations` / `integrationRoute`), and per-output health fields
+(`health` / `healthReason` in JSON, `health` / `health_reason` in text).
 
 ---
 
