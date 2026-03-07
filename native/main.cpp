@@ -3492,14 +3492,23 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << presetIndex << '\t'
       << escapeField(preset.name)
       << '\n';
+    // Extra metadata line (fade + notes).
+    if (preset.fadeSeconds >= 0.0 || !preset.notes.empty()) {
+      output << "group_preset_meta\t"
+             << presetIndex << '\t'
+             << preset.fadeSeconds << '\t'
+             << escapeField(preset.notes) << '\n';
+    }
     for (size_t deckIndex = 0; deckIndex < preset.slots.size(); ++deckIndex) {
       const auto& slot = preset.slots[deckIndex];
+      // mode: 0=Hold, 1=Recall, 2=Clear
       output
         << "group_slot\t"
         << presetIndex << '\t'
         << deckIndex << '\t'
         << (slot.bypass ? 1 : 0) << '\t'
-        << escapeField(slot.cueId)
+        << escapeField(slot.cueId) << '\t'
+        << static_cast<int>(slot.mode)
         << '\n';
     }
   }
@@ -3829,6 +3838,23 @@ Project loadProject(const fs::path& projectFile) {
       GroupSlot& slot = preset.slots[deckIndex];
       slot.bypass = safeBool(fields, 3, false);
       slot.cueId = safeString(fields, 4);
+      // Field 5: mode (new). If absent, derive from legacy bypass.
+      if (fields.size() > 5) {
+        int modeInt = safeInt(fields, 5, -1);
+        if (modeInt == 1) slot.mode = MasterCueSlotMode::Recall;
+        else if (modeInt == 2) slot.mode = MasterCueSlotMode::Clear;
+        else slot.mode = MasterCueSlotMode::Hold;
+      } else {
+        // Legacy: bypass=true → Hold; bypass=false with cueId → Recall.
+        slot.mode = slot.bypass ? MasterCueSlotMode::Hold
+                  : (!slot.cueId.empty() ? MasterCueSlotMode::Recall : MasterCueSlotMode::Hold);
+      }
+    } else if (fields[0] == "group_preset_meta") {
+      int presetIndex = safeInt(fields, 1, -1);
+      if (presetIndex >= 0 && presetIndex < static_cast<int>(project.groupPresets.size())) {
+        project.groupPresets[presetIndex].fadeSeconds = safeDouble(fields, 2, -1.0);
+        project.groupPresets[presetIndex].notes = safeString(fields, 3);
+      }
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -9476,69 +9502,55 @@ class App {
     return true;
   }
 
-  bool setFocusedGroupSlotBypass(int deckIndex, bool bypass) {
-    GroupPreset* preset = focusedGroupPresetMutable();
-    if (!preset) {
-      triggerToast("master scene: none");
-      return false;
-    }
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
-    }
-    if (deckIndex >= static_cast<int>(preset->slots.size())) {
-      preset->slots.resize(project_.decks.size());
-    }
-    GroupSlot& slot = preset->slots[deckIndex];
-    if (slot.bypass == bypass) {
-      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": " + (bypass ? "bypass" : "armed"));
-      return false;
-    }
-    slot.bypass = bypass;
-    if (bypass) {
-      slot.cueId.clear();
-    }
-    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": " + (bypass ? "bypass" : "armed"));
+  // Low-level slot helper: set mode and sync the legacy bypass field.
+  bool setGroupSlot(GroupPreset& preset, int deckIndex, MasterCueSlotMode mode, const std::string& cueId = "") {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    if (deckIndex >= static_cast<int>(preset.slots.size())) preset.slots.resize(project_.decks.size());
+    GroupSlot& slot = preset.slots[deckIndex];
+    slot.mode   = mode;
+    slot.bypass = (mode == MasterCueSlotMode::Hold);
+    slot.cueId  = (mode == MasterCueSlotMode::Recall) ? cueId : "";
     markProjectDirty();
     return true;
+  }
+
+  bool setFocusedGroupSlotBypass(int deckIndex, bool bypass) {
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) { triggerToast("master cue: none"); return false; }
+    bool ok = setGroupSlot(*preset, deckIndex,
+                           bypass ? MasterCueSlotMode::Hold : MasterCueSlotMode::Hold,
+                           "");
+    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": hold");
+    return ok;
   }
 
   bool setFocusedGroupSlotFromCueIndex(int deckIndex, int cueIndex) {
     GroupPreset* preset = focusedGroupPresetMutable();
-    if (!preset) {
-      triggerToast("master scene: none");
-      return false;
-    }
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
-    }
+    if (!preset) { triggerToast("master cue: none"); return false; }
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
     Deck& deck = project_.decks[deckIndex];
-    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
-      return false;
-    }
-    if (deckIndex >= static_cast<int>(preset->slots.size())) {
-      preset->slots.resize(project_.decks.size());
-    }
-    GroupSlot& slot = preset->slots[deckIndex];
-    std::string nextCueId = deck.cues[cueIndex].id;
-    if (!slot.bypass && slot.cueId == nextCueId) {
-      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": cue " + std::to_string(cueIndex + 1));
-      return false;
-    }
-    slot.bypass = false;
-    slot.cueId = nextCueId;
-    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": cue " + std::to_string(cueIndex + 1));
-    markProjectDirty();
-    return true;
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) return false;
+    std::string id = deck.cues[cueIndex].id;
+    bool ok = setGroupSlot(*preset, deckIndex, MasterCueSlotMode::Recall, id);
+    triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": " + cueDisplayToken(deck.cues[cueIndex], cueIndex));
+    return ok;
   }
 
   bool setFocusedGroupSlotByToken(int deckIndex, const std::string& token) {
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    GroupPreset* preset = focusedGroupPresetMutable();
+    if (!preset) { triggerToast("master cue: none"); return false; }
+    std::string upper = toUpper(trim(token));
+    if (upper == "BYPASS" || upper == "HOLD" || upper == "OFF" || upper == "SKIP"
+        || upper == "NONE" || upper == "--" || upper == "---") {
+      setGroupSlot(*preset, deckIndex, MasterCueSlotMode::Hold);
+      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": hold");
+      return true;
     }
-    std::string value = trim(token);
-    std::string upper = toUpper(value);
-    if (upper == "BYPASS" || upper == "OFF" || upper == "SKIP" || upper == "NONE" || upper == "--") {
-      return setFocusedGroupSlotBypass(deckIndex, true);
+    if (upper == "CLR" || upper == "CLEAR" || upper == "STOP") {
+      setGroupSlot(*preset, deckIndex, MasterCueSlotMode::Clear);
+      triggerToast("master slot d" + std::to_string(deckIndex + 1) + ": clear");
+      return true;
     }
     if (upper == "SEL" || upper == "SELECTED") {
       return setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].selectedIndex);
@@ -9546,11 +9558,57 @@ class App {
     if (upper == "ACT" || upper == "ACTIVE" || upper == "LIVE") {
       return setFocusedGroupSlotFromCueIndex(deckIndex, project_.decks[deckIndex].activeIndex);
     }
-    auto cueIndex = cueIndexByToken(project_.decks[deckIndex], value);
-    if (!cueIndex) {
-      return false;
-    }
+    auto cueIndex = cueIndexByToken(project_.decks[deckIndex], trim(token));
+    if (!cueIndex) return false;
     return setFocusedGroupSlotFromCueIndex(deckIndex, *cueIndex);
+  }
+
+  // Cycle a tracker cell: Hold -> Recall(selected or next cue) -> Clear -> Hold
+  bool cycleTrackerSlot(int presetIndex, int deckIndex, int direction = 1) {
+    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) return false;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    GroupPreset& preset = project_.groupPresets[presetIndex];
+    if (deckIndex >= static_cast<int>(preset.slots.size())) preset.slots.resize(project_.decks.size());
+    GroupSlot& slot = preset.slots[deckIndex];
+    const Deck& deck = project_.decks[deckIndex];
+    // Cycle order: Hold -> Recall(current sel/act) -> Clear -> Hold
+    if (slot.mode == MasterCueSlotMode::Hold) {
+      int cueIndex = deck.selectedIndex >= 0 ? deck.selectedIndex : deck.activeIndex;
+      if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size())) {
+        setGroupSlot(preset, deckIndex, MasterCueSlotMode::Recall, deck.cues[cueIndex].id);
+        triggerToast("slot -> recall " + deck.cues[cueIndex].name);
+      } else {
+        setGroupSlot(preset, deckIndex, MasterCueSlotMode::Clear);
+        triggerToast("slot -> clear");
+      }
+    } else if (slot.mode == MasterCueSlotMode::Recall) {
+      setGroupSlot(preset, deckIndex, MasterCueSlotMode::Clear);
+      triggerToast("slot -> clear");
+    } else {
+      setGroupSlot(preset, deckIndex, MasterCueSlotMode::Hold);
+      triggerToast("slot -> hold");
+    }
+    return true;
+  }
+
+  // Cycle the cue ID within a Recall slot (+1/-1 through the deck's cue list).
+  bool cycleTrackerSlotCue(int presetIndex, int deckIndex, int direction) {
+    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) return false;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    GroupPreset& preset = project_.groupPresets[presetIndex];
+    if (deckIndex >= static_cast<int>(preset.slots.size())) preset.slots.resize(project_.decks.size());
+    GroupSlot& slot = preset.slots[deckIndex];
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.cues.empty()) return false;
+    if (slot.mode != MasterCueSlotMode::Recall) {
+      // Activate Recall with the first cue.
+      return setGroupSlot(preset, deckIndex, MasterCueSlotMode::Recall, deck.cues[0].id);
+    }
+    auto cur = cueIndexById(deck, slot.cueId);
+    int next = cur ? std::clamp(*cur + direction, 0, static_cast<int>(deck.cues.size()) - 1) : 0;
+    setGroupSlot(preset, deckIndex, MasterCueSlotMode::Recall, deck.cues[next].id);
+    triggerToast("slot cue -> " + cueDisplayToken(deck.cues[next], next));
+    return true;
   }
 
   bool cycleFocusedGroupSlotCue(int deckIndex, int direction) {
@@ -9602,10 +9660,12 @@ class App {
       int cueIndex = useActiveCues ? deck.activeIndex : deck.selectedIndex;
       GroupSlot& slot = preset->slots[deckIndex];
       if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size())) {
+        slot.mode   = MasterCueSlotMode::Recall;
         slot.bypass = false;
-        slot.cueId = deck.cues[cueIndex].id;
+        slot.cueId  = deck.cues[cueIndex].id;
         any = true;
       } else {
+        slot.mode   = MasterCueSlotMode::Hold;
         slot.bypass = true;
         slot.cueId.clear();
       }
@@ -9628,14 +9688,27 @@ class App {
     }
     int savedFocus = project_.focusedDeckIndex;
     int fired = 0;
+    int cleared = 0;
     int missing = 0;
     int bypassed = 0;
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       const GroupSlot& slot = preset.slots[deckIndex];
-      if (slot.bypass) {
+      // Resolve effective mode: legacy bypass=true maps to Hold.
+      MasterCueSlotMode eff = slot.mode;
+      if (eff == MasterCueSlotMode::Hold || slot.bypass) {
+        // Hold/bypass: leave this deck alone.
         ++bypassed;
         continue;
       }
+      if (eff == MasterCueSlotMode::Clear) {
+        // Clear: stop active playback on this deck.
+        project_.focusedDeckIndex = deckIndex;
+        clearOutput();
+        ++cleared;
+        ++fired;
+        continue;
+      }
+      // Recall: find and take the cue.
       Deck& deck = project_.decks[deckIndex];
       auto cueIndex = cueIndexById(deck, slot.cueId);
       if (!cueIndex || *cueIndex < 0 || *cueIndex >= static_cast<int>(deck.cues.size())) {
@@ -9649,9 +9722,10 @@ class App {
     }
     project_.focusedDeckIndex = std::clamp(savedFocus, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
     onSelectionChanged();
-    triggerToast("master scene fire " + std::to_string(fired)
-      + " (miss " + std::to_string(missing)
-      + ", bypass " + std::to_string(bypassed) + ")");
+    std::string toastMsg = "master cue: " + std::to_string(fired - cleared) + " recall";
+    if (cleared > 0) toastMsg += " " + std::to_string(cleared) + " clear";
+    if (missing > 0) toastMsg += " " + std::to_string(missing) + " miss";
+    triggerToast(toastMsg);
     markProjectDirty();
     return fired > 0;
   }
@@ -18743,10 +18817,29 @@ class App {
     return chrome;
   }
 
+  // -----------------------------------------------------------------------
+  // Master Cue Tracker — Renoise/LSDJ-style grid of master cues.
+  //
+  // Layout:
+  //   Header row:  [ # ] [ NAME ........... ] [ D1 ] [ D2 ] ... [ FD ] [NOTE]
+  //   Data rows:   [ 01 ] [ Intro ......... ] [Q001] [ CLR] ... [0.5s] [txt ]
+  //   Cursor:      highlighted cell — arrow keys move, Enter fires row.
+  //   Actions:     TAKE fires focused row; NEW/DEL/DUP manage rows.
+  //
+  // Keyboard (when panel focused):
+  //   ↑/↓       move cursor row
+  //   ←/→       move cursor column
+  //   Space/Enter fire focused master cue row
+  //   Tab       cycle slot mode (Hold→Recall→Clear→Hold)
+  //   +/-       cycle cue within Recall slot
+  //   N         new master cue
+  //   Del/D     delete focused row
+  // -----------------------------------------------------------------------
   void renderDeckSidebar(const SDL_Rect& panel) {
     masterCueSidebarButtons_.clear();
     masterCueSidebarRows_.clear();
     masterCueSidebarProgramHits_.clear();
+    masterTrackerCells_.clear();
     if (panel.w <= 0 || panel.h <= 0) {
       return;
     }
@@ -18756,276 +18849,289 @@ class App {
     drawUIPanel(panel, colorFromRgba(kShellInnerColor),
                 colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
-    SDL_Rect head {panel.x + 2, panel.y + 2, panel.w - 4, 24};
-    drawUIPanel(head, colorFromRgba(kScreenMidColor),
-                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawTextSafe(controlRenderer_, fontSmall_, head, "MASTER SCENES", colorFromRgba(kScreenDeepColor));
-    if (!project_.groupPresets.empty()) {
-      int focus = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-      std::string label = "MC" + std::to_string(focus + 1);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {head.x + head.w - 42, head.y + 4, 36, 16},
-                   label, colorFromRgba(kScreenDeepColor));
-    }
-
-    auto cueLabel = [&](const Deck& deck, int cueIndex) -> std::string {
-      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
-        return "--";
-      }
-      return cueDisplayToken(deck.cues[cueIndex], cueIndex);
-    };
-
-    auto drawMasterSidebarButton = [&](int x, int y, int w, int h, const std::string& label, int action,
-                                       bool emphasized = false) {
-      SDL_Rect rect {x, y, w, h};
-      SDL_Color fill = emphasized ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-      SDL_Color ink = emphasized ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, rect, fill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, label, ink, rect);
-      masterCueSidebarButtons_.push_back({rect, action, -1});
-    };
-
-    int controlsY = panel.y + 30;
-    constexpr int btnGap = 4;
-    constexpr int btnH = 22;
-    int innerX = panel.x + 6;
-    int innerW = std::max(120, panel.w - 12);
-
-    int row1BtnW = std::max(34, (innerW - btnGap * 4) / 5);
-    int bx = innerX;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "<MC", kDecksPanelActionGroupPrev);
-    bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "MC>", kDecksPanelActionGroupNext);
-    bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "New", kDecksPanelActionGroupNew);
-    bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "Del", kDecksPanelActionGroupDelete);
-    bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "TAKE", kDecksPanelActionGroupFire, true);
-
-    controlsY += btnH + btnGap;
-    int row2BtnW = std::max(44, (innerW - btnGap * 3) / 4);
-    bx = innerX;
-    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "Name", kDecksPanelActionGroupRename);
-    bx += row2BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "CapSel", kDecksPanelActionGroupCaptureSelected);
-    bx += row2BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH, "CapAct", kDecksPanelActionGroupCaptureActive);
-    bx += row2BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row2BtnW, btnH,
-                            masterCueProgrammerExpanded_ ? "Prog-" : "Prog+",
-                            kDecksPanelActionGroupProgramToggle);
-
-    int listTopY = controlsY + btnH + 6;
-
-    if (masterCueProgrammerExpanded_) {
-      int availableBelow = panel.h - (listTopY - panel.y) - 112;
-      int progH = std::clamp(availableBelow, 112, 208);
-      SDL_Rect progRect {panel.x + 4, listTopY, panel.w - 8, progH};
-      Primitives::drawFramedPanel(controlRenderer_, progRect, colorFromRgba(kScreenLightColor),
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {progRect.x + 6, progRect.y + 3, progRect.w - 12, 16},
-                   "PROGRAM FOCUSED MASTER SCENE", colorFromRgba(kScreenDeepColor));
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {progRect.x + 6, progRect.y + 17, progRect.w - 12, 16},
-                   "Sel/Act assign, Byp skips, -/+ cycles slot cue",
-                   colorFromRgba(kScreenInkSoftColor));
-
-      const GroupPreset* preset = focusedGroupPreset();
-      if (!preset) {
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {progRect.x + 8, progRect.y + 38, progRect.w - 16, 16},
-                     "No master scene selected", colorFromRgba(kScreenInkSoftColor));
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {progRect.x + 8, progRect.y + 54, progRect.w - 16, 16},
-                     "Press New, then assign deck slots", colorFromRgba(kScreenInkSoftColor));
-      } else {
-        std::string presetName = groupPresetLabel(std::clamp(project_.focusedGroupPresetIndex, 0,
-                                      static_cast<int>(project_.groupPresets.size()) - 1));
-        drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect {progRect.x + 6, progRect.y + 31, progRect.w - 12, 16},
-                     "Editing: " + presetName, colorFromRgba(kScreenDeepColor));
-
-        int deckCount = static_cast<int>(project_.decks.size());
-        int rowH = 24;
-        int rowGap = 3;
-        int rowsTop = progRect.y + 48;
-        int rowsBottom = progRect.y + progRect.h - 4;
-        int rowsVisible = std::max(1, (rowsBottom - rowsTop) / (rowH + rowGap));
-        int focusedDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
-        int rowStart = 0;
-        if (deckCount > rowsVisible) {
-          rowStart = std::clamp(focusedDeck - rowsVisible / 2, 0, deckCount - rowsVisible);
-        }
-
-        for (int slot = 0; slot < rowsVisible; ++slot) {
-          int deckIndex = rowStart + slot;
-          if (deckIndex >= deckCount) {
-            break;
-          }
-          const Deck& deck = project_.decks[deckIndex];
-          SDL_Rect rowRect {progRect.x + 3, rowsTop + slot * (rowH + rowGap), progRect.w - 6, rowH};
-          bool focused = deckIndex == project_.focusedDeckIndex;
-          SDL_Color rowFill = focused
-            ? SDL_Color {48, 98, 48, 255}
-            : ((deckIndex % 2) == 0 ? SDL_Color {20, 56, 20, 255} : SDL_Color {16, 48, 16, 255});
-          Primitives::fillRect(controlRenderer_, rowRect, rowFill);
-          Primitives::strokeRect(controlRenderer_, rowRect, colorFromRgba(kScreenDeepColor));
-
-          constexpr int kBtnGap = 2;
-          constexpr int kSelW = 34;
-          constexpr int kActW = 34;
-          constexpr int kBypW = 38;
-          constexpr int kStepW = 24;
-          constexpr int kBtnH = 18;
-          int by = rowRect.y + (rowRect.h - kBtnH) / 2;
-          int plusX = rowRect.x + rowRect.w - 4 - kStepW;
-          int minusX = plusX - kBtnGap - kStepW;
-          int bypX = minusX - kBtnGap - kBypW;
-          int actX = bypX - kBtnGap - kActW;
-          int selX = actX - kBtnGap - kSelW;
-
-          SDL_Rect selectedRect {selX, by, kSelW, kBtnH};
-          SDL_Rect activeRect {actX, by, kActW, kBtnH};
-          SDL_Rect bypassRect {bypX, by, kBypW, kBtnH};
-          SDL_Rect minusRect {minusX, by, kStepW, kBtnH};
-          SDL_Rect plusRect {plusX, by, kStepW, kBtnH};
-
-          auto drawProgBtn = [&](const SDL_Rect& r, const std::string& text) {
-            Primitives::drawFramedPanel(controlRenderer_, r, colorFromRgba(kScreenMidColor),
-                                        colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-            drawCenteredText(controlRenderer_, fontSmall_, text, colorFromRgba(kScreenDeepColor), r);
-          };
-          drawProgBtn(selectedRect, "Sel");
-          drawProgBtn(activeRect, "Act");
-          drawProgBtn(bypassRect, "Byp");
-          drawProgBtn(minusRect, "-");
-          drawProgBtn(plusRect, "+");
-
-          std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
-          std::string slotText = "\xc3\x97";
-          if (deckIndex < static_cast<int>(preset->slots.size())) {
-            const GroupSlot& slotDef = preset->slots[deckIndex];
-            if (!slotDef.bypass) {
-              auto cueIndex = cueIndexById(deck, slotDef.cueId);
-              if (cueIndex) {
-                slotText = cueLabel(deck, *cueIndex) + " " + deck.cues[*cueIndex].name;
-              } else {
-                slotText = "?? missing";
-              }
-            }
-          }
-          std::string rowText = "D" + std::to_string(deckIndex + 1) + " " + deckName + " -> " + slotText;
-          int textMaxW = std::max(42, selectedRect.x - (rowRect.x + 4) - 4);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect {rowRect.x + 4, rowRect.y + 3, textMaxW, rowRect.h - 6},
-                       rowText,
-                       focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor));
-
-          masterCueSidebarProgramHits_.push_back(
-            {deckIndex, rowRect, selectedRect, activeRect, bypassRect, minusRect, plusRect});
-        }
-      }
-
-      listTopY = progRect.y + progRect.h + 6;
-    }
-
-    SDL_Rect listRect {panel.x + 4, listTopY, panel.w - 8, panel.h - (listTopY - panel.y) - 8};
-    if (listRect.w <= 0 || listRect.h <= 24) {
-      return;
-    }
-    Primitives::drawFramedPanel(controlRenderer_, listRect, colorFromRgba(kScreenLightColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-
+    // ---- Panel header -------------------------------------------------
+    SDL_Rect head {panel.x + 2, panel.y + 2, panel.w - 4, 22};
+    drawUIPanel(head, colorFromRgba(kScreenDarkColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     int totalMasters = static_cast<int>(project_.groupPresets.size());
-    int lineRowH = 40;
-    int lineRowsPerPage = std::max(1, (listRect.h - 6) / (lineRowH + 2));
-    int focusMaster = std::clamp(project_.focusedGroupPresetIndex, 0, std::max(0, totalMasters - 1));
-    int pageStart = (lineRowsPerPage > 0) ? (focusMaster / lineRowsPerPage) * lineRowsPerPage : 0;
-    int visibleRows = std::max(0, std::min(totalMasters - pageStart, lineRowsPerPage));
+    std::string headLabel = "MASTER CUES  " + std::to_string(totalMasters);
+    drawTextSafe(controlRenderer_, fontSmall_, insetRect(head, 4), headLabel,
+                 colorFromRgba(kScreenLightColor));
 
-    if (visibleRows <= 0) {
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {listRect.x + 8, listRect.y + 10, listRect.w - 16, 16},
-                   "no master scenes yet", colorFromRgba(kScreenInkSoftColor));
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {listRect.x + 8, listRect.y + 26, listRect.w - 16, 16},
-                   "Use New to add one", colorFromRgba(kScreenInkSoftColor));
-      return;
+    // ---- Toolbar row --------------------------------------------------
+    constexpr int kTbH = 20;
+    constexpr int kTbGap = 3;
+    int tbY = head.y + head.h + kTbGap;
+    int innerX = panel.x + 4;
+    int innerW = std::max(64, panel.w - 8);
+    {
+      auto drawTb = [&](SDL_Rect r, const std::string& lbl, int action, bool emph = false) {
+        SDL_Color f = emph ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+        SDL_Color i = emph ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        Primitives::drawFramedPanel(controlRenderer_, r, f,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredText(controlRenderer_, fontSmall_, lbl, i, r);
+        masterCueSidebarButtons_.push_back({r, action, -1});
+      };
+      // 5 buttons: NEW DEL DUP CAP TAKE
+      int bw = std::max(28, (innerW - kTbGap * 4) / 5);
+      int bx = innerX;
+      drawTb({bx, tbY, bw, kTbH}, "NEW", kDecksPanelActionGroupNew);       bx += bw + kTbGap;
+      drawTb({bx, tbY, bw, kTbH}, "DEL", kDecksPanelActionGroupDelete);    bx += bw + kTbGap;
+      drawTb({bx, tbY, bw, kTbH}, "NAME", kDecksPanelActionGroupRename);   bx += bw + kTbGap;
+      drawTb({bx, tbY, bw, kTbH}, "CAP", kDecksPanelActionGroupCaptureSelected); bx += bw + kTbGap;
+      drawTb({bx, tbY, bw, kTbH}, "TAKE", kDecksPanelActionGroupFire, true);
     }
 
+    // ---- Grid area ----------------------------------------------------
+    int gridTop = tbY + kTbH + kTbGap;
+    SDL_Rect gridArea {panel.x + 2, gridTop, panel.w - 4, panel.h - (gridTop - panel.y) - 4};
+    if (gridArea.w <= 0 || gridArea.h <= 0) return;
+
+    Primitives::drawFramedPanel(controlRenderer_, gridArea, SDL_Color{12, 40, 12, 255},
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+
+    // Column layout: [#][NAME][D1][D2]...[FD][NOTE]
+    // # and NAME are fixed; deck columns share remaining width; FD and NOTE fixed.
     int deckCount = static_cast<int>(project_.decks.size());
-    int rowY = listRect.y + 4;
-    for (int i = 0; i < visibleRows; ++i) {
-      int presetIndex = pageStart + i;
+    constexpr int kColNum  = 26;   // row number
+    constexpr int kColFade = 38;   // fade-seconds
+    constexpr int kColNote = 52;   // notes
+    constexpr int kColGap  = 1;
+    // How many deck columns fit?
+    int deckColW    = 40;
+    int fixedW      = kColNum + kColFade + kColNote + kColGap * 3;
+    int availDeckW  = std::max(0, gridArea.w - fixedW);
+    int maxDeckCols = std::max(1, availDeckW / (deckColW + kColGap));
+    int visibleDeckCols = std::min(deckCount, maxDeckCols);
+    int nameColW   = std::max(32, availDeckW - visibleDeckCols * (deckColW + kColGap));
+
+    masterTrackerDeckScroll_ = std::clamp(masterTrackerDeckScroll_, 0,
+                                          std::max(0, deckCount - visibleDeckCols));
+
+    // Helper: x position for column index (0=num, 1=name, 2..N+1=deck, N+2=fade, N+3=note)
+    auto colX = [&](int col) -> int {
+      if (col == 0) return gridArea.x;
+      if (col == 1) return gridArea.x + kColNum + kColGap;
+      int deckColIdx = col - 2;
+      if (deckColIdx < visibleDeckCols)
+        return gridArea.x + kColNum + nameColW + kColGap * 2 + deckColIdx * (deckColW + kColGap);
+      // Fade and Note columns.
+      int base = gridArea.x + kColNum + nameColW + kColGap * 2 + visibleDeckCols * (deckColW + kColGap);
+      if (deckColIdx == visibleDeckCols) return base;          // fade
+      return base + kColFade + kColGap;                        // note
+    };
+    auto colW = [&](int col) -> int {
+      if (col == 0) return kColNum;
+      if (col == 1) return nameColW;
+      int deckColIdx = col - 2;
+      if (deckColIdx < visibleDeckCols) return deckColW;
+      if (deckColIdx == visibleDeckCols) return kColFade;
+      return kColNote;
+    };
+    int totalCols = 2 + visibleDeckCols + 2; // #, name, decks, fade, note
+
+    // Header row
+    constexpr int kHdrH = 18;
+    SDL_Rect hdrRow {gridArea.x, gridArea.y, gridArea.w, kHdrH};
+    Primitives::fillRect(controlRenderer_, hdrRow, SDL_Color{16, 52, 16, 255});
+    Primitives::strokeRect(controlRenderer_, hdrRow, colorFromRgba(kScreenDeepColor));
+
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{colX(0)+2, hdrRow.y+2, colW(0)-4, kHdrH-4}, "#",
+                 colorFromRgba(kScreenDarkColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{colX(1)+2, hdrRow.y+2, colW(1)-4, kHdrH-4}, "NAME",
+                 colorFromRgba(kScreenDarkColor));
+    for (int d = 0; d < visibleDeckCols; ++d) {
+      int deckIndex = masterTrackerDeckScroll_ + d;
+      std::string dLabel = "D" + std::to_string(deckIndex + 1);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{colX(2+d)+1, hdrRow.y+2, colW(2+d)-2, kHdrH-4},
+                   dLabel, colorFromRgba(kScreenDarkColor));
+    }
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{colX(2+visibleDeckCols)+1, hdrRow.y+2, kColFade-2, kHdrH-4},
+                 "FD", colorFromRgba(kScreenDarkColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{colX(2+visibleDeckCols+1)+1, hdrRow.y+2, kColNote-2, kHdrH-4},
+                 "NOTE", colorFromRgba(kScreenDarkColor));
+
+    // Data rows
+    constexpr int kRowH = 20;
+    constexpr int kRowGap = 1;
+    int dataTop = gridArea.y + kHdrH + kRowGap;
+    int dataH   = gridArea.h - kHdrH - kRowGap;
+    int visibleDataRows = std::max(1, (dataH + kRowGap) / (kRowH + kRowGap));
+
+    // Keep scroll in range so cursor is visible.
+    masterTrackerCursorRow_ = std::clamp(masterTrackerCursorRow_, 0, std::max(0, totalMasters - 1));
+    project_.focusedGroupPresetIndex = masterTrackerCursorRow_;
+    if (masterTrackerCursorRow_ < masterTrackerScroll_)
+      masterTrackerScroll_ = masterTrackerCursorRow_;
+    if (masterTrackerCursorRow_ >= masterTrackerScroll_ + visibleDataRows)
+      masterTrackerScroll_ = masterTrackerCursorRow_ - visibleDataRows + 1;
+    masterTrackerScroll_ = std::clamp(masterTrackerScroll_, 0,
+                                      std::max(0, totalMasters - visibleDataRows));
+
+    SDL_RenderSetClipRect(controlRenderer_, &gridArea);
+    for (int row = 0; row < visibleDataRows; ++row) {
+      int presetIndex = masterTrackerScroll_ + row;
+      if (presetIndex >= totalMasters) break;
+      bool cursorOnRow = (presetIndex == masterTrackerCursorRow_);
       const GroupPreset& preset = project_.groupPresets[presetIndex];
-      bool focusedMaster = presetIndex == project_.focusedGroupPresetIndex;
 
-      SDL_Rect rowRect {listRect.x + 2, rowY, listRect.w - 4, lineRowH};
-      SDL_Color rowFill = focusedMaster
-        ? SDL_Color {48, 98, 48, 255}
-        : ((i % 2) == 0 ? SDL_Color {20, 56, 20, 255} : SDL_Color {16, 48, 16, 255});
-      Primitives::fillRect(controlRenderer_, rowRect, rowFill);
-      Primitives::strokeRect(controlRenderer_, rowRect, colorFromRgba(kScreenDeepColor));
+      int rowY = dataTop + row * (kRowH + kRowGap);
+      SDL_Rect fullRow {gridArea.x, rowY, gridArea.w, kRowH};
 
-      SDL_Rect fireRect {rowRect.x + rowRect.w - 58, rowRect.y + 4, 54, rowRect.h - 8};
-      SDL_Color fireFill = focusedMaster ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-      SDL_Color fireInk = focusedMaster ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, fireRect, fireFill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "TAKE", fireInk, fireRect);
+      // Row background
+      SDL_Color rowBg = cursorOnRow
+        ? SDL_Color{48, 98, 48, 255}
+        : ((presetIndex % 2 == 0) ? SDL_Color{18, 52, 18, 255} : SDL_Color{14, 44, 14, 255});
+      Primitives::fillRect(controlRenderer_, fullRow, rowBg);
 
-      std::string masterName = preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name;
-      std::string prefix = "[" + std::to_string(presetIndex + 1) + "] " + masterName;
+      // Row number column
+      {
+        SDL_Rect cell {colX(0)+1, rowY, colW(0)-2, kRowH};
+        SDL_Color ink = cursorOnRow ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDarkColor);
+        drawCenteredTextSafe(controlRenderer_, fontMono_, cell,
+                             (presetIndex < 9 ? "0" : "") + std::to_string(presetIndex + 1), ink);
+        masterTrackerCells_.push_back({cell, presetIndex, 0});
+      }
 
-      std::string slotSummary;
-      int deckPreviewCount = std::min(deckCount, 3);
-      for (int deckIndex = 0; deckIndex < deckPreviewCount; ++deckIndex) {
-        std::string chunk = " D" + std::to_string(deckIndex + 1) + ":";
+      // Name column — cursor highlights with box
+      {
+        bool cellCursor = cursorOnRow && (masterTrackerCursorCol_ == 1);
+        SDL_Rect cell {colX(1)+1, rowY, colW(1)-2, kRowH};
+        if (cellCursor) {
+          Primitives::fillRect(controlRenderer_, cell, colorFromRgba(kScreenDeepColor));
+          Primitives::strokeRect(controlRenderer_, cell, colorFromRgba(kScreenLightColor));
+        }
+        std::string name = preset.name.empty()
+          ? groupPresetDefaultName(presetIndex) : preset.name;
+        SDL_Color ink = cursorOnRow ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{cell.x+2, cell.y+2, cell.w-4, cell.h-4}, name, ink);
+        masterTrackerCells_.push_back({cell, presetIndex, 1});
+      }
+
+      // Deck slot columns
+      for (int d = 0; d < visibleDeckCols; ++d) {
+        int deckIndex = masterTrackerDeckScroll_ + d;
+        int colIdx = 2 + d;
+        bool cellCursor = cursorOnRow && (masterTrackerCursorCol_ == colIdx);
+        SDL_Rect cell {colX(colIdx)+1, rowY, colW(colIdx)-2, kRowH};
+
+        // Determine slot content
+        MasterCueSlotMode slotMode = MasterCueSlotMode::Hold;
+        std::string slotText = "---";
+        SDL_Color slotInk = colorFromRgba(kScreenDeepColor);
+        SDL_Color slotBg  = SDL_Color{12, 42, 12, 255};
+
         if (deckIndex < static_cast<int>(preset.slots.size())) {
           const GroupSlot& slot = preset.slots[deckIndex];
-          if (slot.bypass) {
-            chunk += "\xc3\x97";
-          } else {
+          slotMode = slot.mode;
+          if (slot.mode == MasterCueSlotMode::Recall) {
             const Deck& deck = project_.decks[deckIndex];
-            auto cueIndex = cueIndexById(deck, slot.cueId);
-            if (cueIndex) {
-              chunk += cueLabel(deck, *cueIndex);
-            } else {
-              chunk += "??";
-            }
+            auto ci = cueIndexById(deck, slot.cueId);
+            slotText = ci ? cueDisplayToken(deck.cues[*ci], *ci) : "???";
+            slotInk = colorFromRgba(kScreenLightColor);
+            slotBg  = SDL_Color{20, 60, 20, 255};
+          } else if (slot.mode == MasterCueSlotMode::Clear) {
+            slotText = "CLR";
+            slotInk = SDL_Color{220, 100, 30, 255};
+            slotBg  = SDL_Color{40, 20, 10, 255};
+          } else {
+            slotInk = colorFromRgba(kScreenDeepColor);
           }
-        } else {
-          chunk += "--";
         }
-        slotSummary += chunk;
-      }
-      if (deckCount > deckPreviewCount) {
-        slotSummary += " ...";
+
+        if (cellCursor) {
+          slotBg = colorFromRgba(kScreenDeepColor);
+          Primitives::fillRect(controlRenderer_, cell, slotBg);
+          Primitives::strokeRect(controlRenderer_, cell, colorFromRgba(kScreenLightColor));
+        } else {
+          Primitives::fillRect(controlRenderer_, cell, slotBg);
+        }
+        drawCenteredTextSafe(controlRenderer_, fontMono_,
+                             SDL_Rect{cell.x, cell.y, cell.w, cell.h}, slotText, slotInk);
+        masterTrackerCells_.push_back({cell, presetIndex, colIdx});
       }
 
-      int textMaxW = std::max(40, fireRect.x - (rowRect.x + 4) - 4);
-      std::string line = prefix;
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {rowRect.x + 3, rowRect.y + 4, textMaxW, 14},
-                   line, colorFromRgba(kScreenLightColor));
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {rowRect.x + 3, rowRect.y + 20, textMaxW, 14},
-                   slotSummary, colorFromRgba(kScreenMidColor));
+      // Fade column
+      {
+        int colIdx = 2 + visibleDeckCols;
+        bool cellCursor = cursorOnRow && (masterTrackerCursorCol_ == colIdx);
+        SDL_Rect cell {colX(colIdx)+1, rowY, colW(colIdx)-2, kRowH};
+        SDL_Color bg = cellCursor ? colorFromRgba(kScreenDeepColor) : SDL_Color{12, 40, 12, 255};
+        Primitives::fillRect(controlRenderer_, cell, bg);
+        if (cellCursor) Primitives::strokeRect(controlRenderer_, cell, colorFromRgba(kScreenLightColor));
+        std::string fadeStr = preset.fadeSeconds < 0.0 ? " --"
+          : (std::to_string(static_cast<int>(std::round(preset.fadeSeconds * 10.0))));
+        if (preset.fadeSeconds >= 0.0) fadeStr = std::to_string(static_cast<int>(preset.fadeSeconds))
+          + "." + std::to_string(static_cast<int>(std::round(std::fmod(preset.fadeSeconds, 1.0) * 10)));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, cell, fadeStr,
+                             cursorOnRow ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDeepColor));
+        masterTrackerCells_.push_back({cell, presetIndex, colIdx});
+      }
 
-      masterCueSidebarRows_.push_back({presetIndex, rowRect, fireRect});
-      rowY += lineRowH + 3;
+      // Note column
+      {
+        int colIdx = 2 + visibleDeckCols + 1;
+        bool cellCursor = cursorOnRow && (masterTrackerCursorCol_ == colIdx);
+        SDL_Rect cell {colX(colIdx)+1, rowY, colW(colIdx)-2, kRowH};
+        SDL_Color bg = cellCursor ? colorFromRgba(kScreenDeepColor) : SDL_Color{12, 40, 12, 255};
+        Primitives::fillRect(controlRenderer_, cell, bg);
+        if (cellCursor) Primitives::strokeRect(controlRenderer_, cell, colorFromRgba(kScreenLightColor));
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{cell.x+2, cell.y+2, cell.w-4, cell.h-4},
+                     preset.notes,
+                     cursorOnRow ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDeepColor));
+        masterTrackerCells_.push_back({cell, presetIndex, colIdx});
+      }
+
+      // TAKE fire button (right edge of full row, small)
+      SDL_Rect fireBtn {gridArea.x + gridArea.w - 36, rowY + 2, 34, kRowH - 4};
+      SDL_Color fireFill = cursorOnRow ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+      SDL_Color fireInk  = cursorOnRow ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, fireBtn, fireFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredText(controlRenderer_, fontSmall_, "\xe2\x96\xb6", fireInk, fireBtn);  // ▶
+      masterCueSidebarRows_.push_back({presetIndex, fullRow, fireBtn});
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    // Empty hint
+    if (totalMasters == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{gridArea.x+8, gridArea.y+kHdrH+8, gridArea.w-16, 16},
+                   "No master cues. Press NEW.", colorFromRgba(kScreenInkSoftColor));
     }
 
-    if (totalMasters > lineRowsPerPage) {
-      std::string page = std::to_string(pageStart + 1) + "-" +
-        std::to_string(pageStart + visibleRows) + "/" + std::to_string(totalMasters);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {listRect.x + listRect.w - 84, listRect.y + listRect.h - 16, 78, 14},
-                   page, colorFromRgba(kScreenInkSoftColor));
+    // Scroll gutter
+    if (totalMasters > visibleDataRows) {
+      SDL_Rect gutter {gridArea.x + gridArea.w - 4, dataTop, 3, dataH};
+      Primitives::fillRect(controlRenderer_, gutter, colorFromRgba(kScreenDeepColor));
+      int thumbH = std::max(12, dataH * visibleDataRows / std::max(1, totalMasters));
+      int thumbY = dataTop + (dataH - thumbH) * masterTrackerScroll_ / std::max(1, totalMasters - visibleDataRows);
+      Primitives::fillRect(controlRenderer_, {gutter.x, thumbY, gutter.w, thumbH},
+                           colorFromRgba(kScreenDarkColor));
     }
+
+    // Deck-column scroll hint
+    if (deckCount > visibleDeckCols) {
+      std::string dscroll = "D" + std::to_string(masterTrackerDeckScroll_ + 1)
+        + "+" + std::to_string(visibleDeckCols) + "/" + std::to_string(deckCount);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{head.x + head.w - 80, head.y + 4, 74, 14},
+                   dscroll, colorFromRgba(kScreenDarkColor));
+    }
+
+    // Key hint strip at bottom
+    SDL_Rect hintRow {panel.x+2, panel.y + panel.h - 14, panel.w - 4, 12};
+    drawTextSafe(controlRenderer_, fontSmall_, hintRow,
+                 "↑↓=row  ←→=col  Tab=mode  +/-=cue  Enter=take  N=new  Del=del",
+                 colorFromRgba(kScreenDeepColor));
   }
 
   void renderOutputPanelsPanel(const SDL_Rect& panel) {
@@ -19175,135 +19281,160 @@ class App {
     }
   }
 
+  // -----------------------------------------------------------------------
+  // Routing crosspoint matrix.
+  //
+  // Visual layout:
+  //   Rows = Decks.  Columns = Outputs.
+  //   Each cell = layer assignment for that Deck × Output pair.
+  //   Cell values cycle on click: OFF -> BG -> L1 -> L2 -> L3 -> L4 -> OFF.
+  //
+  // This replaces the old Deck/Output/Layer stepper row approach and makes
+  // the full routing picture scannable at a glance.
+  // -----------------------------------------------------------------------
   void renderRoutingMatrixPanel(const SDL_Rect& panel) {
     auto chrome = drawOperationalPanel(panel, {UiPanelKind::Routing, -1},
-                                       "ROUTING MATRIX",
-                                       "Deck -> Output -> Layer",
+                                       "ROUTING",
+                                       "Deck \xe2\x86\x92 Layer \xe2\x86\x92 Output \xe2\x86\x92 Display",
                                        renderingFloatingPanelsWindow_ ? UiPanelPresentation::Floating
                                                                       : UiPanelPresentation::Docked);
     routingMatrixViewportRect_ = chrome.body;
     routingMatrixScrollMax_ = 0;
-    if (chrome.body.w <= 0 || chrome.body.h <= 0) {
-      return;
-    }
+    if (chrome.body.w <= 0 || chrome.body.h <= 0) return;
 
-    if (project_.decks.empty()) {
+    int deckCount   = static_cast<int>(project_.decks.size());
+    int outputCount = static_cast<int>(project_.outputs.size());
+
+    if (deckCount == 0) {
       drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
-                   "No Decks available for routing.",
-                   colorFromRgba(kScreenInkSoftColor));
+                   "No Decks.", colorFromRgba(kScreenInkSoftColor));
       return;
     }
-    if (project_.outputs.empty()) {
+    if (outputCount == 0) {
       drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
-                   "No Outputs available. Press +OUTPUT in Output Panels.",
-                   colorFromRgba(kScreenInkSoftColor));
+                   "No Outputs. Add one in Output Panels.", colorFromRgba(kScreenInkSoftColor));
       return;
     }
 
-    SDL_Rect tableHeader {chrome.body.x, chrome.body.y, chrome.body.w, 24};
-    drawUIPanel(tableHeader, colorFromRgba(kShellInnerColor),
-                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-    
-    // Proportional column widths
-    int colOutputW = 80;
-    int colLayerW = 86;
-    int colAssignW = 96;
-    int colDeckW = std::max(100, chrome.body.w - colOutputW - colLayerW - colAssignW - 18);
-    
-    UITable headerTable(tableHeader, {colDeckW, colOutputW, colLayerW, colAssignW}, 24, 6);
-    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 0), "Deck", colorFromRgba(kScreenDeepColor));
-    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 1), "Output", colorFromRgba(kScreenDeepColor));
-    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 2), "Layer", colorFromRgba(kScreenDeepColor));
-    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 3), "Routing", colorFromRgba(kScreenDeepColor));
+    // Column widths: [DECK label | O1 | O2 | ... | On ]
+    constexpr int kDeckLabelW = 64;
+    constexpr int kCellGap    = 2;
+    int availCellW = std::max(0, chrome.body.w - kDeckLabelW - kCellGap);
+    int cellW = std::max(32, std::min(56, availCellW / std::max(1, outputCount)));
+    int visibleOutputCols = std::min(outputCount, std::max(1, availCellW / (cellW + kCellGap)));
 
-    SDL_Rect bodyRect {chrome.body.x, tableHeader.y + tableHeader.h + 4,
-                       chrome.body.w, std::max(0, chrome.body.h - tableHeader.h - 4)};
-    routingMatrixViewportRect_ = bodyRect;
-    int rowH = 30; // Increased row height for better touch/mouse target
-    int rowGap = 2;
-    int deckCount = static_cast<int>(project_.decks.size());
-    int visibleRows = std::max(1, (bodyRect.h + rowGap) / (rowH + rowGap));
-    routingMatrixScrollMax_ = std::max(0, deckCount - visibleRows);
+    // Row heights
+    constexpr int kHdrH  = 20;
+    constexpr int kRowH  = 28;
+    constexpr int kRowGp = 2;
+
+    // Vertical scroll for decks
+    int visibleDeckRows = std::max(1, (chrome.body.h - kHdrH - kRowGp) / (kRowH + kRowGp));
+    routingMatrixScrollMax_ = std::max(0, deckCount - visibleDeckRows);
     routingMatrixScroll_ = std::clamp(routingMatrixScroll_, 0, routingMatrixScrollMax_);
+    routingMatrixViewportRect_ = chrome.body;
 
-    SDL_RenderSetClipRect(controlRenderer_, &bodyRect);
-    UITable table(bodyRect, {colDeckW, colOutputW, colLayerW, colAssignW}, rowH, rowGap);
-    for (int slot = 0; slot < visibleRows; ++slot) {
-      int deckIndex = routingMatrixScroll_ + slot;
-      if (deckIndex >= deckCount) {
-        break;
+    // Header row — output labels
+    SDL_Rect hdrRow {chrome.body.x, chrome.body.y, chrome.body.w, kHdrH};
+    Primitives::fillRect(controlRenderer_, hdrRow, colorFromRgba(kShellInnerColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{hdrRow.x+2, hdrRow.y+2, kDeckLabelW-4, kHdrH-4},
+                 "DECK", colorFromRgba(kScreenDeepColor));
+    for (int o = 0; o < visibleOutputCols; ++o) {
+      int outIdx = o; // No output-column scroll for now
+      int cellX = hdrRow.x + kDeckLabelW + kCellGap + o * (cellW + kCellGap);
+      SDL_Rect hdrCell {cellX, hdrRow.y, cellW, kHdrH};
+      bool focused = (outIdx == project_.focusedOutputIndex);
+      SDL_Color hdrFill = focused ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+      SDL_Color hdrInk  = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, hdrCell, hdrFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      std::string olabel = "O" + std::to_string(outIdx + 1);
+      if (outputCount > 0 && outIdx < outputCount) {
+        std::string otype = normalizeOutputType(project_.outputs[outIdx].outputType);
+        olabel += otype == "stream" ? " STR" : " WIN";
       }
-      bool focusedDeck = deckIndex == project_.focusedDeckIndex;
-      SDL_Rect deckCell = table.cell(slot, 0);
-      SDL_Rect outputCell = table.cell(slot, 1);
-      SDL_Rect layerCell = table.cell(slot, 2);
-      SDL_Rect assignCell = table.cell(slot, 3);
-      SDL_Rect rowRect {bodyRect.x, deckCell.y, bodyRect.w - (routingMatrixScrollMax_ > 0 ? 10 : 0), rowH};
-      SDL_Color rowFill = focusedDeck ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
-      SDL_Color rowInk = focusedDeck ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      drawUIPanel(rowRect, rowFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, hdrCell, olabel, hdrInk);
+    }
 
-      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
-      int outputCount = static_cast<int>(project_.outputs.size());
-      int routeOutput = primaryOut
-        ? *primaryOut
-        : std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1));
-      auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
-      bool assigned = assignmentIndex.has_value();
-      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+    // Data rows — one per deck
+    SDL_RenderSetClipRect(controlRenderer_, &chrome.body);
+    int rowTop = chrome.body.y + kHdrH + kRowGp;
+    for (int dr = 0; dr < visibleDeckRows; ++dr) {
+      int deckIndex = routingMatrixScroll_ + dr;
+      if (deckIndex >= deckCount) break;
+      bool focusDeck = (deckIndex == project_.focusedDeckIndex);
+      int rowY = rowTop + dr * (kRowH + kRowGp);
 
-      drawTextSafe(controlRenderer_, fontSmall_, deckCell, deckLabel(deckIndex), rowInk);
+      // Deck label cell
+      SDL_Rect deckCell {chrome.body.x, rowY, kDeckLabelW, kRowH};
+      SDL_Color deckFill = focusDeck ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
+      SDL_Color deckInk  = focusDeck ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, deckCell, deckFill,
+                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   insetRect(deckCell, 4), deckLabel(deckIndex), deckInk);
+      outputMenuButtons_.push_back({deckCell, deckIndex, -1, kOutputMenuActionRouteFocusDeck});
 
-      auto drawMini = [&](const SDL_Rect& rect, const std::string& text, bool lit = false, bool danger = false) {
-        SDL_Color fill = danger ? colorFromRgba(kDeleteBezelColor) : (lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor));
-        SDL_Color ink = lit || danger ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        drawUIPanel(rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, rect, text, ink);
-      };
+      // Output cells
+      for (int o = 0; o < visibleOutputCols; ++o) {
+        int outIdx = o;
+        int cellX = chrome.body.x + kDeckLabelW + kCellGap + o * (cellW + kCellGap);
+        SDL_Rect cell {cellX, rowY, cellW, kRowH};
 
-      int ctrlBtnW = 20;
-      int ctrlValW = outputCell.w - ctrlBtnW * 2 - 4;
-      SDL_Rect outPrev {outputCell.x, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
-      SDL_Rect outVal {outPrev.x + outPrev.w + 2, rowRect.y + 4, ctrlValW, rowRect.h - 8};
-      SDL_Rect outNext {outVal.x + outVal.w + 2, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
-      
-      int layerValW = layerCell.w - ctrlBtnW * 2 - 4;
-      SDL_Rect layerDec {layerCell.x, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
-      SDL_Rect layerVal {layerDec.x + layerDec.w + 2, rowRect.y + 4, layerValW, rowRect.h - 8};
-      SDL_Rect layerInc {layerVal.x + layerVal.w + 2, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
-      
-      SDL_Rect assignBtn {assignCell.x, rowRect.y + 4, assignCell.w, rowRect.h - 8};
-      
-      drawMini(outPrev, "<");
-      drawMini(outVal, routeOutput >= 0 ? ("O" + std::to_string(routeOutput + 1)) : "--",
-               routeOutput == project_.focusedOutputIndex);
-      drawMini(outNext, ">");
-      
-      drawMini(layerDec, "-");
-      drawMini(layerVal, assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--", assigned);
-      drawMini(layerInc, "+");
-      
-      drawMini(assignBtn, assigned ? "LINKED" : "UNLINKED", assigned);
+        auto assignIdx = assignmentIndexForDeckOutput(deckIndex, outIdx);
+        bool assigned  = assignIdx.has_value();
+        int  layerIdx  = assigned
+          ? std::clamp(project_.layerAssignments[*assignIdx].layerIndex, 0, 255)
+          : -1;
 
-      outputMenuButtons_.push_back({outPrev, deckIndex, routeOutput, kOutputMenuActionRouteOutputPrev});
-      outputMenuButtons_.push_back({outVal, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
-      outputMenuButtons_.push_back({outNext, deckIndex, routeOutput, kOutputMenuActionRouteOutputNext});
-      outputMenuButtons_.push_back({layerDec, deckIndex, routeOutput, kOutputMenuActionRouteLayerDec});
-      outputMenuButtons_.push_back({layerInc, deckIndex, routeOutput, kOutputMenuActionRouteLayerInc});
-      outputMenuButtons_.push_back({assignBtn, deckIndex, routeOutput, kOutputMenuActionRouteAssignToggle});
-      outputMenuButtons_.push_back({rowRect, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+        // Cell color: green tones for assigned, dark for unassigned.
+        SDL_Color cellFill, cellInk;
+        std::string cellText;
+        if (!assigned) {
+          cellFill = SDL_Color{10, 32, 10, 255};
+          cellInk  = colorFromRgba(kScreenDeepColor);
+          cellText = "---";
+        } else if (layerIdx <= 0) {
+          cellFill = SDL_Color{20, 80, 20, 255};
+          cellInk  = colorFromRgba(kScreenLightColor);
+          cellText = " BG";
+        } else {
+          // L1..L4: slightly different shades to show stack order
+          int shade = std::clamp(80 - layerIdx * 10, 40, 80);
+          cellFill = SDL_Color{static_cast<Uint8>(16), static_cast<Uint8>(shade), static_cast<Uint8>(16), 255};
+          cellInk  = colorFromRgba(kScreenLightColor);
+          cellText = " L" + std::to_string(layerIdx);
+        }
+
+        Primitives::drawFramedPanel(controlRenderer_, cell, cellFill,
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, cell, cellText, cellInk);
+
+        // Click cycles layer: OFF(-1) -> BG(0) -> L1 -> L2 -> L3 -> L4 -> OFF
+        // Encode in kOutputMenuActionRouteLayerCycle with layer stored in outputIndex field.
+        outputMenuButtons_.push_back({cell, deckIndex, outIdx, kOutputMenuActionRouteLayerCycle});
+      }
     }
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
+    // Vertical scroll gutter
     if (routingMatrixScrollMax_ > 0) {
-      SDL_Rect gutter {bodyRect.x + bodyRect.w - 6, bodyRect.y, 4, bodyRect.h};
+      SDL_Rect gutter {chrome.body.x + chrome.body.w - 4, rowTop, 3,
+                       std::max(0, chrome.body.h - kHdrH - kRowGp)};
       Primitives::fillRect(controlRenderer_, gutter, colorFromRgba(kShellOuterColor));
-      int thumbH = std::max(24, bodyRect.h * visibleRows / std::max(1, deckCount));
-      int thumbRange = std::max(0, gutter.h - thumbH);
-      int thumbY = gutter.y + (thumbRange * routingMatrixScroll_) / std::max(1, routingMatrixScrollMax_);
-      SDL_Rect thumb {gutter.x, thumbY, gutter.w, thumbH};
-      Primitives::fillRect(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor));
+      int thumbH = std::max(10, gutter.h * visibleDeckRows / std::max(1, deckCount));
+      int thumbY = gutter.y + (gutter.h - thumbH) * routingMatrixScroll_
+                  / std::max(1, routingMatrixScrollMax_);
+      Primitives::fillRect(controlRenderer_, {gutter.x, thumbY, gutter.w, thumbH},
+                           colorFromRgba(kScreenDarkColor));
     }
+
+    // Hint
+    SDL_Rect hintRect {chrome.body.x, chrome.body.y + chrome.body.h - 14, chrome.body.w, 12};
+    drawTextSafe(controlRenderer_, fontSmall_, hintRect,
+                 "Click cell to cycle: --- > BG > L1 > L2 > L3 > L4 > ---",
+                 colorFromRgba(kScreenDeepColor));
   }
 
   void renderControlWindow() {
@@ -24970,6 +25101,26 @@ class App {
         setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
         return;
       }
+      if (outputBtn.action == kOutputMenuActionRouteLayerCycle) {
+        // Crosspoint matrix cell: cycle OFF -> BG(0) -> L1(1) -> L2(2) -> L3(3) -> L4(4) -> OFF
+        if (project_.decks.empty() || project_.outputs.empty()) return;
+        int deckIdx  = std::clamp(outputBtn.deckIndex,  0, static_cast<int>(project_.decks.size())   - 1);
+        int outIdx   = std::clamp(outputBtn.outputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+        int maxLayer = static_cast<int>(project_.layerNames.size()) - 1;
+        auto ai = assignmentIndexForDeckOutput(deckIdx, outIdx);
+        if (!ai) {
+          assignDeckToOutput(deckIdx, outIdx);
+          setDeckOutputAssignmentLayer(deckIdx, outIdx, 0);
+        } else {
+          int cur = project_.layerAssignments[*ai].layerIndex;
+          if (cur >= maxLayer) {
+            unassignDeckFromOutput(deckIdx, outIdx);
+          } else {
+            setDeckOutputAssignmentLayer(deckIdx, outIdx, cur + 1);
+          }
+        }
+        return;
+      }
       return;
     }
     for (int deckIndex = 0; deckIndex < static_cast<int>(deckColumnRects_.size()); ++deckIndex) {
@@ -25133,6 +25284,21 @@ class App {
       }
       // Row click (outside buttons): assign this deck's currently selected cue.
       setFocusedGroupSlotFromCueIndex(hit.deckIndex, project_.decks[hit.deckIndex].selectedIndex);
+      return;
+    }
+    for (const auto& cell : masterTrackerCells_) {
+      if (!pointInRect(x, y, cell.rect)) continue;
+      // Move tracker cursor to clicked cell.
+      masterTrackerCursorRow_ = cell.row;
+      masterTrackerCursorCol_ = cell.col;
+      project_.focusedGroupPresetIndex = cell.row;
+      onSelectionChanged();
+      // Double-click (right-click) or single click with Alt cycles the slot.
+      bool altHeld = (SDL_GetModState() & KMOD_ALT) != 0;
+      if (altHeld && cell.col >= 2) {
+        int deckIdx = masterTrackerDeckScroll_ + (cell.col - 2);
+        cycleTrackerSlot(cell.row, deckIdx, 1);
+      }
       return;
     }
     for (const auto& row : masterCueSidebarRows_) {
@@ -25330,6 +25496,72 @@ class App {
       ensureGroupPreset(true);
       cycleFocusedGroupPreset(1);
       return;
+    }
+
+    // ---- Master Cue Tracker keyboard navigation (only when MasterScene focused) ----
+    if (uiWorkspace_.focusedPanel.kind == UiPanelKind::MasterScene) {
+      int totalMasters = static_cast<int>(project_.groupPresets.size());
+      int deckCount    = static_cast<int>(project_.decks.size());
+      // totalCols is approximate (no visibleDeckCols available here); use deckCount.
+      int totalCols    = 2 + deckCount + 2;  // #, name, decks, fade, note
+
+      if (key == SDLK_UP) {
+        masterTrackerCursorRow_ = std::max(0, masterTrackerCursorRow_ - 1);
+        project_.focusedGroupPresetIndex = masterTrackerCursorRow_;
+        onSelectionChanged();
+        return;
+      }
+      if (key == SDLK_DOWN) {
+        masterTrackerCursorRow_ = std::min(std::max(0, totalMasters - 1), masterTrackerCursorRow_ + 1);
+        project_.focusedGroupPresetIndex = masterTrackerCursorRow_;
+        onSelectionChanged();
+        return;
+      }
+      if (key == SDLK_LEFT) {
+        masterTrackerCursorCol_ = std::max(0, masterTrackerCursorCol_ - 1);
+        return;
+      }
+      if (key == SDLK_RIGHT) {
+        masterTrackerCursorCol_ = std::min(totalCols - 1, masterTrackerCursorCol_ + 1);
+        return;
+      }
+      // Tab — cycle slot mode on focused deck column.
+      if (key == SDLK_TAB && masterTrackerCursorCol_ >= 2 &&
+          masterTrackerCursorCol_ < 2 + deckCount) {
+        int deckIdx = masterTrackerDeckScroll_ + (masterTrackerCursorCol_ - 2);
+        cycleTrackerSlot(masterTrackerCursorRow_, deckIdx, shift ? -1 : 1);
+        return;
+      }
+      // +/= — cycle cue forward in Recall slot.
+      if ((key == SDLK_PLUS || key == SDLK_EQUALS || key == SDLK_KP_PLUS) &&
+          masterTrackerCursorCol_ >= 2 && masterTrackerCursorCol_ < 2 + deckCount) {
+        int deckIdx = masterTrackerDeckScroll_ + (masterTrackerCursorCol_ - 2);
+        cycleTrackerSlotCue(masterTrackerCursorRow_, deckIdx, 1);
+        return;
+      }
+      // - — cycle cue backward in Recall slot.
+      if ((key == SDLK_MINUS || key == SDLK_KP_MINUS) &&
+          masterTrackerCursorCol_ >= 2 && masterTrackerCursorCol_ < 2 + deckCount) {
+        int deckIdx = masterTrackerDeckScroll_ + (masterTrackerCursorCol_ - 2);
+        cycleTrackerSlotCue(masterTrackerCursorRow_, deckIdx, -1);
+        return;
+      }
+      // Enter — fire focused preset.
+      if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+        ensureGroupPreset(true);
+        fireFocusedGroupPreset(true);
+        return;
+      }
+      // N — new preset.
+      if (key == SDLK_n && !ctrl) {
+        addGroupPreset("", false);
+        return;
+      }
+      // Delete/Backspace — delete focused preset.
+      if (key == SDLK_DELETE || key == SDLK_BACKSPACE) {
+        deleteFocusedGroupPreset();
+        return;
+      }
     }
     // Ctrl+Space — all-deck go (play/pause toggle)
     if (ctrl && key == SDLK_SPACE) {
@@ -29648,6 +29880,7 @@ class App {
   static constexpr int kOutputMenuActionToggleFps = 10;
   static constexpr int kOutputMenuActionRecover = 11;
   static constexpr int kOutputMenuActionDisarm = 12;
+  static constexpr int kOutputMenuActionRouteLayerCycle = 13;
   static constexpr int kFloatingPanelActionDock = 1;
   static constexpr int kSettingsActionOutputRemove = 269;
   static constexpr int kSettingsActionOutputToggle = 262;
@@ -29842,6 +30075,18 @@ class App {
   std::vector<DecksPanelCueHit> decksPanelCueHits_;
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
   std::vector<MasterCueRowHit> masterCueRowHits_;
+  // Tracker cursor state for the Master Cue panel.
+  int masterTrackerCursorRow_ = 0;  // focused master cue row index
+  int masterTrackerCursorCol_ = 0;  // 0=name col, 1..N=deck slot col, N+1=fade, N+2=notes
+  int masterTrackerScroll_    = 0;  // vertical scroll offset (row index)
+  int masterTrackerDeckScroll_= 0;  // horizontal deck-column scroll offset
+  // Hit records from last renderDeckSidebar pass.
+  struct TrackerCellHit {
+    SDL_Rect rect;
+    int row = -1;  // preset index
+    int col = -1;  // 0=name, 1..N=deck (1-based), N+1=fade, N+2=notes
+  };
+  std::vector<TrackerCellHit> masterTrackerCells_;
   std::vector<OutputMenuButton> outputMenuButtons_;
   struct PanelWorkspaceButton {
     SDL_Rect rect;
