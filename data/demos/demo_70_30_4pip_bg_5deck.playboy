@@ -1,0 +1,61 @@
+title	Demo - 70/30 + 4 PiP Over BG (5 Decks)
+focused_deck	0
+focused_output	0
+focused_group	0
+layer_names	BG	LayerA	LayerB	LayerC	LayerD
+advanced_mode	1
+ui_sounds	1
+ui_transitions	1
+jump_mode	trigger
+jump_transition	1
+panic_profile	outputs_off
+panic_fade_seconds	0.9
+panic_auto_restore	0
+master_volume	1
+master_dimmer	1
+output_follow_display	1
+output_render_width	1920
+output_render_height	1080
+output_refresh_hz	0
+output_bit_depth	0
+output_canvas_enabled	0
+output_canvas_width	3840
+output_canvas_height	2160
+output_target	0	Program Out	0	0	1	0	srt	srt://127.0.0.1:9000?mode=caller&transtype=live&streamid=output1	6000	window	-1	out-demo-main
+layer_assignment	0	0	0	1	out-demo-main	lay-demo-0-0
+layer_assignment	1	0	1	1	out-demo-main	lay-demo-1-1
+layer_assignment	2	0	2	1	out-demo-main	lay-demo-2-2
+layer_assignment	3	0	3	1	out-demo-main	lay-demo-3-3
+layer_assignment	4	0	4	1	out-demo-main	lay-demo-4-4
+group_preset	0	Open - BG + 4 PiP
+group_slot	0	0	0	cue-demo-7030-bg
+group_slot	0	1	0	cue-demo-7030-p1
+group_slot	0	2	0	cue-demo-7030-p2
+group_slot	0	3	0	cue-demo-7030-p3
+group_slot	0	4	0	cue-demo-7030-p4
+group_preset	1	BG Only
+group_slot	1	0	0	cue-demo-7030-bg
+group_slot	1	1	1	
+group_slot	1	2	1	
+group_slot	1	3	1	
+group_slot	1	4	1	
+group_preset	2	PiP Motion Sweep
+group_slot	2	0	0	cue-demo-7030-bg
+group_slot	2	1	0	cue-demo-7030-p1b
+group_slot	2	2	0	cue-demo-7030-p2b
+group_slot	2	3	0	cue-demo-7030-p3b
+group_slot	2	4	0	cue-demo-7030-p4b
+deck	0	Deck 1 BG	0	0	0	0		0	0	Deckboy - Deck 1 BG	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 1 BG Key	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+cue	0	pattern://pocket-day	BG Pocket Day	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-bg	0	0	-1	inherit	-1				180	0	0	1		Animated background layer.	1	1	0	0	0	BG		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	1	Deck 2 PiP-1	1	1	0	0		0	0	Deckboy - Deck 2 PiP-1	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 2 PiP-1 Key	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	1
+cue	1	pattern://smpte-bars	PiP 1 Bars	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p1	0	0	-1	inherit	-1				180	0	0	1		Upper-right PiP.	0.25	0.25	0	670	-360	P1		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	1	pattern://smpte-bars-motion	PiP 1 Bars Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p1b	0	0	-1	inherit	-1				180	0	0	1		Upper-right PiP motion alt.	0.25	0.25	0	670	-360	P1M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	2	Deck 3 PiP-2	1	1	0	0		0	0	Deckboy - Deck 3 PiP-2	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 3 PiP-2 Key	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	2	1	1
+cue	2	pattern://crosshatch	PiP 2 Crosshatch	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p2	0	0	-1	inherit	-1				180	0	0	1		Mid-upper-right PiP.	0.25	0.25	0	670	-120	P2		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	2	pattern://crosshatch-motion	PiP 2 Crosshatch Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p2b	0	0	-1	inherit	-1				180	0	0	1		Mid-upper-right PiP motion alt.	0.25	0.25	0	670	-120	P2M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	3	Deck 4 PiP-3	1	1	0	0		0	0	Deckboy - Deck 4 PiP-3	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 4 PiP-3 Key	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	3	1	1
+cue	3	pattern://checkerboard	PiP 3 Checkerboard	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p3	0	0	-1	inherit	-1				180	0	0	1		Mid-lower-right PiP.	0.25	0.25	0	670	120	P3		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	3	pattern://checkerboard-motion	PiP 3 Checkerboard Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p3b	0	0	-1	inherit	-1				180	0	0	1		Mid-lower-right PiP motion alt.	0.25	0.25	0	670	120	P3M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+deck	4	Deck 5 PiP-4	1	1	0	0		0	0	Deckboy - Deck 5 PiP-4	0	0	crossfade	0	0	1	30	0	0	0	Deckboy - Deck 5 PiP-4 Key	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	4	1	1
+cue	4	pattern://full-blue	PiP 4 Full Blue	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p4	0	0	-1	inherit	-1				180	0	0	1		Lower-right PiP.	0.25	0.25	0	670	360	P4		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0
+cue	4	pattern://full-blue-motion	PiP 4 Full Blue Motion	pattern	0	1920	1080	30	generated			0	0	#306230	0	0	0	0	cue-demo-7030-p4b	0	0	-1	inherit	-1				180	0	0	1		Lower-right PiP motion alt.	0.25	0.25	0	670	360	P4M		0	0	0	0	0	0	#00ff00	60	20	1	1	1	0

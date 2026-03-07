@@ -78,6 +78,16 @@ constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
 constexpr int kDefaultAtemBridgePort = 9910;
 constexpr int kDefaultArtNetPort = 6454;
 constexpr int kDmxTriggerThreshold = 127;
+constexpr int kLayoutSpacingUnit = 8;
+constexpr int kLayoutPanelPadding = 16;
+constexpr int kLayoutPanelGap = 12;
+constexpr int kLayoutPanelBorder = 2;
+constexpr int kLayoutTextInset = 12;
+constexpr int kLayoutHeaderHeight = 56;
+constexpr int kLayoutBottomBarHeight = 72;
+constexpr int kLayoutButtonHeight = 40;
+constexpr int kLayoutButtonPadding = 12;
+constexpr int kLayoutButtonGap = 8;
 const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";
 const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";
 
@@ -435,8 +445,8 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Pattern:    return "Pattern";
     case CueKind::Browser:    return "Browser";
     case CueKind::WindowSource: return "Window Source";
-    case CueKind::Camera:     return "Camera";
-    case CueKind::Syphon:     return "Syphon/Spout";
+    case CueKind::Camera:     return "Camera Source";
+    case CueKind::Syphon:     return "Syphon/Spout Source";
     case CueKind::LowerThird: return "Lower Third";
     case CueKind::Audio:      return "Audio";
     case CueKind::Video:
@@ -1002,6 +1012,191 @@ SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
     std::max(0, rect.h - amount * 2)
   };
 }
+
+int snapDownToGrid(int value) {
+  if (kLayoutSpacingUnit <= 1) {
+    return value;
+  }
+  if (value >= 0) {
+    return value - (value % kLayoutSpacingUnit);
+  }
+  int remainder = (-value) % kLayoutSpacingUnit;
+  return remainder == 0 ? value : value - (kLayoutSpacingUnit - remainder);
+}
+
+int snapUpToGrid(int value) {
+  if (kLayoutSpacingUnit <= 1) {
+    return value;
+  }
+  int down = snapDownToGrid(value);
+  return down == value ? value : down + kLayoutSpacingUnit;
+}
+
+SDL_Rect snapRectToGrid(const SDL_Rect& rect) {
+  int right = snapDownToGrid(rect.x + rect.w);
+  int bottom = snapDownToGrid(rect.y + rect.h);
+  SDL_Rect snapped {
+    snapDownToGrid(rect.x),
+    snapDownToGrid(rect.y),
+    std::max(0, right - snapDownToGrid(rect.x)),
+    std::max(0, bottom - snapDownToGrid(rect.y))
+  };
+  return snapped;
+}
+
+SDL_Rect safeTextRect(const SDL_Rect& rect) {
+  int targetInsetX = rect.w >= 96 ? kLayoutTextInset : 6;
+  int insetX = std::min(targetInsetX, std::max(0, rect.w / 2 - 1));
+  int insetY = std::min(4, std::max(0, rect.h / 4));
+  return SDL_Rect {
+    rect.x + insetX,
+    rect.y + insetY,
+    std::max(0, rect.w - insetX * 2),
+    std::max(0, rect.h - insetY * 2)
+  };
+}
+
+class VerticalLayout {
+ public:
+  explicit VerticalLayout(SDL_Rect bounds, int gap = kLayoutPanelGap)
+    : bounds_(snapRectToGrid(bounds)),
+      cursorY_(snapDownToGrid(bounds_.y)),
+      gap_(std::max(0, gap)) {}
+
+  SDL_Rect takeFixed(int height) {
+    if (bounds_.w <= 0 || bounds_.h <= 0) {
+      return SDL_Rect {};
+    }
+    int snappedHeight = snapUpToGrid(std::max(0, height));
+    int bottom = bounds_.y + bounds_.h;
+    int y = cursorY_;
+    int h = std::max(0, std::min(snappedHeight, bottom - y));
+    SDL_Rect rect {bounds_.x, y, bounds_.w, h};
+    cursorY_ = std::min(bottom, y + h + gap_);
+    return rect;
+  }
+
+  SDL_Rect takeRemaining() {
+    if (bounds_.w <= 0 || bounds_.h <= 0) {
+      return SDL_Rect {};
+    }
+    int bottom = bounds_.y + bounds_.h;
+    int h = std::max(0, bottom - cursorY_);
+    SDL_Rect rect {bounds_.x, cursorY_, bounds_.w, h};
+    cursorY_ = bottom;
+    return rect;
+  }
+
+  int remainingHeight() const {
+    return std::max(0, bounds_.y + bounds_.h - cursorY_);
+  }
+
+ private:
+  SDL_Rect bounds_ {};
+  int cursorY_ = 0;
+  int gap_ = 0;
+};
+
+class HorizontalLayout {
+ public:
+  explicit HorizontalLayout(SDL_Rect bounds, int gap = kLayoutPanelGap)
+    : bounds_(snapRectToGrid(bounds)),
+      cursorX_(snapDownToGrid(bounds_.x)),
+      gap_(std::max(0, gap)) {}
+
+  SDL_Rect takeFixed(int width) {
+    if (bounds_.w <= 0 || bounds_.h <= 0) {
+      return SDL_Rect {};
+    }
+    int snappedWidth = snapUpToGrid(std::max(0, width));
+    int right = bounds_.x + bounds_.w;
+    int x = cursorX_;
+    int w = std::max(0, std::min(snappedWidth, right - x));
+    SDL_Rect rect {x, bounds_.y, w, bounds_.h};
+    cursorX_ = std::min(right, x + w + gap_);
+    return rect;
+  }
+
+  SDL_Rect takeRemaining() {
+    if (bounds_.w <= 0 || bounds_.h <= 0) {
+      return SDL_Rect {};
+    }
+    int right = bounds_.x + bounds_.w;
+    int w = std::max(0, right - cursorX_);
+    SDL_Rect rect {cursorX_, bounds_.y, w, bounds_.h};
+    cursorX_ = right;
+    return rect;
+  }
+
+  int remainingWidth() const {
+    return std::max(0, bounds_.x + bounds_.w - cursorX_);
+  }
+
+ private:
+  SDL_Rect bounds_ {};
+  int cursorX_ = 0;
+  int gap_ = 0;
+};
+
+class GridLayout {
+ public:
+  GridLayout(SDL_Rect bounds, int columns, int rows, int gap = kLayoutPanelGap)
+    : bounds_(snapRectToGrid(bounds)),
+      columns_(std::max(1, columns)),
+      rows_(std::max(1, rows)),
+      gap_(std::max(0, gap)) {}
+
+  SDL_Rect cell(int column, int row, int colSpan = 1, int rowSpan = 1) const {
+    column = std::clamp(column, 0, columns_ - 1);
+    row = std::clamp(row, 0, rows_ - 1);
+    colSpan = std::clamp(colSpan, 1, columns_ - column);
+    rowSpan = std::clamp(rowSpan, 1, rows_ - row);
+
+    int totalGapW = gap_ * (columns_ - 1);
+    int totalGapH = gap_ * (rows_ - 1);
+    int cellW = std::max(0, (bounds_.w - totalGapW) / columns_);
+    int cellH = std::max(0, (bounds_.h - totalGapH) / rows_);
+    int x = bounds_.x + column * (cellW + gap_);
+    int y = bounds_.y + row * (cellH + gap_);
+    int w = cellW * colSpan + gap_ * (colSpan - 1);
+    int h = cellH * rowSpan + gap_ * (rowSpan - 1);
+    return SDL_Rect {x, y, w, h};
+  }
+
+ private:
+  SDL_Rect bounds_ {};
+  int columns_ = 1;
+  int rows_ = 1;
+  int gap_ = 0;
+};
+
+class UITable {
+ public:
+  UITable(SDL_Rect bounds, std::vector<int> columnWidths, int rowHeight, int gap = kLayoutButtonGap)
+    : bounds_(snapRectToGrid(bounds)),
+      columnWidths_(std::move(columnWidths)),
+      rowHeight_(std::max(0, rowHeight)),
+      gap_(std::max(0, gap)) {}
+
+  SDL_Rect cell(int rowIndex, int columnIndex) const {
+    if (columnIndex < 0 || columnIndex >= static_cast<int>(columnWidths_.size())) {
+      return SDL_Rect {};
+    }
+    int x = bounds_.x;
+    for (int i = 0; i < columnIndex; ++i) {
+      x += columnWidths_[i] + gap_;
+    }
+    int y = bounds_.y + rowIndex * (rowHeight_ + gap_);
+    return SDL_Rect {x, y, columnWidths_[columnIndex], rowHeight_};
+  }
+
+ private:
+  SDL_Rect bounds_ {};
+  std::vector<int> columnWidths_;
+  int rowHeight_ = 0;
+  int gap_ = 0;
+};
+
 bool pointInRect(int x, int y, const SDL_Rect& rect) {
   return x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h;
 }
@@ -1991,6 +2186,14 @@ static float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState
   return 1.0f;
 }
 
+enum class OutputHealthState {
+  Off,
+  Armed,
+  Live,
+  Recovering,
+  Error,
+};
+
 struct OutputRuntime {
   struct CapturedFrame {
     int width = 0;
@@ -2038,6 +2241,9 @@ struct OutputRuntime {
   bool recoveryPausedByEscape = false;
   Uint64 lastFullscreenRequestMs = 0;
   Uint64 lastRecoveryAttemptMs = 0;
+  OutputHealthState healthState = OutputHealthState::Off;
+  std::string healthReason;
+  Uint64 healthUpdatedAtMs = 0;
   Uint64 fpsSampleStartedAtMs = 0;
   Uint32 fpsFrameCount = 0;
   double fpsMeasured = 0.0;
@@ -2524,7 +2730,7 @@ std::string makeLayerAssignmentId(const LayerAssignment& assignment, int assignm
 }
 
 std::string groupPresetDefaultName(int index) {
-  return "Master Cue " + std::to_string(index + 1);
+  return "Master Scene " + std::to_string(index + 1);
 }
 
 std::string normalizeOutputStreamProtocol(std::string protocol) {
@@ -3116,6 +3322,7 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     "ffprobe",
     "-v",
     "error",
+    "-select_streams", "v:0",
     "-show_entries",
     "format=duration,format_name,size:stream=codec_type,codec_name,width,height,r_frame_rate",
     "-of",
@@ -3151,10 +3358,14 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
         cue.audioCodec = value;
         cue.hasAudio = true;
       }
-    } else if (key == "width" && cue.width == 0) {
-      cue.width = std::max(0, std::atoi(value.c_str()));
-    } else if (key == "height" && cue.height == 0) {
-      cue.height = std::max(0, std::atoi(value.c_str()));
+    } else if (key == "width") {
+      if (lastCodecType == "video" && cue.width == 0) {
+        cue.width = std::max(0, std::atoi(value.c_str()));
+      }
+    } else if (key == "height") {
+      if (lastCodecType == "video" && cue.height == 0) {
+        cue.height = std::max(0, std::atoi(value.c_str()));
+      }
     } else if (key == "r_frame_rate" && cue.kind == CueKind::Video) {
       auto fps = parseFps(value);
       if (fps && *fps > 1.0) {
@@ -5916,6 +6127,23 @@ class App {
       }
     }
 
+    floatingPanelsWindow_ = SDL_CreateWindow(
+      "Deckboy Panels",
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      920,
+      1040,
+      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
+    );
+    if (floatingPanelsWindow_) {
+      SDL_SetWindowMinimumSize(floatingPanelsWindow_, 760, 540);
+      floatingPanelsRenderer_ = SDL_CreateRenderer(floatingPanelsWindow_, -1, SDL_RENDERER_ACCELERATED);
+      if (!floatingPanelsRenderer_) {
+        SDL_DestroyWindow(floatingPanelsWindow_);
+        floatingPanelsWindow_ = nullptr;
+      }
+    }
+
     fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 32);
     fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 21);
     fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 17);
@@ -5932,8 +6160,11 @@ class App {
     currentProjectFile_ = defaultProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
+    loadUiWorkspaceFromDisk();
+    applyUiWorkspaceState();
     disarmAllOutputsForStartup();
     updateDecksPanelVisibility();
+    updateFloatingPanelsWindowVisibility();
     // Output starts black — no cue is active until the operator takes one
     for (auto& deck : project_.decks) { deck.activeIndex = -1; }
     // Show startup dialog so operator can choose to load or start fresh
@@ -5949,6 +6180,7 @@ class App {
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    onSelectionChanged();
     observedDisplayCount_ = SDL_GetNumVideoDisplays();
     refreshDisplayTopology(false);
     selectionChangedAt_ = SDL_GetTicks64();
@@ -5966,6 +6198,7 @@ class App {
   }
 
   void shutdown() {
+    saveUiWorkspaceNow(false);
     stopIntegrationBridges();
     stopHyperDeckServer();
     stopMidiInput();
@@ -6028,6 +6261,14 @@ class App {
     if (decksPanelWindow_) {
       SDL_DestroyWindow(decksPanelWindow_);
       decksPanelWindow_ = nullptr;
+    }
+    if (floatingPanelsRenderer_) {
+      SDL_DestroyRenderer(floatingPanelsRenderer_);
+      floatingPanelsRenderer_ = nullptr;
+    }
+    if (floatingPanelsWindow_) {
+      SDL_DestroyWindow(floatingPanelsWindow_);
+      floatingPanelsWindow_ = nullptr;
     }
     if (controlRenderer_) {
       SDL_DestroyRenderer(controlRenderer_);
@@ -6697,6 +6938,70 @@ class App {
     }
 
     {
+      UiWorkspaceState workspace;
+      workspace.name = "Programming";
+      workspace.focusedPanel = {UiPanelKind::DeckPlaylist, 2};
+      workspace.focusedDeckIndex = 2;
+      workspace.focusedOutputIndex = 1;
+      workspace.focusedCueIndex = 14;
+      workspace.decksPanelManualOpen = true;
+      workspace.masterSceneVisible = false;
+      workspace.masterSceneProgrammerExpanded = false;
+      workspace.settingsTab = 3;
+      workspace.controlWindowFrame = SDL_Rect {40, 60, 1680, 960};
+      workspace.decksWindowFrame = SDL_Rect {120, 140, 1580, 900};
+      workspace.floatingPanelsWindowFrame = SDL_Rect {220, 160, 920, 1040};
+
+      UiPanelState programPanel;
+      programPanel.key = {UiPanelKind::ProgramTransport, -1};
+      programPanel.panelId = uiPanelStableId(programPanel.key);
+      programPanel.title = "Program / Transport";
+      programPanel.category = UiPanelCategory::Singleton;
+      programPanel.presentation = UiPanelPresentation::Docked;
+      programPanel.visible = true;
+      programPanel.focusable = true;
+      programPanel.frame = workspace.controlWindowFrame;
+      workspace.panels.push_back(programPanel);
+
+      UiPanelState deckPanel;
+      deckPanel.key = {UiPanelKind::DeckPlaylist, 2};
+      deckPanel.panelId = uiPanelStableId(deckPanel.key);
+      deckPanel.title = "Deck 3 Playlist";
+      deckPanel.category = UiPanelCategory::Repeating;
+      deckPanel.presentation = UiPanelPresentation::Floating;
+      deckPanel.visible = true;
+      deckPanel.focusable = true;
+      deckPanel.frame = workspace.decksWindowFrame;
+      workspace.panels.push_back(deckPanel);
+
+      fs::path workspacePath = fs::path("/tmp") / "deckboy-workspace.smoke";
+      expect(saveUiWorkspaceState(workspacePath, workspace), "workspace save");
+      UiWorkspaceState loadedWorkspace = loadUiWorkspaceState(workspacePath);
+      expect(loadedWorkspace.name == "Programming", "workspace name persisted");
+      expect(uiPanelKeyEquals(loadedWorkspace.focusedPanel, UiPanelKey {UiPanelKind::DeckPlaylist, 2}),
+             "workspace focused panel persisted");
+      expect(loadedWorkspace.focusedDeckIndex == 2 &&
+             loadedWorkspace.focusedOutputIndex == 1 &&
+             loadedWorkspace.focusedCueIndex == 14,
+             "workspace focus context persisted");
+      expect(loadedWorkspace.decksPanelManualOpen &&
+             !loadedWorkspace.masterSceneVisible &&
+             !loadedWorkspace.masterSceneProgrammerExpanded &&
+             loadedWorkspace.settingsTab == 3,
+             "workspace visibility state persisted");
+      expect(rectEquals(loadedWorkspace.controlWindowFrame, workspace.controlWindowFrame) &&
+             rectEquals(loadedWorkspace.decksWindowFrame, workspace.decksWindowFrame) &&
+             rectEquals(loadedWorkspace.floatingPanelsWindowFrame, workspace.floatingPanelsWindowFrame),
+             "workspace window frames persisted");
+      expect(loadedWorkspace.panels.size() == 2 &&
+             loadedWorkspace.panels[1].panelId == "deck_playlist:2" &&
+             loadedWorkspace.panels[1].presentation == UiPanelPresentation::Floating,
+             "workspace panels persisted");
+      std::error_code ignored;
+      fs::remove(workspacePath, ignored);
+    }
+
+    {
       Project legacy;
       Deck legacyDeck;
       legacyDeck.name = "Legacy Deck";
@@ -6721,6 +7026,437 @@ class App {
   }
 
  private:
+  enum class UiPanelCategory {
+    Singleton,
+    Repeating,
+  };
+
+  enum class UiPanelPresentation {
+    Docked,
+    Floating,
+    Modal,
+  };
+
+  enum class UiPanelKind {
+    ProgramTransport,
+    Preview,
+    CueInspector,
+    Routing,
+    MasterScene,
+    Preferences,
+    DeckPlaylist,
+    OutputPanel,
+  };
+
+  struct UiPanelKey {
+    UiPanelKind kind = UiPanelKind::ProgramTransport;
+    int index = -1;
+  };
+
+  struct UiPanelDefinition {
+    UiPanelKind kind = UiPanelKind::ProgramTransport;
+    UiPanelCategory category = UiPanelCategory::Singleton;
+    UiPanelPresentation defaultPresentation = UiPanelPresentation::Docked;
+    const char* title = "Panel";
+    bool focusable = true;
+  };
+
+  struct UiPanelState {
+    UiPanelKey key {};
+    std::string panelId;
+    std::string title;
+    UiPanelCategory category = UiPanelCategory::Singleton;
+    UiPanelPresentation presentation = UiPanelPresentation::Docked;
+    bool visible = true;
+    bool focusable = true;
+    SDL_Rect frame {};
+  };
+
+  struct UiPanelManager {
+    std::vector<UiPanelState> panels;
+  };
+
+  struct UiWorkspaceState {
+    std::string name = "Broadcast Default";
+    std::vector<UiPanelState> panels;
+    UiPanelKey focusedPanel {};
+    int focusedDeckIndex = -1;
+    int focusedOutputIndex = -1;
+    int focusedCueIndex = -1;
+    bool decksPanelManualOpen = false;
+    bool masterSceneVisible = true;
+    bool masterSceneProgrammerExpanded = true;
+    int settingsTab = 0;
+    SDL_Rect controlWindowFrame {};
+    SDL_Rect decksWindowFrame {};
+    SDL_Rect floatingPanelsWindowFrame {};
+  };
+
+  struct UiFocusState {
+    int deckIndex = -1;
+    int outputIndex = -1;
+    int cueIndex = -1;
+    std::string cueToken;
+    std::string cueLabel;
+  };
+
+  static bool uiPanelKeyEquals(const UiPanelKey& lhs, const UiPanelKey& rhs) {
+    return lhs.kind == rhs.kind && lhs.index == rhs.index;
+  }
+
+  static UiPanelDefinition uiPanelDefinition(UiPanelKind kind) {
+    switch (kind) {
+      case UiPanelKind::ProgramTransport:
+        return {UiPanelKind::ProgramTransport, UiPanelCategory::Singleton, UiPanelPresentation::Docked,
+                "Program / Transport", true};
+      case UiPanelKind::Preview:
+        return {UiPanelKind::Preview, UiPanelCategory::Singleton, UiPanelPresentation::Docked,
+                "Preview", true};
+      case UiPanelKind::CueInspector:
+        return {UiPanelKind::CueInspector, UiPanelCategory::Singleton, UiPanelPresentation::Docked,
+                "Cue Inspector", true};
+      case UiPanelKind::Routing:
+        return {UiPanelKind::Routing, UiPanelCategory::Singleton, UiPanelPresentation::Docked,
+                "Routing", true};
+      case UiPanelKind::MasterScene:
+        return {UiPanelKind::MasterScene, UiPanelCategory::Singleton, UiPanelPresentation::Docked,
+                "Master Scene", true};
+      case UiPanelKind::Preferences:
+        return {UiPanelKind::Preferences, UiPanelCategory::Singleton, UiPanelPresentation::Modal,
+                "Preferences", true};
+      case UiPanelKind::DeckPlaylist:
+        return {UiPanelKind::DeckPlaylist, UiPanelCategory::Repeating, UiPanelPresentation::Floating,
+                "Deck Playlist", true};
+      case UiPanelKind::OutputPanel:
+        return {UiPanelKind::OutputPanel, UiPanelCategory::Repeating, UiPanelPresentation::Docked,
+                "Output", true};
+      default:
+        return {};
+    }
+  }
+
+  static const char* uiPanelKindLabel(UiPanelKind kind) {
+    return uiPanelDefinition(kind).title;
+  }
+
+  static const char* uiPanelKindToken(UiPanelKind kind) {
+    switch (kind) {
+      case UiPanelKind::ProgramTransport: return "program_transport";
+      case UiPanelKind::Preview:          return "preview";
+      case UiPanelKind::CueInspector:     return "cue_inspector";
+      case UiPanelKind::Routing:          return "routing";
+      case UiPanelKind::MasterScene:      return "master_scene";
+      case UiPanelKind::Preferences:      return "preferences";
+      case UiPanelKind::DeckPlaylist:     return "deck_playlist";
+      case UiPanelKind::OutputPanel:      return "output";
+      default:                            return "panel";
+    }
+  }
+
+  static std::optional<UiPanelKind> uiPanelKindFromToken(std::string token) {
+    token = toLower(trim(token));
+    if (token == "program_transport") return UiPanelKind::ProgramTransport;
+    if (token == "preview") return UiPanelKind::Preview;
+    if (token == "cue_inspector") return UiPanelKind::CueInspector;
+    if (token == "routing") return UiPanelKind::Routing;
+    if (token == "master_scene" || token == "master_cue") return UiPanelKind::MasterScene;
+    if (token == "preferences") return UiPanelKind::Preferences;
+    if (token == "deck_playlist") return UiPanelKind::DeckPlaylist;
+    if (token == "output" || token == "output_panel") return UiPanelKind::OutputPanel;
+    return std::nullopt;
+  }
+
+  static const char* uiPanelPresentationLabel(UiPanelPresentation presentation) {
+    switch (presentation) {
+      case UiPanelPresentation::Docked:   return "docked";
+      case UiPanelPresentation::Floating: return "floating";
+      case UiPanelPresentation::Modal:    return "modal";
+      default:                            return "panel";
+    }
+  }
+
+  static const char* uiPanelPresentationToken(UiPanelPresentation presentation) {
+    switch (presentation) {
+      case UiPanelPresentation::Docked:   return "docked";
+      case UiPanelPresentation::Floating: return "floating";
+      case UiPanelPresentation::Modal:    return "modal";
+      default:                            return "docked";
+    }
+  }
+
+  static std::optional<UiPanelPresentation> uiPanelPresentationFromToken(std::string token) {
+    token = toLower(trim(token));
+    if (token == "docked") return UiPanelPresentation::Docked;
+    if (token == "floating") return UiPanelPresentation::Floating;
+    if (token == "modal") return UiPanelPresentation::Modal;
+    return std::nullopt;
+  }
+
+  static std::string uiPanelStableId(const UiPanelKey& key) {
+    std::string stable = uiPanelKindToken(key.kind);
+    if (key.index >= 0) {
+      stable += ":" + std::to_string(key.index);
+    }
+    return stable;
+  }
+
+  static bool rectEquals(const SDL_Rect& lhs, const SDL_Rect& rhs) {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.w == rhs.w && lhs.h == rhs.h;
+  }
+
+  static bool uiPanelStateEquals(const UiPanelState& lhs, const UiPanelState& rhs) {
+    return uiPanelKeyEquals(lhs.key, rhs.key)
+      && lhs.panelId == rhs.panelId
+      && lhs.title == rhs.title
+      && lhs.category == rhs.category
+      && lhs.presentation == rhs.presentation
+      && lhs.visible == rhs.visible
+      && lhs.focusable == rhs.focusable
+      && rectEquals(lhs.frame, rhs.frame);
+  }
+
+  static bool uiPanelStateListEquals(const std::vector<UiPanelState>& lhs,
+                                     const std::vector<UiPanelState>& rhs) {
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    for (size_t i = 0; i < lhs.size(); ++i) {
+      if (!uiPanelStateEquals(lhs[i], rhs[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  const UiPanelState* findUiPanelState(const UiPanelKey& key) const {
+    for (const auto& panel : uiPanelManager_.panels) {
+      if (uiPanelKeyEquals(panel.key, key)) {
+        return &panel;
+      }
+    }
+    return nullptr;
+  }
+
+  UiPanelState* findUiPanelStateMutable(const UiPanelKey& key) {
+    for (auto& panel : uiPanelManager_.panels) {
+      if (uiPanelKeyEquals(panel.key, key)) {
+        return &panel;
+      }
+    }
+    return nullptr;
+  }
+
+  std::string uiPanelTitle(const UiPanelKey& key) const {
+    switch (key.kind) {
+      case UiPanelKind::DeckPlaylist:
+        return key.index >= 0 ? deckLabel(key.index) + " Playlist" : "Deck Playlist";
+      case UiPanelKind::OutputPanel:
+        return key.index >= 0 ? outputLabel(key.index) : "Output";
+      default:
+        return uiPanelKindLabel(key.kind);
+    }
+  }
+
+  UiPanelState makeUiPanelState(UiPanelKind kind,
+                                UiPanelPresentation presentation,
+                                bool visible,
+                                int index = -1,
+                                SDL_Rect frame = SDL_Rect {}) const {
+    UiPanelDefinition definition = uiPanelDefinition(kind);
+    UiPanelState panel;
+    panel.key = {kind, index};
+    panel.panelId = uiPanelStableId(panel.key);
+    panel.title = uiPanelTitle(panel.key);
+    panel.category = definition.category;
+    panel.presentation = presentation;
+    panel.visible = visible;
+    panel.focusable = definition.focusable;
+    panel.frame = frame;
+    return panel;
+  }
+
+  void recordRenderedPanelFrame(const UiPanelKey& key,
+                                const SDL_Rect& frame,
+                                bool visible = true,
+                                UiPanelPresentation presentation = UiPanelPresentation::Docked) {
+    UiPanelState* panel = findUiPanelStateMutable(key);
+    if (!panel) {
+      uiPanelManager_.panels.push_back(makeUiPanelState(key.kind, presentation, visible, key.index, frame));
+      uiWorkspace_.panels = uiPanelManager_.panels;
+      markUiWorkspaceDirty();
+      return;
+    }
+    bool changed = false;
+    if (!rectEquals(panel->frame, frame)) {
+      panel->frame = frame;
+      changed = true;
+    }
+    if (panel->visible != visible) {
+      panel->visible = visible;
+      changed = true;
+    }
+    if (panel->presentation != presentation) {
+      panel->presentation = presentation;
+      changed = true;
+    }
+    std::string nextTitle = uiPanelTitle(key);
+    if (panel->title != nextTitle) {
+      panel->title = nextTitle;
+      changed = true;
+    }
+    if (changed) {
+      uiWorkspace_.panels = uiPanelManager_.panels;
+      markUiWorkspaceDirty();
+    }
+  }
+
+  fs::path uiWorkspaceFile() const {
+    return Paths::dataDir() / "deckboy.workspace";
+  }
+
+  static bool saveUiWorkspaceState(const fs::path& workspaceFile, const UiWorkspaceState& workspace) {
+    fs::path resolved = workspaceFile;
+    if (resolved.empty()) {
+      return false;
+    }
+    if (resolved.has_parent_path()) {
+      std::error_code ec;
+      fs::create_directories(resolved.parent_path(), ec);
+    }
+    std::ofstream output(resolved, std::ios::binary | std::ios::trunc);
+    if (!output) {
+      return false;
+    }
+
+    output << "workspace\t" << escapeField(workspace.name) << '\n';
+    output << "focused_panel\t" << uiPanelKindToken(workspace.focusedPanel.kind)
+           << '\t' << workspace.focusedPanel.index << '\n';
+    output << "focused_deck\t" << workspace.focusedDeckIndex << '\n';
+    output << "focused_output\t" << workspace.focusedOutputIndex << '\n';
+    output << "focused_cue\t" << workspace.focusedCueIndex << '\n';
+    output << "state\tdecks_panel_manual\t" << (workspace.decksPanelManualOpen ? 1 : 0) << '\n';
+    output << "state\tmaster_scene_visible\t" << (workspace.masterSceneVisible ? 1 : 0) << '\n';
+    output << "state\tmaster_scene_programmer\t" << (workspace.masterSceneProgrammerExpanded ? 1 : 0) << '\n';
+    output << "state\tsettings_tab\t" << workspace.settingsTab << '\n';
+    output << "window\tcontrol\t"
+           << workspace.controlWindowFrame.x << '\t'
+           << workspace.controlWindowFrame.y << '\t'
+           << workspace.controlWindowFrame.w << '\t'
+           << workspace.controlWindowFrame.h << '\n';
+    output << "window\tdecks\t"
+           << workspace.decksWindowFrame.x << '\t'
+           << workspace.decksWindowFrame.y << '\t'
+           << workspace.decksWindowFrame.w << '\t'
+           << workspace.decksWindowFrame.h << '\n';
+    output << "window\tfloating_panels\t"
+           << workspace.floatingPanelsWindowFrame.x << '\t'
+           << workspace.floatingPanelsWindowFrame.y << '\t'
+           << workspace.floatingPanelsWindowFrame.w << '\t'
+           << workspace.floatingPanelsWindowFrame.h << '\n';
+    for (const auto& panel : workspace.panels) {
+      output << "panel\t"
+             << uiPanelKindToken(panel.key.kind) << '\t'
+             << panel.key.index << '\t'
+             << escapeField(panel.title) << '\t'
+             << uiPanelPresentationToken(panel.presentation) << '\t'
+             << (panel.visible ? 1 : 0) << '\t'
+             << (panel.focusable ? 1 : 0) << '\t'
+             << panel.frame.x << '\t'
+             << panel.frame.y << '\t'
+             << panel.frame.w << '\t'
+             << panel.frame.h
+             << '\n';
+    }
+    return true;
+  }
+
+  static UiWorkspaceState loadUiWorkspaceState(const fs::path& workspaceFile) {
+    UiWorkspaceState workspace;
+    std::ifstream input(workspaceFile, std::ios::binary);
+    if (!input) {
+      return workspace;
+    }
+
+    std::string line;
+    while (std::getline(input, line)) {
+      if (!line.empty() && line.back() == '\r') {
+        line.pop_back();
+      }
+      auto fields = splitEscapedTabs(line);
+      if (fields.empty()) {
+        continue;
+      }
+      std::string key = safeString(fields, 0);
+      if (key == "workspace") {
+        std::string name = safeString(fields, 1);
+        workspace.name = trim(name).empty() ? "Broadcast Default" : name;
+      } else if (key == "focused_panel") {
+        if (auto kind = uiPanelKindFromToken(safeString(fields, 1)); kind) {
+          workspace.focusedPanel.kind = *kind;
+        }
+        workspace.focusedPanel.index = safeInt(fields, 2, -1);
+      } else if (key == "focused_deck") {
+        workspace.focusedDeckIndex = safeInt(fields, 1, -1);
+      } else if (key == "focused_output") {
+        workspace.focusedOutputIndex = safeInt(fields, 1, -1);
+      } else if (key == "focused_cue") {
+        workspace.focusedCueIndex = safeInt(fields, 1, -1);
+      } else if (key == "state") {
+        std::string stateKey = toLower(trim(safeString(fields, 1)));
+        if (stateKey == "decks_panel_manual") {
+          workspace.decksPanelManualOpen = safeInt(fields, 2, 0) != 0;
+        } else if (stateKey == "master_scene_visible") {
+          workspace.masterSceneVisible = safeInt(fields, 2, 1) != 0;
+        } else if (stateKey == "master_scene_programmer") {
+          workspace.masterSceneProgrammerExpanded = safeInt(fields, 2, 1) != 0;
+        } else if (stateKey == "settings_tab") {
+          workspace.settingsTab = safeInt(fields, 2, 0);
+        }
+      } else if (key == "window") {
+        std::string windowKey = toLower(trim(safeString(fields, 1)));
+        SDL_Rect frame {
+          safeInt(fields, 2, 0),
+          safeInt(fields, 3, 0),
+          safeInt(fields, 4, 0),
+          safeInt(fields, 5, 0),
+        };
+        if (windowKey == "control") {
+          workspace.controlWindowFrame = frame;
+        } else if (windowKey == "decks") {
+          workspace.decksWindowFrame = frame;
+        } else if (windowKey == "floating_panels") {
+          workspace.floatingPanelsWindowFrame = frame;
+        }
+      } else if (key == "panel") {
+        auto kind = uiPanelKindFromToken(safeString(fields, 1));
+        if (!kind) {
+          continue;
+        }
+        UiPanelState panel;
+        panel.key = {*kind, safeInt(fields, 2, -1)};
+        panel.panelId = uiPanelStableId(panel.key);
+        panel.title = safeString(fields, 3);
+        UiPanelDefinition definition = uiPanelDefinition(panel.key.kind);
+        panel.category = definition.category;
+        panel.presentation = uiPanelPresentationFromToken(safeString(fields, 4)).value_or(definition.defaultPresentation);
+        panel.visible = safeInt(fields, 5, 1) != 0;
+        panel.focusable = safeInt(fields, 6, definition.focusable ? 1 : 0) != 0;
+        panel.frame = SDL_Rect {
+          safeInt(fields, 7, 0),
+          safeInt(fields, 8, 0),
+          safeInt(fields, 9, 0),
+          safeInt(fields, 10, 0),
+        };
+        if (trim(panel.title).empty()) {
+          panel.title = definition.title;
+        }
+        workspace.panels.push_back(std::move(panel));
+      }
+    }
+
+    return workspace;
+  }
+
   Deck& focusedDeckMutable() {
     normalizeProject(project_);
     return project_.decks[project_.focusedDeckIndex];
@@ -6738,6 +7474,472 @@ class App {
   std::string focusedDeckLabel() const {
     const Deck& deck = focusedDeck();
     return deck.name.empty() ? deckDefaultName(project_.focusedDeckIndex) : deck.name;
+  }
+
+  UiFocusState currentUiFocusState() const {
+    UiFocusState focus;
+    if (!project_.decks.empty()) {
+      focus.deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+      const Deck& deck = project_.decks[focus.deckIndex];
+      int cueIndex = deck.selectedIndex;
+      if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+        cueIndex = deck.activeIndex;
+      }
+      if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size())) {
+        focus.cueIndex = cueIndex;
+        focus.cueToken = cueDisplayToken(deck.cues[cueIndex], cueIndex);
+        focus.cueLabel = deck.cues[cueIndex].name;
+      }
+    }
+    if (!project_.outputs.empty()) {
+      focus.outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    }
+    return focus;
+  }
+
+  int countWorkspacePanels(UiPanelCategory category, bool visibleOnly, std::optional<UiPanelKind> kind = std::nullopt) const {
+    int count = 0;
+    for (const auto& panel : uiPanelManager_.panels) {
+      if (panel.category != category) {
+        continue;
+      }
+      if (visibleOnly && !panel.visible) {
+        continue;
+      }
+      if (kind && panel.key.kind != *kind) {
+        continue;
+      }
+      if (panel.key.kind == UiPanelKind::OutputPanel && panel.key.index < 0) {
+        continue;
+      }
+      count += 1;
+    }
+    return count;
+  }
+
+  bool panelSupportsFloating(const UiPanelKey& key) const {
+    if (key.kind == UiPanelKind::Preferences) {
+      return false;
+    }
+    if (key.kind == UiPanelKind::DeckPlaylist) {
+      return true;
+    }
+    if (key.kind == UiPanelKind::OutputPanel && key.index >= 0) {
+      return false;
+    }
+    return key.kind == UiPanelKind::ProgramTransport
+      || key.kind == UiPanelKind::CueInspector
+      || key.kind == UiPanelKind::Routing
+      || key.kind == UiPanelKind::MasterScene
+      || (key.kind == UiPanelKind::OutputPanel && key.index < 0);
+  }
+
+  bool panelIsVisible(const UiPanelKey& key, bool fallback = true) const {
+    if (const UiPanelState* panel = findUiPanelState(key)) {
+      return panel->visible;
+    }
+    return fallback;
+  }
+
+  UiPanelPresentation panelPresentation(const UiPanelKey& key,
+                                        UiPanelPresentation fallback = UiPanelPresentation::Docked) const {
+    if (const UiPanelState* panel = findUiPanelState(key)) {
+      return panel->presentation;
+    }
+    return fallback;
+  }
+
+  bool panelIsDockedVisible(const UiPanelKey& key, bool fallback = true) const {
+    return panelIsVisible(key, fallback) && panelPresentation(key) == UiPanelPresentation::Docked;
+  }
+
+  bool panelIsFloatingVisible(const UiPanelKey& key) const {
+    return panelIsVisible(key, false) && panelPresentation(key) == UiPanelPresentation::Floating;
+  }
+
+  void setPanelVisible(const UiPanelKey& key, bool visible) {
+    UiPanelState* panel = findUiPanelStateMutable(key);
+    if (!panel) {
+      uiPanelManager_.panels.push_back(makeUiPanelState(key.kind, uiPanelDefinition(key.kind).defaultPresentation,
+                                                        visible, key.index, SDL_Rect {}));
+      panel = &uiPanelManager_.panels.back();
+    }
+    if (panel->visible == visible) {
+      return;
+    }
+    panel->visible = visible;
+    if (key.kind == UiPanelKind::MasterScene && key.index < 0) {
+      deckSidebarOpen_ = visible;
+    }
+    uiWorkspace_.panels = uiPanelManager_.panels;
+    markUiWorkspaceDirty();
+  }
+
+  void setPanelPresentation(const UiPanelKey& key, UiPanelPresentation presentation) {
+    UiPanelState* panel = findUiPanelStateMutable(key);
+    if (!panel) {
+      uiPanelManager_.panels.push_back(makeUiPanelState(key.kind, presentation, true, key.index, SDL_Rect {}));
+      panel = &uiPanelManager_.panels.back();
+    }
+    if (!panelSupportsFloating(key) && presentation == UiPanelPresentation::Floating) {
+      presentation = UiPanelPresentation::Docked;
+    }
+    if (panel->presentation == presentation) {
+      return;
+    }
+    panel->presentation = presentation;
+    panel->visible = true;
+    if (key.kind == UiPanelKind::MasterScene && key.index < 0) {
+      deckSidebarOpen_ = true;
+    }
+    uiWorkspace_.panels = uiPanelManager_.panels;
+    markUiWorkspaceDirty();
+  }
+
+  void cyclePanelWorkspaceMode(const UiPanelKey& key) {
+    if (key.kind == UiPanelKind::Preferences) {
+      return;
+    }
+    bool allowHidden = key.kind != UiPanelKind::ProgramTransport
+      && key.kind != UiPanelKind::CueInspector;
+    if (!panelSupportsFloating(key)) {
+      setPanelVisible(key, !panelIsVisible(key, true));
+      return;
+    }
+    if (!panelIsVisible(key, true)) {
+      setPanelPresentation(key, UiPanelPresentation::Docked);
+      setPanelVisible(key, true);
+      return;
+    }
+    UiPanelPresentation current = panelPresentation(key, uiPanelDefinition(key.kind).defaultPresentation);
+    if (current == UiPanelPresentation::Docked) {
+      setPanelPresentation(key, UiPanelPresentation::Floating);
+    } else if (current == UiPanelPresentation::Floating && allowHidden) {
+      setPanelVisible(key, false);
+    } else {
+      setPanelPresentation(key, UiPanelPresentation::Docked);
+    }
+  }
+
+  bool panelHasLocalFocus(const UiPanelKey& key) const {
+    UiFocusState focus = currentUiFocusState();
+    if (uiPanelKeyEquals(uiWorkspace_.focusedPanel, key)) {
+      return true;
+    }
+    switch (key.kind) {
+      case UiPanelKind::DeckPlaylist:
+        return key.index >= 0 && key.index == focus.deckIndex;
+      case UiPanelKind::OutputPanel:
+        return key.index < 0 || key.index == focus.outputIndex;
+      case UiPanelKind::ProgramTransport:
+      case UiPanelKind::CueInspector:
+        return focus.deckIndex >= 0 || focus.cueIndex >= 0;
+      case UiPanelKind::Routing:
+        return focus.deckIndex >= 0 || focus.outputIndex >= 0;
+      case UiPanelKind::MasterScene:
+        return deckSidebarOpen_;
+      default:
+        return false;
+    }
+  }
+
+  std::string panelFocusBadge(const UiPanelKey& key) const {
+    UiFocusState focus = currentUiFocusState();
+    switch (key.kind) {
+      case UiPanelKind::DeckPlaylist:
+        return (key.index >= 0 && key.index == focus.deckIndex) ? "FOCUS" : "";
+      case UiPanelKind::OutputPanel:
+        return ((key.index < 0 && focus.outputIndex >= 0) || key.index == focus.outputIndex) ? "FOCUS" : "";
+      case UiPanelKind::CueInspector:
+        return focus.cueIndex >= 0 ? ("CUE " + focus.cueToken) : "FOCUS";
+      case UiPanelKind::ProgramTransport:
+        if (focus.deckIndex >= 0) {
+          std::string badge = "DECK " + std::to_string(focus.deckIndex + 1);
+          if (focus.outputIndex >= 0) {
+            badge += " / OUTPUT " + std::to_string(focus.outputIndex + 1);
+          }
+          return badge;
+        }
+        return "";
+      case UiPanelKind::Routing:
+        if (focus.deckIndex >= 0 && focus.outputIndex >= 0) {
+          return "D" + std::to_string(focus.deckIndex + 1) + " -> O" + std::to_string(focus.outputIndex + 1);
+        }
+        return "";
+      default:
+        return "";
+    }
+  }
+
+  void syncUiWorkspaceState() {
+    if (trim(uiWorkspace_.name).empty()) {
+      uiWorkspace_.name = "Broadcast Default";
+    }
+    UiPanelKey previousFocusedPanel = uiWorkspace_.focusedPanel;
+    int previousFocusedDeck = uiWorkspace_.focusedDeckIndex;
+    int previousFocusedOutput = uiWorkspace_.focusedOutputIndex;
+    int previousFocusedCue = uiWorkspace_.focusedCueIndex;
+    bool previousDecksManualOpen = uiWorkspace_.decksPanelManualOpen;
+    bool previousMasterSceneVisible = uiWorkspace_.masterSceneVisible;
+    bool previousMasterSceneProgrammer = uiWorkspace_.masterSceneProgrammerExpanded;
+    int previousSettingsTab = uiWorkspace_.settingsTab;
+    SDL_Rect previousControlWindowFrame = uiWorkspace_.controlWindowFrame;
+    SDL_Rect previousDecksWindowFrame = uiWorkspace_.decksWindowFrame;
+    SDL_Rect previousFloatingPanelsWindowFrame = uiWorkspace_.floatingPanelsWindowFrame;
+
+    std::vector<UiPanelState> nextPanels;
+    SDL_Rect controlWindowFrame {};
+    if (controlWindow_) {
+      SDL_GetWindowPosition(controlWindow_, &controlWindowFrame.x, &controlWindowFrame.y);
+      SDL_GetWindowSize(controlWindow_, &controlWindowFrame.w, &controlWindowFrame.h);
+    }
+    SDL_Rect decksWindowFrame {};
+    if (decksPanelWindow_) {
+      SDL_GetWindowPosition(decksPanelWindow_, &decksWindowFrame.x, &decksWindowFrame.y);
+      SDL_GetWindowSize(decksPanelWindow_, &decksWindowFrame.w, &decksWindowFrame.h);
+    }
+    SDL_Rect floatingPanelsWindowFrame {};
+    if (floatingPanelsWindow_) {
+      SDL_GetWindowPosition(floatingPanelsWindow_, &floatingPanelsWindowFrame.x, &floatingPanelsWindowFrame.y);
+      SDL_GetWindowSize(floatingPanelsWindow_, &floatingPanelsWindowFrame.w, &floatingPanelsWindowFrame.h);
+    }
+
+    auto addPanel = [&](UiPanelKind kind, UiPanelPresentation defaultPresentation,
+                        bool defaultVisible, int index = -1, SDL_Rect frame = SDL_Rect {}) {
+      UiPanelState panel = makeUiPanelState(kind, defaultPresentation, defaultVisible, index, frame);
+      if (const UiPanelState* existing = findUiPanelState(panel.key)) {
+        panel.visible = existing->visible;
+        panel.presentation = existing->presentation;
+        if (existing->frame.w > 0 && existing->frame.h > 0) {
+          panel.frame = existing->frame;
+        }
+      }
+      if (!panelSupportsFloating(panel.key) && panel.presentation == UiPanelPresentation::Floating) {
+        panel.presentation = defaultPresentation;
+      }
+      if (kind == UiPanelKind::Preferences) {
+        panel.visible = settingsOpen_;
+        panel.presentation = UiPanelPresentation::Modal;
+        panel.frame = controlWindowFrame;
+      }
+      nextPanels.push_back(std::move(panel));
+    };
+
+    addPanel(UiPanelKind::ProgramTransport, UiPanelPresentation::Docked, true, -1, controlWindowFrame);
+    addPanel(UiPanelKind::Preview, UiPanelPresentation::Docked, true, -1, controlWindowFrame);
+    addPanel(UiPanelKind::CueInspector, UiPanelPresentation::Docked, true, -1, controlWindowFrame);
+    addPanel(UiPanelKind::Routing, UiPanelPresentation::Docked, true, -1, controlWindowFrame);
+    addPanel(UiPanelKind::MasterScene, UiPanelPresentation::Docked, deckSidebarOpen_, -1, controlWindowFrame);
+    addPanel(UiPanelKind::OutputPanel, UiPanelPresentation::Docked, true, -1, controlWindowFrame);
+    addPanel(UiPanelKind::Preferences, UiPanelPresentation::Modal, settingsOpen_, -1, controlWindowFrame);
+
+    bool decksWindowOpen = decksPanelVisible();
+    int focusedDeckIndex = project_.decks.empty()
+      ? -1
+      : std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      bool visible = deckIndex == focusedDeckIndex || decksWindowOpen;
+      UiPanelPresentation presentation = deckIndex == focusedDeckIndex
+        ? UiPanelPresentation::Docked
+        : UiPanelPresentation::Floating;
+      addPanel(UiPanelKind::DeckPlaylist, presentation, visible, deckIndex,
+               presentation == UiPanelPresentation::Floating ? decksWindowFrame : SDL_Rect {});
+    }
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      addPanel(UiPanelKind::OutputPanel, UiPanelPresentation::Docked, true, outputIndex, controlWindowFrame);
+    }
+
+    bool changed = !uiPanelStateListEquals(uiPanelManager_.panels, nextPanels);
+    if (changed) {
+      uiPanelManager_.panels = nextPanels;
+    }
+    uiWorkspace_.panels = uiPanelManager_.panels;
+    if (settingsOpen_) {
+      uiWorkspace_.focusedPanel = {UiPanelKind::Preferences, -1};
+    } else if (decksWindowOpen) {
+      uiWorkspace_.focusedPanel = {UiPanelKind::DeckPlaylist, focusedDeckIndex};
+    } else if (deckSidebarOpen_) {
+      uiWorkspace_.focusedPanel = {UiPanelKind::MasterScene, -1};
+    } else {
+      uiWorkspace_.focusedPanel = {UiPanelKind::ProgramTransport, -1};
+    }
+    UiFocusState focus = currentUiFocusState();
+    uiWorkspace_.focusedDeckIndex = focus.deckIndex;
+    uiWorkspace_.focusedOutputIndex = focus.outputIndex;
+    uiWorkspace_.focusedCueIndex = focus.cueIndex;
+    uiWorkspace_.decksPanelManualOpen = decksPanelManualOpen_;
+    uiWorkspace_.masterSceneVisible = deckSidebarOpen_;
+    uiWorkspace_.masterSceneProgrammerExpanded = masterCueProgrammerExpanded_;
+    uiWorkspace_.settingsTab = settingsTab_;
+    uiWorkspace_.controlWindowFrame = controlWindowFrame;
+    uiWorkspace_.decksWindowFrame = decksWindowFrame;
+    uiWorkspace_.floatingPanelsWindowFrame = floatingPanelsWindowFrame;
+    if (const UiPanelState* masterScenePanel = findUiPanelState({UiPanelKind::MasterScene, -1})) {
+      deckSidebarOpen_ = masterScenePanel->visible;
+    }
+    changed = changed
+      || !uiPanelKeyEquals(previousFocusedPanel, uiWorkspace_.focusedPanel)
+      || previousFocusedDeck != uiWorkspace_.focusedDeckIndex
+      || previousFocusedOutput != uiWorkspace_.focusedOutputIndex
+      || previousFocusedCue != uiWorkspace_.focusedCueIndex
+      || previousDecksManualOpen != uiWorkspace_.decksPanelManualOpen
+      || previousMasterSceneVisible != uiWorkspace_.masterSceneVisible
+      || previousMasterSceneProgrammer != uiWorkspace_.masterSceneProgrammerExpanded
+      || previousSettingsTab != uiWorkspace_.settingsTab
+      || !rectEquals(previousControlWindowFrame, uiWorkspace_.controlWindowFrame)
+      || !rectEquals(previousDecksWindowFrame, uiWorkspace_.decksWindowFrame)
+      || !rectEquals(previousFloatingPanelsWindowFrame, uiWorkspace_.floatingPanelsWindowFrame);
+    if (changed) {
+      markUiWorkspaceDirty();
+    }
+  }
+
+  std::string uiWorkspaceSummaryLine() const {
+    int visibleSingletons = countWorkspacePanels(UiPanelCategory::Singleton, true);
+    int visibleDecks = countWorkspacePanels(UiPanelCategory::Repeating, true, UiPanelKind::DeckPlaylist);
+    int totalDecks = countWorkspacePanels(UiPanelCategory::Repeating, false, UiPanelKind::DeckPlaylist);
+    int visibleOutputs = countWorkspacePanels(UiPanelCategory::Repeating, true, UiPanelKind::OutputPanel);
+    int totalOutputs = countWorkspacePanels(UiPanelCategory::Repeating, false, UiPanelKind::OutputPanel);
+    std::ostringstream summary;
+    summary << "WORKSPACE " << uiWorkspace_.name
+            << "  |  GLOBAL " << visibleSingletons
+            << "  |  DECKS " << visibleDecks << "/" << totalDecks
+            << "  |  OUTPUTS " << visibleOutputs << "/" << totalOutputs
+            << "  |  PANEL " << uiPanelKindLabel(uiWorkspace_.focusedPanel.kind);
+    if (uiWorkspace_.focusedPanel.index >= 0) {
+      summary << " " << (uiWorkspace_.focusedPanel.index + 1);
+    }
+    UiPanelPresentation focusedPresentation = UiPanelPresentation::Docked;
+    if (const UiPanelState* focusedPanel = findUiPanelState(uiWorkspace_.focusedPanel)) {
+      focusedPresentation = focusedPanel->presentation;
+    }
+    summary << " (" << uiPanelPresentationLabel(focusedPresentation) << ")";
+    return summary.str();
+  }
+
+  std::string uiFocusSummaryLine() const {
+    UiFocusState focus = currentUiFocusState();
+    std::ostringstream summary;
+    summary << "FOCUS: DECK ";
+    if (focus.deckIndex >= 0) {
+      summary << (focus.deckIndex + 1);
+    } else {
+      summary << "--";
+    }
+    summary << " | OUTPUT ";
+    if (focus.outputIndex >= 0) {
+      summary << (focus.outputIndex + 1);
+    } else {
+      summary << "--";
+    }
+    summary << " | CUE ";
+    if (focus.cueIndex >= 0) {
+      summary << focus.cueToken;
+      if (!trim(focus.cueLabel).empty()) {
+        summary << " " << focus.cueLabel;
+      }
+    } else {
+      summary << "--";
+    }
+    return summary.str();
+  }
+
+  void resetUiWorkspaceState() {
+    uiWorkspace_ = UiWorkspaceState {};
+    uiPanelManager_.panels.clear();
+  }
+
+  bool loadUiWorkspaceFromDisk() {
+    fs::path path = uiWorkspaceFile();
+    if (!fs::exists(path)) {
+      resetUiWorkspaceState();
+      return false;
+    }
+    uiWorkspace_ = loadUiWorkspaceState(path);
+    if (trim(uiWorkspace_.name).empty()) {
+      uiWorkspace_.name = "Broadcast Default";
+    }
+    uiPanelManager_.panels = uiWorkspace_.panels;
+    return true;
+  }
+
+  void applyUiWorkspaceState() {
+    if (controlWindow_ && uiWorkspace_.controlWindowFrame.w > 0 && uiWorkspace_.controlWindowFrame.h > 0) {
+      SDL_SetWindowPosition(controlWindow_, uiWorkspace_.controlWindowFrame.x, uiWorkspace_.controlWindowFrame.y);
+      SDL_SetWindowSize(controlWindow_,
+                        std::max(1320, uiWorkspace_.controlWindowFrame.w),
+                        std::max(780, uiWorkspace_.controlWindowFrame.h));
+    }
+    if (decksPanelWindow_ && uiWorkspace_.decksWindowFrame.w > 0 && uiWorkspace_.decksWindowFrame.h > 0) {
+      SDL_SetWindowPosition(decksPanelWindow_, uiWorkspace_.decksWindowFrame.x, uiWorkspace_.decksWindowFrame.y);
+      SDL_SetWindowSize(decksPanelWindow_,
+                        std::max(1400, uiWorkspace_.decksWindowFrame.w),
+                        std::max(780, uiWorkspace_.decksWindowFrame.h));
+    }
+    if (floatingPanelsWindow_ &&
+        uiWorkspace_.floatingPanelsWindowFrame.w > 0 &&
+        uiWorkspace_.floatingPanelsWindowFrame.h > 0) {
+      SDL_SetWindowPosition(floatingPanelsWindow_,
+                            uiWorkspace_.floatingPanelsWindowFrame.x,
+                            uiWorkspace_.floatingPanelsWindowFrame.y);
+      SDL_SetWindowSize(floatingPanelsWindow_,
+                        std::max(760, uiWorkspace_.floatingPanelsWindowFrame.w),
+                        std::max(540, uiWorkspace_.floatingPanelsWindowFrame.h));
+    }
+
+    decksPanelManualOpen_ = uiWorkspace_.decksPanelManualOpen;
+    deckSidebarOpen_ = uiWorkspace_.masterSceneVisible;
+    masterCueProgrammerExpanded_ = uiWorkspace_.masterSceneProgrammerExpanded;
+    settingsTab_ = std::clamp(uiWorkspace_.settingsTab, 0, 4);
+
+    if (!project_.decks.empty() && uiWorkspace_.focusedDeckIndex >= 0) {
+      project_.focusedDeckIndex =
+        std::clamp(uiWorkspace_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+      Deck& focused = project_.decks[project_.focusedDeckIndex];
+      if (uiWorkspace_.focusedCueIndex >= 0 && uiWorkspace_.focusedCueIndex < static_cast<int>(focused.cues.size())) {
+        focused.selectedIndex = uiWorkspace_.focusedCueIndex;
+        focused.selectedIndices.clear();
+        focused.selectedIndices.push_back(uiWorkspace_.focusedCueIndex);
+      }
+    }
+    if (!project_.outputs.empty() && uiWorkspace_.focusedOutputIndex >= 0) {
+      project_.focusedOutputIndex =
+        std::clamp(uiWorkspace_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
+    }
+
+    updateDecksPanelVisibility();
+    uiWorkspaceDirty_ = false;
+  }
+
+  bool saveUiWorkspaceNow(bool withToast = false) {
+    syncUiWorkspaceState();
+    bool ok = saveUiWorkspaceState(uiWorkspaceFile(), uiWorkspace_);
+    if (ok) {
+      uiWorkspaceDirty_ = false;
+      if (withToast) {
+        triggerToast("workspace saved");
+      }
+    } else if (withToast) {
+      triggerToast("workspace save failed");
+    }
+    return ok;
+  }
+
+  void markUiWorkspaceDirty() {
+    if (!uiWorkspaceDirty_) {
+      uiWorkspaceDirty_ = true;
+      uiWorkspaceDirtyAt_ = std::chrono::steady_clock::now();
+    }
+  }
+
+  void flushDirtyUiWorkspace() {
+    if (!uiWorkspaceDirty_) {
+      return;
+    }
+    auto age = std::chrono::steady_clock::now() - uiWorkspaceDirtyAt_;
+    if (age >= std::chrono::milliseconds(200)) {
+      saveUiWorkspaceNow(false);
+    }
   }
 
   DeckRuntime* runtimeForDeck(int deckIndex) {
@@ -6799,6 +8001,15 @@ class App {
   void setOutputRecoveryPausedByEscape(int outputIndex, bool paused) {
     if (OutputRuntime* runtime = runtimeForOutput(outputIndex); runtime) {
       runtime->recoveryPausedByEscape = paused;
+      if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+          project_.outputs[outputIndex].enabled) {
+        if (paused) {
+          setOutputHealthState(outputIndex, OutputHealthState::Armed, "escaped to windowed");
+        } else if (runtime->healthState != OutputHealthState::Error &&
+                   runtime->healthState != OutputHealthState::Recovering) {
+          setOutputHealthState(outputIndex, OutputHealthState::Armed);
+        }
+      }
     }
   }
 
@@ -6827,6 +8038,106 @@ class App {
     }
     const OutputTarget& output = project_.outputs[outputIndex];
     return output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+  }
+
+  static const char* outputHealthLabelToken(OutputHealthState state) {
+    switch (state) {
+      case OutputHealthState::Off: return "OFF";
+      case OutputHealthState::Armed: return "ARMED";
+      case OutputHealthState::Live: return "LIVE";
+      case OutputHealthState::Recovering: return "RECOVERING";
+      case OutputHealthState::Error: return "ERROR";
+    }
+    return "OFF";
+  }
+
+  void setOutputHealthState(int outputIndex, OutputHealthState state, const std::string& reason = {}) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return;
+    }
+    std::string normalizedReason = trim(reason);
+    bool changed = runtime->healthState != state || runtime->healthReason != normalizedReason;
+    runtime->healthState = state;
+    runtime->healthReason = normalizedReason;
+    if (changed) {
+      runtime->healthUpdatedAtMs = SDL_GetTicks64();
+    }
+  }
+
+  OutputHealthState outputHealthStateForDisplay(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return OutputHealthState::Off;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.enabled) {
+      return OutputHealthState::Off;
+    }
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return OutputHealthState::Error;
+    }
+    if (runtime->healthState == OutputHealthState::Recovering ||
+        runtime->healthState == OutputHealthState::Error) {
+      return runtime->healthState;
+    }
+
+    std::string outputType = normalizeOutputType(output.outputType);
+    if (outputType == "window") {
+      if (!runtime->outputWindow) {
+        return OutputHealthState::Error;
+      }
+      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
+      bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
+      if (fullscreen && !hidden && !minimized && !runtime->recoveryPausedByEscape) {
+        return OutputHealthState::Live;
+      }
+      return OutputHealthState::Armed;
+    }
+
+    bool streamLive = false;
+#ifndef _WIN32
+    streamLive = output.streamEnabled && runtime->streamPipe;
+#endif
+    bool ndiLive = false;
+#if defined(PLAYBOY_HAS_NDI_SDK)
+    ndiLive = (output.ndiEnabled || output.ndiKeyEnabled) && runtime->ndiSender;
+#endif
+    if (streamLive || ndiLive) {
+      return OutputHealthState::Live;
+    }
+    return OutputHealthState::Armed;
+  }
+
+  std::string outputHealthLabel(int outputIndex) const {
+    return outputHealthLabelToken(outputHealthStateForDisplay(outputIndex));
+  }
+
+  std::string outputHealthReason(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return "";
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return output.enabled ? "runtime unavailable" : "";
+    }
+    OutputHealthState state = outputHealthStateForDisplay(outputIndex);
+    if (state == OutputHealthState::Error || state == OutputHealthState::Recovering) {
+      if (!runtime->healthReason.empty()) {
+        return runtime->healthReason;
+      }
+      return state == OutputHealthState::Recovering ? "recovering" : "output fault";
+    }
+    if (runtime->recoveryPausedByEscape && normalizeOutputType(output.outputType) == "window") {
+      return "escaped to windowed";
+    }
+    if (normalizeOutputType(output.outputType) == "stream" && output.streamEnabled && runtime->streamStartFailed) {
+      return "stream restart needed";
+    }
+    return "";
   }
 
   void recordOutputFramePresented(int outputIndex) {
@@ -7530,20 +8841,36 @@ class App {
     }
 
     if (output.enabled == enabled) {
-      // Treat repeated ON as a recovery operation: re-apply display placement,
-      // re-fullscreen window outputs, and raise the window.
       if (enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Recovering,
+                             windowOutput ? "reasserting fullscreen" : "restarting egress");
         if (autoSwitchedToNative) {
           applyOutputDisplaySelectionAllOutputs(true, true);
         }
         setOutputRecoveryPausedByEscape(outputIndex, false);
         if (windowOutput) {
-          recoverWindowOutputIfNeeded(outputIndex, true);
+          bool recovered = recoverWindowOutputIfNeeded(outputIndex, true);
+          if (!recovered) {
+            bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
+            if (fullscreenOk) {
+              setOutputHealthState(outputIndex, OutputHealthState::Live);
+              triggerToast("output live");
+            } else {
+              setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
+              triggerToast("output recover failed: fullscreen unavailable");
+            }
+          }
           if (autoSwitchedToNative) {
             triggerToast("output recovered: auto native");
           }
         } else {
-          triggerToast("output: on (stream)");
+          stopOutputStream(outputIndex);
+          if (auto* runtime = runtimeForOutput(outputIndex)) {
+            runtime->streamStartFailed = false;
+          }
+          applyOutputNdiSettings(outputIndex, false);
+          setOutputHealthState(outputIndex, OutputHealthState::Armed);
+          triggerToast("output recovering: stream");
         }
         playUiSound(UiSoundEffect::Toggle);
         if (autoSwitchedToNative) {
@@ -7551,35 +8878,49 @@ class App {
         }
         return true;
       }
+      setOutputHealthState(outputIndex, OutputHealthState::Off);
       triggerToast("output: off");
       return false;
     }
 
     output.enabled = enabled;
     setOutputRecoveryPausedByEscape(outputIndex, false);
+    
+    // Ensure runtimes exist for newly enabled outputs
+    if (enabled) {
+      ensureOutputRuntimesSynced();
+    }
+
     if (!enabled) {
       stopOutputStream(outputIndex);
       if (auto* runtime = runtimeForOutput(outputIndex)) {
         runtime->delayFrames.clear();
         runtime->latestCapturedFrame = {};
       }
+      setOutputHealthState(outputIndex, OutputHealthState::Off);
+    } else {
+      setOutputHealthState(outputIndex, OutputHealthState::Armed);
     }
+    
     if (autoSwitchedToNative) {
       applyOutputDisplaySelectionAllOutputs(true, true);
     } else {
-      // When disabling a fullscreen output we allow a fullscreen transition so
-      // SDL/WM state is cleaned up before hiding the window.
       applyOutputDisplaySelection(outputIndex, !enabled);
     }
 
     if (enabled && autoFullscreenWhenEnabling && windowOutput) {
       bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
       if (fullscreenOk) {
+        setOutputHealthState(outputIndex, OutputHealthState::Live);
         triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
       } else {
+        setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
         triggerToast("output on (windowed): fullscreen failed");
       }
     } else {
+      if (!enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Off);
+      }
       triggerToast(std::string("output: ") + (enabled ? "on" : "off"));
     }
 
@@ -7614,13 +8955,22 @@ class App {
     stopOutputStream(outputIndex);
     if (rebuildOutputRuntimes()) {
       if (project_.outputs[outputIndex].enabled && nextType == "window") {
-        enableOutputFullscreen(outputIndex, false);
+        if (enableOutputFullscreen(outputIndex, false)) {
+          setOutputHealthState(outputIndex, OutputHealthState::Live);
+        } else {
+          setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
+        }
+      } else if (project_.outputs[outputIndex].enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Armed);
+      } else {
+        setOutputHealthState(outputIndex, OutputHealthState::Off);
       }
       triggerToast("output type: " + nextType);
       playUiSound(UiSoundEffect::Toggle);
       markProjectDirty();
       return true;
     }
+    setOutputHealthState(outputIndex, OutputHealthState::Error, "output type change failed");
     triggerToast("output type change failed");
     return false;
   }
@@ -7667,33 +9017,9 @@ class App {
     setFocusedOutputMirrorSource(candidates[next]);
   }
 
-  bool promptFocusedOutputMirrorSourcePicker() {
-    normalizeProject(project_);
-    std::vector<std::pair<std::string, std::string>> choices;
-    choices.emplace_back("Off (render own assignments)", "-1");
-    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
-      if (outputIndex == project_.focusedOutputIndex) {
-        continue;
-      }
-      std::string label = "Out " + std::to_string(outputIndex + 1) + " - " + outputLabel(outputIndex);
-      choices.emplace_back(label, std::to_string(outputIndex));
-    }
-    std::string initial = std::to_string(focusedOutput().mirrorSourceOutputIndex);
-    auto choice = pickChoiceFromList("Mirror Source", "Choose output feed to mirror", choices, initial);
-    if (!choice) {
-      return false;
-    }
-    try {
-      int mirrorIndex = std::stoi(trim(*choice));
-      return setFocusedOutputMirrorSource(mirrorIndex);
-    } catch (...) {
-      triggerToast("mirror: invalid");
-      return false;
-    }
-  }
-
   bool setFocusedOutputStreamEnabled(bool enabled) {
     normalizeProject(project_);
+    int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
     OutputTarget& output = focusedOutputMutable();
     if (output.streamEnabled == enabled) {
       triggerToast("stream: " + std::string(enabled ? "on" : "off"));
@@ -7702,12 +9028,18 @@ class App {
     output.streamEnabled = enabled;
     output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
     if (trim(output.streamUrl).empty()) {
-      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex);
+      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, outputIndex);
     }
-    if (!enabled) {
-      stopOutputStream(project_.focusedOutputIndex);
+    stopOutputStream(outputIndex);
+    if (OutputRuntime* runtime = runtimeForOutput(outputIndex)) {
+      runtime->streamStartFailed = false;
+    }
+    if (!output.enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Off);
+    } else if (enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Armed);
     } else {
-      stopOutputStream(project_.focusedOutputIndex);
+      setOutputHealthState(outputIndex, OutputHealthState::Armed);
     }
     triggerToast("stream: " + std::string(enabled ? "on" : "off"));
     playUiSound(UiSoundEffect::Toggle);
@@ -7721,6 +9053,7 @@ class App {
 
   bool setFocusedOutputStreamProtocol(const std::string& protocol) {
     normalizeProject(project_);
+    int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
     OutputTarget& output = focusedOutputMutable();
     std::string current = normalizeOutputStreamProtocol(output.streamProtocol);
     std::string nextProtocol = normalizeOutputStreamProtocol(protocol);
@@ -7729,10 +9062,16 @@ class App {
       return false;
     }
     output.streamProtocol = nextProtocol;
-    if (trim(output.streamUrl).empty() || output.streamUrl == defaultOutputStreamUrl(current, project_.focusedOutputIndex)) {
-      output.streamUrl = defaultOutputStreamUrl(nextProtocol, project_.focusedOutputIndex);
+    if (trim(output.streamUrl).empty() || output.streamUrl == defaultOutputStreamUrl(current, outputIndex)) {
+      output.streamUrl = defaultOutputStreamUrl(nextProtocol, outputIndex);
     }
-    stopOutputStream(project_.focusedOutputIndex);
+    stopOutputStream(outputIndex);
+    if (OutputRuntime* runtime = runtimeForOutput(outputIndex)) {
+      runtime->streamStartFailed = false;
+    }
+    if (output.enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Armed);
+    }
     triggerToast("stream proto: " + toUpper(nextProtocol));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
@@ -8041,18 +9380,18 @@ class App {
   bool setFocusedGroupPresetIndex(int presetIndex) {
     normalizeProject(project_);
     if (project_.groupPresets.empty()) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
       return false;
     }
     if (project_.focusedGroupPresetIndex == presetIndex) {
-      triggerToast("master cue: " + groupPresetLabel(presetIndex));
+      triggerToast("master scene: " + groupPresetLabel(presetIndex));
       return false;
     }
     project_.focusedGroupPresetIndex = presetIndex;
-    triggerToast("master cue: " + groupPresetLabel(presetIndex));
+    triggerToast("master scene: " + groupPresetLabel(presetIndex));
     markProjectDirty();
     return true;
   }
@@ -8091,7 +9430,7 @@ class App {
     }
     project_.groupPresets.push_back(preset);
     project_.focusedGroupPresetIndex = static_cast<int>(project_.groupPresets.size()) - 1;
-    triggerToast("master cue add: " + groupPresetLabel(project_.focusedGroupPresetIndex));
+    triggerToast("master scene add: " + groupPresetLabel(project_.focusedGroupPresetIndex));
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
     return project_.focusedGroupPresetIndex;
@@ -8100,7 +9439,7 @@ class App {
   bool deleteFocusedGroupPreset() {
     normalizeProject(project_);
     if (project_.groupPresets.empty()) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
@@ -8111,7 +9450,7 @@ class App {
     } else {
       project_.focusedGroupPresetIndex = std::clamp(index, 0, static_cast<int>(project_.groupPresets.size()) - 1);
     }
-    triggerToast("master cue del: " + removedName);
+    triggerToast("master scene del: " + removedName);
     playUiSound(UiSoundEffect::Delete);
     markProjectDirty();
     return true;
@@ -8120,7 +9459,7 @@ class App {
   bool renameFocusedGroupPreset(const std::string& name) {
     GroupPreset* preset = focusedGroupPresetMutable();
     if (!preset) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     std::string trimmedName = trim(name);
@@ -8128,11 +9467,11 @@ class App {
       trimmedName = groupPresetDefaultName(project_.focusedGroupPresetIndex);
     }
     if (preset->name == trimmedName) {
-      triggerToast("master cue: " + trimmedName);
+      triggerToast("master scene: " + trimmedName);
       return false;
     }
     preset->name = trimmedName;
-    triggerToast("master cue name: " + trimmedName);
+    triggerToast("master scene name: " + trimmedName);
     markProjectDirty();
     return true;
   }
@@ -8140,7 +9479,7 @@ class App {
   bool setFocusedGroupSlotBypass(int deckIndex, bool bypass) {
     GroupPreset* preset = focusedGroupPresetMutable();
     if (!preset) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
@@ -8166,7 +9505,7 @@ class App {
   bool setFocusedGroupSlotFromCueIndex(int deckIndex, int cueIndex) {
     GroupPreset* preset = focusedGroupPresetMutable();
     if (!preset) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
@@ -8251,7 +9590,7 @@ class App {
   bool captureFocusedGroupPreset(bool useActiveCues) {
     GroupPreset* preset = focusedGroupPresetMutable();
     if (!preset) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     if (static_cast<int>(preset->slots.size()) < static_cast<int>(project_.decks.size())) {
@@ -8272,8 +9611,8 @@ class App {
       }
     }
     triggerToast(any
-      ? std::string("master cue capture ") + (useActiveCues ? "active" : "selected")
-      : "master cue capture: empty");
+      ? std::string("master scene capture ") + (useActiveCues ? "active" : "selected")
+      : "master scene capture: empty");
     markProjectDirty();
     return any;
   }
@@ -8310,7 +9649,7 @@ class App {
     }
     project_.focusedDeckIndex = std::clamp(savedFocus, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
     onSelectionChanged();
-    triggerToast("master cue fire " + std::to_string(fired)
+    triggerToast("master scene fire " + std::to_string(fired)
       + " (miss " + std::to_string(missing)
       + ", bypass " + std::to_string(bypassed) + ")");
     markProjectDirty();
@@ -8319,7 +9658,7 @@ class App {
 
   bool fireFocusedGroupPreset(bool autoplay = true) {
     if (project_.groupPresets.empty()) {
-      triggerToast("master cue: none");
+      triggerToast("master scene: none");
       return false;
     }
     int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
@@ -8970,6 +10309,7 @@ class App {
       if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
         break;
       }
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream audio stopped");
       if (outputIndex == project_.focusedOutputIndex) {
         triggerToast("stream audio stopped");
       }
@@ -8986,10 +10326,14 @@ class App {
     OutputTarget& output = project_.outputs[outputIndex];
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream runtime unavailable");
       return false;
     }
     if (!output.streamEnabled) {
       stopOutputStreamRuntime(*runtime);
+      if (output.enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Armed);
+      }
       return false;
     }
     width = std::max(1, width);
@@ -9004,23 +10348,30 @@ class App {
 #ifndef _WIN32
       ensureOutputStreamAudioPipeOpen(*runtime);
 #endif
+      if (output.enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Live);
+      }
       return true;
     }
 
     stopOutputStreamRuntime(*runtime);
+    setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
 #ifdef _WIN32
     (void) desiredSpec;
     runtime->streamStartFailed = true;
+    setOutputHealthState(outputIndex, OutputHealthState::Error, "stream unsupported on windows build");
     return false;
 #else
     if (!prepareOutputStreamAudioPipe(*runtime, outputIndex)) {
       runtime->streamStartFailed = true;
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream audio pipe create failed");
       return false;
     }
     std::string command = buildOutputStreamCommand(outputIndex, width, height, fpsHint, runtime->streamAudioPipePath);
     if (command.empty()) {
       runtime->streamStartFailed = true;
       stopOutputStreamRuntime(*runtime);
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream command invalid");
       return false;
     }
     runtime->streamPipe = popen(command.c_str(), "w");
@@ -9030,6 +10381,7 @@ class App {
         triggerToast("stream failed");
       }
       runtime->streamStartFailed = true;
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream process failed");
       return false;
     }
     setvbuf(runtime->streamPipe, nullptr, _IONBF, 0);
@@ -9042,6 +10394,7 @@ class App {
     ensureOutputStreamAudioPipeOpen(*runtime);
     runtime->streamFrameBuffer.clear();
     runtime->streamStartFailed = false;
+    setOutputHealthState(outputIndex, OutputHealthState::Live);
     return true;
 #endif
   }
@@ -9261,6 +10614,7 @@ class App {
     std::memcpy(runtime->streamFrameBuffer.data(), frame->pixels.data(), frameBytes);
     size_t written = fwrite(runtime->streamFrameBuffer.data(), 1, frameBytes, runtime->streamPipe);
     if (written != frameBytes) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream write failed");
       stopOutputStreamRuntime(*runtime);
       if (outputIndex == project_.focusedOutputIndex) {
         triggerToast("stream stopped");
@@ -9318,6 +10672,9 @@ class App {
       runtime.outputWindow = nullptr;
     }
     runtime.recoveryPausedByEscape = false;
+    runtime.healthState = OutputHealthState::Off;
+    runtime.healthReason.clear();
+    runtime.healthUpdatedAtMs = 0;
     runtime.fpsSampleStartedAtMs = 0;
     runtime.fpsFrameCount = 0;
     runtime.fpsMeasured = 0.0;
@@ -9385,6 +10742,9 @@ class App {
     OutputTarget& output = project_.outputs[outputIndex];
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime) {
+      if (output.enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi runtime unavailable");
+      }
       return;
     }
 
@@ -9415,6 +10775,9 @@ class App {
     if (!output.ndiEnabled) {
       clearSenders();
       output.ndiKeyEnabled = false;
+      if (output.enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Armed);
+      }
       if (withToast) {
         triggerToast("ndi off");
       }
@@ -9426,6 +10789,8 @@ class App {
       output.ndiEnabled = false;
       output.ndiKeyEnabled = false;
       clearSenders();
+      setOutputHealthState(outputIndex, OutputHealthState::Error,
+                           loadError.empty() ? "ndi unavailable" : ("ndi unavailable: " + loadError));
       if (withToast) {
         triggerToast("ndi unavailable");
       }
@@ -9450,6 +10815,7 @@ class App {
     if (!runtime->ndiSender) {
       output.ndiEnabled = false;
       output.ndiKeyEnabled = false;
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi sender failed");
       if (withToast) {
         triggerToast("ndi sender failed");
       }
@@ -9472,6 +10838,9 @@ class App {
         runtime->ndiKeySenderName = output.ndiKeySourceName;
       }
     }
+    if (output.enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Live);
+    }
 
     if (withToast) {
       triggerToast("ndi: " + currentNdiOutputLabel());
@@ -9479,6 +10848,9 @@ class App {
 #else
     (void) output;
     (void) runtime;
+    if (project_.outputs[outputIndex].enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi unsupported build");
+    }
     if (withToast) {
       triggerToast("ndi unsupported build");
     }
@@ -10253,7 +11625,15 @@ class App {
   bool enableOutputFullscreen(int outputIndex, bool withToast) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputWindow) {
+      if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+          project_.outputs[outputIndex].enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Error, "output window unavailable");
+      }
       return false;
+    }
+    if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+        project_.outputs[outputIndex].enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "entering fullscreen");
     }
     runtime->recoveryPausedByEscape = false;
     runtime->lastFullscreenRequestMs = SDL_GetTicks64();
@@ -10263,6 +11643,7 @@ class App {
       SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
         runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
+        setOutputHealthState(outputIndex, OutputHealthState::Live);
         if (withToast) {
           triggerToast("big screen @" + formatRefreshRateLabel(selectedMode.refresh_rate));
         }
@@ -10272,10 +11653,15 @@ class App {
 
     if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
       runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
+      setOutputHealthState(outputIndex, OutputHealthState::Live);
       if (withToast) {
         triggerToast("big screen");
       }
       return true;
+    }
+    if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+        project_.outputs[outputIndex].enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
     }
     return false;
   }
@@ -10344,6 +11730,7 @@ class App {
       windowFlags
     );
     if (!runtime.outputWindow) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "window create failed");
       return false;
     }
 
@@ -10353,11 +11740,13 @@ class App {
       runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_SOFTWARE);
     }
     if (!runtime.outputRenderer) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "renderer create failed");
       destroyOutputRuntime(runtime);
       return false;
     }
 
     if (!configureOutputCompositor(outputIndex)) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "compositor init failed");
       destroyOutputRuntime(runtime);
       return false;
     }
@@ -10365,7 +11754,13 @@ class App {
     applyOutputDisplaySelection(outputIndex);
     applyOutputNdiSettings(outputIndex, false);
     if (output.enabled && !streamType) {
-      enableOutputFullscreen(outputIndex, false);
+      if (!enableOutputFullscreen(outputIndex, false)) {
+        setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
+      }
+    } else if (output.enabled) {
+      setOutputHealthState(outputIndex, OutputHealthState::Armed);
+    } else {
+      setOutputHealthState(outputIndex, OutputHealthState::Off);
     }
     return true;
   }
@@ -10388,20 +11783,32 @@ class App {
     return true;
   }
 
-  bool rebuildOutputRuntimes() {
+  bool ensureOutputRuntimesSynced() {
     normalizeProject(project_);
-    for (auto& runtime : outputRuntimes_) {
-      destroyOutputRuntime(runtime);
+    if (outputRuntimes_.size() == project_.outputs.size()) {
+      return true;
     }
-    outputRuntimes_.clear();
-    outputRuntimes_.resize(project_.outputs.size());
-
-    for (size_t index = 0; index < project_.outputs.size(); ++index) {
-      if (!createOutputRuntime(static_cast<int>(index))) {
+    
+    // Growth: only create what's missing
+    while (outputRuntimes_.size() < project_.outputs.size()) {
+      outputRuntimes_.emplace_back();
+      if (!createOutputRuntime(static_cast<int>(outputRuntimes_.size()) - 1)) {
         return false;
       }
     }
+    
+    // Shrinking: only destroy from the end
+    while (outputRuntimes_.size() > project_.outputs.size()) {
+      destroyOutputRuntime(outputRuntimes_.back());
+      outputRuntimes_.pop_back();
+    }
+    
     return true;
+  }
+
+  // Legacy alias for compatibility during refactor
+  bool rebuildOutputRuntimes() {
+    return ensureOutputRuntimesSynced();
   }
 
   std::vector<std::string> outputAudioDeviceChoices() const {
@@ -10734,9 +12141,11 @@ class App {
     }
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputWindow) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "output window unavailable");
       return false;
     }
     if (runtime->recoveryPausedByEscape) {
+      setOutputHealthState(outputIndex, OutputHealthState::Armed, "escaped to windowed");
       return false;
     }
 
@@ -10774,17 +12183,24 @@ class App {
       return false;
     }
     runtime->lastRecoveryAttemptMs = now;
+    std::string recoverReason = hidden ? "window hidden"
+      : (minimized ? "window minimized"
+      : (wrongDisplay ? "wrong display"
+      : "fullscreen dropped"));
+    setOutputHealthState(outputIndex, OutputHealthState::Recovering, recoverReason);
 
     applyOutputDisplaySelection(outputIndex, false);
     SDL_ShowWindow(runtime->outputWindow);
     SDL_RaiseWindow(runtime->outputWindow);
     bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
     if (!fullscreenOk) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
       if (withToast) {
         triggerToast("output recover failed: fullscreen unavailable");
       }
       return false;
     }
+    setOutputHealthState(outputIndex, OutputHealthState::Live);
     if (withToast) {
       std::string displayLabel = "display " + std::to_string(targetDisplay + 1);
       if (displayCount > 0) {
@@ -10804,6 +12220,27 @@ class App {
       return name;
     }
     return "display " + std::to_string(outputDisplayIndex(project_.focusedOutputIndex) + 1);
+  }
+
+  int nextCueIndexForDeck(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return -1;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    int cueCount = static_cast<int>(deck.cues.size());
+    if (cueCount <= 0) {
+      return -1;
+    }
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < cueCount && deck.selectedIndex != deck.activeIndex) {
+      return deck.selectedIndex;
+    }
+    if (deck.activeIndex >= 0 && (deck.activeIndex + 1) < cueCount) {
+      return deck.activeIndex + 1;
+    }
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < cueCount) {
+      return deck.selectedIndex;
+    }
+    return -1;
   }
 
   std::string browserExecutablePath() const {
@@ -11324,6 +12761,8 @@ class App {
       std::string backendRoute = outputBackendRouteSummary(outputIndex);
       std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
       std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
+      std::string health = outputHealthLabel(outputIndex);
+      std::string healthReason = outputHealthReason(outputIndex);
       if (url.empty()) {
         url = defaultOutputStreamUrl(protocol, outputIndex);
       }
@@ -11331,6 +12770,7 @@ class App {
              << " name=\"" << (out.name.empty() ? outputDefaultName(outputIndex) : out.name) << "\""
              << " id=\"" << out.outputId << "\""
              << " enabled=" << (out.enabled ? "on" : "off")
+             << " health=" << toLower(health)
              << " type=" << type
              << " host=" << (hostDeckIndex + 1)
              << " display=" << (outputDisplayIndex(outputIndex) + 1)
@@ -11354,6 +12794,7 @@ class App {
              << " orientation=" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees)
              << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
              << " backend=" << backendRoute
+             << (healthReason.empty() ? "" : (" health_reason=\"" + healthReason + "\""))
              << '\n';
     }
     for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
@@ -11520,6 +12961,8 @@ class App {
       std::string backendRoute = outputBackendRouteSummary(outputIndex);
       std::string ndiSource = trim(out.ndiSourceName).empty() ? defaultOutputNdiSourceName(out, outputIndex) : out.ndiSourceName;
       std::string ndiKeySource = trim(out.ndiKeySourceName).empty() ? defaultOutputNdiKeySourceName(out, outputIndex) : out.ndiKeySourceName;
+      std::string health = outputHealthLabel(outputIndex);
+      std::string healthReason = outputHealthReason(outputIndex);
       if (url.empty()) {
         url = defaultOutputStreamUrl(protocol, outputIndex);
       }
@@ -11531,6 +12974,8 @@ class App {
              << "\"hostDeck\":" << (hostDeckIndex + 1) << ","
              << "\"display\":" << (outputDisplayIndex(outputIndex) + 1) << ","
              << "\"enabled\":" << (out.enabled ? "true" : "false") << ","
+             << "\"health\":\"" << escapeJson(health) << "\","
+             << "\"healthReason\":\"" << escapeJson(healthReason) << "\","
              << "\"mirrorSourceOutput\":" << (out.mirrorSourceOutputIndex >= 0 ? out.mirrorSourceOutputIndex + 1 : 0) << ","
              << "\"layerCount\":" << layerCount << ","
              << "\"streamEnabled\":" << (out.streamEnabled ? "true" : "false") << ","
@@ -11676,6 +13121,7 @@ class App {
       OutputTarget& output = project_.outputs[outputIndex];
       output.enabled = false;
       stopOutputStream(outputIndex);
+      setOutputHealthState(outputIndex, OutputHealthState::Off);
     }
   }
 
@@ -11970,6 +13416,7 @@ class App {
 	      output.enabled = false;
 	      setOutputRecoveryPausedByEscape(outputIndex, false);
 	      stopOutputStream(outputIndex);
+	      setOutputHealthState(outputIndex, OutputHealthState::Off);
 	      applyOutputDisplaySelection(outputIndex, true);
 	    }
 
@@ -12084,6 +13531,12 @@ class App {
     disarmAllOutputsForStartup();
     for (auto& deck : project_.decks) {
       deck.activeIndex = -1;
+    }
+    if (selectedThumbnailTex_) {
+      SDL_DestroyTexture(selectedThumbnailTex_);
+      selectedThumbnailTex_ = nullptr;
+      selectedThumbnailTexW_ = 0;
+      selectedThumbnailTexH_ = 0;
     }
     currentProjectFile_ = defaultProjectFile();
     decksPanelManualOpen_ = false;
@@ -14170,10 +15623,10 @@ class App {
         command == "PRESET" || command == "GROUPPRESET") {
       if (parts.size() == 1) {
         if (project_.groupPresets.empty()) {
-          triggerToast("master cue: none");
+          triggerToast("master scene: none");
         } else {
           int idx = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-          triggerToast("master cue " + std::to_string(idx + 1) + "/" + std::to_string(project_.groupPresets.size())
+          triggerToast("master scene " + std::to_string(idx + 1) + "/" + std::to_string(project_.groupPresets.size())
             + ": " + groupPresetLabel(idx));
         }
         return;
@@ -14234,7 +15687,7 @@ class App {
         auto deckRef = parseDeckReferenceToken(parts[2]);
         if (deckRef) {
           if (!setFocusedGroupSlotByToken(*deckRef, joinParts(parts, 3))) {
-            triggerToast("master cue set failed");
+            triggerToast("master scene set failed");
           }
         }
         return;
@@ -14282,11 +15735,11 @@ class App {
       }
       if (sub == "LIST") {
         if (project_.groupPresets.empty()) {
-          triggerToast("master cues: 0");
+          triggerToast("master scenes: 0");
           return;
         }
         int focus = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-        triggerToast("master cues: " + std::to_string(project_.groupPresets.size()) + " focus " + std::to_string(focus + 1));
+        triggerToast("master scenes: " + std::to_string(project_.groupPresets.size()) + " focus " + std::to_string(focus + 1));
         return;
       }
 
@@ -16016,6 +17469,13 @@ class App {
               setDecksPanelVisible(false, false);
               break;
             }
+            if (floatingPanelsWindow_ && closingWindowId == SDL_GetWindowID(floatingPanelsWindow_)) {
+              for (const auto& key : floatingOperationalPanels()) {
+                setPanelPresentation(key, UiPanelPresentation::Docked);
+              }
+              setFloatingPanelsWindowVisible(false, false);
+              break;
+            }
             if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
               setFocusedOutputIndex(*outputIndex);
               setFocusedOutputEnabled(false, false);
@@ -16030,6 +17490,24 @@ class App {
         case SDL_MOUSEWHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
             if (handleDropdownMouseWheel(event.wheel.y)) {
+              break;
+            }
+            if (outputPanelsViewportRect_.w > 0 && outputPanelsViewportRect_.h > 0 &&
+                pointInRect(mouseX_, mouseY_, outputPanelsViewportRect_) &&
+                outputPanelScrollMax_ > 0) {
+              outputPanelScroll_ = std::clamp(
+                outputPanelScroll_ - event.wheel.y,
+                0,
+                outputPanelScrollMax_);
+              break;
+            }
+            if (routingMatrixViewportRect_.w > 0 && routingMatrixViewportRect_.h > 0 &&
+                pointInRect(mouseX_, mouseY_, routingMatrixViewportRect_) &&
+                routingMatrixScrollMax_ > 0) {
+              routingMatrixScroll_ = std::clamp(
+                routingMatrixScroll_ - event.wheel.y,
+                0,
+                routingMatrixScrollMax_);
               break;
             }
             if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
@@ -16071,6 +17549,16 @@ class App {
                 break;
               }
             }
+          } else if (floatingPanelsWindow_ &&
+                     event.wheel.windowID == SDL_GetWindowID(floatingPanelsWindow_)) {
+            if (floatingPanelsViewportRect_.w > 0 && floatingPanelsViewportRect_.h > 0 &&
+                floatingPanelsScrollMax_ > 0) {
+              floatingPanelsScroll_ = std::clamp(
+                floatingPanelsScroll_ - event.wheel.y * 36,
+                0,
+                floatingPanelsScrollMax_);
+              break;
+            }
           }
           break;
         case SDL_MOUSEBUTTONDOWN:
@@ -16097,6 +17585,9 @@ class App {
           } else if (decksPanelWindow_ &&
                      event.button.windowID == SDL_GetWindowID(decksPanelWindow_)) {
             handleDecksPanelMouseDown(event.button.x, event.button.y, event.button.button);
+          } else if (floatingPanelsWindow_ &&
+                     event.button.windowID == SDL_GetWindowID(floatingPanelsWindow_)) {
+            handleFloatingPanelsWindowMouseDown(event.button.x, event.button.y);
           }
           break;
         case SDL_MOUSEBUTTONUP:
@@ -16140,6 +17631,7 @@ class App {
 
   void update() {
     flushDirtyProject();
+    flushDirtyUiWorkspace();
     processRemoteCommands();
     // Poll waveform analysis futures
     {
@@ -16384,11 +17876,12 @@ class App {
 
   void render() {
     animationNow_ = SDL_GetTicks64();
+    renderFloatingPanelsWindow();
     renderControlWindow();
     renderDecksPanel();
-    if (outputRuntimes_.size() != project_.outputs.size()) {
-      rebuildOutputRuntimes();
-    }
+    
+    ensureOutputRuntimesSynced();
+
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (!project_.outputs[outputIndex].enabled) {
         continue;
@@ -16427,7 +17920,60 @@ class App {
       return;
     }
     bool shouldShow = shouldShowDecksPanelForState(static_cast<int>(project_.decks.size()), decksPanelManualOpen_);
+    if (showStartupDialog_ || showSplashOverlay_) {
+      shouldShow = false;
+    }
     setDecksPanelVisible(shouldShow, shouldShow && raiseWindow);
+  }
+
+  std::vector<UiPanelKey> floatingOperationalPanels() const {
+    std::vector<UiPanelKey> panels;
+    for (const auto& panel : uiPanelManager_.panels) {
+      if (!panel.visible || panel.presentation != UiPanelPresentation::Floating) {
+        continue;
+      }
+      if (panel.key.kind == UiPanelKind::ProgramTransport ||
+          panel.key.kind == UiPanelKind::CueInspector ||
+          panel.key.kind == UiPanelKind::Routing ||
+          panel.key.kind == UiPanelKind::MasterScene ||
+          (panel.key.kind == UiPanelKind::OutputPanel && panel.key.index < 0)) {
+        panels.push_back(panel.key);
+      }
+    }
+    return panels;
+  }
+
+  bool floatingPanelsWindowVisible() const {
+    if (!floatingPanelsWindow_) {
+      return false;
+    }
+    Uint32 flags = SDL_GetWindowFlags(floatingPanelsWindow_);
+    return (flags & SDL_WINDOW_HIDDEN) == 0;
+  }
+
+  void setFloatingPanelsWindowVisible(bool visible, bool raiseWindow = false) {
+    if (!floatingPanelsWindow_) {
+      return;
+    }
+    if (visible) {
+      SDL_ShowWindow(floatingPanelsWindow_);
+      if ((SDL_GetWindowFlags(floatingPanelsWindow_) & SDL_WINDOW_MINIMIZED) != 0) {
+        SDL_RestoreWindow(floatingPanelsWindow_);
+      }
+      if (raiseWindow) {
+        SDL_RaiseWindow(floatingPanelsWindow_);
+      }
+    } else {
+      SDL_HideWindow(floatingPanelsWindow_);
+    }
+  }
+
+  void updateFloatingPanelsWindowVisibility(bool raiseWindow = false) {
+    bool shouldShow = !floatingOperationalPanels().empty();
+    if (showStartupDialog_ || showSplashOverlay_) {
+      shouldShow = false;
+    }
+    setFloatingPanelsWindowVisible(shouldShow, raiseWindow);
   }
 
   void renderQuitConfirm() {
@@ -16445,7 +17991,9 @@ class App {
     SDL_Rect dialog {(width - 420) / 2, (height - 232) / 2, 420, 232};
     Primitives::drawFramedPanel(controlRenderer_, dialog, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
-    drawText(controlRenderer_, fontLarge_, "QUIT DECKBOY?", colorFromRgba(kScreenDeepColor), dialog.x + 28, dialog.y + 36);
+    drawTextSafe(controlRenderer_, fontLarge_,
+                 SDL_Rect {dialog.x + 28, dialog.y + 30, dialog.w - 56, 36},
+                 "QUIT DECKBOY?", colorFromRgba(kScreenDeepColor));
 
     // YES / NO buttons
     quitYesBtn_ = {dialog.x + 32,  dialog.y + 130, 156, 54};
@@ -16455,7 +18003,9 @@ class App {
     drawCenteredText(controlRenderer_, fontBase_, "YES", colorFromRgba(kScreenLightColor), quitYesBtn_);
     drawCenteredText(controlRenderer_, fontBase_, "NO",  colorFromRgba(kScreenLightColor), quitNoBtn_);
 
-    drawText(controlRenderer_, fontSmall_, "esc or N to cancel", colorFromRgba(kScreenInkSoftColor), dialog.x + 32, dialog.y + 200);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {dialog.x + 32, dialog.y + 194, dialog.w - 64, 18},
+                 "esc or N to cancel", colorFromRgba(kScreenInkSoftColor));
   }
 
   void renderStartupDialog() {
@@ -16478,19 +18028,29 @@ class App {
     // Title + file name
     int tx = dialog.x + 36;
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-    drawText(controlRenderer_, titleFont, "DECKBOY_0.01", colorFromRgba(kScreenDeepColor), tx, dialog.y + 44);
-    drawText(controlRenderer_, fontSmall_, "dot-matrix cue deck", colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 82);
-    drawText(controlRenderer_, fontBase_, "Choose startup mode:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 122);
+    drawTextSafe(controlRenderer_, titleFont,
+                 SDL_Rect {tx, dialog.y + 38, dialog.w - 72, 34},
+                 "DECKBOY_0.01", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
+                 "dot-matrix cue deck", colorFromRgba(kScreenInkSoftColor));
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {tx, dialog.y + 116, dialog.w - 72, 24},
+                 "Choose startup mode:", colorFromRgba(kScreenDeepColor));
 
     std::string fname = currentProjectFile_.empty() ? "default.playboy" : currentProjectFile_.filename().string();
     bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
     if (hasSavedFile) {
-      drawText(controlRenderer_, fontSmall_, "Previous show file:", colorFromRgba(kScreenDeepColor), tx, dialog.y + 156);
-      drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, fname, dialog.w - 72),
-               colorFromRgba(kScreenDarkColor), tx, dialog.y + 180);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {tx, dialog.y + 152, dialog.w - 72, 18},
+                   "Previous show file:", colorFromRgba(kScreenDeepColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {tx, dialog.y + 176, dialog.w - 72, 18},
+                   fname, colorFromRgba(kScreenDarkColor));
     } else {
-      drawText(controlRenderer_, fontSmall_, "No previous show file found at startup path.", colorFromRgba(kScreenDarkColor),
-               tx, dialog.y + 164);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {tx, dialog.y + 160, dialog.w - 72, 18},
+                   "No previous show file found at startup path.", colorFromRgba(kScreenDarkColor));
     }
 
     // Buttons
@@ -16514,10 +18074,14 @@ class App {
                                 colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
     drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED...", colorFromRgba(kScreenDeepColor), startupOpenSavedBtn_);
 
-    drawText(controlRenderer_, fontSmall_, "N=new  Enter/P=previous  O=open saved picker",
-             colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 356);
-    drawText(controlRenderer_, fontSmall_, "Esc=continue with current session",
-             colorFromRgba(kScreenInkSoftColor), tx, dialog.y + 378);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {tx, dialog.y + 352, dialog.w - 72, 18},
+                 "N=new  Enter/P=previous  O=open saved picker",
+                 colorFromRgba(kScreenInkSoftColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {tx, dialog.y + 374, dialog.w - 72, 18},
+                 "Esc=continue with current session",
+                 colorFromRgba(kScreenInkSoftColor));
   }
 
   void renderSplashOverlay() {
@@ -16539,8 +18103,12 @@ class App {
                                 colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
 
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-    drawText(controlRenderer_, titleFont, "DECKBOY", colorFromRgba(kScreenDeepColor), card.x + 36, card.y + 34);
-    drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", colorFromRgba(kScreenDarkColor), card.x + 38, card.y + 82);
+    drawTextSafe(controlRenderer_, titleFont,
+                 SDL_Rect {card.x + 36, card.y + 28, card.w - 72, 34},
+                 "DECKBOY", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {card.x + 38, card.y + 76, card.w - 76, 24},
+                 "dot-matrix cue deck", colorFromRgba(kScreenDarkColor));
 
     int splashArtReserve = 0;
     if (uiPackAvailable_) {
@@ -16606,8 +18174,10 @@ class App {
     SDL_Rect headerRect {0, 0, panelW, headerH};
     SDL_SetRenderDrawColor(decksPanelRenderer_, 0x1F, 0x48, 0x1F, 0xFF);
     SDL_RenderFillRect(decksPanelRenderer_, &headerRect);
-    drawText(decksPanelRenderer_, fontBase_, "DECKS", colorFromRgba(kScreenLightColor), 10, 10);
-    drawText(decksPanelRenderer_, fontSmall_, "deck list + playlist view", colorFromRgba(kScreenLightColor), 12, 31);
+    drawTextSafe(decksPanelRenderer_, fontBase_, SDL_Rect {10, 8, panelW - 20, 20},
+                 "DECKS", colorFromRgba(kScreenLightColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {12, 28, panelW - 24, 18},
+                 "deck list + playlist view", colorFromRgba(kScreenLightColor));
 
     SDL_Rect colHeader {0, headerH, panelW, 30};
     SDL_SetRenderDrawColor(decksPanelRenderer_, 0x17, 0x42, 0x17, 0xFF);
@@ -16619,13 +18189,20 @@ class App {
     const int colXLayer = 484;
     const int colXState = 560;
     const int colXTc = 648;
-    drawText(decksPanelRenderer_, fontSmall_, "#", colorFromRgba(kScreenMidColor), colXIndex, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "deck", colorFromRgba(kScreenMidColor), colXDeck, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "selected", colorFromRgba(kScreenMidColor), colXSel, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "active", colorFromRgba(kScreenMidColor), colXAct, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "layer", colorFromRgba(kScreenMidColor), colXLayer, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "state", colorFromRgba(kScreenMidColor), colXState, headerH + 7);
-    drawText(decksPanelRenderer_, fontSmall_, "timecode", colorFromRgba(kScreenMidColor), colXTc, headerH + 7);
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXIndex, headerH + 4, colXDeck - colXIndex - 6, 18},
+                 "#", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXDeck, headerH + 4, colXSel - colXDeck - 6, 18},
+                 "deck", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXSel, headerH + 4, colXAct - colXSel - 6, 18},
+                 "selected", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXAct, headerH + 4, colXLayer - colXAct - 6, 18},
+                 "active", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXLayer, headerH + 4, colXState - colXLayer - 6, 18},
+                 "layer", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXState, headerH + 4, colXTc - colXState - 6, 18},
+                 "state", colorFromRgba(kScreenMidColor));
+    drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXTc, headerH + 4, panelW - colXTc - 12, 18},
+                 "timecode", colorFromRgba(kScreenMidColor));
 
     const int footerTop = panelH - 46;
     int y = headerH + 28;
@@ -16689,13 +18266,20 @@ class App {
       tcStr = ellipsizeToPixelWidth(fontSmall_, tcStr, std::max(48, panelW - colXTc - 12));
 
       SDL_Color rowInk = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
-      drawText(decksPanelRenderer_, fontSmall_, idx.str(), rowInk, colXIndex, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, deckDisplay, rowInk, colXDeck, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, selCue, rowInk, colXSel, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, actCue, rowInk, colXAct, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, std::to_string(layerIndex), rowInk, colXLayer, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, statusStr, rowInk, colXState, y + 8);
-      drawText(decksPanelRenderer_, fontSmall_, tcStr, rowInk, colXTc, y + 8);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXIndex, y + 5, colXDeck - colXIndex - 6, rowH - 10},
+                   idx.str(), rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXDeck, y + 5, colXSel - colXDeck - 6, rowH - 10},
+                   deckDisplay, rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXSel, y + 5, colXAct - colXSel - 6, rowH - 10},
+                   selCue, rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXAct, y + 5, colXLayer - colXAct - 6, rowH - 10},
+                   actCue, rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXLayer, y + 5, colXState - colXLayer - 6, rowH - 10},
+                   std::to_string(layerIndex), rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXState, y + 5, colXTc - colXState - 6, rowH - 10},
+                   statusStr, rowInk);
+      drawTextSafe(decksPanelRenderer_, fontSmall_, SDL_Rect {colXTc, y + 5, panelW - colXTc - 12, rowH - 10},
+                   tcStr, rowInk);
 
       DecksPanelRowHit rowHit;
       rowHit.deckIndex = i;
@@ -16708,8 +18292,9 @@ class App {
     if (deckCount > trackerRowsRendered) {
       std::string trackerPage = "Deck rows " + std::to_string(trackerStart + 1) + "-" +
         std::to_string(trackerStart + trackerRowsRendered) + "/" + std::to_string(deckCount);
-      drawText(decksPanelRenderer_, fontSmall_, trackerPage, colorFromRgba(kScreenInkSoftColor),
-               std::max(8, panelW - 170), headerH + 4);
+      drawTextSafe(decksPanelRenderer_, fontSmall_,
+                   SDL_Rect {std::max(8, panelW - 170), headerH + 4, 162, 18},
+                   trackerPage, colorFromRgba(kScreenInkSoftColor));
     }
 
     // Deck playlists now live in this separate window.
@@ -16719,10 +18304,13 @@ class App {
       SDL_Rect deckGridRect {8, deckGridTop, panelW - 16, deckGridBottom - deckGridTop};
       Primitives::drawFramedPanel(decksPanelRenderer_, deckGridRect, colorFromRgba(kShellInnerColor),
                                   colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(decksPanelRenderer_, fontBase_, "DECK PLAYLISTS", colorFromRgba(kScreenDeepColor),
-               deckGridRect.x + 8, deckGridRect.y + 3);
-      drawText(decksPanelRenderer_, fontSmall_, "click cue: select   right-click cue: take",
-               colorFromRgba(kScreenInkSoftColor), deckGridRect.x + 154, deckGridRect.y + 7);
+      drawTextSafe(decksPanelRenderer_, fontBase_,
+                   SDL_Rect {deckGridRect.x + 8, deckGridRect.y + 2, 140, 20},
+                   "DECK PLAYLISTS", colorFromRgba(kScreenDeepColor));
+      drawTextSafe(decksPanelRenderer_, fontSmall_,
+                   SDL_Rect {deckGridRect.x + 154, deckGridRect.y + 4, deckGridRect.w - 164, 18},
+                   "click cue: select   right-click cue: take",
+                   colorFromRgba(kScreenInkSoftColor));
 
       int colGap = 10;
       int availableW = deckGridRect.w - 10;
@@ -16746,6 +18334,8 @@ class App {
         int colX = deckGridRect.x + 4 + slot * (colW + colGap);
         SDL_Rect colRect {colX, colY, colW, colH};
         bool focused = deckIndex == project_.focusedDeckIndex;
+        recordRenderedPanelFrame({UiPanelKind::DeckPlaylist, deckIndex}, colRect, true,
+                                 focused ? UiPanelPresentation::Docked : UiPanelPresentation::Floating);
 
         SDL_Color colFill = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellInnerColor);
         Primitives::drawFramedPanel(decksPanelRenderer_, colRect, colFill,
@@ -16773,15 +18363,15 @@ class App {
         int takeX = stopX - btnGap - takeW;
         int textMaxW = std::max(36, takeX - (hdr.x + 4) - 4);
 
-        drawText(decksPanelRenderer_, fontBase_,
-                 ellipsizeToPixelWidth(fontBase_, hdrText, textMaxW),
-                 hdrInk, hdr.x + 4, hdr.y + 4);
-        drawText(decksPanelRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, hdrInfo, textMaxW),
-                 hdrInk, hdr.x + 4, hdr.y + 26);
-        drawText(decksPanelRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, "layer " + std::to_string(primaryLayerIndexForDeck(deckIndex)), textMaxW),
-                 hdrInk, hdr.x + 4, hdr.y + 42);
+        drawTextSafe(decksPanelRenderer_, fontBase_,
+                     SDL_Rect {hdr.x + 4, hdr.y + 4, textMaxW, 18},
+                     hdrText, hdrInk);
+        drawTextSafe(decksPanelRenderer_, fontSmall_,
+                     SDL_Rect {hdr.x + 4, hdr.y + 24, textMaxW, 18},
+                     hdrInfo, hdrInk);
+        drawTextSafe(decksPanelRenderer_, fontSmall_,
+                     SDL_Rect {hdr.x + 4, hdr.y + 40, textMaxW, 18},
+                     "layer " + std::to_string(primaryLayerIndexForDeck(deckIndex)), hdrInk);
 
         SDL_Rect takeBtn {takeX, btnY, takeW, btnH};
         Primitives::drawFramedPanel(decksPanelRenderer_, takeBtn,
@@ -16805,11 +18395,13 @@ class App {
         Primitives::drawFramedPanel(decksPanelRenderer_, listRect, colorFromRgba(kScreenLightColor),
                                     colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         if (listRect.h <= 10) {
-          drawText(decksPanelRenderer_, fontSmall_, "(resize for cues)",
-                   colorFromRgba(kScreenInkSoftColor), listRect.x + 6, listRect.y + 6);
+          drawTextSafe(decksPanelRenderer_, fontSmall_,
+                       SDL_Rect {listRect.x + 6, listRect.y + 4, listRect.w - 12, 18},
+                       "(resize for cues)", colorFromRgba(kScreenInkSoftColor));
         } else if (deck.cues.empty()) {
-          drawText(decksPanelRenderer_, fontSmall_, "(empty deck)",
-                   colorFromRgba(kScreenInkSoftColor), listRect.x + 6, listRect.y + 6);
+          drawTextSafe(decksPanelRenderer_, fontSmall_,
+                       SDL_Rect {listRect.x + 6, listRect.y + 4, listRect.w - 12, 18},
+                       "(empty deck)", colorFromRgba(kScreenInkSoftColor));
         } else {
           int rowGap = 3;
           int cueRowH = 26;
@@ -16839,9 +18431,9 @@ class App {
             if (activeCue) {
               cueText = "> " + cueText;
             }
-            drawText(decksPanelRenderer_, fontSmall_,
-                     ellipsizeToPixelWidth(fontSmall_, cueText, cueRect.w - 6),
-                     cueInk, cueRect.x + 4, cueRect.y + 5);
+            drawTextSafe(decksPanelRenderer_, fontSmall_,
+                         SDL_Rect {cueRect.x + 4, cueRect.y + 4, cueRect.w - 8, cueRect.h - 8},
+                         cueText, cueInk);
             decksPanelCueHits_.push_back({deckIndex, cueIndex, cueRect});
           }
         }
@@ -16850,16 +18442,305 @@ class App {
       if (deckCount > visibleCols) {
         std::string pageLabel = "Decks " + std::to_string(deckStart + 1) + "-" +
           std::to_string(deckStart + visibleCols) + "/" + std::to_string(deckCount);
-        drawText(decksPanelRenderer_, fontSmall_, pageLabel, colorFromRgba(kScreenInkSoftColor),
-                 deckGridRect.x + deckGridRect.w - 120, deckGridRect.y + 3);
+        drawTextSafe(decksPanelRenderer_, fontSmall_,
+                     SDL_Rect {deckGridRect.x + deckGridRect.w - 120, deckGridRect.y + 3, 112, 18},
+                     pageLabel, colorFromRgba(kScreenInkSoftColor));
       }
     }
 
-    drawText(decksPanelRenderer_, fontSmall_,
-             "master scenes live in the main sidebar",
-             colorFromRgba(kScreenInkSoftColor), 10, panelH - 22);
+    drawTextSafe(decksPanelRenderer_, fontSmall_,
+                 SDL_Rect {10, panelH - 24, panelW - 20, 18},
+                 "master scenes live in the main sidebar",
+                 colorFromRgba(kScreenInkSoftColor));
 
     SDL_RenderPresent(decksPanelRenderer_);
+  }
+
+  int floatingPanelPreferredHeight(const UiPanelKey& key) const {
+    switch (key.kind) {
+      case UiPanelKind::ProgramTransport: return 240;
+      case UiPanelKind::CueInspector:     return 300;
+      case UiPanelKind::Routing:          return 250;
+      case UiPanelKind::MasterScene:      return 300;
+      case UiPanelKind::OutputPanel:      return 260;
+      default:                            return 220;
+    }
+  }
+
+  void renderFloatingProgramSummaryPanel(const SDL_Rect& panel) {
+    const Deck& deck = focusedDeck();
+    const MediaEngine* engine = focusedMediaEngine();
+    const Cue* activeCue = activeCuePtr();
+    int nextCueIndex = nextCueIndexForDeck(project_.focusedDeckIndex);
+    const Cue* nextCue = (nextCueIndex >= 0 && nextCueIndex < static_cast<int>(deck.cues.size()))
+      ? &deck.cues[nextCueIndex]
+      : nullptr;
+    auto chrome = drawOperationalPanel(panel, {UiPanelKind::ProgramTransport, -1},
+                                       "PROGRAM / TRANSPORT",
+                                       "floating monitor summary",
+                                       UiPanelPresentation::Floating);
+    VerticalLayout body(chrome.body, 8);
+    auto outputIndex = primaryOutputIndexForDeck(project_.focusedDeckIndex);
+    int layerIndex = primaryLayerIndexForDeck(project_.focusedDeckIndex);
+    std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "LIVE  " + std::string(activeCue ? cueDisplayToken(*activeCue, deck.activeIndex) + "  " + activeCue->name
+                                                  : "No cue live"),
+                 colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "NEXT  " + std::string(nextCue ? cueDisplayToken(*nextCue, nextCueIndex) + "  " + nextCue->name
+                                                : "No cue queued"),
+                 colorFromRgba(kScreenDarkColor));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "ROUTE  " + deckLabel(project_.focusedDeckIndex) + " -> "
+                   + (outputIndex ? outputLabel(*outputIndex) : "Unrouted") + "  " + layerToken,
+                 colorFromRgba(kScreenDeepColor));
+    std::string transport = "TRANSPORT " + transportStatusLabel();
+    if (engine) {
+      transport += "  |  " + formatSeconds(engine->position()) + " / " + formatSeconds(engine->duration());
+    }
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18), transport, colorFromRgba(kScreenDarkColor));
+
+    SDL_Rect monitorRect = body.takeFixed(std::max(90, chrome.body.h - 96));
+    drawUIPanel(monitorRect, colorFromRgba(kScreenLightColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {monitorRect.x + 8, monitorRect.y + 8, monitorRect.w - 16, 18},
+                 "Program and Preview remain live in the main control workspace.",
+                 colorFromRgba(kScreenDeepColor));
+    std::vector<std::pair<int, int>> stackEntries = layeredDeckEntriesForOutput(project_.focusedOutputIndex);
+    int lineY = monitorRect.y + 32;
+    if (stackEntries.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {monitorRect.x + 8, lineY, monitorRect.w - 16, 18},
+                   "No active layer stack on the focused Output.",
+                   colorFromRgba(kScreenInkSoftColor));
+    } else {
+      for (auto it = stackEntries.rbegin(); it != stackEntries.rend() && lineY + 16 <= monitorRect.y + monitorRect.h - 8; ++it) {
+        int layer = it->first;
+        int deckIndex = it->second;
+        const Cue* liveCue = activeCuePtr(deckIndex);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {monitorRect.x + 8, lineY, monitorRect.w - 16, 16},
+                     std::string(layer <= 0 ? "BG" : ("L" + std::to_string(layer)))
+                       + "  " + deckLabel(deckIndex) + "  ->  "
+                       + (liveCue ? liveCue->name : "--"),
+                     colorFromRgba(kScreenDeepColor));
+        lineY += 16;
+      }
+    }
+  }
+
+  void renderFloatingInspectorSummaryPanel(const SDL_Rect& panel) {
+    auto chrome = drawOperationalPanel(panel, {UiPanelKind::CueInspector, -1},
+                                       "CUE INSPECTOR",
+                                       "floating focus summary",
+                                       UiPanelPresentation::Floating);
+    const Cue* cue = selectedCuePtr();
+    VerticalLayout body(chrome.body, 8);
+    if (!cue) {
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   "No cue selected. Select a cue in the main workspace to inspect it here.",
+                   colorFromRgba(kScreenInkSoftColor));
+      return;
+    }
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "FOCUS  " + cueDisplayToken(*cue, focusedDeck().selectedIndex) + "  " + cue->name,
+                 colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "TYPE  " + cueKindLabel(cue->kind),
+                 colorFromRgba(kScreenDarkColor));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "PLAYBACK  loop " + std::string(cue->loop ? "on" : "off")
+                   + "  hold " + std::string(cue->pauseOnLastFrame ? "on" : "off")
+                   + "  audio " + std::string(cue->audioEnabled ? "on" : "off"),
+                 colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                 "TRANSITION  " + cueEndActionLabel(cue->endAction),
+                 colorFromRgba(kScreenDarkColor));
+    if (isSourceCueKind(cue->kind)) {
+      drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                   "SOURCE  " + sourceCueRefFriendlyLabel(cue->kind, sourceCueRefFromCue(*cue)),
+                   colorFromRgba(kScreenDeepColor));
+    } else if (cue->kind == CueKind::Browser) {
+      drawTextSafe(controlRenderer_, fontSmall_, body.takeFixed(18),
+                   "URL  " + cue->path,
+                   colorFromRgba(kScreenDeepColor));
+    }
+    drawTextSafe(controlRenderer_, fontSmall_, body.takeRemaining(),
+                 cue->notes.empty()
+                   ? "Notes: (none)"
+                   : "Notes: " + cue->notes,
+                 cue->notes.empty() ? colorFromRgba(kScreenInkSoftColor)
+                                    : colorFromRgba(kScreenDeepColor));
+  }
+
+  void renderFloatingPanelsWindow() {
+    if (!floatingPanelsWindow_ || !floatingPanelsRenderer_) {
+      return;
+    }
+    std::vector<UiPanelKey> panels = floatingOperationalPanels();
+    if (panels.empty()) {
+      setFloatingPanelsWindowVisible(false);
+      return;
+    }
+    setFloatingPanelsWindowVisible(true);
+
+    SDL_Renderer* savedRenderer = controlRenderer_;
+    SDL_Window* savedWindow = controlWindow_;
+    int savedMouseX = mouseX_;
+    int savedMouseY = mouseY_;
+    controlRenderer_ = floatingPanelsRenderer_;
+    controlWindow_ = floatingPanelsWindow_;
+    renderingFloatingPanelsWindow_ = true;
+    mouseX_ = -10000;
+    mouseY_ = -10000;
+
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSize(floatingPanelsWindow_, &width, &height);
+    floatingPanelWindowButtons_.clear();
+    SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
+    SDL_RenderClear(controlRenderer_);
+
+    SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
+                    std::max(0, width - kLayoutSpacingUnit * 2),
+                    std::max(0, height - kLayoutSpacingUnit * 2)};
+    drawUIPanel(shell, colorFromRgba(kShellOuterColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+    SDL_Rect header {shell.x + 4, shell.y + 4, shell.w - 8, 34};
+    drawUIPanel(header, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {header.x + 8, header.y + 8, header.w - 16, 18},
+                 "FLOATING PANELS  |  Dock any panel back into the main workspace",
+                 colorFromRgba(kScreenDeepColor));
+
+    SDL_Rect viewport {shell.x + 8, header.y + header.h + 8, shell.w - 16, shell.h - header.h - 16};
+    floatingPanelsViewportRect_ = viewport;
+    int totalHeight = 0;
+    for (const auto& key : panels) {
+      totalHeight += floatingPanelPreferredHeight(key) + 12;
+    }
+    floatingPanelsScrollMax_ = std::max(0, totalHeight - viewport.h);
+    floatingPanelsScroll_ = std::clamp(floatingPanelsScroll_, 0, floatingPanelsScrollMax_);
+
+    SDL_RenderSetClipRect(controlRenderer_, &viewport);
+    int y = viewport.y - floatingPanelsScroll_;
+    for (const auto& key : panels) {
+      SDL_Rect frame {viewport.x, y, viewport.w - (floatingPanelsScrollMax_ > 0 ? 10 : 0), floatingPanelPreferredHeight(key)};
+      switch (key.kind) {
+        case UiPanelKind::ProgramTransport:
+          renderFloatingProgramSummaryPanel(frame);
+          break;
+        case UiPanelKind::CueInspector:
+          renderFloatingInspectorSummaryPanel(frame);
+          break;
+        case UiPanelKind::Routing:
+          renderRoutingMatrixPanel(frame);
+          break;
+        case UiPanelKind::MasterScene:
+          renderDeckSidebar(frame);
+          break;
+        case UiPanelKind::OutputPanel:
+          renderOutputPanelsPanel(frame);
+          break;
+        default:
+          break;
+      }
+      SDL_Rect dockBtn {frame.x + frame.w - 54, frame.y + 6, 48, 18};
+      drawUIPanel(dockBtn, colorFromRgba(kScreenMidColor),
+                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, dockBtn, "DOCK", colorFromRgba(kScreenDeepColor));
+      floatingPanelWindowButtons_.push_back({dockBtn, key, kFloatingPanelActionDock});
+      y += frame.h + 12;
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    if (floatingPanelsScrollMax_ > 0) {
+      SDL_Rect gutter {viewport.x + viewport.w - 6, viewport.y, 4, viewport.h};
+      Primitives::fillRect(controlRenderer_, gutter, colorFromRgba(kShellOuterColor));
+      int thumbH = std::max(24, viewport.h * viewport.h / std::max(1, totalHeight));
+      thumbH = std::min(thumbH, gutter.h);
+      int thumbRange = std::max(0, gutter.h - thumbH);
+      int thumbY = gutter.y + (thumbRange * floatingPanelsScroll_) / std::max(1, floatingPanelsScrollMax_);
+      SDL_Rect thumb {gutter.x, thumbY, gutter.w, thumbH};
+      Primitives::fillRect(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor));
+    }
+
+    SDL_RenderPresent(controlRenderer_);
+    renderingFloatingPanelsWindow_ = false;
+    controlRenderer_ = savedRenderer;
+    controlWindow_ = savedWindow;
+    mouseX_ = savedMouseX;
+    mouseY_ = savedMouseY;
+  }
+
+  void handleFloatingPanelsWindowMouseDown(int x, int y) {
+    for (const auto& hit : floatingPanelWindowButtons_) {
+      if (!pointInRect(x, y, hit.rect)) {
+        continue;
+      }
+      if (hit.action == kFloatingPanelActionDock) {
+        setPanelPresentation(hit.key, UiPanelPresentation::Docked);
+        updateFloatingPanelsWindowVisibility();
+        return;
+      }
+    }
+  }
+
+  struct OperationalPanelChrome {
+    SDL_Rect frame {};
+    SDL_Rect header {};
+    SDL_Rect body {};
+  };
+
+  OperationalPanelChrome drawOperationalPanel(const SDL_Rect& frame,
+                                              const UiPanelKey& key,
+                                              const std::string& title,
+                                              const std::string& subtitle = {},
+                                              UiPanelPresentation presentation = UiPanelPresentation::Docked) {
+    OperationalPanelChrome chrome;
+    chrome.frame = frame;
+    if (frame.w <= 0 || frame.h <= 0) {
+      return chrome;
+    }
+    drawUIPanel(frame, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    int headerH = trim(subtitle).empty() ? 26 : 40;
+    chrome.header = SDL_Rect {frame.x + 2, frame.y + 2, frame.w - 4, headerH};
+    SDL_Color headerFill = panelHasLocalFocus(key)
+      ? colorFromRgba(kScreenDarkColor)
+      : colorFromRgba(kScreenMidColor);
+    SDL_Color titleInk = panelHasLocalFocus(key)
+      ? colorFromRgba(kScreenLightColor)
+      : colorFromRgba(kScreenDeepColor);
+    SDL_Color subtitleInk = panelHasLocalFocus(key)
+      ? colorFromRgba(kScreenMidColor)
+      : colorFromRgba(kScreenDarkColor);
+    drawUIPanel(chrome.header, headerFill,
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    SDL_Rect titleRect {chrome.header.x + 8, chrome.header.y + 2, chrome.header.w - 16, 18};
+    std::string badge = panelFocusBadge(key);
+    if (!badge.empty()) {
+      SDL_Rect badgeRect {chrome.header.x + chrome.header.w - 132, chrome.header.y + 3, 124, 16};
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, badgeRect, badge, titleInk);
+      titleRect.w = std::max(32, badgeRect.x - titleRect.x - 8);
+    }
+    drawTextSafe(controlRenderer_, fontSmall_, titleRect, title, titleInk);
+    if (!trim(subtitle).empty()) {
+      SDL_Rect subtitleRect {chrome.header.x + 8, chrome.header.y + 18, chrome.header.w - 16, 18};
+      drawTextSafe(controlRenderer_, fontSmall_, subtitleRect, subtitle, subtitleInk);
+    }
+    chrome.body = SDL_Rect {
+      frame.x + kLayoutPanelPadding,
+      chrome.header.y + chrome.header.h + kLayoutSpacingUnit,
+      std::max(0, frame.w - kLayoutPanelPadding * 2),
+      std::max(0, frame.h - (chrome.header.h + kLayoutSpacingUnit + kLayoutPanelPadding + 2))
+    };
+    recordRenderedPanelFrame(key, frame, true, presentation);
+    return chrome;
   }
 
   void renderDeckSidebar(const SDL_Rect& panel) {
@@ -16869,18 +18750,22 @@ class App {
     if (panel.w <= 0 || panel.h <= 0) {
       return;
     }
-    Primitives::drawFramedPanel(controlRenderer_, panel, colorFromRgba(kShellInnerColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    recordRenderedPanelFrame({UiPanelKind::MasterScene, -1}, panel, true,
+                             renderingFloatingPanelsWindow_ ? UiPanelPresentation::Floating
+                                                            : UiPanelPresentation::Docked);
+    drawUIPanel(panel, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     SDL_Rect head {panel.x + 2, panel.y + 2, panel.w - 4, 24};
-    Primitives::drawFramedPanel(controlRenderer_, head, colorFromRgba(kScreenMidColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawText(controlRenderer_, fontSmall_, "MASTER SCENES", colorFromRgba(kScreenDeepColor), head.x + 6, head.y + 4);
+    drawUIPanel(head, colorFromRgba(kScreenMidColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawTextSafe(controlRenderer_, fontSmall_, head, "MASTER SCENES", colorFromRgba(kScreenDeepColor));
     if (!project_.groupPresets.empty()) {
       int focus = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-      std::string label = "SCN" + std::to_string(focus + 1);
-      drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor),
-               head.x + head.w - 42, head.y + 4);
+      std::string label = "MC" + std::to_string(focus + 1);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {head.x + head.w - 42, head.y + 4, 36, 16},
+                   label, colorFromRgba(kScreenDeepColor));
     }
 
     auto cueLabel = [&](const Deck& deck, int cueIndex) -> std::string {
@@ -16909,15 +18794,15 @@ class App {
 
     int row1BtnW = std::max(34, (innerW - btnGap * 4) / 5);
     int bx = innerX;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "<SC", kDecksPanelActionGroupPrev);
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "<MC", kDecksPanelActionGroupPrev);
     bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "SC>", kDecksPanelActionGroupNext);
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "MC>", kDecksPanelActionGroupNext);
     bx += row1BtnW + btnGap;
     drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "New", kDecksPanelActionGroupNew);
     bx += row1BtnW + btnGap;
     drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "Del", kDecksPanelActionGroupDelete);
     bx += row1BtnW + btnGap;
-    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "SCENE", kDecksPanelActionGroupFire, true);
+    drawMasterSidebarButton(bx, controlsY, row1BtnW, btnH, "TAKE", kDecksPanelActionGroupFire, true);
 
     controlsY += btnH + btnGap;
     int row2BtnW = std::max(44, (innerW - btnGap * 3) / 4);
@@ -16940,22 +18825,28 @@ class App {
       SDL_Rect progRect {panel.x + 4, listTopY, panel.w - 8, progH};
       Primitives::drawFramedPanel(controlRenderer_, progRect, colorFromRgba(kScreenLightColor),
                                   colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontSmall_, "PROGRAM FOCUSED SCENE", colorFromRgba(kScreenDeepColor),
-               progRect.x + 6, progRect.y + 3);
-      drawText(controlRenderer_, fontSmall_, "Sel/Act assign, Byp skips, -/+ cycles slot cue",
-               colorFromRgba(kScreenInkSoftColor), progRect.x + 6, progRect.y + 17);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {progRect.x + 6, progRect.y + 3, progRect.w - 12, 16},
+                   "PROGRAM FOCUSED MASTER SCENE", colorFromRgba(kScreenDeepColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {progRect.x + 6, progRect.y + 17, progRect.w - 12, 16},
+                   "Sel/Act assign, Byp skips, -/+ cycles slot cue",
+                   colorFromRgba(kScreenInkSoftColor));
 
       const GroupPreset* preset = focusedGroupPreset();
       if (!preset) {
-        drawText(controlRenderer_, fontSmall_, "No scene selected", colorFromRgba(kScreenInkSoftColor),
-                 progRect.x + 8, progRect.y + 38);
-        drawText(controlRenderer_, fontSmall_, "Press New, then assign deck slots", colorFromRgba(kScreenInkSoftColor),
-                 progRect.x + 8, progRect.y + 54);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {progRect.x + 8, progRect.y + 38, progRect.w - 16, 16},
+                     "No master scene selected", colorFromRgba(kScreenInkSoftColor));
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {progRect.x + 8, progRect.y + 54, progRect.w - 16, 16},
+                     "Press New, then assign deck slots", colorFromRgba(kScreenInkSoftColor));
       } else {
         std::string presetName = groupPresetLabel(std::clamp(project_.focusedGroupPresetIndex, 0,
                                       static_cast<int>(project_.groupPresets.size()) - 1));
-        drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, "Editing: " + presetName, progRect.w - 18),
-                 colorFromRgba(kScreenDeepColor), progRect.x + 6, progRect.y + 31);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {progRect.x + 6, progRect.y + 31, progRect.w - 12, 16},
+                     "Editing: " + presetName, colorFromRgba(kScreenDeepColor));
 
         int deckCount = static_cast<int>(project_.decks.size());
         int rowH = 24;
@@ -17028,10 +18919,10 @@ class App {
           }
           std::string rowText = "D" + std::to_string(deckIndex + 1) + " " + deckName + " -> " + slotText;
           int textMaxW = std::max(42, selectedRect.x - (rowRect.x + 4) - 4);
-          drawText(controlRenderer_, fontSmall_,
-                   ellipsizeToPixelWidth(fontSmall_, rowText, textMaxW),
-                   focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor),
-                   rowRect.x + 4, rowRect.y + 4);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {rowRect.x + 4, rowRect.y + 3, textMaxW, rowRect.h - 6},
+                       rowText,
+                       focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor));
 
           masterCueSidebarProgramHits_.push_back(
             {deckIndex, rowRect, selectedRect, activeRect, bypassRect, minusRect, plusRect});
@@ -17056,10 +18947,12 @@ class App {
     int visibleRows = std::max(0, std::min(totalMasters - pageStart, lineRowsPerPage));
 
     if (visibleRows <= 0) {
-      drawText(controlRenderer_, fontSmall_, "no scenes yet",
-               colorFromRgba(kScreenInkSoftColor), listRect.x + 8, listRect.y + 10);
-      drawText(controlRenderer_, fontSmall_, "Use New to add one",
-               colorFromRgba(kScreenInkSoftColor), listRect.x + 8, listRect.y + 26);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {listRect.x + 8, listRect.y + 10, listRect.w - 16, 16},
+                   "no master scenes yet", colorFromRgba(kScreenInkSoftColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {listRect.x + 8, listRect.y + 26, listRect.w - 16, 16},
+                   "Use New to add one", colorFromRgba(kScreenInkSoftColor));
       return;
     }
 
@@ -17115,12 +19008,12 @@ class App {
 
       int textMaxW = std::max(40, fireRect.x - (rowRect.x + 4) - 4);
       std::string line = prefix;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, line, textMaxW),
-               colorFromRgba(kScreenLightColor), rowRect.x + 3, rowRect.y + 4);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, slotSummary, textMaxW),
-               colorFromRgba(kScreenMidColor), rowRect.x + 3, rowRect.y + 20);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {rowRect.x + 3, rowRect.y + 4, textMaxW, 14},
+                   line, colorFromRgba(kScreenLightColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {rowRect.x + 3, rowRect.y + 20, textMaxW, 14},
+                   slotSummary, colorFromRgba(kScreenMidColor));
 
       masterCueSidebarRows_.push_back({presetIndex, rowRect, fireRect});
       rowY += lineRowH + 3;
@@ -17129,13 +19022,293 @@ class App {
     if (totalMasters > lineRowsPerPage) {
       std::string page = std::to_string(pageStart + 1) + "-" +
         std::to_string(pageStart + visibleRows) + "/" + std::to_string(totalMasters);
-      drawText(controlRenderer_, fontSmall_, page, colorFromRgba(kScreenInkSoftColor),
-               listRect.x + listRect.w - 84, listRect.y + listRect.h - 16);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {listRect.x + listRect.w - 84, listRect.y + listRect.h - 16, 78, 14},
+                   page, colorFromRgba(kScreenInkSoftColor));
+    }
+  }
+
+  void renderOutputPanelsPanel(const SDL_Rect& panel) {
+    auto chrome = drawOperationalPanel(panel, {UiPanelKind::OutputPanel, -1},
+                                       "OUTPUT PANELS",
+                                       "armed / target / raster / layers",
+                                       renderingFloatingPanelsWindow_ ? UiPanelPresentation::Floating
+                                                                      : UiPanelPresentation::Docked);
+    if (panel.w <= 0 || panel.h <= 0) {
+      return;
+    }
+
+    SDL_Rect addOutputBtn {chrome.header.x + chrome.header.w - 150, chrome.header.y + 6, 72, 16};
+    SDL_Rect fpsToggleBtn {chrome.header.x + chrome.header.w - 74, chrome.header.y + 6, 68, 16};
+    Primitives::drawFramedPanel(controlRenderer_, addOutputBtn, colorFromRgba(kScreenMidColor),
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, addOutputBtn, "+OUTPUT", colorFromRgba(kScreenDeepColor));
+    outputMenuButtons_.push_back({addOutputBtn, -1, -1, kOutputMenuActionAddOutput});
+    SDL_Color fpsFill = outputFpsCounterEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+    SDL_Color fpsInk = outputFpsCounterEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+    Primitives::drawFramedPanel(controlRenderer_, fpsToggleBtn, fpsFill,
+                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, fpsToggleBtn,
+                         outputFpsCounterEnabled_ ? "FPS ON" : "FPS OFF", fpsInk);
+    outputMenuButtons_.push_back({fpsToggleBtn, -1, -1, kOutputMenuActionToggleFps});
+
+    outputPanelsViewportRect_ = chrome.body;
+    outputPanelScrollMax_ = 0;
+    if (chrome.body.w <= 0 || chrome.body.h <= 0) {
+      return;
+    }
+
+    constexpr int kRowH = 72;
+    constexpr int kRowGap = 6;
+    int totalOutputs = static_cast<int>(project_.outputs.size());
+    int visibleRows = std::max(1, (chrome.body.h + kRowGap) / (kRowH + kRowGap));
+    outputPanelScrollMax_ = std::max(0, totalOutputs - visibleRows);
+    outputPanelScroll_ = std::clamp(outputPanelScroll_, 0, outputPanelScrollMax_);
+
+    if (totalOutputs <= 0) {
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   "No outputs. Press +OUTPUT to create a Window or Stream output.",
+                   colorFromRgba(kScreenInkSoftColor));
+      return;
+    }
+
+    SDL_RenderSetClipRect(controlRenderer_, &chrome.body);
+    int rowY = chrome.body.y;
+    for (int slot = 0; slot < visibleRows; ++slot) {
+      int outputIndex = outputPanelScroll_ + slot;
+      if (outputIndex >= totalOutputs) {
+        break;
+      }
+      const OutputTarget& output = project_.outputs[outputIndex];
+      bool focused = outputIndex == project_.focusedOutputIndex;
+      SDL_Rect rowRect {chrome.body.x, rowY, chrome.body.w - (outputPanelScrollMax_ > 0 ? 10 : 0), kRowH};
+      SDL_Color fill = focused ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color ink = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      SDL_Color subInk = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDarkColor);
+      drawUIPanel(rowRect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      
+      OutputHealthState health = outputHealthStateForDisplay(outputIndex);
+      SDL_Color healthFill = colorFromRgba(kScreenMidColor);
+      SDL_Color healthInk = colorFromRgba(kScreenDeepColor);
+      if (health == OutputHealthState::Live) {
+        healthFill = {40, 140, 40, 255};
+        healthInk = colorFromRgba(kScreenLightColor);
+      } else if (health == OutputHealthState::Error) {
+        healthFill = {160, 40, 40, 255};
+        healthInk = colorFromRgba(kScreenLightColor);
+      } else if (health == OutputHealthState::Recovering) {
+        healthFill = {160, 120, 40, 255};
+        healthInk = colorFromRgba(kScreenDeepColor);
+      }
+
+      SDL_Rect healthBadge {rowRect.x + 8, rowRect.y + 8, 86, 20};
+      drawUIPanel(healthBadge, healthFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, healthBadge, outputHealthLabelToken(health), healthInk);
+
+      auto [rasterW, rasterH] = outputRenderSizeForOutput(outputIndex);
+      std::string typeLabel = normalizeOutputType(output.outputType) == "stream"
+        ? ("STREAM " + toUpper(normalizeOutputStreamProtocol(output.streamProtocol)))
+        : "WINDOW";
+      std::string title = "O" + std::to_string(outputIndex + 1) + " " + outputLabel(outputIndex);
+      std::string targetLine;
+      if (normalizeOutputType(output.outputType) == "stream") {
+        targetLine = typeLabel + " " + trim(output.streamUrl);
+      } else {
+        targetLine = typeLabel + " Display " + std::to_string(output.displayIndex + 1);
+      }
+      
+      std::string rasterLine = std::to_string(rasterW) + "x" + std::to_string(rasterH)
+        + " " + outputRefreshRateLabel() + " " + outputBitDepthModeLabel();
+      
+      std::vector<std::pair<int, int>> stackEntries = layeredDeckEntriesForOutput(outputIndex);
+      std::string layerLine = "layers:";
+      if (stackEntries.empty()) {
+        layerLine += " none";
+      } else {
+        int previewCount = 0;
+        for (auto it = stackEntries.rbegin(); it != stackEntries.rend() && previewCount < 2; ++it, ++previewCount) {
+          layerLine += " " + std::string(it->first <= 0 ? "BG" : ("L" + std::to_string(it->first))) + "=" + deckLabel(it->second);
+        }
+        if (stackEntries.size() > 2) layerLine += " +";
+      }
+
+      SDL_Rect titleRect {rowRect.x + 104, rowRect.y + 8, rowRect.w - 170, 18};
+      SDL_Rect targetRect {rowRect.x + 8, rowRect.y + 34, rowRect.w - 74, 16};
+      SDL_Rect rasterRect {rowRect.x + 8, rowRect.y + 52, rowRect.w - 74, 16};
+      
+      drawTextSafe(controlRenderer_, fontSmall_, titleRect, title, ink);
+      drawTextSafe(controlRenderer_, fontSmall_, targetRect, targetLine, subInk);
+      drawTextSafe(controlRenderer_, fontSmall_, rasterRect, layerLine + " | " + rasterLine, subInk);
+
+      if (outputFpsCounterEnabled_) {
+        SDL_Rect fpsRect {rowRect.x + rowRect.w - 110, rowRect.y + 8, 48, 16};
+        std::string fpsToken = (output.enabled ? outputFpsLabel(outputIndex) : "--.-") + "fps";
+        drawTextSafe(controlRenderer_, fontSmall_, fpsRect, fpsToken, ink);
+      }
+
+      SDL_Rect recoverBtn {rowRect.x + rowRect.w - 56, rowRect.y + 8, 48, 26};
+      SDL_Rect disarmBtn {rowRect.x + rowRect.w - 56, rowRect.y + 38, 48, 26};
+      
+      drawUIPanel(recoverBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, recoverBtn, "REC", colorFromRgba(kScreenDeepColor));
+      
+      SDL_Color offFill = output.enabled ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
+      SDL_Color offInk = output.enabled ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
+      drawUIPanel(disarmBtn, offFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, disarmBtn, "OFF", offInk);
+
+      outputMenuButtons_.push_back({recoverBtn, -1, outputIndex, kOutputMenuActionRecover});
+      outputMenuButtons_.push_back({disarmBtn, -1, outputIndex, kOutputMenuActionDisarm});
+      outputMenuButtons_.push_back({rowRect, -1, outputIndex, kOutputMenuActionFocus});
+      rowY += kRowH + kRowGap;
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    if (outputPanelScrollMax_ > 0) {
+      SDL_Rect gutter {chrome.body.x + chrome.body.w - 6, chrome.body.y, 4, chrome.body.h};
+      Primitives::fillRect(controlRenderer_, gutter, colorFromRgba(kShellOuterColor));
+      int thumbH = std::max(24, chrome.body.h * visibleRows / std::max(1, totalOutputs));
+      int thumbRange = std::max(0, gutter.h - thumbH);
+      int thumbY = gutter.y + (thumbRange * outputPanelScroll_) / std::max(1, outputPanelScrollMax_);
+      SDL_Rect thumb {gutter.x, thumbY, gutter.w, thumbH};
+      Primitives::fillRect(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor));
+    }
+  }
+
+  void renderRoutingMatrixPanel(const SDL_Rect& panel) {
+    auto chrome = drawOperationalPanel(panel, {UiPanelKind::Routing, -1},
+                                       "ROUTING MATRIX",
+                                       "Deck -> Output -> Layer",
+                                       renderingFloatingPanelsWindow_ ? UiPanelPresentation::Floating
+                                                                      : UiPanelPresentation::Docked);
+    routingMatrixViewportRect_ = chrome.body;
+    routingMatrixScrollMax_ = 0;
+    if (chrome.body.w <= 0 || chrome.body.h <= 0) {
+      return;
+    }
+
+    if (project_.decks.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   "No Decks available for routing.",
+                   colorFromRgba(kScreenInkSoftColor));
+      return;
+    }
+    if (project_.outputs.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   "No Outputs available. Press +OUTPUT in Output Panels.",
+                   colorFromRgba(kScreenInkSoftColor));
+      return;
+    }
+
+    SDL_Rect tableHeader {chrome.body.x, chrome.body.y, chrome.body.w, 24};
+    drawUIPanel(tableHeader, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    
+    // Proportional column widths
+    int colOutputW = 80;
+    int colLayerW = 86;
+    int colAssignW = 96;
+    int colDeckW = std::max(100, chrome.body.w - colOutputW - colLayerW - colAssignW - 18);
+    
+    UITable headerTable(tableHeader, {colDeckW, colOutputW, colLayerW, colAssignW}, 24, 6);
+    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 0), "Deck", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 1), "Output", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 2), "Layer", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, headerTable.cell(0, 3), "Routing", colorFromRgba(kScreenDeepColor));
+
+    SDL_Rect bodyRect {chrome.body.x, tableHeader.y + tableHeader.h + 4,
+                       chrome.body.w, std::max(0, chrome.body.h - tableHeader.h - 4)};
+    routingMatrixViewportRect_ = bodyRect;
+    int rowH = 30; // Increased row height for better touch/mouse target
+    int rowGap = 2;
+    int deckCount = static_cast<int>(project_.decks.size());
+    int visibleRows = std::max(1, (bodyRect.h + rowGap) / (rowH + rowGap));
+    routingMatrixScrollMax_ = std::max(0, deckCount - visibleRows);
+    routingMatrixScroll_ = std::clamp(routingMatrixScroll_, 0, routingMatrixScrollMax_);
+
+    SDL_RenderSetClipRect(controlRenderer_, &bodyRect);
+    UITable table(bodyRect, {colDeckW, colOutputW, colLayerW, colAssignW}, rowH, rowGap);
+    for (int slot = 0; slot < visibleRows; ++slot) {
+      int deckIndex = routingMatrixScroll_ + slot;
+      if (deckIndex >= deckCount) {
+        break;
+      }
+      bool focusedDeck = deckIndex == project_.focusedDeckIndex;
+      SDL_Rect deckCell = table.cell(slot, 0);
+      SDL_Rect outputCell = table.cell(slot, 1);
+      SDL_Rect layerCell = table.cell(slot, 2);
+      SDL_Rect assignCell = table.cell(slot, 3);
+      SDL_Rect rowRect {bodyRect.x, deckCell.y, bodyRect.w - (routingMatrixScrollMax_ > 0 ? 10 : 0), rowH};
+      SDL_Color rowFill = focusedDeck ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
+      SDL_Color rowInk = focusedDeck ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      drawUIPanel(rowRect, rowFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+      int outputCount = static_cast<int>(project_.outputs.size());
+      int routeOutput = primaryOut
+        ? *primaryOut
+        : std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1));
+      auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+      bool assigned = assignmentIndex.has_value();
+      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+
+      drawTextSafe(controlRenderer_, fontSmall_, deckCell, deckLabel(deckIndex), rowInk);
+
+      auto drawMini = [&](const SDL_Rect& rect, const std::string& text, bool lit = false, bool danger = false) {
+        SDL_Color fill = danger ? colorFromRgba(kDeleteBezelColor) : (lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor));
+        SDL_Color ink = lit || danger ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawUIPanel(rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, rect, text, ink);
+      };
+
+      int ctrlBtnW = 20;
+      int ctrlValW = outputCell.w - ctrlBtnW * 2 - 4;
+      SDL_Rect outPrev {outputCell.x, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
+      SDL_Rect outVal {outPrev.x + outPrev.w + 2, rowRect.y + 4, ctrlValW, rowRect.h - 8};
+      SDL_Rect outNext {outVal.x + outVal.w + 2, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
+      
+      int layerValW = layerCell.w - ctrlBtnW * 2 - 4;
+      SDL_Rect layerDec {layerCell.x, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
+      SDL_Rect layerVal {layerDec.x + layerDec.w + 2, rowRect.y + 4, layerValW, rowRect.h - 8};
+      SDL_Rect layerInc {layerVal.x + layerVal.w + 2, rowRect.y + 4, ctrlBtnW, rowRect.h - 8};
+      
+      SDL_Rect assignBtn {assignCell.x, rowRect.y + 4, assignCell.w, rowRect.h - 8};
+      
+      drawMini(outPrev, "<");
+      drawMini(outVal, routeOutput >= 0 ? ("O" + std::to_string(routeOutput + 1)) : "--",
+               routeOutput == project_.focusedOutputIndex);
+      drawMini(outNext, ">");
+      
+      drawMini(layerDec, "-");
+      drawMini(layerVal, assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--", assigned);
+      drawMini(layerInc, "+");
+      
+      drawMini(assignBtn, assigned ? "LINKED" : "UNLINKED", assigned);
+
+      outputMenuButtons_.push_back({outPrev, deckIndex, routeOutput, kOutputMenuActionRouteOutputPrev});
+      outputMenuButtons_.push_back({outVal, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+      outputMenuButtons_.push_back({outNext, deckIndex, routeOutput, kOutputMenuActionRouteOutputNext});
+      outputMenuButtons_.push_back({layerDec, deckIndex, routeOutput, kOutputMenuActionRouteLayerDec});
+      outputMenuButtons_.push_back({layerInc, deckIndex, routeOutput, kOutputMenuActionRouteLayerInc});
+      outputMenuButtons_.push_back({assignBtn, deckIndex, routeOutput, kOutputMenuActionRouteAssignToggle});
+      outputMenuButtons_.push_back({rowRect, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    if (routingMatrixScrollMax_ > 0) {
+      SDL_Rect gutter {bodyRect.x + bodyRect.w - 6, bodyRect.y, 4, bodyRect.h};
+      Primitives::fillRect(controlRenderer_, gutter, colorFromRgba(kShellOuterColor));
+      int thumbH = std::max(24, bodyRect.h * visibleRows / std::max(1, deckCount));
+      int thumbRange = std::max(0, gutter.h - thumbH);
+      int thumbY = gutter.y + (thumbRange * routingMatrixScroll_) / std::max(1, routingMatrixScrollMax_);
+      SDL_Rect thumb {gutter.x, thumbY, gutter.w, thumbH};
+      Primitives::fillRect(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor));
     }
   }
 
   void renderControlWindow() {
     auto uiFrameStart = std::chrono::steady_clock::now();
+    syncUiWorkspaceState();
     int numDecks = static_cast<int>(project_.decks.size());
     deckScrolls_.resize(numDecks, 0);
     deckColumnRects_.resize(numDecks);
@@ -17144,7 +19317,12 @@ class App {
     masterCueSidebarButtons_.clear();
     masterCueSidebarRows_.clear();
     masterCueSidebarProgramHits_.clear();
+    panelWorkspaceButtons_.clear();
     deckSidebarToggleRect_ = SDL_Rect {};
+    outputPanelsViewportRect_ = SDL_Rect {};
+    routingMatrixViewportRect_ = SDL_Rect {};
+    outputPanelScrollMax_ = 0;
+    routingMatrixScrollMax_ = 0;
     std::fill(deckColumnRects_.begin(), deckColumnRects_.end(), SDL_Rect {0, 0, 0, 0});
     std::fill(deckListClipRects_.begin(), deckListClipRects_.end(), SDL_Rect {0, 0, 0, 0});
 
@@ -17156,388 +19334,255 @@ class App {
     SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
     SDL_RenderClear(controlRenderer_);
 
-    SDL_Rect shell {10, 10, width - 20, height - 20};
-    Primitives::drawFramedPanel(controlRenderer_, shell, colorFromRgba(kShellOuterColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+    SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
+                    std::max(0, width - kLayoutSpacingUnit * 2),
+                    std::max(0, height - kLayoutSpacingUnit * 2)};
+    drawUIPanel(shell,
+                colorFromRgba(kShellOuterColor),
+                colorFromRgba(kScreenDeepColor),
+                colorFromRgba(kShellInnerColor));
 
-    // Global header strip
-    SDL_Rect header {shell.x + 4, shell.y + 4, shell.w - 8, kGlobalHeaderH};
-    Primitives::drawFramedPanel(controlRenderer_, header, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    if (uiPackAvailable_) {
-      SDL_Rect headerArtRect {header.x + 8, header.y + 4, 212, header.h - 8};
-      drawUiImageContain(uiHeaderArt_, headerArtRect, 150);
-    }
-    // Pixel-font title with animated sparkle stars
-    {
-      TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-      const std::string appTitle = std::string(kAppTitle);
-      drawText(controlRenderer_, titleFont, appTitle, colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 8);
-      if (project_.uiTransitionsEnabled) {
-        SDL_Color starC = colorFromRgba(kScreenDeepColor);
-        // Three orbiting sparkles with phase offsets
-        int titleW = 0;
-        if (fontPixel_) { TTF_SizeUTF8(fontPixel_, appTitle.c_str(), &titleW, nullptr); }
-        else { titleW = 120; }
-        int starBaseX = header.x + 14 + titleW + 8;
-        int starBaseY = header.y + 22;
-        for (int s = 0; s < 3; ++s) {
-          double phase = static_cast<double>(animationNow_) * 0.0018 + s * 2.094;
-          int sx = starBaseX + 14 * s + static_cast<int>(std::sin(phase) * 5.0);
-          int sy = starBaseY + static_cast<int>(std::cos(phase * 1.3) * 4.0);
-          int arm = 3 + (s % 2);
-          starC.a = static_cast<Uint8>(140 + 115 * std::abs(std::sin(phase * 0.7)));
-          drawStar(controlRenderer_, sx, sy, arm, starC);
-        }
-      }
-    }
-    drawText(controlRenderer_, fontSmall_, std::string(kAppModelLabel) + "  ·  dot-matrix cue deck", colorFromRgba(kScreenDeepColor), header.x + 14, header.y + 36);
+    SDL_Rect header {shell.x + kLayoutPanelBorder * 2, shell.y + kLayoutPanelBorder * 2,
+                     shell.w - kLayoutPanelBorder * 4, kLayoutHeaderHeight};
+    drawUIPanel(header,
+                colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor),
+                colorFromRgba(kShellOuterColor));
+
+    SDL_Rect headerInner = insetRect(header, 4);
+    GridLayout headerGrid(headerInner, 12, 2, 4);
+    SDL_Rect titleRect = headerGrid.cell(0, 0, 4, 1);
+    SDL_Rect showRect = headerGrid.cell(0, 1, 4, 1);
+    SDL_Rect outputRect = headerGrid.cell(4, 0, 4, 1);
+    SDL_Rect metaRect = headerGrid.cell(4, 1, 4, 1);
+    SDL_Rect fileRow = headerGrid.cell(8, 0, 4, 1);
+    SDL_Rect toolsRow = headerGrid.cell(8, 1, 4, 1);
+
+    drawTextSafe(controlRenderer_, fontPixel_ ? fontPixel_ : fontBase_, titleRect,
+                 std::string(kAppTitle), colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, showRect,
+                 "show: " + currentProjectLabel(),
+                 colorFromRgba(kScreenDarkColor));
+
     const Deck& focDeck = focusedDeck();
-    std::string outputStatus = "outputs:";
+    std::string outputStatus = "Outputs:";
     int outputPreview = std::min(static_cast<int>(project_.outputs.size()), 4);
     for (int i = 0; i < outputPreview; ++i) {
-      outputStatus += " O" + std::to_string(i + 1);
-      outputStatus += project_.outputs[i].enabled ? "*" : "-";
+      outputStatus += " O" + std::to_string(i + 1) + " " + outputHealthLabel(i);
     }
     if (static_cast<int>(project_.outputs.size()) > outputPreview) {
       outputStatus += " +" + std::to_string(static_cast<int>(project_.outputs.size()) - outputPreview);
     }
-    std::string tcStatus = "tc " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps);
-    std::string companionStatus = companionReady_
-      ? "net " + std::to_string(companionPort_)
-      : "net off";
-    int rightMetaX = header.x + header.w - 560;
-    drawText(controlRenderer_, fontSmall_, outputStatus, colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 6);
-    drawText(controlRenderer_, fontSmall_, companionStatus + "  " + tcStatus,
-             colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 22);
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, "show: " + currentProjectLabel(), 540),
-             colorFromRgba(kScreenDeepColor), rightMetaX, header.y + 38);
+    std::string tcStatus = (companionReady_
+      ? ("Companion " + std::to_string(companionPort_))
+      : std::string("Companion off"))
+      + "  |  TC " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps);
+    drawTextSafe(controlRenderer_, fontSmall_, outputRect, outputStatus, colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, metaRect, tcStatus, colorFromRgba(kScreenDarkColor));
 
-    std::string deckSummary = "decks: ";
-    int deckPreview = std::min(3, static_cast<int>(project_.decks.size()));
-    for (int i = 0; i < deckPreview; ++i) {
-      if (i > 0) {
-        deckSummary += " | ";
-      }
-      const Deck& deck = project_.decks[i];
-      const Cue* liveCue = activeCuePtr(i);
-      std::string liveName = liveCue ? liveCue->name : "--";
-      deckSummary += "D" + std::to_string(i + 1) + " LIVE " + liveName;
-    }
-    if (static_cast<int>(project_.decks.size()) > deckPreview) {
-      deckSummary += " | +" + std::to_string(static_cast<int>(project_.decks.size()) - deckPreview);
-    }
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, deckSummary, std::max(120, rightMetaX - (header.x + 316))),
-             colorFromRgba(kScreenDarkColor), header.x + 316, header.y + 38);
-    // Master volume fader (horizontal slider at right of header)
-    {
-      constexpr int kFaderW = 132;
-      constexpr int kFaderH = 16;
-      int fx = header.x + header.w - 150;
-      int fy = header.y + header.h - kFaderH - 8;
-      masterFaderRect_ = {fx, fy, kFaderW, kFaderH};
+    auto drawHeaderActionButton = [&](SDL_Rect& rect, const std::string& label, bool lit = false, bool danger = false) {
+      SDL_Color fill = danger
+        ? SDL_Color{160, 18, 18, 255}
+        : (lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor));
+      SDL_Color ink = danger
+        ? SDL_Color{255, 200, 200, 255}
+        : (lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
+      drawUIPanel(rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, rect, label, ink);
+    };
+
+    GridLayout fileGrid(fileRow, 4, 1, kLayoutButtonGap);
+    fileNewBtnRect_ = fileGrid.cell(0, 0);
+    fileOpenBtnRect_ = fileGrid.cell(1, 0);
+    fileSaveBtnRect_ = fileGrid.cell(2, 0);
+    fileSaveAsBtnRect_ = fileGrid.cell(3, 0);
+    drawHeaderActionButton(fileNewBtnRect_, "NEW");
+    drawHeaderActionButton(fileOpenBtnRect_, "OPEN");
+    drawHeaderActionButton(fileSaveBtnRect_, "SAVE");
+    drawHeaderActionButton(fileSaveAsBtnRect_, "SAVE AS");
+
+    SDL_Rect toolsButtonsRow {toolsRow.x, toolsRow.y, std::min(196, toolsRow.w), toolsRow.h};
+    SDL_Rect toolsFaderRow {toolsButtonsRow.x + toolsButtonsRow.w + kLayoutButtonGap, toolsRow.y,
+                            std::max(0, toolsRow.w - toolsButtonsRow.w - kLayoutButtonGap), toolsRow.h};
+    GridLayout toolsGrid(toolsButtonsRow, 3, 1, kLayoutButtonGap);
+    decksPanelToggleRect_ = toolsGrid.cell(0, 0);
+    blackoutBtnRect_ = toolsGrid.cell(1, 0);
+    settingsGearRect_ = toolsGrid.cell(2, 0);
+    drawHeaderActionButton(decksPanelToggleRect_, "DECKS", decksPanelVisible());
+    drawHeaderActionButton(blackoutBtnRect_, "BLK", masterDimmerTarget_ < 0.5, true);
+    drawHeaderActionButton(settingsGearRect_, "PREFS", settingsOpen_);
+
+    if (toolsFaderRow.w > 0) {
+      SDL_Rect labelRect {toolsFaderRow.x, toolsFaderRow.y, 72, toolsFaderRow.h};
+      masterFaderRect_ = {labelRect.x + labelRect.w, toolsFaderRow.y + 4,
+                          std::max(36, toolsFaderRow.w - labelRect.w), std::max(8, toolsFaderRow.h - 8)};
+      int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect,
+                   "Vol " + std::to_string(volPct) + "%",
+                   colorFromRgba(kScreenDeepColor));
       SDL_Rect track = masterFaderRect_;
       Primitives::fillRect(controlRenderer_, track, colorFromRgba(kScreenDeepColor));
-      int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * kFaderW);
+      int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * track.w);
       SDL_Rect fill {track.x, track.y, fillW, track.h};
-      SDL_Color faderCol = project_.masterVolume > 1.0 ? SDL_Color{180, 80, 20, 255} : colorFromRgba(kScreenDarkColor);
+      SDL_Color faderCol = project_.masterVolume > 1.0
+        ? SDL_Color{180, 80, 20, 255}
+        : colorFromRgba(kScreenDarkColor);
       Primitives::fillRect(controlRenderer_, fill, faderCol);
       Primitives::strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
-      int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
-      drawText(controlRenderer_, fontSmall_, "vol " + std::to_string(volPct) + "%",
-               colorFromRgba(kScreenDeepColor), track.x, track.y - 18);
-    }
-    // Settings gear button
-    {
-      auto drawHeaderActionButton = [&](SDL_Rect& rect, const std::string& label) {
-        Primitives::drawFramedPanel(controlRenderer_, rect, colorFromRgba(kShellInnerColor),
-                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), rect);
-      };
-
-      int fileBtnY = header.y + 7;
-      int fileBtnH = 28;
-      int fileStartX = std::max(header.x + 220, header.x + header.w - 960);
-      fileNewBtnRect_ = {fileStartX, fileBtnY, 62, fileBtnH};
-      fileOpenBtnRect_ = {fileStartX + 70, fileBtnY, 66, fileBtnH};
-      fileSaveBtnRect_ = {fileStartX + 144, fileBtnY, 66, fileBtnH};
-      fileSaveAsBtnRect_ = {fileStartX + 218, fileBtnY, 82, fileBtnH};
-      drawHeaderActionButton(fileNewBtnRect_, "New");
-      drawHeaderActionButton(fileOpenBtnRect_, "Open");
-      drawHeaderActionButton(fileSaveBtnRect_, "Save");
-      drawHeaderActionButton(fileSaveAsBtnRect_, "SaveAs");
-
-      decksPanelToggleRect_ = {header.x + header.w - 698, header.y + 6, 62, 46};
-      bool decksShown = decksPanelVisible();
-      SDL_Color decksFill = decksShown ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
-      SDL_Color decksInk = decksShown ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, decksPanelToggleRect_, decksFill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "decks", decksInk, decksPanelToggleRect_);
-
-      settingsGearRect_ = {header.x + header.w - 622, header.y + 6, 62, 46};
-      SDL_Color gearFill = settingsOpen_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
-      SDL_Color gearInk  = settingsOpen_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, settingsGearRect_, gearFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "prefs", gearInk, settingsGearRect_);
-      // BLK (blackout) button
-      {
-        blackoutBtnRect_ = {header.x + header.w - 684, header.y + 6, 58, 46};
-        bool isBlacked = masterDimmerTarget_ < 0.5;
-        SDL_Color blkFill = isBlacked ? SDL_Color{160, 18, 18, 255} : colorFromRgba(kShellInnerColor);
-        SDL_Color blkInk  = isBlacked ? SDL_Color{255, 180, 180, 255} : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, blackoutBtnRect_, blkFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "BLK", blkInk, blackoutBtnRect_);
-      }
+    } else {
+      masterFaderRect_ = SDL_Rect {};
     }
 
-    // Operational strip: workflow + signal flow + output routing rows.
-    int routeDeckCount = std::max(1, static_cast<int>(project_.decks.size()));
-    int routeRowsVisible = std::max(1, std::min(routeDeckCount, 4));
-    int outputStripH = 84 + routeRowsVisible * 24;
-    SDL_Rect outputStrip {shell.x + 4, header.y + kGlobalHeaderH + 4, shell.w - 8, outputStripH};
-    Primitives::drawFramedPanel(controlRenderer_, outputStrip, colorFromRgba(kShellInnerColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    // Compact status strip: signal flow summary (left) + panel toggles (right) — single lean row.
+    SDL_Rect statusStrip {shell.x + kLayoutPanelBorder * 2, header.y + header.h + kLayoutPanelGap,
+                          shell.w - kLayoutPanelBorder * 4, 40};
+    drawUIPanel(statusStrip,
+                colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor),
+                colorFromRgba(kShellOuterColor));
 
     deckSidebarToggleRect_ = SDL_Rect {};
-    drawText(controlRenderer_, fontSmall_,
-             "WORKFLOW: IMPORT -> CUES -> ROUTE -> TAKE -> LAYERS -> MASTER SCENES",
-             colorFromRgba(kScreenDeepColor), outputStrip.x + 8, outputStrip.y + 6);
 
-    std::string signalFlow = "Signal Flow: ";
-    int flowDeckCount = std::min(static_cast<int>(project_.decks.size()), 3);
-    for (int deckIndex = 0; deckIndex < flowDeckCount; ++deckIndex) {
-      auto out = primaryOutputIndexForDeck(deckIndex);
-      int layer = primaryLayerIndexForDeck(deckIndex);
-      if (deckIndex > 0) {
-        signalFlow += "   ";
-      }
-      signalFlow += "Deck " + std::to_string(deckIndex + 1) + " -> ";
-      signalFlow += out ? outputLabel(*out) : "Unrouted";
-      signalFlow += " -> ";
-      signalFlow += (layer <= 0 ? "BG" : ("L" + std::to_string(layer)));
-    }
-    if (flowDeckCount == 0) {
-      signalFlow += "No decks";
-    }
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, signalFlow, outputStrip.w - 16),
-             colorFromRgba(kScreenDarkColor), outputStrip.x + 8, outputStrip.y + 24);
+    SDL_Rect stripInner = insetRect(statusStrip, 4);
+    constexpr int kPanelBtnW = 58;
+    constexpr int kPanelBtnCount = 5;
+    constexpr int kPanelBtnGap = 4;
+    int panelBtnsW = kPanelBtnCount * kPanelBtnW + (kPanelBtnCount - 1) * kPanelBtnGap;
+    SDL_Rect signalFlowRect {stripInner.x, stripInner.y,
+                             std::max(0, stripInner.w - panelBtnsW - 12), stripInner.h};
 
-    int topRowY = outputStrip.y + 42;
-    drawText(controlRenderer_, fontSmall_, "OUTPUT ARM",
-             colorFromRgba(kScreenDeepColor), outputStrip.x + 8, topRowY + 4);
-
-    SDL_Rect addOutputBtn {outputStrip.x + outputStrip.w - 84, topRowY, 78, 22};
-    Primitives::drawFramedPanel(controlRenderer_, addOutputBtn, colorFromRgba(kScreenMidColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawCenteredText(controlRenderer_, fontSmall_, "+OUTPUT", colorFromRgba(kScreenDeepColor), addOutputBtn);
-    outputMenuButtons_.push_back({addOutputBtn, -1, -1, kOutputMenuActionAddOutput});
-
-    SDL_Rect fpsToggleBtn {addOutputBtn.x - 74, topRowY, 68, 22};
-    SDL_Color fpsFill = outputFpsCounterEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
-    SDL_Color fpsInk = outputFpsCounterEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDarkColor);
-    Primitives::drawFramedPanel(controlRenderer_, fpsToggleBtn, fpsFill,
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-    drawCenteredText(controlRenderer_, fontSmall_, outputFpsCounterEnabled_ ? "FPS ON" : "FPS OFF", fpsInk, fpsToggleBtn);
-    outputMenuButtons_.push_back({fpsToggleBtn, -1, -1, kOutputMenuActionToggleFps});
-
-    int toggleX = outputStrip.x + 96;
-    constexpr int kOutputToggleCellW = 132;
-    constexpr int kOutputToggleCellH = 24;
-    constexpr int kOutputToggleGap = 4;
-    int toggleLimitX = fpsToggleBtn.x - 6;
-    int hiddenOutputs = 0;
-    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
-      if (toggleX + kOutputToggleCellW > toggleLimitX) {
-        hiddenOutputs = static_cast<int>(project_.outputs.size()) - outputIndex;
-        break;
+    // Signal flow: compact per-deck routing on one line
+    {
+      std::string flowText;
+      int flowDeckCount = std::min(static_cast<int>(project_.decks.size()), 4);
+      for (int di = 0; di < flowDeckCount; ++di) {
+        auto out = primaryOutputIndexForDeck(di);
+        int layer = primaryLayerIndexForDeck(di);
+        if (!flowText.empty()) flowText += "   ";
+        flowText += deckLabel(di) + " > " + (out ? outputLabel(*out) : "?")
+                 + " (" + (layer <= 0 ? "BG" : ("L" + std::to_string(layer))) + ")";
       }
-      const OutputTarget& output = project_.outputs[outputIndex];
-      bool focusedOutput = outputIndex == project_.focusedOutputIndex;
-      SDL_Rect cellRect {toggleX, topRowY, kOutputToggleCellW, kOutputToggleCellH};
-      SDL_Color cellFill = focusedOutput ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-      SDL_Color cellInk = focusedOutput ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      std::string typeToken = normalizeOutputType(output.outputType) == "stream"
-        ? toUpper(normalizeOutputStreamProtocol(output.streamProtocol))
-        : "HDMI";
-      std::string stateToken = output.enabled ? "ARMED" : "OFF";
-      if (normalizeOutputType(output.outputType) == "stream" && output.streamEnabled) {
-        stateToken = "LIVE";
-      }
-      if (output.ndiEnabled) {
-        stateToken += " NDI";
-      }
-      if (output.outputTestCardEnabled) {
-        stateToken += " TEST";
-      }
-      int orientation = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
-      if (orientation != 0) {
-        stateToken += " R" + std::to_string(orientation);
-      }
-      bool drewChipArt = false;
-      if (uiPackAvailable_) {
-        UiImageAsset* chip = &uiOutputChipIdleArt_;
-        if (!output.enabled) {
-          chip = &uiOutputChipOffArt_;
-        } else if (normalizeOutputType(output.outputType) == "stream" && output.streamEnabled) {
-          chip = &uiOutputChipLiveArt_;
-        } else if (output.outputTestCardEnabled || orientation != 0) {
-          chip = &uiOutputChipWarnArt_;
-        } else if (output.enabled) {
-          chip = &uiOutputChipArmedArt_;
-        }
-        drewChipArt = drawUiImageContain(*chip, cellRect, 255);
-      }
-      if (!drewChipArt) {
-        Primitives::drawFramedPanel(controlRenderer_, cellRect, cellFill,
-                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      }
-      SDL_Rect armBtn {cellRect.x + cellRect.w - 44, cellRect.y + 3, 40, cellRect.h - 6};
-      std::string topLine = "O" + std::to_string(outputIndex + 1) + " " + typeToken;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, topLine, cellRect.w - 52),
-               cellInk, cellRect.x + 5, cellRect.y + 3);
-      if (outputFpsCounterEnabled_) {
-        std::string fpsToken = (output.enabled ? outputFpsLabel(outputIndex) : std::string("--.-")) + "fps";
-        int fpsW = 0;
-        if (fontSmall_ && TTF_SizeUTF8(fontSmall_, fpsToken.c_str(), &fpsW, nullptr) != 0) {
-          fpsW = 0;
-        }
-        int fpsX = armBtn.x - fpsW - 3;
-        drawText(controlRenderer_, fontSmall_, fpsToken, cellInk, std::max(cellRect.x + 46, fpsX), cellRect.y + 3);
-      }
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, stateToken, cellRect.w - 52),
-               cellInk, cellRect.x + 5, cellRect.y + 12);
-
-      SDL_Color armFill = output.enabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
-      SDL_Color armInk = output.enabled ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
-      Primitives::drawFramedPanel(controlRenderer_, armBtn, armFill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, output.enabled ? "ON" : "OFF", armInk, armBtn);
-      if (focusedOutput) {
-        Primitives::strokeRect(controlRenderer_, insetRect(cellRect, 1), colorFromRgba(kScreenLightColor));
-      }
-
-      outputMenuButtons_.push_back({armBtn, -1, outputIndex, kOutputMenuActionToggle});
-      outputMenuButtons_.push_back({cellRect, -1, outputIndex, kOutputMenuActionFocus});
-      toggleX += kOutputToggleCellW + kOutputToggleGap;
-    }
-    if (hiddenOutputs > 0) {
-      drawText(controlRenderer_, fontSmall_, "+" + std::to_string(hiddenOutputs),
-               colorFromRgba(kScreenInkSoftColor), addOutputBtn.x - 26, topRowY + 4);
+      if (flowText.empty()) flowText = uiFocusSummaryLine();
+      drawTextSafe(controlRenderer_, fontSmall_, signalFlowRect, flowText,
+                   colorFromRgba(kScreenDeepColor));
     }
 
-    // Single routing strip: Deck -> Output -> Layer (editable inline).
-    int rowBaseY = topRowY + 26;
-    int deckCount = static_cast<int>(project_.decks.size());
-    int deckStart = 0;
-    if (deckCount > routeRowsVisible) {
-      int focusDeck = std::clamp(project_.focusedDeckIndex, 0, std::max(0, deckCount - 1));
-      deckStart = std::clamp(focusDeck - routeRowsVisible / 2, 0, deckCount - routeRowsVisible);
-    }
-    for (int slot = 0; slot < routeRowsVisible; ++slot) {
-      int deckIndex = deckStart + slot;
-      if (deckIndex >= deckCount) {
-        break;
+    // Panel toggle buttons — single horizontal row, right side
+    auto panelButtonLabel = [&](const UiPanelKey& key, const std::string& shortLabel) {
+      char state = 'D';
+      if (!panelIsVisible(key, true)) {
+        state = 'H';
+      } else if (panelPresentation(key, uiPanelDefinition(key.kind).defaultPresentation) == UiPanelPresentation::Floating) {
+        state = 'F';
       }
-      bool focusedDeck = deckIndex == project_.focusedDeckIndex;
-      SDL_Rect rowRect {outputStrip.x + 8, rowBaseY + slot * 24, outputStrip.w - 16, 22};
-      SDL_Color rowFill = focusedDeck ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-      SDL_Color rowInk = focusedDeck ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, rowRect, rowFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      return shortLabel + "[" + std::string(1, state) + "]";
+    };
 
-      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
-      int currentOutput = primaryOut ? *primaryOut : -1;
-      int outputCount = static_cast<int>(project_.outputs.size());
-      int routeOutput = currentOutput >= 0
-        ? currentOutput
-        : (outputCount > 0
-            ? std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1))
-            : -1);
-      auto assignment = (routeOutput >= 0 && outputCount > 0)
-        ? assignmentIndexForDeckOutput(deckIndex, routeOutput)
-        : std::nullopt;
-      bool assigned = assignment.has_value();
-      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignment].layerIndex, 0, 255) : 0;
-      std::string layerLabel = assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--";
-      std::string outputLabelText = routeOutput >= 0 ? ("O" + std::to_string(routeOutput + 1)) : "--";
-
-      std::string lead = (focusedDeck ? "\xe2\x96\xb8 " : "  ")
-        + deckLabel(deckIndex) + " -> ";
-      drawText(controlRenderer_, fontSmall_, lead, rowInk, rowRect.x + 6, rowRect.y + 4);
-
-      int bx = rowRect.x + 118;
-      SDL_Rect outPrevBtn {bx, rowRect.y + 2, 18, 18};
-      SDL_Rect outValBtn {bx + 20, rowRect.y + 2, 56, 18};
-      SDL_Rect outNextBtn {bx + 78, rowRect.y + 2, 18, 18};
-      SDL_Rect layerDecBtn {bx + 104, rowRect.y + 2, 18, 18};
-      SDL_Rect layerValBtn {bx + 124, rowRect.y + 2, 42, 18};
-      SDL_Rect layerIncBtn {bx + 168, rowRect.y + 2, 18, 18};
-      SDL_Rect assignBtn {bx + 194, rowRect.y + 2, 74, 18};
-
-      auto drawMiniBtn = [&](const SDL_Rect& rect, const std::string& text, bool lit = false) {
-        SDL_Color fill = lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellInnerColor);
-        SDL_Color ink = lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-        drawCenteredText(controlRenderer_, fontSmall_, text, ink, rect);
-      };
-      drawMiniBtn(outPrevBtn, "<");
-      drawMiniBtn(outValBtn, outputLabelText, routeOutput == project_.focusedOutputIndex);
-      drawMiniBtn(outNextBtn, ">");
-      drawMiniBtn(layerDecBtn, "-");
-      drawMiniBtn(layerValBtn, layerLabel, assigned);
-      drawMiniBtn(layerIncBtn, "+");
-      drawMiniBtn(assignBtn, assigned ? "UNLINK" : "LINK", assigned);
-
-      outputMenuButtons_.push_back({outPrevBtn, deckIndex, routeOutput, kOutputMenuActionRouteOutputPrev});
-      outputMenuButtons_.push_back({outValBtn, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
-      outputMenuButtons_.push_back({outNextBtn, deckIndex, routeOutput, kOutputMenuActionRouteOutputNext});
-      outputMenuButtons_.push_back({layerDecBtn, deckIndex, routeOutput, kOutputMenuActionRouteLayerDec});
-      outputMenuButtons_.push_back({layerIncBtn, deckIndex, routeOutput, kOutputMenuActionRouteLayerInc});
-      outputMenuButtons_.push_back({assignBtn, deckIndex, routeOutput, kOutputMenuActionRouteAssignToggle});
-      outputMenuButtons_.push_back({rowRect, deckIndex, routeOutput, kOutputMenuActionRouteFocusDeck});
+    std::array<std::pair<UiPanelKey, std::string>, 5> panelButtons {{
+      {{UiPanelKind::ProgramTransport, -1}, "PGM"},
+      {{UiPanelKind::CueInspector, -1}, "INS"},
+      {{UiPanelKind::OutputPanel, -1}, "OUT"},
+      {{UiPanelKind::Routing, -1}, "RTG"},
+      {{UiPanelKind::MasterScene, -1}, "MSC"},
+    }};
+    int panelBtnX = stripInner.x + stripInner.w - panelBtnsW;
+    for (int i = 0; i < static_cast<int>(panelButtons.size()); ++i) {
+      const auto& [panelKey, label] = panelButtons[i];
+      SDL_Rect btn {panelBtnX + i * (kPanelBtnW + kPanelBtnGap), stripInner.y,
+                    kPanelBtnW, stripInner.h};
+      bool visible = panelIsVisible(panelKey, true);
+      bool floating = panelIsFloatingVisible(panelKey);
+      SDL_Color fill = !visible
+        ? colorFromRgba(kShellOuterColor)
+        : (floating ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor));
+      SDL_Color ink = !visible
+        ? colorFromRgba(kScreenMidColor)
+        : (floating ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
+      drawUIPanel(btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, panelButtonLabel(panelKey, label), ink);
+      panelWorkspaceButtons_.push_back({btn, panelKey});
     }
 
-    // Content area: below header + output strip, above buttons
-    int contentY = outputStrip.y + outputStrip.h + 4;
-    int contentBottom = bottomBarRect_.w > 0 ? bottomBarRect_.y - 8 : (height - 74);
+    // Content area: below header + status strip, above buttons
+    int contentY = statusStrip.y + statusStrip.h + kLayoutPanelGap;
+    int controlsTop = bottomBarRect_.w > 0 ? bottomBarRect_.y : (height - kLayoutBottomBarHeight - kLayoutPanelPadding);
+    if (sourceDefaultDropdownRect_.w > 0) {
+      controlsTop = std::min(controlsTop, sourceDefaultDropdownRect_.y);
+    }
+    if (patternDefaultDropdownRect_.w > 0) {
+      controlsTop = std::min(controlsTop, patternDefaultDropdownRect_.y);
+    }
+    int contentBottom = controlsTop - kLayoutPanelGap;
     int contentH = std::max(120, contentBottom - contentY);
-    int contentLeft = shell.x + 4;
-    int contentRight = shell.x + shell.w - 4;
-    int colGap = 6;
-
-    int shelfW = std::clamp(shell.w / 5, 260, 320);
-    int sidebarW = std::clamp(shell.w / 4, 280, 380);
-    int mainW = contentRight - contentLeft - shelfW - sidebarW - colGap * 2;
-    if (mainW < 560) {
-      int deficit = 560 - mainW;
-      int shaveShelf = std::min(deficit / 2, std::max(0, shelfW - 220));
-      shelfW -= shaveShelf;
-      deficit -= shaveShelf;
-      int shaveSidebar = std::min(deficit, std::max(0, sidebarW - 240));
-      sidebarW -= shaveSidebar;
-      mainW = contentRight - contentLeft - shelfW - sidebarW - colGap * 2;
-    }
+    int contentLeft = shell.x + kLayoutPanelBorder * 2;
+    int contentRight = shell.x + shell.w - kLayoutPanelBorder * 2;
+    int contentW = std::max(0, contentRight - contentLeft);
+    int routingPanelH = std::clamp(contentH / 4, 136, 208);
+    SDL_Rect upperArea {contentLeft, contentY, contentW, std::max(120, contentH - routingPanelH - kLayoutPanelGap)};
+    SDL_Rect routingRect {contentLeft, upperArea.y + upperArea.h + kLayoutPanelGap, contentW, routingPanelH};
+    GridLayout upperGrid(upperArea, 12, 1, kLayoutPanelGap);
+    SDL_Rect deckPanelRect = upperGrid.cell(0, 0, 3, 1);
+    SDL_Rect centerPanelRect = upperGrid.cell(3, 0, 7, 1);
+    SDL_Rect rightColumnRect = upperGrid.cell(10, 0, 2, 1);
+    VerticalLayout rightLayout(rightColumnRect, kLayoutPanelGap);
+    int outputPanelH = std::clamp(rightColumnRect.h / 2, 192, 296);
+    SDL_Rect outputPanelsRect = rightLayout.takeFixed(outputPanelH);
+    SDL_Rect masterSceneRect = rightLayout.takeRemaining();
 
     int playlistDeckIndex = project_.decks.empty()
       ? -1
       : std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
     if (playlistDeckIndex >= 0) {
-      SDL_Rect shelfRect {contentLeft, contentY, shelfW, contentH};
-      deckColumnRects_[playlistDeckIndex] = shelfRect;
-      renderPlaylistColumn(shelfRect, playlistDeckIndex);
+      deckColumnRects_[playlistDeckIndex] = deckPanelRect;
+      renderPlaylistColumn(deckPanelRect, playlistDeckIndex);
     }
 
-    SDL_Rect mainPanel {contentLeft + shelfW + colGap, contentY, mainW, contentH};
-    if (mainPanel.w > 0) {
-      Primitives::drawFramedPanel(controlRenderer_, mainPanel, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-      renderMainPanel(mainPanel);
+    if (centerPanelRect.w > 0 && centerPanelRect.h > 0) {
+      renderMainPanel(centerPanelRect);
     }
-
-    SDL_Rect sidebarRect {mainPanel.x + mainPanel.w + colGap, contentY, sidebarW, contentH};
-    renderDeckSidebar(sidebarRect);
+    if (outputPanelsRect.w > 0 && outputPanelsRect.h > 0 && panelIsDockedVisible({UiPanelKind::OutputPanel, -1}, true)) {
+      renderOutputPanelsPanel(outputPanelsRect);
+    } else if (outputPanelsRect.w > 0 && outputPanelsRect.h > 0) {
+      auto chrome = drawOperationalPanel(outputPanelsRect, {UiPanelKind::OutputPanel, -1},
+                                         "OUTPUT PANELS",
+                                         panelIsFloatingVisible({UiPanelKind::OutputPanel, -1})
+                                           ? "floating in Deckboy Panels"
+                                           : "hidden from workspace");
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   panelIsFloatingVisible({UiPanelKind::OutputPanel, -1})
+                     ? "Output panels are popped out. Use PANELS row to dock them."
+                     : "Output panels are hidden. Use PANELS row to show them.",
+                   colorFromRgba(kScreenInkSoftColor));
+    }
+    if (masterSceneRect.w > 0 && masterSceneRect.h > 0 && deckSidebarOpen_ &&
+        panelIsDockedVisible({UiPanelKind::MasterScene, -1}, true)) {
+      renderDeckSidebar(masterSceneRect);
+    } else if (masterSceneRect.w > 0 && masterSceneRect.h > 0) {
+      auto chrome = drawOperationalPanel(masterSceneRect, {UiPanelKind::MasterScene, -1},
+                                         "MASTER SCENES",
+                                         panelIsFloatingVisible({UiPanelKind::MasterScene, -1})
+                                           ? "floating in Deckboy Panels"
+                                           : "hidden from workspace");
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   panelIsFloatingVisible({UiPanelKind::MasterScene, -1})
+                     ? "Master Scene programming is available in the floating panels window."
+                     : "Master Scene panel is hidden. Use PANELS row to show it.",
+                   colorFromRgba(kScreenInkSoftColor));
+    }
+    if (routingRect.w > 0 && routingRect.h > 0 && panelIsDockedVisible({UiPanelKind::Routing, -1}, true)) {
+      renderRoutingMatrixPanel(routingRect);
+    } else if (routingRect.w > 0 && routingRect.h > 0) {
+      auto chrome = drawOperationalPanel(routingRect, {UiPanelKind::Routing, -1},
+                                         "ROUTING",
+                                         panelIsFloatingVisible({UiPanelKind::Routing, -1})
+                                           ? "floating in Deckboy Panels"
+                                           : "hidden from workspace");
+      drawTextSafe(controlRenderer_, fontSmall_, chrome.body,
+                   panelIsFloatingVisible({UiPanelKind::Routing, -1})
+                     ? "Routing is popped out in the floating panels window."
+                     : "Routing is hidden. Use PANELS row to restore it.",
+                   colorFromRgba(kScreenInkSoftColor));
+    }
 
     renderButtons();
     renderToast(width);
@@ -17562,41 +19607,59 @@ class App {
   void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
     const Deck& deck = project_.decks[deckIndex];
     bool focused = (deckIndex == project_.focusedDeckIndex);
+    recordRenderedPanelFrame({UiPanelKind::DeckPlaylist, deckIndex}, col, true,
+                             focused ? UiPanelPresentation::Docked : UiPanelPresentation::Floating);
     if (deckOpacityFaderRects_.size() < project_.decks.size()) {
       deckOpacityFaderRects_.resize(project_.decks.size(), SDL_Rect {});
     }
 
-    // Cartridge shelf header.
+    // --- Compact Header with Routing ---
     SDL_Rect colHeader {col.x, col.y, col.w, kColHeaderH};
     SDL_Color headerFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
-    Primitives::drawFramedPanel(controlRenderer_, colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
-    auto outputIndex = primaryOutputIndexForDeck(deckIndex);
-    int layerIndex = primaryLayerIndexForDeck(deckIndex);
-    std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
-    std::string headerLine = "Deck " + std::to_string(deckIndex + 1) + "  " + deckName
-      + "  |  " + (outputIndex ? outputLabel(*outputIndex) : "Unrouted")
-      + "  |  " + layerToken;
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, headerLine, col.w - 20),
-             colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 7);
-    std::string audioLabel = deck.audioOutputDeviceName.empty() ? "(default audio)" : deck.audioOutputDeviceName;
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, "audio: " + audioLabel, col.w - 20),
-             colorFromRgba(kScreenDarkColor), col.x + 10, col.y + 24);
+    drawUIPanel(colHeader, headerFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    
+    std::string deckLabelStr = "DECK " + std::to_string(deckIndex + 1);
+    drawTextSafe(controlRenderer_, fontSmall_, {colHeader.x + 6, colHeader.y + 4, 60, 16}, deckLabelStr, colorFromRgba(kScreenDeepColor));
+
+    // Integrated Routing Controls
+    auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+    int outputCount = (int)project_.outputs.size();
+    int routeOutput = primaryOut ? *primaryOut : std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1));
+    auto assignmentIndex = (routeOutput >= 0 && outputCount > 0) ? assignmentIndexForDeckOutput(deckIndex, routeOutput) : std::nullopt;
+    bool assigned = assignmentIndex.has_value();
+    int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+
+    auto drawRouteBtn = [&](const SDL_Rect& r, const std::string& label, int action, bool lit = false) {
+      SDL_Color f = lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color i = lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      drawUIPanel(r, f, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label, i);
+      outputMenuButtons_.push_back({r, deckIndex, routeOutput, action});
+    };
+
+    SDL_Rect outPrev {colHeader.x + 70, colHeader.y + 4, 18, 18};
+    SDL_Rect outVal  {outPrev.x + 20, colHeader.y + 4, 32, 18};
+    SDL_Rect outNext {outVal.x + 34, colHeader.y + 4, 18, 18};
+    SDL_Rect linkBtn {outNext.x + 24, colHeader.y + 4, 54, 18};
+    SDL_Rect layDec  {linkBtn.x + 60, colHeader.y + 4, 18, 18};
+    SDL_Rect layVal  {layDec.x + 20, colHeader.y + 4, 32, 18};
+    SDL_Rect layInc  {layVal.x + 34, colHeader.y + 4, 18, 18};
+
+    drawRouteBtn(outPrev, "<", kOutputMenuActionRouteOutputPrev);
+    drawRouteBtn(outVal, "O" + std::to_string(routeOutput + 1), kOutputMenuActionRouteFocusDeck, routeOutput == project_.focusedOutputIndex);
+    drawRouteBtn(outNext, ">", kOutputMenuActionRouteOutputNext);
+    drawRouteBtn(linkBtn, assigned ? "LINKED" : "UNLINKED", kOutputMenuActionRouteAssignToggle, assigned);
+    drawRouteBtn(layDec, "-", kOutputMenuActionRouteLayerDec);
+    drawRouteBtn(layVal, assigned ? (layerIndex <= 0 ? "BG" : "L" + std::to_string(layerIndex)) : "--", kOutputMenuActionRouteFocusDeck, assigned);
+    drawRouteBtn(layInc, "+", kOutputMenuActionRouteLayerInc);
+
+    // Transport status in header
     const Cue* activeCue = activeCuePtr(deckIndex);
     const MediaEngine* engine = mediaEngineForDeck(deckIndex);
-    std::string stateStr = "■ ";
-    if (engine) {
-      switch (engine->state()) {
-        case TransportState::Playing: stateStr = "▶ "; break;
-        case TransportState::Paused:  stateStr = "‖ "; break;
-        default: break;
-      }
-    }
-    std::string activeName = activeCue ? activeCue->name : "no cue loaded";
-    drawText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, stateStr + activeName, col.w - 20),
-             colorFromRgba(kScreenDeepColor), col.x + 10, col.y + 42);
+    std::string stateStr = engine && engine->state() == TransportState::Playing ? "PLAYING" : "STOPPED";
+    std::string activeName = activeCue ? activeCue->name : "---";
+    drawTextSafe(controlRenderer_, fontSmall_, {colHeader.x + 6, colHeader.y + 26, colHeader.w - 12, 16},
+                 stateStr + " | " + activeName, colorFromRgba(kScreenDeepColor));
 
     // Cue list area
     int listAreaY = col.y + kColHeaderH + 4;
@@ -17604,7 +19667,7 @@ class App {
     SDL_Rect clipFrame {col.x + 4, listAreaY, col.w - 8, std::max(0, listAreaH)};
     deckListClipRects_[deckIndex] = clipFrame;
 
-    Primitives::drawFramedPanel(controlRenderer_, clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawUIPanel(clipFrame, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     SDL_Rect clipRect {clipFrame.x + 8, clipFrame.y + 8, clipFrame.w - 16, clipFrame.h - 16};
     SDL_RenderSetClipRect(controlRenderer_, &clipRect);
     int y = clipRect.y - deckScrolls_[deckIndex];
@@ -17623,27 +19686,17 @@ class App {
     }
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
-    // Column footer (routing info)
+    // Column footer (playlist settings)
     int footerY = col.y + col.h - kColFooterH;
     SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
-    Primitives::drawFramedPanel(controlRenderer_, footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
-    int displayIndex = outputIndex ? outputDisplayIndex(*outputIndex) : deck.outputDisplayIndex;
-    std::string layerName = (layerIndex >= 0 && layerIndex < static_cast<int>(project_.layerNames.size()))
-      ? project_.layerNames[layerIndex]
-      : "?";
-    std::string rasterLabel = outputIndex ? outputResolutionLabelForOutput(*outputIndex) : outputResolutionLabel(deckIndex);
-    std::string routing = deckOutputRoutingLabel(deckIndex)
-      + "  layer:" + layerName
-      + "  disp:" + std::to_string(displayIndex + 1)
-      + "  res:" + rasterLabel
-      + "  " + (deck.autoAdvance ? "auto" : "man")
-      + "  " + (deck.playlistLoop ? "loop" : "once")
-      + "  " + (deck.shuffle ? "shuf" : "seq");
-    drawText(controlRenderer_, fontSmall_, routing, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 8);
-    std::string routing2 = std::string("tc:") + (deck.timecodeChaseEnabled ? "chase" : "free")
-      + "  op:" + std::to_string(static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f))) + "%"
-      + (deck.playlistAutoFade ? " af:on" : " af:off");
-    drawText(controlRenderer_, fontSmall_, routing2, colorFromRgba(kScreenDeepColor), col.x + 8, footerY + 22);
+    drawUIPanel(footer, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    
+    std::string playlistInfo = (deck.autoAdvance ? "AUTO" : "MANUAL")
+      + std::string("  |  ") + (deck.playlistLoop ? "LOOP" : "ONCE")
+      + std::string("  |  ") + (deck.shuffle ? "SHUFFLE" : "SEQUENTIAL");
+    drawTextSafe(controlRenderer_, fontSmall_, {footer.x + 6, footer.y + 4, footer.w - 12, 16},
+                 playlistInfo, colorFromRgba(kScreenDarkColor));
+
     SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
     Primitives::drawFramedPanel(controlRenderer_, opacityRail, colorFromRgba(kScreenLightColor),
                     colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
@@ -17652,18 +19705,10 @@ class App {
     SDL_Rect opacityFill {opacityRail.x + 2, opacityRail.y + 2, fillW, opacityRail.h - 4};
     Primitives::fillRect(controlRenderer_, opacityFill, colorFromRgba(kScreenDarkColor));
     deckOpacityFaderRects_[deckIndex] = opacityRail;
-    // Animated shuffle sparkle when enabled
-    if (deck.shuffle && project_.uiTransitionsEnabled) {
-      double phase = static_cast<double>(animationNow_) * 0.002;
-      int sy = footerY + kColFooterH / 2 + static_cast<int>(std::sin(phase) * 2.0);
-      SDL_Color sc = colorFromRgba(kScreenDeepColor);
-      sc.a = static_cast<Uint8>(160 + 95 * std::abs(std::sin(phase * 0.8)));
-      drawStar(controlRenderer_, col.x + col.w - 14, sy, 3, sc);
-    }
   }
 
   void renderCueRow(const SDL_Rect& row, int deckIndex, int index) {
-    if (row.y + row.h < kPadding || row.y > 2000) {
+    if (row.y + row.h < 0 || row.y > 2000) {
       return;
     }
 
@@ -17673,148 +19718,101 @@ class App {
                                   [&](int i) { return i == index; });
     bool isSelected = cueIndexSelected(deck, index);
     bool isLive = index == deck.activeIndex;
-    bool isQueued = !isLive && !isSelected && deck.selectedIndex >= 0 && index == deck.selectedIndex + 1;
+    bool isQueued = !isLive && index == nextCueIndexForDeck(deckIndex);
+    
     SDL_Color fill = colorFromRgba(kScreenLightColor);
-    if (isSelected) {
+    SDL_Color border = colorFromRgba(kScreenDeepColor);
+    SDL_Color accent = colorFromRgba(kShellInnerColor);
+
+    if (isLive) {
+      fill = colorFromRgba(kScreenDeepColor);
+      border = colorFromRgba(kScreenMidColor);
+      accent = colorFromRgba(kScreenDarkColor);
+    } else if (isSelected) {
       fill = colorFromRgba(kScreenMidColor);
-    } else if (isLive) {
-      fill = colorFromRgba(kScreenDarkColor);
+    } else if (isQueued) {
+      fill = colorFromRgba(kScreenLightColor);
+      border = colorFromRgba(kScreenDarkColor);
     } else if (isOverlay) {
-      fill = {48, 80, 48, 255};  // distinct teal-ish tint for active overlay
+      fill = {48, 80, 48, 255};
     }
 
-    Primitives::drawFramedPanel(controlRenderer_, row, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
-    if (project_.uiTransitionsEnabled && isSelected) {
-      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
-      SDL_Color glow {155, 188, 15, static_cast<Uint8>(60 + pulse * 80.0)};
-      Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
-    }
+    drawUIPanel(row, fill, border, accent);
 
-    SDL_Rect chip {row.x + 12, row.y + 10, 10, row.h - 20};
+    // Color tag chip
+    SDL_Rect chip {row.x + 4, row.y + 4, 6, row.h - 8};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
     Primitives::fillRect(controlRenderer_, chip, chipColor);
 
     SDL_Color ink = isLive ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-    SDL_Color subInk = isLive ? colorFromRgba(kShellOuterColor) : colorFromRgba(kScreenDarkColor);
-    std::string indicator = " ";
-    if (isLive) {
-      bool blinkOn = ((animationNow_ / 280) % 2) == 0;
-      indicator = blinkOn ? "\xe2\x96\xa3" : "\xe2\x96\xa1"; // ▣ / □
-    } else if (isSelected) {
-      indicator = "\xe2\x96\xb8"; // ▸
-    } else if (isQueued) {
-      indicator = "\xe2\x97\x8f"; // ●
-    }
-    drawText(controlRenderer_, fontBase_, indicator, ink, row.x + 28, row.y + 13);
+    SDL_Color subInk = isLive ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDarkColor);
 
-    std::string typeIcon = "VID";
-    switch (cue.kind) {
-      case CueKind::Video:        typeIcon = "VID"; break;
-      case CueKind::Image:        typeIcon = "IMG"; break;
-      case CueKind::Browser:      typeIcon = "WEB"; break;
-      case CueKind::WindowSource: typeIcon = "WIN"; break;
-      case CueKind::Camera:       typeIcon = "CAM"; break;
-      case CueKind::Syphon:       typeIcon = "SYP"; break;
-      case CueKind::Pattern:      typeIcon = "PAT"; break;
-      case CueKind::LowerThird:   typeIcon = "L3"; break;
-      case CueKind::Audio:        typeIcon = "AUD"; break;
-      default: break;
+    // Indicator area
+    SDL_Rect indicatorRect {row.x + 14, row.y + 6, 28, 28};
+    if (isLive) {
+      drawUIPanel(indicatorRect, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "L", colorFromRgba(kScreenLightColor));
+    } else if (isQueued) {
+      drawUIPanel(indicatorRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "N", colorFromRgba(kScreenDeepColor));
+    } else if (isSelected) {
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb8", ink); // ▸
     }
+
+    // Cue ID and Type
     std::string cueToken = cueDisplayToken(cue, index);
-    constexpr int kNumColW = 58;
-    constexpr int kTypeColW = 46;
-    constexpr int kStateColW = 102;
-    int numX = row.x + 48;
-    int typeX = numX + kNumColW;
-    int nameX = typeX + kTypeColW;
-    int stateX = row.x + row.w - kStateColW;
-    int nameW = std::max(44, stateX - nameX - 6);
+    SDL_Rect tokenRect {row.x + 48, row.y + 8, 54, 20};
+    drawTextSafe(controlRenderer_, fontMono_, tokenRect, cueToken, subInk);
 
-    drawText(controlRenderer_, fontMono_,
-             ellipsizeToPixelWidth(fontMono_, cueToken, kNumColW - 8),
-             subInk, numX, row.y + 14);
-    bool drewCueIcon = false;
-    if (uiPackAvailable_) {
-      if (UiImageAsset* iconAsset = cueIconAssetForKind(cue.kind)) {
-        SDL_Rect iconRect {typeX, row.y + 16, 14, 14};
-        drewCueIcon = drawUiImageContain(*iconAsset, iconRect, isLive ? 230 : 255);
-      }
-    }
-    if (!drewCueIcon) {
-      drawText(controlRenderer_, fontSmall_, typeIcon, subInk, typeX, row.y + 17);
-    }
+    std::string typeLabel = cueKindLabel(cue.kind);
+    SDL_Rect typeRect {row.x + 106, row.y + 10, 64, 16};
+    drawTextSafe(controlRenderer_, fontSmall_, typeRect, toUpper(typeLabel), subInk);
 
+    // Name - prominent
+    int nameX = row.x + 48;
+    int nameY = row.y + 32;
+    int nameW = row.w - 64;
     std::string nameTrimmed = ellipsizeToPixelWidth(fontBase_, cue.name, nameW);
-    drawText(controlRenderer_, fontBase_, nameTrimmed, ink, nameX, row.y + 13);
+    SDL_Rect nameRect {nameX, nameY, nameW, 24};
+    drawTextSafe(controlRenderer_, fontBase_, nameRect, nameTrimmed, ink);
 
-    std::string stateMeta = "--";
+    // Metadata line
+    std::string meta;
     if (cue.kind == CueKind::Video || cue.kind == CueKind::Audio) {
-      stateMeta = cue.duration > 0.0 ? formatSeconds(cue.duration) : "hold";
-    } else if (cue.kind == CueKind::Image || cue.kind == CueKind::Pattern ||
-               cue.kind == CueKind::Browser || isSourceCueKind(cue.kind)) {
-      stateMeta = cue.stillDurationSeconds > 0.0 ? formatSeconds(cue.stillDurationSeconds) : "hold";
+      meta = cue.duration > 0.0 ? formatSeconds(cue.duration) : "hold";
+    } else {
+      meta = cue.stillDurationSeconds > 0.0 ? formatSeconds(cue.stillDurationSeconds) : "hold";
     }
-    if (isLive) {
-      stateMeta = "LIVE";
-    } else if (isSelected) {
-      stateMeta = "SEL";
-    } else if (isQueued) {
-      stateMeta = "NEXT";
-    }
-    drawText(controlRenderer_, fontMono_, ellipsizeToPixelWidth(fontMono_, stateMeta, kStateColW - 8),
-             subInk, stateX, row.y + 14);
-
-    // End-action glyph (top-right corner of row, small pixel indicator)
-    if (cue.endAction != CueEndAction::Inherit) {
-      const char* glyph = nullptr;
-      switch (cue.endAction) {
-        case CueEndAction::Loop:        glyph = "↻"; break;
-        case CueEndAction::PauseOnLast: glyph = "‖"; break;
-        case CueEndAction::AutoNext:    glyph = "▶▶"; break;
-        case CueEndAction::Stop:        glyph = "■"; break;
-        default: break;
-      }
-      if (glyph) {
-        drawText(controlRenderer_, fontSmall_, glyph, subInk, row.x + row.w - 28, row.y + 10);
-      }
+    
+    if (cue.endAction != CueEndAction::Inherit && cue.endAction != CueEndAction::Stop) {
+       meta += "  " + toUpper(cueEndActionLabel(cue.endAction));
     }
 
-    // Remaining time badge on the active cue row
+    SDL_Rect metaRect {nameX, row.y + 54, nameW, 14};
+    drawTextSafe(controlRenderer_, fontSmall_, metaRect, meta, subInk);
+
+    // Remaining time badge for live row
     if (isLive) {
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
-      if (engine && engine->duration() > 0.0 && engine->state() == TransportState::Playing) {
+      if (engine && engine->duration() > 0.0) {
         double remaining = std::max(0.0, engine->duration() - engine->position());
         std::string remStr = "-" + formatSeconds(remaining);
-        bool urgent = remaining < 10.0;
-        SDL_Color remInk = urgent ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
-        if (urgent) {
-          double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 120.0);
-          Uint8 alpha = static_cast<Uint8>(180 + pulse * 75.0);
-          SDL_Rect badge {row.x + row.w - 96, row.y + 8, 88, row.h - 16};
-          SDL_Color badgeFill {15, 56, 15, alpha};
-          Primitives::fillRect(controlRenderer_, badge, badgeFill);
-        }
-        drawText(controlRenderer_, fontMono_, remStr, remInk, row.x + row.w - 90, row.y + 28);
+        SDL_Rect badge {row.x + row.w - 84, row.y + 4, 80, 24};
+        drawUIPanel(badge, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenLightColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontMono_, badge, remStr, colorFromRgba(kScreenLightColor));
       }
     }
+    
+    // Selection pulse
+    if (project_.uiTransitionsEnabled && isSelected) {
+      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
+      SDL_Color glow {155, 188, 15, static_cast<Uint8>(40 + pulse * 60.0)};
+      Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
+    }
 
-    // Cue row hover tip
+    // Hover tooltip logic preserved...
     if (pointInRect(mouseX_, mouseY_, row)) {
-      std::string rowTip;
-      switch (cue.kind) {
-        case CueKind::Video:      rowTip = "Enter=take  Space=play/pause  L=loop  E=hold  K=color tag  Right-click=menu"; break;
-        case CueKind::Image:      rowTip = "Enter=take  Duration 0 = hold until next Take"; break;
-        case CueKind::Pattern:    rowTip = "Enter=take  Test pattern — hold or auto-advance"; break;
-        case CueKind::Browser:    rowTip = "Enter=take  Browser cue — renders into output via Xvfb"; break;
-        case CueKind::WindowSource: rowTip = "Enter=take  Window source cue (x11 capture)"; break;
-        case CueKind::Camera:     rowTip = "Enter=take  Camera source cue (v4l2 capture)"; break;
-        case CueKind::Syphon:     rowTip = "Enter=take  Syphon/Spout cue (desktop fallback on Linux)"; break;
-        case CueKind::LowerThird: rowTip = "Enter=push overlay  Backspace=pop  LOWERTEXT via Companion"; break;
-        default: rowTip = "Enter=take  Delete=remove"; break;
-      }
-      if (nameTrimmed != cue.name) {
-        rowTip = cue.name + "  |  " + rowTip;
-      }
+      std::string rowTip = cue.name + "  |  " + cueKindLabel(cue.kind);
       drawHoverTip(rowTip, row.x + row.w / 2, row.y);
     }
   }
@@ -17844,65 +19842,42 @@ class App {
 
   void renderButtons() {
     if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0) {
-      Primitives::drawFramedPanel(controlRenderer_, bottomBarRect_,
-                                  colorFromRgba(kShellInnerColor),
-                                  colorFromRgba(kScreenDeepColor),
-                                  colorFromRgba(kShellOuterColor));
+      drawUIPanel(bottomBarRect_,
+                  colorFromRgba(kShellInnerColor),
+                  colorFromRgba(kScreenDeepColor),
+                  colorFromRgba(kShellOuterColor));
     }
     auto drawGroupFrame = [&](const SDL_Rect& rect, const std::string& label) {
       if (rect.w <= 0 || rect.h <= 0) {
         return;
       }
-      Primitives::drawFramedPanel(controlRenderer_, rect,
-                                  colorFromRgba(kScreenLightColor),
-                                  colorFromRgba(kScreenDeepColor),
-                                  colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontSmall_, label,
-               colorFromRgba(kScreenDarkColor), rect.x + 6, rect.y - 18);
+      drawUIPanel(rect,
+                  colorFromRgba(kScreenLightColor),
+                  colorFromRgba(kScreenDeepColor),
+                  colorFromRgba(kScreenMidColor));
+      SDL_Rect labelRect {rect.x, rect.y - 18, rect.w, 16};
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect, label,
+                   colorFromRgba(kScreenDarkColor));
     };
     drawGroupFrame(mediaGroupRect_, "MEDIA");
     drawGroupFrame(transportGroupRect_, "TRANSPORT");
     drawGroupFrame(outputGroupRect_, "OUTPUT");
 
-    auto drawSelector = [&](const SDL_Rect& rect,
-                            const std::string& label,
-                            const std::string& value,
-                            const std::string& owner) {
-      if (rect.w <= 0 || rect.h <= 0) {
-        return;
-      }
-      bool active = dropdown_.open && dropdown_.owner == owner;
-      SDL_Color fill = active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-      SDL_Color ink = active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, rect, fill,
-                                  colorFromRgba(kScreenDeepColor),
-                                  colorFromRgba(kScreenLightColor));
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, label + ": " + value, rect.w - 22),
-               ink, rect.x + 6, rect.y + 3);
-      drawText(controlRenderer_, fontSmall_, "v", ink, rect.x + rect.w - 12, rect.y + 3);
-    };
-    drawSelector(sourceDefaultDropdownRect_, "Source", sourceCueLabelForType(sourceDefaultTypeId_), "bottom.source");
-    drawSelector(patternDefaultDropdownRect_, "Pattern", patternLabelForType(patternDefaultTypeId_), "bottom.pattern");
+    drawUIDropdown(sourceDefaultDropdownRect_, "Source", sourceCueLabelForType(sourceDefaultTypeId_), "bottom.source");
+    drawUIDropdown(patternDefaultDropdownRect_, "Pattern", patternLabelForType(patternDefaultTypeId_), "bottom.pattern");
 
     for (const auto& button : buttons_) {
-      Primitives::fillRect(controlRenderer_, button.rect, button.fill);
-      Primitives::strokeRect(controlRenderer_, button.rect, button.outline);
-      SDL_Rect topRect {button.rect.x, button.rect.y + 2, button.rect.w, 28};
-      drawCenteredText(controlRenderer_, fontBase_, button.label, button.text, topRect);
       std::string keyHint;
       if (button.label == "IMPORT") keyHint = "Shift+I";
       else if (button.label == "SOURCE") keyHint = "Default";
       else if (button.label == "PATTERN") keyHint = "P";
-      else if (button.label == "(A) TAKE") keyHint = "Enter";
-      else if (button.label == "(B) STOP") keyHint = "S";
-      else if (button.label == "START PLAY") keyHint = "Space";
-      else if (button.label == "SELECT CLR") keyHint = "C";
-      else if (button.label == "OUTPUT") keyHint = "Prefs";
-      if (!keyHint.empty()) {
-        SDL_Rect hintRect {button.rect.x, button.rect.y + 30, button.rect.w, 20};
-        drawCenteredText(controlRenderer_, fontSmall_, keyHint, colorFromRgba(kScreenDeepColor), hintRect);
-      }
+      else if (button.label == "TAKE") keyHint = "Enter";
+      else if (button.label == "STOP") keyHint = "S";
+      else if (button.label == "PLAY") keyHint = "Space";
+      else if (button.label == "CLEAR") keyHint = "C";
+      else if (button.label == "PREFS") keyHint = "Video";
+      drawUIButton(button.rect, button.label, button.fill, button.text,
+                   button.label == "TAKE", keyHint);
     }
     // Hover tip for bottom-bar buttons
     for (const auto& button : buttons_) {
@@ -17965,8 +19940,35 @@ class App {
     const MediaEngine* engine = focusedMediaEngine();
     const Cue* selectedCue = selectedCuePtr();
     const Cue* activeCue = activeCuePtr();
-    int x = panel.x + 18;
-    int y = panel.y + 18;
+    int inspectorShellW = std::clamp(panel.w / 3, 312, 376);
+    if (panel.w - inspectorShellW < 360) {
+      inspectorShellW = std::max(280, panel.w / 3);
+    }
+    SDL_Rect programShell {panel.x, panel.y, std::max(0, panel.w - inspectorShellW - kLayoutPanelGap), panel.h};
+    SDL_Rect inspectorShell {programShell.x + programShell.w + kLayoutPanelGap, panel.y,
+                             std::max(0, panel.w - programShell.w - kLayoutPanelGap), panel.h};
+    auto programChrome = drawOperationalPanel(programShell, {UiPanelKind::ProgramTransport, -1},
+                                              "PROGRAM / TRANSPORT",
+                                              "live / preview / transport / timeline");
+    auto inspectorChrome = drawOperationalPanel(inspectorShell, {UiPanelKind::CueInspector, -1},
+                                                "CUE INSPECTOR",
+                                                "focused cue settings");
+    int innerX = programChrome.body.x;
+    int innerY = programChrome.body.y;
+    int innerW = std::max(0, programChrome.body.w);
+    int innerH = std::max(0, programChrome.body.h);
+    int x = innerX;
+    int y = innerY;
+    int nextCueIndex = nextCueIndexForDeck(project_.focusedDeckIndex);
+    const Cue* nextCue = (nextCueIndex >= 0 && nextCueIndex < static_cast<int>(deck.cues.size()))
+      ? &deck.cues[nextCueIndex]
+      : nullptr;
+    const Cue* previewCue = selectedCue;
+    int previewCueIndex = deck.selectedIndex;
+    if (!previewCue || previewCue == activeCue) {
+      previewCue = nextCue;
+      previewCueIndex = nextCueIndex;
+    }
 
     quickButtons_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
@@ -17974,50 +19976,71 @@ class App {
     cuePatternTypeDropdownRect_ = SDL_Rect {};
     cueTransitionStyleDropdownRect_ = SDL_Rect {};
 
-    drawText(controlRenderer_, fontSmall_, "SCREEN / PROGRAM OUTPUT", colorFromRgba(kScreenDeepColor), x, y);
-    drawText(controlRenderer_, fontLarge_, activeCue ? activeCue->name : "Insert cartridge", colorFromRgba(kScreenDeepColor), x, y + 22);
+    auto cueSummaryLabel = [&](const Cue* cue, int cueIndex, const std::string& fallback) {
+      if (!cue || cueIndex < 0) {
+        return fallback;
+      }
+      return cueDisplayToken(*cue, cueIndex) + "  " + cue->name;
+    };
+    auto cueMonitorLabel = [&](const Cue* cue, int cueIndex, const std::string& fallback) {
+      if (!cue || cueIndex < 0) {
+        return fallback;
+      }
+      return cueDisplayToken(*cue, cueIndex) + "  " + cueKindLabel(cue->kind);
+    };
 
+    auto outputIndex = primaryOutputIndexForDeck(project_.focusedDeckIndex);
+    int layerIndex = primaryLayerIndexForDeck(project_.focusedDeckIndex);
+    std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
     std::string focusedDeckName = deck.name.empty() ? deckDefaultName(project_.focusedDeckIndex) : deck.name;
-    std::string deckTcLine = "deck " + std::to_string(project_.focusedDeckIndex + 1) + ": " + focusedDeckName;
-    deckTcLine += "   |   tc " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
+    std::string currentLine = "CURRENT  " + cueSummaryLabel(activeCue, deck.activeIndex, "No cue live");
+    std::string nextLine = "NEXT  " + cueSummaryLabel(nextCue, nextCueIndex, "No cue queued");
+    std::string focusLine = "DECK " + std::to_string(project_.focusedDeckIndex + 1) + "  "
+      + focusedDeckName + "  ->  " + (outputIndex ? outputLabel(*outputIndex) : "Unrouted")
+      + "  " + layerToken;
+    std::string deckTcLine = "TC " + formatTimecode(deck.timecodeCurrentSeconds, deck.timecodeFps);
     deckTcLine += " @" + std::to_string(static_cast<int>(std::round(deck.timecodeFps)));
     deckTcLine += (deck.timecodeChaseEnabled ? " chase" : " free");
     deckTcLine += (deck.timecodeRunEnabled ? " run" : " hold");
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, deckTcLine, std::max(80, panel.w - 52)),
-             colorFromRgba(kScreenDeepColor), x, y + 50);
-
     std::string status = transportStatusLabel();
     std::string clock = formatSeconds(engine ? engine->position() : 0.0) + " / " + formatSeconds(engine ? engine->duration() : 0.0);
-    drawText(controlRenderer_, fontBase_, status, colorFromRgba(kScreenDeepColor), x, y + 70);
-    drawText(controlRenderer_, fontMono_, clock, colorFromRgba(kScreenDeepColor), x + 150, y + 72);
-
-    // Remaining time countdown
     double engDuration = engine ? engine->duration() : 0.0;
     double engPosition = engine ? engine->position() : 0.0;
     double remaining = engDuration > 0.0 ? std::max(0.0, engDuration - engPosition) : 0.0;
-    bool isPlaying = engine && engine->state() == TransportState::Playing;
-    if (activeCue && engDuration > 0.0) {
-      bool urgent = remaining < 10.0 && isPlaying;
-      std::string remStr = "-" + formatSeconds(remaining);
-      SDL_Color remColor = colorFromRgba(kScreenDeepColor);
-      if (urgent) {
-        double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 100.0);
-        Uint8 brightness = static_cast<Uint8>(80 + pulse * 175.0);
-        remColor = {brightness, static_cast<Uint8>(std::min(255, static_cast<int>(brightness) + 20)), 15, 255};
-        SDL_Rect glowPanel {x + panel.w - 180, y + 58, 140, 28};
-        SDL_Color glowFill {15, 56, 15, static_cast<Uint8>(40 + pulse * 100.0)};
-        Primitives::fillRect(controlRenderer_, glowPanel, glowFill);
-        bool tick = (static_cast<int>(remaining) % 2) == 0;
-        std::string tickChar = tick ? ">" : "<";
-        drawText(controlRenderer_, fontMono_, tickChar, remColor, x + panel.w - 195, y + 62);
-        drawText(controlRenderer_, fontMono_, tickChar, remColor, x + panel.w - 50, y + 62);
-      }
-      drawText(controlRenderer_, fontMono_, remStr, remColor, x + panel.w - 174, y + 62);
-    }
+    std::string remainingLabel = remaining > 0.0 ? ("-" + formatSeconds(remaining)) : "--:--";
 
-    progressBarRect_ = {x, y + 106, panel.w - 52, 26};
-    Primitives::drawFramedPanel(controlRenderer_, progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect summaryRect {x, y, innerW, 80};
+    HorizontalLayout summaryLayout(summaryRect, kLayoutPanelGap);
+    SDL_Rect infoCol = summaryLayout.takeFixed(innerW - 160);
+    SDL_Rect remainCol = summaryLayout.takeRemaining();
+
+    // Boxed info area
+    drawUIPanel(infoCol, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    VerticalLayout infoRows(insetRect(infoCol, 6), 2);
+    drawTextSafe(controlRenderer_, fontSmall_, infoRows.takeFixed(16), currentLine, colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, infoRows.takeFixed(16), nextLine, colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontSmall_, infoRows.takeFixed(16), focusLine, colorFromRgba(kScreenDarkColor));
+    drawTextSafe(controlRenderer_, fontSmall_, infoRows.takeFixed(16),
+                 "TRANSPORT " + status + "  |  TIMELINE " + clock + "  |  " + deckTcLine,
+                 colorFromRgba(kScreenDarkColor));
+
+    // Big boxed REMAIN clock
+    drawUIPanel(remainCol, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect remainHeader = {remainCol.x, remainCol.y + 6, remainCol.w, 14};
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, remainHeader, "REMAIN", colorFromRgba(kScreenLightColor));
+    
+    SDL_Rect remainVal = {remainCol.x, remainCol.y + 24, remainCol.w, 48};
+    bool urgent = activeCue && remaining < 10.0 && engine && engine->state() == TransportState::Playing;
+    SDL_Color remColor = colorFromRgba(kScreenLightColor);
+    if (urgent) {
+      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 100.0);
+      Uint8 brightness = static_cast<Uint8>(80 + pulse * 175.0);
+      remColor = {brightness, static_cast<Uint8>(std::min(255, static_cast<int>(brightness) + 20)), 15, 255};
+    }
+    drawCenteredTextSafe(controlRenderer_, fontMono_, remainVal, remainingLabel, remColor);
+
+    progressBarRect_ = {x, y + 84, innerW, 28};
+    drawUIPanel(progressBarRect_, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     double duration = engine ? engine->duration() : 0.0;
     double fraction = duration > 0.0 ? (engine ? engine->position() / duration : 0.0) : 0.0;
     fraction = std::clamp(fraction, 0.0, 1.0);
@@ -18027,7 +20050,7 @@ class App {
     if (duration > 0.0) {
       std::string progressClock = formatSeconds(engine ? engine->position() : 0.0)
         + " / " + formatSeconds(duration);
-      drawCenteredText(controlRenderer_, fontMono_, progressClock, colorFromRgba(kScreenDeepColor), progressBarRect_);
+      drawCenteredTextSafe(controlRenderer_, fontMono_, progressBarRect_, progressClock, colorFromRgba(kScreenDeepColor));
     }
 
     // Pause point tick marks on progress bar
@@ -18044,54 +20067,79 @@ class App {
 
     // Goto-last buttons: -30 / -20 / -10 (placed below progress bar)
     {
-      int btnY = y + 138;
-      int btnW = 46;
+      int btnY = y + 124;
+      int btnW = 52;
       int btnX = x;
       for (auto& [label, gotoAction] : std::vector<std::pair<std::string, QuickAction>>{
         {"-30s", QuickAction::GotoMinus30}, {"-20s", QuickAction::GotoMinus20}, {"-10s", QuickAction::GotoMinus10}
       }) {
-        SDL_Rect btn {btnX, btnY, btnW, 18};
-        Primitives::drawFramedPanel(controlRenderer_, btn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), btn);
+        SDL_Rect btn {btnX, btnY, btnW, 20};
+        drawUIPanel(btn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, label, colorFromRgba(kScreenDeepColor));
         quickButtons_.push_back({btn, gotoAction, label + " from end"});
-        btnX += btnW + 4;
+        btnX += btnW + kLayoutButtonGap;
       }
     }
 
-    // Middle section: video preview (left) + per-cue controls with thumbnail (right)
-    int midY = y + 150;
-    constexpr int kDetailAreaH = 120; // always reserve this many px at bottom for cart details
-    int midH = panel.h - (midY - panel.y) - kDetailAreaH;
-    midH = std::max(320, midH); // floor so settings panel stays usable
-    constexpr int kCtrlW = 330;
-    int previewW = panel.w - 52 - 12 - kCtrlW;
-    constexpr int kStackViewH = 102;
-    int previewH = std::max(190, midH - kStackViewH - 6);
+    // Program / Preview monitors + stack view.
+    // Layout: summaryRect(80) + gap(4) + progressBar(28) + gap(12) + gotoButtons(20) + gap(8) = 152
+    int midY = y + 152;
+    constexpr int kDetailAreaH = 108;
+    int monitorAreaH = std::max(0, innerH - (midY - innerY) - kDetailAreaH - kLayoutPanelGap);
+    
+    // Proportional dominance: Program gets ~70% of width if enough space
+    int programMonitorW = std::max(320, static_cast<int>(innerW * 0.68));
+    int previewMonitorW = innerW - programMonitorW - kLayoutPanelGap;
+    
+    // If preview is too small, stack them or hide it
+    if (previewMonitorW < 160) {
+      programMonitorW = innerW;
+      previewMonitorW = 0;
+    }
 
-    // --- Program monitor / live video preview ---
+    int stackViewH = std::clamp(monitorAreaH / 4, 64, 128);
+    if (stackViewH > std::max(64, monitorAreaH / 2)) {
+      stackViewH = std::max(48, monitorAreaH / 3);
+    }
+    int monitorH = std::max(0, monitorAreaH - stackViewH - kLayoutPanelGap);
+
+    SDL_Rect programMonitorRect {x, midY, programMonitorW, monitorH};
+    SDL_Rect previewMonitorRect {
+      x + programMonitorW + kLayoutPanelGap,
+      midY,
+      std::max(0, previewMonitorW),
+      monitorH
+    };
+
+    // --- Program monitor / live output view ---
     bool hasLiveVideo = controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
-    SDL_Color previewBg = hasLiveVideo ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
-    SDL_Color previewBorder = hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
-    SDL_Rect preview {x, midY, previewW, previewH};
-    Primitives::drawFramedPanel(controlRenderer_, preview, previewBg, colorFromRgba(kScreenDeepColor), previewBorder);
-    drawText(controlRenderer_, fontSmall_, "program monitor",
-             hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenDeepColor),
-             preview.x + 10, preview.y + 6);
+    SDL_Color programBg = hasLiveVideo ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenLightColor);
+    SDL_Color programBorder = hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+    
+    drawUIPanel(programMonitorRect, programBg, colorFromRgba(kScreenDeepColor), programBorder);
+    
+    // Dominant LIVE badge
+    SDL_Rect liveBadge {programMonitorRect.x + 4, programMonitorRect.y + 4, 54, 20};
+    drawUIPanel(liveBadge, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, liveBadge, "LIVE", colorFromRgba(kScreenLightColor));
+
+    SDL_Rect monitorLabelRect {programMonitorRect.x + 64, programMonitorRect.y + 4, programMonitorRect.w - 72, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, monitorLabelRect,
+                 "Program Monitor",
+                 hasLiveVideo ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenDeepColor));
+    
     {
       int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
       auto [outW, outH] = outputRenderSizeForOutput(focusedOutputIndex);
       std::string outInfo = outputLabel(focusedOutputIndex)
-        + "  " + std::to_string(outW) + "x" + std::to_string(outH)
-        + "  " + outputRefreshRateLabel();
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, outInfo, std::max(60, preview.w - 180)),
-               hasLiveVideo ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDarkColor),
-               preview.x + 146, preview.y + 6);
+        + "  " + std::to_string(outW) + "x" + std::to_string(outH);
+      SDL_Rect outInfoRect {programMonitorRect.x + 4, programMonitorRect.y + programMonitorRect.h - 32, programMonitorRect.w - 8, 16};
+      drawTextSafe(controlRenderer_, fontSmall_, outInfoRect, outInfo,
+                   hasLiveVideo ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenDarkColor));
     }
 
     if (hasLiveVideo) {
-      SDL_Rect inner {preview.x + 4, preview.y + 24, preview.w - 8, preview.h - 28};
-      // Mirror output geometry (scale/crop/offset/rotation) in the control preview.
+      SDL_Rect inner {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 48};
       renderTextureWithCueGeometry(
         controlRenderer_,
         controlPreviewTex_,
@@ -18100,11 +20148,12 @@ class App {
         activeCue,
         inner);
     } else if (!activeCue) {
-      drawText(controlRenderer_, fontSmall_, "drop media or press I to import",
-               colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + preview.h - 28);
+      SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,
+                   "NO LIVE CUE",
+                   colorFromRgba(kScreenDeepColor));
     } else if (activeCue->kind == CueKind::Audio) {
-      // Audio-only cue: show full waveform as main preview
-      SDL_Rect inner {preview.x + 4, preview.y + 24, preview.w - 8, preview.h - 48};
+      SDL_Rect inner {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 54};
       std::vector<float> peaks;
       { std::lock_guard<std::mutex> lk(waveformMutex_);
         auto it = waveformCache_.find(activeCue->path);
@@ -18116,21 +20165,21 @@ class App {
       float playFrac = engine ? static_cast<float>(std::clamp(engine->position() / dur, 0.0, 1.0)) : -1.0f;
       drawWaveform(controlRenderer_, inner, peaks, playFrac, inFrac, outFrac,
                    activeCue->pausePoints, dur);
-      drawText(controlRenderer_, fontSmall_, activeCue->name,
-               colorFromRgba(kScreenLightColor), preview.x + 10, preview.y + preview.h - 36);
-      drawText(controlRenderer_, fontSmall_, transportStatusLabel(),
-               colorFromRgba(kScreenMidColor), preview.x + 10, preview.y + preview.h - 20);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {programMonitorRect.x + 10, programMonitorRect.y + programMonitorRect.h - 48, programMonitorRect.w - 20, 16},
+                   activeCue->name, colorFromRgba(kScreenLightColor));
     } else {
-      drawText(controlRenderer_, fontBase_, activeCue->name, colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 80);
-      drawText(controlRenderer_, fontSmall_, transportStatusLabel(), colorFromRgba(kScreenDeepColor), preview.x + 16, preview.y + 110);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {programMonitorRect.x + 16, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 32, 20},
+                   activeCue->name, colorFromRgba(kScreenDeepColor));
     }
 
     // VU meter at bottom of program monitor
     {
       float rms = computeVuLevel();
-      int vuY = preview.y + preview.h - 14;
-      int vuW = preview.w - 8;
-      SDL_Rect vuBg {preview.x + 4, vuY, vuW, 10};
+      int vuY = programMonitorRect.y + programMonitorRect.h - 14;
+      int vuW = programMonitorRect.w - 8;
+      SDL_Rect vuBg {programMonitorRect.x + 4, vuY, vuW, 10};
       Primitives::drawFramedPanel(controlRenderer_, vuBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
       int fillW = static_cast<int>(vuW * std::clamp(rms * 4.0f, 0.0f, 1.0f));
       SDL_Color vuColor = rms > 0.7f ? SDL_Color{220, 60, 60, 255}
@@ -18141,23 +20190,97 @@ class App {
         Primitives::fillRect(controlRenderer_, vuFill, vuColor);
       }
     }
-    if (uiPackAvailable_) {
-      SDL_Rect monitorArtRect {preview.x + 2, preview.y + 2, preview.w - 4, preview.h - 4};
-      drawUiImageContain(uiMonitorFrameArt_, monitorArtRect, 170);
+
+    if (previewMonitorRect.w > 0 && previewMonitorRect.h > 0) {
+      recordRenderedPanelFrame({UiPanelKind::Preview, -1}, previewMonitorRect, true,
+                               UiPanelPresentation::Docked);
+      drawUIPanel(previewMonitorRect,
+                  colorFromRgba(kScreenLightColor),
+                  colorFromRgba(kScreenDeepColor),
+                  colorFromRgba(kScreenMidColor));
+      
+      // NEXT badge
+      SDL_Rect nextBadge {previewMonitorRect.x + 4, previewMonitorRect.y + 4, 54, 20};
+      drawUIPanel(nextBadge, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, nextBadge, "NEXT", colorFromRgba(kScreenDeepColor));
+
+      SDL_Rect previewLabelRect {previewMonitorRect.x + 64, previewMonitorRect.y + 4, previewMonitorRect.w - 72, 18};
+      drawTextSafe(controlRenderer_, fontSmall_, previewLabelRect,
+                   "Preview Monitor",
+                   colorFromRgba(kScreenDeepColor));
+      
+      SDL_Rect previewCueRect {previewMonitorRect.x + 8, previewMonitorRect.y + 28, previewMonitorRect.w - 16, 18};
+      std::string nextLabel = cueMonitorLabel(previewCue, previewCueIndex, "No cue queued");
+      drawTextSafe(controlRenderer_, fontSmall_, previewCueRect,
+                   ellipsizeToPixelWidth(fontSmall_, nextLabel, previewCueRect.w),
+                   colorFromRgba(kScreenDarkColor));
+
+      SDL_Rect previewInner {previewMonitorRect.x + 4, previewMonitorRect.y + 50,
+                             previewMonitorRect.w - 8, std::max(0, previewMonitorRect.h - 54)};
+      if (previewCue == selectedCue && selectedThumbnailTex_ && selectedThumbnailTexW_ > 0 && selectedThumbnailTexH_ > 0) {
+        float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
+        int drawW = previewInner.w;
+        int drawH = static_cast<int>(drawW / aspect);
+        if (drawH > previewInner.h) {
+          drawH = previewInner.h;
+          drawW = static_cast<int>(drawH * aspect);
+        }
+        SDL_Rect dst {
+          previewInner.x + (previewInner.w - drawW) / 2,
+          previewInner.y + (previewInner.h - drawH) / 2,
+          drawW,
+          drawH
+        };
+        SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
+        SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+      } else if (previewCue && previewCue->kind == CueKind::Audio) {
+        std::vector<float> peaks;
+        {
+          std::lock_guard<std::mutex> lk(waveformMutex_);
+          auto it = waveformCache_.find(previewCue->path);
+          if (it != waveformCache_.end()) {
+            peaks = it->second;
+          }
+        }
+        double dur = previewCue->duration > 0.0 ? previewCue->duration : 1.0;
+        float inFrac = static_cast<float>(previewCue->inPointSeconds / dur);
+        float outFrac = previewCue->outPointSeconds > 0.0
+          ? static_cast<float>(previewCue->outPointSeconds / dur)
+          : 1.0f;
+        drawWaveform(controlRenderer_, previewInner, peaks, -1.0f, inFrac, outFrac,
+                     previewCue->pausePoints, dur);
+      } else if (previewCue) {
+        SDL_Rect hintRect {previewInner.x + 6, previewInner.y + 6, previewInner.w - 12, 18};
+        SDL_Rect nameRect {previewInner.x + 6, previewInner.y + 28, previewInner.w - 12, 18};
+        SDL_Rect metaRect {previewInner.x + 6, previewInner.y + 50, previewInner.w - 12, 18};
+        drawTextSafe(controlRenderer_, fontSmall_, hintRect, "Selected cue preview", colorFromRgba(kScreenDarkColor));
+        drawTextSafe(controlRenderer_, fontSmall_, nameRect, previewCue->name, colorFromRgba(kScreenDeepColor));
+        drawTextSafe(controlRenderer_, fontSmall_, metaRect,
+                     cueKindLabel(previewCue->kind) + std::string("  |  ")
+                       + (previewCue->duration > 0.0 ? formatSeconds(previewCue->duration) : "hold"),
+                     colorFromRgba(kScreenDarkColor));
+      } else {
+        drawTextSafe(controlRenderer_, fontSmall_, previewInner,
+                     "Select a cue to review it before TAKE.",
+                     colorFromRgba(kScreenInkSoftColor));
+      }
     }
 
-    SDL_Rect stackRect {preview.x, preview.y + preview.h + 6, preview.w, kStackViewH};
-    Primitives::drawFramedPanel(controlRenderer_, stackRect, colorFromRgba(kScreenLightColor),
-                                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect stackRect {x, programMonitorRect.y + programMonitorRect.h + kLayoutPanelGap, innerW, stackViewH};
+    drawUIPanel(stackRect, colorFromRgba(kScreenLightColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
     int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-    drawText(controlRenderer_, fontSmall_,
-             "STACK VIEW (" + outputLabel(focusedOutputIndex) + ")",
-             colorFromRgba(kScreenDeepColor), stackRect.x + 8, stackRect.y + 6);
+    SDL_Rect stackLabelRect {stackRect.x + 8, stackRect.y + 4, stackRect.w - 16, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, stackLabelRect,
+                 "STACK VIEW (" + outputLabel(focusedOutputIndex) + ")",
+                 colorFromRgba(kScreenDeepColor));
     std::vector<std::pair<int, int>> stackEntries = layeredDeckEntriesForOutput(focusedOutputIndex);
     int stackY = stackRect.y + 26;
     if (stackEntries.empty()) {
-      drawText(controlRenderer_, fontSmall_, "no active deck-layer links for this output",
-               colorFromRgba(kScreenInkSoftColor), stackRect.x + 10, stackY);
+      SDL_Rect stackEmptyRect {stackRect.x + 10, stackY, stackRect.w - 20, 16};
+      drawTextSafe(controlRenderer_, fontSmall_, stackEmptyRect,
+                   "no active deck-layer links for this output",
+                   colorFromRgba(kScreenInkSoftColor));
     } else {
       for (auto it = stackEntries.rbegin(); it != stackEntries.rend(); ++it) {
         if (stackY + 14 > stackRect.y + stackRect.h - 6) {
@@ -18170,17 +20293,15 @@ class App {
         std::string cueName = liveCue ? liveCue->name : "--";
         std::string layerToken = layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex));
         std::string rowText = layerToken + "  " + deckLabel(deckIndex) + "  ->  " + cueName;
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, rowText, stackRect.w - 16),
-                 colorFromRgba(kScreenDeepColor), stackRect.x + 10, stackY);
+        SDL_Rect rowRect {stackRect.x + 10, stackY, stackRect.w - 20, 16};
+        drawTextSafe(controlRenderer_, fontSmall_, rowRect, rowText, colorFromRgba(kScreenDeepColor));
         stackY += 16;
       }
     }
 
-    // --- Per-cue settings panel (with thumbnail at top) ---
-    int ctrlX = x + previewW + 12;
-    SDL_Rect ctrl {ctrlX, midY, kCtrlW, midH};
-    Primitives::drawFramedPanel(controlRenderer_, ctrl, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+    // --- Cue Inspector panel (with thumbnail at top) ---
+    SDL_Rect ctrl = inspectorChrome.body;
+    int kCtrlW = ctrl.w;
 
     // Thumbnail of selected cue (top portion)
     constexpr int kThumbAreaH = 110;
@@ -18203,8 +20324,9 @@ class App {
         playFrac = static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0));
       drawWaveform(controlRenderer_, thumbArea, peaks, playFrac, inFrac, outFrac,
                    selectedCue->pausePoints, dur);
-      drawText(controlRenderer_, fontSmall_, selectedCue->name,
-               colorFromRgba(kScreenMidColor), thumbArea.x + 6, thumbArea.y + 4);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 16},
+                   selectedCue->name, colorFromRgba(kScreenMidColor));
     } else if (selectedThumbnailTex_) {
       float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
       int drawW = thumbArea.w - 4;
@@ -18217,17 +20339,22 @@ class App {
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
       SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
-      drawText(controlRenderer_, fontSmall_, selectedCue->name,
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 8);
-      drawText(controlRenderer_, fontSmall_, "loading preview...",
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 6, thumbArea.y + 28);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 16},
+                   selectedCue->name, colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 28, thumbArea.w - 12, 16},
+                   "loading preview...", colorFromRgba(kScreenDarkColor));
     } else {
-      drawText(controlRenderer_, fontSmall_, "Insert cartridge",
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 44);
-      drawText(controlRenderer_, fontSmall_, "Drop media here",
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 30);
-      drawText(controlRenderer_, fontSmall_, "Press A to take cue",
-               colorFromRgba(kScreenDarkColor), thumbArea.x + 8, thumbArea.y + thumbArea.h - 16);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 46, thumbArea.w - 16, 14},
+                   "Insert cartridge", colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 30, thumbArea.w - 16, 14},
+                   "Drop media here", colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 16, thumbArea.w - 16, 14},
+                   "Press A to take cue", colorFromRgba(kScreenDarkColor));
     }
 
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
@@ -18255,43 +20382,142 @@ class App {
 
     // Label "cue panel" below thumb
     int ctrlSettingsY = ctrl.y + kThumbAreaH + 10;
-    drawText(controlRenderer_, fontSmall_, "CUE PANEL", colorFromRgba(kScreenDeepColor), ctrl.x + 10, ctrlSettingsY);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {ctrl.x + 10, ctrlSettingsY, kCtrlW - 20, 16},
+                 "CUE PANEL", colorFromRgba(kScreenDeepColor));
 
     auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
                             QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
                             bool isToggle = false, bool toggleOn = false, std::string tip = "",
                             bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
-      constexpr int kLabelW = 64;
-      constexpr int kBtnW = 32;
-      constexpr int kValW = 98;
-      constexpr int kRowH = 30;
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 78;
+      constexpr int kBtnW = 26;
+      constexpr int kGap = 6;
       int rx = ctrl.x + 10;
+      int contentW = kCtrlW - 20;
 
       if (isToggle) {
-        SDL_Rect btn {rx, rowY, kCtrlW - 20, kRowH};
+        SDL_Rect btn {rx, rowY, contentW, kRowH};
         SDL_Color fill = toggleOn ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
         SDL_Color ink  = toggleOn ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, label + ": " + value, ink, btn.x + 10, btn.y + 8);
+        drawUIPanel(btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        SDL_Rect labelRect {btn.x + 4, btn.y, btn.w - 8, btn.h};
+        drawTextSafe(controlRenderer_, fontSmall_, labelRect, label + ": " + value, ink);
         quickButtons_.push_back({btn, toggleAction, tip});
       } else {
-        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenDeepColor), rx, rowY + 8);
-        SDL_Rect decBtn {rx + kLabelW, rowY, kBtnW, kRowH};
-        Primitives::drawFramedPanel(controlRenderer_, decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "-", colorFromRgba(kScreenDeepColor), decBtn);
+        int valueW = std::max(56, contentW - kLabelW - kBtnW * 2 - kGap * 3);
+        SDL_Rect labelRect {rx, rowY, kLabelW, kRowH};
+        SDL_Rect decBtn {labelRect.x + labelRect.w + kGap, rowY, kBtnW, kRowH};
+        SDL_Rect valRect {decBtn.x + decBtn.w + kGap, rowY, valueW, kRowH};
+        SDL_Rect incBtn {valRect.x + valRect.w + kGap, rowY, kBtnW, kRowH};
+
+        drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenDeepColor));
+        drawUIPanel(decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, decBtn, "-", colorFromRgba(kScreenDeepColor));
         quickButtons_.push_back({decBtn, decAction, tip});
-        SDL_Rect valRect {rx + kLabelW + kBtnW + 4, rowY, kValW, kRowH};
-        Primitives::drawFramedPanel(controlRenderer_, valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-        drawCenteredText(controlRenderer_, fontSmall_, value, colorFromRgba(kScreenDeepColor), valRect);
+
+        drawUIPanel(valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, valRect, value, colorFromRgba(kScreenDeepColor));
         if (valueEditable) {
           std::string valueTip = tip.empty() ? "Click value to type an exact number" : tip + " | click value to type exact value";
           quickButtons_.push_back({valRect, valueAction, valueTip});
         }
-        SDL_Rect incBtn {rx + kLabelW + kBtnW + 4 + kValW + 4, rowY, kBtnW, kRowH};
-        Primitives::drawFramedPanel(controlRenderer_, incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "+", colorFromRgba(kScreenDeepColor), incBtn);
+
+        drawUIPanel(incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", colorFromRgba(kScreenDeepColor));
         quickButtons_.push_back({incBtn, incAction, tip});
       }
+    };
+
+    auto drawInspectorMessageRow = [&](int rowY, const std::string& text,
+                                       SDL_Color fill = colorFromRgba(kScreenLightColor),
+                                       SDL_Color ink = colorFromRgba(kScreenDeepColor)) {
+      SDL_Rect msgRect {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      drawUIPanel(msgRect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect textRect {msgRect.x + 6, msgRect.y, msgRect.w - 12, msgRect.h};
+      drawTextSafe(controlRenderer_, fontSmall_, textRect, text, ink);
+      return rowY + 32;
+    };
+
+    auto drawInspectorActionRow = [&](int rowY, const std::string& label, QuickAction action, const std::string& tip,
+                                      SDL_Color fill = colorFromRgba(kScreenLightColor),
+                                      SDL_Color ink = colorFromRgba(kScreenDeepColor)) {
+      SDL_Rect btnRect {ctrl.x + 10, rowY, kCtrlW - 20, 30};
+      drawUIPanel(btnRect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, btnRect, label, ink);
+      quickButtons_.push_back({btnRect, action, tip});
+      return rowY + 34;
+    };
+
+    auto drawInspectorEditableRow = [&](int rowY,
+                                        const std::string& label,
+                                        const std::string& value,
+                                        QuickAction action,
+                                        const std::string& tip,
+                                        SDL_Color valueColor = colorFromRgba(kScreenDeepColor)) {
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 64;
+      constexpr int kEditW = 54;
+      constexpr int kGap = 6;
+      int valueW = std::max(60, (kCtrlW - 20) - kLabelW - kEditW - kGap * 2);
+      SDL_Rect labelRect {ctrl.x + 10, rowY, kLabelW, kRowH};
+      SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, kRowH};
+      SDL_Rect editRect {valueRect.x + valueRect.w + kGap, rowY, kEditW, kRowH};
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenInkSoftColor));
+      drawUIPanel(valueRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+      drawTextSafe(controlRenderer_, fontSmall_, valueTextRect, value, valueColor);
+      drawUIPanel(editRect, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, editRect, "edit", colorFromRgba(kScreenLightColor));
+      quickButtons_.push_back({editRect, action, tip});
+      return rowY + 32;
+    };
+
+    auto drawInspectorStatusRow = [&](int rowY, const std::string& label, const std::string& value, bool warning) {
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 64;
+      constexpr int kGap = 6;
+      int valueW = std::max(60, (kCtrlW - 20) - kLabelW - kGap);
+      SDL_Rect labelRect {ctrl.x + 10, rowY, kLabelW, kRowH};
+      SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, kRowH};
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenInkSoftColor));
+      drawUIPanel(valueRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+      SDL_Color valueColor = warning ? SDL_Color {140, 40, 20, 255} : colorFromRgba(kScreenDeepColor);
+      drawTextSafe(controlRenderer_, fontSmall_, valueTextRect, value, valueColor);
+      return rowY + 32;
+    };
+
+    auto drawCueTagRow = [&](int rowY, const Cue& cue, const std::string& tip) {
+      SDL_Rect tagBtn {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      std::string tagStr = cue.colorTag.empty() ? "none" : cue.colorTag;
+      SDL_Color tagFill = colorTagToSdl(cue.colorTag, 200);
+      drawUIPanel(tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, tagBtn, "tag: " + tagStr + "  [K cycle]",
+                           colorFromRgba(kScreenLightColor));
+      quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, tip});
+      return rowY + 32;
+    };
+
+    auto drawPausePointsRow = [&](int rowY, int pointCount) {
+      SDL_Rect tableRect {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      int infoW = std::max(80, tableRect.w - 80 - 46 - 12);
+      UITable table(tableRect, {80, 46, infoW}, 28, 6);
+      SDL_Rect addBtn = table.cell(0, 0);
+      SDL_Rect clearBtn = table.cell(0, 1);
+      SDL_Rect infoRect = table.cell(0, 2);
+      drawUIPanel(addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "+pause pt", colorFromRgba(kScreenLightColor));
+      drawUIPanel(clearBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, clearBtn, "clr", colorFromRgba(kScreenLightColor));
+      drawUIPanel(infoRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_, infoRect,
+                   "pause points: " + std::to_string(pointCount),
+                   colorFromRgba(kScreenInkSoftColor));
+      quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add auto-pause at current playback position"});
+      quickButtons_.push_back({clearBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+      return rowY + 32;
     };
 
     int settingsContentTopY = ctrlSettingsY + 18;
@@ -18330,7 +20556,9 @@ class App {
       SDL_Color fill = cue.chromaKeyEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
       SDL_Color ink = cue.chromaKeyEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
       Primitives::drawFramedPanel(controlRenderer_, colorBtn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontSmall_, "key color: " + colorToHex(cue.chromaKeyColor), ink, colorBtn.x + 10, colorBtn.y + 8);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {colorBtn.x + 10, colorBtn.y + 6, colorBtn.w - 20, colorBtn.h - 12},
+                   "key color: " + colorToHex(cue.chromaKeyColor), ink);
       quickButtons_.push_back({colorBtn, QuickAction::EditKeyColor, "Click to set chroma-key color"});
     };
 
@@ -18415,15 +20643,49 @@ class App {
       return rowY;
     };
 
-    auto drawSectionHeader = [&](int rowY, const std::string& title, bool open,
-                                 QuickAction toggleAction, const std::string& tip) {
+    struct InspectorSectionScope {
+      SDL_Rect headerRect {};
+      bool open = false;
+      int bodyStartY = 0;
+    };
+
+    auto beginInspectorSection = [&](int rowY, const std::string& title, bool open,
+                                     QuickAction toggleAction, const std::string& tip) {
       SDL_Rect hdr {ctrl.x + 10, rowY, kCtrlW - 20, 24};
       SDL_Color fill = open ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenLightColor);
       SDL_Color ink = open ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
-      Primitives::drawFramedPanel(controlRenderer_, hdr, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
-      drawText(controlRenderer_, fontSmall_, std::string(open ? "[-] " : "[+] ") + title, ink, hdr.x + 8, hdr.y + 5);
+      drawUIPanel(hdr, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+      SDL_Rect titleRect {hdr.x + 4, hdr.y, hdr.w - 24, hdr.h};
+      SDL_Rect stateRect {hdr.x + hdr.w - 18, hdr.y, 14, hdr.h};
+      drawTextSafe(controlRenderer_, fontSmall_, titleRect, title, ink);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, stateRect, open ? "-" : "+", ink);
       quickButtons_.push_back({hdr, toggleAction, tip});
-      return rowY + 28;
+      return InspectorSectionScope {hdr, open, rowY + 30};
+    };
+
+    auto finishInspectorSection = [&](const InspectorSectionScope& section, int bodyBottom) {
+      if (!section.open) {
+        return;
+      }
+      int shellBottom = std::max(section.headerRect.y + section.headerRect.h, bodyBottom + 2);
+      SDL_Rect shell {
+        section.headerRect.x,
+        section.headerRect.y,
+        section.headerRect.w,
+        std::max(section.headerRect.h, shellBottom - section.headerRect.y)
+      };
+      SDL_Rect bodyFill {
+        shell.x + 2,
+        section.bodyStartY - 4,
+        std::max(0, shell.w - 4),
+        std::max(0, shellBottom - section.bodyStartY + 2)
+      };
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      Primitives::fillRect(controlRenderer_, bodyFill, SDL_Color {15, 56, 15, 28});
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      Primitives::strokeRect(controlRenderer_, shell, colorFromRgba(kScreenDarkColor));
+      SDL_Rect rail {shell.x + 2, section.bodyStartY - 2, 3, std::max(0, shellBottom - section.bodyStartY)};
+      Primitives::fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
     };
 
     auto drawCueRoutingRows = [&](int startY) {
@@ -18441,21 +20703,47 @@ class App {
       bool assigned = assignmentIndex.has_value();
       int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
 
-      drawQuickRow(startY, "output", QuickAction::CueRouteOutputPrev,
-                   outputLabel(routeOutput), QuickAction::CueRouteOutputNext,
-                   QuickAction::CueSectionRoutingToggle, false, false,
-                   "Route this deck to previous/next output");
-      drawQuickRow(startY + kRowStep, "layer", QuickAction::CueRouteLayerDec,
-                   assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--",
-                   QuickAction::CueRouteLayerInc,
-                   QuickAction::CueSectionRoutingToggle, false, false,
-                   "Adjust assignment layer");
+      SDL_Rect tableRect {ctrl.x + 10, startY, kCtrlW - 20, kRowStep * 3};
+      int labelColW = 78;
+      int valueColW = std::max(56, tableRect.w - labelColW - 64 - 56 - 12);
+      UITable routingTable(tableRect, {labelColW, 26, valueColW, 26}, 28, 4);
+
+      SDL_Rect outputLabelRect = routingTable.cell(0, 0);
+      SDL_Rect outputPrevRect = routingTable.cell(0, 1);
+      SDL_Rect outputValueRect = routingTable.cell(0, 2);
+      SDL_Rect outputNextRect = routingTable.cell(0, 3);
+      drawTextSafe(controlRenderer_, fontSmall_, outputLabelRect, "output", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputPrevRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputPrevRect, "<", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputValueRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputValueRect, outputLabel(routeOutput), colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputNextRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputNextRect, ">", colorFromRgba(kScreenDeepColor));
+      quickButtons_.push_back({outputPrevRect, QuickAction::CueRouteOutputPrev, "Route this deck to previous output"});
+      quickButtons_.push_back({outputNextRect, QuickAction::CueRouteOutputNext, "Route this deck to next output"});
+
+      SDL_Rect layerLabelRect = routingTable.cell(1, 0);
+      SDL_Rect layerPrevRect = routingTable.cell(1, 1);
+      SDL_Rect layerValueRect = routingTable.cell(1, 2);
+      SDL_Rect layerNextRect = routingTable.cell(1, 3);
+      drawTextSafe(controlRenderer_, fontSmall_, layerLabelRect, "layer", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerPrevRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerPrevRect, "-", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerValueRect, assigned ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerValueRect,
+                           assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--",
+                           assigned ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerNextRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerNextRect, "+", colorFromRgba(kScreenDeepColor));
+      quickButtons_.push_back({layerPrevRect, QuickAction::CueRouteLayerDec, "Move route to lower layer"});
+      quickButtons_.push_back({layerNextRect, QuickAction::CueRouteLayerInc, "Move route to higher layer"});
+
       SDL_Rect assignBtn {ctrl.x + 10, startY + kRowStep * 2, kCtrlW - 20, 28};
       SDL_Color assignFill = assigned ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
       SDL_Color assignInk = assigned ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-      Primitives::drawFramedPanel(controlRenderer_, assignBtn, assignFill,
-                                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, assigned ? "UNLINK" : "LINK", assignInk, assignBtn);
+      drawUIPanel(assignBtn, assignFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, assignBtn, assigned ? "UNLINK ROUTE" : "LINK ROUTE", assignInk);
       quickButtons_.push_back({assignBtn, QuickAction::CueRouteAssignToggle, "Assign/Unassign deck routing"});
       return startY + kRowStep * 3;
     };
@@ -18579,9 +20867,10 @@ class App {
         return cue.kind == CueKind::LowerThird;
       });
 
-      int playbackBodyY = drawSectionHeader(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
-                                            QuickAction::CueSectionPlaybackToggle,
-                                            "Common controls for selected cues");
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Common controls for selected cues");
+      int playbackBodyY = playbackSection.bodyStartY;
       if (cueSectionPlaybackOpen_) {
         ry = playbackBodyY;
         drawText(controlRenderer_, fontSmall_,
@@ -18724,7 +21013,7 @@ class App {
           drawQuickRow(ry, "bg alpha", QuickAction::LowerBgDec,
                        intMixedLabel([&](const Cue& cue) { return cue.lowerThirdBgAlpha; }),
                        QuickAction::LowerBgInc, QuickAction::ToggleLoop, false, false,
-                       "Set lower-third background alpha");
+                       "Set Lower Third background alpha");
           ry += kRowStep;
         }
 
@@ -18764,10 +21053,12 @@ class App {
         quickButtons_.push_back({cueIdEdit, QuickAction::EditCueNumber, "Set cue ID for selected cues"});
         ry += kRowStep;
       }
+      finishInspectorSection(playbackSection, ry);
 
-      ry = drawSectionHeader(ry, "GEOMETRY", cueSectionGeometryOpen_,
-                             QuickAction::CueSectionGeometryToggle,
-                             "Common geometry controls");
+      auto geometrySection = beginInspectorSection(ry, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Common geometry controls");
+      ry = geometrySection.bodyStartY;
       if (cueSectionGeometryOpen_) {
         if (allSupportsGeometry) {
           ry = drawGeometryRows(ry, *selectedCue, true);
@@ -18778,10 +21069,12 @@ class App {
           ry += kRowStep;
         }
       }
+      finishInspectorSection(geometrySection, ry);
 
-      ry = drawSectionHeader(ry, "KEY", cueSectionKeyOpen_,
-                             QuickAction::CueSectionKeyToggle,
-                             "Common key controls");
+      auto keySection = beginInspectorSection(ry, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Common key controls");
+      ry = keySection.bodyStartY;
       if (cueSectionKeyOpen_) {
         if (allSupportsKey) {
           ry = drawKeyRows(ry, *selectedCue);
@@ -18791,20 +21084,24 @@ class App {
           ry += kRowStep;
         }
       }
+      finishInspectorSection(keySection, ry);
 
-      ry = drawSectionHeader(ry, "ROUTING", cueSectionRoutingOpen_,
-                             QuickAction::CueSectionRoutingToggle,
-                             "Deck -> Output -> Layer route controls");
+      auto routingSection = beginInspectorSection(ry, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      ry = routingSection.bodyStartY;
       if (cueSectionRoutingOpen_) {
-        drawCueRoutingRows(ry);
+        ry = drawCueRoutingRows(ry);
       }
+      finishInspectorSection(routingSection, ry);
     } else if (selectedCue && selectedCue->kind == CueKind::Video) {
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
-      int playbackBodyY = drawSectionHeader(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
-                                            QuickAction::CueSectionPlaybackToggle,
-                                            "Collapse/expand playback settings");
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Collapse/expand playback settings");
+      int playbackBodyY = playbackSection.bodyStartY;
       int playbackRowsUsed = 8;
       if (cueSectionPlaybackOpen_) {
         ry = playbackBodyY;
@@ -18972,396 +21269,379 @@ class App {
         playbackRowsUsed = rowCursor;
       }
       }
+      finishInspectorSection(playbackSection, cueSectionPlaybackOpen_ ? (ry + kRowStep * playbackRowsUsed) : playbackBodyY);
       int geoY = cueSectionPlaybackOpen_ ? (ry + kRowStep * playbackRowsUsed) : (playbackBodyY + 4);
-      geoY = drawSectionHeader(geoY, "GEOMETRY", cueSectionGeometryOpen_,
-                               QuickAction::CueSectionGeometryToggle,
-                               "Collapse/expand geometry controls");
+      auto geometrySection = beginInspectorSection(geoY, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Collapse/expand geometry controls");
+      geoY = geometrySection.bodyStartY;
       if (cueSectionGeometryOpen_) {
         geoY = drawGeometryRows(geoY, *selectedCue, true);
         geoY = drawColorRows(geoY, *selectedCue);
       }
-      geoY = drawSectionHeader(geoY, "KEY", cueSectionKeyOpen_,
-                               QuickAction::CueSectionKeyToggle,
-                               "Collapse/expand key controls");
+      finishInspectorSection(geometrySection, geoY);
+
+      auto keySection = beginInspectorSection(geoY, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Collapse/expand key controls");
+      geoY = keySection.bodyStartY;
       if (cueSectionKeyOpen_) {
         geoY = drawKeyRows(geoY, *selectedCue);
       }
-      geoY = drawSectionHeader(geoY, "ROUTING", cueSectionRoutingOpen_,
-                               QuickAction::CueSectionRoutingToggle,
-                               "Deck -> Output -> Layer route controls");
+      finishInspectorSection(keySection, geoY);
+
+      auto routingSection = beginInspectorSection(geoY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      geoY = routingSection.bodyStartY;
       if (cueSectionRoutingOpen_) {
-        drawCueRoutingRows(geoY);
+        geoY = drawCueRoutingRows(geoY);
       }
+      finishInspectorSection(routingSection, geoY);
     } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
-      // Lower-third / graphic cue settings
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
-      SDL_Color inkC = colorFromRgba(kScreenDeepColor);
-      SDL_Color softC = colorFromRgba(kScreenInkSoftColor);
-      drawText(controlRenderer_, fontSmall_, "graphic overlay cue", inkC, ctrl.x + 10, ry);
-      // Preview main text line
-      SDL_Rect txtPreview {ctrl.x + 10, ry + 24, kCtrlW - 20, 28};
-      Primitives::drawFramedPanel(controlRenderer_, txtPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      std::string mainTxt = selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText;
-      drawCenteredText(controlRenderer_, fontSmall_, mainTxt, inkC, txtPreview);
-      // Sub text
-      SDL_Rect subPreview {ctrl.x + 10, ry + 56, kCtrlW - 20, 24};
-      Primitives::drawFramedPanel(controlRenderer_, subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext, softC, subPreview);
-      // Background alpha + duration controls
-      drawQuickRow(ry + 90, "bg alpha", QuickAction::LowerBgDec,
-                   std::to_string(selectedCue->lowerThirdBgAlpha), QuickAction::LowerBgInc,
-                   QuickAction::ToggleLoop, false, false, "Lower-third background opacity (0-255)");
-      {
+      constexpr int kRowStep = 28;
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Lower Third playback and overlay controls");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        playbackY = drawInspectorMessageRow(playbackY, "Lower Third overlay cue",
+                                            colorFromRgba(kScreenMidColor),
+                                            colorFromRgba(kScreenDeepColor));
+
+        SDL_Rect textPreview {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+        drawUIPanel(textPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, textPreview,
+                             selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText,
+                             colorFromRgba(kScreenDeepColor));
+        playbackY += 34;
+
+        SDL_Rect subPreview {ctrl.x + 10, playbackY, kCtrlW - 20, 28};
+        drawUIPanel(subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, subPreview,
+                             selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext,
+                             colorFromRgba(kScreenDarkColor));
+        playbackY += 32;
+
+        drawQuickRow(playbackY, "bg alpha", QuickAction::LowerBgDec,
+                     std::to_string(selectedCue->lowerThirdBgAlpha), QuickAction::LowerBgInc,
+                     QuickAction::ToggleLoop, false, false, "Lower Third background opacity (0-255)");
+        playbackY += kRowStep;
+
         std::string durVal = selectedCue->stillDurationSeconds > 0.0 ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
-        drawQuickRow(ry + 128, "dur", QuickAction::DurDec, durVal, QuickAction::DurInc,
+        drawQuickRow(playbackY, "dur", QuickAction::DurDec, durVal, QuickAction::DurInc,
                      QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+        playbackY += kRowStep;
+
+        playbackY = drawInspectorActionRow(playbackY, "CLEAR OVERLAY  [Backspace]",
+                                           QuickAction::ClearOverlay,
+                                           "Clear the active Lower Third overlay now");
       }
-      drawText(controlRenderer_, fontSmall_, "LOWERTEXT / LOWERSUB via Companion",
-               softC, ctrl.x + 10, ry + 170);
-      // Notes row
-      {
-        int notesY = ry + 192;
-        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
-        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
-        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Cue notes, tags, and control hints");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        metadataY = drawInspectorMessageRow(metadataY, "LOWERTEXT / LOWERSUB via Companion",
+                                            colorFromRgba(kScreenLightColor),
+                                            colorFromRgba(kScreenDarkColor));
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
       }
-      // Clear overlay button
-      SDL_Rect clearBtn {ctrl.x + 10, ry + 226, kCtrlW - 20, 28};
-      Primitives::drawFramedPanel(controlRenderer_, clearBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, "CLEAR OVERLAY  [Backspace]", inkC, clearBtn);
+      finishInspectorSection(metadataSection, metadataY);
     } else if (selectedCue && (selectedCue->kind == CueKind::Image
                                || selectedCue->kind == CueKind::Pattern
                                || selectedCue->kind == CueKind::Browser
                                || isSourceCueKind(selectedCue->kind))) {
-      // Still image / pattern settings — full parity with video panel + duration
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
-      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
-      int rowOffset = 0;
-      if (selectedCue->kind == CueKind::Pattern) {
-        std::string typeId = normalizePatternTypeId(selectedCue->path);
-        bool motionEnabled = endsWith(typeId, "-motion");
-        std::string label = patternLabelForType(typeId);
-        SDL_Rect patternTypeLabel {ctrl.x + 10, ry, 92, 30};
-        SDL_Rect patternTypeBtn {ctrl.x + 104, ry, kCtrlW - 114, 30};
-        drawText(controlRenderer_, fontSmall_, "pattern", colorFromRgba(kScreenDeepColor),
-                 patternTypeLabel.x + 2, patternTypeLabel.y + 8);
-        Primitives::drawFramedPanel(controlRenderer_, patternTypeBtn,
-                                    colorFromRgba(kScreenLightColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, label, patternTypeBtn.w - 18),
-                 colorFromRgba(kScreenDeepColor), patternTypeBtn.x + 6, patternTypeBtn.y + 7);
-        drawText(controlRenderer_, fontSmall_, "v", colorFromRgba(kScreenDeepColor),
-                 patternTypeBtn.x + patternTypeBtn.w - 12, patternTypeBtn.y + 7);
-        cuePatternTypeDropdownRect_ = patternTypeBtn;
-        drawQuickRow(ry + kRowStep, "motion", QuickAction::TogglePatternMotion,
-                     motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
-                     QuickAction::TogglePatternMotion, true, motionEnabled,
-                     "Pattern motion toggle");
-        rowOffset = 2;
-      }
-      // Row 0: duration
-      {
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Still, pattern, browser, and source playback settings");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        if (selectedCue->kind == CueKind::Pattern) {
+          std::string typeId = normalizePatternTypeId(selectedCue->path);
+          bool motionEnabled = endsWith(typeId, "-motion");
+          std::string label = patternLabelForType(typeId);
+          SDL_Rect patternTypeLabel {ctrl.x + 10, playbackY, 92, 30};
+          SDL_Rect patternTypeBtn {ctrl.x + 104, playbackY, kCtrlW - 114, 30};
+          drawTextSafe(controlRenderer_, fontSmall_, patternTypeLabel, "pattern", colorFromRgba(kScreenDeepColor));
+          drawUIPanel(patternTypeBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {patternTypeBtn.x + 6, patternTypeBtn.y, patternTypeBtn.w - 18, patternTypeBtn.h},
+                       label, colorFromRgba(kScreenDeepColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {patternTypeBtn.x + patternTypeBtn.w - 14, patternTypeBtn.y, 14, patternTypeBtn.h},
+                               "v", colorFromRgba(kScreenDeepColor));
+          cuePatternTypeDropdownRect_ = patternTypeBtn;
+          playbackY += kRowStep;
+
+          drawQuickRow(playbackY, "motion", QuickAction::TogglePatternMotion,
+                       motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
+                       QuickAction::TogglePatternMotion, true, motionEnabled,
+                       "Pattern motion toggle");
+          playbackY += kRowStep;
+        }
+
         std::string durVal = selectedCue->stillDurationSeconds > 0.0
           ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
-        drawQuickRow(ry + kRowStep * rowOffset, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+        drawQuickRow(playbackY, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
                      QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
-      }
-      // Row 1: trans + style button
-      {
+        playbackY += kRowStep;
+
         bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
         std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
-        drawQuickRow(ry + kRowStep * (rowOffset + 1), "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+        drawQuickRow(playbackY, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
                      QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
-        constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
-        int rx = ctrl.x + 10;
-        int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
-        int styleW = (ctrl.x + kCtrlW - 10) - styleX;
-        SDL_Rect styleBtn {styleX, ry + kRowStep * (rowOffset + 1), styleW, 30};
-        std::string curStyle = selectedCue->cueTransitionStyle.empty()
-          ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
-        std::string styleLabel = transitionStyleLabel(curStyle);
-        SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color styleInk  = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
-                 styleInk, styleBtn.x + 6, styleBtn.y + 7);
-        drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
-        cueTransitionStyleDropdownRect_ = styleBtn;
-      }
-      // Row 2: fade in
-      drawQuickRow(ry + kRowStep * (rowOffset + 2), "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),
-                   QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this still");
-      // Row 3: fade out
-      drawQuickRow(ry + kRowStep * (rowOffset + 3), "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
-                   QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
-      // Row 4: loop / hold buttons side by side
-      {
-        int rx = ctrl.x + 10;
-        int ty = ry + kRowStep * (rowOffset + 4);
-        int halfW = (kCtrlW - 24) / 2;
-        SDL_Rect loopBtn {rx, ty, halfW, 30};
-        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
-        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this still"});
-        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
-        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this still indefinitely"});
-      }
-      // Row 5: end action
-      {
-        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * (rowOffset + 5), kCtrlW - 20, 30};
-        Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                 colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+        {
+          constexpr int kLabelW = 64;
+          constexpr int kBtnW = 32;
+          constexpr int kValW = 98;
+          int rx = ctrl.x + 10;
+          int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+          int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+          SDL_Rect styleBtn {styleX, playbackY, styleW, 30};
+          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+            ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+          SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color styleInk = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
+                       transitionStyleLabel(curStyle), styleInk);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
+                               "v", styleInk);
+          cueTransitionStyleDropdownRect_ = styleBtn;
+        }
+        playbackY += kRowStep;
+
+        drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                     QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this cue");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                     QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
+        playbackY += kRowStep;
+
+        {
+          int rx = ctrl.x + 10;
+          int halfW = (kCtrlW - 24) / 2;
+          SDL_Rect loopBtn {rx, playbackY, halfW, 30};
+          SDL_Rect holdBtn {rx + halfW + 4, playbackY, halfW, 30};
+          SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color loopInk = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          SDL_Color holdInk = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, loopBtn,
+                               std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk);
+          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue"});
+          drawUIPanel(holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, holdBtn,
+                               std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk);
+          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this cue indefinitely"});
+        }
+        playbackY += kRowStep;
+
+        SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+        drawUIPanel(endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
+                     "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                     colorFromRgba(kScreenDeepColor));
         quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
-      }
-      // Row 6: repeats
-      {
+        playbackY += kRowStep;
+
         std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
-        drawQuickRow(ry + kRowStep * (rowOffset + 6), "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+        drawQuickRow(playbackY, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
                      QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+        playbackY += kRowStep;
       }
-      // Row 7: color tag
-      {
-        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
-        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * (rowOffset + 7), kCtrlW - 20, 28};
-        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
-        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
-      }
-      int metaRowIndex = rowOffset + 8;
-      auto drawMetaEditableRow = [&](int rowIndex,
-                                     const std::string& label,
-                                     const std::string& value,
-                                     QuickAction action,
-                                     const std::string& tip,
-                                     SDL_Color valueColor = colorFromRgba(kScreenDeepColor)) {
-        int rowY = ry + kRowStep * rowIndex;
-        SDL_Rect labelRect {ctrl.x + 10, rowY, 66, 26};
-        SDL_Rect valueRect {ctrl.x + 78, rowY, kCtrlW - 146, 26};
-        SDL_Rect editRect {ctrl.x + kCtrlW - 64, rowY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenInkSoftColor),
-                 labelRect.x + 2, labelRect.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, valueRect,
-                                    colorFromRgba(kScreenLightColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, value, valueRect.w - 10),
-                 valueColor, valueRect.x + 6, valueRect.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, editRect,
-                                    colorFromRgba(kScreenDarkColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editRect);
-        quickButtons_.push_back({editRect, action, tip});
-      };
-      auto drawMetaStatusRow = [&](int rowIndex, const std::string& label, const std::string& value, bool warning) {
-        int rowY = ry + kRowStep * rowIndex;
-        SDL_Rect labelRect {ctrl.x + 10, rowY, 66, 26};
-        SDL_Rect valueRect {ctrl.x + 78, rowY, kCtrlW - 88, 26};
-        drawText(controlRenderer_, fontSmall_, label, colorFromRgba(kScreenInkSoftColor),
-                 labelRect.x + 2, labelRect.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, valueRect,
-                                    colorFromRgba(kScreenLightColor),
-                                    colorFromRgba(kScreenDeepColor),
-                                    colorFromRgba(kScreenMidColor));
-        SDL_Color valueColor = warning ? SDL_Color{140, 40, 20, 255} : colorFromRgba(kScreenDeepColor);
-        drawText(controlRenderer_, fontSmall_,
-                 ellipsizeToPixelWidth(fontSmall_, value, valueRect.w - 10),
-                 valueColor, valueRect.x + 6, valueRect.y + 6);
-      };
+      finishInspectorSection(playbackSection, playbackY);
 
-      if (selectedCue->kind == CueKind::Browser) {
-        std::string browserState = browserCueStatusLabel(project_.focusedDeckIndex);
-        bool browserWarn = browserState.rfind("failed:", 0) == 0;
-        drawMetaStatusRow(metaRowIndex++, "state", browserState, browserWarn);
-      }
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Cue metadata and source configuration");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        if (selectedCue->kind == CueKind::Browser) {
+          std::string browserState = browserCueStatusLabel(project_.focusedDeckIndex);
+          bool browserWarn = browserState.rfind("failed:", 0) == 0;
+          metadataY = drawInspectorStatusRow(metadataY, "state", browserState, browserWarn);
+        }
 
-      if (isSourceCueKind(selectedCue->kind)) {
-        std::string sourceRef = sourceCueRefFromCue(*selectedCue);
-        if (sourceRef.empty()) {
-          sourceRef = defaultSourceRefForKind(selectedCue->kind);
+        if (isSourceCueKind(selectedCue->kind)) {
+          std::string sourceRef = sourceCueRefFromCue(*selectedCue);
+          if (sourceRef.empty()) {
+            sourceRef = defaultSourceRefForKind(selectedCue->kind);
+          }
+          metadataY = drawInspectorEditableRow(metadataY, "source",
+                                               sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
+                                               QuickAction::EditSourceRef,
+                                               "Set capture source from the cue menu");
         }
-        drawMetaEditableRow(metaRowIndex++,
-                            "source",
-                            sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
-                            QuickAction::EditSourceRef,
-                            "Set source (type focused/default)");
+
+        if (selectedCue->kind == CueKind::Browser) {
+          metadataY = drawInspectorEditableRow(metadataY, "url",
+                                               selectedCue->path.empty() ? "(unset)" : selectedCue->path,
+                                               QuickAction::EditBrowserUrl,
+                                               "Set browser URL/path");
+        }
+
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
       }
-      if (selectedCue->kind == CueKind::Browser) {
-        drawMetaEditableRow(metaRowIndex++,
-                            "url",
-                            selectedCue->path.empty() ? "(unset)" : selectedCue->path,
-                            QuickAction::EditBrowserUrl,
-                            "Set browser URL/path");
+      finishInspectorSection(metadataSection, metadataY);
+
+      int sectionY = cueSectionMetadataOpen_ ? (metadataY + 4) : (metadataSection.bodyStartY + 4);
+      auto geometrySection = beginInspectorSection(sectionY, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Collapse/expand geometry controls");
+      sectionY = geometrySection.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        sectionY = drawGeometryRows(sectionY, *selectedCue, true);
+        sectionY = drawColorRows(sectionY, *selectedCue);
       }
-      drawMetaEditableRow(metaRowIndex,
-                          "notes",
-                          selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
-                          QuickAction::EditNotes,
-                          "Click to edit cue notes",
-                          colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
-      {
-        int rowY = ry + kRowStep * (metaRowIndex + 1);
-        rowY = drawSectionHeader(rowY, "GEOMETRY", cueSectionGeometryOpen_,
-                                 QuickAction::CueSectionGeometryToggle,
-                                 "Collapse/expand geometry controls");
-        if (cueSectionGeometryOpen_) {
-          rowY = drawGeometryRows(rowY, *selectedCue, true);
-          rowY = drawColorRows(rowY, *selectedCue);
-        }
-        rowY = drawSectionHeader(rowY, "KEY", cueSectionKeyOpen_,
-                                 QuickAction::CueSectionKeyToggle,
-                                 "Collapse/expand key controls");
-        if (cueSectionKeyOpen_) {
-          rowY = drawKeyRows(rowY, *selectedCue);
-        }
-        rowY = drawSectionHeader(rowY, "ROUTING", cueSectionRoutingOpen_,
-                                 QuickAction::CueSectionRoutingToggle,
-                                 "Deck -> Output -> Layer route controls");
-        if (cueSectionRoutingOpen_) {
-          rowY = drawCueRoutingRows(rowY);
-        }
-        int cnY = rowY + 2;
-        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
-        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
-        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
-        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
-        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
+      finishInspectorSection(geometrySection, sectionY);
+
+      auto keySection = beginInspectorSection(sectionY, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Collapse/expand key controls");
+      sectionY = keySection.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        sectionY = drawKeyRows(sectionY, *selectedCue);
       }
+      finishInspectorSection(keySection, sectionY);
+
+      auto routingSection = beginInspectorSection(sectionY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      sectionY = routingSection.bodyStartY;
+      if (cueSectionRoutingOpen_) {
+        sectionY = drawCueRoutingRows(sectionY);
+      }
+      finishInspectorSection(routingSection, sectionY);
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = 28;
-      drawText(controlRenderer_, fontSmall_, "PLAYBACK", colorFromRgba(kScreenDarkColor), ctrl.x + 10, ry - 14);
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Audio cue playback settings");
+      int playbackY = playbackSection.bodyStartY;
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
-      drawQuickRow(ry, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
-                   QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
-      drawQuickRow(ry + kRowStep, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
-                   QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration");
-      drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
-                   QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration");
-      // loop / hold toggles
-      {
-        int rx = ctrl.x + 10;
-        int ty = ry + kRowStep * 3;
-        int halfW = (kCtrlW - 24) / 2;
-        SDL_Rect loopBtn {rx, ty, halfW, 30};
-        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
-        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
-        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
-        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
-        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
-        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
-        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
+      if (cueSectionPlaybackOpen_) {
+        drawQuickRow(playbackY, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
+                     QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                     QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                     QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration");
+        playbackY += kRowStep;
+        {
+          int rx = ctrl.x + 10;
+          int ty = playbackY;
+          int halfW = (kCtrlW - 24) / 2;
+          SDL_Rect loopBtn {rx, ty, halfW, 30};
+          SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+          SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, loopBtn, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk);
+          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
+          drawUIPanel(holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, holdBtn, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk);
+          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
+        }
+        playbackY += kRowStep;
+        {
+          SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+          drawUIPanel(endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
+                       "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                       colorFromRgba(kScreenDeepColor));
+          quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+        }
+        playbackY += kRowStep;
+        {
+          std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+          drawQuickRow(playbackY, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                       QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = infinite");
+        }
+        playbackY += kRowStep;
       }
-      // End action
-      {
-        SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 4, kCtrlW - 20, 30};
-        Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
-                 colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
-        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Audio cue metadata and pause point controls");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+        metadataY = drawPausePointsRow(metadataY, static_cast<int>(selectedCue->pausePoints.size()));
       }
-      // Loop count
-      {
-        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
-        drawQuickRow(ry + kRowStep * 5, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
-                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = infinite");
-      }
-      // Color tag
-      {
-        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
-        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * 6, kCtrlW - 20, 28};
-        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
-        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
-        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "K — cycle cue color tag"});
-      }
-      // Notes row
-      {
-        int notesY = ry + kRowStep * 7;
-        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
-        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
-        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
-        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
-        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
-        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
-      }
-      // Cue number row
-      {
-        int cnY = ry + kRowStep * 8;
-        SDL_Rect label {ctrl.x + 10, cnY, 36, 26};
-        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
-        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "#", colorFromRgba(kScreenInkSoftColor), label.x + 4, label.y + 6);
-        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
-        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
-        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
-        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue label for search/goto"});
-      }
-      // Pause points row
-      {
-        int ppY = ry + kRowStep * 9;
-        int ppCount = static_cast<int>(selectedCue->pausePoints.size());
-        SDL_Rect addBtn {ctrl.x + 10, ppY, 80, 26};
-        SDL_Rect clrBtn {ctrl.x + 96, ppY, 46, 26};
-        SDL_Rect infoLbl {ctrl.x + 148, ppY, kCtrlW - 158, 26};
-        Primitives::drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "+pause pt", colorFromRgba(kScreenLightColor), addBtn);
-        Primitives::drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-        drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
-        drawText(controlRenderer_, fontSmall_, std::to_string(ppCount) + " pts",
-                 colorFromRgba(kScreenInkSoftColor), infoLbl.x + 4, infoLbl.y + 6);
-        quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add auto-pause at current playback position"});
-        quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
-      }
-      int routeY = ry + kRowStep * 10 + 4;
-      routeY = drawSectionHeader(routeY, "ROUTING", cueSectionRoutingOpen_,
-                                 QuickAction::CueSectionRoutingToggle,
-                                 "Deck -> Output -> Layer route controls");
+      finishInspectorSection(metadataSection, metadataY);
+
+      int routeY = cueSectionMetadataOpen_ ? (metadataY + 4) : (metadataSection.bodyStartY + 4);
+      auto routingSection = beginInspectorSection(routeY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      routeY = routingSection.bodyStartY;
       if (cueSectionRoutingOpen_) {
-        drawCueRoutingRows(routeY);
+        routeY = drawCueRoutingRows(routeY);
       }
+      finishInspectorSection(routingSection, routeY);
     } else if (!selectedCue) {
-      drawText(controlRenderer_, fontSmall_, "select a cue to edit settings",
-               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 18);
-      drawText(controlRenderer_, fontSmall_, "G = add lower-third / graphic cue",
-               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 38);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 18, kCtrlW - 20, 16},
+                   "select a cue to edit settings",
+                   colorFromRgba(kScreenInkSoftColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 38, kCtrlW - 20, 16},
+                   "G = add Lower Third cue",
+                   colorFromRgba(kScreenInkSoftColor));
     } else {
-      drawText(controlRenderer_, fontSmall_, "no per-cue settings for this type",
-               colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ctrlSettingsY + 24);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, 16},
+                   "no per-cue settings for this type",
+                   colorFromRgba(kScreenInkSoftColor));
     }
 
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
@@ -19395,10 +21675,16 @@ class App {
 
     // --- Cart details --- (anchored to bottom of panel, always kDetailAreaH px tall)
     int detailX = x;
-    int detailY = panel.y + panel.h - kDetailAreaH + 4;
-    int detailBottom = panel.y + panel.h - 4;
-    drawText(controlRenderer_, fontSmall_, "cart details", colorFromRgba(kScreenDeepColor), detailX, detailY);
-    drawText(controlRenderer_, fontBase_, selectedCue ? selectedCue->name : "Drop or import some media", colorFromRgba(kScreenDeepColor), detailX, detailY + 16);
+    int detailY = panel.y + panel.h - kLayoutPanelPadding - kDetailAreaH;
+    int detailBottom = detailY + kDetailAreaH;
+    SDL_Rect detailRect {detailX, detailY, innerW, kDetailAreaH};
+    drawUIPanel(detailRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect detailLabelRect {detailRect.x + 4, detailRect.y + 4, detailRect.w - 8, 16};
+    SDL_Rect detailTitleRect {detailRect.x + 4, detailRect.y + 20, detailRect.w - 8, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, detailLabelRect, "Cue Details", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontBase_, detailTitleRect,
+                 selectedCue ? selectedCue->name : "Drop or import media",
+                 colorFromRgba(kScreenDeepColor));
 
     // Progress bar tip
     if (pointInRect(mouseX_, mouseY_, progressBarRect_)) {
@@ -19419,9 +21705,15 @@ class App {
 
     if (!selectedCue) {
       if (detailY + 40 < detailBottom)
-        drawText(controlRenderer_, fontSmall_, "Drop files into the shell or tap Import to add some carts.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 40);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, detailY + 40, innerW, 16},
+                     "Drop files into the shell or tap Import to add some carts.",
+                     colorFromRgba(kScreenInkSoftColor));
       if (detailY + 56 < detailBottom)
-        drawText(controlRenderer_, fontSmall_, "Shift + arrows shuffles the selected cue up or down.", colorFromRgba(kScreenInkSoftColor), detailX, detailY + 56);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, detailY + 56, innerW, 16},
+                     "Shift + arrows shuffles the selected cue up or down.",
+                     colorFromRgba(kScreenInkSoftColor));
       return;
     }
 
@@ -19435,13 +21727,17 @@ class App {
     for (size_t i = 0; i < lines.size(); ++i) {
       int lineY = detailY + 38 + static_cast<int>(i) * 18;
       if (lineY + 14 > detailBottom) break;
-      drawText(controlRenderer_, fontSmall_, lines[i], colorFromRgba(kScreenInkSoftColor), detailX, lineY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {detailX, lineY, innerW, 14},
+                   lines[i], colorFromRgba(kScreenInkSoftColor));
     }
     if (selectedCue && !selectedCue->notes.empty()) {
       int notesLineY = detailY + 38 + static_cast<int>(lines.size()) * 18;
       if (notesLineY + 14 <= detailBottom) {
         std::string notesStr = "\xe2\x80\x9c" + selectedCue->notes + "\xe2\x80\x9d";
-        drawText(controlRenderer_, fontSmall_, notesStr, colorFromRgba(kScreenDeepColor), detailX, notesLineY);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, notesLineY, innerW, 14},
+                     notesStr, colorFromRgba(kScreenDeepColor));
       }
     }
   }
@@ -20137,6 +22433,11 @@ class App {
     }
     bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
     bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
+    if (output.streamEnabled && !backendRoute.streamSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
+    } else if ((output.ndiEnabled || output.ndiKeyEnabled) && !backendRoute.ndiSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi backend unavailable");
+    }
     if (!streamRouteActive) {
       stopOutputStreamRuntime(*runtime);
     }
@@ -20382,11 +22683,7 @@ class App {
       {"window", "Window Source"},
       {"camera", "Camera Source"},
     };
-#ifdef _WIN32
-    choices.push_back({"spout", "Spout Source"});
-#else
-    choices.push_back({"syphon", "Syphon Source"});
-#endif
+    choices.push_back({"syphon", "Syphon/Spout Source"});
     return choices;
   }
 
@@ -20395,15 +22692,9 @@ class App {
     if (token == "camera") {
       return "Camera Source";
     }
-#ifdef _WIN32
     if (token == "spout" || token == "syphon") {
-      return "Spout Source";
+      return "Syphon/Spout Source";
     }
-#else
-    if (token == "spout" || token == "syphon") {
-      return "Syphon Source";
-    }
-#endif
     return "Window Source";
   }
 
@@ -20423,6 +22714,69 @@ class App {
       {"cut", "cut"},
       {"crossfade", "crossfade"},
       {"dip", "dip black"},
+    };
+  }
+
+  std::vector<std::pair<std::string, std::string>> audioOutputDeviceDropdownChoices() const {
+    std::vector<std::pair<std::string, std::string>> choices;
+    for (const auto& deviceName : outputAudioDeviceChoices()) {
+      choices.push_back({deviceName, deviceName.empty() ? "(default audio)" : deviceName});
+    }
+    return choices;
+  }
+
+  std::string displayChoiceLabel(int displayIndex) const {
+    int displayCount = SDL_GetNumVideoDisplays();
+    if (displayCount <= 0 || displayIndex < 0 || displayIndex >= displayCount) {
+      return "Display none";
+    }
+    std::string label = "Display " + std::to_string(displayIndex + 1);
+    const char* displayName = SDL_GetDisplayName(displayIndex);
+    if (displayName && *displayName) {
+      label += ": ";
+      label += displayName;
+    }
+    return label;
+  }
+
+  std::vector<std::pair<std::string, std::string>> outputDisplayDropdownChoices() const {
+    std::vector<std::pair<std::string, std::string>> choices;
+    int displayCount = SDL_GetNumVideoDisplays();
+    for (int displayIndex = 0; displayIndex < displayCount; ++displayIndex) {
+      choices.push_back({std::to_string(displayIndex), displayChoiceLabel(displayIndex)});
+    }
+    if (choices.empty()) {
+      choices.push_back({"-1", "Display none"});
+    }
+    return choices;
+  }
+
+  std::vector<std::pair<std::string, std::string>> outputMirrorSourceDropdownChoices() const {
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.push_back({"-1", "Off (render own assignments)"});
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (outputIndex == project_.focusedOutputIndex) {
+        continue;
+      }
+      choices.push_back({
+        std::to_string(outputIndex),
+        "Output " + std::to_string(outputIndex + 1) + "  " + outputLabel(outputIndex)
+      });
+    }
+    return choices;
+  }
+
+  std::string outputMirrorSourceDropdownLabel(int sourceOutputIndex) const {
+    if (sourceOutputIndex < 0 || sourceOutputIndex >= static_cast<int>(project_.outputs.size())) {
+      return "Off";
+    }
+    return "Output " + std::to_string(sourceOutputIndex + 1) + "  " + outputLabel(sourceOutputIndex);
+  }
+
+  std::vector<std::pair<std::string, std::string>> outputStreamProtocolDropdownChoices() const {
+    return {
+      {"srt", "SRT"},
+      {"rtmp", "RTMP"},
     };
   }
 
@@ -20685,11 +23039,11 @@ class App {
                                 colorFromRgba(kScreenMidColor));
     int filterH = dropdown_.filter.empty() ? 0 : 18;
     if (filterH > 0) {
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "filter: " + dropdown_.filter, dropdown_.popoverRect.w - 12),
-               colorFromRgba(kScreenDarkColor),
-               dropdown_.popoverRect.x + 6,
-               dropdown_.popoverRect.y + 3);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {dropdown_.popoverRect.x + 6, dropdown_.popoverRect.y + 3,
+                             dropdown_.popoverRect.w - 12, filterH},
+                   "filter: " + dropdown_.filter,
+                   colorFromRgba(kScreenDarkColor));
     }
 
     SDL_Rect listRect {
@@ -20712,15 +23066,17 @@ class App {
       SDL_Color rowFill = highlighted ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
       SDL_Color rowInk = highlighted ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
       Primitives::fillRect(controlRenderer_, rowRect, rowFill);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, dropdown_.options[optionIndex].label, rowRect.w - 12),
-               rowInk, rowRect.x + 6, rowRect.y + 5);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {rowRect.x + 6, rowRect.y, rowRect.w - 12, rowRect.h},
+                   dropdown_.options[optionIndex].label,
+                   rowInk);
       drawY += dropdown_.rowHeight;
     }
     if (dropdown_.filteredIndices.empty()) {
-      drawText(controlRenderer_, fontSmall_, "(no matches)",
-               colorFromRgba(kScreenInkSoftColor),
-               listRect.x + 6, listRect.y + 5);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {listRect.x + 6, listRect.y, listRect.w - 12, 18},
+                   "(no matches)",
+                   colorFromRgba(kScreenInkSoftColor));
     }
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
@@ -20915,7 +23271,9 @@ class App {
     Primitives::drawFramedPanel(controlRenderer_, modal, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
 
     // Title
-    drawText(controlRenderer_, fontBase_, "SYSTEM SETTINGS", colorFromRgba(kScreenDeepColor), modal.x + 16, modal.y + 10);
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {modal.x + 16, modal.y + 10, modal.w - 64, 20},
+                 "SYSTEM SETTINGS", colorFromRgba(kScreenDeepColor));
 
     // Close button [X]
     settingsCloseBtn_ = {modal.x + modal.w - 42, modal.y + 6, 34, 30};
@@ -20933,8 +23291,8 @@ class App {
       bool active = (t == settingsTab_);
       Primitives::drawFramedPanel(controlRenderer_, tab, active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor),
                       colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawCenteredText(controlRenderer_, fontSmall_, tabs[t],
-                       active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor), tab);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, tab, tabs[t],
+                           active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
       settingsBtns_.push_back({tab, 100 + t, tabs[t]});
     }
 
@@ -20966,12 +23324,15 @@ class App {
 
       SDL_Rect sysRect {leftCol.x + 8, leftCol.y + 8, leftCol.w - 16, 126};
       Primitives::drawFramedPanel(controlRenderer_, sysRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontBase_, "SYSTEM", ink, sysRect.x + 8, sysRect.y + 6);
-      drawText(controlRenderer_, fontSmall_, "Audio device and UI feedback", soft, sysRect.x + 8, sysRect.y + 28);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {sysRect.x + 8, sysRect.y + 6, sysRect.w - 16, 20},
+                   "SYSTEM", ink);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {sysRect.x + 8, sysRect.y + 28, sysRect.w - 16, 18},
+                   "Audio device and UI feedback", soft);
       SDL_Rect devBtn {sysRect.x + 8, sysRect.y + 48, sysRect.w - 16, 26};
-      Primitives::drawFramedPanel(controlRenderer_, devBtn, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
       std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default)" : focusedDeck().audioOutputDeviceName;
-      drawCenteredText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, devName, devBtn.w - 14), ink, devBtn);
+      drawUIDropdown(devBtn, "Audio", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
       int toggleW = std::max(84, (sysRect.w - 24) / 2);
       SDL_Rect sfxBtn {sysRect.x + 8, sysRect.y + 84, toggleW, 24};
@@ -21337,249 +23698,96 @@ class App {
         settingsBtns_.push_back({rect, action, label});
       };
 
-      std::vector<std::pair<int, int>> focusedFlowDecks;
-      for (const auto& assignment : project_.layerAssignments) {
-        if (!assignment.enabled) {
-          continue;
-        }
-        if (resolveAssignmentOutputIndex(assignment) != focusedOutputIndex) {
-          continue;
-        }
-        focusedFlowDecks.emplace_back(
-          std::clamp(assignment.layerIndex, 0, 255),
-          std::clamp(assignment.deckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1)));
-      }
-      std::sort(focusedFlowDecks.begin(), focusedFlowDecks.end(), [](const auto& a, const auto& b) {
-        if (a.first != b.first) {
-          return a.first < b.first;
-        }
-        return a.second < b.second;
-      });
-      std::string flowLine = "Signal flow: ";
-      if (focusedFlowDecks.empty()) {
-        flowLine += "no deck links";
-      } else {
-        for (size_t i = 0; i < focusedFlowDecks.size(); ++i) {
-          if (i > 0) {
-            flowLine += " + ";
-          }
-          flowLine += deckLabel(focusedFlowDecks[i].second);
-          flowLine += " (L";
-          flowLine += std::to_string(focusedFlowDecks[i].first);
-          flowLine += ")";
-        }
-      }
-      flowLine += " -> ";
-      flowLine += outputLabel(focusedOutputIndex);
-      flowLine += " -> Display ";
-      flowLine += std::to_string(outputDisplayIndex(project_.focusedOutputIndex) + 1);
+      // Header area: Output Selector + Enable Toggle
+      SDL_Rect outSelectRect {cx, cy, 320, 36};
+      drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
+      settingsBtns_.push_back({outSelectRect, 251, "cycle_output"});
 
-      SDL_Rect summaryRect {cx, cy, content.w - 24, 156};
-      Primitives::drawFramedPanel(controlRenderer_, summaryRect,
-                      colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawText(controlRenderer_, fontBase_, "OUTPUT STATUS", ink, summaryRect.x + 8, summaryRect.y + 8);
-      drawText(controlRenderer_, fontSmall_,
-               "Focused: " + outputLabel(focusedOutputIndex) + "  (" + std::to_string(focusedOutputIndex + 1) + "/" + std::to_string(project_.outputs.size()) + ")",
-               ink, summaryRect.x + 8, summaryRect.y + 32);
-      drawText(controlRenderer_, fontSmall_,
-               "Type: " + outputTypeLabel + "  enabled: " + std::string(outputTarget.enabled ? "on" : "off")
-               + "  host: " + deckLabel(outputTarget.hostDeckIndex) + "  display: " + currentDisplayLabel(),
-               soft, summaryRect.x + 8, summaryRect.y + 50);
-      drawText(controlRenderer_, fontSmall_,
-               "Raster: " + std::to_string(targetW) + "x" + std::to_string(targetH)
-               + "  native: " + std::to_string(nativeW) + "x" + std::to_string(nativeH)
-               + "  refresh: " + outputRefreshRateLabel() + "  depth: " + outputBitDepthModeLabel(),
-               soft, summaryRect.x + 8, summaryRect.y + 68);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, flowLine, summaryRect.w - 16),
-               soft, summaryRect.x + 8, summaryRect.y + 86);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_,
-                 "NDI: " + std::string(outputTarget.ndiEnabled ? "on" : "off")
-                 + "  fill: " + ndiSource
-                 + "  key: " + std::string(outputTarget.ndiKeyEnabled ? "on" : "off"),
-                 summaryRect.w - 16),
-               soft, summaryRect.x + 8, summaryRect.y + 104);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "Stream: " + streamProtocol + "  " + streamUrl + "  mirror: " + mirrorLabel, summaryRect.w - 16),
-               soft, summaryRect.x + 8, summaryRect.y + 122);
-      drawText(controlRenderer_, fontSmall_,
-               "FX: alpha " + std::to_string(outputAlphaPct) + "%  delay " + std::to_string(outputDelayMs)
-               + " ms  overlay: " + std::string(outputTarget.outputTimeOverlayEnabled ? "on" : "off")
-               + "  color: " + toUpper(outputColorSpace)
-               + "  layout: " + outputLayoutMode
-               + "  rot: " + outputOrientationLabel(outputOrientation)
-               + "  test: " + std::string(outputTarget.outputTestCardEnabled ? "on" : "off"),
-               soft, summaryRect.x + 8, summaryRect.y + 140);
+      SDL_Rect enableBtn {cx + 330, cy, 140, 36};
+      drawActionBtn(enableBtn, outputTarget.enabled ? "LIVE ON" : "OFFLINE", kSettingsActionOutputToggle, outputTarget.enabled);
 
-      int rowY = summaryRect.y + summaryRect.h + 8;
-      int leftW = content.w - 24;
-      int gap = 6;
+      cy += 48;
+      
+      // Three distinct sections
+      int sectionW = (content.w - 24 - 16) / 3;
+      SDL_Rect displaySection {cx, cy, sectionW, 240};
+      SDL_Rect ndiSection {cx + sectionW + 8, cy, sectionW, displaySection.h};
+      SDL_Rect streamSection {ndiSection.x + sectionW + 8, cy, sectionW, displaySection.h};
 
-      int row1W = (leftW - gap * 4) / 5;
-      SDL_Rect outputPrevBtn {cx, rowY, row1W, 26};
-      SDL_Rect outputNextBtn {outputPrevBtn.x + row1W + gap, rowY, row1W, 26};
-      SDL_Rect outputAddBtn {outputNextBtn.x + row1W + gap, rowY, row1W, 26};
-      SDL_Rect outputRemoveBtn {outputAddBtn.x + row1W + gap, rowY, row1W, 26};
-      SDL_Rect outputEnableBtn {outputRemoveBtn.x + row1W + gap, rowY, leftW - (outputRemoveBtn.x + row1W + gap - cx), 26};
-      drawActionBtn(outputPrevBtn, "Prev Output", 250);
-      drawActionBtn(outputNextBtn, "Next Output", 251);
-      drawActionBtn(outputAddBtn, "Add Output", 252);
-      drawActionBtn(outputRemoveBtn, "Remove", kSettingsActionOutputRemove, project_.outputs.size() <= 1);
-      drawActionBtn(outputEnableBtn, outputTarget.enabled ? "Enabled" : "Disabled", kSettingsActionOutputToggle, outputTarget.enabled);
-
-      rowY += 32;
-      int createW = (leftW - gap) / 2;
-      drawActionBtn({cx, rowY, createW, 26}, "Create Standard", 275);
-      drawActionBtn({cx + createW + gap, rowY, leftW - createW - gap, 26}, "Create Stream", 276);
-
-      rowY += 32;
-      int row2W = (leftW - gap * 5) / 6;
-      drawActionBtn({cx, rowY, row2W, 26}, "Host Deck", 254);
-      drawActionBtn({cx + (row2W + gap), rowY, row2W, 26}, "Set Window", 281, outputTypeLabel != "stream");
-      drawActionBtn({cx + (row2W + gap) * 2, rowY, row2W, 26}, "Set Stream", 282, outputTypeLabel == "stream");
-      drawActionBtn({cx + (row2W + gap) * 3, rowY, row2W, 26}, "Fullscreen", 236);
-      drawActionBtn({cx + (row2W + gap) * 4, rowY, row2W, 26}, "Size To Display", 235);
-      drawActionBtn({cx + (row2W + gap) * 5, rowY, leftW - (row2W + gap) * 5, 26},
-                    "Display Native", 230, project_.outputFollowDisplay);
-
-      rowY += 32;
-      int modeW = (leftW - gap * 4) / 5;
-      drawActionBtn({cx, rowY, modeW, 26}, "Span", kSettingsActionOutputLayoutSpan, outputLayoutMode == "span");
-      drawActionBtn({cx + (modeW + gap), rowY, modeW, 26}, "Duplicate", kSettingsActionOutputLayoutDuplicate, outputLayoutMode == "duplicate");
-      drawActionBtn({cx + (modeW + gap) * 2, rowY, modeW, 26},
-                    "Rotate " + outputOrientationLabel(outputOrientation),
-                    kSettingsActionOutputOrientationCycle, outputOrientation != 0);
-      drawActionBtn({cx + (modeW + gap) * 3, rowY, modeW, 26},
-                    outputTarget.outputTestCardEnabled ? "Test Card ON" : "Test Card OFF",
-                    kSettingsActionOutputTestCardToggle, outputTarget.outputTestCardEnabled);
-      drawActionBtn({cx + (modeW + gap) * 4, rowY, leftW - (modeW + gap) * 4, 26},
-                    anyOutputTestCardsOff ? "All Cards ON" : "All Cards OFF",
-                    kSettingsActionOutputTestCardAllToggle,
-                    anyOutputTestCardsOn && !anyOutputTestCardsOff);
-
-      int displayCount = SDL_GetNumVideoDisplays();
-      int focusedDisplayIndex = displayCount > 0
-        ? std::clamp(outputDisplayIndex(project_.focusedOutputIndex), 0, displayCount - 1)
-        : 0;
-      std::string displayLabel = displayCount <= 0
-        ? "Display none"
-        : ("Display " + std::to_string(focusedDisplayIndex + 1));
-      if (displayCount > 0) {
-        const char* displayName = SDL_GetDisplayName(focusedDisplayIndex);
-        if (displayName && *displayName) {
-          displayLabel += ": ";
-          displayLabel += displayName;
-        }
-      }
-
-      rowY += 32;
-      SDL_Rect displayPrevBtn {cx, rowY, 72, 26};
-      SDL_Rect displayLabelRect {displayPrevBtn.x + displayPrevBtn.w + gap, rowY, leftW - 72 - 72 - 90 - gap * 3, 26};
-      SDL_Rect displayNextBtn {displayLabelRect.x + displayLabelRect.w + gap, rowY, 72, 26};
-      SDL_Rect displayRescanBtn {displayNextBtn.x + displayNextBtn.w + gap, rowY, leftW - (displayNextBtn.x + displayNextBtn.w + gap - cx), 26};
-      drawActionBtn(displayPrevBtn, "Disp -", kSettingsActionOutputDisplayPrev);
-      Primitives::drawFramedPanel(controlRenderer_, displayLabelRect, colorFromRgba(kShellInnerColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawCenteredText(controlRenderer_, fontSmall_, ellipsizeToPixelWidth(fontSmall_, displayLabel, displayLabelRect.w - 8), ink, displayLabelRect);
-      drawActionBtn(displayNextBtn, "Disp +", kSettingsActionOutputDisplayNext);
-      drawActionBtn(displayRescanBtn, "Rescan Displays", kSettingsActionOutputDisplayRescan);
-
-      rowY += 32;
-      auto drawPreset = [&](const SDL_Rect& rect, const std::string& label, int action, int w, int h) {
-        bool active = !project_.outputFollowDisplay
-          && project_.outputRenderWidth == w
-          && project_.outputRenderHeight == h;
-        drawActionBtn(rect, label, action, active);
+      auto drawSectionFrame = [&](const SDL_Rect& rect, const std::string& title) {
+        Primitives::drawFramedPanel(controlRenderer_, rect, colorFromRgba(kShellInnerColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        SDL_Rect hdr {rect.x, rect.y, rect.w, 28};
+        Primitives::drawFramedPanel(controlRenderer_, hdr, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, hdr, title, colorFromRgba(kScreenDeepColor));
+        return SDL_Rect {rect.x + 8, rect.y + 36, rect.w - 16, rect.h - 44};
       };
-      int presetW = (leftW - gap * 5) / 6;
-      drawPreset({cx, rowY, presetW, 26}, "720p", 231, 1280, 720);
-      drawPreset({cx + (presetW + gap), rowY, presetW, 26}, "1080p", 232, 1920, 1080);
-      drawPreset({cx + (presetW + gap) * 2, rowY, presetW, 26}, "1440p", 233, 2560, 1440);
-      drawPreset({cx + (presetW + gap) * 3, rowY, presetW, 26}, "4K", 234, 3840, 2160);
-      drawActionBtn({cx + (presetW + gap) * 4, rowY, presetW, 26}, "Custom", 237);
-      drawActionBtn({cx + (presetW + gap) * 5, rowY, leftW - (presetW + gap) * 5, 26}, "Set Hz...", 241);
 
-      rowY += 32;
-      int streamW = (leftW - gap * 4) / 5;
-      drawActionBtn({cx, rowY, streamW, 26}, outputTarget.streamEnabled ? "Stream ON" : "Stream OFF", 255, outputTarget.streamEnabled);
-      drawActionBtn({cx + (streamW + gap), rowY, streamW, 26}, toUpper(streamProtocol), 256);
-      drawActionBtn({cx + (streamW + gap) * 2, rowY, streamW, 26}, "Stream URL...", 257);
-      drawActionBtn({cx + (streamW + gap) * 3, rowY, streamW, 26}, "Bitrate", 258);
-      drawActionBtn({cx + (streamW + gap) * 4, rowY, leftW - (streamW + gap) * 4, 26}, "Mirror", 260, outputTarget.mirrorSourceOutputIndex >= 0);
-
-      rowY += 32;
-      int ndiW = (leftW - gap * 3) / 4;
-      drawActionBtn({cx, rowY, ndiW, 26}, outputTarget.ndiEnabled ? "NDI ON" : "NDI OFF", 271, outputTarget.ndiEnabled);
-      drawActionBtn({cx + (ndiW + gap), rowY, ndiW, 26}, "NDI Name...", 272);
-      drawActionBtn({cx + (ndiW + gap) * 2, rowY, ndiW, 26}, outputTarget.ndiKeyEnabled ? "NDI Key ON" : "NDI Key OFF", 273, outputTarget.ndiKeyEnabled);
-      drawActionBtn({cx + (ndiW + gap) * 3, rowY, leftW - (ndiW + gap) * 3, 26}, "NDI Key Name...", 274);
-
-      rowY += 32;
-      int fxW = (leftW - gap * 4) / 5;
-      drawActionBtn({cx, rowY, fxW, 26},
-                    "Overlay " + std::string(outputTarget.outputTimeOverlayEnabled ? "ON" : "OFF"),
-                    kSettingsActionOutputOverlayToggle, outputTarget.outputTimeOverlayEnabled);
-      drawActionBtn({cx + (fxW + gap), rowY, fxW, 26},
-                    "Alpha " + std::to_string(outputAlphaPct) + "%",
-                    kSettingsActionOutputAlphaPrompt);
-      drawActionBtn({cx + (fxW + gap) * 2, rowY, fxW, 26},
-                    "Delay " + std::to_string(outputDelayMs) + "ms",
-                    kSettingsActionOutputDelayPrompt, outputDelayMs > 0);
-      drawActionBtn({cx + (fxW + gap) * 3, rowY, fxW, 26},
-                    "Color " + toUpper(outputColorSpace),
-                    kSettingsActionOutputColorSpaceCycle, outputColorSpace != "auto");
-      drawActionBtn({cx + (fxW + gap) * 4, rowY, leftW - (fxW + gap) * 4, 26},
-                    "Delay +100",
-                    kSettingsActionOutputDelayInc);
-
-      rowY += 34;
-      SDL_Rect advancedBtn {cx, rowY, 196, 26};
-      drawActionBtn(advancedBtn,
-                    videoOutputsAdvanced_ ? "Hide Advanced" : "Show Advanced",
-                    kSettingsActionOutputAdvancedToggle,
-                    videoOutputsAdvanced_);
-      SDL_Rect advancedHint {advancedBtn.x + advancedBtn.w + gap, rowY,
-                             leftW - advancedBtn.w - gap, 26};
-      Primitives::drawFramedPanel(controlRenderer_, advancedHint, colorFromRgba(kShellInnerColor),
-                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
-      drawText(controlRenderer_, fontSmall_, "advanced: refresh, depth, canvas, warp, output fx",
-               soft, advancedHint.x + 8, advancedHint.y + 7);
-
-      rowY += 32;
-      if (videoOutputsAdvanced_) {
-        int advW = (leftW - gap * 6) / 7;
-        drawActionBtn({cx, rowY, advW, 26}, "Hz Auto", 238, project_.outputRefreshRateHz <= 0.0);
-        drawActionBtn({cx + (advW + gap), rowY, advW, 26}, "Hz -", 239);
-        drawActionBtn({cx + (advW + gap) * 2, rowY, advW, 26}, "Hz +", 240);
-        drawActionBtn({cx + (advW + gap) * 3, rowY, advW, 26}, "Depth Auto", 242, project_.outputBitDepth == 0);
-        drawActionBtn({cx + (advW + gap) * 4, rowY, advW, 26}, "Depth 8", 243, project_.outputBitDepth == 8);
-        drawActionBtn({cx + (advW + gap) * 5, rowY, advW, 26}, "Depth 10", 244, project_.outputBitDepth == 10);
-        drawActionBtn({cx + (advW + gap) * 6, rowY, leftW - (advW + gap) * 6, 26}, "Canvas WxH...", 247);
-
-        rowY += 32;
-        const Deck& focused = focusedDeck();
-        int canvasW = (leftW - gap * 4) / 5;
-        drawActionBtn({cx, rowY, canvasW, 26}, "Canvas Off", 245, !project_.outputCanvasEnabled);
-        drawActionBtn({cx + (canvasW + gap), rowY, canvasW, 26}, "Canvas On", 246, project_.outputCanvasEnabled);
-        drawActionBtn({cx + (canvasW + gap) * 2, rowY, canvasW, 26}, "View XY...", 248);
-        drawActionBtn({cx + (canvasW + gap) * 3, rowY, canvasW, 26},
-                      focused.warpEnabled ? "Warp On" : "Warp Off", 249, focused.warpEnabled);
-        std::string warpMode = normalizeWarpMode(focused.warpMode);
-        drawActionBtn({cx + (canvasW + gap) * 4, rowY, leftW - (canvasW + gap) * 4, 26},
-                      "Mode " + warpModeLabel(warpMode),
-                      kSettingsActionOutputWarpModeCycle,
-                      warpMode == "perspective");
-        rowY += 36;
-      } else {
-        rowY += 4;
+      // --- DISPLAY ASSIGNMENT ---
+      SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
+      VerticalLayout dLayout(dBody, 6);
+      
+      int displayCount = SDL_GetNumVideoDisplays();
+      std::string displayLabel = displayCount <= 0 ? "None" : ("Display " + std::to_string(outputDisplayIndex(focusedOutputIndex) + 1));
+      if (displayCount > 0) {
+        const char* dName = SDL_GetDisplayName(outputDisplayIndex(focusedOutputIndex));
+        if (dName && *dName) displayLabel += ": " + std::string(dName);
       }
+      
+      drawTextSafe(controlRenderer_, fontSmall_, dLayout.takeFixed(16), "Assign to hardware display:", soft);
+      SDL_Rect dBtn = dLayout.takeFixed(28);
+      drawUIDropdown(dBtn, "Display", displayLabel, "settings.output_display");
+      settingsBtns_.push_back({dBtn, kSettingsActionOutputDisplayDropdown, "output_display"});
 
-      SDL_Rect routingTable {cx, rowY, leftW, std::max(72, (content.y + content.h - 10) - rowY)};
+      drawTextSafe(controlRenderer_, fontSmall_, dLayout.takeFixed(16), "Resolution:", soft);
+      SDL_Rect rBtn = dLayout.takeFixed(28);
+      std::string resLabel = std::to_string(targetW) + "x" + std::to_string(targetH) + (project_.outputFollowDisplay ? " (Native)" : " (Fixed)");
+      drawUIDropdown(rBtn, "Raster", resLabel, "settings.output_raster");
+      settingsBtns_.push_back({rBtn, 237, "custom_raster"});
+
+      SDL_Rect fsBtn = dLayout.takeFixed(28);
+      drawActionBtn(fsBtn, "Toggle Fullscreen", 236);
+      
+      // --- NDI OUTPUT ---
+      SDL_Rect nBody = drawSectionFrame(ndiSection, "NDI\xc2\xae NETWORK");
+      VerticalLayout nLayout(nBody, 6);
+      
+      drawActionBtn(nLayout.takeFixed(28), outputTarget.ndiEnabled ? "NDI SENDING: ON" : "NDI SENDING: OFF", 271, outputTarget.ndiEnabled);
+      drawTextSafe(controlRenderer_, fontSmall_, nLayout.takeFixed(16), "Source Name:", soft);
+      SDL_Rect nnBtn = nLayout.takeFixed(28);
+      std::string ndiName = trim(outputTarget.ndiSourceName).empty() ? "Default" : outputTarget.ndiSourceName;
+      Primitives::drawFramedPanel(controlRenderer_, nnBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_, insetRect(nnBtn, 4), ndiName, ink);
+      settingsBtns_.push_back({nnBtn, 272, "ndi_name"});
+
+      drawActionBtn(nLayout.takeFixed(28), outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF", 273, outputTarget.ndiKeyEnabled);
+
+      // --- STREAMING ---
+      SDL_Rect sBody = drawSectionFrame(streamSection, "STREAMING (SRT/RTMP)");
+      VerticalLayout sLayout(sBody, 6);
+      
+      drawActionBtn(sLayout.takeFixed(28), outputTarget.streamEnabled ? "STREAMING: ON" : "STREAMING: OFF", 255, outputTarget.streamEnabled);
+      drawTextSafe(controlRenderer_, fontSmall_, sLayout.takeFixed(16), "Protocol:", soft);
+      SDL_Rect spBtn = sLayout.takeFixed(28);
+      drawUIDropdown(spBtn, "Proto", toUpper(normalizeOutputStreamProtocol(outputTarget.streamProtocol)), "settings.stream_proto");
+      settingsBtns_.push_back({spBtn, kSettingsActionOutputStreamProtocolDropdown, "stream_proto"});
+
+      drawTextSafe(controlRenderer_, fontSmall_, sLayout.takeFixed(16), "Target URL:", soft);
+      SDL_Rect suBtn = sLayout.takeFixed(28);
+      std::string urlStr = outputTarget.streamUrl.empty() ? "None" : outputTarget.streamUrl;
+      Primitives::drawFramedPanel(controlRenderer_, suBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_, insetRect(suBtn, 4), ellipsizeToPixelWidth(fontSmall_, urlStr, suBtn.w - 8), ink);
+      settingsBtns_.push_back({suBtn, 257, "stream_url"});
+
+      int rowY = cy + displaySection.h + 8;
+      SDL_Rect routingTable {cx, rowY, content.w - 24, std::max(72, (content.y + content.h - 10) - rowY)};
       Primitives::drawFramedPanel(controlRenderer_, routingTable,
                       colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontBase_, "ROUTING", ink, routingTable.x + 8, routingTable.y + 6);
-      drawText(controlRenderer_, fontSmall_, "Deck -> Output -> Layer (inline edit)", soft, routingTable.x + 112, routingTable.y + 8);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {routingTable.x + 8, routingTable.y + 4, 96, 20},
+                   "ROUTING", ink);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {routingTable.x + 112, routingTable.y + 6, routingTable.w - 120, 18},
+                   "Deck -> Output -> Layer (inline edit)", soft);
 
       SDL_Rect tableHeader {routingTable.x + 6, routingTable.y + 28, routingTable.w - 12, 22};
       Primitives::drawFramedPanel(controlRenderer_, tableHeader, colorFromRgba(kShellInnerColor),
@@ -21661,24 +23869,40 @@ class App {
         drawUiImageContain(uiHeaderArt_, logoArtRect, 215);
       }
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-      drawText(controlRenderer_, titleFont, "DECKBOY", ink, logoRect.x + 14, logoRect.y + 14);
-      drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", soft, logoRect.x + 16, logoRect.y + 58);
-      drawText(controlRenderer_, fontSmall_, "build: " + std::string(kAppModelLabel), soft, logoRect.x + 16, logoRect.y + 82);
+      drawTextSafe(controlRenderer_, titleFont,
+                   SDL_Rect {logoRect.x + 14, logoRect.y + 10, logoRect.w - 220, 28},
+                   "DECKBOY", ink);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {logoRect.x + 16, logoRect.y + 52, logoRect.w - 220, 20},
+                   "dot-matrix cue deck", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {logoRect.x + 16, logoRect.y + 78, logoRect.w - 220, 18},
+                   "build: " + std::string(kAppModelLabel), soft);
 
       SDL_Rect infoRect {cx, logoRect.y + logoRect.h + 8, content.w - 24, content.h - logoRect.h - 18};
       Primitives::drawFramedPanel(controlRenderer_, infoRect, colorFromRgba(kScreenLightColor),
                                   colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
-      drawText(controlRenderer_, fontBase_, "RUNTIME", ink, infoRect.x + 8, infoRect.y + 8);
-      drawText(controlRenderer_, fontSmall_, "Companion port: " + std::to_string(companionPort_), soft, infoRect.x + 8, infoRect.y + 32);
-      drawText(controlRenderer_, fontSmall_, "HyperDeck port: 9992", soft, infoRect.x + 8, infoRect.y + 48);
-      drawText(controlRenderer_, fontSmall_, "UI mascot/sprite art is disabled in live control panels.", soft, infoRect.x + 8, infoRect.y + 64);
-      drawText(controlRenderer_, fontSmall_, "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft, infoRect.x + 8, infoRect.y + 88);
+      drawTextSafe(controlRenderer_, fontBase_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 8, infoRect.w - 16, 20},
+                   "RUNTIME", ink);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 32, infoRect.w - 16, 16},
+                   "Companion port: " + std::to_string(companionPort_), soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 48, infoRect.w - 16, 16},
+                   "HyperDeck port: 9992", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 64, infoRect.w - 16, 16},
+                   "UI mascot/sprite art is disabled in live control panels.", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 88, infoRect.w - 16, 16},
+                   "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft);
       std::string packStatus = uiPackAvailable_
         ? ("UI pack: " + uiPackRoot_.string())
         : "UI pack: not found (data/ui/deckboy_ui_pack_v3 preferred)";
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, packStatus, infoRect.w - 16),
-               soft, infoRect.x + 8, infoRect.y + 104);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {infoRect.x + 8, infoRect.y + 104, infoRect.w - 16, 16},
+                   packStatus, soft);
     }
   }
 
@@ -21689,18 +23913,23 @@ class App {
       uiWatchdogPopupEvent("settings_modal", false);
       return;
     }
+    if (!settingsOpen_) return;
+
     for (const auto& sb : settingsBtns_) {
       if (!pointInRect(mx, my, sb.rect)) continue;
       if (sb.action >= 100 && sb.action <= 104) {
         // Tab switch
         settingsTab_ = sb.action - 100;
       } else if (sb.action == 200) {
-        // Change audio device
-        auto dev = pickTextInput("Audio output device", "device name or empty for default", focusedDeck().audioOutputDeviceName);
-        if (dev) {
-          focusedDeckMutable().audioOutputDeviceName = *dev;
-          markProjectDirty();
-        }
+        openDropdown(
+          "settings.audio_device",
+          sb.rect,
+          audioOutputDeviceDropdownChoices(),
+          focusedDeck().audioOutputDeviceName,
+          [this](const std::string& value) {
+            setAudioOutputDevice(value);
+          });
+        return;
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
         markProjectDirty();
@@ -21913,21 +24142,27 @@ class App {
         toggleOutputFullscreen();
       } else if (sb.action == 237) {
         std::string initial = std::to_string(project_.outputRenderWidth) + "x" + std::to_string(project_.outputRenderHeight);
-        auto value = pickTextInput("Custom output raster", "WIDTHxHEIGHT (e.g. 2560x1080)", initial);
-        if (value) {
-          std::string token = toUpper(trim(*value));
-          auto xPos = token.find('X');
-          if (xPos != std::string::npos && xPos > 0 && xPos + 1 < token.size()) {
-            try {
-              int w = std::stoi(token.substr(0, xPos));
-              int h = std::stoi(token.substr(xPos + 1));
-              if (w > 0 && h > 0) {
-                setOutputSizingModeFixed(w, h);
-              }
-            } catch (...) {
-            }
-          }
-        }
+        openInlineTextEditor("settings.output_raster", "Custom Output Raster",
+                             "WIDTHxHEIGHT (e.g. 2560x1080)", initial,
+                             [this](const std::string& rawValue) {
+                               std::string token = toUpper(trim(rawValue));
+                               auto xPos = token.find('X');
+                               if (xPos == std::string::npos || xPos == 0 || xPos + 1 >= token.size()) {
+                                 triggerToast("raster: invalid");
+                                 return;
+                               }
+                               try {
+                                 int w = std::stoi(token.substr(0, xPos));
+                                 int h = std::stoi(token.substr(xPos + 1));
+                                 if (w > 0 && h > 0) {
+                                   setOutputSizingModeFixed(w, h);
+                                 } else {
+                                   triggerToast("raster: invalid");
+                                 }
+                               } catch (...) {
+                                 triggerToast("raster: invalid");
+                               }
+                             });
       } else if (sb.action == 238) {
         setOutputRefreshRate(0.0);
       } else if (sb.action == 239) {
@@ -21935,18 +24170,20 @@ class App {
       } else if (sb.action == 240) {
         cycleOutputRefreshRate(1);
       } else if (sb.action == 241) {
-        auto value = pickTextInput("Output refresh", "Hz or AUTO (e.g. 60 or 59.94)", outputRefreshRateLabel());
-        if (value) {
-          std::string token = toUpper(trim(*value));
-          if (token == "AUTO") {
-            setOutputRefreshRate(0.0);
-          } else {
-            try {
-              setOutputRefreshRate(std::stod(*value));
-            } catch (...) {
-            }
-          }
-        }
+        openInlineTextEditor("settings.output_refresh", "Output Refresh",
+                             "Hz or AUTO (e.g. 60 or 59.94)", outputRefreshRateLabel(),
+                             [this](const std::string& rawValue) {
+                               std::string token = toUpper(trim(rawValue));
+                               if (token == "AUTO") {
+                                 setOutputRefreshRate(0.0);
+                                 return;
+                               }
+                               try {
+                                 setOutputRefreshRate(std::stod(rawValue));
+                               } catch (...) {
+                                 triggerToast("refresh: invalid");
+                               }
+                             });
       } else if (sb.action == 242) {
         setOutputBitDepthMode(0);
       } else if (sb.action == 243) {
@@ -21959,40 +24196,50 @@ class App {
         setOutputCanvasMode(true, project_.outputCanvasWidth, project_.outputCanvasHeight);
       } else if (sb.action == 247) {
         std::string initial = std::to_string(project_.outputCanvasWidth) + "x" + std::to_string(project_.outputCanvasHeight);
-        auto value = pickTextInput("Output canvas", "WIDTHxHEIGHT (e.g. 5760x2160)", initial);
-        if (value) {
-          std::string token = toUpper(trim(*value));
-          auto xPos = token.find('X');
-          if (xPos != std::string::npos && xPos > 0 && xPos + 1 < token.size()) {
-            try {
-              int w = std::stoi(token.substr(0, xPos));
-              int h = std::stoi(token.substr(xPos + 1));
-              if (w > 0 && h > 0) {
-                setOutputCanvasMode(true, w, h);
-              }
-            } catch (...) {
-            }
-          }
-        }
+        openInlineTextEditor("settings.output_canvas", "Output Canvas",
+                             "WIDTHxHEIGHT (e.g. 5760x2160)", initial,
+                             [this](const std::string& rawValue) {
+                               std::string token = toUpper(trim(rawValue));
+                               auto xPos = token.find('X');
+                               if (xPos == std::string::npos || xPos == 0 || xPos + 1 >= token.size()) {
+                                 triggerToast("canvas: invalid");
+                                 return;
+                               }
+                               try {
+                                 int w = std::stoi(token.substr(0, xPos));
+                                 int h = std::stoi(token.substr(xPos + 1));
+                                 if (w > 0 && h > 0) {
+                                   setOutputCanvasMode(true, w, h);
+                                 } else {
+                                   triggerToast("canvas: invalid");
+                                 }
+                               } catch (...) {
+                                 triggerToast("canvas: invalid");
+                               }
+                             });
       } else if (sb.action == 248) {
         const Deck& deck = focusedDeck();
         std::string initial = std::to_string(deck.canvasViewX) + "," + std::to_string(deck.canvasViewY);
-        auto value = pickTextInput("Canvas view", "X,Y offset in pixels", initial);
-        if (value) {
-          std::string token = trim(*value);
-          size_t split = token.find(',');
-          if (split == std::string::npos) {
-            split = token.find(' ');
-          }
-          if (split != std::string::npos && split > 0 && split + 1 < token.size()) {
-            try {
-              int x = std::stoi(token.substr(0, split));
-              int y = std::stoi(token.substr(split + 1));
-              setFocusedDeckCanvasView(x, y);
-            } catch (...) {
-            }
-          }
-        }
+        openInlineTextEditor("settings.canvas_view", "Canvas View",
+                             "X,Y offset in pixels", initial,
+                             [this](const std::string& rawValue) {
+                               std::string token = trim(rawValue);
+                               size_t split = token.find(',');
+                               if (split == std::string::npos) {
+                                 split = token.find(' ');
+                               }
+                               if (split == std::string::npos || split == 0 || split + 1 >= token.size()) {
+                                 triggerToast("view: invalid");
+                                 return;
+                               }
+                               try {
+                                 int x = std::stoi(token.substr(0, split));
+                                 int y = std::stoi(token.substr(split + 1));
+                                 setFocusedDeckCanvasView(x, y);
+                               } catch (...) {
+                                 triggerToast("view: invalid");
+                               }
+                             });
       } else if (sb.action == 249) {
         toggleFocusedDeckWarpEnabled();
       } else if (sb.action == kSettingsActionOutputWarpModeCycle) {
@@ -22014,25 +24261,36 @@ class App {
       } else if (sb.action == 255) {
         toggleFocusedOutputStreamEnabled();
       } else if (sb.action == 256) {
-        cycleFocusedOutputStreamProtocol(1);
+        openDropdown(
+          "settings.stream_proto",
+          sb.rect,
+          outputStreamProtocolDropdownChoices(),
+          normalizeOutputStreamProtocol(focusedOutput().streamProtocol),
+          [this](const std::string& value) {
+            setFocusedOutputStreamProtocol(value);
+          });
+        return;
       } else if (sb.action == 257) {
         const OutputTarget& output = focusedOutput();
         std::string initial = trim(output.streamUrl).empty()
           ? defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex)
           : output.streamUrl;
-        auto value = pickTextInput("Stream URL", "srt://... or rtmp://...", initial);
-        if (value) {
-          setFocusedOutputStreamUrl(*value);
-        }
+        openInlineTextEditor("settings.stream_url", "Stream URL",
+                             "srt://... or rtmp://...", initial,
+                             [this](const std::string& value) {
+                               setFocusedOutputStreamUrl(value);
+                             });
       } else if (sb.action == 258) {
         const OutputTarget& output = focusedOutput();
-        auto value = pickTextInput("Stream bitrate", "kbps (500-50000)", std::to_string(output.streamBitrateKbps));
-        if (value) {
-          try {
-            setFocusedOutputStreamBitrateKbps(std::stoi(trim(*value)));
-          } catch (...) {
-          }
-        }
+        openInlineTextEditor("settings.stream_bitrate", "Stream Bitrate",
+                             "kbps (500-50000)", std::to_string(output.streamBitrateKbps),
+                             [this](const std::string& value) {
+                               try {
+                                 setFocusedOutputStreamBitrateKbps(std::stoi(trim(value)));
+                               } catch (...) {
+                                 triggerToast("bitrate: invalid");
+                               }
+                             });
       } else if (sb.action == 259) {
         const OutputTarget& output = focusedOutput();
         std::string nextType = normalizeOutputType(output.outputType) == "stream" ? "window" : "stream";
@@ -22045,21 +24303,25 @@ class App {
         toggleFocusedOutputTimeOverlayEnabled();
       } else if (sb.action == kSettingsActionOutputAlphaPrompt) {
         int initialPct = static_cast<int>(std::lround(std::clamp(focusedOutput().outputAlpha, 0.0f, 1.0f) * 100.0f));
-        auto value = pickTextInput("Output alpha", "Percent 0-100", std::to_string(initialPct));
-        if (value) {
-          try {
-            setFocusedOutputAlpha(static_cast<float>(std::stod(trim(*value)) / 100.0));
-          } catch (...) {
-          }
-        }
+        openInlineTextEditor("settings.output_alpha", "Output Alpha",
+                             "Percent 0-100", std::to_string(initialPct),
+                             [this](const std::string& value) {
+                               try {
+                                 setFocusedOutputAlpha(static_cast<float>(std::stod(trim(value)) / 100.0));
+                               } catch (...) {
+                                 triggerToast("alpha: invalid");
+                               }
+                             });
       } else if (sb.action == kSettingsActionOutputDelayPrompt) {
-        auto value = pickTextInput("Output delay", "Milliseconds 0-5000", std::to_string(focusedOutput().outputDelayMs));
-        if (value) {
-          try {
-            setFocusedOutputDelayMs(std::stoi(trim(*value)));
-          } catch (...) {
-          }
-        }
+        openInlineTextEditor("settings.output_delay", "Output Delay",
+                             "Milliseconds 0-5000", std::to_string(focusedOutput().outputDelayMs),
+                             [this](const std::string& value) {
+                               try {
+                                 setFocusedOutputDelayMs(std::stoi(trim(value)));
+                               } catch (...) {
+                                 triggerToast("delay: invalid");
+                               }
+                             });
       } else if (sb.action == kSettingsActionOutputColorSpaceCycle) {
         cycleFocusedOutputColorSpace(1);
       } else if (sb.action == kSettingsActionOutputDelayInc) {
@@ -22082,7 +24344,19 @@ class App {
         }
         setAllOutputsTestCardEnabled(anyOff);
       } else if (sb.action == 260) {
-        promptFocusedOutputMirrorSourcePicker();
+        openDropdown(
+          "settings.output_mirror",
+          sb.rect,
+          outputMirrorSourceDropdownChoices(),
+          std::to_string(focusedOutput().mirrorSourceOutputIndex),
+          [this](const std::string& value) {
+            try {
+              setFocusedOutputMirrorSource(std::stoi(trim(value)));
+            } catch (...) {
+              triggerToast("mirror: invalid");
+            }
+          });
+        return;
       } else if (sb.action == 271) {
         setFocusedOutputNdiEnabled(!focusedOutput().ndiEnabled);
       } else if (sb.action == 272) {
@@ -22090,10 +24364,11 @@ class App {
         std::string initial = trim(output.ndiSourceName).empty()
           ? defaultOutputNdiSourceName(output, project_.focusedOutputIndex)
           : output.ndiSourceName;
-        auto value = pickTextInput("NDI Name", "Sender source name", initial);
-        if (value) {
-          setFocusedOutputNdiName(*value);
-        }
+        openInlineTextEditor("settings.ndi_name", "NDI Name",
+                             "Sender source name", initial,
+                             [this](const std::string& value) {
+                               setFocusedOutputNdiName(value);
+                             });
       } else if (sb.action == 273) {
         setFocusedOutputNdiKeyEnabled(!focusedOutput().ndiKeyEnabled);
       } else if (sb.action == 274) {
@@ -22101,10 +24376,11 @@ class App {
         std::string initial = trim(output.ndiKeySourceName).empty()
           ? defaultOutputNdiKeySourceName(output, project_.focusedOutputIndex)
           : output.ndiKeySourceName;
-        auto value = pickTextInput("NDI Key Name", "Key sender source name", initial);
-        if (value) {
-          setFocusedOutputNdiKeyName(*value);
-        }
+        openInlineTextEditor("settings.ndi_key_name", "NDI Key Name",
+                             "Key sender source name", initial,
+                             [this](const std::string& value) {
+                               setFocusedOutputNdiKeyName(value);
+                             });
       } else if (sb.action == kSettingsActionOutputAdvancedToggle) {
         videoOutputsAdvanced_ = !videoOutputsAdvanced_;
       } else if (sb.action == kSettingsActionOutputToggle) {
@@ -22116,6 +24392,46 @@ class App {
       } else if (sb.action == kSettingsActionOutputDisplayRescan) {
         observedDisplayCount_ = SDL_GetNumVideoDisplays();
         refreshDisplayTopology(true);
+      } else if (sb.action == kSettingsActionOutputDisplayDropdown) {
+        openDropdown(
+          "settings.output_display",
+          sb.rect,
+          outputDisplayDropdownChoices(),
+          std::to_string(outputDisplayIndex(project_.focusedOutputIndex)),
+          [this](const std::string& value) {
+            try {
+              int displayIndex = std::stoi(trim(value));
+              if (displayIndex >= 0) {
+                setOutputDisplayIndex(displayIndex);
+              }
+            } catch (...) {
+            }
+          });
+        return;
+      } else if (sb.action == kSettingsActionOutputStreamProtocolDropdown) {
+        openDropdown(
+          "settings.stream_proto",
+          sb.rect,
+          outputStreamProtocolDropdownChoices(),
+          normalizeOutputStreamProtocol(focusedOutput().streamProtocol),
+          [this](const std::string& value) {
+            setFocusedOutputStreamProtocol(value);
+          });
+        return;
+      } else if (sb.action == kSettingsActionOutputMirrorDropdown) {
+        openDropdown(
+          "settings.output_mirror",
+          sb.rect,
+          outputMirrorSourceDropdownChoices(),
+          std::to_string(focusedOutput().mirrorSourceOutputIndex),
+          [this](const std::string& value) {
+            try {
+              setFocusedOutputMirrorSource(std::stoi(trim(value)));
+            } catch (...) {
+              triggerToast("mirror: invalid");
+            }
+          });
+        return;
       } else if (sb.action >= kSettingsActionOutputDisplayFocusBase &&
                  sb.action < kSettingsActionOutputDisplayFocusBase + 64) {
         int displayIndex = sb.action - kSettingsActionOutputDisplayFocusBase;
@@ -22561,6 +24877,14 @@ class App {
         });
       return;
     }
+    for (const auto& btn : panelWorkspaceButtons_) {
+      if (!pointInRect(x, y, btn.rect)) {
+        continue;
+      }
+      cyclePanelWorkspaceMode(btn.key);
+      updateFloatingPanelsWindowVisibility(true);
+      return;
+    }
     for (const auto& outputBtn : outputMenuButtons_) {
       if (!pointInRect(x, y, outputBtn.rect)) {
         continue;
@@ -22580,10 +24904,17 @@ class App {
         }
         return;
       }
-      if (outputBtn.action == kOutputMenuActionToggle) {
+      if (outputBtn.action == kOutputMenuActionRecover) {
         if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
           setFocusedOutputIndex(outputBtn.outputIndex);
-          setFocusedOutputEnabled(!project_.outputs[outputBtn.outputIndex].enabled);
+          setFocusedOutputEnabled(true);
+        }
+        return;
+      }
+      if (outputBtn.action == kOutputMenuActionDisarm) {
+        if (outputBtn.outputIndex >= 0 && outputBtn.outputIndex < static_cast<int>(project_.outputs.size())) {
+          setFocusedOutputIndex(outputBtn.outputIndex);
+          setFocusedOutputEnabled(false, false);
         }
         return;
       }
@@ -22745,7 +25076,7 @@ class App {
           int presetIndex = std::clamp(project_.focusedGroupPresetIndex, 0,
                                        static_cast<int>(project_.groupPresets.size()) - 1);
           std::string currentName = groupPresetLabel(presetIndex);
-          auto value = pickTextInput("Scene Name", "Enter name for focused scene", currentName);
+          auto value = pickTextInput("Master Scene Name", "Enter name for focused master scene", currentName);
           if (value) {
             renameFocusedGroupPreset(*value);
           }
@@ -23223,15 +25554,15 @@ class App {
       addSourceCue(kind, defaultSourceRefForKind(kind));
     } else if (label == "PATTERN") {
       addKawaiiPatternCue();
-    } else if (label == "(A) TAKE") {
+    } else if (label == "TAKE") {
       jumpSelectedCue();
-    } else if (label == "START PLAY") {
+    } else if (label == "PLAY") {
       toggleTransport();
-    } else if (label == "(B) STOP") {
+    } else if (label == "STOP") {
       stopTransport();
-    } else if (label == "SELECT CLR") {
+    } else if (label == "CLEAR") {
       clearOutput();
-    } else if (label == "OUTPUT") {
+    } else if (label == "PREFS") {
       settingsOpen_ = true;
       settingsTab_ = 3;
       uiWatchdogPopupEvent("settings_modal", true);
@@ -24933,10 +27264,11 @@ class App {
         if (!sel) {
           break;
         }
-        auto result = pickTextInput("Cue Goto", "Target cue token on end (blank = next):", sel->gotoTarget);
-        if (result) {
-          setSelectedGotoTarget(*result);
-        }
+        openInlineTextEditor("cue.goto_target", "Cue Goto",
+                             "Target cue token on end (blank = next):", sel->gotoTarget,
+                             [this](const std::string& value) {
+                               setSelectedGotoTarget(value);
+                             });
         break;
       }
       case QuickAction::CycleEndAction:  cycleSelectedEndAction(); break;
@@ -24964,12 +27296,13 @@ class App {
       case QuickAction::EditNotes: {
         Cue* sel = selectedCueMutable();
         if (sel) {
-          auto result = pickTextInput("Cue Notes", "Enter notes for selected cue(s):", sel->notes);
-          if (result) {
-            if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) { cue.notes = *result; })) {
+          openInlineTextEditor("cue.notes", "Cue Notes",
+                               "Enter notes for selected cue(s):", sel->notes,
+                               [this](const std::string& value) {
+            if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) { cue.notes = value; })) {
               markProjectDirty();
             }
-          }
+          });
         }
         break;
       }
@@ -24997,10 +27330,11 @@ class App {
         if (!sel || sel->kind != CueKind::Browser) {
           break;
         }
-        auto result = pickTextInput("Browser URL", "Enter URL or local file path:", sel->path);
-        if (result) {
-          setSelectedBrowserCueUrl(*result);
-        }
+        openInlineTextEditor("cue.browser_url", "Browser URL",
+                             "Enter URL or local file path:", sel->path,
+                             [this](const std::string& value) {
+                               setSelectedBrowserCueUrl(value);
+                             });
         break;
       }
       case QuickAction::GotoMinus10:
@@ -25140,6 +27474,9 @@ class App {
       case QuickAction::CueSectionPlaybackToggle:
         cueSectionPlaybackOpen_ = !cueSectionPlaybackOpen_;
         break;
+      case QuickAction::CueSectionMetadataToggle:
+        cueSectionMetadataOpen_ = !cueSectionMetadataOpen_;
+        break;
       case QuickAction::CueSectionGeometryToggle:
         cueSectionGeometryOpen_ = !cueSectionGeometryOpen_;
         break;
@@ -25148,6 +27485,9 @@ class App {
         break;
       case QuickAction::CueSectionRoutingToggle:
         cueSectionRoutingOpen_ = !cueSectionRoutingOpen_;
+        break;
+      case QuickAction::ClearOverlay:
+        clearOverlay();
         break;
       case QuickAction::CueRouteOutputPrev:
       case QuickAction::CueRouteOutputNext: {
@@ -25212,13 +27552,14 @@ class App {
         Cue* sel = selectedCueMutable();
         if (sel) {
           std::string initial = sel->cueId.empty() ? cueDisplayToken(*sel, focusedDeck().selectedIndex) : sel->cueId;
-          auto result = pickTextInput("Cue ID", "Short cue id (max 6 chars, letters/numbers):", initial);
-          if (result) {
-            std::string normalized = normalizeCueIdShort(*result);
+          openInlineTextEditor("cue.id", "Cue ID",
+                               "Short cue id (max 6 chars, letters/numbers):", initial,
+                               [this](const std::string& value) {
+            std::string normalized = normalizeCueIdShort(value);
             if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) { cue.cueId = normalized; })) {
               markProjectDirty();
             }
-          }
+          });
         }
         break;
       }
@@ -25884,47 +28225,6 @@ class App {
     return std::optional<std::string>(result);
   }
 
-  std::optional<std::string> pickChoiceFromList(
-      const std::string& title,
-      const std::string& prompt,
-      const std::vector<std::pair<std::string, std::string>>& options,
-      const std::string& defaultValue = "") {
-    if (options.empty()) {
-      return std::nullopt;
-    }
-#ifdef __linux__
-    std::vector<std::string> args {
-      "zenity",
-      "--list",
-      "--title=" + title,
-      "--text=" + prompt,
-      "--column=Choice",
-      "--column=Value",
-      "--print-column=2",
-      "--hide-column=2"
-    };
-    for (const auto& option : options) {
-      args.push_back(option.first);
-      args.push_back(option.second);
-    }
-    auto text = readAllText(args);
-    if (text) {
-      std::string value = trim(*text);
-      if (!value.empty()) {
-        return value;
-      }
-    }
-#endif
-    std::string fallbackPrompt = prompt + "\nEnter value token:";
-    for (size_t i = 0; i < options.size() && i < 24; ++i) {
-      fallbackPrompt += "\n" + options[i].second + "  -  " + options[i].first;
-    }
-    if (!defaultValue.empty()) {
-      fallbackPrompt += "\n(default: " + defaultValue + ")";
-    }
-    return pickTextInput(title, fallbackPrompt, defaultValue);
-  }
-
   std::vector<std::string> pickFiles() {
 #ifdef _WIN32
     auto text = readAllText({
@@ -26003,108 +28303,146 @@ class App {
   }
 
   void editFocusedDeckPlaylistPreferences() {
-    Deck& deck = focusedDeckMutable();
-    bool changed = false;
-
-    std::vector<std::pair<std::string, std::string>> fpsChoices {
-      {"24", "24"},
-      {"25", "25"},
-      {"29.97", "29.97"},
-      {"30", "30"},
+    if (project_.decks.empty()) {
+      return;
+    }
+    struct PlaylistPrefsDraft {
+      int deckIndex = -1;
+      double playlistTimebaseFps = 30.0;
+      double playlistStartOffsetSeconds = 0.0;
+      double playlistDefaultCueFadeSeconds = 0.5;
+      double playlistDefaultStillDurationSeconds = 5.0;
+      bool changed = false;
     };
-    auto fpsChoice = pickChoiceFromList(
-      "Playlist Timebase",
-      "Choose playlist SMPTE FPS",
-      fpsChoices,
-      playlistTimebaseLabel(deck.playlistTimebaseFps));
-    if (fpsChoice) {
-      try {
-        double next = normalizePlaylistTimebaseFps(std::stod(trim(*fpsChoice)));
-        if (std::fabs(deck.playlistTimebaseFps - next) > 0.001) {
-          deck.playlistTimebaseFps = next;
-          deck.timecodeFps = next;  // keep follower display base aligned with playlist base
-          changed = true;
-        }
-      } catch (...) {
-      }
-    }
+    Deck& deck = focusedDeckMutable();
+    auto draft = std::make_shared<PlaylistPrefsDraft>();
+    draft->deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    draft->playlistTimebaseFps = deck.playlistTimebaseFps;
+    draft->playlistStartOffsetSeconds = deck.playlistStartOffsetSeconds;
+    draft->playlistDefaultCueFadeSeconds = deck.playlistDefaultCueFadeSeconds;
+    draft->playlistDefaultStillDurationSeconds = deck.playlistDefaultStillDurationSeconds;
 
-    std::string startDefault = formatTimecode(deck.playlistStartOffsetSeconds, deck.playlistTimebaseFps);
-    auto startTc = pickTextInput(
-      "Playlist Start TC",
-      "SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)",
-      startDefault);
-    if (startTc) {
-      std::string token = trim(*startTc);
-      double parsed = 0.0;
-      bool valid = false;
-      if (token.empty()) {
-        valid = true;
-      } else if (auto tc = parseTimecodeSeconds(token, deck.playlistTimebaseFps)) {
-        parsed = *tc;
-        valid = true;
-      } else {
-        try {
-          parsed = std::max(0.0, std::stod(token));
-          valid = true;
-        } catch (...) {
-        }
+    auto applyDraft = [this, draft]() {
+      if (draft->deckIndex < 0 || draft->deckIndex >= static_cast<int>(project_.decks.size())) {
+        return;
       }
-      if (valid) {
-        parsed = std::clamp(parsed, 0.0, 24.0 * 60.0 * 60.0);
-        if (std::fabs(deck.playlistStartOffsetSeconds - parsed) > 0.001) {
-          deck.playlistStartOffsetSeconds = parsed;
-          changed = true;
-        }
+      Deck& target = project_.decks[draft->deckIndex];
+      if (draft->changed) {
+        target.playlistTimebaseFps = draft->playlistTimebaseFps;
+        target.timecodeFps = draft->playlistTimebaseFps;
+        target.playlistStartOffsetSeconds = draft->playlistStartOffsetSeconds;
+        target.playlistDefaultCueFadeSeconds = draft->playlistDefaultCueFadeSeconds;
+        target.playlistDefaultStillDurationSeconds = draft->playlistDefaultStillDurationSeconds;
+        markProjectDirty();
+        triggerToast(
+          "playlist prefs: "
+          + playlistTimebaseLabel(target.playlistTimebaseFps)
+          + " start "
+          + formatTimecode(target.playlistStartOffsetSeconds, target.playlistTimebaseFps));
       }
-    }
+    };
 
-    auto fadeValue = pickTextInput(
-      "Default Cue Fade",
-      "Seconds for new-cue fade in/out defaults",
-      [&]() {
-        std::ostringstream ss;
-        ss << std::fixed << std::setprecision(2) << deck.playlistDefaultCueFadeSeconds;
-        return ss.str();
-      }());
-    if (fadeValue) {
-      try {
-        double next = std::clamp(std::stod(trim(*fadeValue)), 0.0, 10.0);
-        if (std::fabs(deck.playlistDefaultCueFadeSeconds - next) > 0.001) {
-          deck.playlistDefaultCueFadeSeconds = next;
-          changed = true;
-        }
-      } catch (...) {
-      }
-    }
+    auto openStillStep = std::make_shared<std::function<void()>>();
+    auto openFadeStep = std::make_shared<std::function<void()>>();
+    auto openStartStep = std::make_shared<std::function<void()>>();
+    auto openFpsStep = std::make_shared<std::function<void()>>();
 
-    auto stillValue = pickTextInput(
-      "Default Non-Movie Duration",
-      "Seconds for new image/pattern/browser/lower-third cues (0 = hold)",
-      [&]() {
-        std::ostringstream ss;
-        ss << std::fixed << std::setprecision(2) << deck.playlistDefaultStillDurationSeconds;
-        return ss.str();
-      }());
-    if (stillValue) {
-      try {
-        double next = std::clamp(std::stod(trim(*stillValue)), 0.0, 3600.0);
-        if (std::fabs(deck.playlistDefaultStillDurationSeconds - next) > 0.001) {
-          deck.playlistDefaultStillDurationSeconds = next;
-          changed = true;
-        }
-      } catch (...) {
-      }
-    }
+    *openStillStep = [this, draft, applyDraft]() {
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(2) << draft->playlistDefaultStillDurationSeconds;
+      openInlineTextEditor("playlist.still_duration",
+                           "Default Non-Movie Duration",
+                           "Seconds for new image/pattern/browser/Lower Third cues (0 = hold)",
+                           ss.str(),
+                           [this, draft, applyDraft](const std::string& value) {
+                             try {
+                               double next = std::clamp(std::stod(trim(value)), 0.0, 3600.0);
+                               if (std::fabs(draft->playlistDefaultStillDurationSeconds - next) > 0.001) {
+                                 draft->playlistDefaultStillDurationSeconds = next;
+                                 draft->changed = true;
+                               }
+                             } catch (...) {
+                               triggerToast("still duration: invalid");
+                             }
+                             applyDraft();
+                           });
+    };
 
-    if (changed) {
-      markProjectDirty();
-      triggerToast(
-        "playlist prefs: "
-        + playlistTimebaseLabel(deck.playlistTimebaseFps)
-        + " start "
-        + formatTimecode(deck.playlistStartOffsetSeconds, deck.playlistTimebaseFps));
-    }
+    *openFadeStep = [this, draft, openStillStep]() {
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(2) << draft->playlistDefaultCueFadeSeconds;
+      openInlineTextEditor("playlist.fade_default",
+                           "Default Cue Fade",
+                           "Seconds for new-cue fade in/out defaults",
+                           ss.str(),
+                           [this, draft, openStillStep](const std::string& value) {
+                             try {
+                               double next = std::clamp(std::stod(trim(value)), 0.0, 10.0);
+                               if (std::fabs(draft->playlistDefaultCueFadeSeconds - next) > 0.001) {
+                                 draft->playlistDefaultCueFadeSeconds = next;
+                                 draft->changed = true;
+                               }
+                             } catch (...) {
+                               triggerToast("cue fade: invalid");
+                             }
+                             (*openStillStep)();
+                           });
+    };
+
+    *openStartStep = [this, draft, openFadeStep]() {
+      std::string startDefault = formatTimecode(draft->playlistStartOffsetSeconds, draft->playlistTimebaseFps);
+      openInlineTextEditor("playlist.start_tc",
+                           "Playlist Start TC",
+                           "SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)",
+                           startDefault,
+                           [this, draft, openFadeStep](const std::string& value) {
+                             std::string token = trim(value);
+                             double parsed = 0.0;
+                             bool valid = false;
+                             if (token.empty()) {
+                               valid = true;
+                             } else if (auto tc = parseTimecodeSeconds(token, draft->playlistTimebaseFps)) {
+                               parsed = *tc;
+                               valid = true;
+                             } else {
+                               try {
+                                 parsed = std::max(0.0, std::stod(token));
+                                 valid = true;
+                               } catch (...) {
+                                 triggerToast("playlist start: invalid");
+                               }
+                             }
+                             if (valid) {
+                               parsed = std::clamp(parsed, 0.0, 24.0 * 60.0 * 60.0);
+                               if (std::fabs(draft->playlistStartOffsetSeconds - parsed) > 0.001) {
+                                 draft->playlistStartOffsetSeconds = parsed;
+                                 draft->changed = true;
+                               }
+                             }
+                             (*openFadeStep)();
+                           });
+    };
+
+    *openFpsStep = [this, draft, openStartStep]() {
+      openInlineTextEditor("playlist.timebase",
+                           "Playlist Timebase",
+                           "Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30",
+                           playlistTimebaseLabel(draft->playlistTimebaseFps),
+                           [this, draft, openStartStep](const std::string& value) {
+                             try {
+                               double next = normalizePlaylistTimebaseFps(std::stod(trim(value)));
+                               if (std::fabs(draft->playlistTimebaseFps - next) > 0.001) {
+                                 draft->playlistTimebaseFps = next;
+                                 draft->changed = true;
+                               }
+                             } catch (...) {
+                               triggerToast("playlist fps: invalid");
+                             }
+                             (*openStartStep)();
+                           });
+    };
+
+    (*openFpsStep)();
   }
 
   void addBrowserCue(const std::string& rawUrl) {
@@ -26141,6 +28479,171 @@ class App {
       return;
     }
     addBrowserCue(*url);
+  }
+
+  void openInlineCueFindEditor(bool takeAfterFind, const std::string& initialValue = {}) {
+    std::string seed = initialValue.empty() ? lastCueFindToken_ : initialValue;
+    openInlineTextEditor(takeAfterFind ? "tool.find_take" : "tool.find",
+                         takeAfterFind ? "Find+Take Cue" : "Find Cue",
+                         "Cue number, cue id, or name contains:",
+                         seed,
+                         [this, takeAfterFind](const std::string& value) {
+                           std::string token = trim(value);
+                           if (token.empty()) {
+                             return;
+                           }
+                           findCueToken(token, 1, takeAfterFind);
+                         });
+  }
+
+  void applyRenumberCueInput(const std::string& rawInput, bool allowOptionalStart) {
+    std::string trimmedInput = trim(rawInput);
+    if (trimmedInput.empty()) {
+      renumberFocusedDeckCueNumbers("", 1);
+      return;
+    }
+    auto parts = splitWhitespace(trimmedInput);
+    std::string prefix = parts.empty() ? "" : parts[0];
+    int start = 1;
+    bool numericOnly = false;
+    if (allowOptionalStart && parts.size() == 1) {
+      try {
+        start = std::stoi(parts[0]);
+        prefix.clear();
+        numericOnly = true;
+      } catch (...) {
+      }
+    }
+    if (allowOptionalStart && !numericOnly && parts.size() > 1) {
+      try {
+        start = std::stoi(parts[1]);
+      } catch (...) {
+      }
+    }
+    renumberFocusedDeckCueNumbers(prefix, start);
+  }
+
+  void openInlineCueRenumberEditor(bool allowOptionalStart) {
+    openInlineTextEditor("tool.renumber_cues",
+                         "Renumber Cues",
+                         allowOptionalStart
+                           ? "Prefix and optional start (example: Q 100)"
+                           : "Prefix (optional). Example: Q",
+                         "",
+                         [this, allowOptionalStart](const std::string& value) {
+                           applyRenumberCueInput(value, allowOptionalStart);
+                         });
+  }
+
+  void openInlineMasterSceneRenameEditor() {
+    ensureGroupPreset(false);
+    if (project_.groupPresets.empty()) {
+      return;
+    }
+    int presetIndex = std::clamp(project_.focusedGroupPresetIndex, 0,
+                                 static_cast<int>(project_.groupPresets.size()) - 1);
+    std::string currentName = groupPresetLabel(presetIndex);
+    openInlineTextEditor("master_scene.rename",
+                         "Master Scene Name",
+                         "Enter name for focused master scene",
+                         currentName,
+                         [this](const std::string& value) {
+                           renameFocusedGroupPreset(value);
+                         });
+  }
+
+  void openInlineGotoCueEditor() {
+    openInlineTextEditor("tool.goto_cue",
+                         "GOTO Cue",
+                         "Jump to cue number:",
+                         "",
+                         [this](const std::string& value) {
+                           std::string token = trim(value);
+                           if (!token.empty()) {
+                             handleRemoteCommand("GOTO " + token);
+                           }
+                         });
+  }
+
+  void openInlineMidiPortEditor() {
+    openInlineTextEditor("settings.midi_port",
+                         "ALSA MIDI Port",
+                         "e.g. 20:0 or client name",
+                         midiDeviceName_,
+                         [this](const std::string& value) {
+                           midiDeviceName_ = trim(value);
+                           if (midiEnabled_) {
+                             stopMidiInput();
+                             startMidiInput();
+                           }
+                         });
+  }
+
+  void openInlineCompanionPortEditor() {
+    openInlineTextEditor("settings.companion_port",
+                         "Companion/OSC Port",
+                         "port number (default 5510)",
+                         std::to_string(companionPort_),
+                         [this](const std::string& value) {
+                           try {
+                             int p = std::stoi(trim(value));
+                             if (p > 0 && p < 65536 && p != companionPort_) {
+                               companionPort_ = p;
+                               stopCompanionControl();
+                               startCompanionControl();
+                               triggerToast("companion port: " + std::to_string(companionPort_));
+                             }
+                           } catch (...) {
+                             triggerToast("port: invalid");
+                           }
+                         });
+  }
+
+  void openInlineOscQueryPortEditor() {
+    openInlineTextEditor("settings.osc_query_port",
+                         "OSC Query HTTP Port",
+                         "port number (default 5511)",
+                         std::to_string(project_.oscQueryPort),
+                         [this](const std::string& value) {
+                           try {
+                             int p = std::stoi(trim(value));
+                             if (p > 0 && p < 65536) {
+                               setOscQueryPort(p);
+                             } else {
+                               triggerToast("osc query port: invalid");
+                             }
+                           } catch (...) {
+                             triggerToast("osc query port: invalid");
+                           }
+                         });
+  }
+
+  void openInlineOscFeedbackRateEditor() {
+    openInlineTextEditor("settings.osc_feedback_rate",
+                         "OSC Feedback Mirror Rate",
+                         "milliseconds (40..2000)",
+                         std::to_string(project_.oscFeedbackRateMs),
+                         [this](const std::string& value) {
+                           try {
+                             setOscFeedbackRateMs(std::stoi(trim(value)));
+                           } catch (...) {
+                             triggerToast("osc feedback rate: invalid");
+                           }
+                         });
+  }
+
+  void openInlineArtNetPortEditor() {
+    openInlineTextEditor("settings.artnet_port",
+                         "Art-Net Port",
+                         "port number (default 6454)",
+                         std::to_string(project_.artNetPort),
+                         [this](const std::string& value) {
+                           try {
+                             setArtNetPort(std::stoi(trim(value)));
+                           } catch (...) {
+                             triggerToast("art-net port: invalid");
+                           }
+                         });
   }
 
   void addSourceCue(CueKind kind, const std::string& rawRef) {
@@ -26513,7 +29016,7 @@ class App {
         return false;
       }
       SDL_SetWindowFullscreen(runtime->outputWindow, 0);
-      runtime->recoveryPausedByEscape = true;
+      setOutputRecoveryPausedByEscape(outputIndex, true);
       SDL_ShowWindow(runtime->outputWindow);
       SDL_RaiseWindow(controlWindow_);
       triggerToast("escape: " + outputLabel(outputIndex) + " windowed");
@@ -26534,7 +29037,7 @@ class App {
         if (OutputRuntime* runtime = runtimeForOutput(*sourceOutputIndex); runtime && runtime->outputWindow) {
           // Esc from an output window should remain an output-safety action,
           // not fall through to app quit confirmation.
-          runtime->recoveryPausedByEscape = true;
+          setOutputRecoveryPausedByEscape(*sourceOutputIndex, true);
           SDL_ShowWindow(runtime->outputWindow);
           SDL_RaiseWindow(controlWindow_);
           project_.focusedOutputIndex = *sourceOutputIndex;
@@ -26579,85 +29082,68 @@ class App {
     sourceDefaultDropdownRect_ = SDL_Rect {};
     patternDefaultDropdownRect_ = SDL_Rect {};
 
-    int barX = kPadding + 8;
-    int barW = std::max(540, windowWidth - (kPadding + 8) * 2);
-    int barH = 104;
-    int barY = std::max(8, windowHeight - barH - 12);
+    int barX = snapDownToGrid(kLayoutPanelPadding);
+    int barW = snapDownToGrid(std::max(540, windowWidth - kLayoutPanelPadding * 2));
+    int barH = kLayoutBottomBarHeight;
+    int barY = snapDownToGrid(std::max(kLayoutSpacingUnit, windowHeight - barH - kLayoutPanelPadding));
     bottomBarRect_ = {barX, barY, barW, barH};
 
-    constexpr int kButtonCount = 8;
-    constexpr int kGroup1 = 3;
-    constexpr int kGroup2 = 3;
-    constexpr int kGroup3 = 2;
-    int buttonY = barY + 40;
-    int buttonH = 56;
-    int itemGap = 8;
-    int groupGap = 16;
-    int totalGap = itemGap * (kButtonCount - 1) + groupGap * 2;
-    int buttonW = std::clamp((barW - 24 - totalGap) / kButtonCount, 96, 136);
-    int usedW = buttonW * kButtonCount + totalGap;
-    int x = barX + (barW - usedW) / 2;
+    SDL_Rect groupBounds {barX + kLayoutSpacingUnit, barY + 12, barW - kLayoutSpacingUnit * 2, barH - 20};
+    GridLayout groups(groupBounds, 3, 1, kLayoutPanelGap);
+    mediaGroupRect_ = groups.cell(0, 0);
+    transportGroupRect_ = groups.cell(1, 0);
+    outputGroupRect_ = groups.cell(2, 0);
+
+    int buttonY = barY + 20;
+    int buttonH = kLayoutButtonHeight;
+    int buttonW = std::clamp((std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3, 84, 132);
     SDL_Rect sourceButtonRect {};
     SDL_Rect patternButtonRect {};
-    int buttonIndex = 0;
 
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
       button.label = std::move(label);
       button.tip   = std::move(tip);
-      button.rect = {x, buttonY, buttonW, buttonH};
       button.fill = fill;
       button.outline = colorFromRgba(kScreenDeepColor);
       button.text = colorFromRgba(kScreenDeepColor);
       buttons_.push_back(button);
-      if (buttons_.back().label == "SOURCE") {
-        sourceButtonRect = button.rect;
-      } else if (buttons_.back().label == "PATTERN") {
-        patternButtonRect = button.rect;
-      }
-      ++buttonIndex;
-      x += button.rect.w;
-      if (buttonIndex == kGroup1 || buttonIndex == kGroup1 + kGroup2) {
-        x += groupGap;
-      } else {
-        x += itemGap;
-      }
     };
     push("IMPORT",     colorFromRgba(kScreenMidColor), "Shift+I — import media files");
     push("SOURCE",     colorFromRgba(kScreenMidColor), "Add source cue using selected source type");
     push("PATTERN",    colorFromRgba(kScreenMidColor), "Add default pattern cue");
-    push("(A) TAKE",   colorFromRgba(kScreenLightColor), "Enter — take selected cue live");
-    push("(B) STOP",   colorFromRgba(kScreenMidColor), "S — stop and rewind active cue");
-    push("START PLAY", colorFromRgba(kScreenMidColor), "Space — play/pause active cue");
-    push("SELECT CLR", colorFromRgba(kScreenMidColor), "C — clear output to black");
-    push("OUTPUT",     colorFromRgba(kScreenMidColor), "Open video output settings");
+    push("TAKE",       colorFromRgba(kScreenLightColor), "Enter — take selected cue live");
+    push("STOP",       colorFromRgba(kScreenMidColor), "S — stop and rewind active cue");
+    push("PLAY",       colorFromRgba(kScreenMidColor), "Space — play/pause active cue");
+    push("CLEAR",      colorFromRgba(kScreenMidColor), "C — clear output to black");
+    push("PREFS",      colorFromRgba(kScreenMidColor), "Open video output settings");
 
-    if (!buttons_.empty()) {
-      mediaGroupRect_ = {
-        buttons_[0].rect.x - 6,
-        barY + 30,
-        (buttons_[kGroup1 - 1].rect.x + buttons_[kGroup1 - 1].rect.w) - buttons_[0].rect.x + 12,
-        buttonH + 10
-      };
-      transportGroupRect_ = {
-        buttons_[kGroup1].rect.x - 6,
-        barY + 30,
-        (buttons_[kGroup1 + kGroup2 - 1].rect.x + buttons_[kGroup1 + kGroup2 - 1].rect.w)
-          - buttons_[kGroup1].rect.x + 12,
-        buttonH + 10
-      };
-      outputGroupRect_ = {
-        buttons_[kGroup1 + kGroup2].rect.x - 6,
-        barY + 30,
-        (buttons_.back().rect.x + buttons_.back().rect.w) - buttons_[kGroup1 + kGroup2].rect.x + 12,
-        buttonH + 10
-      };
+    auto placeGroupButtons = [&](int startIndex, int count, const SDL_Rect& groupRect) {
+      int totalW = count * buttonW + (count - 1) * kLayoutButtonGap;
+      int x = groupRect.x + std::max(kLayoutSpacingUnit, (groupRect.w - totalW) / 2);
+      for (int i = 0; i < count; ++i) {
+        buttons_[startIndex + i].rect = {x, buttonY, buttonW, buttonH};
+        if (buttons_[startIndex + i].label == "SOURCE") {
+          sourceButtonRect = buttons_[startIndex + i].rect;
+        } else if (buttons_[startIndex + i].label == "PATTERN") {
+          patternButtonRect = buttons_[startIndex + i].rect;
+        }
+        x += buttonW + kLayoutButtonGap;
+      }
+    };
+    if (buttons_.size() == 8) {
+      placeGroupButtons(0, 3, mediaGroupRect_);
+      placeGroupButtons(3, 3, transportGroupRect_);
+      placeGroupButtons(6, 2, outputGroupRect_);
     }
+
+    int selectorY = barY - 28;
+    int selectorH = 24;
     if (sourceButtonRect.w > 0) {
-      sourceDefaultDropdownRect_ = {sourceButtonRect.x, barY + 8, sourceButtonRect.w, 20};
+      sourceDefaultDropdownRect_ = {sourceButtonRect.x, selectorY, sourceButtonRect.w, selectorH};
     }
     if (patternButtonRect.w > 0) {
-      patternDefaultDropdownRect_ = {patternButtonRect.x, barY + 8, patternButtonRect.w, 20};
+      patternDefaultDropdownRect_ = {patternButtonRect.x, selectorY, patternButtonRect.w, selectorH};
     }
   }
 
@@ -26718,6 +29204,47 @@ class App {
     SDL_DestroyTexture(texture);
   }
 
+  void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
+                    const std::string& text, SDL_Color color) {
+    if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {
+      return;
+    }
+    SDL_Rect safe = safeTextRect(rect);
+    if (safe.w <= 0 || safe.h <= 0) {
+      return;
+    }
+    std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
+    if (clipped.empty()) {
+      return;
+    }
+    int textW = 0;
+    int textH = 0;
+    if (TTF_SizeUTF8(font, clipped.c_str(), &textW, &textH) != 0) {
+      return;
+    }
+    int textY = safe.y;
+    if (safe.h > textH) {
+      textY = safe.y + (safe.h - textH) / 2;
+    }
+    drawText(renderer, font, clipped, color, safe.x, textY);
+  }
+
+  void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
+                            const std::string& text, SDL_Color color) {
+    if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {
+      return;
+    }
+    SDL_Rect safe = safeTextRect(rect);
+    if (safe.w <= 0 || safe.h <= 0) {
+      return;
+    }
+    std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
+    if (clipped.empty()) {
+      return;
+    }
+    drawCenteredText(renderer, font, clipped, color, safe);
+  }
+
   void drawCenteredText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
     if (!font || text.empty()) {
       return;
@@ -26742,6 +29269,55 @@ class App {
     SDL_DestroyTexture(texture);
   }
 
+  void drawUIPanel(const SDL_Rect& rect, SDL_Color fill, SDL_Color border, SDL_Color accent) {
+    if (rect.w <= 0 || rect.h <= 0) {
+      return;
+    }
+    SDL_Rect snapped = snapRectToGrid(rect);
+    Primitives::fillRect(controlRenderer_, snapped, fill);
+    Primitives::strokeRect(controlRenderer_, snapped, border);
+    if (snapped.w > 2 && snapped.h > 2) {
+      Primitives::strokeRect(controlRenderer_, insetRect(snapped, 1), accent);
+    }
+  }
+
+  void drawUILabel(const SDL_Rect& rect, const std::string& text, SDL_Color color, TTF_Font* font = nullptr) {
+    drawTextSafe(controlRenderer_, font ? font : fontSmall_, rect, text, color);
+  }
+
+  void drawUIButton(const SDL_Rect& rect, const std::string& text, SDL_Color fill, SDL_Color ink,
+                    bool emphasized = false, const std::string& sublabel = "") {
+    if (rect.w <= 0 || rect.h <= 0) {
+      return;
+    }
+    SDL_Color accent = emphasized ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDarkColor);
+    drawUIPanel(rect, fill, colorFromRgba(kScreenDeepColor), accent);
+    SDL_Rect topBand {rect.x + 2, rect.y + 2, std::max(0, rect.w - 4), std::min(6, rect.h / 5)};
+    SDL_Color bandFill = emphasized ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+    Primitives::fillRect(controlRenderer_, topBand, bandFill);
+    TTF_Font* titleFont = (rect.w < 108 || text.size() > 7) ? fontSmall_ : fontBase_;
+    if (sublabel.empty()) {
+      drawCenteredTextSafe(controlRenderer_, titleFont, rect, text, ink);
+      return;
+    }
+    SDL_Rect titleRect {rect.x, rect.y + 6, rect.w, std::max(14, rect.h / 2 - 2)};
+    SDL_Rect hintRect {rect.x, rect.y + rect.h / 2 + 2, rect.w, std::max(10, rect.h / 2 - 4)};
+    drawCenteredTextSafe(controlRenderer_, titleFont, titleRect, text, ink);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, hintRect, sublabel, ink);
+  }
+
+  void drawUIDropdown(const SDL_Rect& rect, const std::string& label, const std::string& value,
+                      const std::string& owner) {
+    bool active = dropdown_.open && dropdown_.owner == owner;
+    SDL_Color fill = active ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+    SDL_Color ink = active ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+    drawUIPanel(rect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect labelRect {rect.x + 4, rect.y, rect.w - 20, rect.h};
+    SDL_Rect chevronRect {rect.x + rect.w - 20, rect.y, 16, rect.h};
+    drawUILabel(labelRect, label + ": " + value, ink, fontSmall_);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, chevronRect, "v", ink);
+  }
+
   struct UiImageAsset {
     fs::path path;
     SDL_Texture* texture = nullptr;
@@ -26753,6 +29329,7 @@ class App {
   std::optional<std::pair<int, int>> probeStillImageSize(const fs::path& path) const {
     auto output = readAllText({
       "ffprobe", "-v", "error",
+      "-noautorotate",
       "-select_streams", "v:0",
       "-show_entries", "stream=width,height",
       "-of", "csv=p=0:s=x",
@@ -27061,7 +29638,6 @@ class App {
   static constexpr int kDecksPanelDeckActionTake = 200;
   static constexpr int kDecksPanelDeckActionStop = 201;
   static constexpr int kOutputMenuActionFocus = 1;
-  static constexpr int kOutputMenuActionToggle = 2;
   static constexpr int kOutputMenuActionAddOutput = 3;
   static constexpr int kOutputMenuActionRouteFocusDeck = 4;
   static constexpr int kOutputMenuActionRouteAssignToggle = 5;
@@ -27070,6 +29646,9 @@ class App {
   static constexpr int kOutputMenuActionRouteOutputPrev = 8;
   static constexpr int kOutputMenuActionRouteOutputNext = 9;
   static constexpr int kOutputMenuActionToggleFps = 10;
+  static constexpr int kOutputMenuActionRecover = 11;
+  static constexpr int kOutputMenuActionDisarm = 12;
+  static constexpr int kFloatingPanelActionDock = 1;
   static constexpr int kSettingsActionOutputRemove = 269;
   static constexpr int kSettingsActionOutputToggle = 262;
   static constexpr int kSettingsActionOutputDisplayPrev = 263;
@@ -27089,6 +29668,9 @@ class App {
   static constexpr int kSettingsActionOutputTestCardToggle = 291;
   static constexpr int kSettingsActionOutputTestCardAllToggle = 292;
   static constexpr int kSettingsActionOutputWarpModeCycle = 293;
+  static constexpr int kSettingsActionOutputDisplayDropdown = 294;
+  static constexpr int kSettingsActionOutputStreamProtocolDropdown = 295;
+  static constexpr int kSettingsActionOutputMirrorDropdown = 296;
   static constexpr int kSettingsActionPlaylistPrefsEdit = 500;
   static constexpr int kSettingsActionPlaylistDefaultLoopToggle = 501;
   static constexpr int kSettingsActionPlaylistDefaultFadeInToggle = 502;
@@ -27126,6 +29708,8 @@ class App {
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Window* decksPanelWindow_ = nullptr;
   SDL_Renderer* decksPanelRenderer_ = nullptr;
+  SDL_Window* floatingPanelsWindow_ = nullptr;
+  SDL_Renderer* floatingPanelsRenderer_ = nullptr;
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;
@@ -27259,12 +29843,38 @@ class App {
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
   std::vector<MasterCueRowHit> masterCueRowHits_;
   std::vector<OutputMenuButton> outputMenuButtons_;
+  struct PanelWorkspaceButton {
+    SDL_Rect rect;
+    UiPanelKey key {};
+  };
+  std::vector<PanelWorkspaceButton> panelWorkspaceButtons_;
+  struct FloatingPanelWindowButton {
+    SDL_Rect rect;
+    UiPanelKey key {};
+    int action = 0;
+  };
+  std::vector<FloatingPanelWindowButton> floatingPanelWindowButtons_;
+  UiPanelManager uiPanelManager_ {};
+  UiWorkspaceState uiWorkspace_ {};
+  bool uiWorkspaceDirty_ = false;
+  std::chrono::steady_clock::time_point uiWorkspaceDirtyAt_ {};
   bool outputFpsCounterEnabled_ = true;
+  SDL_Rect outputPanelsViewportRect_ {};
+  int outputPanelScroll_ = 0;
+  int outputPanelScrollMax_ = 0;
+  SDL_Rect floatingPanelsViewportRect_ {};
+  int floatingPanelsScroll_ = 0;
+  int floatingPanelsScrollMax_ = 0;
+  bool renderingFloatingPanelsWindow_ = false;
+  SDL_Rect routingMatrixViewportRect_ {};
+  int routingMatrixScroll_ = 0;
+  int routingMatrixScrollMax_ = 0;
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
   int cueSettingsScrollMax_ = 0;
   bool cueSectionPlaybackOpen_ = true;
+  bool cueSectionMetadataOpen_ = true;
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
   bool cueSectionRoutingOpen_ = true;
