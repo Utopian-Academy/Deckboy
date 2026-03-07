@@ -1,0 +1,12 @@
+{
+  "header/header_default": "top header strip",
+  "outputs/output_chip_*": "output status chips",
+  "cue_icons/*": "cue type icons",
+  "monitor/monitor_frame": "program monitor frame",
+  "controls/*": "transport buttons",
+  "routing/routing_row": "routing table row",
+  "master_cues/scene_card": "master cue scene card",
+  "textures/dot_grid": "background grid",
+  "splash/splash_boot_deckgirl": "boot splash with Deckgirl",
+  "styleguide/styleguide": "palette and spacing reference"
+}
