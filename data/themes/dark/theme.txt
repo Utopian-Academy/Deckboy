@@ -1,0 +1,23 @@
+# Deckboy Theme: Dark Broadcast
+# Clean dark UI suitable for broadcast control rooms and multi-monitor setups.
+# Inspired by professional broadcast software (Mitti, QLAB, Resolume).
+# Set DECKBOY_THEME=dark to activate.
+# All values are RRGGBBAA hex.
+
+# Panel/shell backgrounds
+shell_outer	1E1E1EFF
+shell_inner	252525FF
+shell_shadow	111111FF
+
+# 4-tone surface scale (light → deep)
+screen_light	3A3A3AFF
+screen_mid	2D2D2DFF
+screen_dark	1A1A1AFF
+screen_deep	0D0D0DFF
+
+# Soft label ink (de-emphasised text)
+screen_ink_soft	555555FF
+
+# Button rim / delete button
+button_bezel	444444FF
+delete_bezel	7A1C1CFF

@@ -1,0 +1,14 @@
+# Deckboy Theme: Game Boy (default)
+# DMG 4-tone green palette — the original Deckboy look.
+# All values are RRGGBBAA hex.
+
+screen_light	9BBC0FFF
+screen_mid	8BAC0FFF
+screen_dark	306230FF
+screen_deep	0F380FFF
+shell_outer	9BBC0FFF
+shell_inner	8BAC0FFF
+shell_shadow	306230FF
+screen_ink_soft	306230FF
+button_bezel	306230FF
+delete_bezel	306230FF
