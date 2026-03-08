@@ -33,17 +33,18 @@ constexpr int kAudioChannels = 2;
 constexpr size_t kMaxVideoFrames = 6;
 
 // Colors (SDL-style RGBA as Uint32)
-// DMG palette (4-tone): light / mid / dark / deepest.
-constexpr std::uint32_t kShellOuterColor = 0x9BBC0FFFu;
-constexpr std::uint32_t kShellInnerColor = 0x8BAC0FFFu;
-constexpr std::uint32_t kShellShadowColor = 0x306230FFu;
-constexpr std::uint32_t kScreenLightColor = 0x9BBC0FFFu;
-constexpr std::uint32_t kScreenMidColor = 0x8BAC0FFFu;
-constexpr std::uint32_t kScreenDarkColor = 0x306230FFu;
-constexpr std::uint32_t kScreenDeepColor = 0x0F380FFFu;
-constexpr std::uint32_t kScreenInkSoftColor = 0x306230FFu;
-constexpr std::uint32_t kButtonBezelColor = 0x306230FFu;
-constexpr std::uint32_t kDeleteBezelColor = 0x306230FFu;
+// DMG Game Boy palette (4-tone) — default theme.
+// These are intentionally non-const so a theme asset pack can overwrite them at runtime.
+inline std::uint32_t kShellOuterColor   = 0x9BBC0FFFu;
+inline std::uint32_t kShellInnerColor   = 0x8BAC0FFFu;
+inline std::uint32_t kShellShadowColor  = 0x306230FFu;
+inline std::uint32_t kScreenLightColor  = 0x9BBC0FFFu;
+inline std::uint32_t kScreenMidColor    = 0x8BAC0FFFu;
+inline std::uint32_t kScreenDarkColor   = 0x306230FFu;
+inline std::uint32_t kScreenDeepColor   = 0x0F380FFFu;
+inline std::uint32_t kScreenInkSoftColor= 0x306230FFu;
+inline std::uint32_t kButtonBezelColor  = 0x306230FFu;
+inline std::uint32_t kDeleteBezelColor  = 0x306230FFu;
 
 // App strings
 constexpr std::string_view kAppTitle = "Deckboy";
