@@ -1,6 +1,6 @@
 workspace	Broadcast Default
-focused_panel	deck_playlist	7
-focused_deck	7
+focused_panel	preferences	-1
+focused_deck	0
 focused_output	0
 focused_cue	-1
 state	decks_panel_manual	0
@@ -16,13 +16,6 @@ panel	cue_inspector	-1	Cue Inspector	docked	1	1	1051	128	315	528
 panel	routing	-1	Routing	docked	1	1	12	669	1636	179
 panel	master_scene	-1	Master Scene	docked	1	1	1376	404	264	252
 panel	output	-1	Output	docked	1	1	1376	128	264	264
-panel	preferences	-1	Preferences	modal	0	1	487	322	1660	980
-panel	deck_playlist	0	Deck 1 Playlist	floating	1	1	12	276	426	686
-panel	deck_playlist	1	Deck 2 Playlist	floating	1	1	448	276	426	686
-panel	deck_playlist	2	Deck 3 Playlist	floating	1	1	12	348	426	614
-panel	deck_playlist	3	Deck 4 Playlist	floating	1	1	12	384	426	578
-panel	deck_playlist	4	Deck 5 Playlist	floating	1	1	12	420	426	542
-panel	deck_playlist	5	Deck 6 Playlist	floating	1	1	448	420	426	542
-panel	deck_playlist	6	Deck 7 Playlist	floating	1	1	884	420	426	542
-panel	deck_playlist	7	Deck 8 Playlist	docked	1	1	1320	420	426	542
+panel	preferences	-1	Preferences	modal	1	1	487	322	1660	980
+panel	deck_playlist	0	Deck 1 Playlist	docked	1	1	8	128	399	528
 panel	output	0	Output 1	docked	1	1	1256	234	368	72

@@ -83,7 +83,7 @@ constexpr int kLayoutPanelPadding = 16;
 constexpr int kLayoutPanelGap = 12;
 constexpr int kLayoutPanelBorder = 2;
 constexpr int kLayoutTextInset = 12;
-constexpr int kLayoutHeaderHeight = 44;
+constexpr int kLayoutHeaderHeight = 56;
 constexpr int kLayoutBottomBarHeight = 72;
 constexpr int kLayoutButtonHeight = 40;
 constexpr int kLayoutButtonPadding = 12;
@@ -18778,6 +18778,169 @@ class App {
   // ---------------------------------------------------------------------------
   // Decks panel window
   // ---------------------------------------------------------------------------
+  // Deck bar: horizontal strip at bottom of control window when DECKS is on.
+  // ---------------------------------------------------------------------------
+
+  void renderDeckBar(const SDL_Rect& bar) {
+    deckBarHits_.clear();
+
+    // Panel background
+    drawUIPanel(bar, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    constexpr int kPad     = 6;
+    constexpr int kTakeAllW = 56;
+    constexpr int kMinColW  = 160;
+    constexpr int kHdrH    = 22;
+    constexpr int kCueH    = 18;
+    constexpr int kProgH   = 12;
+    constexpr int kRemH    = 16;
+    constexpr int kTransH  = 34;
+
+    int innerX = bar.x + kPad;
+    int innerY = bar.y + kPad;
+    int innerW = bar.w - kPad * 2;
+    int innerH = bar.h - kPad * 2;
+
+    // TAKE ALL button on the left
+    SDL_Rect takeAllBtn {innerX, innerY, kTakeAllW, innerH};
+    bool hovTakeAll = pointInRect(mouseX_, mouseY_, takeAllBtn);
+    SDL_Color taFill = hovTakeAll ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+    drawUIPanel(takeAllBtn, taFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, takeAllBtn, "TAKE\nALL",
+                         colorFromRgba(kScreenDeepColor));
+    deckBarHits_.push_back({-1, kDeckBarActionTakeAll, takeAllBtn});
+
+    int decksAreaX = innerX + kTakeAllW + kPad;
+    int decksAreaW = innerW - kTakeAllW - kPad;
+
+    int deckCount = static_cast<int>(project_.decks.size());
+    if (deckCount <= 0) return;
+
+    // Column width: fill evenly if enough room, else min width with scrolling
+    int colW = decksAreaW / deckCount;
+    if (colW < kMinColW) colW = kMinColW;
+
+    // Clamp scroll
+    int maxScroll = std::max(0, deckCount * (colW + kPad) - kPad - decksAreaW);
+    deckBarScroll_ = std::clamp(deckBarScroll_, 0, maxScroll);
+
+    // Clip to decks area
+    SDL_Rect decksClip {decksAreaX, innerY, decksAreaW, innerH};
+    SDL_RenderSetClipRect(controlRenderer_, &decksClip);
+
+    int colX = decksAreaX - deckBarScroll_;
+    for (int di = 0; di < deckCount; ++di) {
+      SDL_Rect col {colX, innerY, colW, innerH};
+      colX += colW + kPad;
+
+      // Skip entirely off-screen columns
+      if (col.x + col.w < decksAreaX || col.x > decksAreaX + decksAreaW) continue;
+
+      bool focused = (di == project_.focusedDeckIndex);
+      SDL_Color colBg = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellOuterColor);
+      SDL_Color colBorder = colorFromRgba(kScreenDeepColor);
+      SDL_Color colOuter  = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellInnerColor);
+      drawUIPanel(col, colBg, colBorder, colOuter);
+
+      int cx = col.x + 4;
+      int cy = col.y + 4;
+      int cw = col.w - 8;
+
+      // Header: deck label + name
+      SDL_Rect hdrRect {cx, cy, cw, kHdrH};
+      SDL_Color hdrFill = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellOuterColor);
+      Primitives::fillRect(controlRenderer_, hdrRect, hdrFill);
+
+      std::string label = deckLabel(di);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {cx + 2, cy + (kHdrH - 12) / 2, 28, 12},
+                   label, colorFromRgba(kScreenDeepColor));
+
+      // Output name right-aligned
+      std::string outName;
+      if (auto oi = primaryOutputIndexForDeck(di); oi) {
+        outName = "\xe2\x86\x92 " + outputLabel(*oi);  // "→ OutputName"
+      }
+      if (!outName.empty()) {
+        int outW = cw - 34;
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {cx + cw - outW - 2, cy + (kHdrH - 12) / 2, outW, 12},
+                     outName, colorFromRgba(kScreenDarkColor));
+      }
+      cy += kHdrH + 4;
+
+      // Active cue name
+      const Cue* activeCue = activeCuePtr(di);
+      MediaEngine* engine   = mediaEngineForDeck(di);
+      std::string cueName   = activeCue ? activeCue->name : "--";
+      cueName = ellipsizeToPixelWidth(fontSmall_, cueName, cw - 4);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {cx + 2, cy, cw - 4, kCueH},
+                   cueName, colorFromRgba(focused ? kScreenDeepColor : kScreenDarkColor));
+      cy += kCueH + 2;
+
+      // Progress bar
+      SDL_Rect progBg {cx, cy, cw, kProgH};
+      Primitives::fillRect(controlRenderer_, progBg, colorFromRgba(kShellInnerColor));
+      double pos  = engine ? engine->position() : 0.0;
+      double dur  = (activeCue && activeCue->duration > 0.0) ? activeCue->duration : 0.0;
+      if (engine && dur <= 0.0) dur = engine->duration();
+      float frac  = (dur > 0.0) ? static_cast<float>(std::clamp(pos / dur, 0.0, 1.0)) : 0.0f;
+      if (frac > 0.0f) {
+        SDL_Rect progFill {cx, cy, static_cast<int>(cw * frac), kProgH};
+        Primitives::fillRect(controlRenderer_, progFill, colorFromRgba(kScreenDarkColor));
+      }
+      Primitives::strokeRect(controlRenderer_, progBg, colorFromRgba(kScreenDeepColor));
+      cy += kProgH + 2;
+
+      // Remaining time
+      std::string remStr = "--:--";
+      if (dur > 0.0) {
+        double rem = dur - pos;
+        if (rem < 0.0) rem = 0.0;
+        remStr = "-" + formatSeconds(rem);
+      }
+      drawTextSafe(controlRenderer_, fontMono_,
+                   SDL_Rect {cx + 2, cy, cw - 4, kRemH},
+                   remStr, colorFromRgba(kScreenDarkColor));
+      cy += kRemH + 4;
+
+      // Transport: [TAKE] [■]
+      int transY  = col.y + col.h - kTransH - 4;
+      int btnH    = kTransH - 4;
+      int stopW   = 40;
+      int takeW   = std::max(40, cw - stopW - 6);
+      SDL_Rect takeBtn {cx, transY, takeW, btnH};
+      SDL_Rect stopBtn {cx + takeW + 4, transY, stopW, btnH};
+
+      bool hovTake = pointInRect(mouseX_, mouseY_, takeBtn);
+      SDL_Color takeFill = hovTake
+        ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor);
+      drawUIPanel(takeBtn, takeFill,
+                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, takeBtn, "TAKE",
+                           colorFromRgba(kScreenDeepColor));
+      deckBarHits_.push_back({di, kDeckBarActionTake, takeBtn});
+
+      bool hovStop = pointInRect(mouseX_, mouseY_, stopBtn);
+      SDL_Color stopFill = hovStop
+        ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellOuterColor);
+      drawUIPanel(stopBtn, stopFill,
+                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, stopBtn, "\xe2\x96\xa0",
+                           colorFromRgba(kScreenDeepColor));
+      deckBarHits_.push_back({di, kDeckBarActionStop, stopBtn});
+
+      // Focus hit area: full column excluding the button row
+      SDL_Rect focusRect {col.x, col.y, col.w, col.h - kTransH - 4};
+      deckBarHits_.push_back({di, kDeckBarActionFocus, focusRect});
+    }
+
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+  }
+
+  // ---------------------------------------------------------------------------
 
   void renderDecksPanel() {
     if (!decksPanelWindow_ || !decksPanelRenderer_) {
@@ -19892,126 +20055,113 @@ class App {
                 colorFromRgba(kScreenDeepColor),
                 colorFromRgba(kShellInnerColor));
 
+    // ─── Header: branding + status only (slim) ───────────────────────────────
+    constexpr int kHdrSlimH = 36;
     SDL_Rect header {shell.x + kLayoutPanelBorder * 2, shell.y + kLayoutPanelBorder * 2,
-                     shell.w - kLayoutPanelBorder * 4, kLayoutHeaderHeight};
-    drawUIPanel(header,
-                colorFromRgba(kShellInnerColor),
-                colorFromRgba(kScreenDeepColor),
-                colorFromRgba(kShellOuterColor));
-
-    // ─── Slim 3-zone header ──────────────────────────────────────────────────
-    SDL_Rect headerInner = insetRect(header, 4);
-
-    // Zone 1: branding (left, fixed width)
-    constexpr int kHdrBrandW = 220;
-    SDL_Rect brandZone {headerInner.x, headerInner.y,
-                        std::min(kHdrBrandW, headerInner.w / 5), headerInner.h};
-
-    // Zone 3: action buttons + fader (right, fixed width)
-    constexpr int kHdrActionsW = 392;
-    int actionsW = std::min(kHdrActionsW, std::max(0, headerInner.w - brandZone.w - 40));
-    SDL_Rect actionsZone {headerInner.x + headerInner.w - actionsW, headerInner.y,
-                          actionsW, headerInner.h};
-
-    // Zone 2: status summary (flexible center)
-    SDL_Rect statusZone {brandZone.x + brandZone.w + 8, headerInner.y,
-                         std::max(0, actionsZone.x - (brandZone.x + brandZone.w) - 16),
-                         headerInner.h};
-
-    // Zone 1 content — "DECKBOY [theme] · show"
+                     shell.w - kLayoutPanelBorder * 4, kHdrSlimH};
+    drawUIPanel(header, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     {
+      SDL_Rect hi = insetRect(header, 4);
       std::string brandLine = std::string(kAppTitle);
       if (!currentThemeName_.empty() && currentThemeName_ != "gameboy")
         brandLine += " [" + currentThemeName_ + "]";
-      brandLine += "  " + currentProjectLabel();
-      drawTextSafe(controlRenderer_, fontSmall_, brandZone,
+      drawTextSafe(controlRenderer_, fontBase_, SDL_Rect{hi.x, hi.y, 200, hi.h},
                    brandLine, colorFromRgba(kScreenDeepColor));
-    }
 
-    // Zone 2 content — TC + deck routing + companion state
-    {
       const Deck& focDeck = focusedDeck();
       auto outIdx = primaryOutputIndexForDeck(project_.focusedDeckIndex);
-      std::string tcStr = "TC " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps);
-      std::string deckStr = deckLabel(project_.focusedDeckIndex)
-                          + " -> " + (outIdx ? outputLabel(*outIdx) : "unrouted");
-      std::string compStr = companionReady_
-        ? ("Companion :" + std::to_string(companionPort_))
-        : "no companion";
-      drawTextSafe(controlRenderer_, fontSmall_, statusZone,
-                   tcStr + "   " + deckStr + "   " + compStr,
-                   colorFromRgba(kScreenDarkColor));
+      std::string status = currentProjectLabel()
+        + "   " + deckLabel(project_.focusedDeckIndex)
+        + " -> " + (outIdx ? outputLabel(*outIdx) : "unrouted")
+        + "   TC " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps)
+        + "   " + (companionReady_ ? ("Companion :" + std::to_string(companionPort_)) : "no companion");
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{hi.x + 210, hi.y, hi.w - 210, hi.h},
+                   status, colorFromRgba(kScreenDarkColor));
     }
 
-    // Zone 3 content — action buttons + master vol fader
+    // ─── Toolbar: full-width button row ──────────────────────────────────────
+    constexpr int kToolbarH = 52;
+    SDL_Rect toolbar {shell.x + kLayoutPanelBorder * 2,
+                      header.y + header.h + kLayoutPanelGap,
+                      shell.w - kLayoutPanelBorder * 4,
+                      kToolbarH};
+    drawUIPanel(toolbar, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
     {
-      auto drawHdrBtn = [&](SDL_Rect& r, const std::string& label,
-                            bool lit = false, bool danger = false) {
-        SDL_Color fill = danger
-          ? SDL_Color{160, 18, 18, 255}
-          : (lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor));
-        SDL_Color ink = danger
-          ? SDL_Color{255, 200, 200, 255}
-          : (lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
+      auto drawTBtn = [&](SDL_Rect& r, const std::string& label,
+                          bool lit = false, bool danger = false) {
+        SDL_Color fill = danger ? SDL_Color{160,18,18,255}
+                       : (lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor));
+        SDL_Color ink  = danger ? SDL_Color{255,200,200,255}
+                       : (lit ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
         drawUIPanel(r, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
         drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label, ink);
       };
 
-      constexpr int kHBtnH = 28;
-      constexpr int kHBtnGap = 4;
-      constexpr int kHBtnGrpGap = 10;
-      int btnY = actionsZone.y + (actionsZone.h - kHBtnH) / 2;
-      int ax = actionsZone.x;
+      constexpr int kTBtnH = kToolbarH - 8;
+      constexpr int kTBtnGap = 6;
+      constexpr int kTGrpGap = 14;
+      int ty = toolbar.y + (toolbar.h - kTBtnH) / 2;
 
-      // File ops
-      fileNewBtnRect_    = {ax, btnY, 36, kHBtnH}; ax += 36 + kHBtnGap;
-      fileOpenBtnRect_   = {ax, btnY, 44, kHBtnH}; ax += 44 + kHBtnGap;
-      fileSaveBtnRect_   = {ax, btnY, 36, kHBtnH}; ax += 36 + kHBtnGrpGap;
+      // Place right-anchored buttons first so fader can fill what's left
+      int rx = toolbar.x + toolbar.w - 8;
+      settingsGearRect_  = {rx - 72, ty, 72, kTBtnH}; rx -= 72 + kTBtnGap;
+      blackoutBtnRect_   = {rx - 88, ty, 88, kTBtnH}; rx -= 88 + kTGrpGap;
+      floatingPanelsBtnRect_ = SDL_Rect {};
+      drawTBtn(settingsGearRect_,  "PREFS",    settingsOpen_);
+      drawTBtn(blackoutBtnRect_,   "BLACKOUT", masterDimmerTarget_ < 0.5, true);
+
+      // Left-anchored buttons
+      int ax = toolbar.x + 8;
+      fileNewBtnRect_    = {ax, ty, 60, kTBtnH}; ax += 60 + kTBtnGap;
+      fileOpenBtnRect_   = {ax, ty, 72, kTBtnH}; ax += 72 + kTBtnGap;
+      fileSaveBtnRect_   = {ax, ty, 60, kTBtnH}; ax += 60 + kTGrpGap;
       fileSaveAsBtnRect_ = SDL_Rect {};
-      drawHdrBtn(fileNewBtnRect_,  "NEW");
-      drawHdrBtn(fileOpenBtnRect_, "OPEN");
-      drawHdrBtn(fileSaveBtnRect_, "SAVE");
+      drawTBtn(fileNewBtnRect_,  "NEW");
+      drawTBtn(fileOpenBtnRect_, "OPEN");
+      drawTBtn(fileSaveBtnRect_, "SAVE");
 
-      // Panel / tools
-      decksPanelToggleRect_    = {ax, btnY, 50, kHBtnH}; ax += 50 + kHBtnGap;
-      monitorsBtnRect_         = {ax, btnY, 40, kHBtnH}; ax += 40 + kHBtnGap;
-      floatingPanelsBtnRect_   = {ax, btnY, 52, kHBtnH}; ax += 52 + kHBtnGap;
-      blackoutBtnRect_         = {ax, btnY, 36, kHBtnH}; ax += 36 + kHBtnGap;
-      settingsGearRect_        = {ax, btnY, 46, kHBtnH}; ax += 46 + kHBtnGrpGap;
-      drawHdrBtn(decksPanelToggleRect_,  "DECKS",  decksPanelVisible());
-      drawHdrBtn(monitorsBtnRect_,       "MON",    monitorsVisible());
-      drawHdrBtn(floatingPanelsBtnRect_, "PANELS", floatingPanelsWindowVisible());
-      drawHdrBtn(blackoutBtnRect_,       "BLK",    masterDimmerTarget_ < 0.5, true);
-      drawHdrBtn(settingsGearRect_,      "PREFS",  settingsOpen_);
+      SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
+      Primitives::fillRect(controlRenderer_, sep1, colorFromRgba(kScreenMidColor));
+      ax += 2 + kTGrpGap;
 
-      // Master vol fader (fills remaining space)
-      int faderW = std::max(0, actionsZone.x + actionsZone.w - ax);
-      if (faderW > 24) {
+      decksPanelToggleRect_ = {ax, ty, 84, kTBtnH}; ax += 84 + kTBtnGap;
+      monitorsBtnRect_      = {ax, ty, 100, kTBtnH}; ax += 100 + kTGrpGap;
+      drawTBtn(decksPanelToggleRect_, "DECKS",    deckBarVisible_);
+      drawTBtn(monitorsBtnRect_,      "MONITORS", monitorsVisible());
+
+      SDL_Rect sep2 {ax, ty + 4, 2, kTBtnH - 8};
+      Primitives::fillRect(controlRenderer_, sep2, colorFromRgba(kScreenMidColor));
+      ax += 2 + kTGrpGap;
+
+      // Vol fader fills remaining space between left and right groups
+      int faderAreaW = std::max(80, rx - ax - kTGrpGap);
+      {
         int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
-        int lblW = std::min(48, faderW / 3);
-        SDL_Rect lblR {ax, btnY, lblW, kHBtnH};
-        drawTextSafe(controlRenderer_, fontSmall_, lblR,
-                     std::to_string(volPct) + "%", colorFromRgba(kScreenDeepColor));
-        masterFaderRect_ = {ax + lblW + 2, btnY + 4,
-                            std::max(12, faderW - lblW - 2), std::max(8, kHBtnH - 8)};
+        constexpr int kVolLblW = 56;
+        SDL_Rect volLbl {ax, ty, kVolLblW, kTBtnH};
+        drawUIPanel(volLbl, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, volLbl,
+                             "VOL " + std::to_string(volPct) + "%", colorFromRgba(kScreenDeepColor));
+        int trackX = ax + kVolLblW + 4;
+        int trackW = std::max(40, faderAreaW - kVolLblW - 4);
+        masterFaderRect_ = {trackX, ty + kTBtnH/2 - 5, trackW, 10};
         SDL_Rect track = masterFaderRect_;
         Primitives::fillRect(controlRenderer_, track, colorFromRgba(kScreenDeepColor));
         int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * track.w);
         SDL_Rect fillR {track.x, track.y, fillW, track.h};
-        SDL_Color faderCol = project_.masterVolume > 1.0
-          ? SDL_Color{180, 80, 20, 255}
-          : colorFromRgba(kScreenDarkColor);
-        Primitives::fillRect(controlRenderer_, fillR, faderCol);
+        SDL_Color fCol = project_.masterVolume > 1.0 ? SDL_Color{180,80,20,255} : colorFromRgba(kScreenDarkColor);
+        Primitives::fillRect(controlRenderer_, fillR, fCol);
         Primitives::strokeRect(controlRenderer_, track, colorFromRgba(kScreenMidColor));
-      } else {
-        masterFaderRect_ = SDL_Rect {};
       }
     }
 
     deckSidebarToggleRect_ = SDL_Rect {};
 
-    // Content area: directly below header (no status strip)
-    int contentY = header.y + header.h + kLayoutPanelGap;
+    // Content area: below toolbar
+    int contentY = toolbar.y + toolbar.h + kLayoutPanelGap;
     int controlsTop = bottomBarRect_.w > 0 ? bottomBarRect_.y : (height - kLayoutBottomBarHeight - kLayoutPanelPadding);
     if (sourceDefaultDropdownRect_.w > 0) {
       controlsTop = std::min(controlsTop, sourceDefaultDropdownRect_.y);
@@ -20020,29 +20170,42 @@ class App {
       controlsTop = std::min(controlsTop, patternDefaultDropdownRect_.y);
     }
     int contentBottom = controlsTop - kLayoutPanelGap;
-    int contentH = std::max(120, contentBottom - contentY);
+    constexpr int kDeckBarH = 170;
+    int deckBarReserve = deckBarVisible_ ? (kDeckBarH + kLayoutPanelGap) : 0;
+    int contentH = std::max(120, contentBottom - contentY - deckBarReserve);
     int contentLeft  = shell.x + kLayoutPanelBorder * 2;
     int contentRight = shell.x + shell.w - kLayoutPanelBorder * 2;
     int contentW = std::max(0, contentRight - contentLeft);
 
-    // Main layout: Deck (1/4) | Program + Inspector (3/4)
-    // renderMainPanel internally splits its rect into program (~2/3) and inspector (~1/3).
-    // Routing, MasterScene, and OutputPanel default to the floating panels window.
+    // New layout: left sidebar (routing + master cues) | right cue inspector
+    constexpr int kControlSidebarW = 300;
     SDL_Rect contentArea {contentLeft, contentY, contentW, contentH};
-    GridLayout mainGrid(contentArea, 4, 1, kLayoutPanelGap);
-    SDL_Rect deckPanelRect   = mainGrid.cell(0, 0, 1, 1);
-    SDL_Rect centerPanelRect = mainGrid.cell(1, 0, 3, 1);
+    SDL_Rect sidebarRect {contentArea.x, contentArea.y, kControlSidebarW, contentArea.h};
+    SDL_Rect inspectorShellRect {
+      contentArea.x + kControlSidebarW + kLayoutPanelGap,
+      contentArea.y,
+      std::max(0, contentArea.w - kControlSidebarW - kLayoutPanelGap),
+      contentArea.h
+    };
 
-    int playlistDeckIndex = project_.decks.empty()
-      ? -1
-      : std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-    if (playlistDeckIndex >= 0) {
-      deckColumnRects_[playlistDeckIndex] = deckPanelRect;
-      renderPlaylistColumn(deckPanelRect, playlistDeckIndex);
+    // Sidebar: routing (top ~40%) + master cues (bottom ~60%)
+    {
+      int routingH = sidebarRect.h * 2 / 5;
+      SDL_Rect routingRect {sidebarRect.x, sidebarRect.y, sidebarRect.w, routingH};
+      SDL_Rect masterRect {sidebarRect.x, sidebarRect.y + routingH + kLayoutPanelGap,
+                           sidebarRect.w, std::max(0, sidebarRect.h - routingH - kLayoutPanelGap)};
+      renderRoutingMatrixPanel(routingRect);
+      renderDeckSidebar(masterRect);
     }
 
-    if (centerPanelRect.w > 0 && centerPanelRect.h > 0) {
-      renderMainPanel(centerPanelRect);
+    if (inspectorShellRect.w > 60 && inspectorShellRect.h > 60) {
+      renderCueInspectorPanel(inspectorShellRect);
+    }
+
+    // Deck bar: horizontal strip below content area when DECKS is toggled on
+    if (deckBarVisible_) {
+      SDL_Rect deckBarRect {contentLeft, contentY + contentH + kLayoutPanelGap, contentW, kDeckBarH};
+      renderDeckBar(deckBarRect);
     }
 
     renderButtons();
@@ -20328,17 +20491,8 @@ class App {
     drawUIDropdown(patternDefaultDropdownRect_, "Pattern", patternLabelForType(patternDefaultTypeId_), "bottom.pattern");
 
     for (const auto& button : buttons_) {
-      std::string keyHint;
-      if (button.label == "IMPORT") keyHint = "Shift+I";
-      else if (button.label == "SOURCE") keyHint = "Default";
-      else if (button.label == "PATTERN") keyHint = "P";
-      else if (button.label == "TAKE") keyHint = "Enter";
-      else if (button.label == "STOP") keyHint = "S";
-      else if (button.label == "PLAY") keyHint = "Space";
-      else if (button.label == "CLEAR") keyHint = "C";
-      else if (button.label == "PREFS") keyHint = "Video";
       drawUIButton(button.rect, button.label, button.fill, button.text,
-                   button.label == "TAKE", keyHint);
+                   button.label == "TAKE", "");
     }
     // Hover tip for bottom-bar buttons
     for (const auto& button : buttons_) {
@@ -20395,6 +20549,1469 @@ class App {
   // Character-art rendering has been intentionally removed from operational UI paths.
 
 
+
+  void renderCueInspectorPanel(const SDL_Rect& shell) {
+    const Deck& deck = focusedDeck();
+    const MediaEngine* engine = focusedMediaEngine();
+    const Cue* selectedCue = selectedCuePtr();
+    const Cue* activeCue = activeCuePtr();
+    int nextCueIndex = nextCueIndexForDeck(project_.focusedDeckIndex);
+    const Cue* nextCue = (nextCueIndex >= 0 && nextCueIndex < static_cast<int>(deck.cues.size()))
+      ? &deck.cues[nextCueIndex]
+      : nullptr;
+    (void)activeCue; (void)nextCue;
+
+    quickButtons_.clear();
+    cueSettingsQuickButtonStartIndex_ = 0;
+    cueSettingsViewportRect_ = SDL_Rect {};
+    cuePatternTypeDropdownRect_ = SDL_Rect {};
+    cueTransitionStyleDropdownRect_ = SDL_Rect {};
+
+    auto chrome = drawOperationalPanel(shell, {UiPanelKind::CueInspector, -1},
+                                       "CUE INSPECTOR", "focused cue settings");
+    SDL_Rect ctrl = chrome.body;
+    int kCtrlW = ctrl.w;
+    constexpr int kDetailAreaH = 108;
+
+
+    // Thumbnail of selected cue (top portion)
+    constexpr int kThumbAreaH = 110;
+    SDL_Rect thumbArea {ctrl.x + 4, ctrl.y + 4, kCtrlW - 8, kThumbAreaH};
+    Primitives::drawFramedPanel(controlRenderer_, thumbArea, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+    if (selectedCue && selectedCue->kind == CueKind::Audio) {
+      // Audio cue: fill entire thumb area with waveform
+      std::vector<float> peaks;
+      bool pending = false;
+      { std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(selectedCue->path);
+        if (it != waveformCache_.end()) peaks = it->second;
+        else pending = waveformFutures_.count(selectedCue->path) > 0; }
+      double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
+      float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
+      float outFrac = selectedCue->outPointSeconds > 0.0
+                    ? static_cast<float>(selectedCue->outPointSeconds / dur) : 1.0f;
+      float playFrac = -1.0f;
+      if (const MediaEngine* eng = focusedMediaEngine())
+        playFrac = static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0));
+      drawWaveform(controlRenderer_, thumbArea, peaks, playFrac, inFrac, outFrac,
+                   selectedCue->pausePoints, dur);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 16},
+                   selectedCue->name, colorFromRgba(kScreenMidColor));
+    } else if (selectedThumbnailTex_) {
+      float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
+      int drawW = thumbArea.w - 4;
+      int drawH = static_cast<int>(drawW / aspect);
+      if (drawH > thumbArea.h - 4) {
+        drawH = thumbArea.h - 4;
+        drawW = static_cast<int>(drawH * aspect);
+      }
+      SDL_Rect dst {thumbArea.x + (thumbArea.w - drawW) / 2, thumbArea.y + (thumbArea.h - drawH) / 2, drawW, drawH};
+      SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
+      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+    } else if (selectedCue) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 16},
+                   selectedCue->name, colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 28, thumbArea.w - 12, 16},
+                   "loading preview...", colorFromRgba(kScreenDarkColor));
+    } else {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 46, thumbArea.w - 16, 14},
+                   "Insert cartridge", colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 30, thumbArea.w - 16, 14},
+                   "Drop media here", colorFromRgba(kScreenDarkColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h - 16, thumbArea.w - 16, 14},
+                   "Press A to take cue", colorFromRgba(kScreenDarkColor));
+    }
+
+    // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
+    if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
+      std::vector<float> peaks;
+      bool pending = false;
+      {
+        std::lock_guard<std::mutex> lk(waveformMutex_);
+        auto it = waveformCache_.find(selectedCue->path);
+        if (it != waveformCache_.end()) peaks = it->second;
+        else pending = waveformFutures_.count(selectedCue->path) > 0;
+      }
+      SDL_Rect waveRect {thumbArea.x + 2, thumbArea.y + thumbArea.h - 34, thumbArea.w - 4, 32};
+      double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
+      float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
+      float outFrac = selectedCue->outPointSeconds > 0.0
+                    ? static_cast<float>(selectedCue->outPointSeconds / dur) : 1.0f;
+      float playFrac = -1.0f;
+      if (const MediaEngine* eng = focusedMediaEngine())
+        playFrac = static_cast<float>(eng->position() / dur);
+      if (!peaks.empty() || pending)
+        drawWaveform(controlRenderer_, waveRect, peaks, playFrac, inFrac, outFrac,
+                     selectedCue->pausePoints, dur);
+    }
+
+    // Label "cue panel" below thumb
+    int ctrlSettingsY = ctrl.y + kThumbAreaH + 10;
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {ctrl.x + 10, ctrlSettingsY, kCtrlW - 20, 16},
+                 "CUE PANEL", colorFromRgba(kScreenDeepColor));
+
+    auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
+                            QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
+                            bool isToggle = false, bool toggleOn = false, std::string tip = "",
+                            bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 78;
+      constexpr int kBtnW = 26;
+      constexpr int kGap = 6;
+      int rx = ctrl.x + 10;
+      int contentW = kCtrlW - 20;
+
+      if (isToggle) {
+        SDL_Rect btn {rx, rowY, contentW, kRowH};
+        SDL_Color fill = toggleOn ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color ink  = toggleOn ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        drawUIPanel(btn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        SDL_Rect labelRect {btn.x + 4, btn.y, btn.w - 8, btn.h};
+        drawTextSafe(controlRenderer_, fontSmall_, labelRect, label + ": " + value, ink);
+        quickButtons_.push_back({btn, toggleAction, tip});
+      } else {
+        int valueW = std::max(56, contentW - kLabelW - kBtnW * 2 - kGap * 3);
+        SDL_Rect labelRect {rx, rowY, kLabelW, kRowH};
+        SDL_Rect decBtn {labelRect.x + labelRect.w + kGap, rowY, kBtnW, kRowH};
+        SDL_Rect valRect {decBtn.x + decBtn.w + kGap, rowY, valueW, kRowH};
+        SDL_Rect incBtn {valRect.x + valRect.w + kGap, rowY, kBtnW, kRowH};
+
+        drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenDeepColor));
+        drawUIPanel(decBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, decBtn, "-", colorFromRgba(kScreenDeepColor));
+        quickButtons_.push_back({decBtn, decAction, tip});
+
+        drawUIPanel(valRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, valRect, value, colorFromRgba(kScreenDeepColor));
+        if (valueEditable) {
+          std::string valueTip = tip.empty() ? "Click value to type an exact number" : tip + " | click value to type exact value";
+          quickButtons_.push_back({valRect, valueAction, valueTip});
+        }
+
+        drawUIPanel(incBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", colorFromRgba(kScreenDeepColor));
+        quickButtons_.push_back({incBtn, incAction, tip});
+      }
+    };
+
+    auto drawInspectorMessageRow = [&](int rowY, const std::string& text,
+                                       SDL_Color fill = colorFromRgba(kScreenLightColor),
+                                       SDL_Color ink = colorFromRgba(kScreenDeepColor)) {
+      SDL_Rect msgRect {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      drawUIPanel(msgRect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect textRect {msgRect.x + 6, msgRect.y, msgRect.w - 12, msgRect.h};
+      drawTextSafe(controlRenderer_, fontSmall_, textRect, text, ink);
+      return rowY + 32;
+    };
+
+    auto drawInspectorActionRow = [&](int rowY, const std::string& label, QuickAction action, const std::string& tip,
+                                      SDL_Color fill = colorFromRgba(kScreenLightColor),
+                                      SDL_Color ink = colorFromRgba(kScreenDeepColor)) {
+      SDL_Rect btnRect {ctrl.x + 10, rowY, kCtrlW - 20, 30};
+      drawUIPanel(btnRect, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, btnRect, label, ink);
+      quickButtons_.push_back({btnRect, action, tip});
+      return rowY + 34;
+    };
+
+    auto drawInspectorEditableRow = [&](int rowY,
+                                        const std::string& label,
+                                        const std::string& value,
+                                        QuickAction action,
+                                        const std::string& tip,
+                                        SDL_Color valueColor = colorFromRgba(kScreenDeepColor)) {
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 64;
+      constexpr int kEditW = 54;
+      constexpr int kGap = 6;
+      int valueW = std::max(60, (kCtrlW - 20) - kLabelW - kEditW - kGap * 2);
+      SDL_Rect labelRect {ctrl.x + 10, rowY, kLabelW, kRowH};
+      SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, kRowH};
+      SDL_Rect editRect {valueRect.x + valueRect.w + kGap, rowY, kEditW, kRowH};
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenInkSoftColor));
+      drawUIPanel(valueRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+      drawTextSafe(controlRenderer_, fontSmall_, valueTextRect, value, valueColor);
+      drawUIPanel(editRect, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, editRect, "edit", colorFromRgba(kScreenLightColor));
+      quickButtons_.push_back({editRect, action, tip});
+      return rowY + 32;
+    };
+
+    auto drawInspectorStatusRow = [&](int rowY, const std::string& label, const std::string& value, bool warning) {
+      constexpr int kRowH = 28;
+      constexpr int kLabelW = 64;
+      constexpr int kGap = 6;
+      int valueW = std::max(60, (kCtrlW - 20) - kLabelW - kGap);
+      SDL_Rect labelRect {ctrl.x + 10, rowY, kLabelW, kRowH};
+      SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, kRowH};
+      drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, colorFromRgba(kScreenInkSoftColor));
+      drawUIPanel(valueRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      SDL_Rect valueTextRect {valueRect.x + 6, valueRect.y, valueRect.w - 12, valueRect.h};
+      SDL_Color valueColor = warning ? SDL_Color {140, 40, 20, 255} : colorFromRgba(kScreenDeepColor);
+      drawTextSafe(controlRenderer_, fontSmall_, valueTextRect, value, valueColor);
+      return rowY + 32;
+    };
+
+    auto drawCueTagRow = [&](int rowY, const Cue& cue, const std::string& tip) {
+      SDL_Rect tagBtn {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      std::string tagStr = cue.colorTag.empty() ? "none" : cue.colorTag;
+      SDL_Color tagFill = colorTagToSdl(cue.colorTag, 200);
+      drawUIPanel(tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, tagBtn, "tag: " + tagStr + "  [K cycle]",
+                           colorFromRgba(kScreenLightColor));
+      quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, tip});
+      return rowY + 32;
+    };
+
+    auto drawPausePointsRow = [&](int rowY, int pointCount) {
+      SDL_Rect tableRect {ctrl.x + 10, rowY, kCtrlW - 20, 28};
+      int infoW = std::max(80, tableRect.w - 80 - 46 - 12);
+      UITable table(tableRect, {80, 46, infoW}, 28, 6);
+      SDL_Rect addBtn = table.cell(0, 0);
+      SDL_Rect clearBtn = table.cell(0, 1);
+      SDL_Rect infoRect = table.cell(0, 2);
+      drawUIPanel(addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "+pause pt", colorFromRgba(kScreenLightColor));
+      drawUIPanel(clearBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, clearBtn, "clr", colorFromRgba(kScreenLightColor));
+      drawUIPanel(infoRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_, infoRect,
+                   "pause points: " + std::to_string(pointCount),
+                   colorFromRgba(kScreenInkSoftColor));
+      quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add auto-pause at current playback position"});
+      quickButtons_.push_back({clearBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+      return rowY + 32;
+    };
+
+    int settingsContentTopY = ctrlSettingsY + 18;
+    int settingsContentBottomY = ctrl.y + ctrl.h - 10;
+    cueSettingsViewportRect_ = {
+      ctrl.x + 6,
+      settingsContentTopY - 2,
+      kCtrlW - 12,
+      std::max(0, settingsContentBottomY - settingsContentTopY + 2)
+    };
+    cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
+    cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
+    SDL_RenderSetClipRect(controlRenderer_,
+      cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
+
+    auto formatFloat = [](float value, int decimals = 2) {
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(decimals) << value;
+      return ss.str();
+    };
+    auto formatPercent = [&](float value) {
+      return formatFloat(value * 100.0f, 1) + "%";
+    };
+    auto formatScaleMode = [](ScaleMode mode) {
+      switch (mode) {
+        case ScaleMode::Fit: return "Fit";
+        case ScaleMode::Fill: return "Fill";
+        case ScaleMode::Stretch: return "Stretch";
+        case ScaleMode::Unscaled: return "Unscaled";
+      }
+      return "?";
+    };
+
+    auto drawKeyColorRow = [&](int rowY, const Cue& cue) {
+      SDL_Rect colorBtn {ctrl.x + 10, rowY, kCtrlW - 20, 30};
+      SDL_Color fill = cue.chromaKeyEnabled ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color ink = cue.chromaKeyEnabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      Primitives::drawFramedPanel(controlRenderer_, colorBtn, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {colorBtn.x + 10, colorBtn.y + 6, colorBtn.w - 20, colorBtn.h - 12},
+                   "key color: " + colorToHex(cue.chromaKeyColor), ink);
+      quickButtons_.push_back({colorBtn, QuickAction::EditKeyColor, "Click to set chroma-key color"});
+    };
+
+    auto drawGeometryRows = [&](int startY, const Cue& cue, bool includeScaleOffset) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (includeScaleOffset) {
+        drawQuickRow(rowY, "mode", QuickAction::CycleScaleMode, formatScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
+                     QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
+        rowY += kRowStep;
+        drawQuickRow(rowY, "scale X", QuickAction::ScaleXDec, formatFloat(cue.outputScaleX, 2) + "x", QuickAction::ScaleXInc,
+                     QuickAction::ToggleLoop, false, false, "Output X scale (0.25–4.0×)", true, QuickAction::EditScaleX);
+        rowY += kRowStep;
+        drawQuickRow(rowY, "scale Y", QuickAction::ScaleYDec, formatFloat(cue.outputScaleY, 2) + "x", QuickAction::ScaleYInc,
+                     QuickAction::ToggleLoop, false, false, "Output Y scale (0.25–4.0×)", true, QuickAction::EditScaleY);
+        rowY += kRowStep;
+        drawQuickRow(rowY, "off X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
+                     QuickAction::ToggleLoop, false, false, "Horizontal output offset in pixels", true, QuickAction::EditOffsetX);
+        rowY += kRowStep;
+        drawQuickRow(rowY, "off Y", QuickAction::OffsetYDec, std::to_string(static_cast<int>(cue.outputOffsetY)) + "px", QuickAction::OffsetYInc,
+                     QuickAction::ToggleLoop, false, false, "Vertical output offset in pixels", true, QuickAction::EditOffsetY);
+        rowY += kRowStep;
+      }
+      drawQuickRow(rowY, "rot", QuickAction::RotDec, formatFloat(cue.outputRotationDegrees, 1) + " deg", QuickAction::RotInc,
+                   QuickAction::ToggleLoop, false, false, "Output rotation angle (-180..180)", true, QuickAction::EditRotation);
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop L", QuickAction::CropLDec, formatPercent(cue.cropLeft), QuickAction::CropLInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from left");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop R", QuickAction::CropRDec, formatPercent(cue.cropRight), QuickAction::CropRInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from right");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop T", QuickAction::CropTDec, formatPercent(cue.cropTop), QuickAction::CropTInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from top");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "crop B", QuickAction::CropBDec, formatPercent(cue.cropBottom), QuickAction::CropBInc,
+                   QuickAction::ToggleLoop, false, false, "Crop from bottom");
+      rowY += kRowStep;
+      return rowY;
+    };
+
+    auto drawColorRows = [&](int startY, const Cue& cue) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (!cueSupportsColorControls(&cue)) {
+        return rowY;
+      }
+      drawQuickRow(rowY, "bright", QuickAction::BrightnessDec, formatFloat(cue.brightness, 2) + "x", QuickAction::BrightnessInc,
+                   QuickAction::ToggleLoop, false, false, "Brightness multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "contrast", QuickAction::ContrastDec, formatFloat(cue.contrast, 2) + "x", QuickAction::ContrastInc,
+                   QuickAction::ToggleLoop, false, false, "Contrast multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "sat", QuickAction::SaturationDec, formatFloat(cue.saturation, 2) + "x", QuickAction::SaturationInc,
+                   QuickAction::ToggleLoop, false, false, "Saturation multiplier (0.0–2.0×)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "hue", QuickAction::HueShiftDec, formatFloat(cue.hueShift, 0) + " deg", QuickAction::HueShiftInc,
+                   QuickAction::ToggleLoop, false, false, "Hue rotation (-180 to +180 degrees)");
+      rowY += kRowStep;
+      return rowY;
+    };
+
+    auto drawKeyRows = [&](int startY, const Cue& cue) {
+      constexpr int kRowStep = 28;
+      int rowY = startY;
+      if (!cueSupportsKeying(&cue)) {
+        return rowY;
+      }
+      drawQuickRow(rowY, "key", QuickAction::KeyToggle,
+                   cue.chromaKeyEnabled ? "on" : "off",
+                   QuickAction::KeyToggle, QuickAction::KeyToggle, true, cue.chromaKeyEnabled,
+                   "Toggle chroma key");
+      rowY += kRowStep;
+      drawKeyColorRow(rowY, cue);
+      rowY += kRowStep;
+      drawQuickRow(rowY, "tol", QuickAction::KeyTolDec, formatFloat(cue.chromaKeyTolerance, 1), QuickAction::KeyTolInc,
+                   QuickAction::ToggleLoop, false, false, "Key tolerance (RGB distance)");
+      rowY += kRowStep;
+      drawQuickRow(rowY, "soft", QuickAction::KeySoftDec, formatFloat(cue.chromaKeySoftness, 1), QuickAction::KeySoftInc,
+                   QuickAction::ToggleLoop, false, false, "Key edge softness");
+      rowY += kRowStep;
+      return rowY;
+    };
+
+    struct InspectorSectionScope {
+      SDL_Rect headerRect {};
+      bool open = false;
+      int bodyStartY = 0;
+    };
+
+    auto beginInspectorSection = [&](int rowY, const std::string& title, bool open,
+                                     QuickAction toggleAction, const std::string& tip) {
+      SDL_Rect hdr {ctrl.x + 10, rowY, kCtrlW - 20, 24};
+      SDL_Color fill = open ? colorFromRgba(kScreenMidColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color ink = open ? colorFromRgba(kScreenDeepColor) : colorFromRgba(kScreenDarkColor);
+      drawUIPanel(hdr, fill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+      SDL_Rect titleRect {hdr.x + 4, hdr.y, hdr.w - 24, hdr.h};
+      SDL_Rect stateRect {hdr.x + hdr.w - 18, hdr.y, 14, hdr.h};
+      drawTextSafe(controlRenderer_, fontSmall_, titleRect, title, ink);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, stateRect, open ? "-" : "+", ink);
+      quickButtons_.push_back({hdr, toggleAction, tip});
+      return InspectorSectionScope {hdr, open, rowY + 30};
+    };
+
+    auto finishInspectorSection = [&](const InspectorSectionScope& section, int bodyBottom) {
+      if (!section.open) {
+        return;
+      }
+      int shellBottom = std::max(section.headerRect.y + section.headerRect.h, bodyBottom + 2);
+      SDL_Rect shell {
+        section.headerRect.x,
+        section.headerRect.y,
+        section.headerRect.w,
+        std::max(section.headerRect.h, shellBottom - section.headerRect.y)
+      };
+      SDL_Rect bodyFill {
+        shell.x + 2,
+        section.bodyStartY - 4,
+        std::max(0, shell.w - 4),
+        std::max(0, shellBottom - section.bodyStartY + 2)
+      };
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      Primitives::fillRect(controlRenderer_, bodyFill, SDL_Color {15, 56, 15, 28});
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      Primitives::strokeRect(controlRenderer_, shell, colorFromRgba(kScreenDarkColor));
+      SDL_Rect rail {shell.x + 2, section.bodyStartY - 2, 3, std::max(0, shellBottom - section.bodyStartY)};
+      Primitives::fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
+    };
+
+    auto drawCueRoutingRows = [&](int startY) {
+      constexpr int kRowStep = 28;
+      if (project_.decks.empty() || project_.outputs.empty()) {
+        return startY;
+      }
+      int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+      auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+      int outputCount = static_cast<int>(project_.outputs.size());
+      int routeOutput = primaryOut
+        ? *primaryOut
+        : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
+      auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
+      bool assigned = assignmentIndex.has_value();
+      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+
+      SDL_Rect tableRect {ctrl.x + 10, startY, kCtrlW - 20, kRowStep * 3};
+      int labelColW = 78;
+      int valueColW = std::max(56, tableRect.w - labelColW - 64 - 56 - 12);
+      UITable routingTable(tableRect, {labelColW, 26, valueColW, 26}, 28, 4);
+
+      SDL_Rect outputLabelRect = routingTable.cell(0, 0);
+      SDL_Rect outputPrevRect = routingTable.cell(0, 1);
+      SDL_Rect outputValueRect = routingTable.cell(0, 2);
+      SDL_Rect outputNextRect = routingTable.cell(0, 3);
+      drawTextSafe(controlRenderer_, fontSmall_, outputLabelRect, "output", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputPrevRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputPrevRect, "<", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputValueRect, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputValueRect, outputLabel(routeOutput), colorFromRgba(kScreenDeepColor));
+      drawUIPanel(outputNextRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, outputNextRect, ">", colorFromRgba(kScreenDeepColor));
+      quickButtons_.push_back({outputPrevRect, QuickAction::CueRouteOutputPrev, "Route this deck to previous output"});
+      quickButtons_.push_back({outputNextRect, QuickAction::CueRouteOutputNext, "Route this deck to next output"});
+
+      SDL_Rect layerLabelRect = routingTable.cell(1, 0);
+      SDL_Rect layerPrevRect = routingTable.cell(1, 1);
+      SDL_Rect layerValueRect = routingTable.cell(1, 2);
+      SDL_Rect layerNextRect = routingTable.cell(1, 3);
+      drawTextSafe(controlRenderer_, fontSmall_, layerLabelRect, "layer", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerPrevRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerPrevRect, "-", colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerValueRect, assigned ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenMidColor),
+                  colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerValueRect,
+                           assigned ? (layerIndex <= 0 ? "BG" : ("L" + std::to_string(layerIndex))) : "--",
+                           assigned ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor));
+      drawUIPanel(layerNextRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, layerNextRect, "+", colorFromRgba(kScreenDeepColor));
+      quickButtons_.push_back({layerPrevRect, QuickAction::CueRouteLayerDec, "Move route to lower layer"});
+      quickButtons_.push_back({layerNextRect, QuickAction::CueRouteLayerInc, "Move route to higher layer"});
+
+      SDL_Rect assignBtn {ctrl.x + 10, startY + kRowStep * 2, kCtrlW - 20, 28};
+      SDL_Color assignFill = assigned ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+      SDL_Color assignInk = assigned ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+      drawUIPanel(assignBtn, assignFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, assignBtn, assigned ? "UNLINK ROUTE" : "LINK ROUTE", assignInk);
+      quickButtons_.push_back({assignBtn, QuickAction::CueRouteAssignToggle, "Assign/Unassign deck routing"});
+      return startY + kRowStep * 3;
+    };
+
+    std::vector<int> panelSelectedIndices = selectedCue ? selectedCueIndices(deck) : std::vector<int> {};
+    std::vector<const Cue*> panelSelectedCues;
+    panelSelectedCues.reserve(panelSelectedIndices.size());
+    for (int index : panelSelectedIndices) {
+      if (index >= 0 && index < static_cast<int>(deck.cues.size())) {
+        panelSelectedCues.push_back(&deck.cues[index]);
+      }
+    }
+    bool panelMultiSelection = panelSelectedCues.size() > 1;
+
+    auto allSelectedCues = [&](auto pred) {
+      if (panelSelectedCues.empty()) {
+        return false;
+      }
+      for (const Cue* cue : panelSelectedCues) {
+        if (!pred(*cue)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    auto boolMixedState = [&](auto getter) {
+      bool first = getter(*panelSelectedCues.front());
+      bool mixed = false;
+      for (const Cue* cue : panelSelectedCues) {
+        if (getter(*cue) != first) {
+          mixed = true;
+          break;
+        }
+      }
+      return std::pair<bool, bool> {mixed, first};
+    };
+
+    auto doubleMixedLabel = [&](auto getter, int decimals, const std::string& suffix = std::string()) {
+      double first = getter(*panelSelectedCues.front());
+      bool mixed = false;
+      for (const Cue* cue : panelSelectedCues) {
+        if (std::abs(getter(*cue) - first) > 0.0001) {
+          mixed = true;
+          break;
+        }
+      }
+      if (mixed) {
+        return std::string("mixed");
+      }
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(decimals) << first;
+      return ss.str() + suffix;
+    };
+
+    auto intMixedLabel = [&](auto getter, const std::string& suffix = std::string()) {
+      int first = getter(*panelSelectedCues.front());
+      bool mixed = false;
+      for (const Cue* cue : panelSelectedCues) {
+        if (getter(*cue) != first) {
+          mixed = true;
+          break;
+        }
+      }
+      if (mixed) {
+        return std::string("mixed");
+      }
+      return std::to_string(first) + suffix;
+    };
+
+    auto stringMixedLabel = [&](auto getter, const std::string& emptyToken = std::string("none")) {
+      std::string first = getter(*panelSelectedCues.front());
+      bool mixed = false;
+      for (const Cue* cue : panelSelectedCues) {
+        if (getter(*cue) != first) {
+          mixed = true;
+          break;
+        }
+      }
+      if (mixed) {
+        return std::string("mixed");
+      }
+      return first.empty() ? emptyToken : first;
+    };
+
+    if (panelMultiSelection) {
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
+      constexpr int kRowStep = 28;
+
+      std::vector<std::string> kindLabels;
+      for (const Cue* cue : panelSelectedCues) {
+        std::string label = cueKindLabel(cue->kind);
+        if (std::find(kindLabels.begin(), kindLabels.end(), label) == kindLabels.end()) {
+          kindLabels.push_back(label);
+        }
+      }
+      std::string kindSummary;
+      for (size_t i = 0; i < kindLabels.size(); ++i) {
+        if (i > 0) {
+          kindSummary += ", ";
+        }
+        kindSummary += kindLabels[i];
+      }
+
+      bool allVideoAudio = allSelectedCues([&](const Cue& cue) {
+        return cue.kind == CueKind::Video || cue.kind == CueKind::Audio;
+      });
+      bool allStillLike = allSelectedCues([&](const Cue& cue) {
+        return cue.kind != CueKind::Video && cue.kind != CueKind::Audio;
+      });
+      bool allSupportsGeometry = allSelectedCues([&](const Cue& cue) {
+        return cueSupportsGeometry(&cue);
+      });
+      bool allSupportsKey = allSelectedCues([&](const Cue& cue) {
+        return cueSupportsKeying(&cue);
+      });
+      bool allHasAudio = allSelectedCues([&](const Cue& cue) {
+        return cue.hasAudio;
+      });
+      bool allLowerThird = allSelectedCues([&](const Cue& cue) {
+        return cue.kind == CueKind::LowerThird;
+      });
+
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Common controls for selected cues");
+      int playbackBodyY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        ry = playbackBodyY;
+        drawText(controlRenderer_, fontSmall_,
+                 std::to_string(panelSelectedCues.size()) + " cues: " + kindSummary,
+                 colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ry + 4);
+        ry += kRowStep;
+
+        if (allVideoAudio) {
+          drawQuickRow(ry, "fade in", QuickAction::FadeInDec,
+                       stringMixedLabel([&](const Cue& cue) { return formatSeconds(cue.fadeInSeconds); }),
+                       QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false,
+                       "Apply fade-in to selected video/audio cues");
+          ry += kRowStep;
+          drawQuickRow(ry, "fade out", QuickAction::FadeOutDec,
+                       stringMixedLabel([&](const Cue& cue) { return formatSeconds(cue.fadeOutSeconds); }),
+                       QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false,
+                       "Apply fade-out to selected video/audio cues");
+          ry += kRowStep;
+
+          auto loopState = boolMixedState([&](const Cue& cue) { return cue.loop; });
+          drawQuickRow(ry, "loop", QuickAction::ToggleLoop,
+                       loopState.first ? "mixed" : (loopState.second ? "on" : "off"),
+                       QuickAction::ToggleLoop, QuickAction::ToggleLoop, true, !loopState.first && loopState.second,
+                       "Toggle loop for selected cues");
+          ry += kRowStep;
+
+          auto holdState = boolMixedState([&](const Cue& cue) { return cue.pauseOnLastFrame; });
+          drawQuickRow(ry, "hold", QuickAction::ToggleHold,
+                       holdState.first ? "mixed" : (holdState.second ? "on" : "off"),
+                       QuickAction::ToggleHold, QuickAction::ToggleHold, true, !holdState.first && holdState.second,
+                       "Toggle hold-at-end for selected cues");
+          ry += kRowStep;
+
+          bool mixedEnd = false;
+          CueEndAction endAction = panelSelectedCues.front()->endAction;
+          for (const Cue* cue : panelSelectedCues) {
+            if (cue->endAction != endAction) {
+              mixedEnd = true;
+              break;
+            }
+          }
+          SDL_Rect endBtn {ctrl.x + 10, ry, kCtrlW - 20, 30};
+          Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor),
+                                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawText(controlRenderer_, fontSmall_, "end: " + std::string(mixedEnd ? "mixed" : cueEndActionLabel(endAction)) + "  [X cycle]",
+                   colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+          quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "Cycle end action for selected cues"});
+          ry += kRowStep;
+
+          drawQuickRow(ry, "repeats", QuickAction::LoopCountDec,
+                       intMixedLabel([&](const Cue& cue) { return cue.loopCount; }, "x"),
+                       QuickAction::LoopCountInc, QuickAction::ToggleLoop, false, false,
+                       "Set repeat count for selected cues");
+          ry += kRowStep;
+
+          drawQuickRow(ry, "speed", QuickAction::SpeedDec,
+                       doubleMixedLabel([&](const Cue& cue) { return cue.playbackSpeed; }, 2, "x"),
+                       QuickAction::SpeedInc, QuickAction::ToggleLoop, false, false,
+                       "Set playback speed for selected cues");
+          ry += kRowStep;
+        }
+
+        if (allStillLike) {
+          drawQuickRow(ry, "duration", QuickAction::DurDec,
+                       stringMixedLabel([&](const Cue& cue) {
+                         return cue.stillDurationSeconds > 0.0 ? formatSeconds(cue.stillDurationSeconds) : std::string("hold");
+                       }),
+                       QuickAction::DurInc, QuickAction::ToggleLoop, false, false,
+                       "Set still/pattern/browser duration for selected cues");
+          ry += kRowStep;
+        }
+
+        drawQuickRow(ry, "trans", QuickAction::TransDec,
+                     stringMixedLabel([&](const Cue& cue) {
+                       return cue.cueTransitionSeconds >= 0.0 ? formatSeconds(cue.cueTransitionSeconds) : std::string("deck");
+                     }),
+                     QuickAction::TransInc, QuickAction::ToggleLoop, false, false,
+                     "Set per-cue transition duration");
+        {
+          constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
+          int rx = ctrl.x + 10;
+          int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+          int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+          SDL_Rect styleBtn {styleX, ry, styleW, 30};
+          std::string styleLabel = stringMixedLabel([&](const Cue& cue) {
+            return cue.cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue.cueTransitionStyle;
+          }, "deck");
+          styleLabel = transitionStyleLabel(styleLabel);
+          SDL_Color styleFill = colorFromRgba(kScreenLightColor);
+          SDL_Color styleInk = colorFromRgba(kScreenDeepColor);
+          Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawText(controlRenderer_, fontSmall_,
+                   ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                   styleInk, styleBtn.x + 6, styleBtn.y + 7);
+          drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+          cueTransitionStyleDropdownRect_ = styleBtn;
+        }
+        ry += kRowStep;
+
+        auto pauseBeginState = boolMixedState([&](const Cue& cue) { return cue.pauseAtBeginning; });
+        drawQuickRow(ry, "pause in", QuickAction::TogglePauseBegin,
+                     pauseBeginState.first ? "mixed" : (pauseBeginState.second ? "on" : "off"),
+                     QuickAction::TogglePauseBegin, QuickAction::TogglePauseBegin, true,
+                     !pauseBeginState.first && pauseBeginState.second,
+                     "Toggle pause-at-beginning for selected cues");
+        ry += kRowStep;
+
+        if (allHasAudio) {
+          auto audioState = boolMixedState([&](const Cue& cue) { return cue.audioEnabled; });
+          drawQuickRow(ry, "audio", QuickAction::ToggleCueAudio,
+                       audioState.first ? "mixed" : (audioState.second ? "on" : "off"),
+                       QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                       !audioState.first && audioState.second,
+                       "Toggle audio enable for selected cues");
+          ry += kRowStep;
+        }
+
+        auto nextTransState = boolMixedState([&](const Cue& cue) { return cue.transitionToNext; });
+        drawQuickRow(ry, "next xfade", QuickAction::ToggleNextTransition,
+                     nextTransState.first ? "mixed" : (nextTransState.second ? "on" : "off"),
+                     QuickAction::ToggleNextTransition, QuickAction::ToggleNextTransition, true,
+                     !nextTransState.first && nextTransState.second,
+                     "Toggle transition-to-next for selected cues");
+        ry += kRowStep;
+
+        SDL_Rect gotoBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
+        SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
+        std::string gotoDisplay = stringMixedLabel([&](const Cue& cue) { return cue.gotoTarget; }, "(next)");
+        if (gotoDisplay.size() > 28) gotoDisplay = gotoDisplay.substr(0, 25) + "...";
+        Primitives::drawFramedPanel(controlRenderer_, gotoBox, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, gotoDisplay, colorFromRgba(kScreenDeepColor), gotoBox.x + 6, gotoBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, gotoEdit, colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "goto", colorFromRgba(kScreenLightColor), gotoEdit);
+        quickButtons_.push_back({gotoEdit, QuickAction::EditGotoTarget, "Set goto target for selected cues"});
+        ry += kRowStep;
+
+        if (allLowerThird) {
+          drawQuickRow(ry, "bg alpha", QuickAction::LowerBgDec,
+                       intMixedLabel([&](const Cue& cue) { return cue.lowerThirdBgAlpha; }),
+                       QuickAction::LowerBgInc, QuickAction::ToggleLoop, false, false,
+                       "Set Lower Third background alpha");
+          ry += kRowStep;
+        }
+
+        std::string tagStr = stringMixedLabel([&](const Cue& cue) { return cue.colorTag; }, "none");
+        SDL_Rect tagBtn {ctrl.x + 10, ry, kCtrlW - 20, 28};
+        SDL_Color tagFill = colorTagToSdl(tagStr == "mixed" ? std::string() : tagStr, 200);
+        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]",
+                         colorFromRgba(kScreenLightColor), tagBtn);
+        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "Cycle color tag for selected cues"});
+        ry += kRowStep;
+
+        SDL_Rect notesBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
+        std::string notesDisplay = stringMixedLabel([&](const Cue& cue) { return cue.notes; }, "(no notes)");
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay,
+                 colorFromRgba(notesDisplay == "(no notes)" ? kScreenInkSoftColor : kScreenDeepColor),
+                 notesBox.x + 6, notesBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Edit notes for selected cues"});
+        ry += kRowStep;
+
+        SDL_Rect cueIdBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
+        SDL_Rect cueIdEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
+        std::string cueIdDisplay = stringMixedLabel([&](const Cue& cue) { return cue.cueId; }, "(none)");
+        Primitives::drawFramedPanel(controlRenderer_, cueIdBox, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cueIdDisplay, colorFromRgba(kScreenDeepColor), cueIdBox.x + 6, cueIdBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, cueIdEdit, colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), cueIdEdit);
+        quickButtons_.push_back({cueIdEdit, QuickAction::EditCueNumber, "Set cue ID for selected cues"});
+        ry += kRowStep;
+      }
+      finishInspectorSection(playbackSection, ry);
+
+      auto geometrySection = beginInspectorSection(ry, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Common geometry controls");
+      ry = geometrySection.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        if (allSupportsGeometry) {
+          ry = drawGeometryRows(ry, *selectedCue, true);
+          ry = drawColorRows(ry, *selectedCue);
+        } else {
+          drawText(controlRenderer_, fontSmall_, "mixed selection: geometry unavailable",
+                   colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ry + 4);
+          ry += kRowStep;
+        }
+      }
+      finishInspectorSection(geometrySection, ry);
+
+      auto keySection = beginInspectorSection(ry, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Common key controls");
+      ry = keySection.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        if (allSupportsKey) {
+          ry = drawKeyRows(ry, *selectedCue);
+        } else {
+          drawText(controlRenderer_, fontSmall_, "mixed selection: key unavailable",
+                   colorFromRgba(kScreenInkSoftColor), ctrl.x + 10, ry + 4);
+          ry += kRowStep;
+        }
+      }
+      finishInspectorSection(keySection, ry);
+
+      auto routingSection = beginInspectorSection(ry, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      ry = routingSection.bodyStartY;
+      if (cueSectionRoutingOpen_) {
+        ry = drawCueRoutingRows(ry);
+      }
+      finishInspectorSection(routingSection, ry);
+    } else if (selectedCue && selectedCue->kind == CueKind::Video) {
+      int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
+      constexpr int kRowStep = 28;
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Collapse/expand playback settings");
+      int playbackBodyY = playbackSection.bodyStartY;
+      int playbackRowsUsed = 8;
+      if (cueSectionPlaybackOpen_) {
+        ry = playbackBodyY;
+      drawQuickRow(ry,                "vol",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+      drawQuickRow(ry + kRowStep,     "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),  QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "[ / ] keys — fade-in duration");
+      drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds), QuickAction::FadeOutInc,QuickAction::ToggleLoop, false, false, "Shift+[ / ] — fade-out duration");
+      drawQuickRow(ry + kRowStep * 3, "in",       QuickAction::InDec,      formatSeconds(selectedCue->inPointSeconds), QuickAction::InInc,     QuickAction::ToggleLoop, false, false, "In-point: cue starts playback here");
+      {
+        double outVal = selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration;
+        drawQuickRow(ry + kRowStep * 4, "out",    QuickAction::OutDec,     formatSeconds(outVal),                      QuickAction::OutInc,    QuickAction::ToggleLoop, false, false, "Out-point: cue stops playback here");
+      }
+      {
+        // Per-cue transition: duration [-][+] on the left, style cycle button on the right
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans
+          ? formatSeconds(selectedCue->cueTransitionSeconds)
+          : "deck";
+        drawQuickRow(ry + kRowStep * 5, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        // Style selector dropdown
+        {
+          constexpr int kLabelW = 64, kBtnW = 32, kValW = 98;
+          int rx = ctrl.x + 10;
+          int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+          int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+          SDL_Rect styleBtn {styleX, ry + kRowStep * 5, styleW, 30};
+          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+            ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+          std::string styleLabel = transitionStyleLabel(curStyle);
+          SDL_Color styleFill = hasCueTrans
+            ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color styleInk = hasCueTrans
+            ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          Primitives::drawFramedPanel(controlRenderer_, styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawText(controlRenderer_, fontSmall_,
+                   ellipsizeToPixelWidth(fontSmall_, styleLabel, styleBtn.w - 18),
+                   styleInk, styleBtn.x + 6, styleBtn.y + 7);
+          drawText(controlRenderer_, fontSmall_, "v", styleInk, styleBtn.x + styleBtn.w - 12, styleBtn.y + 7);
+          cueTransitionStyleDropdownRect_ = styleBtn;
+        }
+      }
+      // loop / hold toggles side by side
+      {
+        int rx = ctrl.x + 10;
+        int ty = ry + kRowStep * 6;
+        int halfW = (kCtrlW - 24) / 2;
+        SDL_Rect loopBtn {rx, ty, halfW, 30};
+        SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+        SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+        SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+        Primitives::drawFramedPanel(controlRenderer_, loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk, loopBtn);
+        quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue continuously"});
+        Primitives::drawFramedPanel(controlRenderer_, holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk, holdBtn);
+        quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — freeze on last frame instead of stopping"});
+      }
+      SDL_Rect endBtn {ctrl.x + 10, ry + kRowStep * 7, kCtrlW - 20, 30};
+      Primitives::drawFramedPanel(controlRenderer_, endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+      drawText(controlRenderer_, fontSmall_, "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+               colorFromRgba(kScreenDeepColor), endBtn.x + 10, endBtn.y + 8);
+      quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action: stop / next / loop"});
+      {
+        int rowCursor = 8;
+        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+        drawQuickRow(ry + kRowStep * rowCursor, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+        rowCursor += 1;
+
+        std::ostringstream spdSS;
+        spdSS << std::fixed << std::setprecision(2) << selectedCue->playbackSpeed;
+        drawQuickRow(ry + kRowStep * rowCursor, "speed", QuickAction::SpeedDec, spdSS.str() + "x", QuickAction::SpeedInc,
+                     QuickAction::ToggleLoop, false, false, "Playback speed: 0.25–4.0×");
+        rowCursor += 1;
+
+        drawQuickRow(ry + kRowStep * rowCursor, "pause in", QuickAction::TogglePauseBegin,
+                     selectedCue->pauseAtBeginning ? "on" : "off",
+                     QuickAction::TogglePauseBegin, QuickAction::TogglePauseBegin, true, selectedCue->pauseAtBeginning,
+                     "Load the cue and hold first frame when taken");
+        rowCursor += 1;
+
+        std::string cueAudioLabel = selectedCue->hasAudio
+          ? (selectedCue->audioEnabled ? "on" : "off")
+          : "n/a";
+        drawQuickRow(ry + kRowStep * rowCursor, "audio", QuickAction::ToggleCueAudio,
+                     cueAudioLabel,
+                     QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                     selectedCue->hasAudio && selectedCue->audioEnabled,
+                     "Toggle cue audio track for this cue");
+        rowCursor += 1;
+
+        drawQuickRow(ry + kRowStep * rowCursor, "next xfade", QuickAction::ToggleNextTransition,
+                     selectedCue->transitionToNext ? "on" : "off",
+                     QuickAction::ToggleNextTransition, QuickAction::ToggleNextTransition, true,
+                     selectedCue->transitionToNext,
+                     "Use transition when auto-advancing or goto-taking next cue");
+        rowCursor += 1;
+
+        int gotoY = ry + kRowStep * rowCursor;
+        SDL_Rect gotoBox {ctrl.x + 10, gotoY, kCtrlW - 80, 26};
+        SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, gotoY, 54, 26};
+        std::string gotoDisplay = selectedCue->gotoTarget.empty() ? "(next cue)" : selectedCue->gotoTarget;
+        if (gotoDisplay.size() > 28) {
+          gotoDisplay = gotoDisplay.substr(0, 25) + "...";
+        }
+        Primitives::drawFramedPanel(controlRenderer_, gotoBox, colorFromRgba(kScreenLightColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, gotoDisplay, colorFromRgba(kScreenDeepColor), gotoBox.x + 6, gotoBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, gotoEdit, colorFromRgba(kScreenDarkColor),
+                                    colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "goto", colorFromRgba(kScreenLightColor), gotoEdit);
+        quickButtons_.push_back({gotoEdit, QuickAction::EditGotoTarget, "Set cue token to jump to when cue ends"});
+        rowCursor += 1;
+
+        std::string tagStr = selectedCue->colorTag.empty() ? "none" : selectedCue->colorTag;
+        SDL_Rect tagBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 28};
+        SDL_Color tagFill = colorTagToSdl(selectedCue->colorTag, 200);
+        Primitives::drawFramedPanel(controlRenderer_, tagBtn, tagFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "tag: " + tagStr + "  [K cycle]", colorFromRgba(kScreenLightColor), tagBtn);
+        quickButtons_.push_back({tagBtn, QuickAction::CycleColorTag, "C — cycle cue color tag"});
+        rowCursor += 1;
+
+        int notesY = ry + kRowStep * rowCursor;
+        SDL_Rect notesBox {ctrl.x + 10, notesY, kCtrlW - 80, 26};
+        SDL_Rect notesEdit {ctrl.x + kCtrlW - 64, notesY, 54, 26};
+        std::string notesDisplay = selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes;
+        if (notesDisplay.size() > 28) notesDisplay = notesDisplay.substr(0, 25) + "...";
+        Primitives::drawFramedPanel(controlRenderer_, notesBox, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, notesDisplay, colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor), notesBox.x + 6, notesBox.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, notesEdit, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), notesEdit);
+        quickButtons_.push_back({notesEdit, QuickAction::EditNotes, "Click to edit cue notes"});
+        rowCursor += 1;
+
+        int cnY = ry + kRowStep * rowCursor;
+        SDL_Rect idLabel {ctrl.x + 10, cnY, 36, 26};
+        SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
+        SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
+        drawText(controlRenderer_, fontSmall_, "id", colorFromRgba(kScreenInkSoftColor), idLabel.x + 4, idLabel.y + 6);
+        std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
+        Primitives::drawFramedPanel(controlRenderer_, val, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawText(controlRenderer_, fontSmall_, cnDisplay, colorFromRgba(kScreenDeepColor), val.x + 6, val.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, editBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "edit", colorFromRgba(kScreenLightColor), editBtn);
+        quickButtons_.push_back({editBtn, QuickAction::EditCueNumber, "Set short cue id for search/goto"});
+        rowCursor += 1;
+
+        int ppY = ry + kRowStep * rowCursor;
+        int ppCount = static_cast<int>(selectedCue->pausePoints.size());
+        SDL_Rect ppLabel {ctrl.x + 10, ppY, 72, 26};
+        SDL_Rect addBtn {ctrl.x + 88, ppY, 46, 26};
+        SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
+        drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
+                 colorFromRgba(kScreenInkSoftColor), ppLabel.x + 4, ppLabel.y + 6);
+        Primitives::drawFramedPanel(controlRenderer_, addBtn, colorFromRgba(kScreenDarkColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "+now", colorFromRgba(kScreenLightColor), addBtn);
+        Primitives::drawFramedPanel(controlRenderer_, clrBtn, colorFromRgba(kDeleteBezelColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredText(controlRenderer_, fontSmall_, "clr", colorFromRgba(kScreenLightColor), clrBtn);
+        quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
+        quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
+        rowCursor += 1;
+
+        playbackRowsUsed = rowCursor;
+      }
+      }
+      finishInspectorSection(playbackSection, cueSectionPlaybackOpen_ ? (ry + kRowStep * playbackRowsUsed) : playbackBodyY);
+      int geoY = cueSectionPlaybackOpen_ ? (ry + kRowStep * playbackRowsUsed) : (playbackBodyY + 4);
+      auto geometrySection = beginInspectorSection(geoY, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Collapse/expand geometry controls");
+      geoY = geometrySection.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        geoY = drawGeometryRows(geoY, *selectedCue, true);
+        geoY = drawColorRows(geoY, *selectedCue);
+      }
+      finishInspectorSection(geometrySection, geoY);
+
+      auto keySection = beginInspectorSection(geoY, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Collapse/expand key controls");
+      geoY = keySection.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        geoY = drawKeyRows(geoY, *selectedCue);
+      }
+      finishInspectorSection(keySection, geoY);
+
+      auto routingSection = beginInspectorSection(geoY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      geoY = routingSection.bodyStartY;
+      if (cueSectionRoutingOpen_) {
+        geoY = drawCueRoutingRows(geoY);
+      }
+      finishInspectorSection(routingSection, geoY);
+    } else if (selectedCue && selectedCue->kind == CueKind::LowerThird) {
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
+      constexpr int kRowStep = 28;
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Lower Third playback and overlay controls");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        playbackY = drawInspectorMessageRow(playbackY, "Lower Third overlay cue",
+                                            colorFromRgba(kScreenMidColor),
+                                            colorFromRgba(kScreenDeepColor));
+
+        SDL_Rect textPreview {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+        drawUIPanel(textPreview, colorFromRgba(kScreenMidColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, textPreview,
+                             selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText,
+                             colorFromRgba(kScreenDeepColor));
+        playbackY += 34;
+
+        SDL_Rect subPreview {ctrl.x + 10, playbackY, kCtrlW - 20, 28};
+        drawUIPanel(subPreview, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, subPreview,
+                             selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext,
+                             colorFromRgba(kScreenDarkColor));
+        playbackY += 32;
+
+        drawQuickRow(playbackY, "bg alpha", QuickAction::LowerBgDec,
+                     std::to_string(selectedCue->lowerThirdBgAlpha), QuickAction::LowerBgInc,
+                     QuickAction::ToggleLoop, false, false, "Lower Third background opacity (0-255)");
+        playbackY += kRowStep;
+
+        std::string durVal = selectedCue->stillDurationSeconds > 0.0 ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+        drawQuickRow(playbackY, "dur", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+        playbackY += kRowStep;
+
+        playbackY = drawInspectorActionRow(playbackY, "CLEAR OVERLAY  [Backspace]",
+                                           QuickAction::ClearOverlay,
+                                           "Clear the active Lower Third overlay now");
+      }
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Cue notes, tags, and control hints");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        metadataY = drawInspectorMessageRow(metadataY, "LOWERTEXT / LOWERSUB via Companion",
+                                            colorFromRgba(kScreenLightColor),
+                                            colorFromRgba(kScreenDarkColor));
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+      }
+      finishInspectorSection(metadataSection, metadataY);
+    } else if (selectedCue && (selectedCue->kind == CueKind::Image
+                               || selectedCue->kind == CueKind::Pattern
+                               || selectedCue->kind == CueKind::Browser
+                               || isSourceCueKind(selectedCue->kind))) {
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
+      constexpr int kRowStep = 28;
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Still, pattern, browser, and source playback settings");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        if (selectedCue->kind == CueKind::Pattern) {
+          std::string typeId = normalizePatternTypeId(selectedCue->path);
+          bool motionEnabled = endsWith(typeId, "-motion");
+          std::string label = patternLabelForType(typeId);
+          SDL_Rect patternTypeLabel {ctrl.x + 10, playbackY, 92, 30};
+          SDL_Rect patternTypeBtn {ctrl.x + 104, playbackY, kCtrlW - 114, 30};
+          drawTextSafe(controlRenderer_, fontSmall_, patternTypeLabel, "pattern", colorFromRgba(kScreenDeepColor));
+          drawUIPanel(patternTypeBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {patternTypeBtn.x + 6, patternTypeBtn.y, patternTypeBtn.w - 18, patternTypeBtn.h},
+                       label, colorFromRgba(kScreenDeepColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {patternTypeBtn.x + patternTypeBtn.w - 14, patternTypeBtn.y, 14, patternTypeBtn.h},
+                               "v", colorFromRgba(kScreenDeepColor));
+          cuePatternTypeDropdownRect_ = patternTypeBtn;
+          playbackY += kRowStep;
+
+          drawQuickRow(playbackY, "motion", QuickAction::TogglePatternMotion,
+                       motionEnabled ? "on" : "off", QuickAction::TogglePatternMotion,
+                       QuickAction::TogglePatternMotion, true, motionEnabled,
+                       "Pattern motion toggle");
+          playbackY += kRowStep;
+        }
+
+        std::string durVal = selectedCue->stillDurationSeconds > 0.0
+          ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+        drawQuickRow(playbackY, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+        playbackY += kRowStep;
+
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
+        drawQuickRow(playbackY, "trans", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        {
+          constexpr int kLabelW = 64;
+          constexpr int kBtnW = 32;
+          constexpr int kValW = 98;
+          int rx = ctrl.x + 10;
+          int styleX = rx + kLabelW + kBtnW + 4 + kValW + 4 + kBtnW + 4;
+          int styleW = (ctrl.x + kCtrlW - 10) - styleX;
+          SDL_Rect styleBtn {styleX, playbackY, styleW, 30};
+          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+            ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+          SDL_Color styleFill = hasCueTrans ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color styleInk = hasCueTrans ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(styleBtn, styleFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
+                       transitionStyleLabel(curStyle), styleInk);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
+                               "v", styleInk);
+          cueTransitionStyleDropdownRect_ = styleBtn;
+        }
+        playbackY += kRowStep;
+
+        drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                     QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this cue");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                     QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration before next cue");
+        playbackY += kRowStep;
+
+        {
+          int rx = ctrl.x + 10;
+          int halfW = (kCtrlW - 24) / 2;
+          SDL_Rect loopBtn {rx, playbackY, halfW, 30};
+          SDL_Rect holdBtn {rx + halfW + 4, playbackY, halfW, 30};
+          SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color loopInk = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          SDL_Color holdInk = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, loopBtn,
+                               std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk);
+          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this cue"});
+          drawUIPanel(holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, holdBtn,
+                               std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk);
+          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold on this cue indefinitely"});
+        }
+        playbackY += kRowStep;
+
+        SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+        drawUIPanel(endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
+                     "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                     colorFromRgba(kScreenDeepColor));
+        quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+        playbackY += kRowStep;
+
+        std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+        drawQuickRow(playbackY, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                     QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = loop forever");
+        playbackY += kRowStep;
+      }
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Cue metadata and source configuration");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        if (selectedCue->kind == CueKind::Browser) {
+          std::string browserState = browserCueStatusLabel(project_.focusedDeckIndex);
+          bool browserWarn = browserState.rfind("failed:", 0) == 0;
+          metadataY = drawInspectorStatusRow(metadataY, "state", browserState, browserWarn);
+        }
+
+        if (isSourceCueKind(selectedCue->kind)) {
+          std::string sourceRef = sourceCueRefFromCue(*selectedCue);
+          if (sourceRef.empty()) {
+            sourceRef = defaultSourceRefForKind(selectedCue->kind);
+          }
+          metadataY = drawInspectorEditableRow(metadataY, "source",
+                                               sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
+                                               QuickAction::EditSourceRef,
+                                               "Set capture source from the cue menu");
+        }
+
+        if (selectedCue->kind == CueKind::Browser) {
+          metadataY = drawInspectorEditableRow(metadataY, "url",
+                                               selectedCue->path.empty() ? "(unset)" : selectedCue->path,
+                                               QuickAction::EditBrowserUrl,
+                                               "Set browser URL/path");
+        }
+
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+      }
+      finishInspectorSection(metadataSection, metadataY);
+
+      int sectionY = cueSectionMetadataOpen_ ? (metadataY + 4) : (metadataSection.bodyStartY + 4);
+      auto geometrySection = beginInspectorSection(sectionY, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "Collapse/expand geometry controls");
+      sectionY = geometrySection.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        sectionY = drawGeometryRows(sectionY, *selectedCue, true);
+        sectionY = drawColorRows(sectionY, *selectedCue);
+      }
+      finishInspectorSection(geometrySection, sectionY);
+
+      auto keySection = beginInspectorSection(sectionY, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "Collapse/expand key controls");
+      sectionY = keySection.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        sectionY = drawKeyRows(sectionY, *selectedCue);
+      }
+      finishInspectorSection(keySection, sectionY);
+
+      auto routingSection = beginInspectorSection(sectionY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      sectionY = routingSection.bodyStartY;
+      if (cueSectionRoutingOpen_) {
+        sectionY = drawCueRoutingRows(sectionY);
+      }
+      finishInspectorSection(routingSection, sectionY);
+    } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
+      // Audio-only cue settings
+      int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
+      constexpr int kRowStep = 28;
+      auto playbackSection = beginInspectorSection(ry - 14, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Audio cue playback settings");
+      int playbackY = playbackSection.bodyStartY;
+      int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
+      if (cueSectionPlaybackOpen_) {
+        drawQuickRow(playbackY, "vol", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
+                     QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                     QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                     QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration");
+        playbackY += kRowStep;
+        {
+          int rx = ctrl.x + 10;
+          int ty = playbackY;
+          int halfW = (kCtrlW - 24) / 2;
+          SDL_Rect loopBtn {rx, ty, halfW, 30};
+          SDL_Rect holdBtn {rx + halfW + 4, ty, halfW, 30};
+          SDL_Color loopFill = selectedCue->loop ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color holdFill = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
+          SDL_Color loopInk  = selectedCue->loop ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          SDL_Color holdInk  = selectedCue->pauseOnLastFrame ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+          drawUIPanel(loopBtn, loopFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, loopBtn, std::string("loop: ") + (selectedCue->loop ? "on" : "off"), loopInk);
+          quickButtons_.push_back({loopBtn, QuickAction::ToggleLoop, "L — loop this audio"});
+          drawUIPanel(holdBtn, holdFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, holdBtn, std::string("hold: ") + (selectedCue->pauseOnLastFrame ? "on" : "off"), holdInk);
+          quickButtons_.push_back({holdBtn, QuickAction::ToggleHold, "E — hold at end"});
+        }
+        playbackY += kRowStep;
+        {
+          SDL_Rect endBtn {ctrl.x + 10, playbackY, kCtrlW - 20, 30};
+          drawUIPanel(endBtn, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {endBtn.x + 10, endBtn.y, endBtn.w - 20, endBtn.h},
+                       "end: " + cueEndActionLabel(selectedCue->endAction) + "  [X cycle]",
+                       colorFromRgba(kScreenDeepColor));
+          quickButtons_.push_back({endBtn, QuickAction::CycleEndAction, "X — cycle end action"});
+        }
+        playbackY += kRowStep;
+        {
+          std::string loopStr = selectedCue->loopCount == 0 ? "inf" : std::to_string(selectedCue->loopCount) + "x";
+          drawQuickRow(playbackY, "repeats", QuickAction::LoopCountDec, loopStr, QuickAction::LoopCountInc,
+                       QuickAction::ToggleLoop, false, false, "Fixed repeat count — 0 = infinite");
+        }
+        playbackY += kRowStep;
+      }
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + 4) : (playbackSection.bodyStartY + 4);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Audio cue metadata and pause point controls");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+        metadataY = drawPausePointsRow(metadataY, static_cast<int>(selectedCue->pausePoints.size()));
+      }
+      finishInspectorSection(metadataSection, metadataY);
+
+      int routeY = cueSectionMetadataOpen_ ? (metadataY + 4) : (metadataSection.bodyStartY + 4);
+      auto routingSection = beginInspectorSection(routeY, "ROUTING", cueSectionRoutingOpen_,
+                                                  QuickAction::CueSectionRoutingToggle,
+                                                  "Deck -> Output -> Layer route controls");
+      routeY = routingSection.bodyStartY;
+      if (cueSectionRoutingOpen_) {
+        routeY = drawCueRoutingRows(routeY);
+      }
+      finishInspectorSection(routingSection, routeY);
+    } else if (!selectedCue) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 18, kCtrlW - 20, 16},
+                   "select a cue to edit settings",
+                   colorFromRgba(kScreenInkSoftColor));
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 38, kCtrlW - 20, 16},
+                   "G = add Lower Third cue",
+                   colorFromRgba(kScreenInkSoftColor));
+    } else {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, 16},
+                   "no per-cue settings for this type",
+                   colorFromRgba(kScreenInkSoftColor));
+    }
+
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    int settingsContentLogicalBottom = settingsContentTopY;
+    for (size_t i = cueSettingsQuickButtonStartIndex_; i < quickButtons_.size(); ++i) {
+      settingsContentLogicalBottom = std::max(
+        settingsContentLogicalBottom,
+        quickButtons_[i].rect.y + quickButtons_[i].rect.h + cueSettingsScroll_);
+    }
+    int viewportBottom = cueSettingsViewportRect_.y + cueSettingsViewportRect_.h;
+    cueSettingsScrollMax_ = std::max(0, settingsContentLogicalBottom - viewportBottom + 6);
+    cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
+    if (cueSettingsScrollMax_ > 0 && cueSettingsViewportRect_.h > 10) {
+      SDL_Rect rail {
+        ctrl.x + kCtrlW - 8,
+        cueSettingsViewportRect_.y + 2,
+        4,
+        cueSettingsViewportRect_.h - 4
+      };
+      Primitives::fillRect(controlRenderer_, rail, colorFromRgba(kScreenMidColor));
+      int thumbH = std::max(24, (cueSettingsViewportRect_.h * cueSettingsViewportRect_.h) /
+                                 std::max(1, cueSettingsViewportRect_.h + cueSettingsScrollMax_));
+      thumbH = std::min(thumbH, rail.h);
+      int travel = std::max(1, rail.h - thumbH);
+      int thumbOffset = static_cast<int>(std::lround(
+        static_cast<double>(cueSettingsScroll_) / static_cast<double>(cueSettingsScrollMax_) * travel));
+      SDL_Rect thumb {rail.x - 1, rail.y + thumbOffset, rail.w + 2, thumbH};
+      Primitives::drawFramedPanel(controlRenderer_, thumb, colorFromRgba(kScreenDarkColor),
+                      colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenLightColor));
+    }
+
+    // --- Cart details --- (anchored to bottom of panel, always kDetailAreaH px tall)
+    int detailX = ctrl.x;
+    int detailY = ctrl.y + ctrl.h - kDetailAreaH;
+    int detailBottom = detailY + kDetailAreaH;
+    SDL_Rect detailRect {detailX, detailY, ctrl.w, kDetailAreaH};
+    drawUIPanel(detailRect, colorFromRgba(kScreenLightColor), colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    SDL_Rect detailLabelRect {detailRect.x + 4, detailRect.y + 4, detailRect.w - 8, 16};
+    SDL_Rect detailTitleRect {detailRect.x + 4, detailRect.y + 20, detailRect.w - 8, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, detailLabelRect, "Cue Details", colorFromRgba(kScreenDeepColor));
+    drawTextSafe(controlRenderer_, fontBase_, detailTitleRect,
+                 selectedCue ? selectedCue->name : "Drop or import media",
+                 colorFromRgba(kScreenDeepColor));
+
+    // Progress bar tip
+    if (pointInRect(mouseX_, mouseY_, progressBarRect_)) {
+      drawHoverTip("Click to seek — drag to scrub", progressBarRect_.x + progressBarRect_.w / 2, progressBarRect_.y);
+    }
+    // Quick button tips
+    for (size_t i = 0; i < quickButtons_.size(); ++i) {
+      const auto& qb = quickButtons_[i];
+      bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
+      if (isCueSettingsButton && !pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_)) {
+        continue;
+      }
+      if (!qb.tip.empty() && pointInRect(mouseX_, mouseY_, qb.rect)) {
+        drawHoverTip(qb.tip, qb.rect.x + qb.rect.w / 2, qb.rect.y);
+        break;
+      }
+    }
+
+    if (!selectedCue) {
+      if (detailY + 40 < detailBottom)
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, detailY + 40, ctrl.w, 16},
+                     "Drop files into the shell or tap Import to add some carts.",
+                     colorFromRgba(kScreenInkSoftColor));
+      if (detailY + 56 < detailBottom)
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, detailY + 56, ctrl.w, 16},
+                     "Shift + arrows shuffles the selected cue up or down.",
+                     colorFromRgba(kScreenInkSoftColor));
+      return;
+    }
+
+    std::vector<std::string> lines {
+      std::string(selectedCue->kind == CueKind::Browser ? "URL: " : "Path: ") + selectedCue->path,
+      "Kind: " + cueKindLabel(selectedCue->kind) + "   " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height) + "   Duration: " + formatSeconds(selectedCue->duration),
+      "Format: " + selectedCue->formatName + "   Video: " + selectedCue->videoCodec + "   Audio: " + (selectedCue->audioCodec.empty() ? "none" : selectedCue->audioCodec),
+      "In: " + formatSeconds(selectedCue->inPointSeconds) + "   Out: " + formatSeconds(selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds : selectedCue->duration) + "   Size: " + std::to_string(static_cast<unsigned long long>(selectedCue->sizeBytes / 1024)) + " KB",
+    };
+
+    for (size_t i = 0; i < lines.size(); ++i) {
+      int lineY = detailY + 38 + static_cast<int>(i) * 18;
+      if (lineY + 14 > detailBottom) break;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {detailX, lineY, ctrl.w, 14},
+                   lines[i], colorFromRgba(kScreenInkSoftColor));
+    }
+    if (selectedCue && !selectedCue->notes.empty()) {
+      int notesLineY = detailY + 38 + static_cast<int>(lines.size()) * 18;
+      if (notesLineY + 14 <= detailBottom) {
+        std::string notesStr = "\xe2\x80\x9c" + selectedCue->notes + "\xe2\x80\x9d";
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {detailX, notesLineY, ctrl.w, 14},
+                     notesStr, colorFromRgba(kScreenDeepColor));
+      }
+    }
+  }
 
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
@@ -25104,6 +26721,24 @@ class App {
     }
   }
 
+  void handleDeckBarMouseDown(int x, int y) {
+    for (auto& hit : deckBarHits_) {
+      if (!pointInRect(x, y, hit.rect)) continue;
+      if (hit.action == kDeckBarActionFocus) {
+        setFocusedDeckIndex(hit.deckIndex);
+      } else if (hit.action == kDeckBarActionTake) {
+        setFocusedDeckIndex(hit.deckIndex);
+        jumpSelectedCue();
+      } else if (hit.action == kDeckBarActionStop) {
+        setFocusedDeckIndex(hit.deckIndex);
+        stopTransport();
+      } else if (hit.action == kDeckBarActionTakeAll) {
+        takeAllDecks(jumpTriggersPlayback());
+      }
+      return;
+    }
+  }
+
   void handleDecksPanelMouseDown(int x, int y, Uint8 mouseButton) {
     auto focusMasterCueSilently = [&](int presetIndex) -> bool {
       normalizeProject(project_);
@@ -25331,6 +26966,11 @@ class App {
     if (settingsOpen_) {
       handleSettingsClick(x, y);
       return;
+    }
+
+    // Deck bar (visible when DECKS is toggled on)
+    if (deckBarVisible_ && !deckBarHits_.empty()) {
+      handleDeckBarMouseDown(x, y);
     }
 
     if (pointInRect(x, y, sourceDefaultDropdownRect_)) {
@@ -25581,9 +27221,7 @@ class App {
       return;
     }
     if (pointInRect(x, y, decksPanelToggleRect_)) {
-      bool open = decksPanelVisible();
-      decksPanelManualOpen_ = !open;
-      setDecksPanelVisible(!open, true);
+      deckBarVisible_ = !deckBarVisible_;
       return;
     }
     if (pointInRect(x, y, monitorsBtnRect_)) {
@@ -30311,6 +31949,12 @@ class App {
     SDL_Rect rect {};
   };
 
+  struct DeckBarHit {
+    int deckIndex = -1;
+    int action = 0;
+    SDL_Rect rect {};
+  };
+
   struct MasterCueRowHit {
     int presetIndex = -1;
     SDL_Rect rowRect {};
@@ -30339,6 +31983,10 @@ class App {
   static constexpr int kDecksPanelDeckActionStop = 201;
   static constexpr int kDecksPanelDeckActionPlay = 202;
   static constexpr int kDecksPanelActionTakeAll  = 210;
+  static constexpr int kDeckBarActionFocus   = 300;
+  static constexpr int kDeckBarActionTake    = 301;
+  static constexpr int kDeckBarActionStop    = 302;
+  static constexpr int kDeckBarActionTakeAll = 303;
   static constexpr int kDecksPanelActionAddDeck  = 211;
   static constexpr int kOutputMenuActionFocus = 1;
   static constexpr int kOutputMenuActionAddOutput = 3;
@@ -30553,6 +32201,8 @@ class App {
   std::vector<DecksPanelRowHit> decksPanelRowHits_;
   std::vector<DecksPanelCueHit> decksPanelCueHits_;
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
+  std::vector<DeckBarHit> deckBarHits_;
+  int deckBarScroll_ = 0;
   std::vector<MasterCueRowHit> masterCueRowHits_;
   // Tracker cursor state for the Master Cue panel.
   int masterTrackerCursorRow_ = 0;  // focused master cue row index
@@ -30619,6 +32269,7 @@ class App {
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};
   bool decksPanelManualOpen_ = false;
+  bool deckBarVisible_ = true;
   bool showStartupDialog_ = false;
   bool showSplashOverlay_ = true;
   Uint64 splashStartedAt_ = 0;
