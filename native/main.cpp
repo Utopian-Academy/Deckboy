@@ -6153,6 +6153,23 @@ class App {
       }
     }
 
+    monitorsWindow_ = SDL_CreateWindow(
+      "Deckboy Monitors",
+      SDL_WINDOWPOS_UNDEFINED,
+      SDL_WINDOWPOS_UNDEFINED,
+      1280,
+      800,
+      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
+    );
+    if (monitorsWindow_) {
+      SDL_SetWindowMinimumSize(monitorsWindow_, 640, 400);
+      monitorsRenderer_ = SDL_CreateRenderer(monitorsWindow_, -1, SDL_RENDERER_ACCELERATED);
+      if (!monitorsRenderer_) {
+        SDL_DestroyWindow(monitorsWindow_);
+        monitorsWindow_ = nullptr;
+      }
+    }
+
     floatingPanelsWindow_ = SDL_CreateWindow(
       "Deckboy Panels",
       SDL_WINDOWPOS_UNDEFINED,
@@ -6288,6 +6305,18 @@ class App {
     if (decksPanelWindow_) {
       SDL_DestroyWindow(decksPanelWindow_);
       decksPanelWindow_ = nullptr;
+    }
+    for (auto* t : monitorsOutputTextures_) { if (t) SDL_DestroyTexture(t); }
+    monitorsOutputTextures_.clear();
+    monitorsOutputTexW_.clear();
+    monitorsOutputTexH_.clear();
+    if (monitorsRenderer_) {
+      SDL_DestroyRenderer(monitorsRenderer_);
+      monitorsRenderer_ = nullptr;
+    }
+    if (monitorsWindow_) {
+      SDL_DestroyWindow(monitorsWindow_);
+      monitorsWindow_ = nullptr;
     }
     if (floatingPanelsRenderer_) {
       SDL_DestroyRenderer(floatingPanelsRenderer_);
@@ -17544,6 +17573,10 @@ class App {
               setDecksPanelVisible(false, false);
               break;
             }
+            if (monitorsWindow_ && closingWindowId == SDL_GetWindowID(monitorsWindow_)) {
+              setMonitorsVisible(false);
+              break;
+            }
             if (floatingPanelsWindow_ && closingWindowId == SDL_GetWindowID(floatingPanelsWindow_)) {
               for (const auto& key : floatingOperationalPanels()) {
                 setPanelPresentation(key, UiPanelPresentation::Docked);
@@ -17660,6 +17693,9 @@ class App {
           } else if (decksPanelWindow_ &&
                      event.button.windowID == SDL_GetWindowID(decksPanelWindow_)) {
             handleDecksPanelMouseDown(event.button.x, event.button.y, event.button.button);
+          } else if (monitorsWindow_ &&
+                     event.button.windowID == SDL_GetWindowID(monitorsWindow_)) {
+            handleMonitorsMouseDown(event.button.x, event.button.y);
           } else if (floatingPanelsWindow_ &&
                      event.button.windowID == SDL_GetWindowID(floatingPanelsWindow_)) {
             handleFloatingPanelsWindowMouseDown(event.button.x, event.button.y);
@@ -17928,6 +17964,30 @@ class App {
         controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
       }
     }
+    // Upload output captured frames to monitors window textures
+    if (monitorsRenderer_ && monitorsVisible()) {
+      int rCount = static_cast<int>(outputRuntimes_.size());
+      if (static_cast<int>(monitorsOutputTextures_.size()) < rCount) {
+        monitorsOutputTextures_.resize(rCount, nullptr);
+        monitorsOutputTexW_.resize(rCount, 0);
+        monitorsOutputTexH_.resize(rCount, 0);
+      }
+      for (int oi = 0; oi < rCount; ++oi) {
+        const auto& cf = outputRuntimes_[oi].latestCapturedFrame;
+        if (cf.width <= 0 || cf.height <= 0 || cf.pixels.empty()) continue;
+        if (!monitorsOutputTextures_[oi] ||
+            monitorsOutputTexW_[oi] != cf.width ||
+            monitorsOutputTexH_[oi] != cf.height) {
+          if (monitorsOutputTextures_[oi]) SDL_DestroyTexture(monitorsOutputTextures_[oi]);
+          monitorsOutputTextures_[oi] = SDL_CreateTexture(monitorsRenderer_,
+            SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, cf.width, cf.height);
+          monitorsOutputTexW_[oi] = cf.width;
+          monitorsOutputTexH_[oi] = cf.height;
+        }
+        if (monitorsOutputTextures_[oi])
+          SDL_UpdateTexture(monitorsOutputTextures_[oi], nullptr, cf.pixels.data(), cf.width * 4);
+      }
+    }
     // Upload thumbnail if one finished decoding
     if (thumbnailPending_.exchange(false)) {
       std::lock_guard<std::mutex> lk(thumbnailMutex_);
@@ -17954,6 +18014,7 @@ class App {
     renderFloatingPanelsWindow();
     renderControlWindow();
     renderDecksPanel();
+    renderMonitorsWindow();
     
     ensureOutputRuntimesSynced();
 
@@ -18040,6 +18101,23 @@ class App {
       }
     } else {
       SDL_HideWindow(floatingPanelsWindow_);
+    }
+  }
+
+  bool monitorsVisible() const {
+    if (!monitorsWindow_) return false;
+    return (SDL_GetWindowFlags(monitorsWindow_) & SDL_WINDOW_HIDDEN) == 0;
+  }
+
+  void setMonitorsVisible(bool visible, bool raiseWindow = false) {
+    if (!monitorsWindow_) return;
+    if (visible) {
+      SDL_ShowWindow(monitorsWindow_);
+      if ((SDL_GetWindowFlags(monitorsWindow_) & SDL_WINDOW_MINIMIZED) != 0)
+        SDL_RestoreWindow(monitorsWindow_);
+      if (raiseWindow) SDL_RaiseWindow(monitorsWindow_);
+    } else {
+      SDL_HideWindow(monitorsWindow_);
     }
   }
 
@@ -18465,6 +18543,236 @@ class App {
     if (deckOpacityFaderRects_.size() <= static_cast<size_t>(deckIndex))
       deckOpacityFaderRects_.resize(deckIndex + 1, SDL_Rect{});
     deckOpacityFaderRects_[deckIndex] = opRail;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Monitors window — one tile per output, program frame + preview + controls
+  // ---------------------------------------------------------------------------
+
+  void renderMonitorsTile(const SDL_Rect& tile, int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    const OutputTarget& output = project_.outputs[outputIndex];
+    bool focused = (outputIndex == project_.focusedOutputIndex);
+
+    // Tile background
+    SDL_Color tileBg = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kShellInnerColor);
+    drawUIPanel(tile, tileBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    // --- Header strip (28px) ---
+    constexpr int kTileHdrH = 28;
+    SDL_Rect hdr {tile.x + 2, tile.y + 2, tile.w - 4, kTileHdrH};
+    SDL_Color hdrBg = focused ? colorFromRgba(kScreenMidColor) : colorFromRgba(kShellOuterColor);
+    drawUIPanel(hdr, hdrBg, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenDarkColor));
+
+    // Health badge
+    OutputHealthState health = outputHealthStateForDisplay(outputIndex);
+    SDL_Color healthFill = (health == OutputHealthState::Live)       ? SDL_Color{30,140,30,255}
+                         : (health == OutputHealthState::Error)      ? SDL_Color{160,40,40,255}
+                         : (health == OutputHealthState::Recovering) ? SDL_Color{160,120,40,255}
+                                                                     : colorFromRgba(kScreenDarkColor);
+    SDL_Rect healthBadge {hdr.x + 4, hdr.y + 4, 52, 18};
+    Primitives::fillRect(controlRenderer_, healthBadge, healthFill);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, healthBadge,
+                         outputHealthLabelToken(health), colorFromRgba(kScreenLightColor));
+
+    // Output name
+    std::string outName = "O" + std::to_string(outputIndex + 1) + "  " + outputLabel(outputIndex);
+    SDL_Color hdrInk = focused ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {hdr.x + 60, hdr.y + (hdr.h - 14) / 2, hdr.w - 130, 14},
+                 outName, hdrInk);
+
+    // FPS (top-right of header)
+    if (outputFpsCounterEnabled_) {
+      std::string fpsStr = (output.enabled ? outputFpsLabel(outputIndex) : "--.-") + "fps";
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {hdr.x + hdr.w - 60, hdr.y + (hdr.h - 14) / 2, 56, 14},
+                   fpsStr, colorFromRgba(kScreenDarkColor));
+    }
+
+    // --- Bottom strip for buttons (30px) ---
+    constexpr int kTileBtnH = 30;
+    SDL_Rect btnStrip {tile.x + 2, tile.y + tile.h - kTileBtnH - 2, tile.w - 4, kTileBtnH};
+    constexpr int kBtnW = 68;
+    constexpr int kBtnGap = 6;
+    int bx = btnStrip.x + (btnStrip.w - 2 * kBtnW - kBtnGap) / 2;
+    int bby = btnStrip.y + (btnStrip.h - 22) / 2;
+
+    // GO / LIVE
+    SDL_Color goFill = output.enabled ? SDL_Color{30,140,30,255} : colorFromRgba(kScreenMidColor);
+    SDL_Color goInk  = output.enabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDeepColor);
+    SDL_Rect goBtn {bx, bby, kBtnW, 22};
+    drawUIPanel(goBtn, goFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, goBtn, output.enabled ? "LIVE" : "GO", goInk);
+    outputMenuButtons_.push_back({goBtn, -1, outputIndex, kOutputMenuActionRecover});
+
+    // OFF
+    SDL_Color offFill = output.enabled ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenDarkColor);
+    SDL_Color offInk  = output.enabled ? colorFromRgba(kScreenDarkColor)  : colorFromRgba(kScreenMidColor);
+    SDL_Rect offBtn {bx + kBtnW + kBtnGap, bby, kBtnW, 22};
+    drawUIPanel(offBtn, offFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, offBtn, "OFF", offInk);
+    outputMenuButtons_.push_back({offBtn, -1, outputIndex, kOutputMenuActionDisarm});
+
+    // Register tile click for focus
+    outputMenuButtons_.push_back({tile, -1, outputIndex, kOutputMenuActionFocus});
+
+    // --- Program frame area ---
+    int programTop    = hdr.y + hdr.h + 2;
+    int programBottom = btnStrip.y - 2;
+    SDL_Rect programRect {tile.x + 4, programTop, tile.w - 8, std::max(0, programBottom - programTop)};
+    drawUIPanel(programRect, colorFromRgba(kScreenDeepColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+
+    bool hasTex = outputIndex < static_cast<int>(monitorsOutputTextures_.size()) &&
+                  monitorsOutputTextures_[outputIndex] != nullptr &&
+                  monitorsOutputTexW_[outputIndex] > 0;
+    if (hasTex && output.enabled) {
+      SDL_Texture* tex = monitorsOutputTextures_[outputIndex];
+      int texW = monitorsOutputTexW_[outputIndex];
+      int texH = monitorsOutputTexH_[outputIndex];
+      // Letterbox scale
+      float scaleW = static_cast<float>(programRect.w) / texW;
+      float scaleH = static_cast<float>(programRect.h) / texH;
+      float scale  = std::min(scaleW, scaleH);
+      int dstW = static_cast<int>(texW * scale);
+      int dstH = static_cast<int>(texH * scale);
+      SDL_Rect dst {programRect.x + (programRect.w - dstW) / 2,
+                    programRect.y + (programRect.h - dstH) / 2,
+                    dstW, dstH};
+      SDL_RenderCopy(controlRenderer_, tex, nullptr, &dst);
+    } else {
+      // No signal label
+      std::string noSigLabel = output.enabled ? "NO SIGNAL" : "OFFLINE";
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, programRect,
+                           noSigLabel, colorFromRgba(kScreenMidColor));
+    }
+
+    // Next cue info bar (inside program area, bottom-left overlay)
+    {
+      auto stackEntries = layeredDeckEntriesForOutput(outputIndex);
+      if (!stackEntries.empty()) {
+        int bgDeck = stackEntries[0].second;
+        int nextIdx = nextCueIndexForDeck(bgDeck);
+        if (nextIdx >= 0 && nextIdx < static_cast<int>(project_.decks[bgDeck].cues.size())) {
+          const Cue& nxt = project_.decks[bgDeck].cues[nextIdx];
+          std::string nxtStr = "NEXT  " + cueDisplayToken(nxt, nextIdx) + "  " + nxt.name;
+          nxtStr = ellipsizeToPixelWidth(fontSmall_, nxtStr, programRect.w - 8);
+          SDL_Rect nxtBar {programRect.x, programRect.y + programRect.h - 18,
+                           programRect.w, 18};
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 160);
+          SDL_RenderFillRect(controlRenderer_, &nxtBar);
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {nxtBar.x + 4, nxtBar.y + 2, nxtBar.w - 8, 14},
+                       nxtStr, colorFromRgba(kScreenLightColor));
+        }
+      }
+    }
+  }
+
+  void renderMonitorsWindow() {
+    if (!monitorsWindow_ || !monitorsRenderer_) return;
+    if (!monitorsVisible()) return;
+
+    monitorsTileHits_.clear();
+
+    // Swap renderer context
+    SDL_Renderer* savedRenderer = controlRenderer_;
+    SDL_Window*   savedWindow   = controlWindow_;
+    int savedMouseX = mouseX_, savedMouseY = mouseY_;
+    controlRenderer_ = monitorsRenderer_;
+    controlWindow_   = monitorsWindow_;
+    mouseX_ = -10000; mouseY_ = -10000;
+
+    int W = 0, H = 0;
+    SDL_GetWindowSize(monitorsWindow_, &W, &H);
+
+    SDL_SetRenderDrawColor(controlRenderer_,
+      red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
+    SDL_RenderClear(controlRenderer_);
+
+    SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
+                    std::max(0, W - kLayoutSpacingUnit * 2),
+                    std::max(0, H - kLayoutSpacingUnit * 2)};
+    drawUIPanel(shell, colorFromRgba(kShellOuterColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellInnerColor));
+
+    // --- Window header ---
+    constexpr int kWinHdrH = 44;
+    constexpr int kHBtnH   = 28;
+    constexpr int kHBtnGap = 6;
+    SDL_Rect winHdr {shell.x + 4, shell.y + 4, shell.w - 8, kWinHdrH};
+    drawUIPanel(winHdr, colorFromRgba(kShellInnerColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kShellOuterColor));
+
+    int outCount = static_cast<int>(project_.outputs.size());
+    std::string title = "MONITORS";
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {winHdr.x + 10, winHdr.y + (winHdr.h - 18) / 2, 90, 18},
+                 title, colorFromRgba(kScreenDeepColor));
+    std::string countStr = std::to_string(outCount) + (outCount == 1 ? " output" : " outputs");
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {winHdr.x + 106, winHdr.y + (winHdr.h - 14) / 2, 80, 14},
+                 countStr, colorFromRgba(kScreenDarkColor));
+
+    // Right buttons: FPS toggle, + OUTPUT
+    int btnY = winHdr.y + (winHdr.h - kHBtnH) / 2;
+    SDL_Rect addOutBtn  {winHdr.x + winHdr.w - 80,              btnY, 74, kHBtnH};
+    SDL_Rect fpsTogBtn  {addOutBtn.x - 70 - kHBtnGap,           btnY, 64, kHBtnH};
+
+    SDL_Color fpsFill = outputFpsCounterEnabled_ ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kShellOuterColor);
+    SDL_Color fpsInk  = outputFpsCounterEnabled_ ? colorFromRgba(kScreenLightColor) : colorFromRgba(kScreenMidColor);
+    drawUIPanel(fpsTogBtn, fpsFill, colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, fpsTogBtn,
+                         outputFpsCounterEnabled_ ? "FPS ON" : "FPS OFF", fpsInk);
+    outputMenuButtons_.push_back({fpsTogBtn, -1, -1, kOutputMenuActionToggleFps});
+
+    drawUIPanel(addOutBtn, colorFromRgba(kShellOuterColor),
+                colorFromRgba(kScreenDeepColor), colorFromRgba(kScreenMidColor));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, addOutBtn, "+ OUTPUT",
+                         colorFromRgba(kScreenMidColor));
+    outputMenuButtons_.push_back({addOutBtn, -1, -1, kOutputMenuActionAddOutput});
+
+    // --- Tile grid ---
+    int gridTop = winHdr.y + winHdr.h + 6;
+    int gridH   = shell.y + shell.h - gridTop - 4;
+    int gridX   = shell.x + 4;
+    int gridW   = shell.w - 8;
+
+    if (outCount == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {gridX + 20, gridTop + 20, gridW - 40, 18},
+                   "No outputs — click + OUTPUT to add one.",
+                   colorFromRgba(kScreenInkSoftColor));
+    } else {
+      // Auto grid: cols = ceil(sqrt(N)), rows = ceil(N / cols)
+      int cols = std::max(1, static_cast<int>(std::ceil(std::sqrt(static_cast<double>(outCount)))));
+      int rows = (outCount + cols - 1) / cols;
+      constexpr int kTileGap = 8;
+      int tileW = (gridW - (cols - 1) * kTileGap) / cols;
+      int tileH = (gridH - (rows - 1) * kTileGap) / rows;
+
+      for (int oi = 0; oi < outCount; ++oi) {
+        int col = oi % cols;
+        int row = oi / cols;
+        SDL_Rect tileRect {
+          gridX + col * (tileW + kTileGap),
+          gridTop + row * (tileH + kTileGap),
+          tileW, tileH
+        };
+        renderMonitorsTile(tileRect, oi);
+        monitorsTileHits_.push_back({oi, tileRect});
+      }
+    }
+
+    SDL_RenderPresent(controlRenderer_);
+
+    controlRenderer_ = savedRenderer;
+    controlWindow_   = savedWindow;
+    mouseX_ = savedMouseX;
+    mouseY_ = savedMouseY;
   }
 
   // ---------------------------------------------------------------------------
@@ -19666,10 +19974,12 @@ class App {
 
       // Panel / tools
       decksPanelToggleRect_    = {ax, btnY, 50, kHBtnH}; ax += 50 + kHBtnGap;
+      monitorsBtnRect_         = {ax, btnY, 40, kHBtnH}; ax += 40 + kHBtnGap;
       floatingPanelsBtnRect_   = {ax, btnY, 52, kHBtnH}; ax += 52 + kHBtnGap;
       blackoutBtnRect_         = {ax, btnY, 36, kHBtnH}; ax += 36 + kHBtnGap;
       settingsGearRect_        = {ax, btnY, 46, kHBtnH}; ax += 46 + kHBtnGrpGap;
       drawHdrBtn(decksPanelToggleRect_,  "DECKS",  decksPanelVisible());
+      drawHdrBtn(monitorsBtnRect_,       "MON",    monitorsVisible());
       drawHdrBtn(floatingPanelsBtnRect_, "PANELS", floatingPanelsWindowVisible());
       drawHdrBtn(blackoutBtnRect_,       "BLK",    masterDimmerTarget_ < 0.5, true);
       drawHdrBtn(settingsGearRect_,      "PREFS",  settingsOpen_);
@@ -24767,6 +25077,33 @@ class App {
     if (!pointInRect(mx, my, modal)) settingsOpen_ = false;
   }
 
+  void handleMonitorsMouseDown(int x, int y) {
+    for (const auto& btn : outputMenuButtons_) {
+      if (!pointInRect(x, y, btn.rect)) continue;
+      if (btn.action == kOutputMenuActionAddOutput) {
+        addOutput(project_.focusedDeckIndex);
+        return;
+      }
+      if (btn.action == kOutputMenuActionToggleFps) {
+        outputFpsCounterEnabled_ = !outputFpsCounterEnabled_;
+        triggerToast(std::string("output fps ") + (outputFpsCounterEnabled_ ? "on" : "off"));
+        return;
+      }
+      if (btn.action == kOutputMenuActionFocus) {
+        if (btn.outputIndex >= 0) setFocusedOutputIndex(btn.outputIndex);
+        return;
+      }
+      if (btn.action == kOutputMenuActionRecover) {
+        if (btn.outputIndex >= 0) { setFocusedOutputIndex(btn.outputIndex); setFocusedOutputEnabled(true); }
+        return;
+      }
+      if (btn.action == kOutputMenuActionDisarm) {
+        if (btn.outputIndex >= 0) { setFocusedOutputIndex(btn.outputIndex); setFocusedOutputEnabled(false, false); }
+        return;
+      }
+    }
+  }
+
   void handleDecksPanelMouseDown(int x, int y, Uint8 mouseButton) {
     auto focusMasterCueSilently = [&](int presetIndex) -> bool {
       normalizeProject(project_);
@@ -25247,6 +25584,10 @@ class App {
       bool open = decksPanelVisible();
       decksPanelManualOpen_ = !open;
       setDecksPanelVisible(!open, true);
+      return;
+    }
+    if (pointInRect(x, y, monitorsBtnRect_)) {
+      setMonitorsVisible(!monitorsVisible(), true);
       return;
     }
     if (pointInRect(x, y, floatingPanelsBtnRect_)) {
@@ -29953,6 +30294,11 @@ class App {
     SDL_Rect nextRect {};
   };
 
+  struct MonitorsTileHit {
+    int outputIndex = -1;
+    SDL_Rect rect {};
+  };
+
   struct DecksPanelCueHit {
     int deckIndex = -1;
     int cueIndex = -1;
@@ -30067,6 +30413,11 @@ class App {
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Window* decksPanelWindow_ = nullptr;
   SDL_Renderer* decksPanelRenderer_ = nullptr;
+  SDL_Window* monitorsWindow_ = nullptr;
+  SDL_Renderer* monitorsRenderer_ = nullptr;
+  std::vector<SDL_Texture*> monitorsOutputTextures_;
+  std::vector<int> monitorsOutputTexW_;
+  std::vector<int> monitorsOutputTexH_;
   SDL_Window* floatingPanelsWindow_ = nullptr;
   SDL_Renderer* floatingPanelsRenderer_ = nullptr;
   TTF_Font* fontLarge_ = nullptr;
@@ -30198,6 +30549,7 @@ class App {
   std::vector<MasterCueSidebarRowHit> masterCueSidebarRows_;
   std::vector<MasterCueSidebarProgramHit> masterCueSidebarProgramHits_;
   std::vector<DecksPanelButton> decksPanelButtons_;
+  std::vector<MonitorsTileHit> monitorsTileHits_;
   std::vector<DecksPanelRowHit> decksPanelRowHits_;
   std::vector<DecksPanelCueHit> decksPanelCueHits_;
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
@@ -30332,6 +30684,7 @@ class App {
   SDL_Rect settingsCloseBtn_ {};
   SDL_Rect settingsGearRect_ {};
   SDL_Rect decksPanelToggleRect_ {};
+  SDL_Rect monitorsBtnRect_ {};
   SDL_Rect floatingPanelsBtnRect_ {};
   SDL_Rect deckSidebarToggleRect_ {};
   SDL_Rect blackoutBtnRect_ {};
