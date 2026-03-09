@@ -2717,21 +2717,6 @@ std::string makeOutputId(const OutputTarget& output, int outputIndex) {
   return outputId.str();
 }
 
-std::string makeLayerAssignmentId(const LayerAssignment& assignment, int assignmentIndex) {
-  std::string seed =
-    std::to_string(assignment.deckIndex) + "|" +
-    std::to_string(assignment.outputIndex) + "|" +
-    std::to_string(assignment.layerIndex) + "|" +
-    std::to_string(assignmentIndex);
-  size_t hashValue = std::hash<std::string> {}(seed);
-  std::ostringstream layerId;
-  layerId << "lay-" << std::hex << std::nouppercase << hashValue;
-  return layerId.str();
-}
-
-std::string groupPresetDefaultName(int index) {
-  return "Master Scene " + std::to_string(index + 1);
-}
 
 std::string normalizeOutputStreamProtocol(std::string protocol) {
   std::transform(protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char ch) {
@@ -2856,7 +2841,6 @@ void normalizeProjectOutputsAndLayers(Project& project) {
   int deckCount = static_cast<int>(project.decks.size());
   if (deckCount <= 0) {
     project.outputs.clear();
-    project.layerAssignments.clear();
     project.focusedOutputIndex = 0;
     return;
   }
@@ -2934,175 +2918,10 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     if (!output.ndiEnabled) {
       output.ndiKeyEnabled = false;
     }
-  }
-
-  {
-    std::unordered_set<std::string> usedOutputIds;
-    for (size_t i = 0; i < project.outputs.size(); ++i) {
-      OutputTarget& output = project.outputs[i];
-      if (trim(output.outputId).empty()) {
-        output.outputId = makeOutputId(output, static_cast<int>(i));
-      }
-      output.outputId = dedupeOutputId(usedOutputIds, output.outputId);
-    }
-  }
-  project.focusedOutputIndex = std::clamp(project.focusedOutputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
-
-  if (project.layerAssignments.empty()) {
-    for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
-      int hostDeckIndex = resolveLegacyOutputHostIndexForProject(project, deckIndex);
-      int outputIndex = 0;
-      auto it = std::find_if(project.outputs.begin(), project.outputs.end(), [&](const OutputTarget& output) {
-        return output.hostDeckIndex == hostDeckIndex;
-      });
-      if (it != project.outputs.end()) {
-        outputIndex = static_cast<int>(it - project.outputs.begin());
-      }
-      LayerAssignment assignment;
-      assignment.deckIndex = deckIndex;
-      assignment.outputIndex = outputIndex;
-      assignment.outputId = project.outputs[outputIndex].outputId;
-      assignment.layerIndex = std::clamp(project.decks[deckIndex].outputLayerIndex, 0, 255);
-      assignment.enabled = true;
-      project.layerAssignments.push_back(assignment);
-    }
-  }
-
-  std::map<std::string, int> outputIndexById;
-  for (int outputIndex = 0; outputIndex < static_cast<int>(project.outputs.size()); ++outputIndex) {
-    const std::string id = trim(project.outputs[outputIndex].outputId);
-    if (!id.empty()) {
-      outputIndexById[id] = outputIndex;
-    }
-  }
-
-  std::vector<LayerAssignment> normalizedAssignments;
-  normalizedAssignments.reserve(project.layerAssignments.size());
-  for (const auto& assignment : project.layerAssignments) {
-    if (assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
-      continue;
-    }
-    int resolvedOutputIndex = -1;
-    std::string outputId = trim(assignment.outputId);
-    if (!outputId.empty()) {
-      auto it = outputIndexById.find(outputId);
-      if (it != outputIndexById.end()) {
-        resolvedOutputIndex = it->second;
-      }
-    }
-    if (resolvedOutputIndex < 0 &&
-        assignment.outputIndex >= 0 &&
-        assignment.outputIndex < static_cast<int>(project.outputs.size())) {
-      resolvedOutputIndex = assignment.outputIndex;
-    }
-    if (resolvedOutputIndex < 0 || resolvedOutputIndex >= static_cast<int>(project.outputs.size())) {
-      continue;
-    }
-    LayerAssignment normalized = assignment;
-    normalized.outputIndex = resolvedOutputIndex;
-    normalized.outputId = project.outputs[resolvedOutputIndex].outputId;
-    normalized.layerIndex = std::clamp(normalized.layerIndex, 0, 255);
-    normalizedAssignments.push_back(normalized);
-  }
-  if (normalizedAssignments.empty()) {
-    LayerAssignment fallback;
-    fallback.deckIndex = 0;
-    fallback.outputIndex = 0;
-    fallback.outputId = project.outputs[0].outputId;
-    fallback.layerIndex = 0;
-    fallback.enabled = true;
-    normalizedAssignments.push_back(fallback);
-  }
-  project.layerAssignments = std::move(normalizedAssignments);
-
-  {
-    std::unordered_set<std::string> usedLayerIds;
-    for (int assignmentIndex = 0; assignmentIndex < static_cast<int>(project.layerAssignments.size()); ++assignmentIndex) {
-      LayerAssignment& assignment = project.layerAssignments[assignmentIndex];
-      if (trim(assignment.layerId).empty()) {
-        assignment.layerId = makeLayerAssignmentId(assignment, assignmentIndex);
-      }
-      assignment.layerId = dedupeOutputId(usedLayerIds, assignment.layerId);
-    }
-  }
-
-  auto ensureOutputIndexForHost = [&](int hostDeckIndex) -> int {
-    int clampedHost = std::clamp(hostDeckIndex, 0, deckCount - 1);
-    auto it = std::find_if(project.outputs.begin(), project.outputs.end(), [&](const OutputTarget& output) {
-      return output.hostDeckIndex == clampedHost;
-    });
-    if (it != project.outputs.end()) {
-      return static_cast<int>(it - project.outputs.begin());
-    }
-    OutputTarget created;
-    created.name = outputDefaultName(static_cast<int>(project.outputs.size()));
-    created.hostDeckIndex = clampedHost;
-    created.displayIndex = std::max(0, project.decks[clampedHost].outputDisplayIndex);
-    created.enabled = true;
-    created.outputId = makeOutputId(created, static_cast<int>(project.outputs.size()));
-    project.outputs.push_back(created);
-    return static_cast<int>(project.outputs.size()) - 1;
-  };
-
-  std::vector<int> primaryAssignmentIndex(deckCount, -1);
-  for (int i = 0; i < static_cast<int>(project.layerAssignments.size()); ++i) {
-    const auto& assignment = project.layerAssignments[i];
-    if (!assignment.enabled || assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
-      continue;
-    }
-    int existing = primaryAssignmentIndex[assignment.deckIndex];
-    if (existing < 0 ||
-        assignment.layerIndex < project.layerAssignments[existing].layerIndex) {
-      primaryAssignmentIndex[assignment.deckIndex] = i;
-    }
-  }
-  for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
-    if (primaryAssignmentIndex[deckIndex] >= 0) {
-      continue;
-    }
-    int hostDeckIndex = resolveLegacyOutputHostIndexForProject(project, deckIndex);
-    int outputIndex = ensureOutputIndexForHost(hostDeckIndex);
-    LayerAssignment synthesized;
-    synthesized.deckIndex = deckIndex;
-    synthesized.outputIndex = outputIndex;
-    synthesized.outputId = project.outputs[outputIndex].outputId;
-    synthesized.layerIndex = std::clamp(project.decks[deckIndex].outputLayerIndex, 0, 255);
-    synthesized.enabled = true;
-    synthesized.layerId = makeLayerAssignmentId(synthesized, static_cast<int>(project.layerAssignments.size()));
-    project.layerAssignments.push_back(synthesized);
-    primaryAssignmentIndex[deckIndex] = static_cast<int>(project.layerAssignments.size()) - 1;
-  }
-
-  for (size_t i = 0; i < project.outputs.size(); ++i) {
-    OutputTarget& output = project.outputs[i];
-    if (output.name.empty()) {
-      output.name = outputDefaultName(static_cast<int>(i));
-    }
-    output.hostDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
-    output.displayIndex = std::max(0, output.displayIndex);
-    output.outputType = normalizeOutputType(output.outputType);
-    output.mirrorSourceOutputIndex = std::clamp(output.mirrorSourceOutputIndex, -1, static_cast<int>(project.outputs.size()) - 1);
-    if (output.outputType != "stream") {
-      output.mirrorSourceOutputIndex = -1;
-    }
-    if (output.mirrorSourceOutputIndex == static_cast<int>(i)) {
-      output.mirrorSourceOutputIndex = -1;
-    }
-    output.streamProtocol = normalizeOutputStreamProtocol(output.streamProtocol);
-    output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
-    output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
-    output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
-    output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
-    output.outputLayoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
-    output.outputOrientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
-    if (trim(output.streamUrl).empty()) {
-      output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, static_cast<int>(i));
-    }
     if (trim(output.outputId).empty()) {
       output.outputId = makeOutputId(output, static_cast<int>(i));
     }
   }
-  project.focusedOutputIndex = std::clamp(project.focusedOutputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
 
   {
     std::unordered_set<std::string> usedOutputIds;
@@ -3110,12 +2929,8 @@ void normalizeProjectOutputsAndLayers(Project& project) {
       OutputTarget& output = project.outputs[i];
       output.outputId = dedupeOutputId(usedOutputIds, output.outputId);
     }
-    for (auto& assignment : project.layerAssignments) {
-      int outputIndex = std::clamp(assignment.outputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
-      assignment.outputIndex = outputIndex;
-      assignment.outputId = project.outputs[outputIndex].outputId;
-    }
   }
+  project.focusedOutputIndex = std::clamp(project.focusedOutputIndex, 0, static_cast<int>(project.outputs.size()) - 1);
 
   std::vector<bool> hostDisplayAssigned(deckCount, false);
   for (const auto& output : project.outputs) {
@@ -3129,17 +2944,10 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     }
   }
 
+  // Single-deck: route deck 0 to output 0 directly.
   for (int deckIndex = 0; deckIndex < deckCount; ++deckIndex) {
-    int primaryIndex = primaryAssignmentIndex[deckIndex];
-    if (primaryIndex < 0 || primaryIndex >= static_cast<int>(project.layerAssignments.size())) {
-      project.decks[deckIndex].outputRouteDeckIndex = deckIndex;
-      project.decks[deckIndex].outputLayerIndex = 0;
-      continue;
-    }
-    const LayerAssignment& primary = project.layerAssignments[primaryIndex];
-    const OutputTarget& output = project.outputs[primary.outputIndex];
-    project.decks[deckIndex].outputRouteDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
-    project.decks[deckIndex].outputLayerIndex = std::clamp(primary.layerIndex, 0, 255);
+    project.decks[deckIndex].outputRouteDeckIndex = deckIndex;
+    project.decks[deckIndex].outputLayerIndex = 0;
   }
 }
 
@@ -3160,38 +2968,13 @@ void migrateLegacyDeckNdiToOutputs(Project& project) {
     return;
   }
 
-  std::vector<int> primaryDeckForOutput(outputCount, -1);
-  std::vector<int> bestLayerForOutput(outputCount, std::numeric_limits<int>::max());
-  for (const auto& assignment : project.layerAssignments) {
-    if (!assignment.enabled) {
-      continue;
-    }
-    if (assignment.outputIndex < 0 || assignment.outputIndex >= outputCount) {
-      continue;
-    }
-    if (assignment.deckIndex < 0 || assignment.deckIndex >= deckCount) {
-      continue;
-    }
-    int& currentDeck = primaryDeckForOutput[assignment.outputIndex];
-    int& currentLayer = bestLayerForOutput[assignment.outputIndex];
-    bool shouldReplace = assignment.layerIndex < currentLayer
-      || (assignment.layerIndex == currentLayer && (currentDeck < 0 || assignment.deckIndex < currentDeck));
-    if (shouldReplace) {
-      currentDeck = assignment.deckIndex;
-      currentLayer = assignment.layerIndex;
-    }
-  }
-
   for (int outputIndex = 0; outputIndex < outputCount; ++outputIndex) {
     OutputTarget& output = project.outputs[outputIndex];
     if (outputHasExplicitNdiSettings(output, outputIndex)) {
       continue;
     }
 
-    int sourceDeckIndex = primaryDeckForOutput[outputIndex];
-    if (sourceDeckIndex < 0 || sourceDeckIndex >= deckCount) {
-      sourceDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
-    }
+    int sourceDeckIndex = std::clamp(output.hostDeckIndex, 0, deckCount - 1);
     const Deck& deck = project.decks[sourceDeckIndex];
     std::string legacyFillName = trim(deck.ndiSourceName);
     std::string legacyKeyName = trim(deck.ndiKeySourceName);
@@ -3220,33 +3003,6 @@ void migrateLegacyDeckNdiToOutputs(Project& project) {
   }
 }
 
-void normalizeProjectGroupPresets(Project& project) {
-  int deckCount = static_cast<int>(project.decks.size());
-  if (deckCount <= 0) {
-    project.groupPresets.clear();
-    project.focusedGroupPresetIndex = 0;
-    return;
-  }
-  for (size_t presetIndex = 0; presetIndex < project.groupPresets.size(); ++presetIndex) {
-    GroupPreset& preset = project.groupPresets[presetIndex];
-    if (preset.name.empty()) {
-      preset.name = groupPresetDefaultName(static_cast<int>(presetIndex));
-    }
-    if (static_cast<int>(preset.slots.size()) < deckCount) {
-      preset.slots.resize(deckCount);
-    } else if (static_cast<int>(preset.slots.size()) > deckCount) {
-      preset.slots.resize(deckCount);
-    }
-  }
-  if (project.groupPresets.empty()) {
-    project.focusedGroupPresetIndex = 0;
-  } else {
-    project.focusedGroupPresetIndex = std::clamp(
-      project.focusedGroupPresetIndex,
-      0,
-      static_cast<int>(project.groupPresets.size()) - 1);
-  }
-}
 
 void normalizeProject(Project& project) {
   if (project.decks.empty()) {
@@ -3265,7 +3021,6 @@ void normalizeProject(Project& project) {
   }
   normalizeProjectOutputsAndLayers(project);
   migrateLegacyDeckNdiToOutputs(project);
-  normalizeProjectGroupPresets(project);
   project.focusedDeckIndex = std::clamp(project.focusedDeckIndex, 0, static_cast<int>(project.decks.size()) - 1);
   project.outputRenderWidth = std::clamp(project.outputRenderWidth, 320, 7680);
   project.outputRenderHeight = std::clamp(project.outputRenderHeight, 180, 4320);
@@ -3410,12 +3165,6 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "title\t" << escapeField(project.title) << '\n';
   output << "focused_deck\t" << project.focusedDeckIndex << '\n';
   output << "focused_output\t" << project.focusedOutputIndex << '\n';
-  output << "focused_group\t" << project.focusedGroupPresetIndex << '\n';
-  output << "layer_names";
-  for (const auto& name : project.layerNames) {
-    output << '\t' << escapeField(name);
-  }
-  output << '\n';
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
@@ -3474,45 +3223,6 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (outputTarget.outputTestCardEnabled ? 1 : 0)
       << '\n';
   }
-  for (const auto& assignment : project.layerAssignments) {
-    output
-      << "layer_assignment\t"
-      << assignment.deckIndex << '\t'
-      << assignment.outputIndex << '\t'
-      << assignment.layerIndex << '\t'
-      << (assignment.enabled ? 1 : 0) << '\t'
-      << escapeField(assignment.outputId) << '\t'
-      << escapeField(assignment.layerId)
-      << '\n';
-  }
-  for (size_t presetIndex = 0; presetIndex < project.groupPresets.size(); ++presetIndex) {
-    const auto& preset = project.groupPresets[presetIndex];
-    output
-      << "group_preset\t"
-      << presetIndex << '\t'
-      << escapeField(preset.name)
-      << '\n';
-    // Extra metadata line (fade + notes).
-    if (preset.fadeSeconds >= 0.0 || !preset.notes.empty()) {
-      output << "group_preset_meta\t"
-             << presetIndex << '\t'
-             << preset.fadeSeconds << '\t'
-             << escapeField(preset.notes) << '\n';
-    }
-    for (size_t deckIndex = 0; deckIndex < preset.slots.size(); ++deckIndex) {
-      const auto& slot = preset.slots[deckIndex];
-      // mode: 0=Hold, 1=Recall, 2=Clear
-      output
-        << "group_slot\t"
-        << presetIndex << '\t'
-        << deckIndex << '\t'
-        << (slot.bypass ? 1 : 0) << '\t'
-        << escapeField(slot.cueId) << '\t'
-        << static_cast<int>(slot.mode)
-        << '\n';
-    }
-  }
-
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
     const auto& deck = project.decks[deckIndex];
     output
@@ -3660,8 +3370,6 @@ Project loadProject(const fs::path& projectFile) {
   project.decks.clear();
   project.decks.push_back(Deck {});
   project.outputs.clear();
-  project.layerAssignments.clear();
-  project.groupPresets.clear();
 
   auto ensureDeck = [&](int deckIndex) -> Deck& {
     int normalizedIndex = std::max(0, deckIndex);
@@ -3689,16 +3397,8 @@ Project loadProject(const fs::path& projectFile) {
       project.focusedDeckIndex = safeInt(fields, 1, 0);
     } else if (fields[0] == "focused_output") {
       project.focusedOutputIndex = safeInt(fields, 1, 0);
-    } else if (fields[0] == "focused_group") {
-      project.focusedGroupPresetIndex = safeInt(fields, 1, 0);
-    } else if (fields[0] == "layer_names") {
-      project.layerNames.clear();
-      for (size_t i = 1; i < fields.size(); ++i) {
-        project.layerNames.push_back(fields[i]);
-      }
-      if (project.layerNames.empty()) {
-        project.layerNames = {"BG", "LayerA", "LayerB", "LayerC", "LayerD"};
-      }
+    } else if (fields[0] == "focused_group" || fields[0] == "layer_names") {
+      // Legacy fields — ignored (single-deck, no layer assignments or group presets).
     } else if (fields[0] == "advanced_mode") {
       project.advancedOutputMode = safeBool(fields, 1, false);
     } else if (fields[0] == "selected") {
@@ -3805,56 +3505,9 @@ Project loadProject(const fs::path& projectFile) {
         outputTarget.mirrorSourceOutputIndex = safeInt(fields, 11, -1);
         outputTarget.outputId = safeString(fields, 12);
       }
-    } else if (fields[0] == "layer_assignment") {
-      LayerAssignment assignment;
-      assignment.deckIndex = safeInt(fields, 1, 0);
-      assignment.outputIndex = safeInt(fields, 2, 0);
-      assignment.layerIndex = safeInt(fields, 3, 0);
-      assignment.enabled = safeBool(fields, 4, true);
-      assignment.outputId = safeString(fields, 5);
-      assignment.layerId = safeString(fields, 6);
-      project.layerAssignments.push_back(assignment);
-    } else if (fields[0] == "group_preset") {
-      int presetIndex = safeInt(fields, 1, static_cast<int>(project.groupPresets.size()));
-      int normalizedPresetIndex = std::max(0, presetIndex);
-      while (normalizedPresetIndex >= static_cast<int>(project.groupPresets.size())) {
-        project.groupPresets.push_back(GroupPreset {});
-      }
-      GroupPreset& preset = project.groupPresets[normalizedPresetIndex];
-      preset.name = safeString(fields, 2);
-    } else if (fields[0] == "group_slot") {
-      int presetIndex = safeInt(fields, 1, 0);
-      int deckIndex = safeInt(fields, 2, 0);
-      if (presetIndex < 0 || deckIndex < 0) {
-        continue;
-      }
-      while (presetIndex >= static_cast<int>(project.groupPresets.size())) {
-        project.groupPresets.push_back(GroupPreset {});
-      }
-      GroupPreset& preset = project.groupPresets[presetIndex];
-      if (deckIndex >= static_cast<int>(preset.slots.size())) {
-        preset.slots.resize(deckIndex + 1);
-      }
-      GroupSlot& slot = preset.slots[deckIndex];
-      slot.bypass = safeBool(fields, 3, false);
-      slot.cueId = safeString(fields, 4);
-      // Field 5: mode (new). If absent, derive from legacy bypass.
-      if (fields.size() > 5) {
-        int modeInt = safeInt(fields, 5, -1);
-        if (modeInt == 1) slot.mode = MasterCueSlotMode::Recall;
-        else if (modeInt == 2) slot.mode = MasterCueSlotMode::Clear;
-        else slot.mode = MasterCueSlotMode::Hold;
-      } else {
-        // Legacy: bypass=true → Hold; bypass=false with cueId → Recall.
-        slot.mode = slot.bypass ? MasterCueSlotMode::Hold
-                  : (!slot.cueId.empty() ? MasterCueSlotMode::Recall : MasterCueSlotMode::Hold);
-      }
-    } else if (fields[0] == "group_preset_meta") {
-      int presetIndex = safeInt(fields, 1, -1);
-      if (presetIndex >= 0 && presetIndex < static_cast<int>(project.groupPresets.size())) {
-        project.groupPresets[presetIndex].fadeSeconds = safeDouble(fields, 2, -1.0);
-        project.groupPresets[presetIndex].notes = safeString(fields, 3);
-      }
+    } else if (fields[0] == "layer_assignment" || fields[0] == "group_preset" ||
+               fields[0] == "group_slot" || fields[0] == "group_preset_meta") {
+      // Legacy fields — ignored (single-deck, no layer assignments or group presets).
     } else if (fields[0] == "audio_output") {
       ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "display_index") {
@@ -6812,20 +6465,6 @@ class App {
       project.outputs[1].outputLayoutMode = "duplicate";
       project.outputs[1].outputOrientationDegrees = 270;
       project.outputs[1].outputTestCardEnabled = false;
-      project.layerAssignments = {
-        LayerAssignment {0, 0, 3, true},
-        LayerAssignment {0, 1, 9, true}
-      };
-      project.layerAssignments[0].outputId = project.outputs[0].outputId;
-      project.layerAssignments[0].layerId = "lay-smoke-main";
-      project.layerAssignments[1].outputId = project.outputs[1].outputId;
-      project.layerAssignments[1].layerId = "lay-smoke-stream";
-      project.groupPresets = {
-        GroupPreset {"Preset Smoke", std::vector<GroupSlot> {
-          GroupSlot {false, "smoke-cue-2"}
-        }}
-      };
-      project.focusedGroupPresetIndex = 0;
       project.outputBitDepth = 10;
       normalizeProject(project);
 
@@ -6856,7 +6495,6 @@ class App {
         expect(loaded.panicProfile == "fade_rewind", "panic profile persisted");
         expect(std::abs(loaded.panicFadeSeconds - 1.4) < 0.01 && loaded.panicAutoRestore, "panic options persisted");
         expect(loaded.focusedOutputIndex == 1, "focused output persisted");
-        expect(loaded.focusedGroupPresetIndex == 0, "focused group preset persisted");
         expect(loaded.outputs.size() == 2 &&
                loaded.outputs[0].name == "Program Out" &&
                loaded.outputs[1].name == "Stage Left Stream" &&
@@ -6895,22 +6533,6 @@ class App {
                loaded.outputs[0].ndiKeyEnabled &&
                loaded.outputs[0].ndiKeySourceName == "Program Key",
                "output ndi persisted");
-        expect(loaded.groupPresets.size() == 1 &&
-               loaded.groupPresets[0].name == "Preset Smoke" &&
-               loaded.groupPresets[0].slots.size() == loaded.decks.size() &&
-               !loaded.groupPresets[0].slots[0].bypass &&
-               loaded.groupPresets[0].slots[0].cueId == "smoke-cue-2",
-               "group presets persisted");
-        expect(loaded.layerAssignments.size() == 2 &&
-               loaded.layerAssignments[0].deckIndex == 0 &&
-               loaded.layerAssignments[0].outputIndex == 0 &&
-               loaded.layerAssignments[0].outputId == "out-smoke-program" &&
-               loaded.layerAssignments[0].layerIndex == 3 &&
-               loaded.layerAssignments[0].layerId == "lay-smoke-main" &&
-               loaded.layerAssignments[1].outputIndex == 1 &&
-               loaded.layerAssignments[1].outputId == "out-smoke-stream" &&
-               loaded.layerAssignments[1].layerIndex == 9 &&
-               loaded.layerAssignments[1].layerId == "lay-smoke-stream", "layer assignments persisted");
         expect(loadedDeck.ndiEnabled && loadedDeck.ndiSourceName == "Smoke Fill", "ndi fill persisted");
         expect(loadedDeck.ndiKeyEnabled && loadedDeck.ndiKeySourceName == "Smoke Key", "ndi key persisted");
         expect(loadedDeck.canvasViewX == 320 && loadedDeck.canvasViewY == 40, "canvas view persisted");
@@ -7000,7 +6622,6 @@ class App {
       legacyDeck.ndiKeySourceName = "Legacy Key";
       legacy.decks = {legacyDeck};
       legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, false, "window", -1, false, "srt", "", 6000}};
-      legacy.layerAssignments = {LayerAssignment {0, 0, 0, true}};
       normalizeProject(legacy);
       expect(!legacy.outputs.empty()
                && legacy.outputs[0].ndiEnabled
@@ -7288,64 +6909,20 @@ class App {
     return -1;
   }
 
-  int resolveAssignmentOutputIndex(const LayerAssignment& assignment) const {
-    int fromId = outputIndexById(assignment.outputId);
-    if (fromId >= 0) {
-      return fromId;
-    }
-    if (assignment.outputIndex >= 0 && assignment.outputIndex < static_cast<int>(project_.outputs.size())) {
-      return assignment.outputIndex;
-    }
-    return -1;
+  // Single-deck: layer index is always 0.
+  int primaryLayerIndexForDeck(int /*deckIndex*/) const {
+    return 0;
   }
 
-  void syncAssignmentOutputReference(LayerAssignment& assignment) {
-    int resolved = resolveAssignmentOutputIndex(assignment);
-    if (resolved < 0) {
-      return;
-    }
-    assignment.outputIndex = resolved;
-    assignment.outputId = project_.outputs[resolved].outputId;
-  }
-
-  std::optional<int> primaryAssignmentIndexForDeck(int deckIndex) const {
+  // Single-deck: deck 0 always maps to output 0.
+  std::optional<int> primaryOutputIndexForDeck(int deckIndex) const {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return std::nullopt;
     }
-    std::optional<int> best;
-    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
-      const LayerAssignment& assignment = project_.layerAssignments[i];
-      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) < 0) {
-        continue;
-      }
-      if (!best || assignment.layerIndex < project_.layerAssignments[*best].layerIndex) {
-        best = i;
-      }
+    if (project_.outputs.empty()) {
+      return std::nullopt;
     }
-    return best;
-  }
-
-  std::optional<int> primaryOutputIndexForDeck(int deckIndex) const {
-    if (auto assignmentIndex = primaryAssignmentIndexForDeck(deckIndex); assignmentIndex) {
-      int resolved = resolveAssignmentOutputIndex(project_.layerAssignments[*assignmentIndex]);
-      if (resolved >= 0) {
-        return resolved;
-      }
-    }
-    return std::nullopt;
-  }
-
-  int primaryLayerIndexForDeck(int deckIndex) const {
-    if (auto assignmentIndex = primaryAssignmentIndexForDeck(deckIndex); assignmentIndex) {
-      return std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
-    }
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return 0;
-    }
-    return std::clamp(project_.decks[deckIndex].outputLayerIndex, 0, 255);
+    return 0;
   }
 
   int resolveDeckOutputHostIndex(int deckIndex) const {
@@ -7391,71 +6968,27 @@ class App {
     return static_cast<int>(project_.outputs.size()) - 1;
   }
 
-  int ensurePrimaryAssignmentIndexForDeck(int deckIndex) {
-    normalizeProject(project_);
-    if (auto existing = primaryAssignmentIndexForDeck(deckIndex); existing) {
-      syncAssignmentOutputReference(project_.layerAssignments[*existing]);
-      return *existing;
-    }
-    LayerAssignment assignment;
-    assignment.deckIndex = std::clamp(deckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-    assignment.outputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-    assignment.outputId = project_.outputs[assignment.outputIndex].outputId;
-    assignment.layerIndex = std::clamp(project_.decks[assignment.deckIndex].outputLayerIndex, 0, 255);
-    assignment.enabled = true;
-    project_.layerAssignments.push_back(assignment);
-    return static_cast<int>(project_.layerAssignments.size()) - 1;
-  }
-
   std::vector<std::pair<int, int>> layeredDeckEntriesForOutput(int outputIndex) const {
     std::vector<std::pair<int, int>> entries;
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return entries;
     }
-    for (const auto& assignment : project_.layerAssignments) {
-      if (!assignment.enabled) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
-        continue;
-      }
-      if (assignment.deckIndex < 0 || assignment.deckIndex >= static_cast<int>(project_.decks.size())) {
-        continue;
-      }
-      entries.emplace_back(std::clamp(assignment.layerIndex, 0, 255), assignment.deckIndex);
+    // Single-deck: just deck 0 at layer 0.
+    if (!project_.decks.empty()) {
+      entries.emplace_back(0, 0);
     }
-    std::sort(entries.begin(), entries.end(), [](const auto& a, const auto& b) {
-      if (a.first != b.first) {
-        return a.first < b.first;
-      }
-      return a.second < b.second;
-    });
     return entries;
-  }
-
-  int nextLayerIndexForOutput(int outputIndex, int ignoreDeckIndex = -1) const {
-    int nextLayer = 0;
-    for (const auto& assignment : project_.layerAssignments) {
-      if (!assignment.enabled || resolveAssignmentOutputIndex(assignment) != outputIndex) {
-        continue;
-      }
-      if (assignment.deckIndex == ignoreDeckIndex) {
-        continue;
-      }
-      nextLayer = std::max(nextLayer, assignment.layerIndex + 1);
-    }
-    return std::clamp(nextLayer, 0, 255);
   }
 
   std::string deckOutputRoutingLabel(int deckIndex) const {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return "out:-- layer:--";
+      return "out:--";
     }
     auto outputIndex = primaryOutputIndexForDeck(deckIndex);
     if (!outputIndex) {
-      return "out:-- layer:" + std::to_string(primaryLayerIndexForDeck(deckIndex));
+      return "out:--";
     }
-    return "out:" + std::to_string(*outputIndex + 1) + " layer:" + std::to_string(primaryLayerIndexForDeck(deckIndex));
+    return "out:" + std::to_string(*outputIndex + 1);
   }
 
   std::optional<int> parseDeckReferenceToken(const std::string& token) const {
@@ -7592,45 +7125,7 @@ class App {
       return false;
     }
 
-    int fallbackIndex = (outputIndex + 1 < outputCount) ? outputIndex + 1 : outputIndex - 1;
-    fallbackIndex = std::clamp(fallbackIndex, 0, outputCount - 1);
-    int fallbackHostDeck = std::clamp(project_.outputs[fallbackIndex].hostDeckIndex, 0,
-                                      static_cast<int>(project_.decks.size()) - 1);
     std::string removedLabel = outputLabel(outputIndex);
-    std::string removedOutputId = trim(project_.outputs[outputIndex].outputId);
-
-    std::vector<bool> deckTouched(project_.decks.size(), false);
-    for (const LayerAssignment& assignment : project_.layerAssignments) {
-      bool removeAssignment = false;
-      if (!removedOutputId.empty() && trim(assignment.outputId) == removedOutputId) {
-        removeAssignment = true;
-      } else if (removedOutputId.empty() && assignment.outputIndex == outputIndex) {
-        removeAssignment = true;
-      }
-      if (removeAssignment &&
-          assignment.deckIndex >= 0 &&
-          assignment.deckIndex < static_cast<int>(deckTouched.size())) {
-        deckTouched[assignment.deckIndex] = true;
-      }
-    }
-
-    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
-      bool removeAssignment = false;
-      if (!removedOutputId.empty() && trim(it->outputId) == removedOutputId) {
-        removeAssignment = true;
-      } else if (removedOutputId.empty() && it->outputIndex == outputIndex) {
-        removeAssignment = true;
-      }
-      if (removeAssignment) {
-        it = project_.layerAssignments.erase(it);
-      } else {
-        if (it->outputIndex > outputIndex) {
-          it->outputIndex -= 1;
-        }
-        ++it;
-      }
-    }
-
     project_.outputs.erase(project_.outputs.begin() + outputIndex);
 
     for (OutputTarget& output : project_.outputs) {
@@ -7647,31 +7142,6 @@ class App {
       project_.focusedOutputIndex = static_cast<int>(project_.outputs.size()) - 1;
     }
 
-    int fallbackNewIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
-    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
-      if (!deckTouched[deckIndex]) {
-        continue;
-      }
-      project_.decks[deckIndex].outputRouteDeckIndex = fallbackHostDeck;
-      bool hasAssignment = false;
-      for (const LayerAssignment& assignment : project_.layerAssignments) {
-        if (!assignment.enabled || assignment.deckIndex != deckIndex) {
-          continue;
-        }
-        hasAssignment = true;
-        break;
-      }
-      if (!hasAssignment) {
-        LayerAssignment assignment;
-        assignment.deckIndex = deckIndex;
-        assignment.outputIndex = fallbackNewIndex;
-        assignment.outputId = project_.outputs[fallbackNewIndex].outputId;
-        assignment.layerIndex = std::clamp(project_.decks[deckIndex].outputLayerIndex, 0, 255);
-        assignment.enabled = true;
-        project_.layerAssignments.push_back(assignment);
-      }
-    }
-
     normalizeProject(project_);
     if (!rebuildOutputRuntimes()) {
       triggerToast("output remove failed");
@@ -7683,7 +7153,7 @@ class App {
     return true;
   }
 
-  bool assignDeckToOutput(int deckIndex, int outputIndex, std::optional<int> requestedLayer = std::nullopt) {
+  bool assignDeckToOutput(int deckIndex, int outputIndex, std::optional<int> /*requestedLayer*/ = std::nullopt) {
     normalizeProject(project_);
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return false;
@@ -7691,55 +7161,13 @@ class App {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return false;
     }
-
-    int assignmentIndex = -1;
-    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
-      LayerAssignment& candidate = project_.layerAssignments[i];
-      if (candidate.deckIndex == deckIndex && resolveAssignmentOutputIndex(candidate) == outputIndex) {
-        assignmentIndex = i;
-        break;
-      }
-    }
-
-    bool created = false;
-    if (assignmentIndex < 0) {
-      LayerAssignment assignment;
-      assignment.deckIndex = deckIndex;
-      assignment.outputIndex = outputIndex;
-      assignment.outputId = project_.outputs[outputIndex].outputId;
-      assignment.layerIndex = nextLayerIndexForOutput(outputIndex);
-      assignment.enabled = true;
-      project_.layerAssignments.push_back(assignment);
-      assignmentIndex = static_cast<int>(project_.layerAssignments.size()) - 1;
-      created = true;
-    }
-
-    LayerAssignment& assignment = project_.layerAssignments[assignmentIndex];
-    int nextLayer = assignment.layerIndex;
-    if (requestedLayer) {
-      nextLayer = std::clamp(*requestedLayer, 0, 255);
-    } else if (created || !assignment.enabled) {
-      nextLayer = nextLayerIndexForOutput(outputIndex, deckIndex);
-    }
-
-    bool changed = created
-      || !assignment.enabled
-      || assignment.layerIndex != nextLayer;
-    assignment.deckIndex = deckIndex;
-    assignment.outputIndex = outputIndex;
-    assignment.outputId = project_.outputs[outputIndex].outputId;
-    assignment.layerIndex = nextLayer;
-    assignment.enabled = true;
     project_.focusedOutputIndex = outputIndex;
     project_.decks[deckIndex].outputRouteDeckIndex = std::clamp(project_.outputs[outputIndex].hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-    project_.decks[deckIndex].outputLayerIndex = std::clamp(nextLayer, 0, 255);
-
-    triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex) + " L" + std::to_string(nextLayer));
-    if (changed) {
-      playUiSound(UiSoundEffect::Toggle);
-      markProjectDirty();
-    }
-    return changed;
+    project_.decks[deckIndex].outputLayerIndex = 0;
+    triggerToast("assign: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+    return true;
   }
 
   bool assignFocusedDeckToFocusedOutput(std::optional<int> requestedLayer = std::nullopt) {
@@ -7747,21 +7175,9 @@ class App {
   }
 
   std::optional<int> assignmentIndexForDeckOutput(int deckIndex, int outputIndex) const {
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return std::nullopt;
-    }
-    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
-      return std::nullopt;
-    }
-    for (int i = 0; i < static_cast<int>(project_.layerAssignments.size()); ++i) {
-      const LayerAssignment& assignment = project_.layerAssignments[i];
-      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
-        continue;
-      }
-      return i;
+    // Single-deck: deck 0 is always assigned to output 0.
+    if (deckIndex == 0 && outputIndex == 0 && !project_.decks.empty() && !project_.outputs.empty()) {
+      return 0;
     }
     return std::nullopt;
   }
@@ -7770,135 +7186,21 @@ class App {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return 0;
     }
-    int count = 0;
-    for (const LayerAssignment& assignment : project_.layerAssignments) {
-      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) < 0) {
-        continue;
-      }
-      ++count;
-    }
-    return count;
+    return project_.outputs.empty() ? 0 : 1;
   }
 
-  bool setDeckOutputAssignmentLayer(int deckIndex, int outputIndex, int layerIndex) {
-    normalizeProject(project_);
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
-    }
-    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
-      return false;
-    }
-    int clamped = std::clamp(layerIndex, 0, 255);
-    bool changed = false;
-    for (LayerAssignment& assignment : project_.layerAssignments) {
-      if (assignment.deckIndex != deckIndex || !assignment.enabled) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
-        continue;
-      }
-      if (assignment.layerIndex != clamped) {
-        assignment.layerIndex = clamped;
-        changed = true;
-      }
-    }
-    if (!changed) {
-      triggerToast("layer " + std::to_string(clamped));
-      return false;
-    }
-    if (auto primaryOutput = primaryOutputIndexForDeck(deckIndex); primaryOutput && *primaryOutput == outputIndex) {
-      project_.decks[deckIndex].outputLayerIndex = clamped;
-    }
-    triggerToast("layer set d" + std::to_string(deckIndex + 1)
-      + " -> " + outputLabel(outputIndex) + " L" + std::to_string(clamped));
-    playUiSound(UiSoundEffect::Toggle);
-    markProjectDirty();
-    return true;
+  bool setDeckOutputAssignmentLayer(int /*deckIndex*/, int /*outputIndex*/, int /*layerIndex*/) {
+    // Single-deck: no layer assignments to modify.
+    return false;
   }
 
-  bool unassignDeckFromOutput(int deckIndex, int outputIndex) {
-    normalizeProject(project_);
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
-    }
-    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
-      return false;
-    }
-    int remainingElsewhere = 0;
-    for (const LayerAssignment& assignment : project_.layerAssignments) {
-      if (!assignment.enabled || assignment.deckIndex != deckIndex) {
-        continue;
-      }
-      if (resolveAssignmentOutputIndex(assignment) != outputIndex) {
-        ++remainingElsewhere;
-      }
-    }
-    if (remainingElsewhere <= 0) {
-      triggerToast("routing: keep at least one output");
-      return false;
-    }
-
-    bool removed = false;
-    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
-      if (it->deckIndex == deckIndex && resolveAssignmentOutputIndex(*it) == outputIndex) {
-        it = project_.layerAssignments.erase(it);
-        removed = true;
-      } else {
-        ++it;
-      }
-    }
-    if (!removed) {
-      return false;
-    }
-    normalizeProject(project_);
-    triggerToast("unassign: " + deckLabel(deckIndex) + " x " + outputLabel(outputIndex));
-    playUiSound(UiSoundEffect::Delete);
-    markProjectDirty();
-    return true;
+  bool unassignDeckFromOutput(int /*deckIndex*/, int /*outputIndex*/) {
+    triggerToast("routing: keep at least one output");
+    return false;
   }
 
   bool moveDeckToOutput(int deckIndex, int outputIndex, std::optional<int> requestedLayer = std::nullopt) {
-    normalizeProject(project_);
-    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
-      return false;
-    }
-    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
-      return false;
-    }
-    bool changed = assignDeckToOutput(deckIndex, outputIndex, requestedLayer);
-
-    bool removedOthers = false;
-    bool keptOneForTarget = false;
-    for (auto it = project_.layerAssignments.begin(); it != project_.layerAssignments.end();) {
-      if (it->deckIndex != deckIndex) {
-        ++it;
-        continue;
-      }
-      int resolved = resolveAssignmentOutputIndex(*it);
-      if (resolved != outputIndex) {
-        it = project_.layerAssignments.erase(it);
-        removedOthers = true;
-        continue;
-      }
-      if (!keptOneForTarget) {
-        keptOneForTarget = true;
-        ++it;
-        continue;
-      }
-      it = project_.layerAssignments.erase(it);
-      removedOthers = true;
-    }
-
-    if (removedOthers) {
-      normalizeProject(project_);
-      triggerToast("move: " + deckLabel(deckIndex) + " -> " + outputLabel(outputIndex));
-      playUiSound(UiSoundEffect::Toggle);
-      markProjectDirty();
-    }
-    return changed || removedOthers;
+    return assignDeckToOutput(deckIndex, outputIndex, requestedLayer);
   }
 
   bool setFocusedOutputHostDeck(int hostDeckIndex) {
@@ -8415,31 +7717,6 @@ class App {
       markProjectDirty();
     }
     return changed;
-  }
-
-  const GroupPreset* focusedGroupPreset() const {
-    if (project_.groupPresets.empty()) {
-      return nullptr;
-    }
-    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-    return &project_.groupPresets[index];
-  }
-
-  GroupPreset* focusedGroupPresetMutable() {
-    normalizeProject(project_);
-    if (project_.groupPresets.empty()) {
-      return nullptr;
-    }
-    int index = std::clamp(project_.focusedGroupPresetIndex, 0, static_cast<int>(project_.groupPresets.size()) - 1);
-    return &project_.groupPresets[index];
-  }
-
-  std::string groupPresetLabel(int presetIndex) const {
-    if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
-      return groupPresetDefaultName(0);
-    }
-    const GroupPreset& preset = project_.groupPresets[presetIndex];
-    return preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name;
   }
 
   bool ensureUiAudioDevice() {
@@ -11351,8 +10628,6 @@ class App {
            << " decks=" << project_.decks.size()
            << " focused_output=" << (project_.focusedOutputIndex + 1)
            << " outputs=" << project_.outputs.size()
-           << " focused_group=" << (project_.groupPresets.empty() ? 0 : project_.focusedGroupPresetIndex + 1)
-           << " groups=" << project_.groupPresets.size()
            << " panic_profile=" << normalizePanicProfileToken(project_.panicProfile)
            << " panic_fade_s=" << project_.panicFadeSeconds
            << " panic_restore=" << (project_.panicAutoRestore ? "on" : "off")
@@ -11432,12 +10707,7 @@ class App {
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       const OutputTarget& out = project_.outputs[outputIndex];
       int hostDeckIndex = std::clamp(out.hostDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
-      int layerCount = 0;
-      for (const auto& assignment : project_.layerAssignments) {
-        if (assignment.enabled && resolveAssignmentOutputIndex(assignment) == outputIndex) {
-          ++layerCount;
-        }
-      }
+      int layerCount = 1; // Single-deck: always one layer
       std::string type = normalizeOutputType(out.outputType);
       std::string protocol = normalizeOutputStreamProtocol(out.streamProtocol);
       std::string mirror = out.mirrorSourceOutputIndex >= 0 ? std::to_string(out.mirrorSourceOutputIndex + 1) : "off";
@@ -11480,22 +10750,6 @@ class App {
              << " test_card=" << (out.outputTestCardEnabled ? "on" : "off")
              << " backend=" << backendRoute
              << (healthReason.empty() ? "" : (" health_reason=\"" + healthReason + "\""))
-             << '\n';
-    }
-    for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
-      const GroupPreset& preset = project_.groupPresets[presetIndex];
-      int slotCount = std::min(static_cast<int>(preset.slots.size()), static_cast<int>(project_.decks.size()));
-      int armed = 0;
-      for (int deckIndex = 0; deckIndex < slotCount; ++deckIndex) {
-        const GroupSlot& slot = preset.slots[deckIndex];
-        if (!slot.bypass && !slot.cueId.empty()) {
-          ++armed;
-        }
-      }
-      output << "GROUP " << (presetIndex + 1)
-             << " name=\"" << (preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name) << "\""
-             << " slots=" << slotCount
-             << " armed=" << armed
              << '\n';
     }
     return output.str();
@@ -11595,8 +10849,6 @@ class App {
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"focusedOutput\":" << (project_.focusedOutputIndex + 1) << ","
            << "\"outputCount\":" << project_.outputs.size() << ","
-           << "\"focusedGroupPreset\":" << (project_.groupPresets.empty() ? 0 : project_.focusedGroupPresetIndex + 1) << ","
-           << "\"groupPresetCount\":" << project_.groupPresets.size() << ","
            << "\"panicProfile\":\"" << escapeJson(normalizePanicProfileToken(project_.panicProfile)) << "\","
            << "\"panicFadeSeconds\":" << project_.panicFadeSeconds << ","
            << "\"panicAutoRestore\":" << (project_.panicAutoRestore ? "true" : "false") << ","
@@ -11633,12 +10885,7 @@ class App {
       }
       const OutputTarget& out = project_.outputs[outputIndex];
       int hostDeckIndex = std::clamp(out.hostDeckIndex, 0, std::max(0, static_cast<int>(project_.decks.size()) - 1));
-      int layerCount = 0;
-      for (const auto& assignment : project_.layerAssignments) {
-        if (assignment.enabled && resolveAssignmentOutputIndex(assignment) == outputIndex) {
-          ++layerCount;
-        }
-      }
+      int layerCount = 1; // Single-deck: always one layer
       std::string type = normalizeOutputType(out.outputType);
       std::string protocol = normalizeOutputStreamProtocol(out.streamProtocol);
       std::string url = trim(out.streamUrl);
@@ -11682,31 +10929,6 @@ class App {
              << "\"outputTestCard\":" << (out.outputTestCardEnabled ? "true" : "false") << ","
              << "\"backendRoute\":\"" << escapeJson(backendRoute) << "\""
              << "}";
-    }
-    output << "],"
-           << "\"groupPresets\":[";
-    for (int presetIndex = 0; presetIndex < static_cast<int>(project_.groupPresets.size()); ++presetIndex) {
-      if (presetIndex > 0) {
-        output << ",";
-      }
-      const GroupPreset& preset = project_.groupPresets[presetIndex];
-      output << "{"
-             << "\"index\":" << (presetIndex + 1) << ","
-             << "\"name\":\"" << escapeJson(preset.name.empty() ? groupPresetDefaultName(presetIndex) : preset.name) << "\","
-             << "\"slots\":[";
-      int slotCount = std::min(static_cast<int>(preset.slots.size()), static_cast<int>(project_.decks.size()));
-      for (int deckIndex = 0; deckIndex < slotCount; ++deckIndex) {
-        if (deckIndex > 0) {
-          output << ",";
-        }
-        const GroupSlot& slot = preset.slots[deckIndex];
-        output << "{"
-               << "\"deck\":" << (deckIndex + 1) << ","
-               << "\"bypass\":" << (slot.bypass ? "true" : "false") << ","
-               << "\"cueId\":\"" << escapeJson(slot.cueId) << "\""
-               << "}";
-      }
-      output << "]}";
     }
     output << "],"
            << "\"decks\":[";
@@ -15046,30 +14268,7 @@ class App {
       return;
     }
     if (command == "LAYERNAME") {
-      if (parts.size() < 3) {
-        triggerToast("LAYERNAME: need layer_index/name and new_name");
-        return;
-      }
-      std::string layerRef = toUpper(parts[1]);
-      std::string newName = joinParts(parts, 2);
-      int layerIdx = -1;
-      // Try parse as number first
-      try {
-        layerIdx = std::stoi(layerRef);
-      } catch (...) {
-        // Try find by name
-        for (int i = 0; i < static_cast<int>(project_.layerNames.size()); ++i) {
-          if (toUpper(project_.layerNames[i]) == layerRef) {
-            layerIdx = i;
-            break;
-          }
-        }
-      }
-      if (layerIdx >= 0 && layerIdx < static_cast<int>(project_.layerNames.size())) {
-        project_.layerNames[layerIdx] = newName;
-        triggerToast("layer " + std::to_string(layerIdx) + " renamed to: " + newName);
-        markProjectDirty();
-      }
+      // Layer names removed (single-deck).
       return;
     }
     if (command == "CANVAS" || command == "VIEW" || command == "WARP" || command == "BLEND") {
@@ -16029,9 +15228,6 @@ class App {
                 0,
                 cueSettingsScrollMax_);
               break;
-            }
-            if (!settingsOpen_ && masterCueProgrammerExpanded_) {
-              // Master cue wheel handler removed (group preset functions deleted)
             }
             for (int di = 0; di < static_cast<int>(deckColumnRects_.size()); ++di) {
               if (pointInRect(mouseX_, mouseY_, deckColumnRects_[di])) {
@@ -17142,9 +16338,6 @@ class App {
     deckColumnRects_.resize(numDecks);
     deckListClipRects_.resize(numDecks);
     outputMenuButtons_.clear();
-    masterCueSidebarButtons_.clear();
-    masterCueSidebarRows_.clear();
-    masterCueSidebarProgramHits_.clear();
     panelWorkspaceButtons_.clear();
     deckSidebarToggleRect_ = SDL_Rect {};
     outputPanelsViewportRect_ = SDL_Rect {};
@@ -17185,10 +16378,7 @@ class App {
                    brandLine, colorFromRgba(kScreenDeepColor));
 
       const Deck& focDeck = focusedDeck();
-      auto outIdx = primaryOutputIndexForDeck(project_.focusedDeckIndex);
       std::string status = currentProjectLabel()
-        + "   " + deckLabel(project_.focusedDeckIndex)
-        + " -> " + (outIdx ? outputLabel(*outIdx) : "unrouted")
         + "   TC " + formatTimecode(focDeck.timecodeCurrentSeconds, focDeck.timecodeFps)
         + "   " + (companionReady_ ? ("Companion :" + std::to_string(companionPort_)) : "no companion");
       drawTextSafe(controlRenderer_, fontSmall_,
@@ -17242,14 +16432,8 @@ class App {
       Primitives::fillRect(controlRenderer_, sep1, colorFromRgba(kScreenMidColor));
       ax += 2 + kTGrpGap;
 
-      decksPanelToggleRect_ = {ax, ty, 84, kTBtnH}; ax += 84 + kTBtnGap;
-      monitorsBtnRect_      = {ax, ty, 100, kTBtnH}; ax += 100 + kTGrpGap;
-      drawTBtn(decksPanelToggleRect_, "DECKS",    deckBarVisible_);
-      drawTBtn(monitorsBtnRect_,      "MONITORS", monitorsVisible());
-
-      SDL_Rect sep2 {ax, ty + 4, 2, kTBtnH - 8};
-      Primitives::fillRect(controlRenderer_, sep2, colorFromRgba(kScreenMidColor));
-      ax += 2 + kTGrpGap;
+      decksPanelToggleRect_ = SDL_Rect {};
+      monitorsBtnRect_ = SDL_Rect {};
 
       // Vol fader fills remaining space between left and right groups
       int faderAreaW = std::max(80, rx - ax - kTGrpGap);
@@ -17285,32 +16469,23 @@ class App {
       controlsTop = std::min(controlsTop, patternDefaultDropdownRect_.y);
     }
     int contentBottom = controlsTop - kLayoutPanelGap;
-    constexpr int kDeckBarH = 170;
-    int deckBarReserve = deckBarVisible_ ? (kDeckBarH + kLayoutPanelGap) : 0;
-    int contentH = std::max(120, contentBottom - contentY - deckBarReserve);
+    int contentH = std::max(120, contentBottom - contentY);
     int contentLeft  = shell.x + kLayoutPanelBorder * 2;
     int contentRight = shell.x + shell.w - kLayoutPanelBorder * 2;
     int contentW = std::max(0, contentRight - contentLeft);
 
-    // New layout: left sidebar (routing + master cues) | right cue inspector
-    constexpr int kControlSidebarW = 300;
+    // Layout: playlist column (left 1/4) | program + inspector (right 3/4)
     SDL_Rect contentArea {contentLeft, contentY, contentW, contentH};
-    SDL_Rect sidebarRect {contentArea.x, contentArea.y, kControlSidebarW, contentArea.h};
-    SDL_Rect inspectorShellRect {
-      contentArea.x + kControlSidebarW + kLayoutPanelGap,
-      contentArea.y,
-      std::max(0, contentArea.w - kControlSidebarW - kLayoutPanelGap),
-      contentArea.h
-    };
+    constexpr int kPlaylistMinW = 260;
+    int playlistW = std::clamp(contentW / 4, kPlaylistMinW, 380);
+    SDL_Rect playlistCol {contentArea.x, contentArea.y, playlistW, contentArea.h};
+    SDL_Rect mainPanel {contentArea.x + playlistW + kLayoutPanelGap, contentArea.y,
+                        std::max(0, contentArea.w - playlistW - kLayoutPanelGap), contentArea.h};
 
-    // Sidebar: routing + master cues removed
-    (void)sidebarRect;
-
-    if (inspectorShellRect.w > 60 && inspectorShellRect.h > 60) {
-      renderCueInspectorPanel(inspectorShellRect);
+    renderPlaylistColumn(playlistCol, 0);
+    if (mainPanel.w > 60 && mainPanel.h > 60) {
+      renderMainPanel(mainPanel);
     }
-
-    // Deck bar removed
 
     renderButtons();
     renderToast(width);
@@ -17353,7 +16528,7 @@ class App {
     int routeOutput = primaryOut ? *primaryOut : std::clamp(project_.focusedOutputIndex, 0, std::max(0, outputCount - 1));
     auto assignmentIndex = (routeOutput >= 0 && outputCount > 0) ? assignmentIndexForDeckOutput(deckIndex, routeOutput) : std::nullopt;
     bool assigned = assignmentIndex.has_value();
-    int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+    int layerIndex = 0; // Single-deck: always layer 0
 
     auto drawRouteBtn = [&](const SDL_Rect& r, const std::string& label, int action, bool lit = false) {
       SDL_Color f = lit ? colorFromRgba(kScreenDarkColor) : colorFromRgba(kScreenLightColor);
@@ -18080,7 +17255,7 @@ class App {
         : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
       auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
       bool assigned = assignmentIndex.has_value();
-      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+      int layerIndex = 0; // Single-deck: always layer 0
 
       SDL_Rect tableRect {ctrl.x + 10, startY, kCtrlW - 20, kRowStep * 3};
       int labelColW = 78;
@@ -19893,7 +19068,7 @@ class App {
         : std::clamp(project_.focusedOutputIndex, 0, outputCount - 1);
       auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, routeOutput);
       bool assigned = assignmentIndex.has_value();
-      int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+      int layerIndex = 0; // Single-deck: always layer 0
 
       SDL_Rect tableRect {ctrl.x + 10, startY, kCtrlW - 20, kRowStep * 3};
       int labelColW = 78;
@@ -23027,7 +22202,7 @@ class App {
           ? assignmentIndexForDeckOutput(deckIndex, routeOutput)
           : std::nullopt;
         bool assigned = assignmentIndex.has_value();
-        int layerIndex = assigned ? std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255) : 0;
+        int layerIndex = 0; // Single-deck: always layer 0
 
         SDL_Rect outPrev {colOutputX, rowRect.y + 3, 18, rowRect.h - 6};
         SDL_Rect outVal {outPrev.x + outPrev.w + 2, rowRect.y + 3, 52, rowRect.h - 6};
@@ -23684,7 +22859,7 @@ class App {
         if (!assignmentIndex) {
           return;
         }
-        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        int currentLayer = 0; // Single-deck: always layer 0
         setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer - 1);
       } else if (sb.action >= kSettingsActionRoutingTableLayerIncBase &&
                  sb.action < kSettingsActionRoutingTableLayerIncBase + static_cast<int>(project_.decks.size())) {
@@ -23706,7 +22881,7 @@ class App {
         if (!assignmentIndex) {
           return;
         }
-        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        int currentLayer = 0; // Single-deck: always layer 0
         setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + 1);
       } else if (sb.action >= kSettingsActionRoutingTableAssignToggleBase &&
                  sb.action < kSettingsActionRoutingTableAssignToggleBase + static_cast<int>(project_.decks.size())) {
@@ -23734,7 +22909,7 @@ class App {
         if (!assignmentIndex) {
           triggerToast("assign route first");
         } else {
-          int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+          int currentLayer = 0; // Single-deck: always layer 0
           bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
           bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
           int step = ctrlHeld ? 10 : 1;
@@ -23778,7 +22953,7 @@ class App {
           bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
           if (routingMoveMode_) {
             if (assignmentIndex) {
-              int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+              int currentLayer = 0; // Single-deck: always layer 0
               int step = ctrlHeld ? 10 : 1;
               int delta = shiftHeld ? -step : step;
               setDeckOutputAssignmentLayer(deckIndex, outputIndex, currentLayer + delta);
@@ -23788,7 +22963,7 @@ class App {
           } else {
             if (assignmentIndex) {
               if (shiftHeld || ctrlHeld) {
-                int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+                int currentLayer = 0; // Single-deck: always layer 0
                 int step = ctrlHeld ? 10 : 1;
                 int delta = shiftHeld ? -step : step;
                 setDeckOutputAssignmentLayer(deckIndex, outputIndex, currentLayer + delta);
@@ -23854,16 +23029,9 @@ class App {
   }
 
   void handleDecksPanelMouseDown(int x, int y, Uint8 mouseButton) {
-    auto focusMasterCueSilently = [&](int presetIndex) -> bool {
-      normalizeProject(project_);
-      if (presetIndex < 0 || presetIndex >= static_cast<int>(project_.groupPresets.size())) {
-        return false;
-      }
-      if (project_.focusedGroupPresetIndex != presetIndex) {
-        project_.focusedGroupPresetIndex = presetIndex;
-        markProjectDirty();
-      }
-      return true;
+    auto focusMasterCueSilently = [&](int /*presetIndex*/) -> bool {
+      // Group presets removed (single-deck).
+      return false;
     };
 
     for (const auto& hit : decksPanelDeckButtonHits_) {
@@ -24141,7 +23309,7 @@ class App {
             return;
           }
         }
-        int currentLayer = std::clamp(project_.layerAssignments[*assignmentIndex].layerIndex, 0, 255);
+        int currentLayer = 0; // Single-deck: always layer 0
         int delta = outputBtn.action == kOutputMenuActionRouteLayerDec ? -1 : 1;
         setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
         return;
@@ -24151,18 +23319,12 @@ class App {
         if (project_.decks.empty() || project_.outputs.empty()) return;
         int deckIdx  = std::clamp(outputBtn.deckIndex,  0, static_cast<int>(project_.decks.size())   - 1);
         int outIdx   = std::clamp(outputBtn.outputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
-        int maxLayer = static_cast<int>(project_.layerNames.size()) - 1;
+        // Single-deck: just toggle assignment.
         auto ai = assignmentIndexForDeckOutput(deckIdx, outIdx);
         if (!ai) {
           assignDeckToOutput(deckIdx, outIdx);
-          setDeckOutputAssignmentLayer(deckIdx, outIdx, 0);
         } else {
-          int cur = project_.layerAssignments[*ai].layerIndex;
-          if (cur >= maxLayer) {
-            unassignDeckFromOutput(deckIdx, outIdx);
-          } else {
-            setDeckOutputAssignmentLayer(deckIdx, outIdx, cur + 1);
-          }
+          unassignDeckFromOutput(deckIdx, outIdx);
         }
         return;
       }
@@ -26603,9 +25765,8 @@ class App {
         if (!assignment) {
           break;
         }
-        int currentLayer = std::clamp(project_.layerAssignments[*assignment].layerIndex, 0, 255);
-        int delta = (action == QuickAction::CueRouteLayerDec) ? -1 : 1;
-        setDeckOutputAssignmentLayer(deckIndex, routeOutput, currentLayer + delta);
+        // Single-deck: layer assignment changes are no-ops.
+        (void)action;
         break;
       }
       case QuickAction::CueRouteAssignToggle: {
@@ -28978,9 +28139,6 @@ class App {
   int controlPreviewTexH_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
-  std::vector<MasterCueSidebarButtonHit> masterCueSidebarButtons_;
-  std::vector<MasterCueSidebarRowHit> masterCueSidebarRows_;
-  std::vector<MasterCueSidebarProgramHit> masterCueSidebarProgramHits_;
   std::vector<DecksPanelButton> decksPanelButtons_;
   std::vector<MonitorsTileHit> monitorsTileHits_;
   std::vector<DecksPanelRowHit> decksPanelRowHits_;
@@ -28988,19 +28146,6 @@ class App {
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
   std::vector<DeckBarHit> deckBarHits_;
   int deckBarScroll_ = 0;
-  std::vector<MasterCueRowHit> masterCueRowHits_;
-  // Tracker cursor state for the Master Cue panel.
-  int masterTrackerCursorRow_ = 0;  // focused master cue row index
-  int masterTrackerCursorCol_ = 0;  // 0=name col, 1..N=deck slot col, N+1=fade, N+2=notes
-  int masterTrackerScroll_    = 0;  // vertical scroll offset (row index)
-  int masterTrackerDeckScroll_= 0;  // horizontal deck-column scroll offset
-  // Hit records from last renderDeckSidebar pass.
-  struct TrackerCellHit {
-    SDL_Rect rect;
-    int row = -1;  // preset index
-    int col = -1;  // 0=name, 1..N=deck (1-based), N+1=fade, N+2=notes
-  };
-  std::vector<TrackerCellHit> masterTrackerCells_;
   std::vector<OutputMenuButton> outputMenuButtons_;
   struct PanelWorkspaceButton {
     SDL_Rect rect;
@@ -29104,8 +28249,6 @@ class App {
   int settingsTab_ = 0; // 0=System 1=Audio 2=Network 3=Video Outputs 4=About
   bool videoOutputsAdvanced_ = false;
   bool routingMoveMode_ = true; // true=single-output move, false=add/remove fan-out
-  bool deckSidebarOpen_ = true;
-  bool masterCueProgrammerExpanded_ = true;
   SDL_Rect settingsCloseBtn_ {};
   SDL_Rect settingsGearRect_ {};
   SDL_Rect decksPanelToggleRect_ {};
