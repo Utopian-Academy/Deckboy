@@ -2175,10 +2175,6 @@ static std::string browserCueStatusSummary(BrowserStartPhase phase, bool live, c
   return browserPhaseLabel(phase);
 }
 
-static bool shouldShowDecksPanelForState(int deckCount, bool manualOpen) {
-  return deckCount >= 2 || manualOpen;
-}
-
 static float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState state, double fadeGainAtPosition) {
   if (activeCue && state == TransportState::Playing) {
     return static_cast<float>(std::clamp(fadeGainAtPosition, 0.0, 1.0));
@@ -5788,24 +5784,6 @@ class App {
       return false;
     }
 
-    // Create optional Decks Panel window
-    decksPanelWindow_ = SDL_CreateWindow(
-      "Deckboy Decks",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
-      1760,
-      1020,
-      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
-    );
-    if (decksPanelWindow_) {
-      SDL_SetWindowMinimumSize(decksPanelWindow_, 1400, 780);
-      decksPanelRenderer_ = SDL_CreateRenderer(decksPanelWindow_, -1, SDL_RENDERER_ACCELERATED);
-      if (!decksPanelRenderer_) {
-        SDL_DestroyWindow(decksPanelWindow_);
-        decksPanelWindow_ = nullptr;
-      }
-    }
-
     monitorsWindow_ = SDL_CreateWindow(
       "Deckboy Monitors",
       SDL_WINDOWPOS_UNDEFINED,
@@ -5820,23 +5798,6 @@ class App {
       if (!monitorsRenderer_) {
         SDL_DestroyWindow(monitorsWindow_);
         monitorsWindow_ = nullptr;
-      }
-    }
-
-    floatingPanelsWindow_ = SDL_CreateWindow(
-      "Deckboy Panels",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
-      920,
-      1040,
-      SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
-    );
-    if (floatingPanelsWindow_) {
-      SDL_SetWindowMinimumSize(floatingPanelsWindow_, 760, 540);
-      floatingPanelsRenderer_ = SDL_CreateRenderer(floatingPanelsWindow_, -1, SDL_RENDERER_ACCELERATED);
-      if (!floatingPanelsRenderer_) {
-        SDL_DestroyWindow(floatingPanelsWindow_);
-        floatingPanelsWindow_ = nullptr;
       }
     }
 
@@ -5946,14 +5907,6 @@ class App {
       controlPreviewTex_ = nullptr;
     }
     releaseUiAssets();
-    if (decksPanelRenderer_) {
-      SDL_DestroyRenderer(decksPanelRenderer_);
-      decksPanelRenderer_ = nullptr;
-    }
-    if (decksPanelWindow_) {
-      SDL_DestroyWindow(decksPanelWindow_);
-      decksPanelWindow_ = nullptr;
-    }
     for (auto* t : monitorsOutputTextures_) { if (t) SDL_DestroyTexture(t); }
     monitorsOutputTextures_.clear();
     monitorsOutputTexW_.clear();
@@ -5965,14 +5918,6 @@ class App {
     if (monitorsWindow_) {
       SDL_DestroyWindow(monitorsWindow_);
       monitorsWindow_ = nullptr;
-    }
-    if (floatingPanelsRenderer_) {
-      SDL_DestroyRenderer(floatingPanelsRenderer_);
-      floatingPanelsRenderer_ = nullptr;
-    }
-    if (floatingPanelsWindow_) {
-      SDL_DestroyWindow(floatingPanelsWindow_);
-      floatingPanelsWindow_ = nullptr;
     }
     if (controlRenderer_) {
       SDL_DestroyRenderer(controlRenderer_);
@@ -6184,13 +6129,6 @@ class App {
         failures += 1;
       }
     };
-
-    {
-      bool singleDeckHidden = !shouldShowDecksPanelForState(1, false);
-      bool manualOpenVisible = shouldShowDecksPanelForState(1, true);
-      bool multiDeckVisible = shouldShowDecksPanelForState(2, false);
-      expect(singleDeckHidden && manualOpenVisible && multiDeckVisible, "decks panel visibility policy");
-    }
 
     {
       Cue cue;
@@ -11446,8 +11384,6 @@ class App {
       selectedThumbnailTexH_ = 0;
     }
     currentProjectFile_ = defaultProjectFile();
-    decksPanelManualOpen_ = false;
-    updateDecksPanelVisibility();
     timecodeTriggeredCueIds_.clear();
     resetTimecodeFollowerState();
     selectionChangedAt_ = SDL_GetTicks64();
@@ -15173,17 +15109,8 @@ class App {
               gShouldQuit.store(true);
               break;
             }
-            if (decksPanelWindow_ && closingWindowId == SDL_GetWindowID(decksPanelWindow_)) {
-              decksPanelManualOpen_ = false;
-              setDecksPanelVisible(false, false);
-              break;
-            }
             if (monitorsWindow_ && closingWindowId == SDL_GetWindowID(monitorsWindow_)) {
               setMonitorsVisible(false);
-              break;
-            }
-            if (floatingPanelsWindow_ && closingWindowId == SDL_GetWindowID(floatingPanelsWindow_)) {
-              setFloatingPanelsWindowVisible(false, false);
               break;
             }
             if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
@@ -15202,24 +15129,6 @@ class App {
             if (handleDropdownMouseWheel(event.wheel.y)) {
               break;
             }
-            if (outputPanelsViewportRect_.w > 0 && outputPanelsViewportRect_.h > 0 &&
-                pointInRect(mouseX_, mouseY_, outputPanelsViewportRect_) &&
-                outputPanelScrollMax_ > 0) {
-              outputPanelScroll_ = std::clamp(
-                outputPanelScroll_ - event.wheel.y,
-                0,
-                outputPanelScrollMax_);
-              break;
-            }
-            if (routingMatrixViewportRect_.w > 0 && routingMatrixViewportRect_.h > 0 &&
-                pointInRect(mouseX_, mouseY_, routingMatrixViewportRect_) &&
-                routingMatrixScrollMax_ > 0) {
-              routingMatrixScroll_ = std::clamp(
-                routingMatrixScroll_ - event.wheel.y,
-                0,
-                routingMatrixScrollMax_);
-              break;
-            }
             if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
                 pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
                 cueSettingsScrollMax_ > 0) {
@@ -15236,16 +15145,6 @@ class App {
                 }
                 break;
               }
-            }
-          } else if (floatingPanelsWindow_ &&
-                     event.wheel.windowID == SDL_GetWindowID(floatingPanelsWindow_)) {
-            if (floatingPanelsViewportRect_.w > 0 && floatingPanelsViewportRect_.h > 0 &&
-                floatingPanelsScrollMax_ > 0) {
-              floatingPanelsScroll_ = std::clamp(
-                floatingPanelsScroll_ - event.wheel.y * 36,
-                0,
-                floatingPanelsScrollMax_);
-              break;
             }
           }
           break;
@@ -15270,9 +15169,6 @@ class App {
                 handleMouseDown(event.button.x, event.button.y);
               }
             }
-          } else if (decksPanelWindow_ &&
-                     event.button.windowID == SDL_GetWindowID(decksPanelWindow_)) {
-            handleDecksPanelMouseDown(event.button.x, event.button.y, event.button.button);
           } else if (monitorsWindow_ &&
                      event.button.windowID == SDL_GetWindowID(monitorsWindow_)) {
             handleMonitorsMouseDown(event.button.x, event.button.y);
@@ -15600,69 +15496,6 @@ class App {
     }
   }
 
-  bool decksPanelVisible() const {
-    if (!decksPanelWindow_) {
-      return false;
-    }
-    Uint32 flags = SDL_GetWindowFlags(decksPanelWindow_);
-    return (flags & SDL_WINDOW_HIDDEN) == 0;
-  }
-
-  void setDecksPanelVisible(bool visible, bool raiseWindow = false) {
-    if (!decksPanelWindow_) {
-      return;
-    }
-    if (visible) {
-      SDL_ShowWindow(decksPanelWindow_);
-      if ((SDL_GetWindowFlags(decksPanelWindow_) & SDL_WINDOW_MINIMIZED) != 0) {
-        SDL_RestoreWindow(decksPanelWindow_);
-      }
-      if (raiseWindow) {
-        SDL_RaiseWindow(decksPanelWindow_);
-      }
-    } else {
-      SDL_HideWindow(decksPanelWindow_);
-    }
-  }
-
-  void updateDecksPanelVisibility(bool raiseWindow = false) {
-    if (!decksPanelWindow_) {
-      return;
-    }
-    bool shouldShow = shouldShowDecksPanelForState(static_cast<int>(project_.decks.size()), decksPanelManualOpen_);
-    if (showStartupDialog_ || showSplashOverlay_) {
-      shouldShow = false;
-    }
-    setDecksPanelVisible(shouldShow, shouldShow && raiseWindow);
-  }
-
-  // floatingOperationalPanels() removed (UiPanelManager deleted)
-
-  bool floatingPanelsWindowVisible() const {
-    if (!floatingPanelsWindow_) {
-      return false;
-    }
-    Uint32 flags = SDL_GetWindowFlags(floatingPanelsWindow_);
-    return (flags & SDL_WINDOW_HIDDEN) == 0;
-  }
-
-  void setFloatingPanelsWindowVisible(bool visible, bool raiseWindow = false) {
-    if (!floatingPanelsWindow_) {
-      return;
-    }
-    if (visible) {
-      SDL_ShowWindow(floatingPanelsWindow_);
-      if ((SDL_GetWindowFlags(floatingPanelsWindow_) & SDL_WINDOW_MINIMIZED) != 0) {
-        SDL_RestoreWindow(floatingPanelsWindow_);
-      }
-      if (raiseWindow) {
-        SDL_RaiseWindow(floatingPanelsWindow_);
-      }
-    } else {
-      SDL_HideWindow(floatingPanelsWindow_);
-    }
-  }
-
   bool monitorsVisible() const {
     if (!monitorsWindow_) return false;
     return (SDL_GetWindowFlags(monitorsWindow_) & SDL_WINDOW_HIDDEN) == 0;
@@ -15678,11 +15511,6 @@ class App {
     } else {
       SDL_HideWindow(monitorsWindow_);
     }
-  }
-
-  void updateFloatingPanelsWindowVisibility(bool raiseWindow = false) {
-    // No floating operational panels after removal — always hide
-    setFloatingPanelsWindowVisible(false, false);
   }
 
   void renderQuitConfirm() {
@@ -16338,12 +16166,7 @@ class App {
     deckColumnRects_.resize(numDecks);
     deckListClipRects_.resize(numDecks);
     outputMenuButtons_.clear();
-    panelWorkspaceButtons_.clear();
     deckSidebarToggleRect_ = SDL_Rect {};
-    outputPanelsViewportRect_ = SDL_Rect {};
-    routingMatrixViewportRect_ = SDL_Rect {};
-    outputPanelScrollMax_ = 0;
-    routingMatrixScrollMax_ = 0;
     std::fill(deckColumnRects_.begin(), deckColumnRects_.end(), SDL_Rect {0, 0, 0, 0});
     std::fill(deckListClipRects_.begin(), deckListClipRects_.end(), SDL_Rect {0, 0, 0, 0});
 
@@ -16414,7 +16237,6 @@ class App {
       int rx = toolbar.x + toolbar.w - 8;
       settingsGearRect_  = {rx - 72, ty, 72, kTBtnH}; rx -= 72 + kTBtnGap;
       blackoutBtnRect_   = {rx - 88, ty, 88, kTBtnH}; rx -= 88 + kTGrpGap;
-      floatingPanelsBtnRect_ = SDL_Rect {};
       drawTBtn(settingsGearRect_,  "PREFS",    settingsOpen_);
       drawTBtn(blackoutBtnRect_,   "BLACKOUT", masterDimmerTarget_ < 0.5, true);
 
@@ -16431,9 +16253,6 @@ class App {
       SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
       Primitives::fillRect(controlRenderer_, sep1, colorFromRgba(kScreenMidColor));
       ax += 2 + kTGrpGap;
-
-      decksPanelToggleRect_ = SDL_Rect {};
-      monitorsBtnRect_ = SDL_Rect {};
 
       // Vol fader fills remaining space between left and right groups
       int faderAreaW = std::max(80, rx - ax - kTGrpGap);
@@ -23010,103 +22829,6 @@ class App {
     }
   }
 
-  void handleDeckBarMouseDown(int x, int y) {
-    for (auto& hit : deckBarHits_) {
-      if (!pointInRect(x, y, hit.rect)) continue;
-      if (hit.action == kDeckBarActionFocus) {
-        setFocusedDeckIndex(hit.deckIndex);
-      } else if (hit.action == kDeckBarActionTake) {
-        setFocusedDeckIndex(hit.deckIndex);
-        jumpSelectedCue();
-      } else if (hit.action == kDeckBarActionStop) {
-        setFocusedDeckIndex(hit.deckIndex);
-        stopTransport();
-      } else if (hit.action == kDeckBarActionTakeAll) {
-        takeAllDecks(jumpTriggersPlayback());
-      }
-      return;
-    }
-  }
-
-  void handleDecksPanelMouseDown(int x, int y, Uint8 mouseButton) {
-    auto focusMasterCueSilently = [&](int /*presetIndex*/) -> bool {
-      // Group presets removed (single-deck).
-      return false;
-    };
-
-    for (const auto& hit : decksPanelDeckButtonHits_) {
-      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
-        continue;
-      }
-      if (!pointInRect(x, y, hit.rect)) {
-        continue;
-      }
-      setFocusedDeckIndex(hit.deckIndex);
-      switch (hit.action) {
-        case kDecksPanelDeckActionTake:
-          jumpSelectedCue();
-          break;
-        case kDecksPanelDeckActionStop:
-          stopTransport();
-          break;
-        case kDecksPanelDeckActionPlay:
-          playTransport();
-          break;
-        default:
-          break;
-      }
-      return;
-    }
-
-    // Window-level buttons (TAKE ALL, + DECK)
-    for (const auto& btn : decksPanelButtons_) {
-      if (!pointInRect(x, y, btn.rect)) continue;
-      switch (btn.action) {
-        case kDecksPanelActionTakeAll:
-          takeAllDecks(true);
-          break;
-        case kDecksPanelActionAddDeck:
-          triggerToast("add deck: removed");
-          break;
-        default:
-          break;
-      }
-      return;
-    }
-
-    for (const auto& hit : decksPanelCueHits_) {
-      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
-        continue;
-      }
-      if (!pointInRect(x, y, hit.rowRect)) {
-        continue;
-      }
-      setFocusedDeckIndex(hit.deckIndex);
-      Deck& deck = project_.decks[hit.deckIndex];
-      if (hit.cueIndex >= 0 && hit.cueIndex < static_cast<int>(deck.cues.size())) {
-        bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
-        bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
-        selectCueInDeck(hit.deckIndex, hit.cueIndex, shiftHeld, ctrlHeld);
-      }
-      if (mouseButton == SDL_BUTTON_RIGHT) {
-        jumpSelectedCue();
-      }
-      return;
-    }
-
-    // Group preset button handlers in decks panel removed
-
-    for (const auto& hit : decksPanelRowHits_) {
-      if (hit.deckIndex < 0 || hit.deckIndex >= static_cast<int>(project_.decks.size())) {
-        continue;
-      }
-      if (pointInRect(x, y, hit.rowRect)) {
-        setFocusedDeckIndex(hit.deckIndex);
-        return;
-      }
-    }
-  }
-
   void handleMouseDown(int x, int y) {
     if (showSplashOverlay_) {
       showSplashOverlay_ = false;
@@ -23147,11 +22869,6 @@ class App {
     if (settingsOpen_) {
       handleSettingsClick(x, y);
       return;
-    }
-
-    // Deck bar (visible when DECKS is toggled on)
-    if (deckBarVisible_ && !deckBarHits_.empty()) {
-      handleDeckBarMouseDown(x, y);
     }
 
     if (pointInRect(x, y, sourceDefaultDropdownRect_)) {
@@ -23211,7 +22928,6 @@ class App {
         });
       return;
     }
-    // panelWorkspaceButtons_ click handler removed (cyclePanelWorkspaceMode deleted)
     for (const auto& outputBtn : outputMenuButtons_) {
       if (!pointInRect(x, y, outputBtn.rect)) {
         continue;
@@ -23386,22 +23102,6 @@ class App {
     }
     if (pointInRect(x, y, fileSaveAsBtnRect_)) {
       saveProjectAsFromPicker();
-      return;
-    }
-    if (pointInRect(x, y, decksPanelToggleRect_)) {
-      deckBarVisible_ = !deckBarVisible_;
-      return;
-    }
-    if (pointInRect(x, y, monitorsBtnRect_)) {
-      setMonitorsVisible(!monitorsVisible(), true);
-      return;
-    }
-    if (pointInRect(x, y, floatingPanelsBtnRect_)) {
-      if (floatingPanelsWindowVisible()) {
-        setFloatingPanelsWindowVisible(false);
-      } else {
-        setFloatingPanelsWindowVisible(true, true);
-      }
       return;
     }
     if (pointInRect(x, y, deckSidebarToggleRect_)) {
@@ -26366,8 +26066,6 @@ class App {
     project_ = loadProject(normalized);
     normalizeProject(project_);
     disarmAllOutputsForStartup();
-    decksPanelManualOpen_ = false;
-    updateDecksPanelVisibility();
     timecodeTriggeredCueIds_.clear();
     resetTimecodeFollowerState();
     selectionChangedAt_ = SDL_GetTicks64();
@@ -27845,16 +27543,6 @@ class App {
     }
   }
 
-  struct DecksPanelButton {
-    SDL_Rect rect {};
-    int action = 0;
-  };
-
-  struct DecksPanelRowHit {
-    int deckIndex = -1;
-    SDL_Rect rowRect {};
-    SDL_Rect groupRect {};
-  };
 
   struct MasterCueSidebarButtonHit {
     SDL_Rect rect {};
@@ -27895,11 +27583,6 @@ class App {
     SDL_Rect rect {};
   };
 
-  struct DeckBarHit {
-    int deckIndex = -1;
-    int action = 0;
-    SDL_Rect rect {};
-  };
 
   struct MasterCueRowHit {
     int presetIndex = -1;
@@ -27915,25 +27598,9 @@ class App {
     int action = 0;
   };
 
-  static constexpr int kDecksPanelActionGroupPrev = 1;
-  static constexpr int kDecksPanelActionGroupNext = 2;
-  static constexpr int kDecksPanelActionGroupNew = 3;
-  static constexpr int kDecksPanelActionGroupFire = 4;
-  static constexpr int kDecksPanelActionGroupDelete = 5;
-  static constexpr int kDecksPanelActionGroupProgramToggle = 6;
-  static constexpr int kDecksPanelActionGroupCaptureSelected = 7;
-  static constexpr int kDecksPanelActionGroupCaptureActive = 8;
-  static constexpr int kDecksPanelActionGroupRename = 9;
-  static constexpr int kDecksPanelActionMasterFireBase = 1000;
   static constexpr int kDecksPanelDeckActionTake = 200;
   static constexpr int kDecksPanelDeckActionStop = 201;
   static constexpr int kDecksPanelDeckActionPlay = 202;
-  static constexpr int kDecksPanelActionTakeAll  = 210;
-  static constexpr int kDeckBarActionFocus   = 300;
-  static constexpr int kDeckBarActionTake    = 301;
-  static constexpr int kDeckBarActionStop    = 302;
-  static constexpr int kDeckBarActionTakeAll = 303;
-  static constexpr int kDecksPanelActionAddDeck  = 211;
   static constexpr int kOutputMenuActionFocus = 1;
   static constexpr int kOutputMenuActionAddOutput = 3;
   static constexpr int kOutputMenuActionRouteFocusDeck = 4;
@@ -27947,7 +27614,6 @@ class App {
   static constexpr int kOutputMenuActionDisarm = 12;
   static constexpr int kOutputMenuActionRouteLayerCycle = 13;
   static constexpr int kOutputMenuActionSelectDisplay = 14;
-  static constexpr int kFloatingPanelActionDock = 1;
   static constexpr int kSettingsActionOutputRemove = 269;
   static constexpr int kSettingsActionOutputToggle = 262;
   static constexpr int kSettingsActionOutputDisplayPrev = 263;
@@ -28005,15 +27671,11 @@ class App {
 
   SDL_Window* controlWindow_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
-  SDL_Window* decksPanelWindow_ = nullptr;
-  SDL_Renderer* decksPanelRenderer_ = nullptr;
   SDL_Window* monitorsWindow_ = nullptr;
   SDL_Renderer* monitorsRenderer_ = nullptr;
   std::vector<SDL_Texture*> monitorsOutputTextures_;
   std::vector<int> monitorsOutputTexW_;
   std::vector<int> monitorsOutputTexH_;
-  SDL_Window* floatingPanelsWindow_ = nullptr;
-  SDL_Renderer* floatingPanelsRenderer_ = nullptr;
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;
@@ -28139,29 +27801,11 @@ class App {
   int controlPreviewTexH_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
-  std::vector<DecksPanelButton> decksPanelButtons_;
   std::vector<MonitorsTileHit> monitorsTileHits_;
-  std::vector<DecksPanelRowHit> decksPanelRowHits_;
   std::vector<DecksPanelCueHit> decksPanelCueHits_;
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
-  std::vector<DeckBarHit> deckBarHits_;
-  int deckBarScroll_ = 0;
   std::vector<OutputMenuButton> outputMenuButtons_;
-  struct PanelWorkspaceButton {
-    SDL_Rect rect;
-  };
-  std::vector<PanelWorkspaceButton> panelWorkspaceButtons_;
   bool outputFpsCounterEnabled_ = true;
-  SDL_Rect outputPanelsViewportRect_ {};
-  int outputPanelScroll_ = 0;
-  int outputPanelScrollMax_ = 0;
-  SDL_Rect floatingPanelsViewportRect_ {};
-  int floatingPanelsScroll_ = 0;
-  int floatingPanelsScrollMax_ = 0;
-  bool renderingFloatingPanelsWindow_ = false;
-  SDL_Rect routingMatrixViewportRect_ {};
-  int routingMatrixScroll_ = 0;
-  int routingMatrixScrollMax_ = 0;
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
@@ -28187,8 +27831,6 @@ class App {
   bool confirmQuit_ = false;
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};
-  bool decksPanelManualOpen_ = false;
-  bool deckBarVisible_ = true;
   bool showStartupDialog_ = false;
   bool showSplashOverlay_ = true;
   Uint64 splashStartedAt_ = 0;
@@ -28251,9 +27893,6 @@ class App {
   bool routingMoveMode_ = true; // true=single-output move, false=add/remove fan-out
   SDL_Rect settingsCloseBtn_ {};
   SDL_Rect settingsGearRect_ {};
-  SDL_Rect decksPanelToggleRect_ {};
-  SDL_Rect monitorsBtnRect_ {};
-  SDL_Rect floatingPanelsBtnRect_ {};
   SDL_Rect deckSidebarToggleRect_ {};
   SDL_Rect blackoutBtnRect_ {};
   SDL_Rect fileNewBtnRect_ {};
