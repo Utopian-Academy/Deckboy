@@ -196,42 +196,6 @@ struct OutputTarget {
   bool outputTestCardEnabled = false;    // force output test card feed
 };
 
-// Deck-to-output layer assignment.
-// Multiple assignments for one deck are allowed (fan-out to multiple outputs).
-struct LayerAssignment {
-  int deckIndex = 0;
-  int outputIndex = 0;
-  int layerIndex = 0;
-  bool enabled = true;
-  std::string outputId;
-  std::string layerId;
-};
-
-// Action a Master Cue slot takes on its deck when fired.
-enum class MasterCueSlotMode : int {
-  Hold   = 0,  // --- leave deck unchanged
-  Recall = 1,  // recall a specific cue
-  Clear  = 2,  // stop / clear active playback on this deck
-};
-
-struct GroupSlot {
-  bool bypass = false;          // legacy compat — derived from mode on save/load
-  std::string cueId;
-  MasterCueSlotMode mode = MasterCueSlotMode::Hold;
-  // Optional per-slot geometry interpolation (PiP movement between cues)
-  bool interpGeometry = false;
-  float targetScale    = 1.0f;
-  float targetOffsetX  = 0.0f;
-  float targetOffsetY  = 0.0f;
-  double interpSeconds = 0.5;
-};
-
-struct GroupPreset {
-  std::string name = "Master Cue 1";
-  std::vector<GroupSlot> slots;
-  double fadeSeconds = -1.0;   // -1 = use deck default; 0 = cut; >0 = override fade
-  std::string notes;
-};
 
 struct Project {
   std::string title = std::string(kAppTitle);
@@ -239,10 +203,6 @@ struct Project {
   int focusedDeckIndex = 0;
   std::vector<OutputTarget> outputs {OutputTarget {}};
   int focusedOutputIndex = 0;
-  std::vector<LayerAssignment> layerAssignments;
-  std::vector<GroupPreset> groupPresets;
-  int focusedGroupPresetIndex = 0;
-  std::vector<std::string> layerNames {"BG", "LayerA", "LayerB", "LayerC", "LayerD"};
   bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;
   bool uiTransitionsEnabled = true;
