@@ -1,6 +1,6 @@
-# Deckboy_0.01
+# Deckboy
 
-Deckboy_0.01 is now a native SDL2 desktop app, not a web app. The current direction is Linux-first with a cross-platform code path, using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
+Deckboy is now a native SDL2 desktop app, not a web app. The current direction is Linux-first with a cross-platform code path, using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
 Project goal: keep Deckboy fully open source and ship first-class builds on Linux, macOS, and Windows.
 
 **🚀 March 2025 Refactoring**: See [CHANGES.md](CHANGES.md) for a comprehensive summary of modular architecture improvements, broadcast SDK integration (MIDI, DeckLink, Syphon/Spout), cross-platform support, and automated CI/CD setup.
