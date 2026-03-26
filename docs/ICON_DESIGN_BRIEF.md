@@ -104,4 +104,4 @@ Header toolbar buttons.
 - Game Boy pixel art style guides (DMG green palette for reference, but icons should be monochrome)
 - The app already draws a pixel-art cat mascot and star effects — match that vibe
 - Look at LSDJ, Nanoloop, mGB for UI icon inspiration (tracker/music tool aesthetic)
-- Professional show control reference: QLab, Mitti, Millumin transport icons (for operator familiarity)
+- Professional show control transport icons as general reference (for operator familiarity)

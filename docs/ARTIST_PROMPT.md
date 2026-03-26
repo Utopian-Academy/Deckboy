@@ -10,7 +10,7 @@ The UI currently uses text labels for all buttons and icons. We need pixel-art i
 
 - **Game Boy DMG pixel art** — chunky, low-res, 1-bit or 2-bit shading
 - Think: LSDJ, Nanoloop, mGB, Pocket Camera — music/creative tools on the Game Boy
-- Professional show control readability — borrow layout instincts from QLab, Mitti, Millumin, but render them in pixel art
+- Professional show control readability — borrow layout instincts from industry tools, but render them in pixel art
 - Icons must be instantly legible at small sizes (24px–32px on screen)
 - No anti-aliasing, no gradients — hard pixel edges only
 - Charm and personality encouraged, but clarity comes first
