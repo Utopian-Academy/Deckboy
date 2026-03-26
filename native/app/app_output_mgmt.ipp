@@ -828,7 +828,7 @@
     request.outputType = normalizeOutputType(output.outputType);
     request.streamEnabled = output.streamEnabled;
     request.ndiEnabled = output.ndiEnabled || output.ndiKeyEnabled;
-    request.deckLinkEnabled = false;
+    request.deckLinkEnabled = output.deckLinkEnabled;
     return request;
   }
 
@@ -2415,6 +2415,57 @@
     (void) width;
     (void) height;
     (void) fpsHint;
+#endif
+  }
+
+  void sendOutputDeckLinkFrame(int outputIndex, OutputRuntime& outputRuntime, int width, int height, double fpsHint) {
+#if defined(DECKBOY_HAS_DECKLINK)
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !outputRuntime.outputRenderer) {
+      return;
+    }
+    OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.deckLinkEnabled) {
+      return;
+    }
+    // Lazy-init DeckLink output
+    if (!outputRuntime.deckLinkOutput) {
+      outputRuntime.deckLinkOutput = std::make_unique<deckboy::platform::video::DeckLinkOutput>();
+    }
+    if (!outputRuntime.deckLinkOutput->isInitialized()) {
+      auto mode = deckboy::platform::video::parseDeckLinkMode(output.deckLinkMode);
+      if (!outputRuntime.deckLinkOutput->init(output.deckLinkDeviceId, mode, output.deckLink10Bit)) {
+        return;
+      }
+    }
+    const OutputRuntime::CapturedFrame* frameCapture = outputFrameForEgress(outputIndex, outputRuntime);
+    if (!frameCapture || frameCapture->width <= 0 || frameCapture->height <= 0 || frameCapture->pixels.empty()) {
+      frameCapture = ensureBlackOutputFrameForEgress(outputIndex, outputRuntime, width, height);
+    }
+    if (!frameCapture || frameCapture->width <= 0 || frameCapture->height <= 0 || frameCapture->pixels.empty()) {
+      return;
+    }
+    int fw = frameCapture->width;
+    int fh = frameCapture->height;
+    int stride = fw * 4;
+    outputRuntime.deckLinkOutput->sendFrame(frameCapture->pixels.data(), fw, fh, stride);
+#else
+    (void) outputIndex;
+    (void) outputRuntime;
+    (void) width;
+    (void) height;
+    (void) fpsHint;
+#endif
+  }
+
+  void shutdownOutputDeckLink(OutputRuntime& outputRuntime) {
+#if defined(DECKBOY_HAS_DECKLINK)
+    if (outputRuntime.deckLinkOutput) {
+      outputRuntime.deckLinkOutput->shutdown();
+      outputRuntime.deckLinkOutput.reset();
+    }
+    outputRuntime.deckLinkFrameBuffer.clear();
+#else
+    (void) outputRuntime;
 #endif
   }
 
