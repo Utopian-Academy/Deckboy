@@ -647,6 +647,48 @@
         }
       }
 
+      // Subtitle overlay
+      if (activeCue && activeCue->subtitleEnabled &&
+          (!activeCue->subtitlePath.empty() || !activeCue->subtitleStreamId.empty())) {
+        const MediaEngine* subEngine = mediaEngineForDeck(hostDeckIndex);
+        double playheadSec = subEngine ? subEngine->position() : 0.0;
+        std::string subtitleKey = activeCue->subtitlePath.empty()
+          ? (activeCue->path + "::" + activeCue->subtitleStreamId)
+          : activeCue->subtitlePath;
+        auto cacheIt = subtitleCache_.find(subtitleKey);
+        if (cacheIt != subtitleCache_.end()) {
+          const auto* entry = cacheIt->second.entryAtTime(playheadSec);
+          if (entry) {
+            std::string cleanText = deckboy::core::stripSubtitleTags(entry->text);
+            auto lines = splitLines(cleanText);
+            int lineH = 28;
+            int padX = 16;
+            int padY = 8;
+            int totalTextH = static_cast<int>(lines.size()) * lineH;
+            int bgH = totalTextH + padY * 2;
+            int bgY = renderH - bgH - 40;
+            SDL_Rect bgRect {0, bgY, renderW, bgH};
+            SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 160);
+            SDL_RenderFillRect(runtime->outputRenderer, &bgRect);
+            SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+            for (int li = 0; li < static_cast<int>(lines.size()); ++li) {
+              if (lines[li].empty()) continue;
+              int tw = 0, th = 0;
+              TTF_SizeUTF8(fontBase_, lines[li].c_str(), &tw, &th);
+              int tx = (renderW - tw) / 2;
+              int ty = bgY + padY + li * lineH;
+              // Shadow
+              drawText(runtime->outputRenderer, fontBase_, lines[li],
+                       {0, 0, 0, 255}, tx + 2, ty + 2);
+              // Text
+              drawText(runtime->outputRenderer, fontBase_, lines[li],
+                       {255, 255, 255, 255}, tx, ty);
+            }
+          }
+        }
+      }
+
       if (output.outputTimeOverlayEnabled || hostDeck.timeOverlayEnabled) {
         const MediaEngine* engine = mediaEngineForDeck(hostDeckIndex);
         std::string position = formatSeconds(engine ? engine->position() : 0.0);
@@ -688,17 +730,20 @@
     }
     bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
     bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
+    bool deckLinkRouteActive = output.deckLinkEnabled && backendRoute.deckLinkSupported;
     if (output.streamEnabled && !backendRoute.streamSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
     } else if ((output.ndiEnabled || output.ndiKeyEnabled) && !backendRoute.ndiSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi backend unavailable");
+    } else if (output.deckLinkEnabled && !backendRoute.deckLinkSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "decklink backend unavailable");
     }
     if (!streamRouteActive) {
       stopOutputStreamRuntime(*runtime);
       resetOutputStreamFpsTelemetry(*runtime);
     }
     bool needsEgressCapture =
-      streamRouteActive || ndiRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      streamRouteActive || ndiRouteActive || deckLinkRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -731,6 +776,11 @@
       recordOutputStreamFrameWritten(outputIndex);
     } else {
       resetOutputStreamFpsTelemetry(*runtime);
+    }
+    if (deckLinkRouteActive) {
+      sendOutputDeckLinkFrame(outputIndex, *runtime, width, height, fpsHint);
+    } else {
+      shutdownOutputDeckLink(*runtime);
     }
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);

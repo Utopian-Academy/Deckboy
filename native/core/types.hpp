@@ -85,6 +85,8 @@ struct Cue {
   std::string colorTag;
   std::string notes;
   std::string cueNumber;
+  std::string subtitlePath;       // path to external .srt file (or empty for embedded)
+  std::string subtitleStreamId;   // embedded subtitle stream index (e.g. "0:s:0")
   // -- 8-byte aligned: vectors --
   std::vector<CompositeSlot> compositeSlots;
   std::vector<double> pausePoints;
@@ -138,6 +140,7 @@ struct Cue {
   bool pauseOnLastFrame = false;
   bool transitionToNext = true;
   bool chromaKeyEnabled = false;
+  bool subtitleEnabled = true;
 };
 
 struct Deck {
@@ -225,6 +228,10 @@ struct OutputTarget {
   std::string outputLayoutMode = "span"; // span | duplicate (canvas/view behavior)
   int outputOrientationDegrees = 0;      // 0 | 90 | 180 | 270
   bool outputTestCardEnabled = false;    // force output test card feed
+  bool deckLinkEnabled = false;
+  int deckLinkDeviceId = -1;             // -1 = not assigned
+  std::string deckLinkMode = "1080p60";
+  bool deckLink10Bit = true;
 };
 
 

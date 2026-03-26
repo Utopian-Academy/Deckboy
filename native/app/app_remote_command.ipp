@@ -1856,6 +1856,43 @@
       setFocusedOutputNdiKeyName(joinParts(parts, 1));
       return;
     }
+    if (command == "DECKLINK") {
+      int foIdx = project_.focusedOutputIndex;
+      if (foIdx < 0 || foIdx >= static_cast<int>(project_.outputs.size())) {
+        return;
+      }
+      OutputTarget& output = project_.outputs[foIdx];
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
+      if (sub == "ON") {
+        output.deckLinkEnabled = true;
+        triggerToast("DeckLink ON");
+      } else if (sub == "OFF") {
+        output.deckLinkEnabled = false;
+        triggerToast("DeckLink off");
+      } else if (sub == "TOGGLE") {
+        output.deckLinkEnabled = !output.deckLinkEnabled;
+        triggerToast(output.deckLinkEnabled ? "DeckLink ON" : "DeckLink off");
+      } else if (sub == "DEVICE") {
+        auto val = parseNumber(2);
+        if (val) {
+          output.deckLinkDeviceId = static_cast<int>(*val);
+          triggerToast("DeckLink device " + std::to_string(output.deckLinkDeviceId));
+        }
+      } else if (sub == "MODE") {
+        if (parts.size() > 2) {
+          output.deckLinkMode = parts[2];
+          triggerToast("DeckLink mode " + output.deckLinkMode);
+        }
+      } else if (sub == "10BIT") {
+        std::string bitSub = parts.size() > 2 ? toUpper(parts[2]) : "TOGGLE";
+        if (bitSub == "ON") output.deckLink10Bit = true;
+        else if (bitSub == "OFF") output.deckLink10Bit = false;
+        else output.deckLink10Bit = !output.deckLink10Bit;
+        triggerToast(output.deckLink10Bit ? "DeckLink 10-bit ON" : "DeckLink 10-bit off");
+      }
+      markProjectDirty();
+      return;
+    }
     if (command == "BLACKOUT") {
       std::string val = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
       if (val == "ON")           masterDimmerTarget_ = 0.0;
@@ -1980,6 +2017,51 @@
         deck.cues[*index].notes = text;
         triggerToast("notes set");
         markProjectDirty();
+      }
+      return;
+    }
+
+    if (command == "SUBTITLE" || command == "SUBTITLES" || command == "SUB" || command == "CC") {
+      if (parts.size() < 2) {
+        // Toggle subtitles on active cue
+        Cue* cue = activeCueMutable();
+        if (cue) {
+          cue->subtitleEnabled = !cue->subtitleEnabled;
+          triggerToast(cue->subtitleEnabled ? "subtitles on" : "subtitles off");
+          markProjectDirty();
+        }
+        return;
+      }
+      std::string sub = toUpper(parts[1]);
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        Cue* cue = activeCueMutable();
+        if (cue) {
+          if (sub == "ON") cue->subtitleEnabled = true;
+          else if (sub == "OFF") cue->subtitleEnabled = false;
+          else cue->subtitleEnabled = !cue->subtitleEnabled;
+          triggerToast(cue->subtitleEnabled ? "subtitles on" : "subtitles off");
+          markProjectDirty();
+        }
+        return;
+      }
+      if (sub == "FILE" || sub == "PATH" || sub == "SRT") {
+        Cue* cue = selectedCueMutable();
+        if (cue && parts.size() >= 3) {
+          cue->subtitlePath = joinParts(parts, 2);
+          triggerToast("subtitle file set");
+          markProjectDirty();
+        }
+        return;
+      }
+      if (sub == "CLEAR" || sub == "NONE") {
+        Cue* cue = selectedCueMutable();
+        if (cue) {
+          cue->subtitlePath.clear();
+          cue->subtitleStreamId.clear();
+          triggerToast("subtitles cleared");
+          markProjectDirty();
+        }
+        return;
       }
       return;
     }

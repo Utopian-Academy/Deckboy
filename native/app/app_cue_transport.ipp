@@ -257,6 +257,13 @@
       parseTransitionStyleToken(transStyleStr),
       suppressIncomingFadeIn
     );
+    // Load subtitle track if the cue has one
+    if (cue.subtitleEnabled && (!cue.subtitlePath.empty() || !cue.subtitleStreamId.empty())) {
+      std::string subtitleKey = cue.subtitlePath.empty() ? (cue.path + "::" + cue.subtitleStreamId) : cue.subtitlePath;
+      if (subtitleCache_.find(subtitleKey) == subtitleCache_.end()) {
+        subtitleCache_[subtitleKey] = loadSubtitleTrack(cue);
+      }
+    }
     if (cue.kind == CueKind::Browser) {
       startBrowserCue(project_.focusedDeckIndex, cue);
       triggerToast("browser jumped live");
