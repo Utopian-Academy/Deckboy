@@ -1384,7 +1384,7 @@ Runtime note:
   same command path used by Companion/OSC text control. If you need Deckboy to
   lock to a specific source name, set `DECKBOY_NDI_TRIGGER_SOURCE`. If the NDI
   runtime library is not on your system path, set `DECKBOY_NDI_LIB`.
-- `NMC` is a UDP transport/locate bridge with Mitti-style input/output modes:
+- `NMC` is a UDP transport/locate bridge with input/output modes:
   - default mode is `input`, listening on UDP `51010`
   - set `DECKBOY_NMC_MODE=output` to broadcast transport+locate updates instead
   - set `DECKBOY_NMC_PORT` to change the UDP port
@@ -1392,7 +1392,7 @@ Runtime note:
   - set `DECKBOY_NMC_SOURCE` to filter accepted sender IP/name text in input mode
   - set `DECKBOY_NMC_LOCATE_MS` to change output locate cadence while rolling
   - inbound NMC commands are ignored while Deckboy is actively timecode-chasing
-  - the runtime behavior is live; third-party Mitti/Vezér interop still needs a real signal test
+  - the runtime behavior is live; third-party NMC interop still needs validation
 - `LTC` listens on the default SDL capture device unless `DECKBOY_LTC_DEVICE` is set. If `libltc` is not on your runtime path, set `DECKBOY_LTC_LIB`.
 
 ### Status
