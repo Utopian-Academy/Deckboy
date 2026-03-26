@@ -1,5 +1,38 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-26 (DeckLink SDI output + SRT subtitles)
+
+- **DeckLink SDI output wired end-to-end** (feature-gated by `DECKBOY_HAS_DECKLINK`):
+  - `decklink.hpp` / `decklink.cpp` — full mode enum (22 modes: 720p/1080i/1080p/2160p at
+    all standard frame rates), `DeckLinkOutput` class with init/shutdown/sendFrame/sendAudio,
+    mode helpers (label, token, parse, width, height, frame rate)
+  - `OutputTarget` struct gains `deckLinkEnabled`, `deckLinkDeviceId`, `deckLinkMode`,
+    `deckLink10Bit` fields; persisted in output_target save/load (fields 24-27)
+  - `OutputRuntime` struct gains `deckLinkOutput` (unique_ptr) + `deckLinkFrameBuffer`
+  - `sendOutputDeckLinkFrame()` mirrors the NDI send pattern: captures egress BGRA32 frame,
+    passes to `DeckLinkOutput::sendFrame()` which handles BGRA→UYVY conversion internally
+  - `shutdownOutputDeckLink()` tears down the DeckLink output when route is deactivated
+  - Render pipeline (`app_render_output.ipp`): `deckLinkRouteActive` bool alongside
+    stream/NDI, included in `needsEgressCapture`, send call after stream block
+  - Route request (`app_output_mgmt.ipp`): `request.deckLinkEnabled = output.deckLinkEnabled`
+    (was hardcoded false); backend catalog already registers decklink with feature gate
+  - Companion commands: `DECKLINK ON/OFF/TOGGLE`, `DECKLINK DEVICE <id>`,
+    `DECKLINK MODE <token>`, `DECKLINK 10BIT ON/OFF/TOGGLE`
+  - Stub fallback when `DECKBOY_HAS_DECKLINK` is not defined — compiles on all platforms
+- **SRT subtitle rendering implemented**:
+  - `core/subtitle_parser.hpp` — `SubtitleTrack`/`SubtitleEntry` structs, `parseSrtFile()`
+    state-machine parser, `parseSrtTime()`, `stripSubtitleTags()`, `entryAtTime()` lookup
+  - `Cue` struct gains `subtitlePath`, `subtitleStreamId`, `subtitleEnabled` fields
+  - `extractEmbeddedSubtitles()` — runs `ffmpeg -map <streamId> -f srt pipe:1`
+  - `loadSubtitleTrack()` — loads external .srt or extracts embedded subtitles
+  - `probeCue()` auto-detects embedded subtitle streams (`0:s:0`)
+  - Subtitle cache (`subtitleCache_`) loaded on cue take, keyed by path or stream ID
+  - Output window renders subtitle text centered at bottom with drop shadow on
+    semi-transparent background bar
+  - Companion commands: `SUBTITLE ON/OFF/TOGGLE`, `SUBTITLE FILE <path>`,
+    `SUBTITLE CLEAR`
+  - Subtitle fields persisted after composite slots in cue save format
+
 ## 2026-03-26 (Companion module + status snapshot + portability)
 
 - **Bitfocus Companion module scaffolded** in `companion/companion-module-deckboy/`:
