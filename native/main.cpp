@@ -13,6 +13,7 @@
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/io_utils.hpp"
+#include "core/subtitle_parser.hpp"
 #include "engine/media_engine.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
@@ -22,6 +23,7 @@
 #include "platform/network.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
+#include "platform/decklink.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
@@ -1594,6 +1596,10 @@ struct OutputRuntime {
   std::string ndiKeySenderName;
   std::vector<std::uint8_t> ndiKeyFrameBuffer;
 #endif
+#if defined(DECKBOY_HAS_DECKLINK)
+  std::unique_ptr<deckboy::platform::video::DeckLinkOutput> deckLinkOutput;
+  std::vector<std::uint8_t> deckLinkFrameBuffer;
+#endif
   bool recoveryPausedByEscape = false;
   bool fullscreenIntended = false;  // user explicitly wants fullscreen — re-assert if dropped
   Uint64 lastFullscreenRequestMs = 0;
@@ -2415,6 +2421,8 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
       } else if (lastCodecType == "audio" && cue.audioCodec.empty()) {
         cue.audioCodec = value;
         cue.hasAudio = true;
+      } else if (lastCodecType == "subtitle" && cue.subtitleStreamId.empty()) {
+        cue.subtitleStreamId = "0:s:0";
       }
     } else if (key == "width") {
       if (lastCodecType == "video" && cue.width == 0) {
@@ -2548,7 +2556,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << escapeField(outputTarget.outputColorSpace) << '\t'
       << escapeField(outputTarget.outputLayoutMode) << '\t'
       << outputTarget.outputOrientationDegrees << '\t'
-      << (outputTarget.outputTestCardEnabled ? 1 : 0)
+      << (outputTarget.outputTestCardEnabled ? 1 : 0) << '\t'
+      << (outputTarget.deckLinkEnabled ? 1 : 0) << '\t'
+      << outputTarget.deckLinkDeviceId << '\t'
+      << escapeField(outputTarget.deckLinkMode) << '\t'
+      << (outputTarget.deckLink10Bit ? 1 : 0)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2704,7 +2716,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
           << '\t' << slot.normW
           << '\t' << slot.normH;
       }
+      // Subtitle fields (appended after composite slots for backward compat)
       output
+        << '\t' << escapeField(cue.subtitlePath)
+        << '\t' << escapeField(cue.subtitleStreamId)
+        << '\t' << (cue.subtitleEnabled ? "1" : "0")
         << '\n';
     }
   }
@@ -2850,6 +2866,12 @@ Project loadProject(const fs::path& projectFile) {
             outputTarget.outputLayoutMode = safeString(fields, 21);
             outputTarget.outputOrientationDegrees = safeInt(fields, 22, 0);
             outputTarget.outputTestCardEnabled = safeBool(fields, 23, false);
+            if (fields.size() >= 28) {
+              outputTarget.deckLinkEnabled = safeBool(fields, 24, false);
+              outputTarget.deckLinkDeviceId = safeInt(fields, 25, -1);
+              outputTarget.deckLinkMode = safeString(fields, 26);
+              outputTarget.deckLink10Bit = safeBool(fields, 27, true);
+            }
           }
         }
       } else {
@@ -3083,6 +3105,11 @@ Project loadProject(const fs::path& projectFile) {
       if (cue.kind == CueKind::Composite) {
         applyCompositePresetToCue(cue, cue.compositeLayoutPreset);
       }
+      // Subtitle fields (after composite slots)
+      size_t subtitleBase = compositeBase + static_cast<size_t>(compositeSlotCount) * 11;
+      cue.subtitlePath = safeString(fields, subtitleBase + 0);
+      cue.subtitleStreamId = safeString(fields, subtitleBase + 1);
+      cue.subtitleEnabled = safeBool(fields, subtitleBase + 2, true);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -3180,6 +3207,40 @@ struct WaveformPeaks {
     return left.empty() && right.empty();
   }
 };
+
+// Extract embedded subtitles from a media file using ffmpeg, returning SRT text.
+static std::string extractEmbeddedSubtitles(const std::string& mediaPath, const std::string& streamId) {
+  std::string mapArg = streamId.empty() ? "0:s:0" : streamId;
+  auto result = readAllText({
+    "ffmpeg", "-v", "error", "-i", mediaPath,
+    "-map", mapArg, "-f", "srt", "pipe:1"
+  });
+  return result.value_or("");
+}
+
+// Load subtitle track for a cue: external .srt file or embedded stream.
+static deckboy::core::SubtitleTrack loadSubtitleTrack(const Cue& cue) {
+  // Prefer external SRT file
+  if (!cue.subtitlePath.empty()) {
+    return deckboy::core::parseSrtFile(cue.subtitlePath);
+  }
+  // Fall back to embedded subtitle stream
+  if (!cue.subtitleStreamId.empty() && !cue.path.empty()) {
+    std::string srtText = extractEmbeddedSubtitles(cue.path, cue.subtitleStreamId);
+    if (!srtText.empty()) {
+      // Write to temp and parse (parseSrtFile expects a file path)
+      auto tmpPath = fs::temp_directory_path() / "deckboy_sub_extract.srt";
+      {
+        std::ofstream tmp(tmpPath, std::ios::binary | std::ios::trunc);
+        tmp << srtText;
+      }
+      auto track = deckboy::core::parseSrtFile(tmpPath.string());
+      fs::remove(tmpPath);
+      return track;
+    }
+  }
+  return {};
+}
 
 // Offline waveform analysis: runs ffmpeg to extract stereo PCM and compute per-bucket peaks.
 // Mono sources will simply produce identical left/right lanes after ffmpeg upmix.
@@ -4907,6 +4968,8 @@ class App {
   std::map<std::string, WaveformPeaks> waveformCache_;
   std::map<std::string, std::future<WaveformPeaks>> waveformFutures_;
   std::mutex waveformMutex_;
+  // Subtitle track cache (path → parsed SRT)
+  std::map<std::string, deckboy::core::SubtitleTrack> subtitleCache_;
   // Settings modal
   bool settingsOpen_ = false;
   int settingsTab_ = 0; // 0=System 1=Audio 2=Network 3=Video Outputs 4=About

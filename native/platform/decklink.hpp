@@ -7,72 +7,87 @@
 
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
-#include <SDL.h>
-
 namespace deckboy::platform::video {
 
-// DeckLink output modes
 enum class DeckLinkMode {
+  HD1080i50,
+  HD1080i5994,
+  HD1080i60,
+  HD1080p2398,
+  HD1080p24,
+  HD1080p25,
+  HD1080p2997,
+  HD1080p30,
   HD1080p50,
   HD1080p5994,
   HD1080p60,
   HD720p50,
   HD720p5994,
   HD720p60,
-  UHD4K50,
-  UHD4K5994,
-  UHD4K60,
-  _12G_SDI_50,
-  _12G_SDI_5994,
-  _12G_SDI_60,
+  UHD2160p2398,
+  UHD2160p24,
+  UHD2160p25,
+  UHD2160p2997,
+  UHD2160p30,
+  UHD2160p50,
+  UHD2160p5994,
+  UHD2160p60,
 };
 
-// DeckLink device info
 struct DeckLinkDeviceInfo {
   int id = -1;
   std::string displayName;
   std::string modelName;
+  bool supportsOutput = false;
   bool supportsSDI = false;
   bool supportsHDMI = false;
   bool supports10Bit = false;
+  bool supports4K = false;
 };
 
-// DeckLink output driver
+// Returns the display label for a mode (e.g. "1080p 59.94")
+std::string deckLinkModeLabel(DeckLinkMode mode);
+
+// Parse a mode token from persistence (e.g. "1080p5994")
+DeckLinkMode parseDeckLinkMode(const std::string& token);
+
+// Return the mode token for persistence
+std::string deckLinkModeToken(DeckLinkMode mode);
+
+// Width/height for a given mode
+int deckLinkModeWidth(DeckLinkMode mode);
+int deckLinkModeHeight(DeckLinkMode mode);
+
+// Frame rate numerator/denominator for a given mode
+void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator);
+
 class DeckLinkOutput {
  public:
   DeckLinkOutput();
   ~DeckLinkOutput();
 
-  // Prevent copying
   DeckLinkOutput(const DeckLinkOutput&) = delete;
   DeckLinkOutput& operator=(const DeckLinkOutput&) = delete;
 
-  // Device enumeration
   static std::vector<DeckLinkDeviceInfo> listDevices();
 
-  // Lifecycle
-  bool init(int deviceId, DeckLinkMode mode, bool supports10Bit = true);
+  bool init(int deviceId, DeckLinkMode mode, bool enable10Bit = true);
   bool isInitialized() const;
   void shutdown();
 
-  // Frame output (called each render pass)
-  bool sendFrame(SDL_Texture* texture, int width, int height);
+  // Send a BGRA32 pixel buffer (same format as egress capture pipeline).
+  // stride = width * 4. Returns false on failure.
+  bool sendFrame(const std::uint8_t* pixels, int width, int height, int stride);
 
-  // Audio output
-  bool sendAudio(const std::vector<std::int16_t>& audioSamples, int sampleRate, int channels);
-
-  // Timecode
-  bool setTimecode(std::uint32_t hours, std::uint32_t minutes, std::uint32_t seconds, std::uint32_t frames, bool dropFrame = false);
+  // Send interleaved 16-bit PCM audio samples.
+  bool sendAudio(const std::int16_t* samples, int sampleCount, int sampleRate, int channels);
 
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;
-
-  friend class Impl;
 };
 
 }  // namespace deckboy::platform::video
