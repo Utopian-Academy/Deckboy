@@ -1,48 +1,139 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(playboy_native VERSION 0.3.0 LANGUAGES CXX)
+project(deckboy_native VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED sdl2)
+function(deckboy_target_link_frameworks target)
+  if(NOT APPLE)
+    return()
+  endif()
 
-find_path(SDL2_TTF_INCLUDE_DIR
-  NAMES SDL_ttf.h
-  PATH_SUFFIXES SDL2
-)
-find_library(SDL2_TTF_LIBRARY
-  NAMES SDL2_ttf
-)
+  foreach(framework IN LISTS ARGN)
+    find_library(DECKBOY_${framework}_FRAMEWORK NAMES ${framework})
+    if(NOT DECKBOY_${framework}_FRAMEWORK)
+      message(FATAL_ERROR "Required macOS framework not found: ${framework}")
+    endif()
+    target_link_libraries(${target} PRIVATE ${DECKBOY_${framework}_FRAMEWORK})
+  endforeach()
+endfunction()
 
-if(NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
-  message(FATAL_ERROR "SDL2_ttf development files are required")
+set(DECKBOY_SDL2_TARGET "")
+set(DECKBOY_SDL2_TTF_TARGET "")
+set(DECKBOY_SDL2_INCLUDE_DIRS "")
+set(DECKBOY_SDL2_TTF_INCLUDE_DIRS "")
+set(DECKBOY_SDL2_LINK_LIBS "")
+set(DECKBOY_SDL2_TTF_LINK_LIBS "")
+set(DECKBOY_SDL_COMPILE_OPTIONS "")
+set(DECKBOY_SDL_LINK_DIRS "")
+
+find_package(SDL2 QUIET CONFIG)
+find_package(SDL2_ttf QUIET CONFIG)
+
+if(TARGET SDL2::SDL2)
+  set(DECKBOY_SDL2_TARGET SDL2::SDL2)
+elseif(TARGET SDL2::SDL2-static)
+  set(DECKBOY_SDL2_TARGET SDL2::SDL2-static)
 endif()
 
-option(PLAYBOY_ENABLE_NDI "Enable optional NDI SDK integration" ON)
-if(PLAYBOY_ENABLE_NDI)
-  find_path(PLAYBOY_NDI_INCLUDE_DIR
+if(TARGET SDL2_ttf::SDL2_ttf)
+  set(DECKBOY_SDL2_TTF_TARGET SDL2_ttf::SDL2_ttf)
+elseif(TARGET SDL2_ttf::SDL2_ttf-static)
+  set(DECKBOY_SDL2_TTF_TARGET SDL2_ttf::SDL2_ttf-static)
+endif()
+
+if(NOT DECKBOY_SDL2_TARGET OR NOT DECKBOY_SDL2_TTF_TARGET)
+  find_package(PkgConfig QUIET)
+endif()
+
+if(PkgConfig_FOUND AND NOT DECKBOY_SDL2_TARGET)
+  pkg_check_modules(SDL2 QUIET sdl2)
+endif()
+
+if(PkgConfig_FOUND AND NOT DECKBOY_SDL2_TTF_TARGET)
+  pkg_check_modules(SDL2_TTF QUIET SDL2_ttf)
+endif()
+
+if(NOT DECKBOY_SDL2_TARGET)
+  if(NOT SDL2_FOUND)
+    find_path(SDL2_INCLUDE_DIR
+      NAMES SDL.h
+      PATH_SUFFIXES SDL2
+    )
+    find_library(SDL2_LIBRARY
+      NAMES SDL2 SDL2-static
+    )
+  endif()
+
+  set(DECKBOY_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+  if(NOT DECKBOY_SDL2_INCLUDE_DIRS AND SDL2_INCLUDE_DIR)
+    set(DECKBOY_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIR})
+  endif()
+
+  set(DECKBOY_SDL2_LINK_LIBS ${SDL2_LIBRARIES})
+  if(NOT DECKBOY_SDL2_LINK_LIBS AND SDL2_LIBRARY)
+    set(DECKBOY_SDL2_LINK_LIBS ${SDL2_LIBRARY})
+  endif()
+
+  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL2_CFLAGS_OTHER})
+  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL2_LIBRARY_DIRS})
+
+  if(NOT DECKBOY_SDL2_INCLUDE_DIRS OR NOT DECKBOY_SDL2_LINK_LIBS)
+    message(FATAL_ERROR "SDL2 development files are required")
+  endif()
+endif()
+
+if(NOT DECKBOY_SDL2_TTF_TARGET)
+  find_path(SDL2_TTF_INCLUDE_DIR
+    NAMES SDL_ttf.h
+    PATH_SUFFIXES SDL2
+  )
+  find_library(SDL2_TTF_LIBRARY
+    NAMES SDL2_ttf SDL2_ttf-static
+  )
+
+  set(DECKBOY_SDL2_TTF_INCLUDE_DIRS ${SDL2_TTF_INCLUDE_DIRS})
+  if(NOT DECKBOY_SDL2_TTF_INCLUDE_DIRS AND SDL2_TTF_INCLUDE_DIR)
+    set(DECKBOY_SDL2_TTF_INCLUDE_DIRS ${SDL2_TTF_INCLUDE_DIR})
+  endif()
+
+  set(DECKBOY_SDL2_TTF_LINK_LIBS ${SDL2_TTF_LIBRARIES})
+  if(NOT DECKBOY_SDL2_TTF_LINK_LIBS AND SDL2_TTF_LIBRARY)
+    set(DECKBOY_SDL2_TTF_LINK_LIBS ${SDL2_TTF_LIBRARY})
+  endif()
+
+  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL2_TTF_CFLAGS_OTHER})
+  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL2_TTF_LIBRARY_DIRS})
+
+  if(NOT DECKBOY_SDL2_TTF_INCLUDE_DIRS OR NOT DECKBOY_SDL2_TTF_LINK_LIBS)
+    message(FATAL_ERROR "SDL2_ttf development files are required")
+  endif()
+endif()
+
+option(DECKBOY_ENABLE_NDI "Enable optional NDI SDK integration" ON)
+if(DECKBOY_ENABLE_NDI)
+  find_path(DECKBOY_NDI_INCLUDE_DIR
     NAMES Processing.NDI.Lib.h
     PATHS
-      "$ENV{PLAYBOY_NDI_SDK}/include"
+      "$ENV{DECKBOY_NDI_SDK}/include"
       "/opt/NDI SDK for Linux/include"
       "/usr/local/include"
       "/usr/include"
   )
 endif()
 
-option(PLAYBOY_ENABLE_ALSA_MTC "Enable optional ALSA MTC ingest integration" ON)
-if(UNIX AND NOT APPLE AND PLAYBOY_ENABLE_ALSA_MTC)
-  find_path(PLAYBOY_ALSA_INCLUDE_DIR
+option(DECKBOY_ENABLE_ALSA_MTC "Enable optional ALSA MTC ingest integration" ON)
+if(UNIX AND NOT APPLE AND DECKBOY_ENABLE_ALSA_MTC)
+  find_path(DECKBOY_ALSA_INCLUDE_DIR
     NAMES asoundlib.h
     PATH_SUFFIXES alsa
     PATHS
       /usr/include
       /usr/local/include
   )
-  find_library(PLAYBOY_ALSA_LIBRARY
+  find_library(DECKBOY_ALSA_LIBRARY
     NAMES asound
   )
 endif()
@@ -147,11 +238,12 @@ if(ENABLE_WEBVIEW AND NOT APPLE AND NOT WIN32)
   message(FATAL_ERROR "ENABLE_WEBVIEW is only supported on macOS and Windows")
 endif()
 
-add_executable(playboy-native
+add_executable(deckboy-native
   native/main.cpp
   native/core/paths.cpp
   native/core/utils.cpp
   native/core/subprocess.cpp
+  native/engine/media_engine.cpp
   native/platform/capture_backend.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
@@ -163,106 +255,121 @@ add_executable(playboy-native
 
 # Platform modules (conditional)
 if(ENABLE_MIDI)
-  target_sources(playboy-native PRIVATE native/platform/midi.cpp)
+  target_sources(deckboy-native PRIVATE native/platform/midi.cpp)
 endif()
 
 if(ENABLE_DECKLINK)
-  target_sources(playboy-native PRIVATE native/platform/decklink.cpp)
+  target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
 endif()
 
 if(ENABLE_SIPHON OR ENABLE_SPOUT)
-  target_sources(playboy-native PRIVATE native/platform/siphon_spout.cpp)
+  target_sources(deckboy-native PRIVATE native/platform/siphon_spout.cpp)
 endif()
 
 if(ENABLE_CEF OR ENABLE_WEBVIEW)
-  target_sources(playboy-native PRIVATE native/platform/browser.cpp)
+  target_sources(deckboy-native PRIVATE native/platform/browser.cpp)
 endif()
 
-target_include_directories(playboy-native PRIVATE
+target_include_directories(deckboy-native PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/native
-  ${SDL2_INCLUDE_DIRS}
-  ${SDL2_TTF_INCLUDE_DIR}
 )
+
+if(NOT DECKBOY_SDL2_TARGET)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL2_INCLUDE_DIRS})
+endif()
+
+if(NOT DECKBOY_SDL2_TTF_TARGET)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_INCLUDE_DIRS})
+endif()
 
 # Pro Features includes and defines
 if(ENABLE_DECKLINK)
-  target_include_directories(playboy-native PRIVATE ${DECKLINK_INCLUDE_DIR})
-  target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_DECKLINK=1)
+  target_include_directories(deckboy-native PRIVATE ${DECKLINK_INCLUDE_DIR})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_DECKLINK=1)
 endif()
 
 if(ENABLE_MIDI)
   if(RTMIDI_FOUND)
-    target_include_directories(playboy-native PRIVATE ${RTMIDI_INCLUDE_DIRS})
-    target_link_libraries(playboy-native PRIVATE ${RTMIDI_LIBRARIES})
+    target_include_directories(deckboy-native PRIVATE ${RTMIDI_INCLUDE_DIRS})
+    target_link_libraries(deckboy-native PRIVATE ${RTMIDI_LIBRARIES})
   elseif(RTMIDI_INCLUDE_DIR AND RTMIDI_LIBRARY)
-    target_include_directories(playboy-native PRIVATE ${RTMIDI_INCLUDE_DIR})
-    target_link_libraries(playboy-native PRIVATE ${RTMIDI_LIBRARY})
+    target_include_directories(deckboy-native PRIVATE ${RTMIDI_INCLUDE_DIR})
+    target_link_libraries(deckboy-native PRIVATE ${RTMIDI_LIBRARY})
   endif()
-  target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_MIDI=1)
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_MIDI=1)
 endif()
 
 if(ENABLE_SIPHON AND APPLE)
-  target_link_frameworks(playboy-native PRIVATE Siphon)
-  target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_SIPHON=1)
+  deckboy_target_link_frameworks(deckboy-native Siphon)
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SIPHON=1)
 endif()
 
 if(ENABLE_SPOUT AND WIN32)
-  target_include_directories(playboy-native PRIVATE ${SPOUT_INCLUDE_DIR})
-  target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_SPOUT=1)
+  target_include_directories(deckboy-native PRIVATE ${SPOUT_INCLUDE_DIR})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SPOUT=1)
 endif()
 
 if(ENABLE_CEF)
-  target_include_directories(playboy-native PRIVATE ${CEF_INCLUDE_DIR})
-  target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_CEF=1)
+  target_include_directories(deckboy-native PRIVATE ${CEF_INCLUDE_DIR})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_CEF=1)
 endif()
 
 if(ENABLE_WEBVIEW)
   if(APPLE)
-    target_link_frameworks(playboy-native PRIVATE WebKit)
-    target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_WEBVIEW=1)
+    deckboy_target_link_frameworks(deckboy-native WebKit)
+    target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_WEBVIEW=1)
   elseif(WIN32)
-    target_compile_definitions(playboy-native PRIVATE PLAYBOY_HAS_WEBVIEW=1)
+    target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_WEBVIEW=1)
   endif()
 endif()
 
-if(PLAYBOY_ENABLE_NDI AND PLAYBOY_NDI_INCLUDE_DIR)
-  target_include_directories(playboy-native PRIVATE
-    ${PLAYBOY_NDI_INCLUDE_DIR}
+if(DECKBOY_ENABLE_NDI AND DECKBOY_NDI_INCLUDE_DIR)
+  target_include_directories(deckboy-native PRIVATE
+    ${DECKBOY_NDI_INCLUDE_DIR}
   )
-  target_compile_definitions(playboy-native PRIVATE
-    PLAYBOY_HAS_NDI_SDK=1
-  )
-endif()
-
-if(UNIX AND NOT APPLE AND PLAYBOY_ENABLE_ALSA_MTC AND PLAYBOY_ALSA_INCLUDE_DIR AND PLAYBOY_ALSA_LIBRARY)
-  target_include_directories(playboy-native PRIVATE
-    ${PLAYBOY_ALSA_INCLUDE_DIR}
-  )
-  target_link_libraries(playboy-native PRIVATE
-    ${PLAYBOY_ALSA_LIBRARY}
-  )
-  target_compile_definitions(playboy-native PRIVATE
-    PLAYBOY_HAS_ALSA=1
+  target_compile_definitions(deckboy-native PRIVATE
+    DECKBOY_HAS_NDI_SDK=1
   )
 endif()
 
-target_compile_options(playboy-native PRIVATE
-  ${SDL2_CFLAGS_OTHER}
+if(UNIX AND NOT APPLE AND DECKBOY_ENABLE_ALSA_MTC AND DECKBOY_ALSA_INCLUDE_DIR AND DECKBOY_ALSA_LIBRARY)
+  target_include_directories(deckboy-native PRIVATE
+    ${DECKBOY_ALSA_INCLUDE_DIR}
+  )
+  target_link_libraries(deckboy-native PRIVATE
+    ${DECKBOY_ALSA_LIBRARY}
+  )
+  target_compile_definitions(deckboy-native PRIVATE
+    DECKBOY_HAS_ALSA=1
+  )
+endif()
+
+target_compile_options(deckboy-native PRIVATE
+  ${DECKBOY_SDL_COMPILE_OPTIONS}
 )
 
-target_link_directories(playboy-native PRIVATE
-  ${SDL2_LIBRARY_DIRS}
-)
+if(DECKBOY_SDL_LINK_DIRS)
+  target_link_directories(deckboy-native PRIVATE
+    ${DECKBOY_SDL_LINK_DIRS}
+  )
+endif()
 
-target_link_libraries(playboy-native PRIVATE
-  ${SDL2_LIBRARIES}
-  ${SDL2_TTF_LIBRARY}
-)
+if(DECKBOY_SDL2_TARGET)
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TARGET})
+else()
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_LINK_LIBS})
+endif()
+
+if(DECKBOY_SDL2_TTF_TARGET)
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_TARGET})
+else()
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_LINK_LIBS})
+endif()
 
 if(UNIX AND NOT APPLE)
-  target_link_libraries(playboy-native PRIVATE dl)
+  target_link_libraries(deckboy-native PRIVATE dl)
 endif()
 
-target_compile_definitions(playboy-native PRIVATE
-  $<$<CONFIG:Debug>:PLAYBOY_DEBUG=1>
+target_compile_definitions(deckboy-native PRIVATE
+  $<$<CONFIG:Debug>:DECKBOY_DEBUG=1>
 )

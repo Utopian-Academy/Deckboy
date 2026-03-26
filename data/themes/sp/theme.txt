@@ -1,0 +1,15 @@
+# Deckboy Theme: Game Boy Advance SP
+# Bright backlit LCD with metallic silver shell — the clamshell.
+# All color values are RRGGBBAA hex.
+
+shell_outer	B0B0B8FF
+shell_inner	9090A0FF
+shell_shadow	585868FF
+screen_light	F0F0F0FF
+screen_mid	A0A8A0FF
+screen_dark	485850FF
+screen_deep	101810FF
+screen_ink_soft	687068FF
+button_bezel	A0A0B0FF
+delete_bezel	A04040FF
+scanline_alpha	8

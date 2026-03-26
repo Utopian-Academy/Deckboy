@@ -106,7 +106,7 @@ append_pattern_cue() {
 }
 
 generate_demo_70_30_4pip_bg_5deck() {
-  local file="${OUT_DIR}/demo_70_30_4pip_bg_5deck.playboy"
+  local file="${OUT_DIR}/demo_70_30_4pip_bg_5deck.deckboy"
   begin_show "${file}" "Demo - 70/30 + 4 PiP Over BG (5 Decks)"
 
   append_layer_assignment "${file}" 0 0
@@ -157,7 +157,7 @@ generate_demo_70_30_4pip_bg_5deck() {
 }
 
 generate_demo_quad_2x2_5deck() {
-  local file="${OUT_DIR}/demo_quad_2x2_4pip_bg_5deck.playboy"
+  local file="${OUT_DIR}/demo_quad_2x2_4pip_bg_5deck.deckboy"
   begin_show "${file}" "Demo - 2x2 PiP Quad Over BG (5 Decks)"
 
   append_layer_assignment "${file}" 0 0
@@ -201,7 +201,7 @@ generate_demo_quad_2x2_5deck() {
 }
 
 generate_demo_program_preview_clean_3deck() {
-  local file="${OUT_DIR}/demo_program_preview_clean_3deck.playboy"
+  local file="${OUT_DIR}/demo_program_preview_clean_3deck.deckboy"
   begin_show "${file}" "Demo - Program + Preview + Bug (3 Decks)"
 
   append_layer_assignment "${file}" 0 0
@@ -238,4 +238,4 @@ generate_demo_quad_2x2_5deck
 generate_demo_program_preview_clean_3deck
 
 printf 'Generated demo shows in %s\n' "${OUT_DIR}"
-ls -1 "${OUT_DIR}"/*.playboy
+ls -1 "${OUT_DIR}"/*.deckboy

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 
@@ -9,10 +9,10 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <iomanip>
+#include <cstdio>
 #include <sstream>
 
-namespace playboy::core::utils {
+namespace deckboy::core::utils {
 using ::CueKind;
 using ::CueEndAction;
 using ::TransportState;
@@ -61,10 +61,9 @@ std::string formatSeconds(double seconds) {
   }
   int wholeMinutes = static_cast<int>(seconds / 60.0);
   double remaining = seconds - wholeMinutes * 60.0;
-  std::ostringstream output;
-  output << std::setfill('0') << std::setw(2) << wholeMinutes << ':';
-  output << std::fixed << std::setprecision(1) << std::setw(4) << remaining;
-  return output.str();
+  char buf[16];
+  snprintf(buf, sizeof(buf), "%02d:%04.1f", wholeMinutes, remaining);
+  return buf;
 }
 
 std::string formatTimecode(double seconds, double fps) {
@@ -77,13 +76,9 @@ std::string formatTimecode(double seconds, double fps) {
   int secs = totalSeconds % 60;
   int mins = (totalSeconds / 60) % 60;
   int hours = totalSeconds / 3600;
-  std::ostringstream output;
-  output << std::setfill('0')
-         << std::setw(2) << hours << ':'
-         << std::setw(2) << mins << ':'
-         << std::setw(2) << secs << ':'
-         << std::setw(2) << frame;
-  return output.str();
+  char buf[32];
+  snprintf(buf, sizeof(buf), "%02d:%02d:%02d:%02d", hours, mins, secs, frame);
+  return buf;
 }
 
 std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
@@ -291,13 +286,9 @@ SDL_Color parseColor(std::string_view input) {
 }
 
 std::string colorToHex(SDL_Color color) {
-  std::ostringstream output;
-  output << '#'
-         << std::hex << std::nouppercase << std::setfill('0')
-         << std::setw(2) << static_cast<int>(color.r)
-         << std::setw(2) << static_cast<int>(color.g)
-         << std::setw(2) << static_cast<int>(color.b);
-  return output.str();
+  char buf[8];
+  snprintf(buf, sizeof(buf), "#%02x%02x%02x", color.r, color.g, color.b);
+  return buf;
 }
 
 std::uint8_t alpha(std::uint32_t rgba) {
@@ -346,34 +337,6 @@ SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
     std::max(0, rect.w - amount * 2),
     std::max(0, rect.h - amount * 2)
   };
-}
-
-void fillRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-  SDL_RenderFillRect(renderer, &rect);
-}
-
-void strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-  SDL_RenderDrawRect(renderer, &rect);
-}
-
-void drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color body, SDL_Color border, SDL_Color innerBorder) {
-  fillRect(renderer, rect, body);
-  strokeRect(renderer, rect, border);
-  SDL_Rect inner = insetRect(rect, 2);
-  if (inner.w > 0 && inner.h > 0) {
-    strokeRect(renderer, inner, innerBorder);
-  }
-}
-
-void drawSpeakerGrille(SDL_Renderer* renderer, int x, int y, int width, int bars, SDL_Color color) {
-  for (int index = 0; index < bars; ++index) {
-    SDL_Rect slot {x, y + index * 7, width, 3};
-    fillRect(renderer, slot, color);
-  }
 }
 
 bool pointInRect(int x, int y, const SDL_Rect& rect) {
@@ -483,4 +446,4 @@ std::string escapeJson(const std::string& value) {
   return result;
 }
 
-}  // namespace playboy::core::utils
+}  // namespace deckboy::core::utils

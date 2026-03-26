@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Playboy contributors
+// Copyright (C) Deckboy contributors
 
-#ifndef PLAYBOY_RENDER_TEXT_RENDERER_HPP
-#define PLAYBOY_RENDER_TEXT_RENDERER_HPP
+#ifndef DECKBOY_RENDER_TEXT_RENDERER_HPP
+#define DECKBOY_RENDER_TEXT_RENDERER_HPP
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // TextRenderer provides SDL2-based text rendering operations.
 // This stateless utility class consolidates text drawing, font management,
@@ -40,6 +40,6 @@ class TextRenderer {
                                     const SDL_Color& color);
 };
 
-}  // namespace playboy::render
+}  // namespace deckboy::render
 
-#endif  // PLAYBOY_RENDER_TEXT_RENDERER_HPP
+#endif  // DECKBOY_RENDER_TEXT_RENDERER_HPP

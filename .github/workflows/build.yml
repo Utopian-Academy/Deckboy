@@ -68,14 +68,14 @@ jobs:
       - name: Self-check
         run: |
           cd build
-          ./playboy-native --self-check
+          ./deckboy-native --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: playboy-native-linux
-          path: build/playboy-native
+          name: deckboy-native-linux
+          path: build/deckboy-native
 
   macos-build:
     name: macOS Build (Apple Silicon/Intel)
@@ -137,14 +137,14 @@ jobs:
       - name: Self-check
         run: |
           cd build
-          ./playboy-native --self-check
+          ./deckboy-native --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: playboy-native-macos
-          path: build/playboy-native
+          name: deckboy-native-macos
+          path: build/deckboy-native
 
   windows-build:
     name: Windows Build (MSVC)
@@ -223,11 +223,11 @@ jobs:
       - name: Self-check
         run: |
           cd build\Release
-          .\playboy-native.exe --self-check
+          .\deckboy-native.exe --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: playboy-native-windows
-          path: build\Release\playboy-native.exe
+          name: deckboy-native-windows
+          path: build\Release\deckboy-native.exe

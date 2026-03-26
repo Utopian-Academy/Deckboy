@@ -86,7 +86,7 @@ function posterUrl(cue) {
 function selectedCueFieldsFromState() {
   const cue = selectedCue();
   const active = activeCue();
-  elements.projectTitle.value = state.project?.title || "Playboy Show";
+  elements.projectTitle.value = state.project?.title || "Deckboy Show";
   elements.cueCount.textContent = `${state.project?.cues.length || 0} cues`;
   elements.volume.value = String(state.project?.transport.volume ?? 1);
   elements.volumeReadout.textContent = `${Math.round((state.project?.transport.volume ?? 1) * 100)}%`;
@@ -247,7 +247,7 @@ function applyState(nextState) {
 }
 
 function openOutputWindow() {
-  window.open("/output", "playboy-output", "popup,width=1280,height=720");
+  window.open("/output", "deckboy-output", "popup,width=1280,height=720");
 }
 
 async function importByPathPrompt() {
