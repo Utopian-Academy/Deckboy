@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Playboy contributors
+// Copyright (C) Deckboy contributors
 
-#ifndef PLAYBOY_RENDER_OUTPUT_RENDERER_HPP
-#define PLAYBOY_RENDER_OUTPUT_RENDERER_HPP
+#ifndef DECKBOY_RENDER_OUTPUT_RENDERER_HPP
+#define DECKBOY_RENDER_OUTPUT_RENDERER_HPP
 
 #include <SDL2/SDL.h>
 #include <cstdint>
 #include <string>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // OutputRenderer encapsulates the sequence of operations needed to render a deck's output window.
 // This is a stateless facade; it does not own SDL resources. It serves as documentation and
@@ -65,7 +65,7 @@ class OutputRenderer {
   virtual void sendNdiFrame(int deckIndex, int width, int height, double fps) = 0;
 };
 
-}  // namespace playboy::render
+}  // namespace deckboy::render
 
-#endif  // PLAYBOY_RENDER_OUTPUT_RENDERER_HPP
+#endif  // DECKBOY_RENDER_OUTPUT_RENDERER_HPP
 

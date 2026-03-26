@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #pragma once
@@ -11,7 +11,7 @@
 
 #include <SDL.h>
 
-namespace playboy::platform::video {
+namespace deckboy::platform::video {
 
 // Siphon (macOS) / Spout (Windows) sender for interprocess texture sharing
 class SiphonSpoutSender {
@@ -45,4 +45,4 @@ class SiphonSpoutSender {
   friend class Impl;
 };
 
-}  // namespace playboy::platform::video
+}  // namespace deckboy::platform::video

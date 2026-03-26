@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #include "siphon_spout.hpp"
@@ -11,7 +11,7 @@
 // macOS: Siphon framework (https://github.com/Siphon/Siphon-Framework)
 // Windows: Spout SDK (https://github.com/leadedge/Spout2)
 
-namespace playboy::platform::video {
+namespace deckboy::platform::video {
 
 class SiphonSpoutSender::Impl {
  public:
@@ -120,4 +120,4 @@ bool SiphonSpoutSender::isSupported() {
 #endif
 }
 
-}  // namespace playboy::platform::video
+}  // namespace deckboy::platform::video

@@ -1,0 +1,15 @@
+# Deckboy Theme: Game Boy Color
+# Vivid green LCD with indigo/purple shell — the first color handheld.
+# All color values are RRGGBBAA hex.
+
+shell_outer	4A44A8FF
+shell_inner	3A3488FF
+shell_shadow	221E60FF
+screen_light	E0F8D0FF
+screen_mid	88C070FF
+screen_dark	346856FF
+screen_deep	081820FF
+screen_ink_soft	508058FF
+button_bezel	6A64C0FF
+delete_bezel	A83838FF
+scanline_alpha	12

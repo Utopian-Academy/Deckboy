@@ -22,31 +22,36 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       ""
  #endif
     });
-#if defined(PLAYBOY_HAS_NDI_SDK)
+#if defined(_WIN32)
     out.push_back({
       IntegrationBackendKind::NdiTrigger,
       "ndi-trigger",
       "NDI Metadata Trigger Bridge",
       false,
-      "NDI SDK available, trigger backend pending"
+      "NDI metadata trigger runtime currently Linux/macOS only"
     });
 #else
     out.push_back({
       IntegrationBackendKind::NdiTrigger,
       "ndi-trigger",
       "NDI Metadata Trigger Bridge",
-      false,
-      "NDI SDK not built"
+      true,
+      ""
     });
 #endif
     out.push_back({
       IntegrationBackendKind::NmcSync,
       "nmc",
       "NMC Transport Sync",
+#if defined(_WIN32)
       false,
-      "NMC sync backend pending"
+      "NMC sync backend currently Linux/macOS only"
+#else
+      true,
+      ""
+#endif
     });
-#if defined(PLAYBOY_HAS_ALSA)
+#if defined(DECKBOY_HAS_ALSA)
     out.push_back({
       IntegrationBackendKind::MtcIngest,
       "mtc",
@@ -63,13 +68,23 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       "MIDI backend not available on this build"
     });
 #endif
+#if defined(_WIN32)
     out.push_back({
       IntegrationBackendKind::LtcIngest,
       "ltc",
       "LTC Ingest",
       false,
-      "LTC ingest backend pending"
+      "LTC ingest runtime currently Linux/macOS only"
     });
+#else
+    out.push_back({
+      IntegrationBackendKind::LtcIngest,
+      "ltc",
+      "LTC Ingest",
+      true,
+      ""
+    });
+#endif
     out.push_back({
       IntegrationBackendKind::DmxArtNet,
       "dmx-artnet",

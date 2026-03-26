@@ -16,7 +16,7 @@ Cute extras are now optional:
 
 - Native control window plus separate native output windows
 - Drag-and-drop import or native file picker import
-- Playlist save, save-as, and open for different `.playboy` show files
+- Playlist save, save-as, and open for different `.deckboy` show files
 - Main header file controls in UI: `New`, `Open`, `Save`, `SaveAs`
 - Main output strip in UI: one per-output toggle in the control window (`O1`, `O2`, ...), so each output can be armed/disarmed without opening Preferences.
 - Main output strip now includes explicit routing controls for the focused deck/output:
@@ -58,7 +58,7 @@ Cute extras are now optional:
   - `Create Window` (Window Output)
   - `Create Stream` (Stream Output)
   - per-output signal-flow summary line in the status block
-- Outputs are off by default; enable them from Preferences -> Video using the focused-output `Enabled` toggle. Enabling a window output immediately sends it fullscreen.
+- Outputs are off by default; enable them from Preferences -> Video using the focused-output `OUTPUT ON/OFF` control. Enabling a window output immediately sends it fullscreen.
 - Enabling or re-arming a `window` output now auto-switches sizing mode to display-native when fixed raster mode was active (`auto native` quality safety).
 - Loaded shows are also disarmed on open/launch (outputs forced off until operator enables), to prevent startup screen takeover.
 - Preferences -> Video now includes top-right display controls (`Prev`, `Next`, `Rescan`) with the current display label shown inline.
@@ -77,7 +77,7 @@ Cute extras are now optional:
 - Single-instance safety lock is enabled by default to prevent runaway duplicate launches; use `--allow-multi-instance` only when intentionally testing multi-launch behavior.
 - Output targets now support `window` and `stream` types
 - Stream outputs can either render their own assigned deck/layer stack or mirror another output feed
-- Per-output network stream output (`SRT` or `RTMP`) via ffmpeg with URL + bitrate controls, including muxed stereo audio
+- Per-output network stream output (`SRT` or `RTMP`) via ffmpeg with URL + bitrate controls and an H.264/AAC transport mux
 - FFprobe metadata ingest for video clips and stills
 - FFmpeg-driven video frame decode and audio decode
 - Cue list, selection, drag reorder, take, play/pause, stop, clear, seek, volume
@@ -88,7 +88,7 @@ Cute extras are now optional:
 - Geometry quick rows now support exact numeric entry by clicking the value cell (`scale X/Y`, `off X/Y`, `rot`), with simple calculator expressions (`+ - * / ()`)
 - Geometry nudge controls now use `1px` offset steps (`off X/Y`) for finer placement
 - Deck transition engine with `cut` / `crossfade` / `dip` styles
-- Playlist controls for auto-advance and playlist loop
+- Playlist loop plus per-cue end behavior driven by hold / end settings
 - Browser cues rendered **into** the output window via Xvfb + ffmpeg x11grab — smooth transitions and program monitor preview, just like any other cue
 - Live source cues (shared `SOURCE ...` command path + `source://...` scheme):
   - `Window Source`: live X11 screen/window capture via ffmpeg `x11grab` (Linux)
@@ -99,7 +99,10 @@ Cute extras are now optional:
   - scene cycle: day, sunset, night, storm
   - creatures/elements: crab, jumping fish, parrot, turtle, dino-style enemy, puff friend, coins, explorer
   - plus signal reference strip at bottom
-- Multi-layer overlay compositor: stack up to 4 Lower Third cues in z-order (`OVERLAY PUSH/POP/CLEAR`)
+- Compatibility support for experimental overlay / scene cues:
+  - existing `Lower Third`, `PIP`, and `Composite` cues still load, save, and render
+  - new authoring for those cue types is temporarily parked on `deckboy-0.60`
+    while audit / cleanup work takes priority
 - Master Cues (internal model: group presets) for simultaneous multi-deck firing (per-deck cue slot or bypass)
 - Audio output device selection and output display selection
 - Video output mode control (display-native EDID mode or fixed raster presets up to 4K UHD)
@@ -117,17 +120,20 @@ Cute extras are now optional:
 - Output fullscreen toggle
 - Companion control over a native TCP/UDP command port
 - OSC input support (single messages + bundles) and OSC state feedback/ack replies
+- Bundled show export (`BUNDLE` in the toolbar or `Ctrl+Shift+E`) copies file-backed
+  cue media into a sibling `<show>_media/` folder and saves the exported show with
+  relative media paths for handoff/move-safe playback
 - Built-in smoke harness (`--smoke` and `scripts/smoke.sh`)
-- Persistent show file in `data/project.playboy`
+- Persistent show file in `data/project.deckboy`
 
 ## Run
 
 Build and launch the native app:
 
 ```bash
-cd /home/user/playboy
-chmod +x bin/playboy bin/playboy-native
-./bin/playboy
+cd /home/user/deckboy
+chmod +x bin/deckboy bin/deckboy-native
+./bin/deckboy
 ```
 
 The launcher builds with CMake automatically and then runs the native binary.
@@ -135,9 +141,9 @@ The launcher builds with CMake automatically and then runs the native binary.
 Useful options:
 
 ```bash
-./build/native/playboy-native --self-check
-./build/native/playboy-native --smoke
-./build/native/playboy-native --allow-multi-instance
+./build/native/deckboy-native --self-check
+./build/native/deckboy-native --smoke
+./build/native/deckboy-native --allow-multi-instance
 ./scripts/smoke.sh
 ./scripts/generate_demo_shows.sh
 ```
@@ -147,7 +153,7 @@ Demo show files are generated in `data/demos/` (including a `70/30 + 4 PiP over 
 To change the Companion port:
 
 ```bash
-PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
+DECKBOY_COMPANION_PORT=5610 ./bin/deckboy
 ```
 
 ## Controls
@@ -161,6 +167,7 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `Shift+I`: import media
 - Main control bar `SOURCE` button: add `Window Source` / `Camera Source` / `Syphon/Spout Source` cues
 - `B`: add browser cue
+- `M`: add composite scene cue
 - Main control bar `Pattern` button: open test-pattern menu and add any pattern type
 - Pattern cue settings row (`pattern`): in-menu `- / +` cycles type, center toggle switches motion on/off
 - `P`: add currently selected default pattern type (keyboard optional)
@@ -177,7 +184,6 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `Delete`: remove selected cue
 - `1`: toggle UI sounds
 - `2`: toggle UI transitions
-- `3`: toggle playlist auto-advance
 - `4`: toggle playlist loop
 - `A`: cycle audio output device
 - `D`: cycle output display
@@ -186,7 +192,12 @@ PLAYBOY_COMPANION_PORT=5610 ./bin/playboy
 - `Shift+O`: toggle time overlay for the focused deck
 - `T`: toggle focused deck timecode run mode
 - `5`: toggle focused deck timecode chase mode
+- `Ctrl+C`: copy selected cue settings
+- `Ctrl+V`: paste copied cue settings to selected cue(s)
+- `Ctrl+Shift+C`: copy focused deck warp settings
+- `Ctrl+Shift+V`: paste copied warp settings to focused deck
 - `Ctrl+S`: save current playlist
+- `Ctrl+Shift+E`: export bundled project with copied media
 - `Ctrl+O`: open playlist
 - `Ctrl+Shift+S`: save playlist as
 - `Ctrl+N`: add a new deck
@@ -419,6 +430,8 @@ Notes:
 - `VIDEO OUTPUT OVERLAY ...` toggles per-output time/ID overlay.
 - `VIDEO OUTPUT COLORSPACE ...` sets output color-space mode (`AUTO`, `BT709`, `SRGB`); stream outputs apply matching encoder color metadata.
 - `VIDEO STREAM ...` controls the focused output's network stream target (`SRT`/`RTMP`), URL, and bitrate.
+- Local SRT loopback uses an external listener, for example:
+  `ffplay -fflags nobuffer -flags low_delay "srt://0.0.0.0:9000?mode=listener&transtype=live"`
 - `MASTER ...` (alias: `GROUP ...`) manages master-cue presets for multi-deck simultaneous cue firing.
 - Quick keys for master cues: `Ctrl+Shift+G` fires the focused Master Cue, `Ctrl+Shift+N` creates one from current selections, `Ctrl+Shift+[` / `Ctrl+Shift+]` cycles focus.
 - `NDI NAME ...` renames the NDI sender for the focused output.
@@ -464,20 +477,20 @@ Notes:
 
 - OSC supports both single messages and `#bundle` packets.
 - OSC values are mapped into the same internal command path used by Companion text commands.
-- OSC senders receive `/playboy/ack` replies for accepted commands.
-- OSC senders can query `/status` or `/state` and receive `/playboy/state` JSON replies.
-- Recent OSC senders also receive periodic `/playboy/state` feedback broadcasts.
+- OSC senders receive `/deckboy/ack` replies for accepted commands.
+- OSC senders can query `/status` or `/state` and receive `/deckboy/state` JSON replies.
+- Recent OSC senders also receive periodic `/deckboy/state` feedback broadcasts.
 
 ## Notes
 
 - This machine has the runtime pieces needed for the native build: `g++`, `cmake`, `SDL2`, `SDL2_ttf`, `ffmpeg`, and `ffprobe`.
-- The older browser prototype is still on disk for reference and can be launched with `./bin/playboy-web`, but it is no longer the default path.
+- The older browser prototype is still on disk for reference and can be launched with `./bin/deckboy-web`, but it is no longer the default path.
 - Browser cues currently rely on a Chromium-family browser already being available on the machine.
 - If a Dante or network audio device appears to the OS as a normal output device, Deckboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
 - NDI output is now optional and output-local. If the app finds NDI SDK headers at build time, it can dynamically load `libndi` at runtime and publish each enabled output as a network source.
 - Output NDI fill includes composited output video plus mixed stereo output audio; optional key output publishes a separate matte stream.
 - Output delay control currently applies to NDI/stream egress paths; window-output presentation remains immediate.
-- If NDI runtime libraries are not on your system path, set `PLAYBOY_NDI_LIB` to the full runtime library path.
+- If NDI runtime libraries are not on your system path, set `DECKBOY_NDI_LIB` to the full runtime library path.
 - Window Source / Camera Source / Syphon/Spout Source cues now run through real source transport in the native runtime:
   - `Window Source` = X11 capture path
   - `Camera Source` = V4L2 capture path
@@ -486,4 +499,8 @@ Notes:
 - Output create/assignment/type/mirror controls now ship in Preferences -> Video and via `VIDEO OUTPUT ...` commands.
 - Output network streaming (`SRT` + `RTMP`) is now per-output and ffmpeg-backed; stream outputs can mirror another output feed or render their own assignments.
 - Stream outputs now mux H.264 video + AAC stereo audio. Audio follows the output's assigned deck stack (with host-deck fallback when no assignments are present).
-- For deeper PlaybackPro/Mitti parity, the next logical upgrades are LTC/MTC ingest, DeckLink class outputs, and a more robust decode backend than subprocess-driven FFmpeg piping.
+- NDI metadata triggers are now live on Linux/macOS builds through a runtime-loaded `libndi` receive bridge. If the runtime library is not on your system path, set `DECKBOY_NDI_LIB`. If you need Deckboy to target a specific NDI source name, set `DECKBOY_NDI_TRIGGER_SOURCE`.
+- NMC transport sync is now live on Linux/macOS builds as a UDP transport/locate bridge with Mitti-style input/output behavior. Default mode is `input` on UDP `51010`; use `DECKBOY_NMC_MODE=output` to broadcast, `DECKBOY_NMC_PORT` to change port, `DECKBOY_NMC_HOST` to choose the output target, `DECKBOY_NMC_SOURCE` to filter inbound senders, and `DECKBOY_NMC_LOCATE_MS` to change rolling locate cadence.
+- The runtime/backend is live in Deckboy now, but I have not yet validated third-party Mitti/Vezér interop with a real source on this machine.
+- For deeper PlaybackPro/Mitti parity, the next logical upgrades are DeckLink class outputs, multichannel audio routing, and a more robust decode backend than subprocess-driven FFmpeg piping.
+- LTC ingest is now live on Linux/macOS builds through the default SDL capture input. If the runtime library is not on your system path, set `DECKBOY_LTC_LIB`. If you need a specific input device, set `DECKBOY_LTC_DEVICE` to the capture-device name SDL should open.
