@@ -1,5 +1,5 @@
 {
-  "name": "playboy",
+  "name": "deckboy",
   "version": "0.0.1",
   "private": true,
   "description": "Linux-first live media playback and show control app powered by FFmpeg tooling.",

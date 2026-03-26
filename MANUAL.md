@@ -14,7 +14,7 @@
 6. [Importing Media](#6-importing-media)
 7. [Cue Settings](#7-cue-settings)
 8. [Transport Controls](#8-transport-controls)
-9. [Playlists & Auto-Advance](#9-playlists--auto-advance)
+9. [Playlists & Cue Ending](#9-playlists--cue-ending)
 10. [Multi-Deck Operation](#10-multi-deck-operation)
 11. [Overlay Compositor](#11-overlay-compositor)
 12. [Test Patterns](#12-test-patterns)
@@ -49,20 +49,20 @@ chunky framing, and a "cartridge shelf" vocabulary.
 ## 2. Running the App
 
 ```bash
-cd /home/james/playboy
-./bin/playboy          # builds with CMake, then runs
+cd /home/james/deckboy
+./bin/deckboy          # builds with CMake, then runs
 ```
 
 Useful flags:
 
 ```bash
-./build/native/playboy-native --self-check   # verify dependencies
-./build/native/playboy-native --smoke        # automated smoke test
-./build/native/playboy-native --allow-multi-instance  # bypass safety lock (debug only)
-./scripts/generate_demo_shows.sh  # generate demo .playboy show files
-PLAYBOY_COMPANION_PORT=5610 ./bin/playboy    # custom Companion port
-PLAYBOY_PROJECT=/path/to/show.playboy ./bin/playboy  # open specific show
-DECKBOY_UI_PROFILE=1 ./bin/playboy  # UI timing + popup watchdog logs
+./build/native/deckboy-native --self-check   # verify dependencies
+./build/native/deckboy-native --smoke        # automated smoke test
+./build/native/deckboy-native --allow-multi-instance  # bypass safety lock (debug only)
+./scripts/generate_demo_shows.sh  # generate demo .deckboy show files
+DECKBOY_COMPANION_PORT=5610 ./bin/deckboy    # custom Companion port
+DECKBOY_PROJECT=/path/to/show.deckboy ./bin/deckboy  # open specific show
+DECKBOY_UI_PROFILE=1 ./bin/deckboy  # UI timing + popup watchdog logs
 ```
 
 `--self-check` now includes backend wiring diagnostics, including:
@@ -73,7 +73,7 @@ By default, Deckboy now enforces a single-instance launch lock to prevent
 runaway duplicate app spawns.
 
 Generated demo shows are written to `data/demos/` (for example
-`demo_70_30_4pip_bg_5deck.playboy`).
+`demo_70_30_4pip_bg_5deck.deckboy`).
 
 ---
 
@@ -264,13 +264,15 @@ contextual tip.
 | Type | Description |
 |------|-------------|
 | **Video** | Any FFmpeg-readable video file. Audio is decoded alongside. |
-| **Image** | Still image (JPEG, PNG, etc.) held until taken off or auto-advanced. |
+| **Image** | Still image (JPEG, PNG, etc.) held until taken off or advanced by cue-ending rules. |
 | **Pattern** | Procedurally generated test pattern — no file required. |
 | **Browser** | Web URL rendered via Xvfb + ffmpeg x11grab into the output window. |
 | **Window Source** | Live window/screen capture cue (`source://window/...`) using ffmpeg `x11grab` on Linux. |
 | **Camera Source** | Live camera cue (`source://camera/...`) using ffmpeg `v4l2` on Linux. |
 | **Syphon/Spout Source** | Inter-app source cue path (`source://syphon/...`); Linux currently uses desktop capture fallback while native Syphon/Spout backends remain roadmap work. |
+| **PIP** | Picture-in-picture overlay cue with its own source (media, browser, window, camera, or syphon/spout) rendered inside an inset window using the overlay stack. |
 | **Lower Third** | Graphic overlay pushed into the 4-slot overlay stack. |
+| **Composite** | Authored multiview / scene cue with saved slot sources and layout presets. The current first pass stores the scene model and renders a visible placeholder scene card while real live per-slot playback is the next phase. |
 
 ---
 
@@ -279,7 +281,7 @@ contextual tip.
 **Drag and drop** files directly onto the control window shell — they are
 probed with ffprobe and added to the focused deck's playlist.
 
-**Keyboard import**: press `Shift+I` to open the native file picker. Multiple files
+**Keyboard import**: press `I` to open the native file picker. Multiple files
 can be selected.
 
 **Browser cue**: press `B`, enter a URL in the dialog. The cue is added to the
@@ -288,12 +290,16 @@ playlist with a "web" type.
   cue panel `METADATA -> url` row and click `edit`.
 
 **Source cue**:
-- Use the bottom-bar `Source` selector to choose default source kind (`Window Source`, `Camera Source`, `Syphon/Spout Source`).
-- Click `SOURCE` to add immediately with default refs:
+- Click `SOURCE` to add a source cue.
+- For an existing source cue, use the cue inspector `METADATA` section:
+  - `type` dropdown changes between `Window Source`, `Camera Source`, and
+    `Syphon/Spout Source`
+  - `source` row sets the source reference directly in-menu (non-blocking
+    inline editor)
+- Default refs by type:
   - `window -> active-window`
   - `camera -> default-camera`
   - `syphon/spout -> default-bus`
-- For an existing source cue, use the cue panel `METADATA -> source` row and click `edit` to set the source reference directly in-menu (non-blocking inline editor).
 - The editor accepts plain words:
   - `focused` or `recommended` (window cues) -> focused window capture
   - `default` (camera/syphon cues) -> default device/bus
@@ -311,19 +317,77 @@ playlist with a "web" type.
   - `SOURCE SYPHON default-bus` (desktop fallback on Linux)
 
 **Pattern cue**:
-- Use the bottom-bar `Pattern` selector to choose the default pattern type.
-- Click `PATTERN` (or press `P`) to add that default pattern immediately.
+- Click `PATTERN` (or press `P`) to add a pattern cue immediately.
 - Use Companion `PATTERN <type>` for direct type add.
-- For an existing pattern cue, use the cue-settings dropdown:
+- For an existing pattern cue, use the cue inspector `PLAYBACK` section:
   - `Pattern Type: ... v` selects type
   - `motion` row toggles motion on/off (for supported types).
 
-**Lower Third**: press `G` to add a blank Lower Third overlay cue.
-Set the text via the `LOWERTEXT` and `LOWERSUB` Companion commands, or edit
-`lowertext` directly in the show file.
+**Lower Third**: authoring is temporarily parked during the `deckboy-0.60`
+cleanup pass.
+- Existing lower-third cues still load, can still be selected from the
+  `OVERLAY BIN`, and still expose their inspector controls.
+- New lower-third cue creation is intentionally not exposed in the bottom
+  `MEDIA` group or hotkeys right now.
+- Edit the title and subtext directly in the cue inspector.
+- Companion `LOWERTEXT` / `LOWERSUB` commands still work for remote updates.
 - In the cue panel:
-  - `PLAYBACK` shows the preview, background alpha, duration, and `CLEAR OVERLAY`
-  - `METADATA` shows tag, notes, cue id, and the Companion text hint.
+  - `PLAYBACK` shows the preview, background alpha, title, subtext, duration,
+    and `CLEAR OVERLAY`
+  - `METADATA` shows tag, notes, cue id, and the local edit/live hint.
+
+**PIP**: authoring is temporarily parked during the `deckboy-0.60` cleanup
+pass.
+- Existing PIP cues still load, can still be selected from the `OVERLAY BIN`,
+  and still expose their inspector controls.
+- New PIP cue creation is intentionally not exposed in the bottom `MEDIA`
+  group or hotkeys right now.
+- In the cue inspector:
+  - `PLAYBACK -> type` chooses the PIP source:
+    `Media File / Still`, `Browser URL`, `Window Source`, `Camera Source`, or
+    `Syphon/Spout Source`
+  - `PLAYBACK -> media/url/source` sets the actual source value for that PIP
+  - `PLAYBACK -> corner` gives direct `TL / TR / BL / BR` placement presets
+  - `PLAYBACK -> size` gives direct `SM / BIG / 70/30` presets before fine
+    geometry tweaks
+  - `GEOMETRY` controls placement and size using the normal scale/offset/rotation
+    controls
+  - `KEY` and colour controls apply to the rendered inset itself
+- Older cue-linked PIP items still load as `Legacy Cue Link`, but new work
+  should use the self-contained source picker above.
+- `PIP` cues are overlay cues: taking them pushes them into the overlay stack
+  instead of replacing the main cue.
+
+**Composite / Scene**: authoring is temporarily parked during the
+`deckboy-0.60` cleanup pass.
+- Existing composite/scene cues still load and expose their inspector fields.
+- New scene cue creation is intentionally not exposed in the bottom `MEDIA`
+  group or hotkeys right now.
+- In the cue inspector:
+  - `PLAYBACK` controls duration / hold / fades / end action for the scene cue
+  - `SCENE` gives layout presets:
+    - `2-UP`
+    - `70/30`
+    - `QUAD`
+  - `slot a/b/c/d` accept self-contained source specs:
+    - plain media path
+    - `browser:https://...`
+    - `window:active-window`
+    - `camera:default-camera`
+    - `syphon:default-bus`
+  - `audio` cycles which scene slot is treated as the primary audio source
+  - `OVERLAYS` still lets a main scene fire a reusable lower third or PIP from
+    the overlay bin on `TAKE`
+- Current limitation of this first pass:
+  - the scene cue saves and recalls slot sources/presets and renders a visible
+    scene placeholder in Program / Preview / Output
+  - live per-slot media/browser/source playback is still the next phase
+
+**Per-cue attached overlays**:
+- Main playback cues now have an `OVERLAYS` section in the cue inspector.
+- `lower 3rd` selects a reusable lower-third overlay from the `OVERLAY BIN`.
+- `pip` selects a reusable PIP overlay from the `OVERLAY BIN`.
+- Attached overlays fire on `TAKE` only; they do not retrigger on loop cycles.
 
 ---
 
@@ -419,6 +483,12 @@ and canvas/view/warp controls, or Companion commands (`VIDEO OUTPUT ...`,
 `VIDEO OUTPUT LAYOUT`, `VIDEO OUTPUT ORIENTATION`, `VIDEO OUTPUT TESTCARD`)
 for precise values.
 
+Warp editing quality-of-life:
+- The warp overlay now includes `SAVE`, `COPY`, and `PASTE`.
+- `SAVE` uses Deckboy's inline text editor instead of the old modal name prompt.
+- `COPY` / `PASTE` duplicate the focused deck's current warp + edge-blend
+  settings.
+
 ### Still / pattern / browser cues
 
 | Control | Description |
@@ -467,11 +537,11 @@ if playing, pauses; if paused, resumes.
 
 ---
 
-## 9. Playlists & Auto-Advance
+## 9. Playlists & Cue Ending
 
 | Setting | Key | Description |
 |---------|-----|-------------|
-| Auto-advance | `3` | When active cue ends, advance and take next cue automatically |
+| Cue ending | cue `hold` toggle | Video/image cues hold by default; with hold off, Deckboy advances to the next cue automatically |
 | Playlist loop | `4` | After the last cue, wrap back to cue 1 |
 | Shuffle | Companion `SHUFFLE ON` | Randomise playback order |
 | Reorder cue | `Shift+Up / Shift+Down` | Move selected cue in the list |
@@ -490,7 +560,7 @@ tools inherit the focused deck's playlist defaults.
 
 Each deck has its own:
 - Playlist and cue selection
-- Audio device
+- Audio device selection (`Prefs -> Audio`)
 - Transport state (play/pause/stop)
 - Timecode clock
 
@@ -642,12 +712,12 @@ Use this exact flow:
 
 1. **Window Output**  
    - In `Prefs -> Video Outputs`: click `Create Window` (creates a new `window` output, initially `off`).
-   - In `Prefs -> Video Outputs`: select output, keep type as `Window`, assign display, then arm `Enabled`.
+   - In `Prefs -> Video Outputs`: select the output, keep type as `Window`, assign the display, then switch it to `OUTPUT ON`.
 
 2. **Stream Output (SRT/RTMP)**  
    - In `Prefs -> Video Outputs`: click `Create Stream` (new output target with type `stream`).
    - If needed, use `Set Stream` on an existing output.
-   - Set `Stream URL...`, protocol (`SRT`/`RTMP`), bitrate, then `Stream ON`.
+   - Set `Stream URL...`, protocol (`SRT`/`RTMP`), bitrate, switch the output to `OUTPUT ON`, then set `STREAMING: ON`.
    - Optional: set `Mirror` to mirror another output feed.
 
 3. **NDI Output**  
@@ -661,24 +731,34 @@ Use this exact flow:
 Current stream implementation notes:
 - Streaming is per-output.
 - Stream outputs can mirror another output feed, or render their own assignments when mirror is `off`.
-- Stream ffmpeg path now muxes H.264 video + AAC stereo audio.
-- Audio source follows the output assignment stack (host deck fallback if no assignments are present).
+- Stream ffmpeg path now muxes H.264 video with an AAC stereo carrier track.
 - Output transforms for that output (`layout`, `orientation`, and `test card`) are applied before stream/NDI egress.
+- Local SRT loopback test:
+  `Stream URL = srt://127.0.0.1:9000?mode=caller&transtype=live`
+  start listener first with
+  `ffplay -fflags nobuffer -flags low_delay "srt://0.0.0.0:9000?mode=listener&transtype=live"`
 
 ---
 
 ## 11. Overlay Compositor
 
-Up to 4 Lower Third cues can be stacked simultaneously in z-order.
+Up to 4 overlay cues can be stacked simultaneously in z-order. `Lower Third`
+and `PIP` cues both live in that overlay stack.
+
+On the control surface, overlay-only cues now live in a separate `OVERLAY BIN`
+under the main playlist. That keeps the primary rundown focused on normal
+playback cues while still letting overlays be selected, inspected, and fired
+independently.
 
 | Action | Key | Companion |
 |--------|-----|-----------|
-| Push cue to overlay stack | `Enter` on a LowerThird cue | `OVERLAY PUSH <n>` |
+| Push cue to overlay stack | `Enter` on a LowerThird or PIP cue | `OVERLAY PUSH <n>` |
 | Pop top overlay | `Backspace` | `OVERLAY POP` |
 | Clear all overlays | — | `OVERLAY CLEAR` |
 
-Overlays are rendered above video with independent accent colours per slot.
-Each slot fades independently based on the cue's fade-in/fade-out settings.
+Lower Third overlays render as graphic bars/text. `PIP` overlays render the
+self-contained PIP source inside an inset window using the PIP cue's
+geometry/color/key settings.
 
 ---
 
@@ -763,7 +843,7 @@ the clock can run smoothly between updates.
 ## 15. NDI Output
 
 NDI output is optional and per-output. If NDI SDK headers were present at build
-time and a valid NDI runtime library is available (or `PLAYBOY_NDI_LIB` is
+time and a valid NDI runtime library is available (or `DECKBOY_NDI_LIB` is
 set), each output target can publish a network NDI source.
 
 | Action | Key | Companion |
@@ -795,13 +875,13 @@ with the programme stream.
 | Return to system default | — | `AUDIO DEFAULT` |
 | Set volume | `+ / -` | `VOLUME 75` |
 | Toggle UI sounds | `1` | `SFX ON / OFF` |
-| Toggle UI animations | `2` | `ANIM ON / OFF` |
+| UI motion | always on | `ANIM` keeps motion enabled |
 
 ---
 
 ## 17. Show Files
 
-Show files use the `.playboy` extension (plain text, tab-delimited).
+Show files use the `.deckboy` extension (plain text, tab-delimited).
 
 | Action | Key |
 |--------|-----|
@@ -811,12 +891,12 @@ Show files use the `.playboy` extension (plain text, tab-delimited).
 
 UI equivalents are always visible in the main header:
 - `New` starts a blank show.
-- `Open` loads a `.playboy` show from picker.
+- `Open` loads a `.deckboy` show from picker.
 - `Save` writes the current show file immediately.
-- `SaveAs` chooses a new `.playboy` path and writes immediately.
+- `SaveAs` chooses a new `.deckboy` path and writes immediately.
 
-The default show file is `data/default.playboy` in the project directory. Set
-`PLAYBOY_PROJECT=/path/to/show.playboy` to use a different path at launch.
+The default show file is `data/default.deckboy` in the project directory. Set
+`DECKBOY_PROJECT=/path/to/show.deckboy` to use a different path at launch.
 
 ---
 
@@ -840,12 +920,12 @@ Each Companion button sends a plain-text command string. Commands are
 case-insensitive.
 
 Network tab notes:
-- `Settings -> Network -> Change port...` updates Companion/OSC UDP+TCP port live.
-- OSC Query HTTP is separate and optional (see section 19).
+- `Settings -> Network -> Remote Control` updates Companion/OSC UDP+TCP port live.
+- `Settings -> Network -> OSC Query / Feedback` controls OSC Query HTTP and mirrored canonical state.
 - Integration adapter toggles (ATEM/NDI trigger/NMC/MTC/LTC/DMX-ArtNet) live in
-  `Settings -> Network -> INTEGRATION ADAPTERS`.
+  `Settings -> Network -> Integration Adapters`.
 - Runtime bridges in this build:
-  - ATEM UDP trigger bridge on port `9910` (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - ATEM UDP trigger bridge on port `9910` (`DECKBOY_ATEM_BRIDGE_PORT` override)
   - Art-Net trigger bridge on configured `ARTNETPORT`
   - MTC ingest from ALSA MIDI quarter-frame events when `MTC ON`.
 
@@ -902,9 +982,9 @@ Integration runtime bridge behavior:
   - ch9 `TAKE <value>`, ch10 `GROUP <value> FIRE`.
 
 OSC bundles (`#bundle`) are supported. Accepted commands receive a
-`/playboy/ack` reply. The `/status` and `/state` addresses return
-`/playboy/state` JSON replies. Recent OSC senders also receive periodic
-`/playboy/state` feedback broadcasts.
+`/deckboy/ack` reply. The `/status` and `/state` addresses return
+`/deckboy/state` JSON replies. Recent OSC senders also receive periodic
+`/deckboy/state` feedback broadcasts.
 
 When OSC Query is enabled:
 - `http://127.0.0.1:<oscQueryPort>/` shows a simple endpoint browser.
@@ -912,7 +992,7 @@ When OSC Query is enabled:
 - `http://127.0.0.1:<oscQueryPort>/state.json` returns live status JSON only.
 
 Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
-(`/playboy/deck/*`, `/playboy/output/*`, `/playboy/integration/*`) at the configured rate limit.
+(`/deckboy/deck/*`, `/deckboy/output/*`, `/deckboy/integration/*`) at the configured rate limit.
 
 ---
 
@@ -942,6 +1022,10 @@ Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
 ### Cue settings
 | Key | Action |
 |-----|--------|
+| `Ctrl+C` | Copy selected cue settings |
+| `Ctrl+V` | Paste copied cue settings to selected cue(s) |
+| `Ctrl+Shift+C` | Copy focused deck warp settings |
+| `Ctrl+Shift+V` | Paste copied warp settings to focused deck |
 | `L` | Toggle loop |
 | `E` | Toggle hold on last frame |
 | `X` | Cycle end action |
@@ -955,18 +1039,16 @@ Optional mirror mode (`OSCFEEDBACK ON`) sends canonical value OSC updates
 ### Adding cues
 | Key | Action |
 |-----|--------|
-| `I` | Set trim-in at current playhead on active video cue (frame-snapped) |
-| `Shift+I` | Import media (file picker) |
-| `B` | Add browser cue |
+| `I` | Import media (file picker) |
+| `Ctrl/Cmd+I` | Set trim-in at current playhead on active video cue (frame-snapped) |
+| `Ctrl/Cmd+O` | Set trim-out at current playhead on active video cue (frame-snapped) |
+| `B` | Add browser cue (inline URL editor) |
 | `P` | Add Pocket Test pattern |
-| `G` | Add Lower Third cue |
 
 ### UI toggles
 | Key | Action |
 |-----|--------|
 | `1` | Toggle UI sounds |
-| `2` | Toggle UI transitions / animations |
-| `3` | Toggle auto-advance |
 | `4` | Toggle playlist loop |
 | `5` | Toggle timecode chase mode |
 | `T` | Toggle timecode run mode |
@@ -1297,8 +1379,21 @@ INTEGRATIONS [STATUS]     show adapter route summary
 ```
 
 Runtime note:
-- `ATEM`, `MTC`, and `ARTNET` are live in this Linux build.
-- `NDITRIGGER`, `NMC`, and `LTC` remain scaffolded command surfaces.
+- `ATEM`, `NDITRIGGER`, `NMC`, `MTC`, `LTC`, and `ARTNET` are live in this Linux build.
+- `NDITRIGGER` listens to incoming NDI metadata frames and maps them into the
+  same command path used by Companion/OSC text control. If you need Deckboy to
+  lock to a specific source name, set `DECKBOY_NDI_TRIGGER_SOURCE`. If the NDI
+  runtime library is not on your system path, set `DECKBOY_NDI_LIB`.
+- `NMC` is a UDP transport/locate bridge with Mitti-style input/output modes:
+  - default mode is `input`, listening on UDP `51010`
+  - set `DECKBOY_NMC_MODE=output` to broadcast transport+locate updates instead
+  - set `DECKBOY_NMC_PORT` to change the UDP port
+  - set `DECKBOY_NMC_HOST` to change the output target (default broadcast)
+  - set `DECKBOY_NMC_SOURCE` to filter accepted sender IP/name text in input mode
+  - set `DECKBOY_NMC_LOCATE_MS` to change output locate cadence while rolling
+  - inbound NMC commands are ignored while Deckboy is actively timecode-chasing
+  - the runtime behavior is live; third-party Mitti/Vezér interop still needs a real signal test
+- `LTC` listens on the default SDL capture device unless `DECKBOY_LTC_DEVICE` is set. If `libltc` is not on your runtime path, set `DECKBOY_LTC_LIB`.
 
 ### Status
 

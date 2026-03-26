@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Playboy contributors
+// Copyright (C) Deckboy contributors
 
 #include "render/text_renderer.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 void TextRenderer::drawText(SDL_Renderer* renderer, TTF_Font* font,
                             const std::string& text, const SDL_Color& color,
@@ -92,4 +92,4 @@ SDL_Texture* TextRenderer::textToTexture(SDL_Renderer* renderer, TTF_Font* font,
   return texture;  // Caller responsible for SDL_DestroyTexture
 }
 
-}  // namespace playboy::render
+}  // namespace deckboy::render

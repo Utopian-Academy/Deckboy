@@ -1,4 +1,43 @@
+# Build output
 build/
-data/*.playboy
+*.o
+*.d
+
+# Project data (user-specific)
+data/*.deckboy
 data/project.json
 data/posters/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cache/
+compile_commands.json
+
+# Node (companion module)
+node_modules/
+
+# Dev screenshots and reference images in root
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.mp4
+/*.bmp
+
+# Old version snapshots
+Deckboy_0.55/
+
+# UI playground (dev scratch)
+UI Playground/
+
+# Local fork reference (not part of this repo)
+playboy/

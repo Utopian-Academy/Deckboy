@@ -1,3 +1,18 @@
+  1. Dedicated "Output" panel — pull edge blending, warp mode, canvas, orientation, default transition, and output dimmer into a visible always-on panel (or a
+   tab in the main workspace), not hidden inside settings                                                                                                     
+  2. Undo/redo — critical for a live production tool, especially with the warp editor where accidental drags happen                                           
+  3. Cue preview on hover/select — show a thumbnail preview of the next cue before taking it live (the preview monitor area exists but may not be wired)      
+  4. Keyboard shortcut overlay — show a cheat sheet (Ctrl+?) since there are many bindings now                                                                
+  5. Warp editor snap-to-grid — hold Shift while dragging corners for constrained movement                                                                    
+  6. Output confidence monitor — small always-visible thumbnail of actual output in the main window, not just the program monitor                             
+  7. Cue timing countdown — show remaining time prominently near the transport, not just position                                                             
+  8. Multi-cue batch editing — apply speed/transition/color to all selected cues at once                                                                      
+  9. Drag-and-drop import — drop files directly onto the cue list                                                                                             
+  10. Save/load warp presets — common projector setups as named presets    
+
+
+
+
 2026-03-07 Operator confidence pass — audit + targeted UX fixes:
 - Audited full renderControlWindow / renderMainPanel / renderCueRow stack.
 - Compacted status strip: 100px → 40px. Removed WORKSPACE metadata block and
@@ -11,7 +26,7 @@
   h=14 to remain within row bounds. Deck playlist now shows 1-2 more rows
   before scrolling.
 - Build/validation:
-  - cmake --build '/home/james/playboy (another copy)/build' -j4 ✅
+  - cmake --build '/home/james/deckboy (another copy)/build' -j4 ✅
   - smoke failures: 0 ✅
 
 2026-03-06 Phase 5 UI refinement + core stability:
@@ -36,8 +51,8 @@
   - `startNewShow` now explicitly clears stale preview thumbnails.
   - Secondary windows are suppressed while splash/startup dialog is active.
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-06 Phase 4 inline editing + floating panel workspace:
 - Panel workspace state now persists docked/floating/hidden presentation
@@ -51,8 +66,8 @@
   cue goto, notes, browser URL, cue ID.
 - Continued safe-text cleanup across quit/startup/about/video-settings surfaces.
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j1` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j1` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-06 Phase 3 workflow polish + selector cleanup:
 - Converted remaining operational selection surfaces to the shared non-blocking
@@ -75,8 +90,8 @@
   - settings modal title/tabs/output summary
   - dropdown popovers
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j1` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j1` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-06 Phase 2 operational panel split:
 - Refactored the live control workspace into explicit operational panels:
@@ -102,8 +117,8 @@
   - only Deck Playlist has a true floating window surface today
   - other panels are modular and workspace-persisted, but still docked
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j1` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j1` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-06 workspace foundation slice:
 - Added Phase 1 UI architecture scaffolding in `native/main.cpp`:
@@ -135,8 +150,8 @@
   - named workspace presets
   - full modal/popup panel restoration
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j1` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j1` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-06 operator terminology normalization pass:
 - Normalized active operator-facing UI/docs terminology:
@@ -153,10 +168,10 @@
   - rename prompt now `Master Cue Name`
 - Kept compatibility aliases intact:
   - `GROUP` and `SCENE` remain accepted aliases
-  - `.playboy`, `PLAYBOY_*`, `/playboy/*`, and `playboy-native` are unchanged.
+  - `.deckboy`, `DECKBOY_*`, `/deckboy/*`, and `deckboy-native` are unchanged.
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 audio inspector metadata section pass:
 - Audio cues now use the same grouped inspector flow:
@@ -166,8 +181,8 @@
 - Moved audio tag, notes, cue id, and pause-point controls into `METADATA`.
 - Audio loop/hold/end controls now use the shared panel/text-safe helpers.
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 inspector metadata section pass:
 - Finished the remaining inspector cleanup for:
@@ -182,8 +197,8 @@
   - boxed metadata section
   - clickable `CLEAR OVERLAY` row wired to the existing overlay clear action.
 - Build/validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 inspector section + routing alignment pass:
 - Cue inspector now uses grouped section cards for:
@@ -202,8 +217,8 @@
   - buttons get stronger visual weight via top bands
   - title font switches down automatically when a button is narrow or label is long.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 grid layout cleanup pass:
 - Added reusable control-window layout helpers in `native/main.cpp`:
@@ -226,8 +241,8 @@
   - cleaner progress + seek row spacing
   - cue details/footer boxed cleanly at the bottom of center panel.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 output activation UX pass (health + recover/disarm):
 - Added explicit output health states in runtime:
@@ -249,8 +264,8 @@
 - Cleanup:
   - removed unused `kOutputMenuActionToggle` click-path after chip actions switched to `REC` + `OFF`.
 - Validation:
-  - build: `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - smoke: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - build: `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - smoke: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 UI cleanup + non-blocking dropdown pass:
 - Added `DECKBOY_UI_PROFILE=1` logging:
@@ -291,13 +306,13 @@
 - Bottom controls reorganized into `MEDIA / TRANSPORT / OUTPUT` groups.
 - Main layout now reserves explicit bottom-bar space; overlapping controls/content fixed.
 - Validation:
-  - build: `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - smoke: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - self-check: `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - build: `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - smoke: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - self-check: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 integration runtime pass (ATEM + MTC + Art-Net):
 - Implemented ATEM UDP trigger bridge runtime:
-  - default UDP listen port `9910` (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - default UDP listen port `9910` (`DECKBOY_ATEM_BRIDGE_PORT` override)
   - payloads mapped via internal `ATEMEVENT` command ingress.
 - Implemented Art-Net trigger runtime:
   - listens on configured Art-Net port
@@ -312,9 +327,9 @@
   - `atem`, `mtc` (ALSA), `dmx-artnet` now report supported on Linux build.
 - Network settings panel now shows bridge ports and Art-Net port edits hot-restart listener.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 integration adapter foundation (ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet):
 - Added platform integration backend planner module:
@@ -334,11 +349,11 @@
 - Status/feedback visibility:
   - `STATUS` now includes `integrations="..."`
   - `STATUS JSON` includes `integrationRoute` + `integrations{...}`
-  - OSC mirror now includes `/playboy/integration/*`
+  - OSC mirror now includes `/deckboy/integration/*`
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 portability follow-up (runtime egress route wrappers):
 - Output runtime dispatch now uses backend route planning:
@@ -352,9 +367,9 @@
   - capture backend planning check
   - output backend route planning check.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 portability architecture pass (capture/output backend planning APIs):
 - Capture backend interfaces expanded from catalog-only into executable plan APIs:
@@ -372,9 +387,9 @@
 - Docs updated:
   - `MANUAL.md`, `DEVNOTES.md`, `docs/PARITY_MITTI.md`, `CHANGES.md`
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 stream deck profile package pass:
 - Added official Stream Deck + Companion mapping bundle:
@@ -401,13 +416,13 @@
 - Status/feedback additions:
   - `STATUS` deck lines include `warp_mode`
   - `STATUS JSON` deck payload includes `warpMode`
-  - OSC mirror includes `/playboy/deck/<n>/warp_mode`
+  - OSC mirror includes `/deckboy/deck/<n>/warp_mode`
 - Docs updated:
   - `MANUAL.md`, `CHANGES.md`, `DEVNOTES.md`, `docs/PARITY_MITTI.md`
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 output parity ux pass (span/duplicate + orientation + test card):
 - Extended `OutputTarget` with:
@@ -433,8 +448,8 @@
   - `VIDEO OUTPUT TESTCARD ...`
 - Status + OSC mirror now include output layout/orientation/test-card fields.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 multi-select inspector parity pass:
 - Added multi-selection cue inspector mode with:
@@ -450,8 +465,8 @@
   - still duration, lower-third alpha, repeat count, speed.
 - Added first-eligible cue lookup for mixed selections to avoid noop when focused cue kind is incompatible.
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
 
 2026-03-05 osc query + osc mirror feedback pass:
 - Implemented optional OSC Query HTTP server (Linux path) with:
@@ -471,9 +486,9 @@
   - `OSCQUERY`, `OSCQUERYPORT`, `OSCFEEDBACK`, `OSCFEEDBACKRATE`
   - `/oscquery`, `/oscquery/port`, `/osc/feedback`, `/osc/feedback/rate`
 - Validation:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` ✅
-  - `'/home/james/playboy (another copy)/build/playboy-native' --self-check` ✅
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` ✅
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check` ✅
 
 2026-03-05 ui clarity pass (header/stack/routing/splash):
 - Main header now includes compact per-deck live summary while keeping show + net/tc state.
@@ -492,8 +507,8 @@
 - Removed sprite-character rendering functions from operational UI code paths.
 - Added `DEVNOTES.md` with layout/palette/icon/routing extension notes.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 output fx controls pass (alpha/delay/overlay/color-space):
 - Added per-output FX fields and persistence:
@@ -523,8 +538,8 @@
 - Docs updated:
   - `MANUAL.md`, `README.md`, `CHANGES.md`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 live source runtime pass (window/camera/syphon):
 - Implemented active source-capture runtime path in `MediaEngine` (not placeholder-only):
@@ -543,8 +558,8 @@
 - Docs updated:
   - `MANUAL.md`, `README.md`, `CHANGES.md`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 output operations flow + source cue scaffold:
 - Video Outputs workflow cleanup:
@@ -560,8 +575,8 @@
   - OSC mappings: `/source`, `/source/window`, `/source/camera`, `/source/syphon`, `/source/spout`.
   - runtime now renders source cues via a common placeholder frame path so routing/transport/save-load can be exercised end-to-end while capture backends are implemented.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 ndi refactor follow-up (output-scoped + portability guardrails):
 - NDI runtime path is now output-scoped only:
@@ -578,8 +593,8 @@
 - Docs updated:
   - `MANUAL.md`, `README.md`, `PORTABILITY.md`, and `CHANGES.md` now reflect per-output NDI and cross-platform roadmap constraints.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 ui declutter + i/o workflow clarity follow-up:
 - Removed sprite/mascot rendering from live control/menu surfaces.
@@ -596,15 +611,15 @@
     - stream output (`SRT`/`RTMP`)
     - NDI (superseded later the same day by output-scoped NDI)
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 demo show generator + preset layouts:
-- Added `scripts/generate_demo_shows.sh` to create repeatable demo `.playboy` files.
+- Added `scripts/generate_demo_shows.sh` to create repeatable demo `.deckboy` files.
 - Generated demos in `data/demos/`:
-  - `demo_70_30_4pip_bg_5deck.playboy` (full BG + 4 right-column PiPs, 5 decks)
-  - `demo_quad_2x2_4pip_bg_5deck.playboy` (full BG + 2x2 PiP quad, 5 decks)
-  - `demo_program_preview_clean_3deck.playboy` (program + preview PiP + bug, 3 decks)
+  - `demo_70_30_4pip_bg_5deck.deckboy` (full BG + 4 right-column PiPs, 5 decks)
+  - `demo_quad_2x2_4pip_bg_5deck.deckboy` (full BG + 2x2 PiP quad, 5 decks)
+  - `demo_program_preview_clean_3deck.deckboy` (program + preview PiP + bug, 3 decks)
 - Added `data/demos/README.md` with quick layout notes.
 - Validation:
   - Generator ran successfully and wrote all expected files.
@@ -621,8 +636,8 @@
   - mouse wheel over programmer row cycles slot cue up/down.
   - removed unused popup-based master-slot picker function path.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 mitti parity p1 follow-up (panic timing + find + timecode follower):
 - Completed panic timing/options wiring:
@@ -665,8 +680,8 @@
 - Added OSC parity mappings for cue tooling:
   - `/find`, `/find/next`, `/find/prev`, `/find/take`, `/find/clear`, `/renumber`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 mitti parity p0 (playback semantics):
 - Added Preferences -> Audio playback controls:
@@ -684,8 +699,8 @@
   - `jump_transition`
   - `panic_profile`
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 single-mode + bigger/cuter decks refresh:
 - Kept one operating flow (Super Deckboy) in this pass; did not add a two-mode split.
@@ -699,8 +714,8 @@
   - main transport wording updated to `Play/Pause`
   - master-cue programmer now uses inline `-` / `+` cue cycling per deck slot (replacing popup-heavy `Pick` in sidebar path).
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 pocket test creature/scene expansion:
 - Expanded procedural test-pattern adventure scene (Nintendo-like vibe, original sprites only).
@@ -714,8 +729,8 @@
   - crab, jumping fish, parrot, turtle, dino-style enemy, puff friend
   - plus existing explorer + coin line + tropical environment.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 output display auto-native quality pass:
 - Changing focused output display target now auto-enables display-native sizing if fixed raster mode was active.
@@ -724,8 +739,8 @@
 - Added Video-tab info hint:
   - "Display assign auto-switches to native mode for quality."
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 always-visible sidebar + master-cue programming clarity:
 - Main-window master-cue sidebar is now always visible (no hide toggle path).
@@ -741,8 +756,8 @@
   - larger deck column headers/buttons/cue rows
   - added cue interaction hint text.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 decks always-on + sidebar programming pass:
 - Deck window behavior updated:
@@ -754,8 +769,8 @@
   - per deck slot controls: `Sel`, `Act`, `Byp`, `Pick`
   - keeps focused master cue selection/firing in sidebar list rows.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j2`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j2`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 sidebar role swap (user-requested):
 - Switched UI split per user direction:
@@ -770,11 +785,11 @@
   - tracker column now shows `tc` (timecode) instead of master-cue columns.
   - window title now reads `Deckboy Decks`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 close/quit stuck-instance fix:
-- Confirmed two orphaned running instances (`playboy-native`) that did not exit on window-close path.
+- Confirmed two orphaned running instances (`deckboy-native`) that did not exit on window-close path.
 - Immediate recovery during session:
   - terminated stuck instances via `kill -9`.
 - Code fix:
@@ -783,8 +798,8 @@
   - decks-window close now hides that window cleanly.
   - output-window close now disarms that output (`output off`) for safer runtime cleanup.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 left sidebar deck control pass:
 - Added collapsible left deck sidebar in main window (`side` button in header).
@@ -797,8 +812,8 @@
 - Sidebar paging follows focused deck for larger deck counts.
 - Moved `side` toggle to the left-side outputs strip so the control lives on the same side as the sidebar.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 per-deck transport/timecode follow-up:
 - Added per-deck transport controls directly in `Deckboy Master Cues` deck columns:
@@ -812,8 +827,8 @@
   - top tracker now pages around the focused deck
   - reserved minimum space for deck playlist grid so it remains visible with high deck counts.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 decks window split follow-up:
 - Main control window layout changed to output/program-first:
@@ -824,8 +839,8 @@
   - click cue row = select cue for that deck
   - per-deck `Take` button = fire selected cue (menu-only friendly).
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 menu-first pattern follow-up:
 - Shifted pattern access toward UI menus (per user preference):
@@ -844,8 +859,8 @@
   - `PATTERN LIST` quick count
   - `PATTERN <type> MOTION` shorthand.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 I've analyzed the project: it's a Linux-first C++ app using SDL2 and FFmpeg subprocesses, with a massive 496KB main.cpp monolith. It has a newer native
   version and an older Node.js prototype. Key issues include Linux-only browser and MIDI implementations, missing pro features like DeckLink and Siphon/Spout. My strategy involves refactoring main.cpp, transitioning to FFmpeg LibAV, implementing cross-platform MIDI and
@@ -879,8 +894,8 @@ I've analyzed the project: it's a Linux-first C++ app using SDL2 and FFmpeg subp
   - `STATUS` text now includes `OUTPUT ...` rows (type, host, display, mirror, stream details).
   - `STATUS JSON` now includes `focusedOutput`, `outputCount`, and `outputs[]`.
 - Build verification:
-  - `cmake --build '/home/james/playboy (another copy)/build' -j4` passed
-  - `'/home/james/playboy (another copy)/build/playboy-native' --smoke` passed (`smoke failures: 0`)
+  - `cmake --build '/home/james/deckboy (another copy)/build' -j4` passed
+  - `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` passed (`smoke failures: 0`)
 
 User intent that remains:
 - Major UX shift: separate, expandable decks-at-a-glance window with cue numbers visible.
@@ -932,8 +947,8 @@ Latest user product direction:
   - Stream outputs read from routed deck assignment stack (with host deck fallback when no assignments).
   - Linux pipe path uses per-output FIFO in `/tmp` and is created/cleaned with stream lifecycle.
 - Stability/validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 Next practical UX target (still open):
 - Richer cue picker in decks window (scrollable/list-based chooser rather than token-entry popup).
@@ -1024,8 +1039,8 @@ Refactor note:
   - row cue-name column now reflects focused master-cue slot assignment (not selected cue)
 - Removed static `cute mode` text from toast overlay.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 follow-up fix (user-reported regressions):
 - Addressed fullscreen takeover on startup/open:
@@ -1038,8 +1053,8 @@ Refactor note:
   - `Save` now writes immediately
   - `SaveAs` now writes immediately once path is chosen
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 plain-English Video tab pass:
 - Video preferences layout adjusted so output controls no longer obscure status text at top of tab.
@@ -1051,8 +1066,8 @@ Refactor note:
   - dark assigned cell = primary route for that deck
   - mode explanation rewritten in plain English
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 follow-up polish (video menu legibility):
 - Added pixel-width ellipsis on Video-tab status lines so long text is clipped to the left info panel instead of drawing under right-side controls.
@@ -1065,8 +1080,8 @@ Refactor note:
   - assigned layer label now reads `Background` for layer 0, then `Layer N` for higher layers
   - mode hints now explicitly explain move-vs-add click behavior in plain English
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 routing/display reliability patch:
 - Removed blocking layer-index popup flow from Video-tab routing interactions (this was causing "freeze" behavior if external dialogs were hidden/focus-blocked).
@@ -1081,8 +1096,8 @@ Refactor note:
   - runtime checks now detect display count changes after launch and auto-refresh output display mapping
   - `Rescan` button performs manual display topology refresh without restart
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 routing manager cleanup (user screenshot feedback):
 - Replaced dense Deck x Output matrix workflow with a clearer Routing Manager layout in Video tab:
@@ -1093,16 +1108,16 @@ Refactor note:
 - Removed extra clutter text around display controls; top-right display controls remain `Prev`, `Next`, `Rescan` with live label.
 - Kept layer edit non-blocking (no popup) to avoid freeze-style behavior.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 output-to-display reliability tweak:
 - For enabled `window` outputs, changing display target now immediately forces fullscreen on that display.
 - Enabled output windows are explicitly raised after display-apply to avoid hidden-window scenarios.
 - This addresses user report: routed output assigned to display 2 but no visible program on that display.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 master-cue assignment lockup fix:
 - Root cause: `mc` click in Deckboy Master Cues still opened external picker dialog (`pickChoiceFromList`), which could steal/block focus and appear as lockup.
@@ -1112,8 +1127,8 @@ Refactor note:
   - right-click `mc` = bypass toggle
 - Updated in-window hint text accordingly.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 all-output recovery hardening:
 - Added `recoverWindowOutputIfNeeded(outputIndex)` and applied it globally for enabled `window` outputs.
@@ -1127,8 +1142,8 @@ Refactor note:
   - recovery now treats SDL "unknown display index" (`<0`) as mismatch and repairs placement.
   - recovery toast now names the target display for the output being recovered.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 output control discoverability pass (user feedback):
 - Problem reported: output creation and deck->output layer routing were present but not apparent in UI.
@@ -1139,8 +1154,8 @@ Refactor note:
   - plain-English focused route status line (`Deck N -> Output N ...`)
 - Existing output focus/arm toggles (`O1`, `O2`, ...) remain unchanged.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 deck-window visibility reliability pass:
 - Added explicit `decks` toggle button in main header so operator can show/hide the separate decks panel directly.
@@ -1149,8 +1164,8 @@ Refactor note:
 - Added clear operator feedback:
   - clicking `decks` with only one deck shows toast: `add deck 2 to open decks panel`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 emergency control-display escape:
 - User requirement: when an output fullscreen takes over internal display/control monitor, operator needs fast way out.
@@ -1159,8 +1174,8 @@ Refactor note:
   - fallback checks fullscreen outputs on the same display as control window
   - if neither applies, `Esc` remains quit-confirm path
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 docs sync pass:
 - Reviewed `CHANGES.md`, `README.md`, `MANUAL.md`, and `Notes` to rebuild latest session context in this working copy.
@@ -1185,8 +1200,8 @@ Refactor note:
 - Safety behavior refinement:
   - pressing `Esc` from an output window that is already windowed is treated as handled output-safety input (no fall-through to quit-confirm path)
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 triple-Esc panic safety:
 - Added repeated-`Esc` output safety shortcut:
@@ -1196,8 +1211,8 @@ Refactor note:
   - new helper `emergencyDisarmOutputsFromEsc(...)` disables outputs, clears escape-recovery pause flags, stops stream outputs, and hides output windows.
   - keeps single-`Esc` behavior: escape fullscreen first; only repeated `Esc` triggers panic disarm.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-04 master-cue line view + tropical pattern pass:
 - Clarified UX target:
@@ -1221,8 +1236,8 @@ Refactor note:
     - kept bottom signal reference strip
   - no random text/noise bars in this path.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 mitti parity foundation follow-up (cue parity + playlist opacity):
 - Added cue parity fields to runtime model + serialization:
@@ -1248,8 +1263,8 @@ Refactor note:
   - new OSC mapping checks for cue audio + deck opacity
   - new persistence checks for cue parity fields + deck playlist opacity fields.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 portability backend catalog scaffold:
 - Added explicit platform backend catalog interfaces:
@@ -1265,9 +1280,9 @@ Refactor note:
   - `capture-backends: ...`
   - `output-backends: ...`
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
   - Self-check passed with backend inventory lines
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 playlist preferences implementation (deck-level):
 - Added persisted deck playlist preference fields:
@@ -1291,8 +1306,8 @@ Refactor note:
   - browser/source/lower-third/pattern cue creation.
 - Smoke test expanded to verify playlist preference field persistence on save/load.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 decks window visibility behavior cleanup:
 - Updated Decks window visibility logic so single-deck shows start with Decks window hidden.
@@ -1302,8 +1317,8 @@ Refactor note:
 - `New` / `Open` show actions now reset manual Decks-window-open state before re-evaluating visibility.
 - Render path now skips Decks panel drawing when the Decks window is hidden.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 transport black-frame continuity fix:
 - Addressed operator-reported black output when pressing STOP or TAKE while/after a clip is running.
@@ -1312,8 +1327,8 @@ Refactor note:
   - `loadCue()` transition source gain now uses full alpha when transport is paused/stopped, preventing zero-alpha source after stop-at-zero.
   - `seek()` now accepts `clearVisualFrame` (default true) so stop/rewind paths can preserve frame continuity.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 browser cue URL editability fix:
 - Implemented in-menu URL editing for browser cues in the Cue Panel.
@@ -1326,8 +1341,8 @@ Refactor note:
 - Active browser cue behavior:
   - if edited cue is currently active, Deckboy retakes/reloads that browser cue so URL updates can apply immediately.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 browser cue take/capture reliability fix:
 - Root issue: browser cue capture path used a separate custom x11grab ffmpeg invocation, not the shared platform capture planner used by source/window cues.
@@ -1338,8 +1353,8 @@ Refactor note:
   - browser startup wait phase now checks capture start result.
   - on failure, startup is aborted and operator gets toast: `browser capture failed`.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 ui cleanup sprint (browser diagnostics + cue-panel row refactor + regression smoke):
 - Browser cue diagnostics in cue panel:
@@ -1358,8 +1373,8 @@ Refactor note:
   - `transition source gain policy`
   - `browser status summary`
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 2026-03-05 toggleable per-output FPS counter:
 - Added rolling per-output FPS sampling fields to `OutputRuntime` and update hook during output render.
@@ -1367,5 +1382,5 @@ Refactor note:
 - Output chips now display per-output FPS (`xx.xfps`) when FPS display is enabled.
 - Added small output-chip text clipping improvements while rendering status/FPS labels.
 - Validation:
-  - Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-  - Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+  - Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+  - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)

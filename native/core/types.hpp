@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 
-#ifndef PLAYBOY_CORE_TYPES_HPP
-#define PLAYBOY_CORE_TYPES_HPP
+#ifndef DECKBOY_CORE_TYPES_HPP
+#define DECKBOY_CORE_TYPES_HPP
 
 #include <SDL.h>
 #include <string>
@@ -22,7 +22,9 @@ enum class CueKind {
   WindowSource,
   Camera,
   Syphon,
+  Pip,
   LowerThird,
+  Composite,
   Audio
 };
 
@@ -47,47 +49,60 @@ enum class ScaleMode {
   Unscaled     // 1:1 pixel mapping (no scaling)
 };
 
+struct CompositeSlot {
+  std::string id;
+  std::string name;
+  std::string sourceType = "media";
+  std::string source;
+  bool visible = true;
+  bool audioEnabled = false;
+  ScaleMode scaleMode = ScaleMode::Fit;
+  float normX = 0.0f;
+  float normY = 0.0f;
+  float normW = 0.5f;
+  float normH = 0.5f;
+};
+
 struct Cue {
+  // -- 8-byte aligned: strings --
   std::string id;
   std::string cueId;  // operator-facing short cue id (max 6 chars)
   std::string path;
   std::string name;
-  CueKind kind = CueKind::Video;
-  double duration = 0.0;
-  int width = 0;
-  int height = 0;
-  double fps = 30.0;
   std::string formatName;
   std::string videoCodec;
   std::string audioCodec;
-  bool hasAudio = false;
-  bool audioEnabled = true;
-  std::uintmax_t sizeBytes = 0;
-  SDL_Color color {48, 98, 48, 255};
-  double fadeInSeconds = 0.0;
-  double fadeOutSeconds = 0.0;
-  bool loop = false;
-  bool pauseAtBeginning = false;
-  bool pauseOnLastFrame = false;
-  bool transitionToNext = true;
   std::string gotoTarget;
-  double inPointSeconds = 0.0;
-  double outPointSeconds = 0.0;
-  double triggerTimecodeSeconds = -1.0;
-  CueEndAction endAction = CueEndAction::Inherit;
-  double stillDurationSeconds = 0.0;
-  double cueTransitionSeconds = -1.0;
   std::string cueTransitionStyle;
   std::string lowerThirdText;
   std::string lowerThirdSubtext;
-  int lowerThirdBgAlpha = 180;
-  int loopCount = 0;
-  double playbackSpeed = 1.0;
+  std::string pipTargetCue;
+  std::string pipSourceType;
+  std::string attachedLowerThirdCue;
+  std::string attachedPipCue;
+  std::string compositeLayoutPreset;
+  std::string compositeAudioSlotId;
   std::string colorTag;
   std::string notes;
+  std::string cueNumber;
+  // -- 8-byte aligned: vectors --
+  std::vector<CompositeSlot> compositeSlots;
+  std::vector<double> pausePoints;
+  // -- 8-byte aligned: doubles + uint64 --
+  double duration = 0.0;
+  double fps = 30.0;
+  double fadeInSeconds = 0.0;
+  double fadeOutSeconds = 0.0;
+  double inPointSeconds = 0.0;
+  double outPointSeconds = 0.0;
+  double triggerTimecodeSeconds = -1.0;
+  double stillDurationSeconds = 0.0;
+  double cueTransitionSeconds = -1.0;
+  double playbackSpeed = 1.0;
+  std::uintmax_t sizeBytes = 0;
+  // -- 4-byte aligned: floats --
   float outputScaleX = 1.0f;
   float outputScaleY = 1.0f;
-  ScaleMode scaleMode = ScaleMode::Fit;
   float outputOffsetX = 0.0f;
   float outputOffsetY = 0.0f;
   float outputRotationDegrees = 0.0f;
@@ -95,16 +110,34 @@ struct Cue {
   float cropRight = 0.0f;
   float cropTop = 0.0f;
   float cropBottom = 0.0f;
-  bool chromaKeyEnabled = false;
-  SDL_Color chromaKeyColor {0, 255, 0, 255};
   float chromaKeyTolerance = 60.0f;
   float chromaKeySoftness = 20.0f;
   float brightness = 1.0f;        // 0.0 (black) to 2.0 (bright)
   float contrast = 1.0f;          // 0.0 (gray) to 2.0 (high)
   float saturation = 1.0f;        // 0.0 (grayscale) to 2.0 (vibrant)
   float hueShift = 0.0f;          // -180 to +180 degrees
-  std::string cueNumber;
-  std::vector<double> pausePoints;
+  // -- 4-byte aligned: ints + enums --
+  int width = 0;
+  int height = 0;
+  int audioChannels = 0;
+  int audioSampleRate = 0;
+  int lowerThirdBgAlpha = 180;
+  int loopCount = 0;
+  CueKind kind = CueKind::Video;
+  CueEndAction endAction = CueEndAction::Inherit;
+  ScaleMode scaleMode = ScaleMode::Fit;
+  // -- 4-byte aligned: SDL_Color --
+  SDL_Color color {48, 98, 48, 255};
+  SDL_Color compositeBackgroundColor {18, 24, 18, 255};
+  SDL_Color chromaKeyColor {0, 255, 0, 255};
+  // -- 1-byte aligned: bools --
+  bool hasAudio = false;
+  bool audioEnabled = true;
+  bool loop = false;
+  bool pauseAtBeginning = false;
+  bool pauseOnLastFrame = false;
+  bool transitionToNext = true;
+  bool chromaKeyEnabled = false;
 };
 
 struct Deck {
@@ -113,7 +146,6 @@ struct Deck {
   int selectedIndex = -1;
   int activeIndex = -1;
   std::vector<int> overlayActiveIndices;
-  bool autoAdvance = false;
   bool playlistLoop = false;
   bool shuffle = false;
   float playlistOpacity = 1.0f;    // 0.0 - 1.0 per-deck contribution
@@ -121,7 +153,7 @@ struct Deck {
   double playlistFadeSeconds = 0.8;
   double playlistTimebaseFps = 30.0;             // operator playlist SMPTE base (24/25/29.97/30)
   double playlistStartOffsetSeconds = 0.0;       // playlist start timecode offset
-  double playlistDefaultCueFadeSeconds = 0.5;    // default fade duration for new cues
+  double playlistDefaultCueFadeSeconds = 1.5;    // default fade duration for new cues
   double playlistDefaultStillDurationSeconds = 8.0; // default duration for non-movie cues
   bool playlistDefaultLoop = false;
   bool playlistDefaultFadeInEnabled = true;
@@ -134,7 +166,6 @@ struct Deck {
   std::string audioOutputDeviceName;
   int outputDisplayIndex = 0;
   int outputRouteDeckIndex = -1;
-  int outputLayerIndex = 0;
   bool ndiEnabled = false;
   std::string ndiSourceName;
   bool ndiKeyEnabled = false;
@@ -252,6 +283,7 @@ struct Button {
 
 enum class QuickAction {
   ToggleLoop, ToggleHold, TogglePauseBegin, ToggleCueAudio, ToggleNextTransition, EditGotoTarget, CycleEndAction,
+  ToggleFadeIn, ToggleFadeOut,
   FadeInDec, FadeInInc, FadeOutDec, FadeOutInc,
   VolDec, VolInc,
   InDec, InInc, OutDec, OutInc,
@@ -282,7 +314,9 @@ enum class QuickAction {
   KeyTolDec, KeyTolInc,
   KeySoftDec, KeySoftInc,
   EditKeyColor,
+  PickKeyColor,
   EditCueNumber,
+  CopyCueSettings, PasteCueSettings,
   AddPausePoint, ClearPausePoints,
   BrightnessDec, BrightnessInc,
   ContrastDec, ContrastInc,
@@ -296,11 +330,33 @@ enum class QuickAction {
   CueSectionKeyToggle,
   CueSectionRoutingToggle,
   ClearOverlay,
-  CueRouteOutputPrev,
-  CueRouteOutputNext,
-  CueRouteLayerDec,
-  CueRouteLayerInc,
-  CueRouteAssignToggle
+  EditLowerThirdText,
+  EditLowerThirdSubtext,
+  EditPipTarget,
+  EditPipSourcePath,
+  EditAttachedLowerThirdCue,
+  EditAttachedPipCue,
+  EditCompositeSlot1Source,
+  EditCompositeSlot2Source,
+  EditCompositeSlot3Source,
+  EditCompositeSlot4Source,
+  CompositePreset2Up,
+  CompositePreset7030,
+  CompositePresetQuad,
+  CycleCompositeAudioSlot,
+  PipPresetCornerTL,
+  PipPresetCornerTR,
+  PipPresetCornerBL,
+  PipPresetCornerBR,
+  PipPresetSmall,
+  PipPresetBig,
+  PipPreset7030,
+  TransportSkipStart,   // |< — seek to beginning
+  TransportSkipBack,    // << — skip back 10s
+  TransportPlayPause,   // play/pause toggle
+  TransportSkipForward, // >> — skip forward 10s
+  TransportSkipEnd,     // >| — seek to end
+  TrimReset             // clear in/out points
 };
 
 struct QuickButton {

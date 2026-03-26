@@ -1,0 +1,1365 @@
+// Part of class App — included inside the class body in main.cpp.
+// Do NOT compile this file separately.
+  void renderDeckPanelCueRow(const SDL_Rect& row, int deckIndex, int cueIndex) {
+    const Deck& deck = project_.decks[deckIndex];
+    const Cue& cue = deck.cues[cueIndex];
+    bool isSelected = cueIndexSelected(deck, cueIndex);
+    bool isLive     = (cueIndex == deck.activeIndex);
+    bool isNext     = !isLive && (cueIndex == nextCueIndexForDeck(deckIndex));
+
+    SDL_Color fill   = isLive     ? pal.deep
+                     : isSelected ? pal.mid
+                     : isNext     ? pal.light
+                                  : pal.shellInner;
+    SDL_Color ink    = isLive ? pal.light : pal.deep;
+    SDL_Color subInk = isLive ? pal.mid   : pal.dark;
+
+    drawUIPanel(row, fill, pal.deep, pal.mid);
+
+    // Color chip
+    SDL_Rect chip {row.x + 2, row.y + 3, 4, row.h - 6};
+    SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
+    Primitives::fillRect(controlRenderer_, chip, chipColor);
+
+    // Status glyph
+    const char* glyph = isLive ? "\xe2\x97\x8f" : (isSelected ? "\xe2\x96\xb8" : (isNext ? "N" : " "));
+    SDL_Rect glyphR {row.x + 8, row.y + (row.h - 18) / 2, 18, 18};
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, glyphR, glyph, ink);
+
+    // Cue token
+    std::string token = cueDisplayToken(cue, cueIndex);
+    SDL_Rect tokenR {row.x + 26, row.y + (row.h - 18) / 2, 44, 18};
+    drawTextSafe(controlRenderer_, fontMono_, tokenR, token, subInk);
+
+    // Cue name — narrower when live (leaves room for remaining-time badge)
+    int nameX = row.x + 72;
+    int nameW = isLive ? std::max(10, row.w - 72 - 66) : std::max(10, row.w - 72 - 4);
+    std::string name = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
+    SDL_Rect nameR {nameX, row.y + (row.h - 18) / 2, nameW, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, nameR, name, ink);
+
+    // Remaining time badge (live row only)
+    if (isLive) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->duration() > 0.0) {
+        std::string remStr = "-" + formatSeconds(std::max(0.0, engine->duration() - engine->position()));
+        SDL_Rect remR {row.x + row.w - 62, row.y + 2, 58, row.h - 4};
+        Primitives::fillRect(controlRenderer_, remR, pal.dark);
+        drawCenteredTextSafe(controlRenderer_, fontMono_, remR, remStr,
+                             pal.light);
+      }
+    }
+
+    decksPanelCueHits_.push_back({deckIndex, cueIndex, row});
+  }
+
+  void renderDeckPanelColumn(const SDL_Rect& col, int deckIndex) {
+    const Deck& deck = project_.decks[deckIndex];
+    bool focused = (deckIndex == project_.focusedDeckIndex);
+    const Cue* activeCue = activeCuePtr(deckIndex);
+    const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    TransportState state = engine ? engine->state() : TransportState::Stopped;
+
+    // Column background
+    SDL_Color colBg = focused ? pal.light : pal.shellInner;
+    drawUIPanel(col, colBg, pal.deep, pal.mid);
+
+    // --- HEADER (52px) ---
+    constexpr int kColHdrH = 52;
+    SDL_Rect hdr {col.x + 2, col.y + 2, col.w - 4, kColHdrH};
+    SDL_Color hdrFill = focused ? pal.mid : pal.shellOuter;
+    drawUIPanel(hdr, hdrFill, pal.deep, pal.dark);
+
+    SDL_Color hdrInk = focused ? pal.light : pal.mid;
+
+    // State badge (top-right)
+    const char* stateLabel = (state == TransportState::Playing) ? "PLAY"
+                           : (state == TransportState::Paused)  ? "PAUSE" : "STOP";
+    SDL_Color stateFill = (state == TransportState::Playing) ? SDL_Color{30, 120, 30, 255}
+                        : (state == TransportState::Paused)  ? SDL_Color{120, 100, 0, 255}
+                                                             : pal.dark;
+    SDL_Rect stateBadge {hdr.x + hdr.w - 60, hdr.y + 4, 54, 22};
+    Primitives::fillRect(controlRenderer_, stateBadge, stateFill);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, stateBadge, stateLabel,
+                         pal.light);
+
+    // Deck name
+    std::string deckName = deck.name.empty() ? deckDefaultName(deckIndex) : deck.name;
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {hdr.x + 6, hdr.y + 5, hdr.w - 62, 20},
+                 deckName, hdrInk);
+
+    // Route info
+    auto primaryOut = primaryOutputIndexForDeck(deckIndex);
+    int layerIdx    = primaryLayerIndexForDeck(deckIndex);
+    std::string layerStr = layerIdx <= 0 ? "BG" : "L" + std::to_string(layerIdx);
+    std::string routeStr = primaryOut
+      ? ("\xe2\x86\x92 Out " + std::to_string(*primaryOut + 1) + "  " + layerStr)
+      : "\xe2\x86\x92 Unrouted";
+    SDL_Color routeInk = focused ? pal.mid : pal.dark;
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {hdr.x + 6, hdr.y + 28, hdr.w - 12, 20},
+                 routeStr, routeInk);
+
+    int y = hdr.y + hdr.h + 4;
+
+    // --- PROGRESS + TIME (52px) ---
+    constexpr int kProgressAreaH = 52;
+    SDL_Rect progressArea {col.x + 4, y, col.w - 8, kProgressAreaH};
+
+    double pos = engine ? engine->position() : 0.0;
+    double dur = engine ? engine->duration() : 0.0;
+
+    // Bar
+    SDL_Rect rail {progressArea.x + 2, progressArea.y + 4, progressArea.w - 4, 10};
+    Primitives::drawFramedPanel(controlRenderer_, rail, pal.light,
+                                pal.deep, pal.mid);
+    if (dur > 0.0) {
+      int fillW = static_cast<int>((pos / dur) * (rail.w - 4));
+      fillW = std::clamp(fillW, 0, rail.w - 4);
+      SDL_Rect barFill {rail.x + 2, rail.y + 2, fillW, rail.h - 4};
+      Primitives::fillRect(controlRenderer_, barFill, pal.dark);
+    }
+
+    // Current / remaining time
+    SDL_Color timeInk = pal.deep;
+    drawTextSafe(controlRenderer_, fontMono_,
+                 SDL_Rect {progressArea.x + 2, progressArea.y + 18, 72, 16},
+                 formatSeconds(pos), timeInk);
+    std::string remStr = dur > 0.0
+      ? ("-" + formatSeconds(std::max(0.0, dur - pos))) : "--:--";
+    drawTextSafe(controlRenderer_, fontMono_,
+                 SDL_Rect {progressArea.x + progressArea.w - 74, progressArea.y + 18, 72, 16},
+                 remStr, timeInk);
+
+    // Active cue name
+    std::string activeToken = activeCue ? cueDisplayToken(*activeCue, deck.activeIndex) : "";
+    std::string activeName  = activeCue ? activeCue->name : "---";
+    std::string activeStr   = activeToken.empty() ? activeName : (activeToken + "  " + activeName);
+    activeStr = ellipsizeToPixelWidth(fontSmall_, activeStr, progressArea.w - 4);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {progressArea.x + 2, progressArea.y + 36, progressArea.w - 4, 14},
+                 activeStr, pal.dark);
+
+    y += kProgressAreaH + 4;
+
+    // --- TRANSPORT BUTTONS (44px) ---
+    constexpr int kTransportH = 44;
+    constexpr int kBtnGap = 6;
+    constexpr int kSmallBtnW = 38;
+    SDL_Rect transArea {col.x + 4, y, col.w - 8, kTransportH};
+    int largeBtnW = std::max(60, transArea.w - 2 * (kSmallBtnW + kBtnGap) - kBtnGap);
+    int btnH  = 32;
+    int btnY  = transArea.y + (transArea.h - btnH) / 2;
+    SDL_Rect takeBtn {transArea.x, btnY, largeBtnW, btnH};
+    SDL_Rect stopBtn {takeBtn.x + largeBtnW + kBtnGap, btnY, kSmallBtnW, btnH};
+    SDL_Rect playBtn {stopBtn.x + kSmallBtnW + kBtnGap, btnY, kSmallBtnW, btnH};
+
+    // TAKE — icon
+    drawUIPanel(takeBtn, pal.dark, pal.deep, pal.mid);
+    if (uiBtnTake_.texture) {
+      int sz = std::min(20, std::min(takeBtn.w - 8, takeBtn.h - 8));
+      SDL_Rect ir {takeBtn.x + (takeBtn.w - sz) / 2, takeBtn.y + (takeBtn.h - sz) / 2, sz, sz};
+      drawUiImageContain(uiBtnTake_, ir, 255, pal.light);
+    } else {
+      drawCenteredTextSafe(controlRenderer_, fontBase_, takeBtn, "TAKE", pal.light);
+    }
+    decksPanelDeckButtonHits_.push_back({deckIndex, kDecksPanelDeckActionTake, takeBtn});
+
+    // STOP — icon
+    drawUIPanel(stopBtn, pal.mid, pal.deep, pal.light);
+    if (uiBtnStop_.texture) {
+      int sz = std::min(18, std::min(stopBtn.w - 8, stopBtn.h - 8));
+      SDL_Rect ir {stopBtn.x + (stopBtn.w - sz) / 2, stopBtn.y + (stopBtn.h - sz) / 2, sz, sz};
+      drawUiImageContain(uiBtnStop_, ir, 255, pal.deep);
+    } else {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, stopBtn, "\xe2\x96\xa0", pal.deep);
+    }
+    decksPanelDeckButtonHits_.push_back({deckIndex, kDecksPanelDeckActionStop, stopBtn});
+
+    // PLAY — icon (lit when playing)
+    SDL_Color playFill = (state == TransportState::Playing) ? pal.dark : pal.mid;
+    SDL_Color playInk = (state == TransportState::Playing) ? pal.light : pal.deep;
+    drawUIPanel(playBtn, playFill, pal.deep, pal.light);
+    if (uiBtnPlay_.texture) {
+      int sz = std::min(18, std::min(playBtn.w - 8, playBtn.h - 8));
+      SDL_Rect ir {playBtn.x + (playBtn.w - sz) / 2, playBtn.y + (playBtn.h - sz) / 2, sz, sz};
+      drawUiImageContain(uiBtnPlay_, ir, 255, playInk);
+    } else {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, playBtn, "\xe2\x96\xb6", pal.deep);
+    }
+    decksPanelDeckButtonHits_.push_back({deckIndex, kDecksPanelDeckActionPlay, playBtn});
+
+    y += kTransportH + 4;
+
+    // --- CUE LIST (fills remaining height) ---
+    constexpr int kFooterH = 36;
+    constexpr int kCueRowH = 80;
+    constexpr int kCueRowGap = 2;
+    int listH = std::max(0, col.y + col.h - y - kFooterH - 8);
+    SDL_Rect listRect {col.x + 4, y, col.w - 8, listH};
+    drawUIPanel(listRect, pal.light,
+                pal.deep, pal.mid);
+
+    if (deckScrolls_.size() <= static_cast<size_t>(deckIndex))
+      deckScrolls_.resize(deckIndex + 1, 0);
+
+    SDL_Rect listClip {listRect.x + 4, listRect.y + 4, listRect.w - 8, listRect.h - 8};
+    deckListClipRects_[deckIndex] = listClip;
+    SDL_RenderSetClipRect(controlRenderer_, &listClip);
+
+    int cueCount = static_cast<int>(deck.cues.size());
+    if (cueCount == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {listClip.x + 4, listClip.y + 8, listClip.w - 8, 16},
+                   "(empty — import media)", pal.inkSoft);
+    } else {
+      int rowY = listClip.y - deckScrolls_[deckIndex];
+      for (int ci = 0; ci < cueCount; ++ci) {
+        if (rowY + kCueRowH >= listClip.y && rowY <= listClip.y + listClip.h) {
+          SDL_Rect cueRow {listClip.x, rowY, listClip.w, kCueRowH};
+          renderDeckPanelCueRow(cueRow, deckIndex, ci);
+        }
+        rowY += kCueRowH + kCueRowGap;
+      }
+      int totalCueH = cueCount * (kCueRowH + kCueRowGap) - kCueRowGap;
+      int scrollMax = std::max(0, totalCueH - listClip.h);
+      deckScrolls_[deckIndex] = std::clamp(deckScrolls_[deckIndex], 0, scrollMax);
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    y += listH + 4;
+
+    // --- FOOTER (36px) ---
+    SDL_Rect footer {col.x + 4, col.y + col.h - kFooterH - 2, col.w - 8, kFooterH};
+    drawUIPanel(footer, pal.shellOuter,
+                pal.deep, pal.shellInner);
+
+    // Cue end behavior follows the selected/active cue rather than a deck toggle.
+    int autoW = (footer.w - 12) / 2;
+    SDL_Rect endBtn {footer.x + 4, footer.y + 6, autoW, 24};
+    const Cue* footerCue = nullptr;
+    if (deck.selectedIndex >= 0 && deck.selectedIndex < cueCount) {
+      footerCue = &deck.cues[deck.selectedIndex];
+    } else if (deck.activeIndex >= 0 && deck.activeIndex < cueCount) {
+      footerCue = &deck.cues[deck.activeIndex];
+    }
+    CueEndAction footerEndAction = footerCue ? resolvedCueEndAction(*footerCue) : CueEndAction::Inherit;
+    SDL_Color endFill = (footerEndAction == CueEndAction::PauseOnLast || footerEndAction == CueEndAction::Loop)
+      ? pal.dark
+      : pal.light;
+    SDL_Color endInk = (footerEndAction == CueEndAction::PauseOnLast || footerEndAction == CueEndAction::Loop)
+      ? pal.light
+      : pal.deep;
+    Primitives::drawFramedPanel(controlRenderer_, endBtn, endFill, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, endBtn, footerCue ? cueEndStatusLabel(*footerCue) : "END CUE", endInk);
+    // Shuffle indicator
+    SDL_Rect shuffleBtn {endBtn.x + autoW + 4, footer.y + 6, autoW, 24};
+    Primitives::drawFramedPanel(controlRenderer_, shuffleBtn,
+                                deck.shuffle ? pal.dark : pal.light,
+                                pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, shuffleBtn,
+                         deck.shuffle ? "SHUFFLE" : "ORDER",
+                         deck.shuffle ? pal.light : pal.deep);
+    shuffleBtnRect_ = shuffleBtn;
+
+    SDL_Rect opRail {footer.x + 4, footer.y + footer.h - 14, footer.w - 8, 8};
+    Primitives::drawFramedPanel(controlRenderer_, opRail, pal.light,
+                                pal.deep, pal.shellOuter);
+    int opFillW = static_cast<int>(
+      std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opRail.w - 4)));
+    opFillW = std::clamp(opFillW, 0, opRail.w - 4);
+    SDL_Rect opFill {opRail.x + 2, opRail.y + 2, opFillW, opRail.h - 4};
+    Primitives::fillRect(controlRenderer_, opFill, pal.dark);
+    if (deckOpacityFaderRects_.size() <= static_cast<size_t>(deckIndex))
+      deckOpacityFaderRects_.resize(deckIndex + 1, SDL_Rect{});
+    deckOpacityFaderRects_[deckIndex] = opRail;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Monitors window — one tile per output, program frame + preview + controls
+  // ---------------------------------------------------------------------------
+
+  void renderMonitorsTile(const SDL_Rect& tile, int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    const OutputTarget& output = project_.outputs[outputIndex];
+    bool focused = (outputIndex == project_.focusedOutputIndex);
+
+    // Tile background
+    SDL_Color tileBg = focused ? pal.light : pal.shellInner;
+    drawUIPanel(tile, tileBg, pal.deep, pal.mid);
+
+    // --- Header strip (28px) ---
+    constexpr int kTileHdrH = 28;
+    SDL_Rect hdr {tile.x + 2, tile.y + 2, tile.w - 4, kTileHdrH};
+    SDL_Color hdrBg = focused ? pal.mid : pal.shellOuter;
+    drawUIPanel(hdr, hdrBg, pal.deep, pal.dark);
+
+    // Health badge
+    OutputHealthState health = outputHealthStateForDisplay(outputIndex);
+    SDL_Color healthFill = (health == OutputHealthState::Live)       ? SDL_Color{30,140,30,255}
+                         : (health == OutputHealthState::Error)      ? SDL_Color{160,40,40,255}
+                         : (health == OutputHealthState::Recovering) ? SDL_Color{160,120,40,255}
+                                                                     : pal.dark;
+    SDL_Rect healthBadge {hdr.x + 4, hdr.y + 4, 58, 22};
+    Primitives::fillRect(controlRenderer_, healthBadge, healthFill);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, healthBadge,
+                         outputHealthLabelToken(health), pal.light);
+
+    // Output name
+    std::string outName = "O" + std::to_string(outputIndex + 1) + "  " + outputLabel(outputIndex);
+    SDL_Color hdrInk = focused ? pal.light : pal.mid;
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {hdr.x + 60, hdr.y + (hdr.h - 20) / 2, hdr.w - 130, 20},
+                 outName, hdrInk);
+
+    // FPS (top-right of header)
+    if (outputFpsCounterEnabled_) {
+      std::string fpsStr = (output.enabled ? outputFpsLabel(outputIndex) : "--.-") + "fps";
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {hdr.x + hdr.w - 68, hdr.y + (hdr.h - 20) / 2, 64, 20},
+                   fpsStr, pal.dark);
+    }
+
+    // --- Bottom strip for buttons (30px) ---
+    constexpr int kTileBtnH = 30;
+    SDL_Rect btnStrip {tile.x + 2, tile.y + tile.h - kTileBtnH - 2, tile.w - 4, kTileBtnH};
+    constexpr int kBtnW = 68;
+    constexpr int kBtnGap = 6;
+    int bx = btnStrip.x + (btnStrip.w - 2 * kBtnW - kBtnGap) / 2;
+    int bby = btnStrip.y + (btnStrip.h - 28) / 2;
+
+    // GO / LIVE
+    SDL_Color goFill = output.enabled ? SDL_Color{30,140,30,255} : pal.mid;
+    SDL_Color goInk  = output.enabled ? pal.light : pal.deep;
+    SDL_Rect goBtn {bx, bby, kBtnW, 28};
+    drawUIPanel(goBtn, goFill, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, goBtn, output.enabled ? "LIVE" : "GO", goInk);
+    outputMenuButtons_.push_back({goBtn, -1, outputIndex, kOutputMenuActionRecover});
+
+    // OFF
+    SDL_Color offFill = output.enabled ? pal.light : pal.dark;
+    SDL_Color offInk  = output.enabled ? pal.dark  : pal.mid;
+    SDL_Rect offBtn {bx + kBtnW + kBtnGap, bby, kBtnW, 28};
+    drawUIPanel(offBtn, offFill, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, offBtn, "OFF", offInk);
+    outputMenuButtons_.push_back({offBtn, -1, outputIndex, kOutputMenuActionDisarm});
+
+    // Register tile click for focus
+    outputMenuButtons_.push_back({tile, -1, outputIndex, kOutputMenuActionFocus});
+
+    // --- Program frame area ---
+    int programTop    = hdr.y + hdr.h + 2;
+    int programBottom = btnStrip.y - 2;
+    SDL_Rect programRect {tile.x + 4, programTop, tile.w - 8, std::max(0, programBottom - programTop)};
+    drawUIPanel(programRect, pal.deep,
+                pal.deep, pal.mid);
+
+    bool hasTex = outputIndex < static_cast<int>(monitorsOutputTextures_.size()) &&
+                  monitorsOutputTextures_[outputIndex] != nullptr &&
+                  monitorsOutputTexW_[outputIndex] > 0;
+    if (hasTex && output.enabled) {
+      SDL_Texture* tex = monitorsOutputTextures_[outputIndex];
+      int texW = monitorsOutputTexW_[outputIndex];
+      int texH = monitorsOutputTexH_[outputIndex];
+      // Letterbox scale
+      float scaleW = static_cast<float>(programRect.w) / texW;
+      float scaleH = static_cast<float>(programRect.h) / texH;
+      float scale  = std::min(scaleW, scaleH);
+      int dstW = static_cast<int>(texW * scale);
+      int dstH = static_cast<int>(texH * scale);
+      SDL_Rect dst {programRect.x + (programRect.w - dstW) / 2,
+                    programRect.y + (programRect.h - dstH) / 2,
+                    dstW, dstH};
+      SDL_RenderCopy(controlRenderer_, tex, nullptr, &dst);
+    } else {
+      // No signal label
+      std::string noSigLabel = output.enabled ? "NO SIGNAL" : "OFFLINE";
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, programRect,
+                           noSigLabel, pal.mid);
+    }
+
+    // Next cue info bar (inside program area, bottom-left overlay)
+    {
+      auto stackEntries = layeredDeckEntriesForOutput(outputIndex);
+      if (!stackEntries.empty()) {
+        int bgDeck = stackEntries[0].second;
+        int nextIdx = nextCueIndexForDeck(bgDeck);
+        if (nextIdx >= 0 && nextIdx < static_cast<int>(project_.decks[bgDeck].cues.size())) {
+          const Cue& nxt = project_.decks[bgDeck].cues[nextIdx];
+          std::string nxtStr = "NEXT  " + cueDisplayToken(nxt, nextIdx) + "  " + nxt.name;
+          nxtStr = ellipsizeToPixelWidth(fontSmall_, nxtStr, programRect.w - 8);
+          SDL_Rect nxtBar {programRect.x, programRect.y + programRect.h - 18,
+                           programRect.w, 18};
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 160);
+          SDL_RenderFillRect(controlRenderer_, &nxtBar);
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {nxtBar.x + 4, nxtBar.y + 2, nxtBar.w - 8, 14},
+                       nxtStr, pal.light);
+        }
+      }
+    }
+  }
+
+  void renderMonitorsWindow() {
+    if (!monitorsWindow_ || !monitorsRenderer_) return;
+    if (!monitorsVisible()) return;
+
+    monitorsTileHits_.clear();
+
+    // Swap renderer context
+    SDL_Renderer* savedRenderer = controlRenderer_;
+    SDL_Window*   savedWindow   = controlWindow_;
+    int savedMouseX = mouseX_, savedMouseY = mouseY_;
+    controlRenderer_ = monitorsRenderer_;
+    controlWindow_   = monitorsWindow_;
+    mouseX_ = -10000; mouseY_ = -10000;
+
+    int W = 0, H = 0;
+    SDL_GetWindowSize(monitorsWindow_, &W, &H);
+
+    SDL_SetRenderDrawColor(controlRenderer_,
+      red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
+    SDL_RenderClear(controlRenderer_);
+
+    SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
+                    std::max(0, W - kLayoutSpacingUnit * 2),
+                    std::max(0, H - kLayoutSpacingUnit * 2)};
+    drawUIPanel(shell, pal.shellOuter,
+                pal.deep, pal.shellInner);
+
+    // --- Window header ---
+    constexpr int kWinHdrH = 44;
+    constexpr int kHBtnH   = 32;
+    constexpr int kHBtnGap = 6;
+    SDL_Rect winHdr {shell.x + 4, shell.y + 4, shell.w - 8, kWinHdrH};
+    drawUIPanel(winHdr, pal.shellInner,
+                pal.deep, pal.shellOuter);
+
+    int outCount = static_cast<int>(project_.outputs.size());
+    std::string title = "MONITORS";
+    drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontBase_,
+                 SDL_Rect {winHdr.x + 10, winHdr.y + (winHdr.h - 22) / 2, 100, 22},
+                 title, pal.deep);
+    std::string countStr = std::to_string(outCount) + (outCount == 1 ? " output" : " outputs");
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {winHdr.x + 112, winHdr.y + (winHdr.h - 20) / 2, 80, 20},
+                 countStr, pal.dark);
+
+    // Right buttons: FPS toggle, + OUTPUT
+    int btnY = winHdr.y + (winHdr.h - kHBtnH) / 2;
+    SDL_Rect addOutBtn  {winHdr.x + winHdr.w - 80,              btnY, 74, kHBtnH};
+    SDL_Rect fpsTogBtn  {addOutBtn.x - 92 - kHBtnGap,           btnY, 86, kHBtnH};
+
+    SDL_Color fpsFill = outputFpsCounterEnabled_ ? pal.dark : pal.shellOuter;
+    SDL_Color fpsInk  = outputFpsCounterEnabled_ ? pal.light : pal.mid;
+    drawUIPanel(fpsTogBtn, fpsFill, pal.deep, pal.mid);
+    drawCenteredText(controlRenderer_, fontSmall_,
+                     outputFpsCounterEnabled_ ? "FPS: ON" : "FPS: OFF", fpsInk, fpsTogBtn);
+    outputMenuButtons_.push_back({fpsTogBtn, -1, -1, kOutputMenuActionToggleFps});
+
+    drawUIPanel(addOutBtn, pal.shellOuter,
+                pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, addOutBtn, "+ OUTPUT",
+                         pal.mid);
+    outputMenuButtons_.push_back({addOutBtn, -1, -1, kOutputMenuActionAddOutput});
+
+    // --- Tile grid ---
+    int gridTop = winHdr.y + winHdr.h + 6;
+    int gridH   = shell.y + shell.h - gridTop - 4;
+    int gridX   = shell.x + 4;
+    int gridW   = shell.w - 8;
+
+    if (outCount == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {gridX + 20, gridTop + 20, gridW - 40, 18},
+                   "No outputs — click + OUTPUT to add one.",
+                   pal.inkSoft);
+    } else {
+      // Auto grid: cols = ceil(sqrt(N)), rows = ceil(N / cols)
+      int cols = std::max(1, static_cast<int>(std::ceil(std::sqrt(static_cast<double>(outCount)))));
+      int rows = (outCount + cols - 1) / cols;
+      constexpr int kTileGap = 8;
+      int tileW = (gridW - (cols - 1) * kTileGap) / cols;
+      int tileH = (gridH - (rows - 1) * kTileGap) / rows;
+
+      for (int oi = 0; oi < outCount; ++oi) {
+        int col = oi % cols;
+        int row = oi / cols;
+        SDL_Rect tileRect {
+          gridX + col * (tileW + kTileGap),
+          gridTop + row * (tileH + kTileGap),
+          tileW, tileH
+        };
+        renderMonitorsTile(tileRect, oi);
+        monitorsTileHits_.push_back({oi, tileRect});
+      }
+    }
+
+    if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
+      int ww, wh;
+      SDL_GetRendererOutputSize(controlRenderer_, &ww, &wh);
+      SDL_Rect dst {0, 0, ww, wh};
+      SDL_RenderCopy(controlRenderer_, scanlineOverlay_, nullptr, &dst);
+    }
+    SDL_RenderPresent(controlRenderer_);
+
+    controlRenderer_ = savedRenderer;
+    controlWindow_   = savedWindow;
+    mouseX_ = savedMouseX;
+    mouseY_ = savedMouseY;
+  }
+
+  void renderControlWindow() {
+    auto uiFrameStart = std::chrono::steady_clock::now();
+    int numDecks = static_cast<int>(project_.decks.size());
+    deckScrolls_.resize(numDecks, 0);
+    deckOverlayScrolls_.resize(numDecks, 0);
+    deckColumnRects_.resize(numDecks);
+    deckListClipRects_.resize(numDecks);
+    deckOverlayClipRects_.resize(numDecks);
+    outputMenuButtons_.clear();
+    deckSidebarToggleRect_ = SDL_Rect {};
+    std::fill(deckColumnRects_.begin(), deckColumnRects_.end(), SDL_Rect {0, 0, 0, 0});
+    std::fill(deckListClipRects_.begin(), deckListClipRects_.end(), SDL_Rect {0, 0, 0, 0});
+    std::fill(deckOverlayClipRects_.begin(), deckOverlayClipRects_.end(), SDL_Rect {0, 0, 0, 0});
+
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+    layoutButtons(width, height);
+    auto uiLayoutDone = std::chrono::steady_clock::now();
+
+    SDL_SetRenderDrawColor(controlRenderer_, red(kShellShadowColor), green(kShellShadowColor), blue(kShellShadowColor), 255);
+    SDL_RenderClear(controlRenderer_);
+
+    SDL_Rect shell {kLayoutSpacingUnit, kLayoutSpacingUnit,
+                    std::max(0, width - kLayoutSpacingUnit * 2),
+                    std::max(0, height - kLayoutSpacingUnit * 2)};
+    drawUIPanel(shell,
+                pal.shellOuter,
+                pal.deep,
+                pal.shellInner);
+
+    // ─── Toolbar: full-width button row ──────────────────────────────────────
+    constexpr int kToolbarH = 52;
+    SDL_Rect toolbar {shell.x + kLayoutPanelBorder * 2,
+                      shell.y + kLayoutPanelBorder * 2,
+                      shell.w - kLayoutPanelBorder * 4,
+                      kToolbarH};
+    drawUIPanel(toolbar, pal.shellInner,
+                pal.deep, pal.shellOuter);
+    {
+      TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      auto drawTBtn = [&](SDL_Rect& r, const std::string& label,
+                          bool lit = false, bool danger = false) {
+        SDL_Color fill = danger ? SDL_Color{160,18,18,255}
+                       : (lit ? pal.dark : pal.light);
+        SDL_Color ink  = danger ? SDL_Color{255,200,200,255}
+                       : (lit ? pal.light : pal.deep);
+        drawUIPanel(r, fill, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, btnFont, r, label, ink);
+      };
+
+      constexpr int kTBtnH = kToolbarH - 8;
+      constexpr int kTBtnGap = 6;
+      constexpr int kTGrpGap = 14;
+      int ty = toolbar.y + (toolbar.h - kTBtnH) / 2;
+
+      // Place right-anchored buttons first so fader can fill what's left
+      int rx = toolbar.x + toolbar.w - 8;
+      auto autoW = [&](const char* text, int minW = 60) -> int {
+        int tw = 0; TTF_SizeUTF8(fontSmall_, text, &tw, nullptr);
+        return std::max(minW, tw + 20);
+      };
+      bool isFullscreen = isAnyOutputFullscreen();
+      constexpr int kIconBtnW = 44;
+      settingsGearRect_  = SDL_Rect {}; // settings moved to bottom bar
+      blackoutBtnRect_   = {rx - kIconBtnW, ty, kIconBtnW, kTBtnH}; rx -= kIconBtnW + kTBtnGap;
+      fullscreenBtnRect_ = {rx - kIconBtnW, ty, kIconBtnW, kTBtnH}; rx -= kIconBtnW + kTGrpGap;
+      // Blackout — icon only, with pulsing glow when active
+      {
+        bool blkOn = masterDimmerTarget_ < 0.5;
+        SDL_Color fill = blkOn ? SDL_Color{160,18,18,255} : pal.light;
+        SDL_Color ink  = blkOn ? SDL_Color{255,200,200,255} : pal.deep;
+        // Pulsing red border glow when blackout is on
+        if (blkOn) {
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+          double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) * 0.006);
+          Uint8 glowA = static_cast<Uint8>(80 + 140 * pulse);
+          SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30, glowA);
+          SDL_Rect glow {blackoutBtnRect_.x - 2, blackoutBtnRect_.y - 2,
+                         blackoutBtnRect_.w + 4, blackoutBtnRect_.h + 4};
+          SDL_RenderDrawRect(controlRenderer_, &glow);
+          SDL_Rect glow2 {blackoutBtnRect_.x - 3, blackoutBtnRect_.y - 3,
+                          blackoutBtnRect_.w + 6, blackoutBtnRect_.h + 6};
+          SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30, static_cast<Uint8>(glowA / 2));
+          SDL_RenderDrawRect(controlRenderer_, &glow2);
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+        }
+        drawUIPanel(blackoutBtnRect_, fill, pal.deep, pal.mid);
+        if (uiBtnBlackout_.texture) {
+          int sz = std::min(20, kTBtnH - 12);
+          SDL_Rect ir {blackoutBtnRect_.x + (blackoutBtnRect_.w - sz) / 2,
+                       blackoutBtnRect_.y + (blackoutBtnRect_.h - sz) / 2, sz, sz};
+          drawUiImageContain(uiBtnBlackout_, ir, 255, ink);
+        }
+      }
+      // Fullscreen — icon only
+      {
+        SDL_Color fill = isFullscreen ? pal.dark : pal.light;
+        SDL_Color ink  = isFullscreen ? pal.light : pal.deep;
+        drawUIPanel(fullscreenBtnRect_, fill, pal.deep, pal.mid);
+        UiImageAsset& fsIcon = isFullscreen ? uiBtnWindow_ : uiBtnFullscreen_;
+        if (fsIcon.texture) {
+          int sz = std::min(20, kTBtnH - 12);
+          SDL_Rect ir {fullscreenBtnRect_.x + (fullscreenBtnRect_.w - sz) / 2,
+                       fullscreenBtnRect_.y + (fullscreenBtnRect_.h - sz) / 2, sz, sz};
+          drawUiImageContain(fsIcon, ir, 255, ink);
+        }
+      }
+
+      // Left-anchored buttons
+      int ax = toolbar.x + 8;
+      fileNewBtnRect_    = {ax, ty, 60, kTBtnH}; ax += 60 + kTBtnGap;
+      fileOpenBtnRect_   = {ax, ty, 72, kTBtnH}; ax += 72 + kTBtnGap;
+      fileSaveBtnRect_   = {ax, ty, 60, kTBtnH}; ax += 60 + kTGrpGap;
+      fileBundleBtnRect_ = {ax, ty, 92, kTBtnH}; ax += 92 + kTGrpGap;
+      fileSaveAsBtnRect_ = SDL_Rect {};
+      drawTBtn(fileNewBtnRect_,  "NEW");
+      drawTBtn(fileOpenBtnRect_, "OPEN");
+      drawTBtn(fileSaveBtnRect_, "SAVE");
+      drawTBtn(fileBundleBtnRect_, "BUNDLE");
+
+      SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
+      Primitives::fillRect(controlRenderer_, sep1, pal.mid);
+      ax += 2 + kTGrpGap;
+
+      // Deck loop and shuffle toggles — icon buttons
+      const Deck& focDeck = focusedDeck();
+      {
+        constexpr int kModeBtnW = 44;
+        deckLoopBtnRect_    = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTBtnGap;
+        deckShuffleBtnRect_ = {ax, ty, kModeBtnW, kTBtnH}; ax += kModeBtnW + kTGrpGap;
+
+        auto drawModeBtn = [&](const SDL_Rect& rect, UiImageAsset& icon, bool lit) {
+          SDL_Color fill = lit ? pal.dark : pal.light;
+          SDL_Color ink  = lit ? pal.light : pal.deep;
+          drawUIPanel(rect, fill, pal.deep, pal.mid);
+          if (icon.texture) {
+            int iconSize = std::min(20, std::min(rect.w - 12, rect.h - 12));
+            SDL_Rect iconRect {
+              rect.x + (rect.w - iconSize) / 2,
+              rect.y + (rect.h - iconSize) / 2,
+              iconSize, iconSize
+            };
+            drawUiImageContain(icon, iconRect, 255, ink);
+          }
+        };
+        UiImageAsset& loopIcon = focDeck.playlistLoop ? uiModeLoopOn_ : uiModeOnce_;
+        UiImageAsset& shuffIcon = focDeck.shuffle ? uiModeShuffleOn_ : uiModeOrder_;
+        drawModeBtn(deckLoopBtnRect_, loopIcon, focDeck.playlistLoop);
+        drawModeBtn(deckShuffleBtnRect_, shuffIcon, focDeck.shuffle);
+      }
+
+      SDL_Rect sep2 {ax, ty + 4, 2, kTBtnH - 8};
+      Primitives::fillRect(controlRenderer_, sep2, pal.mid);
+      ax += 2 + kTGrpGap;
+
+      // Volume fader fills remaining space
+      int faderAreaW = std::max(80, rx - ax - kTGrpGap);
+      {
+        int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
+        std::string volText = (faderAreaW > 160)
+          ? "VOLUME " + std::to_string(volPct) + "%"
+          : std::to_string(volPct) + "%";
+        int volTextW = 0;
+        TTF_SizeUTF8(fontSmall_, volText.c_str(), &volTextW, nullptr);
+        int kVolLblW = std::min(volTextW + 24, faderAreaW - 44);
+        SDL_Rect volLbl {ax, ty, kVolLblW, kTBtnH};
+        drawUIPanel(volLbl, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, volLbl, volText, pal.deep);
+        int trackX = ax + kVolLblW + 4;
+        int trackW = std::max(40, faderAreaW - kVolLblW - 4);
+        masterFaderRect_ = {trackX, ty + kTBtnH/2 - 7, trackW, 14};
+        SDL_Rect track = masterFaderRect_;
+        Primitives::fillRect(controlRenderer_, track, pal.deep);
+        int fillW = static_cast<int>(std::clamp(project_.masterVolume, 0.0, 2.0) / 2.0 * track.w);
+        SDL_Rect fillR {track.x, track.y, fillW, track.h};
+        SDL_Color fCol = project_.masterVolume > 1.0 ? SDL_Color{180,80,20,255} : pal.dark;
+        Primitives::fillRect(controlRenderer_, fillR, fCol);
+        Primitives::strokeRect(controlRenderer_, track, pal.mid);
+        // Grabber thumb at current position
+        int thumbX = track.x + fillW;
+        int thumbW = 6;
+        int thumbH = track.h + 6;
+        SDL_Rect thumb {thumbX - thumbW / 2, track.y - 3, thumbW, thumbH};
+        Primitives::fillRect(controlRenderer_, thumb, pal.light);
+        Primitives::strokeRect(controlRenderer_, thumb, pal.mid);
+      }
+
+      // Shuffle sparkle — fast twinkling when shuffle is on
+      if (focDeck.shuffle) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        double phase = static_cast<double>(animationNow_) * 0.004;
+        int sx = deckShuffleBtnRect_.x + deckShuffleBtnRect_.w + 4;
+        int sy = deckShuffleBtnRect_.y + deckShuffleBtnRect_.h / 2;
+        SDL_Color sc = pal.deep;
+        sc.a = static_cast<Uint8>(160 + 95 * std::abs(std::sin(phase * 0.8)));
+        drawStar(controlRenderer_, sx, sy, 3, sc);
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
+    }
+
+    deckSidebarToggleRect_ = SDL_Rect {};
+
+    // Content area: below toolbar
+    int contentY = toolbar.y + toolbar.h + kLayoutPanelGap;
+    int controlsTop = bottomBarRect_.w > 0 ? bottomBarRect_.y : (height - kLayoutBottomBarHeight - kLayoutPanelPadding);
+    int contentBottom = controlsTop - kLayoutPanelGap;
+    int contentH = std::max(120, contentBottom - contentY);
+    int contentLeft  = shell.x + kLayoutPanelBorder * 2;
+    int contentRight = shell.x + shell.w - kLayoutPanelBorder * 2;
+    int contentW = std::max(0, contentRight - contentLeft);
+
+    // Layout: playlist column (left) | program + inspector (right), with draggable splitters.
+    SDL_Rect contentArea {contentLeft, contentY, contentW, contentH};
+    playlistSplitterRect_ = {};
+    inspectorSplitterRect_ = {};
+    constexpr int kPlaylistMinW = 236;
+    int playlistMaxW = std::max(kPlaylistMinW, contentW - 520);
+    int playlistW = playlistPaneWidth_ > 0
+      ? std::clamp(playlistPaneWidth_, kPlaylistMinW, playlistMaxW)
+      : std::clamp(contentW / 5, kPlaylistMinW, 336);
+    SDL_Rect playlistCol {contentArea.x, contentArea.y, playlistW, contentArea.h};
+    SDL_Rect mainPanel {contentArea.x + playlistW + kLayoutPanelGap, contentArea.y,
+                        std::max(0, contentArea.w - playlistW - kLayoutPanelGap), contentArea.h};
+    contentAreaRect_ = contentArea;
+    mainPanelLayoutRect_ = mainPanel;
+    playlistSplitterRect_ = {playlistCol.x + playlistCol.w, contentArea.y, kLayoutPanelGap, contentArea.h};
+    cueRowActionHits_.clear();
+
+    renderPlaylistColumn(playlistCol, 0);
+    if (mainPanel.w > 60 && mainPanel.h > 60) {
+      renderMainPanel(mainPanel);
+    } else {
+      mainPanelLayoutRect_ = {};
+    }
+    if (playlistSplitterRect_.w > 0 && playlistSplitterRect_.h > 0) {
+      bool active = layoutDragMode_ == LayoutDragMode::Playlist;
+      bool hover = pointInRect(mouseX_, mouseY_, playlistSplitterRect_);
+      SDL_Rect rail {playlistSplitterRect_.x + playlistSplitterRect_.w / 2 - 1,
+                     playlistSplitterRect_.y + 12, 2, std::max(0, playlistSplitterRect_.h - 24)};
+      SDL_Color railColor = active ? pal.light
+                                   : (hover ? pal.dark : pal.mid);
+      Primitives::fillRect(controlRenderer_, rail, railColor);
+      SDL_Rect grip {playlistSplitterRect_.x + 1,
+                     playlistSplitterRect_.y + playlistSplitterRect_.h / 2 - 18,
+                     std::max(0, playlistSplitterRect_.w - 2), 36};
+      drawUIPanel(grip,
+                  active ? pal.dark : pal.shellInner,
+                  pal.deep,
+                  hover || active ? pal.light : pal.mid);
+      for (int dot = 0; dot < 3; ++dot) {
+        SDL_Rect pip {grip.x + grip.w / 2 - 1, grip.y + 9 + dot * 8, 2, 2};
+        Primitives::fillRect(controlRenderer_, pip,
+                             active ? pal.light : pal.dark);
+      }
+    }
+
+    renderButtons();
+    renderToast(width);
+    if (confirmQuit_) {
+      renderQuitConfirm();
+    }
+    if (showStartupDialog_ && !showSplashOverlay_) {
+      renderStartupDialog();
+    }
+    // Popups rendered last (on top)
+    renderContextMenu();
+    renderSettingsModal();
+    renderDropdownPopover();
+    renderShortcutsOverlay();
+    renderInlineTextEditor();
+    renderSplashOverlay();
+    if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
+      int ww, wh;
+      SDL_GetRendererOutputSize(controlRenderer_, &ww, &wh);
+      SDL_Rect dst {0, 0, ww, wh};
+      SDL_RenderCopy(controlRenderer_, scanlineOverlay_, nullptr, &dst);
+    }
+    SDL_RenderPresent(controlRenderer_);
+    auto uiFrameEnd = std::chrono::steady_clock::now();
+    lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
+    lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
+  }
+
+  void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
+    const Deck& deck = project_.decks[deckIndex];
+    if (deckOpacityFaderRects_.size() < project_.decks.size()) {
+      deckOpacityFaderRects_.resize(project_.decks.size(), SDL_Rect {});
+    }
+    if (deckIndex >= 0 && deckIndex < static_cast<int>(deckColumnRects_.size())) {
+      deckColumnRects_[deckIndex] = col;
+    }
+
+    // --- Simple playlist header ---
+    constexpr int kPlaylistHeaderH = 28;
+    SDL_Rect colHeader {col.x, col.y, col.w, kPlaylistHeaderH};
+    drawUIPanel(colHeader, pal.dark,
+                pal.deep, pal.mid);
+    drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
+                 {colHeader.x + 8, colHeader.y + 6, colHeader.w - 16, 20},
+                 "PLAYLIST", pal.light);
+    // Playlist header — scrolling dot animation (like a marquee)
+    {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      int dotTrack = colHeader.w - 80;
+      if (dotTrack > 20) {
+        for (int d = 0; d < 3; ++d) {
+          double phase = static_cast<double>(animationNow_) * 0.001 + d * 0.33;
+          double frac = std::fmod(phase, 1.0);
+          int dx = colHeader.x + colHeader.w - 12 - static_cast<int>(frac * dotTrack);
+          int dy = colHeader.y + colHeader.h / 2;
+          SDL_Color dotC = pal.mid;
+          dotC.a = static_cast<Uint8>(80 + 175 * (1.0 - frac));
+          SDL_Rect dot {dx - 1, dy - 1, 2, 2};
+          Primitives::fillRect(controlRenderer_, dot, dotC);
+        }
+      }
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    }
+
+    auto primaryIndices = cueIndicesForOverlayRole(deck, false);
+    auto overlayIndices = cueIndicesForOverlayRole(deck, true);
+    bool showOverlayBin = !overlayIndices.empty();
+    if (deckOverlayScrolls_.size() <= static_cast<size_t>(deckIndex)) {
+      deckOverlayScrolls_.resize(deckIndex + 1, 0);
+    }
+
+    // Cue list area
+    int listAreaY = col.y + kPlaylistHeaderH + 4;
+    int listAreaH = col.h - kPlaylistHeaderH - 4 - kColFooterH - 4;
+    int overlayPanelH = 0;
+    if (showOverlayBin) {
+      overlayPanelH = 112;
+      overlayPanelH = std::clamp(44 + static_cast<int>(overlayIndices.size()) * (kRowHeight + 8), 120, 232);
+      overlayPanelH = std::min(overlayPanelH, std::max(96, listAreaH / 2));
+    }
+    int primaryPanelH = std::max(120, listAreaH - overlayPanelH - 8);
+    if (showOverlayBin && primaryPanelH + overlayPanelH + 8 > listAreaH) {
+      overlayPanelH = std::max(96, listAreaH - primaryPanelH - 8);
+    }
+    if (!showOverlayBin) {
+      primaryPanelH = listAreaH;
+    }
+
+    SDL_Rect primaryFrame {col.x + 4, listAreaY, col.w - 8, std::max(0, primaryPanelH)};
+    SDL_Rect overlayFrame {0, 0, 0, 0};
+    if (showOverlayBin) {
+      overlayFrame = {col.x + 4, primaryFrame.y + primaryFrame.h + 8, col.w - 8,
+                      std::max(0, listAreaH - primaryFrame.h - 8)};
+    }
+    deckListClipRects_[deckIndex] = primaryFrame;
+    deckOverlayClipRects_[deckIndex] = overlayFrame;
+
+    drawUIPanel(primaryFrame, pal.light, pal.deep, pal.mid);
+    SDL_Rect primaryClip {primaryFrame.x + 8, primaryFrame.y + 8, primaryFrame.w - 16, std::max(0, primaryFrame.h - 16)};
+    SDL_RenderSetClipRect(controlRenderer_, &primaryClip);
+    int y = primaryClip.y - deckScrolls_[deckIndex];
+    for (int cueIndex : primaryIndices) {
+      SDL_Rect row {primaryClip.x, y, primaryClip.w, kRowHeight};
+      renderCueRow(row, deckIndex, cueIndex);
+      y += kRowHeight + 8;
+    }
+    if (primaryIndices.empty()) {
+      int hx = primaryClip.x + primaryClip.w / 2 - 30;
+      int hy = primaryClip.y + primaryClip.h / 2 - 20;
+      drawText(controlRenderer_, fontSmall_, "I  import", pal.deep, hx, hy);
+      drawText(controlRenderer_, fontSmall_, "B  browser", pal.deep, hx, hy + 20);
+      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.deep, hx, hy + 40);
+    }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+
+    if (showOverlayBin) {
+      drawUIPanel(overlayFrame, pal.shellInner, pal.deep, pal.mid);
+      SDL_Rect overlayHeader {overlayFrame.x + 6, overlayFrame.y + 6, overlayFrame.w - 12, 22};
+      drawTextSafe(controlRenderer_, fontSmall_, overlayHeader, "OVERLAY BIN", pal.light);
+      SDL_Rect overlayHint {overlayFrame.x + 8, overlayFrame.y + 24, overlayFrame.w - 16, 14};
+      drawTextSafe(controlRenderer_, fontSmall_, overlayHint,
+                   "Lower Third and PIP fire independently",
+                   pal.mid);
+      SDL_Rect overlayClip {overlayFrame.x + 8, overlayFrame.y + 42, overlayFrame.w - 16, std::max(0, overlayFrame.h - 50)};
+      SDL_RenderSetClipRect(controlRenderer_, &overlayClip);
+      int overlayY = overlayClip.y - deckOverlayScrolls_[deckIndex];
+      for (int cueIndex : overlayIndices) {
+        SDL_Rect row {overlayClip.x, overlayY, overlayClip.w, kRowHeight};
+        renderCueRow(row, deckIndex, cueIndex);
+        overlayY += kRowHeight + 8;
+      }
+      int totalOverlayH = static_cast<int>(overlayIndices.size()) * (kRowHeight + 8) - 8;
+      int overlayScrollMax = std::max(0, totalOverlayH - overlayClip.h);
+      deckOverlayScrolls_[deckIndex] = std::clamp(deckOverlayScrolls_[deckIndex], 0, overlayScrollMax);
+      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    } else {
+      deckOverlayScrolls_[deckIndex] = 0;
+    }
+
+    // Column footer (playlist settings)
+    int footerY = col.y + col.h - kColFooterH;
+    SDL_Rect footer {col.x, footerY, col.w, kColFooterH};
+    drawUIPanel(footer, pal.shellInner, pal.deep, pal.shellOuter);
+    
+    std::string playlistInfo = std::string(deck.playlistLoop ? "LOOP" : "ONCE")
+      + std::string("  |  ") + (deck.shuffle ? "SHUFFLE" : "ORDER");
+    drawTextSafe(controlRenderer_, fontSmall_, {footer.x + 6, footer.y + 4, footer.w - 12, 16},
+                 playlistInfo, pal.dark);
+
+    SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
+    Primitives::drawFramedPanel(controlRenderer_, opacityRail, pal.light,
+                    pal.deep, pal.shellOuter);
+    int fillW = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opacityRail.w - 4)));
+    fillW = std::clamp(fillW, 0, opacityRail.w - 4);
+    SDL_Rect opacityFill {opacityRail.x + 2, opacityRail.y + 2, fillW, opacityRail.h - 4};
+    Primitives::fillRect(controlRenderer_, opacityFill, pal.dark);
+    deckOpacityFaderRects_[deckIndex] = opacityRail;
+  }
+
+  void renderCueRow(const SDL_Rect& row, int deckIndex, int index) {
+    if (row.y + row.h < 0 || row.y > 2000) {
+      return;
+    }
+
+    const Deck& deck = project_.decks[deckIndex];
+    const auto& cue = deck.cues[index];
+    bool isOverlay = std::any_of(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(),
+                                  [&](int i) { return i == index; });
+    bool isSelected = cueIndexSelected(deck, index);
+    bool isLive = index == deck.activeIndex;
+    bool isQueued = !isLive && index == nextCueIndexForDeck(deckIndex);
+    
+    SDL_Color fill = pal.light;
+    SDL_Color border = pal.deep;
+    SDL_Color accent = pal.shellInner;
+
+    if (isLive) {
+      fill = pal.deep;
+      border = pal.mid;
+      accent = pal.dark;
+    } else if (isSelected) {
+      fill = pal.mid;
+    } else if (isQueued) {
+      fill = pal.light;
+      border = pal.dark;
+    } else if (isOverlay) {
+      fill = {48, 80, 48, 255};
+    }
+
+    drawUIPanel(row, fill, border, accent);
+
+    // Color tag chip
+    SDL_Rect chip {row.x + 4, row.y + 4, 6, row.h - 8};
+    SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
+    Primitives::fillRect(controlRenderer_, chip, chipColor);
+
+    SDL_Color ink = isLive ? pal.light : pal.deep;
+    SDL_Color subInk = isLive ? pal.mid : pal.dark;
+
+    // Indicator area (vertically centered in row)
+    int indSize = 28;
+    SDL_Rect indicatorRect {row.x + 14, row.y + (row.h - indSize) / 2, indSize, indSize};
+    if (isLive) {
+      drawUIPanel(indicatorRect, pal.dark, pal.light, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xba", pal.light);
+    } else if (isQueued) {
+      drawUIPanel(indicatorRect, pal.mid, pal.deep, pal.dark);
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "N", pal.deep);
+    } else if (isSelected) {
+      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb8", ink); // ▸
+    }
+
+    constexpr int kCueActionBtnW = 18;
+    constexpr int kCueActionBtnH = 14;
+    constexpr int kCueActionBtnGap = 4;
+    constexpr int kCueActionCount = 5;
+    int actionStripW = kCueActionCount * kCueActionBtnW + (kCueActionCount - 1) * kCueActionBtnGap;
+    bool showActionStrip = row.w >= 196;
+    int actionStripX = row.x + row.w - actionStripW - 6;
+
+    int nameX = row.x + 48;
+    int nameW = showActionStrip ? std::max(52, actionStripX - nameX - 8) : (row.w - 64);
+
+    // Cached display strings — avoids TTF loop in ellipsizeToPixelWidth every frame
+    bool isProbing = cue.width == 0 && cue.height == 0 && !cue.path.empty()
+                     && cue.kind != CueKind::Pattern && cue.kind != CueKind::LowerThird;
+    auto& dc = cueRowDisplayCache_[cue.id];
+    if (dc.name != cue.name || dc.nameW != nameW || dc.cueId != cue.cueId
+        || dc.cueNumber != cue.cueNumber || dc.index != index || dc.kind != cue.kind
+        || dc.duration != cue.duration || dc.stillDurationSeconds != cue.stillDurationSeconds
+        || dc.endAction != cue.endAction || dc.width != cue.width || dc.height != cue.height
+        || dc.pathEmpty != cue.path.empty()) {
+      dc.name = cue.name;
+      dc.nameW = nameW;
+      dc.cueId = cue.cueId;
+      dc.cueNumber = cue.cueNumber;
+      dc.index = index;
+      dc.kind = cue.kind;
+      dc.duration = cue.duration;
+      dc.stillDurationSeconds = cue.stillDurationSeconds;
+      dc.endAction = cue.endAction;
+      dc.width = cue.width;
+      dc.height = cue.height;
+      dc.pathEmpty = cue.path.empty();
+      // Recompute cached strings
+      dc.token = cueDisplayToken(cue, index);
+      dc.kindUpper = toUpper(cueKindLabel(cue.kind));
+      dc.ellipsizedName = ellipsizeToPixelWidth(fontBase_, cue.name, nameW);
+      if (isProbing) {
+        dc.meta = "probing...";
+      } else if (cue.kind == CueKind::Video || cue.kind == CueKind::Audio) {
+        dc.meta = cue.duration > 0.0 ? formatSeconds(cue.duration) : "hold";
+      } else {
+        dc.meta = cue.stillDurationSeconds > 0.0 ? formatSeconds(cue.stillDurationSeconds) : "hold";
+      }
+      if (!isProbing && cue.endAction != CueEndAction::Inherit && cue.endAction != CueEndAction::Stop) {
+        dc.meta += "  " + toUpper(cueEndActionLabel(cue.endAction));
+      }
+    }
+
+    // Cue ID and Type — line 1 (top of row)
+    SDL_Rect tokenRect {row.x + 48, row.y + 4, 54, 18};
+    drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
+
+    {
+      UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
+      SDL_Rect iconRect {row.x + 106, row.y + 3, 22, 22};
+      if (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect)) {
+        // Icon drawn — show kind label shifted right
+        SDL_Rect typeRect {row.x + 130, row.y + 5, 72, 18};
+        drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
+      } else {
+        SDL_Rect typeRect {row.x + 106, row.y + 5, 96, 18};
+        drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
+      }
+    }
+
+    // Name — line 2 (middle of row, prominent)
+    int nameY = row.y + 26;
+    SDL_Rect nameRect {nameX, nameY, nameW, 22};
+    drawTextSafe(controlRenderer_, fontBase_, nameRect, dc.ellipsizedName, ink);
+
+    // Metadata — line 3 (bottom of row, within bounds)
+    SDL_Rect metaRect {nameX, row.y + 50, nameW, 18};
+    drawTextSafe(controlRenderer_, fontSmall_, metaRect, dc.meta, isProbing ? pal.inkSoft : subInk);
+
+    auto drawCueRowActionIcon = [&](const SDL_Rect& rect, QuickAction action, SDL_Color inkColor, bool enabled) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, inkColor.r, inkColor.g, inkColor.b, inkColor.a);
+      switch (action) {
+        case QuickAction::ToggleFadeIn: {
+          int left = rect.x + 3;
+          int right = rect.x + rect.w - 3;
+          int bottom = rect.y + rect.h - 4;
+          SDL_RenderDrawLine(controlRenderer_, left, bottom, left + 3, bottom);
+          SDL_RenderDrawLine(controlRenderer_, left + 3, bottom, right - 1, rect.y + 4);
+          SDL_RenderDrawLine(controlRenderer_, right - 3, rect.y + 5, right - 1, rect.y + 4);
+          SDL_RenderDrawLine(controlRenderer_, right - 1, rect.y + 4, right - 1, rect.y + 6);
+          break;
+        }
+        case QuickAction::ToggleFadeOut: {
+          int left = rect.x + 3;
+          int right = rect.x + rect.w - 3;
+          int bottom = rect.y + rect.h - 4;
+          SDL_RenderDrawLine(controlRenderer_, left, rect.y + 4, right - 4, bottom);
+          SDL_RenderDrawLine(controlRenderer_, right - 4, bottom, right - 1, bottom);
+          SDL_RenderDrawLine(controlRenderer_, right - 4, bottom, right - 4, bottom - 2);
+          break;
+        }
+        case QuickAction::ToggleLoop:
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, rect, "\xe2\x88\x9e", inkColor);
+          break;
+        case QuickAction::ToggleHold: {
+          SDL_Rect barL {rect.x + rect.w / 2 - 4, rect.y + 3, 2, rect.h - 6};
+          SDL_Rect barR {rect.x + rect.w / 2 + 2, rect.y + 3, 2, rect.h - 6};
+          Primitives::fillRect(controlRenderer_, barL, inkColor);
+          Primitives::fillRect(controlRenderer_, barR, inkColor);
+          break;
+        }
+        case QuickAction::ToggleCueAudio: {
+          SDL_Rect box {rect.x + 3, rect.y + rect.h / 2 - 2, 3, 4};
+          SDL_Point horn[4] {
+            {box.x + box.w, box.y},
+            {box.x + box.w + 4, box.y - 3},
+            {box.x + box.w + 4, box.y + box.h + 3},
+            {box.x + box.w, box.y + box.h}
+          };
+          Primitives::fillRect(controlRenderer_, box, inkColor);
+          SDL_RenderDrawLine(controlRenderer_, horn[0].x, horn[0].y, horn[1].x, horn[1].y);
+          SDL_RenderDrawLine(controlRenderer_, horn[1].x, horn[1].y, horn[2].x, horn[2].y);
+          SDL_RenderDrawLine(controlRenderer_, horn[2].x, horn[2].y, horn[3].x, horn[3].y);
+          SDL_RenderDrawLine(controlRenderer_, horn[3].x, horn[3].y, horn[0].x, horn[0].y);
+          if (enabled) {
+            SDL_RenderDrawLine(controlRenderer_, rect.x + rect.w - 4, rect.y + 4, rect.x + rect.w - 2, rect.y + 6);
+            SDL_RenderDrawLine(controlRenderer_, rect.x + rect.w - 4, rect.y + rect.h - 4, rect.x + rect.w - 2, rect.y + rect.h - 6);
+          }
+          break;
+        }
+        default:
+          break;
+      }
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    };
+
+    bool toggleHover = false;
+    auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
+      SDL_Rect btn {buttonX, row.y + row.h - kCueActionBtnH - 6, kCueActionBtnW, kCueActionBtnH};
+      SDL_Color fill = !enabled
+        ? pal.mid
+        : (on ? pal.dark : pal.light);
+      SDL_Color accent = enabled && on ? pal.light : pal.mid;
+      SDL_Color iconInk = !enabled
+        ? pal.inkSoft
+        : (on ? pal.light : pal.deep);
+      drawUIPanel(btn, fill, pal.deep, accent);
+      drawCueRowActionIcon(btn, action, iconInk, on);
+      if (enabled) {
+        cueRowActionHits_.push_back({btn, deckIndex, index, action, true, tip});
+      }
+      if (pointInRect(mouseX_, mouseY_, btn)) {
+        drawHoverTip(tip, btn.x + btn.w / 2, btn.y);
+        toggleHover = true;
+      }
+    };
+
+    if (showActionStrip) {
+      int bx = actionStripX;
+      drawCueActionButton(bx, QuickAction::ToggleFadeIn, cue.fadeInSeconds > 0.001,
+                          true, "Toggle fade in");
+      bx += kCueActionBtnW + kCueActionBtnGap;
+      drawCueActionButton(bx, QuickAction::ToggleFadeOut, cue.fadeOutSeconds > 0.001,
+                          true, "Toggle fade out");
+      bx += kCueActionBtnW + kCueActionBtnGap;
+      drawCueActionButton(bx, QuickAction::ToggleLoop, cue.loop,
+                          true, "Toggle loop");
+      bx += kCueActionBtnW + kCueActionBtnGap;
+      drawCueActionButton(bx, QuickAction::ToggleHold, cue.pauseOnLastFrame,
+                          true, "Toggle hold on last frame");
+      bx += kCueActionBtnW + kCueActionBtnGap;
+      drawCueActionButton(bx, QuickAction::ToggleCueAudio, cue.audioEnabled,
+                          cue.hasAudio, cue.hasAudio ? "Toggle cue audio" : "Cue has no audio");
+    }
+
+    // Remaining time badge for live row
+    if (isLive) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->duration() > 0.0) {
+        double remaining = std::max(0.0, engine->duration() - engine->position());
+        std::string remStr = "-" + formatSeconds(remaining);
+        SDL_Rect badge {row.x + row.w - 84, row.y + 4, 80, 24};
+        drawUIPanel(badge, pal.dark, pal.light, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontMono_, badge, remStr, pal.light);
+      }
+    }
+    
+    // Selection pulse
+    if (project_.uiTransitionsEnabled && isSelected) {
+      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_ - selectionChangedAt_) / 95.0);
+      SDL_Color glow {155, 188, 15, static_cast<Uint8>(40 + pulse * 60.0)};
+      Primitives::strokeRect(controlRenderer_, insetRect(row, 1), glow);
+    }
+
+    // Hover tooltip logic preserved...
+    if (!toggleHover && pointInRect(mouseX_, mouseY_, row)) {
+      std::string rowTip = cue.name + "  |  " + cueKindLabel(cue.kind);
+      drawHoverTip(rowTip, row.x + row.w / 2, row.y);
+    }
+  }
+
+  // Draw a small floating tooltip panel anchored below/above (ax, ay).
+  void drawHoverTip(const std::string& tip, int ax, int ay) {
+    if (tip.empty()) return;
+    int w = 0;
+    TTF_SizeUTF8(fontSmall_, tip.c_str(), &w, nullptr);
+    w += 20;
+    int h = 26;
+    int x = ax - w / 2;
+    int y = ay - h - 6;
+    // Keep on screen
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(controlWindow_, &winW, &winH);
+    x = std::clamp(x, 6, winW - w - 6);
+    y = std::max(y, 6);
+    SDL_Rect panel {x, y, w, h};
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_Color bg {15, 56, 15, 230};
+    Primitives::fillRect(controlRenderer_, panel, bg);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    Primitives::strokeRect(controlRenderer_, panel, pal.dark);
+    drawText(controlRenderer_, fontSmall_, tip, pal.light, panel.x + 10, panel.y + 6);
+  }
+
+  void renderButtons() {
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0) {
+      drawUIPanel(bottomBarRect_,
+                  pal.shellInner,
+                  pal.deep,
+                  pal.shellOuter);
+    }
+    auto drawGroupFrame = [&](const SDL_Rect& rect, const std::string& label) {
+      if (rect.w <= 0 || rect.h <= 0) {
+        return;
+      }
+      drawUIPanel(rect,
+                  pal.light,
+                  pal.deep,
+                  pal.mid);
+      SDL_Rect labelRect {rect.x + 10, rect.y + 6, rect.w - 20, 22};
+      drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, labelRect, label,
+                   pal.inkSoft);
+      // (no divider — label alone provides group separation)
+    };
+    drawGroupFrame(mediaGroupRect_, "MEDIA");
+    drawGroupFrame(transportGroupRect_, "TRANSPORT");
+    drawGroupFrame(outputGroupRect_, "OUTPUT");
+
+    auto buttonIconForLabel = [&](const std::string& label) -> UiImageAsset* {
+      if (label == "IMPORT")   return &uiBtnImport_;
+      if (label == "SOURCE")   return &uiCueIconSource_;
+      if (label == "PATTERN")  return &uiCueIconPattern_;
+      if (label == "TAKE")     return &uiBtnTake_;
+      if (label == "STOP")     return &uiBtnStop_;
+      if (label == "RERACK")   return &uiBtnRerack_;
+      if (label == "CLEAR")    return &uiBtnClear_;
+      if (label == "SETTINGS") return &uiBtnSettings_;
+      return nullptr;
+    };
+
+    for (const auto& button : buttons_) {
+      bool emphasized = button.label == "TAKE";
+      UiImageAsset* icon = buttonIconForLabel(button.label);
+      // Draw button chrome (bevel lines in drawUIPanel provide the raised look)
+      SDL_Color accent = emphasized ? pal.light : pal.dark;
+      drawUIPanel(button.rect, button.fill, pal.deep, accent);
+
+      if (icon && icon->texture) {
+        // Icon on left, label on right
+        int iconSize = std::min(24, button.rect.h - 16);
+        int iconX = button.rect.x + 8;
+        int iconY = button.rect.y + (button.rect.h - iconSize) / 2;
+        SDL_Rect iconRect {iconX, iconY, iconSize, iconSize};
+        drawUiImageContainTinted(*icon, iconRect);
+        int textX = iconX + iconSize + 4;
+        int textW = button.rect.x + button.rect.w - textX - 6;
+        SDL_Rect labelRect {textX, button.rect.y + 8, textW, button.rect.h - 14};
+        std::string clipped = ellipsizeToPixelWidth(fontSmall_, button.label, std::max(0, textW));
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, labelRect, clipped, button.text);
+      } else {
+        // Text only — centered, prefer pixel font for that Nintendo feel
+        TTF_Font* titleFont = fontPixelSmall_ ? fontPixelSmall_ :
+                              ((button.rect.h < 34 || button.rect.w < 112 || button.label.size() > 7)
+                              ? fontSmall_ : fontBase_);
+        std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, std::max(0, button.rect.w - 10));
+        SDL_Rect titleRect {button.rect.x + 4, button.rect.y + 8, button.rect.w - 8, button.rect.h - 14};
+        drawCenteredTextSafe(controlRenderer_, titleFont, titleRect, clipped, button.text);
+      }
+    }
+    // Hover tip for bottom-bar buttons
+    for (const auto& button : buttons_) {
+      if (!button.tip.empty() && pointInRect(mouseX_, mouseY_, button.rect)) {
+        drawHoverTip(button.tip, button.rect.x + button.rect.w / 2, button.rect.y);
+        break;
+      }
+    }
+
+    // ─── Bottom bar sparkle area ───
+    // Ambient sparkles + state-indicating animations in the empty space
+    // within the output group, after the 2 buttons
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 8) {
+      // Find the rightmost button in the output group (buttons_[7] = SETTINGS)
+      SDL_Rect lastOutBtn = buttons_[7].rect;
+      int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
+      int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
+      if (sparkleAreaW < 40) {
+        // Fallback: use area below the output buttons
+        sparkleAreaX = outputGroupRect_.x + 12;
+        sparkleAreaW = outputGroupRect_.w - 24;
+      }
+      if (sparkleAreaW > 30) {
+        int sparkleAreaCY = bottomBarRect_.y + bottomBarRect_.h / 2;
+
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+
+        // Ambient orbiting stars
+        {
+          SDL_Color starC = pal.dark;
+          for (int s = 0; s < 5; ++s) {
+            double phase = static_cast<double>(animationNow_) * 0.0015 + s * 1.257;
+            int orbitR = std::min(sparkleAreaW / 3, 60);
+            int sx = sparkleAreaX + sparkleAreaW / 2 + static_cast<int>(std::sin(phase) * orbitR);
+            int sy = sparkleAreaCY + static_cast<int>(std::cos(phase * 0.8) * 18.0);
+            int arm = 3 + (s % 3);
+            starC.a = static_cast<Uint8>(100 + 155 * std::abs(std::sin(phase * 0.5)));
+            drawStar(controlRenderer_, sx, sy, arm, starC);
+          }
+        }
+
+        // Blackout warning — pulsing red stars when blacked out
+        if (masterDimmerTarget_ < 0.5) {
+          SDL_Color rc {180, 40, 40, 255};
+          for (int s = 0; s < 4; ++s) {
+            double phase = static_cast<double>(animationNow_) * 0.005 + s * 1.57;
+            int sx = sparkleAreaX + 20 + s * (sparkleAreaW / 5);
+            int sy = sparkleAreaCY + static_cast<int>(std::sin(phase) * 14.0);
+            rc.a = static_cast<Uint8>(120 + 135 * std::abs(std::sin(phase * 1.2)));
+            drawStar(controlRenderer_, sx, sy, 3 + (s % 2), rc);
+          }
+        }
+
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
+    }
+  }
+
+  void renderToast(int windowWidth) {
+    if (!project_.uiTransitionsEnabled || !toast_.active) {
+      return;
+    }
+
+    Uint64 elapsed = animationNow_ - toast_.startedAt;
+    if (elapsed >= toast_.durationMs) {
+      toast_.active = false;
+      return;
+    }
+
+    double progress = static_cast<double>(elapsed) / static_cast<double>(toast_.durationMs);
+    double intro = easeOutCubic(std::min(progress / 0.2, 1.0));
+    double outro = progress > 0.78 ? 1.0 - easeOutCubic((progress - 0.78) / 0.22) : 1.0;
+    double visibility = std::min(intro, outro);
+
+    SDL_Rect panel {windowWidth - 344, 36 + static_cast<int>((1.0 - visibility) * -24.0), 300, 58};
+    panel.x = windowWidth - 44 - static_cast<int>(300.0 * visibility);
+    Primitives::drawFramedPanel(controlRenderer_, panel, toast_.fill, pal.deep, pal.mid);
+    drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 20);
+  }
+
+  // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.
+  void drawStar(SDL_Renderer* r, int cx, int cy, int S, SDL_Color c) {
+    // Center pixel
+    SDL_Rect center {cx - 1, cy - 1, 2, 2};
+    Primitives::fillRect(r, center, c);
+    // Four arms
+    for (int i = 1; i <= S; ++i) {
+      Uint8 fade = static_cast<Uint8>(c.a * (S - i + 1) / (S + 1));
+      SDL_Color arm {c.r, c.g, c.b, fade};
+      SDL_Rect h {cx + i, cy - 1, 2, 2}; Primitives::fillRect(r, h, arm);
+      SDL_Rect hl{cx - i - 1, cy - 1, 2, 2}; Primitives::fillRect(r, hl, arm);
+      SDL_Rect v {cx - 1, cy + i, 2, 2}; Primitives::fillRect(r, v, arm);
+      SDL_Rect vt{cx - 1, cy - i - 1, 2, 2}; Primitives::fillRect(r, vt, arm);
+    }
+  }
+
+  // Character-art rendering has been intentionally removed from operational UI paths.
+
+
+

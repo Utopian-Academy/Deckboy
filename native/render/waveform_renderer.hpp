@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Playboy contributors
+// Copyright (C) Deckboy contributors
 
-#ifndef PLAYBOY_RENDER_WAVEFORM_RENDERER_HPP
-#define PLAYBOY_RENDER_WAVEFORM_RENDERER_HPP
+#ifndef DECKBOY_RENDER_WAVEFORM_RENDERER_HPP
+#define DECKBOY_RENDER_WAVEFORM_RENDERER_HPP
 
 #include "render/text_renderer.hpp"
 #include <SDL2/SDL.h>
@@ -10,7 +10,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // WaveformRenderer visualizes audio waveforms in the UI.
 // Displays peak data, playhead position, in/out markers, and pause points.
@@ -40,6 +40,6 @@ class WaveformRenderer {
                          Uint8 r, Uint8 g, Uint8 b, Uint8 a = 255);
 };
 
-}  // namespace playboy::render
+}  // namespace deckboy::render
 
-#endif  // PLAYBOY_RENDER_WAVEFORM_RENDERER_HPP
+#endif  // DECKBOY_RENDER_WAVEFORM_RENDERER_HPP

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #include "browser.hpp"
@@ -12,7 +12,7 @@
 // - macOS: #include "browser_macos.hpp"
 // - Windows: #include "browser_windows.hpp"
 
-namespace playboy::platform::browser {
+namespace deckboy::platform::browser {
 
 class BrowserRenderer::Impl {
  public:
@@ -187,4 +187,4 @@ void BrowserRenderer::setDevicePixelRatio(double ratio) {
   // TODO: Platform-specific DPR adjustment
 }
 
-}  // namespace playboy::platform::browser
+}  // namespace deckboy::platform::browser

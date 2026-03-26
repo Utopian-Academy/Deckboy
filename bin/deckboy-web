@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HOST="${DECKBOY_HOST:-127.0.0.1}"
+PORT="${DECKBOY_PORT:-5050}"
+URL="http://${HOST}:${PORT}"
+
+node "${ROOT_DIR}/src/server.js" &
+SERVER_PID=$!
+
+cleanup() {
+  kill "${SERVER_PID}" 2>/dev/null || true
+}
+
+trap cleanup EXIT INT TERM
+
+if [[ "${1:-}" == "--open" ]]; then
+  sleep 1
+
+  if command -v chromium >/dev/null 2>&1; then
+    chromium --app="${URL}" >/dev/null 2>&1 &
+    chromium --new-window "${URL}/output" >/dev/null 2>&1 &
+  elif command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "${URL}" >/dev/null 2>&1 || true
+    xdg-open "${URL}/output" >/dev/null 2>&1 || true
+  fi
+fi
+
+wait "${SERVER_PID}"

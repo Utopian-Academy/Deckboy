@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Playboy contributors
+// Copyright (C) Deckboy contributors
 
 #include "render/waveform_renderer.hpp"
 #include "render/primitives.hpp"
@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // Color constants for waveform (matching App color scheme)
 namespace {
@@ -115,4 +115,4 @@ void WaveformRenderer::drawMarker(SDL_Renderer* renderer, int x, int y0, int y1,
   SDL_RenderDrawLine(renderer, x, y0, x, y1);
 }
 
-}  // namespace playboy::render
+}  // namespace deckboy::render

@@ -1,12 +1,12 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Playboy_0.01 - Render Primitives Implementation
+ * Deckboy_0.01 - Render Primitives Implementation
  * Copyright 2025 James
  */
 
 #include "primitives.hpp"
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // Inline helper: inset a rectangle by N pixels
 static SDL_Rect insetRect(const SDL_Rect& rect, int inset) {
@@ -30,13 +30,32 @@ void Primitives::strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Co
   SDL_RenderDrawRect(renderer, &rect);
 }
 
-void Primitives::drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect, 
+void Primitives::drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect,
                                   SDL_Color body, SDL_Color border, SDL_Color innerBorder) {
   fillRect(renderer, rect, body);
   strokeRect(renderer, rect, border);
   SDL_Rect inner = insetRect(rect, 2);
-  if (inner.w > 0 && inner.h > 0) {
-    strokeRect(renderer, inner, innerBorder);
+  if (inner.w > 2 && inner.h > 2) {
+    // Bevel: innerBorder brighter than body → raised, darker → inset
+    int bodyLuma = body.r + body.g + body.b;
+    int innerLuma = innerBorder.r + innerBorder.g + innerBorder.b;
+    bool raised = (innerLuma >= bodyLuma);
+    SDL_Color hi = raised ? innerBorder : body;
+    SDL_Color lo = {
+      static_cast<Uint8>(std::min(255, (raised ? body.r : innerBorder.r) * 2 / 3)),
+      static_cast<Uint8>(std::min(255, (raised ? body.g : innerBorder.g) * 2 / 3)),
+      static_cast<Uint8>(std::min(255, (raised ? body.b : innerBorder.b) * 2 / 3)),
+      (raised ? body : innerBorder).a
+    };
+    int x1 = inner.x, y1 = inner.y;
+    int x2 = inner.x + inner.w - 1, y2 = inner.y + inner.h - 1;
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, hi.r, hi.g, hi.b, hi.a);
+    SDL_RenderDrawLine(renderer, x1, y1, x2, y1);
+    SDL_RenderDrawLine(renderer, x1, y1, x1, y2);
+    SDL_SetRenderDrawColor(renderer, lo.r, lo.g, lo.b, lo.a);
+    SDL_RenderDrawLine(renderer, x1, y2, x2, y2);
+    SDL_RenderDrawLine(renderer, x2, y1, x2, y2);
   }
 }
 
@@ -48,4 +67,4 @@ void Primitives::drawSpeakerGrille(SDL_Renderer* renderer, int x, int y,
   }
 }
 
-}  // namespace playboy::render
+}  // namespace deckboy::render

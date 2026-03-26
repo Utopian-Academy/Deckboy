@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Playboy_0.01 - Render Primitives
+ * Deckboy_0.01 - Render Primitives
  * Copyright 2025 James
  */
 
@@ -8,7 +8,7 @@
 
 #include <SDL2/SDL.h>
 
-namespace playboy::render {
+namespace deckboy::render {
 
 // Basic drawing primitives for SDL2
 class Primitives {
@@ -28,4 +28,4 @@ class Primitives {
                                 int width, int bars, SDL_Color color);
 };
 
-}  // namespace playboy::render
+}  // namespace deckboy::render

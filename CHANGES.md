@@ -1,5 +1,489 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-26 (Companion module + status snapshot + portability)
+
+- **Bitfocus Companion module scaffolded** in `companion/companion-module-deckboy/`:
+  - `connection.js` — TCP client that polls `STATUS JSON` on a configurable interval
+  - `actions.js` — 35 actions covering transport, cue navigation, deck focus, seek,
+    volume, blackout, transitions, cue properties, overlays, outputs, NDI, streaming,
+    timecode, panic, shuffle, fullscreen, and raw command passthrough
+  - `feedbacks.js` — 13 boolean feedbacks: playing/paused/stopped per deck, blackout,
+    output health, NDI enabled/receivers, stream enabled, output enabled, test card,
+    deck focused
+  - `variables.js` — 50+ variables: global state, focused deck transport/cue/position/
+    volume/timecode, per-deck (1-4) status, focused output health/NDI/stream/FPS
+  - `presets.js` — 30+ drag-and-drop button presets organized by category (Transport,
+    Cue Navigation, Deck Selection, Master, Output, Status, Transitions)
+  - Module polls Deckboy TCP port 5510 with `STATUS JSON` — no unsolicited push needed
+- **Status JSON snapshot expanded**: Added `masterDimmer` (0-100), `blackout` (bool),
+  `masterVolume` (0-200) fields to both JSON and text status snapshots in
+  `app_project_state.ipp`; enables blackout feedback and dimmer/volume variables in
+  the Companion module
+
+## 2026-03-26 (Code audit: modularization, deduplication, portability)
+
+- **Socket helpers extracted** to `platform/network.hpp`: SocketHandle typedef,
+  closeSocket, setCloseOnExec, createBoundSocket, createDatagramSocket,
+  socketAddressToString — all with POSIX + Windows implementations. Removed
+  ~130 lines from main.cpp; main.cpp uses `using` declarations.
+- **Duplicate free functions eliminated**: ~20 functions that existed identically
+  in both main.cpp's anonymous namespace and `core/utils` removed from main.cpp.
+  Added `using namespace deckboy::core::utils;` in the anonymous namespace.
+  Includes: trim, splitLines, splitByChar, formatSeconds, formatTimecode,
+  parseTimecodeSeconds, cueEndAction helpers, transportLabel, transitionStyle
+  helpers, easeOutCubic, colorToHex, color channel helpers, colorTagToSdl,
+  nextColorTag, insetRect, pointInRect, toUpper, toLower, joinParts,
+  splitWhitespace. Extended variants (cueKindLabel/Token with extra CueKind
+  cases, parseColor with RGBA) kept in main.cpp.
+- **utils.cpp optimized**: formatSeconds, formatTimecode, colorToHex converted
+  from std::ostringstream to snprintf (matching main.cpp's prior optimization).
+  Removed unused `<iomanip>` include.
+- **Dead code removed from utils**: fillRect, strokeRect, drawFramedPanel,
+  drawSpeakerGrille — duplicated render::Primitives methods, never called.
+- **API wrappers extracted** to platform headers:
+  - `platform/ndi_api.hpp` — NdiApi struct (NDI send, guarded by DECKBOY_HAS_NDI_SDK)
+  - `platform/ltc_api.hpp` — LtcDecodedTimecode, LtcFpsEstimator, decodeLtcFrameBytes,
+    LtcApi struct (guarded by !_WIN32)
+  - `platform/ndi_trigger_api.hpp` — NdiTriggerRuntimeSource,
+    NdiTriggerRuntimeMetadataFrame, NdiTriggerApi struct (guarded by !_WIN32)
+  Removed ~340 lines from main.cpp.
+- **main.cpp reduced** from ~5700 to ~5050 lines (net ~650 line reduction).
+  All changes verified with clean builds.
+- **Portability: browser cue Linux guards** — `nextBrowserProfilePath()`,
+  `findFreeVirtualDisplay()`, `stopBrowserCue()`, `startBrowserCue()`, and
+  `tickBrowserStartup()` in `app_output_mgmt.ipp` wrapped in `#ifdef __linux__`
+  with no-op / false-return `#else` stubs so the build succeeds on non-Linux
+  platforms. Hardcoded `/tmp` in `nextBrowserProfilePath()` replaced with
+  `fs::temp_directory_path()`.
+- **Portability: smoke test paths** — `/tmp/test.mp4` and `/tmp/test.jpg` in
+  `app_smoke.ipp` replaced with `fs::temp_directory_path() / "test.*"` for
+  cross-platform correctness.
+
+## 2026-03-25 (Settings menus: spacing, abbreviation, and truncation polish)
+
+- **Splash screen redesign**: Full-bleed background art using new `drawUiImageCover()`
+  (fill/crop mode with clip rect), original framed card (760×430) preserved on top
+  with semi-transparent backing. Boot console + sparkle animations retained.
+- **Program monitor animations**: Corner sparkles when playing, idle floating
+  particles, playhead sparkle on timeline during playback.
+- **Bottom bar animations**: Pulsing red border glow on blackout button when active,
+  header sparkles use full available space.
+- **Inspector animations**: Activity sparkle in header when cue selected (double
+  star when playing). Path/URL display uses clip rect + two-line wrap.
+- **Fixed VIDEO/AUDIO timeline labels**: Changed from `drawTextSafe` (truncated at
+  64px) to `drawText` (renders full text).
+- **Settings modal — all 5 tabs redesigned for readability**:
+  - All card subtitles now have 6px+ clearance before first interactive element
+    (y+48 → y+54 throughout) so text isn't obscured by framed panel buttons below
+  - System tab: "FI"→"FADE IN", "FO"→"FADE OUT", "AUD"→"AUDIO",
+    "P-BEGIN"→"PAUSE BEGIN", "P-END"→"PAUSE END", "NEXT X"→"NEXT TRANSITION";
+    toggle rows reorganized from 4-per-row to 2-per-row for legibility;
+    "PLAYLIST PREFS"→"PLAYLIST PREFERENCES"
+  - Network tab: "NDI TRIG"→"NDI TRIGGER"
+  - Video Outputs tab: complete two-column rewrite — removed redundant freestanding
+    labels ("Assign to hardware display:", "Resolution:"), dropdowns now
+    self-describe ("Hardware Display: ...", "Resolution: ..."); NDI source name
+    changed from bare panel to dropdown; edge blend labels on separate row above
+    buttons; fullscreen and orientation as full-width rows
+  - About tab: switched runtime info from `drawTextSafe` to `drawText` to prevent
+    truncation; dynamic paths use `ellipsizeToPixelWidth`
+  - Audio tab: long info text uses `ellipsizeToPixelWidth` to prevent card overflow
+- **Note**: Industry abbreviations (TC, SFX, NDI, OSC) kept as-is; only truncated
+  words (FI, FO, AUD, P-BEGIN, TRIG) were expanded.
+
+## 2026-03-16 (Visual overhaul: beveled panels, scanlines, generation themes + audit cleanup)
+
+- **Fixed critical `rebuildPalette()` bug**: Function was a no-op (self-assigned
+  `pal.light = pal.light`). Palette struct was zero-initialized, making all
+  774 `pal.*` color references draw transparent black. Fixed to convert from
+  `kConstant` uint32 globals via `colorFromRgba()`.
+- **Differentiated default DMG palette**: Shell colors (grey-green plastic:
+  `C4CFA1`, `A5B088`, `5A6B4A`) now distinct from LCD screen colors (classic
+  `9BBC0F`/`8BAC0F`/`306230`/`0F380F`). `inkSoft`, `buttonBezel`, `deleteBezel`
+  all unique values.
+- **Beveled panel rendering**: `drawUIPanel()` and `Primitives::drawFramedPanel()`
+  now draw beveled edges — highlight on top-left, shadow on bottom-right.
+  Automatically detects raised vs inset: accent brighter than fill = raised
+  panel; accent darker = inset/recessed content area. Zero call-site changes.
+- **Scanline overlay**: 1×4 procedural texture drawn before each
+  `SDL_RenderPresent` — alternating clear/tinted rows for CRT/dot-matrix feel.
+  Controlled by `pal.scanlineAlpha` (0=disabled). Theme key: `scanline_alpha`.
+- **Game Boy generation themes**: Added `pocket` (silver-grey LCD), `color`
+  (vivid green + indigo shell), `advance` (washed-out + indigo), `sp` (bright
+  backlit + metallic silver). Set via `DECKBOY_THEME=pocket` etc.
+
+## 2026-03-16 (Audit cleanup: cue row cache, async ffprobe, snprintf, trim/toLower, waveform, Cue reorder)
+
+- Cached cue row display strings (`CueRowDisplayCache`):
+  - Per-cue cache for token, kind label, ellipsized name, and metadata line
+  - Self-invalidating by input comparison (no explicit dirty flags needed)
+  - Eliminates `ellipsizeToPixelWidth` TTF measurement loop per cue row per frame
+  - Cleared on project load/new
+- Async ffprobe for cue loading:
+  - `importPaths()` now creates placeholder cues immediately (usable in UI)
+    and launches `probeCue()` via `std::async` on background threads
+  - Probe futures polled in `update()` with `wait_for(0ms)`; cue metadata
+    filled in when probe completes
+  - Cue rows show "probing..." indicator while pending
+  - Eliminates UI hang when importing large batches of media files
+- Converted `formatSeconds()`/`formatTimecode()` from `std::ostringstream`
+  to `snprintf`; replaced inspector `spdSS`/`doubleMixedLabel` ostringstream
+  patterns with `fmtFloat()` — eliminates per-frame heap allocations in
+  render hot paths
+- Consolidated duplicate `trim()`/`toLower()` in platform backends:
+  - Replaced local definitions in `capture_backend.cpp` and `output_backend.cpp`
+    with `using` declarations from `core/utils.hpp`
+- Added `getWaveformPeaks(path, pending)` helper:
+  - Replaced 8 repeated lock-guard + find + count waveform cache lookup blocks
+    with single method call across all render paths
+- Reordered `Cue` struct members in `native/core/types.hpp` for cache efficiency:
+  - Grouped by alignment: strings (20), vectors (2), doubles (11), floats (15),
+    ints/enums (9), SDL_Color (3), bools (7)
+  - Eliminates ~40 bytes of inter-member padding per Cue instance
+  - No `offsetof` usage in codebase; serialization uses explicit field names
+
+## 2026-03-15 (Audit fixes: companion race condition + palette + inspector dedup)
+
+- Fixed race condition in Companion/OSC TCP client handling:
+  - Added `companionClientsMutex_` protecting `companionClients_` and
+    `companionClientBuffers_` in both `companionLoop()` (network thread) and
+    `stopCompanionControl()` (main thread shutdown)
+  - `companionLoop()` now snapshots client list for `select()` FD setup (lock
+    released before blocking `select()`), then re-locks for recv/accept/close
+  - Reduced `select()` timeout from 200ms to 100ms for better responsiveness
+- Added pre-converted color palette (`Palette pal` struct + `rebuildPalette()`):
+  - 10 theme colors converted from `Uint32` to `SDL_Color` once at startup and
+    after each theme load
+  - Migrated all ~1247 `colorFromRgba(kConstant)` call sites to `pal.*` members
+  - `rebuildPalette()` called after `loadThemeFromEnv()` and inside `loadTheme()`
+- Extracted duplicated inspector lambdas into shared `insp*()` member functions:
+  - Created `InspectorCtx` struct parameterizing layout differences (inset,
+    fonts, ellipsize, gap sizes) between docked and floating inspector panels
+  - 15 shared helpers: `inspDrawQuickRow`, `inspDrawMessageRow`,
+    `inspDrawActionRow`, `inspDrawEditableRow`, `inspDrawStatusRow`,
+    `inspDrawKeyColorRow`, `inspDrawGeometryRows`, `inspDrawColorRows`,
+    `inspDrawKeyRows`, `inspBeginSection`, `inspFinishSection`, plus
+    `fmtFloat`, `fmtPercent`, `fmtScaleMode`
+  - Both docked and floating paths now use thin wrapper lambdas (~2-3 lines
+    each) that delegate to shared implementations (~400 lines removed)
+  - `fmtFloat()`/`fmtPercent()` use `snprintf` instead of `std::ostringstream`,
+    eliminating per-frame heap allocations for inspector float formatting
+- Created `docs/AUDIT_ROADMAP.md` — task map for future agents covering
+  remaining optimization and cleanup work from the March 2026 audit
+
+## 2026-03-15 (Subprocess layer refactor for portability)
+
+- Refactored `native/core/subprocess.hpp/cpp` into a unified cross-platform API:
+  - New `SpawnOptions` struct with `StdioMode` enum for configuring stdin/stdout/stderr
+    handling (Inherit, Null, Pipe, Merge) and detached mode
+  - New `spawnProcess()` as the single entry point for all subprocess patterns
+  - `readAllText()` now delegates to `spawnProcess()` internally
+  - Legacy wrappers `spawnPipeProcess()` and `spawnDetachedProcess()` remain as thin
+    forwards so existing call sites in `main.cpp` need no changes
+  - Convenience factory presets: `SpawnOptions::pipedStdout()`, `detachedSilent()`,
+    `captureAll()`
+- Moved `spawnDetachedProcess()` definition from `native/main.cpp` into
+  `native/core/subprocess.cpp` (was the only subprocess helper still inlined in main)
+- Windows paths remain safe stubs (`return false` / `return std::nullopt`) with TODO
+  markers for future `CreateProcessW` implementation
+- All existing call sites (`spawnPipeProcess`, `readAllText`, `spawnDetachedProcess`)
+  continue to work unchanged — no behavioral changes
+
+## 2026-03-15 (Deckboy 0.60 audit + cleanup pass)
+
+- Switched `deckboy-0.60` focus from new overlay/scene surface area to audit,
+  cleanup, and portability readiness.
+- Removed the remaining active `pickTextInput(...)` modal text-entry routes from
+  operational settings and tools:
+  - `Ctrl+G` cue goto now uses the inline editor
+  - cue renumbering now uses the inline editor from both settings and
+    `Ctrl+Shift+R`
+  - MIDI port, Companion/OSC port, OSC Query port, OSC feedback rate, Art-Net
+    port, and canvas size prompts now all use the inline editor path
+  - browser-cue creation now uses the inline text editor instead of the old
+    ad-hoc prompt
+- Removed the old dead modal helpers from `native/main.cpp`:
+  - `pickTextInput(...)`
+  - `pickBrowserUrl()`
+- Removed stale deck-level auto-advance state from the live data model:
+  - Deckboy now saves a legacy placeholder only for old project compatibility
+  - old `auto_advance` project fields still load harmlessly, but are ignored
+  - keyboard/UI behavior no longer implies there is a real deck auto-advance
+    toggle behind the scenes
+- Parked unfinished overlay/scene authoring surfaces for now:
+  - removed `LOWER 3RD`, `SCENE`, and `PIP` from the bottom `MEDIA` group
+  - `G`, `M`, `Shift+P`, and remote add commands now toast that those cue types
+    are parked for cleanup instead of encouraging more half-finished authoring
+  - existing `Lower Third`, `PIP`, and `Composite` cues still load, inspect,
+    save, and render for compatibility
+- Portability audit conclusion for this pass:
+  - cross-platform work is still realistic without a major architecture rewrite
+  - the main remaining blockers are:
+    - Unix-only subprocess/FIFO runtime paths
+    - Linux-only browser/source capture backends
+    - Windows/macOS runtime backend completion
+
+## 2026-03-15 (Deckboy 0.60 branch, first composite cue cut)
+
+- Started `deckboy-0.60` for the next UI / scene-compositing pass.
+- Added a real `Composite` cue kind to the project model and save/load format.
+- Added `SCENE` to the bottom `MEDIA` group and `M` as the add-scene shortcut.
+- Composite cues now store:
+  - layout preset (`2-UP`, `70/30`, `QUAD`)
+  - per-slot source spec
+  - per-scene audio slot selection
+  - scene background colour
+- Added a dedicated composite cue inspector path:
+  - `PLAYBACK` for hold/duration/fades/end action
+  - `SCENE` for layout presets, slot source entry, and audio-slot cycling
+  - `OVERLAYS` for attached `Lower Third` / `PIP` bin items
+- First rendering pass is intentionally bounded:
+  - taking a `Composite` cue now shows a visible authored scene placeholder in
+    Program / Preview / Output instead of failing or going black
+  - slot content is not yet live-rendered from media/browser/source runtimes;
+    this branch now has the saved cue model and operator UI needed for that
+    next phase
+
+## 2026-03-15 (Composite cue architecture spec)
+
+- Added a concrete engineering spec for a future `Composite` cue in
+  [docs/COMPOSITE_CUE_SPEC.md](docs/COMPOSITE_CUE_SPEC.md)
+- The spec explicitly recommends `Composite` over a generic live layer system
+  for Deckboy's current single-primary-cue architecture
+- It covers:
+  - cue data model and slot model
+  - runtime/render integration strategy
+  - audio/transport rules
+  - inspector and monitor-editing behavior
+  - rollout phases and explicit non-goals
+
+## 2026-03-13 (cue/warp settings copy-paste, safer warp preset naming, longer default fades)
+
+- Added direct settings copy/paste for cue work:
+  - `Ctrl+C` copies the selected cue's inspector-facing playback/geometry/key
+    settings
+  - `Ctrl+V` pastes those settings onto the current cue selection while keeping
+    each cue's own source media, name, and identity
+  - the cue inspector summary card now has visible `COPY` / `PASTE` buttons
+- Added direct warp copy/paste:
+  - `Ctrl+Shift+C` copies the focused deck's current warp/blend state
+  - `Ctrl+Shift+V` pastes it back onto the focused deck
+  - the warp editor overlay now exposes `COPY` / `PASTE` buttons beside
+    `SAVE`
+- Replaced the old crash-prone warp preset name prompt:
+  - `SAVE` in the warp editor now uses the inline text editor instead of the
+    old modal text-entry path
+- New decks/cues now default to a longer cue fade preset:
+  - default cue fade duration moved from `0.5s` to `1.5s` for more visible
+    fade-ins / fade-outs on newly created cues
+
+## 2026-03-13 (attached overlays + self-contained PIP sources)
+
+- Overlays now work as reusable bin items plus per-cue attachments:
+  - primary cues now have an `OVERLAYS` inspector section
+  - each main cue can attach one `Lower Third` and one `PIP` from the
+    `OVERLAY BIN`
+  - attached overlays fire on `TAKE` only, and do not pollute main cue
+    next/loop sequencing
+- `PIP` is no longer limited to “point at another cue”:
+  - the PIP inspector now supports self-contained source types:
+    `Media File / Still`, `Browser URL`, `Window Source`, `Camera Source`,
+    and `Syphon/Spout Source`
+  - legacy cue-linked PIP cues still load, but the inspector now surfaces them
+    as `Legacy Cue Link`
+  - live PIP overlay runtimes now resolve from the actual configured source,
+    not just a referenced target cue
+- Manual overlay firing uses the same runtime path as attached overlays:
+  - taking a `Lower Third` or `PIP` from the overlay bin replaces the live
+    overlay of the same kind instead of stacking duplicates endlessly
+
+## 2026-03-13 (overlay bin split, PIP presets, playback sequencing cleanup)
+
+- Split overlay-only cues out of the operator rundown:
+  - the left column now renders `MAIN CUES` and a separate `OVERLAY BIN`
+  - `Lower Third` and `PIP` cues no longer sit in the main playback list for
+    normal operator scanning
+  - overlay cues can still be selected and fired independently from the new bin
+  - the overlay bin now stays hidden until at least one overlay cue exists
+  - the main rundown and overlay bin each have their own mouse-wheel scroll
+- Main cue sequencing now skips overlay-only cues:
+  - `next` badges, keyboard next/prev selection, and cue-end auto-advance no
+    longer land on `Lower Third` / `PIP` items
+  - this stops overlay cues from contaminating normal loop / next-cue logic
+- `PIP` controls are more direct in the cue inspector:
+  - the target cue now has an explicit `SET TARGET CUE` action at the top of
+    the `PLAYBACK` section
+  - corner presets (`TL / TR / BL / BR`) and size presets (`SM / BIG / 70/30`)
+    are available directly in the inspector before manual geometry tweaking
+
+## 2026-03-13 (UI cleanup: cue row controls, inspector cleanup, bottom bar cleanup)
+
+- Cleaned up several sloppy control-surface layout problems:
+  - `No cue selected` empty states in the cue inspector now render inside proper
+    framed cards instead of spilling out of their boxes
+  - the program monitor `OUTPUT / DECODE / STREAM` FPS pills now have wider
+    badges with readable numeric values
+  - the `WARP` and `-30 / -20 / -10` transport buttons now use roomier,
+    better-aligned labels
+- Reworked the bottom action bar:
+  - removed the old floating `Source` / `Pattern` default selectors from above
+    the footer
+  - moved the section labels (`MEDIA`, `TRANSPORT`, `OUTPUT`) into the group
+    panels so they no longer sit on panel edges
+  - added a dedicated `LOWER 3RD` media button beside `IMPORT`, `SOURCE`, and
+    `PATTERN`
+- Moved per-cue playback state access directly into the playlist rows:
+  - each cue row now exposes icon toggles for fade in, fade out, loop, hold on
+    last frame, and cue audio
+  - these cue-row toggles use symbols/icons instead of text chips
+- Improved the cue inspector for source cues:
+  - source-cue type selection now lives in the cue inspector
+  - the footer no longer needs a separate source-kind selector to create window,
+    camera, or syphon/spout source cues
+- Expanded the cue-side playback helpers so loop / hold / fade toggles apply
+  consistently across still, source, browser, pattern, and lower-third cues,
+  not just video/audio cues
+- Follow-up cleanup on the same control-surface pass:
+  - restored larger `MEDIA / TRANSPORT / OUTPUT` footer tiles so labels fit
+    cleanly again
+  - program monitor telemetry pills now split label/value, so `OUTPUT`,
+    `DECODE`, and `STREAM` FPS readouts keep the numeric value visible
+  - `Clear` now drops active Lower Third overlays immediately instead of
+    leaving them on screen until the fade cleanup finishes
+  - Lower Third cues can now be edited directly in the cue inspector (`title`
+    and `sub`) instead of relying on Companion-only text entry
+  - `System`, `Audio`, and `Network` settings tabs were reorganized to reduce
+    overlapping text:
+    - theme/UI feedback live under `System -> Appearance`
+    - audio output device selection moved to `Audio`
+    - network/integration controls were reflowed into larger cards
+- Added a first real `PIP` overlay cue:
+  - `PIP` now lives in the bottom `MEDIA` group and on `Shift+P`
+  - taking a `PIP` cue pushes it into the overlay stack like a Lower Third,
+    but it runs its own silent media engine for the referenced cue
+  - the `PIP` cue inspector now exposes a target cue token editor plus geometry
+    / color / key controls so placement and sizing happen in the normal cue UI
+  - selected `PIP` cues reuse the target cue's thumbnail / preview path instead
+    of showing a broken blank state
+- `System -> Appearance` no longer presents UI animation as a hard `ON/OFF`
+  toggle:
+  - UI motion is now normalized back on when older projects load
+  - the appearance card shows `UI MOTION` as always-on feedback instead of an
+    operator-facing off button
+
+## 2026-03-12 (Mitti parity: NMC transport sync runtime)
+
+- Added a live NMC transport sync backend on Linux/macOS builds:
+  - runs as a UDP transport/locate bridge behind the existing `NMC` adapter
+    toggle
+  - supports Mitti-style `input` vs `output` mode behavior with one active mode
+    at a time
+  - input mode listens for transport/locate packets and applies them to the
+    focused deck
+  - output mode broadcasts play/pause/stop/locate updates from the focused deck
+- Added runtime/operator controls through environment variables:
+  - `DECKBOY_NMC_MODE=input|output`
+  - `DECKBOY_NMC_PORT=<udp-port>`
+  - `DECKBOY_NMC_HOST=<output-target>` for output mode
+  - `DECKBOY_NMC_SOURCE=<sender-filter>` for input mode
+  - `DECKBOY_NMC_LOCATE_MS=<interval>` for rolling locate cadence
+- Updated runtime/backend reporting:
+  - `--self-check` now reports `nmc-sync-runtime: ...`
+  - integration route planning now reports `nmc[ok]` on non-Windows builds
+
+## 2026-03-12 (Mitti parity: NDI metadata trigger runtime)
+
+- Added a real NDI metadata trigger backend on Linux/macOS builds:
+  - dynamically loads `libndi` at runtime instead of requiring SDK headers at build time
+  - discovers an NDI source, connects a lightweight receive bridge, and listens
+    for incoming metadata frames
+  - routes accepted metadata into the existing remote-command path as `NDIEVENT`
+    so the same command handling applies as Companion / OSC / ATEM bridges
+- Added conservative metadata parsing:
+  - accepts raw Deckboy command text directly
+  - accepts common XML forms with `command` / `cmd` / `action` / `event`
+    attributes or elements
+  - supports `cue`, `goto`, and `group` XML attributes as `GOTO ...` and
+    `GROUP ... FIRE` shortcuts
+- Updated runtime/backend reporting:
+  - `--self-check` now reports `ndi-trigger-runtime: ok/missing`
+  - integration route planning now reports `ndi-trigger[ok]` on Linux/macOS
+- Added operator/runtime notes:
+  - `DECKBOY_NDI_TRIGGER_SOURCE` can constrain the trigger bridge to a specific
+    source name
+  - `DECKBOY_NDI_LIB` can override the runtime `libndi` path
+
+## 2026-03-12 (Mitti parity: LTC ingest)
+
+- Added a real LTC ingest backend on Linux/macOS builds:
+  - dynamically loads `libltc` at runtime instead of requiring headers at build time
+  - captures from the default SDL audio input and decodes LTC into the existing
+    timecode chase / trigger path
+  - emits `LTCEXT` internally so LTC follows the same ingest path already used
+    by MTC quarter-frame decode
+- Updated integration backend reporting:
+  - `--self-check` now reports `ltc-runtime: ok/missing`
+  - integration route planning now reports `ltc[ok]` on non-Windows builds
+- Added operator/runtime notes:
+  - `DECKBOY_LTC_LIB` can override the runtime `libltc` path
+  - `DECKBOY_LTC_DEVICE` can point Deckboy at a specific capture-device name
+
+## 2026-03-12 (Mitti parity: bundled show export)
+
+- Added bundled show export for file-backed cues:
+  - new `BUNDLE` toolbar action and `Ctrl+Shift+E` shortcut
+  - exports a new `.deckboy` plus sibling `<show>_media/` folder
+  - copied media is rewritten to relative cue paths for move-safe playback
+- Added runtime relative-path resolution for bundled projects:
+  - file-backed cues now resolve against the current project folder for decode,
+    thumbnails, preview, and waveform analysis
+  - bundled shows no longer depend on absolute source-media paths after export
+
+## 2026-03-10 (SRT stream stability fix)
+
+- Reworked the ffmpeg-backed stream output runtime so SRT/RTMP egress no longer
+  blocks the Deckboy UI when the sender stalls or the listener is missing:
+  - child stream processes now launch through explicit pipes instead of
+    `popen(...)`
+  - video writes now happen on a dedicated stream writer thread instead of the
+    main render thread
+  - stream startup/shutdown no longer leaks Deckboy's control/listener sockets
+    into ffmpeg children
+  - no-listener / reconnect cases now surface as retry/recovering state instead
+    of freezing the app
+- Clarified the operator workflow for local SRT loopback:
+  - `OUTPUT ON` arms the output itself
+  - `STREAMING: ON` starts network egress for that output
+  - local viewing uses an external SRT listener such as `ffplay`, not a browser
+
+## 2026-03-10 (Portability prep + Mitti parity tracker refresh)
+
+- Hardened the build system for cross-platform prep:
+  - top-level CMake now prefers exported `SDL2` / `SDL2_ttf` config packages
+    and falls back to pkg-config/manual lookup
+  - macOS feature-gated framework linking now uses a real helper instead of the
+    undefined `target_link_frameworks(...)` call path
+- Extended runtime portability scaffolding:
+  - `native/core/paths.cpp` now resolves executable locations on Linux, macOS,
+    and Windows
+  - sans/mono font lookup now includes macOS + Windows system font locations in
+    addition to project-local overrides
+  - `native/core/subprocess.*` no longer references Unix-only `ChildProcess`
+    members on Windows, and Unix headers are now included conditionally
+  - socket send helpers now tolerate platforms where `MSG_NOSIGNAL` is absent
+- Refreshed portability/parity docs to match the current implementation:
+  - `docs/PARITY_MITTI.md` now reflects the interactive warp editor, stronger
+    multi-select editing, built-in HyperDeck emulation, and the current highest
+    value remaining Mitti gaps
+  - `PORTABILITY.md` now documents executable-root lookup on Linux/macOS/Windows
+    plus current build/runtime readiness more explicitly
+
+### Validation
+
+- `cmake -S /home/james/Deckboy -B /home/james/Deckboy/build`
+- `cmake --build /home/james/Deckboy/build -j4`
+- `/home/james/Deckboy/build/deckboy-native --self-check`
+
 ## 2026-03-06 (Phase 4 inline editing + floating panel workspace)
 
 - Added real persisted panel presentation/visibility state on top of the Phase 1
@@ -38,8 +522,8 @@
   - video output advanced/routing headers
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-06 (Phase 3 workflow polish + selector cleanup)
 
@@ -71,8 +555,8 @@
   labels ellipsize instead of colliding with borders or neighboring columns.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-06 (Phase 2 operational panel split)
 
@@ -111,8 +595,8 @@
 - No playback, routing, OSC, Companion, shortcut, or output-safety behavior was changed.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-06 (workspace foundation slice: panel registry + persistence scaffold)
 
@@ -148,8 +632,8 @@
 - No playback/routing/OSC/Companion behavior changed.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j1`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j1`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-06 (operator terminology normalization pass)
 
@@ -167,11 +651,11 @@
   - rename prompt now reads `Master Cue Name`
 - Kept compatibility aliases and transport/protocol identifiers unchanged:
   - `GROUP` and `SCENE` command aliases still work
-  - `.playboy`, `PLAYBOY_*`, `/playboy/*`, and `playboy-native` remain as-is.
+  - `.deckboy`, `DECKBOY_*`, `/deckboy/*`, and `deckboy-native` remain as-is.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (audio inspector metadata section pass)
 
@@ -183,8 +667,8 @@
   pause points now render in the aligned metadata row style.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (inspector metadata section pass for lower-third/browser/source)
 
@@ -201,8 +685,8 @@
 - Lower-third `CLEAR OVERLAY` is now a real clickable inspector action instead of a visual-only row.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (inspector section pass + routing strip alignment + control styling)
 
@@ -221,8 +705,8 @@
   - dropdowns/buttons now share the same panel treatment and safer text rendering.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (grid layout cleanup pass: safer spacing + clearer control window)
 
@@ -253,8 +737,8 @@
   - stack view / cue inspector spacing aligned to the new layout constants.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (output activation UX pass: explicit health + recover/disarm)
 
@@ -282,8 +766,8 @@
   - removed stale, unused `kOutputMenuActionToggle` handler path from output-strip click routing after `REC/OFF` action migration.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (toggleable per-output FPS counter)
 
@@ -293,8 +777,8 @@
 - FPS display is non-blocking and updates continuously while outputs render.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (UI cleanup sprint: browser diagnostics + cue-panel refactor + regression smoke)
 
@@ -311,8 +795,8 @@
   - Browser status summary label mapping.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (browser cue take/capture reliability fix)
 
@@ -323,8 +807,8 @@
   - if browser capture cannot start, Deckboy now stops the browser startup sequence and toasts `browser capture failed` instead of silently staying black.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (browser cue URL edit in Cue Panel)
 
@@ -335,8 +819,8 @@
 - If the edited browser cue is currently active/live, Deckboy now reloads that cue using the new URL so the change can be applied immediately.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (transport black-frame continuity fix)
 
@@ -347,8 +831,8 @@
   - `seek(...)` now supports preserving visual frame content during decoder restart paths used by stop/rewind.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Decks window visibility behavior)
 
@@ -365,8 +849,8 @@
   - Decks panel renderer now skips render work while hidden.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (UI de-clutter + non-blocking dropdown pass)
 
@@ -418,9 +902,9 @@
 - Added compact selector chips above bottom controls for source/pattern defaults.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (output activation stability fix)
 
@@ -441,7 +925,7 @@
 
 ### Runtime integration backends (implemented)
 - Added live ATEM UDP trigger bridge runtime:
-  - listener thread on UDP port `9910` by default (`PLAYBOY_ATEM_BRIDGE_PORT` override)
+  - listener thread on UDP port `9910` by default (`DECKBOY_ATEM_BRIDGE_PORT` override)
   - inbound payloads enqueue into remote command path (`ATEMEVENT ...`)
   - supported trigger payloads include `CUT`, `AUTO`, `TAKE`, `PLAY`, `STOP`,
     `NEXT`, `PREV`, `CLEAR`, `PANIC`, `SCENE <n>`, and `DECKBOY <command>`.
@@ -470,9 +954,9 @@
 - Art-Net port edits now restart the Art-Net listener at runtime.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Integration adapter foundation: ATEM/NDI-trigger/NMC/MTC/LTC/DMX-ArtNet)
 
@@ -515,7 +999,7 @@
 - `STATUS` and `STATUS JSON` now include integration route summary:
   - `integrations` (text)
   - `integrationRoute` + `integrations{...}` (JSON)
-- OSC feedback mirror now publishes `/playboy/integration/*` values.
+- OSC feedback mirror now publishes `/deckboy/integration/*` values.
 - `--self-check` now prints:
   - `integration-backends: ...`
   - `integration-route-defaults: ...`
@@ -525,9 +1009,9 @@
   - integration settings save/load persistence
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Portability follow-up: runtime egress route wrappers)
 
@@ -548,9 +1032,9 @@
   - output backend route planning
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Portability architecture pass: capture/output backend planning APIs)
 
@@ -589,9 +1073,9 @@
   - `Notes`
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Official Stream Deck + Companion profile package)
 
@@ -640,7 +1124,7 @@
 - Deck status snapshots now include `warp_mode` in text output.
 - `STATUS JSON` now includes deck `warpMode`.
 - OSC mirror feedback now includes:
-  - `/playboy/deck/<n>/warp_mode`
+  - `/deckboy/deck/<n>/warp_mode`
 
 ### Docs + notes
 - Updated `MANUAL.md` warp command reference.
@@ -648,9 +1132,9 @@
 - Updated `DEVNOTES.md` with warp mode implementation map.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Output parity UX: span/duplicate + orientation + test cards)
 
@@ -689,13 +1173,13 @@
   - `orientation`
   - `test_card`
 - OSC mirror feedback now includes:
-  - `/playboy/output/<n>/layout`
-  - `/playboy/output/<n>/orientation`
-  - `/playboy/output/<n>/testcard`
+  - `/deckboy/output/<n>/layout`
+  - `/deckboy/output/<n>/orientation`
+  - `/deckboy/output/<n>/testcard`
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Multi-select inspector parity pass)
 
@@ -719,8 +1203,8 @@
 - Added first-eligible cue resolution for mixed selections so toggles still work when the focused cue is not compatible (for example audio toggle with mixed media).
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (OSC Query + OSC feedback mirror pass)
 
@@ -730,9 +1214,9 @@
   - `/oscquery.json` endpoint docs + live state payload
   - `/state.json` live status payload
 - Added optional canonical OSC feedback mirror mode:
-  - emits value-based `/playboy/deck/*` + `/playboy/output/*` updates to subscribed OSC senders
+  - emits value-based `/deckboy/deck/*` + `/deckboy/output/*` updates to subscribed OSC senders
   - configurable rate limiter (`40-2000 ms`, default `120 ms`)
-  - existing `/playboy/state` JSON feedback retained.
+  - existing `/deckboy/state` JSON feedback retained.
 
 ### UI + command surface
 - Network settings tab now has explicit controls for:
@@ -759,9 +1243,9 @@
   - mirror rate `40..2000 ms`.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
-- Self-check passed: `'/home/james/playboy (another copy)/build/playboy-native' --self-check`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
+- Self-check passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --self-check`
 
 ## 2026-03-05 (Playlist Preferences pass: deck-level timebase/defaults)
 
@@ -787,8 +1271,8 @@
 - This keeps default behavior predictable for long playlists and repeated show setup.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Portability architecture scaffold: capture/output backend catalogs)
 
@@ -814,9 +1298,9 @@
 - This provides a single place to audit Linux/macOS/Windows backend readiness without changing current runtime behavior.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
 - Self-check passed with backend status lines.
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Mitti parity foundation: cue metadata + toggles + deck opacity)
 
@@ -869,8 +1353,8 @@
   - `/playlist/opacity`, `/playlist/autofade`, `/playlist/fade`
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (UI Clarity Pass: Header/Stack/Routing Table/Splash)
 
@@ -930,8 +1414,8 @@
   - routing table action wiring.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Output FX Controls Pass: Alpha / Delay / Overlay / Color Space)
 
@@ -975,8 +1459,8 @@
 - Backward compatibility preserved for older output-target row formats.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Live Source Cue Runtime Pass)
 
@@ -999,8 +1483,8 @@
 - Runtime toasts now distinguish source-loaded / source-live / source-unavailable outcomes.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Output Operations Flow + Source Cue Scaffold)
 
@@ -1032,8 +1516,8 @@
   - transport/routing/save-load/status all run through normal cue flow
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (NDI Output Refactor + Cross-Platform Alignment)
 
@@ -1063,8 +1547,8 @@
 - Updated portability notes to keep Linux/macOS runtime loader details explicit and Windows parity as roadmap work.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (UI Declutter Pass + Output Workflow Clarity)
 
@@ -1088,8 +1572,8 @@
 - Removed decorative star highlight and reduced duplicated helper copy in deck cards.
 
 ### Validation
-- Build passed: `cmake --build '/home/james/playboy (another copy)/build' -j4`
-- Smoke passed: `'/home/james/playboy (another copy)/build/playboy-native' --smoke` (`smoke failures: 0`)
+- Build passed: `cmake --build '/home/james/deckboy (another copy)/build' -j4`
+- Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
 ## 2026-03-05 (Demo Show Generator + Layout Presets)
 
@@ -1100,13 +1584,13 @@
   - `data/demos/`
 
 ### Included demo layout presets
-- `demo_70_30_4pip_bg_5deck.playboy`
+- `demo_70_30_4pip_bg_5deck.deckboy`
   - 5-deck show with full background + 4 right-column PiPs (70/30 style)
   - master cues: `Open - BG + 4 PiP`, `BG Only`, `PiP Motion Sweep`
-- `demo_quad_2x2_4pip_bg_5deck.playboy`
+- `demo_quad_2x2_4pip_bg_5deck.deckboy`
   - 5-deck show with full background + 2x2 PiP quad
   - master cues: `Quad Open`, `Quad Motion`
-- `demo_program_preview_clean_3deck.playboy`
+- `demo_program_preview_clean_3deck.deckboy`
   - 3-deck show with program background + preview PiP + corner bug
   - master cues: `Program + Preview + Bug`, `Program + Bug`, `Program Clean`
 
@@ -1619,8 +2103,8 @@
   - default URL generation per output index/protocol.
 
 ### Validation
-- `cmake --build '/home/james/playboy (another copy)/build' -j4` passed.
-- `build/playboy-native --smoke` passed (`smoke failures: 0`).
+- `cmake --build '/home/james/deckboy (another copy)/build' -j4` passed.
+- `build/deckboy-native --smoke` passed (`smoke failures: 0`).
 
 ### Small Wrap-Up (Scale Precision + Status Visibility)
 - Fixed a compositor regression where output rendering collapsed per-cue `scaleX/scaleY` into one uniform scale.
@@ -1652,7 +2136,7 @@
 # CHANGES - Refactoring Summary (March 2025)
 
 ## Overview
-This document summarizes the comprehensive modular refactoring of Playboy_0.01 to address architectural, feature, and platform blockers. The work spans 10+ development sessions and includes:
+This document summarizes the comprehensive modular refactoring of Deckboy_0.01 to address architectural, feature, and platform blockers. The work spans 10+ development sessions and includes:
 - **Modular architecture foundation** (8 logical modules identified and extracted)
 - **Professional broadcast features** (MIDI, DeckLink 10-bit SDI, Siphon/Spout, native browsers)
 - **Cross-platform support infrastructure** (feature gates, CI/CD, platform abstraction)
@@ -2062,23 +2546,23 @@ For developers continuing this work:
 
 ### Build & Verify
 ```bash
-cd "/home/james/playboy (another copy)"
+cd "/home/james/deckboy (another copy)"
 mkdir -p build && cd build
 cmake ..
 make -j4
-./playboy-native --self-check
+./deckboy-native --self-check
 ```
 
 Expected output:
 ```
-playboy-native self-check
+deckboy-native self-check
 project-root: "..."
 font-sans: ok
 font-mono: ok
 font-pixel: ok
 ffmpeg: ok
 ffprobe: ok
-ndi-sdk: not built (set PLAYBOY_NDI_SDK or install SDK headers)
+ndi-sdk: not built (set DECKBOY_NDI_SDK or install SDK headers)
 ui-sfx: enabled by separate SDL audio device when available
 companion-control: tcp/udp port 5510 by default
 ```

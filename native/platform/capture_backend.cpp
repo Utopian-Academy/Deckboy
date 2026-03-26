@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/capture_backend.hpp"
+#include "core/utils.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -7,21 +8,8 @@
 namespace deckboy::platform {
 namespace {
 
-std::string trim(const std::string& value) {
-  size_t begin = value.find_first_not_of(" \t\r\n");
-  if (begin == std::string::npos) {
-    return "";
-  }
-  size_t end = value.find_last_not_of(" \t\r\n");
-  return value.substr(begin, end - begin + 1);
-}
-
-std::string toLower(std::string value) {
-  std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
-    return static_cast<char>(std::tolower(ch));
-  });
-  return value;
-}
+using deckboy::core::utils::trim;
+using deckboy::core::utils::toLower;
 
 std::string defaultDisplay(const std::string& token) {
   std::string display = trim(token);
