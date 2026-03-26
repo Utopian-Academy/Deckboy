@@ -1,0 +1,15 @@
+# Deckboy Theme: Game Boy Pocket
+# Silver-grey LCD with lighter shell — the slimmed-down portable.
+# All color values are RRGGBBAA hex.
+
+shell_outer	D8D8D0FF
+shell_inner	B8B8B0FF
+shell_shadow	707068FF
+screen_light	C4CFA1FF
+screen_mid	8C946AFF
+screen_dark	4A5038FF
+screen_deep	1A1E14FF
+screen_ink_soft	687058FF
+button_bezel	989890FF
+delete_bezel	8B4444FF
+scanline_alpha	14

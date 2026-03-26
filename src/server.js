@@ -11,8 +11,8 @@ const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const POSTER_DIR = path.join(DATA_DIR, "posters");
 const PROJECT_FILE = path.join(DATA_DIR, "project.json");
-const HOST = process.env.PLAYBOY_HOST || "127.0.0.1";
-const PORT = Number(process.env.PLAYBOY_PORT || 5050);
+const HOST = process.env.DECKBOY_HOST || "127.0.0.1";
+const PORT = Number(process.env.DECKBOY_PORT || 5050);
 
 const IMAGE_EXTENSIONS = new Set([
   ".png",
@@ -59,7 +59,7 @@ function createDefaultState() {
   const now = new Date().toISOString();
   return {
     schemaVersion: 1,
-    title: "Playboy Show",
+    title: "Deckboy Show",
     cues: [],
     selectedCueId: null,
     activeCueId: null,
@@ -456,7 +456,7 @@ async function pickFiles() {
       "--file-selection",
       "--multiple",
       "--separator=|",
-      "--title=Import media into Playboy"
+      "--title=Import media into Deckboy"
     ]);
 
     if (result.code === 1) {
@@ -512,7 +512,7 @@ async function pickFiles() {
       "Add-Type -AssemblyName System.Windows.Forms",
       "$dialog = New-Object System.Windows.Forms.OpenFileDialog",
       '$dialog.Multiselect = $true',
-      '$dialog.Title = "Import media into Playboy"',
+      '$dialog.Title = "Import media into Deckboy"',
       "if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 }",
       "$dialog.FileNames -join \"`n\""
     ].join(";");
@@ -1073,7 +1073,7 @@ async function start() {
   });
 
   server.listen(PORT, HOST, () => {
-    console.log(`Playboy listening on http://${HOST}:${PORT}`);
+    console.log(`Deckboy listening on http://${HOST}:${PORT}`);
   });
 }
 

@@ -1,0 +1,27 @@
+{
+  "name": "companion-module-deckboy",
+  "version": "1.0.0",
+  "description": "Bitfocus Companion module for Deckboy cue deck",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "lint": "eslint src/",
+    "dev": "node src/main.js"
+  },
+  "keywords": [
+    "bitfocus",
+    "companion",
+    "deckboy",
+    "cue",
+    "media",
+    "playback"
+  ],
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@companion-module/base": "~1.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  }
+}

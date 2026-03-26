@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 
@@ -16,7 +16,7 @@
 
 #include "types.hpp"
 
-namespace playboy::core::utils {
+namespace deckboy::core::utils {
 
 // String utilities
 std::string trim(const std::string& value);
@@ -65,12 +65,6 @@ std::uint8_t red(std::uint32_t rgba);
 // Rectangle utilities
 SDL_Rect insetRect(const SDL_Rect& rect, int amount);
 
-// SDL drawing helpers
-void fillRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color);
-void strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color);
-void drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color body, SDL_Color border, SDL_Color innerBorder);
-void drawSpeakerGrille(SDL_Renderer* renderer, int x, int y, int width, int bars, SDL_Color color);
-
 // Geometry
 bool pointInRect(int x, int y, const SDL_Rect& rect);
 
@@ -83,4 +77,4 @@ bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallbac
 // JSON escaping
 std::string escapeJson(const std::string& value);
 
-}  // namespace playboy::core::utils
+}  // namespace deckboy::core::utils

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #include "midi.hpp"
@@ -15,7 +15,7 @@
 // Install: apt-get install librtmidi-dev (Linux) or brew install rtmidi (macOS)
 // #include <RtMidi.h>
 
-namespace playboy::platform::midi {
+namespace deckboy::platform::midi {
 
 class MidiInput::Impl {
  public:
@@ -197,4 +197,4 @@ std::optional<std::pair<MessageType, std::vector<int>>> parseMidiMessage(const s
   return std::nullopt;
 }
 
-}  // namespace playboy::platform::midi
+}  // namespace deckboy::platform::midi

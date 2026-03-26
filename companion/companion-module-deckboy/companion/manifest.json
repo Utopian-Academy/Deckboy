@@ -1,0 +1,23 @@
+{
+  "id": "deckboy",
+  "name": "Deckboy",
+  "shortname": "Deckboy",
+  "description": "Control Deckboy cue deck for live events",
+  "version": "1.0.0",
+  "license": "GPL-3.0-or-later",
+  "repository": "git+https://github.com/deckboy/companion-module-deckboy.git",
+  "bugs": "https://github.com/deckboy/companion-module-deckboy/issues",
+  "maintainers": [
+    {
+      "name": "Deckboy Contributors"
+    }
+  ],
+  "runtime": {
+    "api": "nodejs-ipc",
+    "apiVersion": "0.0.0",
+    "entrypoint": "../src/main.js"
+  },
+  "manufacturer": "Deckboy",
+  "products": ["Deckboy"],
+  "keywords": ["cue", "media", "playback", "video", "live events"]
+}

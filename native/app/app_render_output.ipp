@@ -1,0 +1,739 @@
+// Part of class App — included inside the class body in main.cpp.
+// Do NOT compile this file separately.
+  void presentOutputCompositorToWindow(int outputIndex, int windowW, int windowH) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
+      return;
+    }
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    const Deck& deck = project_.decks[hostDeckIndex];
+    int texW = runtime->compositorWidth;
+    int texH = runtime->compositorHeight;
+    if (texW <= 0 || texH <= 0 || windowW <= 0 || windowH <= 0) {
+      return;
+    }
+
+    SDL_Rect src {0, 0, std::min(windowW, texW), std::min(windowH, texH)};
+    std::string layoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
+    if (project_.outputCanvasEnabled && layoutMode == "span") {
+      src.x = std::clamp(deck.canvasViewX, 0, std::max(0, texW - src.w));
+      src.y = std::clamp(deck.canvasViewY, 0, std::max(0, texH - src.h));
+    }
+
+    bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
+      || deck.edgeBlendTop > 0.0001f || deck.edgeBlendBottom > 0.0001f;
+    bool hasWarp = deck.warpEnabled;
+    std::string warpMode = normalizeWarpMode(deck.warpMode);
+    bool usePerspectiveWarp = hasWarp && warpMode == "perspective";
+    int orientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
+    bool hasOrientation = orientationDegrees != 0;
+
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+    if (hasWarp || hasBlend || hasOrientation) {
+      float u0 = static_cast<float>(src.x) / static_cast<float>(texW);
+      float v0 = static_cast<float>(src.y) / static_cast<float>(texH);
+      float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texW);
+      float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texH);
+
+      SDL_FPoint uvTL {u0, v0};
+      SDL_FPoint uvTR {u1, v0};
+      SDL_FPoint uvBR {u1, v1};
+      SDL_FPoint uvBL {u0, v1};
+      if (orientationDegrees == 90) {
+        uvTL = SDL_FPoint {u0, v1};
+        uvTR = SDL_FPoint {u0, v0};
+        uvBR = SDL_FPoint {u1, v0};
+        uvBL = SDL_FPoint {u1, v1};
+      } else if (orientationDegrees == 180) {
+        uvTL = SDL_FPoint {u1, v1};
+        uvTR = SDL_FPoint {u0, v1};
+        uvBR = SDL_FPoint {u0, v0};
+        uvBL = SDL_FPoint {u1, v0};
+      } else if (orientationDegrees == 270) {
+        uvTL = SDL_FPoint {u1, v0};
+        uvTR = SDL_FPoint {u1, v1};
+        uvBR = SDL_FPoint {u0, v1};
+        uvBL = SDL_FPoint {u0, v0};
+      }
+
+      SDL_FPoint p0 {0.0f, 0.0f};
+      SDL_FPoint p1 {static_cast<float>(windowW), 0.0f};
+      SDL_FPoint p2 {static_cast<float>(windowW), static_cast<float>(windowH)};
+      SDL_FPoint p3 {0.0f, static_cast<float>(windowH)};
+      if (hasWarp) {
+        p0.x += deck.warpTopLeftX;      p0.y += deck.warpTopLeftY;
+        p1.x += deck.warpTopRightX;     p1.y += deck.warpTopRightY;
+        p2.x += deck.warpBottomRightX;  p2.y += deck.warpBottomRightY;
+        p3.x += deck.warpBottomLeftX;   p3.y += deck.warpBottomLeftY;
+      }
+
+      if (usePerspectiveWarp) {
+        if (renderPerspectiveWarp(runtime->outputRenderer, runtime->compositorTexture, deck,
+                                  uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, hasBlend)) {
+          return;
+        }
+      }
+
+      Uint8 aTL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 0.0f) : 255;
+      Uint8 aTR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 0.0f) : 255;
+      Uint8 aBR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 1.0f) : 255;
+      Uint8 aBL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 1.0f) : 255;
+      SDL_Vertex verts[4] {
+        {p0, SDL_Color {255, 255, 255, aTL}, uvTL},
+        {p1, SDL_Color {255, 255, 255, aTR}, uvTR},
+        {p2, SDL_Color {255, 255, 255, aBR}, uvBR},
+        {p3, SDL_Color {255, 255, 255, aBL}, uvBL},
+      };
+      const int indices[6] {0, 1, 2, 0, 2, 3};
+      SDL_SetTextureBlendMode(runtime->compositorTexture, SDL_BLENDMODE_BLEND);
+      if (SDL_RenderGeometry(runtime->outputRenderer, runtime->compositorTexture, verts, 4, indices, 6) == 0) {
+        return;
+      }
+    }
+#endif
+
+    if (hasOrientation) {
+      SDL_RenderCopyEx(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr,
+                       static_cast<double>(orientationDegrees), nullptr, SDL_FLIP_NONE);
+    } else {
+      SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+    }
+  }
+
+  SDL_Texture* ensureLayerBridgeTexture(OutputRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
+    if (width <= 0 || height <= 0) {
+      return nullptr;
+    }
+    auto texIt = outputRuntime.layerBridgeTextures.find(sourceDeckIndex);
+    bool needsRecreate = texIt == outputRuntime.layerBridgeTextures.end();
+    if (!needsRecreate) {
+      int prevW = outputRuntime.layerBridgeTextureWidths[sourceDeckIndex];
+      int prevH = outputRuntime.layerBridgeTextureHeights[sourceDeckIndex];
+      needsRecreate = prevW != width || prevH != height;
+    }
+    if (needsRecreate) {
+      if (texIt != outputRuntime.layerBridgeTextures.end() && texIt->second) {
+        SDL_DestroyTexture(texIt->second);
+      }
+      SDL_Texture* texture = SDL_CreateTexture(
+        outputRuntime.outputRenderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        width,
+        height
+      );
+      if (!texture) {
+        outputRuntime.layerBridgeTextures.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeTextureWidths.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeTextureHeights.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeFrameIndices.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeCueKeys.erase(sourceDeckIndex);
+        return nullptr;
+      }
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+      outputRuntime.layerBridgeTextures[sourceDeckIndex] = texture;
+      outputRuntime.layerBridgeTextureWidths[sourceDeckIndex] = width;
+      outputRuntime.layerBridgeTextureHeights[sourceDeckIndex] = height;
+      outputRuntime.layerBridgeFrameIndices.erase(sourceDeckIndex);
+      outputRuntime.layerBridgeCueKeys.erase(sourceDeckIndex);
+      return texture;
+    }
+    return texIt->second;
+  }
+
+  SDL_Texture* ensureOverlayBridgeTexture(OutputRuntime& outputRuntime,
+                                          const std::string& overlayKey,
+                                          int width,
+                                          int height) {
+    if (width <= 0 || height <= 0) {
+      return nullptr;
+    }
+    auto texIt = outputRuntime.overlayBridgeTextures.find(overlayKey);
+    bool needsRecreate = texIt == outputRuntime.overlayBridgeTextures.end();
+    if (!needsRecreate) {
+      int prevW = outputRuntime.overlayBridgeTextureWidths[overlayKey];
+      int prevH = outputRuntime.overlayBridgeTextureHeights[overlayKey];
+      needsRecreate = prevW != width || prevH != height;
+    }
+    if (needsRecreate) {
+      if (texIt != outputRuntime.overlayBridgeTextures.end() && texIt->second) {
+        SDL_DestroyTexture(texIt->second);
+      }
+      SDL_Texture* texture = SDL_CreateTexture(
+        outputRuntime.outputRenderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        width,
+        height
+      );
+      if (!texture) {
+        outputRuntime.overlayBridgeTextures.erase(overlayKey);
+        outputRuntime.overlayBridgeTextureWidths.erase(overlayKey);
+        outputRuntime.overlayBridgeTextureHeights.erase(overlayKey);
+        outputRuntime.overlayBridgeFrameIndices.erase(overlayKey);
+        outputRuntime.overlayBridgeCueKeys.erase(overlayKey);
+        return nullptr;
+      }
+      SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+      outputRuntime.overlayBridgeTextures[overlayKey] = texture;
+      outputRuntime.overlayBridgeTextureWidths[overlayKey] = width;
+      outputRuntime.overlayBridgeTextureHeights[overlayKey] = height;
+      outputRuntime.overlayBridgeFrameIndices.erase(overlayKey);
+      outputRuntime.overlayBridgeCueKeys.erase(overlayKey);
+      return texture;
+    }
+    return texIt->second;
+  }
+
+  void renderTextureWithCueGeometry(SDL_Renderer* renderer,
+                                    SDL_Texture* texture,
+                                    int textureWidth,
+                                    int textureHeight,
+                                    const Cue* cue,
+                                    const SDL_Rect& target) {
+    if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
+      return;
+    }
+    float cropLeft = cue ? cue->cropLeft : 0.0f;
+    float cropRight = cue ? cue->cropRight : 0.0f;
+    float cropTop = cue ? cue->cropTop : 0.0f;
+    float cropBottom = cue ? cue->cropBottom : 0.0f;
+    int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropLeft)), 0, textureWidth - 1);
+    int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureWidth) * cropRight)), 0, textureWidth - 1);
+    int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropTop)), 0, textureHeight - 1);
+    int cropB = std::clamp(static_cast<int>(std::lround(static_cast<double>(textureHeight) * cropBottom)), 0, textureHeight - 1);
+    int srcW = std::max(1, textureWidth - cropL - cropR);
+    int srcH = std::max(1, textureHeight - cropT - cropB);
+    SDL_Rect source {cropL, cropT, srcW, srcH};
+    ScaleMode scaleMode = cue ? cue->scaleMode : ScaleMode::Fit;
+    double baseScaleX = 1.0;
+    double baseScaleY = 1.0;
+    if (scaleMode == ScaleMode::Fit) {
+      double fit = std::min(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+      baseScaleX = fit;
+      baseScaleY = fit;
+    } else if (scaleMode == ScaleMode::Fill) {
+      double fill = std::max(
+        static_cast<double>(target.w) / static_cast<double>(srcW),
+        static_cast<double>(target.h) / static_cast<double>(srcH)
+      );
+      baseScaleX = fill;
+      baseScaleY = fill;
+    } else if (scaleMode == ScaleMode::Stretch) {
+      baseScaleX = static_cast<double>(target.w) / static_cast<double>(srcW);
+      baseScaleY = static_cast<double>(target.h) / static_cast<double>(srcH);
+    }
+    float outputScaleX = cue ? cue->outputScaleX : 1.0f;
+    float outputScaleY = cue ? cue->outputScaleY : 1.0f;
+    float offsetX = cue ? cue->outputOffsetX : 0.0f;
+    float offsetY = cue ? cue->outputOffsetY : 0.0f;
+    float rotationDegrees = cue ? cue->outputRotationDegrees : 0.0f;
+    int drawW = std::max(1, static_cast<int>(std::round(srcW * baseScaleX * static_cast<double>(outputScaleX))));
+    int drawH = std::max(1, static_cast<int>(std::round(srcH * baseScaleY * static_cast<double>(outputScaleY))));
+    SDL_Rect destination {
+      target.x + (target.w - drawW) / 2 + static_cast<int>(offsetX),
+      target.y + (target.h - drawH) / 2 + static_cast<int>(offsetY),
+      drawW,
+      drawH
+    };
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
+    SDL_Rect prevClip;
+    bool hadClip = SDL_RenderIsClipEnabled(renderer);
+    if (hadClip) SDL_RenderGetClipRect(renderer, &prevClip);
+    SDL_RenderSetClipRect(renderer, &target);
+    SDL_Point center {destination.w / 2, destination.h / 2};
+    SDL_RenderCopyEx(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+    SDL_RenderSetClipRect(renderer, hadClip ? &prevClip : nullptr);
+  }
+
+  SDL_Rect compositeSlotRectForTarget(const CompositeSlot& slot, const SDL_Rect& target) const {
+    int x = target.x + static_cast<int>(std::lround(slot.normX * static_cast<float>(target.w)));
+    int y = target.y + static_cast<int>(std::lround(slot.normY * static_cast<float>(target.h)));
+    int w = static_cast<int>(std::lround(slot.normW * static_cast<float>(target.w)));
+    int h = static_cast<int>(std::lround(slot.normH * static_cast<float>(target.h)));
+    w = std::max(24, std::min(w, target.w));
+    h = std::max(24, std::min(h, target.h));
+    if (x + w > target.x + target.w) {
+      x = target.x + target.w - w;
+    }
+    if (y + h > target.y + target.h) {
+      y = target.y + target.h - h;
+    }
+    x = std::max(target.x, x);
+    y = std::max(target.y, y);
+    return SDL_Rect {x, y, w, h};
+  }
+
+  void renderCompositeCuePlaceholder(SDL_Renderer* renderer,
+                                     const SDL_Rect& target,
+                                     const Cue& cue,
+                                     bool liveContext) {
+    if (!renderer || target.w <= 0 || target.h <= 0) {
+      return;
+    }
+    SDL_Color background = cue.compositeBackgroundColor.a == 0
+      ? SDL_Color {18, 24, 18, 255}
+      : cue.compositeBackgroundColor;
+    Primitives::fillRect(renderer, target, background);
+    Primitives::strokeRect(renderer, target, pal.dark);
+
+    static constexpr std::array<SDL_Color, 4> kSlotFills {{
+      SDL_Color {139, 172, 15, 220},
+      SDL_Color {104, 136, 15, 220},
+      SDL_Color {72, 96, 16, 220},
+      SDL_Color {48, 80, 24, 220},
+    }};
+
+    int drawnSlots = 0;
+    for (size_t i = 0; i < cue.compositeSlots.size(); ++i) {
+      const CompositeSlot& slot = cue.compositeSlots[i];
+      if (!slot.visible) {
+        continue;
+      }
+      SDL_Rect slotRect = compositeSlotRectForTarget(slot, target);
+      SDL_Color fill = kSlotFills[i % kSlotFills.size()];
+      SDL_Color stroke = pal.deep;
+      Primitives::fillRect(renderer, slotRect, fill);
+      Primitives::strokeRect(renderer, slotRect, stroke);
+      if (slotRect.w > 2 && slotRect.h > 2) {
+        Primitives::strokeRect(renderer, insetRect(slotRect, 1), pal.light);
+      }
+
+      SDL_Rect titleRect {slotRect.x + 6, slotRect.y + 6, slotRect.w - 12, 14};
+      SDL_Rect typeRect {slotRect.x + 6, slotRect.y + 22, slotRect.w - 12, 12};
+      SDL_Rect sourceRect {slotRect.x + 6, slotRect.y + 38, slotRect.w - 12, std::max(12, slotRect.h - 52)};
+      drawTextSafe(renderer, fontSmall_, titleRect,
+                   slot.name.empty() ? compositeSlotDefaultName(static_cast<int>(i)) : slot.name,
+                   pal.deep);
+      drawTextSafe(renderer, fontSmall_, typeRect,
+                   compositeSourceTypeLabel(slot.sourceType),
+                   pal.dark);
+      drawTextSafe(renderer, fontSmall_, sourceRect,
+                   compositeSourceDisplayLabel(slot),
+                   pal.deep);
+      ++drawnSlots;
+    }
+
+    if (drawnSlots == 0) {
+      drawCenteredTextSafe(renderer, fontBase_, target,
+                           "COMPOSITE CUE", pal.light);
+      SDL_Rect hintRect {target.x + 18, target.y + target.h / 2 + 10, target.w - 36, 18};
+      drawCenteredTextSafe(renderer, fontSmall_, hintRect,
+                           "Add slot sources in the cue inspector", pal.mid);
+    } else {
+      SDL_Rect footerRect {target.x + 8, target.y + target.h - 22, target.w - 16, 14};
+      std::string footer = std::string(liveContext ? "LIVE " : "PREVIEW ")
+        + "COMPOSITE · " + compositeLayoutPresetLabel(cue.compositeLayoutPreset);
+      drawTextSafe(renderer, fontSmall_, footerRect, footer, pal.light);
+    }
+  }
+
+  void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
+    OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
+    if (!outputRuntime || !outputRuntime->outputRenderer) {
+      return;
+    }
+    if (sourceDeckIndex < 0 || sourceDeckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Cue* sourceCue = activeCuePtr(sourceDeckIndex);
+    if (!sourceCue) {
+      return;
+    }
+    DeckRuntime* sourceRuntime = runtimeForDeck(sourceDeckIndex);
+    if (!sourceRuntime || !sourceRuntime->mediaEngine) {
+      return;
+    }
+    const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();
+    if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 || sourceFrame->pixels.empty()) {
+      return;
+    }
+    SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(*outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height);
+    if (!bridgeTexture) {
+      return;
+    }
+    std::string cueKey = cuePreviewCacheKey(*sourceCue);
+    auto frameIt = outputRuntime->layerBridgeFrameIndices.find(sourceDeckIndex);
+    auto cueIt = outputRuntime->layerBridgeCueKeys.find(sourceDeckIndex);
+    bool needsUpload =
+      frameIt == outputRuntime->layerBridgeFrameIndices.end() ||
+      cueIt == outputRuntime->layerBridgeCueKeys.end() ||
+      frameIt->second != sourceFrame->index ||
+      cueIt->second != cueKey;
+    if (needsUpload) {
+      const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
+      if (cueHasPixelEffects(*sourceCue)) {
+        outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
+        applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+        uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
+      }
+      SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
+      outputRuntime->layerBridgeFrameIndices[sourceDeckIndex] = sourceFrame->index;
+      outputRuntime->layerBridgeCueKeys[sourceDeckIndex] = std::move(cueKey);
+    }
+    float deckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
+    Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * 255.0f));
+    SDL_SetTextureAlphaMod(bridgeTexture, alpha);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
+    SDL_SetTextureAlphaMod(bridgeTexture, 255);
+  }
+
+  void renderOverlayFrameIntoOutput(OutputRuntime& outputRuntime,
+                                    const std::string& overlayKey,
+                                    const DecodedFrame& sourceFrame,
+                                    const Cue& renderCue,
+                                    const SDL_Rect& target) {
+    if (!outputRuntime.outputRenderer || sourceFrame.width <= 0 || sourceFrame.height <= 0 ||
+        sourceFrame.pixels.empty()) {
+      return;
+    }
+    SDL_Texture* bridgeTexture = ensureOverlayBridgeTexture(
+      outputRuntime, overlayKey, sourceFrame.width, sourceFrame.height);
+    if (!bridgeTexture) {
+      return;
+    }
+    std::string cueKey = cuePreviewCacheKey(renderCue);
+    auto frameIt = outputRuntime.overlayBridgeFrameIndices.find(overlayKey);
+    auto cueIt = outputRuntime.overlayBridgeCueKeys.find(overlayKey);
+    bool needsUpload =
+      frameIt == outputRuntime.overlayBridgeFrameIndices.end() ||
+      cueIt == outputRuntime.overlayBridgeCueKeys.end() ||
+      frameIt->second != sourceFrame.index ||
+      cueIt->second != cueKey;
+    if (needsUpload) {
+      const std::uint8_t* uploadPixels = sourceFrame.pixels.data();
+      if (cueHasPixelEffects(renderCue)) {
+        outputRuntime.layerBridgeScratchPixels = sourceFrame.pixels;
+        applyCueVisualEffectsToPixels(outputRuntime.layerBridgeScratchPixels, renderCue);
+        uploadPixels = outputRuntime.layerBridgeScratchPixels.data();
+      }
+      SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame.width * 4);
+      outputRuntime.overlayBridgeFrameIndices[overlayKey] = sourceFrame.index;
+      outputRuntime.overlayBridgeCueKeys[overlayKey] = std::move(cueKey);
+    }
+    SDL_SetTextureAlphaMod(bridgeTexture, 255);
+    renderTextureWithCueGeometry(outputRuntime.outputRenderer, bridgeTexture,
+                                 sourceFrame.width, sourceFrame.height, &renderCue, target);
+  }
+
+  void renderOutputTestCard(int outputIndex, SDL_Renderer* renderer, int width, int height) {
+    if (!renderer || width <= 0 || height <= 0) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[std::clamp(outputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1))];
+    auto fill = [&](int x, int y, int w, int h, SDL_Color color) {
+      SDL_Rect rect {x, y, w, h};
+      SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+      SDL_RenderFillRect(renderer, &rect);
+    };
+
+    const std::array<SDL_Color, 7> bars {{
+      SDL_Color {191, 191, 191, 255},
+      SDL_Color {191, 191,   0, 255},
+      SDL_Color {  0, 191, 191, 255},
+      SDL_Color {  0, 191,   0, 255},
+      SDL_Color {191,   0, 191, 255},
+      SDL_Color {191,   0,   0, 255},
+      SDL_Color {  0,   0, 191, 255},
+    }};
+    int topH = height * 2 / 3;
+    int barW = std::max(1, width / static_cast<int>(bars.size()));
+    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
+      int x = i * barW;
+      int w = (i == static_cast<int>(bars.size()) - 1) ? (width - x) : barW;
+      fill(x, 0, w, topH, bars[static_cast<size_t>(i)]);
+    }
+
+    int midY = topH;
+    int midH = std::max(10, height / 10);
+    fill(0, midY, width, midH, SDL_Color {18, 18, 18, 255});
+    for (int i = 0; i < 8; ++i) {
+      int x = i * width / 8;
+      int w = (i == 7) ? (width - x) : (width / 8);
+      Uint8 gray = static_cast<Uint8>(i * 255 / 7);
+      fill(x, midY + 2, w, midH - 4, SDL_Color {gray, gray, gray, 255});
+    }
+
+    int botY = midY + midH;
+    int botH = std::max(1, height - botY);
+    fill(0, botY, width / 4, botH, SDL_Color {0, 0, 0, 255});
+    fill(width / 4, botY, width / 4, botH, SDL_Color {255, 255, 255, 255});
+    fill(width / 2, botY, width / 4, botH, SDL_Color {18, 18, 18, 255});
+    fill((width * 3) / 4, botY, width - (width * 3) / 4, botH, SDL_Color {36, 36, 36, 255});
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 190);
+    SDL_RenderDrawLine(renderer, width / 2, 0, width / 2, height);
+    SDL_RenderDrawLine(renderer, 0, height / 2, width, height / 2);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 130);
+    SDL_Rect safe80 {width / 10, height / 10, width - (width / 10) * 2, height - (height / 10) * 2};
+    SDL_RenderDrawRect(renderer, &safe80);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+    std::string outName = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
+    std::string line1 = "TEST CARD OVERRIDE";
+    std::string line2 = "Output " + std::to_string(outputIndex + 1) + " - " + outName;
+    std::string line3 = "layout: " + normalizeOutputLayoutMode(output.outputLayoutMode)
+      + "  rot: " + outputOrientationLabel(output.outputOrientationDegrees);
+    drawText(renderer, fontLarge_, line1, SDL_Color {245, 245, 245, 255}, 22, 20);
+    drawText(renderer, fontSmall_, line2, SDL_Color {245, 245, 245, 240}, 24, 52);
+    drawText(renderer, fontSmall_, line3, SDL_Color {220, 220, 220, 220}, 24, 70);
+  }
+
+  void renderOutputWindow(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.enabled) {
+      return;
+    }
+    OutputBackendRuntimeRoute backendRoute = resolveOutputBackendRuntimeRoute(outputIndex);
+    std::string outputType = normalizeOutputType(output.outputType);
+    bool streamType = outputType == "stream";
+    int compositionOutputIndex = outputIndex;
+    if (streamType &&
+        output.mirrorSourceOutputIndex >= 0 &&
+        output.mirrorSourceOutputIndex < static_cast<int>(project_.outputs.size()) &&
+        output.mirrorSourceOutputIndex != outputIndex) {
+      compositionOutputIndex = output.mirrorSourceOutputIndex;
+    }
+    const OutputTarget& compositionOutput = project_.outputs[compositionOutputIndex];
+    int hostDeckIndex = std::clamp(compositionOutput.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+    const Deck& hostDeck = project_.decks[hostDeckIndex];
+
+    int width = 0;
+    int height = 0;
+    if (!streamType && runtime->outputWindow) {
+      SDL_GetWindowSize(runtime->outputWindow, &width, &height);
+    } else {
+      auto [rasterW, rasterH] = outputRenderSizeForOutput(compositionOutputIndex);
+      width = rasterW;
+      height = rasterH;
+    }
+    width = std::max(1, width);
+    height = std::max(1, height);
+    if (project_.outputCanvasEnabled) {
+      clampDeckCanvasViewToWindow(hostDeckIndex, width, height);
+    }
+    int targetCompositorW = width;
+    int targetCompositorH = height;
+    if (project_.outputCanvasEnabled) {
+      auto [canvasW, canvasH] = outputCanvasRenderSize();
+      targetCompositorW = canvasW;
+      targetCompositorH = canvasH;
+    }
+    if (!runtime->compositorTexture
+        || runtime->compositorWidth != targetCompositorW
+        || runtime->compositorHeight != targetCompositorH) {
+      configureOutputCompositor(outputIndex, targetCompositorW, targetCompositorH);
+    }
+    bool usingCompositor = runtime->compositorTexture != nullptr;
+    if (usingCompositor) {
+      SDL_SetRenderTarget(runtime->outputRenderer, runtime->compositorTexture);
+    }
+    int renderW = usingCompositor ? runtime->compositorWidth : width;
+    int renderH = usingCompositor ? runtime->compositorHeight : height;
+    SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(runtime->outputRenderer);
+
+    SDL_Rect bounds {0, 0, renderW, renderH};
+    auto outputLayers = layeredDeckEntriesForOutput(compositionOutputIndex);
+    if (outputLayers.empty()) {
+      outputLayers.emplace_back(0, hostDeckIndex);
+    }
+    if (output.outputTestCardEnabled) {
+      renderOutputTestCard(outputIndex, runtime->outputRenderer, renderW, renderH);
+    } else {
+      for (const auto& entry : outputLayers) {
+        renderDeckLayerIntoOutput(outputIndex, entry.second, bounds);
+      }
+
+      // Output window is always clean black — no status overlays or decorations.
+      // The only things drawn here are the media content itself, cue overlays, and
+      // the optional time/ID overlay that the operator explicitly enables.
+      const Cue* activeCue = activeCuePtr(hostDeckIndex);
+
+      if (activeCue && activeCue->kind == CueKind::Composite) {
+        renderCompositeCuePlaceholder(runtime->outputRenderer, bounds, *activeCue, true);
+      }
+
+      // Audio-only cue: draw a centred waveform + info on the output window
+      if (activeCue && activeCue->kind == CueKind::Audio) {
+        int margin = renderW / 10;
+        SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
+        bool _wfPending = false;
+        WaveformPeaks peaks = getWaveformPeaks(activeCue->path, _wfPending);
+        double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
+        const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
+        float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
+        float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
+        float outFrac = activeCue->outPointSeconds > 0.0
+                      ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
+        drawWaveform(runtime->outputRenderer, wfRect, peaks, activeCue->audioChannels >= 2, playFrac, inFrac, outFrac,
+                     activeCue->pausePoints, dur);
+        // Cue name
+        drawText(runtime->outputRenderer, fontBase_, activeCue->name,
+                 pal.light, wfRect.x, wfRect.y - 36);
+        // Transport position + duration
+        std::string posStr = (eng ? formatSeconds(eng->position()) : "0:00")
+                           + "  /  " + formatSeconds(activeCue->duration);
+        drawText(runtime->outputRenderer, fontSmall_, posStr,
+                 pal.mid, wfRect.x, wfRect.y + wfRect.h + 10);
+        // State badge
+        std::string stateLbl = !eng ? "stopped"
+                             : eng->state() == TransportState::Playing ? "playing"
+                             : eng->state() == TransportState::Paused  ? "paused" : "stopped";
+        drawText(runtime->outputRenderer, fontSmall_, stateLbl,
+                 pal.dark, wfRect.x + wfRect.w - 60, wfRect.y - 36);
+      }
+
+      // Overlay layer stack — rendered bottom to top in push order.
+      int overlaySlot = 0;
+      for (int ovIdx : hostDeck.overlayActiveIndices) {
+        if (ovIdx < 0 || ovIdx >= static_cast<int>(hostDeck.cues.size())) continue;
+        const Cue& lc = hostDeck.cues[ovIdx];
+        if (lc.kind == CueKind::LowerThird) {
+          // Stack lower-thirds bottom-up: first slot at bottom, each extra one steps up.
+          int barH = renderH / 6;
+          int barY = renderH - barH - renderH / 20 - overlaySlot * (barH + 8);
+          SDL_Rect bar {0, barY, renderW, barH};
+
+          SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+          SDL_SetRenderDrawColor(runtime->outputRenderer, 8, 16, 24, static_cast<Uint8>(lc.lowerThirdBgAlpha));
+          SDL_RenderFillRect(runtime->outputRenderer, &bar);
+
+          // Coloured accent strip (hue shifts per slot for differentiation)
+          static constexpr std::array<SDL_Color, 4> accentColors {{
+            {155, 188,  15, 220},
+            { 15, 155, 188, 220},
+            {188,  15, 155, 220},
+            {188, 155,  15, 220},
+          }};
+          SDL_Color acc = accentColors[static_cast<size_t>(overlaySlot) % accentColors.size()];
+          SDL_SetRenderDrawColor(runtime->outputRenderer, acc.r, acc.g, acc.b, acc.a);
+          SDL_Rect strip {bar.x, bar.y, 8, bar.h};
+          SDL_RenderFillRect(runtime->outputRenderer, &strip);
+          SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+
+          std::string mainTxt = lc.lowerThirdText.empty() ? lc.name : lc.lowerThirdText;
+          drawText(runtime->outputRenderer, fontLarge_, mainTxt,
+                   {255, 255, 255, 255}, bar.x + 24, bar.y + 14);
+          if (!lc.lowerThirdSubtext.empty()) {
+            drawText(runtime->outputRenderer, fontBase_, lc.lowerThirdSubtext,
+                     {200, 220, 200, 255}, bar.x + 26, bar.y + barH - 36);
+          }
+          ++overlaySlot;
+        } else if (lc.kind == CueKind::Pip) {
+          PipOverlayRuntime* pipRuntime = pipOverlayRuntimeForCue(hostDeckIndex, ovIdx);
+          const DecodedFrame* pipFrame =
+            (pipRuntime && pipRuntime->mediaEngine) ? pipRuntime->mediaEngine->currentFrame() : nullptr;
+          if (pipFrame && pipFrame->width > 0 && pipFrame->height > 0 && !pipFrame->pixels.empty()) {
+            renderOverlayFrameIntoOutput(*runtime, pipOverlayRuntimeKey(hostDeckIndex, ovIdx),
+                                         *pipFrame, lc, bounds);
+          }
+        }
+      }
+
+      if (output.outputTimeOverlayEnabled || hostDeck.timeOverlayEnabled) {
+        const MediaEngine* engine = mediaEngineForDeck(hostDeckIndex);
+        std::string position = formatSeconds(engine ? engine->position() : 0.0);
+        std::string total = formatSeconds(engine ? engine->duration() : 0.0);
+        std::string timeLine = position + " / " + total;
+        std::string cueIdLine = activeCue ? ("id: " + activeCue->id) : "id: --";
+        std::string tcLine = "tc: " + formatTimecode(hostDeck.timecodeCurrentSeconds, hostDeck.timecodeFps);
+        SDL_Rect overlay {26, 26, std::max(300, renderW / 3), 72};
+        Primitives::drawFramedPanel(runtime->outputRenderer, overlay, {15, 56, 15, 204}, pal.light, pal.mid);
+        drawText(runtime->outputRenderer, fontMono_, timeLine, pal.light, overlay.x + 14, overlay.y + 9);
+        drawText(runtime->outputRenderer, fontSmall_, cueIdLine, pal.mid, overlay.x + 14, overlay.y + 34);
+        drawText(runtime->outputRenderer, fontSmall_, tcLine, pal.mid, overlay.x + 14, overlay.y + 50);
+      }
+    }
+
+    // Master video dimmer overlay
+    if (project_.masterDimmer < 0.999) {
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
+        static_cast<Uint8>((1.0 - project_.masterDimmer) * 255.0));
+      SDL_RenderFillRect(runtime->outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+    }
+    float outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
+    if (outputAlpha < 0.999f) {
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0,
+        static_cast<Uint8>((1.0f - outputAlpha) * 255.0f));
+      SDL_RenderFillRect(runtime->outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
+    }
+    if (usingCompositor) {
+      SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
+      if (!streamType) {
+        SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(runtime->outputRenderer);
+        presentOutputCompositorToWindow(outputIndex, width, height);
+      }
+    }
+    bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
+    bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
+    if (output.streamEnabled && !backendRoute.streamSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
+    } else if ((output.ndiEnabled || output.ndiKeyEnabled) && !backendRoute.ndiSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi backend unavailable");
+    }
+    if (!streamRouteActive) {
+      stopOutputStreamRuntime(*runtime);
+      resetOutputStreamFpsTelemetry(*runtime);
+    }
+    bool needsEgressCapture =
+      streamRouteActive || ndiRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+    double fpsHint = 30.0;
+    for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
+      const Cue* layerCue = activeCuePtr(it->second);
+      if (layerCue && layerCue->kind == CueKind::Video) {
+        fpsHint = std::max(1.0, layerCue->fps);
+        break;
+      }
+    }
+    SDL_Rect egressRect {0, 0, renderW, renderH};
+    if (usingCompositor) {
+      egressRect.w = std::max(1, std::min(width, renderW));
+      egressRect.h = std::max(1, std::min(height, renderH));
+      if (project_.outputCanvasEnabled &&
+          normalizeOutputLayoutMode(output.outputLayoutMode) == "span") {
+        egressRect.x = std::clamp(hostDeck.canvasViewX, 0, std::max(0, renderW - egressRect.w));
+        egressRect.y = std::clamp(hostDeck.canvasViewY, 0, std::max(0, renderH - egressRect.h));
+      }
+    }
+    if (needsEgressCapture) {
+      captureOutputFrameForEgress(outputIndex, *runtime, egressRect, fpsHint);
+    } else {
+      runtime->latestCapturedFrame = {};
+      runtime->delayFrames.clear();
+    }
+    if (ndiRouteActive) {
+      sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
+    }
+    if (streamRouteActive) {
+      sendOutputStreamFrame(outputIndex, width, height, fpsHint);
+      recordOutputStreamFrameWritten(outputIndex);
+    } else {
+      resetOutputStreamFpsTelemetry(*runtime);
+    }
+    if (!streamType) {
+      SDL_RenderPresent(runtime->outputRenderer);
+    }
+    recordOutputFramePresented(outputIndex);
+  }

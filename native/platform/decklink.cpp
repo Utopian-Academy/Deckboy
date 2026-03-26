@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #include "decklink.hpp"
@@ -12,7 +12,7 @@
 // https://www.blackmagicdesign.com/api/
 // Download DeckLink SDK and link against libDeckLinkAPI.so (Linux)
 
-namespace playboy::platform::video {
+namespace deckboy::platform::video {
 
 class DeckLinkOutput::Impl {
  public:
@@ -149,4 +149,4 @@ bool DeckLinkOutput::setTimecode(std::uint32_t hours, std::uint32_t minutes, std
   return true;
 }
 
-}  // namespace playboy::platform::video
+}  // namespace deckboy::platform::video

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #pragma once
@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace playboy::platform::midi {
+namespace deckboy::platform::midi {
 
 // MIDI input device information
 struct DeviceInfo {
@@ -74,4 +74,4 @@ class MidiInput {
 // Helper: Parse MIDI message from raw bytes
 std::optional<std::pair<MessageType, std::vector<int>>> parseMidiMessage(const std::vector<std::uint8_t>& data);
 
-}  // namespace playboy::platform::midi
+}  // namespace deckboy::platform::midi

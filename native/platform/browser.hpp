@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Playboy Contributors
-// This file is part of Playboy, a cue deck for live events.
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
 #pragma once
@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace playboy::platform::browser {
+namespace deckboy::platform::browser {
 
 // Decoded browser frame (same as video frame)
 struct BrowserFrame {
@@ -62,4 +62,4 @@ class BrowserRenderer {
   friend class Impl;
 };
 
-}  // namespace playboy::platform::browser
+}  // namespace deckboy::platform::browser
