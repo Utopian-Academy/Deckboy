@@ -371,12 +371,12 @@
   - the appearance card shows `UI MOTION` as always-on feedback instead of an
     operator-facing off button
 
-## 2026-03-12 (Mitti parity: NMC transport sync runtime)
+## 2026-03-12 (NMC transport sync runtime)
 
 - Added a live NMC transport sync backend on Linux/macOS builds:
   - runs as a UDP transport/locate bridge behind the existing `NMC` adapter
     toggle
-  - supports Mitti-style `input` vs `output` mode behavior with one active mode
+  - supports `input` vs `output` mode behavior with one active mode
     at a time
   - input mode listens for transport/locate packets and applies them to the
     focused deck
@@ -391,7 +391,7 @@
   - `--self-check` now reports `nmc-sync-runtime: ...`
   - integration route planning now reports `nmc[ok]` on non-Windows builds
 
-## 2026-03-12 (Mitti parity: NDI metadata trigger runtime)
+## 2026-03-12 (NDI metadata trigger runtime)
 
 - Added a real NDI metadata trigger backend on Linux/macOS builds:
   - dynamically loads `libndi` at runtime instead of requiring SDK headers at build time
@@ -413,7 +413,7 @@
     source name
   - `DECKBOY_NDI_LIB` can override the runtime `libndi` path
 
-## 2026-03-12 (Mitti parity: LTC ingest)
+## 2026-03-12 (LTC ingest)
 
 - Added a real LTC ingest backend on Linux/macOS builds:
   - dynamically loads `libltc` at runtime instead of requiring headers at build time
@@ -428,7 +428,7 @@
   - `DECKBOY_LTC_LIB` can override the runtime `libltc` path
   - `DECKBOY_LTC_DEVICE` can point Deckboy at a specific capture-device name
 
-## 2026-03-12 (Mitti parity: bundled show export)
+## 2026-03-12 (Bundled show export)
 
 - Added bundled show export for file-backed cues:
   - new `BUNDLE` toolbar action and `Ctrl+Shift+E` shortcut
@@ -456,7 +456,7 @@
   - `STREAMING: ON` starts network egress for that output
   - local viewing uses an external SRT listener such as `ffplay`, not a browser
 
-## 2026-03-10 (Portability prep + Mitti parity tracker refresh)
+## 2026-03-10 (Portability prep + docs refresh)
 
 - Hardened the build system for cross-platform prep:
   - top-level CMake now prefers exported `SDL2` / `SDL2_ttf` config packages
@@ -471,10 +471,7 @@
   - `native/core/subprocess.*` no longer references Unix-only `ChildProcess`
     members on Windows, and Unix headers are now included conditionally
   - socket send helpers now tolerate platforms where `MSG_NOSIGNAL` is absent
-- Refreshed portability/parity docs to match the current implementation:
-  - `docs/PARITY_MITTI.md` now reflects the interactive warp editor, stronger
-    multi-select editing, built-in HyperDeck emulation, and the current highest
-    value remaining Mitti gaps
+- Refreshed portability docs to match the current implementation:
   - `PORTABILITY.md` now documents executable-root lookup on Linux/macOS/Windows
     plus current build/runtime readiness more explicitly
 
@@ -1069,7 +1066,6 @@
 - Updated:
   - `MANUAL.md`
   - `DEVNOTES.md`
-  - `docs/PARITY_MITTI.md`
   - `Notes`
 
 ### Validation
@@ -1094,9 +1090,6 @@
 ### Operator docs integration
 - Updated `README.md` Companion section with direct links to the Stream Deck mapping bundle.
 - Updated `MANUAL.md` Companion Control section with official mapping file references.
-- Updated parity tracker (`docs/PARITY_MITTI.md`):
-  - Stream Deck integration story now marked complete via published profile package.
-
 ## 2026-03-05 (Warp mode split: linear vs perspective)
 
 ### Deck warp model + persistence
@@ -1128,7 +1121,6 @@
 
 ### Docs + notes
 - Updated `MANUAL.md` warp command reference.
-- Updated `docs/PARITY_MITTI.md` warp parity row + immediate order.
 - Updated `DEVNOTES.md` with warp mode implementation map.
 
 ### Validation
@@ -1302,7 +1294,7 @@
 - Self-check passed with backend status lines.
 - Smoke passed: `'/home/james/deckboy (another copy)/build/deckboy-native' --smoke` (`smoke failures: 0`)
 
-## 2026-03-05 (Mitti parity foundation: cue metadata + toggles + deck opacity)
+## 2026-03-05 (Cue metadata + toggles + deck opacity)
 
 ### Cue parity fields and persistence
 - Added new cue fields (backward-compatible show format extension):
@@ -1612,7 +1604,7 @@
 - Mouse wheel over a programmer row now cycles that slot cue directly (`up/down`), avoiding picker dialogs.
 - Removed the remaining unused popup-based master-slot picker code path.
 
-## 2026-03-05 (Mitti Parity P1 - Panic Timing + Cue Find + Timecode Follower)
+## 2026-03-05 (Panic timing + cue find + timecode follower)
 
 ### Panic timing/options now fully wired
 - Added new Preferences -> Audio controls:
@@ -1690,7 +1682,7 @@
   - `/find`, `/find/next`, `/find/prev`, `/find/take`, `/find/clear`
   - `/renumber`.
 
-## 2026-03-04 (Mitti Parity P0 - Playback Semantics)
+## 2026-03-04 (Playback semantics)
 
 ### Jump mode and panic profile controls (menu-driven)
 - Added playback-semantics controls to Preferences -> Audio:
@@ -1782,7 +1774,7 @@
 - Output runtime windows are now created hidden by default (no startup display takeover).
 - Loaded shows are now disarmed on app launch/open (saved output-on states no longer auto-take over screens).
 - Added explicit focused-output state control in Preferences -> Video:
-  - `Enabled` toggle switch (Mitti-style operator flow)
+  - `Enabled` toggle switch
   - enabling a window output immediately fullscreenes it on the selected display
 - Added focused-output display assignment controls directly in Video tab:
   - `Prev` / `Next` / `Rescan` with live display label
@@ -2129,7 +2121,7 @@
 - Current high-value follow-ups:
   - move tracker-style deck overview into the main window area where deck columns previously dominated, while keeping detailed cue lists in the dedicated decks window.
   - add a proper output/deck overview layout in the separate decks window (not only layer/status labels).
-  - continue Mitti parity features after deck/output UX split.
+  - continue feature development after deck/output UX split.
 
 ---
 
@@ -2223,7 +2215,7 @@ This document summarizes the comprehensive modular refactoring of Deckboy_0.01 t
 
 - **native/platform/siphon_spout.cpp** (95 lines)
   - Platform-specific implementations
-  - OBS/vMix/Resolume compatibility
+  - Third-party texture sharing compatibility
 
 #### Cross-Platform Browser Rendering
 - **native/platform/browser.hpp** (90 lines)
@@ -2276,7 +2268,7 @@ This document summarizes the comprehensive modular refactoring of Deckboy_0.01 t
   - Siphon framework setup (macOS)
   - Spout SDK setup (Windows)
   - DirectX 11 texture sharing
-  - OBS/vMix receiver configuration
+  - Third-party receiver configuration
   - Performance tuning tips
 
 ---

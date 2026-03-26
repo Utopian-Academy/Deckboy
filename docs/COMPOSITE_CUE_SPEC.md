@@ -5,8 +5,7 @@
 Deckboy should add a new cue kind: `Composite`.
 
 A `Composite` cue is a single primary cue that renders multiple source slots
-into one authored scene. It is the Deckboy equivalent of a vMix Multiview
-Input.
+into one authored scene — a multi-source layout rendered as a single cue.
 
 This is a better fit than introducing a general-purpose layer engine because
 Deckboy is currently structured around:
@@ -633,5 +632,5 @@ Implement `Composite` as a first-class cue type.
 
 Do **not** implement general layers first.
 
-That gives Deckboy the operator benefit of vMix-style authored multiview inputs
+That gives Deckboy the operator benefit of authored multi-source layouts
 while staying aligned with the codebase it actually has today.
