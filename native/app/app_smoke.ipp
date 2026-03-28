@@ -1,7 +1,7 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
   static int runSelfCheck() {
-    std::cout << "deckboy-native self-check\n";
+    std::cout << "Deckboy self-check\n";
     std::cout << "version: " << deckboy::core::version::kVersionTag << '\n';
     std::cout << "project-root: " << Paths::projectRoot() << '\n';
     std::cout << "font-sans: " << (fs::exists(Paths::fontPath(Paths::FontName::Sans)) ? "ok" : "missing") << '\n';
