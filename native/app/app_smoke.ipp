@@ -2,6 +2,7 @@
 // Do NOT compile this file separately.
   static int runSelfCheck() {
     std::cout << "deckboy-native self-check\n";
+    std::cout << "version: " << deckboy::core::version::kVersionTag << '\n';
     std::cout << "project-root: " << Paths::projectRoot() << '\n';
     std::cout << "font-sans: " << (fs::exists(Paths::fontPath(Paths::FontName::Sans)) ? "ok" : "missing") << '\n';
     std::cout << "font-mono: " << (fs::exists(Paths::fontPath(Paths::FontName::Mono)) ? "ok" : "missing") << '\n';
