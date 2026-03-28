@@ -1491,6 +1491,11 @@
     cue.formatName = "generated";
     Deck& deck = focusedDeckMutable();
     applyDeckDefaultsToCue(cue, deck);
+    // Engineering patterns should hold by default instead of inheriting
+    // still-duration auto-advance from playlist defaults.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.audioEnabled = false;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -1935,7 +1940,14 @@
     if (safe.h > textH) {
       textY = safe.y + (safe.h - textH) / 2;
     }
+    SDL_Rect prevClip {};
+    bool hadClip = SDL_RenderIsClipEnabled(renderer);
+    if (hadClip) {
+      SDL_RenderGetClipRect(renderer, &prevClip);
+    }
+    SDL_RenderSetClipRect(renderer, &safe);
     drawText(renderer, font, clipped, color, safe.x, textY);
+    SDL_RenderSetClipRect(renderer, hadClip ? &prevClip : nullptr);
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
@@ -1951,7 +1963,14 @@
     if (clipped.empty()) {
       return;
     }
+    SDL_Rect prevClip {};
+    bool hadClip = SDL_RenderIsClipEnabled(renderer);
+    if (hadClip) {
+      SDL_RenderGetClipRect(renderer, &prevClip);
+    }
+    SDL_RenderSetClipRect(renderer, &safe);
     drawCenteredText(renderer, font, clipped, color, safe);
+    SDL_RenderSetClipRect(renderer, hadClip ? &prevClip : nullptr);
   }
 
   void drawCenteredText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
@@ -1981,4 +2000,3 @@
   // -----------------------------------------------------------------------
   // Shared inspector draw helpers (used by both docked and floating paths)
   // -----------------------------------------------------------------------
-
