@@ -1,5 +1,15 @@
 # DEVNOTES
 
+## Version Flow Notes
+- `VERSION` is now the single source of truth for Deckboy's SemVer version.
+- CMake reads `VERSION`, parses the numeric core into `project(... VERSION ...)`,
+  and generates `deckboy_version.hpp` so native code can print the same version.
+- `deckboy-native --version` is now the quickest sanity check when a local build
+  or GitHub artifact feels ambiguous.
+- GitHub Actions now guard `v*` tags against `VERSION` before running
+  Linux/macOS/Windows build jobs, so a mistyped tag cannot silently create a
+  mismatched release candidate build.
+
 ## Deckboy 0.60 Cleanup + Portability Audit
 - Shared runtime fix note:
   - timeline strip EOF sampling and strip publish behavior are now safer in the
