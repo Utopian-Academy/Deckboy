@@ -12,15 +12,15 @@ and GitHub Actions.
 Current example:
 
 ```text
-0.75.0
+0.75.1
 ```
 
 ## What Uses It
 
 - `CMakeLists.txt` reads `VERSION` during configure.
 - CMake generates `deckboy_version.hpp` so the native app can report the same value.
-- `deckboy-native --version` prints the version tag Deckboy was built from.
-- `deckboy-native --self-check` includes the current version near the top.
+- `Deckboy --version` prints the version tag Deckboy was built from.
+- `Deckboy --self-check` includes the current version near the top.
 
 ## GitHub Flow
 
@@ -31,10 +31,10 @@ Branch CI:
 
 Tag CI:
 
-- Pushing a tag like `v0.75.0` triggers the same cross-platform build flow.
+- Pushing a tag like `v0.75.1` triggers the same cross-platform build flow.
 - GitHub Actions first verifies that:
-  - `VERSION` says `0.75.0`
-  - the pushed tag says `v0.75.0`
+  - `VERSION` says `0.75.1`
+  - the pushed tag says `v0.75.1`
 - If those do not match, the workflow fails immediately.
 
 ## Recommended Release Steps
@@ -48,8 +48,8 @@ Tag CI:
 4. Create an annotated Git tag:
 
 ```bash
-git tag -a v0.75.0 -m "Release v0.75.0"
-git push origin v0.75.0
+git tag -a v0.75.1 -m "Release v0.75.1"
+git push origin v0.75.1
 ```
 
 5. Let GitHub Actions validate the tag and build Linux/macOS/Windows artifacts.

@@ -7,4 +7,4 @@ BUILD_DIR="${ROOT_DIR}/build/native"
 cmake -S "${ROOT_DIR}" -B "${BUILD_DIR}" >/dev/null
 cmake --build "${BUILD_DIR}" -j >/dev/null
 
-exec "${BUILD_DIR}/deckboy-native" "$@"
+exec "${BUILD_DIR}/Deckboy" "$@"

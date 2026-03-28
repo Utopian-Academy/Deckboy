@@ -99,14 +99,14 @@ jobs:
       - name: Self-check
         run: |
           cd build
-          ./deckboy-native --self-check
+          ./Deckboy --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-linux-${{ needs.version-check.outputs.version }}
-          path: build/deckboy-native
+          name: Deckboy-linux-${{ needs.version-check.outputs.version }}
+          path: build/Deckboy
 
   macos-build:
     name: macOS Build (Apple Silicon/Intel)
@@ -169,14 +169,14 @@ jobs:
       - name: Self-check
         run: |
           cd build
-          ./deckboy-native --self-check
+          ./Deckboy --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-macos-${{ needs.version-check.outputs.version }}
-          path: build/deckboy-native
+          name: Deckboy-macos-${{ needs.version-check.outputs.version }}
+          path: build/Deckboy
 
   windows-build:
     name: Windows Build (MSVC)
@@ -256,11 +256,11 @@ jobs:
       - name: Self-check
         run: |
           cd build\Release
-          .\deckboy-native.exe --self-check
+          .\Deckboy.exe --self-check
       
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-windows-${{ needs.version-check.outputs.version }}
-          path: build\Release\deckboy-native.exe
+          name: Deckboy-windows-${{ needs.version-check.outputs.version }}
+          path: build\Release\Deckboy.exe
