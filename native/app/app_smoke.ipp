@@ -168,6 +168,13 @@
         failures += 1;
       }
     };
+    auto framesMatch = [](const std::optional<DecodedFrame>& lhs,
+                          const std::optional<DecodedFrame>& rhs) {
+      return lhs && rhs &&
+             lhs->width == rhs->width &&
+             lhs->height == rhs->height &&
+             lhs->pixels == rhs->pixels;
+    };
 
     {
       Cue cue;
@@ -178,6 +185,55 @@
                std::abs(stoppedGain - 1.0f) < 0.001f &&
                std::abs(playingGain - 0.25f) < 0.001f,
              "transition source gain policy");
+    }
+
+    {
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.path = "pattern://crosshatch-motion";
+      cue.width = 320;
+      cue.height = 180;
+      auto first = MediaEngine::buildPatternFrame(cue, 0.0, cue.width, cue.height);
+      auto looped = MediaEngine::buildPatternFrame(cue, 4.0, cue.width, cue.height);
+      expect(framesMatch(first, looped), "crosshatch motion loop frame");
+    }
+
+    {
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.path = "pattern://checkerboard-motion";
+      cue.width = 320;
+      cue.height = 180;
+      auto first = MediaEngine::buildPatternFrame(cue, 0.0, cue.width, cue.height);
+      auto looped = MediaEngine::buildPatternFrame(cue, 4.0, cue.width, cue.height);
+      expect(framesMatch(first, looped), "checkerboard motion loop frame");
+    }
+
+    {
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.path = "pattern://checkerboard";
+      cue.width = 128;
+      cue.height = 128;
+      auto frame = MediaEngine::buildPatternFrame(cue, 0.0, cue.width, cue.height);
+      bool hasWhite = false;
+      bool hasBlack = false;
+      bool hasTransparent = false;
+      if (frame) {
+        for (size_t i = 0; i + 3 < frame->pixels.size(); i += 4) {
+          const std::uint8_t r = frame->pixels[i + 0];
+          const std::uint8_t g = frame->pixels[i + 1];
+          const std::uint8_t b = frame->pixels[i + 2];
+          const std::uint8_t a = frame->pixels[i + 3];
+          hasWhite = hasWhite || (r == 255 && g == 255 && b == 255);
+          hasBlack = hasBlack || (r == 0 && g == 0 && b == 0);
+          hasTransparent = hasTransparent || (a != 255);
+          if (hasWhite && hasBlack && hasTransparent) {
+            break;
+          }
+        }
+      }
+      expect(frame && hasWhite && hasBlack && !hasTransparent, "checkerboard frame opaque");
     }
 
     {

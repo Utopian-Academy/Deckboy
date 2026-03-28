@@ -31,6 +31,32 @@
 using deckboy::core::utils::trim;
 using deckboy::core::utils::splitLines;
 
+namespace {
+
+constexpr double kPatternMotionLoopSeconds = 4.0;
+constexpr double kTau = 6.28318530717958647692;
+
+double normalizedLoopProgress(double wallSeconds, double loopSeconds) {
+  if (loopSeconds <= 0.0) {
+    return 0.0;
+  }
+  double wrapped = std::fmod(wallSeconds, loopSeconds);
+  if (wrapped < 0.0) {
+    wrapped += loopSeconds;
+  }
+  return wrapped / loopSeconds;
+}
+
+int phaseFromProgress(double progress, int period) {
+  if (period <= 0) {
+    return 0;
+  }
+  double wrapped = progress - std::floor(progress);
+  return static_cast<int>(std::floor(wrapped * static_cast<double>(period))) % period;
+}
+
+} // namespace
+
 MediaEngine::~MediaEngine() {
   stopAll();
 }
@@ -2040,6 +2066,7 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   std::string patternType = normalizePatternTypeId(cue.path);
   std::string basePatternType = stripPatternMotionSuffix(patternType);
   bool motion = endsWith(patternType, "-motion");
+  double motionProgress = motion ? normalizedLoopProgress(animTime, kPatternMotionLoopSeconds) : 0.0;
 
   auto pulseByte = [&](Uint8 fullScale, double speed, double minScale = 0.40, double maxScale = 1.0) -> Uint8 {
     double wave = 0.5 + 0.5 * std::sin(animTime * speed);
@@ -2050,27 +2077,26 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   if (basePatternType == "smpte-bars") {
     buildSmpte75Bars(frame);
     if (motion) {
-      int scanX = static_cast<int>(std::fmod(animTime * 230.0, static_cast<double>(frame.width + 120))) - 60;
+      int scanX = static_cast<int>(std::floor(motionProgress * static_cast<double>(frame.width + 120))) - 60;
       fillPixelRect(frame, scanX, 0, 4, frame.height, {255, 255, 255, 255});
-      int scanY = static_cast<int>(std::fmod(animTime * 140.0, static_cast<double>(frame.height + 80))) - 40;
+      int scanY = static_cast<int>(std::floor(normalizedLoopProgress(animTime * 1.5, kPatternMotionLoopSeconds)
+                                              * static_cast<double>(frame.height + 80))) - 40;
       fillPixelRect(frame, 0, scanY, frame.width, 2, {8, 8, 8, 255});
     }
   } else if (basePatternType == "crosshatch") {
-    constexpr double kCrosshatchPeriod = 64.0;
-    int phaseX = motion ? static_cast<int>(std::fmod(animTime * 92.0, kCrosshatchPeriod)) : 0;
-    int phaseY = motion ? static_cast<int>(std::fmod(animTime * 46.0, kCrosshatchPeriod)) : 0;
+    int phaseX = motion ? phaseFromProgress(motionProgress, 64) : 0;
+    int phaseY = 0;
     buildCrosshatch(frame, phaseX, phaseY);
     if (motion) {
-      int markerX = static_cast<int>(std::fmod(animTime * 170.0, static_cast<double>(frame.width + 40))) - 20;
-      fillPixelRect(frame, markerX, frame.height / 2 - 4, 10, 8, {245, 220, 80, 255});
+      int markerX = static_cast<int>(std::floor(motionProgress * static_cast<double>(frame.width + 24))) - 12;
+      fillPixelRect(frame, markerX, std::max(0, frame.height - 18), 6, 6, {220, 190, 72, 220});
     }
   } else if (basePatternType == "checkerboard" || basePatternType == "checker") {
-    constexpr double kCheckerboardPeriod = 128.0;
-    int phaseX = motion ? static_cast<int>(std::fmod(animTime * 110.0, kCheckerboardPeriod)) : 0;
-    int phaseY = motion ? static_cast<int>(std::fmod(animTime * 55.0, kCheckerboardPeriod)) : 0;
+    int phaseX = motion ? phaseFromProgress(motionProgress * 2.0, 128) : 0;
+    int phaseY = motion ? phaseFromProgress(motionProgress, 128) : 0;
     buildCheckerboard(frame, phaseX, phaseY);
     if (motion) {
-      int y = static_cast<int>(frame.height * (0.5 + 0.35 * std::sin(animTime * 1.9)));
+      int y = static_cast<int>(std::floor(frame.height * (0.5 + 0.35 * std::sin(motionProgress * kTau))));
       fillPixelRect(frame, 0, y, frame.width, 2, {255, 96, 32, 255});
     }
   } else if (basePatternType == "full-white") {

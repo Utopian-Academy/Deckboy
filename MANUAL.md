@@ -319,6 +319,8 @@ playlist with a "web" type.
 **Pattern cue**:
 - Click `PATTERN` (or press `P`) to add a pattern cue immediately.
 - Use Companion `PATTERN <type>` for direct type add.
+- New pattern cues default to `hold`, so they stay up until you take something
+  else unless you explicitly set a duration.
 - For an existing pattern cue, use the cue inspector `PLAYBACK` section:
   - `Pattern Type: ... v` selects type
   - `motion` row toggles motion on/off (for supported types).
@@ -777,7 +779,7 @@ menu, or use `PATTERN <type>` via Companion.
 | `smpte-bars` | SMPTE 75% HD colour bars with PLUGE strip |
 | `smpte-bars-motion` | SMPTE bars with moving scan overlays |
 | `crosshatch` | White grid on black with red centre cross and green safe-area markers |
-| `crosshatch-motion` | Crosshatch with animated grid phase and marker sweep |
+| `crosshatch-motion` | Crosshatch with gentle horizontal drift and marker sweep |
 | `checkerboard` | 64 px alternating black/white squares |
 | `checkerboard-motion` | Checkerboard with animated phase shift and sweep line |
 | `full-white` | 100 % white field |
@@ -788,7 +790,10 @@ menu, or use `PATTERN <type>` via Companion.
 | `full-*-motion` | Pulsing full-field motion variants (`white/black/red/green/blue`) |
 
 Pattern cues are generated in-process — no external file needed. Animated
-patterns rebuild every frame.
+patterns rebuild every frame. New pattern cues default to `hold`, and the
+motion variants now loop back to their starting state cleanly. The animated
+crosshatch variant uses a gentler horizontal drift so the preview remains easy
+to read while it moves.
 
 ---
 
@@ -868,6 +873,13 @@ through the focused deck's selected audio device.
 
 UI click sounds use a **separate** SDL audio device so they never interfere
 with the programme stream.
+
+When the timeline is still computing waveform/transient peaks for an audio
+file, the audio lane now shows an animated `ANALYZING...` state instead of a
+static placeholder.
+
+If the active cue stops producing audio, the focused-deck VU meter now decays
+back toward zero instead of holding the last non-silent reading indefinitely.
 
 | Action | Key | Companion |
 |--------|-----|-----------|
