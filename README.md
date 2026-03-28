@@ -3,6 +3,9 @@
 Deckboy is now a native SDL2 desktop app, not a web app. The current direction is Linux-first with a cross-platform code path, using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
 Project goal: keep Deckboy fully open source and ship first-class builds on Linux, macOS, and Windows.
 
+Contributor/code-navigation note: see [docs/CODE_MAP.md](docs/CODE_MAP.md) for a fast architecture map aimed at humans and coding agents.
+Windows packaging note: see [docs/WINDOWS_PORTABLE_RELEASE.md](docs/WINDOWS_PORTABLE_RELEASE.md) for the current portable-release workflow.
+
 **🚀 March 2025 Refactoring**: See [CHANGES.md](CHANGES.md) for a comprehensive summary of modular architecture improvements, broadcast SDK integration (MIDI, DeckLink, Syphon/Spout), cross-platform support, and automated CI/CD setup.
 
 The UI is styled with a Game Boy-inspired look: monochrome green screen palette, chunky shell framing, cute "cartridge shelf" language, and a more playful control surface.

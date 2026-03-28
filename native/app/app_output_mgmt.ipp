@@ -1574,7 +1574,11 @@
       output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, outputIndex);
     }
     std::string desiredSpec = buildOutputStreamSpec(outputIndex, width, height, fpsHint);
-    if (runtime->streamPid > 0 && runtime->streamSpec == desiredSpec) {
+    if (runtime->streamSpec == desiredSpec
+#ifndef _WIN32
+        && runtime->streamPid > 0
+#endif
+    ) {
       if (output.enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Live);
       }

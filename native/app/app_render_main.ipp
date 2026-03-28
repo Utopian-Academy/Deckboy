@@ -515,17 +515,20 @@
       std::string leftStr = "0:00";
       std::string midStr = formatSeconds(timelineDuration / 2.0);
       std::string rightStr = formatSeconds(timelineDuration);
-      drawText(controlRenderer_, fontSmall_, leftStr, pal.dark,
-               progressBarRect_.x + 4, rulerY);
+      SDL_Color rulerShadow {0, 0, 0, 180};
+      drawText(controlRenderer_, fontSmall_, leftStr, rulerShadow, progressBarRect_.x + 5, rulerY + 1);
+      drawText(controlRenderer_, fontSmall_, leftStr, pal.light,   progressBarRect_.x + 4, rulerY);
       int midW = 0, midH = 0;
       if (fontSmall_ && TTF_SizeUTF8(fontSmall_, midStr.c_str(), &midW, &midH) == 0) {
-        drawText(controlRenderer_, fontSmall_, midStr, pal.dark,
-                 progressBarRect_.x + progressBarRect_.w / 2 - midW / 2, rulerY);
+        int midX = progressBarRect_.x + progressBarRect_.w / 2 - midW / 2;
+        drawText(controlRenderer_, fontSmall_, midStr, rulerShadow, midX + 1, rulerY + 1);
+        drawText(controlRenderer_, fontSmall_, midStr, pal.light,   midX,     rulerY);
       }
       int rightW = 0, rightH = 0;
       if (fontSmall_ && TTF_SizeUTF8(fontSmall_, rightStr.c_str(), &rightW, &rightH) == 0) {
-        drawText(controlRenderer_, fontSmall_, rightStr, pal.dark,
-                 progressBarRect_.x + progressBarRect_.w - rightW - 4, rulerY);
+        int rightX = progressBarRect_.x + progressBarRect_.w - rightW - 4;
+        drawText(controlRenderer_, fontSmall_, rightStr, rulerShadow, rightX + 1, rulerY + 1);
+        drawText(controlRenderer_, fontSmall_, rightStr, pal.light,   rightX,     rulerY);
       }
     }
 

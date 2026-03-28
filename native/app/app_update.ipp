@@ -493,7 +493,9 @@
                     timelineStripTexW_, timelineStripTexH_,
                     f.width, f.height,
                     f.pixels.data(), f.width * 4);
+        timelineStripTexReadyTiles_ = std::clamp(pendingTimelineStripReadyTiles_, 0, kTimelineStripThumbCount);
         pendingTimelineStrip_.reset();
+        pendingTimelineStripReadyTiles_ = 0;
       }
     }
   }
