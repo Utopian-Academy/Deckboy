@@ -229,7 +229,7 @@ To see your icons in the app:
 
 1. Place files in `data/ui/deckboy_ui_pack_v3/` following the structure above
 2. Build: `cmake -S . -B build/native && cmake --build build/native -j$(nproc)`
-3. Run: `./build/native/deckboy-native`
+3. Run: `./build/native/Deckboy`
 4. The app loads the pack at startup — icons appear in the cue list, transport bar, and header
 
 If the pack directory is missing or a file is missing, the app falls back to text labels. You can work incrementally — deliver one category at a time.

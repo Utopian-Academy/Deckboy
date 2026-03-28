@@ -278,6 +278,8 @@ add_executable(deckboy-native
   native/render/output_renderer.cpp
 )
 
+set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
+
 # Platform modules (conditional)
 if(ENABLE_MIDI)
   target_sources(deckboy-native PRIVATE native/platform/midi.cpp)
