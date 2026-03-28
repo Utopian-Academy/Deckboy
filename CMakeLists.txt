@@ -244,6 +244,7 @@ add_executable(deckboy-native
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/engine/media_engine.cpp
+  native/platform/browser.cpp
   native/platform/capture_backend.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
@@ -264,10 +265,6 @@ endif()
 
 if(ENABLE_SIPHON OR ENABLE_SPOUT)
   target_sources(deckboy-native PRIVATE native/platform/siphon_spout.cpp)
-endif()
-
-if(ENABLE_CEF OR ENABLE_WEBVIEW)
-  target_sources(deckboy-native PRIVATE native/platform/browser.cpp)
 endif()
 
 target_include_directories(deckboy-native PRIVATE
@@ -372,4 +369,24 @@ endif()
 
 target_compile_definitions(deckboy-native PRIVATE
   $<$<CONFIG:Debug>:DECKBOY_DEBUG=1>
+  $<$<BOOL:${WIN32}>:NOMINMAX>
+  $<$<BOOL:${WIN32}>:WIN32_LEAN_AND_MEAN>
+  $<$<BOOL:${WIN32}>:SDL_MAIN_HANDLED>
 )
+
+if(MSVC)
+  target_compile_options(deckboy-native PRIVATE /bigobj)
+endif()
+
+if(WIN32)
+  set(DECKBOY_APP_ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/art/windows/icons/deckboy_app.ico")
+  file(TO_NATIVE_PATH "${DECKBOY_APP_ICON_PATH}" DECKBOY_APP_ICON_NATIVE_PATH)
+  string(REPLACE "\\" "\\\\" DECKBOY_APP_ICON_RC_PATH "${DECKBOY_APP_ICON_NATIVE_PATH}")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/native/platform/windows/deckboy.rc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc"
+    @ONLY
+  )
+  target_sources(deckboy-native PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
+  target_link_libraries(deckboy-native PRIVATE ws2_32)
+endif()

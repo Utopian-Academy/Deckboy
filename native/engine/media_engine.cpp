@@ -53,6 +53,7 @@ void MediaEngine::stopAll() {
   activeCue_ = nullptr;
   frameRate_ = 0.0;
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
+  displayFrameSerial_ = 0;
   displayFrame_.reset();
   resetMediaFpsTelemetry();
 }
@@ -95,6 +96,7 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   cueOutPointSeconds_ = cue ? cue->duration : 0.0;
   frameRate_ = cue && cue->kind == CueKind::Video && cue->fps > 1.0 ? cue->fps : 30.0;
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
+  displayFrameSerial_ = 0;
   resetMediaFpsTelemetry();
   decoderEof_ = false;
   reachedEnd_ = false;
@@ -388,6 +390,7 @@ void MediaEngine::update() {
   if (imageFramePending_.exchange(false)) {
     std::lock_guard<std::mutex> lk(imageMutex_);
     if (pendingImageFrame_) {
+      pendingImageFrame_->index = ++displayFrameSerial_;
       displayFrame_ = std::move(pendingImageFrame_);
       uploadFrame(*displayFrame_);
     }
@@ -561,6 +564,7 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
   if (frame) {
+    frame->index = ++displayFrameSerial_;
     displayFrame_ = std::move(frame);
     uploadFrame(*displayFrame_);
   }
@@ -1071,6 +1075,7 @@ void MediaEngine::loadPatternFrame(const Cue& cue) {
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, 0.0, fallbackW, fallbackH);
   if (frame) {
+    frame->index = ++displayFrameSerial_;
     displayFrame_ = std::move(frame);
     uploadFrame(*displayFrame_);
   }
@@ -1131,6 +1136,7 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
   }
 
   displayFrame_ = std::move(frame);
+  displayFrame_->index = ++displayFrameSerial_;
   uploadFrame(*displayFrame_);
 }
 
@@ -1348,7 +1354,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
             continue;
           }
 
-          ssize_t bytesRead = read(audioFd, buffer.data(), buffer.size());
+          int bytesRead = readSome(audioFd, buffer.data(), buffer.size());
           if (bytesRead <= 0) {
             break;
           }
@@ -1540,6 +1546,8 @@ void MediaEngine::buildCheckerboard(DecodedFrame& frame, int phaseX, int phaseY)
   constexpr int cell = 64;
   int shiftX = ((phaseX % cell) + cell) % cell;
   int shiftY = ((phaseY % cell) + cell) % cell;
+  int cellOffsetX = (phaseX - shiftX) / cell;
+  int cellOffsetY = (phaseY - shiftY) / cell;
   for (int row = 0;; ++row) {
     int y = row * cell - shiftY;
     if (y >= H) {
@@ -1560,7 +1568,7 @@ void MediaEngine::buildCheckerboard(DecodedFrame& frame, int phaseX, int phaseY)
       if (x1 <= x0) {
         continue;
       }
-      bool white = ((row + col) % 2) == 0;
+      bool white = ((row + col + cellOffsetX + cellOffsetY) % 2) == 0;
       SDL_Color c = white ? SDL_Color{255, 255, 255, 255}
                           : SDL_Color{0, 0, 0, 255};
       fillPixelRect(frame, x0, y0, x1 - x0, y1 - y0, c);
@@ -2048,15 +2056,19 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
       fillPixelRect(frame, 0, scanY, frame.width, 2, {8, 8, 8, 255});
     }
   } else if (basePatternType == "crosshatch") {
-    int phase = motion ? static_cast<int>(std::fmod(animTime * 92.0, 64.0)) : 0;
-    buildCrosshatch(frame, phase, phase / 2);
+    constexpr double kCrosshatchPeriod = 64.0;
+    int phaseX = motion ? static_cast<int>(std::fmod(animTime * 92.0, kCrosshatchPeriod)) : 0;
+    int phaseY = motion ? static_cast<int>(std::fmod(animTime * 46.0, kCrosshatchPeriod)) : 0;
+    buildCrosshatch(frame, phaseX, phaseY);
     if (motion) {
       int markerX = static_cast<int>(std::fmod(animTime * 170.0, static_cast<double>(frame.width + 40))) - 20;
       fillPixelRect(frame, markerX, frame.height / 2 - 4, 10, 8, {245, 220, 80, 255});
     }
   } else if (basePatternType == "checkerboard" || basePatternType == "checker") {
-    int phase = motion ? static_cast<int>(std::fmod(animTime * 110.0, 64.0)) : 0;
-    buildCheckerboard(frame, phase, phase / 2);
+    constexpr double kCheckerboardPeriod = 128.0;
+    int phaseX = motion ? static_cast<int>(std::fmod(animTime * 110.0, kCheckerboardPeriod)) : 0;
+    int phaseY = motion ? static_cast<int>(std::fmod(animTime * 55.0, kCheckerboardPeriod)) : 0;
+    buildCheckerboard(frame, phaseX, phaseY);
     if (motion) {
       int y = static_cast<int>(frame.height * (0.5 + 0.35 * std::sin(animTime * 1.9)));
       fillPixelRect(frame, 0, y, frame.width, 2, {255, 96, 32, 255});
