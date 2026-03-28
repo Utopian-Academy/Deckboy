@@ -1665,9 +1665,12 @@
       int playbackBodyY = playbackSection.bodyStartY;
       if (cueSectionPlaybackOpen_) {
         ry = playbackBodyY;
-        drawText(controlRenderer_, fontSmall_,
-                 std::to_string(panelSelectedCues.size()) + " cues: " + kindSummary,
-                 pal.inkSoft, ctrl.x + 10, ry + 4);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {ctrl.x + 10, ry, kCtrlW - 20, kInspectorRowH},
+                     fitInspectorText(fontSmall_,
+                                      std::to_string(panelSelectedCues.size()) + " cues: " + kindSummary,
+                                      kCtrlW - 24),
+                     pal.inkSoft);
         ry += kRowStep;
 
         if (allVideoAudio) {
@@ -1868,8 +1871,10 @@
           ry = drawGeometryRows(ry, *selectedCue, true);
           ry = drawColorRows(ry, *selectedCue);
         } else {
-          drawText(controlRenderer_, fontSmall_, "mixed selection: geometry unavailable",
-                   pal.inkSoft, ctrl.x + 10, ry + 4);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {ctrl.x + 10, ry, kCtrlW - 20, kInspectorRowH},
+                       fitInspectorText(fontSmall_, "mixed selection: geometry unavailable", kCtrlW - 24),
+                       pal.inkSoft);
           ry += kRowStep;
         }
       }
@@ -1883,8 +1888,10 @@
         if (allSupportsKey) {
           ry = drawKeyRows(ry, *selectedCue);
         } else {
-          drawText(controlRenderer_, fontSmall_, "mixed selection: key unavailable",
-                   pal.inkSoft, ctrl.x + 10, ry + 4);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {ctrl.x + 10, ry, kCtrlW - 20, kInspectorRowH},
+                       fitInspectorText(fontSmall_, "mixed selection: key unavailable", kCtrlW - 24),
+                       pal.inkSoft);
           ry += kRowStep;
         }
       }
@@ -2056,7 +2063,7 @@
         SDL_Rect idLabel {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "id", pal.inkSoft, idLabel.x + 4, idLabel.y + 6);
+        drawTextSafe(controlRenderer_, fontSmall_, idLabel, "id", pal.inkSoft);
         std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, pal.light, pal.deep, pal.mid);
         drawTextSafe(controlRenderer_, fontSmall_,
@@ -2073,12 +2080,13 @@
         SDL_Rect ppLabel {ctrl.x + 10, ppY, 72, 26};
         SDL_Rect addBtn {ctrl.x + 88, ppY, 46, 26};
         SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
-        drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
-                 pal.inkSoft, ppLabel.x + 4, ppLabel.y + 6);
+        drawTextSafe(controlRenderer_, fontSmall_, ppLabel,
+                     fitInspectorText(fontSmall_, "pause pts: " + std::to_string(ppCount), ppLabel.w - 4),
+                     pal.inkSoft);
         Primitives::drawFramedPanel(controlRenderer_, addBtn, pal.dark, pal.deep, pal.mid);
-        drawCenteredText(controlRenderer_, fontSmall_, "+now", pal.light, addBtn);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "+now", pal.light);
         Primitives::drawFramedPanel(controlRenderer_, clrBtn, pal.deleteBezel, pal.deep, pal.mid);
-        drawCenteredText(controlRenderer_, fontSmall_, "clr", pal.light, clrBtn);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, clrBtn, "clr", pal.light);
         quickButtons_.push_back({addBtn, QuickAction::AddPausePoint, "Add pause point at current position"});
         quickButtons_.push_back({clrBtn, QuickAction::ClearPausePoints, "Clear all pause points"});
         rowCursor += 1;
