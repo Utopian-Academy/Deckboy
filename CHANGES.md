@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-28 (Browser cue backend groundwork)
+
+- **Browser cue runtime no longer hardcodes the Linux browser/Xvfb lifecycle inside `App`:**
+  - `native/platform/browser.hpp` / `native/platform/browser.cpp` now own the
+    browser session state, phased startup, error reporting, and capture handoff
+  - `native/app/app_output_mgmt.ipp` now drives browser cues through
+    `BrowserRenderer` instead of directly owning Chromium/Xvfb subprocess state
+  - `native/main.cpp` now keeps a per-deck `BrowserRenderer` backend object in
+    `DeckRuntime`
+- **This is the first implementation step toward removing the current external-browser dependency:**
+  - the live Linux backend still launches a Chromium-family browser and hands
+    the virtual display off to FFmpeg capture
+  - the important change is architectural: Deckboy now has a real browser
+    backend seam where native WebView / non-external renderers can be swapped in
+    later without keeping Chromium startup logic smeared through app code
+
 ## 2026-03-27 (Windows portable packaging)
 
 - **Windows release packaging now has a repo-owned portable build script:**

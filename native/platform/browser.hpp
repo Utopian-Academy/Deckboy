@@ -6,12 +6,15 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace deckboy::platform::browser {
+
+enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
 
 // Decoded browser frame (same as video frame)
 struct BrowserFrame {
@@ -36,10 +39,19 @@ class BrowserRenderer {
   // Lifecycle
   bool start(const std::string& url, int width, int height);
   void stop();
+  void tick();
   bool isRunning() const;
+  bool isLive() const;
+  BrowserStartPhase phase() const;
+  std::string lastError() const;
 
   // Frame capture (call each frame)
   bool grabFrame(BrowserFrame& outFrame);
+
+  // Capture handoff
+  bool consumeCaptureRequest(std::string& outSourceRef, int& outWidth, int& outHeight);
+  void markCaptureStarted();
+  void markCaptureFailed(const std::string& error);
 
   // Navigation
   bool loadUrl(const std::string& url);
