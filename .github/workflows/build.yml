@@ -1,14 +1,45 @@
-name: Build & Test
+name: Deckboy CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [deckboy-0.75]
+    tags:
+      - 'v*'
   pull_request:
-    branches: [main, develop]
+    branches: [deckboy-0.75]
+  workflow_dispatch:
 
 jobs:
+  version-check:
+    name: Version Guard
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        shell: bash
+        run: |
+          version="$(tr -d '\r\n' < VERSION)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "VERSION must use SemVer: MAJOR.MINOR.PATCH[-prerelease]" >&2
+            exit 1
+          fi
+
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            expected="v$version"
+            if [[ "${GITHUB_REF_NAME}" != "$expected" ]]; then
+              echo "Tag ${GITHUB_REF_NAME} does not match VERSION ${expected}" >&2
+              exit 1
+            fi
+          fi
+
   linux-build:
     name: Linux Build (Ubuntu)
+    needs: version-check
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -74,11 +105,12 @@ jobs:
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-linux
+          name: deckboy-native-linux-${{ needs.version-check.outputs.version }}
           path: build/deckboy-native
 
   macos-build:
     name: macOS Build (Apple Silicon/Intel)
+    needs: version-check
     runs-on: macos-latest
     strategy:
       matrix:
@@ -143,11 +175,12 @@ jobs:
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-macos
+          name: deckboy-native-macos-${{ needs.version-check.outputs.version }}
           path: build/deckboy-native
 
   windows-build:
     name: Windows Build (MSVC)
+    needs: version-check
     runs-on: windows-latest
     strategy:
       matrix:
@@ -229,5 +262,5 @@ jobs:
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
         with:
-          name: deckboy-native-windows
+          name: deckboy-native-windows-${{ needs.version-check.outputs.version }}
           path: build\Release\deckboy-native.exe
