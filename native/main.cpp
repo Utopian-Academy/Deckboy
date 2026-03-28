@@ -4936,6 +4936,12 @@ class App {
   std::vector<SDL_Rect> deckOpacityFaderRects_;
   std::vector<std::int16_t> vuSamples_;
   std::mutex vuSamplesMutex_;
+  Uint64 vuSamplesUpdatedAtMs_ = 0;
+  Uint64 vuDisplayUpdatedAtMs_ = 0;
+  float vuDisplayRmsLeft_ = 0.0f;
+  float vuDisplayRmsRight_ = 0.0f;
+  float vuDisplayPeakLeft_ = 0.0f;
+  float vuDisplayPeakRight_ = 0.0f;
   // Per-cue row display cache — avoids TTF_SizeUTF8 loop in ellipsizeToPixelWidth every frame
   struct CueRowDisplayCache {
     // Inputs (for staleness check)

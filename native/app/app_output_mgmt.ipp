@@ -2048,6 +2048,7 @@
         if (deckIndex == project_.focusedDeckIndex) {
           std::lock_guard<std::mutex> lock(vuSamplesMutex_);
           vuSamples_ = samples;
+          vuSamplesUpdatedAtMs_ = SDL_GetTicks64();
         }
       },
       [this](const Cue& cue) {

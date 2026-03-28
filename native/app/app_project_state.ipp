@@ -1276,37 +1276,86 @@
     return std::clamp(20.0f * static_cast<float>(std::log10(level)), -60.0f, 0.0f);
   }
 
-  VuReading computeVuReading() const {
-    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(vuSamplesMutex_));
-    VuReading reading;
-    if (vuSamples_.empty()) {
-      return reading;
+  void clearVuMeterState(bool resetDisplay = false) {
+    std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+    vuSamples_.clear();
+    vuSamplesUpdatedAtMs_ = 0;
+    if (resetDisplay) {
+      vuDisplayRmsLeft_ = 0.0f;
+      vuDisplayRmsRight_ = 0.0f;
+      vuDisplayPeakLeft_ = 0.0f;
+      vuDisplayPeakRight_ = 0.0f;
+      vuDisplayUpdatedAtMs_ = SDL_GetTicks64();
     }
+  }
+
+  VuReading computeVuReading() {
+    std::vector<std::int16_t> samples;
+    Uint64 samplesUpdatedAtMs = 0;
+    {
+      std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+      samples = vuSamples_;
+      samplesUpdatedAtMs = vuSamplesUpdatedAtMs_;
+    }
+
+    VuReading target;
+    Uint64 nowMs = SDL_GetTicks64();
+    bool samplesFresh = !samples.empty()
+                     && samplesUpdatedAtMs > 0
+                     && nowMs >= samplesUpdatedAtMs
+                     && (nowMs - samplesUpdatedAtMs) <= 150;
+    if (!samplesFresh) {
+      samples.clear();
+    }
+
     double sumLeft = 0.0;
     double sumRight = 0.0;
     size_t countLeft = 0;
     size_t countRight = 0;
-    for (size_t i = 0; i < vuSamples_.size(); ++i) {
-      float normalized = std::abs(vuSamples_[i]) / 32768.0f;
+    for (size_t i = 0; i < samples.size(); ++i) {
+      float normalized = std::abs(samples[i]) / 32768.0f;
       if ((i & 1u) == 0u) {
         sumLeft += static_cast<double>(normalized) * normalized;
-        reading.peakLeft = std::max(reading.peakLeft, normalized);
+        target.peakLeft = std::max(target.peakLeft, normalized);
         ++countLeft;
       } else {
         sumRight += static_cast<double>(normalized) * normalized;
-        reading.peakRight = std::max(reading.peakRight, normalized);
+        target.peakRight = std::max(target.peakRight, normalized);
         ++countRight;
       }
     }
     if (countLeft > 0) {
-      reading.rmsLeft = static_cast<float>(std::sqrt(sumLeft / static_cast<double>(countLeft)));
+      target.rmsLeft = static_cast<float>(std::sqrt(sumLeft / static_cast<double>(countLeft)));
     }
     if (countRight > 0) {
-      reading.rmsRight = static_cast<float>(std::sqrt(sumRight / static_cast<double>(countRight)));
+      target.rmsRight = static_cast<float>(std::sqrt(sumRight / static_cast<double>(countRight)));
     } else {
-      reading.rmsRight = reading.rmsLeft;
-      reading.peakRight = reading.peakLeft;
+      target.rmsRight = target.rmsLeft;
+      target.peakRight = target.peakLeft;
     }
+
+    if (vuDisplayUpdatedAtMs_ == 0 || nowMs < vuDisplayUpdatedAtMs_) {
+      vuDisplayUpdatedAtMs_ = nowMs;
+    }
+    float deltaSeconds = static_cast<float>(std::min<Uint64>(nowMs - vuDisplayUpdatedAtMs_, 250)) / 1000.0f;
+    vuDisplayUpdatedAtMs_ = nowMs;
+    auto stepLevel = [&](float current, float desired, float fallPerSecond) {
+      if (desired >= current) {
+        return desired;
+      }
+      return std::max(desired, current - fallPerSecond * deltaSeconds);
+    };
+
+    vuDisplayRmsLeft_ = stepLevel(vuDisplayRmsLeft_, target.rmsLeft, 1.9f);
+    vuDisplayRmsRight_ = stepLevel(vuDisplayRmsRight_, target.rmsRight, 1.9f);
+    vuDisplayPeakLeft_ = stepLevel(vuDisplayPeakLeft_, target.peakLeft, 1.2f);
+    vuDisplayPeakRight_ = stepLevel(vuDisplayPeakRight_, target.peakRight, 1.2f);
+
+    VuReading reading;
+    reading.rmsLeft = vuDisplayRmsLeft_;
+    reading.rmsRight = vuDisplayRmsRight_;
+    reading.peakLeft = vuDisplayPeakLeft_;
+    reading.peakRight = vuDisplayPeakRight_;
     return reading;
   }
 

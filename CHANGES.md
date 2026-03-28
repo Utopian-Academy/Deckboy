@@ -14,6 +14,20 @@
 - **Crosshatch and checkerboard motion loops now wrap cleanly:**
   - loop phase math now returns to an equivalent visual state instead of
     snapping at the wrap point
+  - `crosshatch-motion` now uses a calmer single-axis drift in the preview and
+    output path instead of a more chaotic two-axis shimmer
+- **Engineering pattern cues are now live-safe by default:**
+  - newly added pattern cues now default to `hold` instead of inheriting
+    playlist still-duration auto-advance
+  - static checkerboard pattern frames are now smoke-tested as opaque output
+    frames
+- **Timeline + inspector polish:**
+  - audio waveform/transient analysis now shows an animated loading state in
+    the audio lane, similar to the video filmstrip loader
+  - the focused-deck VU meter now decays back to zero when a cue stops feeding
+    audio instead of freezing on the last non-silent block
+  - cue inspector rows that previously used raw text draws now clip/ellipsize
+    inside the panel bounds instead of bleeding slightly past the left edge
 - **Browser cue runtime now has a real backend seam:**
   - browser/Xvfb lifecycle and phased startup state now live behind
     `native/platform/browser.*`
