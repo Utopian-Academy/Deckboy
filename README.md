@@ -488,7 +488,8 @@ Notes:
 
 - This machine has the runtime pieces needed for the native build: `g++`, `cmake`, `SDL2`, `SDL2_ttf`, `ffmpeg`, and `ffprobe`.
 - The older browser prototype is still on disk for reference and can be launched with `./bin/deckboy-web`, but it is no longer the default path.
-- Browser cues currently rely on a Chromium-family browser already being available on the machine.
+- Browser cues now run through `native/platform/browser.*` as a backend layer.
+- The current Linux backend still relies on a Chromium-family browser plus virtual-display capture; native WebView / non-external backends are future work.
 - If a Dante or network audio device appears to the OS as a normal output device, Deckboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
 - NDI output is now optional and output-local. If the app finds NDI SDK headers at build time, it can dynamically load `libndi` at runtime and publish each enabled output as a network source.
 - Output NDI fill includes composited output video plus mixed stereo output audio; optional key output publishes a separate matte stream.

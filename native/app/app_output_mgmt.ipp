@@ -766,16 +766,11 @@
       runtime.mediaEngine->stopAll();
       runtime.mediaEngine.reset();
     }
-    runtime.browserProcess.stop();
-    runtime.xvfbProcess.stop();
-    runtime.virtualDisplayId.clear();
-    runtime.browserStartPhase = BrowserStartPhase::None;
-    runtime.browserCueLive = false;
-    if (!runtime.browserProfileDir.empty()) {
-      std::error_code error;
-      fs::remove_all(runtime.browserProfileDir, error);
-      runtime.browserProfileDir.clear();
+    if (runtime.browserRenderer) {
+      runtime.browserRenderer->stop();
+      runtime.browserRenderer.reset();
     }
+    runtime.browserCueLive = false;
     if (runtime.audioDevice != 0) {
       SDL_CloseAudioDevice(runtime.audioDevice);
       runtime.audioDevice = 0;
@@ -3726,63 +3721,6 @@
     return firstCueIndexForOverlayRole(deck, false);
   }
 
-  std::string browserExecutablePath() const {
-#ifdef _WIN32
-    static const std::array<std::string, 3> candidates {
-      "msedge.exe",
-      "chrome.exe",
-      "chrome"
-    };
-#elif __APPLE__
-    static const std::array<std::string, 3> candidates {
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-      "/Applications/Chromium.app/Contents/MacOS/Chromium"
-    };
-#else
-    static const std::array<std::string, 7> candidates {
-      "chromium",
-      "chromium-browser",
-      "google-chrome",
-      "google-chrome-stable",
-      "microsoft-edge",
-      "microsoft-edge-stable",
-      "chrome"
-    };
-#endif
-
-    for (const auto& candidate : candidates) {
-#ifdef _WIN32
-      if (!candidate.empty()) {
-        return candidate;
-      }
-#else
-      if (executableOnPath(candidate)) {
-        return candidate;
-      }
-#endif
-    }
-    return "";
-  }
-
-#ifdef __linux__
-  fs::path nextBrowserProfilePath() const {
-    return fs::temp_directory_path() / ("deckboy-browser-" + std::to_string(static_cast<unsigned long long>(SDL_GetTicks64())));
-  }
-
-  // Find a virtual display number not currently in use.
-  static int findFreeVirtualDisplay() {
-    for (int n = 20; n < 100; ++n) {
-      std::string lock = "/tmp/.X" + std::to_string(n) + "-lock";
-      if (!fs::exists(lock)) {
-        return n;
-      }
-    }
-    return -1;
-  }
-#endif // __linux__
-
-#ifdef __linux__
   void stopBrowserCue(int deckIndex) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (!runtime) {
@@ -3792,59 +3730,23 @@
     if (runtime->mediaEngine && runtime->mediaEngine->isBrowserCapturing()) {
       runtime->mediaEngine->stopBrowserCapture();
     }
-    runtime->browserProcess.stop();
-    runtime->xvfbProcess.stop();
-    runtime->virtualDisplayId.clear();
-    runtime->browserStartPhase = BrowserStartPhase::None;
-    runtime->browserCueLive = false;
-    if (!runtime->browserProfileDir.empty()) {
-      std::error_code error;
-      fs::remove_all(runtime->browserProfileDir, error);
-      runtime->browserProfileDir.clear();
+    if (runtime->browserRenderer) {
+      runtime->browserRenderer->stop();
+      runtime->browserRenderer.reset();
     }
+    runtime->browserCueLive = false;
   }
 
   void stopBrowserCue() {
     stopBrowserCue(project_.focusedDeckIndex);
   }
-#else
-  void stopBrowserCue(int /*deckIndex*/) {}
-  void stopBrowserCue() {}
-#endif // __linux__
-
-#ifdef __linux__
-  // Phase 1: start Xvfb on a free virtual display + begin phased chromium launch.
-  // Frame capture (x11grab) kicks in automatically via App::update() after delays.
   bool startBrowserCue(int deckIndex, const Cue& cue) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
     if (!runtime) {
       return false;
     }
-    runtime->browserLastError.clear();
     std::string browserUrl = normalizeBrowserUrl(cue.path);
-    if (browserUrl.empty()) {
-      runtime->browserLastError = "url missing";
-      return false;
-    }
-
-    std::string executable = browserExecutablePath();
-    if (executable.empty()) {
-      runtime->browserLastError = "browser not found";
-      triggerToast("no browser found", {79, 98, 48, 230}, {223, 248, 185, 255});
-      return false;
-    }
-
     stopBrowserCue(deckIndex);
-    runtime->browserLastError.clear();
-
-    int dispNum = findFreeVirtualDisplay();
-    if (dispNum < 0) {
-      runtime->browserLastError = "virtual display unavailable";
-      triggerToast("no free virtual display", {79, 98, 48, 230}, {223, 248, 185, 255});
-      return false;
-    }
-
-    runtime->virtualDisplayId = ":" + std::to_string(dispNum);
 
     auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
     int w = cue.width > 0 ? cue.width : targetW;
@@ -3854,37 +3756,16 @@
       w = targetW;
       h = targetH;
     }
-    runtime->pendingBrowserW = w;
-    runtime->pendingBrowserH = h;
-
-    // Start Xvfb synchronously (it backgrounds itself).
-    if (!spawnDetachedProcess(runtime->xvfbProcess, {
-      "Xvfb", runtime->virtualDisplayId,
-      "-screen", "0",
-      std::to_string(w) + "x" + std::to_string(h) + "x24",
-      "-nolisten", "tcp"
-    })) {
-      runtime->browserLastError = "xvfb launch failed";
-      triggerToast("Xvfb launch failed", {79, 98, 48, 230}, {223, 248, 185, 255});
-      runtime->virtualDisplayId.clear();
+    runtime->browserRenderer = std::make_unique<deckboy::platform::browser::BrowserRenderer>();
+    if (!runtime->browserRenderer->start(browserUrl, w, h)) {
+      std::string lastError = runtime->browserRenderer->lastError();
+      if (!lastError.empty()) {
+        triggerToast("browser: " + lastError,
+                     {79, 98, 48, 230},
+                     {223, 248, 185, 255});
+      }
       return false;
     }
-
-    // Store URL + profile dir for deferred Chromium launch in update().
-    runtime->browserProfileDir = nextBrowserProfilePath();
-    std::error_code error;
-    fs::create_directories(runtime->browserProfileDir, error);
-
-    // Store URL in a slot accessible to the update loop.
-    // Reuse browserProfileDir parent as a signal, but we need the URL.
-    // Write it to a temp file so the update loop can read it.
-    {
-      std::ofstream uf(runtime->browserProfileDir / ".pending_url");
-      uf << browserUrl;
-    }
-
-    runtime->browserStartPhase = BrowserStartPhase::WaitXvfb;
-    runtime->browserPhaseStartedAt = SDL_GetTicks64();
     triggerToast("browser loading…");
     return true;
   }
@@ -3896,105 +3777,53 @@
   // Called from App::update() to advance the phased browser startup.
   void tickBrowserStartup(int deckIndex) {
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
-    if (!runtime || runtime->browserStartPhase == BrowserStartPhase::None ||
-        runtime->browserStartPhase == BrowserStartPhase::Live) {
+    if (!runtime || !runtime->browserRenderer) {
       return;
     }
 
-    Uint64 now = SDL_GetTicks64();
-    Uint64 elapsed = now - runtime->browserPhaseStartedAt;
-
-    if (runtime->browserStartPhase == BrowserStartPhase::WaitXvfb) {
-      if (elapsed < 400) return;  // let Xvfb start
-      // Read back the pending URL
-      std::string browserUrl;
-      {
-        std::ifstream uf(runtime->browserProfileDir / ".pending_url");
-        std::getline(uf, browserUrl);
-      }
-      if (browserUrl.empty()) {
-        runtime->browserLastError = "pending url missing";
-        stopBrowserCue(deckIndex);
-        return;
-      }
-      std::string executable = browserExecutablePath();
-      int w = runtime->pendingBrowserW;
-      int h = runtime->pendingBrowserH;
-      std::vector<std::string> args {
-        executable,
-        "--no-first-run",
-        "--disable-session-crashed-bubble",
-        "--disable-infobars",
-        "--disable-gpu",
-        "--app=" + browserUrl,
-        "--window-size=" + std::to_string(w) + "," + std::to_string(h),
-        "--window-position=0,0",
-        "--user-data-dir=" + runtime->browserProfileDir.string(),
-        "--start-maximized"
-      };
-      // Set DISPLAY to virtual display via environment variable prefix trick.
-      // spawnDetachedProcess takes a plain argv; prepend env via a shell wrapper.
-      std::vector<std::string> envArgs {
-        "env",
-        "DISPLAY=" + runtime->virtualDisplayId,
-        "LIBGL_ALWAYS_SOFTWARE=1"
-      };
-      envArgs.insert(envArgs.end(), args.begin(), args.end());
-      if (!spawnDetachedProcess(runtime->browserProcess, envArgs)) {
-        runtime->browserLastError = "browser launch failed";
-        stopBrowserCue(deckIndex);
-        triggerToast("browser launch failed");
-        return;
-      }
-      runtime->browserStartPhase = BrowserStartPhase::WaitChrome;
-      runtime->browserPhaseStartedAt = now;
+    runtime->browserRenderer->tick();
+    if (!runtime->browserRenderer->lastError().empty()) {
       return;
     }
 
-    if (runtime->browserStartPhase == BrowserStartPhase::WaitChrome) {
-      if (elapsed < 1200) return;  // let Chrome render first frame
-      // Begin x11grab capture via the media engine.
-      MediaEngine* eng = runtime->mediaEngine.get();
-      if (!eng) {
-        runtime->browserLastError = "media engine unavailable";
-        stopBrowserCue(deckIndex);
-        return;
-      }
-      // Get transition params from the active cue if available.
-      const Deck& deck = project_.decks[deckIndex];
-      double transSecs = deck.transitionSeconds;
-      TransitionStyle transStyle = parseTransitionStyleToken(deck.transitionStyle);
-      if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
-        const Cue& ac = deck.cues[deck.activeIndex];
-        if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
-        if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
-      }
-      runtime->browserStartPhase = BrowserStartPhase::WaitCapture;
-      runtime->browserPhaseStartedAt = now;
-      bool captureStarted = eng->startBrowserCapture(
-        runtime->virtualDisplayId,
-        runtime->pendingBrowserW,
-        runtime->pendingBrowserH,
-        deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeInSeconds : 0.0,
-        deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeOutSeconds : 0.0,
-        transSecs,
-        transStyle
-      );
-      if (!captureStarted) {
-        runtime->browserLastError = "capture start failed";
-        stopBrowserCue(deckIndex);
-        triggerToast("browser capture failed");
-        return;
-      }
-      runtime->browserStartPhase = BrowserStartPhase::Live;
-      runtime->browserCueLive = true;
-      runtime->browserLastError.clear();
-      triggerToast("browser live");
+    std::string captureSourceRef;
+    int captureW = 0;
+    int captureH = 0;
+    if (!runtime->browserRenderer->consumeCaptureRequest(captureSourceRef, captureW, captureH)) {
+      runtime->browserCueLive = runtime->browserRenderer->isLive();
       return;
     }
+
+    MediaEngine* eng = runtime->mediaEngine.get();
+    if (!eng) {
+      runtime->browserRenderer->markCaptureFailed("media engine unavailable");
+      return;
+    }
+
+    const Deck& deck = project_.decks[deckIndex];
+    double transSecs = deck.transitionSeconds;
+    TransitionStyle transStyle = parseTransitionStyleToken(deck.transitionStyle);
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+      const Cue& ac = deck.cues[deck.activeIndex];
+      if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
+      if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
+    }
+
+    bool captureStarted = eng->startBrowserCapture(
+      captureSourceRef,
+      captureW,
+      captureH,
+      deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeInSeconds : 0.0,
+      deck.activeIndex >= 0 ? deck.cues[deck.activeIndex].fadeOutSeconds : 0.0,
+      transSecs,
+      transStyle
+    );
+    if (!captureStarted) {
+      runtime->browserRenderer->markCaptureFailed("capture start failed");
+      triggerToast("browser capture failed");
+      return;
+    }
+    runtime->browserRenderer->markCaptureStarted();
+    runtime->browserCueLive = true;
+    triggerToast("browser live");
   }
-#else
-  bool startBrowserCue(int /*deckIndex*/, const Cue& /*cue*/) { return false; }
-  bool startBrowserCue(const Cue& /*cue*/) { return false; }
-  void tickBrowserStartup(int /*deckIndex*/) {}
-#endif // __linux__
