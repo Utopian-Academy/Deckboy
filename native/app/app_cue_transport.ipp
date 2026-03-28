@@ -41,7 +41,15 @@
     if (!runtime) {
       return "offline";
     }
-    return browserCueStatusSummary(runtime->browserStartPhase, runtime->browserCueLive, runtime->browserLastError);
+    BrowserStartPhase phase = BrowserStartPhase::None;
+    std::string lastError;
+    bool live = runtime->browserCueLive;
+    if (runtime->browserRenderer) {
+      phase = runtime->browserRenderer->phase();
+      lastError = runtime->browserRenderer->lastError();
+      live = live || runtime->browserRenderer->isLive();
+    }
+    return browserCueStatusSummary(phase, live, lastError);
   }
 
   std::string transportStatusLabel() const {

@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-28 (Shared playback fixes + browser backend groundwork)
+
+- **Timeline strip last-frame handling hardened:**
+  - final filmstrip tile sampling now stays away from clip EOF instead of
+    chasing the reported duration boundary
+  - the strip upload path also avoids leaving a stale 4-tile texture on screen
+    when a fully built cached strip is ready
+- **Animated engineering patterns now update correctly in output paths:**
+  - regenerated software frames now publish with a fresh frame index so output
+    bridge textures actually refresh
+  - this fixes motion-enabled patterns and Pocket Test variants appearing frozen
+- **Crosshatch and checkerboard motion loops now wrap cleanly:**
+  - loop phase math now returns to an equivalent visual state instead of
+    snapping at the wrap point
+- **Browser cue runtime now has a real backend seam:**
+  - browser/Xvfb lifecycle and phased startup state now live behind
+    `native/platform/browser.*`
+  - the current Linux backend still uses an external Chromium-family browser,
+    but the app no longer hardcodes that runtime directly inside `App`
+
 ## 2026-03-26 (DeckLink SDI output + SRT subtitles)
 
 - **DeckLink SDI output wired end-to-end** (feature-gated by `DECKBOY_HAS_DECKLINK`):
