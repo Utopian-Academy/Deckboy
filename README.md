@@ -12,6 +12,13 @@ Cute extras are now optional:
 - `UI sounds` use a separate SDL audio device when available, so they stay off the program playback stream.
 - `UI transitions` are limited to the control window and do not alter the output window's media path.
 
+## Versioning
+
+- Deckboy now keeps its source-of-truth app version in [`VERSION`](VERSION).
+- The native binary reports that value with `--version`.
+- GitHub Actions validates `vX.Y.Z` tags against `VERSION` before running release-tag builds.
+- See [`docs/VERSION_FLOW.md`](docs/VERSION_FLOW.md) for the version/release workflow.
+
 ## Current MVP
 
 - Native control window plus separate native output windows
@@ -143,6 +150,7 @@ Useful options:
 ```bash
 ./build/native/deckboy-native --self-check
 ./build/native/deckboy-native --smoke
+./build/native/deckboy-native --version
 ./build/native/deckboy-native --allow-multi-instance
 ./scripts/smoke.sh
 ./scripts/generate_demo_shows.sh
