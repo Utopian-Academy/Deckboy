@@ -6,6 +6,8 @@
 
 #include "primitives.hpp"
 
+#include <algorithm>
+
 namespace deckboy::render {
 
 // Inline helper: inset a rectangle by N pixels

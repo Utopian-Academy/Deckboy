@@ -206,4 +206,5 @@ class MediaEngine {
   Uint32 mediaFpsFrameCount_ = 0;
   double mediaFpsMeasured_ = 0.0;
   std::uint64_t lastMeasuredMediaFrameIndex_ = static_cast<std::uint64_t>(-1);
+  std::uint64_t displayFrameSerial_ = 0;
 };

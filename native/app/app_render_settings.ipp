@@ -1099,7 +1099,20 @@
         toggleFocusedDeckWarpEnabled();
       } else if (sb.action == kSettingsActionOutputWarpModeCycle) {
         cycleFocusedDeckWarpMode(1);
-      } else if (sb.action == 250) {
+      } else {
+        handleSettingsClickPart2(sb);
+      }
+      return;
+    }
+    // Click outside modal = close
+    SDL_Rect modal = settingsModalRect();
+    if (!pointInRect(mx, my, modal)) settingsOpen_ = false;
+  }
+
+  // Second half of the settings-click handler, split off to keep the
+  // if-else-if chain short enough for MSVC's block-nesting limit.
+  void handleSettingsClickPart2(const SettingsButton& sb) {
+    if (sb.action == 250) {
         cycleFocusedOutput(-1);
       } else if (sb.action == 251) {
         cycleFocusedOutput(1);
@@ -1519,9 +1532,4 @@
           }
         }
       }
-      return;
-    }
-    // Click outside modal = close
-    SDL_Rect modal = settingsModalRect();
-    if (!pointInRect(mx, my, modal)) settingsOpen_ = false;
   }

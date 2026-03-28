@@ -23,6 +23,7 @@
 #include "platform/network.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
+#include "platform/browser.hpp"
 #include "platform/decklink.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
@@ -96,6 +97,7 @@ using deckboy::core::Paths;
 
 namespace {
   using deckboy::render::Primitives;
+  using deckboy::platform::browser::BrowserStartPhase;
   using namespace deckboy::core::utils;
 
 
@@ -1483,9 +1485,6 @@ bool executableOnPath(const std::string& name) {
 
 // MediaEngine is now defined in engine/media_engine.hpp
 
-// Phased startup for browser cues via virtual framebuffer.
-enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
-
 static std::string browserPhaseLabel(BrowserStartPhase phase) {
   switch (phase) {
     case BrowserStartPhase::None: return "idle";
@@ -1625,17 +1624,8 @@ struct DeckRuntime {
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
-  // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
-  ChildProcess browserProcess;
-  ChildProcess xvfbProcess;
+  std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;
   bool browserCueLive = false;
-  fs::path browserProfileDir;
-  std::string virtualDisplayId;        // e.g. ":22"
-  BrowserStartPhase browserStartPhase = BrowserStartPhase::None;
-  Uint64 browserPhaseStartedAt = 0;
-  int pendingBrowserW = 1280;
-  int pendingBrowserH = 720;
-  std::string browserLastError;
 };
 
 struct PipOverlayRuntime {
@@ -3228,15 +3218,7 @@ static deckboy::core::SubtitleTrack loadSubtitleTrack(const Cue& cue) {
   if (!cue.subtitleStreamId.empty() && !cue.path.empty()) {
     std::string srtText = extractEmbeddedSubtitles(cue.path, cue.subtitleStreamId);
     if (!srtText.empty()) {
-      // Write to temp and parse (parseSrtFile expects a file path)
-      auto tmpPath = fs::temp_directory_path() / "deckboy_sub_extract.srt";
-      {
-        std::ofstream tmp(tmpPath, std::ios::binary | std::ios::trunc);
-        tmp << srtText;
-      }
-      auto track = deckboy::core::parseSrtFile(tmpPath.string());
-      fs::remove(tmpPath);
-      return track;
+      return deckboy::core::parseSrtText(srtText);
     }
   }
   return {};
@@ -3298,6 +3280,9 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
 class App {
  public:
   bool init() {
+#ifdef _WIN32
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+#endif
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
       std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
       return false;
@@ -3366,12 +3351,24 @@ class App {
       }
     }
 
-    fontLarge_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 32);
-    fontBase_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 21);
-    fontSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 17);
-    fontMono_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 18);
-    fontPixel_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 24);
-    fontPixelSmall_ = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 12);
+#ifdef _WIN32
+    // On Windows the display DPI is typically slightly below the 72-point
+    // baseline, making glyphs render ~2pt larger than the layout expects.
+    // Reduce pt sizes here to restore comfortable padding inside UI elements.
+    fontLarge_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 29);
+    fontBase_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 19);
+    fontSmall_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 15);
+    fontMono_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 16);
+    fontPixel_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 21);
+    fontPixelSmall_= TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 10);
+#else
+    fontLarge_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 32);
+    fontBase_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 21);
+    fontSmall_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 17);
+    fontMono_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 18);
+    fontPixel_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 24);
+    fontPixelSmall_= TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 12);
+#endif
     if (!fontLarge_ || !fontBase_ || !fontSmall_ || !fontMono_) {
       std::cerr << "Font load failed: " << TTF_GetError() << '\n';
       return false;
@@ -3606,12 +3603,14 @@ class App {
 
  private:
   // [UiPanel system enums/structs/helpers removed — single-deck simplification]
+  // Declared here so ipp-file helper functions can use it as a parameter type.
+  struct SettingsButton { SDL_Rect rect; int action; std::string label; };
 #include "app/app_accessors.ipp"
+#include "app/app_network.ipp"
+
 #include "app/app_output_mgmt.ipp"
 
 #include "app/app_project_state.ipp"
-
-#include "app/app_network.ipp"
 
 #include "app/app_remote_command.ipp"
 
@@ -4833,11 +4832,13 @@ class App {
   std::thread timelineStripThread_;
   std::mutex timelineStripMutex_;
   std::optional<DecodedFrame> pendingTimelineStrip_;
+  int pendingTimelineStripReadyTiles_ = 0;
   std::atomic<bool> timelineStripPending_ {false};
   std::atomic<bool> timelineStripLoading_ {false};
   SDL_Texture* timelineStripTex_ = nullptr;
   int timelineStripTexW_ = 0;
   int timelineStripTexH_ = 0;
+  int timelineStripTexReadyTiles_ = 0;
   std::string timelineStripCueKey_;
   std::string timelineStripCueId_;
   std::string timelineStripFailedCueKey_;
@@ -4993,7 +4994,6 @@ class App {
   std::string pendingPanicProfileToken_;
   Uint64 panicProfileRequestedAt_ = 0;
   double panicRestoreDimmerTarget_ = 1.0;
-  struct SettingsButton { SDL_Rect rect; int action; std::string label; };
   std::vector<SettingsButton> settingsBtns_;
   bool midiEnabled_ = false;
   std::string midiDeviceName_;

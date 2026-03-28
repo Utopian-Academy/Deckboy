@@ -51,18 +51,14 @@ inline std::optional<double> parseSrtTime(const std::string& s) {
   return std::nullopt;
 }
 
-// Parse an SRT file into a SubtitleTrack.
-inline SubtitleTrack parseSrtFile(const std::string& path) {
+inline SubtitleTrack parseSrtStream(std::istream& input) {
   SubtitleTrack track;
-  std::ifstream file(path);
-  if (!file) return track;
-
   std::string line;
   enum class State { Index, Timing, Text };
   State state = State::Index;
   SubtitleEntry current;
 
-  while (std::getline(file, line)) {
+  while (std::getline(input, line)) {
     // Strip CR
     if (!line.empty() && line.back() == '\r') {
       line.pop_back();
@@ -143,6 +139,18 @@ inline SubtitleTrack parseSrtFile(const std::string& path) {
     });
 
   return track;
+}
+
+// Parse an SRT file into a SubtitleTrack.
+inline SubtitleTrack parseSrtFile(const std::string& path) {
+  std::ifstream file(path);
+  if (!file) return {};
+  return parseSrtStream(file);
+}
+
+inline SubtitleTrack parseSrtText(const std::string& text) {
+  std::istringstream input(text);
+  return parseSrtStream(input);
 }
 
 // Strip basic HTML-like tags from subtitle text (<b>, <i>, <u>, <font ...>)
