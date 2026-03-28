@@ -1,5 +1,99 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-27 (Windows portable packaging)
+
+- **Windows release packaging now has a repo-owned portable build script:**
+  - added `scripts/package_windows_portable.ps1`
+  - packages a portable app folder at `dist/windows/Deckboy/`
+  - also writes `dist/windows/Deckboy-windows-portable.zip`
+  - bundles the release DLLs, repo `data/`, a launcher batch file, and pinned
+    `ffmpeg.exe` / `ffprobe.exe` under `tools/ffmpeg/bin`
+- **Windows packaging guidance is now documented:**
+  - added `docs/WINDOWS_PORTABLE_RELEASE.md`
+  - linked the workflow from `README.md`
+
+## 2026-03-27 (Final clean Windows icon pack)
+
+- **Imported the final clean Windows icon pack into `art/windows/icons/`:**
+  - replaced the temporary sheet-derived Windows icons with the clean final
+    app and project icon families
+  - retained the existing Win32 resource wiring so `deckboy-native.exe`
+    continues to embed `deckboy_app.ico`
+  - the source of truth is now the shipped PNG / `.ico` asset set itself, not
+    the earlier sheet-extraction experiment
+
+## 2026-03-27 (Windows icon set integration)
+
+- **Windows app and project icon families are now repo-owned assets:**
+  - added `art/windows/icons/` with the approved March 27 reference sheet,
+    exported transparent PNG size sets, and production `.ico` files for both
+    the main app icon and the `.deckboy` project-file icon
+  - a later clean final asset pack replaced the temporary sheet-derived icons;
+    the shipped PNG / `.ico` files in `art/windows/icons/` are now the source
+    of truth for this release pass
+  - the project-file icon keeps the folded-corner document cue and no longer
+    depends on `.DBY` text at tiny sizes
+- **Windows builds now embed the Deckboy app icon in the executable:**
+  - `CMakeLists.txt` now configures a Win32 resource script from
+    `native/platform/windows/deckboy.rc.in`
+  - `deckboy-native.exe` now carries `art/windows/icons/deckboy_app.ico` as
+    its shell/titlebar/taskbar icon source on Windows
+  - `.deckboy` file association wiring is intentionally deferred to a later
+    integration pass; see `docs/WINDOWS_ICON_HANDOFF.md`
+
+## 2026-03-27 (Animated pattern compositor fix)
+
+- **Animated pattern cues now advance correctly in output windows and overlay compositing:**
+  - `native/engine/media_engine.cpp` now stamps rebuilt software frames with a
+    fresh serial when publishing pattern, source-placeholder, and still-image
+    frames.
+  - This fixes motion-enabled engineering patterns and the Pocket Test family
+    appearing frozen in output compositors even though their pixels were being
+    regenerated.
+  - Root cause: bridge textures in `app_render_output.ipp` only re-upload when
+    a frame's `DecodedFrame.index` changes, and regenerated pattern frames were
+    previously reusing index `0`.
+- **Crosshatch and checkerboard motion loops now wrap cleanly:**
+  - the crosshatch motion path now wraps X/Y phases independently on the grid's
+    real repeat interval, avoiding the old mismatched reset on the vertical
+    offset
+  - the checkerboard builder now preserves whole-cell parity while phase values
+    wrap, so the pattern no longer snaps to an inverted board state at loop
+    boundaries
+
+## 2026-03-27 (Windows media-tool hardening)
+
+- **Windows ffmpeg / ffprobe launches are now pinned to trusted absolute paths:**
+  - `native/core/subprocess.cpp` now resolves bare `ffmpeg` / `ffprobe`
+    launches against trusted locations before calling `CreateProcessW`,
+    instead of letting Windows search the app directory or normal `PATH`.
+  - Supported overrides: `DECKBOY_FFMPEG`, `DECKBOY_FFPROBE`, and
+    `DECKBOY_FFMPEG_DIR`.
+  - Trusted fallbacks include the repo `tools/` paths, the executable
+    directory, and `C:/ffmpeg/bin`.
+  - If a bare `ffmpeg` / `ffprobe` cannot be resolved to one of those trusted
+    locations on Windows, Deckboy now refuses to launch it.
+- **Embedded subtitle extraction no longer writes to a fixed temp filename:**
+  - `loadSubtitleTrack()` now parses extracted SRT text directly in memory.
+  - This removes the predictable `deckboy_sub_extract.srt` temp-file target.
+
+## 2026-03-27 (Timeline strip EOF guard)
+
+- **Timeline strip last-tile sampling hardened on Windows builds:**
+  - `app_project_state.ipp` now keeps the final filmstrip tile a safe distance
+    away from clip EOF instead of letting retries chase the reported duration
+    boundary.
+  - The last tile now samples near the cue's end from a conservative pre-EOF
+    decode window, then retries progressively earlier positions from that same
+    safe point.
+  - Fixed a strip publish race on the control UI path: a fully built cached
+    strip could be ready, but the pending upload would get cleared before the
+    texture upload pass ran, leaving the old 4-tile texture on screen with a
+    black final slot.
+  - This targets clips whose nominal metadata duration slightly exceeds the
+    last decodable frame, which could surface as an all-black final timeline
+    tile.
+
 ## 2026-03-26 (DeckLink SDI output + SRT subtitles)
 
 - **DeckLink SDI output wired end-to-end** (feature-gated by `DECKBOY_HAS_DECKLINK`):

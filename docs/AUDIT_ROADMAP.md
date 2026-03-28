@@ -29,6 +29,19 @@ item with ownership boundaries, dependencies, and acceptance criteria.
   Legacy wrappers preserved. `spawnDetachedProcess()` moved out of main.cpp.
 - **Files:** `native/core/subprocess.hpp`, `native/core/subprocess.cpp`
 
+### [DONE] Windows media-tool launch hardening
+- **What:** Windows bare `ffmpeg` / `ffprobe` launches are now resolved to
+  trusted absolute paths before `CreateProcessW`. Added repo-local / executable
+  directory / `C:/ffmpeg/bin` fallbacks plus `DECKBOY_FFMPEG`,
+  `DECKBOY_FFPROBE`, and `DECKBOY_FFMPEG_DIR` overrides. Bare media-tool
+  launches now fail closed if they cannot be pinned safely.
+- **Files:** `native/core/subprocess.cpp`
+
+### [DONE] Embedded subtitle extraction temp-file removal
+- **What:** Embedded SRT subtitle extraction is now parsed directly from memory
+  instead of writing to a predictable temp filename first.
+- **Files:** `native/main.cpp`, `native/core/subtitle_parser.hpp`
+
 ---
 
 ## In Progress / Ready to Pick Up
