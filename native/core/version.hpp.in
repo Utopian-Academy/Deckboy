@@ -1,0 +1,12 @@
+#pragma once
+
+namespace deckboy::core::version {
+
+inline constexpr const char* kVersion = "@DECKBOY_VERSION_STRING@";
+inline constexpr const char* kVersionTag = "@DECKBOY_VERSION_TAG@";
+inline constexpr int kVersionMajor = @DECKBOY_VERSION_MAJOR@;
+inline constexpr int kVersionMinor = @DECKBOY_VERSION_MINOR@;
+inline constexpr int kVersionPatch = @DECKBOY_VERSION_PATCH@;
+inline constexpr const char* kVersionPrerelease = "@DECKBOY_VERSION_PRERELEASE@";
+
+}  // namespace deckboy::core::version
