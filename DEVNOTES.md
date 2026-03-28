@@ -1,6 +1,19 @@
 # DEVNOTES
 
 ## Deckboy 0.60 Cleanup + Portability Audit
+- Shared runtime fix note:
+  - timeline strip EOF sampling and strip publish behavior are now safer in the
+    shared native path, which fixes the black-final-tile issue seen on long
+    clips
+  - animated engineering patterns now republish with a fresh frame serial, so
+    output compositors no longer hold stale still frames
+  - crosshatch and checkerboard pattern loops now wrap on seam-safe phase math
+- Browser cue backend note:
+  - `native/platform/browser.*` now owns browser session lifecycle and phased
+    startup state instead of keeping the Linux external-browser runtime smeared
+    through `native/app/app_output_mgmt.ipp`
+  - current behavior is still an external-browser Linux backend; native webview
+    or more owned rendering remains future work
 - `deckboy-0.60` is now in an audit / cleanup phase rather than a keep-adding-
   features phase.
 - **Audit roadmap:** see `docs/AUDIT_ROADMAP.md` for the full task map covering

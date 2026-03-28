@@ -10,7 +10,12 @@
 #include <string>
 #include <vector>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -18,7 +23,10 @@
 // ChildProcess — owns a running subprocess handle and its optional pipe fd
 // ---------------------------------------------------------------------------
 struct ChildProcess {
-#ifndef _WIN32
+#ifdef _WIN32
+  HANDLE hProcess = INVALID_HANDLE_VALUE;
+  int readFd = -1;  // CRT fd from _open_osfhandle; -1 if no pipe
+#else
   pid_t pid = -1;
   int readFd = -1;
   bool processGroup = false;
@@ -26,17 +34,27 @@ struct ChildProcess {
 
   bool running() const;
   void stop();
+  // Kill the child process only (does NOT close readFd).
+  // Use this to unblock a _read() in another thread: killing the process
+  // closes the write end of the pipe, causing _read() to return 0 (EOF)
+  // rather than -1 (EBADF).  Call stop() after joining the reader thread.
+  void killProcessOnly();
   ~ChildProcess();
 
   ChildProcess() = default;
   ChildProcess(const ChildProcess&) = delete;
   ChildProcess& operator=(const ChildProcess&) = delete;
   ChildProcess(ChildProcess&& other) noexcept
-#ifndef _WIN32
+#ifdef _WIN32
+    : hProcess(other.hProcess), readFd(other.readFd)
+#else
     : pid(other.pid), readFd(other.readFd), processGroup(other.processGroup)
 #endif
   {
-#ifndef _WIN32
+#ifdef _WIN32
+    other.hProcess = INVALID_HANDLE_VALUE;
+    other.readFd = -1;
+#else
     other.pid = -1;
     other.readFd = -1;
     other.processGroup = false;
@@ -44,7 +62,12 @@ struct ChildProcess {
   }
   ChildProcess& operator=(ChildProcess&& other) noexcept {
     stop();
-#ifndef _WIN32
+#ifdef _WIN32
+    hProcess = other.hProcess;
+    readFd = other.readFd;
+    other.hProcess = INVALID_HANDLE_VALUE;
+    other.readFd = -1;
+#else
     pid = other.pid;
     readFd = other.readFd;
     processGroup = other.processGroup;
