@@ -1,6 +1,15 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
 
+#ifdef _WIN32
+  // Windows stub: resolvedNmcSyncMode is defined in app_network.ipp which is
+  // Unix-only. Provide a minimal stub so callers in other ipp files compile.
+  std::string resolvedNmcSyncMode() const {
+    const char* env = std::getenv("DECKBOY_NMC_MODE");
+    return normalizeNmcSyncModeToken(env ? env : "");
+  }
+#endif
+
   Deck& focusedDeckMutable() {
     normalizeProject(project_);
     return project_.decks[project_.focusedDeckIndex];
