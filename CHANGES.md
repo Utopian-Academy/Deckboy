@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-28 (Version flow groundwork)
+
+- **Deckboy now has a real repo-wide version source of truth:**
+  - added top-level `VERSION` file (`0.75.0`) and moved CMake version metadata to
+    read from it instead of a stale hardcoded `0.3.0`
+  - generated `deckboy_version.hpp` at configure time so native code and build
+    metadata stay aligned
+- **CLI/self-check now expose the current app version:**
+  - `deckboy-native --version` prints the SemVer tag-style version
+  - `--self-check` now includes the current Deckboy version near the top
+- **GitHub Actions now understand release tags:**
+  - CI validates that any pushed `v*` tag matches the repo `VERSION`
+  - Linux/macOS/Windows builds now share that same version guard instead of
+    drifting independently
+
 ## 2026-03-28 (Shared playback fixes + browser backend groundwork)
 
 - **Timeline strip last-frame handling hardened:**
