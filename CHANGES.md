@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March 2026)
 
+## 2026-03-28 (Deckboy final output naming)
+
+- **Release-facing binary/artifact naming now uses `Deckboy`:**
+  - CMake still keeps the internal target id `deckboy-native`, but the built app
+    now outputs as `Deckboy` / `Deckboy.exe`
+  - GitHub Actions artifacts now publish as `Deckboy-linux-*`,
+    `Deckboy-macos-*`, and `Deckboy-windows-*`
+  - README and helper scripts now point at `Deckboy` as the built binary name
+- **Repo version advanced to `0.75.1`:**
+  - `v0.75.0` is already tagged with the older output naming, so the naming fix
+    is staged honestly as the next patch release
+
 ## 2026-03-28 (Version flow groundwork)
 
 - **Deckboy now has a real repo-wide version source of truth:**
