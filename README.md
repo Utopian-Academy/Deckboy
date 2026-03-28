@@ -148,10 +148,10 @@ The launcher builds with CMake automatically and then runs the native binary.
 Useful options:
 
 ```bash
-./build/native/deckboy-native --self-check
-./build/native/deckboy-native --smoke
-./build/native/deckboy-native --version
-./build/native/deckboy-native --allow-multi-instance
+./build/native/Deckboy --self-check
+./build/native/Deckboy --smoke
+./build/native/Deckboy --version
+./build/native/Deckboy --allow-multi-instance
 ./scripts/smoke.sh
 ./scripts/generate_demo_shows.sh
 ```
