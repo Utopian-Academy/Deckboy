@@ -1,6 +1,60 @@
 # DEVNOTES
 
 ## Deckboy 0.60 Cleanup + Portability Audit
+- Windows portable packaging note:
+  - Deckboy's current Windows shipping shape is a portable folder, not a lone
+    `.exe`
+  - `scripts/package_windows_portable.ps1` now assembles
+    `dist/windows/Deckboy/` plus `dist/windows/Deckboy-windows-portable.zip`
+  - the package includes release DLLs, repo `data/`, and bundled
+    `ffmpeg.exe` / `ffprobe.exe` under `tools/ffmpeg/bin`
+- Windows icon integration note:
+  - final shipped Windows icon assets now live in `art/windows/icons/`
+  - `deckboy_app.ico` is now embedded into the Windows executable via
+    `native/platform/windows/deckboy.rc.in` configured from `CMakeLists.txt`
+  - an earlier sheet-extraction experiment was discarded once the clean final
+    icon pack arrived; the current PNG / `.ico` files are the source of truth
+  - `deckboy_project.ico` ships as the deferred file-association icon asset;
+    registry / installer association wiring is still intentionally out of scope
+    for this pass
+- Animated pattern compositor note:
+  - regenerated software frames now get a fresh `DecodedFrame.index` when they
+    are published from `native/engine/media_engine.cpp`
+  - reason: output bridge textures in `native/app/app_render_output.ipp` only
+    upload when the cue key or frame index changes
+  - before this fix, animated pattern frames kept reusing index `0`, so
+    motion-enabled engineering patterns and Pocket Test variants could look
+    frozen in output windows / PIP compositing even while their pixels were
+    changing
+  - follow-up: crosshatch and checkerboard motion now use seam-safe phase math
+    so they wrap on equivalent board/grid states instead of visibly snapping at
+    the loop point
+- Windows security hardening note:
+  - `native/core/subprocess.cpp` now pins bare `ffmpeg` / `ffprobe` launches
+    to trusted absolute paths on Windows before calling `CreateProcessW`
+  - supported overrides: `DECKBOY_FFMPEG`, `DECKBOY_FFPROBE`,
+    `DECKBOY_FFMPEG_DIR`
+  - trusted defaults now include repo-local `tools/` directories, the
+    executable directory, and `C:/ffmpeg/bin`
+  - Deckboy now refuses bare Windows `ffmpeg` / `ffprobe` launches if they
+    cannot be resolved to one of those trusted locations
+- Subtitle extraction hardening note:
+  - embedded subtitle SRT text is now parsed directly in memory via
+    `parseSrtText(...)`
+  - this removes the old predictable `deckboy_sub_extract.srt` temp file
+- Timeline strip note:
+  - the final filmstrip tile now uses a stricter pre-EOF guard in
+    `native/app/app_project_state.ipp`
+  - reason: some clips appear to report a nominal duration slightly longer than
+    the last frame FFmpeg can actually decode, which was surfacing as a black
+    last tile on the cue timeline
+  - the target sample now stays near the cue end from that safe decode point,
+    and retries walk backward from there instead of sampling on or near the
+    duration boundary
+  - a second bug was also present in the UI publish path: the completed strip
+    could be cached with all 5 tiles ready, but the pending upload was being
+    cleared before `app_update.ipp` refreshed the SDL texture, so the screen
+    kept showing the stale 4-tile texture with a black final tile
 - `deckboy-0.60` is now in an audit / cleanup phase rather than a keep-adding-
   features phase.
 - **Audit roadmap:** see `docs/AUDIT_ROADMAP.md` for the full task map covering
