@@ -23,6 +23,7 @@
 #include "platform/network.hpp"
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
+#include "platform/browser.hpp"
 #include "platform/decklink.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
@@ -96,6 +97,7 @@ using deckboy::core::Paths;
 
 namespace {
   using deckboy::render::Primitives;
+  using deckboy::platform::browser::BrowserStartPhase;
   using namespace deckboy::core::utils;
 
 
@@ -1483,9 +1485,6 @@ bool executableOnPath(const std::string& name) {
 
 // MediaEngine is now defined in engine/media_engine.hpp
 
-// Phased startup for browser cues via virtual framebuffer.
-enum class BrowserStartPhase { None, WaitXvfb, WaitChrome, WaitCapture, Live };
-
 static std::string browserPhaseLabel(BrowserStartPhase phase) {
   switch (phase) {
     case BrowserStartPhase::None: return "idle";
@@ -1625,17 +1624,8 @@ struct DeckRuntime {
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioDeviceID audioDevice = 0;
   std::unique_ptr<MediaEngine> mediaEngine;
-  // Legacy direct-window path (unused with Xvfb, kept for cleanup only)
-  ChildProcess browserProcess;
-  ChildProcess xvfbProcess;
+  std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;
   bool browserCueLive = false;
-  fs::path browserProfileDir;
-  std::string virtualDisplayId;        // e.g. ":22"
-  BrowserStartPhase browserStartPhase = BrowserStartPhase::None;
-  Uint64 browserPhaseStartedAt = 0;
-  int pendingBrowserW = 1280;
-  int pendingBrowserH = 720;
-  std::string browserLastError;
 };
 
 struct PipOverlayRuntime {

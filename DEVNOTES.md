@@ -1,6 +1,13 @@
 # DEVNOTES
 
 ## Deckboy 0.60 Cleanup + Portability Audit
+- Browser cue backend note:
+  - `native/platform/browser.*` is now the real owner of browser session
+    lifecycle and phased startup state
+  - the old Linux Chromium/Xvfb launch logic has been pulled out of
+    `native/app/app_output_mgmt.ipp` and behind `BrowserRenderer`
+  - current behavior is still an external-browser backend on Linux, but future
+    native WebView / owned-renderer work now has an actual swap point
 - Windows portable packaging note:
   - Deckboy's current Windows shipping shape is a portable folder, not a lone
     `.exe`

@@ -244,6 +244,7 @@ add_executable(deckboy-native
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/engine/media_engine.cpp
+  native/platform/browser.cpp
   native/platform/capture_backend.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
@@ -264,10 +265,6 @@ endif()
 
 if(ENABLE_SIPHON OR ENABLE_SPOUT)
   target_sources(deckboy-native PRIVATE native/platform/siphon_spout.cpp)
-endif()
-
-if(ENABLE_CEF OR ENABLE_WEBVIEW)
-  target_sources(deckboy-native PRIVATE native/platform/browser.cpp)
 endif()
 
 target_include_directories(deckboy-native PRIVATE
