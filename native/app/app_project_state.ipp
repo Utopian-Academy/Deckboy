@@ -744,8 +744,10 @@
       return;
     }
     project_.oscFeedbackMirrorEnabled = enabled;
+#ifndef _WIN32
     lastOscMirrorFeedbackPayload_.clear();
     lastOscMirrorFeedbackBroadcastMs_ = 0;
+#endif
     triggerToast(std::string("osc feedback mirror: ") + (enabled ? "on" : "off"));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
@@ -1869,12 +1871,14 @@
     timelineStripCueKey_.clear();
     timelineStripCueId_.clear();
     if (timelineStripThread_.joinable()) {
-      timelineStripProcess_.stop();
+      timelineStripProcess_.killProcessOnly();
       timelineStripThread_.join();
+      timelineStripProcess_.stop();
     }
     {
       std::lock_guard<std::mutex> lk(timelineStripMutex_);
       pendingTimelineStrip_.reset();
+      pendingTimelineStripReadyTiles_ = 0;
     }
     timelineStripPending_.store(false);
     timelineStripLoading_.store(false);
@@ -1884,6 +1888,7 @@
       timelineStripTexW_ = 0;
       timelineStripTexH_ = 0;
     }
+    timelineStripTexReadyTiles_ = 0;
   }
 
   void clearPreviewCueTexture() {
@@ -1912,7 +1917,7 @@
                 frame.pixels.data(), frame.width * 4);
   }
 
-  void uploadTimelineStripTexture(const DecodedFrame& frame) {
+  void uploadTimelineStripTexture(const DecodedFrame& frame, int readyTiles = kTimelineStripThumbCount) {
     if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
       if (timelineStripTex_) {
         SDL_DestroyTexture(timelineStripTex_);
@@ -1920,12 +1925,14 @@
         timelineStripTexW_ = 0;
         timelineStripTexH_ = 0;
       }
+      timelineStripTexReadyTiles_ = 0;
       return;
     }
     syncTexture(controlRenderer_, timelineStripTex_,
                 timelineStripTexW_, timelineStripTexH_,
                 frame.width, frame.height,
                 frame.pixels.data(), frame.width * 4);
+    timelineStripTexReadyTiles_ = std::clamp(readyTiles, 0, kTimelineStripThumbCount);
   }
 
   void uploadPreviewCueTexture(const DecodedFrame& frame) {
@@ -2102,14 +2109,16 @@
     }
     std::uint64_t jobSerial = timelineStripJobSerial_.fetch_add(1) + 1;
     if (timelineStripThread_.joinable()) {
-      timelineStripProcess_.stop();
+      timelineStripProcess_.killProcessOnly();
       timelineStripThread_.join();
+      timelineStripProcess_.stop();
     }
     TimelineStripCacheEntry cachedEntry;
     bool hasCachedEntry = false;
     {
       std::lock_guard<std::mutex> lk(timelineStripMutex_);
       pendingTimelineStrip_.reset();
+      pendingTimelineStripReadyTiles_ = 0;
       auto it = timelineStripCache_.find(cacheKey);
       if (it != timelineStripCache_.end()) {
         cachedEntry = it->second;
@@ -2124,11 +2133,14 @@
     timelineStripLoading_.store(false);
     bool alreadyShowingCurrentStrip = sameCueVisual && timelineStripTex_ &&
                                       timelineStripTexW_ > 0 && timelineStripTexH_ > 0;
-    if (!sameCueVisual && timelineStripTex_) {
-      SDL_DestroyTexture(timelineStripTex_);
-      timelineStripTex_ = nullptr;
-      timelineStripTexW_ = 0;
-      timelineStripTexH_ = 0;
+    if (!sameCueVisual) {
+      if (timelineStripTex_) {
+        SDL_DestroyTexture(timelineStripTex_);
+        timelineStripTex_ = nullptr;
+        timelineStripTexW_ = 0;
+        timelineStripTexH_ = 0;
+      }
+      timelineStripTexReadyTiles_ = 0;
     }
 
     const int stripW = kTimelineStripThumbCount * kTimelineStripThumbW +
@@ -2137,9 +2149,10 @@
       timelineStripCueKey_ = cacheKey;
       timelineStripCueId_ = cue.id;
       if (!alreadyShowingCurrentStrip ||
+          timelineStripTexReadyTiles_ < cachedEntry.readyTiles ||
           timelineStripTexW_ != cachedEntry.frame.width ||
           timelineStripTexH_ != cachedEntry.frame.height) {
-        uploadTimelineStripTexture(cachedEntry.frame);
+        uploadTimelineStripTexture(cachedEntry.frame, cachedEntry.readyTiles);
       }
       if (cachedEntry.readyTiles >= kTimelineStripThumbCount) {
         return;
@@ -2197,6 +2210,22 @@
         }
       };
 
+      auto safeLastTileDecodeEnd = [&]() {
+        double maxSpanEnd = std::min(stripEnd, cueDuration);
+        if (maxSpanEnd <= stripStart + 0.001) {
+          return stripStart;
+        }
+        double segmentSpan = (maxSpanEnd - stripStart) /
+          static_cast<double>(std::max(1, kTimelineStripThumbCount));
+        double safePad = cueFps > 1.0 ? (18.0 / cueFps) : 0.60;
+        safePad = std::clamp(std::max(safePad, segmentSpan * 0.10), 0.45, 1.80);
+        double safeEnd = maxSpanEnd - safePad;
+        if (safeEnd <= stripStart + 0.001) {
+          return stripStart + (maxSpanEnd - stripStart) * 0.5;
+        }
+        return safeEnd;
+      };
+
       auto samplePositionForTile = [&](int tileIndex) {
         double maxSpanEnd = std::min(stripEnd, cueDuration);
         if (maxSpanEnd <= stripStart + 0.001) {
@@ -2206,20 +2235,31 @@
           return std::clamp(stripStart + (maxSpanEnd - stripStart) * 0.5,
                             stripStart, maxSpanEnd);
         }
-        // Sample the midpoint of each timeline segment rather than the edges.
-        // This keeps the final tile away from EOF while still representing the
-        // last portion of the cue range.
+        // Sample each timeline segment away from the boundaries. The final tile
+        // intentionally stays well clear of EOF because some clips report a
+        // nominal duration slightly past the last decodable frame on disk.
         double segmentCount = static_cast<double>(kTimelineStripThumbCount);
         double segStart = stripStart + (maxSpanEnd - stripStart) *
           (static_cast<double>(tileIndex) / segmentCount);
         double segEnd = stripStart + (maxSpanEnd - stripStart) *
           (static_cast<double>(tileIndex + 1) / segmentCount);
-        double midpoint = segStart + (segEnd - segStart) * 0.5;
-        double framePad = cueFps > 1.0 ? std::clamp(4.0 / cueFps, 0.05, 0.22) : 0.10;
+        bool isLastTile = tileIndex >= kTimelineStripThumbCount - 1;
+        if (isLastTile) {
+          double framePad = cueFps > 1.0
+            ? std::clamp(8.0 / cueFps, 0.08, 0.35)
+            : 0.18;
+          double nearEnd = safeLastTileDecodeEnd();
+          double minLastPos = std::clamp(segStart + framePad, stripStart, maxSpanEnd);
+          return std::clamp(nearEnd, minLastPos, maxSpanEnd);
+        }
+        double midpoint = segStart + (segEnd - segStart) * 0.50;
+        double framePad = cueFps > 1.0
+          ? std::clamp(4.0 / cueFps, 0.05, 0.22)
+          : 0.10;
         double minPos = std::clamp(stripStart + framePad, stripStart, maxSpanEnd);
         double maxPos = std::clamp(maxSpanEnd - framePad, stripStart, maxSpanEnd);
         if (maxPos <= minPos + 0.001) {
-          return std::clamp(midpoint, stripStart, maxSpanEnd);
+          return std::clamp(midpoint, stripStart, std::max(stripStart, maxPos));
         }
         return std::clamp(midpoint, minPos, maxPos);
       };
@@ -2281,14 +2321,31 @@
           return false;
         }
 
-        bool ok = readExact(timelineStripProcess_.readFd, tilePixels.data(), tilePixels.size());
+        size_t totalRead = 0;
+        while (totalRead < tilePixels.size()) {
+#ifdef _WIN32
+          unsigned int chunk = static_cast<unsigned int>(tilePixels.size() - totalRead < 65536u ? tilePixels.size() - totalRead : 65536u);
+          int bytes = _read(timelineStripProcess_.readFd, tilePixels.data() + totalRead, chunk);
+#else
+          int bytes = static_cast<int>(read(timelineStripProcess_.readFd, tilePixels.data() + totalRead, tilePixels.size() - totalRead));
+#endif
+          if (bytes <= 0) {
+            break;
+          }
+          totalRead += static_cast<size_t>(bytes);
+        }
+        bool ok = (totalRead == tilePixels.size());
         timelineStripProcess_.stop();
         return ok;
       };
 
+      auto timelineStripJobCancelled = [&]() {
+        return timelineStripJobSerial_.load() != jobSerial;
+      };
+
       bool wroteAnyTile = startTile > 0;
       for (int tileIndex = startTile; tileIndex < kTimelineStripThumbCount; ++tileIndex) {
-        if (timelineStripJobSerial_.load() != jobSerial) {
+        if (timelineStripJobCancelled()) {
           timelineStripLoading_.store(false);
           return;
         }
@@ -2301,31 +2358,40 @@
         bool sawSuspiciousBlackOnly = false;
         std::vector<double> attempts {sampleSeconds};
         if (tileIndex >= kTimelineStripThumbCount - 1) {
-          double maxSpanEnd = std::min(stripEnd, cueDuration);
-          double retryPadA = cueFps > 1.0 ? std::clamp(12.0 / cueFps, 0.24, 0.70) : 0.36;
-          double retryPadB = cueFps > 1.0 ? std::clamp(20.0 / cueFps, 0.45, 1.10) : 0.72;
-          double retryPadC = cueFps > 1.0 ? std::clamp(28.0 / cueFps, 0.65, 1.50) : 1.05;
-          double retryA = std::clamp(maxSpanEnd - retryPadA, stripStart, maxSpanEnd);
-          double retryB = std::clamp(maxSpanEnd - retryPadB, stripStart, maxSpanEnd);
-          double retryC = std::clamp(maxSpanEnd - retryPadC, stripStart, maxSpanEnd);
-          if (std::fabs(retryA - sampleSeconds) > 0.01) {
-            attempts.push_back(retryA);
-          }
-          if (std::fabs(retryB - attempts.back()) > 0.01 &&
-              std::fabs(retryB - sampleSeconds) > 0.01) {
-            attempts.push_back(retryB);
-          }
-          if (std::fabs(retryC - attempts.back()) > 0.01 &&
-              std::fabs(retryC - sampleSeconds) > 0.01) {
-            attempts.push_back(retryC);
-          }
+          double safeEnd = std::min(sampleSeconds, safeLastTileDecodeEnd());
+          attempts[0] = safeEnd;
+          auto pushRetryAttempt = [&](double sample) {
+            double clamped = std::clamp(sample, stripStart, safeEnd);
+            if (std::fabs(clamped - attempts.back()) > 0.01 &&
+                std::fabs(clamped - safeEnd) > 0.01) {
+              attempts.push_back(clamped);
+            }
+          };
+          double retryPadA = cueFps > 1.0 ? std::clamp(12.0 / cueFps, 0.30, 0.80) : 0.45;
+          double retryPadB = cueFps > 1.0 ? std::clamp(24.0 / cueFps, 0.60, 1.60) : 0.90;
+          double retryPadC = cueFps > 1.0 ? std::clamp(40.0 / cueFps, 1.00, 2.40) : 1.40;
+          pushRetryAttempt(safeEnd - retryPadA);
+          pushRetryAttempt(safeEnd - retryPadB);
+          pushRetryAttempt(safeEnd - retryPadC);
         }
 
         std::vector<std::uint8_t> lastDecodedPixels;
         for (size_t attemptIndex = 0; attemptIndex < attempts.size(); ++attemptIndex) {
+          if (timelineStripJobCancelled()) {
+            timelineStripLoading_.store(false);
+            return;
+          }
           std::vector<std::uint8_t> candidatePixels(tilePixels.size());
           if (!decodeTileAt(std::max(0.0, attempts[attemptIndex]), candidatePixels)) {
+            if (timelineStripJobCancelled()) {
+              timelineStripLoading_.store(false);
+              return;
+            }
             continue;
+          }
+          if (timelineStripJobCancelled()) {
+            timelineStripLoading_.store(false);
+            return;
           }
           decodedAny = true;
           lastDecodedPixels = candidatePixels;
@@ -2352,6 +2418,10 @@
           int fallbackTile = std::max(0, tileIndex - 1);
           copyTilePixels(fallbackTile, tileIndex);
           wroteAnyTile = true;
+          if (timelineStripJobCancelled()) {
+            timelineStripLoading_.store(false);
+            return;
+          }
           {
             std::lock_guard<std::mutex> lk(timelineStripMutex_);
             timelineStripCache_[cacheKey] = TimelineStripCacheEntry {frame, tileIndex + 1};
@@ -2365,6 +2435,7 @@
               timelineStripCache_.erase(staleKey);
             }
             pendingTimelineStrip_ = frame;
+            pendingTimelineStripReadyTiles_ = tileIndex + 1;
             timelineStripPending_.store(true);
             timelineStripFailedCueKey_.clear();
             timelineStripFailedAtMs_ = 0;
@@ -2377,7 +2448,7 @@
         }
 
         if (!ok) {
-          if (timelineStripJobSerial_.load() != jobSerial) {
+          if (timelineStripJobCancelled()) {
             timelineStripLoading_.store(false);
             return;
           }
@@ -2399,6 +2470,10 @@
         }
 
         wroteAnyTile = true;
+        if (timelineStripJobCancelled()) {
+          timelineStripLoading_.store(false);
+          return;
+        }
         {
           std::lock_guard<std::mutex> lk(timelineStripMutex_);
           timelineStripCache_[cacheKey] = TimelineStripCacheEntry {frame, tileIndex + 1};
@@ -2412,13 +2487,14 @@
             timelineStripCache_.erase(staleKey);
           }
           pendingTimelineStrip_ = frame;
+          pendingTimelineStripReadyTiles_ = tileIndex + 1;
           timelineStripPending_.store(true);
           timelineStripFailedCueKey_.clear();
           timelineStripFailedAtMs_ = 0;
         }
       }
 
-      if (!wroteAnyTile && timelineStripJobSerial_.load() == jobSerial) {
+      if (!wroteAnyTile && !timelineStripJobCancelled()) {
         std::lock_guard<std::mutex> lk(timelineStripMutex_);
         timelineStripFailedCueKey_ = cacheKey;
         timelineStripFailedAtMs_ = SDL_GetTicks64();

@@ -124,4 +124,18 @@ struct NdiTriggerApi {
   }
 };
 
+#else // _WIN32
+
+#include <string>
+
+// Stub NdiTriggerApi for Windows — NDI trigger runtime not yet implemented
+struct NdiTriggerApi {
+  bool loaded = false;
+  bool attempted = false;
+  std::string loadError = "NDI trigger not supported on Windows";
+
+  bool ensureLoaded() { return false; }
+  void shutdown() {}
+};
+
 #endif // !_WIN32
