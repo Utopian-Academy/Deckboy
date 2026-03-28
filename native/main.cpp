@@ -4,6 +4,7 @@
 #include "core/constants.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
+#include "deckboy_version.hpp"
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
 #include "core/palette.hpp"
@@ -111,6 +112,10 @@ const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";
 const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";
 
 std::atomic<bool> gShouldQuit = false;
+
+void printDeckboyVersion(std::ostream& out) {
+  out << "deckboy-native " << deckboy::core::version::kVersionTag << '\n';
+}
 
 std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int maxWidth) {
   if (!font || maxWidth <= 0 || text.empty()) {
@@ -5069,6 +5074,10 @@ class App {
 }  // namespace
 
 int main(int argc, char** argv) {
+  if (argc > 1 && std::string_view(argv[1]) == "--version") {
+    printDeckboyVersion(std::cout);
+    return 0;
+  }
   if (argc > 1 && std::string_view(argv[1]) == "--self-check") {
     return App::runSelfCheck();
   }

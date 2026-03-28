@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(deckboy_native VERSION 0.3.0 LANGUAGES CXX)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" DECKBOY_VERSION_RAW)
+string(STRIP "${DECKBOY_VERSION_RAW}" DECKBOY_VERSION_STRING)
+if(NOT DECKBOY_VERSION_STRING MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-[0-9A-Za-z.-]+)?$")
+  message(FATAL_ERROR
+    "VERSION must use SemVer: MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-prerelease"
+  )
+endif()
+
+set(DECKBOY_VERSION_MAJOR "${CMAKE_MATCH_1}")
+set(DECKBOY_VERSION_MINOR "${CMAKE_MATCH_2}")
+set(DECKBOY_VERSION_PATCH "${CMAKE_MATCH_3}")
+set(DECKBOY_VERSION_PRERELEASE "${CMAKE_MATCH_4}")
+set(DECKBOY_VERSION_TAG "v${DECKBOY_VERSION_STRING}")
+
+project(deckboy_native VERSION
+  ${DECKBOY_VERSION_MAJOR}.${DECKBOY_VERSION_MINOR}.${DECKBOY_VERSION_PATCH}
+  LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -146,6 +163,13 @@ option(ENABLE_SPOUT "Build with Windows Spout interprocess texture sharing" OFF)
 option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
 option(ENABLE_WEBVIEW "Build with native WebView APIs (macOS WKWebView, Windows WebView2)" OFF)
 
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/native/core/version.hpp.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/deckboy_version.hpp"
+  @ONLY
+)
+
 # DeckLink SDK
 if(ENABLE_DECKLINK)
   find_path(DECKLINK_INCLUDE_DIR
@@ -269,6 +293,7 @@ endif()
 
 target_include_directories(deckboy-native PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/native
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 if(NOT DECKBOY_SDL2_TARGET)
