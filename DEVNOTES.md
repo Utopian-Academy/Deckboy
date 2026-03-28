@@ -1,5 +1,14 @@
 # DEVNOTES
 
+## Final Naming Notes
+- The internal CMake target remains `deckboy-native` for now, but the release-
+  facing output name is now `Deckboy`.
+- This keeps existing target references stable in CMake while making the built
+  app, workflow artifacts, and user-facing docs match the real product name.
+- Because `v0.75.0` was already tagged before this rename landed, the repo
+  version advances to `0.75.1` for the first release that ships the corrected
+  final output name.
+
 ## Version Flow Notes
 - `VERSION` is now the single source of truth for Deckboy's SemVer version.
 - CMake reads `VERSION`, parses the numeric core into `project(... VERSION ...)`,

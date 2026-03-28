@@ -114,7 +114,7 @@ const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";
 std::atomic<bool> gShouldQuit = false;
 
 void printDeckboyVersion(std::ostream& out) {
-  out << "deckboy-native " << deckboy::core::version::kVersionTag << '\n';
+  out << "Deckboy " << deckboy::core::version::kVersionTag << '\n';
 }
 
 std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int maxWidth) {
