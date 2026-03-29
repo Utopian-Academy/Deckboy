@@ -7,6 +7,8 @@
 #ifndef DECKBOY_CORE_CONSTANTS_HPP
 #define DECKBOY_CORE_CONSTANTS_HPP
 
+#include "deckboy_version.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
@@ -61,7 +63,7 @@ constexpr int kLayoutButtonGap = 8;
 // App strings
 constexpr std::string_view kAppTitle = "Deckboy";
 constexpr std::string_view kOutputTitle = "Deckboy Output";
-constexpr std::string_view kAppVersion = "0.74";
-constexpr std::string_view kAppModelLabel = "Deckboy v0.74";
+constexpr std::string_view kAppVersion = deckboy::core::version::kVersion;
+constexpr std::string_view kAppVersionTag = deckboy::core::version::kVersionTag;
 
 #endif

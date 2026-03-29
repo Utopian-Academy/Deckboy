@@ -780,12 +780,12 @@
         drawUiImageContain(uiHeaderArt_, logoArtRect, 215);
       }
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-      drawText(controlRenderer_, titleFont, "DECKBOY", ink,
+      drawText(controlRenderer_, titleFont, std::string(kAppTitle), ink,
                logoRect.x + 14, logoRect.y + 10);
       drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", soft,
                logoRect.x + 16, logoRect.y + 52);
       drawText(controlRenderer_, fontSmall_,
-               "build: " + std::string(kAppModelLabel), soft,
+               "version: " + std::string(kAppVersionTag), soft,
                logoRect.x + 16, logoRect.y + 78);
 
       SDL_Rect infoRect {cx, logoRect.y + logoRect.h + 8, content.w - 24, content.h - logoRect.h - 18};

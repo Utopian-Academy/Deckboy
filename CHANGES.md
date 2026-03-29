@@ -8,6 +8,9 @@
   - GitHub Actions artifacts now publish as `Deckboy-linux-*`,
     `Deckboy-macos-*`, and `Deckboy-windows-*`
   - README and helper scripts now point at `Deckboy` as the built binary name
+  - startup dialog, splash overlay, and About/settings menu now render
+    `Deckboy` with the live generated app version instead of stale
+    hardcoded `DECKBOY v0.74` text
 - **Repo version advanced to `0.75.1`:**
   - `v0.75.0` is already tagged with the older output naming, so the naming fix
     is staged honestly as the next patch release
@@ -20,7 +23,7 @@
   - generated `deckboy_version.hpp` at configure time so native code and build
     metadata stay aligned
 - **CLI/self-check now expose the current app version:**
-  - `deckboy-native --version` prints the SemVer tag-style version
+  - `Deckboy --version` prints the SemVer tag-style version
   - `--self-check` now includes the current Deckboy version near the top
 - **GitHub Actions now understand release tags:**
   - CI validates that any pushed `v*` tag matches the repo `VERSION`
