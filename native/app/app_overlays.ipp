@@ -34,7 +34,7 @@
 
     drawTextSafe(controlRenderer_, fontLarge_,
                  SDL_Rect {dialog.x + 28, dialog.y + 30, dialog.w - 56, 36},
-                 "QUIT DECKBOY?", pal.deep);
+                 "Quit Deckboy?", pal.deep);
 
     // YES / NO buttons
     quitYesBtn_ = {dialog.x + 32,  dialog.y + 130, 156, 54};
@@ -71,7 +71,7 @@
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
     drawTextSafe(controlRenderer_, titleFont,
                  SDL_Rect {tx, dialog.y + 38, dialog.w - 72, 34},
-                 std::string("DECKBOY v") + std::string(kAppVersion), pal.deep);
+                 std::string(kAppTitle) + " " + std::string(kAppVersionTag), pal.deep);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
                  "dot-matrix cue deck", pal.inkSoft);
@@ -232,7 +232,7 @@
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
     drawTextSafe(controlRenderer_, titleFont,
                  SDL_Rect {card.x + 36, card.y + 28, card.w - 72, 34},
-                 std::string("DECKBOY v") + std::string(kAppVersion), pal.deep);
+                 std::string(kAppTitle) + " " + std::string(kAppVersionTag), pal.deep);
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {card.x + 38, card.y + 76, card.w - 76, 24},
                  "dot-matrix cue deck", pal.dark);
