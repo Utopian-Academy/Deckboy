@@ -8,12 +8,15 @@
 - Because `v0.75.0` was already tagged before this rename landed, the repo
   version advances to `0.75.1` for the first release that ships the corrected
   final output name.
+- Startup dialog, splash overlay, and About/settings branding now derive their
+  visible version line from generated version metadata instead of stale
+  hardcoded `0.74` constants.
 
 ## Version Flow Notes
 - `VERSION` is now the single source of truth for Deckboy's SemVer version.
 - CMake reads `VERSION`, parses the numeric core into `project(... VERSION ...)`,
   and generates `deckboy_version.hpp` so native code can print the same version.
-- `deckboy-native --version` is now the quickest sanity check when a local build
+- `Deckboy --version` is now the quickest sanity check when a local build
   or GitHub artifact feels ambiguous.
 - GitHub Actions now guard `v*` tags against `VERSION` before running
   Linux/macOS/Windows build jobs, so a mistyped tag cannot silently create a
