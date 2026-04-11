@@ -158,6 +158,8 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Browser:    return "Browser";
     case CueKind::LowerThird: return "Lower Third";
     case CueKind::Audio:      return "Audio";
+    case CueKind::SrtStream:  return "Stream";
+    case CueKind::NdiSource:  return "NDI Source";
     case CueKind::Video:
     default:                         return "Video";
   }
@@ -170,6 +172,8 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Browser:    return "browser";
     case CueKind::LowerThird: return "lower_third";
     case CueKind::Audio:      return "audio";
+    case CueKind::SrtStream:  return "srt_stream";
+    case CueKind::NdiSource:  return "ndi_source";
     case CueKind::Video:
     default:                         return "video";
   }

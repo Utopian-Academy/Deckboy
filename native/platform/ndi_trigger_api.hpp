@@ -5,7 +5,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+// NdiTriggerApi is available on all platforms (Windows stub removed in favour of full recv support).
 
 #include <cstdint>
 #include <cstdlib>
@@ -52,7 +52,14 @@ struct NdiTriggerApi {
     if (const char* env = std::getenv("DECKBOY_NDI_LIB"); env && *env) {
       candidates.emplace_back(env);
     }
-#ifdef __APPLE__
+#ifdef _WIN32
+    candidates.emplace_back("Processing.NDI.Lib.x64.dll");
+    if (const char* ndiDir = std::getenv("NDI_SDK_DIR"); ndiDir && *ndiDir) {
+      candidates.emplace_back(std::string(ndiDir) + "\\Bin\\x64\\Processing.NDI.Lib.x64.dll");
+    }
+    candidates.emplace_back("C:\\Program Files\\NDI\\NDI 6 Runtime\\v6\\Processing.NDI.Lib.x64.dll");
+    candidates.emplace_back("C:\\Program Files\\NDI\\NDI 5 Runtime\\Processing.NDI.Lib.x64.dll");
+#elif defined(__APPLE__)
     candidates.emplace_back("libndi.dylib");
     candidates.emplace_back("/usr/local/lib/libndi.dylib");
     candidates.emplace_back("/Library/NDI SDK for Apple/lib/macOS/libndi.dylib");
@@ -123,19 +130,3 @@ struct NdiTriggerApi {
     recvFreeMetadataFn = nullptr;
   }
 };
-
-#else // _WIN32
-
-#include <string>
-
-// Stub NdiTriggerApi for Windows — NDI trigger runtime not yet implemented
-struct NdiTriggerApi {
-  bool loaded = false;
-  bool attempted = false;
-  std::string loadError = "NDI trigger not supported on Windows";
-
-  bool ensureLoaded() { return false; }
-  void shutdown() {}
-};
-
-#endif // !_WIN32

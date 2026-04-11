@@ -51,7 +51,7 @@
     if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio cue: fill entire thumb area with waveform
       bool pending = false;
-      WaveformPeaks peaks = getWaveformPeaks(selectedCue->path, pending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
       double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
       float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
       float outFrac = selectedCue->outPointSeconds > 0.0
@@ -99,7 +99,7 @@
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
     if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
       bool pending = false;
-      WaveformPeaks peaks = getWaveformPeaks(selectedCue->path, pending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
       SDL_Rect waveRect {thumbArea.x + 2, thumbArea.y + thumbArea.h - 34, thumbArea.w - 4, 32};
       double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
       float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
@@ -118,16 +118,16 @@
     TTF_Font* inspectorHeaderFont = fontBase_ ? fontBase_ : fontSmall_;
     TTF_Font* inspectorValueFont = fontBase_ ? fontBase_ : fontSmall_;
     TTF_Font* inspectorLabelFont = fontSmall_;
-    constexpr int kInspectorRowH = 28;
-    constexpr int kInspectorRowStep = 34;
-    constexpr int kInspectorSectionGap = 10;
+    constexpr int kInspectorRowH = 36;
+    constexpr int kInspectorRowStep = 46;
+    constexpr int kInspectorSectionGap = 12;
     drawTextSafe(controlRenderer_, inspectorHeaderFont,
                  SDL_Rect {ctrl.x + 10, ctrlSettingsY, kCtrlW - 20, 24},
                  "CUE PANEL", pal.deep);
 
     // -- Shared inspector context for docked panel --
-    InspectorCtx ix {ctrl, kCtrlW, 10, kInspectorRowH, kInspectorRowStep,
-                     28, kInspectorSectionGap, inspectorHeaderFont, inspectorValueFont, inspectorLabelFont, false};
+    InspectorCtx ix {ctrl, kCtrlW, 12, kInspectorRowH, kInspectorRowStep,
+                     32, kInspectorSectionGap, inspectorHeaderFont, inspectorValueFont, inspectorLabelFont, false};
 
     auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
                             QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
@@ -1003,6 +1003,8 @@
     } else if (selectedCue && (selectedCue->kind == CueKind::Image
                                || selectedCue->kind == CueKind::Pattern
                                || selectedCue->kind == CueKind::Browser
+                               || selectedCue->kind == CueKind::SrtStream
+                               || selectedCue->kind == CueKind::NdiSource
                                || isSourceCueKind(selectedCue->kind))) {
       int ry = ctrlSettingsY + 18 - cueSettingsScroll_;
       constexpr int kRowStep = kInspectorRowStep;
@@ -1035,11 +1037,13 @@
           playbackY += kRowStep;
         }
 
-        std::string durVal = selectedCue->stillDurationSeconds > 0.0
-          ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
-        drawQuickRow(playbackY, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
-                     QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
-        playbackY += kRowStep;
+        if (selectedCue->kind != CueKind::SrtStream && selectedCue->kind != CueKind::NdiSource) {
+          std::string durVal = selectedCue->stillDurationSeconds > 0.0
+            ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
+          drawQuickRow(playbackY, "duration", QuickAction::DurDec, durVal, QuickAction::DurInc,
+                       QuickAction::ToggleLoop, false, false, "Auto-advance duration — 0 = hold until taken");
+          playbackY += kRowStep;
+        }
 
         bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
         std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
@@ -1149,11 +1153,39 @@
                                                "Set capture source from the cue menu");
         }
 
+        if (selectedCue->kind == CueKind::SrtStream) {
+          metadataY = drawInspectorEditableRow(metadataY, "url",
+                                               selectedCue->path.empty() ? "(unset)" : selectedCue->path,
+                                               QuickAction::EditBrowserUrl,
+                                               "Set stream URL (srt://, rtmp://, rtsp://...)");
+        }
+
+        if (selectedCue->kind == CueKind::NdiSource) {
+          std::string ndiDisplay = selectedCue->path;
+          if (ndiDisplay.rfind("ndi://", 0) == 0) ndiDisplay = ndiDisplay.substr(6);
+          metadataY = drawInspectorEditableRow(metadataY, "source",
+                                               ndiDisplay.empty() ? "(unset)" : ndiDisplay,
+                                               QuickAction::EditBrowserUrl,
+                                               "Set NDI source name");
+        }
+
         if (selectedCue->kind == CueKind::Browser) {
           metadataY = drawInspectorEditableRow(metadataY, "url",
                                                selectedCue->path.empty() ? "(unset)" : selectedCue->path,
                                                QuickAction::EditBrowserUrl,
                                                "Set browser URL/path");
+          {
+            SDL_Rect rfBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
+            SDL_Color rfFill = selectedCue->refreshOnTake ? pal.dark : pal.light;
+            SDL_Color rfInk  = selectedCue->refreshOnTake ? pal.light : pal.deep;
+            drawUIPanel(rfBtn, rfFill, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, rfBtn,
+                                 std::string("refresh on take: ") + (selectedCue->refreshOnTake ? "on" : "off"),
+                                 rfInk);
+            quickButtons_.push_back({rfBtn, QuickAction::ToggleRefreshOnTake,
+                                     "Reload page each time the browser cue is taken"});
+            metadataY += kInspectorRowStep;
+          }
         }
 
         metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");

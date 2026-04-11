@@ -59,9 +59,6 @@
     int innerH = std::max(0, programBody.h);
     int x = innerX;
     int y = innerY;
-    int previewCueIndex = -1;
-    const Cue* previewCue = previewCuePtr(project_.focusedDeckIndex, &previewCueIndex);
-
     quickButtons_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
@@ -74,13 +71,6 @@
       }
       return cueDisplayToken(*cue, cueIndex) + "  " + cue->name;
     };
-    auto cueMonitorLabel = [&](const Cue* cue, int cueIndex, const std::string& fallback) {
-      if (!cue || cueIndex < 0) {
-        return fallback;
-      }
-      return cueDisplayToken(*cue, cueIndex) + "  " + cueKindLabel(cue->kind);
-    };
-
     double engDuration = engine ? engine->duration() : 0.0;
     double engPosition = engine ? engine->position() : 0.0;
     double remaining = engDuration > 0.0 ? std::max(0.0, engDuration - engPosition) : 0.0;
@@ -167,16 +157,7 @@
     constexpr int kVuMeterGap = 8;
     int vuMeterW = std::clamp(innerW / 11, 68, kVuMeterW);
     int monitorContentW = std::max(360, innerW - vuMeterW - kVuMeterGap);
-
-    // Proportional dominance: Program gets most of the remaining width.
-    int programMonitorW = std::max(360, static_cast<int>(monitorContentW * 0.74));
-    int previewMonitorW = monitorContentW - programMonitorW - kLayoutPanelGap;
-
-    // If preview is too small, stack them or hide it
-    if (previewMonitorW < 220) {
-      programMonitorW = monitorContentW;
-      previewMonitorW = 0;
-    }
+    int programMonitorW = monitorContentW;
 
     int monitorH = std::max(160, monitorAreaH);
 
@@ -187,13 +168,6 @@
       vuMeterW,
       monitorH
     };
-    SDL_Rect previewMonitorRect {
-      vuMeterRect.x + vuMeterRect.w + kLayoutPanelGap,
-      monitorY,
-      std::max(0, previewMonitorW),
-      monitorH
-    };
-
     int timelineTopY = programMonitorRect.y + programMonitorRect.h + kMonitorGap;
     int countdownPanelW = std::clamp(innerW / 4, 220, 280);
     if (countdownPanelW > innerW - 160) {
@@ -268,7 +242,7 @@
     int deleteWarnY = audioLaneOuter.y + audioLaneOuter.h + kTimelineGap;
     int transportRowY = deleteWarnY + (liveDeleteWarnActive ? (kDeleteWarnH + kTimelineGap) : 0);
     progressBarRect_ = insetRect(videoLaneOuter, 3);
-    SDL_Rect audioLaneRect = insetRect(audioLaneOuter, 3);
+    SDL_Rect audioLaneRect = insetRect(audioLaneOuter, 2);
     drawUIPanel(videoLaneOuter, pal.light, pal.deep, pal.mid);
     drawUIPanel(audioLaneOuter, pal.light, pal.deep, pal.mid);
     drawText(controlRenderer_, fontSmall_, "VIDEO", pal.deep,
@@ -355,6 +329,86 @@
                            loadingLabel, loadingInk);
     };
 
+    // Audio-lane companion to drawTimelineLoadingAnimation. Uses the same
+    // widget frame and pulsing LOADING label so the two feel like siblings,
+    // but the iconography is an animated EQ meter (rising/falling bars) to
+    // clearly distinguish audio-loading from video-filmstrip-loading.
+    auto drawAudioTimelineLoadingAnimation = [&](const SDL_Rect& laneRect) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      Primitives::fillRect(controlRenderer_, laneRect, SDL_Color {7, 12, 7, 148});
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+      int widgetW = std::min(188, std::max(124, laneRect.w - 28));
+      int widgetH = std::min(46, std::max(34, laneRect.h - 16));
+      SDL_Rect widget {
+        laneRect.x + (laneRect.w - widgetW) / 2,
+        laneRect.y + (laneRect.h - widgetH) / 2,
+        widgetW,
+        widgetH
+      };
+      drawUIPanel(widget, pal.light, pal.deep, pal.mid);
+
+      constexpr int kBarCount = 9;
+      constexpr int kBarW = 8;
+      constexpr int kBarGap = 4;
+      int metersW = kBarCount * kBarW + (kBarCount - 1) * kBarGap;
+      int metersX = widget.x + (widget.w - metersW) / 2;
+      int metersTop = widget.y + 5;
+      int metersBot = widget.y + widget.h - 22;
+      int metersH = std::max(6, metersBot - metersTop);
+
+      SDL_Rect baseline {metersX - 2, metersBot, metersW + 4, 1};
+      Primitives::fillRect(controlRenderer_, baseline, pal.deep);
+
+      for (int i = 0; i < kBarCount; ++i) {
+        double phase = static_cast<double>(animationNow_) / 160.0
+                     + static_cast<double>(i) * 0.62;
+        double s = 0.5 + 0.5 * std::sin(phase);
+        double env = 0.18 + 0.82 * (s * s);
+        int barH = std::max(2, static_cast<int>(std::round(env * metersH)));
+        SDL_Rect bar {metersX + i * (kBarW + kBarGap),
+                      metersBot - barH,
+                      kBarW,
+                      barH};
+        SDL_Color barFill = (env > 0.75) ? pal.dark : pal.mid;
+        drawUIPanel(bar, barFill, pal.deep, pal.light);
+        SDL_Rect cap {bar.x + 1, bar.y, bar.w - 2, 2};
+        Primitives::fillRect(controlRenderer_, cap, pal.light);
+      }
+
+      int dotCount = static_cast<int>((animationNow_ / 180) % 4);
+      std::string loadingLabel = "LOADING";
+      for (int i = 0; i < dotCount; ++i) {
+        loadingLabel += '.';
+      }
+      SDL_Rect loadingRect {widget.x + 4, widget.y + widget.h - 20, widget.w - 8, 18};
+      TTF_Font* loadingFont = fontPixel_ ? fontPixel_ : fontSmall_;
+      int loadingTextW = 0;
+      int loadingTextH = 0;
+      if (!loadingFont ||
+          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) != 0 ||
+          loadingTextW > loadingRect.w) {
+        loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
+      }
+      if (loadingFont &&
+          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) == 0 &&
+          loadingTextW > loadingRect.w &&
+          fontMono_) {
+        loadingFont = fontMono_;
+      }
+      double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) / 160.0);
+      SDL_Color inkA = pal.deep;
+      SDL_Color inkB = pal.dark;
+      SDL_Color loadingInk {
+        static_cast<Uint8>(std::lround(inkA.r + (inkB.r - inkA.r) * pulse)),
+        static_cast<Uint8>(std::lround(inkA.g + (inkB.g - inkA.g) * pulse)),
+        static_cast<Uint8>(std::lround(inkA.b + (inkB.b - inkA.b) * pulse)),
+        255
+      };
+      drawCenteredTextSafe(controlRenderer_, loadingFont, loadingRect,
+                           loadingLabel, loadingInk);
+    };
+
     auto drawTimelineMarkerLine = [&](float frac, SDL_Color color) {
       int px = progressBarRect_.x + static_cast<int>(std::round(std::clamp(frac, 0.0f, 1.0f) * progressBarRect_.w));
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -368,9 +422,12 @@
       float frac = static_cast<float>(grid) / 8.0f;
       int px = progressBarRect_.x + static_cast<int>(std::round(frac * progressBarRect_.w));
       SDL_SetRenderDrawColor(controlRenderer_, 36, 52, 36, 255);
-      SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h);
-      SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h);
+      SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
+      SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h - 1);
+      SDL_RenderSetClipRect(controlRenderer_, &audioLaneRect);
+      SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h - 1);
     }
+    SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
     bool timelineStripFailed = false;
     bool timelineHasCurrentSelectedThumb =
@@ -432,6 +489,21 @@
     } else {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, progressBarRect_, "take or select a cue to open the timeline",
                            pal.inkSoft);
+      // Idle animation — subtle orbiting dots in the timeline strip (safe UI chrome area)
+      if (!engine || engine->state() == TransportState::Stopped) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
+        SDL_Color idleDot = pal.mid;
+        for (int d = 0; d < 5; ++d) {
+          double phase = static_cast<double>(animationNow_) * 0.0008 + d * 1.256;
+          int dx = progressBarRect_.x + progressBarRect_.w / 2 + static_cast<int>(std::cos(phase) * (progressBarRect_.w / 6));
+          int dy = progressBarRect_.y + progressBarRect_.h / 2 + static_cast<int>(std::sin(phase * 0.7) * (progressBarRect_.h / 3));
+          idleDot.a = static_cast<Uint8>(30 + 60 * std::abs(std::sin(phase * 0.5 + d)));
+          drawStar(controlRenderer_, dx, dy, 2, idleDot);
+        }
+        SDL_RenderSetClipRect(controlRenderer_, nullptr);
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
     }
 
     if (timelineDuration > 0.0) {
@@ -487,9 +559,12 @@
 
     if (timelineCue && (timelineCue->hasAudio || timelineCue->kind == CueKind::Audio)) {
       bool _wfPending = false;
-      WaveformPeaks peaks = getWaveformPeaks(timelineCue->path, _wfPending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*timelineCue, currentProjectFile_), _wfPending);
       drawWaveform(controlRenderer_, audioLaneRect, peaks, timelineCue->audioChannels >= 2, timelinePlayFrac, timelineInFrac, timelineOutFrac,
                    timelinePausePoints, timelineDuration);
+      if (peaks.empty() && _wfPending) {
+        drawAudioTimelineLoadingAnimation(audioLaneRect);
+      }
     } else {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, audioLaneRect, "no audio track",
                            pal.inkSoft);
@@ -509,9 +584,10 @@
     }
 
     if (timelineDuration > 0.0) {
-      // Timeline ruler labels — overlay on the video lane top edge.
+      // Timeline ruler labels — drawn inside the video lane content area (progressBarRect_)
+      // so they don't overlap with the "VIDEO" label in the outer panel border region.
       // Use drawText directly: safeTextRect's 12px inset on 96px rects truncates time strings.
-      int rulerY = videoLaneOuter.y + 2;
+      int rulerY = progressBarRect_.y + 2;
       std::string leftStr = "0:00";
       std::string midStr = formatSeconds(timelineDuration / 2.0);
       std::string rightStr = formatSeconds(timelineDuration);
@@ -588,28 +664,53 @@
         }
         return std::pair<SDL_Color, SDL_Color> {fill, ink};
       };
-      constexpr int kTelemetryBadgeW = 180;
+      constexpr int kTelemetryBadgePreferredW = 180;
+      constexpr int kTelemetryBadgeMinW = 116;
       constexpr int kTelemetryBadgeH = 26;
+      constexpr int kTelemetryGap = 3;
+      constexpr int kWarpBtnW = 76;
+      constexpr int kHeaderRightPad = 8;
+      constexpr int kProgramLabelMinW = 110;
       int badgeX = liveBadge.x + liveBadge.w + 4;
-      for (const std::string& telemetryLabel : telemetryLabels) {
-        SDL_Rect badge {badgeX, programMonitorRect.y + 3, kTelemetryBadgeW, kTelemetryBadgeH};
-        auto [fill, ink] = telemetryColors(telemetryLabel);
-        drawUIPanel(badge, fill, pal.deep, pal.mid);
-        auto [labelText, valueText] = splitTelemetryLabel(telemetryLabel);
-        SDL_Rect badgeLabelRect {badge.x + 6, badge.y, 92, badge.h};
-        SDL_Rect badgeValueRect {badge.x + 98, badge.y, badge.w - 104, badge.h};
-        drawTextSafe(controlRenderer_, fontSmall_, badgeLabelRect,
-                     ellipsizeToPixelWidth(fontSmall_, labelText, badgeLabelRect.w), ink);
-        TTF_Font* valueFont = valueText.size() > 4 ? fontSmall_ : fontMono_;
-        std::string shownValue = valueText.empty() ? "--.-" : valueText;
-        shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
-        int valueTextW = 0, valueTextH = 0;
-        TTF_SizeUTF8(valueFont, shownValue.c_str(), &valueTextW, &valueTextH);
-        drawText(controlRenderer_, valueFont, shownValue, ink,
-                 badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
-                 badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
-        badgeX += kTelemetryBadgeW + 3;
-        monitorTelemetryEndX = badge.x + badge.w;
+      int warpBtnLeft = programMonitorRect.x + programMonitorRect.w - kWarpBtnW - kHeaderRightPad;
+      int telemetryRightLimit = std::max(badgeX, warpBtnLeft - kProgramLabelMinW - 8);
+      int availableTelemetryW = std::max(0, telemetryRightLimit - badgeX);
+      int telemetryCount = 0;
+      if (availableTelemetryW >= kTelemetryBadgeMinW) {
+        telemetryCount = std::min<int>(
+          static_cast<int>(telemetryLabels.size()),
+          (availableTelemetryW + kTelemetryGap) / (kTelemetryBadgeMinW + kTelemetryGap));
+      }
+      if (telemetryCount > 0) {
+        int totalGap = kTelemetryGap * (telemetryCount - 1);
+        int badgeW = std::clamp((availableTelemetryW - totalGap) / telemetryCount,
+                                kTelemetryBadgeMinW, kTelemetryBadgePreferredW);
+        for (int ti = 0; ti < telemetryCount; ++ti) {
+          const std::string& telemetryLabel = telemetryLabels[static_cast<size_t>(ti)];
+          SDL_Rect badge {badgeX, programMonitorRect.y + 3, badgeW, kTelemetryBadgeH};
+          auto [fill, ink] = telemetryColors(telemetryLabel);
+          drawUIPanel(badge, fill, pal.deep, pal.mid);
+          auto [labelText, valueText] = splitTelemetryLabel(telemetryLabel);
+          int labelW = std::max(40, badge.w / 2 - 6);
+          SDL_Rect badgeLabelRect {badge.x + 6, badge.y, labelW, badge.h};
+          SDL_Rect badgeValueRect {badgeLabelRect.x + badgeLabelRect.w + 4, badge.y,
+                                   std::max(20, badge.w - (badgeLabelRect.w + 16)), badge.h};
+          drawTextSafe(controlRenderer_, fontSmall_, badgeLabelRect,
+                       ellipsizeToPixelWidth(fontSmall_, labelText, badgeLabelRect.w), ink);
+          TTF_Font* valueFont = valueText.size() > 4 ? fontSmall_ : fontMono_;
+          std::string shownValue = valueText.empty() ? "--.-" : valueText;
+          shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
+          int valueTextW = 0, valueTextH = 0;
+          TTF_SizeUTF8(valueFont, shownValue.c_str(), &valueTextW, &valueTextH);
+          SDL_Rect badgeClip = snapRectToGrid(badge);
+          SDL_RenderSetClipRect(controlRenderer_, &badgeClip);
+          drawText(controlRenderer_, valueFont, shownValue, ink,
+                   badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
+                   badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
+          SDL_RenderSetClipRect(controlRenderer_, nullptr);
+          badgeX += badgeW + kTelemetryGap;
+          monitorTelemetryEndX = badge.x + badge.w;
+        }
       }
     }
 
@@ -632,11 +733,32 @@
       }
     }
     int monitorLabelX = monitorTelemetryEndX + 8;
-    SDL_Rect monitorLabelRect {monitorLabelX, programMonitorRect.y + 4,
-                               std::max(0, warpEditBtnRect_.x - monitorLabelX - 4), 22};
-    drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, monitorLabelRect,
-                 "PROGRAM MONITOR",
-                 hasLiveVideo ? pal.dark : pal.deep);
+    {
+      int monitorLabelAvailW = std::max(0, warpEditBtnRect_.x - monitorLabelX - 4);
+      TTF_Font* monitorLabelFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      // Only render the label if it fits without truncation; use a shorter
+      // fallback so the badge row never shows a half-word like "PROGRA..."
+      const char* monitorLabel = nullptr;
+      if (monitorLabelFont) {
+        int fullW = 0;
+        TTF_SizeUTF8(monitorLabelFont, "PROGRAM MONITOR", &fullW, nullptr);
+        if (fullW <= monitorLabelAvailW) {
+          monitorLabel = "PROGRAM MONITOR";
+        } else {
+          int shortW = 0;
+          TTF_SizeUTF8(monitorLabelFont, "PROGRAM", &shortW, nullptr);
+          if (shortW <= monitorLabelAvailW) {
+            monitorLabel = "PROGRAM";
+          }
+          // else: too narrow — draw nothing rather than an ugly truncated word
+        }
+      }
+      if (monitorLabel && monitorLabelAvailW > 0) {
+        SDL_Rect monitorLabelRect {monitorLabelX, programMonitorRect.y + 4, monitorLabelAvailW, 22};
+        drawTextSafe(controlRenderer_, monitorLabelFont, monitorLabelRect,
+                     monitorLabel, hasLiveVideo ? pal.dark : pal.deep);
+      }
+    }
     
     {
       int focusedOutputIndex = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
@@ -670,7 +792,7 @@
     } else if (activeCue->kind == CueKind::Audio) {
       SDL_Rect inner {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 54};
       bool _wfPending = false;
-      WaveformPeaks peaks = getWaveformPeaks(activeCue->path, _wfPending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*activeCue, currentProjectFile_), _wfPending);
       double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
       float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
       float outFrac = activeCue->outPointSeconds > 0.0
@@ -687,32 +809,7 @@
                    activeCue->name, pal.deep);
     }
 
-    // ── Program monitor corner sparkles when playing ──
-    if (engine && engine->state() == TransportState::Playing) {
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      SDL_Color cornerStar = pal.light;
-      for (int c = 0; c < 4; ++c) {
-        double phase = static_cast<double>(animationNow_) * 0.002 + c * 1.57;
-        int cx2 = (c % 2 == 0) ? programMonitorRect.x + 10 : programMonitorRect.x + programMonitorRect.w - 10;
-        int cy2 = (c < 2) ? programMonitorRect.y + 34 : programMonitorRect.y + programMonitorRect.h - 10;
-        cornerStar.a = static_cast<Uint8>(40 + 140 * std::abs(std::sin(phase)));
-        drawStar(controlRenderer_, cx2, cy2, 2 + (c % 2), cornerStar);
-      }
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-    }
-    // ── Idle floating dots when nothing is playing ──
-    if (!engine || engine->state() == TransportState::Stopped) {
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      SDL_Color idleDot = pal.mid;
-      for (int d = 0; d < 5; ++d) {
-        double phase = static_cast<double>(animationNow_) * 0.0008 + d * 1.256;
-        int dx = programMonitorRect.x + programMonitorRect.w / 2 + static_cast<int>(std::cos(phase) * (programMonitorRect.w / 4));
-        int dy = programMonitorRect.y + programMonitorRect.h / 2 + static_cast<int>(std::sin(phase * 0.7) * (programMonitorRect.h / 5));
-        idleDot.a = static_cast<Uint8>(30 + 80 * std::abs(std::sin(phase * 0.5 + d)));
-        drawStar(controlRenderer_, dx, dy, 2, idleDot);
-      }
-      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-    }
+    // (corner sparkles and idle dots removed from preview area — moved to timeline strip)
 
     {
       VuReading vu = computeVuReading();
@@ -777,7 +874,7 @@
         SDL_RenderDrawLine(controlRenderer_, rect.x + 1, peakY, rect.x + rect.w - 2, peakY);
       };
 
-      // dB scale tick marks and labels — drawText directly (labelsRect too narrow for safeTextRect)
+      // dB scale tick marks (across full bar width) then labels clipped to labelsRect
       // Skip 0dB label — it overlaps the "VU" header; the 0dB tick line is still drawn.
       for (float markDb : {0.0f, -6.0f, -12.0f, -24.0f, -36.0f, -48.0f}) {
         float frac = dbToFillFrac(markDb);
@@ -788,7 +885,9 @@
         std::string dbStr = std::to_string(static_cast<int>(markDb));
         int tw = 0, th = 0;
         if (fontSmall_ && TTF_SizeUTF8(fontSmall_, dbStr.c_str(), &tw, &th) == 0) {
+          SDL_RenderSetClipRect(controlRenderer_, &labelsRect);
           drawText(controlRenderer_, fontSmall_, dbStr, pal.dark, labelsRect.x, y - th / 2);
+          SDL_RenderSetClipRect(controlRenderer_, nullptr);
         }
       }
 
@@ -939,72 +1038,6 @@
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     }
 
-    if (previewMonitorRect.w > 0 && previewMonitorRect.h > 0) {
-      drawUIPanel(previewMonitorRect,
-                  pal.light,
-                  pal.deep,
-                  pal.mid);
-      
-      // NEXT badge
-      SDL_Rect nextBadge {previewMonitorRect.x + 4, previewMonitorRect.y + 4, 60, 24};
-      drawUIPanel(nextBadge, pal.mid, pal.deep, pal.dark);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, nextBadge, "NEXT", pal.deep);
-
-      SDL_Rect previewLabelRect {previewMonitorRect.x + 70, previewMonitorRect.y + 4, previewMonitorRect.w - 78, 22};
-      drawTextSafe(controlRenderer_, fontSmall_, previewLabelRect,
-                   "Preview Monitor",
-                   pal.deep);
-      
-      SDL_Rect previewCueRect {previewMonitorRect.x + 8, previewMonitorRect.y + 30, previewMonitorRect.w - 16, 22};
-      std::string nextLabel = cueMonitorLabel(previewCue, previewCueIndex, "No cue queued");
-      drawTextSafe(controlRenderer_, fontSmall_, previewCueRect,
-                   ellipsizeToPixelWidth(fontSmall_, nextLabel, previewCueRect.w),
-                   pal.dark);
-
-      SDL_Rect previewInner {previewMonitorRect.x + 4, previewMonitorRect.y + 50,
-                             previewMonitorRect.w - 8, std::max(0, previewMonitorRect.h - 54)};
-      previewMonitorInner_ = previewInner;
-      std::string previewKey = previewCue ? cuePreviewCacheKey(*previewCue) : std::string();
-      bool hasPreviewCueTexture =
-        previewCue && cueSupportsMonitorPreview(*previewCue) &&
-        previewCueTex_ && previewCueTexW_ > 0 && previewCueTexH_ > 0 &&
-        previewCueKey_ == previewKey;
-      if (hasPreviewCueTexture) {
-        renderTextureWithCueGeometry(controlRenderer_, previewCueTex_, previewCueTexW_, previewCueTexH_,
-                                     previewCue, previewInner);
-      } else if (previewCue && previewCue->kind == CueKind::Composite) {
-        renderCompositeCuePlaceholder(controlRenderer_, previewInner, *previewCue, false);
-      } else if (previewCue && previewCue->kind == CueKind::Audio) {
-        bool _wfPending = false;
-        WaveformPeaks peaks = getWaveformPeaks(previewCue->path, _wfPending);
-        double dur = previewCue->duration > 0.0 ? previewCue->duration : 1.0;
-        float inFrac = static_cast<float>(previewCue->inPointSeconds / dur);
-        float outFrac = previewCue->outPointSeconds > 0.0
-          ? static_cast<float>(previewCue->outPointSeconds / dur)
-          : 1.0f;
-        drawWaveform(controlRenderer_, previewInner, peaks, previewCue->audioChannels >= 2, -1.0f, inFrac, outFrac,
-                     previewCue->pausePoints, dur);
-      } else if (previewCue && cueSupportsMonitorPreview(*previewCue)) {
-        drawTimelineLoadingAnimation(previewInner);
-      } else if (previewCue) {
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, previewInner,
-                             "no monitor preview for this cue type", pal.mid);
-      } else {
-        drawTextSafe(controlRenderer_, fontSmall_, previewInner,
-                     "Select a cue to review it before TAKE.",
-                     pal.inkSoft);
-      }
-      if (keyColorPickerArmed_ && previewMonitorInner_.w > 0 && previewMonitorInner_.h > 0) {
-        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-        Primitives::strokeRect(controlRenderer_, previewMonitorInner_, SDL_Color {255, 220, 0, 220});
-        SDL_Rect hintRect {previewMonitorInner_.x + 10, previewMonitorInner_.y + 10,
-                           std::max(0, previewMonitorInner_.w - 20), 22};
-        Primitives::fillRect(controlRenderer_, hintRect, SDL_Color {18, 24, 18, 200});
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, hintRect,
-                             "OR CLICK HERE TO SAMPLE", pal.light);
-        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-      }
-    }
 
     if (liveDeleteWarnActive) {
       SDL_Rect warnRect {x, deleteWarnY, innerW, kDeleteWarnH};
@@ -1062,21 +1095,21 @@
     // --- Cue Inspector panel (with thumbnail at top) ---
     SDL_Rect ctrl = inspectorBody;
     int kCtrlW = ctrl.w;
-    constexpr int kInspectorInset = 12;
+    constexpr int kInspectorInset = 14;
     constexpr int kInspectorHeaderGap = 18;
     constexpr int kInspectorSectionGap = 12;
-    constexpr int kInspectorRowH = 28;
-    constexpr int kInspectorRowStep = 38;
-    constexpr int kInspectorSectionHeaderH = 28;
+    constexpr int kInspectorRowH = 36;
+    constexpr int kInspectorRowStep = 48;
+    constexpr int kInspectorSectionHeaderH = 32;
 
     // Thumbnail of selected cue (top portion)
     constexpr int kThumbAreaH = 110;
-    SDL_Rect thumbArea {ctrl.x + 4, ctrl.y + 4, kCtrlW - 8, kThumbAreaH};
+    SDL_Rect thumbArea {ctrl.x + kInspectorInset, ctrl.y + 4, kCtrlW - kInspectorInset * 2, kThumbAreaH};
     Primitives::drawFramedPanel(controlRenderer_, thumbArea, pal.deep, pal.deep, pal.dark);
     if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio cue: fill entire thumb area with waveform
       bool pending = false;
-      WaveformPeaks peaks = getWaveformPeaks(selectedCue->path, pending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
       double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
       float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
       float outFrac = selectedCue->outPointSeconds > 0.0
@@ -1087,7 +1120,7 @@
       drawWaveform(controlRenderer_, thumbArea, peaks, selectedCue->audioChannels >= 2, playFrac, inFrac, outFrac,
                    selectedCue->pausePoints, dur);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 16},
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 20},
                    selectedCue->name, pal.mid);
     } else if (selectedThumbnailTex_) {
       float aspect = static_cast<float>(selectedThumbnailTexW_) / static_cast<float>(selectedThumbnailTexH_);
@@ -1102,22 +1135,22 @@
       SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 16},
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 20},
                    selectedCue->name, pal.mid);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 28, thumbArea.w - 12, 16},
+                   SDL_Rect {thumbArea.x + 6, thumbArea.y + 30, thumbArea.w - 12, 20},
                    "loading preview...", pal.mid);
     } else {
       SDL_RenderSetClipRect(controlRenderer_, &thumbArea);
       int tw = thumbArea.w - 16;
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 - 20, tw, 16},
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 - 20, tw, 20},
                    ellipsizeToPixelWidth(fontSmall_, "No cue selected", tw), pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2, tw, 16},
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2, tw, 20},
                    ellipsizeToPixelWidth(fontSmall_, "Drop media here", tw), pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 + 20, tw, 16},
+                   SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 + 20, tw, 20},
                    ellipsizeToPixelWidth(fontSmall_, "Press A to take cue", tw), pal.mid);
       SDL_RenderSetClipRect(controlRenderer_, nullptr);
     }
@@ -1125,7 +1158,7 @@
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
     if (selectedCue && selectedCue->hasAudio && selectedCue->kind != CueKind::Audio) {
       bool pending = false;
-      WaveformPeaks peaks = getWaveformPeaks(selectedCue->path, pending);
+      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*selectedCue, currentProjectFile_), pending);
       SDL_Rect waveRect {thumbArea.x + 2, thumbArea.y + thumbArea.h - 34, thumbArea.w - 4, 32};
       double dur = selectedCue->duration > 0.0 ? selectedCue->duration : 1.0;
       float inFrac  = static_cast<float>(selectedCue->inPointSeconds / dur);
@@ -1267,17 +1300,20 @@
 
     int ctrlSettingsY = ctrl.y + kThumbAreaH + kInspectorHeaderGap;
     if (selectedCue) {
-      constexpr int kCueSummaryH = 126;
+      // kCueSummaryH sized to hold up to 5 text rows (name + meta + source + tech + detail)
+      // with heights large enough to contain fontBase_/fontSmall_ without bottom-clipping.
+      constexpr int kCueSummaryH = 180;
       constexpr int kSummaryBtnW = 60;
       constexpr int kSummaryBtnGap = 6;
-      SDL_Rect summaryRect {ctrl.x + 4, ctrlSettingsY, kCtrlW - 8, kCueSummaryH};
+      constexpr int kSummaryPad = 6;   // inner padding inside the summary panel
+      SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY, kCtrlW - kInspectorInset * 2, kCueSummaryH};
       drawUIPanel(summaryRect, pal.light, pal.deep, pal.mid);
 
-      int summaryBtnX = summaryRect.x + summaryRect.w - kInspectorInset - (kSummaryBtnW * 2 + kSummaryBtnGap);
+      int summaryBtnX = summaryRect.x + summaryRect.w - kSummaryPad - (kSummaryBtnW * 2 + kSummaryBtnGap);
       SDL_Rect copyRect {summaryBtnX, summaryRect.y + 4, kSummaryBtnW, 26};
       SDL_Rect pasteRect {copyRect.x + copyRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
-      SDL_Rect labelRect {summaryRect.x + kInspectorInset, summaryRect.y + 8,
-                          std::max(0, copyRect.x - summaryRect.x - kInspectorInset - 8), 18};
+      int labelAvailW = std::max(0, copyRect.x - summaryRect.x - kSummaryPad - 8);
+      SDL_Rect labelRect {summaryRect.x + kSummaryPad, summaryRect.y + 6, labelAvailW, 22};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
       drawUIPanel(copyRect, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, copyRect, "COPY", pal.deep);
@@ -1288,50 +1324,53 @@
       quickButtons_.push_back({copyRect, QuickAction::CopyCueSettings, "Copy inspector settings from the selected cue"});
       quickButtons_.push_back({pasteRect, QuickAction::PasteCueSettings, "Paste copied settings to the current cue selection"});
 
-      SDL_Rect nameRect {summaryRect.x + kInspectorInset, summaryRect.y + 24, summaryRect.w - kInspectorInset * 2, 20};
+      // Name row — h=28 to contain fontBase_ without bottom clip; width stops before copy button
+      SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryRect.y + 34, labelAvailW, 28};
       drawTextSafe(controlRenderer_, fontBase_, nameRect,
                    ellipsizeToPixelWidth(fontBase_, selectedCue->name, nameRect.w),
                    pal.deep);
 
+      int contentW = summaryRect.w - kSummaryPad * 2;
       std::string metaLine = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex) + "  " +
                              cueKindLabel(selectedCue->kind);
       if (selectedCue->width > 0 && selectedCue->height > 0) {
         metaLine += "  " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height);
       }
       metaLine += "  " + cueSummaryDurationLabel(*selectedCue);
-      SDL_Rect metaRect {summaryRect.x + kInspectorInset, summaryRect.y + 48, summaryRect.w - kInspectorInset * 2, 18};
+      SDL_Rect metaRect {summaryRect.x + kSummaryPad, summaryRect.y + 66, contentW, 24};
       drawTextSafe(controlRenderer_, fontSmall_, metaRect,
-                   ellipsizeToPixelWidth(fontSmall_, metaLine, metaRect.w),
+                   ellipsizeToPixelWidth(fontSmall_, metaLine, contentW),
                    pal.dark);
 
-      SDL_Rect sourceRect {summaryRect.x + kInspectorInset, summaryRect.y + 66, summaryRect.w - kInspectorInset * 2, 18};
+      SDL_Rect sourceRect {summaryRect.x + kSummaryPad, summaryRect.y + 94, contentW, 24};
       drawTextSafe(controlRenderer_, fontSmall_, sourceRect,
-                   ellipsizeToPixelWidth(fontSmall_, cueSummarySourceLine(*selectedCue), sourceRect.w),
+                   ellipsizeToPixelWidth(fontSmall_, cueSummarySourceLine(*selectedCue), contentW),
                    pal.dark);
 
       std::string techLine = cueSummaryTechLine(*selectedCue);
       if (!techLine.empty()) {
-        SDL_Rect techRect {summaryRect.x + kInspectorInset, summaryRect.y + 84, summaryRect.w - kInspectorInset * 2, 18};
+        SDL_Rect techRect {summaryRect.x + kSummaryPad, summaryRect.y + 122, contentW, 24};
         drawTextSafe(controlRenderer_, fontSmall_, techRect,
-                     ellipsizeToPixelWidth(fontSmall_, techLine, techRect.w),
+                     ellipsizeToPixelWidth(fontSmall_, techLine, contentW),
                      pal.dark);
       }
 
       std::string detailLine = cueSummaryDetailLine(*selectedCue);
       if (!detailLine.empty()) {
-        SDL_Rect detailRect {summaryRect.x + kInspectorInset, summaryRect.y + 102, summaryRect.w - kInspectorInset * 2, 18};
+        SDL_Rect detailRect {summaryRect.x + kSummaryPad, summaryRect.y + 150, contentW, 24};
         drawTextSafe(controlRenderer_, fontSmall_, detailRect,
-                     ellipsizeToPixelWidth(fontSmall_, detailLine, detailRect.w),
+                     ellipsizeToPixelWidth(fontSmall_, detailLine, contentW),
                      pal.inkSoft);
       }
       ctrlSettingsY = summaryRect.y + summaryRect.h + 10;
     } else {
-      SDL_Rect summaryRect {ctrl.x + 4, ctrlSettingsY, kCtrlW - 8, 116};
+      SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY, kCtrlW - kInspectorInset * 2, 120};
       drawUIPanel(summaryRect, pal.light, pal.deep, pal.mid);
-      SDL_Rect labelRect {summaryRect.x + kInspectorInset, summaryRect.y + 6, summaryRect.w - kInspectorInset * 2, 18};
-      SDL_Rect titleRect {summaryRect.x + kInspectorInset, summaryRect.y + 26, summaryRect.w - kInspectorInset * 2, 18};
-      SDL_Rect bodyRectA {summaryRect.x + kInspectorInset, summaryRect.y + 50, summaryRect.w - kInspectorInset * 2, 16};
-      SDL_Rect bodyRectB {summaryRect.x + kInspectorInset, summaryRect.y + 70, summaryRect.w - kInspectorInset * 2, 16};
+      int sw = summaryRect.w - 12;
+      SDL_Rect labelRect {summaryRect.x + 6, summaryRect.y + 6,  sw, 22};
+      SDL_Rect titleRect {summaryRect.x + 6, summaryRect.y + 32, sw, 24};
+      SDL_Rect bodyRectA {summaryRect.x + 6, summaryRect.y + 60, sw, 22};
+      SDL_Rect bodyRectB {summaryRect.x + 6, summaryRect.y + 86, sw, 22};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, titleRect, "NO CUE SELECTED", pal.deep);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, bodyRectA,
@@ -1343,7 +1382,7 @@
 
     // -- Shared inspector context for floating panel --
     InspectorCtx ix {ctrl, kCtrlW, kInspectorInset, kInspectorRowH, kInspectorRowStep,
-                     kInspectorSectionHeaderH, kInspectorSectionGap, fontBase_, fontBase_, fontBase_, true};
+                     kInspectorSectionHeaderH, kInspectorSectionGap, fontBase_, fontBase_, fontSmall_, true};
 
     auto drawQuickRow = [&](int rowY, const std::string& label, QuickAction decAction, const std::string& value,
                             QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
@@ -1491,9 +1530,9 @@
     int settingsContentTopY = ctrlSettingsY + 22;
     int settingsContentBottomY = ctrl.y + ctrl.h - 10;
     cueSettingsViewportRect_ = {
-      ctrl.x + 6,
+      ctrl.x + kInspectorInset,
       settingsContentTopY - 2,
-      kCtrlW - 12,
+      kCtrlW - kInspectorInset * 2,
       std::max(0, settingsContentBottomY - settingsContentTopY + 2)
     };
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
@@ -1999,7 +2038,7 @@
         SDL_Rect idLabel {ctrl.x + 10, cnY, 36, 26};
         SDL_Rect val {ctrl.x + 52, cnY, kCtrlW - 122, 26};
         SDL_Rect editBtn {ctrl.x + kCtrlW - 64, cnY, 54, 26};
-        drawText(controlRenderer_, fontSmall_, "id", pal.inkSoft, idLabel.x + 4, idLabel.y + 6);
+        drawText(controlRenderer_, fontSmall_, "id", pal.inkSoft, idLabel.x + 12, idLabel.y + 6);
         std::string cnDisplay = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex);
         Primitives::drawFramedPanel(controlRenderer_, val, pal.light, pal.deep, pal.mid);
         drawText(controlRenderer_, fontSmall_, cnDisplay, pal.deep, val.x + 6, val.y + 6);
@@ -2010,9 +2049,10 @@
 
         int ppY = ry + kRowStep * rowCursor;
         int ppCount = static_cast<int>(selectedCue->pausePoints.size());
-        SDL_Rect ppLabel {ctrl.x + 10, ppY, 72, 26};
-        SDL_Rect addBtn {ctrl.x + 88, ppY, 46, 26};
-        SDL_Rect clrBtn {ctrl.x + 140, ppY, 46, 26};
+        constexpr int kPpBtnW = 46, kPpBtnGap = 8, kPpRightMargin = 10;
+        SDL_Rect clrBtn {ctrl.x + kCtrlW - kPpRightMargin - kPpBtnW, ppY, kPpBtnW, 26};
+        SDL_Rect addBtn {clrBtn.x - kPpBtnGap - kPpBtnW, ppY, kPpBtnW, 26};
+        SDL_Rect ppLabel {ctrl.x + 20, ppY, std::max(10, addBtn.x - ctrl.x - 20 - 8), 26};
         drawText(controlRenderer_, fontSmall_, "pause pts: " + std::to_string(ppCount),
                  pal.inkSoft, ppLabel.x + 4, ppLabel.y + 6);
         Primitives::drawFramedPanel(controlRenderer_, addBtn, pal.dark, pal.deep, pal.mid);
@@ -2405,6 +2445,18 @@
                                                selectedCue->path.empty() ? "(unset)" : selectedCue->path,
                                                QuickAction::EditBrowserUrl,
                                                "Set browser URL/path");
+          {
+            SDL_Rect rfBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
+            SDL_Color rfFill = selectedCue->refreshOnTake ? pal.dark : pal.light;
+            SDL_Color rfInk  = selectedCue->refreshOnTake ? pal.light : pal.deep;
+            drawUIPanel(rfBtn, rfFill, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, rfBtn,
+                                 std::string("refresh on take: ") + (selectedCue->refreshOnTake ? "on" : "off"),
+                                 rfInk);
+            quickButtons_.push_back({rfBtn, QuickAction::ToggleRefreshOnTake,
+                                     "Reload page each time the browser cue is taken"});
+            metadataY += kInspectorRowStep;
+          }
         }
 
         metadataY = drawCueTechnicalRows(metadataY, *selectedCue);
@@ -2527,7 +2579,7 @@
                            SDL_Rect {emptyRect.x + 8, emptyRect.y + 14, emptyRect.w - 16, 16},
                            "NO CUE SELECTED", pal.deep);
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect {emptyRect.x + 8, emptyRect.y + 38, emptyRect.w - 16, 14},
+                           SDL_Rect {emptyRect.x + 8, emptyRect.y + 34, emptyRect.w - 16, 24},
                            "Select or import a cue to edit it here", pal.dark);
     } else {
       drawTextSafe(controlRenderer_, fontSmall_,

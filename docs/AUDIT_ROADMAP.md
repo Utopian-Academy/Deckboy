@@ -100,13 +100,16 @@ item with ownership boundaries, dependencies, and acceptance criteria.
 
 ---
 
-## Future / Roadmap
+### [DONE] Windows subprocess implementation
+- **What:** `spawnProcess()` fully implemented for `_WIN32` using
+  `CreateProcessW` + `_open_osfhandle` to expose the pipe read end as a
+  POSIX-style fd. FFmpeg/FFprobe resolution via `DECKBOY_FFMPEG` /
+  `DECKBOY_FFMPEG_DIR` env vars, plus `paths::` fallback walk.
+- **Files:** `native/core/subprocess.cpp`
 
-### Windows subprocess implementation
-- **Scope:** `native/core/subprocess.cpp`
-- **What:** Implement `spawnProcess()` for `_WIN32` using `CreateProcessW`.
-  Current stubs return false.
-- **Depends on:** Subprocess layer refactor (done)
+---
+
+## Future / Roadmap
 
 ### Standardize namespace (deckboy:: vs deckboy::)
 - **Scope:** All `native/platform/*.cpp`, `native/core/utils.*`

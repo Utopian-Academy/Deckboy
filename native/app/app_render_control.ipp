@@ -874,11 +874,12 @@
       y += kRowHeight + 8;
     }
     if (primaryIndices.empty()) {
+      const int emptyLineH = textLineHeight(fontSmall_) + 4;
       int hx = primaryClip.x + primaryClip.w / 2 - 30;
-      int hy = primaryClip.y + primaryClip.h / 2 - 20;
+      int hy = primaryClip.y + primaryClip.h / 2 - emptyLineH;
       drawText(controlRenderer_, fontSmall_, "I  import", pal.deep, hx, hy);
-      drawText(controlRenderer_, fontSmall_, "B  browser", pal.deep, hx, hy + 20);
-      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.deep, hx, hy + 40);
+      drawText(controlRenderer_, fontSmall_, "B  browser", pal.deep, hx, hy + emptyLineH);
+      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.deep, hx, hy + emptyLineH * 2);
     }
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
@@ -913,7 +914,7 @@
     
     std::string playlistInfo = std::string(deck.playlistLoop ? "LOOP" : "ONCE")
       + std::string("  |  ") + (deck.shuffle ? "SHUFFLE" : "ORDER");
-    drawTextSafe(controlRenderer_, fontSmall_, {footer.x + 6, footer.y + 4, footer.w - 12, 16},
+    drawTextSafe(controlRenderer_, fontSmall_, {footer.x + 6, footer.y + 6, footer.w - 12, 24},
                  playlistInfo, pal.dark);
 
     SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
@@ -967,28 +968,40 @@
     SDL_Color subInk = isLive ? pal.mid : pal.dark;
 
     // Indicator area (vertically centered in row)
-    int indSize = 28;
-    SDL_Rect indicatorRect {row.x + 14, row.y + (row.h - indSize) / 2, indSize, indSize};
+    int indSize = 36;
+    SDL_Rect indicatorRect {row.x + 10, row.y + (row.h - indSize) / 2, indSize, indSize};
     if (isLive) {
       drawUIPanel(indicatorRect, pal.dark, pal.light, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xba", pal.light);
+      if (uiBtnPlay_.texture) {
+        int sz = std::min(22, std::min(indicatorRect.w - 8, indicatorRect.h - 8));
+        SDL_Rect ir {indicatorRect.x + (indicatorRect.w - sz) / 2, indicatorRect.y + (indicatorRect.h - sz) / 2, sz, sz};
+        drawUiImageContain(uiBtnPlay_, ir, 255, pal.light);
+      } else {
+        drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb6", pal.light);
+      }
     } else if (isQueued) {
       drawUIPanel(indicatorRect, pal.mid, pal.deep, pal.dark);
-      drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "N", pal.deep);
+      if (uiBtnPlay_.texture) {
+        int sz = std::min(18, std::min(indicatorRect.w - 10, indicatorRect.h - 10));
+        SDL_Rect ir {indicatorRect.x + (indicatorRect.w - sz) / 2, indicatorRect.y + (indicatorRect.h - sz) / 2, sz, sz};
+        drawUiImageContain(uiBtnPlay_, ir, 160, pal.deep);
+      } else {
+        drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb6", pal.dark);
+      }
     } else if (isSelected) {
       drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb8", ink); // ▸
     }
 
-    constexpr int kCueActionBtnW = 18;
-    constexpr int kCueActionBtnH = 14;
+    constexpr int kCueActionBtnW = 24;  // multiple of 8 — matches grid snap in drawUIPanel
+    constexpr int kCueActionBtnH = 16;  // multiple of 8
     constexpr int kCueActionBtnGap = 4;
     constexpr int kCueActionCount = 5;
     int actionStripW = kCueActionCount * kCueActionBtnW + (kCueActionCount - 1) * kCueActionBtnGap;
-    bool showActionStrip = row.w >= 196;
+    bool showActionStrip = row.w >= 254;  // nameX(52)+minName(52)+gap(8)+strip(136)+margin(6)
     int actionStripX = row.x + row.w - actionStripW - 6;
 
-    int nameX = row.x + 48;
-    int nameW = showActionStrip ? std::max(52, actionStripX - nameX - 8) : (row.w - 64);
+    int nameX = row.x + 52;
+    int nameW = showActionStrip ? std::max(52, actionStripX - nameX - 8) : (row.w - 68);
 
     // Cached display strings — avoids TTF loop in ellipsizeToPixelWidth every frame
     bool isProbing = cue.width == 0 && cue.height == 0 && !cue.path.empty()
@@ -1014,7 +1027,7 @@
       // Recompute cached strings
       dc.token = cueDisplayToken(cue, index);
       dc.kindUpper = toUpper(cueKindLabel(cue.kind));
-      dc.ellipsizedName = ellipsizeToPixelWidth(fontBase_, cue.name, nameW);
+      dc.ellipsizedName = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
       if (isProbing) {
         dc.meta = "probing...";
       } else if (cue.kind == CueKind::Video || cue.kind == CueKind::Audio) {
@@ -1028,7 +1041,7 @@
     }
 
     // Cue ID and Type — line 1 (top of row)
-    SDL_Rect tokenRect {row.x + 48, row.y + 4, 54, 18};
+    SDL_Rect tokenRect {row.x + 52, row.y + 4, 50, 18};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
@@ -1046,8 +1059,8 @@
 
     // Name — line 2 (middle of row, prominent)
     int nameY = row.y + 26;
-    SDL_Rect nameRect {nameX, nameY, nameW, 22};
-    drawTextSafe(controlRenderer_, fontBase_, nameRect, dc.ellipsizedName, ink);
+    SDL_Rect nameRect {nameX, nameY, nameW, 24};
+    drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
 
     // Metadata — line 3 (bottom of row, within bounds)
     SDL_Rect metaRect {nameX, row.y + 50, nameW, 18};
@@ -1077,7 +1090,9 @@
           break;
         }
         case QuickAction::ToggleLoop:
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, rect, "\xe2\x88\x9e", inkColor);
+          // ∞ glyph sits below the optical centre in most fonts — nudge up 2px
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+            SDL_Rect{rect.x, rect.y - 2, rect.w, rect.h}, "\xe2\x88\x9e", inkColor);
           break;
         case QuickAction::ToggleHold: {
           SDL_Rect barL {rect.x + rect.w / 2 - 4, rect.y + 3, 2, rect.h - 6};
@@ -1087,12 +1102,21 @@
           break;
         }
         case QuickAction::ToggleCueAudio: {
-          SDL_Rect box {rect.x + 3, rect.y + rect.h / 2 - 2, 3, 4};
+          // Speaker box — taller, starts 2px from left
+          int bw = std::max(3, rect.w / 6);
+          int bh = std::max(5, rect.h * 5 / 9);
+          int bx = rect.x + 2;
+          int by = rect.y + (rect.h - bh) / 2;
+          SDL_Rect box {bx, by, bw, bh};
+          // Horn — triangle from box right edge to ~55% of button width
+          int hornX = rect.x + rect.w * 55 / 100;
+          int hornTopY = rect.y + 2;
+          int hornBotY = rect.y + rect.h - 2;
           SDL_Point horn[4] {
-            {box.x + box.w, box.y},
-            {box.x + box.w + 4, box.y - 3},
-            {box.x + box.w + 4, box.y + box.h + 3},
-            {box.x + box.w, box.y + box.h}
+            {box.x + box.w, by},
+            {hornX, hornTopY},
+            {hornX, hornBotY},
+            {box.x + box.w, by + bh}
           };
           Primitives::fillRect(controlRenderer_, box, inkColor);
           SDL_RenderDrawLine(controlRenderer_, horn[0].x, horn[0].y, horn[1].x, horn[1].y);
@@ -1100,8 +1124,11 @@
           SDL_RenderDrawLine(controlRenderer_, horn[2].x, horn[2].y, horn[3].x, horn[3].y);
           SDL_RenderDrawLine(controlRenderer_, horn[3].x, horn[3].y, horn[0].x, horn[0].y);
           if (enabled) {
-            SDL_RenderDrawLine(controlRenderer_, rect.x + rect.w - 4, rect.y + 4, rect.x + rect.w - 2, rect.y + 6);
-            SDL_RenderDrawLine(controlRenderer_, rect.x + rect.w - 4, rect.y + rect.h - 4, rect.x + rect.w - 2, rect.y + rect.h - 6);
+            // Two short wave lines at right side of button
+            int wx = hornX + 3;
+            int my = rect.y + rect.h / 2;
+            SDL_RenderDrawLine(controlRenderer_, wx, my - 3, wx + 2, my - 1);
+            SDL_RenderDrawLine(controlRenderer_, wx, my + 3, wx + 2, my + 1);
           }
           break;
         }
@@ -1113,7 +1140,7 @@
 
     bool toggleHover = false;
     auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
-      SDL_Rect btn {buttonX, row.y + row.h - kCueActionBtnH - 6, kCueActionBtnW, kCueActionBtnH};
+      SDL_Rect btn {buttonX, row.y + (row.h - kCueActionBtnH) / 2, kCueActionBtnW, kCueActionBtnH};
       SDL_Color fill = !enabled
         ? pal.mid
         : (on ? pal.dark : pal.light);
@@ -1122,7 +1149,7 @@
         ? pal.inkSoft
         : (on ? pal.light : pal.deep);
       drawUIPanel(btn, fill, pal.deep, accent);
-      drawCueRowActionIcon(btn, action, iconInk, on);
+      drawCueRowActionIcon(snapRectToGrid(btn), action, iconInk, on);
       if (enabled) {
         cueRowActionHits_.push_back({btn, deckIndex, index, action, true, tip});
       }
@@ -1225,6 +1252,7 @@
 
     auto buttonIconForLabel = [&](const std::string& label) -> UiImageAsset* {
       if (label == "IMPORT")   return &uiBtnImport_;
+      if (label == "BROWSER")  return &uiCueIconBrowser_;
       if (label == "SOURCE")   return &uiCueIconSource_;
       if (label == "PATTERN")  return &uiCueIconPattern_;
       if (label == "TAKE")     return &uiBtnTake_;

@@ -39,7 +39,15 @@ struct NdiApi {
     if (const char* env = std::getenv("DECKBOY_NDI_LIB"); env && *env) {
       candidates.emplace_back(env);
     }
-#ifdef __APPLE__
+#ifdef _WIN32
+    candidates.emplace_back("Processing.NDI.Lib.x64.dll");
+    // NDI SDK default install locations on Windows
+    if (const char* ndiDir = std::getenv("NDI_SDK_DIR"); ndiDir && *ndiDir) {
+      candidates.emplace_back(std::string(ndiDir) + "\\Bin\\x64\\Processing.NDI.Lib.x64.dll");
+    }
+    candidates.emplace_back("C:\\Program Files\\NDI\\NDI 6 Runtime\\v6\\Processing.NDI.Lib.x64.dll");
+    candidates.emplace_back("C:\\Program Files\\NDI\\NDI 5 Runtime\\Processing.NDI.Lib.x64.dll");
+#elif defined(__APPLE__)
     candidates.emplace_back("libndi.dylib");
 #else
     candidates.emplace_back("libndi.so.6");

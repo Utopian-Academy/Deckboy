@@ -104,16 +104,23 @@ fs::path resolveProjectRoot() {
     // Walk up from executable directory looking for data/ directory.
     // Handles build/native/, build/, bin/, or direct project root.
     fs::path dir = exe.parent_path();
-    for (int depth = 0; depth < 4 && !dir.empty(); ++depth) {
+    for (int depth = 0; depth < 6 && !dir.empty(); ++depth) {
+      std::string name = dir.filename().string();
+      // Case-insensitive comparison to handle CMake's Release/Debug capitalisation on Windows.
+      // Skip known build subdirectory names BEFORE checking for data/ — prevents stopping at
+      // build/windows/Release/data/ (created by the app) instead of the real project root.
+      std::string nameLower = name;
+      for (char& c : nameLower) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      if (nameLower == "bin" || nameLower == "build" || nameLower == "native" ||
+          nameLower == "debug" || nameLower == "release" || nameLower == "windows" ||
+          nameLower == "x64" || nameLower == "x86") {
+        dir = dir.parent_path();
+        continue;
+      }
       if (fs::is_directory(dir / "data")) {
         return dir;
       }
-      std::string name = dir.filename().string();
-      if (name == "bin" || name == "build" || name == "native" || name == "debug" || name == "release") {
-        dir = dir.parent_path();
-      } else {
-        break;
-      }
+      break;
     }
     // Fallback: return immediate parent of executable
     fs::path fallback = exe.parent_path();

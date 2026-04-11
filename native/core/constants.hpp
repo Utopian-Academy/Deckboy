@@ -24,7 +24,7 @@ constexpr int kColWidth = 270;
 constexpr int kColHeaderH = 66;
 constexpr int kColFooterH = 50;
 constexpr int kGlobalHeaderH = 64;
-constexpr int kRowHeight = 72;
+constexpr int kRowHeight = 80;
 constexpr int kPadding = 24;
 
 // Audio

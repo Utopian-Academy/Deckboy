@@ -81,7 +81,7 @@
               if (contextMenuOpen_) {
                 handleContextMenuClick(event.button.x, event.button.y);
               } else {
-                handleMouseDown(event.button.x, event.button.y);
+                handleMouseDown(event.button.x, event.button.y, event.button.button);
               }
             }
           } else if (monitorsWindow_ &&
@@ -91,12 +91,19 @@
           break;
         case SDL_MOUSEBUTTONUP:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
-            drag_.active = false;
-            drag_.cueIndex = -1;
-            trimDragMode_ = TrimDragMode::None;
-            warpDragCorner_ = -1;
-            layoutDragMode_ = LayoutDragMode::None;
-          }
+              drag_.active = false;
+              drag_.cueIndex = -1;
+              trimDragMode_ = TrimDragMode::None;
+              if (timelineScrubActive_ && scrubWasPlaying_) {
+                if (MediaEngine* engine = focusedMediaEngine()) {
+                  engine->play();
+                }
+                scrubWasPlaying_ = false;
+              }
+              timelineScrubActive_ = false;
+              warpDragCorner_ = -1;
+              layoutDragMode_ = LayoutDragMode::None;
+            }
           break;
         case SDL_MOUSEMOTION:
           if (event.motion.windowID == SDL_GetWindowID(controlWindow_)) {
@@ -106,7 +113,15 @@
           }
           break;
         case SDL_KEYDOWN:
-          handleKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.windowID, event.key.repeat != 0);
+          {
+            Uint32 controlWindowId = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
+            bool fromControlWindow = controlWindowId != 0 && event.key.windowID == controlWindowId;
+            bool fromOutputWindow = outputIndexForWindowId(event.key.windowID).has_value();
+            bool allowFromOutputWindow = fromOutputWindow && event.key.keysym.sym == SDLK_ESCAPE;
+            if (fromControlWindow || allowFromOutputWindow) {
+              handleKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.windowID, event.key.repeat != 0);
+            }
+          }
           break;
         case SDL_TEXTINPUT:
           if (event.text.windowID == SDL_GetWindowID(controlWindow_)) {
@@ -141,35 +156,39 @@
     // Poll async cue probe futures
     for (auto it = probeFutures_.begin(); it != probeFutures_.end(); ) {
       if (it->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-        auto probed = it->future.get();
-        if (probed && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
-          Deck& deck = project_.decks[it->deckIndex];
-          for (auto& cue : deck.cues) {
-            if (cue.path == it->path && cue.width == 0 && cue.height == 0) {
-              // Update placeholder with probed metadata
-              cue.duration = probed->duration;
-              cue.width = probed->width;
-              cue.height = probed->height;
-              cue.fps = probed->fps;
-              cue.formatName = probed->formatName;
-              cue.videoCodec = probed->videoCodec;
-              cue.audioCodec = probed->audioCodec;
-              cue.hasAudio = probed->hasAudio;
-              cue.audioChannels = probed->audioChannels;
-              cue.audioSampleRate = probed->audioSampleRate;
-              cue.sizeBytes = probed->sizeBytes;
-              cue.kind = probed->kind;
-              if (cue.hasAudio && !cue.audioEnabled) {
-                const auto& defs = deck;
-                cue.audioEnabled = defs.playlistDefaultAudioEnabled;
+        try {
+          auto probed = it->future.get();
+          if (probed && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
+            Deck& deck = project_.decks[it->deckIndex];
+            for (auto& cue : deck.cues) {
+              if (cue.path == it->path && cue.width == 0 && cue.height == 0) {
+                // Update placeholder with probed metadata
+                cue.duration = probed->duration;
+                cue.width = probed->width;
+                cue.height = probed->height;
+                cue.fps = probed->fps;
+                cue.formatName = probed->formatName;
+                cue.videoCodec = probed->videoCodec;
+                cue.audioCodec = probed->audioCodec;
+                cue.hasAudio = probed->hasAudio;
+                cue.audioChannels = probed->audioChannels;
+                cue.audioSampleRate = probed->audioSampleRate;
+                cue.sizeBytes = probed->sizeBytes;
+                cue.kind = probed->kind;
+                if (cue.hasAudio && !cue.audioEnabled) {
+                  const auto& defs = deck;
+                  cue.audioEnabled = defs.playlistDefaultAudioEnabled;
+                }
+                if (isDefaultStillDurationCueKind(cue.kind) && cue.stillDurationSeconds <= 0.0) {
+                  cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
+                }
+                markProjectDirty();
+                break;
               }
-              if (isDefaultStillDurationCueKind(cue.kind) && cue.stillDurationSeconds <= 0.0) {
-                cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
-              }
-              markProjectDirty();
-              break;
             }
           }
+        } catch (...) {
+          triggerToast("media probe failed");
         }
         it = probeFutures_.erase(it);
       } else {
@@ -181,9 +200,23 @@
       std::lock_guard<std::mutex> lk(waveformMutex_);
       for (auto it = waveformFutures_.begin(); it != waveformFutures_.end(); ) {
         if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-          waveformCache_[it->first] = it->second.get();
+          try {
+            WaveformPeaks result = it->second.get();
+            if (!result.empty()) {
+              waveformCache_[it->first] = std::move(result);
+            }
+          } catch (...) {
+          }
           it = waveformFutures_.erase(it);
         } else ++it;
+      }
+    }
+    // Clear VU samples when focused deck is not playing (prevents meter sticking)
+    {
+      const MediaEngine* engine = mediaEngineForDeck(project_.focusedDeckIndex);
+      if (!engine || engine->state() != TransportState::Playing) {
+        std::lock_guard<std::mutex> lk(vuSamplesMutex_);
+        vuSamples_.clear();
       }
     }
     // Trigger waveform analysis for selected/active cue
@@ -219,6 +252,8 @@
         refreshDisplayTopology(true);
       }
     }
+
+    tickPendingOutputDisplayTransitions(now);
 
     if (now - lastOutputRecoveryPollMs_ >= 1000) {
       lastOutputRecoveryPollMs_ = now;
@@ -378,7 +413,11 @@
               keepEndedFrameVisible = true;
               int previousFocus = project_.focusedDeckIndex;
               project_.focusedDeckIndex = deckIndex;
-              takeSelected(true, activeCue.transitionToNext, true);
+              // Honor the incoming cue's fadeInSeconds: the per-cue fade ramp
+              // is the visible transition on the output path (the legacy
+              // crossfade inside MediaEngine::render() is not visible on
+              // output — see v0.76.4 / v0.76.7 DEVNOTES).
+              takeSelected(true, activeCue.transitionToNext, false);
               project_.focusedDeckIndex = previousFocus;
             }
           }
@@ -388,6 +427,14 @@
     }
     tickNmcSyncOutput();
     {
+      constexpr bool kShowNextPreviewMonitor = false;
+      if (!kShowNextPreviewMonitor) {
+        if (previewMediaEngine_ && previewMediaEngine_->activeCue()) {
+          previewMediaEngine_->stopAll();
+        }
+        previewCueKey_.clear();
+        clearPreviewCueTexture();
+      } else {
       int previewCueIndex = -1;
       const Cue* previewCue = previewCuePtr(project_.focusedDeckIndex, &previewCueIndex);
       const Cue* previewRenderCue = previewCue;
@@ -431,6 +478,7 @@
         } else if (!previewFrame) {
           clearPreviewCueTexture();
         }
+      }
       }
     }
     updateStatusSnapshot();
