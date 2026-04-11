@@ -1,6 +1,52 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
-  void handleMouseDown(int x, int y) {
+  bool seekFocusedTimelineFraction(double clampedFraction, bool audioScrub = false) {
+    MediaEngine* engine = focusedMediaEngine();
+    if (!engine) {
+      return false;
+    }
+    if (const Cue* cue = activeCuePtr()) {
+      if ((cue->kind == CueKind::Video || cue->kind == CueKind::Audio) && cue->duration > 0.0) {
+        double cueIn = std::clamp(cue->inPointSeconds, 0.0, cue->duration);
+        double cueOut = cue->outPointSeconds > 0.0
+          ? std::clamp(cue->outPointSeconds, cueIn, cue->duration)
+          : cue->duration;
+        bool zoomedToTrim = cueIn > 0.001 || cueOut < cue->duration - 0.001;
+        double visibleDuration = zoomedToTrim ? std::max(0.01, cueOut - cueIn) : cue->duration;
+        double mediaTargetSeconds = zoomedToTrim
+          ? cueIn + (visibleDuration * clampedFraction)
+          : cue->duration * clampedFraction;
+        double relativeSeekSeconds = std::clamp(mediaTargetSeconds - cueIn, 0.0, std::max(0.0, engine->duration()));
+        engine->seek(relativeSeekSeconds);
+        if (audioScrub) {
+          if (auto* runtime = focusedRuntime(); runtime && runtime->audioDevice != 0) {
+            SDL_PauseAudioDevice(runtime->audioDevice, 0);
+          }
+        }
+        return true;
+      }
+    }
+    if (engine->duration() <= 0.0) {
+      return false;
+    }
+    engine->seek(engine->duration() * clampedFraction);
+    if (audioScrub) {
+      if (auto* runtime = focusedRuntime(); runtime && runtime->audioDevice != 0) {
+        SDL_PauseAudioDevice(runtime->audioDevice, 0);
+      }
+    }
+    return true;
+  }
+
+  bool seekFocusedTimelineAtX(int x, bool audioScrub = false) {
+    if (progressBarRect_.w <= 0) {
+      return false;
+    }
+    double fraction = static_cast<double>(x - progressBarRect_.x) / static_cast<double>(progressBarRect_.w);
+    return seekFocusedTimelineFraction(std::clamp(fraction, 0.0, 1.0), audioScrub);
+  }
+
+  void handleMouseDown(int x, int y, Uint8 button) {
     if (showSplashOverlay_) {
       showSplashOverlay_ = false;
       return;
@@ -498,30 +544,15 @@
       trimDragMode_ = TrimDragMode::Out;
       return;
     }
-    if (pointInRect(x, y, progressBarRect_)) {
-      MediaEngine* engine = focusedMediaEngine();
-      if (!engine) {
-        return;
-      }
-      double fraction = static_cast<double>(x - progressBarRect_.x) / static_cast<double>(progressBarRect_.w);
-      double clampedFraction = std::clamp(fraction, 0.0, 1.0);
-      if (const Cue* cue = activeCuePtr()) {
-        if ((cue->kind == CueKind::Video || cue->kind == CueKind::Audio) && cue->duration > 0.0) {
-          double cueIn = std::clamp(cue->inPointSeconds, 0.0, cue->duration);
-          double cueOut = cue->outPointSeconds > 0.0
-            ? std::clamp(cue->outPointSeconds, cueIn, cue->duration)
-            : cue->duration;
-          bool zoomedToTrim = cueIn > 0.001 || cueOut < cue->duration - 0.001;
-          double visibleDuration = zoomedToTrim ? std::max(0.01, cueOut - cueIn) : cue->duration;
-          double mediaTargetSeconds = zoomedToTrim
-            ? cueIn + (visibleDuration * clampedFraction)
-            : cue->duration * clampedFraction;
-          double relativeSeekSeconds = std::clamp(mediaTargetSeconds - cueIn, 0.0, std::max(0.0, engine->duration()));
-          engine->seek(relativeSeekSeconds);
-          return;
+    if (button == SDL_BUTTON_LEFT && pointInRect(x, y, progressBarRect_)) {
+      if (MediaEngine* engine = focusedMediaEngine()) {
+        scrubWasPlaying_ = (engine->state() == TransportState::Playing);
+        if (scrubWasPlaying_) {
+          engine->pause();
         }
       }
-      engine->seek(engine->duration() * clampedFraction);
+      timelineScrubActive_ = seekFocusedTimelineAtX(x, true);
+      return;
     }
   }
 
@@ -601,6 +632,10 @@
         }
         markProjectDirty();
       }
+      return;
+    }
+    if (timelineScrubActive_) {
+      seekFocusedTimelineAtX(x, true);
       return;
     }
     if (!drag_.active || drag_.cueIndex < 0) {

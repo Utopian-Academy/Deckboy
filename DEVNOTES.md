@@ -1,5 +1,405 @@
 # DEVNOTES
 
+## Timeline Loading Animations (v0.76.10)
+- The timeline has two lanes — video (`progressBarRect_`) and audio
+  (`audioLaneRect`) — each of which can be waiting on background work
+  before it has anything meaningful to draw. Video waits on
+  `timelineStripTex_` to be rendered from the cue's thumbnail grid;
+  audio waits on `computeWaveformPeaks` to finish on a background
+  `std::async`. Both are gated by kind-specific state: the video
+  loading branch fires when `timelineStripLoading_` is true for the
+  current cue's cache key, the audio branch fires when
+  `getWaveformPeaks` returns `pending == true` and an empty peaks
+  struct.
+- Both animations use the same widget: a `drawUIPanel`-framed box
+  centered in its lane, sized proportionally to the lane
+  (`std::min(188, std::max(124, laneRect.w - 28))` x
+  `std::min(46, std::max(34, laneRect.h - 16))`), over a translucent
+  `{7, 12, 7, 148}` dimming overlay, with a pulsing "LOADING..."
+  label at the bottom whose dot count advances on a 180ms clock.
+  This is deliberate: they should read as sibling animations so the
+  operator recognizes "timeline is fetching" instantly regardless of
+  which lane is loading.
+- Iconography differs to distinguish lanes. Video uses 5 filmstrip
+  cells with sprocket holes (`drawTimelineLoadingAnimation`); audio
+  uses a 9-bar EQ meter where each bar's height is a squared sine
+  envelope with a per-bar phase offset
+  (`drawAudioTimelineLoadingAnimation`). Both animations run on
+  `animationNow_` as their time base, so the idle/fps clamp
+  behavior for UI animations applies uniformly.
+- If you add a third lane that can load asynchronously, follow the
+  same pattern: build a lambda in `app_render_main.ipp` next to the
+  existing two, reuse the widget frame + dimming + LOADING label,
+  and pick iconography that's unambiguously different from the
+  other two. Do not factor the shared chrome into a helper until
+  there is a third site — the duplication is cheap and the lambdas
+  have to capture animation state from the enclosing render
+  function.
+
+## Settings Card Row Spacing Note (v0.76.9)
+- The System Settings modal used hand-picked absolute y-offsets
+  (`safetyRect.y + 56`, `+ 74`, `+ 108`, ...) sized for the stock font
+  load (`fontSmall_` @ 15pt, `TTF_FontHeight ≈ 18`). On retina / HiDPI
+  the loader switches to a 17pt face (`TTF_FontHeight ≈ 21`), and label
+  rows started overlapping the button rows directly below them by
+  2–4px. Because the buttons call `drawFramedPanel` *after* the label
+  was drawn, the panel fill overpainted the descenders — reported as
+  "panic text is so low it's cutoff".
+- The fix is ergonomic rather than structural: a trio of helpers in
+  `render/layout.hpp` — `textLineHeight(font)`, `rowYBelowLabel(labelY,
+  font, gap)`, and `rowYBelowLines(startY, font, lines, gap)` — derive
+  row Y and multi-line spacing from `TTF_FontHeight` at runtime. They
+  are pure functions with a null-safe fallback (returns 18 when font
+  is null), so callsites can use them interchangeably with literal
+  offsets during incremental migration.
+- All settings cards that mixed a single-line label and a control row
+  were migrated (SAFETY / TIMECODE, SHOW FLOW, CUE TOOLS, AUDIO, MIDI,
+  REMOTE, OSC, NOTES, INTEGRATION, About/RUNTIME, Edge Blending, AOI).
+  The inspector (`app_render_inspector.ipp`) and its four primitive
+  drawers in `app_cue_mgmt.ipp` were left untouched because the user's
+  acceptance criteria explicitly called out that the inspector already
+  rendered correctly in scrolling menus and must not regress. The new
+  helpers are additive; they don't change any existing behavior at the
+  stock font size.
+- The four text-drawing primitives (`drawText`, `drawTextSafe`,
+  `drawCenteredText`, `drawCenteredTextSafe`) remain the canonical
+  way to render text in the app. If a future pass wants to unify
+  optical centering across button surfaces, that lives inside those
+  primitives — don't introduce a parallel drawer.
+
+## FFprobe Parser Stream Boundary Note (v0.76.8)
+- `probeCue()` in `main.cpp` parses ffprobe's `default=noprint_wrappers=1`
+  output line-by-line. It requests `stream=codec_type,codec_name,...` and
+  expects these fields in either order within a stream (the order varies
+  by ffprobe version and container format).
+- The original buffering logic stored the most recent `codec_name` as
+  `pendingCodecName` and the most recent `codec_type` as `lastCodecType`,
+  applying the pair via `tryApplyCodec()` whenever both were known. A
+  `pendingApplied` flag prevented double-application.
+- **The bug:** it treated codec_name and codec_type as independent fields
+  without recognizing that a NEW stream resets both. For an mp4 with the
+  audio stream emitted first:
+  ```
+  codec_name=aac
+  codec_type=audio       ← pair applied, pendingApplied=true
+  sample_rate=48000
+  channels=2
+  r_frame_rate=0/0
+  codec_name=h264        ← new stream, but lastCodecType still "audio"
+  codec_type=video
+  ...
+  ```
+  On `codec_name=h264`, tryApplyCodec ran with `lastCodecType="audio"` and
+  saw `cue.audioCodec` already filled, so the "h264" was silently
+  discarded. The subsequent `codec_type=video` set `lastCodecType="video"`
+  but `pendingApplied` was already true from the audio pair, so
+  tryApplyCodec early-returned. Result: `cue.videoCodec` stayed empty,
+  triggering the end-of-function audio-only detection.
+- **Fix:** when `codec_type` arrives AND `pendingApplied` is already true,
+  that codec_type marks a new stream — clear `pendingCodecName` and reset
+  `pendingApplied = false` before assigning the new type. Symmetric handling
+  on `codec_name` (clear `lastCodecType`). Both within-stream orderings
+  continue to work; new-stream boundaries are now detected.
+- **Testing:** verified against `H:\Missa X\Missa X - Bachelorette Pt 2
+  (1080p).mp4` which emits audio-first. Traced step-by-step through both
+  the audio-first case and the conventional video-first case to confirm
+  no regression in the normal path.
+
+## Duplicate Cue Allowance Note (v0.76.8)
+- `importPaths()` in `app_cue_mgmt.ipp` used to silently skip any path
+  that already existed in the deck's cue list. This blocked a legitimate
+  operator workflow: using the same asset twice (e.g., as two cues with
+  different in/out trim, or a playlist that loops back through an asset).
+- Removed the dedup check. Library-level dedup (avoiding re-ingesting the
+  same file into the media library) is a separate concern that belongs in
+  the media library layer, not the cue list.
+
+## Video Cue Fade Suppression Removal Note (v0.76.7)
+- **Context:** this is a follow-on to the v0.76.4 output fade gain fix.
+  That release moved per-cue fade ramps from the (dead) `MediaEngine::render()`
+  path into the live `renderDeckLayerIntoOutput` path via
+  `currentVisualFadeGain()` → bridge texture alpha. It made fades work on
+  output for the first time. But it left a stale cue-kind gate in
+  `loadCue()` intact, which silently killed fades for video/source cues in
+  playlists.
+- **The stale gate (now removed):**
+  ```cpp
+  bool isStillTypeCue = cue && (cue->kind == Image || Pattern || Browser || Composite);
+  suppressFadeInForCurrentCue_ = suppressFadeIn && !isStillTypeCue;
+  suppressVisualFadeOutForCurrentCue_ =
+    cue && !isStillTypeCue && (cueAdvancesWhenFinished(*cue) || Loop);
+  ```
+  The comment said: "Video/source cues suppress these during auto-advance
+  because the crossfade handles the outgoing/incoming visual, avoiding a
+  double-fade effect." This was true pre-v0.76.4 — but the "crossfade" it
+  was protecting lives inside `MediaEngine::render()`'s transition overlay
+  path, which writes to a hidden per-deck `SDL_WINDOW_HIDDEN` that the
+  output compositor never reads. The crossfade is invisible on output, so
+  there's no double-fade hazard for the suppression to guard against —
+  removing it just means the per-cue fade ramp actually runs on video cues.
+- **Symptom before fix:** playlist of video+browser cues, same
+  `fadeInSeconds`/`fadeOutSeconds` set on both. Browser cue fades correctly
+  (isStillTypeCue=true → suppression skipped). Video cue pops in and out
+  (suppression active → `visualFadeGainAt` returns 1.0 throughout).
+- **Fix surface:**
+  - `engine/media_engine.cpp:loadCue` — `suppressFadeInForCurrentCue_`
+    honors the caller hint only, no cue-kind override;
+    `suppressVisualFadeOutForCurrentCue_` always starts false. Loop
+    suppression still re-asserts itself in `handlePlaybackEnd` (correct).
+  - `app/app_update.ipp:416` — auto-advance no longer passes
+    `suppressIncomingFadeIn=true`; the per-cue fade-in IS the visible
+    transition.
+- **Audio side effect:** `fadeGainAt()` used by the audio thread respects
+  the same suppression flags, so audio also now fades in/out for
+  auto-advancing video cues. This is the expected behavior — a cue with a
+  visible fade should also have an audible fade. The fade ramp happens
+  before `stopDecoderThreads` kills the outgoing audio pipe, so there's no
+  click or abrupt termination.
+- **If a visible crossfade mechanism is re-introduced in a future release**:
+  wire it into the output path (bridge texture or a second bridge layer),
+  NOT back into `MediaEngine::render()`. At that point, reconsider whether
+  the crossfade should multiply OR replace the per-cue fade ramp. Do not
+  resurrect the `isStillTypeCue` gate — use a more targeted mechanism
+  (e.g., flag the outgoing frame explicitly during the crossfade window).
+
+## Audio Thread Byte Alignment Note (v0.76.6)
+- `MediaEngine::startDecoderThreads` spawns an audio reader thread that pulls
+  s16le stereo @ 48 kHz from an FFmpeg pipe via `readSome()`. The previous
+  code sized its `scaled` vector at `bytesRead / 2` (elements) and then
+  `memcpy`'d `bytesRead` raw bytes in. If `readSome` ever returned an odd
+  byte count (possible on EINTR / short read / EOF boundary), this wrote one
+  byte past the end of the vector's backing storage — classic off-by-one,
+  invisible in release but UB under sanitizers.
+- Fix: mask `bytesRead` to an even count (`bytesRead & ~size_t{1}`) before
+  sizing and copying. Any stray trailing byte is dropped; the pipe will
+  return it on the next read, so sample alignment is preserved across the
+  boundary. Sub-2-byte reads are skipped via `continue` rather than breaking
+  the loop.
+- This is not a rewrite of the audio path — the sample interleave, volume
+  ramp, tap callback, and SDL queue are unchanged. Purely a boundary fix.
+
+## Capture Backend Factory Platform Guard Note (v0.76.6)
+- `platform/capture_backend.cpp` exposes three factories:
+  `createWindowCaptureBackend()`, `createCameraCaptureBackend()`, and
+  `createAppTextureCaptureBackend()`. The window factory already had a
+  `_WIN32` guard that returns `WindowsGdigrabCaptureBackend` on Windows.
+- Camera factory did not — it unconditionally returned
+  `LinuxCameraCaptureBackend`, which on Windows produced a plan with
+  `supported=false` and `backendId="v4l2"`. This contradicts the catalog,
+  which advertises Windows camera capture as `mediafoundation`
+  ("backend scaffold only").
+- Added a small `UnsupportedCameraCaptureBackend` scaffold class (guarded
+  `#if !defined(__linux__)`) that reports the correct platform backend id
+  (`mediafoundation` on Windows, `avfoundation` on macOS) and
+  `reasonUnavailable = "camera capture backend scaffold only"`. Factory is
+  now `__linux__`-guarded to pick the right implementation.
+- When a real Windows or macOS camera backend lands (Media Foundation,
+  AVFoundation), replace the scaffold with the real class; the factory guard
+  is the single switch point.
+
+## Output Fade Gain Fix Note (v0.76.4)
+- `MediaEngine::render()` applies fade-in/out via `visualFadeGainAt` to a hidden
+  per-deck SDL window (DeckRuntime::outputWindow, SDL_WINDOW_HIDDEN). This window
+  is never read by the output compositor — `MediaEngine::render()` is effectively
+  dead code for output purposes.
+- The actual output path is `renderDeckLayerIntoOutput` (app_render_output.ipp):
+  reads `currentFrame()` pixels, uploads to a bridge texture, applies alpha via
+  `SDL_SetTextureAlphaMod`. Before this fix, only `playlistOpacity` (deck-level
+  opacity) was applied — the per-cue fade ramp was completely ignored.
+- Fix: added public `currentVisualFadeGain() const` to `MediaEngine` (wraps the
+  private `visualFadeGainAt(position())`). `renderDeckLayerIntoOutput` now sets
+  `alpha = deckOpacity × fadeGain × 255`.
+- `suppressVisualFadeOutForCurrentCue_` is respected by `visualFadeGainAt` —
+  auto-advancing cues (which use crossfade for the outgoing visual) correctly
+  return 1.0 from `currentVisualFadeGain()` so the outgoing frame is not double-faded.
+
+## Browser Cue Duration Fix Note
+- `startBrowserFrameMode` was unconditionally setting `duration_ = 0.0` on every first
+  frame arrival from the browser capture pipeline.
+- `loadCue` calls `initStillTimer` (which sets `duration_` from `stillDurationSeconds`)
+  before starting browser capture, but `startBrowserFrameMode` overwrote it.
+- Fix: `startBrowserFrameMode` now reads `activeCue_->stillDurationSeconds` and restores
+  the duration if it is > 0 — otherwise leaves `duration_` at 0 (infinite still).
+- This is why fade-out and auto-advance were silently broken for all browser cues.
+
+## Area of Interest (AOI) Output Crop Note
+- Per-output fractional edge crop, stored as `aoiLeft/Right/Top/Bottom` float fields
+  on `OutputTarget` (0 = no crop, 1 = full crop from that edge; max 0.95 per edge).
+- Applied in `presentOutputCompositorToWindow` (app_render_output.ipp) when computing
+  the SDL source rect for the compositor→window blit.
+- When AOI is active, canvas view pan (`canvasViewX/Y`) is intentionally skipped —
+  the two modes are mutually exclusive to avoid confusing double-offset behavior.
+- NDI and DeckLink outputs read the compositor texture via `SDL_RenderReadPixels` using
+  a separate `captureRect` — AOI does NOT apply to those paths currently; a future
+  improvement would composite to an intermediate scaled texture first.
+- Settings panel: 4 dec/inc controls at 5% step + RESET button. Panel header highlights
+  when any AOI edge is active.
+- Serialized as fields 28–31 of the OutputTarget record (guard: `fields.size() >= 32`).
+
+## GPU Hardware Decode Note
+- `startDecoderThreads` passes `-hwaccel auto` to ffmpeg before the `-i` argument.
+- FFmpeg selects the best available hardware decoder (DXVA2/D3D11VA on Windows,
+  NVDEC/VAAPI/VDPAU on Linux/macOS) and automatically inserts a `hwdownload` +
+  `format=yuv420p` filter when the downstream filter chain needs software frames.
+- The output format remains `rawvideo rgba` — hardware decode only affects the decode
+  stage; frame transfer to CPU memory happens inside ffmpeg before pipe output.
+- No fallback code is needed: ffmpeg falls back to software silently when no hardware
+  decoder is available.
+
+## TSL/Tally Protocol Note
+- UDP listener on port 5800 (configurable). Supports TSL 3.1 (20-byte packets) and
+  TSL 5.0 (variable-length). Sends tally state on every deck active-status change.
+- `tslTallyEnabled` / `tslTallyPort` added to `Project`. Tally thread started/stopped
+  alongside other integration adapters in `applyIntegrationRoute`.
+- Each active deck maps to a TSL address (deck 0 → address 1, etc.). PGM bit set when
+  deck is active (playing/paused with active cue); PVW bit set when deck is the
+  currently focused/selected deck in standby.
+
+## SRT Input Source Note
+- `CueKind::SrtStream` is a dedicated cue kind for live stream input (srt://, rtmp://,
+  rtsp://, udp://). The cue path stores the full stream URL.
+- Added via SOURCE menu → "Stream Cue (SRT / RTMP / RTSP)" → URL prompt.
+- `startDecoderThreads` detects `cue.kind == CueKind::SrtStream` and skips ffprobe and
+  the `-ss` seek flag. FFmpeg receives the URL directly as `-i URL`.
+- The ffmpeg build shipped with Deckboy must be compiled with `--enable-libsrt`.
+- Inspector shows a URL editor row (edit path via `QuickAction::EditBrowserUrl`).
+
+## NDI Receive Input Note
+- `CueKind::NdiSource` is a dedicated cue kind for NDI receive input.
+- `cue.path` stores `ndi://SOURCE_NAME`. The engine strips the prefix and passes the
+  name to ffmpeg as `-f libndi_newtek -i SOURCE_NAME`.
+- Added via SOURCE menu → "NDI Source Cue" → source name prompt.
+- `startDecoderThreads` detects `cue.kind == CueKind::NdiSource`: sets `isNdiSource=true`,
+  `isLiveStream=true`; skips ffprobe and `-ss`.
+- Inspector shows a source name editor row (edit via `QuickAction::EditBrowserUrl`).
+- Windows DLL candidates for NDI SDK in `ndi_api.hpp` / `ndi_trigger_api.hpp`.
+
+## Audio Buffer Size Tuning Note
+- `Project::audioBufferSamples` (256/512/1024/2048, default 1024) controls the SDL
+  audio buffer size passed to `SDL_OpenAudioDevice` in `openMainAudioDevice` and the
+  UI audio device open call.
+- Smaller buffers reduce audio-to-video sync latency. Larger buffers improve stability
+  on slower/loaded systems.
+- On Windows, SDL2 uses WASAPI in shared mode. There is no mechanism to switch to
+  WASAPI exclusive mode or ASIO via SDL2. True ASIO support would require PortAudio
+  with the Steinberg ASIO SDK — deferred pending SDK licensing review.
+- Buffer size changes take effect on the next app restart (audio devices are opened
+  during init, not on-the-fly).
+
+## Startup Project Restore Note
+- Startup no longer assumes `data/default.deckboy` is synonymous with “previous
+  show.”
+- Deckboy now remembers the actual last opened/saved project path in
+  `data/last_project.txt` and uses that to seed the startup dialog/load path on
+  the next launch.
+
+## Saved Show Path Repair Note
+- The current `data/default.deckboy` file had two collapsed Windows media paths
+  (`G:...`) that prevented the previous-show flow from finding its clips.
+- Those saved cue paths were repaired directly in the project file to valid
+  `G:\\...` paths.
+- The more aggressive auto-repair-at-startup experiment was removed after it
+  proved too risky for startup stability.
+
+## Cue Inspector Text Clip Note
+- The inspector scroll viewport clip alone was not enough; text could still
+  render outside its own label/value rect when a row was only partially visible.
+- `drawTextSafe()` and `drawCenteredTextSafe()` now intersect the active
+  renderer clip with the real control bounds before drawing, which keeps
+  scrolled parameter text visually locked inside its box without clipping text
+  to an overly shrunken inner rect.
+- The shared inspector row renderer now also uses slightly taller rows, wider
+  horizontal gaps, and slightly roomier internal text spacing so the cue
+  inspector feels cleaner without squeezing labels and values into unreadable
+  widths.
+
+## Timeline Scrub Note
+- The old timeline input path only sought once on mouse-down.
+- There is now a dedicated `timelineScrubActive_` state so left-button hold +
+  drag keeps sending clamped timeline seeks on mouse motion until button-up.
+- The click path and drag path now share the same timeline-fraction helper, so
+  trim-relative timeline views and normal full-duration views seek consistently.
+
+## Cue Row Readability Note
+- Playlist / overlay cue rows use the shared `kRowHeight`, which is now a bit
+  taller to give the three-line row layout more breathing room.
+- The cue name line in `renderCueRow()` now uses the smaller sans face instead
+  of the larger base face, which gives long cue names more usable width before
+  ellipsizing.
+
+## Windows Live Icon Note
+- The Deckboy executable and the live SDL windows are not the same icon path on
+  Windows.
+- Embedding an `.ico` in the executable helps Explorer/shortcuts, but the
+  actual running control/output windows still need explicit `WM_SETICON`
+  handling if we want the taskbar/titlebar identity to stay reliable.
+- `applyDeckboyWindowIcon()` now loads `IDI_DECKBOY_APP_ICON` from the current
+  module and applies both big and small icons to the control window, monitors
+  window, and output windows.
+
+## Program Monitor Layout Note
+- The old right-side `NEXT` preview panel has been removed from the main
+  control-window monitor area.
+- `app_update.ipp` now clears/stops the corresponding preview runtime instead
+  of continuing to decode a hidden next-cue monitor surface.
+- Program-monitor telemetry badges now compute against the remaining header
+  width after reserving space for the `WARP` button and title label, so they
+  shrink/drop cleanly instead of overlapping the header controls.
+
+## Async Media Task Note
+- The main update loop now treats media-probe and waveform futures as fallible
+  background work instead of assuming `future.get()` can never throw.
+- This is important for operator robustness: a bad probe/decode should degrade
+  to a failed asset analysis state, not terminate the whole app.
+- Windows waveform analysis now mirrors the Unix code path by draining ffmpeg
+  output with `_read()`, which was previously skipped under `_WIN32`.
+
+## Seek Frame Hold Note
+- `MediaEngine::seek()` now defaults `clearVisualFrame` to `false`.
+- The main reason is operator-facing transport behavior: jumps, scrubs, and
+  quick seek actions should keep the last good frame visible until the decoder
+  publishes replacement pixels.
+- This prevents preview/output flashes to black during routine navigation while
+  still leaving `seek(..., true)` available for any path that truly wants a
+  hard visual clear.
+
+## Output Display Switch Note
+- `applyOutputDisplaySelection()` now treats fullscreen exit, geometry update,
+  and fullscreen re-entry as separate steps.
+- Manual output-display changes (`setOutputDisplayIndex`,
+  `cycleOutputDisplay`, and `sizeFocusedOutputToSelectedDisplay`) now route
+  through one fullscreen restore path instead of two.
+- Geometry updates only occur after SDL reports the output window is no longer
+  fullscreen, which avoids the worst multi-monitor thrash during display moves.
+- For enabled window outputs, display reassignment now prefers recreating that
+  one output runtime on the target display, which is more robust on Windows
+  than asking the same fullscreen window to migrate in place.
+- That recreation is now queued onto the next update tick instead of happening
+  directly inside the display-picker action, so SDL gets one deliberate teardown
+  and rebuild instead of overlapping the user's click with recovery/fullscreen
+  churn.
+- `destroyOutputRuntime()` now clears the pending display-transition flags and
+  timers so a rebuilt output starts from a clean state.
+
+## Windows Launch Note
+- The Windows target now sets `WIN32_EXECUTABLE`, so `Deckboy.exe` launches as
+  a GUI app rather than spawning a blank console window.
+- `native/main.cpp` now shares startup through `runDeckboyMain()` and adds a
+  Windows `WinMain` wrapper that reconstructs UTF-8 argv values with
+  `CommandLineToArgvW`, keeping the CLI code paths aligned with the normal app
+  launch path.
+
+## Keyboard Focus Note
+- `processEvents()` now forwards `SDL_KEYDOWN` into `handleKeyDown()` only when
+  the event came from the main control window, plus `Esc` from output windows
+  for fullscreen safety handling.
+- This avoids transport/editor shortcuts firing from secondary Deckboy windows,
+  which was especially confusing when the control window was not the active
+  place receiving text input.
+- `openInlineTextEditor()` now raises the control window before
+  `SDL_StartTextInput()` so token-entry tools such as `Ctrl+G` behave more
+  predictably on multi-window setups.
+
 ## Final Naming Notes
 - The internal CMake target remains `deckboy-native` for now, but the release-
   facing output name is now `Deckboy`.

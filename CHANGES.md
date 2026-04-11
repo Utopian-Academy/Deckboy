@@ -1,4 +1,365 @@
-# CHANGES - Incremental Updates (March 2026)
+# CHANGES - Incremental Updates (March–April 2026)
+
+## 2026-04-11 — v0.76.10 (Audio-lane loading animation)
+
+- **Audio timeline lane now shows a dedicated loading animation** while
+  the waveform peaks for a cue are still being computed. The video lane
+  has had a filmstrip-style loading widget for a while
+  (`drawTimelineLoadingAnimation` in `app_render_main.ipp` — 5 animated
+  filmstrip cells + pulsing "LOADING..." label); the audio lane only
+  had `drawWaveform`'s static "analyzing..." text, which gave no
+  feedback that anything was actually in flight. Added a companion
+  lambda `drawAudioTimelineLoadingAnimation` that reuses the same
+  widget frame, dimming overlay, and pulsing LOADING label treatment
+  (so the two read as a visual family) but substitutes an animated
+  9-bar EQ meter for the filmstrip cells: each bar's height is driven
+  by an offset-per-bar sine phase with a squared envelope so the
+  motion feels musical rather than mechanical, peak bars get a
+  brighter fill, and each bar has a 2px highlight cap. Drawn over the
+  audio lane whenever `getWaveformPeaks` returns empty with
+  `pending == true`.
+- Wired into `app_render_main.ipp` right after the `drawWaveform` call
+  in the audio lane branch: `if (peaks.empty() && _wfPending)
+  drawAudioTimelineLoadingAnimation(audioLaneRect);`. The underlying
+  `drawWaveform` still paints the lane background so the transition
+  into the animation's dimming overlay is seamless.
+
+## 2026-04-11 — v0.76.9 (Settings text cutoffs + font-metric row spacing)
+
+- **Panic fade label no longer cut off in System Settings**: the SAFETY /
+  TIMECODE card placed its "panic fade" label at `safetyRect.y + 56` and
+  the dec/val/inc button row at `safetyRect.y + 74`, hard-coding an
+  18px delta that matched `TTF_FontHeight(fontSmall_)` at the stock 15pt
+  load but not at the 17pt retina/scaled load (~21px). At scaled sizes
+  the label's descender extended into the button row at y+74 and was
+  overpainted by `drawFramedPanel`, producing the visible cutoff. The
+  row Y now derives from `textLineHeight(fontSmall_) + gap` via the new
+  `rowYBelowLabel` helper, so both font scales stay collision-free.
+- **Broader settings layout standardization**: same hand-picked
+  y-offset pattern existed in SHOW FLOW ("panic profile" → profile
+  buttons → run-panic), CUE TOOLS (find hint → status → renumber),
+  PLAYLIST PREFERENCES (edit btn → summary → toggle rows), APPEARANCE
+  (toggles → footer hint), AUDIO OUTPUT (device → buffer → hint), MIDI
+  CONTROL (4-line mapping block), REMOTE CONTROL (port label → button),
+  OSC QUERY/FEEDBACK (status → toggle rows), DISCOVERY / NOTES (3-line
+  block), INTEGRATION ADAPTERS (2-line summary), and the About tab's
+  RUNTIME info rows (which used 16px spacing — already tight at stock,
+  definitely cut off at scale). All of these now derive row Y and
+  per-line spacing from `textLineHeight(fontSmall_)` so content reflows
+  cleanly across font sizes.
+- **Empty-deck hint in the control window** ("I import / B browser /
+  P pattern") used fixed 20px line spacing that overlapped at scaled
+  fonts — now uses `textLineHeight(fontSmall_) + 4`.
+- **Edge Blending and Area of Interest sub-panels** in Video Outputs
+  had the label-then-button pattern too; rewired to `rowYBelowLabel`.
+- New helpers in `render/layout.hpp`: `textLineHeight(font)`,
+  `rowYBelowLabel(labelY, font, gap)`, `rowYBelowLines(startY, font,
+  lines, gap)`. Pure functions; no existing callsite behavior changes.
+- **`drawTextSafe` / `drawCenteredTextSafe` now center on rect
+  midline and expand the clip to fit text**: the previous
+  implementation centered text only when `textH <= safe.h`, otherwise
+  top-aligned inside a clip rect fixed to the source rect — which
+  chopped 3–5 px off the bottom of any text drawn into a rect shorter
+  than `TTF_FontHeight(font)`. The modal title "SYSTEM SETTINGS"
+  (h=20 rect + fontBase_ h≈23), the AOI "RESET" button (h=16 +
+  fontSmall_ h≈18), and a handful of thin rects in the inspector
+  thumbnail area were all silently losing descenders. Now both
+  primitives: compute `textY = rect.y + (rect.h - textH) / 2`
+  (symmetric overflow top/bottom if text is taller than the rect) and
+  build a clip rect that is the union of the source rect and the text
+  bbox, so descenders render instead of being chopped. The inspector
+  at stock font sizes is unchanged except at specific h=16 sites where
+  a previously-hidden 2-3 px of descent is now visible — which
+  matches what was already drawn at h=22+ sites and looks more
+  consistent, not less.
+
+## 2026-04-11 — v0.76.8 (Audio-first mp4 misdetection + duplicate-cue block)
+
+- **Video clips probed as "audio only" fixed**: certain mp4 files (notably
+  ones with the audio stream emitted before the video stream in ffprobe
+  output) were being imported as audio-only cues. The `probeCue` parser
+  buffers `codec_name` / `codec_type` pairs to tolerate either ordering
+  within a single stream, but it did not reset the stale partner when a
+  NEW stream started. Trace: `codec_name=aac` → applied to audio;
+  `codec_name=h264` arrives next but `lastCodecType` is still `"audio"`,
+  so the buffered "h264" is discarded as a duplicate audio codec; when
+  `codec_type=video` follows, `pendingApplied` is already true so the
+  buffered codec_name never lands. Result: `cue.videoCodec` empty →
+  end-of-function audio-only detection kicks in → cue flipped to Audio.
+  Fix: on `codec_type` arrival, if the previous stream was already
+  paired, clear `pendingCodecName`; on `codec_name` arrival, clear
+  `lastCodecType` symmetrically. Both within-stream orderings still work;
+  new-stream boundaries are now correctly detected.
+- **Can add the same video/image to a deck twice**: `importPaths` was
+  silently skipping any path already present in the deck cue list. This
+  blocked a basic operator workflow (the same clip as two cues with
+  different in/out points, or a playlist that returns to the same asset).
+  Removed the path-dedup filter entirely. If operators need to avoid
+  accidental duplicates, the toast feedback and cue list make it
+  obvious; the library-level dedup belongs in the media library, not the
+  cue list.
+
+## 2026-04-11 — v0.76.7 (Video cue fade in/out fix for playlists)
+
+- **Video cues in playlists now honor `fadeInSeconds` / `fadeOutSeconds`**:
+  reported as a visible regression — playlists with a mix of browser and
+  video cues showed the browser cue fading correctly while the video cue
+  popped in and out with no fade ramp. Root cause was a stale cue-kind gate
+  in `MediaEngine::loadCue` (v0.76.3 era) that suppressed per-cue fade
+  ramps for auto-advancing video/source cues to avoid "double-fading" the
+  crossfade inside `MediaEngine::render()`. But per the v0.76.4 DEVNOTE,
+  `MediaEngine::render()` writes to a hidden per-deck `SDL_WINDOW_HIDDEN`
+  that the output compositor never reads — so the crossfade it was guarding
+  against isn't visible on output anyway. The suppression was silently
+  killing the only fade ramp that IS visible on output. Fix: honor the
+  caller's `suppressFadeIn` hint as-is (no cue-kind override); drop the
+  auto-advance-based fade-out suppression; `handlePlaybackEnd` still
+  re-asserts suppression inside the loop branch (correct — you don't want
+  a fade ramp every loop cycle). Also updated the auto-advance caller in
+  `app_update.ipp` to stop passing `suppressIncomingFadeIn=true` for
+  playlist advance — the per-cue fade-in is the visible transition.
+- **Audio fade ramps also apply now for auto-advancing video cues**: same
+  suppression gated `fadeGainAt()` in the audio thread. As a side effect
+  of the visual fix, audio cues with a fade-out now actually ramp to
+  silence at end-of-cue before the decoder shuts down, instead of hard
+  stopping.
+
+## 2026-04-10 — v0.76.6 (Audio thread overflow fix, camera factory guard, cleanup)
+
+- **Audio thread 1-byte buffer overflow fix**: the audio decoder thread in
+  `MediaEngine::startDecoderThreads` sized its `scaled` int16 vector at
+  `bytesRead / sizeof(int16_t)` but then `memcpy`'d `bytesRead` raw bytes into
+  it. A short/odd-byte read from the FFmpeg pipe (possible on EOF boundary or
+  EINTR) would write one byte past the end of the vector's storage. Fix:
+  align `bytesRead` down to the nearest even byte count before sizing and
+  copying; drop the stray trailing byte (the pipe will return it on the next
+  read). Silent bug — no reports, but undefined behaviour under ASAN.
+- **Camera capture factory now guarded per platform**:
+  `createCameraCaptureBackend()` unconditionally returned the Linux v4l2
+  backend on all platforms. On Windows and macOS it now returns a scaffold
+  stub that reports `supported=false` with the correct backend id
+  (`mediafoundation` / `avfoundation`), matching what the capture backend
+  catalog advertises.
+- **Linux ChildProcess::stop cleanup**: removed dead second `close(readFd)`
+  block after the `pid > 0` guard; the first close already sets `readFd` to
+  `-1`. Moves the read-end close above the pid check so the invariant
+  (close-fd-before-kill to unblock readers) holds even if the process was
+  already reaped.
+- **AUDIT_ROADMAP.md**: moved "Windows subprocess implementation" from
+  "Future / Roadmap" into the completed list — the `CreateProcessW` + pipe
+  wiring has been in place for several releases.
+- **Smoke test expectation refreshed**: the `capture backend plan` assertion
+  expected `!plan.supported` on Windows, dating back to before v0.76.1 when
+  `gdigrab` window capture landed. Updated to assert
+  `supported && backendId == "gdigrab"` on `_WIN32`; Linux branch unchanged.
+
+## 2026-04-07 — v0.76.5 (Rapid-take crash fix + TAKE no longer freezes UI)
+
+- **Fixed crash on rapid TAKE of video clips**: `stopDecoderThreads` was calling `ChildProcess::stop()` (which closes the pipe read-end) before joining the decoder threads. This races `_close(fd)` against `_read(fd)` in the background thread — undefined behaviour on Windows. Fix: use `killProcessOnly()` first (kills the process, closing the write-end so `_read` returns EOF cleanly), join, then `stop()` to release the handle. Same fix applied to `stopImageThread` and thumbnail/timeline-strip threads.
+- **TAKE no longer freezes the UI for 200–500 ms**: `startDecoderThreads` was running `ffprobe` synchronously on the main thread on every TAKE. Since `probeCue` at ingest time already stores rotation-corrected dimensions in `cue.width`/`cue.height`, the per-take re-probe is now skipped when dimensions are already known.
+
+## 2026-04-06 — v0.76.4 (Fade in/out fix for output path)
+
+- **Fade in/out now works on output**: Cue fade-in and fade-out were silently broken
+  on all output paths — the fade gain computed by `visualFadeGainAt` was only applied
+  inside `MediaEngine::render()` which renders to a hidden per-deck SDL window that
+  is never read by the output compositor; `renderDeckLayerIntoOutput` was applying
+  only deck opacity via alpha mod, completely bypassing per-cue fade ramps. Fixed by
+  adding a public `currentVisualFadeGain()` method to `MediaEngine` and multiplying
+  the fade gain into the bridge texture alpha in `renderDeckLayerIntoOutput` —
+  `alpha = deckOpacity × fadeGain × 255`. Affects all cue types including browser,
+  video, image, pattern, and source capture.
+
+## 2026-04-04 — v0.76.3 (GPU decode, TSL/tally, SRT/NDI input, audio buffer tuning)
+
+- **GPU hardware decode**: `startDecoderThreads` now passes `-hwaccel auto` to ffmpeg for video
+  decode; GPU acceleration (DXVA2/D3D11VA on Windows, NVDEC/VAAPI on Linux) is used when
+  available and falls back to software automatically — no user configuration required
+- **TSL/Tally protocol**: UDP tally sender on port 5800 (TSL 3.1); sends program/preview tally
+  state to connected tally hardware when deck active status changes; enabled via
+  Settings → Network → Tally / TSL; configurable port and target address; works on all platforms
+- **SRT input**: Video cues now accept `srt://host:port` URLs as the media path; FFmpeg handles
+  the SRT stream natively (requires ffmpeg with `--enable-libsrt`); works in the existing Video
+  cue type — paste the SRT URL as the cue source path; probe and seek are skipped for live URLs
+- **Live stream support** (RTMP/RTSP/UDP): Same live-stream detection applies to `rtmp://`,
+  `rtsp://`, and `udp://` URLs — no probe delay, no seek injected
+- **NDI input via ffmpeg**: Video cues accept `ndi://NDI_Source_Name` as the media path;
+  decoded by ffmpeg's `libndi_newtek` input device (requires NDI-enabled ffmpeg build); NDI SDK
+  dynamic library candidates now include Windows `Processing.NDI.Lib.x64.dll` paths
+- **Audio buffer size tuning**: SDL audio buffer size now reads from `Project::audioBufferSamples`
+  (256/512/1024/2048, default 1024 samples); smaller values reduce latency, higher values
+  improve stability; note: true ASIO support requires PortAudio + Steinberg SDK (future item)
+
+## 2026-04-04 — v0.76.2 (Browser cue duration fix, Area of Interest output crop)
+
+- **Browser cue duration fix**: `startBrowserFrameMode` was resetting `duration_` to 0 on
+  every first frame, destroying the `stillDurationSeconds` set by `initStillTimer` — this
+  broke fade-out and auto-advance for browser cues in playlists; fixed by preserving
+  `activeCue_->stillDurationSeconds` in `startBrowserFrameMode`
+- **Area of Interest (AOI) output crop**: Per-output fractional edge crop (left/right/top/bottom,
+  0–1 range, 5% step); applied at the compositor→window blit stage; controlled via
+  Settings → Output → Area of Interest panel; reset button clears all edges; persisted in
+  project file
+
+## 2026-04-01 — v0.76.1 (Browser cue on Windows, SOURCE menu, text centering, filmstrip)
+
+- **Browser cue now works natively on Windows** without a separate Chromium
+  download: Deckboy detects the system Edge installation (or Chrome), launches
+  it in `--app=` mode at the requested size, then uses ffmpeg's `gdigrab`
+  desktop-region capture to pipe frames into the deck engine — same pipeline
+  as the Linux Xvfb approach but using Edge and GDI instead
+- **BROWSER removed as a standalone button** — adding one more button threw off
+  the three-group balance; "Browser / URL Cue" is now an option inside the
+  SOURCE dropdown menu (same place as Window/Camera/Syphon sources)
+- **Text centering fixed for button labels** — `drawCenteredText` and
+  `drawCenteredTextSafe` now snap the full button rect (matching `drawUIPanel`)
+  before computing the vertical center, so labels no longer sit off-center when
+  `snapRectToGrid` shifts the painted background
+- **"Select or import a cue" text no longer clips the descender** — the
+  inspector empty-state rect height changed to 24 px (a multiple of 8), which
+  guarantees the snapped height always matches and the bottom of descenders
+  (`p`, `g`, `y`) are never cut off
+- **Timeline filmstrip grid lines contained** — SDL clip rects applied per-draw
+  so the vertical dividers stay inside the green filmstrip bounds
+
+## 2026-03-31 — v0.76.0 (Audio waveform, VU meter, text overflow, version flow)
+
+- **Waveform dead-cache fix:** empty waveform analysis results are no longer
+  cached, so clips that failed to decode on a previous run will retry on the
+  next trigger instead of staying blank permanently
+- **VU meter no longer sticks:** `vuSamples_` is cleared each update when the
+  focused deck's engine is not in the `Playing` state, so the meter returns to
+  zero when playback stops
+- **Text overflow fixed globally:** `drawTextSafe` and `drawCenteredTextSafe`
+  now clip to `snapRectToGrid(rect)` to match the snapped border drawn by
+  `drawUIPanel` — fixes LIVE/STREAM/DECODE/WARP badge text and dB scale labels
+  bleeding over separator lines
+- **Build-time version generation:** `VERSION` changes now take effect on the
+  next `cmake --build` without requiring a cmake reconfigure — a custom command
+  re-runs `generate_version.cmake` whenever `VERSION` or `version.hpp.in` changes
+- **Project root detection hardened:** walk-up algorithm skips known build
+  subdirectory names (release, windows, build, native, etc.) before checking
+  for a `data/` directory, with case-insensitive comparison, preventing the app
+  from anchoring to `build/windows/Release/data/` instead of the real root
+
+## 2026-03-29 (Startup project restore and Windows cue-path recovery)
+
+- **“Open Previous Show” now points at the actual last-used project file:**
+  - Deckboy now remembers the last opened/saved `.deckboy` path in
+    `data/last_project.txt` and uses that on startup instead of always
+    pretending `data/default.deckboy` is the previous show
+- **The current saved default show was also repaired manually:**
+  - the broken `G:...` cue paths in `data/default.deckboy` were corrected back
+    to real `G:\\...` filesystem paths so the existing previous-show file can
+    load those clips again
+
+## 2026-03-29 (Cue inspector text clipping)
+
+- **Inspector parameter text now stays clipped to its own control box while scrolling:**
+  - the cue inspector was already clipping to the overall scroll viewport, but
+    not to each label/value rect
+  - Deckboy now clips text against the real control bounds while still honoring
+    the active viewport clip, so partially scrolled rows no longer let text
+    drift outside their own boxes
+- **Cue inspector spacing and text padding are also cleaner overall:**
+  - inspector rows are slightly taller with more gap between rows/sections
+  - label/value/edit controls now reserve a bit more breathing room without the
+    over-tight clipping and padding that was cutting text off
+
+## 2026-03-29 (Timeline scrub + cue list readability)
+
+- **The timeline now really supports held-drag scrubbing:**
+  - clicking the progress bar still seeks immediately
+  - keeping the left mouse button held and dragging now continuously updates the
+    seek target until mouse-up, so the tooltip matches the actual behavior
+- **Cue rows and inspector controls got more vertical headroom:**
+  - inspector boxes are taller, with larger row steps and section headers
+  - cue list rows are taller too, and the cue name now uses the smaller face so
+    long names fit more comfortably instead of feeling abruptly chopped
+
+## 2026-03-29 (Windows live icon normalization)
+
+- **The running Windows app now explicitly applies the Deckboy icon to its SDL windows:**
+  - `Deckboy.exe` was already the current executable, but the live control,
+    monitor, and output windows were still relying on whatever icon Windows or
+    SDL happened to infer
+  - Deckboy now sets the big and small window icons directly from the embedded
+    `IDI_DECKBOY_APP_ICON` resource, so the taskbar/titlebar path stays aligned
+    with the executable branding even if Explorer caching or old build artifacts
+    are messy
+
+## 2026-03-29 (Program monitor cleanup)
+
+- **The stray `NEXT` preview pane is gone from the main UI:**
+  - the program monitor now owns the full monitor area instead of revealing a
+    second right-side preview strip when the layout widens
+  - Deckboy also stops decoding/updating that hidden next-preview surface in
+    the background, so the UI and runtime behavior stay aligned
+- **Program header telemetry now respects tight layouts:**
+  - the output/decode/stream badges shrink and, if necessary, reduce count
+    before they can collide with the `WARP` control
+  - this keeps header chrome from overlapping when the program monitor narrows
+
+## 2026-03-29 (Async media task crash hardening)
+
+- **Background media analysis failures no longer get to take Deckboy down with them:**
+  - async media-probe futures are now caught before their results are applied,
+    so a failed probe resolves to a toast instead of a whole-app fast-fail
+  - waveform-analysis futures are also caught on completion, which avoids a
+    bad background decode bubbling up as an unhandled exception in the main
+    update loop
+  - Windows waveform analysis now actually drains ffmpeg PCM output instead of
+    skipping the read loop entirely
+
+## 2026-03-29 (Seek frame hold stability)
+
+- **User-facing jumps now keep the last visible frame alive until the new one is ready:**
+  - ordinary `seek()` calls now preserve the current visual frame by default
+    instead of clearing preview/output to black before the decoder lands on the
+    requested target
+  - this removes the brief blank flash during commands such as clip transport
+    jumps, progress-bar seeks, and `goto -20s/-30s`
+  - explicit hard clears are still available through `seek(..., true)` for any
+    future path that truly wants a blank visual reset
+
+## 2026-03-29 (Output display switch stability)
+
+- **Focused output display changes are now calmer on multi-monitor setups:**
+  - manual display switching now uses a single fullscreen re-entry path instead
+    of stacking an internal fullscreen restore with an immediate second restore
+  - output windows are no longer resized/repositioned while SDL still reports
+    them as fullscreen, which was particularly erratic on Windows
+  - native/fixed sizing refreshes still restore fullscreen after an intentional
+    transition, but the display picker path is less likely to thrash
+  - enabled window outputs now rebuild their window runtime on the newly chosen
+    display instead of relying only on in-place fullscreen migration
+  - focused display assignment now queues that runtime rebuild onto the next
+    update tick, which keeps SDL recovery/fullscreen logic from fighting the
+    same monitor move in the user's input handler
+  - output-runtime teardown now clears any pending display-transition flags so a
+    freshly rebuilt output does not inherit stale recovery state
+
+## 2026-03-29 (Windows app launch polish)
+
+- **Windows launches now behave like a normal GUI app:**
+  - `Deckboy.exe` is built as a Win32 GUI executable instead of a console
+    subsystem app, so launching it should no longer pop open a blank terminal
+    window beside the main UI
+  - the existing startup path is now shared behind a Windows `WinMain` wrapper,
+    so command-line entry points like `--version`, `--self-check`, and `--smoke`
+    still route through the same app logic
+
+## 2026-03-29 (Keyboard focus hygiene)
+
+- **Deckboy now keeps transport hotkeys scoped to the main control window:**
+  - general keyboard shortcuts no longer fire just because an output/secondary
+    Deckboy window received a key event
+  - output windows still pass through `Esc` so fullscreen escape/emergency
+    disarm remains available from the big screen
+  - opening inline editors now raises the control window before starting text
+    input, which helps commands like `Ctrl+G` actually capture the typed cue
+    token instead of opening on one Deckboy window and swallowing text on
+    another
 
 ## 2026-03-28 (Deckboy final output naming)
 

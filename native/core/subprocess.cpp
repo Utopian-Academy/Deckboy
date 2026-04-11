@@ -53,13 +53,13 @@ void ChildProcess::stop() {
     hProcess = INVALID_HANDLE_VALUE;
   }
 #else
+  // Close read end first so any blocked read() unblocks
+  if (readFd >= 0) {
+    close(readFd);
+    readFd = -1;
+  }
   if (pid > 0) {
     pid_t target = pid;
-    // Close read end first so any blocked read() unblocks
-    if (readFd >= 0) {
-      close(readFd);
-      readFd = -1;
-    }
     // SIGKILL always succeeds; avoids hangs on full pipes
     if (processGroup) {
       kill(-target, SIGKILL);
@@ -70,10 +70,6 @@ void ChildProcess::stop() {
     waitpid(target, &status, 0);
     pid = -1;
     processGroup = false;
-  }
-  if (readFd >= 0) {
-    close(readFd);
-    readFd = -1;
   }
 #endif
 }

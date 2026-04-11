@@ -3,6 +3,8 @@
   void triggerButton(const std::string& label) {
     if (label == "IMPORT") {
       importWithPicker();
+    } else if (label == "BROWSER") {
+      addBrowserCueFromPrompt();
     } else if (label == "SOURCE") {
       openSourceTypeMenu();
     } else if (label == "PATTERN") {
@@ -68,6 +70,10 @@
       return;
     }
     if (activeCue->kind == CueKind::Browser) {
+      // Don't restart if already loading/running — let initialization finish.
+      if (runtime->browserRenderer && runtime->browserRenderer->isRunning()) {
+        return;
+      }
       if (startBrowserCue(project_.focusedDeckIndex, *activeCue)) {
         playUiSound(UiSoundEffect::Toggle);
       }
@@ -129,7 +135,8 @@
     if (activeCue->kind == CueKind::Browser) {
       if (runtime->browserCueLive) {
         pauseTransport();
-      } else {
+      } else if (!runtime->browserRenderer || !runtime->browserRenderer->isRunning()) {
+        // Only (re)start if not already loading — don't interrupt initialization.
         playTransport();
       }
       return;
@@ -162,6 +169,7 @@
     masterDimmerTarget_ = 1.0;
     project_.masterDimmer = 1.0;
     pendingClearAfterFade_ = false;
+    notifyTallyStateChange();
     markProjectDirty();
   }
 
@@ -243,7 +251,14 @@
     }
 
     deck.activeIndex = deck.selectedIndex;
-    stopBrowserCue();
+    // If refreshOnTake is set and a browser renderer is already running for this
+    // cue, reload the page instead of tearing down and restarting.
+    DeckRuntime* browserRuntime = runtimeForDeck(deckIndex);
+    bool browserRefreshInstead = (cue.kind == CueKind::Browser)
+      && cue.refreshOnTake
+      && browserRuntime && browserRuntime->browserRenderer
+      && browserRuntime->browserRenderer->isRunning();
+    if (!browserRefreshInstead) stopBrowserCue();
     bool effectiveAutoplay = autoplay && !cue.pauseAtBeginning;
     if (deck.playlistAutoFade && autoplay) {
       deck.playlistOpacity = 0.0f;
@@ -273,8 +288,13 @@
       }
     }
     if (cue.kind == CueKind::Browser) {
-      startBrowserCue(project_.focusedDeckIndex, cue);
-      triggerToast("browser jumped live");
+      if (browserRefreshInstead) {
+        browserRuntime->browserRenderer->reload();
+        triggerToast("browser refreshed");
+      } else {
+        startBrowserCue(project_.focusedDeckIndex, cue);
+        triggerToast("browser jumped live");
+      }
     } else if (cue.kind == CueKind::Composite) {
       triggerToast(effectiveAutoplay ? "scene live" : "scene loaded");
     } else if (isSourceCueKind(cue.kind)) {
@@ -291,6 +311,7 @@
     }
     activateAttachedOverlaysForCue(deck, deckIndex, cue);
     playUiSound(UiSoundEffect::Take);
+    notifyTallyStateChange();
     markProjectDirty();
   }
 

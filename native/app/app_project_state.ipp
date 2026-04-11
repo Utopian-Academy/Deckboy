@@ -9,6 +9,42 @@
     return Paths::defaultProjectFile();
   }
 
+  fs::path lastOpenedProjectPointerFile() const {
+    return Paths::dataDir() / "last_project.txt";
+  }
+
+  fs::path startupProjectFile() const {
+    const char* envPath = std::getenv("DECKBOY_PROJECT");
+    if (envPath && *envPath) {
+      return defaultProjectFile();
+    }
+
+    std::ifstream input(lastOpenedProjectPointerFile(), std::ios::binary);
+    if (input) {
+      std::string storedPath;
+      std::getline(input, storedPath);
+      fs::path remembered = normalizeProjectPath(trim(storedPath));
+      if (!remembered.empty() && fs::exists(remembered)) {
+        return remembered;
+      }
+    }
+    return Paths::defaultProjectFile();
+  }
+
+  void rememberLastOpenedProjectFile(const fs::path& projectFile) const {
+    if (projectFile.empty()) {
+      return;
+    }
+    fs::path normalized = normalizeProjectPath(projectFile);
+    std::error_code ec;
+    fs::create_directories(lastOpenedProjectPointerFile().parent_path(), ec);
+    std::ofstream output(lastOpenedProjectPointerFile(), std::ios::binary | std::ios::trunc);
+    if (!output) {
+      return;
+    }
+    output << normalized.string();
+  }
+
   fs::path normalizeProjectPath(fs::path path) const {
     return Paths::normalizeProjectPath(path);
   }
@@ -1006,6 +1042,7 @@
     }
     bool ok = saveProject(currentProjectFile_, project_);
     if (ok) {
+      rememberLastOpenedProjectFile(currentProjectFile_);
       projectDirty_ = false;
       if (withToast) {
         triggerToast("saved " + currentProjectLabel());
@@ -1197,6 +1234,7 @@
   void persistProject() {
     normalizeProject(project_);
     saveProject(currentProjectFile_, project_);
+    rememberLastOpenedProjectFile(currentProjectFile_);
     projectDirty_ = false;
   }
 
@@ -1345,8 +1383,9 @@
     }
     if (!splitChannels && !peaks.left.empty() && !peaks.right.empty()) {
       size_t compareCount = std::min(peaks.left.size(), peaks.right.size());
-      for (size_t i = 0; i < compareCount; i += std::max<size_t>(1, compareCount / 24)) {
-        if (std::fabs(peaks.left[i] - peaks.right[i]) > 0.015f) {
+      size_t step = std::max<size_t>(1, compareCount / 256);
+      for (size_t i = 0; i < compareCount; i += step) {
+        if (std::fabs(peaks.left[i] - peaks.right[i]) > 0.01f) {
           splitChannels = true;
           break;
         }
@@ -1363,9 +1402,15 @@
       if (channel.empty()) {
         return 0.0f;
       }
-      int peakIndex = std::min(pixelIndex * static_cast<int>(channel.size()) / std::max(1, w),
-                               static_cast<int>(channel.size()) - 1);
-      return channel[static_cast<size_t>(peakIndex)];
+      int n = static_cast<int>(channel.size());
+      // Map pixel to a range of buckets and take the max to preserve transients
+      int i0 = pixelIndex * n / std::max(1, w);
+      int i1 = (pixelIndex + 1) * n / std::max(1, w);
+      i0 = std::clamp(i0, 0, n - 1);
+      i1 = std::clamp(i1, i0, n - 1);
+      float maxVal = 0.0f;
+      for (int k = i0; k <= i1; ++k) maxVal = std::max(maxVal, channel[k]);
+      return maxVal;
     };
 
     auto drawColumn = [&](int px, int topY, int baseY, float peak, bool upward, bool inRange) {
@@ -1849,8 +1894,9 @@
   void clearSelectedThumbnail() {
     selectedThumbnailCueKey_.clear();
     if (thumbnailThread_.joinable()) {
-      thumbnailProcess_.stop();
+      thumbnailProcess_.killProcessOnly();
       thumbnailThread_.join();
+      thumbnailProcess_.stop();
     }
     {
       std::lock_guard<std::mutex> lk(thumbnailMutex_);
@@ -1999,8 +2045,9 @@
       return;  // already loaded or loading
     }
     if (thumbnailThread_.joinable()) {
-      thumbnailProcess_.stop();
+      thumbnailProcess_.killProcessOnly();
       thumbnailThread_.join();
+      thumbnailProcess_.stop();
     }
     {
       std::lock_guard<std::mutex> lk(thumbnailMutex_);
