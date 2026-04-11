@@ -63,7 +63,7 @@ class MediaEngine {
   void toggle();
   void stop();
   void clear();
-  void seek(double seconds, bool clearVisualFrame = true);
+  void seek(double seconds, bool clearVisualFrame = false);
   void setVolume(float value);
   void setPausePoints(std::vector<double> points);
   void update();
@@ -74,6 +74,8 @@ class MediaEngine {
                            double fadeInSeconds, double fadeOutSeconds,
                            double transSecs, TransitionStyle transStyle);
   void stopBrowserCapture();
+  bool startBrowserFrameMode(int w, int h, double transSecs, TransitionStyle transStyle);
+  void pushBrowserFrame(const uint8_t* rgba, int w, int h);
   bool startSourceCapture(const Cue& cue);
   void finalizeReachedEnd(bool keepVisibleFrame);
 
@@ -98,6 +100,8 @@ class MediaEngine {
   static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
                                                        int fallbackWidth = kOutputWidth,
                                                        int fallbackHeight = kOutputHeight);
+
+ double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
 
  private:
   double visualFadeGainAt(double positionSeconds) const;
@@ -198,6 +202,7 @@ class MediaEngine {
   bool isBrowserCapturing_ = false;
   int browserCaptureW_ = 1280;
   int browserCaptureH_ = 720;
+  std::uint64_t browserFrameIdx_ = 0;
   bool isSourceCapturing_ = false;
   bool clearVisualOnReachedEnd_ = false;
   bool suppressFadeInForCurrentCue_ = false;

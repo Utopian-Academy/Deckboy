@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <cctype>
+#include <stdexcept>
+#include <vector>
 
 namespace deckboy::platform {
 namespace {
@@ -174,6 +176,34 @@ class LinuxCameraCaptureBackend final : public SourceCaptureBackend {
   }
 };
 
+#if !defined(__linux__)
+class UnsupportedCameraCaptureBackend final : public SourceCaptureBackend {
+ public:
+  SourceCaptureKind kind() const override {
+    return SourceCaptureKind::Camera;
+  }
+
+  std::string id() const override {
+#if defined(_WIN32)
+    return "mediafoundation";
+#elif defined(__APPLE__)
+    return "avfoundation";
+#else
+    return "unknown";
+#endif
+  }
+
+  SourceCapturePlan plan(const SourceCaptureRequest& request) const override {
+    (void) request;
+    SourceCapturePlan plan;
+    plan.supported = false;
+    plan.backendId = id();
+    plan.reasonUnavailable = "camera capture backend scaffold only";
+    return plan;
+  }
+};
+#endif
+
 class LinuxAppTextureCaptureBackend final : public SourceCaptureBackend {
  public:
   SourceCaptureKind kind() const override {
@@ -214,6 +244,69 @@ class LinuxAppTextureCaptureBackend final : public SourceCaptureBackend {
   }
 };
 
+#ifdef _WIN32
+class WindowsGdigrabCaptureBackend final : public SourceCaptureBackend {
+ public:
+  SourceCaptureKind kind() const override {
+    return SourceCaptureKind::Window;
+  }
+
+  std::string id() const override {
+    return "gdigrab";
+  }
+
+  SourceCapturePlan plan(const SourceCaptureRequest& request) const override {
+    int w = std::max(1, request.width);
+    int h = std::max(1, request.height);
+    int fps = std::clamp(request.frameRate, 1, 120);
+
+    // sourceRef format: "region:X,Y,W,H" — capture a screen region
+    int offsetX = 0, offsetY = 0;
+    std::string src = trim(request.sourceRef);
+    if (src.rfind("region:", 0) == 0) {
+      std::string coords = src.substr(7);
+      std::vector<int> vals;
+      size_t start = 0;
+      while (start <= coords.size()) {
+        size_t end = coords.find(',', start);
+        if (end == std::string::npos) end = coords.size();
+        if (end > start) {
+          try { vals.push_back(std::stoi(coords.substr(start, end - start))); }
+          catch (...) {}
+        }
+        if (end == coords.size()) break;
+        start = end + 1;
+      }
+      if (vals.size() >= 1) offsetX = vals[0];
+      if (vals.size() >= 2) offsetY = vals[1];
+      if (vals.size() >= 3) w = std::max(1, vals[2]);
+      if (vals.size() >= 4) h = std::max(1, vals[3]);
+    }
+
+    SourceCapturePlan plan;
+    plan.supported = true;
+    plan.backendId = id();
+    plan.ffmpegArgs = {
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel", "error",
+      "-f", "gdigrab",
+      "-framerate", std::to_string(fps),
+      "-draw_mouse", request.drawMouse ? "1" : "0",
+      "-offset_x", std::to_string(offsetX),
+      "-offset_y", std::to_string(offsetY),
+      "-video_size", std::to_string(w) + "x" + std::to_string(h),
+      "-i", "desktop",
+      "-vf", "scale=" + std::to_string(request.width) + ":" + std::to_string(request.height) + ":flags=neighbor",
+      "-f", "rawvideo",
+      "-pix_fmt", "rgba",
+      "pipe:1"
+    };
+    return plan;
+  }
+};
+#endif
+
 class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
  public:
   std::vector<CaptureBackendInfo> list() const override {
@@ -232,7 +325,7 @@ class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
 #endif
 
 #if defined(_WIN32)
-    out.push_back({CaptureBackendKind::Window, "dxgi", "Window Capture (DXGI)", false, "backend scaffold only"});
+    out.push_back({CaptureBackendKind::Window, "gdigrab", "Window/Region Capture (GDI grab)", true, ""});
     out.push_back({CaptureBackendKind::Camera, "mediafoundation", "Camera Capture (Media Foundation)", false, "backend scaffold only"});
     out.push_back({CaptureBackendKind::AppTexture, "spout", "Spout App Texture", false, "backend scaffold only"});
 #endif
@@ -252,11 +345,19 @@ std::unique_ptr<CaptureBackendCatalog> createCaptureBackendCatalog() {
 }
 
 std::unique_ptr<SourceCaptureBackend> createWindowCaptureBackend() {
+#ifdef _WIN32
+  return std::make_unique<WindowsGdigrabCaptureBackend>();
+#else
   return std::make_unique<LinuxWindowCaptureBackend>();
+#endif
 }
 
 std::unique_ptr<SourceCaptureBackend> createCameraCaptureBackend() {
+#if defined(__linux__)
   return std::make_unique<LinuxCameraCaptureBackend>();
+#else
+  return std::make_unique<UnsupportedCameraCaptureBackend>();
+#endif
 }
 
 std::unique_ptr<SourceCaptureBackend> createAppTextureCaptureBackend() {

@@ -86,14 +86,50 @@
       }
       case QuickAction::EditBrowserUrl: {
         Cue* sel = selectedCueMutable();
+        if (!sel) {
+          break;
+        }
+        if (sel->kind == CueKind::SrtStream) {
+          openInlineTextEditor("cue.stream_url", "Stream URL",
+                               "Stream URL (srt://, rtmp://, rtsp://...):", sel->path,
+                               [this](const std::string& value) {
+                                 std::string url = trim(value);
+                                 if (url.empty()) { triggerToast("stream url: required"); return; }
+                                 forEachFocusedSelectedCueMutable([&](Cue& c, int) {
+                                   if (c.kind == CueKind::SrtStream) c.path = url;
+                                 });
+                                 markProjectDirty();
+                               });
+        } else if (sel->kind == CueKind::NdiSource) {
+          std::string current = sel->path.rfind("ndi://", 0) == 0 ? sel->path.substr(6) : sel->path;
+          openInlineTextEditor("cue.ndi_source", "NDI Source Name",
+                               "NDI source name (e.g. LAPTOP (source 1)):", current,
+                               [this](const std::string& value) {
+                                 std::string name = trim(value);
+                                 forEachFocusedSelectedCueMutable([&](Cue& c, int) {
+                                   if (c.kind == CueKind::NdiSource) {
+                                     c.path = "ndi://" + name;
+                                     if (c.name == "NDI Source" || c.name.empty()) c.name = name.empty() ? "NDI Source" : name;
+                                   }
+                                 });
+                                 markProjectDirty();
+                               });
+        } else if (sel->kind == CueKind::Browser) {
+          openInlineTextEditor("cue.browser_url", "Browser URL",
+                               "Enter URL or local file path:", sel->path,
+                               [this](const std::string& value) {
+                                 setSelectedBrowserCueUrl(value);
+                               });
+        }
+        break;
+      }
+      case QuickAction::ToggleRefreshOnTake: {
+        Cue* sel = selectedCueMutable();
         if (!sel || sel->kind != CueKind::Browser) {
           break;
         }
-        openInlineTextEditor("cue.browser_url", "Browser URL",
-                             "Enter URL or local file path:", sel->path,
-                             [this](const std::string& value) {
-                               setSelectedBrowserCueUrl(value);
-                             });
+        sel->refreshOnTake = !sel->refreshOnTake;
+        markProjectDirty();
         break;
       }
       case QuickAction::GotoMinus10:

@@ -22,6 +22,8 @@ enum class CueKind {
   WindowSource,
   Camera,
   Syphon,
+  SrtStream,   // live stream input (srt://, rtmp://, rtsp://, udp://)
+  NdiSource,   // NDI receive input (ndi://SOURCE_NAME)
   Pip,
   LowerThird,
   Composite,
@@ -141,6 +143,7 @@ struct Cue {
   bool transitionToNext = true;
   bool chromaKeyEnabled = false;
   bool subtitleEnabled = true;
+  bool refreshOnTake = false;   // reload page each time the browser cue is taken
 };
 
 struct Deck {
@@ -163,7 +166,7 @@ struct Deck {
   bool playlistDefaultFadeOutEnabled = true;
   bool playlistDefaultAudioEnabled = true;
   bool playlistDefaultPauseAtBeginning = false;
-  bool playlistDefaultPauseAtEnd = false;
+  bool playlistDefaultPauseAtEnd = true;
   bool playlistDefaultTransitionToNext = true;
   std::vector<int> selectedIndices;  // optional multi-selection in cue list
   std::string audioOutputDeviceName;
@@ -232,6 +235,11 @@ struct OutputTarget {
   int deckLinkDeviceId = -1;             // -1 = not assigned
   std::string deckLinkMode = "1080p60";
   bool deckLink10Bit = true;
+  // Area of Interest: crop fraction from each edge (0-1). 0 = no crop (full output).
+  float aoiLeft = 0.0f;
+  float aoiRight = 0.0f;
+  float aoiTop = 0.0f;
+  float aoiBottom = 0.0f;
 };
 
 
@@ -255,6 +263,10 @@ struct Project {
   bool ltcIngestEnabled = false;
   bool dmxArtNetEnabled = false;
   int artNetPort = 6454;
+  bool tslTallyEnabled = false;
+  int tslTallyPort = 5800;
+  std::string tslTallyAddress = "255.255.255.255"; // broadcast or unicast target
+  int audioBufferSamples = 1024;  // SDL audio buffer size: 256/512/1024/2048
   std::string jumpMode = "trigger"; // trigger | load
   bool jumpTransitionEnabled = true;
   std::string panicProfile = "outputs_off"; // outputs_off | fade_pause | fade_rewind | fade_load_next
@@ -363,7 +375,8 @@ enum class QuickAction {
   TransportPlayPause,   // play/pause toggle
   TransportSkipForward, // >> — skip forward 10s
   TransportSkipEnd,     // >| — seek to end
-  TrimReset             // clear in/out points
+  TrimReset,            // clear in/out points
+  ToggleRefreshOnTake   // toggle browser cue reload on every take
 };
 
 struct QuickButton {

@@ -182,7 +182,10 @@
     }
 
     {
-      bool startupLabelOk = browserCueStatusSummary(BrowserStartPhase::WaitXvfb, false, "").find("xvfb") != std::string::npos;
+      std::string startupLabel = browserCueStatusSummary(BrowserStartPhase::WaitXvfb, false, "");
+      bool startupLabelOk = startupLabel.find("xvfb") != std::string::npos
+                         || startupLabel.find("webview") != std::string::npos
+                         || startupLabel.find("initializing") != std::string::npos;
       bool liveLabelOk = browserCueStatusSummary(BrowserStartPhase::Live, true, "") == "live";
       bool failedLabelOk = browserCueStatusSummary(BrowserStartPhase::WaitChrome, false, "capture start failed").rfind("failed:", 0) == 0;
       expect(startupLabelOk && liveLabelOk && failedLabelOk, "browser status summary");
@@ -255,6 +258,8 @@
       auto plan = deckboy::platform::planSourceCapture(request);
 #if defined(__linux__)
       expect(plan.supported && !plan.ffmpegArgs.empty() && plan.backendId == "x11grab", "capture backend plan");
+#elif defined(_WIN32)
+      expect(plan.supported && !plan.ffmpegArgs.empty() && plan.backendId == "gdigrab", "capture backend plan");
 #else
       expect(!plan.supported && !plan.backendId.empty(), "capture backend plan");
 #endif

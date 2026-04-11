@@ -104,13 +104,16 @@
                   pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, animBtn, "UI MOTION", pal.deep);
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
+      const int appearanceFootY = sfxBtn.y + sfxBtn.h + 8;
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, "Theme switching lives here; UI motion stays on; audio routing lives in Audio.", appearanceRect.w - 16),
-               soft, appearanceRect.x + 8, appearanceRect.y + 124);
+               soft, appearanceRect.x + 8, appearanceFootY);
 
       drawCard(safetyRect, "SAFETY / TIMECODE", "Emergency fade and sync behavior");
-      drawText(controlRenderer_, fontSmall_, "panic fade", soft, safetyRect.x + 8, safetyRect.y + 56);
-      SDL_Rect panicFadeDecBtn {safetyRect.x + 8, safetyRect.y + 74, 26, 22};
+      const int panicLabelY = safetyRect.y + 56;
+      drawText(controlRenderer_, fontSmall_, "panic fade", soft, safetyRect.x + 8, panicLabelY);
+      const int panicRowY = rowYBelowLabel(panicLabelY, fontSmall_, 4);
+      SDL_Rect panicFadeDecBtn {safetyRect.x + 8, panicRowY, 26, 22};
       SDL_Rect panicFadeValRect {panicFadeDecBtn.x + 30, panicFadeDecBtn.y, 72, 22};
       SDL_Rect panicFadeIncBtn {panicFadeValRect.x + panicFadeValRect.w + 4, panicFadeDecBtn.y, 26, 22};
       Primitives::drawFramedPanel(controlRenderer_, panicFadeDecBtn, pal.mid,
@@ -131,7 +134,8 @@
       drawPillToggle(panicRestoreBtn, project_.panicAutoRestore, "AUTO RESTORE ON", "AUTO RESTORE OFF");
       settingsBtns_.push_back({panicRestoreBtn, 212, "panic_restore_toggle"});
 
-      SDL_Rect tcJamBtn {safetyRect.x + 8, safetyRect.y + 108, 140, 22};
+      const int tcJamY = panicRowY + 22 + 8;
+      SDL_Rect tcJamBtn {safetyRect.x + 8, tcJamY, 140, 22};
       SDL_Rect tcFwDecBtn {tcJamBtn.x + tcJamBtn.w + 8, tcJamBtn.y, 26, 22};
       SDL_Rect tcFwValRect {tcFwDecBtn.x + 30, tcFwDecBtn.y, 72, 22};
       SDL_Rect tcFwIncBtn {tcFwValRect.x + tcFwValRect.w + 4, tcFwDecBtn.y, 26, 22};
@@ -162,9 +166,11 @@
       drawPillToggle(jumpTransBtn, project_.jumpTransitionEnabled, "GLOBAL XFADE ON", "GLOBAL XFADE OFF");
       settingsBtns_.push_back({jumpTransBtn, 204, "jump_transition"});
 
-      drawText(controlRenderer_, fontSmall_, "panic profile", soft, flowRect.x + 8, flowRect.y + 94);
-      SDL_Rect panicPrevBtn {flowRect.x + 8, flowRect.y + 112, 26, 24};
-      SDL_Rect panicNextBtn {flowRect.x + flowRect.w - 34, flowRect.y + 112, 26, 24};
+      const int profileLabelY = flowRect.y + 94;
+      drawText(controlRenderer_, fontSmall_, "panic profile", soft, flowRect.x + 8, profileLabelY);
+      const int profileRowY = rowYBelowLabel(profileLabelY, fontSmall_, 4);
+      SDL_Rect panicPrevBtn {flowRect.x + 8, profileRowY, 26, 24};
+      SDL_Rect panicNextBtn {flowRect.x + flowRect.w - 34, profileRowY, 26, 24};
       SDL_Rect panicLabelRect {panicPrevBtn.x + panicPrevBtn.w + 6, panicPrevBtn.y,
                                panicNextBtn.x - (panicPrevBtn.x + panicPrevBtn.w + 12), 24};
       Primitives::drawFramedPanel(controlRenderer_, panicPrevBtn, pal.mid,
@@ -179,14 +185,17 @@
       drawCenteredText(controlRenderer_, fontSmall_, ">", ink, panicNextBtn);
       settingsBtns_.push_back({panicNextBtn, 206, "panic_profile_next"});
 
-      SDL_Rect panicRunBtn {flowRect.x + 8, flowRect.y + 146, flowRect.w - 16, 26};
+      const int panicRunY = profileRowY + 24 + 10;
+      SDL_Rect panicRunBtn {flowRect.x + 8, panicRunY, flowRect.w - 16, 26};
       Primitives::drawFramedPanel(controlRenderer_, panicRunBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Run Panic", ink, panicRunBtn);
       settingsBtns_.push_back({panicRunBtn, 207, "panic_run"});
 
       drawCard(cueToolsRect, "CUE TOOLS", "Find from the playlist, not from a modal");
-      drawText(controlRenderer_, fontSmall_, "Use Ctrl+F or type a cue id/number to search.", soft, cueToolsRect.x + 8, cueToolsRect.y + 54);
+      const int cueToolsLine1Y = cueToolsRect.y + 54;
+      drawText(controlRenderer_, fontSmall_, "Use Ctrl+F or type a cue id/number to search.", soft, cueToolsRect.x + 8, cueToolsLine1Y);
+      const int cueToolsLine2Y = rowYBelowLabel(cueToolsLine1Y, fontSmall_, 0);
       std::string findStatus = "find: none";
       if (!lastCueFindToken_.empty() && !lastCueFindMatches_.empty()) {
         int cursor = std::clamp(lastCueFindCursor_, 0, static_cast<int>(lastCueFindMatches_.size()) - 1);
@@ -194,8 +203,9 @@
       }
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, findStatus, cueToolsRect.w - 16),
-               soft, cueToolsRect.x + 8, cueToolsRect.y + 72);
-      SDL_Rect renumberBtn {cueToolsRect.x + 8, cueToolsRect.y + 98, cueToolsRect.w - 16, 24};
+               soft, cueToolsRect.x + 8, cueToolsLine2Y);
+      const int renumberY = rowYBelowLabel(cueToolsLine2Y, fontSmall_, 6);
+      SDL_Rect renumberBtn {cueToolsRect.x + 8, renumberY, cueToolsRect.w - 16, 24};
       Primitives::drawFramedPanel(controlRenderer_, renumberBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Renumber...", ink, renumberBtn);
@@ -213,14 +223,15 @@
         + "  start " + formatTimecode(prefDeck.playlistStartOffsetSeconds, prefDeck.playlistTimebaseFps)
         + "  fade " + formatSeconds(prefDeck.playlistDefaultCueFadeSeconds)
         + "  still " + formatSeconds(prefDeck.playlistDefaultStillDurationSeconds);
+      const int prefSummaryY = prefsEditBtn.y + prefsEditBtn.h + 6;
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, prefSummary, prefsRect.w - 16),
-               soft, prefsRect.x + 8, prefsRect.y + 84);
+               soft, prefsRect.x + 8, prefSummaryY);
 
       int toggleGap = 6;
       int toggleW = std::max(120, (prefsRect.w - 16 - toggleGap) / 2);
       int toggleH = 24;
-      int toggleY = prefsRect.y + 108;
+      int toggleY = rowYBelowLabel(prefSummaryY, fontSmall_, 6);
       SDL_Rect loopT {prefsRect.x + 8, toggleY, toggleW, toggleH};
       SDL_Rect fadeInT {loopT.x + toggleW + toggleGap, toggleY,
                         prefsRect.x + prefsRect.w - 8 - (loopT.x + toggleW + toggleGap), toggleH};
@@ -276,16 +287,23 @@
                          std::max(180, content.y + content.h - 10 - (audioRect.y + audioRect.h + 10))};
 
       drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
+      const int smallLineH = textLineHeight(fontSmall_) + 2;
       std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default system device)" : focusedDeck().audioOutputDeviceName;
       SDL_Rect devBtn {audioRect.x + 8, audioRect.y + 54, audioRect.w - 16, 30};
       drawUIDropdown(devBtn, "Device", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
+      // Audio buffer size cycle button
+      int bufSamples = project_.audioBufferSamples;
+      std::string bufLabel = "Buffer: " + std::to_string(bufSamples) + " smp";
+      const int bufBtnY = devBtn.y + devBtn.h + 8;
+      SDL_Rect bufBtn {audioRect.x + 8, bufBtnY, 160, 24};
+      Primitives::drawFramedPanel(controlRenderer_, bufBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, bufLabel, ink, bufBtn);
+      settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
+      const int audioFootY = bufBtn.y + bufBtn.h + 6;
       drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "Program audio is currently stereo and follows per-cue audio toggles.", audioRect.w - 16),
-               soft, audioRect.x + 8, audioRect.y + 96);
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "Move device selection here so it does not collide with System layout.", audioRect.w - 16),
-               soft, audioRect.x + 8, audioRect.y + 114);
+               ellipsizeToPixelWidth(fontSmall_, "Smaller buffer = lower latency; larger = more stable.", audioRect.w - 16),
+               soft, audioRect.x + 8, audioFootY);
 
       drawCard(midiRect, "MIDI CONTROL", "Optional external transport and cue control");
       SDL_Rect midiEnBtn {midiRect.x + 8, midiRect.y + 54, 120, 26};
@@ -299,11 +317,11 @@
                        ink, midiPortBtn);
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
 
-      int mapY = midiRect.y + 94;
+      int mapY = midiEnBtn.y + midiEnBtn.h + 10;
       drawText(controlRenderer_, fontSmall_, "Mappings", ink, midiRect.x + 8, mapY);
-      drawText(controlRenderer_, fontSmall_, "Note 0-127 -> trigger cue index in the focused playlist", soft, midiRect.x + 8, mapY + 20);
-      drawText(controlRenderer_, fontSmall_, "CC 7 -> master volume   |   CC 20 -> playback speed", soft, midiRect.x + 8, mapY + 38);
-      drawText(controlRenderer_, fontSmall_, "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft, midiRect.x + 8, mapY + 56);
+      drawText(controlRenderer_, fontSmall_, "Note 0-127 -> trigger cue index in the focused playlist", soft, midiRect.x + 8, mapY + smallLineH);
+      drawText(controlRenderer_, fontSmall_, "CC 7 -> master volume   |   CC 20 -> playback speed", soft, midiRect.x + 8, mapY + smallLineH * 2);
+      drawText(controlRenderer_, fontSmall_, "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft, midiRect.x + 8, mapY + smallLineH * 3);
 
     } else if (settingsTab_ == 2) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
@@ -340,15 +358,19 @@
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w, std::max(96, leftCol.y + leftCol.h - leftY)};
       SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, rightCol.h};
 
+      const int netLineH = textLineHeight(fontSmall_) + 2;
+
       drawCard(remoteRect, "REMOTE CONTROL", "Companion / OSC ingress and HyperDeck emulation");
-      drawText(controlRenderer_, fontSmall_, "Companion / OSC port", soft, remoteRect.x + 8, remoteRect.y + 54);
-      SDL_Rect portBtn {remoteRect.x + 8, remoteRect.y + 72, 176, 26};
+      const int remoteLabelY = remoteRect.y + 54;
+      drawText(controlRenderer_, fontSmall_, "Companion / OSC port", soft, remoteRect.x + 8, remoteLabelY);
+      const int remotePortY = rowYBelowLabel(remoteLabelY, fontSmall_, 2);
+      SDL_Rect portBtn {remoteRect.x + 8, remotePortY, 176, 26};
       Primitives::drawFramedPanel(controlRenderer_, portBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Port " + std::to_string(companionPort_), ink, portBtn);
       settingsBtns_.push_back({portBtn, 220, "osc_port"});
       drawText(controlRenderer_, fontSmall_, "HyperDeck emulation stays on at TCP 9992.", soft,
-               remoteRect.x + 196, remoteRect.y + 78);
+               remoteRect.x + 196, portBtn.y + (portBtn.h - textLineHeight(fontSmall_)) / 2);
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
 #if defined(_WIN32)
@@ -356,17 +378,20 @@
 #else
       std::string queryStatus = project_.oscQueryEnabled ? (oscQueryReady_ ? "running" : "error") : "off";
 #endif
+      const int oscStatusY = oscRect.y + 54;
       drawText(controlRenderer_, fontSmall_,
                "query status: " + queryStatus + "  http " + std::to_string(project_.oscQueryPort),
-               soft, oscRect.x + 8, oscRect.y + 54);
-      SDL_Rect queryToggle {oscRect.x + 8, oscRect.y + 78, 144, 22};
+               soft, oscRect.x + 8, oscStatusY);
+      const int oscQueryRowY = rowYBelowLabel(oscStatusY, fontSmall_, 4);
+      SDL_Rect queryToggle {oscRect.x + 8, oscQueryRowY, 144, 22};
       SDL_Rect queryPortBtn {queryToggle.x + queryToggle.w + 8, queryToggle.y, 164, 22};
       drawPill(queryToggle, project_.oscQueryEnabled, "QUERY ON", "QUERY OFF", kSettingsActionOscQueryToggle);
       Primitives::drawFramedPanel(controlRenderer_, queryPortBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Set HTTP Port...", ink, queryPortBtn);
       settingsBtns_.push_back({queryPortBtn, kSettingsActionOscQueryPortPrompt, "osc_query_port"});
-      SDL_Rect fbToggle {oscRect.x + 8, oscRect.y + 106, 156, 22};
+      const int oscFbRowY = queryToggle.y + queryToggle.h + 6;
+      SDL_Rect fbToggle {oscRect.x + 8, oscFbRowY, 156, 22};
       SDL_Rect fbRateBtn {fbToggle.x + fbToggle.w + 8, fbToggle.y, 164, 22};
       drawPill(fbToggle, project_.oscFeedbackMirrorEnabled, "MIRROR ON", "MIRROR OFF", kSettingsActionOscFeedbackMirrorToggle);
       Primitives::drawFramedPanel(controlRenderer_, fbRateBtn, pal.mid,
@@ -377,25 +402,27 @@
       settingsBtns_.push_back({fbRateBtn, kSettingsActionOscFeedbackRatePrompt, "osc_feedback_rate"});
 
       drawCard(notesRect, "DISCOVERY / NOTES", "Network-facing runtime notes");
+      const int notesLineY = notesRect.y + 54;
       drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /deckboy/subscribe from your controller.", soft,
-               notesRect.x + 8, notesRect.y + 54);
+               notesRect.x + 8, notesLineY);
       drawText(controlRenderer_, fontSmall_, "NDI transport is configured per output in Video Outputs.", soft,
-               notesRect.x + 8, notesRect.y + 72);
+               notesRect.x + 8, notesLineY + netLineH);
       drawText(controlRenderer_, fontSmall_, "NMC mode / host / port are runtime-configurable for sync work.", soft,
-               notesRect.x + 8, notesRect.y + 90);
+               notesRect.x + 8, notesLineY + netLineH * 2);
 
-      drawCard(integrationRect, "INTEGRATION ADAPTERS", "ATEM, NDI trigger, NMC, MTC, LTC, and Art-Net");
+      drawCard(integrationRect, "INTEGRATION ADAPTERS", "ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL");
       IntegrationBackendRuntimeRoute integrationRoute = resolveIntegrationBackendRuntimeRoute();
+      const int integrationLineY = integrationRect.y + 54;
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, integrationRoute.summary, integrationRect.w - 16),
-               soft, integrationRect.x + 8, integrationRect.y + 54);
+               soft, integrationRect.x + 8, integrationLineY);
       int atemBridgePortDisplay = kDefaultAtemBridgePort;
 #ifndef _WIN32
       atemBridgePortDisplay = atemBridgeListenPort_;
 #endif
       drawText(controlRenderer_, fontSmall_,
                "atem " + std::to_string(atemBridgePortDisplay) + "  artnet " + std::to_string(project_.artNetPort),
-               soft, integrationRect.x + 8, integrationRect.y + 72);
+               soft, integrationRect.x + 8, integrationLineY + netLineH);
 
       int pillGap = 8;
       int pillW = std::max(120, (integrationRect.w - 16 - pillGap) / 2);
@@ -411,17 +438,32 @@
       pillY += pillH + 8;
       SDL_Rect ltcBtn {pillX1, pillY, pillW, pillH};
       SDL_Rect artNetBtn {pillX2, pillY, pillW, pillH};
-      pillY += pillH + 8;
-      SDL_Rect tcChaseBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect tcRunBtn {pillX2, pillY, pillW, pillH};
       drawPill(atemBtn, project_.atemTriggerEnabled, "ATEM ON", "ATEM OFF", kSettingsActionIntegrationAtemToggle);
       drawPill(ndiTrigBtn, project_.ndiTriggerEnabled, "NDI TRIGGER ON", "NDI TRIGGER OFF", kSettingsActionIntegrationNdiTriggerToggle);
       drawPill(nmcBtn, project_.nmcSyncEnabled, "NMC ON", "NMC OFF", kSettingsActionIntegrationNmcToggle);
       drawPill(mtcBtn, project_.mtcIngestEnabled, "MTC ON", "MTC OFF", kSettingsActionIntegrationMtcToggle);
       drawPill(ltcBtn, project_.ltcIngestEnabled, "LTC ON", "LTC OFF", kSettingsActionIntegrationLtcToggle);
       drawPill(artNetBtn, project_.dmxArtNetEnabled, "ARTNET ON", "ARTNET OFF", kSettingsActionIntegrationArtNetToggle);
+      pillY += pillH + 8;
+      SDL_Rect tslBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect tcChaseBtn {pillX2, pillY, pillW, pillH};
+      pillY += pillH + 8;
+      SDL_Rect tcRunBtn {pillX1, pillY, pillW, pillH};
+      drawPill(tslBtn, project_.tslTallyEnabled, "TALLY ON", "TALLY OFF", kSettingsActionIntegrationTslToggle);
       drawPill(tcChaseBtn, focusedDeck().timecodeChaseEnabled, "TC CHASE ON", "TC CHASE OFF", kSettingsActionIntegrationTimecodeChaseToggle);
       drawPill(tcRunBtn, focusedDeck().timecodeRunEnabled, "TC RUN ON", "TC RUN OFF", kSettingsActionIntegrationTimecodeRunToggle);
+
+      int footerY = integrationRect.y + integrationRect.h - 34 - 32;
+      SDL_Rect tslPortBtn {integrationRect.x + 8, footerY, 148, 24};
+      Primitives::drawFramedPanel(controlRenderer_, tslPortBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "Tally :" + std::to_string(project_.tslTallyPort), ink, tslPortBtn);
+      settingsBtns_.push_back({tslPortBtn, kSettingsActionIntegrationTslPortPrompt, "integration_tsl_port"});
+      SDL_Rect tslAddrBtn {tslPortBtn.x + tslPortBtn.w + 8, footerY,
+                           integrationRect.x + integrationRect.w - 8 - (tslPortBtn.x + tslPortBtn.w + 8), 24};
+      Primitives::drawFramedPanel(controlRenderer_, tslAddrBtn, pal.mid, pal.deep, pal.light);
+      std::string tslAddrLabel = project_.tslTallyAddress.empty() ? "255.255.255.255" : project_.tslTallyAddress;
+      drawCenteredText(controlRenderer_, fontSmall_, tslAddrLabel, ink, tslAddrBtn);
+      settingsBtns_.push_back({tslAddrBtn, kSettingsActionIntegrationTslAddrPrompt, "integration_tsl_address"});
 
       SDL_Rect artNetPortBtn {integrationRect.x + 8, integrationRect.y + integrationRect.h - 34, 148, 24};
       Primitives::drawFramedPanel(controlRenderer_, artNetPortBtn, pal.mid,
@@ -545,7 +587,7 @@
       ly += dispSectionH + 6;
 
       // Connected Displays
-      int dispListH = std::clamp(availH - (ly - cy) - 180, 60, 150);
+      int dispListH = std::clamp(availH - (ly - cy) - 276, 60, 150);
       SDL_Rect dispListPanel {leftX, ly, leftW, dispListH};
       Primitives::drawFramedPanel(controlRenderer_, dispListPanel, pal.light, pal.deep, pal.mid);
       drawText(controlRenderer_, fontBase_, "CONNECTED DISPLAYS", ink,
@@ -582,7 +624,7 @@
                  blendPanel.x + 8, blendPanel.y + 4);
         int bx = blendPanel.x + 10;
         int labelY = blendPanel.y + 24;
-        int btnY = blendPanel.y + 42;
+        int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
         int bw = (blendPanel.w - 28) / 4;
         int bgap = 6;
         auto drawBlendCtrl = [&](const char* label, float val, int decAction, int incAction) {
@@ -604,6 +646,49 @@
         drawBlendCtrl("Top", bd.edgeBlendTop, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
         drawBlendCtrl("Bottom", bd.edgeBlendBottom, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
         ly += blendH + 6;
+      }
+
+      // Area of Interest
+      {
+        const OutputTarget& ot = focusedOutput();
+        bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
+                      || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
+        int aoiPanH = 90;
+        SDL_Rect aoiPanel {leftX, ly, leftW, aoiPanH};
+        SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
+        SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
+        Primitives::drawFramedPanel(controlRenderer_, aoiPanel, aoiFill, pal.deep, pal.light);
+        drawText(controlRenderer_, fontSmall_, "AREA OF INTEREST", aoiInk2,
+                 aoiPanel.x + 8, aoiPanel.y + 4);
+        // Reset button in the title bar area
+        SDL_Rect aoiResetBtn {aoiPanel.x + aoiPanel.w - 56, aoiPanel.y + 3, 50, 16};
+        Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_, "RESET", ink, aoiResetBtn);
+        settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
+        int abx = aoiPanel.x + 10;
+        int ably = aoiPanel.y + 24;
+        int aoBtnY = rowYBelowLabel(ably, fontSmall_, 4);
+        int aoBW = (aoiPanel.w - 28) / 4;
+        int aoGap = 6;
+        auto drawAoiCtrl = [&](const char* label, float val, int decAct, int incAct) {
+          std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f + 0.5f)) + "%";
+          drawText(controlRenderer_, fontSmall_, valStr, aoiActive ? pal.light : soft, abx, ably);
+          int btnW = (aoBW - 4) / 2;
+          SDL_Rect decBtn {abx, aoBtnY, btnW, 24};
+          SDL_Rect incBtn {abx + btnW + 4, aoBtnY, btnW, 24};
+          Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
+          settingsBtns_.push_back({decBtn, decAct, "aoi"});
+          Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_, "+", aoiInk2, incBtn);
+          settingsBtns_.push_back({incBtn, incAct, "aoi"});
+          abx += aoBW + aoGap;
+        };
+        drawAoiCtrl("L", ot.aoiLeft,   kSettingsActionOutputAoiLDec, kSettingsActionOutputAoiLInc);
+        drawAoiCtrl("R", ot.aoiRight,  kSettingsActionOutputAoiRDec, kSettingsActionOutputAoiRInc);
+        drawAoiCtrl("T", ot.aoiTop,    kSettingsActionOutputAoiTDec, kSettingsActionOutputAoiTInc);
+        drawAoiCtrl("B", ot.aoiBottom, kSettingsActionOutputAoiBDec, kSettingsActionOutputAoiBInc);
+        ly += aoiPanH + 6;
       }
 
       // Canvas Mode + Default Transition (side by side)
@@ -791,33 +876,36 @@
       SDL_Rect infoRect {cx, logoRect.y + logoRect.h + 8, content.w - 24, content.h - logoRect.h - 18};
       Primitives::drawFramedPanel(controlRenderer_, infoRect, pal.light,
                                   pal.deep, pal.mid);
+      const int aboutHeaderY = infoRect.y + 8;
       drawText(controlRenderer_, fontBase_, "RUNTIME", ink,
-               infoRect.x + 8, infoRect.y + 8);
+               infoRect.x + 8, aboutHeaderY);
       int infoTextW = infoRect.w - 16;
+      const int aboutLineH = textLineHeight(fontSmall_) + 2;
+      const int aboutBodyY = aboutHeaderY + textLineHeight(fontBase_) + 6;
       drawText(controlRenderer_, fontSmall_,
                "Companion port: " + std::to_string(companionPort_), soft,
-               infoRect.x + 8, infoRect.y + 32);
+               infoRect.x + 8, aboutBodyY);
       drawText(controlRenderer_, fontSmall_,
                "HyperDeck port: 9992", soft,
-               infoRect.x + 8, infoRect.y + 48);
+               infoRect.x + 8, aboutBodyY + aboutLineH);
       drawText(controlRenderer_, fontSmall_,
                "UI mascot/sprite art is disabled in live control panels.", soft,
-               infoRect.x + 8, infoRect.y + 64);
+               infoRect.x + 8, aboutBodyY + aboutLineH * 2);
       drawText(controlRenderer_, fontSmall_,
                "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft,
-               infoRect.x + 8, infoRect.y + 88);
+               infoRect.x + 8, aboutBodyY + aboutLineH * 3 + 6);
       std::string packStatus = uiPackAvailable_
         ? ("UI pack: " + uiPackRoot_.string())
         : "UI pack: not found (data/ui/deckboy_ui_pack_v3 preferred)";
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, packStatus, infoTextW), soft,
-               infoRect.x + 8, infoRect.y + 104);
+               infoRect.x + 8, aboutBodyY + aboutLineH * 4 + 6);
       std::string themeStatus = currentThemeName_.empty()
         ? "Theme: gameboy (default) — set DECKBOY_THEME=dark to switch"
         : "Theme: " + currentThemeName_ + " (data/themes/" + currentThemeName_ + "/theme.txt)";
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, themeStatus, infoTextW), soft,
-               infoRect.x + 8, infoRect.y + 120);
+               infoRect.x + 8, aboutBodyY + aboutLineH * 5 + 6);
     }
   }
 
@@ -937,6 +1025,13 @@
         deck.playlistDefaultTransitionToNext = !deck.playlistDefaultTransitionToNext;
         triggerToast(std::string("new cues next transition: ") + (deck.playlistDefaultTransitionToNext ? "on" : "off"));
         markProjectDirty();
+      } else if (sb.action == kSettingsActionAudioBufferCycle) {
+        // Cycle audio buffer: 256 → 512 → 1024 → 2048 → 256
+        int cur = project_.audioBufferSamples;
+        int next = (cur <= 256) ? 512 : (cur <= 512) ? 1024 : (cur <= 1024) ? 2048 : 256;
+        project_.audioBufferSamples = next;
+        triggerToast("audio buffer: " + std::to_string(next) + " smp (restart to apply)");
+        markProjectDirty();
       } else if (sb.action == 210) {
         // Toggle MIDI
         midiEnabled_ = !midiEnabled_;
@@ -972,6 +1067,38 @@
       } else if (sb.action == kSettingsActionIntegrationArtNetPortPrompt) {
         settingsOpen_ = false;
         openInlineArtNetPortEditor();
+      } else if (sb.action == kSettingsActionIntegrationTslToggle) {
+        project_.tslTallyEnabled = !project_.tslTallyEnabled;
+        if (project_.tslTallyEnabled) {
+          startTslTally();
+          triggerToast("tally: enabled");
+        } else {
+          stopTslTally();
+          triggerToast("tally: disabled");
+        }
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionIntegrationTslPortPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("tsl_port", "TSL Tally", "Tally port (default 5800)",
+          std::to_string(project_.tslTallyPort),
+          [this](const std::string& val) {
+            try {
+              int p = std::stoi(val);
+              project_.tslTallyPort = std::clamp(p, 1, 65535);
+            } catch (...) {}
+            if (project_.tslTallyEnabled) {
+              startTslTally(); // reopen socket on new port
+            }
+            markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionIntegrationTslAddrPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("tsl_address", "TSL Tally", "Target IP (or 255.255.255.255 to broadcast)",
+          project_.tslTallyAddress,
+          [this](const std::string& val) {
+            project_.tslTallyAddress = val.empty() ? "255.255.255.255" : val;
+            markProjectDirty();
+          });
       } else if (sb.action == kSettingsActionIntegrationAllToggle) {
         bool allAdaptersEnabled = project_.atemTriggerEnabled && project_.ndiTriggerEnabled &&
                                   project_.nmcSyncEnabled && project_.mtcIngestEnabled &&
@@ -1226,6 +1353,25 @@
           default: break;
         }
         normalizeDeck(bd, project_.focusedDeckIndex);
+        markProjectDirty();
+      } else if (sb.action >= kSettingsActionOutputAoiLInc && sb.action <= kSettingsActionOutputAoiReset) {
+        OutputTarget& ot = focusedOutputMutable();
+        constexpr float kAoiStep = 0.05f;
+        switch (sb.action) {
+          case kSettingsActionOutputAoiLInc: ot.aoiLeft   = std::clamp(ot.aoiLeft   + kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiLDec: ot.aoiLeft   = std::clamp(ot.aoiLeft   - kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiRInc: ot.aoiRight  = std::clamp(ot.aoiRight  + kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiRDec: ot.aoiRight  = std::clamp(ot.aoiRight  - kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiTInc: ot.aoiTop    = std::clamp(ot.aoiTop    + kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiTDec: ot.aoiTop    = std::clamp(ot.aoiTop    - kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiBInc: ot.aoiBottom = std::clamp(ot.aoiBottom + kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiBDec: ot.aoiBottom = std::clamp(ot.aoiBottom - kAoiStep, 0.0f, 0.95f); break;
+          case kSettingsActionOutputAoiReset:
+            ot.aoiLeft = ot.aoiRight = ot.aoiTop = ot.aoiBottom = 0.0f;
+            triggerToast("aoi: reset");
+            break;
+          default: break;
+        }
         markProjectDirty();
       } else if (sb.action == kSettingsActionCanvasToggle) {
         project_.outputCanvasEnabled = !project_.outputCanvasEnabled;

@@ -503,6 +503,7 @@
   }
 
   void startIntegrationBridges() {
+    startTslTally();
 #ifndef _WIN32
     startAtemBridgeListener();
     startArtNetBridgeListener();
@@ -513,6 +514,7 @@
   }
 
   void stopIntegrationBridges() {
+    stopTslTally();
 #ifndef _WIN32
     stopLtcIngest();
     stopNmcSyncBridge();
@@ -1828,6 +1830,94 @@
     }
   }
 #endif
+
+  // ── TSL/Tally Protocol (cross-platform, UDP send-only) ─────────────────────
+  // Sends TSL 3.1 tally packets to tally hardware on every deck state change.
+  // One 20-byte packet per deck: 1 address byte, 1 control byte, 16 label bytes.
+
+  void startTslTally() {
+    stopTslTally();
+    if (!project_.tslTallyEnabled) {
+      return;
+    }
+    tslTallySocket_ = deckboy::platform::createDatagramSocket(true);
+  }
+
+  void stopTslTally() {
+    if (tslTallySocket_ != deckboy::platform::kInvalidSocket) {
+      deckboy::platform::closeSocket(tslTallySocket_);
+      tslTallySocket_ = deckboy::platform::kInvalidSocket;
+    }
+  }
+
+  void sendTslTallyState() {
+    if (!project_.tslTallyEnabled || tslTallySocket_ == deckboy::platform::kInvalidSocket) {
+      return;
+    }
+    int port = std::clamp(project_.tslTallyPort, 1, 65535);
+    const std::string& host = project_.tslTallyAddress.empty()
+      ? std::string("255.255.255.255")
+      : project_.tslTallyAddress;
+
+    sockaddr_in target {};
+    target.sin_family = AF_INET;
+    target.sin_port = htons(static_cast<uint16_t>(port));
+    if (inet_pton(AF_INET, host.c_str(), &target.sin_addr) != 1) {
+      target.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+    }
+
+    int numDecks = static_cast<int>(project_.decks.size());
+    for (int i = 0; i < numDecks; ++i) {
+      const Deck& deck = project_.decks[i];
+      bool isPgm = (deck.activeIndex >= 0);
+      bool isPvw = (!isPgm && i == project_.focusedDeckIndex);
+
+      // TSL 3.1 control byte:
+      //   bit7 = 1 (TSL 3.1 marker)
+      //   bit6 = RH Tally (program / on-air)
+      //   bit2 = LH Tally (preview)
+      //   bits1-0 = brightness (3 = full)
+      std::uint8_t ctrl = 0x83; // bit7 + bits1-0 (full brightness, no tally)
+      if (isPgm) ctrl |= (1 << 6); // RH tally
+      if (isPvw) ctrl |= (1 << 2); // LH tally
+
+      // Build label: deck name, truncated/padded to 16 chars
+      std::array<std::uint8_t, 20> packet {};
+      packet[0] = static_cast<std::uint8_t>(std::clamp(i, 0, 255));
+      packet[1] = ctrl;
+      const std::string& label = deck.name;
+      for (int c = 0; c < 16; ++c) {
+        packet[2 + c] = (c < static_cast<int>(label.size()))
+          ? static_cast<std::uint8_t>(label[c]) : ' ';
+      }
+
+#ifdef _WIN32
+      sendto(
+        static_cast<SOCKET>(tslTallySocket_),
+        reinterpret_cast<const char*>(packet.data()),
+        static_cast<int>(packet.size()),
+        deckboy::platform::kSocketSendFlags,
+        reinterpret_cast<const sockaddr*>(&target),
+        static_cast<int>(sizeof(target))
+      );
+#else
+      sendto(
+        static_cast<int>(tslTallySocket_),
+        reinterpret_cast<const char*>(packet.data()),
+        static_cast<int>(packet.size()),
+        deckboy::platform::kSocketSendFlags,
+        reinterpret_cast<const sockaddr*>(&target),
+        static_cast<socklen_t>(sizeof(target))
+      );
+#endif
+    }
+  }
+
+  void notifyTallyStateChange() {
+    if (project_.tslTallyEnabled) {
+      sendTslTallyState();
+    }
+  }
 
   void processRemoteCommands() {
     std::deque<std::string> pending;

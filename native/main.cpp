@@ -1,5 +1,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
+#ifdef _WIN32
+#include <SDL_syswm.h>
+#endif
 
 #include "core/constants.hpp"
 #include "core/types.hpp"
@@ -79,9 +82,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #else
+#include <io.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 #if defined(DECKBOY_HAS_NDI_SDK)
@@ -116,6 +121,82 @@ std::atomic<bool> gShouldQuit = false;
 void printDeckboyVersion(std::ostream& out) {
   out << "Deckboy " << deckboy::core::version::kVersionTag << '\n';
 }
+
+#ifdef _WIN32
+std::string utf8FromWide(const wchar_t* text) {
+  if (!text || !*text) {
+    return {};
+  }
+  int needed = WideCharToMultiByte(CP_UTF8, 0, text, -1, nullptr, 0, nullptr, nullptr);
+  if (needed <= 1) {
+    return {};
+  }
+  std::string utf8(static_cast<size_t>(needed), '\0');
+  WideCharToMultiByte(CP_UTF8, 0, text, -1, utf8.data(), needed, nullptr, nullptr);
+  utf8.pop_back();
+  return utf8;
+}
+
+std::vector<std::string> windowsCommandLineArgsUtf8() {
+  int argc = 0;
+  LPWSTR* argvWide = CommandLineToArgvW(GetCommandLineW(), &argc);
+  if (!argvWide || argc <= 0) {
+    if (argvWide) {
+      LocalFree(argvWide);
+    }
+    return {};
+  }
+
+  std::vector<std::string> args;
+  args.reserve(static_cast<size_t>(argc));
+  for (int i = 0; i < argc; ++i) {
+    args.push_back(utf8FromWide(argvWide[i]));
+  }
+  LocalFree(argvWide);
+  return args;
+}
+
+HICON loadDeckboyAppIconHandle(int width, int height) {
+  HINSTANCE instance = GetModuleHandleW(nullptr);
+  if (!instance) {
+    return nullptr;
+  }
+  return static_cast<HICON>(LoadImageW(
+    instance,
+    L"IDI_DECKBOY_APP_ICON",
+    IMAGE_ICON,
+    width,
+    height,
+    LR_DEFAULTCOLOR));
+}
+
+void applyDeckboyWindowIcon(SDL_Window* window) {
+  if (!window) {
+    return;
+  }
+  SDL_SysWMinfo wmInfo {};
+  SDL_VERSION(&wmInfo.version);
+  if (!SDL_GetWindowWMInfo(window, &wmInfo)) {
+    return;
+  }
+  HWND hwnd = wmInfo.info.win.window;
+  if (!hwnd) {
+    return;
+  }
+  HICON bigIcon = loadDeckboyAppIconHandle(GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON));
+  HICON smallIcon = loadDeckboyAppIconHandle(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON));
+  if (bigIcon) {
+    SendMessageW(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(bigIcon));
+  }
+  if (smallIcon) {
+    SendMessageW(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(smallIcon));
+  } else if (bigIcon) {
+    SendMessageW(hwnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(bigIcon));
+  }
+}
+#else
+void applyDeckboyWindowIcon(SDL_Window*) {}
+#endif
 
 std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int maxWidth) {
   if (!font || maxWidth <= 0 || text.empty()) {
@@ -157,6 +238,8 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::WindowSource: return "Window Source";
     case CueKind::Camera:     return "Camera Source";
     case CueKind::Syphon:     return "Syphon/Spout Source";
+    case CueKind::SrtStream:  return "Stream";
+    case CueKind::NdiSource:  return "NDI Source";
     case CueKind::Pip:        return "PIP";
     case CueKind::LowerThird: return "Lower Third";
     case CueKind::Composite:  return "Composite";
@@ -174,6 +257,8 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::WindowSource: return "window_source";
     case CueKind::Camera:     return "camera";
     case CueKind::Syphon:     return "syphon";
+    case CueKind::SrtStream:  return "srt_stream";
+    case CueKind::NdiSource:  return "ndi_source";
     case CueKind::Pip:        return "pip";
     case CueKind::LowerThird: return "lower_third";
     case CueKind::Composite:  return "composite";
@@ -577,6 +662,8 @@ bool cueCanBePipSource(const Cue& cue) {
     || cue.kind == CueKind::Image
     || cue.kind == CueKind::Pattern
     || cue.kind == CueKind::Browser
+    || cue.kind == CueKind::SrtStream
+    || cue.kind == CueKind::NdiSource
     || isSourceCueKind(cue.kind);
 }
 
@@ -1493,7 +1580,12 @@ bool executableOnPath(const std::string& name) {
 static std::string browserPhaseLabel(BrowserStartPhase phase) {
   switch (phase) {
     case BrowserStartPhase::None: return "idle";
-    case BrowserStartPhase::WaitXvfb: return "starting xvfb";
+    case BrowserStartPhase::WaitXvfb:
+#if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
+      return "initializing webview";
+#else
+      return "starting xvfb";
+#endif
     case BrowserStartPhase::WaitChrome: return "starting browser";
     case BrowserStartPhase::WaitCapture: return "starting capture";
     case BrowserStartPhase::Live: return "live";
@@ -1608,6 +1700,10 @@ struct OutputRuntime {
   bool fullscreenIntended = false;  // user explicitly wants fullscreen — re-assert if dropped
   Uint64 lastFullscreenRequestMs = 0;
   Uint64 lastRecoveryAttemptMs = 0;
+  bool pendingDisplayRuntimeRebuild = false;
+  bool pendingDisplayMoveFullscreen = false;
+  Uint64 displayMoveRetryAtMs = 0;
+  Uint64 suppressRecoveryUntilMs = 0;
   OutputHealthState healthState = OutputHealthState::Off;
   std::string healthReason;
   Uint64 healthUpdatedAtMs = 0;
@@ -1704,7 +1800,7 @@ std::string safeString(const std::vector<std::string>& fields, size_t index) {
   if (index >= fields.size()) {
     return "";
   }
-  return unescapeField(fields[index]);
+  return fields[index];
 }
 
 double safeDouble(const std::vector<std::string>& fields, size_t index, double fallback = 0.0) {
@@ -1895,6 +1991,11 @@ void normalizeDeck(Deck& deck, int index) {
       cue.cueId = normalizeCueIdShort(cue.cueId);
       if (cue.cueId.empty()) {
         cue.cueId = normalizeCueIdShort(cue.cueNumber);
+      }
+      // Repair hasAudio if audioChannels/audioSampleRate say audio exists but the flag
+      // was stored incorrectly (e.g. from the probeCue codec field-order bug).
+      if (!cue.hasAudio && (cue.audioChannels > 0 || cue.audioSampleRate > 0)) {
+        cue.hasAudio = true;
       }
       if (!cue.hasAudio) {
         cue.audioEnabled = false;
@@ -2209,6 +2310,10 @@ void normalizeProjectOutputsAndLayers(Project& project) {
     output.streamBitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     output.outputAlpha = std::clamp(output.outputAlpha, 0.0f, 1.0f);
     output.outputDelayMs = std::clamp(output.outputDelayMs, 0, 5000);
+    output.aoiLeft   = std::clamp(output.aoiLeft,   0.0f, 0.95f);
+    output.aoiRight  = std::clamp(output.aoiRight,  0.0f, 0.95f);
+    output.aoiTop    = std::clamp(output.aoiTop,    0.0f, 0.95f);
+    output.aoiBottom = std::clamp(output.aoiBottom, 0.0f, 0.95f);
     output.outputColorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     output.outputLayoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
     output.outputOrientationDegrees = normalizeOutputOrientationDegrees(output.outputOrientationDegrees);
@@ -2399,7 +2504,23 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
   cue.kind = isImagePath(mediaPath) ? CueKind::Image : CueKind::Video;
   cue.fps = cue.kind == CueKind::Image ? 0.0 : 30.0;
 
+  // ffprobe may emit codec_name before or after codec_type depending on version/format.
+  // Buffer the codec_name and apply it once we know the stream's codec_type.
   std::string lastCodecType;
+  std::string pendingCodecName;
+  bool pendingApplied = false;
+  auto tryApplyCodec = [&]() {
+    if (pendingCodecName.empty() || lastCodecType.empty() || pendingApplied) return;
+    pendingApplied = true;
+    if (lastCodecType == "video" && cue.videoCodec.empty()) {
+      cue.videoCodec = pendingCodecName;
+    } else if (lastCodecType == "audio" && cue.audioCodec.empty()) {
+      cue.audioCodec = pendingCodecName;
+      cue.hasAudio = true;
+    } else if (lastCodecType == "subtitle" && cue.subtitleStreamId.empty()) {
+      cue.subtitleStreamId = "0:s:0";
+    }
+  };
   for (const auto& line : splitLines(*output)) {
     auto sep = line.find('=');
     if (sep == std::string::npos) {
@@ -2409,16 +2530,25 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     std::string value = line.substr(sep + 1);
 
     if (key == "codec_type") {
-      lastCodecType = value;
-    } else if (key == "codec_name") {
-      if (lastCodecType == "video" && cue.videoCodec.empty()) {
-        cue.videoCodec = value;
-      } else if (lastCodecType == "audio" && cue.audioCodec.empty()) {
-        cue.audioCodec = value;
-        cue.hasAudio = true;
-      } else if (lastCodecType == "subtitle" && cue.subtitleStreamId.empty()) {
-        cue.subtitleStreamId = "0:s:0";
+      // If the previous stream's pair was already applied, this codec_type
+      // marks a new stream — clear any stale pendingCodecName left over from
+      // the previous stream so we don't mis-pair (e.g. audio-first mp4 where
+      // codec_name=h264 arrives while lastCodecType is still "audio").
+      if (pendingApplied) {
+        pendingCodecName.clear();
+        pendingApplied = false;
       }
+      lastCodecType = value;
+      tryApplyCodec();
+    } else if (key == "codec_name") {
+      // Symmetric: if the previous stream was paired, this codec_name is a
+      // new stream boundary — clear the stale lastCodecType.
+      if (pendingApplied) {
+        lastCodecType.clear();
+      }
+      pendingCodecName = value;
+      pendingApplied = false;
+      tryApplyCodec();
     } else if (key == "width") {
       if (lastCodecType == "video" && cue.width == 0) {
         cue.width = std::max(0, std::atoi(value.c_str()));
@@ -2510,6 +2640,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "integration_ltc_ingest\t" << (project.ltcIngestEnabled ? 1 : 0) << '\n';
   output << "integration_dmx_artnet\t" << (project.dmxArtNetEnabled ? 1 : 0) << '\n';
   output << "integration_artnet_port\t" << project.artNetPort << '\n';
+  output << "integration_tsl_tally\t" << (project.tslTallyEnabled ? 1 : 0) << '\n';
+  output << "integration_tsl_port\t" << project.tslTallyPort << '\n';
+  output << "integration_tsl_address\t" << escapeField(project.tslTallyAddress) << '\n';
+  output << "audio_buffer_samples\t" << project.audioBufferSamples << '\n';
   output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
@@ -2556,6 +2690,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << outputTarget.deckLinkDeviceId << '\t'
       << escapeField(outputTarget.deckLinkMode) << '\t'
       << (outputTarget.deckLink10Bit ? 1 : 0)
+      << '\t' << outputTarget.aoiLeft
+      << '\t' << outputTarget.aoiRight
+      << '\t' << outputTarget.aoiTop
+      << '\t' << outputTarget.aoiBottom
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2716,6 +2854,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.subtitlePath)
         << '\t' << escapeField(cue.subtitleStreamId)
         << '\t' << (cue.subtitleEnabled ? "1" : "0")
+        << '\t' << (cue.refreshOnTake ? "1" : "0")
         << '\n';
     }
   }
@@ -2799,6 +2938,17 @@ Project loadProject(const fs::path& projectFile) {
       project.dmxArtNetEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "integration_artnet_port") {
       project.artNetPort = safeInt(fields, 1, 6454);
+    } else if (fields[0] == "integration_tsl_tally") {
+      project.tslTallyEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "integration_tsl_port") {
+      project.tslTallyPort = std::clamp(safeInt(fields, 1, 5800), 1, 65535);
+    } else if (fields[0] == "integration_tsl_address") {
+      { std::string v = safeString(fields, 1); project.tslTallyAddress = v.empty() ? "255.255.255.255" : v; }
+    } else if (fields[0] == "audio_buffer_samples") {
+      int v = safeInt(fields, 1, 1024);
+      // Snap to valid sizes only
+      if (v <= 256) v = 256; else if (v <= 512) v = 512; else if (v <= 1024) v = 1024; else v = 2048;
+      project.audioBufferSamples = v;
     } else if (fields[0] == "jump_mode") {
       project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
     } else if (fields[0] == "jump_transition") {
@@ -2866,6 +3016,12 @@ Project loadProject(const fs::path& projectFile) {
               outputTarget.deckLinkDeviceId = safeInt(fields, 25, -1);
               outputTarget.deckLinkMode = safeString(fields, 26);
               outputTarget.deckLink10Bit = safeBool(fields, 27, true);
+              if (fields.size() >= 32) {
+                outputTarget.aoiLeft   = static_cast<float>(safeDouble(fields, 28, 0.0));
+                outputTarget.aoiRight  = static_cast<float>(safeDouble(fields, 29, 0.0));
+                outputTarget.aoiTop    = static_cast<float>(safeDouble(fields, 30, 0.0));
+                outputTarget.aoiBottom = static_cast<float>(safeDouble(fields, 31, 0.0));
+              }
             }
           }
         }
@@ -2969,7 +3125,7 @@ Project loadProject(const fs::path& projectFile) {
       deck.playlistDefaultFadeOutEnabled = safeBool(fields, 50 + warpFieldOffset, true);
       deck.playlistDefaultAudioEnabled = safeBool(fields, 51 + warpFieldOffset, true);
       deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52 + warpFieldOffset, false);
-      deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, false);
+      deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, true);
       deck.playlistDefaultTransitionToNext = safeBool(fields, 54 + warpFieldOffset, true);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
@@ -2995,6 +3151,8 @@ Project loadProject(const fs::path& projectFile) {
         (kind == "window_source" || kind == "window") ? CueKind::WindowSource :
         kind == "camera" ? CueKind::Camera :
         (kind == "syphon" || kind == "spout") ? CueKind::Syphon :
+        kind == "srt_stream" ? CueKind::SrtStream :
+        kind == "ndi_source" ? CueKind::NdiSource :
         kind == "pip" ? CueKind::Pip :
         kind == "lower_third" ? CueKind::LowerThird :
         kind == "composite" ? CueKind::Composite :
@@ -3105,6 +3263,7 @@ Project loadProject(const fs::path& projectFile) {
       cue.subtitlePath = safeString(fields, subtitleBase + 0);
       cue.subtitleStreamId = safeString(fields, subtitleBase + 1);
       cue.subtitleEnabled = safeBool(fields, subtitleBase + 2, true);
+      cue.refreshOnTake = safeBool(fields, subtitleBase + 3, false);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -3249,8 +3408,17 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
   std::vector<int16_t> samples;
   constexpr size_t kChunk = 4096;
   int16_t buf[kChunk];
-#ifndef _WIN32
-  ssize_t bytesRead;
+#ifdef _WIN32
+  int bytesRead = 0;
+  while ((bytesRead = _read(proc.readFd,
+                            reinterpret_cast<char*>(buf),
+                            static_cast<unsigned int>(sizeof(buf)))) > 0) {
+    size_t sampleCount = static_cast<size_t>(bytesRead) / sizeof(int16_t);
+    samples.insert(samples.end(), buf, buf + sampleCount);
+    if (samples.size() > 4000u * 600u) break; // cap at 10 min
+  }
+#else
+  ssize_t bytesRead = 0;
   while ((bytesRead = ::read(proc.readFd, buf, sizeof(buf))) > 0) {
     size_t sampleCount = static_cast<size_t>(bytesRead) / sizeof(int16_t);
     samples.insert(samples.end(), buf, buf + sampleCount);
@@ -3321,6 +3489,7 @@ class App {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    applyDeckboyWindowIcon(controlWindow_);
     SDL_SetWindowMinimumSize(controlWindow_, 1500, 900);
 
     controlRenderer_ = SDL_CreateRenderer(controlWindow_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -3348,6 +3517,7 @@ class App {
       SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
     );
     if (monitorsWindow_) {
+      applyDeckboyWindowIcon(monitorsWindow_);
       SDL_SetWindowMinimumSize(monitorsWindow_, 640, 400);
       monitorsRenderer_ = SDL_CreateRenderer(monitorsWindow_, -1, SDL_RENDERER_ACCELERATED);
       if (!monitorsRenderer_) {
@@ -3384,7 +3554,7 @@ class App {
     rebuildPalette();
     initUiAssetPackPaths();
     preloadUiAssets();
-    currentProjectFile_ = defaultProjectFile();
+    currentProjectFile_ = startupProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
     disarmAllOutputsForStartup();
@@ -3479,16 +3649,18 @@ class App {
       fontPixelSmall_ = nullptr;
     }
     if (thumbnailThread_.joinable()) {
-      thumbnailProcess_.stop();
+      thumbnailProcess_.killProcessOnly();
       thumbnailThread_.join();
+      thumbnailProcess_.stop();
     }
     if (selectedThumbnailTex_) {
       SDL_DestroyTexture(selectedThumbnailTex_);
       selectedThumbnailTex_ = nullptr;
     }
     if (timelineStripThread_.joinable()) {
-      timelineStripProcess_.stop();
+      timelineStripProcess_.killProcessOnly();
       timelineStripThread_.join();
+      timelineStripProcess_.stop();
     }
     if (timelineStripTex_) {
       SDL_DestroyTexture(timelineStripTex_);
@@ -3715,7 +3887,7 @@ class App {
                         QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
                         bool isToggle = false, bool toggleOn = false, std::string tip = "",
                         bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
-    constexpr int kBtnW = 26;
+    constexpr int kBtnW = 28;
     int gap = ix.ellipsize ? 8 : 6;
     int rx = ix.ctrl.x + ix.inset;
     int contentW = ix.ctrlW - ix.inset * 2;
@@ -3725,16 +3897,16 @@ class App {
       SDL_Color fill = toggleOn ? pal.dark : pal.light;
       SDL_Color ink  = toggleOn ? pal.light : pal.deep;
       drawUIPanel(btn, fill, pal.deep, pal.mid);
-      SDL_Rect labelRect {btn.x + 4, btn.y, btn.w - 8, btn.h};
+      SDL_Rect labelRect {btn.x + 8, btn.y, btn.w - 16, btn.h};
       std::string text = label + ": " + value;
       if (ix.ellipsize) text = ellipsizeToPixelWidth(ix.valueFont, text, labelRect.w);
       drawTextSafe(controlRenderer_, ix.valueFont, labelRect, text, ink);
       quickButtons_.push_back({btn, toggleAction, tip});
     } else {
       int fixedW = kBtnW * 2 + gap * 3;
-      int minValueW = ix.ellipsize ? 64 : 56;
+      int minValueW = ix.ellipsize ? 76 : 68;
       int labelW = ix.ellipsize
-        ? std::clamp(90, 58, std::max(58, contentW - fixedW - minValueW))
+        ? std::clamp(108, 64, std::max(64, contentW - fixedW - minValueW))
         : 88;
       int valueW = std::max(minValueW, contentW - labelW - fixedW);
       SDL_Rect labelRect {rx, rowY, labelW, ix.rowH};
@@ -3749,7 +3921,7 @@ class App {
 
       drawUIPanel(valRect, pal.mid, pal.deep, pal.light);
       std::string displayValue = ix.ellipsize
-        ? ellipsizeToPixelWidth(ix.valueFont, value, valRect.w - 10) : value;
+        ? ellipsizeToPixelWidth(ix.valueFont, value, valRect.w - 12) : value;
       drawCenteredTextSafe(controlRenderer_, ix.valueFont, valRect, displayValue, pal.deep);
       if (valueEditable) {
         std::string valueTip = tip.empty() ? "Click value to type an exact number" : tip + " | click value to type exact value";
@@ -3774,8 +3946,8 @@ class App {
   int inspDrawActionRow(const InspectorCtx& ix, int rowY, const std::string& label,
                         QuickAction action, const std::string& tip,
                         SDL_Color fill, SDL_Color ink) {
-    int h = ix.ellipsize ? 30 : ix.rowH;
-    int step = ix.ellipsize ? 40 : ix.rowStep;
+    int h = ix.ellipsize ? 34 : ix.rowH;
+    int step = ix.ellipsize ? 46 : ix.rowStep;
     SDL_Rect btnRect {ix.ctrl.x + ix.inset, rowY, ix.ctrlW - ix.inset * 2, h};
     drawUIPanel(btnRect, fill, pal.deep, pal.mid);
     drawCenteredTextSafe(controlRenderer_, ix.valueFont, btnRect, label, ink);
@@ -3787,13 +3959,13 @@ class App {
                           const std::string& label, const std::string& value,
                           QuickAction action, const std::string& tip,
                           SDL_Color valueColor) {
-    int kEditW = ix.ellipsize ? 58 : 54;
+    int kEditW = ix.ellipsize ? 60 : 56;
     int kGap = ix.ellipsize ? 8 : 6;
     int contentW = ix.ctrlW - ix.inset * 2;
-    int minValueW = ix.ellipsize ? 72 : 60;
+    int minValueW = ix.ellipsize ? 84 : 72;
     int labelW = ix.ellipsize
-      ? std::clamp(78, 58, std::max(58, contentW - kEditW - kGap * 2 - minValueW))
-      : 64;
+      ? std::clamp(98, 64, std::max(64, contentW - kEditW - kGap * 2 - minValueW))
+      : 70;
     int valueW = std::max(minValueW, contentW - labelW - kEditW - kGap * 2);
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, ix.rowH};
@@ -3815,9 +3987,9 @@ class App {
     int gap = ix.ellipsize ? 8 : 6;
     int contentW = ix.ctrlW - ix.inset * 2;
     int labelW = ix.ellipsize
-      ? std::clamp(78, 58, std::max(58, contentW - gap - 72))
-      : 64;
-    int valueW = std::max(ix.ellipsize ? 72 : 60, contentW - labelW - gap);
+      ? std::clamp(98, 64, std::max(64, contentW - gap - 84))
+      : 70;
+    int valueW = std::max(ix.ellipsize ? 84 : 72, contentW - labelW - gap);
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + gap, rowY, valueW, ix.rowH};
     drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.inkSoft);
@@ -4001,7 +4173,8 @@ class App {
     Primitives::fillRect(controlRenderer_, bodyFill, SDL_Color {15, 56, 15, 28});
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     Primitives::strokeRect(controlRenderer_, shell, pal.dark);
-    SDL_Rect rail {shell.x + 2, section.bodyStartY - 2, 3, std::max(0, shellBottom - section.bodyStartY)};
+    // Rail drawn in the left gutter (before row content) so it doesn't overlay any element
+    SDL_Rect rail {shell.x - 8, section.bodyStartY - 2, 3, std::max(0, shellBottom - section.bodyStartY)};
     Primitives::fillRect(controlRenderer_, rail, pal.mid);
   }
 
@@ -4454,7 +4627,9 @@ class App {
       case CueKind::Audio:      return &uiCueIconAudio_;
       case CueKind::WindowSource:
       case CueKind::Camera:
-      case CueKind::Syphon:     return &uiCueIconSource_;
+      case CueKind::Syphon:
+      case CueKind::NdiSource:  return &uiCueIconSource_;
+      case CueKind::SrtStream:  return &uiCueIconVideo_;
       default:                  return nullptr;
     }
   }
@@ -4599,6 +4774,19 @@ class App {
   static constexpr int kSettingsActionTransitionSecondsInc = 612;
   static constexpr int kSettingsActionTransitionStyleCycle = 613;
   static constexpr int kSettingsActionThemeDropdown = 614;
+  static constexpr int kSettingsActionOutputAoiLInc  = 615;
+  static constexpr int kSettingsActionOutputAoiLDec  = 616;
+  static constexpr int kSettingsActionOutputAoiRInc  = 617;
+  static constexpr int kSettingsActionOutputAoiRDec  = 618;
+  static constexpr int kSettingsActionOutputAoiTInc  = 619;
+  static constexpr int kSettingsActionOutputAoiTDec  = 620;
+  static constexpr int kSettingsActionOutputAoiBInc  = 621;
+  static constexpr int kSettingsActionOutputAoiBDec  = 622;
+  static constexpr int kSettingsActionOutputAoiReset = 623;
+  static constexpr int kSettingsActionIntegrationTslToggle    = 624;
+  static constexpr int kSettingsActionIntegrationTslPortPrompt = 625;
+  static constexpr int kSettingsActionIntegrationTslAddrPrompt = 626;
+  static constexpr int kSettingsActionAudioBufferCycle = 627;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -4878,6 +5066,8 @@ class App {
   enum class LayoutDragMode { None, Playlist, Inspector };
   LayoutDragMode layoutDragMode_ = LayoutDragMode::None;
   TrimDragMode trimDragMode_ = TrimDragMode::None;
+  bool timelineScrubActive_ = false;
+  bool scrubWasPlaying_ = false;
   SDL_Rect trimInHandleRect_ {};
   SDL_Rect trimOutHandleRect_ {};
   SDL_Rect contentAreaRect_ {};
@@ -5069,11 +5259,13 @@ class App {
   std::string ltcLastAnnouncedError_;
   Uint64 ltcRestartBlockedUntilMs_ = 0;
 #endif
+  // TSL/Tally socket — cross-platform (UDP send-only)
+  deckboy::platform::SocketHandle tslTallySocket_ = deckboy::platform::kInvalidSocket;
 };
 
 }  // namespace
 
-int main(int argc, char** argv) {
+int runDeckboyMain(int argc, char** argv) {
   if (argc > 1 && std::string_view(argv[1]) == "--version") {
     printDeckboyVersion(std::cout);
     return 0;
@@ -5119,3 +5311,23 @@ int main(int argc, char** argv) {
   app.shutdown();
   return 0;
 }
+
+int main(int argc, char** argv) {
+  return runDeckboyMain(argc, argv);
+}
+
+#ifdef _WIN32
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+  auto argvStorage = windowsCommandLineArgsUtf8();
+  if (argvStorage.empty()) {
+    argvStorage.emplace_back("Deckboy");
+  }
+
+  std::vector<char*> argv;
+  argv.reserve(argvStorage.size());
+  for (auto& arg : argvStorage) {
+    argv.push_back(arg.data());
+  }
+  return runDeckboyMain(static_cast<int>(argv.size()), argv.data());
+}
+#endif
