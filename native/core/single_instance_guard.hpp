@@ -45,8 +45,11 @@ class SingleInstanceGuard {
     }
 
     std::string pidText = std::to_string(static_cast<long long>(::getpid())) + "\n";
-    (void) ::ftruncate(fd_, 0);
-    (void) ::write(fd_, pidText.c_str(), pidText.size());
+    if (::ftruncate(fd_, 0) != 0) {
+      // best-effort; stale content just means a later reader sees an old pid
+    }
+    ssize_t written = ::write(fd_, pidText.c_str(), pidText.size());
+    (void) written;
     locked_ = true;
     return true;
   }

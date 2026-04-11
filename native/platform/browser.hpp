@@ -24,9 +24,9 @@ struct BrowserFrame {
 };
 
 // Cross-platform browser renderer
-// - Linux: Xvfb + x11grab + ffmpeg
-// - macOS: WKWebView with offscreen rendering
-// - Windows: Windows.Foundation.WebView2 (Chromium-based)
+// - Linux: Xvfb + Chromium + x11grab/ffmpeg pipeline
+// - macOS: WKWebView with offscreen rendering (scaffold)
+// - Windows: WebView2 (Edge/Chromium, offscreen via PrintWindow)
 class BrowserRenderer {
  public:
   explicit BrowserRenderer(const std::string& userAgent = {});

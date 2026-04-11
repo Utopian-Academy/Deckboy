@@ -28,7 +28,7 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       "ndi-trigger",
       "NDI Metadata Trigger Bridge",
       false,
-      "NDI metadata trigger runtime currently Linux/macOS only"
+      "NDI metadata trigger runtime not yet enabled on Windows"
     });
 #else
     out.push_back({

@@ -505,7 +505,7 @@
     desired.freq = kAudioRate;
     desired.format = kAudioFormat;
     desired.channels = kAudioChannels;
-    desired.samples = 2048;
+    desired.samples = static_cast<Uint16>(std::clamp(project_.audioBufferSamples, 256, 2048));
     uiAudioDevice_ = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
     if (uiAudioDevice_ != 0) {
       SDL_PauseAudioDevice(uiAudioDevice_, 1);
@@ -519,7 +519,7 @@
     desired.freq = kAudioRate;
     desired.format = kAudioFormat;
     desired.channels = kAudioChannels;
-    desired.samples = 2048;
+    desired.samples = static_cast<Uint16>(std::clamp(project_.audioBufferSamples, 256, 2048));
 
     auto openMain = [&](const char* deviceName) -> SDL_AudioDeviceID {
       SDL_AudioSpec obtained {};
@@ -2006,8 +2006,14 @@
       SDL_DestroyWindow(runtime.outputWindow);
       runtime.outputWindow = nullptr;
     }
+    runtime.pendingDisplayRuntimeRebuild = false;
+    runtime.pendingDisplayMoveFullscreen = false;
+    runtime.displayMoveRetryAtMs = 0;
+    runtime.suppressRecoveryUntilMs = 0;
     runtime.recoveryPausedByEscape = false;
     runtime.fullscreenIntended = false;
+    runtime.lastFullscreenRequestMs = 0;
+    runtime.lastRecoveryAttemptMs = 0;
     runtime.healthState = OutputHealthState::Off;
     runtime.healthReason.clear();
     runtime.healthUpdatedAtMs = 0;
@@ -3081,6 +3087,7 @@
     if (!runtime.outputWindow) {
       return false;
     }
+    applyDeckboyWindowIcon(runtime.outputWindow);
 
     runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_ACCELERATED);
     if (!runtime.outputRenderer) {
@@ -3115,10 +3122,20 @@
     Uint32 windowFlags = streamType
       ? SDL_WINDOW_HIDDEN
       : (SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
+    int windowX = SDL_WINDOWPOS_UNDEFINED;
+    int windowY = SDL_WINDOWPOS_UNDEFINED;
+    if (!streamType) {
+      int displayCount = SDL_GetNumVideoDisplays();
+      int displayIndex = displayCount > 0
+        ? std::clamp(output.displayIndex, 0, displayCount - 1)
+        : 0;
+      windowX = SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+      windowY = SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+    }
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
-      streamType ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED,
-      streamType ? SDL_WINDOWPOS_UNDEFINED : SDL_WINDOWPOS_CENTERED,
+      windowX,
+      windowY,
       targetW,
       targetH,
       windowFlags
@@ -3127,6 +3144,7 @@
       setOutputHealthState(outputIndex, OutputHealthState::Error, "window create failed");
       return false;
     }
+    applyDeckboyWindowIcon(runtime.outputWindow);
 
     Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | (streamType ? 0u : SDL_RENDERER_PRESENTVSYNC);
     runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, rendererFlags);
@@ -3156,6 +3174,34 @@
     } else {
       setOutputHealthState(outputIndex, OutputHealthState::Off);
     }
+    return true;
+  }
+
+  bool recreateOutputRuntime(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    if (outputIndex >= static_cast<int>(outputRuntimes_.size())) {
+      return false;
+    }
+    return createOutputRuntime(outputIndex);
+  }
+
+  bool queueOutputDisplayRuntimeRebuild(int outputIndex, Uint64 now) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return false;
+    }
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return false;
+    }
+    runtime->pendingDisplayRuntimeRebuild = true;
+    runtime->pendingDisplayMoveFullscreen = false;
+    runtime->displayMoveRetryAtMs = now + 60;
+    runtime->suppressRecoveryUntilMs = now + 1800;
+    runtime->lastRecoveryAttemptMs = now;
+    runtime->recoveryPausedByEscape = false;
+    setOutputHealthState(outputIndex, OutputHealthState::Recovering, "switching display");
     return true;
   }
 
@@ -3248,7 +3294,77 @@
     startBrowserCue(deckIndex, *active);
   }
 
-  void applyOutputDisplaySelection(int outputIndex, bool allowFullscreenTransition = false) {
+  void tickPendingOutputDisplayTransitions(Uint64 now) {
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      OutputRuntime* runtime = runtimeForOutput(outputIndex);
+      if (!runtime) {
+        continue;
+      }
+      if (runtime->pendingDisplayRuntimeRebuild) {
+        if (!output.enabled || normalizeOutputType(output.outputType) != "window") {
+          runtime->pendingDisplayRuntimeRebuild = false;
+          runtime->displayMoveRetryAtMs = 0;
+          continue;
+        }
+        if (now < runtime->displayMoveRetryAtMs) {
+          continue;
+        }
+        runtime->pendingDisplayRuntimeRebuild = false;
+        runtime->displayMoveRetryAtMs = 0;
+        if (!recreateOutputRuntime(outputIndex)) {
+          OutputRuntime* failedRuntime = runtimeForOutput(outputIndex);
+          if (failedRuntime) {
+            failedRuntime->suppressRecoveryUntilMs = now + 1200;
+          }
+          setOutputHealthState(outputIndex, OutputHealthState::Error, "display switch failed");
+          triggerToast("display switch failed");
+          continue;
+        }
+        OutputRuntime* rebuiltRuntime = runtimeForOutput(outputIndex);
+        if (rebuiltRuntime) {
+          rebuiltRuntime->pendingDisplayRuntimeRebuild = false;
+          rebuiltRuntime->pendingDisplayMoveFullscreen = false;
+          rebuiltRuntime->displayMoveRetryAtMs = 0;
+          rebuiltRuntime->suppressRecoveryUntilMs = now + 900;
+          rebuiltRuntime->lastRecoveryAttemptMs = now;
+        }
+        continue;
+      }
+      if (!runtime->pendingDisplayMoveFullscreen) {
+        continue;
+      }
+      if (!output.enabled || normalizeOutputType(output.outputType) != "window" ||
+          !runtime->outputWindow) {
+        runtime->pendingDisplayMoveFullscreen = false;
+        continue;
+      }
+      if (now < runtime->displayMoveRetryAtMs) {
+        continue;
+      }
+
+      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      if (fullscreen) {
+        runtime->displayMoveRetryAtMs = now + 120;
+        continue;
+      }
+
+      runtime->pendingDisplayMoveFullscreen = false;
+      applyOutputDisplaySelection(outputIndex, false, false);
+      if (enableOutputFullscreen(outputIndex, false)) {
+        runtime->suppressRecoveryUntilMs = now + 500;
+        setOutputHealthState(outputIndex, OutputHealthState::Live);
+      } else {
+        runtime->suppressRecoveryUntilMs = now + 1200;
+        setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
+      }
+    }
+  }
+
+  void applyOutputDisplaySelection(int outputIndex,
+                                   bool allowFullscreenTransition = false,
+                                   bool reenterFullscreenAfterMove = false) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
     }
@@ -3260,6 +3376,7 @@
     if (!runtime || !runtime->outputWindow) {
       return;
     }
+    Uint64 now = SDL_GetTicks64();
 
     int displayCount = SDL_GetNumVideoDisplays();
     bool haveDisplayBounds = false;
@@ -3277,15 +3394,23 @@
 
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-    bool transitionedOutOfFullscreen = false;
     if (!streamType && fullscreen && allowFullscreenTransition) {
-      if (SDL_SetWindowFullscreen(runtime->outputWindow, 0) == 0) {
-        fullscreen = false;
-        transitionedOutOfFullscreen = true;
-      }
+      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      flags = SDL_GetWindowFlags(runtime->outputWindow);
+      fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
     }
 
-    bool canApplyGeometry = !fullscreen || allowFullscreenTransition;
+    // Only move/resize once SDL confirms the window is no longer fullscreen.
+    // Trying to reposition a still-fullscreen output window is unstable on
+    // some window managers and especially noisy on Windows multi-monitor hops.
+    bool canApplyGeometry = !fullscreen;
+    if (windowOutputEnabled && reenterFullscreenAfterMove) {
+      runtime->pendingDisplayMoveFullscreen = true;
+      runtime->displayMoveRetryAtMs = now + (canApplyGeometry ? 0 : 180);
+      runtime->suppressRecoveryUntilMs = now + 1500;
+      runtime->lastRecoveryAttemptMs = now;
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "switching display");
+    }
     if (streamType || canApplyGeometry) {
       SDL_SetWindowSize(runtime->outputWindow, targetW, targetH);
     }
@@ -3297,9 +3422,6 @@
       SDL_SetWindowPosition(runtime->outputWindow, x, y);
     }
 
-    if (windowOutputEnabled && transitionedOutOfFullscreen) {
-      enableOutputFullscreen(outputIndex, false);
-    }
     if (windowOutputEnabled) {
       SDL_ShowWindow(runtime->outputWindow);
       SDL_RaiseWindow(runtime->outputWindow);
@@ -3318,7 +3440,9 @@
   void applyOutputDisplaySelectionAllOutputs(bool restartLiveBrowsers,
                                              bool allowFullscreenTransition = false) {
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
-      applyOutputDisplaySelection(outputIndex, allowFullscreenTransition);
+      applyOutputDisplaySelection(outputIndex,
+                                 allowFullscreenTransition,
+                                 allowFullscreenTransition);
     }
     if (restartLiveBrowsers) {
       for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
@@ -3356,7 +3480,7 @@
   }
 
   void sizeFocusedOutputToSelectedDisplay() {
-    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
+    applyOutputDisplaySelection(project_.focusedOutputIndex, true, true);
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
         restartLiveBrowserCueIfNeeded(deckIndex);
@@ -3430,16 +3554,25 @@
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
+    Uint64 now = SDL_GetTicks64();
+    bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
-      enableOutputFullscreen(project_.focusedOutputIndex, false);
+      queuedRuntimeRebuild = queueOutputDisplayRuntimeRebuild(project_.focusedOutputIndex, now);
+      if (!queuedRuntimeRebuild) {
+        setOutputHealthState(project_.focusedOutputIndex, OutputHealthState::Error, "display switch failed");
+        triggerToast("display switch failed");
+        return;
+      }
+    } else {
+      applyOutputDisplaySelection(project_.focusedOutputIndex, true, true);
     }
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
         restartLiveBrowserCueIfNeeded(deckIndex);
       }
     }
-    std::string label = SDL_GetDisplayName(output.displayIndex);
+    const char* labelPtr = SDL_GetDisplayName(output.displayIndex);
+    std::string label = (labelPtr && *labelPtr) ? labelPtr : "";
     triggerToast("display: "
       + (label.empty() ? std::to_string(output.displayIndex + 1) : label)
       + "  " + outputResolutionLabelForOutput(project_.focusedOutputIndex)
@@ -3460,9 +3593,17 @@
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    applyOutputDisplaySelection(project_.focusedOutputIndex, true);
+    Uint64 now = SDL_GetTicks64();
+    bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
-      enableOutputFullscreen(project_.focusedOutputIndex, false);
+      queuedRuntimeRebuild = queueOutputDisplayRuntimeRebuild(project_.focusedOutputIndex, now);
+      if (!queuedRuntimeRebuild) {
+        setOutputHealthState(project_.focusedOutputIndex, OutputHealthState::Error, "display switch failed");
+        triggerToast("display switch failed");
+        return false;
+      }
+    } else {
+      applyOutputDisplaySelection(project_.focusedOutputIndex, true, true);
     }
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (primaryOutputIndexForDeck(deckIndex) && *primaryOutputIndexForDeck(deckIndex) == project_.focusedOutputIndex) {
@@ -3542,12 +3683,17 @@
       setOutputHealthState(outputIndex, OutputHealthState::Armed, "escaped to windowed");
       return false;
     }
+    Uint64 now = SDL_GetTicks64();
+    if (runtime->pendingDisplayRuntimeRebuild ||
+        runtime->pendingDisplayMoveFullscreen ||
+        now < runtime->suppressRecoveryUntilMs) {
+      return false;
+    }
 
     Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
     bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
     bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
     bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
-    Uint64 now = SDL_GetTicks64();
 
     int displayCount = SDL_GetNumVideoDisplays();
     int targetDisplay = displayCount > 0
@@ -3781,20 +3927,47 @@
       return;
     }
 
+    std::string prevError = runtime->browserRenderer->lastError();
     runtime->browserRenderer->tick();
-    if (!runtime->browserRenderer->lastError().empty()) {
+    std::string nowError = runtime->browserRenderer->lastError();
+    if (!nowError.empty()) {
+      if (prevError.empty()) {
+        triggerToast("browser: " + nowError,
+                     {79, 98, 48, 230},
+                     {223, 248, 185, 255});
+      }
       return;
     }
+
+    MediaEngine* eng = runtime->mediaEngine.get();
 
     std::string captureSourceRef;
     int captureW = 0;
     int captureH = 0;
     if (!runtime->browserRenderer->consumeCaptureRequest(captureSourceRef, captureW, captureH)) {
-      runtime->browserCueLive = runtime->browserRenderer->isLive();
+      // Direct frame path (WebView2 offscreen rendering)
+      deckboy::platform::browser::BrowserFrame frame;
+      if (runtime->browserRenderer->grabFrame(frame) && frame.width > 0 && eng) {
+        if (!runtime->browserCueLive) {
+          const Deck& deck = project_.decks[deckIndex];
+          double transSecs = deck.transitionSeconds;
+          TransitionStyle transStyle = parseTransitionStyleToken(deck.transitionStyle);
+          if (deck.activeIndex >= 0 && deck.activeIndex < (int)deck.cues.size()) {
+            const Cue& ac = deck.cues[deck.activeIndex];
+            if (ac.cueTransitionSeconds >= 0.0) transSecs = ac.cueTransitionSeconds;
+            if (!ac.cueTransitionStyle.empty()) transStyle = parseTransitionStyleToken(ac.cueTransitionStyle);
+          }
+          eng->startBrowserFrameMode(frame.width, frame.height, transSecs, transStyle);
+          runtime->browserCueLive = true;
+          runtime->browserRenderer->markCaptureStarted();
+          triggerToast("browser live");
+        }
+        eng->pushBrowserFrame(frame.rgba.data(), frame.width, frame.height);
+      }
+      runtime->browserCueLive = runtime->browserCueLive || runtime->browserRenderer->isLive();
       return;
     }
 
-    MediaEngine* eng = runtime->mediaEngine.get();
     if (!eng) {
       runtime->browserRenderer->markCaptureFailed("media engine unavailable");
       return;

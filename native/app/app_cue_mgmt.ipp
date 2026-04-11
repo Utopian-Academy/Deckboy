@@ -619,6 +619,7 @@
     fs::path normalized = normalizeProjectPath(projectPath);
     resetTransientPreviewState();
     currentProjectFile_ = normalized;
+    rememberLastOpenedProjectFile(currentProjectFile_);
     project_ = loadProject(normalized);
     normalizeProject(project_);
     disarmAllOutputsForStartup();
@@ -731,9 +732,6 @@
 
     if (isDefaultStillDurationCueKind(cue.kind)) {
       cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
-    }
-    if (cue.kind == CueKind::Video || cue.kind == CueKind::Image) {
-      cue.pauseOnLastFrame = true;
     }
   }
 
@@ -912,7 +910,7 @@
     openInlineTextEditor("tool.add_browser",
                          "Add Browser Cue",
                          "URL or local page path",
-                         "https://example.com",
+                         "https://duckduckgo.com",
                          [this](const std::string& value) {
                            std::string normalized = normalizeBrowserUrl(trim(value));
                            if (normalized.empty()) {
@@ -920,6 +918,86 @@
                              return;
                            }
                            addBrowserCue(normalized);
+                         });
+  }
+
+  void addSrtStreamCue(const std::string& url) {
+    std::string trimmedUrl = trim(url);
+    if (trimmedUrl.empty()) {
+      return;
+    }
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::SrtStream;
+    cue.path = trimmedUrl;
+    cue.name = "Stream";
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.duration = 0.0;
+    cue.stillDurationSeconds = 0.0;
+    cue.hasAudio = true;
+    cue.formatName = "stream";
+    cue.videoCodec = "stream";
+    cue.audioCodec = "stream";
+    cue.color = SDL_Color {72, 130, 180, 255};
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("stream cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  void addSrtStreamCueFromPrompt() {
+    openInlineTextEditor("tool.add_stream",
+                         "Add Stream Cue",
+                         "Stream URL (srt://, rtmp://, rtsp://...)",
+                         "srt://127.0.0.1:9000?mode=listener",
+                         [this](const std::string& value) {
+                           std::string url = trim(value);
+                           if (url.empty()) {
+                             triggerToast("stream url: required");
+                             return;
+                           }
+                           addSrtStreamCue(url);
+                         });
+  }
+
+  void addNdiSourceCue(const std::string& sourceName) {
+    std::string name = trim(sourceName);
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::NdiSource;
+    cue.path = "ndi://" + name;
+    cue.name = name.empty() ? "NDI Source" : name;
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.duration = 0.0;
+    cue.stillDurationSeconds = 0.0;
+    cue.hasAudio = true;
+    cue.formatName = "ndi";
+    cue.videoCodec = "ndi";
+    cue.audioCodec = "ndi";
+    cue.color = SDL_Color {180, 72, 72, 255};
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("NDI source cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  void addNdiSourceCueFromPrompt() {
+    openInlineTextEditor("tool.add_ndi",
+                         "Add NDI Source Cue",
+                         "NDI source name (e.g. LAPTOP (source 1))",
+                         "",
+                         [this](const std::string& value) {
+                           addNdiSourceCue(trim(value));
                          });
   }
 
@@ -1173,6 +1251,22 @@
         }
       });
     }
+
+    contextItems_.push_back({
+      "  Browser / URL Cue",
+      {0, 0, 0, 0},
+      [this]() { addBrowserCueFromPrompt(); }
+    });
+    contextItems_.push_back({
+      "  Stream Cue (SRT / RTMP / RTSP)",
+      {0, 0, 0, 0},
+      [this]() { addSrtStreamCueFromPrompt(); }
+    });
+    contextItems_.push_back({
+      "  NDI Source Cue",
+      {0, 0, 0, 0},
+      [this]() { addNdiSourceCueFromPrompt(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -1519,14 +1613,6 @@
       }
 
       std::string pathStr = path.string();
-
-      // Check for duplicates by path
-      auto duplicate = std::find_if(deck.cues.begin(), deck.cues.end(), [&](const Cue& existing) {
-        return existing.path == pathStr;
-      });
-      if (duplicate != deck.cues.end()) {
-        continue;
-      }
 
       // Create placeholder cue (metadata filled in async)
       Cue placeholder;
@@ -1922,6 +2008,10 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
+    // Clamp available text width to the snapped right edge so text cannot bleed
+    // past the border drawn by drawUIPanel (which calls snapRectToGrid internally).
+    // The clip rect stays as the original rect to avoid over-constraining.
+    safe.w = std::max(0, std::min(safe.w, snapDownToGrid(rect.x + rect.w) - safe.x));
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
@@ -1931,11 +2021,29 @@
     if (TTF_SizeUTF8(font, clipped.c_str(), &textW, &textH) != 0) {
       return;
     }
-    int textY = safe.y;
-    if (safe.h > textH) {
-      textY = safe.y + (safe.h - textH) / 2;
+    // Always vertically center on the rect's midline. When the text is
+    // taller than the rect (tight h<=18 rects drawn with fontBase_, or
+    // retina-scaled fonts), this yields symmetric overflow above and
+    // below instead of top-aligning inside a clip that chops descenders.
+    int textY = rect.y + (rect.h - textH) / 2;
+    bool hadClip = SDL_RenderIsClipEnabled(renderer) == SDL_TRUE;
+    SDL_Rect previousClip {};
+    if (hadClip) {
+      SDL_RenderGetClipRect(renderer, &previousClip);
     }
+    int clipTop = std::min(rect.y, textY);
+    int clipBottom = std::max(rect.y + rect.h, textY + textH);
+    SDL_Rect textClip { rect.x, clipTop, rect.w, std::max(0, clipBottom - clipTop) };
+    if (hadClip) {
+      SDL_Rect intersect {};
+      if (!SDL_IntersectRect(&previousClip, &textClip, &intersect)) {
+        return;
+      }
+      textClip = intersect;
+    }
+    SDL_RenderSetClipRect(renderer, &textClip);
     drawText(renderer, font, clipped, color, safe.x, textY);
+    SDL_RenderSetClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
@@ -1947,11 +2055,39 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
+    // Clamp available text width to the snapped right edge — same rationale as drawTextSafe.
+    safe.w = std::max(0, std::min(safe.w, snapDownToGrid(rect.x + rect.w) - safe.x));
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
     }
-    drawCenteredText(renderer, font, clipped, color, safe);
+    int textW = 0, textH = 0;
+    if (TTF_SizeUTF8(font, clipped.c_str(), &textW, &textH) != 0) {
+      return;
+    }
+    // Center X within the safe (inset) width; center Y on the original
+    // rect's midline (not the snapped rect) so text with textH > rect.h
+    // overflows symmetrically rather than top-aligning into a clip.
+    int textX = safe.x + (safe.w - textW) / 2;
+    int textY = rect.y + (rect.h - textH) / 2;
+    bool hadClip = SDL_RenderIsClipEnabled(renderer) == SDL_TRUE;
+    SDL_Rect previousClip {};
+    if (hadClip) {
+      SDL_RenderGetClipRect(renderer, &previousClip);
+    }
+    int clipTop = std::min(rect.y, textY);
+    int clipBottom = std::max(rect.y + rect.h, textY + textH);
+    SDL_Rect textClip { rect.x, clipTop, rect.w, std::max(0, clipBottom - clipTop) };
+    if (hadClip) {
+      SDL_Rect intersect {};
+      if (!SDL_IntersectRect(&previousClip, &textClip, &intersect)) {
+        return;
+      }
+      textClip = intersect;
+    }
+    SDL_RenderSetClipRect(renderer, &textClip);
+    drawText(renderer, font, clipped, color, textX, textY);
+    SDL_RenderSetClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   void drawCenteredText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
@@ -1967,9 +2103,11 @@
       SDL_FreeSurface(surface);
       return;
     }
+    // Snap the rect to match drawUIPanel so text is centered in the visible background.
+    SDL_Rect r = snapRectToGrid(rect);
     SDL_Rect dst {
-      rect.x + (rect.w - surface->w) / 2,
-      rect.y + (rect.h - surface->h) / 2,
+      r.x + (r.w - surface->w) / 2,
+      r.y + (r.h - surface->h) / 2,
       surface->w,
       surface->h
     };

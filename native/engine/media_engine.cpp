@@ -101,9 +101,15 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   decoderEof_ = false;
   reachedEnd_ = false;
   clearVisualOnReachedEnd_ = false;
+  // Per-cue fadeInSeconds/fadeOutSeconds apply uniformly to all cue kinds via
+  // `currentVisualFadeGain()` → bridge texture alpha in `renderDeckLayerIntoOutput`.
+  // Previously this branched on cue kind to avoid "double-fading" the crossfade
+  // in `MediaEngine::render()`, but that render path is dead for output purposes
+  // (see v0.76.4 DEVNOTE) — so the suppression just silently killed video-cue
+  // fades on the actual output window. Honor the caller's suppressFadeIn hint
+  // only; loop suppression is re-asserted in `handlePlaybackEnd`.
   suppressFadeInForCurrentCue_ = suppressFadeIn;
-  suppressVisualFadeOutForCurrentCue_ =
-    cue && (cueAdvancesWhenFinished(*cue) || resolvedCueEndAction(*cue) == CueEndAction::Loop);
+  suppressVisualFadeOutForCurrentCue_ = false;
 
   if (!cue) {
     state_ = TransportState::Stopped;
@@ -641,6 +647,42 @@ void MediaEngine::stopBrowserCapture() {
   stopDecoderThreads();
 }
 
+bool MediaEngine::startBrowserFrameMode(int w, int h, double transSecs, TransitionStyle transStyle) {
+  stopDecoderThreads();
+  isBrowserCapturing_ = false;
+  frameRate_ = 30.0;
+  // Preserve still duration from activeCue so fade-out and auto-advance work correctly.
+  // loadCue already called initStillTimer which set duration_ = cue.stillDurationSeconds.
+  // The clock is reset below so fade-in and duration countdown are relative to when the
+  // first browser frame arrives (not when the cue was taken).
+  duration_ = (activeCue_ && activeCue_->stillDurationSeconds > 0.0)
+              ? activeCue_->stillDurationSeconds : 0.0;
+  browserCaptureW_ = w;
+  browserCaptureH_ = h;
+  browserFrameIdx_ = 0;
+  if (transSecs > 0.0 && texture_) {
+    beginTransition(transSecs, transStyle);
+  }
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  playbackStartPosition_ = 0.0;
+  state_ = TransportState::Playing;
+  isBrowserCapturing_ = true;
+  return true;
+}
+
+void MediaEngine::pushBrowserFrame(const uint8_t* rgba, int w, int h) {
+  if (!isBrowserCapturing_ || !rgba || w <= 0 || h <= 0) return;
+  DecodedFrame frame;
+  frame.width  = w;
+  frame.height = h;
+  frame.index  = browserFrameIdx_++;
+  frame.pixels.assign(rgba, rgba + static_cast<size_t>(w) * h * 4);
+  std::lock_guard<std::mutex> lk(frameMutex_);
+  // Discard stale frames — keep at most 2 buffered
+  while (frameQueue_.size() >= 2) frameQueue_.pop_front();
+  frameQueue_.push_back(std::move(frame));
+}
+
 bool MediaEngine::startSourceCapture(const Cue& cue) {
 #ifdef _WIN32
   (void) cue;
@@ -763,6 +805,14 @@ void MediaEngine::initStillTimer(const Cue& cue, bool autoplay) {
 void MediaEngine::beginTransition(double seconds, TransitionStyle style, float sourceGain) {
   clearTransitionTexture();
   if (!texture_) {
+    return;
+  }
+  if (seconds <= 0.001) {
+    // For cuts: discard the old frame immediately.  Entering the
+    // "waiting for first frame" state would hold it on screen until
+    // the next cue renders something — which never happens for cues
+    // that don't produce frames (e.g. browser on Windows).
+    clearTexture();
     return;
   }
   transitionTexture_ = texture_;
@@ -993,10 +1043,11 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
 }
 
 void MediaEngine::stopImageThread() {
-  imageProcess_.stop();
+  imageProcess_.killProcessOnly();
   if (imageThread_.joinable()) {
     imageThread_.join();
   }
+  imageProcess_.stop();
   std::lock_guard<std::mutex> lk(imageMutex_);
   pendingImageFrame_.reset();
   imageFramePending_.store(false);
@@ -1155,8 +1206,11 @@ size_t MediaEngine::queuedFrames() {
 void MediaEngine::stopDecoderThreads() {
   stopImageThread();
   decoderStop_.store(true);
-  videoProcess_.stop();
-  audioProcess_.stop();
+  // Kill the processes first (closes their write-end of the pipe), which causes
+  // _read() in the decoder threads to return 0 (EOF) rather than crashing from
+  // a concurrently-closed readFd.  Only close readFd after joining the threads.
+  videoProcess_.killProcessOnly();
+  audioProcess_.killProcessOnly();
 
   if (videoThread_.joinable()) {
     videoThread_.join();
@@ -1164,6 +1218,9 @@ void MediaEngine::stopDecoderThreads() {
   if (audioThread_.joinable()) {
     audioThread_.join();
   }
+
+  videoProcess_.stop();
+  audioProcess_.stop();
 
   {
     std::lock_guard<std::mutex> lock(frameMutex_);
@@ -1217,7 +1274,14 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   }
   int decodeW = cue.width;
   int decodeH = cue.height;
-  if (cue.kind == CueKind::Video) {
+  // Detect live stream sources: skip ffprobe (blocks on network) and seek.
+  bool isNdiSource = (cue.kind == CueKind::NdiSource);
+  bool isLiveStream = (cue.kind == CueKind::SrtStream || cue.kind == CueKind::NdiSource);
+  // Only probe when dimensions are unknown (e.g. cue not yet ingested).
+  // Ingest (probeCue) already handles rotation and stores final rasterised
+  // dimensions in cue.width/height, so re-probing on every TAKE is redundant
+  // and blocks the main thread for 200–500 ms per take.
+  if (cue.kind == CueKind::Video && !isLiveStream && (decodeW <= 0 || decodeH <= 0)) {
     auto probeOut = readAllText({
       "ffprobe", "-v", "error", "-select_streams", "v:0",
       "-show_entries", "stream=width,height",
@@ -1244,6 +1308,12 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
       }
     }
   }
+  // Fall back to output resolution if no size is known (live streams)
+  auto [fallbackW, fallbackH] = currentOutputSizeHint();
+  if (decodeW <= 0 || decodeH <= 0) {
+    decodeW = fallbackW;
+    decodeH = fallbackH;
+  }
   std::string scaleFilter = "scale=" + std::to_string(decodeW) + ":" + std::to_string(decodeH)
                           + ":flags=bicubic";
   double speed = std::clamp(cue.playbackSpeed, 0.25, 4.0);
@@ -1252,24 +1322,31 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     pts << std::fixed << std::setprecision(4) << (1.0 / speed);
     scaleFilter += ",setpts=" + pts.str() + "*PTS";
   }
-  if (!spawnPipeProcess(videoProcess_, {
-    "ffmpeg",
-    "-hide_banner",
-    "-loglevel",
-    "error",
-    "-ss",
-    std::to_string(mediaStartSeconds),
-    "-i",
-    mediaPath,
+  // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
+  // NDI sources use ffmpeg's libndi_newtek input device; path format: ndi://SOURCE_NAME
+  std::vector<std::string> videoArgs = {
+    "ffmpeg", "-hide_banner", "-loglevel", "error"
+  };
+  if (!isLiveStream) {
+    videoArgs.insert(videoArgs.end(), {"-hwaccel", "auto"});
+    videoArgs.insert(videoArgs.end(), {"-ss", std::to_string(mediaStartSeconds)});
+  }
+  if (isNdiSource) {
+    // Strip ndi:// prefix — the remainder is the NDI source name
+    std::string ndiName = mediaPath.substr(6);
+    videoArgs.insert(videoArgs.end(), {"-f", "libndi_newtek", "-i", ndiName});
+  } else {
+    videoArgs.insert(videoArgs.end(), {"-i", mediaPath});
+  }
+  videoArgs.insert(videoArgs.end(), {
     "-map", "0:v:0",
     "-an",
     "-vf", scaleFilter,
-    "-f",
-    "rawvideo",
-    "-pix_fmt",
-    "rgba",
+    "-f", "rawvideo",
+    "-pix_fmt", "rgba",
     "pipe:1"
-  })) {
+  });
+  if (!spawnPipeProcess(videoProcess_, std::move(videoArgs))) {
     return;
   }
 
@@ -1317,10 +1394,17 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
 
   if (audioDevice_ != 0 && cue.hasAudio && cue.audioEnabled) {
     std::vector<std::string> audioArgs = {
-      "ffmpeg", "-hide_banner", "-loglevel", "error",
-      "-ss", std::to_string(mediaStartSeconds),
-      "-i", mediaPath, "-vn"
+      "ffmpeg", "-hide_banner", "-loglevel", "error"
     };
+    if (!isLiveStream) {
+      audioArgs.insert(audioArgs.end(), {"-ss", std::to_string(mediaStartSeconds)});
+    }
+    if (isNdiSource) {
+      std::string ndiName = mediaPath.substr(6);
+      audioArgs.insert(audioArgs.end(), {"-f", "libndi_newtek", "-i", ndiName, "-vn"});
+    } else {
+      audioArgs.insert(audioArgs.end(), {"-i", mediaPath, "-vn"});
+    }
     if (std::abs(speed - 1.0) > 0.01) {
       std::string atempoChain;
       double remaining = speed;
@@ -1358,9 +1442,17 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
           if (bytesRead <= 0) {
             break;
           }
+          // Align to s16le sample boundary: a stray trailing byte from a short
+          // read would size `scaled` too small for the subsequent memcpy and
+          // overflow by one byte. Drop the stray byte rather than paper over
+          // it — the decoder pipe will deliver it on the next iteration.
+          size_t alignedBytes = static_cast<size_t>(bytesRead) & ~size_t{1};
+          if (alignedBytes == 0) {
+            continue;
+          }
 
-          std::vector<std::int16_t> scaled(static_cast<size_t>(bytesRead) / sizeof(std::int16_t));
-          std::memcpy(scaled.data(), buffer.data(), static_cast<size_t>(bytesRead));
+          std::vector<std::int16_t> scaled(alignedBytes / sizeof(std::int16_t));
+          std::memcpy(scaled.data(), buffer.data(), alignedBytes);
           for (size_t index = 0; index < scaled.size(); index += 2) {
             double gain = static_cast<double>(volume_.load()) * fadeGainAt(audioTime);
             for (size_t channel = 0; channel < 2 && index + channel < scaled.size(); ++channel) {

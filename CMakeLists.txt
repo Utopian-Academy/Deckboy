@@ -164,11 +164,23 @@ option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
 option(ENABLE_WEBVIEW "Build with native WebView APIs (macOS WKWebView, Windows WebView2)" OFF)
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/native/core/version.hpp.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/generated/deckboy_version.hpp"
-  @ONLY
+# Generate version header at build time so editing VERSION triggers a rebuild
+# without needing to re-run cmake configure.
+set(GENERATED_VERSION_HPP "${CMAKE_CURRENT_BINARY_DIR}/generated/deckboy_version.hpp")
+add_custom_command(
+  OUTPUT "${GENERATED_VERSION_HPP}"
+  COMMAND "${CMAKE_COMMAND}"
+    "-DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+    "-DOUTPUT_FILE=${GENERATED_VERSION_HPP}"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_version.cmake"
+  DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/VERSION"
+    "${CMAKE_CURRENT_SOURCE_DIR}/native/core/version.hpp.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_version.cmake"
+  COMMENT "Generating deckboy_version.hpp from VERSION"
+  VERBATIM
 )
+add_custom_target(deckboy_generate_version DEPENDS "${GENERATED_VERSION_HPP}")
 
 # DeckLink SDK
 if(ENABLE_DECKLINK)
@@ -279,6 +291,10 @@ add_executable(deckboy-native
 )
 
 set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
+add_dependencies(deckboy-native deckboy_generate_version)
+if(WIN32)
+  set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
 
 # Platform modules (conditional)
 if(ENABLE_MIDI)
@@ -343,7 +359,18 @@ if(ENABLE_WEBVIEW)
     deckboy_target_link_frameworks(deckboy-native WebKit)
     target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_WEBVIEW=1)
   elseif(WIN32)
+    find_package(unofficial-webview2 CONFIG REQUIRED)
+    target_link_libraries(deckboy-native PRIVATE unofficial::webview2::webview2 dwmapi)
     target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_WEBVIEW=1)
+    message(STATUS "WebView2 support enabled")
+  endif()
+elseif(WIN32)
+  # Auto-detect WebView2 even when ENABLE_WEBVIEW is OFF
+  find_package(unofficial-webview2 CONFIG QUIET)
+  if(unofficial-webview2_FOUND)
+    target_link_libraries(deckboy-native PRIVATE unofficial::webview2::webview2 dwmapi)
+    target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_WEBVIEW=1)
+    message(STATUS "WebView2 auto-detected and enabled")
   endif()
 endif()
 
@@ -406,5 +433,5 @@ if(MSVC)
 endif()
 
 if(WIN32)
-  target_link_libraries(deckboy-native PRIVATE ws2_32)
+  target_link_libraries(deckboy-native PRIVATE ws2_32 shell32)
 endif()

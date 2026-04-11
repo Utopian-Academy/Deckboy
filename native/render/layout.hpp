@@ -6,6 +6,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <algorithm>
 #include <vector>
 #include "core/constants.hpp"
@@ -41,8 +42,29 @@ inline SDL_Rect snapRectToGrid(const SDL_Rect& rect) {
   return snapped;
 }
 
+// Height of a single line of text for the given font, including the blank
+// ascender/descender cushion returned by TTF_FontHeight. Falls back to a
+// conservative constant if the font is null so callers can use this at
+// compile-time-ish layout sites without guarding.
+inline int textLineHeight(TTF_Font* font) {
+  return font ? TTF_FontHeight(font) : 18;
+}
+
+// Y-coordinate of a UI row that sits directly below a single-line label
+// drawn with TTF at (_, labelY). Keeps spacing consistent across stock and
+// scaled font sizes instead of hard-coding a fixed pixel delta.
+inline int rowYBelowLabel(int labelY, TTF_Font* font, int gap = 2) {
+  return labelY + textLineHeight(font) + gap;
+}
+
+// Y-coordinate below N lines of text starting at startY.
+inline int rowYBelowLines(int startY, TTF_Font* font, int lines, int gap = 2) {
+  if (lines < 1) lines = 1;
+  return startY + textLineHeight(font) * lines + gap;
+}
+
 inline SDL_Rect safeTextRect(const SDL_Rect& rect) {
-  int targetInsetX = rect.w >= 96 ? kLayoutTextInset : 6;
+  int targetInsetX = rect.w >= 96 ? 8 : 4;
   int insetX = std::min(targetInsetX, std::max(0, rect.w / 2 - 1));
   int insetY = rect.h <= 24 ? 1 : std::min(3, std::max(0, rect.h / 6));
   return SDL_Rect {

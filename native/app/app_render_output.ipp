@@ -17,11 +17,28 @@
       return;
     }
 
-    SDL_Rect src {0, 0, std::min(windowW, texW), std::min(windowH, texH)};
-    std::string layoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
-    if (project_.outputCanvasEnabled && layoutMode == "span") {
-      src.x = std::clamp(deck.canvasViewX, 0, std::max(0, texW - src.w));
-      src.y = std::clamp(deck.canvasViewY, 0, std::max(0, texH - src.h));
+    // Area of Interest: if any AOI crop is set, use that region of the compositor
+    // (scaled to fill the full output window). Otherwise use canvas/span offset.
+    float aoiL = std::clamp(output.aoiLeft,   0.0f, 0.95f);
+    float aoiR = std::clamp(output.aoiRight,  0.0f, 0.95f);
+    float aoiT = std::clamp(output.aoiTop,    0.0f, 0.95f);
+    float aoiB = std::clamp(output.aoiBottom, 0.0f, 0.95f);
+    bool hasAoi = aoiL > 0.001f || aoiR > 0.001f || aoiT > 0.001f || aoiB > 0.001f;
+
+    SDL_Rect src;
+    if (hasAoi) {
+      int aoiX = static_cast<int>(aoiL * texW);
+      int aoiY = static_cast<int>(aoiT * texH);
+      int aoiW = std::max(1, static_cast<int>((1.0f - aoiL - aoiR) * texW));
+      int aoiH = std::max(1, static_cast<int>((1.0f - aoiT - aoiB) * texH));
+      src = {aoiX, aoiY, aoiW, aoiH};
+    } else {
+      src = {0, 0, std::min(windowW, texW), std::min(windowH, texH)};
+      std::string layoutMode = normalizeOutputLayoutMode(output.outputLayoutMode);
+      if (project_.outputCanvasEnabled && layoutMode == "span") {
+        src.x = std::clamp(deck.canvasViewX, 0, std::max(0, texW - src.w));
+        src.y = std::clamp(deck.canvasViewY, 0, std::max(0, texH - src.h));
+      }
     }
 
     bool hasBlend = deck.edgeBlendLeft > 0.0001f || deck.edgeBlendRight > 0.0001f
@@ -380,7 +397,8 @@
       outputRuntime->layerBridgeCueKeys[sourceDeckIndex] = std::move(cueKey);
     }
     float deckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
-    Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * 255.0f));
+    float fadeGain = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+    Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
     SDL_SetTextureAlphaMod(bridgeTexture, alpha);
     renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
@@ -575,7 +593,7 @@
         int margin = renderW / 10;
         SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
         bool _wfPending = false;
-        WaveformPeaks peaks = getWaveformPeaks(activeCue->path, _wfPending);
+        WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*activeCue, currentProjectFile_), _wfPending);
         double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
         const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
         float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
