@@ -102,6 +102,10 @@ Cute extras are now optional:
   - `Camera Source`: live device capture via ffmpeg `v4l2` (Linux)
   - `Syphon/Spout Source`: cue/runtime path implemented; Linux currently uses desktop-capture fallback while native Syphon/Spout backends remain roadmap
 - Engineering test patterns: SMPTE 75% colour bars, crosshatch, checkerboard, full-field (white/black/red/green/blue), plus motion variants for all standard patterns
+- New engineering pattern cues default to `hold`, so taking a test pattern does not auto-clear the output unless you explicitly set a duration
+- Motion test patterns loop cleanly, and `crosshatch-motion` now uses a gentler horizontal drift so the preview stays readable
+- The timeline audio lane now shows an animated analysis/loading state while waveform peaks are still being generated
+- The focused-deck VU meter now falls back to zero naturally when the active cue has no audio
 - **Pocket Test** — full-colour procedural tropical platform-adventure scene pack:
   - scene cycle: day, sunset, night, storm
   - creatures/elements: crab, jumping fish, parrot, turtle, dino-style enemy, puff friend, coins, explorer
@@ -178,6 +182,7 @@ DECKBOY_COMPANION_PORT=5610 ./bin/deckboy
 - `M`: add composite scene cue
 - Main control bar `Pattern` button: open test-pattern menu and add any pattern type
 - Pattern cue settings row (`pattern`): in-menu `- / +` cycles type, center toggle switches motion on/off
+- Newly added pattern cues default to `hold`; set a duration if you want them to auto-advance
 - `P`: add currently selected default pattern type (keyboard optional)
 - `L`: toggle selected cue loop
 - `E`: toggle selected cue hold on last frame
