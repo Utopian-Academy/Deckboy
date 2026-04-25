@@ -1,5 +1,27 @@
+// ============================================================================
+// app_render_settings.ipp — Settings modal dialog rendering and actions.
+//
+// Renders the settings modal (opened by the SETTINGS button or Ctrl+,):
+//
+//   renderSettingsModal()        — entry point: backdrop, tabs, tab content
+//   renderSettingsTabGeneral()   — general settings (project name, BPM, etc.)
+//   renderSettingsTabOutput()    — output configuration (resolution, displays)
+//   renderSettingsTabNetwork()   — network settings (OSC, Companion, NMC, etc.)
+//   renderSettingsTabIntegration() — integration backends (ATEM, NDI, LTC, etc.)
+//   handleSettingsAction()       — dispatch button presses by action constant
+//
+// Settings actions are integer constants (kSettingsAction*) defined in the
+// App class. Each button/toggle in the settings UI has a unique action ID.
+// When clicked, handleSettingsAction() routes to the appropriate handler.
+//
+// Current highest action constant: 623 (kSettingsActionOutputAoiBDec).
+// New actions should be allocated from 624+.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Render the settings modal dialog over the main control window.
   void renderSettingsModal() {
     if (!settingsOpen_) return;
     int width = 0, height = 0;
@@ -351,7 +373,7 @@
       constexpr int kCardGap = 10;
 
       int leftY = leftCol.y;
-      SDL_Rect remoteRect {leftCol.x, leftY, leftCol.w, 112};
+      SDL_Rect remoteRect {leftCol.x, leftY, leftCol.w, 142};
       leftY += remoteRect.h + kCardGap;
       SDL_Rect oscRect {leftCol.x, leftY, leftCol.w, 128};
       leftY += oscRect.h + kCardGap;
@@ -371,13 +393,16 @@
       settingsBtns_.push_back({portBtn, 220, "osc_port"});
       drawText(controlRenderer_, fontSmall_, "HyperDeck emulation stays on at TCP 9992.", soft,
                remoteRect.x + 196, portBtn.y + (portBtn.h - textLineHeight(fontSmall_)) / 2);
+      const int remoteToggleY = portBtn.y + portBtn.h + 6;
+      SDL_Rect remoteToggle {remoteRect.x + 8, remoteToggleY, 176, 22};
+      drawPill(remoteToggle, project_.allowRemoteNetwork, "REMOTE ON", "LOCAL ONLY", kSettingsActionAllowRemoteToggle);
+      drawText(controlRenderer_, fontSmall_,
+               project_.allowRemoteNetwork ? "Listening on all interfaces" : "Listening on localhost (127.0.0.1)",
+               soft, remoteToggle.x + remoteToggle.w + 8,
+               remoteToggle.y + (remoteToggle.h - textLineHeight(fontSmall_)) / 2);
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
-#if defined(_WIN32)
-      std::string queryStatus = project_.oscQueryEnabled ? "unsupported" : "off";
-#else
       std::string queryStatus = project_.oscQueryEnabled ? (oscQueryReady_ ? "running" : "error") : "off";
-#endif
       const int oscStatusY = oscRect.y + 54;
       drawText(controlRenderer_, fontSmall_,
                "query status: " + queryStatus + "  http " + std::to_string(project_.oscQueryPort),
@@ -416,10 +441,7 @@
       drawText(controlRenderer_, fontSmall_,
                ellipsizeToPixelWidth(fontSmall_, integrationRoute.summary, integrationRect.w - 16),
                soft, integrationRect.x + 8, integrationLineY);
-      int atemBridgePortDisplay = kDefaultAtemBridgePort;
-#ifndef _WIN32
-      atemBridgePortDisplay = atemBridgeListenPort_;
-#endif
+      int atemBridgePortDisplay = atemBridgeListenPort_;
       drawText(controlRenderer_, fontSmall_,
                "atem " + std::to_string(atemBridgePortDisplay) + "  artnet " + std::to_string(project_.artNetPort),
                soft, integrationRect.x + 8, integrationLineY + netLineH);
@@ -773,6 +795,84 @@
         ry += kRowH + 6;
       }
 
+      // DeckLink SDI/HDMI output
+      {
+        int dlH = 173;
+        SDL_Rect dlSection {rightX, ry, rightW, dlH};
+        SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
+        VerticalLayout dlLayout(dlBody, kRowGap);
+
+        // Enable toggle
+        SDL_Rect dlToggle = dlLayout.takeFixed(kRowH);
+        drawActionBtn(dlToggle,
+                      outputTarget.deckLinkEnabled ? "DECKLINK: ON" : "DECKLINK: OFF",
+                      kSettingsActionDeckLinkToggle, outputTarget.deckLinkEnabled);
+
+        // Device dropdown
+        {
+          std::string devLabel = "None";
+          if (outputTarget.deckLinkDeviceId >= 0) {
+            auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+            for (const auto& d : devices) {
+              if (d.id == outputTarget.deckLinkDeviceId) {
+                devLabel = d.modelName;
+                if (d.supportsSDI && d.supportsHDMI) devLabel += " (SDI+HDMI)";
+                else if (d.supportsSDI) devLabel += " (SDI)";
+                else if (d.supportsHDMI) devLabel += " (HDMI)";
+                break;
+              }
+            }
+          }
+          SDL_Rect devBtn = dlLayout.takeFixed(kRowH);
+          drawUIDropdown(devBtn, "Device", devLabel, "settings.decklink_device");
+          settingsBtns_.push_back({devBtn, kSettingsActionDeckLinkDeviceDropdown, "decklink_device"});
+        }
+
+        // Mode dropdown
+        {
+          auto mode = deckboy::platform::video::parseDeckLinkMode(outputTarget.deckLinkMode);
+          std::string modeLabel = deckboy::platform::video::deckLinkModeLabel(mode);
+          SDL_Rect modeBtn = dlLayout.takeFixed(kRowH);
+          drawUIDropdown(modeBtn, "Mode", modeLabel, "settings.decklink_mode");
+          settingsBtns_.push_back({modeBtn, kSettingsActionDeckLinkModeDropdown, "decklink_mode"});
+        }
+
+        // 10-bit toggle
+        SDL_Rect bitBtn = dlLayout.takeFixed(kRowH);
+        drawActionBtn(bitBtn,
+                      outputTarget.deckLink10Bit ? "10-BIT: ON" : "10-BIT: OFF",
+                      kSettingsActionDeckLink10BitToggle, outputTarget.deckLink10Bit);
+
+        ry += dlH + 6;
+      }
+
+      // Spout interprocess texture sharing (Windows)
+      {
+        int spH = 108;
+        SDL_Rect spSection {rightX, ry, rightW, spH};
+        SDL_Rect spBody = drawSectionFrame(spSection, "SPOUT TEXTURE SHARE");
+        VerticalLayout spLayout(spBody, kRowGap);
+
+        // Enable toggle
+        SDL_Rect spToggle = spLayout.takeFixed(kRowH);
+        drawActionBtn(spToggle,
+                      outputTarget.spoutEnabled ? "SPOUT: ON" : "SPOUT: OFF",
+                      kSettingsActionSpoutToggle, outputTarget.spoutEnabled);
+
+        // Sender name
+        {
+          std::string spName = trim(outputTarget.spoutSenderName);
+          if (spName.empty()) {
+            spName = "Deckboy Output " + std::to_string(focusedOutputIndex + 1);
+          }
+          SDL_Rect spNameBtn = spLayout.takeFixed(kRowH);
+          drawUIDropdown(spNameBtn, "Sender", spName, "settings.spout_name");
+          settingsBtns_.push_back({spNameBtn, kSettingsActionSpoutNamePrompt, "spout_name"});
+        }
+
+        ry += spH + 6;
+      }
+
       // Streaming — takes all remaining height so URL has room
       int streamH = std::max(280, availH - (ry - cy));
       SDL_Rect streamSection {rightX, ry, rightW, streamH};
@@ -1042,6 +1142,23 @@
       } else if (sb.action == 220) {
         settingsOpen_ = false;
         openInlineCompanionPortEditor();
+      } else if (sb.action == kSettingsActionAllowRemoteToggle) {
+        project_.allowRemoteNetwork = !project_.allowRemoteNetwork;
+        // Restart all network listeners with new bind address
+        stopCompanionControl();
+        stopOscQueryServer();
+        stopHyperDeckServer();
+        if (project_.atemTriggerEnabled) stopAtemBridgeListener();
+        if (project_.dmxArtNetEnabled) stopArtNetBridgeListener();
+        if (project_.nmcSyncEnabled) stopNmcSyncBridge();
+        startCompanionControl();
+        if (project_.oscQueryEnabled) startOscQueryServer();
+        startHyperDeckServer();
+        if (project_.atemTriggerEnabled) startAtemBridgeListener();
+        if (project_.dmxArtNetEnabled) startArtNetBridgeListener();
+        if (project_.nmcSyncEnabled) startNmcSyncBridge();
+        triggerToast(project_.allowRemoteNetwork ? "network: remote connections enabled" : "network: local only");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionOscQueryToggle) {
         setOscQueryEnabled(!project_.oscQueryEnabled);
       } else if (sb.action == kSettingsActionOscQueryPortPrompt) {
@@ -1451,6 +1568,115 @@
                              "Key sender source name", initial,
                              [this](const std::string& value) {
                                setFocusedOutputNdiKeyName(value);
+                             });
+      } else {
+        handleSettingsClickPart3(sb);
+      }
+  }
+
+  // Third part of the settings-click handler, split off to keep the
+  // if-else-if chain short enough for MSVC's block-nesting limit.
+  void handleSettingsClickPart3(const SettingsButton& sb) {
+    if (sb.action == kSettingsActionDeckLinkToggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.deckLinkEnabled = !output.deckLinkEnabled;
+        if (!output.deckLinkEnabled) {
+          // Shut down DeckLink when disabled
+          auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+          shutdownOutputDeckLink(rt);
+        }
+        triggerToast(std::string("decklink: ") + (output.deckLinkEnabled ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionDeckLinkDeviceDropdown) {
+        auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.push_back({"-1", "None"});
+        for (const auto& d : devices) {
+          std::string label = d.modelName;
+          if (d.supportsSDI && d.supportsHDMI) label += " (SDI+HDMI)";
+          else if (d.supportsSDI) label += " (SDI)";
+          else if (d.supportsHDMI) label += " (HDMI)";
+          if (d.supports4K) label += " 4K";
+          choices.push_back({std::to_string(d.id), label});
+        }
+        openDropdown("settings.decklink_device", sb.rect, choices,
+          std::to_string(focusedOutput().deckLinkDeviceId),
+          [this](const std::string& value) {
+            OutputTarget& output = focusedOutputMutable();
+            int newId = -1;
+            try { newId = std::stoi(trim(value)); } catch (...) {}
+            if (output.deckLinkDeviceId != newId) {
+              output.deckLinkDeviceId = newId;
+              // Shutdown so it re-inits with the new device
+              auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+              shutdownOutputDeckLink(rt);
+              markProjectDirty();
+            }
+          });
+        return;
+      } else if (sb.action == kSettingsActionDeckLinkModeDropdown) {
+        using DLM = deckboy::platform::video::DeckLinkMode;
+        static constexpr DLM allModes[] = {
+          DLM::HD720p50, DLM::HD720p5994, DLM::HD720p60,
+          DLM::HD1080i50, DLM::HD1080i5994, DLM::HD1080i60,
+          DLM::HD1080p2398, DLM::HD1080p24, DLM::HD1080p25,
+          DLM::HD1080p2997, DLM::HD1080p30, DLM::HD1080p50,
+          DLM::HD1080p5994, DLM::HD1080p60,
+          DLM::UHD2160p2398, DLM::UHD2160p24, DLM::UHD2160p25,
+          DLM::UHD2160p2997, DLM::UHD2160p30, DLM::UHD2160p50,
+          DLM::UHD2160p5994, DLM::UHD2160p60,
+        };
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (auto m : allModes) {
+          std::string token = deckboy::platform::video::deckLinkModeToken(m);
+          std::string label = deckboy::platform::video::deckLinkModeLabel(m);
+          choices.push_back({token, label});
+        }
+        openDropdown("settings.decklink_mode", sb.rect, choices,
+          focusedOutput().deckLinkMode,
+          [this](const std::string& value) {
+            OutputTarget& output = focusedOutputMutable();
+            if (output.deckLinkMode != value) {
+              output.deckLinkMode = value;
+              // Shutdown so it re-inits with the new mode
+              auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+              shutdownOutputDeckLink(rt);
+              markProjectDirty();
+            }
+          });
+        return;
+      } else if (sb.action == kSettingsActionDeckLink10BitToggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.deckLink10Bit = !output.deckLink10Bit;
+        // Shutdown so it re-inits with the new bit depth
+        auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+        shutdownOutputDeckLink(rt);
+        triggerToast(std::string("decklink 10-bit: ") + (output.deckLink10Bit ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionSpoutToggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.spoutEnabled = !output.spoutEnabled;
+        if (!output.spoutEnabled) {
+          auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+          shutdownOutputSpout(rt);
+        }
+        triggerToast(std::string("spout: ") + (output.spoutEnabled ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionSpoutNamePrompt) {
+        const OutputTarget& output = focusedOutput();
+        std::string initial = trim(output.spoutSenderName);
+        if (initial.empty()) {
+          initial = "Deckboy Output " + std::to_string(project_.focusedOutputIndex + 1);
+        }
+        openInlineTextEditor("settings.spout_name", "Spout Sender Name",
+                             "Name visible to receivers", initial,
+                             [this](const std::string& value) {
+                               OutputTarget& output = focusedOutputMutable();
+                               output.spoutSenderName = trim(value);
+                               // Shutdown so it re-inits with the new name
+                               auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+                               shutdownOutputSpout(rt);
+                               markProjectDirty();
                              });
       } else if (sb.action == kSettingsActionOutputAdvancedToggle) {
         videoOutputsAdvanced_ = !videoOutputsAdvanced_;

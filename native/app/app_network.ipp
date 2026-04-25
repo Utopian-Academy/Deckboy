@@ -1,6 +1,44 @@
+// ============================================================================
+// app_network.ipp — Network integration methods for the App class.
+//
+// Implements the network protocols used for remote control and integration:
+//
+//   OSC server:
+//     - UDP listener for Open Sound Control messages
+//     - Subscriber tracking (auto-discovers Companion instances)
+//     - OSC message encoding/sending for feedback and tally
+//     - OSC Query server for endpoint discovery
+//
+//   Bitfocus Companion integration:
+//     - Button state feedback (play/stop/cue colors)
+//     - Tally reporting for active sources
+//     - Two-way communication via OSC over UDP
+//
+//   ATEM tally bridge:
+//     - Receives ATEM tally packets on the bridge port
+//     - Maps tally sources to deck transport triggers
+//
+//   NMC (Network Master Clock) sync:
+//     - Input mode: receives transport commands (play/stop/seek)
+//     - Output mode: broadcasts transport state to followers
+//
+//   NDI trigger bridge:
+//     - Receives NDI metadata frames as cue triggers
+//
+//   Art-Net DMX bridge:
+//     - Receives Art-Net DMX packets for lighting trigger integration
+//
+//   LTC (Linear Time Code) ingest:
+//     - Audio capture → LTC decode → timecode chase
+//
+// Cross-platform: uses Winsock2 on Windows, BSD sockets on POSIX.
+// ALSA MIDI and LTC ingest remain platform-gated (DECKBOY_HAS_ALSA / libltc).
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
-#ifndef _WIN32
+// ============================================================================
+
+  // Format a socket address as "host:port" for use as a map key.
   std::string oscSenderKey(const sockaddr_in& sender) const {
     char host[INET_ADDRSTRLEN] {};
     const char* text = inet_ntop(AF_INET, &sender.sin_addr, host, sizeof(host));
@@ -21,11 +59,11 @@
     std::vector<std::uint8_t> message = buildOscStringMessage(address, payload);
     sendto(
       companionUdpSocket_,
-      message.data(),
-      message.size(),
+      reinterpret_cast<const char*>(message.data()),
+      static_cast<int>(message.size()),
       0,
       reinterpret_cast<const sockaddr*>(&target),
-      sizeof(target)
+      static_cast<socklen_t>(sizeof(target))
     );
   }
 
@@ -162,14 +200,26 @@
            << "\r\n";
     std::string response = header.str();
     response += body;
-    send(client, response.c_str(), response.size(), kSocketSendFlags);
+    send(client, response.c_str(), static_cast<int>(response.size()), kSocketSendFlags);
   }
 
   void handleOscQueryHttpClient(SocketHandle client) {
     std::string request;
     std::array<char, 2048> buffer {};
+    // 5-second total deadline prevents slow-loris attacks from blocking the server thread
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
     while (request.find("\r\n\r\n") == std::string::npos && request.size() < 16384) {
-      ssize_t bytes = recv(client, buffer.data(), buffer.size(), 0);
+      auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(
+        deadline - std::chrono::steady_clock::now());
+      if (remaining.count() <= 0) break;  // deadline expired
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      FD_SET(client, &readFds);
+      timeval tv {};
+      tv.tv_sec = static_cast<long>(remaining.count() / 1000000);
+      tv.tv_usec = static_cast<long>(remaining.count() % 1000000);
+      if (select(selectNfds(client), &readFds, nullptr, nullptr, &tv) <= 0) break;
+      int bytes = recv(client, buffer.data(), static_cast<int>(buffer.size()), 0);
       if (bytes <= 0) {
         break;
       }
@@ -226,7 +276,7 @@
       return true;
     }
 
-    oscQueryTcpListen_ = createBoundSocket(SOCK_STREAM, project_.oscQueryPort, true);
+    oscQueryTcpListen_ = createBoundSocket(SOCK_STREAM, project_.oscQueryPort, true, !project_.allowRemoteNetwork);
     if (oscQueryTcpListen_ == kInvalidSocket) {
       oscQueryReady_ = false;
       return false;
@@ -263,11 +313,13 @@
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
-      int ready = select(oscQueryTcpListen_ + 1, &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(oscQueryTcpListen_), &readFds, nullptr, nullptr, &timeout);
       if (ready < 0) {
+#ifndef _WIN32
         if (errno == EINTR) {
           continue;
         }
+#endif
         break;
       }
       if (ready == 0) {
@@ -280,7 +332,7 @@
       sockaddr_in clientAddress {};
       socklen_t clientLength = sizeof(clientAddress);
       SocketHandle client = accept(oscQueryTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
-      if (client < 0) {
+      if (client == kInvalidSocket) {
         continue;
       }
       setCloseOnExec(client);
@@ -437,13 +489,8 @@
 
     return false;
   }
-#endif
 
   bool startCompanionControl() {
-#ifdef _WIN32
-    companionReady_ = false;
-    return false;
-#else
     const char* portEnv = std::getenv("DECKBOY_COMPANION_PORT");
     if (portEnv && *portEnv) {
       try {
@@ -453,8 +500,8 @@
       }
     }
 
-    companionTcpListen_ = createBoundSocket(SOCK_STREAM, companionPort_, true);
-    companionUdpSocket_ = createBoundSocket(SOCK_DGRAM, companionPort_, false);
+    companionTcpListen_ = createBoundSocket(SOCK_STREAM, companionPort_, true, !project_.allowRemoteNetwork);
+    companionUdpSocket_ = createBoundSocket(SOCK_DGRAM, companionPort_, false, !project_.allowRemoteNetwork);
     if (companionTcpListen_ == kInvalidSocket || companionUdpSocket_ == kInvalidSocket) {
       closeSocket(companionTcpListen_);
       closeSocket(companionUdpSocket_);
@@ -470,13 +517,9 @@
     });
     companionReady_ = true;
     return true;
-#endif
   }
 
   void stopCompanionControl() {
-#ifdef _WIN32
-    companionReady_ = false;
-#else
     companionStop_.store(true);
     if (companionThread_.joinable()) {
       companionThread_.join();
@@ -499,32 +542,26 @@
     companionTcpListen_ = kInvalidSocket;
     companionUdpSocket_ = kInvalidSocket;
     companionReady_ = false;
-#endif
   }
 
   void startIntegrationBridges() {
     startTslTally();
-#ifndef _WIN32
     startAtemBridgeListener();
     startArtNetBridgeListener();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
     refreshLtcCaptureState();
-#endif
   }
 
   void stopIntegrationBridges() {
     stopTslTally();
-#ifndef _WIN32
     stopLtcIngest();
     stopNmcSyncBridge();
     stopNdiTriggerBridge();
     stopAtemBridgeListener();
     stopArtNetBridgeListener();
-#endif
   }
 
-#ifndef _WIN32
   int resolvedAtemBridgePort() const {
     int port = kDefaultAtemBridgePort;
     const char* env = std::getenv("DECKBOY_ATEM_BRIDGE_PORT");
@@ -651,7 +688,7 @@
   void startAtemBridgeListener() {
     stopAtemBridgeListener();
     atemBridgeListenPort_ = resolvedAtemBridgePort();
-    atemBridgeSocket_ = createBoundSocket(SOCK_DGRAM, atemBridgeListenPort_, false);
+    atemBridgeSocket_ = createBoundSocket(SOCK_DGRAM, atemBridgeListenPort_, false, !project_.allowRemoteNetwork);
     if (atemBridgeSocket_ == kInvalidSocket) {
       return;
     }
@@ -678,7 +715,7 @@
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
-      int ready = select(atemBridgeSocket_ + 1, &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(atemBridgeSocket_), &readFds, nullptr, nullptr, &timeout);
       if (ready <= 0) {
         continue;
       }
@@ -710,7 +747,7 @@
   void startArtNetBridgeListener() {
     stopArtNetBridgeListener();
     artNetListenPort_ = resolvedArtNetBridgePort();
-    artNetSocket_ = createBoundSocket(SOCK_DGRAM, artNetListenPort_, false);
+    artNetSocket_ = createBoundSocket(SOCK_DGRAM, artNetListenPort_, false, !project_.allowRemoteNetwork);
     if (artNetSocket_ == kInvalidSocket) {
       return;
     }
@@ -747,7 +784,7 @@
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
-      int ready = select(artNetSocket_ + 1, &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(artNetSocket_), &readFds, nullptr, nullptr, &timeout);
       if (ready <= 0) {
         continue;
       }
@@ -816,7 +853,7 @@
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
-      int ready = select(nmcSyncSocket_ + 1, &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(nmcSyncSocket_), &readFds, nullptr, nullptr, &timeout);
       if (ready <= 0) {
         continue;
       }
@@ -826,10 +863,10 @@
       std::array<char, 1024> buffer {};
       sockaddr_in sender {};
       socklen_t senderLen = sizeof(sender);
-      ssize_t bytes = recvfrom(
+      int bytes = recvfrom(
         nmcSyncSocket_,
         buffer.data(),
-        buffer.size() - 1,
+        static_cast<int>(buffer.size() - 1),
         0,
         reinterpret_cast<sockaddr*>(&sender),
         &senderLen);
@@ -876,7 +913,7 @@
       return true;
     }
 
-    nmcSyncSocket_ = createBoundSocket(SOCK_DGRAM, nmcSyncActivePort_, false);
+    nmcSyncSocket_ = createBoundSocket(SOCK_DGRAM, nmcSyncActivePort_, false, !project_.allowRemoteNetwork);
     if (nmcSyncSocket_ == kInvalidSocket) {
       nmcSyncLastError_ = "nmc listen socket unavailable";
       return false;
@@ -961,15 +998,15 @@
       return false;
     }
     std::string payload = formatNmcSyncPacket(command, seconds);
-    ssize_t sent = sendto(
+    int sent = sendto(
       nmcSyncSocket_,
       payload.c_str(),
-      payload.size(),
+      static_cast<int>(payload.size()),
       kSocketSendFlags,
       reinterpret_cast<const sockaddr*>(&nmcSyncTargetAddress_),
-      sizeof(nmcSyncTargetAddress_));
+      static_cast<socklen_t>(sizeof(nmcSyncTargetAddress_)));
     if (sent < 0) {
-      nmcSyncLastError_ = std::string("nmc send failed: ") + std::strerror(errno);
+      nmcSyncLastError_ = "nmc send failed";
       nmcSyncRestartBlockedUntilMs_ = SDL_GetTicks64() + 3000;
       closeSocket(nmcSyncSocket_);
       nmcSyncSocket_ = kInvalidSocket;
@@ -1023,15 +1060,7 @@
     nmcSyncLastSentSeconds_ = seconds;
     nmcSyncOutputStateInitialized_ = true;
   }
-#else
-  void restartArtNetBridgeListener() {}
-  void refreshNmcSyncState() {}
-  void stopNmcSyncBridge() {}
-  void tickNmcSyncOutput() {}
-  std::string describeNmcSyncRuntime() const { return "stub"; }
-#endif
 
-#ifndef _WIN32
   std::string configuredNdiTriggerSourceFilter() const {
     const char* env = std::getenv("DECKBOY_NDI_TRIGGER_SOURCE");
     return env ? trim(env) : std::string();
@@ -1313,9 +1342,6 @@
     }
     ndiTriggerRestartBlockedUntilMs_ = 0;
   }
-#else
-  void refreshNdiTriggerBridgeState() {}
-#endif
 
   void resetMidiMtcDecoder() {
 #if defined(DECKBOY_HAS_ALSA)
@@ -1365,27 +1391,23 @@
 #endif
 
   void startHyperDeckServer() {
-#ifndef _WIN32
     const char* portEnv = std::getenv("DECKBOY_HYPERDECK_PORT");
     if (portEnv && *portEnv) {
       try { hyperDeckPort_ = std::clamp(std::stoi(portEnv), 1, 65535); } catch (...) {}
     }
-    hyperDeckListenFd_ = createBoundSocket(SOCK_STREAM, hyperDeckPort_, true);
+    hyperDeckListenFd_ = createBoundSocket(SOCK_STREAM, hyperDeckPort_, true, !project_.allowRemoteNetwork);
     if (hyperDeckListenFd_ == kInvalidSocket) return;
     hyperDeckRunning_.store(true);
     hyperDeckThread_ = std::thread([this]() { hyperDeckLoop(); });
-#endif
   }
 
   void stopHyperDeckServer() {
-#ifndef _WIN32
     hyperDeckRunning_.store(false);
     if (hyperDeckListenFd_ != kInvalidSocket) {
       closeSocket(hyperDeckListenFd_);
       hyperDeckListenFd_ = kInvalidSocket;
     }
     if (hyperDeckThread_.joinable()) hyperDeckThread_.join();
-#endif
   }
 
   bool startMidiInput() {
@@ -1529,7 +1551,6 @@
 #endif
   }
 
-#ifndef _WIN32
   void hyperDeckLoop() {
     // Each connected client gets a simple blocking handler in this loop.
     // We only handle one client at a time (sufficient for HyperDeck use).
@@ -1538,11 +1559,11 @@
       FD_ZERO(&readFds);
       FD_SET(hyperDeckListenFd_, &readFds);
       timeval tv {0, 100000};  // 100ms timeout
-      if (select(hyperDeckListenFd_ + 1, &readFds, nullptr, nullptr, &tv) <= 0) continue;
+      if (select(selectNfds(hyperDeckListenFd_), &readFds, nullptr, nullptr, &tv) <= 0) continue;
       sockaddr_in clientAddr {};
       socklen_t addrLen = sizeof(clientAddr);
-      int clientFd = accept(hyperDeckListenFd_, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
-      if (clientFd < 0) continue;
+      SocketHandle clientFd = accept(hyperDeckListenFd_, reinterpret_cast<sockaddr*>(&clientAddr), &addrLen);
+      if (clientFd == kInvalidSocket) continue;
       setCloseOnExec(clientFd);
       // Greet
       const char* greeting =
@@ -1550,15 +1571,20 @@
         "protocol version: 1.11\r\n"
         "model: HyperDeck Studio Mini\r\n"
         "\r\n";
-      send(clientFd, greeting, strlen(greeting), kSocketSendFlags);
+      send(clientFd, greeting, static_cast<int>(strlen(greeting)), kSocketSendFlags);
       // Handle client
       std::string buf;
+      constexpr size_t kHyperDeckMaxBuf = 65536;  // 64KB max pending data per client
       while (hyperDeckRunning_.load()) {
         char tmp[256];
-        int n = recv(clientFd, tmp, sizeof(tmp) - 1, 0);
+        int n = recv(clientFd, tmp, static_cast<int>(sizeof(tmp) - 1), 0);
         if (n <= 0) break;
         tmp[n] = '\0';
         buf += tmp;
+        // Disconnect clients that send too much data without line terminators
+        if (buf.size() > kHyperDeckMaxBuf) {
+          break;
+        }
         // Process complete lines (\r\n terminated)
         size_t pos;
         while ((pos = buf.find("\r\n")) != std::string::npos) {
@@ -1570,11 +1596,11 @@
 
           std::string resp = hyperDeckHandleCommand(line);
           if (!resp.empty()) {
-            send(clientFd, resp.c_str(), resp.size(), kSocketSendFlags);
+            send(clientFd, resp.c_str(), static_cast<int>(resp.size()), kSocketSendFlags);
           }
         }
       }
-      close(clientFd);
+      closeSocket(clientFd);
     }
   }
 
@@ -1681,14 +1707,12 @@
     // Unknown command
     return "109 unsupported parameter\r\n\r\n";
   }
-#endif
 
-#ifndef _WIN32
   void companionLoop() {
     while (!companionStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
-      int maxFd = -1;
+      SocketHandle maxFd = 0;
 
       FD_SET(companionTcpListen_, &readFds);
       maxFd = std::max(maxFd, companionTcpListen_);
@@ -1710,11 +1734,13 @@
       timeout.tv_sec = 0;
       timeout.tv_usec = 100000;  // 100ms (was 200ms)
 
-      int ready = select(maxFd + 1, &readFds, nullptr, nullptr, &timeout);
+      int ready = select(selectNfds(maxFd), &readFds, nullptr, nullptr, &timeout);
       if (ready < 0) {
+#ifndef _WIN32
         if (errno == EINTR) {
           continue;
         }
+#endif
         break;
       }
       if (ready == 0) {
@@ -1722,16 +1748,21 @@
         continue;
       }
 
-      // Accept new TCP clients
+      // Accept new TCP clients (capped at 32 concurrent connections)
       if (FD_ISSET(companionTcpListen_, &readFds)) {
         sockaddr_in clientAddress {};
         socklen_t clientLength = sizeof(clientAddress);
         SocketHandle client = accept(companionTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
-        if (client >= 0) {
+        if (client != kInvalidSocket) {
           setCloseOnExec(client);
           std::lock_guard<std::mutex> lk(companionClientsMutex_);
-          companionClients_.push_back(client);
-          companionClientBuffers_[client] = "";
+          constexpr size_t kMaxCompanionClients = 32;
+          if (companionClients_.size() >= kMaxCompanionClients) {
+            closeSocket(client);  // reject — too many connections
+          } else {
+            companionClients_.push_back(client);
+            companionClientBuffers_[client] = "";
+          }
         }
       }
 
@@ -1739,10 +1770,10 @@
         std::array<char, 2048> buffer {};
         sockaddr_in sender {};
         socklen_t senderLen = sizeof(sender);
-        ssize_t bytes = recvfrom(
+        int bytes = recvfrom(
           companionUdpSocket_,
           buffer.data(),
-          buffer.size(),
+          static_cast<int>(buffer.size()),
           0,
           reinterpret_cast<sockaddr*>(&sender),
           &senderLen
@@ -1786,7 +1817,7 @@
           }
 
           std::array<char, 2048> buffer {};
-          ssize_t bytes = recv(client, buffer.data(), buffer.size(), 0);
+          int bytes = recv(client, buffer.data(), static_cast<int>(buffer.size()), 0);
           if (bytes <= 0) {
             closedClients.push_back(client);
             continue;
@@ -1794,6 +1825,13 @@
 
           std::string& pending = companionClientBuffers_[client];
           pending.append(buffer.data(), static_cast<size_t>(bytes));
+
+          // Disconnect clients that send too much data without newlines
+          constexpr size_t kMaxCompanionClientBuf = 65536;  // 64KB
+          if (pending.size() > kMaxCompanionClientBuf) {
+            closedClients.push_back(client);
+            continue;
+          }
 
           size_t newlinePos = std::string::npos;
           while ((newlinePos = pending.find('\n')) != std::string::npos) {
@@ -1829,7 +1867,6 @@
       maybeBroadcastOscState();
     }
   }
-#endif
 
   // ── TSL/Tally Protocol (cross-platform, UDP send-only) ─────────────────────
   // Sends TSL 3.1 tally packets to tally hardware on every deck state change.

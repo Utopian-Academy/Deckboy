@@ -3,6 +3,34 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// layout.hpp — Grid-aligned layout utilities for the Deckboy UI.
+//
+// Provides layout primitives that snap to the grid unit (kLayoutSpacingUnit)
+// defined in core/constants.hpp for pixel-precise alignment:
+//
+//   Grid snapping:
+//     snapDownToGrid()  — round down to nearest grid unit
+//     snapUpToGrid()    — round up to nearest grid unit
+//     snapRectToGrid()  — snap all four edges of a rectangle
+//
+//   Text measurement:
+//     textLineHeight()  — height of one text line for a given TTF font
+//     rowYBelowLabel()  — Y position below a single-line label
+//     rowYBelowLines()  — Y position below N lines of text
+//     safeTextRect()    — inset a rectangle to create text padding
+//
+//   Layout containers (stack-based, consume space from a bounding rect):
+//     VerticalLayout    — stack children top-to-bottom with gaps
+//     HorizontalLayout  — stack children left-to-right with gaps
+//     GridLayout        — N×M grid with uniform cell sizes and spans
+//     UITable           — variable-width columns with fixed row height
+//
+// All layout classes are header-only (inline). No .cpp counterpart.
+// Used throughout the app .ipp rendering files for settings panels,
+// inspector UI, transport controls, and all other Deckboy UI panels.
+// ============================================================================
+
 #pragma once
 
 #include <SDL.h>
@@ -11,6 +39,12 @@
 #include <vector>
 #include "core/constants.hpp"
 
+// ── Grid snapping helpers ───────────────────────────────────────────────────
+// All UI layout coordinates are snapped to the grid unit to avoid subpixel
+// artifacts and maintain consistent spacing across the entire interface.
+
+// Round a pixel value down to the nearest multiple of kLayoutSpacingUnit.
+// Handles negative values correctly (rounds toward negative infinity).
 inline int snapDownToGrid(int value) {
   if (kLayoutSpacingUnit <= 1) {
     return value;
@@ -22,6 +56,7 @@ inline int snapDownToGrid(int value) {
   return remainder == 0 ? value : value - (kLayoutSpacingUnit - remainder);
 }
 
+// Round a pixel value up to the nearest multiple of kLayoutSpacingUnit.
 inline int snapUpToGrid(int value) {
   if (kLayoutSpacingUnit <= 1) {
     return value;
@@ -30,6 +65,8 @@ inline int snapUpToGrid(int value) {
   return down == value ? value : down + kLayoutSpacingUnit;
 }
 
+// Snap all four edges of a rectangle to grid boundaries. Ensures both
+// the origin (x,y) and the far edges (x+w, y+h) land on grid lines.
 inline SDL_Rect snapRectToGrid(const SDL_Rect& rect) {
   int right = snapDownToGrid(rect.x + rect.w);
   int bottom = snapDownToGrid(rect.y + rect.h);
@@ -63,6 +100,10 @@ inline int rowYBelowLines(int startY, TTF_Font* font, int lines, int gap = 2) {
   return startY + textLineHeight(font) * lines + gap;
 }
 
+// ── Text padding helper ─────────────────────────────────────────────────────
+// Inset a rectangle to create padding for text content. Uses proportional
+// insets: wider rects get 8px horizontal padding, narrow ones get 4px.
+// Vertical padding scales with rect height (1px for <=24px, up to 3px).
 inline SDL_Rect safeTextRect(const SDL_Rect& rect) {
   int targetInsetX = rect.w >= 96 ? 8 : 4;
   int insetX = std::min(targetInsetX, std::max(0, rect.w / 2 - 1));
@@ -75,6 +116,10 @@ inline SDL_Rect safeTextRect(const SDL_Rect& rect) {
   };
 }
 
+// ── VerticalLayout ──────────────────────────────────────────────────────────
+// Distributes child rectangles top-to-bottom within a bounding rect.
+// Maintains a Y cursor that advances after each takeFixed() call.
+// takeRemaining() consumes all remaining vertical space.
 class VerticalLayout {
  public:
   explicit VerticalLayout(SDL_Rect bounds, int gap = kLayoutPanelGap)
@@ -82,6 +127,7 @@ class VerticalLayout {
       cursorY_(snapDownToGrid(bounds_.y)),
       gap_(std::max(0, gap)) {}
 
+  // Consume a fixed-height slice from the top of remaining space.
   SDL_Rect takeFixed(int height) {
     if (bounds_.w <= 0 || bounds_.h <= 0) {
       return SDL_Rect {};
@@ -95,6 +141,7 @@ class VerticalLayout {
     return rect;
   }
 
+  // Consume all remaining vertical space as one rectangle.
   SDL_Rect takeRemaining() {
     if (bounds_.w <= 0 || bounds_.h <= 0) {
       return SDL_Rect {};
@@ -112,10 +159,13 @@ class VerticalLayout {
 
  private:
   SDL_Rect bounds_ {};
-  int cursorY_ = 0;
-  int gap_ = 0;
+  int cursorY_ = 0;  // Advances downward as children are placed
+  int gap_ = 0;       // Spacing between consecutive children
 };
 
+// ── HorizontalLayout ───────────────────────────────────────────────────────
+// Distributes child rectangles left-to-right within a bounding rect.
+// Same pattern as VerticalLayout but along the X axis.
 class HorizontalLayout {
  public:
   explicit HorizontalLayout(SDL_Rect bounds, int gap = kLayoutPanelGap)
@@ -123,6 +173,7 @@ class HorizontalLayout {
       cursorX_(snapDownToGrid(bounds_.x)),
       gap_(std::max(0, gap)) {}
 
+  // Consume a fixed-width slice from the left of remaining space.
   SDL_Rect takeFixed(int width) {
     if (bounds_.w <= 0 || bounds_.h <= 0) {
       return SDL_Rect {};
@@ -136,6 +187,7 @@ class HorizontalLayout {
     return rect;
   }
 
+  // Consume all remaining horizontal space as one rectangle.
   SDL_Rect takeRemaining() {
     if (bounds_.w <= 0 || bounds_.h <= 0) {
       return SDL_Rect {};
@@ -153,10 +205,13 @@ class HorizontalLayout {
 
  private:
   SDL_Rect bounds_ {};
-  int cursorX_ = 0;
+  int cursorX_ = 0;  // Advances rightward as children are placed
   int gap_ = 0;
 };
 
+// ── GridLayout ──────────────────────────────────────────────────────────────
+// Divides a bounding rect into a uniform N-column × M-row grid.
+// Each cell is the same size; cell() supports multi-column/row spans.
 class GridLayout {
  public:
   GridLayout(SDL_Rect bounds, int columns, int rows, int gap = kLayoutPanelGap)
@@ -165,6 +220,8 @@ class GridLayout {
       rows_(std::max(1, rows)),
       gap_(std::max(0, gap)) {}
 
+  // Returns the rectangle for the cell at (column, row), optionally spanning
+  // multiple columns/rows. Clamps indices and spans to valid ranges.
   SDL_Rect cell(int column, int row, int colSpan = 1, int rowSpan = 1) const {
     column = std::clamp(column, 0, columns_ - 1);
     row = std::clamp(row, 0, rows_ - 1);
@@ -189,6 +246,10 @@ class GridLayout {
   int gap_ = 0;
 };
 
+// ── UITable ─────────────────────────────────────────────────────────────────
+// A table layout with variable-width columns and fixed row height.
+// Unlike GridLayout, each column can have a different width (specified
+// explicitly), making it suitable for data tables with label + value columns.
 class UITable {
  public:
   UITable(SDL_Rect bounds, std::vector<int> columnWidths, int rowHeight, int gap = kLayoutButtonGap)

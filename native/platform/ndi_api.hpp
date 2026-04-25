@@ -3,12 +3,45 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// ndi_api.hpp — NDI send runtime (dynamic library loader).
+//
+// NDI (Network Device Interface) is a protocol for low-latency video/audio
+// over IP, used in broadcast and live production. This file provides the
+// NdiApi struct which dynamically loads the NDI SDK runtime library and
+// resolves the symbols needed to SEND video/audio frames over the network.
+//
+// The NDI SDK is loaded dynamically (not linked at compile time) because:
+//   - The NDI SDK is proprietary and not redistributable
+//   - Not all users have it installed
+//   - The library path varies by platform and SDK version
+//
+// Library search order:
+//   1. DECKBOY_NDI_LIB environment variable (override)
+//   2. Windows: Processing.NDI.Lib.x64.dll (CWD, PATH), NDI_SDK_DIR, default install paths
+//   3. macOS: libndi.dylib
+//   4. Linux: libndi.so.6, libndi.so, /usr/local/lib/libndi.so.6
+//
+// Functions loaded:
+//   NDIlib_initialize/destroy:           runtime init/cleanup
+//   NDIlib_send_create/destroy:          create/destroy a send instance
+//   NDIlib_send_send_video_v2:           send an RGBA video frame
+//   NDIlib_util_send_send_audio_interleaved_16s: send interleaved 16-bit audio
+//   NDIlib_send_get_no_connections:      query connected receiver count
+//
+// See also: ndi_trigger_api.hpp for NDI receive/find (tally, source discovery).
+// Requires: DECKBOY_HAS_NDI_SDK compile flag + NDI SDK headers installed.
+//
+// Used by: main.cpp NDI output thread (sends deck output frames to receivers).
+// ============================================================================
+
 #pragma once
 
 #if defined(DECKBOY_HAS_NDI_SDK)
 
 #include <Processing.NDI.Lib.h>
 
+#include <atomic>
 #include <cstdint>
 #include <cstdlib>
 #include <string>
@@ -16,10 +49,13 @@
 
 #include "dynamic_library.hpp"
 
+// Dynamic loader for the NDI SDK send runtime.
+// Usage: call ensureLoaded() once, then use the function pointers directly.
+// shutdown() cleans up the NDI runtime and unloads the library.
 struct NdiApi {
   deckboy::platform::DynamicLibrary lib_;
-  bool loaded = false;
-  bool attempted = false;
+  std::atomic<bool> loaded {false};
+  std::atomic<bool> attempted {false};
   std::string loadError = "not initialized";
   bool (*initializeFn)(void) = nullptr;
   void (*destroyFn)(void) = nullptr;

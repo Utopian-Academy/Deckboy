@@ -3,6 +3,20 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// utils.cpp — Implementation of shared utility functions (see utils.hpp).
+//
+// All functions here are stateless and side-effect-free. They are organized
+// into groups matching the header declarations:
+//   1. String utilities (trim, split, case, join)
+//   2. Timecode formatting/parsing (SMPTE HH:MM:SS:FF)
+//   3. Enum-to-string conversions (CueKind, CueEndAction, etc.)
+//   4. Easing functions (UI animation curves)
+//   5. Color utilities (hex parsing, RGBA extraction, color tag palette)
+//   6. Geometry helpers (rect inset, point-in-rect)
+//   7. Safe field parsers (for project file deserialization)
+//   8. JSON escaping (for OSC/Companion feedback)
+// ============================================================================
 
 #include "utils.hpp"
 
@@ -18,28 +32,39 @@ using ::CueEndAction;
 using ::TransportState;
 using ::TransitionStyle;
 
+// ============================================================================
+// 1. String utilities
+// ============================================================================
+
+// Strip leading and trailing whitespace (spaces, tabs, CR, LF).
+// Used by OSC command parsing, timecode parsing, and project field cleanup.
 std::string trim(const std::string& value) {
   auto begin = value.find_first_not_of(" \t\r\n");
   if (begin == std::string::npos) {
-    return "";
+    return "";  // string is entirely whitespace
   }
   auto end = value.find_last_not_of(" \t\r\n");
   return value.substr(begin, end - begin + 1);
 }
 
+// Split text into lines on '\n', stripping '\r' for Windows line endings.
+// Used by ffprobe output parsing (readAllText returns multi-line text).
 std::vector<std::string> splitLines(const std::string& text) {
   std::vector<std::string> lines;
   std::stringstream stream(text);
   std::string line;
   while (std::getline(stream, line)) {
     if (!line.empty() && line.back() == '\r') {
-      line.pop_back();
+      line.pop_back();  // handle CRLF (Windows-generated ffprobe output)
     }
     lines.push_back(line);
   }
   return lines;
 }
 
+// Split text on an arbitrary single-character delimiter.
+// The primary use is splitting tab-delimited fields from .deckboy project files
+// (splitByChar(line, '\t')). Always returns at least one element.
 std::vector<std::string> splitByChar(const std::string& text, char separator) {
   std::vector<std::string> parts;
   std::string current;
@@ -51,10 +76,17 @@ std::vector<std::string> splitByChar(const std::string& text, char separator) {
     }
     current.push_back(ch);
   }
-  parts.push_back(current);
+  parts.push_back(current);  // don't forget the last segment
   return parts;
 }
 
+// ============================================================================
+// 2. Timecode & time formatting
+// ============================================================================
+
+// Format seconds as "MM:SS.T" (minutes, seconds, tenths). Used by the cue list
+// duration column and the control bar elapsed/remaining display.
+// Returns "00:00.0" for invalid/negative values.
 std::string formatSeconds(double seconds) {
   if (!std::isfinite(seconds) || seconds <= 0.0) {
     return "00:00.0";
@@ -66,12 +98,15 @@ std::string formatSeconds(double seconds) {
   return buf;
 }
 
+// Format seconds as SMPTE timecode "HH:MM:SS:FF" at the given frame rate.
+// The 0.0001 epsilon prevents rounding errors from dropping a frame.
+// Used by the timecode overlay, control bar, and OSC feedback.
 std::string formatTimecode(double seconds, double fps) {
-  double safeFps = std::isfinite(fps) && fps > 1.0 ? fps : 30.0;
+  double safeFps = std::isfinite(fps) && fps > 1.0 ? fps : 30.0;  // fallback to 30fps
   double clamped = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
   int totalFrames = static_cast<int>(std::floor(clamped * safeFps + 0.0001));
   int fpsInt = std::max(1, static_cast<int>(std::round(safeFps)));
-  int frame = totalFrames % fpsInt;
+  int frame = totalFrames % fpsInt;        // frame within current second
   int totalSeconds = totalFrames / fpsInt;
   int secs = totalSeconds % 60;
   int mins = (totalSeconds / 60) % 60;
@@ -81,12 +116,20 @@ std::string formatTimecode(double seconds, double fps) {
   return buf;
 }
 
+// Parse a timecode string back to seconds. Accepts multiple formats:
+//   - Plain number:    "123.5"           → 123.5 seconds
+//   - MM:SS:           "02:30"           → 150.0 seconds
+//   - HH:MM:SS:        "01:02:30"        → 3750.0 seconds
+//   - HH:MM:SS:FF:     "01:02:30:15"     → 3750.5 seconds (at 30fps)
+// Returns nullopt if the string can't be parsed.
+// Used by the inline timecode editor and OSC time-jump commands.
 std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
   value = trim(value);
   if (value.empty()) {
     return std::nullopt;
   }
 
+  // No colons → treat as a plain seconds value
   if (value.find(':') == std::string::npos) {
     try {
       return std::max(0.0, std::stod(value));
@@ -95,11 +138,13 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
     }
   }
 
+  // Split on colons and validate part count (2–4 parts supported)
   auto parts = splitByChar(value, ':');
   if (parts.size() < 2 || parts.size() > 4) {
     return std::nullopt;
   }
 
+  // Helper: parse a single integer part, returning nullopt on failure
   auto parseIntPart = [&](const std::string& part) -> std::optional<int> {
     try {
       return std::max(0, std::stoi(part));
@@ -114,7 +159,8 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
   int secs = 0;
   int frames = 0;
 
-  if (parts.size() == 4) {
+  // Parse based on the number of colon-separated parts
+  if (parts.size() == 4) {           // HH:MM:SS:FF
     auto h = parseIntPart(parts[0]);
     auto m = parseIntPart(parts[1]);
     auto s = parseIntPart(parts[2]);
@@ -126,7 +172,7 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
     mins = *m;
     secs = *s;
     frames = *f;
-  } else if (parts.size() == 3) {
+  } else if (parts.size() == 3) {   // HH:MM:SS (no frames)
     auto h = parseIntPart(parts[0]);
     auto m = parseIntPart(parts[1]);
     auto s = parseIntPart(parts[2]);
@@ -136,7 +182,7 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
     hours = *h;
     mins = *m;
     secs = *s;
-  } else {
+  } else {                            // MM:SS (no hours, no frames)
     auto m = parseIntPart(parts[0]);
     auto s = parseIntPart(parts[1]);
     if (!m || !s) {
@@ -146,11 +192,17 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
     secs = *s;
   }
 
+  // Convert to total seconds, adding frame fraction
   double result = static_cast<double>(hours * 3600 + mins * 60 + secs);
   result += static_cast<double>(frames) / safeFps;
   return std::max(0.0, result);
 }
 
+// ============================================================================
+// 3. Enum-to-string conversions
+// ============================================================================
+
+// Human-readable labels for cue kinds (shown in UI inspector and cue list).
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
     case CueKind::Image:      return "Still";
@@ -165,6 +217,7 @@ std::string cueKindLabel(CueKind kind) {
   }
 }
 
+// Machine-readable tokens for cue kinds (used in serialization and OSC commands).
 std::string cueKindToken(CueKind kind) {
   switch (kind) {
     case CueKind::Image:      return "image";
@@ -179,6 +232,7 @@ std::string cueKindToken(CueKind kind) {
   }
 }
 
+// Machine-readable tokens for cue end actions (serialization/OSC).
 std::string cueEndActionToken(CueEndAction a) {
   switch (a) {
     case CueEndAction::Stop:         return "stop";
@@ -190,6 +244,7 @@ std::string cueEndActionToken(CueEndAction a) {
   }
 }
 
+// Human-readable labels for cue end actions (UI display).
 std::string cueEndActionLabel(CueEndAction a) {
   switch (a) {
     case CueEndAction::Stop:         return "stop";
@@ -201,6 +256,7 @@ std::string cueEndActionLabel(CueEndAction a) {
   }
 }
 
+// Parse a cue end action token back to enum (for OSC commands and project load).
 CueEndAction parseCueEndAction(const std::string& s) {
   if (s == "stop")    return CueEndAction::Stop;
   if (s == "loop")    return CueEndAction::Loop;
@@ -209,6 +265,7 @@ CueEndAction parseCueEndAction(const std::string& s) {
   return CueEndAction::Inherit;
 }
 
+// Transport state label for UI display and OSC feedback.
 std::string transportLabel(TransportState state) {
   switch (state) {
     case TransportState::Playing:
@@ -221,6 +278,7 @@ std::string transportLabel(TransportState state) {
   }
 }
 
+// Machine-readable token for transition style (serialization/OSC).
 std::string transitionStyleToken(TransitionStyle style) {
   switch (style) {
     case TransitionStyle::DipBlack:
@@ -233,6 +291,8 @@ std::string transitionStyleToken(TransitionStyle style) {
   }
 }
 
+// Parse a transition style token (case-insensitive) back to enum.
+// Accepts multiple aliases: "dip", "dipblack", "dip_black" all map to DipBlack.
 TransitionStyle parseTransitionStyleToken(std::string token) {
   token = trim(token);
   std::transform(token.begin(), token.end(), token.begin(), [](unsigned char ch) {
@@ -247,12 +307,26 @@ TransitionStyle parseTransitionStyleToken(std::string token) {
   return TransitionStyle::Crossfade;
 }
 
+// ============================================================================
+// 4. Easing functions
+// ============================================================================
+
+// Cubic ease-out: fast start, decelerating to a smooth stop.
+// Input/output range: [0, 1]. Formula: 1 - (1-t)^3
+// Used by UI animations (panel slides, toast popup, opacity transitions).
 double easeOutCubic(double value) {
   double t = std::clamp(value, 0.0, 1.0);
   double inv = 1.0 - t;
   return 1.0 - inv * inv * inv;
 }
 
+// ============================================================================
+// 5. Color utilities
+// ============================================================================
+
+// Parse a "#RRGGBB" hex color string to SDL_Color. Returns DMG dark green
+// as the fallback for malformed input. Used by the chroma key color picker
+// and OSC color commands.
 SDL_Color parseColor(std::string_view input) {
   std::string value(input);
   if (value.size() != 7 || value[0] != '#') {
@@ -289,12 +363,16 @@ SDL_Color parseColor(std::string_view input) {
   return {static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), 255};
 }
 
+// Convert SDL_Color to "#rrggbb" hex string (lowercase). Used by OSC feedback
+// and the color picker display.
 std::string colorToHex(SDL_Color color) {
   char buf[8];
   snprintf(buf, sizeof(buf), "#%02x%02x%02x", color.r, color.g, color.b);
   return buf;
 }
 
+// Extract individual color channels from a packed 0xRRGGBBAAu uint32.
+// Used by the primitives renderer to unpack theme color constants.
 std::uint8_t alpha(std::uint32_t rgba) {
   return static_cast<std::uint8_t>(rgba & 0xFFu);
 }
@@ -311,10 +389,15 @@ std::uint8_t red(std::uint32_t rgba) {
   return static_cast<std::uint8_t>((rgba >> 24) & 0xFFu);
 }
 
+// Unpack a 0xRRGGBBAAu constant to an SDL_Color struct.
+// Convenience wrapper around the individual channel extractors above.
 SDL_Color colorFromRgba(std::uint32_t rgba) {
   return {red(rgba), green(rgba), blue(rgba), alpha(rgba)};
 }
 
+// Map a color tag name ("red", "blue", etc.) to its SDL_Color.
+// The color tag palette provides 7 named colors for cue labeling.
+// Returns DMG dark green for unrecognized tags (including empty = "no tag").
 SDL_Color colorTagToSdl(const std::string& tag, std::uint8_t alpha_val) {
   if (tag == "red")    return {180,  40,  40, alpha_val};
   if (tag == "orange") return {190, 100,  20, alpha_val};
@@ -326,6 +409,8 @@ SDL_Color colorTagToSdl(const std::string& tag, std::uint8_t alpha_val) {
   return {48, 98, 48, alpha_val};
 }
 
+// Cycle to the next color tag in the palette. Wraps around to "" (no tag)
+// after "pink". Used by the CycleColorTag quick action in the inspector.
 std::string nextColorTag(const std::string& current) {
   static const std::vector<std::string> kTags =
     {"", "red", "orange", "yellow", "cyan", "blue", "purple", "pink"};
@@ -334,6 +419,12 @@ std::string nextColorTag(const std::string& current) {
   return *std::next(it);
 }
 
+// ============================================================================
+// 6. Geometry helpers
+// ============================================================================
+
+// Shrink a rectangle by `amount` pixels on all four sides (padding/margin).
+// Width and height are clamped to 0 to prevent negative dimensions.
 SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
   return {
     rect.x + amount,
@@ -343,10 +434,14 @@ SDL_Rect insetRect(const SDL_Rect& rect, int amount) {
   };
 }
 
+// Hit-test: is the point (x,y) inside the given rectangle?
+// Used by app_input.ipp for mouse click detection on buttons, cue rows, etc.
 bool pointInRect(int x, int y, const SDL_Rect& rect) {
   return x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h;
 }
 
+// Split text on runs of whitespace. Used by OSC/Companion command parsing
+// (e.g. "/take 1 2" → ["take", "1", "2"]).
 std::vector<std::string> splitWhitespace(const std::string& text) {
   std::vector<std::string> parts;
   std::stringstream stream(text);
@@ -357,6 +452,8 @@ std::vector<std::string> splitWhitespace(const std::string& text) {
   return parts;
 }
 
+// ASCII-only uppercase conversion (returns a copy). Used for case-insensitive
+// string matching in OSC commands and transition style parsing.
 std::string toUpper(std::string value) {
   std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
     return static_cast<char>(std::toupper(ch));
@@ -364,6 +461,8 @@ std::string toUpper(std::string value) {
   return value;
 }
 
+// ASCII-only lowercase conversion (returns a copy). Used by safeBool() for
+// case-insensitive "true"/"false" parsing in project files.
 std::string toLower(std::string value) {
   std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
     return static_cast<char>(std::tolower(ch));
@@ -371,6 +470,8 @@ std::string toLower(std::string value) {
   return value;
 }
 
+// Join string parts from startIndex onward with spaces. Used by OSC command
+// handling to reconstruct multi-word arguments (e.g. cue name with spaces).
 std::string joinParts(const std::vector<std::string>& parts, size_t startIndex) {
   if (startIndex >= parts.size()) {
     return "";
@@ -385,10 +486,22 @@ std::string joinParts(const std::vector<std::string>& parts, size_t startIndex) 
   return joined;
 }
 
+// ============================================================================
+// 7. Safe field parsers (project file deserialization)
+//
+// These functions safely extract typed values from a vector of tab-delimited
+// strings (the fields of a single line in a .deckboy project file).
+// If the index is out of bounds or the value can't be parsed, the fallback
+// is returned. This enables backwards compatibility: older project files
+// with fewer fields are loaded without errors.
+// ============================================================================
+
+// Return the string at `index`, or empty string if out of bounds.
 std::string safeString(const std::vector<std::string>& fields, size_t index) {
   return index < fields.size() ? fields[index] : "";
 }
 
+// Parse an integer from the field at `index`, or return `fallback` on failure.
 int safeInt(const std::vector<std::string>& fields, size_t index, int fallback) {
   if (index >= fields.size()) {
     return fallback;
@@ -400,6 +513,7 @@ int safeInt(const std::vector<std::string>& fields, size_t index, int fallback) 
   }
 }
 
+// Parse an unsigned size value (for file sizes) from the field at `index`.
 std::uintmax_t safeSize(const std::vector<std::string>& fields, size_t index, std::uintmax_t fallback) {
   if (index >= fields.size()) {
     return fallback;
@@ -412,6 +526,8 @@ std::uintmax_t safeSize(const std::vector<std::string>& fields, size_t index, st
   }
 }
 
+// Parse a boolean from the field at `index`. Accepts multiple formats:
+// true/false, 1/0, yes/no, on/off (case-insensitive).
 bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallback) {
   if (index >= fields.size()) {
     return fallback;
@@ -426,6 +542,13 @@ bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallbac
   return fallback;
 }
 
+// ============================================================================
+// 8. JSON escaping
+// ============================================================================
+
+// Escape a string for safe embedding in a JSON string literal.
+// Handles: double quotes, backslashes, control characters (as \uXXXX).
+// Used by OSC/Companion feedback to build JSON state payloads in app_network.ipp.
 std::string escapeJson(const std::string& value) {
   std::string result;
   for (char ch : value) {

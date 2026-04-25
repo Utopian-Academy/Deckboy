@@ -3,6 +3,25 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// siphon_spout.hpp — Interprocess GPU texture sharing (Siphon/Spout sender).
+//
+// Siphon (macOS) and Spout (Windows) are frameworks for sharing GPU textures
+// between applications with zero-copy efficiency. This is used for:
+//   - Sending Deckboy's output to VJ/projection mapping software (Resolume, etc.)
+//   - Feeding output to streaming tools that accept Siphon/Spout sources
+//   - Real-time compositing with other visual applications
+//
+// The sender takes an SDL_Texture and shares it with any receiver on the
+// same machine. Unlike NDI (network-based, requires encode/decode), Siphon/Spout
+// operates directly on GPU memory — zero encoding latency.
+//
+// Not available on Linux (no Siphon/Spout equivalent; use NDI instead).
+//
+// Implementation: siphon_spout.cpp (pimpl pattern, platform-specific Impl class)
+// Used by: app_render_output.ipp (sends composited output to Siphon/Spout receivers).
+// ============================================================================
+
 #pragma once
 
 #include <cstdint>
@@ -13,7 +32,7 @@
 
 namespace deckboy::platform::video {
 
-// Siphon (macOS) / Spout (Windows) sender for interprocess texture sharing
+// RAII sender for interprocess texture sharing via Siphon (macOS) or Spout (Windows).
 class SiphonSpoutSender {
  public:
   SiphonSpoutSender(const std::string& name);

@@ -1,5 +1,31 @@
+// ============================================================================
+// app_render_output.ipp — Output window compositor and egress rendering.
+//
+// Renders the composited deck output to output windows and external sinks:
+//
+//   presentOutputCompositorToWindow() — blit compositor texture to SDL window
+//     Handles Area of Interest (AOI) cropping, perspective warp (corner-pin),
+//     edge blending (soft overlap zones), and scan line overlay.
+//
+//   renderOutputWindow()    — full output rendering pipeline:
+//     1. Ensure compositor texture is sized to output resolution
+//     2. Clear to black, render all deck layers
+//     3. Render audio visualization for audio-only cues
+//     4. Render lower-third overlays
+//     5. Render timecode overlay
+//     6. Apply master dimmer
+//     7. Capture frame for streaming/NDI/DeckLink sinks
+//     8. Present to SDL window
+//
+//   captureCompositorPixels() — read back compositor pixels for stream/NDI
+//   renderMonitorTile()       — render a scaled preview in the monitors window
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Present the compositor texture to an output window, applying AOI crop,
+  // perspective warp, edge blending, and scan line overlay as configured.
   void presentOutputCompositorToWindow(int outputIndex, int windowW, int windowH) {
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime || !runtime->outputRenderer || !runtime->compositorTexture) {
@@ -749,19 +775,22 @@
     bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
     bool ndiRouteActive = (output.ndiEnabled || output.ndiKeyEnabled) && backendRoute.ndiSupported;
     bool deckLinkRouteActive = output.deckLinkEnabled && backendRoute.deckLinkSupported;
+    bool spoutRouteActive = output.spoutEnabled && backendRoute.spoutSupported;
     if (output.streamEnabled && !backendRoute.streamSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
     } else if ((output.ndiEnabled || output.ndiKeyEnabled) && !backendRoute.ndiSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "ndi backend unavailable");
     } else if (output.deckLinkEnabled && !backendRoute.deckLinkSupported) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "decklink backend unavailable");
+    } else if (output.spoutEnabled && !backendRoute.spoutSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "spout backend unavailable");
     }
     if (!streamRouteActive) {
       stopOutputStreamRuntime(*runtime);
       resetOutputStreamFpsTelemetry(*runtime);
     }
     bool needsEgressCapture =
-      streamRouteActive || ndiRouteActive || deckLinkRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -799,6 +828,11 @@
       sendOutputDeckLinkFrame(outputIndex, *runtime, width, height, fpsHint);
     } else {
       shutdownOutputDeckLink(*runtime);
+    }
+    if (spoutRouteActive) {
+      sendOutputSpoutFrame(outputIndex, *runtime, width, height);
+    } else {
+      shutdownOutputSpout(*runtime);
     }
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);

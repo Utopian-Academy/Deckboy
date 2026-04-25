@@ -1,5 +1,27 @@
+// ============================================================================
+// app_render_main.ipp — Main control window rendering.
+//
+// Renders the primary Deckboy control window UI, the largest rendering file
+// (~2600 lines). Organized into nested panel areas:
+//
+//   renderMainPanel()           — top-level split: program area + inspector
+//   renderDeckPanel()           — cue list with scrollable rows
+//   renderDeckPanelCueRow()     — individual cue row (color chip, name, status)
+//   renderDeckTransportPanel()  — timeline scrubber, play/stop/seek controls
+//   renderDeckInfoBar()         — deck name, BPM, time display
+//   renderMonitorsPanel()       — output preview tiles in monitors window
+//   renderControlWindow()       — entry point: composes all panels
+//
+// Layout uses VerticalLayout/HorizontalLayout from render/layout.hpp.
+// Drawing uses Primitives and TextRenderer from render/*.hpp.
+// All button hit-rects are stored in member vectors for input dispatch.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Render the main panel split into program area (left) and inspector (right).
+  // The inspector width is adjustable via a splitter drag handle.
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
@@ -2434,10 +2456,29 @@
           if (sourceRef.empty()) {
             sourceRef = defaultSourceRefForKind(selectedCue->kind);
           }
-          metadataY = drawInspectorEditableRow(metadataY, "source",
-                                               sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
-                                               QuickAction::EditSourceRef,
-                                               "Set capture source from the cue menu");
+          // WindowSource: show a dropdown to pick from available windows
+          if (selectedCue->kind == CueKind::WindowSource) {
+            SDL_Rect sourceLabelRect {ctrl.x + 10, metadataY, 78, kInspectorRowH};
+            SDL_Rect sourceBtn {sourceLabelRect.x + sourceLabelRect.w + 8, metadataY,
+                                kCtrlW - 20 - sourceLabelRect.w - 8, kInspectorRowH};
+            drawTextSafe(controlRenderer_, fontBase_, sourceLabelRect, "source", pal.inkSoft);
+            drawUIPanel(sourceBtn, pal.light, pal.deep, pal.mid);
+            drawTextSafe(controlRenderer_, fontBase_,
+                         SDL_Rect {sourceBtn.x + 6, sourceBtn.y, sourceBtn.w - 18, sourceBtn.h},
+                         ellipsizeToPixelWidth(fontBase_,
+                           sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef), sourceBtn.w - 18),
+                         pal.deep);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                 SDL_Rect {sourceBtn.x + sourceBtn.w - 14, sourceBtn.y, 14, sourceBtn.h},
+                                 "v", pal.deep);
+            cueWindowSourceDropdownRect_ = sourceBtn;
+            metadataY += kInspectorRowStep;
+          } else {
+            metadataY = drawInspectorEditableRow(metadataY, "source",
+                                                 sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
+                                                 QuickAction::EditSourceRef,
+                                                 "Set capture source from the cue menu");
+          }
         }
 
         if (selectedCue->kind == CueKind::Browser) {

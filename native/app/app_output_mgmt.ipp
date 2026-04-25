@@ -1,5 +1,41 @@
+// ============================================================================
+// app_output_mgmt.ipp — Output window and stream lifecycle management.
+//
+// The largest .ipp file (~4000 lines). Manages the complete lifecycle of
+// output destinations: SDL windows, ffmpeg streams, NDI senders, and
+// DeckLink card outputs.
+//
+// Output window management:
+//   setFocusedOutputEnabled()       — arm/disarm an output destination
+//   addOutput() / removeOutput()    — add/remove output targets
+//   applyOutputDisplaySelection()   — configure display/monitor assignment
+//   setOutputFullscreen()           — toggle fullscreen on output windows
+//
+// Stream writer:
+//   startStreamWriter()     — spawn ffmpeg subprocess for SRT/RTMP streaming
+//   stopStreamWriter()      — shut down the stream writer thread
+//   queueStreamPacket()     — push a captured frame + audio to the writer
+//   streamWriterLoop()      — background thread: reads packets, pipes to ffmpeg
+//
+// NDI output:
+//   initNdiSender()         — create NDI sender via dynamic library
+//   shutdownNdiSender()     — destroy NDI sender
+//   sendNdiFrame()          — send BGRA frame to NDI
+//
+// DeckLink output:
+//   initDeckLinkOutput()    — open DeckLink device, set mode
+//   shutdownDeckLinkOutput() — release DeckLink resources
+//   sendDeckLinkFrame()     — convert and send frame to DeckLink card
+//
+// Output health state machine:
+//   Off → Armed → Live → (Error → Recovering → Live)
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Enable or disable the focused output. When enabling a window output,
+  // automatically enables display-follow mode and applies fullscreen.
   bool setFocusedOutputEnabled(bool enabled, bool autoFullscreenWhenEnabling = true) {
     normalizeProject(project_);
     if (project_.outputs.empty()) {
@@ -275,6 +311,23 @@
     if (normalized.empty()) {
       normalized = defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex);
     }
+    // Validate URL scheme — only allow known streaming protocols
+    {
+      std::string lower = normalized;
+      std::transform(lower.begin(), lower.end(), lower.begin(),
+                     [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+      bool validScheme = lower.rfind("srt://", 0) == 0
+                      || lower.rfind("rtmp://", 0) == 0
+                      || lower.rfind("rtmps://", 0) == 0
+                      || lower.rfind("rtsp://", 0) == 0
+                      || lower.rfind("udp://", 0) == 0
+                      || lower.rfind("tcp://", 0) == 0
+                      || lower.rfind("rtp://", 0) == 0;
+      if (!validScheme) {
+        triggerToast("stream url: unsupported scheme");
+        return false;
+      }
+    }
     if (output.streamUrl == normalized) {
       triggerToast("stream url unchanged");
       return false;
@@ -543,7 +596,6 @@
     return mainOut;
   }
 
-#ifndef _WIN32
   double defaultLtcCaptureFpsHint() const {
     if (project_.focusedDeckIndex >= 0 &&
         project_.focusedDeckIndex < static_cast<int>(project_.decks.size())) {
@@ -756,10 +808,6 @@
       }
     }
   }
-#else
-  void refreshLtcCaptureState() {}
-  void stopLtcIngest() {}
-#endif
 
   void destroyDeckRuntime(DeckRuntime& runtime) {
     if (runtime.mediaEngine) {
@@ -805,6 +853,7 @@
     bool streamSupported = false;
     bool ndiSupported = false;
     bool deckLinkSupported = false;
+    bool spoutSupported = false;
     std::string summary;
   };
 
@@ -824,6 +873,7 @@
     request.streamEnabled = output.streamEnabled;
     request.ndiEnabled = output.ndiEnabled || output.ndiKeyEnabled;
     request.deckLinkEnabled = output.deckLinkEnabled;
+    request.spoutEnabled = output.spoutEnabled;
     return request;
   }
 
@@ -855,6 +905,9 @@
           break;
         case deckboy::platform::OutputRouteKind::DeckLink:
           route.deckLinkSupported = step.supported;
+          break;
+        case deckboy::platform::OutputRouteKind::Spout:
+          route.spoutSupported = step.supported;
           break;
       }
     }
@@ -1157,7 +1210,6 @@
       const std::uint8_t* bytes,
       size_t byteCount,
       const char* reason) {
-#ifndef _WIN32
     size_t offset = 0;
     while (offset < byteCount) {
       {
@@ -1166,11 +1218,16 @@
           return false;
         }
       }
+#ifdef _WIN32
+      int written = _write(fd, bytes + offset, static_cast<unsigned int>(std::min(byteCount - offset, size_t(0x7FFFFFFFu))));
+#else
       ssize_t written = write(fd, bytes + offset, byteCount - offset);
+#endif
       if (written > 0) {
         offset += static_cast<size_t>(written);
         continue;
       }
+#ifndef _WIN32
       if (written < 0 && errno == EINTR) {
         continue;
       }
@@ -1178,6 +1235,7 @@
         SDL_Delay(1);
         continue;
       }
+#endif
       std::lock_guard<std::mutex> lock(writer->mutex);
       writer->failed = true;
       writer->failureReason = reason ? reason : "stream write failed";
@@ -1186,14 +1244,6 @@
       return false;
     }
     return true;
-#else
-    (void) writer;
-    (void) fd;
-    (void) bytes;
-    (void) byteCount;
-    (void) reason;
-    return false;
-#endif
   }
 
   static bool writeOutputStreamBytesBestEffort(
@@ -1202,7 +1252,6 @@
       const std::uint8_t* bytes,
       size_t byteCount,
       const char* reason) {
-#ifndef _WIN32
     size_t offset = 0;
     while (offset < byteCount) {
       {
@@ -1211,17 +1260,23 @@
           return false;
         }
       }
+#ifdef _WIN32
+      int written = _write(fd, bytes + offset, static_cast<unsigned int>(std::min(byteCount - offset, size_t(0x7FFFFFFFu))));
+#else
       ssize_t written = write(fd, bytes + offset, byteCount - offset);
+#endif
       if (written > 0) {
         offset += static_cast<size_t>(written);
         continue;
       }
+#ifndef _WIN32
       if (written < 0 && errno == EINTR) {
         continue;
       }
       if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
         return true;
       }
+#endif
       std::lock_guard<std::mutex> lock(writer->mutex);
       writer->failed = true;
       writer->failureReason = reason ? reason : "stream write failed";
@@ -1230,24 +1285,25 @@
       return false;
     }
     return true;
-#else
-    (void) writer;
-    (void) fd;
-    (void) bytes;
-    (void) byteCount;
-    (void) reason;
-    return false;
-#endif
   }
 
   void startOutputStreamWriter(OutputRuntime& runtime) {
-#ifndef _WIN32
+#ifdef _WIN32
+    int videoPipeFd = runtime.streamProcess.writeFd;
+    int audioPipeFd = -1;  // audio muxed via ffmpeg stdin on Windows
+    if (runtime.streamWriter || videoPipeFd < 0) {
+      return;
+    }
+#else
     if (runtime.streamWriter || runtime.streamPipeFd < 0) {
       return;
     }
+    int videoPipeFd = runtime.streamPipeFd;
+    int audioPipeFd = runtime.streamAudioPipeFd;
+#endif
     auto writer = std::make_shared<OutputStreamWriterState>();
-    writer->videoPipeFd = runtime.streamPipeFd;
-    writer->audioPipeFd = runtime.streamAudioPipeFd;
+    writer->videoPipeFd = videoPipeFd;
+    writer->audioPipeFd = audioPipeFd;
     writer->thread = std::thread([writer]() {
       for (;;) {
         OutputStreamPacket packet;
@@ -1299,13 +1355,9 @@
       }
     });
     runtime.streamWriter = writer;
-#else
-    (void) runtime;
-#endif
   }
 
   std::string outputStreamWriterFailure(OutputRuntime& runtime) const {
-#ifndef _WIN32
     auto writer = runtime.streamWriter;
     if (!writer) {
       return {};
@@ -1315,14 +1367,9 @@
       return {};
     }
     return writer->failureReason.empty() ? "stream write failed" : writer->failureReason;
-#else
-    (void) runtime;
-    return {};
-#endif
   }
 
   void stopOutputStreamRuntime(OutputRuntime& runtime) {
-#ifndef _WIN32
     auto writer = runtime.streamWriter;
     runtime.streamWriter.reset();
     if (writer) {
@@ -1333,6 +1380,21 @@
       }
       writer->cv.notify_all();
     }
+#ifdef _WIN32
+    // Close the write pipe first so ffmpeg gets EOF on stdin and exits gracefully
+    if (runtime.streamProcess.writeFd >= 0) {
+      _close(runtime.streamProcess.writeFd);
+      runtime.streamProcess.writeFd = -1;
+    }
+    if (writer && writer->thread.joinable()) {
+      writer->thread.join();
+    }
+    // Give ffmpeg a moment to exit gracefully before force-killing
+    if (runtime.streamProcess.running()) {
+      WaitForSingleObject(runtime.streamProcess.hProcess, 500);
+    }
+    runtime.streamProcess.stop();
+#else
     pid_t streamPid = runtime.streamPid;
     runtime.streamPid = -1;
     if (streamPid > 0) {
@@ -1384,7 +1446,21 @@
     stopOutputStreamRuntime(*runtime);
   }
 
-#ifndef _WIN32
+#ifdef _WIN32
+  // Windows: spawn ffmpeg with stdin pipe for video input.
+  // The args should use "pipe:0" or "-" as the input path for reading from stdin.
+  bool spawnOutputStreamProcess(OutputRuntime& runtime,
+                                const std::vector<std::string>& args) {
+    if (args.empty()) {
+      return false;
+    }
+    runtime.streamProcess.stop();
+    if (!spawnProcess(runtime.streamProcess, args, SpawnOptions::pipedStdin())) {
+      return false;
+    }
+    return runtime.streamProcess.writeFd >= 0;
+  }
+#else
   bool spawnOutputStreamProcess(OutputRuntime& runtime,
                                 const std::vector<std::string>& args,
                                 const std::string& videoInputPath) {
@@ -1453,6 +1529,7 @@
     setFdBlockingMode(runtime.streamPipeFd, true);
     return true;
   }
+#endif
 
   void primeOutputStreamAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
     runtime.streamAudioReadSamplesByDeck.clear();
@@ -1468,6 +1545,9 @@
     }
   }
 
+  // NDI audio priming and sample collection — cross-platform (used by NDI send
+  // and potentially DeckLink audio). Moved out of #ifndef _WIN32 so NDI audio
+  // works on Windows.
   void primeOutputNdiAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
     runtime.ndiAudioReadSamplesByDeck.clear();
     auto deckIndices = streamAudioDecksForOutput(outputIndex);
@@ -1536,7 +1616,6 @@
     }
     return out;
   }
-#endif
 
   bool ensureOutputStreamRunning(int outputIndex, int width, int height, double fpsHint) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
@@ -1569,11 +1648,13 @@
       output.streamUrl = defaultOutputStreamUrl(output.streamProtocol, outputIndex);
     }
     std::string desiredSpec = buildOutputStreamSpec(outputIndex, width, height, fpsHint);
-    if (runtime->streamSpec == desiredSpec
-#ifndef _WIN32
-        && runtime->streamPid > 0
+    bool processAlive = false;
+#ifdef _WIN32
+    processAlive = runtime->streamProcess.running();
+#else
+    processAlive = runtime->streamPid > 0;
 #endif
-    ) {
+    if (runtime->streamSpec == desiredSpec && processAlive) {
       if (output.enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Live);
       }
@@ -1583,14 +1664,15 @@
     stopOutputStreamRuntime(*runtime);
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
 #ifdef _WIN32
-    (void) desiredSpec;
-    runtime->streamStartFailed = true;
-    setOutputHealthState(outputIndex, OutputHealthState::Error, "stream unsupported on windows build");
-    return false;
+    // Windows: use stdin pipe (pipe:0) instead of named FIFO
+    std::vector<std::string> args = buildOutputStreamArgs(outputIndex, width, height, fpsHint, "");
+    // Remove -nostdin since we're piping video via stdin
+    args.erase(std::remove(args.begin(), args.end(), "-nostdin"), args.end());
 #else
     std::string videoInputPath = (fs::temp_directory_path() /
       ("deckboy_stream_video_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks64()) + ".fifo")).string();
     std::vector<std::string> args = buildOutputStreamArgs(outputIndex, width, height, fpsHint, videoInputPath);
+#endif
     if (args.empty()) {
       runtime->streamStartFailed = true;
       runtime->streamRestartBlockedUntilMs = SDL_GetTicks64() + 1500;
@@ -1598,7 +1680,11 @@
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream command invalid");
       return false;
     }
+#ifdef _WIN32
+    if (!spawnOutputStreamProcess(*runtime, args)) {
+#else
     if (!spawnOutputStreamProcess(*runtime, args, videoInputPath)) {
+#endif
       stopOutputStreamRuntime(*runtime);
       if (!runtime->streamStartFailed && outputIndex == project_.focusedOutputIndex) {
         triggerToast("stream failed");
@@ -1620,7 +1706,6 @@
     startOutputStreamWriter(*runtime);
     setOutputHealthState(outputIndex, OutputHealthState::Live);
     return true;
-#endif
   }
 
   bool rotateCapturedFramePixels(const std::vector<std::uint8_t>& sourcePixels,
@@ -1850,12 +1935,6 @@
   }
 
   void sendOutputStreamFrame(int outputIndex, int width, int height, double fpsHint) {
-#ifdef _WIN32
-    (void) outputIndex;
-    (void) width;
-    (void) height;
-    (void) fpsHint;
-#else
     OutputRuntime* runtime = runtimeForOutput(outputIndex);
     if (!runtime) {
       return;
@@ -1885,7 +1964,13 @@
       return;
     }
     runtime = runtimeForOutput(outputIndex);
-    if (!runtime || runtime->streamPid <= 0 || !runtime->streamWriter) {
+    bool processAlive = false;
+#ifdef _WIN32
+    processAlive = runtime && runtime->streamProcess.running();
+#else
+    processAlive = runtime && runtime->streamPid > 0;
+#endif
+    if (!processAlive || !runtime->streamWriter) {
       return;
     }
     if (runtime->lastStreamCaptureSentAtMs == frame->capturedAtMs) {
@@ -1907,6 +1992,7 @@
     packet.height = height;
     packet.capturedAtMs = frame->capturedAtMs;
     packet.videoBytes = frame->pixels;
+#ifndef _WIN32
     if (runtime->streamAudioPipeFd >= 0) {
       packet.audioSamples = collectOutputAudioFrameSamples(
         outputIndex,
@@ -1914,6 +2000,7 @@
         runtime->streamAudioSampleRemainder,
         fpsHint);
     }
+#endif
 
     auto writer = runtime->streamWriter;
     bool writerFailed = false;
@@ -1944,7 +2031,6 @@
     }
     writer->cv.notify_one();
     runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
-#endif
   }
 
   void destroyOutputRuntime(OutputRuntime& runtime) {
@@ -2469,6 +2555,91 @@
       outputRuntime.deckLinkOutput.reset();
     }
     outputRuntime.deckLinkFrameBuffer.clear();
+#else
+    (void) outputRuntime;
+#endif
+  }
+
+  // ── Spout output ──────────────────────────────────────────────────────────
+  void sendOutputSpoutFrame(int outputIndex, OutputRuntime& outputRuntime, int width, int height) {
+#if defined(DECKBOY_HAS_SPOUT)
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.spoutEnabled) {
+      return;
+    }
+    // Lazy-init Spout sender
+    if (!outputRuntime.spoutSender) {
+      std::string name = trim(output.spoutSenderName);
+      if (name.empty()) {
+        name = "Deckboy Output " + std::to_string(outputIndex + 1);
+      }
+      outputRuntime.spoutSender = std::make_unique<deckboy::platform::video::SiphonSpoutSender>(name);
+      if (!outputRuntime.spoutSender->init(width, height)) {
+        std::cerr << "[Spout] Failed to init sender for output " << outputIndex << "\n";
+        outputRuntime.spoutSender.reset();
+        return;
+      }
+    }
+    // Check if sender name changed
+    std::string desiredName = trim(output.spoutSenderName);
+    if (desiredName.empty()) {
+      desiredName = "Deckboy Output " + std::to_string(outputIndex + 1);
+    }
+    if (outputRuntime.spoutSender->getName() != desiredName) {
+      outputRuntime.spoutSender->setName(desiredName);
+    }
+    // Get the latest captured frame and send via Spout using the output texture
+    if (!outputRuntime.outputRenderer) {
+      return;
+    }
+    // Use the composited output texture from the render target
+    const auto& frameCapture = outputRuntime.latestCapturedFrame;
+    if (frameCapture.pixels.empty()) {
+      return;
+    }
+    int fw = frameCapture.width;
+    int fh = frameCapture.height;
+    if (fw <= 0 || fh <= 0) {
+      return;
+    }
+    // Create a temporary texture, upload the captured pixels, and send
+    SDL_Texture* tempTex = SDL_CreateTexture(
+      outputRuntime.outputRenderer, SDL_PIXELFORMAT_ARGB8888,
+      SDL_TEXTUREACCESS_STREAMING, fw, fh);
+    if (!tempTex) {
+      return;
+    }
+    void* texPixels = nullptr;
+    int texPitch = 0;
+    if (SDL_LockTexture(tempTex, nullptr, &texPixels, &texPitch) == 0) {
+      int stride = fw * 4;
+      for (int y = 0; y < fh; ++y) {
+        std::memcpy(
+          static_cast<unsigned char*>(texPixels) + y * texPitch,
+          frameCapture.pixels.data() + y * stride,
+          static_cast<size_t>(stride));
+      }
+      SDL_UnlockTexture(tempTex);
+      outputRuntime.spoutSender->sendFrame(tempTex);
+    }
+    SDL_DestroyTexture(tempTex);
+#else
+    (void) outputIndex;
+    (void) outputRuntime;
+    (void) width;
+    (void) height;
+#endif
+  }
+
+  void shutdownOutputSpout(OutputRuntime& outputRuntime) {
+#if defined(DECKBOY_HAS_SPOUT)
+    if (outputRuntime.spoutSender) {
+      outputRuntime.spoutSender->shutdown();
+      outputRuntime.spoutSender.reset();
+    }
 #else
     (void) outputRuntime;
 #endif

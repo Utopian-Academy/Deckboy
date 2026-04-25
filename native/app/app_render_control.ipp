@@ -1,5 +1,28 @@
+// ============================================================================
+// app_render_control.ipp — Cue list row rendering and transport controls.
+//
+// Renders individual cue rows in the deck's cue list panel:
+//
+//   renderDeckPanelCueRow()  — draw one cue row with:
+//     - Color chip (cue.color)
+//     - Cue ID label (user-assigned or auto-generated)
+//     - Cue name (ellipsized to fit available width)
+//     - Kind badge (Video, Image, Pattern, etc.)
+//     - Duration display
+//     - Status indicator (playing, paused, selected, next)
+//     - Selection highlight and live/next state colors
+//
+//   Row colors follow a state hierarchy:
+//     Live (playing) → deep background, light text
+//     Selected       → mid background
+//     Next           → light background
+//     Default        → shell inner background
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Render a single cue row in the deck panel's scrollable cue list.
   void renderDeckPanelCueRow(const SDL_Rect& row, int deckIndex, int cueIndex) {
     const Deck& deck = project_.decks[deckIndex];
     const Cue& cue = deck.cues[cueIndex];

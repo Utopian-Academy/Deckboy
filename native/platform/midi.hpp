@@ -3,6 +3,32 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// midi.hpp — MIDI input handler for external controller integration.
+//
+// Provides a callback-based MIDI input system for mapping physical controllers
+// (faders, buttons, knobs) to Deckboy actions. Supports:
+//   - Control Change (CC): faders, knobs → continuous values (0–127)
+//   - Note On/Off: buttons, pads → trigger/release events
+//   - Program Change: preset selection
+//   - Pitch Bend: wheel input
+//
+// The MidiInput class wraps platform-specific MIDI APIs:
+//   Windows: Windows Multimedia (winmm) MIDI input
+//   macOS:   Core MIDI
+//   Linux:   ALSA sequencer
+//
+// Usage:
+//   1. MidiInput::listDevices() to enumerate available MIDI devices
+//   2. open(deviceId) to connect to a device
+//   3. Register callbacks (onControlChange, onNoteOn, etc.)
+//   4. Call update() in the main loop to dispatch pending messages
+//   5. close() or destructor to disconnect
+//
+// Implementation: midi.cpp (pimpl pattern, platform-specific Impl class)
+// Used by: main.cpp MIDI controller mapping system.
+// ============================================================================
+
 #pragma once
 
 #include <cstdint>
@@ -14,7 +40,7 @@
 
 namespace deckboy::platform::midi {
 
-// MIDI input device information
+// Information about an available MIDI input device.
 struct DeviceInfo {
   int id = -1;
   std::string name;

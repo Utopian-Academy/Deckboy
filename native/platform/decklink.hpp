@@ -3,6 +3,26 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// decklink.hpp — Blackmagic DeckLink SDI/HDMI output interface.
+//
+// DeckLink cards are professional video I/O devices used in broadcast
+// and live events. This file provides:
+//   - DeckLinkMode enum: all supported output formats (1080i/p, 720p, 4K)
+//   - DeckLinkDeviceInfo: device discovery with capability flags
+//   - DeckLinkOutput: RAII class for sending BGRA video + PCM audio frames
+//
+// Supported modes range from 720p50 to UHD 2160p60. Each mode specifies
+// resolution, progressive/interlaced, and frame rate. Helper functions
+// provide labels, tokens (for serialization), dimensions, and frame rates.
+//
+// The implementation (decklink.cpp) uses the Blackmagic DeckLink SDK
+// COM interface on Windows and the DeckLink API on Linux/macOS. The
+// pimpl pattern keeps SDK headers out of consumer code.
+//
+// Used by: output_backend.cpp (routes egress frames to the DeckLink device).
+// ============================================================================
+
 #pragma once
 
 #include <cstdint>
@@ -12,6 +32,8 @@
 
 namespace deckboy::platform::video {
 
+// All supported DeckLink output modes. Token names follow the pattern:
+//   Resolution + Scan + FrameRate (e.g. HD1080p5994 = 1920x1080 progressive 59.94fps)
 enum class DeckLinkMode {
   HD1080i50,
   HD1080i5994,
