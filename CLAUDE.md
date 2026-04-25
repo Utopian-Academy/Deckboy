@@ -47,7 +47,10 @@ cmake --build ../build/windows --config Release
 | `native/platform/integration_backend.cpp` | Backend catalog for ATEM/NDI/MTC/LTC/Art-Net |
 | `native/platform/capture_backend.cpp/hpp` | Source capture (camera/window/screen) |
 | `native/app/app_render_settings.ipp` | Settings modal render + action handler |
-| `native/app/app_render_output.ipp` | Output compositor → window/NDI/DeckLink blit |
+| `native/app/app_render_output.ipp` | Output compositor → window/NDI/DeckLink/Spout blit |
+| `native/app/app_output_mgmt.ipp` | Output lifecycle: windows, streams, NDI, DeckLink, Spout |
+| `native/platform/output_backend.hpp/cpp` | Output backend catalog + route planning |
+| `native/platform/siphon_spout.hpp/cpp` | Spout (Windows) / Syphon (macOS) texture sharing |
 | `CHANGES.md` | User-facing changelog |
 | `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
 | `docs/VERSION_FLOW.md` | Version flow doc |
@@ -56,7 +59,7 @@ cmake --build ../build/windows --config Release
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. Current highest: **623** (`kSettingsActionOutputAoiBDec`). Always allocate next from 624+.
+Settings button actions are integer constants defined at the top of `main.cpp`. Current highest: **633** (`kSettingsActionSpoutNamePrompt`). Always allocate next from 634+.
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 
@@ -67,7 +70,7 @@ Pattern: define constants → add UI in `app_render_settings.ipp` → handle in 
 Tab-delimited `.deckboy` project files. Fields appended at end of record; backward-compat guard: `if (fields.size() >= N)`. Helpers: `safeDouble`, `safeInt`, `safeBool`, `safeString`.
 
 Current field counts:
-- **OutputTarget**: 28 base fields + 4 AOI fields (indices 28–31) → guard `>= 32`
+- **OutputTarget**: 28 base fields + 4 AOI fields (indices 28–31) + 2 Spout fields (indices 32–33) → guard `>= 34`
 - **Cue**: check existing guard indices in saveProject/loadProject near the bottom of `main.cpp`
 
 ---
@@ -111,6 +114,27 @@ New protocol integrations (tally, NDI recv, etc.) follow this pattern:
 Dynamic library, loaded at runtime. `ndi_api.hpp` = send; `ndi_trigger_api.hpp` = recv + find. Both use `deckboy::platform::DynamicLibrary`. Windows DLL names differ from Linux `.so` — always add `#ifdef _WIN32` candidates.
 
 Windows NDI lib: `Processing.NDI.Lib.x64.dll` (from NDI SDK, typically at `%NDI_SDK_DIR%\Bin\x64\`)
+
+---
+
+## Output Backend Pattern
+
+Output destinations (window, stream, NDI, DeckLink, Spout) follow a catalog + route-planning architecture:
+
+1. `OutputBackendCatalog` in `output_backend.cpp` — lists all backends with platform availability (`DECKBOY_HAS_NDI_SDK`, `DECKBOY_HAS_DECKLINK`, `DECKBOY_HAS_SPOUT`)
+2. `OutputBackendRouteRequest` in `output_backend.hpp` — built from `OutputTarget` fields (per-output enable flags)
+3. `planOutputBackendRoute()` — converts request → `OutputBackendRoutePlan` with ordered steps annotated with support status
+4. `OutputBackendRuntimeRoute` in `app_output_mgmt.ipp` — resolved at runtime, drives `*RouteActive` bools in the render loop
+5. Send/shutdown functions in `app_output_mgmt.ipp` — `sendOutputNdiFrame()`, `sendOutputDeckLinkFrame()`, `sendOutputSpoutFrame()`, etc.
+6. Render loop in `app_render_output.ipp` — checks `*RouteActive`, calls send functions, manages egress capture
+7. Settings UI in `app_render_settings.ipp` — toggle + config per backend in the Video Outputs tab
+8. Serialization in `main.cpp` — fields appended to OutputTarget record
+
+Spout uses `SpoutLibrary` DLL (vcpkg `spout2:x64-windows`). `SendImage()` accepts raw CPU pixel buffers — no OpenGL context needed from the caller. DeckLink uses the Blackmagic DeckLink SDK 16.0.
+
+### handleSettingsClick split
+
+The settings click handler is split across three functions to stay under MSVC's C1061 block-nesting limit: `handleSettingsClick` → `handleSettingsClickPart2` → `handleSettingsClickPart3`. When adding new handlers, add to Part3 (or create Part4 if needed). The split point is a trailing `else { handleSettingsClickPartN(sb); }`.
 
 ---
 

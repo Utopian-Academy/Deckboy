@@ -1,5 +1,20 @@
+// ============================================================================
+// app_overlays.ipp — Monitor window and overlay management.
+//
+// Manages the secondary "Monitors" window and quit confirmation dialog:
+//
+//   monitorsVisible() / setMonitorsVisible() — show/hide the monitors window
+//   renderQuitConfirm()                       — unsaved-changes quit dialog
+//
+// The monitors window provides a multi-output preview showing all active
+// output destinations in a tiled layout. It also hosts the output menu
+// for adding/removing outputs and toggling FPS counters.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Returns whether the monitors window is currently visible.
   bool monitorsVisible() const {
     if (!monitorsWindow_) return false;
     return (SDL_GetWindowFlags(monitorsWindow_) & SDL_WINDOW_HIDDEN) == 0;

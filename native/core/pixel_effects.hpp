@@ -3,6 +3,26 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// pixel_effects.hpp — Per-pixel visual effects applied to decoded frames.
+//
+// These functions operate on raw RGBA pixel buffers (std::vector<uint8_t>)
+// and are called by MediaEngine after decoding each frame, before the
+// pixels are uploaded to an SDL_Texture.
+//
+// Two effect categories:
+//   1. Chroma key — removes a target color (green screen) by zeroing alpha
+//   2. Color controls — brightness, contrast, saturation, hue shift
+//
+// Performance note: these run on the CPU for every pixel of every frame.
+// At 1920x1080@30fps that's ~62M pixels/second. The functions are kept
+// inline and the inner loops are tight for auto-vectorization. A future
+// optimization could move these to GPU shaders.
+//
+// Called by: MediaEngine's video decode thread (after readExact, before
+// frameQueue push) and the pattern/still frame generators.
+// ============================================================================
+
 #pragma once
 
 #include <SDL.h>
@@ -12,6 +32,9 @@
 #include <vector>
 #include "types.hpp"
 
+// Check if any color control parameter deviates from its neutral value.
+// Neutral = brightness 1.0, contrast 1.0, saturation 1.0, hue shift 0.0.
+// Used as a fast bail-out to skip the per-pixel loop when no adjustment is needed.
 inline bool colorControlsActive(float brightness, float contrast, float saturation, float hueShiftDegrees) {
   constexpr float kEpsilon = 0.001f;
   return std::fabs(brightness - 1.0f) > kEpsilon
@@ -20,14 +43,27 @@ inline bool colorControlsActive(float brightness, float contrast, float saturati
     || std::fabs(hueShiftDegrees) > kEpsilon;
 }
 
+// Convenience: check if a cue has any non-neutral color controls.
 inline bool cueHasColorControls(const Cue& cue) {
   return colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift);
 }
 
+// Check if a cue has any active pixel effect (chroma key OR color controls).
+// Used by the render pipeline to decide whether to run the per-pixel pass.
 inline bool cueHasPixelEffects(const Cue& cue) {
   return cue.chromaKeyEnabled || cueHasColorControls(cue);
 }
 
+// ---------------------------------------------------------------------------
+// applyChromaKeyToPixels — Green-screen (or any color) removal.
+//
+// For each pixel, computes the Euclidean distance in RGB space from the key
+// color. Pixels within `tolerance` distance are fully transparent (alpha=0).
+// Pixels between `tolerance-softness` and `tolerance+softness` get a smooth
+// alpha falloff, creating soft edges around the keyed region.
+//
+// The softness gradient uses a linear ramp (not cosine or spline) for speed.
+// ---------------------------------------------------------------------------
 inline void applyChromaKeyToPixels(std::vector<std::uint8_t>& pixels,
                                    SDL_Color keyColor,
                                    float tolerance,
@@ -58,6 +94,19 @@ inline void applyChromaKeyToPixels(std::vector<std::uint8_t>& pixels,
   }
 }
 
+// ---------------------------------------------------------------------------
+// applyColorControlsToPixels — Brightness, contrast, saturation, hue shift.
+//
+// Processing order (per pixel):
+//   1. Brightness: multiply RGB by brightness factor (0–2)
+//   2. Contrast:   scale distance from 0.5 gray (0–2)
+//   3. Saturation: blend between luminance and color (0–2)
+//   4. Hue shift:  rotate chrominance in YIQ color space (-180° to +180°)
+//
+// The hue shift uses the YIQ color model (NTSC) rather than HSV because
+// YIQ rotation preserves perceptual luminance better for broadcast use.
+// Alpha channel is not modified.
+// ---------------------------------------------------------------------------
 inline void applyColorControlsToPixels(std::vector<std::uint8_t>& pixels,
                                        float brightness,
                                        float contrast,
@@ -120,6 +169,16 @@ inline void applyColorControlsToPixels(std::vector<std::uint8_t>& pixels,
   }
 }
 
+// ---------------------------------------------------------------------------
+// applyCueVisualEffectsToPixels — Combined chroma key + color correction.
+//
+// Applies both effects in the correct order: chroma key first (so the key
+// operates on the original colors), then color controls (which may shift
+// colors away from the key target). This is the main entry point called
+// by MediaEngine for each decoded frame.
+//
+// Two overloads: one with explicit parameters, one that reads from a Cue.
+// ---------------------------------------------------------------------------
 inline void applyCueVisualEffectsToPixels(std::vector<std::uint8_t>& pixels,
                                           bool chromaKeyEnabled,
                                           SDL_Color chromaKeyColor,
@@ -138,6 +197,7 @@ inline void applyCueVisualEffectsToPixels(std::vector<std::uint8_t>& pixels,
   applyColorControlsToPixels(pixels, brightness, contrast, saturation, hueShiftDegrees);
 }
 
+// Convenience overload: extract all effect parameters from a Cue struct.
 inline void applyCueVisualEffectsToPixels(std::vector<std::uint8_t>& pixels, const Cue& cue) {
   applyCueVisualEffectsToPixels(
     pixels,

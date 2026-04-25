@@ -1,5 +1,45 @@
+// ============================================================================
+// app_render_inspector.ipp — Cue inspector panel rendering.
+//
+// Renders the right-side inspector panel showing properties of the selected
+// cue. The panel content varies by cue kind:
+//
+//   All cues:
+//     - Name, kind label, color chip
+//     - Duration / still duration
+//     - Transition style and duration
+//     - End action (loop, hold, advance, etc.)
+//     - Fade in/out settings
+//     - Volume slider (for video/audio cues)
+//
+//   Video/Audio cues:
+//     - Waveform display with playhead and in/out markers
+//     - Pause points management
+//     - Audio-specific settings (channel mapping, etc.)
+//
+//   Source cues (Camera, Window, Syphon):
+//     - Source reference editor
+//     - Frame rate and resolution settings
+//
+//   Pattern cues:
+//     - Pattern type selector
+//     - Motion toggle, color palette
+//
+//   Browser/LowerThird cues:
+//     - URL editor
+//     - Browser render settings
+//
+//   Composite cues:
+//     - Layout preset selector
+//     - Per-slot source configuration
+//
+// Uses InspectorCtx struct for layout measurements.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Render the cue inspector panel in the given shell rectangle.
   void renderCueInspectorPanel(const SDL_Rect& shell) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
@@ -15,6 +55,7 @@
     cueSettingsQuickButtonStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
     cueSourceTypeDropdownRect_ = SDL_Rect {};
+    cueWindowSourceDropdownRect_ = SDL_Rect {};
     cuePatternTypeDropdownRect_ = SDL_Rect {};
     cueTransitionStyleDropdownRect_ = SDL_Rect {};
 
@@ -1147,10 +1188,29 @@
           if (sourceRef.empty()) {
             sourceRef = defaultSourceRefForKind(selectedCue->kind);
           }
-          metadataY = drawInspectorEditableRow(metadataY, "source",
-                                               sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
-                                               QuickAction::EditSourceRef,
-                                               "Set capture source from the cue menu");
+          // WindowSource on Windows: show a dropdown to pick from available windows
+          if (selectedCue->kind == CueKind::WindowSource) {
+            SDL_Rect sourceLabelRect {ctrl.x + 10, metadataY, 78, kInspectorRowH};
+            SDL_Rect sourceBtn {sourceLabelRect.x + sourceLabelRect.w + 8, metadataY,
+                                kCtrlW - 20 - sourceLabelRect.w - 8, kInspectorRowH};
+            drawTextSafe(controlRenderer_, fontBase_, sourceLabelRect, "source", pal.inkSoft);
+            drawUIPanel(sourceBtn, pal.light, pal.deep, pal.mid);
+            drawTextSafe(controlRenderer_, fontBase_,
+                         SDL_Rect {sourceBtn.x + 6, sourceBtn.y, sourceBtn.w - 18, sourceBtn.h},
+                         ellipsizeToPixelWidth(fontBase_,
+                           sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef), sourceBtn.w - 18),
+                         pal.deep);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                 SDL_Rect {sourceBtn.x + sourceBtn.w - 14, sourceBtn.y, 14, sourceBtn.h},
+                                 "v", pal.deep);
+            cueWindowSourceDropdownRect_ = sourceBtn;
+            metadataY += kInspectorRowStep;
+          } else {
+            metadataY = drawInspectorEditableRow(metadataY, "source",
+                                                 sourceCueRefFriendlyLabel(selectedCue->kind, sourceRef),
+                                                 QuickAction::EditSourceRef,
+                                                 "Set capture source from the cue menu");
+          }
         }
 
         if (selectedCue->kind == CueKind::SrtStream) {

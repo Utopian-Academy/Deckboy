@@ -1,5 +1,32 @@
+// ============================================================================
+// app_input.ipp — Keyboard and mouse input handling for the App class.
+//
+// Processes SDL events and dispatches them to the appropriate handlers:
+//
+//   Keyboard:
+//     - Global hotkeys (Space=play/stop, Esc=stop, Enter=go-next, etc.)
+//     - Modifier-aware shortcuts (Ctrl+S=save, Ctrl+Z=undo, Ctrl+K=quick action)
+//     - Settings modal keyboard navigation
+//     - Inline text editor input forwarding
+//
+//   Mouse:
+//     - Timeline scrubbing (seekFocusedTimelineFraction)
+//     - Button click dispatch (transport controls, cue list, settings)
+//     - Drag operations (panel resize, slider adjustment)
+//     - Right-click context menus
+//
+//   Other:
+//     - Window focus/resize events
+//     - Drag-and-drop file import
+//     - SDL_QUIT handling with unsaved-changes confirmation
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Seek the focused deck's timeline to a fractional position (0.0–1.0).
+  // Handles in/out point zoom: when trim points are set, the fraction maps
+  // to the visible (trimmed) range, not the full media duration.
   bool seekFocusedTimelineFraction(double clampedFraction, bool audioScrub = false) {
     MediaEngine* engine = focusedMediaEngine();
     if (!engine) {
@@ -135,6 +162,31 @@
           currentType,
           [this](const std::string& nextType) {
             setSelectedPipSourceType(nextType);
+          });
+        return;
+      }
+    }
+    if (pointInRect(x, y, cueWindowSourceDropdownRect_)) {
+      const Cue* cue = selectedCuePtr();
+      if (cue && cue->kind == CueKind::WindowSource) {
+        // Enumerate available windows and build dropdown choices
+        auto windows = deckboy::platform::listCaptureWindows();
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto& w : windows) {
+          choices.push_back({w.id, w.displayName});
+        }
+        // Determine currently selected source ref for highlighting
+        std::string currentRef = sourceCueRefFromCue(*cue);
+        if (currentRef.empty()) currentRef = defaultSourceRefForKind(cue->kind);
+        // Map active-window to desktop for dropdown matching (closest equivalent)
+        if (currentRef == "active-window") currentRef = "desktop";
+        openDropdown(
+          "cue.window_source",
+          cueWindowSourceDropdownRect_,
+          choices,
+          currentRef,
+          [this](const std::string& selectedId) {
+            setSelectedSourceCueRef(selectedId);
           });
         return;
       }

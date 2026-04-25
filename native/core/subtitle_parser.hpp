@@ -3,6 +3,31 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// subtitle_parser.hpp — SRT subtitle file parser and runtime lookup.
+//
+// Parses SubRip (.srt) subtitle files into a time-indexed SubtitleTrack.
+// The renderer queries entryAtTime() each frame to get the current subtitle
+// text, which is drawn as a text overlay on the output.
+//
+// SRT format (per entry):
+//   1           ← sequence number (ignored, may be missing)
+//   00:01:23,456 --> 00:01:25,789  ← timing (comma or dot for milliseconds)
+//   Hello world ← text (may span multiple lines, may contain HTML-like tags)
+//                ← blank line separates entries
+//
+// The parser is tolerant of format variations:
+//   - Accepts both comma and dot as millisecond separator
+//   - Handles missing sequence numbers
+//   - Strips position tags after the end time
+//   - Sorts entries by start time after parsing
+//
+// stripSubtitleTags() removes basic HTML formatting (<b>, <i>, <font>, etc.)
+// since the text renderer doesn't support rich text.
+//
+// Used by: MediaEngine (loads subtitle track on cue load) and the output
+// renderer (queries current subtitle for each frame).
+// ============================================================================
 
 #pragma once
 
@@ -16,15 +41,20 @@
 
 namespace deckboy::core {
 
+// A single subtitle entry with its time range and display text.
 struct SubtitleEntry {
-  double startSeconds = 0.0;
-  double endSeconds = 0.0;
-  std::string text;
+  double startSeconds = 0.0;  // when to start showing this subtitle
+  double endSeconds = 0.0;    // when to stop showing this subtitle
+  std::string text;           // subtitle text (may contain newlines for multi-line)
 };
 
+// A complete subtitle track (ordered list of timed entries).
 struct SubtitleTrack {
-  std::vector<SubtitleEntry> entries;
+  std::vector<SubtitleEntry> entries;  // sorted by startSeconds after parsing
 
+  // Look up the subtitle entry active at the given time.
+  // Returns nullptr if no subtitle is visible at that time.
+  // Linear scan is fine for typical subtitle counts (<1000 entries).
   const SubtitleEntry* entryAtTime(double seconds) const {
     for (const auto& entry : entries) {
       if (seconds >= entry.startSeconds && seconds < entry.endSeconds) {
@@ -37,11 +67,11 @@ struct SubtitleTrack {
   bool empty() const { return entries.empty(); }
 };
 
-// Parse SRT subtitle time "HH:MM:SS,mmm" to seconds.
+// Parse an SRT time string "HH:MM:SS,mmm" or "HH:MM:SS.mmm" to seconds.
+// Returns nullopt if the format doesn't match.
 inline std::optional<double> parseSrtTime(const std::string& s) {
-  // Formats: "HH:MM:SS,mmm" or "HH:MM:SS.mmm"
   int h = 0, m = 0, sec = 0, ms = 0;
-  char sep = ',';
+  // Try comma separator first (standard SRT), then dot (common variant)
   if (std::sscanf(s.c_str(), "%d:%d:%d,%d", &h, &m, &sec, &ms) == 4) {
     return h * 3600.0 + m * 60.0 + sec + ms / 1000.0;
   }
@@ -51,6 +81,9 @@ inline std::optional<double> parseSrtTime(const std::string& s) {
   return std::nullopt;
 }
 
+// Parse an SRT subtitle stream into a SubtitleTrack.
+// Uses a state machine: Index → Timing → Text → (blank line) → Index.
+// Tolerant of malformed input: skips bad entries and continues parsing.
 inline SubtitleTrack parseSrtStream(std::istream& input) {
   SubtitleTrack track;
   std::string line;
@@ -141,19 +174,23 @@ inline SubtitleTrack parseSrtStream(std::istream& input) {
   return track;
 }
 
-// Parse an SRT file into a SubtitleTrack.
+// Parse an SRT file from disk into a SubtitleTrack.
+// Returns an empty track if the file can't be opened.
 inline SubtitleTrack parseSrtFile(const std::string& path) {
   std::ifstream file(path);
   if (!file) return {};
   return parseSrtStream(file);
 }
 
+// Parse SRT content from a string (e.g. extracted from ffmpeg embedded subtitle stream).
 inline SubtitleTrack parseSrtText(const std::string& text) {
   std::istringstream input(text);
   return parseSrtStream(input);
 }
 
-// Strip basic HTML-like tags from subtitle text (<b>, <i>, <u>, <font ...>)
+// Strip basic HTML-like tags from subtitle text (<b>, <i>, <u>, <font ...>).
+// SRT files commonly include formatting tags that Deckboy's text renderer
+// doesn't support, so they're stripped before display.
 inline std::string stripSubtitleTags(const std::string& text) {
   std::string result;
   result.reserve(text.size());

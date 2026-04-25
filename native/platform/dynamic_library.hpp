@@ -1,4 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// dynamic_library.hpp — Cross-platform dynamic library loader (dlopen/LoadLibrary).
+//
+// Provides a RAII wrapper for loading shared libraries at runtime. This is the
+// foundation for optional external library integrations:
+//   - NDI SDK (ndi_api.hpp, ndi_trigger_api.hpp): Processing.NDI.Lib
+//   - LTC timecode (ltc_api.hpp): libltc
+//   - DeckLink (decklink.hpp): DeckLink SDK
+//
+// Design:
+//   - Constructor takes a list of candidate paths, tried in order (allows
+//     fallback from versioned .so to unversioned, env override, etc.)
+//   - load() tries each candidate; first success wins
+//   - loadSymbol<T>() returns a typed function pointer or nullptr
+//   - Destructor calls unload() (RAII)
+//   - Move-only (no copying — shared library handles can't be duplicated)
+//
+// Platform abstraction:
+//   POSIX: dlopen(RTLD_NOW | RTLD_LOCAL), dlsym, dlclose, dlerror
+//   Windows: LoadLibraryW (UTF-8 → wide string), GetProcAddress, FreeLibrary
+// ============================================================================
+
 #pragma once
 
 #include <string>

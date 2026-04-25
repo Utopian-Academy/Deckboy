@@ -1,5 +1,32 @@
+// ============================================================================
+// app_cue_transport.ipp — Cue playback transport operations.
+//
+// Implements the core transport controls for cue playback:
+//
+//   triggerButton()      — dispatches UI button presses (IMPORT, TAKE, STOP, etc.)
+//   goNextCue()          — advance to the next cue and start playback
+//   jumpSelectedCue()    — TAKE: load and play the selected cue immediately
+//   stopTransport()      — stop all playback with optional fade-out
+//   rerackTransport()    — rewind to the beginning of the current cue
+//   clearOutput()        — stop playback and clear the output to black
+//   playTransport()      — start/resume playback of the active cue
+//   pauseTransport()     — pause playback at the current position
+//   togglePlayPause()    — toggle between play and pause states
+//   fadeOutAndStop()     — fade audio and/or video, then stop
+//
+// Also handles:
+//   - Auto-advance: chain cues with configurable end actions
+//   - Crossfade transitions between cues
+//   - Still timer management for image/pattern cues
+//   - In/out point trimming for seek operations
+//   - NMC sync transport broadcasting
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Dispatch a UI button press by its label string.
+  // Maps button labels to transport and management operations.
   void triggerButton(const std::string& label) {
     if (label == "IMPORT") {
       importWithPicker();
@@ -1952,6 +1979,27 @@
     }
   }
 
+  // Integration trigger commands are restricted to a safe subset to prevent
+  // malicious NDI/ATEM/NMC sources from executing destructive operations.
+  bool isIntegrationSafeCommand(const std::string& upperCmd) const {
+    // Safe: transport and navigation commands only
+    static const std::array<const char*, 18> kSafe {{
+      "TAKE", "GO", "PLAY", "PAUSE", "STOP", "TOGGLE",
+      "NEXT", "PREV", "PREVIOUS",
+      "RERACK", "LOOP", "FADE",
+      "DECK", "SELECT", "GOTO", "FIND", "JUMP",
+      "STATUS"
+    }};
+    // Extract the first word (the verb)
+    std::string verb = upperCmd;
+    auto sp = verb.find(' ');
+    if (sp != std::string::npos) verb = verb.substr(0, sp);
+    for (const char* safe : kSafe) {
+      if (verb == safe) return true;
+    }
+    return false;
+  }
+
   void handleAtemEventPayload(const std::string& payloadRaw) {
     if (!project_.atemTriggerEnabled) {
       return;
@@ -1961,7 +2009,9 @@
       return;
     }
     if (payload.rfind("DECKBOY ", 0) == 0) {
-      handleRemoteCommand(payload.substr(8));
+      std::string inner = payload.substr(8);
+      if (!isIntegrationSafeCommand(inner)) return;  // block unsafe commands from integrations
+      handleRemoteCommand(inner);
       return;
     }
     if (payload == "CUT" || payload == "AUTO" || payload == "TAKE") {
@@ -1986,10 +2036,11 @@
       return;
     }
 
-    static const std::array<const char*, 8> kDeckboyPrefixes {{
-      "DECK ", "TAKE ", "GOTO ", "GROUP ", "MASTER ", "SELECT ", "FIND ", "VIDEO "
+    // Only forward integration-safe prefixed commands (no MASTER, VIDEO, PANIC, CLEAR)
+    static const std::array<const char*, 5> kSafeIntegrationPrefixes {{
+      "DECK ", "TAKE ", "GOTO ", "SELECT ", "FIND "
     }};
-    for (const char* prefix : kDeckboyPrefixes) {
+    for (const char* prefix : kSafeIntegrationPrefixes) {
       if (payload.rfind(prefix, 0) == 0) {
         handleRemoteCommand(payload);
         return;

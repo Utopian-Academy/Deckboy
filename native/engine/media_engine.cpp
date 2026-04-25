@@ -3,6 +3,36 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// media_engine.cpp — Implementation of the core playback engine.
+//
+// This is the largest and most critical implementation file. Key sections:
+//
+//   stopAll / loadCue:     lifecycle management, cue loading pipeline
+//   refreshActiveCueRuntime: hot-update runtime params without reloading
+//   play / pause / stop:   transport state transitions
+//   seek:                  position jumping (restarts decode from new offset)
+//   update:                per-frame tick — pops frames from decode queue,
+//                          checks pause points, detects end-of-playback
+//   render:                draws the current frame + transition overlay
+//   startDecoderThreads:   launches ffmpeg video + audio subprocesses with
+//                          piped stdout; spawns reader threads
+//   buildPatternFrame:     procedural test pattern generation (static)
+//   buildPocketTest:       animated pixel art scene generation (static)
+//
+// Threading:
+//   Video decode thread reads raw RGBA from ffmpeg → pushes to frameQueue_
+//   Audio decode thread reads raw PCM from ffmpeg → queues to SDL audio
+//   Main thread calls update() to pop frames, render() to blit them
+//   frameMutex_ protects frameQueue_ between decode and main threads
+//
+// Transition system:
+//   When loadCue() is called with transitionSeconds > 0, the outgoing cue's
+//   current frame is snapshot to transitionTexture_. During the transition
+//   period, render() alpha-blends between the snapshot and the incoming cue's
+//   live frames. For DipBlack, both fade independently to/from black.
+// ============================================================================
+
 #include "engine/media_engine.hpp"
 
 #include <SDL.h>
@@ -16,25 +46,29 @@
 #include <sstream>
 #include <string>
 
-#include "core/cue_helpers.hpp"
-#include "core/io_utils.hpp"
-#include "core/pattern_helpers.hpp"
-#include "core/pixel_effects.hpp"
-#include "core/subprocess.hpp"
-#include "core/utils.hpp"
-#include "platform/capture_backend.hpp"
+#include "core/cue_helpers.hpp"       // isSourceCueKind, resolvedCueEndAction
+#include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
+#include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
+#include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
+#include "core/subprocess.hpp"        // spawnProcess, ChildProcess
+#include "core/utils.hpp"             // trim, splitLines, formatTimecode
+#include "platform/capture_backend.hpp" // source capture for camera/window cues
 
 #ifndef _WIN32
-#include <unistd.h>
+#include <unistd.h>                   // POSIX read() (used by io_utils on non-Windows)
 #endif
 
 using deckboy::core::utils::trim;
 using deckboy::core::utils::splitLines;
 
+// Destructor ensures all decode threads are joined and subprocesses killed.
 MediaEngine::~MediaEngine() {
   stopAll();
 }
 
+// Full reset: kill all subprocesses, join all threads, release all textures,
+// clear audio queue, and reset all state to defaults. Called by destructor
+// and when the deck is cleared (no cue loaded).
 void MediaEngine::stopAll() {
   stopDecoderThreads();
   isBrowserCapturing_ = false;
@@ -58,6 +92,25 @@ void MediaEngine::stopAll() {
   resetMediaFpsTelemetry();
 }
 
+// ---------------------------------------------------------------------------
+// loadCue — Load a new cue for playback, optionally with a transition.
+//
+// This is the main entry point for starting playback of any cue type.
+// It handles the full lifecycle:
+//   1. Compute outgoing cue's fade gain (for transition blending)
+//   2. Stop current decode threads and begin transition animation
+//   3. Copy all per-cue parameters (geometry, effects, timing) from the Cue
+//   4. Dispatch to the appropriate loader based on CueKind:
+//      - Image:       loadStillFrame() → async single-frame decode
+//      - Pattern:     loadPatternFrame() → CPU-generated pixels
+//      - Source:      loadSourceFrame() → capture backend
+//      - Browser/L3:  initStillTimer() → wait for browser frames
+//      - Video/Audio: startDecoderThreads() → ffmpeg pipeline
+//   5. Set transport state (Playing if autoplay, Paused otherwise)
+//
+// The suppressFadeIn flag is set when a cue is loaded mid-transition
+// (e.g. auto-advancing) to avoid a double fade-in effect.
+// ---------------------------------------------------------------------------
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
@@ -161,6 +214,9 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   }
 }
 
+// Hot-update runtime parameters from the active cue without restarting decode.
+// Called when the operator adjusts speed, in/out points, or pause points
+// while a cue is playing. Recalculates the position to maintain continuity.
 void MediaEngine::refreshActiveCueRuntime() {
   if (!activeCue_) {
     return;
@@ -206,6 +262,9 @@ void MediaEngine::refreshActiveCueRuntime() {
   }
 }
 
+// Resume playback from the current position. For source cues (camera/window),
+// this starts or resumes the capture backend. For video/audio cues, this
+// unpauses the SDL audio device and starts the wall-clock timer.
 void MediaEngine::play() {
   if (!activeCue_) return;
   if (isSourceCueKind(activeCue_->kind)) {
@@ -229,6 +288,9 @@ void MediaEngine::play() {
   }
 }
 
+// Pause playback and record the current position for later resume.
+// For source cues, this stops the capture backend entirely.
+// For video/audio, this pauses the SDL audio device and freezes the clock.
 void MediaEngine::pause() {
   if (!activeCue_) return;
   if (isSourceCueKind(activeCue_->kind)) {
@@ -256,6 +318,7 @@ void MediaEngine::pause() {
   }
 }
 
+// Play ↔ pause toggle. Dispatches to play() or pause() based on current state.
 void MediaEngine::toggle() {
   if (!activeCue_) return;
   if (isSourceCueKind(activeCue_->kind)) {
@@ -271,6 +334,9 @@ void MediaEngine::toggle() {
   if (state_ == TransportState::Playing) { pause(); } else { play(); }
 }
 
+// Stop playback and rewind to the beginning. For video cues, this restarts
+// the ffmpeg decode from the beginning (via seek(0.0)). For source cues,
+// this stops capture and reloads the initial source frame.
 void MediaEngine::stop() {
   if (!activeCue_) {
     return;
@@ -302,10 +368,15 @@ void MediaEngine::stop() {
   }
 }
 
+// Clear everything — equivalent to "no cue loaded". Output goes to black.
 void MediaEngine::clear() {
   stopAll();
 }
 
+// Seek to a specific position (in seconds relative to the cue's in-point).
+// For video/audio cues, this kills the current ffmpeg decode and restarts
+// from the new position. The clearVisualFrame flag controls whether the
+// current frame is blanked during the seek (true for hard stops).
 void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   if (!activeCue_) {
     return;
@@ -349,10 +420,16 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   }
 }
 
+// Set the playback volume (0.0–1.0). Atomic store — safe to call from any thread.
+// The audio decode thread reads this each sample pair via volume_.load() to scale PCM output.
 void MediaEngine::setVolume(float value) {
   volume_.store(std::clamp(value, 0.0f, 1.0f));
 }
 
+// Replace the auto-pause timecodes for the active cue. Sorts the list and
+// advances the index past any points already behind the current position,
+// so only future pause points trigger. Called from the inspector when the
+// operator edits pause points on a playing cue.
 void MediaEngine::setPausePoints(std::vector<double> points) {
   std::sort(points.begin(), points.end());
   pausePoints_ = std::move(points);
@@ -363,6 +440,9 @@ void MediaEngine::setPausePoints(std::vector<double> points) {
   }
 }
 
+// Current playback position in seconds (relative to the cue's in-point).
+// When playing, this is computed from the wall clock (steady_clock) and
+// speed multiplier. When paused/stopped, returns the stored position.
 double MediaEngine::position() const {
   if (!activeCue_) {
     return 0.0;
@@ -376,6 +456,9 @@ double MediaEngine::position() const {
   return currentPosition_;
 }
 
+// Check and consume the "reached end" flag. Returns true once per playback end.
+// The caller (transport handler) polls this each frame and decides what to do
+// (stop, loop, auto-advance, etc.) based on the cue's end action.
 bool MediaEngine::reachedEnd() {
   if (reachedEnd_) {
     reachedEnd_ = false;
@@ -384,6 +467,8 @@ bool MediaEngine::reachedEnd() {
   return false;
 }
 
+// Called by the transport handler after reachedEnd() returns true.
+// Stops decode and either holds the last frame or clears to black.
 void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
   if (!keepVisibleFrame && clearVisualOnReachedEnd_) {
     displayFrame_.reset();
@@ -392,6 +477,18 @@ void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
   clearVisualOnReachedEnd_ = false;
 }
 
+// ---------------------------------------------------------------------------
+// update — Per-frame tick called from the main render loop.
+//
+// Responsibilities:
+//   1. Check for a completed async still-image decode (imageFramePending_)
+//   2. For non-video cues: advance the still timer and check for end-of-duration
+//   3. For video cues: pop decoded frames from frameQueue_, upload to GPU
+//      texture, check pause points, detect end-of-playback (decoderEof_)
+//   4. Apply per-pixel effects (chroma key, color controls) to the current frame
+//
+// This must be called every frame from the main thread (not a decode thread).
+// ---------------------------------------------------------------------------
 void MediaEngine::update() {
   if (imageFramePending_.exchange(false)) {
     std::lock_guard<std::mutex> lk(imageMutex_);
@@ -466,6 +563,8 @@ void MediaEngine::update() {
   }
 }
 
+// Reset all FPS measurement state. Called on cue load and after runtime refresh
+// to start a fresh measurement window for the new decode stream.
 void MediaEngine::resetMediaFpsTelemetry() {
   mediaFpsSampleStartedAtMs_ = 0;
   mediaFpsFrameCount_ = 0;
@@ -473,19 +572,27 @@ void MediaEngine::resetMediaFpsTelemetry() {
   lastMeasuredMediaFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
 
+// FPS measurement is only meaningful for continuously-decoded streams:
+// video files, browser capture, and source capture. Still images and
+// pattern cues don't have a decode frame rate to measure.
 bool MediaEngine::shouldMeasureMediaFps() const {
   return activeCue_ &&
          (activeCue_->kind == CueKind::Video || isBrowserCapturing_ || isSourceCapturing_);
 }
 
+// Record a frame advance for FPS telemetry. Uses a sliding 750ms window:
+// counts unique frames within the window, then computes frames/second when
+// the window expires. The result is stored in mediaFpsMeasured_ and exposed
+// to the UI via mediaFpsMeasured() for the performance overlay.
 void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
   if (frameIndex == static_cast<std::uint64_t>(-1) ||
       frameIndex == lastMeasuredMediaFrameIndex_) {
-    return;
+    return;  // duplicate or sentinel — skip
   }
   lastMeasuredMediaFrameIndex_ = frameIndex;
   Uint64 now = SDL_GetTicks64();
   if (mediaFpsSampleStartedAtMs_ == 0) {
+    // First frame in this measurement window — start the clock
     mediaFpsSampleStartedAtMs_ = now;
     mediaFpsFrameCount_ = 0;
     mediaFpsMeasured_ = 0.0;
@@ -493,6 +600,7 @@ void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
   mediaFpsFrameCount_ += 1;
   Uint64 elapsedMs = now - mediaFpsSampleStartedAtMs_;
   if (elapsedMs >= 750) {
+    // Window expired — compute FPS and start a new window
     mediaFpsMeasured_ = elapsedMs > 0
       ? (static_cast<double>(mediaFpsFrameCount_) * 1000.0 / static_cast<double>(elapsedMs))
       : mediaFpsMeasured_;
@@ -501,10 +609,27 @@ void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
   }
 }
 
+// Return a pointer to the currently displayed frame, or nullptr if no frame
+// is loaded. Used by the output renderer (app_render_output.ipp) to read
+// pixel data directly for compositing onto the output window/NDI/DeckLink.
 const DecodedFrame* MediaEngine::currentFrame() const {
   return displayFrame_.has_value() ? &(*displayFrame_) : nullptr;
 }
 
+// ---------------------------------------------------------------------------
+// render — Draw the current frame and transition overlay to the given rect.
+//
+// This handles:
+//   1. Draw the current frame (if available) using drawTextureFitted()
+//      with the cue's scale mode, offset, rotation, and crop
+//   2. If a transition is active, draw the transition overlay (crossfade
+//      blend or dip-to-black) using drawTransitionOverlay()
+//   3. Apply the visual fade gain (fade-in/fade-out alpha)
+//
+// Called from the main render loop for the inline preview. The output window
+// uses a separate path (app_render_output.ipp) that reads currentFrame()
+// directly and composites with its own AOI/warp/edge-blend pipeline.
+// ---------------------------------------------------------------------------
 void MediaEngine::render(SDL_Rect target) {
   bool pixelEffectsChanged = false;
   if (activeCue_) {
@@ -566,6 +691,10 @@ void MediaEngine::render(SDL_Rect target) {
   }
 }
 
+// Regenerate the pattern cue's pixels using the current wall-clock time.
+// Called each frame from the main loop for animated patterns (e.g. pocket-test,
+// any pattern with the -motion suffix). The wall time drives animation phase
+// so the pattern progresses smoothly regardless of frame rate.
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
@@ -576,6 +705,17 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// startBrowserCapture — Begin screen-capture for browser cue rendering.
+//
+// This is the "capture a window" approach to browser cues: spawns ffmpeg to
+// capture the browser window's pixels and pipe them as raw RGBA frames.
+// Used on Linux/macOS where CEF integration captures the browser's X11/Cocoa
+// window directly. On Windows, browser cues use pushBrowserFrame() instead.
+//
+// The displayId is the X11 display identifier (e.g. ":0.0") or window handle.
+// fadeIn/fadeOut params are reserved for future use (currently unused).
+// ---------------------------------------------------------------------------
 bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h,
                                        double /*fadeInSeconds*/, double /*fadeOutSeconds*/,
                                        double transSecs, TransitionStyle transStyle) {
@@ -589,9 +729,11 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
     beginTransition(transSecs, transStyle);
   }
 
+  // Build capture request targeting the browser window
   deckboy::platform::SourceCaptureRequest request;
   request.kind = deckboy::platform::SourceCaptureKind::Window;
   request.sourceRef = trim(displayId);
+  // X11 display IDs need a screen suffix (e.g. ":0" → ":0.0")
   if (!request.sourceRef.empty() && request.sourceRef.front() == ':' &&
       request.sourceRef.find('.') == std::string::npos) {
     request.sourceRef += ".0";
@@ -599,7 +741,7 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
   request.width = w;
   request.height = h;
   request.frameRate = 30;
-  request.drawMouse = false;
+  request.drawMouse = false;  // don't capture cursor over the browser window
   auto plan = deckboy::platform::planSourceCapture(request);
   if (!plan.supported || plan.ffmpegArgs.empty()) {
     return false;
@@ -608,6 +750,7 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
     return false;
   }
 
+  // Spawn decode thread — identical pattern to startDecoderThreads video thread
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int videoFd = videoProcess_.readFd;
   playbackClockStart_ = std::chrono::steady_clock::now();
@@ -618,6 +761,7 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
   videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
     std::uint64_t frameIdx = 0;
     while (!decoderStop_.load()) {
+      // Back-pressure: wait for room in the frame queue
       while (!decoderStop_.load()) {
         bool hasRoom = false;
         { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
@@ -642,11 +786,23 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
   return true;
 }
 
+// Stop browser capture: clear the flag and shut down decode threads.
 void MediaEngine::stopBrowserCapture() {
   isBrowserCapturing_ = false;
   stopDecoderThreads();
 }
 
+// ---------------------------------------------------------------------------
+// startBrowserFrameMode — Prepare for push-based browser frame delivery.
+//
+// Unlike startBrowserCapture (which spawns ffmpeg to capture a window), this
+// mode receives frames directly from the browser backend via pushBrowserFrame().
+// Used when the browser backend renders offscreen and delivers RGBA buffers.
+//
+// Preserves the still duration from activeCue so that timed browser cues
+// (with stillDurationSeconds) correctly fade out and auto-advance. The
+// playback clock is reset so fade-in timing starts from when frames arrive.
+// ---------------------------------------------------------------------------
 bool MediaEngine::startBrowserFrameMode(int w, int h, double transSecs, TransitionStyle transStyle) {
   stopDecoderThreads();
   isBrowserCapturing_ = false;
@@ -670,6 +826,9 @@ bool MediaEngine::startBrowserFrameMode(int w, int h, double transSecs, Transiti
   return true;
 }
 
+// Receive a single RGBA frame from the browser backend and queue it for display.
+// Called from the browser backend thread — must be thread-safe via frameMutex_.
+// Keeps at most 2 frames buffered (drops stale ones) to minimize latency.
 void MediaEngine::pushBrowserFrame(const uint8_t* rgba, int w, int h) {
   if (!isBrowserCapturing_ || !rgba || w <= 0 || h <= 0) return;
   DecodedFrame frame;
@@ -678,16 +837,22 @@ void MediaEngine::pushBrowserFrame(const uint8_t* rgba, int w, int h) {
   frame.index  = browserFrameIdx_++;
   frame.pixels.assign(rgba, rgba + static_cast<size_t>(w) * h * 4);
   std::lock_guard<std::mutex> lk(frameMutex_);
-  // Discard stale frames — keep at most 2 buffered
+  // Discard stale frames — keep at most 2 buffered to bound latency
   while (frameQueue_.size() >= 2) frameQueue_.pop_front();
   frameQueue_.push_back(std::move(frame));
 }
 
+// ---------------------------------------------------------------------------
+// startSourceCapture — Begin live capture from a camera, window, or app texture.
+//
+// Spawns ffmpeg with platform-specific capture args (built by buildSourceCaptureArgs)
+// and starts a decode thread to pipe raw RGBA frames into frameQueue_. The
+// capture runs at 30fps with dimensions clamped to 160–3840 x 90–2160.
+//
+// Not implemented on Windows (returns false) — Windows source capture would
+// need DXGI Desktop Duplication or DirectShow, which isn't wired up yet.
+// ---------------------------------------------------------------------------
 bool MediaEngine::startSourceCapture(const Cue& cue) {
-#ifdef _WIN32
-  (void) cue;
-  return false;
-#else
   if (!isSourceCueKind(cue.kind)) {
     return false;
   }
@@ -749,19 +914,31 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
   });
 
   return true;
-#endif
 }
 
 // ── Private methods ──────────────────────────────────────────────────────────
 
+// Compute the visual fade gain (0–1) at a given playback position.
+// Handles both fade-in (ramp from 0→1 over fadeInSeconds) and fade-out
+// (ramp from 1→0 over fadeOutSeconds before the cue ends).
+// The suppress flags allow disabling either fade independently:
+//   - suppressFadeInForCurrentCue_: set when cue is loaded mid-transition
+//   - suppressVisualFadeOutForCurrentCue_: set for auto-advancing cues
+//     (the deck-level crossfade handles the visual transition instead)
+//
+// NOTE: visualFadeGainAt and fadeGainAt currently have identical logic.
+// They were historically separate (visual vs audio fade paths) but converged.
+// Kept as two entry points for API clarity — callers read differently.
 double MediaEngine::visualFadeGainAt(double positionSeconds) const {
   if (!activeCue_) {
-    return 1.0;
+    return 1.0;  // no cue → fully visible (no fade)
   }
   double gain = 1.0;
+  // Fade-in: linear ramp from 0 to 1 over fadeInSeconds
   if (!suppressFadeInForCurrentCue_ && activeCue_->fadeInSeconds > 0.001) {
     gain = std::min(gain, std::clamp(positionSeconds / activeCue_->fadeInSeconds, 0.0, 1.0));
   }
+  // Fade-out: linear ramp from 1 to 0 over fadeOutSeconds before the end
   if (!suppressVisualFadeOutForCurrentCue_ && activeCue_->fadeOutSeconds > 0.001 && duration_ > 0.0) {
     double remaining = std::max(0.0, duration_ - positionSeconds);
     gain = std::min(gain, std::clamp(remaining / activeCue_->fadeOutSeconds, 0.0, 1.0));
@@ -769,6 +946,8 @@ double MediaEngine::visualFadeGainAt(double positionSeconds) const {
   return std::clamp(gain, 0.0, 1.0);
 }
 
+// Compute the raw fade gain (used for audio fade and other non-visual purposes).
+// Currently identical to visualFadeGainAt — see note above.
 double MediaEngine::fadeGainAt(double positionSeconds) const {
   if (!activeCue_) {
     return 1.0;
@@ -785,6 +964,11 @@ double MediaEngine::fadeGainAt(double positionSeconds) const {
   return std::clamp(gain, 0.0, 1.0);
 }
 
+// Set up the duration timer for still-type cues (Image, Pattern, Browser, Composite).
+// If the cue has a stillDurationSeconds > 0, the engine treats it as a timed cue:
+// playback progresses via wall clock and handlePlaybackEnd() fires when duration expires.
+// If stillDurationSeconds is 0, the cue stays on screen indefinitely (manual control only).
+// autoplay=true starts the clock immediately; false pauses at the start.
 void MediaEngine::initStillTimer(const Cue& cue, bool autoplay) {
   if (cue.stillDurationSeconds > 0.0) {
     duration_ = cue.stillDurationSeconds;
@@ -802,6 +986,22 @@ void MediaEngine::initStillTimer(const Cue& cue, bool autoplay) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// beginTransition — Snapshot the current frame and start a visual transition.
+//
+// Takes ownership of the current texture_ (moves it to transitionTexture_)
+// so the outgoing cue's last frame is preserved. The transition timer doesn't
+// start until the incoming cue's first frame arrives (transitionWaitingForFirstFrame_).
+// This prevents jarring partial-blends when the new cue takes a moment to decode.
+//
+// sourceGain captures the outgoing cue's fade level at the moment of transition —
+// if the outgoing cue was mid-fade, the transition starts from that reduced opacity
+// rather than snapping to full brightness.
+//
+// For cuts (seconds ≤ 0), the old frame is discarded immediately. We don't enter
+// the waiting state because some cue types (e.g. browser on Windows) never produce
+// frames, so waiting would hold the old frame forever.
+// ---------------------------------------------------------------------------
 void MediaEngine::beginTransition(double seconds, TransitionStyle style, float sourceGain) {
   clearTransitionTexture();
   if (!texture_) {
@@ -815,6 +1015,7 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
     clearTexture();
     return;
   }
+  // Move the current frame texture to the transition snapshot
   transitionTexture_ = texture_;
   transitionTextureWidth_ = textureWidth_;
   transitionTextureHeight_ = textureHeight_;
@@ -825,9 +1026,12 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
   transitionStyle_ = style;
   transitionSourceGain_ = std::clamp(sourceGain, 0.0f, 1.0f);
   transitionActive_ = true;
-  transitionWaitingForFirstFrame_ = true;
+  transitionWaitingForFirstFrame_ = true;  // timer starts when incoming cue provides first frame
 }
 
+// Release the transition snapshot texture and reset all transition state.
+// Called when a transition completes (progress >= 1.0), when a new cue is
+// loaded (via beginTransition → clearTransitionTexture first), or during stopAll.
 void MediaEngine::clearTransitionTexture() {
   if (transitionTexture_) {
     SDL_DestroyTexture(transitionTexture_);
@@ -842,10 +1046,25 @@ void MediaEngine::clearTransitionTexture() {
   transitionSourceGain_ = 1.0f;
 }
 
+// ---------------------------------------------------------------------------
+// drawTextureFitted — Blit a texture into the target rect with scale/crop/offset.
+//
+// This is the common draw path for both the current frame and the transition
+// snapshot. It applies all per-cue geometry transforms in this order:
+//   1. Crop: compute source rect from crop fractions (left/right/top/bottom)
+//   2. Scale mode: Fit (letterbox), Fill (crop to fill), Stretch, or Unscaled
+//   3. Output scale: per-cue X/Y scale multipliers (outputScaleX/Y)
+//   4. Offset: per-cue X/Y pixel offset (outputOffsetX/Y)
+//   5. Rotation: per-cue rotation in degrees (outputRotationDegrees)
+//   6. Alpha: overall opacity (used for fade and transition blending)
+//
+// Returns true if the texture was drawn, false if inputs were invalid.
+// ---------------------------------------------------------------------------
 bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue) {
   if (!texture || width <= 0 || height <= 0) {
     return false;
   }
+  // Step 1: Compute the source rect after cropping (fractions → pixel offsets)
   int cropL = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropLeft_)), 0, width - 1);
   int cropR = std::clamp(static_cast<int>(std::lround(static_cast<double>(width) * cropRight_)), 0, width - 1);
   int cropT = std::clamp(static_cast<int>(std::lround(static_cast<double>(height) * cropTop_)), 0, height - 1);
@@ -854,35 +1073,40 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   int srcH = std::max(1, height - cropT - cropB);
   SDL_Rect source {cropL, cropT, srcW, srcH};
 
+  // Step 2: Compute the scale factor based on the chosen scale mode
   double scale;
   if (scaleMode_ == ScaleMode::Fit) {
+    // Letterbox: scale to fit within target, preserving aspect ratio
     scale = std::min(
       static_cast<double>(target.w) / static_cast<double>(srcW),
       static_cast<double>(target.h) / static_cast<double>(srcH)
     );
   } else if (scaleMode_ == ScaleMode::Fill) {
+    // Fill: scale to cover target entirely, cropping overflow
     scale = std::max(
       static_cast<double>(target.w) / static_cast<double>(srcW),
       static_cast<double>(target.h) / static_cast<double>(srcH)
     );
   } else if (scaleMode_ == ScaleMode::Stretch) {
-    scale = 1.0;
+    scale = 1.0;  // stretch handles dimensions separately below
   } else {
-    scale = 1.0;
+    scale = 1.0;  // Unscaled: 1:1 pixel mapping
   }
 
+  // Step 3: Compute draw dimensions based on scale mode
   int drawW, drawH;
   if (scaleMode_ == ScaleMode::Stretch) {
-    drawW = target.w;
+    drawW = target.w;  // fill target exactly, ignoring aspect ratio
     drawH = target.h;
   } else if (scaleMode_ == ScaleMode::Unscaled) {
-    drawW = srcW;
+    drawW = srcW;  // native pixel size, may be smaller or larger than target
     drawH = srcH;
   } else {
     drawW = std::max(1, static_cast<int>(std::round(srcW * scale)));
     drawH = std::max(1, static_cast<int>(std::round(srcH * scale)));
   }
 
+  // Step 4: Apply per-cue output scale (additional zoom) and center with offset
   int scaledW = std::max(1, static_cast<int>(drawW * outputScaleX_));
   int scaledH = std::max(1, static_cast<int>(drawH * outputScaleY_));
   SDL_Rect destination {
@@ -892,31 +1116,52 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
     scaledH
   };
 
+  // Step 5: Blit with alpha blending and rotation around the center point
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
   SDL_RenderCopyEx(outputRenderer_, texture, &source, &destination, outputRotationDegrees_, &center, SDL_FLIP_NONE);
-  SDL_SetTextureAlphaMod(texture, 255);
+  SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }
 
+// ---------------------------------------------------------------------------
+// drawTransitionOverlay — Render the transition blend between outgoing and incoming cues.
+//
+// Two transition styles:
+//   Crossfade: outgoing frame fades out (alpha decreasing) while incoming draws at full
+//   DipBlack:  first half fades outgoing to black, second half fades incoming from black
+//
+// State machine:
+//   1. WaitingForFirstFrame: hold outgoing at sourceGain opacity until incoming arrives
+//   2. Once incoming frame is drawn, start the real timer
+//   3. Animate progress 0→1 over transitionDurationSeconds_
+//   4. At progress=1.0, clean up (clearTransitionTexture)
+//
+// The drewCurrent flag tells us whether render() successfully drew the incoming cue's
+// frame. If false, we're still waiting for the first decode — keep showing outgoing.
+// ---------------------------------------------------------------------------
 void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent) {
   if (!transitionActive_) {
     return;
   }
 
+  // Phase 1: waiting for the incoming cue to produce its first frame
   if (transitionWaitingForFirstFrame_) {
     if (drewCurrent) {
+      // First frame arrived — start the transition timer
       transitionWaitingForFirstFrame_ = false;
       transitionStartedAt_ = std::chrono::steady_clock::now();
       if (transitionDurationSeconds_ <= 0.001) {
-        clearTransitionTexture();
+        clearTransitionTexture();  // instant cut
         return;
       }
     } else {
+      // Still waiting — show the outgoing frame at its captured fade level
       Uint8 waitAlpha = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
       drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, waitAlpha);
       if (waitAlpha < 255) {
+        // If outgoing was partially faded, fill the rest with black
         SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255 - waitAlpha);
         SDL_RenderFillRect(outputRenderer_, nullptr);
@@ -926,15 +1171,18 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     }
   }
 
+  // Phase 2: transition is actively animating
   double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - transitionStartedAt_).count();
   double progress = transitionDurationSeconds_ <= 0.0001 ? 1.0 : std::clamp(elapsed / transitionDurationSeconds_, 0.0, 1.0);
   if (progress >= 1.0) {
-    clearTransitionTexture();
+    clearTransitionTexture();  // transition complete — release snapshot
     return;
   }
 
   if (transitionStyle_ == TransitionStyle::DipBlack) {
+    // Dip-to-black: two halves
     if (progress < 0.5) {
+      // First half: outgoing fades to black (0→100% black overlay)
       Uint8 srcA = static_cast<Uint8>(transitionSourceGain_ * 255.0f);
       drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, srcA);
       SDL_SetRenderDrawBlendMode(outputRenderer_, SDL_BLENDMODE_BLEND);
@@ -943,6 +1191,7 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
       SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, static_cast<Uint8>(blackAlpha * 255.0));
       SDL_RenderFillRect(outputRenderer_, nullptr);
     } else {
+      // Second half: incoming emerges from black (100%→0% black overlay)
       if (!drewCurrent) {
         SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
         SDL_RenderFillRect(outputRenderer_, nullptr);
@@ -955,10 +1204,24 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
     return;
   }
 
+  // Crossfade: outgoing fades out linearly over the transition duration
   Uint8 alphaValue = static_cast<Uint8>(transitionSourceGain_ * std::clamp(1.0 - progress, 0.0, 1.0) * 255.0);
   drawTextureFitted(transitionTexture_, transitionTextureWidth_, transitionTextureHeight_, target, alphaValue);
 }
 
+// ---------------------------------------------------------------------------
+// handlePlaybackEnd — Respond when playback reaches the end of the cue duration.
+//
+// The behaviour depends on the cue's end action (resolvedCueEndAction):
+//   Loop:        seek back to 0, suppress fades (seamless loop), keep playing
+//   PauseOnLast: pause on the final frame (hold visible), mute audio
+//   Stop:        stop transport, set reachedEnd_ flag for the transport handler
+//                to pick up (which may auto-advance to the next cue)
+//
+// clearVisualOnReachedEnd_ controls whether finalizeReachedEnd() clears the
+// texture (go to black) or holds the last frame. Loop/PauseOnLast keep the
+// frame; Stop clears it.
+// ---------------------------------------------------------------------------
 void MediaEngine::handlePlaybackEnd() {
   if (!activeCue_) {
     return;
@@ -966,38 +1229,44 @@ void MediaEngine::handlePlaybackEnd() {
   CueEndAction act = resolvedCueEndAction(*activeCue_);
 
   if (act == CueEndAction::Loop) {
+    // Seamless loop: suppress fades to avoid a flash at the loop point
     suppressFadeInForCurrentCue_ = true;
     suppressVisualFadeOutForCurrentCue_ = true;
-    seek(0.0, false);
+    seek(0.0, false);  // restart decode from beginning
     state_ = TransportState::Playing;
     playbackClockStart_ = std::chrono::steady_clock::now();
     playbackStartPosition_ = 0.0;
     pausedPosition_ = 0.0;
     if (audioDevice_ != 0) {
-      SDL_PauseAudioDevice(audioDevice_, 0);
+      SDL_PauseAudioDevice(audioDevice_, 0);  // ensure audio is unpaused
     }
     return;
   }
   if (act == CueEndAction::PauseOnLast) {
+    // Freeze on the final frame — useful for "reveal" cues that hold an image
     state_ = TransportState::Paused;
     pausedPosition_ = duration_;
     currentPosition_ = duration_;
-    clearVisualOnReachedEnd_ = false;
+    clearVisualOnReachedEnd_ = false;  // keep last frame visible
     if (audioDevice_ != 0) {
       SDL_PauseAudioDevice(audioDevice_, 1);
     }
     return;
   }
+  // Default: stop and signal end-of-playback (the transport handler decides
+  // whether to auto-advance, clear, or wait for operator input)
   state_ = TransportState::Stopped;
   pausedPosition_ = duration_;
   currentPosition_ = duration_;
-  clearVisualOnReachedEnd_ = true;
+  clearVisualOnReachedEnd_ = true;  // go to black when finalized
   if (audioDevice_ != 0) {
     SDL_PauseAudioDevice(audioDevice_, 1);
   }
-  reachedEnd_ = true;
+  reachedEnd_ = true;  // consumed by reachedEnd() in the next update cycle
 }
 
+// Release the main frame GPU texture. Called when clearing the deck,
+// loading a new cue, or during stopAll cleanup.
 void MediaEngine::clearTexture() {
   if (texture_) {
     SDL_DestroyTexture(texture_);
@@ -1005,10 +1274,25 @@ void MediaEngine::clearTexture() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// uploadFrame — Push decoded pixel data from CPU to GPU texture.
+//
+// If the frame dimensions changed (e.g. different cue, resolution switch),
+// the existing texture is destroyed and a new one is created with matching size.
+//
+// If any pixel effects are active (chroma key or color controls), the frame
+// pixels are copied into keyedPixelsScratch_ and processed there — the original
+// DecodedFrame pixels are never modified, so they can be re-processed when
+// effect parameters change without re-decoding from ffmpeg.
+//
+// Uses SDL_TEXTUREACCESS_STREAMING for efficient pixel upload via SDL_UpdateTexture.
+// Pitch is width * 4 bytes (RGBA32 format, one byte per channel).
+// ---------------------------------------------------------------------------
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
     return;
   }
+  // Recreate texture if dimensions changed (different cue or resolution)
   if (!texture_ || textureWidth_ != frame.width || textureHeight_ != frame.height) {
     clearTexture();
     texture_ = SDL_CreateTexture(
@@ -1024,6 +1308,8 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (!texture_) {
     return;
   }
+  // Apply per-pixel effects (chroma key + color controls) if any are active.
+  // Work on a scratch copy to preserve the original frame for re-processing.
   const std::uint8_t* uploadPixels = frame.pixels.data();
   if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
     keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
@@ -1042,6 +1328,10 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   SDL_UpdateTexture(texture_, nullptr, uploadPixels, frame.width * 4);
 }
 
+// Join the still-image decode thread and clean up its process and pending frame.
+// Must be called before starting a new image decode (loadStillFrame) to avoid
+// leaking the previous thread. Uses the two-phase shutdown pattern: kill the
+// process first (unblocks readExact in the thread), then join.
 void MediaEngine::stopImageThread() {
   imageProcess_.killProcessOnly();
   if (imageThread_.joinable()) {
@@ -1053,6 +1343,10 @@ void MediaEngine::stopImageThread() {
   imageFramePending_.store(false);
 }
 
+// Query the actual output dimensions from the SDL renderer. Falls back to
+// kOutputWidth x kOutputHeight (1280x720) if the renderer isn't available.
+// Used by decode functions to size frames appropriately when the cue doesn't
+// specify explicit dimensions (e.g. un-ingested cues, live streams).
 std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
   int w = kOutputWidth;
   int h = kOutputHeight;
@@ -1067,6 +1361,9 @@ std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
   return {w, h};
 }
 
+// Resolve the media file path for a cue. If a CuePathResolver callback was
+// provided (e.g. to transform relative paths to absolute), it gets first
+// priority. Falls back to cue.path if the resolver returns empty.
 std::string MediaEngine::mediaPathForCue(const Cue& cue) const {
   if (cuePathResolver_) {
     std::string resolved = cuePathResolver_(cue);
@@ -1077,6 +1374,19 @@ std::string MediaEngine::mediaPathForCue(const Cue& cue) const {
   return cue.path;
 }
 
+// ---------------------------------------------------------------------------
+// loadStillFrame — Async-decode a single frame from an image file.
+//
+// Spawns ffmpeg to decode one frame (the first) at the target resolution,
+// piping raw RGBA via stdout. The decode runs on imageThread_ to avoid
+// blocking the main thread. When complete, the frame is placed in
+// pendingImageFrame_ and the atomic flag imageFramePending_ is set.
+// The main thread picks it up in update() on the next tick.
+//
+// Dimensions are clamped to the output resolution — no point decoding a
+// 4K image when the output is 1280x720. Uses "neighbor" scaling (nearest-
+// neighbor) since still images are often pixel-art or diagrams.
+// ---------------------------------------------------------------------------
 void MediaEngine::loadStillFrame(const Cue& cue) {
   stopImageThread();
   std::string mediaPath = mediaPathForCue(cue);
@@ -1084,9 +1394,11 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
     return;
   }
 
+  // Determine decode dimensions: use cue size if available, else output size
   auto [capW, capH] = currentOutputSizeHint();
   int w = cue.width > 0 ? cue.width : capW;
   int h = cue.height > 0 ? cue.height : capH;
+  // Downscale to output resolution if the image is larger (save decode time + memory)
   if (w > capW || h > capH) {
     double scale = std::min(
       static_cast<double>(capW) / w,
@@ -1106,6 +1418,7 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
     return;
   }
 
+  // Read the single decoded frame on a background thread
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int imageFd = imageProcess_.readFd;
   imageThread_ = std::thread([this, w, h, frameBytes, imageFd]() {
@@ -1117,11 +1430,15 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
     if (readExact(imageFd, frame.pixels.data(), frameBytes)) {
       std::lock_guard<std::mutex> lk(imageMutex_);
       pendingImageFrame_ = std::move(frame);
-      imageFramePending_.store(true);
+      imageFramePending_.store(true);  // signal main thread via update()
     }
   });
 }
 
+// Generate a procedural pattern frame and upload it immediately.
+// Called once on cue load for pattern cues. For animated patterns,
+// rebuildPatternFrame() is called each frame to update the animation.
+// animTime=0.0 gives the initial static state of the pattern.
 void MediaEngine::loadPatternFrame(const Cue& cue) {
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, 0.0, fallbackW, fallbackH);
@@ -1132,6 +1449,19 @@ void MediaEngine::loadPatternFrame(const Cue& cue) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// loadSourceFrame — Generate a placeholder frame for source capture cues.
+//
+// Source cues (WindowSource, Camera, Syphon) don't have media files to decode.
+// Before capture starts, we show a placeholder frame: horizontal stripes in
+// the DMG-inspired palette with a thin accent-color border inset. The color
+// palette varies by source kind so the operator can visually distinguish them:
+//   WindowSource: green tones (default DMG palette)
+//   Camera:       teal/emerald tones
+//   Syphon:       olive/khaki tones
+//
+// This frame is replaced by live capture data once startSourceCapture() runs.
+// ---------------------------------------------------------------------------
 void MediaEngine::loadSourceFrame(const Cue& cue) {
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   int w = cue.width > 0 ? cue.width : fallbackW;
@@ -1145,6 +1475,7 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
   frame.index = 0;
   frame.pixels.resize(static_cast<size_t>(w) * static_cast<size_t>(h) * 4u, 0);
 
+  // Select color palette based on source kind
   SDL_Color bg {48, 98, 48, 255};
   SDL_Color stripe {15, 56, 15, 255};
   SDL_Color accent {139, 172, 15, 255};
@@ -1158,6 +1489,7 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
     accent = SDL_Color {177, 188, 94, 255};
   }
 
+  // Fill with alternating horizontal stripes (14px each)
   for (int y = 0; y < h; ++y) {
     bool stripeRow = ((y / 14) % 2) == 0;
     SDL_Color rowColor = stripeRow ? bg : stripe;
@@ -1170,6 +1502,7 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
     }
   }
 
+  // Draw a 2px accent-color border inset from the edges
   int margin = std::max(6, std::min(w, h) / 18);
   for (int y = margin; y < h - margin; ++y) {
     for (int x = margin; x < w - margin; ++x) {
@@ -1191,6 +1524,9 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
   uploadFrame(*displayFrame_);
 }
 
+// Flush the SDL audio queue and pause the audio device. Called during cue
+// transitions, stop, and cleanup to prevent leftover audio from bleeding
+// into the next cue or playing after the cue has stopped.
 void MediaEngine::clearAudio() {
   if (audioDevice_ != 0) {
     SDL_ClearQueuedAudio(audioDevice_);
@@ -1198,20 +1534,34 @@ void MediaEngine::clearAudio() {
   }
 }
 
+// Thread-safe query of the current frame queue depth. Used by update() to
+// detect when the decoder is starved (queue empty + EOF = playback finished).
 size_t MediaEngine::queuedFrames() {
   std::lock_guard<std::mutex> lock(frameMutex_);
   return frameQueue_.size();
 }
 
+// ---------------------------------------------------------------------------
+// stopDecoderThreads — Kill ffmpeg subprocesses and join decode threads.
+//
+// Uses a two-phase shutdown to avoid crashes on Windows:
+//   Phase 1: killProcessOnly() terminates the ffmpeg process. This closes
+//            the write-end of the pipe, causing readExact/readSome to return
+//            0 (EOF) in the decode thread — unblocking it cleanly.
+//   Phase 2: join the threads (now unblocked), then call stop() to close
+//            the readFd. Closing readFd before join would crash because
+//            the thread is still in _read().
+//
+// Also clears the frame queue and resets capture flags.
+// ---------------------------------------------------------------------------
 void MediaEngine::stopDecoderThreads() {
   stopImageThread();
-  decoderStop_.store(true);
-  // Kill the processes first (closes their write-end of the pipe), which causes
-  // _read() in the decoder threads to return 0 (EOF) rather than crashing from
-  // a concurrently-closed readFd.  Only close readFd after joining the threads.
+  decoderStop_.store(true);  // signal threads to exit their loop
+  // Phase 1: kill processes to unblock the decode threads' read calls
   videoProcess_.killProcessOnly();
   audioProcess_.killProcessOnly();
 
+  // Phase 2: wait for threads to finish, then clean up process handles
   if (videoThread_.joinable()) {
     videoThread_.join();
   }
@@ -1219,24 +1569,39 @@ void MediaEngine::stopDecoderThreads() {
     audioThread_.join();
   }
 
-  videoProcess_.stop();
+  videoProcess_.stop();  // now safe to close readFd
   audioProcess_.stop();
 
   {
     std::lock_guard<std::mutex> lock(frameMutex_);
-    frameQueue_.clear();
+    frameQueue_.clear();  // discard any buffered frames
   }
-  decoderStop_.store(false);
+  decoderStop_.store(false);  // reset for next cue
   decoderEof_ = false;
   isSourceCapturing_ = false;
   isBrowserCapturing_ = false;
 }
 
+// ---------------------------------------------------------------------------
+// buildSourceCaptureArgs — Build ffmpeg command-line args for source capture.
+//
+// Delegates to the platform-specific capture backend (capture_backend.hpp)
+// which knows how to capture from cameras, windows, and app textures on each
+// OS. The backend returns a SourceCapturePlan with the full ffmpeg arg list.
+//
+// Source reference resolution:
+//   1. Try sourceCueRefFromCue (the cue's stored device/window identifier)
+//   2. Fall back to defaultSourceRefForKind (e.g. "/dev/video0" on Linux)
+//
+// On Linux/macOS, the $DISPLAY environment variable is forwarded to the
+// capture backend for X11 screen capture (not needed on Windows/Wayland).
+// ---------------------------------------------------------------------------
 bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const {
   std::string sourceRef = sourceCueRefFromCue(cue);
   if (sourceRef.empty()) {
     sourceRef = defaultSourceRefForKind(cue.kind);
   }
+  // Read $DISPLAY for X11 screen capture (Linux)
   std::string displayEnv;
   if (const char* envDisplay = std::getenv("DISPLAY"); envDisplay && *envDisplay) {
     std::string trimmed = trim(envDisplay);
@@ -1245,6 +1610,7 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
     }
   }
 
+  // Build the platform-specific capture request
   deckboy::platform::SourceCaptureRequest request;
   if (cue.kind == CueKind::Camera) {
     request.kind = deckboy::platform::SourceCaptureKind::Camera;
@@ -1267,6 +1633,29 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
   return true;
 }
 
+// ---------------------------------------------------------------------------
+// startDecoderThreads — Launch ffmpeg video + audio decode subprocesses.
+//
+// This is where the actual media decoding happens. Two ffmpeg processes are
+// spawned with piped stdout:
+//
+// Video pipeline:
+//   ffmpeg -hwaccel auto -ss <start> -i <path> -map 0:v:0 -an
+//          -vf scale=<w>:<h>:flags=bicubic[,setpts=...] -f rawvideo -pix_fmt rgba pipe:1
+//   → videoThread_ reads raw RGBA frames via readExact() → frameQueue_
+//
+// Audio pipeline:
+//   ffmpeg -ss <start> -i <path> -map 0:a:0 -vn
+//          -f s16le -ar 48000 -ac 2 pipe:1
+//   → audioThread_ reads raw PCM via readSome() → SDL_QueueAudio()
+//
+// Special cases:
+//   - Live streams (SRT/NDI): skip -ss (no seek) and -hwaccel (latency)
+//   - NDI sources: use -f libndi_newtek -i <source_name> instead of -i <path>
+//   - Speed != 1.0: add setpts filter for video, atempo filter for audio
+//   - No audio: audio subprocess is not spawned
+//   - Unknown dimensions: ffprobe is called first (only for non-ingested cues)
+// ---------------------------------------------------------------------------
 void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
   std::string mediaPath = mediaPathForCue(cue);
   if (mediaPath.empty()) {
@@ -1475,10 +1864,24 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   }
 }
 
+// ---------------------------------------------------------------------------
+// decodeSingleFrame — Synchronous single-frame decode for thumbnail generation.
+//
+// Unlike loadStillFrame (async, uses imageThread_), this blocks until the frame
+// is decoded and returns it directly. Used by the thumbnail pipeline (cue list
+// preview images) which can afford to block since it runs on a background thread.
+//
+// The caller provides the ChildProcess handle to use — this allows the thumbnail
+// generator to manage multiple concurrent decodes with separate process lifetimes.
+//
+// Seeks to `seconds` if > 0 (for video thumbnails at a specific timecode).
+// Dimensions are clamped to output resolution to avoid wasting decode time.
+// ---------------------------------------------------------------------------
 std::optional<DecodedFrame> MediaEngine::decodeSingleFrame(ChildProcess& process, const std::string& path, int width, int height, double seconds) {
   auto [capW, capH] = currentOutputSizeHint();
   int w = width > 0 ? width : capW;
   int h = height > 0 ? height : capH;
+  // Clamp to output resolution — thumbnails don't need to be larger
   if (w > capW || h > capH) {
     double scale = std::min(
       static_cast<double>(capW) / w,
@@ -1515,6 +1918,7 @@ std::optional<DecodedFrame> MediaEngine::decodeSingleFrame(ChildProcess& process
     return std::nullopt;
   }
 
+  // Blocking read of the single decoded frame
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   DecodedFrame frame;
   frame.width = w;
@@ -1530,7 +1934,13 @@ std::optional<DecodedFrame> MediaEngine::decodeSingleFrame(ChildProcess& process
 }
 
 // ── Static pattern builders ─────────────────────────────────────────────────
+// These static methods generate procedural test patterns directly into
+// DecodedFrame pixel buffers. They're CPU-rendered — no GPU shaders or
+// ffmpeg involved. Used by buildPatternFrame() and rebuildPatternFrame().
 
+// Write a single RGBA pixel at (x, y) into a DecodedFrame's pixel buffer.
+// Bounds-checked to silently ignore out-of-range coordinates (safe for
+// procedural drawing where shapes may extend past frame edges).
 void MediaEngine::writePixel(DecodedFrame& frame, int x, int y, SDL_Color color) {
   if (x < 0 || y < 0 || x >= frame.width || y >= frame.height) {
     return;
@@ -1542,6 +1952,9 @@ void MediaEngine::writePixel(DecodedFrame& frame, int x, int y, SDL_Color color)
   frame.pixels[offset + 3] = color.a;
 }
 
+// Fill a rectangular region with a solid color. Clamps to frame bounds so
+// callers don't need to worry about edge clipping. Used extensively by all
+// pattern builders to draw bars, blocks, and filled shapes.
 void MediaEngine::fillPixelRect(DecodedFrame& frame, int x, int y, int w, int h, SDL_Color color) {
   for (int py = std::max(0, y); py < std::min(frame.height, y + h); ++py) {
     for (int px = std::max(0, x); px < std::min(frame.width, x + w); ++px) {
@@ -1550,6 +1963,11 @@ void MediaEngine::fillPixelRect(DecodedFrame& frame, int x, int y, int w, int h,
   }
 }
 
+// Draw a filled heart shape using the implicit heart curve equation:
+//   (x² + y² - 1)³ - x²y³ ≤ 0
+// The radius parameter scales the heart. Used by the pocket-test pattern
+// as a decorative element. The equation produces a mathematically perfect
+// heart shape that fills solidly (no outline-only mode).
 void MediaEngine::drawHeart(DecodedFrame& frame, int centerX, int centerY, int radius, SDL_Color color) {
   for (int y = -radius * 2; y <= radius * 2; ++y) {
     for (int x = -radius * 2; x <= radius * 2; ++x) {
@@ -1563,44 +1981,62 @@ void MediaEngine::drawHeart(DecodedFrame& frame, int centerX, int centerY, int r
   }
 }
 
+// ---------------------------------------------------------------------------
+// buildSmpte75Bars — Generate SMPTE 75% color bar test pattern.
+//
+// Layout (standard broadcast test pattern):
+//   Top 2/3:    7 vertical bars at 75% intensity
+//               (gray, yellow, cyan, green, magenta, red, blue)
+//   Middle 1/12: complementary/reversed bar strips for alignment checking
+//   Bottom 1/4:  4 strips (black, white, near-black, super-black) for
+//                monitor setup — used to calibrate brightness/contrast
+//
+// Small colored rectangles at the bottom of each top bar act as label markers
+// (contrasting color so they're visible against the bar).
+// ---------------------------------------------------------------------------
 void MediaEngine::buildSmpte75Bars(DecodedFrame& frame) {
   int W = frame.width, H = frame.height;
   struct Bar { Uint8 r, g, b; };
+  // SMPTE 75% bars: each channel is either 0 or 191 (75% of 255)
   constexpr std::array<Bar, 7> bars {{
-    {191,191,191},
-    {191,191,  0},
-    {  0,191,191},
-    {  0,191,  0},
-    {191,  0,191},
-    {191,  0,  0},
-    {  0,  0,191},
+    {191,191,191},  // gray
+    {191,191,  0},  // yellow
+    {  0,191,191},  // cyan
+    {  0,191,  0},  // green
+    {191,  0,191},  // magenta
+    {191,  0,  0},  // red
+    {  0,  0,191},  // blue
   }};
-  int topH   = H * 2 / 3;
-  int midH   = H / 12;
-  int botH   = H - topH - midH;
+  int topH   = H * 2 / 3;    // top section: main color bars
+  int midH   = H / 12;       // middle section: complementary strips
+  int botH   = H - topH - midH;  // bottom section: grayscale setup
   int barW   = W / 7;
+  // Draw 7 main color bars (last bar extends to fill remaining width)
   for (int i = 0; i < 7; ++i) {
     SDL_Color c {bars[i].r, bars[i].g, bars[i].b, 255};
     fillPixelRect(frame, i * barW, 0, barW + (i == 6 ? W - 6 * barW : 0), topH, c);
   }
+  // Middle strips: complementary pattern for color alignment verification
   constexpr std::array<Bar, 7> midBars {{
-    {  0,191,191},
-    {  0,  0,  0},
-    {191,  0,191},
-    {  0,  0,  0},
-    {191,191,191},
-    {  0,  0,  0},
-    {  0,  0,191},
+    {  0,191,191},  // cyan
+    {  0,  0,  0},  // black
+    {191,  0,191},  // magenta
+    {  0,  0,  0},  // black
+    {191,191,191},  // gray
+    {  0,  0,  0},  // black
+    {  0,  0,191},  // blue
   }};
   for (int i = 0; i < 7; ++i) {
     SDL_Color c {midBars[i].r, midBars[i].g, midBars[i].b, 255};
     fillPixelRect(frame, i * barW, topH, barW + (i == 6 ? W - 6 * barW : 0), midH, c);
   }
+  // Bottom: grayscale strips for brightness/contrast calibration
   int botBarW = W / 4;
-  fillPixelRect(frame, 0,          topH + midH, botBarW, botH, {  0,  0,  0, 255});
-  fillPixelRect(frame, botBarW,    topH + midH, botBarW, botH, {255,255,255, 255});
-  fillPixelRect(frame, botBarW*2,  topH + midH, botBarW, botH, { 10, 10, 10, 255});
-  fillPixelRect(frame, botBarW*3,  topH + midH, W - botBarW*3, botH, { 4,  4,  4, 255});
+  fillPixelRect(frame, 0,          topH + midH, botBarW, botH, {  0,  0,  0, 255});  // black
+  fillPixelRect(frame, botBarW,    topH + midH, botBarW, botH, {255,255,255, 255});  // white
+  fillPixelRect(frame, botBarW*2,  topH + midH, botBarW, botH, { 10, 10, 10, 255});  // near-black
+  fillPixelRect(frame, botBarW*3,  topH + midH, W - botBarW*3, botH, { 4,  4,  4, 255});  // super-black
+  // Label markers at the bottom of each top bar (contrasting color)
   for (int i = 0; i < 7; ++i) {
     SDL_Color label {bars[i].r > 100 ? Uint8(0) : Uint8(230),
                      bars[i].g > 100 ? Uint8(0) : Uint8(230),
@@ -1609,21 +2045,36 @@ void MediaEngine::buildSmpte75Bars(DecodedFrame& frame) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// buildCrosshatch — Generate a crosshatch grid test pattern.
+//
+// White grid lines on black background at 64px intervals, plus:
+//   - Red crosshair at the exact center (for alignment)
+//   - Green safe-area rectangle at 10% inset (title-safe zone guide)
+//
+// phaseX/phaseY shift the grid for the -motion animated variant.
+// ---------------------------------------------------------------------------
 void MediaEngine::buildCrosshatch(DecodedFrame& frame, int phaseX, int phaseY) {
   int W = frame.width;
   int H = frame.height;
-  constexpr int kStep = 64;
+  constexpr int kStep = 64;  // grid spacing in pixels
+  // Wrap phase to grid period to prevent drift accumulation
   int shiftX = ((phaseX % kStep) + kStep) % kStep;
   int shiftY = ((phaseY % kStep) + kStep) % kStep;
+  // Black background
   fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
+  // White grid: vertical lines
   for (int x = -shiftX; x < W; x += kStep) {
     fillPixelRect(frame, x, 0, 2, H, {255, 255, 255, 255});
   }
+  // White grid: horizontal lines
   for (int y = -shiftY; y < H; y += kStep) {
     fillPixelRect(frame, 0, y, W, 2, {255, 255, 255, 255});
   }
+  // Red center crosshair (alignment reference)
   fillPixelRect(frame, W / 2 - 1, 0,     2, H, {220,  40,  40, 255});
   fillPixelRect(frame, 0,     H / 2 - 1, W, 2, {220,  40,  40, 255});
+  // Green safe-area rectangle at 10% inset (broadcast title-safe zone)
   int sx = W / 10;
   int sy = H / 10;
   fillPixelRect(frame, sx, sy, W - sx * 2, 2, {60, 180, 60, 200});
@@ -1632,12 +2083,21 @@ void MediaEngine::buildCrosshatch(DecodedFrame& frame, int phaseX, int phaseY) {
   fillPixelRect(frame, sx, H - sy - 2, W - sx * 2, 2, {60, 180, 60, 200});
 }
 
+// ---------------------------------------------------------------------------
+// buildCheckerboard — Generate a black-and-white checkerboard test pattern.
+//
+// 64px cells in a standard checkerboard layout. phaseX/phaseY scroll the
+// pattern for the -motion animated variant. cellOffsetX/Y track which
+// cell-parity we're in so the checkerboard pattern remains consistent
+// as it scrolls (otherwise the phase shift would flip black/white cells).
+// ---------------------------------------------------------------------------
 void MediaEngine::buildCheckerboard(DecodedFrame& frame, int phaseX, int phaseY) {
   int W = frame.width;
   int H = frame.height;
   constexpr int cell = 64;
   int shiftX = ((phaseX % cell) + cell) % cell;
   int shiftY = ((phaseY % cell) + cell) % cell;
+  // Track cell-level offset so parity is maintained during scrolling
   int cellOffsetX = (phaseX - shiftX) / cell;
   int cellOffsetY = (phaseY - shiftY) / cell;
   for (int row = 0;; ++row) {
@@ -1668,10 +2128,42 @@ void MediaEngine::buildCheckerboard(DecodedFrame& frame, int phaseX, int phaseY)
   }
 }
 
+// ---------------------------------------------------------------------------
+// buildPocketTest — Generate animated pixel-art island scene.
+//
+// This is the signature "pocket test" pattern — a charming animated beach
+// scene rendered entirely in code with pixel-art aesthetics. It cycles
+// through 4 time-of-day scenes (14 seconds each):
+//   Scene 0: Day      — bright blue sky, yellow sun, full color
+//   Scene 1: Sunset   — orange/pink sky, warm lighting
+//   Scene 2: Night    — dark blue sky, moon with craters, twinkling stars
+//   Scene 3: Storm    — grey-teal sky, lightning bolts, rain streaks
+//
+// Scene elements (all drawn with rect/disc primitives):
+//   - Sky gradient with sun/moon and clouds
+//   - Ocean with animated wave crests
+//   - Island with vegetation
+//   - Beach with sand texture and surf line
+//   - Palm trees with animated sway
+//   - Brick platforms and pipes (retro game homage)
+//   - Animated characters: hero, crab, turtle, dinosaur, parrot, fish, puff friend
+//   - Collectible coins
+//   - Rainbow bar strip at the bottom (audio visualizer homage)
+//   - Stars and lightning (night/storm scenes)
+//
+// The time parameter t drives all animation (position, phase, scene selection).
+// forcedScene overrides the auto-cycling scene index (for pocket-day, etc.).
+// All coordinates are proportional to frame dimensions for resolution independence.
+// ---------------------------------------------------------------------------
 void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene) {
   const int W = frame.width;
   const int H = frame.height;
 
+  // Local drawing helpers — capture W, H, and frame by reference.
+  // These avoid the overhead of calling the class-level writePixel/fillPixelRect
+  // methods (which do member lookups) for the tight inner loops of the scene.
+
+  // Single pixel write with bounds check
   auto put = [&](int x, int y, const SDL_Color& color) {
     if (x < 0 || y < 0 || x >= W || y >= H) {
       return;
@@ -1683,6 +2175,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     frame.pixels[idx + 3] = color.a;
   };
 
+  // Filled rectangle with bounds clamping
   auto rect = [&](int x, int y, int w, int h, const SDL_Color& color) {
     if (w <= 0 || h <= 0) {
       return;
@@ -1698,6 +2191,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   };
 
+  // Linear color interpolation (for sky/ocean/sand gradients)
   auto lerpColor = [&](const SDL_Color& a, const SDL_Color& b, double v) -> SDL_Color {
     double tClamped = std::clamp(v, 0.0, 1.0);
     auto mix = [&](Uint8 aa, Uint8 bb) -> Uint8 {
@@ -1706,6 +2200,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     return SDL_Color {mix(a.r, b.r), mix(a.g, b.g), mix(a.b, b.b), 255};
   };
 
+  // Filled circle (for sun, moon, coins, character bodies)
   auto disc = [&](int cx, int cy, int radius, const SDL_Color& color) {
     int r2 = radius * radius;
     for (int dy = -radius; dy <= radius; ++dy) {
@@ -1717,8 +2212,11 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   };
 
-  const int oceanTop = H * 52 / 100;
-  const int beachTop = H * 83 / 100;
+  // Scene layout: proportional vertical zones
+  const int oceanTop = H * 52 / 100;   // sky ends / ocean starts at 52%
+  const int beachTop = H * 83 / 100;   // ocean ends / beach starts at 83%
+
+  // Scene selection: cycles 0→1→2→3 every 14 seconds, or forced for pocket-day/sunset/night/storm
   int scene = forcedScene;
   if (scene < 0 || scene > 3) {
     scene = static_cast<int>(std::floor(t / 14.0)) % 4;
@@ -1727,6 +2225,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   }
 
+  // Scene 0 (Day) color palette — defaults, overridden per-scene below
   SDL_Color skyTop {60, 170, 225, 255};
   SDL_Color skyBottom {190, 245, 255, 255};
   SDL_Color oceanNear {15, 95, 170, 255};
@@ -1739,6 +2238,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
   SDL_Color cloudShadow {205, 235, 245, 255};
   bool drawMoon = false;
 
+  // Scene 1 (Sunset): warm orange/pink palette
   if (scene == 1) {
     skyTop = SDL_Color {246, 134, 98, 255};
     skyBottom = SDL_Color {255, 205, 142, 255};
@@ -1750,6 +2250,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     sunGlow = SDL_Color {255, 145, 92, 140};
     cloudMain = SDL_Color {255, 235, 224, 255};
     cloudShadow = SDL_Color {236, 193, 183, 255};
+  // Scene 2 (Night): deep blue palette, moon with craters, stars
   } else if (scene == 2) {
     skyTop = SDL_Color {24, 38, 102, 255};
     skyBottom = SDL_Color {92, 136, 206, 255};
@@ -1762,6 +2263,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     cloudMain = SDL_Color {170, 188, 240, 255};
     cloudShadow = SDL_Color {120, 136, 188, 255};
     drawMoon = true;
+  // Scene 3 (Storm): grey-teal palette, extra clouds, rain + lightning
   } else if (scene == 3) {
     skyTop = SDL_Color {34, 78, 108, 255};
     skyBottom = SDL_Color {102, 166, 180, 255};
@@ -1776,11 +2278,13 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     drawMoon = true;
   }
 
+  // ── Draw sky gradient (top → ocean boundary) ──
   for (int y = 0; y < oceanTop; ++y) {
     double v = oceanTop > 1 ? static_cast<double>(y) / static_cast<double>(oceanTop - 1) : 0.0;
     rect(0, y, W, 1, lerpColor(skyTop, skyBottom, v));
   }
 
+  // ── Stars (night and storm scenes only) ──
   if (scene >= 2) {
     int starCount = std::max(18, W / 54);
     for (int i = 0; i < starCount; ++i) {
@@ -1795,6 +2299,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   }
 
+  // ── Sun / moon (gently bobs with sine/cosine oscillation) ──
   int sunX = static_cast<int>(W * 0.78 + std::sin(t * 0.14) * (W * 0.04));
   int sunY = static_cast<int>(H * 0.17 + std::cos(t * 0.11) * (H * 0.03));
   int sunR = std::max(12, H / 16);
@@ -1806,6 +2311,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     disc(sunX, sunY - sunR / 6, std::max(2, sunR / 10), SDL_Color {190, 202, 214, 200});
   }
 
+  // ── Clouds (3 overlapping discs + shadow strip, scrolling horizontally) ──
   auto drawCloud = [&](int x, int y, int scale) {
     rect(x + scale, y + scale * 2, scale * 9, scale * 2, cloudShadow);
     disc(x + scale * 2, y + scale * 2, scale * 2, cloudMain);
@@ -1821,6 +2327,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     drawCloud(cx, cy, std::max(2, H / 120));
   }
 
+  // ── Ocean gradient (far → near, with animated wave crests) ──
   for (int y = oceanTop; y < beachTop; ++y) {
     double v = beachTop > oceanTop + 1
       ? static_cast<double>(y - oceanTop) / static_cast<double>(beachTop - oceanTop - 1)
@@ -1835,6 +2342,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x, y, 4, 2, SDL_Color {184, 244, 255, 190});
   }
 
+  // ── Island (parabolic silhouette with vegetation highlights) ──
   int islandCenter = W / 2 + static_cast<int>(std::sin(t * 0.09) * (W * 0.03));
   int islandHalfW = std::max(40, W / 5);
   int islandBaseY = beachTop - 4;
@@ -1849,6 +2357,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   }
 
+  // ── Beach (sand gradient with animated surf line) ──
   for (int y = beachTop; y < H; ++y) {
     double v = H > beachTop + 1
       ? static_cast<double>(y - beachTop) / static_cast<double>(H - beachTop - 1)
@@ -1861,6 +2370,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x, y, 3, 1, SDL_Color {255, 240, 186, 170});
   }
 
+  // ── Palm trees (curved trunk + frond cluster, swaying in the wind) ──
   auto drawPalm = [&](int baseX, int baseY, int trunkH, double sway, bool backLayer) {
     SDL_Color trunkA = backLayer ? SDL_Color{96, 72, 44, 255} : SDL_Color{116, 84, 52, 255};
     SDL_Color trunkB = backLayer ? SDL_Color{130, 95, 58, 255} : SDL_Color{148, 108, 65, 255};
@@ -1888,12 +2398,15 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   };
 
+  // Place 4 palm trees: 2 background (smaller) on the island, 2 foreground (larger) on the beach
   drawPalm(W / 2 - W / 7, beachTop + 3, std::max(26, H / 7), t * 0.8 + 0.6, true);
   drawPalm(W / 2 + W / 8, beachTop + 3, std::max(24, H / 8), t * 0.85 + 1.8, true);
   drawPalm(W / 4, H - std::max(16, H / 8), std::max(28, H / 6), t * 0.9 + 0.2, false);
   drawPalm(W * 3 / 4, H - std::max(18, H / 8), std::max(30, H / 6), t * 0.95 + 2.1, false);
 
+  // ── Retro game elements: brick platforms and pipes ──
   int blockSize = std::max(5, H / 34);
+  // Brick platform: row of textured blocks (glow in sunset scene)
   auto drawBrickPlatform = [&](int x, int y, int blocks, bool glowing) {
     SDL_Color a = glowing ? SDL_Color {232, 188, 92, 255} : SDL_Color {176, 108, 66, 255};
     SDL_Color b = glowing ? SDL_Color {255, 228, 136, 255} : SDL_Color {214, 140, 84, 255};
@@ -1906,6 +2419,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   };
 
+  // Pipe: vertical tube with lip cap (green = enemy, blue = friendly)
   auto drawPipe = [&](int x, int baseY, int height, bool enemyPipe) {
     int pipeW = std::max(16, blockSize * 3);
     SDL_Color body = enemyPipe ? SDL_Color {80, 188, 98, 255} : SDL_Color {70, 168, 208, 255};
@@ -1923,6 +2437,8 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
   drawPipe(W / 3, beachTop + std::max(8, H / 40), std::max(18, H / 11), true);
   drawPipe(W * 3 / 5, beachTop + std::max(9, H / 38), std::max(15, H / 12), false);
 
+  // ── Animated characters ──
+  // Crab: red body with animated claws (up/down), walks across the beach
   auto drawCrab = [&](int x, int y, bool clawsUp) {
     SDL_Color shellA {214, 78, 68, 255};
     SDL_Color shellB {242, 118, 98, 255};
@@ -1945,6 +2461,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x + 1, y - 4, 1, 1, SDL_Color {0, 0, 0, 255});
   };
 
+  // Fish: simple body + tail + eye, jumps out of the ocean periodically
   auto drawFish = [&](int x, int y, bool facingRight, SDL_Color body) {
     auto toneDown = [](Uint8 v) -> Uint8 {
       return static_cast<Uint8>(std::max(0, static_cast<int>(v) - 30));
@@ -1964,6 +2481,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   };
 
+  // Parrot: green body + orange beak, animated wing flap, flies across sky
   auto drawParrot = [&](int x, int y, bool wingUp) {
     SDL_Color body {70, 214, 120, 255};
     SDL_Color beak {246, 182, 78, 255};
@@ -1981,6 +2499,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x + 1, y + 3, 1, 2, SDL_Color {170, 102, 54, 255});
   };
 
+  // Turtle: green shell with dark pattern, animated leg movement
   auto drawTurtle = [&](int x, int y, bool stepA) {
     SDL_Color shell {66, 172, 80, 255};
     SDL_Color shellDark {36, 116, 58, 255};
@@ -1995,6 +2514,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x + 2 + (stepA ? 1 : 0), y + 6, 3, 1, SDL_Color {88, 72, 46, 255});
   };
 
+  // Dinosaur: green body + belly + tail, occasional blink animation
   auto drawDino = [&](int x, int y, bool blink) {
     SDL_Color body {102, 198, 98, 255};
     SDL_Color belly {186, 236, 154, 255};
@@ -2009,6 +2529,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x - 12, y - 5, 4, 2, body);
   };
 
+  // Puff friend: pink bouncing companion that follows the hero
   auto drawPuffFriend = [&](int x, int y) {
     disc(x, y, std::max(5, H / 62), SDL_Color {255, 152, 198, 255});
     rect(x - 3, y + 4, 2, 2, SDL_Color {220, 76, 126, 255});
@@ -2018,6 +2539,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(x - 1, y + 1, 2, 1, SDL_Color {224, 82, 122, 255});
   };
 
+  // Collectible coin: golden disc with cross highlight, scrolls across sky
   auto drawCoin = [&](int cx, int cy, int radius) {
     disc(cx, cy, radius, SDL_Color {255, 206, 62, 255});
     disc(cx, cy, std::max(1, radius - 2), SDL_Color {255, 236, 132, 255});
@@ -2025,12 +2547,16 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(cx - radius + 2, cy - 1, radius * 2 - 3, 2, SDL_Color {255, 248, 188, 255});
   };
 
+  // ── Place animated elements ──
+
+  // 5 coins bouncing above the beach
   for (int i = 0; i < 5; ++i) {
     int cx = ((i * (W / 4) + static_cast<int>(t * 34.0)) % (W + 60)) - 30;
     int cy = beachTop - 18 + static_cast<int>(std::sin(t * 2.4 + i * 1.3) * 6.0);
     drawCoin(cx, cy, std::max(4, H / 48));
   }
 
+  // ── Hero character (walking sprite with hat, shirt, shorts, boots) ──
   int heroX = static_cast<int>(std::fmod(t * 26.0, static_cast<double>(W + 24))) - 12;
   int heroY = beachTop - std::max(16, H / 12);
   int step = (static_cast<int>(t * 8.0) & 1);
@@ -2051,23 +2577,29 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
   rect(heroX + 2 + step, heroY + 17, 3, 2, boots);
   rect(heroX + 6 - step, heroY + 17, 3, 2, boots);
 
+  // Crab: walks right-to-left across the beach
   int crabX = (static_cast<int>(t * 24.0) % (W + 80)) - 40;
   drawCrab(crabX, beachTop + std::max(8, H / 40), (static_cast<int>(t * 4.0) & 1) != 0);
 
+  // Turtle: walks left-to-right (opposite direction to crab)
   int turtleX = W - ((static_cast<int>(t * 18.0) + 20) % (W + 90)) + 24;
   drawTurtle(turtleX, beachTop + std::max(5, H / 52), (static_cast<int>(t * 6.0) & 1) != 0);
 
+  // Dinosaur: walks slowly across the platform area
   int dinoX = ((static_cast<int>(t * 11.0) + W / 3) % (W + 120)) - 60;
   drawDino(dinoX, beachTop - std::max(18, H / 11), (static_cast<int>(t * 2.4) % 5) == 0);
 
+  // Puff friend: bounces alongside the hero with slight offset
   int puffX = heroX + 28 + static_cast<int>(std::sin(t * 1.7) * 10.0);
   int puffY = heroY + 6 + static_cast<int>(std::fabs(std::sin(t * 3.4)) * 4.0);
   drawPuffFriend(puffX, puffY);
 
+  // Parrot: flies across the sky with wing flapping
   int parrotX = W - ((static_cast<int>(t * 34.0) + 60) % (W + 120));
   int parrotY = std::max(12, H / 9) + static_cast<int>(std::sin(t * 2.1) * (H / 28.0));
   drawParrot(parrotX, parrotY, (static_cast<int>(t * 8.0) & 1) == 0);
 
+  // 4 fish: jump out of the ocean periodically (sine-driven arc)
   for (int i = 0; i < 4; ++i) {
     int fishX = ((i * (W / 4) + static_cast<int>(t * 28.0)) % (W + 80)) - 40;
     double jump = std::sin(t * 2.5 + static_cast<double>(i) * 1.2);
@@ -2078,6 +2610,7 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   }
 
+  // ── Storm effects (scene 3 only): rain streaks + occasional lightning bolt ──
   if (scene == 3) {
     for (int i = 0; i < W; i += 14) {
       int rx = (i + static_cast<int>(t * 220.0)) % std::max(1, W);
@@ -2091,10 +2624,12 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     }
   }
 
+  // ── Bottom rainbow strip (audio visualizer homage with pulsing bars) ──
   int stripH = std::max(16, H / 14);
   int stripY = H - stripH;
-  rect(0, stripY, W, stripH, SDL_Color {12, 30, 56, 230});
+  rect(0, stripY, W, stripH, SDL_Color {12, 30, 56, 230});  // dark background
 
+  // 8 rainbow-colored bars with a sine-wave pulse animation
   const std::array<SDL_Color, 8> bars {{
     SDL_Color{232, 78, 72, 255},
     SDL_Color{246, 160, 70, 255},
@@ -2113,58 +2648,85 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
   }
 }
 
+// ---------------------------------------------------------------------------
+// buildPatternFrame — Static factory: generate a procedural test pattern frame.
+//
+// This is the main dispatch function for all pattern types. It:
+//   1. Determines frame dimensions (from cue, or fallback to output size)
+//   2. Normalizes the pattern type ID (handles aliases, -motion suffix)
+//   3. Dispatches to the appropriate builder (SMPTE bars, crosshatch, etc.)
+//   4. For -motion variants, applies animation overlays (scan lines, scrolling)
+//   5. For solid color patterns (-motion), applies a pulsing brightness effect
+//
+// Returns nullopt only if something goes wrong (shouldn't happen in practice).
+// The animTime parameter drives all animation — 0.0 gives the static initial state.
+// ---------------------------------------------------------------------------
 std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, double animTime,
                                                            int fallbackWidth, int fallbackHeight) {
   int sourceW = cue.width > 0 ? cue.width : fallbackWidth;
   int sourceH = cue.height > 0 ? cue.height : fallbackHeight;
+  // Legacy compatibility: cues stored with default 1280x720 should adapt to actual output
   bool legacyRaster = cue.width == kOutputWidth && cue.height == kOutputHeight;
   if (legacyRaster && (fallbackWidth != kOutputWidth || fallbackHeight != kOutputHeight)) {
     sourceW = fallbackWidth;
     sourceH = fallbackHeight;
   }
 
+  // Allocate the frame buffer (minimum 320x180 for readability)
   DecodedFrame frame;
   frame.width  = std::max(320, sourceW);
   frame.height = std::max(180, sourceH);
   frame.index  = 0;
   frame.pixels.assign(static_cast<size_t>(frame.width) * static_cast<size_t>(frame.height) * 4u, 255);
 
+  // Normalize pattern type and detect -motion variant
   std::string patternType = normalizePatternTypeId(cue.path);
   std::string basePatternType = stripPatternMotionSuffix(patternType);
   bool motion = endsWith(patternType, "-motion");
 
+  // Sine-wave pulsing helper for -motion solid color patterns.
+  // Oscillates a byte value between minScale and maxScale of fullScale.
   auto pulseByte = [&](Uint8 fullScale, double speed, double minScale = 0.40, double maxScale = 1.0) -> Uint8 {
     double wave = 0.5 + 0.5 * std::sin(animTime * speed);
     double scaled = minScale + (maxScale - minScale) * wave;
     return static_cast<Uint8>(std::clamp(std::lround(static_cast<double>(fullScale) * scaled), 0l, 255l));
   };
 
+  // ── Pattern dispatch ──
+  // Each branch builds the base pattern, then adds motion overlays if -motion is active.
+
   if (basePatternType == "smpte-bars") {
     buildSmpte75Bars(frame);
     if (motion) {
+      // Scan line overlay: white vertical bar + dark horizontal bar sweeping across the frame
       int scanX = static_cast<int>(std::fmod(animTime * 230.0, static_cast<double>(frame.width + 120))) - 60;
       fillPixelRect(frame, scanX, 0, 4, frame.height, {255, 255, 255, 255});
       int scanY = static_cast<int>(std::fmod(animTime * 140.0, static_cast<double>(frame.height + 80))) - 40;
       fillPixelRect(frame, 0, scanY, frame.width, 2, {8, 8, 8, 255});
     }
   } else if (basePatternType == "crosshatch") {
+    // Grid lines scroll for -motion; static phase for base pattern
     constexpr double kCrosshatchPeriod = 64.0;
     int phaseX = motion ? static_cast<int>(std::fmod(animTime * 92.0, kCrosshatchPeriod)) : 0;
     int phaseY = motion ? static_cast<int>(std::fmod(animTime * 46.0, kCrosshatchPeriod)) : 0;
     buildCrosshatch(frame, phaseX, phaseY);
     if (motion) {
+      // Gold tracking marker moving across the center line
       int markerX = static_cast<int>(std::fmod(animTime * 170.0, static_cast<double>(frame.width + 40))) - 20;
       fillPixelRect(frame, markerX, frame.height / 2 - 4, 10, 8, {245, 220, 80, 255});
     }
   } else if (basePatternType == "checkerboard" || basePatternType == "checker") {
+    // Checkerboard scrolls diagonally for -motion
     constexpr double kCheckerboardPeriod = 128.0;
     int phaseX = motion ? static_cast<int>(std::fmod(animTime * 110.0, kCheckerboardPeriod)) : 0;
     int phaseY = motion ? static_cast<int>(std::fmod(animTime * 55.0, kCheckerboardPeriod)) : 0;
     buildCheckerboard(frame, phaseX, phaseY);
     if (motion) {
+      // Orange scan line bouncing vertically
       int y = static_cast<int>(frame.height * (0.5 + 0.35 * std::sin(animTime * 1.9)));
       fillPixelRect(frame, 0, y, frame.width, 2, {255, 96, 32, 255});
     }
+  // Solid color patterns: static = solid fill, -motion = pulsing brightness
   } else if (basePatternType == "full-white") {
     Uint8 v = motion ? pulseByte(255, 2.5, 0.55, 1.0) : 255;
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {v, v, v, 255});
@@ -2180,6 +2742,7 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   } else if (basePatternType == "full-blue") {
     Uint8 b = motion ? pulseByte(255, 2.8, 0.30, 1.0) : 255;
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, b, 255});
+  // Pocket scene variants: force a specific scene index (0=day, 1=sunset, 2=night, 3=storm)
   } else if (basePatternType == "pocket-day") {
     buildPocketTest(frame, animTime, 0);
   } else if (basePatternType == "pocket-sunset") {
@@ -2189,6 +2752,7 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   } else if (basePatternType == "pocket-storm") {
     buildPocketTest(frame, animTime, 3);
   } else {
+    // Default / "pocket-test": auto-cycle through all 4 scenes
     buildPocketTest(frame, animTime, -1);
   }
 

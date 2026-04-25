@@ -1,5 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Deckboy contributors
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// waveform_renderer.cpp — Audio waveform visualization implementation.
+//
+// Renders a symmetric waveform display within a bounding rectangle:
+//   1. Draw dark background and border
+//   2. Draw subtle center line (amplitude zero reference)
+//   3. Draw peak bars: each column samples the peak array, drawing a
+//      vertical bar centered on the midline. Bars within the in/out
+//      range are colored differently from out-of-range bars.
+//   4. Draw pause point markers (orange vertical lines)
+//   5. Draw playhead (yellow/lime vertical line at current position)
+//   6. Draw in/out markers (green/red vertical lines)
+//
+// If no peak data is available yet, shows "analyzing..." centered text.
+//
+// Header: waveform_renderer.hpp
+// Used by: app_render_inspector.ipp (cue inspector waveform display).
+// ============================================================================
 
 #include "render/waveform_renderer.hpp"
 #include "render/primitives.hpp"
@@ -9,7 +30,9 @@
 
 namespace deckboy::render {
 
-// Color constants for waveform (matching App color scheme)
+// ── Color palette for waveform elements ─────────────────────────────────────
+// Defined as functions (not constexpr) because SDL_Color aggregate
+// initialization is not constexpr in C++17 with all compilers.
 namespace {
   // Deep dark background for waveform area
   SDL_Color kWaveformBg() { return {8, 16, 24, 255}; }
@@ -53,21 +76,26 @@ void WaveformRenderer::render(SDL_Renderer* renderer, const SDL_Rect& bounds,
   }
 
   int n = static_cast<int>(peaks.size());
+  // Inset by 2px for the border, giving us the drawable waveform area
   int x0 = bounds.x + 2;
   int y0 = bounds.y + 2;
   int w = bounds.w - 4;
   int h = bounds.h - 4;
-  int cy = y0 + h / 2;  // center line for symmetric waveform
+  int cy = y0 + h / 2;  // Center line: amplitude zero reference
 
-  // Draw centre line (subtle grid reference)
+  // Draw subtle center line (amplitude zero reference)
   SDL_SetRenderDrawColor(renderer, 30, 50, 30, 255);
   SDL_RenderDrawLine(renderer, x0, cy, x0 + w, cy);
 
-  // Draw waveform peaks (symmetric around center)
+  // Draw waveform peaks: one vertical bar per pixel column, symmetric
+  // around the center line. Each column samples the peak array using
+  // nearest-neighbor interpolation (peaks may have fewer entries than pixels).
   for (int i = 0; i < w; ++i) {
+    // Map pixel column → peak array index (nearest-neighbor)
     int pi = std::min(i * n / std::max(1, w), n - 1);
     float peak = peaks[pi];
     int halfH = std::max(1, static_cast<int>(peak * h / 2));
+    // Determine if this column falls within the in/out edit range
     float frac = static_cast<float>(i) / std::max(1, w);
     bool inRange = (frac >= inFrac && frac <= outFrac);
 
@@ -78,7 +106,8 @@ void WaveformRenderer::render(SDL_Renderer* renderer, const SDL_Rect& bounds,
     SDL_RenderDrawLine(renderer, x0 + i, cy - halfH, x0 + i, cy + halfH);
   }
 
-  // Pause point ticks (orange verticals)
+  // Pause point markers: orange vertical lines at each pause point position.
+  // Pause points are stored in seconds; convert to fractional position using duration.
   if (!pausePoints.empty() && duration > 0.0) {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     for (double pp : pausePoints) {
@@ -106,6 +135,8 @@ void WaveformRenderer::render(SDL_Renderer* renderer, const SDL_Rect& bounds,
   }
 }
 
+// Draw a single vertical marker line from y0 to y1 at pixel column x.
+// Used for playhead, in/out points, and pause point indicators.
 void WaveformRenderer::drawMarker(SDL_Renderer* renderer, int x, int y0, int y1,
                                   Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
   if (!renderer) {

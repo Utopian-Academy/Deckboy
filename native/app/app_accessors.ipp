@@ -1,14 +1,20 @@
+// ============================================================================
+// app_accessors.ipp — State accessor methods for the App class.
+//
+// Provides getter/helper functions for accessing deck, cue, output, and
+// project state. These are convenience wrappers that handle bounds checking,
+// focused-deck resolution, and safe fallbacks for empty state.
+//
+// Key accessors:
+//   focusedDeck() / focusedDeckMutable() — the currently selected deck
+//   activeCue() / activeCuePtr()         — the cue loaded in the focused deck
+//   focusedMediaEngine()                  — the MediaEngine for the focused deck
+//   focusedRuntime()                      — the DeckRuntime for the focused deck
+//   focusedOutput()                       — the selected output target
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
-
-#ifdef _WIN32
-  // Windows stub: resolvedNmcSyncMode is defined in app_network.ipp which is
-  // Unix-only. Provide a minimal stub so callers in other ipp files compile.
-  std::string resolvedNmcSyncMode() const {
-    const char* env = std::getenv("DECKBOY_NMC_MODE");
-    return normalizeNmcSyncModeToken(env ? env : "");
-  }
-#endif
+// ============================================================================
 
   Deck& focusedDeckMutable() {
     normalizeProject(project_);
@@ -171,7 +177,9 @@
     }
 
     bool streamLive = false;
-#ifndef _WIN32
+#ifdef _WIN32
+    streamLive = output.streamEnabled && runtime->streamProcess.running();
+#else
     streamLive = output.streamEnabled && runtime->streamPid > 0;
 #endif
     bool ndiLive = false;
@@ -223,7 +231,9 @@
       return state == OutputHealthState::Recovering ? "recovering" : "output fault";
     }
     bool streamLive = false;
-#ifndef _WIN32
+#ifdef _WIN32
+    streamLive = output.streamEnabled && runtime->streamProcess.running();
+#else
     streamLive = output.streamEnabled && runtime->streamPid > 0;
 #endif
     bool ndiLive = false;
