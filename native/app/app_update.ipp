@@ -1,5 +1,80 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+//
+// ═══════════════════════════════════════════════════════════════════════════════
+// app_update.ipp — Per-Frame Update & Event Processing
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// The main loop in App::run() calls processEvents() → update() → render()
+// every frame. This file implements all three, keeping the run-loop body in
+// main.cpp minimal.
+//
+// ─── processEvents() ────────────────────────────────────────────────────────
+//   Drains the SDL event queue in a single pass. Each event type is dispatched
+//   to the appropriate handler:
+//
+//     SDL_QUIT / WINDOWEVENT_CLOSE — sets gShouldQuit or closes a secondary
+//       window (monitors window, output window). Closing the control window
+//       always exits the app immediately with no confirmation trap.
+//     SDL_DROPFILE       — forwards to handleDropFile() for cue import.
+//     SDL_MOUSEWHEEL     — dropdown scroll, cue inspector scroll, overlay
+//                          list scroll, or primary cue list scroll (in that
+//                          priority order, based on mouse position hit-test).
+//     SDL_MOUSEBUTTONDOWN — inline text editor → dropdown → right-click
+//                          (settings click or context menu) → context menu
+//                          click → general mouse-down handler. Monitors
+//                          window clicks are handled separately.
+//     SDL_MOUSEBUTTONUP  — resets all drag states: cue drag, trim drag,
+//                          timeline scrub (resumes playback if scrubbing
+//                          interrupted it), warp corner drag, layout drag.
+//     SDL_MOUSEMOTION    — updates mouse position and forwards to
+//                          handleMouseMotion().
+//     SDL_KEYDOWN        — accepted from the control window always, or from
+//                          output windows only for Escape (to close output).
+//     SDL_TEXTINPUT      — forwarded to the inline text editor.
+//     SDL_DISPLAYEVENT   — updates observed display count and triggers
+//                          topology refresh on connect/disconnect.
+//
+// ─── update() ───────────────────────────────────────────────────────────────
+//   Per-frame state tick. Runs every frame regardless of whether events
+//   arrived. Major subsystems updated (in order):
+//
+//     1. Project state: flushDirtyProject(), processRemoteCommands()
+//     2. Integration runtimes: NMC sync, NDI trigger bridge, LTC capture
+//     3. Async futures: media probe results → cue metadata fill-in,
+//        waveform analysis results → cache, VU meter sample cleanup
+//     4. Waveform & timeline strip: trigger analysis for selected/active cue
+//     5. Splash overlay: auto-dismiss after 2.6 seconds
+//     6. Delta time: computed from SDL_GetTicks64 for animation stepping
+//     7. Display topology: polled every 1.2s, refresh on change
+//     8. Output recovery: polled every 1s per output
+//     9. Timecode follower: ensure state arrays are sized, advance run-mode
+//        timecode with freewheel timeout, fire cue triggers if chase+trigger
+//        enabled
+//    10. Master dimmer: smooth ramp toward target (panic or normal speed),
+//        triggers finishClearOutput() when dimmer reaches black during
+//        fade-to-clear, completes panic profile when faded or timed out
+//    11. Playlist opacity: per-deck smooth ramp toward target with
+//        configurable fade time
+//    12. Media engines: per-deck engine->update(), pattern cue animation
+//        rebuild, PiP overlay runtime sync, auto-advance on cue end
+//        (handles goto targets, shuffle, playlist loop, transition-to-next)
+//    13. NMC sync output: tickNmcSyncOutput()
+//    14. Preview engine: next-cue preview for monitors window (currently
+//        disabled behind kShowNextPreviewMonitor flag)
+//    15. Status snapshot: updateStatusSnapshot() for OSC feedback
+//    16. Texture uploads: control preview frame, monitors captured frames,
+//        thumbnail decode result, timeline strip decode result
+//
+// ─── render() ───────────────────────────────────────────────────────────────
+//   Dispatches rendering to all visible windows:
+//     • renderControlWindow()  — main UI (see app_render_main.ipp)
+//     • renderMonitorsWindow() — multi-output monitor view (see app_overlays.ipp)
+//     • ensureOutputRuntimesSynced() — creates/destroys output runtimes to
+//       match project_.outputs
+//     • renderOutputWindow()   — per-output compositor (see app_render_output.ipp)
+// ═══════════════════════════════════════════════════════════════════════════════
+
   void processEvents() {
     SDL_Event event {};
     while (SDL_PollEvent(&event)) {

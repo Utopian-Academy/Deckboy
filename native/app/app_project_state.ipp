@@ -1,5 +1,34 @@
+// ============================================================================
+// app_project_state.ipp — Project save/load and file management.
+//
+// Implements .deckboy project file I/O using tab-delimited format:
+//
+//   Project file resolution:
+//     defaultProjectFile()     — resolve DECKBOY_PROJECT env or default path
+//     startupProjectFile()     — last-opened project or default
+//     lastOpenedProjectPointerFile() — persists the most recently opened file
+//
+//   Save/load:
+//     saveProject()            — serialize project to .deckboy file
+//     loadProject()            — deserialize project from .deckboy file
+//     autoSaveProject()        — periodic auto-save with dirty tracking
+//     markProjectDirty()       — flag unsaved changes
+//
+//   Import/export:
+//     importProjectFile()      — merge cues from another project
+//     exportProjectBundleTo()  — export project + media as a portable bundle
+//     importMediaFiles()       — batch import media files as new cues
+//
+//   Field serialization:
+//     Tab-delimited format with escape sequences for special characters.
+//     Backward compatibility: guard `if (fields.size() >= N)` for new fields.
+//     See escapeField() / unescapeField() in main.cpp for the encoding.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Returns the default project file path (from DECKBOY_PROJECT env or default).
   fs::path defaultProjectFile() const {
     const char* envPath = std::getenv("DECKBOY_PROJECT");
     if (envPath && *envPath) {
@@ -780,10 +809,8 @@
       return;
     }
     project_.oscFeedbackMirrorEnabled = enabled;
-#ifndef _WIN32
     lastOscMirrorFeedbackPayload_.clear();
     lastOscMirrorFeedbackBroadcastMs_ = 0;
-#endif
     triggerToast(std::string("osc feedback mirror: ") + (enabled ? "on" : "off"));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
@@ -850,7 +877,6 @@
       return;
     }
     *target = enabled;
-#ifndef _WIN32
     if (backendId == "atem" && enabled && atemBridgeSocket_ == kInvalidSocket) {
       startAtemBridgeListener();
     } else if (backendId == "nmc") {
@@ -860,7 +886,6 @@
     } else if (backendId == "dmx-artnet" && enabled) {
       restartArtNetBridgeListener();
     }
-#endif
     bool supported = isIntegrationBackendSupported(backendId);
     triggerToast(label + ": " + (enabled ? "on" : "off") + (enabled && !supported ? " (stub)" : ""));
     playUiSound(UiSoundEffect::Toggle);
@@ -885,7 +910,6 @@
     apply(project_.mtcIngestEnabled);
     apply(project_.ltcIngestEnabled);
     apply(project_.dmxArtNetEnabled);
-#ifndef _WIN32
     if (enabled && project_.atemTriggerEnabled && atemBridgeSocket_ == kInvalidSocket) {
       startAtemBridgeListener();
     }
@@ -894,7 +918,6 @@
     if (enabled && project_.dmxArtNetEnabled) {
       restartArtNetBridgeListener();
     }
-#endif
     triggerToast(std::string("integrations: ") + (enabled ? "on" : "off"));
     if (changed) {
       playUiSound(UiSoundEffect::Toggle);
@@ -911,9 +934,7 @@
       return;
     }
     project_.artNetPort = normalized;
-#ifndef _WIN32
     restartArtNetBridgeListener();
-#endif
     triggerToast("artnet port: " + std::to_string(project_.artNetPort));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();

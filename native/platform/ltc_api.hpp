@@ -3,11 +3,35 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// ltc_api.hpp — Linear Timecode (LTC) decoder via libltc (dynamic load).
+//
+// LTC is an analog audio signal encoding SMPTE timecode, commonly used in
+// broadcast and live events to synchronize playback. This file provides:
+//
+//   LtcDecodedTimecode:  decoded HH:MM:SS:FF + drop-frame flag
+//   LtcFpsEstimator:     heuristic frame rate detection from observed timecodes
+//                         (detects 24, 25, 29.97df, 30 fps)
+//   decodeLtcFrameBytes: extract timecode from raw LTC frame bytes (BCD decode)
+//   LtcApi:              dynamic loader for libltc — loads symbols at runtime
+//                         so Deckboy can run without libltc installed
+//
+// The libltc library is loaded dynamically via DynamicLibrary because:
+//   - It's an optional feature (not all users need timecode)
+//   - It avoids a hard link dependency on a library that may not be installed
+//   - The library path can be overridden via DECKBOY_LTC_LIB env variable
+//
+// Cross-platform: libltc is loaded dynamically on all platforms.
+// Linux: apt install libltc-dev; macOS: brew install libltc; Windows: ltc.dll next to exe.
+//
+// Used by: main.cpp's LTC receive thread, which captures audio input and
+// feeds PCM samples to the decoder to extract timecode for display/sync.
+// ============================================================================
+
 #pragma once
 
-#ifndef _WIN32
-
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -17,14 +41,20 @@
 
 #include "dynamic_library.hpp"
 
+// A decoded SMPTE timecode value extracted from an LTC audio frame.
 struct LtcDecodedTimecode {
-  int hours = 0;
-  int minutes = 0;
-  int seconds = 0;
-  int frames = 0;
-  bool dropFrame = false;
+  int hours = 0;       // 0–23
+  int minutes = 0;     // 0–59
+  int seconds = 0;     // 0–59
+  int frames = 0;      // 0–29 (depends on frame rate)
+  bool dropFrame = false;  // true for 29.97fps drop-frame timecode
 };
 
+// Heuristic frame rate estimator based on observed timecode values.
+// Watches the highest frame number seen per second to determine whether
+// the source is 24, 25, or 30 fps. Drop-frame timecodes are immediately
+// identified as 29.97fps. Updates incrementally — each new timecode
+// refines the estimate.
 struct LtcFpsEstimator {
   double estimate = 30.0;
   int trackedSecondOfDay = -1;
@@ -70,6 +100,10 @@ struct LtcFpsEstimator {
   }
 };
 
+// Decode raw LTC frame bytes (8 bytes of BCD-encoded timecode) into a
+// LtcDecodedTimecode struct. Each byte pair encodes units and tens digits
+// of frames/seconds/minutes/hours. Bit 2 of byte 1 is the drop-frame flag.
+// Returns nullopt for out-of-range values (corrupted frames).
 inline std::optional<LtcDecodedTimecode> decodeLtcFrameBytes(const std::uint8_t* bytes) {
   if (!bytes) {
     return std::nullopt;
@@ -90,20 +124,26 @@ inline std::optional<LtcDecodedTimecode> decodeLtcFrameBytes(const std::uint8_t*
   return tc;
 }
 
+// Dynamic loader for the libltc shared library.
+// Loads all required decoder symbols at runtime so Deckboy can run
+// without libltc installed (the LTC feature simply won't be available).
+// Thread-safe: ensureLoaded() uses the `attempted` flag to avoid redundant loads.
 struct LtcApi {
-  static constexpr size_t kFrameExtBytes = 0x170;
+  static constexpr size_t kFrameExtBytes = 0x170;  // sizeof(LTCFrameExt) in libltc
 
   deckboy::platform::DynamicLibrary lib_;
-  bool loaded = false;
-  bool attempted = false;
+  std::atomic<bool> loaded {false};    // true after successful symbol resolution
+  std::atomic<bool> attempted {false}; // true after first load attempt (success or failure)
   std::string loadError = "not initialized";
-  void* (*decoderCreateFn)(int, int) = nullptr;
-  void (*decoderFreeFn)(void*) = nullptr;
-  void (*decoderQueueFlushFn)(void*) = nullptr;
-  int (*decoderQueueLengthFn)(void*) = nullptr;
-  int (*decoderReadFn)(void*, void*) = nullptr;
-  void (*decoderWriteS16Fn)(void*, std::int16_t*, size_t, std::int64_t) = nullptr;
+  // Function pointers matching libltc's public API
+  void* (*decoderCreateFn)(int, int) = nullptr;              // ltc_decoder_create
+  void (*decoderFreeFn)(void*) = nullptr;                    // ltc_decoder_free
+  void (*decoderQueueFlushFn)(void*) = nullptr;              // ltc_decoder_queue_flush
+  int (*decoderQueueLengthFn)(void*) = nullptr;              // ltc_decoder_queue_length
+  int (*decoderReadFn)(void*, void*) = nullptr;              // ltc_decoder_read
+  void (*decoderWriteS16Fn)(void*, std::int16_t*, size_t, std::int64_t) = nullptr; // ltc_decoder_write_s16
 
+  // Load libltc if not already attempted. Returns true if all symbols resolved.
   bool ensureLoaded() {
     if (attempted) {
       return loaded;
@@ -114,7 +154,10 @@ struct LtcApi {
     if (const char* env = std::getenv("DECKBOY_LTC_LIB"); env && *env) {
       candidates.emplace_back(env);
     }
-#ifdef __APPLE__
+#ifdef _WIN32
+    candidates.emplace_back("ltc.dll");
+    candidates.emplace_back("libltc.dll");
+#elif defined(__APPLE__)
     candidates.emplace_back("libltc.dylib");
     candidates.emplace_back("/usr/local/lib/libltc.dylib");
     candidates.emplace_back("/opt/homebrew/lib/libltc.dylib");
@@ -164,5 +207,3 @@ struct LtcApi {
     decoderWriteS16Fn = nullptr;
   }
 };
-
-#endif // !_WIN32

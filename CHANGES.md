@@ -1,5 +1,95 @@
 # CHANGES - Incremental Updates (March–April 2026)
 
+## 2026-04-24 — v0.76.12 (Full networking stack on Windows)
+
+- **Full networking stack ported to Windows**: all network protocols that
+  were previously Linux/macOS-only now work on Windows via Winsock2.
+  This includes:
+  - **Companion control** (TCP+UDP): Bitfocus Companion integration,
+    OSC message parsing, subscriber tracking, feedback broadcasting
+  - **OSC Query server** (TCP HTTP): endpoint discovery and state queries
+  - **ATEM tally bridge** (UDP): receives ATEM tally packets for
+    transport triggers
+  - **Art-Net DMX bridge** (UDP): receives DMX packets for
+    lighting trigger integration
+  - **NMC sync** (UDP): Network Master Clock — both input mode
+    (receives play/stop/seek) and output mode (broadcasts transport
+    state to followers)
+  - **NDI trigger bridge**: receives NDI metadata frames as cue triggers
+  - **HyperDeck server** (TCP): Blackmagic HyperDeck protocol emulation
+    for hardware controllers
+- Added `WSAStartup`/`WSACleanup` lifecycle in `App::init()`/`shutdown()`.
+- Added `selectNfds()` cross-platform helper in `network.hpp` — computes
+  the `nfds` argument for `select()` (fd+1 on POSIX, 0 on Windows where
+  it's ignored).
+- Removed the `resolvedNmcSyncMode` Windows stub from `app_accessors.ipp`
+  — the real implementation in `app_network.ipp` is now cross-platform.
+- Fixed `hyperDeckListenFd_` type from `int` to `SocketHandle`.
+- Cross-platform socket fixes throughout `app_network.ipp`: `ssize_t` →
+  `int`, `close()` → `closeSocket()`, `accept` return checks use
+  `kInvalidSocket`, buffer size casts for Winsock `int` params.
+- Removed `#ifndef _WIN32` guards from integration bridge start/stop
+  calls in `app_project_state.ipp` and settings display code.
+- **LTC ingest now works on Windows**: built libltc 1.3.2 from source
+  (x42/libltc) as a Windows DLL (`ltc.dll`). Removed the `#ifndef _WIN32`
+  guard from `ltc_api.hpp` — the dynamic loader now searches for
+  `ltc.dll` / `libltc.dll` on Windows alongside the existing Linux/macOS
+  candidates. LTC ingest member variables and functions
+  (`ltcLoop`, `startLtcIngest`, `stopLtcIngest`, `refreshLtcCaptureState`)
+  moved to cross-platform scope. SDL2 audio capture provides the PCM
+  input on all platforms.
+- **What remains platform-gated**: ALSA MIDI input (`DECKBOY_HAS_ALSA`)
+  is Linux-only but replaced by the cross-platform RtMidi in `midi.cpp`.
+
+## 2026-04-24 — v0.76.11 (DeckLink UI + NDI Windows + Spout output + RtMidi)
+
+- **DeckLink settings UI** in Video Outputs preferences tab: enable
+  toggle, device dropdown (lists connected Blackmagic devices with
+  SDI/HDMI/4K capability labels), output mode dropdown (720p through
+  4K at all standard frame rates), and 10-bit toggle. Changing device
+  or mode automatically shuts down the current DeckLink output so it
+  re-initializes with the new configuration.
+- **NDI output now works on Windows**: the `primeOutputNdiAudioReadPositions`
+  and `collectOutputAudioFrameSamples` functions were inside an
+  `#ifndef _WIN32` guard — moved them to cross-platform scope so NDI
+  audio sends compile and run on Windows.
+- **NDI 6 SDK search paths** added to CMake: Windows
+  (`C:/Program Files/NDI/NDI 6 SDK/Include`, `%NDI_SDK_DIR%/Include`)
+  and Linux (`$HOME/NDI SDK for Linux/include`).
+- **Spout2 output backend** (Windows): interprocess texture sharing via
+  the SpoutLibrary DLL. Spout senders are visible to any Spout-capable
+  receiver (OBS, Resolume, TouchDesigner, etc.). Implementation uses
+  `SendImage()` with raw CPU pixel buffers — no OpenGL context needed.
+  Includes: catalog entry with `DECKBOY_HAS_SPOUT` build gate, route
+  planning, lazy-init sender lifecycle, settings UI (enable toggle +
+  sender name editor), and project serialization (fields 32–33).
+  Installed via vcpkg (`spout2:x64-windows`), auto-detected by CMake.
+- **Stream output now works on Windows**: ffmpeg SRT/RTMP egress was
+  previously stubbed on Windows because it relied on POSIX named FIFOs
+  (mkfifo) and fork/exec. Replaced with stdin pipe approach: ffmpeg
+  reads raw video from `pipe:0` via `CreateProcessW` with a piped
+  stdin handle. Added `StdioMode::Pipe` for stdin to the cross-platform
+  `ChildProcess`/`spawnProcess` API (`writeFd` field). All stream
+  writer functions (`writeOutputStreamBytesBlocking`,
+  `writeOutputStreamBytesBestEffort`, `startOutputStreamWriter`,
+  `stopOutputStreamRuntime`, `sendOutputStreamFrame`) now compile and
+  run on Windows using `_write()`/`_close()`.
+- **Live source capture now works on Windows**: removed the `#ifdef _WIN32`
+  stub in `startSourceCapture()` — the gdigrab capture backend and the
+  `spawnPipeProcess` / `readExact` infrastructure were already
+  cross-platform. WindowSource cues now capture desktop regions via
+  ffmpeg's gdigrab on Windows.
+- **RtMidi integration** (cross-platform): real hardware MIDI input
+  via RtMidi 6.0.0. Replaces the stub implementation with working
+  device enumeration, port open/close, and message polling that
+  dispatches CC, NoteOn, NoteOff, and ProgramChange callbacks.
+  Auto-detected from vcpkg; static link on Windows (no DLL needed).
+  Also added NoteOn-with-velocity-0 → NoteOff conversion per MIDI spec.
+- **Settings click handler split** (`handleSettingsClickPart3`): the
+  DeckLink and Spout handlers pushed the if-else chain past MSVC's
+  C1061 block-nesting limit. Split into a third function following the
+  existing Part1→Part2 pattern.
+
 ## 2026-04-11 — v0.76.10 (Audio-lane loading animation)
 
 - **Audio timeline lane now shows a dedicated loading animation** while

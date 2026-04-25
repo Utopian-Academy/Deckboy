@@ -1,3 +1,61 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// main.cpp — Deckboy application entry point and monolithic App class.
+//
+// This is the largest file in the codebase (~5300 lines) and contains:
+//
+//   1. Free-standing helper functions (lines ~100–3450):
+//      - Windows-specific utilities (UTF-8 conversion, icon loading)
+//      - UI text helpers (ellipsize, cue kind labels, timecode formatting)
+//      - OSC protocol parser and query server
+//      - Network master clock (NMC) sync packet handling
+//      - ATEM tally/trigger protocol parser
+//      - Art-Net DMX packet handling
+//      - Project serialization helpers (escape/unescape tab-delimited fields)
+//      - Audio waveform peak analysis
+//      - Runtime structs: OutputRuntime, DeckRuntime, PipOverlayRuntime
+//
+//   2. class App (line ~3453 onward):
+//      - SDL window/renderer lifecycle (init, run, shutdown)
+//      - Main loop: event pump → update → render → present
+//      - Project state (load/save .deckboy files)
+//      - Multi-deck management with output routing
+//      - Integration thread management (ATEM, NDI trigger, NMC, MTC, LTC, Art-Net)
+//      - .ipp file includes for modular organization of App methods:
+//          app_smoke.ipp        — startup self-test / smoke test
+//          app_accessors.ipp    — getters for deck/cue/output state
+//          app_network.ipp      — OSC server, Companion integration
+//          app_output_mgmt.ipp  — output window lifecycle, stream writer
+//          app_project_state.ipp — save/load project, import/export
+//          app_remote_command.ipp — remote command handler (OSC, Companion)
+//          app_update.ipp       — per-frame update logic
+//          app_overlays.ipp     — lower-third overlay management
+//          app_render_control.ipp — transport control panel rendering
+//          app_render_inspector.ipp — cue inspector panel rendering
+//          app_render_main.ipp  — main control window rendering
+//          app_geometry.ipp     — cue/output geometry calculations
+//          app_render_output.ipp — output window compositor + NDI/DeckLink
+//          app_ui_widgets.ipp   — reusable UI widget functions
+//          app_render_settings.ipp — settings modal dialog rendering
+//          app_input.ipp        — keyboard/mouse input handling
+//          app_cue_transport.ipp — cue playback transport (play/stop/seek)
+//          app_quick_action.ipp — quick-action command palette
+//          app_cue_mgmt.ipp     — cue list management (add/remove/reorder)
+//
+//   3. main() / WinMain() entry points (line ~5315)
+//
+// Threading model:
+//   Main thread: SDL event loop, UI rendering, settings, cue management
+//   Per-deck: video decode thread, audio decode thread (in MediaEngine)
+//   Per-output: stream writer thread (ffmpeg pipe)
+//   Integration: ATEM, NDI trigger, NMC, MTC, LTC, Art-Net threads
+//   OSC server: listener thread for incoming OSC/Companion messages
+// ============================================================================
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #ifdef _WIN32
@@ -29,6 +87,7 @@
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
 #include "platform/decklink.hpp"
+#include "platform/siphon_spout.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
@@ -101,28 +160,36 @@ namespace fs = std::filesystem;
 
 using deckboy::core::Paths;
 
+// ════════════════════════════════════════════════════════════════════════════
+// Anonymous namespace: free-standing helpers, constants, and runtime structs
+// used by the App class. Everything here is file-local.
+// ════════════════════════════════════════════════════════════════════════════
 namespace {
   using deckboy::render::Primitives;
   using deckboy::platform::browser::BrowserStartPhase;
   using namespace deckboy::core::utils;
 
+// ── Audio and network constants ─────────────────────────────────────────────
+constexpr Uint16 kAudioFormat = AUDIO_S16SYS;           // SDL audio format: signed 16-bit native endian
+constexpr int kDefaultAtemBridgePort = 9910;             // ATEM switcher default UDP port
+constexpr int kDefaultArtNetPort = 6454;                 // Art-Net default UDP port (IANA registered)
+constexpr int kDefaultNmcSyncPort = 51010;               // Network master clock sync port
+constexpr int kDefaultNmcLocateIntervalMs = 250;         // NMC peer discovery interval
+constexpr int kDmxTriggerThreshold = 127;                // DMX value threshold for trigger activation
+const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";  // UI font/asset pack path
+const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";  // Legacy UI pack path
 
-constexpr Uint16 kAudioFormat = AUDIO_S16SYS;
-constexpr int kDefaultAtemBridgePort = 9910;
-constexpr int kDefaultArtNetPort = 6454;
-constexpr int kDefaultNmcSyncPort = 51010;
-constexpr int kDefaultNmcLocateIntervalMs = 250;
-constexpr int kDmxTriggerThreshold = 127;
-const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";
-const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";
+std::atomic<bool> gShouldQuit = false;  // Global quit flag (set by signal handlers)
 
-std::atomic<bool> gShouldQuit = false;
+// ── Version and platform utilities ──────────────────────────────────────────
 
 void printDeckboyVersion(std::ostream& out) {
   out << "Deckboy " << deckboy::core::version::kVersionTag << '\n';
 }
 
 #ifdef _WIN32
+// Convert a Windows wide string (UTF-16) to a UTF-8 std::string.
+// Used for command-line argument conversion on Windows (WinMain receives wchar_t*).
 std::string utf8FromWide(const wchar_t* text) {
   if (!text || !*text) {
     return {};
@@ -137,6 +204,7 @@ std::string utf8FromWide(const wchar_t* text) {
   return utf8;
 }
 
+// Parse the Windows command line into UTF-8 arguments (replaces argv from WinMain).
 std::vector<std::string> windowsCommandLineArgsUtf8() {
   int argc = 0;
   LPWSTR* argvWide = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -156,6 +224,7 @@ std::vector<std::string> windowsCommandLineArgsUtf8() {
   return args;
 }
 
+// Load the Deckboy app icon from the embedded Windows resource at the given size.
 HICON loadDeckboyAppIconHandle(int width, int height) {
   HINSTANCE instance = GetModuleHandleW(nullptr);
   if (!instance) {
@@ -170,6 +239,8 @@ HICON loadDeckboyAppIconHandle(int width, int height) {
     LR_DEFAULTCOLOR));
 }
 
+// Set the Deckboy icon on an SDL window via Windows WM_SETICON messages.
+// Loads both large (taskbar) and small (title bar) icon sizes from resources.
 void applyDeckboyWindowIcon(SDL_Window* window) {
   if (!window) {
     return;
@@ -198,6 +269,11 @@ void applyDeckboyWindowIcon(SDL_Window* window) {
 void applyDeckboyWindowIcon(SDL_Window*) {}
 #endif
 
+// ── UI text helpers ─────────────────────────────────────────────────────────
+
+// Truncate text to fit within maxWidth pixels, appending "..." if clipped.
+// Used throughout the UI for labels, cue names, and file paths that may
+// exceed their allocated display width.
 std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int maxWidth) {
   if (!font || maxWidth <= 0 || text.empty()) {
     return "";
@@ -230,6 +306,7 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
   return kEllipsis;
 }
 
+// Returns the human-readable display label for a CueKind (shown in UI).
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
     case CueKind::Image:      return "Still";
@@ -249,6 +326,7 @@ std::string cueKindLabel(CueKind kind) {
   }
 }
 
+// Returns the serialization token for a CueKind (used in .deckboy project files).
 std::string cueKindToken(CueKind kind) {
   switch (kind) {
     case CueKind::Image:      return "image";
@@ -268,6 +346,8 @@ std::string cueKindToken(CueKind kind) {
   }
 }
 
+// Normalize user-entered composite layout names to canonical tokens.
+// Accepts various aliases: "split", "pip", "four" → "2up", "7030", "quad".
 std::string normalizeCompositeLayoutPresetToken(std::string token) {
   token = toLower(trim(token));
   if (token == "split" || token == "split2" || token == "two" || token == "2") {
@@ -295,6 +375,11 @@ std::string compositeLayoutPresetLabel(const std::string& rawToken) {
   }
   return "2-Up";
 }
+
+// ── Composite cue helpers ────────────────────────────────────────────────────
+// Composite cues split the output into multiple slots (2-up, quad, 70/30),
+// each showing a different source. These helpers manage slot identities,
+// layout presets, and source resolution.
 
 std::string compositeSlotDefaultId(int index) {
   int slotNumber = std::max(0, index) + 1;
@@ -390,6 +475,11 @@ void applyCompositePresetToCue(Cue& cue, const std::string& rawPreset) {
 
 // isSourceCueKind → core/cue_helpers.hpp
 
+// ── Source cue helpers ──────────────────────────────────────────────────────
+// Source cues (WindowSource, Camera, Syphon) capture live input.
+// These helpers manage source type tokens, reference formatting, and
+// user-facing labels for the source input editor.
+
 std::string sourceCueTokenForKind(CueKind kind) {
   switch (kind) {
     case CueKind::WindowSource: return "window";
@@ -414,8 +504,17 @@ std::string sourceCueRefFriendlyLabel(CueKind kind, const std::string& rawRef) {
     if (lower == "active-window") {
       return "Focused Window (recommended)";
     }
+    if (lower == "desktop") {
+      return "Desktop (full screen)";
+    }
+    if (lower.rfind("title:", 0) == 0 && ref.size() > 6) {
+      return ref.substr(6);  // Show just the window title
+    }
     if (lower.rfind("id:", 0) == 0) {
       return "Specific Window (advanced)";
+    }
+    if (lower.rfind("region:", 0) == 0) {
+      return "Screen Region (advanced)";
     }
     if (!lower.empty() && lower.front() == ':') {
       return "Screen Region (advanced)";
@@ -448,6 +547,13 @@ std::string sourceCueRefFromAlias(CueKind kind, const std::string& rawRef) {
         || lower == "window"
         || lower == "active") {
       return "active-window";
+    }
+    if (lower == "screen" || lower == "full screen" || lower == "fullscreen") {
+      return "desktop";
+    }
+    // Preserve title: prefix as-is (window picker selections)
+    if (lower.rfind("title:", 0) == 0) {
+      return ref;
     }
   } else if (kind == CueKind::Camera) {
     if (lower == "camera"
@@ -499,6 +605,9 @@ std::string sourceCueEditorPrompt(CueKind kind) {
 
 // resolvedCueEndAction, cueAdvancesWhenFinished → core/cue_helpers.hpp
 
+// ── Cue display and formatting helpers ──────────────────────────────────────
+
+// Returns the transport status label for the cue's end action (shown in UI).
 std::string cueEndStatusLabel(const Cue& cue) {
   switch (resolvedCueEndAction(cue)) {
     case CueEndAction::Loop: return "END LOOP";
@@ -792,10 +901,16 @@ using deckboy::platform::setCloseOnExec;
 using deckboy::platform::createBoundSocket;
 using deckboy::platform::createDatagramSocket;
 using deckboy::platform::socketAddressToString;
+using deckboy::platform::selectNfds;
+
+// ── Network Master Clock (NMC) sync ─────────────────────────────────────────
+// NMC provides transport synchronization between Deckboy instances over UDP.
+// One instance is the "output" (master) that broadcasts position, others
+// are "input" (followers) that chase the master's timecode.
 
 struct NmcSyncPacket {
-  std::string command;
-  std::optional<double> seconds;
+  std::string command;                 // "play", "stop", "seek", "locate"
+  std::optional<double> seconds;       // Position in seconds (for seek/locate)
 };
 
 std::string normalizeNmcSyncModeToken(const std::string& raw) {
@@ -867,11 +982,16 @@ std::string formatNmcSyncPacket(const std::string& command, std::optional<double
 // endsWith, normalizePatternTypeId, stripPatternMotionSuffix,
 // patternTypeSupportsMotion, patternTypeIsAnimated → core/pattern_helpers.hpp
 
+// ── OSC (Open Sound Control) protocol ───────────────────────────────────────
+// Deckboy implements an OSC server for remote control from external tools
+// (Bitfocus Companion, TouchOSC, mixing consoles, etc.). Messages use
+// standard OSC binary format with typed arguments.
+
 using OscArg = std::variant<std::int32_t, float, std::string, bool>;
 
 struct OscMessage {
-  std::string address;
-  std::vector<OscArg> args;
+  std::string address;            // OSC address pattern (e.g. "/deck/1/go")
+  std::vector<OscArg> args;       // Typed arguments (int32, float, string, bool)
 };
 
 struct OscQueryEndpointDoc {
@@ -1038,7 +1158,7 @@ std::optional<OscMessage> parseOscMessage(const std::string& payload) {
   return message;
 }
 
-std::vector<OscMessage> parseOscPacket(const std::string& payload) {
+std::vector<OscMessage> parseOscPacket(const std::string& payload, int depth = 0) {
   std::vector<OscMessage> messages;
   if (payload.empty()) {
     return messages;
@@ -1047,6 +1167,10 @@ std::vector<OscMessage> parseOscPacket(const std::string& payload) {
   const auto* bytes = reinterpret_cast<const std::uint8_t*>(payload.data());
   size_t size = payload.size();
   if (size >= 16 && std::memcmp(bytes, "#bundle\0", 8) == 0) {
+    constexpr int kMaxOscBundleDepth = 8;
+    if (depth >= kMaxOscBundleDepth) {
+      return messages;  // refuse deeply nested bundles (stack overflow prevention)
+    }
     size_t offset = 16;  // "#bundle\0" + timetag (8 bytes)
     while (offset + 4u <= size) {
       std::uint32_t elementSize = readOscU32(bytes, offset);
@@ -1055,7 +1179,7 @@ std::vector<OscMessage> parseOscPacket(const std::string& payload) {
         break;
       }
       std::string element(payload.data() + offset, payload.data() + offset + elementSize);
-      auto nested = parseOscPacket(element);
+      auto nested = parseOscPacket(element, depth + 1);
       messages.insert(messages.end(), nested.begin(), nested.end());
       offset += elementSize;
     }
@@ -1603,50 +1727,64 @@ static std::string browserCueStatusSummary(BrowserStartPhase phase, bool live, c
   return browserPhaseLabel(phase);
 }
 
+// ── Output runtime structs ──────────────────────────────────────────────────
+// These structs track the state of each output destination (window, stream,
+// NDI, DeckLink). Each output has its own SDL window/renderer, compositor
+// texture, and optional stream writer thread.
+
+// Health state machine for output windows and streams.
 enum class OutputHealthState {
-  Off,
-  Armed,
-  Live,
-  Recovering,
-  Error,
+  Off,           // Output not enabled
+  Armed,         // Enabled but not yet rendering (waiting for first frame)
+  Live,          // Actively rendering frames
+  Recovering,    // Recovering from an error (auto-restart)
+  Error,         // Failed — requires manual intervention
 };
 
+// One captured frame + audio chunk queued for the stream writer thread.
 struct OutputStreamPacket {
   int width = 0;
   int height = 0;
-  Uint64 capturedAtMs = 0;
-  std::vector<std::uint8_t> videoBytes;
-  std::vector<std::int16_t> audioSamples;
+  Uint64 capturedAtMs = 0;                   // SDL tick when frame was captured
+  std::vector<std::uint8_t> videoBytes;       // Raw RGBA pixel data
+  std::vector<std::int16_t> audioSamples;     // Interleaved 16-bit PCM
 };
 
+// Thread-safe state for the ffmpeg stream writer background thread.
+// The main thread pushes OutputStreamPackets via the condition variable;
+// the writer thread pops them and pipes to ffmpeg's stdin.
 struct OutputStreamWriterState {
   std::mutex mutex;
   std::condition_variable cv;
   std::thread thread;
-  int videoPipeFd = -1;
-  int audioPipeFd = -1;
-  bool stop = false;
-  bool failed = false;
+  int videoPipeFd = -1;             // Pipe fd to ffmpeg video stdin
+  int audioPipeFd = -1;             // Pipe fd to ffmpeg audio stdin
+  bool stop = false;                // Signal the writer thread to exit
+  bool failed = false;              // Writer encountered a fatal error
   std::string failureReason;
-  bool hasPendingPacket = false;
+  bool hasPendingPacket = false;    // A new packet is ready to write
   OutputStreamPacket pendingPacket;
-  std::uint64_t packetsQueued = 0;
-  std::uint64_t packetsWritten = 0;
+  std::uint64_t packetsQueued = 0;  // Total packets queued by main thread
+  std::uint64_t packetsWritten = 0; // Total packets written by writer thread
   std::uint64_t videoBytesWritten = 0;
   std::uint64_t audioBytesWritten = 0;
 };
 
+// Per-output runtime state: SDL window/renderer, compositor, stream writer,
+// NDI sender, DeckLink output, and FPS telemetry.
 struct OutputRuntime {
+  // Pixel buffer snapshot for streaming/NDI/DeckLink sinks.
   struct CapturedFrame {
     int width = 0;
     int height = 0;
     Uint64 capturedAtMs = 0;
-    std::vector<std::uint8_t> pixels;
+    std::vector<std::uint8_t> pixels;    // RGBA pixel data
   };
 
+  // SDL output window and renderer (one per output destination)
   SDL_Window* outputWindow = nullptr;
   SDL_Renderer* outputRenderer = nullptr;
-  SDL_Texture* compositorTexture = nullptr;
+  SDL_Texture* compositorTexture = nullptr;  // Offscreen compositor target
   int compositorWidth = 0;
   int compositorHeight = 0;
   Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
@@ -1662,7 +1800,9 @@ struct OutputRuntime {
   std::map<std::string, std::uint64_t> overlayBridgeFrameIndices;
   std::map<std::string, std::string> overlayBridgeCueKeys;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
-#ifndef _WIN32
+#ifdef _WIN32
+  ChildProcess streamProcess;         // Windows: ffmpeg subprocess with stdin pipe
+#else
   pid_t streamPid = -1;
   int streamPipeFd = -1;
   int streamAudioPipeFd = -1;
@@ -1696,6 +1836,9 @@ struct OutputRuntime {
   std::unique_ptr<deckboy::platform::video::DeckLinkOutput> deckLinkOutput;
   std::vector<std::uint8_t> deckLinkFrameBuffer;
 #endif
+#if defined(DECKBOY_HAS_SPOUT)
+  std::unique_ptr<deckboy::platform::video::SiphonSpoutSender> spoutSender;
+#endif
   bool recoveryPausedByEscape = false;
   bool fullscreenIntended = false;  // user explicitly wants fullscreen — re-assert if dropped
   Uint64 lastFullscreenRequestMs = 0;
@@ -1715,30 +1858,42 @@ struct OutputRuntime {
   double streamFpsMeasured = 0.0;
 };
 
+// Audio buffer for streaming: accumulates PCM samples from the deck's
+// audio callback and packages them into stream packets.
 struct DeckStreamAudioBuffer {
   std::vector<std::int16_t> samples;
-  std::uint64_t droppedSamples = 0;
+  std::uint64_t droppedSamples = 0;     // Samples dropped due to buffer overflow
 };
 
+// Per-deck runtime state: the playback engine, audio device, and browser renderer.
+// Each deck has its own MediaEngine instance that handles video/audio decode
+// and frame upload independently.
 struct DeckRuntime {
-  SDL_Window* outputWindow = nullptr;
+  SDL_Window* outputWindow = nullptr;    // Legacy (unused — outputs moved to OutputRuntime)
   SDL_Renderer* outputRenderer = nullptr;
-  SDL_AudioDeviceID audioDevice = 0;
-  std::unique_ptr<MediaEngine> mediaEngine;
-  std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;
-  bool browserCueLive = false;
+  SDL_AudioDeviceID audioDevice = 0;     // SDL audio device for this deck's audio output
+  std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
+  std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;  // For Browser/LowerThird cues
+  bool browserCueLive = false;           // Whether a browser cue is currently active
 };
 
+// Runtime state for a PIP (Picture-in-Picture) overlay layer.
+// Each PIP has its own MediaEngine for independent playback.
 struct PipOverlayRuntime {
   std::unique_ptr<MediaEngine> mediaEngine;
-  std::string loadedCueKey;
-  int targetCueIndex = -1;
-  Cue resolvedCue;
+  std::string loadedCueKey;              // Key of the currently loaded cue
+  int targetCueIndex = -1;              // Index into the cue list
+  Cue resolvedCue;                       // Resolved cue data (after alias/reference resolution)
   bool resolvedCueValid = false;
 };
 
 // spawnDetachedProcess is now provided by native/core/subprocess.hpp/cpp
 // readExact is now provided by native/core/io_utils.hpp
+
+// ── Project file serialization helpers ──────────────────────────────────────
+// .deckboy project files use tab-delimited fields. These helpers escape/unescape
+// special characters (backslash, tab, newline) so field values can contain
+// arbitrary text without breaking the delimiter format.
 
 std::string escapeField(const std::string& value) {
   std::string out;
@@ -2629,6 +2784,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
+  output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
   output << "osc_feedback_mirror\t" << (project.oscFeedbackMirrorEnabled ? 1 : 0) << '\n';
@@ -2694,6 +2850,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << outputTarget.aoiRight
       << '\t' << outputTarget.aoiTop
       << '\t' << outputTarget.aoiBottom
+      << '\t' << (outputTarget.spoutEnabled ? 1 : 0)
+      << '\t' << escapeField(outputTarget.spoutSenderName)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2916,6 +3074,8 @@ Project loadProject(const fs::path& projectFile) {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "allow_remote_network") {
+      project.allowRemoteNetwork = safeBool(fields, 1, false);
     } else if (fields[0] == "osc_query_enabled") {
       project.oscQueryEnabled = safeBool(fields, 1, false);
     } else if (fields[0] == "osc_query_port") {
@@ -3021,6 +3181,10 @@ Project loadProject(const fs::path& projectFile) {
                 outputTarget.aoiRight  = static_cast<float>(safeDouble(fields, 29, 0.0));
                 outputTarget.aoiTop    = static_cast<float>(safeDouble(fields, 30, 0.0));
                 outputTarget.aoiBottom = static_cast<float>(safeDouble(fields, 31, 0.0));
+                if (fields.size() >= 34) {
+                  outputTarget.spoutEnabled = safeBool(fields, 32, false);
+                  outputTarget.spoutSenderName = safeString(fields, 33);
+                }
               }
             }
           }
@@ -3284,6 +3448,12 @@ bool cueUsesFilesystemMedia(const Cue& cue) {
          (cue.kind == CueKind::Pip && pipSourceTypeTokenFromCue(cue) == "media");
 }
 
+// ── Cue path resolution helpers ──────────────────────────────────────────────
+// These helpers resolve cue file paths relative to the project file location,
+// handling both absolute and relative paths, URIs, and edge cases.
+
+// Returns true if the path looks like a URI (contains "://", or starts with
+// "file:", "about:", "data:"). Used to skip filesystem resolution for URIs.
 bool pathLooksLikeUri(const std::string& value) {
   std::string trimmed = trim(value);
   if (trimmed.empty()) {
@@ -3297,6 +3467,9 @@ bool pathLooksLikeUri(const std::string& value) {
          trimmed.rfind("data:", 0) == 0;
 }
 
+// Resolve a cue's media path to an absolute filesystem path. Relative paths
+// are resolved against the project file's parent directory. Returns nullopt
+// for non-filesystem cues (Browser, Pattern, etc.) and URI-based paths.
 std::optional<fs::path> resolveCueFilesystemPath(const Cue& cue, const fs::path& projectFile) {
   if (!cueUsesFilesystemMedia(cue)) {
     return std::nullopt;
@@ -3353,9 +3526,13 @@ std::string sanitizeBundleFilenameStem(std::string value) {
 }
 
 
+// ── Waveform analysis ───────────────────────────────────────────────────────
+// Peak data for the audio waveform display in the cue inspector.
+// Computed offline by running ffmpeg to extract PCM, then bucketing
+// into per-channel peak arrays (typically 512 buckets).
 struct WaveformPeaks {
-  std::vector<float> left;
-  std::vector<float> right;
+  std::vector<float> left;       // Left channel peak amplitudes (0.0–1.0)
+  std::vector<float> right;      // Right channel peak amplitudes (0.0–1.0)
 
   bool empty() const {
     return left.empty() && right.empty();
@@ -3450,11 +3627,35 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
   return peaks;
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// class App — The main Deckboy application class.
+//
+// Owns all SDL resources (windows, renderers, fonts, audio devices),
+// project state, deck runtimes, output runtimes, integration threads,
+// and the entire UI rendering pipeline. Methods are organized across
+// .ipp files included within the class body for modularity.
+//
+// Lifecycle: App::init() → App::run() → App::shutdown()
+// ════════════════════════════════════════════════════════════════════════════
 class App {
  public:
+  // Initialize SDL, create windows/renderers, load fonts, set up audio.
   bool init() {
 #ifdef _WIN32
+    // Restrict DLL search order to System32 by default — prevents DLL hijacking
+    // via CWD, application directory, or user PATH for implicitly loaded libraries.
+    // Explicit loads (NDI, LTC) use LoadLibraryW with candidates that include
+    // absolute paths; the bare-name fallbacks still search the restricted set.
+    SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
+
     SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+    {
+      WSADATA wsaData {};
+      if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "WSAStartup failed\n";
+        return false;
+      }
+    }
 #endif
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
       std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
@@ -3587,11 +3788,9 @@ class App {
     selectionChangedAt_ = SDL_GetTicks64();
     lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
-#ifndef _WIN32
     if (project_.oscQueryEnabled) {
       startOscQueryServer();
     }
-#endif
     startHyperDeckServer();
     startIntegrationBridges();
     layoutButtons(kControlWidth, kControlHeight);
@@ -3602,9 +3801,7 @@ class App {
     stopIntegrationBridges();
     stopHyperDeckServer();
     stopMidiInput();
-#ifndef _WIN32
     stopOscQueryServer();
-#endif
     stopCompanionControl();
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
@@ -3617,9 +3814,7 @@ class App {
 #if defined(DECKBOY_HAS_NDI_SDK)
     ndiApi_.shutdown();
 #endif
-#ifndef _WIN32
     ltcApi_.shutdown();
-#endif
     if (uiAudioDevice_ != 0) {
       SDL_CloseAudioDevice(uiAudioDevice_);
       uiAudioDevice_ = 0;
@@ -3703,6 +3898,9 @@ class App {
     }
     TTF_Quit();
     SDL_Quit();
+#ifdef _WIN32
+    WSACleanup();
+#endif
   }
 
   void run() {
@@ -3776,34 +3974,44 @@ class App {
     }
   }
 
+  // ── Startup self-test ─────────────────────────────────────────────────────
 #include "app/app_smoke.ipp"
 
  private:
-  // [UiPanel system enums/structs/helpers removed — single-deck simplification]
   // Declared here so ipp-file helper functions can use it as a parameter type.
   struct SettingsButton { SDL_Rect rect; int action; std::string label; };
+
+  // ── App method modules (.ipp includes) ──────────────────────────────────
+  // Each .ipp file adds member functions to the App class. They are included
+  // directly in the class body so they can access private members.
+
+  // State accessors: getters for deck/cue/output/project state
 #include "app/app_accessors.ipp"
+  // Network: OSC server, Companion integration, tally reporting
 #include "app/app_network.ipp"
-
+  // Output management: window lifecycle, stream writer, NDI/DeckLink
 #include "app/app_output_mgmt.ipp"
-
+  // Project state: save/load .deckboy files, import/export
 #include "app/app_project_state.ipp"
-
+  // Remote command handler: processes OSC and Companion messages
 #include "app/app_remote_command.ipp"
-
+  // Per-frame update: timers, transitions, auto-advance, integration poll
 #include "app/app_update.ipp"
-
+  // Lower-third overlay management
 #include "app/app_overlays.ipp"
-
+  // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"
+  // Render: cue inspector panel (properties, waveform, geometry)
 #include "app/app_render_inspector.ipp"
-
+  // Render: main control window layout and drawing
 #include "app/app_render_main.ipp"
-
+  // Geometry: cue/output geometry calculations (crop, scale, rotation)
 #include "app/app_geometry.ipp"
-
+  // Render: output window compositor → NDI/DeckLink/Siphon blit
 #include "app/app_render_output.ipp"
+  // Reusable UI widget functions (buttons, sliders, dropdowns, toggles)
 #include "app/app_ui_widgets.ipp"
+  // Render: settings modal dialog (all tabs)
 #include "app/app_render_settings.ipp"
 
   void handleMonitorsMouseDown(int x, int y) {
@@ -3833,12 +4041,13 @@ class App {
     }
   }
 
+  // Input: keyboard/mouse event handling (key bindings, click dispatch)
 #include "app/app_input.ipp"
-
+  // Cue transport: play/stop/seek/fade operations
 #include "app/app_cue_transport.ipp"
-
+  // Quick-action command palette (Ctrl+K search)
 #include "app/app_quick_action.ipp"
-
+  // Cue list management: add/remove/reorder/duplicate cues
 #include "app/app_cue_mgmt.ipp"
   struct InspectorCtx {
     SDL_Rect ctrl;          // inspector body rect
@@ -4787,6 +4996,13 @@ class App {
   static constexpr int kSettingsActionIntegrationTslPortPrompt = 625;
   static constexpr int kSettingsActionIntegrationTslAddrPrompt = 626;
   static constexpr int kSettingsActionAudioBufferCycle = 627;
+  static constexpr int kSettingsActionDeckLinkToggle = 628;
+  static constexpr int kSettingsActionDeckLinkDeviceDropdown = 629;
+  static constexpr int kSettingsActionDeckLinkModeDropdown = 630;
+  static constexpr int kSettingsActionDeckLink10BitToggle = 631;
+  static constexpr int kSettingsActionSpoutToggle = 632;
+  static constexpr int kSettingsActionSpoutNamePrompt = 633;
+  static constexpr int kSettingsActionAllowRemoteToggle = 634;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -4825,9 +5041,7 @@ class App {
 #if defined(DECKBOY_HAS_NDI_SDK)
   NdiApi ndiApi_;
 #endif
-#ifndef _WIN32
   LtcApi ltcApi_;
-#endif
   std::vector<Button> buttons_;
   std::vector<SDL_Rect> deckColumnRects_;
   std::vector<SDL_Rect> deckListClipRects_;
@@ -4893,6 +5107,7 @@ class App {
   SDL_Rect sourceDefaultDropdownRect_ {};
   SDL_Rect patternDefaultDropdownRect_ {};
   SDL_Rect cueSourceTypeDropdownRect_ {};
+  SDL_Rect cueWindowSourceDropdownRect_ {};
   SDL_Rect cuePatternTypeDropdownRect_ {};
   SDL_Rect cueTransitionStyleDropdownRect_ {};
   std::string sourceDefaultTypeId_ = "window";
@@ -4934,7 +5149,7 @@ class App {
   int hyperDeckPort_ = 9992;
   std::thread hyperDeckThread_;
   std::atomic<bool> hyperDeckRunning_ {false};
-  int hyperDeckListenFd_ = -1;
+  SocketHandle hyperDeckListenFd_ = kInvalidSocket;
 
   fs::path uiPackRoot_;
   bool uiPackAvailable_ = false;
@@ -5201,7 +5416,8 @@ class App {
   double midiMtcLastSentSeconds_ = -1.0;
   double midiMtcLastSentFps_ = 0.0;
 #endif
-#ifndef _WIN32
+
+  // Companion / OSC / integration bridge state (cross-platform)
   SocketHandle companionTcpListen_ = kInvalidSocket;
   SocketHandle companionUdpSocket_ = kInvalidSocket;
   SocketHandle oscQueryTcpListen_ = kInvalidSocket;
@@ -5220,12 +5436,10 @@ class App {
   SocketHandle artNetSocket_ = kInvalidSocket;
   std::thread atemBridgeThread_;
   std::thread artNetBridgeThread_;
-  std::thread ltcThread_;
   std::thread nmcSyncThread_;
   std::thread ndiTriggerThread_;
   std::atomic<bool> atemBridgeStop_ {false};
   std::atomic<bool> artNetBridgeStop_ {false};
-  std::atomic<bool> ltcStop_ {false};
   std::atomic<bool> nmcSyncStop_ {false};
   std::atomic<bool> nmcSyncRunning_ {false};
   std::atomic<bool> ndiTriggerStop_ {false};
@@ -5251,6 +5465,10 @@ class App {
   std::string ndiTriggerLastError_;
   std::string ndiTriggerLastAnnouncedError_;
   Uint64 ndiTriggerRestartBlockedUntilMs_ = 0;
+
+  // LTC ingest state (cross-platform — libltc loaded dynamically at runtime)
+  std::thread ltcThread_;
+  std::atomic<bool> ltcStop_ {false};
   SDL_AudioDeviceID ltcCaptureDevice_ = 0;
   int ltcCaptureSampleRate_ = 0;
   int ltcCaptureChannels_ = 0;
@@ -5258,13 +5476,22 @@ class App {
   std::string ltcLastError_;
   std::string ltcLastAnnouncedError_;
   Uint64 ltcRestartBlockedUntilMs_ = 0;
-#endif
   // TSL/Tally socket — cross-platform (UDP send-only)
   deckboy::platform::SocketHandle tslTallySocket_ = deckboy::platform::kInvalidSocket;
 };
 
 }  // namespace
 
+// ════════════════════════════════════════════════════════════════════════════
+// Entry points
+// ════════════════════════════════════════════════════════════════════════════
+
+// Shared entry point for both main() and WinMain(). Handles:
+//   --version       → print version and exit
+//   --self-check    → run self-check diagnostics and exit
+//   --smoke         → run smoke tests and exit
+//   --allow-multi-instance → skip single-instance lock
+// Otherwise: acquire instance lock → App::init() → App::run() → App::shutdown()
 int runDeckboyMain(int argc, char** argv) {
   if (argc > 1 && std::string_view(argv[1]) == "--version") {
     printDeckboyVersion(std::cout);

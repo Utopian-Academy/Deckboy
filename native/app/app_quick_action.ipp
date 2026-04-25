@@ -1,5 +1,23 @@
+// ============================================================================
+// app_quick_action.ipp — Quick-action command palette (Ctrl+K).
+//
+// Implements the quick-action system for rapid keyboard-driven operations:
+//
+//   dispatchQuickAction()     — execute a QuickAction enum value
+//   renderQuickActionPalette() — render the searchable command palette overlay
+//   filterQuickActions()      — filter available actions by search query
+//
+// Quick actions provide fast access to common operations without navigating
+// menus: toggle loop, toggle hold, copy/paste cue settings, set transition
+// style, change cue kind, add patterns, etc.
+//
+// The palette is opened with Ctrl+K and supports fuzzy search filtering.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Execute a quick action. Most actions modify the selected cue's properties.
   void dispatchQuickAction(QuickAction action) {
     if (action == QuickAction::CopyCueSettings) {
       copySelectedCueSettings();
