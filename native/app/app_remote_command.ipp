@@ -1,5 +1,25 @@
+// ============================================================================
+// app_remote_command.ipp — Remote command handler for OSC and Companion.
+//
+// Processes text-based remote commands received via OSC, Companion, or
+// other network integrations. Commands follow a simple verb + args format:
+//
+//   Transport: GO, STOP, PAUSE, PLAY, RERACK, CLEAR, FADE
+//   Navigation: NEXT, PREV, JUMP <index>, SELECT <index>
+//   Cue control: LOOP ON/OFF, VOLUME <0-100>, SPEED <factor>
+//   Output: OUTPUT ON/OFF, DIMMER <0-100>, FULLSCREEN ON/OFF
+//   Project: SAVE, LOAD <path>, RELOAD
+//   Query: STATUS, CUE_LIST, ACTIVE_CUE
+//
+// Also handles OSC address-based routing (/deck/1/go, /cue/select, etc.)
+// and Companion button feedback updates.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Process a remote command string (from OSC, Companion, or other sources).
+  // Splits the command into verb + arguments and dispatches to the handler.
   void handleRemoteCommand(const std::string& rawCommand) {
     auto parts = splitWhitespace(rawCommand);
     if (parts.empty()) {
@@ -2047,9 +2067,17 @@
       if (sub == "FILE" || sub == "PATH" || sub == "SRT") {
         Cue* cue = selectedCueMutable();
         if (cue && parts.size() >= 3) {
-          cue->subtitlePath = joinParts(parts, 2);
-          triggerToast("subtitle file set");
-          markProjectDirty();
+          std::string subPath = joinParts(parts, 2);
+          // Reject absolute paths and path traversal from remote commands
+          if (subPath.find("..") != std::string::npos
+              || (!subPath.empty() && (subPath[0] == '/' || subPath[0] == '\\'))
+              || (subPath.size() >= 2 && subPath[1] == ':')) {
+            triggerToast("subtitle: path rejected (security)");
+          } else {
+            cue->subtitlePath = subPath;
+            triggerToast("subtitle file set");
+            markProjectDirty();
+          }
         }
         return;
       }

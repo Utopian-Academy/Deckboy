@@ -3,6 +3,24 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// types.hpp — Central domain model for the entire Deckboy application.
+//
+// Every major subsystem depends on this file:
+//   - MediaEngine (engine/media_engine.*) reads Cue fields for decode config
+//   - Project save/load (app/app_project_state.ipp) serializes all structs here
+//   - UI rendering (app/app_render_*.ipp) reads struct fields for display
+//   - Companion/OSC (app/app_remote_command.ipp) maps remote commands to fields
+//   - Output compositor (app/app_render_output.ipp) reads OutputTarget + Deck
+//
+// Struct layout notes: fields are ordered by alignment (8→4→1 byte) to
+// minimize padding on both MSVC and GCC/Clang. Do NOT reorder fields
+// without understanding alignment implications.
+//
+// Serialization: all structs are persisted to tab-delimited .deckboy files.
+// Adding a new field requires updating BOTH saveProject() and loadProject()
+// in app/app_project_state.ipp, with a backwards-compat guard on field count.
+// ============================================================================
 
 #ifndef DECKBOY_CORE_TYPES_HPP
 #define DECKBOY_CORE_TYPES_HPP
@@ -14,36 +32,54 @@
 
 // Domain types for the cue deck. SDL_Color/SDL_Rect used for UI integration.
 
+// ---------------------------------------------------------------------------
+// CueKind — Discriminator for what a cue represents and how it is decoded.
+//
+// MediaEngine uses this to choose the ffmpeg pipeline (or skip decode entirely
+// for patterns). The UI uses it to show kind-specific inspector fields.
+// Save/load writes it as an integer index — never reorder existing values.
+// ---------------------------------------------------------------------------
 enum class CueKind {
-  Video,
-  Image,
-  Pattern,
-  Browser,
-  WindowSource,
-  Camera,
-  Syphon,
-  SrtStream,   // live stream input (srt://, rtmp://, rtsp://, udp://)
-  NdiSource,   // NDI receive input (ndi://SOURCE_NAME)
-  Pip,
-  LowerThird,
-  Composite,
-  Audio
+  Video,         // file-based video (decoded by ffmpeg pipe)
+  Image,         // single still image (loaded as one decoded frame)
+  Pattern,       // procedurally generated (bars, gradient, etc.) — no ffmpeg
+  Browser,       // CEF/WebKit page rendered to texture (platform/browser.*)
+  WindowSource,  // desktop window capture (platform/capture_backend.*)
+  Camera,        // live camera input (v4l2 / dshow / avfoundation)
+  Syphon,        // macOS Syphon / Windows Spout texture sharing
+  SrtStream,     // live stream input (srt://, rtmp://, rtsp://, udp://)
+  NdiSource,     // NDI receive input (ndi://SOURCE_NAME)
+  Pip,           // picture-in-picture composite (references another cue)
+  LowerThird,    // text overlay with optional background bar
+  Composite,     // multi-slot layout (quad-split, side-by-side, etc.)
+  Audio          // audio-only cue (no video output)
 };
 
+// What happens when a cue reaches its end. "Inherit" defers to the deck-level default.
+// Used by MediaEngine to decide post-playback behavior and by the cue list UI to
+// show the end-action badge icon. Serialized as integer index.
 enum class CueEndAction { Inherit, Stop, Loop, PauseOnLast, AutoNext };
 
+// Current transport state of a deck's active cue. Drives the play/pause/stop
+// buttons in app_render_control.ipp and the MediaEngine decode loop.
 enum class TransportState {
-  Stopped,
-  Paused,
-  Playing
+  Stopped,   // no decode running; preview shows freeze frame or black
+  Paused,    // decode paused; last frame held on screen
+  Playing    // active decode; frames streaming from ffmpeg
 };
 
+// How one cue transitions into the next. Applied at the deck level
+// (Deck::transitionStyle) or overridden per-cue (Cue::cueTransitionStyle).
+// The output compositor in app_render_output.ipp blends layers accordingly.
 enum class TransitionStyle {
-  Cut,
-  Crossfade,
-  DipBlack
+  Cut,        // instant switch — no blending
+  Crossfade,  // gradual alpha blend between outgoing and incoming
+  DipBlack    // fade out to black, then fade in the new cue
 };
 
+// How a cue's source frame maps to the output resolution.
+// Per-cue (Cue::scaleMode) and per-composite-slot (CompositeSlot::scaleMode).
+// The output renderer reads this to compute the destination rect.
 enum class ScaleMode {
   Fit,         // letterbox: fit entire image, maintain aspect ratio
   Fill,        // fill screen and crop, maintain aspect ratio
@@ -51,136 +87,192 @@ enum class ScaleMode {
   Unscaled     // 1:1 pixel mapping (no scaling)
 };
 
+// ---------------------------------------------------------------------------
+// CompositeSlot — One sub-region inside a Composite cue layout.
+//
+// A Composite cue contains 1–4 CompositeSlots, each pointing to a media
+// source and positioned in normalized coordinates (0–1) relative to the
+// output frame. The compositor in app_render_output.ipp iterates these
+// slots to blit each source into its designated rectangle.
+// ---------------------------------------------------------------------------
 struct CompositeSlot {
-  std::string id;
-  std::string name;
-  std::string sourceType = "media";
-  std::string source;
-  bool visible = true;
-  bool audioEnabled = false;
-  ScaleMode scaleMode = ScaleMode::Fit;
-  float normX = 0.0f;
-  float normY = 0.0f;
-  float normW = 0.5f;
-  float normH = 0.5f;
+  std::string id;                           // unique slot identifier (UUID)
+  std::string name;                         // operator-facing label ("Slot 1")
+  std::string sourceType = "media";         // "media" | "camera" | "ndi" etc.
+  std::string source;                       // file path, device name, or NDI source
+  bool visible = true;                      // false = skip during composite render
+  bool audioEnabled = false;                // route this slot's audio to output mix
+  ScaleMode scaleMode = ScaleMode::Fit;     // how source maps into the slot rect
+  float normX = 0.0f;                       // left edge (0–1 fraction of output width)
+  float normY = 0.0f;                       // top edge  (0–1 fraction of output height)
+  float normW = 0.5f;                       // width     (0–1 fraction of output width)
+  float normH = 0.5f;                       // height    (0–1 fraction of output height)
 };
 
+// ---------------------------------------------------------------------------
+// Cue — A single playback item in a deck's cue list.
+//
+// This is the central content unit. Each Cue holds everything needed to:
+//   1. Decode media  → MediaEngine reads path, kind, fps, duration, codec info
+//   2. Render output → compositor reads scale/offset/crop/rotation/chroma/color
+//   3. Drive transport → end action, loop, pause points, speed, fade in/out
+//   4. Serialize → all fields saved/loaded in app/app_project_state.ipp
+//   5. Display in UI → name, colorTag, notes shown in cue list + inspector
+//
+// Fields are grouped by alignment to minimize struct padding.
+// ---------------------------------------------------------------------------
 struct Cue {
-  // -- 8-byte aligned: strings --
-  std::string id;
-  std::string cueId;  // operator-facing short cue id (max 6 chars)
-  std::string path;
-  std::string name;
-  std::string formatName;
-  std::string videoCodec;
-  std::string audioCodec;
-  std::string gotoTarget;
-  std::string cueTransitionStyle;
-  std::string lowerThirdText;
-  std::string lowerThirdSubtext;
-  std::string pipTargetCue;
-  std::string pipSourceType;
-  std::string attachedLowerThirdCue;
-  std::string attachedPipCue;
-  std::string compositeLayoutPreset;
-  std::string compositeAudioSlotId;
-  std::string colorTag;
-  std::string notes;
-  std::string cueNumber;
-  std::string subtitlePath;       // path to external .srt file (or empty for embedded)
-  std::string subtitleStreamId;   // embedded subtitle stream index (e.g. "0:s:0")
-  // -- 8-byte aligned: vectors --
-  std::vector<CompositeSlot> compositeSlots;
-  std::vector<double> pausePoints;
-  // -- 8-byte aligned: doubles + uint64 --
-  double duration = 0.0;
-  double fps = 30.0;
-  double fadeInSeconds = 0.0;
-  double fadeOutSeconds = 0.0;
-  double inPointSeconds = 0.0;
-  double outPointSeconds = 0.0;
-  double triggerTimecodeSeconds = -1.0;
-  double stillDurationSeconds = 0.0;
-  double cueTransitionSeconds = -1.0;
-  double playbackSpeed = 1.0;
-  std::uintmax_t sizeBytes = 0;
-  // -- 4-byte aligned: floats --
-  float outputScaleX = 1.0f;
-  float outputScaleY = 1.0f;
-  float outputOffsetX = 0.0f;
-  float outputOffsetY = 0.0f;
-  float outputRotationDegrees = 0.0f;
-  float cropLeft = 0.0f;
-  float cropRight = 0.0f;
-  float cropTop = 0.0f;
-  float cropBottom = 0.0f;
-  float chromaKeyTolerance = 60.0f;
-  float chromaKeySoftness = 20.0f;
-  float brightness = 1.0f;        // 0.0 (black) to 2.0 (bright)
-  float contrast = 1.0f;          // 0.0 (gray) to 2.0 (high)
-  float saturation = 1.0f;        // 0.0 (grayscale) to 2.0 (vibrant)
-  float hueShift = 0.0f;          // -180 to +180 degrees
-  // -- 4-byte aligned: ints + enums --
-  int width = 0;
-  int height = 0;
-  int audioChannels = 0;
-  int audioSampleRate = 0;
-  int lowerThirdBgAlpha = 180;
-  int loopCount = 0;
-  CueKind kind = CueKind::Video;
-  CueEndAction endAction = CueEndAction::Inherit;
-  ScaleMode scaleMode = ScaleMode::Fit;
-  // -- 4-byte aligned: SDL_Color --
-  SDL_Color color {48, 98, 48, 255};
-  SDL_Color compositeBackgroundColor {18, 24, 18, 255};
-  SDL_Color chromaKeyColor {0, 255, 0, 255};
-  // -- 1-byte aligned: bools --
-  bool hasAudio = false;
-  bool audioEnabled = true;
-  bool loop = false;
-  bool pauseAtBeginning = false;
-  bool pauseOnLastFrame = false;
-  bool transitionToNext = true;
-  bool chromaKeyEnabled = false;
-  bool subtitleEnabled = true;
-  bool refreshOnTake = false;   // reload page each time the browser cue is taken
+  // -- 8-byte aligned: strings -----------------------------------------------
+  std::string id;                          // internal UUID (generated on import)
+  std::string cueId;                       // operator-facing short ID (max 6 chars, shown in cue list)
+  std::string path;                        // file path, URL, or device for media source
+  std::string name;                        // display name (defaults to filename on import)
+  std::string formatName;                  // ffprobe container format (e.g. "mov,mp4")
+  std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
+  std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
+  std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
+  std::string cueTransitionStyle;          // per-cue override: "cut"/"crossfade"/"dipblack" (empty=inherit)
+  std::string lowerThirdText;              // primary text line for LowerThird cue kind
+  std::string lowerThirdSubtext;           // secondary text line for LowerThird cue kind
+  std::string pipTargetCue;               // cue ID whose output is the PiP background
+  std::string pipSourceType;              // PiP source kind ("media"/"camera"/"ndi")
+  std::string attachedLowerThirdCue;      // cue ID of an attached lower-third overlay
+  std::string attachedPipCue;             // cue ID of an attached PiP overlay
+  std::string compositeLayoutPreset;      // preset name ("2up"/"quad"/"7030") for Composite cue
+  std::string compositeAudioSlotId;       // which CompositeSlot's audio to route to output
+  std::string colorTag;                   // operator color label for cue list ("red","blue",etc.)
+  std::string notes;                      // free-form operator notes shown in inspector
+  std::string cueNumber;                  // traditional show cue number (e.g. "Q1.5")
+  std::string subtitlePath;               // path to external .srt file (empty = use embedded)
+  std::string subtitleStreamId;           // embedded subtitle stream index (e.g. "0:s:0")
+
+  // -- 8-byte aligned: vectors ------------------------------------------------
+  std::vector<CompositeSlot> compositeSlots; // sub-regions for Composite cue layout
+  std::vector<double> pausePoints;           // timecodes (seconds) where playback auto-pauses
+
+  // -- 8-byte aligned: doubles + uint64 ----------------------------------------
+  double duration = 0.0;                   // total media duration in seconds (from ffprobe)
+  double fps = 30.0;                       // frame rate (from ffprobe; default 30 for stills)
+  double fadeInSeconds = 0.0;              // visual+audio fade-in duration at cue start
+  double fadeOutSeconds = 0.0;             // visual+audio fade-out duration before cue end
+  double inPointSeconds = 0.0;            // trim: playback starts here (0 = beginning)
+  double outPointSeconds = 0.0;           // trim: playback ends here (0 = use full duration)
+  double triggerTimecodeSeconds = -1.0;   // SMPTE timecode to auto-trigger this cue (-1 = disabled)
+  double stillDurationSeconds = 0.0;      // display time for Image/Pattern/Browser cues
+  double cueTransitionSeconds = -1.0;     // per-cue transition duration override (-1 = inherit)
+  double playbackSpeed = 1.0;             // speed multiplier (0.25–4.0; 1.0 = normal)
+  std::uintmax_t sizeBytes = 0;           // file size in bytes (from ffprobe, for display)
+
+  // -- 4-byte aligned: floats -------------------------------------------------
+  // Geometry transforms applied by the output compositor (normalized/degrees)
+  float outputScaleX = 1.0f;              // horizontal scale (1.0 = 100%)
+  float outputScaleY = 1.0f;              // vertical scale   (1.0 = 100%)
+  float outputOffsetX = 0.0f;             // horizontal offset (fraction of output width)
+  float outputOffsetY = 0.0f;             // vertical offset   (fraction of output height)
+  float outputRotationDegrees = 0.0f;     // clockwise rotation in degrees
+  float cropLeft = 0.0f;                  // crop fraction from left edge   (0–1)
+  float cropRight = 0.0f;                 // crop fraction from right edge  (0–1)
+  float cropTop = 0.0f;                   // crop fraction from top edge    (0–1)
+  float cropBottom = 0.0f;               // crop fraction from bottom edge (0–1)
+  // Chroma key (green-screen removal) parameters
+  float chromaKeyTolerance = 60.0f;       // color distance threshold for key
+  float chromaKeySoftness = 20.0f;        // edge softness gradient width
+  // Color correction (applied per-pixel in the output compositor)
+  float brightness = 1.0f;                // 0.0 (black) to 2.0 (overbright)
+  float contrast = 1.0f;                  // 0.0 (flat gray) to 2.0 (high contrast)
+  float saturation = 1.0f;                // 0.0 (grayscale) to 2.0 (hyper-saturated)
+  float hueShift = 0.0f;                  // -180 to +180 degrees hue rotation
+
+  // -- 4-byte aligned: ints + enums -------------------------------------------
+  int width = 0;                           // source video width  (pixels, from ffprobe)
+  int height = 0;                          // source video height (pixels, from ffprobe)
+  int audioChannels = 0;                   // number of audio channels (from ffprobe)
+  int audioSampleRate = 0;                 // audio sample rate in Hz (from ffprobe)
+  int lowerThirdBgAlpha = 180;             // background bar opacity for LowerThird (0–255)
+  int loopCount = 0;                       // number of times to loop (0 = infinite when loop=true)
+  CueKind kind = CueKind::Video;           // discriminator — see CueKind enum above
+  CueEndAction endAction = CueEndAction::Inherit; // what to do when playback finishes
+  ScaleMode scaleMode = ScaleMode::Fit;    // how source maps to output — see ScaleMode enum
+
+  // -- 4-byte aligned: SDL_Color (RGBA) ----------------------------------------
+  SDL_Color color {48, 98, 48, 255};                 // cue list row tint (DMG green default)
+  SDL_Color compositeBackgroundColor {18, 24, 18, 255}; // background fill for Composite cue
+  SDL_Color chromaKeyColor {0, 255, 0, 255};          // target color for chroma key removal
+
+  // -- 1-byte aligned: bools ---------------------------------------------------
+  bool hasAudio = false;          // true if ffprobe detected an audio stream
+  bool audioEnabled = true;       // operator toggle — mute this cue's audio
+  bool loop = false;              // loop playback (respects loopCount if > 0)
+  bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
+  bool pauseOnLastFrame = false;  // hold last frame instead of going to black
+  bool transitionToNext = true;   // allow deck-level transition when this cue ends
+  bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor
+  bool subtitleEnabled = true;    // render subtitles (if subtitle track available)
+  bool refreshOnTake = false;     // Browser cue: reload page each time cue is taken
 };
 
+// ---------------------------------------------------------------------------
+// Deck — A playlist of cues with transport state and output configuration.
+//
+// The application supports multiple decks (Project::decks). Each deck:
+//   - Owns its own cue list and selection/active indices
+//   - Has independent transport (play/pause/stop via app_cue_transport.ipp)
+//   - Routes to one or more OutputTargets (via outputRouteDeckIndex or direct)
+//   - Maintains its own timecode chase state (for external TC-triggered playback)
+//   - Has warp/edge-blend geometry for projection mapping (per-output)
+//   - Carries playlist-level defaults that apply to newly imported cues
+//
+// The "active" cue is what's currently on-air; "selected" is the UI cursor.
+// overlayActiveIndices holds indices of cues playing as overlays (PiP, L3rd).
+// ---------------------------------------------------------------------------
 struct Deck {
-  std::string name = "Deck 1";
-  std::vector<Cue> cues;
-  int selectedIndex = -1;
-  int activeIndex = -1;
-  std::vector<int> overlayActiveIndices;
-  bool playlistLoop = false;
-  bool shuffle = false;
-  float playlistOpacity = 1.0f;    // 0.0 - 1.0 per-deck contribution
-  bool playlistAutoFade = false;   // auto-fade deck in on take
-  double playlistFadeSeconds = 0.8;
-  double playlistTimebaseFps = 30.0;             // operator playlist SMPTE base (24/25/29.97/30)
-  double playlistStartOffsetSeconds = 0.0;       // playlist start timecode offset
-  double playlistDefaultCueFadeSeconds = 1.5;    // default fade duration for new cues
-  double playlistDefaultStillDurationSeconds = 8.0; // default duration for non-movie cues
-  bool playlistDefaultLoop = false;
-  bool playlistDefaultFadeInEnabled = true;
-  bool playlistDefaultFadeOutEnabled = true;
-  bool playlistDefaultAudioEnabled = true;
-  bool playlistDefaultPauseAtBeginning = false;
-  bool playlistDefaultPauseAtEnd = true;
-  bool playlistDefaultTransitionToNext = true;
-  std::vector<int> selectedIndices;  // optional multi-selection in cue list
-  std::string audioOutputDeviceName;
-  int outputDisplayIndex = 0;
-  int outputRouteDeckIndex = -1;
-  bool ndiEnabled = false;
-  std::string ndiSourceName;
-  bool ndiKeyEnabled = false;
-  std::string ndiKeySourceName;
-  int canvasViewX = 0;
-  int canvasViewY = 0;
-  bool warpEnabled = false;
-  std::string warpMode = "linear"; // linear | perspective
-  float warpTopLeftX = 0.0f;
+  std::string name = "Deck 1";            // operator-facing deck label
+  std::vector<Cue> cues;                  // ordered cue list for this deck
+  int selectedIndex = -1;                 // UI cursor position (-1 = nothing selected)
+  int activeIndex = -1;                   // currently playing/on-air cue (-1 = none)
+  std::vector<int> overlayActiveIndices;  // overlay cues currently composited on top
+
+  // -- Playlist behavior ------------------------------------------------------
+  bool playlistLoop = false;               // wrap around to first cue after last
+  bool shuffle = false;                    // randomize next-cue order
+  float playlistOpacity = 1.0f;            // 0.0–1.0 deck contribution to final mix
+  bool playlistAutoFade = false;           // auto-fade deck opacity in on take
+  double playlistFadeSeconds = 0.8;        // duration of deck auto-fade
+  double playlistTimebaseFps = 30.0;       // SMPTE display base (24/25/29.97/30)
+  double playlistStartOffsetSeconds = 0.0; // timecode offset for playlist start
+  // Defaults applied to newly imported cues in this deck:
+  double playlistDefaultCueFadeSeconds = 1.5;           // default fade in/out duration
+  double playlistDefaultStillDurationSeconds = 8.0;     // default hold time for stills
+  bool playlistDefaultLoop = false;                     // default loop setting
+  bool playlistDefaultFadeInEnabled = true;             // apply fade-in by default
+  bool playlistDefaultFadeOutEnabled = true;            // apply fade-out by default
+  bool playlistDefaultAudioEnabled = true;              // enable audio by default
+  bool playlistDefaultPauseAtBeginning = false;         // pause on load by default
+  bool playlistDefaultPauseAtEnd = true;                // hold last frame by default
+  bool playlistDefaultTransitionToNext = true;          // allow transitions by default
+
+  // -- Multi-selection (for batch operations in the cue list UI) ---------------
+  std::vector<int> selectedIndices;
+
+  // -- Audio + output routing --------------------------------------------------
+  std::string audioOutputDeviceName;       // SDL audio device name (empty = system default)
+  int outputDisplayIndex = 0;              // which display to open the output window on
+  int outputRouteDeckIndex = -1;           // route this deck's output to another deck's window (-1=own)
+
+  // -- NDI output (per-deck; also configurable per-OutputTarget) ---------------
+  bool ndiEnabled = false;                 // enable NDI send for this deck
+  std::string ndiSourceName;               // NDI source name visible on the network
+  bool ndiKeyEnabled = false;              // enable NDI key (alpha) output
+  std::string ndiKeySourceName;            // NDI key source name
+
+  // -- Canvas viewport (for multi-output canvas mode) --------------------------
+  int canvasViewX = 0;                     // viewport X offset in canvas pixels
+  int canvasViewY = 0;                     // viewport Y offset in canvas pixels
+
+  // -- Warp geometry (projection mapping per-output) ---------------------------
+  bool warpEnabled = false;                // enable warp mesh
+  std::string warpMode = "linear";         // "linear" (bilinear) | "perspective" (4-corner pin)
+  float warpTopLeftX = 0.0f;              // corner offsets (normalized 0–1, relative to output)
   float warpTopLeftY = 0.0f;
   float warpTopRightX = 0.0f;
   float warpTopRightY = 0.0f;
@@ -188,166 +280,272 @@ struct Deck {
   float warpBottomRightY = 0.0f;
   float warpBottomLeftX = 0.0f;
   float warpBottomLeftY = 0.0f;
-  float edgeBlendLeft = 0.0f;
-  float edgeBlendRight = 0.0f;
-  float edgeBlendTop = 0.0f;
-  float edgeBlendBottom = 0.0f;
-  bool timeOverlayEnabled = false;
-  double transitionSeconds = 0.0;
-  std::string transitionStyle = "crossfade";
-  bool timecodeChaseEnabled = false;
-  bool timecodeRunEnabled = false;
-  bool timecodeTriggerEnabled = true;
-  bool timecodeJamSyncEnabled = true;
-  double timecodeFreewheelSeconds = 1.0;
-  double timecodeFps = 30.0;
-  double timecodeCurrentSeconds = 0.0;
-  double timecodeLastSeconds = 0.0;
-  bool timecodeDirty = false;
+
+  // -- Edge blending (for multi-projector soft-edge overlap) -------------------
+  float edgeBlendLeft = 0.0f;             // blend gradient width from left   (0–1)
+  float edgeBlendRight = 0.0f;            // blend gradient width from right  (0–1)
+  float edgeBlendTop = 0.0f;              // blend gradient width from top    (0–1)
+  float edgeBlendBottom = 0.0f;           // blend gradient width from bottom (0–1)
+
+  // -- Overlays ----------------------------------------------------------------
+  bool timeOverlayEnabled = false;         // show time/ID overlay on this deck's output
+
+  // -- Deck-level transition defaults ------------------------------------------
+  double transitionSeconds = 0.0;          // default transition duration for this deck
+  std::string transitionStyle = "crossfade"; // "cut" | "crossfade" | "dipblack"
+
+  // -- Timecode chase (external SMPTE timecode drives cue triggering) ----------
+  bool timecodeChaseEnabled = false;       // arm timecode chase mode
+  bool timecodeRunEnabled = false;         // timecode is actively running (set by ingest)
+  bool timecodeTriggerEnabled = true;      // allow cues to auto-fire on TC match
+  bool timecodeJamSyncEnabled = true;      // re-sync on TC discontinuity
+  double timecodeFreewheelSeconds = 1.0;   // freewheel duration after TC dropout
+  double timecodeFps = 30.0;              // TC frame rate for SMPTE display
+  double timecodeCurrentSeconds = 0.0;    // latest received timecode value
+  double timecodeLastSeconds = 0.0;       // previous frame's TC (for delta/freewheel)
+  bool timecodeDirty = false;             // true if TC changed since last render frame
 };
 
-// Transitional output entity: decouples output routing intent from Deck internals.
-// hostDeckIndex keeps compatibility with the current renderer (one output window per host deck).
+// ---------------------------------------------------------------------------
+// OutputTarget — A single output destination (window, stream, or DeckLink).
+//
+// Decouples output routing intent from Deck internals. The "advanced output
+// mode" (Project::advancedOutputMode) enables multiple OutputTargets.
+// In simple mode, there is one OutputTarget per deck (hostDeckIndex maps 1:1).
+//
+// hostDeckIndex ties this output to its source deck for rendering.
+// mirrorSourceOutputIndex lets one output mirror another (confidence monitor).
+//
+// Serialized in app/app_project_state.ipp with a 28+4 field layout.
+// When adding fields, append to the end and bump the guard in loadProject().
+// ---------------------------------------------------------------------------
 struct OutputTarget {
-  std::string name = "Output 1";
-  int hostDeckIndex = 0;
-  int displayIndex = 0;
-  bool enabled = false;
-  std::string outputType = "window"; // window | stream
-  int mirrorSourceOutputIndex = -1;  // -1 = render own layer assignments
-  bool streamEnabled = false;
-  std::string streamProtocol = "srt"; // srt | rtmp
-  std::string streamUrl;
-  int streamBitrateKbps = 6000;
-  bool ndiEnabled = false;
-  std::string ndiSourceName;
-  bool ndiKeyEnabled = false;
-  std::string ndiKeySourceName;
-  std::string outputId;
-  float outputAlpha = 1.0f;          // 0.0-1.0 output dimmer (per output)
-  int outputDelayMs = 0;             // 0-5000 egress delay (ms)
-  bool outputTimeOverlayEnabled = false; // output-scoped time/ID overlay
-  std::string outputColorSpace = "auto"; // auto | bt709 | srgb
-  std::string outputLayoutMode = "span"; // span | duplicate (canvas/view behavior)
-  int outputOrientationDegrees = 0;      // 0 | 90 | 180 | 270
-  bool outputTestCardEnabled = false;    // force output test card feed
-  bool deckLinkEnabled = false;
-  int deckLinkDeviceId = -1;             // -1 = not assigned
-  std::string deckLinkMode = "1080p60";
-  bool deckLink10Bit = true;
-  // Area of Interest: crop fraction from each edge (0-1). 0 = no crop (full output).
-  float aoiLeft = 0.0f;
-  float aoiRight = 0.0f;
-  float aoiTop = 0.0f;
-  float aoiBottom = 0.0f;
+  std::string name = "Output 1";           // operator-facing label
+  int hostDeckIndex = 0;                   // which deck feeds this output (index into Project::decks)
+  int displayIndex = 0;                    // OS display number for fullscreen window
+  bool enabled = false;                    // output is active (window open / stream running)
+  std::string outputType = "window";       // "window" (SDL fullscreen) | "stream" (ffmpeg egress)
+  int mirrorSourceOutputIndex = -1;        // mirror another output's frame (-1 = render own)
+
+  // -- Streaming egress (ffmpeg SRT/RTMP) --------------------------------------
+  bool streamEnabled = false;              // start streaming when output is enabled
+  std::string streamProtocol = "srt";      // "srt" | "rtmp"
+  std::string streamUrl;                   // destination URL (e.g. "srt://host:port")
+  int streamBitrateKbps = 6000;            // target video bitrate for encoder
+
+  // -- NDI output (per-output, independent of deck-level NDI) ------------------
+  bool ndiEnabled = false;                 // enable NDI send for this specific output
+  std::string ndiSourceName;               // NDI source name visible on the network
+  bool ndiKeyEnabled = false;              // enable NDI key (alpha channel) output
+  std::string ndiKeySourceName;            // NDI key source name
+
+  // -- Output properties -------------------------------------------------------
+  std::string outputId;                    // unique ID (UUID) for remote-command targeting
+  float outputAlpha = 1.0f;               // 0.0–1.0 master dimmer for this output
+  int outputDelayMs = 0;                   // egress delay in ms (0–5000, for sync alignment)
+  bool outputTimeOverlayEnabled = false;   // burn time/ID overlay onto this output
+  std::string outputColorSpace = "auto";   // "auto" | "bt709" | "srgb"
+  std::string outputLayoutMode = "span";   // "span" (portion of canvas) | "duplicate" (full copy)
+  int outputOrientationDegrees = 0;        // rotation: 0 | 90 | 180 | 270 degrees
+  bool outputTestCardEnabled = false;      // force test card (bars + label) on this output
+
+  // -- DeckLink SDI output (Blackmagic hardware) -------------------------------
+  bool deckLinkEnabled = false;            // route output to DeckLink card
+  int deckLinkDeviceId = -1;               // DeckLink device index (-1 = not assigned)
+  std::string deckLinkMode = "1080p60";    // output mode string (e.g. "1080p60", "720p50")
+  bool deckLink10Bit = true;               // use 10-bit output (vs 8-bit)
+
+  // -- Spout output (Windows interprocess texture sharing) ---------------------
+  bool spoutEnabled = false;               // route output to Spout sender
+  std::string spoutSenderName;             // Spout sender name visible to receivers
+
+  // -- Area of Interest: per-output crop (fraction from each edge, 0–1) --------
+  // Allows cropping the rendered output to show only a subregion.
+  // All zeros = full output (no crop). Used for multi-display slicing.
+  float aoiLeft = 0.0f;                    // crop fraction from left edge
+  float aoiRight = 0.0f;                   // crop fraction from right edge
+  float aoiTop = 0.0f;                     // crop fraction from top edge
+  float aoiBottom = 0.0f;                  // crop fraction from bottom edge
 };
 
 
+// ---------------------------------------------------------------------------
+// Project — Top-level state container for the entire show file.
+//
+// A .deckboy file serializes exactly one Project. Everything the operator
+// configures is stored here: decks, outputs, integration enables, audio
+// settings, master levels, and output resolution.
+//
+// Loaded/saved in app/app_project_state.ipp. The UI settings modal
+// (app/app_render_settings.ipp) reads and writes most of these fields.
+// Remote commands (app/app_remote_command.ipp) can also modify them.
+// ---------------------------------------------------------------------------
 struct Project {
-  std::string title = std::string(kAppTitle);
-  std::vector<Deck> decks {Deck {}};
-  int focusedDeckIndex = 0;
-  std::vector<OutputTarget> outputs {OutputTarget {}};
-  int focusedOutputIndex = 0;
-  bool advancedOutputMode = false;
-  bool uiSoundsEnabled = true;
-  bool uiTransitionsEnabled = true;
-  bool oscQueryEnabled = false;
-  int oscQueryPort = 5511;
-  bool oscFeedbackMirrorEnabled = false;
-  int oscFeedbackRateMs = 120;
-  bool atemTriggerEnabled = false;
-  bool ndiTriggerEnabled = false;
-  bool nmcSyncEnabled = false;
-  bool mtcIngestEnabled = false;
-  bool ltcIngestEnabled = false;
-  bool dmxArtNetEnabled = false;
-  int artNetPort = 6454;
-  bool tslTallyEnabled = false;
-  int tslTallyPort = 5800;
-  std::string tslTallyAddress = "255.255.255.255"; // broadcast or unicast target
-  int audioBufferSamples = 1024;  // SDL audio buffer size: 256/512/1024/2048
-  std::string jumpMode = "trigger"; // trigger | load
-  bool jumpTransitionEnabled = true;
-  std::string panicProfile = "outputs_off"; // outputs_off | fade_pause | fade_rewind | fade_load_next
-  double panicFadeSeconds = 0.9;
-  bool panicAutoRestore = false;
-  double masterVolume = 1.0;
-  double masterDimmer = 1.0;
-  bool outputFollowDisplay = true;
-  int outputRenderWidth = 1920;
-  int outputRenderHeight = 1080;
-  double outputRefreshRateHz = 0.0; // 0 = auto
-  int outputBitDepth = 0; // 0=auto, 8=8-bit, 10=10-bit
-  bool outputCanvasEnabled = false;
-  int outputCanvasWidth = 3840;
-  int outputCanvasHeight = 2160;
+  std::string title = std::string(kAppTitle); // show file title (displayed in title bar)
+  std::vector<Deck> decks {Deck {}};          // all decks (at least one always exists)
+  int focusedDeckIndex = 0;                   // which deck the UI is currently showing
+  std::vector<OutputTarget> outputs {OutputTarget {}}; // all outputs (at least one)
+  int focusedOutputIndex = 0;                 // which output is selected in settings UI
+
+  // -- UI preferences ----------------------------------------------------------
+  bool advancedOutputMode = false;  // show multi-output routing panel in settings
+  bool uiSoundsEnabled = true;     // play UI sound effects (navigate, take, etc.)
+  bool uiTransitionsEnabled = true; // animate UI transitions (panel slides, fades)
+
+  // -- Network / integration enables -------------------------------------------
+  // Each integration follows the pattern in platform/integration_backend.*:
+  // enable flag here → runtime thread in main.cpp → settings toggle in UI.
+  bool allowRemoteNetwork = false;       // false = listeners bind to localhost only; true = all interfaces
+  bool oscQueryEnabled = false;          // OSC query server (Companion, TouchOSC, etc.)
+  int oscQueryPort = 5511;               // TCP/UDP port for OSC
+  bool oscFeedbackMirrorEnabled = false; // mirror OSC feedback to all connected clients
+  int oscFeedbackRateMs = 120;           // throttle interval for OSC feedback packets
+  bool atemTriggerEnabled = false;       // ATEM switcher tally/trigger integration
+  bool ndiTriggerEnabled = false;        // NDI source discovery + trigger integration
+  bool nmcSyncEnabled = false;           // NMC (Network Machine Control) time sync
+  bool mtcIngestEnabled = false;         // MIDI Timecode ingest (for TC chase)
+  bool ltcIngestEnabled = false;         // Linear Timecode (audio) ingest
+  bool dmxArtNetEnabled = false;         // Art-Net DMX universe receive
+  int artNetPort = 6454;                 // Art-Net UDP port (standard = 6454)
+  bool tslTallyEnabled = false;          // TSL 3.1 tally sender (program/preview status)
+  int tslTallyPort = 5800;              // TSL UDP port
+  std::string tslTallyAddress = "255.255.255.255"; // broadcast or unicast target IP
+
+  // -- Audio configuration -----------------------------------------------------
+  int audioBufferSamples = 1024;  // SDL audio callback buffer: 256/512/1024/2048 samples
+  double masterVolume = 1.0;      // 0.0–1.0 master audio volume
+  double masterDimmer = 1.0;      // 0.0–1.0 master video dimmer (all outputs)
+
+  // -- Transport behavior ------------------------------------------------------
+  std::string jumpMode = "trigger";   // "trigger" (play immediately) | "load" (load paused)
+  bool jumpTransitionEnabled = true;  // use transitions when jumping between cues
+  // Panic button behavior (emergency stop):
+  std::string panicProfile = "outputs_off"; // "outputs_off"|"fade_pause"|"fade_rewind"|"fade_load_next"
+  double panicFadeSeconds = 0.9;            // panic fade-out duration
+  bool panicAutoRestore = false;            // auto-restore after panic timeout
+
+  // -- Output resolution and display -------------------------------------------
+  bool outputFollowDisplay = true;    // auto-detect resolution from display
+  int outputRenderWidth = 1920;       // render resolution width  (pixels)
+  int outputRenderHeight = 1080;      // render resolution height (pixels)
+  double outputRefreshRateHz = 0.0;   // target refresh rate (0 = auto-detect)
+  int outputBitDepth = 0;             // 0=auto, 8=8-bit, 10=10-bit color depth
+  bool outputCanvasEnabled = false;   // enable multi-output canvas mode
+  int outputCanvasWidth = 3840;       // canvas width  (pixels, for multi-display span)
+  int outputCanvasHeight = 2160;      // canvas height (pixels, for multi-display span)
 };
 
+// ---------------------------------------------------------------------------
+// DecodedFrame — One raw RGBA frame from the decode pipeline.
+//
+// Filled by MediaEngine's decode thread (readExact from ffmpeg stdout),
+// pushed into frameQueue_, then uploaded to an SDL_Texture by uploadFrame().
+// The pixels vector is pre-allocated to width*height*4 bytes (RGBA8888).
+// ---------------------------------------------------------------------------
 struct DecodedFrame {
-  int width = 0;
-  int height = 0;
-  std::uint64_t index = 0;
-  std::vector<std::uint8_t> pixels;
+  int width = 0;                       // frame width in pixels
+  int height = 0;                      // frame height in pixels
+  std::uint64_t index = 0;            // sequential frame number (for ordering)
+  std::vector<std::uint8_t> pixels;   // raw RGBA pixel data (width*height*4 bytes)
 };
 
+// ---------------------------------------------------------------------------
+// Button — A clickable rectangle in the control UI.
+//
+// Used by the cue list, toolbar, settings modal, and control bar.
+// The primitives layer (render/primitives.*) draws these using fill/outline
+// colors, and the text renderer places the label inside rect.
+// ---------------------------------------------------------------------------
 struct Button {
-  std::string label;
-  std::string tip;
-  SDL_Rect rect {};
-  SDL_Color fill {48, 40, 31, 255};
-  SDL_Color outline {255, 255, 255, 20};
-  SDL_Color text {245, 234, 215, 255};
+  std::string label;                              // button text (rendered centered)
+  std::string tip;                                // tooltip shown on hover
+  SDL_Rect rect {};                               // screen-space bounding box
+  SDL_Color fill {48, 40, 31, 255};               // background fill color
+  SDL_Color outline {255, 255, 255, 20};          // border/outline color
+  SDL_Color text {245, 234, 215, 255};            // label text color
 };
 
+// ---------------------------------------------------------------------------
+// QuickAction — Every action available from the inspector quick-action bar.
+//
+// Handled in app/app_quick_action.ipp. Each value maps to a button in the
+// inspector panel (app/app_render_inspector.ipp). The handler modifies the
+// selected cue's fields and triggers a re-render or engine reload as needed.
+//
+// Naming convention: Toggle* = bool flip, *Dec/*Inc = step value down/up,
+// Edit* = open inline text editor, Cycle* = rotate through enum values.
+// ---------------------------------------------------------------------------
 enum class QuickAction {
-  ToggleLoop, ToggleHold, TogglePauseBegin, ToggleCueAudio, ToggleNextTransition, EditGotoTarget, CycleEndAction,
+  // -- Playback behavior toggles -------
+  ToggleLoop, ToggleHold, TogglePauseBegin, ToggleCueAudio, ToggleNextTransition,
+  EditGotoTarget, CycleEndAction,
+  // -- Fade in/out ---------
   ToggleFadeIn, ToggleFadeOut,
   FadeInDec, FadeInInc, FadeOutDec, FadeOutInc,
+  // -- Volume --------------
   VolDec, VolInc,
+  // -- In/out points (trim) --
   InDec, InInc, OutDec, OutInc,
+  // -- Per-cue transition --
   TransDec, TransInc, CycleTransStyle,
+  // -- Lower third ---------
   LowerBgDec, LowerBgInc,
+  // -- Duration (stills/browsers) --
   DurDec, DurInc,
+  // -- Loop count ----------
   LoopCountDec, LoopCountInc,
+  // -- Playback speed ------
   SpeedDec, SpeedInc,
+  // -- Metadata / labels ---
   CycleColorTag,
   EditNotes,
   EditSourceRef,
   EditBrowserUrl,
   GotoMinus10, GotoMinus20, GotoMinus30,
+  // -- Geometry: scale -----
   CycleScaleMode,
   ScaleXDec, ScaleXInc,
   ScaleYDec, ScaleYInc,
   EditScaleX, EditScaleY,
+  // -- Geometry: offset ----
   OffsetXDec, OffsetXInc,
   OffsetYDec, OffsetYInc,
   EditOffsetX, EditOffsetY,
+  // -- Geometry: rotation --
   RotDec, RotInc,
   EditRotation,
+  // -- Geometry: crop ------
   CropLDec, CropLInc,
   CropRDec, CropRInc,
   CropTDec, CropTInc,
   CropBDec, CropBInc,
+  // -- Chroma key ----------
   KeyToggle,
   KeyTolDec, KeyTolInc,
   KeySoftDec, KeySoftInc,
   EditKeyColor,
   PickKeyColor,
+  // -- Cue number ----------
   EditCueNumber,
+  // -- Copy/paste settings --
   CopyCueSettings, PasteCueSettings,
+  // -- Pause points --------
   AddPausePoint, ClearPausePoints,
+  // -- Color correction ----
   BrightnessDec, BrightnessInc,
   ContrastDec, ContrastInc,
   SaturationDec, SaturationInc,
   HueShiftDec, HueShiftInc,
+  // -- Pattern cue options --
   PatternTypePrev, PatternTypeNext,
   TogglePatternMotion,
+  // -- Inspector section visibility toggles --
   CueSectionPlaybackToggle,
   CueSectionMetadataToggle,
   CueSectionGeometryToggle,
   CueSectionKeyToggle,
   CueSectionRoutingToggle,
+  // -- Overlays (PiP / lower third / composite) --
   ClearOverlay,
   EditLowerThirdText,
   EditLowerThirdSubtext,
@@ -363,6 +561,7 @@ enum class QuickAction {
   CompositePreset7030,
   CompositePresetQuad,
   CycleCompositeAudioSlot,
+  // -- PiP position presets --
   PipPresetCornerTL,
   PipPresetCornerTR,
   PipPresetCornerBL,
@@ -370,44 +569,66 @@ enum class QuickAction {
   PipPresetSmall,
   PipPresetBig,
   PipPreset7030,
-  TransportSkipStart,   // |< — seek to beginning
-  TransportSkipBack,    // << — skip back 10s
+  // -- Transport controls (from inspector) --
+  TransportSkipStart,   // |<  seek to beginning of cue
+  TransportSkipBack,    // <<  skip back 10 seconds
   TransportPlayPause,   // play/pause toggle
-  TransportSkipForward, // >> — skip forward 10s
-  TransportSkipEnd,     // >| — seek to end
-  TrimReset,            // clear in/out points
-  ToggleRefreshOnTake   // toggle browser cue reload on every take
+  TransportSkipForward, // >>  skip forward 10 seconds
+  TransportSkipEnd,     // >|  seek to end of cue
+  // -- Trim reset ----------
+  TrimReset,            // clear in/out points back to defaults
+  // -- Browser options -----
+  ToggleRefreshOnTake   // toggle browser cue page reload on every take
 };
 
+// ---------------------------------------------------------------------------
+// QuickButton — A clickable action button in the inspector quick-action bar.
+// Maps a screen rect to a QuickAction for hit-testing in app_input.ipp.
+// ---------------------------------------------------------------------------
 struct QuickButton {
-  SDL_Rect rect;
-  QuickAction action;
-  std::string tip;
+  SDL_Rect rect;          // screen-space bounding box (set during layout)
+  QuickAction action;     // which action to fire on click
+  std::string tip;        // tooltip text shown on hover
 };
 
+// ---------------------------------------------------------------------------
+// DragState — Tracks an active cue drag-and-drop operation.
+// Set in app_input.ipp on mouse-down over a cue row; cleared on mouse-up.
+// The cue list renderer uses this to draw the drop indicator.
+// ---------------------------------------------------------------------------
 struct DragState {
-  bool active = false;
-  int cueIndex = -1;
-  int deckIndex = 0;
+  bool active = false;    // true while a drag is in progress
+  int cueIndex = -1;      // index of the cue being dragged
+  int deckIndex = 0;      // which deck the cue belongs to
 };
 
+// ---------------------------------------------------------------------------
+// ToastState — Transient notification message shown to the operator.
+// Triggered by triggerToast() in main.cpp; rendered as a floating bar.
+// Auto-dismisses after durationMs milliseconds.
+// ---------------------------------------------------------------------------
 struct ToastState {
-  bool active = false;
-  Uint64 startedAt = 0;
-  Uint32 durationMs = 1200;
-  std::string message;
-  SDL_Color fill {155, 188, 15, 220};
-  SDL_Color ink {15, 56, 15, 255};
+  bool active = false;                         // true while toast is visible
+  Uint64 startedAt = 0;                       // SDL_GetPerformanceCounter() timestamp
+  Uint32 durationMs = 1200;                   // how long to show (milliseconds)
+  std::string message;                         // text content
+  SDL_Color fill {155, 188, 15, 220};          // background bar color (DMG green)
+  SDL_Color ink {15, 56, 15, 255};             // text color (DMG dark)
 };
 
+// ---------------------------------------------------------------------------
+// UiSoundEffect — Logical sound effect identifiers for UI feedback.
+// Played by the UI sound system when uiSoundsEnabled is true.
+// The actual WAV files are loaded from the data/ directory at startup.
+// ---------------------------------------------------------------------------
 enum class UiSoundEffect {
-  Navigate,
-  Import,
-  Take,
-  Toggle,
-  Stop,
-  Clear,
-  Delete
+  Navigate,   // cursor moved in cue list
+  Import,     // media file imported
+  Take,       // cue taken (put on air)
+  Toggle,     // boolean toggled in inspector
+  Stop,       // transport stopped
+  Clear,      // cue cleared / output blacked out
+  Delete      // cue deleted from list
 };
 
 #endif

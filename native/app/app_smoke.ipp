@@ -1,5 +1,51 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+//
+// ═══════════════════════════════════════════════════════════════════════════════
+// app_smoke.ipp — Startup Self-Test & Smoke Test Suite
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Provides two static entry points invoked from main() before the GUI starts:
+//
+//   runSelfCheck()   — diagnostic inventory printed to stdout. Enumerates the
+//                      runtime environment: version tag, font availability,
+//                      ffmpeg/ffprobe reachability, NDI SDK compile-time flag,
+//                      LTC dynamic library load, NMC sync runtime, and the
+//                      full set of capture / output / integration backend
+//                      catalogs with their support status. Route planning is
+//                      exercised for default request profiles so operators can
+//                      verify that the correct backends resolve on their OS.
+//                      Triggered by the --check CLI flag.
+//
+//   runSmoke()       — automated regression suite that returns 0 on success or
+//                      1 on any failure. Each test is a self-contained lambda
+//                      guarded by an expect() helper that prints [ok] or [fail].
+//                      Coverage includes:
+//                        • transition source gain policy (paused / stopped /
+//                          playing fade-envelope correctness)
+//                        • browser cue status summary label variants
+//                        • OSC string message build → parse → command map
+//                          round-trip, including bundle unwrapping
+//                        • NMC sync packet parsing
+//                        • capture backend route planning per-platform
+//                        • output backend route planning (stream + NDI combo)
+//                        • integration backend route planning with runtime
+//                          support flag assertions per-platform
+//                        • full project save → load round-trip covering every
+//                          serializable field: canvas, OSC query, integrations,
+//                          jump mode, panic profile, outputs (NDI, stream,
+//                          alpha, delay, colorspace, layout, orientation, test
+//                          card, AOI), deck settings (transition, opacity,
+//                          playlist defaults, timecode, warp, edge blend, NDI),
+//                          and cue fields (trim, chroma key, crop, color
+//                          controls, lower third, image still)
+//                        • legacy deck-level NDI → output-level migration
+//                      Triggered by the --smoke CLI flag.
+//
+// These tests run without SDL initialization or GPU resources, exercising only
+// the data model, serialization, protocol helpers, and backend catalogs.
+// ═══════════════════════════════════════════════════════════════════════════════
+
   static int runSelfCheck() {
     std::cout << "Deckboy self-check\n";
     std::cout << "version: " << deckboy::core::version::kVersionTag << '\n';

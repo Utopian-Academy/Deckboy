@@ -3,6 +3,34 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// media_engine.hpp — Core playback engine for all cue types.
+//
+// MediaEngine is the heart of Deckboy. It manages:
+//   - Video decode:    spawns ffmpeg as a subprocess, pipes raw RGBA frames
+//   - Audio decode:    spawns a second ffmpeg for PCM audio, feeds SDL audio
+//   - Still images:    decodes a single frame via ffmpeg, holds on screen
+//   - Pattern cues:    generates procedural test patterns (CPU-rendered)
+//   - Browser cues:    receives frames from the browser backend (CEF/WebKit)
+//   - Source capture:  receives frames from capture backend (camera/window)
+//   - Transitions:     crossfade/dip-to-black between outgoing and incoming cues
+//   - Transport:       play, pause, stop, seek, speed control, pause points
+//   - Fade in/out:     per-cue visual and audio fading at start/end
+//
+// Threading model:
+//   - Video decode thread: reads raw frames from ffmpeg stdout via readExact()
+//     and pushes them into frameQueue_ (protected by frameMutex_)
+//   - Audio decode thread: reads PCM from ffmpeg stdout via readSome() and
+//     queues to SDL audio device
+//   - Image thread:  decodes a single still frame asynchronously
+//   - Main thread:   calls update() to pop frames from queue, render() to blit
+//
+// One MediaEngine instance exists per deck (created in main.cpp).
+// The activeCue_ pointer is non-owning — it points into the Deck::cues vector.
+//
+// Implementation: media_engine.cpp
+// ============================================================================
+
 #pragma once
 
 #include <SDL.h>
@@ -24,9 +52,10 @@
 #include "core/subprocess.hpp"
 #include "core/types.hpp"
 
-// Compute the fade gain of the outgoing frame at the moment loadCue() is called.
-// When transport is paused/stopped, return 1.0 so the outgoing frame stays fully
-// visible during the transition (avoids a flash to black on TAKE from standby).
+// Compute the outgoing cue's fade gain at the moment a transition begins.
+// When transport is paused/stopped (e.g. TAKE from standby), returns 1.0
+// so the outgoing frame is fully visible during the transition — prevents
+// an ugly flash to black when crossfading from a paused cue.
 inline float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState state, double fadeGainAtPosition) {
   if (activeCue && state == TransportState::Playing) {
     return static_cast<float>(std::clamp(fadeGainAtPosition, 0.0, 1.0));
@@ -34,9 +63,21 @@ inline float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState
   return 1.0f;
 }
 
+// ============================================================================
+// MediaEngine — Playback engine for a single deck.
+//
+// Lifecycle:
+//   1. Construct with an SDL renderer and audio device
+//   2. loadCue() to start playing a cue (with optional transition)
+//   3. update() each frame to advance the decode pipeline
+//   4. render() to blit the current frame to the output
+//   5. Destructor stops all decode threads and frees textures
+// ============================================================================
 class MediaEngine {
  public:
+  // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
+  // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
   using CuePathResolver = std::function<std::string(const Cue&)>;
 
   explicit MediaEngine(SDL_Renderer* outputRenderer,
@@ -48,107 +89,131 @@ class MediaEngine {
       audioTap_(std::move(audioTap)),
       cuePathResolver_(std::move(cuePathResolver)) {}
 
-  ~MediaEngine();
+  ~MediaEngine();  // calls stopAll() to clean up threads and processes
 
   MediaEngine(const MediaEngine&) = delete;
   MediaEngine& operator=(const MediaEngine&) = delete;
 
-  void stopAll();
-  void loadCue(const Cue* cue, bool autoplay, double transitionSeconds = 0.0,
+  // -- Transport controls (called from app_cue_transport.ipp) -----------------
+  void stopAll();                         // kill all decode, clear everything
+  void loadCue(const Cue* cue, bool autoplay,  // load a cue for playback
+               double transitionSeconds = 0.0,
                TransitionStyle transitionStyle = TransitionStyle::Cut,
                bool suppressFadeIn = false);
-  void refreshActiveCueRuntime();
-  void play();
-  void pause();
-  void toggle();
-  void stop();
-  void clear();
-  void seek(double seconds, bool clearVisualFrame = false);
-  void setVolume(float value);
-  void setPausePoints(std::vector<double> points);
-  void update();
-  void render(SDL_Rect target);
-  void rebuildPatternFrame(const Cue& cue, double wallSeconds);
+  void refreshActiveCueRuntime();         // re-read runtime params from active cue (speed, volume)
+  void play();                            // resume playback
+  void pause();                           // pause playback (hold current frame)
+  void toggle();                          // play ↔ pause toggle
+  void stop();                            // stop playback and reset position
+  void clear();                           // stop + release the active cue + black output
+  void seek(double seconds, bool clearVisualFrame = false); // jump to time position
+  void setVolume(float value);            // set playback volume (0.0–1.0)
+  void setPausePoints(std::vector<double> points); // set auto-pause timecodes
 
+  // -- Frame update and rendering (called from main loop) ----------------------
+  void update();                          // pop frames from decode queue, advance position
+  void render(SDL_Rect target);           // blit current frame + transition overlay to renderer
+  void rebuildPatternFrame(const Cue& cue, double wallSeconds); // regenerate a pattern cue's pixels
+
+  // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,
                            double fadeInSeconds, double fadeOutSeconds,
                            double transSecs, TransitionStyle transStyle);
   void stopBrowserCapture();
   bool startBrowserFrameMode(int w, int h, double transSecs, TransitionStyle transStyle);
-  void pushBrowserFrame(const uint8_t* rgba, int w, int h);
-  bool startSourceCapture(const Cue& cue);
-  void finalizeReachedEnd(bool keepVisibleFrame);
+  void pushBrowserFrame(const uint8_t* rgba, int w, int h); // receive a frame from browser backend
 
-  float volume() const { return volume_.load(); }
+  // -- Source capture interface (called from platform/capture_backend.*) --------
+  bool startSourceCapture(const Cue& cue);
+
+  // -- End-of-playback handling ------------------------------------------------
+  void finalizeReachedEnd(bool keepVisibleFrame); // called by transport when cue ends
+
+  // -- Read-only accessors (thread-safe where marked) --------------------------
+  float volume() const { return volume_.load(); }  // atomic
   const Cue* activeCue() const { return activeCue_; }
   TransportState state() const { return state_; }
   double duration() const { return duration_; }
-  double position() const;
-  double mediaFpsMeasured() const { return mediaFpsMeasured_; }
-  bool reachedEnd();
+  double position() const;                // current playback position in seconds
+  double mediaFpsMeasured() const { return mediaFpsMeasured_; } // actual decode fps
+  bool reachedEnd();                      // true once playback reached the end
   bool shouldClearVisualOnReachedEnd() const { return clearVisualOnReachedEnd_; }
   bool isBrowserCapturing() const { return isBrowserCapturing_; }
   bool isSourceCapturing() const { return isSourceCapturing_; }
-  const DecodedFrame* currentFrame() const;
+  const DecodedFrame* currentFrame() const; // pointer to the currently displayed frame
 
+  // -- FPS telemetry (for performance monitoring) ------------------------------
   void resetMediaFpsTelemetry();
   bool shouldMeasureMediaFps() const;
   void recordMediaFrameAdvance(std::uint64_t frameIndex);
 
-  std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path, int width, int height, double seconds);
+  // -- Single-frame decode (for thumbnail generation) --------------------------
+  std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path,
+                                                 int width, int height, double seconds);
 
+  // -- Static pattern frame generator -----------------------------------------
   static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
                                                        int fallbackWidth = kOutputWidth,
                                                        int fallbackHeight = kOutputHeight);
 
- double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
+  // Current visual fade gain (0–1) factoring in fade-in and fade-out curves.
+  double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
 
  private:
-  double visualFadeGainAt(double positionSeconds) const;
-  double fadeGainAt(double positionSeconds) const;
-  void initStillTimer(const Cue& cue, bool autoplay);
-  void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f);
-  void clearTransitionTexture();
-  bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue);
-  void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent);
-  void handlePlaybackEnd();
-  void clearTexture();
-  void uploadFrame(const DecodedFrame& frame);
-  void stopImageThread();
-  std::pair<int, int> currentOutputSizeHint() const;
-  std::string mediaPathForCue(const Cue& cue) const;
-  void loadStillFrame(const Cue& cue);
-  void loadPatternFrame(const Cue& cue);
-  void loadSourceFrame(const Cue& cue);
-  void clearAudio();
-  size_t queuedFrames();
-  void stopDecoderThreads();
-  bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const;
-  void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds);
+  // -- Internal helpers -------------------------------------------------------
+  double visualFadeGainAt(double positionSeconds) const;  // fade gain for visual (may suppress fade-out for auto-advance)
+  double fadeGainAt(double positionSeconds) const;         // raw fade gain (in+out curve) at position
+  void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
+  void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
+  void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
+  bool drawTextureFitted(SDL_Texture* texture, int width, int height, const SDL_Rect& target, Uint8 alphaValue); // draw texture with scale mode
+  void drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent); // render the transition blend
+  void handlePlaybackEnd();                                // called when playback naturally reaches the end
+  void clearTexture();                                     // release the main frame texture
+  void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
+  void stopImageThread();                                  // join and clean up the still-image decode thread
+  std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
+  std::string mediaPathForCue(const Cue& cue) const;      // resolve cue path (may use CuePathResolver callback)
+  void loadStillFrame(const Cue& cue);                     // async-decode a single frame for still cues
+  void loadPatternFrame(const Cue& cue);                   // generate a pattern frame and upload
+  void loadSourceFrame(const Cue& cue);                    // start source capture for camera/window cues
+  void clearAudio();                                       // flush the SDL audio queue
+  size_t queuedFrames();                                   // number of frames waiting in frameQueue_
+  void stopDecoderThreads();                               // kill ffmpeg processes and join threads
+  bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const; // build ffmpeg args for source capture
+  void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds);       // launch ffmpeg video+audio subprocesses
 
+  // -- Pattern rendering helpers (static, pure) --------------------------------
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color);
   static void fillPixelRect(DecodedFrame& frame, int x, int y, int w, int h, SDL_Color color);
   static void drawHeart(DecodedFrame& frame, int centerX, int centerY, int radius, SDL_Color color);
-  static void buildSmpte75Bars(DecodedFrame& frame);
-  static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);
-  static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);
-  static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);
+  static void buildSmpte75Bars(DecodedFrame& frame);       // SMPTE 75% color bars
+  static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);   // crosshatch grid
+  static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0); // checkerboard
+  static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
 
-  SDL_Renderer* outputRenderer_ = nullptr;
-  SDL_AudioDeviceID audioDevice_ = 0;
-  CuePathResolver cuePathResolver_;
-  const Cue* activeCue_ = nullptr;
-  SDL_Texture* texture_ = nullptr;
-  int textureWidth_ = 0;
+  // -- State: core references --------------------------------------------------
+  SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
+  SDL_AudioDeviceID audioDevice_ = 0;       // SDL audio device for PCM output
+  CuePathResolver cuePathResolver_;          // optional path transform callback
+  const Cue* activeCue_ = nullptr;           // non-owning pointer to the currently loaded cue
+
+  // -- State: video frame texture ----------------------------------------------
+  SDL_Texture* texture_ = nullptr;           // GPU texture for the current frame
+  int textureWidth_ = 0;                     // texture dimensions (match decoded frame)
   int textureHeight_ = 0;
-  SDL_Texture* transitionTexture_ = nullptr;
+
+  // -- State: transition (crossfade / dip-to-black) ----------------------------
+  SDL_Texture* transitionTexture_ = nullptr; // snapshot of the outgoing cue's last frame
   int transitionTextureWidth_ = 0;
   int transitionTextureHeight_ = 0;
-  bool transitionActive_ = false;
-  bool transitionWaitingForFirstFrame_ = false;
+  bool transitionActive_ = false;            // true while a transition is in progress
+  bool transitionWaitingForFirstFrame_ = false; // wait for incoming cue's first frame before starting blend
   double transitionDurationSeconds_ = 0.0;
   TransitionStyle transitionStyle_ = TransitionStyle::Cut;
-  float transitionSourceGain_ = 1.0f;
+  float transitionSourceGain_ = 1.0f;       // outgoing cue's opacity at transition start
+
+  // -- State: per-cue geometry (copied from Cue on load) -----------------------
   float outputScaleX_ = 1.0f;
   float outputScaleY_ = 1.0f;
   ScaleMode scaleMode_ = ScaleMode::Fit;
@@ -159,6 +224,8 @@ class MediaEngine {
   float cropRight_ = 0.0f;
   float cropTop_ = 0.0f;
   float cropBottom_ = 0.0f;
+
+  // -- State: per-cue pixel effects (copied from Cue on load) ------------------
   bool chromaKeyEnabled_ = false;
   SDL_Color chromaKeyColor_ {0, 255, 0, 255};
   float chromaKeyTolerance_ = 60.0f;
@@ -167,49 +234,75 @@ class MediaEngine {
   float contrast_ = 1.0f;
   float saturation_ = 1.0f;
   float hueShift_ = 0.0f;
-  std::vector<std::uint8_t> keyedPixelsScratch_;
-  std::vector<double> pausePoints_;
-  size_t nextPausePointIdx_ = 0;
+  std::vector<std::uint8_t> keyedPixelsScratch_; // scratch buffer for chroma key processing
+
+  // -- State: pause points (auto-pause at specific timecodes) ------------------
+  std::vector<double> pausePoints_;          // sorted list of pause timecodes
+  size_t nextPausePointIdx_ = 0;             // index of the next pause point to check
+
+  // -- State: transition timing ------------------------------------------------
   std::chrono::steady_clock::time_point transitionStartedAt_ = std::chrono::steady_clock::now();
-  std::atomic<float> volume_ {1.0f};
+
+  // -- State: audio ------------------------------------------------------------
+  std::atomic<float> volume_ {1.0f};         // playback volume (0–1, thread-safe)
+
+  // -- State: transport --------------------------------------------------------
   TransportState state_ = TransportState::Stopped;
-  double currentPosition_ = 0.0;
-  double pausedPosition_ = 0.0;
-  double playbackStartPosition_ = 0.0;
-  double duration_ = 0.0;
-  double cueInPointSeconds_ = 0.0;
-  double cueOutPointSeconds_ = 0.0;
-  double frameRate_ = 30.0;
-  double playbackSpeed_ = 1.0;
-  std::chrono::steady_clock::time_point playbackClockStart_ = std::chrono::steady_clock::now();
-  std::optional<DecodedFrame> displayFrame_;
-  std::uint64_t lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
-  std::mutex frameMutex_;
-  std::deque<DecodedFrame> frameQueue_;
-  ChildProcess videoProcess_;
-  ChildProcess audioProcess_;
-  ChildProcess imageProcess_;
-  std::thread videoThread_;
-  std::thread audioThread_;
-  std::thread imageThread_;
-  std::mutex imageMutex_;
-  std::optional<DecodedFrame> pendingImageFrame_;
-  std::atomic<bool> imageFramePending_ {false};
-  AudioTapCallback audioTap_;
-  std::atomic<bool> decoderStop_ {false};
-  std::atomic<bool> decoderEof_ {false};
-  bool reachedEnd_ = false;
-  bool isBrowserCapturing_ = false;
-  int browserCaptureW_ = 1280;
-  int browserCaptureH_ = 720;
-  std::uint64_t browserFrameIdx_ = 0;
-  bool isSourceCapturing_ = false;
-  bool clearVisualOnReachedEnd_ = false;
-  bool suppressFadeInForCurrentCue_ = false;
-  bool suppressVisualFadeOutForCurrentCue_ = false;
-  Uint64 mediaFpsSampleStartedAtMs_ = 0;
-  Uint32 mediaFpsFrameCount_ = 0;
-  double mediaFpsMeasured_ = 0.0;
+  double currentPosition_ = 0.0;            // current playback position (seconds)
+  double pausedPosition_ = 0.0;             // position at last pause (for resume)
+  double playbackStartPosition_ = 0.0;      // position when play() was called
+  double duration_ = 0.0;                   // effective duration (outPoint - inPoint)
+  double cueInPointSeconds_ = 0.0;          // trim start (from Cue::inPointSeconds)
+  double cueOutPointSeconds_ = 0.0;         // trim end (from Cue::outPointSeconds)
+  double frameRate_ = 30.0;                 // decode frame rate (from Cue::fps)
+  double playbackSpeed_ = 1.0;              // speed multiplier (from Cue::playbackSpeed)
+  std::chrono::steady_clock::time_point playbackClockStart_ = std::chrono::steady_clock::now(); // wall-clock reference for position()
+
+  // -- State: frame pipeline (decode thread → main thread) ---------------------
+  std::optional<DecodedFrame> displayFrame_; // the frame currently being rendered
+  std::uint64_t lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1); // dedup detection
+  std::mutex frameMutex_;                    // protects frameQueue_ (shared between decode and main threads)
+  std::deque<DecodedFrame> frameQueue_;      // decoded frames waiting to be displayed (max kMaxVideoFrames)
+
+  // -- State: subprocess handles -----------------------------------------------
+  ChildProcess videoProcess_;                // ffmpeg video decode subprocess
+  ChildProcess audioProcess_;                // ffmpeg audio decode subprocess
+  ChildProcess imageProcess_;                // ffmpeg single-frame decode subprocess (stills)
+
+  // -- State: decode threads ---------------------------------------------------
+  std::thread videoThread_;                  // reads raw frames from videoProcess_.readFd
+  std::thread audioThread_;                  // reads PCM samples from audioProcess_.readFd
+  std::thread imageThread_;                  // decodes a single still frame asynchronously
+  std::mutex imageMutex_;                    // protects pendingImageFrame_
+  std::optional<DecodedFrame> pendingImageFrame_; // still frame waiting to be consumed by main thread
+  std::atomic<bool> imageFramePending_ {false};   // flag: pendingImageFrame_ is ready
+
+  // -- State: audio tap --------------------------------------------------------
+  AudioTapCallback audioTap_;                // callback for waveform/VU meter display
+
+  // -- State: decoder lifecycle flags ------------------------------------------
+  std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
+  std::atomic<bool> decoderEof_ {false};     // decode threads have reached EOF
+  bool reachedEnd_ = false;                  // cue playback has finished
+
+  // -- State: browser capture --------------------------------------------------
+  bool isBrowserCapturing_ = false;          // browser backend is sending frames
+  int browserCaptureW_ = 1280;               // browser frame width
+  int browserCaptureH_ = 720;                // browser frame height
+  std::uint64_t browserFrameIdx_ = 0;        // sequential browser frame counter
+
+  // -- State: source capture ---------------------------------------------------
+  bool isSourceCapturing_ = false;           // source capture is active
+
+  // -- State: fade control -----------------------------------------------------
+  bool clearVisualOnReachedEnd_ = false;     // go to black when cue ends (vs hold last frame)
+  bool suppressFadeInForCurrentCue_ = false; // skip fade-in (e.g. mid-transition load)
+  bool suppressVisualFadeOutForCurrentCue_ = false; // skip visual fade-out (auto-advance handles it)
+
+  // -- State: FPS telemetry ----------------------------------------------------
+  Uint64 mediaFpsSampleStartedAtMs_ = 0;    // start time of current measurement window
+  Uint32 mediaFpsFrameCount_ = 0;           // frames counted in current window
+  double mediaFpsMeasured_ = 0.0;           // computed actual decode FPS
   std::uint64_t lastMeasuredMediaFrameIndex_ = static_cast<std::uint64_t>(-1);
-  std::uint64_t displayFrameSerial_ = 0;
+  std::uint64_t displayFrameSerial_ = 0;    // monotonic frame counter for display
 };

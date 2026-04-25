@@ -3,6 +3,37 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// browser.cpp — Headless browser renderer for Browser and LowerThird cues.
+//
+// Renders HTML/CSS content to raw RGBA pixel frames for compositing into the
+// deck output. Uses platform-specific approaches:
+//
+//   Linux:   Headless Chromium via Xvfb virtual framebuffer
+//            - Spawns Xvfb on a free display, then launches Chromium with
+//              --headless --screenshot flags, capturing screenshots at interval
+//            - Detects browser executable via DECKBOY_BROWSER env var or
+//              well-known paths (chromium, google-chrome, firefox)
+//
+//   Windows: Microsoft WebView2 (Edge Chromium runtime)
+//            - Creates an offscreen HWND hosting WebView2 control
+//            - Captures frames via WIC (Windows Imaging Component) screenshot
+//            - Requires WebView2 runtime (ships with Windows 10/11)
+//
+//   macOS:   WKWebView (scaffold — not yet implemented)
+//
+// The renderer produces RGBA frames that are pushed to the MediaEngine via
+// the pushBrowserFrame() callback, which then uploads them as SDL_Textures.
+// Frame capture runs on a background thread at a configurable interval.
+//
+// Key helpers:
+//   detectBrowserExecutable() — finds a usable browser binary on the system
+//   executableOnPath()        — checks if a binary exists in PATH
+//
+// Header: browser.hpp
+// Used by: media_engine.cpp (startBrowserCapture/stopBrowserCapture).
+// ============================================================================
+
 #include "browser.hpp"
 
 #include "core/subprocess.hpp"

@@ -1,5 +1,35 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Deckboy contributors
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// output_renderer.hpp — Abstract output rendering pipeline interface.
+//
+// Defines the OutputRenderer abstract class that documents the 10-step
+// sequence for rendering a deck's composited output to a window and
+// external sinks (NDI, DeckLink, Siphon/Spout).
+//
+// This is a design/documentation interface — the actual implementation
+// lives directly in the App class (app_render_output.ipp). The interface
+// exists to formalize the rendering contract and enable future refactoring
+// into a standalone renderer class.
+//
+// Rendering pipeline (per deck, per frame):
+//   1. ensureCompositor() — create/resize the offscreen compositor texture
+//   2. Clear to black
+//   3. renderAllLayers()  — composite all active media layers
+//   4. renderAudioVisualization() — waveform for audio-only cues
+//   5. renderOverlays()   — lower-third text overlays
+//   6. renderTimeInfo()   — timecode, cue ID, position overlay
+//   7. applyDimmer()      — master brightness fade
+//   8. presentCompositor() — blit compositor to the SDL output window
+//   9. sendNdiFrame()     — send to NDI/DeckLink/Siphon outputs
+//  10. Present to SDL window via SDL_RenderPresent
+//
+// Implementation: output_renderer.cpp (minimal — just namespace)
+// Used by: app_render_output.ipp follows this pipeline structure.
+// ============================================================================
 
 #ifndef DECKBOY_RENDER_OUTPUT_RENDERER_HPP
 #define DECKBOY_RENDER_OUTPUT_RENDERER_HPP
@@ -10,24 +40,6 @@
 
 namespace deckboy::render {
 
-// OutputRenderer encapsulates the sequence of operations needed to render a deck's output window.
-// This is a stateless facade; it does not own SDL resources. It serves as documentation and
-// organization for rendering logic that lives in the App class.
-//
-// The output window rendering sequence:
-// 1. Size and configure compositor texture if needed
-// 2. Clear to black
-// 3. Render all deck layers (media + composition)
-// 4. Render audio visualization (waveform) for audio-only cues
-// 5. Render lower-third overlays (stacked, color-coded)
-// 6. Render time overlay (timecode, cue ID, position)
-// 7. Apply master dimmer fade
-// 8. Present compositor to window
-// 9. Send NDI frame to outputs
-// 10. Present to SDL window
-//
-// Each step is documented below as a pure virtual method that should be implemented
-// in a renderer class or directly in App with proper SDL2 context.
 class OutputRenderer {
  public:
   virtual ~OutputRenderer() = default;

@@ -1,5 +1,29 @@
+// ============================================================================
+// app_geometry.ipp — Cue and output geometry calculations.
+//
+// Provides geometric transformation functions for the output compositor:
+//
+//   edgeBlendAlphaForUv() — per-pixel alpha for soft edge blending between
+//                            adjacent projectors (linear ramp on all four edges)
+//   bilerpPoint()         — bilinear interpolation of four corner points
+//                            (used for perspective warp / corner-pin mapping)
+//
+// Edge blending creates smooth fade zones at the edges of projected output,
+// allowing overlapping projectors to produce a seamless combined image.
+// The blend width is configurable per edge (left/right/top/bottom) as a
+// fraction of the output dimensions.
+//
+// Corner-pin warping uses bilinear interpolation of user-defined corner
+// positions to map the rectangular output onto an arbitrary quadrilateral,
+// compensating for non-perpendicular projection surfaces.
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Compute the edge blend alpha (0–255) for a given UV coordinate.
+  // Each edge fades linearly from 0 at the edge to full alpha at the
+  // blend boundary. When edges overlap at corners, the alphas multiply.
   static Uint8 edgeBlendAlphaForUv(const Deck& deck, float u, float v) {
     float ax = 1.0f;
     if (deck.edgeBlendLeft > 0.0001f && u < deck.edgeBlendLeft) {

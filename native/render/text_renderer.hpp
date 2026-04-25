@@ -1,5 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) Deckboy contributors
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// text_renderer.hpp — SDL2 + SDL_ttf text rendering utilities.
+//
+// Stateless utility class for rendering UTF-8 text via SDL_ttf. All methods
+// are static — no font ownership or caching is performed here (fonts are
+// owned by the App class in main.cpp).
+//
+//   drawText()          — render text at absolute (x, y) position
+//   drawCenteredText()  — render text centered within a bounding rectangle
+//   getTextDimensions() — measure text size without rendering
+//   textToTexture()     — create a cached SDL_Texture from text
+//
+// All text rendering uses TTF_RenderUTF8_Blended for anti-aliased output.
+// The textToTexture() method is useful for text that doesn't change every
+// frame (e.g. labels) — the caller must manage the texture lifetime.
+//
+// Implementation: text_renderer.cpp
+// Used by: waveform_renderer.cpp, app_render_*.ipp, main.cpp UI text.
+// ============================================================================
 
 #ifndef DECKBOY_RENDER_TEXT_RENDERER_HPP
 #define DECKBOY_RENDER_TEXT_RENDERER_HPP
@@ -10,10 +32,6 @@
 
 namespace deckboy::render {
 
-// TextRenderer provides SDL2-based text rendering operations.
-// This stateless utility class consolidates text drawing, font management,
-// and text metrics operations, enabling easier refactoring of display code
-// and supporting unit testing of text layout.
 class TextRenderer {
  public:
   // Draw text at (x, y) position with specified color

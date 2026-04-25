@@ -1,5 +1,111 @@
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+//
+// ═══════════════════════════════════════════════════════════════════════════════
+// app_ui_widgets.ipp — Reusable UI Widget Functions
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Shared widget infrastructure used across the control window. Every popup,
+// dropdown, inline editor, and context menu lives here so that the render and
+// input files can stay focused on layout and domain logic.
+//
+// ─── Context Menu ────────────────────────────────────────────────────────────
+//   handleRightClick()        — entry point: right-click on trim handles
+//                               (clears in/out points) or on cue rows (opens
+//                               context menu via hit-test against clip rects).
+//   openContextMenu()         — builds the context item list: color tag palette
+//                               (8 entries with swatch colors) plus a "delete
+//                               cue" action. Positions the menu to fit on
+//                               screen and logs via uiWatchdogPopupEvent().
+//   handleContextMenuClick()  — dispatches click to matching item action or
+//                               dismisses if click is outside the menu rect.
+//   renderContextMenu()       — draws the popup: filled panel, hover highlight,
+//                               color swatches, and item labels.
+//
+// ─── UI Profiling ────────────────────────────────────────────────────────────
+//   uiProfileLog()            — conditional stderr log gated by
+//                               DECKBOY_UI_PROFILE env flag; timestamps with
+//                               SDL_GetTicks64.
+//   uiWatchdogPopupEvent()    — specialized log for popup open/close events
+//                               with optional item count.
+//
+// ─── Key-to-Character Mapping ────────────────────────────────────────────────
+//   dropdownFilterCharFromKey() — converts SDL keycodes to printable chars for
+//                                 the dropdown type-ahead filter. Supports
+//                                 a-z, 0-9, and common punctuation; respects
+//                                 Shift but blocks Ctrl/Alt/GUI modifiers.
+//   inlineEditorCharFromKey()   — broader mapping for the inline text editor,
+//                                 adding shifted number-row symbols (!@#$%^&*)
+//                                 and extra punctuation (=, +, <, >, :, ;, etc.).
+//
+// ─── Choice List Builders ────────────────────────────────────────────────────
+//   sourceCueTypeChoices()    — returns token/label pairs for source cue kinds
+//                               (window, camera, syphon/spout).
+//   sourceCueLabelForType()   — resolves a source type token to its display
+//                               label string.
+//   sourceCueKindFromToken()  — resolves a source type token to its CueKind
+//                               enum value (with common aliases like "cam").
+//   pipSourceTypeChoices()    — PiP overlay source kinds (media, browser,
+//                               window, camera, syphon).
+//   pipSourceTypeLabel()      — display label for a PiP source type token.
+//   transitionStyleChoices()  — transition style options (cut, crossfade, dip).
+//   transitionStyleLabel()    — display label for a transition style token.
+//   setSelectedCueTransitionStyle() — applies a style to all focused-deck
+//                               selected cues.
+//   audioOutputDeviceDropdownChoices() — enumerates available audio output
+//                               devices from the platform audio subsystem.
+//   displayChoiceLabel()      — "Display N: <name>" label for a display index.
+//   outputDisplayDropdownChoices() — enumerates SDL video displays.
+//   outputMirrorSourceDropdownChoices() — lists other outputs as mirror sources.
+//   outputStreamProtocolDropdownChoices() — SRT and RTMP options.
+//
+// ─── Dropdown Widget ─────────────────────────────────────────────────────────
+//   openDropdown()            — initializes dropdown state: options list,
+//                               type-ahead filter, anchor rect, highlight
+//                               position, and selection callback. Measures text
+//                               widths for popover sizing.
+//   closeDropdown()           — tears down dropdown state, stops text input.
+//   dropdownVisibleRowCount() — visible row count clamped to maxVisibleRows.
+//   ensureDropdownHighlightVisible() — scrolls the dropdown list to keep the
+//                               highlighted item in view.
+//   rebuildDropdownFilteredIndices() — re-filters options against the current
+//                               type-ahead filter string (case-insensitive).
+//   refreshDropdownPopoverRect() — repositions/resizes the popover to fit in
+//                               the window, flipping above the anchor if needed.
+//   handleDropdownMouseDown() — click dispatch: select item, dismiss, or anchor
+//                               toggle.
+//   handleDropdownMouseWheel() — scrolls the filtered list.
+//   handleDropdownKey()       — keyboard nav: arrows, enter to select, escape
+//                               to dismiss, backspace to trim filter, and
+//                               printable chars to extend filter.
+//   renderDropdownPopover()   — draws the popover: framed panel, filter text,
+//                               clipped scrollable item list with highlight.
+//
+// ─── Inline Text Editor ──────────────────────────────────────────────────────
+//   openInlineTextEditor()    — opens a small text input panel (docked inside
+//                               the cue inspector or floating center-screen).
+//                               Flushes any stale SDL_TEXTINPUT events from the
+//                               key that triggered the editor.
+//   closeInlineTextEditor()   — tears down editor, optionally invoking the
+//                               onSubmit callback with the entered value.
+//   handleInlineTextEditorMouseDown() — click on Apply/Cancel buttons or
+//                               outside the panel to dismiss.
+//   handleInlineTextEditorKey() — keyboard: Escape = cancel, Enter = apply,
+//                               Backspace/Delete = edit text.
+//   handleInlineTextEditorTextInput() — appends SDL text input (clamped to 180
+//                               chars).
+//   renderInlineTextEditor()  — draws the editor panel with title, prompt,
+//                               blinking cursor, Apply/Cancel buttons. When the
+//                               owner starts with "cue." and the inspector is
+//                               visible, docks the panel near the anchor rect
+//                               inside the inspector viewport.
+//
+// ─── Settings Modal ──────────────────────────────────────────────────────────
+//   settingsModalRect()       — computes the settings modal bounding rect,
+//                               scaling to fit the window with tab-specific
+//                               minimum/maximum dimensions (video tab is widest,
+//                               network tab is tallest).
+// ═══════════════════════════════════════════════════════════════════════════════
 
   void handleRightClick(int x, int y) {
     // Right-click on trim handles to clear them

@@ -1,5 +1,58 @@
 # DEVNOTES
 
+## Output Backend Route Architecture (v0.76.11)
+- Output destinations use a catalog → route-plan → runtime-route
+  pipeline. `OutputBackendCatalog` (output_backend.cpp) reports all
+  backends with platform availability at compile time via feature
+  gates (`DECKBOY_HAS_NDI_SDK`, `DECKBOY_HAS_DECKLINK`,
+  `DECKBOY_HAS_SPOUT`). `planOutputBackendRoute()` converts an
+  `OutputBackendRouteRequest` (built from per-output `OutputTarget`
+  enable flags) into an ordered list of steps, each annotated with
+  whether the backend is supported on this build.
+- At runtime, `resolveOutputBackendRuntimeRoute()` in
+  `app_output_mgmt.ipp` maps the plan into `*Supported` bools on an
+  `OutputBackendRuntimeRoute` struct. The render loop in
+  `app_render_output.ipp` computes `*RouteActive` (enabled AND
+  supported) and gates send/shutdown calls accordingly.
+- Adding a new output backend: add enum to `OutputRouteKind`, add
+  catalog entry (with platform `#if` guards), add enable flag to
+  `OutputBackendRouteRequest` and `OutputTarget`, add case to
+  `planOutputBackendRoute()` and `resolveOutputBackendRuntimeRoute()`,
+  implement send/shutdown functions in `app_output_mgmt.ipp`, add
+  `*RouteActive` check in render loop, add settings UI, add
+  serialization fields.
+
+## Spout Integration Notes (v0.76.11)
+- Spout2 is Windows-only interprocess texture sharing (analogous to
+  Syphon on macOS). The `siphon_spout.hpp` interface is shared; the
+  `.cpp` has `#if defined(DECKBOY_HAS_SPOUT)` for the Windows
+  implementation and a stub for other platforms.
+- SpoutLibrary provides a COM-like interface via `GetSpout()` factory.
+  Lifecycle: `GetSpout()` → `SetSenderName()` → `SendImage(pixels,
+  w, h, GL_BGRA, true)` per frame → `ReleaseSender()` → `Release()`.
+  `SendImage()` accepts raw CPU pixel buffers and handles
+  DirectX/OpenGL internally — no GL context from the caller.
+- The sender name is user-configurable via settings. Changing the
+  name requires `ReleaseSender()` then `SetSenderName()` to re-create
+  the shared texture with the new identity.
+- Installed via vcpkg (`spout2:x64-windows`). CMake auto-detects via
+  `find_package(Spout2 CONFIG QUIET)` and sets `DECKBOY_HAS_SPOUT`.
+  Falls back to manual `find_path` if `ENABLE_SPOUT` is explicitly
+  set.
+
+## MSVC Block-Nesting Limit and handleSettingsClick (v0.76.11)
+- MSVC has a hard limit on block nesting depth (C1061, ~128 levels).
+  The settings click handler's if-else-if chain can exceed this when
+  enough handlers accumulate. The function is split across three
+  methods: `handleSettingsClick` → `handleSettingsClickPart2` →
+  `handleSettingsClickPart3`. Each ends with
+  `else { handleSettingsClickPartN+1(sb); }` to chain to the next.
+- When adding new settings handlers, add them to the last Part
+  function. If the build starts failing with C2628 / C2065 cascades
+  (members reported as undeclared), split again by ending the current
+  chain with an `else { handleSettingsClickPartN(sb); }` and starting
+  a new function.
+
 ## Timeline Loading Animations (v0.76.10)
 - The timeline has two lanes — video (`progressBarRect_`) and audio
   (`audioLaneRect`) — each of which can be waiting on background work

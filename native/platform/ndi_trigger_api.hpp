@@ -3,10 +3,38 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+// ============================================================================
+// ndi_trigger_api.hpp — NDI receive + find runtime (dynamic library loader).
+//
+// Complements ndi_api.hpp (which handles SEND). This file loads the NDI SDK
+// symbols needed to DISCOVER sources on the network and RECEIVE metadata
+// from them. Used for:
+//   - NDI source discovery: listing available NDI senders for NdiSource cues
+//   - NDI tally: receiving tally/metadata from NDI senders for status display
+//   - NDI trigger: receiving metadata triggers from external control systems
+//
+// The same NDI runtime library is used (Processing.NDI.Lib.x64.dll / libndi.so),
+// but different symbols are loaded:
+//   NDIlib_find_create_v2/destroy:       discover NDI sources on the network
+//   NDIlib_find_wait_for_sources:         block until source list changes
+//   NDIlib_find_get_current_sources:      get the current source list
+//   NDIlib_recv_create_v3/destroy:        create a receiver for a source
+//   NDIlib_recv_connect:                  connect to a specific source
+//   NDIlib_recv_capture_v3:               capture video/audio/metadata frames
+//   NDIlib_recv_free_metadata:            free a received metadata frame
+//
+// Runtime structs (NdiTriggerRuntimeSource, NdiTriggerRuntimeMetadataFrame)
+// mirror the NDI SDK structs but avoid requiring the NDI SDK headers at
+// compile time — this file works without DECKBOY_HAS_NDI_SDK.
+//
+// Available on all platforms (Windows, macOS, Linux).
+//
+// Used by: main.cpp NDI discovery thread and tally receive loop.
+// ============================================================================
+
 #pragma once
 
-// NdiTriggerApi is available on all platforms (Windows stub removed in favour of full recv support).
-
+#include <atomic>
 #include <cstdint>
 #include <cstdlib>
 #include <string>
@@ -14,21 +42,25 @@
 
 #include "dynamic_library.hpp"
 
+// Mirror of NDIlib_source_t — avoids requiring NDI SDK headers.
 struct NdiTriggerRuntimeSource {
-  const char* p_ndi_name = nullptr;
-  const char* p_url_address = nullptr;
+  const char* p_ndi_name = nullptr;     // human-readable source name (e.g. "MACHINE (Source)")
+  const char* p_url_address = nullptr;  // URL for direct connection
 };
 
+// Mirror of NDIlib_metadata_frame_t — avoids requiring NDI SDK headers.
 struct NdiTriggerRuntimeMetadataFrame {
-  int length = 0;
-  char* p_data = nullptr;
-  std::int64_t timecode = 0;
+  int length = 0;               // length of p_data in bytes
+  char* p_data = nullptr;       // XML metadata string
+  std::int64_t timecode = 0;    // timecode of the metadata frame
 };
 
+// Dynamic loader for NDI receive/find symbols.
+// Same pattern as NdiApi: call ensureLoaded(), use function pointers, call shutdown().
 struct NdiTriggerApi {
   deckboy::platform::DynamicLibrary lib_;
-  bool loaded = false;
-  bool attempted = false;
+  std::atomic<bool> loaded {false};
+  std::atomic<bool> attempted {false};
   std::string loadError = "not initialized";
   bool (*initializeFn)(void) = nullptr;
   void (*destroyFn)(void) = nullptr;

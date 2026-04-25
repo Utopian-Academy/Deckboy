@@ -1,8 +1,18 @@
-/*
- * SPDX-License-Identifier: GPL-3.0-or-later
- * Deckboy_0.01 - Render Primitives Implementation
- * Copyright 2025 the owner
- */
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Deckboy Contributors
+// This file is part of Deckboy, a cue deck for live events.
+// See LICENSE for details.
+
+// ============================================================================
+// primitives.cpp — SDL2 drawing primitives implementation.
+//
+// Implements the stateless Primitives class for basic 2D rendering operations.
+// The drawFramedPanel() bevel effect auto-detects raised vs. sunken style
+// by comparing the luminance of the body and inner border colors.
+//
+// Header: primitives.hpp
+// Used by: waveform_renderer.cpp, app_render_*.ipp, main.cpp UI drawing.
+// ============================================================================
 
 #include "primitives.hpp"
 
@@ -10,7 +20,7 @@
 
 namespace deckboy::render {
 
-// Inline helper: inset a rectangle by N pixels
+// Helper: shrink a rectangle by N pixels on all sides.
 static SDL_Rect insetRect(const SDL_Rect& rect, int inset) {
   return SDL_Rect{
     rect.x + inset,
@@ -32,18 +42,24 @@ void Primitives::strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Co
   SDL_RenderDrawRect(renderer, &rect);
 }
 
+// Draws a panel with a 3D bevel effect:
+//   1. Fill the body rectangle with the body color
+//   2. Draw a 1px outer border
+//   3. Inset by 2px and draw highlight (top/left) + shadow (bottom/right)
+// The bevel direction is auto-detected from relative luminance.
 void Primitives::drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect,
                                   SDL_Color body, SDL_Color border, SDL_Color innerBorder) {
   fillRect(renderer, rect, body);
   strokeRect(renderer, rect, border);
   SDL_Rect inner = insetRect(rect, 2);
   if (inner.w > 2 && inner.h > 2) {
-    // Bevel: innerBorder brighter than body → raised, darker → inset
+    // Compare luminance to determine bevel direction:
+    // brighter innerBorder → raised panel, darker → sunken panel
     int bodyLuma = body.r + body.g + body.b;
     int innerLuma = innerBorder.r + innerBorder.g + innerBorder.b;
     bool raised = (innerLuma >= bodyLuma);
-    SDL_Color hi = raised ? innerBorder : body;
-    SDL_Color lo = {
+    SDL_Color hi = raised ? innerBorder : body;  // Highlight (top-left edges)
+    SDL_Color lo = {  // Shadow (bottom-right edges, darkened by 1/3)
       static_cast<Uint8>(std::min(255, (raised ? body.r : innerBorder.r) * 2 / 3)),
       static_cast<Uint8>(std::min(255, (raised ? body.g : innerBorder.g) * 2 / 3)),
       static_cast<Uint8>(std::min(255, (raised ? body.b : innerBorder.b) * 2 / 3)),

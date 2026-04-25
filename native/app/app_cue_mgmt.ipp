@@ -1,5 +1,34 @@
+// ============================================================================
+// app_cue_mgmt.ipp — Cue list management operations.
+//
+// Implements operations for managing the cue list:
+//
+//   Cue properties:
+//     toggleShuffle()          — toggle deck shuffle mode
+//     toggleSelectedLoop()     — toggle loop on selected cues
+//     setSelectedCueEndAction() — set what happens when a cue finishes
+//
+//   Cue list operations:
+//     addCue() / addCueAtIndex()   — add new cues (video, image, pattern, etc.)
+//     deleteCue()                   — remove cue from the list
+//     duplicateCue()                — clone the selected cue
+//     moveCueUp() / moveCueDown()   — reorder cues in the list
+//     renameCue()                   — rename via inline text editor
+//
+//   Import/export:
+//     importWithPicker()        — open file picker to import media
+//     addBrowserCueFromPrompt() — create a Browser cue from URL input
+//     addKawaiiPatternCue()     — create a Pattern cue with random type
+//     openSourceTypeMenu()      — open the source type selection menu
+//
+//   Multi-selection:
+//     forEachFocusedSelectedCueMutable() — iterate over selected cues
+//
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
+// ============================================================================
+
+  // Toggle shuffle mode on the focused deck.
   void toggleShuffle() {
     Deck& deck = focusedDeckMutable();
     deck.shuffle = !deck.shuffle;
