@@ -1614,6 +1614,11 @@
     cue.formatName = "generated";
     Deck& deck = focusedDeckMutable();
     applyDeckDefaultsToCue(cue, deck);
+    // Engineering patterns should hold by default instead of inheriting
+    // still-duration auto-advance from playlist defaults.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.audioEnabled = false;
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
@@ -2148,4 +2153,3 @@
   // -----------------------------------------------------------------------
   // Shared inspector draw helpers (used by both docked and floating paths)
   // -----------------------------------------------------------------------
-
