@@ -266,7 +266,6 @@
       return;
     }
     const Cue& cue = deck.cues[deck.selectedIndex];
-
     // Overlay cues go to the overlay slot, not the main slot.
     if (cue.kind == CueKind::LowerThird || cue.kind == CueKind::Pip) {
       activateOverlayCueIndex(deck, deck.selectedIndex);
@@ -275,6 +274,13 @@
       playUiSound(UiSoundEffect::Take);
       markProjectDirty();
       return;
+    }
+
+    bool cueProducesAudio = (cue.kind == CueKind::Video || cue.kind == CueKind::Audio)
+                         && cue.hasAudio
+                         && cue.audioEnabled;
+    if (!cueProducesAudio) {
+      clearVuMeterState(false);
     }
 
     deck.activeIndex = deck.selectedIndex;
