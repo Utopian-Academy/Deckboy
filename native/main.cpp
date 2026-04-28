@@ -2852,6 +2852,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << outputTarget.aoiBottom
       << '\t' << (outputTarget.spoutEnabled ? 1 : 0)
       << '\t' << escapeField(outputTarget.spoutSenderName)
+      << '\t' << escapeField(outputTarget.streamKey)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3184,6 +3185,9 @@ Project loadProject(const fs::path& projectFile) {
                 if (fields.size() >= 34) {
                   outputTarget.spoutEnabled = safeBool(fields, 32, false);
                   outputTarget.spoutSenderName = safeString(fields, 33);
+                  if (fields.size() >= 35) {
+                    outputTarget.streamKey = safeString(fields, 34);
+                  }
                 }
               }
             }
@@ -4700,6 +4704,9 @@ class App {
       fs::path("header") / "header_default.png",
       fs::path("header") / "header_default@1x.png"
     });
+    uiAboutLogo_.path = pick({
+      fs::path("header") / "about_logo.png"
+    });
     uiSplashArt_.path = pick({
       fs::path("splash") / "deckboy_splash_v074.png",
       fs::path("splash") / "deckboy_splash_deckgirl.png",
@@ -4760,6 +4767,7 @@ class App {
       return;
     }
     ensureUiImageLoaded(uiHeaderArt_);
+    ensureUiImageLoaded(uiAboutLogo_);
     ensureUiImageLoaded(uiSplashArt_);
     ensureUiImageLoaded(uiMonitorFrameArt_);
     ensureUiImageLoaded(uiOutputChipIdleArt_);
@@ -4793,6 +4801,7 @@ class App {
 
   void releaseUiAssets() {
     releaseUiImage(uiHeaderArt_);
+    releaseUiImage(uiAboutLogo_);
     releaseUiImage(uiSplashArt_);
     releaseUiImage(uiMonitorFrameArt_);
     releaseUiImage(uiOutputChipIdleArt_);
@@ -5003,6 +5012,8 @@ class App {
   static constexpr int kSettingsActionSpoutToggle = 632;
   static constexpr int kSettingsActionSpoutNamePrompt = 633;
   static constexpr int kSettingsActionAllowRemoteToggle = 634;
+  static constexpr int kSettingsActionStreamKeyPrompt = 635;
+  static constexpr int kSettingsActionVideoSubTabBase = 636; // 636–639 for 4 sub-tabs
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -5154,6 +5165,7 @@ class App {
   fs::path uiPackRoot_;
   bool uiPackAvailable_ = false;
   UiImageAsset uiHeaderArt_;
+  UiImageAsset uiAboutLogo_;
   UiImageAsset uiSplashArt_;
   UiImageAsset uiMonitorFrameArt_;
   UiImageAsset uiOutputChipIdleArt_;
@@ -5208,6 +5220,9 @@ class App {
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
   int cueSettingsScrollMax_ = 0;
+  SDL_Rect settingsVideoViewport_ {};
+  int settingsVideoScroll_ = 0;
+  int settingsVideoScrollMax_ = 0;
   bool cueSectionPlaybackOpen_ = true;
   bool cueSectionMetadataOpen_ = true;
   bool cueSectionGeometryOpen_ = true;
@@ -5390,6 +5405,7 @@ class App {
   // Settings modal
   bool settingsOpen_ = false;
   int settingsTab_ = 0; // 0=System 1=Audio 2=Network 3=Video Outputs 4=About
+  int settingsVideoSubTab_ = 0; // 0=Display 1=Processing 2=Backends 3=Streaming
   bool videoOutputsAdvanced_ = false;
   bool routingMoveMode_ = true; // true=single-output move, false=add/remove fan-out
   SDL_Rect settingsCloseBtn_ {};
