@@ -1078,6 +1078,11 @@
     if (url.empty()) {
       url = defaultOutputStreamUrl(protocol, outputIndex);
     }
+    std::string key = trim(output.streamKey);
+    if (!key.empty() && (protocol == "rtmp" || protocol == "rtmps")) {
+      if (url.back() != '/') url += '/';
+      url += key;
+    }
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     double fps = outputStreamFps(fpsHint);
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
@@ -1104,6 +1109,11 @@
     std::string url = trim(output.streamUrl);
     if (url.empty()) {
       url = defaultOutputStreamUrl(protocol, outputIndex);
+    }
+    std::string key = trim(output.streamKey);
+    if (!key.empty() && (protocol == "rtmp" || protocol == "rtmps")) {
+      if (url.back() != '/') url += '/';
+      url += key;
     }
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);

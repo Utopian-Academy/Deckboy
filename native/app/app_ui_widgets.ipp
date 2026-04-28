@@ -970,9 +970,9 @@
     bool networkTab = settingsTab_ == 2;
     bool primaryOpsTab = settingsTab_ == 0 || settingsTab_ == 1;
     int margin = videoTab ? 10 : 20;
-    int minW = videoTab ? 1160 : (networkTab ? 980 : (primaryOpsTab ? 900 : 760));
-    int minH = videoTab ? 670 : (networkTab ? 700 : (primaryOpsTab ? 650 : 520));
-    int maxW = videoTab ? 1560 : (networkTab ? 1320 : 1140);
+    int minW = videoTab ? 820 : (networkTab ? 980 : (primaryOpsTab ? 900 : 760));
+    int minH = videoTab ? 580 : (networkTab ? 700 : (primaryOpsTab ? 650 : 520));
+    int maxW = videoTab ? 1200 : (networkTab ? 1320 : 1140);
     int maxH = videoTab ? 940 : (networkTab ? 860 : 780);
     int modalW = std::clamp(width - margin * 2, minW, maxW);
     int modalH = std::clamp(height - margin * 2, minH, maxH);
