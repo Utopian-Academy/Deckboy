@@ -533,8 +533,8 @@
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
       project.decks = {deck};
       project.outputs = {
-        OutputTarget {"Program Out", 0, 1, true, "window", -1, true, "srt", "srt://127.0.0.1:9100?mode=caller", 7200},
-        OutputTarget {"Stage Left Stream", 0, 2, true, "stream", 0, true, "rtmp", "rtmp://127.0.0.1/live/stage-left", 4200}
+        OutputTarget {"Program Out", 0, 1, true, "window", -1, true, "srt", "srt://127.0.0.1:9100?mode=caller", "", 7200},
+        OutputTarget {"Stage Left Stream", 0, 2, true, "stream", 0, true, "rtmp", "rtmp://127.0.0.1/live", "stage-left", 4200}
       };
       project.outputs[0].ndiEnabled = true;
       project.outputs[0].ndiSourceName = "Program Fill";
@@ -712,7 +712,7 @@
       legacyDeck.ndiKeyEnabled = true;
       legacyDeck.ndiKeySourceName = "Legacy Key";
       legacy.decks = {legacyDeck};
-      legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, false, "window", -1, false, "srt", "", 6000}};
+      legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, false, "window", -1, false, "srt", "", "", 6000}};
       normalizeProject(legacy);
       expect(!legacy.outputs.empty()
                && legacy.outputs[0].ndiEnabled

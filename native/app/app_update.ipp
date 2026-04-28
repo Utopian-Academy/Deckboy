@@ -111,6 +111,15 @@
             if (handleDropdownMouseWheel(event.wheel.y)) {
               break;
             }
+            if (settingsOpen_ && settingsTab_ == 3 &&
+                settingsVideoViewport_.w > 0 && settingsVideoViewport_.h > 0 &&
+                pointInRect(mouseX_, mouseY_, settingsVideoViewport_) &&
+                settingsVideoScrollMax_ > 0) {
+              settingsVideoScroll_ = std::clamp(
+                settingsVideoScroll_ - event.wheel.y * 36,
+                0, settingsVideoScrollMax_);
+              break;
+            }
             if (cueSettingsViewportRect_.w > 0 && cueSettingsViewportRect_.h > 0 &&
                 pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
                 cueSettingsScrollMax_ > 0) {

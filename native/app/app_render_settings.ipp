@@ -85,11 +85,11 @@
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
         Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
                                     pal.deep, pal.light);
-        drawText(controlRenderer_, fontBase_, title, ink, rect.x + 8, rect.y + 6);
+        drawTextSafe(controlRenderer_, fontBase_,
+                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
         if (!subtitle.empty()) {
-          drawText(controlRenderer_, fontSmall_,
-                   ellipsizeToPixelWidth(fontSmall_, subtitle, rect.w - 16),
-                   soft, rect.x + 8, rect.y + 28);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
         }
       };
 
@@ -102,7 +102,7 @@
       constexpr int kCardGap = 10;
 
       int leftY = leftCol.y;
-      SDL_Rect appearanceRect {leftCol.x, leftY, leftCol.w, 144};
+      SDL_Rect appearanceRect {leftCol.x, leftY, leftCol.w, 124};
       leftY += appearanceRect.h + kCardGap;
       SDL_Rect safetyRect {leftCol.x, leftY, leftCol.w, 152};
       leftY += safetyRect.h + kCardGap;
@@ -118,22 +118,14 @@
       SDL_Rect themeBtn {appearanceRect.x + 8, appearanceRect.y + 54, appearanceRect.w - 16, 30};
       drawUIDropdown(themeBtn, "Theme", themeName, "settings.theme");
       settingsBtns_.push_back({themeBtn, kSettingsActionThemeDropdown, "theme"});
-      int appearanceToggleW = std::max(100, (appearanceRect.w - 24) / 2);
-      SDL_Rect sfxBtn {appearanceRect.x + 8, appearanceRect.y + 92, appearanceToggleW, 24};
-      SDL_Rect animBtn {sfxBtn.x + appearanceToggleW + 8, sfxBtn.y, appearanceRect.w - 16 - appearanceToggleW - 8, 24};
+      SDL_Rect sfxBtn {appearanceRect.x + 8, appearanceRect.y + 92, appearanceRect.w - 16, 24};
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
-      drawUIPanel(animBtn, pal.light,
-                  pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, animBtn, "UI MOTION", pal.deep);
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
-      const int appearanceFootY = sfxBtn.y + sfxBtn.h + 8;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "Theme switching lives here; UI motion stays on; audio routing lives in Audio.", appearanceRect.w - 16),
-               soft, appearanceRect.x + 8, appearanceFootY);
 
       drawCard(safetyRect, "SAFETY / TIMECODE", "Emergency fade and sync behavior");
       const int panicLabelY = safetyRect.y + 56;
-      drawText(controlRenderer_, fontSmall_, "panic fade", soft, safetyRect.x + 8, panicLabelY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{safetyRect.x + 8, panicLabelY, safetyRect.w - 16, 16}, "panic fade", soft);
       const int panicRowY = rowYBelowLabel(panicLabelY, fontSmall_, 4);
       SDL_Rect panicFadeDecBtn {safetyRect.x + 8, panicRowY, 26, 22};
       SDL_Rect panicFadeValRect {panicFadeDecBtn.x + 30, panicFadeDecBtn.y, 72, 22};
@@ -189,7 +181,8 @@
       settingsBtns_.push_back({jumpTransBtn, 204, "jump_transition"});
 
       const int profileLabelY = flowRect.y + 94;
-      drawText(controlRenderer_, fontSmall_, "panic profile", soft, flowRect.x + 8, profileLabelY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{flowRect.x + 8, profileLabelY, flowRect.w - 16, 16}, "panic profile", soft);
       const int profileRowY = rowYBelowLabel(profileLabelY, fontSmall_, 4);
       SDL_Rect panicPrevBtn {flowRect.x + 8, profileRowY, 26, 24};
       SDL_Rect panicNextBtn {flowRect.x + flowRect.w - 34, profileRowY, 26, 24};
@@ -216,16 +209,18 @@
 
       drawCard(cueToolsRect, "CUE TOOLS", "Find from the playlist, not from a modal");
       const int cueToolsLine1Y = cueToolsRect.y + 54;
-      drawText(controlRenderer_, fontSmall_, "Use Ctrl+F or type a cue id/number to search.", soft, cueToolsRect.x + 8, cueToolsLine1Y);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{cueToolsRect.x + 8, cueToolsLine1Y, cueToolsRect.w - 16, 16},
+                   "Use Ctrl+F or type a cue id/number to search.", soft);
       const int cueToolsLine2Y = rowYBelowLabel(cueToolsLine1Y, fontSmall_, 0);
       std::string findStatus = "find: none";
       if (!lastCueFindToken_.empty() && !lastCueFindMatches_.empty()) {
         int cursor = std::clamp(lastCueFindCursor_, 0, static_cast<int>(lastCueFindMatches_.size()) - 1);
         findStatus = "find \"" + lastCueFindToken_ + "\" " + std::to_string(cursor + 1) + "/" + std::to_string(lastCueFindMatches_.size());
       }
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, findStatus, cueToolsRect.w - 16),
-               soft, cueToolsRect.x + 8, cueToolsLine2Y);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{cueToolsRect.x + 8, cueToolsLine2Y, cueToolsRect.w - 16, 16},
+                   findStatus, soft);
       const int renumberY = rowYBelowLabel(cueToolsLine2Y, fontSmall_, 6);
       SDL_Rect renumberBtn {cueToolsRect.x + 8, renumberY, cueToolsRect.w - 16, 24};
       Primitives::drawFramedPanel(controlRenderer_, renumberBtn, pal.mid,
@@ -246,9 +241,9 @@
         + "  fade " + formatSeconds(prefDeck.playlistDefaultCueFadeSeconds)
         + "  still " + formatSeconds(prefDeck.playlistDefaultStillDurationSeconds);
       const int prefSummaryY = prefsEditBtn.y + prefsEditBtn.h + 6;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, prefSummary, prefsRect.w - 16),
-               soft, prefsRect.x + 8, prefSummaryY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{prefsRect.x + 8, prefSummaryY, prefsRect.w - 16, 16},
+                   prefSummary, soft);
 
       int toggleGap = 6;
       int toggleW = std::max(120, (prefsRect.w - 16 - toggleGap) / 2);
@@ -289,11 +284,11 @@
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
         Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
                                     pal.deep, pal.light);
-        drawText(controlRenderer_, fontBase_, title, ink, rect.x + 8, rect.y + 6);
+        drawTextSafe(controlRenderer_, fontBase_,
+                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
         if (!subtitle.empty()) {
-          drawText(controlRenderer_, fontSmall_,
-                   ellipsizeToPixelWidth(fontSmall_, subtitle, rect.w - 16),
-                   soft, rect.x + 8, rect.y + 28);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
         }
       };
       auto drawPillToggle = [&](const SDL_Rect& rect, bool on, const std::string& onLabel, const std::string& offLabel) {
@@ -323,9 +318,9 @@
       drawCenteredText(controlRenderer_, fontSmall_, bufLabel, ink, bufBtn);
       settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
       const int audioFootY = bufBtn.y + bufBtn.h + 6;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, "Smaller buffer = lower latency; larger = more stable.", audioRect.w - 16),
-               soft, audioRect.x + 8, audioFootY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{audioRect.x + 8, audioFootY, audioRect.w - 16, 16},
+                   "Smaller buffer = lower latency; larger = more stable.", soft);
 
       drawCard(midiRect, "MIDI CONTROL", "Optional external transport and cue control");
       SDL_Rect midiEnBtn {midiRect.x + 8, midiRect.y + 54, 120, 26};
@@ -340,20 +335,28 @@
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
 
       int mapY = midiEnBtn.y + midiEnBtn.h + 10;
-      drawText(controlRenderer_, fontSmall_, "Mappings", ink, midiRect.x + 8, mapY);
-      drawText(controlRenderer_, fontSmall_, "Note 0-127 -> trigger cue index in the focused playlist", soft, midiRect.x + 8, mapY + smallLineH);
-      drawText(controlRenderer_, fontSmall_, "CC 7 -> master volume   |   CC 20 -> playback speed", soft, midiRect.x + 8, mapY + smallLineH * 2);
-      drawText(controlRenderer_, fontSmall_, "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft, midiRect.x + 8, mapY + smallLineH * 3);
+      int midiTextW = midiRect.w - 16;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{midiRect.x + 8, mapY, midiTextW, 16}, "Mappings", ink);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{midiRect.x + 8, mapY + smallLineH, midiTextW, 16},
+                   "Note 0-127 -> trigger cue index in the focused playlist", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{midiRect.x + 8, mapY + smallLineH * 2, midiTextW, 16},
+                   "CC 7 -> master volume   |   CC 20 -> playback speed", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{midiRect.x + 8, mapY + smallLineH * 3, midiTextW, 16},
+                   "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft);
 
     } else if (settingsTab_ == 2) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
         Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
                                     pal.deep, pal.light);
-        drawText(controlRenderer_, fontBase_, title, ink, rect.x + 8, rect.y + 6);
+        drawTextSafe(controlRenderer_, fontBase_,
+                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
         if (!subtitle.empty()) {
-          drawText(controlRenderer_, fontSmall_,
-                   ellipsizeToPixelWidth(fontSmall_, subtitle, rect.w - 16),
-                   soft, rect.x + 8, rect.y + 28);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
         }
       };
       auto drawPill = [&](const SDL_Rect& rect, bool active, const std::string& onLabel, const std::string& offLabel, int action) {
@@ -384,29 +387,34 @@
 
       drawCard(remoteRect, "REMOTE CONTROL", "Companion / OSC ingress and HyperDeck emulation");
       const int remoteLabelY = remoteRect.y + 54;
-      drawText(controlRenderer_, fontSmall_, "Companion / OSC port", soft, remoteRect.x + 8, remoteLabelY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{remoteRect.x + 8, remoteLabelY, remoteRect.w - 16, 16},
+                   "Companion / OSC port", soft);
       const int remotePortY = rowYBelowLabel(remoteLabelY, fontSmall_, 2);
       SDL_Rect portBtn {remoteRect.x + 8, remotePortY, 176, 26};
       Primitives::drawFramedPanel(controlRenderer_, portBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Port " + std::to_string(companionPort_), ink, portBtn);
       settingsBtns_.push_back({portBtn, 220, "osc_port"});
-      drawText(controlRenderer_, fontSmall_, "HyperDeck emulation stays on at TCP 9992.", soft,
-               remoteRect.x + 196, portBtn.y + (portBtn.h - textLineHeight(fontSmall_)) / 2);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{remoteRect.x + 196, portBtn.y + (portBtn.h - textLineHeight(fontSmall_)) / 2,
+                            remoteRect.x + remoteRect.w - 8 - (remoteRect.x + 196), 16},
+                   "HyperDeck emulation stays on at TCP 9992.", soft);
       const int remoteToggleY = portBtn.y + portBtn.h + 6;
       SDL_Rect remoteToggle {remoteRect.x + 8, remoteToggleY, 176, 22};
       drawPill(remoteToggle, project_.allowRemoteNetwork, "REMOTE ON", "LOCAL ONLY", kSettingsActionAllowRemoteToggle);
-      drawText(controlRenderer_, fontSmall_,
-               project_.allowRemoteNetwork ? "Listening on all interfaces" : "Listening on localhost (127.0.0.1)",
-               soft, remoteToggle.x + remoteToggle.w + 8,
-               remoteToggle.y + (remoteToggle.h - textLineHeight(fontSmall_)) / 2);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{remoteToggle.x + remoteToggle.w + 8,
+                            remoteToggle.y + (remoteToggle.h - textLineHeight(fontSmall_)) / 2,
+                            remoteRect.x + remoteRect.w - 8 - (remoteToggle.x + remoteToggle.w + 8), 16},
+                   project_.allowRemoteNetwork ? "Listening on all interfaces" : "Listening on localhost (127.0.0.1)", soft);
 
       drawCard(oscRect, "OSC QUERY / FEEDBACK", "Discovery and mirrored state");
       std::string queryStatus = project_.oscQueryEnabled ? (oscQueryReady_ ? "running" : "error") : "off";
       const int oscStatusY = oscRect.y + 54;
-      drawText(controlRenderer_, fontSmall_,
-               "query status: " + queryStatus + "  http " + std::to_string(project_.oscQueryPort),
-               soft, oscRect.x + 8, oscStatusY);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{oscRect.x + 8, oscStatusY, oscRect.w - 16, 16},
+                   "query status: " + queryStatus + "  http " + std::to_string(project_.oscQueryPort), soft);
       const int oscQueryRowY = rowYBelowLabel(oscStatusY, fontSmall_, 4);
       SDL_Rect queryToggle {oscRect.x + 8, oscQueryRowY, 144, 22};
       SDL_Rect queryPortBtn {queryToggle.x + queryToggle.w + 8, queryToggle.y, 164, 22};
@@ -428,23 +436,28 @@
 
       drawCard(notesRect, "DISCOVERY / NOTES", "Network-facing runtime notes");
       const int notesLineY = notesRect.y + 54;
-      drawText(controlRenderer_, fontSmall_, "OSC subscribe: send /deckboy/subscribe from your controller.", soft,
-               notesRect.x + 8, notesLineY);
-      drawText(controlRenderer_, fontSmall_, "NDI transport is configured per output in Video Outputs.", soft,
-               notesRect.x + 8, notesLineY + netLineH);
-      drawText(controlRenderer_, fontSmall_, "NMC mode / host / port are runtime-configurable for sync work.", soft,
-               notesRect.x + 8, notesLineY + netLineH * 2);
+      int notesTextW = notesRect.w - 16;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{notesRect.x + 8, notesLineY, notesTextW, 16},
+                   "OSC subscribe: send /deckboy/subscribe from your controller.", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{notesRect.x + 8, notesLineY + netLineH, notesTextW, 16},
+                   "NDI transport is configured per output in Video Outputs.", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{notesRect.x + 8, notesLineY + netLineH * 2, notesTextW, 16},
+                   "NMC mode / host / port are runtime-configurable for sync work.", soft);
 
       drawCard(integrationRect, "INTEGRATION ADAPTERS", "ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL");
       IntegrationBackendRuntimeRoute integrationRoute = resolveIntegrationBackendRuntimeRoute();
       const int integrationLineY = integrationRect.y + 54;
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, integrationRoute.summary, integrationRect.w - 16),
-               soft, integrationRect.x + 8, integrationLineY);
+      int integTextW = integrationRect.w - 16;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{integrationRect.x + 8, integrationLineY, integTextW, 16},
+                   integrationRoute.summary, soft);
       int atemBridgePortDisplay = atemBridgeListenPort_;
-      drawText(controlRenderer_, fontSmall_,
-               "atem " + std::to_string(atemBridgePortDisplay) + "  artnet " + std::to_string(project_.artNetPort),
-               soft, integrationRect.x + 8, integrationLineY + netLineH);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{integrationRect.x + 8, integrationLineY + netLineH, integTextW, 16},
+                   "atem " + std::to_string(atemBridgePortDisplay) + "  artnet " + std::to_string(project_.artNetPort), soft);
 
       int pillGap = 8;
       int pillW = std::max(120, (integrationRect.w - 16 - pillGap) / 2);
@@ -540,19 +553,14 @@
       };
 
       // ═══════════════════════════════════════════════════════════════
-      // VIDEO OUTPUTS — Two-column layout
-      // Left: Display, Connected Displays, Edge Blend, Canvas, Transition
-      // Right: NDI, Streaming (full height for URL)
+      // VIDEO OUTPUTS — Sub-tabbed layout
       // ═══════════════════════════════════════════════════════════════
 
-      // Header: Output Selector + Enable Toggle
-      int headerBtnW = std::min(260, (content.w - 36) / 2 - 8);
-      SDL_Rect outSelectRect {cx, cy, headerBtnW, 32};
-      drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
-      settingsBtns_.push_back({outSelectRect, 251, "cycle_output"});
-      SDL_Rect enableBtn {cx + headerBtnW + 12, cy, headerBtnW, 32};
-      drawActionBtn(enableBtn, outputTarget.enabled ? "OUTPUT ON" : "OUTPUT OFF", kSettingsActionOutputToggle, outputTarget.enabled);
-      cy += 40;
+      int availW = content.w - 24;
+      constexpr int kRowH = 30;
+      constexpr int kLabelH = 16;
+      constexpr int kRowGap = 5;
+      constexpr int kSectionGap = 14;
 
       // Section frame helper
       auto drawSectionFrame = [&](const SDL_Rect& rect, const std::string& title) {
@@ -563,449 +571,512 @@
         return SDL_Rect {rect.x + 8, rect.y + 32, rect.w - 16, rect.h - 40};
       };
 
-      // Column geometry
-      int colGap = 10;
-      int availW = content.w - 24;
-      int leftW = (availW - colGap) * 55 / 100;
-      int rightW = availW - colGap - leftW;
-      int leftX = cx;
-      int rightX = cx + leftW + colGap;
-      int availH = content.y + content.h - cy - 8;
+      // ─── Header: Output Selector + Enable Toggle ───
+      int headerBtnW = std::min(260, (availW - 12) / 2);
+      SDL_Rect outSelectRect {cx, cy, headerBtnW, 32};
+      drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
+      settingsBtns_.push_back({outSelectRect, 251, "cycle_output"});
+      SDL_Rect enableBtn {cx + headerBtnW + 12, cy, headerBtnW, 32};
+      drawActionBtn(enableBtn, outputTarget.enabled ? "OUTPUT ON" : "OUTPUT OFF", kSettingsActionOutputToggle, outputTarget.enabled);
+      cy += 38;
 
-      // ─── LEFT COLUMN ───
-      int ly = cy;
-      int displayCount = SDL_GetNumVideoDisplays();
-      constexpr int kRowH = 30;   // standard row/button height
-      constexpr int kLabelH = 16; // label row height
-      constexpr int kRowGap = 5;  // gap between rows in VerticalLayout
-
-      // Display & Raster — fullscreen + orientation as full-width rows
-      int dispSectionH = 190;
-      SDL_Rect displaySection {leftX, ly, leftW, dispSectionH};
-      SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
-      VerticalLayout dLayout(dBody, kRowGap);
-
-      std::string displayLabel = displayCount <= 0 ? "None" : ("Display " + std::to_string(outputDisplayIndex(focusedOutputIndex) + 1));
-      if (displayCount > 0) {
-        const char* dName = SDL_GetDisplayName(outputDisplayIndex(focusedOutputIndex));
-        if (dName && *dName) displayLabel += ": " + std::string(dName);
-      }
-      SDL_Rect dBtn = dLayout.takeFixed(kRowH);
-      drawUIDropdown(dBtn, "Hardware Display", displayLabel, "settings.output_display");
-      settingsBtns_.push_back({dBtn, kSettingsActionOutputDisplayDropdown, "output_display"});
-
-      SDL_Rect rBtn = dLayout.takeFixed(kRowH);
-      std::string resLabel = std::to_string(targetW) + "x" + std::to_string(targetH) + (project_.outputFollowDisplay ? " (Native)" : " (Fixed)");
-      drawUIDropdown(rBtn, "Resolution", resLabel, "settings.output_raster");
-      settingsBtns_.push_back({rBtn, 237, "custom_raster"});
-
-      // Fullscreen and Orientation as full-width separate rows
-      SDL_Rect fsBtn = dLayout.takeFixed(kRowH);
-      drawActionBtn(fsBtn, "Toggle Fullscreen", 236);
-      SDL_Rect orientBtn = dLayout.takeFixed(kRowH);
-      std::string orientLabel = outputOrientation == 0 ? "0\xc2\xb0 (Normal)"
-                              : std::to_string(outputOrientation) + "\xc2\xb0";
-      drawActionBtn(orientBtn, "Orientation: " + orientLabel, kSettingsActionOutputOrientationCycle);
-      ly += dispSectionH + 6;
-
-      // Connected Displays
-      int dispListH = std::clamp(availH - (ly - cy) - 276, 60, 150);
-      SDL_Rect dispListPanel {leftX, ly, leftW, dispListH};
-      Primitives::drawFramedPanel(controlRenderer_, dispListPanel, pal.light, pal.deep, pal.mid);
-      drawText(controlRenderer_, fontBase_, "CONNECTED DISPLAYS", ink,
-               dispListPanel.x + 8, dispListPanel.y + 4);
-      int dispRowY = dispListPanel.y + 28;
-      int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
-      for (int di = 0; di < displayCount; ++di) {
-        if (dispRowY + kRowH > dispListPanel.y + dispListPanel.h - 4) break;
-        SDL_Rect dispRow {dispListPanel.x + 6, dispRowY, dispListPanel.w - 12, kRowH};
-        bool selected = di == currentDispIdx;
-        Primitives::drawFramedPanel(controlRenderer_, dispRow,
-                                    selected ? pal.dark : pal.shellInner, pal.deep, pal.mid);
-        const char* dNameRaw = SDL_GetDisplayName(di);
-        std::string dNameStr = dNameRaw && *dNameRaw ? dNameRaw : ("Display " + std::to_string(di + 1));
-        SDL_Rect dispBounds;
-        SDL_GetDisplayBounds(di, &dispBounds);
-        std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
-          + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
-        if (selected) dispInfo += "  [ASSIGNED]";
-        drawText(controlRenderer_, fontSmall_, dispInfo,
-                 selected ? pal.light : ink, dispRow.x + 6, dispRow.y + 7);
-        settingsBtns_.push_back({dispRow, kSettingsActionOutputDisplaySelectBase + di, "display_select"});
-        dispRowY += kRowH + 4;
-      }
-      ly += dispListH + 6;
-
-      // Edge Blending — full width, taller so labels don't overlap buttons
+      // ─── Sub-tab bar ───
+      settingsVideoSubTab_ = std::clamp(settingsVideoSubTab_, 0, 3);
+      const std::vector<std::string> subTabs {"Display", "Processing", "Other Outputs", "Streaming"};
       {
-        const Deck& bd = focusedDeck();
-        int blendH = 90;
-        SDL_Rect blendPanel {leftX, ly, leftW, blendH};
-        Primitives::drawFramedPanel(controlRenderer_, blendPanel, pal.shellInner, pal.deep, pal.light);
-        drawText(controlRenderer_, fontSmall_, "EDGE BLENDING", ink,
-                 blendPanel.x + 8, blendPanel.y + 4);
-        int bx = blendPanel.x + 10;
-        int labelY = blendPanel.y + 24;
-        int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
-        int bw = (blendPanel.w - 28) / 4;
-        int bgap = 6;
-        auto drawBlendCtrl = [&](const char* label, float val, int decAction, int incAction) {
-          std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f)) + "%";
-          drawText(controlRenderer_, fontSmall_, valStr, soft, bx, labelY);
-          int btnW = (bw - 4) / 2;
-          SDL_Rect decBtn {bx, btnY, btnW, 24};
-          SDL_Rect incBtn {bx + btnW + 4, btnY, btnW, 24};
-          Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "-", ink, decBtn);
-          settingsBtns_.push_back({decBtn, decAction, "blend"});
-          Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "+", ink, incBtn);
-          settingsBtns_.push_back({incBtn, incAction, "blend"});
-          bx += bw + bgap;
-        };
-        drawBlendCtrl("Left", bd.edgeBlendLeft, kSettingsActionOutputEdgeBlendLDec, kSettingsActionOutputEdgeBlendLInc);
-        drawBlendCtrl("Right", bd.edgeBlendRight, kSettingsActionOutputEdgeBlendRDec, kSettingsActionOutputEdgeBlendRInc);
-        drawBlendCtrl("Top", bd.edgeBlendTop, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
-        drawBlendCtrl("Bottom", bd.edgeBlendBottom, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
-        ly += blendH + 6;
+        constexpr int kSubTabH = 28;
+        int subTabW = (availW - (static_cast<int>(subTabs.size()) - 1) * 4) / static_cast<int>(subTabs.size());
+        for (int st = 0; st < static_cast<int>(subTabs.size()); ++st) {
+          SDL_Rect stBtn {cx + st * (subTabW + 4), cy, subTabW, kSubTabH};
+          bool active = (st == settingsVideoSubTab_);
+          Primitives::drawFramedPanel(controlRenderer_, stBtn,
+                                      active ? pal.dark : pal.light, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, stBtn, subTabs[st],
+                               active ? pal.light : pal.deep);
+          settingsBtns_.push_back({stBtn, kSettingsActionVideoSubTabBase + st, subTabs[st]});
+        }
+        cy += kSubTabH + 10;
       }
 
-      // Area of Interest
-      {
-        const OutputTarget& ot = focusedOutput();
-        bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
-                      || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
-        int aoiPanH = 90;
-        SDL_Rect aoiPanel {leftX, ly, leftW, aoiPanH};
-        SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
-        SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
-        Primitives::drawFramedPanel(controlRenderer_, aoiPanel, aoiFill, pal.deep, pal.light);
-        drawText(controlRenderer_, fontSmall_, "AREA OF INTEREST", aoiInk2,
-                 aoiPanel.x + 8, aoiPanel.y + 4);
-        // Reset button in the title bar area
-        SDL_Rect aoiResetBtn {aoiPanel.x + aoiPanel.w - 56, aoiPanel.y + 3, 50, 16};
-        Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
-        drawCenteredText(controlRenderer_, fontSmall_, "RESET", ink, aoiResetBtn);
-        settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
-        int abx = aoiPanel.x + 10;
-        int ably = aoiPanel.y + 24;
-        int aoBtnY = rowYBelowLabel(ably, fontSmall_, 4);
-        int aoBW = (aoiPanel.w - 28) / 4;
-        int aoGap = 6;
-        auto drawAoiCtrl = [&](const char* label, float val, int decAct, int incAct) {
-          std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f + 0.5f)) + "%";
-          drawText(controlRenderer_, fontSmall_, valStr, aoiActive ? pal.light : soft, abx, ably);
-          int btnW = (aoBW - 4) / 2;
-          SDL_Rect decBtn {abx, aoBtnY, btnW, 24};
-          SDL_Rect incBtn {abx + btnW + 4, aoBtnY, btnW, 24};
-          Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
-          settingsBtns_.push_back({decBtn, decAct, "aoi"});
-          Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "+", aoiInk2, incBtn);
-          settingsBtns_.push_back({incBtn, incAct, "aoi"});
-          abx += aoBW + aoGap;
-        };
-        drawAoiCtrl("L", ot.aoiLeft,   kSettingsActionOutputAoiLDec, kSettingsActionOutputAoiLInc);
-        drawAoiCtrl("R", ot.aoiRight,  kSettingsActionOutputAoiRDec, kSettingsActionOutputAoiRInc);
-        drawAoiCtrl("T", ot.aoiTop,    kSettingsActionOutputAoiTDec, kSettingsActionOutputAoiTInc);
-        drawAoiCtrl("B", ot.aoiBottom, kSettingsActionOutputAoiBDec, kSettingsActionOutputAoiBInc);
-        ly += aoiPanH + 6;
-      }
+      // ─── Sub-tab content area ───
+      int subContentW = availW;
+      int subContentH = content.y + content.h - cy - 4;
+      int sy = cy; // content Y cursor
 
-      // Canvas Mode + Default Transition (side by side)
-      {
-        int halfW = (leftW - 6) / 2;
-        int pairH = 68;
+      // ═══════════════════════════════════════════════════════════════
+      if (settingsVideoSubTab_ == 0) {
+      // ─── DISPLAY sub-tab ─────────────────────────────────────────
+        int displayCount = SDL_GetNumVideoDisplays();
 
-        // Canvas Mode
-        {
-          SDL_Rect canvasPanel {leftX, ly, halfW, pairH};
-          Primitives::drawFramedPanel(controlRenderer_, canvasPanel, pal.shellInner, pal.deep, pal.light);
-          drawText(controlRenderer_, fontSmall_, "CANVAS MODE", ink,
-                   canvasPanel.x + 8, canvasPanel.y + 4);
-          SDL_Rect canvasToggle {canvasPanel.x + 8, canvasPanel.y + 26, std::min(130, halfW - 16), kRowH};
-          drawActionBtn(canvasToggle,
-                        project_.outputCanvasEnabled ? "CANVAS: ON" : "CANVAS: OFF",
-                        kSettingsActionCanvasToggle, project_.outputCanvasEnabled);
-          if (project_.outputCanvasEnabled) {
-            int cBtnX = canvasToggle.x + canvasToggle.w + 6;
-            int cBtnW = std::max(56, (canvasPanel.x + canvasPanel.w - 8 - cBtnX - 4) / 2);
-            SDL_Rect cwBtn {cBtnX, canvasPanel.y + 26, cBtnW, kRowH};
-            Primitives::drawFramedPanel(controlRenderer_, cwBtn, pal.light, pal.deep, pal.mid);
-            drawCenteredText(controlRenderer_, fontSmall_, "W:" + std::to_string(project_.outputCanvasWidth), ink, cwBtn);
-            settingsBtns_.push_back({cwBtn, kSettingsActionCanvasWidthPrompt, "canvas_w"});
-            SDL_Rect chBtn {cwBtn.x + cBtnW + 4, canvasPanel.y + 26, cBtnW, kRowH};
-            Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.light, pal.deep, pal.mid);
-            drawCenteredText(controlRenderer_, fontSmall_, "H:" + std::to_string(project_.outputCanvasHeight), ink, chBtn);
-            settingsBtns_.push_back({chBtn, kSettingsActionCanvasHeightPrompt, "canvas_h"});
-          }
+        // Display & Raster
+        int dispSectionH = 190;
+        SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
+        SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
+        VerticalLayout dLayout(dBody, kRowGap);
+
+        std::string displayLabel = displayCount <= 0 ? "None" : ("Display " + std::to_string(outputDisplayIndex(focusedOutputIndex) + 1));
+        if (displayCount > 0) {
+          const char* dName = SDL_GetDisplayName(outputDisplayIndex(focusedOutputIndex));
+          if (dName && *dName) displayLabel += ": " + std::string(dName);
+        }
+        SDL_Rect dBtn = dLayout.takeFixed(kRowH);
+        drawUIDropdown(dBtn, "Hardware Display", displayLabel, "settings.output_display");
+        settingsBtns_.push_back({dBtn, kSettingsActionOutputDisplayDropdown, "output_display"});
+
+        SDL_Rect rBtn = dLayout.takeFixed(kRowH);
+        std::string resLabel = std::to_string(targetW) + "x" + std::to_string(targetH) + (project_.outputFollowDisplay ? " (Native)" : " (Fixed)");
+        drawUIDropdown(rBtn, "Resolution", resLabel, "settings.output_raster");
+        settingsBtns_.push_back({rBtn, 237, "custom_raster"});
+
+        SDL_Rect fsBtn = dLayout.takeFixed(kRowH);
+        drawActionBtn(fsBtn, "Toggle Fullscreen", 236);
+        SDL_Rect orientBtn = dLayout.takeFixed(kRowH);
+        std::string orientLabel = outputOrientation == 0 ? "0\xc2\xb0 (Normal)"
+                                : std::to_string(outputOrientation) + "\xc2\xb0";
+        drawActionBtn(orientBtn, "Orientation: " + orientLabel, kSettingsActionOutputOrientationCycle);
+        sy += dispSectionH + kSectionGap;
+
+        // Connected Displays
+        int maxDispRows = std::min(displayCount, std::max(2, (subContentH - dispSectionH - kSectionGap - 40) / (kRowH + 4)));
+        int dispListH = 32 + maxDispRows * (kRowH + 4) + 8;
+        SDL_Rect dispListSection {cx, sy, subContentW, dispListH};
+        SDL_Rect dispListBody = drawSectionFrame(dispListSection, "CONNECTED DISPLAYS");
+        int dispRowY = dispListBody.y;
+        int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
+        for (int di = 0; di < displayCount; ++di) {
+          if (dispRowY + kRowH > dispListSection.y + dispListSection.h - 4) break;
+          SDL_Rect dispRow {dispListBody.x, dispRowY, dispListBody.w, kRowH};
+          bool selected = di == currentDispIdx;
+          Primitives::drawFramedPanel(controlRenderer_, dispRow,
+                                      selected ? pal.dark : pal.shellInner, pal.deep, pal.mid);
+          const char* dNameRaw = SDL_GetDisplayName(di);
+          std::string dNameStr = dNameRaw && *dNameRaw ? dNameRaw : ("Display " + std::to_string(di + 1));
+          SDL_Rect dispBounds;
+          SDL_GetDisplayBounds(di, &dispBounds);
+          std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
+            + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
+          if (selected) dispInfo += "  [ASSIGNED]";
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{dispRow.x + 6, dispRow.y + 7, dispRow.w - 12, 16},
+                       dispInfo, selected ? pal.light : ink);
+          settingsBtns_.push_back({dispRow, kSettingsActionOutputDisplaySelectBase + di, "display_select"});
+          dispRowY += kRowH + 4;
         }
 
-        // Default Transition
+      // ═══════════════════════════════════════════════════════════════
+      } else if (settingsVideoSubTab_ == 1) {
+      // ─── PROCESSING sub-tab ──────────────────────────────────────
+
+        // Edge Blending
         {
-          const Deck& td = focusedDeck();
-          SDL_Rect transPanel {leftX + halfW + 6, ly, halfW, pairH};
-          Primitives::drawFramedPanel(controlRenderer_, transPanel, pal.shellInner, pal.deep, pal.light);
-          drawText(controlRenderer_, fontSmall_, "DEFAULT TRANSITION", ink,
-                   transPanel.x + 8, transPanel.y + 4);
-          int tx = transPanel.x + 8;
-          int ty = transPanel.y + 26;
-          int tBtnW = 32;
-          SDL_Rect tDecBtn {tx, ty, tBtnW, kRowH};
-          Primitives::drawFramedPanel(controlRenderer_, tDecBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "-", ink, tDecBtn);
-          settingsBtns_.push_back({tDecBtn, kSettingsActionTransitionSecondsDec, "trans_dec"});
-          SDL_Rect tValRect {tx + tBtnW + 4, ty, 76, kRowH};
-          Primitives::drawFramedPanel(controlRenderer_, tValRect, pal.light, pal.deep, pal.mid);
-          drawCenteredText(controlRenderer_, fontSmall_, formatSeconds(td.transitionSeconds), ink, tValRect);
-          SDL_Rect tIncBtn {tValRect.x + tValRect.w + 4, ty, tBtnW, kRowH};
-          Primitives::drawFramedPanel(controlRenderer_, tIncBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "+", ink, tIncBtn);
-          settingsBtns_.push_back({tIncBtn, kSettingsActionTransitionSecondsInc, "trans_inc"});
-          int styleX = tIncBtn.x + tIncBtn.w + 6;
-          int styleW = std::max(60, transPanel.x + transPanel.w - 8 - styleX);
-          SDL_Rect tStyleBtn {styleX, ty, styleW, kRowH};
-          std::string styleLabel = toUpper(td.transitionStyle.empty() ? "crossfade" : td.transitionStyle);
-          Primitives::drawFramedPanel(controlRenderer_, tStyleBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, styleLabel, ink, tStyleBtn);
-          settingsBtns_.push_back({tStyleBtn, kSettingsActionTransitionStyleCycle, "trans_style"});
+          const Deck& bd = focusedDeck();
+          int blendH = 96;
+          SDL_Rect blendSection {cx, sy, subContentW, blendH};
+          SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE BLENDING");
+          int bx = blendBody.x + 2;
+          int labelY = blendBody.y;
+          int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
+          int bw = (blendBody.w - 18) / 4;
+          int bgap = 6;
+          auto drawBlendCtrl = [&](const char* label, float val, int decAction, int incAction) {
+            std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f)) + "%";
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{bx, labelY, bw, 16}, valStr, soft);
+            int btnW = (bw - 4) / 2;
+            SDL_Rect decBtn {bx, btnY, btnW, 24};
+            SDL_Rect incBtn {bx + btnW + 4, btnY, btnW, 24};
+            Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "-", ink, decBtn);
+            settingsBtns_.push_back({decBtn, decAction, "blend"});
+            Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "+", ink, incBtn);
+            settingsBtns_.push_back({incBtn, incAction, "blend"});
+            bx += bw + bgap;
+          };
+          drawBlendCtrl("Left", bd.edgeBlendLeft, kSettingsActionOutputEdgeBlendLDec, kSettingsActionOutputEdgeBlendLInc);
+          drawBlendCtrl("Right", bd.edgeBlendRight, kSettingsActionOutputEdgeBlendRDec, kSettingsActionOutputEdgeBlendRInc);
+          drawBlendCtrl("Top", bd.edgeBlendTop, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
+          drawBlendCtrl("Bottom", bd.edgeBlendBottom, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
+          sy += blendH + kSectionGap;
         }
-      }
 
-      // ─── RIGHT COLUMN ───
-      int ry = cy;
-
-      // NDI — sized to fit source name
-      int ndiH = 108;
-      SDL_Rect ndiSection {rightX, ry, rightW, ndiH};
-      SDL_Rect nBody = drawSectionFrame(ndiSection, "NDI\xc2\xae NETWORK");
-      VerticalLayout nLayout(nBody, kRowGap);
-      drawActionBtn(nLayout.takeFixed(kRowH), outputTarget.ndiEnabled ? "NDI SENDING: ON" : "NDI SENDING: OFF", 271, outputTarget.ndiEnabled);
-      SDL_Rect nnBtn = nLayout.takeFixed(kRowH);
-      std::string ndiName = trim(outputTarget.ndiSourceName).empty() ? "Default" : outputTarget.ndiSourceName;
-      drawUIDropdown(nnBtn, "Source", ndiName, "settings.ndi_name");
-      settingsBtns_.push_back({nnBtn, 272, "ndi_name"});
-      ry += ndiH + 6;
-
-      // NDI Key — separate small section
-      {
-        SDL_Rect ndiKeyBtn {rightX, ry, rightW, kRowH};
-        drawActionBtn(ndiKeyBtn, outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF", 273, outputTarget.ndiKeyEnabled);
-        ry += kRowH + 6;
-      }
-
-      // DeckLink SDI/HDMI output
-      {
-        int dlH = 173;
-        SDL_Rect dlSection {rightX, ry, rightW, dlH};
-        SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
-        VerticalLayout dlLayout(dlBody, kRowGap);
-
-        // Enable toggle
-        SDL_Rect dlToggle = dlLayout.takeFixed(kRowH);
-        drawActionBtn(dlToggle,
-                      outputTarget.deckLinkEnabled ? "DECKLINK: ON" : "DECKLINK: OFF",
-                      kSettingsActionDeckLinkToggle, outputTarget.deckLinkEnabled);
-
-        // Device dropdown
+        // Area of Interest
         {
-          std::string devLabel = "None";
-          if (outputTarget.deckLinkDeviceId >= 0) {
-            auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
-            for (const auto& d : devices) {
-              if (d.id == outputTarget.deckLinkDeviceId) {
-                devLabel = d.modelName;
-                if (d.supportsSDI && d.supportsHDMI) devLabel += " (SDI+HDMI)";
-                else if (d.supportsSDI) devLabel += " (SDI)";
-                else if (d.supportsHDMI) devLabel += " (HDMI)";
-                break;
-              }
+          const OutputTarget& ot = focusedOutput();
+          bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
+                        || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
+          int aoiH = 96;
+          SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
+          SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
+          SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
+          Primitives::drawFramedPanel(controlRenderer_, aoiSection, aoiFill, pal.deep, pal.light);
+          SDL_Rect aoiHdr {aoiSection.x, aoiSection.y, aoiSection.w, 26};
+          Primitives::drawFramedPanel(controlRenderer_, aoiHdr, aoiActive ? pal.dark : pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect{aoiHdr.x + 8, aoiHdr.y, aoiHdr.w - 72, aoiHdr.h},
+                               "AREA OF INTEREST", aoiActive ? pal.light : pal.deep);
+          SDL_Rect aoiResetBtn {aoiSection.x + aoiSection.w - 56, aoiSection.y + 4, 50, 18};
+          Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_, "RESET", ink, aoiResetBtn);
+          settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
+          int abx = aoiSection.x + 16;
+          int ably = aoiSection.y + 32;
+          int aoBtnY = rowYBelowLabel(ably, fontSmall_, 4);
+          int aoBW = (aoiSection.w - 40) / 4;
+          int aoGap = 6;
+          auto drawAoiCtrl = [&](const char* label, float val, int decAct, int incAct) {
+            std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f + 0.5f)) + "%";
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{abx, ably, aoBW, 16}, valStr, aoiActive ? pal.light : soft);
+            int btnW = (aoBW - 4) / 2;
+            SDL_Rect decBtn {abx, aoBtnY, btnW, 24};
+            SDL_Rect incBtn {abx + btnW + 4, aoBtnY, btnW, 24};
+            Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
+            settingsBtns_.push_back({decBtn, decAct, "aoi"});
+            Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "+", aoiInk2, incBtn);
+            settingsBtns_.push_back({incBtn, incAct, "aoi"});
+            abx += aoBW + aoGap;
+          };
+          drawAoiCtrl("L", ot.aoiLeft,   kSettingsActionOutputAoiLDec, kSettingsActionOutputAoiLInc);
+          drawAoiCtrl("R", ot.aoiRight,  kSettingsActionOutputAoiRDec, kSettingsActionOutputAoiRInc);
+          drawAoiCtrl("T", ot.aoiTop,    kSettingsActionOutputAoiTDec, kSettingsActionOutputAoiTInc);
+          drawAoiCtrl("B", ot.aoiBottom, kSettingsActionOutputAoiBDec, kSettingsActionOutputAoiBInc);
+          sy += aoiH + kSectionGap;
+        }
+
+        // Canvas Mode + Default Transition (side by side)
+        {
+          int halfW = (subContentW - 8) / 2;
+          int pairH = 68;
+
+          {
+            SDL_Rect canvasPanel {cx, sy, halfW, pairH};
+            Primitives::drawFramedPanel(controlRenderer_, canvasPanel, pal.shellInner, pal.deep, pal.light);
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{canvasPanel.x + 8, canvasPanel.y + 4, canvasPanel.w - 16, 16},
+                         "CANVAS MODE", ink);
+            SDL_Rect canvasToggle {canvasPanel.x + 8, canvasPanel.y + 26, std::min(130, halfW - 16), kRowH};
+            drawActionBtn(canvasToggle,
+                          project_.outputCanvasEnabled ? "CANVAS: ON" : "CANVAS: OFF",
+                          kSettingsActionCanvasToggle, project_.outputCanvasEnabled);
+            if (project_.outputCanvasEnabled) {
+              int cBtnX = canvasToggle.x + canvasToggle.w + 6;
+              int cBtnW = std::max(56, (canvasPanel.x + canvasPanel.w - 8 - cBtnX - 4) / 2);
+              SDL_Rect cwBtn {cBtnX, canvasPanel.y + 26, cBtnW, kRowH};
+              Primitives::drawFramedPanel(controlRenderer_, cwBtn, pal.light, pal.deep, pal.mid);
+              drawCenteredText(controlRenderer_, fontSmall_, "W:" + std::to_string(project_.outputCanvasWidth), ink, cwBtn);
+              settingsBtns_.push_back({cwBtn, kSettingsActionCanvasWidthPrompt, "canvas_w"});
+              SDL_Rect chBtn {cwBtn.x + cBtnW + 4, canvasPanel.y + 26, cBtnW, kRowH};
+              Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.light, pal.deep, pal.mid);
+              drawCenteredText(controlRenderer_, fontSmall_, "H:" + std::to_string(project_.outputCanvasHeight), ink, chBtn);
+              settingsBtns_.push_back({chBtn, kSettingsActionCanvasHeightPrompt, "canvas_h"});
             }
           }
-          SDL_Rect devBtn = dlLayout.takeFixed(kRowH);
-          drawUIDropdown(devBtn, "Device", devLabel, "settings.decklink_device");
-          settingsBtns_.push_back({devBtn, kSettingsActionDeckLinkDeviceDropdown, "decklink_device"});
-        }
-
-        // Mode dropdown
-        {
-          auto mode = deckboy::platform::video::parseDeckLinkMode(outputTarget.deckLinkMode);
-          std::string modeLabel = deckboy::platform::video::deckLinkModeLabel(mode);
-          SDL_Rect modeBtn = dlLayout.takeFixed(kRowH);
-          drawUIDropdown(modeBtn, "Mode", modeLabel, "settings.decklink_mode");
-          settingsBtns_.push_back({modeBtn, kSettingsActionDeckLinkModeDropdown, "decklink_mode"});
-        }
-
-        // 10-bit toggle
-        SDL_Rect bitBtn = dlLayout.takeFixed(kRowH);
-        drawActionBtn(bitBtn,
-                      outputTarget.deckLink10Bit ? "10-BIT: ON" : "10-BIT: OFF",
-                      kSettingsActionDeckLink10BitToggle, outputTarget.deckLink10Bit);
-
-        ry += dlH + 6;
-      }
-
-      // Spout interprocess texture sharing (Windows)
-      {
-        int spH = 108;
-        SDL_Rect spSection {rightX, ry, rightW, spH};
-        SDL_Rect spBody = drawSectionFrame(spSection, "SPOUT TEXTURE SHARE");
-        VerticalLayout spLayout(spBody, kRowGap);
-
-        // Enable toggle
-        SDL_Rect spToggle = spLayout.takeFixed(kRowH);
-        drawActionBtn(spToggle,
-                      outputTarget.spoutEnabled ? "SPOUT: ON" : "SPOUT: OFF",
-                      kSettingsActionSpoutToggle, outputTarget.spoutEnabled);
-
-        // Sender name
-        {
-          std::string spName = trim(outputTarget.spoutSenderName);
-          if (spName.empty()) {
-            spName = "Deckboy Output " + std::to_string(focusedOutputIndex + 1);
+          {
+            const Deck& td = focusedDeck();
+            SDL_Rect transPanel {cx + halfW + 8, sy, halfW, pairH};
+            Primitives::drawFramedPanel(controlRenderer_, transPanel, pal.shellInner, pal.deep, pal.light);
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{transPanel.x + 8, transPanel.y + 4, transPanel.w - 16, 16},
+                         "DEFAULT TRANSITION", ink);
+            int tx = transPanel.x + 8;
+            int ty = transPanel.y + 26;
+            int tBtnW = 32;
+            SDL_Rect tDecBtn {tx, ty, tBtnW, kRowH};
+            Primitives::drawFramedPanel(controlRenderer_, tDecBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "-", ink, tDecBtn);
+            settingsBtns_.push_back({tDecBtn, kSettingsActionTransitionSecondsDec, "trans_dec"});
+            SDL_Rect tValRect {tx + tBtnW + 4, ty, 76, kRowH};
+            Primitives::drawFramedPanel(controlRenderer_, tValRect, pal.light, pal.deep, pal.mid);
+            drawCenteredText(controlRenderer_, fontSmall_, formatSeconds(td.transitionSeconds), ink, tValRect);
+            SDL_Rect tIncBtn {tValRect.x + tValRect.w + 4, ty, tBtnW, kRowH};
+            Primitives::drawFramedPanel(controlRenderer_, tIncBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, "+", ink, tIncBtn);
+            settingsBtns_.push_back({tIncBtn, kSettingsActionTransitionSecondsInc, "trans_inc"});
+            int styleX = tIncBtn.x + tIncBtn.w + 6;
+            int styleW = std::max(60, transPanel.x + transPanel.w - 8 - styleX);
+            SDL_Rect tStyleBtn {styleX, ty, styleW, kRowH};
+            std::string styleLabel = toUpper(td.transitionStyle.empty() ? "crossfade" : td.transitionStyle);
+            Primitives::drawFramedPanel(controlRenderer_, tStyleBtn, pal.mid, pal.deep, pal.light);
+            drawCenteredText(controlRenderer_, fontSmall_, styleLabel, ink, tStyleBtn);
+            settingsBtns_.push_back({tStyleBtn, kSettingsActionTransitionStyleCycle, "trans_style"});
           }
-          SDL_Rect spNameBtn = spLayout.takeFixed(kRowH);
-          drawUIDropdown(spNameBtn, "Sender", spName, "settings.spout_name");
-          settingsBtns_.push_back({spNameBtn, kSettingsActionSpoutNamePrompt, "spout_name"});
         }
 
-        ry += spH + 6;
+      // ═══════════════════════════════════════════════════════════════
+      } else if (settingsVideoSubTab_ == 2) {
+      // ─── BACKENDS sub-tab ────────────────────────────────────────
+
+        // Output Settings
+        {
+          int osH = 108;
+          SDL_Rect osSection {cx, sy, subContentW, osH};
+          SDL_Rect osBody = drawSectionFrame(osSection, "OUTPUT SETTINGS");
+          VerticalLayout osLayout(osBody, kRowGap);
+          {
+            SDL_Rect row = osLayout.takeFixed(kRowH);
+            int thirdW = (row.w - 8) / 3;
+            SDL_Rect alphaBtn {row.x, row.y, thirdW, kRowH};
+            int alphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
+            drawActionBtn(alphaBtn, "Alpha: " + std::to_string(alphaPct) + "%", kSettingsActionOutputAlphaPrompt);
+            SDL_Rect delayBtn {row.x + thirdW + 4, row.y, thirdW, kRowH};
+            drawActionBtn(delayBtn, "Delay: " + std::to_string(outputDelayMs) + "ms", kSettingsActionOutputDelayPrompt);
+            SDL_Rect csBtn {row.x + (thirdW + 4) * 2, row.y, row.w - (thirdW + 4) * 2, kRowH};
+            drawActionBtn(csBtn, "Color: " + toUpper(outputColorSpace), kSettingsActionOutputColorSpaceCycle);
+          }
+          {
+            SDL_Rect row = osLayout.takeFixed(kRowH);
+            int halfW2 = (row.w - 4) / 2;
+            SDL_Rect layoutBtn {row.x, row.y, halfW2, kRowH};
+            drawActionBtn(layoutBtn, "Layout: " + toUpper(outputLayoutMode), kSettingsActionOutputLayoutSpan,
+                          outputLayoutMode == "span");
+            SDL_Rect mirrorBtn {row.x + halfW2 + 4, row.y, row.w - halfW2 - 4, kRowH};
+            drawUIDropdown(mirrorBtn, "Mirror", mirrorLabel, "settings.output_mirror");
+            settingsBtns_.push_back({mirrorBtn, kSettingsActionOutputMirrorDropdown, "output_mirror"});
+          }
+          sy += osH + kSectionGap;
+        }
+
+        // NDI Network
+        {
+          int ndiH = 143;
+          SDL_Rect ndiSection {cx, sy, subContentW, ndiH};
+          SDL_Rect nBody = drawSectionFrame(ndiSection, "NDI\xc2\xae NETWORK");
+          VerticalLayout nLayout(nBody, kRowGap);
+          drawActionBtn(nLayout.takeFixed(kRowH), outputTarget.ndiEnabled ? "NDI SENDING: ON" : "NDI SENDING: OFF", 271, outputTarget.ndiEnabled);
+          SDL_Rect nnBtn = nLayout.takeFixed(kRowH);
+          std::string ndiName = trim(outputTarget.ndiSourceName).empty() ? "Default" : outputTarget.ndiSourceName;
+          drawUIDropdown(nnBtn, "Source", ndiName, "settings.ndi_name");
+          settingsBtns_.push_back({nnBtn, 272, "ndi_name"});
+          SDL_Rect ndiKeyBtn = nLayout.takeFixed(kRowH);
+          drawActionBtn(ndiKeyBtn, outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF", 273, outputTarget.ndiKeyEnabled);
+          sy += ndiH + kSectionGap;
+        }
+
+        // DeckLink + Spout side by side
+        {
+          int halfW = (subContentW - 8) / 2;
+
+          // DeckLink
+          int dlH = 173;
+          SDL_Rect dlSection {cx, sy, halfW, dlH};
+          SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
+          VerticalLayout dlLayout(dlBody, kRowGap);
+          SDL_Rect dlToggle = dlLayout.takeFixed(kRowH);
+          drawActionBtn(dlToggle,
+                        outputTarget.deckLinkEnabled ? "DECKLINK: ON" : "DECKLINK: OFF",
+                        kSettingsActionDeckLinkToggle, outputTarget.deckLinkEnabled);
+          {
+            std::string devLabel = "None";
+            if (outputTarget.deckLinkDeviceId >= 0) {
+              auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+              for (const auto& d : devices) {
+                if (d.id == outputTarget.deckLinkDeviceId) {
+                  devLabel = d.modelName;
+                  if (d.supportsSDI && d.supportsHDMI) devLabel += " (SDI+HDMI)";
+                  else if (d.supportsSDI) devLabel += " (SDI)";
+                  else if (d.supportsHDMI) devLabel += " (HDMI)";
+                  break;
+                }
+              }
+            }
+            SDL_Rect devBtn = dlLayout.takeFixed(kRowH);
+            drawUIDropdown(devBtn, "Device", devLabel, "settings.decklink_device");
+            settingsBtns_.push_back({devBtn, kSettingsActionDeckLinkDeviceDropdown, "decklink_device"});
+          }
+          {
+            auto mode = deckboy::platform::video::parseDeckLinkMode(outputTarget.deckLinkMode);
+            std::string modeLabel2 = deckboy::platform::video::deckLinkModeLabel(mode);
+            SDL_Rect modeBtn = dlLayout.takeFixed(kRowH);
+            drawUIDropdown(modeBtn, "Mode", modeLabel2, "settings.decklink_mode");
+            settingsBtns_.push_back({modeBtn, kSettingsActionDeckLinkModeDropdown, "decklink_mode"});
+          }
+          SDL_Rect bitBtn = dlLayout.takeFixed(kRowH);
+          drawActionBtn(bitBtn, outputTarget.deckLink10Bit ? "10-BIT: ON" : "10-BIT: OFF",
+                        kSettingsActionDeckLink10BitToggle, outputTarget.deckLink10Bit);
+
+          // Spout
+          int spH = dlH; // match DeckLink height
+          SDL_Rect spSection {cx + halfW + 8, sy, halfW, spH};
+          SDL_Rect spBody = drawSectionFrame(spSection, "SPOUT TEXTURE SHARE");
+          VerticalLayout spLayout(spBody, kRowGap);
+          SDL_Rect spToggle = spLayout.takeFixed(kRowH);
+          drawActionBtn(spToggle,
+                        outputTarget.spoutEnabled ? "SPOUT: ON" : "SPOUT: OFF",
+                        kSettingsActionSpoutToggle, outputTarget.spoutEnabled);
+          {
+            std::string spName = trim(outputTarget.spoutSenderName);
+            if (spName.empty()) {
+              spName = "Deckboy Output " + std::to_string(focusedOutputIndex + 1);
+            }
+            SDL_Rect spNameBtn = spLayout.takeFixed(kRowH);
+            drawUIDropdown(spNameBtn, "Sender", spName, "settings.spout_name");
+            settingsBtns_.push_back({spNameBtn, kSettingsActionSpoutNamePrompt, "spout_name"});
+          }
+        }
+
+      // ═══════════════════════════════════════════════════════════════
+      } else if (settingsVideoSubTab_ == 3) {
+      // ─── STREAMING sub-tab ───────────────────────────────────────
+
+        int streamH = std::max(280, subContentH);
+        SDL_Rect streamSection {cx, sy, subContentW, streamH};
+        SDL_Rect sBody = drawSectionFrame(streamSection, "STREAMING (SRT / RTMP)");
+        VerticalLayout sLayout(sBody, kRowGap);
+
+        drawActionBtn(sLayout.takeFixed(kRowH), outputTarget.streamEnabled ? "STREAMING: ON" : "STREAMING: OFF", 255, outputTarget.streamEnabled);
+
+        // State lines
+        {
+          std::string stateLine1 = "State: " + outputHealthLabel(focusedOutputIndex);
+          std::string stateLine2;
+          std::string streamReason = outputHealthReason(focusedOutputIndex);
+          if (outputTarget.outputTestCardEnabled) {
+            stateLine2 = "TEST CARD OVERRIDE ACTIVE";
+          } else if (!streamReason.empty()) {
+            stateLine2 = streamReason;
+          } else if (!outputTarget.enabled) {
+            stateLine2 = "Turn OUTPUT ON to send";
+          } else if (!outputTarget.streamEnabled) {
+            stateLine2 = "Toggle STREAMING ON to send";
+          }
+          SDL_Rect sl1Rect = sLayout.takeFixed(kLabelH);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{sBody.x, sl1Rect.y, sBody.w, kLabelH}, stateLine1, soft);
+          if (!stateLine2.empty()) {
+            SDL_Rect sl2Rect = sLayout.takeFixed(kLabelH);
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{sBody.x, sl2Rect.y, sBody.w, kLabelH}, stateLine2, soft);
+          }
+        }
+
+        SDL_Rect typeBtn = sLayout.takeFixed(kRowH);
+        drawActionBtn(typeBtn, "TYPE: " + toUpper(outputTypeLabel), 259, outputTypeLabel == "stream");
+
+        SDL_Rect spBtn = sLayout.takeFixed(kRowH);
+        drawUIDropdown(spBtn, "Protocol", toUpper(normalizeOutputStreamProtocol(outputTarget.streamProtocol)), "settings.stream_proto");
+        settingsBtns_.push_back({spBtn, kSettingsActionOutputStreamProtocolDropdown, "stream_proto"});
+
+        SDL_Rect bitrateBtn = sLayout.takeFixed(kRowH);
+        drawUIDropdown(bitrateBtn, "Bitrate",
+                       std::to_string(outputTarget.streamBitrateKbps) + " kbps",
+                       "settings.stream_bitrate");
+        settingsBtns_.push_back({bitrateBtn, 258, "stream_bitrate"});
+
+        SDL_Rect testCardBtn = sLayout.takeFixed(kRowH);
+        drawActionBtn(testCardBtn,
+                      outputTarget.outputTestCardEnabled
+                        ? "TEST CARD OVERRIDE: ON"
+                        : "TEST CARD OVERRIDE: OFF",
+                      kSettingsActionOutputTestCardToggle,
+                      outputTarget.outputTestCardEnabled);
+
+        // Stream Key — RTMP only
+        bool isRtmp = streamProtocol == "rtmp" || streamProtocol == "rtmps";
+        if (isRtmp) {
+          SDL_Rect skLabelRect = sLayout.takeFixed(kLabelH);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{sBody.x, skLabelRect.y, sBody.w, kLabelH}, "Stream Key:", soft);
+          SDL_Rect skBtn = sLayout.takeFixed(kRowH);
+          std::string keyDisplay = trim(outputTarget.streamKey);
+          Primitives::drawFramedPanel(controlRenderer_, skBtn, pal.deep, pal.dark, pal.dark);
+          std::string keyMasked = keyDisplay.empty() ? "click to set" : std::string(keyDisplay.size(), '*');
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{skBtn.x + 8, skBtn.y + 4, skBtn.w - 16, kRowH - 8},
+                       keyMasked, keyDisplay.empty() ? pal.dark : pal.light);
+          settingsBtns_.push_back({skBtn, kSettingsActionStreamKeyPrompt, "stream_key"});
+        }
+
+        // Target URL — takes all remaining space
+        {
+          SDL_Rect urlLabelRect = sLayout.takeFixed(kLabelH);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{sBody.x, urlLabelRect.y, sBody.w, kLabelH},
+                       isRtmp ? "Server URL:" : "Target URL:", soft);
+        }
+        SDL_Rect suBtn = sLayout.takeRemaining();
+        suBtn.h = std::max(40, suBtn.h);
+        Primitives::drawFramedPanel(controlRenderer_, suBtn, pal.deep, pal.dark, pal.dark);
+        TTF_Font* urlFont = fontMono_ ? fontMono_ : fontSmall_;
+        std::string urlStr2 = streamUrl;
+        {
+          int urlPad = 8;
+          SDL_Rect urlClip {suBtn.x + urlPad, suBtn.y + 4, suBtn.w - urlPad * 2, suBtn.h - 8};
+          std::string urlLine1 = urlStr2;
+          std::string urlLine2;
+          size_t queryPos = urlStr2.find('?');
+          if (queryPos != std::string::npos) {
+            urlLine1 = urlStr2.substr(0, queryPos);
+            urlLine2 = urlStr2.substr(queryPos);
+          }
+          drawTextSafe(controlRenderer_, urlFont,
+                       SDL_Rect{suBtn.x + urlPad, suBtn.y + 6, urlClip.w, 16},
+                       urlLine1.empty() ? "click to edit" : urlLine1,
+                       urlLine1.empty() ? pal.dark : pal.light);
+          if (!urlLine2.empty()) {
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{suBtn.x + urlPad, suBtn.y + 24, urlClip.w, 16},
+                         urlLine2, pal.mid);
+          } else {
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{suBtn.x + urlPad, suBtn.y + 24, urlClip.w, 16},
+                         "Add Output 2 to stream SRT + RTMP simultaneously", pal.dark);
+          }
+        }
+        settingsBtns_.push_back({suBtn, 257, "stream_url"});
       }
 
-      // Streaming — takes all remaining height so URL has room
-      int streamH = std::max(280, availH - (ry - cy));
-      SDL_Rect streamSection {rightX, ry, rightW, streamH};
-      SDL_Rect sBody = drawSectionFrame(streamSection, "STREAMING (SRT / RTMP)");
-      VerticalLayout sLayout(sBody, kRowGap);
-
-      drawActionBtn(sLayout.takeFixed(kRowH), outputTarget.streamEnabled ? "STREAMING: ON" : "STREAMING: OFF", 255, outputTarget.streamEnabled);
-
-      // State line — two separate lines for readability
-      {
-        std::string stateLine1 = "State: " + outputHealthLabel(focusedOutputIndex);
-        std::string stateLine2;
-        std::string streamReason = outputHealthReason(focusedOutputIndex);
-        if (outputTarget.outputTestCardEnabled) {
-          stateLine2 = "TEST CARD OVERRIDE ACTIVE";
-        } else if (!streamReason.empty()) {
-          stateLine2 = streamReason;
-        } else if (!outputTarget.enabled) {
-          stateLine2 = "Turn OUTPUT ON to send";
-        } else if (!outputTarget.streamEnabled) {
-          stateLine2 = "Toggle STREAMING ON to send";
-        }
-        drawText(controlRenderer_, fontSmall_, stateLine1, soft, sBody.x, sLayout.takeFixed(kLabelH).y);
-        if (!stateLine2.empty()) {
-          drawText(controlRenderer_, fontSmall_, stateLine2, soft, sBody.x, sLayout.takeFixed(kLabelH).y);
-        }
-      }
-
-      SDL_Rect typeBtn = sLayout.takeFixed(kRowH);
-      drawActionBtn(typeBtn, "TYPE: " + toUpper(outputTypeLabel), 259, outputTypeLabel == "stream");
-
-      SDL_Rect spBtn = sLayout.takeFixed(kRowH);
-      drawUIDropdown(spBtn, "Protocol", toUpper(normalizeOutputStreamProtocol(outputTarget.streamProtocol)), "settings.stream_proto");
-      settingsBtns_.push_back({spBtn, kSettingsActionOutputStreamProtocolDropdown, "stream_proto"});
-
-      SDL_Rect bitrateBtn = sLayout.takeFixed(kRowH);
-      drawUIDropdown(bitrateBtn, "Bitrate",
-                     std::to_string(outputTarget.streamBitrateKbps) + " kbps",
-                     "settings.stream_bitrate");
-      settingsBtns_.push_back({bitrateBtn, 258, "stream_bitrate"});
-
-      SDL_Rect testCardBtn = sLayout.takeFixed(kRowH);
-      drawActionBtn(testCardBtn,
-                    outputTarget.outputTestCardEnabled
-                      ? "TEST CARD OVERRIDE: ON"
-                      : "TEST CARD OVERRIDE: OFF",
-                    kSettingsActionOutputTestCardToggle,
-                    outputTarget.outputTestCardEnabled);
-
-      // Target URL — full remaining space
-      drawText(controlRenderer_, fontSmall_, "Target URL:", soft, sBody.x, sLayout.takeFixed(kLabelH).y);
-      SDL_Rect suBtn = sLayout.takeRemaining();
-      suBtn.h = std::max(48, suBtn.h);
-      Primitives::drawFramedPanel(controlRenderer_, suBtn, pal.deep, pal.dark, pal.dark);
-      TTF_Font* urlFont = fontMono_ ? fontMono_ : fontSmall_;
-      std::string urlStr2 = streamUrl;
-      {
-        int urlPad = 8;
-        SDL_Rect urlClip {suBtn.x + urlPad, suBtn.y + 4, suBtn.w - urlPad * 2, suBtn.h - 8};
-        SDL_RenderSetClipRect(controlRenderer_, &urlClip);
-        std::string urlLine1 = urlStr2;
-        std::string urlLine2;
-        size_t queryPos = urlStr2.find('?');
-        if (queryPos != std::string::npos) {
-          urlLine1 = urlStr2.substr(0, queryPos);
-          urlLine2 = urlStr2.substr(queryPos);
-        }
-        drawText(controlRenderer_, urlFont,
-                 urlLine1.empty() ? "click to edit" : urlLine1,
-                 urlLine1.empty() ? pal.dark : pal.light,
-                 suBtn.x + urlPad, suBtn.y + 8);
-        if (!urlLine2.empty()) {
-          drawText(controlRenderer_, fontSmall_, urlLine2, pal.mid,
-                   suBtn.x + urlPad, suBtn.y + 28);
-        } else if (urlLine1.empty()) {
-          drawText(controlRenderer_, fontSmall_, "(no URL set)", pal.dark,
-                   suBtn.x + urlPad, suBtn.y + 28);
-        }
-        SDL_RenderSetClipRect(controlRenderer_, nullptr);
-      }
-      settingsBtns_.push_back({suBtn, 257, "stream_url"});
+      // No scrollbar needed — each sub-tab fits in the viewport
+      settingsVideoViewport_ = {};
+      settingsVideoScrollMax_ = 0;
+      settingsVideoScroll_ = 0;
 
     } else if (settingsTab_ == 4) {
-      // About tab
-      SDL_Rect logoRect {cx, cy, content.w - 24, 116};
+      // About tab — logo + version + runtime info
+      int aboutAvailH = content.h - 10;
+      int logoH = std::min(aboutAvailH * 55 / 100, 280);
+      SDL_Rect logoRect {cx, cy, content.w - 24, logoH};
       Primitives::drawFramedPanel(controlRenderer_, logoRect, pal.shellInner,
                                   pal.deep, pal.light);
-      if (uiPackAvailable_) {
-        SDL_Rect logoArtRect {logoRect.x + logoRect.w - 204, logoRect.y + 10, 190, logoRect.h - 20};
+      if (uiAboutLogo_.texture || !uiAboutLogo_.path.empty()) {
+        ensureUiImageLoaded(uiAboutLogo_);
+        SDL_Rect logoArtRect {logoRect.x + (logoRect.w - std::min(logoRect.w - 16, 320)) / 2,
+                              logoRect.y + 8,
+                              std::min(logoRect.w - 16, 320),
+                              logoRect.h - 16};
+        drawUiImageContain(uiAboutLogo_, logoArtRect, 255);
+      } else if (uiPackAvailable_) {
+        SDL_Rect logoArtRect {logoRect.x + (logoRect.w - 190) / 2, logoRect.y + 10, 190, logoRect.h - 20};
         drawUiImageContain(uiHeaderArt_, logoArtRect, 215);
       }
-      TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
-      drawText(controlRenderer_, titleFont, std::string(kAppTitle), ink,
-               logoRect.x + 14, logoRect.y + 10);
-      drawText(controlRenderer_, fontBase_, "dot-matrix cue deck", soft,
-               logoRect.x + 16, logoRect.y + 52);
-      drawText(controlRenderer_, fontSmall_,
-               "version: " + std::string(kAppVersionTag), soft,
-               logoRect.x + 16, logoRect.y + 78);
 
-      SDL_Rect infoRect {cx, logoRect.y + logoRect.h + 8, content.w - 24, content.h - logoRect.h - 18};
+      int infoY = logoRect.y + logoRect.h + 8;
+      int infoH = std::max(80, content.y + content.h - infoY - 4);
+      SDL_Rect infoRect {cx, infoY, content.w - 24, infoH};
       Primitives::drawFramedPanel(controlRenderer_, infoRect, pal.light,
                                   pal.deep, pal.mid);
-      const int aboutHeaderY = infoRect.y + 8;
-      drawText(controlRenderer_, fontBase_, "RUNTIME", ink,
-               infoRect.x + 8, aboutHeaderY);
       int infoTextW = infoRect.w - 16;
       const int aboutLineH = textLineHeight(fontSmall_) + 2;
-      const int aboutBodyY = aboutHeaderY + textLineHeight(fontBase_) + 6;
-      drawText(controlRenderer_, fontSmall_,
-               "Companion port: " + std::to_string(companionPort_), soft,
-               infoRect.x + 8, aboutBodyY);
-      drawText(controlRenderer_, fontSmall_,
-               "HyperDeck port: 9992", soft,
-               infoRect.x + 8, aboutBodyY + aboutLineH);
-      drawText(controlRenderer_, fontSmall_,
-               "UI mascot/sprite art is disabled in live control panels.", soft,
-               infoRect.x + 8, aboutBodyY + aboutLineH * 2);
-      drawText(controlRenderer_, fontSmall_,
-               "Core transport keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft,
-               infoRect.x + 8, aboutBodyY + aboutLineH * 3 + 6);
-      std::string packStatus = uiPackAvailable_
-        ? ("UI pack: " + uiPackRoot_.string())
-        : "UI pack: not found (data/ui/deckboy_ui_pack_v3 preferred)";
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, packStatus, infoTextW), soft,
-               infoRect.x + 8, aboutBodyY + aboutLineH * 4 + 6);
-      std::string themeStatus = currentThemeName_.empty()
-        ? "Theme: gameboy (default) — set DECKBOY_THEME=dark to switch"
-        : "Theme: " + currentThemeName_ + " (data/themes/" + currentThemeName_ + "/theme.txt)";
-      drawText(controlRenderer_, fontSmall_,
-               ellipsizeToPixelWidth(fontSmall_, themeStatus, infoTextW), soft,
-               infoRect.x + 8, aboutBodyY + aboutLineH * 5 + 6);
+      int aboutY = infoRect.y + 8;
+      TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+      drawTextSafe(controlRenderer_, titleFont,
+                   SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 24},
+                   std::string(kAppTitle) + "  v" + std::string(kAppVersionTag), ink);
+      aboutY += textLineHeight(titleFont) + 6;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 16},
+                   "Companion: " + std::to_string(companionPort_) + "  |  HyperDeck: 9992  |  "
+                   + (project_.allowRemoteNetwork ? "Remote ON" : "Local only"), soft);
+      aboutY += aboutLineH;
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 16},
+                   "Keys: Enter Take | Space Play/Pause | S Stop | C Clear", soft);
+      aboutY += aboutLineH + 4;
+      std::string themeStatus = "Theme: " + (currentThemeName_.empty() ? "gameboy" : currentThemeName_);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 16},
+                   themeStatus, soft);
     }
   }
 
@@ -1023,6 +1094,9 @@
       if (sb.action >= 100 && sb.action <= 104) {
         // Tab switch
         settingsTab_ = sb.action - 100;
+        settingsVideoSubTab_ = 0;
+        settingsVideoScroll_ = 0;
+        settingsVideoScrollMax_ = 0;
       } else if (sb.action == 200) {
         openDropdown(
           "settings.audio_device",
@@ -1391,6 +1465,17 @@
                              "srt://... or rtmp://...", initial,
                              [this](const std::string& value) {
                                setFocusedOutputStreamUrl(value);
+                             });
+      } else if (sb.action == kSettingsActionStreamKeyPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("settings.stream_key", "Stream Key",
+                             "paste your stream key here", focusedOutput().streamKey,
+                             [this](const std::string& value) {
+                               if (project_.focusedOutputIndex >= 0 &&
+                                   project_.focusedOutputIndex < static_cast<int>(project_.outputs.size())) {
+                                 project_.outputs[project_.focusedOutputIndex].streamKey = trim(value);
+                                 markProjectDirty();
+                               }
                              });
       } else if (sb.action == 258) {
         const OutputTarget& output = focusedOutput();
@@ -1903,5 +1988,8 @@
             }
           }
         }
+      } else if (sb.action >= kSettingsActionVideoSubTabBase &&
+                 sb.action < kSettingsActionVideoSubTabBase + 4) {
+        settingsVideoSubTab_ = sb.action - kSettingsActionVideoSubTabBase;
       }
   }
