@@ -331,6 +331,7 @@ struct OutputTarget {
   bool streamEnabled = false;              // start streaming when output is enabled
   std::string streamProtocol = "srt";      // "srt" | "rtmp"
   std::string streamUrl;                   // destination URL (e.g. "srt://host:port")
+  std::string streamKey;                   // stream key (appended to RTMP URL as /key)
   int streamBitrateKbps = 6000;            // target video bitrate for encoder
 
   // -- NDI output (per-output, independent of deck-level NDI) ------------------
