@@ -102,7 +102,7 @@
       constexpr int kCardGap = 10;
 
       int leftY = leftCol.y;
-      SDL_Rect appearanceRect {leftCol.x, leftY, leftCol.w, 124};
+      SDL_Rect appearanceRect {leftCol.x, leftY, leftCol.w, 214};
       leftY += appearanceRect.h + kCardGap;
       SDL_Rect safetyRect {leftCol.x, leftY, leftCol.w, 152};
       leftY += safetyRect.h + kCardGap;
@@ -121,6 +121,30 @@
       SDL_Rect sfxBtn {appearanceRect.x + 8, appearanceRect.y + 92, appearanceRect.w - 16, 24};
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
+      // Mascot dropdown: deckbot (default) or deckgirl. Picks the splash
+      // character; refreshSplashAsset re-resolves the art on change.
+      SDL_Rect mascotBtn {appearanceRect.x + 8, appearanceRect.y + 120, appearanceRect.w - 16, 24};
+      std::string mascotLabel =
+        (project_.splashCharacter == "deckgirl") ? "Deckgirl" : "Deckbot";
+      drawUIDropdown(mascotBtn, "Mascot", mascotLabel, "settings.mascot");
+      settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
+      // UI scale dropdown — multiplies every font point size at load. Only
+      // fonts pick this up for now; layout chrome stays at 1× pending the
+      // wider scaling pass. Operator-facing labels: "Auto" maps to 1.0 for
+      // now (DPI auto-detect is future work).
+      SDL_Rect scaleBtn {appearanceRect.x + 8, appearanceRect.y + 148, appearanceRect.w - 16, 30};
+      char scaleLabel[16];
+      snprintf(scaleLabel, sizeof(scaleLabel), "%.2fx", project_.uiScale);
+      drawUIDropdown(scaleBtn, "UI Scale", scaleLabel, "settings.ui_scale");
+      settingsBtns_.push_back({scaleBtn, kSettingsActionUiScaleDropdown, "ui_scale"});
+      // Pocket 3 preset — one-click ergonomic bundle for the GPD Pocket 3
+      // and other small high-DPI handhelds. Pushes uiScale to 2.0 and
+      // refreshes fonts. Tap to apply; tap again to revert to 1.0.
+      SDL_Rect pocketBtn {appearanceRect.x + 8, appearanceRect.y + 184, appearanceRect.w - 16, 24};
+      bool pocketActive = std::abs(project_.uiScale - 2.0) < 0.01 &&
+                          project_.interactionMode == "touch";
+      drawPillToggle(pocketBtn, pocketActive, "POCKET 3 / TOUCH", "POCKET 3 / TOUCH");
+      settingsBtns_.push_back({pocketBtn, kSettingsActionPocket3Preset, "pocket3_preset"});
 
       drawCard(safetyRect, "SAFETY / TIMECODE", "Emergency fade and sync behavior");
       const int panicLabelY = safetyRect.y + 56;
@@ -1631,6 +1655,8 @@
           });
         return;
       } else if (sb.action == 271) {
+        // setFocusedOutputNdiEnabled gates on ndiRuntimeAvailable() and shows
+        // the dependency prompt itself, so we can route through unconditionally.
         setFocusedOutputNdiEnabled(!focusedOutput().ndiEnabled);
       } else if (sb.action == 272) {
         const OutputTarget& output = focusedOutput();
@@ -1663,15 +1689,9 @@
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
     if (sb.action == kSettingsActionDeckLinkToggle) {
-        OutputTarget& output = focusedOutputMutable();
-        output.deckLinkEnabled = !output.deckLinkEnabled;
-        if (!output.deckLinkEnabled) {
-          // Shut down DeckLink when disabled
-          auto& rt = outputRuntimes_[project_.focusedOutputIndex];
-          shutdownOutputDeckLink(rt);
-        }
-        triggerToast(std::string("decklink: ") + (output.deckLinkEnabled ? "on" : "off"));
-        markProjectDirty();
+        // setFocusedOutputDeckLinkEnabled gates on deckLinkRuntimeAvailable()
+        // and runs the toast / shutdown path internally.
+        toggleFocusedOutputDeckLink();
       } else if (sb.action == kSettingsActionDeckLinkDeviceDropdown) {
         auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
         std::vector<std::pair<std::string, std::string>> choices;
@@ -1763,6 +1783,57 @@
                                shutdownOutputSpout(rt);
                                markProjectDirty();
                              });
+      } else if (sb.action == kSettingsActionMascotToggle) {
+        // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the
+        // path from the chosen character and lazy-reloads the texture.
+        std::vector<std::pair<std::string, std::string>> choices = {
+          {"deckbot",  "Deckbot  (default)"},
+          {"deckgirl", "Deckgirl"},
+        };
+        openDropdown("settings.mascot", sb.rect, choices, project_.splashCharacter,
+          [this](const std::string& value) {
+            project_.splashCharacter = value;
+            refreshSplashAsset();
+            triggerToast(std::string("mascot: ") + project_.splashCharacter);
+            markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionUiScaleDropdown) {
+        std::vector<std::pair<std::string, std::string>> choices = {
+          {"1.00", "1.00x  (default 1080p)"},
+          {"1.25", "1.25x  (large desktop)"},
+          {"1.50", "1.50x  (4K desktop)"},
+          {"2.00", "2.00x  (Pocket 3 / 4K small)"},
+        };
+        char current[16];
+        snprintf(current, sizeof(current), "%.2f", project_.uiScale);
+        openDropdown("settings.ui_scale", sb.rect, choices, current,
+          [this](const std::string& value) {
+            double v = 1.0;
+            try { v = std::stod(value); } catch (...) {}
+            project_.uiScale = std::clamp(v, 0.75, 3.0);
+            applyUiScale();
+            triggerToast("ui scale: " + value + "x");
+            markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionPocket3Preset) {
+        // Toggle the Pocket 3 preset on/off. Currently bundles:
+        //   - uiScale flip between 1.0 and 2.0
+        //   - interactionMode flip between "mouse" and "touch" (skips hover
+        //     affordances that don't translate to a tap-only input model)
+        // Any future tap-friendly layout tweaks should land in this block so
+        // one click flips the whole ergonomic profile in lockstep.
+        bool active = std::abs(project_.uiScale - 2.0) < 0.01 &&
+                      project_.interactionMode == "touch";
+        if (active) {
+          project_.uiScale = 1.0;
+          project_.interactionMode = "mouse";
+        } else {
+          project_.uiScale = 2.0;
+          project_.interactionMode = "touch";
+        }
+        applyUiScale();
+        triggerToast(active ? "pocket 3 preset: off" : "pocket 3 preset: on");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionOutputAdvancedToggle) {
         videoOutputsAdvanced_ = !videoOutputsAdvanced_;
       } else if (sb.action == kSettingsActionOutputToggle) {

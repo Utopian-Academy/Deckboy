@@ -1884,14 +1884,12 @@
       OutputTarget& output = project_.outputs[foIdx];
       std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
       if (sub == "ON") {
-        output.deckLinkEnabled = true;
-        triggerToast("DeckLink ON");
+        // Goes through the dep-gated wrapper; toast lives there.
+        setFocusedOutputDeckLinkEnabled(true);
       } else if (sub == "OFF") {
-        output.deckLinkEnabled = false;
-        triggerToast("DeckLink off");
+        setFocusedOutputDeckLinkEnabled(false);
       } else if (sub == "TOGGLE") {
-        output.deckLinkEnabled = !output.deckLinkEnabled;
-        triggerToast(output.deckLinkEnabled ? "DeckLink ON" : "DeckLink off");
+        toggleFocusedOutputDeckLink();
       } else if (sub == "DEVICE") {
         auto val = parseNumber(2);
         if (val) {

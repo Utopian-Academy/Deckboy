@@ -392,6 +392,26 @@ struct Project {
   bool advancedOutputMode = false;  // show multi-output routing panel in settings
   bool uiSoundsEnabled = true;     // play UI sound effects (navigate, take, etc.)
   bool uiTransitionsEnabled = true; // animate UI transitions (panel slides, fades)
+  // Splash mascot identity. Maps to data/ui/.../splash/deckboy_splash_<name>.png.
+  // Default is "deckbot"; "deckgirl" is the legacy v2-pack illustration.
+  // An animated mascot path will reuse this field — load .gif/.mp4 instead of
+  // .png when the matching file exists, keeping the swap surface stable.
+  std::string splashCharacter = "deckbot";
+  // UI scale factor — multiplies every font point size at load time so text
+  // grows on HiDPI / 4K screens without ballooning the layout chrome. 1.0 is
+  // the native baseline tuned for 1080p. 1.5–2.0 covers 4K desktops and
+  // small high-DPI handhelds (the GPD Pocket 3 lands around 2.0). The full
+  // layout-chrome scale lives downstream of this field — for now only fonts
+  // pick it up. Persist in the project so a show authored on a 4K monitor
+  // doesn't have to re-pick the scale every launch.
+  double uiScale = 1.0;
+  // Input model the operator expects. "mouse" is the default — full hover
+  // affordances, splitter highlights, right-click menus. "touch" suppresses
+  // hover-only feedback (a tap can't hover) and is the right pairing with
+  // the Pocket 3 preset. Layout chrome still uses uiScale; this flag only
+  // changes interaction feedback. Stored as a string so future modes can
+  // land without a schema migration.
+  std::string interactionMode = "mouse";
 
   // -- Network / integration enables -------------------------------------------
   // Each integration follows the pattern in platform/integration_backend.*:
@@ -437,18 +457,70 @@ struct Project {
 };
 
 // ---------------------------------------------------------------------------
-// DecodedFrame — One raw RGBA frame from the decode pipeline.
+// FramePixelFormat — How a DecodedFrame's pixel buffer is laid out.
 //
-// Filled by MediaEngine's decode thread (readExact from ffmpeg stdout),
-// pushed into frameQueue_, then uploaded to an SDL_Texture by uploadFrame().
-// The pixels vector is pre-allocated to width*height*4 bytes (RGBA8888).
+// The live video decoder picks NV12 when a cue has no chroma key or color
+// controls active: it cuts pipe bandwidth by ~62% (12 bpp vs 32 bpp), and
+// the GPU samples the YUV→RGB conversion for free at blit time. Everything
+// else — stills, thumbnails, browser frames, patterns, source-capture
+// placeholders, captured output readbacks — stays RGBA32, because those
+// paths either build pixels in CPU code (writePixel writes 4 bytes) or
+// receive RGBA from an external producer.
+//
+// When this is RGBA32, `pixels` holds width*height*4 bytes, tightly packed.
+// When this is NV12, `pixels` holds a Y plane of width*height bytes
+// followed by an interleaved UV plane of (width/2)*(height/2)*2 bytes,
+// total width*height*3/2. Helpers below compute the offsets and pitches.
+// ---------------------------------------------------------------------------
+enum class FramePixelFormat {
+  RGBA32,  // default, 32 bpp interleaved — works with all CPU pixel paths
+  NV12,    // 12 bpp planar Y + interleaved UV — live video decode only
+};
+
+// ---------------------------------------------------------------------------
+// DecodedFrame — One decoded video/image/pattern frame.
+//
+// Filled by MediaEngine's decode thread (readExact from ffmpeg stdout, or
+// CPU pattern builders), pushed into frameQueue_, then uploaded to an
+// SDL_Texture. Pixel layout is described by `format`; see FramePixelFormat.
 // ---------------------------------------------------------------------------
 struct DecodedFrame {
   int width = 0;                       // frame width in pixels
   int height = 0;                      // frame height in pixels
-  std::uint64_t index = 0;            // sequential frame number (for ordering)
-  std::vector<std::uint8_t> pixels;   // raw RGBA pixel data (width*height*4 bytes)
+  std::uint64_t index = 0;             // sequential frame number (for ordering)
+  FramePixelFormat format = FramePixelFormat::RGBA32;  // pixel layout for `pixels`
+  std::vector<std::uint8_t> pixels;    // packed pixel data, layout per `format`
 };
+
+// Byte count for a frame's pixel buffer at the given width/height/format.
+// NV12 is rounded to even width/height because the chroma plane is at half
+// resolution — odd dimensions would leave a partial UV sample at the edge.
+inline std::size_t frameBufferSize(FramePixelFormat format, int width, int height) {
+  if (width <= 0 || height <= 0) return 0;
+  switch (format) {
+    case FramePixelFormat::RGBA32:
+      return static_cast<std::size_t>(width) * static_cast<std::size_t>(height) * 4u;
+    case FramePixelFormat::NV12: {
+      // NV12 requires even dimensions for the half-resolution chroma plane.
+      int w = width & ~1;
+      int h = height & ~1;
+      std::size_t y = static_cast<std::size_t>(w) * static_cast<std::size_t>(h);
+      std::size_t uv = y / 2u;
+      return y + uv;
+    }
+  }
+  return 0;
+}
+
+// SDL pixel-format constant for the given DecodedFrame layout. Used when
+// creating the destination SDL_Texture so the renderer samples correctly.
+inline Uint32 sdlPixelFormat(FramePixelFormat format) {
+  switch (format) {
+    case FramePixelFormat::RGBA32: return SDL_PIXELFORMAT_RGBA32;
+    case FramePixelFormat::NV12:   return SDL_PIXELFORMAT_NV12;
+  }
+  return SDL_PIXELFORMAT_RGBA32;
+}
 
 // ---------------------------------------------------------------------------
 // Button — A clickable rectangle in the control UI.

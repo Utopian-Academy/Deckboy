@@ -2014,6 +2014,7 @@
     }
     previewCueTexW_ = 0;
     previewCueTexH_ = 0;
+    previewCueTexFormat_ = 0;
     previewCueFrameIdx_ = static_cast<std::uint64_t>(-1);
   }
 
@@ -2056,12 +2057,9 @@
       clearPreviewCueTexture();
       return;
     }
-    if (syncTexture(controlRenderer_, previewCueTex_,
-                    previewCueTexW_, previewCueTexH_,
-                    frame.width, frame.height,
-                    frame.pixels.data(), frame.width * 4)) {
-      // Texture updated successfully.
-    } else {
+    if (!syncFrameTexture(controlRenderer_, previewCueTex_,
+                          previewCueTexW_, previewCueTexH_,
+                          previewCueTexFormat_, frame)) {
       clearPreviewCueTexture();
     }
   }
@@ -2081,6 +2079,7 @@
     }
     controlPreviewTexW_ = 0;
     controlPreviewTexH_ = 0;
+    controlPreviewTexFormat_ = 0;
     controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   }
 

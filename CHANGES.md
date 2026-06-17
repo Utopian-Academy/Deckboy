@@ -1,4 +1,105 @@
-# CHANGES - Incremental Updates (March–April 2026)
+# CHANGES - Incremental Updates (March–June 2026)
+
+## 2026-06-17 — v0.76.16 (Resizable control window, F11 fullscreen, mascot dropdown)
+
+- **Control window is now resizable**: the operator control window is
+  created with `SDL_WINDOW_RESIZABLE` (minimum 1500×900 retained). The
+  per-frame `layoutButtons` + `SDL_GetWindowSize` reflow path already
+  adapts the UI to the live window size, so dragging the window edge or
+  maximizing now spreads the layout to fill the space.
+- **F11 toggles fullscreen**: `handleKeyDown` flips the control window
+  between windowed and borderless `SDL_WINDOW_FULLSCREEN_DESKTOP`, with a
+  "fullscreen"/"windowed" toast. Cross-platform (core SDL2).
+- **Mascot picker is now a dropdown**: the APPEARANCE card's two-state
+  MASCOT pill became a labelled dropdown ("Mascot: Deckbot/Deckgirl")
+  matching the Theme and UI Scale selectors, using the shared
+  `drawUIDropdown`/`openDropdown` path. Still re-resolves the splash art
+  via `refreshSplashAsset` on change.
+
+## 2026-06-17 — v0.76.15 (Layout chrome scales, dep prompt at every site, touch mode)
+
+- **Layout chrome now scales with `uiScale`**: the layout constants
+  (`kLayoutHeaderHeight`, `kLayoutButtonHeight`, `kLayoutPanelPadding`,
+  `kLayoutPanelGap`, `kLayoutSpacingUnit`, ...) are now mutable inline
+  globals (C++17 `inline int`) recomputed by `App::rebuildLayoutMetrics`
+  from their immutable `*Base` companions every time UI scale changes.
+  All ~49 existing references pick up the scaled values without
+  edits, so panels, buttons, and the bottom bar grow alongside the
+  fonts instead of leaving them stranded inside 1× chrome.
+- **Dep prompt now fires from every operator-initiated path**: the
+  dependency-availability check moved into the setter functions
+  (`setFocusedOutputNdiEnabled`, `setFocusedOutputNdiKeyEnabled`,
+  the new `setFocusedOutputDeckLinkEnabled`/`toggleFocusedOutputDeckLink`
+  wrappers). UI toggles, hotkeys, OSC/Companion `NDI`/`DECKLINK` commands
+  all flow through and prompt when the runtime is missing. Project file
+  load writes the underlying fields directly and stays silent — opening
+  a show authored elsewhere doesn't surprise the operator with prompts.
+- **Touch interaction mode**: new `Project::interactionMode` field
+  ("mouse" default, "touch" alternative). The Pocket 3 preset now flips
+  this alongside the 2.0× scale, and in touch mode the splitter and
+  context-menu hover highlights are suppressed — a tap can't hover, and
+  the sticky highlight after a drag-release was the worst offender.
+  Future tap-friendly tweaks should hang off `inTouchMode()` so one
+  setting keeps doing the right thing.
+
+## 2026-06-17 — v0.76.14 (Mascot swap, dep prompts, UI scale, Pocket 3 preset, packaging zip)
+
+- **Swappable splash mascot**: Settings → APPEARANCE has a `MASCOT` pill that
+  flips between **Deckbot** (default, the v074 art) and **Deckgirl** (the
+  v2 illustration, restored to the v3 pack). Saved per-project. The splash
+  loader's candidate chain now tries `.mp4` and `.gif` before `.png`, so a
+  future animated mascot is a drop-in asset replacement — no code change.
+- **Runtime dependency prompt**: Deckboy now detects when the operator
+  tries to enable a backend whose runtime isn't installed on this machine
+  and pops a modal with a one-tap link to the official vendor download
+  page. Lazy by design — nothing fires at startup. Currently wired for:
+  - NDI Runtime (NDI Output toggle + the `N` hotkey)
+  - Blackmagic Desktop Video (DeckLink Output toggle)
+  - Microsoft WebView2 Runtime (Browser cue creation, Windows only)
+  Uses `SHellExecuteW` on Windows, `xdg-open`/`open` elsewhere — no
+  auto-downloaded installers, no per-build cache to keep fresh.
+- **UI scale factor**: Settings → APPEARANCE has a `UI SCALE` dropdown
+  (1.00× default, 1.25×, 1.50×, 2.00×). At present only fonts pick up the
+  scale — every TTF face is reopened at `base × scale` point size, so text
+  stays crisp on 4K / Pocket 3 displays. Layout chrome (panel padding,
+  button widths) stays at 1× pending a follow-up pass.
+- **Pocket 3 / Touch preset**: APPEARANCE pill that flips the UI scale to
+  2.0× and back. Single-click ergonomic profile for 8" 1920×1200
+  handhelds; a future touch-specific layout layer will bundle in under
+  this same toggle so one tap keeps doing the right thing.
+- **Portable Windows zip**: `tools\package_windows.ps1` produces
+  `dist\Deckboy-<VERSION>-windows-x64.zip` containing the exe, every
+  vcpkg DLL CMake co-located in the build folder, ffmpeg + ffprobe,
+  the MSVC C++ runtime DLLs (app-local — no Visual C++ Redistributable
+  install required on the target machine), `data/`, `LICENSE`, and a
+  `README.txt` describing the optional NDI / DeckLink / WebView2 installs.
+  Single unzip-and-run package for the core feature set.
+
+## 2026-06-16 — v0.76.13 (GPU video upload — NV12 fast path + cheaper scaler)
+
+- **Live video decode now uses NV12 by default** (~62% less pipe bandwidth
+  and CPU memory traffic vs the old RGBA path). FFmpeg writes a planar Y +
+  interleaved UV plane straight into the frame buffer; SDL uploads it via
+  `SDL_UpdateNVTexture` and the GPU samples the YUV→RGB conversion at blit
+  time. Cues with chroma key or color controls still decode as RGBA so the
+  existing CPU effects path keeps working unchanged.
+- **Software scaler dropped from bicubic to fast_bilinear** in the live
+  video pipeline. Bicubic costs ~3–4× more CPU per frame and is
+  indistinguishable on moving video at deck-output sizes. Still images and
+  thumbnails are untouched — they keep their `flags=neighbor` path.
+- DecodedFrame now carries a `FramePixelFormat` tag (RGBA32 default, NV12
+  opt-in). All six upload sites — the main deck texture, per-output layer
+  bridges, per-overlay bridges, control-window preview, focused-engine
+  preview, preview-cue texture — recreate their SDL_Texture on format or
+  size change and pick the right `SDL_UpdateTexture` / `SDL_UpdateNVTexture`
+  variant. New helper `syncFrameTexture()` in `render/texture_helpers.hpp`
+  encapsulates the create/upload pair for callers that don't need a
+  scratch-effects step.
+- **Known trade-off**: toggling chroma key or color controls live on a cue
+  that was already decoded as NV12 will not take visual effect until the
+  next TAKE — the YUV planes can't be mutated by the RGBA effects path.
+  Cues that need live-toggleable effects should enable at least one
+  effect parameter before TAKE so the decoder picks RGBA up front.
 
 ## 2026-04-24 — v0.76.12 (Full networking stack on Windows)
 

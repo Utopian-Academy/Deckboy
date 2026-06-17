@@ -147,7 +147,15 @@
     }
   }
 
-  SDL_Texture* ensureLayerBridgeTexture(OutputRuntime& outputRuntime, int sourceDeckIndex, int width, int height) {
+  // Get-or-create the per-deck bridge texture at this output. Recreates the
+  // texture when width, height, OR SDL pixel format changes — needed because
+  // a cue switch can flip the source frame between RGBA32 and NV12, and an
+  // NV12 sampler cannot be fed RGBA bytes (or vice versa).
+  SDL_Texture* ensureLayerBridgeTexture(OutputRuntime& outputRuntime,
+                                        int sourceDeckIndex,
+                                        int width,
+                                        int height,
+                                        Uint32 format) {
     if (width <= 0 || height <= 0) {
       return nullptr;
     }
@@ -156,7 +164,8 @@
     if (!needsRecreate) {
       int prevW = outputRuntime.layerBridgeTextureWidths[sourceDeckIndex];
       int prevH = outputRuntime.layerBridgeTextureHeights[sourceDeckIndex];
-      needsRecreate = prevW != width || prevH != height;
+      Uint32 prevFmt = outputRuntime.layerBridgeTextureFormats[sourceDeckIndex];
+      needsRecreate = prevW != width || prevH != height || prevFmt != format;
     }
     if (needsRecreate) {
       if (texIt != outputRuntime.layerBridgeTextures.end() && texIt->second) {
@@ -164,7 +173,7 @@
       }
       SDL_Texture* texture = SDL_CreateTexture(
         outputRuntime.outputRenderer,
-        SDL_PIXELFORMAT_RGBA32,
+        format,
         SDL_TEXTUREACCESS_STREAMING,
         width,
         height
@@ -173,6 +182,7 @@
         outputRuntime.layerBridgeTextures.erase(sourceDeckIndex);
         outputRuntime.layerBridgeTextureWidths.erase(sourceDeckIndex);
         outputRuntime.layerBridgeTextureHeights.erase(sourceDeckIndex);
+        outputRuntime.layerBridgeTextureFormats.erase(sourceDeckIndex);
         outputRuntime.layerBridgeFrameIndices.erase(sourceDeckIndex);
         outputRuntime.layerBridgeCueKeys.erase(sourceDeckIndex);
         return nullptr;
@@ -181,6 +191,7 @@
       outputRuntime.layerBridgeTextures[sourceDeckIndex] = texture;
       outputRuntime.layerBridgeTextureWidths[sourceDeckIndex] = width;
       outputRuntime.layerBridgeTextureHeights[sourceDeckIndex] = height;
+      outputRuntime.layerBridgeTextureFormats[sourceDeckIndex] = format;
       outputRuntime.layerBridgeFrameIndices.erase(sourceDeckIndex);
       outputRuntime.layerBridgeCueKeys.erase(sourceDeckIndex);
       return texture;
@@ -188,10 +199,14 @@
     return texIt->second;
   }
 
+  // Get-or-create the per-overlay bridge texture. Same format-aware rebuild
+  // rule as ensureLayerBridgeTexture, keyed by overlay identity instead of
+  // deck index.
   SDL_Texture* ensureOverlayBridgeTexture(OutputRuntime& outputRuntime,
                                           const std::string& overlayKey,
                                           int width,
-                                          int height) {
+                                          int height,
+                                          Uint32 format) {
     if (width <= 0 || height <= 0) {
       return nullptr;
     }
@@ -200,7 +215,8 @@
     if (!needsRecreate) {
       int prevW = outputRuntime.overlayBridgeTextureWidths[overlayKey];
       int prevH = outputRuntime.overlayBridgeTextureHeights[overlayKey];
-      needsRecreate = prevW != width || prevH != height;
+      Uint32 prevFmt = outputRuntime.overlayBridgeTextureFormats[overlayKey];
+      needsRecreate = prevW != width || prevH != height || prevFmt != format;
     }
     if (needsRecreate) {
       if (texIt != outputRuntime.overlayBridgeTextures.end() && texIt->second) {
@@ -208,7 +224,7 @@
       }
       SDL_Texture* texture = SDL_CreateTexture(
         outputRuntime.outputRenderer,
-        SDL_PIXELFORMAT_RGBA32,
+        format,
         SDL_TEXTUREACCESS_STREAMING,
         width,
         height
@@ -217,6 +233,7 @@
         outputRuntime.overlayBridgeTextures.erase(overlayKey);
         outputRuntime.overlayBridgeTextureWidths.erase(overlayKey);
         outputRuntime.overlayBridgeTextureHeights.erase(overlayKey);
+        outputRuntime.overlayBridgeTextureFormats.erase(overlayKey);
         outputRuntime.overlayBridgeFrameIndices.erase(overlayKey);
         outputRuntime.overlayBridgeCueKeys.erase(overlayKey);
         return nullptr;
@@ -225,6 +242,7 @@
       outputRuntime.overlayBridgeTextures[overlayKey] = texture;
       outputRuntime.overlayBridgeTextureWidths[overlayKey] = width;
       outputRuntime.overlayBridgeTextureHeights[overlayKey] = height;
+      outputRuntime.overlayBridgeTextureFormats[overlayKey] = format;
       outputRuntime.overlayBridgeFrameIndices.erase(overlayKey);
       outputRuntime.overlayBridgeCueKeys.erase(overlayKey);
       return texture;
@@ -399,7 +417,10 @@
     if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 || sourceFrame->pixels.empty()) {
       return;
     }
-    SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(*outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height);
+    const Uint32 sourceFormat = sdlPixelFormat(sourceFrame->format);
+    SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(
+      *outputRuntime, sourceDeckIndex,
+      sourceFrame->width, sourceFrame->height, sourceFormat);
     if (!bridgeTexture) {
       return;
     }
@@ -412,13 +433,24 @@
       frameIt->second != sourceFrame->index ||
       cueIt->second != cueKey;
     if (needsUpload) {
-      const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
-      if (cueHasPixelEffects(*sourceCue)) {
-        outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
-        applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
-        uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
+      if (sourceFrame->format == FramePixelFormat::NV12) {
+        // NV12 cues never carry CPU effects — MediaEngine only chooses NV12
+        // when the cue has no chroma key or color controls. Upload directly.
+        const std::uint8_t* y = sourceFrame->pixels.data();
+        const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame->width) *
+                                     static_cast<std::size_t>(sourceFrame->height);
+        SDL_UpdateNVTexture(bridgeTexture, nullptr,
+                            y, sourceFrame->width,
+                            uv, sourceFrame->width);
+      } else {
+        const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
+        if (cueHasPixelEffects(*sourceCue)) {
+          outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
+          applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+          uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
+        }
+        SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
       }
-      SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
       outputRuntime->layerBridgeFrameIndices[sourceDeckIndex] = sourceFrame->index;
       outputRuntime->layerBridgeCueKeys[sourceDeckIndex] = std::move(cueKey);
     }
@@ -439,8 +471,9 @@
         sourceFrame.pixels.empty()) {
       return;
     }
+    const Uint32 sourceFormat = sdlPixelFormat(sourceFrame.format);
     SDL_Texture* bridgeTexture = ensureOverlayBridgeTexture(
-      outputRuntime, overlayKey, sourceFrame.width, sourceFrame.height);
+      outputRuntime, overlayKey, sourceFrame.width, sourceFrame.height, sourceFormat);
     if (!bridgeTexture) {
       return;
     }
@@ -453,13 +486,22 @@
       frameIt->second != sourceFrame.index ||
       cueIt->second != cueKey;
     if (needsUpload) {
-      const std::uint8_t* uploadPixels = sourceFrame.pixels.data();
-      if (cueHasPixelEffects(renderCue)) {
-        outputRuntime.layerBridgeScratchPixels = sourceFrame.pixels;
-        applyCueVisualEffectsToPixels(outputRuntime.layerBridgeScratchPixels, renderCue);
-        uploadPixels = outputRuntime.layerBridgeScratchPixels.data();
+      if (sourceFrame.format == FramePixelFormat::NV12) {
+        const std::uint8_t* y = sourceFrame.pixels.data();
+        const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame.width) *
+                                     static_cast<std::size_t>(sourceFrame.height);
+        SDL_UpdateNVTexture(bridgeTexture, nullptr,
+                            y, sourceFrame.width,
+                            uv, sourceFrame.width);
+      } else {
+        const std::uint8_t* uploadPixels = sourceFrame.pixels.data();
+        if (cueHasPixelEffects(renderCue)) {
+          outputRuntime.layerBridgeScratchPixels = sourceFrame.pixels;
+          applyCueVisualEffectsToPixels(outputRuntime.layerBridgeScratchPixels, renderCue);
+          uploadPixels = outputRuntime.layerBridgeScratchPixels.data();
+        }
+        SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame.width * 4);
       }
-      SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame.width * 4);
       outputRuntime.overlayBridgeFrameIndices[overlayKey] = sourceFrame.index;
       outputRuntime.overlayBridgeCueKeys[overlayKey] = std::move(cueKey);
     }

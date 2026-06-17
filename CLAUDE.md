@@ -54,14 +54,22 @@ cmake --build ../build/windows --config Release
 | `CHANGES.md` | User-facing changelog |
 | `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
 | `docs/VERSION_FLOW.md` | Version flow doc |
+| `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
+| `native/core/system_browser.hpp` | Cross-platform `openExternalUrl()` for dep prompts |
+| `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
 
 ---
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. Current highest: **633** (`kSettingsActionSpoutNamePrompt`). Always allocate next from 634+.
+Settings button actions are integer constants defined at the top of `main.cpp`. Current highest: **636** (`kSettingsActionPocket3Preset`). Always allocate next from 637+.
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
+
+Recent additions (v0.76.14):
+- `kSettingsActionMascotToggle = 634` — flips `Project::splashCharacter` between `deckbot` and `deckgirl`; calls `refreshSplashAsset`.
+- `kSettingsActionUiScaleDropdown = 635` — picks a `Project::uiScale` from a fixed list; calls `applyUiScale` to reload fonts.
+- `kSettingsActionPocket3Preset = 636` — toggles `Project::uiScale` between 1.0 and 2.0.
 
 ---
 
@@ -78,11 +86,12 @@ Current field counts:
 ## MediaEngine Internals
 
 - `loadCue()` → sets `activeCue_`, geometry, calls `initStillTimer` for still-type cues, then `startDecoderThreads` or `loadStillFrame`/`loadPatternFrame`
-- `startDecoderThreads()` → spawns ffmpeg video + audio subprocesses as pipe sources
+- `startDecoderThreads()` → spawns ffmpeg video + audio subprocesses as pipe sources. Picks `nv12` pipe format when the cue has no chroma key / color controls, otherwise `rgba` (so the CPU effects path stays valid). Scaler is `fast_bilinear` — bicubic is too expensive and visually indistinguishable on moving video.
 - `startBrowserFrameMode()` → called when first browser frame arrives; must preserve `duration_` from `activeCue_->stillDurationSeconds`
 - `visualFadeGainAt()` → returns 1.0 when no duration or fade defined; suppressed for auto-advance cues
 - `suppressVisualFadeOutForCurrentCue_` → set `true` for auto-advancing cues (crossfade handles the outgoing visual)
 - Frame pipeline: ffmpeg stdout → `readExact` → `frameQueue_` → `uploadFrame()` → SDL_Texture
+- `DecodedFrame::format` (`FramePixelFormat`) is the canonical flag: every upload site reads it to pick `SDL_UpdateTexture` (RGBA32) vs `SDL_UpdateNVTexture` (NV12), and to recreate the cached texture when the format changes. Helper: `syncFrameTexture()` in `render/texture_helpers.hpp`. See DEVNOTES `GPU Hardware Decode + NV12 Upload Path` for the full architecture.
 
 ---
 
