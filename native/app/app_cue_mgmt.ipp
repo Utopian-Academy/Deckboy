@@ -912,6 +912,15 @@
     if (url.empty()) {
       return;
     }
+#if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
+    // Browser cues on Windows render through WebView2. Without the runtime,
+    // the cue would author OK but render as a black frame at TAKE — surface
+    // the requirement at creation instead so the operator can install once.
+    if (!webView2RuntimeAvailable()) {
+      promptForWebView2Runtime();
+      return;
+    }
+#endif
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
 
     Cue cue;

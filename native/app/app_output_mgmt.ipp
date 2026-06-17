@@ -2072,6 +2072,7 @@
     runtime.layerBridgeTextures.clear();
     runtime.layerBridgeTextureWidths.clear();
     runtime.layerBridgeTextureHeights.clear();
+    runtime.layerBridgeTextureFormats.clear();
     runtime.layerBridgeFrameIndices.clear();
     runtime.layerBridgeCueKeys.clear();
     for (auto& [overlayKey, texture] : runtime.overlayBridgeTextures) {
@@ -2083,6 +2084,7 @@
     runtime.overlayBridgeTextures.clear();
     runtime.overlayBridgeTextureWidths.clear();
     runtime.overlayBridgeTextureHeights.clear();
+    runtime.overlayBridgeTextureFormats.clear();
     runtime.overlayBridgeFrameIndices.clear();
     runtime.overlayBridgeCueKeys.clear();
     runtime.layerBridgeScratchPixels.clear();
@@ -2308,6 +2310,14 @@
     if (output.ndiEnabled == enabled) {
       return;
     }
+    // Enable path is operator-initiated by every path that reaches this
+    // setter (UI toggle, hotkey, OSC command). Project file load writes
+    // the field directly and never comes through here, so prompting here
+    // never surprises a project being opened from disk.
+    if (enabled && !ndiRuntimeAvailable()) {
+      promptForNdiRuntime();
+      return;
+    }
     output.ndiEnabled = enabled;
     if (!output.ndiEnabled) {
       output.ndiKeyEnabled = false;
@@ -2319,6 +2329,36 @@
 
   void toggleFocusedOutputNdi() {
     setFocusedOutputNdiEnabled(!focusedOutput().ndiEnabled);
+  }
+
+  // DeckLink enable wrapper — gates on deckLinkRuntimeAvailable() so the
+  // dependency prompt fires from every operator-initiated path (settings
+  // toggle, OSC command, hotkey if one ever exists). Project file load
+  // writes the field directly and stays silent.
+  void setFocusedOutputDeckLinkEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    if (output.deckLinkEnabled == enabled) {
+      return;
+    }
+    if (enabled && !deckLinkRuntimeAvailable()) {
+      promptForDeckLinkRuntime();
+      return;
+    }
+    output.deckLinkEnabled = enabled;
+    if (!output.deckLinkEnabled) {
+      auto& rt = outputRuntimes_[project_.focusedOutputIndex];
+      shutdownOutputDeckLink(rt);
+    }
+    triggerToast(std::string("decklink: ") + (output.deckLinkEnabled ? "on" : "off"));
+    markProjectDirty();
+  }
+
+  void toggleFocusedOutputDeckLink() {
+    setFocusedOutputDeckLinkEnabled(!focusedOutput().deckLinkEnabled);
   }
 
   void setFocusedOutputNdiName(const std::string& requestedName) {
@@ -2351,6 +2391,12 @@
     }
     OutputTarget& output = focusedOutputMutable();
     if (output.ndiKeyEnabled == enabled && (!enabled || output.ndiEnabled)) {
+      return;
+    }
+    // Enabling the key also implicitly enables the main NDI sender below,
+    // so the runtime check applies to both sides of the path.
+    if (enabled && !ndiRuntimeAvailable()) {
+      promptForNdiRuntime();
       return;
     }
     if (enabled) {

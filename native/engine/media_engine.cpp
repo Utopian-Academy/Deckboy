@@ -1298,44 +1298,62 @@ void MediaEngine::clearTexture() {
     SDL_DestroyTexture(texture_);
     texture_ = nullptr;
   }
+  textureWidth_ = 0;
+  textureHeight_ = 0;
+  textureFormat_ = 0;
 }
 
 // ---------------------------------------------------------------------------
-// uploadFrame — Push decoded pixel data from CPU to GPU texture.
+// uploadFrame — Push a decoded frame from CPU to its GPU texture.
 //
-// If the frame dimensions changed (e.g. different cue, resolution switch),
-// the existing texture is destroyed and a new one is created with matching size.
+// Recreates the texture whenever dimensions OR pixel format change, so a
+// cue switch from an effects-enabled RGBA cue to a plain NV12 cue rebuilds
+// the texture once and then streams updates without further churn.
 //
-// If any pixel effects are active (chroma key or color controls), the frame
-// pixels are copied into keyedPixelsScratch_ and processed there — the original
-// DecodedFrame pixels are never modified, so they can be re-processed when
-// effect parameters change without re-decoding from ffmpeg.
+// NV12 frames take the fast path: SDL_UpdateNVTexture with the Y plane
+// followed by the interleaved UV plane. They do not go through the effects
+// scratch buffer — startDecoderThreads only picks NV12 when the cue had no
+// chroma key or color controls active at TAKE time, so there is nothing to
+// apply here. Toggling effects live on an NV12 cue is silently ignored
+// until the next reload; the trade-off is recorded in DEVNOTES.
 //
-// Uses SDL_TEXTUREACCESS_STREAMING for efficient pixel upload via SDL_UpdateTexture.
-// Pitch is width * 4 bytes (RGBA32 format, one byte per channel).
+// RGBA frames keep the original CPU-effects pipeline: if effects are
+// active, pixels are copied into keyedPixelsScratch_ and mutated there so
+// the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
     return;
   }
-  // Recreate texture if dimensions changed (different cue or resolution)
-  if (!texture_ || textureWidth_ != frame.width || textureHeight_ != frame.height) {
+  const Uint32 wantFormat = sdlPixelFormat(frame.format);
+  const bool sizeChanged = textureWidth_ != frame.width || textureHeight_ != frame.height;
+  const bool formatChanged = textureFormat_ != wantFormat;
+  if (!texture_ || sizeChanged || formatChanged) {
     clearTexture();
     texture_ = SDL_CreateTexture(
       outputRenderer_,
-      SDL_PIXELFORMAT_RGBA32,
+      wantFormat,
       SDL_TEXTUREACCESS_STREAMING,
       frame.width,
       frame.height
     );
+    if (!texture_) {
+      return;
+    }
     textureWidth_ = frame.width;
     textureHeight_ = frame.height;
+    textureFormat_ = wantFormat;
   }
-  if (!texture_) {
+  if (frame.format == FramePixelFormat::NV12) {
+    const std::uint8_t* y = frame.pixels.data();
+    const std::uint8_t* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height);
+    SDL_UpdateNVTexture(texture_, nullptr, y, frame.width, uv, frame.width);
     return;
   }
-  // Apply per-pixel effects (chroma key + color controls) if any are active.
-  // Work on a scratch copy to preserve the original frame for re-processing.
+  // RGBA path: apply per-pixel effects (chroma key + color controls) if any
+  // are active. The scratch copy keeps the source frame reusable for the next
+  // upload — needed because render() may call uploadFrame again when effect
+  // parameters change without a new frame arriving.
   const std::uint8_t* uploadPixels = frame.pixels.data();
   if (chromaKeyEnabled_ || colorControlsActive(brightness_, contrast_, saturation_, hueShift_)) {
     keyedPixelsScratch_.assign(frame.pixels.begin(), frame.pixels.end());
@@ -1667,8 +1685,21 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
 //
 // Video pipeline:
 //   ffmpeg -hwaccel auto -ss <start> -i <path> -map 0:v:0 -an
-//          -vf scale=<w>:<h>:flags=bicubic[,setpts=...] -f rawvideo -pix_fmt rgba pipe:1
-//   → videoThread_ reads raw RGBA frames via readExact() → frameQueue_
+//          -vf scale=<w>:<h>:flags=fast_bilinear[,setpts=...]
+//          -f rawvideo -pix_fmt {nv12|rgba} pipe:1
+//   → videoThread_ reads raw frames via readExact() → frameQueue_
+//
+// Scaling stays inside ffmpeg so the pipe never carries more bytes than the
+// output needs (a 4K source through a 1080p output ships ~250 MB/s, not 1 GB/s).
+// The scaler is fast_bilinear, not bicubic: bicubic is ~3–4× the CPU cost and
+// indistinguishable at deck-output sizes for moving video. If a still-image
+// path ever shares this code, give it its own filter — neighbor/bicubic stays
+// in the still-image helpers further down.
+//
+// Pixel format is decided per-cue: NV12 (planar YUV, 12 bpp, ~62% less pipe
+// bandwidth than RGBA) for plain cues, RGBA for cues with chroma key or
+// color controls — the effects path mutates RGBA scratch pixels and cannot
+// operate on YUV planes without a shader rewrite.
 //
 // Audio pipeline:
 //   ffmpeg -ss <start> -i <path> -map 0:a:0 -vn
@@ -1729,14 +1760,36 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     decodeW = fallbackW;
     decodeH = fallbackH;
   }
+  // NV12 needs even dimensions for its half-resolution chroma plane. Round
+  // down so the pipe byte count matches what SDL_UpdateNVTexture expects.
+  // For RGBA the same trim is a no-op in practice — sources are virtually
+  // always even — but keeping it unconditional avoids a divergence later.
+  decodeW &= ~1;
+  decodeH &= ~1;
+  if (decodeW <= 0 || decodeH <= 0) {
+    return;
+  }
   std::string scaleFilter = "scale=" + std::to_string(decodeW) + ":" + std::to_string(decodeH)
-                          + ":flags=bicubic";
+                          + ":flags=fast_bilinear";
   double speed = std::clamp(cue.playbackSpeed, 0.25, 4.0);
   if (std::abs(speed - 1.0) > 0.01) {
     std::ostringstream pts;
     pts << std::fixed << std::setprecision(4) << (1.0 / speed);
     scaleFilter += ",setpts=" + pts.str() + "*PTS";
   }
+  // Pixel format is per-cue. Cues with chroma key or color controls need RGBA
+  // because the effects path mutates interleaved RGBA bytes; everything else
+  // takes the NV12 fast path (~62% less pipe bandwidth). The decision is
+  // frozen at decode start — toggling effects mid-playback on an NV12 cue
+  // will not take visual effect until the next TAKE. Documented in
+  // DEVNOTES.md (`GPU Hardware Decode Note`).
+  const bool needsRgbaForEffects =
+    cue.chromaKeyEnabled ||
+    colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift);
+  const FramePixelFormat decodeFormat =
+    needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
+  const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";
+
   // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
   // NDI sources use ffmpeg's libndi_newtek input device; path format: ndi://SOURCE_NAME
   std::vector<std::string> videoArgs = {
@@ -1758,21 +1811,21 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     "-an",
     "-vf", scaleFilter,
     "-f", "rawvideo",
-    "-pix_fmt", "rgba",
+    "-pix_fmt", ffmpegPixFmt,
     "pipe:1"
   });
   if (!spawnPipeProcess(videoProcess_, std::move(videoArgs))) {
     return;
   }
 
-  const size_t frameBytes = static_cast<size_t>(decodeW) * static_cast<size_t>(decodeH) * 4u;
+  const size_t frameBytes = frameBufferSize(decodeFormat, decodeW, decodeH);
   if (frameBytes == 0) {
     videoProcess_.stop();
     decoderEof_ = true;
     return;
   }
   int videoFd = videoProcess_.readFd;
-  videoThread_ = std::thread([this, decodeW, decodeH, frameBytes, cueStartSeconds, videoFd]() {
+  videoThread_ = std::thread([this, decodeW, decodeH, decodeFormat, frameBytes, cueStartSeconds, videoFd]() {
     std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
     while (!decoderStop_.load()) {
       while (!decoderStop_.load()) {
@@ -1794,6 +1847,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
       frame.width = decodeW;
       frame.height = decodeH;
       frame.index = frameIndex++;
+      frame.format = decodeFormat;
       frame.pixels.resize(frameBytes);
 
       if (!readExact(videoFd, frame.pixels.data(), frameBytes)) {
