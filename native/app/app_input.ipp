@@ -100,6 +100,15 @@
       }
       return;
     }
+    if (depPrompt_.active) {
+      // CTA opens the vendor's download page. Either way, dismiss the prompt
+      // so the operator can return to whatever they were doing.
+      if (pointInRect(x, y, depPrompt_.ctaRect)) {
+        deckboy::platform::openExternalUrl(depPrompt_.url);
+      }
+      dismissDependencyPrompt();
+      return;
+    }
 
     if (handleInlineTextEditorMouseDown(x, y)) {
       return;
@@ -740,6 +749,18 @@
       return;
     }
 
+    // F11 — toggle borderless fullscreen on the control window. The renderer's
+    // logical size scales the fixed-grid UI to fill the screen automatically.
+    if (key == SDLK_F11 && !keyRepeat && controlWindow_) {
+      Uint32 winFlags = SDL_GetWindowFlags(controlWindow_);
+      bool isFullscreen =
+        (winFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      SDL_SetWindowFullscreen(controlWindow_,
+                              isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+      triggerToast(isFullscreen ? "windowed" : "fullscreen");
+      return;
+    }
+
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
       if (key == SDLK_n) {
@@ -1019,6 +1040,8 @@
         cycleOutputDisplay(1);
         break;
       case SDLK_n:
+        // toggleFocusedOutputNdi → setFocusedOutputNdiEnabled, which gates on
+        // ndiRuntimeAvailable() and shows the prompt internally.
         toggleFocusedOutputNdi();
         break;
       case SDLK_o:

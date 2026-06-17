@@ -573,10 +573,9 @@
       if (frame && frame->width > 0 && frame->height > 0 &&
           frame->index != controlPreviewFrameIdx_) {
         controlPreviewFrameIdx_ = frame->index;
-        syncTexture(controlRenderer_, controlPreviewTex_,
-                    controlPreviewTexW_, controlPreviewTexH_,
-                    frame->width, frame->height,
-                    frame->pixels.data(), frame->width * 4);
+        syncFrameTexture(controlRenderer_, controlPreviewTex_,
+                         controlPreviewTexW_, controlPreviewTexH_,
+                         controlPreviewTexFormat_, *frame);
       } else if (!frame) {
         // Clear preview when nothing is loaded
         if (controlPreviewTex_) {
@@ -584,6 +583,7 @@
           controlPreviewTex_ = nullptr;
           controlPreviewTexW_ = 0;
           controlPreviewTexH_ = 0;
+          controlPreviewTexFormat_ = 0;
         }
         controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
       }

@@ -64,6 +64,162 @@
                  "esc or N to cancel", pal.inkSoft);
   }
 
+  // ── Runtime dependency detection ──────────────────────────────────────────
+  // Each helper returns true when the host machine has the runtime piece the
+  // matching backend needs. False means "not installed" — the caller should
+  // route the operator to showDependencyPrompt rather than silently enabling
+  // a feature that will then no-op or crash.
+
+  bool ndiRuntimeAvailable() {
+#if defined(DECKBOY_HAS_NDI_SDK)
+    // ensureLoaded() tries the DLL search order from ndi_api.hpp and caches
+    // the result. Re-calling after a successful first load is effectively
+    // free. After a failed first attempt the operator may install NDI and
+    // hit the toggle again; we reset attempted to allow a fresh try.
+    if (ndiApi_.ensureLoaded()) return true;
+    ndiApi_.attempted = false;
+    return false;
+#else
+    return false;
+#endif
+  }
+
+  bool deckLinkRuntimeAvailable() {
+#if defined(DECKBOY_HAS_DECKLINK)
+    // listDevices() returns empty in two cases: Desktop Video is not
+    // installed at all (CoCreateInstance fails on the CLSID) OR it is
+    // installed but no card is present. We treat both as "show the prompt"
+    // because the operator's next step is the same either way — install
+    // / verify Desktop Video, then connect a device. The prompt body
+    // explains both possibilities.
+    auto devices = deckboy::platform::video::DeckLinkOutput::listDevices();
+    return !devices.empty();
+#else
+    return false;
+#endif
+  }
+
+  bool webView2RuntimeAvailable() {
+#if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
+    // The official check is GetAvailableCoreWebView2BrowserVersionString
+    // from WebView2Loader.dll. Querying the registry would also work but
+    // breaks when WebView2 is installed per-user instead of per-machine.
+    // We resolve the symbol dynamically to avoid a hard link dependency.
+    // The returned buffer is COM-allocated; release with CoTaskMemFree
+    // (combaseapi.h, pulled in via the explicit objbase include below).
+    HMODULE lib = ::LoadLibraryW(L"WebView2Loader.dll");
+    if (!lib) return false;
+    using FnPtr = HRESULT (STDAPICALLTYPE *)(PCWSTR, LPWSTR*);
+    auto fn = reinterpret_cast<FnPtr>(
+      ::GetProcAddress(lib, "GetAvailableCoreWebView2BrowserVersionString"));
+    bool available = false;
+    if (fn) {
+      LPWSTR version = nullptr;
+      HRESULT hr = fn(nullptr, &version);
+      available = SUCCEEDED(hr) && version != nullptr;
+      if (version) ::CoTaskMemFree(version);
+    }
+    ::FreeLibrary(lib);
+    return available;
+#else
+    return false;
+#endif
+  }
+
+  // Shortcut helpers — show the prompt with the right text + URL for the
+  // backend the operator was trying to enable. Keep these together so a
+  // future fourth dependency follows the same shape.
+  void promptForNdiRuntime() {
+    showDependencyPrompt(
+      "NDI Runtime required",
+      "NDI Output sends video over IP to NDI receivers. The free NDI Tools "
+      "or NDI Runtime installer from Vizrt provides the libraries Deckboy "
+      "needs. Install it, then try the toggle again.",
+      "https://ndi.video/tools/",
+      "Open NDI Tools page");
+  }
+
+  void promptForDeckLinkRuntime() {
+    showDependencyPrompt(
+      "Blackmagic Desktop Video required",
+      "DeckLink output needs Blackmagic Desktop Video installed AND a "
+      "DeckLink card connected. Install Desktop Video first; if a card is "
+      "already plugged in, also check it appears in Blackmagic's Desktop "
+      "Video Setup utility.",
+      "https://www.blackmagicdesign.com/support/family/capture-and-playback",
+      "Open Blackmagic downloads");
+  }
+
+  void promptForWebView2Runtime() {
+    showDependencyPrompt(
+      "Microsoft WebView2 Runtime required",
+      "Browser cues render web pages with the Microsoft WebView2 Runtime "
+      "(usually preinstalled on Windows 11). Install the free Evergreen "
+      "Runtime from Microsoft and try the cue again.",
+      "https://developer.microsoft.com/en-us/microsoft-edge/webview2/",
+      "Open WebView2 page");
+  }
+
+  // Open the dependency prompt with the given message + vendor URL. Caller
+  // is responsible for deciding whether the dep is missing in the first
+  // place — this is just the presentation step.
+  void showDependencyPrompt(const std::string& title,
+                            const std::string& body,
+                            const std::string& url,
+                            const std::string& ctaLabel) {
+    depPrompt_.title = title;
+    depPrompt_.body = body;
+    depPrompt_.url = url;
+    depPrompt_.ctaLabel = ctaLabel;
+    depPrompt_.active = true;
+  }
+
+  void dismissDependencyPrompt() {
+    depPrompt_.active = false;
+    depPrompt_.ctaRect = {};
+    depPrompt_.closeRect = {};
+  }
+
+  // Modal informing the operator that a runtime dependency is missing.
+  // Mirrors renderQuitConfirm visually so it feels like part of the same
+  // dialog family. CTA opens the vendor's download page.
+  void renderDependencyPrompt() {
+    if (!depPrompt_.active) {
+      return;
+    }
+    int width = 0, height = 0;
+    SDL_GetWindowSize(controlWindow_, &width, &height);
+
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0x0F, 0x38, 0x0F, 180);
+    SDL_Rect overlay {0, 0, width, height};
+    SDL_RenderFillRect(controlRenderer_, &overlay);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // Dialog panel sized for the body text — wider than the quit dialog
+    // because the body is a short sentence rather than a single label.
+    SDL_Rect dialog {(width - 540) / 2, (height - 280) / 2, 540, 280};
+    Primitives::drawFramedPanel(controlRenderer_, dialog, pal.light, pal.deep, pal.mid);
+
+    drawTextSafe(controlRenderer_, fontLarge_,
+                 SDL_Rect {dialog.x + 28, dialog.y + 28, dialog.w - 56, 32},
+                 depPrompt_.title, pal.deep);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {dialog.x + 28, dialog.y + 74, dialog.w - 56, 56},
+                 depPrompt_.body, pal.deep);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {dialog.x + 28, dialog.y + 144, dialog.w - 56, 18},
+                 depPrompt_.url, pal.inkSoft);
+
+    // Two buttons: CTA (open page) is wider, CLOSE is narrow on the right.
+    depPrompt_.ctaRect   = {dialog.x + 28,  dialog.y + 200, dialog.w - 180, 44};
+    depPrompt_.closeRect = {dialog.x + dialog.w - 140, dialog.y + 200, 112, 44};
+    Primitives::drawFramedPanel(controlRenderer_, depPrompt_.ctaRect, pal.dark, pal.deep, pal.mid);
+    Primitives::drawFramedPanel(controlRenderer_, depPrompt_.closeRect, pal.mid, pal.deep, pal.light);
+    drawCenteredText(controlRenderer_, fontBase_, depPrompt_.ctaLabel.c_str(), pal.light, depPrompt_.ctaRect);
+    drawCenteredText(controlRenderer_, fontBase_, "CLOSE", pal.deep, depPrompt_.closeRect);
+  }
+
   void renderStartupDialog() {
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);

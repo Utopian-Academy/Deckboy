@@ -76,6 +76,7 @@
 #include "core/pattern_helpers.hpp"
 #include "core/io_utils.hpp"
 #include "core/subtitle_parser.hpp"
+#include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
@@ -146,6 +147,7 @@
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <shellapi.h>
+#include <objbase.h>
 #endif
 
 #if defined(DECKBOY_HAS_NDI_SDK)
@@ -1789,14 +1791,20 @@ struct OutputRuntime {
   int compositorHeight = 0;
   Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
   int compositorBitDepth = 8;
+  // Per-deck bridge texture for compositing the source frame at this output.
+  // Format tracks SDL_PixelFormatEnum so an RGBA→NV12 (or vice-versa) cue
+  // switch rebuilds the texture instead of silently corrupting its sampler.
   std::map<int, SDL_Texture*> layerBridgeTextures;
   std::map<int, int> layerBridgeTextureWidths;
   std::map<int, int> layerBridgeTextureHeights;
+  std::map<int, Uint32> layerBridgeTextureFormats;
   std::map<int, std::uint64_t> layerBridgeFrameIndices;
   std::map<int, std::string> layerBridgeCueKeys;
+  // Per-overlay bridge texture (same rationale, keyed by overlay identity).
   std::map<std::string, SDL_Texture*> overlayBridgeTextures;
   std::map<std::string, int> overlayBridgeTextureWidths;
   std::map<std::string, int> overlayBridgeTextureHeights;
+  std::map<std::string, Uint32> overlayBridgeTextureFormats;
   std::map<std::string, std::uint64_t> overlayBridgeFrameIndices;
   std::map<std::string, std::string> overlayBridgeCueKeys;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
@@ -2784,6 +2792,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
+  output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
+  output << "ui_scale\t" << project.uiScale << '\n';
+  output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
   output << "osc_query_port\t" << project.oscQueryPort << '\n';
@@ -3075,6 +3086,14 @@ Project loadProject(const fs::path& projectFile) {
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "splash_character") {
+      std::string v = safeString(fields, 1);
+      project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+    } else if (fields[0] == "ui_scale") {
+      project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
+    } else if (fields[0] == "interaction_mode") {
+      std::string v = safeString(fields, 1);
+      project.interactionMode = (v == "touch") ? "touch" : "mouse";
     } else if (fields[0] == "allow_remote_network") {
       project.allowRemoteNetwork = safeBool(fields, 1, false);
     } else if (fields[0] == "osc_query_enabled") {
@@ -3688,7 +3707,7 @@ class App {
       SDL_WINDOWPOS_CENTERED,
       kControlWidth,
       kControlHeight,
-      0
+      SDL_WINDOW_RESIZABLE
     );
     if (!controlWindow_) {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
@@ -3702,6 +3721,11 @@ class App {
       std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    // NOTE: do NOT set SDL_RenderSetLogicalSize here. The control UI reflows to
+    // the live window size every frame (layoutButtons + the SDL_GetWindowSize
+    // calls in the render/overlay code), so a fixed logical size would clamp the
+    // drawable canvas while the layout spread past it — pushing the bottom-right
+    // controls off-screen. Reflow handles resize/fullscreen on its own.
 
     // Scanline overlay texture (1x4 pattern: 2 clear rows + 2 tinted rows)
     scanlineOverlay_ = SDL_CreateTexture(controlRenderer_,
@@ -3731,25 +3755,9 @@ class App {
       }
     }
 
-#ifdef _WIN32
-    // On Windows the display DPI is typically slightly below the 72-point
-    // baseline, making glyphs render ~2pt larger than the layout expects.
-    // Reduce pt sizes here to restore comfortable padding inside UI elements.
-    fontLarge_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 29);
-    fontBase_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 19);
-    fontSmall_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 15);
-    fontMono_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 16);
-    fontPixel_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 21);
-    fontPixelSmall_= TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 10);
-#else
-    fontLarge_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 32);
-    fontBase_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 21);
-    fontSmall_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Sans).string().c_str(), 17);
-    fontMono_      = TTF_OpenFont(Paths::fontPath(Paths::FontName::Mono).string().c_str(), 18);
-    fontPixel_     = TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 24);
-    fontPixelSmall_= TTF_OpenFont(Paths::fontPath(Paths::FontName::Pixel).string().c_str(), 12);
-#endif
-    if (!fontLarge_ || !fontBase_ || !fontSmall_ || !fontMono_) {
+    // Fonts are loaded through loadFonts() so the same code path runs at
+    // boot AND when the operator changes the UI scale at runtime.
+    if (!loadFonts(1.0)) {
       std::cerr << "Font load failed: " << TTF_GetError() << '\n';
       return false;
     }
@@ -3762,6 +3770,10 @@ class App {
     currentProjectFile_ = startupProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
+    // Project may override the boot-time splash character (deckbot default).
+    refreshSplashAsset();
+    // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
+    applyUiScale();
     disarmAllOutputsForStartup();
     // Output starts black — no cue is active until the operator takes one
     for (auto& deck : project_.decks) { deck.activeIndex = -1; }
@@ -3823,30 +3835,7 @@ class App {
       SDL_CloseAudioDevice(uiAudioDevice_);
       uiAudioDevice_ = 0;
     }
-    if (fontLarge_) {
-      TTF_CloseFont(fontLarge_);
-      fontLarge_ = nullptr;
-    }
-    if (fontBase_) {
-      TTF_CloseFont(fontBase_);
-      fontBase_ = nullptr;
-    }
-    if (fontSmall_) {
-      TTF_CloseFont(fontSmall_);
-      fontSmall_ = nullptr;
-    }
-    if (fontMono_) {
-      TTF_CloseFont(fontMono_);
-      fontMono_ = nullptr;
-    }
-    if (fontPixel_) {
-      TTF_CloseFont(fontPixel_);
-      fontPixel_ = nullptr;
-    }
-    if (fontPixelSmall_) {
-      TTF_CloseFont(fontPixelSmall_);
-      fontPixelSmall_ = nullptr;
-    }
+    releaseFonts();
     if (thumbnailThread_.joinable()) {
       thumbnailProcess_.killProcessOnly();
       thumbnailThread_.join();
@@ -3874,6 +3863,9 @@ class App {
     if (controlPreviewTex_) {
       SDL_DestroyTexture(controlPreviewTex_);
       controlPreviewTex_ = nullptr;
+      controlPreviewTexW_ = 0;
+      controlPreviewTexH_ = 0;
+      controlPreviewTexFormat_ = 0;
     }
     releaseUiAssets();
     for (auto* t : monitorsOutputTextures_) { if (t) SDL_DestroyTexture(t); }
@@ -4678,6 +4670,133 @@ class App {
     loadTheme(std::string(env));
   }
 
+  // Splash candidate chain for a given character name. The pick() helper in
+  // initUiAssetPackPaths takes the first that exists on disk. The .gif/.mp4
+  // entries are placeholders — when the splash overlay learns to play an
+  // animated form, these get tried before the static .png. The legacy v2
+  // filename (splash_boot_deckgirl@1x.png) and the v074 plain art stay at
+  // the tail so a stripped pack still boots without a missing-asset hole.
+  std::vector<fs::path> pickSplashCandidates(const std::string& character) {
+    std::string name = character.empty() ? std::string("deckbot") : character;
+    return {
+      fs::path("splash") / (std::string("deckboy_splash_") + name + ".mp4"),
+      fs::path("splash") / (std::string("deckboy_splash_") + name + ".gif"),
+      fs::path("splash") / (std::string("deckboy_splash_") + name + ".png"),
+      fs::path("splash") / "splash_boot_deckgirl@1x.png",
+      fs::path("splash") / "deckboy_splash_v074.png"
+    };
+  }
+
+  // Free every TTF_Font we hold. Used during shutdown and any time we need
+  // to reload fonts at a different point size (UI scale change).
+  void releaseFonts() {
+    auto close = [](TTF_Font*& f) { if (f) { TTF_CloseFont(f); f = nullptr; } };
+    close(fontLarge_);
+    close(fontBase_);
+    close(fontSmall_);
+    close(fontMono_);
+    close(fontPixel_);
+    close(fontPixelSmall_);
+  }
+
+  // Load (or reload) the six UI fonts at sizes derived from the linux
+  // baseline (large 32, base 21, small 17, mono 18, pixel 24, pixel-small
+  // 12) multiplied by the operator's UI scale. Windows historically renders
+  // ~2pt larger than the layout expects because of how its DPI baseline
+  // differs, so we apply a small platform nudge before the scale.
+  bool loadFonts(double scale) {
+    if (!std::isfinite(scale) || scale <= 0.0) {
+      scale = 1.0;
+    }
+    scale = std::clamp(scale, 0.75, 3.0);
+#ifdef _WIN32
+    const double platformNudge = 0.90;  // see comment above
+#else
+    const double platformNudge = 1.00;
+#endif
+    const double k = scale * platformNudge;
+    auto pt = [&](int base) {
+      return std::max(6, static_cast<int>(std::lround(base * k)));
+    };
+    const auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
+    const auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
+    const auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
+    fontLarge_      = TTF_OpenFont(sans.c_str(),  pt(32));
+    fontBase_       = TTF_OpenFont(sans.c_str(),  pt(21));
+    fontSmall_      = TTF_OpenFont(sans.c_str(),  pt(17));
+    fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
+    fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
+    fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+    return fontLarge_ && fontBase_ && fontSmall_ && fontMono_;
+  }
+
+  // True when the operator is in touch mode (Pocket 3 preset or a future
+  // touch-explicit setting). Used by render code to skip hover-only
+  // affordances that don't translate to a tap-only input model.
+  bool inTouchMode() const { return project_.interactionMode == "touch"; }
+
+  // Recompute the live layout-metric globals (kLayoutHeaderHeight etc.) from
+  // their immutable base values × the given scale. Snaps each result to at
+  // least 1px to avoid divide-by-zero in snapDownToGrid. Callers should hit
+  // this before the next render frame so panel/button geometry matches the
+  // new metrics.
+  void rebuildLayoutMetrics(double scale) {
+    if (!std::isfinite(scale) || scale <= 0.0) scale = 1.0;
+    auto sc = [scale](int base) {
+      return std::max(1, static_cast<int>(std::lround(base * scale)));
+    };
+    kLayoutSpacingUnit     = sc(kLayoutSpacingUnitBase);
+    kLayoutPanelPadding    = sc(kLayoutPanelPaddingBase);
+    kLayoutPanelGap        = sc(kLayoutPanelGapBase);
+    kLayoutPanelBorder     = std::max(1, sc(kLayoutPanelBorderBase));
+    kLayoutTextInset       = sc(kLayoutTextInsetBase);
+    kLayoutHeaderHeight    = sc(kLayoutHeaderHeightBase);
+    kLayoutBottomBarHeight = sc(kLayoutBottomBarHeightBase);
+    kLayoutButtonHeight    = sc(kLayoutButtonHeightBase);
+    kLayoutButtonPadding   = sc(kLayoutButtonPaddingBase);
+    kLayoutButtonGap       = sc(kLayoutButtonGapBase);
+  }
+
+  // Re-open every font AND rebuild every layout metric at the project's
+  // current UI scale. Safe to call from the settings handler — releaseFonts
+  // drops the old textures and the existing rendering code picks the new
+  // fonts and metrics up on the next frame.
+  void applyUiScale() {
+    releaseFonts();
+    if (!loadFonts(project_.uiScale)) {
+      // Fall back to 1.0× so the UI isn't fontless. The new value is still
+      // persisted; the operator can try again or pick a smaller scale.
+      releaseFonts();
+      loadFonts(1.0);
+      rebuildLayoutMetrics(1.0);
+      return;
+    }
+    rebuildLayoutMetrics(project_.uiScale);
+  }
+
+  // Re-resolve and reload the splash texture using the current project
+  // setting. Safe to call any time the character changes — releaseUiImage
+  // drops the cached texture so the next render frame re-decodes from disk.
+  void refreshSplashAsset() {
+    if (!uiPackAvailable_) {
+      return;
+    }
+    auto candidates = pickSplashCandidates(project_.splashCharacter);
+    fs::path chosen = uiPackRoot_ / candidates.front();
+    for (const auto& rel : candidates) {
+      fs::path candidate = uiPackRoot_ / rel;
+      if (fs::exists(candidate)) {
+        chosen = candidate;
+        break;
+      }
+    }
+    if (uiSplashArt_.path != chosen) {
+      releaseUiImage(uiSplashArt_);
+      uiSplashArt_.path = chosen;
+    }
+    ensureUiImageLoaded(uiSplashArt_);
+  }
+
   void initUiAssetPackPaths() {
     fs::path dataDir = Paths::dataDir();
     fs::path root = dataDir / kUiPackRelativePathV3;
@@ -4707,11 +4826,11 @@ class App {
     uiAboutLogo_.path = pick({
       fs::path("header") / "about_logo.png"
     });
-    uiSplashArt_.path = pick({
-      fs::path("splash") / "deckboy_splash_v074.png",
-      fs::path("splash") / "deckboy_splash_deckgirl.png",
-      fs::path("splash") / "splash_boot_deckgirl@1x.png"
-    });
+    // Splash is selected from project_.splashCharacter ("deckbot" or
+    // "deckgirl"). The named PNGs live next to a legacy fallback; future
+    // animated forms (.gif/.mp4) will be picked up by extending the
+    // pickSplashCandidates helper rather than by patching this list.
+    uiSplashArt_.path = pick(pickSplashCandidates(project_.splashCharacter));
     uiMonitorFrameArt_.path = pick({
       fs::path("monitor") / "monitor_frame.png",
       fs::path("monitor") / "monitor_frame@1x.png"
@@ -5011,6 +5130,9 @@ class App {
   static constexpr int kSettingsActionDeckLink10BitToggle = 631;
   static constexpr int kSettingsActionSpoutToggle = 632;
   static constexpr int kSettingsActionSpoutNamePrompt = 633;
+  static constexpr int kSettingsActionMascotToggle = 634;
+  static constexpr int kSettingsActionUiScaleDropdown = 635;
+  static constexpr int kSettingsActionPocket3Preset = 636;
   static constexpr int kSettingsActionAllowRemoteToggle = 634;
   static constexpr int kSettingsActionStreamKeyPrompt = 635;
   static constexpr int kSettingsActionVideoSubTabBase = 636; // 636–639 for 4 sub-tabs
@@ -5198,9 +5320,12 @@ class App {
   UiImageAsset uiModeOrder_;
 
   std::unique_ptr<MediaEngine> previewMediaEngine_;
+  // Live preview textures track SDL pixel format so an RGBA→NV12 cue switch
+  // (or vice versa) rebuilds the texture instead of reusing a stale sampler.
   SDL_Texture* previewCueTex_ = nullptr;
   int previewCueTexW_ = 0;
   int previewCueTexH_ = 0;
+  Uint32 previewCueTexFormat_ = 0;
   std::uint64_t previewCueFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::string previewCueKey_;
   Cue previewResolvedCue_;
@@ -5208,6 +5333,7 @@ class App {
   SDL_Texture* controlPreviewTex_ = nullptr;
   int controlPreviewTexW_ = 0;
   int controlPreviewTexH_ = 0;
+  Uint32 controlPreviewTexFormat_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
   std::vector<MonitorsTileHit> monitorsTileHits_;
@@ -5277,6 +5403,23 @@ class App {
   bool confirmQuit_ = false;
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};
+
+  // Modal prompt shown when the operator tries to enable an output backend or
+  // create a cue kind whose runtime dependency is not installed on this
+  // machine (NDI Runtime, Blackmagic Desktop Video, WebView2 Runtime). The
+  // CTA button opens the official vendor download page in the default
+  // browser; Close just dismisses. The prompt is lazy — it only appears
+  // when the operator actually attempts the gated action.
+  struct DependencyPromptState {
+    bool active = false;
+    std::string title;       // e.g. "NDI Runtime required"
+    std::string body;        // e.g. one or two sentences of context
+    std::string url;         // vendor download page (https://...)
+    std::string ctaLabel;    // e.g. "Open NDI Tools download page"
+    SDL_Rect ctaRect {};
+    SDL_Rect closeRect {};
+  };
+  DependencyPromptState depPrompt_;
   int pendingLiveDeleteConfirmDeckIndex_ = -1;
   std::string pendingLiveDeleteConfirmSignature_;
   std::string pendingLiveDeleteConfirmMessage_;

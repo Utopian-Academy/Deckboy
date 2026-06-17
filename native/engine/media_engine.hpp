@@ -202,6 +202,7 @@ class MediaEngine {
   SDL_Texture* texture_ = nullptr;           // GPU texture for the current frame
   int textureWidth_ = 0;                     // texture dimensions (match decoded frame)
   int textureHeight_ = 0;
+  Uint32 textureFormat_ = 0;                 // SDL pixel format of the live texture (0 if none)
 
   // -- State: transition (crossfade / dip-to-black) ----------------------------
   SDL_Texture* transitionTexture_ = nullptr; // snapshot of the outgoing cue's last frame

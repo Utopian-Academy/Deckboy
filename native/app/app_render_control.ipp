@@ -771,7 +771,9 @@
     }
     if (playlistSplitterRect_.w > 0 && playlistSplitterRect_.h > 0) {
       bool active = layoutDragMode_ == LayoutDragMode::Playlist;
-      bool hover = pointInRect(mouseX_, mouseY_, playlistSplitterRect_);
+      // Touch mode skips the hover highlight — a tap can't hover, and the
+      // sticky highlight after a drag is more distracting than helpful.
+      bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, playlistSplitterRect_);
       SDL_Rect rail {playlistSplitterRect_.x + playlistSplitterRect_.w / 2 - 1,
                      playlistSplitterRect_.y + 12, 2, std::max(0, playlistSplitterRect_.h - 24)};
       SDL_Color railColor = active ? pal.light
@@ -799,6 +801,9 @@
     if (showStartupDialog_ && !showSplashOverlay_) {
       renderStartupDialog();
     }
+    // Dependency prompts sit above the settings modal so the operator sees
+    // them right where the toggle they just clicked lives.
+    renderDependencyPrompt();
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();

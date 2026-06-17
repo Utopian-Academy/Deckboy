@@ -289,15 +289,134 @@
   when any AOI edge is active.
 - Serialized as fields 28–31 of the OutputTarget record (guard: `fields.size() >= 32`).
 
-## GPU Hardware Decode Note
-- `startDecoderThreads` passes `-hwaccel auto` to ffmpeg before the `-i` argument.
-- FFmpeg selects the best available hardware decoder (DXVA2/D3D11VA on Windows,
-  NVDEC/VAAPI/VDPAU on Linux/macOS) and automatically inserts a `hwdownload` +
-  `format=yuv420p` filter when the downstream filter chain needs software frames.
-- The output format remains `rawvideo rgba` — hardware decode only affects the decode
-  stage; frame transfer to CPU memory happens inside ffmpeg before pipe output.
-- No fallback code is needed: ffmpeg falls back to software silently when no hardware
-  decoder is available.
+## Dependency Prompt (v0.76.14)
+- Three optional Windows backends — NDI runtime, Blackmagic Desktop Video,
+  Microsoft WebView2 — are not redistributable but Deckboy can detect them
+  at runtime and route the operator to the official vendor download page.
+- Detection lives next to the modal in `app/app_overlays.ipp`:
+  - `ndiRuntimeAvailable()` calls `NdiApi::ensureLoaded()` (clears
+    `attempted` on failure so a fresh attempt after installing works).
+  - `deckLinkRuntimeAvailable()` returns true iff `DeckLinkOutput::listDevices()`
+    finds at least one device. Empty means either Desktop Video missing or
+    no card connected; the prompt copy addresses both.
+  - `webView2RuntimeAvailable()` dynamically loads `WebView2Loader.dll` and
+    calls `GetAvailableCoreWebView2BrowserVersionString` — the official
+    runtime-availability check. Frees the COM-allocated version string
+    via `CoTaskMemFree` (objbase.h, included from `main.cpp`).
+- Prompt state is `App::depPrompt_` (a `DependencyPromptState` struct).
+  `showDependencyPrompt()` populates it; `renderDependencyPrompt()` draws
+  the modal in `renderControlWindow()`'s overlay stack; click handling
+  lives in `processMouseDown` next to the existing confirmQuit_ block.
+  CTA opens the vendor URL via `deckboy::platform::openExternalUrl()`
+  (`core/system_browser.hpp` — ShellExecuteW on Windows, xdg-open / open
+  elsewhere). Either button dismisses the prompt.
+- Hook points must check at the UI-action site, NOT at the underlying
+  setter, so a project file opened on a machine without the dep can still
+  load with the flag respected (the setter then silently degrades).
+  Current hooks: NDI toggle in settings + the `N` hotkey; DeckLink toggle
+  in settings; `addBrowserCue` (Windows-only branch).
+
+## UI Scale (v0.76.14, layout-chrome pass v0.76.15)
+- `Project::uiScale` (double, default 1.0, clamped to [0.75, 3.0]) is the
+  operator-facing scale multiplier. Persisted in the show file as
+  `ui_scale` so a project authored on a 4K monitor keeps its scale.
+- Fonts: `loadFonts(scale)` reopens all six TTF faces at `base × scale ×
+  platformNudge` point sizes (Windows keeps the historical 0.9 nudge for
+  its DPI baseline). Six base sizes: large 32, base 21, small 17, mono 18,
+  pixel 24, pixel-small 12.
+- Layout chrome: the `kLayout*` identifiers in `core/constants.hpp` are
+  now mutable `inline int` globals (C++17), seeded from immutable
+  `*Base` constexprs and rewritten by `App::rebuildLayoutMetrics(scale)`.
+  `applyUiScale()` calls both `loadFonts` and `rebuildLayoutMetrics` so
+  the next frame draws against a consistent set of metrics. Every prior
+  callsite that read `kLayoutHeaderHeight` etc. picks up the scaled
+  value without edits — the rename strategy is in-place rather than
+  per-callsite.
+- Default arguments in `render/layout.hpp` (VerticalLayout/HorizontalLayout/
+  GridLayout/UITable) read `kLayoutPanelGap` / `kLayoutButtonGap` at call
+  time, so they auto-scale too. Callers that pass explicit gaps still
+  need to feed scaled values themselves.
+- Pocket 3 / Touch preset is a single pill that bundles `uiScale = 2.0`
+  AND `interactionMode = "touch"` (see Touch Mode note). The "active"
+  state on the pill requires both fields to match the preset, so a
+  half-applied state (e.g. scale 2.0 but mouse mode) renders as inactive.
+
+## Touch Interaction Mode (v0.76.15)
+- `Project::interactionMode` (`"mouse"` default, `"touch"` alternative)
+  persisted as `interaction_mode` in the show file.
+- `App::inTouchMode()` is the only accessor render code should consult.
+  Three suppression sites today:
+  - playlist splitter hover (`app_render_control.ipp`)
+  - inspector splitter hover (`app_render_main.ipp`)
+  - context menu item hover (`app_ui_widgets.ipp`)
+- The Pocket 3 preset sets `interactionMode = "touch"` and `uiScale = 2.0`
+  in lockstep. Add new touch-only ergonomic behavior here — never split
+  the touch surface across a second flag.
+- Right-click menus, drag-resize splitters, and other mouse-only gestures
+  are intentionally not yet rewired for touch. The preset is an
+  ergonomic improvement, not a full touch-input redesign — that's
+  product work.
+
+## Splash Mascot Swap (v0.76.14)
+- `Project::splashCharacter` ("deckbot" default | "deckgirl") names the
+  splash art. `pickSplashCandidates(character)` in `main.cpp` returns a
+  fallback chain: `deckboy_splash_<name>.{mp4,gif,png}` then the legacy v2
+  filename, then the v074 plain art. `refreshSplashAsset()` re-resolves
+  and reloads the texture.
+- Both assets live in `data/ui/deckboy_ui_pack_v3/splash/`. To add a third
+  character: drop `deckboy_splash_<name>.png` into that folder and either
+  extend the toggle in settings or set the value via a saved project.
+- For an animated mascot: drop `deckboy_splash_<name>.mp4` (or `.gif`)
+  next to the PNG and teach `UiImageAsset` to render video frames. The
+  pickSplashCandidates chain already tries those extensions first, so the
+  upgrade lands without touching the splash overlay code path.
+
+## GPU Hardware Decode + NV12 Upload Path (v0.76.13)
+- `startDecoderThreads` passes `-hwaccel auto` before `-i`. FFmpeg picks the
+  best hardware decoder (DXVA2/D3D11VA on Windows, NVDEC/VAAPI/VDPAU on
+  Linux/macOS) and inserts a `hwdownload + format=...` filter automatically
+  when the downstream filter chain needs CPU frames. Falls back to software
+  decode silently when no hardware backend is available.
+- **Pipe pixel format is per-cue.** A cue with `chromaKeyEnabled` or active
+  color controls (`brightness`/`contrast`/`saturation`/`hueShift` ≠ unity)
+  decodes as `rawvideo rgba`, because the CPU effects path
+  (`applyCueVisualEffectsToPixels`) mutates interleaved RGBA bytes. Every
+  other cue decodes as `rawvideo nv12` — planar Y plane followed by
+  interleaved UV, 12 bpp instead of 32, cutting pipe + system-RAM traffic
+  by ~62%. Decision is frozen at TAKE time; the engine reads the cue once
+  in `startDecoderThreads`.
+- **Frame shape is tagged.** `DecodedFrame::format` carries the layout
+  (`FramePixelFormat::RGBA32` or `NV12`). All six SDL_Texture upload sites
+  branch on it:
+  - `MediaEngine::uploadFrame` — main deck texture
+  - `renderDeckLayerIntoOutput` — per-output layer bridge
+  - `renderOverlayFrameIntoOutput` — per-overlay bridge
+  - `uploadPreviewCueTexture` — preview-cue texture
+  - `update()` focused-engine block — control-window preview texture
+  Each tracks `Uint32` cached SDL pixel format alongside cached
+  width/height and recreates the texture when format OR dimensions
+  change. `syncFrameTexture()` in `render/texture_helpers.hpp` is the
+  shared helper for the create/upload pair; callers that need
+  CPU-effects pre-processing (the bridge and main-deck paths) inline the
+  branch instead so they can apply effects only on the RGBA arm.
+- **NV12 requires even dimensions** because the chroma plane is at half
+  resolution. `startDecoderThreads` rounds `decodeW`/`decodeH` down to
+  even before building the scale filter; `frameBufferSize()` does the
+  same trim when computing the byte count. Sources virtually always have
+  even dimensions, but the trim avoids a partial-UV-row hazard.
+- **CPU scaler is fast_bilinear**, not bicubic. Bicubic costs ~3–4× more
+  per frame and is indistinguishable on moving video at deck-output
+  sizes. Still-image and thumbnail paths (`loadStillFrame`,
+  `decodeSingleFrame`) keep `flags=neighbor` — that decision is
+  deliberate for pixel-art and diagram stills.
+- **Live effect-toggle limitation.** If the operator enables chroma key
+  or color controls on a cue already decoded as NV12, the effect will
+  not appear visually until the next TAKE — the upload path takes the
+  NV12 branch and skips the RGBA effects scratch. If you need
+  live-toggleable effects, enable at least one effect parameter on the
+  cue before TAKE so the decoder picks RGBA up front. A real fix would
+  push effects to a fragment shader so they run on the GPU regardless
+  of pipe format; that's left as future work.
 
 ## TSL/Tally Protocol Note
 - UDP listener on port 5800 (configurable). Supports TSL 3.1 (20-byte packets) and

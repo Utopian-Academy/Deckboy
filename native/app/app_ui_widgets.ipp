@@ -240,7 +240,7 @@
     Primitives::fillRect(controlRenderer_, contextMenuRect_, bg);
     Primitives::strokeRect(controlRenderer_, contextMenuRect_, pal.dark);
     for (const auto& item : contextItems_) {
-      bool hover = pointInRect(mouseX_, mouseY_, item.rect);
+      bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, item.rect);
       if (hover) {
         SDL_Color hov {48, 90, 48, 200};
         Primitives::fillRect(controlRenderer_, item.rect, hov);
