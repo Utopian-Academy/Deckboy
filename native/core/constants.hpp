@@ -94,16 +94,34 @@ inline std::uint32_t kDeleteBezelColor  = 0x8B3A3AFFu;  // danger red bezel (139
 // All panels, buttons, and text insets snap to multiples of kLayoutSpacingUnit
 // (8px grid). This ensures consistent vertical rhythm and alignment.
 // ---------------------------------------------------------------------------
-constexpr int kLayoutSpacingUnit = 8;        // base grid unit (all spacing is a multiple)
-constexpr int kLayoutPanelPadding = 16;      // inner padding within panels (2 × grid)
-constexpr int kLayoutPanelGap = 12;          // gap between adjacent panels
-constexpr int kLayoutPanelBorder = 2;        // panel border stroke width
-constexpr int kLayoutTextInset = 12;         // text inset from panel edge
-constexpr int kLayoutHeaderHeight = 56;      // panel header bar height (7 × grid)
-constexpr int kLayoutBottomBarHeight = 132;  // bottom control bar height
-constexpr int kLayoutButtonHeight = 48;      // standard button height (6 × grid)
-constexpr int kLayoutButtonPadding = 12;     // button internal horizontal padding
-constexpr int kLayoutButtonGap = 8;          // gap between adjacent buttons (1 × grid)
+// Layout constants are mutable at runtime because Project::uiScale rebuilds
+// them at boot and on every UI-scale change (see App::rebuildLayoutMetrics).
+// The *Base values are the immutable 1.0x baselines; rendering code should
+// read the live (non-Base) names, which are inline globals updated in place.
+constexpr int kLayoutSpacingUnitBase     = 8;
+constexpr int kLayoutPanelPaddingBase    = 16;
+constexpr int kLayoutPanelGapBase        = 12;
+constexpr int kLayoutPanelBorderBase     = 2;
+constexpr int kLayoutTextInsetBase       = 12;
+constexpr int kLayoutHeaderHeightBase    = 56;
+constexpr int kLayoutBottomBarHeightBase = 132;
+constexpr int kLayoutButtonHeightBase    = 48;
+constexpr int kLayoutButtonPaddingBase   = 12;
+constexpr int kLayoutButtonGapBase       = 8;
+
+// Live (scaled) layout values. `inline` (C++17) gives one definition across
+// TUs while still allowing runtime mutation by App::rebuildLayoutMetrics.
+// Existing call sites read these names unchanged from the pre-scale era.
+inline int kLayoutSpacingUnit     = kLayoutSpacingUnitBase;
+inline int kLayoutPanelPadding    = kLayoutPanelPaddingBase;
+inline int kLayoutPanelGap        = kLayoutPanelGapBase;
+inline int kLayoutPanelBorder     = kLayoutPanelBorderBase;
+inline int kLayoutTextInset       = kLayoutTextInsetBase;
+inline int kLayoutHeaderHeight    = kLayoutHeaderHeightBase;
+inline int kLayoutBottomBarHeight = kLayoutBottomBarHeightBase;
+inline int kLayoutButtonHeight    = kLayoutButtonHeightBase;
+inline int kLayoutButtonPadding   = kLayoutButtonPaddingBase;
+inline int kLayoutButtonGap       = kLayoutButtonGapBase;
 
 // ---------------------------------------------------------------------------
 // App identity strings — title bar, version display, about dialog.

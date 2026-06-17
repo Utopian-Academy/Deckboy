@@ -54,7 +54,7 @@
     }
     if (inspectorSplitterRect_.w > 0 && inspectorSplitterRect_.h > 0) {
       bool active = layoutDragMode_ == LayoutDragMode::Inspector;
-      bool hover = pointInRect(mouseX_, mouseY_, inspectorSplitterRect_);
+      bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, inspectorSplitterRect_);
       SDL_Rect rail {inspectorSplitterRect_.x + inspectorSplitterRect_.w / 2 - 1,
                      inspectorSplitterRect_.y + 12, 2, std::max(0, inspectorSplitterRect_.h - 24)};
       SDL_Color railColor = active ? pal.light
