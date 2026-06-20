@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March–June 2026)
 
+## 2026-06-20 — v0.76.18 (New app/taskbar icon)
+
+- **New Deckboy app icon**: a pixel-art handheld-cartridge icon (green play
+  triangle) is now embedded in `Deckboy.exe` and applied to the live windows.
+  Source art lives at `art/windows/icons/deckboy_app.ico` (multi-resolution
+  16→256 px, regenerable from `deckboy_app_master.png`). The Windows icon
+  resource wiring, which had drifted out of CMake, is restored durably:
+  `art/windows/deckboy.rc.in` + a `configure_file` step generate the
+  `IDI_DECKBOY_APP_ICON` resource at build time, so it survives a fresh CMake
+  reconfigure. The same resource feeds both the Explorer/Alt-Tab/pinned-taskbar
+  icon and the runtime `applyDeckboyWindowIcon()` (WM_SETICON) path.
+
 ## 2026-06-20 — v0.76.17 (Still cues hold correctly, still fade-out default off, high-refresh loop)
 
 - **Still cues now hold at the end of their duration**: a hold / pause-on-last
