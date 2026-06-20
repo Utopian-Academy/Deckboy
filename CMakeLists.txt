@@ -370,6 +370,20 @@ set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
 add_dependencies(deckboy-native deckboy_generate_version)
 if(WIN32)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
+
+  # Embed the application icon as resource IDI_DECKBOY_APP_ICON. This drives the
+  # Explorer/Alt-Tab/taskbar-pin icon AND is loaded at runtime by
+  # applyDeckboyWindowIcon() (WM_SETICON) for the live window/taskbar icon.
+  set(DECKBOY_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/art/windows/icons/deckboy_app.ico")
+  if(EXISTS "${DECKBOY_APP_ICON}")
+    file(TO_NATIVE_PATH "${DECKBOY_APP_ICON}" _deckboy_icon_native)
+    string(REPLACE "\\" "\\\\" DECKBOY_APP_ICON_RC_PATH "${_deckboy_icon_native}")
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/art/windows/deckboy.rc.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc" @ONLY)
+    target_sources(deckboy-native PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
+  else()
+    message(WARNING "Deckboy app icon not found at ${DECKBOY_APP_ICON}; exe will use the default icon.")
+  endif()
 endif()
 
 # Platform modules (conditional)
