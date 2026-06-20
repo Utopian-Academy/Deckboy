@@ -1,5 +1,33 @@
 # DEVNOTES
 
+## Still Cue Hold / Fade Interaction (v0.76.17)
+- **Symptom:** an Image (or other still-type) cue with hold / pause-on-last set
+  vanished the instant its `stillDurationSeconds` elapsed, even though the frame
+  was still resident. Animated Pattern cues masked the bug because they re-render
+  every tick.
+- **Root cause chain:**
+  1. The output composites `MediaEngine::currentFrame()` (the `DecodedFrame`),
+     and its alpha = `currentVisualFadeGain()` = `visualFadeGainAt(position())`.
+  2. `position()` returns `currentPosition_` whenever the engine isn't `Playing`.
+  3. `handlePlaybackEnd()` → `PauseOnLast` correctly froze at
+     `currentPosition_ = pausedPosition_ = duration_` and set state `Paused`.
+  4. BUT the very next `update()` tick took the non-video `else` branch and
+     reset `currentPosition_ = 0.0`. So `position()` returned 0, and
+     `visualFadeGainAt(0)` applied the **fade-IN** ramp at t=0 → gain 0 → the
+     held frame drew fully transparent.
+- **Fix:** the still `else` branch now holds `currentPosition_ = pausedPosition_`
+  instead of snapping to 0. `pausedPosition_` is the authoritative freeze point
+  (0 at start, mid-cue for a manual pause, `duration_` after pause-on-last).
+- **Fade-out policy:** `visualFadeGainAt` does NOT special-case hold cues — a
+  configured fade-out always ramps. Instead, still-type cues default to
+  `fadeOutSeconds = 0` in `applyDeckDefaultsToCue` (a static graphic that holds
+  shouldn't dip to black), but the operator can re-enable fade-out per cue and it
+  will then run normally. An earlier attempt that suppressed fade-out for
+  PauseOnLast in `visualFadeGainAt` was reverted because it broke deliberately
+  configured fade-outs.
+- **Render loop refresh:** `run()`'s anti-spin floor is `1/240s`, not `1/120s`,
+  so vsync (not the floor) governs on 144/165/240 Hz displays.
+
 ## Output Backend Route Architecture (v0.76.11)
 - Output destinations use a catalog → route-plan → runtime-route
   pipeline. `OutputBackendCatalog` (output_backend.cpp) reports all

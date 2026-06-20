@@ -542,7 +542,13 @@ void MediaEngine::update() {
         handlePlaybackEnd();
       }
     } else {
-      currentPosition_ = 0.0;
+      // Paused/stopped still: hold the paused position rather than snapping to
+      // 0. `pausedPosition_` is the real freeze point — 0 at the start, the
+      // mid-cue spot for a manual pause, or `duration_` after a pause-on-last
+      // end. Resetting to 0 here made the output evaluate the fade-IN ramp at
+      // t=0 (gain 0 → fully transparent), so a held still vanished at the end
+      // of its duration even though its frame was still resident.
+      currentPosition_ = pausedPosition_;
     }
     return;
   }
@@ -964,7 +970,11 @@ double MediaEngine::visualFadeGainAt(double positionSeconds) const {
   if (!suppressFadeInForCurrentCue_ && activeCue_->fadeInSeconds > 0.001) {
     gain = std::min(gain, std::clamp(positionSeconds / activeCue_->fadeInSeconds, 0.0, 1.0));
   }
-  // Fade-out: linear ramp from 1 to 0 over fadeOutSeconds before the end
+  // Fade-out: linear ramp from 1 to 0 over fadeOutSeconds before the end.
+  // Honored whenever the operator configured a fade-out, including hold/
+  // pause-on-last stills — if you set a fade-out you want to see it. Stills
+  // default to fadeOutSeconds == 0 (see applyDeckDefaultsToCue) so the common
+  // case holds cleanly; this branch only engages once it's turned on.
   if (!suppressVisualFadeOutForCurrentCue_ && activeCue_->fadeOutSeconds > 0.001 && duration_ > 0.0) {
     double remaining = std::max(0.0, duration_ - positionSeconds);
     gain = std::min(gain, std::clamp(remaining / activeCue_->fadeOutSeconds, 0.0, 1.0));
