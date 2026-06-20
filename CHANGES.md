@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March–June 2026)
 
+## 2026-06-20 — v0.76.17 (Still cues hold correctly, still fade-out default off, high-refresh loop)
+
+- **Still cues now hold at the end of their duration**: a hold / pause-on-last
+  still (Image/Pattern/Browser/Composite) was vanishing when its duration
+  elapsed. Root cause: `MediaEngine::update()` reset `currentPosition_` to 0
+  for any paused still, so the output's `currentVisualFadeGain()` evaluated the
+  fade-IN ramp at t=0 (gain 0 → fully transparent). The held position is now
+  kept at `pausedPosition_` (which `handlePlaybackEnd` sets to `duration_` for
+  pause-on-last), so the frame stays at full opacity. This also fixes manual
+  mid-cue pauses snapping their fade state back to the start.
+- **Still-type cues default to no fade-out**: `applyDeckDefaultsToCue` now forces
+  `fadeOutSeconds = 0` for still kinds. A static graphic that holds shouldn't dip
+  to black at the end. Fade-out is still fully honored if the operator turns it
+  on per cue (the `visualFadeGainAt` fade-out ramp was kept general, not special-
+  cased for hold cues).
+- **High-refresh render loop**: the main loop's anti-CPU-spin floor was raised
+  from 120 Hz to 240 Hz so stills and transitions render at the monitor's full
+  native rate (144/165/240 Hz) via vsync instead of being clamped to 120.
+
 ## 2026-06-17 — v0.76.16 (Resizable control window, F11 fullscreen, mascot dropdown)
 
 - **Control window is now resizable**: the operator control window is

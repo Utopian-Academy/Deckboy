@@ -3927,8 +3927,13 @@ class App {
         }
       }
       // Prevent CPU spin when vsync isn't gating (hidden window, browser cue, etc.)
+      // The control window present is vsync-locked, so on a normal display this
+      // floor never engages — it only bounds the loop when nothing is blocking
+      // on a vblank. Keep it high (240 Hz) so high-refresh monitors (144/165/
+      // 240 Hz) render stills and transitions at their full native rate via
+      // vsync instead of being clamped down to 120.
       auto frameElapsed = std::chrono::steady_clock::now() - frameStart;
-      constexpr auto kMinFrameTime = std::chrono::microseconds(1000000 / 120);
+      constexpr auto kMinFrameTime = std::chrono::microseconds(1000000 / 240);
       if (frameElapsed < kMinFrameTime) {
         auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(kMinFrameTime - frameElapsed);
         Uint32 delayMs = static_cast<Uint32>(std::max<long long>(

@@ -761,6 +761,11 @@
 
     if (isDefaultStillDurationCueKind(cue.kind)) {
       cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
+      // Stills hold at the end of their duration by default, so a fade-out would
+      // dip the held frame to black — almost never what you want for a static
+      // graphic. Default still-type cues to NO fade-out; the operator can still
+      // turn fade-out on per cue (and it will then ramp as configured).
+      cue.fadeOutSeconds = 0.0;
     }
   }
 
