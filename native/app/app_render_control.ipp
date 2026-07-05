@@ -897,6 +897,29 @@
     drawUIPanel(primaryFrame, pal.light, pal.deep, pal.mid);
     SDL_Rect primaryClip {primaryFrame.x + 8, primaryFrame.y + 8, primaryFrame.w - 16, std::max(0, primaryFrame.h - 16)};
     SDL_RenderSetClipRect(controlRenderer_, &primaryClip);
+    int primaryTotalH = static_cast<int>(primaryIndices.size()) * (kRowHeight + 8) - 8;
+    int primaryScrollMax = std::max(0, primaryTotalH - primaryClip.h);
+    if (static_cast<int>(deckScrollMax_.size()) <= deckIndex) {
+      deckScrollMax_.resize(deckIndex + 1, 0);
+    }
+    if (static_cast<int>(deckScrollSettleMs_.size()) <= deckIndex) {
+      deckScrollSettleMs_.resize(deckIndex + 1, 0);
+    }
+    deckScrollMax_[deckIndex] = primaryScrollMax;
+    // Rubber-band at the BOTTOM only: the wheel may push a little past the last
+    // cue (capped), then this eases it back once the wheel is idle. Time-based
+    // decay so the spring is visible regardless of the high render rate.
+    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 lastMs = deckScrollSettleMs_[deckIndex];
+    deckScrollSettleMs_[deckIndex] = nowMs;
+    if (deckScrolls_[deckIndex] > primaryScrollMax && nowMs - lastDeckScrollMs_ > 90) {
+      double dt = (lastMs == 0) ? 16.0 : std::min(100.0, static_cast<double>(nowMs - lastMs));
+      double over = static_cast<double>(deckScrolls_[deckIndex] - primaryScrollMax);
+      int next = primaryScrollMax + static_cast<int>(std::lround(over * std::exp(-dt / 71.0)));
+      deckScrolls_[deckIndex] = (next <= primaryScrollMax + 1) ? primaryScrollMax : next;
+    }
+    deckScrolls_[deckIndex] = std::clamp(deckScrolls_[deckIndex], 0,
+                                         primaryScrollMax + kDeckScrollOverscroll);
     int y = primaryClip.y - deckScrolls_[deckIndex];
     for (int cueIndex : primaryIndices) {
       SDL_Rect row {primaryClip.x, y, primaryClip.w, kRowHeight};

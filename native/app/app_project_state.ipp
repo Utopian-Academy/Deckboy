@@ -1243,9 +1243,10 @@
   bool startNewShow(bool withToast = true) {
     resetTransientPreviewState();
     project_ = Project {};
-    // A fresh show inherits the currently active colorway so starting over
-    // doesn't snap the UI back to the default theme; it's saved from here on.
-    project_.theme = currentThemeName_;
+    // A fresh show resets to the default skin rather than carrying over the
+    // colorway of whatever was loaded before.
+    loadTheme("gameboy");
+    project_.theme = "gameboy";
     normalizeProject(project_);
     disarmAllOutputsForStartup();
     for (auto& deck : project_.decks) {

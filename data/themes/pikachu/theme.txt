@@ -1,0 +1,15 @@
+# Deckboy Theme: Pikachu
+# Electric amber-yellow on the dark.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1D1A13FF
+shell_inner	2C281EFF
+shell_shadow	080807FF
+screen_light	FBDA56FF
+screen_mid	B1972FFF
+screen_dark	2C271CFF
+screen_deep	050505FF
+screen_ink_soft	A89857FF
+button_bezel	7F6F2FFF
+delete_bezel	AB2B33FF
+scanline_alpha	12

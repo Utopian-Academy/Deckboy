@@ -582,6 +582,46 @@
     markProjectDirty();
   }
 
+  // Reset every selected cue's inspector settings (geometry, color, fades,
+  // crop, chroma, etc.) back to deck defaults, leaving media path/name/id and
+  // probed metadata intact. Applies to the whole selection like paste.
+  void resetSelectedCueSettings() {
+    Deck& deck = focusedDeckMutable();
+    auto indices = selectedCueIndices(deck);
+    if (indices.empty()) {
+      triggerToast("cue reset: select cue");
+      return;
+    }
+    pushUndoSnapshot();
+    int appliedCount = 0;
+    for (int index : indices) {
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      Cue& cue = deck.cues[index];
+      // Match the target's kind so kind-specific defaults (still duration, fade
+      // defaults) reset correctly; hasAudio/duration keep audio + trim sane.
+      Cue defaults;
+      defaults.kind = cue.kind;
+      defaults.hasAudio = cue.hasAudio;
+      defaults.duration = cue.duration;
+      applyDeckDefaultsToCue(defaults, deck);
+      applyCopiedCueSettings(cue, defaults);
+      ++appliedCount;
+    }
+    if (appliedCount <= 0) {
+      triggerToast("cue reset: no targets");
+      return;
+    }
+    refreshFocusedLiveCueRuntimeIfSelected();
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    refreshSelectedCuePreviewCaches();
+    triggerToast(appliedCount == 1 ? "cue settings reset"
+                                   : ("cue settings reset x" + std::to_string(appliedCount)));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   void applyCopiedWarpSettings(Deck& target, const Deck& source) {
     target.warpEnabled = source.warpEnabled;
     target.warpMode = normalizeWarpMode(source.warpMode);

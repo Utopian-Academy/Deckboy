@@ -1378,9 +1378,16 @@
       SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY, kCtrlW - kInspectorInset * 2, kCueSummaryH};
       drawUIPanel(summaryRect, pal.light, pal.deep, pal.mid);
 
-      int summaryBtnX = summaryRect.x + summaryRect.w - kSummaryPad - (kSummaryBtnW * 2 + kSummaryBtnGap);
+      auto convReason = cueConvertReason(*selectedCue);
+      bool cueConverting = isCueConverting(selectedCue->path);
+      bool showConvert = convReason.has_value() || cueConverting;
+      int summaryBtnCount = 3 + (showConvert ? 1 : 0);
+      int summaryBtnX = summaryRect.x + summaryRect.w - kSummaryPad
+                        - (kSummaryBtnW * summaryBtnCount + kSummaryBtnGap * (summaryBtnCount - 1));
       SDL_Rect copyRect {summaryBtnX, summaryRect.y + 4, kSummaryBtnW, 26};
       SDL_Rect pasteRect {copyRect.x + copyRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
+      SDL_Rect resetRect {pasteRect.x + pasteRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
+      SDL_Rect convertRect {resetRect.x + resetRect.w + kSummaryBtnGap, summaryRect.y + 4, kSummaryBtnW, 26};
       int labelAvailW = std::max(0, copyRect.x - summaryRect.x - kSummaryPad - 8);
       SDL_Rect labelRect {summaryRect.x + kSummaryPad, summaryRect.y + 6, labelAvailW, 22};
       drawTextSafe(controlRenderer_, fontSmall_, labelRect, "SELECTED CUE", pal.inkSoft);
@@ -1390,8 +1397,23 @@
       SDL_Color pasteInk = cueSettingsClipboard_ ? pal.light : pal.inkSoft;
       drawUIPanel(pasteRect, pasteFill, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, pasteRect, "PASTE", pasteInk);
+      drawUIPanel(resetRect, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, resetRect, "RESET", pal.deep);
       quickButtons_.push_back({copyRect, QuickAction::CopyCueSettings, "Copy inspector settings from the selected cue"});
       quickButtons_.push_back({pasteRect, QuickAction::PasteCueSettings, "Paste copied settings to the current cue selection"});
+      quickButtons_.push_back({resetRect, QuickAction::ResetCueSettings, "Reset all inspector settings on the cue selection to defaults"});
+      if (showConvert) {
+        // Contextual: only shows when Deckboy can't play the cue (or would play
+        // it poorly), or while a conversion is running.
+        drawUIPanel(convertRect, cueConverting ? pal.mid : pal.dark, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, convertRect,
+                             cueConverting ? "..." : "CONVERT", cueConverting ? pal.inkSoft : pal.light);
+        if (!cueConverting) {
+          quickButtons_.push_back({convertRect, QuickAction::ConvertCueMedia,
+            std::string("May not play well") + (convReason ? (" (" + *convReason + ")") : std::string()) +
+            " - convert to a compatible copy"});
+        }
+      }
 
       // Name row — h=28 to contain fontBase_ without bottom clip; width stops before copy button
       SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryRect.y + 34, labelAvailW, 28};

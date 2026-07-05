@@ -1,0 +1,15 @@
+# Deckboy Theme: Peach
+# Pink-purple royal glow on the void.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1B141DFF
+shell_inner	291F2BFF
+shell_shadow	080708FF
+screen_light	FB56EDFF
+screen_mid	B12FA6FF
+screen_dark	281D2BFF
+screen_deep	050505FF
+screen_ink_soft	A857A2FF
+button_bezel	7F2F78FF
+delete_bezel	AB2B33FF
+scanline_alpha	12

@@ -14,8 +14,15 @@ is what makes decode zero-copy trivial afterward.
 
 ## 1. Prerequisites
 
-- [ ] `vcpkg install sdl3 sdl3-ttf:x64-windows` (classic mode; root
-      `C:\Users\user\vcpkg`). Confirm port availability/names at install time.
+- [x] **DONE (2026-07-04):** `vcpkg install sdl3 sdl3-ttf:x64-windows` →
+      **SDL3 3.4.0** + SDL3_ttf installed at `C:\Users\user\vcpkg\installed\x64-windows`
+      (headers, `SDL3.lib`/`SDL3_ttf.lib`, `SDL3Config.cmake`/`SDL3_ttfConfig.cmake`).
+      **Verified against the installed headers** — all three plan-critical symbols
+      are present:
+      - `SDL_CreateTextureWithProperties` + `SDL_PROP_TEXTURE_CREATE_D3D11_TEXTURE_POINTER`
+        (`"SDL.texture.create.d3d11.texture"`) → **zero-copy decode is real**, not assumed.
+      - `SDL_SetRenderVSync` → per-renderer vsync decouple.
+      - `SDL_PIXELFORMAT_NV12` → decode-upload / texture-import format.
 - Keep SDL2/SDL2_ttf installed until the migration builds green (parallel, then
   remove). CMake `find_package(SDL3 CONFIG)` / `SDL3::SDL3`, `SDL3_ttf::SDL3_ttf`.
 - libav dev libs already installed (for the *next* session) — no action here.
