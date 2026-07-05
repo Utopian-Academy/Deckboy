@@ -237,6 +237,11 @@
                    SDL_Rect {listClip.x + 4, listClip.y + 8, listClip.w - 8, 16},
                    "(empty — import media)", pal.inkSoft);
     } else {
+      int totalCueH = cueCount * (kCueRowH + kCueRowGap) - kCueRowGap;
+      int scrollMax = std::max(0, totalCueH - listClip.h);
+      // Clamp before drawing so the wheel can never scroll past the last cue
+      // into empty space (that over-scroll was easy to get lost in).
+      deckScrolls_[deckIndex] = std::clamp(deckScrolls_[deckIndex], 0, scrollMax);
       int rowY = listClip.y - deckScrolls_[deckIndex];
       for (int ci = 0; ci < cueCount; ++ci) {
         if (rowY + kCueRowH >= listClip.y && rowY <= listClip.y + listClip.h) {
@@ -245,9 +250,6 @@
         }
         rowY += kCueRowH + kCueRowGap;
       }
-      int totalCueH = cueCount * (kCueRowH + kCueRowGap) - kCueRowGap;
-      int scrollMax = std::max(0, totalCueH - listClip.h);
-      deckScrolls_[deckIndex] = std::clamp(deckScrolls_[deckIndex], 0, scrollMax);
     }
     SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
@@ -648,8 +650,8 @@
       fileNewBtnRect_    = {ax, ty, 60, kTBtnH}; ax += 60 + kTBtnGap;
       fileOpenBtnRect_   = {ax, ty, 72, kTBtnH}; ax += 72 + kTBtnGap;
       fileSaveBtnRect_   = {ax, ty, 60, kTBtnH}; ax += 60 + kTGrpGap;
+      fileSaveAsBtnRect_ = SDL_Rect {};  // SAVE always prompts, so no separate SAVE AS
       fileBundleBtnRect_ = {ax, ty, 92, kTBtnH}; ax += 92 + kTGrpGap;
-      fileSaveAsBtnRect_ = SDL_Rect {};
       drawTBtn(fileNewBtnRect_,  "NEW");
       drawTBtn(fileOpenBtnRect_, "OPEN");
       drawTBtn(fileSaveBtnRect_, "SAVE");
@@ -921,15 +923,15 @@
                    pal.mid);
       SDL_Rect overlayClip {overlayFrame.x + 8, overlayFrame.y + 42, overlayFrame.w - 16, std::max(0, overlayFrame.h - 50)};
       SDL_RenderSetClipRect(controlRenderer_, &overlayClip);
+      int totalOverlayH = static_cast<int>(overlayIndices.size()) * (kRowHeight + 8) - 8;
+      int overlayScrollMax = std::max(0, totalOverlayH - overlayClip.h);
+      deckOverlayScrolls_[deckIndex] = std::clamp(deckOverlayScrolls_[deckIndex], 0, overlayScrollMax);
       int overlayY = overlayClip.y - deckOverlayScrolls_[deckIndex];
       for (int cueIndex : overlayIndices) {
         SDL_Rect row {overlayClip.x, overlayY, overlayClip.w, kRowHeight};
         renderCueRow(row, deckIndex, cueIndex);
         overlayY += kRowHeight + 8;
       }
-      int totalOverlayH = static_cast<int>(overlayIndices.size()) * (kRowHeight + 8) - 8;
-      int overlayScrollMax = std::max(0, totalOverlayH - overlayClip.h);
-      deckOverlayScrolls_[deckIndex] = std::clamp(deckOverlayScrolls_[deckIndex], 0, overlayScrollMax);
       SDL_RenderSetClipRect(controlRenderer_, nullptr);
     } else {
       deckOverlayScrolls_[deckIndex] = 0;
@@ -942,17 +944,38 @@
     
     std::string playlistInfo = std::string(deck.playlistLoop ? "LOOP" : "ONCE")
       + std::string("  |  ") + (deck.shuffle ? "SHUFFLE" : "ORDER");
-    drawTextSafe(controlRenderer_, fontSmall_, {footer.x + 6, footer.y + 6, footer.w - 12, 24},
+    // Height derived from the live font, not a literal 24 — scaled/HiDPI
+    // faces are taller and the hardcoded rect clipped the descenders.
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 {footer.x + 6, footer.y + 6, footer.w - 12, textLineHeight(fontSmall_)},
                  playlistInfo, pal.dark);
-
-    SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
-    Primitives::drawFramedPanel(controlRenderer_, opacityRail, pal.light,
-                    pal.deep, pal.shellOuter);
-    int fillW = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opacityRail.w - 4)));
-    fillW = std::clamp(fillW, 0, opacityRail.w - 4);
-    SDL_Rect opacityFill {opacityRail.x + 2, opacityRail.y + 2, fillW, opacityRail.h - 4};
-    Primitives::fillRect(controlRenderer_, opacityFill, pal.dark);
-    deckOpacityFaderRects_[deckIndex] = opacityRail;
+    // Deck LAYER fader — the compositing opacity for stacking multiple
+    // decks on one output (the multi-deck "Super Deckboy" model). It is not
+    // a per-cue control, so in a single-deck show it's meaningless clutter:
+    // hide it entirely and let multi-deck shows get it back, labeled.
+    if (project_.decks.size() > 1) {
+      int opacityPct = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f));
+      std::string opacityLabel = "LAYER " + std::to_string(opacityPct) + "%";
+      int labelW = 0, labelH = 0;
+      if (fontSmall_) TTF_SizeUTF8(fontSmall_, opacityLabel.c_str(), &labelW, &labelH);
+      // Same row as LOOP|ORDER (the 50px footer only fits one text line),
+      // right-aligned in DEEP ink — the old pal.dark was near-invisible on
+      // the shellInner fill.
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   {footer.x + footer.w - labelW - 10, footer.y + 6,
+                    labelW + 4, textLineHeight(fontSmall_)},
+                   opacityLabel, pal.deep);
+      SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
+      Primitives::drawFramedPanel(controlRenderer_, opacityRail, pal.light,
+                      pal.deep, pal.shellOuter);
+      int fillW = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * (opacityRail.w - 4)));
+      fillW = std::clamp(fillW, 0, opacityRail.w - 4);
+      SDL_Rect opacityFill {opacityRail.x + 2, opacityRail.y + 2, fillW, opacityRail.h - 4};
+      Primitives::fillRect(controlRenderer_, opacityFill, pal.dark);
+      deckOpacityFaderRects_[deckIndex] = opacityRail;
+    } else {
+      deckOpacityFaderRects_[deckIndex] = SDL_Rect {};  // no invisible click target
+    }
   }
 
   void renderCueRow(const SDL_Rect& row, int deckIndex, int index) {
@@ -1099,22 +1122,30 @@
       SDL_SetRenderDrawColor(controlRenderer_, inkColor.r, inkColor.g, inkColor.b, inkColor.a);
       switch (action) {
         case QuickAction::ToggleFadeIn: {
+          // Filled rising wedge — 1px outline ramps read as stray marks at
+          // 20px button sizes; a solid shape reads as "fade up" at a glance.
           int left = rect.x + 3;
-          int right = rect.x + rect.w - 3;
-          int bottom = rect.y + rect.h - 4;
-          SDL_RenderDrawLine(controlRenderer_, left, bottom, left + 3, bottom);
-          SDL_RenderDrawLine(controlRenderer_, left + 3, bottom, right - 1, rect.y + 4);
-          SDL_RenderDrawLine(controlRenderer_, right - 3, rect.y + 5, right - 1, rect.y + 4);
-          SDL_RenderDrawLine(controlRenderer_, right - 1, rect.y + 4, right - 1, rect.y + 6);
+          int right = rect.x + rect.w - 4;
+          int bottom = rect.y + rect.h - 5;
+          int top = rect.y + 4;
+          int span = std::max(1, right - left);
+          for (int x = left; x <= right; ++x) {
+            int h = (x - left) * (bottom - top) / span;
+            SDL_RenderDrawLine(controlRenderer_, x, bottom - h, x, bottom);
+          }
           break;
         }
         case QuickAction::ToggleFadeOut: {
+          // Filled falling wedge — mirror of fade-in.
           int left = rect.x + 3;
-          int right = rect.x + rect.w - 3;
-          int bottom = rect.y + rect.h - 4;
-          SDL_RenderDrawLine(controlRenderer_, left, rect.y + 4, right - 4, bottom);
-          SDL_RenderDrawLine(controlRenderer_, right - 4, bottom, right - 1, bottom);
-          SDL_RenderDrawLine(controlRenderer_, right - 4, bottom, right - 4, bottom - 2);
+          int right = rect.x + rect.w - 4;
+          int bottom = rect.y + rect.h - 5;
+          int top = rect.y + 4;
+          int span = std::max(1, right - left);
+          for (int x = left; x <= right; ++x) {
+            int h = (right - x) * (bottom - top) / span;
+            SDL_RenderDrawLine(controlRenderer_, x, bottom - h, x, bottom);
+          }
           break;
         }
         case QuickAction::ToggleLoop:
@@ -1123,8 +1154,9 @@
             SDL_Rect{rect.x, rect.y - 2, rect.w, rect.h}, "\xe2\x88\x9e", inkColor);
           break;
         case QuickAction::ToggleHold: {
-          SDL_Rect barL {rect.x + rect.w / 2 - 4, rect.y + 3, 2, rect.h - 6};
-          SDL_Rect barR {rect.x + rect.w / 2 + 2, rect.y + 3, 2, rect.h - 6};
+          // 3px pause bars — 2px reads as hairlines next to the solid wedges.
+          SDL_Rect barL {rect.x + rect.w / 2 - 5, rect.y + 4, 3, rect.h - 8};
+          SDL_Rect barR {rect.x + rect.w / 2 + 2, rect.y + 4, 3, rect.h - 8};
           Primitives::fillRect(controlRenderer_, barL, inkColor);
           Primitives::fillRect(controlRenderer_, barR, inkColor);
           break;
@@ -1140,17 +1172,15 @@
           int hornX = rect.x + rect.w * 55 / 100;
           int hornTopY = rect.y + 2;
           int hornBotY = rect.y + rect.h - 2;
-          SDL_Point horn[4] {
-            {box.x + box.w, by},
-            {hornX, hornTopY},
-            {hornX, hornBotY},
-            {box.x + box.w, by + bh}
-          };
           Primitives::fillRect(controlRenderer_, box, inkColor);
-          SDL_RenderDrawLine(controlRenderer_, horn[0].x, horn[0].y, horn[1].x, horn[1].y);
-          SDL_RenderDrawLine(controlRenderer_, horn[1].x, horn[1].y, horn[2].x, horn[2].y);
-          SDL_RenderDrawLine(controlRenderer_, horn[2].x, horn[2].y, horn[3].x, horn[3].y);
-          SDL_RenderDrawLine(controlRenderer_, horn[3].x, horn[3].y, horn[0].x, horn[0].y);
+          // Fill the horn (outline-only didn't read as a speaker at this size)
+          int hornSpan = std::max(1, hornX - (box.x + box.w));
+          for (int x = box.x + box.w; x <= hornX; ++x) {
+            int frac = (x - (box.x + box.w)) * 100 / hornSpan;
+            int topY = by + (hornTopY - by) * frac / 100;
+            int botY = by + bh + (hornBotY - (by + bh)) * frac / 100;
+            SDL_RenderDrawLine(controlRenderer_, x, topY, x, botY);
+          }
           if (enabled) {
             // Two short wave lines at right side of button
             int wx = hornX + 3;

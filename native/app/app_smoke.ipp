@@ -407,11 +407,10 @@
         }
       }
       expect(hasAtem && hasArtNet, "integration backend route plan");
-#if defined(_WIN32)
-      expect(!atemSupported && !artNetSupported, "integration runtime support flags");
-#else
+      // ATEM and Art-Net bridges are plain UDP listeners — supported on all
+      // platforms since the v0.76.12 cross-platform networking pass. (The
+      // old #ifdef _WIN32 expectation predated Windows socket support.)
       expect(atemSupported && artNetSupported, "integration runtime support flags");
-#endif
     }
 
     {
@@ -533,8 +532,8 @@
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
       project.decks = {deck};
       project.outputs = {
-        OutputTarget {"Program Out", 0, 1, true, "window", -1, true, "srt", "srt://127.0.0.1:9100?mode=caller", "", 7200},
-        OutputTarget {"Stage Left Stream", 0, 2, true, "stream", 0, true, "rtmp", "rtmp://127.0.0.1/live", "stage-left", 4200}
+        OutputTarget {"Program Out", 0, 1, "", true, "window", -1, true, "srt", "srt://127.0.0.1:9100?mode=caller", "", 7200},
+        OutputTarget {"Stage Left Stream", 0, 2, "", true, "stream", 0, true, "rtmp", "rtmp://127.0.0.1/live", "stage-left", 4200}
       };
       project.outputs[0].ndiEnabled = true;
       project.outputs[0].ndiSourceName = "Program Fill";
@@ -712,7 +711,7 @@
       legacyDeck.ndiKeyEnabled = true;
       legacyDeck.ndiKeySourceName = "Legacy Key";
       legacy.decks = {legacyDeck};
-      legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, false, "window", -1, false, "srt", "", "", 6000}};
+      legacy.outputs = {OutputTarget {"Legacy Output", 0, 0, "", false, "window", -1, false, "srt", "", "", 6000}};
       normalizeProject(legacy);
       expect(!legacy.outputs.empty()
                && legacy.outputs[0].ndiEnabled
@@ -720,6 +719,46 @@
                && legacy.outputs[0].ndiKeyEnabled
                && legacy.outputs[0].ndiKeySourceName == "Legacy Key",
              "legacy deck ndi migrated to output");
+    }
+
+    {
+      // Numeric-entry shorthand: 'x' multiplies, "px" units are ignored.
+      auto v1 = parseNumericExpression("1920x2");
+      auto v2 = parseNumericExpression("960px * 2");
+      auto v3 = parseNumericExpression("3840/2");
+      auto v4 = parseNumericExpression("1920X2 + 10px");
+      expect(v1 && std::abs(*v1 - 3840.0) < 0.001, "expression: 1920x2");
+      expect(v2 && std::abs(*v2 - 1920.0) < 0.001, "expression: 960px * 2");
+      expect(v3 && std::abs(*v3 - 1920.0) < 0.001, "expression: 3840/2");
+      expect(v4 && std::abs(*v4 - 3850.0) < 0.001, "expression: 1920X2 + 10px");
+    }
+
+    {
+      // Fade in/out end-to-end through the live engine path. A Pattern cue
+      // decodes on the CPU (no ffmpeg subprocess) and the engine tolerates a
+      // null renderer, so this exercises the real loadCue → position() →
+      // currentVisualFadeGain() chain the output compositor multiplies into
+      // the bridge-texture alpha.
+      MediaEngine engine(nullptr, 0);
+      Cue fadeCue;
+      fadeCue.kind = CueKind::Pattern;
+      fadeCue.name = "fade-check";
+      fadeCue.path = "pattern://smpte-bars";
+      fadeCue.stillDurationSeconds = 4.0;
+      fadeCue.fadeInSeconds = 1.0;
+      fadeCue.fadeOutSeconds = 1.0;
+      engine.loadCue(&fadeCue, true);
+      double gainStart = engine.currentVisualFadeGain();
+      SDL_Delay(500);
+      engine.update();
+      double gainMid = engine.currentVisualFadeGain();
+      engine.seek(3.5);  // pattern seek pauses at the target position
+      engine.update();
+      double gainTail = engine.currentVisualFadeGain();
+      engine.stopAll();
+      expect(gainStart < 0.15, "fade-in gain starts near zero");
+      expect(gainMid > 0.30 && gainMid < 0.75, "fade-in gain ramps mid-fade");
+      expect(gainTail > 0.30 && gainTail < 0.70, "fade-out gain ramps near cue end");
     }
 
     std::cout << "smoke failures: " << failures << '\n';

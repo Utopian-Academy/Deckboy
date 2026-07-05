@@ -1957,6 +1957,22 @@
       }
       return;
     }
+    if (command == "WIDTH" || command == "HEIGHT") {
+      // Pixel-based size commands — same path as the inspector width/height
+      // editors, so the aspect link applies. SCALE/SCALEX/SCALEY below stay
+      // as legacy raw-factor commands for existing Companion configs.
+      auto value = parseNumber(1);
+      if (value && *value > 0.0) {
+        bool ok = command == "WIDTH" ? setSelectedWidthPx(*value)
+                                     : setSelectedHeightPx(*value);
+        if (ok) {
+          triggerToast((command == "WIDTH" ? "width " : "height ")
+                       + std::to_string(static_cast<int>(std::lround(*value))) + "px"
+                       + (project_.geometryAspectLinked ? "  (aspect linked)" : ""));
+        }
+      }
+      return;
+    }
     if (command == "SCALE") {
       // Backward compatibility: SCALE sets both X and Y
       auto value = parseNumber(1);

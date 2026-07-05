@@ -1,0 +1,15 @@
+# Deckboy Theme: Famicom
+# Red-and-cream Family Computer over dark lacquer.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1F1714FF
+shell_inner	2E231FFF
+shell_shadow	130E0CFF
+screen_light	F75A67FF
+screen_mid	AE323DFF
+screen_dark	30241FFF
+screen_deep	120D0AFF
+screen_ink_soft	A6595FFF
+button_bezel	7D3137FF
+delete_bezel	AB2B33FF
+scanline_alpha	12

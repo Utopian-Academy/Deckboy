@@ -1,0 +1,15 @@
+# Deckboy Theme: Infrared
+# Thermal red on black — targeting overlay.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1F1414FF
+shell_inner	2E1F1FFF
+shell_shadow	130C0CFF
+screen_light	FB6456FF
+screen_mid	B13A2FFF
+screen_dark	301F1FFF
+screen_deep	120A0AFF
+screen_ink_soft	A85E57FF
+button_bezel	7F352FFF
+delete_bezel	AB512BFF
+scanline_alpha	12

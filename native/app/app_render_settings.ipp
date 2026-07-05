@@ -22,6 +22,27 @@
 // ============================================================================
 
   // Render the settings modal dialog over the main control window.
+  // Shared settings chrome: a cartridge-style "label plate" header — dark
+  // plate, light title — so every card/section has one strong, scannable
+  // anchor (the old headers were dark-on-light text that blended into the
+  // card fill). Geometry contract: the header band occupies the same ~50px
+  // the old drawCard used (title ~y+6, subtitle ~y+34), so the hardcoded
+  // control offsets inside every card are untouched.
+  void drawSettingsCard(const SDL_Rect& rect, const std::string& title,
+                        const std::string& subtitle = std::string()) {
+    Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner, pal.deep, pal.light);
+    SDL_Rect plate {rect.x + 4, rect.y + 4, rect.w - 8, 26};
+    Primitives::drawFramedPanel(controlRenderer_, plate, pal.dark, pal.deep, pal.mid);
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {plate.x + 8, plate.y + 3, plate.w - 16, plate.h - 6},
+                 title, pal.light);
+    if (!subtitle.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {rect.x + 12, rect.y + 34, rect.w - 24, 16},
+                   subtitle, pal.inkSoft);
+    }
+  }
+
   void renderSettingsModal() {
     if (!settingsOpen_) return;
     int width = 0, height = 0;
@@ -38,29 +59,36 @@
     SDL_Rect modal = settingsModalRect();
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
 
-    // Title
-    drawTextSafe(controlRenderer_, fontBase_,
-                 SDL_Rect {modal.x + 16, modal.y + 10, modal.w - 64, 20},
-                 "SYSTEM SETTINGS", pal.deep);
+    // Title — pixel face for the Game Boy read
+    drawTextSafe(controlRenderer_, fontPixel_ ? fontPixel_ : fontBase_,
+                 SDL_Rect {modal.x + 16, modal.y + 8, modal.w - 64, 28},
+                 "SETTINGS", pal.deep);
 
     // Close button [X]
     settingsCloseBtn_ = {modal.x + modal.w - 42, modal.y + 6, 34, 30};
     Primitives::drawFramedPanel(controlRenderer_, settingsCloseBtn_, pal.mid, pal.deep, pal.light);
     drawCenteredText(controlRenderer_, fontSmall_, "X", pal.deep, settingsCloseBtn_);
 
-    // Tab bar
-    constexpr int kTabW = 118;
-    constexpr int kTabH = 36;
+    // Tab bar — cartridge-shelf tabs: the active tab is full height and
+    // "plugged in" (a joint bar bridges it to the content frame); inactive
+    // tabs sit recessed. One glance shows where you are.
+    constexpr int kTabW = 126;
+    constexpr int kTabH = 40;
     int tabY = modal.y + 44;
     settingsBtns_.clear();
     const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About"};
     for (int t = 0; t < (int)tabs.size(); ++t) {
-      SDL_Rect tab {modal.x + 16 + t * (kTabW + 4), tabY, kTabW, kTabH};
       bool active = (t == settingsTab_);
+      int recess = active ? 0 : 6;
+      SDL_Rect tab {modal.x + 16 + t * (kTabW + 6), tabY + recess, kTabW, kTabH - recess};
       Primitives::drawFramedPanel(controlRenderer_, tab, active ? pal.dark : pal.light,
-                      pal.deep, pal.mid);
+                      pal.deep, active ? pal.light : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, tab, tabs[t],
                            active ? pal.light : pal.deep);
+      if (active) {
+        SDL_Rect joint {tab.x + 2, tab.y + tab.h - 2, tab.w - 4, 8};
+        Primitives::fillRect(controlRenderer_, joint, pal.dark);
+      }
       settingsBtns_.push_back({tab, 100 + t, tabs[t]});
     }
 
@@ -83,14 +111,7 @@
       };
 
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
-        Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
-                                    pal.deep, pal.light);
-        drawTextSafe(controlRenderer_, fontBase_,
-                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
-        if (!subtitle.empty()) {
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
-        }
+        drawSettingsCard(rect, title, subtitle);
       };
 
       int colGap = 12;
@@ -306,14 +327,7 @@
 
     } else if (settingsTab_ == 1) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
-        Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
-                                    pal.deep, pal.light);
-        drawTextSafe(controlRenderer_, fontBase_,
-                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
-        if (!subtitle.empty()) {
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
-        }
+        drawSettingsCard(rect, title, subtitle);
       };
       auto drawPillToggle = [&](const SDL_Rect& rect, bool on, const std::string& onLabel, const std::string& offLabel) {
         Primitives::drawFramedPanel(controlRenderer_, rect,
@@ -374,14 +388,7 @@
 
     } else if (settingsTab_ == 2) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
-        Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner,
-                                    pal.deep, pal.light);
-        drawTextSafe(controlRenderer_, fontBase_,
-                     SDL_Rect{rect.x + 8, rect.y + 6, rect.w - 16, 20}, title, ink);
-        if (!subtitle.empty()) {
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{rect.x + 8, rect.y + 28, rect.w - 16, 16}, subtitle, soft);
-        }
+        drawSettingsCard(rect, title, subtitle);
       };
       auto drawPill = [&](const SDL_Rect& rect, bool active, const std::string& onLabel, const std::string& offLabel, int action) {
         Primitives::drawFramedPanel(controlRenderer_, rect,
@@ -586,12 +593,15 @@
       constexpr int kRowGap = 5;
       constexpr int kSectionGap = 14;
 
-      // Section frame helper
+      // Section frame helper — same cartridge label-plate treatment as
+      // drawSettingsCard; body rect is unchanged so section content is
+      // untouched.
       auto drawSectionFrame = [&](const SDL_Rect& rect, const std::string& title) {
         Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner, pal.deep, pal.light);
-        SDL_Rect hdr {rect.x, rect.y, rect.w, 26};
-        Primitives::drawFramedPanel(controlRenderer_, hdr, pal.mid, pal.deep, pal.light);
-        drawCenteredText(controlRenderer_, fontSmall_, title, pal.deep, hdr);
+        SDL_Rect hdr {rect.x + 4, rect.y + 4, rect.w - 8, 22};
+        Primitives::drawFramedPanel(controlRenderer_, hdr, pal.dark, pal.deep, pal.mid);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {hdr.x + 8, hdr.y + 3, hdr.w - 16, hdr.h - 4}, title, pal.light);
         return SDL_Rect {rect.x + 8, rect.y + 32, rect.w - 16, rect.h - 40};
       };
 
@@ -608,13 +618,16 @@
       settingsVideoSubTab_ = std::clamp(settingsVideoSubTab_, 0, 3);
       const std::vector<std::string> subTabs {"Display", "Processing", "Other Outputs", "Streaming"};
       {
-        constexpr int kSubTabH = 28;
+        // Same cartridge-shelf treatment as the main tab bar, one size down.
+        constexpr int kSubTabH = 30;
         int subTabW = (availW - (static_cast<int>(subTabs.size()) - 1) * 4) / static_cast<int>(subTabs.size());
         for (int st = 0; st < static_cast<int>(subTabs.size()); ++st) {
-          SDL_Rect stBtn {cx + st * (subTabW + 4), cy, subTabW, kSubTabH};
           bool active = (st == settingsVideoSubTab_);
+          int recess = active ? 0 : 4;
+          SDL_Rect stBtn {cx + st * (subTabW + 4), cy + recess, subTabW, kSubTabH - recess};
           Primitives::drawFramedPanel(controlRenderer_, stBtn,
-                                      active ? pal.dark : pal.light, pal.deep, pal.mid);
+                                      active ? pal.dark : pal.light, pal.deep,
+                                      active ? pal.light : pal.mid);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, stBtn, subTabs[st],
                                active ? pal.light : pal.deep);
           settingsBtns_.push_back({stBtn, kSettingsActionVideoSubTabBase + st, subTabs[st]});
@@ -660,11 +673,22 @@
         drawActionBtn(orientBtn, "Orientation: " + orientLabel, kSettingsActionOutputOrientationCycle);
         sy += dispSectionH + kSectionGap;
 
-        // Connected Displays
-        int maxDispRows = std::min(displayCount, std::max(2, (subContentH - dispSectionH - kSectionGap - 40) / (kRowH + 4)));
-        int dispListH = 32 + maxDispRows * (kRowH + 4) + 8;
+        // Connected Displays — sized for EVERY display so the operator can
+        // see and click all of them at once (this list used to collapse to a
+        // row or two when the modal was short), clamped to remaining space.
+        int dispListNeededH = 32 + std::max(1, displayCount) * (kRowH + 4) + 8;
+        int dispListAvailH = subContentH - dispSectionH - kSectionGap;
+        int dispListH = std::clamp(dispListAvailH, 32 + (kRowH + 4) + 8, dispListNeededH);
         SDL_Rect dispListSection {cx, sy, subContentW, dispListH};
         SDL_Rect dispListBody = drawSectionFrame(dispListSection, "CONNECTED DISPLAYS");
+        {
+          SDL_Rect idBtn {dispListSection.x + dispListSection.w - 96,
+                          dispListSection.y + 3, 88, 22};
+          Primitives::drawFramedPanel(controlRenderer_, idBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, idBtn, "IDENTIFY", pal.deep);
+          settingsBtns_.push_back({idBtn, kSettingsActionDisplayIdentify,
+                                   "Show a number badge on every display"});
+        }
         int dispRowY = dispListBody.y;
         int currentDispIdx = outputDisplayIndex(focusedOutputIndex);
         for (int di = 0; di < displayCount; ++di) {
@@ -1626,6 +1650,8 @@
         openDropdown("settings.theme", sb.rect, choices, current,
           [this](const std::string& value) {
             loadTheme(value);
+            project_.theme = value;
+            markProjectDirty();
             triggerToast("theme: " + value);
           });
         return;
@@ -1688,7 +1714,11 @@
   // Third part of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
-    if (sb.action == kSettingsActionDeckLinkToggle) {
+    if (sb.action == kSettingsActionDisplayIdentify) {
+        showDisplayIdentify();
+        triggerToast("identifying displays");
+        playUiSound(UiSoundEffect::Toggle);
+      } else if (sb.action == kSettingsActionDeckLinkToggle) {
         // setFocusedOutputDeckLinkEnabled gates on deckLinkRuntimeAvailable()
         // and runs the toast / shutdown path internally.
         toggleFocusedOutputDeckLink();

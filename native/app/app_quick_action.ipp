@@ -196,6 +196,12 @@
         }
         break;
       }
+      case QuickAction::ToggleAspectLink:
+        project_.geometryAspectLinked = !project_.geometryAspectLinked;
+        triggerToast(project_.geometryAspectLinked ? "aspect link on" : "aspect link off");
+        playUiSound(UiSoundEffect::Toggle);
+        markProjectDirty();
+        break;
       case QuickAction::ScaleXDec:
         adjustSelectedScaleX(-0.05f);
         break;

@@ -1,0 +1,15 @@
+# Deckboy Theme: Hyrule
+# Deep forest green with Triforce gold.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	141F19FF
+shell_inner	1F2E25FF
+shell_shadow	0C130FFF
+screen_light	FBD156FF
+screen_mid	B1912FFF
+screen_dark	1F3026FF
+screen_deep	0A120DFF
+screen_ink_soft	A89457FF
+button_bezel	7F6B2FFF
+delete_bezel	AB2B33FF
+scanline_alpha	12

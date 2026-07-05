@@ -138,13 +138,16 @@
     }
     if (activeCue && runtime && activeCue->kind == CueKind::Browser) {
       stopBrowserCue();
-      engine->stop();
-      triggerToast("browser parked");
+      engine->stop(true);
+      triggerToast("browser stopped - deck dark");
       playUiSound(UiSoundEffect::Stop);
       return;
     }
-    engine->stop();
-    triggerToast("stopped");
+    // STOP darkens the deck and reracks; RERACK holds the first frame;
+    // PAUSE freezes in place. Three distinct verbs (STOP used to be a
+    // duplicate of RERACK).
+    engine->stop(true);
+    triggerToast("stopped - deck dark, reracked");
     playUiSound(UiSoundEffect::Stop);
   }
 
@@ -205,7 +208,7 @@
     if (!engine) return;
     engine->seek(0.0);
     engine->pause();
-    triggerToast("reracked");
+    triggerToast("reracked - holding first frame");
     playUiSound(UiSoundEffect::Stop);
   }
 
@@ -2447,32 +2450,82 @@
     return true;
   }
 
+  // Geometry size editing is pixel-first: the operator types the target
+  // rendered width/height in output pixels; the stored outputScaleX/Y
+  // multiplier is derived per cue from its base rendered size. When the
+  // aspect link is on (Project::geometryAspectLinked, the default), the
+  // other axis scales by the same relative factor. These two setters are the
+  // single write path — inspector editors and remote WIDTH/HEIGHT commands
+  // both go through them so the link always applies.
+  bool setSelectedWidthPx(double px) {
+    bool link = project_.geometryAspectLinked;
+    bool changed = false;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (!cueSupportsGeometry(&each)) {
+        return;
+      }
+      auto [bw, bh] = cueBaseRenderSize(each);
+      if (bw <= 0.0) {
+        return;
+      }
+      float oldX = each.outputScaleX;
+      float next = std::clamp(static_cast<float>(px / bw), 0.25f, 4.0f);
+      each.outputScaleX = next;
+      if (link && oldX > 0.0001f) {
+        each.outputScaleY = std::clamp(each.outputScaleY * (next / oldX), 0.25f, 4.0f);
+      }
+      changed = true;
+    });
+    if (changed) {
+      markProjectDirty();
+    }
+    return changed;
+  }
+
+  bool setSelectedHeightPx(double px) {
+    bool link = project_.geometryAspectLinked;
+    bool changed = false;
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (!cueSupportsGeometry(&each)) {
+        return;
+      }
+      auto [bw, bh] = cueBaseRenderSize(each);
+      if (bh <= 0.0) {
+        return;
+      }
+      float oldY = each.outputScaleY;
+      float next = std::clamp(static_cast<float>(px / bh), 0.25f, 4.0f);
+      each.outputScaleY = next;
+      if (link && oldY > 0.0001f) {
+        each.outputScaleX = std::clamp(each.outputScaleX * (next / oldY), 0.25f, 4.0f);
+      }
+      changed = true;
+    });
+    if (changed) {
+      markProjectDirty();
+    }
+    return changed;
+  }
+
   void editSelectedScaleX() {
     Cue* cue = selectedCueMutable();
     if (!cue || !cueSupportsGeometry(cue)) {
       return;
     }
-    std::ostringstream current;
-    current << std::fixed << std::setprecision(2) << cue->outputScaleX;
-    openInlineNumericExpressionEditor("cue.scale_x", "Scale X",
-                                      "Factor 0.25-4.0 (supports + - * / and ())", current.str(),
+    auto [baseW, baseH] = cueBaseRenderSize(*cue);
+    if (baseW <= 0.0) {
+      return;
+    }
+    std::string current = std::to_string(
+      std::max(1, static_cast<int>(std::lround(baseW * cue->outputScaleX))));
+    openInlineNumericExpressionEditor("cue.scale_x", "Width (px)",
+                                      "Output width in px - math ok: 1920x2, 3840/2, 960+64", current,
                                       [this](double value) {
-      float next = std::clamp(static_cast<float>(value), 0.25f, 4.0f);
-      bool changed = false;
-      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-        if (!cueSupportsGeometry(&each)) {
-          return;
-        }
-        each.outputScaleX = next;
-        changed = true;
-      });
-      if (!changed) {
+      if (!setSelectedWidthPx(value)) {
         return;
       }
-      std::ostringstream ss;
-      ss << std::fixed << std::setprecision(2) << next;
-      triggerToast("scale X " + ss.str() + "x");
-      markProjectDirty();
+      triggerToast("width " + std::to_string(static_cast<int>(std::lround(value))) + "px"
+                   + (project_.geometryAspectLinked ? "  (aspect linked)" : ""));
     });
   }
 
@@ -2481,27 +2534,20 @@
     if (!cue || !cueSupportsGeometry(cue)) {
       return;
     }
-    std::ostringstream current;
-    current << std::fixed << std::setprecision(2) << cue->outputScaleY;
-    openInlineNumericExpressionEditor("cue.scale_y", "Scale Y",
-                                      "Factor 0.25-4.0 (supports + - * / and ())", current.str(),
+    auto [baseW, baseH] = cueBaseRenderSize(*cue);
+    if (baseH <= 0.0) {
+      return;
+    }
+    std::string current = std::to_string(
+      std::max(1, static_cast<int>(std::lround(baseH * cue->outputScaleY))));
+    openInlineNumericExpressionEditor("cue.scale_y", "Height (px)",
+                                      "Output height in px - math ok: 1080x2, 2160/2, 540+30", current,
                                       [this](double value) {
-      float next = std::clamp(static_cast<float>(value), 0.25f, 4.0f);
-      bool changed = false;
-      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-        if (!cueSupportsGeometry(&each)) {
-          return;
-        }
-        each.outputScaleY = next;
-        changed = true;
-      });
-      if (!changed) {
+      if (!setSelectedHeightPx(value)) {
         return;
       }
-      std::ostringstream ss;
-      ss << std::fixed << std::setprecision(2) << next;
-      triggerToast("scale Y " + ss.str() + "x");
-      markProjectDirty();
+      triggerToast("height " + std::to_string(static_cast<int>(std::lround(value))) + "px"
+                   + (project_.geometryAspectLinked ? "  (aspect linked)" : ""));
     });
   }
 
@@ -2762,12 +2808,17 @@
   }
 
   void adjustSelectedScaleX(float delta) {
+    bool link = project_.geometryAspectLinked;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
       if (!cueSupportsGeometry(&cue)) {
         return;
       }
-      cue.outputScaleX = std::clamp(cue.outputScaleX + delta, 0.25f, 4.0f);
+      float oldX = cue.outputScaleX;
+      cue.outputScaleX = std::clamp(oldX + delta, 0.25f, 4.0f);
+      if (link && oldX > 0.0001f) {
+        cue.outputScaleY = std::clamp(cue.outputScaleY * (cue.outputScaleX / oldX), 0.25f, 4.0f);
+      }
       changed = true;
     });
     if (!changed) {
@@ -2777,12 +2828,17 @@
   }
 
   void adjustSelectedScaleY(float delta) {
+    bool link = project_.geometryAspectLinked;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
       if (!cueSupportsGeometry(&cue)) {
         return;
       }
-      cue.outputScaleY = std::clamp(cue.outputScaleY + delta, 0.25f, 4.0f);
+      float oldY = cue.outputScaleY;
+      cue.outputScaleY = std::clamp(oldY + delta, 0.25f, 4.0f);
+      if (link && oldY > 0.0001f) {
+        cue.outputScaleX = std::clamp(cue.outputScaleX * (cue.outputScaleY / oldY), 0.25f, 4.0f);
+      }
       changed = true;
     });
     if (!changed) {

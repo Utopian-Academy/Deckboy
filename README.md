@@ -1,7 +1,9 @@
 # Deckboy
 
-Deckboy is now a native SDL2 desktop app, not a web app. The current direction is Linux-first with a cross-platform code path, using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
-Project goal: keep Deckboy fully open source and ship first-class builds on Linux, macOS, and Windows.
+Deckboy is a native SDL2 desktop app, not a web app. Windows is the primary development target with a cross-platform code path (Linux and macOS supported), using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
+Project goal: keep Deckboy fully open source and ship first-class builds on Windows, Linux, and macOS.
+
+For a structural map of the codebase see [`docs/CODEMAP.md`](docs/CODEMAP.md). Windows build instructions live in [`CLAUDE.md`](CLAUDE.md) (Build section).
 
 **🚀 March 2025 Refactoring**: See [CHANGES.md](CHANGES.md) for a comprehensive summary of modular architecture improvements, broadcast SDK integration (MIDI, DeckLink, Syphon/Spout), cross-platform support, and automated CI/CD setup.
 
@@ -92,7 +94,7 @@ Cute extras are now optional:
 - **Per-cue separate X/Y scaling** for aspect ratio correction and distortion effects (0.25x to 4.0x)
 - **Scale modes** (Fit / Fill / Stretch / Unscaled) for flexible canvas composition
 - Per-cue geometry and color controls: offset, rotation, crop, chroma key, brightness, contrast, saturation, hue
-- Geometry quick rows now support exact numeric entry by clicking the value cell (`scale X/Y`, `off X/Y`, `rot`), with simple calculator expressions (`+ - * / ()`)
+- Geometry size is edited in output pixels: `width`/`height` rows show the rendered px size, clicking the value prompts for an exact pixel value, and the `link aspect` toggle (on by default) keeps the aspect ratio when either axis changes. Offsets (`off X/Y`) and `rot` also support exact entry, all with simple calculator expressions (`+ - * / ()`)
 - Geometry nudge controls now use `1px` offset steps (`off X/Y`) for finer placement
 - Deck transition engine with `cut` / `crossfade` / `dip` styles
 - Playlist loop plus per-cue end behavior driven by hold / end settings
@@ -263,6 +265,8 @@ SEEK 12.5
 IN 2.0
 OUT 8.5
 TRIM CLEAR
+WIDTH 960
+HEIGHT 540
 SFX ON
 SFX OFF
 ANIM ON
@@ -460,6 +464,7 @@ Notes:
 - `SELECTID`/`TAKEID` target cues by stored cue ID.
 - `GOTO` accepts cue number, cue ID, or partial cue name.
 - `IN`/`OUT` and `TRIM CLEAR` control selected cue trim points.
+- `WIDTH <px>` / `HEIGHT <px>` set the selected cue's rendered size in output pixels (respects the aspect link; legacy `SCALE`/`SCALEX`/`SCALEY` factor commands still work).
 - `DECK 2 TAKE` switches focus to deck 2 and runs the nested command there.
 - `STATUS` and `STATE` return a multi-line TCP snapshot of all decks and outputs.
 - `STATUS 2` or `STATE 2` returns a single deck snapshot.

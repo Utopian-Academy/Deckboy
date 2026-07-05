@@ -52,7 +52,9 @@
     (void)activeCue; (void)nextCue;
 
     quickButtons_.clear();
+    valueScrubZones_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
+    cueSettingsScrubZoneStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
     cueSourceTypeDropdownRect_ = SDL_Rect {};
     cueWindowSourceDropdownRect_ = SDL_Rect {};
@@ -236,6 +238,7 @@
     };
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
+    cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
     SDL_RenderSetClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 

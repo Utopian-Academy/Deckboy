@@ -53,6 +53,7 @@ cmake --build ../build/windows --config Release
 | `native/platform/siphon_spout.hpp/cpp` | Spout (Windows) / Syphon (macOS) texture sharing |
 | `CHANGES.md` | User-facing changelog |
 | `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
+| `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
 | `native/core/system_browser.hpp` | Cross-platform `openExternalUrl()` for dep prompts |
@@ -62,7 +63,7 @@ cmake --build ../build/windows --config Release
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. Current highest: **636** (`kSettingsActionPocket3Preset`). Always allocate next from 637+.
+Settings button actions are integer constants defined at the top of `main.cpp`. Current highest in the sequential range: **645** (`kSettingsActionVideoSubTabBase` 642–645). Allocate next from **647+**. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 
@@ -78,8 +79,9 @@ Recent additions (v0.76.14):
 Tab-delimited `.deckboy` project files. Fields appended at end of record; backward-compat guard: `if (fields.size() >= N)`. Helpers: `safeDouble`, `safeInt`, `safeBool`, `safeString`.
 
 Current field counts:
-- **OutputTarget**: 28 base fields + 4 AOI fields (indices 28–31) + 2 Spout fields (indices 32–33) → guard `>= 34`
-- **Cue**: check existing guard indices in saveProject/loadProject near the bottom of `main.cpp`
+- **OutputTarget**: 28 base fields + 4 AOI (28–31) + 2 Spout (32–33) + streamKey (34) + displayName (35) → guard `>= 36`
+- **Cue**: check existing guard indices in saveProject/loadProject in `main.cpp`
+- Careful: `app_smoke.ipp` constructs `OutputTarget` with positional aggregate init — adding a struct member mid-struct breaks those sites (prefer appending or update them)
 
 ---
 
@@ -91,6 +93,7 @@ Current field counts:
 - `visualFadeGainAt()` → returns 1.0 when no duration or fade defined; suppressed for auto-advance cues. Evaluated at `position()`, so paused stills MUST keep a sane `currentPosition_` (held at `pausedPosition_`, not 0) or the fade-in ramp drives the held frame to 0 alpha — see DEVNOTES `Still Cue Hold / Fade Interaction`.
 - Still-type cues (`isDefaultStillDurationCueKind`) default to `fadeOutSeconds = 0` in `applyDeckDefaultsToCue` so a held graphic doesn't dip to black; per-cue fade-out still works if enabled.
 - `suppressVisualFadeOutForCurrentCue_` → set `true` for auto-advancing cues (crossfade handles the outgoing visual)
+- **The engine OWNS its cue** (v0.76.19): `activeCue_` points at `activeCueSnapshot_`, never into `Deck::cues`. App edits reach the engine via `markProjectDirty()` → `syncEngineCueSnapshots()` next tick. The audio thread reads fades only through atomic mirrors (`syncAudioFadeParams`/`audioFadeGainAt`). Video position slaves to the audio device clock when audio is present (see DEVNOTES `Audio-Master A/V Clock`).
 - Frame pipeline: ffmpeg stdout → `readExact` → `frameQueue_` → `uploadFrame()` → SDL_Texture
 - `DecodedFrame::format` (`FramePixelFormat`) is the canonical flag: every upload site reads it to pick `SDL_UpdateTexture` (RGBA32) vs `SDL_UpdateNVTexture` (NV12), and to recreate the cached texture when the format changes. Helper: `syncFrameTexture()` in `render/texture_helpers.hpp`. See DEVNOTES `GPU Hardware Decode + NV12 Upload Path` for the full architecture.
 

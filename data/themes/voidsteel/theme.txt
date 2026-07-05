@@ -1,0 +1,15 @@
+# Deckboy Theme: Voidsteel
+# Desaturated steel-cyan — restrained broadcast dark.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	16191DFF
+shell_inner	21262BFF
+shell_shadow	0D0F12FF
+screen_light	95BCD0FF
+screen_mid	56798AFF
+screen_dark	22282DFF
+screen_deep	0B0E11FF
+screen_ink_soft	6F8590FF
+button_bezel	475C67FF
+delete_bezel	AB2B33FF
+scanline_alpha	12
