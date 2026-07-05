@@ -51,6 +51,31 @@ inline std::optional<double> parseNumericExpression(std::string expression) {
     return std::nullopt;
   }
 
+  // Operator-friendly shorthand: strip "px" unit suffixes and accept 'x'/'X'
+  // as multiplication, so "1920x2" and "960px * 2" both evaluate. Applied
+  // before parsing so every numeric entry field gets the same shorthand.
+  {
+    std::string cleaned;
+    cleaned.reserve(expression.size());
+    for (size_t i = 0; i < expression.size(); ++i) {
+      char lower = static_cast<char>(std::tolower(static_cast<unsigned char>(expression[i])));
+      if (lower == 'p' && i + 1 < expression.size() &&
+          std::tolower(static_cast<unsigned char>(expression[i + 1])) == 'x') {
+        ++i;  // skip the "px" unit
+        continue;
+      }
+      if (lower == 'x') {
+        cleaned += '*';
+        continue;
+      }
+      cleaned += expression[i];
+    }
+    expression = std::move(cleaned);
+    if (expression.find_first_not_of(" \t\r\n") == std::string::npos) {
+      return std::nullopt;
+    }
+  }
+
   // Recursive descent parser — operates on the trimmed expression string.
   struct Parser {
     const std::string& text;  // reference to the expression being parsed

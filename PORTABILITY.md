@@ -57,7 +57,7 @@ Ship **PressStart2P.ttf** in `data/` for the pixel font. Sans/mono can come from
   - Linux loader candidates: `libndi.so.6`, `libndi.so`, `/usr/local/lib/libndi.so.6`, `/usr/lib/libndi.so.6`
   - macOS loader candidate: `libndi.dylib`
   - Override any platform by setting **`DECKBOY_NDI_LIB`** to an absolute library path.
-- Current runtime dynamic-loader path is implemented for Linux/macOS builds; Windows loader parity is part of the cross-platform roadmap.
+  - Windows loader candidate: `Processing.NDI.Lib.x64.dll` (NDI SDK / NDI Runtime — both send and receive paths are live on Windows).
 
 ## Streaming outputs (SRT / RTMP)
 
@@ -75,7 +75,7 @@ ffmpeg -protocols | rg "srt|rtmp"
 - Audio follows output assignment stack (host deck fallback when no assignments are present).
 - `VIDEO OUTPUT DELAY` currently applies to NDI/stream egress frames.
 - `VIDEO OUTPUT COLORSPACE` maps to stream encoder color metadata flags (`AUTO`/`BT709`/`SRGB`).
-- Current cross-platform note: the stream runtime is still Linux/macOS-oriented; Windows egress execution remains roadmap work even though the project model and command surface are already in place.
+- Stream egress works on all platforms: Unix feeds ffmpeg via FIFO; Windows feeds ffmpeg via an stdin pipe (no named FIFO needed).
 
 ## Live source cues (Window / Camera / Syphon-Spout)
 
@@ -90,9 +90,9 @@ ffmpeg -protocols | rg "srt|rtmp"
 
 ## Current platform readiness
 
-- **Linux**: primary supported target today. Browser cues, stream audio FIFO handoff, HyperDeck/OSC/ATEM/Art-Net listeners, and source capture all assume the current Unix-first runtime.
-- **macOS**: executable-root resolution and font lookup are now portable, but browser/source/output backends still need native runtime work for a first-class build.
-- **Windows**: CMake/package discovery and path/font resolution are better prepared, but subprocess-driven media/runtime paths, NDI runtime loading, and stream/browser execution are still incomplete.
+- **Windows**: primary development target. Full media decode (CreateProcessW subprocess pipes), stream/NDI/DeckLink/Spout output, WebView2 browser cues, gdigrab window-source capture, RtMidi input, LTC ingest, and all network integrations (Companion/OSC/ATEM/Art-Net/NMC/HyperDeck/TSL) are live. Camera capture (Media Foundation) remains a scaffold.
+- **Linux**: fully supported. Browser cues use the external-Chromium/x11grab path; source capture uses x11grab/v4l2; stream audio uses FIFO handoff.
+- **macOS**: executable-root resolution and font lookup are portable and most integrations are shared with Linux, but browser/source capture backends still need native (AVFoundation/Syphon) runtime work for a first-class build.
 
 ## Audit Conclusion (March 2026)
 

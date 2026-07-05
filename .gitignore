@@ -1,6 +1,7 @@
 # Build output
 build/
 dist/
+builds/
 *.o
 *.d
 
@@ -8,6 +9,10 @@ dist/
 data/*.deckboy
 data/project.json
 data/posters/
+data/last_project.txt
+
+# Local screenshots
+/Deckboy Screenshots/
 
 # OS junk
 .DS_Store

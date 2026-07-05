@@ -554,6 +554,20 @@ else()
   target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_LINK_LIBS})
 endif()
 
+# Terrarium — bundled companion ecosystem sim (the Konami easter egg source).
+# Ships as its own exe next to Deckboy; the egg launches it windowed and
+# captures its window via gdigrab.
+add_executable(terrarium native/extras/terrarium.cpp)
+target_compile_definitions(terrarium PRIVATE SDL_MAIN_HANDLED)
+if(DECKBOY_SDL2_TARGET)
+  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL2_TARGET})
+else()
+  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL2_LINK_LIBS})
+endif()
+if(MSVC)
+  target_compile_options(terrarium PRIVATE /bigobj)
+endif()
+
 if(UNIX AND NOT APPLE)
   target_link_libraries(deckboy-native PRIVATE dl)
 endif()

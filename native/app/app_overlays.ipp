@@ -296,6 +296,7 @@
                  pal.inkSoft);
   }
 
+
   void renderShortcutsOverlay() {
     if (!shortcutsOverlayOpen_) return;
     int ww = 0, wh = 0;
@@ -409,26 +410,100 @@
                  "dot-matrix cue deck", pal.dark);
 
     // ── Boot console — nested framed panel ──
-    SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72, 184};
+    // Real init values interleaved with the important diagnostics, built
+    // once per boot (startupBootLog_) and revealed line by line.
+    SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72, 196};
     Primitives::drawFramedPanel(controlRenderer_, bootRect, pal.light, pal.deep, pal.mid);
 
-    static const std::array<const char*, 5> kBootLines {
-      "initializing deck runtime...",
-      "loading outputs...",
-      "starting compositor...",
-      "opening companion port 5510...",
-      "arming safety guards..."
-    };
+    if (startupBootLog_.empty()) {
+      auto [bootW, bootH] = outputRenderSizeForOutput(0);
+      size_t bootCues = 0;
+      for (const auto& bootDeck : project_.decks) bootCues += bootDeck.cues.size();
+      std::string themeName = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
+      // The classic boot tasks joined by real init values, with the
+      // occasional sci-fi subsystem the hardware team insists is real.
+      startupBootLog_.push_back("cue gremlin bios " + std::string(kAppVersionTag) + "...");
+      startupBootLog_.push_back("checking dot-matrix memory... 8192 KB OK");
+      startupBootLog_.push_back("initializing deck runtime...");
+      startupBootLog_.push_back("loading theme '" + themeName + "'... ok");
+      startupBootLog_.push_back("mounting font cartridges... 6 faces");
+      startupBootLog_.push_back("loading outputs... "
+        + std::to_string(bootW) + "x" + std::to_string(bootH)
+        + " on " + std::to_string(std::max(0, SDL_GetNumVideoDisplays())) + " display(s)");
+      startupBootLog_.push_back("starting compositor...");
+      startupBootLog_.push_back("aligning chroma phase array... locked");
+      startupBootLog_.push_back("spooling ffmpeg decode pipeline... armed");
+      startupBootLog_.push_back("negotiating audio bus... "
+        + std::to_string(project_.audioBufferSamples) + " sample buffer");
+      startupBootLog_.push_back("shelving cartridges... "
+        + std::to_string(project_.decks.size()) + " deck(s), "
+        + std::to_string(bootCues) + " cues");
+      startupBootLog_.push_back("reticulating splines...");
+      startupBootLog_.push_back("charging flux capacitor... 1.21 GW nominal");
+      startupBootLog_.push_back("opening companion port " + std::to_string(companionPort_) + "...");
+      startupBootLog_.push_back(std::string("waking ndi mesh... ")
+        + (ndiRuntimeAvailable() ? "listening" : "not installed"));
+      startupBootLog_.push_back("engaging heisenberg compensators... probably");
+      startupBootLog_.push_back("dilithium matrix... crystal ok");
+      startupBootLog_.push_back("arming safety guards...");
+      startupBootLog_.push_back("pressurizing gremlin containment field...");
+      startupBootLog_.push_back("dampening tachyon feedback... 0.003%");
+      startupBootLog_.push_back("calibrating rubber chicken... ok");
+      startupBootLog_.push_back("polling konami interrupt vector... hidden");
+      startupBootLog_.push_back("syncing wall clock to audio crystal...");
+      startupBootLog_.push_back("boot ok - awaiting operator");
+
+      // Randomized reveal schedule — real boots stutter: quick bursts,
+      // normal lines, and the occasional probe that stalls. Scaled so the
+      // whole sequence always lands within the splash window.
+      startupBootLogAtMs_.clear();
+      uint32_t seed = static_cast<uint32_t>(SDL_GetTicks64() ^ 0x9E3779B9u);
+      auto nextRand = [&seed]() {
+        seed = seed * 1664525u + 1013904223u;
+        return seed >> 16;
+      };
+      Uint64 at = 0;
+      for (size_t i = 0; i < startupBootLog_.size(); ++i) {
+        uint32_t roll = nextRand() % 100;
+        Uint64 delay;
+        if (roll < 25) delay = 30 + nextRand() % 60;        // burst
+        else if (roll < 85) delay = 110 + nextRand() % 200; // normal
+        else delay = 480 + nextRand() % 420;                // hardware stall
+        at += delay;
+        startupBootLogAtMs_.push_back(at);
+      }
+      if (!startupBootLogAtMs_.empty() && startupBootLogAtMs_.back() > 4300) {
+        double scale = 4300.0 / static_cast<double>(startupBootLogAtMs_.back());
+        for (auto& ts : startupBootLogAtMs_) {
+          ts = static_cast<Uint64>(ts * scale);
+        }
+      }
+    }
     Uint64 now = SDL_GetTicks64();
     Uint64 elapsed = splashStartedAt_ > 0 ? (now - splashStartedAt_) : 0;
-    int visibleLines = std::clamp(static_cast<int>(elapsed / 380), 1, static_cast<int>(kBootLines.size()));
-    for (int i = 0; i < visibleLines; ++i) {
-      drawText(controlRenderer_, fontMono_, kBootLines[i], pal.deep,
-               bootRect.x + 12, bootRect.y + 14 + i * 30);
+    int totalLines = static_cast<int>(startupBootLog_.size());
+    int visibleLines = 1;
+    for (size_t i = 0; i < startupBootLogAtMs_.size(); ++i) {
+      if (startupBootLogAtMs_[i] <= elapsed) {
+        visibleLines = static_cast<int>(i) + 1;
+      }
     }
-    if (((now / 300) % 2) == 0) {
-      drawText(controlRenderer_, fontMono_, "_", pal.deep,
-               bootRect.x + 12 + 9 * 14, bootRect.y + 14 + (visibleLines - 1) * 30);
+    visibleLines = std::clamp(visibleLines, 1, totalLines);
+    // Console-style scroll: the panel holds a window of lines; once the log
+    // outgrows it, older lines scroll off the top.
+    int lineStep = std::max(16, textLineHeight(fontSmall_) + 2);
+    int fitLines = std::max(1, (bootRect.h - 20) / lineStep);
+    int firstLine = std::max(0, visibleLines - fitLines);
+    for (int i = firstLine; i < visibleLines; ++i) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {bootRect.x + 12, bootRect.y + 10 + (i - firstLine) * lineStep,
+                             bootRect.w - 24, lineStep},
+                   startupBootLog_[i], pal.deep);
+    }
+    if (visibleLines < totalLines && ((now / 300) % 2) == 0) {
+      int cursorRow = std::min(visibleLines - firstLine, fitLines - 1);
+      drawText(controlRenderer_, fontSmall_, "_", pal.deep,
+               bootRect.x + 12, bootRect.y + 10 + cursorRow * lineStep);
     }
 
     // ── Hint text ──
@@ -465,6 +540,7 @@
       }
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
   }
 
   // ---------------------------------------------------------------------------

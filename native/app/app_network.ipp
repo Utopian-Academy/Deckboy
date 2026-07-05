@@ -1652,16 +1652,20 @@
       }
       return "200 ok\r\n\r\n";
     }
+    // NOTE: these run on the HyperDeck TCP thread. Read ONLY the structured
+    // hyperDeckSnapshot_ (rebuilt on the main thread each tick) — never
+    // focusedDeck()/project_ directly, and never by substring-matching the
+    // human-readable snapshot text (a cue named "playing" would corrupt it).
     if (cmdL == "transport info") {
-      // Build response with current state
-      std::string status = "stopped";
+      std::string status;
+      int clipId = 0;
+      bool loop = false;
       {
         std::lock_guard<std::mutex> lk(statusSnapshotMutex_);
-        if (statusSnapshot_.find("playing") != std::string::npos) status = "play";
-        else if (statusSnapshot_.find("paused") != std::string::npos) status = "paused";
+        status = hyperDeckSnapshot_.transport;
+        clipId = hyperDeckSnapshot_.clipId;
+        loop = hyperDeckSnapshot_.loop;
       }
-      const Deck& deck = focusedDeck();
-      int clipId = deck.activeIndex + 1;
       std::ostringstream resp;
       resp << "208 transport info:\r\n"
            << "status: " << status << "\r\n"
@@ -1672,27 +1676,34 @@
            << "display timecode: 00:00:00:00\r\n"
            << "timecode: 00:00:00:00\r\n"
            << "video format: 1080p25\r\n"
-           << "loop: " << (deck.playlistLoop ? "true" : "false") << "\r\n"
+           << "loop: " << (loop ? "true" : "false") << "\r\n"
            << "\r\n";
       return resp.str();
     }
     if (cmdL == "clips count") {
-      const Deck& deck = focusedDeck();
+      size_t clipCount = 0;
+      {
+        std::lock_guard<std::mutex> lk(statusSnapshotMutex_);
+        clipCount = hyperDeckSnapshot_.clips.size();
+      }
       std::ostringstream resp;
       resp << "214 clips count:\r\n"
-           << "clip count: " << deck.cues.size() << "\r\n"
+           << "clip count: " << clipCount << "\r\n"
            << "\r\n";
       return resp.str();
     }
     if (cmdL == "clips get") {
-      const Deck& deck = focusedDeck();
+      std::vector<std::pair<std::string, std::string>> clips;
+      {
+        std::lock_guard<std::mutex> lk(statusSnapshotMutex_);
+        clips = hyperDeckSnapshot_.clips;
+      }
       std::ostringstream resp;
       resp << "205 clips info:\r\n"
-           << "clip count: " << deck.cues.size() << "\r\n";
-      for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
-        const Cue& cue = deck.cues[i];
-        resp << (i + 1) << ": " << cue.name << " 00:00:00:00 "
-             << formatSeconds(cue.duration) << "\r\n";
+           << "clip count: " << clips.size() << "\r\n";
+      for (size_t i = 0; i < clips.size(); ++i) {
+        resp << (i + 1) << ": " << clips[i].first << " 00:00:00:00 "
+             << clips[i].second << "\r\n";
       }
       resp << "\r\n";
       return resp.str();

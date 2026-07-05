@@ -21,6 +21,41 @@
 // Do NOT compile this file separately.
 // ============================================================================
 
+  // Rendered pixel size of the cue on the focused output at outputScale 1.0
+  // (scale mode + crop applied). The operator-facing geometry unit is pixels:
+  // finalPx = base × outputScaleX/Y. This is the same math the compositor's
+  // drawTextureFitted / renderTextureWithCueGeometry path uses — keep them in
+  // step. Returns {0, 0} when the size can't be derived.
+  std::pair<double, double> cueBaseRenderSize(const Cue& cue) {
+    int focOutIdx = std::clamp(project_.focusedOutputIndex, 0,
+                               std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+    auto [targetW, targetH] = outputRenderSizeForOutput(focOutIdx);
+    if (targetW <= 0 || targetH <= 0) {
+      return {0.0, 0.0};
+    }
+    int srcW = std::max(1, cue.width > 0 ? cue.width : targetW);
+    int srcH = std::max(1, cue.height > 0 ? cue.height : targetH);
+    int cropLPx = static_cast<int>(std::lround(srcW * cue.cropLeft));
+    int cropRPx = static_cast<int>(std::lround(srcW * cue.cropRight));
+    int cropTPx = static_cast<int>(std::lround(srcH * cue.cropTop));
+    int cropBPx = static_cast<int>(std::lround(srcH * cue.cropBottom));
+    double croppedW = std::max(1, srcW - cropLPx - cropRPx);
+    double croppedH = std::max(1, srcH - cropTPx - cropBPx);
+    double baseScaleX = 1.0, baseScaleY = 1.0;
+    if (cue.scaleMode == ScaleMode::Fit) {
+      double fit = std::min(targetW / croppedW, targetH / croppedH);
+      baseScaleX = baseScaleY = fit;
+    } else if (cue.scaleMode == ScaleMode::Fill) {
+      double fill = std::max(targetW / croppedW, targetH / croppedH);
+      baseScaleX = baseScaleY = fill;
+    } else if (cue.scaleMode == ScaleMode::Stretch) {
+      baseScaleX = targetW / croppedW;
+      baseScaleY = targetH / croppedH;
+    }
+    // Unscaled: baseScale stays 1.0
+    return {croppedW * baseScaleX, croppedH * baseScaleY};
+  }
+
   // Compute the edge blend alpha (0–255) for a given UV coordinate.
   // Each edge fades linearly from 0 at the edge to full alpha at the
   // blend boundary. When edges overlap at corners, the alphas multiply.

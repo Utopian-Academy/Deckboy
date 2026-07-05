@@ -244,8 +244,11 @@ struct Deck {
   double playlistDefaultCueFadeSeconds = 1.5;           // default fade in/out duration
   double playlistDefaultStillDurationSeconds = 8.0;     // default hold time for stills
   bool playlistDefaultLoop = false;                     // default loop setting
-  bool playlistDefaultFadeInEnabled = true;             // apply fade-in by default
-  bool playlistDefaultFadeOutEnabled = true;            // apply fade-out by default
+  // New clips import with fades OFF; the operator turns them on per cue
+  // (cue-row icon / inspector fade rows) or flips these deck defaults in
+  // Settings → Show Flow. Old show files keep their saved values.
+  bool playlistDefaultFadeInEnabled = false;            // apply fade-in to newly imported cues
+  bool playlistDefaultFadeOutEnabled = false;           // apply fade-out to newly imported cues
   bool playlistDefaultAudioEnabled = true;              // enable audio by default
   bool playlistDefaultPauseAtBeginning = false;         // pause on load by default
   bool playlistDefaultPauseAtEnd = true;                // hold last frame by default
@@ -323,6 +326,10 @@ struct OutputTarget {
   std::string name = "Output 1";           // operator-facing label
   int hostDeckIndex = 0;                   // which deck feeds this output (index into Project::decks)
   int displayIndex = 0;                    // OS display number for fullscreen window
+  std::string displayName;                 // SDL display name recorded when the display was chosen.
+                                           // SDL indices are enumeration-order-dependent and shuffle on
+                                           // hot-plug/reboot — on topology change the display is re-matched
+                                           // by this name first, index is only the fallback.
   bool enabled = false;                    // output is active (window open / stream running)
   std::string outputType = "window";       // "window" (SDL fullscreen) | "stream" (ffmpeg egress)
   int mirrorSourceOutputIndex = -1;        // mirror another output's frame (-1 = render own)
@@ -397,6 +404,11 @@ struct Project {
   // An animated mascot path will reuse this field — load .gif/.mp4 instead of
   // .png when the matching file exists, keeping the swap surface stable.
   std::string splashCharacter = "deckbot";
+  // UI color theme — directory name under data/themes/ (e.g. "gameboy",
+  // "nebula", "switch-neon"). Empty means "leave the active theme untouched"
+  // so opening an older, theme-less show doesn't override the operator's pick.
+  // Saved with the show so a chosen colorway survives restarts.
+  std::string theme = "";
   // UI scale factor — multiplies every font point size at load time so text
   // grows on HiDPI / 4K screens without ballooning the layout chrome. 1.0 is
   // the native baseline tuned for 1080p. 1.5–2.0 covers 4K desktops and
@@ -405,6 +417,10 @@ struct Project {
   // pick it up. Persist in the project so a show authored on a 4K monitor
   // doesn't have to re-pick the scale every launch.
   double uiScale = 1.0;
+  // Geometry aspect link: editing a cue's output width also scales its
+  // height proportionally (and vice versa). Toggleable from the GEOMETRY
+  // inspector section, like the chain-link in most media software.
+  bool geometryAspectLinked = true;
   // Input model the operator expects. "mouse" is the default — full hover
   // affordances, splitter highlights, right-click menus. "touch" suppresses
   // hover-only feedback (a tap can't hover) and is the right pairing with
@@ -577,6 +593,7 @@ enum class QuickAction {
   GotoMinus10, GotoMinus20, GotoMinus30,
   // -- Geometry: scale -----
   CycleScaleMode,
+  ToggleAspectLink,
   ScaleXDec, ScaleXInc,
   ScaleYDec, ScaleYInc,
   EditScaleX, EditScaleY,

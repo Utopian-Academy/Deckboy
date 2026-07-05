@@ -206,7 +206,7 @@
         openDropdown(
           "cue.pattern",
           cuePatternTypeDropdownRect_,
-          patternTypes(),
+          patternBaseTypes(),  // base types only — motion is the row toggle's job
           normalizePatternTypeId(cue->path),
           [this](const std::string& nextType) {
             applyPatternTypeToSelectedCue(nextType, true);
@@ -423,7 +423,7 @@
       return;
     }
     if (pointInRect(x, y, fileSaveBtnRect_)) {
-      saveProjectNow(true);
+      saveProjectAsFromPicker();
       return;
     }
     if (pointInRect(x, y, fileBundleBtnRect_)) {
@@ -570,6 +570,25 @@
       }
     }
 
+    // Value scrub zones claim the press before quickButtons_: holding and
+    // dragging horizontally scrubs the value; releasing without crossing the
+    // drag threshold fires the exact-entry popup on mouse-up instead.
+    for (size_t i = 0; i < valueScrubZones_.size(); ++i) {
+      const auto& zone = valueScrubZones_[i];
+      bool isCueSettingsZone = i >= cueSettingsScrubZoneStartIndex_;
+      if (isCueSettingsZone && !pointInRect(x, y, cueSettingsViewportRect_)) {
+        continue;
+      }
+      if (pointInRect(x, y, zone.rect)) {
+        valueScrubPending_ = true;
+        valueScrubEngaged_ = false;
+        activeValueScrub_ = zone;
+        valueScrubStartX_ = x;
+        valueScrubLastStepX_ = x;
+        return;
+      }
+    }
+
     for (size_t i = 0; i < quickButtons_.size(); ++i) {
       const auto& qb = quickButtons_[i];
       bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
@@ -593,6 +612,7 @@
     if (pointInRect(x, y, masterFaderRect_) && masterFaderRect_.w > 0) {
       double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
       project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
+      masterFaderDragActive_ = true;  // keep tracking until release — it's a fader, not a button
       markProjectDirty();
       return;
     }
@@ -605,7 +625,8 @@
       trimDragMode_ = TrimDragMode::Out;
       return;
     }
-    if (button == SDL_BUTTON_LEFT && pointInRect(x, y, progressBarRect_)) {
+    if (button == SDL_BUTTON_LEFT &&
+        (pointInRect(x, y, progressBarRect_) || pointInRect(x, y, audioProgressBarRect_))) {
       if (MediaEngine* engine = focusedMediaEngine()) {
         scrubWasPlaying_ = (engine->state() == TransportState::Playing);
         if (scrubWasPlaying_) {
@@ -618,6 +639,34 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (masterFaderDragActive_ && masterFaderRect_.w > 0) {
+      double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
+      project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
+      markProjectDirty();
+      return;
+    }
+    if (valueScrubPending_ || valueScrubEngaged_) {
+      constexpr int kScrubEngagePx = 5;   // dead zone so a click stays a click
+      constexpr int kScrubPxPerStep = 4;  // mouse px per dec/inc step
+      if (!valueScrubEngaged_ && std::abs(x - valueScrubStartX_) >= kScrubEngagePx) {
+        valueScrubEngaged_ = true;
+        valueScrubPending_ = false;
+        valueScrubLastStepX_ = x;
+      }
+      if (valueScrubEngaged_) {
+        int steps = (x - valueScrubLastStepX_) / kScrubPxPerStep;
+        if (steps != 0) {
+          valueScrubLastStepX_ += steps * kScrubPxPerStep;
+          QuickAction stepAction = steps > 0 ? activeValueScrub_.incAction
+                                             : activeValueScrub_.decAction;
+          int count = std::min(std::abs(steps), 40);  // sanity cap per motion event
+          for (int s = 0; s < count; ++s) {
+            dispatchQuickAction(stepAction);
+          }
+        }
+      }
+      return;  // the scrub owns the pointer until release
+    }
     if (layoutDragMode_ == LayoutDragMode::Playlist && contentAreaRect_.w > 0) {
       constexpr int kPlaylistMinW = 236;
       int maxW = std::max(kPlaylistMinW, contentAreaRect_.w - 520);
@@ -791,6 +840,31 @@
     if (handleDropdownKey(key, mod)) {
       return;
     }
+
+    // ↑ ↑ ↓ ↓ ← → ← → B A Start. The directional prefix rides along with
+    // normal navigation (harmless selection moves); once it's complete, the
+    // B/A/Enter tail is swallowed so their hotkeys don't fire mid-code.
+    if (!keyRepeat) {
+      static const SDL_Keycode kKonami[] = {
+        SDLK_UP, SDLK_UP, SDLK_DOWN, SDLK_DOWN,
+        SDLK_LEFT, SDLK_RIGHT, SDLK_LEFT, SDLK_RIGHT,
+        SDLK_b, SDLK_a, SDLK_RETURN
+      };
+      constexpr int kKonamiLen = static_cast<int>(sizeof(kKonami) / sizeof(kKonami[0]));
+      if (key == kKonami[konamiIndex_]) {
+        ++konamiIndex_;
+        if (konamiIndex_ >= kKonamiLen) {
+          konamiIndex_ = 0;
+          unlockTerrariumSource();
+          return;
+        }
+        if (konamiIndex_ > 8) {
+          return;  // swallow B/A while the tail is in progress
+        }
+      } else {
+        konamiIndex_ = (key == kKonami[0]) ? 1 : 0;
+      }
+    }
     if (keyColorPickerArmed_ && key == SDLK_ESCAPE) {
       keyColorPickerArmed_ = false;
       triggerToast("key color picker canceled");
@@ -914,7 +988,7 @@
       return;
     }
     if (ctrl && !shift && key == SDLK_s) {
-      saveProjectNow(true);
+      saveProjectAsFromPicker();
       return;
     }
     if (ctrl && shift && key == SDLK_s) {

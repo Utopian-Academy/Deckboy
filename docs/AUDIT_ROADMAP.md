@@ -111,6 +111,31 @@ item with ownership boundaries, dependencies, and acceptance criteria.
 
 ## Future / Roadmap
 
+### Settings click dispatch table
+- **Scope:** `native/main.cpp` (action constants), `app_render_settings.ipp`
+  (`handleSettingsClick` Part1/2/3)
+- **What:** Replace the three chained if-else functions (split only to dodge
+  MSVC C1061) and the 636+ integer action constants with a registration
+  table (`unordered_map<int, handler>` or command objects). Kills the C1061
+  hazard and the "allocate next id from N+" bookkeeping in one move.
+- **Risk:** large mechanical refactor; do it in one dedicated pass with
+  smoke + manual settings sweep.
+
+### Key–value record serialization
+- **Scope:** `saveProject`/`loadProject` Deck/Cue/OutputTarget records
+- **What:** Records are positional tab-delimited with `fields.size() >= N`
+  guards; one mis-ordered append silently shifts every later field. The
+  project header is already key–value (`title\t...`) — migrate records to
+  the same style with a legacy-positional read path for old files.
+
+### Async egress readback
+- **Scope:** `app_render_output.ipp` egress capture
+- **What:** `SDL_RenderReadPixels` per output per frame stalls the GPU
+  pipeline; fine at 1080p, won't scale to 4K multi-output. Needs
+  double-buffered async readback (or a CPU-side compositor for egress).
+  Note AOI still doesn't apply to NDI/DeckLink egress (see DEVNOTES AOI
+  note) — fold that in here.
+
 ### Standardize namespace (deckboy:: vs deckboy::)
 - **Scope:** All `native/platform/*.cpp`, `native/core/utils.*`
 - **What:** Platform backends use `deckboy::platform`, core uses

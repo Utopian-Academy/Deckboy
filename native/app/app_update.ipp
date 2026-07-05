@@ -175,8 +175,20 @@
           break;
         case SDL_MOUSEBUTTONUP:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
+              if (valueScrubPending_ || valueScrubEngaged_) {
+                bool wasPlainClick = valueScrubPending_ && !valueScrubEngaged_;
+                valueScrubPending_ = false;
+                valueScrubEngaged_ = false;
+                if (wasPlainClick && activeValueScrub_.hasClickAction) {
+                  // Released inside the dead zone — treat as a click and open
+                  // the exact-entry editor, anchored to the value cell.
+                  lastInlineEditorAnchorRect_ = activeValueScrub_.rect;
+                  dispatchQuickAction(activeValueScrub_.clickAction);
+                }
+              }
               drag_.active = false;
               drag_.cueIndex = -1;
+              masterFaderDragActive_ = false;
               trimDragMode_ = TrimDragMode::None;
               if (timelineScrubActive_ && scrubWasPlaying_) {
                 if (MediaEngine* engine = focusedMediaEngine()) {
@@ -231,6 +243,18 @@
   }
 
   void update() {
+    if (engineCueSyncPending_) {
+      engineCueSyncPending_ = false;
+      syncEngineCueSnapshots();
+    }
+    // Master volume reaches the audio threads through an atomic on each
+    // engine. Synced every tick (cheap store) so no set-path — fader drag,
+    // remote MASTERVOL, project load, undo — can miss it.
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+        engine->setMasterGain(static_cast<float>(project_.masterVolume));
+      }
+    }
     flushDirtyProject();
     processRemoteCommands();
     refreshNmcSyncState();
@@ -285,11 +309,14 @@
       for (auto it = waveformFutures_.begin(); it != waveformFutures_.end(); ) {
         if (it->second.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
           try {
-            WaveformPeaks result = it->second.get();
-            if (!result.empty()) {
-              waveformCache_[it->first] = std::move(result);
-            }
+            // Cache EMPTY results too: "analyzed, no usable audio" is a real
+            // answer. Discarding empties meant triggerWaveformAnalysis
+            // relaunched ffmpeg every cycle for unanalyzable paths (live
+            // sources, corrupt files) — an eternal "LOADING" audio lane and
+            // an ffmpeg respawn loop.
+            waveformCache_[it->first] = it->second.get();
           } catch (...) {
+            waveformCache_[it->first] = WaveformPeaks {};  // failed = no waveform, stop retrying
           }
           it = waveformFutures_.erase(it);
         } else ++it;
@@ -303,12 +330,19 @@
         vuSamples_.clear();
       }
     }
-    // Trigger waveform analysis for selected/active cue
+    // Trigger waveform analysis for selected/active cue. Only file-backed
+    // kinds: live sources (camera/window/NDI/SRT) have no finite waveform to
+    // analyze — ffmpeg either hangs or fails on their pseudo-paths — and
+    // stale hasAudio flags on old saved source cues must not start one.
+    auto cueIsWaveformAnalyzable = [](const Cue& cue) {
+      return cue.hasAudio &&
+             (cue.kind == CueKind::Video || cue.kind == CueKind::Audio);
+    };
     {
       const Cue* sel = selectedCuePtr();
-      if (sel && sel->hasAudio) triggerWaveformAnalysis(resolvedCueFilesystemPathString(*sel, currentProjectFile_));
+      if (sel && cueIsWaveformAnalyzable(*sel)) triggerWaveformAnalysis(resolvedCueFilesystemPathString(*sel, currentProjectFile_));
       const Cue* act = activeCuePtr();
-      if (act && act->hasAudio && act != sel) triggerWaveformAnalysis(resolvedCueFilesystemPathString(*act, currentProjectFile_));
+      if (act && act != sel && cueIsWaveformAnalyzable(*act)) triggerWaveformAnalysis(resolvedCueFilesystemPathString(*act, currentProjectFile_));
       const Cue* timelineCue = act ? act : sel;
       bool shouldRequestTimelineStrip = timelineCue && timelineCue->kind == CueKind::Video;
       if (shouldRequestTimelineStrip && timelineCue == sel && timelineCue != act) {
@@ -320,7 +354,9 @@
         clearTimelineStrip();
       }
     }
-    if (showSplashOverlay_ && splashStartedAt_ > 0 && now - splashStartedAt_ > 2600) {
+    // Long enough for the full boot-console sequence (~24 lines at 170ms)
+    // plus a beat on the final line; Enter/Esc/click still skips instantly.
+    if (showSplashOverlay_ && splashStartedAt_ > 0 && now - splashStartedAt_ > 5200) {
       showSplashOverlay_ = false;
     }
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
@@ -641,8 +677,11 @@
 
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (!project_.outputs[outputIndex].enabled) {
+        clearDisabledOutputWindow(outputIndex);
         continue;
       }
       renderOutputWindow(outputIndex);
     }
+
+    renderDisplayIdentify();
   }

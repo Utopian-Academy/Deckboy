@@ -1,0 +1,15 @@
+# Deckboy Theme: Metroid
+# Samus-armor amber-orange over cold hull dark.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	151A1EFF
+shell_inner	20272CFF
+shell_shadow	0C1012FF
+screen_light	FBA356FF
+screen_mid	B16C2FFF
+screen_dark	21292EFF
+screen_deep	0B0F11FF
+screen_ink_soft	A87D57FF
+button_bezel	7F542FFF
+delete_bezel	AB2B33FF
+scanline_alpha	12
