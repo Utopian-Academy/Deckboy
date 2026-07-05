@@ -321,6 +321,17 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
 // Resume playback from the current position. For source cues (camera/window),
 // this starts or resumes the capture backend. For video/audio cues, this
 // unpauses the SDL audio device and starts the wall-clock timer.
+void MediaEngine::setAudioDevice(SDL_AudioDeviceID device) {
+  // Redirect PCM output to a newly opened device. The caller closes the old
+  // device after this returns; start the new one clean and matched to the
+  // current transport so a device change never interrupts playback.
+  audioDevice_ = device;
+  if (audioDevice_ != 0) {
+    SDL_ClearQueuedAudio(audioDevice_);
+    SDL_PauseAudioDevice(audioDevice_, state_ == TransportState::Playing ? 0 : 1);
+  }
+}
+
 void MediaEngine::play() {
   if (!activeCue_) return;
   if (isSourceCueKind(activeCue_->kind)) {

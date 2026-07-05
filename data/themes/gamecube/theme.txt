@@ -2,13 +2,13 @@
 # Indigo cube shell — that early-2000s purple.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	17141FFF
-shell_inner	231F2EFF
-shell_shadow	0E0C13FF
+shell_outer	16141DFF
+shell_inner	221F2BFF
+shell_shadow	070708FF
 screen_light	815AF7FF
 screen_mid	5132AEFF
-screen_dark	241F30FF
-screen_deep	0D0A12FF
+screen_dark	211D2BFF
+screen_deep	050505FF
 screen_ink_soft	6C59A6FF
 button_bezel	44317DFF
 delete_bezel	AB2B33FF

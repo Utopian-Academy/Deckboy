@@ -1,0 +1,15 @@
+# Deckboy Theme: Mario
+# It's-a red on black.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1D1414FF
+shell_inner	2B1F1FFF
+shell_shadow	080707FF
+screen_light	FB6456FF
+screen_mid	B13A2FFF
+screen_dark	2B1D1DFF
+screen_deep	050505FF
+screen_ink_soft	A85E57FF
+button_bezel	7F352FFF
+delete_bezel	AB512BFF
+scanline_alpha	12

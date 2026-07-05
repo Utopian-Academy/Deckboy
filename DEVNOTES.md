@@ -1,5 +1,35 @@
 # DEVNOTES
 
+## Media converter + ENCODER tab (v0.76.31)
+- `cueConvertReason()` flags file-backed Video cues that ffprobe can't read
+  (tracked in the transient `unreadablePaths_` set) or that carry a heavy codec
+  (HEVC/H265/AV1/ProRes/DNxHD) or a >1080p frame. Surfaced three ways: a toast on
+  import, a contextual CONVERT button in the SELECTED CUE panel (only when
+  flagged/converting), and the Settings → Encoder tab (`settingsTab_ == 5`).
+- `convertCueMedia()` runs an async ffmpeg job in `conversionJobs_`: CPU decode +
+  `h264_nvenc` (libx264 fallback) → `<show>/_converted/<stem>.mp4`. The per-frame
+  poll in `update()` swaps the cue's path to the copy and pushes a re-probe on
+  success. Original untouched; `_converted/` is git-ignored.
+
+## Audio device hot-swap (v0.76.31)
+- `MediaEngine::setAudioDevice()` redirects the SDL output device in place (the
+  engine never owns it — it only queues PCM via SDL_QueueAudio). `reopenDeckAudioOutput()`
+  now hot-swaps on the existing engine instead of `stopAll()` + recreate, so
+  changing a deck's audio output mid-cue no longer stops playback. First-time
+  setup (null engine) still constructs it.
+
+## Deck-list scroll + splash system (v0.76.31)
+- The MAIN deck cue list (renderCueRow path, not the compact panel) clamps
+  `deckScrolls_` to `[0, deckScrollMax_]` before drawing, with a bottom-only
+  rubber-band: the wheel may push to `max + kDeckScrollOverscroll`, then a
+  time-based exponential settle (τ≈71ms, gated on `lastDeckScrollMs_` idle)
+  springs it back. Top is hard-clamped at 0.
+- Splash: grayscale masters in `data/ui/.../splash/cycle/` are picked at random
+  per boot (`SDL_GetPerformanceCounter`) and tinted to `pal.light` via
+  `splashTintable_`; the default (gameboy) theme instead boots the branded
+  character splash untinted. The splash background follows `pal.deep` (was a
+  hardcoded green).
+
 ## Save / Theme / Output / UX batch (v0.76.30)
 - **SAVE always prompts.** The toolbar SAVE button and Ctrl+S both call
   `saveProjectAsFromPicker` (file picker every time, project only — no media);

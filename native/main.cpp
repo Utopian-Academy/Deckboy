@@ -119,6 +119,7 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <set>
 #include <string>
 #include <system_error>
 #include <string_view>
@@ -4871,13 +4872,36 @@ class App {
     if (!uiPackAvailable_) {
       return;
     }
-    auto candidates = pickSplashCandidates(project_.splashCharacter);
-    fs::path chosen = uiPackRoot_ / candidates.front();
-    for (const auto& rel : candidates) {
-      fs::path candidate = uiPackRoot_ / rel;
-      if (fs::exists(candidate)) {
-        chosen = candidate;
-        break;
+    fs::path chosen;
+    std::error_code ec;
+    // In the DEFAULT (gameboy) theme, boot the branded DECKBOY-wordmark splash.
+    // Other themes cycle the grayscale scene pool, tinted to the colorway.
+    // (currentThemeName_ once a theme is loaded, else the project's saved theme.)
+    std::string activeTheme = !currentThemeName_.empty() ? currentThemeName_ : project_.theme;
+    bool defaultTheme = activeTheme.empty() || activeTheme == "gameboy";
+    fs::path cycleDir = uiPackRoot_ / "splash" / "cycle";
+    std::vector<fs::path> pool;
+    if (!defaultTheme && fs::is_directory(cycleDir, ec)) {
+      for (const auto& e : fs::directory_iterator(cycleDir, ec)) {
+        if (e.is_regular_file() && e.path().extension() == ".png") {
+          pool.push_back(e.path());
+        }
+      }
+    }
+    splashTintable_ = !pool.empty();
+    if (splashTintable_) {
+      std::sort(pool.begin(), pool.end());
+      size_t idx = static_cast<size_t>(SDL_GetPerformanceCounter() % pool.size());
+      chosen = pool[idx];
+    } else {
+      auto candidates = pickSplashCandidates(project_.splashCharacter);
+      chosen = uiPackRoot_ / candidates.front();
+      for (const auto& rel : candidates) {
+        fs::path candidate = uiPackRoot_ / rel;
+        if (fs::exists(candidate)) {
+          chosen = candidate;
+          break;
+        }
       }
     }
     if (uiSplashArt_.path != chosen) {
@@ -5234,6 +5258,8 @@ class App {
   static constexpr int kSettingsActionAllowRemoteToggle = 640;
   static constexpr int kSettingsActionStreamKeyPrompt = 641;
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
+  static constexpr int kSettingsActionEncoderConvertAll = 647;
+  static constexpr int kSettingsActionEncoderAddFile = 648;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -5402,6 +5428,7 @@ class App {
   UiImageAsset uiHeaderArt_;
   UiImageAsset uiAboutLogo_;
   UiImageAsset uiSplashArt_;
+  bool splashTintable_ = false;  // true when the splash is a grayscale cycle master (tint to theme)
   UiImageAsset uiMonitorFrameArt_;
   UiImageAsset uiOutputChipIdleArt_;
   UiImageAsset uiOutputChipArmedArt_;
@@ -5529,6 +5556,10 @@ class App {
   std::atomic<std::uint64_t> timelineStripJobSerial_ {0};
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;
+  std::vector<int> deckScrollMax_;                  // per-deck clamp bound, set at render
+  std::vector<Uint64> deckScrollSettleMs_;          // per-deck last-frame time for the spring dt
+  Uint64 lastDeckScrollMs_ = 0;                     // last wheel input, for rubber-band settle
+  static constexpr int kDeckScrollOverscroll = 44;  // px of springy over-scroll past the bottom
   std::vector<int> deckOverlayScrolls_;
   int mouseX_ = 0;
   int mouseY_ = 0;
@@ -5687,6 +5718,17 @@ class App {
     std::future<std::optional<Cue>> future;
   };
   std::vector<PendingProbe> probeFutures_;
+  // ── Built-in media converter ───────────────────────────────────────────
+  // Async ffmpeg transcode of cues Deckboy can't play (or would play poorly)
+  // into a compatible H.264 MP4, kept portable in <show>/_converted/.
+  struct ConversionJob {
+    int deckIndex;
+    std::string sourcePath;
+    std::string destPath;
+    std::future<bool> future;
+  };
+  std::vector<ConversionJob> conversionJobs_;
+  std::set<std::string> unreadablePaths_;  // probe returned nothing → offer convert
   // Waveform analysis cache (path → peaks vector)
   std::map<std::string, WaveformPeaks> waveformCache_;
   std::map<std::string, std::future<WaveformPeaks>> waveformFutures_;

@@ -1,0 +1,15 @@
+# Deckboy Theme: R.O.B.
+# Desaturated grey-steel — the little robot.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	15181BFF
+shell_inner	212529FF
+shell_shadow	070808FF
+screen_light	95BCD0FF
+screen_mid	56798AFF
+screen_dark	1F2429FF
+screen_deep	050505FF
+screen_ink_soft	6F8590FF
+button_bezel	475C67FF
+delete_bezel	AB2B33FF
+scanline_alpha	12

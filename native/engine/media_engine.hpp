@@ -110,6 +110,10 @@ class MediaEngine {
   // nothing is loaded.
   void syncActiveCueSnapshot(const Cue& cue);
   void play();                            // resume playback
+  // Hot-swap the SDL output device (the engine never owns it) without
+  // disturbing the loaded cue, decode, or transport — used when the operator
+  // changes the deck's audio output while a cue is playing.
+  void setAudioDevice(SDL_AudioDeviceID device);
   void pause();                           // pause playback (hold current frame)
   void toggle();                          // play ↔ pause toggle
   // Stop playback and rerack to the start. clearVisual=true additionally
