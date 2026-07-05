@@ -783,6 +783,7 @@
     inlineEditor_.title = title;
     inlineEditor_.prompt = prompt;
     inlineEditor_.value = initialValue;
+    inlineEditor_.freshEntry = true;  // old value acts selected: first keystroke replaces it
     inlineEditor_.anchorRect = lastInlineEditorAnchorRect_;
     inlineEditor_.onSubmit = std::move(onSubmit);
     lastInlineEditorAnchorRect_ = SDL_Rect {};
@@ -846,13 +847,17 @@
       return true;
     }
     if (key == SDLK_BACKSPACE) {
-      if (!inlineEditor_.value.empty()) {
+      if (inlineEditor_.freshEntry) {   // treat the pre-filled value as selected: clear it
+        inlineEditor_.value.clear();
+        inlineEditor_.freshEntry = false;
+      } else if (!inlineEditor_.value.empty()) {
         inlineEditor_.value.pop_back();
       }
       return true;
     }
     if (key == SDLK_DELETE) {
       inlineEditor_.value.clear();
+      inlineEditor_.freshEntry = false;
       return true;
     }
     return true;
@@ -861,6 +866,10 @@
   void handleInlineTextEditorTextInput(const std::string& text) {
     if (!inlineEditor_.open || text.empty()) {
       return;
+    }
+    if (inlineEditor_.freshEntry) {   // first character replaces the pre-filled value
+      inlineEditor_.value.clear();
+      inlineEditor_.freshEntry = false;
     }
     inlineEditor_.value += text;
     if (inlineEditor_.value.size() > 180) {

@@ -1786,6 +1786,10 @@ struct OutputRuntime {
   // SDL output window and renderer (one per output destination)
   SDL_Window* outputWindow = nullptr;
   SDL_Renderer* outputRenderer = nullptr;
+  // One-shot latch: while an output is disabled we paint its still-visible
+  // window black exactly once (not every frame — presenting is vsync-blocking).
+  // Reset whenever the output renders again, so re-disabling re-blacks it.
+  bool blackedWhileDisabled = false;
   SDL_Texture* compositorTexture = nullptr;  // Offscreen compositor target
   int compositorWidth = 0;
   int compositorHeight = 0;
@@ -1855,6 +1859,13 @@ struct OutputRuntime {
   bool pendingDisplayMoveFullscreen = false;
   Uint64 displayMoveRetryAtMs = 0;
   Uint64 suppressRecoveryUntilMs = 0;
+  // Recovery strike backoff: if recovery keeps firing for the same output,
+  // something structural is wrong (SDL and the WM disagree about placement).
+  // Repeated exit-fullscreen/move/re-enter/raise cycles steal keyboard focus
+  // from the control window every pass — the operator experiences a fight.
+  // After kMaxRecoveryStrikes within the strike window, recovery pauses.
+  int recoveryStrikeCount = 0;
+  Uint64 recoveryStrikeWindowStartMs = 0;
   OutputHealthState healthState = OutputHealthState::Off;
   std::string healthReason;
   Uint64 healthUpdatedAtMs = 0;
@@ -2628,6 +2639,33 @@ bool isImagePath(const fs::path& path) {
   return std::find(kImageExts.begin(), kImageExts.end(), ext) != kImageExts.end();
 }
 
+bool isAudioPath(const fs::path& path) {
+  std::string ext = path.extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  static const std::array<std::string, 10> kAudioExts {
+    ".mp3", ".wav", ".flac", ".aac", ".ogg", ".oga", ".m4a", ".opus", ".wma", ".aiff"
+  };
+  return std::find(kAudioExts.begin(), kAudioExts.end(), ext) != kAudioExts.end();
+}
+
+// True for files we accept when a folder is dropped/imported (video/image/audio).
+bool isAcceptableMediaPath(const fs::path& path) {
+  if (isImagePath(path) || isAudioPath(path)) {
+    return true;
+  }
+  std::string ext = path.extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  static const std::array<std::string, 14> kVideoExts {
+    ".mp4", ".mov", ".mkv", ".avi", ".webm", ".m4v", ".mpg", ".mpeg",
+    ".wmv", ".flv", ".ogv", ".ts", ".m2ts", ".mxf"
+  };
+  return std::find(kVideoExts.begin(), kVideoExts.end(), ext) != kVideoExts.end();
+}
+
 std::optional<double> parseFps(const std::string& rate) {
   auto slash = rate.find('/');
   if (slash == std::string::npos) {
@@ -2664,7 +2702,9 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
   Cue cue;
   cue.path = mediaPath.string();
   cue.name = mediaPath.stem().string();
-  cue.kind = isImagePath(mediaPath) ? CueKind::Image : CueKind::Video;
+  cue.kind = isImagePath(mediaPath) ? CueKind::Image
+           : isAudioPath(mediaPath) ? CueKind::Audio
+           : CueKind::Video;
   cue.fps = cue.kind == CueKind::Image ? 0.0 : 30.0;
 
   // ffprobe may emit codec_name before or after codec_type depending on version/format.
@@ -2793,6 +2833,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
+  output << "theme\t" << escapeField(project.theme) << '\n';
+  output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
@@ -2864,6 +2906,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << (outputTarget.spoutEnabled ? 1 : 0)
       << '\t' << escapeField(outputTarget.spoutSenderName)
       << '\t' << escapeField(outputTarget.streamKey)
+      << '\t' << escapeField(outputTarget.displayName)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3089,6 +3132,10 @@ Project loadProject(const fs::path& projectFile) {
     } else if (fields[0] == "splash_character") {
       std::string v = safeString(fields, 1);
       project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+    } else if (fields[0] == "theme") {
+      project.theme = safeString(fields, 1);
+    } else if (fields[0] == "geometry_aspect_link") {
+      project.geometryAspectLinked = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_scale") {
       project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
     } else if (fields[0] == "interaction_mode") {
@@ -3140,7 +3187,9 @@ Project loadProject(const fs::path& projectFile) {
     } else if (fields[0] == "panic_auto_restore") {
       project.panicAutoRestore = safeBool(fields, 1, false);
     } else if (fields[0] == "master_volume") {
-      project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
+      // Range is 0..2 (values above 1.0 are boost) — the old 0..1 clamp here
+      // silently flattened saved boost levels on load.
+      project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 2.0);
     } else if (fields[0] == "master_dimmer") {
       project.masterDimmer = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
     } else if (fields[0] == "output_follow_display") {
@@ -3206,6 +3255,9 @@ Project loadProject(const fs::path& projectFile) {
                   outputTarget.spoutSenderName = safeString(fields, 33);
                   if (fields.size() >= 35) {
                     outputTarget.streamKey = safeString(fields, 34);
+                    if (fields.size() >= 36) {
+                      outputTarget.displayName = safeString(fields, 35);
+                    }
                   }
                 }
               }
@@ -3672,6 +3724,33 @@ class App {
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
 
     SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+    // Never minimize a fullscreen output when it loses focus. SDL's default
+    // minimizes exclusive-fullscreen windows on focus loss, which turned the
+    // operator's normal workflow into a fight: click the control window →
+    // program output minimizes ("output frozen") → recovery re-raises it and
+    // steals keyboard focus → repeat. A playout output must stay on the
+    // program screen no matter where the operator's focus is.
+    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+    // Opt out of background throttling. Windows 11 applies EcoQoS (reduced
+    // CPU scheduling) and timer-resolution coalescing to processes whose
+    // windows aren't focused — SDL_Delay(4) in the decode/audio loops
+    // degrades to ~15ms, so playback stutters the moment the operator
+    // focuses anything else. A playout engine must run full speed in the
+    // background, always.
+    {
+      PROCESS_POWER_THROTTLING_STATE throttling {};
+      throttling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+      throttling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+      throttling.StateMask = 0;  // 0 with the mask set = explicitly OFF
+      SetProcessInformation(GetCurrentProcess(), ProcessPowerThrottling,
+                            &throttling, sizeof(throttling));
+#ifdef PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION
+      throttling.ControlMask = PROCESS_POWER_THROTTLING_IGNORE_TIMER_RESOLUTION;
+      throttling.StateMask = 0;  // keep 1ms timers while unfocused (Win11)
+      SetProcessInformation(GetCurrentProcess(), ProcessPowerThrottling,
+                            &throttling, sizeof(throttling));
+#endif
+    }
     {
       WSADATA wsaData {};
       if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -3774,6 +3853,14 @@ class App {
     refreshSplashAsset();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
     applyUiScale();
+    // Project may carry a saved color theme; apply it unless DECKBOY_THEME
+    // was set (an explicit env override always wins at boot).
+    {
+      const char* themeEnv = std::getenv("DECKBOY_THEME");
+      if ((!themeEnv || !*themeEnv) && !project_.theme.empty()) {
+        loadTheme(project_.theme);
+      }
+    }
     disarmAllOutputsForStartup();
     // Output starts black — no cue is active until the operator takes one
     for (auto& deck : project_.decks) { deck.activeIndex = -1; }
@@ -3876,6 +3963,7 @@ class App {
       SDL_DestroyRenderer(monitorsRenderer_);
       monitorsRenderer_ = nullptr;
     }
+    closeDisplayIdentify();
     if (monitorsWindow_) {
       SDL_DestroyWindow(monitorsWindow_);
       monitorsWindow_ = nullptr;
@@ -4092,6 +4180,16 @@ class App {
     int bodyStartY = 0;
   };
 
+  // Shared label column width so every inspector row type aligns its value
+  // box to the same grid. Quick/editable/status rows previously picked
+  // 108/98/98 (docked) and 88/70/70 (floating) independently, so the value
+  // column zig-zagged down the panel.
+  int inspLabelColumnWidth(const InspectorCtx& ix, int contentW, int reservedW) const {
+    int minValueW = ix.ellipsize ? 76 : 68;
+    int preferred = ix.ellipsize ? 104 : 84;
+    return std::clamp(preferred, 64, std::max(64, contentW - reservedW - minValueW));
+  }
+
   void inspDrawQuickRow(const InspectorCtx& ix, int rowY, const std::string& label,
                         QuickAction decAction, const std::string& value,
                         QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
@@ -4115,9 +4213,7 @@ class App {
     } else {
       int fixedW = kBtnW * 2 + gap * 3;
       int minValueW = ix.ellipsize ? 76 : 68;
-      int labelW = ix.ellipsize
-        ? std::clamp(108, 64, std::max(64, contentW - fixedW - minValueW))
-        : 88;
+      int labelW = inspLabelColumnWidth(ix, contentW, fixedW);
       int valueW = std::max(minValueW, contentW - labelW - fixedW);
       SDL_Rect labelRect {rx, rowY, labelW, ix.rowH};
       SDL_Rect decBtn {labelRect.x + labelRect.w + gap, rowY, kBtnW, ix.rowH};
@@ -4134,8 +4230,18 @@ class App {
         ? ellipsizeToPixelWidth(ix.valueFont, value, valRect.w - 12) : value;
       drawCenteredTextSafe(controlRenderer_, ix.valueFont, valRect, displayValue, pal.deep);
       if (valueEditable) {
-        std::string valueTip = tip.empty() ? "Click value to type an exact number" : tip + " | click value to type exact value";
+        std::string valueTip = tip.empty()
+          ? "Drag value to scrub | click to type an exact number"
+          : tip + " | drag value to scrub, click to type exact";
         quickButtons_.push_back({valRect, valueAction, valueTip});
+      }
+      // Every dec/inc row's value cell is scrubbable; the zone is checked
+      // before quickButtons_ on mouse-down so a click without drag still
+      // opens the exact-entry editor (valueAction) on release.
+      if (decAction != incAction) {
+        valueScrubZones_.push_back({valRect, decAction, incAction,
+                                    valueEditable ? valueAction : QuickAction::ToggleLoop,
+                                    valueEditable});
       }
 
       drawUIPanel(incBtn, pal.light, pal.deep, pal.mid);
@@ -4173,9 +4279,7 @@ class App {
     int kGap = ix.ellipsize ? 8 : 6;
     int contentW = ix.ctrlW - ix.inset * 2;
     int minValueW = ix.ellipsize ? 84 : 72;
-    int labelW = ix.ellipsize
-      ? std::clamp(98, 64, std::max(64, contentW - kEditW - kGap * 2 - minValueW))
-      : 70;
+    int labelW = inspLabelColumnWidth(ix, contentW, kEditW + kGap * 2);
     int valueW = std::max(minValueW, contentW - labelW - kEditW - kGap * 2);
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + kGap, rowY, valueW, ix.rowH};
@@ -4196,9 +4300,7 @@ class App {
                         const std::string& label, const std::string& value, bool warning) {
     int gap = ix.ellipsize ? 8 : 6;
     int contentW = ix.ctrlW - ix.inset * 2;
-    int labelW = ix.ellipsize
-      ? std::clamp(98, 64, std::max(64, contentW - gap - 84))
-      : 70;
+    int labelW = inspLabelColumnWidth(ix, contentW, gap);
     int valueW = std::max(ix.ellipsize ? 84 : 72, contentW - labelW - gap);
     SDL_Rect labelRect {ix.ctrl.x + ix.inset, rowY, labelW, ix.rowH};
     SDL_Rect valueRect {labelRect.x + labelRect.w + gap, rowY, valueW, ix.rowH};
@@ -4247,40 +4349,23 @@ class App {
       inspDrawQuickRow(ix, rowY, "mode", QuickAction::CycleScaleMode, fmtScaleMode(cue.scaleMode), QuickAction::CycleScaleMode,
                        QuickAction::ToggleLoop, false, false, "Fit/Fill/Stretch/Unscaled");
       rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "link aspect", QuickAction::ToggleAspectLink,
+                       project_.geometryAspectLinked ? "on" : "off",
+                       QuickAction::ToggleAspectLink, QuickAction::ToggleAspectLink,
+                       true, project_.geometryAspectLinked,
+                       "Changing width also scales height (and vice versa)");
+      rowY += ix.rowStep;
       {
-        // Compute actual rendered pixel size matching drawTextureFitted / renderTextureWithCueGeometry logic
-        int focOutIdx = std::clamp(project_.focusedOutputIndex, 0, std::max(0, static_cast<int>(project_.outputs.size()) - 1));
-        auto [targetW, targetH] = outputRenderSizeForOutput(focOutIdx);
-        int srcW = std::max(1, cue.width > 0 ? cue.width : targetW);
-        int srcH = std::max(1, cue.height > 0 ? cue.height : targetH);
-        // Apply crop
-        int cropLPx = static_cast<int>(std::lround(srcW * cue.cropLeft));
-        int cropRPx = static_cast<int>(std::lround(srcW * cue.cropRight));
-        int cropTPx = static_cast<int>(std::lround(srcH * cue.cropTop));
-        int cropBPx = static_cast<int>(std::lround(srcH * cue.cropBottom));
-        int croppedW = std::max(1, srcW - cropLPx - cropRPx);
-        int croppedH = std::max(1, srcH - cropTPx - cropBPx);
-        double baseScaleX = 1.0, baseScaleY = 1.0;
-        if (cue.scaleMode == ScaleMode::Fit) {
-          double fit = std::min(static_cast<double>(targetW) / croppedW, static_cast<double>(targetH) / croppedH);
-          baseScaleX = baseScaleY = fit;
-        } else if (cue.scaleMode == ScaleMode::Fill) {
-          double fill = std::max(static_cast<double>(targetW) / croppedW, static_cast<double>(targetH) / croppedH);
-          baseScaleX = baseScaleY = fill;
-        } else if (cue.scaleMode == ScaleMode::Stretch) {
-          baseScaleX = static_cast<double>(targetW) / croppedW;
-          baseScaleY = static_cast<double>(targetH) / croppedH;
-        }
-        // Unscaled: baseScale stays 1.0
-        int finalW = std::max(1, static_cast<int>(std::lround(croppedW * baseScaleX * cue.outputScaleX)));
-        int finalH = std::max(1, static_cast<int>(std::lround(croppedH * baseScaleY * cue.outputScaleY)));
-        std::string scaleXVal = std::to_string(finalW) + "px";
-        std::string scaleYVal = std::to_string(finalH) + "px";
-        inspDrawQuickRow(ix, rowY, "scale X", QuickAction::ScaleXDec, scaleXVal, QuickAction::ScaleXInc,
-                         QuickAction::ToggleLoop, false, false, "Output width in pixels", true, QuickAction::EditScaleX);
+        auto [baseW, baseH] = cueBaseRenderSize(cue);
+        int finalW = std::max(1, static_cast<int>(std::lround(baseW * cue.outputScaleX)));
+        int finalH = std::max(1, static_cast<int>(std::lround(baseH * cue.outputScaleY)));
+        inspDrawQuickRow(ix, rowY, "width", QuickAction::ScaleXDec, std::to_string(finalW) + "px",
+                         QuickAction::ScaleXInc, QuickAction::ToggleLoop, false, false,
+                         "Output width in pixels | click value to type exact px", true, QuickAction::EditScaleX);
         rowY += ix.rowStep;
-        inspDrawQuickRow(ix, rowY, "scale Y", QuickAction::ScaleYDec, scaleYVal, QuickAction::ScaleYInc,
-                         QuickAction::ToggleLoop, false, false, "Output height in pixels", true, QuickAction::EditScaleY);
+        inspDrawQuickRow(ix, rowY, "height", QuickAction::ScaleYDec, std::to_string(finalH) + "px",
+                         QuickAction::ScaleYInc, QuickAction::ToggleLoop, false, false,
+                         "Output height in pixels | click value to type exact px", true, QuickAction::EditScaleY);
       }
       rowY += ix.rowStep;
       inspDrawQuickRow(ix, rowY, "offset X", QuickAction::OffsetXDec, std::to_string(static_cast<int>(cue.outputOffsetX)) + "px", QuickAction::OffsetXInc,
@@ -4383,9 +4468,9 @@ class App {
     Primitives::fillRect(controlRenderer_, bodyFill, SDL_Color {15, 56, 15, 28});
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     Primitives::strokeRect(controlRenderer_, shell, pal.dark);
-    // Rail drawn in the left gutter (before row content) so it doesn't overlay any element
-    SDL_Rect rail {shell.x - 8, section.bodyStartY - 2, 3, std::max(0, shellBottom - section.bodyStartY)};
-    Primitives::fillRect(controlRenderer_, rail, pal.mid);
+    // (An accent "rail" used to be drawn 8px left of the shell here. Floating
+    // outside the frame it read as a stray vertical green bar, not chrome —
+    // the shell stroke + body tint already delimit the open section.)
   }
 
   void drawUIPanel(const SDL_Rect& rect, SDL_Color fill, SDL_Color border, SDL_Color accent) {
@@ -4872,6 +4957,7 @@ class App {
     // Control / toolbar button icons
     uiBtnImport_.path   = pick({fs::path("toolbar") / "import.png"});
     uiBtnPlay_.path     = pick({fs::path("controls") / "play.png"});
+    uiBtnPause_.path    = pick({fs::path("controls") / "pause.png"});
     uiBtnTake_.path     = pick({fs::path("controls") / "take.png"});
     uiBtnStop_.path     = pick({fs::path("controls") / "stop.png"});
     uiBtnRerack_.path   = pick({fs::path("controls") / "rerack.png"});
@@ -4909,6 +4995,7 @@ class App {
     ensureUiImageLoaded(uiCueIconAudio_);
     ensureUiImageLoaded(uiBtnImport_);
     ensureUiImageLoaded(uiBtnPlay_);
+    ensureUiImageLoaded(uiBtnPause_);
     ensureUiImageLoaded(uiBtnTake_);
     ensureUiImageLoaded(uiBtnStop_);
     ensureUiImageLoaded(uiBtnRerack_);
@@ -4943,6 +5030,7 @@ class App {
     releaseUiImage(uiCueIconAudio_);
     releaseUiImage(uiBtnImport_);
     releaseUiImage(uiBtnPlay_);
+    releaseUiImage(uiBtnPause_);
     releaseUiImage(uiBtnTake_);
     releaseUiImage(uiBtnStop_);
     releaseUiImage(uiBtnRerack_);
@@ -5138,9 +5226,14 @@ class App {
   static constexpr int kSettingsActionMascotToggle = 634;
   static constexpr int kSettingsActionUiScaleDropdown = 635;
   static constexpr int kSettingsActionPocket3Preset = 636;
-  static constexpr int kSettingsActionAllowRemoteToggle = 634;
-  static constexpr int kSettingsActionStreamKeyPrompt = 635;
-  static constexpr int kSettingsActionVideoSubTabBase = 636; // 636–639 for 4 sub-tabs
+  static constexpr int kSettingsActionDisplayIdentify = 637;
+  // NOTE: 634–637 were double-allocated at one point (AllowRemote/StreamKey/
+  // VideoSubTab collided with Mascot/UiScale/Pocket3/Identify), which silently
+  // killed whichever button's handler ran second — the "Processing sub-tab
+  // does nothing" bug. Keep every id unique; next free: 647+.
+  static constexpr int kSettingsActionAllowRemoteToggle = 640;
+  static constexpr int kSettingsActionStreamKeyPrompt = 641;
+  static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -5158,6 +5251,16 @@ class App {
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Texture* scanlineOverlay_ = nullptr;
   SDL_Window* monitorsWindow_ = nullptr;
+  // Screen-identify overlay: one small always-on-top window per connected
+  // display showing its number + name (like the OS "Identify" button), so
+  // the operator can tell which settings index is which physical screen.
+  struct IdentifyWindow {
+    SDL_Window* window = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    int displayIndex = 0;
+  };
+  std::vector<IdentifyWindow> identifyWindows_;
+  Uint64 identifyUntilMs_ = 0;
   SDL_Renderer* monitorsRenderer_ = nullptr;
   std::vector<SDL_Texture*> monitorsOutputTextures_;
   std::vector<int> monitorsOutputTexW_;
@@ -5185,6 +5288,7 @@ class App {
   std::vector<SDL_Rect> deckListClipRects_;
   std::vector<SDL_Rect> deckOverlayClipRects_;
   SDL_Rect progressBarRect_ {};
+  SDL_Rect audioProgressBarRect_ {};  // audio lane, also click-to-seek like the video lane
 
   // Context menu
   bool contextMenuOpen_ = false;
@@ -5234,6 +5338,10 @@ class App {
     SDL_Rect inputRect {};
     SDL_Rect applyRect {};
     SDL_Rect cancelRect {};
+    // On open the existing value is treated as "selected": the first typed
+    // character (or backspace) replaces it, so the operator can just type the
+    // new value and hit enter without clearing the old one first.
+    bool freshEntry = false;
     std::function<void(const std::string&)> onSubmit;
   };
   InlineTextEditorState inlineEditor_;
@@ -5311,6 +5419,7 @@ class App {
   // Control / toolbar button icons
   UiImageAsset uiBtnImport_;
   UiImageAsset uiBtnPlay_;
+  UiImageAsset uiBtnPause_;
   UiImageAsset uiBtnTake_;
   UiImageAsset uiBtnStop_;
   UiImageAsset uiBtnRerack_;
@@ -5341,6 +5450,24 @@ class App {
   Uint32 controlPreviewTexFormat_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
   std::vector<QuickButton> quickButtons_;
+  // Value scrubbing: click-hold-drag horizontally on an inspector value cell
+  // steps the row's dec/inc actions (like number scrubbing in AE/Resolve);
+  // a plain click (released before the drag threshold) opens the exact-entry
+  // popup as before. Zones are rebuilt each frame next to quickButtons_.
+  struct ValueScrubZone {
+    SDL_Rect rect {};
+    QuickAction decAction = QuickAction::ToggleLoop;
+    QuickAction incAction = QuickAction::ToggleLoop;
+    QuickAction clickAction = QuickAction::ToggleLoop;
+    bool hasClickAction = false;
+  };
+  std::vector<ValueScrubZone> valueScrubZones_;
+  size_t cueSettingsScrubZoneStartIndex_ = 0;  // zones past this obey the settings viewport clip
+  bool valueScrubPending_ = false;   // button down on a zone, threshold not yet crossed
+  bool valueScrubEngaged_ = false;   // actively scrubbing
+  ValueScrubZone activeValueScrub_ {};
+  int valueScrubStartX_ = 0;
+  int valueScrubLastStepX_ = 0;
   std::vector<MonitorsTileHit> monitorsTileHits_;
   std::vector<DecksPanelCueHit> decksPanelCueHits_;
   std::vector<DecksPanelDeckButtonHit> decksPanelDeckButtonHits_;
@@ -5482,6 +5609,11 @@ class App {
   int observedDisplayCount_ = -1;
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
+  bool engineCueSyncPending_ = false;  // refresh engine cue snapshots next tick (set by markProjectDirty)
+  bool masterFaderDragActive_ = false; // header master fader is being dragged
+  int konamiIndex_ = 0;                // progress through the Konami sequence (easter egg)
+  std::vector<std::string> startupBootLog_;  // splash boot-console lines (built once per boot)
+  std::vector<Uint64> startupBootLogAtMs_;   // per-line randomized reveal times (ms from splash start)
   int companionPort_ = 5510;
   bool companionReady_ = false;
   std::atomic<bool> companionStop_ {false};
@@ -5493,6 +5625,17 @@ class App {
   std::string statusSnapshotJson_;
   std::string statusCueSnapshot_;
   std::vector<std::string> statusDeckSnapshots_;
+  // Structured snapshot for the HyperDeck server. Its handlers run on the
+  // HyperDeck TCP thread, which must never read project_/decks directly
+  // (main thread mutates them) and must not infer state by substring-
+  // matching human-readable snapshot text. Guarded by statusSnapshotMutex_.
+  struct HyperDeckSnapshot {
+    std::string transport = "stopped";  // "play" | "paused" | "stopped"
+    int clipId = 0;                      // 1-based active cue (0 = none)
+    bool loop = false;
+    std::vector<std::pair<std::string, std::string>> clips;  // {name, duration label}
+  };
+  HyperDeckSnapshot hyperDeckSnapshot_;
   std::map<int, std::unordered_set<std::string>> timecodeTriggeredCueIds_;
   std::vector<Uint64> deckTimecodeLastExternalMs_;
   std::vector<double> deckTimecodeLastExternalSeconds_;

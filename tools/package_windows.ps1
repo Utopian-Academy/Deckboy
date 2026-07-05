@@ -81,6 +81,11 @@ Copy-Item $Exe -Destination $StageDir
 Get-ChildItem $BuildDir -Filter *.dll | ForEach-Object {
     Copy-Item $_.FullName -Destination $StageDir
 }
+# Bundled companion apps (terrarium easter egg)
+$TerrariumExe = Join-Path $BuildDir "terrarium.exe"
+if (Test-Path $TerrariumExe) {
+    Copy-Item $TerrariumExe -Destination $StageDir
+}
 
 # --- Copy ffmpeg / ffprobe --------------------------------------------------
 Copy-Item (Join-Path $FfmpegDir "ffmpeg.exe")  -Destination $StageDir

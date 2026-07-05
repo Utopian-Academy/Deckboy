@@ -2096,6 +2096,21 @@
     runtime.compositorHeight = 0;
     runtime.compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
     runtime.compositorBitDepth = 8;
+    // Flush a final black frame before the window goes away so the physical
+    // display — and capture dongles that latch the last signal they received —
+    // clears to black instead of freezing on the last-shown frame. Only a
+    // visible window has anything on screen; hidden/stream runtimes skip this.
+    if (runtime.outputRenderer && runtime.outputWindow &&
+        (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_SHOWN)) {
+      SDL_SetRenderTarget(runtime.outputRenderer, nullptr);
+      SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
+      // Two swaps: double/triple-buffered chains need a couple of presents to
+      // push black all the way to the scanout buffer the dongle samples.
+      for (int i = 0; i < 2; ++i) {
+        SDL_RenderClear(runtime.outputRenderer);
+        SDL_RenderPresent(runtime.outputRenderer);
+      }
+    }
     if (runtime.outputRenderer) {
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
@@ -3266,8 +3281,16 @@
     runtime->fullscreenIntended = true;
     runtime->lastFullscreenRequestMs = SDL_GetTicks64();
 
+    // Exclusive fullscreen (real display-mode switch) only when the operator
+    // explicitly asked for it: a fixed raster or a specific refresh rate.
+    // In the default display-native case the "selected mode" is the desktop
+    // mode anyway, so exclusive buys nothing over borderless fullscreen but
+    // costs a mode switch — screen blanking, focus quirks, and unreliable
+    // placement on mixed-DPI multi-monitor setups ("output frozen" /
+    // "taking over the wrong screen" field reports).
+    bool wantsExclusiveMode = !project_.outputFollowDisplay || project_.outputRefreshRateHz > 0.0;
     SDL_DisplayMode selectedMode {};
-    if (selectDisplayModeForOutput(outputIndex, selectedMode)) {
+    if (wantsExclusiveMode && selectDisplayModeForOutput(outputIndex, selectedMode)) {
       SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
         runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
@@ -3562,6 +3585,13 @@
       if (!runtime->pendingDisplayMoveFullscreen) {
         continue;
       }
+      if (runtime->recoveryPausedByEscape) {
+        // Operator escaped to windowed while a display move was pending —
+        // never re-enter fullscreen behind their back. Explicit re-arm
+        // (F / VIDEO OUTPUT ON / a new display pick) clears the escape flag.
+        runtime->pendingDisplayMoveFullscreen = false;
+        continue;
+      }
       if (!output.enabled || normalizeOutputType(output.outputType) != "window" ||
           !runtime->outputWindow) {
         runtime->pendingDisplayMoveFullscreen = false;
@@ -3579,6 +3609,7 @@
       }
 
       runtime->pendingDisplayMoveFullscreen = false;
+      bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
       applyOutputDisplaySelection(outputIndex, false, false);
       if (enableOutputFullscreen(outputIndex, false)) {
         runtime->suppressRecoveryUntilMs = now + 500;
@@ -3587,7 +3618,144 @@
         runtime->suppressRecoveryUntilMs = now + 1200;
         setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
       }
+      if (controlHadFocus) {
+        SDL_RaiseWindow(controlWindow_);  // don't strand the operator's keyboard on the output
+      }
     }
+  }
+
+  // --- Screen identify overlay ---------------------------------------------
+  // Shows a numbered badge window on every connected display for a couple of
+  // seconds so the operator can match settings indices to physical screens.
+
+  void closeDisplayIdentify() {
+    for (auto& iw : identifyWindows_) {
+      if (iw.renderer) SDL_DestroyRenderer(iw.renderer);
+      if (iw.window) SDL_DestroyWindow(iw.window);
+    }
+    identifyWindows_.clear();
+    identifyUntilMs_ = 0;
+  }
+
+  void showDisplayIdentify(Uint64 durationMs = 2500) {
+    closeDisplayIdentify();
+    bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
+    int displayCount = SDL_GetNumVideoDisplays();
+    for (int di = 0; di < displayCount; ++di) {
+      SDL_Rect bounds;
+      if (SDL_GetDisplayBounds(di, &bounds) != 0) {
+        continue;
+      }
+      int w = std::min(360, std::max(220, bounds.w / 6));
+      int h = std::min(220, std::max(140, bounds.h / 6));
+      SDL_Window* win = SDL_CreateWindow("Deckboy Display Identify",
+        bounds.x + (bounds.w - w) / 2, bounds.y + (bounds.h - h) / 2, w, h,
+        SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
+      if (!win) {
+        continue;
+      }
+      SDL_Renderer* ren = SDL_CreateRenderer(win, -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+      if (!ren) {
+        SDL_DestroyWindow(win);
+        continue;
+      }
+      identifyWindows_.push_back({win, ren, di});
+    }
+    identifyUntilMs_ = SDL_GetTicks64() + durationMs;
+    if (controlHadFocus) {
+      SDL_RaiseWindow(controlWindow_);  // creating the badges must not strand typing
+    }
+  }
+
+  void renderDisplayIdentify() {
+    if (identifyWindows_.empty()) {
+      return;
+    }
+    if (SDL_GetTicks64() > identifyUntilMs_) {
+      closeDisplayIdentify();
+      return;
+    }
+    // drawText helpers are bound to controlRenderer_ textures — render text
+    // for these per-display renderers straight from TTF surfaces instead.
+    auto blitText = [](SDL_Renderer* ren, TTF_Font* font, const std::string& text,
+                       SDL_Color color, int centerX, int centerY, double maxScale, int maxW) {
+      if (!font || text.empty()) return;
+      SDL_Surface* surf = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+      if (!surf) return;
+      if (SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf)) {
+        double scale = std::min(maxScale, static_cast<double>(maxW) / std::max(1, surf->w));
+        scale = std::max(0.5, scale);
+        int dw = static_cast<int>(surf->w * scale);
+        int dh = static_cast<int>(surf->h * scale);
+        SDL_Rect dst {centerX - dw / 2, centerY - dh / 2, dw, dh};
+        SDL_RenderCopy(ren, tex, nullptr, &dst);
+        SDL_DestroyTexture(tex);
+      }
+      SDL_FreeSurface(surf);
+    };
+    for (auto& iw : identifyWindows_) {
+      if (!iw.renderer || !iw.window) {
+        continue;
+      }
+      int winW = 0, winH = 0;
+      SDL_GetWindowSize(iw.window, &winW, &winH);
+      SDL_SetRenderDrawColor(iw.renderer, pal.deep.r, pal.deep.g, pal.deep.b, 255);
+      SDL_RenderClear(iw.renderer);
+      SDL_SetRenderDrawColor(iw.renderer, pal.light.r, pal.light.g, pal.light.b, 255);
+      for (int border = 0; border < 3; ++border) {
+        SDL_Rect frame {border, border, winW - border * 2, winH - border * 2};
+        SDL_RenderDrawRect(iw.renderer, &frame);
+      }
+      blitText(iw.renderer, fontLarge_, std::to_string(iw.displayIndex + 1), pal.light,
+               winW / 2, winH / 2 - 16, 3.0, winW - 40);
+      const char* dName = SDL_GetDisplayName(iw.displayIndex);
+      std::string info = dName && *dName ? std::string(dName) : std::string();
+      SDL_Rect dispBounds;
+      if (SDL_GetDisplayBounds(iw.displayIndex, &dispBounds) == 0) {
+        info += (info.empty() ? "" : "  ") + std::to_string(dispBounds.w)
+              + "x" + std::to_string(dispBounds.h);
+      }
+      blitText(iw.renderer, fontSmall_, info, pal.mid,
+               winW / 2, winH - 26, 1.0, winW - 24);
+      SDL_RenderPresent(iw.renderer);
+    }
+  }
+
+  // Record the SDL display name for the output's current displayIndex.
+  // Called on explicit operator display choices so topology changes can
+  // re-match the intended physical display by name later.
+  void recordOutputDisplayName(OutputTarget& output) {
+    const char* name = SDL_GetDisplayName(output.displayIndex);
+    output.displayName = (name && *name) ? name : std::string();
+  }
+
+  // Resolve which SDL display index an output should target right now.
+  // SDL display indices are enumeration-order-dependent and shuffle on
+  // hot-plug/reboot, so the persisted displayName is authoritative: keep the
+  // current index if its name still matches, otherwise find the display
+  // carrying that name. Falls back to a clamped index WITHOUT erasing
+  // displayName — if the intended display comes back later, the next
+  // resolve re-matches it.
+  int resolveOutputDisplayIndex(const OutputTarget& output, int displayCount) const {
+    if (displayCount <= 0) {
+      return 0;
+    }
+    int clamped = std::clamp(output.displayIndex, 0, displayCount - 1);
+    if (output.displayName.empty()) {
+      return clamped;
+    }
+    const char* currentName = SDL_GetDisplayName(clamped);
+    if (currentName && output.displayName == currentName) {
+      return clamped;
+    }
+    for (int index = 0; index < displayCount; ++index) {
+      const char* name = SDL_GetDisplayName(index);
+      if (name && output.displayName == name) {
+        return index;
+      }
+    }
+    return clamped;
   }
 
   void applyOutputDisplaySelection(int outputIndex,
@@ -3610,7 +3778,7 @@
     bool haveDisplayBounds = false;
     SDL_Rect bounds {};
     if (displayCount > 0) {
-      output.displayIndex = std::clamp(output.displayIndex, 0, displayCount - 1);
+      output.displayIndex = resolveOutputDisplayIndex(output, displayCount);
       haveDisplayBounds = (SDL_GetDisplayBounds(output.displayIndex, &bounds) == 0);
     } else {
       output.displayIndex = 0;
@@ -3658,8 +3826,10 @@
     }
     configureOutputCompositor(outputIndex);
 
-    int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
-    project_.decks[hostDeckIndex].outputDisplayIndex = output.displayIndex;
+    if (!project_.decks.empty()) {  // std::clamp(x, 0, -1) is UB when decks is empty
+      int hostDeckIndex = std::clamp(output.hostDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
+      project_.decks[hostDeckIndex].outputDisplayIndex = output.displayIndex;
+    }
     std::string titleLabel = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
     std::string title = std::string(kOutputTitle) + " - " + titleLabel;
     SDL_SetWindowTitle(runtime->outputWindow, title.c_str());
@@ -3777,6 +3947,7 @@
     }
     OutputTarget& output = focusedOutputMutable();
     output.displayIndex = (output.displayIndex + direction + displayCount) % displayCount;
+    recordOutputDisplayName(output);
     bool autoSwitchedToNative = false;
     if (!project_.outputFollowDisplay) {
       project_.outputFollowDisplay = true;
@@ -3816,6 +3987,7 @@
     }
     OutputTarget& output = focusedOutputMutable();
     output.displayIndex = index;
+    recordOutputDisplayName(output);
     bool autoSwitchedToNative = false;
     if (!project_.outputFollowDisplay) {
       project_.outputFollowDisplay = true;
@@ -3847,35 +4019,39 @@
 
   void refreshDisplayTopology(bool withToast = false) {
     int displayCount = SDL_GetNumVideoDisplays();
-    bool changed = false;
     if (displayCount <= 0) {
-      for (auto& output : project_.outputs) {
-        if (output.displayIndex != 0) {
-          output.displayIndex = 0;
-          changed = true;
-        }
-      }
-      applyOutputDisplaySelectionAllOutputs(true, true);
-      if (changed) {
-        markProjectDirty();
-      }
+      // Zero displays is a transient state (RDP handoff, driver reset).
+      // Don't mutate persisted display targets over it — when displays
+      // return, name matching restores the intended routing.
       if (withToast) {
         triggerToast("display scan: no displays reported");
       }
       return;
     }
 
+    bool changed = false;
     for (auto& output : project_.outputs) {
-      int clamped = std::clamp(output.displayIndex, 0, displayCount - 1);
-      if (output.displayIndex != clamped) {
-        output.displayIndex = clamped;
+      int resolved = resolveOutputDisplayIndex(output, displayCount);
+      if (output.displayIndex != resolved) {
+        output.displayIndex = resolved;
         changed = true;
       }
     }
-
-    applyOutputDisplaySelectionAllOutputs(true, true);
     if (changed) {
       markProjectDirty();
+    }
+
+    // Heal outputs individually via the recovery path, which honors
+    // recoveryPausedByEscape and fullscreenIntended. A topology change must
+    // never slam an operator-escaped output back to fullscreen — the old
+    // applyOutputDisplaySelectionAllOutputs(true, true) here did exactly
+    // that, and also churned every enabled output through a fullscreen
+    // exit/re-enter even when its display was unaffected.
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      recoverWindowOutputIfNeeded(outputIndex, false);
+    }
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      restartLiveBrowserCueIfNeeded(deckIndex);
     }
     if (withToast) {
       triggerToast("display scan: " + std::to_string(displayCount) + " detected");
@@ -3928,8 +4104,15 @@
       ? std::clamp(output.displayIndex, 0, displayCount - 1)
       : 0;
     int windowDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
-    // SDL can report -1 transiently during/fullscreen transitions.
+    // SDL can report -1 transiently during fullscreen transitions.
     // Treat unknown index as non-actionable to avoid recovery loops.
+    // Deliberately NOT checked while fullscreen: SDL's reported display for a
+    // fullscreen window can persistently disagree with the target on
+    // mixed-DPI multi-monitor setups, and acting on it here produced an
+    // exit/move/re-enter/raise fight every recovery tick (v0.76.19
+    // regression: focus-stealing churn, "trying to take over the wrong
+    // screen"). A stable fullscreen window is left alone; wrong placement is
+    // for the operator to correct via an explicit display pick.
     bool wrongDisplay = false;
     if (displayCount > 0 && !fullscreen && windowDisplay >= 0) {
       wrongDisplay = windowDisplay != targetDisplay;
@@ -3946,17 +4129,47 @@
         (now - runtime->lastRecoveryAttemptMs) < 1200) {
       return false;
     }
-    runtime->lastRecoveryAttemptMs = now;
+    // Strike backoff: a healthy output needs recovery rarely. If we're here
+    // repeatedly in a short window, recovery itself is the problem (each
+    // pass raises the output window, stealing keyboard focus from the
+    // control window) — stop fighting and tell the operator.
     std::string recoverReason = hidden ? "window hidden"
       : (minimized ? "window minimized"
       : (wrongDisplay ? "wrong display"
       : "fullscreen dropped"));
+    constexpr int kMaxRecoveryStrikes = 3;
+    constexpr Uint64 kRecoveryStrikeWindowMs = 15000;
+    if (runtime->recoveryStrikeWindowStartMs == 0 ||
+        now - runtime->recoveryStrikeWindowStartMs > kRecoveryStrikeWindowMs) {
+      runtime->recoveryStrikeWindowStartMs = now;
+      runtime->recoveryStrikeCount = 0;
+    }
+    if (++runtime->recoveryStrikeCount > kMaxRecoveryStrikes) {
+      runtime->suppressRecoveryUntilMs = now + 30000;
+      runtime->recoveryStrikeWindowStartMs = 0;
+      runtime->recoveryStrikeCount = 0;
+      // Name the trigger — "unstable" alone hides what keeps firing.
+      setOutputHealthState(outputIndex, OutputHealthState::Error,
+                           "output unstable (" + recoverReason + ") - recovery paused 30s");
+      triggerToast("output " + std::to_string(outputIndex + 1)
+                   + " unstable (" + recoverReason + "): recovery paused 30s");
+      return false;
+    }
+    runtime->lastRecoveryAttemptMs = now;
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, recoverReason);
 
-    applyOutputDisplaySelection(outputIndex, false);
+    // Raising the output window moves keyboard focus to it, where all keys
+    // except Esc are ignored by design — restore focus to the control window
+    // afterwards if the operator was working there ("typing becomes
+    // difficult" regression).
+    bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
+    applyOutputDisplaySelection(outputIndex, wrongDisplay);
     SDL_ShowWindow(runtime->outputWindow);
     SDL_RaiseWindow(runtime->outputWindow);
     bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
+    if (controlHadFocus) {
+      SDL_RaiseWindow(controlWindow_);
+    }
     if (!fullscreenOk) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
       if (withToast) {

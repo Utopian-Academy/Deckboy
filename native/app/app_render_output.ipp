@@ -574,6 +574,30 @@
     drawText(renderer, fontSmall_, line3, SDL_Color {220, 220, 220, 220}, 24, 70);
   }
 
+  // Paint a disabled output's still-visible window black exactly once. A
+  // just-disabled output (New Show, or the output toggled off) otherwise leaves
+  // its last frame frozen on the display because the render loop stops touching
+  // it. Latched via blackedWhileDisabled so we don't do a vsync-blocking present
+  // every frame; a hidden window has nothing on screen so it just latches.
+  void clearDisabledOutputWindow(int outputIndex) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer || !runtime->outputWindow) {
+      return;
+    }
+    if (runtime->blackedWhileDisabled) {
+      return;
+    }
+    if (!(SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_SHOWN)) {
+      runtime->blackedWhileDisabled = true;  // hidden: nothing to clear
+      return;
+    }
+    SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
+    SDL_SetRenderDrawColor(runtime->outputRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(runtime->outputRenderer);
+    SDL_RenderPresent(runtime->outputRenderer);
+    runtime->blackedWhileDisabled = true;
+  }
+
   void renderOutputWindow(int outputIndex) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
@@ -586,6 +610,7 @@
     if (!output.enabled) {
       return;
     }
+    runtime->blackedWhileDisabled = false;  // active again — re-black on next disable
     OutputBackendRuntimeRoute backendRoute = resolveOutputBackendRuntimeRoute(outputIndex);
     std::string outputType = normalizeOutputType(output.outputType);
     bool streamType = outputType == "stream";

@@ -1,0 +1,15 @@
+# Deckboy Theme: Tritium
+# Night-vision tritium green glowing on black — CRT terminal.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	141F18FF
+shell_inner	1F2E24FF
+shell_shadow	0C130EFF
+screen_light	56FB7FFF
+screen_mid	2FB150FF
+screen_dark	1F3025FF
+screen_deep	0A120DFF
+screen_ink_soft	57A86BFF
+button_bezel	2F7F43FF
+delete_bezel	AB2B33FF
+scanline_alpha	12

@@ -247,9 +247,57 @@ class LinuxCameraCaptureBackend final : public SourceCaptureBackend {
   }
 };
 
+// ── Windows camera/capture-device input via ffmpeg dshow ────────────────────
+// One backend covers webcams AND capture devices (HDMI capture sticks, etc.)
+// — they are all DirectShow video devices to the OS. sourceRef is the device
+// name (optionally prefixed "video="); the app resolves placeholder refs to a
+// real device via dshow enumeration before the cue reaches this plan.
+#ifdef _WIN32
+class WindowsDshowCameraBackend final : public SourceCaptureBackend {
+ public:
+  SourceCaptureKind kind() const override {
+    return SourceCaptureKind::Camera;
+  }
+
+  std::string id() const override {
+    return "dshow";
+  }
+
+  SourceCapturePlan plan(const SourceCaptureRequest& request) const override {
+    std::string device = trim(request.sourceRef);
+    if (device.rfind("video=", 0) == 0) {
+      device = trim(device.substr(6));
+    }
+    SourceCapturePlan plan;
+    plan.backendId = id();
+    std::string deviceLower = toLower(device);
+    if (device.empty() || deviceLower == "default-camera" || deviceLower == "default") {
+      plan.supported = false;
+      plan.reasonUnavailable = "no capture device selected";
+      return plan;
+    }
+    plan.supported = true;
+    // No -framerate: let dshow negotiate the device's native mode — forcing
+    // a rate many devices don't offer makes ffmpeg fail outright.
+    plan.ffmpegArgs = {
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel", "error",
+      "-f", "dshow",
+      "-i", "video=" + device,
+      "-vf", "scale=" + std::to_string(request.width) + ":" + std::to_string(request.height) + ":flags=fast_bilinear",
+      "-f", "rawvideo",
+      "-pix_fmt", "rgba",
+      "pipe:1"
+    };
+    return plan;
+  }
+};
+#endif
+
 // ── Non-Linux camera capture scaffold ───────────────────────────────────────
-// Placeholder for Windows (Media Foundation) and macOS (AVFoundation) camera
-// backends. Returns unsupported with a diagnostic message until implemented.
+// Placeholder for macOS (AVFoundation) camera backends. Returns unsupported
+// with a diagnostic message until implemented.
 #if !defined(__linux__)
 class UnsupportedCameraCaptureBackend final : public SourceCaptureBackend {
  public:
@@ -437,7 +485,7 @@ class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
 
 #if defined(_WIN32)
     out.push_back({CaptureBackendKind::Window, "gdigrab", "Window/Region Capture (GDI grab)", true, ""});
-    out.push_back({CaptureBackendKind::Camera, "mediafoundation", "Camera Capture (Media Foundation)", false, "backend scaffold only"});
+    out.push_back({CaptureBackendKind::Camera, "dshow", "Camera/Capture Device (DirectShow)", true, ""});
     out.push_back({CaptureBackendKind::AppTexture, "spout", "Spout App Texture", false, "backend scaffold only"});
 #endif
 
@@ -469,6 +517,8 @@ std::unique_ptr<SourceCaptureBackend> createWindowCaptureBackend() {
 std::unique_ptr<SourceCaptureBackend> createCameraCaptureBackend() {
 #if defined(__linux__)
   return std::make_unique<LinuxCameraCaptureBackend>();
+#elif defined(_WIN32)
+  return std::make_unique<WindowsDshowCameraBackend>();
 #else
   return std::make_unique<UnsupportedCameraCaptureBackend>();
 #endif

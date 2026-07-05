@@ -1,5 +1,171 @@
 # DEVNOTES
 
+## Pixel-Based Geometry Editing (v0.76.21)
+- Operator-facing size unit is output pixels; `Cue::outputScaleX/Y`
+  multipliers are an implementation detail. `cueBaseRenderSize(cue)`
+  (app_geometry.ipp) returns the rendered px size at multiplier 1.0 — the
+  same scale-mode + crop math as the compositor path; keep them in step.
+  `finalPx = base × outputScale`; typed px → `scale = px / base`, clamped to
+  the historical 0.25–4.0 range (so extreme px requests saturate).
+- `Project::geometryAspectLinked` (default true, header line
+  `geometry_aspect_link`) drives the link: any scale change on one axis
+  multiplies the other axis by the same relative factor
+  (`newOther = other × newX/oldX`). Applied in `adjustSelectedScaleX/Y`
+  (nudge buttons) and `editSelectedScaleX/Y` (typed px). Note the clamp can
+  bend aspect at range extremes — same tradeoff as other media software.
+- UI: `link aspect` toggle row (QuickAction::ToggleAspectLink) in the
+  GEOMETRY section above width/height. If a new surface edits cue scale,
+  route it through the adjust/edit helpers — do not write outputScaleX/Y
+  directly, or the link silently won't apply.
+
+## Fullscreen Minimize-On-Focus-Loss Root Cause (v0.76.20)
+- The deepest layer of the fullscreen fight: SDL2 minimizes EXCLUSIVE
+  fullscreen windows on focus loss by default. Operator clicks the control
+  window → program output minimizes ("output frozen while preview plays")
+  → recovery re-raises + re-fullscreens it (stealing focus) → operator
+  clicks again → loop. `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0"` is now
+  set in init, right after the DPI hint. Never remove it — a playout output
+  must survive the operator working in the control surface.
+- `enableOutputFullscreen` now uses exclusive `SDL_WINDOW_FULLSCREEN` (real
+  mode switch) ONLY when `!outputFollowDisplay || outputRefreshRateHz > 0`
+  (operator explicitly chose a fixed raster or refresh). Display-native
+  outputs use `SDL_WINDOW_FULLSCREEN_DESKTOP` — no mode switch, no
+  blanking, reliable placement on mixed-DPI multi-monitor. The custom-EDID /
+  high-refresh feature is unchanged when explicitly requested.
+
+## Fullscreen Recovery Fight Postmortem (v0.76.20)
+- v0.76.19 widened `recoverWindowOutputIfNeeded`'s `wrongDisplay` check to
+  apply while the window was fullscreen (intended to migrate windows left on
+  the wrong display after hot-plug). Field result: on a mixed-DPI
+  multi-monitor setup, `SDL_GetWindowDisplayIndex` persistently disagreed
+  with the target for a fullscreen window → recovery exited fullscreen,
+  moved, re-entered, and raised the output every 1.2 s. Each
+  `SDL_RaiseWindow` moved keyboard focus to the output window (which
+  ignores all keys except Esc by design) and ate in-flight clicks. Operator
+  experience: "typing becomes difficult", "controls seem like they weren't
+  happening", "trying to take over the wrong screen".
+- **Rules now enforced:**
+  1. `wrongDisplay` is only evaluated for NON-fullscreen windows (original
+     behavior). A stable fullscreen window is never repositioned
+     automatically; wrong placement is the operator's explicit call.
+  2. Strike backoff: >3 recovery attempts within 15 s → recovery pauses 30 s,
+     health `Error("output unstable - recovery paused 30s")` + toast. A
+     healthy output needs recovery rarely; repetition means recovery itself
+     is the problem.
+  3. Any path that raises an output window (recovery, deferred display-move
+     tick, display identify) captures whether the control window had
+     keyboard focus first and re-raises it after.
+- The audio-master clock gained a stall guard in the same release: the
+  correction only runs while the audio clock advanced within the last
+  400 ms. A frozen clock (dead endpoint, audio pipe death mid-file) would
+  otherwise pin video at the freeze position forever.
+
+## Display Identify Overlay (v0.76.20)
+- `showDisplayIdentify()` / `renderDisplayIdentify()` / `closeDisplayIdentify()`
+  in `app_output_mgmt.ipp`; state is `identifyWindows_` + `identifyUntilMs_`.
+  One borderless always-on-top window per display, auto-closed after 2.5 s
+  from the render loop. Text is blitted straight from TTF surfaces per
+  identify renderer — the `drawText*` helpers are bound to
+  `controlRenderer_` textures and must not be used for other renderers.
+- Triggered by `kSettingsActionDisplayIdentify` (637) — the IDENTIFY button
+  in Video Outputs → Display → CONNECTED DISPLAYS. The list itself now sizes
+  for every connected display (clamped to modal space) instead of collapsing
+  to two rows.
+
+## Engine Cue Snapshot Ownership (v0.76.19)
+- `MediaEngine` no longer holds a raw pointer into `Deck::cues`.
+  `loadCue()` copies the cue into `activeCueSnapshot_` (a
+  `std::optional<Cue>`) and `activeCue_` points at that owned storage.
+  Rationale: `deck.cues.push_back()` (import) reallocates and
+  `deck.cues.erase()` (delete) shifts elements while the render path reads
+  `activeCue_->fadeInSeconds` every frame and the audio thread reads it per
+  sample pair — the old pointer dangled (reallocation) or silently retargeted
+  the *next* cue's parameters (erase-shift above the live cue).
+- **Live-edit contract**: the output compositor reads geometry/effects from
+  the app's cue (`activeCuePtr(deckIndex)`), NOT the engine snapshot — so
+  geometry/color edits were never affected. Fields the ENGINE reads mid-play
+  (fade in/out, still duration) stay fresh because `markProjectDirty()` sets
+  `engineCueSyncPending_`, and `App::update()` drains it by calling
+  `syncEngineCueSnapshots()` → `engine->syncActiveCueSnapshot(cue)` for every
+  deck with a valid activeIndex. One frame of lag, no per-frame copying.
+- `refreshActiveCueRuntime(const Cue* updatedCue)` now takes the app's
+  current cue and refreshes the snapshot before re-reading runtime params.
+- When adding engine reads of new cue fields, nothing extra is needed — the
+  snapshot sync covers all fields. When adding new app-side mutation paths,
+  make sure they call `markProjectDirty()` (they all should anyway).
+
+## Audio-Thread Fade Atomics (v0.76.19)
+- The audio decode thread previously called `fadeGainAt()`, which reads
+  `activeCue_`, `duration_`, and the two suppress flags — plain members
+  mutated by the main thread (data race, torn-double risk on non-x86).
+- Now: `syncAudioFadeParams()` (main thread) publishes fade-in/out seconds,
+  duration, and suppress flags to relaxed atomics; the audio thread uses
+  `audioFadeGainAt()` which reads ONLY those mirrors. Publish points: before
+  the audio thread spawns in `startDecoderThreads`, in `stopAll`, in
+  `syncActiveCueSnapshot`, and once per `update()` tick as a catch-all
+  (covers `handlePlaybackEnd` loop re-assert, browser duration restore).
+- Rule: never add a read of a non-atomic engine member inside the audio
+  thread lambda. Mirror it through an atomic and publish in
+  `syncAudioFadeParams()` (or a sibling).
+
+## Audio-Master A/V Clock (v0.76.19)
+- `position()` runs on the wall clock (steady_clock); the audio pipeline
+  free-runs into the SDL queue throttled only by queue depth. The two clocks
+  drift (audio device crystal ≠ steady_clock; VFR sources drift immediately
+  because frame index × probed fps is wrong for them).
+- The audio thread counts stereo frames it queues (`audioFramesQueued_`,
+  atomic). `update()` derives the audio playback clock:
+  `audioClockStartSeconds_ + (queued − SDL_GetQueuedAudioSize buffered) ×
+  playbackSpeed_` (atempo re-times the pipe to wall rate, position space is
+  speed × wall). When |video − audio| > 60 ms it re-anchors
+  `playbackClockStart_`/`playbackStartPosition_` to the audio clock.
+- Guards: needs ≥100 ms of queued audio before trusting the clock; skipped
+  when `decoderEof_` (audio drains before video ends), within 250 ms of the
+  cue end, and for live streams (`audioClockValid_` false — no deterministic
+  sample→position mapping). `seek()`/`refreshActiveCueRuntime()` re-base the
+  clock automatically because they restart the pipes with a new
+  `cueStartSeconds`.
+- Cues without audio keep the wall clock — nothing to slave to.
+
+## Display Identity By Name + Hot-Plug Safety (v0.76.19)
+- `OutputTarget::displayName` (serialized field 35, guard ≥ 36) records the
+  SDL display name whenever the operator explicitly picks a display
+  (`setOutputDisplayIndex`, `cycleOutputDisplay` → `recordOutputDisplayName`).
+  SDL display indices are enumeration-order-dependent and shuffle across
+  hot-plug/reboot/driver updates — a bare persisted index could silently
+  retarget program output to the operator's monitor.
+- `resolveOutputDisplayIndex()` is the single resolution choke point (called
+  from `applyOutputDisplaySelection` and `refreshDisplayTopology`): keep the
+  current index if its name still matches, else find the display carrying the
+  recorded name, else clamp — WITHOUT erasing `displayName`, so the intended
+  display re-matches when it comes back.
+- `refreshDisplayTopology` no longer calls
+  `applyOutputDisplaySelectionAllOutputs(true, true)`. That forced every
+  enabled output through a fullscreen exit/re-enter on ANY display connect/
+  disconnect and — critically — re-fullscreened outputs the operator had
+  escaped to windowed (bypassing `recoveryPausedByEscape`). It now resolves
+  indices and heals via `recoverWindowOutputIfNeeded`, which honors the
+  escape flag and `fullscreenIntended`. `wrongDisplay` detection now also
+  applies to windows still fullscreen on the wrong display (post-hot-plug),
+  and recovery passes `allowFullscreenTransition=true` only for display
+  moves. Zero-display scans (RDP handoff, driver reset) no longer mutate
+  persisted display targets.
+- `tickPendingOutputDisplayTransitions` cancels a pending re-fullscreen when
+  `recoveryPausedByEscape` is set. Explicit operator display changes re-arm
+  (the runtime-rebuild path clears the escape flag).
+
+## HyperDeck Snapshot (v0.76.19)
+- `hyperDeckHandleCommand` runs on the HyperDeck TCP thread. It previously
+  read `focusedDeck()` (a race against main-thread cue mutations) and
+  inferred transport by substring-matching the human-readable status text —
+  a cue named "playing" would corrupt replies.
+- Now: `App::HyperDeckSnapshot` (transport token, 1-based clip id, loop,
+  {name, duration} clip list) is rebuilt on the main thread in
+  `updateStatusSnapshot()` and read under `statusSnapshotMutex_`. Rule for
+  new HyperDeck (or any network-thread) handlers: reply from a snapshot
+  field; if one doesn't exist, add it to the snapshot — never touch
+  `project_` from the network thread.
+
 ## Still Cue Hold / Fade Interaction (v0.76.17)
 - **Symptom:** an Image (or other still-type) cue with hold / pause-on-last set
   vanished the instant its `stillDurationSeconds` elapsed, even though the frame

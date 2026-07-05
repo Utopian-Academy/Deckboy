@@ -1,4 +1,305 @@
-# CHANGES - Incremental Updates (March–June 2026)
+# CHANGES - Incremental Updates (March–July 2026)
+
+## 2026-07-04 — v0.76.30 (Save/Save As, theme library + persistence, output black-on-disable, inspector & timeline UX)
+
+- **SAVE always prompts now.** The toolbar SAVE button (and Ctrl+S) open a
+  file picker every time and write the project only — no more silently
+  overwriting a hidden default. BUNDLE is unchanged (export with media);
+  Ctrl+Shift+S remains an explicit Save As.
+- **24 new themes** under `data/themes/` — dark, high-contrast sci-fi
+  colorways (Tritium, Cerenkov, Ion, Amber CRT, Plasma, Halon, Nebula,
+  Infrared, Hazard, Cryo, Toxic, Cobalt, Ultraviolet, Quasar, Voidsteel,
+  Crimson Protocol) plus Nintendo-flavored ones (Virtual Boy, Famicom, Super
+  Famicom, N64, GameCube, Switch Neon, Hyrule, Metroid). The Appearance
+  dropdown auto-discovers any `data/themes/<name>/theme.txt`.
+- **Theme is saved with the show.** `Project::theme` persists the chosen
+  colorway so it survives restarts (`DECKBOY_THEME` still overrides at boot);
+  opening an older theme-less show leaves the current pick untouched.
+- **Output clears to black instead of freezing.** Disabling an output,
+  starting a new show, switching displays, or quitting now flushes a black
+  frame so the program display (and capture dongles that latch the last
+  signal) don't hold the previous session's last frame.
+- **Cue list no longer over-scrolls** past the last cue into empty space
+  (deck list and overlay bin both clamp before drawing).
+- **Inspector fields are type-to-replace.** Opening a value field treats the
+  existing value as selected: the first keystroke replaces it, so click →
+  type → Enter, with no manual clearing.
+- **Transport play/pause reflects state** — pause icon while playing, play
+  icon while paused.
+- **Audio timeline is click-to-seek**, matching the video lane.
+- **Dropping a folder recursively imports** every acceptable
+  video/image/audio file in name order; audio files import as Audio cues
+  (probe kind detection fixed to match).
+
+## 2026-07-03 — v0.76.29 (Extended boot sequence)
+
+- The splash boot console now runs a ~24-line scrolling sequence: real init
+  values (theme, fonts, raster/displays, audio buffer, decks/cues, Companion
+  port, NDI state, wall-clock/audio-crystal sync) interleaved with critical
+  subsystems — flux capacitor (1.21 GW nominal), heisenberg compensators
+  (probably), dilithium matrix, gremlin containment field, spline
+  reticulation. Lines scroll console-style with randomized boot timing —
+  quick bursts, normal lines, and the occasional probe that stalls for half
+  a second — reshuffled every boot and always finishing within the ~5s
+  splash (Enter/Esc/click still skips instantly).
+
+## 2026-07-03 — v0.76.28 (Terrarium wired in, richer boot console)
+
+- **The secret now grows things.** Terrarium (v0.46, vendored at
+  native/extras/terrarium.cpp with its two-generation member mixup patched
+  so it actually compiles) ships as a bundled companion exe. Entering the
+  code launches it windowed and adds a "TERRARIUM (secret)" window-source
+  cue to the playlist — TAKE it to put the ecosystem on program.
+- **Splash boot console enriched**: the original boot tasks remain, now
+  joined by real values (version, raster + display count, decks/cues
+  shelved, live Companion port, NDI runtime state) and essential hardware
+  checks (rubber chicken calibration), revealed line by line.
+- Deck layer fader label/visibility polish shipped in v0.76.27 carried
+  forward; packaging now bundles terrarium.exe.
+
+## 2026-07-03 — v0.76.27 (Window picker, boot log, layer fader tidy)
+
+- **Window cues get a real picker**: adding a Window Source cue now lists
+  every visible window by title (plus "Entire Desktop") instead of silently
+  capturing the whole desktop — the root of "window cues only partially
+  work". Note: gdigrab matches titles exactly, so apps that retitle
+  themselves (browsers per tab) need re-picking after a title change.
+- **Startup boot log**: the startup dialog now plays a retro BIOS-style
+  boot log — real values (raster, displays, decks/cues, Companion port,
+  NDI runtime) interleaved with important diagnostics such as RUBBER
+  CHICKEN ... CALIBRATED, revealed line by line.
+- **Deck layer fader tidied**: the playlist-footer opacity rail is the
+  multi-deck LAYER fader (compositing weight when decks stack on one
+  output). It now hides entirely in single-deck shows and appears labeled
+  ("LAYER n%", legible deep ink) when a second deck exists — groundwork
+  kept intact for the multi-deck "Super Deckboy" mode.
+
+## 2026-07-03 — v0.76.26 (Field-notes batch: transport verbs, cameras, throttling, patterns)
+
+- **No more background throttling**: Deckboy opts out of Windows 11 EcoQoS
+  and timer-resolution coalescing at startup. Previously, focusing any other
+  window degraded the decode/audio timing loops from 4ms to ~15ms — the
+  "performance drops when the control window isn't focused" report.
+- **Three distinct transport verbs**: PAUSE freezes in place (resumable);
+  RERACK returns to the top holding the first frame, ready; STOP now
+  darkens the deck AND reracks (visual cleared, decode pipes and capture
+  devices released — a stopped webcam turns its light off). STOP used to be
+  an exact duplicate of RERACK. PLAY after a dark STOP revives the pipes.
+- **Camera cues work on Windows** via a new DirectShow backend. Webcams,
+  HDMI capture sticks, and Blackmagic WDM devices are all DirectShow video
+  devices, so one Camera/Capture cue covers them: adding a camera cue now
+  enumerates devices and opens a picker (auto-selects when there's exactly
+  one). TAKE starts capture; STOP releases the device. (DirectShow devices
+  are exclusive-open, so live preview-while-live-program of the same device
+  needs a shared-capture architecture — future work.)
+- **Audio lane honesty**: failed/empty waveform analyses are cached instead
+  of respawning ffmpeg forever (the eternal "LOADING" audio lane); live
+  sources show "live audio", audio-less cues show "no audio track", and
+  waveform analysis only runs for file-backed video/audio cues.
+- **Test pattern cleanup**: the pattern picker lists base types only —
+  motion is the toggle's job, and the four Pocket scene variants merged
+  into the one cycling Pocket Test (legacy ids still load). The crosshatch
+  grid is now anchored to the center crosshair at every raster (at 1080p
+  the center line floated 28px off the grid).
+- **Deck opacity fader labeled**: the anonymous strip under the playlist now
+  reads "OPACITY n%" so the transparency control is findable.
+- **??? **: ↑ ↑ ↓ ↓ ← → ← → B A Start.
+- **Dead-control sweep**: automated checks for duplicate action ids,
+  unhandled quick actions, buttons without handlers, and struct fields that
+  are written but never consumed — all clean after this release's fixes.
+
+## 2026-07-03 — v0.76.25 (Master volume actually works)
+
+- **The header master volume fader now controls audio.** `masterVolume` was
+  set, displayed, saved, and reported over the network — but never
+  multiplied into any audio gain. It now feeds a per-engine master gain
+  applied in the audio thread on top of the per-cue volume, synced from the
+  project every tick so every set-path (fader, `MASTERVOL` remote command,
+  project load, undo) takes effect on all decks.
+- **The fader is draggable** — it previously only responded to single
+  clicks.
+- Fixed a load-time clamp that flattened saved boost levels (range is 0–2;
+  loading clamped to 0–1).
+- New splash art (clean cityscape, no baked-in dialog) for both mascots.
+
+## 2026-07-03 — v0.76.24 (Settings readability pass, dead-button fix)
+
+- **Four settings buttons were silently dead** due to double-allocated action
+  ids (634–637 were each used by two different buttons): the Video Outputs
+  sub-tabs ("Processing" did nothing), the Allow Remote toggle, and the
+  Stream Key prompt collided with Mascot / UI Scale / Pocket 3 / Identify.
+  All renumbered to unique ids — every settings button now fires.
+- **Settings modal readability redesign** (zero functional change — every
+  control kept its position and behavior):
+  - Pixel-face **SETTINGS** title.
+  - Cartridge-shelf tab bars: the active tab is full height and "plugged
+    in" to the content frame; inactive tabs sit recessed. Applied to the
+    main tabs and the Video Outputs sub-tabs.
+  - Every card and section now has a dark **label plate** header with light
+    text — one strong, scannable anchor per group (the old dark-on-light
+    headers blended into the card fill). One shared helper replaces three
+    duplicated card-drawing lambdas.
+- **New splash art**: the "cue gremlin cityscape" scene (Deckbot + Deckgirl
+  rigging a dot-matrix wall over the skyline) replaces the splash for both
+  mascot choices. Previous art kept in the splash folder as
+  `_old * (pre-cityscape).png`.
+
+## 2026-07-03 — v0.76.23 (Value scrubbing, math shorthand)
+
+- **Drag any inspector value to scrub it.** Click-hold a value cell (width,
+  height, offsets, rotation, crop, fades, volume, speed, …) and drag
+  horizontally to step the value up/down — same gesture as number scrubbing
+  in AE/Resolve. A plain click (release without dragging) still opens the
+  exact-entry editor. Works on every inspector quick row that has -/+
+  buttons; width/height scrubbing respects the aspect link.
+- **Math shorthand in numeric entry**: `x` multiplies and `px` units are
+  ignored, so `1920x2`, `960px * 2`, and `3840/2` all evaluate. Applies to
+  every numeric entry field (they share one expression parser), covered by
+  four new smoke checks.
+
+## 2026-07-03 — v0.76.22 (Fades off by default, pixel commands, fade verification)
+
+- **New clips import with fades OFF.** The deck defaults
+  `playlistDefaultFadeInEnabled/FadeOutEnabled` now start false — a freshly
+  imported clip cuts in and out cleanly until you turn a fade on per cue
+  (cue-row fade icons or the inspector fade rows toggle 0 ↔ the deck's
+  default fade time). Existing show files keep their saved deck settings;
+  flip the FADE IN / FADE OUT pills in Settings → System → Show Flow to
+  change an existing deck's default for future imports.
+- **Fades are now covered by the smoke harness**: three end-to-end checks
+  drive a real MediaEngine through loadCue → position clock →
+  `currentVisualFadeGain()` (the exact gain the output compositor multiplies
+  into the frame alpha) and assert the fade-in and fade-out ramps.
+- **Remote `WIDTH <px>` / `HEIGHT <px>` commands**: pixel-based cue sizing
+  from Companion/OSC, through the same code path as the inspector editors so
+  the aspect link applies. Legacy `SCALE`/`SCALEX`/`SCALEY` factor commands
+  are unchanged for existing button configs.
+- Scale-factor audit (follow-up to v0.76.21): the inspector width/height
+  editors, nudge buttons, and remote commands were the operator-facing
+  factor surfaces; PIP size presets are named presets (internally scale-
+  based, unchanged), playback speed and UI scale remain multipliers by
+  design.
+
+## 2026-07-03 — v0.76.21 (Pixel-based geometry editing with aspect link)
+
+- **Cue size is now edited in pixels, everywhere.** The GEOMETRY rows are
+  labelled `width` / `height`, show the actual rendered output size in px,
+  and clicking a value prompts for a pixel value ("Width (px)") instead of
+  the old 0.25–4.0 scale factor. The multiplier still exists under the hood
+  (per-cue, derived from the cue's base rendered size) but the operator
+  never sees it.
+- **Aspect-ratio link** (new `link aspect` toggle row, on by default,
+  persisted in the show file): changing width scales height proportionally
+  and vice versa — including the `-`/`+` nudge buttons and typed exact
+  values. Toggle it off for deliberate distortion, like the chain-link in
+  most media software. Multi-select edits apply the pixel value per cue
+  (each cue derives its own factor), so "make them all 960px wide" works.
+
+## 2026-07-02 — v0.76.20 (Fullscreen fight fix, display identify)
+
+Root cause of the "frozen output / focus fight" found and fixed:
+
+- **Fullscreen outputs no longer minimize when you click the control
+  window.** SDL's default minimizes an exclusive-fullscreen window the
+  moment it loses focus — so every click in the control UI minimized the
+  program output ("output frozen while preview plays"), the 1 Hz recovery
+  raised it back and stole keyboard focus, and the operator was stuck in a
+  loop. `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0` is now set at startup —
+  a playout output stays on the program screen no matter where focus is.
+- **Borderless fullscreen by default**: exclusive fullscreen (a real display
+  mode switch, with its screen blanking and mixed-DPI placement quirks) is
+  now used only when the operator explicitly asked for a fixed raster or a
+  specific refresh rate. Display-native outputs use borderless fullscreen,
+  which is what every modern playout tool does.
+- Recovery strike messages now name the trigger (e.g. "output unstable
+  (window minimized) - recovery paused 30s") so field diagnosis doesn't
+  require a debugger.
+
+Fixes the v0.76.19 fullscreen regression reported in the field:
+
+- **Fullscreen no longer fights the operator**: v0.76.19 taught output
+  recovery to also check "wrong display" while a window was fullscreen. On
+  mixed-DPI multi-monitor setups SDL's reported display can persistently
+  disagree with the target, so recovery exited fullscreen, moved the window,
+  re-entered, and raised it — every 1.2 seconds. Each raise stole keyboard
+  focus and swallowed clicks ("typing becomes difficult", "controls seem
+  like they weren't happening", "trying to take over the wrong screen").
+  Reverted: a stable fullscreen window is left alone; wrong placement is
+  corrected by an explicit display pick.
+- **Recovery strike backoff**: if an output needs recovery more than 3 times
+  in 15 seconds, something structural is wrong — recovery now pauses for 30
+  seconds with an "output unstable" health state + toast instead of looping.
+- **Focus is restored after recovery**: whenever recovery or a display move
+  raises an output window, keyboard focus returns to the control window if
+  the operator was working there.
+- **Audio-master clock stall guard**: the A/V drift correction introduced in
+  v0.76.19 now only trusts the audio clock while it is actually advancing.
+  If the audio device stops consuming (endpoint lost) or the audio pipe dies
+  mid-file, video falls back to the wall clock instead of freezing in place.
+
+New display tools (operator request):
+
+- **IDENTIFY button** in Video Outputs → Display → Connected Displays: shows
+  a numbered badge window on every connected display for ~2.5 seconds (like
+  the OS "Identify" button), so you can tell which list entry is which
+  physical screen.
+- **Connected Displays list always shows every display** — it used to
+  collapse to one or two rows when the settings modal was short, making
+  multi-display targeting a guessing game.
+
+## 2026-07-02 — v0.76.19 (Engine + display robustness pass)
+
+Architectural-review fixes — no new operator-facing features, but several
+live-show failure modes are closed:
+
+- **Media engine owns its cue**: the engine now keeps a private snapshot of
+  the loaded cue instead of a raw pointer into the deck's cue list. Importing
+  media or deleting cues while another cue is live could previously make the
+  engine read freed or shifted memory (worst case: crash mid-show; subtle
+  case: a live cue silently picking up a neighbouring cue's fade values after
+  a delete). Live edits to the active cue (fade in/out, etc.) still apply
+  immediately — the app refreshes the snapshot on every project edit.
+- **Audio fades are race-free**: the audio decode thread now reads fade
+  parameters from atomic mirrors instead of sharing plain fields with the UI
+  thread (a latent source of one-sample gain glitches).
+- **A/V sync — audio is now the master clock**: video position re-anchors to
+  the audio device clock when they drift more than ~2 frames apart. Fixes
+  gradual lip-sync drift on long-form clips and keeps variable-frame-rate
+  sources watchable.
+- **Displays are matched by name, not number**: each output now remembers the
+  monitor's name (new `displayName` field in the show file). After a
+  hot-plug, reboot, or driver re-enumeration shuffles display numbers, the
+  output re-attaches to the monitor it was aimed at — program output can no
+  longer silently land on the operator's screen.
+- **Display hot-plug respects the Esc safety contract**: connecting or
+  disconnecting any monitor no longer force-fullscreens every enabled output.
+  Outputs the operator escaped to windowed stay windowed; healing goes
+  through the per-output recovery path (which also now migrates a fullscreen
+  window left on the wrong display).
+- **HyperDeck server hardening**: transport/clips replies are served from a
+  structured main-thread snapshot instead of reading show state from the
+  network thread and inferring transport by substring-matching status text
+  (a cue literally named "playing" could corrupt replies).
+- Fixed a stale smoke-test expectation (ATEM/Art-Net are supported on
+  Windows since v0.76.12) and a `std::clamp` edge case when a project has no
+  decks.
+
+UI polish (from the operator's screenshot notes):
+
+- Empty timeline lanes no longer show stray vertical grid lines under the
+  "take or select a cue..." placeholder — time graduations now draw only
+  over an actual timeline, in theme ink instead of hardcoded dark green.
+- Cue inspector rows share one label-column width, so value boxes line up
+  down the panel instead of zig-zagging (quick/editable/status rows each
+  picked their own width before).
+- Removed the stray bright-green "rail" bar that floated 8px left of open
+  inspector sections.
+- Playlist footer ("LOOP | ORDER") and the inspector empty-state panel
+  derive text heights from the live font — descenders were clipped at
+  scaled/HiDPI font sizes.
+- Cue-row action icons redrawn as solid shapes: filled rising/falling
+  wedges for fade in/out, thicker pause bars, filled speaker horn. The old
+  1px outline sketches read as stray marks at 20px button size.
 
 ## 2026-06-20 — v0.76.18 (New app/taskbar icon)
 
