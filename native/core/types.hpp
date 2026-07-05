@@ -618,7 +618,7 @@ enum class QuickAction {
   // -- Cue number ----------
   EditCueNumber,
   // -- Copy/paste settings --
-  CopyCueSettings, PasteCueSettings,
+  CopyCueSettings, PasteCueSettings, ResetCueSettings, ConvertCueMedia,
   // -- Pause points --------
   AddPausePoint, ClearPausePoints,
   // -- Color correction ----

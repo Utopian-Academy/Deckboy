@@ -72,11 +72,11 @@
     // Tab bar — cartridge-shelf tabs: the active tab is full height and
     // "plugged in" (a joint bar bridges it to the content frame); inactive
     // tabs sit recessed. One glance shows where you are.
-    constexpr int kTabW = 126;
+    constexpr int kTabW = 104;
     constexpr int kTabH = 40;
     int tabY = modal.y + 44;
     settingsBtns_.clear();
-    const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About"};
+    const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About", "Encoder"};
     for (int t = 0; t < (int)tabs.size(); ++t) {
       bool active = (t == settingsTab_);
       int recess = active ? 0 : 6;
@@ -1125,6 +1125,64 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 16},
                    themeStatus, soft);
+    } else if (settingsTab_ == 5) {
+      // Encoder tab — the built-in media converter surface.
+      drawSettingsCard(SDL_Rect{cx, cy, content.w - 24, content.h - 20}, "MEDIA ENCODER",
+                       "Convert cues Deckboy can't play (or plays poorly) to H.264");
+      int ex = cx + 8;
+      int ey = cy + 56;
+      int ew = content.w - 40;
+      struct FlaggedCue { int deck; int cue; std::string label; std::string reason; bool converting; };
+      std::vector<FlaggedCue> flagged;
+      bool anyToConvert = false;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        const Deck& deck = project_.decks[d];
+        for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+          const Cue& cue = deck.cues[c];
+          if (auto r = cueConvertReason(cue)) {
+            bool cv = isCueConverting(cue.path);
+            flagged.push_back({d, c, cue.name, *r, cv});
+            if (!cv) anyToConvert = true;
+          }
+        }
+      }
+      SDL_Rect convAllBtn {ex, ey, 190, 28};
+      drawUIPanel(convAllBtn, anyToConvert ? pal.dark : pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, convAllBtn,
+                           "CONVERT ALL FLAGGED", anyToConvert ? pal.light : pal.inkSoft);
+      if (anyToConvert) {
+        settingsBtns_.push_back({convAllBtn, kSettingsActionEncoderConvertAll, "convert all flagged cues"});
+      }
+      SDL_Rect addBtn {ex + 200, ey, 120, 28};
+      drawUIPanel(addBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "ADD FILE...", pal.deep);
+      settingsBtns_.push_back({addBtn, kSettingsActionEncoderAddFile, "add file(s) to the show for conversion"});
+      ey += 40;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+                   "Target: H.264 MP4 (GPU, libx264 fallback) -> portable _converted/ next to show   |   active jobs: "
+                   + std::to_string(static_cast<int>(conversionJobs_.size())), soft);
+      ey += 24;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+                   flagged.empty() ? "No cues need conversion." :
+                     (std::to_string(static_cast<int>(flagged.size())) + " cue(s) flagged:"), ink);
+      ey += 22;
+      const int rowH = 20;
+      int maxRows = std::max(0, (content.y + content.h - 14 - ey) / rowH);
+      int shown = 0;
+      for (const auto& f : flagged) {
+        if (shown >= maxRows) break;
+        std::string line = "D" + std::to_string(f.deck + 1) + " Q" + std::to_string(f.cue + 1)
+                         + "  " + f.label + "   (" + f.reason + ")"
+                         + (f.converting ? "   [converting...]" : "");
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+                     ellipsizeToPixelWidth(fontSmall_, line, ew), f.converting ? soft : ink);
+        ey += rowH;
+        ++shown;
+      }
+      if (static_cast<int>(flagged.size()) > shown) {
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+                     "  +" + std::to_string(static_cast<int>(flagged.size()) - shown) + " more", soft);
+      }
     }
   }
 
@@ -1139,7 +1197,13 @@
 
     for (const auto& sb : settingsBtns_) {
       if (!pointInRect(mx, my, sb.rect)) continue;
-      if (sb.action >= 100 && sb.action <= 104) {
+      if (sb.action == kSettingsActionEncoderConvertAll) { convertAllFlaggedCues(); continue; }
+      if (sb.action == kSettingsActionEncoderAddFile) {
+        auto pf = pickFiles();
+        if (!pf.empty()) { importPaths(pf); }
+        continue;
+      }
+      if (sb.action >= 100 && sb.action <= 105) {
         // Tab switch
         settingsTab_ = sb.action - 100;
         settingsVideoSubTab_ = 0;

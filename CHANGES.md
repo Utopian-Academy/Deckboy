@@ -1,5 +1,31 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-05 — v0.76.31 (Media Encoder, splash system, multi-select fixes, audio hot-swap, theme refresh)
+
+- **Built-in media converter + ENCODER tab.** Cues Deckboy can't play (or would
+  play poorly — 10-bit HEVC, AV1, ProRes, >1080p) are flagged on import; a
+  contextual CONVERT button appears in the inspector, and a new **Settings →
+  Encoder** tab batch-converts them (H.264 MP4, GPU with libx264 fallback) into a
+  portable `_converted/` folder next to the show, then swaps the cue to the copy.
+  Original media is never touched.
+- **Splash system.** Grayscale scene splashes cycle at boot, tinted to the active
+  theme; the default (gameboy) theme boots the branded DECKBOY-wordmark splash.
+  Fixed the previously hardcoded green splash background.
+- **Themes.** Renamed the sci-fi colorways to Nintendo names (Luigi, Kirby, Mario,
+  Pikachu, Star Fox, Game & Watch, Peach, Ganon, R.O.B., Waluigi, Midna, …) and
+  pushed every generated theme's background to a near-pure `#050505` black so
+  accents pop harder. Theme is saved per show; a New show resets to the default skin.
+- **Multi-select.** Ctrl+A selects all cues; per-cue row toggles (hold, loop,
+  fade, audio) now apply to the whole selection instead of collapsing it to one.
+- **Reset button.** RESET in the SELECTED CUE panel restores a cue's inspector
+  settings to deck defaults (whole selection), leaving media/name/metadata intact.
+- **Scrolling.** The main deck cue list clamps (no scroll-past) with a bottom-only
+  rubber-band that springs back when the wheel goes idle.
+- **Audio device change no longer stops playback** — the device is hot-swapped on
+  the running engine instead of tearing it down.
+- **Fullscreen button** no longer latches on a disabled output after New Show /
+  relaunch — a single click re-arms fullscreen.
+
 ## 2026-07-04 — v0.76.30 (Save/Save As, theme library + persistence, output black-on-disable, inspector & timeline UX)
 
 - **SAVE always prompts now.** The toolbar SAVE button (and Ctrl+S) open a

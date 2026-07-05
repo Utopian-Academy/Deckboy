@@ -123,7 +123,8 @@ Consequence — the three candidate paths and the verdict:
 SDL3 (stable since 3.2.0, Jan 2025; SDL2 is now maintenance-only, no new
 features) **fixes the exact SDL2 dead end above**:
 `SDL_CreateTextureWithProperties` accepts an existing backend resource via
-`SDL_PROP_TEXTURE_CREATE_D3D11_TEXTURE_POINTER`. A d3d11va-decoded NV12 texture
+`SDL_PROP_TEXTURE_CREATE_D3D11_TEXTURE_POINTER`. **Verified present in the
+installed SDL3 3.4.0 headers (2026-07-04)** — this is confirmed, not assumed. A d3d11va-decoded NV12 texture
 can be **wrapped as an SDL_Texture and composited by SDL's own renderer** — no
 CPU download, no hand-written D3D11 compositor. On SDL3, **Phase 2 collapses
 from "write a D3D11 output compositor" into "wrap the decoded texture."** (SDL3

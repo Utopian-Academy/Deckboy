@@ -1,0 +1,15 @@
+# Deckboy Theme: Luigi
+# Night-vision green glow on black.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	141D17FF
+shell_inner	1F2B23FF
+shell_shadow	070807FF
+screen_light	56FB7FFF
+screen_mid	2FB150FF
+screen_dark	1D2B21FF
+screen_deep	050505FF
+screen_ink_soft	57A86BFF
+button_bezel	2F7F43FF
+delete_bezel	AB2B33FF
+scanline_alpha	12

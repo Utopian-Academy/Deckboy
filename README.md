@@ -23,13 +23,13 @@ Cute extras are now optional:
 
 ## Current MVP
 
-**New in v0.76.30:**
-- `SAVE` now always prompts for a file and writes the project only (no more silently overwriting a hidden default); `BUNDLE` still exports with copied media, `Ctrl+Shift+S` is Save As.
-- **24 swappable themes** (dark sci-fi + Nintendo colorways), auto-discovered from `data/themes/` and **saved per show**.
-- **Program output clears to black** when an output is disabled, on New Show, on display switch, and on exit — no more frozen last frame on the wall/capture card.
-- **Dropping a folder** onto a deck recursively imports every video/image/audio file inside it, in name order (audio files come in as Audio cues).
-- **Audio timeline is click-to-seek** like the video lane; the transport play/pause button now shows a pause icon while playing.
-- **Inspector value fields are type-to-replace** (click → type → Enter, no manual clearing); the cue list no longer over-scrolls past the last cue.
+**New in v0.76.31:**
+- **Built-in media Encoder** (Settings → Encoder): converts cues Deckboy can't play well (10-bit HEVC, AV1, ProRes, 4K) to H.264 — GPU-accelerated, into a portable `_converted/` folder next to the show. Bad imports are auto-flagged with a contextual CONVERT button.
+- **30 swappable themes**, now Nintendo-named (Luigi, Kirby, Mario, Star Fox, Game & Watch, Peach, Ganon, …) with near-pure-black backgrounds; **saved per show**, and the boot splash tints to the active theme (branded DECKBOY splash on the default theme).
+- **Ctrl+A selects all cues**, and per-cue row toggles (hold/loop/fade/audio) apply to the whole selection.
+- **RESET** button restores a cue's settings to defaults; inspector value fields are **type-to-replace**.
+- **Audio-device changes hot-swap** without stopping playback; the deck cue list clamps with a springy bottom rubber-band.
+- Folder drag-drop recursively imports media; `SAVE` always prompts (project only), `BUNDLE` exports with media.
 
 - Native control window plus separate native output windows
 - Drag-and-drop import or native file picker import

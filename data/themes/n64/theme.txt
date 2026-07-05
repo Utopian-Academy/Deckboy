@@ -2,13 +2,13 @@
 # Smoky charcoal plastic with a jungle-green logo glow.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	161B1DFF
-shell_inner	22282BFF
-shell_shadow	0D1011FF
+shell_outer	16191BFF
+shell_inner	212629FF
+shell_shadow	070808FF
 screen_light	5AF7BDFF
 screen_mid	32AE81FF
-screen_dark	23292DFF
-screen_deep	0C0F10FF
+screen_dark	1F2528FF
+screen_deep	050505FF
 screen_ink_soft	59A68AFF
 button_bezel	317D61FF
 delete_bezel	AB2B33FF

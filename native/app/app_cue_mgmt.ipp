@@ -37,6 +37,23 @@
     markProjectDirty();
   }
 
+  void selectAllCuesInFocusedDeck() {
+    Deck& deck = focusedDeckMutable();
+    if (deck.cues.empty()) {
+      return;
+    }
+    deck.selectedIndices.clear();
+    for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
+      deck.selectedIndices.push_back(i);
+    }
+    if (deck.selectedIndex < 0) {
+      deck.selectedIndex = 0;
+    }
+    onSelectionChanged();
+    triggerToast("selected all " + std::to_string(deck.cues.size()) + " cues");
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
   void toggleSelectedLoop() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
@@ -1879,6 +1896,131 @@
     markProjectDirty();
   }
 
+  // ── Built-in media converter ─────────────────────────────────────────────
+  // Reason a video cue should be offered conversion (unplayable or heavy), or
+  // nullopt if it's fine as-is.
+  std::optional<std::string> cueConvertReason(const Cue& cue) const {
+    if (cue.kind != CueKind::Video) {
+      return std::nullopt;  // only file-backed video is a transcode candidate
+    }
+    if (unreadablePaths_.count(cue.path)) {
+      return std::string("unreadable");
+    }
+    std::string c = cue.videoCodec;
+    std::transform(c.begin(), c.end(), c.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    if (c.find("hevc") != std::string::npos || c.find("h265") != std::string::npos ||
+        c.find("av1") != std::string::npos || c.find("prores") != std::string::npos ||
+        c.find("dnxhd") != std::string::npos) {
+      return std::string("heavy codec (" + cue.videoCodec + ")");
+    }
+    if (cue.width > 1920 || cue.height > 1080) {
+      return std::string("large frame (" + std::to_string(cue.width) + "x" +
+                         std::to_string(cue.height) + ")");
+    }
+    return std::nullopt;
+  }
+
+  fs::path convertedMediaDir() const {
+    fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
+      ? currentProjectFile_.parent_path()   // portable: lives next to the show
+      : Paths::dataDir();
+    return base / "_converted";
+  }
+
+  bool isCueConverting(const std::string& path) const {
+    for (const auto& job : conversionJobs_) {
+      if (job.sourcePath == path) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void convertCueMedia(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    Cue& cue = deck.cues[cueIndex];
+    if (cue.path.empty() || cue.kind != CueKind::Video || isCueConverting(cue.path)) {
+      return;
+    }
+    std::error_code ec;
+    fs::path src(cue.path);
+    fs::path outDir = convertedMediaDir();
+    fs::create_directories(outDir, ec);
+    fs::path dst = outDir / (src.stem().string() + ".mp4");
+    if (fs::exists(dst, ec) && fs::equivalent(dst, src, ec)) {
+      dst = outDir / (src.stem().string() + "_conv.mp4");
+    }
+    std::string srcStr = src.string();
+    std::string dstStr = dst.string();
+    ConversionJob job;
+    job.deckIndex = deckIndex;
+    job.sourcePath = cue.path;
+    job.destPath = dstStr;
+    job.future = std::async(std::launch::async, [srcStr, dstStr]() -> bool {
+      auto produced = [&]() {
+        std::error_code e;
+        return fs::exists(dstStr, e) && fs::file_size(dstStr, e) > 1024;
+      };
+      // GPU (NVENC) first with a CPU decode (robust on odd inputs); fall back
+      // to libx264 if NVENC is unavailable or produced nothing.
+      readAllText({"ffmpeg", "-y", "-i", srcStr, "-c:v", "h264_nvenc",
+                   "-preset", "p4", "-cq", "23", "-pix_fmt", "yuv420p",
+                   "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", dstStr});
+      if (produced()) {
+        return true;
+      }
+      readAllText({"ffmpeg", "-y", "-i", srcStr, "-c:v", "libx264",
+                   "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
+                   "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", dstStr});
+      return produced();
+    });
+    conversionJobs_.push_back(std::move(job));
+    triggerToast("converting " + src.filename().string() + " ...");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  // Convert every flagged cue across all decks (used by the Encoder tab).
+  int convertAllFlaggedCues() {
+    int started = 0;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        if (cueConvertReason(deck.cues[c]) && !isCueConverting(deck.cues[c].path)) {
+          convertCueMedia(d, c);
+          ++started;
+        }
+      }
+    }
+    if (started == 0) {
+      triggerToast("encoder: nothing to convert");
+    }
+    return started;
+  }
+
+  void convertSelectedCueMedia() {
+    Deck& deck = focusedDeckMutable();
+    auto indices = selectedCueIndices(deck);
+    int started = 0;
+    for (int idx : indices) {
+      if (idx >= 0 && idx < static_cast<int>(deck.cues.size()) &&
+          deck.cues[idx].kind == CueKind::Video && !deck.cues[idx].path.empty() &&
+          !isCueConverting(deck.cues[idx].path)) {
+        convertCueMedia(project_.focusedDeckIndex, idx);
+        ++started;
+      }
+    }
+    if (started == 0) {
+      triggerToast("convert: select a file cue");
+    }
+  }
+
   void toggleOutputFullscreen() {
     if (project_.focusedOutputIndex >= 0 &&
         project_.focusedOutputIndex < static_cast<int>(project_.outputs.size())) {
@@ -2211,6 +2353,13 @@
 
   bool isAnyOutputFullscreen() const {
     for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      // A disabled output can still be sitting on a stale fullscreen window
+      // (New Show / relaunch disarms outputs without exiting the window). Don't
+      // let that latch the fullscreen button — reflect only live outputs, so a
+      // single click re-arms fullscreen instead of needing an off/on toggle.
+      if (!project_.outputs[i].enabled) {
+        continue;
+      }
       const OutputRuntime* runtime = runtimeForOutput(i);
       if (runtime && runtime->outputWindow) {
         Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);

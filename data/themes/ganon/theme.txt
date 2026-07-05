@@ -1,0 +1,15 @@
+# Deckboy Theme: Ganon
+# High-alert crimson on black.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1D1415FF
+shell_inner	2B1F21FF
+shell_shadow	080707FF
+screen_light	FB566CFF
+screen_mid	B12F40FF
+screen_dark	2B1D1FFF
+screen_deep	050505FF
+screen_ink_soft	A85762FF
+button_bezel	7F2F39FF
+delete_bezel	AB562BFF
+scanline_alpha	12

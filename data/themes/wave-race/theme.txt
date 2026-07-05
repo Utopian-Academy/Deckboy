@@ -1,0 +1,15 @@
+# Deckboy Theme: Wave Race
+# Cool teal spray on a black lagoon.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	141B1DFF
+shell_inner	1F292BFF
+shell_shadow	070808FF
+screen_light	56FBDFFF
+screen_mid	2FB19CFF
+screen_dark	1D282BFF
+screen_deep	050505FF
+screen_ink_soft	57A89BFF
+button_bezel	2F7F71FF
+delete_bezel	AB2B33FF
+scanline_alpha	12
