@@ -7,7 +7,7 @@ For a structural map of the codebase see [`docs/CODEMAP.md`](docs/CODEMAP.md). W
 
 **🚀 March 2025 Refactoring**: See [CHANGES.md](CHANGES.md) for a comprehensive summary of modular architecture improvements, broadcast SDK integration (MIDI, DeckLink, Syphon/Spout), cross-platform support, and automated CI/CD setup.
 
-The UI is styled with a Game Boy-inspired look: monochrome green screen palette, chunky shell framing, cute "cartridge shelf" language, and a more playful control surface.
+The UI is styled with a Game Boy-inspired look: chunky shell framing, cute "cartridge shelf" language, and a more playful control surface. The default palette is Game Boy green, but Deckboy ships a library of **24 swappable themes** — dark, high-contrast sci-fi colorways plus Nintendo-inspired ones — selectable in Preferences → Appearance and saved per show. Drop a `theme.txt` into `data/themes/<name>/` to add your own.
 
 Cute extras are now optional:
 
@@ -23,10 +23,18 @@ Cute extras are now optional:
 
 ## Current MVP
 
+**New in v0.76.30:**
+- `SAVE` now always prompts for a file and writes the project only (no more silently overwriting a hidden default); `BUNDLE` still exports with copied media, `Ctrl+Shift+S` is Save As.
+- **24 swappable themes** (dark sci-fi + Nintendo colorways), auto-discovered from `data/themes/` and **saved per show**.
+- **Program output clears to black** when an output is disabled, on New Show, on display switch, and on exit — no more frozen last frame on the wall/capture card.
+- **Dropping a folder** onto a deck recursively imports every video/image/audio file inside it, in name order (audio files come in as Audio cues).
+- **Audio timeline is click-to-seek** like the video lane; the transport play/pause button now shows a pause icon while playing.
+- **Inspector value fields are type-to-replace** (click → type → Enter, no manual clearing); the cue list no longer over-scrolls past the last cue.
+
 - Native control window plus separate native output windows
 - Drag-and-drop import or native file picker import
 - Playlist save, save-as, and open for different `.deckboy` show files
-- Main header file controls in UI: `New`, `Open`, `Save`, `SaveAs`
+- Main header file controls in UI: `New`, `Open`, `Save`, `Bundle` (`Save` always prompts for a location and writes the project only; `Bundle` exports the show with copied media). `Ctrl+Shift+S` still performs an explicit Save As.
 - Main output strip in UI: one per-output toggle in the control window (`O1`, `O2`, ...), so each output can be armed/disarmed without opening Preferences.
 - Main output strip now includes explicit routing controls for the focused deck/output:
   - `Add Output`

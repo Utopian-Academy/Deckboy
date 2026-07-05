@@ -1,5 +1,45 @@
 # DEVNOTES
 
+## Save / Theme / Output / UX batch (v0.76.30)
+- **SAVE always prompts.** The toolbar SAVE button and Ctrl+S both call
+  `saveProjectAsFromPicker` (file picker every time, project only — no media);
+  there is deliberately no separate Save As button (it would be identical).
+  BUNDLE (`exportProjectBundleTo`) is the export-with-media path. The old SAVE
+  silently overwrote `data/default.deckboy` with no filename feedback, which
+  read as "saving a default state."
+- **Theme persists per project.** `Project::theme` (types.hpp) holds the saved
+  colorway (a `data/themes/<name>` dir), serialized as a key-value line
+  `theme\t<name>` like `splash_character`. Applied on open in
+  `openProjectFromPath` and at boot after project load — only when non-empty,
+  so an older theme-less show never stomps the operator's current pick.
+  `DECKBOY_THEME` still hard-overrides at boot. The Appearance dropdown scans
+  `data/themes/` for any dir containing `theme.txt` (24 shipped: dark sci-fi +
+  Nintendo colorways).
+- **Output flushes black instead of freezing.** A disabled-but-visible output
+  window is painted black exactly once, latched by
+  `OutputRuntime::blackedWhileDisabled` (reset when it renders again) via
+  `clearDisabledOutputWindow` in the render loop — this covers New Show, where
+  `ensureOutputRuntimesSynced` reuses the window and just stops rendering it.
+  `destroyOutputRuntime` also presents two black frames before tearing a
+  visible window down (exit / display switch / capture dongles that latch the
+  last received frame). Never let a disabled output silently hold the last
+  frame.
+- **Inline editor type-to-replace.** `InlineTextEditorState::freshEntry` is set
+  on open; the first character (or backspace) clears the pre-filled value
+  first, mimicking select-all-on-focus. Submitting with no edit keeps the
+  original value.
+- **Recursive folder import.** `importPaths` expands directories via
+  `recursive_directory_iterator` (skip_permission_denied, name-sorted),
+  filtered by `isAcceptableMediaPath` (video/image/audio ext lists beside
+  `isImagePath`). Cue kind is Image/Audio/Video; `probeCue` now also returns
+  Audio for audio extensions so the async probe doesn't relabel audio as Video.
+- **Cue-list over-scroll** is clamped BEFORE the draw loop (deck panel list and
+  overlay bin) so the wheel can't push past the last row into empty space; the
+  old after-draw clamp flickered.
+- **Audio timeline seek.** The audio lane rect is stored in
+  `audioProgressBarRect_` and is a click-to-seek target alongside
+  `progressBarRect_` (same x-mapping, shared scrub/resume path).
+
 ## Pixel-Based Geometry Editing (v0.76.21)
 - Operator-facing size unit is output pixels; `Cue::outputScaleX/Y`
   multipliers are an implementation detail. `cueBaseRenderSize(cue)`
