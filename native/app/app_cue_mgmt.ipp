@@ -595,9 +595,15 @@
       dialogTitle = saveMode ? "Save Deckboy playlist" : "Open Deckboy playlist";
     }
 #ifdef _WIN32
+    // TopMost owner form forces the native dialog to the front of the z-order
+    // (it runs in a separate powershell process with no parent, so otherwise it
+    // can open behind the Deckboy window). See pickFiles() for the same fix.
+    const std::string ownerPrelude =
+      "Add-Type -AssemblyName System.Windows.Forms;"
+      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;";
     std::string script = saveMode
-      ? "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
-      : "Add-Type -AssemblyName System.Windows.Forms;$dialog = New-Object System.Windows.Forms.OpenFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName";
+      ? ownerPrelude + "$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';$r=$dialog.ShowDialog($o);$o.Close();if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
+      : ownerPrelude + "$dialog = New-Object System.Windows.Forms.OpenFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';$r=$dialog.ShowDialog($o);$o.Close();if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName";
     auto text = readAllText({"powershell.exe", "-NoProfile", "-Command", script});
 #elif __APPLE__
     auto text = saveMode
@@ -651,6 +657,11 @@
     rememberLastOpenedProjectFile(currentProjectFile_);
     project_ = loadProject(normalized);
     normalizeProject(project_);
+    // Apply the show's saved color theme. Empty = leave the current theme
+    // as-is (older theme-less shows don't stomp the operator's pick).
+    if (!project_.theme.empty()) {
+      loadTheme(project_.theme);
+    }
     disarmAllOutputsForStartup();
     timecodeTriggeredCueIds_.clear();
     cueRowDisplayCache_.clear();
@@ -694,9 +705,15 @@
       "-NoProfile",
       "-Command",
       "Add-Type -AssemblyName System.Windows.Forms;"
+      // Owner form is TopMost so the native dialog opens IN FRONT of Deckboy
+      // instead of behind it (the picker runs in a separate powershell process
+      // with no parent window, so without this it lands at the back of the
+      // z-order and looks like nothing happened).
+      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;"
       "$dialog = New-Object System.Windows.Forms.OpenFileDialog;"
       "$dialog.Multiselect = $true;"
-      "if ($dialog.ShowDialog() -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };"
+      "$r=$dialog.ShowDialog($o);$o.Close();"
+      "if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };"
       "$dialog.FileNames -join \"`n\""
     });
 #elif __APPLE__
@@ -1227,11 +1244,123 @@
                          });
   }
 
+#ifdef _WIN32
+  // Enumerate visible top-level window titles for the window-source picker.
+  // Skips unowned invisible windows, empty titles, and Deckboy's own
+  // windows (capturing yourself is feedback, not a source).
+  std::vector<std::string> listCaptureWindowTitles() {
+    std::vector<std::string> titles;
+    EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
+      auto* out = reinterpret_cast<std::vector<std::string>*>(lp);
+      if (!IsWindowVisible(hwnd) || GetWindow(hwnd, GW_OWNER) != nullptr) {
+        return TRUE;
+      }
+      int len = GetWindowTextLengthW(hwnd);
+      if (len <= 0) {
+        return TRUE;
+      }
+      std::wstring wide(static_cast<size_t>(len) + 1, L'\0');
+      GetWindowTextW(hwnd, wide.data(), len + 1);
+      wide.resize(static_cast<size_t>(len));
+      int need = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, nullptr, 0, nullptr, nullptr);
+      if (need <= 0) {
+        return TRUE;
+      }
+      std::string title(static_cast<size_t>(need), '\0');
+      WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, title.data(), need, nullptr, nullptr);
+      if (!title.empty() && title.rfind("Deckboy", 0) != 0) {
+        out->push_back(std::move(title));
+      }
+      return TRUE;
+    }, reinterpret_cast<LPARAM>(&titles));
+    return titles;
+  }
+
+  // Enumerate DirectShow video devices (webcams, HDMI capture sticks,
+  // Blackmagic WDM, virtual cameras) by parsing ffmpeg's device listing.
+  // Lines look like: [dshow @ 0x...] "HD WebCam" (video)
+  std::vector<std::string> listDshowVideoDevices() {
+    std::vector<std::string> devices;
+    auto listingText = readAllText({
+      "ffmpeg", "-hide_banner", "-list_devices", "true", "-f", "dshow", "-i", "dummy"});
+    std::string listing = listingText ? *listingText : std::string();
+    size_t pos = 0;
+    while ((pos = listing.find("\" (video)", pos)) != std::string::npos) {
+      size_t lineStart = listing.rfind('\n', pos);
+      size_t open = listing.find('"', lineStart == std::string::npos ? 0 : lineStart);
+      if (open != std::string::npos && open < pos) {
+        std::string name = listing.substr(open + 1, pos - open - 1);
+        if (!name.empty()) {
+          devices.push_back(std::move(name));
+        }
+      }
+      ++pos;
+    }
+    return devices;
+  }
+#endif
+
   void addSourceCue(CueKind kind, const std::string& rawRef) {
     if (!isSourceCueKind(kind)) {
       return;
     }
     std::string sourceRef = trim(rawRef);
+#ifdef _WIN32
+    // A camera cue with the placeholder ref opens the device picker —
+    // webcams and capture devices are all DirectShow video devices, so one
+    // picker covers both. The cue is created bound to a real device; TAKE
+    // starts capture (dshow devices are exclusive-open, so we don't grab
+    // the device just to preview it).
+    // A window cue with the placeholder ref opens a window picker — the old
+    // default silently captured the ENTIRE desktop, which read as "window
+    // cues only partially work". gdigrab matches titles exactly, so apps
+    // that retitle (browsers per tab) need re-picking after a title change.
+    if (kind == CueKind::WindowSource) {
+      std::string refLower = toLower(sourceRef);
+      if (sourceRef.empty() || refLower == "active-window" || refLower == "desktop") {
+        auto titles = listCaptureWindowTitles();
+        std::vector<std::pair<std::string, std::string>> choices;
+        choices.push_back({"region:0,0", "Entire Desktop"});
+        for (const auto& title : titles) {
+          choices.push_back({"title:" + title, title});
+        }
+        if (choices.size() == 1) {
+          addSourceCue(kind, "region:0,0");
+          return;
+        }
+        openDropdown("source.window_target", lastInlineEditorAnchorRect_, choices,
+                     choices.front().first,
+                     [this](const std::string& windowRef) {
+          addSourceCue(CueKind::WindowSource, windowRef);
+        });
+        return;
+      }
+    }
+    if (kind == CueKind::Camera) {
+      std::string refLower = toLower(sourceRef);
+      if (sourceRef.empty() || refLower == "default-camera" || refLower == "default") {
+        auto devices = listDshowVideoDevices();
+        if (devices.empty()) {
+          triggerToast("no capture devices found (dshow)");
+          return;
+        }
+        if (devices.size() == 1) {
+          addSourceCue(kind, devices.front());
+          return;
+        }
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto& name : devices) {
+          choices.push_back({name, name});
+        }
+        openDropdown("source.camera_device", lastInlineEditorAnchorRect_, choices,
+                     devices.front(),
+                     [this](const std::string& deviceName) {
+          addSourceCue(CueKind::Camera, deviceName);
+        });
+        return;
+      }
+    }
+#endif
     if (sourceRef.empty()) {
       if (kind == CueKind::WindowSource) {
         sourceRef = "active-window";
@@ -1261,6 +1390,31 @@
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
     triggerToast("source cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
+  // Konami-code easter egg: launches the bundled Terrarium ecosystem sim
+  // (windowed) if it isn't already running, then adds a secret window-source
+  // cue capturing it. ↑↑↓↓←→←→BA + Start on the control window.
+  void unlockTerrariumSource() {
+#ifdef _WIN32
+    if (!FindWindowA(nullptr, "Terrarium")) {
+      fs::path terrariumExe = deckboy::core::Paths::executablePath().parent_path() / "terrarium.exe";
+      if (fs::exists(terrariumExe)) {
+        ChildProcess terrariumProc;
+        spawnDetachedProcess(terrariumProc, {terrariumExe.string(), "--windowed"});
+      }
+    }
+#endif
+    addSourceCue(CueKind::WindowSource, "title:Terrarium");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& secret = deck.cues.back();
+      secret.name = "TERRARIUM (secret)";
+      secret.colorTag = "purple";
+    }
+    triggerToast("* KONAMI * terrarium source unlocked");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
   }
@@ -1460,12 +1614,11 @@
 
   // Named pattern types and their pretty labels.
   static const std::vector<std::pair<std::string, std::string>>& patternBaseTypes() {
+    // Operator-facing picker list. One pocket entry only — it cycles
+    // day/sunset/night/storm itself; the forced-scene ids stay loadable as
+    // legacy (see patternTypes). Motion belongs to the toggle, not the list.
     static const std::vector<std::pair<std::string, std::string>> types {
-      {"pocket-test",   "Pocket Test (scene cycle + creatures)"},
-      {"pocket-day",    "Pocket Day Quest (animated)"},
-      {"pocket-sunset", "Pocket Sunset Quest (animated)"},
-      {"pocket-night",  "Pocket Night Quest (animated)"},
-      {"pocket-storm",  "Pocket Storm Quest (animated)"},
+      {"pocket-test",   "Pocket Test (day/sunset/night/storm cycle)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},
@@ -1478,9 +1631,16 @@
     return types;
   }
 
+  // Full validation list: base types + legacy ids ("-motion" variants and
+  // the forced-scene pocket types). Kept so old show files and remote
+  // PATTERN commands stay valid — but pickers list patternBaseTypes() only.
   static const std::vector<std::pair<std::string, std::string>>& patternTypes() {
     static const std::vector<std::pair<std::string, std::string>> types = [] {
       std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
+      list.emplace_back("pocket-day",    "Pocket Test (day)");
+      list.emplace_back("pocket-sunset", "Pocket Test (sunset)");
+      list.emplace_back("pocket-night",  "Pocket Test (night)");
+      list.emplace_back("pocket-storm",  "Pocket Test (storm)");
       list.emplace_back("smpte-bars-motion", "SMPTE 75% Colour Bars (motion)");
       list.emplace_back("crosshatch-motion", "Crosshatch (motion)");
       list.emplace_back("checkerboard-motion", "Checkerboard (motion)");
@@ -1652,21 +1812,45 @@
   void importPaths(const std::vector<std::string>& rawPaths) {
     int deckIndex = project_.focusedDeckIndex;
     Deck& deck = focusedDeckMutable();
-    bool changed = false;
-    int addedCount = 0;
+
+    // Expand any dropped/imported folders into the acceptable media they
+    // contain, recursively and in name order. Individual files are taken as-is.
+    std::vector<fs::path> files;
     for (const auto& raw : rawPaths) {
-      fs::path path = fs::absolute(trim(raw));
-      if (!fs::exists(path)) {
+      std::error_code ec;
+      fs::path path = fs::absolute(trim(raw), ec);
+      if (ec || !fs::exists(path, ec)) {
         continue;
       }
+      if (fs::is_directory(path, ec)) {
+        std::vector<fs::path> found;
+        std::error_code itEc;
+        for (fs::recursive_directory_iterator it(path, fs::directory_options::skip_permission_denied, itEc), end;
+             !itEc && it != end; it.increment(itEc)) {
+          std::error_code fileEc;
+          if (it->is_regular_file(fileEc) && isAcceptableMediaPath(it->path())) {
+            found.push_back(it->path());
+          }
+        }
+        std::sort(found.begin(), found.end());
+        files.insert(files.end(), found.begin(), found.end());
+      } else {
+        files.push_back(path);
+      }
+    }
 
+    bool changed = false;
+    int addedCount = 0;
+    for (const auto& path : files) {
       std::string pathStr = path.string();
 
       // Create placeholder cue (metadata filled in async)
       Cue placeholder;
       placeholder.path = pathStr;
       placeholder.name = path.stem().string();
-      placeholder.kind = isImagePath(path) ? CueKind::Image : CueKind::Video;
+      placeholder.kind = isImagePath(path) ? CueKind::Image
+                       : isAudioPath(path) ? CueKind::Audio
+                       : CueKind::Video;
       applyDeckDefaultsToCue(placeholder, deck);
       deck.cues.push_back(std::move(placeholder));
       changed = true;
@@ -1871,7 +2055,7 @@
       button.text = pal.deep;
       buttons_.push_back(button);
     };
-    push("IMPORT",     pal.mid, "Shift+I — import media files");
+    push("IMPORT",     pal.mid, "I — import media files");
     push("SOURCE",     pal.mid, "Add a source cue and refine it in the cue inspector");
     push("PATTERN",    pal.mid, "Add a pattern cue and refine it in the cue inspector");
     push("TAKE",       pal.light, "Enter — take selected cue live");
@@ -2003,7 +2187,25 @@
       return;
     }
     if (MediaEngine* engine = focusedMediaEngine()) {
-      engine->refreshActiveCueRuntime();
+      engine->refreshActiveCueRuntime(&deck.cues[deck.activeIndex]);
+    }
+  }
+
+  // Push the app's current active cue into each deck engine's owned snapshot.
+  // The engine never keeps pointers into Deck::cues (import reallocates,
+  // delete shifts), so after any project edit the snapshot must be refreshed
+  // for live-editable fields (fades, still duration) to stay current.
+  // Triggered from markProjectDirty via engineCueSyncPending_ and drained
+  // once per update() tick.
+  void syncEngineCueSnapshots() {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      Deck& deck = project_.decks[deckIndex];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+        engine->syncActiveCueSnapshot(deck.cues[deck.activeIndex]);
+      }
     }
   }
 

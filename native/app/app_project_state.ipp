@@ -657,6 +657,22 @@
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       statusDeckSnapshots_.push_back(buildDeckStatusSnapshot(deckIndex));
     }
+    hyperDeckSnapshot_.transport = "stopped";
+    if (const MediaEngine* engine = mediaEngineForDeck(project_.focusedDeckIndex)) {
+      if (engine->state() == TransportState::Playing) {
+        hyperDeckSnapshot_.transport = "play";
+      } else if (engine->state() == TransportState::Paused) {
+        hyperDeckSnapshot_.transport = "paused";
+      }
+    }
+    const Deck& focused = focusedDeck();
+    hyperDeckSnapshot_.clipId = focused.activeIndex + 1;
+    hyperDeckSnapshot_.loop = focused.playlistLoop;
+    hyperDeckSnapshot_.clips.clear();
+    hyperDeckSnapshot_.clips.reserve(focused.cues.size());
+    for (const Cue& cue : focused.cues) {
+      hyperDeckSnapshot_.clips.emplace_back(cue.name, formatSeconds(cue.duration));
+    }
   }
 
   void disarmAllOutputsForStartup() {
@@ -1227,6 +1243,9 @@
   bool startNewShow(bool withToast = true) {
     resetTransientPreviewState();
     project_ = Project {};
+    // A fresh show inherits the currently active colorway so starting over
+    // doesn't snap the UI back to the default theme; it's saved from here on.
+    project_.theme = currentThemeName_;
     normalizeProject(project_);
     disarmAllOutputsForStartup();
     for (auto& deck : project_.decks) {
@@ -1309,6 +1328,10 @@
       projectDirty_ = true;
       projectDirtyAt_ = std::chrono::steady_clock::now();
     }
+    // Any project edit may have touched the active cue of some deck — refresh
+    // the engines' owned cue snapshots on the next update() tick so live-
+    // editable fields (fade in/out, still duration) stay current.
+    engineCueSyncPending_ = true;
   }
 
   void flushDirtyProject() {

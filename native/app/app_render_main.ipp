@@ -82,7 +82,9 @@
     int x = innerX;
     int y = innerY;
     quickButtons_.clear();
+    valueScrubZones_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
+    cueSettingsScrubZoneStartIndex_ = 0;
     cueSettingsViewportRect_ = SDL_Rect {};
     cuePatternTypeDropdownRect_ = SDL_Rect {};
     cueTransitionStyleDropdownRect_ = SDL_Rect {};
@@ -265,6 +267,7 @@
     int transportRowY = deleteWarnY + (liveDeleteWarnActive ? (kDeleteWarnH + kTimelineGap) : 0);
     progressBarRect_ = insetRect(videoLaneOuter, 3);
     SDL_Rect audioLaneRect = insetRect(audioLaneOuter, 2);
+    audioProgressBarRect_ = audioLaneRect;  // audio lane is click-to-seek too
     drawUIPanel(videoLaneOuter, pal.light, pal.deep, pal.mid);
     drawUIPanel(audioLaneOuter, pal.light, pal.deep, pal.mid);
     drawText(controlRenderer_, fontSmall_, "VIDEO", pal.deep,
@@ -457,16 +460,26 @@
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     };
 
-    for (int grid = 1; grid < 8; ++grid) {
-      float frac = static_cast<float>(grid) / 8.0f;
-      int px = progressBarRect_.x + static_cast<int>(std::round(frac * progressBarRect_.w));
-      SDL_SetRenderDrawColor(controlRenderer_, 36, 52, 36, 255);
-      SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
-      SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h - 1);
-      SDL_RenderSetClipRect(controlRenderer_, &audioLaneRect);
-      SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h - 1);
+    // Time graduation lines only make sense over an actual timeline. Content
+    // (filmstrip/waveform) overpaints them, so drawing them unconditionally
+    // meant they only ever showed through on the EMPTY lanes — stray vertical
+    // bars under the "take or select a cue..." placeholder. Theme ink instead
+    // of a hardcoded dark green so light themes don't get harsh lines.
+    if (timelineCue && timelineDuration > 0.0) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_Color gridInk = pal.dark;
+      for (int grid = 1; grid < 8; ++grid) {
+        float frac = static_cast<float>(grid) / 8.0f;
+        int px = progressBarRect_.x + static_cast<int>(std::round(frac * progressBarRect_.w));
+        SDL_SetRenderDrawColor(controlRenderer_, gridInk.r, gridInk.g, gridInk.b, 140);
+        SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
+        SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h - 1);
+        SDL_RenderSetClipRect(controlRenderer_, &audioLaneRect);
+        SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h - 1);
+      }
+      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     }
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
 
     bool timelineStripFailed = false;
     bool timelineHasCurrentSelectedThumb =
@@ -596,7 +609,10 @@
       }
     }
 
-    if (timelineCue && (timelineCue->hasAudio || timelineCue->kind == CueKind::Audio)) {
+    bool timelineCueFileAudio = timelineCue && timelineCue->hasAudio &&
+      (timelineCue->kind == CueKind::Video || timelineCue->kind == CueKind::Audio);
+    bool timelineCueLiveAudio = timelineCue && timelineCue->hasAudio && !timelineCueFileAudio;
+    if (timelineCueFileAudio) {
       bool _wfPending = false;
       WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*timelineCue, currentProjectFile_), _wfPending);
       drawWaveform(controlRenderer_, audioLaneRect, peaks, timelineCue->audioChannels >= 2, timelinePlayFrac, timelineInFrac, timelineOutFrac,
@@ -604,6 +620,12 @@
       if (peaks.empty() && _wfPending) {
         drawAudioTimelineLoadingAnimation(audioLaneRect);
       }
+    } else if (timelineCueLiveAudio) {
+      // Live sources (camera/NDI/SRT) carry audio but have no finite
+      // waveform to analyze — say so instead of a loading animation that
+      // can never finish.
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, audioLaneRect, "live audio",
+                           pal.inkSoft);
     } else {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, audioLaneRect, "no audio track",
                            pal.inkSoft);
@@ -1114,7 +1136,15 @@
       };
       drawTCtrl("|<", 36, QuickAction::TransportSkipStart, "Home — skip to start", &uiBtnRerack_);
       drawTCtrl("<<", 42, QuickAction::TransportSkipBack, "Left — skip back 10s");
-      drawTCtrl("\xe2\x96\xba||", 52, QuickAction::TransportPlayPause, "Space — play/pause", &uiBtnPlay_);
+      bool transportPlaying = false;
+      if (MediaEngine* eng = focusedMediaEngine()) {
+        transportPlaying = (eng->state() == TransportState::Playing);
+      }
+      // Reflect state: show a pause glyph/icon while playing, play while paused,
+      // so the button's meaning is unambiguous.
+      drawTCtrl(transportPlaying ? "||" : "\xe2\x96\xba", 52, QuickAction::TransportPlayPause,
+                transportPlaying ? "Space — pause" : "Space — play",
+                transportPlaying ? &uiBtnPause_ : &uiBtnPlay_);
       drawTCtrl(">>", 42, QuickAction::TransportSkipForward, "Right — skip forward 10s");
       drawTCtrl("-30", 46, QuickAction::GotoMinus30, "-30 seconds from end");
       drawTCtrl("-20", 46, QuickAction::GotoMinus20, "-20 seconds from end");
@@ -1576,6 +1606,7 @@
     };
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
+    cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
     SDL_RenderSetClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 
@@ -2703,17 +2734,23 @@
       finishInspectorSection(metadataSection, metadataY);
 
     } else if (!selectedCue) {
-      SDL_Rect emptyRect {ctrl.x + kInspectorInset, ctrlSettingsY + 18, kCtrlW - kInspectorInset * 2, 72};
+      // Line rects derived from the live font — the old literal 16/24px
+      // heights clipped descenders once scaled/HiDPI faces loaded taller.
+      int lineH = textLineHeight(fontSmall_);
+      int lineGap = 6;
+      SDL_Rect emptyRect {ctrl.x + kInspectorInset, ctrlSettingsY + 18,
+                          kCtrlW - kInspectorInset * 2, lineH * 2 + lineGap + 28};
       drawUIPanel(emptyRect, pal.light, pal.deep, pal.mid);
+      int line1Y = emptyRect.y + 14;
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect {emptyRect.x + 8, emptyRect.y + 14, emptyRect.w - 16, 16},
+                           SDL_Rect {emptyRect.x + 8, line1Y, emptyRect.w - 16, lineH},
                            "NO CUE SELECTED", pal.deep);
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect {emptyRect.x + 8, emptyRect.y + 34, emptyRect.w - 16, 24},
+                           SDL_Rect {emptyRect.x + 8, line1Y + lineH + lineGap, emptyRect.w - 16, lineH},
                            "Select or import a cue to edit it here", pal.dark);
     } else {
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, 16},
+                   SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, textLineHeight(fontSmall_)},
                    "no per-cue settings for this type",
                    pal.inkSoft);
     }

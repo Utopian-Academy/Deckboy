@@ -111,6 +111,8 @@ void MediaEngine::stopAll() {
   cueInPointSeconds_ = 0.0;
   cueOutPointSeconds_ = 0.0;
   activeCue_ = nullptr;
+  activeCueSnapshot_.reset();
+  syncAudioFadeParams();
   frameRate_ = 0.0;
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
   displayFrameSerial_ = 0;
@@ -144,7 +146,19 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   beginTransition(transitionSeconds, transitionStyle, outgoingGain);
   clearTexture();
   clearAudio();
-  activeCue_ = cue;
+  // Own a snapshot of the cue. The caller's pointer typically aims into
+  // Deck::cues, which the UI mutates freely (import push_back reallocates,
+  // delete shifts) while decode threads and the render path still read the
+  // active cue. Copy it and repoint the local param at the owned storage so
+  // nothing below can capture the caller's pointer.
+  if (cue) {
+    activeCueSnapshot_ = *cue;
+    activeCue_ = &*activeCueSnapshot_;
+    cue = activeCue_;
+  } else {
+    activeCueSnapshot_.reset();
+    activeCue_ = nullptr;
+  }
   outputScaleX_ = cue ? cue->outputScaleX : 1.0f;
   outputScaleY_ = cue ? cue->outputScaleY : 1.0f;
   scaleMode_ = cue ? cue->scaleMode : ScaleMode::Fit;
@@ -240,10 +254,26 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   }
 }
 
+// Replace the owned active-cue snapshot in place. The optional stays engaged,
+// so activeCue_ remains stable across the assignment. Publishes fresh fade
+// params to the audio-thread mirrors.
+void MediaEngine::syncActiveCueSnapshot(const Cue& cue) {
+  if (!activeCueSnapshot_) {
+    return;  // nothing loaded — loadCue creates the snapshot
+  }
+  *activeCueSnapshot_ = cue;
+  syncAudioFadeParams();
+}
+
 // Hot-update runtime parameters from the active cue without restarting decode.
 // Called when the operator adjusts speed, in/out points, or pause points
 // while a cue is playing. Recalculates the position to maintain continuity.
-void MediaEngine::refreshActiveCueRuntime() {
+// updatedCue (when given) is the app's current cue — refresh the owned
+// snapshot from it first so we don't re-read stale parameters.
+void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
+  if (updatedCue) {
+    syncActiveCueSnapshot(*updatedCue);
+  }
   if (!activeCue_) {
     return;
   }
@@ -306,6 +336,11 @@ void MediaEngine::play() {
   bool isTimedStill = activeCue_->kind != CueKind::Video && duration_ > 0.0;
   if (activeCue_->kind != CueKind::Video && !isTimedStill) return;
   if (state_ == TransportState::Playing) return;
+  if (activeCue_->kind == CueKind::Video && !decodersRunning_) {
+    // Pipes were released by a dark STOP — revive them from the reracked
+    // position so PLAY works without a fresh TAKE.
+    startDecoderThreads(*activeCue_, cueInPointSeconds_ + pausedPosition_, pausedPosition_);
+  }
   playbackClockStart_ = std::chrono::steady_clock::now();
   playbackStartPosition_ = pausedPosition_;
   state_ = TransportState::Playing;
@@ -360,35 +395,58 @@ void MediaEngine::toggle() {
   if (state_ == TransportState::Playing) { pause(); } else { play(); }
 }
 
-// Stop playback and rewind to the beginning. For video cues, this restarts
-// the ffmpeg decode from the beginning (via seek(0.0)). For source cues,
-// this stops capture and reloads the initial source frame.
-void MediaEngine::stop() {
+// Stop playback and rewind to the beginning. Default (clearVisual=false):
+// video restarts decode at 0 and holds the first frame — the RERACK-style
+// ready state. clearVisual=true is the operator STOP verb: the deck goes
+// DARK (visual cleared, pipes released); play() revives the pipes from the
+// reracked position, TAKE reloads as usual.
+void MediaEngine::stop(bool clearVisual) {
   if (!activeCue_) {
     return;
   }
   clearVisualOnReachedEnd_ = false;
+  auto applyVisualClear = [&]() {
+    if (!clearVisual) {
+      return;
+    }
+    displayFrame_.reset();
+    clearTexture();
+    clearTransitionTexture();
+  };
   if (isSourceCueKind(activeCue_->kind)) {
     if (isSourceCapturing_) {
       stopDecoderThreads();
     }
     isSourceCapturing_ = false;
-    loadSourceFrame(*activeCue_);
+    if (!clearVisual) {
+      loadSourceFrame(*activeCue_);  // hold the poster frame unless darkening
+    }
     state_ = TransportState::Paused;
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
+    applyVisualClear();
     return;
   }
   if (activeCue_->kind != CueKind::Video) {
     state_ = TransportState::Paused;
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
+    applyVisualClear();
     return;
   }
-  seek(0.0, false);
+  if (clearVisual) {
+    // Kill the pipes rather than seek-restarting them: a fresh decode's
+    // first frame would immediately repopulate displayFrame_ and relight
+    // the deck the next tick.
+    stopDecoderThreads();
+    clearAudio();
+  } else {
+    seek(0.0, false);
+  }
   state_ = TransportState::Stopped;
   pausedPosition_ = 0.0;
   currentPosition_ = 0.0;
+  applyVisualClear();
   if (audioDevice_ != 0) {
     SDL_PauseAudioDevice(audioDevice_, 1);
   }
@@ -516,6 +574,11 @@ void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
 // This must be called every frame from the main thread (not a decode thread).
 // ---------------------------------------------------------------------------
 void MediaEngine::update() {
+  // Catch-all publish: fade params, duration, and suppress flags can change
+  // from several paths (handlePlaybackEnd loop re-assert, browser duration
+  // restore, snapshot sync). One relaxed store set per tick keeps the audio
+  // thread at most a frame behind without sprinkling syncs at every site.
+  syncAudioFadeParams();
   if (imageFramePending_.exchange(false)) {
     std::lock_guard<std::mutex> lk(imageMutex_);
     if (pendingImageFrame_) {
@@ -554,6 +617,46 @@ void MediaEngine::update() {
   }
 
   currentPosition_ = position();
+
+  // Audio-master drift correction. The audio device consumes samples on its
+  // own crystal; the wall clock driving position() drifts against it over
+  // long-form playback (and immediately on VFR sources). When the audio
+  // clock — frames queued minus frames still buffered — diverges from the
+  // video position by more than ~2 frames, re-anchor the wall clock to it.
+  // Skipped near EOF (audio drains before video finishes) and for live
+  // streams (audioClockValid_ is false there).
+  if (state_ == TransportState::Playing && audioClockValid_ && audioDevice_ != 0 &&
+      !decoderEof_.load()) {
+    std::uint64_t queuedFrames = audioFramesQueued_.load(std::memory_order_relaxed);
+    if (queuedFrames >= 4800) {  // trust the clock only after ~100ms of audio
+      double queuedSeconds = static_cast<double>(queuedFrames) / 48000.0;
+      double bufferedSeconds =
+        static_cast<double>(SDL_GetQueuedAudioSize(audioDevice_)) / (48000.0 * 4.0);
+      double playedWallSeconds = std::max(0.0, queuedSeconds - bufferedSeconds);
+      // atempo re-times the pipe to wall rate; position space runs at
+      // playbackSpeed_ × wall, so scale before comparing.
+      double audioClock = audioClockStartSeconds_ + playedWallSeconds * playbackSpeed_;
+      // Stall detection: the audio clock only counts as a master while it is
+      // actually ADVANCING. If the device stops consuming (endpoint lost,
+      // WASAPI stream dead) or the audio pipe dies mid-file, the clock
+      // freezes — correcting against a frozen clock pins video at that
+      // position forever. Fall back to the wall clock until it moves again.
+      Uint64 nowMs = SDL_GetTicks64();
+      if (audioClock > lastAudioClockSeconds_ + 0.001) {
+        lastAudioClockSeconds_ = audioClock;
+        lastAudioClockAdvanceMs_ = nowMs;
+      }
+      bool clockAdvancing = lastAudioClockAdvanceMs_ != 0 &&
+                            (nowMs - lastAudioClockAdvanceMs_) < 400;
+      double drift = currentPosition_ - audioClock;
+      bool nearEnd = duration_ > 0.0 && audioClock >= duration_ - 0.25;
+      if (clockAdvancing && std::abs(drift) > 0.06 && audioClock >= 0.0 && !nearEnd) {
+        playbackClockStart_ = std::chrono::steady_clock::now();
+        playbackStartPosition_ = audioClock;
+        currentPosition_ = audioClock;
+      }
+    }
+  }
 
   if (state_ == TransportState::Playing && nextPausePointIdx_ < pausePoints_.size()) {
     if (currentPosition_ >= pausePoints_[nextPausePointIdx_]) {
@@ -996,6 +1099,36 @@ double MediaEngine::fadeGainAt(double positionSeconds) const {
       activeCue_->fadeOutSeconds > 0.001 && duration_ > 0.0) {
     double remaining = std::max(0.0, duration_ - positionSeconds);
     gain = std::min(gain, std::clamp(remaining / activeCue_->fadeOutSeconds, 0.0, 1.0));
+  }
+  return std::clamp(gain, 0.0, 1.0);
+}
+
+// Publish fade parameters to the atomic mirrors the audio thread reads.
+// Main thread only. Relaxed ordering is fine: each field is independently
+// atomic and a one-buffer lag on a fade edit is inaudible.
+void MediaEngine::syncAudioFadeParams() {
+  const Cue* cue = activeCue_;
+  audioFadeInSeconds_.store(cue ? cue->fadeInSeconds : 0.0, std::memory_order_relaxed);
+  audioFadeOutSeconds_.store(cue ? cue->fadeOutSeconds : 0.0, std::memory_order_relaxed);
+  audioFadeDuration_.store(cue ? duration_ : 0.0, std::memory_order_relaxed);
+  audioSuppressFadeIn_.store(suppressFadeInForCurrentCue_, std::memory_order_relaxed);
+  audioSuppressFadeOut_.store(suppressVisualFadeOutForCurrentCue_, std::memory_order_relaxed);
+}
+
+// Audio-thread-safe fade gain: same curve as fadeGainAt but reads only the
+// atomic mirrors — never activeCue_ / duration_ / the suppress flags, which
+// are plain members owned by the main thread.
+double MediaEngine::audioFadeGainAt(double positionSeconds) const {
+  double gain = 1.0;
+  double fadeIn = audioFadeInSeconds_.load(std::memory_order_relaxed);
+  if (!audioSuppressFadeIn_.load(std::memory_order_relaxed) && fadeIn > 0.001) {
+    gain = std::min(gain, std::clamp(positionSeconds / fadeIn, 0.0, 1.0));
+  }
+  double fadeOut = audioFadeOutSeconds_.load(std::memory_order_relaxed);
+  double duration = audioFadeDuration_.load(std::memory_order_relaxed);
+  if (!audioSuppressFadeOut_.load(std::memory_order_relaxed) && fadeOut > 0.001 && duration > 0.0) {
+    double remaining = std::max(0.0, duration - positionSeconds);
+    gain = std::min(gain, std::clamp(remaining / fadeOut, 0.0, 1.0));
   }
   return std::clamp(gain, 0.0, 1.0);
 }
@@ -1610,6 +1743,8 @@ size_t MediaEngine::queuedFrames() {
 // ---------------------------------------------------------------------------
 void MediaEngine::stopDecoderThreads() {
   stopImageThread();
+  decodersRunning_ = false;
+  audioClockValid_ = false;  // audio clock dies with the pipe
   decoderStop_.store(true);  // signal threads to exit their loop
   // Phase 1: kill processes to unblock the decode threads' read calls
   videoProcess_.killProcessOnly();
@@ -1835,6 +1970,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     return;
   }
   int videoFd = videoProcess_.readFd;
+  decodersRunning_ = true;
   videoThread_ = std::thread([this, decodeW, decodeH, decodeFormat, frameBytes, cueStartSeconds, videoFd]() {
     std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
     while (!decoderStop_.load()) {
@@ -1871,7 +2007,16 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     decoderEof_ = true;
   });
 
+  audioClockValid_ = false;
   if (audioDevice_ != 0 && cue.hasAudio && cue.audioEnabled) {
+    syncAudioFadeParams();  // publish before the audio thread spawns
+    audioFramesQueued_.store(0, std::memory_order_relaxed);
+    audioClockStartSeconds_ = cueStartSeconds;
+    lastAudioClockSeconds_ = -1.0;
+    lastAudioClockAdvanceMs_ = 0;
+    // Live streams have no deterministic mapping from queued samples to cue
+    // position — leave the wall clock in charge for them.
+    audioClockValid_ = !isLiveStream;
     std::vector<std::string> audioArgs = {
       "ffmpeg", "-hide_banner", "-loglevel", "error"
     };
@@ -1933,7 +2078,9 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
           std::vector<std::int16_t> scaled(alignedBytes / sizeof(std::int16_t));
           std::memcpy(scaled.data(), buffer.data(), alignedBytes);
           for (size_t index = 0; index < scaled.size(); index += 2) {
-            double gain = static_cast<double>(volume_.load()) * fadeGainAt(audioTime);
+            double gain = static_cast<double>(volume_.load())
+                        * static_cast<double>(masterGain_.load())
+                        * audioFadeGainAt(audioTime);
             for (size_t channel = 0; channel < 2 && index + channel < scaled.size(); ++channel) {
               auto& sample = scaled[index + channel];
               sample = static_cast<std::int16_t>(std::clamp(
@@ -1948,6 +2095,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
             audioTap_(scaled);
           }
           SDL_QueueAudio(audioDevice_, scaled.data(), static_cast<Uint32>(scaled.size() * sizeof(std::int16_t)));
+          audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
         }
       });
     }
@@ -2153,12 +2301,16 @@ void MediaEngine::buildCrosshatch(DecodedFrame& frame, int phaseX, int phaseY) {
   int shiftY = ((phaseY % kStep) + kStep) % kStep;
   // Black background
   fillPixelRect(frame, 0, 0, W, H, {0, 0, 0, 255});
-  // White grid: vertical lines
-  for (int x = -shiftX; x < W; x += kStep) {
+  // Grid anchored to the CENTER so lines coincide with the red crosshair at
+  // every raster (the old 0,0-anchored grid only lined up when W/2 and H/2
+  // happened to be multiples of the step — at 1920x1080 the horizontal
+  // center line floated 28px off the grid).
+  int firstX = ((W / 2 - 1 - shiftX) % kStep + kStep) % kStep - kStep;
+  for (int x = firstX; x < W; x += kStep) {
     fillPixelRect(frame, x, 0, 2, H, {255, 255, 255, 255});
   }
-  // White grid: horizontal lines
-  for (int y = -shiftY; y < H; y += kStep) {
+  int firstY = ((H / 2 - 1 - shiftY) % kStep + kStep) % kStep - kStep;
+  for (int y = firstY; y < H; y += kStep) {
     fillPixelRect(frame, 0, y, W, 2, {255, 255, 255, 255});
   }
   // Red center crosshair (alignment reference)

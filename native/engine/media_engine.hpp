@@ -100,14 +100,29 @@ class MediaEngine {
                double transitionSeconds = 0.0,
                TransitionStyle transitionStyle = TransitionStyle::Cut,
                bool suppressFadeIn = false);
-  void refreshActiveCueRuntime();         // re-read runtime params from active cue (speed, volume)
+  // Re-read runtime params (speed, in/out, pause points) and restart decode.
+  // Pass the app's current cue so the engine's owned snapshot is refreshed
+  // first — the engine never keeps pointers into Deck::cues (see below).
+  void refreshActiveCueRuntime(const Cue* updatedCue = nullptr);
+  // Replace the owned active-cue snapshot with fresh content (no decode
+  // restart). Called by the app after any edit that may touch the active cue
+  // so live-editable fields (fade in/out, etc.) stay current. No-op when
+  // nothing is loaded.
+  void syncActiveCueSnapshot(const Cue& cue);
   void play();                            // resume playback
   void pause();                           // pause playback (hold current frame)
   void toggle();                          // play ↔ pause toggle
-  void stop();                            // stop playback and reset position
+  // Stop playback and rerack to the start. clearVisual=true additionally
+  // darkens the deck (visual cleared, decode pipes released) — the operator-
+  // facing STOP verb; RERACK uses seek(0)+pause to hold the first frame.
+  void stop(bool clearVisual = false);
   void clear();                           // stop + release the active cue + black output
   void seek(double seconds, bool clearVisualFrame = false); // jump to time position
   void setVolume(float value);            // set playback volume (0.0–1.0)
+  // Master (show-level) gain multiplied on top of the per-cue volume in the
+  // audio thread. Synced from Project::masterVolume every app tick so the
+  // header fader affects all decks no matter which path changed it.
+  void setMasterGain(float value) { masterGain_.store(std::clamp(value, 0.0f, 2.0f)); }
   void setPausePoints(std::vector<double> points); // set auto-pause timecodes
 
   // -- Frame update and rendering (called from main loop) ----------------------
@@ -163,6 +178,8 @@ class MediaEngine {
   // -- Internal helpers -------------------------------------------------------
   double visualFadeGainAt(double positionSeconds) const;  // fade gain for visual (may suppress fade-out for auto-advance)
   double fadeGainAt(double positionSeconds) const;         // raw fade gain (in+out curve) at position
+  double audioFadeGainAt(double positionSeconds) const;    // fade gain from atomic mirrors — the ONLY variant safe on the audio thread
+  void syncAudioFadeParams();                              // publish fade params to the atomic mirrors (main thread)
   void initStillTimer(const Cue& cue, bool autoplay);     // set up duration timer for still/pattern/browser cues
   void beginTransition(double seconds, TransitionStyle style, float sourceGain = 1.0f); // start a visual transition
   void clearTransitionTexture();                           // release the outgoing-cue snapshot texture
@@ -196,7 +213,13 @@ class MediaEngine {
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
   SDL_AudioDeviceID audioDevice_ = 0;       // SDL audio device for PCM output
   CuePathResolver cuePathResolver_;          // optional path transform callback
-  const Cue* activeCue_ = nullptr;           // non-owning pointer to the currently loaded cue
+  // The engine OWNS a snapshot of the loaded cue. activeCue_ points at
+  // activeCueSnapshot_ (or nullptr) — never into Deck::cues, whose vector
+  // reallocates on import and shifts on delete while decode threads and the
+  // render path are still reading. The app refreshes the snapshot via
+  // syncActiveCueSnapshot() / refreshActiveCueRuntime() after edits.
+  std::optional<Cue> activeCueSnapshot_;
+  const Cue* activeCue_ = nullptr;           // points at activeCueSnapshot_, or nullptr
 
   // -- State: video frame texture ----------------------------------------------
   SDL_Texture* texture_ = nullptr;           // GPU texture for the current frame
@@ -246,6 +269,7 @@ class MediaEngine {
 
   // -- State: audio ------------------------------------------------------------
   std::atomic<float> volume_ {1.0f};         // playback volume (0–1, thread-safe)
+  std::atomic<float> masterGain_ {1.0f};     // show master volume (0–2, thread-safe)
 
   // -- State: transport --------------------------------------------------------
   TransportState state_ = TransportState::Stopped;
@@ -281,10 +305,35 @@ class MediaEngine {
   // -- State: audio tap --------------------------------------------------------
   AudioTapCallback audioTap_;                // callback for waveform/VU meter display
 
+  // -- State: audio playback clock ----------------------------------------------
+  // Video position runs on the wall clock; audio free-runs from the ffmpeg
+  // pipe into the SDL queue. Their clocks drift (audio device clock !=
+  // steady_clock, VFR sources, scheduler stalls). The audio thread counts
+  // sample frames it queues; update() derives the audio playback clock
+  // (queued − still-buffered) and re-anchors video position when drift
+  // exceeds a threshold — audio is the master, as in any playout engine.
+  std::atomic<std::uint64_t> audioFramesQueued_ {0};  // stereo frames queued to SDL this decode run
+  double audioClockStartSeconds_ = 0.0;               // cue position where the audio pipe started
+  bool audioClockValid_ = false;                      // audio pipe live for this cue (not a live stream)
+  double lastAudioClockSeconds_ = -1.0;               // last observed audio clock (stall detection)
+  Uint64 lastAudioClockAdvanceMs_ = 0;                // when the audio clock last moved forward
+
+  // -- State: audio-thread fade mirrors -----------------------------------------
+  // The audio thread computes per-sample fade gain. It must not read
+  // activeCue_/duration_/suppress flags (plain members mutated by the main
+  // thread). These atomics mirror them; syncAudioFadeParams() publishes on
+  // load/refresh and once per update() tick as a catch-all.
+  std::atomic<double> audioFadeInSeconds_ {0.0};
+  std::atomic<double> audioFadeOutSeconds_ {0.0};
+  std::atomic<double> audioFadeDuration_ {0.0};
+  std::atomic<bool> audioSuppressFadeIn_ {false};
+  std::atomic<bool> audioSuppressFadeOut_ {false};
+
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
   std::atomic<bool> decoderEof_ {false};     // decode threads have reached EOF
   bool reachedEnd_ = false;                  // cue playback has finished
+  bool decodersRunning_ = false;             // ffmpeg pipes spawned for the active cue (main thread)
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames
