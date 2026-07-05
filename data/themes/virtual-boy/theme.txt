@@ -1,14 +1,14 @@
 # Deckboy Theme: Virtual Boy
-# Monochrome red-on-black — the way it was meant to be seen.
+# Monochrome red-on-black — as intended.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	1F1414FF
-shell_inner	2E1E1EFF
-shell_shadow	130B0BFF
+shell_outer	1D1313FF
+shell_inner	2C1E1EFF
+shell_shadow	080707FF
 screen_light	FB5656FF
 screen_mid	B12F2FFF
-screen_dark	311E1EFF
-screen_deep	120A0AFF
+screen_dark	2C1C1CFF
+screen_deep	050505FF
 screen_ink_soft	A85757FF
 button_bezel	7F2F2FFF
 delete_bezel	AB512BFF

@@ -1,0 +1,15 @@
+# Deckboy Theme: Game & Watch
+# Warm amber LCD — the handheld that started it.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1D1914FF
+shell_inner	2B261FFF
+shell_shadow	080807FF
+screen_light	FAB947FF
+screen_mid	B1822FFF
+screen_dark	2B251DFF
+screen_deep	050505FF
+screen_ink_soft	A88A57FF
+button_bezel	7F612FFF
+delete_bezel	AB2B33FF
+scanline_alpha	12

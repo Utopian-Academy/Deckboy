@@ -27,6 +27,14 @@
       pasteSelectedCueSettings();
       return;
     }
+    if (action == QuickAction::ResetCueSettings) {
+      resetSelectedCueSettings();
+      return;
+    }
+    if (action == QuickAction::ConvertCueMedia) {
+      convertSelectedCueMedia();
+      return;
+    }
     pushUndoSnapshot();
     switch (action) {
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
@@ -521,6 +529,8 @@
       }
       case QuickAction::CopyCueSettings:
       case QuickAction::PasteCueSettings:
+      case QuickAction::ResetCueSettings:
+      case QuickAction::ConvertCueMedia:
         break;
       case QuickAction::AddPausePoint: {
         Cue* sel = selectedCueMutable();

@@ -351,7 +351,18 @@
       if (!hit.enabled || !pointInRect(x, y, hit.rect)) {
         continue;
       }
-      selectCueInDeck(hit.deckIndex, hit.cueIndex, false, false);
+      setFocusedDeckIndex(hit.deckIndex);
+      Deck& hitDeck = project_.decks[hit.deckIndex];
+      bool inSelection = (hitDeck.selectedIndex == hit.cueIndex) ||
+        std::find(hitDeck.selectedIndices.begin(), hitDeck.selectedIndices.end(), hit.cueIndex)
+          != hitDeck.selectedIndices.end();
+      if (inSelection) {
+        // Row toggle on a multi-selected cue applies to the whole selection;
+        // the clicked cue drives the on/off direction.
+        hitDeck.selectedIndex = hit.cueIndex;
+      } else {
+        selectCueInDeck(hit.deckIndex, hit.cueIndex, false, false);
+      }
       dispatchQuickAction(hit.action);
       return;
     }
@@ -985,6 +996,10 @@
     }
     if (ctrl && key == SDLK_n) {
       startNewShow(true);
+      return;
+    }
+    if (ctrl && !shift && key == SDLK_a) {
+      selectAllCuesInFocusedDeck();
       return;
     }
     if (ctrl && !shift && key == SDLK_s) {

@@ -14,6 +14,9 @@ data/last_project.txt
 # Local screenshots
 /Deckboy Screenshots/
 
+# Media converter output (portable per-show cache)
+_converted/
+
 # OS junk
 .DS_Store
 Thumbs.db

@@ -140,7 +140,11 @@
               if (di < static_cast<int>(deckListClipRects_.size()) &&
                   pointInRect(mouseX_, mouseY_, deckListClipRects_[di])) {
                 if (di < static_cast<int>(deckScrolls_.size())) {
-                  deckScrolls_[di] = std::max(0, deckScrolls_[di] - event.wheel.y * 36);
+                  int maxS = (di < static_cast<int>(deckScrollMax_.size())) ? deckScrollMax_[di] : 0;
+                  int over = maxS > 0 ? kDeckScrollOverscroll : 0;
+                  // Bottom-only overscroll: top stays hard-clamped at 0.
+                  deckScrolls_[di] = std::clamp(deckScrolls_[di] - event.wheel.y * 36, 0, maxS + over);
+                  lastDeckScrollMs_ = SDL_GetTicks64();
                 }
                 break;
               }
@@ -291,14 +295,54 @@
                   cue.stillDurationSeconds = std::clamp(deck.playlistDefaultStillDurationSeconds, 0.0, 3600.0);
                 }
                 markProjectDirty();
+                if (auto convReason = cueConvertReason(cue)) {
+                  triggerToast("\"" + cue.name + "\" may play poorly (" + *convReason + ") - CONVERT in inspector");
+                }
                 break;
               }
             }
+          }
+          if (!probed) {
+            unreadablePaths_.insert(it->path);
+            triggerToast("can't read media - CONVERT in inspector");
           }
         } catch (...) {
           triggerToast("media probe failed");
         }
         it = probeFutures_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    // Poll async media conversion jobs
+    for (auto it = conversionJobs_.begin(); it != conversionJobs_.end(); ) {
+      if (it->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+        bool ok = false;
+        try { ok = it->future.get(); } catch (...) { ok = false; }
+        if (ok && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
+          Deck& deck = project_.decks[it->deckIndex];
+          for (auto& cue : deck.cues) {
+            if (cue.path == it->sourcePath) {
+              cue.path = it->destPath;
+              cue.width = 0;
+              cue.height = 0;  // force a re-probe of the converted file
+              std::string probePath = it->destPath;
+              PendingProbe pp;
+              pp.deckIndex = it->deckIndex;
+              pp.path = probePath;
+              pp.future = std::async(std::launch::async, [probePath]() {
+                return probeCue(fs::path(probePath));
+              });
+              probeFutures_.push_back(std::move(pp));
+            }
+          }
+          unreadablePaths_.erase(it->sourcePath);
+          triggerToast("converted -> " + fs::path(it->destPath).filename().string());
+          markProjectDirty();
+        } else {
+          triggerToast("conversion failed");
+        }
+        it = conversionJobs_.erase(it);
       } else {
         ++it;
       }

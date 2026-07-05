@@ -1,0 +1,15 @@
+# Deckboy Theme: Kirby
+# Magenta puff-ball glow over near-black.
+# All color values are RRGGBBAA hex. Generated colorway.
+
+shell_outer	1B141DFF
+shell_inner	291F2BFF
+shell_shadow	080708FF
+screen_light	FB56D1FF
+screen_mid	B12F91FF
+screen_dark	281D2BFF
+screen_deep	050505FF
+screen_ink_soft	A85794FF
+button_bezel	7F2F6BFF
+delete_bezel	AB2B33FF
+scanline_alpha	12

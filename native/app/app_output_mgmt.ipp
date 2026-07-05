@@ -2148,32 +2148,34 @@
       return false;
     }
 
-    if (runtime->mediaEngine) {
-      runtime->mediaEngine->stopAll();
-      runtime->mediaEngine.reset();
-    }
-    if (runtime->audioDevice != 0) {
-      SDL_CloseAudioDevice(runtime->audioDevice);
-      runtime->audioDevice = 0;
-    }
+    SDL_AudioDeviceID oldDevice = runtime->audioDevice;
     runtime->audioDevice = newMain;
     deck.audioOutputDeviceName = effectiveName;
-    runtime->mediaEngine = std::make_unique<MediaEngine>(
-      runtime->outputRenderer,
-      runtime->audioDevice,
-      [this, deckIndex](const std::vector<std::int16_t>& samples) {
-        pushDeckStreamAudioSamples(deckIndex, samples);
-        // Capture samples for VU meter (only from focused deck)
-        if (deckIndex == project_.focusedDeckIndex) {
-          std::lock_guard<std::mutex> lock(vuSamplesMutex_);
-          vuSamples_ = samples;
-          vuSamplesUpdatedAtMs_ = SDL_GetTicks64();
+    if (runtime->mediaEngine) {
+      // Hot-swap the output device on the existing engine so a device change
+      // mid-cue keeps playing instead of tearing the engine down.
+      runtime->mediaEngine->setAudioDevice(newMain);
+    } else {
+      runtime->mediaEngine = std::make_unique<MediaEngine>(
+        runtime->outputRenderer,
+        runtime->audioDevice,
+        [this, deckIndex](const std::vector<std::int16_t>& samples) {
+          pushDeckStreamAudioSamples(deckIndex, samples);
+          // Capture samples for VU meter (only from focused deck)
+          if (deckIndex == project_.focusedDeckIndex) {
+            std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+            vuSamples_ = samples;
+            vuSamplesUpdatedAtMs_ = SDL_GetTicks64();
+          }
+        },
+        [this](const Cue& cue) {
+          return resolvedCueFilesystemPathString(cue, currentProjectFile_);
         }
-      },
-      [this](const Cue& cue) {
-        return resolvedCueFilesystemPathString(cue, currentProjectFile_);
-      }
-    );
+      );
+    }
+    if (oldDevice != 0) {
+      SDL_CloseAudioDevice(oldDevice);
+    }
     return true;
   }
 

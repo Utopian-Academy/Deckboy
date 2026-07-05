@@ -383,12 +383,24 @@
     SDL_GetWindowSize(controlWindow_, &width, &height);
 
     // ── Full-screen background: splash art ──
-    SDL_SetRenderDrawColor(controlRenderer_, 0x9B, 0xBC, 0x0F, 255);
+    SDL_SetRenderDrawColor(controlRenderer_, pal.deep.r, pal.deep.g, pal.deep.b, 255);
     SDL_Rect full {0, 0, width, height};
     SDL_RenderFillRect(controlRenderer_, &full);
     if (uiPackAvailable_) {
       SDL_Rect artRect {0, 0, width, height};
-      drawUiImageCover(uiSplashArt_, artRect, 220);
+      // Cycle splashes are grayscale masters — tint them to the theme accent so
+      // the boot screen matches whatever colorway is active.
+      bool tint = splashTintable_;
+      if (tint) {
+        ensureUiImageLoaded(uiSplashArt_);
+        if (uiSplashArt_.texture) {
+          SDL_SetTextureColorMod(uiSplashArt_.texture, pal.light.r, pal.light.g, pal.light.b);
+        }
+      }
+      drawUiImageCover(uiSplashArt_, artRect, tint ? 235 : 220);
+      if (tint && uiSplashArt_.texture) {
+        SDL_SetTextureColorMod(uiSplashArt_.texture, 255, 255, 255);
+      }
     }
 
     // ── Framed card — the green golden box, centred over the art ──
