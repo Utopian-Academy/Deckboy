@@ -1808,6 +1808,21 @@ struct OutputRuntime {
   std::map<std::string, std::uint64_t> overlayBridgeFrameIndices;
   std::map<std::string, std::string> overlayBridgeCueKeys;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
+#if DECKBOY_INPROC_DECODE
+  // Zero-copy compositing (in-process d3d11va decode): per-deck persistent
+  // NV12 D3D11 texture wrapped as an SDL_Texture. Decoded texture-array
+  // slices are GPU-copied into it — the frame never touches the CPU. Only
+  // used when the frame's decode device IS this renderer's device; other
+  // devices (secondary outputs) fall back to a CPU download into the
+  // classic bridge texture.
+  void* rendererD3DDevice = nullptr;                 // cached ID3D11Device*
+  std::map<int, SDL_Texture*> layerGpuTextures;      // wrapped SDL textures
+  std::map<int, void*> layerGpuTexture2Ds;           // backing ID3D11Texture2D*
+  std::map<int, std::pair<int, int>> layerGpuTextureSizes;
+  std::map<int, std::uint64_t> layerGpuFrameIndices;
+  DecodedFrame gpuDownloadScratch;                   // device-mismatch fallback
+  int gpuDownloadScratchDeck = -1;                   // deck the scratch holds
+#endif
 #ifdef _WIN32
   ChildProcess streamProcess;         // Windows: ffmpeg subprocess with stdin pipe
 #else
@@ -3728,6 +3743,16 @@ class App {
     // steals keyboard focus → repeat. A playout output must stay on the
     // program screen no matter where the operator's focus is.
     SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+#if DECKBOY_INPROC_DECODE
+    // Create D3D11 renderer devices WITHOUT D3D11_CREATE_DEVICE_SINGLETHREADED
+    // (SDL's default). The in-process d3d11va decoder shares the program
+    // output's device from a decode thread; that requires the device to
+    // accept multithread protection — on a single-threaded device the
+    // ID3D10/11Multithread QI fails and zero-copy decode degrades to CPU
+    // output (and actually sharing one would crash). Must be set before any
+    // renderer is created.
+    SDL_SetHint(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, "1");
+#endif
     // Opt out of background throttling. Windows 11 applies EcoQoS (reduced
     // CPU scheduling) and timer-resolution coalescing to processes whose
     // windows aren't focused — SDL_Delay(4) in the decode/audio loops
@@ -5299,6 +5324,14 @@ class App {
   Project project_;
   std::vector<DeckRuntime> deckRuntimes_;
   std::vector<OutputRuntime> outputRuntimes_;
+#if DECKBOY_INPROC_DECODE
+  // Output topology changed: re-check every playing deck's zero-copy decode
+  // device against the current program output next tick (app_output_mgmt).
+  bool decodeDeviceReconcilePending_ = false;
+  // Throttle for control-preview CPU downloads of GPU-resident frames.
+  Uint64 controlPreviewGpuLastMs_ = 0;
+  DecodedFrame controlPreviewGpuScratch_;
+#endif
   std::mutex streamAudioMutex_;
   std::vector<DeckStreamAudioBuffer> deckStreamAudioBuffers_;
 #if defined(DECKBOY_HAS_NDI_SDK)
@@ -5841,6 +5874,8 @@ class App {
 //   --version       → print version and exit
 //   --self-check    → run self-check diagnostics and exit
 //   --smoke         → run smoke tests and exit
+//   --decode-bench <file> [seconds] [cli] → measure decode throughput and exit
+//   --no-inproc-decode → force the ffmpeg CLI decode path (break-glass)
 //   --allow-multi-instance → skip single-instance lock
 // Otherwise: acquire instance lock → App::init() → App::run() → App::shutdown()
 int runDeckboyMain(int argc, char** argv) {
@@ -5854,12 +5889,32 @@ int runDeckboyMain(int argc, char** argv) {
   if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
     return App::runSmoke();
   }
+  if (argc > 2 && std::string_view(argv[1]) == "--decode-bench") {
+    double benchSeconds = 10.0;
+    bool forceCli = false;
+    for (int i = 3; i < argc; ++i) {
+      std::string_view arg(argv[i]);
+      if (arg == "cli") {
+        forceCli = true;
+      } else {
+        double parsed = std::atof(argv[i]);
+        if (parsed > 0.0) {
+          benchSeconds = parsed;
+        }
+      }
+    }
+    return App::runDecodeBench(argv[2], benchSeconds, forceCli);
+  }
 
   bool allowMultiInstance = false;
   for (int i = 1; i < argc; ++i) {
     if (std::string_view(argv[i]) == "--allow-multi-instance") {
       allowMultiInstance = true;
-      break;
+    }
+    if (std::string_view(argv[i]) == "--no-inproc-decode") {
+      // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
+      // for this run (robustness over Pocket performance).
+      MediaEngine::setInprocDecodeDisabled(true);
     }
   }
 #ifndef _WIN32

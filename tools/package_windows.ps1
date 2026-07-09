@@ -6,7 +6,9 @@
 # What this script bundles:
 #   - Deckboy.exe and every .dll already co-located by CMake in build/Release
 #     (SDL3, SDL3_ttf, freetype, libpng16, brotli*, bz2, zlib, SpoutLibrary,
-#     WebView2Loader, ltc, ...)
+#     WebView2Loader, ltc, and the libav* DLLs for in-process decode:
+#     avcodec/avformat/avutil/avfilter/swscale/swresample)
+#   - FFmpeg license/copyright notice for the bundled libav* DLLs
 #   - ffmpeg.exe + ffprobe.exe from C:\ffmpeg\bin (override with -FfmpegDir)
 #   - MSVC C++ runtime DLLs (app-local, so the target machine doesn't need
 #     the Visual C++ Redistributable installed)
@@ -123,6 +125,15 @@ if (Test-Path $DataSrc) {
 $LicenseSrc = Join-Path $RepoRoot "LICENSE"
 if (Test-Path $LicenseSrc) {
     Copy-Item $LicenseSrc -Destination $StageDir
+}
+# FFmpeg license notice for the bundled libav* DLLs (in-process decode).
+# vcpkg installs the port's consolidated copyright file; carrying it in the
+# zip satisfies the LGPL/GPL notice requirement for redistribution.
+$FfmpegCopyright = "C:\Users\user\vcpkg\installed\x64-windows\share\ffmpeg\copyright"
+if (Test-Path $FfmpegCopyright) {
+    Copy-Item $FfmpegCopyright -Destination (Join-Path $StageDir "LICENSE-ffmpeg.txt")
+} else {
+    Write-Warning "FFmpeg copyright file not found at $FfmpegCopyright; zip ships libav DLLs without their license notice."
 }
 
 # --- README ------------------------------------------------------------------

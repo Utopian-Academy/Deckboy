@@ -122,6 +122,32 @@ if(UNIX AND NOT APPLE AND DECKBOY_ENABLE_ALSA_MTC)
   )
 endif()
 
+# In-process libav* decode (GPU decode rewrite, docs/GPU_DECODE_PLAN.md).
+# When ON and the FFmpeg dev libraries are found, file-backed Video/Audio
+# cues decode in-process (d3d11va zero-copy on Windows) instead of spawning
+# ffmpeg subprocess pipes. OFF (or libs missing) keeps the CLI pipe path —
+# the break-glass fallback build.
+option(DECKBOY_INPROC_DECODE "Decode media in-process via libav (GPU zero-copy)" ON)
+set(DECKBOY_INPROC_DECODE_ACTIVE OFF)
+if(DECKBOY_INPROC_DECODE)
+  find_path(DECKBOY_AVCODEC_INCLUDE_DIR NAMES libavcodec/avcodec.h)
+  find_library(DECKBOY_AVCODEC_LIBRARY NAMES avcodec)
+  find_library(DECKBOY_AVFORMAT_LIBRARY NAMES avformat)
+  find_library(DECKBOY_AVUTIL_LIBRARY NAMES avutil)
+  find_library(DECKBOY_AVFILTER_LIBRARY NAMES avfilter)
+  find_library(DECKBOY_SWSCALE_LIBRARY NAMES swscale)
+  find_library(DECKBOY_SWRESAMPLE_LIBRARY NAMES swresample)
+  if(DECKBOY_AVCODEC_INCLUDE_DIR AND DECKBOY_AVCODEC_LIBRARY AND
+     DECKBOY_AVFORMAT_LIBRARY AND DECKBOY_AVUTIL_LIBRARY AND
+     DECKBOY_AVFILTER_LIBRARY AND DECKBOY_SWSCALE_LIBRARY AND
+     DECKBOY_SWRESAMPLE_LIBRARY)
+    set(DECKBOY_INPROC_DECODE_ACTIVE ON)
+    message(STATUS "In-process libav decode enabled: ${DECKBOY_AVCODEC_LIBRARY}")
+  else()
+    message(WARNING "DECKBOY_INPROC_DECODE=ON but FFmpeg dev libraries were not found; building with the ffmpeg CLI decode path only")
+  endif()
+endif()
+
 # Pro Features Feature Gates
 option(ENABLE_DECKLINK "Build with Blackmagic DeckLink 10-bit SDI/HDMI output" OFF)
 option(ENABLE_MIDI "Build with RtMidi cross-platform MIDI input" OFF)
@@ -393,6 +419,20 @@ endif()
 
 if(ENABLE_SIPHON OR ENABLE_SPOUT)
   target_sources(deckboy-native PRIVATE native/platform/siphon_spout.cpp)
+endif()
+
+if(DECKBOY_INPROC_DECODE_ACTIVE)
+  target_sources(deckboy-native PRIVATE native/engine/libav_decoder.cpp)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_AVCODEC_INCLUDE_DIR})
+  target_link_libraries(deckboy-native PRIVATE
+    ${DECKBOY_AVCODEC_LIBRARY}
+    ${DECKBOY_AVFORMAT_LIBRARY}
+    ${DECKBOY_AVUTIL_LIBRARY}
+    ${DECKBOY_AVFILTER_LIBRARY}
+    ${DECKBOY_SWSCALE_LIBRARY}
+    ${DECKBOY_SWRESAMPLE_LIBRARY}
+  )
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_INPROC_DECODE=1)
 endif()
 
 target_include_directories(deckboy-native PRIVATE
