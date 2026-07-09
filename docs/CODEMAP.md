@@ -51,7 +51,7 @@ bodies of App**, not separate translation units. The whole app plus engine is
 | `app/app_render_control.ipp` | 1,400 | Playlist column, cue rows, header/footer chrome |
 | `app/app_input.ipp` | 1,100 | Keyboard + mouse dispatch, hotkeys |
 | `app/app_ui_widgets.ipp` | 1,000 | Dropdowns, inline text editor, toasts, context menus |
-| `app/app_render_output.ipp` | 900 | Per-output compositor: deck layers → output texture → window present + egress capture (`SDL_RenderReadPixels`) |
+| `app/app_render_output.ipp` | 900 | Per-output compositor: deck layers → output texture → window present + egress capture (`SDL_RenderReadPixels` → convert) |
 | `app/app_accessors.ipp` | 700 | Focused deck/output/cue accessors, small state helpers |
 | `app/app_smoke.ipp` | 700 | `--smoke` / `--self-check` harness |
 | `app/app_update.ipp` | 650 | Per-tick `update()`: event pump, async future polling, display poll, output recovery poll |
@@ -63,6 +63,7 @@ bodies of App**, not separate translation units. The whole app plus engine is
 
 | File | ~Lines | Owns |
 |------|-------:|------|
+| `core/sdl_compat.hpp` | ~200 | SDL3 compat layer: int-rect draw overloads, SDL2-style display indices, nearest-scale texture creation, audio pause helper (v0.77.0) |
 | `engine/media_engine.cpp/.hpp` | 3,150 | One instance per deck. ffmpeg subprocess decode (video pipe → `frameQueue_`, audio pipe → SDL audio), stills/patterns/browser/source frames, transport, fades, transitions. Threading model documented in the .hpp header |
 
 ### Core (freestanding utilities)
@@ -112,7 +113,7 @@ Operator TAKE
   └─ app_cue_transport.ipp → MediaEngine::loadCue(&deck.cues[i])
        └─ startDecoderThreads(): 2 ffmpeg subprocesses (video pipe, audio pipe)
             video thread:  readExact → frameQueue_ (frameMutex_)
-            audio thread:  readSome → gain/fade scale → SDL_QueueAudio
+            audio thread:  readSome → gain/fade scale → SDL_PutAudioStreamData
   main loop each frame:
     MediaEngine::update()  — pops frames ≤ targetFrame (wall-clock × fps), uploads SDL_Texture
     app_render_output.ipp  — renderDeckLayerIntoOutput per layer assignment:

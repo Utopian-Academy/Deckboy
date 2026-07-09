@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 
 #include "core/types.hpp"
 
@@ -58,7 +58,7 @@ inline bool syncTexture(SDL_Renderer* renderer,
     tex = nullptr;
   }
   if (!tex) {
-    tex = SDL_CreateTexture(renderer,
+    tex = deckboyCreateTexture(renderer,
                             SDL_PIXELFORMAT_RGBA32,
                             SDL_TEXTUREACCESS_STREAMING,
                             newW, newH);
@@ -97,7 +97,7 @@ inline bool syncFrameTexture(SDL_Renderer* renderer,
     tex = nullptr;
   }
   if (!tex) {
-    tex = SDL_CreateTexture(renderer, wantFmt, SDL_TEXTUREACCESS_STREAMING,
+    tex = deckboyCreateTexture(renderer, wantFmt, SDL_TEXTUREACCESS_STREAMING,
                             frame.width, frame.height);
     if (!tex) return false;
     cachedW = frame.width;

@@ -13,25 +13,25 @@
 //   Drains the SDL event queue in a single pass. Each event type is dispatched
 //   to the appropriate handler:
 //
-//     SDL_QUIT / WINDOWEVENT_CLOSE — sets gShouldQuit or closes a secondary
+//     SDL_EVENT_QUIT / WINDOWEVENT_CLOSE — sets gShouldQuit or closes a secondary
 //       window (monitors window, output window). Closing the control window
 //       always exits the app immediately with no confirmation trap.
-//     SDL_DROPFILE       — forwards to handleDropFile() for cue import.
-//     SDL_MOUSEWHEEL     — dropdown scroll, cue inspector scroll, overlay
+//     SDL_EVENT_DROP_FILE       — forwards to handleDropFile() for cue import.
+//     SDL_EVENT_MOUSE_WHEEL     — dropdown scroll, cue inspector scroll, overlay
 //                          list scroll, or primary cue list scroll (in that
 //                          priority order, based on mouse position hit-test).
-//     SDL_MOUSEBUTTONDOWN — inline text editor → dropdown → right-click
+//     SDL_EVENT_MOUSE_BUTTON_DOWN — inline text editor → dropdown → right-click
 //                          (settings click or context menu) → context menu
 //                          click → general mouse-down handler. Monitors
 //                          window clicks are handled separately.
-//     SDL_MOUSEBUTTONUP  — resets all drag states: cue drag, trim drag,
+//     SDL_EVENT_MOUSE_BUTTON_UP  — resets all drag states: cue drag, trim drag,
 //                          timeline scrub (resumes playback if scrubbing
 //                          interrupted it), warp corner drag, layout drag.
-//     SDL_MOUSEMOTION    — updates mouse position and forwards to
+//     SDL_EVENT_MOUSE_MOTION    — updates mouse position and forwards to
 //                          handleMouseMotion().
-//     SDL_KEYDOWN        — accepted from the control window always, or from
+//     SDL_EVENT_KEY_DOWN        — accepted from the control window always, or from
 //                          output windows only for Escape (to close output).
-//     SDL_TEXTINPUT      — forwarded to the inline text editor.
+//     SDL_EVENT_TEXT_INPUT      — forwarded to the inline text editor.
 //     SDL_DISPLAYEVENT   — updates observed display count and triggers
 //                          topology refresh on connect/disconnect.
 //
@@ -45,7 +45,7 @@
 //        waveform analysis results → cache, VU meter sample cleanup
 //     4. Waveform & timeline strip: trigger analysis for selected/active cue
 //     5. Splash overlay: auto-dismiss after 2.6 seconds
-//     6. Delta time: computed from SDL_GetTicks64 for animation stepping
+//     6. Delta time: computed from SDL_GetTicks for animation stepping
 //     7. Display topology: polled every 1.2s, refresh on change
 //     8. Output recovery: polled every 1s per output
 //     9. Timecode follower: ensure state arrays are sized, advance run-mode
@@ -79,36 +79,37 @@
     SDL_Event event {};
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
           // OS/app close request should quit immediately.
           gShouldQuit.store(true);
           break;
-        case SDL_WINDOWEVENT:
-          if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-            Uint32 closingWindowId = event.window.windowID;
-            if (closingWindowId == SDL_GetWindowID(controlWindow_)) {
-              // Closing the main window should exit immediately (no hidden confirm trap).
-              gShouldQuit.store(true);
-              break;
-            }
-            if (monitorsWindow_ && closingWindowId == SDL_GetWindowID(monitorsWindow_)) {
-              setMonitorsVisible(false);
-              break;
-            }
-            if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
-              setFocusedOutputIndex(*outputIndex);
-              setFocusedOutputEnabled(false, false);
-              break;
-            }
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
+          // SDL3 promotes window events to top-level event types.
+          Uint32 closingWindowId = event.window.windowID;
+          if (closingWindowId == SDL_GetWindowID(controlWindow_)) {
+            // Closing the main window should exit immediately (no hidden confirm trap).
+            gShouldQuit.store(true);
+            break;
+          }
+          if (monitorsWindow_ && closingWindowId == SDL_GetWindowID(monitorsWindow_)) {
+            setMonitorsVisible(false);
+            break;
+          }
+          if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
+            setFocusedOutputIndex(*outputIndex);
+            setFocusedOutputEnabled(false, false);
+            break;
           }
           break;
-        case SDL_DROPFILE:
-          handleDropFile(event.drop.file);
-          SDL_free(event.drop.file);
+        }
+        case SDL_EVENT_DROP_FILE:
+          // event.drop.data is owned by SDL in SDL3 — valid until the next
+          // event poll, never freed by the app.
+          handleDropFile(event.drop.data);
           break;
-        case SDL_MOUSEWHEEL:
+        case SDL_EVENT_MOUSE_WHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
-            if (handleDropdownMouseWheel(event.wheel.y)) {
+            if (handleDropdownMouseWheel(static_cast<int>(event.wheel.y))) {
               break;
             }
             if (settingsOpen_ && settingsTab_ == 3 &&
@@ -116,7 +117,7 @@
                 pointInRect(mouseX_, mouseY_, settingsVideoViewport_) &&
                 settingsVideoScrollMax_ > 0) {
               settingsVideoScroll_ = std::clamp(
-                settingsVideoScroll_ - event.wheel.y * 36,
+                settingsVideoScroll_ - static_cast<int>(event.wheel.y) * 36,
                 0, settingsVideoScrollMax_);
               break;
             }
@@ -124,7 +125,7 @@
                 pointInRect(mouseX_, mouseY_, cueSettingsViewportRect_) &&
                 cueSettingsScrollMax_ > 0) {
               cueSettingsScroll_ = std::clamp(
-                cueSettingsScroll_ - event.wheel.y * 36,
+                cueSettingsScroll_ - static_cast<int>(event.wheel.y) * 36,
                 0,
                 cueSettingsScrollMax_);
               break;
@@ -133,7 +134,7 @@
               if (di < static_cast<int>(deckOverlayClipRects_.size()) &&
                   pointInRect(mouseX_, mouseY_, deckOverlayClipRects_[di])) {
                 if (di < static_cast<int>(deckOverlayScrolls_.size())) {
-                  deckOverlayScrolls_[di] = std::max(0, deckOverlayScrolls_[di] - event.wheel.y * 36);
+                  deckOverlayScrolls_[di] = std::max(0, deckOverlayScrolls_[di] - static_cast<int>(event.wheel.y) * 36);
                 }
                 break;
               }
@@ -143,41 +144,41 @@
                   int maxS = (di < static_cast<int>(deckScrollMax_.size())) ? deckScrollMax_[di] : 0;
                   int over = maxS > 0 ? kDeckScrollOverscroll : 0;
                   // Bottom-only overscroll: top stays hard-clamped at 0.
-                  deckScrolls_[di] = std::clamp(deckScrolls_[di] - event.wheel.y * 36, 0, maxS + over);
-                  lastDeckScrollMs_ = SDL_GetTicks64();
+                  deckScrolls_[di] = std::clamp(deckScrolls_[di] - static_cast<int>(event.wheel.y) * 36, 0, maxS + over);
+                  lastDeckScrollMs_ = SDL_GetTicks();
                 }
                 break;
               }
             }
           }
           break;
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
-            if (handleInlineTextEditorMouseDown(event.button.x, event.button.y)) {
+            if (handleInlineTextEditorMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y))) {
               break;
             }
-            if (handleDropdownMouseDown(event.button.x, event.button.y)) {
+            if (handleDropdownMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y))) {
               break;
             }
             if (event.button.button == SDL_BUTTON_RIGHT) {
               if (settingsOpen_) {
-                handleSettingsClick(event.button.x, event.button.y);
+                handleSettingsClick(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               } else {
-                handleRightClick(event.button.x, event.button.y);
+                handleRightClick(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               }
             } else {
               if (contextMenuOpen_) {
-                handleContextMenuClick(event.button.x, event.button.y);
+                handleContextMenuClick(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               } else {
-                handleMouseDown(event.button.x, event.button.y, event.button.button);
+                handleMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y), event.button.button);
               }
             }
           } else if (monitorsWindow_ &&
                      event.button.windowID == SDL_GetWindowID(monitorsWindow_)) {
-            handleMonitorsMouseDown(event.button.x, event.button.y);
+            handleMonitorsMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
           }
           break;
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
               if (valueScrubPending_ || valueScrubEngaged_) {
                 bool wasPlainClick = valueScrubPending_ && !valueScrubEngaged_;
@@ -205,40 +206,33 @@
               layoutDragMode_ = LayoutDragMode::None;
             }
           break;
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION:
           if (event.motion.windowID == SDL_GetWindowID(controlWindow_)) {
-            mouseX_ = event.motion.x;
-            mouseY_ = event.motion.y;
-            handleMouseMotion(event.motion.x, event.motion.y);
+            mouseX_ = static_cast<int>(event.motion.x);
+            mouseY_ = static_cast<int>(event.motion.y);
+            handleMouseMotion(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
           }
           break;
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
           {
             Uint32 controlWindowId = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
             bool fromControlWindow = controlWindowId != 0 && event.key.windowID == controlWindowId;
             bool fromOutputWindow = outputIndexForWindowId(event.key.windowID).has_value();
-            bool allowFromOutputWindow = fromOutputWindow && event.key.keysym.sym == SDLK_ESCAPE;
+            bool allowFromOutputWindow = fromOutputWindow && event.key.key == SDLK_ESCAPE;
             if (fromControlWindow || allowFromOutputWindow) {
-              handleKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.windowID, event.key.repeat != 0);
+              handleKeyDown(event.key.key, event.key.mod, event.key.windowID, event.key.repeat != 0);
             }
           }
           break;
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT:
           if (event.text.windowID == SDL_GetWindowID(controlWindow_)) {
             handleInlineTextEditorTextInput(event.text.text);
           }
           break;
-        case SDL_DISPLAYEVENT:
-#if defined(SDL_DISPLAYEVENT_CONNECTED) && defined(SDL_DISPLAYEVENT_DISCONNECTED)
-          if (event.display.event == SDL_DISPLAYEVENT_CONNECTED ||
-              event.display.event == SDL_DISPLAYEVENT_DISCONNECTED) {
-            observedDisplayCount_ = SDL_GetNumVideoDisplays();
-            refreshDisplayTopology(true);
-          }
-#else
-          observedDisplayCount_ = SDL_GetNumVideoDisplays();
+        case SDL_EVENT_DISPLAY_ADDED:
+        case SDL_EVENT_DISPLAY_REMOVED:
+          observedDisplayCount_ = deckboyGetNumVideoDisplays();
           refreshDisplayTopology(true);
-#endif
           break;
         default:
           break;
@@ -264,7 +258,7 @@
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
     refreshLtcCaptureState();
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     // Poll async cue probe futures
     for (auto it = probeFutures_.begin(); it != probeFutures_.end(); ) {
       if (it->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
@@ -408,7 +402,7 @@
 
     if (now - lastDisplayPollMs_ >= 1200) {
       lastDisplayPollMs_ = now;
-      int displayCount = SDL_GetNumVideoDisplays();
+      int displayCount = deckboyGetNumVideoDisplays();
       if (observedDisplayCount_ < 0) {
         observedDisplayCount_ = displayCount;
       } else if (displayCount != observedDisplayCount_) {
@@ -713,7 +707,7 @@
   }
 
   void render() {
-    animationNow_ = SDL_GetTicks64();
+    animationNow_ = SDL_GetTicks();
     renderControlWindow();
     renderMonitorsWindow();
     

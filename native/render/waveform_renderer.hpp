@@ -25,7 +25,7 @@
 #define DECKBOY_RENDER_WAVEFORM_RENDERER_HPP
 
 #include "render/text_renderer.hpp"
-#include <SDL2/SDL.h>
+#include "core/sdl_compat.hpp"
 #include <vector>
 #include <cmath>
 #include <algorithm>

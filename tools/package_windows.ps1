@@ -5,7 +5,7 @@
 #
 # What this script bundles:
 #   - Deckboy.exe and every .dll already co-located by CMake in build/Release
-#     (SDL2, SDL2_ttf, freetype, libpng16, brotli*, bz2, zlib, SpoutLibrary,
+#     (SDL3, SDL3_ttf, freetype, libpng16, brotli*, bz2, zlib, SpoutLibrary,
 #     WebView2Loader, ltc, ...)
 #   - ffmpeg.exe + ffprobe.exe from C:\ffmpeg\bin (override with -FfmpegDir)
 #   - MSVC C++ runtime DLLs (app-local, so the target machine doesn't need

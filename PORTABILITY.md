@@ -46,7 +46,7 @@ Ship **PressStart2P.ttf** in `data/` for the pixel font. Sans/mono can come from
 
 ## Build discovery
 
-- CMake now tries **config packages first** for `SDL2` and `SDL2_ttf` (good fit for Homebrew, vcpkg, system packages with exported configs).
+- CMake now tries **config packages first** for `SDL3` and `SDL3_ttf` (good fit for Homebrew, vcpkg, system packages with exported configs).
 - If config packages are unavailable, it falls back to **pkg-config** and then plain include/library lookup.
 - macOS-only feature gates (`ENABLE_SIPHON`, `ENABLE_WEBVIEW`) now resolve frameworks through `find_library(...)` instead of relying on a non-standard CMake command.
 

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 #include <cstdint>
 #include "constants.hpp"
 

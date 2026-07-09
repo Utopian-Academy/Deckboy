@@ -28,7 +28,7 @@
 #include <memory>
 #include <string>
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 
 namespace deckboy::platform::video {
 

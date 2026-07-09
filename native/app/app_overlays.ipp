@@ -441,7 +441,7 @@
       startupBootLog_.push_back("mounting font cartridges... 6 faces");
       startupBootLog_.push_back("loading outputs... "
         + std::to_string(bootW) + "x" + std::to_string(bootH)
-        + " on " + std::to_string(std::max(0, SDL_GetNumVideoDisplays())) + " display(s)");
+        + " on " + std::to_string(std::max(0, deckboyGetNumVideoDisplays())) + " display(s)");
       startupBootLog_.push_back("starting compositor...");
       startupBootLog_.push_back("aligning chroma phase array... locked");
       startupBootLog_.push_back("spooling ffmpeg decode pipeline... armed");
@@ -469,7 +469,7 @@
       // normal lines, and the occasional probe that stalls. Scaled so the
       // whole sequence always lands within the splash window.
       startupBootLogAtMs_.clear();
-      uint32_t seed = static_cast<uint32_t>(SDL_GetTicks64() ^ 0x9E3779B9u);
+      uint32_t seed = static_cast<uint32_t>(SDL_GetTicks() ^ 0x9E3779B9u);
       auto nextRand = [&seed]() {
         seed = seed * 1664525u + 1013904223u;
         return seed >> 16;
@@ -491,7 +491,7 @@
         }
       }
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     Uint64 elapsed = splashStartedAt_ > 0 ? (now - splashStartedAt_) : 0;
     int totalLines = static_cast<int>(startupBootLog_.size());
     int visibleLines = 1;

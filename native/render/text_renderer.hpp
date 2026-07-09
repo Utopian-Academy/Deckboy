@@ -26,8 +26,8 @@
 #ifndef DECKBOY_RENDER_TEXT_RENDERER_HPP
 #define DECKBOY_RENDER_TEXT_RENDERER_HPP
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include "core/sdl_compat.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 
 namespace deckboy::render {
