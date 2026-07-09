@@ -778,9 +778,22 @@
         auto red = [&](int x, int y) {
           return card->pixels[(static_cast<std::size_t>(y) * card->width + x) * 4u];
         };
-        int stripSepY = card->height - std::clamp(card->height * 16 / 100, 28, 999) - 1;
-        cardOk = red(0, 0) == 0 && red(1, 0) == 255 &&          // checker border
-                 red(card->width / 2, stripSepY) == 90;          // strip separator
+        // Diegetic instruments: scan for the exact measurement values the
+        // props must carry — 75% red (billboard bar), 2% near-black (cave
+        // eyes), 96% near-white (cloud lump) — plus the checker border.
+        bool saw75Red = false;
+        bool sawCaveEye = false;
+        bool sawCloudLump = false;
+        for (std::size_t i = 0; i + 3 < card->pixels.size(); i += 4) {
+          const std::uint8_t r = card->pixels[i];
+          const std::uint8_t g = card->pixels[i + 1];
+          const std::uint8_t b = card->pixels[i + 2];
+          saw75Red = saw75Red || (r == 191 && g == 0 && b == 0);
+          sawCaveEye = sawCaveEye || (r == 5 && g == 5 && b == 5);
+          sawCloudLump = sawCloudLump || (r == 245 && g == 245 && b == 245);
+        }
+        cardOk = red(0, 0) == 0 && red(1, 0) == 255 &&
+                 saw75Red && sawCaveEye && sawCloudLump;
       }
       cardCue.path = "pattern://pocket-day";
       auto clean = MediaEngine::buildPatternFrame(cardCue, 5.0, 320, 180);
