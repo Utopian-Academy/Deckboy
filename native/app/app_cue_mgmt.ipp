@@ -1635,7 +1635,7 @@
     // day/sunset/night/storm itself; the forced-scene ids stay loadable as
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
     static const std::vector<std::pair<std::string, std::string>> types {
-      {"pocket-test",   "Pocket Test (day/sunset/night/storm cycle)"},
+      {"pocket-test",   "Pocket Test (test card + scene cycle)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},

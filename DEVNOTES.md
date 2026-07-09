@@ -1,5 +1,20 @@
 # DEVNOTES
 
+## Pocket Test Card (v0.78.1)
+
+`pocket-test` (the auto-cycling default pattern) is Deckboy's working test
+card: `drawPocketTestCardOverlay` in media_engine.cpp draws broadcast
+instrumentation over the island scene. The forced-scene variants
+(`pocket-day` etc.) deliberately do NOT get the overlay — operators use them
+as backgrounds. Each instrument's purpose is documented at the function; the
+pixel-precision elements (border checkerboard, fine-detail patches) must
+never be scaled by the proportional unit `u` — single pixels are the point.
+Text uses a built-in 3x5 pixel font (`glyphRows` lambda) since patterns are
+raw CPU pixels with no TTF access. `--pattern-dump <id> <out.ppm> [WxH] [t]`
+renders any pattern for visual inspection; smoke asserts the card's border +
+strip separator and that scene variants stay clean (those assertions are
+coupled to the overlay's geometry formulas — update both together).
+
 ## In-Process GPU Decode (v0.78.0)
 
 Session 2 of `docs/GPU_DECODE_PLAN.md`: file-backed Video/Audio cues decode
