@@ -26,6 +26,7 @@
 #define DECKBOY_CORE_TYPES_HPP
 
 #include "core/sdl_compat.hpp"
+#include <memory>
 #include <string>
 #include <vector>
 #include "constants.hpp"
@@ -506,6 +507,19 @@ struct DecodedFrame {
   std::uint64_t index = 0;             // sequential frame number (for ordering)
   FramePixelFormat format = FramePixelFormat::RGBA32;  // pixel layout for `pixels`
   std::vector<std::uint8_t> pixels;    // packed pixel data, layout per `format`
+
+  // GPU-resident payload (in-process zero-copy decode, Windows/D3D11).
+  // When gpuTexture is set the frame never touched the CPU: `pixels` is
+  // empty and the video lives in a decoder-owned NV12 texture-array slice.
+  // gpuFrameRef keeps the decoder surface (an AVFrame ref) alive for as long
+  // as this DecodedFrame exists. Consumers compare gpuDevice against their
+  // renderer's device and either GPU-copy the slice into a wrapped
+  // SDL_Texture or fall back to a CPU download (libav_decoder.hpp helpers).
+  std::shared_ptr<void> gpuFrameRef;   // opaque AVFrame ref (owns the surface)
+  void* gpuTexture = nullptr;          // ID3D11Texture2D* (decoder array texture)
+  int gpuSubresource = 0;              // array slice index within gpuTexture
+  void* gpuDevice = nullptr;           // ID3D11Device* that owns gpuTexture
+  bool isGpu() const { return gpuTexture != nullptr; }
 };
 
 // Byte count for a frame's pixel buffer at the given width/height/format.

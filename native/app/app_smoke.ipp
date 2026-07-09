@@ -761,6 +761,146 @@
       expect(gainTail > 0.30 && gainTail < 0.70, "fade-out gain ramps near cue end");
     }
 
+    {
+      // Crash resilience (GPU_DECODE_PLAN §9): a corrupt media file must
+      // degrade to EOF/rerack — never crash or wedge the engine. The
+      // in-process decoder validates by priming the first frame in open();
+      // garbage that fails there falls back to the CLI pipe, which EOFs on
+      // the same garbage. Either way the engine survives and stays loaded.
+      fs::path corruptPath;
+      try {
+        corruptPath = fs::temp_directory_path() / "deckboy-smoke-corrupt.mp4";
+        std::ofstream out(corruptPath, std::ios::binary | std::ios::trunc);
+        for (int i = 0; i < 4096; ++i) {
+          out.put(static_cast<char>((i * 37 + 11) & 0xFF));
+        }
+      } catch (...) {
+        corruptPath.clear();
+      }
+      if (!corruptPath.empty()) {
+        MediaEngine engine(nullptr, nullptr);
+        Cue badCue;
+        badCue.kind = CueKind::Video;
+        badCue.name = "corrupt-check";
+        badCue.path = corruptPath.string();
+        badCue.width = 320;
+        badCue.height = 180;
+        badCue.duration = 2.0;
+        badCue.hasAudio = false;
+        engine.loadCue(&badCue, true);
+        for (int i = 0; i < 30; ++i) {
+          engine.update();
+          SDL_Delay(10);
+        }
+        bool alive = engine.activeCue() != nullptr;
+        engine.stopAll();
+        std::error_code removeEc;
+        fs::remove(corruptPath, removeEc);
+        expect(alive, "corrupt media file degrades without crash");
+      } else {
+        expect(true, "corrupt media file check skipped (no temp dir)");
+      }
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
+  }
+
+  // ---------------------------------------------------------------------------
+  // runDecodeBench — `--decode-bench <file> [seconds] [cli]`
+  //
+  // Measures sustained decode throughput through the real MediaEngine path so
+  // Pocket before/after numbers are comparable (GPU_DECODE_PLAN §6). The cue
+  // fps is pinned high so the consumer drains the queue every tick — the
+  // number reported is decoder throughput, not playback pacing. `cli` forces
+  // the ffmpeg subprocess pipe path for A/B against the in-process decoder.
+  // Zero-copy mode also exercises the GPU slice→texture copy the output
+  // compositor performs per frame advance.
+  // ---------------------------------------------------------------------------
+  static int runDecodeBench(const std::string& mediaPath, double benchSeconds, bool forceCli) {
+#if DECKBOY_INPROC_DECODE
+    // Same as App::init — the shared decode device needs a thread-safe D3D11 device.
+    SDL_SetHint(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, "1");
+#endif
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+      std::cout << "decode-bench: SDL init failed: " << SDL_GetError() << '\n';
+      return 1;
+    }
+    SDL_Window* window = SDL_CreateWindow("Deckboy decode bench", 1280, 720, SDL_WINDOW_HIDDEN);
+    SDL_Renderer* renderer = window ? SDL_CreateRenderer(window, nullptr) : nullptr;
+    if (!renderer) {
+      std::cout << "decode-bench: renderer create failed: " << SDL_GetError() << '\n';
+      SDL_Quit();
+      return 1;
+    }
+    MediaEngine::setInprocDecodeDisabled(forceCli);
+    MediaEngine engine(renderer, nullptr, {}, {}
+#if DECKBOY_INPROC_DECODE
+      , [renderer]() { return deckboy::libav::rendererD3D11Device(renderer); }
+#endif
+    );
+    Cue cue;
+    cue.kind = CueKind::Video;
+    cue.name = "decode-bench";
+    cue.path = mediaPath;
+    cue.duration = benchSeconds + 3600.0;  // never trip end-of-cue
+    cue.fps = 240.0;                       // drain the queue: measure decode, not pacing
+    cue.hasAudio = false;
+    engine.loadCue(&cue, true);
+
+#if DECKBOY_INPROC_DECODE
+    SDL_Texture* gpuBridge = nullptr;
+    void* gpuBridgeTex2D = nullptr;
+    int gpuBridgeW = 0;
+    int gpuBridgeH = 0;
+#endif
+    const Uint64 startMs = SDL_GetTicks();
+    std::uint64_t lastIndex = static_cast<std::uint64_t>(-1);
+    std::uint64_t framesSeen = 0;
+    while (SDL_GetTicks() - startMs < static_cast<Uint64>(benchSeconds * 1000.0)) {
+      engine.update();
+      const DecodedFrame* frame = engine.currentFrame();
+      if (frame && frame->index != lastIndex) {
+        lastIndex = frame->index;
+        ++framesSeen;
+#if DECKBOY_INPROC_DECODE
+        if (frame->isGpu()) {
+          // Mirror the output compositor's per-advance GPU copy.
+          if (!gpuBridge || gpuBridgeW != frame->width || gpuBridgeH != frame->height) {
+            if (gpuBridge) SDL_DestroyTexture(gpuBridge);
+            deckboy::libav::releaseD3D11Texture(gpuBridgeTex2D);
+            gpuBridgeTex2D = nullptr;
+            gpuBridge = deckboy::libav::createWrappedNV12Texture(
+              renderer, frame->width, frame->height, &gpuBridgeTex2D);
+            gpuBridgeW = frame->width;
+            gpuBridgeH = frame->height;
+          }
+          if (gpuBridgeTex2D) {
+            deckboy::libav::copyGpuFrameToTexture(*frame, gpuBridgeTex2D);
+          }
+        }
+#endif
+      }
+      SDL_Delay(1);
+    }
+    const double elapsed = static_cast<double>(SDL_GetTicks() - startMs) / 1000.0;
+    const char* mode = "cli-pipe";
+    if (engine.inprocDecodeActive()) {
+      mode = engine.activeDecodeDevice() ? "inproc-zerocopy" : "inproc-cpu";
+    }
+    std::cout << "decode-bench: file=" << mediaPath
+              << " mode=" << mode
+              << " frames=" << framesSeen
+              << " elapsed=" << elapsed
+              << " throughput-fps=" << (elapsed > 0.0 ? framesSeen / elapsed : 0.0)
+              << '\n';
+    engine.stopAll();
+#if DECKBOY_INPROC_DECODE
+    if (gpuBridge) SDL_DestroyTexture(gpuBridge);
+    deckboy::libav::releaseD3D11Texture(gpuBridgeTex2D);
+#endif
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
   }
