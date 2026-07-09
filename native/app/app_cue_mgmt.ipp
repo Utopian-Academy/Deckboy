@@ -1411,27 +1411,20 @@
     markProjectDirty();
   }
 
-  // Konami-code easter egg: launches the bundled Terrarium ecosystem sim
-  // (windowed) if it isn't already running, then adds a secret window-source
-  // cue capturing it. ↑↑↓↓←→←→BA + Start on the control window.
+  // Konami-code easter egg: adds a secret NATIVE Terrarium pattern cue —
+  // the ecosystem sim runs in-process as a generator (pattern://terrarium,
+  // v0.78.4), no companion exe or window capture involved. The pattern is
+  // also available openly in the pattern picker; the egg keeps the ritual.
+  // ↑↑↓↓←→←→BA + Start on the control window.
   void unlockTerrariumSource() {
-#ifdef _WIN32
-    if (!FindWindowA(nullptr, "Terrarium")) {
-      fs::path terrariumExe = deckboy::core::Paths::executablePath().parent_path() / "terrarium.exe";
-      if (fs::exists(terrariumExe)) {
-        ChildProcess terrariumProc;
-        spawnDetachedProcess(terrariumProc, {terrariumExe.string(), "--windowed"});
-      }
-    }
-#endif
-    addSourceCue(CueKind::WindowSource, "title:Terrarium");
+    addPatternCue("terrarium");
     Deck& deck = focusedDeckMutable();
     if (!deck.cues.empty()) {
       Cue& secret = deck.cues.back();
       secret.name = "TERRARIUM (secret)";
       secret.colorTag = "purple";
     }
-    triggerToast("* KONAMI * terrarium source unlocked");
+    triggerToast("* KONAMI * terrarium unlocked");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
   }
@@ -1636,6 +1629,7 @@
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
     static const std::vector<std::pair<std::string, std::string>> types {
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
+      {"terrarium",     "Terrarium (living ecosystem)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},
