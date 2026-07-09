@@ -227,7 +227,8 @@
         texCoord.x = std::clamp(texCoord.x, minU, maxU);
         texCoord.y = std::clamp(texCoord.y, minV, maxV);
         Uint8 alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 255;
-        vertices[vertexIndex++] = SDL_Vertex {position, SDL_Color {255, 255, 255, alpha}, texCoord};
+        // SDL3: SDL_Vertex carries a float SDL_FColor.
+        vertices[vertexIndex++] = SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, static_cast<float>(alpha) / 255.0f}, texCoord};
       }
     }
 
@@ -255,5 +256,5 @@
       vertices.data(),
       static_cast<int>(vertices.size()),
       indices.data(),
-      static_cast<int>(indices.size())) == 0;
+      static_cast<int>(indices.size()));
   }

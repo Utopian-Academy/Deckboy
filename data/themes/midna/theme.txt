@@ -1,15 +1,15 @@
 # Deckboy Theme: Midna
-# Twilight blue-violet on matte black.
+# Twilight violet with an ember-orange glow.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	15141DFF
-shell_inner	211F2BFF
-shell_shadow	070708FF
-screen_light	7F56FBFF
-screen_mid	502FB1FF
-screen_dark	1F1D2BFF
+shell_outer	19141CFF
+shell_inner	261F2BFF
+shell_shadow	080708FF
+screen_light	C242F0FF
+screen_mid	AE7032FF
+screen_dark	251D2AFF
 screen_deep	050505FF
-screen_ink_soft	6B57A8FF
-button_bezel	432F7FFF
+screen_ink_soft	915BA4FF
+button_bezel	765737FF
 delete_bezel	AB2B33FF
 scanline_alpha	12

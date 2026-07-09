@@ -33,8 +33,8 @@
 
 #pragma once
 
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include "core/sdl_compat.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 #include <algorithm>
 #include <vector>
 #include "core/constants.hpp"
@@ -80,11 +80,11 @@ inline SDL_Rect snapRectToGrid(const SDL_Rect& rect) {
 }
 
 // Height of a single line of text for the given font, including the blank
-// ascender/descender cushion returned by TTF_FontHeight. Falls back to a
+// ascender/descender cushion returned by TTF_GetFontHeight. Falls back to a
 // conservative constant if the font is null so callers can use this at
 // compile-time-ish layout sites without guarding.
 inline int textLineHeight(TTF_Font* font) {
-  return font ? TTF_FontHeight(font) : 18;
+  return font ? TTF_GetFontHeight(font) : 18;
 }
 
 // Y-coordinate of a UI row that sits directly below a single-line label

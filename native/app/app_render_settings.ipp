@@ -643,7 +643,7 @@
       // ═══════════════════════════════════════════════════════════════
       if (settingsVideoSubTab_ == 0) {
       // ─── DISPLAY sub-tab ─────────────────────────────────────────
-        int displayCount = SDL_GetNumVideoDisplays();
+        int displayCount = deckboyGetNumVideoDisplays();
 
         // Display & Raster
         int dispSectionH = 190;
@@ -653,7 +653,7 @@
 
         std::string displayLabel = displayCount <= 0 ? "None" : ("Display " + std::to_string(outputDisplayIndex(focusedOutputIndex) + 1));
         if (displayCount > 0) {
-          const char* dName = SDL_GetDisplayName(outputDisplayIndex(focusedOutputIndex));
+          const char* dName = deckboyGetDisplayName(outputDisplayIndex(focusedOutputIndex));
           if (dName && *dName) displayLabel += ": " + std::string(dName);
         }
         SDL_Rect dBtn = dLayout.takeFixed(kRowH);
@@ -697,10 +697,10 @@
           bool selected = di == currentDispIdx;
           Primitives::drawFramedPanel(controlRenderer_, dispRow,
                                       selected ? pal.dark : pal.shellInner, pal.deep, pal.mid);
-          const char* dNameRaw = SDL_GetDisplayName(di);
+          const char* dNameRaw = deckboyGetDisplayName(di);
           std::string dNameStr = dNameRaw && *dNameRaw ? dNameRaw : ("Display " + std::to_string(di + 1));
           SDL_Rect dispBounds;
-          SDL_GetDisplayBounds(di, &dispBounds);
+          deckboyGetDisplayBounds(di, &dispBounds);
           std::string dispInfo = std::to_string(di + 1) + ": " + dNameStr
             + "  " + std::to_string(dispBounds.w) + "x" + std::to_string(dispBounds.h);
           if (selected) dispInfo += "  [ASSIGNED]";
@@ -1937,7 +1937,7 @@
       } else if (sb.action == kSettingsActionOutputDisplayNext) {
         cycleOutputDisplay(1);
       } else if (sb.action == kSettingsActionOutputDisplayRescan) {
-        observedDisplayCount_ = SDL_GetNumVideoDisplays();
+        observedDisplayCount_ = deckboyGetNumVideoDisplays();
         refreshDisplayTopology(true);
       } else if (sb.action == kSettingsActionOutputDisplayDropdown) {
         openDropdown(
@@ -2088,8 +2088,8 @@
           triggerToast("assign route first");
         } else {
           int currentLayer = 0; // Single-deck: always layer 0
-          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
           int step = ctrlHeld ? 10 : 1;
           int delta = (sb.action == kSettingsActionRoutingLayerDec) ? -step : step;
           if (shiftHeld) {
@@ -2127,8 +2127,8 @@
           setFocusedDeckIndex(deckIndex);
           setFocusedOutputIndex(outputIndex);
           auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, outputIndex);
-          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
           if (routingMoveMode_) {
             if (assignmentIndex) {
               int currentLayer = 0; // Single-deck: always layer 0

@@ -25,7 +25,7 @@
 // ─── UI Profiling ────────────────────────────────────────────────────────────
 //   uiProfileLog()            — conditional stderr log gated by
 //                               DECKBOY_UI_PROFILE env flag; timestamps with
-//                               SDL_GetTicks64.
+//                               SDL_GetTicks.
 //   uiWatchdogPopupEvent()    — specialized log for popup open/close events
 //                               with optional item count.
 //
@@ -84,7 +84,7 @@
 // ─── Inline Text Editor ──────────────────────────────────────────────────────
 //   openInlineTextEditor()    — opens a small text input panel (docked inside
 //                               the cue inspector or floating center-screen).
-//                               Flushes any stale SDL_TEXTINPUT events from the
+//                               Flushes any stale SDL_EVENT_TEXT_INPUT events from the
 //                               key that triggered the editor.
 //   closeInlineTextEditor()   — tears down editor, optionally invoking the
 //                               onSubmit callback with the entered value.
@@ -261,7 +261,7 @@
     if (!uiProfileEnabled_) {
       return;
     }
-    std::cerr << "[DECKBOY_UI_PROFILE " << SDL_GetTicks64() << "ms] " << message << '\n';
+    std::cerr << "[DECKBOY_UI_PROFILE " << SDL_GetTicks() << "ms] " << message << '\n';
   }
 
   void uiWatchdogPopupEvent(const std::string& popupName, bool opening, int itemCount = -1) const {
@@ -277,12 +277,12 @@
   }
 
   static std::optional<char> dropdownFilterCharFromKey(SDL_Keycode key, Uint16 mod) {
-    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+    if ((mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) != 0) {
       return std::nullopt;
     }
-    bool shift = (mod & KMOD_SHIFT) != 0;
-    if (key >= SDLK_a && key <= SDLK_z) {
-      char base = static_cast<char>('a' + (key - SDLK_a));
+    bool shift = (mod & SDL_KMOD_SHIFT) != 0;
+    if (key >= SDLK_A && key <= SDLK_Z) {
+      char base = static_cast<char>('a' + (key - SDLK_A));
       return shift ? static_cast<char>(std::toupper(static_cast<unsigned char>(base))) : base;
     }
     if (key >= SDLK_0 && key <= SDLK_9) {
@@ -300,12 +300,12 @@
   }
 
   static std::optional<char> inlineEditorCharFromKey(SDL_Keycode key, Uint16 mod) {
-    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+    if ((mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) != 0) {
       return std::nullopt;
     }
-    bool shift = (mod & KMOD_SHIFT) != 0;
-    if (key >= SDLK_a && key <= SDLK_z) {
-      char base = static_cast<char>('a' + (key - SDLK_a));
+    bool shift = (mod & SDL_KMOD_SHIFT) != 0;
+    if (key >= SDLK_A && key <= SDLK_Z) {
+      char base = static_cast<char>('a' + (key - SDLK_A));
       return shift ? static_cast<char>(std::toupper(static_cast<unsigned char>(base))) : base;
     }
     if (key >= SDLK_0 && key <= SDLK_9) {
@@ -408,12 +408,12 @@
   }
 
   std::string displayChoiceLabel(int displayIndex) const {
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0 || displayIndex < 0 || displayIndex >= displayCount) {
       return "Display none";
     }
     std::string label = "Display " + std::to_string(displayIndex + 1);
-    const char* displayName = SDL_GetDisplayName(displayIndex);
+    const char* displayName = deckboyGetDisplayName(displayIndex);
     if (displayName && *displayName) {
       label += ": ";
       label += displayName;
@@ -423,7 +423,7 @@
 
   std::vector<std::pair<std::string, std::string>> outputDisplayDropdownChoices() const {
     std::vector<std::pair<std::string, std::string>> choices;
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     for (int displayIndex = 0; displayIndex < displayCount; ++displayIndex) {
       choices.push_back({std::to_string(displayIndex), displayChoiceLabel(displayIndex)});
     }
@@ -497,7 +497,7 @@
     }
     dropdown_ = DropdownState {};
     dropdownLastRenderedItemCount_ = -1;
-    SDL_StopTextInput();
+    SDL_StopTextInput(controlWindow_);
   }
 
   int dropdownVisibleRowCount() const {
@@ -592,7 +592,7 @@
       item.searchLabel = toLower(label + " " + id);
       if (fontSmall_) {
         int textW = 0;
-        TTF_SizeUTF8(fontSmall_, label.c_str(), &textW, nullptr);
+        TTF_GetStringSize(fontSmall_, label.c_str(), 0, &textW, nullptr);
         item.textWidth = textW;
       }
       next.options.push_back(std::move(item));
@@ -609,7 +609,7 @@
     rebuildDropdownFilteredIndices();
     refreshDropdownPopoverRect();
     dropdownLastRenderedItemCount_ = -1;
-    SDL_StartTextInput();
+    SDL_StartTextInput(controlWindow_);
     uiWatchdogPopupEvent("dropdown:" + owner, true, static_cast<int>(dropdown_.options.size()));
   }
 
@@ -734,7 +734,7 @@
       dropdown_.popoverRect.w - 6,
       dropdown_.popoverRect.h - 7 - filterH
     };
-    SDL_RenderSetClipRect(controlRenderer_, &listRect);
+    SDL_SetRenderClipRect(controlRenderer_, &listRect);
     int drawY = listRect.y;
     int visibleRows = dropdownVisibleRowCount();
     for (int row = 0; row < visibleRows; ++row) {
@@ -760,7 +760,7 @@
                    "(no matches)",
                    pal.inkSoft);
     }
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
     int renderedItems = static_cast<int>(dropdown_.filteredIndices.size());
     if (renderedItems != dropdownLastRenderedItemCount_) {
@@ -791,12 +791,12 @@
       SDL_ShowWindow(controlWindow_);
       SDL_RaiseWindow(controlWindow_);
     }
-    SDL_StartTextInput();
-    // Discard any SDL_TEXTINPUT event that was generated by the keyboard
+    SDL_StartTextInput(controlWindow_);
+    // Discard any SDL_EVENT_TEXT_INPUT event that was generated by the keyboard
     // shortcut that opened this editor (e.g. "b" from the B-key shortcut).
     // The event is already in the queue at this point; flushing it here
     // prevents it from appearing as the first character in the field.
-    SDL_FlushEvent(SDL_TEXTINPUT);
+    SDL_FlushEvent(SDL_EVENT_TEXT_INPUT);
     uiWatchdogPopupEvent("inline_text:" + owner, true);
   }
 
@@ -808,7 +808,7 @@
     auto submit = inlineEditor_.onSubmit;
     std::string value = inlineEditor_.value;
     inlineEditor_ = InlineTextEditorState {};
-    SDL_StopTextInput();
+    SDL_StopTextInput(controlWindow_);
     uiWatchdogPopupEvent("inline_text:" + owner, false);
     if (apply && submit) {
       submit(value);

@@ -1,5 +1,35 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-08 — v0.77.0 (SDL3 migration)
+
+- **Whole-app migration from SDL 2.32 to SDL 3.4** (same for SDL_ttf). No
+  operator-facing behaviour change intended; this is the platform groundwork
+  for the in-process GPU decode rewrite (`docs/GPU_DECODE_PLAN.md`), which
+  needs SDL3's `SDL_CreateTextureWithProperties` D3D11 texture import for
+  zero-copy video.
+- **Immediate perf/behaviour wins shipped with the migration:**
+  - Per-renderer vsync (`SDL_SetRenderVSync`): program outputs stay vsynced to
+    their display; stream-only outputs and the hidden per-deck decode renderers
+    no longer inherit a creation-flag vsync — they run unthrottled.
+  - SDL3's Windows DPI handling replaces the `permonitorv2` hint; mixed-DPI
+    display topologies are handled natively by SDL.
+  - Audio moved from the SDL2 queue-audio API to SDL3 audio streams
+    (`SDL_OpenAudioDeviceStream` + `SDL_PutAudioStreamData`): each deck keeps
+    its own logical device on the chosen output, UI sounds keep a separate
+    logical device on the default output, and LTC ingest reads a recording
+    stream that resamples to 48 kHz mono S16 in SDL.
+- **Compatibility layer** `native/core/sdl_compat.hpp` keeps the codebase's
+  integer-rect layout math and SDL2-style display indices working on SDL3 (see
+  DEVNOTES "SDL2 → SDL3 Migration").
+- **Terrarium** companion exe migrated in the same pass — one SDL3 runtime ships
+  in the zip.
+- Validated: clean build, `--self-check` ok, `--smoke` 0 failures, live visual
+  check (control UI + program output on the HDMI dongle, video + audio playing,
+  VU meters live).
+- Field re-verification still recommended for the fullscreen recovery saga
+  (minimize-on-focus-loss, wrong-display recovery, hot-plug, auto-hide taskbar)
+  — the SDL3 fullscreen model is new code underneath the same policy.
+
 ## 2026-07-05 — v0.76.31 (Media Encoder, splash system, multi-select fixes, audio hot-swap, theme refresh)
 
 - **Built-in media converter + ENCODER tab.** Cues Deckboy can't play (or would

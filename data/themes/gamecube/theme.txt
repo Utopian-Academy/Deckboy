@@ -1,15 +1,15 @@
 # Deckboy Theme: GameCube
-# Indigo cube shell — that early-2000s purple.
+# Indigo cube shell.
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	16141DFF
 shell_inner	221F2BFF
 shell_shadow	070708FF
-screen_light	815AF7FF
-screen_mid	5132AEFF
-screen_dark	211D2BFF
+screen_light	7750F6FF
+screen_mid	4F32AEFF
+screen_dark	201D2BFF
 screen_deep	050505FF
-screen_ink_soft	6C59A6FF
-button_bezel	44317DFF
+screen_ink_soft	6B59A6FF
+button_bezel	463776FF
 delete_bezel	AB2B33FF
 scanline_alpha	12

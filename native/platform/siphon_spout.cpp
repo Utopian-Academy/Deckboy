@@ -105,12 +105,12 @@ bool SiphonSpoutSender::sendFrame(SDL_Texture* texture) {
     return false;
   }
 
-  // Query texture dimensions
-  int texW = 0, texH = 0;
-  Uint32 texFormat = 0;
-  if (SDL_QueryTexture(texture, &texFormat, nullptr, &texW, &texH) != 0) {
+  // Query texture dimensions (SDL3: float out-params, format via properties)
+  float texWf = 0.0f, texHf = 0.0f;
+  if (!SDL_GetTextureSize(texture, &texWf, &texHf)) {
     return false;
   }
+  int texW = static_cast<int>(texWf), texH = static_cast<int>(texHf);
 
   // Resize pixel buffer if texture dimensions changed
   size_t bufSize = static_cast<size_t>(texW) * texH * 4;
@@ -128,7 +128,7 @@ bool SiphonSpoutSender::sendFrame(SDL_Texture* texture) {
   // SDL2 doesn't have SDL_GetRendererFromTexture, so we read via lock.
   void* pixels = nullptr;
   int pitch = 0;
-  if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
+  if (!SDL_LockTexture(texture, nullptr, &pixels, &pitch)) {
     // Texture may not be lockable (render target). Fall back to render read.
     // The caller must ensure the texture is the current render target.
     return false;

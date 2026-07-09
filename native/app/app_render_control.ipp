@@ -229,7 +229,7 @@
 
     SDL_Rect listClip {listRect.x + 4, listRect.y + 4, listRect.w - 8, listRect.h - 8};
     deckListClipRects_[deckIndex] = listClip;
-    SDL_RenderSetClipRect(controlRenderer_, &listClip);
+    SDL_SetRenderClipRect(controlRenderer_, &listClip);
 
     int cueCount = static_cast<int>(deck.cues.size());
     if (cueCount == 0) {
@@ -251,7 +251,7 @@
         rowY += kCueRowH + kCueRowGap;
       }
     }
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
     y += listH + 4;
 
@@ -396,7 +396,7 @@
       SDL_Rect dst {programRect.x + (programRect.w - dstW) / 2,
                     programRect.y + (programRect.h - dstH) / 2,
                     dstW, dstH};
-      SDL_RenderCopy(controlRenderer_, tex, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, tex, nullptr, &dst);
     } else {
       // No signal label
       std::string noSigLabel = output.enabled ? "NO SIGNAL" : "OFFLINE";
@@ -525,9 +525,9 @@
 
     if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
       int ww, wh;
-      SDL_GetRendererOutputSize(controlRenderer_, &ww, &wh);
+      SDL_GetCurrentRenderOutputSize(controlRenderer_, &ww, &wh);
       SDL_Rect dst {0, 0, ww, wh};
-      SDL_RenderCopy(controlRenderer_, scanlineOverlay_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, scanlineOverlay_, nullptr, &dst);
     }
     SDL_RenderPresent(controlRenderer_);
 
@@ -595,7 +595,7 @@
       // Place right-anchored buttons first so fader can fill what's left
       int rx = toolbar.x + toolbar.w - 8;
       auto autoW = [&](const char* text, int minW = 60) -> int {
-        int tw = 0; TTF_SizeUTF8(fontSmall_, text, &tw, nullptr);
+        int tw = 0; TTF_GetStringSize(fontSmall_, text, 0, &tw, nullptr);
         return std::max(minW, tw + 20);
       };
       bool isFullscreen = isAnyOutputFullscreen();
@@ -616,11 +616,11 @@
           SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30, glowA);
           SDL_Rect glow {blackoutBtnRect_.x - 2, blackoutBtnRect_.y - 2,
                          blackoutBtnRect_.w + 4, blackoutBtnRect_.h + 4};
-          SDL_RenderDrawRect(controlRenderer_, &glow);
+          SDL_RenderRect(controlRenderer_, &glow);
           SDL_Rect glow2 {blackoutBtnRect_.x - 3, blackoutBtnRect_.y - 3,
                           blackoutBtnRect_.w + 6, blackoutBtnRect_.h + 6};
           SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30, static_cast<Uint8>(glowA / 2));
-          SDL_RenderDrawRect(controlRenderer_, &glow2);
+          SDL_RenderRect(controlRenderer_, &glow2);
           SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
         }
         drawUIPanel(blackoutBtnRect_, fill, pal.deep, pal.mid);
@@ -700,7 +700,7 @@
           ? "VOLUME " + std::to_string(volPct) + "%"
           : std::to_string(volPct) + "%";
         int volTextW = 0;
-        TTF_SizeUTF8(fontSmall_, volText.c_str(), &volTextW, nullptr);
+        TTF_GetStringSize(fontSmall_, volText.c_str(), 0, &volTextW, nullptr);
         int kVolLblW = std::min(volTextW + 24, faderAreaW - 44);
         SDL_Rect volLbl {ax, ty, kVolLblW, kTBtnH};
         drawUIPanel(volLbl, pal.mid, pal.deep, pal.light);
@@ -815,9 +815,9 @@
     renderSplashOverlay();
     if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
       int ww, wh;
-      SDL_GetRendererOutputSize(controlRenderer_, &ww, &wh);
+      SDL_GetCurrentRenderOutputSize(controlRenderer_, &ww, &wh);
       SDL_Rect dst {0, 0, ww, wh};
-      SDL_RenderCopy(controlRenderer_, scanlineOverlay_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, scanlineOverlay_, nullptr, &dst);
     }
     SDL_RenderPresent(controlRenderer_);
     auto uiFrameEnd = std::chrono::steady_clock::now();
@@ -896,7 +896,7 @@
 
     drawUIPanel(primaryFrame, pal.light, pal.deep, pal.mid);
     SDL_Rect primaryClip {primaryFrame.x + 8, primaryFrame.y + 8, primaryFrame.w - 16, std::max(0, primaryFrame.h - 16)};
-    SDL_RenderSetClipRect(controlRenderer_, &primaryClip);
+    SDL_SetRenderClipRect(controlRenderer_, &primaryClip);
     int primaryTotalH = static_cast<int>(primaryIndices.size()) * (kRowHeight + 8) - 8;
     int primaryScrollMax = std::max(0, primaryTotalH - primaryClip.h);
     if (static_cast<int>(deckScrollMax_.size()) <= deckIndex) {
@@ -909,7 +909,7 @@
     // Rubber-band at the BOTTOM only: the wheel may push a little past the last
     // cue (capped), then this eases it back once the wheel is idle. Time-based
     // decay so the spring is visible regardless of the high render rate.
-    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 nowMs = SDL_GetTicks();
     Uint64 lastMs = deckScrollSettleMs_[deckIndex];
     deckScrollSettleMs_[deckIndex] = nowMs;
     if (deckScrolls_[deckIndex] > primaryScrollMax && nowMs - lastDeckScrollMs_ > 90) {
@@ -934,7 +934,7 @@
       drawText(controlRenderer_, fontSmall_, "B  browser", pal.deep, hx, hy + emptyLineH);
       drawText(controlRenderer_, fontSmall_, "P  pattern", pal.deep, hx, hy + emptyLineH * 2);
     }
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
     if (showOverlayBin) {
       drawUIPanel(overlayFrame, pal.shellInner, pal.deep, pal.mid);
@@ -945,7 +945,7 @@
                    "Lower Third and PIP fire independently",
                    pal.mid);
       SDL_Rect overlayClip {overlayFrame.x + 8, overlayFrame.y + 42, overlayFrame.w - 16, std::max(0, overlayFrame.h - 50)};
-      SDL_RenderSetClipRect(controlRenderer_, &overlayClip);
+      SDL_SetRenderClipRect(controlRenderer_, &overlayClip);
       int totalOverlayH = static_cast<int>(overlayIndices.size()) * (kRowHeight + 8) - 8;
       int overlayScrollMax = std::max(0, totalOverlayH - overlayClip.h);
       deckOverlayScrolls_[deckIndex] = std::clamp(deckOverlayScrolls_[deckIndex], 0, overlayScrollMax);
@@ -955,7 +955,7 @@
         renderCueRow(row, deckIndex, cueIndex);
         overlayY += kRowHeight + 8;
       }
-      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
     } else {
       deckOverlayScrolls_[deckIndex] = 0;
     }
@@ -980,7 +980,7 @@
       int opacityPct = static_cast<int>(std::lround(std::clamp(deck.playlistOpacity, 0.0f, 1.0f) * 100.0f));
       std::string opacityLabel = "LAYER " + std::to_string(opacityPct) + "%";
       int labelW = 0, labelH = 0;
-      if (fontSmall_) TTF_SizeUTF8(fontSmall_, opacityLabel.c_str(), &labelW, &labelH);
+      if (fontSmall_) TTF_GetStringSize(fontSmall_, opacityLabel.c_str(), 0, &labelW, &labelH);
       // Same row as LOOP|ORDER (the 50px footer only fits one text line),
       // right-aligned in DEEP ink — the old pal.dark was near-invisible on
       // the shellInner fill.
@@ -1154,7 +1154,7 @@
           int span = std::max(1, right - left);
           for (int x = left; x <= right; ++x) {
             int h = (x - left) * (bottom - top) / span;
-            SDL_RenderDrawLine(controlRenderer_, x, bottom - h, x, bottom);
+            SDL_RenderLine(controlRenderer_, x, bottom - h, x, bottom);
           }
           break;
         }
@@ -1167,7 +1167,7 @@
           int span = std::max(1, right - left);
           for (int x = left; x <= right; ++x) {
             int h = (right - x) * (bottom - top) / span;
-            SDL_RenderDrawLine(controlRenderer_, x, bottom - h, x, bottom);
+            SDL_RenderLine(controlRenderer_, x, bottom - h, x, bottom);
           }
           break;
         }
@@ -1202,14 +1202,14 @@
             int frac = (x - (box.x + box.w)) * 100 / hornSpan;
             int topY = by + (hornTopY - by) * frac / 100;
             int botY = by + bh + (hornBotY - (by + bh)) * frac / 100;
-            SDL_RenderDrawLine(controlRenderer_, x, topY, x, botY);
+            SDL_RenderLine(controlRenderer_, x, topY, x, botY);
           }
           if (enabled) {
             // Two short wave lines at right side of button
             int wx = hornX + 3;
             int my = rect.y + rect.h / 2;
-            SDL_RenderDrawLine(controlRenderer_, wx, my - 3, wx + 2, my - 1);
-            SDL_RenderDrawLine(controlRenderer_, wx, my + 3, wx + 2, my + 1);
+            SDL_RenderLine(controlRenderer_, wx, my - 3, wx + 2, my - 1);
+            SDL_RenderLine(controlRenderer_, wx, my + 3, wx + 2, my + 1);
           }
           break;
         }
@@ -1288,7 +1288,7 @@
   void drawHoverTip(const std::string& tip, int ax, int ay) {
     if (tip.empty()) return;
     int w = 0;
-    TTF_SizeUTF8(fontSmall_, tip.c_str(), &w, nullptr);
+    TTF_GetStringSize(fontSmall_, tip.c_str(), 0, &w, nullptr);
     w += 20;
     int h = 26;
     int x = ax - w / 2;

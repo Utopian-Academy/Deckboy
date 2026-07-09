@@ -39,7 +39,7 @@ void Primitives::fillRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Colo
 void Primitives::strokeRect(SDL_Renderer* renderer, const SDL_Rect& rect, SDL_Color color) {
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-  SDL_RenderDrawRect(renderer, &rect);
+  SDL_RenderRect(renderer, &rect);
 }
 
 // Draws a panel with a 3D bevel effect:
@@ -69,11 +69,11 @@ void Primitives::drawFramedPanel(SDL_Renderer* renderer, const SDL_Rect& rect,
     int x2 = inner.x + inner.w - 1, y2 = inner.y + inner.h - 1;
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, hi.r, hi.g, hi.b, hi.a);
-    SDL_RenderDrawLine(renderer, x1, y1, x2, y1);
-    SDL_RenderDrawLine(renderer, x1, y1, x1, y2);
+    SDL_RenderLine(renderer, x1, y1, x2, y1);
+    SDL_RenderLine(renderer, x1, y1, x1, y2);
     SDL_SetRenderDrawColor(renderer, lo.r, lo.g, lo.b, lo.a);
-    SDL_RenderDrawLine(renderer, x1, y2, x2, y2);
-    SDL_RenderDrawLine(renderer, x2, y1, x2, y2);
+    SDL_RenderLine(renderer, x1, y2, x2, y2);
+    SDL_RenderLine(renderer, x2, y1, x2, y2);
   }
 }
 
