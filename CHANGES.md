@@ -1,5 +1,51 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.0 (in-process GPU decode — zero-copy video)
+
+- **File-backed Video/Audio cues now decode in-process via the FFmpeg
+  libraries (libav\*)** instead of spawning two `ffmpeg.exe` subprocess pipes
+  per deck (`docs/GPU_DECODE_PLAN.md` Session 2). On Windows, video decodes
+  via **d3d11va directly on the program output renderer's D3D11 device and
+  the frames never touch the CPU**: the output compositor GPU-copies each
+  decoded NV12 texture slice into a persistent SDL texture. This removes the
+  per-frame GPU→CPU download, swscale pass, ~41–83 MB/s pipe transfer, and
+  CPU→GPU re-upload — the transport waste that made the fanless Pocket 3
+  "barely stable".
+- **What still uses the ffmpeg CLI** (by design): live streams (SRT/NDI),
+  source capture, stills/thumbnails, waveform analysis, ffprobe ingest, and
+  stream encode-out. Files with rotation metadata also stay on the CLI (it
+  autorotates; libav does not).
+- **Automatic fallbacks:** effects cues (chroma key / color controls) and
+  non-hw codecs decode in-process to CPU frames (still no subprocess, no
+  pipe); if the in-process open fails for any reason the engine falls
+  straight back to the classic CLI pipe path. `--no-inproc-decode` forces
+  the CLI path for a whole run (operator break-glass), and building with
+  `-DDECKBOY_INPROC_DECODE=OFF` produces the pure-CLI binary.
+- **Crash resilience** (we gave up subprocess isolation): the decoder
+  validates files by priming the first frame before committing, tolerates
+  runs of corrupt packets by degrading to EOF, and a watchdog reracks the
+  deck dark with a toast if a decode wedges mid-show. A corrupt-file test is
+  part of `--smoke`.
+- **Playback semantics unchanged:** same frame queue and backpressure, same
+  audio-master A/V clock (audio decodes in-process to the same s16/48k
+  stereo stream, speed via the same atempo semantics), same seek/EOF/loop
+  behavior.
+- **`--decode-bench <file> [seconds] [cli]`** measures decode throughput
+  through the real engine path for Pocket before/after A/B.
+- **Cheap wins bundled:** decode threads are capped so they can't starve the
+  render loop on 4-thread CPUs; the always-on no-op scale pass is skipped
+  (both paths); the engine no longer re-uploads an unchanged frame to its
+  texture every render tick (was hundreds of MB/s of bus traffic per playing
+  deck at the 240 Hz loop floor).
+- **Load-bearing hint:** `SDL_HINT_RENDER_DIRECT3D_THREADSAFE=1` is now set
+  at init — SDL otherwise creates single-threaded D3D11 devices, which
+  cannot be shared with a decode thread (crashes/deadlocks). Never remove.
+- Zip now carries the libav\* DLLs plus the FFmpeg license notice
+  (`LICENSE-ffmpeg.txt`).
+- Field verification still recommended: a real show file with video+audio
+  cues on the Pocket (A/V sync soak, seek/loop/TAKE under load), and the
+  `--decode-bench` before/after numbers on the Pocket itself.
+
 ## 2026-07-08 — v0.77.0 (SDL3 migration)
 
 - **Whole-app migration from SDL 2.32 to SDL 3.4** (same for SDL_ttf). No

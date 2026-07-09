@@ -1,8 +1,12 @@
 # In-Process GPU Decode — Design & Readiness Plan
 
-Status: **PLANNING (no code changes yet)**. Execution deferred to a later
-session (Fable). This document is the readiness spec so that session is pure
-execution.
+Status: **EXECUTED.** Session 1 (SDL3 migration) shipped as v0.77.0
+(2026-07-08); Session 2 (in-process decode, straight to zero-copy) shipped as
+v0.78.0 (2026-07-09) — see DEVNOTES "In-Process GPU Decode" for the as-built
+notes, including the `SDL_HINT_RENDER_DIRECT3D_THREADSAFE` requirement this
+plan didn't anticipate. Remaining from §10: Pocket-side bench numbers
+(`--decode-bench`), codec matrix + A/V-sync soak on the Pocket, and a live
+show. This document is retained as the design record.
 
 Author context: drafted with Opus, 2026-07-04, against v0.76.29 on branch
 `codex/final-name-deckboy`. Motivation: Deckboy is "barely stable" on the GPD

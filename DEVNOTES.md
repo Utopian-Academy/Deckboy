@@ -1,5 +1,60 @@
 # DEVNOTES
 
+## In-Process GPU Decode (v0.78.0)
+
+Session 2 of `docs/GPU_DECODE_PLAN.md`: file-backed Video/Audio cues decode
+in-process via libav\* (`native/engine/libav_decoder.hpp/.cpp`,
+`DECKBOY_INPROC_DECODE`), replacing the two ffmpeg subprocess pipes per deck.
+Architecture and traps:
+
+- **Zero-copy path (Windows/D3D11).** Deck engines get a
+  `DecodeDeviceProvider` returning the program output renderer's
+  `ID3D11Device` (`primaryOutputDecodeDevice()`); the decoder adopts that
+  device into an ffmpeg hw ctx and decodes d3d11va straight onto it. Decoded
+  frames ride `DecodedFrame::gpu*` (texture-array slice + AVFrame ref;
+  `pixels` empty). `renderDeckLayerIntoOutput` GPU-copies the slice into a
+  per-deck SDL-owned NV12 texture (`ensureLayerGpuTexture` →
+  `createWrappedNV12Texture`, which pulls SDL's backing texture out via
+  `SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER`) — video never touches the CPU.
+- **`SDL_HINT_RENDER_DIRECT3D_THREADSAFE = "1"` at init is LOAD-BEARING.**
+  SDL otherwise creates its D3D11 devices `D3D11_CREATE_DEVICE_SINGLETHREADED`;
+  the ID3D10/11Multithread QI then fails and a shared device crashes or
+  deadlocks at random (we hit both). `adoptD3D11Device` refuses devices where
+  multithread protection can't be enabled — zero-copy silently degrades to
+  in-process CPU output, which is the symptom to check first if
+  `--decode-bench` reports `inproc-cpu` unexpectedly.
+- **Who falls back where:** live streams (SRT/NDI), stills, capture,
+  waveform, ffprobe, encode-out → CLI (unchanged). Rotation-metadata files →
+  CLI (libav doesn't autorotate). RGBA effects cues + non-hw codecs +
+  engines without a device provider (preview/PiP) → in-process CPU frames.
+  In-process open failure → CLI pipe path automatically. Runtime
+  break-glass: `--no-inproc-decode`; build-time: `-DDECKBOY_INPROC_DECODE=OFF`.
+- **Semantics preserved:** the decode threads keep the same
+  `frameQueue_`/`kMaxVideoFrames` backpressure and frame indexing; audio
+  decodes to the same s16/stereo/48k stream through the shared
+  `applyGainAndQueueAudio` tail, so the audio-master A/V clock (v0.76.19) is
+  untouched. Audio speed uses an avfilter atempo chain identical to the old
+  CLI args; in-point seeks trim to the sample in the output domain.
+- **Crash resilience (no more subprocess isolation):** `VideoPipeline::open`
+  primes the first frame (validation gate + hw→sw retry), corrupt packets
+  degrade to EOF after `kMaxConsecutiveErrors`, and `consumeDecodeStall()`
+  (4 s watchdog in `update()`) makes the app rerack the deck dark + toast.
+  `stopDecoderThreads` trips the pipelines' AVIO interrupt callback before
+  joining — the in-process replacement for killing the child to unblock a
+  pipe read (dead network shares can't hang a TAKE).
+- **Device lifecycle:** output-runtime create/destroy calls
+  `scheduleDecodeDeviceReconcile()`; the app tick restarts decode on decks
+  whose `activeDecodeDevice()` no longer matches (`reconcileDecodeDevices`).
+  Frames referencing a destroyed output's device stay valid (COM refs);
+  consumers on a different device CPU-download per frame advance
+  (`downloadGpuFrameNV12`), control preview throttles that to ~10 fps.
+- **Bench:** `--decode-bench <file> [seconds] [cli]` — prints
+  `mode=inproc-zerocopy | inproc-cpu | cli-pipe` and sustained decode fps
+  (consumer drains the queue; pacing removed). Desktop reference (RTX-class,
+  1080x1920 h264): cli-pipe 228, inproc-cpu 236, inproc-zerocopy 240 —
+  desktop is decode-bound; the Pocket is transport-bound, which is where the
+  win lives. Capture Pocket numbers before the next show.
+
 ## SDL2 → SDL3 Migration (v0.77.0)
 
 Whole-app port, executed per `docs/SDL3_MIGRATION_PLAN.md` (Session 1 of the

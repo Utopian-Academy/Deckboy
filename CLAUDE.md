@@ -58,6 +58,7 @@ cmake --build ../build/windows --config Release
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
 | `native/core/system_browser.hpp` | Cross-platform `openExternalUrl()` for dep prompts |
 | `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
+| `native/engine/libav_decoder.hpp/.cpp` | In-process libav decode pipelines (v0.78.0): d3d11va zero-copy video, audio→s16/48k, D3D11 interop helpers. Behind `DECKBOY_INPROC_DECODE` |
 | `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
 
 ---
@@ -90,7 +91,8 @@ Current field counts:
 ## MediaEngine Internals
 
 - `loadCue()` → sets `activeCue_`, geometry, calls `initStillTimer` for still-type cues, then `startDecoderThreads` or `loadStillFrame`/`loadPatternFrame`
-- `startDecoderThreads()` → spawns ffmpeg video + audio subprocesses as pipe sources. Picks `nv12` pipe format when the cue has no chroma key / color controls, otherwise `rgba` (so the CPU effects path stays valid). Scaler is `fast_bilinear` — bicubic is too expensive and visually indistinguishable on moving video.
+- `startDecoderThreads()` → **in-process libav decode first** (v0.78.0, file-backed cues, `startInprocDecoders`): d3d11va zero-copy onto the program output's D3D11 device when the cue takes the NV12 path (frames ride `DecodedFrame::gpu*`, composited via per-deck GPU bridge in `app_render_output.ipp`), CPU frames otherwise. Falls back to the classic ffmpeg subprocess pipes for live streams (SRT/NDI), rotated files, open failures, or `--no-inproc-decode`. CLI path picks `nv12` pipe format when the cue has no chroma key / color controls, otherwise `rgba` (so the CPU effects path stays valid). Scaler is `fast_bilinear` — bicubic is too expensive and visually indistinguishable on moving video.
+- Decode watchdog: `consumeDecodeStall()` polled in `app_update.ipp` — a wedged in-process decode reracks the deck dark + toasts. See DEVNOTES "In-Process GPU Decode".
 - `startBrowserFrameMode()` → called when first browser frame arrives; must preserve `duration_` from `activeCue_->stillDurationSeconds`
 - `visualFadeGainAt()` → returns 1.0 when no duration or fade defined; suppressed for auto-advance cues. Evaluated at `position()`, so paused stills MUST keep a sane `currentPosition_` (held at `pausedPosition_`, not 0) or the fade-in ramp drives the held frame to 0 alpha — see DEVNOTES `Still Cue Hold / Fade Interaction`.
 - Still-type cues (`isDefaultStillDurationCueKind`) default to `fadeOutSeconds = 0` in `applyDeckDefaultsToCue` so a held graphic doesn't dip to black; per-cue fade-out still works if enabled.
@@ -175,6 +177,9 @@ The app runs on SDL3 (migrated from SDL2 in v0.77.0). Rules that keep it working
   via `deckboySetAudioPaused`. Streams open paused.
 - SDL3 functions return `bool` (true = success) — never check `== 0`.
 - `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0"` at init is load-bearing; never remove.
+- `SDL_HINT_RENDER_DIRECT3D_THREADSAFE = "1"` at init is load-bearing (v0.78.0):
+  without it SDL's D3D11 devices are single-threaded and the in-process
+  decoder cannot share them (random crash/deadlock); never remove.
 - Full migration notes: DEVNOTES "SDL2 → SDL3 Migration".
 
 ## Key Conventions
