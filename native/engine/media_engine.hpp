@@ -230,6 +230,7 @@ class MediaEngine {
   void loadPatternFrame(const Cue& cue);                   // generate a pattern frame and upload
   void loadSourceFrame(const Cue& cue);                    // start source capture for camera/window cues
   void clearAudio();                                       // flush the SDL audio queue
+  void queuePocketSyncAudio();                             // synthesize the pocket-test A/V sync pop
   size_t queuedFrames();                                   // number of frames waiting in frameQueue_
   void stopDecoderThreads();                               // kill ffmpeg processes and join threads
   bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const; // build ffmpeg args for source capture

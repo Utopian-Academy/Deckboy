@@ -1,5 +1,15 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.3 (Pocket Test A/V sync pop)
+
+- **The test card now checks audio/video sync.** A buoy bobs in the ocean;
+  its lamp flashes for 80 ms at the top of every second, and the deck plays
+  a matching 1 kHz pop in exactly that window — the first audio a pattern
+  cue has ever produced. Watch and listen at the end of the chain: any gap
+  between flash and pop is the chain's A/V offset. The pop respects deck
+  volume, master gain, and cue fades, and drives the VU meters like any
+  decoded audio. Mute it per-cue with the cue's audio toggle.
+
 ## 2026-07-09 — v0.78.2 (Pocket Test goes diegetic)
 
 - **The test card's instruments are now part of the island world** (the
