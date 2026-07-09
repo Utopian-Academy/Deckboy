@@ -3129,37 +3129,44 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
 }
 
 // ---------------------------------------------------------------------------
-// drawPocketTestCardOverlay — Broadcast test-card instrumentation.
+// drawPocketTestCardOverlay — Diegetic broadcast test card.
 //
 // Drawn over the pocket-test scene (only the auto-cycling "pocket-test"
-// pattern — the forced-scene variants stay clean). Every element earns its
-// place as a real output check:
+// pattern — the forced-scene variants stay clean). The instruments are
+// scene OBJECTS, not chart furniture — the card reads as a game screen
+// first — but every measurement value is exact:
 //
-//   - 1px black/white checkerboard border  → pixel mapping. Any scaling or
-//     filtering between Deckboy and the display turns it grey mush.
-//   - Corner registration marks            → cropping / overscan.
-//   - Dashed 90% / 80% rectangles          → action- and title-safe areas.
-//   - Center crosshair                     → alignment / warp reference.
-//   - Instrument strip (bottom):
-//       75% color bars + black/white       → color reproduction.
-//       11-step grayscale staircase        → gamma / levels.
-//       Continuous ramp                    → banding (stream encoders, 8-bit
-//                                            dongles show contours here).
-//       PLUGE-style patches 0/2/4% black
-//       and 100/98/96% white               → black crush / white clip. If the
-//                                            2% and 4% patches vanish into the
-//                                            0%, the chain is crushing blacks.
-//       Flicker box (~30 Hz alternation)   → frame doubling/dropping. Should
-//                                            shimmer evenly; beating or
-//                                            freezing means dropped frames.
-//       Full-width motion lane             → judder. The bright bar sweeps at
-//                                            constant velocity over 10% ticks;
-//                                            any stutter is instantly visible.
-//   - Info plate (3x5 pixel font)          → build version, actual raster
-//                                            WxH, running clock, scene name.
+//   - Billboard on the beach              → 100% white, 75% color bars,
+//                                           black: color reproduction.
+//   - Stone staircase (right)             → 11 steps, 0%→100% front faces:
+//                                           gamma / levels.
+//   - Banner across the sky               → continuous black→white ramp:
+//                                           banding (stream encoders, 8-bit
+//                                           dongles draw contours on it).
+//   - Cave on the island                  → two pairs of eyes at 2% and 4%
+//                                           on 0% black: if the chain
+//                                           crushes blacks, the eyes vanish.
+//   - Big cloud                           → lumps at 98% / 96% on 100%
+//                                           white: white clip eats them.
+//   - Flashing ? block (~30 Hz)           → frame doubling/dropping: even
+//                                           shimmer = healthy; beating or
+//                                           freezing = dropped frames.
+//   - Beach TV playing "static"           → single-pixel checker + 1px
+//                                           stripes: fine detail; any
+//                                           scaling greys the screen out.
+//   - Fence posts at exact 10% spacing
+//     with a runner at constant velocity  → judder: stutter shows as jumps
+//                                           against the posts (3 s/screen).
+//   - Dialog box (3x5 pixel font)         → build version, raster, clock,
+//                                           scene name; the blinking
+//                                           continue-cursor is a 1 Hz
+//                                           refresh check.
+//   - 1px checkerboard border + corner marks → pixel mapping and
+//     crop/overscan (any scaling turns the border grey).
+//   - Dashed 90% / 80% rectangles + crosshair → safe areas / alignment.
 //
-// All geometry is proportional; the pixel-precision elements (border,
-// checker patch) are deliberately NOT scaled — single pixels are the point.
+// Geometry is proportional; the pixel-precision elements (border, TV
+// static) are deliberately NOT scaled — single pixels are the point.
 // ---------------------------------------------------------------------------
 void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int scene) {
   const int W = frame.width;
@@ -3189,8 +3196,35 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
 
   const SDL_Color white {255, 255, 255, 255};
   const SDL_Color black {0, 0, 0, 255};
-  const SDL_Color plate {10, 16, 28, 255};
-  const SDL_Color grey {150, 158, 170, 255};
+  // Game Boy-era dialog chrome: cream panels, ink-navy borders and text,
+  // a red accent — the card should read like a Pokémon menu, not a scope.
+  // Only the CHROME uses this palette; measurement patches stay exact.
+  const SDL_Color gbCream {248, 244, 216, 255};
+  const SDL_Color gbShade {200, 192, 160, 255};
+  const SDL_Color gbInk {40, 40, 64, 255};
+  const SDL_Color gbRed {200, 64, 48, 255};
+
+  // Classic dialog-box frame: cream fill, chunky ink border with stepped
+  // (rounded) corners and an inner highlight/shade — border thickness rides
+  // the proportional unit so it stays Game Boy-chunky at any raster.
+  const int u = std::max(1, H / 240);  // proportional unit (3 at 720p)
+  auto gbBox = [&](int x, int y, int w, int h) {
+    const int b = u;
+    rect(x + b, y + b, w - 2 * b, h - 2 * b, gbCream);
+    rect(x + 2 * b, y, w - 4 * b, b, gbInk);           // outer border, corners cut
+    rect(x + 2 * b, y + h - b, w - 4 * b, b, gbInk);
+    rect(x, y + 2 * b, b, h - 4 * b, gbInk);
+    rect(x + w - b, y + 2 * b, b, h - 4 * b, gbInk);
+    rect(x + b, y + b, b, b, gbInk);                   // stepped corner blocks
+    rect(x + w - 2 * b, y + b, b, b, gbInk);
+    rect(x + b, y + h - 2 * b, b, b, gbInk);
+    rect(x + w - 2 * b, y + h - 2 * b, b, b, gbInk);
+    rect(x + 2 * b, y + b, w - 4 * b, b, white);       // inner highlight (top/left)
+    rect(x + b, y + 2 * b, b, h - 4 * b, white);
+    rect(x + 2 * b, y + h - 2 * b, w - 4 * b, b, gbShade);  // inner shade (bottom/right)
+    rect(x + w - 2 * b, y + 2 * b, b, h - 4 * b, gbShade);
+  };
+
 
   // ── 3x5 pixel font (bit 2 = leftmost column) ──
   auto glyphRows = [](char c) -> const std::uint8_t* {
@@ -3210,6 +3244,7 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     static const std::uint8_t dot[5]   = {0,0,0,0,2};
     static const std::uint8_t slash[5] = {1,1,2,4,4};
     static const std::uint8_t dash[5]  = {0,0,7,0,0};
+    static const std::uint8_t bang[5]  = {2,2,2,0,2};
     static const std::uint8_t blank[5] = {0,0,0,0,0};
     if (c >= '0' && c <= '9') return digits[c - '0'];
     if (c >= 'A' && c <= 'Z') return letters[c - 'A'];
@@ -3218,6 +3253,7 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     if (c == '.') return dot;
     if (c == '/') return slash;
     if (c == '-') return dash;
+    if (c == '!') return bang;
     return blank;
   };
   auto textWidth = [&](const std::string& s, int scale) {
@@ -3230,7 +3266,6 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
       for (int ry = 0; ry < 5; ++ry) {
         for (int rx = 0; rx < 3; ++rx) {
           if (rows[ry] & (4 >> rx)) {
-            rect(cx + rx * scale + scale, y + ry * scale + scale, scale, scale, black);  // shadow
             rect(cx + rx * scale, y + ry * scale, scale, scale, color);
           }
         }
@@ -3239,110 +3274,189 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     }
   };
 
-  const int u = std::max(1, H / 240);  // proportional unit (3 at 720p)
+  // ── Diegetic instruments: every measurement is a scene object ──
+  // The zone constants mirror buildPocketTest's layout so props sit in the
+  // right part of the world.
+  const int beachTop = H * 83 / 100;
+  auto disc = [&](int cx, int cy, int radius, const SDL_Color& color) {
+    int r2 = radius * radius;
+    for (int dy = -radius; dy <= radius; ++dy) {
+      for (int dx = -radius; dx <= radius; ++dx) {
+        if (dx * dx + dy * dy <= r2) {
+          put(cx + dx, cy + dy, color);
+        }
+      }
+    }
+  };
+  const SDL_Color wood {116, 84, 52, 255};
+  const SDL_Color woodDark {84, 58, 36, 255};
 
-  // ── Instrument strip (bottom) ──
-  const int laneH = std::max(6, 4 * u);              // motion lane at very bottom
-  const int stripH = std::clamp(H * 16 / 100, 28, 999);
-  const int stripY = H - stripH;
-  rect(0, stripY - 1, W, 1, SDL_Color {90, 96, 110, 255});  // separator
-  rect(0, stripY, W, stripH, plate);
-
-  const int pad = 2;
-  const int rowAY = stripY + pad;
-  const int rowAH = (stripH - laneH - pad * 3) * 55 / 100;
-  const int rowBY = rowAY + rowAH + pad;
-  const int rowBH = (stripH - laneH - pad * 3) - rowAH - pad;
-  const int innerW = W - pad * 2;
-
-  // Row A: 75% color bars | grayscale staircase | PLUGE patches
+  // White-clip cloud: a 100% white cloud with lumps at 98% and 96%. If the
+  // chain clips whites, the lumps melt into the cloud. Mid-sky, clear of
+  // the dialog box and the sun.
   {
-    // 100% white, 75% yellow/cyan/green/magenta/red/blue, black
+    int cx = W * 42 / 100;
+    int cy = H * 14 / 100;
+    int r = std::max(10, H * 5 / 100);
+    disc(cx, cy, r, white);
+    disc(cx - r, cy + r / 3, r * 3 / 4, white);
+    disc(cx + r, cy + r / 3, r * 3 / 4, white);
+    rect(cx - r * 3 / 2, cy + r / 3, r * 3, r * 2 / 3, white);
+    disc(cx - r / 2, cy - r / 4, r / 2, SDL_Color {250, 250, 250, 255});   // 98%
+    disc(cx + r / 2, cy + r / 4, r * 2 / 5, SDL_Color {245, 245, 245, 255}); // 96%
+  }
+
+  // Black-crush cave: a pure-black cave mouth in the island hillside with
+  // two pairs of eyes at 2% and 4%. Crushed blacks eat the eyes.
+  {
+    int cx = W / 2;
+    int caveW = std::max(16, W * 5 / 100);
+    int caveH = std::max(8, H * 3 / 100);
+    int caveY = beachTop - 5;
+    rect(cx - caveW / 2, caveY - caveH, caveW, caveH, black);
+    disc(cx, caveY - caveH, caveW / 2, black);   // arched top
+    int eye = std::max(2, u);
+    int eyeY = caveY - caveH / 2 - eye;
+    rect(cx - caveW / 4 - eye, eyeY, eye, eye, SDL_Color {5, 5, 5, 255});       // 2%
+    rect(cx - caveW / 4 + eye, eyeY, eye, eye, SDL_Color {5, 5, 5, 255});
+    rect(cx + caveW / 4 - eye * 2, eyeY - eye / 2, eye, eye, SDL_Color {10, 10, 10, 255});  // 4%
+    rect(cx + caveW / 4, eyeY - eye / 2, eye, eye, SDL_Color {10, 10, 10, 255});
+  }
+
+  // Color-bar billboard: 100% white, 75% bars, black — on a wooden stand.
+  {
+    int bx = W * 5 / 100;
+    int bw = W * 26 / 100;
+    int bh = std::max(16, H * 11 / 100);
+    int by = beachTop - bh - H * 5 / 100;
     const std::array<SDL_Color, 8> bars {{
       {255, 255, 255, 255}, {191, 191, 0, 255}, {0, 191, 191, 255}, {0, 191, 0, 255},
       {191, 0, 191, 255}, {191, 0, 0, 255}, {0, 0, 191, 255}, {0, 0, 0, 255},
     }};
-    int barsW = innerW * 42 / 100;
-    int bw = barsW / static_cast<int>(bars.size());
+    rect(bx + bw / 6, by + bh, u + 1, beachTop + H / 50 - by - bh, wood);   // legs
+    rect(bx + bw - bw / 6, by + bh, u + 1, beachTop + H / 50 - by - bh, wood);
+    rect(bx - u, by - u, bw + 2 * u, bh + 2 * u, woodDark);                 // frame
+    int cell = bw / static_cast<int>(bars.size());
     for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
-      rect(pad + i * bw, rowAY, bw - 1, rowAH, bars[i]);
+      rect(bx + i * cell, by, cell, bh, bars[i]);
     }
+    rect(bx + static_cast<int>(bars.size()) * cell, by,
+         bw - static_cast<int>(bars.size()) * cell, bh, bars.back());
+  }
 
-    // 11-step grayscale staircase 0..100%
-    int stepsX = pad + barsW + pad;
-    int stepsW = innerW * 36 / 100;
-    int sw = stepsW / 11;
+  // Banding banner: continuous black→white ramp strung across the scene.
+  // Encoders and 8-bit links draw contour lines here.
+  {
+    int bx0 = W * 30 / 100;
+    int bx1 = W * 88 / 100;
+    int by = H * 27 / 100;
+    int bh = std::max(8, H * 3 / 100);
+    rect(bx0 - 1, by - 1, (bx1 - bx0) + 2, bh + 2, gbInk);
+    for (int x = bx0; x < bx1; ++x) {
+      Uint8 v = static_cast<Uint8>(std::lround((x - bx0) * 255.0 / std::max(1, bx1 - bx0 - 1)));
+      rect(x, by, 1, bh, SDL_Color {v, v, v, 255});
+    }
+    for (int row = 0; row < 3; ++row) {  // little flags at the rope ends
+      rect(bx0 - 2 - (3 - row) * u, by + row * u, (3 - row) * u, u, gbRed);
+      rect(bx1 + 2, by + row * u, (3 - row) * u, u, gbRed);
+    }
+  }
+
+  // Grayscale staircase: 11 stone steps, 0%→100% front faces, climbing to
+  // the right edge — the gamma/levels check.
+  {
+    int sw = std::max(6, W * 2 / 100);
+    int rise = std::max(3, H * 13 / 1000);
+    // Sit on the beach, above the scene's rainbow footer strip.
+    int baseY = H - std::max(16, H / 14) - 3;
+    int x0 = W - W * 4 / 100 - 11 * sw;
     for (int i = 0; i < 11; ++i) {
       Uint8 v = static_cast<Uint8>(std::lround(i * 255.0 / 10.0));
-      rect(stepsX + i * sw, rowAY, sw - 1, rowAH, SDL_Color {v, v, v, 255});
-    }
-
-    // PLUGE cluster: near-black patches on black, near-white on white.
-    // If 2%/4% merge into 0% (or 98%/96% into 100%), the chain clips.
-    int plugeX = stepsX + stepsW + pad;
-    int plugeW = W - pad - plugeX;
-    int half = plugeW / 2;
-    rect(plugeX, rowAY, half - 1, rowAH, black);
-    rect(plugeX + half, rowAY, plugeW - half, rowAH, white);
-    int pw = std::max(2, (half - 8) / 3);
-    int ph = std::max(2, rowAH / 2);
-    int py = rowAY + (rowAH - ph) / 2;
-    const std::uint8_t blacks[2] = {5, 10};    // 2%, 4%
-    const std::uint8_t whites[2] = {250, 245}; // 98%, 96%
-    for (int i = 0; i < 2; ++i) {
-      rect(plugeX + 3 + i * (pw + 2), py, pw, ph, SDL_Color {blacks[i], blacks[i], blacks[i], 255});
-      rect(plugeX + half + 3 + i * (pw + 2), py, pw, ph, SDL_Color {whites[i], whites[i], whites[i], 255});
+      int faceH = (i + 1) * rise;
+      rect(x0 + i * sw, baseY - faceH, sw, faceH, SDL_Color {v, v, v, 255});
+      rect(x0 + i * sw, baseY - faceH - 1, sw, 1, gbInk);  // tread edge
     }
   }
 
-  // Row B: continuous ramp | 1px checker patch | flicker box
+  // Flashing ? block: face alternates white/black at ~30 Hz. Even shimmer =
+  // healthy cadence; beating or freezing = dropped/doubled frames.
   {
-    int rampW = innerW * 70 / 100;
-    for (int x = 0; x < rampW; ++x) {
-      Uint8 v = static_cast<Uint8>(std::lround(x * 255.0 / std::max(1, rampW - 1)));
-      rect(pad + x, rowBY, 1, rowBH, SDL_Color {v, v, v, 255});
-    }
-
-    // Fine-detail patch: left half single-pixel checkerboard (any scaling
-    // greys it out), right half 1px horizontal stripes (vertical scaling /
-    // interlace artifacts show here).
-    int checkX = pad + rampW + pad;
-    int checkW = innerW * 14 / 100;
-    int halfCheck = checkW / 2;
-    for (int y = 0; y < rowBH; ++y) {
-      for (int x = 0; x < checkW; ++x) {
-        Uint8 v = (x < halfCheck)
-          ? (((x + y) & 1) ? 255 : 0)
-          : ((y & 1) ? 255 : 0);
-        put(checkX + x, rowBY + y, SDL_Color {v, v, v, 255});
+    int s = std::max(12, H * 45 / 1000);
+    int qx = W * 61 / 100;
+    int qy = beachTop - H * 21 / 100;
+    rect(qx - u, qy - u, s + 2 * u, s + 2 * u, SDL_Color {232, 188, 92, 255});  // gold frame
+    put(qx - u, qy - u, gbInk);
+    put(qx + s + u - 1, qy - u, gbInk);
+    put(qx - u, qy + s + u - 1, gbInk);
+    put(qx + s + u - 1, qy + s + u - 1, gbInk);
+    bool flickOn = (static_cast<long long>(std::floor(t * 30.0)) & 1) != 0;
+    rect(qx, qy, s, s, flickOn ? white : black);
+    // "?" in mid grey so it reads in both phases without biasing the flash
+    const std::uint8_t q[5] = {7, 1, 2, 0, 2};
+    int gs = std::max(1, s / 7);
+    int gx = qx + (s - 3 * gs) / 2;
+    int gy = qy + (s - 5 * gs) / 2;
+    for (int ry = 0; ry < 5; ++ry) {
+      for (int rx = 0; rx < 3; ++rx) {
+        if (q[ry] & (4 >> rx)) {
+          rect(gx + rx * gs, gy + ry * gs, gs, gs, SDL_Color {128, 128, 128, 255});
+        }
       }
     }
-
-    // Flicker box: alternates at ~30 Hz. Even shimmer = healthy cadence;
-    // beating or freezing = dropped/doubled frames somewhere in the chain.
-    int flickX = checkX + checkW + pad;
-    int flickW = W - pad - flickX;
-    bool flickOn = (static_cast<long long>(std::floor(t * 30.0)) & 1) != 0;
-    rect(flickX, rowBY, flickW, rowBH, flickOn ? white : black);
-    rect(flickX, rowBY, flickW, 1, grey);
-    rect(flickX, rowBY + rowBH - 1, flickW, 1, grey);
   }
 
-  // Motion lane: full-width, constant-velocity sweep over 10% ticks.
+  // Beach television: single-pixel checker + 1px stripes on the screen —
+  // the fine-detail/scaling check, playing "static".
   {
-    int laneY = H - laneH;
-    rect(0, laneY, W, laneH, SDL_Color {24, 28, 40, 255});
-    for (int i = 0; i <= 10; ++i) {
-      int tickX = static_cast<int>(std::lround(i * (W - 1) / 10.0));
-      rect(tickX, laneY, 1, laneH, (i == 5) ? white : grey);
+    int tw = std::max(24, W * 75 / 1000);
+    int th = std::max(18, H * 65 / 1000);
+    int tx = W * 36 / 100;
+    int ty = beachTop + H / 90;
+    rect(tx + tw / 4, ty - th / 3, 1, th / 3, gbInk);            // antennas
+    rect(tx + tw / 4 - th / 4, ty - th / 3 - th / 4, 1, th / 4 + 2, gbInk);
+    rect(tx + tw / 4 + th / 4, ty - th / 3 - th / 4, 1, th / 4 + 2, gbInk);
+    rect(tx - u, ty - u, tw + 2 * u, th + 2 * u, woodDark);      // housing
+    rect(tx, ty, tw, th, wood);
+    int sx = tx + u + 1;
+    int sy = ty + u + 1;
+    int sw2 = tw - 2 * (u + 1);
+    int sh2 = th - 2 * (u + 1);
+    for (int y = 0; y < sh2; ++y) {
+      for (int x = 0; x < sw2; ++x) {
+        Uint8 v = (x < sw2 / 2) ? (((x + y) & 1) ? 255 : 0)
+                                : ((y & 1) ? 255 : 0);
+        put(sx + x, sy + y, SDL_Color {v, v, v, 255});
+      }
     }
-    // Primary sweep: 3 s per screen width. Secondary at half speed, half height.
-    int sweepW = std::max(3, 2 * u);
-    double sweep = std::fmod(t / 3.0, 1.0);
-    int sweepX = static_cast<int>(std::lround(sweep * (W - sweepW)));
-    rect(sweepX, laneY, sweepW, laneH, SDL_Color {255, 220, 80, 255});
-    double sweep2 = std::fmod(t / 6.0, 1.0);
-    rect(static_cast<int>(std::lround(sweep2 * (W - 2))), laneY + laneH / 2, 2, laneH - laneH / 2, white);
+    rect(tx, ty + th, u + 1, u + 1, woodDark);                   // feet
+    rect(tx + tw - u - 1, ty + th, u + 1, u + 1, woodDark);
+  }
+
+  // Fence + runner: posts at exact 10% intervals, and a jogger crossing the
+  // full width at constant velocity (3 s per screen) — judder shows as
+  // jumps against the posts.
+  {
+    int postH = std::max(8, H * 4 / 100);
+    // On the beach, above the scene's rainbow footer strip.
+    int postY = H - std::max(16, H / 14) - 3 - postH;
+    int postW = std::max(2, u);
+    for (int i = 0; i <= 10; ++i) {
+      int px = static_cast<int>(std::lround(i * (W - postW) / 10.0));
+      rect(px, postY, postW, postH, wood);
+      rect(px, postY, postW, 1, SDL_Color {200, 168, 120, 255});
+    }
+    rect(0, postY + postH / 3, W, 1, wood);                      // rail
+    // Runner sprite: red shirt, two-frame legs at 8 Hz. Tall enough to read
+    // from the back of a venue.
+    double runPhase = std::fmod(t / 3.0, 1.0);
+    int rx = static_cast<int>(std::lround(runPhase * (W + 12 * u))) - 6 * u;
+    int ry = postY + postH - 10 * u;
+    bool stride = (static_cast<long long>(std::floor(t * 8.0)) & 1) != 0;
+    rect(rx + u / 2, ry - 3 * u, 3 * u, 3 * u, SDL_Color {252, 216, 168, 255});  // head
+    rect(rx, ry, 4 * u, 4 * u, gbRed);                                            // shirt
+    rect(rx + (stride ? -u : 4 * u), ry + u, u, 2 * u, gbRed);                    // trailing arm
+    rect(rx + (stride ? -u : u * 2), ry + 4 * u, u, 3 * u, gbInk);                // legs
+    rect(rx + (stride ? u * 3 : u), ry + 4 * u, u, 3 * u, gbInk);
   }
 
   // ── Pixel-mapping border: outer 1px checkerboard ring + inner dark ring ──
@@ -3389,40 +3503,50 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     }
   };
   dashedRect(W * 5 / 100, H * 5 / 100, W * 95 / 100, H * 95 / 100, white);
-  dashedRect(W * 10 / 100, H * 10 / 100, W * 90 / 100, H * 90 / 100, grey);
+  dashedRect(W * 10 / 100, H * 10 / 100, W * 90 / 100, H * 90 / 100, gbInk);
 
   // ── Center crosshair ──
   {
     int cx = W / 2;
     int cy = H / 2;
     int arm = 8 * u;
-    rect(cx - arm, cy - 1, arm * 2 + 1, 3, black);
-    rect(cx - 1, cy - arm, 3, arm * 2 + 1, black);
+    rect(cx - arm, cy - 1, arm * 2 + 1, 3, gbInk);
+    rect(cx - 1, cy - arm, 3, arm * 2 + 1, gbInk);
     rect(cx - arm, cy, arm * 2 + 1, 1, white);
     rect(cx, cy - arm, 1, arm * 2 + 1, white);
   }
 
-  // ── Info plate: version, raster, clock, scene ──
+  // ── Info dialog: version, raster + clock, encounter text ──
   {
     static const char* kSceneNames[4] = {"DAY", "SUNSET", "NIGHT", "STORM"};
     int scale = u;
     std::string line1 = std::string("DECKBOY ") + deckboy::core::version::kVersionTag;
-    std::string line2 = std::to_string(W) + "X" + std::to_string(H);
     int totalSeconds = static_cast<int>(t);
     int tenths = static_cast<int>(t * 10.0) % 10;
     char clock[24];
     std::snprintf(clock, sizeof(clock), "%02d:%02d.%d", (totalSeconds / 60) % 100, totalSeconds % 60, tenths);
-    std::string line3 = std::string(clock) + "  " +
-                        kSceneNames[std::clamp(scene, 0, 3)];
+    std::string line2 = std::to_string(W) + "X" + std::to_string(H) + "  " + clock;
+    std::string line3 = std::string("A WILD ") + kSceneNames[std::clamp(scene, 0, 3)] + " APPEARED!";
     int lineH = 6 * scale + 2;
-    int plateW = std::max({textWidth(line1, scale), textWidth(line2, scale), textWidth(line3, scale)}) + 8;
+    int pd = 2 * u + 3;  // text inset clearing the chunky border
+    int plateW = std::max({textWidth(line1, scale), textWidth(line2, scale), textWidth(line3, scale)})
+               + pd * 2 + 6 * scale;  // room for the continue-cursor
+    int plateH = lineH * 3 + pd * 2;
     int plateX = W * 5 / 100 + 3;
     int plateY = H * 5 / 100 + 3;
-    rect(plateX, plateY, plateW, lineH * 3 + 6, SDL_Color {10, 16, 28, 235});
-    rect(plateX, plateY, plateW, 1, grey);
-    drawText(plateX + 4, plateY + 4, scale, line1, SDL_Color {255, 226, 120, 255});
-    drawText(plateX + 4, plateY + 4 + lineH, scale, line2, white);
-    drawText(plateX + 4, plateY + 4 + lineH * 2, scale, line3, SDL_Color {150, 220, 255, 255});
+    gbBox(plateX, plateY, plateW, plateH);
+    drawText(plateX + pd, plateY + pd, scale, line1, gbRed);
+    drawText(plateX + pd, plateY + pd + lineH, scale, line2, gbInk);
+    drawText(plateX + pd, plateY + pd + lineH * 2, scale, line3, gbInk);
+    // Blinking continue-cursor (also a cheap refresh check — it must blink
+    // steadily at 1 Hz on a healthy output).
+    if ((static_cast<long long>(std::floor(t * 2.0)) & 1) == 0) {
+      int ax = plateX + plateW - pd - 5 * scale;
+      int ay = plateY + plateH - pd - 3 * scale;
+      for (int row = 0; row < 3; ++row) {
+        rect(ax + row * scale, ay + row * scale, (5 - 2 * row) * scale, scale, gbInk);
+      }
+    }
   }
 }
 
