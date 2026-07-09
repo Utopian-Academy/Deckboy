@@ -1,5 +1,28 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.1 (Pocket Test is now a real test card)
+
+- **The Pocket Test pattern grew broadcast instrumentation.** The island
+  scene stays as the living backdrop; drawn over it (auto-cycling
+  `pocket-test` only — `pocket-day/sunset/night/storm` stay clean for use as
+  backgrounds):
+  - **1px checkerboard border + corner marks** — pixel mapping and
+    crop/overscan: any scaling between Deckboy and the display greys the
+    border out instantly.
+  - **Dashed 90% / 80% safe-area guides + center crosshair.**
+  - **Instrument strip:** 75% color bars, 11-step grayscale staircase,
+    continuous ramp (banding check), PLUGE-style 0/2/4% black and
+    100/98/96% white patches (black crush / white clip), single-pixel
+    checker + 1px stripe patches (fine detail / interlace), ~30 Hz flicker
+    box (dropped/doubled frames), and a full-width constant-velocity motion
+    lane with 10% ticks (judder).
+  - **Info plate** in a built-in 3x5 pixel font: build version, actual
+    raster (e.g. 1280x720), running clock, scene name.
+- New `--pattern-dump <pattern-id> <out.ppm> [WxH] [t]` CLI renders any
+  pattern frame to a PPM for inspection/docs.
+- `--smoke` asserts the card instrumentation is present and that the scene
+  variants stay clean.
+
 ## 2026-07-09 — v0.78.0 (in-process GPU decode — zero-copy video)
 
 - **File-backed Video/Audio cues now decode in-process via the FFmpeg

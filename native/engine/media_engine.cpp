@@ -3118,6 +3118,312 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     int pulseY = stripY + stripH / 2 + static_cast<int>(std::sin(t * 3.0 + i * 0.7) * (stripH / 4));
     rect(8 + i * barW + 2, pulseY, barW - 6, 1, SDL_Color {255, 255, 255, 255});
   }
+
+  // pocket-test proper (the auto-cycling default) is Deckboy's working test
+  // card: the scene stays as the living backdrop and gets real broadcast
+  // instrumentation drawn over it. The forced-scene variants (pocket-day &
+  // friends) stay clean so they remain usable as backgrounds.
+  if (forcedScene < 0 || forcedScene > 3) {
+    drawPocketTestCardOverlay(frame, t, scene);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// drawPocketTestCardOverlay — Broadcast test-card instrumentation.
+//
+// Drawn over the pocket-test scene (only the auto-cycling "pocket-test"
+// pattern — the forced-scene variants stay clean). Every element earns its
+// place as a real output check:
+//
+//   - 1px black/white checkerboard border  → pixel mapping. Any scaling or
+//     filtering between Deckboy and the display turns it grey mush.
+//   - Corner registration marks            → cropping / overscan.
+//   - Dashed 90% / 80% rectangles          → action- and title-safe areas.
+//   - Center crosshair                     → alignment / warp reference.
+//   - Instrument strip (bottom):
+//       75% color bars + black/white       → color reproduction.
+//       11-step grayscale staircase        → gamma / levels.
+//       Continuous ramp                    → banding (stream encoders, 8-bit
+//                                            dongles show contours here).
+//       PLUGE-style patches 0/2/4% black
+//       and 100/98/96% white               → black crush / white clip. If the
+//                                            2% and 4% patches vanish into the
+//                                            0%, the chain is crushing blacks.
+//       Flicker box (~30 Hz alternation)   → frame doubling/dropping. Should
+//                                            shimmer evenly; beating or
+//                                            freezing means dropped frames.
+//       Full-width motion lane             → judder. The bright bar sweeps at
+//                                            constant velocity over 10% ticks;
+//                                            any stutter is instantly visible.
+//   - Info plate (3x5 pixel font)          → build version, actual raster
+//                                            WxH, running clock, scene name.
+//
+// All geometry is proportional; the pixel-precision elements (border,
+// checker patch) are deliberately NOT scaled — single pixels are the point.
+// ---------------------------------------------------------------------------
+void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int scene) {
+  const int W = frame.width;
+  const int H = frame.height;
+
+  auto put = [&](int x, int y, const SDL_Color& color) {
+    if (x < 0 || y < 0 || x >= W || y >= H) {
+      return;
+    }
+    size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(W) + static_cast<size_t>(x)) * 4u;
+    frame.pixels[idx + 0] = color.r;
+    frame.pixels[idx + 1] = color.g;
+    frame.pixels[idx + 2] = color.b;
+    frame.pixels[idx + 3] = color.a;
+  };
+  auto rect = [&](int x, int y, int w, int h, const SDL_Color& color) {
+    int x0 = std::max(0, x);
+    int y0 = std::max(0, y);
+    int x1 = std::min(W, x + w);
+    int y1 = std::min(H, y + h);
+    for (int yy = y0; yy < y1; ++yy) {
+      for (int xx = x0; xx < x1; ++xx) {
+        put(xx, yy, color);
+      }
+    }
+  };
+
+  const SDL_Color white {255, 255, 255, 255};
+  const SDL_Color black {0, 0, 0, 255};
+  const SDL_Color plate {10, 16, 28, 255};
+  const SDL_Color grey {150, 158, 170, 255};
+
+  // ── 3x5 pixel font (bit 2 = leftmost column) ──
+  auto glyphRows = [](char c) -> const std::uint8_t* {
+    static const std::uint8_t digits[10][5] = {
+      {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+      {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
+    };
+    static const std::uint8_t letters[26][5] = {
+      {2,5,7,5,5}, {6,5,6,5,6}, {3,4,4,4,3}, {6,5,5,5,6}, {7,4,6,4,7},  // A-E
+      {7,4,6,4,4}, {3,4,5,5,3}, {5,5,7,5,5}, {7,2,2,2,7}, {1,1,1,5,2},  // F-J
+      {5,6,4,6,5}, {4,4,4,4,7}, {5,7,7,5,5}, {6,5,5,5,5}, {2,5,5,5,2},  // K-O
+      {6,5,6,4,4}, {2,5,5,6,3}, {6,5,6,6,5}, {3,4,2,1,6}, {7,2,2,2,2},  // P-T
+      {5,5,5,5,7}, {5,5,5,5,2}, {5,5,7,7,5}, {5,5,2,5,5}, {5,5,2,2,2},  // U-Y
+      {7,1,2,4,7},                                                       // Z
+    };
+    static const std::uint8_t colon[5] = {0,2,0,2,0};
+    static const std::uint8_t dot[5]   = {0,0,0,0,2};
+    static const std::uint8_t slash[5] = {1,1,2,4,4};
+    static const std::uint8_t dash[5]  = {0,0,7,0,0};
+    static const std::uint8_t blank[5] = {0,0,0,0,0};
+    if (c >= '0' && c <= '9') return digits[c - '0'];
+    if (c >= 'A' && c <= 'Z') return letters[c - 'A'];
+    if (c >= 'a' && c <= 'z') return letters[c - 'a'];
+    if (c == ':') return colon;
+    if (c == '.') return dot;
+    if (c == '/') return slash;
+    if (c == '-') return dash;
+    return blank;
+  };
+  auto textWidth = [&](const std::string& s, int scale) {
+    return static_cast<int>(s.size()) * 4 * scale - scale;
+  };
+  auto drawText = [&](int x, int y, int scale, const std::string& s, const SDL_Color& color) {
+    int cx = x;
+    for (char c : s) {
+      const std::uint8_t* rows = glyphRows(c);
+      for (int ry = 0; ry < 5; ++ry) {
+        for (int rx = 0; rx < 3; ++rx) {
+          if (rows[ry] & (4 >> rx)) {
+            rect(cx + rx * scale + scale, y + ry * scale + scale, scale, scale, black);  // shadow
+            rect(cx + rx * scale, y + ry * scale, scale, scale, color);
+          }
+        }
+      }
+      cx += 4 * scale;
+    }
+  };
+
+  const int u = std::max(1, H / 240);  // proportional unit (3 at 720p)
+
+  // ── Instrument strip (bottom) ──
+  const int laneH = std::max(6, 4 * u);              // motion lane at very bottom
+  const int stripH = std::clamp(H * 16 / 100, 28, 999);
+  const int stripY = H - stripH;
+  rect(0, stripY - 1, W, 1, SDL_Color {90, 96, 110, 255});  // separator
+  rect(0, stripY, W, stripH, plate);
+
+  const int pad = 2;
+  const int rowAY = stripY + pad;
+  const int rowAH = (stripH - laneH - pad * 3) * 55 / 100;
+  const int rowBY = rowAY + rowAH + pad;
+  const int rowBH = (stripH - laneH - pad * 3) - rowAH - pad;
+  const int innerW = W - pad * 2;
+
+  // Row A: 75% color bars | grayscale staircase | PLUGE patches
+  {
+    // 100% white, 75% yellow/cyan/green/magenta/red/blue, black
+    const std::array<SDL_Color, 8> bars {{
+      {255, 255, 255, 255}, {191, 191, 0, 255}, {0, 191, 191, 255}, {0, 191, 0, 255},
+      {191, 0, 191, 255}, {191, 0, 0, 255}, {0, 0, 191, 255}, {0, 0, 0, 255},
+    }};
+    int barsW = innerW * 42 / 100;
+    int bw = barsW / static_cast<int>(bars.size());
+    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
+      rect(pad + i * bw, rowAY, bw - 1, rowAH, bars[i]);
+    }
+
+    // 11-step grayscale staircase 0..100%
+    int stepsX = pad + barsW + pad;
+    int stepsW = innerW * 36 / 100;
+    int sw = stepsW / 11;
+    for (int i = 0; i < 11; ++i) {
+      Uint8 v = static_cast<Uint8>(std::lround(i * 255.0 / 10.0));
+      rect(stepsX + i * sw, rowAY, sw - 1, rowAH, SDL_Color {v, v, v, 255});
+    }
+
+    // PLUGE cluster: near-black patches on black, near-white on white.
+    // If 2%/4% merge into 0% (or 98%/96% into 100%), the chain clips.
+    int plugeX = stepsX + stepsW + pad;
+    int plugeW = W - pad - plugeX;
+    int half = plugeW / 2;
+    rect(plugeX, rowAY, half - 1, rowAH, black);
+    rect(plugeX + half, rowAY, plugeW - half, rowAH, white);
+    int pw = std::max(2, (half - 8) / 3);
+    int ph = std::max(2, rowAH / 2);
+    int py = rowAY + (rowAH - ph) / 2;
+    const std::uint8_t blacks[2] = {5, 10};    // 2%, 4%
+    const std::uint8_t whites[2] = {250, 245}; // 98%, 96%
+    for (int i = 0; i < 2; ++i) {
+      rect(plugeX + 3 + i * (pw + 2), py, pw, ph, SDL_Color {blacks[i], blacks[i], blacks[i], 255});
+      rect(plugeX + half + 3 + i * (pw + 2), py, pw, ph, SDL_Color {whites[i], whites[i], whites[i], 255});
+    }
+  }
+
+  // Row B: continuous ramp | 1px checker patch | flicker box
+  {
+    int rampW = innerW * 70 / 100;
+    for (int x = 0; x < rampW; ++x) {
+      Uint8 v = static_cast<Uint8>(std::lround(x * 255.0 / std::max(1, rampW - 1)));
+      rect(pad + x, rowBY, 1, rowBH, SDL_Color {v, v, v, 255});
+    }
+
+    // Fine-detail patch: left half single-pixel checkerboard (any scaling
+    // greys it out), right half 1px horizontal stripes (vertical scaling /
+    // interlace artifacts show here).
+    int checkX = pad + rampW + pad;
+    int checkW = innerW * 14 / 100;
+    int halfCheck = checkW / 2;
+    for (int y = 0; y < rowBH; ++y) {
+      for (int x = 0; x < checkW; ++x) {
+        Uint8 v = (x < halfCheck)
+          ? (((x + y) & 1) ? 255 : 0)
+          : ((y & 1) ? 255 : 0);
+        put(checkX + x, rowBY + y, SDL_Color {v, v, v, 255});
+      }
+    }
+
+    // Flicker box: alternates at ~30 Hz. Even shimmer = healthy cadence;
+    // beating or freezing = dropped/doubled frames somewhere in the chain.
+    int flickX = checkX + checkW + pad;
+    int flickW = W - pad - flickX;
+    bool flickOn = (static_cast<long long>(std::floor(t * 30.0)) & 1) != 0;
+    rect(flickX, rowBY, flickW, rowBH, flickOn ? white : black);
+    rect(flickX, rowBY, flickW, 1, grey);
+    rect(flickX, rowBY + rowBH - 1, flickW, 1, grey);
+  }
+
+  // Motion lane: full-width, constant-velocity sweep over 10% ticks.
+  {
+    int laneY = H - laneH;
+    rect(0, laneY, W, laneH, SDL_Color {24, 28, 40, 255});
+    for (int i = 0; i <= 10; ++i) {
+      int tickX = static_cast<int>(std::lround(i * (W - 1) / 10.0));
+      rect(tickX, laneY, 1, laneH, (i == 5) ? white : grey);
+    }
+    // Primary sweep: 3 s per screen width. Secondary at half speed, half height.
+    int sweepW = std::max(3, 2 * u);
+    double sweep = std::fmod(t / 3.0, 1.0);
+    int sweepX = static_cast<int>(std::lround(sweep * (W - sweepW)));
+    rect(sweepX, laneY, sweepW, laneH, SDL_Color {255, 220, 80, 255});
+    double sweep2 = std::fmod(t / 6.0, 1.0);
+    rect(static_cast<int>(std::lround(sweep2 * (W - 2))), laneY + laneH / 2, 2, laneH - laneH / 2, white);
+  }
+
+  // ── Pixel-mapping border: outer 1px checkerboard ring + inner dark ring ──
+  for (int x = 0; x < W; ++x) {
+    Uint8 v = (x & 1) ? 255 : 0;
+    put(x, 0, SDL_Color {v, v, v, 255});
+    put(x, H - 1, SDL_Color {v, v, v, 255});
+  }
+  for (int y = 0; y < H; ++y) {
+    Uint8 v = (y & 1) ? 255 : 0;
+    put(0, y, SDL_Color {v, v, v, 255});
+    put(W - 1, y, SDL_Color {v, v, v, 255});
+  }
+  rect(1, 1, W - 2, 1, black);
+  rect(1, H - 2, W - 2, 1, black);
+  rect(1, 1, 1, H - 2, black);
+  rect(W - 2, 1, 1, H - 2, black);
+
+  // ── Corner registration marks (crop/overscan check) ──
+  {
+    int arm = 8 * u;
+    int th = u;
+    auto corner = [&](int x, int y, int dx, int dy) {
+      rect(std::min(x, x + dx * arm), y - (dy < 0 ? th - 1 : 0), arm + 1, th, white);
+      rect(x - (dx < 0 ? th - 1 : 0), std::min(y, y + dy * arm), th, arm + 1, white);
+    };
+    corner(3, 3, 1, 1);
+    corner(W - 4, 3, -1, 1);
+    corner(3, H - 4, 1, -1);
+    corner(W - 4, H - 4, -1, -1);
+  }
+
+  // ── Safe-area guides: dashed 90% (action) and 80% (title) ──
+  auto dashedRect = [&](int x0, int y0, int x1, int y1, const SDL_Color& color) {
+    for (int x = x0; x <= x1; ++x) {
+      if ((x / 4) & 1) continue;
+      put(x, y0, color);
+      put(x, y1, color);
+    }
+    for (int y = y0; y <= y1; ++y) {
+      if ((y / 4) & 1) continue;
+      put(x0, y, color);
+      put(x1, y, color);
+    }
+  };
+  dashedRect(W * 5 / 100, H * 5 / 100, W * 95 / 100, H * 95 / 100, white);
+  dashedRect(W * 10 / 100, H * 10 / 100, W * 90 / 100, H * 90 / 100, grey);
+
+  // ── Center crosshair ──
+  {
+    int cx = W / 2;
+    int cy = H / 2;
+    int arm = 8 * u;
+    rect(cx - arm, cy - 1, arm * 2 + 1, 3, black);
+    rect(cx - 1, cy - arm, 3, arm * 2 + 1, black);
+    rect(cx - arm, cy, arm * 2 + 1, 1, white);
+    rect(cx, cy - arm, 1, arm * 2 + 1, white);
+  }
+
+  // ── Info plate: version, raster, clock, scene ──
+  {
+    static const char* kSceneNames[4] = {"DAY", "SUNSET", "NIGHT", "STORM"};
+    int scale = u;
+    std::string line1 = std::string("DECKBOY ") + deckboy::core::version::kVersionTag;
+    std::string line2 = std::to_string(W) + "X" + std::to_string(H);
+    int totalSeconds = static_cast<int>(t);
+    int tenths = static_cast<int>(t * 10.0) % 10;
+    char clock[24];
+    std::snprintf(clock, sizeof(clock), "%02d:%02d.%d", (totalSeconds / 60) % 100, totalSeconds % 60, tenths);
+    std::string line3 = std::string(clock) + "  " +
+                        kSceneNames[std::clamp(scene, 0, 3)];
+    int lineH = 6 * scale + 2;
+    int plateW = std::max({textWidth(line1, scale), textWidth(line2, scale), textWidth(line3, scale)}) + 8;
+    int plateX = W * 5 / 100 + 3;
+    int plateY = H * 5 / 100 + 3;
+    rect(plateX, plateY, plateW, lineH * 3 + 6, SDL_Color {10, 16, 28, 235});
+    rect(plateX, plateY, plateW, 1, grey);
+    drawText(plateX + 4, plateY + 4, scale, line1, SDL_Color {255, 226, 120, 255});
+    drawText(plateX + 4, plateY + 4 + lineH, scale, line2, white);
+    drawText(plateX + 4, plateY + 4 + lineH * 2, scale, line3, SDL_Color {150, 220, 255, 255});
+  }
 }
 
 // ---------------------------------------------------------------------------
