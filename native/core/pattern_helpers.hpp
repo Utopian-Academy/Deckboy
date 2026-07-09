@@ -14,7 +14,8 @@
 // Available pattern types:
 //   Static:    smpte-bars, crosshatch, checkerboard, gradient,
 //              full-white, full-black, full-red, full-green, full-blue
-//   Animated:  pocket-test, pocket-day, pocket-sunset, pocket-night, pocket-storm
+//   Animated:  pocket-test, pocket-day, pocket-sunset, pocket-night, pocket-storm,
+//              terrarium (native living-ecosystem sim, v0.78.4)
 //              (plus "-motion" variants of the static patterns)
 //
 // This file handles:
@@ -116,6 +117,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 inline bool patternTypeIsAnimated(const std::string& typeId) {
   std::string normalized = normalizePatternTypeId(typeId);
   return normalized.rfind("pocket-", 0) == 0 ||       // pocket scenes: always animated
+         normalized == "terrarium" ||                  // living ecosystem: always animated
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
          endsWith(normalized, "-motion");               // motion variant of static pattern
 }
