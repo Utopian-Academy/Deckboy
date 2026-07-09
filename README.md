@@ -1,6 +1,6 @@
 # Deckboy
 
-Deckboy is a native SDL2 desktop app, not a web app. Windows is the primary development target with a cross-platform code path (Linux and macOS supported), using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
+Deckboy is a native SDL3 desktop app, not a web app. Windows is the primary development target with a cross-platform code path (Linux and macOS supported), using native windows for control and program output and FFmpeg tools for ingest and playback decoding.
 Project goal: keep Deckboy fully open source and ship first-class builds on Windows, Linux, and macOS.
 
 For a structural map of the codebase see [`docs/CODEMAP.md`](docs/CODEMAP.md). Windows build instructions live in [`CLAUDE.md`](CLAUDE.md) (Build section).
@@ -509,7 +509,7 @@ Notes:
 
 ## Notes
 
-- This machine has the runtime pieces needed for the native build: `g++`, `cmake`, `SDL2`, `SDL2_ttf`, `ffmpeg`, and `ffprobe`.
+- This machine has the runtime pieces needed for the native build: `g++`, `cmake`, `SDL3`, `SDL3_ttf`, `ffmpeg`, and `ffprobe`.
 - The older browser prototype is still on disk for reference and can be launched with `./bin/deckboy-web`, but it is no longer the default path.
 - Browser cues now flow through `native/platform/browser.*` as a backend seam.
 - The current Linux browser backend still relies on an external Chromium-family browser being available on the machine.

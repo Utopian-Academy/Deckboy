@@ -406,7 +406,7 @@
   void clearOverlay() {
     Deck& deck = focusedDeckMutable();
     deck.overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     triggerToast("overlay cleared");
     markProjectDirty();
   }
@@ -415,7 +415,7 @@
     Deck& deck = focusedDeckMutable();
     if (!deck.overlayActiveIndices.empty()) {
       deck.overlayActiveIndices.pop_back();
-      syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+      syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
       triggerToast("overlay popped");
       markProjectDirty();
     }
@@ -508,7 +508,7 @@
     }
 
     if (cueIndicesIncludeLiveCue(deck, indices)) {
-      Uint64 now = SDL_GetTicks64();
+      Uint64 now = SDL_GetTicks();
       std::string signature = cueDeleteSignatureForDeck(deck, indices);
       bool confirmed = pendingLiveDeleteConfirmDeckIndex_ == deckIndex &&
                        pendingLiveDeleteConfirmSignature_ == signature &&
@@ -570,7 +570,7 @@
     if (deckIndex == project_.focusedDeckIndex) {
       onSelectionChanged();
     }
-    syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
     if (indices.size() == 1) {
       triggerToast("cue deleted");
     } else {
@@ -683,7 +683,7 @@
     timecodeTriggeredCueIds_.clear();
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
     }
@@ -1491,7 +1491,7 @@
     if (fontSmall_) {
       for (const auto& item : contextItems_) {
         int tw = 0, th = 0;
-        if (TTF_SizeUTF8(fontSmall_, item.label.c_str(), &tw, &th) == 0) {
+        if (TTF_GetStringSize(fontSmall_, item.label.c_str(), 0, &tw, &th)) {
           kMenuW = std::max(kMenuW, tw + 36); // 18px left pad + 18px right pad
         }
       }
@@ -2039,10 +2039,10 @@
     if (!runtime || !runtime->outputWindow) {
       return;
     }
-    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+    SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
     if (fullscreen) {
-      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      SDL_SetWindowFullscreen(runtime->outputWindow, false);
       runtime->recoveryPausedByEscape = true;
       runtime->fullscreenIntended = false;
     } else {
@@ -2099,12 +2099,12 @@
       if (!runtime || !runtime->outputWindow) {
         return false;
       }
-      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
       if (!fullscreen) {
         return false;
       }
-      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      SDL_SetWindowFullscreen(runtime->outputWindow, false);
       setOutputRecoveryPausedByEscape(outputIndex, true);
       runtime->fullscreenIntended = false;
       SDL_ShowWindow(runtime->outputWindow);
@@ -2136,7 +2136,7 @@
       }
     }
 
-    int controlDisplay = SDL_GetWindowDisplayIndex(controlWindow_);
+    int controlDisplay = deckboyGetWindowDisplayIndex(controlWindow_);
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (!project_.outputs[outputIndex].enabled ||
           normalizeOutputType(project_.outputs[outputIndex].outputType) != "window") {
@@ -2146,12 +2146,12 @@
       if (!runtime || !runtime->outputWindow) {
         continue;
       }
-      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
       if (!fullscreen) {
         continue;
       }
-      int outputDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
+      int outputDisplay = deckboyGetWindowDisplayIndex(runtime->outputWindow);
       if (controlDisplay >= 0 && outputDisplay >= 0 && outputDisplay != controlDisplay) {
         continue;
       }
@@ -2362,8 +2362,8 @@
       }
       const OutputRuntime* runtime = runtimeForOutput(i);
       if (runtime && runtime->outputWindow) {
-        Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-        if (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+        SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+        if (flags & SDL_WINDOW_FULLSCREEN) {
           return true;
         }
       }
@@ -2383,18 +2383,18 @@
     if (!font || text.empty()) {
       return;
     }
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
       return;
     }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
     if (!texture) {
-      SDL_FreeSurface(surface);
+      SDL_DestroySurface(surface);
       return;
     }
     SDL_Rect dst {x, y, surface->w, surface->h};
-    SDL_FreeSurface(surface);
-    SDL_RenderCopy(renderer, texture, nullptr, &dst);
+    SDL_DestroySurface(surface);
+    SDL_RenderTexture(renderer, texture, nullptr, &dst);
     SDL_DestroyTexture(texture);
   }
 
@@ -2417,7 +2417,7 @@
     }
     int textW = 0;
     int textH = 0;
-    if (TTF_SizeUTF8(font, clipped.c_str(), &textW, &textH) != 0) {
+    if (!TTF_GetStringSize(font, clipped.c_str(), 0, &textW, &textH)) {
       return;
     }
     // Always vertically center on the rect's midline. When the text is
@@ -2425,24 +2425,24 @@
     // retina-scaled fonts), this yields symmetric overflow above and
     // below instead of top-aligning inside a clip that chops descenders.
     int textY = rect.y + (rect.h - textH) / 2;
-    bool hadClip = SDL_RenderIsClipEnabled(renderer) == SDL_TRUE;
+    bool hadClip = SDL_RenderClipEnabled(renderer) == true;
     SDL_Rect previousClip {};
     if (hadClip) {
-      SDL_RenderGetClipRect(renderer, &previousClip);
+      SDL_GetRenderClipRect(renderer, &previousClip);
     }
     int clipTop = std::min(rect.y, textY);
     int clipBottom = std::max(rect.y + rect.h, textY + textH);
     SDL_Rect textClip { rect.x, clipTop, rect.w, std::max(0, clipBottom - clipTop) };
     if (hadClip) {
       SDL_Rect intersect {};
-      if (!SDL_IntersectRect(&previousClip, &textClip, &intersect)) {
+      if (!SDL_GetRectIntersection(&previousClip, &textClip, &intersect)) {
         return;
       }
       textClip = intersect;
     }
-    SDL_RenderSetClipRect(renderer, &textClip);
+    SDL_SetRenderClipRect(renderer, &textClip);
     drawText(renderer, font, clipped, color, safe.x, textY);
-    SDL_RenderSetClipRect(renderer, hadClip ? &previousClip : nullptr);
+    SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
@@ -2461,7 +2461,7 @@
       return;
     }
     int textW = 0, textH = 0;
-    if (TTF_SizeUTF8(font, clipped.c_str(), &textW, &textH) != 0) {
+    if (!TTF_GetStringSize(font, clipped.c_str(), 0, &textW, &textH)) {
       return;
     }
     // Center X within the safe (inset) width; center Y on the original
@@ -2469,37 +2469,37 @@
     // overflows symmetrically rather than top-aligning into a clip.
     int textX = safe.x + (safe.w - textW) / 2;
     int textY = rect.y + (rect.h - textH) / 2;
-    bool hadClip = SDL_RenderIsClipEnabled(renderer) == SDL_TRUE;
+    bool hadClip = SDL_RenderClipEnabled(renderer) == true;
     SDL_Rect previousClip {};
     if (hadClip) {
-      SDL_RenderGetClipRect(renderer, &previousClip);
+      SDL_GetRenderClipRect(renderer, &previousClip);
     }
     int clipTop = std::min(rect.y, textY);
     int clipBottom = std::max(rect.y + rect.h, textY + textH);
     SDL_Rect textClip { rect.x, clipTop, rect.w, std::max(0, clipBottom - clipTop) };
     if (hadClip) {
       SDL_Rect intersect {};
-      if (!SDL_IntersectRect(&previousClip, &textClip, &intersect)) {
+      if (!SDL_GetRectIntersection(&previousClip, &textClip, &intersect)) {
         return;
       }
       textClip = intersect;
     }
-    SDL_RenderSetClipRect(renderer, &textClip);
+    SDL_SetRenderClipRect(renderer, &textClip);
     drawText(renderer, font, clipped, color, textX, textY);
-    SDL_RenderSetClipRect(renderer, hadClip ? &previousClip : nullptr);
+    SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
   void drawCenteredText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
     if (!font || text.empty()) {
       return;
     }
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
       return;
     }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
     if (!texture) {
-      SDL_FreeSurface(surface);
+      SDL_DestroySurface(surface);
       return;
     }
     // Snap the rect to match drawUIPanel so text is centered in the visible background.
@@ -2510,8 +2510,8 @@
       surface->w,
       surface->h
     };
-    SDL_FreeSurface(surface);
-    SDL_RenderCopy(renderer, texture, nullptr, &dst);
+    SDL_DestroySurface(surface);
+    SDL_RenderTexture(renderer, texture, nullptr, &dst);
     SDL_DestroyTexture(texture);
   }
 

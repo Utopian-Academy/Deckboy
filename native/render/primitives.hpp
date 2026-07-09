@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <SDL2/SDL.h>
+#include "core/sdl_compat.hpp"
 
 namespace deckboy::render {
 

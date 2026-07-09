@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>

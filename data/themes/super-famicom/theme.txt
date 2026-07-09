@@ -1,15 +1,15 @@
 # Deckboy Theme: Super Famicom
-# Lavender and grey with the four face-button pop.
+# Soft lavender-grey, four-button pop.
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	17151BFF
-shell_inner	232129FF
-shell_shadow	070708FF
-screen_light	A862EEFF
-screen_mid	7039A8FF
-screen_dark	211F29FF
+shell_inner	242129FF
+shell_shadow	080708FF
+screen_light	BD92DDFF
+screen_mid	7832AEFF
+screen_dark	221F29FF
 screen_deep	050505FF
-screen_ink_soft	7F5DA2FF
-button_bezel	573579FF
+screen_ink_soft	826996FF
+button_bezel	5B3776FF
 delete_bezel	AB2B40FF
 scanline_alpha	12

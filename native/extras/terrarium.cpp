@@ -28,7 +28,7 @@
 // - Rain is overlay + modest water increase; storms add lightning and stronger wind.
 // - Big creatures are "stamped" at render time from anchor entities (simple, robust).
 
-#include <SDL.h>
+#include "../core/sdl_compat.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -2037,7 +2037,7 @@ struct Layout { int screenW=0, screenH=0; int hudH=0; int simHpx=0; };
 
 static Layout computeLayout(SDL_Renderer* ren) {
   Layout L;
-  SDL_GetRendererOutputSize(ren, &L.screenW, &L.screenH);
+  SDL_GetCurrentRenderOutputSize(ren, &L.screenW, &L.screenH);
   L.hudH = std::max(40, L.screenH/18);
   L.simHpx = L.screenH - L.hudH;
   return L;
@@ -2242,12 +2242,12 @@ struct GlyphCache {
   }
 
   SDL_Texture* makeGlyph(SDL_Renderer* ren, char c) {
-    SDL_Texture* t = SDL_CreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 8, 8);
+    SDL_Texture* t = deckboyCreateTexture(ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 8, 8);
     if (!t) return nullptr;
     SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
 
     void* pixels=nullptr; int pitch=0;
-    if (SDL_LockTexture(t, nullptr, &pixels, &pitch) != 0) {
+    if (!SDL_LockTexture(t, nullptr, &pixels, &pitch)) {
       SDL_DestroyTexture(t);
       return nullptr;
     }
@@ -2668,7 +2668,7 @@ static void render(SDL_Renderer* ren, const Layout& L, World& w, GlyphCache& gc,
         }
 
         SDL_SetTextureColorMod(gt, fg.r, fg.g, fg.b);
-        SDL_RenderCopy(ren, gt, nullptr, &rc);
+        SDL_RenderTexture(ren, gt, nullptr, &rc);
       }
 
       applyCloudLayer(ren, rc, cloud);
@@ -2717,7 +2717,7 @@ static const char* seasonName(Season s) {
 }
 
 int main(int argc, char** argv) {
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO)) {
     std::cerr << "SDL_Init failed: " << SDL_GetError() << "\n";
     return 1;
   }
@@ -2728,12 +2728,11 @@ int main(int argc, char** argv) {
     if (std::strcmp(argv[i], "--fullscreen")==0) startFullscreen = true;
   }
 
-  Uint32 wflags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-  if (startFullscreen) wflags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+  Uint32 wflags = SDL_WINDOW_RESIZABLE;  // SDL3: windows are shown by default
+  if (startFullscreen) wflags |= SDL_WINDOW_FULLSCREEN;  // borderless desktop (no explicit mode)
 
   SDL_Window* win = SDL_CreateWindow(
     "Terrarium",
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
     1280, 720,
     wflags
   );
@@ -2743,8 +2742,9 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-  if (!ren) ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_SOFTWARE);
+  SDL_SetWindowPosition(win, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  SDL_Renderer* ren = SDL_CreateRenderer(win, nullptr);
+  if (!ren) ren = SDL_CreateRenderer(win, SDL_SOFTWARE_RENDERER);
   if (!ren) {
     std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << "\n";
     SDL_DestroyWindow(win);
@@ -2752,7 +2752,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+  // (SDL3: nearest-neighbour scaling applied per texture via deckboyCreateTexture.)
 
   uint32_t seed = (uint32_t)std::chrono::high_resolution_clock::now().time_since_epoch().count();
   Rng r(seed);
@@ -2775,11 +2775,11 @@ int main(int argc, char** argv) {
   while (running) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_QUIT) running=false;
-      if (e.type == SDL_KEYDOWN) {
-        switch (e.key.keysym.sym) {
+      if (e.type == SDL_EVENT_QUIT) running=false;
+      if (e.type == SDL_EVENT_KEY_DOWN) {
+        switch (e.key.key) {
           case SDLK_ESCAPE: running=false; break;
-          case SDLK_b: {
+          case SDLK_B: {
             // Cycle biomes with a short fade-out/fade-in.
             world.targetBiome = (Biome)(((int)world.biome + 1) % BIOME_COUNT);
             world.biomeFadeDir = +1;
@@ -2790,25 +2790,24 @@ int main(int argc, char** argv) {
             break;
           case SDLK_LEFTBRACKET: if (tps>1) tps--; break;
           case SDLK_RIGHTBRACKET: if (tps<30) tps++; break;
-          case SDLK_r:
+          case SDLK_R:
             seed = (uint32_t)std::chrono::high_resolution_clock::now().time_since_epoch().count();
             r = Rng(seed);
             seedWorld(world, r, biome);
             tick=0; banner="reset";
             break;
           case SDLK_F11: {
-            Uint32 flags = SDL_GetWindowFlags(win);
-            bool fs = (flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0;
-            SDL_SetWindowFullscreen(win, fs ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+            SDL_WindowFlags flags = SDL_GetWindowFlags(win);
+            bool fs = (flags & SDL_WINDOW_FULLSCREEN) != 0;
+            SDL_SetWindowFullscreen(win, !fs);
             layout = computeLayout(ren);
           } break;
           default: break;
         }
       }
-      if (e.type == SDL_WINDOWEVENT &&
-          (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
-           e.window.event == SDL_WINDOWEVENT_RESIZED ||
-           e.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED)) {
+      if (e.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
+          e.type == SDL_EVENT_WINDOW_RESIZED ||
+          e.type == SDL_EVENT_WINDOW_DISPLAY_CHANGED) {
         layout = computeLayout(ren);
       }
     }

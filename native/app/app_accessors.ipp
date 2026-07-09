@@ -155,7 +155,7 @@
     runtime->healthState = state;
     runtime->healthReason = normalizedReason;
     if (changed) {
-      runtime->healthUpdatedAtMs = SDL_GetTicks64();
+      runtime->healthUpdatedAtMs = SDL_GetTicks();
     }
   }
 
@@ -192,8 +192,8 @@
       if (!runtime->outputWindow) {
         return OutputHealthState::Error;
       }
-      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
       bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
       bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
       if (fullscreen && !hidden && !minimized && !runtime->recoveryPausedByEscape) {
@@ -256,7 +256,7 @@
     if (!runtime) {
       return;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (runtime->fpsSampleStartedAtMs == 0) {
       runtime->fpsSampleStartedAtMs = now;
       runtime->fpsFrameCount = 0;
@@ -296,7 +296,7 @@
       packetsWritten = runtime->streamWriter->packetsWritten;
     }
 
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (runtime->streamFpsSampleStartedAtMs == 0) {
       runtime->streamFpsSampleStartedAtMs = now;
       runtime->streamFpsPacketsAtSampleStart = packetsWritten;
@@ -535,7 +535,7 @@
     if (auto outputIndex = primaryOutputIndexForDeck(deckIndex); outputIndex) {
       project_.focusedOutputIndex = *outputIndex;
     }
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     cueSettingsScroll_ = 0;
     cueSettingsScrollMax_ = 0;
     clearCueFindState();

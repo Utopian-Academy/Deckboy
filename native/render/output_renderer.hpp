@@ -34,7 +34,7 @@
 #ifndef DECKBOY_RENDER_OUTPUT_RENDERER_HPP
 #define DECKBOY_RENDER_OUTPUT_RENDERER_HPP
 
-#include <SDL2/SDL.h>
+#include "core/sdl_compat.hpp"
 #include <cstdint>
 #include <string>
 

@@ -549,50 +549,72 @@
     return changed;
   }
 
-  bool ensureUiAudioDevice() {
-    if (uiAudioDevice_ != 0) {
-      return true;
-    }
-
-    SDL_AudioSpec desired {};
-    desired.freq = kAudioRate;
-    desired.format = kAudioFormat;
-    desired.channels = kAudioChannels;
-    desired.samples = static_cast<Uint16>(std::clamp(project_.audioBufferSamples, 256, 2048));
-    uiAudioDevice_ = SDL_OpenAudioDevice(nullptr, 0, &desired, nullptr, 0);
-    if (uiAudioDevice_ != 0) {
-      SDL_PauseAudioDevice(uiAudioDevice_, 1);
-      return true;
-    }
-    return false;
+  // Operator buffer-size setting → SDL3 device buffer hint. Must be set
+  // before a device open; replaces the SDL2 SDL_AudioSpec.samples field.
+  void applyAudioBufferSizeHint() {
+    std::string samples = std::to_string(std::clamp(project_.audioBufferSamples, 256, 2048));
+    SDL_SetHint(SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES, samples.c_str());
   }
 
-  SDL_AudioDeviceID openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName) {
+  bool ensureUiAudioDevice() {
+    if (uiAudioStream_) {
+      return true;
+    }
+
+    applyAudioBufferSizeHint();
     SDL_AudioSpec desired {};
     desired.freq = kAudioRate;
     desired.format = kAudioFormat;
     desired.channels = kAudioChannels;
-    desired.samples = static_cast<Uint16>(std::clamp(project_.audioBufferSamples, 256, 2048));
+    // Opens a logical device + bound stream in one call; starts paused.
+    uiAudioStream_ = SDL_OpenAudioDeviceStream(
+      SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+    return uiAudioStream_ != nullptr;
+  }
 
-    auto openMain = [&](const char* deviceName) -> SDL_AudioDeviceID {
-      SDL_AudioSpec obtained {};
-      return SDL_OpenAudioDevice(deviceName, 0, &desired, &obtained, 0);
-    };
+  // Resolve a persisted device name to a live SDL3 playback device id.
+  // Returns 0 when the name is not currently present.
+  SDL_AudioDeviceID audioPlaybackDeviceIdForName(const std::string& name) {
+    if (name.empty()) {
+      return SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
+    }
+    SDL_AudioDeviceID result = 0;
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&count)) {
+      for (int index = 0; index < count; ++index) {
+        const char* deviceName = SDL_GetAudioDeviceName(ids[index]);
+        if (deviceName && name == deviceName) {
+          result = ids[index];
+          break;
+        }
+      }
+      SDL_free(ids);
+    }
+    return result;
+  }
+
+  SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName) {
+    applyAudioBufferSizeHint();
+    SDL_AudioSpec desired {};
+    desired.freq = kAudioRate;
+    desired.format = kAudioFormat;
+    desired.channels = kAudioChannels;
 
     effectiveName = preferredDeviceName;
-    SDL_AudioDeviceID mainOut = 0;
-
-    if (!preferredDeviceName.empty()) {
-      mainOut = openMain(preferredDeviceName.c_str());
-    } else {
-      mainOut = openMain(nullptr);
-    }
-
-    if (mainOut == 0 && !preferredDeviceName.empty()) {
+    SDL_AudioDeviceID target = audioPlaybackDeviceIdForName(preferredDeviceName);
+    if (target == 0) {
+      // Preferred device not present — fall back to the system default.
       effectiveName.clear();
-      mainOut = openMain(nullptr);
+      target = SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
     }
-    SDL_PauseAudioDevice(mainOut, 1);
+
+    SDL_AudioStream* mainOut = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+    if (!mainOut && target != SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK) {
+      effectiveName.clear();
+      mainOut = SDL_OpenAudioDeviceStream(
+        SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+    }
+    // Stream starts paused; the media engine resumes it per transport state.
     return mainOut;
   }
 
@@ -614,7 +636,7 @@
     return {};
   }
 
-  void ltcLoop(void* decoder, SDL_AudioDeviceID captureDevice, int sampleRate, int channelCount, double fpsHint) {
+  void ltcLoop(void* decoder, SDL_AudioStream* captureStream, int sampleRate, int channelCount, double fpsHint) {
     std::vector<std::int16_t> interleavedSamples(4096u * static_cast<size_t>(std::max(1, channelCount)));
     std::vector<std::int16_t> monoSamples(4096);
     std::array<std::uint8_t, LtcApi::kFrameExtBytes> frameExt {};
@@ -625,7 +647,8 @@
     double lastSentFps = 0.0;
 
     while (!ltcStop_.load()) {
-      Uint32 queuedBytes = SDL_GetQueuedAudioSize(captureDevice);
+      Uint32 queuedBytes = static_cast<Uint32>(
+        std::max(0, SDL_GetAudioStreamAvailable(captureStream)));
       Uint32 minBytes = static_cast<Uint32>(sizeof(std::int16_t) * std::max(1, channelCount));
       if (queuedBytes < minBytes) {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -635,11 +658,11 @@
       size_t sampleFramesAvailable = queuedBytes / (sizeof(std::int16_t) * static_cast<size_t>(std::max(1, channelCount)));
       size_t framesToRead = std::clamp<size_t>(sampleFramesAvailable, 1, 4096);
       interleavedSamples.resize(framesToRead * static_cast<size_t>(std::max(1, channelCount)));
-      Uint32 bytesRead = SDL_DequeueAudio(
-        captureDevice,
+      int bytesRead = SDL_GetAudioStreamData(
+        captureStream,
         interleavedSamples.data(),
-        static_cast<Uint32>(interleavedSamples.size() * sizeof(std::int16_t)));
-      size_t samplesRead = bytesRead / sizeof(std::int16_t);
+        static_cast<int>(interleavedSamples.size() * sizeof(std::int16_t)));
+      size_t samplesRead = bytesRead > 0 ? static_cast<size_t>(bytesRead) / sizeof(std::int16_t) : 0;
       size_t framesRead = samplesRead / static_cast<size_t>(std::max(1, channelCount));
       if (framesRead == 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -697,8 +720,28 @@
     ltcApi_.decoderFreeFn(decoder);
   }
 
+  // Resolve a preferred recording device name to a live SDL3 device id.
+  SDL_AudioDeviceID audioRecordingDeviceIdForName(const std::string& name) {
+    if (name.empty()) {
+      return SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
+    }
+    SDL_AudioDeviceID result = 0;
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioRecordingDevices(&count)) {
+      for (int index = 0; index < count; ++index) {
+        const char* deviceName = SDL_GetAudioDeviceName(ids[index]);
+        if (deviceName && name == deviceName) {
+          result = ids[index];
+          break;
+        }
+      }
+      SDL_free(ids);
+    }
+    return result;
+  }
+
   bool startLtcIngest() {
-    if (ltcThread_.joinable() || ltcCaptureDevice_ != 0) {
+    if (ltcThread_.joinable() || ltcCaptureStream_ != nullptr) {
       return true;
     }
     if (!ltcApi_.ensureLoaded()) {
@@ -706,57 +749,45 @@
       return false;
     }
 
+    // The SDL3 recording stream converts to this spec regardless of the
+    // hardware format, so no "obtained"-spec handling is needed: the read
+    // side is always 48 kHz mono S16.
     SDL_AudioSpec desired {};
     desired.freq = kAudioRate;
-    desired.format = AUDIO_S16SYS;
+    desired.format = SDL_AUDIO_S16;
     desired.channels = 1;
-    desired.samples = 4096;
 
-    SDL_AudioSpec obtained {};
     std::string preferredDevice = preferredLtcCaptureDeviceName();
     std::string effectiveDevice = preferredDevice;
-    SDL_AudioDeviceID captureDevice = 0;
-    auto openCapture = [&](const char* deviceName) -> SDL_AudioDeviceID {
-      SDL_AudioSpec actual {};
-      SDL_AudioDeviceID device = SDL_OpenAudioDevice(
-        deviceName,
-        1,
-        &desired,
-        &actual,
-        SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
-      if (device != 0) {
-        obtained = actual;
-      }
-      return device;
-    };
-
-    if (!preferredDevice.empty()) {
-      captureDevice = openCapture(preferredDevice.c_str());
-    } else {
-      captureDevice = openCapture(nullptr);
-    }
-    if (captureDevice == 0 && !preferredDevice.empty()) {
+    SDL_AudioDeviceID target = audioRecordingDeviceIdForName(preferredDevice);
+    if (target == 0) {
       effectiveDevice.clear();
-      captureDevice = openCapture(nullptr);
+      target = SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
     }
-    if (captureDevice == 0) {
+    SDL_AudioStream* captureStream = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+    if (!captureStream && target != SDL_AUDIO_DEVICE_DEFAULT_RECORDING) {
+      effectiveDevice.clear();
+      captureStream = SDL_OpenAudioDeviceStream(
+        SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &desired, nullptr, nullptr);
+    }
+    if (!captureStream) {
       ltcLastError_ = "ltc audio input unavailable";
       return false;
     }
 
-    int sampleRate = obtained.freq > 0 ? obtained.freq : kAudioRate;
-    int channelCount = std::max(1, static_cast<int>(obtained.channels));
+    int sampleRate = kAudioRate;
+    int channelCount = 1;
     double fpsHint = defaultLtcCaptureFpsHint();
     int apv = static_cast<int>(std::llround(static_cast<double>(sampleRate) / std::max(1.0, fpsHint)));
     apv = std::clamp(apv, 200, 4000);
     void* decoder = ltcApi_.decoderCreateFn(apv, 32);
     if (!decoder) {
-      SDL_CloseAudioDevice(captureDevice);
+      SDL_DestroyAudioStream(captureStream);
       ltcLastError_ = "ltc decoder init failed";
       return false;
     }
 
-    ltcCaptureDevice_ = captureDevice;
+    ltcCaptureStream_ = captureStream;
     ltcCaptureSampleRate_ = sampleRate;
     ltcCaptureChannels_ = channelCount;
     ltcCaptureDeviceName_ = effectiveDevice;
@@ -764,10 +795,10 @@
     ltcLastAnnouncedError_.clear();
     ltcRestartBlockedUntilMs_ = 0;
     ltcStop_.store(false);
-    ltcThread_ = std::thread([this, decoder, captureDevice, sampleRate, channelCount, fpsHint]() {
-      ltcLoop(decoder, captureDevice, sampleRate, channelCount, fpsHint);
+    ltcThread_ = std::thread([this, decoder, captureStream, sampleRate, channelCount, fpsHint]() {
+      ltcLoop(decoder, captureStream, sampleRate, channelCount, fpsHint);
     });
-    SDL_PauseAudioDevice(captureDevice, 0);
+    SDL_ResumeAudioStreamDevice(captureStream);
     return true;
   }
 
@@ -777,9 +808,9 @@
     if (ltcThread_.joinable()) {
       ltcThread_.join();
     }
-    if (ltcCaptureDevice_ != 0) {
-      SDL_CloseAudioDevice(ltcCaptureDevice_);
-      ltcCaptureDevice_ = 0;
+    if (ltcCaptureStream_) {
+      SDL_DestroyAudioStream(ltcCaptureStream_);
+      ltcCaptureStream_ = nullptr;
     }
     ltcCaptureSampleRate_ = 0;
     ltcCaptureChannels_ = 0;
@@ -793,10 +824,10 @@
       ltcLastAnnouncedError_.clear();
       return;
     }
-    if (ltcThread_.joinable() || ltcCaptureDevice_ != 0) {
+    if (ltcThread_.joinable() || ltcCaptureStream_ != nullptr) {
       return;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (ltcRestartBlockedUntilMs_ > now) {
       return;
     }
@@ -819,9 +850,9 @@
       runtime.browserRenderer.reset();
     }
     runtime.browserCueLive = false;
-    if (runtime.audioDevice != 0) {
-      SDL_CloseAudioDevice(runtime.audioDevice);
-      runtime.audioDevice = 0;
+    if (runtime.audioStream) {
+      SDL_DestroyAudioStream(runtime.audioStream);
+      runtime.audioStream = nullptr;
     }
     if (runtime.outputRenderer) {
       SDL_DestroyRenderer(runtime.outputRenderer);
@@ -1423,8 +1454,8 @@
     }
     if (streamPid > 0) {
       int status = 0;
-      Uint64 deadline = SDL_GetTicks64() + 500;
-      while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks64() < deadline) {
+      Uint64 deadline = SDL_GetTicks() + 500;
+      while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks() < deadline) {
         SDL_Delay(10);
       }
       if (waitpid(streamPid, &status, WNOHANG) == 0) {
@@ -1512,8 +1543,8 @@
     }
 
     int videoFd = -1;
-    Uint64 deadline = SDL_GetTicks64() + 1000;
-    while (videoFd < 0 && SDL_GetTicks64() < deadline) {
+    Uint64 deadline = SDL_GetTicks() + 1000;
+    while (videoFd < 0 && SDL_GetTicks() < deadline) {
       videoFd = open(videoInputPath.c_str(), O_WRONLY | O_NONBLOCK);
       if (videoFd >= 0) {
         break;
@@ -1644,7 +1675,7 @@
       }
       return false;
     }
-    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 nowMs = SDL_GetTicks();
     if (runtime->streamStartFailed &&
         runtime->streamRestartBlockedUntilMs > nowMs) {
       setOutputHealthState(outputIndex, OutputHealthState::Recovering, "stream retrying");
@@ -1680,12 +1711,12 @@
     args.erase(std::remove(args.begin(), args.end(), "-nostdin"), args.end());
 #else
     std::string videoInputPath = (fs::temp_directory_path() /
-      ("deckboy_stream_video_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks64()) + ".fifo")).string();
+      ("deckboy_stream_video_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks()) + ".fifo")).string();
     std::vector<std::string> args = buildOutputStreamArgs(outputIndex, width, height, fpsHint, videoInputPath);
 #endif
     if (args.empty()) {
       runtime->streamStartFailed = true;
-      runtime->streamRestartBlockedUntilMs = SDL_GetTicks64() + 1500;
+      runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
       stopOutputStreamRuntime(*runtime);
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream command invalid");
       return false;
@@ -1700,7 +1731,7 @@
         triggerToast("stream failed");
       }
       runtime->streamStartFailed = true;
-      runtime->streamRestartBlockedUntilMs = SDL_GetTicks64() + 1500;
+      runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
       setOutputHealthState(outputIndex, OutputHealthState::Error, "stream process failed");
       return false;
     }
@@ -1777,7 +1808,7 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !runtime.outputRenderer) {
       return false;
     }
-    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 nowMs = SDL_GetTicks();
     double captureFps = outputStreamFps(fpsHint);
     Uint64 minCaptureIntervalMs = static_cast<Uint64>(std::max(1.0, std::floor(1000.0 / std::max(1.0, captureFps))));
     if (runtime.latestCapturedFrame.width > 0 &&
@@ -1821,12 +1852,18 @@
     if (runtime.compositorTexture) {
       SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
     }
-    bool ok = SDL_RenderReadPixels(
-      runtime.outputRenderer,
-      &captureRect,
-      SDL_PIXELFORMAT_BGRA32,
-      runtime.latestCapturedFrame.pixels.data(),
-      static_cast<int>(stride)) == 0;
+    // SDL3: read into a temporary surface, then convert into the persistent
+    // BGRA egress buffer (SDL2 wrote the requested format directly).
+    bool ok = false;
+    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, &captureRect)) {
+      ok = captured->w == captureW && captured->h == captureH &&
+           SDL_ConvertPixels(captured->w, captured->h,
+                             captured->format, captured->pixels, captured->pitch,
+                             SDL_PIXELFORMAT_BGRA32,
+                             runtime.latestCapturedFrame.pixels.data(),
+                             static_cast<int>(stride));
+      SDL_DestroySurface(captured);
+    }
     if (runtime.compositorTexture) {
       SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
     }
@@ -1854,7 +1891,7 @@
       captureH = rotatedH;
     }
 
-    nowMs = SDL_GetTicks64();
+    nowMs = SDL_GetTicks();
     runtime.latestCapturedFrame.width = captureW;
     runtime.latestCapturedFrame.height = captureH;
     runtime.latestCapturedFrame.capturedAtMs = nowMs;
@@ -1891,7 +1928,7 @@
     const OutputTarget& output = project_.outputs[outputIndex];
     int delayMs = std::clamp(output.outputDelayMs, 0, 5000);
     if (delayMs > 0) {
-      Uint64 nowMs = SDL_GetTicks64();
+      Uint64 nowMs = SDL_GetTicks();
       const OutputRuntime::CapturedFrame* selected = nullptr;
       for (const auto& frame : runtime.delayFrames) {
         if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
@@ -1936,7 +1973,7 @@
     if (runtime.latestCapturedFrame.pixels.empty()) {
       return nullptr;
     }
-    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 nowMs = SDL_GetTicks();
     runtime.latestCapturedFrame.width = width;
     runtime.latestCapturedFrame.height = height;
     runtime.latestCapturedFrame.capturedAtMs = nowMs;
@@ -1961,7 +1998,7 @@
     std::string writerFailure = outputStreamWriterFailure(*runtime);
     if (!writerFailure.empty()) {
       runtime->streamStartFailed = true;
-      runtime->streamRestartBlockedUntilMs = SDL_GetTicks64() + 1500;
+      runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
       setOutputHealthState(outputIndex, OutputHealthState::Error, writerFailure);
       stopOutputStreamRuntime(*runtime);
       if (outputIndex == project_.focusedOutputIndex) {
@@ -2022,7 +2059,7 @@
     }
     if (writerFailed) {
       runtime->streamStartFailed = true;
-      runtime->streamRestartBlockedUntilMs = SDL_GetTicks64() + 1500;
+      runtime->streamRestartBlockedUntilMs = SDL_GetTicks() + 1500;
       setOutputHealthState(
         outputIndex,
         OutputHealthState::Error,
@@ -2101,7 +2138,7 @@
     // clears to black instead of freezing on the last-shown frame. Only a
     // visible window has anything on screen; hidden/stream runtimes skip this.
     if (runtime.outputRenderer && runtime.outputWindow &&
-        (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_SHOWN)) {
+        !(SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_HIDDEN)) {
       SDL_SetRenderTarget(runtime.outputRenderer, nullptr);
       SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
       // Two swaps: double/triple-buffered chains need a couple of presents to
@@ -2143,13 +2180,13 @@
     }
 
     std::string effectiveName;
-    SDL_AudioDeviceID newMain = openMainAudioDevice(preferredDeviceName, effectiveName);
-    if (newMain == 0) {
+    SDL_AudioStream* newMain = openMainAudioDevice(preferredDeviceName, effectiveName);
+    if (!newMain) {
       return false;
     }
 
-    SDL_AudioDeviceID oldDevice = runtime->audioDevice;
-    runtime->audioDevice = newMain;
+    SDL_AudioStream* oldStream = runtime->audioStream;
+    runtime->audioStream = newMain;
     deck.audioOutputDeviceName = effectiveName;
     if (runtime->mediaEngine) {
       // Hot-swap the output device on the existing engine so a device change
@@ -2158,14 +2195,14 @@
     } else {
       runtime->mediaEngine = std::make_unique<MediaEngine>(
         runtime->outputRenderer,
-        runtime->audioDevice,
+        runtime->audioStream,
         [this, deckIndex](const std::vector<std::int16_t>& samples) {
           pushDeckStreamAudioSamples(deckIndex, samples);
           // Capture samples for VU meter (only from focused deck)
           if (deckIndex == project_.focusedDeckIndex) {
             std::lock_guard<std::mutex> lock(vuSamplesMutex_);
             vuSamples_ = samples;
-            vuSamplesUpdatedAtMs_ = SDL_GetTicks64();
+            vuSamplesUpdatedAtMs_ = SDL_GetTicks();
           }
         },
         [this](const Cue& cue) {
@@ -2173,8 +2210,8 @@
         }
       );
     }
-    if (oldDevice != 0) {
-      SDL_CloseAudioDevice(oldDevice);
+    if (oldStream) {
+      SDL_DestroyAudioStream(oldStream);
     }
     return true;
   }
@@ -2680,7 +2717,7 @@
       return;
     }
     // Create a temporary texture, upload the captured pixels, and send
-    SDL_Texture* tempTex = SDL_CreateTexture(
+    SDL_Texture* tempTex = deckboyCreateTexture(
       outputRuntime.outputRenderer, SDL_PIXELFORMAT_ARGB8888,
       SDL_TEXTUREACCESS_STREAMING, fw, fh);
     if (!tempTex) {
@@ -2688,7 +2725,7 @@
     }
     void* texPixels = nullptr;
     int texPitch = 0;
-    if (SDL_LockTexture(tempTex, nullptr, &texPixels, &texPitch) == 0) {
+    if (SDL_LockTexture(tempTex, nullptr, &texPixels, &texPitch)) {
       int stride = fw * 4;
       for (int y = 0; y < fh; ++y) {
         std::memcpy(
@@ -2752,20 +2789,20 @@
   }
 
   std::pair<int, int> displayNativeRenderSize(int displayIndex) const {
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       return fixedOutputRenderSize();
     }
     int normalizedIndex = std::clamp(displayIndex, 0, displayCount - 1);
 
     SDL_DisplayMode desktopMode {};
-    if (SDL_GetDesktopDisplayMode(normalizedIndex, &desktopMode) == 0 &&
+    if (deckboyGetDesktopDisplayMode(normalizedIndex, &desktopMode) &&
         desktopMode.w > 0 && desktopMode.h > 0) {
       return {desktopMode.w, desktopMode.h};
     }
 
     SDL_Rect bounds {};
-    if (SDL_GetDisplayBounds(normalizedIndex, &bounds) == 0 &&
+    if (deckboyGetDisplayBounds(normalizedIndex, &bounds) &&
         bounds.w > 0 && bounds.h > 0) {
       return {bounds.w, bounds.h};
     }
@@ -2865,12 +2902,16 @@
     if (!renderer || format == SDL_PIXELFORMAT_UNKNOWN) {
       return false;
     }
-    SDL_RendererInfo info {};
-    if (SDL_GetRendererInfo(renderer, &info) != 0) {
+    // SDL3: the supported-format list moved from SDL_RendererInfo to a
+    // renderer property — an UNKNOWN-terminated SDL_PixelFormat array.
+    const SDL_PixelFormat* formats = static_cast<const SDL_PixelFormat*>(
+      SDL_GetPointerProperty(SDL_GetRendererProperties(renderer),
+                             SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr));
+    if (!formats) {
       return false;
     }
-    for (Uint32 i = 0; i < info.num_texture_formats; ++i) {
-      if (info.texture_formats[i] == format) {
+    for (int i = 0; formats[i] != SDL_PIXELFORMAT_UNKNOWN; ++i) {
+      if (static_cast<Uint32>(formats[i]) == format) {
         return true;
       }
     }
@@ -2924,7 +2965,7 @@
     targetH = std::max(1, targetH);
 
     Uint32 format = preferredCompositorFormat(runtime->outputRenderer);
-    SDL_Texture* compositor = SDL_CreateTexture(
+    SDL_Texture* compositor = deckboyCreateTexture(
       runtime->outputRenderer,
       format,
       SDL_TEXTUREACCESS_TARGET,
@@ -2933,7 +2974,7 @@
     );
     if (!compositor && format != SDL_PIXELFORMAT_RGBA32) {
       format = SDL_PIXELFORMAT_RGBA32;
-      compositor = SDL_CreateTexture(
+      compositor = deckboyCreateTexture(
         runtime->outputRenderer,
         format,
         SDL_TEXTUREACCESS_TARGET,
@@ -3181,25 +3222,26 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return refreshes;
     }
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       return refreshes;
     }
     int displayIndex = std::clamp(outputDisplayIndex(outputIndex), 0, displayCount - 1);
     auto [targetW, targetH] = outputRenderSizeForOutput(outputIndex);
 
-    int modeCount = SDL_GetNumDisplayModes(displayIndex);
-    for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
-      SDL_DisplayMode mode {};
-      if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0) {
-        continue;
+    int modeCount = 0;
+    if (SDL_DisplayMode** modes =
+          SDL_GetFullscreenDisplayModes(deckboyDisplayIdFromIndex(displayIndex), &modeCount)) {
+      for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
+        const SDL_DisplayMode& mode = *modes[modeIndex];
+        if (mode.w != targetW || mode.h != targetH) {
+          continue;
+        }
+        if (mode.refresh_rate > 0.0f) {
+          refreshes.push_back(static_cast<int>(std::lround(mode.refresh_rate)));
+        }
       }
-      if (mode.w != targetW || mode.h != targetH) {
-        continue;
-      }
-      if (mode.refresh_rate > 0) {
-        refreshes.push_back(mode.refresh_rate);
-      }
+      SDL_free(modes);
     }
     std::sort(refreshes.begin(), refreshes.end());
     refreshes.erase(std::unique(refreshes.begin(), refreshes.end()), refreshes.end());
@@ -3210,7 +3252,7 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return false;
     }
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       return false;
     }
@@ -3219,33 +3261,32 @@
     double targetHz = project_.outputRefreshRateHz;
 
     SDL_DisplayMode desktopMode {};
-    bool hasDesktop = SDL_GetDesktopDisplayMode(displayIndex, &desktopMode) == 0;
+    bool hasDesktop = deckboyGetDesktopDisplayMode(displayIndex, &desktopMode);
     if (targetHz <= 0.0 && hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH) {
       selectedMode = desktopMode;
       return true;
     }
 
-    int modeCount = SDL_GetNumDisplayModes(displayIndex);
     bool found = false;
     SDL_DisplayMode best {};
     double bestScore = 1e9;
 
-    for (int modeIndex = 0; modeIndex < modeCount; ++modeIndex) {
-      SDL_DisplayMode mode {};
-      if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0) {
-        continue;
-      }
+    int modeCount = 0;
+    SDL_DisplayMode** modes =
+      SDL_GetFullscreenDisplayModes(deckboyDisplayIdFromIndex(displayIndex), &modeCount);
+    for (int modeIndex = 0; modes && modeIndex < modeCount; ++modeIndex) {
+      const SDL_DisplayMode& mode = *modes[modeIndex];
       if (mode.w != targetW || mode.h != targetH) {
         continue;
       }
 
-      double hz = mode.refresh_rate > 0 ? static_cast<double>(mode.refresh_rate) : 60.0;
+      double hz = mode.refresh_rate > 0.0f ? static_cast<double>(mode.refresh_rate) : 60.0;
       double score = 0.0;
       if (targetHz > 0.0) {
         score = std::abs(hz - targetHz);
       } else {
         // Auto: prefer desktop refresh if available, then highest refresh.
-        if (hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH && desktopMode.refresh_rate > 0) {
+        if (hasDesktop && desktopMode.w == targetW && desktopMode.h == targetH && desktopMode.refresh_rate > 0.0f) {
           score = std::abs(hz - static_cast<double>(desktopMode.refresh_rate));
         } else {
           score = -hz;
@@ -3257,6 +3298,9 @@
         best = mode;
         bestScore = score;
       }
+    }
+    if (modes) {
+      SDL_free(modes);
     }
 
     if (!found) {
@@ -3281,7 +3325,7 @@
     }
     runtime->recoveryPausedByEscape = false;
     runtime->fullscreenIntended = true;
-    runtime->lastFullscreenRequestMs = SDL_GetTicks64();
+    runtime->lastFullscreenRequestMs = SDL_GetTicks();
 
     // Exclusive fullscreen (real display-mode switch) only when the operator
     // explicitly asked for it: a fixed raster or a specific refresh rate.
@@ -3293,8 +3337,9 @@
     bool wantsExclusiveMode = !project_.outputFollowDisplay || project_.outputRefreshRateHz > 0.0;
     SDL_DisplayMode selectedMode {};
     if (wantsExclusiveMode && selectDisplayModeForOutput(outputIndex, selectedMode)) {
-      SDL_SetWindowDisplayMode(runtime->outputWindow, &selectedMode);
-      if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN) == 0) {
+      // SDL3: exclusive fullscreen = set an explicit mode, then fullscreen.
+      SDL_SetWindowFullscreenMode(runtime->outputWindow, &selectedMode);
+      if (SDL_SetWindowFullscreen(runtime->outputWindow, true)) {
         runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
         setOutputHealthState(outputIndex, OutputHealthState::Live);
         if (withToast) {
@@ -3304,7 +3349,9 @@
       }
     }
 
-    if (SDL_SetWindowFullscreen(runtime->outputWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) == 0) {
+    // SDL3: borderless fullscreen desktop = NULL mode, then fullscreen.
+    SDL_SetWindowFullscreenMode(runtime->outputWindow, nullptr);
+    if (SDL_SetWindowFullscreen(runtime->outputWindow, true)) {
       runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
       setOutputHealthState(outputIndex, OutputHealthState::Live);
       if (withToast) {
@@ -3331,8 +3378,6 @@
     std::string title = std::string("Deckboy Deck Runtime - ") + (deck.name.empty() ? deckDefaultName(deckIndex) : deck.name);
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
       targetW,
       targetH,
       SDL_WINDOW_HIDDEN
@@ -3342,9 +3387,9 @@
     }
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_ACCELERATED);
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
     if (!runtime.outputRenderer) {
-      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_SOFTWARE);
+      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
     }
     if (!runtime.outputRenderer) {
       destroyDeckRuntime(runtime);
@@ -3378,17 +3423,15 @@
     int windowX = SDL_WINDOWPOS_UNDEFINED;
     int windowY = SDL_WINDOWPOS_UNDEFINED;
     if (!streamType) {
-      int displayCount = SDL_GetNumVideoDisplays();
+      int displayCount = deckboyGetNumVideoDisplays();
       int displayIndex = displayCount > 0
         ? std::clamp(output.displayIndex, 0, displayCount - 1)
         : 0;
-      windowX = SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
-      windowY = SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex);
+      windowX = SDL_WINDOWPOS_CENTERED_DISPLAY(deckboyDisplayIdFromIndex(displayIndex));
+      windowY = SDL_WINDOWPOS_CENTERED_DISPLAY(deckboyDisplayIdFromIndex(displayIndex));
     }
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
-      windowX,
-      windowY,
       targetW,
       targetH,
       windowFlags
@@ -3397,12 +3440,17 @@
       setOutputHealthState(outputIndex, OutputHealthState::Error, "window create failed");
       return false;
     }
+    SDL_SetWindowPosition(runtime.outputWindow, windowX, windowY);
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | (streamType ? 0u : SDL_RENDERER_PRESENTVSYNC);
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, rendererFlags);
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
     if (!runtime.outputRenderer) {
-      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, -1, SDL_RENDERER_SOFTWARE);
+      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
+    }
+    if (runtime.outputRenderer && !streamType) {
+      // Program output stays vsynced to its display; stream-only outputs run
+      // unthrottled (per-renderer vsync is an SDL3 runtime property).
+      SDL_SetRenderVSync(runtime.outputRenderer, 1);
     }
     if (!runtime.outputRenderer) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "renderer create failed");
@@ -3507,12 +3555,15 @@
   std::vector<std::string> outputAudioDeviceChoices() const {
     std::vector<std::string> names;
     names.push_back("");
-    int deviceCount = SDL_GetNumAudioDevices(0);
-    for (int index = 0; index < deviceCount; ++index) {
-      const char* name = SDL_GetAudioDeviceName(index, 0);
-      if (name && *name) {
-        names.emplace_back(name);
+    int deviceCount = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&deviceCount)) {
+      for (int index = 0; index < deviceCount; ++index) {
+        const char* name = SDL_GetAudioDeviceName(ids[index]);
+        if (name && *name) {
+          names.emplace_back(name);
+        }
       }
+      SDL_free(ids);
     }
     return names;
   }
@@ -3603,8 +3654,8 @@
         continue;
       }
 
-      Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-      bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+      bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
       if (fullscreen) {
         runtime->displayMoveRetryAtMs = now + 120;
         continue;
@@ -3642,29 +3693,31 @@
   void showDisplayIdentify(Uint64 durationMs = 2500) {
     closeDisplayIdentify();
     bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     for (int di = 0; di < displayCount; ++di) {
       SDL_Rect bounds;
-      if (SDL_GetDisplayBounds(di, &bounds) != 0) {
+      if (!deckboyGetDisplayBounds(di, &bounds)) {
         continue;
       }
       int w = std::min(360, std::max(220, bounds.w / 6));
       int h = std::min(220, std::max(140, bounds.h / 6));
       SDL_Window* win = SDL_CreateWindow("Deckboy Display Identify",
-        bounds.x + (bounds.w - w) / 2, bounds.y + (bounds.h - h) / 2, w, h,
-        SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
+        w, h,
+        SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_UTILITY);
       if (!win) {
         continue;
       }
-      SDL_Renderer* ren = SDL_CreateRenderer(win, -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+      SDL_SetWindowPosition(win,
+        bounds.x + (bounds.w - w) / 2, bounds.y + (bounds.h - h) / 2);
+      SDL_Renderer* ren = SDL_CreateRenderer(win, nullptr);
       if (!ren) {
         SDL_DestroyWindow(win);
         continue;
       }
+      SDL_SetRenderVSync(ren, 1);
       identifyWindows_.push_back({win, ren, di});
     }
-    identifyUntilMs_ = SDL_GetTicks64() + durationMs;
+    identifyUntilMs_ = SDL_GetTicks() + durationMs;
     if (controlHadFocus) {
       SDL_RaiseWindow(controlWindow_);  // creating the badges must not strand typing
     }
@@ -3674,7 +3727,7 @@
     if (identifyWindows_.empty()) {
       return;
     }
-    if (SDL_GetTicks64() > identifyUntilMs_) {
+    if (SDL_GetTicks() > identifyUntilMs_) {
       closeDisplayIdentify();
       return;
     }
@@ -3683,18 +3736,18 @@
     auto blitText = [](SDL_Renderer* ren, TTF_Font* font, const std::string& text,
                        SDL_Color color, int centerX, int centerY, double maxScale, int maxW) {
       if (!font || text.empty()) return;
-      SDL_Surface* surf = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+      SDL_Surface* surf = TTF_RenderText_Blended(font, text.c_str(), 0, color);
       if (!surf) return;
-      if (SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surf)) {
+      if (SDL_Texture* tex = deckboyCreateTextureFromSurface(ren, surf)) {
         double scale = std::min(maxScale, static_cast<double>(maxW) / std::max(1, surf->w));
         scale = std::max(0.5, scale);
         int dw = static_cast<int>(surf->w * scale);
         int dh = static_cast<int>(surf->h * scale);
         SDL_Rect dst {centerX - dw / 2, centerY - dh / 2, dw, dh};
-        SDL_RenderCopy(ren, tex, nullptr, &dst);
+        SDL_RenderTexture(ren, tex, nullptr, &dst);
         SDL_DestroyTexture(tex);
       }
-      SDL_FreeSurface(surf);
+      SDL_DestroySurface(surf);
     };
     for (auto& iw : identifyWindows_) {
       if (!iw.renderer || !iw.window) {
@@ -3707,14 +3760,14 @@
       SDL_SetRenderDrawColor(iw.renderer, pal.light.r, pal.light.g, pal.light.b, 255);
       for (int border = 0; border < 3; ++border) {
         SDL_Rect frame {border, border, winW - border * 2, winH - border * 2};
-        SDL_RenderDrawRect(iw.renderer, &frame);
+        SDL_RenderRect(iw.renderer, &frame);
       }
       blitText(iw.renderer, fontLarge_, std::to_string(iw.displayIndex + 1), pal.light,
                winW / 2, winH / 2 - 16, 3.0, winW - 40);
-      const char* dName = SDL_GetDisplayName(iw.displayIndex);
+      const char* dName = deckboyGetDisplayName(iw.displayIndex);
       std::string info = dName && *dName ? std::string(dName) : std::string();
       SDL_Rect dispBounds;
-      if (SDL_GetDisplayBounds(iw.displayIndex, &dispBounds) == 0) {
+      if (deckboyGetDisplayBounds(iw.displayIndex, &dispBounds)) {
         info += (info.empty() ? "" : "  ") + std::to_string(dispBounds.w)
               + "x" + std::to_string(dispBounds.h);
       }
@@ -3728,7 +3781,7 @@
   // Called on explicit operator display choices so topology changes can
   // re-match the intended physical display by name later.
   void recordOutputDisplayName(OutputTarget& output) {
-    const char* name = SDL_GetDisplayName(output.displayIndex);
+    const char* name = deckboyGetDisplayName(output.displayIndex);
     output.displayName = (name && *name) ? name : std::string();
   }
 
@@ -3747,12 +3800,12 @@
     if (output.displayName.empty()) {
       return clamped;
     }
-    const char* currentName = SDL_GetDisplayName(clamped);
+    const char* currentName = deckboyGetDisplayName(clamped);
     if (currentName && output.displayName == currentName) {
       return clamped;
     }
     for (int index = 0; index < displayCount; ++index) {
-      const char* name = SDL_GetDisplayName(index);
+      const char* name = deckboyGetDisplayName(index);
       if (name && output.displayName == name) {
         return index;
       }
@@ -3774,14 +3827,14 @@
     if (!runtime || !runtime->outputWindow) {
       return;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
 
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     bool haveDisplayBounds = false;
     SDL_Rect bounds {};
     if (displayCount > 0) {
       output.displayIndex = resolveOutputDisplayIndex(output, displayCount);
-      haveDisplayBounds = (SDL_GetDisplayBounds(output.displayIndex, &bounds) == 0);
+      haveDisplayBounds = (deckboyGetDisplayBounds(output.displayIndex, &bounds));
     } else {
       output.displayIndex = 0;
     }
@@ -3790,12 +3843,12 @@
     targetW = std::max(1, targetW);
     targetH = std::max(1, targetH);
 
-    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+    SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
     if (!streamType && fullscreen && allowFullscreenTransition) {
-      SDL_SetWindowFullscreen(runtime->outputWindow, 0);
+      SDL_SetWindowFullscreen(runtime->outputWindow, false);
       flags = SDL_GetWindowFlags(runtime->outputWindow);
-      fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+      fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
     }
 
     // Only move/resize once SDL confirms the window is no longer fullscreen.
@@ -3943,7 +3996,7 @@
   }
 
   void cycleOutputDisplay(int direction) {
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       return;
     }
@@ -3955,7 +4008,7 @@
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
       queuedRuntimeRebuild = queueOutputDisplayRuntimeRebuild(project_.focusedOutputIndex, now);
@@ -3972,7 +4025,7 @@
         restartLiveBrowserCueIfNeeded(deckIndex);
       }
     }
-    const char* labelPtr = SDL_GetDisplayName(output.displayIndex);
+    const char* labelPtr = deckboyGetDisplayName(output.displayIndex);
     std::string label = (labelPtr && *labelPtr) ? labelPtr : "";
     triggerToast("display: "
       + (label.empty() ? std::to_string(output.displayIndex + 1) : label)
@@ -3983,7 +4036,7 @@
   }
 
   bool setOutputDisplayIndex(int index) {
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0 || index < 0 || index >= displayCount) {
       return false;
     }
@@ -3995,7 +4048,7 @@
       project_.outputFollowDisplay = true;
       autoSwitchedToNative = true;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
       queuedRuntimeRebuild = queueOutputDisplayRuntimeRebuild(project_.focusedOutputIndex, now);
@@ -4020,7 +4073,7 @@
   }
 
   void refreshDisplayTopology(bool withToast = false) {
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       // Zero displays is a transient state (RDP handoff, driver reset).
       // Don't mutate persisted display targets over it — when displays
@@ -4089,23 +4142,23 @@
       setOutputHealthState(outputIndex, OutputHealthState::Armed, "escaped to windowed");
       return false;
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (runtime->pendingDisplayRuntimeRebuild ||
         runtime->pendingDisplayMoveFullscreen ||
         now < runtime->suppressRecoveryUntilMs) {
       return false;
     }
 
-    Uint32 flags = SDL_GetWindowFlags(runtime->outputWindow);
-    bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
+    SDL_WindowFlags flags = SDL_GetWindowFlags(runtime->outputWindow);
+    bool fullscreen = (flags & SDL_WINDOW_FULLSCREEN) != 0;
     bool hidden = (flags & SDL_WINDOW_HIDDEN) != 0;
     bool minimized = (flags & SDL_WINDOW_MINIMIZED) != 0;
 
-    int displayCount = SDL_GetNumVideoDisplays();
+    int displayCount = deckboyGetNumVideoDisplays();
     int targetDisplay = displayCount > 0
       ? std::clamp(output.displayIndex, 0, displayCount - 1)
       : 0;
-    int windowDisplay = SDL_GetWindowDisplayIndex(runtime->outputWindow);
+    int windowDisplay = deckboyGetWindowDisplayIndex(runtime->outputWindow);
     // SDL can report -1 transiently during fullscreen transitions.
     // Treat unknown index as non-actionable to avoid recovery loops.
     // Deliberately NOT checked while fullscreen: SDL's reported display for a
@@ -4183,7 +4236,7 @@
     if (withToast) {
       std::string displayLabel = "display " + std::to_string(targetDisplay + 1);
       if (displayCount > 0) {
-        const char* displayName = SDL_GetDisplayName(targetDisplay);
+        const char* displayName = deckboyGetDisplayName(targetDisplay);
         if (displayName && *displayName) {
           displayLabel = displayName;
         }
@@ -4194,7 +4247,7 @@
   }
 
   std::string currentDisplayLabel() const {
-    const char* name = SDL_GetDisplayName(outputDisplayIndex(project_.focusedOutputIndex));
+    const char* name = deckboyGetDisplayName(outputDisplayIndex(project_.focusedOutputIndex));
     if (name && *name) {
       return name;
     }

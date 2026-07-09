@@ -598,7 +598,7 @@
       if (!state) {
         toggleUiSounds();
       } else if (*state != project_.uiSoundsEnabled) {
-        project_.uiSoundsEnabled = *state && uiAudioDevice_ != 0;
+        project_.uiSoundsEnabled = *state && uiAudioStream_ != nullptr;
         if (project_.uiSoundsEnabled) {
           playUiSound(UiSoundEffect::Toggle);
         }

@@ -179,7 +179,7 @@
   void clearOutput() {
     // Fade to black via dimmer, then clear after fade completes
     focusedDeckMutable().overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     masterDimmerTarget_ = 0.0;
     pendingClearAfterFade_ = true;
     triggerToast("fading out");
@@ -190,7 +190,7 @@
     MediaEngine* engine = focusedMediaEngine();
     stopBrowserCue();
     focusedDeckMutable().overlayActiveIndices.clear();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     focusedDeckMutable().activeIndex = -1;
     if (engine) {
       engine->clear();
@@ -255,7 +255,7 @@
 
     activateAttachedOverlay(CueKind::LowerThird, cue.attachedLowerThirdCue);
     activateAttachedOverlay(CueKind::Pip, cue.attachedPipCue);
-    syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
   }
 
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false) {
@@ -272,7 +272,7 @@
     // Overlay cues go to the overlay slot, not the main slot.
     if (cue.kind == CueKind::LowerThird || cue.kind == CueKind::Pip) {
       activateOverlayCueIndex(deck, deck.selectedIndex);
-      syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks64());
+      syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
       triggerToast(cue.kind == CueKind::Pip ? ("pip live: " + cue.name) : ("overlay live: " + cue.name));
       playUiSound(UiSoundEffect::Take);
       markProjectDirty();
@@ -464,7 +464,7 @@
   }
 
   void refreshSelectedCuePreviewCaches() {
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     const Cue* cue = selectedCuePtr();
     if (!cue) {
       clearSelectedThumbnail();
@@ -574,7 +574,7 @@
       return;
     }
     refreshFocusedLiveCueRuntimeIfSelected();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     refreshSelectedCuePreviewCaches();
     triggerToast(appliedCount == 1 ? "cue settings pasted"
                                    : ("cue settings pasted x" + std::to_string(appliedCount)));
@@ -614,7 +614,7 @@
       return;
     }
     refreshFocusedLiveCueRuntimeIfSelected();
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     refreshSelectedCuePreviewCaches();
     triggerToast(appliedCount == 1 ? "cue settings reset"
                                    : ("cue settings reset x" + std::to_string(appliedCount)));
@@ -1173,7 +1173,7 @@
       }
       return;
     }
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     onSelectionChanged();
     triggerToast("pip source type: " + pipSourceTypeLabel(sourceType));
     markProjectDirty();
@@ -1201,7 +1201,7 @@
       }
       return;
     }
-    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+    syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
     onSelectionChanged();
     triggerToast("pip source set");
     markProjectDirty();
@@ -1328,7 +1328,7 @@
         } else {
           clearSelectedThumbnail();
         }
-        syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks64());
+        syncPipOverlayRuntimesForDeck(project_.focusedDeckIndex, SDL_GetTicks());
       }
     }
     triggerToast(normalized.empty() ? "pip target cleared" : ("pip target: " + normalized));
@@ -1368,7 +1368,7 @@
       if (!runtime.mediaEngine) {
         runtime.mediaEngine = std::make_unique<MediaEngine>(
           controlRenderer_,
-          0,
+          nullptr,
           MediaEngine::AudioTapCallback {},
           [this](const Cue& cue) {
             return resolvedCueFilesystemPathString(cue, currentProjectFile_);
@@ -1573,22 +1573,22 @@
   }
 
   bool handleCueTypeAheadKey(SDL_Keycode key, Uint16 mod) {
-    if ((mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) != 0) {
+    if ((mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) != 0) {
       return false;
     }
     auto toSearchChar = [&](SDL_Keycode code) -> char {
       if (code >= SDLK_0 && code <= SDLK_9) {
         return static_cast<char>('0' + (code - SDLK_0));
       }
-      if (code >= SDLK_a && code <= SDLK_z) {
-        return static_cast<char>('A' + (code - SDLK_a));
+      if (code >= SDLK_A && code <= SDLK_Z) {
+        return static_cast<char>('A' + (code - SDLK_A));
       }
       if (code == SDLK_MINUS) return '-';
       if (code == SDLK_UNDERSCORE) return '_';
       return '\0';
     };
 
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (now > typedCueSearchLastKeyAtMs_ + 1200) {
       typedCueSearchBuffer_.clear();
     }
@@ -1805,13 +1805,13 @@
     double fps = (std::isfinite(cue->fps) && cue->fps > 1.0) ? cue->fps : 30.0;
     double stepSeconds = 1.0 / fps;
     std::string stepLabel = "1f";
-    if ((mod & KMOD_ALT) != 0) {
+    if ((mod & SDL_KMOD_ALT) != 0) {
       stepSeconds = 1.0;
       stepLabel = "1s";
-    } else if ((mod & KMOD_CTRL) != 0) {
+    } else if ((mod & SDL_KMOD_CTRL) != 0) {
       stepSeconds = 10.0 / fps;
       stepLabel = "10f";
-    } else if ((mod & KMOD_SHIFT) != 0) {
+    } else if ((mod & SDL_KMOD_SHIFT) != 0) {
       stepSeconds = 5.0 / fps;
       stepLabel = "5f";
     }
@@ -1974,7 +1974,7 @@
     ensureTimecodeFollowerStateSize();
     Deck& deck = project_.decks[deckIndex];
     double normalized = std::max(0.0, std::isfinite(seconds) ? seconds : 0.0);
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     bool hadExternal = deckTimecodeHasExternal_[deckIndex];
     Uint64 previousExternalMs = deckTimecodeLastExternalMs_[deckIndex];
     Uint64 freewheelMs = static_cast<Uint64>(
@@ -2460,13 +2460,19 @@
     if (!controlRenderer_) {
       return std::nullopt;
     }
-    std::array<std::uint8_t, 4> pixel {0, 0, 0, 0};
+    // SDL3: SDL_RenderReadPixels returns a freshly allocated surface.
     SDL_Rect sampleRect {x, y, 1, 1};
-    if (SDL_RenderReadPixels(controlRenderer_, &sampleRect, SDL_PIXELFORMAT_RGBA32,
-                             pixel.data(), static_cast<int>(pixel.size())) != 0) {
+    SDL_Surface* sampled = SDL_RenderReadPixels(controlRenderer_, &sampleRect);
+    if (!sampled) {
       return std::nullopt;
     }
-    return SDL_Color {pixel[0], pixel[1], pixel[2], pixel[3]};
+    Uint8 r = 0, g = 0, b = 0, a = 0;
+    bool ok = SDL_ReadSurfacePixel(sampled, 0, 0, &r, &g, &b, &a);
+    SDL_DestroySurface(sampled);
+    if (!ok) {
+      return std::nullopt;
+    }
+    return SDL_Color {r, g, b, a};
   }
 
   bool handleKeyColorPickerMouseDown(int x, int y) {

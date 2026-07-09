@@ -739,7 +739,7 @@
       // null renderer, so this exercises the real loadCue → position() →
       // currentVisualFadeGain() chain the output compositor multiplies into
       // the bridge-texture alpha.
-      MediaEngine engine(nullptr, 0);
+      MediaEngine engine(nullptr, nullptr);
       Cue fadeCue;
       fadeCue.kind = CueKind::Pattern;
       fadeCue.name = "fade-check";

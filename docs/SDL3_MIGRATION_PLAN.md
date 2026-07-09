@@ -1,6 +1,8 @@
 # SDL2 → SDL3 Migration — Readiness Spec
 
-Status: **PLANNING (no code changes yet).** This is **Session 1** of Option B in
+Status: **EXECUTED (v0.77.0, 2026-07-08, branch `sdl3-migration`).** Kept as the
+record of the call-surface inventory and risk analysis; implementation notes
+live in DEVNOTES "SDL2 → SDL3 Migration". This was **Session 1** of Option B in
 `docs/GPU_DECODE_PLAN.md` (§3, §4.1, §11): migrate to SDL3 first, then implement
 in-process GPU decode on the SDL3 base straight to zero-copy. Keep the two in
 **separate sessions** — never bundled.

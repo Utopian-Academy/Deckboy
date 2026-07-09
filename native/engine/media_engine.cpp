@@ -35,7 +35,7 @@
 
 #include "engine/media_engine.hpp"
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -249,8 +249,8 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   playbackClockStart_ = std::chrono::steady_clock::now();
   playbackStartPosition_ = 0.0;
   pausedPosition_ = 0.0;
-  if (audioDevice_ != 0) {
-    SDL_PauseAudioDevice(audioDevice_, autoplay ? 0 : 1);
+  if (audioStream_) {
+    deckboySetAudioPaused(audioStream_, !autoplay);
   }
 }
 
@@ -313,22 +313,22 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   stopDecoderThreads();
   clearAudio();
   startDecoderThreads(*activeCue_, cueInPointSeconds_ + nextPosition, nextPosition);
-  if (audioDevice_ != 0) {
-    SDL_PauseAudioDevice(audioDevice_, state_ == TransportState::Playing ? 0 : 1);
+  if (audioStream_) {
+    deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
   }
 }
 
 // Resume playback from the current position. For source cues (camera/window),
 // this starts or resumes the capture backend. For video/audio cues, this
 // unpauses the SDL audio device and starts the wall-clock timer.
-void MediaEngine::setAudioDevice(SDL_AudioDeviceID device) {
+void MediaEngine::setAudioDevice(SDL_AudioStream* stream) {
   // Redirect PCM output to a newly opened device. The caller closes the old
   // device after this returns; start the new one clean and matched to the
   // current transport so a device change never interrupts playback.
-  audioDevice_ = device;
-  if (audioDevice_ != 0) {
-    SDL_ClearQueuedAudio(audioDevice_);
-    SDL_PauseAudioDevice(audioDevice_, state_ == TransportState::Playing ? 0 : 1);
+  audioStream_ = stream;
+  if (audioStream_) {
+    SDL_ClearAudioStream(audioStream_);
+    deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
   }
 }
 
@@ -355,8 +355,8 @@ void MediaEngine::play() {
   playbackClockStart_ = std::chrono::steady_clock::now();
   playbackStartPosition_ = pausedPosition_;
   state_ = TransportState::Playing;
-  if (audioDevice_ != 0 && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
-    SDL_PauseAudioDevice(audioDevice_, 0);
+  if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
+    deckboySetAudioPaused(audioStream_, false);
   }
 }
 
@@ -385,8 +385,8 @@ void MediaEngine::pause() {
   pausedPosition_ = position();
   currentPosition_ = pausedPosition_;
   state_ = TransportState::Paused;
-  if (audioDevice_ != 0 && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
-    SDL_PauseAudioDevice(audioDevice_, 1);
+  if (audioStream_ != nullptr && (activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio)) {
+    deckboySetAudioPaused(audioStream_, true);
   }
 }
 
@@ -458,8 +458,8 @@ void MediaEngine::stop(bool clearVisual) {
   pausedPosition_ = 0.0;
   currentPosition_ = 0.0;
   applyVisualClear();
-  if (audioDevice_ != 0) {
-    SDL_PauseAudioDevice(audioDevice_, 1);
+  if (audioStream_) {
+    deckboySetAudioPaused(audioStream_, true);
   }
 }
 
@@ -510,8 +510,8 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
 
   stopDecoderThreads();
   startDecoderThreads(*activeCue_, cueInPointSeconds_ + clamped, clamped);
-  if (audioDevice_ != 0) {
-    SDL_PauseAudioDevice(audioDevice_, state_ == TransportState::Playing ? 0 : 1);
+  if (audioStream_) {
+    deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
   }
 }
 
@@ -636,13 +636,13 @@ void MediaEngine::update() {
   // video position by more than ~2 frames, re-anchor the wall clock to it.
   // Skipped near EOF (audio drains before video finishes) and for live
   // streams (audioClockValid_ is false there).
-  if (state_ == TransportState::Playing && audioClockValid_ && audioDevice_ != 0 &&
+  if (state_ == TransportState::Playing && audioClockValid_ && audioStream_ != nullptr &&
       !decoderEof_.load()) {
     std::uint64_t queuedFrames = audioFramesQueued_.load(std::memory_order_relaxed);
     if (queuedFrames >= 4800) {  // trust the clock only after ~100ms of audio
       double queuedSeconds = static_cast<double>(queuedFrames) / 48000.0;
       double bufferedSeconds =
-        static_cast<double>(SDL_GetQueuedAudioSize(audioDevice_)) / (48000.0 * 4.0);
+        static_cast<double>(std::max(0, SDL_GetAudioStreamQueued(audioStream_))) / (48000.0 * 4.0);
       double playedWallSeconds = std::max(0.0, queuedSeconds - bufferedSeconds);
       // atempo re-times the pipe to wall rate; position space runs at
       // playbackSpeed_ × wall, so scale before comparing.
@@ -652,7 +652,7 @@ void MediaEngine::update() {
       // WASAPI stream dead) or the audio pipe dies mid-file, the clock
       // freezes — correcting against a frozen clock pins video at that
       // position forever. Fall back to the wall clock until it moves again.
-      Uint64 nowMs = SDL_GetTicks64();
+      Uint64 nowMs = SDL_GetTicks();
       if (audioClock > lastAudioClockSeconds_ + 0.001) {
         lastAudioClockSeconds_ = audioClock;
         lastAudioClockAdvanceMs_ = nowMs;
@@ -736,7 +736,7 @@ void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
     return;  // duplicate or sentinel — skip
   }
   lastMeasuredMediaFrameIndex_ = frameIndex;
-  Uint64 now = SDL_GetTicks64();
+  Uint64 now = SDL_GetTicks();
   if (mediaFpsSampleStartedAtMs_ == 0) {
     // First frame in this measurement window — start the clock
     mediaFpsSampleStartedAtMs_ = now;
@@ -1300,7 +1300,7 @@ bool MediaEngine::drawTextureFitted(SDL_Texture* texture, int width, int height,
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   SDL_SetTextureAlphaMod(texture, alphaValue);
   SDL_Point center {destination.w / 2, destination.h / 2};
-  SDL_RenderCopyEx(outputRenderer_, texture, &source, &destination, outputRotationDegrees_, &center, SDL_FLIP_NONE);
+  SDL_RenderTextureRotated(outputRenderer_, texture, &source, &destination, outputRotationDegrees_, &center, SDL_FLIP_NONE);
   SDL_SetTextureAlphaMod(texture, 255);  // reset alpha mod to avoid leaking to other draws
   return true;
 }
@@ -1417,8 +1417,8 @@ void MediaEngine::handlePlaybackEnd() {
     playbackClockStart_ = std::chrono::steady_clock::now();
     playbackStartPosition_ = 0.0;
     pausedPosition_ = 0.0;
-    if (audioDevice_ != 0) {
-      SDL_PauseAudioDevice(audioDevice_, 0);  // ensure audio is unpaused
+    if (audioStream_) {
+      deckboySetAudioPaused(audioStream_, false);  // ensure audio is unpaused
     }
     return;
   }
@@ -1428,8 +1428,8 @@ void MediaEngine::handlePlaybackEnd() {
     pausedPosition_ = duration_;
     currentPosition_ = duration_;
     clearVisualOnReachedEnd_ = false;  // keep last frame visible
-    if (audioDevice_ != 0) {
-      SDL_PauseAudioDevice(audioDevice_, 1);
+    if (audioStream_) {
+      deckboySetAudioPaused(audioStream_, true);
     }
     return;
   }
@@ -1439,8 +1439,8 @@ void MediaEngine::handlePlaybackEnd() {
   pausedPosition_ = duration_;
   currentPosition_ = duration_;
   clearVisualOnReachedEnd_ = true;  // go to black when finalized
-  if (audioDevice_ != 0) {
-    SDL_PauseAudioDevice(audioDevice_, 1);
+  if (audioStream_) {
+    deckboySetAudioPaused(audioStream_, true);
   }
   reachedEnd_ = true;  // consumed by reachedEnd() in the next update cycle
 }
@@ -1484,7 +1484,7 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   const bool formatChanged = textureFormat_ != wantFormat;
   if (!texture_ || sizeChanged || formatChanged) {
     clearTexture();
-    texture_ = SDL_CreateTexture(
+    texture_ = deckboyCreateTexture(
       outputRenderer_,
       wantFormat,
       SDL_TEXTUREACCESS_STREAMING,
@@ -1551,7 +1551,7 @@ std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
   if (outputRenderer_) {
     int rw = 0;
     int rh = 0;
-    if (SDL_GetRendererOutputSize(outputRenderer_, &rw, &rh) == 0 && rw > 0 && rh > 0) {
+    if (SDL_GetCurrentRenderOutputSize(outputRenderer_, &rw, &rh) && rw > 0 && rh > 0) {
       w = rw;
       h = rh;
     }
@@ -1726,9 +1726,9 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
 // transitions, stop, and cleanup to prevent leftover audio from bleeding
 // into the next cue or playing after the cue has stopped.
 void MediaEngine::clearAudio() {
-  if (audioDevice_ != 0) {
-    SDL_ClearQueuedAudio(audioDevice_);
-    SDL_PauseAudioDevice(audioDevice_, 1);
+  if (audioStream_) {
+    SDL_ClearAudioStream(audioStream_);
+    deckboySetAudioPaused(audioStream_, true);
   }
 }
 
@@ -2019,7 +2019,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   });
 
   audioClockValid_ = false;
-  if (audioDevice_ != 0 && cue.hasAudio && cue.audioEnabled) {
+  if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     syncAudioFadeParams();  // publish before the audio thread spawns
     audioFramesQueued_.store(0, std::memory_order_relaxed);
     audioClockStartSeconds_ = cueStartSeconds;
@@ -2068,7 +2068,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
         std::vector<std::uint8_t> buffer(8192);
         double audioTime = cueStartSeconds;
         while (!decoderStop_.load()) {
-          if (SDL_GetQueuedAudioSize(audioDevice_) > 23040) {
+          if (SDL_GetAudioStreamQueued(audioStream_) > 23040) {
             SDL_Delay(4);
             continue;
           }
@@ -2105,7 +2105,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
           if (audioTap_) {
             audioTap_(scaled);
           }
-          SDL_QueueAudio(audioDevice_, scaled.data(), static_cast<Uint32>(scaled.size() * sizeof(std::int16_t)));
+          SDL_PutAudioStreamData(audioStream_, scaled.data(), static_cast<int>(scaled.size() * sizeof(std::int16_t)));
           audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
         }
       });

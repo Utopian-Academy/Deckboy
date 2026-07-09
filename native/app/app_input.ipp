@@ -18,7 +18,7 @@
 //   Other:
 //     - Window focus/resize events
 //     - Drag-and-drop file import
-//     - SDL_QUIT handling with unsaved-changes confirmation
+//     - SDL_EVENT_QUIT handling with unsaved-changes confirmation
 //
 // Part of class App — included inside the class body in main.cpp.
 // Do NOT compile this file separately.
@@ -46,8 +46,8 @@
         double relativeSeekSeconds = std::clamp(mediaTargetSeconds - cueIn, 0.0, std::max(0.0, engine->duration()));
         engine->seek(relativeSeekSeconds);
         if (audioScrub) {
-          if (auto* runtime = focusedRuntime(); runtime && runtime->audioDevice != 0) {
-            SDL_PauseAudioDevice(runtime->audioDevice, 0);
+          if (auto* runtime = focusedRuntime(); runtime && runtime->audioStream) {
+            deckboySetAudioPaused(runtime->audioStream, false);
           }
         }
         return true;
@@ -58,8 +58,8 @@
     }
     engine->seek(engine->duration() * clampedFraction);
     if (audioScrub) {
-      if (auto* runtime = focusedRuntime(); runtime && runtime->audioDevice != 0) {
-        SDL_PauseAudioDevice(runtime->audioDevice, 0);
+      if (auto* runtime = focusedRuntime(); runtime && runtime->audioStream) {
+        deckboySetAudioPaused(runtime->audioStream, false);
       }
     }
     return true;
@@ -374,7 +374,7 @@
       if (deckIndex < static_cast<int>(deckOpacityFaderRects_.size()) &&
           pointInRect(x, y, deckOpacityFaderRects_[deckIndex]) &&
           deckOpacityFaderRects_[deckIndex].w > 0) {
-        bool altHeld = (SDL_GetModState() & KMOD_ALT) != 0;
+        bool altHeld = (SDL_GetModState() & SDL_KMOD_ALT) != 0;
         const SDL_Rect& rail = deckOpacityFaderRects_[deckIndex];
         float value = static_cast<float>(std::clamp(
           static_cast<double>(x - rail.x) / static_cast<double>(rail.w),
@@ -413,8 +413,8 @@
       for (int cueIndex : cueIndicesForOverlayRole(deck, false)) {
         SDL_Rect row {primaryClip.x, listY, primaryClip.w, kRowHeight};
         if (pointInRect(x, y, row)) {
-          bool shiftHeld = (SDL_GetModState() & KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & KMOD_CTRL) != 0;
+          bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
           selectCueInDeck(deckIndex, cueIndex, shiftHeld, ctrlHeld);
           drag_.active = true;
           drag_.deckIndex = deckIndex;
@@ -716,7 +716,7 @@
         float newY = (static_cast<float>(y) - baseY) / sy;
         // Snap to grid when Shift is held (10px grid in output space)
         SDL_Keymod mod = SDL_GetModState();
-        if (mod & KMOD_SHIFT) {
+        if (mod & SDL_KMOD_SHIFT) {
           constexpr float kSnapGrid = 10.0f;
           newX = std::round(newX / kSnapGrid) * kSnapGrid;
           newY = std::round(newY / kSnapGrid) * kSnapGrid;
@@ -799,8 +799,8 @@
   }
 
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
-    bool ctrl = (mod & KMOD_CTRL) != 0;
-    bool shift = (mod & KMOD_SHIFT) != 0;
+    bool ctrl = (mod & SDL_KMOD_CTRL) != 0;
+    bool shift = (mod & SDL_KMOD_SHIFT) != 0;
 
     if (showSplashOverlay_) {
       if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
@@ -812,24 +812,24 @@
     // F11 — toggle borderless fullscreen on the control window. The renderer's
     // logical size scales the fixed-grid UI to fill the screen automatically.
     if (key == SDLK_F11 && !keyRepeat && controlWindow_) {
-      Uint32 winFlags = SDL_GetWindowFlags(controlWindow_);
+      SDL_WindowFlags winFlags = SDL_GetWindowFlags(controlWindow_);
       bool isFullscreen =
-        (winFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-      SDL_SetWindowFullscreen(controlWindow_,
-                              isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+        (winFlags & SDL_WINDOW_FULLSCREEN) != 0;
+      SDL_SetWindowFullscreenMode(controlWindow_, nullptr);  // borderless desktop
+      SDL_SetWindowFullscreen(controlWindow_, !isFullscreen);
       triggerToast(isFullscreen ? "windowed" : "fullscreen");
       return;
     }
 
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
-      if (key == SDLK_n) {
+      if (key == SDLK_N) {
         startNewShow(false);
         showStartupDialog_ = false;
-      } else if (key == SDLK_o) {
+      } else if (key == SDLK_O) {
         openProjectFromPicker();
         showStartupDialog_ = false;
-      } else if (key == SDLK_p && hasSavedFile) {
+      } else if (key == SDLK_P && hasSavedFile) {
         showStartupDialog_ = false;
       } else if (key == SDLK_RETURN || key == SDLK_KP_ENTER) {
         if (hasSavedFile) {
@@ -859,7 +859,7 @@
       static const SDL_Keycode kKonami[] = {
         SDLK_UP, SDLK_UP, SDLK_DOWN, SDLK_DOWN,
         SDLK_LEFT, SDLK_RIGHT, SDLK_LEFT, SDLK_RIGHT,
-        SDLK_b, SDLK_a, SDLK_RETURN
+        SDLK_B, SDLK_A, SDLK_RETURN
       };
       constexpr int kKonamiLen = static_cast<int>(sizeof(kKonami) / sizeof(kKonami[0]));
       if (key == kKonami[konamiIndex_]) {
@@ -898,7 +898,7 @@
     }
 
     if (confirmQuit_) {
-      if (key == SDLK_y || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
+      if (key == SDLK_Y || key == SDLK_RETURN || key == SDLK_KP_ENTER) {
         gShouldQuit.store(true);
       } else {
         confirmQuit_ = false;
@@ -906,7 +906,7 @@
       return;
     }
 
-    if (ctrl && key == SDLK_q) {
+    if (ctrl && key == SDLK_Q) {
       confirmQuit_ = true;
       return;
     }
@@ -917,27 +917,27 @@
       return;
     }
     // Ctrl+Z — undo, Ctrl+Shift+Z — redo
-    if (ctrl && !shift && key == SDLK_z) {
+    if (ctrl && !shift && key == SDLK_Z) {
       undo();
       return;
     }
-    if (ctrl && shift && key == SDLK_z) {
+    if (ctrl && shift && key == SDLK_Z) {
       redo();
       return;
     }
-    if (ctrl && !shift && key == SDLK_c) {
+    if (ctrl && !shift && key == SDLK_C) {
       copySelectedCueSettings();
       return;
     }
-    if (ctrl && !shift && key == SDLK_v) {
+    if (ctrl && !shift && key == SDLK_V) {
       pasteSelectedCueSettings();
       return;
     }
-    if (ctrl && shift && key == SDLK_c) {
+    if (ctrl && shift && key == SDLK_C) {
       copyFocusedWarpSettings();
       return;
     }
-    if (ctrl && shift && key == SDLK_v) {
+    if (ctrl && shift && key == SDLK_V) {
       pasteFocusedWarpSettings();
       return;
     }
@@ -958,18 +958,18 @@
       return;
     }
     // Ctrl+G — GOTO cue
-    if (ctrl && key == SDLK_g) {
+    if (ctrl && key == SDLK_G) {
       openInlineGotoCueEditor();
       return;
     }
-    if (ctrl && !shift && key == SDLK_f) {
+    if (ctrl && !shift && key == SDLK_F) {
       if (settingsOpen_) {
         settingsOpen_ = false;
       }
       openInlineCueFindEditor(false);
       return;
     }
-    if (ctrl && shift && key == SDLK_f) {
+    if (ctrl && shift && key == SDLK_F) {
       if (!lastCueFindToken_.empty()) {
         findCueToken(lastCueFindToken_, 1, false);
       } else {
@@ -977,40 +977,40 @@
       }
       return;
     }
-    if (ctrl && !shift && key == SDLK_r) {
+    if (ctrl && !shift && key == SDLK_R) {
       rerackTransport();
       return;
     }
-    if (ctrl && shift && key == SDLK_r) {
+    if (ctrl && shift && key == SDLK_R) {
       openInlineCueRenumberEditor(false);
       return;
     }
 
-    if (ctrl && key == SDLK_o) {
+    if (ctrl && key == SDLK_O) {
       setActiveTrimFromPlayhead(false);
       return;
     }
-    if (ctrl && key == SDLK_i) {
+    if (ctrl && key == SDLK_I) {
       setActiveTrimFromPlayhead(true);
       return;
     }
-    if (ctrl && key == SDLK_n) {
+    if (ctrl && key == SDLK_N) {
       startNewShow(true);
       return;
     }
-    if (ctrl && !shift && key == SDLK_a) {
+    if (ctrl && !shift && key == SDLK_A) {
       selectAllCuesInFocusedDeck();
       return;
     }
-    if (ctrl && !shift && key == SDLK_s) {
+    if (ctrl && !shift && key == SDLK_S) {
       saveProjectAsFromPicker();
       return;
     }
-    if (ctrl && shift && key == SDLK_s) {
+    if (ctrl && shift && key == SDLK_S) {
       saveProjectAsFromPicker();
       return;
     }
-    if (ctrl && shift && key == SDLK_e) {
+    if (ctrl && shift && key == SDLK_E) {
       exportProjectBundleFromPicker();
       return;
     }
@@ -1022,7 +1022,7 @@
         }
         {
           constexpr Uint64 kEscRepeatMs = 900;
-          Uint64 now = SDL_GetTicks64();
+          Uint64 now = SDL_GetTicks();
           bool quickEsc = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscRepeatMs;
           escapePressStreak_ = quickEsc ? (escapePressStreak_ + 1) : 1;
           lastEscapeKeyMs_ = now;
@@ -1073,47 +1073,47 @@
       case SDLK_SPACE:
         toggleTransport();
         break;
-      case SDLK_s:
+      case SDLK_S:
         stopTransport();
         break;
-      case SDLK_c:
+      case SDLK_C:
         clearOutput();
         break;
-      case SDLK_f:
+      case SDLK_F:
         toggleOutputFullscreen();
         break;
-      case SDLK_i:
+      case SDLK_I:
         importWithPicker();
         break;
-      case SDLK_b:
+      case SDLK_B:
         addBrowserCueFromPrompt();
         break;
-      case SDLK_g:
+      case SDLK_G:
         triggerParkedCueCreationToast("lower third");
         break;
-      case SDLK_m:
+      case SDLK_M:
         triggerParkedCueCreationToast("scene");
         break;
-      case SDLK_p:
+      case SDLK_P:
         if (shift) {
           triggerParkedCueCreationToast("pip");
         } else {
           addKawaiiPatternCue();
         }
         break;
-      case SDLK_l:
+      case SDLK_L:
         toggleSelectedLoop();
         break;
-      case SDLK_e:
+      case SDLK_E:
         toggleSelectedPauseOnLastFrame();
         break;
-      case SDLK_x:
+      case SDLK_X:
         cycleSelectedEndAction();
         break;
       case SDLK_6:
         toggleShuffle();
         break;
-      case SDLK_k:
+      case SDLK_K:
         cycleSelectedColorTag();
         break;
       case SDLK_LEFTBRACKET:
@@ -1122,25 +1122,25 @@
       case SDLK_RIGHTBRACKET:
         adjustSelectedFade(!shift, 0.25);
         break;
-      case SDLK_a:
+      case SDLK_A:
         cycleAudioOutputDevice(1);
         break;
-      case SDLK_d:
+      case SDLK_D:
         cycleOutputDisplay(1);
         break;
-      case SDLK_n:
+      case SDLK_N:
         // toggleFocusedOutputNdi → setFocusedOutputNdiEnabled, which gates on
         // ndiRuntimeAvailable() and shows the prompt internally.
         toggleFocusedOutputNdi();
         break;
-      case SDLK_o:
+      case SDLK_O:
         if (shift) {
           toggleTimeOverlayEnabled();
         } else {
           openProjectFromPicker();
         }
         break;
-      case SDLK_t:
+      case SDLK_T:
         setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
         break;
       case SDLK_5:

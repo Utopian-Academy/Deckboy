@@ -57,6 +57,7 @@ cmake --build ../build/windows --config Release
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
 | `native/core/system_browser.hpp` | Cross-platform `openExternalUrl()` for dep prompts |
+| `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
 | `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
 
 ---
@@ -95,7 +96,7 @@ Current field counts:
 - Still-type cues (`isDefaultStillDurationCueKind`) default to `fadeOutSeconds = 0` in `applyDeckDefaultsToCue` so a held graphic doesn't dip to black; per-cue fade-out still works if enabled.
 - `suppressVisualFadeOutForCurrentCue_` → set `true` for auto-advancing cues (crossfade handles the outgoing visual)
 - **The engine OWNS its cue** (v0.76.19): `activeCue_` points at `activeCueSnapshot_`, never into `Deck::cues`. App edits reach the engine via `markProjectDirty()` → `syncEngineCueSnapshots()` next tick. The audio thread reads fades only through atomic mirrors (`syncAudioFadeParams`/`audioFadeGainAt`). Video position slaves to the audio device clock when audio is present (see DEVNOTES `Audio-Master A/V Clock`).
-- Frame pipeline: ffmpeg stdout → `readExact` → `frameQueue_` → `uploadFrame()` → SDL_Texture
+- Frame pipeline: ffmpeg stdout → `readExact` → `frameQueue_` → `uploadFrame()` → SDL_Texture; audio thread queues PCM via `SDL_PutAudioStreamData` on the deck's `SDL_AudioStream` (SDL3)
 - `DecodedFrame::format` (`FramePixelFormat`) is the canonical flag: every upload site reads it to pick `SDL_UpdateTexture` (RGBA32) vs `SDL_UpdateNVTexture` (NV12), and to recreate the cached texture when the format changes. Helper: `syncFrameTexture()` in `render/texture_helpers.hpp`. See DEVNOTES `GPU Hardware Decode + NV12 Upload Path` for the full architecture.
 
 ---
@@ -161,6 +162,20 @@ The settings click handler is split across three functions to stay under MSVC's 
 - Both use kind checks in `startDecoderThreads` (`isLiveStream`, `isNdiSource`); URL prefix detection no longer used.
 
 ---
+
+## SDL3 (v0.77.0+)
+
+The app runs on SDL3 (migrated from SDL2 in v0.77.0). Rules that keep it working:
+- Include `"core/sdl_compat.hpp"`, never `<SDL3/SDL.h>` directly.
+- Create textures with `deckboyCreateTexture` / `deckboyCreateTextureFromSurface`
+  (applies the mandatory nearest-neighbour scale mode) — raw `SDL_CreateTexture`
+  silently gives linear filtering.
+- Display selection uses SDL2-style indices via `deckboy*Display*` helpers.
+- Audio handles are `SDL_AudioStream*` (device-bound logical devices), paused
+  via `deckboySetAudioPaused`. Streams open paused.
+- SDL3 functions return `bool` (true = success) — never check `== 0`.
+- `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS = "0"` at init is load-bearing; never remove.
+- Full migration notes: DEVNOTES "SDL2 → SDL3 Migration".
 
 ## Key Conventions
 

@@ -7,19 +7,19 @@
 // text_renderer.cpp — SDL2 text rendering implementation.
 //
 // All methods follow the same pattern: render UTF-8 text to an SDL_Surface
-// via TTF_RenderUTF8_Blended (anti-aliased, alpha-blended), convert to an
+// via TTF_RenderText_Blended(anti-aliased, alpha-blended, 0), convert to an
 // SDL_Texture, blit to the renderer, then clean up the temporary surface.
 //
 // Note: drawText() and drawCenteredText() create and destroy a texture per
 // call. For text that doesn't change every frame, use textToTexture() to
-// cache the result and SDL_RenderCopy it directly.
+// cache the result and SDL_RenderTexture it directly.
 //
 // Header: text_renderer.hpp
 // ============================================================================
 
 #include "render/text_renderer.hpp"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include "core/sdl_compat.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 
 namespace deckboy::render {
 
@@ -32,20 +32,20 @@ void TextRenderer::drawText(SDL_Renderer* renderer, TTF_Font* font,
     return;
   }
 
-  SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
   if (!surface) {
     return;
   }
 
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
   if (!texture) {
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
     return;
   }
 
   SDL_Rect dst{x, y, surface->w, surface->h};
-  SDL_FreeSurface(surface);
-  SDL_RenderCopy(renderer, texture, nullptr, &dst);
+  SDL_DestroySurface(surface);
+  SDL_RenderTexture(renderer, texture, nullptr, &dst);
   SDL_DestroyTexture(texture);
 }
 
@@ -59,14 +59,14 @@ void TextRenderer::drawCenteredText(SDL_Renderer* renderer, TTF_Font* font,
     return;
   }
 
-  SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
   if (!surface) {
     return;
   }
 
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
   if (!texture) {
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
     return;
   }
 
@@ -77,8 +77,8 @@ void TextRenderer::drawCenteredText(SDL_Renderer* renderer, TTF_Font* font,
     surface->h
   };
 
-  SDL_FreeSurface(surface);
-  SDL_RenderCopy(renderer, texture, nullptr, &dst);
+  SDL_DestroySurface(surface);
+  SDL_RenderTexture(renderer, texture, nullptr, &dst);
   SDL_DestroyTexture(texture);
 }
 
@@ -93,7 +93,7 @@ void TextRenderer::getTextDimensions(TTF_Font* font, const std::string& text,
     return;
   }
 
-  TTF_SizeUTF8(font, text.c_str(), &outWidth, &outHeight);
+  TTF_GetStringSize(font, text.c_str(), 0, &outWidth, &outHeight);
 }
 
 // Create a persistent SDL_Texture from text for caching. The caller owns
@@ -106,13 +106,13 @@ SDL_Texture* TextRenderer::textToTexture(SDL_Renderer* renderer, TTF_Font* font,
     return nullptr;
   }
 
-  SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+  SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
   if (!surface) {
     return nullptr;
   }
 
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-  SDL_FreeSurface(surface);
+  SDL_Texture* texture = deckboyCreateTextureFromSurface(renderer, surface);
+  SDL_DestroySurface(surface);
 
   return texture;  // Caller responsible for SDL_DestroyTexture
 }

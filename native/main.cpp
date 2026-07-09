@@ -56,10 +56,9 @@
 //   OSC server: listener thread for incoming OSC/Companion messages
 // ============================================================================
 
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include "core/sdl_compat.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 #ifdef _WIN32
-#include <SDL_syswm.h>
 #endif
 
 #include "core/constants.hpp"
@@ -173,7 +172,7 @@ namespace {
   using namespace deckboy::core::utils;
 
 // ── Audio and network constants ─────────────────────────────────────────────
-constexpr Uint16 kAudioFormat = AUDIO_S16SYS;           // SDL audio format: signed 16-bit native endian
+constexpr SDL_AudioFormat kAudioFormat = SDL_AUDIO_S16;           // SDL audio format: signed 16-bit native endian
 constexpr int kDefaultAtemBridgePort = 9910;             // ATEM switcher default UDP port
 constexpr int kDefaultArtNetPort = 6454;                 // Art-Net default UDP port (IANA registered)
 constexpr int kDefaultNmcSyncPort = 51010;               // Network master clock sync port
@@ -248,12 +247,8 @@ void applyDeckboyWindowIcon(SDL_Window* window) {
   if (!window) {
     return;
   }
-  SDL_SysWMinfo wmInfo {};
-  SDL_VERSION(&wmInfo.version);
-  if (!SDL_GetWindowWMInfo(window, &wmInfo)) {
-    return;
-  }
-  HWND hwnd = wmInfo.info.win.window;
+  HWND hwnd = static_cast<HWND>(SDL_GetPointerProperty(
+    SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
   if (!hwnd) {
     return;
   }
@@ -284,13 +279,13 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
 
   int textW = 0;
   int textH = 0;
-  if (TTF_SizeUTF8(font, text.c_str(), &textW, &textH) == 0 && textW <= maxWidth) {
+  if (TTF_GetStringSize(font, text.c_str(), 0, &textW, &textH) && textW <= maxWidth) {
     return text;
   }
 
   const std::string kEllipsis = "...";
   int ellipsisW = 0;
-  if (TTF_SizeUTF8(font, kEllipsis.c_str(), &ellipsisW, &textH) != 0) {
+  if (!TTF_GetStringSize(font, kEllipsis.c_str(), 0, &ellipsisW, &textH)) {
     return text;
   }
   if (ellipsisW > maxWidth) {
@@ -301,7 +296,7 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
   while (!clipped.empty()) {
     clipped.pop_back();
     std::string candidate = clipped + kEllipsis;
-    if (TTF_SizeUTF8(font, candidate.c_str(), &textW, &textH) == 0 && textW <= maxWidth) {
+    if (TTF_GetStringSize(font, candidate.c_str(), 0, &textW, &textH) && textW <= maxWidth) {
       return candidate;
     }
   }
@@ -1797,7 +1792,7 @@ struct OutputRuntime {
   Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
   int compositorBitDepth = 8;
   // Per-deck bridge texture for compositing the source frame at this output.
-  // Format tracks SDL_PixelFormatEnum so an RGBA→NV12 (or vice-versa) cue
+  // Format tracks SDL_PixelFormat so an RGBA→NV12 (or vice-versa) cue
   // switch rebuilds the texture instead of silently corrupting its sampler.
   std::map<int, SDL_Texture*> layerBridgeTextures;
   std::map<int, int> layerBridgeTextureWidths;
@@ -1891,7 +1886,7 @@ struct DeckStreamAudioBuffer {
 struct DeckRuntime {
   SDL_Window* outputWindow = nullptr;    // Legacy (unused — outputs moved to OutputRuntime)
   SDL_Renderer* outputRenderer = nullptr;
-  SDL_AudioDeviceID audioDevice = 0;     // SDL audio device for this deck's audio output
+  SDL_AudioStream* audioStream = nullptr;  // device-bound SDL3 stream for this deck's audio output
   std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
   std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;  // For Browser/LowerThird cues
   bool browserCueLive = false;           // Whether a browser cue is currently active
@@ -3724,7 +3719,8 @@ class App {
     // absolute paths; the bare-name fallbacks still search the restricted set.
     SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
 
-    SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+    // (SDL3 is per-monitor-v2 DPI aware on Windows by default; the SDL2
+    // SDL_HINT_WINDOWS_DPI_AWARENESS hint is gone.)
     // Never minimize a fullscreen output when it loses focus. SDL's default
     // minimizes exclusive-fullscreen windows on focus loss, which turned the
     // operator's normal workflow into a fight: click the control window →
@@ -3760,16 +3756,17 @@ class App {
       }
     }
 #endif
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS)) {
       std::cerr << "SDL_Init failed: " << SDL_GetError() << '\n';
       return false;
     }
-    if (TTF_Init() != 0) {
-      std::cerr << "TTF_Init failed: " << TTF_GetError() << '\n';
+    if (!TTF_Init()) {
+      std::cerr << "TTF_Init failed: " << SDL_GetError() << '\n';
       return false;
     }
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    // Nearest-neighbour scaling is applied per texture via deckboyCreateTexture*
+    // (SDL3 removed the global SDL_HINT_RENDER_SCALE_QUALITY hint).
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -3783,8 +3780,6 @@ class App {
 
     controlWindow_ = SDL_CreateWindow(
       kAppTitle.data(),
-      SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED,
       kControlWidth,
       kControlHeight,
       SDL_WINDOW_RESIZABLE
@@ -3793,14 +3788,17 @@ class App {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    SDL_SetWindowPosition(controlWindow_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     applyDeckboyWindowIcon(controlWindow_);
     SDL_SetWindowMinimumSize(controlWindow_, 1500, 900);
 
-    controlRenderer_ = SDL_CreateRenderer(controlWindow_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    controlRenderer_ = SDL_CreateRenderer(controlWindow_, nullptr);
     if (!controlRenderer_) {
       std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
       return false;
     }
+    // vsync is a per-renderer runtime property in SDL3 (was a creation flag).
+    SDL_SetRenderVSync(controlRenderer_, 1);
     // NOTE: do NOT set SDL_RenderSetLogicalSize here. The control UI reflows to
     // the live window size every frame (layoutButtons + the SDL_GetWindowSize
     // calls in the render/overlay code), so a fixed logical size would clamp the
@@ -3808,7 +3806,7 @@ class App {
     // controls off-screen. Reflow handles resize/fullscreen on its own.
 
     // Scanline overlay texture (1x4 pattern: 2 clear rows + 2 tinted rows)
-    scanlineOverlay_ = SDL_CreateTexture(controlRenderer_,
+    scanlineOverlay_ = deckboyCreateTexture(controlRenderer_,
         SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 1, 4);
     if (scanlineOverlay_) {
       Uint8 a = pal.scanlineAlpha;
@@ -3819,8 +3817,6 @@ class App {
 
     monitorsWindow_ = SDL_CreateWindow(
       "Deckboy Monitors",
-      SDL_WINDOWPOS_UNDEFINED,
-      SDL_WINDOWPOS_UNDEFINED,
       1280,
       800,
       SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE
@@ -3828,7 +3824,7 @@ class App {
     if (monitorsWindow_) {
       applyDeckboyWindowIcon(monitorsWindow_);
       SDL_SetWindowMinimumSize(monitorsWindow_, 640, 400);
-      monitorsRenderer_ = SDL_CreateRenderer(monitorsWindow_, -1, SDL_RENDERER_ACCELERATED);
+      monitorsRenderer_ = SDL_CreateRenderer(monitorsWindow_, nullptr);
       if (!monitorsRenderer_) {
         SDL_DestroyWindow(monitorsWindow_);
         monitorsWindow_ = nullptr;
@@ -3838,7 +3834,7 @@ class App {
     // Fonts are loaded through loadFonts() so the same code path runs at
     // boot AND when the operator changes the UI scale at runtime.
     if (!loadFonts(1.0)) {
-      std::cerr << "Font load failed: " << TTF_GetError() << '\n';
+      std::cerr << "Font load failed: " << SDL_GetError() << '\n';
       return false;
     }
 
@@ -3868,11 +3864,11 @@ class App {
     // Show startup dialog so operator can choose to load or start fresh
     showStartupDialog_ = true;
     showSplashOverlay_ = true;
-    splashStartedAt_ = SDL_GetTicks64();
+    splashStartedAt_ = SDL_GetTicks();
     ensureUiAudioDevice();
     previewMediaEngine_ = std::make_unique<MediaEngine>(
       controlRenderer_,
-      0,
+      nullptr,
       MediaEngine::AudioTapCallback {},
       [this](const Cue& cue) {
         return resolvedCueFilesystemPathString(cue, currentProjectFile_);
@@ -3887,9 +3883,9 @@ class App {
       return false;
     }
     onSelectionChanged();
-    observedDisplayCount_ = SDL_GetNumVideoDisplays();
+    observedDisplayCount_ = deckboyGetNumVideoDisplays();
     refreshDisplayTopology(false);
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     lastUpdateTickMs_ = selectionChangedAt_;
     startCompanionControl();
     if (project_.oscQueryEnabled) {
@@ -3919,9 +3915,9 @@ class App {
     ndiApi_.shutdown();
 #endif
     ltcApi_.shutdown();
-    if (uiAudioDevice_ != 0) {
-      SDL_CloseAudioDevice(uiAudioDevice_);
-      uiAudioDevice_ = 0;
+    if (uiAudioStream_) {
+      SDL_DestroyAudioStream(uiAudioStream_);
+      uiAudioStream_ = nullptr;
     }
     releaseFonts();
     if (thumbnailThread_.joinable()) {
@@ -4498,12 +4494,12 @@ class App {
       // Top + left highlight
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(controlRenderer_, hi.r, hi.g, hi.b, hi.a);
-      SDL_RenderDrawLine(controlRenderer_, x1, y1, x2, y1);
-      SDL_RenderDrawLine(controlRenderer_, x1, y1, x1, y2);
+      SDL_RenderLine(controlRenderer_, x1, y1, x2, y1);
+      SDL_RenderLine(controlRenderer_, x1, y1, x1, y2);
       // Bottom + right shadow
       SDL_SetRenderDrawColor(controlRenderer_, lo.r, lo.g, lo.b, lo.a);
-      SDL_RenderDrawLine(controlRenderer_, x1, y2, x2, y2);
-      SDL_RenderDrawLine(controlRenderer_, x2, y1, x2, y2);
+      SDL_RenderLine(controlRenderer_, x1, y2, x2, y2);
+      SDL_RenderLine(controlRenderer_, x2, y1, x2, y2);
     }
   }
 
@@ -4639,7 +4635,7 @@ class App {
     if (!decodeStillImageRgba(asset.path, size->first, size->second, rgba)) {
       return false;
     }
-    SDL_Texture* texture = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+    SDL_Texture* texture = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
                                              SDL_TEXTUREACCESS_STATIC, size->first, size->second);
     if (!texture) {
       return false;
@@ -4673,7 +4669,7 @@ class App {
     };
     SDL_SetTextureColorMod(asset.texture, tint.r, tint.g, tint.b);
     SDL_SetTextureAlphaMod(asset.texture, alpha);
-    SDL_RenderCopy(controlRenderer_, asset.texture, nullptr, &dst);
+    SDL_RenderTexture(controlRenderer_, asset.texture, nullptr, &dst);
     SDL_SetTextureAlphaMod(asset.texture, 255);
     SDL_SetTextureColorMod(asset.texture, 255, 255, 255);
     return true;
@@ -4697,9 +4693,9 @@ class App {
       drawW, drawH
     };
     SDL_SetTextureAlphaMod(asset.texture, alpha);
-    SDL_RenderSetClipRect(controlRenderer_, &bounds);
-    SDL_RenderCopy(controlRenderer_, asset.texture, nullptr, &dst);
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, &bounds);
+    SDL_RenderTexture(controlRenderer_, asset.texture, nullptr, &dst);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
     SDL_SetTextureAlphaMod(asset.texture, 255);
     return true;
   }
@@ -5297,7 +5293,7 @@ class App {
   TTF_Font* fontMono_ = nullptr;
   TTF_Font* fontPixel_ = nullptr;
   TTF_Font* fontPixelSmall_ = nullptr;  // smaller pixel font for UI labels
-  SDL_AudioDeviceID uiAudioDevice_ = 0;
+  SDL_AudioStream* uiAudioStream_ = nullptr;
   fs::path currentProjectFile_;
   std::string currentThemeName_;
   Project project_;
@@ -5824,7 +5820,7 @@ class App {
   // LTC ingest state (cross-platform — libltc loaded dynamically at runtime)
   std::thread ltcThread_;
   std::atomic<bool> ltcStop_ {false};
-  SDL_AudioDeviceID ltcCaptureDevice_ = 0;
+  SDL_AudioStream* ltcCaptureStream_ = nullptr;  // SDL3 recording stream for LTC ingest
   int ltcCaptureSampleRate_ = 0;
   int ltcCaptureChannels_ = 0;
   std::string ltcCaptureDeviceName_;
