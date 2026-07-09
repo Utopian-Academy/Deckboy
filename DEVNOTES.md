@@ -8,7 +8,10 @@ over the island scene. the owner's direction: instruments must be DIEGETIC —
 scene objects (billboard = color bars, staircase = grayscale, sky banner =
 banding ramp, cave eyes = 2%/4% black-crush, cloud lumps = 98%/96% white
 clip, flashing ? block = cadence, beach TV static = fine detail, runner past
-10%-spaced fence posts = judder), never chart furniture. The Pokémon-style
+10%-spaced fence posts = judder, buoy lamp + engine-synthesized 1 kHz pop =
+A/V sync, v0.78.3 — `queuePocketSyncAudio` keys the pop to the wall time the
+samples will PLAY, i.e. now + queued audio, so it aligns with the flash the
+overlay draws off the same clock), never chart furniture. The Pokémon-style
 dialog box (chunky `gbBox` chrome, cream/ink/red palette, encounter text,
 blinking continue-cursor) is the game-UI layer. The forced-scene variants
 (`pocket-day` etc.) deliberately do NOT get the overlay — operators use them

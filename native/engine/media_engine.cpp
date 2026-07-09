@@ -616,6 +616,14 @@ void MediaEngine::update() {
   }
 
   if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ && !isSourceCapturing_) {
+    // Pocket-test A/V sync pop: the test card's buoy lamp flashes on each
+    // wall-clock second; synthesize the matching 1 kHz pop into the deck's
+    // audio stream so flash and pop leave Deckboy together.
+    if (state_ == TransportState::Playing && audioStream_ != nullptr &&
+        activeCue_->kind == CueKind::Pattern && activeCue_->audioEnabled &&
+        stripPatternMotionSuffix(normalizePatternTypeId(activeCue_->path)) == "pocket-test") {
+      queuePocketSyncAudio();
+    }
     if (duration_ > 0.0 && state_ == TransportState::Playing) {
       currentPosition_ = position();
       if (nextPausePointIdx_ < pausePoints_.size() &&
@@ -1777,6 +1785,54 @@ void MediaEngine::clearAudio() {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, true);
   }
+}
+
+// ---------------------------------------------------------------------------
+// queuePocketSyncAudio — The pocket-test card's A/V sync pop.
+//
+// An 80 ms 1 kHz tone fires at the top of every wall-clock second — the same
+// clock rebuildPatternFrame animates on, and the same window in which the
+// card's buoy lamp lights. Samples are synthesized keyed to the wall time at
+// which they will actually PLAY (now + already-queued audio), so the pop
+// leaves the audio device aligned with the flash leaving the renderer; what
+// the operator then measures at the far end is the chain's own A/V offset.
+// Keeps ~120 ms queued; honors deck volume, master gain, and cue fades, and
+// feeds the VU/waveform tap like any decoded audio.
+// ---------------------------------------------------------------------------
+void MediaEngine::queuePocketSyncAudio() {
+  constexpr int kRate = 48000;
+  constexpr double kBeepSeconds = 0.08;
+  constexpr int kChunkFrames = 1024;  // ~21 ms per fill
+  int queuedBytes = std::max(0, SDL_GetAudioStreamQueued(audioStream_));
+  double queuedSeconds = static_cast<double>(queuedBytes) / (kRate * 4.0);
+  if (queuedSeconds > 0.12) {
+    return;
+  }
+  deckboySetAudioPaused(audioStream_, false);
+  const double startSeconds =
+    static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
+  const double gain = static_cast<double>(volume_.load())
+                    * static_cast<double>(masterGain_.load())
+                    * audioFadeGainAt(position()) * 0.5;
+  std::vector<std::int16_t> samples(static_cast<size_t>(kChunkFrames) * 2);
+  for (int i = 0; i < kChunkFrames; ++i) {
+    double phase = std::fmod(startSeconds + static_cast<double>(i) / kRate, 1.0);
+    double value = 0.0;
+    if (phase < kBeepSeconds) {
+      // 5 ms attack / 10 ms release envelope — no clicks on cheap speakers.
+      double envelope = std::min({phase / 0.005, (kBeepSeconds - phase) / 0.010, 1.0});
+      value = std::sin(phase * kTau * 1000.0) * envelope;
+    }
+    auto sample = static_cast<std::int16_t>(std::clamp(
+      static_cast<int>(std::lround(value * gain * 32767.0)), -32768, 32767));
+    samples[static_cast<size_t>(i) * 2] = sample;
+    samples[static_cast<size_t>(i) * 2 + 1] = sample;
+  }
+  if (audioTap_) {
+    audioTap_(samples);
+  }
+  SDL_PutAudioStreamData(audioStream_, samples.data(),
+                         static_cast<int>(samples.size() * sizeof(std::int16_t)));
 }
 
 // Thread-safe query of the current frame queue depth. Used by update() to
@@ -3304,6 +3360,28 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     rect(cx - r * 3 / 2, cy + r / 3, r * 3, r * 2 / 3, white);
     disc(cx - r / 2, cy - r / 4, r / 2, SDL_Color {250, 250, 250, 255});   // 98%
     disc(cx + r / 2, cy + r / 4, r * 2 / 5, SDL_Color {245, 245, 245, 255}); // 96%
+  }
+
+  // A/V sync buoy: the lamp lights for exactly the 80 ms window in which
+  // the engine's 1 kHz sync pop plays (both keyed to the wall-clock
+  // second). Watch/listen at the end of the chain — flash and pop must
+  // land together; any split is the chain's A/V offset.
+  {
+    int bx = W * 13 / 100;
+    int by = H * 52 / 100 + H * 9 / 100
+           + static_cast<int>(std::lround(std::sin(t * 1.3) * u));  // bob
+    bool pop = std::fmod(t, 1.0) < 0.08;
+    rect(bx - u, by - 4 * u, 2 * u, 3 * u, gbInk);              // mast
+    rect(bx - 3 * u, by, 6 * u, 2 * u, gbRed);                  // float
+    rect(bx - 2 * u, by - u, 4 * u, u, white);                  // stripe
+    if (pop) {
+      disc(bx, by - 5 * u, 3 * u, white);                       // lamp ON
+      rect(bx - 6 * u, by - 5 * u, 2 * u, u, white);            // rays
+      rect(bx + 4 * u, by - 5 * u, 2 * u, u, white);
+      rect(bx - u / 2, by - 10 * u, u, 2 * u, white);
+    } else {
+      disc(bx, by - 5 * u, 2 * u, gbInk);                       // lamp off
+    }
   }
 
   // Black-crush cave: a pure-black cave mouth in the island hillside with
