@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.4 (Terrarium goes native)
+
+- **Terrarium is now a first-class Deckboy generator source:**
+  `pattern://terrarium` runs the full ecosystem simulation in-process — no
+  companion exe, no window capture. The sim (`native/extras/
+  terrarium_core.hpp`, extracted from the companion app) ticks at its native
+  9 TPS and renders its 200x112 glyph world to a 1600x896 frame with the
+  same 8x8 font, palettes, seasons, weather, clouds, and creatures as the
+  standalone app. One world per show: every deck and preview shows THE
+  terrarium, and it keeps living across cue reloads. New shows start with a
+  warmed-up ecosystem, not bare dirt.
+- "Terrarium (living ecosystem)" appears openly in the pattern picker; the
+  Konami code (↑↑↓↓←→←→BA Enter) still adds the secret purple cue, now
+  backed by the native pattern instead of launching the companion exe.
+- The standalone `terrarium.exe` still builds and ships (it now shares the
+  same simulation core), but Deckboy no longer needs it for anything.
+- `--smoke` verifies the native terrarium renders a living world.
+
 ## 2026-07-09 — v0.78.3 (Pocket Test A/V sync pop)
 
 - **The test card now checks audio/video sync.** A buoy bobs in the ocean;

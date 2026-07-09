@@ -66,6 +66,8 @@ bodies of App**, not separate translation units. The whole app plus engine is
 | `core/sdl_compat.hpp` | ~200 | SDL3 compat layer: int-rect draw overloads, SDL2-style display indices, nearest-scale texture creation, audio pause helper (v0.77.0) |
 | `engine/media_engine.cpp/.hpp` | 3,300 | One instance per deck. Decode via in-process libav (v0.78.0, file cues) with ffmpeg-subprocess pipe fallback (live streams, break-glass); frames → `frameQueue_`, audio → SDL stream; stills/patterns/browser/source frames, transport, fades, transitions. Threading model documented in the .hpp header |
 | `engine/libav_decoder.cpp/.hpp` | 1,100 | In-process libav\* pipelines (`DECKBOY_INPROC_DECODE`, v0.78.0): VideoPipeline (d3d11va zero-copy on the output renderer's device, or CPU frames), AudioPipeline (s16/48k stereo, atempo speed), D3D11 interop helpers for the compositor's GPU bridge. Pimpl — header is libav-free |
+| `extras/terrarium_core.hpp` | 2,400 | SDL-free Terrarium ecosystem sim (namespace `terra`, v0.78.4): world/step/species/weather, 8x8 glyph font, `renderWorldRgba` pixel renderer. Shared by the pattern source (`pattern://terrarium` via media_engine) and the companion exe |
+| `extras/terrarium.cpp` | 300 | Standalone Terrarium app: windowing, input, SDL glyph-texture render on top of terrarium_core.hpp |
 
 ### Core (freestanding utilities)
 

@@ -52,7 +52,10 @@
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
 #include "core/subprocess.hpp"        // spawnProcess, ChildProcess
 #include "core/utils.hpp"             // trim, splitLines, formatTimecode
+#include "extras/terrarium_core.hpp"  // native Terrarium sim (pattern://terrarium)
 #include "platform/capture_backend.hpp" // source capture for camera/window cues
+
+#include <mutex>
 
 #ifndef _WIN32
 #include <unistd.h>                   // POSIX read() (used by io_utils on non-Windows)
@@ -86,6 +89,60 @@ int phaseFromProgress(double progress, int period) {
 }
 
 std::atomic<bool> g_inprocDecodeDisabled {false};
+
+// ---------------------------------------------------------------------------
+// buildTerrariumFrame — Stateful pattern source for pattern://terrarium.
+//
+// One shared world per process (deliberate: every deck and preview shows THE
+// terrarium, and its ecosystem persists across cue reloads for the whole
+// show). Ticks at the sim's native 9 TPS off the wall clock; the expensive
+// 1600x896 re-render only happens when the sim actually stepped. Guarded by
+// a mutex because pattern builds can come from preview paths too.
+// ---------------------------------------------------------------------------
+void buildTerrariumFrame(DecodedFrame& frame, double wallSeconds) {
+  static std::mutex mutex;
+  static terra::World world;
+  static terra::Rng rng {0xDECB0Fu};
+  static std::string banner;
+  static int tick = 0;
+  static double lastStepSeconds = -1.0;
+  static bool seeded = false;
+  static std::vector<std::uint8_t> cached;
+
+  std::lock_guard<std::mutex> lock(mutex);
+  constexpr double kStepSeconds = 1.0 / 9.0;  // DEFAULT_TPS
+  bool dirty = false;
+  if (!seeded) {
+    terra::seedWorld(world, rng, terra::MEADOW);
+    // Warm the ecosystem up (~13 sim-seconds) so the first TAKE shows a
+    // grown, lived-in world instead of freshly raked dirt.
+    for (int i = 0; i < 120; ++i) {
+      terra::step(world, rng, banner, tick);
+      ++tick;
+    }
+    seeded = true;
+    lastStepSeconds = wallSeconds;
+    dirty = true;
+  }
+  int steps = 0;
+  while (wallSeconds - lastStepSeconds >= kStepSeconds && steps < 5) {
+    terra::step(world, rng, banner, tick);
+    ++tick;
+    lastStepSeconds += kStepSeconds;
+    ++steps;
+    dirty = true;
+  }
+  if (wallSeconds - lastStepSeconds >= kStepSeconds) {
+    lastStepSeconds = wallSeconds;  // fell far behind — drop the backlog
+  }
+  if (dirty || cached.empty()) {
+    terra::renderWorldRgba(world, tick, cached);
+  }
+  frame.width = terra::kFrameW;
+  frame.height = terra::kFrameH;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels = cached;
+}
 
 } // namespace
 
@@ -891,6 +948,15 @@ void MediaEngine::render(SDL_Rect target) {
 // any pattern with the -motion suffix). The wall time drives animation phase
 // so the pattern progresses smoothly regardless of frame rate.
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
+  // Terrarium ticks at 9 TPS and renders 1600x896 — rebuilding it at the
+  // render-loop rate would burn ~1.4 GB/s in pointless frame copies. Skip
+  // rebuilds between simulation ticks.
+  if (displayFrame_ &&
+      stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "terrarium" &&
+      wallSeconds - lastTerrariumRebuildSeconds_ < (1.0 / 9.0)) {
+    return;
+  }
+  lastTerrariumRebuildSeconds_ = wallSeconds;
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
   if (frame) {
@@ -3717,6 +3783,9 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   } else if (basePatternType == "full-blue") {
     Uint8 b = motion ? pulseByte(255, 2.8, 0.30, 1.0) : 255;
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, b, 255});
+  } else if (basePatternType == "terrarium") {
+    // Native Terrarium — the living ecosystem, ticking at its own 9 TPS.
+    buildTerrariumFrame(frame, animTime);
   // Pocket scene variants: force a specific scene index (0=day, 1=sunset, 2=night, 3=storm)
   } else if (basePatternType == "pocket-day") {
     buildPocketTest(frame, animTime, 0);

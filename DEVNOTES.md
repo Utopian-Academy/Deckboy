@@ -1,5 +1,23 @@
 # DEVNOTES
 
+## Native Terrarium Pattern (v0.78.4)
+
+The Terrarium ecosystem sim runs in-process as `pattern://terrarium`. The
+whole SDL-free core (world state, 9 TPS step, procedural species, the 8x8
+glyph font, per-cell glyph/color logic, and `renderWorldRgba` — a pixel
+renderer mirroring the exe's SDL render loop cell-for-cell) lives in
+`native/extras/terrarium_core.hpp`, namespace `terra`, included by BOTH the
+companion exe (which keeps only windowing/input/SDL textures) and
+media_engine.cpp. Traps: (1) the engine TU pulls windows.h — legacy macro
+names like `near` are BANNED in the core (we hit this); (2) glyph bitmap
+arrays are extern-declared early and defined at the bottom of the header —
+keep declarations and definitions inside the namespace together; (3) the
+pattern is STATEFUL — one process-wide world behind a mutex in
+`buildTerrariumFrame` (media_engine.cpp), seeded once with a 120-tick warmup
+and stepped off the wall clock; `rebuildPatternFrame` throttles terrarium to
+the sim's 9 TPS because each frame is a 5.7 MB copy + upload. The Konami egg
+now adds the native pattern cue (no exe launch, no window capture).
+
 ## Pocket Test Card (v0.78.1, diegetic rework v0.78.2)
 
 `pocket-test` (the auto-cycling default pattern) is Deckboy's working test

@@ -809,6 +809,30 @@
     }
 
     {
+      // Native Terrarium pattern (v0.78.4): the stateful sim must produce a
+      // frame at its native raster regardless of the cue's requested size,
+      // and the world must actually contain life (non-black pixels).
+      Cue terrCue;
+      terrCue.kind = CueKind::Pattern;
+      terrCue.path = "pattern://terrarium";
+      terrCue.width = 320;
+      terrCue.height = 180;
+      auto terr = MediaEngine::buildPatternFrame(terrCue, 1.0, 320, 180);
+      bool terrOk = terr.has_value() && terr->width == 1600 && terr->height == 896 &&
+                    !terr->pixels.empty();
+      if (terrOk) {
+        std::size_t lit = 0;
+        for (std::size_t i = 0; i + 3 < terr->pixels.size(); i += 4) {
+          if (terr->pixels[i] || terr->pixels[i + 1] || terr->pixels[i + 2]) {
+            ++lit;
+          }
+        }
+        terrOk = lit > 1000;  // a living world, not a black frame
+      }
+      expect(terrOk, "native terrarium pattern renders a living world");
+    }
+
+    {
       // Crash resilience (GPU_DECODE_PLAN §9): a corrupt media file must
       // degrade to EOF/rerack — never crash or wedge the engine. The
       // in-process decoder validates by priming the first frame in open();
