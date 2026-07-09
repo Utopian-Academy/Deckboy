@@ -1,19 +1,25 @@
 # DEVNOTES
 
-## Pocket Test Card (v0.78.1)
+## Pocket Test Card (v0.78.1, diegetic rework v0.78.2)
 
 `pocket-test` (the auto-cycling default pattern) is Deckboy's working test
-card: `drawPocketTestCardOverlay` in media_engine.cpp draws broadcast
-instrumentation over the island scene. The forced-scene variants
+card: `drawPocketTestCardOverlay` in media_engine.cpp draws the instruments
+over the island scene. James's direction: instruments must be DIEGETIC —
+scene objects (billboard = color bars, staircase = grayscale, sky banner =
+banding ramp, cave eyes = 2%/4% black-crush, cloud lumps = 98%/96% white
+clip, flashing ? block = cadence, beach TV static = fine detail, runner past
+10%-spaced fence posts = judder), never chart furniture. The Pokémon-style
+dialog box (chunky `gbBox` chrome, cream/ink/red palette, encounter text,
+blinking continue-cursor) is the game-UI layer. The forced-scene variants
 (`pocket-day` etc.) deliberately do NOT get the overlay — operators use them
-as backgrounds. Each instrument's purpose is documented at the function; the
-pixel-precision elements (border checkerboard, fine-detail patches) must
-never be scaled by the proportional unit `u` — single pixels are the point.
-Text uses a built-in 3x5 pixel font (`glyphRows` lambda) since patterns are
-raw CPU pixels with no TTF access. `--pattern-dump <id> <out.ppm> [WxH] [t]`
-renders any pattern for visual inspection; smoke asserts the card's border +
-strip separator and that scene variants stay clean (those assertions are
-coupled to the overlay's geometry formulas — update both together).
+as backgrounds. Measurement values must stay EXACT (75% = 191, 2% = 5, etc.)
+and the pixel-precision elements (border checkerboard, TV static) must never
+be scaled by the proportional unit `u` — single pixels are the point. Text
+uses a built-in 3x5 pixel font (`glyphRows` lambda) since patterns are raw
+CPU pixels with no TTF access. `--pattern-dump <id> <out.ppm> [WxH] [t]`
+renders any pattern for visual inspection; smoke scans for the exact
+diegetic values (75% red, 2% eyes, 96% lump) + the border checker, and
+asserts scene variants stay clean.
 
 ## In-Process GPU Decode (v0.78.0)
 
