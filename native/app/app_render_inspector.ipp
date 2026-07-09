@@ -117,7 +117,7 @@
       }
       SDL_Rect dst {thumbArea.x + (thumbArea.w - drawW) / 2, thumbArea.y + (thumbArea.h - drawH) / 2, drawW, drawH};
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 16},
@@ -126,7 +126,7 @@
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 28, thumbArea.w - 12, 16},
                    "loading preview...", pal.mid);
     } else {
-      SDL_RenderSetClipRect(controlRenderer_, &thumbArea);
+      SDL_SetRenderClipRect(controlRenderer_, &thumbArea);
       SDL_Rect emptyTitle {thumbArea.x + 10, thumbArea.y + thumbArea.h / 2 - 22, thumbArea.w - 20, 20};
       SDL_Rect emptyLineA {thumbArea.x + 10, thumbArea.y + thumbArea.h / 2 + 2, thumbArea.w - 20, 16};
       SDL_Rect emptyLineB {thumbArea.x + 10, thumbArea.y + thumbArea.h / 2 + 22, thumbArea.w - 20, 16};
@@ -136,7 +136,7 @@
                            ellipsizeToPixelWidth(fontSmall_, "Select a cue or import media", emptyLineA.w), pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyLineB,
                            ellipsizeToPixelWidth(fontSmall_, "Preview appears here before TAKE", emptyLineB.w), pal.mid);
-      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
     }
 
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
@@ -239,7 +239,7 @@
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
     cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
-    SDL_RenderSetClipRect(controlRenderer_,
+    SDL_SetRenderClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 
     auto formatFloat = [](float v, int d = 2) { return fmtFloat(v, d); };
@@ -1457,7 +1457,7 @@
                    pal.mid);
     }
 
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
     int settingsContentLogicalBottom = settingsContentTopY;
     for (size_t i = cueSettingsQuickButtonStartIndex_; i < quickButtons_.size(); ++i) {
       settingsContentLogicalBottom = std::max(
@@ -1537,9 +1537,9 @@
       std::string fullPath = pathPrefix + selectedCue->path;
       int availW = ctrl.w - 8;
       int pathTextW = 0;
-      TTF_SizeUTF8(fontSmall_, fullPath.c_str(), &pathTextW, nullptr);
+      TTF_GetStringSize(fontSmall_, fullPath.c_str(), 0, &pathTextW, nullptr);
       SDL_Rect pathClip {detailX, detailLineY, availW, 34};
-      SDL_RenderSetClipRect(controlRenderer_, &pathClip);
+      SDL_SetRenderClipRect(controlRenderer_, &pathClip);
       if (pathTextW > availW) {
         // Two lines: prefix on first, path on second
         drawText(controlRenderer_, fontSmall_, pathPrefix, pal.inkSoft, detailX, detailLineY);
@@ -1549,7 +1549,7 @@
         drawText(controlRenderer_, fontSmall_, fullPath, pal.inkSoft, detailX, detailLineY);
         detailLineY += 18;
       }
-      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
     }
 
     std::vector<std::string> infoLines {

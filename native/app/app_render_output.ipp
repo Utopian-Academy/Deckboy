@@ -125,25 +125,29 @@
       Uint8 aTR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 0.0f) : 255;
       Uint8 aBR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 1.0f) : 255;
       Uint8 aBL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 1.0f) : 255;
+      // SDL3: SDL_Vertex carries a float SDL_FColor.
+      auto blendColor = [](Uint8 a) {
+        return SDL_FColor {1.0f, 1.0f, 1.0f, static_cast<float>(a) / 255.0f};
+      };
       SDL_Vertex verts[4] {
-        {p0, SDL_Color {255, 255, 255, aTL}, uvTL},
-        {p1, SDL_Color {255, 255, 255, aTR}, uvTR},
-        {p2, SDL_Color {255, 255, 255, aBR}, uvBR},
-        {p3, SDL_Color {255, 255, 255, aBL}, uvBL},
+        {p0, blendColor(aTL), uvTL},
+        {p1, blendColor(aTR), uvTR},
+        {p2, blendColor(aBR), uvBR},
+        {p3, blendColor(aBL), uvBL},
       };
       const int indices[6] {0, 1, 2, 0, 2, 3};
       SDL_SetTextureBlendMode(runtime->compositorTexture, SDL_BLENDMODE_BLEND);
-      if (SDL_RenderGeometry(runtime->outputRenderer, runtime->compositorTexture, verts, 4, indices, 6) == 0) {
+      if (SDL_RenderGeometry(runtime->outputRenderer, runtime->compositorTexture, verts, 4, indices, 6)) {
         return;
       }
     }
 #endif
 
     if (hasOrientation) {
-      SDL_RenderCopyEx(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr,
+      SDL_RenderTextureRotated(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr,
                        static_cast<double>(orientationDegrees), nullptr, SDL_FLIP_NONE);
     } else {
-      SDL_RenderCopy(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
+      SDL_RenderTexture(runtime->outputRenderer, runtime->compositorTexture, &src, nullptr);
     }
   }
 
@@ -171,7 +175,7 @@
       if (texIt != outputRuntime.layerBridgeTextures.end() && texIt->second) {
         SDL_DestroyTexture(texIt->second);
       }
-      SDL_Texture* texture = SDL_CreateTexture(
+      SDL_Texture* texture = deckboyCreateTexture(
         outputRuntime.outputRenderer,
         format,
         SDL_TEXTUREACCESS_STREAMING,
@@ -222,7 +226,7 @@
       if (texIt != outputRuntime.overlayBridgeTextures.end() && texIt->second) {
         SDL_DestroyTexture(texIt->second);
       }
-      SDL_Texture* texture = SDL_CreateTexture(
+      SDL_Texture* texture = deckboyCreateTexture(
         outputRuntime.outputRenderer,
         format,
         SDL_TEXTUREACCESS_STREAMING,
@@ -307,12 +311,12 @@
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
     SDL_Rect prevClip;
-    bool hadClip = SDL_RenderIsClipEnabled(renderer);
-    if (hadClip) SDL_RenderGetClipRect(renderer, &prevClip);
-    SDL_RenderSetClipRect(renderer, &target);
+    bool hadClip = SDL_RenderClipEnabled(renderer);
+    if (hadClip) SDL_GetRenderClipRect(renderer, &prevClip);
+    SDL_SetRenderClipRect(renderer, &target);
     SDL_Point center {destination.w / 2, destination.h / 2};
-    SDL_RenderCopyEx(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
-    SDL_RenderSetClipRect(renderer, hadClip ? &prevClip : nullptr);
+    SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+    SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
   }
 
   SDL_Rect compositeSlotRectForTarget(const CompositeSlot& slot, const SDL_Rect& target) const {
@@ -557,11 +561,11 @@
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 190);
-    SDL_RenderDrawLine(renderer, width / 2, 0, width / 2, height);
-    SDL_RenderDrawLine(renderer, 0, height / 2, width, height / 2);
+    SDL_RenderLine(renderer, width / 2, 0, width / 2, height);
+    SDL_RenderLine(renderer, 0, height / 2, width, height / 2);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 130);
     SDL_Rect safe80 {width / 10, height / 10, width - (width / 10) * 2, height - (height / 10) * 2};
-    SDL_RenderDrawRect(renderer, &safe80);
+    SDL_RenderRect(renderer, &safe80);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
     std::string outName = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
@@ -587,7 +591,7 @@
     if (runtime->blackedWhileDisabled) {
       return;
     }
-    if (!(SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_SHOWN)) {
+    if ((SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_HIDDEN) != 0) {
       runtime->blackedWhileDisabled = true;  // hidden: nothing to clear
       return;
     }
@@ -786,7 +790,7 @@
             for (int li = 0; li < static_cast<int>(lines.size()); ++li) {
               if (lines[li].empty()) continue;
               int tw = 0, th = 0;
-              TTF_SizeUTF8(fontBase_, lines[li].c_str(), &tw, &th);
+              TTF_GetStringSize(fontBase_, lines[li].c_str(), 0, &tw, &th);
               int tx = (renderW - tw) / 2;
               int ty = bgY + padY + li * lineH;
               // Shadow

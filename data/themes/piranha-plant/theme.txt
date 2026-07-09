@@ -1,15 +1,15 @@
 # Deckboy Theme: Piranha Plant
-# Acid green-yellow in the pipes.
+# Acid green-yellow from the pipes.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	181D14FF
-shell_inner	252B1FFF
+shell_outer	171D14FF
+shell_inner	242B1FFF
 shell_shadow	080807FF
 screen_light	B6FB56FF
-screen_mid	7BB12FFF
-screen_dark	242B1DFF
+screen_mid	7AAE32FF
+screen_dark	232B1DFF
 screen_deep	050505FF
 screen_ink_soft	86A857FF
-button_bezel	5D7F2FFF
+button_bezel	5C7637FF
 delete_bezel	AB2B33FF
 scanline_alpha	12

@@ -37,96 +37,57 @@ function(deckboy_target_link_frameworks target)
   endforeach()
 endfunction()
 
-set(DECKBOY_SDL2_TARGET "")
-set(DECKBOY_SDL2_TTF_TARGET "")
-set(DECKBOY_SDL2_INCLUDE_DIRS "")
-set(DECKBOY_SDL2_TTF_INCLUDE_DIRS "")
-set(DECKBOY_SDL2_LINK_LIBS "")
-set(DECKBOY_SDL2_TTF_LINK_LIBS "")
+# SDL3 + SDL3_ttf (migrated from SDL2, v0.77.0). Prefer CMake config packages
+# (vcpkg on Windows); fall back to pkg-config on Linux.
+set(DECKBOY_SDL_TARGET "")
+set(DECKBOY_SDL_TTF_TARGET "")
+set(DECKBOY_SDL_INCLUDE_DIRS "")
+set(DECKBOY_SDL_TTF_INCLUDE_DIRS "")
+set(DECKBOY_SDL_LINK_LIBS "")
+set(DECKBOY_SDL_TTF_LINK_LIBS "")
 set(DECKBOY_SDL_COMPILE_OPTIONS "")
 set(DECKBOY_SDL_LINK_DIRS "")
 
-find_package(SDL2 QUIET CONFIG)
-find_package(SDL2_ttf QUIET CONFIG)
+find_package(SDL3 QUIET CONFIG)
+find_package(SDL3_ttf QUIET CONFIG)
 
-if(TARGET SDL2::SDL2)
-  set(DECKBOY_SDL2_TARGET SDL2::SDL2)
-elseif(TARGET SDL2::SDL2-static)
-  set(DECKBOY_SDL2_TARGET SDL2::SDL2-static)
+if(TARGET SDL3::SDL3)
+  set(DECKBOY_SDL_TARGET SDL3::SDL3)
+elseif(TARGET SDL3::SDL3-static)
+  set(DECKBOY_SDL_TARGET SDL3::SDL3-static)
 endif()
 
-if(TARGET SDL2_ttf::SDL2_ttf)
-  set(DECKBOY_SDL2_TTF_TARGET SDL2_ttf::SDL2_ttf)
-elseif(TARGET SDL2_ttf::SDL2_ttf-static)
-  set(DECKBOY_SDL2_TTF_TARGET SDL2_ttf::SDL2_ttf-static)
+if(TARGET SDL3_ttf::SDL3_ttf)
+  set(DECKBOY_SDL_TTF_TARGET SDL3_ttf::SDL3_ttf)
+elseif(TARGET SDL3_ttf::SDL3_ttf-static)
+  set(DECKBOY_SDL_TTF_TARGET SDL3_ttf::SDL3_ttf-static)
 endif()
 
-if(NOT DECKBOY_SDL2_TARGET OR NOT DECKBOY_SDL2_TTF_TARGET)
+if(NOT DECKBOY_SDL_TARGET OR NOT DECKBOY_SDL_TTF_TARGET)
   find_package(PkgConfig QUIET)
 endif()
 
-if(PkgConfig_FOUND AND NOT DECKBOY_SDL2_TARGET)
-  pkg_check_modules(SDL2 QUIET sdl2)
+if(PkgConfig_FOUND AND NOT DECKBOY_SDL_TARGET)
+  pkg_check_modules(SDL3 QUIET sdl3)
+  set(DECKBOY_SDL_INCLUDE_DIRS ${SDL3_INCLUDE_DIRS})
+  set(DECKBOY_SDL_LINK_LIBS ${SDL3_LIBRARIES})
+  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL3_CFLAGS_OTHER})
+  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL3_LIBRARY_DIRS})
 endif()
 
-if(PkgConfig_FOUND AND NOT DECKBOY_SDL2_TTF_TARGET)
-  pkg_check_modules(SDL2_TTF QUIET SDL2_ttf)
+if(PkgConfig_FOUND AND NOT DECKBOY_SDL_TTF_TARGET)
+  pkg_check_modules(SDL3_TTF QUIET sdl3-ttf)
+  set(DECKBOY_SDL_TTF_INCLUDE_DIRS ${SDL3_TTF_INCLUDE_DIRS})
+  set(DECKBOY_SDL_TTF_LINK_LIBS ${SDL3_TTF_LIBRARIES})
+  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL3_TTF_CFLAGS_OTHER})
+  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL3_TTF_LIBRARY_DIRS})
 endif()
 
-if(NOT DECKBOY_SDL2_TARGET)
-  if(NOT SDL2_FOUND)
-    find_path(SDL2_INCLUDE_DIR
-      NAMES SDL.h
-      PATH_SUFFIXES SDL2
-    )
-    find_library(SDL2_LIBRARY
-      NAMES SDL2 SDL2-static
-    )
-  endif()
-
-  set(DECKBOY_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-  if(NOT DECKBOY_SDL2_INCLUDE_DIRS AND SDL2_INCLUDE_DIR)
-    set(DECKBOY_SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIR})
-  endif()
-
-  set(DECKBOY_SDL2_LINK_LIBS ${SDL2_LIBRARIES})
-  if(NOT DECKBOY_SDL2_LINK_LIBS AND SDL2_LIBRARY)
-    set(DECKBOY_SDL2_LINK_LIBS ${SDL2_LIBRARY})
-  endif()
-
-  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL2_CFLAGS_OTHER})
-  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL2_LIBRARY_DIRS})
-
-  if(NOT DECKBOY_SDL2_INCLUDE_DIRS OR NOT DECKBOY_SDL2_LINK_LIBS)
-    message(FATAL_ERROR "SDL2 development files are required")
-  endif()
+if(NOT DECKBOY_SDL_TARGET AND NOT DECKBOY_SDL_LINK_LIBS)
+  message(FATAL_ERROR "SDL3 development files are required")
 endif()
-
-if(NOT DECKBOY_SDL2_TTF_TARGET)
-  find_path(SDL2_TTF_INCLUDE_DIR
-    NAMES SDL_ttf.h
-    PATH_SUFFIXES SDL2
-  )
-  find_library(SDL2_TTF_LIBRARY
-    NAMES SDL2_ttf SDL2_ttf-static
-  )
-
-  set(DECKBOY_SDL2_TTF_INCLUDE_DIRS ${SDL2_TTF_INCLUDE_DIRS})
-  if(NOT DECKBOY_SDL2_TTF_INCLUDE_DIRS AND SDL2_TTF_INCLUDE_DIR)
-    set(DECKBOY_SDL2_TTF_INCLUDE_DIRS ${SDL2_TTF_INCLUDE_DIR})
-  endif()
-
-  set(DECKBOY_SDL2_TTF_LINK_LIBS ${SDL2_TTF_LIBRARIES})
-  if(NOT DECKBOY_SDL2_TTF_LINK_LIBS AND SDL2_TTF_LIBRARY)
-    set(DECKBOY_SDL2_TTF_LINK_LIBS ${SDL2_TTF_LIBRARY})
-  endif()
-
-  list(APPEND DECKBOY_SDL_COMPILE_OPTIONS ${SDL2_TTF_CFLAGS_OTHER})
-  list(APPEND DECKBOY_SDL_LINK_DIRS ${SDL2_TTF_LIBRARY_DIRS})
-
-  if(NOT DECKBOY_SDL2_TTF_INCLUDE_DIRS OR NOT DECKBOY_SDL2_TTF_LINK_LIBS)
-    message(FATAL_ERROR "SDL2_ttf development files are required")
-  endif()
+if(NOT DECKBOY_SDL_TTF_TARGET AND NOT DECKBOY_SDL_TTF_LINK_LIBS)
+  message(FATAL_ERROR "SDL3_ttf development files are required")
 endif()
 
 option(DECKBOY_ENABLE_NDI "Enable optional NDI SDK integration" ON)
@@ -439,12 +400,12 @@ target_include_directories(deckboy-native PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
-if(NOT DECKBOY_SDL2_TARGET)
-  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL2_INCLUDE_DIRS})
+if(NOT DECKBOY_SDL_TARGET)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL_INCLUDE_DIRS})
 endif()
 
-if(NOT DECKBOY_SDL2_TTF_TARGET)
-  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_INCLUDE_DIRS})
+if(NOT DECKBOY_SDL_TTF_TARGET)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_INCLUDE_DIRS})
 endif()
 
 # Pro Features includes and defines
@@ -542,16 +503,16 @@ if(DECKBOY_SDL_LINK_DIRS)
   )
 endif()
 
-if(DECKBOY_SDL2_TARGET)
-  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TARGET})
+if(DECKBOY_SDL_TARGET)
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TARGET})
 else()
-  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_LINK_LIBS})
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_LINK_LIBS})
 endif()
 
-if(DECKBOY_SDL2_TTF_TARGET)
-  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_TARGET})
+if(DECKBOY_SDL_TTF_TARGET)
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_TARGET})
 else()
-  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL2_TTF_LINK_LIBS})
+  target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_LINK_LIBS})
 endif()
 
 # Terrarium — bundled companion ecosystem sim (the Konami easter egg source).
@@ -559,10 +520,10 @@ endif()
 # captures its window via gdigrab.
 add_executable(terrarium native/extras/terrarium.cpp)
 target_compile_definitions(terrarium PRIVATE SDL_MAIN_HANDLED)
-if(DECKBOY_SDL2_TARGET)
-  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL2_TARGET})
+if(DECKBOY_SDL_TARGET)
+  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL_TARGET})
 else()
-  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL2_LINK_LIBS})
+  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL_LINK_LIBS})
 endif()
 if(MSVC)
   target_compile_options(terrarium PRIVATE /bigobj)

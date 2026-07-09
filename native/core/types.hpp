@@ -25,7 +25,7 @@
 #ifndef DECKBOY_CORE_TYPES_HPP
 #define DECKBOY_CORE_TYPES_HPP
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 #include <string>
 #include <vector>
 #include "constants.hpp"

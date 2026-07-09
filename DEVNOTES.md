@@ -1,5 +1,92 @@
 # DEVNOTES
 
+## SDL2 → SDL3 Migration (v0.77.0)
+
+Whole-app port, executed per `docs/SDL3_MIGRATION_PLAN.md` (Session 1 of the
+GPU-decode Option B sequencing — decode rewrite follows in a separate session
+on this base). Design decisions and the traps future edits must respect:
+
+- **Compat layer: `native/core/sdl_compat.hpp`.** Every `#include <SDL.h>` was
+  rewritten to include this header. It provides:
+  - C++ overloads of `SDL_RenderFillRect` / `SDL_RenderRect` /
+    `SDL_RenderTexture` / `SDL_RenderTextureRotated` that accept the int
+    `SDL_Rect` the entire layout system uses and convert to `SDL_FRect` at the
+    draw boundary. Layout stays integer; only the boundary converts. A literal
+    `nullptr` rect needs no cast (dedicated `std::nullptr_t` overloads).
+  - `deckboyCreateTexture` / `deckboyCreateTextureFromSurface` — ALWAYS use
+    these instead of raw `SDL_CreateTexture*`: they apply
+    `SDL_SCALEMODE_NEAREST` per texture, preserving the SDL2-era global
+    `SDL_HINT_RENDER_SCALE_QUALITY="0"` look (the hint is gone in SDL3, default
+    is linear — a raw create call would silently blur pixel-art UI).
+  - SDL2-style display indices (`deckboyGetNumVideoDisplays`,
+    `deckboyDisplayIdFromIndex`, `deckboyGetWindowDisplayIndex`,
+    `deckboyGetDisplayBounds`, `deckboyGetDesktopDisplayMode`, …) mapping index
+    ↔ `SDL_DisplayID` through `SDL_GetDisplays()` order. Projects keep
+    persisting display *indices*; hot-plug revalidation works as before.
+  - `deckboySetAudioPaused(stream, paused)` — SDL2 `SDL_PauseAudioDevice(dev,
+    0/1)` semantics over a device-bound stream.
+- **Audio = SDL3 streams, queue model preserved.** Every SDL2
+  `SDL_AudioDeviceID` became an `SDL_AudioStream*` from
+  `SDL_OpenAudioDeviceStream` (one logical device per consumer: per-deck main
+  out, UI sounds, LTC recording). `SDL_QueueAudio` → `SDL_PutAudioStreamData`,
+  `SDL_GetQueuedAudioSize` → `SDL_GetAudioStreamQueued`, `SDL_ClearQueuedAudio`
+  → `SDL_ClearAudioStream`, close → `SDL_DestroyAudioStream` (closes the
+  logical device). Streams open PAUSED; the engine resumes per transport state.
+  - **A/V audio-master clock re-anchored** on `SDL_GetAudioStreamQueued`:
+    "queued frames minus stream-buffered bytes" as before. The physical device
+    buffer beyond the stream adds a small constant offset (~one buffer,
+    5–20 ms) that sits inside the 60 ms drift threshold — do not tighten that
+    threshold below ~2 device buffers.
+  - The operator buffer-size setting (`audioBufferSamples`) now applies via
+    `SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES` set immediately before each device
+    open (`applyAudioBufferSizeHint()`); SDL3 specs have no `samples` field.
+  - Device pickers enumerate `SDL_GetAudioPlaybackDevices` and resolve
+    persisted device *names* to ids at open time; a missing name falls back to
+    the system default (same policy as SDL2).
+- **Fullscreen model.** `SDL_WINDOW_FULLSCREEN_DESKTOP` is gone. Policy
+  mapping: borderless desktop = `SDL_SetWindowFullscreenMode(win, nullptr)` +
+  `SDL_SetWindowFullscreen(win, true)`; exclusive (only when the operator picked
+  a fixed raster/refresh) = `SDL_SetWindowFullscreenMode(win, &mode)` first.
+  Flag checks are just `flags & SDL_WINDOW_FULLSCREEN` now.
+  `SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS="0"` still exists in SDL3 and REMAINS
+  SET — never remove (see "output frozen" saga below). The recovery/backoff
+  policy in app_output_mgmt.ipp is unchanged; only the SDL calls under it are
+  new. Re-verify taskbar/focus/hot-plug in the field.
+- **Windows are shown by default** in SDL3 (`SDL_WINDOW_SHOWN` gone); hidden
+  decode/monitor windows keep `SDL_WINDOW_HIDDEN`. Visibility checks use
+  `!(flags & SDL_WINDOW_HIDDEN)`. `SDL_CreateWindow` lost the x/y args —
+  position is set after create via `SDL_SetWindowPosition`.
+- **Renderers**: no creation flags. vsync is per-renderer at runtime
+  (`SDL_SetRenderVSync`): control window ON, visible program outputs ON,
+  stream-only outputs and hidden per-deck decode renderers OFF (never set).
+  Software fallback = `SDL_CreateRenderer(win, SDL_SOFTWARE_RENDERER)`.
+- **Events**: window events are top-level (`SDL_EVENT_WINDOW_CLOSE_REQUESTED`
+  etc.), display hot-plug is `SDL_EVENT_DISPLAY_ADDED/REMOVED`. Mouse/wheel
+  coords are float — the UI truncates via `static_cast<int>` at the dispatch
+  boundary in app_update.ipp. `event.drop.data` is OWNED BY SDL now (freeing it
+  is a heap corruption); `event.key.key`/`.mod` replace `.keysym.*`; letter
+  keycodes are uppercase (`SDLK_A`); `SDL_StartTextInput` takes the window.
+- **Bool returns**: most SDL3 calls return `bool` (true = success). All the old
+  `== 0` / `!= 0` int-return checks were flipped; when adding code, never write
+  `SDL_X(...) == 0` for success.
+- **`SDL_RenderReadPixels` returns a new `SDL_Surface*`** (no in-place buffer
+  fill). Egress capture converts via `SDL_ConvertPixels` into the persistent
+  BGRA buffer; the key-color picker reads via `SDL_ReadSurfacePixel`.
+- **`SDL_Vertex` carries `SDL_FColor`** (floats) — warp/edge-blend vertex
+  alphas convert `Uint8 → a/255.0f`.
+- **Renderer format probe** moved from `SDL_RendererInfo` to the
+  `SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER` property (UNKNOWN-terminated
+  array) — see `rendererSupportsTextureFormat()`.
+- **HWND** for WM_SETICON comes from
+  `SDL_PROP_WINDOW_WIN32_HWND_POINTER` (SDL_syswm.h is gone).
+- **Not migrated / unchanged**: `SDL_Color` (554 refs), `SDL_SetRenderClipRect`
+  still takes int `SDL_Rect`, blend modes, `SDL_UpdateNVTexture` (NV12 upload
+  path intact for the decode rewrite), render targets.
+- **Next session**: in-process libav decode straight to zero-copy via
+  `SDL_CreateTextureWithProperties` + `SDL_PROP_TEXTURE_CREATE_D3D11_TEXTURE_POINTER`
+  (GPU_DECODE_PLAN §7–§11, Session 2). Keep it separate from any other
+  playback-path work.
+
 ## Media converter + ENCODER tab (v0.76.31)
 - `cueConvertReason()` flags file-backed Video cues that ffprobe can't read
   (tracked in the transient `unreadablePaths_` set) or that carry a heavy codec

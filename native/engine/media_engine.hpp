@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -81,11 +81,11 @@ class MediaEngine {
   using CuePathResolver = std::function<std::string(const Cue&)>;
 
   explicit MediaEngine(SDL_Renderer* outputRenderer,
-                       SDL_AudioDeviceID audioDevice,
+                       SDL_AudioStream* audioStream,
                        AudioTapCallback audioTap = {},
                        CuePathResolver cuePathResolver = {})
     : outputRenderer_(outputRenderer),
-      audioDevice_(audioDevice),
+      audioStream_(audioStream),
       audioTap_(std::move(audioTap)),
       cuePathResolver_(std::move(cuePathResolver)) {}
 
@@ -113,7 +113,7 @@ class MediaEngine {
   // Hot-swap the SDL output device (the engine never owns it) without
   // disturbing the loaded cue, decode, or transport — used when the operator
   // changes the deck's audio output while a cue is playing.
-  void setAudioDevice(SDL_AudioDeviceID device);
+  void setAudioDevice(SDL_AudioStream* stream);
   void pause();                           // pause playback (hold current frame)
   void toggle();                          // play ↔ pause toggle
   // Stop playback and rerack to the start. clearVisual=true additionally
@@ -215,7 +215,7 @@ class MediaEngine {
 
   // -- State: core references --------------------------------------------------
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
-  SDL_AudioDeviceID audioDevice_ = 0;       // SDL audio device for PCM output
+  SDL_AudioStream* audioStream_ = nullptr;  // device-bound SDL3 stream for PCM output
   CuePathResolver cuePathResolver_;          // optional path transform callback
   // The engine OWNS a snapshot of the loaded cue. activeCue_ points at
   // activeCueSnapshot_ (or nullptr) — never into Deck::cues, whose vector

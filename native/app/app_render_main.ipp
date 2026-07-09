@@ -248,11 +248,11 @@
     int countdownTextW = 0;
     int countdownTextH = 0;
     if (countdownFont &&
-        TTF_SizeUTF8(countdownFont, countdownText.c_str(), &countdownTextW, &countdownTextH) == 0 &&
+        TTF_GetStringSize(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
         (countdownTextW > countdownRect.w - 20 || countdownTextH > countdownRect.h - 24)) {
       countdownFont = fontBase_ ? fontBase_ : countdownFont;
       if (countdownFont &&
-          TTF_SizeUTF8(countdownFont, countdownText.c_str(), &countdownTextW, &countdownTextH) == 0 &&
+          TTF_GetStringSize(countdownFont, countdownText.c_str(), 0, &countdownTextW, &countdownTextH) &&
           (countdownTextW > countdownRect.w - 20 || countdownTextH > countdownRect.h - 24) &&
           fontSmall_) {
         countdownFont = fontSmall_;
@@ -348,12 +348,12 @@
       int loadingTextW = 0;
       int loadingTextH = 0;
       if (!loadingFont ||
-          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) != 0 ||
+          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
           loadingTextW > loadingRect.w) {
         loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
       }
       if (loadingFont &&
-          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) == 0 &&
+          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
           loadingTextW > loadingRect.w &&
           fontMono_) {
         loadingFont = fontMono_;
@@ -428,12 +428,12 @@
       int loadingTextW = 0;
       int loadingTextH = 0;
       if (!loadingFont ||
-          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) != 0 ||
+          !TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) ||
           loadingTextW > loadingRect.w) {
         loadingFont = fontSmall_ ? fontSmall_ : loadingFont;
       }
       if (loadingFont &&
-          TTF_SizeUTF8(loadingFont, loadingLabel.c_str(), &loadingTextW, &loadingTextH) == 0 &&
+          TTF_GetStringSize(loadingFont, loadingLabel.c_str(), 0, &loadingTextW, &loadingTextH) &&
           loadingTextW > loadingRect.w &&
           fontMono_) {
         loadingFont = fontMono_;
@@ -455,8 +455,8 @@
       int px = progressBarRect_.x + static_cast<int>(std::round(std::clamp(frac, 0.0f, 1.0f) * progressBarRect_.w));
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(controlRenderer_, color.r, color.g, color.b, color.a);
-      SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h);
-      SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h);
+      SDL_RenderLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h);
+      SDL_RenderLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h);
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     };
 
@@ -472,12 +472,12 @@
         float frac = static_cast<float>(grid) / 8.0f;
         int px = progressBarRect_.x + static_cast<int>(std::round(frac * progressBarRect_.w));
         SDL_SetRenderDrawColor(controlRenderer_, gridInk.r, gridInk.g, gridInk.b, 140);
-        SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
-        SDL_RenderDrawLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h - 1);
-        SDL_RenderSetClipRect(controlRenderer_, &audioLaneRect);
-        SDL_RenderDrawLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h - 1);
+        SDL_SetRenderClipRect(controlRenderer_, &progressBarRect_);
+        SDL_RenderLine(controlRenderer_, px, progressBarRect_.y, px, progressBarRect_.y + progressBarRect_.h - 1);
+        SDL_SetRenderClipRect(controlRenderer_, &audioLaneRect);
+        SDL_RenderLine(controlRenderer_, px, audioLaneRect.y, px, audioLaneRect.y + audioLaneRect.h - 1);
       }
-      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     }
 
@@ -500,7 +500,7 @@
         timelineStripTexW_ > 0 && timelineStripTexH_ > 0) {
       SDL_Rect stripDst = progressBarRect_;
       SDL_SetTextureBlendMode(timelineStripTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, timelineStripTex_, nullptr, &stripDst);
+      SDL_RenderTexture(controlRenderer_, timelineStripTex_, nullptr, &stripDst);
       if (timelineStripLoadingCurrent) {
         drawTimelineLoadingAnimation(progressBarRect_);
       }
@@ -508,7 +508,7 @@
                timelineHasCurrentSelectedThumb) {
       SDL_Rect dst = progressBarRect_;
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
       if (!timelineStripFailed) {
         drawTimelineLoadingAnimation(progressBarRect_);
       }
@@ -516,7 +516,7 @@
                timelineHasCurrentSelectedThumb) {
       SDL_Rect dst = progressBarRect_;
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (timelineCue &&
                timelineHasCurrentSelectedThumb &&
                timelineCue->kind != CueKind::Video &&
@@ -526,7 +526,7 @@
       int tileW = std::max(56, static_cast<int>(std::round(progressBarRect_.h * aspect)));
       for (int tileX = progressBarRect_.x; tileX < progressBarRect_.x + progressBarRect_.w; tileX += tileW + 2) {
         SDL_Rect dst {tileX, progressBarRect_.y, std::min(tileW, progressBarRect_.x + progressBarRect_.w - tileX), progressBarRect_.h};
-        SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+        SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
       }
     } else if (timelineCue) {
       if (timelineCue->kind == CueKind::Video && !timelineStripFailed) {
@@ -544,7 +544,7 @@
       // Idle animation — subtle orbiting dots in the timeline strip (safe UI chrome area)
       if (!engine || engine->state() == TransportState::Stopped) {
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-        SDL_RenderSetClipRect(controlRenderer_, &progressBarRect_);
+        SDL_SetRenderClipRect(controlRenderer_, &progressBarRect_);
         SDL_Color idleDot = pal.mid;
         for (int d = 0; d < 5; ++d) {
           double phase = static_cast<double>(animationNow_) * 0.0008 + d * 1.256;
@@ -553,7 +553,7 @@
           idleDot.a = static_cast<Uint8>(30 + 60 * std::abs(std::sin(phase * 0.5 + d)));
           drawStar(controlRenderer_, dx, dy, 2, idleDot);
         }
-        SDL_RenderSetClipRect(controlRenderer_, nullptr);
+        SDL_SetRenderClipRect(controlRenderer_, nullptr);
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
       }
     }
@@ -655,12 +655,12 @@
       drawText(controlRenderer_, fontSmall_, leftStr, pal.dark,
                progressBarRect_.x + 4, rulerY);
       int midW = 0, midH = 0;
-      if (fontSmall_ && TTF_SizeUTF8(fontSmall_, midStr.c_str(), &midW, &midH) == 0) {
+      if (fontSmall_ && TTF_GetStringSize(fontSmall_, midStr.c_str(), 0, &midW, &midH)) {
         drawText(controlRenderer_, fontSmall_, midStr, pal.dark,
                  progressBarRect_.x + progressBarRect_.w / 2 - midW / 2, rulerY);
       }
       int rightW = 0, rightH = 0;
-      if (fontSmall_ && TTF_SizeUTF8(fontSmall_, rightStr.c_str(), &rightW, &rightH) == 0) {
+      if (fontSmall_ && TTF_GetStringSize(fontSmall_, rightStr.c_str(), 0, &rightW, &rightH)) {
         drawText(controlRenderer_, fontSmall_, rightStr, pal.dark,
                  progressBarRect_.x + progressBarRect_.w - rightW - 4, rulerY);
       }
@@ -762,13 +762,13 @@
           std::string shownValue = valueText.empty() ? "--.-" : valueText;
           shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
           int valueTextW = 0, valueTextH = 0;
-          TTF_SizeUTF8(valueFont, shownValue.c_str(), &valueTextW, &valueTextH);
+          TTF_GetStringSize(valueFont, shownValue.c_str(), 0, &valueTextW, &valueTextH);
           SDL_Rect badgeClip = snapRectToGrid(badge);
-          SDL_RenderSetClipRect(controlRenderer_, &badgeClip);
+          SDL_SetRenderClipRect(controlRenderer_, &badgeClip);
           drawText(controlRenderer_, valueFont, shownValue, ink,
                    badgeValueRect.x + std::max(0, badgeValueRect.w - valueTextW),
                    badgeValueRect.y + (badgeValueRect.h - valueTextH) / 2);
-          SDL_RenderSetClipRect(controlRenderer_, nullptr);
+          SDL_SetRenderClipRect(controlRenderer_, nullptr);
           badgeX += badgeW + kTelemetryGap;
           monitorTelemetryEndX = badge.x + badge.w;
         }
@@ -802,12 +802,12 @@
       const char* monitorLabel = nullptr;
       if (monitorLabelFont) {
         int fullW = 0;
-        TTF_SizeUTF8(monitorLabelFont, "PROGRAM MONITOR", &fullW, nullptr);
+        TTF_GetStringSize(monitorLabelFont, "PROGRAM MONITOR", 0, &fullW, nullptr);
         if (fullW <= monitorLabelAvailW) {
           monitorLabel = "PROGRAM MONITOR";
         } else {
           int shortW = 0;
-          TTF_SizeUTF8(monitorLabelFont, "PROGRAM", &shortW, nullptr);
+          TTF_GetStringSize(monitorLabelFont, "PROGRAM", 0, &shortW, nullptr);
           if (shortW <= monitorLabelAvailW) {
             monitorLabel = "PROGRAM";
           }
@@ -932,7 +932,7 @@
         int peakY = rect.y + rect.h - innerPad - static_cast<int>(std::round(peakFrac * usableH));
         peakY = std::clamp(peakY, rect.y + innerPad, rect.y + rect.h - innerPad - 1);
         SDL_SetRenderDrawColor(controlRenderer_, 245, 248, 220, 255);
-        SDL_RenderDrawLine(controlRenderer_, rect.x + 1, peakY, rect.x + rect.w - 2, peakY);
+        SDL_RenderLine(controlRenderer_, rect.x + 1, peakY, rect.x + rect.w - 2, peakY);
       };
 
       // dB scale tick marks (across full bar width) then labels clipped to labelsRect
@@ -941,14 +941,14 @@
         float frac = dbToFillFrac(markDb);
         int y = barsRect.y + barsRect.h - 1 - static_cast<int>(std::round(frac * std::max(1, barsRect.h - 1)));
         SDL_SetRenderDrawColor(controlRenderer_, 34, 52, 34, 255);
-        SDL_RenderDrawLine(controlRenderer_, barsRect.x, y, barsRect.x + barsRect.w, y);
+        SDL_RenderLine(controlRenderer_, barsRect.x, y, barsRect.x + barsRect.w, y);
         if (markDb > -0.1f) continue; // skip "0" label — "VU" header is right above
         std::string dbStr = std::to_string(static_cast<int>(markDb));
         int tw = 0, th = 0;
-        if (fontSmall_ && TTF_SizeUTF8(fontSmall_, dbStr.c_str(), &tw, &th) == 0) {
-          SDL_RenderSetClipRect(controlRenderer_, &labelsRect);
+        if (fontSmall_ && TTF_GetStringSize(fontSmall_, dbStr.c_str(), 0, &tw, &th)) {
+          SDL_SetRenderClipRect(controlRenderer_, &labelsRect);
           drawText(controlRenderer_, fontSmall_, dbStr, pal.dark, labelsRect.x, y - th / 2);
-          SDL_RenderSetClipRect(controlRenderer_, nullptr);
+          SDL_SetRenderClipRect(controlRenderer_, nullptr);
         }
       }
 
@@ -1000,7 +1000,7 @@
       SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 200);
       for (int i = 0; i < 4; ++i) {
         int j = (i + 1) % 4;
-        SDL_RenderDrawLine(controlRenderer_,
+        SDL_RenderLine(controlRenderer_,
           static_cast<int>(corners[i].x), static_cast<int>(corners[i].y),
           static_cast<int>(corners[j].x), static_cast<int>(corners[j].y));
       }
@@ -1021,8 +1021,8 @@
       int ccx = mi.x + mi.w / 2;
       int ccy = mi.y + mi.h / 2;
       SDL_SetRenderDrawColor(controlRenderer_, 255, 220, 0, 80);
-      SDL_RenderDrawLine(controlRenderer_, mi.x, ccy, mi.x + mi.w, ccy);
-      SDL_RenderDrawLine(controlRenderer_, ccx, mi.y, ccx, mi.y + mi.h);
+      SDL_RenderLine(controlRenderer_, mi.x, ccy, mi.x + mi.w, ccy);
+      SDL_RenderLine(controlRenderer_, ccx, mi.y, ccx, mi.y + mi.h);
       // Warp toolbar — horizontal strip below the monitor content
       {
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -1201,7 +1201,7 @@
       }
       SDL_Rect dst {thumbArea.x + (thumbArea.w - drawW) / 2, thumbArea.y + (thumbArea.h - drawH) / 2, drawW, drawH};
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderCopy(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+      SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
     } else if (selectedCue) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 8, thumbArea.w - 12, 20},
@@ -1210,7 +1210,7 @@
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 30, thumbArea.w - 12, 20},
                    "loading preview...", pal.mid);
     } else {
-      SDL_RenderSetClipRect(controlRenderer_, &thumbArea);
+      SDL_SetRenderClipRect(controlRenderer_, &thumbArea);
       int tw = thumbArea.w - 16;
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 - 20, tw, 20},
@@ -1221,7 +1221,7 @@
       drawCenteredTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 8, thumbArea.y + thumbArea.h / 2 + 20, tw, 20},
                    ellipsizeToPixelWidth(fontSmall_, "Press A to take cue", tw), pal.mid);
-      SDL_RenderSetClipRect(controlRenderer_, nullptr);
+      SDL_SetRenderClipRect(controlRenderer_, nullptr);
     }
 
     // Waveform strip at bottom of thumb area (for video cues with audio — Audio cues get full thumb above)
@@ -1629,7 +1629,7 @@
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
     cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
-    SDL_RenderSetClipRect(controlRenderer_,
+    SDL_SetRenderClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 
     auto formatFloat = [](float v, int d = 2) { return fmtFloat(v, d); };
@@ -2777,7 +2777,7 @@
                    pal.inkSoft);
     }
 
-    SDL_RenderSetClipRect(controlRenderer_, nullptr);
+    SDL_SetRenderClipRect(controlRenderer_, nullptr);
     int settingsContentLogicalBottom = settingsContentTopY;
     for (size_t i = cueSettingsQuickButtonStartIndex_; i < quickButtons_.size(); ++i) {
       settingsContentLogicalBottom = std::max(

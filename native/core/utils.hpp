@@ -28,7 +28,7 @@
 #include <string_view>
 #include <vector>
 
-#include <SDL.h>
+#include "core/sdl_compat.hpp"
 
 #include "types.hpp"
 

@@ -1,15 +1,15 @@
 # Deckboy Theme: Waluigi
-# Deep violet neon, wah.
+# Bright violet neon. Wah.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	17141DFF
-shell_inner	241F2BFF
+shell_outer	1A141DFF
+shell_inner	271F2BFF
 shell_shadow	080708FF
-screen_light	B656FBFF
-screen_mid	7B2FB1FF
-screen_dark	231D2BFF
+screen_light	D456FBFF
+screen_mid	9132AEFF
+screen_dark	271D2BFF
 screen_deep	050505FF
-screen_ink_soft	8657A8FF
-button_bezel	5D2F7FFF
+screen_ink_soft	9557A8FF
+button_bezel	683776FF
 delete_bezel	AB2B33FF
 scanline_alpha	12

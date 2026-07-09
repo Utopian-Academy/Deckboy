@@ -1064,7 +1064,7 @@
     }
     pendingPanicProfileToken_ = profile;
     panicProfilePending_ = true;
-    panicProfileRequestedAt_ = SDL_GetTicks64();
+    panicProfileRequestedAt_ = SDL_GetTicks();
     panicRestoreDimmerTarget_ = std::clamp(masterDimmerTarget_, 0.0, 1.0);
     masterDimmerTarget_ = 0.0;
     triggerToast("panic arm: " + panicProfileLabelFromToken(profile));
@@ -1256,7 +1256,7 @@
     timecodeTriggeredCueIds_.clear();
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
       return false;
@@ -1368,7 +1368,7 @@
       vuDisplayRmsRight_ = 0.0f;
       vuDisplayPeakLeft_ = 0.0f;
       vuDisplayPeakRight_ = 0.0f;
-      vuDisplayUpdatedAtMs_ = SDL_GetTicks64();
+      vuDisplayUpdatedAtMs_ = SDL_GetTicks();
     }
   }
 
@@ -1382,7 +1382,7 @@
     }
 
     VuReading target;
-    Uint64 nowMs = SDL_GetTicks64();
+    Uint64 nowMs = SDL_GetTicks();
     bool samplesFresh = !samples.empty()
                      && samplesUpdatedAtMs > 0
                      && nowMs >= samplesUpdatedAtMs
@@ -1513,16 +1513,16 @@
       SDL_Color inner = inRange ? activeInner : dimInner;
       SDL_SetRenderDrawColor(ren, outer.r, outer.g, outer.b, outer.a);
       if (upward) {
-        SDL_RenderDrawLine(ren, px, baseY, px, std::max(topY, baseY - amp));
+        SDL_RenderLine(ren, px, baseY, px, std::max(topY, baseY - amp));
       } else {
-        SDL_RenderDrawLine(ren, px, baseY, px, std::min(topY, baseY + amp));
+        SDL_RenderLine(ren, px, baseY, px, std::min(topY, baseY + amp));
       }
       int innerAmp = std::max(1, amp - 2);
       SDL_SetRenderDrawColor(ren, inner.r, inner.g, inner.b, inner.a);
       if (upward) {
-        SDL_RenderDrawLine(ren, px, baseY, px, std::max(topY, baseY - innerAmp));
+        SDL_RenderLine(ren, px, baseY, px, std::max(topY, baseY - innerAmp));
       } else {
-        SDL_RenderDrawLine(ren, px, baseY, px, std::min(topY, baseY + innerAmp));
+        SDL_RenderLine(ren, px, baseY, px, std::min(topY, baseY + innerAmp));
       }
     };
 
@@ -1533,7 +1533,7 @@
       int topLimit = y0 + 2;
       int bottomLimit = y0 + h - 2;
       SDL_SetRenderDrawColor(ren, trackLine.r, trackLine.g, trackLine.b, trackLine.a);
-      SDL_RenderDrawLine(ren, x0, dividerY, x0 + w, dividerY);
+      SDL_RenderLine(ren, x0, dividerY, x0 + w, dividerY);
       for (int i = 0; i < w; ++i) {
         float frac = static_cast<float>(i) / std::max(1, w);
         bool inRange = (frac >= inFrac && frac <= outFrac);
@@ -1547,7 +1547,7 @@
     } else {
       int cy = y0 + h / 2;
       SDL_SetRenderDrawColor(ren, trackLine.r, trackLine.g, trackLine.b, trackLine.a);
-      SDL_RenderDrawLine(ren, x0, cy, x0 + w, cy);
+      SDL_RenderLine(ren, x0, cy, x0 + w, cy);
       for (int i = 0; i < w; ++i) {
         float frac = static_cast<float>(i) / std::max(1, w);
         bool inRange = (frac >= inFrac && frac <= outFrac);
@@ -1556,10 +1556,10 @@
         SDL_Color outer = inRange ? activeOuter : dimOuter;
         SDL_Color inner = inRange ? activeInner : dimInner;
         SDL_SetRenderDrawColor(ren, outer.r, outer.g, outer.b, outer.a);
-        SDL_RenderDrawLine(ren, x0 + i, cy - halfH, x0 + i, cy + halfH);
+        SDL_RenderLine(ren, x0 + i, cy - halfH, x0 + i, cy + halfH);
         int innerHalf = std::max(1, halfH - 2);
         SDL_SetRenderDrawColor(ren, inner.r, inner.g, inner.b, inner.a);
-        SDL_RenderDrawLine(ren, x0 + i, cy - innerHalf, x0 + i, cy + innerHalf);
+        SDL_RenderLine(ren, x0 + i, cy - innerHalf, x0 + i, cy + innerHalf);
       }
     }
 
@@ -1570,7 +1570,7 @@
         float ppFrac = static_cast<float>(std::clamp(pp / duration, 0.0, 1.0));
         int px = x0 + static_cast<int>(ppFrac * w);
         SDL_SetRenderDrawColor(ren, 220, 120, 30, 200);
-        SDL_RenderDrawLine(ren, px, y0, px, y0 + h);
+        SDL_RenderLine(ren, px, y0, px, y0 + h);
       }
       SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
     }
@@ -1578,13 +1578,13 @@
     if (playFrac >= 0.0f && playFrac <= 1.0f) {
       int px = x0 + static_cast<int>(playFrac * w);
       SDL_SetRenderDrawColor(ren, 200, 220, 80, 255);
-      SDL_RenderDrawLine(ren, px, y0, px, y0 + h);
+      SDL_RenderLine(ren, px, y0, px, y0 + h);
     }
     // In/out markers
     auto drawMarker = [&](float frac, Uint8 r, Uint8 g, Uint8 b) {
       int mx = x0 + static_cast<int>(frac * std::max(1, w));
       SDL_SetRenderDrawColor(ren, r, g, b, 255);
-      SDL_RenderDrawLine(ren, mx, y0, mx, y0 + h);
+      SDL_RenderLine(ren, mx, y0, mx, y0 + h);
     };
     if (inFrac > 0.0f)  drawMarker(inFrac,  80, 220, 80);
     if (outFrac < 1.0f) drawMarker(outFrac, 220, 80, 80);
@@ -1595,7 +1595,7 @@
       return;
     }
     toast_.active = true;
-    toast_.startedAt = SDL_GetTicks64();
+    toast_.startedAt = SDL_GetTicks();
     toast_.durationMs = durationMs;
     toast_.message = std::move(message);
     toast_.fill = fill;
@@ -1603,11 +1603,11 @@
   }
 
   void queueUiPattern(const std::vector<std::pair<double, int>>& notes, float level = 0.13f) {
-    if (!project_.uiSoundsEnabled || uiAudioDevice_ == 0) {
+    if (!project_.uiSoundsEnabled || !uiAudioStream_) {
       return;
     }
 
-    SDL_ClearQueuedAudio(uiAudioDevice_);
+    SDL_ClearAudioStream(uiAudioStream_);
 
     std::vector<std::int16_t> pcm;
     for (const auto& [frequency, milliseconds] : notes) {
@@ -1635,8 +1635,8 @@
     }
 
     if (!pcm.empty()) {
-      SDL_QueueAudio(uiAudioDevice_, pcm.data(), static_cast<Uint32>(pcm.size() * sizeof(std::int16_t)));
-      SDL_PauseAudioDevice(uiAudioDevice_, 0);
+      SDL_PutAudioStreamData(uiAudioStream_, pcm.data(), static_cast<int>(pcm.size() * sizeof(std::int16_t)));
+      deckboySetAudioPaused(uiAudioStream_, false);
     }
   }
 
@@ -1667,8 +1667,8 @@
   }
 
   void toggleUiSounds() {
-    project_.uiSoundsEnabled = !project_.uiSoundsEnabled && uiAudioDevice_ != 0;
-    if (uiAudioDevice_ == 0) {
+    project_.uiSoundsEnabled = !project_.uiSoundsEnabled && uiAudioStream_ != nullptr;
+    if (!uiAudioStream_) {
       project_.uiSoundsEnabled = false;
     }
     if (project_.uiSoundsEnabled) {
@@ -1914,7 +1914,7 @@
     std::sort(deck.selectedIndices.begin(), deck.selectedIndices.end());
     deck.selectedIndices.erase(std::unique(deck.selectedIndices.begin(), deck.selectedIndices.end()), deck.selectedIndices.end());
 
-    selectionChangedAt_ = SDL_GetTicks64();
+    selectionChangedAt_ = SDL_GetTicks();
     cueSettingsScroll_ = 0;
    cueSettingsScrollMax_ = 0;
     playUiSound(UiSoundEffect::Navigate);
@@ -2236,7 +2236,7 @@
     }
     std::string cacheKey = cueVisualCacheKey(cue);
     bool sameCueVisual = timelineStripCueKey_ == cacheKey;
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     {
       std::lock_guard<std::mutex> lk(timelineStripMutex_);
       if (timelineStripFailedCueKey_ == cacheKey &&
@@ -2637,7 +2637,7 @@
       if (!wroteAnyTile && !timelineStripJobCancelled()) {
         std::lock_guard<std::mutex> lk(timelineStripMutex_);
         timelineStripFailedCueKey_ = cacheKey;
-        timelineStripFailedAtMs_ = SDL_GetTicks64();
+        timelineStripFailedAtMs_ = SDL_GetTicks();
       }
       timelineStripLoading_.store(false);
     });

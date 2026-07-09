@@ -1,15 +1,15 @@
 # Deckboy Theme: Switch Neon
-# Neon-blue Joy-Con on black, with neon-red danger.
+# Sky-blue Joy-Con, neon-red danger.
 # All color values are RRGGBBAA hex. Generated colorway.
 
-shell_outer	15181BFF
-shell_inner	212529FF
+shell_outer	15191BFF
+shell_inner	212629FF
 shell_shadow	070808FF
-screen_light	56CFFBFF
-screen_mid	2F8FB1FF
-screen_dark	1F2429FF
+screen_light	56C4FBFF
+screen_mid	3285AEFF
+screen_dark	1F2529FF
 screen_deep	050505FF
-screen_ink_soft	5793A8FF
-button_bezel	2F697FFF
+screen_ink_soft	578DA8FF
+button_bezel	376176FF
 delete_bezel	AB3C2BFF
 scanline_alpha	10

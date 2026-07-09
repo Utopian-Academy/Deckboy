@@ -24,7 +24,7 @@
 
 #include "render/waveform_renderer.hpp"
 #include "render/primitives.hpp"
-#include <SDL2/SDL.h>
+#include "core/sdl_compat.hpp"
 #include <algorithm>
 #include <cmath>
 
@@ -85,7 +85,7 @@ void WaveformRenderer::render(SDL_Renderer* renderer, const SDL_Rect& bounds,
 
   // Draw subtle center line (amplitude zero reference)
   SDL_SetRenderDrawColor(renderer, 30, 50, 30, 255);
-  SDL_RenderDrawLine(renderer, x0, cy, x0 + w, cy);
+  SDL_RenderLine(renderer, x0, cy, x0 + w, cy);
 
   // Draw waveform peaks: one vertical bar per pixel column, symmetric
   // around the center line. Each column samples the peak array using
@@ -103,7 +103,7 @@ void WaveformRenderer::render(SDL_Renderer* renderer, const SDL_Rect& bounds,
     SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
 
     // Symmetric: draw bar from centre up and down
-    SDL_RenderDrawLine(renderer, x0 + i, cy - halfH, x0 + i, cy + halfH);
+    SDL_RenderLine(renderer, x0 + i, cy - halfH, x0 + i, cy + halfH);
   }
 
   // Pause point markers: orange vertical lines at each pause point position.
@@ -143,7 +143,7 @@ void WaveformRenderer::drawMarker(SDL_Renderer* renderer, int x, int y0, int y1,
     return;
   }
   SDL_SetRenderDrawColor(renderer, r, g, b, a);
-  SDL_RenderDrawLine(renderer, x, y0, x, y1);
+  SDL_RenderLine(renderer, x, y0, x, y1);
 }
 
 }  // namespace deckboy::render

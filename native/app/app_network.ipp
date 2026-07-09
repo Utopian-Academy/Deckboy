@@ -49,7 +49,7 @@
   }
 
   void rememberOscSubscriber(const sockaddr_in& sender) {
-    oscSubscribers_[oscSenderKey(sender)] = {sender, SDL_GetTicks64()};
+    oscSubscribers_[oscSenderKey(sender)] = {sender, SDL_GetTicks()};
   }
 
   void sendOscStringTo(const sockaddr_in& target, const std::string& address, const std::string& payload) {
@@ -342,7 +342,7 @@
   }
 
   void maybeBroadcastOscState() {
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (oscSubscribers_.empty()) {
       return;
     }
@@ -973,7 +973,7 @@
       return;
     }
 
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (nmcSyncRestartBlockedUntilMs_ > now) {
       if (!nmcSyncLastError_.empty() && nmcSyncLastError_ != nmcSyncLastAnnouncedError_) {
         triggerToast("nmc sync: " + nmcSyncLastError_);
@@ -1007,7 +1007,7 @@
       static_cast<socklen_t>(sizeof(nmcSyncTargetAddress_)));
     if (sent < 0) {
       nmcSyncLastError_ = "nmc send failed";
-      nmcSyncRestartBlockedUntilMs_ = SDL_GetTicks64() + 3000;
+      nmcSyncRestartBlockedUntilMs_ = SDL_GetTicks() + 3000;
       closeSocket(nmcSyncSocket_);
       nmcSyncSocket_ = kInvalidSocket;
       return false;
@@ -1028,7 +1028,7 @@
     const Cue* activeCue = activeCuePtr();
     TransportState state = engine ? engine->state() : TransportState::Stopped;
     double seconds = (engine && activeCue) ? std::max(0.0, engine->position()) : 0.0;
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
 
     bool stateChanged = !nmcSyncOutputStateInitialized_ || state != nmcSyncLastSentState_;
     bool positionJumped = nmcSyncOutputStateInitialized_ && std::fabs(seconds - nmcSyncLastSentSeconds_) >= 0.75;
@@ -1265,7 +1265,7 @@
         }
         payload = trim(payload);
         if (!payload.empty()) {
-          Uint64 now = SDL_GetTicks64();
+          Uint64 now = SDL_GetTicks();
           if (!(payload == lastPayload && now - lastPayloadAtMs < 250)) {
             enqueueRemoteCommand("NDIEVENT " + payload);
             lastPayload = payload;
@@ -1324,7 +1324,7 @@
       }
       ndiTriggerThread_.join();
     }
-    Uint64 now = SDL_GetTicks64();
+    Uint64 now = SDL_GetTicks();
     if (ndiTriggerRestartBlockedUntilMs_ > now) {
       if (!ndiTriggerLastError_.empty() && ndiTriggerLastError_ != ndiTriggerLastAnnouncedError_) {
         triggerToast("ndi trigger: " + ndiTriggerLastError_);
