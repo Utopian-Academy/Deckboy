@@ -762,6 +762,40 @@
     }
 
     {
+      // Pocket test card instrumentation (v0.78.x): the auto-cycling
+      // pocket-test carries the test-card overlay — verify the pixel-mapping
+      // border checkerboard and the instrument-strip separator landed where
+      // drawPocketTestCardOverlay puts them. The clean scene variants must
+      // NOT have the border (they stay usable as backgrounds).
+      Cue cardCue;
+      cardCue.kind = CueKind::Pattern;
+      cardCue.path = "pattern://pocket-test";
+      cardCue.width = 320;
+      cardCue.height = 180;
+      auto card = MediaEngine::buildPatternFrame(cardCue, 5.0, 320, 180);
+      bool cardOk = card.has_value() && !card->pixels.empty();
+      if (cardOk) {
+        auto red = [&](int x, int y) {
+          return card->pixels[(static_cast<std::size_t>(y) * card->width + x) * 4u];
+        };
+        int stripSepY = card->height - std::clamp(card->height * 16 / 100, 28, 999) - 1;
+        cardOk = red(0, 0) == 0 && red(1, 0) == 255 &&          // checker border
+                 red(card->width / 2, stripSepY) == 90;          // strip separator
+      }
+      cardCue.path = "pattern://pocket-day";
+      auto clean = MediaEngine::buildPatternFrame(cardCue, 5.0, 320, 180);
+      bool cleanOk = clean.has_value() && !clean->pixels.empty();
+      if (cleanOk) {
+        auto redC = [&](int x, int y) {
+          return clean->pixels[(static_cast<std::size_t>(y) * clean->width + x) * 4u];
+        };
+        cleanOk = !(redC(0, 0) == 0 && redC(1, 0) == 255);       // no border on scenes
+      }
+      expect(cardOk, "pocket test card instrumentation present");
+      expect(cleanOk, "pocket scene variants stay clean");
+    }
+
+    {
       // Crash resilience (GPU_DECODE_PLAN §9): a corrupt media file must
       // degrade to EOF/rerack — never crash or wedge the engine. The
       // in-process decoder validates by priming the first frame in open();
@@ -804,6 +838,41 @@
 
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
+  }
+
+  // ---------------------------------------------------------------------------
+  // runPatternDump — `--pattern-dump <pattern-id> <out.ppm> [WxH] [t]`
+  //
+  // Renders one frame of a procedural pattern to a binary PPM for visual
+  // inspection outside the app (test-card development, docs screenshots).
+  // ---------------------------------------------------------------------------
+  static int runPatternDump(const std::string& patternId, const std::string& outPath,
+                            int w, int h, double t) {
+    Cue cue;
+    cue.kind = CueKind::Pattern;
+    cue.name = "pattern-dump";
+    cue.path = patternId;
+    cue.width = w;
+    cue.height = h;
+    auto frame = MediaEngine::buildPatternFrame(cue, t, w, h);
+    if (!frame || frame->pixels.empty()) {
+      std::cout << "pattern-dump: build failed for " << patternId << '\n';
+      return 1;
+    }
+    std::ofstream out(outPath, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      std::cout << "pattern-dump: cannot write " << outPath << '\n';
+      return 1;
+    }
+    out << "P6\n" << frame->width << ' ' << frame->height << "\n255\n";
+    for (std::size_t i = 0; i + 3 < frame->pixels.size(); i += 4) {
+      out.put(static_cast<char>(frame->pixels[i]));
+      out.put(static_cast<char>(frame->pixels[i + 1]));
+      out.put(static_cast<char>(frame->pixels[i + 2]));
+    }
+    std::cout << "pattern-dump: wrote " << outPath << " ("
+              << frame->width << "x" << frame->height << ")\n";
+    return 0;
   }
 
   // ---------------------------------------------------------------------------

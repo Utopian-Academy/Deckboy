@@ -5875,6 +5875,7 @@ class App {
 //   --self-check    → run self-check diagnostics and exit
 //   --smoke         → run smoke tests and exit
 //   --decode-bench <file> [seconds] [cli] → measure decode throughput and exit
+//   --pattern-dump <pattern-id> <out.ppm> [WxH] [t] → render a pattern frame and exit
 //   --no-inproc-decode → force the ffmpeg CLI decode path (break-glass)
 //   --allow-multi-instance → skip single-instance lock
 // Otherwise: acquire instance lock → App::init() → App::run() → App::shutdown()
@@ -5888,6 +5889,29 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
     return App::runSmoke();
+  }
+  if (argc > 3 && std::string_view(argv[1]) == "--pattern-dump") {
+    int dumpW = 1280;
+    int dumpH = 720;
+    double dumpT = 30.0;
+    for (int i = 4; i < argc; ++i) {
+      std::string_view arg(argv[i]);
+      auto xPos = arg.find('x');
+      if (xPos != std::string_view::npos) {
+        int w = std::atoi(std::string(arg.substr(0, xPos)).c_str());
+        int h = std::atoi(std::string(arg.substr(xPos + 1)).c_str());
+        if (w > 0 && h > 0) {
+          dumpW = w;
+          dumpH = h;
+        }
+      } else {
+        double parsed = std::atof(argv[i]);
+        if (parsed >= 0.0) {
+          dumpT = parsed;
+        }
+      }
+    }
+    return App::runPatternDump(argv[2], argv[3], dumpW, dumpH, dumpT);
   }
   if (argc > 2 && std::string_view(argv[1]) == "--decode-bench") {
     double benchSeconds = 10.0;

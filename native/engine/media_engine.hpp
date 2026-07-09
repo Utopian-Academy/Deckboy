@@ -257,6 +257,7 @@ class MediaEngine {
   static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);   // crosshatch grid
   static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0); // checkerboard
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
+  static void drawPocketTestCardOverlay(DecodedFrame& frame, double t, int scene);     // test-card instrumentation (pocket-test only)
 
   // -- State: core references --------------------------------------------------
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
