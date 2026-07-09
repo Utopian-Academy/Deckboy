@@ -1,5 +1,30 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.2 (Pocket Test goes diegetic)
+
+- **The test card's instruments are now part of the island world** (the
+  v0.78.1 instrument strip looked like a programmer's demo tape; this reads
+  like an old-school game screen). Same measurements, exact values, new
+  bodies:
+  - Color bars → a **billboard** on the beach.
+  - Grayscale staircase → **stone steps** climbing to the right edge.
+  - Banding ramp → a **banner** strung across the sky.
+  - Black-crush check → a **cave** whose creature-eyes (2% / 4% on black)
+    vanish if the chain crushes blacks.
+  - White-clip check → a **cloud** with 98% / 96% lumps.
+  - Flicker box → a **flashing ? block** (~30 Hz).
+  - Fine-detail patch → a **beach TV playing static** (1px checker +
+    stripes).
+  - Judder lane → a **runner** crossing the screen at constant velocity
+    past **fence posts at exact 10% spacing**.
+  - The Pokémon-style dialog box (version, raster, clock, "A WILD NIGHT
+    APPEARED!", blinking continue-cursor) stays as the game-UI layer, with
+    chunky Game Boy borders.
+- The bottom instrument panel is gone — the scene (and its rainbow footer)
+  is fully visible again. Border/safe-area/crosshair guides unchanged.
+- Smoke now verifies the diegetic values (75% red, 2% cave eyes, 96% cloud
+  lump) instead of panel geometry.
+
 ## 2026-07-09 — v0.78.1 (Pocket Test is now a real test card)
 
 - **The Pocket Test pattern grew broadcast instrumentation.** The island
