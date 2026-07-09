@@ -503,6 +503,11 @@
       deck.timecodeDirty = false;
     }
 
+#if DECKBOY_INPROC_DECODE
+    // Output topology changed since last tick — re-point zero-copy decode.
+    reconcileDecodeDevices();
+#endif
+
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       // Advance browser cue Xvfb startup state machine.
       tickBrowserStartup(deckIndex);
@@ -512,6 +517,13 @@
         continue;
       }
       engine->update();
+
+      // Decode watchdog: a wedged in-process decoder reracks the deck dark
+      // instead of hanging it mid-show, and the operator gets told.
+      if (engine->consumeDecodeStall()) {
+        engine->stop(true);
+        triggerToast("DECODE STALLED — deck " + deckDefaultName(deckIndex) + " reracked");
+      }
 
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
       const Cue* activeCue = activeCuePtr(deckIndex);
@@ -644,6 +656,23 @@
     {
       const MediaEngine* eng = focusedMediaEngine();
       const DecodedFrame* frame = eng ? eng->currentFrame() : nullptr;
+#if DECKBOY_INPROC_DECODE
+      if (frame && frame->isGpu()) {
+        // GPU-resident frame: previewing it on the control renderer needs a
+        // CPU download, so throttle to ~10 fps — the preview is a monitor
+        // thumbnail, not worth a full-rate GPU readback.
+        Uint64 nowMs = SDL_GetTicks();
+        if (frame->index != controlPreviewFrameIdx_ &&
+            nowMs - controlPreviewGpuLastMs_ >= 100 &&
+            deckboy::libav::downloadGpuFrameNV12(*frame, controlPreviewGpuScratch_)) {
+          controlPreviewGpuLastMs_ = nowMs;
+          frame = &controlPreviewGpuScratch_;
+        } else {
+          frame = controlPreviewGpuScratch_.pixels.empty() ? nullptr
+                                                           : &controlPreviewGpuScratch_;
+        }
+      }
+#endif
       if (frame && frame->width > 0 && frame->height > 0 &&
           frame->index != controlPreviewFrameIdx_) {
         controlPreviewFrameIdx_ = frame->index;
@@ -660,6 +689,12 @@
           controlPreviewTexFormat_ = 0;
         }
         controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+#if DECKBOY_INPROC_DECODE
+        // Drop the stale GPU-download scratch too, or the next GPU cue could
+        // flash the previous cue's frame while the throttle blocks a download.
+        controlPreviewGpuScratch_ = DecodedFrame{};
+        controlPreviewGpuLastMs_ = 0;
+#endif
       }
     }
     // Upload output captured frames to monitors window textures

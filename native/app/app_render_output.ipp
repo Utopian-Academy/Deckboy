@@ -203,6 +203,53 @@
     return texIt->second;
   }
 
+#if DECKBOY_INPROC_DECODE
+  // Get-or-create the per-deck zero-copy bridge: a persistent NV12
+  // ID3D11Texture2D on this output renderer's device, wrapped once as an
+  // SDL_Texture. Decoded d3d11va texture-array slices are GPU-copied into it
+  // each frame advance — no CPU download, no re-upload.
+  SDL_Texture* ensureLayerGpuTexture(OutputRuntime& outputRuntime,
+                                     int sourceDeckIndex,
+                                     int width,
+                                     int height) {
+    width &= ~1;
+    height &= ~1;
+    if (width <= 0 || height <= 0) {
+      return nullptr;
+    }
+    auto texIt = outputRuntime.layerGpuTextures.find(sourceDeckIndex);
+    if (texIt != outputRuntime.layerGpuTextures.end()) {
+      auto sizeIt = outputRuntime.layerGpuTextureSizes.find(sourceDeckIndex);
+      if (sizeIt != outputRuntime.layerGpuTextureSizes.end() &&
+          sizeIt->second == std::make_pair(width, height)) {
+        return texIt->second;
+      }
+      if (texIt->second) {
+        SDL_DestroyTexture(texIt->second);
+      }
+      auto d3dIt = outputRuntime.layerGpuTexture2Ds.find(sourceDeckIndex);
+      if (d3dIt != outputRuntime.layerGpuTexture2Ds.end()) {
+        deckboy::libav::releaseD3D11Texture(d3dIt->second);
+        outputRuntime.layerGpuTexture2Ds.erase(d3dIt);
+      }
+      outputRuntime.layerGpuTextures.erase(texIt);
+      outputRuntime.layerGpuTextureSizes.erase(sourceDeckIndex);
+      outputRuntime.layerGpuFrameIndices.erase(sourceDeckIndex);
+    }
+    void* texture2D = nullptr;
+    SDL_Texture* wrapped = deckboy::libav::createWrappedNV12Texture(
+      outputRuntime.outputRenderer, width, height, &texture2D);
+    if (!wrapped) {
+      return nullptr;
+    }
+    outputRuntime.layerGpuTextures[sourceDeckIndex] = wrapped;
+    outputRuntime.layerGpuTexture2Ds[sourceDeckIndex] = texture2D;
+    outputRuntime.layerGpuTextureSizes[sourceDeckIndex] = {width, height};
+    outputRuntime.layerGpuFrameIndices.erase(sourceDeckIndex);
+    return wrapped;
+  }
+#endif
+
   // Get-or-create the per-overlay bridge texture. Same format-aware rebuild
   // rule as ensureLayerBridgeTexture, keyed by overlay identity instead of
   // deck index.
@@ -418,9 +465,64 @@
       return;
     }
     const DecodedFrame* sourceFrame = sourceRuntime->mediaEngine->currentFrame();
-    if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 || sourceFrame->pixels.empty()) {
+    if (!sourceFrame || sourceFrame->width <= 0 || sourceFrame->height <= 0 ||
+        (sourceFrame->pixels.empty() && !sourceFrame->isGpu())) {
       return;
     }
+#if DECKBOY_INPROC_DECODE
+    if (sourceFrame->isGpu()) {
+      if (sourceFrame->gpuDevice && sourceFrame->gpuDevice == outputRuntime->rendererD3DDevice) {
+        // Zero-copy: GPU-copy the decoded slice into this output's wrapped
+        // NV12 texture on frame advance, then composite it like any texture.
+        SDL_Texture* gpuTexture = ensureLayerGpuTexture(
+          *outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height);
+        if (gpuTexture) {
+          auto gpuFrameIt = outputRuntime->layerGpuFrameIndices.find(sourceDeckIndex);
+          if (gpuFrameIt == outputRuntime->layerGpuFrameIndices.end() ||
+              gpuFrameIt->second != sourceFrame->index) {
+            if (deckboy::libav::copyGpuFrameToTexture(
+                  *sourceFrame, outputRuntime->layerGpuTexture2Ds[sourceDeckIndex])) {
+              outputRuntime->layerGpuFrameIndices[sourceDeckIndex] = sourceFrame->index;
+            }
+          }
+          float gpuDeckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
+          float gpuFadeGain = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+          Uint8 gpuAlpha = static_cast<Uint8>(std::lround(gpuDeckOpacity * gpuFadeGain * 255.0f));
+          SDL_SetTextureAlphaMod(gpuTexture, gpuAlpha);
+          renderTextureWithCueGeometry(outputRuntime->outputRenderer, gpuTexture,
+                                       sourceFrame->width, sourceFrame->height, sourceCue, target);
+          SDL_SetTextureAlphaMod(gpuTexture, 255);
+          return;
+        }
+      }
+      // Different device (secondary output) or wrap failure: download the
+      // frame once per advance and continue down the classic CPU bridge.
+      // Download only when the bridge below will actually re-upload —
+      // repeated ticks on an unchanged frame render the existing bridge
+      // texture without touching the scratch (which other decks share).
+      std::string gpuCueKey = cuePreviewCacheKey(*sourceCue);
+      auto gpuUpIt = outputRuntime->layerBridgeFrameIndices.find(sourceDeckIndex);
+      auto gpuKeyIt = outputRuntime->layerBridgeCueKeys.find(sourceDeckIndex);
+      bool gpuWillUpload =
+        gpuUpIt == outputRuntime->layerBridgeFrameIndices.end() ||
+        gpuKeyIt == outputRuntime->layerBridgeCueKeys.end() ||
+        gpuUpIt->second != sourceFrame->index ||
+        gpuKeyIt->second != gpuCueKey;
+      if (gpuWillUpload) {
+        bool scratchCurrent =
+          outputRuntime->gpuDownloadScratchDeck == sourceDeckIndex &&
+          !outputRuntime->gpuDownloadScratch.pixels.empty() &&
+          outputRuntime->gpuDownloadScratch.index == sourceFrame->index;
+        if (!scratchCurrent) {
+          if (!deckboy::libav::downloadGpuFrameNV12(*sourceFrame, outputRuntime->gpuDownloadScratch)) {
+            return;
+          }
+          outputRuntime->gpuDownloadScratchDeck = sourceDeckIndex;
+        }
+        sourceFrame = &outputRuntime->gpuDownloadScratch;
+      }
+    }
+#endif
     const Uint32 sourceFormat = sdlPixelFormat(sourceFrame->format);
     SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(
       *outputRuntime, sourceDeckIndex,

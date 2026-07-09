@@ -7,8 +7,11 @@
 // media_engine.hpp — Core playback engine for all cue types.
 //
 // MediaEngine is the heart of Deckboy. It manages:
-//   - Video decode:    spawns ffmpeg as a subprocess, pipes raw RGBA frames
-//   - Audio decode:    spawns a second ffmpeg for PCM audio, feeds SDL audio
+//   - Video decode:    in-process libav (d3d11va zero-copy or CPU frames);
+//                      ffmpeg subprocess pipe as fallback (live streams,
+//                      rotated files, --no-inproc-decode)
+//   - Audio decode:    in-process libav → s16/48k stereo → SDL stream;
+//                      ffmpeg subprocess fallback as above
 //   - Still images:    decodes a single frame via ffmpeg, holds on screen
 //   - Pattern cues:    generates procedural test patterns (CPU-rendered)
 //   - Browser cues:    receives frames from the browser backend (CEF/WebKit)
@@ -52,6 +55,10 @@
 #include "core/subprocess.hpp"
 #include "core/types.hpp"
 
+#if DECKBOY_INPROC_DECODE
+#include "engine/libav_decoder.hpp"
+#endif
+
 // Compute the outgoing cue's fade gain at the moment a transition begins.
 // When transport is paused/stopped (e.g. TAKE from standby), returns 1.0
 // so the outgoing frame is fully visible during the transition — prevents
@@ -79,15 +86,22 @@ class MediaEngine {
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
   using CuePathResolver = std::function<std::string(const Cue&)>;
+  // Optional provider of the D3D11 device to decode onto (the program output
+  // renderer's), queried at decode start. Engines without one (preview, PiP)
+  // decode in-process to CPU frames; with one, NV12 video stays GPU-resident
+  // end-to-end (zero-copy). Only meaningful when DECKBOY_INPROC_DECODE.
+  using DecodeDeviceProvider = std::function<void*()>;
 
   explicit MediaEngine(SDL_Renderer* outputRenderer,
                        SDL_AudioStream* audioStream,
                        AudioTapCallback audioTap = {},
-                       CuePathResolver cuePathResolver = {})
+                       CuePathResolver cuePathResolver = {},
+                       DecodeDeviceProvider decodeDeviceProvider = {})
     : outputRenderer_(outputRenderer),
       audioStream_(audioStream),
       audioTap_(std::move(audioTap)),
-      cuePathResolver_(std::move(cuePathResolver)) {}
+      cuePathResolver_(std::move(cuePathResolver)),
+      decodeDeviceProvider_(std::move(decodeDeviceProvider)) {}
 
   ~MediaEngine();  // calls stopAll() to clean up threads and processes
 
@@ -166,6 +180,23 @@ class MediaEngine {
   bool shouldMeasureMediaFps() const;
   void recordMediaFrameAdvance(std::uint64_t frameIndex);
 
+  // -- In-process decode introspection ------------------------------------------
+  // True while the active cue decodes in-process (libav) rather than via the
+  // ffmpeg CLI pipe. activeDecodeDevice() is the ID3D11Device* zero-copy
+  // frames are bound to (null in CPU/software mode) — the app compares it
+  // against the current program output to restart decode after output
+  // topology changes. consumeDecodeStall() returns true once when the decode
+  // watchdog trips (playing, no EOF, no frame produced for several seconds):
+  // the transport handler should rerack the deck and toast the operator.
+  bool inprocDecodeActive() const { return inprocDecodeActive_; }
+  void* activeDecodeDevice() const { return activeDecodeDevice_; }
+  bool consumeDecodeStall();
+  // Process-wide break-glass switch (--no-inproc-decode, decode bench): when
+  // disabled, every new decode uses the ffmpeg CLI pipe path even in builds
+  // compiled with DECKBOY_INPROC_DECODE. Affects the next TAKE, not running decodes.
+  static void setInprocDecodeDisabled(bool disabled);
+  static bool inprocDecodeDisabled();
+
   // -- Single-frame decode (for thumbnail generation) --------------------------
   std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path,
                                                  int width, int height, double seconds);
@@ -202,7 +233,21 @@ class MediaEngine {
   size_t queuedFrames();                                   // number of frames waiting in frameQueue_
   void stopDecoderThreads();                               // kill ffmpeg processes and join threads
   bool buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vector<std::string>& args) const; // build ffmpeg args for source capture
-  void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds);       // launch ffmpeg video+audio subprocesses
+  void startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds);       // launch decode (in-process libav, or ffmpeg subprocess fallback)
+#if DECKBOY_INPROC_DECODE
+  // In-process decode path. Returns false when this cue must use the CLI
+  // pipe path instead (rotated file, no decodable frame, pipeline failure) —
+  // startDecoderThreads falls through to the subprocess code.
+  bool startInprocDecoders(const Cue& cue, const std::string& mediaPath,
+                           double mediaStartSeconds, double cueStartSeconds,
+                           int decodeW, int decodeH, FramePixelFormat decodeFormat,
+                           double speed);
+#endif
+  // Shared audio-thread tail: per-sample fade/volume/master gain, waveform
+  // tap, queue to the SDL stream, advance the audio clock counters. Used by
+  // both the CLI pipe thread and the in-process thread so the audio-master
+  // clock semantics stay identical.
+  void applyGainAndQueueAudio(std::vector<std::int16_t>& samples, double& audioTime);
 
   // -- Pattern rendering helpers (static, pure) --------------------------------
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color);
@@ -337,7 +382,19 @@ class MediaEngine {
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
   std::atomic<bool> decoderEof_ {false};     // decode threads have reached EOF
   bool reachedEnd_ = false;                  // cue playback has finished
-  bool decodersRunning_ = false;             // ffmpeg pipes spawned for the active cue (main thread)
+  bool decodersRunning_ = false;             // decode running for the active cue (main thread)
+
+  // -- State: in-process decode (libav) ----------------------------------------
+#if DECKBOY_INPROC_DECODE
+  std::unique_ptr<deckboy::libav::VideoPipeline> videoPipeline_;
+  std::unique_ptr<deckboy::libav::AudioPipeline> audioPipeline_;
+#endif
+  DecodeDeviceProvider decodeDeviceProvider_;
+  bool inprocDecodeActive_ = false;          // active cue decodes in-process
+  void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
+  std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
+  bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
+  std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames

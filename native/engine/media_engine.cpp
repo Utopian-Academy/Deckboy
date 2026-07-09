@@ -85,7 +85,19 @@ int phaseFromProgress(double progress, int period) {
   return static_cast<int>(std::floor(wrapped * static_cast<double>(period))) % period;
 }
 
+std::atomic<bool> g_inprocDecodeDisabled {false};
+
 } // namespace
+
+// Process-wide break-glass: force the ffmpeg CLI pipe path for new decodes
+// (--no-inproc-decode). Static so the operator flag reaches every engine.
+void MediaEngine::setInprocDecodeDisabled(bool disabled) {
+  g_inprocDecodeDisabled.store(disabled);
+}
+
+bool MediaEngine::inprocDecodeDisabled() {
+  return g_inprocDecodeDisabled.load();
+}
 
 // Destructor ensures all decode threads are joined and subprocesses killed.
 MediaEngine::~MediaEngine() {
@@ -696,8 +708,27 @@ void MediaEngine::update() {
     recordMediaFrameAdvance(advancedFrameIndex);
   }
 
-  if (displayFrame_) {
+  // Upload only when the display frame actually changed (or the texture was
+  // torn down). The old unconditional call re-uploaded the same pixels every
+  // render tick — at the 240 Hz loop floor that was hundreds of MB/s of bus
+  // traffic per playing deck for nothing. render() still re-uploads directly
+  // when effect parameters change without a new frame.
+  if (displayFrame_ &&
+      (displayFrame_->index != lastUploadedFrameIndex_ ||
+       (!texture_ && !displayFrame_->isGpu()))) {
     uploadFrame(*displayFrame_);
+    lastUploadedFrameIndex_ = displayFrame_->index;
+  }
+
+  // Decode watchdog (in-process path): playing, not at EOF, queue starved and
+  // the decode thread hasn't produced a frame in seconds — a wedged decoder
+  // must rerack the deck (transport polls consumeDecodeStall()), not hang it.
+  if (inprocDecodeActive_ && decodersRunning_ && state_ == TransportState::Playing &&
+      !decoderEof_.load() && activeCue_ && activeCue_->kind == CueKind::Video) {
+    Uint64 lastPush = lastFramePushMs_.load();
+    if (lastPush != 0 && SDL_GetTicks() - lastPush > 4000 && queuedFrames() == 0) {
+      decodeStallLatched_ = true;
+    }
   }
 
   if (state_ == TransportState::Playing && duration_ > 0.0 && currentPosition_ >= duration_ - 0.01) {
@@ -707,6 +738,16 @@ void MediaEngine::update() {
   if (state_ == TransportState::Playing && decoderEof_ && queuedFrames() == 0 && currentPosition_ >= duration_ - 0.02) {
     handlePlaybackEnd();
   }
+}
+
+// Check and consume the decode-stall watchdog latch. Returns true once per
+// stall; the transport handler reracks the deck and toasts the operator.
+bool MediaEngine::consumeDecodeStall() {
+  if (decodeStallLatched_) {
+    decodeStallLatched_ = false;
+    return true;
+  }
+  return false;
 }
 
 // Reset all FPS measurement state. Called on cue load and after runtime refresh
@@ -1455,6 +1496,7 @@ void MediaEngine::clearTexture() {
   textureWidth_ = 0;
   textureHeight_ = 0;
   textureFormat_ = 0;
+  lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
 
 // ---------------------------------------------------------------------------
@@ -1476,6 +1518,11 @@ void MediaEngine::clearTexture() {
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
+  if (frame.isGpu()) {
+    // Zero-copy frame: composited from its wrapped D3D11 texture at the
+    // output bridge — nothing to upload on the deck's hidden renderer.
+    return;
+  }
   if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
     return;
   }
@@ -1760,6 +1807,17 @@ void MediaEngine::stopDecoderThreads() {
   // Phase 1: kill processes to unblock the decode threads' read calls
   videoProcess_.killProcessOnly();
   audioProcess_.killProcessOnly();
+#if DECKBOY_INPROC_DECODE
+  // In-process equivalent of the pipe kill: trip the AVIO interrupt callback
+  // so a decode thread blocked inside av_read_frame (dead network share)
+  // returns promptly and the joins below can't hang.
+  if (videoPipeline_) {
+    videoPipeline_->requestStop();
+  }
+  if (audioPipeline_) {
+    audioPipeline_->requestStop();
+  }
+#endif
 
   // Phase 2: wait for threads to finish, then clean up process handles
   if (videoThread_.joinable()) {
@@ -1772,9 +1830,18 @@ void MediaEngine::stopDecoderThreads() {
   videoProcess_.stop();  // now safe to close readFd
   audioProcess_.stop();
 
+#if DECKBOY_INPROC_DECODE
+  videoPipeline_.reset();  // threads are joined — safe to tear down
+  audioPipeline_.reset();
+#endif
+  inprocDecodeActive_ = false;
+  activeDecodeDevice_ = nullptr;
+  lastFramePushMs_.store(0);
+  decodeStallLatched_ = false;
+
   {
     std::lock_guard<std::mutex> lock(frameMutex_);
-    frameQueue_.clear();  // discard any buffered frames
+    frameQueue_.clear();  // discard any buffered frames (releases GPU surfaces)
   }
   decoderStop_.store(false);  // reset for next cue
   decoderEof_ = false;
@@ -1946,10 +2013,34 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
   const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";
 
+#if DECKBOY_INPROC_DECODE
+  // In-process libav decode for file-backed cues (GPU_DECODE_PLAN §11
+  // Session 2). Live streams stay on the CLI (libndi_newtek input device,
+  // latency-sensitive open behavior). When the pipeline can't take the file
+  // (rotation metadata, undecodable), fall through to the CLI pipe path —
+  // the break-glass fallback is automatic.
+  if (!isLiveStream && !inprocDecodeDisabled() &&
+      startInprocDecoders(cue, mediaPath, mediaStartSeconds, cueStartSeconds,
+                          decodeW, decodeH, decodeFormat, speed)) {
+    return;
+  }
+#endif
+
+  // Cap subprocess decode threads so ffmpeg's pool doesn't starve the render
+  // loop on small CPUs (the Pocket has 4 threads) — counterintuitively
+  // smoother than letting it size itself.
+  const int cliDecodeThreads = std::clamp(SDL_GetNumLogicalCPUCores() / 2, 1, 4);
+  // The scale filter is a no-op for normal video cues (decode size == probed
+  // cue size) — skip it and save a per-frame CPU pass; keep it whenever the
+  // sizes differ or a speed change needs setpts.
+  const bool needsVideoFilter =
+    decodeW != cue.width || decodeH != cue.height || std::abs(speed - 1.0) > 0.01;
+
   // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
   // NDI sources use ffmpeg's libndi_newtek input device; path format: ndi://SOURCE_NAME
   std::vector<std::string> videoArgs = {
-    "ffmpeg", "-hide_banner", "-loglevel", "error"
+    "ffmpeg", "-hide_banner", "-loglevel", "error",
+    "-threads", std::to_string(cliDecodeThreads)
   };
   if (!isLiveStream) {
     videoArgs.insert(videoArgs.end(), {"-hwaccel", "auto"});
@@ -1962,10 +2053,11 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   } else {
     videoArgs.insert(videoArgs.end(), {"-i", mediaPath});
   }
+  videoArgs.insert(videoArgs.end(), {"-map", "0:v:0", "-an"});
+  if (needsVideoFilter) {
+    videoArgs.insert(videoArgs.end(), {"-vf", scaleFilter});
+  }
   videoArgs.insert(videoArgs.end(), {
-    "-map", "0:v:0",
-    "-an",
-    "-vf", scaleFilter,
     "-f", "rawvideo",
     "-pix_fmt", ffmpegPixFmt,
     "pipe:1"
@@ -2088,30 +2180,157 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
 
           std::vector<std::int16_t> scaled(alignedBytes / sizeof(std::int16_t));
           std::memcpy(scaled.data(), buffer.data(), alignedBytes);
-          for (size_t index = 0; index < scaled.size(); index += 2) {
-            double gain = static_cast<double>(volume_.load())
-                        * static_cast<double>(masterGain_.load())
-                        * audioFadeGainAt(audioTime);
-            for (size_t channel = 0; channel < 2 && index + channel < scaled.size(); ++channel) {
-              auto& sample = scaled[index + channel];
-              sample = static_cast<std::int16_t>(std::clamp(
-                static_cast<int>(std::lround(static_cast<double>(sample) * gain)),
-                -32768,
-                32767
-              ));
-            }
-            audioTime += 1.0 / 48000.0;
-          }
-          if (audioTap_) {
-            audioTap_(scaled);
-          }
-          SDL_PutAudioStreamData(audioStream_, scaled.data(), static_cast<int>(scaled.size() * sizeof(std::int16_t)));
-          audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
+          applyGainAndQueueAudio(scaled, audioTime);
         }
       });
     }
   }
 }
+
+// Shared audio-thread tail (CLI pipe thread + in-process thread): per-sample
+// fade/volume/master gain, waveform tap, queue to the SDL stream, advance the
+// audio-clock counters. Keeping one implementation keeps the audio-master
+// A/V clock semantics identical across both decode paths.
+void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, double& audioTime) {
+  for (size_t index = 0; index < scaled.size(); index += 2) {
+    double gain = static_cast<double>(volume_.load())
+                * static_cast<double>(masterGain_.load())
+                * audioFadeGainAt(audioTime);
+    for (size_t channel = 0; channel < 2 && index + channel < scaled.size(); ++channel) {
+      auto& sample = scaled[index + channel];
+      sample = static_cast<std::int16_t>(std::clamp(
+        static_cast<int>(std::lround(static_cast<double>(sample) * gain)),
+        -32768,
+        32767
+      ));
+    }
+    audioTime += 1.0 / 48000.0;
+  }
+  if (audioTap_) {
+    audioTap_(scaled);
+  }
+  SDL_PutAudioStreamData(audioStream_, scaled.data(), static_cast<int>(scaled.size() * sizeof(std::int16_t)));
+  audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
+}
+
+#if DECKBOY_INPROC_DECODE
+// ---------------------------------------------------------------------------
+// startInprocDecoders — In-process libav decode (GPU_DECODE_PLAN §11).
+//
+// Replaces the two ffmpeg subprocess pipes with two in-process pipelines on
+// the same thread structure: the video thread pushes into frameQueue_ under
+// the same kMaxVideoFrames backpressure and frame indexing, the audio thread
+// feeds the same gain/tap/queue tail — transport, A/V clock, EOF and loop
+// semantics are unchanged.
+//
+// Zero-copy: when the cue takes the NV12 fast path and the app supplied a
+// decode-device provider (deck engines), video decodes via d3d11va directly
+// on the program output renderer's D3D11 device and frames stay GPU-resident
+// (DecodedFrame::gpu*). Otherwise frames arrive as classic CPU pixels.
+//
+// Returns false → caller falls through to the CLI pipe path (rotated files,
+// undecodable first frame, open failure).
+// ---------------------------------------------------------------------------
+bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPath,
+                                      double mediaStartSeconds, double cueStartSeconds,
+                                      int decodeW, int decodeH, FramePixelFormat decodeFormat,
+                                      double speed) {
+  const bool wantVideo = cue.kind != CueKind::Audio;
+  if (wantVideo) {
+    deckboy::libav::VideoOpenParams videoParams;
+    videoParams.path = mediaPath;
+    videoParams.startSeconds = mediaStartSeconds;
+    videoParams.targetWidth = decodeW;
+    videoParams.targetHeight = decodeH;
+    videoParams.format = decodeFormat;
+    if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_) {
+      videoParams.d3dDevice = decodeDeviceProvider_();
+    }
+    videoPipeline_ = std::make_unique<deckboy::libav::VideoPipeline>();
+    if (!videoPipeline_->open(videoParams)) {
+      videoPipeline_.reset();
+      return false;
+    }
+    activeDecodeDevice_ = videoPipeline_->device();
+  } else {
+    // Audio-only cue: no video stream — mirrors the CLI video pipe's
+    // immediate EOF so end-of-playback detection still keys off audio.
+    decoderEof_ = true;
+  }
+
+  inprocDecodeActive_ = true;
+  decodersRunning_ = true;
+  decodeStallLatched_ = false;
+  lastFramePushMs_.store(SDL_GetTicks());
+
+  if (wantVideo) {
+    videoThread_ = std::thread([this, cueStartSeconds]() {
+      std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
+      while (!decoderStop_.load()) {
+        while (!decoderStop_.load()) {
+          bool hasRoom = false;
+          {
+            std::lock_guard<std::mutex> lock(frameMutex_);
+            hasRoom = frameQueue_.size() < kMaxVideoFrames;
+          }
+          if (hasRoom) {
+            break;
+          }
+          SDL_Delay(4);
+        }
+        if (decoderStop_.load()) {
+          break;
+        }
+        DecodedFrame frame;
+        if (!videoPipeline_->nextFrame(frame)) {
+          break;
+        }
+        frame.index = frameIndex++;
+        lastFramePushMs_.store(SDL_GetTicks());
+        std::lock_guard<std::mutex> lock(frameMutex_);
+        frameQueue_.push_back(std::move(frame));
+      }
+      decoderEof_ = true;
+    });
+  }
+
+  audioClockValid_ = false;
+  if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
+    deckboy::libav::AudioOpenParams audioParams;
+    audioParams.path = mediaPath;
+    audioParams.startSeconds = mediaStartSeconds;
+    audioParams.speed = speed;
+    audioPipeline_ = std::make_unique<deckboy::libav::AudioPipeline>();
+    if (!audioPipeline_->open(audioParams)) {
+      audioPipeline_.reset();  // run silent — same as a failed CLI spawn
+    } else {
+      syncAudioFadeParams();  // publish before the audio thread spawns
+      audioFramesQueued_.store(0, std::memory_order_relaxed);
+      audioClockStartSeconds_ = cueStartSeconds;
+      lastAudioClockSeconds_ = -1.0;
+      lastAudioClockAdvanceMs_ = 0;
+      audioClockValid_ = true;
+      audioThread_ = std::thread([this, cueStartSeconds]() {
+        std::vector<std::int16_t> samples(4096);
+        double audioTime = cueStartSeconds;
+        while (!decoderStop_.load()) {
+          if (SDL_GetAudioStreamQueued(audioStream_) > 23040) {
+            SDL_Delay(4);
+            continue;
+          }
+          int got = audioPipeline_->read(samples.data(), static_cast<int>(samples.size()));
+          if (got <= 0) {
+            break;
+          }
+          std::vector<std::int16_t> scaled(samples.begin(), samples.begin() + got);
+          applyGainAndQueueAudio(scaled, audioTime);
+        }
+      });
+    }
+  }
+  return true;
+}
+#endif // DECKBOY_INPROC_DECODE
 
 // ---------------------------------------------------------------------------
 // decodeSingleFrame — Synchronous single-frame decode for thumbnail generation.

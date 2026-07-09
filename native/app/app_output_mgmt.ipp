@@ -2125,6 +2125,28 @@
     runtime.overlayBridgeFrameIndices.clear();
     runtime.overlayBridgeCueKeys.clear();
     runtime.layerBridgeScratchPixels.clear();
+#if DECKBOY_INPROC_DECODE
+    for (auto& [gpuDeckIndex, texture] : runtime.layerGpuTextures) {
+      (void) gpuDeckIndex;
+      if (texture) {
+        SDL_DestroyTexture(texture);  // wrapped texture first…
+      }
+    }
+    runtime.layerGpuTextures.clear();
+    for (auto& [gpuDeckIndex, texture2D] : runtime.layerGpuTexture2Ds) {
+      (void) gpuDeckIndex;
+      deckboy::libav::releaseD3D11Texture(texture2D);  // …then its backing D3D11 texture
+    }
+    runtime.layerGpuTexture2Ds.clear();
+    runtime.layerGpuTextureSizes.clear();
+    runtime.layerGpuFrameIndices.clear();
+    runtime.gpuDownloadScratch = DecodedFrame{};
+    if (runtime.rendererD3DDevice) {
+      runtime.rendererD3DDevice = nullptr;
+      // This device is going away — zero-copy decks bound to it must restart.
+      scheduleDecodeDeviceReconcile();
+    }
+#endif
     if (runtime.compositorTexture) {
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
@@ -2172,6 +2194,64 @@
     runtime.fpsMeasured = 0.0;
   }
 
+#if DECKBOY_INPROC_DECODE
+  // The D3D11 device in-process decode should target: the first enabled
+  // window-type output's renderer, so zero-copy frames land on the device
+  // that composites the program output. Falls back to any output runtime
+  // with a hardware renderer; null means CPU-output decode.
+  void* primaryOutputDecodeDevice() {
+    void* anyDevice = nullptr;
+    for (size_t i = 0; i < outputRuntimes_.size() && i < project_.outputs.size(); ++i) {
+      OutputRuntime& runtime = outputRuntimes_[i];
+      if (!runtime.outputRenderer || !runtime.rendererD3DDevice) {
+        continue;
+      }
+      const OutputTarget& output = project_.outputs[i];
+      if (output.enabled && output.outputType != "stream") {
+        return runtime.rendererD3DDevice;
+      }
+      if (!anyDevice) {
+        anyDevice = runtime.rendererD3DDevice;
+      }
+    }
+    return anyDevice;
+  }
+
+  void scheduleDecodeDeviceReconcile() {
+    decodeDeviceReconcilePending_ = true;
+  }
+
+  // After output topology changes, restart decode on decks whose zero-copy
+  // frames are bound to the wrong (or a destroyed) device — and on decks
+  // that decoded to CPU because no device existed yet. RGBA effects cues
+  // never bind a device and their frames report RGBA, so they are skipped.
+  void reconcileDecodeDevices() {
+    if (!decodeDeviceReconcilePending_) {
+      return;
+    }
+    decodeDeviceReconcilePending_ = false;
+    void* wanted = primaryOutputDecodeDevice();
+    for (size_t deckIndex = 0; deckIndex < deckRuntimes_.size(); ++deckIndex) {
+      MediaEngine* engine = deckRuntimes_[deckIndex].mediaEngine.get();
+      if (!engine || !engine->inprocDecodeActive()) {
+        continue;
+      }
+      const Cue* cue = engine->activeCue();
+      if (!cue || cue->kind != CueKind::Video) {
+        continue;
+      }
+      if (engine->activeDecodeDevice() == wanted) {
+        continue;
+      }
+      const DecodedFrame* frame = engine->currentFrame();
+      if (frame && frame->format != FramePixelFormat::NV12) {
+        continue;  // RGBA effects path — device is irrelevant
+      }
+      engine->refreshActiveCueRuntime();
+    }
+  }
+#endif
+
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
@@ -2208,6 +2288,11 @@
         [this](const Cue& cue) {
           return resolvedCueFilesystemPathString(cue, currentProjectFile_);
         }
+#if DECKBOY_INPROC_DECODE
+        ,
+        // Deck engines decode zero-copy onto the program output's device.
+        [this]() { return primaryOutputDecodeDevice(); }
+#endif
       );
     }
     if (oldStream) {
@@ -3457,6 +3542,14 @@
       destroyOutputRuntime(runtime);
       return false;
     }
+#if DECKBOY_INPROC_DECODE
+    // Cache the renderer's D3D11 device for zero-copy decode targeting and
+    // per-frame device-match checks (null for the software renderer).
+    runtime.rendererD3DDevice = deckboy::libav::rendererD3D11Device(runtime.outputRenderer);
+    // Output topology changed — decks decoding zero-copy against a previous
+    // output device must restart onto the new one (or CPU mode) next tick.
+    scheduleDecodeDeviceReconcile();
+#endif
 
     if (!configureOutputCompositor(outputIndex)) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "compositor init failed");
