@@ -2606,6 +2606,22 @@ void normalizeProject(Project& project) {
   for (size_t index = 0; index < project.decks.size(); ++index) {
     normalizeDeck(project.decks[index], static_cast<int>(index));
   }
+  // Migration (v0.78.6): Pocket Test carries the A/V sync pop, but pattern
+  // cues created before v0.78.5 were hard-muted by addPatternCue and had
+  // hasAudio=false (which hides the audio controls, so the mute couldn't
+  // even be lifted). hasAudio=false is the "never migrated" marker: flip
+  // such cues to audible once; operator mutes made afterwards persist
+  // because they leave hasAudio=true.
+  for (Deck& deck : project.decks) {
+    for (Cue& cue : deck.cues) {
+      if (cue.kind == CueKind::Pattern &&
+          stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "pocket-test" &&
+          !cue.hasAudio) {
+        cue.hasAudio = true;
+        cue.audioEnabled = true;
+      }
+    }
+  }
   for (size_t index = 0; index < project.decks.size(); ++index) {
     Deck& deck = project.decks[index];
     if (deck.outputRouteDeckIndex < 0 ||
@@ -5912,6 +5928,9 @@ int runDeckboyMain(int argc, char** argv) {
       }
     }
     return App::runPatternDump(argv[2], argv[3], dumpW, dumpH, dumpT);
+  }
+  if (argc > 1 && std::string_view(argv[1]) == "--sync-pop-test") {
+    return App::runSyncPopTest();
   }
   if (argc > 2 && std::string_view(argv[1]) == "--decode-bench") {
     double benchSeconds = 10.0;
