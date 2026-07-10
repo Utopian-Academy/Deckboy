@@ -3566,8 +3566,10 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     }
   }
 
-  // Flashing ? block: face alternates white/black at ~30 Hz. Even shimmer =
-  // healthy cadence; beating or freezing = dropped/doubled frames.
+  // ? block cadence check: a single-pixel checkerboard that INVERTS at
+  // ~30 Hz. High spatial frequency reads as a soft shimmer (not a strobe —
+  // a full-square flash at that rate is a photosensitivity hazard); dropped
+  // or doubled frames make the shimmer visibly freeze or beat.
   {
     int s = std::max(12, H * 45 / 1000);
     int qx = W * 61 / 100;
@@ -3577,8 +3579,13 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     put(qx + s + u - 1, qy - u, gbInk);
     put(qx - u, qy + s + u - 1, gbInk);
     put(qx + s + u - 1, qy + s + u - 1, gbInk);
-    bool flickOn = (static_cast<long long>(std::floor(t * 30.0)) & 1) != 0;
-    rect(qx, qy, s, s, flickOn ? white : black);
+    int flickPhase = static_cast<int>(static_cast<long long>(std::floor(t * 30.0)) & 1);
+    for (int y = 0; y < s; ++y) {
+      for (int x = 0; x < s; ++x) {
+        Uint8 v = (((x + y) & 1) == flickPhase) ? 255 : 0;
+        put(qx + x, qy + y, SDL_Color {v, v, v, 255});
+      }
+    }
     // "?" in mid grey so it reads in both phases without biasing the flash
     const std::uint8_t q[5] = {7, 1, 2, 0, 2};
     int gs = std::max(1, s / 7);
