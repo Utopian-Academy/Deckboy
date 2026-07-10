@@ -91,17 +91,24 @@ class MediaEngine {
   // decode in-process to CPU frames; with one, NV12 video stays GPU-resident
   // end-to-end (zero-copy). Only meaningful when DECKBOY_INPROC_DECODE.
   using DecodeDeviceProvider = std::function<void*()>;
+  // Optional provider of the CURRENT program-output raster in pixels.
+  // Patterns build at this size every rebuild, so they stay pixel-mapped to
+  // the selected display even when it changes mid-show. {0,0} / no provider
+  // falls back to the engine's own renderer size.
+  using OutputSizeProvider = std::function<std::pair<int, int>()>;
 
   explicit MediaEngine(SDL_Renderer* outputRenderer,
                        SDL_AudioStream* audioStream,
                        AudioTapCallback audioTap = {},
                        CuePathResolver cuePathResolver = {},
-                       DecodeDeviceProvider decodeDeviceProvider = {})
+                       DecodeDeviceProvider decodeDeviceProvider = {},
+                       OutputSizeProvider outputSizeProvider = {})
     : outputRenderer_(outputRenderer),
       audioStream_(audioStream),
       audioTap_(std::move(audioTap)),
       cuePathResolver_(std::move(cuePathResolver)),
-      decodeDeviceProvider_(std::move(decodeDeviceProvider)) {}
+      decodeDeviceProvider_(std::move(decodeDeviceProvider)),
+      outputSizeProvider_(std::move(outputSizeProvider)) {}
 
   ~MediaEngine();  // calls stopAll() to clean up threads and processes
 
@@ -258,6 +265,7 @@ class MediaEngine {
   static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);   // crosshatch grid
   static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0); // checkerboard
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
+  static void buildPocketTestCard(DecodedFrame& frame, double t);                      // scene cycle + crossfade + instrumentation
   static void drawPocketTestCardOverlay(DecodedFrame& frame, double t, int scene);     // test-card instrumentation (pocket-test only)
 
   // -- State: core references --------------------------------------------------
@@ -392,6 +400,7 @@ class MediaEngine {
   std::unique_ptr<deckboy::libav::AudioPipeline> audioPipeline_;
 #endif
   DecodeDeviceProvider decodeDeviceProvider_;
+  OutputSizeProvider outputSizeProvider_;
   bool inprocDecodeActive_ = false;          // active cue decodes in-process
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced

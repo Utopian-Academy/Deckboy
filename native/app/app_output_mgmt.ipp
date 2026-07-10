@@ -2252,6 +2252,33 @@
   }
 #endif
 
+  // The pixel raster of the display the operator currently has the program
+  // output on: first enabled window-type output's live renderer size.
+  // Patterns build at this size so their pixel-precision instruments stay
+  // 1:1 with the physical display, tracking display switches automatically.
+  std::pair<int, int> primaryOutputRasterSize() {
+    std::pair<int, int> fallback {0, 0};
+    for (size_t i = 0; i < outputRuntimes_.size() && i < project_.outputs.size(); ++i) {
+      OutputRuntime& runtime = outputRuntimes_[i];
+      if (!runtime.outputRenderer) {
+        continue;
+      }
+      int rw = 0;
+      int rh = 0;
+      if (!SDL_GetCurrentRenderOutputSize(runtime.outputRenderer, &rw, &rh) || rw <= 0 || rh <= 0) {
+        continue;
+      }
+      const OutputTarget& output = project_.outputs[i];
+      if (output.enabled && output.outputType != "stream") {
+        return {rw, rh};
+      }
+      if (fallback.first == 0) {
+        fallback = {rw, rh};
+      }
+    }
+    return fallback;
+  }
+
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
@@ -2287,12 +2314,15 @@
         },
         [this](const Cue& cue) {
           return resolvedCueFilesystemPathString(cue, currentProjectFile_);
-        }
+        },
 #if DECKBOY_INPROC_DECODE
-        ,
         // Deck engines decode zero-copy onto the program output's device.
-        [this]() { return primaryOutputDecodeDevice(); }
+        [this]() { return primaryOutputDecodeDevice(); },
+#else
+        MediaEngine::DecodeDeviceProvider {},
 #endif
+        // Patterns build pixel-mapped to the live program-output raster.
+        [this]() { return primaryOutputRasterSize(); }
       );
     }
     if (oldStream) {
