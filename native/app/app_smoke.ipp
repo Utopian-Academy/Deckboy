@@ -878,6 +878,63 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runSyncPopTest — `--sync-pop-test`
+  //
+  // Drives the real MediaEngine pocket-test sync-pop path against the real
+  // default audio device for ~2.5 s and reports whether samples flowed
+  // (audible as the once-per-second pop). Diagnoses "no audio from the test
+  // card" reports: PASS here means the engine path works and the problem is
+  // the cue's audio toggle / device routing; FAIL means the synth path is
+  // broken in code.
+  // ---------------------------------------------------------------------------
+  static int runSyncPopTest() {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+      std::cout << "sync-pop-test: SDL init failed: " << SDL_GetError() << '\n';
+      return 1;
+    }
+    SDL_AudioSpec spec {};
+    spec.format = SDL_AUDIO_S16;
+    spec.channels = 2;
+    spec.freq = 48000;
+    SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(
+      SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
+    if (!stream) {
+      std::cout << "sync-pop-test: no audio device: " << SDL_GetError() << '\n';
+      SDL_Quit();
+      return 1;
+    }
+    std::size_t tapSamples = 0;
+    MediaEngine engine(nullptr, stream,
+                       [&tapSamples](const std::vector<std::int16_t>& samples) {
+                         tapSamples += samples.size();
+                       });
+    Cue cue;
+    cue.kind = CueKind::Pattern;
+    cue.name = "sync-pop-test";
+    cue.path = "pattern://pocket-test";
+    cue.width = 320;
+    cue.height = 180;
+    cue.audioEnabled = true;
+    engine.loadCue(&cue, true);
+    int maxQueued = 0;
+    Uint64 start = SDL_GetTicks();
+    while (SDL_GetTicks() - start < 2500) {
+      engine.update();
+      maxQueued = std::max(maxQueued, SDL_GetAudioStreamQueued(stream));
+      SDL_Delay(4);
+    }
+    engine.stopAll();
+    SDL_DestroyAudioStream(stream);
+    SDL_Quit();
+    std::cout << "sync-pop-test: tap-samples=" << tapSamples
+              << " max-queued-bytes=" << maxQueued
+              << " => " << ((tapSamples > 0 && maxQueued > 0) ? "PASS (pop path works)"
+                                                              : "FAIL (synth path broken)")
+              << '\n';
+    return (tapSamples > 0 && maxQueued > 0) ? 0 : 1;
+  }
+
+  // ---------------------------------------------------------------------------
   // runPatternDump — `--pattern-dump <pattern-id> <out.ppm> [WxH] [t]`
   //
   // Renders one frame of a procedural pattern to a binary PPM for visual
