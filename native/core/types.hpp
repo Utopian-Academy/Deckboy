@@ -410,6 +410,10 @@ struct Project {
   // so opening an older, theme-less show doesn't override the operator's pick.
   // Saved with the show so a chosen colorway survives restarts.
   std::string theme = "";
+  // Terrarium is the Konami-code secret: it only appears in pattern pickers
+  // once unlocked, and the unlock belongs to the SAVE (cheeky secrets don't
+  // leak across shows). Saved cues load fine either way.
+  bool terrariumUnlocked = false;
   // UI scale factor — multiplies every font point size at load time so text
   // grows on HiDPI / 4K screens without ballooning the layout chrome. 1.0 is
   // the native baseline tuned for 1080p. 1.5–2.0 covers 4K desktops and
