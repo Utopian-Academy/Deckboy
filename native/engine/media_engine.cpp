@@ -675,8 +675,11 @@ void MediaEngine::update() {
   if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ && !isSourceCapturing_) {
     // Pocket-test A/V sync pop: the test card's buoy lamp flashes on each
     // wall-clock second; synthesize the matching 1 kHz pop into the deck's
-    // audio stream so flash and pop leave Deckboy together.
-    if (state_ == TransportState::Playing && audioStream_ != nullptr &&
+    // audio stream so flash and pop leave Deckboy together. Keyed to the
+    // VISUAL being live (the card animates even while held/paused), not to
+    // transport state — if the lamp is flashing on the output, it pops;
+    // STOP-dark clears the frame and silences it.
+    if (displayFrame_.has_value() && audioStream_ != nullptr &&
         activeCue_->kind == CueKind::Pattern && activeCue_->audioEnabled &&
         stripPatternMotionSuffix(normalizePatternTypeId(activeCue_->path)) == "pocket-test") {
       queuePocketSyncAudio();
@@ -1667,6 +1670,14 @@ void MediaEngine::stopImageThread() {
 // Used by decode functions to size frames appropriately when the cue doesn't
 // specify explicit dimensions (e.g. un-ingested cues, live streams).
 std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
+  // The app-provided program-output raster wins: patterns must stay
+  // pixel-mapped to the display the operator actually selected, live.
+  if (outputSizeProvider_) {
+    auto [pw, ph] = outputSizeProvider_();
+    if (pw > 0 && ph > 0) {
+      return {pw, ph};
+    }
+  }
   int w = kOutputWidth;
   int h = kOutputHeight;
   if (outputRenderer_) {
@@ -3241,13 +3252,41 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
     rect(8 + i * barW + 2, pulseY, barW - 6, 1, SDL_Color {255, 255, 255, 255});
   }
 
-  // pocket-test proper (the auto-cycling default) is Deckboy's working test
-  // card: the scene stays as the living backdrop and gets real broadcast
-  // instrumentation drawn over it. The forced-scene variants (pocket-day &
-  // friends) stay clean so they remain usable as backgrounds.
-  if (forcedScene < 0 || forcedScene > 3) {
-    drawPocketTestCardOverlay(frame, t, scene);
+}
+
+// ---------------------------------------------------------------------------
+// buildPocketTestCard — The auto-cycling test card: scene cycle with a
+// crossfade between scenes (hard palette cuts read as a glitch on a test
+// pattern), then the diegetic instrumentation drawn over the blended scene
+// so the chrome never fades. The forced-scene variants (pocket-day &
+// friends) stay clean backgrounds and never come through here.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildPocketTestCard(DecodedFrame& frame, double t) {
+  constexpr double kSceneSeconds = 14.0;
+  constexpr double kBlendSeconds = 1.4;
+  double cycle = std::fmod(std::max(0.0, t), kSceneSeconds * 4.0);
+  int scene = static_cast<int>(cycle / kSceneSeconds) % 4;
+  double inScene = cycle - scene * kSceneSeconds;
+
+  buildPocketTest(frame, t, scene);
+  if (inScene > kSceneSeconds - kBlendSeconds) {
+    double alpha = (inScene - (kSceneSeconds - kBlendSeconds)) / kBlendSeconds;
+    DecodedFrame next;
+    next.width = frame.width;
+    next.height = frame.height;
+    next.pixels.assign(frame.pixels.size(), 255);
+    buildPocketTest(next, t, (scene + 1) % 4);
+    const int mix = static_cast<int>(std::lround(alpha * 256.0));
+    for (std::size_t i = 0; i + 3 < frame.pixels.size(); i += 4) {
+      frame.pixels[i + 0] = static_cast<Uint8>((frame.pixels[i + 0] * (256 - mix) + next.pixels[i + 0] * mix) >> 8);
+      frame.pixels[i + 1] = static_cast<Uint8>((frame.pixels[i + 1] * (256 - mix) + next.pixels[i + 1] * mix) >> 8);
+      frame.pixels[i + 2] = static_cast<Uint8>((frame.pixels[i + 2] * (256 - mix) + next.pixels[i + 2] * mix) >> 8);
+    }
+    if (alpha > 0.5) {
+      scene = (scene + 1) % 4;  // label the incoming scene past the midpoint
+    }
   }
+  drawPocketTestCardOverlay(frame, t, scene);
 }
 
 // ---------------------------------------------------------------------------
@@ -3318,22 +3357,25 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
 
   const SDL_Color white {255, 255, 255, 255};
   const SDL_Color black {0, 0, 0, 255};
-  // Game Boy-era dialog chrome: cream panels, ink-navy borders and text,
-  // a red accent — the card should read like a Pokémon menu, not a scope.
-  // Only the CHROME uses this palette; measurement patches stay exact.
-  const SDL_Color gbCream {248, 244, 216, 255};
-  const SDL_Color gbShade {200, 192, 160, 255};
-  const SDL_Color gbInk {40, 40, 64, 255};
-  const SDL_Color gbRed {200, 64, 48, 255};
+  // GBA Pokémon Emerald dialog chrome: white window, dark-gray outline with
+  // a teal beveled frame band, dark-gray text with the signature light drop
+  // shadow, red continue-cursor. Only the CHROME uses this palette;
+  // measurement patches stay exact.
+  const SDL_Color gbCream {252, 252, 252, 255};   // window fill
+  const SDL_Color gbInk {64, 64, 72, 255};        // GBA dark gray (outline/text/accents)
+  const SDL_Color gbTextShadow {200, 204, 208, 255};
+  const SDL_Color gbRed {216, 72, 64, 255};       // Emerald red (names, cursor)
 
-  // Classic dialog-box frame: cream fill, chunky ink border with stepped
-  // (rounded) corners and an inner highlight/shade — border thickness rides
-  // the proportional unit so it stays Game Boy-chunky at any raster.
+  // GBA window frame (Emerald's default message frame): white fill inside a
+  // dark-gray rounded outline with a teal beveled band — light on top/left,
+  // deeper on bottom/right. Border thickness rides the proportional unit.
   const int u = std::max(1, H / 240);  // proportional unit (3 at 720p)
   auto gbBox = [&](int x, int y, int w, int h) {
     const int b = u;
+    const SDL_Color bandLight {168, 224, 216, 255};
+    const SDL_Color bandDeep {88, 168, 160, 255};
     rect(x + b, y + b, w - 2 * b, h - 2 * b, gbCream);
-    rect(x + 2 * b, y, w - 4 * b, b, gbInk);           // outer border, corners cut
+    rect(x + 2 * b, y, w - 4 * b, b, gbInk);           // outer outline, corners cut
     rect(x + 2 * b, y + h - b, w - 4 * b, b, gbInk);
     rect(x, y + 2 * b, b, h - 4 * b, gbInk);
     rect(x + w - b, y + 2 * b, b, h - 4 * b, gbInk);
@@ -3341,10 +3383,10 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     rect(x + w - 2 * b, y + b, b, b, gbInk);
     rect(x + b, y + h - 2 * b, b, b, gbInk);
     rect(x + w - 2 * b, y + h - 2 * b, b, b, gbInk);
-    rect(x + 2 * b, y + b, w - 4 * b, b, white);       // inner highlight (top/left)
-    rect(x + b, y + 2 * b, b, h - 4 * b, white);
-    rect(x + 2 * b, y + h - 2 * b, w - 4 * b, b, gbShade);  // inner shade (bottom/right)
-    rect(x + w - 2 * b, y + 2 * b, b, h - 4 * b, gbShade);
+    rect(x + 2 * b, y + b, w - 4 * b, b, bandLight);   // teal bevel band
+    rect(x + b, y + 2 * b, b, h - 4 * b, bandLight);
+    rect(x + 2 * b, y + h - 2 * b, w - 4 * b, b, bandDeep);
+    rect(x + w - 2 * b, y + 2 * b, b, h - 4 * b, bandDeep);
   };
 
 
@@ -3381,6 +3423,7 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
   auto textWidth = [&](const std::string& s, int scale) {
     return static_cast<int>(s.size()) * 4 * scale - scale;
   };
+  // GBA text: every glyph carries the signature light-gray drop shadow.
   auto drawText = [&](int x, int y, int scale, const std::string& s, const SDL_Color& color) {
     int cx = x;
     for (char c : s) {
@@ -3388,6 +3431,7 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
       for (int ry = 0; ry < 5; ++ry) {
         for (int rx = 0; rx < 3; ++rx) {
           if (rows[ry] & (4 >> rx)) {
+            rect(cx + rx * scale + scale, y + ry * scale + scale, scale, scale, gbTextShadow);
             rect(cx + rx * scale, y + ry * scale, scale, scale, color);
           }
         }
@@ -3576,9 +3620,7 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     rect(tx + tw - u - 1, ty + th, u + 1, u + 1, woodDark);
   }
 
-  // Fence + runner: posts at exact 10% intervals, and a jogger crossing the
-  // full width at constant velocity (3 s per screen) — judder shows as
-  // jumps against the posts.
+  // Fence posts at exact 10% intervals (the judder ruler)…
   {
     int postH = std::max(8, H * 4 / 100);
     // On the beach, above the scene's rainbow footer strip.
@@ -3590,17 +3632,22 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
       rect(px, postY, postW, 1, SDL_Color {200, 168, 120, 255});
     }
     rect(0, postY + postH / 3, W, 1, wood);                      // rail
-    // Runner sprite: red shirt, two-frame legs at 8 Hz. Tall enough to read
-    // from the back of a venue.
-    double runPhase = std::fmod(t / 3.0, 1.0);
-    int rx = static_cast<int>(std::lround(runPhase * (W + 12 * u))) - 6 * u;
-    int ry = postY + postH - 10 * u;
-    bool stride = (static_cast<long long>(std::floor(t * 8.0)) & 1) != 0;
-    rect(rx + u / 2, ry - 3 * u, 3 * u, 3 * u, SDL_Color {252, 216, 168, 255});  // head
-    rect(rx, ry, 4 * u, 4 * u, gbRed);                                            // shirt
-    rect(rx + (stride ? -u : 4 * u), ry + u, u, 2 * u, gbRed);                    // trailing arm
-    rect(rx + (stride ? -u : u * 2), ry + 4 * u, u, 3 * u, gbInk);                // legs
-    rect(rx + (stride ? u * 3 : u), ry + 4 * u, u, 3 * u, gbInk);
+  }
+
+  // …and a skiff sailing the full width at constant velocity (4 s per
+  // screen). Judder in the chain shows as hitches in its glide against the
+  // fence ticks below.
+  {
+    double sail = std::fmod(t / 4.0, 1.0);
+    int bx = static_cast<int>(std::lround(sail * (W + 24 * u))) - 12 * u;
+    int by = H * 56 / 100 + static_cast<int>(std::lround(std::sin(t * 1.7) * u));  // bob
+    rect(bx - 4 * u, by + 2 * u, 8 * u, u, SDL_Color {20, 60, 100, 255});  // waterline shadow
+    rect(bx - 5 * u, by, 10 * u, 2 * u, woodDark);                          // hull
+    rect(bx, by - 7 * u, u, 7 * u, gbInk);                                  // mast
+    for (int row = 0; row < 5; ++row) {                                     // sail
+      rect(bx + u, by - 7 * u + row * u, (row + 2) * u, u, white);
+    }
+    rect(bx - 2 * u, by - 8 * u, 2 * u, u, gbRed);                          // pennant
   }
 
   // ── Pixel-mapping border: outer 1px checkerboard ring + inner dark ring ──
@@ -3679,18 +3726,62 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
     int plateX = W * 5 / 100 + 3;
     int plateY = H * 5 / 100 + 3;
     gbBox(plateX, plateY, plateW, plateH);
-    drawText(plateX + pd, plateY + pd, scale, line1, gbRed);
+    drawText(plateX + pd, plateY + pd, scale, line1, gbRed);  // names print red in Emerald
     drawText(plateX + pd, plateY + pd + lineH, scale, line2, gbInk);
     drawText(plateX + pd, plateY + pd + lineH * 2, scale, line3, gbInk);
-    // Blinking continue-cursor (also a cheap refresh check — it must blink
-    // steadily at 1 Hz on a healthy output).
+    // Blinking continue-cursor — red, like Emerald's (and a 1 Hz refresh check).
     if ((static_cast<long long>(std::floor(t * 2.0)) & 1) == 0) {
       int ax = plateX + plateW - pd - 5 * scale;
       int ay = plateY + plateH - pd - 3 * scale;
       for (int row = 0; row < 3; ++row) {
-        rect(ax + row * scale, ay + row * scale, (5 - 2 * row) * scale, scale, gbInk);
+        rect(ax + row * scale, ay + row * scale, (5 - 2 * row) * scale, scale, gbRed);
       }
     }
+  }
+
+  // ── Emerald battle-style status panel (top-right) ──
+  // HP drains across the current 14 s scene (green→yellow→red — it's the
+  // scene timer), EXP fills every second in step with the buoy's sync pop.
+  {
+    int scale = u;
+    int pd = 2 * u + 3;
+    int lineH = 6 * scale + 2;
+    int panelW = 4 * scale * 14 + pd * 2;  // fits "SCENE" + bars
+    int panelH = lineH + (3 * scale + 4) * 2 + pd * 2;
+    int panelX = W * 95 / 100 - panelW - 3;
+    int panelY = H * 5 / 100 + 3;
+    gbBox(panelX, panelY, panelW, panelH);
+
+    static const char* kSceneNames[4] = {"DAY", "SUNSET", "NIGHT", "STORM"};
+    double inScene = std::fmod(std::max(0.0, t), 14.0);
+    drawText(panelX + pd, panelY + pd, scale,
+             std::string(kSceneNames[std::clamp(scene, 0, 3)]) + " LV14", gbInk);
+
+    auto statBar = [&](int bx, int by, int bw, int bh, double frac, const SDL_Color& fill) {
+      rect(bx - 1, by - 1, bw + 2, bh + 2, gbInk);
+      rect(bx, by, bw, bh, SDL_Color {40, 48, 48, 255});
+      int fw = static_cast<int>(std::lround(std::clamp(frac, 0.0, 1.0) * bw));
+      if (fw > 0) {
+        rect(bx, by, fw, bh, fill);
+        rect(bx, by, fw, 1, SDL_Color {
+          static_cast<Uint8>(std::min(255, fill.r + 48)),
+          static_cast<Uint8>(std::min(255, fill.g + 48)),
+          static_cast<Uint8>(std::min(255, fill.b + 48)), 255});
+      }
+    };
+
+    double hpFrac = 1.0 - inScene / 14.0;
+    SDL_Color hpColor = hpFrac > 0.5 ? SDL_Color {88, 208, 80, 255}
+                      : hpFrac > 0.2 ? SDL_Color {224, 192, 32, 255}
+                                     : SDL_Color {216, 72, 48, 255};
+    int rowY = panelY + pd + lineH;
+    int barX = panelX + pd + 4 * scale * 3;
+    int barW = panelW - pd * 2 - 4 * scale * 3;
+    drawText(panelX + pd, rowY, scale, "HP", SDL_Color {224, 160, 32, 255});
+    statBar(barX, rowY + scale, barW, 3 * scale, hpFrac, hpColor);
+    rowY += 3 * scale + 4 + lineH / 2;
+    drawText(panelX + pd, rowY, scale, "EXP", SDL_Color {64, 120, 232, 255});
+    statBar(barX, rowY + scale, barW, 2 * scale, std::fmod(t, 1.0), SDL_Color {64, 120, 232, 255});
   }
 }
 
@@ -3709,14 +3800,13 @@ void MediaEngine::drawPocketTestCardOverlay(DecodedFrame& frame, double t, int s
 // ---------------------------------------------------------------------------
 std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, double animTime,
                                                            int fallbackWidth, int fallbackHeight) {
-  int sourceW = cue.width > 0 ? cue.width : fallbackWidth;
-  int sourceH = cue.height > 0 ? cue.height : fallbackHeight;
-  // Legacy compatibility: cues stored with default 1280x720 should adapt to actual output
-  bool legacyRaster = cue.width == kOutputWidth && cue.height == kOutputHeight;
-  if (legacyRaster && (fallbackWidth != kOutputWidth || fallbackHeight != kOutputHeight)) {
-    sourceW = fallbackWidth;
-    sourceH = fallbackHeight;
-  }
+  // Patterns ALWAYS build at the live output raster (the fallback hint —
+  // rebuildPatternFrame feeds it the current program-output size). A test
+  // pattern that isn't pixel-mapped to the selected display is lying, and
+  // backgrounds want native resolution too. The cue's stored size is only
+  // a last resort when no hint exists.
+  int sourceW = fallbackWidth > 0 ? fallbackWidth : cue.width;
+  int sourceH = fallbackHeight > 0 ? fallbackHeight : cue.height;
 
   // Allocate the frame buffer (minimum 320x180 for readability)
   DecodedFrame frame;
@@ -3796,8 +3886,9 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   } else if (basePatternType == "pocket-storm") {
     buildPocketTest(frame, animTime, 3);
   } else {
-    // Default / "pocket-test": auto-cycle through all 4 scenes
-    buildPocketTest(frame, animTime, -1);
+    // Default / "pocket-test": the test card — scene cycle with crossfade
+    // plus the diegetic instrumentation overlay.
+    buildPocketTestCard(frame, animTime);
   }
 
   return frame;
