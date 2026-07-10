@@ -235,14 +235,18 @@
     }
 
     {
+      // Diagonal drift (v0.78.7): crosshatch loops one cell per 8 s,
+      // checkerboard one period per 10 s — X and Y in lockstep (45°).
       Cue cue;
       cue.kind = CueKind::Pattern;
       cue.path = "pattern://crosshatch-motion";
       cue.width = 320;
       cue.height = 180;
       auto first = MediaEngine::buildPatternFrame(cue, 0.0, cue.width, cue.height);
-      auto looped = MediaEngine::buildPatternFrame(cue, 4.0, cue.width, cue.height);
-      expect(framesMatch(first, looped), "crosshatch motion loop frame");
+      auto looped = MediaEngine::buildPatternFrame(cue, 8.0, cue.width, cue.height);
+      auto mid = MediaEngine::buildPatternFrame(cue, 4.0, cue.width, cue.height);
+      expect(framesMatch(first, looped) && !framesMatch(first, mid),
+             "crosshatch motion drifts diagonally and loops at 8s");
     }
 
     {
@@ -252,8 +256,12 @@
       cue.width = 320;
       cue.height = 180;
       auto first = MediaEngine::buildPatternFrame(cue, 0.0, cue.width, cue.height);
-      auto looped = MediaEngine::buildPatternFrame(cue, 4.0, cue.width, cue.height);
-      expect(framesMatch(first, looped), "checkerboard motion loop frame");
+      auto looped = MediaEngine::buildPatternFrame(cue, 10.0, cue.width, cue.height);
+      // Probe at quarter period: a half-period diagonal shift maps a
+      // checkerboard onto itself, so t=5 would falsely match t=0.
+      auto quarter = MediaEngine::buildPatternFrame(cue, 2.5, cue.width, cue.height);
+      expect(framesMatch(first, looped) && !framesMatch(first, quarter),
+             "checkerboard motion drifts diagonally and loops at 10s");
     }
 
     {
