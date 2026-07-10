@@ -2861,6 +2861,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
+  output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
@@ -3161,6 +3162,8 @@ Project loadProject(const fs::path& projectFile) {
       project.splashCharacter = v.empty() ? std::string("deckbot") : v;
     } else if (fields[0] == "theme") {
       project.theme = safeString(fields, 1);
+    } else if (fields[0] == "terrarium_unlocked") {
+      project.terrariumUnlocked = safeBool(fields, 1, false);
     } else if (fields[0] == "geometry_aspect_link") {
       project.geometryAspectLinked = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_scale") {
