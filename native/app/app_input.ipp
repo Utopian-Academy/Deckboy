@@ -206,7 +206,7 @@
         openDropdown(
           "cue.pattern",
           cuePatternTypeDropdownRect_,
-          patternBaseTypes(),  // base types only — motion is the row toggle's job
+          patternPickerTypes(),  // base types (+ Terrarium once unlocked) — motion is the row toggle's job
           normalizePatternTypeId(cue->path),
           [this](const std::string& nextType) {
             applyPatternTypeToSelectedCue(nextType, true);

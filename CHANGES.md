@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.7 (Pocket Test: PM5544 edition; pattern policy pass)
+
+- **Pocket Test rebuilt as a proper broadcast test card** (usefulness
+  paramount): full-frame crosshatch grid, 75% color bars + grayscale
+  staircase across the top, ramp + PLUGE/fine-detail/shimmer patch row
+  across the bottom, slow diagonal sweep over the grid, Emerald-style ID
+  box (version, raster, clock, scene) — and the island scene lives INSIDE
+  the center circle, Test Card F style, still cycling day/sunset/night/
+  storm with the crossfade. The sync beacon sits at the circle's
+  12 o'clock, flashing in the 80 ms pop window; crosshair at dead center.
+- **Motion policy: all pattern motion is slow, smooth, and diagonal.**
+  Crosshatch drifts one cell per 8 s at 45°, checkerboard one period per
+  10 s, SMPTE bars get a 12 s diagonal sweep line instead of scan lines.
+- **Solid color patterns no longer offer a motion variant** (a pulsing
+  reference level is a contradiction); legacy saves degrade to the static
+  color.
+- **Terrarium is a secret again:** hidden from pattern pickers unless the
+  Konami code has unlocked it in the current save (`terrarium_unlocked`
+  persists with the show). Saved terrarium cues load regardless.
+
 ## 2026-07-09 — v0.78.6 (Pocket Test: audible for real, strobe defused)
 
 - **Existing Pocket Test cues migrate to audible on load.** v0.78.5 fixed

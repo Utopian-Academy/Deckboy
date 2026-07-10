@@ -265,8 +265,9 @@ class MediaEngine {
   static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);   // crosshatch grid
   static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0); // checkerboard
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
-  static void buildPocketTestCard(DecodedFrame& frame, double t);                      // scene cycle + crossfade + instrumentation
-  static void drawPocketTestCardOverlay(DecodedFrame& frame, double t, int scene);     // test-card instrumentation (pocket-test only)
+  static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: scene cycle inside the circle
+  static void drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sceneFrame,
+                                 double t, int scene);                                 // card compositor (grid, patches, circle, ID)
 
   // -- State: core references --------------------------------------------------
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit

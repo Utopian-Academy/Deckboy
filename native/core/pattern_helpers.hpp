@@ -74,16 +74,15 @@ inline std::string normalizePatternTypeId(std::string value) {
     value = "crosshatch-motion";
   } else if (value == "checkerboard-animated") {
     value = "checkerboard-motion";
-  } else if (value == "full-white-animated") {
-    value = "full-white-motion";
-  } else if (value == "full-black-animated") {
-    value = "full-black-motion";
-  } else if (value == "full-red-animated") {
-    value = "full-red-motion";
-  } else if (value == "full-green-animated") {
-    value = "full-green-motion";
-  } else if (value == "full-blue-animated") {
-    value = "full-blue-motion";
+  }
+  // Solid colors no longer have motion variants (v0.78.7): legacy saves with
+  // pulsing solids degrade gracefully to the static color.
+  if (value.rfind("full-", 0) == 0) {
+    if (endsWith(value, "-motion")) {
+      value = value.substr(0, value.size() - 7);
+    } else if (endsWith(value, "-animated")) {
+      value = value.substr(0, value.size() - 9);
+    }
   }
   return value;
 }
@@ -104,9 +103,7 @@ inline std::string stripPatternMotionSuffix(std::string typeId) {
 // Pocket scenes are always animated and don't use the motion suffix.
 inline bool patternTypeSupportsMotion(const std::string& typeId) {
   std::string base = stripPatternMotionSuffix(typeId);
-  return base == "smpte-bars" || base == "crosshatch" || base == "checkerboard" ||
-         base == "full-white" || base == "full-black" || base == "full-red" ||
-         base == "full-green" || base == "full-blue";
+  return base == "smpte-bars" || base == "crosshatch" || base == "checkerboard";
 }
 
 // Check if a pattern type is inherently animated (changes over time).

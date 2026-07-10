@@ -1417,6 +1417,7 @@
   // also available openly in the pattern picker; the egg keeps the ritual.
   // ↑↑↓↓←→←→BA + Start on the control window.
   void unlockTerrariumSource() {
+    project_.terrariumUnlocked = true;  // persists with the save; picker lists it now
     addPatternCue("terrarium");
     Deck& deck = focusedDeckMutable();
     if (!deck.cues.empty()) {
@@ -1627,9 +1628,10 @@
     // Operator-facing picker list. One pocket entry only — it cycles
     // day/sunset/night/storm itself; the forced-scene ids stay loadable as
     // legacy (see patternTypes). Motion belongs to the toggle, not the list.
+    // Terrarium is deliberately absent: it's the Konami secret, listed only
+    // once unlocked in the current save (see patternPickerTypes).
     static const std::vector<std::pair<std::string, std::string>> types {
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
-      {"terrarium",     "Terrarium (living ecosystem)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},
@@ -1642,12 +1644,24 @@
     return types;
   }
 
+  // What the operator actually sees in pickers: the base list, plus the
+  // Terrarium secret once the Konami code has unlocked it in this save.
+  std::vector<std::pair<std::string, std::string>> patternPickerTypes() const {
+    std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
+    if (project_.terrariumUnlocked) {
+      list.insert(list.begin() + 1, {"terrarium", "Terrarium (living ecosystem)"});
+    }
+    return list;
+  }
+
   // Full validation list: base types + legacy ids ("-motion" variants and
   // the forced-scene pocket types). Kept so old show files and remote
   // PATTERN commands stay valid — but pickers list patternBaseTypes() only.
   static const std::vector<std::pair<std::string, std::string>>& patternTypes() {
     static const std::vector<std::pair<std::string, std::string>> types = [] {
       std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
+      // Always VALID (old saves, remote commands) even while picker-hidden.
+      list.emplace_back("terrarium",     "Terrarium (living ecosystem)");
       list.emplace_back("pocket-day",    "Pocket Test (day)");
       list.emplace_back("pocket-sunset", "Pocket Test (sunset)");
       list.emplace_back("pocket-night",  "Pocket Test (night)");
@@ -1739,7 +1753,7 @@
     std::string currentType = normalizePatternTypeId(cue->path);
     bool motion = endsWith(currentType, "-motion");
     std::string baseType = stripPatternMotionSuffix(currentType);
-    const auto& bases = patternBaseTypes();
+    const auto bases = patternPickerTypes();
     if (bases.empty()) {
       return;
     }
