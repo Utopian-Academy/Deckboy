@@ -1,5 +1,32 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.5 (Pocket Test field notes: audio, scaling, Emerald)
+
+Four fixes from James's first hands-on with the test card:
+
+- **The sync pop actually plays now.** Two bugs: pattern cues were created
+  with audio muted (`addPatternCue` set `audioEnabled = false` for
+  everything), and the pop was gated on transport `Playing` while the card
+  animates even when held. Pocket Test cues now default audio ON, and the
+  pop follows the visual: if the buoy lamp is flashing on the output, it
+  pops — STOP-dark silences it.
+- **Scene transitions crossfade** (1.4 s pixel blend) instead of hard
+  palette cuts. The card chrome draws over the blend and never fades.
+- **All patterns now build pixel-mapped to the LIVE program-output
+  raster,** re-checked every rebuild — not the raster snapshotted when the
+  cue was added. Display switches mid-show retarget patterns automatically
+  (new `OutputSizeProvider` on MediaEngine). A test pattern that isn't 1:1
+  with the selected display is lying.
+- **The running guy is gone** — a skiff now sails the ocean at constant
+  velocity (4 s per screen) as the judder object, over the same 10% fence
+  ticks.
+- **Chrome restyled as GBA Pokémon Emerald** (per James: the game, not the
+  color): white windows with dark-gray outline + teal beveled frame band,
+  dark-gray text with the signature light drop shadow, red name text and
+  continue-cursor, plus an Emerald battle-style status panel — the HP bar
+  drains across each 14 s scene (green→yellow→red, doubling as the scene
+  timer) and the EXP bar fills every second in step with the buoy pop.
+
 ## 2026-07-09 — v0.78.4 (Terrarium goes native)
 
 - **Terrarium is now a first-class Deckboy generator source:**
