@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.8 (Pocket Test: the ball bounces; patterns run at display rate)
+
+- **Fixed the lag** (the v0.78.7 card pegged a full core, measured 98%):
+  animated patterns were rebuilt at the render-loop rate (240 Hz floor),
+  redrawing the entire card + scene every tick. Pattern rebuilds are now
+  locked to the **selected display's refresh rate** — or the project's
+  explicit output refresh when set — and the card is layered: the static
+  layer (grid, bars, grayscale, ramp, PLUGE/detail patches, border,
+  crosshair) is cached per raster and memcpy'd, the island scene renders at
+  a fixed internal 640x360 (chunky pixel art — nearest sampling is
+  on-brand), and only the dynamics draw per frame.
+- **The circle is now a ball.** It bounces slowly around the whole frame,
+  DVD-logo style, at constant velocity — the scene behaves as the full
+  background behind the card, and the ball is a porthole revealing whatever
+  it floats over (sky up top, beach and characters at the bottom). It
+  doubles as the smooth-motion/judder object and a burn-in rover; the A/V
+  sync beacon rides at its 12 o'clock. The alignment crosshair stays fixed
+  at frame center.
+- Motion is smoother across the board: pattern animation now steps once per
+  display frame instead of once per arbitrary throttle tick.
+
 ## 2026-07-10 — v0.78.7 (Pocket Test: PM5544 edition; pattern policy pass)
 
 - **Pocket Test rebuilt as a proper broadcast test card** (usefulness

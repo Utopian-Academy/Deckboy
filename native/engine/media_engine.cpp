@@ -951,15 +951,25 @@ void MediaEngine::render(SDL_Rect target) {
 // any pattern with the -motion suffix). The wall time drives animation phase
 // so the pattern progresses smoothly regardless of frame rate.
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
-  // Terrarium ticks at 9 TPS and renders 1600x896 — rebuilding it at the
-  // render-loop rate would burn ~1.4 GB/s in pointless frame copies. Skip
-  // rebuilds between simulation ticks.
-  if (displayFrame_ &&
-      stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "terrarium" &&
-      wallSeconds - lastTerrariumRebuildSeconds_ < (1.0 / 9.0)) {
+  // Animated patterns rebuild at the SELECTED DISPLAY's refresh rate (or
+  // the project's explicit refresh override — the app's mode provider
+  // decides), never the render-loop rate (240 Hz floor): a full-raster CPU
+  // rebuild + texture upload per loop tick pegs a core and lags the app.
+  // Terrarium is slower still: it only changes on its 9 TPS sim tick.
+  const bool isTerrarium =
+    stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "terrarium";
+  double refreshHz = 60.0;
+  if (outputSizeProvider_) {
+    OutputModeHint mode = outputSizeProvider_();
+    if (mode.refreshHz >= 1.0) {
+      refreshHz = std::clamp(mode.refreshHz, 23.0, 240.0);
+    }
+  }
+  const double minInterval = isTerrarium ? (1.0 / 9.0) : (1.0 / refreshHz);
+  if (displayFrame_ && wallSeconds - lastPatternRebuildSeconds_ < minInterval * 0.98) {
     return;
   }
-  lastTerrariumRebuildSeconds_ = wallSeconds;
+  lastPatternRebuildSeconds_ = wallSeconds;
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
   auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
   if (frame) {
@@ -1673,9 +1683,9 @@ std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
   // The app-provided program-output raster wins: patterns must stay
   // pixel-mapped to the display the operator actually selected, live.
   if (outputSizeProvider_) {
-    auto [pw, ph] = outputSizeProvider_();
-    if (pw > 0 && ph > 0) {
-      return {pw, ph};
+    OutputModeHint mode = outputSizeProvider_();
+    if (mode.width > 0 && mode.height > 0) {
+      return {mode.width, mode.height};
     }
   }
   int w = kOutputWidth;
@@ -3255,33 +3265,61 @@ void MediaEngine::buildPocketTest(DecodedFrame& frame, double t, int forcedScene
 }
 
 // ---------------------------------------------------------------------------
-// buildPocketTestCard — The Pocket Test, PM5544 edition (v0.78.7 reattempt,
-// usefulness paramount): a proper broadcast test card — crosshatch grid
-// field, patch rows, diagonal motion sweep, center circle — with the island
-// scene living INSIDE the circle (Test Card F kept a clown there; we keep
-// the island). Scenes cycle with a crossfade inside the circle. The
-// forced-scene variants (pocket-day & friends) stay clean backgrounds.
+// buildPocketTestCard — The Pocket Test, PM5544 edition v2 (v0.78.8).
+//
+// Performance architecture (the v0.78.7 card pegged a core):
+//   - The STATIC layer (grid, bars, grayscale, ramp, PLUGE/detail patches,
+//     border, corner marks, center crosshair) is rendered once per raster
+//     size into a process-wide cache and memcpy'd each rebuild.
+//   - The island scene renders at a fixed internal 640x360 raster (it's
+//     chunky pixel art — nearest sampling into the porthole is on-brand),
+//     so scene cost is constant regardless of output raster.
+//   - Only the dynamics draw per rebuild: diagonal sweep, the bouncing
+//     porthole ball, the shimmer patch, and the ID box.
+//   - Rebuild cadence is locked to the selected display's refresh rate
+//     (rebuildPatternFrame), so motion is as smooth as the output itself.
+//
+// The ball: the scene behaves as the full background BEHIND the card, and
+// the ball is a slow DVD-style bouncing porthole revealing whatever it
+// floats over — sky up top, beach and characters at the bottom. It doubles
+// as a burn-in rover and a smooth-motion object; the A/V sync beacon rides
+// at its 12 o'clock.
 // ---------------------------------------------------------------------------
 void MediaEngine::buildPocketTestCard(DecodedFrame& frame, double t) {
   constexpr double kSceneSeconds = 14.0;
   constexpr double kBlendSeconds = 1.4;
+  constexpr int kSceneW = 640;
+  constexpr int kSceneH = 360;
   double cycle = std::fmod(std::max(0.0, t), kSceneSeconds * 4.0);
   int scene = static_cast<int>(cycle / kSceneSeconds) % 4;
   double inScene = cycle - scene * kSceneSeconds;
 
-  // The living scene renders into its own frame; the card reveals it
-  // through the center circle.
+  // Static layer: cached per raster size, shared process-wide.
+  {
+    static std::mutex cacheMutex;
+    static DecodedFrame cardCache;
+    std::lock_guard<std::mutex> lock(cacheMutex);
+    if (cardCache.width != frame.width || cardCache.height != frame.height) {
+      cardCache.width = frame.width;
+      cardCache.height = frame.height;
+      cardCache.pixels.assign(frame.pixels.size(), 255);
+      drawPocketTestCardStatic(cardCache);
+    }
+    frame.pixels = cardCache.pixels;
+  }
+
+  // The living scene at its fixed internal raster (with the crossfade).
   DecodedFrame sceneFrame;
-  sceneFrame.width = frame.width;
-  sceneFrame.height = frame.height;
-  sceneFrame.pixels.assign(frame.pixels.size(), 255);
+  sceneFrame.width = kSceneW;
+  sceneFrame.height = kSceneH;
+  sceneFrame.pixels.assign(static_cast<size_t>(kSceneW) * kSceneH * 4u, 255);
   buildPocketTest(sceneFrame, t, scene);
   if (inScene > kSceneSeconds - kBlendSeconds) {
     double alpha = (inScene - (kSceneSeconds - kBlendSeconds)) / kBlendSeconds;
     DecodedFrame next;
-    next.width = frame.width;
-    next.height = frame.height;
-    next.pixels.assign(frame.pixels.size(), 255);
+    next.width = kSceneW;
+    next.height = kSceneH;
+    next.pixels.assign(sceneFrame.pixels.size(), 255);
     buildPocketTest(next, t, (scene + 1) % 4);
     const int mix = static_cast<int>(std::lround(alpha * 256.0));
     for (std::size_t i = 0; i + 3 < sceneFrame.pixels.size(); i += 4) {
@@ -3290,33 +3328,185 @@ void MediaEngine::buildPocketTestCard(DecodedFrame& frame, double t) {
       sceneFrame.pixels[i + 2] = static_cast<Uint8>((sceneFrame.pixels[i + 2] * (256 - mix) + next.pixels[i + 2] * mix) >> 8);
     }
     if (alpha > 0.5) {
-      scene = (scene + 1) % 4;  // label the incoming scene past the midpoint
+      scene = (scene + 1) % 4;
     }
   }
+
   drawPocketTestCard(frame, sceneFrame, t, scene);
 }
 
 // ---------------------------------------------------------------------------
-// drawPocketTestCard — PM5544-style card compositor. Every element is a
-// real output check:
-//
-//   - 1px checkerboard border + corner marks → pixel mapping, crop/overscan.
-//   - Crosshatch grid field                  → geometry/linearity, and the
-//                                              canvas the sweep reads against.
-//   - Slow diagonal sweep line (12 s)        → judder/motion (house motion
-//                                              rule: slow, smooth, diagonal).
-//   - 75% color bars + 100% white/black row  → color reproduction.
-//   - 11-step grayscale staircase            → gamma/levels.
-//   - Continuous ramp                        → banding.
-//   - PLUGE clusters (0/2/4% on black,
-//     100/98/96% on white)                   → black crush / white clip.
-//   - 1px checker + 1px stripe patches       → fine detail / scaling.
-//   - Phase-inverting shimmer patch (~30 Hz) → frame cadence (no strobe).
-//   - Center circle with the island scene    → the charm, plus live motion;
-//                                              crosshair at center.
-//   - Sync beacon at the circle's 12 o'clock → flashes for the 80 ms window
-//                                              the 1 kHz pop plays (A/V sync).
-//   - Emerald-style ID box                   → version, raster, clock, scene.
+// drawPocketTestCardStatic — The cacheable layer. Every element is a real
+// output check: 1px checker border + corner marks (pixel mapping, crop),
+// grid field (geometry), 75% bars (color), grayscale staircase (levels),
+// ramp (banding), PLUGE 0/2/4% + 100/98/96% (crush/clip), 1px checker +
+// stripe patches (fine detail), center crosshair (alignment).
+// ---------------------------------------------------------------------------
+void MediaEngine::drawPocketTestCardStatic(DecodedFrame& frame) {
+  const int W = frame.width;
+  const int H = frame.height;
+  const int u = std::max(1, H / 240);
+
+  auto put = [&](int x, int y, const SDL_Color& color) {
+    if (x < 0 || y < 0 || x >= W || y >= H) {
+      return;
+    }
+    size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(W) + static_cast<size_t>(x)) * 4u;
+    frame.pixels[idx + 0] = color.r;
+    frame.pixels[idx + 1] = color.g;
+    frame.pixels[idx + 2] = color.b;
+    frame.pixels[idx + 3] = color.a;
+  };
+  auto rect = [&](int x, int y, int w, int h, const SDL_Color& color) {
+    int x0 = std::max(0, x);
+    int y0 = std::max(0, y);
+    int x1 = std::min(W, x + w);
+    int y1 = std::min(H, y + h);
+    for (int yy = y0; yy < y1; ++yy) {
+      for (int xx = x0; xx < x1; ++xx) {
+        put(xx, yy, color);
+      }
+    }
+  };
+  const SDL_Color white {255, 255, 255, 255};
+  const SDL_Color black {0, 0, 0, 255};
+
+  // Grid field, anchored to frame center.
+  {
+    int cell = std::max(16, (H * 8 / 100) & ~1);
+    rect(0, 0, W, H, SDL_Color {104, 104, 104, 255});
+    for (int x = W / 2 % cell; x < W; x += cell) {
+      rect(x, 0, 1, H, white);
+    }
+    for (int y = H / 2 % cell; y < H; y += cell) {
+      rect(0, y, W, 1, white);
+    }
+  }
+
+  const int inset = 8;
+  const int barsY = H * 4 / 100;
+  const int barsH = H * 10 / 100;
+  const int stepsY = barsY + barsH + 2;
+  const int stepsH = H * 7 / 100;
+  const int rampY = H * 745 / 1000;
+  const int rampH = H * 6 / 100;
+  const int patchY = rampY + rampH + 2;
+  const int patchH = H * 7 / 100;
+  const int innerW = W - inset * 2;
+
+  auto inkFrame = [&](int x, int y, int w, int h) {
+    rect(x - 1, y - 1, w + 2, 1, black);
+    rect(x - 1, y + h, w + 2, 1, black);
+    rect(x - 1, y, 1, h, black);
+    rect(x + w, y, 1, h, black);
+  };
+
+  // Color bars: 100% white, 75% set, black.
+  {
+    const std::array<SDL_Color, 8> bars {{
+      {255, 255, 255, 255}, {191, 191, 0, 255}, {0, 191, 191, 255}, {0, 191, 0, 255},
+      {191, 0, 191, 255}, {191, 0, 0, 255}, {0, 0, 191, 255}, {0, 0, 0, 255},
+    }};
+    int bw = innerW / static_cast<int>(bars.size());
+    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
+      int x0 = inset + i * bw;
+      int x1 = (i + 1 == static_cast<int>(bars.size())) ? inset + innerW : x0 + bw;
+      rect(x0, barsY, x1 - x0, barsH, bars[i]);
+    }
+    inkFrame(inset, barsY, innerW, barsH);
+  }
+
+  // Grayscale staircase 0..100%.
+  {
+    int sw = innerW / 11;
+    for (int i = 0; i < 11; ++i) {
+      Uint8 v = static_cast<Uint8>(std::lround(i * 255.0 / 10.0));
+      int x0 = inset + i * sw;
+      int x1 = (i == 10) ? inset + innerW : x0 + sw;
+      rect(x0, stepsY, x1 - x0, stepsH, SDL_Color {v, v, v, 255});
+    }
+    inkFrame(inset, stepsY, innerW, stepsH);
+  }
+
+  // Continuous ramp (banding).
+  {
+    for (int x = 0; x < innerW; ++x) {
+      Uint8 v = static_cast<Uint8>(std::lround(x * 255.0 / std::max(1, innerW - 1)));
+      rect(inset + x, rampY, 1, rampH, SDL_Color {v, v, v, 255});
+    }
+    inkFrame(inset, rampY, innerW, rampH);
+  }
+
+  // Patch row: PLUGE black | PLUGE white | 1px checker | 1px stripes
+  // (slot 5 belongs to the dynamic shimmer).
+  {
+    int pw = innerW / 5;
+    auto patchX = [&](int i) { return inset + i * pw; };
+    rect(patchX(0), patchY, pw - 1, patchH, black);
+    int ph = std::max(2, patchH / 2);
+    int py = patchY + (patchH - ph) / 2;
+    int pq = std::max(3, (pw - 16) / 3);
+    rect(patchX(0) + 4, py, pq, ph, SDL_Color {5, 5, 5, 255});
+    rect(patchX(0) + 8 + pq, py, pq, ph, SDL_Color {10, 10, 10, 255});
+    rect(patchX(1), patchY, pw - 1, patchH, white);
+    rect(patchX(1) + 4, py, pq, ph, SDL_Color {250, 250, 250, 255});
+    rect(patchX(1) + 8 + pq, py, pq, ph, SDL_Color {245, 245, 245, 255});
+    for (int y = 0; y < patchH; ++y) {
+      for (int x = 0; x < pw - 1; ++x) {
+        Uint8 v = (((x + y) & 1) != 0) ? 255 : 0;
+        put(patchX(2) + x, patchY + y, SDL_Color {v, v, v, 255});
+      }
+      Uint8 s = ((y & 1) != 0) ? 255 : 0;
+      rect(patchX(3), patchY + y, pw - 1, 1, SDL_Color {s, s, s, 255});
+    }
+    for (int i = 0; i < 4; ++i) {
+      inkFrame(patchX(i), patchY, pw - 1, patchH);
+    }
+  }
+
+  // Center crosshair (alignment) — frame center; the ball roams free.
+  {
+    int cx = W / 2;
+    int cy = H / 2;
+    rect(cx - 8 * u, cy - 1, 16 * u + 1, 3, black);
+    rect(cx - 1, cy - 8 * u, 3, 16 * u + 1, black);
+    rect(cx - 8 * u, cy, 16 * u + 1, 1, white);
+    rect(cx, cy - 8 * u, 1, 16 * u + 1, white);
+  }
+
+  // Pixel-mapping border + corner marks.
+  for (int x = 0; x < W; ++x) {
+    Uint8 v = (x & 1) ? 255 : 0;
+    put(x, 0, SDL_Color {v, v, v, 255});
+    put(x, H - 1, SDL_Color {v, v, v, 255});
+  }
+  for (int y = 0; y < H; ++y) {
+    Uint8 v = (y & 1) ? 255 : 0;
+    put(0, y, SDL_Color {v, v, v, 255});
+    put(W - 1, y, SDL_Color {v, v, v, 255});
+  }
+  rect(1, 1, W - 2, 1, black);
+  rect(1, H - 2, W - 2, 1, black);
+  rect(1, 1, 1, H - 2, black);
+  rect(W - 2, 1, 1, H - 2, black);
+  {
+    int arm = 8 * u;
+    int th = u;
+    auto corner = [&](int x, int y, int dx, int dy) {
+      rect(std::min(x, x + dx * arm), y - (dy < 0 ? th - 1 : 0), arm + 1, th, white);
+      rect(x - (dx < 0 ? th - 1 : 0), std::min(y, y + dy * arm), th, arm + 1, white);
+    };
+    corner(3, 3, 1, 1);
+    corner(W - 4, 3, -1, 1);
+    corner(3, H - 4, 1, -1);
+    corner(W - 4, H - 4, -1, -1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// drawPocketTestCard — The dynamic layer, drawn over the cached static card
+// each rebuild: diagonal sweep (judder), the bouncing porthole ball with the
+// scene behind it + sync beacon, the cadence shimmer patch, and the ID box.
 // ---------------------------------------------------------------------------
 void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sceneFrame,
                                      double t, int scene) {
@@ -3345,92 +3535,13 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
       }
     }
   };
-
   const SDL_Color white {255, 255, 255, 255};
   const SDL_Color black {0, 0, 0, 255};
-  const SDL_Color gridBg {104, 104, 104, 255};
   const SDL_Color gbCream {252, 252, 252, 255};
   const SDL_Color gbInk {64, 64, 72, 255};
   const SDL_Color gbTextShadow {200, 204, 208, 255};
   const SDL_Color gbRed {216, 72, 64, 255};
 
-  // ── GBA window frame + 3x5 font (Emerald chrome for the ID box) ──
-  auto gbBox = [&](int x, int y, int w, int h) {
-    const int b = u;
-    const SDL_Color bandLight {168, 224, 216, 255};
-    const SDL_Color bandDeep {88, 168, 160, 255};
-    rect(x + b, y + b, w - 2 * b, h - 2 * b, gbCream);
-    rect(x + 2 * b, y, w - 4 * b, b, gbInk);
-    rect(x + 2 * b, y + h - b, w - 4 * b, b, gbInk);
-    rect(x, y + 2 * b, b, h - 4 * b, gbInk);
-    rect(x + w - b, y + 2 * b, b, h - 4 * b, gbInk);
-    rect(x + b, y + b, b, b, gbInk);
-    rect(x + w - 2 * b, y + b, b, b, gbInk);
-    rect(x + b, y + h - 2 * b, b, b, gbInk);
-    rect(x + w - 2 * b, y + h - 2 * b, b, b, gbInk);
-    rect(x + 2 * b, y + b, w - 4 * b, b, bandLight);
-    rect(x + b, y + 2 * b, b, h - 4 * b, bandLight);
-    rect(x + 2 * b, y + h - 2 * b, w - 4 * b, b, bandDeep);
-    rect(x + w - 2 * b, y + 2 * b, b, h - 4 * b, bandDeep);
-  };
-  auto glyphRows = [](char c) -> const std::uint8_t* {
-    static const std::uint8_t digits[10][5] = {
-      {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
-      {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
-    };
-    static const std::uint8_t letters[26][5] = {
-      {2,5,7,5,5}, {6,5,6,5,6}, {3,4,4,4,3}, {6,5,5,5,6}, {7,4,6,4,7},
-      {7,4,6,4,4}, {3,4,5,5,3}, {5,5,7,5,5}, {7,2,2,2,7}, {1,1,1,5,2},
-      {5,6,4,6,5}, {4,4,4,4,7}, {5,7,7,5,5}, {6,5,5,5,5}, {2,5,5,5,2},
-      {6,5,6,4,4}, {2,5,5,6,3}, {6,5,6,6,5}, {3,4,2,1,6}, {7,2,2,2,2},
-      {5,5,5,5,7}, {5,5,5,5,2}, {5,5,7,7,5}, {5,5,2,5,5}, {5,5,2,2,2},
-      {7,1,2,4,7},
-    };
-    static const std::uint8_t colon[5] = {0,2,0,2,0};
-    static const std::uint8_t dot[5]   = {0,0,0,0,2};
-    static const std::uint8_t dash[5]  = {0,0,7,0,0};
-    static const std::uint8_t blank[5] = {0,0,0,0,0};
-    if (c >= '0' && c <= '9') return digits[c - '0'];
-    if (c >= 'A' && c <= 'Z') return letters[c - 'A'];
-    if (c >= 'a' && c <= 'z') return letters[c - 'a'];
-    if (c == ':') return colon;
-    if (c == '.') return dot;
-    if (c == '-') return dash;
-    return blank;
-  };
-  auto textWidth = [&](const std::string& s, int scale) {
-    return static_cast<int>(s.size()) * 4 * scale - scale;
-  };
-  auto drawText = [&](int x, int y, int scale, const std::string& s, const SDL_Color& color) {
-    int cx = x;
-    for (char c : s) {
-      const std::uint8_t* rows = glyphRows(c);
-      for (int ry = 0; ry < 5; ++ry) {
-        for (int rx = 0; rx < 3; ++rx) {
-          if (rows[ry] & (4 >> rx)) {
-            rect(cx + rx * scale + scale, y + ry * scale + scale, scale, scale, gbTextShadow);
-            rect(cx + rx * scale, y + ry * scale, scale, scale, color);
-          }
-        }
-      }
-      cx += 4 * scale;
-    }
-  };
-
-  // ── Grid field (full frame; bands draw over it). Anchored to the circle
-  // center so a line crosses the crosshair exactly. ──
-  {
-    int cell = std::max(16, (H * 8 / 100) & ~1);
-    rect(0, 0, W, H, gridBg);
-    for (int x = W / 2 % cell; x < W; x += cell) {
-      rect(x, 0, 1, H, white);
-    }
-    for (int y = (H * 48 / 100) % cell; y < H; y += cell) {
-      rect(0, y, W, 1, white);
-    }
-  }
-
-  // Band geometry (fractions of H)
   const int inset = 8;
   const int barsY = H * 4 / 100;
   const int barsH = H * 10 / 100;
@@ -3442,41 +3553,7 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
   const int patchH = H * 7 / 100;
   const int innerW = W - inset * 2;
 
-  auto inkFrame = [&](int x, int y, int w, int h) {
-    rect(x - 1, y - 1, w + 2, 1, black);
-    rect(x - 1, y + h, w + 2, 1, black);
-    rect(x - 1, y, 1, h, black);
-    rect(x + w, y, 1, h, black);
-  };
-
-  // ── Color bars: 100% white, 75% yellow/cyan/green/magenta/red/blue, black ──
-  {
-    const std::array<SDL_Color, 8> bars {{
-      {255, 255, 255, 255}, {191, 191, 0, 255}, {0, 191, 191, 255}, {0, 191, 0, 255},
-      {191, 0, 191, 255}, {191, 0, 0, 255}, {0, 0, 191, 255}, {0, 0, 0, 255},
-    }};
-    int bw = innerW / static_cast<int>(bars.size());
-    for (int i = 0; i < static_cast<int>(bars.size()); ++i) {
-      int x0 = inset + i * bw;
-      int x1 = (i + 1 == static_cast<int>(bars.size())) ? inset + innerW : x0 + bw;
-      rect(x0, barsY, x1 - x0, barsH, bars[i]);
-    }
-    inkFrame(inset, barsY, innerW, barsH);
-  }
-
-  // ── Grayscale staircase 0..100% ──
-  {
-    int sw = innerW / 11;
-    for (int i = 0; i < 11; ++i) {
-      Uint8 v = static_cast<Uint8>(std::lround(i * 255.0 / 10.0));
-      int x0 = inset + i * sw;
-      int x1 = (i == 10) ? inset + innerW : x0 + sw;
-      rect(x0, stepsY, x1 - x0, stepsH, SDL_Color {v, v, v, 255});
-    }
-    inkFrame(inset, stepsY, innerW, stepsH);
-  }
-
-  // ── Slow diagonal sweep (12 s per pass) across the grid field ──
+  // ── Diagonal sweep (12 s per pass) across the grid field ──
   {
     int bandY0 = stepsY + stepsH + 2;
     int bandY1 = rampY - 2;
@@ -3491,12 +3568,43 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
     }
   }
 
-  // ── Center circle: the island scene, ringed ──
+  // ── Cadence shimmer patch (~30 Hz phase-inverting 1px checker) ──
   {
-    int cx = W / 2;
-    int cy = H * 48 / 100;
-    int r = H * 25 / 100;
+    int pw = innerW / 5;
+    int x0 = inset + 4 * pw;
+    int flickPhase = static_cast<int>(static_cast<long long>(std::floor(t * 30.0)) & 1);
+    int w = innerW - 4 * pw;
+    for (int y = 0; y < patchH; ++y) {
+      for (int x = 0; x < w; ++x) {
+        Uint8 v = (((x + y) & 1) == flickPhase) ? 255 : 0;
+        put(x0 + x, patchY + y, SDL_Color {v, v, v, 255});
+      }
+    }
+    rect(x0 - 1, patchY - 1, w + 2, 1, black);
+    rect(x0 - 1, patchY + patchH, w + 2, 1, black);
+    rect(x0 - 1, patchY, 1, patchH, black);
+    rect(x0 + w, patchY, 1, patchH, black);
+  }
+
+  // ── The ball: a slow DVD-style bouncing porthole. The scene is the full
+  // background BEHIND the card; the ball reveals whatever it floats over.
+  // Constant-velocity edges-bounce = smooth-motion object + burn-in rover.
+  {
+    int r = H * 22 / 100;
     int ringW = 3 * u;
+    auto bounce = [](double tt, double speed, double lo, double hi) {
+      double range = hi - lo;
+      if (range <= 1.0) {
+        return lo;
+      }
+      double x = std::fmod(tt * speed / range, 2.0);
+      if (x < 0) x += 2.0;
+      return lo + (x < 1.0 ? x : 2.0 - x) * range;
+    };
+    int margin = ringW + 4;
+    int cx = static_cast<int>(std::lround(bounce(t, H * 0.055, r + margin, W - r - margin)));
+    int cy = static_cast<int>(std::lround(bounce(t, H * 0.043, r + margin, H - r - margin)));
+
     for (int dy = -(r + ringW + 1); dy <= r + ringW + 1; ++dy) {
       int y = cy + dy;
       if (y < 0 || y >= H) continue;
@@ -3510,34 +3618,35 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
       int hInner = halfAt(r);
       int hInnerEdge = halfAt(r - 1);
       if (hOuterEdge >= 0) {
-        rect(cx - hOuterEdge, y, hOuterEdge * 2 + 1, 1, black);  // outer edge line
+        rect(cx - hOuterEdge, y, hOuterEdge * 2 + 1, 1, black);
       }
       if (hOuter >= 0) {
-        rect(cx - hOuter, y, hOuter * 2 + 1, 1, white);          // ring
+        rect(cx - hOuter, y, hOuter * 2 + 1, 1, white);
       }
       if (hInnerEdge >= 0) {
-        rect(cx - hInnerEdge, y, hInnerEdge * 2 + 1, 1, black);  // inner edge line
+        rect(cx - hInnerEdge, y, hInnerEdge * 2 + 1, 1, black);
       }
       if (hInner >= 0) {
-        // Scene row segment copied 1:1 from the scene frame, sampled lower
-        // so the island/palms/characters fill the circle instead of empty
-        // sky (the scene's ground lives in its bottom half).
-        int srcY = std::min(H - 1, y + H * 17 / 100);
-        size_t src = (static_cast<size_t>(srcY) * W + (cx - hInner)) * 4u;
-        size_t dst = (static_cast<size_t>(y) * W + (cx - hInner)) * 4u;
-        size_t count = static_cast<size_t>(hInner * 2 + 1) * 4u;
-        std::memcpy(frame.pixels.data() + dst, sceneFrame.pixels.data() + src, count);
+        // Reveal the scene "behind" the card: nearest-sample the internal
+        // scene raster at this frame position.
+        int srcY = std::clamp(y * sceneFrame.height / H, 0, sceneFrame.height - 1);
+        const std::uint8_t* srcRow =
+          sceneFrame.pixels.data() + static_cast<size_t>(srcY) * sceneFrame.width * 4u;
+        std::uint8_t* dstRow =
+          frame.pixels.data() + (static_cast<size_t>(y) * W + (cx - hInner)) * 4u;
+        for (int x = cx - hInner; x <= cx + hInner; ++x, dstRow += 4) {
+          int srcX = std::clamp(x * sceneFrame.width / W, 0, sceneFrame.width - 1);
+          const std::uint8_t* s = srcRow + static_cast<size_t>(srcX) * 4u;
+          dstRow[0] = s[0];
+          dstRow[1] = s[1];
+          dstRow[2] = s[2];
+          dstRow[3] = 255;
+        }
       }
     }
 
-    // Crosshair at the exact center (alignment/warp reference).
-    rect(cx - 8 * u, cy - 1, 16 * u + 1, 3, black);
-    rect(cx - 1, cy - 8 * u, 3, 16 * u + 1, black);
-    rect(cx - 8 * u, cy, 16 * u + 1, 1, white);
-    rect(cx, cy - 8 * u, 1, 16 * u + 1, white);
-
-    // Sync beacon at 12 o'clock: lit for exactly the 80 ms window in which
-    // the 1 kHz pop plays. Flash vs pop at the end of the chain = its A/V offset.
+    // Sync beacon rides at the ball's 12 o'clock: lit for exactly the 80 ms
+    // window in which the 1 kHz pop plays.
     bool pop = std::fmod(std::max(0.0, t), 1.0) < 0.08;
     int by = cy - r - ringW / 2;
     for (int dy = -(4 * u); dy <= 4 * u; ++dy) {
@@ -3550,88 +3659,67 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
     }
   }
 
-  // ── Continuous ramp (banding) ──
+  // ── ID box (Emerald chrome): version, raster, clock, scene ──
   {
-    for (int x = 0; x < innerW; ++x) {
-      Uint8 v = static_cast<Uint8>(std::lround(x * 255.0 / std::max(1, innerW - 1)));
-      rect(inset + x, rampY, 1, rampH, SDL_Color {v, v, v, 255});
-    }
-    inkFrame(inset, rampY, innerW, rampH);
-  }
-
-  // ── Patch row: PLUGE black | PLUGE white | 1px checker | 1px stripes | shimmer ──
-  {
-    int pw = innerW / 5;
-    int x0 = inset;
-    auto patchX = [&](int i) { return x0 + i * pw; };
-
-    // PLUGE blacks: 2% and 4% on 0% — crushed blacks eat the inner patches.
-    rect(patchX(0), patchY, pw - 1, patchH, black);
-    int ph = std::max(2, patchH / 2);
-    int py = patchY + (patchH - ph) / 2;
-    int pq = std::max(3, (pw - 16) / 3);
-    rect(patchX(0) + 4, py, pq, ph, SDL_Color {5, 5, 5, 255});
-    rect(patchX(0) + 8 + pq, py, pq, ph, SDL_Color {10, 10, 10, 255});
-
-    // PLUGE whites: 98% and 96% on 100% — clipped whites eat them.
-    rect(patchX(1), patchY, pw - 1, patchH, white);
-    rect(patchX(1) + 4, py, pq, ph, SDL_Color {250, 250, 250, 255});
-    rect(patchX(1) + 8 + pq, py, pq, ph, SDL_Color {245, 245, 245, 255});
-
-    // Single-pixel checker + stripes: fine detail / scaling.
-    for (int y = 0; y < patchH; ++y) {
-      for (int x = 0; x < pw - 1; ++x) {
-        Uint8 v = (((x + y) & 1) != 0) ? 255 : 0;
-        put(patchX(2) + x, patchY + y, SDL_Color {v, v, v, 255});
-      }
-      Uint8 s = ((y & 1) != 0) ? 255 : 0;
-      rect(patchX(3), patchY + y, pw - 1, 1, SDL_Color {s, s, s, 255});
-    }
-
-    // Cadence shimmer: 1px checker whose phase inverts at ~30 Hz — an even
-    // soft shimmer; dropped/doubled frames freeze or beat it. Never a strobe.
-    int flickPhase = static_cast<int>(static_cast<long long>(std::floor(t * 30.0)) & 1);
-    for (int y = 0; y < patchH; ++y) {
-      for (int x = 0; x < innerW - 4 * pw; ++x) {
-        Uint8 v = (((x + y) & 1) == flickPhase) ? 255 : 0;
-        put(patchX(4) + x, patchY + y, SDL_Color {v, v, v, 255});
-      }
-    }
-    for (int i = 0; i < 5; ++i) {
-      inkFrame(patchX(i), patchY, (i == 4) ? innerW - 4 * pw : pw - 1, patchH);
-    }
-  }
-
-  // ── Pixel-mapping border + corner marks ──
-  for (int x = 0; x < W; ++x) {
-    Uint8 v = (x & 1) ? 255 : 0;
-    put(x, 0, SDL_Color {v, v, v, 255});
-    put(x, H - 1, SDL_Color {v, v, v, 255});
-  }
-  for (int y = 0; y < H; ++y) {
-    Uint8 v = (y & 1) ? 255 : 0;
-    put(0, y, SDL_Color {v, v, v, 255});
-    put(W - 1, y, SDL_Color {v, v, v, 255});
-  }
-  rect(1, 1, W - 2, 1, black);
-  rect(1, H - 2, W - 2, 1, black);
-  rect(1, 1, 1, H - 2, black);
-  rect(W - 2, 1, 1, H - 2, black);
-  {
-    int arm = 8 * u;
-    int th = u;
-    auto corner = [&](int x, int y, int dx, int dy) {
-      rect(std::min(x, x + dx * arm), y - (dy < 0 ? th - 1 : 0), arm + 1, th, white);
-      rect(x - (dx < 0 ? th - 1 : 0), std::min(y, y + dy * arm), th, arm + 1, white);
+    auto glyphRows = [](char c) -> const std::uint8_t* {
+      static const std::uint8_t digits[10][5] = {
+        {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+        {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
+      };
+      static const std::uint8_t letters[26][5] = {
+        {2,5,7,5,5}, {6,5,6,5,6}, {3,4,4,4,3}, {6,5,5,5,6}, {7,4,6,4,7},
+        {7,4,6,4,4}, {3,4,5,5,3}, {5,5,7,5,5}, {7,2,2,2,7}, {1,1,1,5,2},
+        {5,6,4,6,5}, {4,4,4,4,7}, {5,7,7,5,5}, {6,5,5,5,5}, {2,5,5,5,2},
+        {6,5,6,4,4}, {2,5,5,6,3}, {6,5,6,6,5}, {3,4,2,1,6}, {7,2,2,2,2},
+        {5,5,5,5,7}, {5,5,5,5,2}, {5,5,7,7,5}, {5,5,2,5,5}, {5,5,2,2,2},
+        {7,1,2,4,7},
+      };
+      static const std::uint8_t colon[5] = {0,2,0,2,0};
+      static const std::uint8_t dot[5]   = {0,0,0,0,2};
+      static const std::uint8_t dash[5]  = {0,0,7,0,0};
+      static const std::uint8_t blank[5] = {0,0,0,0,0};
+      if (c >= '0' && c <= '9') return digits[c - '0'];
+      if (c >= 'A' && c <= 'Z') return letters[c - 'A'];
+      if (c >= 'a' && c <= 'z') return letters[c - 'a'];
+      if (c == ':') return colon;
+      if (c == '.') return dot;
+      if (c == '-') return dash;
+      return blank;
     };
-    corner(3, 3, 1, 1);
-    corner(W - 4, 3, -1, 1);
-    corner(3, H - 4, 1, -1);
-    corner(W - 4, H - 4, -1, -1);
-  }
+    auto drawText = [&](int x, int y, int scale, const std::string& s, const SDL_Color& color) {
+      int cx = x;
+      for (char c : s) {
+        const std::uint8_t* rows = glyphRows(c);
+        for (int ry = 0; ry < 5; ++ry) {
+          for (int rx = 0; rx < 3; ++rx) {
+            if (rows[ry] & (4 >> rx)) {
+              rect(cx + rx * scale + scale, y + ry * scale + scale, scale, scale, gbTextShadow);
+              rect(cx + rx * scale, y + ry * scale, scale, scale, color);
+            }
+          }
+        }
+        cx += 4 * scale;
+      }
+    };
+    auto gbBox = [&](int x, int y, int w, int h) {
+      const int b = u;
+      const SDL_Color bandLight {168, 224, 216, 255};
+      const SDL_Color bandDeep {88, 168, 160, 255};
+      rect(x + b, y + b, w - 2 * b, h - 2 * b, gbCream);
+      rect(x + 2 * b, y, w - 4 * b, b, gbInk);
+      rect(x + 2 * b, y + h - b, w - 4 * b, b, gbInk);
+      rect(x, y + 2 * b, b, h - 4 * b, gbInk);
+      rect(x + w - b, y + 2 * b, b, h - 4 * b, gbInk);
+      rect(x + b, y + b, b, b, gbInk);
+      rect(x + w - 2 * b, y + b, b, b, gbInk);
+      rect(x + b, y + h - 2 * b, b, b, gbInk);
+      rect(x + w - 2 * b, y + h - 2 * b, b, b, gbInk);
+      rect(x + 2 * b, y + b, w - 4 * b, b, bandLight);
+      rect(x + b, y + 2 * b, b, h - 4 * b, bandLight);
+      rect(x + 2 * b, y + h - 2 * b, w - 4 * b, b, bandDeep);
+      rect(x + w - 2 * b, y + 2 * b, b, h - 4 * b, bandDeep);
+    };
 
-  // ── ID box: version, raster, clock, scene (Emerald chrome) ──
-  {
     static const char* kSceneNames[4] = {"DAY", "SUNSET", "NIGHT", "STORM"};
     int scale = u;
     int pd = 2 * u + 3;
@@ -3642,7 +3730,7 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
     std::string line = std::string("DECKBOY ") + deckboy::core::version::kVersionTag +
                        "  " + std::to_string(W) + "X" + std::to_string(H) +
                        "  " + clock + "  " + kSceneNames[std::clamp(scene, 0, 3)];
-    int boxW = textWidth(line, scale) + pd * 2 + 6 * scale;
+    int boxW = static_cast<int>(line.size()) * 4 * scale - scale + pd * 2 + 6 * scale;
     int boxH = 5 * scale + pd * 2 + 2;
     int boxX = (W - boxW) / 2;
     int boxY = H * 89 / 100;
