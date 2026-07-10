@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-09 — v0.78.6 (Pocket Test: audible for real, strobe defused)
+
+- **Existing Pocket Test cues migrate to audible on load.** v0.78.5 fixed
+  the mute for NEW cues only; saved cues kept the legacy hard-mute AND had
+  `hasAudio=false`, which hides the inspector's audio controls — the mute
+  couldn't even be lifted. `normalizeProject` now flips legacy pocket-test
+  cues (hasAudio=false = never-migrated marker) to audible once; mutes made
+  after that persist. New pocket-test cues are created with `hasAudio=true`
+  so the audio toggle is visible. (`--sync-pop-test` verified the engine
+  synth path end-to-end against a real device: PASS.)
+- **The ? block no longer strobes.** A full-square white/black flash at
+  30 Hz is a photosensitivity hazard. It's now a single-pixel checkerboard
+  whose phase inverts at 30 Hz — reads as a soft shimmer; dropped/doubled
+  frames still make it freeze or beat visibly.
+- New `--sync-pop-test` CLI: runs the real sync-pop path against the
+  default audio device and reports PASS/FAIL — first stop for any "test
+  card has no audio" report.
+
 ## 2026-07-09 — v0.78.5 (Pocket Test field notes: audio, scaling, Emerald)
 
 Four fixes from James's first hands-on with the test card:

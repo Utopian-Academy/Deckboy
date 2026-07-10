@@ -1803,8 +1803,10 @@
     // still-duration auto-advance from playlist defaults.
     cue.pauseOnLastFrame = true;
     cue.stillDurationSeconds = 0.0;
-    // Pocket Test carries the A/V sync pop — its audio defaults ON so the
-    // buoy is audible out of the box (mute via the cue's audio toggle).
+    // Pocket Test carries the A/V sync pop — it HAS audio (which also makes
+    // the inspector's audio controls appear) and defaults audible; mute via
+    // the cue's audio toggle.
+    cue.hasAudio = (typeId == "pocket-test");
     cue.audioEnabled = (typeId == "pocket-test");
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
