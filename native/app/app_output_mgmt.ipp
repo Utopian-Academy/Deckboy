@@ -2252,12 +2252,14 @@
   }
 #endif
 
-  // The pixel raster of the display the operator currently has the program
-  // output on: first enabled window-type output's live renderer size.
-  // Patterns build at this size so their pixel-precision instruments stay
-  // 1:1 with the physical display, tracking display switches automatically.
-  std::pair<int, int> primaryOutputRasterSize() {
-    std::pair<int, int> fallback {0, 0};
+  // The live mode of the display the operator currently has the program
+  // output on: first enabled window-type output's renderer size + that
+  // display's refresh rate (the project's explicit refresh override wins).
+  // Patterns build at this raster (pixel-precision instruments stay 1:1
+  // with the physical display) and animate at this refresh rate, tracking
+  // display switches automatically.
+  MediaEngine::OutputModeHint primaryOutputMode() {
+    MediaEngine::OutputModeHint fallback;
     for (size_t i = 0; i < outputRuntimes_.size() && i < project_.outputs.size(); ++i) {
       OutputRuntime& runtime = outputRuntimes_[i];
       if (!runtime.outputRenderer) {
@@ -2268,12 +2270,23 @@
       if (!SDL_GetCurrentRenderOutputSize(runtime.outputRenderer, &rw, &rh) || rw <= 0 || rh <= 0) {
         continue;
       }
+      MediaEngine::OutputModeHint mode;
+      mode.width = rw;
+      mode.height = rh;
+      if (project_.outputRefreshRateHz > 0.0) {
+        mode.refreshHz = project_.outputRefreshRateHz;  // "unless otherwise set"
+      } else if (runtime.outputWindow) {
+        SDL_DisplayID display = SDL_GetDisplayForWindow(runtime.outputWindow);
+        if (const SDL_DisplayMode* dm = SDL_GetCurrentDisplayMode(display)) {
+          mode.refreshHz = dm->refresh_rate;
+        }
+      }
       const OutputTarget& output = project_.outputs[i];
       if (output.enabled && output.outputType != "stream") {
-        return {rw, rh};
+        return mode;
       }
-      if (fallback.first == 0) {
-        fallback = {rw, rh};
+      if (fallback.width == 0) {
+        fallback = mode;
       }
     }
     return fallback;
@@ -2321,8 +2334,9 @@
 #else
         MediaEngine::DecodeDeviceProvider {},
 #endif
-        // Patterns build pixel-mapped to the live program-output raster.
-        [this]() { return primaryOutputRasterSize(); }
+        // Patterns build pixel-mapped to the live program-output raster and
+        // animate at its refresh rate (project override wins).
+        [this]() { return primaryOutputMode(); }
       );
     }
     if (oldStream) {
