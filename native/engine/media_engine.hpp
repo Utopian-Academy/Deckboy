@@ -91,11 +91,19 @@ class MediaEngine {
   // decode in-process to CPU frames; with one, NV12 video stays GPU-resident
   // end-to-end (zero-copy). Only meaningful when DECKBOY_INPROC_DECODE.
   using DecodeDeviceProvider = std::function<void*()>;
-  // Optional provider of the CURRENT program-output raster in pixels.
-  // Patterns build at this size every rebuild, so they stay pixel-mapped to
-  // the selected display even when it changes mid-show. {0,0} / no provider
-  // falls back to the engine's own renderer size.
-  using OutputSizeProvider = std::function<std::pair<int, int>()>;
+  // Optional provider of the CURRENT program-output mode: raster in pixels
+  // and refresh rate in Hz. Patterns build at this size every rebuild (so
+  // they stay pixel-mapped to the selected display even when it changes
+  // mid-show) and animate at this refresh rate (unless the project's
+  // explicit refresh override supplies it instead — the app decides).
+  // Zeroes / no provider fall back to the engine's own renderer size and
+  // 60 Hz.
+  struct OutputModeHint {
+    int width = 0;
+    int height = 0;
+    double refreshHz = 0.0;
+  };
+  using OutputSizeProvider = std::function<OutputModeHint()>;
 
   explicit MediaEngine(SDL_Renderer* outputRenderer,
                        SDL_AudioStream* audioStream,
@@ -265,9 +273,10 @@ class MediaEngine {
   static void buildCrosshatch(DecodedFrame& frame, int phaseX = 0, int phaseY = 0);   // crosshatch grid
   static void buildCheckerboard(DecodedFrame& frame, int phaseX = 0, int phaseY = 0); // checkerboard
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
-  static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: scene cycle inside the circle
+  static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: bouncing scene porthole
+  static void drawPocketTestCardStatic(DecodedFrame& frame);                           // cacheable layer: grid, bands, patches, border, crosshair
   static void drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sceneFrame,
-                                 double t, int scene);                                 // card compositor (grid, patches, circle, ID)
+                                 double t, int scene);                                 // dynamic layer: sweep, ball, shimmer, beacon, ID
 
   // -- State: core references --------------------------------------------------
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
@@ -407,7 +416,7 @@ class MediaEngine {
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
-  double lastTerrariumRebuildSeconds_ = -1.0;  // terrarium pattern rebuild throttle (9 TPS)
+  double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames
