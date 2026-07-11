@@ -1252,6 +1252,14 @@ void MediaEngine::syncAudioFadeParams() {
   audioFadeDuration_.store(cue ? duration_ : 0.0, std::memory_order_relaxed);
   audioSuppressFadeIn_.store(suppressFadeInForCurrentCue_, std::memory_order_relaxed);
   audioSuppressFadeOut_.store(suppressVisualFadeOutForCurrentCue_, std::memory_order_relaxed);
+  // Per-cue audio trim/pan/mono ride the same mirrors — edits apply live
+  // (snapshot sync → next tick) with no decode restart.
+  audioCueGain_.store(
+    cue ? std::pow(10.0, std::clamp(cue->audioGainDb, -24.0f, 12.0f) / 20.0) : 1.0,
+    std::memory_order_relaxed);
+  audioCuePan_.store(cue ? std::clamp(cue->audioPan, -1.0f, 1.0f) : 0.0f,
+                     std::memory_order_relaxed);
+  audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
 }
 
 // Audio-thread-safe fade gain: same curve as fadeGainAt but reads only the
@@ -1900,7 +1908,11 @@ void MediaEngine::queuePocketSyncAudio() {
     static_cast<double>(SDL_GetTicks()) / 1000.0 + queuedSeconds;
   const double gain = static_cast<double>(volume_.load())
                     * static_cast<double>(masterGain_.load())
+                    * audioCueGain_.load(std::memory_order_relaxed)
                     * audioFadeGainAt(position()) * 0.5;
+  const double pan = static_cast<double>(audioCuePan_.load(std::memory_order_relaxed));
+  const double panL = pan > 0.0 ? 1.0 - pan : 1.0;
+  const double panR = pan < 0.0 ? 1.0 + pan : 1.0;
   std::vector<std::int16_t> samples(static_cast<size_t>(kChunkFrames) * 2);
   for (int i = 0; i < kChunkFrames; ++i) {
     double phase = std::fmod(startSeconds + static_cast<double>(i) / kRate, 1.0);
@@ -1910,10 +1922,12 @@ void MediaEngine::queuePocketSyncAudio() {
       double envelope = std::min({phase / 0.005, (kBeepSeconds - phase) / 0.010, 1.0});
       value = std::sin(phase * kTau * 1000.0) * envelope;
     }
-    auto sample = static_cast<std::int16_t>(std::clamp(
-      static_cast<int>(std::lround(value * gain * 32767.0)), -32768, 32767));
-    samples[static_cast<size_t>(i) * 2] = sample;
-    samples[static_cast<size_t>(i) * 2 + 1] = sample;
+    auto clip = [](double v) {
+      return static_cast<std::int16_t>(std::clamp(
+        static_cast<int>(std::lround(v)), -32768, 32767));
+    };
+    samples[static_cast<size_t>(i) * 2] = clip(value * gain * panL * 32767.0);
+    samples[static_cast<size_t>(i) * 2 + 1] = clip(value * gain * panR * 32767.0);
   }
   if (audioTap_) {
     audioTap_(samples);
@@ -2335,18 +2349,28 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
 // audio-clock counters. Keeping one implementation keeps the audio-master
 // A/V clock semantics identical across both decode paths.
 void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, double& audioTime) {
-  for (size_t index = 0; index < scaled.size(); index += 2) {
+  const double cueGain = audioCueGain_.load(std::memory_order_relaxed);
+  const double pan = static_cast<double>(audioCuePan_.load(std::memory_order_relaxed));
+  const bool mono = audioCueMono_.load(std::memory_order_relaxed);
+  // Balance law: panning right attenuates left, and vice versa.
+  const double panL = pan > 0.0 ? 1.0 - pan : 1.0;
+  const double panR = pan < 0.0 ? 1.0 + pan : 1.0;
+  auto clip = [](double v) {
+    return static_cast<std::int16_t>(std::clamp(
+      static_cast<int>(std::lround(v)), -32768, 32767));
+  };
+  for (size_t index = 0; index + 1 < scaled.size(); index += 2) {
     double gain = static_cast<double>(volume_.load())
                 * static_cast<double>(masterGain_.load())
+                * cueGain
                 * audioFadeGainAt(audioTime);
-    for (size_t channel = 0; channel < 2 && index + channel < scaled.size(); ++channel) {
-      auto& sample = scaled[index + channel];
-      sample = static_cast<std::int16_t>(std::clamp(
-        static_cast<int>(std::lround(static_cast<double>(sample) * gain)),
-        -32768,
-        32767
-      ));
+    double left = static_cast<double>(scaled[index]);
+    double right = static_cast<double>(scaled[index + 1]);
+    if (mono) {
+      left = right = (left + right) * 0.5;
     }
+    scaled[index] = clip(left * gain * panL);
+    scaled[index + 1] = clip(right * gain * panR);
     audioTime += 1.0 / 48000.0;
   }
   if (audioTap_) {

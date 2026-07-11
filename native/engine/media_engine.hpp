@@ -397,6 +397,9 @@ class MediaEngine {
   std::atomic<double> audioFadeDuration_ {0.0};
   std::atomic<bool> audioSuppressFadeIn_ {false};
   std::atomic<bool> audioSuppressFadeOut_ {false};
+  std::atomic<double> audioCueGain_ {1.0};   // per-cue trim, linear (from Cue::audioGainDb)
+  std::atomic<float> audioCuePan_ {0.0f};    // per-cue balance -1..+1
+  std::atomic<bool> audioCueMono_ {false};   // per-cue mono downmix
 
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
