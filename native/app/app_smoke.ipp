@@ -522,6 +522,9 @@
       cue.contrast = 0.85f;
       cue.saturation = 1.40f;
       cue.hueShift = -22.0f;
+      cue.audioGainDb = -6.5f;
+      cue.audioPan = 0.35f;
+      cue.audioMono = true;
       Cue imgCue;
       imgCue.path = (fs::temp_directory_path() / "test.jpg").string();
       imgCue.name = "Smoke Still";
@@ -691,6 +694,9 @@
                std::abs(loadedCue.contrast - 0.85f) < 0.01f &&
                std::abs(loadedCue.saturation - 1.40f) < 0.01f &&
                std::abs(loadedCue.hueShift + 22.0f) < 0.01f, "cue color controls persisted");
+        expect(std::abs(loadedCue.audioGainDb + 6.5f) < 0.01f &&
+               std::abs(loadedCue.audioPan - 0.35f) < 0.01f &&
+               loadedCue.audioMono, "cue audio trim/pan/mono persisted");
         if (loadedDeck.cues.size() > 1) {
           const Cue& img = loadedDeck.cues[1];
           expect(img.kind == CueKind::Image, "still image kind persisted");

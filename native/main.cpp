@@ -3096,6 +3096,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.subtitleStreamId)
         << '\t' << (cue.subtitleEnabled ? "1" : "0")
         << '\t' << (cue.refreshOnTake ? "1" : "0")
+        << '\t' << cue.audioGainDb
+        << '\t' << cue.audioPan
+        << '\t' << (cue.audioMono ? "1" : "0")
         << '\n';
     }
   }
@@ -3533,6 +3536,9 @@ Project loadProject(const fs::path& projectFile) {
       cue.subtitleStreamId = safeString(fields, subtitleBase + 1);
       cue.subtitleEnabled = safeBool(fields, subtitleBase + 2, true);
       cue.refreshOnTake = safeBool(fields, subtitleBase + 3, false);
+      cue.audioGainDb = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 4, 0.0)), -24.0f, 12.0f);
+      cue.audioPan = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 5, 0.0)), -1.0f, 1.0f);
+      cue.audioMono = safeBool(fields, subtitleBase + 6, false);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
