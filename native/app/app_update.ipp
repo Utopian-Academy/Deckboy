@@ -507,6 +507,8 @@
     // Output topology changed since last tick — re-point zero-copy decode.
     reconcileDecodeDevices();
 #endif
+    // Apply any finished loudness-normalize analyses.
+    drainNormalizeResults();
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       // Advance browser cue Xvfb startup state machine.

@@ -794,6 +794,16 @@
                        selectedCue->audioMono,
                        "Downmix this cue to mono (mono sources / mono PA)");
           rowCursor += 1;
+
+          if (cueUsesFilesystemMedia(*selectedCue)) {
+            SDL_Rect normBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 26};
+            Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
+                                 "normalize loudness (R128)", pal.light);
+            quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
+                                     "Measure loudness and set gain for -16 LUFS playback"});
+            rowCursor += 1;
+          }
         }
 
         drawQuickRow(ry + kRowStep * rowCursor, "next xfade", QuickAction::ToggleNextTransition,

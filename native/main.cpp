@@ -5349,6 +5349,17 @@ class App {
   Project project_;
   std::vector<DeckRuntime> deckRuntimes_;
   std::vector<OutputRuntime> outputRuntimes_;
+  // Async loudness-normalize results (worker threads → main tick). Keyed by
+  // Cue::id; drained in drainNormalizeResults() each update.
+  struct NormalizeResult {
+    std::string cueId;
+    double gainDb = 0.0;
+    double measuredLufs = 0.0;
+    bool ok = false;
+  };
+  std::mutex normalizeResultsMutex_;
+  std::vector<NormalizeResult> normalizeResults_;
+
 #if DECKBOY_INPROC_DECODE
   // Output topology changed: re-check every playing deck's zero-copy decode
   // device against the current program output next tick (app_output_mgmt).
