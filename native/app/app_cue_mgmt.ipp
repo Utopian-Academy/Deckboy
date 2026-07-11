@@ -245,6 +245,89 @@
     }
   }
 
+  // ── Loudness normalize (v0.78.9) ────────────────────────────────────────
+  // One-shot: measure the file's EBU R128 integrated loudness on a worker
+  // thread (ffmpeg ebur128 — analysis stays on the CLI like waveforms) and
+  // set the cue's gain trim so playback lands at the target. The operator
+  // can still nudge the trim afterwards; normalize is a starting point,
+  // not a lock.
+  static constexpr double kNormalizeTargetLufs = -16.0;
+
+  void normalizeSelectedCueAudio() {
+    int launched = 0;
+    forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
+      if (!cue.hasAudio || !cueUsesFilesystemMedia(cue)) {
+        return;
+      }
+      std::string path = resolvedCueFilesystemPathString(cue, currentProjectFile_);
+      if (path.empty()) {
+        return;
+      }
+      std::string cueId = cue.id;
+      ++launched;
+      std::thread([this, path, cueId]() {
+        NormalizeResult result;
+        result.cueId = cueId;
+        auto out = readAllText({
+          "ffmpeg", "-hide_banner", "-nostats",
+          "-i", path, "-map", "a:0", "-af", "ebur128", "-f", "null", "-"
+        });
+        if (out) {
+          // The ebur128 summary block ends with lines like "I: -21.3 LUFS".
+          size_t pos = out->rfind("I:");
+          if (pos != std::string::npos) {
+            double lufs = std::strtod(out->c_str() + pos + 2, nullptr);
+            if (std::isfinite(lufs) && lufs < 0.0 && lufs > -70.0) {
+              result.measuredLufs = lufs;
+              result.gainDb = std::clamp(kNormalizeTargetLufs - lufs, -24.0, 12.0);
+              result.ok = true;
+            }
+          }
+        }
+        std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+        normalizeResults_.push_back(std::move(result));
+      }).detach();
+    });
+    if (launched > 0) {
+      triggerToast(launched == 1 ? "analyzing loudness..."
+                                 : "analyzing loudness (" + std::to_string(launched) + " cues)...");
+    }
+  }
+
+  // Drained once per tick on the main thread.
+  void drainNormalizeResults() {
+    std::vector<NormalizeResult> results;
+    {
+      std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+      if (normalizeResults_.empty()) {
+        return;
+      }
+      results.swap(normalizeResults_);
+    }
+    for (const NormalizeResult& result : results) {
+      if (!result.ok) {
+        triggerToast("normalize: no measurable audio");
+        continue;
+      }
+      bool applied = false;
+      for (Deck& deck : project_.decks) {
+        for (Cue& cue : deck.cues) {
+          if (cue.id == result.cueId) {
+            cue.audioGainDb = static_cast<float>(result.gainDb);
+            applied = true;
+          }
+        }
+      }
+      if (applied) {
+        char buf[64];
+        std::snprintf(buf, sizeof(buf), "normalized: %+.1f dB (was %.1f LUFS)",
+                      result.gainDb, result.measuredLufs);
+        triggerToast(buf);
+        markProjectDirty();
+      }
+    }
+  }
+
   void toggleSelectedTransitionToNext() {
     Cue* cue = selectedCueMutable();
     if (!cue) {

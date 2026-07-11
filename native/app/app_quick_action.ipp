@@ -81,6 +81,7 @@
       case QuickAction::AudioPanDec:     adjustSelectedAudioPan(-0.05); break;
       case QuickAction::AudioPanInc:     adjustSelectedAudioPan( 0.05); break;
       case QuickAction::ToggleCueMono:   toggleSelectedCueMono(); break;
+      case QuickAction::NormalizeCueAudio: normalizeSelectedCueAudio(); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
       case QuickAction::EditNotes: {
