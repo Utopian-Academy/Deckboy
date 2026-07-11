@@ -4837,6 +4837,7 @@ class App {
     close(fontMono_);
     close(fontPixel_);
     close(fontPixelSmall_);
+    close(fontPixelTitle_);
   }
 
   // Load (or reload) the six UI fonts at sizes derived from the linux
@@ -4867,6 +4868,7 @@ class App {
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+    fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
     return fontLarge_ && fontBase_ && fontSmall_ && fontMono_;
   }
 
@@ -5347,6 +5349,7 @@ class App {
   TTF_Font* fontSmall_ = nullptr;
   TTF_Font* fontMono_ = nullptr;
   TTF_Font* fontPixel_ = nullptr;
+  TTF_Font* fontPixelTitle_ = nullptr;  // big pixel headline (startup prompt)
   TTF_Font* fontPixelSmall_ = nullptr;  // smaller pixel font for UI labels
   SDL_AudioStream* uiAudioStream_ = nullptr;
   fs::path currentProjectFile_;
