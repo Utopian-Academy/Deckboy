@@ -69,82 +69,15 @@ inline SDL_Color paletteColorFromRgba(std::uint32_t rgba) {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Readability enforcement (v0.78.12). Theme files are free-form and several
-// shipped with text-role tones nearly identical to their background-role
-// tones (dark-green text on deep-green rows: unreadable). Rather than
-// hand-tune 24 themes, enforce minimum WCAG-style contrast between the
-// role pairs the UI actually draws, nudging the offending tone toward
-// black/white until legible. Hues survive — only lightness moves, and only
-// as far as needed, so compliant themes are untouched.
-// ---------------------------------------------------------------------------
-inline double paletteRelativeLuminance(const SDL_Color& c) {
-  auto lin = [](double v) {
-    v /= 255.0;
-    return v <= 0.04045 ? v / 12.92 : std::pow((v + 0.055) / 1.055, 2.4);
-  };
-  return 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
-}
-
-inline double paletteContrastRatio(const SDL_Color& a, const SDL_Color& b) {
-  double la = paletteRelativeLuminance(a);
-  double lb = paletteRelativeLuminance(b);
-  double hi = la > lb ? la : lb;
-  double lo = la > lb ? lb : la;
-  return (hi + 0.05) / (lo + 0.05);
-}
-
-// Move `text` toward white or black (whichever side of `bg` it already
-// leans) until it clears `minRatio` against bg. Steps are small so the
-// theme's hue character is kept as much as possible.
-inline void palettePushApart(SDL_Color& text, const SDL_Color& bg, double minRatio) {
-  bool lighten = paletteRelativeLuminance(text) >= paletteRelativeLuminance(bg);
-  for (int step = 0; step < 24 && paletteContrastRatio(text, bg) < minRatio; ++step) {
-    auto nudge = [&](Uint8 v) {
-      int goal = lighten ? 255 : 0;
-      return static_cast<Uint8>(v + (goal - static_cast<int>(v)) * 15 / 100);
-    };
-    text.r = nudge(text.r);
-    text.g = nudge(text.g);
-    text.b = nudge(text.b);
-  }
-}
-
-inline void enforcePaletteReadability() {
-  // Conservative global pass — only the ink roles move, never chrome fills
-  // (warping fills wrecks theme identity; famicom's dialog went grey).
-  // Per-draw safety is handled by readableInkOn() below.
-  palettePushApart(pal.light, pal.deep, 4.5);
-  palettePushApart(pal.dark, pal.light, 3.0);
-  palettePushApart(pal.inkSoft, pal.deep, 3.0);
-}
-
-// ---------------------------------------------------------------------------
-// readableInkOn — Per-draw readability guard. Returns `preferred` when it
-// already reads against `bg` (contrast ≥ minRatio); otherwise falls back to
-// whichever of the palette's extreme inks contrasts best, and to pure
-// black/white if even those fail. Text sites on theme- or cue-colored fills
-// (cue rows, dialogs) route their ink through this so NO theme or color tag
-// can produce invisible text, while compliant themes render untouched.
-// ---------------------------------------------------------------------------
-inline SDL_Color readableInkOn(const SDL_Color& bg, const SDL_Color& preferred,
-                               double minRatio = 3.0) {
-  if (paletteContrastRatio(preferred, bg) >= minRatio) {
-    return preferred;
-  }
-  SDL_Color best = paletteContrastRatio(pal.light, bg) >= paletteContrastRatio(pal.deep, bg)
-                     ? pal.light : pal.deep;
-  if (paletteContrastRatio(best, bg) >= minRatio) {
-    return best;
-  }
-  return paletteRelativeLuminance(bg) < 0.35 ? SDL_Color {245, 245, 245, preferred.a}
-                                             : SDL_Color {12, 12, 12, preferred.a};
-}
-
 // Unpack all theme constants into the global `pal` instance.
 // Must be called once during app initialization (after SDL_Init, before
 // any rendering). Called again whenever a theme is applied at runtime.
-// Ends with the readability pass so no theme can ship unreadable text.
+//
+// NOTE (v0.78.12): readability is a THEME-DATA contract, not a code fix —
+// theme.txt authors must keep ink roles legible on the fills they're drawn
+// over (deep/dark ink on shell_inner + screen_light fills; light ink on
+// deep). tools/audit_theme_contrast.ps1 checks every theme against the
+// pairs the UI draws and lists failures; run it after editing any theme.
 inline void rebuildPalette() {
   pal.shellOuter  = paletteColorFromRgba(kShellOuterColor);
   pal.shellInner  = paletteColorFromRgba(kShellInnerColor);
@@ -156,5 +89,4 @@ inline void rebuildPalette() {
   pal.inkSoft     = paletteColorFromRgba(kScreenInkSoftColor);
   pal.buttonBezel = paletteColorFromRgba(kButtonBezelColor);
   pal.deleteBezel = paletteColorFromRgba(kDeleteBezelColor);
-  enforcePaletteReadability();
 }

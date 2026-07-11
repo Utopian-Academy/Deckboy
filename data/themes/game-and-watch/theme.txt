@@ -1,9 +1,9 @@
 # Deckboy Theme: Game & Watch
-# Warm amber LCD � where it began.
+# Warm amber LCD â€” where it began.
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	1C1914FF
-shell_inner	2B261FFF
+shell_inner	D3D1D0FF
 shell_shadow	080807FF
 screen_light	F0B642FF
 screen_mid	AE8532FF

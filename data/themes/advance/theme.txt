@@ -1,9 +1,9 @@
 # Deckboy Theme: Game Boy Advance
-# Washed-out frontlit LCD with indigo shell — the 32-bit era.
+# Washed-out frontlit LCD with indigo shell Ã¢â‚¬â€ the 32-bit era.
 # All color values are RRGGBBAA hex.
 
 shell_outer	4040B0FF
-shell_inner	3030A0FF
+shell_inner	C1C1E2FF
 shell_shadow	181870FF
 screen_light	E8E8E0FF
 screen_mid	A8B0A0FF
