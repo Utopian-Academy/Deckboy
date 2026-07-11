@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.9 (per-cue audio: gain, pan, mono)
+
+- **Every cue with audio now has its own audio section** (the owner: "omg,
+  Deckboy doesn't have an audio gain per cue?" — it does now):
+  - **Gain**: -24 to +12 dB trim (dB, not multipliers), for normalizing
+    media that arrives at wildly different loudness.
+  - **Pan**: stereo balance with center snap.
+  - **Mono**: downmix toggle for mono sources and mono venue PAs.
+- All three apply **live** in the audio thread — no decode restart, VU
+  meters follow — and they sit under the audio toggle in the inspector as
+  scrubbable quick rows. The Pocket Test sync pop honors them too.
+- New remote commands for Companion: `AUDIOGAIN <dB>`, `AUDIOPAN <-1..1>`,
+  `AUDIOMONO <0|1>` — same single write path as the inspector.
+- Persisted per cue (appended fields, backward compatible); covered by a
+  new `--smoke` round-trip assertion.
+
 ## 2026-07-10 — v0.78.8 (Pocket Test: the ball bounces; patterns run at display rate)
 
 - **Fixed the lag** (the v0.78.7 card pegged a full core, measured 98%):
