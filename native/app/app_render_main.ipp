@@ -2122,6 +2122,45 @@
                      "Toggle cue audio track for this cue");
         rowCursor += 1;
 
+        if (selectedCue->hasAudio) {
+          char gainBuf[24];
+          std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
+          drawQuickRow(ry + kRowStep * rowCursor, "gain", QuickAction::AudioGainDec,
+                       gainBuf, QuickAction::AudioGainInc,
+                       QuickAction::ToggleCueAudio, false, false,
+                       "Per-cue audio trim: -24 to +12 dB, applied live");
+          rowCursor += 1;
+
+          std::string panLabel = "center";
+          if (selectedCue->audioPan < -0.024f) {
+            panLabel = "L " + std::to_string(static_cast<int>(std::lround(-selectedCue->audioPan * 100.0f)));
+          } else if (selectedCue->audioPan > 0.024f) {
+            panLabel = "R " + std::to_string(static_cast<int>(std::lround(selectedCue->audioPan * 100.0f)));
+          }
+          drawQuickRow(ry + kRowStep * rowCursor, "pan", QuickAction::AudioPanDec,
+                       panLabel, QuickAction::AudioPanInc,
+                       QuickAction::ToggleCueAudio, false, false,
+                       "Stereo balance, applied live (snaps to center)");
+          rowCursor += 1;
+
+          drawQuickRow(ry + kRowStep * rowCursor, "mono", QuickAction::ToggleCueMono,
+                       selectedCue->audioMono ? "on" : "off",
+                       QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
+                       selectedCue->audioMono,
+                       "Downmix this cue to mono (mono sources / mono PA)");
+          rowCursor += 1;
+
+          if (cueUsesFilesystemMedia(*selectedCue)) {
+            SDL_Rect normBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 26};
+            Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
+                                 "normalize loudness (R128)", pal.light);
+            quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
+                                     "Measure loudness and set gain for -16 LUFS playback"});
+            rowCursor += 1;
+          }
+        }
+
         drawQuickRow(ry + kRowStep * rowCursor, "next xfade", QuickAction::ToggleNextTransition,
                      selectedCue->transitionToNext ? "on" : "off",
                      QuickAction::ToggleNextTransition, QuickAction::ToggleNextTransition, true,
