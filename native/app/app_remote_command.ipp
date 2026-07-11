@@ -1983,6 +1983,10 @@
       }
       return;
     }
+    if (command == "AUDIONORM") {
+      normalizeSelectedCueAudio();  // async; result toasts when the analysis lands
+      return;
+    }
     if (command == "WIDTH" || command == "HEIGHT") {
       // Pixel-based size commands — same path as the inspector width/height
       // editors, so the aspect link applies. SCALE/SCALEX/SCALEY below stay

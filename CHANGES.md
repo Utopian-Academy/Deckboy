@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.10 (per-cue loudness normalize)
+
+- **Normalize loudness, per cue**: one button in the audio section (and the
+  `AUDIONORM` remote command) measures the file's EBU R128 integrated
+  loudness on a worker thread and sets the gain trim for -16 LUFS
+  playback — a starting point you can still nudge. Toasts the measured
+  loudness and applied trim when the analysis lands.
+
 ## 2026-07-10 — v0.78.9 (per-cue audio: gain, pan, mono)
 
 - **Every cue with audio now has its own audio section** (James: "omg,

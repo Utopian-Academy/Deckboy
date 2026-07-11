@@ -610,6 +610,7 @@ enum class QuickAction {
   AudioGainDec, AudioGainInc,
   AudioPanDec, AudioPanInc,
   ToggleCueMono,
+  NormalizeCueAudio,
   // -- Metadata / labels ---
   CycleColorTag,
   EditNotes,
