@@ -1957,6 +1957,32 @@
       }
       return;
     }
+    if (command == "AUDIOGAIN") {
+      // Per-cue gain trim in dB (-24..+12) — same write path as the
+      // inspector's gain row, applied live with no decode restart.
+      auto value = parseNumber(1);
+      if (value && setSelectedAudioGainDb(*value)) {
+        char buf[32];
+        std::snprintf(buf, sizeof(buf), "gain %+.1f dB", std::clamp(*value, -24.0, 12.0));
+        triggerToast(buf);
+      }
+      return;
+    }
+    if (command == "AUDIOPAN") {
+      // Stereo balance -1..+1 (0 = center).
+      auto value = parseNumber(1);
+      if (value && setSelectedAudioPan(*value)) {
+        triggerToast("pan set");
+      }
+      return;
+    }
+    if (command == "AUDIOMONO") {
+      auto value = parseNumber(1);
+      if (value && setSelectedAudioMono(*value >= 0.5)) {
+        triggerToast(*value >= 0.5 ? "cue audio: mono" : "cue audio: stereo");
+      }
+      return;
+    }
     if (command == "WIDTH" || command == "HEIGHT") {
       // Pixel-based size commands — same path as the inspector width/height
       // editors, so the aspect link applies. SCALE/SCALEX/SCALEY below stay

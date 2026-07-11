@@ -170,6 +170,81 @@
     markProjectDirty();
   }
 
+  // ── Per-cue audio trim/pan/mono (v0.78.9) ──────────────────────────────
+  // Single write path shared by the inspector quick rows (scrubbable) and
+  // the remote AUDIOGAIN/AUDIOPAN/AUDIOMONO commands. Edits apply LIVE:
+  // markProjectDirty → engine snapshot sync → the audio thread's atomic
+  // mirrors pick them up next tick — no decode restart.
+
+  bool setSelectedAudioGainDb(double db) {
+    double clamped = std::clamp(db, -24.0, 12.0);
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioGainDb = static_cast<float>(clamped);
+      }
+    });
+    if (any) {
+      markProjectDirty();
+    }
+    return any;
+  }
+
+  void adjustSelectedAudioGain(double deltaDb) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    setSelectedAudioGainDb(cue->audioGainDb + deltaDb);
+  }
+
+  bool setSelectedAudioPan(double pan) {
+    double clamped = std::clamp(pan, -1.0, 1.0);
+    if (std::abs(clamped) < 0.025) {
+      clamped = 0.0;  // snap to center
+    }
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioPan = static_cast<float>(clamped);
+      }
+    });
+    if (any) {
+      markProjectDirty();
+    }
+    return any;
+  }
+
+  void adjustSelectedAudioPan(double delta) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    setSelectedAudioPan(cue->audioPan + delta);
+  }
+
+  bool setSelectedAudioMono(bool mono) {
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioMono = mono;
+      }
+    });
+    if (any) {
+      markProjectDirty();
+    }
+    return any;
+  }
+
+  void toggleSelectedCueMono() {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    bool next = !cue->audioMono;
+    if (setSelectedAudioMono(next)) {
+      triggerToast(next ? "cue audio: mono" : "cue audio: stereo");
+      playUiSound(UiSoundEffect::Toggle);
+    }
+  }
+
   void toggleSelectedTransitionToNext() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
