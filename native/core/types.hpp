@@ -458,6 +458,9 @@ struct Project {
 
   // -- Audio configuration -----------------------------------------------------
   int audioBufferSamples = 1024;  // SDL audio callback buffer: 256/512/1024/2048 samples
+  int audioDelayMs = 0;           // chain A/V offset: delay ALL deck audio 0–1000 ms
+                                  // (displays/PA DSP lag video — dial in with the
+                                  // Pocket Test beacon until flash and pop align)
   double masterVolume = 1.0;      // 0.0–1.0 master audio volume
   double masterDimmer = 1.0;      // 0.0–1.0 master video dimmer (all outputs)
 

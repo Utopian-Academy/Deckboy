@@ -1880,6 +1880,9 @@ void MediaEngine::clearAudio() {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, true);
   }
+  // Safe here: callers only clear audio after decode threads are stopped,
+  // and the sync pop runs on this (main) thread.
+  audioDelayFifo_.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -1929,11 +1932,10 @@ void MediaEngine::queuePocketSyncAudio() {
     samples[static_cast<size_t>(i) * 2] = clip(value * gain * panL * 32767.0);
     samples[static_cast<size_t>(i) * 2 + 1] = clip(value * gain * panR * 32767.0);
   }
-  if (audioTap_) {
-    audioTap_(samples);
-  }
-  SDL_PutAudioStreamData(audioStream_, samples.data(),
-                         static_cast<int>(samples.size() * sizeof(std::int16_t)));
+  // Through the same delay line as decode audio: the beacon stays keyed to
+  // the wall clock, so adjusting the audio delay visibly/audibly shifts the
+  // pop against the flash — that's the dial-in workflow.
+  queueDelayedAudio(samples);
 }
 
 // Thread-safe query of the current frame queue depth. Used by update() to
@@ -2373,11 +2375,44 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     scaled[index + 1] = clip(right * gain * panR);
     audioTime += 1.0 / 48000.0;
   }
-  if (audioTap_) {
-    audioTap_(scaled);
-  }
-  SDL_PutAudioStreamData(audioStream_, scaled.data(), static_cast<int>(scaled.size() * sizeof(std::int16_t)));
+  // The A/V master clock counts frames at PROCESS time, before the delay
+  // line: video must anchor to the undelayed timeline so the configured
+  // audio delay produces a real skew at the device (audio late vs video)
+  // instead of dragging video along with it.
   audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
+  queueDelayedAudio(scaled);
+}
+
+// Final audio stage shared by decode audio and the sync pop: hold samples in
+// the delay FIFO so audio reaches the device Project::audioDelayMs late —
+// the knob that lines Deckboy up with lagging displays/PA DSP. The tap sees
+// the DELAYED stream so VU meters match what the room hears.
+void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
+  const std::size_t holdValues =
+    static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) * 48u * 2u;
+  if (holdValues == 0 && audioDelayFifo_.empty()) {
+    if (audioTap_) {
+      audioTap_(samples);
+    }
+    SDL_PutAudioStreamData(audioStream_, samples.data(),
+                           static_cast<int>(samples.size() * sizeof(std::int16_t)));
+    return;
+  }
+  audioDelayFifo_.insert(audioDelayFifo_.end(), samples.begin(), samples.end());
+  if (audioDelayFifo_.size() <= holdValues) {
+    return;  // still filling the delay line
+  }
+  std::size_t emitCount = audioDelayFifo_.size() - holdValues;
+  emitCount -= emitCount % 2;  // keep stereo pairs intact
+  std::vector<std::int16_t> emit(audioDelayFifo_.begin(),
+                                 audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
+  audioDelayFifo_.erase(audioDelayFifo_.begin(),
+                        audioDelayFifo_.begin() + static_cast<std::ptrdiff_t>(emitCount));
+  if (audioTap_) {
+    audioTap_(emit);
+  }
+  SDL_PutAudioStreamData(audioStream_, emit.data(),
+                         static_cast<int>(emit.size() * sizeof(std::int16_t)));
 }
 
 #if DECKBOY_INPROC_DECODE
