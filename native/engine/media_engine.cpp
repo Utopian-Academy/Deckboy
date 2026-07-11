@@ -1247,8 +1247,18 @@ double MediaEngine::fadeGainAt(double positionSeconds) const {
 // atomic and a one-buffer lag on a fade edit is inaudible.
 void MediaEngine::syncAudioFadeParams() {
   const Cue* cue = activeCue_;
-  audioFadeInSeconds_.store(cue ? cue->fadeInSeconds : 0.0, std::memory_order_relaxed);
-  audioFadeOutSeconds_.store(cue ? cue->fadeOutSeconds : 0.0, std::memory_order_relaxed);
+  // Audio fades follow the visual fades unless the cue overrides them
+  // (audioFade*Seconds >= 0 — 0 means "no audio fade", >0 explicit length).
+  double fadeIn = 0.0;
+  double fadeOut = 0.0;
+  if (cue) {
+    fadeIn = cue->audioFadeInSeconds >= 0.0f
+      ? static_cast<double>(cue->audioFadeInSeconds) : cue->fadeInSeconds;
+    fadeOut = cue->audioFadeOutSeconds >= 0.0f
+      ? static_cast<double>(cue->audioFadeOutSeconds) : cue->fadeOutSeconds;
+  }
+  audioFadeInSeconds_.store(fadeIn, std::memory_order_relaxed);
+  audioFadeOutSeconds_.store(fadeOut, std::memory_order_relaxed);
   audioFadeDuration_.store(cue ? duration_ : 0.0, std::memory_order_relaxed);
   audioSuppressFadeIn_.store(suppressFadeInForCurrentCue_, std::memory_order_relaxed);
   audioSuppressFadeOut_.store(suppressVisualFadeOutForCurrentCue_, std::memory_order_relaxed);

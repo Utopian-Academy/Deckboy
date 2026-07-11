@@ -82,6 +82,10 @@
       case QuickAction::AudioPanInc:     adjustSelectedAudioPan( 0.05); break;
       case QuickAction::ToggleCueMono:   toggleSelectedCueMono(); break;
       case QuickAction::NormalizeCueAudio: normalizeSelectedCueAudio(); break;
+      case QuickAction::AudioFadeInDec:  adjustSelectedAudioFade(true,  -0.25); break;
+      case QuickAction::AudioFadeInInc:  adjustSelectedAudioFade(true,   0.25); break;
+      case QuickAction::AudioFadeOutDec: adjustSelectedAudioFade(false, -0.25); break;
+      case QuickAction::AudioFadeOutInc: adjustSelectedAudioFade(false,  0.25); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
       case QuickAction::EditNotes: {
@@ -350,6 +354,9 @@
         break;
       case QuickAction::CueSectionKeyToggle:
         cueSectionKeyOpen_ = !cueSectionKeyOpen_;
+        break;
+      case QuickAction::CueSectionAudioToggle:
+        cueSectionAudioOpen_ = !cueSectionAudioOpen_;
         break;
       case QuickAction::CueSectionRoutingToggle:
         cueSectionRoutingOpen_ = !cueSectionRoutingOpen_;

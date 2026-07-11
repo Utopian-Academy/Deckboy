@@ -233,6 +233,34 @@
     return any;
   }
 
+  // Independent audio fade steps: below zero snaps to -1 "follow visual";
+  // stepping up from follow lands on 0 ("none"), then explicit seconds.
+  void adjustSelectedAudioFade(bool fadeIn, double delta) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    float current = fadeIn ? cue->audioFadeInSeconds : cue->audioFadeOutSeconds;
+    float next;
+    if (current < 0.0f) {
+      next = delta > 0.0 ? 0.0f : -1.0f;         // follow → none (or stay follow)
+    } else {
+      next = current + static_cast<float>(delta);
+      if (next < 0.0f) {
+        next = current > 0.0f ? 0.0f : -1.0f;     // explicit → none → follow
+      }
+    }
+    next = std::min(next, 60.0f);
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        if (fadeIn) { each.audioFadeInSeconds = next; } else { each.audioFadeOutSeconds = next; }
+      }
+    });
+    if (any) {
+      markProjectDirty();
+    }
+  }
+
   void toggleSelectedCueMono() {
     const Cue* cue = selectedCuePtr();
     if (!cue || !cue->hasAudio) {
