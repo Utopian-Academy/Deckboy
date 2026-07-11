@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.12 (theme readability guard; startup headline)
+
+- **No theme can render unreadable text anymore.** Several themes shipped
+  with text-role tones nearly identical to their background tones. Instead
+  of hand-tuning 24 theme files, `rebuildPalette` now ends with a
+  readability pass: WCAG-style contrast is enforced between the role pairs
+  the UI actually draws (light-on-deep 4.5:1, dark-on-light 3:1, accents
+  and secondary ink proportionally), nudging only the offending tone's
+  lightness until legible. Hue identity survives; compliant themes are
+  untouched.
+- The startup prompt's "Deckboy" headline is now headline-sized (new 42 pt
+  pixel-font instance, scales with UI scale).
+
 ## 2026-07-10 — v0.78.11 (A/V delay offset)
 
 - **Settings → Audio: "A/V delay" (0–1000 ms, ±10 steps).** Holds ALL deck

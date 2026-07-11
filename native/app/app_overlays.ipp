@@ -237,32 +237,39 @@
     SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
     Primitives::drawFramedPanel(controlRenderer_, dialog, pal.shellInner, pal.deep, pal.shellOuter);
 
-    // Title + file name
+    // Title — the WORDMARK is headline-sized; the version stays small on
+    // the subtitle line (it's metadata, not brand). Ink routed through the
+    // readability guard: the dialog fills with shellInner, which some
+    // themes make dark enough to swallow deep/inkSoft text.
     int tx = dialog.x + 36;
-    TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
+    TTF_Font* titleFont = fontPixelTitle_ ? fontPixelTitle_
+                        : (fontPixel_ ? fontPixel_ : fontLarge_);
     drawTextSafe(controlRenderer_, titleFont,
-                 SDL_Rect {tx, dialog.y + 38, dialog.w - 72, 34},
-                 std::string(kAppTitle) + " " + std::string(kAppVersionTag), pal.deep);
+                 SDL_Rect {tx, dialog.y + 24, dialog.w - 72, 52},
+                 std::string(kAppTitle), readableInkOn(pal.shellInner, pal.deep, 4.0));
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
-                 "dot-matrix cue deck", pal.inkSoft);
+                 "dot-matrix cue deck  -  " + std::string(kAppVersionTag),
+                 readableInkOn(pal.shellInner, pal.inkSoft));
+    SDL_Color dlgInk = readableInkOn(pal.shellInner, pal.deep);
+    SDL_Color dlgSub = readableInkOn(pal.shellInner, pal.dark, 2.2);
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {tx, dialog.y + 116, dialog.w - 72, 24},
-                 "Choose startup mode:", pal.deep);
+                 "Choose startup mode:", dlgInk);
 
     std::string fname = currentProjectFile_.empty() ? "default.deckboy" : currentProjectFile_.filename().string();
     bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
     if (hasSavedFile) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {tx, dialog.y + 152, dialog.w - 72, 18},
-                   "Previous show file:", pal.deep);
+                   "Previous show file:", dlgInk);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {tx, dialog.y + 176, dialog.w - 72, 18},
-                   fname, pal.dark);
+                   fname, dlgSub);
     } else {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {tx, dialog.y + 160, dialog.w - 72, 18},
-                   "No previous show file found at startup path.", pal.dark);
+                   "No previous show file found at startup path.", dlgSub);
     }
 
     // Buttons
@@ -286,14 +293,15 @@
                                 pal.deep, pal.light);
     drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED...", pal.deep, startupOpenSavedBtn_);
 
+    SDL_Color hintInk = readableInkOn(pal.shellInner, pal.inkSoft, 2.5);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 352, dialog.w - 72, 18},
                  "N=new  Enter/P=previous  O=open saved picker",
-                 pal.inkSoft);
+                 hintInk);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 374, dialog.w - 72, 18},
                  "Esc=continue with current session",
-                 pal.inkSoft);
+                 hintInk);
   }
 
 
