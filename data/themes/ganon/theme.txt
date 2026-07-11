@@ -1,11 +1,11 @@
 # Deckboy Theme: Ganon
-# Moody, muted crimson � dark-world evil.
+# Moody, muted crimson â€” dark-world evil.
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	1D1415FF
-shell_inner	2B1F21FF
+shell_inner	B5B0B2FF
 shell_shadow	080707FF
-screen_light	D83147FF
+screen_light	DB4156FF
 screen_mid	AE3243FF
 screen_dark	2B1D1FFF
 screen_deep	050505FF
