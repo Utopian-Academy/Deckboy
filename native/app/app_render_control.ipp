@@ -34,10 +34,8 @@
                      : isSelected ? pal.mid
                      : isNext     ? pal.light
                                   : pal.shellInner;
-    // Route ink through the readability guard: whatever the theme does,
-    // row text must stay legible on the row fill.
-    SDL_Color ink    = readableInkOn(fill, isLive ? pal.light : pal.deep);
-    SDL_Color subInk = readableInkOn(fill, isLive ? pal.mid : pal.dark, 2.2);
+    SDL_Color ink    = isLive ? pal.light : pal.deep;
+    SDL_Color subInk = isLive ? pal.mid   : pal.dark;
 
     drawUIPanel(row, fill, pal.deep, pal.mid);
 
@@ -1040,8 +1038,8 @@
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
     Primitives::fillRect(controlRenderer_, chip, chipColor);
 
-    SDL_Color ink = readableInkOn(fill, isLive ? pal.light : pal.deep);
-    SDL_Color subInk = readableInkOn(fill, isLive ? pal.mid : pal.dark, 2.2);
+    SDL_Color ink = isLive ? pal.light : pal.deep;
+    SDL_Color subInk = isLive ? pal.mid : pal.dark;
 
     // Indicator area (vertically centered in row)
     int indSize = 36;

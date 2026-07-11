@@ -238,21 +238,18 @@
     Primitives::drawFramedPanel(controlRenderer_, dialog, pal.shellInner, pal.deep, pal.shellOuter);
 
     // Title — the WORDMARK is headline-sized; the version stays small on
-    // the subtitle line (it's metadata, not brand). Ink routed through the
-    // readability guard: the dialog fills with shellInner, which some
-    // themes make dark enough to swallow deep/inkSoft text.
+    // the subtitle line (it's metadata, not brand).
     int tx = dialog.x + 36;
     TTF_Font* titleFont = fontPixelTitle_ ? fontPixelTitle_
                         : (fontPixel_ ? fontPixel_ : fontLarge_);
     drawTextSafe(controlRenderer_, titleFont,
                  SDL_Rect {tx, dialog.y + 24, dialog.w - 72, 52},
-                 std::string(kAppTitle), readableInkOn(pal.shellInner, pal.deep, 4.0));
+                 std::string(kAppTitle), pal.deep);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
-                 "dot-matrix cue deck  -  " + std::string(kAppVersionTag),
-                 readableInkOn(pal.shellInner, pal.inkSoft));
-    SDL_Color dlgInk = readableInkOn(pal.shellInner, pal.deep);
-    SDL_Color dlgSub = readableInkOn(pal.shellInner, pal.dark, 2.2);
+                 "dot-matrix cue deck  -  " + std::string(kAppVersionTag), pal.inkSoft);
+    SDL_Color dlgInk = pal.deep;
+    SDL_Color dlgSub = pal.dark;
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {tx, dialog.y + 116, dialog.w - 72, 24},
                  "Choose startup mode:", dlgInk);
@@ -293,7 +290,7 @@
                                 pal.deep, pal.light);
     drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED...", pal.deep, startupOpenSavedBtn_);
 
-    SDL_Color hintInk = readableInkOn(pal.shellInner, pal.inkSoft, 2.5);
+    SDL_Color hintInk = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 352, dialog.w - 72, 18},
                  "N=new  Enter/P=previous  O=open saved picker",

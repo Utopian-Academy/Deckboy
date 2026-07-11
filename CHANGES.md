@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.78.13 (readability fixed in the themes themselves)
+
+- **The v0.78.12 code-side color guard is removed** (James: fix the data,
+  not the renderer). Readability is now a theme-data contract:
+  - The generated theme batch (v0.76.30) shipped DARK `shell_inner` values
+    while the renderer draws near-black ink on that surface — dialog and
+    idle-strip text at ~1.3:1 contrast. All 26 affected themes now use a
+    light trim tint of their own hue (which is also what the real consoles
+    look like), tuned until every ink role clears its ratio.
+  - The `dark` theme is reworked (graphite chrome, light rows, near-black
+    ink) — its original tones were unreadable in six different pairs.
+  - `gamecube`'s selected-row purple and two `screen_light` tones nudged.
+- New `tools/audit_theme_contrast.ps1` encodes the exact ink/fill pairs the
+  UI draws with per-pair minimum ratios — run it after editing any theme;
+  "all themes pass" is the contract.
+- The startup wordmark stays headline-sized from v0.78.12; the version tag
+  stays small on the subtitle line.
+
 ## 2026-07-10 — v0.78.12 (theme readability guard; startup headline)
 
 - **No theme can render unreadable text anymore.** Several themes shipped
