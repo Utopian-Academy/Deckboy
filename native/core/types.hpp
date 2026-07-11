@@ -206,6 +206,11 @@ struct Cue {
   float audioGainDb = 0.0f;       // per-cue gain trim in dB (-24..+12), applied live in the audio thread
   float audioPan = 0.0f;          // stereo balance: -1 full left .. +1 full right (0 = center)
   bool audioMono = false;         // downmix this cue to mono (mono sources / mono PA)
+  // Independent audio fades: -1 = follow the visual fadeIn/OutSeconds
+  // (default), 0 = no audio fade, >0 = explicit seconds. Lets audio duck
+  // early under a long video tail, or hold under a fast visual cut.
+  float audioFadeInSeconds = -1.0f;
+  float audioFadeOutSeconds = -1.0f;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -614,6 +619,9 @@ enum class QuickAction {
   AudioPanDec, AudioPanInc,
   ToggleCueMono,
   NormalizeCueAudio,
+  AudioFadeInDec, AudioFadeInInc,
+  AudioFadeOutDec, AudioFadeOutInc,
+  CueSectionAudioToggle,
   // -- Metadata / labels ---
   CycleColorTag,
   EditNotes,

@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.78.14 (AUDIO section; deck fader named; independent audio fades)
+
+- **The cue inspector has a collapsible AUDIO section** (both layouts):
+  enable, gain, pan, mono, the new audio fades, and normalize — one place
+  for the cue's whole audio story, collapsible like GEOMETRY/OVERLAYS.
+- **"volume" is renamed "deck fader."** It was never per-cue: it's the
+  deck's live playback level (keyboard +/-), not saved with the cue — the
+  old label made it look redundant with gain. Per-cue trim is gain, in the
+  AUDIO section.
+- **Independent audio fades**: `a-fade in` / `a-fade out` per cue — follow
+  the visual fade (default), none, or explicit seconds. Duck audio early
+  under a long video tail, or hold it under a fast visual cut. Applied via
+  the same audio-thread fade mirrors; persisted (backward compatible);
+  smoke round-trip added. Timeline fade-envelope drawing is the noted
+  follow-up.
+
 ## 2026-07-11 — v0.78.13 (readability fixed in the themes themselves)
 
 - **The v0.78.12 code-side color guard is removed** (James: fix the data,

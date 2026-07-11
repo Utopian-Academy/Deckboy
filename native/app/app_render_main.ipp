@@ -2019,7 +2019,7 @@
       int playbackRowsUsed = 8;
       if (cueSectionPlaybackOpen_) {
         ry = playbackBodyY;
-      drawQuickRow(ry,                "volume",      QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+      drawQuickRow(ry,                "deck fader",  QuickAction::VolDec,     std::to_string(volPct) + "%",               QuickAction::VolInc,    QuickAction::ToggleLoop, false, false, "DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section");
       drawQuickRow(ry + kRowStep,     "fade in",  QuickAction::FadeInDec,  formatSeconds(selectedCue->fadeInSeconds),  QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "[ / ] keys — fade-in duration");
       drawQuickRow(ry + kRowStep * 2, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds), QuickAction::FadeOutInc,QuickAction::ToggleLoop, false, false, "Shift+[ / ] — fade-out duration");
       drawQuickRow(ry + kRowStep * 3, "in",       QuickAction::InDec,      formatSeconds(selectedCue->inPointSeconds), QuickAction::InInc,     QuickAction::ToggleLoop, false, false, "In-point: cue starts playback here");
@@ -2112,53 +2112,72 @@
                      "Load the cue and hold first frame when taken");
         rowCursor += 1;
 
-        std::string cueAudioLabel = selectedCue->hasAudio
-          ? (selectedCue->audioEnabled ? "on" : "off")
-          : "n/a";
-        drawQuickRow(ry + kRowStep * rowCursor, "audio", QuickAction::ToggleCueAudio,
-                     cueAudioLabel,
-                     QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
-                     selectedCue->hasAudio && selectedCue->audioEnabled,
-                     "Toggle cue audio track for this cue");
-        rowCursor += 1;
-
-        if (selectedCue->hasAudio) {
-          char gainBuf[24];
-          std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
-          drawQuickRow(ry + kRowStep * rowCursor, "gain", QuickAction::AudioGainDec,
-                       gainBuf, QuickAction::AudioGainInc,
-                       QuickAction::ToggleCueAudio, false, false,
-                       "Per-cue audio trim: -24 to +12 dB, applied live");
-          rowCursor += 1;
-
-          std::string panLabel = "center";
-          if (selectedCue->audioPan < -0.024f) {
-            panLabel = "L " + std::to_string(static_cast<int>(std::lround(-selectedCue->audioPan * 100.0f)));
-          } else if (selectedCue->audioPan > 0.024f) {
-            panLabel = "R " + std::to_string(static_cast<int>(std::lround(selectedCue->audioPan * 100.0f)));
+        // AUDIO is its own collapsible section: enable, trim, pan, mono,
+        // independent audio fades, loudness normalize.
+        {
+          int audioSecY = ry + kRowStep * rowCursor;
+          auto audioSection = beginInspectorSection(audioSecY, "AUDIO", cueSectionAudioOpen_,
+                                                    QuickAction::CueSectionAudioToggle,
+                                                    "Per-cue audio: enable, trim, pan, mono, fades, normalize");
+          int ay = audioSection.bodyStartY;
+          if (cueSectionAudioOpen_) {
+            if (!selectedCue->hasAudio) {
+              ay = drawInspectorMessageRow(ay, "no audio track", pal.light, pal.deep);
+            } else {
+              drawQuickRow(ay, "audio", QuickAction::ToggleCueAudio,
+                           selectedCue->audioEnabled ? "on" : "off",
+                           QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                           selectedCue->audioEnabled, "Toggle cue audio track for this cue");
+              ay += kRowStep;
+              char gainBuf[24];
+              std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
+              drawQuickRow(ay, "gain", QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
+                           QuickAction::ToggleLoop, false, false,
+                           "Per-cue audio trim: -24 to +12 dB, applied live");
+              ay += kRowStep;
+              std::string panLabel = "center";
+              if (selectedCue->audioPan < -0.024f) {
+                panLabel = "L " + std::to_string(static_cast<int>(std::lround(-selectedCue->audioPan * 100.0f)));
+              } else if (selectedCue->audioPan > 0.024f) {
+                panLabel = "R " + std::to_string(static_cast<int>(std::lround(selectedCue->audioPan * 100.0f)));
+              }
+              drawQuickRow(ay, "pan", QuickAction::AudioPanDec, panLabel, QuickAction::AudioPanInc,
+                           QuickAction::ToggleLoop, false, false,
+                           "Stereo balance, applied live (snaps to center)");
+              ay += kRowStep;
+              drawQuickRow(ay, "mono", QuickAction::ToggleCueMono,
+                           selectedCue->audioMono ? "on" : "off",
+                           QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
+                           selectedCue->audioMono, "Downmix this cue to mono (mono sources / mono PA)");
+              ay += kRowStep;
+              auto audioFadeLabel = [](float v) {
+                return v < 0.0f ? std::string("follow")
+                     : (v <= 0.001f ? std::string("none") : fmtFloat(v, 2) + "s");
+              };
+              drawQuickRow(ay, "a-fade in", QuickAction::AudioFadeInDec,
+                           audioFadeLabel(selectedCue->audioFadeInSeconds), QuickAction::AudioFadeInInc,
+                           QuickAction::ToggleLoop, false, false,
+                           "Audio fade-in: follow visual fade, none, or explicit seconds");
+              ay += kRowStep;
+              drawQuickRow(ay, "a-fade out", QuickAction::AudioFadeOutDec,
+                           audioFadeLabel(selectedCue->audioFadeOutSeconds), QuickAction::AudioFadeOutInc,
+                           QuickAction::ToggleLoop, false, false,
+                           "Audio fade-out: follow visual fade, none, or explicit seconds");
+              ay += kRowStep;
+              if (cueUsesFilesystemMedia(*selectedCue)) {
+                SDL_Rect normBtn {ctrl.x + 10, ay, kCtrlW - 20, 26};
+                Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
+                drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
+                                     "normalize loudness (R128)", pal.light);
+                quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
+                                         "Measure loudness and set gain for -16 LUFS playback"});
+                ay += kRowStep;
+              }
+            }
           }
-          drawQuickRow(ry + kRowStep * rowCursor, "pan", QuickAction::AudioPanDec,
-                       panLabel, QuickAction::AudioPanInc,
-                       QuickAction::ToggleCueAudio, false, false,
-                       "Stereo balance, applied live (snaps to center)");
-          rowCursor += 1;
-
-          drawQuickRow(ry + kRowStep * rowCursor, "mono", QuickAction::ToggleCueMono,
-                       selectedCue->audioMono ? "on" : "off",
-                       QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
-                       selectedCue->audioMono,
-                       "Downmix this cue to mono (mono sources / mono PA)");
-          rowCursor += 1;
-
-          if (cueUsesFilesystemMedia(*selectedCue)) {
-            SDL_Rect normBtn {ctrl.x + 10, ry + kRowStep * rowCursor, kCtrlW - 20, 26};
-            Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
-            drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
-                                 "normalize loudness (R128)", pal.light);
-            quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
-                                     "Measure loudness and set gain for -16 LUFS playback"});
-            rowCursor += 1;
-          }
+          finishInspectorSection(audioSection, ay);
+          int audioSecEnd = (cueSectionAudioOpen_ ? ay : audioSection.bodyStartY) + 6;
+          rowCursor += std::max(1, (audioSecEnd - audioSecY + kRowStep - 1) / kRowStep);
         }
 
         drawQuickRow(ry + kRowStep * rowCursor, "next xfade", QuickAction::ToggleNextTransition,
@@ -2714,8 +2733,8 @@
       int playbackY = playbackSection.bodyStartY;
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       if (cueSectionPlaybackOpen_) {
-        drawQuickRow(playbackY, "volume", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
-                     QuickAction::ToggleLoop, false, false, "Volume: +/- keys or click to adjust");
+        drawQuickRow(playbackY, "deck fader", QuickAction::VolDec, std::to_string(volPct) + "%", QuickAction::VolInc,
+                     QuickAction::ToggleLoop, false, false, "DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section");
         playbackY += kRowStep;
         drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
                      QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration");

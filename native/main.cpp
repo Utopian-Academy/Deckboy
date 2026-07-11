@@ -3100,6 +3100,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.audioGainDb
         << '\t' << cue.audioPan
         << '\t' << (cue.audioMono ? "1" : "0")
+        << '\t' << cue.audioFadeInSeconds
+        << '\t' << cue.audioFadeOutSeconds
         << '\n';
     }
   }
@@ -3542,6 +3544,8 @@ Project loadProject(const fs::path& projectFile) {
       cue.audioGainDb = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 4, 0.0)), -24.0f, 12.0f);
       cue.audioPan = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 5, 0.0)), -1.0f, 1.0f);
       cue.audioMono = safeBool(fields, subtitleBase + 6, false);
+      cue.audioFadeInSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 7, -1.0)), -1.0f, 60.0f);
+      cue.audioFadeOutSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 8, -1.0)), -1.0f, 60.0f);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -5586,6 +5590,7 @@ class App {
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
   bool cueSectionRoutingOpen_ = true;
+  bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {
     DecodedFrame frame;
     int readyTiles = 0;
