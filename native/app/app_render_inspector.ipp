@@ -104,6 +104,7 @@
         playFrac = static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0));
       drawWaveform(controlRenderer_, thumbArea, peaks, selectedCue->audioChannels >= 2, playFrac, inFrac, outFrac,
                    selectedCue->pausePoints, dur);
+      drawAudioFadeEnvelope(thumbArea, *selectedCue);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 16},
                    selectedCue->name, pal.mid);
@@ -151,9 +152,11 @@
       float playFrac = -1.0f;
       if (const MediaEngine* eng = focusedMediaEngine())
         playFrac = static_cast<float>(eng->position() / dur);
-      if (!peaks.empty() || pending)
+      if (!peaks.empty() || pending) {
         drawWaveform(controlRenderer_, waveRect, peaks, selectedCue->audioChannels >= 2, playFrac, inFrac, outFrac,
                      selectedCue->pausePoints, dur);
+        drawAudioFadeEnvelope(waveRect, *selectedCue);
+      }
     }
 
     // Label "cue panel" below thumb
