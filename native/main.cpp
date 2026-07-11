@@ -4234,6 +4234,43 @@ class App {
     int bodyStartY = 0;
   };
 
+  // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
+  // up across the fade-in after the in-point, ramp down into the out-point.
+  // Uses the audio fades when the cue overrides them (a-fade in/out), else
+  // the visual fades — the same resolution the audio thread applies.
+  void drawAudioFadeEnvelope(const SDL_Rect& rect, const Cue& cue) {
+    double dur = cue.duration > 0.0 ? cue.duration : 1.0;
+    double inPos = std::clamp(cue.inPointSeconds, 0.0, dur);
+    double outPos = cue.outPointSeconds > 0.0 ? std::clamp(cue.outPointSeconds, inPos, dur) : dur;
+    double fadeIn = cue.audioFadeInSeconds >= 0.0f
+      ? static_cast<double>(cue.audioFadeInSeconds) : cue.fadeInSeconds;
+    double fadeOut = cue.audioFadeOutSeconds >= 0.0f
+      ? static_cast<double>(cue.audioFadeOutSeconds) : cue.fadeOutSeconds;
+    if (fadeIn <= 0.001 && fadeOut <= 0.001) {
+      return;
+    }
+    auto xAt = [&](double sec) {
+      return static_cast<float>(rect.x)
+           + static_cast<float>(std::clamp(sec / dur, 0.0, 1.0) * (rect.w - 1));
+    };
+    float top = static_cast<float>(rect.y + 2);
+    float bottom = static_cast<float>(rect.y + rect.h - 2);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 220);
+    if (fadeIn > 0.001) {
+      float x0 = xAt(inPos);
+      float x1 = xAt(std::min(inPos + fadeIn, outPos));
+      SDL_RenderLine(controlRenderer_, x0, bottom, x1, top);
+      SDL_RenderLine(controlRenderer_, x0 + 1.0f, bottom, x1 + 1.0f, top);
+    }
+    if (fadeOut > 0.001) {
+      float x0 = xAt(std::max(outPos - fadeOut, inPos));
+      float x1 = xAt(outPos);
+      SDL_RenderLine(controlRenderer_, x0, top, x1, bottom);
+      SDL_RenderLine(controlRenderer_, x0 - 1.0f, top, x1 - 1.0f, bottom);
+    }
+  }
+
   // Shared label column width so every inspector row type aligns its value
   // box to the same grid. Quick/editable/status rows previously picked
   // 108/98/98 (docked) and 88/70/70 (floating) independently, so the value

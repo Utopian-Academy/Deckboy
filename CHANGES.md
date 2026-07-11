@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.78.15 (audio fade envelopes on every waveform)
+
+- **The audio fade envelope is drawn over every waveform** — the timeline's
+  audio lane, the program monitor strip, and both cue-panel thumbs/strips.
+  Ramps show the EFFECTIVE audio fades (the cue's a-fades when set,
+  otherwise the visual fades), anchored to the in/out points — the same
+  resolution the audio thread applies, so what you see is what plays.
+
 ## 2026-07-11 — v0.78.14 (AUDIO section; deck fader named; independent audio fades)
 
 - **The cue inspector has a collapsible AUDIO section** (both layouts):
