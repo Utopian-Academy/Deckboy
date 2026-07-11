@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-10 — v0.78.11 (A/V delay offset)
+
+- **Settings → Audio: "A/V delay" (0–1000 ms, ±10 steps).** Holds ALL deck
+  audio back by the set amount, for chains where the display or PA DSP lags
+  the video. Applied live in the audio threads via a delay FIFO — no
+  restarts — and the A/V master clock anchors to the undelayed timeline so
+  the skew is real at the device. VU meters follow the delayed (heard)
+  audio. The Pocket Test sync pop runs through the same delay, so the
+  dial-in workflow is: take the Pocket Test at the venue, watch the beacon,
+  and nudge the delay until flash and pop land together.
+- Persisted with the show (`audio_delay_ms`).
+
 ## 2026-07-10 — v0.78.10 (per-cue loudness normalize)
 
 - **Normalize loudness, per cue**: one button in the audio section (and the
