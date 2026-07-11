@@ -251,6 +251,7 @@
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
         engine->setMasterGain(static_cast<float>(project_.masterVolume));
+        engine->setAudioDelayMs(project_.audioDelayMs);
       }
     }
     flushDirtyProject();

@@ -156,6 +156,10 @@ class MediaEngine {
   // audio thread. Synced from Project::masterVolume every app tick so the
   // header fader affects all decks no matter which path changed it.
   void setMasterGain(float value) { masterGain_.store(std::clamp(value, 0.0f, 2.0f)); }
+  // Chain A/V offset: all queued audio is held back this long before it
+  // reaches the SDL stream (0–1000 ms). Synced from Project::audioDelayMs
+  // per tick like the master gain; applied in the audio-thread tail.
+  void setAudioDelayMs(int ms) { audioDelayMs_.store(std::clamp(ms, 0, 1000)); }
   void setPausePoints(std::vector<double> points); // set auto-pause timecodes
 
   // -- Frame update and rendering (called from main loop) ----------------------
@@ -264,6 +268,9 @@ class MediaEngine {
   // both the CLI pipe thread and the in-process thread so the audio-master
   // clock semantics stay identical.
   void applyGainAndQueueAudio(std::vector<std::int16_t>& samples, double& audioTime);
+  // Final stage: delay FIFO (chain A/V offset) → tap → SDL stream. Shared by
+  // decode audio and the pocket-test sync pop.
+  void queueDelayedAudio(std::vector<std::int16_t>& samples);
 
   // -- Pattern rendering helpers (static, pure) --------------------------------
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color);
@@ -400,6 +407,10 @@ class MediaEngine {
   std::atomic<double> audioCueGain_ {1.0};   // per-cue trim, linear (from Cue::audioGainDb)
   std::atomic<float> audioCuePan_ {0.0f};    // per-cue balance -1..+1
   std::atomic<bool> audioCueMono_ {false};   // per-cue mono downmix
+  std::atomic<int> audioDelayMs_ {0};        // chain A/V offset (project-level)
+  std::deque<std::int16_t> audioDelayFifo_;  // holds processed samples for the delay
+                                             // (owned by whichever thread queues audio;
+                                             // cleared only after threads are joined)
 
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit

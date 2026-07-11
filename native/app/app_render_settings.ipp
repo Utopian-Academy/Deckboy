@@ -355,10 +355,24 @@
       Primitives::drawFramedPanel(controlRenderer_, bufBtn, pal.mid, pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, bufLabel, ink, bufBtn);
       settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
+      // Chain A/V offset: -/+ buttons around the current delay readout.
+      SDL_Rect delayDecBtn {bufBtn.x + bufBtn.w + 12, bufBtn.y, 24, 24};
+      SDL_Rect delayLabel {delayDecBtn.x + delayDecBtn.w + 4, bufBtn.y, 120, 24};
+      SDL_Rect delayIncBtn {delayLabel.x + delayLabel.w + 4, bufBtn.y, 24, 24};
+      Primitives::drawFramedPanel(controlRenderer_, delayDecBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "-", ink, delayDecBtn);
+      Primitives::drawFramedPanel(controlRenderer_, delayLabel, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_,
+                       "A/V delay: " + std::to_string(project_.audioDelayMs) + " ms",
+                       ink, delayLabel);
+      Primitives::drawFramedPanel(controlRenderer_, delayIncBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "+", ink, delayIncBtn);
+      settingsBtns_.push_back({delayDecBtn, kSettingsActionAudioDelayDec, "audio_delay_dec"});
+      settingsBtns_.push_back({delayIncBtn, kSettingsActionAudioDelayInc, "audio_delay_inc"});
       const int audioFootY = bufBtn.y + bufBtn.h + 6;
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{audioRect.x + 8, audioFootY, audioRect.w - 16, 16},
-                   "Smaller buffer = lower latency; larger = more stable.", soft);
+                   "Smaller buffer = lower latency. A/V delay holds audio back for lagging displays — dial in with the Pocket Test beacon.", soft);
 
       drawCard(midiRect, "MIDI CONTROL", "Optional external transport and cue control");
       SDL_Rect midiEnBtn {midiRect.x + 8, midiRect.y + 54, 120, 26};
@@ -1310,6 +1324,13 @@
         Deck& deck = focusedDeckMutable();
         deck.playlistDefaultTransitionToNext = !deck.playlistDefaultTransitionToNext;
         triggerToast(std::string("new cues next transition: ") + (deck.playlistDefaultTransitionToNext ? "on" : "off"));
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionAudioDelayDec ||
+                 sb.action == kSettingsActionAudioDelayInc) {
+        int step = sb.action == kSettingsActionAudioDelayInc ? 10 : -10;
+        project_.audioDelayMs = std::clamp(project_.audioDelayMs + step, 0, 1000);
+        // Applied live next tick (engines sync the atomic alongside master gain).
+        triggerToast("A/V delay: " + std::to_string(project_.audioDelayMs) + " ms");
         markProjectDirty();
       } else if (sb.action == kSettingsActionAudioBufferCycle) {
         // Cycle audio buffer: 256 → 512 → 1024 → 2048 → 256

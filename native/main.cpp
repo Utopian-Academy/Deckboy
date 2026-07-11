@@ -2881,6 +2881,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "integration_tsl_port\t" << project.tslTallyPort << '\n';
   output << "integration_tsl_address\t" << escapeField(project.tslTallyAddress) << '\n';
   output << "audio_buffer_samples\t" << project.audioBufferSamples << '\n';
+  output << "audio_delay_ms\t" << project.audioDelayMs << '\n';
   output << "jump_mode\t" << escapeField(project.jumpMode) << '\n';
   output << "jump_transition\t" << (project.jumpTransitionEnabled ? 1 : 0) << '\n';
   output << "panic_profile\t" << escapeField(project.panicProfile) << '\n';
@@ -3209,6 +3210,8 @@ Project loadProject(const fs::path& projectFile) {
       // Snap to valid sizes only
       if (v <= 256) v = 256; else if (v <= 512) v = 512; else if (v <= 1024) v = 1024; else v = 2048;
       project.audioBufferSamples = v;
+    } else if (fields[0] == "audio_delay_ms") {
+      project.audioDelayMs = std::clamp(safeInt(fields, 1, 0), 0, 1000);
     } else if (fields[0] == "jump_mode") {
       project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
     } else if (fields[0] == "jump_transition") {
@@ -5306,6 +5309,8 @@ class App {
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
   static constexpr int kSettingsActionEncoderAddFile = 648;
+  static constexpr int kSettingsActionAudioDelayDec = 649;
+  static constexpr int kSettingsActionAudioDelayInc = 650;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
