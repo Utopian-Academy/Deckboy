@@ -1,9 +1,9 @@
 # Deckboy Theme: Mario
-# It's-a red � with a denim-blue streak.
+# It's-a red â€” with a denim-blue streak.
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	1C1514FF
-shell_inner	2B211FFF
+shell_inner	AEAAA9FF
 shell_shadow	080707FF
 screen_light	FA5347FF
 screen_mid	3260AEFF

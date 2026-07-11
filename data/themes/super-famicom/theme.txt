@@ -3,7 +3,7 @@
 # All color values are RRGGBBAA hex. Generated colorway.
 
 shell_outer	17151BFF
-shell_inner	242129FF
+shell_inner	B2B2B4FF
 shell_shadow	080708FF
 screen_light	BD92DDFF
 screen_mid	7832AEFF

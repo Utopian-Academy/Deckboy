@@ -3,7 +3,7 @@
 # All color values are RRGGBBAA hex.
 
 shell_outer	C4CFA1FF
-shell_inner	A5B088FF
+shell_inner	AEB894FF
 shell_shadow	5A6B4AFF
 screen_light	9BBC0FFF
 screen_mid	8BAC0FFF
