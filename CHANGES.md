@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.7 (startup mascot in the empty program monitor)
+
+- **A hovering "terminal face friend" + rotating tips** now fill the empty
+  program monitor at the start of a session, until the first clip is loaded
+  into it. BMO-style: glowing theme-tinted eyes and mouth drawn straight onto
+  the dark screen (the monitor itself is the face). Everything animates
+  smoothly and continuously — a 2D floaty hover, eased squish-blinks, a slow
+  look-around drift, a smile that breathes, and twinkling stars slowly orbiting
+  the face — no discrete state snaps. A tip line beneath cycles operator hints
+  (import, timeline grip, themes, relink, per-cue audio, shortcuts). It retires
+  the moment a clip loads and stays gone for the run.
+- As a side effect this also darkens the empty-monitor backdrop while the face
+  is up, replacing the bright idle fill that looked harsh on OLED themes.
+
 ## 2026-07-12 — v0.79.6 (denser timeline filmstrip; consistent thumbnail aspect)
 
 - **9 stills per clip** on the timeline filmstrip (was 5), so it reads as a
