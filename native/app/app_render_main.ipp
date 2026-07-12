@@ -204,7 +204,7 @@
     SDL_Rect timelineCueRect {timelineInfoRect.x, timelineInfoRect.y + 1, timelineInfoRect.w, 22};
     drawTextSafe(controlRenderer_, fontSmall_, timelineCueRect,
                  timelineCue ? cueSummaryLabel(timelineCue, timelineCueIndex, "No cue loaded") : "No cue loaded",
-                 pal.deep);
+                 pal.fg);
     SDL_Rect timelineClockRect {timelineInfoRect.x, timelineInfoRect.y + 24, timelineInfoRect.w, 24};
     std::string timelineClock = timelineCue == activeCue && timelineDuration > 0.0
       ? (formatSeconds(timelinePlaySeconds) + " / " + formatSeconds(timelineDuration))
@@ -1160,7 +1160,7 @@
       std::string note = timelineCue == activeCue
         ? "live lane  |  I/O set trim  |  click or drag to seek"
         : "selected cue lane  |  TAKE to make it live";
-      drawTextSafe(controlRenderer_, fontSmall_, noteRect, note, pal.deep);
+      drawTextSafe(controlRenderer_, fontSmall_, noteRect, note, pal.fg);
     }
 
     // --- Cue Inspector panel (with thumbnail at top) ---
