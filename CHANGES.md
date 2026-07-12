@@ -1,5 +1,15 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.5 (settings panel terminal readability)
+
+- **Settings modal on terminal themes.** The content frame now uses the
+  tile fill (a dark frame on OLED themes instead of a bright block; unchanged
+  on light themes), and the one bare card-body label ("Mappings") routes
+  through `screen_fg`. The rest of the modal was already terminal-safe — card
+  titles render bright on dark title plates, hints use the audited
+  `screen_ink_soft`, and control buttons sit on bright/`mid` fills with dark
+  text.
+
 ## 2026-07-12 — v0.79.4 (resizable timeline; dialog readability; sharper thumbnails)
 
 - **Resizable program monitor ↔ timeline split.** A draggable grip in the
