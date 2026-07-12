@@ -527,6 +527,7 @@
       // media and raises the RELINK state, not as a decoder fault.
       if (engine->consumeDecodeStall()) {
         engine->stop(true);
+        ++decodeStallTotal_;
         bool mediaLost = false;
         {
           Deck& deck = project_.decks[deckIndex];
@@ -576,7 +577,8 @@
                 }
               }
               if (!shuffleChoices.empty()) {
-                nextIndex = shuffleChoices[std::rand() % shuffleChoices.size()];
+                std::uniform_int_distribution<std::size_t> pick(0, shuffleChoices.size() - 1);
+                nextIndex = shuffleChoices[pick(shuffleRng_)];
               } else if (deck.playlistLoop && playableIndices.size() == 1) {
                 nextIndex = playableIndices.front();
               }
