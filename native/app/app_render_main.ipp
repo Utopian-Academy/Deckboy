@@ -29,14 +29,16 @@
   // Glowing + theme-tinted; up until the first clip loads this session.
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs) {
     static const char* kTips[] = {
-      "hi! i'm deckboy - press I to import a clip, then Enter to take it live",
-      "drag the grip under this monitor to grow the timeline lanes",
-      "try a theme in Settings (P) - the dark ones are OLED terminals",
-      "RELINK repoints missing media if a drive letter changes",
-      "every cue has its own gain, pan and fades in the AUDIO section",
-      "route audio to 2-8 output channels per cue on a multichannel device",
-      "Ctrl+/ shows every keyboard shortcut",
-      "the timeline filmstrip previews each clip - set trims with I and O",
+      "hi! i'm deckboy :)",
+      "press I to import a clip",
+      "Enter takes a cue live",
+      "S stops the live cue",
+      "the timeline can be resized",
+      "try a terminal theme in Settings (P)",
+      "RELINK finds media that moved",
+      "cues have their own gain & fades",
+      "trim clips with I and O",
+      "Ctrl+/ shows all shortcuts",
     };
     const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
 
@@ -129,10 +131,13 @@
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    // Rotating tip line under the face.
+    // Rotating tip under the face — bigger text, no box.
     int tipIdx = static_cast<int>(nowMs / 4500) % tipCount;
-    SDL_Rect tipRect {area.x + 12, cy + area.h / 6 + unit, area.w - 24, 22};
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, tipRect, kTips[tipIdx], pal.fg);
+    TTF_Font* tipFont = fontBase_ ? fontBase_ : fontSmall_;
+    int tipH = std::max(22, textLineHeight(tipFont) + 4);
+    int tipY = std::min(area.y + area.h - tipH - 6, cy + unit * 3);
+    SDL_Rect tipRect {area.x + 12, tipY, area.w - 24, tipH};
+    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect, kTips[tipIdx], pal.fg);
   }
 
   // Render the main panel split into program area (left) and inspector (right).
