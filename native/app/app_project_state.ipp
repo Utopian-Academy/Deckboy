@@ -1240,6 +1240,116 @@
     });
   }
 
+  // Missing-media scan: flags file-backed cues whose media can't be found on
+  // disk right now. Runtime-only state — never serialized. One fs::exists per
+  // file cue, so it's cheap enough to re-run after load, import, and relink
+  // rather than cached (network paths only pay the cost at those moments,
+  // not per frame). Returns the missing count and mirrors it into
+  // missingMediaCount_ for the toolbar RELINK button.
+  int scanProjectMediaPresence() {
+    int missing = 0;
+    for (auto& deck : project_.decks) {
+      for (auto& cue : deck.cues) {
+        cue.mediaMissing = false;
+        if (!cueUsesFilesystemMedia(cue)) {
+          continue;
+        }
+        auto sourcePath = resolveCueFilesystemPath(cue, currentProjectFile_);
+        if (!sourcePath || sourcePath->empty()) {
+          continue;
+        }
+        std::error_code ec;
+        cue.mediaMissing = !fs::exists(*sourcePath, ec);
+        if (cue.mediaMissing) {
+          ++missing;
+        }
+      }
+    }
+    missingMediaCount_ = missing;
+    return missing;
+  }
+
+  // Relink: given a folder the operator picked, re-point every missing cue at
+  // a file with the same name found anywhere under that folder. When several
+  // candidates share the name, an exact file-size match (cue.sizeBytes from
+  // the original probe) wins; otherwise the first hit is taken. Returns how
+  // many cues were relinked.
+  int relinkMissingMediaFromFolder(const fs::path& root) {
+    std::error_code ec;
+    if (root.empty() || !fs::is_directory(root, ec)) {
+      triggerToast("relink: folder not found");
+      return 0;
+    }
+
+    // Index the folder once: lowercase filename → full paths. Capped so a
+    // mistaken pick of C:\ can't hang the app for minutes.
+    constexpr int kMaxIndexEntries = 200000;
+    std::unordered_map<std::string, std::vector<fs::path>> byName;
+    int indexed = 0;
+    auto it = fs::recursive_directory_iterator(
+      root, fs::directory_options::skip_permission_denied, ec);
+    auto end = fs::recursive_directory_iterator();
+    for (; !ec && it != end && indexed < kMaxIndexEntries; it.increment(ec)) {
+      if (!it->is_regular_file(ec)) {
+        continue;
+      }
+      byName[toLower(it->path().filename().string())].push_back(it->path());
+      ++indexed;
+    }
+
+    pushUndoSnapshot();
+    int stillMissing = 0;
+    int relinked = 0;
+    for (auto& deck : project_.decks) {
+      for (auto& cue : deck.cues) {
+        if (!cue.mediaMissing) {
+          continue;
+        }
+        std::string wantedName = fs::path(cue.path).filename().string();
+        auto found = byName.find(toLower(wantedName));
+        if (wantedName.empty() || found == byName.end() || found->second.empty()) {
+          ++stillMissing;
+          continue;
+        }
+        const fs::path* pick = &found->second.front();
+        if (cue.sizeBytes > 0 && found->second.size() > 1) {
+          for (const auto& candidate : found->second) {
+            std::error_code sizeEc;
+            if (fs::file_size(candidate, sizeEc) == cue.sizeBytes && !sizeEc) {
+              pick = &candidate;
+              break;
+            }
+          }
+        }
+        cue.path = pick->generic_string();
+        cue.mediaMissing = false;
+        ++relinked;
+      }
+    }
+    missingMediaCount_ = stillMissing;
+
+    if (relinked > 0) {
+      markProjectDirty();
+    }
+    std::ostringstream message;
+    message << "relinked " << relinked << " cue" << (relinked == 1 ? "" : "s");
+    if (stillMissing > 0) {
+      message << ", " << stillMissing << " still missing";
+    }
+    triggerToast(message.str());
+    return relinked;
+  }
+
+  void relinkMediaFromPicker() {
+    if (pendingMediaRelink_.valid() &&
+        pendingMediaRelink_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
+      return;
+    }
+    pendingMediaRelink_ = std::async(std::launch::async, [this] {
+      return pickFolder("Locate missing media - pick the folder that now holds the files");
+    });
+  }
+
   bool startNewShow(bool withToast = true) {
     resetTransientPreviewState();
     project_ = Project {};
@@ -1253,6 +1363,7 @@
       deck.activeIndex = -1;
     }
     currentProjectFile_ = defaultProjectFile();
+    missingMediaCount_ = 0;
     timecodeTriggeredCueIds_.clear();
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
