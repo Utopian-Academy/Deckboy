@@ -533,11 +533,36 @@
         timelineStripTexW_ > 0 && timelineStripTexH_ > 0) {
       SDL_Rect stripDst = progressBarRect_;
       SDL_SetTextureBlendMode(timelineStripTex_, SDL_BLENDMODE_NONE);
-      // Smooth (linear) upscale — the strip is stretched to fill the lane,
-      // which grows tall when the timeline is enlarged; nearest-neighbour
-      // would look blocky on the photographic thumbnails.
+      // Smooth (linear) upscale for the photographic thumbnails.
       SDL_SetTextureScaleMode(timelineStripTex_, SDL_SCALEMODE_LINEAR);
-      SDL_RenderTexture(controlRenderer_, timelineStripTex_, nullptr, &stripDst);
+      // Draw each tile into its own equal column with an aspect-preserving
+      // centre-crop (fill), rather than stretching the whole strip to the lane
+      // rect. Stretching skewed every thumbnail's aspect as the lane grew
+      // taller via the splitter; cropping keeps them all consistent at any
+      // lane size. Columns use rounded edges so they tile seamlessly.
+      const int stripTiles = kTimelineStripThumbCount;
+      const double srcAspect =
+        static_cast<double>(kTimelineStripThumbW) / static_cast<double>(kTimelineStripThumbH);
+      for (int ti = 0; ti < stripTiles; ++ti) {
+        int colX0 = stripDst.x + ti * stripDst.w / stripTiles;
+        int colX1 = stripDst.x + (ti + 1) * stripDst.w / stripTiles;
+        SDL_Rect dst {colX0, stripDst.y, std::max(1, colX1 - colX0), stripDst.h};
+        int srcX = ti * (kTimelineStripThumbW + kTimelineStripPadding);
+        SDL_Rect src {srcX, 0, kTimelineStripThumbW, kTimelineStripThumbH};
+        double dstAspect = static_cast<double>(dst.w) / static_cast<double>(std::max(1, dst.h));
+        if (srcAspect > dstAspect) {
+          // Source is wider than the column — crop its sides.
+          int cropW = std::max(1, static_cast<int>(std::lround(kTimelineStripThumbH * dstAspect)));
+          src.x = srcX + (kTimelineStripThumbW - cropW) / 2;
+          src.w = cropW;
+        } else {
+          // Source is taller than the column — crop top and bottom.
+          int cropH = std::max(1, static_cast<int>(std::lround(kTimelineStripThumbW / dstAspect)));
+          src.y = (kTimelineStripThumbH - cropH) / 2;
+          src.h = cropH;
+        }
+        SDL_RenderTexture(controlRenderer_, timelineStripTex_, &src, &dst);
+      }
       if (timelineStripLoadingCurrent) {
         drawTimelineLoadingAnimation(progressBarRect_);
       }
