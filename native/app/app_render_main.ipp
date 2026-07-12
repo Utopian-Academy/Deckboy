@@ -20,6 +20,106 @@
 // Do NOT compile this file separately.
 // ============================================================================
 
+  // A hovering "terminal face friend" (BMO-style) drawn straight onto the dark
+  // program monitor — the monitor itself is the screen. Everything animates
+  // continuously and smoothly (no discrete state snaps): a 2D floaty hover,
+  // eased squish-blinks, a slow look-around drift, a smile that breathes, and
+  // twinkling stars slowly orbiting the face. Glowing + theme-tinted; shown
+  // until the first clip loads this session (see firstClipLoadedThisSession_).
+  void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs) {
+    static const char* kTips[] = {
+      "hi! i'm deckboy - press I to import a clip, then Enter to take it live",
+      "drag the grip under this monitor to grow the timeline lanes",
+      "try a theme in Settings (P) - the dark ones are OLED terminals",
+      "RELINK repoints missing media if a drive letter changes",
+      "every cue has its own gain, pan and fades in the AUDIO section",
+      "route audio to 2-8 output channels per cue on a multichannel device",
+      "Ctrl+/ shows every keyboard shortcut",
+      "the timeline filmstrip previews each clip - set trims with I and O",
+    };
+    const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
+
+    if (area.w < 150 || area.h < 120) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, area,
+                           "hi! press I to import a clip", pal.fg);
+      return;
+    }
+
+    const double kPi = 3.14159265358979;
+    double t = static_cast<double>(nowMs) / 1000.0;
+    int unit = std::clamp(std::min(area.w, area.h) / 9, 14, 40);
+    const SDL_Color glow = pal.light;
+    const int thick = std::max(3, unit / 4);
+
+    // Floaty hover — a slow 2D Lissajous drift so the face gently bobs and
+    // sways in place, like it's hovering.
+    int cx = area.x + area.w / 2 + static_cast<int>(std::lround(std::sin(t * 0.8) * 5.0));
+    int cy = area.y + area.h / 2 - area.h / 9
+             + static_cast<int>(std::lround(std::sin(t * 1.4) * 4.0 + std::sin(t * 0.6 + 1.0) * 2.0));
+
+    // Slow "looking around" drift shared by both eyes.
+    int lookX = static_cast<int>(std::lround(std::sin(t * 0.45) * unit * 0.18));
+    int lookY = static_cast<int>(std::lround(std::sin(t * 0.33 + 0.7) * unit * 0.10));
+
+    // Smooth eased blink every ~4s — the eyes squish shut and reopen instead of
+    // snapping. `blink` ramps 0->1->0 across ~0.22s with a smoothstep.
+    double bp = std::fmod(t, 4.0);
+    double blink = 0.0;
+    if (bp < 0.22) {
+      double u = bp / 0.22;
+      double s = std::sin(u * kPi);
+      blink = s * s * (3.0 - 2.0 * s);
+    }
+    double eyeOpen = 1.0 - 0.90 * blink;
+
+    // The smile curvature breathes smoothly between gentle and wide.
+    double smile = 0.55 + 0.45 * std::sin(t * 0.5);
+
+    // --- Eyes: glowing dots that squish on blink and drift on look-around ---
+    int eyeGap = unit * 3;
+    int eyeCY = cy - unit;
+    int eyeW = std::max(6, unit * 4 / 5);
+    int eyeHFull = unit * 5 / 4;
+    int eyeH = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen)));
+    auto drawEye = [&](int exBase) {
+      int ex = exBase + lookX;
+      int ey = eyeCY + (eyeHFull - eyeH) / 2 + lookY;
+      Primitives::fillRect(controlRenderer_, SDL_Rect{ex - eyeW / 2, ey, eyeW, eyeH}, glow);
+    };
+    drawEye(cx - eyeGap / 2);
+    drawEye(cx + eyeGap / 2);
+
+    // --- Mouth: an upward parabola whose depth breathes with `smile` ---
+    int mouthCY = cy + unit * 3 / 2;
+    int mouthW = unit * 3;
+    double depth = smile * unit;
+    int N = 12;
+    for (int i = 0; i <= N; ++i) {
+      double fx = static_cast<double>(i) / N * 2.0 - 1.0;
+      int px = cx + static_cast<int>(fx * mouthW / 2) + lookX / 2;
+      int py = mouthCY + static_cast<int>(depth * (1.0 - fx * fx));
+      Primitives::fillRect(controlRenderer_, SDL_Rect{px - thick / 2, py - thick / 2, thick, thick}, glow);
+    }
+
+    // --- Floaty twinkling stars slowly orbiting the face ---
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    for (int s = 0; s < 3; ++s) {
+      double ph = t * 0.6 + s * (2.0 * kPi / 3.0);
+      double rad = unit * 3.2 + std::sin(t * 0.7 + s) * unit * 0.4;
+      int sx = cx + static_cast<int>(std::lround(std::cos(ph) * rad * 1.5));
+      int sy = cy - unit + static_cast<int>(std::lround(std::sin(ph) * rad * 0.7));
+      SDL_Color star = glow;
+      star.a = static_cast<Uint8>(60 + 150 * std::fabs(std::sin(t * 1.6 + s * 1.3)));
+      drawStar(controlRenderer_, sx, sy, 2 + (s % 2), star);
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // Rotating tip line under the face.
+    int tipIdx = static_cast<int>(nowMs / 4500) % tipCount;
+    SDL_Rect tipRect {area.x + 12, cy + area.h / 6 + unit, area.w - 24, 22};
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, tipRect, kTips[tipIdx], pal.fg);
+  }
+
   // Render the main panel split into program area (left) and inspector (right).
   // The inspector width is adjustable via a splitter drag handle.
   void renderMainPanel(const SDL_Rect& panel) {
@@ -731,9 +831,18 @@
 
     // --- Program monitor / live output view ---
     bool hasLiveVideo = controlPreviewTex_ && controlPreviewTexW_ > 0 && controlPreviewTexH_ > 0;
-    SDL_Color programBg = hasLiveVideo ? pal.deep : pal.light;
-    SDL_Color programBorder = hasLiveVideo ? pal.dark : pal.mid;
-    
+    // Once any clip has been loaded into the monitor this session, the startup
+    // mascot retires for good; a clip in the monitor (or an active cue) trips it.
+    if (hasLiveVideo || activeCue) {
+      firstClipLoadedThisSession_ = true;
+    }
+    bool showMascot = !firstClipLoadedThisSession_ && !activeCue && !hasLiveVideo;
+    // The mascot needs a dark backdrop for its bright LCD face to read, so the
+    // empty monitor goes deep while it's up (instead of the bright idle fill).
+    bool darkMonitorBg = hasLiveVideo || showMascot;
+    SDL_Color programBg = darkMonitorBg ? pal.deep : pal.light;
+    SDL_Color programBorder = darkMonitorBg ? pal.dark : pal.mid;
+
     drawUIPanel(programMonitorRect, programBg, pal.deep, programBorder);
     
     // Dominant LIVE badge
@@ -880,7 +989,7 @@
       if (monitorLabel && monitorLabelAvailW > 0) {
         SDL_Rect monitorLabelRect {monitorLabelX, programMonitorRect.y + 4, monitorLabelAvailW, 22};
         drawTextSafe(controlRenderer_, monitorLabelFont, monitorLabelRect,
-                     monitorLabel, hasLiveVideo ? pal.dark : pal.deep);
+                     monitorLabel, hasLiveVideo ? pal.dark : (showMascot ? pal.inkSoft : pal.deep));
       }
     }
     
@@ -891,7 +1000,7 @@
         + "  " + std::to_string(outW) + "x" + std::to_string(outH);
       SDL_Rect outInfoRect {programMonitorRect.x + 4, programMonitorRect.y + programMonitorRect.h - 32, programMonitorRect.w - 8, 20};
       drawTextSafe(controlRenderer_, fontSmall_, outInfoRect, outInfo,
-                   hasLiveVideo ? pal.mid : pal.dark);
+                   hasLiveVideo ? pal.mid : (showMascot ? pal.inkSoft : pal.dark));
     }
 
     warpMonitorInner_ = {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 48};
@@ -909,10 +1018,14 @@
       SDL_Rect inner = warpMonitorInner_;
       renderCompositeCuePlaceholder(controlRenderer_, inner, *activeCue, true);
     } else if (!activeCue) {
-      SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,
-                   "NO LIVE CUE",
-                   pal.deep);
+      if (showMascot) {
+        drawStartupMascot(warpMonitorInner_, animationNow_);
+      } else {
+        SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,
+                     "NO LIVE CUE",
+                     pal.deep);
+      }
     } else if (activeCue->kind == CueKind::Audio) {
       SDL_Rect inner {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 54};
       bool _wfPending = false;

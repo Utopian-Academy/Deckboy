@@ -5898,6 +5898,10 @@ class App {
   int programFullMonitorH_ = 0;
   int timelineExtraH_ = 0;
   static constexpr int kProgramMonitorMinH = 200;
+  // Startup mascot: an animated kawaii Deckboy face with rotating tips fills
+  // the empty program monitor until the first clip is loaded into it this
+  // session. Once a clip loads, it retires for the rest of the run.
+  bool firstClipLoadedThisSession_ = false;
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
