@@ -1450,6 +1450,11 @@
     if (!projectDirty_) {
       return;
     }
+    // Soak mode rewires end actions to force a loop; none of that may ever
+    // be persisted into the operator's show file.
+    if (soakMode_) {
+      return;
+    }
     auto age = std::chrono::steady_clock::now() - projectDirtyAt_;
     if (age >= std::chrono::milliseconds(300)) {
       persistProject();

@@ -1165,6 +1165,12 @@
 
     // --- Cue Inspector panel (with thumbnail at top) ---
     SDL_Rect ctrl = inspectorBody;
+    // Fill the inspector body with shell_inner so the bare row labels (drawn
+    // in pal.deep) have the legible fill the palette.hpp contract assumes for
+    // dark ink. Without this the labels fall on shell_outer (the case color),
+    // which is near-black in most themes → black-on-black. shell_inner is the
+    // fill the audit already verifies dark/deep/ink_soft against.
+    Primitives::fillRect(controlRenderer_, inspectorBody, pal.shellInner);
     int kCtrlW = ctrl.w;
     constexpr int kInspectorInset = 14;
     constexpr int kInspectorHeaderGap = 18;

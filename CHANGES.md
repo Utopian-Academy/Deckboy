@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.79.2 (soak harness; shuffle seeding; inspector readability)
+
+- **`--soak [minutes]` long-run stability harness.** Loops the loaded show
+  (or synthesized patterns if none) through the real app loop, logging
+  RSS / decode-stall / missing-media counters once a minute to stdout and
+  `deckboy-soak.log`, then quits. Never persists the looped state into the
+  show file. For 24 h+ runs on show hardware. Default 24 h; e.g.
+  `Deckboy.exe --soak 720` for a 12 h run.
+- **Shuffle now actually shuffles differently each launch.** It used
+  `std::rand()` with no `srand()`, so every run produced the identical
+  "random" order. Replaced with a `std::mt19937` seeded from
+  `std::random_device` (and a proper uniform distribution, no modulo bias).
+- **Cue inspector text is readable on every theme.** The inspector body
+  had no fill of its own, so its row labels (dark ink) fell on the
+  shell_outer case color — near-black on near-black in famicom and 26
+  other themes. The body now fills with shell_inner, the fill the
+  palette.hpp contract already assumes for dark ink (and that the contrast
+  audit verifies). Theme colors unchanged; each console keeps its case.
+
 ## 2026-07-11 — v0.79.1 (mid-show media loss hardening)
 
 - **A vanished file can no longer take a deck down mid-show.** Taking a
