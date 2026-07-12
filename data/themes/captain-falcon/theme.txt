@@ -1,15 +1,19 @@
 # Deckboy Theme: Captain Falcon
-# Electric blue with a magenta F-Zero streak.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Azure-phosphor OLED terminal — F-Zero HUD on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	14171CFF
-shell_inner	B8BABCFF
-shell_shadow	070708FF
-screen_light	4CA3FAFF
-screen_mid	AE3274FF
-screen_dark	1D222AFF
-screen_deep	050505FF
-screen_ink_soft	577FA8FF
-button_bezel	763759FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	05080CFF
+shell_inner	080B10FF
+shell_shadow	000000FF
+screen_light	3AB8FFFF
+screen_mid	1E7AC0FF
+screen_dark	124A78FF
+screen_deep	04080FFF
+screen_ink_soft	5AA8E0FF
+screen_fg	6AC8FFFF
+screen_fg_soft	3E88C8FF
+screen_tile	0C141FFF
+button_bezel	235A8BFF
+delete_bezel	E89830FF
+scanline_alpha	14

@@ -1,15 +1,19 @@
 # Deckboy Theme: Kirby
-# Hot bubblegum magenta over near-black.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Bubblegum-pink-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1C141AFF
-shell_inner	B5B0B4FF
-shell_shadow	080708FF
-screen_light	F764C1FF
-screen_mid	AE3281FF
-screen_dark	2A1D27FF
-screen_deep	050505FF
-screen_ink_soft	A6598AFF
-button_bezel	76375FFF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A060AFF
+shell_inner	0D080CFF
+shell_shadow	000000FF
+screen_light	FF7AC8FF
+screen_mid	B84C90FF
+screen_dark	762E58FF
+screen_deep	100610FF
+screen_ink_soft	E090C0FF
+screen_fg	FF94D4FF
+screen_fg_soft	C862A0FF
+screen_tile	160A12FF
+button_bezel	7A3A64FF
+delete_bezel	E89830FF
+scanline_alpha	14
