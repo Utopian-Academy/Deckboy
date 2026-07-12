@@ -933,6 +933,20 @@
       expect(relinkOk, "missing media flags and relinks from folder");
     }
 
+    {
+      // Vanished-media take guard: a file cue whose media is gone must be
+      // flagged and refused before the engine ever sees it (the same check
+      // auto-advance uses to skip dead cues mid-show).
+      App app;
+      Cue ghost;
+      ghost.kind = CueKind::Video;
+      ghost.name = "smoke-ghost";
+      std::error_code ghostEc;
+      ghost.path = (fs::temp_directory_path(ghostEc) / "deckboy-smoke-void" / "ghost.mp4").generic_string();
+      expect(!app.cueMediaAvailableForTake(ghost) && ghost.mediaMissing,
+             "vanished media is flagged and refused at take");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

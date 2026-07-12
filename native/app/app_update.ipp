@@ -522,10 +522,21 @@
       engine->update();
 
       // Decode watchdog: a wedged in-process decoder reracks the deck dark
-      // instead of hanging it mid-show, and the operator gets told.
+      // instead of hanging it mid-show, and the operator gets told. A stall
+      // whose file is GONE (drive pulled, share dropped) is reported as lost
+      // media and raises the RELINK state, not as a decoder fault.
       if (engine->consumeDecodeStall()) {
         engine->stop(true);
-        triggerToast("DECODE STALLED — deck " + deckDefaultName(deckIndex) + " reracked");
+        bool mediaLost = false;
+        {
+          Deck& deck = project_.decks[deckIndex];
+          if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+            mediaLost = !cueMediaAvailableForTake(deck.cues[deck.activeIndex]);
+          }
+        }
+        triggerToast(mediaLost
+          ? "MEDIA LOST — deck " + deckDefaultName(deckIndex) + " reracked (RELINK when restored)"
+          : "DECODE STALLED — deck " + deckDefaultName(deckIndex) + " reracked");
       }
 
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
@@ -571,6 +582,21 @@
               }
             } else {
               nextIndex = adjacentCueIndexForOverlayRole(deck, deck.activeIndex, 1, false, deck.playlistLoop);
+            }
+          }
+
+          // Skip cues whose media has vanished so one dead drive doesn't stop
+          // the show at the next advance. Bounded walk: an all-missing looped
+          // playlist gives up instead of spinning.
+          if (nextIndex >= 0 && shouldAdvance) {
+            int hops = 0;
+            const int hopLimit = static_cast<int>(deck.cues.size());
+            while (nextIndex >= 0 && hops < hopLimit &&
+                   !cueMediaAvailableForTake(deck.cues[nextIndex])) {
+              triggerToast("skipped missing: " + deck.cues[nextIndex].name);
+              int following = adjacentCueIndexForOverlayRole(deck, nextIndex, 1, false, deck.playlistLoop);
+              nextIndex = (following == nextIndex) ? -1 : following;
+              ++hops;
             }
           }
 
