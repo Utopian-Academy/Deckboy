@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.9 (mascot tips: bigger, plain, clearer)
+
+- Mascot tips are now **bigger plain text** (no speech box), drawn full-width
+  under the face so they don't get clipped. Reworded to short, jargon-free
+  lines (the old "drag the grip to grow the timeline" was both unclear and got
+  truncated to "…grow the time" inside the box).
+
 ## 2026-07-12 — v0.79.8 (mascot: per-element Balatro-style drift)
 
 - **The startup face now has individual-element life.** On top of the overall
