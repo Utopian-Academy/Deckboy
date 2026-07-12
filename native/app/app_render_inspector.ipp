@@ -798,6 +798,14 @@
                            QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
                            selectedCue->audioMono, "Downmix this cue to mono (mono sources / mono PA)");
               ay += kRowStep;
+              if (focusedDeck().audioOutputChannels > 2) {
+                std::string outsLabel = std::to_string(selectedCue->audioOutputPair * 2 + 1)
+                  + "-" + std::to_string(selectedCue->audioOutputPair * 2 + 2);
+                drawQuickRow(ay, "outs", QuickAction::AudioOutPairDec, outsLabel,
+                             QuickAction::AudioOutPairInc, QuickAction::ToggleLoop, false, false,
+                             "Device output pair this cue's audio plays on");
+                ay += kRowStep;
+              }
               auto audioFadeLabel = [](float v) {
                 return v < 0.0f ? std::string("follow")
                      : (v <= 0.001f ? std::string("none") : fmtFloat(v, 2) + "s");
