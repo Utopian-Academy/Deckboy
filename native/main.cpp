@@ -117,6 +117,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <random>
 #include <sstream>
 #include <set>
 #include <string>
@@ -146,6 +147,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#include <psapi.h>  // K32GetProcessMemoryInfo — soak-mode RSS logging
 #include <shellapi.h>
 #include <objbase.h>
 #endif
@@ -4057,6 +4059,7 @@ class App {
       drainPickers();
       auto afterPickers = std::chrono::steady_clock::now();
       update();
+      tickSoak();
       auto afterUpdate = std::chrono::steady_clock::now();
       render();
       auto afterRender = std::chrono::steady_clock::now();
@@ -4126,6 +4129,108 @@ class App {
       if (path) {
         relinkMissingMediaFromFolder(*path);
       }
+    }
+  }
+
+  // ── Soak mode ─────────────────────────────────────────────────────────────
+  static double processRssMb() {
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS pmc {};
+    pmc.cb = sizeof(pmc);
+    if (K32GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+      return static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+    }
+    return 0.0;
+#else
+    std::ifstream statm("/proc/self/statm");
+    long pages = 0;
+    long resident = 0;
+    if (statm >> pages >> resident) {
+      return static_cast<double>(resident) * 4096.0 / (1024.0 * 1024.0);
+    }
+    return 0.0;
+#endif
+  }
+
+  void enableSoakMode(double minutes) {
+    soakMode_ = true;
+    soakMinutes_ = minutes;
+    soakLogFile_.open("deckboy-soak.log", std::ios::app);
+  }
+
+  void soakLog(const std::string& line) {
+    std::time_t t = std::time(nullptr);
+    char stamp[32] = "";
+    if (std::tm* local = std::localtime(&t)) {
+      std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", local);
+    }
+    std::string full = std::string(stamp) + "  " + line;
+    std::cout << full << std::endl;
+    if (soakLogFile_.is_open()) {
+      soakLogFile_ << full << '\n';
+      soakLogFile_.flush();
+    }
+  }
+
+  void tickSoak() {
+    if (!soakMode_) {
+      return;
+    }
+    Uint64 now = SDL_GetTicks();
+    if (soakStartMs_ == 0) {
+      soakStartMs_ = now;
+      soakLastLogMs_ = now;
+      if (focusedDeck().cues.empty()) {
+        // Nothing loaded: synthesize a pattern loop so the render/audio path
+        // still gets exercised. Point DECKBOY_PROJECT (or open a show before
+        // launching) to soak real media instead.
+        addPatternCue("pocket-test");
+        addPatternCueFromMenu();
+      }
+      Deck& deck = focusedDeckMutable();
+      deck.playlistLoop = true;
+      for (auto& cue : deck.cues) {
+        cue.endAction = CueEndAction::AutoNext;
+        cue.pauseAtBeginning = false;
+        cue.pauseOnLastFrame = false;
+        cue.loop = false;
+        if (cue.kind != CueKind::Video && cue.kind != CueKind::Audio &&
+            cue.stillDurationSeconds <= 0.0) {
+          cue.stillDurationSeconds = 10.0;
+        }
+      }
+      deck.selectedIndex = deck.cues.empty() ? -1 : 0;
+      if (deck.selectedIndex >= 0) {
+        takeSelected(true);
+      }
+      std::ostringstream start;
+      start << "SOAK START cues=" << deck.cues.size()
+            << " planned=" << soakMinutes_ << "min rss=" << std::fixed
+            << std::setprecision(1) << processRssMb() << "MB";
+      soakLog(start.str());
+      return;
+    }
+    if (now - soakLastLogMs_ >= 60000) {
+      soakLastLogMs_ = now;
+      const Deck& deck = focusedDeck();
+      std::ostringstream line;
+      line << "soak +" << ((now - soakStartMs_) / 60000) << "min"
+           << " rss=" << std::fixed << std::setprecision(1) << processRssMb() << "MB"
+           << " stalls=" << decodeStallTotal_
+           << " missing=" << missingMediaCount_
+           << " active=" << deck.activeIndex
+           << "/" << deck.cues.size();
+      soakLog(line.str());
+    }
+    if (soakMinutes_ > 0.0 &&
+        now - soakStartMs_ >= static_cast<Uint64>(soakMinutes_ * 60000.0)) {
+      std::ostringstream done;
+      done << "SOAK COMPLETE " << soakMinutes_ << "min"
+           << " rss=" << std::fixed << std::setprecision(1) << processRssMb() << "MB"
+           << " stalls=" << decodeStallTotal_
+           << " missing=" << missingMediaCount_;
+      soakLog(done.str());
+      gShouldQuit.store(true);
     }
   }
 
@@ -5729,6 +5834,25 @@ class App {
   // Count from the last scanProjectMediaPresence() — drives the toolbar
   // RELINK button (only visible when > 0).
   int missingMediaCount_ = 0;
+
+  // -- Soak mode (--soak [minutes]) -------------------------------------------
+  // Long-run stability harness: loops the loaded show (or synthesized
+  // patterns) through the REAL app loop, logging RSS/stall counters once a
+  // minute to stdout + deckboy-soak.log, then quits after the duration.
+  // Never persists project changes (flushDirtyProject is gated) so the
+  // AutoNext rewiring below can't leak into the operator's show file.
+  // Shuffle RNG — seeded once from a real entropy source so the "random" next
+  // cue differs run to run. std::rand() (the old call) is seeded to 1 by
+  // default and Deckboy never called srand, so every launch shuffled to the
+  // exact same order.
+  std::mt19937 shuffleRng_{std::random_device{}()};
+
+  bool soakMode_ = false;
+  double soakMinutes_ = 0.0;
+  Uint64 soakStartMs_ = 0;
+  Uint64 soakLastLogMs_ = 0;
+  int decodeStallTotal_ = 0;   // watchdog trips this run (counted always, logged by soak)
+  std::ofstream soakLogFile_;
   DragState drag_;
   enum class TrimDragMode { None, In, Out };
   enum class LayoutDragMode { None, Playlist, Inspector };
@@ -6038,6 +6162,7 @@ int runDeckboyMain(int argc, char** argv) {
   }
 
   bool allowMultiInstance = false;
+  double soakMinutes = -1.0;
   for (int i = 1; i < argc; ++i) {
     if (std::string_view(argv[i]) == "--allow-multi-instance") {
       allowMultiInstance = true;
@@ -6046,6 +6171,17 @@ int runDeckboyMain(int argc, char** argv) {
       // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
       // for this run (robustness over Pocket performance).
       MediaEngine::setInprocDecodeDisabled(true);
+    }
+    if (std::string_view(argv[i]) == "--soak") {
+      // Long-run stability harness on the real app loop. Optional minutes
+      // argument; default 24 h. Loops the loaded show (see tickSoak).
+      soakMinutes = 1440.0;
+      if (i + 1 < argc) {
+        double parsed = std::atof(argv[i + 1]);
+        if (parsed > 0.0) {
+          soakMinutes = parsed;
+        }
+      }
     }
   }
 #ifndef _WIN32
@@ -6071,6 +6207,9 @@ int runDeckboyMain(int argc, char** argv) {
     return 1;
   }
 
+  if (soakMinutes > 0.0) {
+    app.enableSoakMode(soakMinutes);
+  }
   app.run();
   app.shutdown();
   return 0;
