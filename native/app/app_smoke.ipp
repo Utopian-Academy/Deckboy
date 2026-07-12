@@ -891,6 +891,44 @@
       }
     }
 
+    {
+      // Missing-media scan + relink: a file cue whose media moved must flag
+      // MISSING, and relinkMissingMediaFromFolder must find the file by name
+      // under the picked folder and repoint the cue at it.
+      bool relinkOk = false;
+      std::error_code ec;
+      fs::path relinkRoot = fs::temp_directory_path(ec) / "deckboy-smoke-relink";
+      if (!ec) {
+        fs::remove_all(relinkRoot, ec);
+        fs::create_directories(relinkRoot / "moved", ec);
+        {
+          std::ofstream out(relinkRoot / "moved" / "smoke-relink.bin",
+                            std::ios::binary | std::ios::trunc);
+          out << "deckboy";
+        }
+
+        App app;
+        Cue lost;
+        lost.kind = CueKind::Video;
+        lost.name = "smoke-relink";
+        lost.path = (relinkRoot / "gone" / "smoke-relink.bin").generic_string();
+        Deck deck;
+        deck.cues.push_back(lost);
+        app.project_.decks = {deck};
+
+        int missingBefore = app.scanProjectMediaPresence();
+        const Cue& probe = app.project_.decks[0].cues[0];
+        bool flagged = missingBefore >= 1 && probe.mediaMissing;
+        int relinked = app.relinkMissingMediaFromFolder(relinkRoot);
+        std::error_code existsEc;
+        bool repointed = relinked >= 1 && !probe.mediaMissing &&
+                         fs::exists(fs::path(probe.path), existsEc);
+        relinkOk = flagged && repointed;
+        fs::remove_all(relinkRoot, ec);
+      }
+      expect(relinkOk, "missing media flags and relinks from folder");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

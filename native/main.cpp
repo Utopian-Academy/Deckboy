@@ -3903,6 +3903,7 @@ class App {
     currentProjectFile_ = startupProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
+    scanProjectMediaPresence();
     // Project may override the boot-time splash character (deckbot default).
     refreshSplashAsset();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
@@ -4113,6 +4114,13 @@ class App {
       auto path = pendingProjectBundleExport_.get();
       if (path) {
         exportProjectBundleTo(*path, true);
+      }
+    }
+    if (pendingMediaRelink_.valid() &&
+        pendingMediaRelink_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+      auto path = pendingMediaRelink_.get();
+      if (path) {
+        relinkMissingMediaFromFolder(*path);
       }
     }
   }
@@ -5712,6 +5720,10 @@ class App {
   std::future<std::optional<fs::path>> pendingProjectOpen_;
   std::future<std::optional<fs::path>> pendingProjectSaveAs_;
   std::future<std::optional<fs::path>> pendingProjectBundleExport_;
+  std::future<std::optional<fs::path>> pendingMediaRelink_;
+  // Count from the last scanProjectMediaPresence() — drives the toolbar
+  // RELINK button (only visible when > 0).
+  int missingMediaCount_ = 0;
   DragState drag_;
   enum class TrimDragMode { None, In, Out };
   enum class LayoutDragMode { None, Playlist, Inspector };
@@ -5864,6 +5876,7 @@ class App {
   SDL_Rect fileOpenBtnRect_ {};
   SDL_Rect fileSaveBtnRect_ {};
   SDL_Rect fileBundleBtnRect_ {};
+  SDL_Rect fileRelinkBtnRect_ {};
   SDL_Rect fileSaveAsBtnRect_ {};
   SDL_Rect deckLoopBtnRect_ {};
   SDL_Rect deckShuffleBtnRect_ {};
