@@ -467,7 +467,7 @@
     std::string title = "MONITORS";
     drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontBase_,
                  SDL_Rect {winHdr.x + 10, winHdr.y + (winHdr.h - 22) / 2, 100, 22},
-                 title, pal.deep);
+                 title, pal.fg);
     std::string countStr = std::to_string(outCount) + (outCount == 1 ? " output" : " outputs");
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {winHdr.x + 112, winHdr.y + (winHdr.h - 20) / 2, 80, 20},
@@ -580,9 +580,9 @@
       auto drawTBtn = [&](SDL_Rect& r, const std::string& label,
                           bool lit = false, bool danger = false) {
         SDL_Color fill = danger ? SDL_Color{160,18,18,255}
-                       : (lit ? pal.dark : pal.light);
+                       : (lit ? pal.dark : pal.tile);
         SDL_Color ink  = danger ? SDL_Color{255,200,200,255}
-                       : (lit ? pal.light : pal.deep);
+                       : (lit ? pal.light : pal.fg);
         drawUIPanel(r, fill, pal.deep, pal.mid);
         drawCenteredTextSafe(controlRenderer_, btnFont, r, label, ink);
       };
@@ -941,9 +941,9 @@
       const int emptyLineH = textLineHeight(fontSmall_) + 4;
       int hx = primaryClip.x + primaryClip.w / 2 - 30;
       int hy = primaryClip.y + primaryClip.h / 2 - emptyLineH;
-      drawText(controlRenderer_, fontSmall_, "I  import", pal.deep, hx, hy);
-      drawText(controlRenderer_, fontSmall_, "B  browser", pal.deep, hx, hy + emptyLineH);
-      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.deep, hx, hy + emptyLineH * 2);
+      drawText(controlRenderer_, fontSmall_, "I  import", pal.fg, hx, hy);
+      drawText(controlRenderer_, fontSmall_, "B  browser", pal.fg, hx, hy + emptyLineH);
+      drawText(controlRenderer_, fontSmall_, "P  pattern", pal.fg, hx, hy + emptyLineH * 2);
     }
     SDL_SetRenderClipRect(controlRenderer_, nullptr);
 
@@ -993,12 +993,12 @@
       int labelW = 0, labelH = 0;
       if (fontSmall_) TTF_GetStringSize(fontSmall_, opacityLabel.c_str(), 0, &labelW, &labelH);
       // Same row as LOOP|ORDER (the 50px footer only fits one text line),
-      // right-aligned in DEEP ink — the old pal.dark was near-invisible on
-      // the shellInner fill.
+      // right-aligned in fg ink — reads on the shellInner footer fill in
+      // light themes (fg = deep) and on black in terminal themes.
       drawTextSafe(controlRenderer_, fontSmall_,
                    {footer.x + footer.w - labelW - 10, footer.y + 6,
                     labelW + 4, textLineHeight(fontSmall_)},
-                   opacityLabel, pal.deep);
+                   opacityLabel, pal.fg);
       SDL_Rect opacityRail {col.x + 8, footerY + kColFooterH - 12, col.w - 16, 8};
       Primitives::drawFramedPanel(controlRenderer_, opacityRail, pal.light,
                       pal.deep, pal.shellOuter);
@@ -1025,7 +1025,11 @@
     bool isLive = index == deck.activeIndex;
     bool isQueued = !isLive && index == nextCueIndexForDeck(deckIndex);
     
-    SDL_Color fill = pal.light;
+    // Idle/queued rows use the tile fill (bright in light themes, near-black in
+    // terminal themes); selected stays a bright inverse-video highlight, live
+    // stays deep. Text ink follows: dark on the bright selected/light-theme
+    // tiles, bright (fg) on dark terminal tiles.
+    SDL_Color fill = pal.tile;
     SDL_Color border = pal.deep;
     SDL_Color accent = pal.shellInner;
 
@@ -1036,7 +1040,7 @@
     } else if (isSelected) {
       fill = pal.mid;
     } else if (isQueued) {
-      fill = pal.light;
+      fill = pal.tile;
       border = pal.dark;
     } else if (isOverlay) {
       fill = {48, 80, 48, 255};
@@ -1049,8 +1053,13 @@
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
     Primitives::fillRect(controlRenderer_, chip, chipColor);
 
-    SDL_Color ink = isLive ? pal.light : pal.deep;
-    SDL_Color subInk = isLive ? pal.mid : pal.dark;
+    // Bright fill (selected highlight, light-theme rows) wants dark ink; dark
+    // fill (terminal idle rows) wants bright fg ink. isSelected keeps the
+    // dark-on-bright highlight; idle/queued follow fg (= deep in light themes).
+    SDL_Color ink = isLive ? pal.light : (isSelected ? pal.deep : pal.fg);
+    // Idle-row subtext uses the secondary-ink role (reads on both bright
+    // light-theme rows and dark terminal tiles); selected keeps dark subink.
+    SDL_Color subInk = isLive ? pal.mid : (isSelected ? pal.dark : pal.fgSoft);
 
     // Indicator area (vertically centered in row)
     int indSize = 36;

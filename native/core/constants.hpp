@@ -85,6 +85,23 @@ inline std::uint32_t kScreenMidColor    = 0x8BAC0FFFu;  // LCD mid          (139
 inline std::uint32_t kScreenDarkColor   = 0x306230FFu;  // LCD dark         (48,98,48)   — body text
 inline std::uint32_t kScreenDeepColor   = 0x0F380FFFu;  // LCD deepest      (15,56,15)   — background
 inline std::uint32_t kScreenInkSoftColor= 0x4A7A2AFFu;  // soft ink         (74,122,42)  — secondary text
+// Foreground text ink drawn on the app BODY (shell_inner / shell_outer /
+// screen_deep expanses) — as opposed to screen_deep, which is a dark ink for
+// text on BRIGHT fills (buttons, value tiles). Decoupling them lets a dark
+// "terminal" theme keep true-black bodies AND bright on-body text. Themes
+// that omit screen_fg inherit screen_deep (loadTheme), so every existing
+// light theme is unchanged; only dark terminal themes set it bright.
+inline std::uint32_t kScreenFgColor     = 0x0F380FFFu;  // on-body text ink (defaults to screen_deep)
+// Interactive TILE fill — buttons, value cells, normal cue rows. Paired with
+// screen_fg as the tile text. Defaults to screen_light, so light themes are
+// unchanged (bright tile + dark text); a terminal theme sets it near-black
+// (dark tile + bright text) for the "black tiles, green text" look.
+inline std::uint32_t kScreenTileColor   = 0x9BBC0FFFu;  // tile fill (defaults to screen_light)
+// Secondary on-tile / on-body text (cue-row subtext, muted labels). Paired
+// with the tile fill like screen_fg, but dimmer. Defaults to screen_dark so
+// light themes keep dark subtext on bright rows; terminal themes set it a
+// muted-bright accent so subtext reads on dark tiles.
+inline std::uint32_t kScreenFgSoftColor = 0x306230FFu;  // secondary tile ink (defaults to screen_dark)
 inline std::uint32_t kButtonBezelColor  = 0x7B8B5EFFu;  // button rim       (123,139,94)
 inline std::uint32_t kDeleteBezelColor  = 0x8B3A3AFFu;  // danger red bezel (139,58,58)  — delete actions
 

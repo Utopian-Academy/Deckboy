@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.3 (terminal/OLED themes; manual rewrite)
+
+- **Terminal / OLED themes.** New theme roles let dark themes render as a
+  true-black terminal — OLED-black backgrounds and tiles with bright
+  phosphor text and per-theme accents. `screen_fg` (primary on-body ink),
+  `screen_fg_soft` (secondary on-tile ink), and `screen_tile` (interactive
+  tile fill) each fall back to an existing role (`screen_deep`,
+  `screen_dark`, `screen_light`), so **every existing theme is byte-for-
+  byte unchanged** and only themes that set the new keys invert.
+  - `dark` reworked to green-on-black; `virtual-boy` to red-on-black.
+  - On-body text sites (inspector row labels, playlist/timeline/header/
+    footer chrome) and interactive tiles (cue rows, toolbar and quick-row
+    buttons, section headers) now draw through the new roles.
+  - The inspector body fills with `shell_inner` so its labels always have
+    a legible fill (fixes black-on-black labels reported on famicom).
+  - `tools/audit_theme_contrast.ps1` updated for the new roles; all themes
+    pass.
+- **MANUAL.md rewritten** from scratch for the current app (SDL3, Windows-
+  first, in-process decode) covering cue types, the inspector, outputs and
+  geometry, per-cue + multichannel audio, missing-media relink, timecode,
+  themes, remote control, soak testing, and the full keyboard reference.
+
 ## 2026-07-11 — v0.79.2 (soak harness; shuffle seeding; inspector readability)
 
 - **`--soak [minutes]` long-run stability harness.** Loops the loaded show
