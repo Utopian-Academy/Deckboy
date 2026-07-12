@@ -92,9 +92,11 @@
       settingsBtns_.push_back({tab, 100 + t, tabs[t]});
     }
 
-    // Content area
+    // Content area — tile fill so it reads as a dark frame on terminal themes
+    // (= screen_light on light themes, unchanged). All content sits inside
+    // cards, so nothing draws text directly on this frame.
     SDL_Rect content {modal.x + 16, tabY + kTabH + 10, modal.w - 32, modal.h - kTabH - 82};
-    Primitives::drawFramedPanel(controlRenderer_, content, pal.light, pal.deep, pal.mid);
+    Primitives::drawFramedPanel(controlRenderer_, content, pal.tile, pal.deep, pal.mid);
 
     int cx = content.x + 12, cy = content.y + 10;
     SDL_Color ink = pal.deep;
@@ -397,7 +399,7 @@
       int mapY = midiEnBtn.y + midiEnBtn.h + 10;
       int midiTextW = midiRect.w - 16;
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiRect.x + 8, mapY, midiTextW, 16}, "Mappings", ink);
+                   SDL_Rect{midiRect.x + 8, mapY, midiTextW, 16}, "Mappings", pal.fg);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{midiRect.x + 8, mapY + smallLineH, midiTextW, 16},
                    "Note 0-127 -> trigger cue index in the focused playlist", soft);
