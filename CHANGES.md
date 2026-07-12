@@ -9,7 +9,14 @@
   tile fill) each fall back to an existing role (`screen_deep`,
   `screen_dark`, `screen_light`), so **every existing theme is byte-for-
   byte unchanged** and only themes that set the new keys invert.
-  - `dark` reworked to green-on-black; `virtual-boy` to red-on-black.
+  - All 25 dark-cased themes reworked as OLED terminals with hue-matched
+    accents (green `dark`, red `virtual-boy`/`famicom`/`mario`, amber
+    `metroid`, teal `n64`/`wave-race`, violet `gamecube`/`super-famicom`,
+    blue `star-fox`/`switch-neon`/`captain-falcon`, magenta `ganon`, pink
+    `kirby`/`peach`, gold `zelda`, yellow `pikachu`, lime `piranha-plant`,
+    cyan `dolphin`, ice `ice-climber`, white `r-o-b`, grey-green
+    `game-and-watch`, and more). Light-cased themes (gameboy, pocket, sp,
+    advance, color) are untouched.
   - On-body text sites (inspector row labels, playlist/timeline/header/
     footer chrome) and interactive tiles (cue rows, toolbar and quick-row
     buttons, section headers) now draw through the new roles.

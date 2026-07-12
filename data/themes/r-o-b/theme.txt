@@ -1,15 +1,19 @@
 # Deckboy Theme: R.O.B.
-# Desaturated grey-steel with a red-eye LED.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Monochrome white-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	16181BFF
-shell_inner	B9BABCFF
-shell_shadow	070808FF
-screen_light	99B2CCFF
-screen_mid	3270AEFF
-screen_dark	1F2428FF
-screen_deep	050505FF
-screen_ink_soft	717F8EFF
-button_bezel	375776FF
-delete_bezel	AB2F2BFF
+shell_outer	060708FF
+shell_inner	0A0B0CFF
+shell_shadow	000000FF
+screen_light	D8DEE6FF
+screen_mid	8A929CFF
+screen_dark	4A5058FF
+screen_deep	0A0C0EFF
+screen_ink_soft	A8B0BAFF
+screen_fg	E8EEF6FF
+screen_fg_soft	9AA2ACFF
+screen_tile	12151AFF
+button_bezel	5A626CFF
+delete_bezel	C23A42FF
 scanline_alpha	12

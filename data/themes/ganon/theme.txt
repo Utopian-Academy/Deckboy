@@ -1,15 +1,19 @@
 # Deckboy Theme: Ganon
-# Moody, muted crimson â€” dark-world evil.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Magenta-phosphor OLED terminal — dark-world evil on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1D1415FF
-shell_inner	B5B0B2FF
-shell_shadow	080707FF
-screen_light	DB4156FF
-screen_mid	AE3243FF
-screen_dark	2B1D1FFF
-screen_deep	050505FF
-screen_ink_soft	9D626AFF
-button_bezel	763740FF
-delete_bezel	AB5A2BFF
-scanline_alpha	12
+shell_outer	0A050AFF
+shell_inner	0D080CFF
+shell_shadow	000000FF
+screen_light	E0409AFF
+screen_mid	A0246AFF
+screen_dark	6E1848FF
+screen_deep	100510FF
+screen_ink_soft	C86098FF
+screen_fg	FF5CB0FF
+screen_fg_soft	C0387EFF
+screen_tile	160A12FF
+button_bezel	7A2A5AFF
+delete_bezel	E89830FF
+scanline_alpha	14

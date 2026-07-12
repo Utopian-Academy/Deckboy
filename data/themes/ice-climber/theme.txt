@@ -1,15 +1,19 @@
 # Deckboy Theme: Ice Climber
-# Frosty pale cyan over cryogenic black.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Frost-cyan-phosphor OLED terminal on cryogenic black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	15191CFF
-shell_inner	C8CACBFF
-shell_shadow	070808FF
-screen_light	A3DFF5FF
-screen_mid	328DAEFF
-screen_dark	1E2529FF
-screen_deep	050505FF
-screen_ink_soft	5D90A2FF
-button_bezel	376576FF
-delete_bezel	AB2B33FF
+shell_outer	06080AFF
+shell_inner	090B0DFF
+shell_shadow	000000FF
+screen_light	AEE0F5FF
+screen_mid	5E8EA8FF
+screen_dark	36566EFF
+screen_deep	080D10FF
+screen_ink_soft	9AC0D8FF
+screen_fg	C6EEFFFF
+screen_fg_soft	6E96B0FF
+screen_tile	0F161CFF
+button_bezel	4A6E88FF
+delete_bezel	E89830FF
 scanline_alpha	12

@@ -1,15 +1,19 @@
 # Deckboy Theme: Peach
-# Soft rose pink crowned with gold.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Rose-pink-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1C1518FF
-shell_inner	B4B1B2FF
-shell_shadow	080708FF
-screen_light	F287A7FF
-screen_mid	AE8F32FF
-screen_dark	291E23FF
-screen_deep	050505FF
-screen_ink_soft	A25D72FF
-button_bezel	766637FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0608FF
+shell_inner	0D080AFF
+shell_shadow	000000FF
+screen_light	FF88B0FF
+screen_mid	B84E70FF
+screen_dark	6E2E44FF
+screen_deep	100609FF
+screen_ink_soft	E0A0B8FF
+screen_fg	FFA0C4FF
+screen_fg_soft	C86888FF
+screen_tile	160A10FF
+button_bezel	7A3A54FF
+delete_bezel	E89830FF
+scanline_alpha	14

@@ -1,15 +1,19 @@
 # Deckboy Theme: Star Fox
-# Deep royal Arwing blue.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Blue-phosphor OLED terminal — Arwing HUD on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	14161DFF
-shell_inner	A9AAAEFF
-shell_shadow	070708FF
-screen_light	4273FAFF
-screen_mid	3253AEFF
-screen_dark	1D212BFF
-screen_deep	050505FF
-screen_ink_soft	576CA8FF
-button_bezel	374876FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	05070CFF
+shell_inner	080A10FF
+shell_shadow	000000FF
+screen_light	5B8CFFFF
+screen_mid	3858C4FF
+screen_dark	1E3478FF
+screen_deep	04060FFF
+screen_ink_soft	6F94E0FF
+screen_fg	78A0FFFF
+screen_fg_soft	4E68C8FF
+screen_tile	0C1020FF
+button_bezel	2A3E8BFF
+delete_bezel	C23A42FF
+scanline_alpha	14
