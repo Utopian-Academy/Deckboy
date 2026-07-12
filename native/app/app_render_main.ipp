@@ -21,11 +21,12 @@
 // ============================================================================
 
   // A hovering "terminal face friend" (BMO-style) drawn straight onto the dark
-  // program monitor — the monitor itself is the screen. Everything animates
-  // continuously and smoothly (no discrete state snaps): a 2D floaty hover,
-  // eased squish-blinks, a slow look-around drift, a smile that breathes, and
-  // twinkling stars slowly orbiting the face. Glowing + theme-tinted; shown
-  // until the first clip loads this session (see firstClipLoadedThisSession_).
+  // program monitor — the monitor itself is the screen. Animates continuously
+  // and smoothly (no state snaps), Balatro-style: a gentle overall hover + a
+  // small whole-face tilt/rock, and on top of that EACH element (each eye, the
+  // mouth) drifts and breathes on its own phase, so they float semi-
+  // independently. Plus eased squish-blinks and orbiting twinkle-stars.
+  // Glowing + theme-tinted; up until the first clip loads this session.
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs) {
     static const char* kTips[] = {
       "hi! i'm deckboy - press I to import a clip, then Enter to take it live",
@@ -51,18 +52,23 @@
     const SDL_Color glow = pal.light;
     const int thick = std::max(3, unit / 4);
 
-    // Floaty hover — a slow 2D Lissajous drift so the face gently bobs and
-    // sways in place, like it's hovering.
-    int cx = area.x + area.w / 2 + static_cast<int>(std::lround(std::sin(t * 0.8) * 5.0));
+    // Face centre — a gentle overall hover.
+    int cx = area.x + area.w / 2 + static_cast<int>(std::lround(std::sin(t * 0.8) * 4.0));
     int cy = area.y + area.h / 2 - area.h / 9
-             + static_cast<int>(std::lround(std::sin(t * 1.4) * 4.0 + std::sin(t * 0.6 + 1.0) * 2.0));
+             + static_cast<int>(std::lround(std::sin(t * 1.3) * 3.5 + std::sin(t * 0.55 + 1.0) * 2.0));
 
-    // Slow "looking around" drift shared by both eyes.
-    int lookX = static_cast<int>(std::lround(std::sin(t * 0.45) * unit * 0.18));
-    int lookY = static_cast<int>(std::lround(std::sin(t * 0.33 + 0.7) * unit * 0.10));
+    // Balatro-style whole-face wobble: a small oscillating tilt so the face
+    // gently rocks. Every element position is placed through this rotation
+    // about the centre, so the eyes swing one way as the mouth swings the
+    // other; each element then ALSO floats on its own phase below.
+    double theta = std::sin(t * 0.9) * 0.06 + std::sin(t * 1.7 + 0.5) * 0.02;
+    double ca = std::cos(theta), sa = std::sin(theta);
+    auto place = [&](double ox, double oy, int& X, int& Y) {
+      X = cx + static_cast<int>(std::lround(ox * ca - oy * sa));
+      Y = cy + static_cast<int>(std::lround(ox * sa + oy * ca));
+    };
 
-    // Smooth eased blink every ~4s — the eyes squish shut and reopen instead of
-    // snapping. `blink` ramps 0->1->0 across ~0.22s with a smoothstep.
+    // Eased blink (shared by both eyes) — squish shut and reopen, no snap.
     double bp = std::fmod(t, 4.0);
     double blink = 0.0;
     if (bp < 0.22) {
@@ -75,33 +81,41 @@
     // The smile curvature breathes smoothly between gentle and wide.
     double smile = 0.55 + 0.45 * std::sin(t * 0.5);
 
-    // --- Eyes: glowing dots that squish on blink and drift on look-around ---
     int eyeGap = unit * 3;
-    int eyeCY = cy - unit;
     int eyeW = std::max(6, unit * 4 / 5);
     int eyeHFull = unit * 5 / 4;
-    int eyeH = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen)));
-    auto drawEye = [&](int exBase) {
-      int ex = exBase + lookX;
-      int ey = eyeCY + (eyeHFull - eyeH) / 2 + lookY;
-      Primitives::fillRect(controlRenderer_, SDL_Rect{ex - eyeW / 2, ey, eyeW, eyeH}, glow);
-    };
-    drawEye(cx - eyeGap / 2);
-    drawEye(cx + eyeGap / 2);
 
-    // --- Mouth: an upward parabola whose depth breathes with `smile` ---
-    int mouthCY = cy + unit * 3 / 2;
+    // Each eye drifts and breathes on its own phase, so they float slightly
+    // out of sync (the individual-element life you asked for).
+    auto drawEye = [&](double sideSign, double phase) {
+      double dx = std::sin(t * 1.1 + phase) * unit * 0.10;
+      double dy = std::sin(t * 0.9 + phase * 1.7) * unit * 0.10;
+      double breathe = 1.0 + std::sin(t * 1.3 + phase) * 0.10;
+      int eh = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen * breathe)));
+      int X, Y;
+      place(sideSign * eyeGap / 2 + dx, -static_cast<double>(unit) + dy, X, Y);
+      Primitives::fillRect(controlRenderer_, SDL_Rect{X - eyeW / 2, Y - eh / 2, eyeW, eh}, glow);
+    };
+    drawEye(-1.0, 0.0);
+    drawEye( 1.0, 2.3);
+
+    // Mouth — a breathing smile parabola with its own drift; each sample is
+    // placed through the face tilt, so the smile rocks with the wobble.
+    double mdx = std::sin(t * 0.8 + 1.2) * unit * 0.10;
+    double mdy = std::sin(t * 1.05 + 0.4) * unit * 0.10;
     int mouthW = unit * 3;
     double depth = smile * unit;
     int N = 12;
     for (int i = 0; i <= N; ++i) {
       double fx = static_cast<double>(i) / N * 2.0 - 1.0;
-      int px = cx + static_cast<int>(fx * mouthW / 2) + lookX / 2;
-      int py = mouthCY + static_cast<int>(depth * (1.0 - fx * fx));
-      Primitives::fillRect(controlRenderer_, SDL_Rect{px - thick / 2, py - thick / 2, thick, thick}, glow);
+      double ox = fx * mouthW / 2 + mdx;
+      double oy = unit * 3.0 / 2.0 + depth * (1.0 - fx * fx) + mdy;
+      int X, Y;
+      place(ox, oy, X, Y);
+      Primitives::fillRect(controlRenderer_, SDL_Rect{X - thick / 2, Y - thick / 2, thick, thick}, glow);
     }
 
-    // --- Floaty twinkling stars slowly orbiting the face ---
+    // --- Twinkling stars slowly orbiting the face, each with its own pulse ---
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
     for (int s = 0; s < 3; ++s) {
       double ph = t * 0.6 + s * (2.0 * kPi / 3.0);
@@ -110,7 +124,8 @@
       int sy = cy - unit + static_cast<int>(std::lround(std::sin(ph) * rad * 0.7));
       SDL_Color star = glow;
       star.a = static_cast<Uint8>(60 + 150 * std::fabs(std::sin(t * 1.6 + s * 1.3)));
-      drawStar(controlRenderer_, sx, sy, 2 + (s % 2), star);
+      int sz = 2 + (s % 2) + (std::sin(t * 2.0 + s) > 0.6 ? 1 : 0);
+      drawStar(controlRenderer_, sx, sy, sz, star);
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
