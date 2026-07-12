@@ -369,6 +369,14 @@
       drawCenteredText(controlRenderer_, fontSmall_, "+", ink, delayIncBtn);
       settingsBtns_.push_back({delayDecBtn, kSettingsActionAudioDelayDec, "audio_delay_dec"});
       settingsBtns_.push_back({delayIncBtn, kSettingsActionAudioDelayInc, "audio_delay_inc"});
+      // Device channel count (2/4/6/8) — reopens the deck device; cues then
+      // route their stereo onto a pair of these outs (AUDIO section: "outs").
+      SDL_Rect chanBtn {delayIncBtn.x + delayIncBtn.w + 12, bufBtn.y, 110, 24};
+      Primitives::drawFramedPanel(controlRenderer_, chanBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_,
+                       "Outs: " + std::to_string(focusedDeck().audioOutputChannels) + " ch",
+                       ink, chanBtn);
+      settingsBtns_.push_back({chanBtn, kSettingsActionAudioChannelsCycle, "audio_channels"});
       const int audioFootY = bufBtn.y + bufBtn.h + 6;
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{audioRect.x + 8, audioFootY, audioRect.w - 16, 16},
@@ -1331,6 +1339,16 @@
         project_.audioDelayMs = std::clamp(project_.audioDelayMs + step, 0, 1000);
         // Applied live next tick (engines sync the atomic alongside master gain).
         triggerToast("A/V delay: " + std::to_string(project_.audioDelayMs) + " ms");
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionAudioChannelsCycle) {
+        // Cycle deck device channels: 2 → 4 → 6 → 8 → 2, reopening the
+        // device so the new stream spec applies immediately.
+        Deck& deck = focusedDeckMutable();
+        int cur = deck.audioOutputChannels;
+        deck.audioOutputChannels = (cur <= 2) ? 4 : (cur <= 4) ? 6 : (cur <= 6) ? 8 : 2;
+        reopenDeckAudioOutput(project_.focusedDeckIndex, deck.audioOutputDeviceName);
+        triggerToast("audio outs: " + std::to_string(deck.audioOutputChannels)
+                     + " ch (" + std::to_string(deck.audioOutputChannels / 2) + " pairs)");
         markProjectDirty();
       } else if (sb.action == kSettingsActionAudioBufferCycle) {
         // Cycle audio buffer: 256 → 512 → 1024 → 2048 → 256

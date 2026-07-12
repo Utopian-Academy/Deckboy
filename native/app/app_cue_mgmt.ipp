@@ -261,6 +261,25 @@
     }
   }
 
+  void adjustSelectedAudioOutPair(int delta) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || !cue->hasAudio) {
+      return;
+    }
+    // Pairs available on the deck's device as opened (outs 1-2 .. N-1-N).
+    int maxPair = std::max(0, focusedDeck().audioOutputChannels / 2 - 1);
+    int next = std::clamp(cue->audioOutputPair + delta, 0, maxPair);
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.hasAudio) {
+        each.audioOutputPair = next;
+      }
+    });
+    if (any) {
+      markProjectDirty();
+      triggerToast("audio outs " + std::to_string(next * 2 + 1) + "-" + std::to_string(next * 2 + 2));
+    }
+  }
+
   void toggleSelectedCueMono() {
     const Cue* cue = selectedCuePtr();
     if (!cue || !cue->hasAudio) {

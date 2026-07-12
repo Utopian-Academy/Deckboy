@@ -1987,6 +1987,17 @@
       normalizeSelectedCueAudio();  // async; result toasts when the analysis lands
       return;
     }
+    if (command == "AUDIOOUTS") {
+      // AUDIOOUTS <pair> — 1-based output pair (1 = outs 1-2, 2 = outs 3-4...).
+      auto value = parseNumber(1);
+      if (value) {
+        if (const Cue* cue = selectedCuePtr()) {
+          int target = static_cast<int>(*value) - 1;
+          adjustSelectedAudioOutPair(target - cue->audioOutputPair);
+        }
+      }
+      return;
+    }
     if (command == "WIDTH" || command == "HEIGHT") {
       // Pixel-based size commands — same path as the inspector width/height
       // editors, so the aspect link applies. SCALE/SCALEX/SCALEY below stay
