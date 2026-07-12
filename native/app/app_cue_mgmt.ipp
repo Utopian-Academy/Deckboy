@@ -876,7 +876,13 @@
     if (!rebuildOutputRuntimes()) {
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
     }
-    triggerToast("playlist: " + currentProjectLabel());
+    int missing = scanProjectMediaPresence();
+    if (missing > 0) {
+      triggerToast("playlist: " + currentProjectLabel() + " - "
+                   + std::to_string(missing) + " media missing (RELINK)");
+    } else {
+      triggerToast("playlist: " + currentProjectLabel());
+    }
   }
 
   void openProjectFromPicker() {
@@ -966,6 +972,48 @@
     }
 #endif
     return paths;
+  }
+
+  std::optional<fs::path> pickFolder(std::string dialogTitle) {
+#ifdef _WIN32
+    // Same TopMost owner-form trick as pickFiles() — see the comment there.
+    auto text = readAllText({
+      "powershell.exe",
+      "-NoProfile",
+      "-Command",
+      "Add-Type -AssemblyName System.Windows.Forms;"
+      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;"
+      "$dialog = New-Object System.Windows.Forms.FolderBrowserDialog;"
+      "$dialog.Description = '" + dialogTitle + "';"
+      "$dialog.ShowNewFolderButton = $false;"
+      "$r=$dialog.ShowDialog($o);$o.Close();"
+      "if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };"
+      "$dialog.SelectedPath"
+    });
+#elif __APPLE__
+    auto text = readAllText({
+      "osascript",
+      "-e",
+      "set pickedFolder to choose folder with prompt \"" + dialogTitle + "\"",
+      "-e",
+      "return POSIX path of pickedFolder"
+    });
+#else
+    auto text = readAllText({
+      "zenity",
+      "--file-selection",
+      "--directory",
+      "--title=" + dialogTitle
+    });
+#endif
+    if (!text) {
+      return std::nullopt;
+    }
+    std::string picked = trim(*text);
+    if (picked.empty()) {
+      return std::nullopt;
+    }
+    return fs::path(picked);
   }
 
   void applyDeckDefaultsToCue(Cue& cue, const Deck& deck) {

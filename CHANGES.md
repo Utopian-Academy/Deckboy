@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.78.16 (missing media: detection + relink)
+
+- **Deckboy now notices when show media is missing.** Every project load
+  scans file-backed cues; cues whose files can't be found get a red
+  MISSING badge in the cue list, and a red **RELINK n** button appears in
+  the toolbar next to BUNDLE (it only exists while something is missing).
+- **One-click relink.** RELINK opens a folder picker; Deckboy searches the
+  chosen folder (recursively) for files matching each missing cue's
+  filename and repoints the cues — exact file-size match wins when several
+  files share a name. Toast reports "relinked X, Y still missing".
+  Clicking RELINK first re-checks the disk, so a re-mounted drive clears
+  the warning without any picking.
+- Smoke test covers the scan + relink round trip.
+
 ## 2026-07-11 — v0.78.15 (audio fade envelopes on every waveform)
 
 - **The audio fade envelope is drawn over every waveform** — the timeline's
