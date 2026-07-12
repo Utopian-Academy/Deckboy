@@ -2996,7 +2996,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << (deck.playlistDefaultAudioEnabled ? 1 : 0) << '\t'
       << (deck.playlistDefaultPauseAtBeginning ? 1 : 0) << '\t'
       << (deck.playlistDefaultPauseAtEnd ? 1 : 0) << '\t'
-      << (deck.playlistDefaultTransitionToNext ? 1 : 0)
+      << (deck.playlistDefaultTransitionToNext ? 1 : 0) << '\t'
+      << deck.audioOutputChannels
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -3102,6 +3103,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.audioMono ? "1" : "0")
         << '\t' << cue.audioFadeInSeconds
         << '\t' << cue.audioFadeOutSeconds
+        << '\t' << cue.audioOutputPair
         << '\n';
     }
   }
@@ -3404,6 +3406,7 @@ Project loadProject(const fs::path& projectFile) {
       deck.playlistDefaultPauseAtBeginning = safeBool(fields, 52 + warpFieldOffset, false);
       deck.playlistDefaultPauseAtEnd = safeBool(fields, 53 + warpFieldOffset, true);
       deck.playlistDefaultTransitionToNext = safeBool(fields, 54 + warpFieldOffset, true);
+      deck.audioOutputChannels = std::clamp(safeInt(fields, 55 + warpFieldOffset, 2), 2, 8);
     } else if (fields[0] == "cue") {
       int deckIndex = 0;
       size_t offset = 1;
@@ -3546,6 +3549,7 @@ Project loadProject(const fs::path& projectFile) {
       cue.audioMono = safeBool(fields, subtitleBase + 6, false);
       cue.audioFadeInSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 7, -1.0)), -1.0f, 60.0f);
       cue.audioFadeOutSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 8, -1.0)), -1.0f, 60.0f);
+      cue.audioOutputPair = std::clamp(safeInt(fields, subtitleBase + 9, 0), 0, 7);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -5362,6 +5366,7 @@ class App {
   static constexpr int kSettingsActionEncoderAddFile = 648;
   static constexpr int kSettingsActionAudioDelayDec = 649;
   static constexpr int kSettingsActionAudioDelayInc = 650;
+  static constexpr int kSettingsActionAudioChannelsCycle = 651;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;

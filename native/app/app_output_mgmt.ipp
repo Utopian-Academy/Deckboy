@@ -593,12 +593,15 @@
     return result;
   }
 
-  SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName) {
+  SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName,
+                                       int channels = kAudioChannels) {
     applyAudioBufferSizeHint();
     SDL_AudioSpec desired {};
     desired.freq = kAudioRate;
     desired.format = kAudioFormat;
-    desired.channels = kAudioChannels;
+    // Even channel counts only (stereo pairs); SDL folds down when the
+    // physical device has fewer outs.
+    desired.channels = std::clamp(channels - (channels % 2), static_cast<int>(kAudioChannels), 8);
 
     effectiveName = preferredDeviceName;
     SDL_AudioDeviceID target = audioPlaybackDeviceIdForName(preferredDeviceName);
@@ -2300,7 +2303,8 @@
     }
 
     std::string effectiveName;
-    SDL_AudioStream* newMain = openMainAudioDevice(preferredDeviceName, effectiveName);
+    SDL_AudioStream* newMain = openMainAudioDevice(preferredDeviceName, effectiveName,
+                                                   deck.audioOutputChannels);
     if (!newMain) {
       return false;
     }
@@ -2312,6 +2316,7 @@
       // Hot-swap the output device on the existing engine so a device change
       // mid-cue keeps playing instead of tearing the engine down.
       runtime->mediaEngine->setAudioDevice(newMain);
+      runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
     } else {
       runtime->mediaEngine = std::make_unique<MediaEngine>(
         runtime->outputRenderer,
@@ -2338,6 +2343,7 @@
         // animate at its refresh rate (project override wins).
         [this]() { return primaryOutputMode(); }
       );
+      runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
     }
     if (oldStream) {
       SDL_DestroyAudioStream(oldStream);
