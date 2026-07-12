@@ -1,16 +1,21 @@
 # Deckboy Theme: Dark
-# Graphite chrome, light LCD rows, near-black ink. Reworked v0.78.13 -
-# the original had ink-role tones nearly identical to fills (unreadable).
-# All color values are RRGGBBAA hex.
+# True-OLED terminal. Black case + tiles, phosphor-green text.
+# v0.79.3 roles: screen_fg = on-body text ink (bright green), screen_tile =
+# interactive tile fill (near-black) so buttons and idle cue rows are dark
+# with green text. screen_light stays bright for highlights / the selected
+# inverse-video row / live-row ink. All color values are RRGGBBAA hex.
 
-shell_outer	15171AFF
-shell_inner	C6CAD2FF
-shell_shadow	08090AFF
-screen_light	D6DAE0FF
-screen_mid	9AA1ABFF
-screen_dark	2F333AFF
-screen_deep	0E0F12FF
-screen_ink_soft	6E747EFF
-button_bezel	7A828CFF
-delete_bezel	A03038FF
-scanline_alpha	10
+shell_outer	060708FF
+shell_inner	0A0C0DFF
+shell_shadow	000000FF
+screen_light	34D957FF
+screen_mid	199B39FF
+screen_dark	2C8144FF
+screen_deep	06120AFF
+screen_ink_soft	4FBF6EFF
+screen_fg	5BF57CFF
+screen_fg_soft	3EA85EFF
+screen_tile	0F1712FF
+button_bezel	236B37FF
+delete_bezel	C23A42FF
+scanline_alpha	14

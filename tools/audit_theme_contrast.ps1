@@ -25,11 +25,11 @@ function Get-Contrast([string]$a, [string]$b) {
 # (ink role, fill role, minimum ratio) â€” the pairs the UI actually draws.
 $pairs = @(
     @("screen_light",    "screen_deep",  4.5, "live-row text / panel text"),
-    @("screen_dark",     "screen_light", 3.0, "row subtext on row fill"),
-    @("screen_deep",     "screen_light", 4.5, "row text on row fill"),
-    @("screen_deep",     "shell_inner",  3.0, "dialog + idle-strip text"),
-    @("screen_dark",     "shell_inner",  2.5, "dialog secondary text"),
-    @("screen_ink_soft", "shell_inner",  2.0, "dialog hints"),
+    @("screen_fg_soft",  "screen_tile",  2.5, "row subtext on idle row fill"),
+    @("screen_fg",       "screen_tile",  4.5, "row / button text on tile fill"),
+    @("screen_deep",     "screen_light", 4.5, "dark ink on bright highlight"),
+    @("screen_fg",       "shell_inner",  3.0, "on-body primary text (labels/hints)"),
+    @("screen_ink_soft", "shell_inner",  2.0, "on-body secondary text / hints"),
     @("screen_ink_soft", "screen_deep",  2.5, "panel secondary text"),
     @("screen_deep",     "screen_mid",   2.5, "selected-row text"),
     @("screen_light",    "screen_dark",  2.5, "button text on dark fills")
@@ -43,6 +43,11 @@ Get-ChildItem $ThemesDir -Directory | Sort-Object Name | ForEach-Object {
     Get-Content $file | ForEach-Object {
         if ($_ -match "^([a-z_]+)\t([0-9A-Fa-f]{8})") { $colors[$Matches[1]] = $Matches[2] }
     }
+    # Mirror loadTheme(): a theme without screen_fg uses screen_deep as its
+    # on-body ink, so the audit checks the same color the app will draw.
+    if (-not $colors["screen_fg"] -and $colors["screen_deep"]) { $colors["screen_fg"] = $colors["screen_deep"] }
+    if (-not $colors["screen_tile"] -and $colors["screen_light"]) { $colors["screen_tile"] = $colors["screen_light"] }
+    if (-not $colors["screen_fg_soft"] -and $colors["screen_dark"]) { $colors["screen_fg_soft"] = $colors["screen_dark"] }
     $fails = @()
     foreach ($p in $pairs) {
         $ink = $colors[$p[0]]; $fill = $colors[$p[1]]
