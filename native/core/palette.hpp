@@ -47,7 +47,10 @@ struct Palette {
   SDL_Color light;           // LCD lightest — highlights, active selection
   SDL_Color mid;             // LCD mid — accent, hover states
   SDL_Color dark;            // LCD dark — body text, row backgrounds
-  SDL_Color deep;            // LCD deepest — panel backgrounds
+  SDL_Color deep;            // LCD deepest — panel backgrounds + dark ink on bright fills
+  SDL_Color fg;              // on-body text ink (bright in terminal themes; = deep in light)
+  SDL_Color tile;            // interactive tile fill (dark in terminal themes; = light in light)
+  SDL_Color fgSoft;          // secondary on-tile ink (bright-muted in terminal; = dark in light)
   SDL_Color inkSoft;         // soft ink — secondary text, disabled items
   SDL_Color buttonBezel;     // standard button outline/border
   SDL_Color deleteBezel;     // danger (delete/destructive) button outline
@@ -86,6 +89,9 @@ inline void rebuildPalette() {
   pal.mid         = paletteColorFromRgba(kScreenMidColor);
   pal.dark        = paletteColorFromRgba(kScreenDarkColor);
   pal.deep        = paletteColorFromRgba(kScreenDeepColor);
+  pal.fg          = paletteColorFromRgba(kScreenFgColor);
+  pal.tile        = paletteColorFromRgba(kScreenTileColor);
+  pal.fgSoft      = paletteColorFromRgba(kScreenFgSoftColor);
   pal.inkSoft     = paletteColorFromRgba(kScreenInkSoftColor);
   pal.buttonBezel = paletteColorFromRgba(kButtonBezelColor);
   pal.deleteBezel = paletteColorFromRgba(kDeleteBezelColor);

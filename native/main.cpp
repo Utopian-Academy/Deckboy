@@ -4410,8 +4410,8 @@ class App {
 
     if (isToggle) {
       SDL_Rect btn {rx, rowY, contentW, ix.rowH};
-      SDL_Color fill = toggleOn ? pal.dark : pal.light;
-      SDL_Color ink  = toggleOn ? pal.light : pal.deep;
+      SDL_Color fill = toggleOn ? pal.dark : pal.tile;
+      SDL_Color ink  = toggleOn ? pal.light : pal.fg;
       drawUIPanel(btn, fill, pal.deep, pal.mid);
       SDL_Rect labelRect {btn.x + 8, btn.y, btn.w - 16, btn.h};
       std::string text = label + ": " + value;
@@ -4428,9 +4428,9 @@ class App {
       SDL_Rect valRect {decBtn.x + decBtn.w + gap, rowY, valueW, ix.rowH};
       SDL_Rect incBtn {valRect.x + valRect.w + gap, rowY, kBtnW, ix.rowH};
 
-      drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.deep);
-      drawUIPanel(decBtn, pal.light, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, decBtn, "-", pal.deep);
+      drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
+      drawUIPanel(decBtn, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, decBtn, "-", pal.fg);
       quickButtons_.push_back({decBtn, decAction, tip});
 
       drawUIPanel(valRect, pal.mid, pal.deep, pal.light);
@@ -4452,8 +4452,8 @@ class App {
                                     valueEditable});
       }
 
-      drawUIPanel(incBtn, pal.light, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", pal.deep);
+      drawUIPanel(incBtn, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", pal.fg);
       quickButtons_.push_back({incBtn, incAction, tip});
     }
   }
@@ -4646,8 +4646,8 @@ class App {
   InspectorSectionScope inspBeginSection(const InspectorCtx& ix, int rowY, const std::string& title,
                                           bool open, QuickAction toggleAction, const std::string& tip) {
     SDL_Rect hdr {ix.ctrl.x + ix.inset, rowY, ix.ctrlW - ix.inset * 2, ix.sectionHeaderH};
-    SDL_Color fill = open ? pal.mid : pal.light;
-    SDL_Color ink = open ? pal.deep : pal.dark;
+    SDL_Color fill = open ? pal.mid : pal.tile;
+    SDL_Color ink = open ? pal.deep : pal.fg;
     drawUIPanel(hdr, fill, pal.deep, pal.dark);
     SDL_Rect titleRect {hdr.x + 4, hdr.y, hdr.w - 24, hdr.h};
     SDL_Rect stateRect {hdr.x + hdr.w - 18, hdr.y, 14, hdr.h};
@@ -4924,6 +4924,9 @@ class App {
       try { return static_cast<std::uint32_t>(std::stoul(s, nullptr, 16)); }
       catch (...) { return 0xFFFFFFFFu; }
     };
+    bool sawFg = false;
+    bool sawTile = false;
+    bool sawFgSoft = false;
     while (std::getline(f, line)) {
       if (line.empty() || line[0] == '#') continue;
       auto tab = line.find('\t');
@@ -4942,6 +4945,9 @@ class App {
       else if (key == "screen_dark")     kScreenDarkColor    = c;
       else if (key == "screen_deep")     kScreenDeepColor    = c;
       else if (key == "screen_ink_soft") kScreenInkSoftColor = c;
+      else if (key == "screen_fg")     { kScreenFgColor      = c; sawFg = true; }
+      else if (key == "screen_tile")   { kScreenTileColor    = c; sawTile = true; }
+      else if (key == "screen_fg_soft"){ kScreenFgSoftColor  = c; sawFgSoft = true; }
       else if (key == "button_bezel")    kButtonBezelColor   = c;
       else if (key == "delete_bezel")    kDeleteBezelColor   = c;
       else if (key == "scanline_alpha") {
@@ -4949,6 +4955,12 @@ class App {
         catch (...) { pal.scanlineAlpha = 18; }
       }
     }
+    // Back-compat: a theme without screen_fg uses its screen_deep as on-body
+    // ink, and without screen_tile uses its screen_light as tile fill —
+    // exactly the old behavior, so every existing theme is untouched.
+    if (!sawFg) kScreenFgColor = kScreenDeepColor;
+    if (!sawTile) kScreenTileColor = kScreenLightColor;
+    if (!sawFgSoft) kScreenFgSoftColor = kScreenDarkColor;
   }
 
   void loadTheme(const std::string& name) {
