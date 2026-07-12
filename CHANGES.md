@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.79.0 (multichannel audio output routing)
+
+- **Cues can now route to any output pair of a multichannel interface.**
+  Settings → AUDIO OUTPUT has an "Outs" control (2/4/6/8 channels, per
+  deck) that reopens the deck's device with that many channels. When more
+  than 2 are open, the cue inspector's AUDIO section grows an **outs** row:
+  route each cue's (post gain/pan/mono) stereo onto outs 1-2, 3-4, 5-6, or
+  7-8 — VT to the PA on 1-2, click to monitors on 3-4.
+- The engine pipeline stays stereo end to end (gain, fades, delay line,
+  VU tap); expansion to the device's channel count happens only at the
+  final stream write, with silence on the unused outs. All byte↔frame
+  math (A/V master clock, backpressure, sync-pop pacing) is channel-aware.
+- On a device with fewer physical outs than the opened count, SDL folds
+  the extra pairs down — prep on the laptop, route at the venue.
+- Remote: `AUDIOOUTS <pair>` (1-based) sets the selected cue's output pair.
+- Routing persists per cue + per deck; smoke covers the round trip.
+
 ## 2026-07-11 — v0.78.16 (missing media: detection + relink)
 
 - **Deckboy now notices when show media is missing.** Every project load

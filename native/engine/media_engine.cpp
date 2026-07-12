@@ -722,7 +722,8 @@ void MediaEngine::update() {
     if (queuedFrames >= 4800) {  // trust the clock only after ~100ms of audio
       double queuedSeconds = static_cast<double>(queuedFrames) / 48000.0;
       double bufferedSeconds =
-        static_cast<double>(std::max(0, SDL_GetAudioStreamQueued(audioStream_))) / (48000.0 * 4.0);
+        static_cast<double>(std::max(0, SDL_GetAudioStreamQueued(audioStream_)))
+        / (48000.0 * static_cast<double>(audioStreamBytesPerFrame()));
       double playedWallSeconds = std::max(0.0, queuedSeconds - bufferedSeconds);
       // atempo re-times the pipe to wall rate; position space runs at
       // playbackSpeed_ × wall, so scale before comparing.
@@ -1270,6 +1271,8 @@ void MediaEngine::syncAudioFadeParams() {
   audioCuePan_.store(cue ? std::clamp(cue->audioPan, -1.0f, 1.0f) : 0.0f,
                      std::memory_order_relaxed);
   audioCueMono_.store(cue != nullptr && cue->audioMono, std::memory_order_relaxed);
+  audioCuePairOffset_.store(cue ? std::clamp(cue->audioOutputPair, 0, 7) : 0,
+                            std::memory_order_relaxed);
 }
 
 // Audio-thread-safe fade gain: same curve as fadeGainAt but reads only the
@@ -1912,7 +1915,8 @@ void MediaEngine::queuePocketSyncAudio() {
   constexpr double kBeepSeconds = 0.08;
   constexpr int kChunkFrames = 1024;  // ~21 ms per fill
   int queuedBytes = std::max(0, SDL_GetAudioStreamQueued(audioStream_));
-  double queuedSeconds = static_cast<double>(queuedBytes) / (kRate * 4.0);
+  double queuedSeconds = static_cast<double>(queuedBytes)
+    / (kRate * static_cast<double>(audioStreamBytesPerFrame()));
   if (queuedSeconds > 0.12) {
     return;
   }
@@ -2329,7 +2333,9 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
         std::vector<std::uint8_t> buffer(8192);
         double audioTime = cueStartSeconds;
         while (!decoderStop_.load()) {
-          if (SDL_GetAudioStreamQueued(audioStream_) > 23040) {
+          // Backpressure: ~120 ms queued (5760 frames), whatever the stream's
+          // channel count — byte thresholds must scale with the open spec.
+          if (SDL_GetAudioStreamQueued(audioStream_) > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
           }
@@ -2404,8 +2410,7 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
     if (audioTap_) {
       audioTap_(samples);
     }
-    SDL_PutAudioStreamData(audioStream_, samples.data(),
-                           static_cast<int>(samples.size() * sizeof(std::int16_t)));
+    putAudioToStream(samples);
     return;
   }
   audioDelayFifo_.insert(audioDelayFifo_.end(), samples.begin(), samples.end());
@@ -2421,8 +2426,35 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
   if (audioTap_) {
     audioTap_(emit);
   }
-  SDL_PutAudioStreamData(audioStream_, emit.data(),
-                         static_cast<int>(emit.size() * sizeof(std::int16_t)));
+  putAudioToStream(emit);
+}
+
+// Expand processed stereo onto the cue's output pair. The engine pipeline —
+// decode, gain/pan/mono, fades, delay FIFO, VU tap — is stereo throughout;
+// only this last write knows the stream is wider. Channels outside the pair
+// carry silence. A pair beyond the opened channel count clamps to outs 1-2
+// so a routed cue is never silently dropped.
+void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
+  const int deviceChannels = audioDeviceChannels_.load(std::memory_order_relaxed);
+  if (deviceChannels <= 2) {
+    SDL_PutAudioStreamData(audioStream_, stereo.data(),
+                           static_cast<int>(stereo.size() * sizeof(std::int16_t)));
+    return;
+  }
+  int pair = audioCuePairOffset_.load(std::memory_order_relaxed);
+  if (pair < 0 || pair * 2 + 1 >= deviceChannels) {
+    pair = 0;
+  }
+  const std::size_t offset = static_cast<std::size_t>(pair) * 2;
+  const std::size_t frames = stereo.size() / 2;
+  std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(deviceChannels), 0);
+  for (std::size_t frame = 0; frame < frames; ++frame) {
+    std::int16_t* out = wide.data() + frame * static_cast<std::size_t>(deviceChannels);
+    out[offset] = stereo[frame * 2];
+    out[offset + 1] = stereo[frame * 2 + 1];
+  }
+  SDL_PutAudioStreamData(audioStream_, wide.data(),
+                         static_cast<int>(wide.size() * sizeof(std::int16_t)));
 }
 
 #if DECKBOY_INPROC_DECODE
@@ -2526,7 +2558,8 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
         std::vector<std::int16_t> samples(4096);
         double audioTime = cueStartSeconds;
         while (!decoderStop_.load()) {
-          if (SDL_GetAudioStreamQueued(audioStream_) > 23040) {
+          // ~120 ms queued (5760 frames) at the stream's channel count.
+          if (SDL_GetAudioStreamQueued(audioStream_) > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
           }

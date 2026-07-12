@@ -211,6 +211,10 @@ struct Cue {
   // early under a long video tail, or hold under a fast visual cut.
   float audioFadeInSeconds = -1.0f;
   float audioFadeOutSeconds = -1.0f;
+  // Which pair of the deck audio device's outputs this cue's (post gain/pan/
+  // mono) stereo lands on: 0 = outs 1-2, 1 = outs 3-4, ... Pairs beyond the
+  // device's opened channel count clamp back to 1-2 at play time.
+  int audioOutputPair = 0;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -272,6 +276,10 @@ struct Deck {
 
   // -- Audio + output routing --------------------------------------------------
   std::string audioOutputDeviceName;       // SDL audio device name (empty = system default)
+  // Channels to open the deck's audio device with (2/4/6/8). Cues route
+  // their stereo onto a pair of these outs (Cue::audioOutputPair). When the
+  // physical device has fewer channels, SDL folds the extra pairs down.
+  int audioOutputChannels = 2;
   int outputDisplayIndex = 0;              // which display to open the output window on
   int outputRouteDeckIndex = -1;           // route this deck's output to another deck's window (-1=own)
 
@@ -625,6 +633,7 @@ enum class QuickAction {
   NormalizeCueAudio,
   AudioFadeInDec, AudioFadeInInc,
   AudioFadeOutDec, AudioFadeOutInc,
+  AudioOutPairDec, AudioOutPairInc,
   CueSectionAudioToggle,
   // -- Metadata / labels ---
   CycleColorTag,

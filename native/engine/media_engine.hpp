@@ -160,6 +160,11 @@ class MediaEngine {
   // reaches the SDL stream (0–1000 ms). Synced from Project::audioDelayMs
   // per tick like the master gain; applied in the audio-thread tail.
   void setAudioDelayMs(int ms) { audioDelayMs_.store(std::clamp(ms, 0, 1000)); }
+  // Channel count the deck's SDL stream was opened with (2/4/6/8). Must match
+  // the open spec or every byte↔frame conversion in the engine goes wrong.
+  void setAudioDeviceChannels(int channels) {
+    audioDeviceChannels_.store(std::clamp(channels, 2, 8));
+  }
   void setPausePoints(std::vector<double> points); // set auto-pause timecodes
 
   // -- Frame update and rendering (called from main loop) ----------------------
@@ -271,6 +276,15 @@ class MediaEngine {
   // Final stage: delay FIFO (chain A/V offset) → tap → SDL stream. Shared by
   // decode audio and the pocket-test sync pop.
   void queueDelayedAudio(std::vector<std::int16_t>& samples);
+  // Last write: expand processed stereo onto the cue's output pair when the
+  // stream is open with >2 channels, then SDL_PutAudioStreamData.
+  void putAudioToStream(const std::vector<std::int16_t>& stereo);
+  // Bytes per sample FRAME as the SDL stream sees them (channels × s16).
+  // Every queued-bytes → seconds/backpressure conversion must use this.
+  int audioStreamBytesPerFrame() const {
+    return std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed))
+           * static_cast<int>(sizeof(std::int16_t));
+  }
 
   // -- Pattern rendering helpers (static, pure) --------------------------------
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color);
@@ -408,6 +422,12 @@ class MediaEngine {
   std::atomic<float> audioCuePan_ {0.0f};    // per-cue balance -1..+1
   std::atomic<bool> audioCueMono_ {false};   // per-cue mono downmix
   std::atomic<int> audioDelayMs_ {0};        // chain A/V offset (project-level)
+  // Multichannel routing: the SDL stream was opened with this many channels
+  // (deck setting); the cue's processed stereo lands on this pair of them.
+  // The whole engine pipeline stays stereo — expansion happens only at the
+  // final SDL_PutAudioStreamData (putAudioToStream).
+  std::atomic<int> audioDeviceChannels_ {2}; // channels the SDL stream expects
+  std::atomic<int> audioCuePairOffset_ {0};  // 0 = outs 1-2, 1 = outs 3-4, ...
   std::deque<std::int16_t> audioDelayFifo_;  // holds processed samples for the delay
                                              // (owned by whichever thread queues audio;
                                              // cleared only after threads are joined)

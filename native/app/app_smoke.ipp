@@ -527,6 +527,8 @@
       cue.audioMono = true;
       cue.audioFadeInSeconds = 0.5f;
       cue.audioFadeOutSeconds = 0.0f;
+      cue.audioOutputPair = 2;  // outs 5-6
+      deck.audioOutputChannels = 8;
       Cue imgCue;
       imgCue.path = (fs::temp_directory_path() / "test.jpg").string();
       imgCue.name = "Smoke Still";
@@ -701,6 +703,8 @@
                loadedCue.audioMono, "cue audio trim/pan/mono persisted");
         expect(std::abs(loadedCue.audioFadeInSeconds - 0.5f) < 0.01f &&
                std::abs(loadedCue.audioFadeOutSeconds) < 0.01f, "cue audio fades persisted");
+        expect(loadedCue.audioOutputPair == 2 && loadedDeck.audioOutputChannels == 8,
+               "audio output routing persisted");
         if (loadedDeck.cues.size() > 1) {
           const Cue& img = loadedDeck.cues[1];
           expect(img.kind == CueKind::Image, "still image kind persisted");
