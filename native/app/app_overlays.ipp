@@ -244,12 +244,14 @@
                         : (fontPixel_ ? fontPixel_ : fontLarge_);
     drawTextSafe(controlRenderer_, titleFont,
                  SDL_Rect {tx, dialog.y + 24, dialog.w - 72, 52},
-                 std::string(kAppTitle), pal.deep);
+                 std::string(kAppTitle), pal.fg);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
                  "dot-matrix cue deck  -  " + std::string(kAppVersionTag), pal.inkSoft);
-    SDL_Color dlgInk = pal.deep;
-    SDL_Color dlgSub = pal.dark;
+    // The dialog panel is shell_inner (near-black on terminal themes), so its
+    // body text rides the on-body ink roles, not the dark screen_deep/dark.
+    SDL_Color dlgInk = pal.fg;
+    SDL_Color dlgSub = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {tx, dialog.y + 116, dialog.w - 72, 24},
                  "Choose startup mode:", dlgInk);
@@ -318,11 +320,11 @@
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {modal.x + 16, modal.y + 10, mw - 64, 24},
-                 "KEYBOARD SHORTCUTS", pal.deep);
+                 "KEYBOARD SHORTCUTS", pal.fg);
     // Close hint
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {modal.x + mw - 180, modal.y + 14, 170, 16},
-                 "Ctrl+/ to close", pal.dark);
+                 "Ctrl+/ to close", pal.inkSoft);
 
     struct ShortcutEntry { const char* key; const char* desc; };
     static const ShortcutEntry shortcuts[] = {
@@ -372,9 +374,9 @@
       }
       int cx = modal.x + 16 + col * colW;
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {cx, rowY, 130, 16}, s.key, pal.dark);
+                   SDL_Rect {cx, rowY, 130, 16}, s.key, pal.fgSoft);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {cx + 134, rowY, colW - 140, 16}, s.desc, pal.deep);
+                   SDL_Rect {cx + 134, rowY, colW - 140, 16}, s.desc, pal.fg);
       rowY += 18;
     }
   }
@@ -421,16 +423,18 @@
     TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
     drawTextSafe(controlRenderer_, titleFont,
                  SDL_Rect {card.x + 36, card.y + 28, card.w - 72, 34},
-                 std::string(kAppTitle) + " " + std::string(kAppVersionTag), pal.deep);
+                 std::string(kAppTitle) + " " + std::string(kAppVersionTag), pal.fg);
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {card.x + 38, card.y + 76, card.w - 76, 24},
-                 "dot-matrix cue deck", pal.dark);
+                 "dot-matrix cue deck", pal.inkSoft);
 
     // ── Boot console — nested framed panel ──
     // Real init values interleaved with the important diagnostics, built
-    // once per boot (startupBootLog_) and revealed line by line.
+    // once per boot (startupBootLog_) and revealed line by line. Uses the
+    // tile fill + fg text so it reads as a dark terminal console on OLED
+    // themes and a bright panel on light themes.
     SDL_Rect bootRect {card.x + 36, card.y + 126, card.w - 72, 196};
-    Primitives::drawFramedPanel(controlRenderer_, bootRect, pal.light, pal.deep, pal.mid);
+    Primitives::drawFramedPanel(controlRenderer_, bootRect, pal.tile, pal.deep, pal.mid);
 
     if (startupBootLog_.empty()) {
       auto [bootW, bootH] = outputRenderSizeForOutput(0);
@@ -515,19 +519,19 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {bootRect.x + 12, bootRect.y + 10 + (i - firstLine) * lineStep,
                              bootRect.w - 24, lineStep},
-                   startupBootLog_[i], pal.deep);
+                   startupBootLog_[i], pal.fg);
     }
     if (visibleLines < totalLines && ((now / 300) % 2) == 0) {
       int cursorRow = std::min(visibleLines - firstLine, fitLines - 1);
-      drawText(controlRenderer_, fontSmall_, "_", pal.deep,
+      drawText(controlRenderer_, fontSmall_, "_", pal.fg,
                bootRect.x + 12, bootRect.y + 10 + cursorRow * lineStep);
     }
 
     // ── Hint text ──
     drawText(controlRenderer_, fontBase_, "press ENTER to start",
-             pal.deep, card.x + 36, card.y + card.h - 74);
+             pal.fg, card.x + 36, card.y + card.h - 74);
     drawText(controlRenderer_, fontSmall_, "Esc or click to skip",
-             pal.dark, card.x + 36, card.y + card.h - 44);
+             pal.inkSoft, card.x + 36, card.y + card.h - 44);
 
     // ── Sparkles around the card ──
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
