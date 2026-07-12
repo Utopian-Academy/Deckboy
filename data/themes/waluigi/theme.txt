@@ -1,15 +1,19 @@
 # Deckboy Theme: Waluigi
-# Bright violet neon. Wah.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Indigo-neon-phosphor OLED terminal on true black. Wah.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1A141DFF
-shell_inner	ACA9AEFF
-shell_shadow	080708FF
-screen_light	D456FBFF
-screen_mid	9132AEFF
-screen_dark	271D2BFF
-screen_deep	050505FF
-screen_ink_soft	9557A8FF
-button_bezel	683776FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	07060CFF
+shell_inner	0A0810FF
+shell_shadow	000000FF
+screen_light	9C6CFFFF
+screen_mid	6040C0FF
+screen_dark	3A2678FF
+screen_deep	07050FFF
+screen_ink_soft	A890E0FF
+screen_fg	AE84FFFF
+screen_fg_soft	7658C8FF
+screen_tile	110C1CFF
+button_bezel	483A8BFF
+delete_bezel	E89830FF
+scanline_alpha	14

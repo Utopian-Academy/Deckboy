@@ -1,15 +1,19 @@
 # Deckboy Theme: Luigi
-# Grass-green glow on black.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Grass-green-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	141C16FF
-shell_inner	E0E1E0FF
-shell_shadow	070807FF
-screen_light	56FB64FF
-screen_mid	32AE3DFF
-screen_dark	1D2A1FFF
-screen_deep	050505FF
-screen_ink_soft	57A85EFF
-button_bezel	37763CFF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	060A06FF
+shell_inner	080D08FF
+shell_shadow	000000FF
+screen_light	6EF050FF
+screen_mid	3EA828FF
+screen_dark	245E16FF
+screen_deep	080F04FF
+screen_ink_soft	8FD07AFF
+screen_fg	8CFF6EFF
+screen_fg_soft	5AA83EFF
+screen_tile	101708FF
+button_bezel	2E6B1EFF
+delete_bezel	C23A42FF
+scanline_alpha	14

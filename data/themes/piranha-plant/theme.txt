@@ -1,15 +1,19 @@
 # Deckboy Theme: Piranha Plant
-# Acid green-yellow from the pipes.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Acid-lime-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	171D14FF
-shell_inner	E3E3E2FF
-shell_shadow	080807FF
-screen_light	B6FB56FF
-screen_mid	7AAE32FF
-screen_dark	232B1DFF
-screen_deep	050505FF
-screen_ink_soft	86A857FF
-button_bezel	5C7637FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	090A05FF
+shell_inner	0C0D07FF
+shell_shadow	000000FF
+screen_light	B4F050FF
+screen_mid	6EA828FF
+screen_dark	425E16FF
+screen_deep	0C0F05FF
+screen_ink_soft	AED080FF
+screen_fg	C6FF6EFF
+screen_fg_soft	82A83EFF
+screen_tile	12170AFF
+button_bezel	546B1EFF
+delete_bezel	C23A42FF
+scanline_alpha	14

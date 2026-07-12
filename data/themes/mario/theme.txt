@@ -1,15 +1,19 @@
 # Deckboy Theme: Mario
-# It's-a red â€” with a denim-blue streak.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Vermilion-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1C1514FF
-shell_inner	AEAAA9FF
-shell_shadow	080707FF
-screen_light	FA5347FF
-screen_mid	3260AEFF
-screen_dark	2A1F1DFF
-screen_deep	050505FF
-screen_ink_soft	A85C57FF
-button_bezel	374E76FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0605FF
+shell_inner	0D0807FF
+shell_shadow	000000FF
+screen_light	FF5A44FF
+screen_mid	B83022FF
+screen_dark	6E1E14FF
+screen_deep	100605FF
+screen_ink_soft	E08070FF
+screen_fg	FF7460FF
+screen_fg_soft	C84838FF
+screen_tile	160A08FF
+button_bezel	7A2E22FF
+delete_bezel	E89830FF
+scanline_alpha	14

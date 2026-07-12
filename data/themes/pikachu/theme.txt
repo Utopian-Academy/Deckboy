@@ -1,15 +1,19 @@
 # Deckboy Theme: Pikachu
-# Electric yellow with red-cheek accents.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Electric-yellow-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1D1B14FF
-shell_inner	E3E3E2FF
-shell_shadow	080807FF
-screen_light	FBE160FF
-screen_mid	AE4332FF
-screen_dark	2B281DFF
-screen_deep	050505FF
-screen_ink_soft	A89B57FF
-button_bezel	764037FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0A05FF
+shell_inner	0D0D07FF
+shell_shadow	000000FF
+screen_light	FFE84AFF
+screen_mid	B8A01EFF
+screen_dark	6E6012FF
+screen_deep	100F05FF
+screen_ink_soft	DACA58FF
+screen_fg	FFF06EFF
+screen_fg_soft	C8AC32FF
+screen_tile	15150AFF
+button_bezel	7A6C20FF
+delete_bezel	C23A42FF
+scanline_alpha	14

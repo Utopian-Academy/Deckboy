@@ -1,15 +1,19 @@
 # Deckboy Theme: Hyrule
-# Deep forest green lit by Triforce gold.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Triforce-gold-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	141D17FF
-shell_inner	DADCDBFF
-shell_shadow	070807FF
-screen_light	FBD456FF
-screen_mid	32AE60FF
-screen_dark	1D2B22FF
-screen_deep	050505FF
-screen_ink_soft	A89557FF
-button_bezel	37764EFF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0905FF
+shell_inner	0D0B07FF
+shell_shadow	000000FF
+screen_light	FFD24AFF
+screen_mid	B8901EFF
+screen_dark	6E5612FF
+screen_deep	100D05FF
+screen_ink_soft	D8B858FF
+screen_fg	FFE06EFF
+screen_fg_soft	C89A32FF
+screen_tile	15130AFF
+button_bezel	7A6220FF
+delete_bezel	C23A42FF
+scanline_alpha	14

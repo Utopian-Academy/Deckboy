@@ -1,15 +1,19 @@
 # Deckboy Theme: Famicom
-# Red console with warm cream trim.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Warm-red-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1C1714FF
-shell_inner	AEAAA9FF
-shell_shadow	080707FF
-screen_light	F75A64FF
-screen_mid	A99360FF
-screen_dark	2A211DFF
-screen_deep	050505FF
-screen_ink_soft	A6595EFF
-button_bezel	6C5F42FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0605FF
+shell_inner	0D0807FF
+shell_shadow	000000FF
+screen_light	F04040FF
+screen_mid	A82424FF
+screen_dark	6E1616FF
+screen_deep	100505FF
+screen_ink_soft	D07068FF
+screen_fg	FF6058FF
+screen_fg_soft	C03832FF
+screen_tile	150A08FF
+button_bezel	7A2A24FF
+delete_bezel	E89830FF
+scanline_alpha	14

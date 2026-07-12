@@ -1,15 +1,19 @@
 # Deckboy Theme: Metroid
-# Samus-armor orange over hull-green dark.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Amber-phosphor OLED terminal — Samus's cockpit glow on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	151C1CFF
-shell_inner	C8CBCBFF
-shell_shadow	070808FF
-screen_light	FBA356FF
-screen_mid	32AE66FF
-screen_dark	1E2929FF
-screen_deep	050505FF
-screen_ink_soft	A87D57FF
-button_bezel	377651FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	0A0806FF
+shell_inner	0D0A07FF
+shell_shadow	000000FF
+screen_light	F5A048FF
+screen_mid	A8641EFF
+screen_dark	6E3E12FF
+screen_deep	100A05FF
+screen_ink_soft	C89058FF
+screen_fg	FFB866FF
+screen_fg_soft	C07C32FF
+screen_tile	15100AFF
+button_bezel	7A501EFF
+delete_bezel	C23A42FF
+scanline_alpha	14
