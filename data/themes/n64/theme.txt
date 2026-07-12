@@ -1,15 +1,19 @@
 # Deckboy Theme: Nintendo 64
-# Smoky jungle-green over charcoal.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Teal-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	16191BFF
-shell_inner	D8D9DAFF
-shell_shadow	070808FF
-screen_light	38EF94FF
-screen_mid	32AE70FF
-screen_dark	1F2528FF
-screen_deep	050505FF
-screen_ink_soft	5BA480FF
-button_bezel	377657FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	05090AFF
+shell_inner	080C0DFF
+shell_shadow	000000FF
+screen_light	33D9C0FF
+screen_mid	199B8AFF
+screen_dark	0E5148FF
+screen_deep	06120FFF
+screen_ink_soft	4FBFAEFF
+screen_fg	5BF5DEFF
+screen_fg_soft	3EA894FF
+screen_tile	0F1714FF
+button_bezel	236B60FF
+delete_bezel	C23A42FF
+scanline_alpha	14

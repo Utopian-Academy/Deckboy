@@ -1,15 +1,19 @@
 # Deckboy Theme: Dolphin
-# Cyan reactor pool (the cube's codename).
-# All color values are RRGGBBAA hex. Generated colorway.
+# Cyan-phosphor OLED terminal — reactor-pool glow on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	141A1CFF
-shell_inner	D8D9DAFF
-shell_shadow	070808FF
-screen_light	60E6FBFF
-screen_mid	329DAEFF
-screen_dark	1D262AFF
-screen_deep	050505FF
-screen_ink_soft	579DA8FF
-button_bezel	376E76FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	05090BFF
+shell_inner	080C0EFF
+shell_shadow	000000FF
+screen_light	40D8F0FF
+screen_mid	1E96AEFF
+screen_dark	0E4E5AFF
+screen_deep	041012FF
+screen_ink_soft	5FC0D4FF
+screen_fg	66E8FFFF
+screen_fg_soft	3EA0B4FF
+screen_tile	0D1618FF
+button_bezel	236670FF
+delete_bezel	E89830FF
+scanline_alpha	14

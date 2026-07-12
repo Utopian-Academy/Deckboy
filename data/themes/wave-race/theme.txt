@@ -1,15 +1,19 @@
 # Deckboy Theme: Wave Race
-# Bright aqua spray on a black lagoon.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Aqua-phosphor OLED terminal — spray on a black lagoon.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	141B1CFF
-shell_inner	E0E1E1FF
-shell_shadow	070808FF
-screen_light	77F8EBFF
-screen_mid	32AEA2FF
-screen_dark	1D282AFF
-screen_deep	050505FF
-screen_ink_soft	59A69FFF
-button_bezel	377670FF
-delete_bezel	AB2B33FF
-scanline_alpha	12
+shell_outer	05090AFF
+shell_inner	080C0DFF
+shell_shadow	000000FF
+screen_light	40F0D0FF
+screen_mid	1EA894FF
+screen_dark	0E5A4EFF
+screen_deep	05130FFF
+screen_ink_soft	5FC8B4FF
+screen_fg	66FFE4FF
+screen_fg_soft	3EB09CFF
+screen_tile	0F1815FF
+button_bezel	237064FF
+delete_bezel	C23A42FF
+scanline_alpha	14

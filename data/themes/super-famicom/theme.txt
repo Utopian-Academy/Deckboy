@@ -1,15 +1,19 @@
 # Deckboy Theme: Super Famicom
-# Soft lavender-grey, four-button pop.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Lavender-grey-phosphor OLED terminal on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	17151BFF
-shell_inner	B2B2B4FF
-shell_shadow	080708FF
-screen_light	BD92DDFF
-screen_mid	7832AEFF
-screen_dark	221F29FF
-screen_deep	050505FF
-screen_ink_soft	826996FF
-button_bezel	5B3776FF
-delete_bezel	AB2B40FF
+shell_outer	08070CFF
+shell_inner	0B090FFF
+shell_shadow	000000FF
+screen_light	B0A6D8FF
+screen_mid	6A5E9EFF
+screen_dark	3E3666FF
+screen_deep	08060FFF
+screen_ink_soft	A296C8FF
+screen_fg	C6BEE8FF
+screen_fg_soft	7268A8FF
+screen_tile	12101CFF
+button_bezel	4E4488FF
+delete_bezel	E89830FF
 scanline_alpha	12

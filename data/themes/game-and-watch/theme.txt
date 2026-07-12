@@ -1,15 +1,19 @@
 # Deckboy Theme: Game & Watch
-# Warm amber LCD â€” where it began.
-# All color values are RRGGBBAA hex. Generated colorway.
+# Grey-green LCD OLED terminal — where it began, on true black.
+# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# All color values are RRGGBBAA hex.
 
-shell_outer	1C1914FF
-shell_inner	D3D1D0FF
-shell_shadow	080807FF
-screen_light	F0B642FF
-screen_mid	AE8532FF
-screen_dark	2A251DFF
-screen_deep	050505FF
-screen_ink_soft	A48C5BFF
-button_bezel	766137FF
-delete_bezel	AB2B33FF
+shell_outer	070806FF
+shell_inner	0A0B09FF
+shell_shadow	000000FF
+screen_light	9EB096FF
+screen_mid	5E6E58FF
+screen_dark	3A4634FF
+screen_deep	0A0C09FF
+screen_ink_soft	8A9A82FF
+screen_fg	B6C8AEFF
+screen_fg_soft	6E7E66FF
+screen_tile	12160FFF
+button_bezel	4A5842FF
+delete_bezel	C23A42FF
 scanline_alpha	12
