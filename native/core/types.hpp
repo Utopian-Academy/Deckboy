@@ -218,6 +218,10 @@ struct Cue {
   bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor
   bool subtitleEnabled = true;    // render subtitles (if subtitle track available)
   bool refreshOnTake = false;     // Browser cue: reload page each time cue is taken
+  // Runtime-only (never serialized): set by scanProjectMediaPresence() when a
+  // file-backed cue's media can't be found on disk. Drives the MISSING row
+  // badge and the toolbar RELINK button.
+  bool mediaMissing = false;
 };
 
 // ---------------------------------------------------------------------------

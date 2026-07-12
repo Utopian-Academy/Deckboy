@@ -441,6 +441,16 @@
       exportProjectBundleFromPicker();
       return;
     }
+    if (fileRelinkBtnRect_.w > 0 && pointInRect(x, y, fileRelinkBtnRect_)) {
+      // Re-check first: if the drive came back on its own, clear the state
+      // without making the operator pick a folder.
+      if (scanProjectMediaPresence() == 0) {
+        triggerToast("media found - nothing to relink");
+      } else {
+        relinkMediaFromPicker();
+      }
+      return;
+    }
     if (pointInRect(x, y, fileSaveAsBtnRect_)) {
       saveProjectAsFromPicker();
       return;

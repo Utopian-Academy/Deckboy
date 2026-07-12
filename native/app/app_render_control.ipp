@@ -657,6 +657,17 @@
       drawTBtn(fileSaveBtnRect_, "SAVE");
       drawTBtn(fileBundleBtnRect_, "BUNDLE");
 
+      // RELINK — only exists while media is missing; red so it reads as a
+      // warning, not another file action.
+      fileRelinkBtnRect_ = SDL_Rect {};
+      if (missingMediaCount_ > 0) {
+        fileRelinkBtnRect_ = {ax, ty, 104, kTBtnH}; ax += 104 + kTGrpGap;
+        drawUIPanel(fileRelinkBtnRect_, SDL_Color {160, 18, 18, 255}, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, fileRelinkBtnRect_,
+                             "RELINK " + std::to_string(missingMediaCount_),
+                             SDL_Color {255, 210, 210, 255});
+      }
+
       SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
       Primitives::fillRect(controlRenderer_, sep1, pal.mid);
       ax += 2 + kTGrpGap;
@@ -1139,6 +1150,15 @@
     // Metadata — line 3 (bottom of row, within bounds)
     SDL_Rect metaRect {nameX, row.y + 50, nameW, 18};
     drawTextSafe(controlRenderer_, fontSmall_, metaRect, dc.meta, isProbing ? pal.inkSoft : subInk);
+
+    // Missing-media badge — right end of the name column, drawn live (not
+    // via the display cache) so a relink clears it the same frame.
+    if (cue.mediaMissing && nameW > 120) {
+      SDL_Rect missRect {nameX + nameW - 66, row.y + 4, 62, 18};
+      Primitives::fillRect(controlRenderer_, missRect, SDL_Color {160, 18, 18, 255});
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, missRect, "MISSING",
+                           SDL_Color {255, 210, 210, 255});
+    }
 
     auto drawCueRowActionIcon = [&](const SDL_Rect& rect, QuickAction action, SDL_Color inkColor, bool enabled) {
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
