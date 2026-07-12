@@ -129,6 +129,10 @@
       layoutDragMode_ = LayoutDragMode::Inspector;
       return;
     }
+    if (timelineSplitterRect_.w > 0 && pointInRect(x, y, timelineSplitterRect_)) {
+      layoutDragMode_ = LayoutDragMode::Timeline;
+      return;
+    }
 
     // Shuffle footer button
     if (shuffleBtnRect_.w > 0 && pointInRect(x, y, shuffleBtnRect_)) {
@@ -700,6 +704,17 @@
       int maxW = std::max(kInspectorMinW, mainPanelLayoutRect_.w - kProgramMinW);
       inspectorPaneWidth_ = std::clamp(mainPanelLayoutRect_.x + mainPanelLayoutRect_.w - x,
                                        kInspectorMinW, maxW);
+      return;
+    }
+    if (layoutDragMode_ == LayoutDragMode::Timeline && programAreaRect_.h > 0) {
+      // Drag the monitor/timeline divider: the desired monitor height is the
+      // pointer's offset from the program-area top (clamped to a usable
+      // preview), and whatever height we shave off the preview becomes the
+      // extra the timeline lanes get.
+      int desiredMonitorH = std::clamp(y - programAreaRect_.y,
+                                       kProgramMonitorMinH, programFullMonitorH_);
+      int maxExtra = std::max(0, programFullMonitorH_ - kProgramMonitorMinH);
+      timelineExtraH_ = std::clamp(programFullMonitorH_ - desiredMonitorH, 0, maxExtra);
       return;
     }
     // Warp corner dragging — convert mouse delta in monitor-space to output-pixel warp offsets

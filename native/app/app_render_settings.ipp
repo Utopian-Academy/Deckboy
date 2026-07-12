@@ -62,7 +62,7 @@
     // Title — pixel face for the Game Boy read
     drawTextSafe(controlRenderer_, fontPixel_ ? fontPixel_ : fontBase_,
                  SDL_Rect {modal.x + 16, modal.y + 8, modal.w - 64, 28},
-                 "SETTINGS", pal.deep);
+                 "SETTINGS", pal.fg);
 
     // Close button [X]
     settingsCloseBtn_ = {modal.x + modal.w - 42, modal.y + 6, 34, 30};

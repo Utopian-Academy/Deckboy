@@ -118,6 +118,11 @@ The control window is split into:
 - **Cue Inspector** (right): all settings for the selected cue, in collapsible
   sections. Drag the splitter between the program area and the inspector to
   resize.
+
+Two draggable dividers let you rebalance the layout: the vertical splitter
+between the program area and the inspector, and a horizontal grip in the gap
+under the program monitor — drag it up to shrink the preview and enlarge the
+timeline lanes, down to give the height back.
 - **Monitors window** (separate): per-output preview and routing.
 
 ---
