@@ -159,20 +159,31 @@
     }
 
     constexpr int kTimelineHeaderH = 60;
-    constexpr int kVideoLaneH = 92;
-    constexpr int kAudioLaneH = 68;
+    constexpr int kVideoLaneBaseH = 92;
+    constexpr int kAudioLaneBaseH = 68;
     constexpr int kTimelineGap = 6;
     constexpr int kDeleteWarnH = 42;
     constexpr int kTransportRowH = 24;
     constexpr int kMonitorGap = 12;
-    int reservedTimelineH = kTimelineHeaderH + 2 + kVideoLaneH + kTimelineGap + kAudioLaneH + kTimelineGap + kTransportRowH;
+    // Fixed timeline chrome plus the base lane heights. The operator can steal
+    // extra height from the preview (timelineExtraH_, dragged via the splitter
+    // below) to grow the two lanes; the video lane gets the larger share.
+    int baseReservedH = kTimelineHeaderH + 2 + kVideoLaneBaseH + kTimelineGap
+                      + kAudioLaneBaseH + kTimelineGap + kTransportRowH;
     if (liveDeleteWarnActive) {
-      reservedTimelineH += kDeleteWarnH + kTimelineGap;
+      baseReservedH += kDeleteWarnH + kTimelineGap;
     }
-    int monitorAreaH = std::max(240, innerH - reservedTimelineH - kMonitorGap);
-    if (monitorAreaH + reservedTimelineH + kMonitorGap > innerH) {
-      monitorAreaH = std::max(160, innerH - reservedTimelineH - kMonitorGap);
-    }
+    // Monitor height when no extra is taken; clamp the operator's request so
+    // the preview never drops below kProgramMonitorMinH.
+    int fullMonitorH = std::max(kProgramMonitorMinH, innerH - baseReservedH - kMonitorGap);
+    programAreaRect_ = {innerX, innerY, innerW, innerH};
+    programFullMonitorH_ = fullMonitorH;
+    int maxExtra = std::max(0, fullMonitorH - kProgramMonitorMinH);
+    timelineExtraH_ = std::clamp(timelineExtraH_, 0, maxExtra);
+    int videoLaneH = kVideoLaneBaseH + (timelineExtraH_ * 57) / 100;
+    int audioLaneH = kAudioLaneBaseH + (timelineExtraH_ - (timelineExtraH_ * 57) / 100);
+    int reservedTimelineH = baseReservedH - kVideoLaneBaseH - kAudioLaneBaseH + videoLaneH + audioLaneH;
+    int monitorAreaH = std::max(kProgramMonitorMinH, innerH - reservedTimelineH - kMonitorGap);
 
     // Program / Preview monitors.
     int monitorY = innerY;
@@ -193,6 +204,28 @@
       monitorH
     };
     int timelineTopY = programMonitorRect.y + programMonitorRect.h + kMonitorGap;
+
+    // Program/timeline splitter — a draggable grip in the gap under the
+    // monitor. Drag up to enlarge the timeline lanes (stealing height from the
+    // preview); drag down to give it back. Only interactive when there is room
+    // to move (maxExtra > 0).
+    timelineSplitterRect_ = (maxExtra > 0)
+      ? SDL_Rect {innerX, programMonitorRect.y + programMonitorRect.h, innerW, kMonitorGap}
+      : SDL_Rect {};
+    if (timelineSplitterRect_.w > 0) {
+      bool active = layoutDragMode_ == LayoutDragMode::Timeline;
+      bool hover = !inTouchMode() && pointInRect(mouseX_, mouseY_, timelineSplitterRect_);
+      int gripW = std::clamp(innerW / 3, 80, 140);
+      SDL_Rect grip {innerX + (innerW - gripW) / 2, timelineSplitterRect_.y + 1,
+                     gripW, std::max(2, kMonitorGap - 2)};
+      drawUIPanel(grip, active ? pal.dark : pal.shellInner, pal.deep,
+                  hover || active ? pal.light : pal.mid);
+      for (int d = 0; d < 3; ++d) {
+        SDL_Rect pip {grip.x + grip.w / 2 - 8 + d * 8, grip.y + grip.h / 2 - 1, 3, 2};
+        Primitives::fillRect(controlRenderer_, pip, active ? pal.light : pal.mid);
+      }
+    }
+
     int countdownPanelW = std::clamp(innerW / 4, 220, 280);
     if (countdownPanelW > innerW - 160) {
       countdownPanelW = std::max(180, innerW / 3);
@@ -261,8 +294,8 @@
     SDL_Rect countdownValueRect {countdownRect.x + 8, countdownRect.y + 18, countdownRect.w - 16, countdownRect.h - 22};
     drawCenteredTextSafe(controlRenderer_, countdownFont, countdownValueRect, countdownText, countdownInk);
 
-    SDL_Rect videoLaneOuter {x, timelineTopY + kTimelineHeaderH + 2, innerW, kVideoLaneH};
-    SDL_Rect audioLaneOuter {x, videoLaneOuter.y + videoLaneOuter.h + kTimelineGap, innerW, kAudioLaneH};
+    SDL_Rect videoLaneOuter {x, timelineTopY + kTimelineHeaderH + 2, innerW, videoLaneH};
+    SDL_Rect audioLaneOuter {x, videoLaneOuter.y + videoLaneOuter.h + kTimelineGap, innerW, audioLaneH};
     int deleteWarnY = audioLaneOuter.y + audioLaneOuter.h + kTimelineGap;
     int transportRowY = deleteWarnY + (liveDeleteWarnActive ? (kDeleteWarnH + kTimelineGap) : 0);
     progressBarRect_ = insetRect(videoLaneOuter, 3);
@@ -500,6 +533,10 @@
         timelineStripTexW_ > 0 && timelineStripTexH_ > 0) {
       SDL_Rect stripDst = progressBarRect_;
       SDL_SetTextureBlendMode(timelineStripTex_, SDL_BLENDMODE_NONE);
+      // Smooth (linear) upscale — the strip is stretched to fill the lane,
+      // which grows tall when the timeline is enlarged; nearest-neighbour
+      // would look blocky on the photographic thumbnails.
+      SDL_SetTextureScaleMode(timelineStripTex_, SDL_SCALEMODE_LINEAR);
       SDL_RenderTexture(controlRenderer_, timelineStripTex_, nullptr, &stripDst);
       if (timelineStripLoadingCurrent) {
         drawTimelineLoadingAnimation(progressBarRect_);
@@ -593,7 +630,7 @@
       }
       if (timelineCue == activeCue && activeCue) {
         constexpr int kHandleW = 8;
-        constexpr int kHandleH = kVideoLaneH - 4;
+        int kHandleH = videoLaneH - 4;
         if (activeCue->inPointSeconds > 0.001) {
           int inX = progressBarRect_.x + static_cast<int>(std::round(progressBarRect_.w * timelineInFrac)) - kHandleW / 2;
           inX = std::clamp(inX, progressBarRect_.x, progressBarRect_.x + progressBarRect_.w - kHandleW);

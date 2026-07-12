@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.4 (resizable timeline; dialog readability; sharper thumbnails)
+
+- **Resizable program monitor ↔ timeline split.** A draggable grip in the
+  gap under the program monitor lets the operator steal height from the
+  preview to enlarge the timeline lanes (drag up to grow the timeline,
+  down to give it back). The monitor never shrinks below a usable minimum,
+  and the grip only appears when there's room to move. Runtime-only, like
+  the existing pane splitters.
+- **Sharper timeline filmstrip.** The lane thumbnails are now 2x resolution
+  (256×144) and rendered with linear filtering, so they stay crisp when the
+  lane is enlarged instead of going blocky.
+- **Terminal-theme dialog readability.** The startup boot splash, the
+  startup-mode menu ("New show / Open previous / Open saved"), the keyboard
+  shortcuts overlay, and the Settings title drew their text through the dark
+  `screen_deep` ink on a near-black `shell_inner` panel — invisible on OLED
+  terminal themes. They now use the on-body ink roles (`screen_fg` /
+  `screen_fg_soft` / `screen_ink_soft`) and the boot console uses the tile
+  fill, so they read as bright text on dark panels (and are unchanged on
+  light themes). This was not a "clamp" — the themes are set correctly; the
+  dialogs simply hadn't been routed through the new roles yet.
+
 ## 2026-07-12 — v0.79.3 (terminal/OLED themes; manual rewrite)
 
 - **Terminal / OLED themes.** New theme roles let dark themes render as a
