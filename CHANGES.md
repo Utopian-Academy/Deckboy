@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.8 (mascot: per-element Balatro-style drift)
+
+- **The startup face now has individual-element life.** On top of the overall
+  hover, the whole face gets a small oscillating tilt/rock (placed through a
+  rotation about the face centre, so the eyes swing one way as the mouth swings
+  the other), and each element — each eye and the mouth — also drifts and
+  breathes on its own phase, so they float slightly out of sync. Evokes the
+  springy, semi-independent motion of Balatro's card animations, kept subtle.
+
 ## 2026-07-12 — v0.79.7 (startup mascot in the empty program monitor)
 
 - **A hovering "terminal face friend" + rotating tips** now fill the empty
