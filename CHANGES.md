@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.6 (denser timeline filmstrip; consistent thumbnail aspect)
+
+- **9 stills per clip** on the timeline filmstrip (was 5), so it reads as a
+  continuous strip and samples the clip densely enough for the now-enlargeable
+  timeline lane.
+- **Consistent thumbnail aspect.** The filmstrip previously stretched the whole
+  strip texture to the lane rect, which skewed every thumbnail's aspect as the
+  lane grew taller. Each tile is now drawn into its own column with an
+  aspect-preserving centre-crop (fill), so thumbnails stay undistorted and
+  consistent at any lane size.
+
 ## 2026-07-12 — v0.79.5 (settings panel terminal readability)
 
 - **Settings modal on terminal themes.** The content frame now uses the

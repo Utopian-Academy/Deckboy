@@ -5764,11 +5764,15 @@ class App {
   };
   static constexpr size_t kThumbnailCacheLimit = 24;
   static constexpr size_t kTimelineStripCacheLimit = 24;
-  static constexpr int kTimelineStripThumbCount = 5;
+  // 9 stills per clip (was 5) so the filmstrip reads as a continuous strip
+  // and samples the clip densely enough now that the timeline lane can be
+  // enlarged via the program/timeline splitter — fewer, wider-stretched tiles
+  // looked sparse and seamy when expanded.
+  static constexpr int kTimelineStripThumbCount = 9;
   // 2x thumbnail resolution so the filmstrip stays sharp when the timeline
-  // lane is enlarged via the program/timeline splitter. Rendered with linear
-  // filtering (see app_render_main.ipp) rather than the UI's default nearest
-  // scale, since photographic thumbnails upscale badly point-sampled.
+  // lane is enlarged. Rendered with linear filtering (see app_render_main.ipp)
+  // rather than the UI's default nearest scale, since photographic thumbnails
+  // upscale badly point-sampled.
   static constexpr int kTimelineStripThumbW = 256;
   static constexpr int kTimelineStripThumbH = 144;
   static constexpr int kTimelineStripPadding = 2;
