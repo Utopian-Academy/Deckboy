@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-11 — v0.79.1 (mid-show media loss hardening)
+
+- **A vanished file can no longer take a deck down mid-show.** Taking a
+  cue whose media is gone (drive pulled, share dropped) is refused with a
+  MEDIA MISSING toast before the engine sees it — the output keeps
+  whatever it was showing. Auto-advance skips missing cues (with a toast
+  per skip, bounded so an all-missing looped playlist can't spin) instead
+  of cascading to black through the playlist.
+- The take-time check is fresh from disk and updates the MISSING badges /
+  toolbar RELINK count in both directions — a re-mounted drive clears the
+  warning on the next take without a project reload.
+- A decode stall whose file turns out to be GONE now reports "MEDIA LOST
+  (RELINK when restored)" instead of a generic decoder-stall message.
+
 ## 2026-07-11 — v0.79.0 (multichannel audio output routing)
 
 - **Cues can now route to any output pair of a multichannel interface.**

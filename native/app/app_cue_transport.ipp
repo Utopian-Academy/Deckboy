@@ -258,6 +258,27 @@
     syncPipOverlayRuntimesForDeck(deckIndex, SDL_GetTicks());
   }
 
+  // Fresh disk check at take/advance time. Updates the cue's missing flag and
+  // the toolbar RELINK count in BOTH directions: a re-mounted drive clears the
+  // badge on the next take, a vanished one raises it without waiting for a
+  // project reload. Non-file cues (patterns, browsers, streams) always pass.
+  bool cueMediaAvailableForTake(Cue& cue) {
+    if (!cueUsesFilesystemMedia(cue)) {
+      return true;
+    }
+    auto resolved = resolveCueFilesystemPath(cue, currentProjectFile_);
+    if (!resolved || resolved->empty()) {
+      return true;  // nothing checkable (URI etc.) — let the engine try
+    }
+    std::error_code ec;
+    bool available = fs::exists(*resolved, ec);
+    if (cue.mediaMissing == available) {
+      cue.mediaMissing = !available;
+      missingMediaCount_ = std::max(0, missingMediaCount_ + (available ? -1 : 1));
+    }
+    return available;
+  }
+
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false) {
     Deck& deck = focusedDeckMutable();
     int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);
@@ -266,6 +287,13 @@
       return;
     }
     if (!engine) {
+      return;
+    }
+    // A cue whose file has vanished must not be taken: the decode would fail
+    // to black in ~100 ms and (on auto-advance) cascade through the playlist.
+    // Flag it, tell the operator, keep whatever is on the output.
+    if (!cueMediaAvailableForTake(deck.cues[deck.selectedIndex])) {
+      triggerToast("MEDIA MISSING: " + deck.cues[deck.selectedIndex].name + " — take blocked");
       return;
     }
     const Cue& cue = deck.cues[deck.selectedIndex];
