@@ -5765,8 +5765,12 @@ class App {
   static constexpr size_t kThumbnailCacheLimit = 24;
   static constexpr size_t kTimelineStripCacheLimit = 24;
   static constexpr int kTimelineStripThumbCount = 5;
-  static constexpr int kTimelineStripThumbW = 128;
-  static constexpr int kTimelineStripThumbH = 72;
+  // 2x thumbnail resolution so the filmstrip stays sharp when the timeline
+  // lane is enlarged via the program/timeline splitter. Rendered with linear
+  // filtering (see app_render_main.ipp) rather than the UI's default nearest
+  // scale, since photographic thumbnails upscale badly point-sampled.
+  static constexpr int kTimelineStripThumbW = 256;
+  static constexpr int kTimelineStripThumbH = 144;
   static constexpr int kTimelineStripPadding = 2;
   // Per-selection thumbnail (decoded from the selected cue via ffmpeg)
   ChildProcess thumbnailProcess_;
@@ -5867,7 +5871,7 @@ class App {
   std::ofstream soakLogFile_;
   DragState drag_;
   enum class TrimDragMode { None, In, Out };
-  enum class LayoutDragMode { None, Playlist, Inspector };
+  enum class LayoutDragMode { None, Playlist, Inspector, Timeline };
   LayoutDragMode layoutDragMode_ = LayoutDragMode::None;
   TrimDragMode trimDragMode_ = TrimDragMode::None;
   bool timelineScrubActive_ = false;
@@ -5880,6 +5884,16 @@ class App {
   SDL_Rect inspectorSplitterRect_ {};
   int playlistPaneWidth_ = 0;
   int inspectorPaneWidth_ = 0;
+  // Program-monitor <-> timeline vertical split. timelineExtraH_ is the extra
+  // height (px) the operator has stolen from the preview to enlarge the
+  // timeline lanes, dragged via timelineSplitterRect_. programAreaRect_ and
+  // programFullMonitorH_ are captured each render so the drag handler can
+  // clamp. Runtime-only, like the pane widths above.
+  SDL_Rect timelineSplitterRect_ {};
+  SDL_Rect programAreaRect_ {};
+  int programFullMonitorH_ = 0;
+  int timelineExtraH_ = 0;
+  static constexpr int kProgramMonitorMinH = 200;
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
