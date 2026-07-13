@@ -411,20 +411,30 @@ struct VideoPipeline::Impl {
     }
 
 #ifdef _WIN32
-    if (frame->format == AV_PIX_FMT_D3D11 && zeroCopy) {
-      AVFrame* ref = av_frame_clone(frame);
-      if (!ref) {
-        return false;
+    // Zero-copy only works when the decoded surface is 8-bit NV12 — that's the
+    // one layout the compositor's NV12 texture path can read. 10-bit content
+    // (HEVC Main 10, VP9/AV1 Profile 2, ...) decodes to P010 surfaces; handing
+    // those to the NV12 path renders a flat green frame. Detect the surface's
+    // software format and only zero-copy true NV12; everything else falls
+    // through to the CPU transfer + swscale below, which converts P010 (and
+    // any other format) down to NV12/RGBA correctly.
+    if (frame->format == AV_PIX_FMT_D3D11 && zeroCopy && frame->hw_frames_ctx) {
+      auto* framesCtx = reinterpret_cast<AVHWFramesContext*>(frame->hw_frames_ctx->data);
+      if (framesCtx && framesCtx->sw_format == AV_PIX_FMT_NV12) {
+        AVFrame* ref = av_frame_clone(frame);
+        if (!ref) {
+          return false;
+        }
+        out = DecodedFrame{};
+        out.width = frame->width & ~1;
+        out.height = frame->height & ~1;
+        out.format = FramePixelFormat::NV12;
+        out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
+        out.gpuTexture = ref->data[0];
+        out.gpuSubresource = static_cast<int>(reinterpret_cast<intptr_t>(ref->data[1]));
+        out.gpuDevice = params.d3dDevice;
+        return out.width > 0 && out.height > 0;
       }
-      out = DecodedFrame{};
-      out.width = frame->width & ~1;
-      out.height = frame->height & ~1;
-      out.format = FramePixelFormat::NV12;
-      out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
-      out.gpuTexture = ref->data[0];
-      out.gpuSubresource = static_cast<int>(reinterpret_cast<intptr_t>(ref->data[1]));
-      out.gpuDevice = params.d3dDevice;
-      return out.width > 0 && out.height > 0;
     }
 #endif
 
