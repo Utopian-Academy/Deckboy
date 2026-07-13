@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.10 (fix: 10-bit H.265 rendered green; open resets active cue)
+
+- **Fixed 10-bit H.265/HEVC (Main 10) rendering as a flat green frame** (audio
+  fine). The in-process zero-copy path tagged every D3D11 hardware surface as
+  8-bit NV12 and handed it to the NV12 compositor — but 10-bit content decodes
+  to P010 surfaces, which read as green. Now the decoder checks the surface's
+  software format and only zero-copies true NV12; P010 (and any other format)
+  falls through to a CPU transfer + swscale that converts to NV12/RGBA
+  correctly. 8-bit content still gets the fast zero-copy path. Regression since
+  the v0.78.0 in-process decoder (the old ffmpeg-subprocess path down-converted
+  to 8-bit). `--decode-bench` now reports per-frame gpu/cpu counts so this is
+  verifiable.
+- **Opening a show now lands on a neutral "nothing live" state**, like a fresh
+  launch: the saved active-cue index is cleared, so the timeline and preview
+  agree (previously the timeline showed a ghost active cue while the preview
+  was blank), the operator explicitly takes the first cue, and the startup
+  mascot shows. The selected cue is preserved for prepping.
+
 ## 2026-07-12 — v0.79.9 (mascot tips: bigger, plain, clearer)
 
 - Mascot tips are now **bigger plain text** (no speech box), drawn full-width

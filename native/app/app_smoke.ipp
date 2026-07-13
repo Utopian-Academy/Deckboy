@@ -1094,6 +1094,8 @@
     const Uint64 startMs = SDL_GetTicks();
     std::uint64_t lastIndex = static_cast<std::uint64_t>(-1);
     std::uint64_t framesSeen = 0;
+    std::uint64_t gpuFrames = 0;
+    std::uint64_t cpuFrames = 0;
     while (SDL_GetTicks() - startMs < static_cast<Uint64>(benchSeconds * 1000.0)) {
       engine.update();
       const DecodedFrame* frame = engine.currentFrame();
@@ -1101,6 +1103,7 @@
         lastIndex = frame->index;
         ++framesSeen;
 #if DECKBOY_INPROC_DECODE
+        if (frame->isGpu()) ++gpuFrames; else ++cpuFrames;
         if (frame->isGpu()) {
           // Mirror the output compositor's per-advance GPU copy.
           if (!gpuBridge || gpuBridgeW != frame->width || gpuBridgeH != frame->height) {
@@ -1128,6 +1131,8 @@
     std::cout << "decode-bench: file=" << mediaPath
               << " mode=" << mode
               << " frames=" << framesSeen
+              << " gpu-frames=" << gpuFrames
+              << " cpu-frames=" << cpuFrames
               << " elapsed=" << elapsed
               << " throughput-fps=" << (elapsed > 0.0 ? framesSeen / elapsed : 0.0)
               << '\n';
