@@ -37,7 +37,7 @@
       "try a terminal theme in Settings (P)",
       "RELINK finds media that moved",
       "cues have their own gain & fades",
-      "trim clips with I and O",
+      "trim with Ctrl+I / Ctrl+O",
       "Ctrl+/ shows all shortcuts",
     };
     const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
