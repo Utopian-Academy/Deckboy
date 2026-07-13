@@ -1,5 +1,10 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.13 (mascot tip fix: in/out trim keys)
+
+- Corrected the mascot tip that said "trim clips with I and O" — the trim
+  keys are `Ctrl+I` (in point) and `Ctrl+O` (out point); bare `I` is import.
+
 ## 2026-07-12 — v0.79.12 (fix: A/V desync on telecined / variable-rate video)
 
 - **Fixed audio drifting out of sync on telecined (3:2-pulldown) and
