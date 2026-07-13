@@ -872,6 +872,19 @@
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
     }
 
+    // "Jump to live cue" button — snaps the (possibly huge) list back to the
+    // cue that's playing. Only for the focused deck's column (the one the
+    // keyboard acts on).
+    if (deckIndex == project_.focusedDeckIndex && !deck.cues.empty()) {
+      SDL_Rect jb {colHeader.x + colHeader.w - 62, colHeader.y + 3, 56, colHeader.h - 6};
+      drawUIPanel(jb, pal.light, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
+                           jb, ">LIVE", pal.deep);
+      playlistJumpBtnRect_ = jb;
+    } else if (deckIndex == project_.focusedDeckIndex) {
+      playlistJumpBtnRect_ = SDL_Rect {};
+    }
+
     auto primaryIndices = cueIndicesForOverlayRole(deck, false);
     auto overlayIndices = cueIndicesForOverlayRole(deck, true);
     bool showOverlayBin = !overlayIndices.empty();

@@ -445,6 +445,10 @@
       exportProjectBundleFromPicker();
       return;
     }
+    if (playlistJumpBtnRect_.w > 0 && pointInRect(x, y, playlistJumpBtnRect_)) {
+      jumpToCurrentCue();
+      return;
+    }
     if (fileRelinkBtnRect_.w > 0 && pointInRect(x, y, fileRelinkBtnRect_)) {
       // Re-check first: if the drive came back on its own, clear the state
       // without making the operator pick a folder.
@@ -1140,6 +1144,9 @@
         break;
       case SDLK_K:
         cycleSelectedColorTag();
+        break;
+      case SDLK_J:
+        jumpToCurrentCue();
         break;
       case SDLK_LEFTBRACKET:
         adjustSelectedFade(!shift, -0.25);
