@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.11 (cue navigation: jump to current + auto-follow)
+
+- **Jump to the current cue** — press `J` or the new `>LIVE` button in the
+  playlist header to snap a long playlist back to the cue that's playing (or
+  the selection if nothing is live) and centre it. For shows with hundreds of
+  cues, this is "where's the show right now?" in one key.
+- **Auto-follow** — when the focused deck's live cue changes (take,
+  auto-advance, and especially **shuffle**, where the next cue is
+  unpredictable), the playlist reveals it — but only if it scrolled off-screen,
+  so the list never yanks while you're looking right at it.
+
 ## 2026-07-12 — v0.79.10 (fix: 10-bit H.265 rendered green; open resets active cue)
 
 - **Fixed 10-bit H.265/HEVC (Main 10) rendering as a flat green frame** (audio
