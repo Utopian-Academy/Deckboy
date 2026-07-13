@@ -410,6 +410,11 @@ struct VideoPipeline::Impl {
       dropBeforeSeconds = -1.0;  // reached the target — stop checking
     }
 
+    // Real presentation time (display order) so telecined / variable-rate
+    // video schedules by its actual timestamps rather than a constant-fps
+    // counter (which drifts against the audio clock on 3:2-pulldown DVD MPEG-2).
+    const double ptsSeconds = streamTimeSeconds(frame->best_effort_timestamp, timeBase);
+
 #ifdef _WIN32
     // Zero-copy only works when the decoded surface is 8-bit NV12 — that's the
     // one layout the compositor's NV12 texture path can read. 10-bit content
@@ -429,6 +434,7 @@ struct VideoPipeline::Impl {
         out.width = frame->width & ~1;
         out.height = frame->height & ~1;
         out.format = FramePixelFormat::NV12;
+        out.presentationSeconds = ptsSeconds;
         out.gpuFrameRef = std::shared_ptr<void>(ref, SharedAvFrameDeleter{});
         out.gpuTexture = ref->data[0];
         out.gpuSubresource = static_cast<int>(reinterpret_cast<intptr_t>(ref->data[1]));
@@ -460,6 +466,7 @@ struct VideoPipeline::Impl {
     out.width = dstW;
     out.height = dstH;
     out.format = params.format;
+    out.presentationSeconds = ptsSeconds;
     out.pixels.resize(bytes);
 
     const auto srcFormat = static_cast<AVPixelFormat>(src->format);

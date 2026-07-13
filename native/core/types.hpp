@@ -531,7 +531,10 @@ enum class FramePixelFormat {
 struct DecodedFrame {
   int width = 0;                       // frame width in pixels
   int height = 0;                      // frame height in pixels
-  std::uint64_t index = 0;             // sequential frame number (for ordering)
+  std::uint64_t index = 0;             // display-order index (time * fps) for scheduling
+  double presentationSeconds = -1.0;   // decoded PTS in seconds (-1 = unknown); used so
+                                       // telecined / variable-rate video schedules by its
+                                       // real timestamps instead of a constant-fps counter
   FramePixelFormat format = FramePixelFormat::RGBA32;  // pixel layout for `pixels`
   std::vector<std::uint8_t> pixels;    // packed pixel data, layout per `format`
 
