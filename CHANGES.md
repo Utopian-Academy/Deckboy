@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-12 — v0.79.12 (fix: A/V desync on telecined / variable-rate video)
+
+- **Fixed audio drifting out of sync on telecined (3:2-pulldown) and
+  variable-rate video** — classic DVD MPEG-2 anime, some phone clips. The
+  in-process decoder scheduled video by a constant-fps frame counter, so
+  content whose real frame timestamps aren't uniform (e.g. 23.976 fps film
+  soft-pulldowned to a 29.97 container) progressively fell behind the audio
+  clock. Frames are now indexed by their actual presentation timestamp (PTS),
+  so they land on the correct point of the timeline and stay locked to the
+  audio (what VLC does). Constant-frame-rate content is unaffected (indices are
+  identical), and it falls back to the sequential counter when a stream has no
+  PTS. Unrelated to the v0.79.10 H.265 fix — a pre-existing timing limitation.
+
 ## 2026-07-12 — v0.79.11 (cue navigation: jump to current + auto-follow)
 
 - **Jump to the current cue** — press `J` or the new `>LIVE` button in the
