@@ -885,6 +885,12 @@
       loadTheme(project_.theme);
     }
     disarmAllOutputsForStartup();
+    // Open lands on a neutral "nothing live" state, same as a fresh launch:
+    // clear any saved active cue so the timeline and preview agree (the saved
+    // index otherwise leaves a ghost active cue in the timeline with a blank
+    // preview) and the operator explicitly takes the first cue. Also lets the
+    // startup mascot show. The selected cue is preserved for prepping/taking.
+    for (auto& deck : project_.decks) { deck.activeIndex = -1; }
     timecodeTriggeredCueIds_.clear();
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
