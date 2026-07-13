@@ -626,6 +626,9 @@
         engine->finalizeReachedEnd(keepEndedFrameVisible);
       }
     }
+    // Auto-follow: reveal the focused deck's live cue in the playlist when it
+    // changes (take / auto-advance / shuffle), only if it scrolled off-screen.
+    followLiveCueIfChanged();
     tickNmcSyncOutput();
     {
       constexpr bool kShowNextPreviewMonitor = false;

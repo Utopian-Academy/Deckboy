@@ -279,6 +279,71 @@
     return available;
   }
 
+  // Scroll the focused deck's playlist so a cue is centred (or, when
+  // onlyIfOffscreen, only if it isn't already fully visible). Coordinates
+  // mirror the render loop: each primary row is (kRowHeight + 8) tall and the
+  // visible height is the list clip rect inset by 8 on each side.
+  void scrollDeckToCueIndex(int deckIndex, int cueIndex, bool onlyIfOffscreen) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    if (deckIndex >= static_cast<int>(deckScrolls_.size())) return;
+    const Deck& deck = project_.decks[deckIndex];
+    auto primary = cueIndicesForOverlayRole(deck, false);
+    int pos = -1;
+    for (int i = 0; i < static_cast<int>(primary.size()); ++i) {
+      if (primary[i] == cueIndex) { pos = i; break; }
+    }
+    if (pos < 0) return;
+    int clipH = (deckIndex < static_cast<int>(deckListClipRects_.size()))
+      ? std::max(0, deckListClipRects_[deckIndex].h - 16) : 0;
+    if (clipH <= 0) return;  // list not laid out yet
+    int cueY = pos * (kRowHeight + 8);
+    int cur = deckScrolls_[deckIndex];
+    if (onlyIfOffscreen) {
+      int top = cueY - cur;
+      if (top >= 0 && top + kRowHeight <= clipH) return;  // already fully visible
+    }
+    int scrollMax = (deckIndex < static_cast<int>(deckScrollMax_.size())) ? deckScrollMax_[deckIndex] : 0;
+    deckScrolls_[deckIndex] = std::clamp(cueY - (clipH - kRowHeight) / 2, 0, scrollMax);
+  }
+
+  // Snap the playlist to the live cue (or the selection if nothing is live) and
+  // select it — the "where's the show right now?" action for long playlists.
+  void jumpToCurrentCue() {
+    int deckIndex = std::clamp(project_.focusedDeckIndex, 0,
+                               std::max(0, static_cast<int>(project_.decks.size()) - 1));
+    Deck& deck = focusedDeckMutable();
+    int target = deck.activeIndex >= 0 ? deck.activeIndex : deck.selectedIndex;
+    if (target < 0 || target >= static_cast<int>(deck.cues.size())) {
+      triggerToast("no cue to jump to");
+      return;
+    }
+    bool wasLive = deck.activeIndex >= 0;
+    if (deck.selectedIndex != target) {
+      deck.selectedIndex = target;
+      onSelectionChanged();
+    }
+    scrollDeckToCueIndex(deckIndex, target, false);
+    triggerToast(wasLive ? "jumped to live cue" : "jumped to selected cue");
+  }
+
+  // Auto-follow: when the focused deck's live cue changes (take, auto-advance,
+  // shuffle), reveal it — but only if it scrolled out of view, so the list
+  // never yanks while the operator is looking right at it.
+  void followLiveCueIfChanged() {
+    int deckIndex = std::clamp(project_.focusedDeckIndex, 0,
+                               std::max(0, static_cast<int>(project_.decks.size()) - 1));
+    if (deckIndex >= static_cast<int>(deckFollowedActive_.size())) {
+      deckFollowedActive_.resize(deckIndex + 1, -1);
+    }
+    int active = project_.decks[deckIndex].activeIndex;
+    if (active != deckFollowedActive_[deckIndex]) {
+      deckFollowedActive_[deckIndex] = active;
+      if (active >= 0) {
+        scrollDeckToCueIndex(deckIndex, active, /*onlyIfOffscreen=*/true);
+      }
+    }
+  }
+
   void takeSelected(bool autoplay, bool useTransition = true, bool suppressIncomingFadeIn = false) {
     Deck& deck = focusedDeckMutable();
     int deckIndex = std::clamp(project_.focusedDeckIndex, 0, static_cast<int>(project_.decks.size()) - 1);

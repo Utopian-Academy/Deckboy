@@ -5810,6 +5810,7 @@ class App {
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;
   std::vector<int> deckScrollMax_;                  // per-deck clamp bound, set at render
+  std::vector<int> deckFollowedActive_;             // auto-follow: last live index we revealed
   std::vector<Uint64> deckScrollSettleMs_;          // per-deck last-frame time for the spring dt
   Uint64 lastDeckScrollMs_ = 0;                     // last wheel input, for rubber-band settle
   static constexpr int kDeckScrollOverscroll = 44;  // px of springy over-scroll past the bottom
@@ -6040,6 +6041,7 @@ class App {
   SDL_Rect fileSaveBtnRect_ {};
   SDL_Rect fileBundleBtnRect_ {};
   SDL_Rect fileRelinkBtnRect_ {};
+  SDL_Rect playlistJumpBtnRect_ {};   // "jump to live cue" button in the playlist header
   SDL_Rect fileSaveAsBtnRect_ {};
   SDL_Rect deckLoopBtnRect_ {};
   SDL_Rect deckShuffleBtnRect_ {};
