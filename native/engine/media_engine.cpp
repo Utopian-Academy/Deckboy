@@ -2529,7 +2529,19 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
         if (!videoPipeline_->nextFrame(frame)) {
           break;
         }
-        frame.index = frameIndex++;
+        // Index by the frame's real presentation time when we have it, so
+        // telecined / variable-rate video (3:2-pulldown DVD MPEG-2, VFR phone
+        // clips) schedules against the audio clock by its actual timestamps
+        // instead of a constant-fps counter that drifts. Kept strictly
+        // increasing; falls back to the sequential counter when PTS is absent.
+        if (frame.presentationSeconds >= 0.0 && frameRate_ > 0.0) {
+          std::uint64_t ptsIndex = static_cast<std::uint64_t>(
+            std::llround(frame.presentationSeconds * frameRate_));
+          frame.index = std::max(ptsIndex, frameIndex);
+          frameIndex = frame.index + 1;
+        } else {
+          frame.index = frameIndex++;
+        }
         lastFramePushMs_.store(SDL_GetTicks());
         std::lock_guard<std::mutex> lock(frameMutex_);
         frameQueue_.push_back(std::move(frame));
