@@ -853,15 +853,41 @@
     drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
                  {colHeader.x + 8, colHeader.y + 6, colHeader.w - 16, 20},
                  "PLAYLIST", pal.light);
-    // Playlist header — scrolling dot animation (like a marquee)
+    // "Jump to live cue" button — snaps the (possibly huge) list back to the
+    // cue that's playing. Only for the focused deck's column (the one the
+    // keyboard acts on). Sized to its label so the text never ellipsizes
+    // into a mystery ">..." chip.
+    bool jumpBtnShown = deckIndex == project_.focusedDeckIndex && !deck.cues.empty();
+    int jumpBtnW = 0;
+    if (jumpBtnShown) {
+      TTF_Font* jbFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      int txtW = 0;
+      int txtH = 0;
+      if (jbFont) {
+        TTF_GetStringSize(jbFont, ">LIVE", 0, &txtW, &txtH);
+      }
+      jumpBtnW = std::max(56, txtW + 16);
+      SDL_Rect jb {colHeader.x + colHeader.w - jumpBtnW - 6, colHeader.y + 3,
+                   jumpBtnW, colHeader.h - 6};
+      drawUIPanel(jb, pal.light, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, jbFont, jb, ">LIVE", pal.deep);
+      playlistJumpBtnRect_ = jb;
+    } else if (deckIndex == project_.focusedDeckIndex) {
+      playlistJumpBtnRect_ = SDL_Rect {};
+    }
+
+    // Playlist header — scrolling dot animation (like a marquee). The track
+    // stops short of the >LIVE button so the dots never crawl across it.
     {
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-      int dotTrack = colHeader.w - 80;
+      int dotRightEdge = colHeader.x + colHeader.w - 12
+                       - (jumpBtnShown ? jumpBtnW + 10 : 0);
+      int dotTrack = dotRightEdge - (colHeader.x + 80);
       if (dotTrack > 20) {
         for (int d = 0; d < 3; ++d) {
           double phase = static_cast<double>(animationNow_) * 0.001 + d * 0.33;
           double frac = std::fmod(phase, 1.0);
-          int dx = colHeader.x + colHeader.w - 12 - static_cast<int>(frac * dotTrack);
+          int dx = dotRightEdge - static_cast<int>(frac * dotTrack);
           int dy = colHeader.y + colHeader.h / 2;
           SDL_Color dotC = pal.mid;
           dotC.a = static_cast<Uint8>(80 + 175 * (1.0 - frac));
@@ -870,19 +896,6 @@
         }
       }
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-    }
-
-    // "Jump to live cue" button — snaps the (possibly huge) list back to the
-    // cue that's playing. Only for the focused deck's column (the one the
-    // keyboard acts on).
-    if (deckIndex == project_.focusedDeckIndex && !deck.cues.empty()) {
-      SDL_Rect jb {colHeader.x + colHeader.w - 62, colHeader.y + 3, 56, colHeader.h - 6};
-      drawUIPanel(jb, pal.light, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
-                           jb, ">LIVE", pal.deep);
-      playlistJumpBtnRect_ = jb;
-    } else if (deckIndex == project_.focusedDeckIndex) {
-      playlistJumpBtnRect_ = SDL_Rect {};
     }
 
     auto primaryIndices = cueIndicesForOverlayRole(deck, false);

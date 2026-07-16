@@ -3657,6 +3657,11 @@ std::string sanitizeBundleFilenameStem(std::string value) {
 struct WaveformPeaks {
   std::vector<float> left;       // Left channel peak amplitudes (0.0–1.0)
   std::vector<float> right;      // Right channel peak amplitudes (0.0–1.0)
+  // True when the two channels are measurably different — i.e. the source is
+  // really stereo, not mono upmixed by the "-ac 2" analysis decode. Drives
+  // the split L/R waveform view even when cue metadata (audioChannels) is
+  // missing, as it is on cues saved by older Deckboy versions.
+  bool distinct = false;
 
   bool empty() const {
     return left.empty() && right.empty();
@@ -3735,6 +3740,11 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
   peaks.right.assign(numBuckets, 0.0f);
   size_t frameCount = samples.size() / 2u;
   size_t perBucket = std::max<size_t>(1, frameCount / numBuckets);
+  // Stereo-ness is judged on the raw samples, not the bucket peaks: a
+  // centre-heavy music mix has near-identical L/R peak envelopes yet clearly
+  // different waveforms, and the peaks alone under-report that.
+  double sumAbsDiff = 0.0;
+  double sumAbs = 0.0;
   for (int b = 0; b < numBuckets; ++b) {
     size_t startFrame = static_cast<size_t>(b) * perBucket;
     size_t endFrame = std::min(startFrame + perBucket, frameCount);
@@ -3742,12 +3752,19 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
     float mxR = 0.0f;
     for (size_t frame = startFrame; frame < endFrame; ++frame) {
       size_t sampleIndex = frame * 2u;
-      mxL = std::max(mxL, std::abs(samples[sampleIndex + 0]) / 32768.0f);
-      mxR = std::max(mxR, std::abs(samples[sampleIndex + 1]) / 32768.0f);
+      float l = samples[sampleIndex + 0] / 32768.0f;
+      float r = samples[sampleIndex + 1] / 32768.0f;
+      mxL = std::max(mxL, std::abs(l));
+      mxR = std::max(mxR, std::abs(r));
+      sumAbsDiff += std::abs(l - r);
+      sumAbs += std::abs(l) + std::abs(r);
     }
     peaks.left[static_cast<size_t>(b)] = mxL;
     peaks.right[static_cast<size_t>(b)] = mxR;
   }
+  // Side-signal energy above 1% of total = real stereo content. Mono
+  // upmixes measure exactly 0; even subtle stereo reverb tails clear 1%.
+  peaks.distinct = sumAbs > 0.0 && (sumAbsDiff / sumAbs) > 0.01;
   return peaks;
 }
 
@@ -4156,6 +4173,24 @@ class App {
     soakMode_ = true;
     soakMinutes_ = minutes;
     soakLogFile_.open("deckboy-soak.log", std::ios::app);
+  }
+
+  // Dev/test conveniences (CLI: --import <file>, --settings [tab]) — import
+  // media as if dropped on the window, and open the settings modal at boot
+  // so scripted screenshots can reach it.
+  void debugImportPath(const std::string& path) {
+    // Scripted import goes straight to the deck — no splash, no startup menu.
+    showStartupDialog_ = false;
+    showSplashOverlay_ = false;
+    handleDropFile(path.c_str());
+  }
+
+  void debugOpenSettings(int tab, int videoSubTab = 0) {
+    showStartupDialog_ = false;
+    showSplashOverlay_ = false;
+    settingsOpen_ = true;
+    settingsTab_ = std::clamp(tab, 0, 5);
+    settingsVideoSubTab_ = std::clamp(videoSubTab, 0, 3);
   }
 
   void soakLog(const std::string& line) {
@@ -5449,14 +5484,16 @@ class App {
   static constexpr int kSettingsActionTransitionSecondsInc = 612;
   static constexpr int kSettingsActionTransitionStyleCycle = 613;
   static constexpr int kSettingsActionThemeDropdown = 614;
-  static constexpr int kSettingsActionOutputAoiLInc  = 615;
-  static constexpr int kSettingsActionOutputAoiLDec  = 616;
-  static constexpr int kSettingsActionOutputAoiRInc  = 617;
-  static constexpr int kSettingsActionOutputAoiRDec  = 618;
-  static constexpr int kSettingsActionOutputAoiTInc  = 619;
-  static constexpr int kSettingsActionOutputAoiTDec  = 620;
-  static constexpr int kSettingsActionOutputAoiBInc  = 621;
-  static constexpr int kSettingsActionOutputAoiBDec  = 622;
+  // AOI is edited as a pixel rect (X/Y position + WxH size) of the output
+  // raster; the fractions in OutputTarget stay the storage format.
+  static constexpr int kSettingsActionOutputAoiXInc  = 615;
+  static constexpr int kSettingsActionOutputAoiXDec  = 616;
+  static constexpr int kSettingsActionOutputAoiYInc  = 617;
+  static constexpr int kSettingsActionOutputAoiYDec  = 618;
+  static constexpr int kSettingsActionOutputAoiWInc  = 619;
+  static constexpr int kSettingsActionOutputAoiWDec  = 620;
+  static constexpr int kSettingsActionOutputAoiHInc  = 621;
+  static constexpr int kSettingsActionOutputAoiHDec  = 622;
   static constexpr int kSettingsActionOutputAoiReset = 623;
   static constexpr int kSettingsActionIntegrationTslToggle    = 624;
   static constexpr int kSettingsActionIntegrationTslPortPrompt = 625;
@@ -5484,6 +5521,10 @@ class App {
   static constexpr int kSettingsActionAudioDelayDec = 649;
   static constexpr int kSettingsActionAudioDelayInc = 650;
   static constexpr int kSettingsActionAudioChannelsCycle = 651;
+  static constexpr int kSettingsActionOutputAoiXEdit = 652;
+  static constexpr int kSettingsActionOutputAoiYEdit = 653;
+  static constexpr int kSettingsActionOutputAoiWEdit = 654;
+  static constexpr int kSettingsActionOutputAoiHEdit = 655;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -6199,9 +6240,30 @@ int runDeckboyMain(int argc, char** argv) {
 
   bool allowMultiInstance = false;
   double soakMinutes = -1.0;
+  std::vector<std::string> importPathsArg;
+  int openSettingsTab = -1;
+  int openSettingsSubTab = 0;
   for (int i = 1; i < argc; ++i) {
     if (std::string_view(argv[i]) == "--allow-multi-instance") {
       allowMultiInstance = true;
+    }
+    if (std::string_view(argv[i]) == "--import" && i + 1 < argc) {
+      importPathsArg.emplace_back(argv[++i]);
+    }
+    if (std::string_view(argv[i]) == "--settings") {
+      // Optional "tab" or "tab.subtab" (video sub-tab), e.g. --settings 3.1
+      openSettingsTab = 0;
+      if (i + 1 < argc) {
+        char* end = nullptr;
+        long parsed = std::strtol(argv[i + 1], &end, 10);
+        if (end && (*end == '\0' || *end == '.')) {
+          openSettingsTab = static_cast<int>(parsed);
+          if (*end == '.') {
+            openSettingsSubTab = static_cast<int>(std::strtol(end + 1, nullptr, 10));
+          }
+          ++i;
+        }
+      }
     }
     if (std::string_view(argv[i]) == "--no-inproc-decode") {
       // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
@@ -6245,6 +6307,12 @@ int runDeckboyMain(int argc, char** argv) {
 
   if (soakMinutes > 0.0) {
     app.enableSoakMode(soakMinutes);
+  }
+  for (const std::string& importPath : importPathsArg) {
+    app.debugImportPath(importPath);
+  }
+  if (openSettingsTab >= 0) {
+    app.debugOpenSettings(openSettingsTab, openSettingsSubTab);
   }
   app.run();
   app.shutdown();

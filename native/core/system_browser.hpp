@@ -61,4 +61,44 @@ inline bool openExternalUrl(const std::string& url) {
 #endif
 }
 
+// Reveal a file in the OS file manager (Explorer / Finder / whatever handles
+// the folder on Linux), selecting it where the platform supports selection.
+// Best-effort like openExternalUrl. No-ops on an empty path.
+inline bool revealFileInFileManager(const std::string& path) {
+  if (path.empty()) {
+    return false;
+  }
+#if defined(_WIN32)
+  // explorer.exe /select,"C:\path\file.mp4" opens the parent folder with the
+  // file highlighted. Backslashes required — forward slashes make Explorer
+  // fall back to the Documents folder.
+  std::string native = path;
+  for (char& c : native) {
+    if (c == '/') c = '\\';
+  }
+  std::string args = "/select,\"" + native + "\"";
+  int wlen = ::MultiByteToWideChar(CP_UTF8, 0, args.c_str(), -1, nullptr, 0);
+  if (wlen <= 0) {
+    return false;
+  }
+  std::wstring wargs(wlen, L'\0');
+  ::MultiByteToWideChar(CP_UTF8, 0, args.c_str(), -1, &wargs[0], wlen);
+  HINSTANCE result = ::ShellExecuteW(nullptr, L"open", L"explorer.exe",
+                                      wargs.c_str(), nullptr, SW_SHOWNORMAL);
+  return reinterpret_cast<INT_PTR>(result) > 32;
+#elif defined(__APPLE__)
+  std::string cmd = std::string("open -R \"") + path + "\" >/dev/null 2>&1 &";
+  return std::system(cmd.c_str()) == 0;
+#else
+  // No portable "select" on Linux; open the containing directory.
+  std::string dir = path;
+  auto slash = dir.find_last_of('/');
+  if (slash != std::string::npos) {
+    dir = dir.substr(0, slash);
+  }
+  std::string cmd = std::string("xdg-open \"") + dir + "\" >/dev/null 2>&1 &";
+  return std::system(cmd.c_str()) == 0;
+#endif
+}
+
 }  // namespace deckboy::platform

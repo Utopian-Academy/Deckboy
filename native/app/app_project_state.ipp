@@ -984,6 +984,17 @@
 	      applyOutputDisplaySelection(outputIndex, true);
 	    }
 
+    // Outputs-off must also silence the decks: audio does not route through
+    // the video outputs, so leaving the engines playing after a panic keeps
+    // sound running against a dark program — the operator hit panic to kill
+    // everything AV.
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      stopBrowserCue(deckIndex);
+      if (auto* engine = mediaEngineForDeck(deckIndex)) {
+        engine->stop(true);
+      }
+    }
+
     panicProfilePending_ = false;
     pendingPanicProfileToken_.clear();
     panicProfileRequestedAt_ = 0;
@@ -1591,16 +1602,12 @@
     if (w <= 0 || h <= 0 || n <= 0) {
       return;
     }
-    if (!splitChannels && !peaks.left.empty() && !peaks.right.empty()) {
-      size_t compareCount = std::min(peaks.left.size(), peaks.right.size());
-      size_t step = std::max<size_t>(1, compareCount / 256);
-      for (size_t i = 0; i < compareCount; i += step) {
-        if (std::fabs(peaks.left[i] - peaks.right[i]) > 0.01f) {
-          splitChannels = true;
-          break;
-        }
-      }
-    }
+    // The analysis pass measures true stereo-ness sample-by-sample
+    // (WaveformPeaks::distinct) and outranks cue metadata in both
+    // directions: old saves predate audioChannels and claim nothing, while
+    // stereo containers often carry mono content — twin identical lanes
+    // would waste half the display.
+    splitChannels = peaks.distinct;
 
     SDL_Color trackLine = pal.dark;
     SDL_Color activeOuter = pal.mid;
