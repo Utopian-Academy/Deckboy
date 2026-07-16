@@ -441,8 +441,15 @@
       size_t bootCues = 0;
       for (const auto& bootDeck : project_.decks) bootCues += bootDeck.cues.size();
       std::string themeName = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
-      // The classic boot tasks joined by real init values, with the
-      // occasional sci-fi subsystem the hardware team insists is real.
+
+      uint32_t seed = static_cast<uint32_t>(SDL_GetTicks() ^ 0x9E3779B9u);
+      auto nextRand = [&seed]() {
+        seed = seed * 1664525u + 1013904223u;
+        return seed >> 16;
+      };
+
+      // The classic boot tasks joined by real init values — these always
+      // print because they carry live numbers the operator can trust.
       startupBootLog_.push_back("cue gremlin bios " + std::string(kAppVersionTag) + "...");
       startupBootLog_.push_back("checking dot-matrix memory... 8192 KB OK");
       startupBootLog_.push_back("initializing deck runtime...");
@@ -452,24 +459,79 @@
         + std::to_string(bootW) + "x" + std::to_string(bootH)
         + " on " + std::to_string(std::max(0, deckboyGetNumVideoDisplays())) + " display(s)");
       startupBootLog_.push_back("starting compositor...");
-      startupBootLog_.push_back("aligning chroma phase array... locked");
       startupBootLog_.push_back("spooling ffmpeg decode pipeline... armed");
       startupBootLog_.push_back("negotiating audio bus... "
         + std::to_string(project_.audioBufferSamples) + " sample buffer");
       startupBootLog_.push_back("shelving cartridges... "
         + std::to_string(project_.decks.size()) + " deck(s), "
         + std::to_string(bootCues) + " cues");
-      startupBootLog_.push_back("reticulating splines...");
-      startupBootLog_.push_back("charging flux capacitor... 1.21 GW nominal");
       startupBootLog_.push_back("opening companion port " + std::to_string(companionPort_) + "...");
       startupBootLog_.push_back(std::string("waking ndi mesh... ")
         + (ndiRuntimeAvailable() ? "listening" : "not installed"));
-      startupBootLog_.push_back("engaging heisenberg compensators... probably");
-      startupBootLog_.push_back("dilithium matrix... crystal ok");
-      startupBootLog_.push_back("arming safety guards...");
-      startupBootLog_.push_back("pressurizing gremlin containment field...");
-      startupBootLog_.push_back("dampening tachyon feedback... 0.003%");
-      startupBootLog_.push_back("calibrating rubber chicken... ok");
+
+      // The sci-fi subsystems the hardware team insists are real: a wide
+      // pool, a fresh random hand each boot so the console stays quotable.
+      static const char* kBootWhimsyPool[] = {
+        "reticulating splines...",
+        "charging flux capacitor... 1.21 GW nominal",
+        "engaging heisenberg compensators... probably",
+        "dilithium matrix... crystal ok",
+        "arming safety guards...",
+        "pressurizing gremlin containment field...",
+        "dampening tachyon feedback... 0.003%",
+        "calibrating rubber chicken... ok",
+        "aligning chroma phase array... locked",
+        "defragmenting pixel silo... 3 shards",
+        "warming vacuum tubes... 340K",
+        "counting frame ghosts... none found",
+        "bribing the vsync daemon... accepted",
+        "untangling patch cables... 12 m reclaimed",
+        "polishing scanlines... streak-free",
+        "feeding the cue gremlins... fed",
+        "rewinding cassette buffers... ok",
+        "degaussing crt yoke... thunk",
+        "consulting the show bible... canon",
+        "sweeping dead pixels... 0 swept",
+        "tuning subcarrier... 4.43361875 MHz",
+        "greasing the t-bar... smooth",
+        "waking the intern... declined",
+        "sorting loose bnc caps... 7 found",
+        "petting the watchdog... good boy",
+        "spinning up hamster wheel... 88 mph",
+        "checking for y2k residue... clean",
+        "certifying blinkenlights... blinken",
+        "torquing pixel bolts... 12 Nm",
+        "asking the house electrician... granted",
+        "phase-locking disco ball... 33 rpm",
+        "shooing moths from the beam... 2 shooed",
+        "laminating run sheet... crisp",
+        "priming confetti cannons... standby",
+        "zeroing the applause meter...",
+        "warming green room coffee... 74C",
+        "counting backstage flashlights... all lit",
+        "ironing the pixel grid... flat",
+        "auditioning standby pixels... cast",
+        "sandbagging the render queue... secure",
+      };
+      constexpr int kWhimsyCount = static_cast<int>(std::size(kBootWhimsyPool));
+      // Deal a hand of 8 distinct lines via partial Fisher-Yates.
+      int whimsyIdx[kWhimsyCount];
+      for (int i = 0; i < kWhimsyCount; ++i) whimsyIdx[i] = i;
+      constexpr int kHand = 8;
+      for (int i = 0; i < kHand; ++i) {
+        int j = i + static_cast<int>(nextRand() % static_cast<uint32_t>(kWhimsyCount - i));
+        std::swap(whimsyIdx[i], whimsyIdx[j]);
+      }
+      // Sprinkle the hand through the back half of the console (after the
+      // early real-value lines, before the final status).
+      for (int i = 0; i < kHand; ++i) {
+        size_t minPos = 7;
+        size_t span = startupBootLog_.size() - minPos;
+        size_t pos = minPos + static_cast<size_t>(nextRand() % static_cast<uint32_t>(span + 1));
+        startupBootLog_.insert(startupBootLog_.begin() + pos, kBootWhimsyPool[whimsyIdx[i]]);
+      }
+      // Konami hint + A/V clock line ride near the end every boot, then the
+      // handoff to the operator.
       startupBootLog_.push_back("polling konami interrupt vector... hidden");
       startupBootLog_.push_back("syncing wall clock to audio crystal...");
       startupBootLog_.push_back("boot ok - awaiting operator");
@@ -478,11 +540,6 @@
       // normal lines, and the occasional probe that stalls. Scaled so the
       // whole sequence always lands within the splash window.
       startupBootLogAtMs_.clear();
-      uint32_t seed = static_cast<uint32_t>(SDL_GetTicks() ^ 0x9E3779B9u);
-      auto nextRand = [&seed]() {
-        seed = seed * 1664525u + 1013904223u;
-        return seed >> 16;
-      };
       Uint64 at = 0;
       for (size_t i = 0; i < startupBootLog_.size(); ++i) {
         uint32_t roll = nextRand() % 100;

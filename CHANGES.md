@@ -1,5 +1,61 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-15 — v0.80.0 (settings overhaul, stereo waveforms, panic audio fix, Test Bars)
+
+### Settings menu
+- **One steady dialog size** — the settings modal used to pick different
+  min/max sizes per tab (video widest, network tallest), so it jumped around
+  on every tab switch. All tabs now share one envelope sized for the busiest
+  tab.
+- **Area of Interest is now a resolution, not four percentages** — the AOI
+  card edits `X / Y / WIDTH / HEIGHT` in pixels of the output raster (e.g.
+  `1920x1080 @ 960,540`), with `-`/`+` nudges (16 px), click-to-type exact
+  values, and a `FULL` reset. The card header shows the live rect. Storage is
+  still the four edge fractions, so show files are unchanged both ways.
+- **Edge blending reads in pixels** too (of the output raster) instead of
+  percentages.
+- **Tabs size to their labels** — "Video Outputs" no longer ellipsizes.
+- **Display sub-tab tidied** — Toggle Fullscreen and Orientation share one
+  row; the Display & Raster card no longer reserves dead space.
+- Fixed the About tab printing "vv0.80.0" (doubled v).
+
+### Timeline / waveforms
+- **Stereo audio shows both channels** — the waveform analysis now measures
+  true stereo-ness sample-by-sample (side-signal energy), and the L/R split
+  view follows the *content*: really-stereo material always splits (even for
+  cues saved by old versions whose metadata lacks a channel count), while
+  mono material in a stereo container gets the full-height single lane
+  instead of two identical twins. Cues from old saves also get their channel
+  count backfilled by a background re-probe on project open.
+
+### Playback safety
+- **Panic / triple-Esc now silences audio** — "outputs off" disarmed every
+  video output but left the deck engines playing, so audio kept running
+  against a dark program. Panic now also stops every deck (and browser cue).
+- **STOP works on Audio cues** — `MediaEngine::stop` treated only Video cues
+  as stoppable A/V; an Audio cue kept its decode pipe and stream running.
+  This was the "clear playback but audio continues" bug.
+
+### New
+- **Test Bars pattern** — a testsrc2-style motion-diagnostics pattern (the owner
+  requested it after decoder testing): six saturated bars, a bouncing rainbow
+  diagonal, a dissolving checker patch, a sliding grey reference block, and a
+  running clock + frame counter. In the pattern picker as "Test Bars (motion
+  diagnostics)"; `pattern://test-bars` (aliases: testsrc, testsrc2).
+- **Boot console variety** — the splash boot console now deals a random hand
+  of 8 lines from a 40-line pool of sci-fi subsystems each boot, woven
+  between the real init values (which always print).
+- **`>LIVE` button legibility** — the playlist-header jump button sizes to
+  its label (it could ellipsize into a mystery "&gt;..." chip) and the
+  marquee dots no longer crawl across it.
+- **Right-click a cue → "show in explorer"** — file-backed cues (video,
+  audio, image) get a context-menu entry that opens the OS file manager with
+  the media file selected (Explorer `/select` on Windows, Finder reveal on
+  macOS, containing folder on Linux).
+- **Dev flags** — `--import <file>` imports media at launch (skips the
+  startup menu/splash); `--settings [tab[.subtab]]` opens the settings modal
+  at boot. Both are for scripted testing/screenshots.
+
 ## 2026-07-12 — v0.79.13 (mascot tip fix: in/out trim keys)
 
 - Corrected the mascot tip that said "trim clips with I and O" — the trim
