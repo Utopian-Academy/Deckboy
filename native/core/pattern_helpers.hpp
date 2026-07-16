@@ -58,6 +58,8 @@ inline std::string normalizePatternTypeId(std::string value) {
   // Alias mapping: multiple names for the same pattern
   if (value == "colourbars" || value == "colorbars" || value == "smpte75") {
     value = "smpte-bars";            // standard SMPTE color bars
+  } else if (value == "testsrc" || value == "testsrc2" || value == "testbars") {
+    value = "test-bars";             // broadcast motion-diagnostics bars
   } else if (value == "kawaii" || value == "kawaii-pocket") {
     value = "pocket-test";           // retro pixel art test pattern
   } else if (value == "pocket-daytime" || value == "pocket-sunny") {
@@ -115,6 +117,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
   std::string normalized = normalizePatternTypeId(typeId);
   return normalized.rfind("pocket-", 0) == 0 ||       // pocket scenes: always animated
          normalized == "terrarium" ||                  // living ecosystem: always animated
+         normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
          endsWith(normalized, "-motion");               // motion variant of static pattern
 }

@@ -28,6 +28,60 @@
   // card fill). Geometry contract: the header band occupies the same ~50px
   // the old drawCard used (title ~y+6, subtitle ~y+34), so the hardcoded
   // control offsets inside every card are untouched.
+  // AOI pixel-rect view of the focused output's crop fractions. The operator
+  // edits X/Y/WIDTH/HEIGHT in pixels of the output raster; storage stays the
+  // four edge fractions (serialization untouched).
+  struct AoiRectPx {
+    int x = 0, y = 0, w = 0, h = 0;
+    int rasterW = 0, rasterH = 0;
+  };
+
+  AoiRectPx focusedOutputAoiRectPx() {
+    const OutputTarget& ot = focusedOutput();
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    AoiRectPx rect;
+    rect.rasterW = std::max(16, rasterW);
+    rect.rasterH = std::max(16, rasterH);
+    rect.x = static_cast<int>(std::lround(std::clamp(ot.aoiLeft, 0.0f, 0.95f) * rect.rasterW));
+    rect.y = static_cast<int>(std::lround(std::clamp(ot.aoiTop, 0.0f, 0.95f) * rect.rasterH));
+    rect.w = std::max(1, static_cast<int>(std::lround(
+      std::clamp(1.0f - ot.aoiLeft - ot.aoiRight, 0.0f, 1.0f) * rect.rasterW)));
+    rect.h = std::max(1, static_cast<int>(std::lround(
+      std::clamp(1.0f - ot.aoiTop - ot.aoiBottom, 0.0f, 1.0f) * rect.rasterH)));
+    return rect;
+  }
+
+  void applyFocusedOutputAoiRectPx(int x, int y, int w, int h) {
+    OutputTarget& ot = focusedOutputMutable();
+    AoiRectPx cur = focusedOutputAoiRectPx();
+    // Keep the region at least 5% of the raster in both dimensions so each
+    // stored edge fraction stays within the serializer's 0–0.95 clamp.
+    int minW = std::max(1, (cur.rasterW + 19) / 20);
+    int minH = std::max(1, (cur.rasterH + 19) / 20);
+    w = std::clamp(w, minW, cur.rasterW);
+    h = std::clamp(h, minH, cur.rasterH);
+    x = std::clamp(x, 0, cur.rasterW - w);
+    y = std::clamp(y, 0, cur.rasterH - h);
+    ot.aoiLeft   = static_cast<float>(x) / static_cast<float>(cur.rasterW);
+    ot.aoiRight  = static_cast<float>(cur.rasterW - x - w) / static_cast<float>(cur.rasterW);
+    ot.aoiTop    = static_cast<float>(y) / static_cast<float>(cur.rasterH);
+    ot.aoiBottom = static_cast<float>(cur.rasterH - y - h) / static_cast<float>(cur.rasterH);
+    markProjectDirty();
+  }
+
+  void openAoiValueEditor(const char* token, const char* title, int currentPx,
+                          std::function<void(int)> applyPx) {
+    openInlineTextEditor(token, title, "pixels (of the output raster)",
+                         std::to_string(currentPx),
+                         [this, applyPx](const std::string& rawValue) {
+                           try {
+                             applyPx(std::stoi(trim(rawValue)));
+                           } catch (...) {
+                             triggerToast("aoi: invalid number");
+                           }
+                         });
+  }
+
   void drawSettingsCard(const SDL_Rect& rect, const std::string& title,
                         const std::string& subtitle = std::string()) {
     Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner, pal.deep, pal.light);
@@ -71,16 +125,24 @@
 
     // Tab bar — cartridge-shelf tabs: the active tab is full height and
     // "plugged in" (a joint bar bridges it to the content frame); inactive
-    // tabs sit recessed. One glance shows where you are.
-    constexpr int kTabW = 104;
+    // tabs sit recessed. One glance shows where you are. Tabs size to their
+    // labels (with a shared floor) so nothing ellipsizes.
     constexpr int kTabH = 40;
+    constexpr int kTabGap = 6;
     int tabY = modal.y + 44;
     settingsBtns_.clear();
     const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About", "Encoder"};
+    int tabX = modal.x + 16;
     for (int t = 0; t < (int)tabs.size(); ++t) {
       bool active = (t == settingsTab_);
       int recess = active ? 0 : 6;
-      SDL_Rect tab {modal.x + 16 + t * (kTabW + 6), tabY + recess, kTabW, kTabH - recess};
+      int labelW = 0;
+      int labelH = 0;
+      if (fontSmall_) {
+        TTF_GetStringSize(fontSmall_, tabs[t].c_str(), 0, &labelW, &labelH);
+      }
+      int tabW = std::max(88, labelW + 24);
+      SDL_Rect tab {tabX, tabY + recess, tabW, kTabH - recess};
       Primitives::drawFramedPanel(controlRenderer_, tab, active ? pal.dark : pal.light,
                       pal.deep, active ? pal.light : pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, tab, tabs[t],
@@ -90,6 +152,7 @@
         Primitives::fillRect(controlRenderer_, joint, pal.dark);
       }
       settingsBtns_.push_back({tab, 100 + t, tabs[t]});
+      tabX += tabW + kTabGap;
     }
 
     // Content area — tile fill so it reads as a dark frame on terminal themes
@@ -669,8 +732,8 @@
       // ─── DISPLAY sub-tab ─────────────────────────────────────────
         int displayCount = deckboyGetNumVideoDisplays();
 
-        // Display & Raster
-        int dispSectionH = 190;
+        // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
+        int dispSectionH = 32 + 3 * (kRowH + kRowGap) + 8;
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -689,9 +752,13 @@
         drawUIDropdown(rBtn, "Resolution", resLabel, "settings.output_raster");
         settingsBtns_.push_back({rBtn, 237, "custom_raster"});
 
-        SDL_Rect fsBtn = dLayout.takeFixed(kRowH);
+        // Fullscreen + orientation share a row — two half-width actions read
+        // better than stacked full-width bars in a card this wide.
+        SDL_Rect pairRow = dLayout.takeFixed(kRowH);
+        SDL_Rect fsBtn {pairRow.x, pairRow.y, (pairRow.w - 8) / 2, pairRow.h};
+        SDL_Rect orientBtn {pairRow.x + (pairRow.w - 8) / 2 + 8, pairRow.y,
+                            pairRow.w - (pairRow.w - 8) / 2 - 8, pairRow.h};
         drawActionBtn(fsBtn, "Toggle Fullscreen", 236);
-        SDL_Rect orientBtn = dLayout.takeFixed(kRowH);
         std::string orientLabel = outputOrientation == 0 ? "0\xc2\xb0 (Normal)"
                                 : std::to_string(outputOrientation) + "\xc2\xb0";
         drawActionBtn(orientBtn, "Orientation: " + orientLabel, kSettingsActionOutputOrientationCycle);
@@ -739,9 +806,14 @@
       } else if (settingsVideoSubTab_ == 1) {
       // ─── PROCESSING sub-tab ──────────────────────────────────────
 
-        // Edge Blending
+        // Edge Blending — shown in pixels of the output raster (same scheme
+        // as AOI below; operators get px everywhere on this tab). Stored as
+        // fractions of the raster dimension, unchanged.
         {
           const Deck& bd = focusedDeck();
+          auto [ebRasterW, ebRasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+          ebRasterW = std::max(16, ebRasterW);
+          ebRasterH = std::max(16, ebRasterH);
           int blendH = 96;
           SDL_Rect blendSection {cx, sy, subContentW, blendH};
           SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE BLENDING");
@@ -750,8 +822,10 @@
           int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
           int bw = (blendBody.w - 18) / 4;
           int bgap = 6;
-          auto drawBlendCtrl = [&](const char* label, float val, int decAction, int incAction) {
-            std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f)) + "%";
+          auto drawBlendCtrl = [&](const char* label, float val, int raster,
+                                   int decAction, int incAction) {
+            int px = static_cast<int>(std::lround(val * raster));
+            std::string valStr = std::string(label) + ": " + std::to_string(px) + "px";
             drawTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect{bx, labelY, bw, 16}, valStr, soft);
             int btnW = (bw - 4) / 2;
@@ -765,18 +839,21 @@
             settingsBtns_.push_back({incBtn, incAction, "blend"});
             bx += bw + bgap;
           };
-          drawBlendCtrl("Left", bd.edgeBlendLeft, kSettingsActionOutputEdgeBlendLDec, kSettingsActionOutputEdgeBlendLInc);
-          drawBlendCtrl("Right", bd.edgeBlendRight, kSettingsActionOutputEdgeBlendRDec, kSettingsActionOutputEdgeBlendRInc);
-          drawBlendCtrl("Top", bd.edgeBlendTop, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
-          drawBlendCtrl("Bottom", bd.edgeBlendBottom, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
+          drawBlendCtrl("Left", bd.edgeBlendLeft, ebRasterW, kSettingsActionOutputEdgeBlendLDec, kSettingsActionOutputEdgeBlendLInc);
+          drawBlendCtrl("Right", bd.edgeBlendRight, ebRasterW, kSettingsActionOutputEdgeBlendRDec, kSettingsActionOutputEdgeBlendRInc);
+          drawBlendCtrl("Top", bd.edgeBlendTop, ebRasterH, kSettingsActionOutputEdgeBlendTDec, kSettingsActionOutputEdgeBlendTInc);
+          drawBlendCtrl("Bottom", bd.edgeBlendBottom, ebRasterH, kSettingsActionOutputEdgeBlendBDec, kSettingsActionOutputEdgeBlendBInc);
           sy += blendH + kSectionGap;
         }
 
-        // Area of Interest
+        // Area of Interest — edited as a pixel rect of the output raster
+        // (a resolution + position, the way operators think about slices),
+        // not four edge percentages. Fractions remain the storage format.
         {
           const OutputTarget& ot = focusedOutput();
           bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
                         || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
+          AoiRectPx aoi = focusedOutputAoiRectPx();
           int aoiH = 96;
           SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
           SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
@@ -784,36 +861,44 @@
           Primitives::drawFramedPanel(controlRenderer_, aoiSection, aoiFill, pal.deep, pal.light);
           SDL_Rect aoiHdr {aoiSection.x, aoiSection.y, aoiSection.w, 26};
           Primitives::drawFramedPanel(controlRenderer_, aoiHdr, aoiActive ? pal.dark : pal.mid, pal.deep, pal.light);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect{aoiHdr.x + 8, aoiHdr.y, aoiHdr.w - 72, aoiHdr.h},
-                               "AREA OF INTEREST", aoiActive ? pal.light : pal.deep);
+          std::string aoiTitle = aoiActive
+            ? "AREA OF INTEREST  " + std::to_string(aoi.w) + "x" + std::to_string(aoi.h)
+              + " @ " + std::to_string(aoi.x) + "," + std::to_string(aoi.y)
+            : "AREA OF INTEREST  full " + std::to_string(aoi.rasterW) + "x" + std::to_string(aoi.rasterH);
+          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{aoiHdr.x + 8, aoiHdr.y + 6, aoiHdr.w - 72, aoiHdr.h - 8},
+                       aoiTitle, aoiActive ? pal.light : pal.deep);
           SDL_Rect aoiResetBtn {aoiSection.x + aoiSection.w - 56, aoiSection.y + 4, 50, 18};
           Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
-          drawCenteredText(controlRenderer_, fontSmall_, "RESET", ink, aoiResetBtn);
+          drawCenteredText(controlRenderer_, fontSmall_, "FULL", ink, aoiResetBtn);
           settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
           int abx = aoiSection.x + 16;
           int ably = aoiSection.y + 32;
           int aoBtnY = rowYBelowLabel(ably, fontSmall_, 4);
           int aoBW = (aoiSection.w - 40) / 4;
           int aoGap = 6;
-          auto drawAoiCtrl = [&](const char* label, float val, int decAct, int incAct) {
-            std::string valStr = std::string(label) + ": " + std::to_string(static_cast<int>(val * 100.0f + 0.5f)) + "%";
+          auto drawAoiCtrl = [&](const char* label, int px, int decAct, int incAct, int editAct) {
             drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{abx, ably, aoBW, 16}, valStr, aoiActive ? pal.light : soft);
-            int btnW = (aoBW - 4) / 2;
-            SDL_Rect decBtn {abx, aoBtnY, btnW, 24};
-            SDL_Rect incBtn {abx + btnW + 4, aoBtnY, btnW, 24};
+                         SDL_Rect{abx, ably, aoBW, 16}, label, aoiActive ? pal.light : soft);
+            int nudgeW = 22;
+            SDL_Rect decBtn {abx, aoBtnY, nudgeW, 24};
+            SDL_Rect valBtn {abx + nudgeW + 3, aoBtnY, aoBW - 2 * (nudgeW + 3), 24};
+            SDL_Rect incBtn {abx + aoBW - nudgeW, aoBtnY, nudgeW, 24};
             Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
             settingsBtns_.push_back({decBtn, decAct, "aoi"});
+            Primitives::drawFramedPanel(controlRenderer_, valBtn, pal.shellInner, pal.deep, pal.light);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, valBtn, std::to_string(px),
+                                 aoiActive ? pal.light : ink);
+            settingsBtns_.push_back({valBtn, editAct, "aoi_edit"});
             Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "+", aoiInk2, incBtn);
             settingsBtns_.push_back({incBtn, incAct, "aoi"});
             abx += aoBW + aoGap;
           };
-          drawAoiCtrl("L", ot.aoiLeft,   kSettingsActionOutputAoiLDec, kSettingsActionOutputAoiLInc);
-          drawAoiCtrl("R", ot.aoiRight,  kSettingsActionOutputAoiRDec, kSettingsActionOutputAoiRInc);
-          drawAoiCtrl("T", ot.aoiTop,    kSettingsActionOutputAoiTDec, kSettingsActionOutputAoiTInc);
-          drawAoiCtrl("B", ot.aoiBottom, kSettingsActionOutputAoiBDec, kSettingsActionOutputAoiBInc);
+          drawAoiCtrl("X", aoi.x, kSettingsActionOutputAoiXDec, kSettingsActionOutputAoiXInc, kSettingsActionOutputAoiXEdit);
+          drawAoiCtrl("Y", aoi.y, kSettingsActionOutputAoiYDec, kSettingsActionOutputAoiYInc, kSettingsActionOutputAoiYEdit);
+          drawAoiCtrl("WIDTH", aoi.w, kSettingsActionOutputAoiWDec, kSettingsActionOutputAoiWInc, kSettingsActionOutputAoiWEdit);
+          drawAoiCtrl("HEIGHT", aoi.h, kSettingsActionOutputAoiHDec, kSettingsActionOutputAoiHInc, kSettingsActionOutputAoiHEdit);
           sy += aoiH + kSectionGap;
         }
 
@@ -1134,7 +1219,7 @@
       TTF_Font* titleFont = fontPixel_ ? fontPixel_ : fontLarge_;
       drawTextSafe(controlRenderer_, titleFont,
                    SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 24},
-                   std::string(kAppTitle) + "  v" + std::string(kAppVersionTag), ink);
+                   std::string(kAppTitle) + "  " + std::string(kAppVersionTag), ink);
       aboutY += textLineHeight(titleFont) + 6;
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{infoRect.x + 8, aboutY, infoTextW, 16},
@@ -1709,25 +1794,45 @@
         }
         normalizeDeck(bd, project_.focusedDeckIndex);
         markProjectDirty();
-      } else if (sb.action >= kSettingsActionOutputAoiLInc && sb.action <= kSettingsActionOutputAoiReset) {
-        OutputTarget& ot = focusedOutputMutable();
-        constexpr float kAoiStep = 0.05f;
+      } else if (sb.action >= kSettingsActionOutputAoiXInc && sb.action <= kSettingsActionOutputAoiReset) {
+        AoiRectPx aoi = focusedOutputAoiRectPx();
+        // Nudge step: 16px snaps to common raster grids; Shift is not
+        // routed here, so keep one predictable increment.
+        constexpr int kAoiStepPx = 16;
         switch (sb.action) {
-          case kSettingsActionOutputAoiLInc: ot.aoiLeft   = std::clamp(ot.aoiLeft   + kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiLDec: ot.aoiLeft   = std::clamp(ot.aoiLeft   - kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiRInc: ot.aoiRight  = std::clamp(ot.aoiRight  + kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiRDec: ot.aoiRight  = std::clamp(ot.aoiRight  - kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiTInc: ot.aoiTop    = std::clamp(ot.aoiTop    + kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiTDec: ot.aoiTop    = std::clamp(ot.aoiTop    - kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiBInc: ot.aoiBottom = std::clamp(ot.aoiBottom + kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiBDec: ot.aoiBottom = std::clamp(ot.aoiBottom - kAoiStep, 0.0f, 0.95f); break;
-          case kSettingsActionOutputAoiReset:
+          case kSettingsActionOutputAoiXInc: applyFocusedOutputAoiRectPx(aoi.x + kAoiStepPx, aoi.y, aoi.w, aoi.h); break;
+          case kSettingsActionOutputAoiXDec: applyFocusedOutputAoiRectPx(aoi.x - kAoiStepPx, aoi.y, aoi.w, aoi.h); break;
+          case kSettingsActionOutputAoiYInc: applyFocusedOutputAoiRectPx(aoi.x, aoi.y + kAoiStepPx, aoi.w, aoi.h); break;
+          case kSettingsActionOutputAoiYDec: applyFocusedOutputAoiRectPx(aoi.x, aoi.y - kAoiStepPx, aoi.w, aoi.h); break;
+          case kSettingsActionOutputAoiWInc: applyFocusedOutputAoiRectPx(aoi.x, aoi.y, aoi.w + kAoiStepPx, aoi.h); break;
+          case kSettingsActionOutputAoiWDec: applyFocusedOutputAoiRectPx(aoi.x, aoi.y, aoi.w - kAoiStepPx, aoi.h); break;
+          case kSettingsActionOutputAoiHInc: applyFocusedOutputAoiRectPx(aoi.x, aoi.y, aoi.w, aoi.h + kAoiStepPx); break;
+          case kSettingsActionOutputAoiHDec: applyFocusedOutputAoiRectPx(aoi.x, aoi.y, aoi.w, aoi.h - kAoiStepPx); break;
+          case kSettingsActionOutputAoiReset: {
+            OutputTarget& ot = focusedOutputMutable();
             ot.aoiLeft = ot.aoiRight = ot.aoiTop = ot.aoiBottom = 0.0f;
-            triggerToast("aoi: reset");
+            markProjectDirty();
+            triggerToast("aoi: full raster");
             break;
+          }
           default: break;
         }
-        markProjectDirty();
+      } else if (sb.action == kSettingsActionOutputAoiXEdit) {
+        AoiRectPx aoi = focusedOutputAoiRectPx();
+        openAoiValueEditor("settings.aoi_x", "AOI X Position", aoi.x,
+                           [this, aoi](int px) { applyFocusedOutputAoiRectPx(px, aoi.y, aoi.w, aoi.h); });
+      } else if (sb.action == kSettingsActionOutputAoiYEdit) {
+        AoiRectPx aoi = focusedOutputAoiRectPx();
+        openAoiValueEditor("settings.aoi_y", "AOI Y Position", aoi.y,
+                           [this, aoi](int px) { applyFocusedOutputAoiRectPx(aoi.x, px, aoi.w, aoi.h); });
+      } else if (sb.action == kSettingsActionOutputAoiWEdit) {
+        AoiRectPx aoi = focusedOutputAoiRectPx();
+        openAoiValueEditor("settings.aoi_w", "AOI Width", aoi.w,
+                           [this, aoi](int px) { applyFocusedOutputAoiRectPx(aoi.x, aoi.y, px, aoi.h); });
+      } else if (sb.action == kSettingsActionOutputAoiHEdit) {
+        AoiRectPx aoi = focusedOutputAoiRectPx();
+        openAoiValueEditor("settings.aoi_h", "AOI Height", aoi.h,
+                           [this, aoi](int px) { applyFocusedOutputAoiRectPx(aoi.x, aoi.y, aoi.w, px); });
       } else if (sb.action == kSettingsActionCanvasToggle) {
         project_.outputCanvasEnabled = !project_.outputCanvasEnabled;
         markProjectDirty();

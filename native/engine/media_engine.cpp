@@ -507,7 +507,8 @@ void MediaEngine::stop(bool clearVisual) {
     applyVisualClear();
     return;
   }
-  if (activeCue_->kind != CueKind::Video) {
+  bool isAV = activeCue_->kind == CueKind::Video || activeCue_->kind == CueKind::Audio;
+  if (!isAV) {
     state_ = TransportState::Paused;
     pausedPosition_ = 0.0;
     currentPosition_ = 0.0;
@@ -3861,6 +3862,148 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
 }
 
 // ---------------------------------------------------------------------------
+// buildTestBars — testsrc2-homage motion diagnostics ("Test Bars").
+//
+// James took a shine to ffmpeg's testsrc2 during decoder testing, so this is
+// the Deckboy edition: six saturated bars for color checks, a bouncing
+// rainbow diagonal for motion/tearing, a dissolving checker patch for
+// deinterlace/scaler artefacts, a sliding grey reference block for judder,
+// and a running clock + frame counter for latency / dropped-frame checks.
+// Always animated (patternTypeIsAnimated) — motion is the whole point.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildTestBars(DecodedFrame& frame, double t) {
+  const int W = frame.width;
+  const int H = frame.height;
+  if (W <= 0 || H <= 0) {
+    return;
+  }
+  t = std::max(0.0, t);
+  auto rect = [&](int x, int y, int w, int h, SDL_Color c) {
+    fillPixelRect(frame, x, y, w, h, c);
+  };
+
+  // ── 1. Saturated vertical bars (full frame background) ──
+  static const SDL_Color kBars[6] = {
+    {255, 0, 0, 255}, {0, 255, 0, 255}, {255, 255, 0, 255},
+    {0, 0, 255, 255}, {255, 0, 255, 255}, {0, 255, 255, 255},
+  };
+  for (int i = 0; i < 6; ++i) {
+    int x0 = W * i / 6;
+    int x1 = W * (i + 1) / 6;
+    rect(x0, 0, x1 - x0, H, kBars[i]);
+  }
+
+  // ── 2. Dissolving checker patch (scaler/deinterlace artefact magnet) ──
+  {
+    int px0 = W * 62 / 100, py0 = H * 60 / 100;
+    int px1 = W * 92 / 100, py1 = H * 86 / 100;
+    int cell = std::max(4, W / 120);
+    int tick = static_cast<int>(t * 2.0);           // reseed twice a second
+    int drift = static_cast<int>(t * cell) % (2 * cell);
+    for (int y = py0; y < py1; y += cell) {
+      for (int x = px0; x < px1; x += cell) {
+        int cxI = (x - px0 + drift) / cell;
+        int cyI = (y - py0 + drift) / cell;
+        std::uint32_t h32 = static_cast<std::uint32_t>(cxI) * 73856093u
+                          ^ static_cast<std::uint32_t>(cyI) * 19349663u
+                          ^ static_cast<std::uint32_t>(tick) * 83492791u;
+        bool checker = ((cxI + cyI) & 1) != 0;
+        bool dissolve = (h32 & 7u) == 0u;            // ~12% of cells flip per tick
+        bool lit = checker != dissolve;
+        SDL_Color c = lit ? SDL_Color {230, 230, 230, 255} : SDL_Color {26, 26, 26, 255};
+        int cw = std::min(cell, px1 - x);
+        int ch = std::min(cell, py1 - y);
+        rect(x, y, cw, ch, c);
+      }
+    }
+  }
+
+  // ── 3. Sliding grey reference block (judder check) ──
+  {
+    int side = std::max(12, H / 5);
+    double slide = 0.5 + 0.5 * std::sin(t * kTau / 9.0);
+    int gx = static_cast<int>((W * 0.08) + slide * (W * 0.35));
+    int gy = H * 58 / 100;
+    rect(gx, gy, side, side, {128, 128, 128, 255});
+    rect(gx + side / 4, gy + side / 4, side / 2, side / 2, {96, 96, 96, 255});
+  }
+
+  // ── 4. Bouncing rainbow diagonal (motion / tearing / latency line) ──
+  {
+    double amp = H * 0.42;
+    double midY = H * 0.5;
+    int thickness = std::max(2, H / 240);
+    double y0 = midY + amp * std::sin(t * kTau / 7.3);
+    double y1 = midY + amp * std::sin(t * kTau / 5.1 + 1.7);
+    auto hsvToRgb = [](double h) {
+      double r = std::clamp(std::abs(std::fmod(h * 6.0 + 0.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+      double g = std::clamp(std::abs(std::fmod(h * 6.0 + 4.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+      double b = std::clamp(std::abs(std::fmod(h * 6.0 + 2.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+      return SDL_Color {static_cast<Uint8>(r * 255), static_cast<Uint8>(g * 255),
+                        static_cast<Uint8>(b * 255), 255};
+    };
+    for (int x = 0; x < W; ++x) {
+      double frac = static_cast<double>(x) / std::max(1, W - 1);
+      int y = static_cast<int>(y0 + (y1 - y0) * frac);
+      SDL_Color c = hsvToRgb(std::fmod(frac + t * 0.08, 1.0));
+      rect(x, y - thickness / 2, 1, thickness, c);
+    }
+  }
+
+  // ── 5. Clock + frame counter box (latency / drop diagnostics) ──
+  {
+    auto glyphRows = [](char c) -> const std::uint8_t* {
+      static const std::uint8_t digits[10][5] = {
+        {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+        {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
+      };
+      static const std::uint8_t colon[5] = {0,2,0,2,0};
+      static const std::uint8_t dot[5]   = {0,0,0,0,2};
+      static const std::uint8_t letterF[5] = {7,4,6,4,4};
+      static const std::uint8_t letterT[5] = {7,2,2,2,2};
+      static const std::uint8_t blank[5] = {0,0,0,0,0};
+      if (c >= '0' && c <= '9') return digits[c - '0'];
+      if (c == ':') return colon;
+      if (c == '.') return dot;
+      if (c == 'F') return letterF;
+      if (c == 'T') return letterT;
+      return blank;
+    };
+    int scale = std::max(1, H / 240);
+    auto drawText = [&](int x, int y, const std::string& s, SDL_Color color) {
+      int cx = x;
+      for (char c : s) {
+        const std::uint8_t* rows = glyphRows(c);
+        for (int ry = 0; ry < 5; ++ry) {
+          for (int rx = 0; rx < 3; ++rx) {
+            if (rows[ry] & (4 >> rx)) {
+              rect(cx + rx * scale, y + ry * scale, scale, scale, color);
+            }
+          }
+        }
+        cx += 4 * scale;
+      }
+    };
+    int totalSeconds = static_cast<int>(t);
+    int millis = static_cast<int>(t * 1000.0) % 1000;
+    long long frameNo = static_cast<long long>(t * 30.0);   // nominal 30 fps counter
+    char clockLine[32];
+    std::snprintf(clockLine, sizeof(clockLine), "T %02d:%02d:%02d.%03d",
+                  (totalSeconds / 3600) % 100, (totalSeconds / 60) % 60,
+                  totalSeconds % 60, millis);
+    char frameLine[24];
+    std::snprintf(frameLine, sizeof(frameLine), "F %06lld", frameNo);
+    int pad = 3 * scale;
+    int lineW = 14 * 4 * scale;
+    int boxW = lineW + pad * 2;
+    int boxH = (5 + 2 + 5) * scale + pad * 2;
+    rect(8, 8, boxW, boxH, {58, 12, 12, 255});
+    drawText(8 + pad, 8 + pad, clockLine, {255, 214, 92, 255});
+    drawText(8 + pad, 8 + pad + 7 * scale, frameLine, {255, 214, 92, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
 // buildPatternFrame — Static factory: generate a procedural test pattern frame.
 //
 // This is the main dispatch function for all pattern types. It:
@@ -3935,6 +4078,9 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 255, 0, 255});
   } else if (basePatternType == "full-blue") {
     fillPixelRect(frame, 0, 0, frame.width, frame.height, {0, 0, 255, 255});
+  } else if (basePatternType == "test-bars") {
+    // Broadcast motion diagnostics — always animated, no -motion variant.
+    buildTestBars(frame, animTime);
   } else if (basePatternType == "terrarium") {
     // Native Terrarium — the living ecosystem, ticking at its own 9 TPS.
     buildTerrariumFrame(frame, animTime);
