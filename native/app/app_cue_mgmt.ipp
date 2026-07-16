@@ -908,6 +908,41 @@
     } else {
       triggerToast("playlist: " + currentProjectLabel());
     }
+    queueAudioMetadataRepairProbes();
+  }
+
+  // Cues saved before audioChannels/audioSampleRate existed load with 0 in
+  // those fields, which quietly downgrades the stereo waveform lane to the
+  // mono view. Re-probe them in the background and backfill (the update()
+  // probe poll has a matching repair branch).
+  void queueAudioMetadataRepairProbes() {
+    constexpr int kMaxRepairProbes = 64;
+    int queued = 0;
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      for (const Cue& cue : project_.decks[deckIndex].cues) {
+        if (queued >= kMaxRepairProbes) {
+          return;
+        }
+        bool fileBacked = cue.kind == CueKind::Video || cue.kind == CueKind::Audio;
+        if (!fileBacked || !cue.hasAudio || cue.audioChannels > 0 || cue.path.empty()) {
+          continue;
+        }
+        fs::path mediaPath(resolvedCueFilesystemPathString(cue, currentProjectFile_));
+        std::error_code existsEc;
+        if (mediaPath.empty() || !fs::exists(mediaPath, existsEc)) {
+          continue;
+        }
+        PendingProbe pp;
+        pp.deckIndex = deckIndex;
+        pp.path = cue.path;
+        std::string probePathStr = mediaPath.string();
+        pp.future = std::async(std::launch::async, [probePathStr]() {
+          return probeCue(fs::path(probePathStr));
+        });
+        probeFutures_.push_back(std::move(pp));
+        ++queued;
+      }
+    }
   }
 
   void openProjectFromPicker() {
@@ -1891,6 +1926,7 @@
     // once unlocked in the current save (see patternPickerTypes).
     static const std::vector<std::pair<std::string, std::string>> types {
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
+      {"test-bars",    "Test Bars (motion diagnostics)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},

@@ -65,7 +65,7 @@ cmake --build ../build/windows --config Release
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. Current highest in the sequential range: **645** (`kSettingsActionVideoSubTabBase` 642–645). Allocate next from **647+**. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
+Settings button actions are integer constants defined at the top of `main.cpp`. Current highest in the sequential range: **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips). Allocate next from **656+**. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 
@@ -188,6 +188,8 @@ The app runs on SDL3 (migrated from SDL2 in v0.77.0). Rules that keep it working
 - AOI, warp, edge blend: per-output, in `OutputTarget`
 - Cue geometry (scale/offset/crop/rotation): per-cue, in `Cue`
 - All color/geometry values normalized (0–1 for fractions, degrees for rotation)
+- **Operators see pixels, storage keeps fractions**: cue geometry (v0.76.21), AOI rect + edge blend in settings (v0.80.0). Convert at the UI edge only (`focusedOutputAoiRectPx`/`applyFocusedOutputAoiRectPx` pattern)
+- Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]` — all scriptable for screenshot verification
 - Windows-first for new features (primary dev target)
 - `#ifndef _WIN32` / `#ifdef _WIN32` guards for platform-specific code
 - Copyright year: 2026; license: GPL-3.0-or-later

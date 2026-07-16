@@ -1,5 +1,52 @@
 # DEVNOTES
 
+## AOI / Edge Blend: Pixel View Over Fraction Storage (v0.80.0)
+
+The settings UI edits the Area of Interest as a pixel rect (`X/Y/W/H` of the
+output raster from `outputRenderSizeForOutput`) and edge blending as pixel
+widths, but `OutputTarget::aoi*` / `Deck::edgeBlend*` stay fractions — the
+serializer, remote commands, and render path are untouched. Conversion lives
+in `focusedOutputAoiRectPx` / `applyFocusedOutputAoiRectPx`
+(app_render_settings.ipp). The apply helper clamps the region to ≥5% of the
+raster per axis, which keeps every stored edge fraction within the
+serializer's long-standing 0–0.95 clamp — do not relax one without the other.
+Same doctrine as Pixel-Based Geometry Editing (v0.76.21): operators get
+pixels, storage keeps normalized values.
+
+## Stereo Waveform: Content-Authoritative Split (v0.80.0)
+
+`WaveformPeaks` carries a `distinct` flag measured during analysis: the
+ffmpeg decode is forced `-ac 2`, and the side-signal ratio
+`Σ|L-R| / Σ(|L|+|R|) > 1%` marks real stereo. `drawWaveform` uses **only**
+this flag to pick split-vs-mono — cue metadata (`audioChannels`) is a hint
+for badges, not the view, because (a) cues saved before the field existed
+load with 0 and (b) stereo containers frequently carry mono content, where
+twin identical lanes waste half the lane. Old saves additionally get
+`audioChannels` backfilled via `queueAudioMetadataRepairProbes()` on project
+open (the probe poll in app_update.ipp has a repair branch that fills audio
+fields on already-probed cues; capped at 64 probes per open).
+
+## Panic Must Kill Audio (v0.80.0)
+
+`runPanicOutputsOff` (triple-Esc and the outputs_off panic profile) now stops
+every deck engine (`stop(true)`) and browser cue after disarming outputs.
+Audio does not route through video outputs, so an outputs-only panic left
+sound running against a dark program. Related fix: `MediaEngine::stop`
+treated only `CueKind::Video` as stoppable A/V — Audio cues fell into the
+"not video" early-return that neither killed decode pipes nor paused the
+audio stream. Both cue kinds now share the stop path. If a new audible cue
+kind is ever added, it must join that `isAV` check.
+
+## Test Bars Pattern (v0.80.0)
+
+`pattern://test-bars` (aliases testsrc/testsrc2) is a homage to ffmpeg's
+testsrc2, born from the v0.79.10 HEVC test sessions: saturated bars, a
+bouncing rainbow diagonal, a dissolving checker patch, a sliding grey block,
+and a clock + nominal-30fps frame counter. Built by
+`MediaEngine::buildTestBars`; always animated (`patternTypeIsAnimated`), no
+`-motion` variant — motion is the point. Verify with
+`--pattern-dump test-bars out.ppm 1280x720 6.5`.
+
 ## Native Terrarium Pattern (v0.78.4)
 
 The Terrarium ecosystem sim runs in-process as `pattern://terrarium`. The

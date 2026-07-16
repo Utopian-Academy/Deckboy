@@ -193,6 +193,23 @@
         }
       });
     }
+    // File-backed cues get a "reveal in the OS file manager" entry — the
+    // fastest answer to "which file is this cue actually playing?"
+    {
+      std::string mediaPath = resolvedCueFilesystemPathString(cue, currentProjectFile_);
+      bool fileBacked = !mediaPath.empty() && !pathLooksLikeUri(cue.path) &&
+                        (cue.kind == CueKind::Video || cue.kind == CueKind::Audio ||
+                         cue.kind == CueKind::Image);
+      if (fileBacked) {
+        contextItems_.push_back({"  show in explorer", {0, 0, 0, 0}, [this, mediaPath]() {
+          if (deckboy::platform::revealFileInFileManager(mediaPath)) {
+            triggerToast("opened in explorer");
+          } else {
+            triggerToast("couldn't open explorer");
+          }
+        }});
+      }
+    }
     contextItems_.push_back({"— delete cue", {80, 30, 30, 255}, [this, deckIdx, cueIdx]() {
       requestDeleteCueIndices(deckIdx, {cueIdx});
     }});
@@ -975,16 +992,17 @@
   SDL_Rect settingsModalRect() const {
     int width = 0, height = 0;
     SDL_GetWindowSize(controlWindow_, &width, &height);
-    bool videoTab = settingsTab_ == 3;
-    bool networkTab = settingsTab_ == 2;
-    bool primaryOpsTab = settingsTab_ == 0 || settingsTab_ == 1;
-    int margin = videoTab ? 10 : 20;
-    int minW = videoTab ? 820 : (networkTab ? 980 : (primaryOpsTab ? 900 : 760));
-    int minH = videoTab ? 580 : (networkTab ? 700 : (primaryOpsTab ? 650 : 520));
-    int maxW = videoTab ? 1200 : (networkTab ? 1320 : 1140);
-    int maxH = videoTab ? 940 : (networkTab ? 860 : 780);
-    int modalW = std::clamp(width - margin * 2, minW, maxW);
-    int modalH = std::clamp(height - margin * 2, minH, maxH);
+    // One envelope for every tab. The modal used to pick per-tab min/max
+    // sizes (video widest, network tallest), which made it jump around on
+    // every tab switch; the union of those envelopes keeps the busiest tab
+    // comfortable and the dialog rock-steady.
+    constexpr int kMargin = 10;
+    constexpr int kMinW = 980;
+    constexpr int kMinH = 700;
+    constexpr int kMaxW = 1320;
+    constexpr int kMaxH = 940;
+    int modalW = std::clamp(width - kMargin * 2, kMinW, kMaxW);
+    int modalH = std::clamp(height - kMargin * 2, kMinH, kMaxH);
     modalW = std::min(modalW, std::max(320, width - 12));
     modalH = std::min(modalH, std::max(260, height - 12));
     return SDL_Rect {(width - modalW) / 2, (height - modalH) / 2, modalW, modalH};

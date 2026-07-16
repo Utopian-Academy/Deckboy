@@ -295,6 +295,19 @@
                 }
                 break;
               }
+              // Audio metadata repair (old saves): the cue is fully probed
+              // except audioChannels/audioSampleRate, which the format
+              // predates. Backfill just those so the stereo waveform lane
+              // and channel badges light up. No break — repair every cue
+              // sharing this path.
+              if (cue.path == it->path && cue.hasAudio && cue.audioChannels == 0 &&
+                  probed->audioChannels > 0) {
+                cue.audioChannels = probed->audioChannels;
+                if (cue.audioSampleRate == 0) {
+                  cue.audioSampleRate = probed->audioSampleRate;
+                }
+                markProjectDirty();
+              }
             }
           }
           if (!probed) {
