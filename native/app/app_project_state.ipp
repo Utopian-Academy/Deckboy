@@ -1000,7 +1000,7 @@
     panicProfileRequestedAt_ = 0;
     SDL_RaiseWindow(controlWindow_);
     triggerToast(anyEnabled ? "panic: outputs off" : "panic: outputs already off");
-    playUiSound(UiSoundEffect::Toggle);
+    playUiSound(UiSoundEffect::Panic);
     if (anyEnabled) {
       markProjectDirty();
     }
@@ -1278,6 +1278,97 @@
     }
     missingMediaCount_ = missing;
     return missing;
+  }
+
+  // Async variant for boot and project open. The sync scan stats every file
+  // cue — seconds on a big playlist living on USB — and used to run before
+  // the first frame was ever presented, so the "black window" at boot grew
+  // with the playlist. The worker resolves + stats off-thread; results are
+  // applied on the update tick by cue id (cues may move or vanish meanwhile).
+  void startMediaPresenceScanAsync(bool announceMissing) {
+    struct Item { std::string id; std::string path; CueKind kind; };
+    std::vector<Item> items;
+    for (const auto& deck : project_.decks) {
+      for (const auto& cue : deck.cues) {
+        if (cueUsesFilesystemMedia(cue)) {
+          items.push_back({cue.id, cue.path, cue.kind});
+        }
+      }
+    }
+    std::uint64_t gen = mediaScanGeneration_.fetch_add(1) + 1;
+    if (mediaScanThread_.joinable()) {
+      mediaScanThread_.join();  // superseded worker bails at its next gen check
+    }
+    mediaScanReady_.store(false);
+    mediaScanAnnounce_ = announceMissing;
+    mediaScanThread_ = std::thread(
+        [this, gen, projectFile = currentProjectFile_, items = std::move(items)]() {
+      std::vector<std::pair<std::string, bool>> results;
+      results.reserve(items.size());
+      for (const Item& item : items) {
+        if (mediaScanGeneration_.load() != gen) {
+          return;  // a newer scan started — this one's results are stale
+        }
+        Cue probe;
+        probe.id = item.id;
+        probe.path = item.path;
+        probe.kind = item.kind;
+        auto resolved = resolveCueFilesystemPath(probe, projectFile);
+        bool missing = false;
+        if (resolved && !resolved->empty()) {
+          std::error_code ec;
+          missing = !fs::exists(*resolved, ec);
+        }
+        results.emplace_back(item.id, missing);
+      }
+      std::lock_guard<std::mutex> lock(mediaScanMutex_);
+      if (mediaScanGeneration_.load() != gen) {
+        return;
+      }
+      mediaScanResults_ = std::move(results);
+      mediaScanResultsGeneration_ = gen;
+      mediaScanReady_.store(true);
+    });
+  }
+
+  // Update-tick half of the async scan: fold results into the live cues.
+  void pollMediaPresenceScan() {
+    if (!mediaScanReady_.load()) {
+      return;
+    }
+    std::vector<std::pair<std::string, bool>> results;
+    {
+      std::lock_guard<std::mutex> lock(mediaScanMutex_);
+      if (mediaScanResultsGeneration_ != mediaScanGeneration_.load()) {
+        mediaScanReady_.store(false);
+        return;
+      }
+      results = std::move(mediaScanResults_);
+      mediaScanResults_.clear();
+    }
+    mediaScanReady_.store(false);
+    std::unordered_map<std::string, bool> byId;
+    byId.reserve(results.size());
+    for (auto& [id, missing] : results) {
+      byId.emplace(std::move(id), missing);
+    }
+    int missingCount = 0;
+    for (auto& deck : project_.decks) {
+      for (auto& cue : deck.cues) {
+        auto it = byId.find(cue.id);
+        if (it != byId.end()) {
+          cue.mediaMissing = it->second;
+        }
+        if (cue.mediaMissing) {
+          ++missingCount;
+        }
+      }
+    }
+    missingMediaCount_ = missingCount;
+    if (mediaScanAnnounce_ && missingCount > 0) {
+      triggerToast(std::to_string(missingCount) + " media missing (RELINK)");
+      playUiSound(UiSoundEffect::Error);
+    }
   }
 
   // Relink: given a folder the operator picked, re-point every missing cue at
@@ -1726,7 +1817,7 @@
   }
 
   void queueUiPattern(const std::vector<std::pair<double, int>>& notes, float level = 0.13f) {
-    if (!project_.uiSoundsEnabled || !uiAudioStream_) {
+    if (!project_.uiSoundsEnabled || !uiAudioStream_ || SDL_GetTicks() < uiJingleUntilMs_) {
       return;
     }
 
@@ -1763,6 +1854,137 @@
     }
   }
 
+  // ---------------------------------------------------------------------
+  // DMG voice synth — a tiny Game Boy (DMG-01) style tracker for the richer
+  // UI sounds and the boot jingle. Honors the original chip's constraints:
+  // two pulse channels locked to the four hardware duty cycles, a 15-bit
+  // LFSR noise voice, and 4-bit (16-step) volume envelopes. Channels get the
+  // NR51-style stereo placement (PU1 leans right, PU2 leans left) so chords
+  // shimmer a little instead of sitting mono.
+  // ---------------------------------------------------------------------
+  struct DmgNote {
+    int channel;      // 0 = pulse 1, 1 = pulse 2, 2 = noise
+    double freq;      // pulse: pitch Hz; noise: LFSR step rate Hz
+    int startMs;
+    int durMs;
+    double duty;      // pulse only: 0.125 / 0.25 / 0.5 / 0.75
+    int vol;          // 0..15, DMG envelope start volume
+  };
+
+  void queueDmgPattern(const std::vector<DmgNote>& notes, float level = 0.13f) {
+    if (!project_.uiSoundsEnabled || !uiAudioStream_ || notes.empty() ||
+        SDL_GetTicks() < uiJingleUntilMs_) {
+      return;
+    }
+    SDL_ClearAudioStream(uiAudioStream_);
+
+    int totalMs = 0;
+    for (const DmgNote& n : notes) {
+      totalMs = std::max(totalMs, n.startMs + n.durMs);
+    }
+    totalMs += 30;  // release tail
+    const int totalSamples = totalMs * kAudioRate / 1000;
+    std::vector<float> mixL(totalSamples, 0.0f), mixR(totalSamples, 0.0f);
+
+    for (const DmgNote& n : notes) {
+      int start = n.startMs * kAudioRate / 1000;
+      int len = std::max(1, n.durMs * kAudioRate / 1000);
+      float gainL = 0.85f, gainR = 0.85f;
+      if (n.channel == 0) { gainL = 0.70f; gainR = 1.0f; }
+      if (n.channel == 1) { gainL = 1.0f;  gainR = 0.70f; }
+      double phase = 0.0;
+      std::uint16_t lfsr = 0x7FFF;
+      double lfsrAcc = 0.0;
+      double noiseOut = 1.0;
+      for (int i = 0; i < len && start + i < totalSamples; ++i) {
+        double t = static_cast<double>(i) / len;
+        // 4-bit envelope: quick attack, then step down through the DMG's
+        // 16 volume levels — the quantized fade IS the retro character.
+        double env = (i < 32) ? i / 32.0 : (1.0 - t);
+        int envSteps = static_cast<int>(env * n.vol);
+        double amp = static_cast<double>(envSteps) / 15.0;
+        double sample;
+        if (n.channel == 2) {
+          lfsrAcc += n.freq / kAudioRate;
+          while (lfsrAcc >= 1.0) {
+            lfsrAcc -= 1.0;
+            std::uint16_t bit = ((lfsr ^ (lfsr >> 1)) & 1);
+            lfsr = static_cast<std::uint16_t>((lfsr >> 1) | (bit << 14));
+            noiseOut = (lfsr & 1) ? 1.0 : -1.0;
+          }
+          sample = noiseOut;
+        } else {
+          phase += n.freq / kAudioRate;
+          phase -= std::floor(phase);
+          sample = (phase < n.duty) ? 1.0 : -1.0;
+        }
+        mixL[start + i] += static_cast<float>(sample * amp * gainL);
+        mixR[start + i] += static_cast<float>(sample * amp * gainR);
+      }
+    }
+
+    std::vector<std::int16_t> pcm(static_cast<size_t>(totalSamples) * 2u);
+    for (int i = 0; i < totalSamples; ++i) {
+      float l = std::clamp(mixL[i] * level, -1.0f, 1.0f);
+      float r = std::clamp(mixR[i] * level, -1.0f, 1.0f);
+      pcm[static_cast<size_t>(i) * 2u] = static_cast<std::int16_t>(std::lround(l * 32767.0f));
+      pcm[static_cast<size_t>(i) * 2u + 1u] = static_cast<std::int16_t>(std::lround(r * 32767.0f));
+    }
+    SDL_PutAudioStreamData(uiAudioStream_, pcm.data(), static_cast<int>(pcm.size() * sizeof(std::int16_t)));
+    deckboySetAudioPaused(uiAudioStream_, false);
+  }
+
+  // Boot jingle — Coltrane changes on a DMG: key centers falling by major
+  // thirds with V7 links (B△7 → D7 → G△7 → B♭7 → E♭△7), the Giant Steps
+  // harmonic engine under an original melody (1-2-3-5 digital patterns on
+  // the majors, 9→♭7 sighs on the dominants). PU1 melody on the thin 25%
+  // duty, PU2 roots on the fat 50%, noise swings hats. ~214 BPM, swung
+  // eighth pairs of 170 + 110 ms; each chord holds two beats (560 ms).
+  void playStartupJingle() {
+    std::vector<DmgNote> song = {
+      // PU1 melody (duty 25%)
+      {0, 493.88, 0,    170, 0.25, 11},  // B4    B△7: 1-2-3-5 up
+      {0, 554.37, 170,  110, 0.25, 10},  // C#5
+      {0, 622.25, 280,  170, 0.25, 11},  // D#5
+      {0, 739.99, 450,  110, 0.25, 10},  // F#5
+      {0, 659.26, 560,  280, 0.25, 11},  // E5    D7: 9 →
+      {0, 523.25, 840,  280, 0.25, 10},  // C5        ♭7 sigh
+      {0, 783.99, 1120, 170, 0.25, 11},  // G5    G△7: 1-2-3-5, octave up
+      {0, 880.00, 1290, 110, 0.25, 10},  // A5
+      {0, 987.77, 1400, 170, 0.25, 11},  // B5
+      {0, 1174.66, 1570, 110, 0.25, 11}, // D6
+      {0, 1046.50, 1680, 280, 0.25, 11}, // C6    B♭7: 9 →
+      {0, 830.61,  1960, 280, 0.25, 10}, // A♭5       ♭7 sigh
+      // E♭△7 lands: sparkle arp up the tonic, then a held 7th
+      {0, 622.25, 2240, 90,  0.25, 10},  // E♭5
+      {0, 783.99, 2330, 90,  0.25, 10},  // G5
+      {0, 932.33, 2420, 90,  0.25, 11},  // B♭5
+      {0, 1174.66, 2510, 90, 0.25, 11},  // D6
+      {0, 1244.51, 2600, 420, 0.25, 12}, // E♭6 held
+      // PU2 roots walking the major-third cycle (duty 50%)
+      {1, 123.47, 0,    150, 0.50, 8},   // B2
+      {1, 146.83, 560,  150, 0.50, 7},   // D3
+      {1, 196.00, 1120, 150, 0.50, 8},   // G3
+      {1, 116.54, 1680, 150, 0.50, 7},   // B♭2
+      {1, 155.56, 2240, 160, 0.50, 8},   // E♭3
+      {1, 196.00, 2600, 420, 0.50, 7},   // G3 under the held E♭6
+      // Noise swung hats: accent each chord, off-tick between
+      {2, 12000, 0,    45, 0.5, 6},
+      {2, 9000,  280,  25, 0.5, 3},
+      {2, 12000, 560,  45, 0.5, 5},
+      {2, 9000,  840,  25, 0.5, 3},
+      {2, 12000, 1120, 45, 0.5, 6},
+      {2, 9000,  1400, 25, 0.5, 3},
+      {2, 12000, 1680, 45, 0.5, 5},
+      {2, 9000,  1960, 25, 0.5, 3},
+      {2, 12000, 2240, 45, 0.5, 6},
+      {2, 14000, 2600, 130, 0.5, 7},     // little crash with the final chord
+    };
+    queueDmgPattern(song, 0.11f);
+    // Hold ordinary bloops off until the last chord rings out.
+    uiJingleUntilMs_ = SDL_GetTicks() + 3060;
+  }
+
   void playUiSound(UiSoundEffect effect) {
     switch (effect) {
       case UiSoundEffect::Navigate:
@@ -1785,6 +2007,35 @@
         break;
       case UiSoundEffect::Delete:
         queueUiPattern({{523.3, 24}, {349.2, 58}}, 0.09f);
+        break;
+      case UiSoundEffect::Error:
+        // Refused-action buzzer: two low fat-duty honks with a noise edge.
+        queueDmgPattern({{1, 155.56, 0, 90, 0.50, 11},   // Eb3
+                         {2, 6000,   0, 40, 0.50, 5},
+                         {1, 146.83, 110, 150, 0.50, 11}, // D3
+                         {2, 6000,   110, 40, 0.50, 4}},
+                        0.11f);
+        break;
+      case UiSoundEffect::Panic:
+        // Everything-off: a fast chromatic dive plus a noise whoosh.
+        queueDmgPattern({{0, 880.00, 0,   70, 0.25, 12},  // A5
+                         {0, 659.26, 70,  70, 0.25, 11},  // E5
+                         {0, 493.88, 140, 70, 0.25, 10},  // B4
+                         {0, 349.23, 210, 90, 0.25, 9},   // F4
+                         {0, 233.08, 300, 160, 0.25, 9},  // Bb3
+                         {2, 10000,  0,   360, 0.50, 6}},
+                        0.12f);
+        break;
+      case UiSoundEffect::Shuffle:
+        // Dice-roll trill: quick alternating thirds with a tick underneath.
+        queueDmgPattern({{0, 783.99, 0,   45, 0.25, 9},   // G5
+                         {0, 987.77, 45,  45, 0.25, 9},   // B5
+                         {0, 783.99, 90,  45, 0.25, 10},  // G5
+                         {0, 987.77, 135, 45, 0.25, 10},  // B5
+                         {0, 1174.66, 180, 90, 0.25, 11}, // D6
+                         {2, 9000,   0,   30, 0.50, 3},
+                         {2, 9000,   90,  30, 0.50, 3}},
+                        0.10f);
         break;
     }
   }
