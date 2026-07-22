@@ -1,5 +1,78 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-18 — v0.80.1 (slow-drive UI lag fix, DMG sound pack)
+
+### Performance
+- **UI no longer stutters when show media lives on a slow drive.** Cue path
+  resolution (`weakly_canonical`) stats every path component on disk, and the
+  update tick resolved the selected and active cues' paths every single
+  frame — against USB drives already saturated by the decoder. Resolutions
+  are now memoized per (path, project file), so after the first touch the
+  per-frame cost is a map lookup. Large playlists (1,400+ cues) on USB/exFAT
+  drives feel it most; this was the "UI is laggy and takes are slow" report.
+- **The black window at boot is gone.** The media-presence scan (one disk
+  stat per file cue, for the RELINK badge) ran before the first frame was
+  ever presented — on a 1,400-cue USB playlist that's seconds of black
+  before the fake loading screen could do its job. The scan now runs on a
+  background thread on boot and project open; the splash appears
+  immediately and the "N media missing (RELINK)" toast follows when the
+  scan lands.
+
+### Terrarium
+- **Vibrant, nature-evoking colors** (exe and in-app pattern — they share
+  the core). Three compounding problems made scenes read faded/pastel/candy:
+  species colors were generated at 45–55% saturation by a function literally
+  named `pastelFrom`; the species branches returned before the `vividify`
+  pass ever ran (only terrain got it); and bloom cells averaged the vivid
+  accent 50/50 with the green base, washing every flower grey-pink. The
+  rework: **foliage lives in the green band** (spring-to-forest hues, varied
+  sat/val; sage/olive for desert; alien keeps the free wheel), **blooms draw
+  from a real meadow distribution** (mostly yellows and whites, then
+  violets/reds/oranges, blues uncommon, magenta rare) and render
+  accent-dominant so they pop, **fauna wears earth tones** (russet, tan,
+  chestnut) with plumage accents from bird/beetle iridescence — plus a
+  1-in-8 full-color tropical/wetland showoff. Everything runs through a
+  slightly stronger `vividify`.
+- **No more pink hearts**: the big-flower pool glyph was shaped like a
+  heart, which in pink read Lisa Frank; it's now a round rosette with a
+  stem. Mushrooms swap candy pink/lilac for forest-floor caps (cream, tan,
+  fly-agaric red). Ambient flower glyphs likewise trade bubblegum pinks for
+  poppy, marigold, orchid, and thistle tones.
+
+### Game Boy sound pack
+- **New DMG-style synth voice** behind the UI sounds: two pulse channels
+  locked to the hardware duty cycles, a 15-bit LFSR noise channel, 4-bit
+  quantized envelopes, and NR51-style stereo placement.
+- **Boot jingle** — a swung chiptune over Coltrane changes (B△7 → D7 →
+  G△7 → B♭7 → E♭△7, the Giant Steps major-third cycle) with an original
+  melody: YMCK-school cute jazz, golden-changes edition. Plays over the
+  startup splash, honors the "little bloops" toggle; ordinary bloops hold
+  off until the final chord rings out.
+- **New sound effects**: refused-action buzzer (take blocked on missing
+  media), a panic dive-and-whoosh for PANIC/ESC, and a dice-roll trill when
+  shuffle turns on. Existing bloops are unchanged.
+
+### Cue inspector
+- **PIP cues are editable again.** The inspector showed "no per-cue settings
+  for this type" for PIP overlay cues — the source/type editor, corner
+  presets (TL/TR/BL/BR), size presets (SM/BIG/70-30), CLEAR OVERLAY, and the
+  GEOMETRY/KEY/METADATA sections were stranded in a retired render path while
+  their actions stayed wired. All of it is back in the live inspector.
+- **Stream cues get an inspector.** SRT/RTMP/RTSP/UDP stream cues and NDI
+  source cues (which also fell through to "no per-cue settings") now have
+  PLAYBACK (fades, per-cue transition + style, audio toggle) and METADATA
+  (editable URL / NDI source name, tag, notes, cue id).
+- **Audio cues get the AUDIO section.** Gain trim, pan, mono downmix, output
+  pair, independent a-fades, and R128 normalize were only reachable on video
+  cues; audio-only cues now share the same section.
+- **Scroll fix**: inspector sections that end with non-interactive rows
+  (e.g. status lines) could extend past the reachable scroll range; the
+  scroll extent now tracks section bottoms too.
+- **Stale click-zone fix**: the window-source and PIP source-type dropdown
+  hitboxes weren't cleared when the selection changed, leaving an invisible
+  clickable zone from the previously selected cue.
+- The empty inspector no longer renders "NO CUE SELECTED" twice.
+
 ## 2026-07-15 — v0.80.0 (settings overhaul, stereo waveforms, panic audio fix, Test Bars)
 
 ### Settings menu
