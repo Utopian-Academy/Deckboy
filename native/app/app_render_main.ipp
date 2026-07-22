@@ -800,7 +800,7 @@
       bool _wfPending = false;
       WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*timelineCue, currentProjectFile_), _wfPending);
       drawWaveform(controlRenderer_, audioLaneRect, peaks, timelineCue->audioChannels >= 2, timelinePlayFrac, timelineInFrac, timelineOutFrac,
-                   timelinePausePoints, timelineDuration);
+                   timelinePausePoints, timelineDuration, waveformGainScale(*timelineCue));
       drawAudioFadeEnvelope(audioLaneRect, *timelineCue);
       if (peaks.empty() && _wfPending) {
         drawAudioTimelineLoadingAnimation(audioLaneRect);
@@ -1058,7 +1058,7 @@
                     ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
       float playFrac = engine ? static_cast<float>(std::clamp(engine->position() / dur, 0.0, 1.0)) : -1.0f;
       drawWaveform(controlRenderer_, inner, peaks, activeCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                   activeCue->pausePoints, dur);
+                   activeCue->pausePoints, dur, waveformGainScale(*activeCue));
       drawAudioFadeEnvelope(inner, *activeCue);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {programMonitorRect.x + 10, programMonitorRect.y + programMonitorRect.h - 48, programMonitorRect.w - 20, 22},
@@ -1392,7 +1392,7 @@
       if (const MediaEngine* eng = focusedMediaEngine())
         playFrac = static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0));
       drawWaveform(controlRenderer_, thumbArea, peaks, selectedCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                   selectedCue->pausePoints, dur);
+                   selectedCue->pausePoints, dur, waveformGainScale(*selectedCue));
       drawAudioFadeEnvelope(thumbArea, *selectedCue);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + 6, thumbArea.y + 4, thumbArea.w - 12, 20},
@@ -1444,7 +1444,7 @@
         playFrac = static_cast<float>(eng->position() / dur);
       if (!peaks.empty() || pending) {
         drawWaveform(controlRenderer_, waveRect, peaks, selectedCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                     selectedCue->pausePoints, dur);
+                     selectedCue->pausePoints, dur, waveformGainScale(*selectedCue));
         drawAudioFadeEnvelope(waveRect, *selectedCue);
       }
     }

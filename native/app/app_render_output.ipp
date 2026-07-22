@@ -800,7 +800,7 @@
         float outFrac = activeCue->outPointSeconds > 0.0
                       ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
         drawWaveform(runtime->outputRenderer, wfRect, peaks, activeCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                     activeCue->pausePoints, dur);
+                     activeCue->pausePoints, dur, waveformGainScale(*activeCue));
         // Cue name
         drawText(runtime->outputRenderer, fontBase_, activeCue->name,
                  pal.light, wfRect.x, wfRect.y - 36);
