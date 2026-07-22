@@ -45,8 +45,8 @@ static constexpr int MAX_WIND = 5;
 
 enum WeatherState { CLEAR=0, OVERCAST=1, RAIN=2, STORM=3 };
 
-static constexpr float VIVID_SAT = 1.18f;  // slightly richer (bg is black)
-static constexpr float VIVID_VAL = 1.08f;  // a touch brighter
+static constexpr float VIVID_SAT = 1.32f;  // rich, life-evoking (bg is black)
+static constexpr float VIVID_VAL = 1.10f;  // a touch brighter
 
 static constexpr int BUG_CAP_BASE      = (W * H) / 75;
 static constexpr int BIRD_CAP_BASE     = (W * H) / 260;
@@ -559,8 +559,25 @@ static void genHeight(World& w, uint32_t seed) {
 static inline float u01(uint32_t x){ return (float)(x & 0xFFFFu) / 65535.0f; }
 static inline float clamp01(float x){ return x<0?0:(x>1?1:x); }
 
-static inline RGB pastelFrom(uint32_t h, float sat=0.55f, float val=0.92f) {
+static inline RGB hsvAt(float H, float sat, float val);
+
+static inline RGB hsvFrom(uint32_t h, float sat=0.85f, float val=0.95f) {
   float H = (float)((h>>8) & 1023u) / 1023.0f;
+  return hsvAt(H, sat, val);
+}
+
+// Hue constrained to a band (degrees). Nature reads as *bands*, not a free
+// wheel: foliage lives in greens, fauna in earth tones — a full-spectrum
+// species palette turns the meadow into candy no matter the saturation.
+static inline RGB hsvFromBand(uint32_t h, float hueMinDeg, float hueMaxDeg,
+                              float sat, float val) {
+  float u = (float)((h>>8) & 1023u) / 1023.0f;
+  float H = (hueMinDeg + (hueMaxDeg - hueMinDeg) * u) / 360.0f;
+  H -= std::floor(H);
+  return hsvAt(H, sat, val);
+}
+
+static inline RGB hsvAt(float H, float sat, float val) {
   float S = sat;
   float V = val;
   float r,g,b;
@@ -669,10 +686,36 @@ static inline void generateSpeciesPools(World& w){
     ps.moisturePref = u01(h>>1);
     ps.heightPref   = u01(h>>9);
     ps.bloominess   = 0.15f + 0.55f*u01(h>>17);
-    float sat = (w.biome==DESERT)?0.30f:0.55f;
-    float val = (w.biome==ALIEN)?0.78f:0.92f;
-    ps.base   = pastelFrom(h, sat, val);
-    ps.accent = pastelFrom(h^0x9E3779B9u, std::min(0.75f,sat+0.15f), std::min(0.98f,val+0.04f));
+    // Foliage lives in the green band — varied, deep, alive — never the
+    // free hue wheel (magenta ferns read candy, not nature). Blooms carry
+    // the color: accents draw from the full flower spectrum and land on
+    // cells via bloominess, so meadows sparkle against rich green.
+    float satJit = 0.62f + 0.28f * u01(h>>21);
+    float valJit = 0.62f + 0.33f * u01(h>>13);
+    if (w.biome==DESERT) {
+      // sage / olive / ochre
+      ps.base = hsvFromBand(h, 45.0f, 105.0f, 0.45f + 0.25f*u01(h>>21), valJit);
+    } else if (w.biome==ALIEN) {
+      ps.base = hsvFrom(h, 0.80f, 0.85f);  // alien stays gloriously wrong
+    } else {
+      // spring-to-forest greens
+      ps.base = hsvFromBand(h, 85.0f, 155.0f, satJit, valJit);
+    }
+    // Blooms from a real meadow distribution — mostly yellows and whites,
+    // then violets/reds/oranges, blues uncommon, magenta rare. A uniform
+    // hue wheel lands on magenta far too often to read as nature.
+    {
+      uint32_t fh = h ^ 0x9E3779B9u;
+      uint32_t roll = fh % 100u;
+      float jit = u01(fh>>7);
+      if      (roll < 24) ps.accent = hsvAt((46.0f + 10.0f*jit)/360.0f, 0.92f, 0.98f);  // yellow
+      else if (roll < 42) ps.accent = hsvAt((40.0f + 20.0f*jit)/360.0f, 0.08f, 0.98f);  // white
+      else if (roll < 60) ps.accent = hsvAt((262.0f + 22.0f*jit)/360.0f, 0.72f, 0.95f); // violet
+      else if (roll < 74) ps.accent = hsvAt((352.0f + 14.0f*jit)/360.0f, 0.88f, 0.95f); // red
+      else if (roll < 86) ps.accent = hsvAt((20.0f + 12.0f*jit)/360.0f, 0.90f, 0.97f);  // orange
+      else if (roll < 95) ps.accent = hsvAt((210.0f + 22.0f*jit)/360.0f, 0.70f, 0.95f); // blue
+      else                ps.accent = hsvAt((312.0f + 10.0f*jit)/360.0f, 0.80f, 0.95f); // magenta (rare)
+    }
     w.flora.push_back(ps);
     gDynGlyph[PLANT_BASE + (unsigned char)i] = ps.glyph;
   }
@@ -685,10 +728,27 @@ static inline void generateSpeciesPools(World& w){
     as.speed        = 0.15f + 0.85f*u01(h>>18);
     as.herbivory    = u01(h>>6);
     as.glow         = (w.biome==ALIEN || w.biome==WETLAND) ? (0.12f*u01(h>>20)) : (0.05f*u01(h>>20));
-    float sat = 0.45f;
-    float val = (w.biome==ALIEN)?0.80f:0.88f;
-    as.base   = pastelFrom(h^0xCAFEBABEu, sat, val);
-    as.accent = pastelFrom(h^0x1234567u, std::min(0.70f,sat+0.18f), std::min(0.96f,val+0.06f));
+    // Fauna in earth tones — russet, tan, chestnut, dun — with the odd
+    // bright tropical/wetland showoff (kingfishers exist). Alien fauna
+    // keeps the free wheel.
+    uint32_t hb = h ^ 0xCAFEBABEu;
+    bool showoff = (w.biome==TROPICAL || w.biome==WETLAND) && ((h>>26)&7u) == 0;
+    if (w.biome==ALIEN) {
+      as.base = hsvFrom(hb, 0.75f, 0.85f);
+    } else if (showoff) {
+      as.base = hsvFrom(hb, 0.85f, 0.95f);  // 1-in-8: full-color plumage
+    } else {
+      as.base = hsvFromBand(hb, 18.0f, 48.0f,
+                            0.35f + 0.30f*u01(h>>19), 0.55f + 0.38f*u01(h>>11));
+    }
+    // Plumage highlights: rust, amber, moss, teal, jay-blue — iridescent
+    // bird/beetle colors, not random hues.
+    {
+      uint32_t ah = h ^ 0x1234567u;
+      static const float kPlumageHues[5] = {15.0f, 35.0f, 130.0f, 175.0f, 215.0f};
+      float hue = kPlumageHues[ah % 5u] + 8.0f * (u01(ah>>9) - 0.5f);
+      as.accent = hsvAt(hue/360.0f, 0.80f, 0.95f);
+    }
     w.fauna.push_back(as);
     gDynGlyph[ANIM_BASE + (unsigned char)i] = as.glyph;
   }
@@ -2330,10 +2390,13 @@ static RGB fgForChar(const World& w, char c, Season s, float sp, int tick, int x
     uint8_t rr=col.r, gg=col.g, bb=col.b;
     applySeasonTint(rr,gg,bb,s,drift);
     if (((hs>>20)&1023u) < (uint32_t)(ps.bloominess*1023.0f)) {
-      rr = (uint8_t)((rr + ps.accent.r)/2);
-      gg = (uint8_t)((gg + ps.accent.g)/2);
-      bb = (uint8_t)((bb + ps.accent.b)/2);
+      // Accent-dominant: a 50/50 average of green base and vivid bloom made
+      // every flower a greyish pastel — the "faded" look. Blooms should pop.
+      rr = (uint8_t)((rr + 3*ps.accent.r)/4);
+      gg = (uint8_t)((gg + 3*ps.accent.g)/4);
+      bb = (uint8_t)((bb + 3*ps.accent.b)/4);
     }
+    vividify(rr,gg,bb);  // species used to skip the vivid pass — pastel bug
     return RGB{rr,gg,bb};
   }
   if (U >= ANIM_BASE && U < ANIM_BASE + 48 && !w.fauna.empty()) {
@@ -2344,9 +2407,10 @@ static RGB fgForChar(const World& w, char c, Season s, float sp, int tick, int x
     uint8_t rr=col.r, gg=col.g, bb=col.b;
     applySeasonTint(rr,gg,bb,s,drift);
     if (((hs>>22)&1023u) < 180u) {
-      rr = (uint8_t)((rr + as.accent.r)/2);
-      gg = (uint8_t)((gg + as.accent.g)/2);
-      bb = (uint8_t)((bb + as.accent.b)/2);
+      // Accent-dominant plumage patch (see flora note — averages go muddy).
+      rr = (uint8_t)((rr + 3*as.accent.r)/4);
+      gg = (uint8_t)((gg + 3*as.accent.g)/4);
+      bb = (uint8_t)((bb + 3*as.accent.b)/4);
     }
     if (as.glow > 0.01f) {
       float pulse = 0.5f + 0.5f*std::sin(0.03f*(float)tick + (float)(x*17+y*11));
@@ -2354,6 +2418,7 @@ static RGB fgForChar(const World& w, char c, Season s, float sp, int tick, int x
       gg = (uint8_t)std::min(255, (int)gg + (int)(as.glow*55.0f*pulse));
       bb = (uint8_t)std::min(255, (int)bb + (int)(as.glow*65.0f*pulse));
     }
+    vividify(rr,gg,bb);  // species used to skip the vivid pass — pastel bug
     return RGB{rr,gg,bb};
   }
 
@@ -2442,8 +2507,8 @@ fg = { clampU8(r), clampU8(g), clampU8(b) };
   else if (c==':') { // moss terrain
     fg = jitter(pick({ {54,160,100},{44,140,90},{64,178,110} }), 5);
   }
-  else if (c=='m') { // mushrooms
-    fg = jitter(pick({ {230,210,190},{210,180,220},{255,150,180},{200,245,255},{255,240,170} }), 4);
+  else if (c=='m') { // mushrooms — forest-floor caps, not candy buttons
+    fg = jitter(pick({ {230,210,185},{195,160,120},{205,70,55},{235,225,205},{225,190,130} }), 4);
   }
   else if (c=='d') { // mud/dirt
     fg = jitter(pick({ {128,90,62},{110,74,52},{150,110,80} }), 4);
@@ -2463,10 +2528,12 @@ fg = { clampU8(r), clampU8(g), clampU8(b) };
     fg = jitter(pick({ {60,190,120},{46,170,110},{70,210,140} }), 5);
   }
   else if (c=='f' || c=='+' || c=='&' || c=='!') { // flowers
+    // Wildflower tones, not bubblegum: the old baby pinks read as candy on
+    // the black bg. Reds are poppy/hibiscus, purples are orchid/thistle.
     if (w.biome==TROPICAL) {
-      fg = jitter(pick({ {255,80,120},{255,140,60},{255,220,60},{140,220,255},{190,120,255} }), 7);
+      fg = jitter(pick({ {235,60,50},{255,140,40},{255,215,40},{90,200,255},{175,95,235} }), 7);
     } else {
-      fg = jitter(pick({ {255,160,190},{255,220,120},{200,170,255},{160,220,255},{255,190,140},{255,120,150},{245,245,245},{210,255,160} }), 6);
+      fg = jitter(pick({ {225,70,55},{255,215,90},{175,120,235},{120,190,250},{255,165,70},{190,80,170},{248,246,238},{195,235,120} }), 6);
     }
     if (c=='+') { fg.r = clampU8((int)fg.r + 12); fg.g = clampU8((int)fg.g + 8); }
     if (c=='&') { fg.b = clampU8((int)fg.b + 14); }
@@ -2637,7 +2704,9 @@ const uint8_t FLOW1[8] = {0x00,0x10,0x38,0x10,0xEE,0x10,0x00,0x00};
 const uint8_t FLOW2[8] = {0x00,0x28,0x10,0x7C,0x10,0x28,0x00,0x00};
 const uint8_t TREE1[8] = {0x10,0x38,0x7C,0x38,0x10,0x10,0x10,0x00};
 const uint8_t TREE2[8] = {0x38,0x7C,0xFE,0x7C,0x38,0x10,0x10,0x00};
-const uint8_t BIGF[8] = {0x00,0x6C,0xFE,0x7C,0x38,0x10,0x00,0x00};
+// Round rosette with a petal notch + stem — the old two-lobes-to-a-point
+// bitmap read as a heart, which in pink turned the meadow Lisa Frank.
+const uint8_t BIGF[8] = {0x38,0x7C,0xEE,0xFE,0x7C,0x38,0x10,0x00};
 const uint8_t MUSH[8] = {0x00,0x7C,0xFE,0x7C,0x10,0x38,0x00,0x00};
 const uint8_t REED[8] = {0x10,0x10,0x10,0x54,0x54,0x10,0x10,0x00};
 const uint8_t LILY[8] = {0x00,0x38,0x44,0xBA,0x44,0x38,0x00,0x00};

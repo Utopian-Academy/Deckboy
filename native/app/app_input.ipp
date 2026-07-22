@@ -139,7 +139,7 @@
       Deck& d = focusedDeckMutable();
       d.shuffle = !d.shuffle;
       triggerToast(d.shuffle ? "shuffle on" : "shuffle off");
-      playUiSound(UiSoundEffect::Toggle);
+      playUiSound(d.shuffle ? UiSoundEffect::Shuffle : UiSoundEffect::Toggle);
       markProjectDirty();
       return;
     }

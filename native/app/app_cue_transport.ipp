@@ -359,6 +359,7 @@
     // Flag it, tell the operator, keep whatever is on the output.
     if (!cueMediaAvailableForTake(deck.cues[deck.selectedIndex])) {
       triggerToast("MEDIA MISSING: " + deck.cues[deck.selectedIndex].name + " — take blocked");
+      playUiSound(UiSoundEffect::Error);
       return;
     }
     const Cue& cue = deck.cues[deck.selectedIndex];

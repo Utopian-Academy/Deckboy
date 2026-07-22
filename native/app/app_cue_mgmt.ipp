@@ -33,7 +33,7 @@
     Deck& deck = focusedDeckMutable();
     deck.shuffle = !deck.shuffle;
     triggerToast(deck.shuffle ? "shuffle on" : "shuffle off");
-    playUiSound(UiSoundEffect::Toggle);
+    playUiSound(deck.shuffle ? UiSoundEffect::Shuffle : UiSoundEffect::Toggle);
     markProjectDirty();
   }
 
@@ -901,13 +901,10 @@
     if (!rebuildOutputRuntimes()) {
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
     }
-    int missing = scanProjectMediaPresence();
-    if (missing > 0) {
-      triggerToast("playlist: " + currentProjectLabel() + " - "
-                   + std::to_string(missing) + " media missing (RELINK)");
-    } else {
-      triggerToast("playlist: " + currentProjectLabel());
-    }
+    triggerToast("playlist: " + currentProjectLabel());
+    // Presence scan runs async (seconds of frozen UI on big USB playlists);
+    // the RELINK toast follows when it lands.
+    startMediaPresenceScanAsync(true);
     queueAudioMetadataRepairProbes();
   }
 
