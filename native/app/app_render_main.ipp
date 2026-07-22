@@ -208,6 +208,8 @@
     cueSettingsViewportRect_ = SDL_Rect {};
     cuePatternTypeDropdownRect_ = SDL_Rect {};
     cueTransitionStyleDropdownRect_ = SDL_Rect {};
+    cueSourceTypeDropdownRect_ = SDL_Rect {};
+    cueWindowSourceDropdownRect_ = SDL_Rect {};
 
     auto cueSummaryLabel = [&](const Cue* cue, int cueIndex, const std::string& fallback) {
       if (!cue || cueIndex < 0) {
@@ -1737,6 +1739,81 @@
       return rowY + ix.rowStep;
     };
 
+    // Shared AUDIO section: enable, gain trim, pan, mono, outs pair, independent
+    // a-fades, R128 normalize. Used by the Video and Audio cue branches.
+    // Returns the Y after the section body (or the collapsed header).
+    auto drawCueAudioSection = [&](int secY) {
+      auto audioSection = inspBeginSection(ix, secY, "AUDIO", cueSectionAudioOpen_,
+                                                QuickAction::CueSectionAudioToggle,
+                                                "Per-cue audio: enable, trim, pan, mono, fades, normalize");
+      int ay = audioSection.bodyStartY;
+      if (cueSectionAudioOpen_) {
+        if (!selectedCue->hasAudio) {
+          ay = drawInspectorMessageRow(ay, "no audio track", pal.light, pal.deep);
+        } else {
+          drawQuickRow(ay, "audio", QuickAction::ToggleCueAudio,
+                       selectedCue->audioEnabled ? "on" : "off",
+                       QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                       selectedCue->audioEnabled, "Toggle cue audio track for this cue");
+          ay += kInspectorRowStep;
+          char gainBuf[24];
+          std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
+          drawQuickRow(ay, "gain", QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
+                       QuickAction::ToggleLoop, false, false,
+                       "Per-cue audio trim: -24 to +12 dB, applied live");
+          ay += kInspectorRowStep;
+          std::string panLabel = "center";
+          if (selectedCue->audioPan < -0.024f) {
+            panLabel = "L " + std::to_string(static_cast<int>(std::lround(-selectedCue->audioPan * 100.0f)));
+          } else if (selectedCue->audioPan > 0.024f) {
+            panLabel = "R " + std::to_string(static_cast<int>(std::lround(selectedCue->audioPan * 100.0f)));
+          }
+          drawQuickRow(ay, "pan", QuickAction::AudioPanDec, panLabel, QuickAction::AudioPanInc,
+                       QuickAction::ToggleLoop, false, false,
+                       "Stereo balance, applied live (snaps to center)");
+          ay += kInspectorRowStep;
+          drawQuickRow(ay, "mono", QuickAction::ToggleCueMono,
+                       selectedCue->audioMono ? "on" : "off",
+                       QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
+                       selectedCue->audioMono, "Downmix this cue to mono (mono sources / mono PA)");
+          ay += kInspectorRowStep;
+          if (focusedDeck().audioOutputChannels > 2) {
+            std::string outsLabel = std::to_string(selectedCue->audioOutputPair * 2 + 1)
+              + "-" + std::to_string(selectedCue->audioOutputPair * 2 + 2);
+            drawQuickRow(ay, "outs", QuickAction::AudioOutPairDec, outsLabel,
+                         QuickAction::AudioOutPairInc, QuickAction::ToggleLoop, false, false,
+                         "Device output pair this cue's audio plays on");
+            ay += kInspectorRowStep;
+          }
+          auto audioFadeLabel = [](float v) {
+            return v < 0.0f ? std::string("follow")
+                 : (v <= 0.001f ? std::string("none") : fmtFloat(v, 2) + "s");
+          };
+          drawQuickRow(ay, "a-fade in", QuickAction::AudioFadeInDec,
+                       audioFadeLabel(selectedCue->audioFadeInSeconds), QuickAction::AudioFadeInInc,
+                       QuickAction::ToggleLoop, false, false,
+                       "Audio fade-in: follow visual fade, none, or explicit seconds");
+          ay += kInspectorRowStep;
+          drawQuickRow(ay, "a-fade out", QuickAction::AudioFadeOutDec,
+                       audioFadeLabel(selectedCue->audioFadeOutSeconds), QuickAction::AudioFadeOutInc,
+                       QuickAction::ToggleLoop, false, false,
+                       "Audio fade-out: follow visual fade, none, or explicit seconds");
+          ay += kInspectorRowStep;
+          if (cueUsesFilesystemMedia(*selectedCue)) {
+            SDL_Rect normBtn {ctrl.x + 10, ay, kCtrlW - 20, 26};
+            Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
+                                 "normalize loudness (R128)", pal.light);
+            quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
+                                     "Measure loudness and set gain for -16 LUFS playback"});
+            ay += kInspectorRowStep;
+          }
+        }
+      }
+      inspFinishSection(audioSection, ay);
+      return cueSectionAudioOpen_ ? ay : audioSection.bodyStartY;
+    };
+
     auto formatCueStorage = [](std::uintmax_t bytes) {
       if (bytes == 0) {
         return std::string("unknown");
@@ -1835,6 +1912,7 @@
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
     cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
+    inspectorSectionBottomMax_ = settingsContentTopY - cueSettingsScroll_;
     SDL_SetRenderClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 
@@ -2116,7 +2194,7 @@
 
         SDL_Rect gotoBox {ctrl.x + 10, ry, kCtrlW - 80, 26};
         SDL_Rect gotoEdit {ctrl.x + kCtrlW - 64, ry, 54, 26};
-        std::string gotoDisplay = stringMixedLabel([&](const Cue& cue) { return cue.gotoTarget; }, "(next)");
+        std::string gotoDisplay = stringMixedLabel([&](const Cue& cue) { return cue.gotoTarget; }, "(next cue)");
         Primitives::drawFramedPanel(controlRenderer_, gotoBox, pal.light,
                                     pal.deep, pal.mid);
         drawTextSafe(controlRenderer_, fontSmall_,
@@ -2318,79 +2396,10 @@
                      "Load the cue and hold first frame when taken");
         rowCursor += 1;
 
-        // AUDIO is its own collapsible section: enable, trim, pan, mono,
-        // independent audio fades, loudness normalize.
+        // AUDIO is its own collapsible section (shared drawCueAudioSection).
         {
           int audioSecY = ry + kRowStep * rowCursor;
-          auto audioSection = beginInspectorSection(audioSecY, "AUDIO", cueSectionAudioOpen_,
-                                                    QuickAction::CueSectionAudioToggle,
-                                                    "Per-cue audio: enable, trim, pan, mono, fades, normalize");
-          int ay = audioSection.bodyStartY;
-          if (cueSectionAudioOpen_) {
-            if (!selectedCue->hasAudio) {
-              ay = drawInspectorMessageRow(ay, "no audio track", pal.light, pal.deep);
-            } else {
-              drawQuickRow(ay, "audio", QuickAction::ToggleCueAudio,
-                           selectedCue->audioEnabled ? "on" : "off",
-                           QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
-                           selectedCue->audioEnabled, "Toggle cue audio track for this cue");
-              ay += kRowStep;
-              char gainBuf[24];
-              std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
-              drawQuickRow(ay, "gain", QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
-                           QuickAction::ToggleLoop, false, false,
-                           "Per-cue audio trim: -24 to +12 dB, applied live");
-              ay += kRowStep;
-              std::string panLabel = "center";
-              if (selectedCue->audioPan < -0.024f) {
-                panLabel = "L " + std::to_string(static_cast<int>(std::lround(-selectedCue->audioPan * 100.0f)));
-              } else if (selectedCue->audioPan > 0.024f) {
-                panLabel = "R " + std::to_string(static_cast<int>(std::lround(selectedCue->audioPan * 100.0f)));
-              }
-              drawQuickRow(ay, "pan", QuickAction::AudioPanDec, panLabel, QuickAction::AudioPanInc,
-                           QuickAction::ToggleLoop, false, false,
-                           "Stereo balance, applied live (snaps to center)");
-              ay += kRowStep;
-              drawQuickRow(ay, "mono", QuickAction::ToggleCueMono,
-                           selectedCue->audioMono ? "on" : "off",
-                           QuickAction::ToggleCueMono, QuickAction::ToggleCueMono, true,
-                           selectedCue->audioMono, "Downmix this cue to mono (mono sources / mono PA)");
-              ay += kRowStep;
-              if (focusedDeck().audioOutputChannels > 2) {
-                std::string outsLabel = std::to_string(selectedCue->audioOutputPair * 2 + 1)
-                  + "-" + std::to_string(selectedCue->audioOutputPair * 2 + 2);
-                drawQuickRow(ay, "outs", QuickAction::AudioOutPairDec, outsLabel,
-                             QuickAction::AudioOutPairInc, QuickAction::ToggleLoop, false, false,
-                             "Device output pair this cue's audio plays on");
-                ay += kRowStep;
-              }
-              auto audioFadeLabel = [](float v) {
-                return v < 0.0f ? std::string("follow")
-                     : (v <= 0.001f ? std::string("none") : fmtFloat(v, 2) + "s");
-              };
-              drawQuickRow(ay, "a-fade in", QuickAction::AudioFadeInDec,
-                           audioFadeLabel(selectedCue->audioFadeInSeconds), QuickAction::AudioFadeInInc,
-                           QuickAction::ToggleLoop, false, false,
-                           "Audio fade-in: follow visual fade, none, or explicit seconds");
-              ay += kRowStep;
-              drawQuickRow(ay, "a-fade out", QuickAction::AudioFadeOutDec,
-                           audioFadeLabel(selectedCue->audioFadeOutSeconds), QuickAction::AudioFadeOutInc,
-                           QuickAction::ToggleLoop, false, false,
-                           "Audio fade-out: follow visual fade, none, or explicit seconds");
-              ay += kRowStep;
-              if (cueUsesFilesystemMedia(*selectedCue)) {
-                SDL_Rect normBtn {ctrl.x + 10, ay, kCtrlW - 20, 26};
-                Primitives::drawFramedPanel(controlRenderer_, normBtn, pal.dark, pal.deep, pal.mid);
-                drawCenteredTextSafe(controlRenderer_, fontSmall_, normBtn,
-                                     "normalize loudness (R128)", pal.light);
-                quickButtons_.push_back({normBtn, QuickAction::NormalizeCueAudio,
-                                         "Measure loudness and set gain for -16 LUFS playback"});
-                ay += kRowStep;
-              }
-            }
-          }
-          finishInspectorSection(audioSection, ay);
-          int audioSecEnd = (cueSectionAudioOpen_ ? ay : audioSection.bodyStartY) + 6;
+          int audioSecEnd = drawCueAudioSection(audioSecY) + 6;
           rowCursor += std::max(1, (audioSecEnd - audioSecY + kRowStep - 1) / kRowStep);
         }
 
@@ -3005,8 +3014,11 @@
       }
       finishInspectorSection(playbackSection, playbackY);
 
-      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + kInspectorSectionGap)
+      int audioSecStartY = cueSectionPlaybackOpen_ ? (playbackY + kInspectorSectionGap)
                                                    : (playbackSection.bodyStartY + kInspectorSectionGap);
+      int audioSecEndY = drawCueAudioSection(audioSecStartY);
+
+      int metadataStartY = audioSecEndY + kInspectorSectionGap;
       auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
                                                    QuickAction::CueSectionMetadataToggle,
                                                    "Audio cue metadata and pause point controls");
@@ -3027,21 +3039,233 @@
       }
       finishInspectorSection(metadataSection, metadataY);
 
+    } else if (selectedCue && selectedCue->kind == CueKind::Pip) {
+      // PIP overlay cue (ported from the retired renderCueInspectorPanel —
+      // the preset/source actions were still wired in app_quick_action.ipp).
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Picture-in-picture overlay controls");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        auto drawPipPresetButtonsRow = [&](int rowY,
+                                           const std::string& label,
+                                           const std::vector<std::pair<std::string, QuickAction>>& presets,
+                                           const std::string& tip) {
+          constexpr int kLabelW = 64;
+          constexpr int kGap = 6;
+          SDL_Rect labelRect {ctrl.x + 10, rowY, kLabelW, kInspectorRowH};
+          drawTextSafe(controlRenderer_, fontSmall_, labelRect, label, pal.inkSoft);
+          int buttonsX = labelRect.x + labelRect.w + kGap;
+          int buttonsW = std::max(80, (kCtrlW - 20) - kLabelW - kGap);
+          int btnW = std::max(38, (buttonsW - kGap * static_cast<int>(presets.size() - 1)) /
+                                    std::max(1, static_cast<int>(presets.size())));
+          for (size_t presetIndex = 0; presetIndex < presets.size(); ++presetIndex) {
+            SDL_Rect btn {
+              buttonsX + static_cast<int>(presetIndex) * (btnW + kGap),
+              rowY,
+              btnW,
+              kInspectorRowH
+            };
+            drawUIPanel(btn, pal.light, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, btn, presets[presetIndex].first, pal.deep);
+            quickButtons_.push_back({btn, presets[presetIndex].second, tip});
+          }
+          return rowY + kInspectorRowStep;
+        };
+
+        std::string sourceType = pipSourceTypeTokenFromCue(*selectedCue);
+        bool legacyMode = sourceType == "legacy";
+        Cue resolvedPipCue;
+        bool sourceReady = buildResolvedPipSourceCue(deck, *selectedCue, resolvedPipCue, nullptr);
+        playbackY = drawInspectorMessageRow(playbackY, "PIP overlay cue", pal.mid, pal.deep);
+        SDL_Rect sourceTypeLabelRect {ctrl.x + 10, playbackY, 72, kInspectorRowH};
+        SDL_Rect sourceTypeBtn {sourceTypeLabelRect.x + sourceTypeLabelRect.w + 8, playbackY,
+                                kCtrlW - 20 - sourceTypeLabelRect.w - 8, kInspectorRowH};
+        drawTextSafe(controlRenderer_, fontSmall_, sourceTypeLabelRect, "type", pal.inkSoft);
+        drawUIPanel(sourceTypeBtn, pal.light, pal.deep, pal.mid);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {sourceTypeBtn.x + 6, sourceTypeBtn.y, sourceTypeBtn.w - 18, sourceTypeBtn.h},
+                     ellipsizeToPixelWidth(fontSmall_, pipSourceTypeLabel(sourceType), sourceTypeBtn.w - 18),
+                     pal.deep);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {sourceTypeBtn.x + sourceTypeBtn.w - 14, sourceTypeBtn.y, 14, sourceTypeBtn.h},
+                             "v", pal.deep);
+        cueSourceTypeDropdownRect_ = sourceTypeBtn;
+        playbackY += kInspectorRowStep;
+        std::string sourceLabel = legacyMode
+          ? "target"
+          : (sourceType == "browser" ? "url"
+             : (pipSourceTypeUsesSourceRef(sourceType) ? "source" : "media"));
+        QuickAction sourceAction = legacyMode ? QuickAction::EditPipTarget : QuickAction::EditPipSourcePath;
+        playbackY = drawInspectorEditableRow(
+          playbackY,
+          sourceLabel,
+          pipSourceDisplayLabel(*selectedCue),
+          sourceAction,
+          legacyMode
+            ? "Choose the legacy cue token to show inside the PIP window"
+            : "Set the self-contained PIP source for this overlay",
+          sourceReady ? pal.deep : SDL_Color {140, 40, 20, 255});
+        playbackY = drawInspectorStatusRow(playbackY, "state",
+                                           sourceReady ? "ready" : "source missing",
+                                           !sourceReady);
+        if (legacyMode) {
+          playbackY = drawInspectorMessageRow(playbackY, "Legacy target mode — switch type to convert",
+                                              pal.light, pal.dark);
+        }
+        playbackY = drawPipPresetButtonsRow(playbackY, "corner",
+                                            {
+                                              {"TL", QuickAction::PipPresetCornerTL},
+                                              {"TR", QuickAction::PipPresetCornerTR},
+                                              {"BL", QuickAction::PipPresetCornerBL},
+                                              {"BR", QuickAction::PipPresetCornerBR},
+                                            },
+                                            "Snap the PIP window to a corner");
+        playbackY = drawPipPresetButtonsRow(playbackY, "size",
+                                            {
+                                              {"SM", QuickAction::PipPresetSmall},
+                                              {"BIG", QuickAction::PipPresetBig},
+                                              {"70/30", QuickAction::PipPreset7030},
+                                            },
+                                            "Apply a common PIP size preset");
+        playbackY = drawInspectorMessageRow(playbackY, "Use GEOMETRY for exact placement",
+                                            pal.light, pal.dark);
+        playbackY = drawInspectorActionRow(playbackY, "CLEAR OVERLAY  [Backspace]",
+                                           QuickAction::ClearOverlay,
+                                           "Clear the live PIP overlay now");
+      }
+      finishInspectorSection(playbackSection, playbackY);
+
+      int geometryStartY = cueSectionPlaybackOpen_ ? (playbackY + kInspectorSectionGap)
+                                                   : (playbackSection.bodyStartY + kInspectorSectionGap);
+      auto geometrySection = beginInspectorSection(geometryStartY, "GEOMETRY", cueSectionGeometryOpen_,
+                                                   QuickAction::CueSectionGeometryToggle,
+                                                   "PIP size, placement, and color controls");
+      int geometryY = geometrySection.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        geometryY = drawGeometryRows(geometryY, *selectedCue, true);
+        geometryY = drawColorRows(geometryY, *selectedCue);
+      }
+      finishInspectorSection(geometrySection, geometryY);
+
+      auto keySection = beginInspectorSection(geometryY + kInspectorSectionGap, "KEY", cueSectionKeyOpen_,
+                                              QuickAction::CueSectionKeyToggle,
+                                              "PIP chroma key controls");
+      int keyY = keySection.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        keyY = drawKeyRows(keyY, *selectedCue);
+      }
+      finishInspectorSection(keySection, keyY);
+
+      int metadataStartY = keyY + kInspectorSectionGap;
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Cue notes and tags");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+      }
+      finishInspectorSection(metadataSection, metadataY);
+
+    } else if (selectedCue && (selectedCue->kind == CueKind::SrtStream
+                               || selectedCue->kind == CueKind::NdiSource)) {
+      // Live input cues (SRT/RTMP/RTSP/UDP streams and NDI receive) previously
+      // fell through to "no per-cue settings for this type".
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      constexpr int kRowStep = kInspectorRowStep;
+      bool isNdi = selectedCue->kind == CueKind::NdiSource;
+      auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
+                                                   QuickAction::CueSectionPlaybackToggle,
+                                                   "Live input playback settings");
+      int playbackY = playbackSection.bodyStartY;
+      if (cueSectionPlaybackOpen_) {
+        playbackY = drawInspectorMessageRow(playbackY, isNdi ? "NDI source cue" : "Live stream cue",
+                                            pal.mid, pal.deep);
+        drawQuickRow(playbackY, "fade in", QuickAction::FadeInDec, formatSeconds(selectedCue->fadeInSeconds),
+                     QuickAction::FadeInInc, QuickAction::ToggleLoop, false, false, "Fade-in duration for this cue");
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
+                     QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration for this cue");
+        playbackY += kRowStep;
+        bool hasCueTrans = selectedCue->cueTransitionSeconds >= 0.0;
+        std::string tranVal = hasCueTrans ? formatSeconds(selectedCue->cueTransitionSeconds) : "deck";
+        drawQuickRow(playbackY, "transition", QuickAction::TransDec, tranVal, QuickAction::TransInc,
+                     QuickAction::ToggleLoop, false, false, "Per-cue transition duration override");
+        playbackY += kRowStep;
+        // Transition style (own row)
+        {
+          SDL_Rect styleBtn {ctrl.x + 10, playbackY, kCtrlW - 20, kInspectorRowH};
+          std::string curStyle = selectedCue->cueTransitionStyle.empty()
+            ? focusedDeck().transitionStyle : selectedCue->cueTransitionStyle;
+          SDL_Color styleFill = hasCueTrans ? pal.dark : pal.light;
+          SDL_Color styleInk = hasCueTrans ? pal.light : pal.deep;
+          drawUIPanel(styleBtn, styleFill, pal.deep, pal.mid);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {styleBtn.x + 6, styleBtn.y, styleBtn.w - 18, styleBtn.h},
+                       fitInspectorText(fontSmall_,
+                                        "style: " + transitionStyleLabel(curStyle),
+                                        styleBtn.w - 22),
+                       styleInk);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                               SDL_Rect {styleBtn.x + styleBtn.w - 14, styleBtn.y, 14, styleBtn.h},
+                               "\xe2\x96\xbc", styleInk);
+          cueTransitionStyleDropdownRect_ = styleBtn;
+        }
+        playbackY += kRowStep;
+        drawQuickRow(playbackY, "audio", QuickAction::ToggleCueAudio,
+                     selectedCue->audioEnabled ? "on" : "off",
+                     QuickAction::ToggleCueAudio, QuickAction::ToggleCueAudio, true,
+                     selectedCue->audioEnabled, "Toggle the live input's audio");
+        playbackY += kRowStep;
+      }
+      finishInspectorSection(playbackSection, playbackY);
+
+      int metadataStartY = cueSectionPlaybackOpen_ ? (playbackY + kInspectorSectionGap)
+                                                   : (playbackSection.bodyStartY + kInspectorSectionGap);
+      auto metadataSection = beginInspectorSection(metadataStartY, "METADATA", cueSectionMetadataOpen_,
+                                                   QuickAction::CueSectionMetadataToggle,
+                                                   "Live input source and cue metadata");
+      int metadataY = metadataSection.bodyStartY;
+      if (cueSectionMetadataOpen_) {
+        std::string sourceDisplay = selectedCue->path;
+        if (isNdi && sourceDisplay.rfind("ndi://", 0) == 0) {
+          sourceDisplay = sourceDisplay.substr(6);
+        }
+        if (sourceDisplay.empty()) {
+          sourceDisplay = "(unset)";
+        }
+        metadataY = drawInspectorEditableRow(metadataY, isNdi ? "source" : "url",
+                                             sourceDisplay,
+                                             QuickAction::EditBrowserUrl,
+                                             isNdi ? "Set the NDI source name to receive"
+                                                   : "Set the stream URL (srt://, rtmp://, rtsp://, udp://)");
+        metadataY = drawCueTechnicalRows(metadataY, *selectedCue);
+        metadataY = drawCueTagRow(metadataY, *selectedCue, "K — cycle cue color tag");
+        metadataY = drawInspectorEditableRow(metadataY, "notes",
+                                             selectedCue->notes.empty() ? "(no notes)" : selectedCue->notes,
+                                             QuickAction::EditNotes,
+                                             "Click to edit cue notes",
+                                             colorFromRgba(selectedCue->notes.empty() ? kScreenInkSoftColor : kScreenDeepColor));
+        metadataY = drawInspectorEditableRow(metadataY, "cue id",
+                                             cueDisplayToken(*selectedCue, focusedDeck().selectedIndex),
+                                             QuickAction::EditCueNumber,
+                                             "Set short cue label for search/goto");
+      }
+      finishInspectorSection(metadataSection, metadataY);
+
     } else if (!selectedCue) {
-      // Line rects derived from the live font — the old literal 16/24px
-      // heights clipped descenders once scaled/HiDPI faces loaded taller.
-      int lineH = textLineHeight(fontSmall_);
-      int lineGap = 6;
-      SDL_Rect emptyRect {ctrl.x + kInspectorInset, ctrlSettingsY + 18,
-                          kCtrlW - kInspectorInset * 2, lineH * 2 + lineGap + 28};
-      drawUIPanel(emptyRect, pal.light, pal.deep, pal.mid);
-      int line1Y = emptyRect.y + 14;
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect {emptyRect.x + 8, line1Y, emptyRect.w - 16, lineH},
-                           "NO CUE SELECTED", pal.deep);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                           SDL_Rect {emptyRect.x + 8, line1Y + lineH + lineGap, emptyRect.w - 16, lineH},
-                           "Select or import a cue to edit it here", pal.dark);
+      // The "SELECTED CUE" summary panel above already renders the
+      // NO CUE SELECTED empty state — nothing further to draw here.
     } else {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, textLineHeight(fontSmall_)},
@@ -3056,6 +3280,10 @@
         settingsContentLogicalBottom,
         quickButtons_[i].rect.y + quickButtons_[i].rect.h + cueSettingsScroll_);
     }
+    // Sections can end with non-interactive rows (status/message) that push no
+    // quickButtons_ — fold in the deepest section bottom so they stay reachable.
+    settingsContentLogicalBottom = std::max(
+      settingsContentLogicalBottom, inspectorSectionBottomMax_ + cueSettingsScroll_);
     int viewportBottom = cueSettingsViewportRect_.y + cueSettingsViewportRect_.h;
     cueSettingsScrollMax_ = std::max(0, settingsContentLogicalBottom - viewportBottom + 6);
     cueSettingsScroll_ = std::clamp(cueSettingsScroll_, 0, cueSettingsScrollMax_);

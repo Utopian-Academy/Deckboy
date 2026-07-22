@@ -382,6 +382,8 @@
         vuSamples_.clear();
       }
     }
+    // Fold in async media-presence scan results (boot / project open).
+    pollMediaPresenceScan();
     // Trigger waveform analysis for selected/active cue. Only file-backed
     // kinds: live sources (camera/window/NDI/SRT) have no finite waveform to
     // analyze — ffmpeg either hangs or fails on their pseudo-paths — and

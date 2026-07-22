@@ -3602,6 +3602,22 @@ std::optional<fs::path> resolveCueFilesystemPath(const Cue& cue, const fs::path&
   if (raw.empty() || pathLooksLikeUri(raw)) {
     return std::nullopt;
   }
+  // weakly_canonical stats every path component, and the update tick resolves
+  // the selected/active cues' paths every frame — against show media that
+  // often lives on slow USB drives already saturated by the decoder. Memoize
+  // per (raw path, project file): the result only depends on those inputs,
+  // and a RELINK rewrites cue.path itself, which lands on a different key.
+  // Shared with the engines' path-resolver callbacks, hence the mutex.
+  static std::mutex cacheMutex;
+  static std::unordered_map<std::string, fs::path> cache;
+  std::string cacheKey = raw + '\n' + projectFile.string();
+  {
+    std::lock_guard<std::mutex> lock(cacheMutex);
+    auto it = cache.find(cacheKey);
+    if (it != cache.end()) {
+      return it->second;
+    }
+  }
   fs::path path(raw);
   if (!path.is_absolute()) {
     std::error_code cwdEc;
@@ -3614,15 +3630,21 @@ std::optional<fs::path> resolveCueFilesystemPath(const Cue& cue, const fs::path&
     path = base / path;
   }
   std::error_code ec;
-  fs::path canonical = fs::weakly_canonical(path, ec);
-  if (!ec && !canonical.empty()) {
-    return canonical;
+  fs::path resolved = fs::weakly_canonical(path, ec);
+  if (ec || resolved.empty()) {
+    resolved = fs::absolute(path, ec);
+    if (ec || resolved.empty()) {
+      resolved = path;
+    }
   }
-  fs::path absolute = fs::absolute(path, ec);
-  if (!ec && !absolute.empty()) {
-    return absolute;
+  {
+    std::lock_guard<std::mutex> lock(cacheMutex);
+    if (cache.size() > 8192) {  // bound: big shows are ~1.5k cues
+      cache.clear();
+    }
+    cache.emplace(std::move(cacheKey), resolved);
   }
-  return path;
+  return resolved;
 }
 
 std::string resolvedCueFilesystemPathString(const Cue& cue, const fs::path& projectFile) {
@@ -3926,7 +3948,9 @@ class App {
     currentProjectFile_ = startupProjectFile();
     project_ = loadProject(currentProjectFile_);
     normalizeProject(project_);
-    scanProjectMediaPresence();
+    // Presence scan runs async — a big playlist on a USB drive used to hold
+    // the first frame hostage for seconds of black window before the splash.
+    startMediaPresenceScanAsync(true);
     // Project may override the boot-time splash character (deckbot default).
     refreshSplashAsset();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
@@ -3947,6 +3971,8 @@ class App {
     showSplashOverlay_ = true;
     splashStartedAt_ = SDL_GetTicks();
     ensureUiAudioDevice();
+    // Boot chiptune — rides the splash overlay; honors the bloops toggle.
+    playStartupJingle();
     previewMediaEngine_ = std::make_unique<MediaEngine>(
       controlRenderer_,
       nullptr,
@@ -3979,6 +4005,10 @@ class App {
   }
 
   void shutdown() {
+    mediaScanGeneration_.fetch_add(1);  // signal a running scan worker to bail
+    if (mediaScanThread_.joinable()) {
+      mediaScanThread_.join();
+    }
     stopIntegrationBridges();
     stopHyperDeckServer();
     stopMidiInput();
@@ -4695,6 +4725,10 @@ class App {
   void inspFinishSection(const InspectorSectionScope& section, int bodyBottom) {
     if (!section.open) return;
     int shellBottom = std::max(section.headerRect.y + section.headerRect.h, bodyBottom + 2);
+    // Track the deepest section bottom so the cue-settings scroll range covers
+    // trailing non-interactive rows (status/message rows push no quickButtons_,
+    // so the button-based scroll-max alone can leave them unreachable).
+    inspectorSectionBottomMax_ = std::max(inspectorSectionBottomMax_, shellBottom);
     SDL_Rect shell {
       section.headerRect.x,
       section.headerRect.y,
@@ -5564,6 +5598,9 @@ class App {
   TTF_Font* fontPixelTitle_ = nullptr;  // big pixel headline (startup prompt)
   TTF_Font* fontPixelSmall_ = nullptr;  // smaller pixel font for UI labels
   SDL_AudioStream* uiAudioStream_ = nullptr;
+  // While the boot jingle plays, ordinary bloops are dropped — queueing one
+  // would SDL_ClearAudioStream the jingle mid-phrase.
+  Uint64 uiJingleUntilMs_ = 0;
   fs::path currentProjectFile_;
   std::string currentThemeName_;
   Project project_;
@@ -5667,6 +5704,7 @@ class App {
   SDL_Rect cueWindowSourceDropdownRect_ {};
   SDL_Rect cuePatternTypeDropdownRect_ {};
   SDL_Rect cueTransitionStyleDropdownRect_ {};
+  int inspectorSectionBottomMax_ = 0;  // deepest open-section bottom this frame (scrolled space)
   std::string sourceDefaultTypeId_ = "window";
   std::string patternDefaultTypeId_ = "pocket-test";
 
@@ -5893,6 +5931,18 @@ class App {
   std::future<std::optional<fs::path>> pendingProjectSaveAs_;
   std::future<std::optional<fs::path>> pendingProjectBundleExport_;
   std::future<std::optional<fs::path>> pendingMediaRelink_;
+  // Async media-presence scan (boot / project open). The worker stats every
+  // file cue off-thread; results land on the update tick by cue id. The
+  // generation counter supersedes stale workers (they bail at their next
+  // check, so joining before a restart is bounded by ~one fs::exists).
+  std::thread mediaScanThread_;
+  std::atomic<std::uint64_t> mediaScanGeneration_ {0};
+  std::mutex mediaScanMutex_;
+  std::vector<std::pair<std::string, bool>> mediaScanResults_;  // cue id → missing
+  std::uint64_t mediaScanResultsGeneration_ = 0;
+  std::atomic<bool> mediaScanReady_ {false};
+  bool mediaScanAnnounce_ = false;
+
   // Count from the last scanProjectMediaPresence() — drives the toolbar
   // RELINK button (only visible when > 0).
   int missingMediaCount_ = 0;

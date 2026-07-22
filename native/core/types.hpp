@@ -771,7 +771,10 @@ enum class UiSoundEffect {
   Toggle,     // boolean toggled in inspector
   Stop,       // transport stopped
   Clear,      // cue cleared / output blacked out
-  Delete      // cue deleted from list
+  Delete,     // cue deleted from list
+  Error,      // action refused (missing media, blocked take)
+  Panic,      // panic — everything off
+  Shuffle     // shuffle mode toggled on
 };
 
 #endif
