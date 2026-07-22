@@ -338,6 +338,10 @@
     if (launched > 0) {
       triggerToast(launched == 1 ? "analyzing loudness..."
                                  : "analyzing loudness (" + std::to_string(launched) + " cues)...");
+    } else {
+      // Previously a silent no-op — the operator clicked NORMALIZE and
+      // nothing visibly happened.
+      triggerToast("normalize: selection has no file-backed audio");
     }
   }
 

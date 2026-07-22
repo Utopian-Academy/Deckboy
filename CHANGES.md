@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-22 — v0.80.2 (waveforms show gain, normalize feedback)
+
+### Audio
+- **Waveforms grow and shrink with gain.** Every waveform view (inspector
+  thumbnail, video-cue audio strip, timeline audio lane, active-cue mini
+  view, output-monitor overlay) now scales its drawn amplitude by the cue's
+  gain trim, live — nudging gain or landing an R128 normalize visibly
+  changes the transients, so you can *see* what normalize did instead of
+  taking the toast's word for it.
+- **Normalize never fails silently.** Clicking NORMALIZE on a selection with
+  no file-backed audio used to do nothing at all; it now toasts
+  "normalize: selection has no file-backed audio".
+
 ## 2026-07-18 — v0.80.1 (slow-drive UI lag fix, DMG sound pack)
 
 ### Performance

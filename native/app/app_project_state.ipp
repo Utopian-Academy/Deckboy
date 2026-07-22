@@ -1676,11 +1676,19 @@
     return {};
   }
 
+  // Linear amplitude scale for waveform display from the cue's gain trim, so
+  // gain edits and R128 normalize visibly grow/shrink the drawn transients.
+  float waveformGainScale(const Cue& cue) const {
+    return std::pow(10.0f, std::clamp(cue.audioGainDb, -24.0f, 12.0f) / 20.0f);
+  }
+
   // Draw a waveform bar graph into dest. playFrac/inFrac/outFrac in [0,1].
+  // gainScale multiplies drawn amplitudes (clamped at full scale).
   void drawWaveform(SDL_Renderer* ren, SDL_Rect dest, const WaveformPeaks& peaks,
                     bool splitChannels,
                     float playFrac, float inFrac, float outFrac,
-                    const std::vector<double>& pausePoints = {}, double duration = 0.0) {
+                    const std::vector<double>& pausePoints = {}, double duration = 0.0,
+                    float gainScale = 1.0f) {
     Primitives::fillRect(ren, dest, pal.deep);
     Primitives::strokeRect(ren, dest, pal.mid);
     if (peaks.empty()) {
@@ -1718,7 +1726,7 @@
       i1 = std::clamp(i1, i0, n - 1);
       float maxVal = 0.0f;
       for (int k = i0; k <= i1; ++k) maxVal = std::max(maxVal, channel[k]);
-      return maxVal;
+      return std::min(1.0f, maxVal * gainScale);
     };
 
     auto drawColumn = [&](int px, int topY, int baseY, float peak, bool upward, bool inRange) {
