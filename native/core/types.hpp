@@ -717,6 +717,8 @@ enum class QuickAction {
   TransportSkipBack,    // <<  skip back 10 seconds
   TransportPlayPause,   // play/pause toggle
   TransportSkipForward, // >>  skip forward 10 seconds
+  TransportSkipNext,    // >|  take the next cue now (".")
+  TransportSkipPrev,    // <|  take the previous cue now (",")
   TransportSkipEnd,     // >|  seek to end of cue
   // -- Trim reset ----------
   TrimReset,            // clear in/out points back to defaults

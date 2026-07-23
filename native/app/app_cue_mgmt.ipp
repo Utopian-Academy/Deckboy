@@ -2509,7 +2509,6 @@
     push("SOURCE",     pal.mid, "Add a source cue and refine it in the cue inspector");
     push("PATTERN",    pal.mid, "Add a pattern cue and refine it in the cue inspector");
     push("TAKE",       pal.light, "Enter — take selected cue live");
-    push("SKIP",       pal.mid, ". — skip to the next cue now");
     push("STOP",       pal.mid, "S — stop active cue");
     push("RERACK",     pal.mid, "R — rewind to start");
     push("CLEAR",      pal.mid, "C — fade output to black");
@@ -2525,14 +2524,11 @@
         x += bw + kLayoutButtonGap;
       }
     };
-    if (buttons_.size() == 9) {
+    if (buttons_.size() == 8) {
       placeGroupButtons(0, 3, mediaGroupRect_);
-      // Transport holds 4 buttons (TAKE/SKIP/STOP/RERACK) — shrink to fit.
-      int transportBtnW = std::clamp(
-        (transportGroupRect_.w - kLayoutSpacingUnit * 2 - kLayoutButtonGap * 3) / 4, 72, buttonW);
-      placeGroupButtons(3, 4, transportGroupRect_, transportBtnW);
+      placeGroupButtons(3, 3, transportGroupRect_);
       int outBtnW = std::min(buttonW + 40, (outputGroupRect_.w - kLayoutButtonGap * 3) / 2);
-      placeGroupButtons(7, 2, outputGroupRect_, outBtnW);
+      placeGroupButtons(6, 2, outputGroupRect_, outBtnW);
     }
   }
 

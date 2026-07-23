@@ -1151,6 +1151,9 @@
       case SDLK_PERIOD:
         skipToNextCue();
         break;
+      case SDLK_COMMA:
+        skipToPrevCue();
+        break;
       case SDLK_LEFTBRACKET:
         adjustSelectedFade(!shift, -0.25);
         break;
