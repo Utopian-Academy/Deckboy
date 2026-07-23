@@ -394,6 +394,12 @@
       selectRelative(1, false);
       return;
     }
+    if (command == "SKIP") {
+      // Take the natural next cue immediately (goto/shuffle/loop aware) —
+      // same as the SKIP transport button / "." key.
+      skipToNextCue();
+      return;
+    }
     if (command == "PREV" || command == "PREVIOUS") {
       selectRelative(-1, false);
       return;
