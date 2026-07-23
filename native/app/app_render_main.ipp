@@ -1333,6 +1333,7 @@
         quickButtons_.push_back({btn, action, tip});
         btnX += width + kTBtnGap;
       };
+      drawTCtrl("<|", 36, QuickAction::TransportSkipPrev, ", — skip to previous cue");
       drawTCtrl("|<", 36, QuickAction::TransportSkipStart, "Home — skip to start", &uiBtnRerack_);
       drawTCtrl("<<", 42, QuickAction::TransportSkipBack, "Left — skip back 10s");
       bool transportPlaying = false;
@@ -1345,6 +1346,7 @@
                 transportPlaying ? "Space — pause" : "Space — play",
                 transportPlaying ? &uiBtnPause_ : &uiBtnPlay_);
       drawTCtrl(">>", 42, QuickAction::TransportSkipForward, "Right — skip forward 10s");
+      drawTCtrl(">|", 36, QuickAction::TransportSkipNext, ". — skip to next cue");
       drawTCtrl("-30", 46, QuickAction::GotoMinus30, "-30 seconds from end");
       drawTCtrl("-20", 46, QuickAction::GotoMinus20, "-20 seconds from end");
       drawTCtrl("-10", 46, QuickAction::GotoMinus10, "-10 seconds from end");

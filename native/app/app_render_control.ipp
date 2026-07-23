@@ -1439,9 +1439,9 @@
     // ─── Bottom bar sparkle area ───
     // Ambient sparkles + state-indicating animations in the empty space
     // within the output group, after the 2 buttons
-    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 9) {
-      // Find the rightmost button in the output group (buttons_[8] = SETTINGS)
-      SDL_Rect lastOutBtn = buttons_[8].rect;
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 8) {
+      // Find the rightmost button in the output group (buttons_[7] = SETTINGS)
+      SDL_Rect lastOutBtn = buttons_[7].rect;
       int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
       int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
       if (sparkleAreaW < 40) {

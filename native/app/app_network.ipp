@@ -508,6 +508,14 @@
       companionTcpListen_ = kInvalidSocket;
       companionUdpSocket_ = kInvalidSocket;
       companionReady_ = false;
+      // Windows silently reserves shifting port ranges for Hyper-V/WinNAT
+      // (netsh int ipv4 show excludedportrange) — the bind fails with
+      // WSAEACCES while netstat shows the port free. Without this warning
+      // the operator's Companion/remote control just dies invisibly.
+      triggerToast("COMPANION PORT " + std::to_string(companionPort_) +
+                   " UNAVAILABLE - remote control offline (change port in settings)");
+      std::cerr << "companion-control: could not bind tcp/udp port " << companionPort_
+                << " (port in use or inside a Windows excluded port range)\n";
       return false;
     }
 
