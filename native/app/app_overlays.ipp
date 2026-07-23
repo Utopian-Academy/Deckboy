@@ -330,7 +330,7 @@
     static const ShortcutEntry shortcuts[] = {
       {"Enter",           "Take selected cue live"},
       {"Space",           "Play / Pause"},
-      {".",               "Skip to next cue"},
+      {". / ,",           "Skip to next / previous cue"},
       {"S",               "Stop active cue"},
       {"Ctrl+R",          "Rerack (rewind to start)"},
       {"Up / Down",       "Navigate cue list"},

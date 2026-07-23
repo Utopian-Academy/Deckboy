@@ -396,8 +396,13 @@
     }
     if (command == "SKIP") {
       // Take the natural next cue immediately (goto/shuffle/loop aware) —
-      // same as the SKIP transport button / "." key.
+      // same as the >| transport button / "." key.
       skipToNextCue();
+      return;
+    }
+    if (command == "SKIPBACK") {
+      // Take the previous playable cue — <| button / "," key.
+      skipToPrevCue();
       return;
     }
     if (command == "PREV" || command == "PREVIOUS") {
