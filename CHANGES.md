@@ -3,13 +3,14 @@
 ## 2026-07-22 — v0.80.2 (waveforms show gain, normalize feedback, SKIP button)
 
 ### Transport
-- **New SKIP button** in the transport group (TAKE · SKIP · STOP · RERACK)
-  with its own hotkey **`.`** and remote command **`SKIP`**. Takes the cue
-  the deck would naturally play next — honoring goto targets, shuffle,
-  playlist loop, and the missing-media walk — without waiting for the
-  current cue to end. End-of-cue auto-advance and SKIP now share one
-  resolver (`resolveAutoAdvanceIndex`), so manual skips and natural
-  advances can never disagree about what "next" means.
+- **New `>|` / `<|` skip buttons** in the timeline transport strip
+  (`<| |< << ▶ >> >|`), hotkeys **`.`** / **`,`**, remote commands
+  **`SKIP`** / **`SKIPBACK`**. `>|` takes the cue the deck would naturally
+  play next — honoring goto targets, shuffle, playlist loop, and the
+  missing-media walk — without waiting for the current cue to end
+  (end-of-cue auto-advance and skip share one resolver, so they can never
+  disagree about what "next" means). `<|` takes the previous playable cue
+  (deliberately ignores goto/shuffle — back means the cue above).
 
 ### Audio
 - **Waveforms grow and shrink with gain.** Every waveform view (inspector

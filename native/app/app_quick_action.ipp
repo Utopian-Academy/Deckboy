@@ -207,6 +207,12 @@
         if (eng && eng->duration() > 0.0) { eng->seek(eng->duration() - 0.1); triggerToast("end"); }
         break;
       }
+      case QuickAction::TransportSkipNext:
+        skipToNextCue();
+        break;
+      case QuickAction::TransportSkipPrev:
+        skipToPrevCue();
+        break;
       case QuickAction::TrimReset: {
         if (Cue* cue = activeCueMutable()) {
           cue->inPointSeconds = 0.0;

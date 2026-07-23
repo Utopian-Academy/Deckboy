@@ -44,8 +44,6 @@
       stopTransport();
     } else if (label == "CLEAR") {
       clearOutput();
-    } else if (label == "SKIP") {
-      skipToNextCue();
     } else if (label == "SETTINGS") {
       settingsOpen_ = true;
       settingsTab_ = 3;
@@ -135,6 +133,48 @@
     markProjectDirty();
     takeSelected(true, useTransition, false);
     triggerToast("skip: " + deck.cues[nextIndex].name);
+  }
+
+  // Manual SKIP BACK: take the previous playable cue (playlist-loop aware,
+  // walks past missing media). Deliberately ignores goto/shuffle — "back"
+  // means the cue physically above this one. "," key / <| button / remote
+  // SKIPBACK.
+  void skipToPrevCue() {
+    int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.cues.empty()) {
+      triggerToast("skip back: playlist is empty");
+      return;
+    }
+    int fromIndex = deck.activeIndex >= 0 ? deck.activeIndex : deck.selectedIndex;
+    int prevIndex = adjacentCueIndexForOverlayRole(deck, fromIndex, -1, false, deck.playlistLoop);
+    int hops = 0;
+    const int hopLimit = static_cast<int>(deck.cues.size());
+    while (prevIndex >= 0 && hops < hopLimit &&
+           !cueMediaAvailableForTake(deck.cues[prevIndex])) {
+      triggerToast("skipped missing: " + deck.cues[prevIndex].name);
+      int preceding = adjacentCueIndexForOverlayRole(deck, prevIndex, -1, false, deck.playlistLoop);
+      prevIndex = (preceding == prevIndex) ? -1 : preceding;
+      ++hops;
+    }
+    if (prevIndex < 0 || prevIndex >= static_cast<int>(deck.cues.size())) {
+      triggerToast("skip back: nothing previous");
+      return;
+    }
+    bool useTransition = false;
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+      useTransition = deck.cues[deck.activeIndex].transitionToNext;
+    }
+    if (deck.selectedIndex != prevIndex) {
+      deck.selectedIndex = prevIndex;
+      onSelectionChanged();
+    }
+    markProjectDirty();
+    takeSelected(true, useTransition, false);
+    triggerToast("skip back: " + deck.cues[prevIndex].name);
   }
 
   std::string transportStatusLabel(int deckIndex) const {
@@ -2212,9 +2252,9 @@
   // malicious NDI/ATEM/NMC sources from executing destructive operations.
   bool isIntegrationSafeCommand(const std::string& upperCmd) const {
     // Safe: transport and navigation commands only
-    static const std::array<const char*, 19> kSafe {{
+    static const std::array<const char*, 20> kSafe {{
       "TAKE", "GO", "PLAY", "PAUSE", "STOP", "TOGGLE",
-      "NEXT", "PREV", "PREVIOUS", "SKIP",
+      "NEXT", "PREV", "PREVIOUS", "SKIP", "SKIPBACK",
       "RERACK", "LOOP", "FADE",
       "DECK", "SELECT", "GOTO", "FIND", "JUMP",
       "STATUS"
