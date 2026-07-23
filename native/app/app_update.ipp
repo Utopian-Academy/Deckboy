@@ -573,49 +573,9 @@
           // Cue end behavior follows the cue itself: hold = hold, hold off = next.
           bool shouldAdvance = cueAdvancesWhenFinished(activeCue);
 
-          int nextIndex = -1;
-          if (!trim(activeCue.gotoTarget).empty()) {
-            if (auto resolved = cueIndexByTokenInOverlayRole(deck, activeCue.gotoTarget, false); resolved) {
-              if (!cueIsOverlayOnly(deck.cues[*resolved])) {
-                nextIndex = *resolved;
-              }
-            }
-          }
-          if (nextIndex < 0) {
-            auto playableIndices = cueIndicesForOverlayRole(deck, false);
-            if (deck.shuffle && shouldAdvance && !playableIndices.empty()) {
-              std::vector<int> shuffleChoices;
-              shuffleChoices.reserve(playableIndices.size());
-              for (int cueIndex : playableIndices) {
-                if (cueIndex != deck.activeIndex) {
-                  shuffleChoices.push_back(cueIndex);
-                }
-              }
-              if (!shuffleChoices.empty()) {
-                std::uniform_int_distribution<std::size_t> pick(0, shuffleChoices.size() - 1);
-                nextIndex = shuffleChoices[pick(shuffleRng_)];
-              } else if (deck.playlistLoop && playableIndices.size() == 1) {
-                nextIndex = playableIndices.front();
-              }
-            } else {
-              nextIndex = adjacentCueIndexForOverlayRole(deck, deck.activeIndex, 1, false, deck.playlistLoop);
-            }
-          }
-
-          // Skip cues whose media has vanished so one dead drive doesn't stop
-          // the show at the next advance. Bounded walk: an all-missing looped
-          // playlist gives up instead of spinning.
-          if (nextIndex >= 0 && shouldAdvance) {
-            int hops = 0;
-            const int hopLimit = static_cast<int>(deck.cues.size());
-            while (nextIndex >= 0 && hops < hopLimit &&
-                   !cueMediaAvailableForTake(deck.cues[nextIndex])) {
-              triggerToast("skipped missing: " + deck.cues[nextIndex].name);
-              int following = adjacentCueIndexForOverlayRole(deck, nextIndex, 1, false, deck.playlistLoop);
-              nextIndex = (following == nextIndex) ? -1 : following;
-              ++hops;
-            }
-          }
+          // Goto target / shuffle / adjacent + missing-media walk — shared
+          // with the manual SKIP action (resolveAutoAdvanceIndex).
+          int nextIndex = resolveAutoAdvanceIndex(deck, activeCue, shouldAdvance);
 
           if (nextIndex >= 0) {
             if (deck.selectedIndex != nextIndex) {

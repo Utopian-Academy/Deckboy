@@ -44,11 +44,97 @@
       stopTransport();
     } else if (label == "CLEAR") {
       clearOutput();
+    } else if (label == "SKIP") {
+      skipToNextCue();
     } else if (label == "SETTINGS") {
       settingsOpen_ = true;
       settingsTab_ = 3;
       uiWatchdogPopupEvent("settings_modal", true);
     }
+  }
+
+  // Resolve where a deck's playback naturally goes after activeCue: goto
+  // target first, then shuffle (when advancing), then the adjacent playable
+  // cue; finally a bounded walk past missing-media cues so one dead drive
+  // doesn't stop the show. Shared by end-of-cue auto-advance and manual SKIP.
+  int resolveAutoAdvanceIndex(Deck& deck, const Cue& activeCue, bool shouldAdvance) {
+    int nextIndex = -1;
+    if (!trim(activeCue.gotoTarget).empty()) {
+      if (auto resolved = cueIndexByTokenInOverlayRole(deck, activeCue.gotoTarget, false); resolved) {
+        if (!cueIsOverlayOnly(deck.cues[*resolved])) {
+          nextIndex = *resolved;
+        }
+      }
+    }
+    if (nextIndex < 0) {
+      auto playableIndices = cueIndicesForOverlayRole(deck, false);
+      if (deck.shuffle && shouldAdvance && !playableIndices.empty()) {
+        std::vector<int> shuffleChoices;
+        shuffleChoices.reserve(playableIndices.size());
+        for (int cueIndex : playableIndices) {
+          if (cueIndex != deck.activeIndex) {
+            shuffleChoices.push_back(cueIndex);
+          }
+        }
+        if (!shuffleChoices.empty()) {
+          std::uniform_int_distribution<std::size_t> pick(0, shuffleChoices.size() - 1);
+          nextIndex = shuffleChoices[pick(shuffleRng_)];
+        } else if (deck.playlistLoop && playableIndices.size() == 1) {
+          nextIndex = playableIndices.front();
+        }
+      } else {
+        nextIndex = adjacentCueIndexForOverlayRole(deck, deck.activeIndex, 1, false, deck.playlistLoop);
+      }
+    }
+    if (nextIndex >= 0 && shouldAdvance) {
+      int hops = 0;
+      const int hopLimit = static_cast<int>(deck.cues.size());
+      while (nextIndex >= 0 && hops < hopLimit &&
+             !cueMediaAvailableForTake(deck.cues[nextIndex])) {
+        triggerToast("skipped missing: " + deck.cues[nextIndex].name);
+        int following = adjacentCueIndexForOverlayRole(deck, nextIndex, 1, false, deck.playlistLoop);
+        nextIndex = (following == nextIndex) ? -1 : following;
+        ++hops;
+      }
+    }
+    return nextIndex;
+  }
+
+  // Manual SKIP: jump the focused deck to whatever it would naturally play
+  // next (honors goto targets, shuffle, playlist loop, and the missing-media
+  // walk) without waiting for the current cue to end. "." key / SKIP button /
+  // remote SKIP.
+  void skipToNextCue() {
+    int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.cues.empty()) {
+      triggerToast("skip: playlist is empty");
+      return;
+    }
+    int nextIndex = -1;
+    bool useTransition = false;
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size())) {
+      const Cue& activeCue = deck.cues[deck.activeIndex];
+      nextIndex = resolveAutoAdvanceIndex(deck, activeCue, true);
+      useTransition = activeCue.transitionToNext;
+    } else {
+      // Nothing live: skip just takes whatever is queued next.
+      nextIndex = nextCueIndexForDeck(deckIndex);
+    }
+    if (nextIndex < 0 || nextIndex >= static_cast<int>(deck.cues.size())) {
+      triggerToast("skip: nothing queued");
+      return;
+    }
+    if (deck.selectedIndex != nextIndex) {
+      deck.selectedIndex = nextIndex;
+      onSelectionChanged();
+    }
+    markProjectDirty();
+    takeSelected(true, useTransition, false);
+    triggerToast("skip: " + deck.cues[nextIndex].name);
   }
 
   std::string transportStatusLabel(int deckIndex) const {
@@ -2126,9 +2212,9 @@
   // malicious NDI/ATEM/NMC sources from executing destructive operations.
   bool isIntegrationSafeCommand(const std::string& upperCmd) const {
     // Safe: transport and navigation commands only
-    static const std::array<const char*, 18> kSafe {{
+    static const std::array<const char*, 19> kSafe {{
       "TAKE", "GO", "PLAY", "PAUSE", "STOP", "TOGGLE",
-      "NEXT", "PREV", "PREVIOUS",
+      "NEXT", "PREV", "PREVIOUS", "SKIP",
       "RERACK", "LOOP", "FADE",
       "DECK", "SELECT", "GOTO", "FIND", "JUMP",
       "STATUS"
