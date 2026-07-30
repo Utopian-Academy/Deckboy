@@ -1,19 +1,17 @@
-# Deckboy Theme: Piranha Plant
-# Acid-lime-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: piranha-plant
+# Family: moulded case -- muted plastic shell with a saturated LCD, the same
+# structure as the default Game Boy theme. The case is deliberately low-chroma:
+# the character's hue belongs to the screen.
 # All color values are RRGGBBAA hex.
 
-shell_outer	090A05FF
-shell_inner	0C0D07FF
-shell_shadow	000000FF
+shell_outer	B2BAA0FF
+shell_inner	9EA68CFF
+shell_shadow	424A34FF
 screen_light	B4F050FF
 screen_mid	6EA828FF
-screen_dark	425E16FF
-screen_deep	0C0F05FF
-screen_ink_soft	AED080FF
-screen_fg	C6FF6EFF
-screen_fg_soft	82A83EFF
-screen_tile	12170AFF
-button_bezel	546B1EFF
-delete_bezel	C23A42FF
-scanline_alpha	14
+screen_dark	3A5C14FF
+screen_deep	121C06FF
+screen_ink_soft	4E7A1CFF
+button_bezel	5E6A48FF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

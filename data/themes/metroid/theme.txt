@@ -1,19 +1,20 @@
-# Deckboy Theme: Metroid
-# Amber-phosphor OLED terminal — Samus's cockpit glow on true black.
+# Deckboy Theme: metroid
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A0806FF
-shell_inner	0D0A07FF
-shell_shadow	000000FF
+shell_outer	2E2822FF
+shell_inner	3A322AFF
+shell_shadow	16120EFF
 screen_light	F5A048FF
 screen_mid	A8641EFF
-screen_dark	6E3E12FF
-screen_deep	100A05FF
-screen_ink_soft	C89058FF
-screen_fg	FFB866FF
-screen_fg_soft	C07C32FF
-screen_tile	15100AFF
-button_bezel	7A501EFF
-delete_bezel	C23A42FF
+screen_dark	5C3610FF
+screen_deep	1A1006FF
+screen_ink_soft	D2A070FF
+screen_fg	FFBE7EFF
+screen_fg_soft	C08048FF
+screen_tile	241A10FF
+button_bezel	7A5A2AFF
+delete_bezel	C0503AFF
 scanline_alpha	14

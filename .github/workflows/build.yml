@@ -78,7 +78,11 @@ jobs:
             build-essential cmake pkg-config git \
             libfreetype-dev libharfbuzz-dev \
             libavcodec-dev libavformat-dev libavutil-dev \
-            libavfilter-dev libswscale-dev libswresample-dev
+            libavfilter-dev libswscale-dev libswresample-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxkbcommon-dev libwayland-dev wayland-protocols \
+            libegl1-mesa-dev libgl1-mesa-dev \
+            libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev
 
       - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
@@ -136,7 +140,7 @@ jobs:
           - features: none
             cmake_args: ""
           - features: all
-            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SIPHON=ON"
+            cmake_args: "-DENABLE_MIDI=ON"
     steps:
       - uses: actions/checkout@v4
 
@@ -162,7 +166,9 @@ jobs:
   windows-build:
     name: Windows Build (MSVC)
     needs: version-check
-    runs-on: windows-latest
+    # Pinned rather than windows-latest: CMake needs a concrete Visual Studio,
+    # and "latest" moving to a newer image is what broke this job before.
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:

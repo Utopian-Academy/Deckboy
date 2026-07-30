@@ -4,7 +4,7 @@ A structural map of the codebase: where things live, how data flows, and which
 threads touch what. Companion documents: `CLAUDE.md` (AI session quick-reference),
 `DEVNOTES.md` (architectural decision log), `docs/AUDIT_ROADMAP.md` (cleanup task map).
 
-Line counts are approximate as of v0.76.18.
+Line counts are approximate and drift between releases; re-measure rather than trusting them.
 
 ---
 

@@ -378,8 +378,16 @@ if(ENABLE_MIDI)
   target_sources(deckboy-native PRIVATE native/platform/midi.cpp)
 endif()
 
+# decklink.cpp compiles unconditionally: it already carries a full stub
+# implementation behind !DECKBOY_HAS_DECKLINK (listDevices returns {}, init
+# reports unavailable). The UI calls DeckLinkOutput::listDevices() and the
+# mode helpers without feature guards, so excluding the whole translation unit
+# left those symbols undefined and broke every build with ENABLE_DECKLINK=OFF
+# at link time. That never showed up locally because the Windows dev build
+# has DeckLink enabled.
+target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
+
 if(ENABLE_DECKLINK)
-  target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
   if(WIN32)
     # On Windows, compile the IDL with MIDL to generate DeckLinkAPI_h.h and
     # DeckLinkAPI_i.c in the build directory, then compile the _i.c file.

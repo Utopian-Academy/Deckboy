@@ -1,19 +1,20 @@
-# Deckboy Theme: Midna
-# Twilight-violet-phosphor OLED terminal on true black.
+# Deckboy Theme: midna
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	08060CFF
-shell_inner	0B0810FF
-shell_shadow	000000FF
+shell_outer	241C2EFF
+shell_inner	2E2438FF
+shell_shadow	120C18FF
 screen_light	B060FFFF
 screen_mid	7038C0FF
-screen_dark	44227AFF
-screen_deep	08040FFF
-screen_ink_soft	B490E0FF
-screen_fg	C078FFFF
-screen_fg_soft	8A56C8FF
-screen_tile	130C1CFF
-button_bezel	543A8BFF
-delete_bezel	E89830FF
+screen_dark	3E1C6EFF
+screen_deep	120820FF
+screen_ink_soft	B79AD8FF
+screen_fg	C892FFFF
+screen_fg_soft	9A70C8FF
+screen_tile	1C1228FF
+button_bezel	5A3A96FF
+delete_bezel	C0503AFF
 scanline_alpha	14

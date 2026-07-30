@@ -1,6 +1,6 @@
 # Deckboy — User Manual
 
-> dot-matrix cue deck · v0.79.x
+> dot-matrix cue deck
 
 Deckboy is a native desktop cue deck for live events: a fast, keyboard-driven
 player for video, stills, live sources, and generated patterns, with
