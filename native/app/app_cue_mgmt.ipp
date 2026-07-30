@@ -177,7 +177,8 @@
   // mirrors pick them up next tick — no decode restart.
 
   bool setSelectedAudioGainDb(double db) {
-    double clamped = std::clamp(db, -24.0, 12.0);
+    double clamped = std::clamp(db, static_cast<double>(kCueAudioGainMinDb),
+                                static_cast<double>(kCueAudioGainMaxDb));
     bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
       if (each.hasAudio) {
         each.audioGainDb = static_cast<float>(clamped);
@@ -298,7 +299,15 @@
   // set the cue's gain trim so playback lands at the target. The operator
   // can still nudge the trim afterwards; normalize is a starting point,
   // not a lock.
-  static constexpr double kNormalizeTargetLufs = -16.0;
+  //
+  // v0.81.0: the old fixed +12 dB ceiling meant quiet material simply could
+  // not reach target — a -40 LUFS transfer wants +24 dB and silently got 12,
+  // which read as "normalize doesn't work". The gain range is now wide
+  // (kCueAudioGainMinDb/Max) and the only thing holding a boost back is
+  // physics: true peak is measured in the same pass, and the gain is capped so
+  // peaks stay under kNormalizeTruePeakCeilingDb instead of being driven into
+  // the clipper. When that cap binds, the toast says so.
+  static constexpr double kNormalizeTargetLufs = kNormalizeTargetLufsDefault;
 
   void normalizeSelectedCueAudio() {
     int launched = 0;
@@ -315,18 +324,46 @@
       std::thread([this, path, cueId]() {
         NormalizeResult result;
         result.cueId = cueId;
+        // peak=true adds a "True peak: / Peak: -x.x dBFS" block to the summary,
+        // which is what lets the boost be limited by real headroom rather than
+        // by an arbitrary number.
         auto out = readAllText({
           "ffmpeg", "-hide_banner", "-nostats",
-          "-i", path, "-map", "a:0", "-af", "ebur128", "-f", "null", "-"
+          "-i", path, "-map", "a:0", "-af", "ebur128=peak=true", "-f", "null", "-"
         });
         if (out) {
           // The ebur128 summary block ends with lines like "I: -21.3 LUFS".
+          // Both markers are matched with rfind so the per-frame progress
+          // lines above the summary can't win.
           size_t pos = out->rfind("I:");
           if (pos != std::string::npos) {
             double lufs = std::strtod(out->c_str() + pos + 2, nullptr);
             if (std::isfinite(lufs) && lufs < 0.0 && lufs > -70.0) {
               result.measuredLufs = lufs;
-              result.gainDb = std::clamp(kNormalizeTargetLufs - lufs, -24.0, 12.0);
+              double wanted = kNormalizeTargetLufs - lufs;
+              double gain = wanted;
+
+              // "Peak:" (capital P) is the summary value; the "True peak:"
+              // heading above it is lower-case, so rfind lands on the number.
+              size_t peakPos = out->rfind("Peak:");
+              if (peakPos != std::string::npos) {
+                double peakDb = std::strtod(out->c_str() + peakPos + 5, nullptr);
+                // True peak legitimately exceeds 0 dBFS on hot masters
+                // (inter-sample peaks), and that is precisely when the limit
+                // matters — so the sanity window must not assume <= 0.
+                if (std::isfinite(peakDb) && peakDb < 24.0 && peakDb > -120.0) {
+                  result.measuredPeakDb = peakDb;
+                  result.hasPeak = true;
+                  double headroomDb = kNormalizeTruePeakCeilingDb - peakDb;
+                  if (gain > headroomDb) {
+                    gain = headroomDb;
+                    result.peakLimited = true;
+                  }
+                }
+              }
+              result.gainDb = std::clamp(gain,
+                                         static_cast<double>(kCueAudioGainMinDb),
+                                         static_cast<double>(kCueAudioGainMaxDb));
               result.ok = true;
             }
           }
@@ -370,10 +407,19 @@
         }
       }
       if (applied) {
-        char buf[64];
-        std::snprintf(buf, sizeof(buf), "normalized: %+.1f dB (was %.1f LUFS)",
-                      result.gainDb, result.measuredLufs);
-        triggerToast(buf);
+        char buf[128];
+        if (result.peakLimited) {
+          // Say why target wasn't reached, and hold it on screen longer —
+          // this is the case the operator most needs to notice.
+          std::snprintf(buf, sizeof(buf),
+                        "normalized: %+.1f dB (was %.1f LUFS) - peak-limited at %.1f dBFS",
+                        result.gainDb, result.measuredLufs, result.measuredPeakDb);
+          triggerToast(buf, {155, 188, 15, 220}, {15, 56, 15, 255}, 3200);
+        } else {
+          std::snprintf(buf, sizeof(buf), "normalized: %+.1f dB (was %.1f LUFS)",
+                        result.gainDb, result.measuredLufs);
+          triggerToast(buf, {155, 188, 15, 220}, {15, 56, 15, 255}, 2600);
+        }
         markProjectDirty();
       }
     }
@@ -1928,6 +1974,7 @@
     static const std::vector<std::pair<std::string, std::string>> types {
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
       {"test-bars",    "Test Bars (motion diagnostics)"},
+      {"test-clock",   "Test Clock (sync + latency)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},
@@ -2715,10 +2762,8 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
-    // Clamp available text width to the snapped right edge so text cannot bleed
-    // past the border drawn by drawUIPanel (which calls snapRectToGrid internally).
-    // The clip rect stays as the original rect to avoid over-constraining.
-    safe.w = std::max(0, std::min(safe.w, snapDownToGrid(rect.x + rect.w) - safe.x));
+    // Panels now paint the caller's rect verbatim, so the label's usable width
+    // is simply the inset rect — no grid-snapped right edge to compensate for.
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
@@ -2762,8 +2807,6 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
-    // Clamp available text width to the snapped right edge — same rationale as drawTextSafe.
-    safe.w = std::max(0, std::min(safe.w, snapDownToGrid(rect.x + rect.w) - safe.x));
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
@@ -2797,7 +2840,17 @@
     SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
+  // Centre a label in its container. Kept as a distinct name because ~60 call
+  // sites read better with the argument order, but it is no longer a separate
+  // behaviour: it used to centre on snapRectToGrid(rect) with no ellipsizing
+  // and no clip, so a button labelled with this sat up to a grid unit away from
+  // an identical neighbour labelled with drawCenteredTextSafe, and long labels
+  // spilled out of their pill instead of truncating. Both are now impossible.
   void drawCenteredText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
+    drawCenteredTextSafe(renderer, font, rect, text, color);
+  }
+
+  void drawCenteredTextUnclipped(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
     if (!font || text.empty()) {
       return;
     }
@@ -2810,11 +2863,9 @@
       SDL_DestroySurface(surface);
       return;
     }
-    // Snap the rect to match drawUIPanel so text is centered in the visible background.
-    SDL_Rect r = snapRectToGrid(rect);
     SDL_Rect dst {
-      r.x + (r.w - surface->w) / 2,
-      r.y + (r.h - surface->h) / 2,
+      rect.x + (rect.w - surface->w) / 2,
+      rect.y + (rect.h - surface->h) / 2,
       surface->w,
       surface->h
     };

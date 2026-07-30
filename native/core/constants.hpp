@@ -106,6 +106,28 @@ inline std::uint32_t kButtonBezelColor  = 0x7B8B5EFFu;  // button rim       (123
 inline std::uint32_t kDeleteBezelColor  = 0x8B3A3AFFu;  // danger red bezel (139,58,58)  — delete actions
 
 // ---------------------------------------------------------------------------
+// Per-cue audio gain trim range (dB).
+//
+// SINGLE SOURCE OF TRUTH. This range used to be six independent literal
+// `std::clamp(x, -24.0, 12.0)` calls — the setter, the loudness normalizer,
+// the waveform scaler, the engine's atomic mirror, and project load. Widening
+// any one of them left the others clamping the value straight back, which
+// looks exactly like "normalize is broken". Every clamp now reads these.
+//
+// The old +12 dB ceiling was arbitrary and made loudness-normalize unable to
+// reach target on quiet material (a -40 LUFS transfer needs +24 dB). Both
+// audio paths saturate on write (std::clamp to int16), so a large boost
+// distorts rather than wrapping; the normalizer keeps peaks in check itself.
+// ---------------------------------------------------------------------------
+constexpr float kCueAudioGainMinDb = -40.0f;
+constexpr float kCueAudioGainMaxDb =  40.0f;
+
+// Loudness-normalize targets. Peaks are held below the ceiling so bringing a
+// quiet file up to target cannot silently drive it into the clipper.
+constexpr double kNormalizeTargetLufsDefault = -16.0;
+constexpr double kNormalizeTruePeakCeilingDb = -1.0;
+
+// ---------------------------------------------------------------------------
 // Layout system — grid-based spacing constants used by render/layout.hpp.
 //
 // All panels, buttons, and text insets snap to multiples of kLayoutSpacingUnit

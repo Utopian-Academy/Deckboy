@@ -1,5 +1,109 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-29 — v0.81.0 (preview locked to output, display hot-plug, text alignment, Companion module)
+
+### Program monitor
+- **The preview is now locked to the program output.** It previously showed the
+  *decoder's* frame, which on the GPU zero-copy path meant a full-resolution
+  hardware-frame download per update — far too expensive to run every frame, so
+  it was throttled to ~10 fps and visibly trailed the output. The control window
+  now samples the output's finished composite on the output's own render pass,
+  scaled down to preview size first (~0.5 MB read back instead of 3–12 MB). It
+  runs every presented frame, and because it comes from the same pass that
+  presents, it cannot drift from what leaves the machine. Verified by capturing
+  both windows in both orders against a burned-in frame counter.
+- The tap is taken *before* warp/AOI/edge blend, so the warp editor still draws
+  its handles over an unwarped image. When no window output is armed the old
+  decoder-frame path still runs, unchanged.
+
+### Displays
+- **Deckboy now notices displays connected or disconnected while it is
+  running.** The topology scan compares a per-display fingerprint (name +
+  desktop placement) rather than just the display count, so it also catches a
+  monitor swapped for another one, a rearranged desktop, and resolution changes.
+  All SDL display events are handled and debounced (Windows emits a burst of
+  them, reporting half-built topology partway through).
+- On a genuine hot-plug, an affected output is re-homed even if it is fullscreen
+  — the per-tick recovery path deliberately ignores placement while fullscreen,
+  which is why a monitor connected mid-show never used to pick up its output.
+  Unaffected outputs are left alone, so this does not reintroduce the v0.76.19
+  recovery churn.
+- **Unplugging a projector no longer hijacks your control screen.** An output
+  whose pinned display disappears is parked windowed and hidden with health
+  `display missing: <name>`, instead of being re-homed fullscreen onto whichever
+  monitor inherited the index. It restores itself when the panel comes back.
+- Toasts now name what happened — "display connected: DELL U2720Q (2 total) —
+  1 output re-homed" — and RESCAN forces a re-home even when nothing changed.
+
+### Interface
+- **One text-placement contract across the whole app.** Boxes and their labels
+  were being drawn in two different coordinate spaces: `drawUIPanel` painted a
+  grid-snapped rect while `drawFramedPanel` painted the raw rect, and the label
+  helpers were split the same way. Two neighbouring controls drawn with
+  different helper pairs put their labels up to a full grid unit apart. Panels
+  now paint the rect they are given, and all three label helpers centre on it.
+- Label padding no longer steps at a width threshold (a 95 px and a 96 px button
+  used to indent their text differently), and the third centring helper now
+  ellipsizes and clips like the others, so a long label truncates instead of
+  spilling out of its pill.
+- Settings cards and Video Outputs sections share one header-plate contract, so
+  a section title sits at the same height on every tab. The CONNECTED DISPLAYS
+  **IDENTIFY** button sits inside its header plate instead of punching through
+  the card border.
+
+### About
+- **Rewritten as a real credits page**: masthead with wordmark, version and
+  build date; a PROJECT column (copyright, GPL-3.0-or-later and what that grants,
+  source, warranty disclaimer, live session ports and theme); and a BUILT WITH
+  column (platform, SDL3/FreeType, FFmpeg, the optional SDKs *this* binary was
+  actually compiled against, timecode, font licence, key reference). Both
+  columns share one label gutter.
+
+### Patterns
+- **New "Test Clock (sync + latency)" pattern** — colour bars, an
+  aspect-truth circle (reads as an egg the moment a stretch mode is wrong), a
+  scrolling hue band for sub-second phase, and a large seconds + frame counter
+  with exact timecode in the corner. Point two displays at it and photograph
+  them to see whether they agree. Aliases: `testsrc1`, `sync-card`,
+  `latency-clock`.
+
+### Audio
+- **Loudness normalize can now reach target on quiet material.** The gain trim
+  was capped at **+12 dB**, so a quiet transfer (a −34 LUFS file wants +17.8 dB)
+  silently landed short and looked like normalize wasn't working. The range is
+  now −40..+40 dB. That range had been duplicated as **six independent literal
+  clamps** — setter, normalizer, waveform scaler, engine mirror, project load,
+  remote command — so raising one alone would have been clamped straight back
+  by the others; they all read one shared constant now.
+- **Normalize is peak-aware instead of arbitrarily capped.** The same analysis
+  pass measures true peak (`ebur128=peak=true`) and holds the boost so peaks
+  stay under −1 dBFS. This also fixes a latent bug in the other direction: the
+  old code would happily add +12 dB to a file already peaking at 0 dBFS and
+  drive it into the clipper. When the peak ceiling is what limits the result,
+  the toast says so — `normalized: -0.9 dB (was -25.7 LUFS) - peak-limited at
+  -0.1 dBFS` — rather than quietly missing target.
+- **Gain changes are now visible on loud material.** The waveform scaled drawn
+  amplitude by the gain trim but clamped at full scale *before* drawing, so on
+  anything already near 0 dBFS the bars were pinned at full height and nothing
+  moved when you changed gain. Over-scale columns now draw in the theme's
+  danger colour, so pushing past the ceiling reads as hot and backing off cools
+  it — and doubles as a clip warning.
+- Toasts size to their message (they were a fixed 300 px and cut longer ones
+  off mid-sentence) and normalize results hold on screen for 2.6 s — 3.2 s when
+  peak-limited — instead of 1.2 s.
+
+### Remote control
+- **A real Bitfocus Companion module** (`companion-module-deckboy/`) replaces the
+  Generic TCP/UDP recipe. It polls `STATUS`, so buttons carry **cue tally**,
+  transport colour, output health, a connection watchdog and a derived
+  countdown — the Generic connection could only push commands one way. Ships
+  actions (transport, cue select/take/goto, seek, levels, output, find, plus a
+  raw-command escape hatch), nine feedbacks, ~70 variables and wired presets.
+  Parser tests run against a captured Deckboy status reply.
+- The module names the localhost-only default in its config screen and in its
+  connection error, since that is the usual reason a remote Companion sees
+  nothing.
+
 ## 2026-07-22 — v0.80.2 (waveforms show gain, normalize feedback, SKIP button)
 
 ### Transport

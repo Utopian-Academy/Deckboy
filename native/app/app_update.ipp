@@ -112,6 +112,15 @@
             if (handleDropdownMouseWheel(static_cast<int>(event.wheel.y))) {
               break;
             }
+            if (settingsOpen_ && settingsTab_ == 0 &&
+                settingsSystemViewport_.w > 0 && settingsSystemViewport_.h > 0 &&
+                pointInRect(mouseX_, mouseY_, settingsSystemViewport_) &&
+                settingsSystemScrollMax_ > 0) {
+              settingsSystemScroll_ = std::clamp(
+                settingsSystemScroll_ - static_cast<int>(event.wheel.y) * 36,
+                0, settingsSystemScrollMax_);
+              break;
+            }
             if (settingsOpen_ && settingsTab_ == 3 &&
                 settingsVideoViewport_.w > 0 && settingsVideoViewport_.h > 0 &&
                 pointInRect(mouseX_, mouseY_, settingsVideoViewport_) &&
@@ -231,8 +240,16 @@
           break;
         case SDL_EVENT_DISPLAY_ADDED:
         case SDL_EVENT_DISPLAY_REMOVED:
-          observedDisplayCount_ = deckboyGetNumVideoDisplays();
-          refreshDisplayTopology(true);
+        case SDL_EVENT_DISPLAY_MOVED:
+        case SDL_EVENT_DISPLAY_ORIENTATION:
+        case SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED:
+        case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
+        case SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED:
+          // Windows fires a burst of these while the driver settles a
+          // hot-plug (and reports half-built topology partway through).
+          // Debounce to a single pass once the burst stops — acting on each
+          // event moves outputs to a display that is about to change again.
+          displayTopologyRecheckAtMs_ = SDL_GetTicks() + 600;
           break;
         default:
           break;
@@ -416,13 +433,22 @@
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
 
+    // Debounced response to the SDL display-event burst.
+    if (displayTopologyRecheckAtMs_ != 0 && now >= displayTopologyRecheckAtMs_) {
+      displayTopologyRecheckAtMs_ = 0;
+      std::vector<std::string> entries = currentDisplaySignatureEntries();
+      if (!entries.empty() && entries != displaySignatureEntries_) {
+        refreshDisplayTopology(true);
+      }
+    }
+    // Fallback poll for drivers/WMs that never emit the display events, and
+    // for changes SDL doesn't classify (a panel swapped for another at the
+    // same index). Compares the full topology fingerprint, not just the
+    // count — an unplug/replug of a different monitor keeps the count equal.
     if (now - lastDisplayPollMs_ >= 1200) {
       lastDisplayPollMs_ = now;
-      int displayCount = deckboyGetNumVideoDisplays();
-      if (observedDisplayCount_ < 0) {
-        observedDisplayCount_ = displayCount;
-      } else if (displayCount != observedDisplayCount_) {
-        observedDisplayCount_ = displayCount;
+      std::vector<std::string> entries = currentDisplaySignatureEntries();
+      if (!entries.empty() && entries != displaySignatureEntries_) {
         refreshDisplayTopology(true);
       }
     }
@@ -665,6 +691,50 @@
     {
       const MediaEngine* eng = focusedMediaEngine();
       const DecodedFrame* frame = eng ? eng->currentFrame() : nullptr;
+      bool haveLiveFrame = frame && frame->width > 0 && frame->height > 0;
+
+      // Preferred source: the program-monitor tap taken on the output's own
+      // render pass (see captureOutputPreviewTap). It is already the finished
+      // composite at preview resolution, it arrives once per presented output
+      // frame, and it costs no hwframe download — which is what kept the old
+      // decoder-frame preview pinned at ~10fps and visibly behind the output.
+      const OutputRuntime* tapRuntime = nullptr;
+      if (haveLiveFrame) {
+        if (auto tapIndex = previewTapOutputIndex()) {
+          if (*tapIndex >= 0 && *tapIndex < static_cast<int>(outputRuntimes_.size())) {
+            const OutputRuntime& candidate = outputRuntimes_[*tapIndex];
+            if (candidate.previewTapSerial != 0 && candidate.previewTapW > 0 &&
+                candidate.previewTapH > 0 && !candidate.previewTapPixels.empty()) {
+              tapRuntime = &candidate;
+            }
+          }
+        }
+      }
+      if (tapRuntime) {
+        if (!controlPreviewIsComposite_) {
+          // Source changed shape and pixel format — drop the old texture
+          // rather than letting syncTexture write RGBA into an NV12 surface.
+          clearControlPreviewTexture();
+          controlPreviewIsComposite_ = true;
+        }
+        if (tapRuntime->previewTapSerial != controlPreviewTapSerial_) {
+          controlPreviewTapSerial_ = tapRuntime->previewTapSerial;
+          if (syncTexture(controlRenderer_, controlPreviewTex_,
+                          controlPreviewTexW_, controlPreviewTexH_,
+                          tapRuntime->previewTapW, tapRuntime->previewTapH,
+                          tapRuntime->previewTapPixels.data(),
+                          tapRuntime->previewTapW * 4)) {
+            controlPreviewTexFormat_ = SDL_PIXELFORMAT_RGBA32;
+            // Already minified once on the GPU; smooth the monitor's own
+            // scaling rather than re-blocking it with nearest.
+            SDL_SetTextureScaleMode(controlPreviewTex_, SDL_SCALEMODE_LINEAR);
+          }
+        }
+      } else {
+      if (controlPreviewIsComposite_) {
+        clearControlPreviewTexture();
+        controlPreviewIsComposite_ = false;
+      }
 #if DECKBOY_INPROC_DECODE
       if (frame && frame->isGpu()) {
         // GPU-resident frame: previewing it on the control renderer needs a
@@ -690,20 +760,14 @@
                          controlPreviewTexFormat_, *frame);
       } else if (!frame) {
         // Clear preview when nothing is loaded
-        if (controlPreviewTex_) {
-          SDL_DestroyTexture(controlPreviewTex_);
-          controlPreviewTex_ = nullptr;
-          controlPreviewTexW_ = 0;
-          controlPreviewTexH_ = 0;
-          controlPreviewTexFormat_ = 0;
-        }
-        controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+        clearControlPreviewTexture();
 #if DECKBOY_INPROC_DECODE
         // Drop the stale GPU-download scratch too, or the next GPU cue could
         // flash the previous cue's frame while the throttle blocks a download.
         controlPreviewGpuScratch_ = DecodedFrame{};
         controlPreviewGpuLastMs_ = 0;
 #endif
+      }
       }
     }
     // Upload output captured frames to monitors window textures

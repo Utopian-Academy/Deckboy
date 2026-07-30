@@ -338,6 +338,15 @@ smooth, and diagonal; full-frame solid colours have no motion option.
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).
+- **Test Bars** — motion diagnostics: saturated bars, a bouncing rainbow
+  diagonal for tearing, a dissolving checker patch that provokes scaler and
+  deinterlace artefacts, a sliding grey block for judder, and a clock.
+- **Test Clock** — the sync and latency card. A large seconds counter over a
+  frame counter, plus exact timecode in the corner: put it up and photograph two
+  screens (or a screen and a downstream recorder) to see whether they agree. The
+  circle is drawn from a true pixel radius, so it reads as an egg the moment a
+  stretch mode or pixel aspect is wrong, and the scrolling hue band gives
+  sub-second phase between captures a few frames apart.
 - Standard bars, crosshatch, solids, and gradients.
 - **Terrarium** — a hidden ecosystem simulation, unlocked per-save as a secret
   (not selectable until unlocked).
@@ -411,9 +420,13 @@ audit.
 
 All remote inputs normalise to plain-text commands.
 
-- **Companion / TCP-UDP** — port **5510** by default. Add a *Generic TCP/UDP*
-  connection in Bitfocus Companion pointed at the Deckboy machine. A ready-made
-  Stream Deck profile lives in `docs/streamdeck/`.
+- **Companion** — port **5510** by default. Use the Deckboy module in
+  `companion-module-deckboy/`: as well as sending commands it polls Deckboy's
+  state, so Stream Deck keys show cue tally, transport colour, output health and
+  a countdown. A one-way *Generic TCP/UDP* mapping is still available in
+  `docs/streamdeck/` for setups that can't install a module.
+  **Deckboy listens on localhost only until Settings → Network → REMOTE is on** —
+  leave it off and only Companion on the same machine can connect.
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
 - **HyperDeck** — Deckboy answers the HyperDeck protocol for decks that speak
