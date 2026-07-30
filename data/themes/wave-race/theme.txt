@@ -1,19 +1,17 @@
-# Deckboy Theme: Wave Race
-# Aqua-phosphor OLED terminal — spray on a black lagoon.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: wave-race
+# Family: moulded case -- muted plastic shell with a saturated LCD, the same
+# structure as the default Game Boy theme. The case is deliberately low-chroma:
+# the character's hue belongs to the screen.
 # All color values are RRGGBBAA hex.
 
-shell_outer	05090AFF
-shell_inner	080C0DFF
-shell_shadow	000000FF
+shell_outer	AEBCBEFF
+shell_inner	9AA8AAFF
+shell_shadow	3E4A4CFF
 screen_light	40F0D0FF
 screen_mid	1EA894FF
-screen_dark	0E5A4EFF
-screen_deep	05130FFF
-screen_ink_soft	5FC8B4FF
-screen_fg	66FFE4FF
-screen_fg_soft	3EB09CFF
-screen_tile	0F1815FF
-button_bezel	237064FF
-delete_bezel	C23A42FF
-scanline_alpha	14
+screen_dark	10584EFF
+screen_deep	041C18FF
+screen_ink_soft	177A6CFF
+button_bezel	4E6264FF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

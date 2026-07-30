@@ -1,19 +1,20 @@
-# Deckboy Theme: R.O.B.
-# Monochrome white-phosphor OLED terminal on true black.
+# Deckboy Theme: r-o-b
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	060708FF
-shell_inner	0A0B0CFF
-shell_shadow	000000FF
+shell_outer	24262AFF
+shell_inner	2E3136FF
+shell_shadow	121316FF
 screen_light	D8DEE6FF
 screen_mid	8A929CFF
 screen_dark	4A5058FF
-screen_deep	0A0C0EFF
-screen_ink_soft	A8B0BAFF
-screen_fg	E8EEF6FF
-screen_fg_soft	9AA2ACFF
-screen_tile	12151AFF
-button_bezel	5A626CFF
-delete_bezel	C23A42FF
-scanline_alpha	12
+screen_deep	121416FF
+screen_ink_soft	C0C6CEFF
+screen_fg	E4EAF0FF
+screen_fg_soft	A2AAB4FF
+screen_tile	1A1C20FF
+button_bezel	646C76FF
+delete_bezel	C0503AFF
+scanline_alpha	14

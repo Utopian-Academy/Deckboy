@@ -1,19 +1,17 @@
-# Deckboy Theme: Peach
-# Rose-pink-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: peach
+# Family: moulded case -- muted plastic shell with a saturated LCD, the same
+# structure as the default Game Boy theme. The case is deliberately low-chroma:
+# the character's hue belongs to the screen.
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A0608FF
-shell_inner	0D080AFF
-shell_shadow	000000FF
+shell_outer	CFBDB4FF
+shell_inner	BAA69EFF
+shell_shadow	54443EFF
 screen_light	FF88B0FF
-screen_mid	B84E70FF
-screen_dark	6E2E44FF
-screen_deep	100609FF
-screen_ink_soft	E0A0B8FF
-screen_fg	FFA0C4FF
-screen_fg_soft	C86888FF
-screen_tile	160A10FF
-button_bezel	7A3A54FF
-delete_bezel	E89830FF
-scanline_alpha	14
+screen_mid	C4406EFF
+screen_dark	6E1E38FF
+screen_deep	230C14FF
+screen_ink_soft	A03C5CFF
+button_bezel	7A5A56FF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

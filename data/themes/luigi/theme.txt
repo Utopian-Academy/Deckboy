@@ -1,19 +1,15 @@
 # Deckboy Theme: Luigi
-# Grass-green-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Family: moulded case. Sage-grey shell plastic with a lime LCD.
 # All color values are RRGGBBAA hex.
 
-shell_outer	060A06FF
-shell_inner	080D08FF
-shell_shadow	000000FF
-screen_light	6EF050FF
-screen_mid	3EA828FF
-screen_dark	245E16FF
-screen_deep	080F04FF
-screen_ink_soft	8FD07AFF
-screen_fg	8CFF6EFF
-screen_fg_soft	5AA83EFF
-screen_tile	101708FF
-button_bezel	2E6B1EFF
-delete_bezel	C23A42FF
-scanline_alpha	14
+shell_outer	B4BCA6FF
+shell_inner	9EA890FF
+shell_shadow	44503CFF
+screen_light	7BE04CFF
+screen_mid	3E9E28FF
+screen_dark	1E5416FF
+screen_deep	0D2209FF
+screen_ink_soft	3C7A2AFF
+button_bezel	5E7050FF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

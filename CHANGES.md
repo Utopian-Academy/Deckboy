@@ -1,5 +1,57 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-30 — v0.81.1 (theme variety, CI green-up, honest LTC reporting, README)
+
+### Themes
+- **The library actually looks varied again.** 25 of the 30 themes shared one
+  recipe — near-black case, near-black screen, one accent hue — so the only
+  thing telling them apart was the colour of the text. They now span three
+  families: **moulded case** (muted plastic shell with a saturated LCD, the
+  structure the default Game Boy theme uses), **tinted chassis** (a genuinely
+  coloured dark body with bright ink, for booth use), and **true-black OLED
+  terminals** (kept for `dark`, `virtual-boy`, `famicom`, `captain-falcon`,
+  `game-and-watch`). `gameboy`, `pocket`, `sp`, `advance` and `color` were
+  already distinct and are untouched.
+- Case colours are deliberately low-chroma. `shell_inner` is the dominant panel
+  fill across the whole UI, so a vivid case floods the interface — the
+  character's hue belongs to the screen, which is exactly how the original
+  Game Boy theme is built.
+- All 30 still pass `tools/audit_theme_contrast.ps1`.
+
+### Timecode
+- **`--self-check` no longer lies about LTC on Windows.** It skipped the probe
+  under `_WIN32` and printed "not supported on this build", which was untrue:
+  `LtcApi` loads `ltc.dll` dynamically, the portable zip ships it, and the
+  integration catalog on the very next line already reported `ltc[ok]`. The
+  probe now runs on every platform — `ltc-runtime: ok` with the library
+  present, `missing (...)` without it.
+
+### Build
+- **DeckLink no longer breaks builds that don't enable it.** `decklink.cpp`
+  carries a complete stub behind `!DECKBOY_HAS_DECKLINK`, but CMake only
+  compiled the file when `ENABLE_DECKLINK=ON` — while the settings UI calls
+  `DeckLinkOutput::listDevices()` and the mode helpers unguarded. Every
+  `ENABLE_DECKLINK=OFF` build therefore failed at link time. It now always
+  compiles. Invisible locally because the Windows dev build has DeckLink on.
+- **CI is repaired.** It had been red on every platform since the SDL3
+  migration: Linux/macOS/Windows all installed SDL2 while CMake requires SDL3;
+  Windows pinned a Visual Studio generator the hosted image no longer has; and
+  the triggers named a branch (`deckboy-0.75`) that no longer exists, so push
+  and PR builds silently never ran and only tag builds did — which is how the
+  workflow drifted a whole SDL major version behind unnoticed. The matrix is
+  now driven by one configure step per platform, smoke tests run alongside
+  `--self-check`, and the Companion module's suite runs as its own job.
+
+### Docs
+- **README overhauled.** It carried a "March 2025" banner, claimed 24 themes in
+  one paragraph and 30 four lines later, headlined a "Current MVP / New in
+  v0.76.31" section five releases out of date, told readers to `cd
+  /home/user/deckboy` and run Linux launcher scripts, described Window/Camera
+  cues as X11/V4L2 on a Windows-first app, said Syphon/Spout were "planned",
+  and listed DeckLink output and a non-subprocess decoder as "future upgrades"
+  when both had shipped. Run instructions now lead with the portable zip,
+  Companion leads with the module, and the notes describe what actually exists.
+
 ## 2026-07-29 — v0.81.0 (preview locked to output, display hot-plug, text alignment, Companion module)
 
 ### Program monitor

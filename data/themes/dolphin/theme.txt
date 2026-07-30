@@ -1,19 +1,20 @@
-# Deckboy Theme: Dolphin
-# Cyan-phosphor OLED terminal — reactor-pool glow on true black.
+# Deckboy Theme: dolphin
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	05090BFF
-shell_inner	080C0EFF
-shell_shadow	000000FF
+shell_outer	16262AFF
+shell_inner	1E3238FF
+shell_shadow	0A1416FF
 screen_light	40D8F0FF
 screen_mid	1E96AEFF
-screen_dark	0E4E5AFF
-screen_deep	041012FF
-screen_ink_soft	5FC0D4FF
-screen_fg	66E8FFFF
-screen_fg_soft	3EA0B4FF
-screen_tile	0D1618FF
-button_bezel	236670FF
-delete_bezel	E89830FF
+screen_dark	0E5462FF
+screen_deep	041418FF
+screen_ink_soft	8AC8D6FF
+screen_fg	7EE0F5FF
+screen_fg_soft	58A8BCFF
+screen_tile	0E2228FF
+button_bezel	2E7A8AFF
+delete_bezel	C0503AFF
 scanline_alpha	14
