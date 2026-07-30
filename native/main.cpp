@@ -1864,8 +1864,24 @@ struct OutputRuntime {
 #if defined(DECKBOY_HAS_SPOUT)
   std::unique_ptr<deckboy::platform::video::SiphonSpoutSender> spoutSender;
 #endif
+  // Program-monitor tap: a small copy of this output's finished composite,
+  // sampled on the output's own render pass so the control-window preview
+  // advances in lockstep with what actually leaves the machine instead of
+  // trailing it. Small on purpose — the readback cost scales with area.
+  SDL_Texture* previewTapTexture = nullptr;
+  int previewTapTextureW = 0;
+  int previewTapTextureH = 0;
+  std::vector<std::uint8_t> previewTapPixels;  // RGBA32
+  int previewTapW = 0;
+  int previewTapH = 0;
+  std::uint64_t previewTapSerial = 0;  // bumped per successful tap; 0 = nothing captured
   bool recoveryPausedByEscape = false;
   bool fullscreenIntended = false;  // user explicitly wants fullscreen — re-assert if dropped
+  // The display this output is pinned to (by name) is not currently attached.
+  // Parks recovery instead of slamming the program feed fullscreen onto
+  // whatever monitor inherited the index — unplugging a projector must not
+  // take over the operator's control screen. Cleared when the panel returns.
+  bool awaitingDisplayReturn = false;
   Uint64 lastFullscreenRequestMs = 0;
   Uint64 lastRecoveryAttemptMs = 0;
   bool pendingDisplayRuntimeRebuild = false;
@@ -3546,7 +3562,8 @@ Project loadProject(const fs::path& projectFile) {
       cue.subtitleStreamId = safeString(fields, subtitleBase + 1);
       cue.subtitleEnabled = safeBool(fields, subtitleBase + 2, true);
       cue.refreshOnTake = safeBool(fields, subtitleBase + 3, false);
-      cue.audioGainDb = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 4, 0.0)), -24.0f, 12.0f);
+      cue.audioGainDb = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 4, 0.0)),
+                                   kCueAudioGainMinDb, kCueAudioGainMaxDb);
       cue.audioPan = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 5, 0.0)), -1.0f, 1.0f);
       cue.audioMono = safeBool(fields, subtitleBase + 6, false);
       cue.audioFadeInSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 7, -1.0)), -1.0f, 60.0f);
@@ -4754,7 +4771,14 @@ class App {
     if (rect.w <= 0 || rect.h <= 0) {
       return;
     }
-    SDL_Rect snapped = snapRectToGrid(rect);
+    // Draw exactly the rect the caller computed. This used to paint
+    // snapRectToGrid(rect) — an 8px grid snap — while Primitives::drawFramedPanel
+    // (the other half of the UI) painted the raw rect, and the text helpers were
+    // split the same way. A label could therefore sit up to a full grid unit off
+    // centre relative to the box around it, and two neighbouring controls drawn
+    // with different helper pairs disagreed visibly. One coordinate space now:
+    // the box and its label both use the caller's rect. See safeTextRect.
+    SDL_Rect snapped = rect;
     Primitives::fillRect(controlRenderer_, snapped, fill);
     Primitives::strokeRect(controlRenderer_, snapped, border);
     if (snapped.w > 4 && snapped.h > 4) {
@@ -5121,6 +5145,25 @@ class App {
   // least 1px to avoid divide-by-zero in snapDownToGrid. Callers should hit
   // this before the next render frame so panel/button geometry matches the
   // new metrics.
+  // Scale a pixel constant that was authored at 1x UI scale.
+  //
+  // Fonts and the kLayout* metrics already follow Project::uiScale, but panel
+  // geometry inside the settings modal is written as literal pixels. Routing
+  // those literals through here keeps chrome and type growing together. At
+  // uiScale 1.0 this is the identity, so the 1x layout is bit-identical — that
+  // property is what makes the sweep safe to apply widely.
+  int uiScaled(int base) const {
+    double scale = project_.uiScale;
+    if (!std::isfinite(scale) || scale <= 0.0) {
+      scale = 1.0;
+    }
+    if (scale == 1.0) {
+      return base;
+    }
+    int scaled = static_cast<int>(std::lround(base * scale));
+    return base > 0 ? std::max(1, scaled) : scaled;
+  }
+
   void rebuildLayoutMetrics(double scale) {
     if (!std::isfinite(scale) || scale <= 0.0) scale = 1.0;
     auto sc = [scale](int base) {
@@ -5612,6 +5655,13 @@ class App {
     std::string cueId;
     double gainDb = 0.0;
     double measuredLufs = 0.0;
+    double measuredPeakDb = 0.0;
+    bool hasPeak = false;
+    // True when the loudness target was reachable but doing so would have
+    // pushed true peak past the ceiling, so the gain was held back. Reported
+    // to the operator — a normalizer that quietly misses target is worse than
+    // one that says why.
+    bool peakLimited = false;
     bool ok = false;
   };
   std::mutex normalizeResultsMutex_;
@@ -5799,6 +5849,12 @@ class App {
   int controlPreviewTexH_ = 0;
   Uint32 controlPreviewTexFormat_ = 0;
   std::uint64_t controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+  // Program-monitor tap bookkeeping: which output composite the control
+  // preview currently holds (vs. a raw decoder frame), and the last tap serial
+  // uploaded. Composite frames already carry the cue's geometry, so the
+  // monitor must draw them plainly instead of re-applying it.
+  bool controlPreviewIsComposite_ = false;
+  std::uint64_t controlPreviewTapSerial_ = 0;
   std::vector<QuickButton> quickButtons_;
   // Value scrubbing: click-hold-drag horizontally on an inspector value cell
   // steps the row's dec/inc actions (like number scrubbing in AE/Resolve);
@@ -5830,6 +5886,11 @@ class App {
   int cueSettingsScrollMax_ = 0;
   SDL_Rect settingsVideoViewport_ {};
   int settingsVideoScroll_ = 0;
+  // System tab scroll: only engages when the cards are taller than the modal,
+  // which happens at large UI scales.
+  int settingsSystemScroll_ = 0;
+  int settingsSystemScrollMax_ = 0;
+  SDL_Rect settingsSystemViewport_ {0, 0, 0, 0};
   int settingsVideoScrollMax_ = 0;
   bool cueSectionPlaybackOpen_ = true;
   bool cueSectionMetadataOpen_ = true;
@@ -6020,6 +6081,12 @@ class App {
   Uint64 lastEscapeKeyMs_ = 0;
   int escapePressStreak_ = 0;
   int observedDisplayCount_ = -1;
+  // Per-display "name@x,y,w,h" fingerprints from the last topology scan.
+  // Compared entry-by-entry so a hot-plug re-homes only the outputs whose
+  // display actually moved, changed size, or was swapped for another panel —
+  // count alone misses same-count swaps and resolution changes.
+  std::vector<std::string> displaySignatureEntries_;
+  Uint64 displayTopologyRecheckAtMs_ = 0;  // debounce deadline for the display-event burst
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
   bool engineCueSyncPending_ = false;  // refresh engine cue snapshots next tick (set by markProjectDirty)

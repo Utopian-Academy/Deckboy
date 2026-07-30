@@ -1029,12 +1029,15 @@
     previewMonitorInner_ = {};
     if (hasLiveVideo) {
       SDL_Rect inner = warpMonitorInner_;
+      // A composite tap is the finished output frame: scale/offset/crop/
+      // rotation and every layer are already baked in, so pass no cue and let
+      // it letterbox. Only a raw decoder frame needs the geometry applied here.
       renderTextureWithCueGeometry(
         controlRenderer_,
         controlPreviewTex_,
         controlPreviewTexW_,
         controlPreviewTexH_,
-        activeCue,
+        controlPreviewIsComposite_ ? nullptr : activeCue,
         inner);
     } else if (activeCue && activeCue->kind == CueKind::Composite) {
       SDL_Rect inner = warpMonitorInner_;

@@ -60,6 +60,11 @@ inline std::string normalizePatternTypeId(std::string value) {
     value = "smpte-bars";            // standard SMPTE color bars
   } else if (value == "testsrc" || value == "testsrc2" || value == "testbars") {
     value = "test-bars";             // broadcast motion-diagnostics bars
+                                     // ("testsrc" kept here for save compat —
+                                     //  testsrc v1's look is "test-clock")
+  } else if (value == "testsrc1" || value == "sync-card" || value == "syncclock" ||
+             value == "sync-clock" || value == "latency-clock" || value == "testclock") {
+    value = "test-clock";            // sync/latency card
   } else if (value == "kawaii" || value == "kawaii-pocket") {
     value = "pocket-test";           // retro pixel art test pattern
   } else if (value == "pocket-daytime" || value == "pocket-sunny") {
@@ -118,6 +123,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
   return normalized.rfind("pocket-", 0) == 0 ||       // pocket scenes: always animated
          normalized == "terrarium" ||                  // living ecosystem: always animated
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
+         normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
          endsWith(normalized, "-motion");               // motion variant of static pattern
 }
