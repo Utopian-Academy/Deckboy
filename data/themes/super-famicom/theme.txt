@@ -1,19 +1,20 @@
-# Deckboy Theme: Super Famicom
-# Lavender-grey-phosphor OLED terminal on true black.
+# Deckboy Theme: super-famicom
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	08070CFF
-shell_inner	0B090FFF
-shell_shadow	000000FF
+shell_outer	2A2734FF
+shell_inner	343040FF
+shell_shadow	14121AFF
 screen_light	B0A6D8FF
 screen_mid	6A5E9EFF
-screen_dark	3E3666FF
-screen_deep	08060FFF
-screen_ink_soft	A296C8FF
-screen_fg	C6BEE8FF
-screen_fg_soft	7268A8FF
-screen_tile	12101CFF
-button_bezel	4E4488FF
-delete_bezel	E89830FF
-scanline_alpha	12
+screen_dark	3A3260FF
+screen_deep	141220FF
+screen_ink_soft	BCB4D8FF
+screen_fg	CFC6F0FF
+screen_fg_soft	9088C0FF
+screen_tile	1E1C2CFF
+button_bezel	5E568AFF
+delete_bezel	C0503AFF
+scanline_alpha	14

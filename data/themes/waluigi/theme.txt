@@ -1,19 +1,20 @@
-# Deckboy Theme: Waluigi
-# Indigo-neon-phosphor OLED terminal on true black. Wah.
+# Deckboy Theme: waluigi
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	07060CFF
-shell_inner	0A0810FF
-shell_shadow	000000FF
+shell_outer	221E30FF
+shell_inner	2C263CFF
+shell_shadow	100E1AFF
 screen_light	9C6CFFFF
 screen_mid	6040C0FF
-screen_dark	3A2678FF
-screen_deep	07050FFF
-screen_ink_soft	A890E0FF
-screen_fg	AE84FFFF
-screen_fg_soft	7658C8FF
-screen_tile	110C1CFF
-button_bezel	483A8BFF
-delete_bezel	E89830FF
+screen_dark	34206EFF
+screen_deep	100A20FF
+screen_ink_soft	B6A0DEFF
+screen_fg	BC9AFFFF
+screen_fg_soft	8C74C8FF
+screen_tile	1A1428FF
+button_bezel	56409AFF
+delete_bezel	C0503AFF
 scanline_alpha	14

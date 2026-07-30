@@ -1,19 +1,20 @@
-# Deckboy Theme: Ganon
-# Magenta-phosphor OLED terminal — dark-world evil on true black.
+# Deckboy Theme: ganon
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A050AFF
-shell_inner	0D080CFF
-shell_shadow	000000FF
+shell_outer	2A1A24FF
+shell_inner	34222EFF
+shell_shadow	140A10FF
 screen_light	E0409AFF
 screen_mid	A0246AFF
-screen_dark	6E1848FF
-screen_deep	100510FF
-screen_ink_soft	C86098FF
-screen_fg	FF5CB0FF
-screen_fg_soft	C0387EFF
-screen_tile	160A12FF
-button_bezel	7A2A5AFF
-delete_bezel	E89830FF
+screen_dark	581038FF
+screen_deep	1A0612FF
+screen_ink_soft	D68CB4FF
+screen_fg	F080BEFF
+screen_fg_soft	BC5A90FF
+screen_tile	22101AFF
+button_bezel	8A2E5EFF
+delete_bezel	C0503AFF
 scanline_alpha	14

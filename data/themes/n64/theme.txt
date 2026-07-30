@@ -1,19 +1,17 @@
-# Deckboy Theme: Nintendo 64
-# Teal-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: n64
+# Family: moulded case -- muted plastic shell with a saturated LCD, the same
+# structure as the default Game Boy theme. The case is deliberately low-chroma:
+# the character's hue belongs to the screen.
 # All color values are RRGGBBAA hex.
 
-shell_outer	05090AFF
-shell_inner	080C0DFF
-shell_shadow	000000FF
+shell_outer	AEBAB2FF
+shell_inner	9AA69EFF
+shell_shadow	3E4A44FF
 screen_light	33D9C0FF
 screen_mid	199B8AFF
-screen_dark	0E5148FF
-screen_deep	06120FFF
-screen_ink_soft	4FBFAEFF
-screen_fg	5BF5DEFF
-screen_fg_soft	3EA894FF
-screen_tile	0F1714FF
-button_bezel	236B60FF
-delete_bezel	C23A42FF
-scanline_alpha	14
+screen_dark	0E5248FF
+screen_deep	041A16FF
+screen_ink_soft	127A6DFF
+button_bezel	4E625CFF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

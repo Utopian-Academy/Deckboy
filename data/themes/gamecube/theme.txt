@@ -1,19 +1,20 @@
-# Deckboy Theme: GameCube
-# Violet-phosphor OLED terminal on true black.
+# Deckboy Theme: gamecube
+# Family: tinted chassis -- dark enough for a booth, but a real coloured body
+# rather than true black, so it reads as its own machine.
 # v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
 # All color values are RRGGBBAA hex.
 
-shell_outer	08060CFF
-shell_inner	0B0810FF
-shell_shadow	000000FF
+shell_outer	232036FF
+shell_inner	2C2842FF
+shell_shadow	100E1CFF
 screen_light	9B7BFFFF
 screen_mid	5E44B8FF
-screen_dark	3A2A78FF
-screen_deep	08050FFF
-screen_ink_soft	A88FE0FF
-screen_fg	B49CFFFF
-screen_fg_soft	7A62C8FF
-screen_tile	120C1CFF
-button_bezel	4A3A8BFF
-delete_bezel	C23A42FF
+screen_dark	32246AFF
+screen_deep	0E0A1EFF
+screen_ink_soft	B4A4E0FF
+screen_fg	BFA8FFFF
+screen_fg_soft	8A7CCAFF
+screen_tile	1A1630FF
+button_bezel	54469EFF
+delete_bezel	C0503AFF
 scanline_alpha	14

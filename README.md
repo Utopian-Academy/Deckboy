@@ -5,9 +5,9 @@ Project goal: keep Deckboy fully open source and ship first-class builds on Wind
 
 For a structural map of the codebase see [`docs/CODEMAP.md`](docs/CODEMAP.md). Windows build instructions live in [`CLAUDE.md`](CLAUDE.md) (Build section).
 
-**🚀 March 2025 Refactoring**: See [CHANGES.md](CHANGES.md) for a comprehensive summary of modular architecture improvements, broadcast SDK integration (MIDI, DeckLink, Syphon/Spout), cross-platform support, and automated CI/CD setup.
+Downloads are on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases) — the Windows zip is portable, with FFmpeg, SDL3 and the whole `data/` tree bundled. [CHANGES.md](CHANGES.md) is the full changelog.
 
-The UI is styled with a Game Boy-inspired look: chunky shell framing, cute "cartridge shelf" language, and a more playful control surface. The default palette is Game Boy green, but Deckboy ships a library of **24 swappable themes** — dark, high-contrast sci-fi colorways plus Nintendo-inspired ones — selectable in Preferences → Appearance and saved per show. Drop a `theme.txt` into `data/themes/<name>/` to add your own.
+The UI is styled with a Game Boy-inspired look: chunky shell framing, "cartridge shelf" language, and a playful control surface. The default palette is Game Boy green, and Deckboy ships **30 swappable themes** in three families — moulded-case (muted plastic shell, saturated LCD), tinted chassis (dark coloured body, bright ink), and true-black OLED terminals for dark booths. Themes are picked in Settings → System → Appearance and saved per show. Drop a `theme.txt` into `data/themes/<name>/` to add your own, then run `tools/audit_theme_contrast.ps1` — readability is a data contract, and the audit checks every role pair the UI actually draws.
 
 Cute extras are now optional:
 
@@ -21,15 +21,9 @@ Cute extras are now optional:
 - GitHub Actions validates `vX.Y.Z` tags against `VERSION` before running release-tag builds.
 - See [`docs/VERSION_FLOW.md`](docs/VERSION_FLOW.md) for the version/release workflow.
 
-## Current MVP
+## What it does
 
-**New in v0.76.31:**
-- **Built-in media Encoder** (Settings → Encoder): converts cues Deckboy can't play well (10-bit HEVC, AV1, ProRes, 4K) to H.264 — GPU-accelerated, into a portable `_converted/` folder next to the show. Bad imports are auto-flagged with a contextual CONVERT button.
-- **30 swappable themes**, now Nintendo-named (Luigi, Kirby, Mario, Star Fox, Game & Watch, Peach, Ganon, …) with near-pure-black backgrounds; **saved per show**, and the boot splash tints to the active theme (branded DECKBOY splash on the default theme).
-- **Ctrl+A selects all cues**, and per-cue row toggles (hold/loop/fade/audio) apply to the whole selection.
-- **RESET** button restores a cue's settings to defaults; inspector value fields are **type-to-replace**.
-- **Audio-device changes hot-swap** without stopping playback; the deck cue list clamps with a springy bottom rubber-band.
-- Folder drag-drop recursively imports media; `SAVE` always prompts (project only), `BUNDLE` exports with media.
+For what landed in a given release, read [CHANGES.md](CHANGES.md) — this list is the standing feature set, not a per-version changelog.
 
 - Native control window plus separate native output windows
 - Drag-and-drop import or native file picker import
@@ -149,34 +143,29 @@ Cute extras are now optional:
 
 ## Run
 
-Build and launch the native app:
+The quickest route is the portable Windows zip from the
+[releases page](https://github.com/Utopian-Academy/Deckboy/releases): unzip it
+and run `Deckboy.exe`. Keep `Deckboy.exe` and `data\` side by side — the data
+root is resolved from the executable's folder.
 
-```bash
-cd /home/james/deckboy
-chmod +x bin/deckboy bin/deckboy-native
-./bin/deckboy
+To build from source, see the Build section of [`CLAUDE.md`](CLAUDE.md).
+The binary lands at `build/windows/Release/Deckboy.exe` on Windows and
+`build/Deckboy` on Linux/macOS.
+
+Useful flags:
+
+```
+Deckboy.exe --version
+Deckboy.exe --self-check          # fonts, ffmpeg, SDKs, backends, LTC runtime
+Deckboy.exe --smoke               # headless assertion suite
+Deckboy.exe --allow-multi-instance
+Deckboy.exe --import <file>       # import at launch (skips splash/startup menu)
+Deckboy.exe --settings [tab]      # open the settings modal at boot
+Deckboy.exe --soak [minutes]      # long-run stability harness
 ```
 
-The launcher builds with CMake automatically and then runs the native binary.
-
-Useful options:
-
-```bash
-./build/native/Deckboy --self-check
-./build/native/Deckboy --smoke
-./build/native/Deckboy --version
-./build/native/Deckboy --allow-multi-instance
-./scripts/smoke.sh
-./scripts/generate_demo_shows.sh
-```
-
-Demo show files are generated in `data/demos/` (including a `70/30 + 4 PiP over BG` 5-deck example).
-
-To change the Companion port:
-
-```bash
-DECKBOY_COMPANION_PORT=5610 ./bin/deckboy
-```
+To change the Companion port, set `DECKBOY_COMPANION_PORT` before launching.
+Demo show files live in `data/demos/`.
 
 ## Controls
 
@@ -238,13 +227,17 @@ DECKBOY_COMPANION_PORT=5610 ./bin/deckboy
 
 ## Companion
 
-Use Companion's `Generic TCP/UDP` connection and point it at the machine running Deckboy.
+Use the **Deckboy module** in [`companion-module-deckboy/`](companion-module-deckboy/).
+As well as sending commands it polls Deckboy's state, so Stream Deck keys carry
+cue tally, transport colour, output health and a live countdown.
 
 - Host: the Deckboy machine IP
 - Port: `5510` by default
-- Protocol: either TCP or UDP
+- **Deckboy listens on localhost only until you turn on Settings → Network → REMOTE.**
+  Leave it off and only a Companion instance on the same machine can connect.
 
-Official Stream Deck mapping package:
+A one-way `Generic TCP/UDP` mapping is still available for setups that can't
+install a module, and doubles as the canonical list of command strings:
 - [`docs/streamdeck/README.md`](docs/streamdeck/README.md)
 - [`docs/streamdeck/deckboy_companion_profile_map.json`](docs/streamdeck/deckboy_companion_profile_map.json)
 
@@ -509,25 +502,24 @@ Notes:
 
 ## Notes
 
-- This machine has the runtime pieces needed for the native build: `g++`, `cmake`, `SDL3`, `SDL3_ttf`, `ffmpeg`, and `ffprobe`.
-- The older browser prototype is still on disk for reference and can be launched with `./bin/deckboy-web`, but it is no longer the default path.
-- Browser cues now flow through `native/platform/browser.*` as a backend seam.
-- The current Linux browser backend still relies on an external Chromium-family browser being available on the machine.
+- Building needs a C++ toolchain, `cmake`, `SDL3`, `SDL3_ttf`, and `ffmpeg`/`ffprobe` on PATH. The portable Windows zip bundles the runtime pieces, so end users need none of them.
+- Browser cues flow through `native/platform/browser.*` as a backend seam: WebView2 on Windows, WKWebView on macOS, and an external Chromium-family browser on Linux.
 - If a Dante or network audio device appears to the OS as a normal output device, Deckboy can select it the same way it selects any other SDL audio output. True native Dante routing/control is not implemented yet.
 - NDI output is now optional and output-local. If the app finds NDI SDK headers at build time, it can dynamically load `libndi` at runtime and publish each enabled output as a network source.
 - Output NDI fill includes composited output video plus mixed stereo output audio; optional key output publishes a separate matte stream.
 - Output delay control currently applies to NDI/stream egress paths; window-output presentation remains immediate.
 - If NDI runtime libraries are not on your system path, set `DECKBOY_NDI_LIB` to the full runtime library path.
-- Window Source / Camera Source / Syphon/Spout Source cues now run through real source transport in the native runtime:
-  - `Window Source` = X11 capture path
-  - `Camera Source` = V4L2 capture path
-  - `Syphon/Spout Source` = Linux desktop fallback path (native Syphon/Spout remains planned for macOS/Windows parity)
+- Window Source / Camera Source cues run through real capture backends per platform:
+  - `Window Source` = gdigrab on Windows, X11 capture on Linux
+  - `Camera Source` = DirectShow on Windows (webcams, HDMI sticks, Blackmagic WDM), V4L2 on Linux
+  - Capture devices open exclusively, so the same device cannot be previewed and taken live at once
+- Spout (Windows) and Syphon (macOS) are implemented as **output** backends for interprocess texture sharing, enabled with `ENABLE_SPOUT` / `ENABLE_SIPHON`.
 - Multi-output is now output-entity based. `Deckboy_0.01` persists `OutputTarget` + `LayerAssignment`, and output windows are managed separately from deck runtimes.
 - Output create/assignment/type/mirror controls now ship in Preferences -> Video and via `VIDEO OUTPUT ...` commands.
 - Output network streaming (`SRT` + `RTMP`) is now per-output and ffmpeg-backed; stream outputs can mirror another output feed or render their own assignments.
 - Stream outputs now mux H.264 video + AAC stereo audio. Audio follows the output's assigned deck stack (with host-deck fallback when no assignments are present).
-- NDI metadata triggers are now live on Linux/macOS builds through a runtime-loaded `libndi` receive bridge. If the runtime library is not on your system path, set `DECKBOY_NDI_LIB`. If you need Deckboy to target a specific NDI source name, set `DECKBOY_NDI_TRIGGER_SOURCE`.
-- NMC transport sync is now live on Linux/macOS builds as a UDP transport/locate bridge. Default mode is `input` on UDP `51010`; use `DECKBOY_NMC_MODE=output` to broadcast, `DECKBOY_NMC_PORT` to change port, `DECKBOY_NMC_HOST` to choose the output target, `DECKBOY_NMC_SOURCE` to filter inbound senders, and `DECKBOY_NMC_LOCATE_MS` to change rolling locate cadence.
+- NDI metadata triggers run on all platforms through a runtime-loaded `libndi` receive bridge. If the runtime library is not on your system path, set `DECKBOY_NDI_LIB`. If you need Deckboy to target a specific NDI source name, set `DECKBOY_NDI_TRIGGER_SOURCE`.
+- NMC transport sync runs as a UDP transport/locate bridge (Windows support is still stubbed). Default mode is `input` on UDP `51010`; use `DECKBOY_NMC_MODE=output` to broadcast, `DECKBOY_NMC_PORT` to change port, `DECKBOY_NMC_HOST` to choose the output target, `DECKBOY_NMC_SOURCE` to filter inbound senders, and `DECKBOY_NMC_LOCATE_MS` to change rolling locate cadence.
 - Third-party NMC interop still needs validation with a real source.
-- Future upgrades: DeckLink class outputs, multichannel audio routing, and a more robust decode backend than subprocess-driven FFmpeg piping.
-- LTC ingest is now live on Linux/macOS builds through the default SDL capture input. If the runtime library is not on your system path, set `DECKBOY_LTC_LIB`. If you need a specific input device, set `DECKBOY_LTC_DEVICE` to the capture-device name SDL should open.
+- Future work: multichannel audio routing beyond output-pair assignment, and shared capture so one device can feed preview and program at once. DeckLink output and in-process libav decode both shipped (v0.76.12 and v0.78.0).
+- LTC ingest runs on all platforms through the default SDL capture input; libltc is loaded dynamically (`ltc.dll` ships in the Windows zip). `--self-check` reports `ltc-runtime`. If the runtime library is not on your system path, set `DECKBOY_LTC_LIB`. If you need a specific input device, set `DECKBOY_LTC_DEVICE` to the capture-device name SDL should open.
