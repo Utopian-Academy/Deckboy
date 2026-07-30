@@ -1013,7 +1013,9 @@
           auto [ebRasterW, ebRasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
           ebRasterW = std::max(16, ebRasterW);
           ebRasterH = std::max(16, ebRasterH);
-          int blendH = 96;
+          // Sized from the shared header + row metrics, not a magic number: rows are
+          // font-derived now, so a fixed height clipped the last control.
+          int blendH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap) + 8;
           SDL_Rect blendSection {cx, sy, subContentW, blendH};
           SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE BLENDING");
           int bx = blendBody.x + 2;
@@ -1053,7 +1055,7 @@
           bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
                         || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
           AoiRectPx aoi = focusedOutputAoiRectPx();
-          int aoiH = 96;
+          int aoiH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap) + 8;
           SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
           SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
           SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
@@ -1196,7 +1198,7 @@
 
         // NDI Network
         {
-          int ndiH = 143;
+          int ndiH = settingsHeaderHeight(fontSmall_) + 3 * (kRowH + kRowGap) + 8;
           SDL_Rect ndiSection {cx, sy, subContentW, ndiH};
           SDL_Rect nBody = drawSectionFrame(ndiSection, "NDI\xc2\xae NETWORK");
           VerticalLayout nLayout(nBody, kRowGap);
@@ -1215,7 +1217,7 @@
           int halfW = (subContentW - 8) / 2;
 
           // DeckLink
-          int dlH = 173;
+          int dlH = settingsHeaderHeight(fontSmall_) + 4 * (kRowH + kRowGap) + 8;
           SDL_Rect dlSection {cx, sy, halfW, dlH};
           SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
           VerticalLayout dlLayout(dlBody, kRowGap);
