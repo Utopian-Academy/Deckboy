@@ -768,16 +768,14 @@
 
   void setOscQueryEnabled(bool enabled) {
     normalizeProject(project_);
-#if defined(_WIN32)
-    project_.oscQueryEnabled = false;
-    if (enabled) {
-      triggerToast("osc query: unavailable");
-      playUiSound(UiSoundEffect::Toggle);
-    } else {
-      triggerToast("osc query: off");
-    }
-    return;
-#else
+    // This used to refuse outright under _WIN32 and toast "osc query:
+    // unavailable" without trying. That guard was stale: the OSC Query server
+    // is the same cross-platform socket code Companion control already runs on
+    // Windows (createBoundSocket / select / accept / recv / send), with only an
+    // errno==EINTR check platform-guarded. Nothing about it is POSIX-only, so
+    // the primary platform was being denied a feature it supports. If the bind
+    // genuinely fails, startOscQueryServer below reports it the same way it
+    // does everywhere else.
     if (project_.oscQueryEnabled == enabled) {
       triggerToast(std::string("osc query: ") + (enabled ? "on" : "off"));
       return;
@@ -796,7 +794,6 @@
     triggerToast(std::string("osc query: ") + (project_.oscQueryEnabled ? "on" : "off"));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
-#endif
   }
 
   void setOscQueryPort(int port) {
@@ -807,12 +804,10 @@
       return;
     }
     project_.oscQueryPort = normalized;
-#if !defined(_WIN32)
     if (project_.oscQueryEnabled) {
       stopOscQueryServer();
       startOscQueryServer();
     }
-#endif
     triggerToast("osc query port: " + std::to_string(project_.oscQueryPort));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
