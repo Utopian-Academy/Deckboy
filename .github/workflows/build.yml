@@ -1,12 +1,15 @@
 name: Deckboy CI
 
+# Triggers used to name `deckboy-0.75`, a branch that no longer exists, so
+# push/PR builds silently never ran and only tag builds did — which is how the
+# workflow drifted a whole SDL major version behind without anyone noticing.
 on:
   push:
-    branches: [deckboy-0.75]
+    branches: [main]
     tags:
       - 'v*'
   pull_request:
-    branches: [deckboy-0.75]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -37,70 +40,84 @@ jobs:
             fi
           fi
 
+  # The Companion module is plain Node with no native deps, so it is by far the
+  # cheapest signal in the matrix — run it first.
+  companion-module:
+    name: Companion Module Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install and test
+        working-directory: companion-module-deckboy
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+
   linux-build:
     name: Linux Build (Ubuntu)
     needs: version-check
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        features: [none, midi, decklink, all]
+        include:
+          - features: none
+            cmake_args: ""
+          - features: all
+            cmake_args: "-DENABLE_MIDI=ON -DENABLE_DECKLINK=ON"
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install dependencies
+
+      - name: Install base dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential \
-            cmake \
-            pkg-config \
-            libsdl2-dev \
-            libsdl2-ttf-dev \
-            libfmt-dev
-      
-      - name: Install RtMidi (MIDI tests)
-        if: matrix.features == 'midi' || matrix.features == 'all'
-        run: sudo apt-get install -y librtmidi-dev
-      
-      - name: Create build directory
-        run: mkdir -p build
-      
-      - name: Configure (no features)
-        if: matrix.features == 'none'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release
-      
-      - name: Configure (with MIDI)
-        if: matrix.features == 'midi'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_MIDI=ON
-      
-      - name: Configure (with DeckLink stubs)
-        if: matrix.features == 'decklink'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DENABLE_DECKLINK=ON
-      
-      - name: Configure (all features)
+            build-essential cmake pkg-config git \
+            libfreetype-dev libharfbuzz-dev \
+            libavcodec-dev libavformat-dev libavutil-dev \
+            libavfilter-dev libswscale-dev libswresample-dev
+
+      - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
+        run: sudo apt-get install -y librtmidi-dev
+
+      # SDL3 is not in every Ubuntu image's archive yet, so try the packages
+      # and fall back to building the stable branch from source. Whichever path
+      # runs, the result is a normal system install that find_package picks up.
+      - name: Install SDL3
         run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-            -DENABLE_MIDI=ON \
-            -DENABLE_DECKLINK=ON
-      
+          set -e
+          if sudo apt-get install -y libsdl3-dev libsdl3-ttf-dev; then
+            echo "SDL3 installed from apt"
+            exit 0
+          fi
+          echo "SDL3 not packaged on this image — building from source"
+          git clone --depth 1 --branch release-3.2.x https://github.com/libsdl-org/SDL.git /tmp/SDL
+          cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
+          cmake --build /tmp/SDL/build -j"$(nproc)"
+          sudo cmake --install /tmp/SDL/build
+          git clone --depth 1 --branch release-3.2.x --recurse-submodules \
+            https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
+          cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON
+          cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
+          sudo cmake --install /tmp/SDL_ttf/build
+          sudo ldconfig
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+
       - name: Build
-        run: |
-          cd build
-          make -j$(nproc)
-      
+        run: cmake --build build -j"$(nproc)"
+
       - name: Self-check
-        run: |
-          cd build
-          ./Deckboy --self-check
-      
+        run: ./build/Deckboy --self-check
+
+      - name: Smoke tests
+        run: ./build/Deckboy --smoke
+
       - name: Upload artifact
         if: matrix.features == 'none'
         uses: actions/upload-artifact@v4
@@ -113,154 +130,88 @@ jobs:
     needs: version-check
     runs-on: macos-latest
     strategy:
+      fail-fast: false
       matrix:
-        features: [none, midi, siphon, all]
+        include:
+          - features: none
+            cmake_args: ""
+          - features: all
+            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SIPHON=ON"
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install dependencies
-        run: |
-          brew install cmake sdl2 sdl2_ttf pkg-config
-      
-      - name: Install RtMidi (MIDI tests)
-        if: matrix.features == 'midi' || matrix.features == 'all'
-        run: brew install rtmidi
-      
-      - name: Create build directory
-        run: mkdir -p build
-      
-      - name: Configure (no features)
-        if: matrix.features == 'none'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
-      
-      - name: Configure (with MIDI)
-        if: matrix.features == 'midi'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-            -DENABLE_MIDI=ON
-      
-      - name: Configure (with Siphon stubs)
-        if: matrix.features == 'siphon'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-            -DENABLE_SIPHON=ON
-      
-      - name: Configure (all features)
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg
+
+      - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
-        run: |
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
-            -DENABLE_MIDI=ON \
-            -DENABLE_SIPHON=ON
-      
+        run: brew install rtmidi
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
+
       - name: Build
-        run: |
-          cd build
-          make -j$(sysctl -n hw.ncpu)
-      
+        run: cmake --build build -j"$(sysctl -n hw.ncpu)"
+
       - name: Self-check
-        run: |
-          cd build
-          ./Deckboy --self-check
-      
-      - name: Upload artifact
-        if: matrix.features == 'none'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Deckboy-macos-${{ needs.version-check.outputs.version }}
-          path: build/Deckboy
+        run: ./build/Deckboy --self-check
+
+      - name: Smoke tests
+        run: ./build/Deckboy --smoke
 
   windows-build:
     name: Windows Build (MSVC)
     needs: version-check
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        features: [none, midi, spout, all]
+        include:
+          - features: none
+            cmake_args: ""
+          - features: all
+            cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON"
     steps:
       - uses: actions/checkout@v4
-      
+
+      # No explicit -G: the runner image's newest Visual Studio is whatever
+      # CMake defaults to. Pinning "Visual Studio 17 2022" is what broke these
+      # builds when the hosted image moved on ("could not find any instance of
+      # Visual Studio").
       - name: Install vcpkg
         run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          .\bootstrap-vcpkg.bat
-      
-      - name: Install dependencies
-        run: |
-          .\vcpkg\vcpkg install `
-            sdl2:x64-windows `
-            sdl2-ttf:x64-windows
-      
-      - name: Install RtMidi (MIDI tests)
-        if: matrix.features == 'midi' || matrix.features == 'all'
-        run: |
-          .\vcpkg\vcpkg install rtmidi:x64-windows
-      
-      - name: Create build directory
-        run: mkdir -p build
-      
-      - name: Configure (no features)
-        if: matrix.features == 'none'
-        run: |
-          cd build
-          cmake .. `
-            -G "Visual Studio 17 2022" `
-            -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake
-      
-      - name: Configure (with MIDI)
-        if: matrix.features == 'midi'
-        run: |
-          cd build
-          cmake .. `
-            -G "Visual Studio 17 2022" `
-            -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
-            -DENABLE_MIDI=ON
-      
-      - name: Configure (with Spout stubs)
-        if: matrix.features == 'spout'
-        run: |
-          cd build
-          cmake .. `
-            -G "Visual Studio 17 2022" `
-            -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
-            -DENABLE_SPOUT=ON
-      
-      - name: Configure (all features)
-        if: matrix.features == 'all'
-        run: |
-          cd build
-          cmake .. `
-            -G "Visual Studio 17 2022" `
-            -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake `
-            -DENABLE_MIDI=ON `
-            -DENABLE_SPOUT=ON
-      
-      - name: Build
-        run: |
-          cd build
-          cmake --build . --config Release -j (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
-      
-      - name: Self-check
-        run: |
-          cd build\Release
-          .\Deckboy.exe --self-check
-      
-      - name: Upload artifact
-        if: matrix.features == 'none'
-        uses: actions/upload-artifact@v4
+          git clone --depth 1 https://github.com/microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Cache vcpkg binaries
+        uses: actions/cache@v4
         with:
-          name: Deckboy-windows-${{ needs.version-check.outputs.version }}
-          path: build\Release\Deckboy.exe
+          path: ~/AppData/Local/vcpkg/archives
+          key: vcpkg-${{ runner.os }}-${{ matrix.features }}-sdl3
+          restore-keys: vcpkg-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf:x64-windows
+
+      - name: Install RtMidi (feature builds)
+        if: matrix.features == 'all'
+        run: .\vcpkg\vcpkg install rtmidi:x64-windows
+
+      # FFmpeg dev libraries are deliberately not installed here: the vcpkg
+      # port builds from source and dominates CI time. DECKBOY_INPROC_DECODE
+      # degrades to the ffmpeg-CLI decode path with a warning, and the
+      # in-process decoder is still compiled on Linux and macOS.
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+          ${{ matrix.cmake_args }}
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Self-check
+        run: .\build\Release\Deckboy.exe --self-check
+
+      - name: Smoke tests
+        run: .\build\Release\Deckboy.exe --smoke
