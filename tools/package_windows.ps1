@@ -121,6 +121,16 @@ if (Test-Path $RedistRoot) {
 $DataSrc = Join-Path $RepoRoot "data"
 if (Test-Path $DataSrc) {
     Copy-Item $DataSrc -Destination $StageDir -Recurse
+    # data/last_project.txt is per-machine state, not shipping content: it holds
+    # the absolute path of the last show opened on the BUILD machine. Releases
+    # up to v0.80.1 carried the packager's own local path into every download,
+    # which leaks a local directory layout and leaves a fresh install offering
+    # "open previous show" for a file the user has never had.
+    $StaleState = Join-Path (Join-Path $StageDir "data") "last_project.txt"
+    if (Test-Path $StaleState) {
+        Remove-Item $StaleState -Force
+        Write-Host "  - stripped data\last_project.txt (build-machine state)"
+    }
 }
 $LicenseSrc = Join-Path $RepoRoot "LICENSE"
 if (Test-Path $LicenseSrc) {
