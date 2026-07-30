@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-30 — v0.81.3 (OSC Query works on Windows, hidden DeckLink control recovered)
+
+### Remote control
+- **OSC Query was dead on Windows.** setOscQueryEnabled refused outright under
+  _WIN32 and toasted "osc query: unavailable" without ever attempting to start
+  the server, so the OSC Query HTTP endpoint and the mirrored /deckboy/state
+  feedback did not exist on the primary platform. The guard was stale: that
+  server is the same cross-platform socket code Companion control already runs
+  on Windows. Verified live — OSCQUERY ON binds TCP 5511 and an HTTP GET
+  returns the Deckboy OSC Query page.
+
+### Video Outputs
+- **A DeckLink control was invisible.** The NDI, DeckLink, Edge Blend and AOI
+  sections had hardcoded pixel heights sized for the old fixed row height. Now
+  that rows are font-derived those boxes were too short: DeckLink's **10-BIT**
+  toggle was clipped away entirely and NDI KEY straddled its panel border. All
+  four now size from the shared header + row metrics.
+
 ## 2026-07-30 — v0.81.2 (dark themes are finally possible, waveform clip fix, CI green)
 
 ### Themes
