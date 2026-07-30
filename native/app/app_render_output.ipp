@@ -988,6 +988,15 @@
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();
     }
+    // Program-monitor tap for the control window, sampled from the same
+    // composite this pass is about to present so the preview stays locked to
+    // the output (see captureOutputPreviewTap).
+    std::optional<int> tapOutput = previewTapOutputIndex();
+    if (usingCompositor && tapOutput && *tapOutput == outputIndex) {
+      captureOutputPreviewTap(*runtime, egressRect);
+    } else if (runtime->previewTapSerial != 0) {
+      releaseOutputPreviewTap(*runtime);
+    }
     if (ndiRouteActive) {
       sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
     }

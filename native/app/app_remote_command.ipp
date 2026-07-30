@@ -1969,12 +1969,13 @@
       return;
     }
     if (command == "AUDIOGAIN") {
-      // Per-cue gain trim in dB (-24..+12) — same write path as the
-      // inspector's gain row, applied live with no decode restart.
+      // Per-cue gain trim in dB (range: kCueAudioGainMinDb..kCueAudioGainMaxDb)
+      // — same write path as the inspector gain row, applied live with no
+      // decode restart.
       auto value = parseNumber(1);
       if (value && setSelectedAudioGainDb(*value)) {
         char buf[32];
-        std::snprintf(buf, sizeof(buf), "gain %+.1f dB", std::clamp(*value, -24.0, 12.0));
+        std::snprintf(buf, sizeof(buf), "gain %+.1f dB", std::clamp(*value, static_cast<double>(kCueAudioGainMinDb), static_cast<double>(kCueAudioGainMaxDb)));
         triggerToast(buf);
       }
       return;

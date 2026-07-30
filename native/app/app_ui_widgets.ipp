@@ -996,13 +996,16 @@
     // sizes (video widest, network tallest), which made it jump around on
     // every tab switch; the union of those envelopes keeps the busiest tab
     // comfortable and the dialog rock-steady.
-    constexpr int kMargin = 10;
-    constexpr int kMinW = 980;
-    constexpr int kMinH = 700;
-    constexpr int kMaxW = 1320;
-    constexpr int kMaxH = 940;
-    int modalW = std::clamp(width - kMargin * 2, kMinW, kMaxW);
-    int modalH = std::clamp(height - kMargin * 2, kMinH, kMaxH);
+    // The envelope scales with the UI scale: at 2x every card, row and label
+    // inside is twice the size, so a fixed 1320x940 cap would simply crop the
+    // content. Still bounded by the window below, so a small screen wins.
+    const int kMargin = uiScaled(10);
+    const int kMinW = uiScaled(980);
+    const int kMinH = uiScaled(700);
+    const int kMaxW = uiScaled(1320);
+    const int kMaxH = uiScaled(940);
+    int modalW = std::clamp(width - kMargin * 2, std::min(kMinW, width), kMaxW);
+    int modalH = std::clamp(height - kMargin * 2, std::min(kMinH, height), kMaxH);
     modalW = std::min(modalW, std::max(320, width - 12));
     modalH = std::min(modalH, std::max(260, height - 12));
     return SDL_Rect {(width - modalW) / 2, (height - modalH) / 2, modalW, modalH};

@@ -1679,7 +1679,7 @@
   // Linear amplitude scale for waveform display from the cue's gain trim, so
   // gain edits and R128 normalize visibly grow/shrink the drawn transients.
   float waveformGainScale(const Cue& cue) const {
-    return std::pow(10.0f, std::clamp(cue.audioGainDb, -24.0f, 12.0f) / 20.0f);
+    return std::pow(10.0f, std::clamp(cue.audioGainDb, kCueAudioGainMinDb, kCueAudioGainMaxDb) / 20.0f);
   }
 
   // Draw a waveform bar graph into dest. playFrac/inFrac/outFrac in [0,1].
@@ -1726,13 +1726,34 @@
       i1 = std::clamp(i1, i0, n - 1);
       float maxVal = 0.0f;
       for (int k = i0; k <= i1; ++k) maxVal = std::max(maxVal, channel[k]);
-      return std::min(1.0f, maxVal * gainScale);
+      // Deliberately NOT clamped here — drawColumn needs to know when the
+      // trimmed level exceeds full scale so it can flag it. Clamping at this
+      // point is what made gain edits invisible on already-loud material:
+      // peaks were pinned at 1.0 before and after, so nothing moved on screen.
+      return maxVal * gainScale;
     };
 
     auto drawColumn = [&](int px, int topY, int baseY, float peak, bool upward, bool inRange) {
+      // Over full scale the bar can't grow any further, so say so in colour
+      // instead of silently flat-topping: pushing gain past the ceiling now
+      // visibly turns the waveform hot, and backing it off cools it again.
+      // That is the feedback that was missing — on loud material the drawn
+      // height simply couldn't change.
+      bool over = peak > 1.0f;
+      peak = std::min(1.0f, peak);
       int amp = std::max(1, static_cast<int>(std::round(peak * std::max(2, std::abs(baseY - topY)))));
       SDL_Color outer = inRange ? activeOuter : dimOuter;
       SDL_Color inner = inRange ? activeInner : dimInner;
+      if (over && inRange) {
+        // Reuse the theme's existing danger colour rather than inventing a
+        // palette role — every theme already defines it, so no theme file
+        // needs touching and it stays legible in all 30 colourways.
+        outer = pal.deleteBezel;
+        inner = SDL_Color{static_cast<Uint8>(std::min(255, pal.deleteBezel.r + 60)),
+                          static_cast<Uint8>(std::min(255, pal.deleteBezel.g + 40)),
+                          static_cast<Uint8>(std::min(255, pal.deleteBezel.b + 40)),
+                          pal.deleteBezel.a};
+      }
       SDL_SetRenderDrawColor(ren, outer.r, outer.g, outer.b, outer.a);
       if (upward) {
         SDL_RenderLine(ren, px, baseY, px, std::max(topY, baseY - amp));
@@ -2479,6 +2500,14 @@
     }
     clearPreviewCueTexture();
     previewCueKey_.clear();
+    clearControlPreviewTexture();
+  }
+
+  // Drop the control window's program-monitor texture and every cache key that
+  // decides whether an incoming frame is "new". Also called when the preview
+  // source switches between the output composite tap and a decoder frame,
+  // since those differ in both size and pixel format.
+  void clearControlPreviewTexture() {
     if (controlPreviewTex_) {
       SDL_DestroyTexture(controlPreviewTex_);
       controlPreviewTex_ = nullptr;
@@ -2487,6 +2516,7 @@
     controlPreviewTexH_ = 0;
     controlPreviewTexFormat_ = 0;
     controlPreviewFrameIdx_ = static_cast<std::uint64_t>(-1);
+    controlPreviewTapSerial_ = 0;
   }
 
   std::string pipOverlayRuntimeKey(int deckIndex, int cueIndex) const {

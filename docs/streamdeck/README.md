@@ -1,6 +1,13 @@
 # Deckboy Stream Deck + Companion Profile
 
-This folder contains the official Deckboy Stream Deck control mapping for the
+> **Prefer the real Companion module: [`companion-module-deckboy/`](../../companion-module-deckboy/).**
+> It does everything below *and* reads Deckboy's state back, so buttons carry
+> cue tally, transport colour, output health and a countdown. The Generic
+> TCP/UDP mapping in this folder is one-way only — a key never knows whether the
+> cue it fired actually went live. It is kept for setups that can't install a
+> module, and as the canonical list of command strings.
+
+This folder contains the Deckboy Stream Deck control mapping for the
 `Generic TCP/UDP` Companion connection.
 
 Deckboy does not require a proprietary Stream Deck plugin. Use Companion as

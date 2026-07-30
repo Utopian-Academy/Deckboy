@@ -1804,6 +1804,124 @@
     return true;
   }
 
+  // ── Program-monitor tap ───────────────────────────────────────────────────
+  // The control window used to preview the *decoder's* frame. On the GPU
+  // zero-copy path that meant a full-resolution hwframe download, which is far
+  // too expensive per frame, so it ran at ~10fps and visibly trailed the
+  // program feed. Instead, sample the output's finished composite here — on
+  // the output's own render pass, once per presented frame — scaled down to a
+  // preview-sized target first. The readback is ~0.5MB instead of 3-12MB, so
+  // it can run every frame, and because it is taken from the same pass that
+  // presents, the preview cannot drift away from the output.
+  //
+  // Tapped BEFORE warp/AOI/edge-blend (those are applied at present time in
+  // presentOutputCompositorToWindow), which keeps the warp editor's handle
+  // overlay meaningful — it still draws over an unwarped image.
+  static constexpr int kPreviewTapMaxW = 640;
+  static constexpr int kPreviewTapMaxH = 360;
+
+  bool captureOutputPreviewTap(OutputRuntime& runtime, const SDL_Rect& sourceRect) {
+    if (!runtime.outputRenderer || !runtime.compositorTexture) {
+      return false;
+    }
+    int srcW = std::max(1, sourceRect.w);
+    int srcH = std::max(1, sourceRect.h);
+    // Fit the output's aspect inside the preview budget; never upscale.
+    double scale = std::min({1.0,
+                             static_cast<double>(kPreviewTapMaxW) / srcW,
+                             static_cast<double>(kPreviewTapMaxH) / srcH});
+    int tapW = std::max(2, static_cast<int>(std::lround(srcW * scale)) & ~1);
+    int tapH = std::max(2, static_cast<int>(std::lround(srcH * scale)) & ~1);
+
+    if (runtime.previewTapTexture &&
+        (runtime.previewTapTextureW != tapW || runtime.previewTapTextureH != tapH)) {
+      SDL_DestroyTexture(runtime.previewTapTexture);
+      runtime.previewTapTexture = nullptr;
+      runtime.previewTapTextureW = 0;
+      runtime.previewTapTextureH = 0;
+    }
+    if (!runtime.previewTapTexture) {
+      runtime.previewTapTexture = deckboyCreateTexture(runtime.outputRenderer,
+                                                       SDL_PIXELFORMAT_RGBA32,
+                                                       SDL_TEXTUREACCESS_TARGET,
+                                                       tapW, tapH);
+      if (!runtime.previewTapTexture) {
+        return false;
+      }
+      runtime.previewTapTextureW = tapW;
+      runtime.previewTapTextureH = tapH;
+    }
+
+    SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
+    SDL_SetRenderTarget(runtime.outputRenderer, runtime.previewTapTexture);
+    // Linear only for this downscale — nearest-neighbour minification of moving
+    // video shimmers badly. The compositor's own nearest mode is restored
+    // immediately so the real output present is untouched.
+    SDL_ScaleMode previousScale = SDL_SCALEMODE_NEAREST;
+    SDL_GetTextureScaleMode(runtime.compositorTexture, &previousScale);
+    SDL_SetTextureScaleMode(runtime.compositorTexture, SDL_SCALEMODE_LINEAR);
+    SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(runtime.outputRenderer);
+    SDL_FRect src {static_cast<float>(sourceRect.x), static_cast<float>(sourceRect.y),
+                   static_cast<float>(srcW), static_cast<float>(srcH)};
+    SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture, &src, nullptr);
+
+    bool ok = false;
+    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, nullptr)) {
+      std::size_t stride = static_cast<std::size_t>(captured->w) * 4u;
+      std::size_t bytes = stride * static_cast<std::size_t>(captured->h);
+      if (runtime.previewTapPixels.size() != bytes) {
+        runtime.previewTapPixels.resize(bytes);
+      }
+      ok = !runtime.previewTapPixels.empty() &&
+           SDL_ConvertPixels(captured->w, captured->h,
+                             captured->format, captured->pixels, captured->pitch,
+                             SDL_PIXELFORMAT_RGBA32,
+                             runtime.previewTapPixels.data(),
+                             static_cast<int>(stride));
+      if (ok) {
+        runtime.previewTapW = captured->w;
+        runtime.previewTapH = captured->h;
+        ++runtime.previewTapSerial;
+      }
+      SDL_DestroySurface(captured);
+    }
+
+    SDL_SetTextureScaleMode(runtime.compositorTexture, previousScale);
+    SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
+    return ok;
+  }
+
+  void releaseOutputPreviewTap(OutputRuntime& runtime) {
+    if (runtime.previewTapTexture) {
+      SDL_DestroyTexture(runtime.previewTapTexture);
+      runtime.previewTapTexture = nullptr;
+    }
+    runtime.previewTapTextureW = 0;
+    runtime.previewTapTextureH = 0;
+    runtime.previewTapPixels.clear();
+    runtime.previewTapW = 0;
+    runtime.previewTapH = 0;
+    runtime.previewTapSerial = 0;
+  }
+
+  // Which output the control window's program monitor mirrors: the focused
+  // deck's primary output, when that output is actually compositing.
+  std::optional<int> previewTapOutputIndex() const {
+    auto primary = primaryOutputIndexForDeck(project_.focusedDeckIndex);
+    if (!primary) {
+      return std::nullopt;
+    }
+    int outputIndex = *primary;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return std::nullopt;
+    }
+    if (!project_.outputs[outputIndex].enabled) {
+      return std::nullopt;
+    }
+    return outputIndex;
+  }
+
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
@@ -2154,6 +2272,7 @@
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
     }
+    releaseOutputPreviewTap(runtime);
     runtime.compositorWidth = 0;
     runtime.compositorHeight = 0;
     runtime.compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
@@ -4215,46 +4334,207 @@
     return true;
   }
 
-  void refreshDisplayTopology(bool withToast = false) {
+  // One fingerprint per display: identity plus desktop placement. A monitor
+  // that is unplugged and re-plugged, re-arranged, or switched to another
+  // resolution all change this string, which is what the topology scan
+  // compares against — SDL display indices alone are not stable enough.
+  std::vector<std::string> currentDisplaySignatureEntries() const {
+    int displayCount = deckboyGetNumVideoDisplays();
+    std::vector<std::string> entries;
+    entries.reserve(static_cast<std::size_t>(std::max(0, displayCount)));
+    for (int index = 0; index < displayCount; ++index) {
+      const char* name = deckboyGetDisplayName(index);
+      SDL_Rect bounds {};
+      std::string entry = name && *name ? name : ("display " + std::to_string(index + 1));
+      entry += '@';
+      if (deckboyGetDisplayBounds(index, &bounds)) {
+        entry += std::to_string(bounds.x) + ',' + std::to_string(bounds.y) + ','
+               + std::to_string(bounds.w) + ',' + std::to_string(bounds.h);
+      } else {
+        entry += "?";
+      }
+      entries.push_back(std::move(entry));
+    }
+    return entries;
+  }
+
+  static std::string displayEntryName(const std::string& entry) {
+    std::size_t at = entry.rfind('@');
+    return at == std::string::npos ? entry : entry.substr(0, at);
+  }
+
+  void refreshDisplayTopology(bool withToast = false, bool forceRehome = false) {
     int displayCount = deckboyGetNumVideoDisplays();
     if (displayCount <= 0) {
       // Zero displays is a transient state (RDP handoff, driver reset).
       // Don't mutate persisted display targets over it — when displays
-      // return, name matching restores the intended routing.
+      // return, name matching restores the intended routing. The old
+      // fingerprints are deliberately kept so the return scan still sees a
+      // difference and re-homes the outputs.
       if (withToast) {
         triggerToast("display scan: no displays reported");
       }
       return;
     }
 
+    std::vector<std::string> previousEntries = displaySignatureEntries_;
+    std::vector<std::string> entries = currentDisplaySignatureEntries();
+    bool firstScan = previousEntries.empty();
+    displaySignatureEntries_ = entries;
+    observedDisplayCount_ = displayCount;
+
+    // Re-home only the outputs whose target display actually changed: either
+    // name matching moved them to a different index, or the display sitting
+    // at their index is not the one that was there before. A topology event
+    // must never churn an unaffected output through a fullscreen
+    // exit/re-enter (v0.76.19 regression: focus-stealing recovery fight).
     bool changed = false;
-    for (auto& output : project_.outputs) {
+    std::vector<int> affected;
+    for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      int previousIndex = output.displayIndex;
       int resolved = resolveOutputDisplayIndex(output, displayCount);
-      if (output.displayIndex != resolved) {
+      if (previousIndex != resolved) {
         output.displayIndex = resolved;
         changed = true;
+      }
+      if (firstScan && !forceRehome) {
+        continue;
+      }
+      if (forceRehome) {
+        affected.push_back(outputIndex);
+        continue;
+      }
+      bool displayMoved = previousIndex != resolved;
+      bool panelSwapped =
+        previousIndex < 0 || previousIndex >= static_cast<int>(previousEntries.size()) ||
+        resolved < 0 || resolved >= static_cast<int>(entries.size()) ||
+        previousEntries[static_cast<std::size_t>(previousIndex)] !=
+          entries[static_cast<std::size_t>(resolved)];
+      if (displayMoved || panelSwapped) {
+        affected.push_back(outputIndex);
       }
     }
     if (changed) {
       markProjectDirty();
     }
 
-    // Heal outputs individually via the recovery path, which honors
-    // recoveryPausedByEscape and fullscreenIntended. A topology change must
-    // never slam an operator-escaped output back to fullscreen — the old
-    // applyOutputDisplaySelectionAllOutputs(true, true) here did exactly
-    // that, and also churned every enabled output through a fullscreen
-    // exit/re-enter even when its display was unaffected.
+    // An explicit hot-plug is the one moment a stable fullscreen output SHOULD
+    // be moved: the per-tick recovery path deliberately ignores `wrongDisplay`
+    // while fullscreen (SDL's reported display disagrees on mixed-DPI setups),
+    // so without this a monitor connected mid-show never picks up its output.
+    // This is one-shot per real topology change, not a poll.
+    for (int outputIndex : affected) {
+      OutputTarget& output = project_.outputs[outputIndex];
+      if (!output.enabled || normalizeOutputType(output.outputType) != "window") {
+        continue;
+      }
+      OutputRuntime* runtime = runtimeForOutput(outputIndex);
+      if (!runtime || !runtime->outputWindow || runtime->recoveryPausedByEscape) {
+        continue;
+      }
+      bool fullscreen = (SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+      bool wantsFullscreen = fullscreen || runtime->fullscreenIntended;
+
+      // The panel this output is pinned to is gone. Park it windowed rather
+      // than re-homing the program feed onto a monitor the operator is
+      // working on. fullscreenIntended survives, so the return trip is
+      // automatic.
+      if (!output.displayName.empty() &&
+          std::none_of(entries.begin(), entries.end(), [&](const std::string& entry) {
+            return displayEntryName(entry) == output.displayName;
+          })) {
+        runtime->awaitingDisplayReturn = true;
+        if (fullscreen) {
+          SDL_SetWindowFullscreen(runtime->outputWindow, false);
+        }
+        SDL_HideWindow(runtime->outputWindow);
+        setOutputHealthState(outputIndex, OutputHealthState::Error,
+                             "display missing: " + output.displayName);
+        triggerToast("output " + std::to_string(outputIndex + 1) + " parked - "
+                     + output.displayName + " disconnected");
+        continue;
+      }
+      if (runtime->awaitingDisplayReturn) {
+        runtime->awaitingDisplayReturn = false;
+        triggerToast("output " + std::to_string(outputIndex + 1) + " restored - "
+                     + output.displayName + " reconnected");
+      }
+
+      // Clear the strike backoff: those strikes were counted against the old
+      // topology, and a genuine hot-plug deserves a fresh attempt.
+      runtime->recoveryStrikeWindowStartMs = 0;
+      runtime->recoveryStrikeCount = 0;
+      runtime->suppressRecoveryUntilMs = 0;
+      bool controlHadFocus = controlWindow_ && SDL_GetKeyboardFocus() == controlWindow_;
+      applyOutputDisplaySelection(outputIndex, true, wantsFullscreen);
+      if (controlHadFocus) {
+        SDL_RaiseWindow(controlWindow_);
+      }
+    }
+
+    // Heal everything else via the recovery path, which honors
+    // recoveryPausedByEscape and fullscreenIntended.
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
+      if (std::find(affected.begin(), affected.end(), outputIndex) != affected.end()) {
+        continue;  // already re-homed above; a second pass would fight it
+      }
       recoverWindowOutputIfNeeded(outputIndex, false);
     }
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       restartLiveBrowserCueIfNeeded(deckIndex);
     }
     if (withToast) {
-      triggerToast("display scan: " + std::to_string(displayCount) + " detected");
+      triggerToast(describeDisplayTopologyChange(previousEntries, entries, affected));
       playUiSound(UiSoundEffect::Toggle);
     }
+  }
+
+  // Operator-facing summary of what just happened to the desktop, so the
+  // toast says "display connected: DELL U2720Q" instead of a bare count.
+  std::string describeDisplayTopologyChange(const std::vector<std::string>& previousEntries,
+                                            const std::vector<std::string>& entries,
+                                            const std::vector<int>& affected) const {
+    std::vector<std::string> previousNames;
+    std::vector<std::string> currentNames;
+    for (const auto& entry : previousEntries) previousNames.push_back(displayEntryName(entry));
+    for (const auto& entry : entries) currentNames.push_back(displayEntryName(entry));
+
+    auto missingFrom = [](const std::vector<std::string>& from,
+                          const std::vector<std::string>& against) {
+      std::vector<std::string> names = against;
+      std::vector<std::string> result;
+      for (const auto& name : from) {
+        auto it = std::find(names.begin(), names.end(), name);
+        if (it == names.end()) {
+          result.push_back(name);
+        } else {
+          names.erase(it);  // consume, so duplicate panel names pair off
+        }
+      }
+      return result;
+    };
+    std::vector<std::string> added = missingFrom(currentNames, previousNames);
+    std::vector<std::string> removed = missingFrom(previousNames, currentNames);
+
+    std::string summary;
+    if (!added.empty()) {
+      summary = "display connected: " + added.front();
+      if (added.size() > 1) summary += " +" + std::to_string(added.size() - 1);
+    } else if (!removed.empty()) {
+      summary = "display disconnected: " + removed.front();
+      if (removed.size() > 1) summary += " +" + std::to_string(removed.size() - 1);
+    } else if (previousNames != currentNames || previousEntries != entries) {
+      summary = "displays rearranged";
+    } else {
+      summary = "display scan";
+    }
+    summary += " (" + std::to_string(static_cast<int>(entries.size())) + " total)";
+    if (!affected.empty()) {
+      summary += " - " + std::to_string(static_cast<int>(affected.size()))
+               + (affected.size() == 1 ? " output re-homed" : " outputs re-homed");
+    }
+    return summary;
   }
 
   bool setAudioOutputDevice(const std::string& deviceName) {
@@ -4283,6 +4563,13 @@
     }
     if (runtime->recoveryPausedByEscape) {
       setOutputHealthState(outputIndex, OutputHealthState::Armed, "escaped to windowed");
+      return false;
+    }
+    if (runtime->awaitingDisplayReturn) {
+      // Pinned display is unplugged. Don't re-assert fullscreen anywhere —
+      // the topology scan un-parks this output when the panel comes back.
+      setOutputHealthState(outputIndex, OutputHealthState::Error,
+                           "display missing: " + output.displayName);
       return false;
     }
     Uint64 now = SDL_GetTicks();
