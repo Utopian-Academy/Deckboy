@@ -60,7 +60,13 @@
 #else
     std::cout << "ndi-sdk: not built (set DECKBOY_NDI_SDK or install SDK headers)\n";
 #endif
-#ifndef _WIN32
+    // LtcApi resolves libltc dynamically on every platform — ltc.dll on
+    // Windows, libltc.dylib on macOS, libltc.so on Linux — so probe it for
+    // real everywhere. This used to be skipped under _WIN32 and print
+    // "not supported on this build", which was simply untrue: the Windows
+    // build ships ltc.dll, the loader looks for it, and the integration
+    // catalog on the very next line already reported ltc[ok]. An operator
+    // checking whether timecode ingest would work was told the wrong thing.
     {
       LtcApi ltcApi;
       if (ltcApi.ensureLoaded()) {
@@ -70,9 +76,6 @@
       }
       ltcApi.shutdown();
     }
-#else
-    std::cout << "ltc-runtime: not supported on this build\n";
-#endif
     std::cout << "ui-sfx: enabled by separate SDL audio device when available\n";
     std::cout << "companion-control: tcp/udp port 5510 by default (override with DECKBOY_COMPANION_PORT)\n";
 
