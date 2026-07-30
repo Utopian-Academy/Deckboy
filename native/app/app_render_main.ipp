@@ -423,11 +423,14 @@
     progressBarRect_ = insetRect(videoLaneOuter, 3);
     SDL_Rect audioLaneRect = insetRect(audioLaneOuter, 2);
     audioProgressBarRect_ = audioLaneRect;  // audio lane is click-to-seek too
-    drawUIPanel(videoLaneOuter, pal.light, pal.deep, pal.mid);
-    drawUIPanel(audioLaneOuter, pal.light, pal.deep, pal.mid);
-    drawText(controlRenderer_, fontSmall_, "VIDEO", pal.deep,
+    drawUIPanel(videoLaneOuter, pal.tile, pal.deep, pal.mid);
+    drawUIPanel(audioLaneOuter, pal.tile, pal.deep, pal.mid);
+    // Ink follows the fill: these sit on the lane, which is now the tile role,
+    // so they use fg (which falls back to deep). Left as deep they vanished on
+    // any theme with a dark tile.
+    drawText(controlRenderer_, fontSmall_, "VIDEO", pal.fg,
              videoLaneOuter.x + 8, videoLaneOuter.y + 2);
-    drawText(controlRenderer_, fontSmall_, "AUDIO", pal.deep,
+    drawText(controlRenderer_, fontSmall_, "AUDIO", pal.fg,
              audioLaneOuter.x + 8, audioLaneOuter.y + 2);
 
     auto drawTimelineLoadingAnimation = [&](const SDL_Rect& laneRect,

@@ -221,7 +221,7 @@
     constexpr int kCueRowGap = 2;
     int listH = std::max(0, col.y + col.h - y - kFooterH - 8);
     SDL_Rect listRect {col.x + 4, y, col.w - 8, listH};
-    drawUIPanel(listRect, pal.light,
+    drawUIPanel(listRect, pal.tile,
                 pal.deep, pal.mid);
 
     if (deckScrolls_.size() <= static_cast<size_t>(deckIndex))
@@ -931,7 +931,7 @@
     deckListClipRects_[deckIndex] = primaryFrame;
     deckOverlayClipRects_[deckIndex] = overlayFrame;
 
-    drawUIPanel(primaryFrame, pal.light, pal.deep, pal.mid);
+    drawUIPanel(primaryFrame, pal.tile, pal.deep, pal.mid);
     SDL_Rect primaryClip {primaryFrame.x + 8, primaryFrame.y + 8, primaryFrame.w - 16, std::max(0, primaryFrame.h - 16)};
     SDL_SetRenderClipRect(controlRenderer_, &primaryClip);
     int primaryTotalH = static_cast<int>(primaryIndices.size()) * (kRowHeight + 8) - 8;
@@ -1373,13 +1373,19 @@
       if (rect.w <= 0 || rect.h <= 0) {
         return;
       }
+      // Structural chrome uses the tile/fg pair rather than light/deep. Both
+      // roles fall back to exactly what was here before (tile -> screen_light,
+      // fg_soft -> screen_dark), so themes that don't define them are
+      // unchanged — but a theme that does can finally make the shell dark
+      // while keeping screen_light bright for ink. screen_light does double
+      // duty as ink AND fill, which is why no theme could be dark before.
       drawUIPanel(rect,
-                  pal.light,
+                  pal.tile,
                   pal.deep,
                   pal.mid);
       SDL_Rect labelRect {rect.x + 10, rect.y + 6, rect.w - 20, 22};
       drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, labelRect, label,
-                   pal.inkSoft);
+                   pal.fgSoft);
       // (no divider — label alone provides group separation)
     };
     drawGroupFrame(mediaGroupRect_, "MEDIA");

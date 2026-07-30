@@ -1,5 +1,35 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-30 — v0.81.2 (dark themes are finally possible, waveform clip fix, CI green)
+
+### Themes
+- **Deckboy can now have genuinely dark themes.** `screen_light` was doing
+  double duty as both the bright ink and the fill for the large chrome panels
+  (30 fill sites vs 31 text sites), so no theme could be dark — even `dark`
+  itself rendered as a wall of bright green. The structural chrome (bottom-bar
+  groups, playlist body, deck list, timeline lanes) now uses the `screen_tile`
+  / `screen_fg` pair added in v0.79.3. Both roles fall back to exactly what was
+  there before (`tile` → `screen_light`, `fg` → `screen_deep`), so themes that
+  do not define them render identically — `gameboy` is untouched — while the 15
+  that do become properly dark.
+- The library now genuinely spans three looks: bright moulded-case, dark tinted
+  chassis, and true-black OLED terminal.
+
+### Audio
+- **The waveform's mono view drew its columns inline instead of through
+  `drawColumn`**, so it missed the over-scale clip tint and, once `sampleAt`
+  stopped clamping, had no upper bound on bar height — a large gain trim
+  painted straight out of its lane. Both views share `drawColumn` now.
+
+### Build
+- CI is green on all three platforms. `find_package(PkgConfig)` ran only inside
+  the SDL pkg-config fallback, so with a CONFIG-package SDL3 any
+  `-DENABLE_MIDI=ON` configure failed with "Unknown CMake command"; it is now
+  unconditional. `SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED` (used in v0.81.0's
+  display hot-plug work) does not exist in SDL 3.2.x and broke builds against
+  the stable release — removed.
+
+
 ## 2026-07-30 — v0.81.1 (theme variety, CI green-up, honest LTC reporting, README)
 
 ### Themes
