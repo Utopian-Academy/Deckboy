@@ -244,7 +244,10 @@
         case SDL_EVENT_DISPLAY_ORIENTATION:
         case SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED:
         case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
-        case SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED:
+        // SDL_EVENT_DISPLAY_USABLE_BOUNDS_CHANGED is deliberately absent: it
+        // does not exist in SDL 3.2.x, so naming it here breaks the build
+        // against the stable release. The 1.2s fingerprint poll catches that
+        // case anyway.
           // Windows fires a burst of these while the driver settles a
           // hot-plug (and reports half-built topology partway through).
           // Debounce to a single pass once the burst stops — acting on each

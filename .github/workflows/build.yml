@@ -66,8 +66,11 @@ jobs:
         include:
           - features: none
             cmake_args: ""
+          # ENABLE_DECKLINK is not exercised here: the Blackmagic SDK is a
+          # manual download and CMake hard-fails without it. decklink.cpp's
+          # no-SDK stub path is what the `none` build covers.
           - features: all
-            cmake_args: "-DENABLE_MIDI=ON -DENABLE_DECKLINK=ON"
+            cmake_args: "-DENABLE_MIDI=ON"
     steps:
       - uses: actions/checkout@v4
 
@@ -207,11 +210,15 @@ jobs:
       # port builds from source and dominates CI time. DECKBOY_INPROC_DECODE
       # degrades to the ffmpeg-CLI decode path with a warning, and the
       # in-process decoder is still compiled on Linux and macOS.
+      # bash + an absolute, quoted toolchain path. The folded-scalar form under
+      # PowerShell split the argument and dropped the ".cmake" suffix
+      # ("Could not find toolchain file: .../vcpkg" + "Ignoring extra path .cmake").
       - name: Configure
-        run: >
-          cmake -S . -B build
-          -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
-          ${{ matrix.cmake_args }}
+        shell: bash
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            ${{ matrix.cmake_args }}
 
       - name: Build
         run: cmake --build build --config Release
