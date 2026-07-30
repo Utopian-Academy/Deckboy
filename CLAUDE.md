@@ -132,6 +132,13 @@ Current field counts:
   `settingsHeaderHeight` in `app_render_settings.ipp` are the single source for
   every titled box (System-tab cards and Video-tab sections). Size sections from
   `settingsHeaderHeight(font)`, never a hardcoded 32.
+- **Chrome fill role**: structural panels (bottom-bar groups, playlist body, deck
+  list, timeline lanes) fill with `pal.tile` and ink with `pal.fg`/`pal.fgSoft`,
+  NOT `pal.light`/`pal.deep`. `screen_light` is also the bright ink, so filling
+  chrome with it made every theme a wall of colour and dark themes impossible.
+  Both roles fall back (`tile`→`screen_light`, `fg`→`screen_deep`), so themes
+  without them are unchanged. When adding a large structural panel, use the
+  tile/fg pair; use light/deep only for small raised controls.
 - **Known gap**: `Project::uiScale` scales fonts and the `kLayout*` metrics, but
   the settings modal's per-control geometry is still authored at 1×, so large
   scales (Pocket 3 / 2.0×) still overlap. Deferred deliberately.
