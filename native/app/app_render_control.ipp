@@ -1501,10 +1501,29 @@
     double outro = progress > 0.78 ? 1.0 - easeOutCubic((progress - 0.78) / 0.22) : 1.0;
     double visibility = std::min(intro, outro);
 
-    SDL_Rect panel {windowWidth - 344, 36 + static_cast<int>((1.0 - visibility) * -24.0), 300, 58};
-    panel.x = windowWidth - 44 - static_cast<int>(300.0 * visibility);
+    // Size the panel to its message rather than a fixed 300px. Several toasts
+    // are legitimately long — "normalized: -0.9 dB (was -25.7 LUFS) -
+    // peak-limited at -0.1 dBFS", "display connected: <name> (2 total)" — and
+    // the fixed panel cut them off mid-sentence, which is the worst possible
+    // outcome for a message whose entire job is to explain something.
+    // Bounded so it can never span the whole header, and routed through
+    // drawTextSafe so it ellipsizes rather than bleeding past the frame.
+    int textW = 0;
+    int textH = 0;
+    if (fontBase_) {
+      TTF_GetStringSize(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
+    }
+    const int toastPadX = uiScaled(14);
+    const int minToastW = uiScaled(220);
+    int maxToastW = std::max(minToastW, windowWidth - uiScaled(88));
+    int panelW = std::clamp(textW + toastPadX * 2, minToastW, maxToastW);
+    int panelH = std::max(uiScaled(58), textH + uiScaled(24));
+
+    SDL_Rect panel {0, uiScaled(36) + static_cast<int>((1.0 - visibility) * -uiScaled(24)),
+                    panelW, panelH};
+    panel.x = windowWidth - uiScaled(44) - static_cast<int>(panelW * visibility);
     Primitives::drawFramedPanel(controlRenderer_, panel, toast_.fill, pal.deep, pal.mid);
-    drawText(controlRenderer_, fontBase_, toast_.message, toast_.ink, panel.x + 14, panel.y + 20);
+    drawTextSafe(controlRenderer_, fontBase_, panel, toast_.message, toast_.ink);
   }
 
   // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.

@@ -296,6 +296,7 @@ class MediaEngine {
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
   static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: bouncing scene porthole
   static void buildTestBars(DecodedFrame& frame, double t);                            // testsrc2-style motion-diagnostics bars
+  static void buildTestClock(DecodedFrame& frame, double t);                           // testsrc-style sync/latency clock card
   static void drawPocketTestCardStatic(DecodedFrame& frame);                           // cacheable layer: grid, bands, patches, border, crosshair
   static void drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sceneFrame,
                                  double t, int scene);                                 // dynamic layer: sweep, ball, shimmer, beacon, ID

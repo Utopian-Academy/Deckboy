@@ -60,6 +60,20 @@ cmake --build ../build/windows --config Release
 | `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
 | `native/engine/libav_decoder.hpp/.cpp` | In-process libav decode pipelines (v0.78.0): d3d11va zero-copy video, audio→s16/48k, D3D11 interop helpers. Behind `DECKBOY_INPROC_DECODE` |
 | `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
+| `companion-module-deckboy/` | Bitfocus Companion module (Node/ESM). Polls `STATUS` for tally/feedbacks; `npm test` covers the parser against a captured reply |
+
+## Program-Monitor Tap (v0.81.0)
+
+The control window's preview is sampled from the **output's** finished composite,
+not the decoder. `captureOutputPreviewTap()` (`app_output_mgmt.ipp`) renders
+`compositorTexture` into a small target on the output renderer and reads it back
+once per presented frame; `app_update.ipp` uploads it to `controlPreviewTex_`.
+Two invariants: the tap is taken **before** warp/AOI (so the warp editor's
+handles still make sense), and `controlPreviewIsComposite_` tells
+`app_render_main.ipp` to draw it **without** re-applying cue geometry — the
+composite already has it baked in. When no window output is armed it falls back
+to the old decoder-frame path. Don't restore the ~10fps hwframe-download path as
+the primary source; that was the "preview lags the output" bug.
 
 ---
 
@@ -105,6 +119,22 @@ Current field counts:
 
 ## UI Patterns
 
+- **Text placement is a contract (v0.81.0)** — panels paint the rect they are
+  given (`drawUIPanel` no longer grid-snaps) and *all three* label helpers
+  (`drawTextSafe`, `drawCenteredTextSafe`, `drawCenteredText`) centre on that
+  same rect, ellipsizing and clipping identically. `drawCenteredText` is now a
+  thin forward to the Safe variant; `drawCenteredTextUnclipped` is the escape
+  hatch if raw overflow is ever needed. Before this, boxes and labels used two
+  different coordinate spaces and neighbouring controls disagreed by up to a
+  grid unit. **Do not reintroduce per-call-site snapping or hand-computed text
+  y-offsets** — pass the container rect and let the helper centre it.
+- **Settings headers**: `drawSettingsPlate` / `settingsPlateRect` /
+  `settingsHeaderHeight` in `app_render_settings.ipp` are the single source for
+  every titled box (System-tab cards and Video-tab sections). Size sections from
+  `settingsHeaderHeight(font)`, never a hardcoded 32.
+- **Known gap**: `Project::uiScale` scales fonts and the `kLayout*` metrics, but
+  the settings modal's per-control geometry is still authored at 1×, so large
+  scales (Pocket 3 / 2.0×) still overlap. Deferred deliberately.
 - **Inspector helpers**: `insp*()` member functions in `main.cpp` (~line 34529), use `InspectorCtx`
 - **Inline text editing**: always `openInlineTextEditor(token, ...)` — never modal dialogs
 - **Dropdown**: `drawUIDropdown()` + `openDropdown()` — share with existing selectors

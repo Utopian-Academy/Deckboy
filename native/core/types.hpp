@@ -203,7 +203,9 @@ struct Cue {
   // -- 1-byte aligned: bools ---------------------------------------------------
   bool hasAudio = false;          // true if ffprobe detected an audio stream
   bool audioEnabled = true;       // operator toggle — mute this cue's audio
-  float audioGainDb = 0.0f;       // per-cue gain trim in dB (-24..+12), applied live in the audio thread
+  // Per-cue gain trim in dB, applied live in the audio thread. Range is
+  // kCueAudioGainMinDb..kCueAudioGainMaxDb — never hardcode it at a clamp site.
+  float audioGainDb = 0.0f;
   float audioPan = 0.0f;          // stereo balance: -1 full left .. +1 full right (0 = center)
   bool audioMono = false;         // downmix this cue to mono (mono sources / mono PA)
   // Independent audio fades: -1 = follow the visual fadeIn/OutSeconds

@@ -1267,7 +1267,7 @@ void MediaEngine::syncAudioFadeParams() {
   // Per-cue audio trim/pan/mono ride the same mirrors — edits apply live
   // (snapshot sync → next tick) with no decode restart.
   audioCueGain_.store(
-    cue ? std::pow(10.0, std::clamp(cue->audioGainDb, -24.0f, 12.0f) / 20.0) : 1.0,
+    cue ? std::pow(10.0, std::clamp(cue->audioGainDb, kCueAudioGainMinDb, kCueAudioGainMaxDb) / 20.0) : 1.0,
     std::memory_order_relaxed);
   audioCuePan_.store(cue ? std::clamp(cue->audioPan, -1.0f, 1.0f) : 0.0f,
                      std::memory_order_relaxed);
@@ -4004,6 +4004,170 @@ void MediaEngine::buildTestBars(DecodedFrame& frame, double t) {
 }
 
 // ---------------------------------------------------------------------------
+// buildTestClock — testsrc-homage sync card ("Test Clock").
+//
+// The card that proved the program-monitor tap: a big, readable seconds
+// counter you can photograph on two screens at once and compare. Where Test
+// Bars stresses the scaler, this one answers "is that display/preview/encoder
+// showing me the same frame as everything else?".
+//
+//   - 8 saturated bars: quick colour + bar-boundary reference
+//   - a TRUE circle (aspect-corrected): reads as an egg the instant the
+//     raster's pixel aspect or a stretch mode is wrong
+//   - a continuously scrolling hue band: sub-second phase reference, so two
+//     captures a few frames apart are visibly different
+//   - huge 2-digit seconds + a 3-digit frame counter: the sync read itself
+//   - full timecode + frame number in the corner for exact comparisons
+//
+// Always animated (patternTypeIsAnimated) — a still sync card is useless.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
+  const int W = frame.width;
+  const int H = frame.height;
+  if (W <= 0 || H <= 0) {
+    return;
+  }
+  t = std::max(0.0, t);
+  auto rect = [&](int x, int y, int w, int h, SDL_Color c) {
+    fillPixelRect(frame, x, y, w, h, c);
+  };
+  auto hueToRgb = [](double h) {
+    h = h - std::floor(h);
+    double r = std::clamp(std::abs(std::fmod(h * 6.0 + 0.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    double g = std::clamp(std::abs(std::fmod(h * 6.0 + 4.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    double b = std::clamp(std::abs(std::fmod(h * 6.0 + 2.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    return SDL_Color {static_cast<Uint8>(r * 255), static_cast<Uint8>(g * 255),
+                      static_cast<Uint8>(b * 255), 255};
+  };
+
+  // ── 1. Saturated bars ──
+  static const SDL_Color kBars[8] = {
+    {0, 0, 0, 255},     {255, 0, 0, 255},   {255, 0, 255, 255}, {0, 0, 255, 255},
+    {255, 255, 0, 255}, {0, 255, 0, 255},   {0, 255, 255, 255}, {255, 255, 255, 255},
+  };
+  for (int i = 0; i < 8; ++i) {
+    int x0 = W * i / 8;
+    int x1 = W * (i + 1) / 8;
+    rect(x0, 0, x1 - x0, H, kBars[i]);
+  }
+
+  // ── 2. Aspect-truth circle ──
+  // Drawn from the true pixel radius, not a fraction of each axis, so a
+  // stretched raster shows an ellipse. Column-wise so it costs one rect per x.
+  {
+    double cxF = W * 0.5;
+    double cyF = H * 0.5;
+    double radius = H * 0.46;
+    int thickness = std::max(2, H / 150);
+    SDL_Color ring {255, 255, 255, 255};
+    SDL_Color shadow {0, 0, 0, 255};
+    int x0 = std::max(0, static_cast<int>(cxF - radius) - thickness);
+    int x1 = std::min(W - 1, static_cast<int>(cxF + radius) + thickness);
+    for (int x = x0; x <= x1; ++x) {
+      double dx = x + 0.5 - cxF;
+      double inside = radius * radius - dx * dx;
+      if (inside < 0.0) {
+        continue;
+      }
+      int dy = static_cast<int>(std::lround(std::sqrt(inside)));
+      // A thin dark rim under the white keeps the ring legible where it
+      // crosses the white bar.
+      rect(x, static_cast<int>(cyF) - dy - thickness, 1, thickness, shadow);
+      rect(x, static_cast<int>(cyF) - dy, 1, thickness, ring);
+      rect(x, static_cast<int>(cyF) + dy - thickness, 1, thickness, ring);
+      rect(x, static_cast<int>(cyF) + dy, 1, thickness, shadow);
+    }
+  }
+
+  // ── 3. Scrolling hue band ──
+  {
+    int bandH = std::max(4, H * 11 / 100);
+    int bandY = (H - bandH) / 2;
+    double scroll = t * 0.25;   // one full wrap every 4s
+    for (int x = 0; x < W; ++x) {
+      double frac = static_cast<double>(x) / std::max(1, W - 1);
+      rect(x, bandY, 1, bandH, hueToRgb(frac + scroll));
+    }
+  }
+
+  // ── 4. The sync read: huge seconds + frame counter ──
+  {
+    auto glyphRows = [](char c) -> const std::uint8_t* {
+      static const std::uint8_t digits[10][5] = {
+        {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+        {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
+      };
+      static const std::uint8_t colon[5] = {0,2,0,2,0};
+      static const std::uint8_t dot[5]   = {0,0,0,0,2};
+      static const std::uint8_t letterF[5] = {7,4,6,4,4};
+      static const std::uint8_t letterT[5] = {7,2,2,2,2};
+      static const std::uint8_t blank[5] = {0,0,0,0,0};
+      if (c >= '0' && c <= '9') return digits[c - '0'];
+      if (c == ':') return colon;
+      if (c == '.') return dot;
+      if (c == 'F') return letterF;
+      if (c == 'T') return letterT;
+      return blank;
+    };
+    auto drawGlyphs = [&](int x, int y, const std::string& s, int scale, SDL_Color color) {
+      int cx = x;
+      for (char c : s) {
+        const std::uint8_t* rows = glyphRows(c);
+        for (int ry = 0; ry < 5; ++ry) {
+          for (int rx = 0; rx < 3; ++rx) {
+            if (rows[ry] & (4 >> rx)) {
+              rect(cx + rx * scale, y + ry * scale, scale, scale, color);
+            }
+          }
+        }
+        cx += 4 * scale;
+      }
+    };
+
+    int totalSeconds = static_cast<int>(t);
+    long long frameNo = static_cast<long long>(t * 30.0);   // nominal 30 fps counter
+
+    // Big block: seconds (2 digits) over the frame counter (3 digits), on a
+    // black plate so it stays readable over every bar colour.
+    char bigSeconds[8];
+    std::snprintf(bigSeconds, sizeof(bigSeconds), "%02d", totalSeconds % 100);
+    char bigFrames[8];
+    std::snprintf(bigFrames, sizeof(bigFrames), "%03lld", frameNo % 1000);
+    int bigScale = std::max(2, H / 26);
+    int smallScale = std::max(1, bigScale / 2);
+    int bigW = 2 * 4 * bigScale - bigScale;
+    int smallW = 3 * 4 * smallScale - smallScale;
+    int plateW = std::max(bigW, smallW) + bigScale * 2;
+    int plateH = (5 * bigScale) + bigScale + (5 * smallScale) + bigScale * 2;
+    int plateX = std::clamp(static_cast<int>(W * 0.5 + H * 0.46) - plateW - bigScale,
+                            0, std::max(0, W - plateW));
+    int plateY = std::clamp((H - plateH) / 2, 0, std::max(0, H - plateH));
+    rect(plateX, plateY, plateW, plateH, {0, 0, 0, 255});
+    drawGlyphs(plateX + (plateW - bigW) / 2, plateY + bigScale, bigSeconds, bigScale,
+               {255, 255, 255, 255});
+    drawGlyphs(plateX + (plateW - smallW) / 2, plateY + bigScale + 5 * bigScale + bigScale,
+               bigFrames, smallScale, {255, 214, 92, 255});
+
+    // Corner readout: exact timecode + absolute frame, for frame-accurate
+    // comparison between two captures.
+    int millis = static_cast<int>(t * 1000.0) % 1000;
+    char clockLine[32];
+    std::snprintf(clockLine, sizeof(clockLine), "T %02d:%02d:%02d.%03d",
+                  (totalSeconds / 3600) % 100, (totalSeconds / 60) % 60,
+                  totalSeconds % 60, millis);
+    char frameLine[24];
+    std::snprintf(frameLine, sizeof(frameLine), "F %06lld", frameNo);
+    int scale = std::max(1, H / 240);
+    int pad = 3 * scale;
+    int boxW = 14 * 4 * scale + pad * 2;
+    int boxH = (5 + 2 + 5) * scale + pad * 2;
+    rect(8, 8, boxW, boxH, {12, 12, 12, 255});
+    drawGlyphs(8 + pad, 8 + pad, clockLine, scale, {255, 214, 92, 255});
+    drawGlyphs(8 + pad, 8 + pad + 7 * scale, frameLine, scale, {255, 214, 92, 255});
+  }
+}
+
+// ---------------------------------------------------------------------------
 // buildPatternFrame — Static factory: generate a procedural test pattern frame.
 //
 // This is the main dispatch function for all pattern types. It:
@@ -4081,6 +4245,9 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   } else if (basePatternType == "test-bars") {
     // Broadcast motion diagnostics — always animated, no -motion variant.
     buildTestBars(frame, animTime);
+  } else if (basePatternType == "test-clock") {
+    // Sync/latency card — always animated, no -motion variant.
+    buildTestClock(frame, animTime);
   } else if (basePatternType == "terrarium") {
     // Native Terrarium — the living ecosystem, ticking at its own 9 TPS.
     buildTerrariumFrame(frame, animTime);

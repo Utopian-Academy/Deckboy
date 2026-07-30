@@ -1,0 +1,26 @@
+{
+	"name": "companion-module-deckboy",
+	"version": "1.0.0",
+	"type": "module",
+	"main": "main.js",
+	"description": "Bitfocus Companion module for Deckboy, a cue deck for live events",
+	"license": "GPL-3.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Utopian-Academy/Deckboy.git",
+		"directory": "companion-module-deckboy"
+	},
+	"scripts": {
+		"test": "node --test test/*.test.js",
+		"package": "companion-module-build"
+	},
+	"dependencies": {
+		"@companion-module/base": "^1.12.0"
+	},
+	"devDependencies": {
+		"@companion-module/tools": "^2.7.2"
+	},
+	"engines": {
+		"node": ">=18"
+	}
+}

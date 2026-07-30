@@ -105,8 +105,11 @@ inline int rowYBelowLines(int startY, TTF_Font* font, int lines, int gap = 2) {
 // insets: wider rects get 8px horizontal padding, narrow ones get 4px.
 // Vertical padding scales with rect height (1px for <=24px, up to 3px).
 inline SDL_Rect safeTextRect(const SDL_Rect& rect) {
-  int targetInsetX = rect.w >= 96 ? 8 : 4;
-  int insetX = std::min(targetInsetX, std::max(0, rect.w / 2 - 1));
+  // One padding rule for every control. The old `w >= 96 ? 8 : 4` step meant a
+  // 95px button and a 96px button indented their labels differently — side by
+  // side that reads as sloppy alignment, which is exactly what it was. Now the
+  // inset eases down only for genuinely tiny chips, with no cliff.
+  int insetX = std::clamp(rect.w / 12, 3, std::max(3, kLayoutSpacingUnit));
   int insetY = rect.h <= 24 ? 1 : std::min(3, std::max(0, rect.h / 6));
   return SDL_Rect {
     rect.x + insetX,
