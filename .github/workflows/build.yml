@@ -202,9 +202,11 @@ jobs:
       - name: Install dependencies
         run: .\vcpkg\vcpkg install sdl3:x64-windows sdl3-ttf:x64-windows
 
-      - name: Install RtMidi (feature builds)
+      # ENABLE_SPOUT hard-fails without the SDK, so the feature build needs
+      # spout2 as well as rtmidi.
+      - name: Install feature dependencies
         if: matrix.features == 'all'
-        run: .\vcpkg\vcpkg install rtmidi:x64-windows
+        run: .\vcpkg\vcpkg install rtmidi:x64-windows spout2:x64-windows
 
       # FFmpeg dev libraries are deliberately not installed here: the vcpkg
       # port builds from source and dominates CI time. DECKBOY_INPROC_DECODE

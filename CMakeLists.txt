@@ -63,9 +63,11 @@ elseif(TARGET SDL3_ttf::SDL3_ttf-static)
   set(DECKBOY_SDL_TTF_TARGET SDL3_ttf::SDL3_ttf-static)
 endif()
 
-if(NOT DECKBOY_SDL_TARGET OR NOT DECKBOY_SDL_TTF_TARGET)
-  find_package(PkgConfig QUIET)
-endif()
+# Unconditional: pkg_check_modules is also used further down (RtMidi), and
+# looking PkgConfig up only inside the SDL fallback meant that when SDL3 came
+# from a CONFIG package the command was never defined — so configuring with
+# -DENABLE_MIDI=ON failed outright with "Unknown CMake command".
+find_package(PkgConfig QUIET)
 
 if(PkgConfig_FOUND AND NOT DECKBOY_SDL_TARGET)
   pkg_check_modules(SDL3 QUIET sdl3)
@@ -253,7 +255,7 @@ if(rtmidi_FOUND AND NOT ENABLE_MIDI)
 endif()
 
 if(ENABLE_MIDI)
-  if(NOT rtmidi_FOUND)
+  if(NOT rtmidi_FOUND AND PkgConfig_FOUND)
     pkg_check_modules(RTMIDI rtmidi QUIET)
   endif()
 
