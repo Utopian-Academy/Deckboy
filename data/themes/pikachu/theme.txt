@@ -1,19 +1,17 @@
-# Deckboy Theme: Pikachu
-# Electric-yellow-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: pikachu
+# Family: moulded case -- muted plastic shell with a saturated LCD, the same
+# structure as the default Game Boy theme. The case is deliberately low-chroma:
+# the character's hue belongs to the screen.
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A0A05FF
-shell_inner	0D0D07FF
-shell_shadow	000000FF
+shell_outer	C8BFA2FF
+shell_inner	B4AA8EFF
+shell_shadow	4E4834FF
 screen_light	FFE84AFF
 screen_mid	B8A01EFF
-screen_dark	6E6012FF
-screen_deep	100F05FF
-screen_ink_soft	DACA58FF
-screen_fg	FFF06EFF
-screen_fg_soft	C8AC32FF
-screen_tile	15150AFF
-button_bezel	7A6C20FF
-delete_bezel	C23A42FF
-scanline_alpha	14
+screen_dark	665810FF
+screen_deep	1E1A06FF
+screen_ink_soft	7A6812FF
+button_bezel	766E4EFF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

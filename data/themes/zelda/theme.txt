@@ -1,19 +1,15 @@
-# Deckboy Theme: Hyrule
-# Triforce-gold-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Deckboy Theme: Zelda
+# Family: moulded case. Parchment-cream shell with an amber LCD.
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A0905FF
-shell_inner	0D0B07FF
-shell_shadow	000000FF
+shell_outer	CFC4A6FF
+shell_inner	BAAE90FF
+shell_shadow	554C34FF
 screen_light	FFD24AFF
 screen_mid	B8901EFF
-screen_dark	6E5612FF
-screen_deep	100D05FF
-screen_ink_soft	D8B858FF
-screen_fg	FFE06EFF
-screen_fg_soft	C89A32FF
-screen_tile	15130AFF
-button_bezel	7A6220FF
-delete_bezel	C23A42FF
-scanline_alpha	14
+screen_dark	6B5210FF
+screen_deep	1F1806FF
+screen_ink_soft	8A6A16FF
+button_bezel	7A6C4EFF
+delete_bezel	8B3A3AFF
+scanline_alpha	18

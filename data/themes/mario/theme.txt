@@ -1,19 +1,18 @@
 # Deckboy Theme: Mario
-# Vermilion-phosphor OLED terminal on true black.
-# v0.79.3 terminal roles (screen_fg / screen_fg_soft / screen_tile).
+# Family: moulded case. Warm grey-taupe shell plastic with a vermilion LCD --
+# the case is desaturated on purpose: shell_inner is the dominant panel fill
+# across the whole UI, so a vivid case floods the interface. The character's
+# hue belongs to the screen, exactly as the default Game Boy theme does it.
 # All color values are RRGGBBAA hex.
 
-shell_outer	0A0605FF
-shell_inner	0D0807FF
-shell_shadow	000000FF
-screen_light	FF5A44FF
-screen_mid	B83022FF
-screen_dark	6E1E14FF
-screen_deep	100605FF
-screen_ink_soft	E08070FF
-screen_fg	FF7460FF
-screen_fg_soft	C84838FF
-screen_tile	160A08FF
-button_bezel	7A2E22FF
-delete_bezel	E89830FF
-scanline_alpha	14
+shell_outer	BFB0A6FF
+shell_inner	AA9A90FF
+shell_shadow	4E443EFF
+screen_light	FF6A4AFF
+screen_mid	C43A22FF
+screen_dark	6E1E12FF
+screen_deep	23100AFF
+screen_ink_soft	9C4A34FF
+button_bezel	7A5E52FF
+delete_bezel	8B3A3AFF
+scanline_alpha	18
