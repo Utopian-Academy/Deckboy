@@ -1788,21 +1788,22 @@
       drawTextSafe(ren, fontSmall_, SDL_Rect {dest.x + 6, dest.y + 2, 16, 12}, "L", pal.light);
       drawTextSafe(ren, fontSmall_, SDL_Rect {dest.x + 6, dest.y + dest.h - 14, 16, 12}, "R", pal.light);
     } else {
+      // Mono view. This used to draw its columns inline instead of going
+      // through drawColumn, which meant it missed the over-scale tint and —
+      // once sampleAt stopped clamping — had no upper bound on bar height, so
+      // a large gain trim painted straight out of the lane. Both views share
+      // drawColumn now, so the clamp and the clip warning can't diverge again.
       int cy = y0 + h / 2;
+      int topLimit = y0 + 2;
+      int bottomLimit = y0 + h - 2;
       SDL_SetRenderDrawColor(ren, trackLine.r, trackLine.g, trackLine.b, trackLine.a);
       SDL_RenderLine(ren, x0, cy, x0 + w, cy);
       for (int i = 0; i < w; ++i) {
         float frac = static_cast<float>(i) / std::max(1, w);
         bool inRange = (frac >= inFrac && frac <= outFrac);
         float peak = std::max(sampleAt(peaks.left, i), sampleAt(peaks.right, i));
-        int halfH = std::max(1, static_cast<int>(std::round(peak * h / 2.0f)));
-        SDL_Color outer = inRange ? activeOuter : dimOuter;
-        SDL_Color inner = inRange ? activeInner : dimInner;
-        SDL_SetRenderDrawColor(ren, outer.r, outer.g, outer.b, outer.a);
-        SDL_RenderLine(ren, x0 + i, cy - halfH, x0 + i, cy + halfH);
-        int innerHalf = std::max(1, halfH - 2);
-        SDL_SetRenderDrawColor(ren, inner.r, inner.g, inner.b, inner.a);
-        SDL_RenderLine(ren, x0 + i, cy - innerHalf, x0 + i, cy + innerHalf);
+        drawColumn(x0 + i, topLimit, cy, peak, true, inRange);
+        drawColumn(x0 + i, bottomLimit, cy, peak, false, inRange);
       }
     }
 
