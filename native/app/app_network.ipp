@@ -1418,6 +1418,33 @@
     if (hyperDeckThread_.joinable()) hyperDeckThread_.join();
   }
 
+  // Translate a parsed MIDI event into the same remote command the ALSA path
+  // produces, and queue it the same way. Shared so the two transports can't
+  // drift apart in what a given controller message does.
+  void queueMidiCommand(std::string cmd) {
+    if (cmd.empty()) {
+      return;
+    }
+    std::lock_guard<std::mutex> lk(remoteCommandMutex_);
+    remoteCommands_.push_back(std::move(cmd));
+  }
+
+  void onMidiNoteOn(int note, int velocity) {
+    if (velocity > 0) {
+      queueMidiCommand("GOTO " + std::to_string(note + 1));
+    }
+  }
+
+  void onMidiControlChange(int controller, int value) {
+    if (controller == 7) {
+      queueMidiCommand("MASTERVOL " + std::to_string(static_cast<int>(value * 200.0 / 127.0)));
+    } else if (controller == 20) {
+      std::ostringstream ss;
+      ss << std::fixed << std::setprecision(2) << (0.5 + value * 1.5 / 127.0);
+      queueMidiCommand("SPEED " + ss.str());
+    }
+  }
+
   bool startMidiInput() {
 #if defined(DECKBOY_HAS_ALSA)
     stopMidiInput();
@@ -1446,6 +1473,36 @@
 
     midiThread_ = std::thread([this]() { midiLoop(); });
     return true;
+#elif defined(DECKBOY_HAS_MIDI)
+    // Non-ALSA platforms (Windows, macOS) go through the cross-platform RtMidi
+    // wrapper. This path did not exist before: startMidiInput() simply returned
+    // false off Linux, so the MIDI toggle, the port picker and the documented
+    // note/CC mappings did nothing at all on the primary platform even though
+    // RtMidi was compiled in and enumerating ports.
+    //
+    // MTC quarter-frame and MMC/MSC sysex stay ALSA-only for now: the wrapper
+    // surfaces channel-voice messages only, which is why the integration
+    // catalog still reports mtc[stub] off Linux.
+    stopMidiInput();
+    auto devices = deckboy::platform::midi::MidiInput::listDevices();
+    if (devices.empty()) {
+      return false;
+    }
+    int deviceId = devices.front().id;
+    if (!midiDeviceName_.empty()) {
+      for (const auto& device : devices) {
+        if (device.name == midiDeviceName_) {
+          deviceId = device.id;
+          break;
+        }
+      }
+    }
+    midiRt_.onNoteOn([this](int note, int velocity) { onMidiNoteOn(note, velocity); });
+    midiRt_.onControlChange([this](int controller, int value) { onMidiControlChange(controller, value); });
+    if (!midiRt_.open(deviceId)) {
+      return false;
+    }
+    return true;
 #else
     return false;
 #endif
@@ -1462,6 +1519,19 @@
       midiSeqPort_ = -1;
     }
     resetMidiMtcDecoder();
+#elif defined(DECKBOY_HAS_MIDI)
+    midiRt_.close();
+#endif
+  }
+
+  // Polled from the update tick: the RtMidi wrapper dispatches its callbacks
+  // from here, so they land on the main thread. No-op on ALSA (that path has
+  // its own reader thread) and when MIDI isn't compiled in.
+  void pumpMidiInput() {
+#if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
+    if (midiEnabled_) {
+      midiRt_.update();
+    }
 #endif
   }
 
