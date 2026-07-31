@@ -60,13 +60,30 @@
 #else
     std::cout << "ndi-sdk: not built (set DECKBOY_NDI_SDK or install SDK headers)\n";
 #endif
+    // MIDI: report the RtMidi wrapper's view separately from whether the app
+    // can actually consume MIDI. They are not the same thing — see
+    // startMidiInput(), which is ALSA-only, so a Windows/macOS build happily
+    // enumerates ports it has no code path to open.
+    {
+#if defined(DECKBOY_HAS_MIDI)
+      auto midiDevices = deckboy::platform::midi::MidiInput::listDevices();
+      std::cout << "midi-runtime: rtmidi ok (" << midiDevices.size() << " input port"
+                << (midiDevices.size() == 1 ? "" : "s") << ")";
+#if !defined(DECKBOY_HAS_ALSA)
+      std::cout << " via rtmidi (MTC/MMC sysex remain ALSA-only)";
+#endif
+      std::cout << '\n';
+#else
+      std::cout << "midi-runtime: not built (rtmidi not found)\n";
+#endif
+    }
     // LtcApi resolves libltc dynamically on every platform — ltc.dll on
     // Windows, libltc.dylib on macOS, libltc.so on Linux — so probe it for
     // real everywhere. This used to be skipped under _WIN32 and print
     // "not supported on this build", which was simply untrue: the Windows
     // build ships ltc.dll, the loader looks for it, and the integration
-    // catalog on the very next line already reported ltc[ok]. An operator
-    // checking whether timecode ingest would work was told the wrong thing.
+    // catalog already reported ltc[ok]. An operator checking whether timecode
+    // ingest would work was told the wrong thing.
     {
       LtcApi ltcApi;
       if (ltcApi.ensureLoaded()) {
@@ -163,12 +180,12 @@
       ndiTriggerApi.shutdown();
     }
     {
-#if defined(_WIN32)
-      std::cout << "nmc-sync-runtime: stub (windows pending)\n";
-#else
+      // Reported for real on every platform. This used to print
+      // "stub (windows pending)" under _WIN32, which was untrue: the NMC
+      // bridge is cross-platform UDP built on the same helpers as Companion,
+      // and enabling it on Windows does bind its port and report nmc[on,ok].
       App app;
       std::cout << "nmc-sync-runtime: " << app.describeNmcSyncRuntime() << '\n';
-#endif
     }
     {
       auto integrationCatalog = deckboy::platform::createIntegrationBackendCatalog();

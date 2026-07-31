@@ -279,6 +279,7 @@
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
     refreshLtcCaptureState();
+    pumpMidiInput();
     Uint64 now = SDL_GetTicks();
     // Poll async cue probe futures
     for (auto it = probeFutures_.begin(); it != probeFutures_.end(); ) {

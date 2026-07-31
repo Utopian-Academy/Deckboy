@@ -306,6 +306,21 @@
       }
       return;
     }
+    // MIDI input had no remote command at all — it could only be toggled from
+    // the Audio settings tab, so a Companion surface could not arm it.
+    if (command == "MIDI" || command == "MIDIINPUT" || command == "MIDI_INPUT") {
+      auto state = parseToggleWord(1);
+      bool want = state ? *state : !midiEnabled_;
+      if (want) {
+        midiEnabled_ = startMidiInput();
+        triggerToast(midiEnabled_ ? "midi: on" : "midi: no input device");
+      } else {
+        stopMidiInput();
+        midiEnabled_ = false;
+        triggerToast("midi: off");
+      }
+      return;
+    }
     if (command == "LTC" || command == "LTCINGEST" || command == "LTC_INGEST") {
       auto state = parseToggleWord(1);
       if (!state) {

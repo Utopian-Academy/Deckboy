@@ -83,7 +83,7 @@ class DefaultIntegrationBackendCatalog final : public IntegrationBackendCatalog 
       "mtc",
       "MTC Ingest",
       false,
-      "MIDI backend not available on this build"
+      "MTC ingest needs the ALSA sequencer (Linux only)"
     });
 #endif
 

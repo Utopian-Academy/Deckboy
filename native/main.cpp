@@ -80,6 +80,7 @@
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
+#include "platform/midi.hpp"
 #include "platform/ndi_api.hpp"
 #include "platform/ndi_trigger_api.hpp"
 #include "platform/network.hpp"
@@ -6212,6 +6213,10 @@ class App {
   double panicRestoreDimmerTarget_ = 1.0;
   std::vector<SettingsButton> settingsBtns_;
   bool midiEnabled_ = false;
+#if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
+  // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
+  deckboy::platform::midi::MidiInput midiRt_;
+#endif
   std::string midiDeviceName_;
 #if defined(DECKBOY_HAS_ALSA)
   snd_seq_t* midiSeq_ = nullptr;
