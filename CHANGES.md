@@ -1,5 +1,30 @@
 # CHANGES - Incremental Updates (March–July 2026)
 
+## 2026-07-31 — v0.81.4 (MIDI input works off Linux, NMC reported honestly)
+
+### MIDI
+- **MIDI input now works on Windows and macOS.** startMidiInput() was
+  implemented only for the ALSA sequencer, so off Linux it returned false
+  immediately -- the MIDI toggle, the port picker and every documented note/CC
+  mapping did nothing at all. The cross-platform RtMidi wrapper was compiled in
+  and enumerating ports the whole time; nothing ever called it. Non-ALSA builds
+  now open the selected port through it and feed the same command queue, so a
+  note or CC does exactly what it does on Linux.
+- **New MIDI remote command** (MIDI ON|OFF|TOGGLE). MIDI could previously only
+  be armed from the Audio settings tab, so a Companion surface had no way to
+  turn it on.
+- --self-check reports midi-runtime with the RtMidi port count.
+- MTC quarter-frame and MMC/MSC sysex remain ALSA-only: the wrapper surfaces
+  channel-voice messages only, which is why the catalog still says mtc[stub]
+  off Linux. Its reason string said "MIDI backend not available on this build",
+  which was misleading when RtMidi is present; it now names ALSA.
+
+### Diagnostics
+- --self-check reported nmc-sync-runtime as "stub (windows pending)" under
+  _WIN32 without checking. Untrue: the NMC bridge is cross-platform UDP and
+  enabling it on Windows binds its port and reports nmc[on,ok]. Reported for
+  real everywhere now.
+
 ## 2026-07-30 — v0.81.3 (OSC Query works on Windows, hidden DeckLink control recovered)
 
 ### Remote control
