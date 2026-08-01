@@ -133,3 +133,12 @@ Whether you are a developer interested in improving the codebase, a video engine
 New features, bug reports, documentation improvements, testing, and production feedback are all valuable.
 
 The best open-source tools are built by the communities that use them — and Deckboy is better when more people help make it better.
+
+
+## Project Status
+
+Deckboy is actively developed and currently Windows-first.
+
+The core playback workflow is functional, including cue playlists, fullscreen outputs, remote control, and live production integrations.
+
+As the project grows, additional workflows and platform improvements are being developed.
