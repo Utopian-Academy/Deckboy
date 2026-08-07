@@ -1937,6 +1937,51 @@
       markProjectDirty();
       return;
     }
+    if (command == "ST2110") {
+      int foIdx = project_.focusedOutputIndex;
+      if (foIdx < 0 || foIdx >= static_cast<int>(project_.outputs.size())) {
+        return;
+      }
+      OutputTarget& output = project_.outputs[foIdx];
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      if (sub == "STATUS") {
+        triggerToast("st2110 " + std::string(output.st2110Enabled ? "on " : "off ")
+                     + output.st2110Address + ":" + std::to_string(output.st2110Port)
+                     + (output.st2110TenBit ? " 10-bit" : " 8-bit"));
+        return;
+      }
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        output.st2110Enabled = (sub == "ON") ? true
+                             : (sub == "OFF") ? false : !output.st2110Enabled;
+        if (!output.st2110Enabled) {
+          shutdownOutputSt2110(outputRuntimes_[foIdx]);
+        }
+        triggerToast(std::string("st2110: ") + (output.st2110Enabled ? "on" : "off"));
+      } else if (sub == "ADDR" || sub == "GROUP") {
+        if (parts.size() > 2) {
+          output.st2110Address = trim(parts[2]);
+          shutdownOutputSt2110(outputRuntimes_[foIdx]);
+          triggerToast("st2110 group " + output.st2110Address);
+        }
+      } else if (sub == "PORT") {
+        if (auto val = parseNumber(2); val) {
+          output.st2110Port = std::clamp(static_cast<int>(*val), 1, 65535);
+          shutdownOutputSt2110(outputRuntimes_[foIdx]);
+          triggerToast("st2110 port " + std::to_string(output.st2110Port));
+        }
+      } else if (sub == "DEPTH") {
+        std::string d = parts.size() > 2 ? toUpper(parts[2]) : "TOGGLE";
+        output.st2110TenBit = (d == "10") ? true : (d == "8") ? false : !output.st2110TenBit;
+        shutdownOutputSt2110(outputRuntimes_[foIdx]);
+        triggerToast(output.st2110TenBit ? "st2110 10-bit" : "st2110 8-bit");
+      } else if (sub == "SDP") {
+        // Printed to stdout so a scripted receiver can capture it directly.
+        std::cout << focusedOutputSt2110Sdp() << std::flush;
+        triggerToast("st2110 sdp written to stdout");
+      }
+      markProjectDirty();
+      return;
+    }
     if (command == "BLACKOUT") {
       std::string val = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
       if (val == "ON")           masterDimmerTarget_ = 0.0;

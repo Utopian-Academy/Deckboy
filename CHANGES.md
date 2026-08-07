@@ -1,4 +1,82 @@
-# CHANGES - Incremental Updates (March–July 2026)
+# CHANGES - Incremental Updates (March–August 2026)
+
+## 2026-08-07 — v0.82.0 (SMPTE ST 2110 output, PTP, dual streaming, safety UI)
+
+### SMPTE ST 2110
+- **ST 2110-20 uncompressed video output.** Correct pgroup packing (YCbCr-4:2:2
+  10-bit = 2px/5 octets, and 8-bit), RTP + payload headers with Sample Row Data
+  descriptors, marker-bit framing, BT.709 studio-swing conversion, multicast with
+  TTL and NIC pinning, and SDP generation with an exact rational frame rate.
+  Verified against ffmpeg: decodes as `yuv422p10le` / `uyvy422`, correct picture.
+- **ST 2110-21 pacing.** The sender previously burst a whole frame as fast as the
+  socket would take it (~2.6 Gb/s instantaneous at 1080p), which no receiver
+  tolerates. Packets are now spread across the frame interval on a dedicated
+  sender thread, so the render loop is never held to pace a stream.
+- **ST 2110-30 (AES67) audio.** 48 kHz, 1 ms packets, L24, fed from the engine's
+  existing audio tap so the stream carries exactly what the PA hears. Verified:
+  received as `pcm_s24be, 48000 Hz, stereo`.
+- **PTP (IEEE 1588 / ST 2059) slave.** Follows the grandmaster on a configurable
+  domain and disciplines the RTP media clock. **The SDP only advertises
+  `ts-refclk:ptp` when genuinely locked** — never optimistically.
+- Honest limits, stated in the UI and the code: software timestamping, wide-model
+  pacing, no NMOS discovery. See `docs/ST2110_FEASIBILITY.md`.
+
+### Streaming
+- **SRT and RTMP are now independent destinations that can run at the same time**,
+  each with its own complete configuration. Previously protocol was a switch and
+  url/key/bitrate were shared, so only one could exist.
+- **SRT finally has its own controls**: caller/listener mode, latency, passphrase
+  and stream ID, merged into the URL (anything typed by hand still wins).
+- Fixed: `rtmps` normalised to `srt`, making every RTMPS path dead code and
+  muxing RTMPS as mpegts; GOP was hardcoded to 1 second.
+
+### Timecode
+- **LTC generator.** libltc's encoder was always shipped but never bound, so
+  Deckboy could chase timecode and never generate it. `--ltc-generate` produces
+  LTC that round-trips through Deckboy's own decoder at 24/25/30 fps, including
+  midnight rollover. Not yet wired to a live audio output.
+
+### Safety and clarity
+- **BLACKOUT has a button** (and `B`), beside CLEAR. It was previously reachable
+  only from Companion — backwards, since it is the fastest and most reversible
+  way to kill the picture.
+- **Backspace only deletes now.** It used to clear overlays *or silently delete
+  the selected cue* depending on invisible state; overlay clearing moved to `U`.
+- **Escape is a three-stage escalation** — control window, then clear output,
+  then quit. It previously offered to quit on the FIRST press.
+- **The shortcuts overlay was lying in seven places** (Ctrl+O listed twice, H/N/B/P
+  naming actions their keys never performed). Corrected, with ten missing
+  bindings added.
+- Animated on-air indicators per stream type in the OUTPUT group.
+
+### Audio
+- **Loudness normalize now reaches its target.** A true-peak cap meant every real
+  clip fell 3–7 dB short (a −26.8 LUFS cartoon wanting +10.8 dB got +3.9), and a
+  clip already on target was pulled *down*. Peaks are now handled by a new
+  look-ahead peak limiter in the deck audio path instead of by refusing gain.
+- **The waveform is drawn on a dB scale with headroom**, so gain changes are
+  visible. On a linear scale anything above about −6 dBFS was already pinned.
+- Waveform analysis capped at 5 minutes, not the 10 it claimed.
+
+### Terrarium
+- Re-vendored from upstream (`4931aa0`) with recorded provenance; the previous
+  copy was an edited fork that had drifted five weeks stale. New
+  `terrarium-pico` pattern renders the Raspberry Pi panel's 1px-per-cell picture.
+- `--pattern-dump` size is now honoured (terrarium was the only pattern ignoring it).
+
+### Fixes
+- **Settings could not be opened at all** when the cue inspector was scrolled:
+  four inspector dropdown hit-rects had no viewport gate, so a scrolled-away row
+  sat over the SETTINGS button.
+- **Edge feathering only worked under perspective warp.** Alpha was sampled at
+  four corners and interpolated, turning a 10% edge ramp into a full-image fade.
+- **Packaging shipped `data/default.deckboy`** — gitignored machine state that on
+  this build box was a camera cue naming a specific webcam.
+- Kerning disabled on UI fonts: negative kern pairs split words ("Ta rget URL").
+- Unhandled exceptions from file-dialog threads killed the app silently; added a
+  crash logger that writes a symbolised stack to `data/deckboy-crash.log`.
+- Removed ~1,646 lines of dead cue-inspector code and 21 unreachable handlers;
+  restored refresh-rate, bit-depth and raster-mode controls that had lost their UI.
 
 ## 2026-07-31 — v0.81.4 (MIDI input works off Linux, NMC reported honestly)
 

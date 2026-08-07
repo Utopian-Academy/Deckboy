@@ -300,13 +300,18 @@
   // can still nudge the trim afterwards; normalize is a starting point,
   // not a lock.
   //
-  // v0.81.0: the old fixed +12 dB ceiling meant quiet material simply could
-  // not reach target — a -40 LUFS transfer wants +24 dB and silently got 12,
-  // which read as "normalize doesn't work". The gain range is now wide
-  // (kCueAudioGainMinDb/Max) and the only thing holding a boost back is
-  // physics: true peak is measured in the same pass, and the gain is capped so
-  // peaks stay under kNormalizeTruePeakCeilingDb instead of being driven into
-  // the clipper. When that cap binds, the toast says so.
+  // v0.81.0 lifted the old fixed +12 dB ceiling and instead capped the boost by
+  // true-peak headroom. v0.81.5 removes that cap too, because it defeated the
+  // feature: TV/film material runs an 18-22 dB peak-to-loudness ratio, so the
+  // headroom cap bound on EVERY real clip — a -26.8 LUFS cartoon that wants
+  // +10.8 dB got +3.9 and stayed obviously quiet, and a clip already sitting on
+  // target got pulled DOWN because its inter-sample peak read above 0 dBFS.
+  //
+  // Normalize is now what its name says: gain = target - measured, bounded only
+  // by kCueAudioGainMinDb/Max. Peaks are the limiter's job now (see
+  // MediaEngine::applyPeakLimiter) rather than something to back the gain off
+  // for. True peak is still measured, and the toast reports where the boost
+  // lands so the operator knows when the limiter will be working.
   static constexpr double kNormalizeTargetLufs = kNormalizeTargetLufsDefault;
 
   void normalizeSelectedCueAudio() {
@@ -340,30 +345,28 @@
             double lufs = std::strtod(out->c_str() + pos + 2, nullptr);
             if (std::isfinite(lufs) && lufs < 0.0 && lufs > -70.0) {
               result.measuredLufs = lufs;
-              double wanted = kNormalizeTargetLufs - lufs;
-              double gain = wanted;
+              double gain = std::clamp(kNormalizeTargetLufs - lufs,
+                                       static_cast<double>(kCueAudioGainMinDb),
+                                       static_cast<double>(kCueAudioGainMaxDb));
 
               // "Peak:" (capital P) is the summary value; the "True peak:"
               // heading above it is lower-case, so rfind lands on the number.
+              // Measured for REPORTING only — it no longer holds the gain back.
               size_t peakPos = out->rfind("Peak:");
               if (peakPos != std::string::npos) {
                 double peakDb = std::strtod(out->c_str() + peakPos + 5, nullptr);
                 // True peak legitimately exceeds 0 dBFS on hot masters
-                // (inter-sample peaks), and that is precisely when the limit
-                // matters — so the sanity window must not assume <= 0.
+                // (inter-sample peaks), so the sanity window must not assume <= 0.
                 if (std::isfinite(peakDb) && peakDb < 24.0 && peakDb > -120.0) {
                   result.measuredPeakDb = peakDb;
                   result.hasPeak = true;
-                  double headroomDb = kNormalizeTruePeakCeilingDb - peakDb;
-                  if (gain > headroomDb) {
-                    gain = headroomDb;
-                    result.peakLimited = true;
-                  }
+                  // Where the peaks will actually land once the trim is applied.
+                  // Above the ceiling just means the limiter has work to do.
+                  result.projectedPeakDb = peakDb + gain;
+                  result.peakLimited = result.projectedPeakDb > kNormalizeTruePeakCeilingDb;
                 }
               }
-              result.gainDb = std::clamp(gain,
-                                         static_cast<double>(kCueAudioGainMinDb),
-                                         static_cast<double>(kCueAudioGainMaxDb));
+              result.gainDb = gain;
               result.ok = true;
             }
           }
@@ -409,11 +412,12 @@
       if (applied) {
         char buf[128];
         if (result.peakLimited) {
-          // Say why target wasn't reached, and hold it on screen longer —
-          // this is the case the operator most needs to notice.
+          // Target IS hit; this just tells the operator the deck limiter will
+          // be catching transients on this clip. Held longer — it's the case
+          // most worth reading.
           std::snprintf(buf, sizeof(buf),
-                        "normalized: %+.1f dB (was %.1f LUFS) - peak-limited at %.1f dBFS",
-                        result.gainDb, result.measuredLufs, result.measuredPeakDb);
+                        "normalized: %+.1f dB (was %.1f LUFS) - peaks %+.1f dBFS, limiter active",
+                        result.gainDb, result.measuredLufs, result.projectedPeakDb);
           triggerToast(buf, {155, 188, 15, 220}, {15, 56, 15, 255}, 3200);
         } else {
           std::snprintf(buf, sizeof(buf), "normalized: %+.1f dB (was %.1f LUFS)",
@@ -927,7 +931,16 @@
     resetTransientPreviewState();
     currentProjectFile_ = normalized;
     rememberLastOpenedProjectFile(currentProjectFile_);
-    project_ = loadProject(normalized);
+    // Big shows (1,500+ cues off a USB drive) parse and build runtimes with the
+    // render loop stopped. Drive a loading overlay from inside that work so the
+    // window shows progress instead of appearing hung. It self-hides for opens
+    // that finish inside 250 ms, which is most of them.
+    beginLoadingOverlay("OPENING SHOW", normalized.filename().string());
+    project_ = loadProject(normalized, [this](double frac) {
+      // Parsing is the bulk of the wait, so give it most of the bar.
+      loadingOverlayProgress(frac * 0.8);
+    });
+    loadingOverlayProgress(0.82, "checking the show");
     normalizeProject(project_);
     // Apply the show's saved color theme. Empty = leave the current theme
     // as-is (older theme-less shows don't stomp the operator's pick).
@@ -945,12 +958,16 @@
     cueRowDisplayCache_.clear();
     resetTimecodeFollowerState();
     selectionChangedAt_ = SDL_GetTicks();
+    loadingOverlayProgress(0.88, "building decks");
     if (!rebuildDeckRuntimes()) {
       std::cerr << "Deck runtime creation failed: " << SDL_GetError() << '\n';
     }
+    loadingOverlayProgress(0.95, "wiring outputs");
     if (!rebuildOutputRuntimes()) {
       std::cerr << "Output runtime creation failed: " << SDL_GetError() << '\n';
     }
+    loadingOverlayProgress(1.0, "ready");
+    endLoadingOverlay();
     triggerToast("playlist: " + currentProjectLabel());
     // Presence scan runs async (seconds of frozen UI on big USB playlists);
     // the RELINK toast follows when it lands.
@@ -1993,6 +2010,8 @@
     std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
     if (project_.terrariumUnlocked) {
       list.insert(list.begin() + 1, {"terrarium", "Terrarium (living ecosystem)"});
+      // The Pi panel's picture: same world, one pixel per cell.
+      list.insert(list.begin() + 2, {"terrarium-pico", "Terrarium Pico (1px per cell)"});
     }
     return list;
   }
@@ -2004,7 +2023,8 @@
     static const std::vector<std::pair<std::string, std::string>> types = [] {
       std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
       // Always VALID (old saves, remote commands) even while picker-hidden.
-      list.emplace_back("terrarium",     "Terrarium (living ecosystem)");
+      list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
+      list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
       list.emplace_back("pocket-day",    "Pocket Test (day)");
       list.emplace_back("pocket-sunset", "Pocket Test (sunset)");
       list.emplace_back("pocket-night",  "Pocket Test (night)");
@@ -2558,7 +2578,17 @@
     push("TAKE",       pal.light, "Enter — take selected cue live");
     push("STOP",       pal.mid, "S — stop active cue");
     push("RERACK",     pal.mid, "R — rewind to start");
-    push("CLEAR",      pal.mid, "C — fade output to black");
+    // BLACKOUT sits with CLEAR because they are the two "kill the picture"
+    // actions and an operator is choosing between them under pressure. It had
+    // no button at all before — reachable only from Companion — which is
+    // backwards: it is the FASTEST and most REVERSIBLE of the family (picture
+    // gone, playback untouched, one press to restore), so it should be the
+    // easiest to hit, not the hardest.
+    //
+    // The tips spell out what each one leaves behind, because that is the
+    // whole decision and the labels hide it.
+    push("BLACKOUT",   pal.mid, "B — picture off instantly, playback keeps running (reversible)");
+    push("CLEAR",      pal.mid, "C — fade out, drop overlays, stop playback");
     push("SETTINGS",   pal.mid, "Open settings");
 
     auto placeGroupButtons = [&](int startIndex, int count, const SDL_Rect& groupRect, int overrideW = 0) {
@@ -2571,11 +2601,12 @@
         x += bw + kLayoutButtonGap;
       }
     };
-    if (buttons_.size() == 8) {
+    if (buttons_.size() == 9) {
       placeGroupButtons(0, 3, mediaGroupRect_);
       placeGroupButtons(3, 3, transportGroupRect_);
-      int outBtnW = std::min(buttonW + 40, (outputGroupRect_.w - kLayoutButtonGap * 3) / 2);
-      placeGroupButtons(6, 2, outputGroupRect_, outBtnW);
+      // OUTPUT now holds three: BLACKOUT, CLEAR, SETTINGS.
+      int outBtnW = std::min(buttonW + 12, (outputGroupRect_.w - kLayoutButtonGap * 4) / 3);
+      placeGroupButtons(6, 3, outputGroupRect_, outBtnW);
     }
   }
 

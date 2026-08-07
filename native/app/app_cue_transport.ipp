@@ -44,6 +44,13 @@
       stopTransport();
     } else if (label == "CLEAR") {
       clearOutput();
+    } else if (label == "BLACKOUT") {
+      // Instant and reversible: kills the picture without touching playback,
+      // so the show keeps running underneath and one press brings it back.
+      const bool dark = masterDimmerTarget_ < 0.5;
+      masterDimmerTarget_ = dark ? 1.0 : 0.0;
+      triggerToast(dark ? "blackout off" : "BLACKOUT");
+      playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
     } else if (label == "SETTINGS") {
       settingsOpen_ = true;
       settingsTab_ = 3;

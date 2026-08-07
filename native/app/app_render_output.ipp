@@ -121,19 +121,20 @@
         }
       }
 
-      Uint8 aTL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 0.0f) : 255;
-      Uint8 aTR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 0.0f) : 255;
-      Uint8 aBR = hasBlend ? edgeBlendAlphaForUv(deck, 1.0f, 1.0f) : 255;
-      Uint8 aBL = hasBlend ? edgeBlendAlphaForUv(deck, 0.0f, 1.0f) : 255;
+      // Feathering must be evaluated ACROSS the quad, not at its corners: four
+      // vertices let SDL stretch a narrow edge ramp into a full-image fade.
+      if (hasBlend && renderFeatheredQuad(runtime->outputRenderer, runtime->compositorTexture,
+                                          deck, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
+        return;
+      }
+      // No feather (warp and/or orientation only): a plain opaque quad is exact.
       // SDL3: SDL_Vertex carries a float SDL_FColor.
-      auto blendColor = [](Uint8 a) {
-        return SDL_FColor {1.0f, 1.0f, 1.0f, static_cast<float>(a) / 255.0f};
-      };
+      const SDL_FColor kOpaque {1.0f, 1.0f, 1.0f, 1.0f};
       SDL_Vertex verts[4] {
-        {p0, blendColor(aTL), uvTL},
-        {p1, blendColor(aTR), uvTR},
-        {p2, blendColor(aBR), uvBR},
-        {p3, blendColor(aBL), uvBL},
+        {p0, kOpaque, uvTL},
+        {p1, kOpaque, uvTR},
+        {p2, kOpaque, uvBR},
+        {p3, kOpaque, uvBL},
       };
       const int indices[6] {0, 1, 2, 0, 2, 3};
       SDL_SetTextureBlendMode(runtime->compositorTexture, SDL_BLENDMODE_BLEND);
@@ -962,8 +963,12 @@
       stopOutputStreamRuntime(*runtime);
       resetOutputStreamFpsTelemetry(*runtime);
     }
+    // ST 2110 needs no SDK, so it has no "supported" gate — the socket either
+    // opens or it reports why.
+    bool st2110RouteActive = output.st2110Enabled;
     bool needsEgressCapture =
-      streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
+      streamRouteActive || ndiRouteActive || deckLinkRouteActive || spoutRouteActive ||
+      st2110RouteActive || std::clamp(output.outputDelayMs, 0, 5000) > 0;
     double fpsHint = 30.0;
     for (auto it = outputLayers.rbegin(); it != outputLayers.rend(); ++it) {
       const Cue* layerCue = activeCuePtr(it->second);
@@ -1015,6 +1020,11 @@
       sendOutputSpoutFrame(outputIndex, *runtime, width, height);
     } else {
       shutdownOutputSpout(*runtime);
+    }
+    if (st2110RouteActive) {
+      sendOutputSt2110Frame(outputIndex, *runtime, width, height, fpsHint);
+    } else {
+      shutdownOutputSt2110(*runtime);
     }
     if (!streamType) {
       SDL_RenderPresent(runtime->outputRenderer);

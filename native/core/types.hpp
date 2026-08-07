@@ -359,10 +359,22 @@ struct OutputTarget {
 
   // -- Streaming egress (ffmpeg SRT/RTMP) --------------------------------------
   bool streamEnabled = false;              // start streaming when output is enabled
-  std::string streamProtocol = "srt";      // "srt" | "rtmp"
+  std::string streamProtocol = "srt";      // "srt" | "rtmp" | "rtmps"
   std::string streamUrl;                   // destination URL (e.g. "srt://host:port")
   std::string streamKey;                   // stream key (appended to RTMP URL as /key)
   int streamBitrateKbps = 6000;            // target video bitrate for encoder
+  // -- SRT transport parameters ------------------------------------------------
+  // Previously the ONLY way to set these was hand-typing a query string onto
+  // streamUrl, which is not something to ask of an operator mid-show. They are
+  // merged into the URL query by buildOutputStreamArgs; anything the operator
+  // typed by hand still wins, so existing shows keep working.
+  int srtLatencyMs = 120;                  // receiver buffer; the main WAN knob
+  std::string srtPassphrase;               // AES encryption (>=10 chars or SRT rejects it)
+  std::string srtStreamId;                 // routing hint for the receiver
+  std::string srtMode = "caller";          // "caller" (dial out) | "listener" (accept)
+  // -- Encoder -----------------------------------------------------------------
+  int streamKeyframeSeconds = 2;           // GOP length; was hardcoded to 1s
+  // Which deck's program this stream carries is implicit (it mirrors PGM).
 
   // -- NDI output (per-output, independent of deck-level NDI) ------------------
   bool ndiEnabled = false;                 // enable NDI send for this specific output
@@ -389,6 +401,15 @@ struct OutputTarget {
   // -- Spout output (Windows interprocess texture sharing) ---------------------
   bool spoutEnabled = false;               // route output to Spout sender
   std::string spoutSenderName;             // Spout sender name visible to receivers
+
+  // -- SMPTE ST 2110-20 output (uncompressed video over IP) --------------------
+  // EXPERIMENTAL: no PTP lock and no ST 2110-21 narrow pacing — see
+  // native/platform/st2110_output.hpp and docs/ST2110_FEASIBILITY.md.
+  bool st2110Enabled = false;              // route output to the ST 2110-20 sender
+  std::string st2110Address = "239.20.10.1";  // destination multicast group
+  std::string st2110Interface;             // local NIC to send from ("" = default route)
+  int st2110Port = 20000;                  // destination UDP port
+  bool st2110TenBit = true;                // YCbCr-4:2:2 10-bit (vs 8-bit)
 
   // -- Area of Interest: per-output crop (fraction from each edge, 0–1) --------
   // Allows cropping the rendered output to show only a subregion.
@@ -419,7 +440,19 @@ struct Project {
   int focusedOutputIndex = 0;                 // which output is selected in settings UI
 
   // -- UI preferences ----------------------------------------------------------
-  bool advancedOutputMode = false;  // show multi-output routing panel in settings
+  // PTP domain for ST 2110 media-clock alignment. 127 is the SMPTE ST 2059-2
+  // default; 0 is the generic IEEE 1588 default. Machine-wide rather than
+  // per-output, because there is one clock and one PTP client.
+  int ptpDomain = 127;
+
+  // PARKED — reserved for Super Deckboy, read by nothing today.
+  // It is set (and forced true when a show has >1 deck), saved and loaded, but
+  // no code branches on it: the "multi-output routing panel" it was meant to
+  // reveal does not exist. Kept, rather than deleted, so existing shows keep
+  // round-tripping their `advanced_mode` line and so the intent survives — but
+  // do not treat it as a live flag. When Super Deckboy lands this is the switch
+  // that pairs with kSuperDeckboySpanningUi (constants.hpp).
+  bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;     // play UI sound effects (navigate, take, etc.)
   bool uiTransitionsEnabled = true; // animate UI transitions (panel slides, fades)
   // Splash mascot identity. Maps to data/ui/.../splash/deckboy_splash_<name>.png.
