@@ -150,7 +150,17 @@
       return;
     }
 
-    if (pointInRect(x, y, cueSourceTypeDropdownRect_)) {
+    // The cue-inspector dropdown triggers live inside the inspector's SCROLLING
+    // region, and their rects are recorded in unclipped screen coordinates. Once
+    // a row scrolls past the viewport its rect sits over whatever is underneath
+    // — for a tall selection that is the bottom bar, so clicking SETTINGS opened
+    // the transition-style dropdown instead and the modal could never be reached.
+    // Gate them on the viewport exactly as quickButtons_/valueScrubZones_ do.
+    auto hitCueInspector = [&](const SDL_Rect& rect) {
+      return pointInRect(x, y, rect) && pointInRect(x, y, cueSettingsViewportRect_);
+    };
+
+    if (hitCueInspector(cueSourceTypeDropdownRect_)) {
       const Cue* cue = selectedCuePtr();
       if (cue && isSourceCueKind(cue->kind)) {
         openDropdown(
@@ -179,7 +189,7 @@
         return;
       }
     }
-    if (pointInRect(x, y, cueWindowSourceDropdownRect_)) {
+    if (hitCueInspector(cueWindowSourceDropdownRect_)) {
       const Cue* cue = selectedCuePtr();
       if (cue && cue->kind == CueKind::WindowSource) {
         // Enumerate available windows and build dropdown choices
@@ -204,7 +214,7 @@
         return;
       }
     }
-    if (pointInRect(x, y, cuePatternTypeDropdownRect_)) {
+    if (hitCueInspector(cuePatternTypeDropdownRect_)) {
       const Cue* cue = selectedCuePtr();
       if (cue && cue->kind == CueKind::Pattern) {
         openDropdown(
@@ -218,7 +228,7 @@
         return;
       }
     }
-    if (pointInRect(x, y, cueTransitionStyleDropdownRect_)) {
+    if (hitCueInspector(cueTransitionStyleDropdownRect_)) {
       const Cue* cue = selectedCuePtr();
       std::string currentStyle = cue
         ? (cue->cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue->cueTransitionStyle)
@@ -1045,32 +1055,57 @@
     }
 
     switch (key) {
-      case SDLK_ESCAPE:
+      // ── Escape: a three-stage escalation, never a shortcut to quitting ──
+      //
+      // 1st press — get back to the desk: drop any fullscreen output that is
+      //             covering the screen and raise the control window.
+      // 2nd press — clear the show: outputs off, engines stopped (panic).
+      // 3rd press — ask about quitting.
+      //
+      // The old logic jumped STRAIGHT to the quit prompt on the first press
+      // whenever `escapeOutputFullscreen` returned false — which is the normal
+      // case (no fullscreen output, or output disabled). Hitting Esc once on an
+      // ordinary setup offered to quit the app mid-show. The escalation also ran
+      // backwards: the panic disarm was on press 3 and the quit prompt on
+      // press 1.
+      //
+      // Each stage announces the next one, so the sequence is discoverable
+      // instead of something the operator has to know.
+      case SDLK_ESCAPE: {
         if (keyRepeat) {
           break;
         }
-        {
-          constexpr Uint64 kEscRepeatMs = 900;
-          Uint64 now = SDL_GetTicks();
-          bool quickEsc = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscRepeatMs;
-          escapePressStreak_ = quickEsc ? (escapePressStreak_ + 1) : 1;
-          lastEscapeKeyMs_ = now;
-          if (escapePressStreak_ >= 3) {
-            if (emergencyDisarmOutputsFromEsc(sourceWindowId)) {
-              escapePressStreak_ = 0;
-              confirmQuit_ = false;
-              break;
-            }
-            // No active output-safety context: treat this press as a new sequence start.
-            escapePressStreak_ = 1;
-          }
-        }
-        if (!escapeOutputFullscreen(sourceWindowId)) {
-          confirmQuit_ = true;
-        } else {
+        // Generous window: this is a deliberate escalation the operator walks
+        // up, not a panic double-tap. Anything slower starts over.
+        constexpr Uint64 kEscSequenceMs = 2500;
+        Uint64 now = SDL_GetTicks();
+        bool continuing = lastEscapeKeyMs_ > 0 && (now - lastEscapeKeyMs_) <= kEscSequenceMs;
+        escapePressStreak_ = continuing ? (escapePressStreak_ + 1) : 1;
+        lastEscapeKeyMs_ = now;
+
+        if (escapePressStreak_ <= 1) {
           confirmQuit_ = false;
+          // Stage 1 — come back to the desk. Un-fullscreen the output if it is
+          // covering things; either way put the control window in front.
+          escapeOutputFullscreen(sourceWindowId);
+          if (controlWindow_) {
+            SDL_RaiseWindow(controlWindow_);
+          }
+          triggerToast("esc: control window - again to clear output");
+        } else if (escapePressStreak_ == 2) {
+          confirmQuit_ = false;
+          // Stage 2 — back to the beginning state: outputs disarmed, playback
+          // stopped, audio killed (runPanicOutputsOff handles all three).
+          emergencyDisarmOutputsFromEsc(sourceWindowId);
+          triggerToast("esc: output cleared - again to quit");
+        } else {
+          // Stage 3 — now, and only now, offer to quit.
+          confirmQuit_ = true;
+          escapePressStreak_ = 0;
+          lastEscapeKeyMs_ = 0;
         }
         break;
+      }
       case SDLK_TAB:
         cycleFocusedDeck(shift ? -1 : 1);
         break;
@@ -1115,7 +1150,18 @@
         importWithPicker();
         break;
       case SDLK_B:
-        addBrowserCueFromPrompt();
+        // B is BLACKOUT. Every lighting desk in the world puts blackout on B,
+        // and it is the one control an operator reaches for without looking.
+        // Adding a browser cue — an authoring action, also available from the
+        // SOURCE menu — moves to Shift+B.
+        if (shift) {
+          addBrowserCueFromPrompt();
+        } else {
+          const bool dark = masterDimmerTarget_ < 0.5;
+          masterDimmerTarget_ = dark ? 1.0 : 0.0;
+          triggerToast(dark ? "blackout off" : "BLACKOUT");
+          playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
+        }
         break;
       case SDLK_G:
         triggerParkedCueCreationToast("lower third");
@@ -1188,10 +1234,20 @@
         deleteSelected();
         break;
       case SDLK_BACKSPACE:
+        // Backspace DELETES. It used to mean "clear overlays, unless there are
+        // none, in which case delete the selected cue" — two unrelated actions
+        // on one key, one of them destructive, chosen by state the operator
+        // cannot see. The shortcuts overlay only documented the harmless half,
+        // so anyone who read it and pressed Backspace on a clean show silently
+        // lost a cue. Overlay clearing now lives on its own key.
+        deleteSelected();
+        break;
+      case SDLK_U:
+        // Overlay clear, on its own non-destructive key.
         if (!focusedDeck().overlayActiveIndices.empty()) {
           clearOverlay();
         } else {
-          deleteSelected();
+          triggerToast("no overlays to clear");
         }
         break;
       case SDLK_EQUALS:

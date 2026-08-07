@@ -1392,6 +1392,79 @@
     drawGroupFrame(transportGroupRect_, "TRANSPORT");
     drawGroupFrame(outputGroupRect_, "OUTPUT");
 
+    // ── On-air row ────────────────────────────────────────────────────────
+    // One transmitting badge per stream type, on the OUTPUT group header where
+    // the operator already looks. Settings is the wrong place to learn you are
+    // live: by the time you have opened a modal to check, you are not looking
+    // at the show. The rings only animate while frames are genuinely going
+    // out, so a frozen badge is itself the warning.
+    {
+      struct OnAirEntry { const char* label; bool configured; bool live; OutputHealthState health; };
+      std::vector<OnAirEntry> entries;
+      auto streamEntry = [&](const char* label, const char* protocol) {
+        const int idx = findStreamOutputForProtocol(protocol);
+        if (idx < 0) {
+          return;  // never configured: don't clutter the bar with it
+        }
+        const OutputTarget& o = project_.outputs[idx];
+        entries.push_back({label, true, o.enabled && o.streamEnabled,
+                           outputHealthStateForDisplay(idx)});
+      };
+      streamEntry("SRT", "srt");
+      streamEntry("RTMP", "rtmp");
+      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+        const OutputTarget& o = project_.outputs[i];
+        if (o.st2110Enabled) {
+          entries.push_back({"2110", true, o.enabled,
+                             outputHealthStateForDisplay(static_cast<int>(i))});
+          break;
+        }
+      }
+      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+        const OutputTarget& o = project_.outputs[i];
+        if (o.ndiEnabled) {
+          entries.push_back({"NDI", true, o.enabled,
+                             outputHealthStateForDisplay(static_cast<int>(i))});
+          break;
+        }
+      }
+
+      if (!entries.empty() && outputGroupRect_.w > 0) {
+        const int badgeH = 14;
+        const int gap = 6;
+        TTF_Font* onAirFont = fontSmall_;
+        int totalW = 0;
+        std::vector<int> textW(entries.size(), 0);
+        for (std::size_t i = 0; i < entries.size(); ++i) {
+          int w = 0, h = 0;
+          if (onAirFont) {
+            TTF_GetStringSize(onAirFont, entries[i].label,
+                              std::strlen(entries[i].label), &w, &h);
+          }
+          // drawTextSafe insets the rect it is given before laying out, so a
+          // rect measured to the exact string width ellipsizes ("2110" became
+          // "21..."). Pad past the inset.
+          textW[i] = w + 10;
+          totalW += badgeH + 3 + textW[i] + gap;
+        }
+        // Right-aligned in the group header, so it never collides with the
+        // "OUTPUT" label on the left however many badges appear.
+        int x = outputGroupRect_.x + outputGroupRect_.w - 12 - totalW + gap;
+        const int y = outputGroupRect_.y + 6;
+        for (std::size_t i = 0; i < entries.size(); ++i) {
+          SDL_Rect badge {x, y + 1, badgeH, badgeH};
+          // Bottom-bar groups fill with pal.tile, so the live tint is pal.fg —
+          // pal.light here would be light-on-light and invisible.
+          drawStreamOnAirBadge(badge, entries[i].configured, entries[i].live,
+                               entries[i].health, pal.fg);
+          SDL_Rect lab {x + badgeH + 3, y, textW[i], badgeH + 4};
+          drawTextSafe(controlRenderer_, onAirFont, lab, entries[i].label,
+                       entries[i].live ? pal.fg : pal.fgSoft);
+          x += badgeH + 3 + textW[i] + gap;
+        }
+      }
+    }
+
     auto buttonIconForLabel = [&](const std::string& label) -> UiImageAsset* {
       if (label == "IMPORT")   return &uiBtnImport_;
       if (label == "BROWSER")  return &uiCueIconBrowser_;
@@ -1445,9 +1518,11 @@
     // ─── Bottom bar sparkle area ───
     // Ambient sparkles + state-indicating animations in the empty space
     // within the output group, after the 2 buttons
-    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 8) {
-      // Find the rightmost button in the output group (buttons_[7] = SETTINGS)
-      SDL_Rect lastOutBtn = buttons_[7].rect;
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 9) {
+      // Rightmost button in the output group — SETTINGS, now buttons_[8]
+      // after BLACKOUT joined the group. Index-based anchors like this are
+      // exactly what breaks when the bar changes; keep it in step.
+      SDL_Rect lastOutBtn = buttons_[8].rect;
       int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
       int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
       if (sparkleAreaW < 40) {

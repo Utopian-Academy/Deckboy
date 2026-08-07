@@ -36,6 +36,78 @@
     int rasterW = 0, rasterH = 0;
   };
 
+  // ── On-air indicator ───────────────────────────────────────────────────────
+  // A little transmitter that actually transmits: a dot with rings pushing out
+  // of it while the stream is live. Motion is the point — a static coloured
+  // pill cannot distinguish "connected and sending" from "armed and stalled",
+  // which is exactly the moment an operator needs to tell them apart. Colours
+  // come from existing theme roles, so it stays legible in all 30 colourways
+  // without touching a theme file.
+  // activeTint MUST come from the caller's background: settings sections fill
+  // with shell_inner (so pal.light reads), but the bottom-bar groups fill with
+  // pal.tile, where pal.light is light-on-light and the badge vanishes. That is
+  // the chrome contract in CLAUDE.md — structural panels ink with fg, small
+  // raised controls with light — and a shared widget has to be told which it is
+  // sitting on.
+  void drawStreamOnAirBadge(const SDL_Rect& rect, bool configured, bool armed,
+                            OutputHealthState health, SDL_Color activeTint) {
+    const Uint64 nowMs = SDL_GetTicks();
+    const int bx = rect.x + rect.w / 2;
+    const int by = rect.y + rect.h / 2;
+    const int maxR = std::max(4, std::min(rect.w, rect.h) / 2 - 1);
+
+    SDL_Color tint = pal.mid;                 // configured, idle
+    if (!configured) {
+      tint = pal.dark;                        // nothing set up yet
+    } else if (armed) {
+      tint = (health == OutputHealthState::Error ||
+              health == OutputHealthState::Recovering) ? pal.deleteBezel : activeTint;
+    }
+
+    // Core dot. It breathes while live, so the badge is never fully static.
+    int dotR = std::max(2, maxR / 3);
+    if (armed) {
+      const float breathe = 0.5f + 0.5f * std::sin(static_cast<float>(nowMs) * 0.006f);
+      dotR = std::max(2, static_cast<int>(std::lround(dotR * (0.85f + 0.3f * breathe))));
+    }
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, tint.r, tint.g, tint.b, 255);
+    for (int dy = -dotR; dy <= dotR; ++dy) {
+      const int span = static_cast<int>(std::lround(std::sqrt(
+        std::max(0.0, static_cast<double>(dotR) * dotR - static_cast<double>(dy) * dy))));
+      SDL_RenderLine(controlRenderer_, static_cast<float>(bx - span), static_cast<float>(by + dy),
+                     static_cast<float>(bx + span), static_cast<float>(by + dy));
+    }
+    if (!armed) {
+      return;
+    }
+    // Two rings half a cycle apart, fading as they expand. Errors pulse faster —
+    // a stream in trouble should feel agitated rather than calm.
+    const float speed = (health == OutputHealthState::Error) ? 0.0030f : 0.0016f;
+    for (int ring = 0; ring < 2; ++ring) {
+      const float phase = std::fmod(static_cast<float>(nowMs) * speed + ring * 0.5f, 1.0f);
+      const int r = static_cast<int>(std::lround(dotR + phase * (maxR - dotR)));
+      if (r <= dotR) {
+        continue;
+      }
+      const Uint8 alpha = static_cast<Uint8>(std::clamp(
+        static_cast<int>(std::lround(210.0f * (1.0f - phase))), 0, 255));
+      SDL_SetRenderDrawColor(controlRenderer_, tint.r, tint.g, tint.b, alpha);
+      constexpr int kSegments = 24;
+      float prevX = 0.0f, prevY = 0.0f;
+      for (int s = 0; s <= kSegments; ++s) {
+        const float a = static_cast<float>(s) / kSegments * 6.2831853f;
+        const float px = static_cast<float>(bx) + std::cos(a) * r;
+        const float py = static_cast<float>(by) + std::sin(a) * r;
+        if (s > 0) {
+          SDL_RenderLine(controlRenderer_, prevX, prevY, px, py);
+        }
+        prevX = px;
+        prevY = py;
+      }
+    }
+  }
+
   AoiRectPx focusedOutputAoiRectPx() {
     const OutputTarget& ot = focusedOutput();
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
@@ -49,6 +121,60 @@
     rect.h = std::max(1, static_cast<int>(std::lround(
       std::clamp(1.0f - ot.aoiTop - ot.aoiBottom, 0.0f, 1.0f) * rect.rasterH)));
     return rect;
+  }
+
+  // Standard rasters an operator actually asks for by name. "Full" is the
+  // output's own raster and is always first; anything larger than the current
+  // raster is filtered out at build time so the list never offers a region the
+  // output cannot contain.
+  std::vector<std::pair<std::string, std::string>> aoiSizeChoices() {
+    AoiRectPx cur = focusedOutputAoiRectPx();
+    static const std::array<std::pair<int, int>, 10> kRasters {{
+      {3840, 2160}, {2560, 1440}, {1920, 1080}, {1600, 1200}, {1280, 1024},
+      {1280, 720}, {1024, 768}, {854, 480}, {800, 600}, {640, 480}
+    }};
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.push_back({"full", "Full  " + std::to_string(cur.rasterW) + "x"
+                                        + std::to_string(cur.rasterH)});
+    for (const auto& [w, h] : kRasters) {
+      if (w > cur.rasterW || h > cur.rasterH) {
+        continue;
+      }
+      std::string token = std::to_string(w) + "x" + std::to_string(h);
+      choices.push_back({token, token});
+    }
+    return choices;
+  }
+
+  // Resize the AOI about its own centre so picking a smaller raster keeps the
+  // region where the operator put it instead of snapping back to a corner.
+  void applyFocusedOutputAoiSizeToken(const std::string& token) {
+    AoiRectPx cur = focusedOutputAoiRectPx();
+    if (token == "full") {
+      applyFocusedOutputAoiRectPx(0, 0, cur.rasterW, cur.rasterH);
+      triggerToast("area of interest: full raster");
+      return;
+    }
+    size_t xPos = token.find('x');
+    if (xPos == std::string::npos) {
+      return;
+    }
+    try {
+      int w = std::stoi(token.substr(0, xPos));
+      int h = std::stoi(token.substr(xPos + 1));
+      int cxCentre = cur.x + cur.w / 2;
+      int cyCentre = cur.y + cur.h / 2;
+      applyFocusedOutputAoiRectPx(cxCentre - w / 2, cyCentre - h / 2, w, h);
+      triggerToast("area of interest: " + token);
+    } catch (...) {
+    }
+  }
+
+  void centreFocusedOutputAoi() {
+    AoiRectPx cur = focusedOutputAoiRectPx();
+    applyFocusedOutputAoiRectPx((cur.rasterW - cur.w) / 2,
+                                (cur.rasterH - cur.h) / 2, cur.w, cur.h);
+    triggerToast("area of interest: centred");
   }
 
   void applyFocusedOutputAoiRectPx(int x, int y, int w, int h) {
@@ -890,7 +1016,12 @@
 
       // ─── Sub-tab bar ───
       settingsVideoSubTab_ = std::clamp(settingsVideoSubTab_, 0, 3);
-      const std::vector<std::string> subTabs {"Display", "Processing", "Other Outputs", "Streaming"};
+      // Standard AV desk vocabulary, the words that appear on a projector menu
+      // or in Mitti/QLab/Resolume — not invented ones. "Screen" is the physical
+      // panel this output drives, "Geometry" is the projector-menu term for
+      // crop/edge shaping, "Devices" is where the frame is sent (NDI/SDI/Spout).
+      // The earlier "Shaping"/"Destinations" pair was atypical and overlapping.
+      const std::vector<std::string> subTabs {"Screen", "Geometry", "Devices", "Streaming"};
       {
         // Same cartridge-shelf treatment as the main tab bar, one size down.
         const int kSubTabH = std::max(uiScaled(30), textLineHeight(fontSmall_) + uiScaled(12));
@@ -920,7 +1051,8 @@
         int displayCount = deckboyGetNumVideoDisplays();
 
         // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
-        int dispSectionH = settingsHeaderHeight(fontSmall_) + 3 * (kRowH + kRowGap) + 8;
+        // 4 rows now (display, resolution, raster/refresh/depth, fullscreen+orientation).
+        int dispSectionH = settingsHeaderHeight(fontSmall_) + 4 * (kRowH + kRowGap) + 8;
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -938,6 +1070,32 @@
         std::string resLabel = std::to_string(targetW) + "x" + std::to_string(targetH) + (project_.outputFollowDisplay ? " (Native)" : " (Fixed)");
         drawUIDropdown(rBtn, "Resolution", resLabel, "settings.output_raster");
         settingsBtns_.push_back({rBtn, 237, "custom_raster"});
+
+        // Raster mode / refresh / bit depth. These handlers existed but had NO
+        // UI at all — an audit found them reachable only as dead action ids.
+        // That mattered twice over: refresh rate had no control anywhere, and
+        // once a fixed raster was set there was no way back to display-native
+        // (the Resolution row above only ever sets FIXED). Fixed raster and
+        // refresh are also what qualify an output for exclusive fullscreen, so
+        // losing them quietly cost a real capability.
+        {
+          SDL_Rect row = dLayout.takeFixed(kRowH);
+          int thirdW = (row.w - 8) / 3;
+          SDL_Rect modeBtn {row.x, row.y, thirdW, kRowH};
+          const bool nativeMode = project_.outputFollowDisplay;
+          // Native is action 230; FIXED is the custom-raster editor (237), so
+          // the button offers whichever the operator is not currently in.
+          drawActionBtn(modeBtn, nativeMode ? "Raster: NATIVE" : "Raster: FIXED",
+                        nativeMode ? 237 : 230, nativeMode);
+          SDL_Rect refreshBtn {row.x + thirdW + 4, row.y, thirdW, kRowH};
+          drawActionBtn(refreshBtn, "Refresh: " + outputRefreshRateLabel(), 241);
+          // Cycle auto -> 8 -> 10 -> auto by dispatching the existing per-value
+          // handlers; no new action id needed.
+          const int depth = project_.outputBitDepth;
+          const int depthAction = (depth == 0) ? 243 : (depth == 8) ? 244 : 242;
+          SDL_Rect depthBtn {row.x + (thirdW + 4) * 2, row.y, row.w - (thirdW + 4) * 2, kRowH};
+          drawActionBtn(depthBtn, "Depth: " + outputBitDepthModeLabel(), depthAction);
+        }
 
         // Fullscreen + orientation share a row — two half-width actions read
         // better than stacked full-width bars in a card this wide.
@@ -1017,7 +1175,10 @@
           // font-derived now, so a fixed height clipped the last control.
           int blendH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap) + 8;
           SDL_Rect blendSection {cx, sy, subContentW, blendH};
-          SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE BLENDING");
+          // "Feathering", not "blending": this softens THIS output's own edges.
+          // True multi-projector edge blending (gamma-matched overlap between
+          // two outputs) is a Super Deckboy job — see kSuperDeckboySpanningUi.
+          SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE FEATHERING");
           int bx = blendBody.x + 2;
           int labelY = blendBody.y;
           int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
@@ -1055,7 +1216,14 @@
           bool aoiActive = ot.aoiLeft > 0.001f || ot.aoiRight > 0.001f
                         || ot.aoiTop > 0.001f   || ot.aoiBottom > 0.001f;
           AoiRectPx aoi = focusedOutputAoiRectPx();
-          int aoiH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap) + 8;
+          // Height is DERIVED from the two label+control rows below, never a
+          // magic number — a hardcoded section height is what silently clipped
+          // DeckLink's 10-bit toggle once rows became font-derived (v0.81.3).
+          const int aoiHdrH = 26;
+          const int aoiLabelH = textLineHeight(fontSmall_);
+          const int aoiCtrlH = 24;
+          const int aoiRowH = aoiLabelH + 4 + aoiCtrlH;
+          int aoiH = aoiHdrH + 6 + aoiRowH + kRowGap + aoiRowH + 10;
           SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
           SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
           SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
@@ -1072,18 +1240,48 @@
           Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
           drawCenteredText(controlRenderer_, fontSmall_, "FULL", ink, aoiResetBtn);
           settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
+          // An area of interest is "send THIS resolution out of that raster",
+          // so the primary control is a size, not four independent edges.
+          // Row 1 picks the region size; row 2 places it. WIDTH/HEIGHT keep
+          // typed entry via the size dropdown's custom path, and the nudge
+          // actions all still exist for remote/Companion control.
           int abx = aoiSection.x + 16;
-          int ably = aoiSection.y + 32;
-          int aoBtnY = rowYBelowLabel(ably, fontSmall_, 4);
-          int aoBW = (aoiSection.w - 40) / 4;
-          int aoGap = 6;
-          auto drawAoiCtrl = [&](const char* label, int px, int decAct, int incAct, int editAct) {
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{abx, ably, aoBW, 16}, label, aoiActive ? pal.light : soft);
+          int ably = aoiSection.y + aoiHdrH + 6;
+          int aoBtnY = ably + aoiLabelH + 4;
+          int aoiInnerW = aoiSection.w - 32;
+          int aoiRow2LabelY = aoBtnY + aoiCtrlH + kRowGap;
+          int aoiRow2Y = aoiRow2LabelY + aoiLabelH + 4;
+
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{abx, ably, aoiInnerW, aoiLabelH}, "REGION SIZE",
+                       aoiActive ? pal.light : soft);
+          int centreW = std::max(72, aoiInnerW / 4);
+          SDL_Rect aoiSizeBtn {abx, aoBtnY, aoiInnerW - centreW - 6, aoiCtrlH};
+          std::string sizeLabel = aoiActive
+            ? std::to_string(aoi.w) + "x" + std::to_string(aoi.h)
+            : "Full  " + std::to_string(aoi.rasterW) + "x" + std::to_string(aoi.rasterH);
+          drawUIDropdown(aoiSizeBtn, "Size", sizeLabel, "settings.aoi_size");
+          settingsBtns_.push_back({aoiSizeBtn, kSettingsActionOutputAoiSizeDropdown, "aoi_size"});
+          SDL_Rect aoiCentreBtn {abx + aoiInnerW - centreW, aoBtnY, centreW, aoiCtrlH};
+          Primitives::drawFramedPanel(controlRenderer_, aoiCentreBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, aoiCentreBtn, "CENTRE", aoiInk2);
+          settingsBtns_.push_back({aoiCentreBtn, kSettingsActionOutputAoiCentre, "aoi_centre"});
+
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{abx, aoiRow2LabelY, aoiInnerW, aoiLabelH}, "POSITION",
+                       aoiActive ? pal.light : soft);
+          int posW = (aoiInnerW - 8) / 2;
+          auto drawAoiPosCtrl = [&](const char* label, int px, int slotX,
+                                    int decAct, int incAct, int editAct) {
+            SDL_Rect lblRect {slotX, aoiRow2Y, 18, aoiCtrlH};
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, lblRect, label,
+                                 aoiActive ? pal.light : soft);
             int nudgeW = 22;
-            SDL_Rect decBtn {abx, aoBtnY, nudgeW, 24};
-            SDL_Rect valBtn {abx + nudgeW + 3, aoBtnY, aoBW - 2 * (nudgeW + 3), 24};
-            SDL_Rect incBtn {abx + aoBW - nudgeW, aoBtnY, nudgeW, 24};
+            int fieldX = slotX + 20;
+            int fieldW = posW - 20;
+            SDL_Rect decBtn {fieldX, aoiRow2Y, nudgeW, aoiCtrlH};
+            SDL_Rect valBtn {fieldX + nudgeW + 3, aoiRow2Y, fieldW - 2 * (nudgeW + 3), aoiCtrlH};
+            SDL_Rect incBtn {fieldX + fieldW - nudgeW, aoiRow2Y, nudgeW, aoiCtrlH};
             Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
             settingsBtns_.push_back({decBtn, decAct, "aoi"});
@@ -1094,21 +1292,24 @@
             Primitives::drawFramedPanel(controlRenderer_, incBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "+", aoiInk2, incBtn);
             settingsBtns_.push_back({incBtn, incAct, "aoi"});
-            abx += aoBW + aoGap;
           };
-          drawAoiCtrl("X", aoi.x, kSettingsActionOutputAoiXDec, kSettingsActionOutputAoiXInc, kSettingsActionOutputAoiXEdit);
-          drawAoiCtrl("Y", aoi.y, kSettingsActionOutputAoiYDec, kSettingsActionOutputAoiYInc, kSettingsActionOutputAoiYEdit);
-          drawAoiCtrl("WIDTH", aoi.w, kSettingsActionOutputAoiWDec, kSettingsActionOutputAoiWInc, kSettingsActionOutputAoiWEdit);
-          drawAoiCtrl("HEIGHT", aoi.h, kSettingsActionOutputAoiHDec, kSettingsActionOutputAoiHInc, kSettingsActionOutputAoiHEdit);
+          drawAoiPosCtrl("X", aoi.x, abx, kSettingsActionOutputAoiXDec,
+                         kSettingsActionOutputAoiXInc, kSettingsActionOutputAoiXEdit);
+          drawAoiPosCtrl("Y", aoi.y, abx + posW + 8, kSettingsActionOutputAoiYDec,
+                         kSettingsActionOutputAoiYInc, kSettingsActionOutputAoiYEdit);
           sy += aoiH + kSectionGap;
         }
 
-        // Canvas Mode + Default Transition (side by side)
+        // Default Transition — and, once Super Deckboy lands, Canvas Mode
+        // beside it. Canvas is a MULTI-OUTPUT SPANNING feature, so it is parked
+        // and hidden until that mode exists (see kSuperDeckboySpanningUi).
+        // With canvas hidden the transition panel takes the full width rather
+        // than leaving a conspicuous empty half.
         {
-          int halfW = (subContentW - 8) / 2;
+          int halfW = kSuperDeckboySpanningUi ? (subContentW - 8) / 2 : subContentW;
           int pairH = 68;
 
-          {
+          if (kSuperDeckboySpanningUi) {
             SDL_Rect canvasPanel {cx, sy, halfW, pairH};
             Primitives::drawFramedPanel(controlRenderer_, canvasPanel, pal.shellInner, pal.deep, pal.light);
             drawTextSafe(controlRenderer_, fontSmall_,
@@ -1133,7 +1334,8 @@
           }
           {
             const Deck& td = focusedDeck();
-            SDL_Rect transPanel {cx + halfW + 8, sy, halfW, pairH};
+            int transX = kSuperDeckboySpanningUi ? cx + halfW + 8 : cx;
+            SDL_Rect transPanel {transX, sy, halfW, pairH};
             Primitives::drawFramedPanel(controlRenderer_, transPanel, pal.shellInner, pal.deep, pal.light);
             drawTextSafe(controlRenderer_, fontSmall_,
                          SDL_Rect{transPanel.x + 8, transPanel.y + 4, transPanel.w - 16, 16},
@@ -1166,24 +1368,26 @@
       } else if (settingsVideoSubTab_ == 2) {
       // ─── BACKENDS sub-tab ────────────────────────────────────────
 
-        // Output Settings
+        // This Output — per-output delivery only. Layout (span/duplicate) and
+        // Mirror are MULTI-OUTPUT SPANNING controls, parked until Super Deckboy
+        // (kSuperDeckboySpanningUi); Color moved to the Streaming sub-tab,
+        // because the stream encoder is the only thing that ever read it.
         {
-          int osH = 108;
+          int osRows = kSuperDeckboySpanningUi ? 2 : 1;
+          int osH = settingsHeaderHeight(fontSmall_) + osRows * (kRowH + kRowGap) + 8;
           SDL_Rect osSection {cx, sy, subContentW, osH};
-          SDL_Rect osBody = drawSectionFrame(osSection, "OUTPUT SETTINGS");
+          SDL_Rect osBody = drawSectionFrame(osSection, "THIS OUTPUT");
           VerticalLayout osLayout(osBody, kRowGap);
           {
             SDL_Rect row = osLayout.takeFixed(kRowH);
-            int thirdW = (row.w - 8) / 3;
-            SDL_Rect alphaBtn {row.x, row.y, thirdW, kRowH};
+            int halfW2 = (row.w - 4) / 2;
+            SDL_Rect alphaBtn {row.x, row.y, halfW2, kRowH};
             int alphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
             drawActionBtn(alphaBtn, "Alpha: " + std::to_string(alphaPct) + "%", kSettingsActionOutputAlphaPrompt);
-            SDL_Rect delayBtn {row.x + thirdW + 4, row.y, thirdW, kRowH};
+            SDL_Rect delayBtn {row.x + halfW2 + 4, row.y, row.w - halfW2 - 4, kRowH};
             drawActionBtn(delayBtn, "Delay: " + std::to_string(outputDelayMs) + "ms", kSettingsActionOutputDelayPrompt);
-            SDL_Rect csBtn {row.x + (thirdW + 4) * 2, row.y, row.w - (thirdW + 4) * 2, kRowH};
-            drawActionBtn(csBtn, "Color: " + toUpper(outputColorSpace), kSettingsActionOutputColorSpaceCycle);
           }
-          {
+          if (kSuperDeckboySpanningUi) {
             SDL_Rect row = osLayout.takeFixed(kRowH);
             int halfW2 = (row.w - 4) / 2;
             SDL_Rect layoutBtn {row.x, row.y, halfW2, kRowH};
@@ -1207,8 +1411,22 @@
           std::string ndiName = trim(outputTarget.ndiSourceName).empty() ? "Default" : outputTarget.ndiSourceName;
           drawUIDropdown(nnBtn, "Source", ndiName, "settings.ndi_name");
           settingsBtns_.push_back({nnBtn, 272, "ndi_name"});
-          SDL_Rect ndiKeyBtn = nLayout.takeFixed(kRowH);
-          drawActionBtn(ndiKeyBtn, outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF", 273, outputTarget.ndiKeyEnabled);
+          {
+            // The key toggle had UI but the key SOURCE NAME did not — its
+            // handler (274) was reachable only as a dead action id, so an
+            // alpha-key NDI sender could be armed but never named.
+            SDL_Rect row = nLayout.takeFixed(kRowH);
+            int halfN = (row.w - 4) / 2;
+            SDL_Rect ndiKeyBtn {row.x, row.y, halfN, kRowH};
+            drawActionBtn(ndiKeyBtn, outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF",
+                          273, outputTarget.ndiKeyEnabled);
+            SDL_Rect keyNameBtn {row.x + halfN + 4, row.y, row.w - halfN - 4, kRowH};
+            std::string keyName = trim(outputTarget.ndiKeySourceName);
+            if (keyName.empty()) {
+              keyName = defaultOutputNdiKeySourceName(outputTarget, focusedOutputIndex);
+            }
+            drawActionBtn(keyNameBtn, "Key name: " + keyName, 274);
+          }
           sy += ndiH + kSectionGap;
         }
 
@@ -1272,117 +1490,202 @@
             drawUIDropdown(spNameBtn, "Sender", spName, "settings.spout_name");
             settingsBtns_.push_back({spNameBtn, kSettingsActionSpoutNamePrompt, "spout_name"});
           }
+          sy += dlH + kSectionGap;
+        }
+
+        // ST 2110-20 — labelled EXPERIMENTAL on purpose. It is a real, correctly
+        // packetised sender, but it is not PTP-locked and not narrow-model
+        // paced, so it will not genlock in a broadcast plant. Saying so in the
+        // header is cheaper than an operator discovering it at a venue.
+        {
+          // 3 control rows + 2 status lines. The status lines are the ones that
+          // get clipped if this is under-sized, and they are the ones that
+          // matter (pacing + clock traceability), so give them real room.
+          int stH = settingsHeaderHeight(fontSmall_) + 3 * (kRowH + kRowGap)
+                  + 2 * (kLabelH + 4) + 12;
+          SDL_Rect stSection {cx, sy, subContentW, stH};
+          SDL_Rect stBody = drawSectionFrame(stSection, "SMPTE ST 2110-20  (EXPERIMENTAL)");
+          VerticalLayout stLayout(stBody, kRowGap);
+
+          drawActionBtn(stLayout.takeFixed(kRowH),
+                        outputTarget.st2110Enabled ? "ST 2110: ON" : "ST 2110: OFF",
+                        kSettingsActionSt2110Toggle, outputTarget.st2110Enabled);
+          {
+            SDL_Rect row = stLayout.takeFixed(kRowH);
+            int addrW = (row.w - 4) * 2 / 3;
+            SDL_Rect addrBtn {row.x, row.y, addrW, kRowH};
+            std::string addr = trim(outputTarget.st2110Address);
+            if (addr.empty()) addr = "239.20.10.1";
+            drawActionBtn(addrBtn, "Group: " + addr, kSettingsActionSt2110AddressPrompt);
+            SDL_Rect portBtn {row.x + addrW + 4, row.y, row.w - addrW - 4, kRowH};
+            drawActionBtn(portBtn, "Port: " + std::to_string(outputTarget.st2110Port),
+                          kSettingsActionSt2110PortPrompt);
+          }
+          {
+            SDL_Rect row = stLayout.takeFixed(kRowH);
+            int halfSt = (row.w - 4) / 2;
+            SDL_Rect depthBtn {row.x, row.y, halfSt, kRowH};
+            drawActionBtn(depthBtn,
+                          outputTarget.st2110TenBit ? "4:2:2  10-BIT" : "4:2:2  8-BIT",
+                          kSettingsActionSt2110DepthToggle, outputTarget.st2110TenBit);
+            SDL_Rect sdpBtn {row.x + halfSt + 4, row.y, row.w - halfSt - 4, kRowH};
+            drawActionBtn(sdpBtn, "SHOW SDP", kSettingsActionSt2110CopySdp);
+          }
+          {
+            SDL_Rect noteRect = stLayout.takeFixed(kLabelH);
+            // Live sender telemetry when armed, the caveat when not. Pacing
+            // error is the number that says whether the wide-model schedule is
+            // actually being met — a burst-sending stream reads near zero here
+            // because it never waits, so it is read together with drops.
+            std::string note =
+              "No PTP lock, wide-model pacing - will not genlock to plant sources";
+            const OutputRuntime* strt = runtimeForOutput(focusedOutputIndex);
+            if (strt && strt->st2110Sender && strt->st2110Sender->isOpen()) {
+              char buf[200];
+              // "skipped", not "dropped": the compositor presents at the
+              // output's refresh rate while the stream is paced at its DECLARED
+              // rate, so surplus arrivals are rate-limited away on purpose. A
+              // 60 Hz output feeding a 30 fps stream skips about half, and that
+              // is correct — calling it "dropped" reads as packet loss.
+              std::snprintf(buf, sizeof(buf),
+                            "sent %llu @ %.2f fps   skipped %llu (rate-limited)   pacing +/-%.0f us   no PTP, wide model",
+                            static_cast<unsigned long long>(strt->st2110Sender->framesSent()),
+                            strt->st2110Sender->config().frameRate,
+                            static_cast<unsigned long long>(strt->st2110Sender->framesDropped()),
+                            strt->st2110Sender->pacingErrorMicros());
+              note = buf;
+            }
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{stBody.x, noteRect.y, stBody.w, kLabelH}, note, soft);
+          }
+          {
+            // Media-clock state on its own line. This is the difference between
+            // a stream that merely decodes and one a switcher can cut to, so it
+            // gets said plainly rather than buried in the caveat above.
+            SDL_Rect clockRect = stLayout.takeFixed(kLabelH);
+            const bool locked = ptpClient_.locked();
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{stBody.x, clockRect.y, stBody.w, kLabelH},
+                         ptpStatusLabel(), locked ? pal.fg : soft);
+          }
+          sy += stH + kSectionGap;
         }
 
       // ═══════════════════════════════════════════════════════════════
       } else if (settingsVideoSubTab_ == 3) {
       // ─── STREAMING sub-tab ───────────────────────────────────────
 
-        int streamH = std::max(280, subContentH);
-        SDL_Rect streamSection {cx, sy, subContentW, streamH};
-        SDL_Rect sBody = drawSectionFrame(streamSection, "STREAMING (SRT / RTMP)");
-        VerticalLayout sLayout(sBody, kRowGap);
-
-        drawActionBtn(sLayout.takeFixed(kRowH), outputTarget.streamEnabled ? "STREAMING: ON" : "STREAMING: OFF", 255, outputTarget.streamEnabled);
-
-        // State lines
+        // -- Two independent destinations ---------------------------------
+        // Streaming used to be "whatever output is focused", with protocol as a
+        // switch and one shared url/key/bitrate - so SRT and RTMP could never be
+        // configured at the same time, let alone run together. The app's own
+        // hint told the operator to go add a second output by hand.
+        //
+        // Each protocol now owns a dedicated stream output, created on demand
+        // (ensureStreamOutputForProtocol). Both can be live at once, and each
+        // shows only the controls its protocol actually has.
         {
-          std::string stateLine1 = "State: " + outputHealthLabel(focusedOutputIndex);
-          std::string stateLine2;
-          std::string streamReason = outputHealthReason(focusedOutputIndex);
-          if (outputTarget.outputTestCardEnabled) {
-            stateLine2 = "TEST CARD OVERRIDE ACTIVE";
-          } else if (!streamReason.empty()) {
-            stateLine2 = streamReason;
-          } else if (!outputTarget.enabled) {
-            stateLine2 = "Turn OUTPUT ON to send";
-          } else if (!outputTarget.streamEnabled) {
-            stateLine2 = "Toggle STREAMING ON to send";
-          }
-          SDL_Rect sl1Rect = sLayout.takeFixed(kLabelH);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{sBody.x, sl1Rect.y, sBody.w, kLabelH}, stateLine1, soft);
-          if (!stateLine2.empty()) {
-            SDL_Rect sl2Rect = sLayout.takeFixed(kLabelH);
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{sBody.x, sl2Rect.y, sBody.w, kLabelH}, stateLine2, soft);
+          const char* kProtoIds[2] = {"srt", "rtmp"};
+          const char* kProtoNames[2] = {"SRT", "RTMP / RTMPS"};
+          int destH = (subContentH - kSectionGap) / 2;
+          for (int dest = 0; dest < 2; ++dest) {
+            const std::string protoId = kProtoIds[dest];
+            const bool isSrt = (dest == 0);
+            int outIdx = findStreamOutputForProtocol(protoId);
+            const bool exists = outIdx >= 0;
+            const OutputTarget* st = exists ? &project_.outputs[outIdx] : nullptr;
+            const bool live = exists && st->enabled && st->streamEnabled;
+
+            SDL_Rect destSection {cx, sy, subContentW, destH};
+            SDL_Rect dBody2 = drawSectionFrame(destSection, kProtoNames[dest]);
+            VerticalLayout dl(dBody2, kRowGap);
+            auto act = [&](int field) {
+              return kSettingsActionStreamDestBase
+                   + dest * kSettingsActionStreamDestStride + field;
+            };
+
+            {
+              SDL_Rect row = dl.takeFixed(kRowH);
+              int halfR = (row.w - 4) / 2;
+              SDL_Rect onBtn {row.x, row.y, halfR, kRowH};
+              drawActionBtn(onBtn, live ? "STOP STREAMING" : "START STREAMING",
+                            act(kStreamFieldToggle), live);
+              // Animated on-air badge, then the words. The badge carries state
+              // at a glance from across a room; the text carries the detail.
+              SDL_Rect badge {row.x + halfR + 8, row.y + 2, kRowH - 4, kRowH - 4};
+              drawStreamOnAirBadge(badge, exists, live,
+                                   exists ? outputHealthStateForDisplay(outIdx)
+                                          : OutputHealthState::Off,
+                                   pal.light);  // on shell_inner
+              std::string state = !exists ? "not configured"
+                                : (live ? outputHealthLabel(outIdx) : "idle");
+              if (exists && isSrt && srtPassphraseTooShort(*st)) {
+                // SRT rejects short passphrases outright, so this would surface
+                // as an unexplained connection failure. Say it before air.
+                state = "passphrase must be 10+ chars";
+              }
+              drawTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect{badge.x + badge.w + 8, row.y + 4,
+                                    row.w - halfR - badge.w - 16, kRowH},
+                           state, soft);
+            }
+            {
+              SDL_Rect row = dl.takeFixed(kRowH);
+              std::string url = exists ? trim(st->streamUrl) : std::string();
+              if (url.empty()) url = defaultOutputStreamUrl(protoId, 0);
+              drawActionBtn(row, (isSrt ? "URL: " : "Server: ") + url,
+                            act(kStreamFieldUrl));
+            }
+            {
+              SDL_Rect row = dl.takeFixed(kRowH);
+              int halfR = (row.w - 4) / 2;
+              if (isSrt) {
+                SDL_Rect modeBtn {row.x, row.y, halfR, kRowH};
+                std::string mode =
+                  (exists && st->srtMode == "listener") ? "LISTENER" : "CALLER";
+                drawActionBtn(modeBtn, "Mode: " + mode, act(kStreamFieldSrtMode),
+                              exists && st->srtMode == "listener");
+                SDL_Rect latBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+                drawActionBtn(latBtn, "Latency: "
+                              + std::to_string(exists ? st->srtLatencyMs : 120) + " ms",
+                              act(kStreamFieldSrtLatency));
+              } else {
+                // The stream key is a secret; never render it.
+                std::string keyText = (exists && !trim(st->streamKey).empty())
+                  ? std::string(std::min<std::size_t>(trim(st->streamKey).size(), 24), '*')
+                  : std::string("click to set");
+                drawActionBtn(row, "Stream key: " + keyText, act(kStreamFieldKey));
+              }
+            }
+            if (isSrt) {
+              SDL_Rect row = dl.takeFixed(kRowH);
+              int halfR = (row.w - 4) / 2;
+              SDL_Rect passBtn {row.x, row.y, halfR, kRowH};
+              std::string pass = (exists && !trim(st->srtPassphrase).empty())
+                ? std::string(std::min<std::size_t>(trim(st->srtPassphrase).size(), 24), '*')
+                : std::string("none");
+              drawActionBtn(passBtn, "Passphrase: " + pass,
+                            act(kStreamFieldSrtPassphrase));
+              SDL_Rect sidBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              std::string sid = exists ? trim(st->srtStreamId) : std::string();
+              drawActionBtn(sidBtn, "Stream ID: " + (sid.empty() ? "none" : sid),
+                            act(kStreamFieldSrtStreamId));
+            }
+            {
+              SDL_Rect row = dl.takeFixed(kRowH);
+              int halfR = (row.w - 4) / 2;
+              SDL_Rect brBtn {row.x, row.y, halfR, kRowH};
+              drawActionBtn(brBtn, "Bitrate: "
+                            + std::to_string(exists ? st->streamBitrateKbps : 6000)
+                            + " kbps", act(kStreamFieldBitrate));
+              SDL_Rect kfBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              drawActionBtn(kfBtn, "Keyframe: "
+                            + std::to_string(exists ? st->streamKeyframeSeconds : 2)
+                            + "s", act(kStreamFieldKeyframe));
+            }
+            sy += destH + kSectionGap;
           }
         }
-
-        SDL_Rect typeBtn = sLayout.takeFixed(kRowH);
-        drawActionBtn(typeBtn, "TYPE: " + toUpper(outputTypeLabel), 259, outputTypeLabel == "stream");
-
-        SDL_Rect spBtn = sLayout.takeFixed(kRowH);
-        drawUIDropdown(spBtn, "Protocol", toUpper(normalizeOutputStreamProtocol(outputTarget.streamProtocol)), "settings.stream_proto");
-        settingsBtns_.push_back({spBtn, kSettingsActionOutputStreamProtocolDropdown, "stream_proto"});
-
-        SDL_Rect bitrateBtn = sLayout.takeFixed(kRowH);
-        drawUIDropdown(bitrateBtn, "Bitrate",
-                       std::to_string(outputTarget.streamBitrateKbps) + " kbps",
-                       "settings.stream_bitrate");
-        settingsBtns_.push_back({bitrateBtn, 258, "stream_bitrate"});
-
-        SDL_Rect testCardBtn = sLayout.takeFixed(kRowH);
-        drawActionBtn(testCardBtn,
-                      outputTarget.outputTestCardEnabled
-                        ? "TEST CARD OVERRIDE: ON"
-                        : "TEST CARD OVERRIDE: OFF",
-                      kSettingsActionOutputTestCardToggle,
-                      outputTarget.outputTestCardEnabled);
-
-        // Stream Key — RTMP only
-        bool isRtmp = streamProtocol == "rtmp" || streamProtocol == "rtmps";
-        if (isRtmp) {
-          SDL_Rect skLabelRect = sLayout.takeFixed(kLabelH);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{sBody.x, skLabelRect.y, sBody.w, kLabelH}, "Stream Key:", soft);
-          SDL_Rect skBtn = sLayout.takeFixed(kRowH);
-          std::string keyDisplay = trim(outputTarget.streamKey);
-          Primitives::drawFramedPanel(controlRenderer_, skBtn, pal.deep, pal.dark, pal.dark);
-          std::string keyMasked = keyDisplay.empty() ? "click to set" : std::string(keyDisplay.size(), '*');
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{skBtn.x + 8, skBtn.y + 4, skBtn.w - 16, kRowH - 8},
-                       keyMasked, keyDisplay.empty() ? pal.dark : pal.light);
-          settingsBtns_.push_back({skBtn, kSettingsActionStreamKeyPrompt, "stream_key"});
-        }
-
-        // Target URL — takes all remaining space
-        {
-          SDL_Rect urlLabelRect = sLayout.takeFixed(kLabelH);
-          drawTextSafe(controlRenderer_, fontSmall_,
-                       SDL_Rect{sBody.x, urlLabelRect.y, sBody.w, kLabelH},
-                       isRtmp ? "Server URL:" : "Target URL:", soft);
-        }
-        SDL_Rect suBtn = sLayout.takeRemaining();
-        suBtn.h = std::max(40, suBtn.h);
-        Primitives::drawFramedPanel(controlRenderer_, suBtn, pal.deep, pal.dark, pal.dark);
-        TTF_Font* urlFont = fontMono_ ? fontMono_ : fontSmall_;
-        std::string urlStr2 = streamUrl;
-        {
-          int urlPad = 8;
-          SDL_Rect urlClip {suBtn.x + urlPad, suBtn.y + 4, suBtn.w - urlPad * 2, suBtn.h - 8};
-          std::string urlLine1 = urlStr2;
-          std::string urlLine2;
-          size_t queryPos = urlStr2.find('?');
-          if (queryPos != std::string::npos) {
-            urlLine1 = urlStr2.substr(0, queryPos);
-            urlLine2 = urlStr2.substr(queryPos);
-          }
-          drawTextSafe(controlRenderer_, urlFont,
-                       SDL_Rect{suBtn.x + urlPad, suBtn.y + 6, urlClip.w, 16},
-                       urlLine1.empty() ? "click to edit" : urlLine1,
-                       urlLine1.empty() ? pal.dark : pal.light);
-          if (!urlLine2.empty()) {
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{suBtn.x + urlPad, suBtn.y + 24, urlClip.w, 16},
-                         urlLine2, pal.mid);
-          } else {
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{suBtn.x + urlPad, suBtn.y + 24, urlClip.w, 16},
-                         "Add Output 2 to stream SRT + RTMP simultaneously", pal.dark);
-          }
-        }
-        settingsBtns_.push_back({suBtn, 257, "stream_url"});
       }
 
       // No scrollbar needed — each sub-tab fits in the viewport
@@ -1635,8 +1938,6 @@
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
         markProjectDirty();
-      } else if (sb.action == 202) {
-        toggleUiTransitions();
       } else if (sb.action == 203) {
         toggleJumpMode();
       } else if (sb.action == 204) {
@@ -1659,34 +1960,9 @@
         setTimecodeFreewheelSeconds(focusedDeck().timecodeFreewheelSeconds - 0.1);
       } else if (sb.action == 215) {
         setTimecodeFreewheelSeconds(focusedDeck().timecodeFreewheelSeconds + 0.1);
-      } else if (sb.action == 216) {
-        settingsOpen_ = false;
-        openInlineCueFindEditor(false);
-      } else if (sb.action == 217) {
-        if (!lastCueFindToken_.empty()) {
-          findCueToken(lastCueFindToken_, 1, false);
-        } else {
-          triggerToast("find: run Find Cue first");
-        }
-      } else if (sb.action == 218) {
-        if (!lastCueFindToken_.empty()) {
-          findCueToken(lastCueFindToken_, -1, false);
-        } else {
-          triggerToast("find: run Find Cue first");
-        }
-      } else if (sb.action == 219) {
-        settingsOpen_ = false;
-        openInlineCueFindEditor(true);
       } else if (sb.action == 221) {
         settingsOpen_ = false;
         openInlineCueRenumberEditor(true);
-      } else if (sb.action == 222) {
-        clearFocusedDeckCueNumbers();
-      } else if (sb.action == 223) {
-        addSourceCueFromMenu();
-      } else if (sb.action == 224) {
-        clearCueFindState();
-        triggerToast("find cleared");
       } else if (sb.action == kSettingsActionPlaylistPrefsEdit) {
         editFocusedDeckPlaylistPreferences();
       } else if (sb.action == kSettingsActionPlaylistDefaultLoopToggle) {
@@ -1843,16 +2119,6 @@
         setTimecodeRunEnabled(!focusedDeck().timecodeRunEnabled);
       } else if (sb.action == 230) {
         setOutputSizingModeDisplayNative();
-      } else if (sb.action == 231) {
-        setOutputSizingModeFixed(1280, 720);
-      } else if (sb.action == 232) {
-        setOutputSizingModeFixed(1920, 1080);
-      } else if (sb.action == 233) {
-        setOutputSizingModeFixed(2560, 1440);
-      } else if (sb.action == 234) {
-        setOutputSizingModeFixed(3840, 2160);
-      } else if (sb.action == 235) {
-        sizeFocusedOutputToSelectedDisplay();
       } else if (sb.action == 236) {
         toggleOutputFullscreen();
       } else if (sb.action == 237) {
@@ -1955,8 +2221,6 @@
                                  triggerToast("view: invalid");
                                }
                              });
-      } else if (sb.action == 249) {
-        toggleFocusedDeckWarpEnabled();
       } else if (sb.action == kSettingsActionOutputWarpModeCycle) {
         cycleFocusedDeckWarpMode(1);
       } else {
@@ -1972,42 +2236,10 @@
   // Second half of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart2(const SettingsButton& sb) {
-    if (sb.action == 250) {
-        cycleFocusedOutput(-1);
-      } else if (sb.action == 251) {
+    if (sb.action == 251) {
         cycleFocusedOutput(1);
-      } else if (sb.action == 252) {
-        addOutput(project_.focusedDeckIndex);
-      } else if (sb.action == 275) {
-        addOutput(project_.focusedDeckIndex, "window");
-      } else if (sb.action == 276) {
-        addOutput(project_.focusedDeckIndex, "stream");
       } else if (sb.action == kSettingsActionOutputRemove) {
         removeOutput(project_.focusedOutputIndex);
-      } else if (sb.action == 254) {
-        setFocusedOutputHostDeck(project_.focusedDeckIndex);
-      } else if (sb.action == 255) {
-        toggleFocusedOutputStreamEnabled();
-      } else if (sb.action == 256) {
-        openDropdown(
-          "settings.stream_proto",
-          sb.rect,
-          outputStreamProtocolDropdownChoices(),
-          normalizeOutputStreamProtocol(focusedOutput().streamProtocol),
-          [this](const std::string& value) {
-            setFocusedOutputStreamProtocol(value);
-          });
-        return;
-      } else if (sb.action == 257) {
-        const OutputTarget& output = focusedOutput();
-        std::string initial = trim(output.streamUrl).empty()
-          ? defaultOutputStreamUrl(output.streamProtocol, project_.focusedOutputIndex)
-          : output.streamUrl;
-        openInlineTextEditor("settings.stream_url", "Stream URL",
-                             "srt://... or rtmp://...", initial,
-                             [this](const std::string& value) {
-                               setFocusedOutputStreamUrl(value);
-                             });
       } else if (sb.action == kSettingsActionStreamKeyPrompt) {
         settingsOpen_ = false;
         openInlineTextEditor("settings.stream_key", "Stream Key",
@@ -2019,25 +2251,6 @@
                                  markProjectDirty();
                                }
                              });
-      } else if (sb.action == 258) {
-        const OutputTarget& output = focusedOutput();
-        openInlineTextEditor("settings.stream_bitrate", "Stream Bitrate",
-                             "kbps (500-50000)", std::to_string(output.streamBitrateKbps),
-                             [this](const std::string& value) {
-                               try {
-                                 setFocusedOutputStreamBitrateKbps(std::stoi(trim(value)));
-                               } catch (...) {
-                                 triggerToast("bitrate: invalid");
-                               }
-                             });
-      } else if (sb.action == 259) {
-        const OutputTarget& output = focusedOutput();
-        std::string nextType = normalizeOutputType(output.outputType) == "stream" ? "window" : "stream";
-        setFocusedOutputType(nextType);
-      } else if (sb.action == 281) {
-        setFocusedOutputType("window");
-      } else if (sb.action == 282) {
-        setFocusedOutputType("stream");
       } else if (sb.action == kSettingsActionOutputOverlayToggle) {
         toggleFocusedOutputTimeOverlayEnabled();
       } else if (sb.action == kSettingsActionOutputAlphaPrompt) {
@@ -2098,6 +2311,20 @@
         }
         normalizeDeck(bd, project_.focusedDeckIndex);
         markProjectDirty();
+      } else if (sb.action == kSettingsActionOutputAoiSizeDropdown) {
+        AoiRectPx cur = focusedOutputAoiRectPx();
+        bool isFull = cur.w >= cur.rasterW && cur.h >= cur.rasterH;
+        openDropdown(
+          "settings.aoi_size",
+          sb.rect,
+          aoiSizeChoices(),
+          isFull ? std::string("full")
+                 : std::to_string(cur.w) + "x" + std::to_string(cur.h),
+          [this](const std::string& token) {
+            applyFocusedOutputAoiSizeToken(token);
+          });
+      } else if (sb.action == kSettingsActionOutputAoiCentre) {
+        centreFocusedOutputAoi();
       } else if (sb.action >= kSettingsActionOutputAoiXInc && sb.action <= kSettingsActionOutputAoiReset) {
         AoiRectPx aoi = focusedOutputAoiRectPx();
         // Nudge step: 16px snaps to common raster grids; Shift is not
@@ -2327,6 +2554,181 @@
                                shutdownOutputSpout(rt);
                                markProjectDirty();
                              });
+      } else if (sb.action >= kSettingsActionStreamDestBase &&
+                 sb.action < kSettingsActionStreamDestBase + 2 * kSettingsActionStreamDestStride) {
+        const int rel = sb.action - kSettingsActionStreamDestBase;
+        const int dest = rel / kSettingsActionStreamDestStride;
+        const int field = rel % kSettingsActionStreamDestStride;
+        const std::string protoId = (dest == 0) ? "srt" : "rtmp";
+        // Every field edit materialises the destination's output, so the
+        // operator can fill a form in before arming anything.
+        const int outIdx = ensureStreamOutputForProtocol(protoId);
+        if (outIdx < 0 || outIdx >= static_cast<int>(project_.outputs.size())) {
+          triggerToast("stream: could not create destination");
+        } else {
+          OutputTarget& st = project_.outputs[outIdx];
+          switch (field) {
+            case kStreamFieldToggle: {
+              const bool goingLive = !(st.enabled && st.streamEnabled);
+              // A stream output is useless unless the output itself is armed —
+              // arming both from one button is the whole point of this page.
+              st.enabled = goingLive;
+              st.streamEnabled = goingLive;
+              if (!goingLive) {
+                stopOutputStream(outIdx);
+              }
+              triggerToast(toUpper(protoId) + (goingLive ? " stream: on" : " stream: off"));
+              playUiSound(UiSoundEffect::Toggle);
+              break;
+            }
+            case kStreamFieldUrl:
+              openInlineTextEditor("settings.stream_url_" + protoId,
+                                   toUpper(protoId) + " destination",
+                                   dest == 0 ? "srt://host:port" : "rtmp://host/app",
+                                   trim(st.streamUrl).empty()
+                                     ? defaultOutputStreamUrl(protoId, outIdx)
+                                     : st.streamUrl,
+                                   [this, outIdx](const std::string& v) {
+                                     project_.outputs[outIdx].streamUrl = trim(v);
+                                     stopOutputStream(outIdx);
+                                     markProjectDirty();
+                                   });
+              break;
+            case kStreamFieldKey:
+              openInlineTextEditor("settings.stream_key_" + protoId, "Stream key",
+                                   "Paste the key from your platform", trim(st.streamKey),
+                                   [this, outIdx](const std::string& v) {
+                                     project_.outputs[outIdx].streamKey = trim(v);
+                                     stopOutputStream(outIdx);
+                                     markProjectDirty();
+                                   });
+              break;
+            case kStreamFieldBitrate:
+              openInlineTextEditor("settings.stream_bitrate_" + protoId, "Video bitrate",
+                                   "kbps (500-50000)", std::to_string(st.streamBitrateKbps),
+                                   [this, outIdx](const std::string& v) {
+                                     try {
+                                       project_.outputs[outIdx].streamBitrateKbps =
+                                         std::clamp(std::stoi(trim(v)), 500, 50000);
+                                       stopOutputStream(outIdx);
+                                       markProjectDirty();
+                                     } catch (...) { triggerToast("bitrate: invalid"); }
+                                   });
+              break;
+            case kStreamFieldKeyframe:
+              openInlineTextEditor("settings.stream_gop_" + protoId, "Keyframe interval",
+                                   "seconds (1-10; most platforms want 2)",
+                                   std::to_string(st.streamKeyframeSeconds),
+                                   [this, outIdx](const std::string& v) {
+                                     try {
+                                       project_.outputs[outIdx].streamKeyframeSeconds =
+                                         std::clamp(std::stoi(trim(v)), 1, 10);
+                                       stopOutputStream(outIdx);
+                                       markProjectDirty();
+                                     } catch (...) { triggerToast("keyframe: invalid"); }
+                                   });
+              break;
+            case kStreamFieldSrtLatency:
+              openInlineTextEditor("settings.srt_latency", "SRT latency",
+                                   "milliseconds (20-8000; ~4x your RTT)",
+                                   std::to_string(st.srtLatencyMs),
+                                   [this, outIdx](const std::string& v) {
+                                     try {
+                                       project_.outputs[outIdx].srtLatencyMs =
+                                         std::clamp(std::stoi(trim(v)), 20, 8000);
+                                       stopOutputStream(outIdx);
+                                       markProjectDirty();
+                                     } catch (...) { triggerToast("latency: invalid"); }
+                                   });
+              break;
+            case kStreamFieldSrtPassphrase:
+              openInlineTextEditor("settings.srt_passphrase", "SRT passphrase",
+                                   "10-79 characters, or empty for none",
+                                   trim(st.srtPassphrase),
+                                   [this, outIdx](const std::string& v) {
+                                     std::string p = trim(v);
+                                     project_.outputs[outIdx].srtPassphrase = p;
+                                     if (!p.empty() && p.size() < 10) {
+                                       triggerToast("srt: passphrase needs 10+ characters");
+                                     }
+                                     stopOutputStream(outIdx);
+                                     markProjectDirty();
+                                   });
+              break;
+            case kStreamFieldSrtStreamId:
+              openInlineTextEditor("settings.srt_streamid", "SRT stream ID",
+                                   "Routing hint for the receiver", trim(st.srtStreamId),
+                                   [this, outIdx](const std::string& v) {
+                                     project_.outputs[outIdx].srtStreamId = trim(v);
+                                     stopOutputStream(outIdx);
+                                     markProjectDirty();
+                                   });
+              break;
+            case kStreamFieldSrtMode:
+              st.srtMode = (st.srtMode == "listener") ? "caller" : "listener";
+              stopOutputStream(outIdx);
+              triggerToast("srt mode: " + st.srtMode);
+              break;
+            default:
+              break;
+          }
+          markProjectDirty();
+        }
+      } else if (sb.action == kSettingsActionSt2110Toggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.st2110Enabled = !output.st2110Enabled;
+        if (!output.st2110Enabled) {
+          shutdownOutputSt2110(outputRuntimes_[project_.focusedOutputIndex]);
+          triggerToast("st 2110: off");
+        } else {
+          // Say the caveat at the moment of arming, not only in the section
+          // header — this is when it matters.
+          triggerToast("st 2110: on (experimental, no PTP lock)", {155, 188, 15, 220},
+                       {15, 56, 15, 255}, 2600);
+        }
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionSt2110AddressPrompt) {
+        std::string initial = trim(focusedOutput().st2110Address);
+        if (initial.empty()) initial = "239.20.10.1";
+        openInlineTextEditor("settings.st2110_address", "ST 2110 Destination",
+                             "Multicast group (e.g. 239.20.10.1)", initial,
+                             [this](const std::string& value) {
+                               OutputTarget& output = focusedOutputMutable();
+                               output.st2110Address = trim(value);
+                               shutdownOutputSt2110(outputRuntimes_[project_.focusedOutputIndex]);
+                               markProjectDirty();
+                             });
+      } else if (sb.action == kSettingsActionSt2110PortPrompt) {
+        openInlineTextEditor("settings.st2110_port", "ST 2110 Port",
+                             "Destination UDP port", std::to_string(focusedOutput().st2110Port),
+                             [this](const std::string& value) {
+                               try {
+                                 int port = std::clamp(std::stoi(trim(value)), 1, 65535);
+                                 OutputTarget& output = focusedOutputMutable();
+                                 output.st2110Port = port;
+                                 shutdownOutputSt2110(outputRuntimes_[project_.focusedOutputIndex]);
+                                 markProjectDirty();
+                               } catch (...) {
+                                 triggerToast("st 2110: invalid port");
+                               }
+                             });
+      } else if (sb.action == kSettingsActionSt2110DepthToggle) {
+        OutputTarget& output = focusedOutputMutable();
+        output.st2110TenBit = !output.st2110TenBit;
+        shutdownOutputSt2110(outputRuntimes_[project_.focusedOutputIndex]);
+        triggerToast(output.st2110TenBit ? "st 2110: 4:2:2 10-bit" : "st 2110: 4:2:2 8-bit");
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionSt2110CopySdp) {
+        // Until NMOS IS-05 exists the SDP is the ONLY way a receiver learns
+        // about this stream, so it has to be reachable from the UI. Clipboard
+        // beats a file dialog for something an operator pastes into a device.
+        std::string sdp = focusedOutputSt2110Sdp();
+        if (SDL_SetClipboardText(sdp.c_str())) {
+          triggerToast("st 2110 SDP copied to clipboard", {155, 188, 15, 220},
+                       {15, 56, 15, 255}, 2600);
+        } else {
+          triggerToast("st 2110: clipboard unavailable");
+        }
       } else if (sb.action == kSettingsActionMascotToggle) {
         // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the
         // path from the chosen character and lazy-reloads the texture.

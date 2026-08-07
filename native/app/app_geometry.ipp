@@ -92,6 +92,73 @@
     };
   }
 
+  // Draw a quad as a SUBDIVIDED mesh so the edge-feather ramp is evaluated
+  // across the surface instead of only at its four corners.
+  //
+  // This exists because of a real defect: SDL interpolates vertex colour
+  // linearly, so feeding a 4-vertex quad the corner alphas turned a 10%-wide
+  // edge ramp into a fade across the ENTIRE image. Every path except
+  // perspective warp (which already subdivides) had that bug, which meant edge
+  // blending never actually produced an edge blend on an ordinary output.
+  // Same mesh idea as renderPerspectiveWarp, minus the projective correction —
+  // an unwarped quad is affine, so plain bilerp is exact here.
+  static bool renderFeatheredQuad(SDL_Renderer* renderer,
+                                  SDL_Texture* texture,
+                                  const Deck& deck,
+                                  const SDL_FPoint& uvTL,
+                                  const SDL_FPoint& uvTR,
+                                  const SDL_FPoint& uvBR,
+                                  const SDL_FPoint& uvBL,
+                                  const SDL_FPoint& p0,
+                                  const SDL_FPoint& p1,
+                                  const SDL_FPoint& p2,
+                                  const SDL_FPoint& p3) {
+    constexpr int kCols = 24;
+    constexpr int kRows = 24;
+    std::vector<SDL_Vertex> vertices;
+    vertices.resize(static_cast<size_t>(kCols + 1) * static_cast<size_t>(kRows + 1));
+    std::vector<int> indices;
+    indices.reserve(static_cast<size_t>(kCols * kRows * 6));
+
+    size_t vertexIndex = 0;
+    for (int row = 0; row <= kRows; ++row) {
+      float t = static_cast<float>(row) / static_cast<float>(kRows);
+      for (int col = 0; col <= kCols; ++col) {
+        float s = static_cast<float>(col) / static_cast<float>(kCols);
+        SDL_FPoint position = bilerpPoint(p0, p1, p2, p3, s, t);
+        SDL_FPoint texCoord = bilerpPoint(uvTL, uvTR, uvBR, uvBL, s, t);
+        // s/t are SCREEN-space parameters, so the feather always follows the
+        // output's own edges regardless of how the uv corners were permuted
+        // for orientation.
+        float alpha = static_cast<float>(edgeBlendAlphaForUv(deck, s, t)) / 255.0f;
+        vertices[vertexIndex++] =
+          SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, texCoord};
+      }
+    }
+
+    for (int row = 0; row < kRows; ++row) {
+      for (int col = 0; col < kCols; ++col) {
+        int rowBase = row * (kCols + 1);
+        int nextRowBase = (row + 1) * (kCols + 1);
+        int tl = rowBase + col;
+        int tr = tl + 1;
+        int bl = nextRowBase + col;
+        int br = bl + 1;
+        indices.push_back(tl);
+        indices.push_back(tr);
+        indices.push_back(br);
+        indices.push_back(tl);
+        indices.push_back(br);
+        indices.push_back(bl);
+      }
+    }
+
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    return SDL_RenderGeometry(renderer, texture,
+                              vertices.data(), static_cast<int>(vertices.size()),
+                              indices.data(), static_cast<int>(indices.size()));
+  }
+
   static bool solve8x8(double matrix[8][9]) {
     for (int pivot = 0; pivot < 8; ++pivot) {
       int pivotRow = pivot;

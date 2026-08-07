@@ -122,6 +122,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
   std::string normalized = normalizePatternTypeId(typeId);
   return normalized.rfind("pocket-", 0) == 0 ||       // pocket scenes: always animated
          normalized == "terrarium" ||                  // living ecosystem: always animated
+         normalized == "terrarium-pico" ||             // same world, 1px per cell
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
