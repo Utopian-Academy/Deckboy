@@ -34,11 +34,19 @@
       "Enter takes a cue live",
       "S stops the live cue",
       "the timeline can be resized",
-      "try a terminal theme in Settings (P)",
+      // Was "try a terminal theme in Settings (P)" — P adds a PATTERN cue, it
+      // has never opened settings. Same false key the shortcuts overlay carried
+      // (audited v0.81.5); if you add a tip that names a key, check
+      // handleKeyDown first.
+      "try a terminal theme in Settings",
       "RELINK finds media that moved",
       "cues have their own gain & fades",
       "trim with Ctrl+I / Ctrl+O",
       "Ctrl+/ shows all shortcuts",
+      "J jumps to the live cue",
+      "normalize matches loudness across cues",
+      "Esc: desk, then clear output, then quit",
+      "stream SRT and RTMP at the same time",
     };
     const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
 
@@ -1768,7 +1776,7 @@
           std::snprintf(gainBuf, sizeof(gainBuf), "%+.1f dB", selectedCue->audioGainDb);
           drawQuickRow(ay, "gain", QuickAction::AudioGainDec, gainBuf, QuickAction::AudioGainInc,
                        QuickAction::ToggleLoop, false, false,
-                       "Per-cue audio trim: -24 to +12 dB, applied live");
+                       "Per-cue audio trim: -40 to +40 dB, applied live");
           ay += kInspectorRowStep;
           std::string panLabel = "center";
           if (selectedCue->audioPan < -0.024f) {

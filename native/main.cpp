@@ -35,7 +35,6 @@
 //          app_update.ipp       — per-frame update logic
 //          app_overlays.ipp     — lower-third overlay management
 //          app_render_control.ipp — transport control panel rendering
-//          app_render_inspector.ipp — cue inspector panel rendering
 //          app_render_main.ipp  — main control window rendering
 //          app_geometry.ipp     — cue/output geometry calculations
 //          app_render_output.ipp — output window compositor + NDI/DeckLink
@@ -89,6 +88,8 @@
 #include "platform/browser.hpp"
 #include "platform/decklink.hpp"
 #include "platform/siphon_spout.hpp"
+#include "platform/st2110_output.hpp"
+#include "platform/ptp_client.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
@@ -151,6 +152,8 @@
 #include <psapi.h>  // K32GetProcessMemoryInfo — soak-mode RSS logging
 #include <shellapi.h>
 #include <objbase.h>
+#include <dbghelp.h>  // symbolised stack in deckboyCrashHandler
+#pragma comment(lib, "dbghelp.lib")
 #endif
 
 #if defined(DECKBOY_HAS_NDI_SDK)
@@ -1865,6 +1868,10 @@ struct OutputRuntime {
 #if defined(DECKBOY_HAS_SPOUT)
   std::unique_ptr<deckboy::platform::video::SiphonSpoutSender> spoutSender;
 #endif
+  // ST 2110-20 sender. No SDK and no platform guard — plain sockets, so this
+  // exists on every build.
+  std::unique_ptr<deckboy::platform::video::St2110Output> st2110Sender;
+  std::unique_ptr<deckboy::platform::video::St2110AudioOutput> st2110AudioSender;
   // Program-monitor tap: a small copy of this output's finished composite,
   // sampled on the output's own render pass so the control-window preview
   // advances in lockstep with what actually leaves the machine instead of
@@ -2336,7 +2343,18 @@ std::string normalizeOutputStreamProtocol(std::string protocol) {
   if (protocol == "rtmp") {
     return "rtmp";
   }
+  // "rtmps" used to fall through to "srt" here, which silently made every
+  // rtmps branch in the settings UI and in buildOutputStreamArgs unreachable —
+  // selecting RTMPS gave you an SRT stream. It is its own protocol.
+  if (protocol == "rtmps") {
+    return "rtmps";
+  }
   return "srt";
+}
+
+// True for the RTMP family, which is what takes a stream key and the FLV muxer.
+inline bool outputStreamProtocolIsRtmp(const std::string& normalizedProtocol) {
+  return normalizedProtocol == "rtmp" || normalizedProtocol == "rtmps";
 }
 
 std::string normalizeOutputType(std::string outputType) {
@@ -2422,10 +2440,18 @@ int normalizeArtNetPort(int value) {
 
 std::string defaultOutputStreamUrl(const std::string& protocol, int outputIndex) {
   int normalizedIndex = std::max(0, outputIndex) + 1;
-  if (normalizeOutputStreamProtocol(protocol) == "rtmp") {
+  const std::string normalized = normalizeOutputStreamProtocol(protocol);
+  if (normalized == "rtmp") {
     return "rtmp://127.0.0.1/live/output" + std::to_string(normalizedIndex);
   }
-  return "srt://127.0.0.1:9000?mode=caller&transtype=live";
+  if (normalized == "rtmps") {
+    // RTMPS had no default at all (it normalized to SRT), so choosing it left
+    // the operator with an srt:// URL and no clue why nothing connected.
+    return "rtmps://127.0.0.1:443/live/output" + std::to_string(normalizedIndex);
+  }
+  // Bare host:port — the transport parameters are added from the SRT fields by
+  // applySrtUrlParameters, so they are no longer baked into the default string.
+  return "srt://127.0.0.1:9000";
 }
 
 int resolveLegacyOutputHostIndexForProject(const Project& project, int deckIndex) {
@@ -2876,6 +2902,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "focused_deck\t" << project.focusedDeckIndex << '\n';
   output << "focused_output\t" << project.focusedOutputIndex << '\n';
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
+  output << "ptp_domain\t" << project.ptpDomain << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
@@ -2955,6 +2982,18 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.spoutSenderName)
       << '\t' << escapeField(outputTarget.streamKey)
       << '\t' << escapeField(outputTarget.displayName)
+      // ST 2110-20 (fields 36-40) — appended, guarded on load as always
+      << '\t' << (outputTarget.st2110Enabled ? 1 : 0)
+      << '\t' << escapeField(outputTarget.st2110Address)
+      << '\t' << escapeField(outputTarget.st2110Interface)
+      << '\t' << outputTarget.st2110Port
+      << '\t' << (outputTarget.st2110TenBit ? 1 : 0)
+      // SRT transport + encoder (fields 41-45)
+      << '\t' << outputTarget.srtLatencyMs
+      << '\t' << escapeField(outputTarget.srtPassphrase)
+      << '\t' << escapeField(outputTarget.srtStreamId)
+      << '\t' << escapeField(outputTarget.srtMode)
+      << '\t' << outputTarget.streamKeyframeSeconds
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3130,13 +3169,27 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   return true;
 }
 
-Project loadProject(const fs::path& projectFile) {
+// onProgress (optional) receives 0..1 as the file is consumed, so a caller can
+// draw a loading overlay while this blocks. Progress is measured in BYTES READ
+// rather than lines, because a show's line count isn't known until it has been
+// read — and byte position is exact and free.
+Project loadProject(const fs::path& projectFile,
+                    const std::function<void(double)>& onProgress = {}) {
   Project project;
   fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
   std::ifstream input(resolved, std::ios::binary);
   if (!input) {
     return project;
   }
+  std::uintmax_t totalBytes = 0;
+  {
+    std::error_code ec;
+    totalBytes = fs::file_size(resolved, ec);
+    if (ec) {
+      totalBytes = 0;
+    }
+  }
+  std::size_t lineCounter = 0;
 
   project.decks.clear();
   project.decks.push_back(Deck {});
@@ -3154,6 +3207,14 @@ Project loadProject(const fs::path& projectFile) {
 
   std::string line;
   while (std::getline(input, line)) {
+    // Report every 64 lines: often enough to animate, rare enough that tellg()
+    // and the callback cost nothing on a small show.
+    if (onProgress && totalBytes > 0 && (++lineCounter & 63u) == 0u) {
+      const std::streampos pos = input.tellg();
+      if (pos >= 0) {
+        onProgress(static_cast<double>(pos) / static_cast<double>(totalBytes));
+      }
+    }
     if (!line.empty() && line.back() == '\r') {
       line.pop_back();
     }
@@ -3172,6 +3233,8 @@ Project loadProject(const fs::path& projectFile) {
       // Legacy fields — ignored (single-deck, no layer assignments or group presets).
     } else if (fields[0] == "advanced_mode") {
       project.advancedOutputMode = safeBool(fields, 1, false);
+    } else if (fields[0] == "ptp_domain") {
+      project.ptpDomain = std::clamp(safeInt(fields, 1, 127), 0, 127);
     } else if (fields[0] == "selected") {
       ensureDeck(0).selectedIndex = safeInt(fields, 1, -1);
     } else if (fields[0] == "active") {
@@ -3316,6 +3379,25 @@ Project loadProject(const fs::path& projectFile) {
                     outputTarget.streamKey = safeString(fields, 34);
                     if (fields.size() >= 36) {
                       outputTarget.displayName = safeString(fields, 35);
+                      if (fields.size() >= 41) {
+                        outputTarget.st2110Enabled = safeBool(fields, 36, false);
+                        outputTarget.st2110Address = safeString(fields, 37);
+                        outputTarget.st2110Interface = safeString(fields, 38);
+                        outputTarget.st2110Port = safeInt(fields, 39, 20000);
+                        outputTarget.st2110TenBit = safeBool(fields, 40, true);
+                        if (trim(outputTarget.st2110Address).empty()) {
+                          outputTarget.st2110Address = "239.20.10.1";
+                        }
+                        if (fields.size() >= 46) {
+                          outputTarget.srtLatencyMs = std::clamp(safeInt(fields, 41, 120), 20, 8000);
+                          outputTarget.srtPassphrase = safeString(fields, 42);
+                          outputTarget.srtStreamId = safeString(fields, 43);
+                          outputTarget.srtMode =
+                            (safeString(fields, 44) == "listener") ? "listener" : "caller";
+                          outputTarget.streamKeyframeSeconds =
+                            std::clamp(safeInt(fields, 45, 2), 1, 10);
+                        }
+                      }
                     }
                   }
                 }
@@ -3761,14 +3843,22 @@ static WaveformPeaks computeWaveformPeaks(const std::string& path, int numBucket
                             static_cast<unsigned int>(sizeof(buf)))) > 0) {
     size_t sampleCount = static_cast<size_t>(bytesRead) / sizeof(int16_t);
     samples.insert(samples.end(), buf, buf + sampleCount);
-    if (samples.size() > 4000u * 600u) break; // cap at 10 min
+    // Cap at 10 minutes of AUDIO. The old bound was `samples.size() > 4000*600`,
+    // but the decode is forced to 2 channels, so that counted stereo SAMPLES —
+    // 1.2M frames — and actually cut off at FIVE minutes. Every waveform for a
+    // longer file silently showed only its first half.
+    if (samples.size() > 4000u * 600u * 2u) break;
   }
 #else
   ssize_t bytesRead = 0;
   while ((bytesRead = ::read(proc.readFd, buf, sizeof(buf))) > 0) {
     size_t sampleCount = static_cast<size_t>(bytesRead) / sizeof(int16_t);
     samples.insert(samples.end(), buf, buf + sampleCount);
-    if (samples.size() > 4000u * 600u) break; // cap at 10 min
+    // Cap at 10 minutes of AUDIO. The old bound was `samples.size() > 4000*600`,
+    // but the decode is forced to 2 channels, so that counted stereo SAMPLES —
+    // 1.2M frames — and actually cut off at FIVE minutes. Every waveform for a
+    // longer file silently showed only its first half.
+    if (samples.size() > 4000u * 600u * 2u) break;
   }
 #endif
   // ChildProcess destructor closes the pipe fd and reaps the child process.
@@ -3964,8 +4054,18 @@ class App {
     initUiAssetPackPaths();
     preloadUiAssets();
     currentProjectFile_ = startupProjectFile();
-    project_ = loadProject(currentProjectFile_);
+    // Startup is the case that matters most for the loading overlay — a big
+    // show is usually opened by launching into it, not by using OPEN — and it
+    // is the one path that does NOT go through openProjectFromPath. The
+    // renderer exists by now (fonts and palette are up), so the overlay can
+    // draw and present its own frames while this blocks.
+    beginLoadingOverlay("OPENING SHOW", currentProjectFile_.filename().string());
+    project_ = loadProject(currentProjectFile_, [this](double frac) {
+      loadingOverlayProgress(frac * 0.9);
+    });
+    loadingOverlayProgress(0.95, "checking the show");
     normalizeProject(project_);
+    endLoadingOverlay();
     // Presence scan runs async — a big playlist on a USB drive used to hold
     // the first frame hostage for seconds of black window before the splash.
     startMediaPresenceScanAsync(true);
@@ -4158,7 +4258,25 @@ class App {
     }
   }
 
+  // Every picker runs its native dialog on a std::async worker, so ANY exception
+  // thrown in that worker — a failed process spawn, a bad_alloc, a filesystem
+  // error — is stored in the future and RETHROWN by .get() here, on the main
+  // thread, where nothing was catching it. An uncaught exception is
+  // std::terminate, which Windows reports as 0xC0000409 in ucrtbase: the app
+  // vanishes with no message. Deckboy has crashed that way repeatedly.
+  //
+  // A picker that fails must lose the picked path, not the show.
   void drainPickers() {
+    try {
+      drainPickersUnsafe();
+    } catch (const std::exception& e) {
+      triggerToast(std::string("file dialog failed: ") + e.what());
+    } catch (...) {
+      triggerToast("file dialog failed");
+    }
+  }
+
+  void drainPickersUnsafe() {
     if (pendingImport_.valid() &&
         pendingImport_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
       auto paths = pendingImport_.get();
@@ -4344,9 +4462,11 @@ class App {
 #include "app/app_overlays.ipp"
   // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"
-  // Render: cue inspector panel (properties, waveform, geometry)
-#include "app/app_render_inspector.ipp"
   // Render: main control window layout and drawing
+  // (The live cue inspector is rendered by renderMainPanel below. A separate
+  // app_render_inspector.ipp once held a second, unreachable copy of it; it was
+  // deleted in v0.81.5 after ~1,646 lines of it had silently drifted out of sync
+  // with the real one and been edited by mistake more than once.)
 #include "app/app_render_main.ipp"
   // Geometry: cue/output geometry calculations (crop, scale, rotation)
 #include "app/app_geometry.ipp"
@@ -5133,6 +5253,21 @@ class App {
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
     fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
+    // Kerning OFF for every UI font. At these pixel sizes a negative kern pair
+    // rounds to a whole pixel or two, which tucks the second glyph under the
+    // first hard enough that the word visibly splits — "Target URL" rendered as
+    // "Ta rget URL", "Top" as "To p". Typographically the kern is "correct";
+    // at 17px in a control label it just reads as a broken word, and it made
+    // label widths depend on which letters happened to be adjacent. Even
+    // advances keep text placement predictable, which is the contract this UI
+    // holds itself to. TTF_GetStringSize measures with the same setting, so
+    // layout and paint stay in agreement.
+    for (TTF_Font* f : {fontLarge_, fontBase_, fontSmall_, fontMono_,
+                        fontPixel_, fontPixelSmall_, fontPixelTitle_}) {
+      if (f) {
+        TTF_SetFontKerning(f, false);
+      }
+    }
     return fontLarge_ && fontBase_ && fontSmall_ && fontMono_;
   }
 
@@ -5603,6 +5738,29 @@ class App {
   static constexpr int kSettingsActionOutputAoiYEdit = 653;
   static constexpr int kSettingsActionOutputAoiWEdit = 654;
   static constexpr int kSettingsActionOutputAoiHEdit = 655;
+  // AOI as a raster, not four edges: pick a standard size, then place it.
+  static constexpr int kSettingsActionOutputAoiSizeDropdown = 656;
+  static constexpr int kSettingsActionOutputAoiCentre = 657;
+  // ST 2110-20 output (Devices sub-tab).
+  static constexpr int kSettingsActionSt2110Toggle = 658;
+  static constexpr int kSettingsActionSt2110AddressPrompt = 659;
+  static constexpr int kSettingsActionSt2110PortPrompt = 660;
+  static constexpr int kSettingsActionSt2110DepthToggle = 661;
+  static constexpr int kSettingsActionSt2110CopySdp = 662;
+  // Streaming destinations. Two of them (0 = SRT, 1 = RTMP), each with its own
+  // full control set, so the ids are allocated as base + dest*stride + field
+  // rather than as twenty separate constants. Next free block: 670 + 2*16 = 702.
+  static constexpr int kSettingsActionStreamDestBase = 670;
+  static constexpr int kSettingsActionStreamDestStride = 16;
+  static constexpr int kStreamFieldToggle = 0;
+  static constexpr int kStreamFieldUrl = 1;
+  static constexpr int kStreamFieldKey = 2;
+  static constexpr int kStreamFieldBitrate = 3;
+  static constexpr int kStreamFieldKeyframe = 4;
+  static constexpr int kStreamFieldSrtLatency = 5;
+  static constexpr int kStreamFieldSrtPassphrase = 6;
+  static constexpr int kStreamFieldSrtStreamId = 7;
+  static constexpr int kStreamFieldSrtMode = 8;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -5657,11 +5815,12 @@ class App {
     double gainDb = 0.0;
     double measuredLufs = 0.0;
     double measuredPeakDb = 0.0;
+    // True peak once the trim is applied (measuredPeakDb + gainDb).
+    double projectedPeakDb = 0.0;
     bool hasPeak = false;
-    // True when the loudness target was reachable but doing so would have
-    // pushed true peak past the ceiling, so the gain was held back. Reported
-    // to the operator — a normalizer that quietly misses target is worse than
-    // one that says why.
+    // True when the normalized clip will peak above the ceiling, i.e. the deck
+    // limiter will be doing real work on it. Target loudness is still hit —
+    // this is a heads-up, not a shortfall.
     bool peakLimited = false;
     bool ok = false;
   };
@@ -6081,6 +6240,30 @@ class App {
   Uint64 lastOutputRecoveryPollMs_ = 0;
   Uint64 lastEscapeKeyMs_ = 0;
   int escapePressStreak_ = 0;
+  // One PTP client for the machine — there is one clock, and binding ports
+  // 319/320 twice would fail. Started lazily the first time an ST 2110 output
+  // actually needs it, so a show that never streams 2110 puts no PTP traffic
+  // on the network and never touches those ports.
+  deckboy::platform::video::PtpClient ptpClient_;
+  bool ptpStartAttempted_ = false;
+
+  // ST 2110-30 senders, reachable from the AUDIO THREAD.
+  // The tap that feeds them runs on the audio thread, and walking
+  // project_.outputs/outputRuntimes_ from there would race the main thread
+  // creating and destroying outputs. Main thread publishes raw pointers here
+  // under the mutex; the audio thread only ever reads this list.
+  std::mutex st2110AudioMutex_;
+  std::vector<deckboy::platform::video::St2110AudioOutput*> st2110AudioSenders_;
+
+  // Loading overlay (see app_overlays.ipp). Only used while the main render
+  // loop is stopped, so it owns its own present.
+  bool loadingActive_ = false;
+  std::string loadingTitle_;
+  std::string loadingDetail_;
+  double loadingFrac_ = 0.0;
+  Uint64 loadingStartMs_ = 0;
+  Uint64 loadingLastPresentMs_ = 0;
+  unsigned loadingQuipSeed_ = 0;
   int observedDisplayCount_ = -1;
   // Per-display "name@x,y,w,h" fingerprints from the last topology scan.
   // Compared entry-by-entry so a hot-plug re-homes only the outputs whose
@@ -6306,7 +6489,66 @@ class App {
 //   --no-inproc-decode → force the ffmpeg CLI decode path (break-glass)
 //   --allow-multi-instance → skip single-instance lock
 // Otherwise: acquire instance lock → App::init() → App::run() → App::shutdown()
+#ifdef _WIN32
+// ── Crash logger ────────────────────────────────────────────────────────────
+// Deckboy has been dying silently: Windows Error Reporting keeps a dump and a
+// module name, but the app leaves nothing behind, so a crash mid-show tells the
+// operator (and the next debugging session) nothing at all. Several crashes are
+// on record with only "faulting module SDL3.dll" to go on.
+//
+// This writes a symbolised stack to deckboy-crash.log next to the data dir the
+// moment an unhandled SEH exception fires — before the process is gone. It is
+// diagnosis, not recovery: the app still dies, it just says why.
+LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
+  static std::atomic<bool> handled {false};
+  bool expected = false;
+  if (!handled.compare_exchange_strong(expected, true)) {
+    return EXCEPTION_EXECUTE_HANDLER;  // a second fault while logging the first
+  }
+  fs::path logPath = Paths::dataDir() / "deckboy-crash.log";
+  std::ofstream log(logPath, std::ios::app);
+  if (log) {
+    const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    log << "\n=== Deckboy crash " << deckboy::core::version::kVersionTag << " ===\n";
+    log << "time: " << now << "\n";
+    if (info && info->ExceptionRecord) {
+      log << "code: 0x" << std::hex << info->ExceptionRecord->ExceptionCode << std::dec
+          << "  address: " << info->ExceptionRecord->ExceptionAddress << "\n";
+    }
+    HANDLE process = GetCurrentProcess();
+    SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES);
+    SymInitialize(process, nullptr, TRUE);
+    void* frames[62] {};
+    const USHORT captured = CaptureStackBackTrace(0, 62, frames, nullptr);
+    alignas(SYMBOL_INFO) char symbolBuffer[sizeof(SYMBOL_INFO) + 512] {};
+    auto* symbol = reinterpret_cast<SYMBOL_INFO*>(symbolBuffer);
+    symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    symbol->MaxNameLen = 511;
+    for (USHORT i = 0; i < captured; ++i) {
+      const DWORD64 addr = reinterpret_cast<DWORD64>(frames[i]);
+      log << "  [" << i << "] " << frames[i];
+      DWORD64 displacement = 0;
+      if (SymFromAddr(process, addr, &displacement, symbol)) {
+        log << "  " << symbol->Name;
+      }
+      IMAGEHLP_LINE64 line {};
+      line.SizeOfStruct = sizeof(line);
+      DWORD lineDisp = 0;
+      if (SymGetLineFromAddr64(process, addr, &lineDisp, &line) && line.FileName) {
+        log << "  (" << line.FileName << ":" << line.LineNumber << ")";
+      }
+      log << "\n";
+    }
+    log.flush();
+  }
+  return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 int runDeckboyMain(int argc, char** argv) {
+#ifdef _WIN32
+  SetUnhandledExceptionFilter(deckboyCrashHandler);
+#endif
   if (argc > 1 && std::string_view(argv[1]) == "--version") {
     printDeckboyVersion(std::cout);
     return 0;
@@ -6316,6 +6558,30 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
     return App::runSmoke();
+  }
+  if (argc > 2 && std::string_view(argv[1]) == "--pattern-bench") {
+    int bw = 3840, bh = 2160, bframes = 60;
+    for (int i = 3; i < argc; ++i) {
+      std::string_view arg(argv[i]);
+      auto xPos = arg.find('x');
+      if (xPos != std::string_view::npos) {
+        int w = std::atoi(std::string(arg.substr(0, xPos)).c_str());
+        int h = std::atoi(std::string(arg.substr(xPos + 1)).c_str());
+        if (w > 0 && h > 0) { bw = w; bh = h; }
+      } else {
+        int n = std::atoi(std::string(arg).c_str());
+        if (n > 0) bframes = n;
+      }
+    }
+    return App::runPatternBench(argv[2], bw, bh, bframes);
+  }
+  if (argc > 2 && std::string_view(argv[1]) == "--ltc-generate") {
+    const std::string outWav = argv[2];
+    const std::string startTc = argc > 3 ? argv[3] : "10:00:00:00";
+    const double fps = argc > 4 ? std::atof(argv[4]) : 30.0;
+    const double secs = argc > 5 ? std::atof(argv[5]) : 2.0;
+    return App::runLtcGenerate(outWav, startTc, fps > 0.0 ? fps : 30.0,
+                               secs > 0.0 ? secs : 2.0);
   }
   if (argc > 3 && std::string_view(argv[1]) == "--pattern-dump") {
     int dumpW = 1280;

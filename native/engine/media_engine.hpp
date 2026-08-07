@@ -273,6 +273,9 @@ class MediaEngine {
   // both the CLI pipe thread and the in-process thread so the audio-master
   // clock semantics stay identical.
   void applyGainAndQueueAudio(std::vector<std::int16_t>& samples, double& audioTime);
+  // Peak limiter, applied in place to the gained float scratch between the
+  // gain stage and int16 quantisation. See media_engine.cpp for the design.
+  void applyPeakLimiter();
   // Final stage: delay FIFO (chain A/V offset) → tap → SDL stream. Shared by
   // decode audio and the pocket-test sync pop.
   void queueDelayedAudio(std::vector<std::int16_t>& samples);
@@ -433,6 +436,15 @@ class MediaEngine {
   std::deque<std::int16_t> audioDelayFifo_;  // holds processed samples for the delay
                                              // (owned by whichever thread queues audio;
                                              // cleared only after threads are joined)
+  // -- State: peak limiter (v0.81.5) -------------------------------------------
+  // Touched only by the audio thread that is currently queueing (one decode
+  // path is live at a time), so these need no synchronisation. limiterGain_
+  // persists across chunks to keep the release continuous; reset on load/stop
+  // so a new cue never starts ducked by the previous one's transient.
+  double limiterGain_ = 1.0;                 // current gain reduction, 1.0 = open
+  std::vector<double> limiterScratch_;       // gained interleaved stereo, pre-quantise
+  std::vector<double> limiterFramePeak_;     // max(|L|,|R|) per frame
+  std::deque<std::size_t> limiterWindow_;    // monotonic deque → look-ahead window min
 
   // -- State: decoder lifecycle flags ------------------------------------------
   std::atomic<bool> decoderStop_ {false};    // signal decode threads to exit
