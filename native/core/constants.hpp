@@ -115,17 +115,36 @@ inline std::uint32_t kDeleteBezelColor  = 0x8B3A3AFFu;  // danger red bezel (139
 // looks exactly like "normalize is broken". Every clamp now reads these.
 //
 // The old +12 dB ceiling was arbitrary and made loudness-normalize unable to
-// reach target on quiet material (a -40 LUFS transfer needs +24 dB). Both
-// audio paths saturate on write (std::clamp to int16), so a large boost
-// distorts rather than wrapping; the normalizer keeps peaks in check itself.
+// reach target on quiet material (a -40 LUFS transfer needs +24 dB).
 // ---------------------------------------------------------------------------
 constexpr float kCueAudioGainMinDb = -40.0f;
 constexpr float kCueAudioGainMaxDb =  40.0f;
 
-// Loudness-normalize targets. Peaks are held below the ceiling so bringing a
-// quiet file up to target cannot silently drive it into the clipper.
+// Loudness-normalize target. Normalize ALWAYS reaches this — the true-peak
+// ceiling below is the deck limiter's threshold and a reporting threshold, NOT
+// a cap on the gain. Capping the gain by peak headroom is what made normalize
+// useless on real material: TV/film runs an 18-22 dB peak-to-loudness ratio, so
+// the cap bound on every clip and a quiet cartoon that wanted +10.8 dB got
+// +3.9. Peaks are MediaEngine::applyPeakLimiter's job now.
 constexpr double kNormalizeTargetLufsDefault = -16.0;
 constexpr double kNormalizeTruePeakCeilingDb = -1.0;
+
+// ---------------------------------------------------------------------------
+// Super Deckboy gate.
+//
+// Features that SPAN MULTIPLE OUTPUTS — the shared canvas, span/duplicate
+// layout, and output mirroring — belong to the planned "Super Deckboy"
+// multi-deck/multi-output mode. Until that mode exists they stay compiled and
+// serialised (so saved shows round-trip untouched) but their UI is HIDDEN:
+// showing an operator a control whose behaviour depends on a mode that isn't
+// finished is worse than not showing it at all.
+//
+// Streaming is deliberately NOT gated by this — it is not a spanning output, it
+// simply receives the program output.
+//
+// Flip to true when Super Deckboy work begins; grep this name to find every
+// parked surface.
+constexpr bool kSuperDeckboySpanningUi = false;
 
 // ---------------------------------------------------------------------------
 // Layout system — grid-based spacing constants used by render/layout.hpp.

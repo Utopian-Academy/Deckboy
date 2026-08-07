@@ -1729,14 +1729,30 @@
     };
 
     auto drawColumn = [&](int px, int topY, int baseY, float peak, bool upward, bool inRange) {
-      // Over full scale the bar can't grow any further, so say so in colour
-      // instead of silently flat-topping: pushing gain past the ceiling now
-      // visibly turns the waveform hot, and backing it off cools it again.
-      // That is the feedback that was missing — on loud material the drawn
-      // height simply couldn't change.
-      bool over = peak > 1.0f;
-      peak = std::min(1.0f, peak);
-      int amp = std::max(1, static_cast<int>(std::round(peak * std::max(2, std::abs(baseY - topY)))));
+      // The lane is a dB scale, not linear amplitude, and it keeps headroom
+      // ABOVE 0 dBFS.
+      //
+      // Linear was the reason gain edits looked broken. Real programme material
+      // peaks a few dB below full scale, which on a linear scale is already at
+      // the top of the lane — measured: a -3 dBFS file filled the lane by +3 dB
+      // of trim and then never moved again, so the +8..+11 dB that R128
+      // normalize actually applies was completely invisible. Everything above
+      // about -6 dBFS looks identical on a linear lane.
+      //
+      // Mapping kWaveformFloorDb..kWaveformCeilingDb across the lane fixes both
+      // ends: quiet material stops being a flat 1px line, and loud material has
+      // somewhere left to go, so a boost visibly climbs INTO the region above
+      // 0 dBFS — which is drawn hot, because that is a clip warning.
+      constexpr float kWaveformFloorDb = -48.0f;
+      constexpr float kWaveformCeilingDb = 12.0f;
+      bool over = peak > 1.0f;  // above 0 dBFS
+      float frac = 0.0f;
+      if (peak > 0.0f) {
+        const float db = 20.0f * std::log10(peak);
+        frac = (db - kWaveformFloorDb) / (kWaveformCeilingDb - kWaveformFloorDb);
+        frac = std::clamp(frac, 0.0f, 1.0f);
+      }
+      int amp = std::max(1, static_cast<int>(std::round(frac * std::max(2, std::abs(baseY - topY)))));
       SDL_Color outer = inRange ? activeOuter : dimOuter;
       SDL_Color inner = inRange ? activeInner : dimInner;
       if (over && inRange) {

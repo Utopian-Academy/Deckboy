@@ -1102,6 +1102,106 @@
     return deckIndices;
   }
 
+  // Merge the operator's SRT settings into the destination URL as query
+  // parameters. Until now these could only be set by hand-typing a query
+  // string, which is not a thing to ask of someone mid-show.
+  //
+  // ANYTHING ALREADY PRESENT IN THE URL WINS — shows that were configured the
+  // old way (and receiver-specific keys Deckboy has no field for) must keep
+  // working untouched.
+  std::string applySrtUrlParameters(const OutputTarget& output, std::string url) const {
+    if (normalizeOutputStreamProtocol(output.streamProtocol) != "srt") {
+      return url;
+    }
+    const std::string existing = url.find('?') != std::string::npos
+      ? toLower(url.substr(url.find('?') + 1)) : std::string();
+    auto hasParam = [&](const std::string& keyName) {
+      return existing.find(keyName + "=") != std::string::npos;
+    };
+    std::vector<std::pair<std::string, std::string>> params;
+    if (!hasParam("mode")) {
+      params.emplace_back("mode", output.srtMode == "listener" ? "listener" : "caller");
+    }
+    if (!hasParam("transtype")) {
+      params.emplace_back("transtype", "live");
+    }
+    if (!hasParam("latency")) {
+      // ffmpeg's SRT latency is in MICROseconds.
+      params.emplace_back("latency",
+                          std::to_string(std::clamp(output.srtLatencyMs, 20, 8000) * 1000));
+    }
+    const std::string passphrase = trim(output.srtPassphrase);
+    // SRT rejects passphrases shorter than 10 characters outright, so a short
+    // one would silently kill the connection rather than stream unencrypted.
+    if (!passphrase.empty() && passphrase.size() >= 10 && !hasParam("passphrase")) {
+      params.emplace_back("passphrase", passphrase);
+    }
+    const std::string streamId = trim(output.srtStreamId);
+    if (!streamId.empty() && !hasParam("streamid")) {
+      params.emplace_back("streamid", streamId);
+    }
+    for (const auto& [k, v] : params) {
+      url += (url.find('?') == std::string::npos) ? '?' : '&';
+      url += k + "=" + v;
+    }
+    return url;
+  }
+
+  // True when the SRT passphrase is set but too short for SRT to accept.
+  // Surfaced in the UI rather than left to fail as a mystery connection error.
+  bool srtPassphraseTooShort(const OutputTarget& output) const {
+    const std::string p = trim(output.srtPassphrase);
+    return !p.empty() && p.size() < 10;
+  }
+
+  // ── Stream destinations ────────────────────────────────────────────────────
+  // Streaming is not a property of "whichever output is focused" — it carries
+  // the programme, and an operator wants SRT and RTMP configured side by side
+  // and able to run at the same time. Each protocol therefore gets its OWN
+  // dedicated stream output, found by protocol and created on demand.
+  //
+  // This reuses the existing per-output stream runtime rather than adding a
+  // second streaming system: a stream OutputTarget already spawns an encoder
+  // fed from the programme composite, so two of them is genuinely two streams.
+  int findStreamOutputForProtocol(const std::string& protocol) const {
+    const std::string wanted = normalizeOutputStreamProtocol(protocol);
+    for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+      const OutputTarget& out = project_.outputs[i];
+      if (normalizeOutputType(out.outputType) == "stream" &&
+          normalizeOutputStreamProtocol(out.streamProtocol) == wanted) {
+        return static_cast<int>(i);
+      }
+    }
+    return -1;
+  }
+
+  // Created only when the operator actually turns a destination on, so an
+  // untouched show never accumulates phantom outputs.
+  int ensureStreamOutputForProtocol(const std::string& protocol) {
+    const std::string wanted = normalizeOutputStreamProtocol(protocol);
+    int existing = findStreamOutputForProtocol(wanted);
+    if (existing >= 0) {
+      return existing;
+    }
+    int previousFocus = project_.focusedOutputIndex;
+    int index = addOutput(project_.focusedDeckIndex, "stream");
+    if (index < 0 || index >= static_cast<int>(project_.outputs.size())) {
+      return -1;
+    }
+    OutputTarget& out = project_.outputs[index];
+    out.streamProtocol = wanted;
+    out.name = (wanted == "srt") ? "SRT Stream" : "RTMP Stream";
+    out.streamUrl = defaultOutputStreamUrl(wanted, index);
+    out.streamEnabled = false;   // configured, not yet live
+    out.enabled = false;
+    // addOutput focuses what it creates; the Streaming page is not an output
+    // picker, so put the operator's focus back where it was.
+    project_.focusedOutputIndex = std::clamp(previousFocus, 0,
+                                             static_cast<int>(project_.outputs.size()) - 1);
+    markProjectDirty();
+    return index;
+  }
+
   std::string buildOutputStreamSpec(int outputIndex, int width, int height, double fpsHint) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return {};
@@ -1113,10 +1213,11 @@
       url = defaultOutputStreamUrl(protocol, outputIndex);
     }
     std::string key = trim(output.streamKey);
-    if (!key.empty() && (protocol == "rtmp" || protocol == "rtmps")) {
+    if (!key.empty() && outputStreamProtocolIsRtmp(protocol)) {
       if (url.back() != '/') url += '/';
       url += key;
     }
+    url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     double fps = outputStreamFps(fpsHint);
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
@@ -1145,15 +1246,22 @@
       url = defaultOutputStreamUrl(protocol, outputIndex);
     }
     std::string key = trim(output.streamKey);
-    if (!key.empty() && (protocol == "rtmp" || protocol == "rtmps")) {
+    if (!key.empty() && outputStreamProtocolIsRtmp(protocol)) {
       if (url.back() != '/') url += '/';
       url += key;
     }
+    url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);
     double fps = outputStreamFps(fpsHint);
-    int gop = std::max(1, static_cast<int>(std::lround(fps)));
-    std::string mux = (protocol == "rtmp") ? "flv" : "mpegts";
+    // GOP was hardcoded to one second. A keyframe every second is a lot of
+    // bitrate spent on I-frames; most platforms want 2s, and some (YouTube)
+    // require <= 4s. Now the operator's setting.
+    int gop = std::max(1, static_cast<int>(std::lround(
+      fps * std::clamp(output.streamKeyframeSeconds, 1, 10))));
+    // RTMPS is RTMP over TLS — same FLV muxer. It used to normalize to "srt"
+    // and land here as mpegts, which no RTMP server would accept.
+    std::string mux = outputStreamProtocolIsRtmp(protocol) ? "flv" : "mpegts";
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     std::ostringstream fpsText;
     fpsText << std::fixed << std::setprecision(2) << fps;
@@ -2444,6 +2552,9 @@
           pushDeckStreamAudioSamples(deckIndex, samples);
           // Capture samples for VU meter (only from focused deck)
           if (deckIndex == project_.focusedDeckIndex) {
+            // Streaming carries the programme, so 2110 audio comes from the
+            // focused deck's final mix — same rule as the video essence.
+            pushSt2110AudioSamples(samples);
             std::lock_guard<std::mutex> lock(vuSamplesMutex_);
             vuSamples_ = samples;
             vuSamplesUpdatedAtMs_ = SDL_GetTicks();
@@ -3008,6 +3119,195 @@
 #else
     (void) outputRuntime;
 #endif
+  }
+
+  // ── ST 2110-20 egress ──────────────────────────────────────────────────────
+  // Same shape as the Spout/DeckLink senders: lazily open on first frame,
+  // reopen when the operator changes anything the socket or packetiser depends
+  // on, and feed it the BGRA egress capture the other backends already use.
+  void sendOutputSt2110Frame(int outputIndex, OutputRuntime& outputRuntime,
+                             int width, int height, double fpsHint) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+    if (!output.st2110Enabled) {
+      return;
+    }
+    const auto& frameCapture = outputRuntime.latestCapturedFrame;
+    if (frameCapture.pixels.empty() || frameCapture.width <= 0 || frameCapture.height <= 0) {
+      return;
+    }
+    // ST 2110-20 carries 4:2:2, so the raster must be an even number of pixels
+    // wide — a half pgroup cannot be expressed on the wire.
+    const int sendW = frameCapture.width & ~1;
+    if (sendW <= 0) {
+      return;
+    }
+
+    using deckboy::platform::video::St2110Config;
+    using deckboy::platform::video::St2110Sampling;
+    St2110Config wanted;
+    wanted.enabled = true;
+    wanted.destinationAddress = trim(output.st2110Address).empty()
+      ? std::string("239.20.10.1") : trim(output.st2110Address);
+    wanted.interfaceAddress = trim(output.st2110Interface);
+    wanted.destinationPort = std::clamp(output.st2110Port, 1, 65535);
+    wanted.width = sendW;
+    wanted.height = frameCapture.height;
+    wanted.frameRate = fpsHint > 1.0 ? fpsHint : 60000.0 / 1001.0;
+    wanted.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
+                                          : St2110Sampling::YCbCr422_8bit;
+
+    const bool needsReopen =
+      !outputRuntime.st2110Sender ||
+      !outputRuntime.st2110Sender->isOpen() ||
+      outputRuntime.st2110Sender->config().width != wanted.width ||
+      outputRuntime.st2110Sender->config().height != wanted.height ||
+      outputRuntime.st2110Sender->config().destinationAddress != wanted.destinationAddress ||
+      outputRuntime.st2110Sender->config().interfaceAddress != wanted.interfaceAddress ||
+      outputRuntime.st2110Sender->config().destinationPort != wanted.destinationPort ||
+      outputRuntime.st2110Sender->config().sampling != wanted.sampling;
+
+    if (needsReopen) {
+      // Bring PTP up the first time 2110 is actually armed. Failing to bind
+      // 319/320 is common (a system PTP service usually holds them) and is NOT
+      // fatal — the stream falls back to the local clock and keeps saying so in
+      // the SDP, which is exactly the honest behaviour.
+      ensurePtpClientStarted();
+      outputRuntime.st2110Sender =
+        std::make_unique<deckboy::platform::video::St2110Output>();
+      outputRuntime.st2110Sender->setPtpClient(&ptpClient_);
+      if (!outputRuntime.st2110Sender->open(wanted)) {
+        triggerToast("st 2110: " + outputRuntime.st2110Sender->lastError());
+        outputRuntime.st2110Sender.reset();
+        return;
+      }
+      // ST 2110-30 audio rides alongside, two ports up by convention. Video
+      // without audio is half a feed, and audio is 0.2% of the bitrate.
+      deckboy::platform::video::St2110AudioConfig audioCfg;
+      audioCfg.destinationAddress = wanted.destinationAddress;
+      audioCfg.interfaceAddress = wanted.interfaceAddress;
+      audioCfg.destinationPort = wanted.destinationPort + 2;
+      audioCfg.channels = 2;
+      auto audioSender = std::make_unique<deckboy::platform::video::St2110AudioOutput>();
+      audioSender->setPtpClient(&ptpClient_);
+      if (audioSender->open(audioCfg)) {
+        outputRuntime.st2110AudioSender = std::move(audioSender);
+      } else {
+        // Audio failing must not take the video flow down with it.
+        triggerToast("st 2110 audio: " + audioSender->lastError());
+        outputRuntime.st2110AudioSender.reset();
+      }
+      republishSt2110AudioSenders();
+    }
+
+    const int stride = frameCapture.width * 4;
+    if (!outputRuntime.st2110Sender->sendFrame(frameCapture.pixels.data(), stride)) {
+      triggerToast("st 2110: " + outputRuntime.st2110Sender->lastError());
+      outputRuntime.st2110Sender.reset();
+    }
+  }
+
+  // Lazy, once, and non-fatal on failure.
+  void ensurePtpClientStarted() {
+    if (ptpStartAttempted_ && ptpClient_.running()) {
+      return;
+    }
+    if (ptpStartAttempted_ && !ptpClient_.running()) {
+      return;  // already tried and failed; don't retry every frame
+    }
+    ptpStartAttempted_ = true;
+    deckboy::platform::video::PtpConfig cfg;
+    cfg.domain = std::clamp(project_.ptpDomain, 0, 127);
+    if (!ptpClient_.start(cfg)) {
+      triggerToast("ptp: " + ptpClient_.lastError() + " - using local clock");
+    }
+  }
+
+  // One line for the settings panel: whether the media clock is traceable.
+  std::string ptpStatusLabel() const {
+    if (!ptpClient_.running()) {
+      return "PTP: not running (local clock)";
+    }
+    if (!ptpClient_.locked()) {
+      return "PTP: listening on domain " + std::to_string(project_.ptpDomain) + " (local clock)";
+    }
+    char buf[160];
+    std::snprintf(buf, sizeof(buf), "PTP LOCKED  gm %s  domain %d  offset %+.3f ms  path %.0f us",
+                  ptpClient_.grandmasterIdentity().c_str(),
+                  project_.ptpDomain,
+                  static_cast<double>(ptpClient_.offsetNanos()) / 1e6,
+                  ptpClient_.meanPathDelayMicros());
+    return buf;
+  }
+
+  void shutdownOutputSt2110(OutputRuntime& outputRuntime) {
+    const bool hadAudio = outputRuntime.st2110AudioSender != nullptr;
+    if (outputRuntime.st2110AudioSender) {
+      // Unpublish BEFORE destroying, or the audio thread can hold a dangling
+      // pointer for the length of one callback.
+      outputRuntime.st2110AudioSender->close();
+      outputRuntime.st2110AudioSender.reset();
+    }
+    if (outputRuntime.st2110Sender) {
+      outputRuntime.st2110Sender->close();
+      outputRuntime.st2110Sender.reset();
+    }
+    if (hadAudio) {
+      republishSt2110AudioSenders();
+    }
+  }
+
+  // Rebuild the audio thread's view of live ST 2110-30 senders. Main thread only.
+  void republishSt2110AudioSenders() {
+    std::vector<deckboy::platform::video::St2110AudioOutput*> live;
+    for (auto& rt : outputRuntimes_) {
+      if (rt.st2110AudioSender && rt.st2110AudioSender->isOpen()) {
+        live.push_back(rt.st2110AudioSender.get());
+      }
+    }
+    std::lock_guard<std::mutex> lock(st2110AudioMutex_);
+    st2110AudioSenders_.swap(live);
+  }
+
+  // Called from the AUDIO THREAD with the final post-delay stereo the room
+  // hears, so the 2110 flow carries exactly what the PA does.
+  void pushSt2110AudioSamples(const std::vector<std::int16_t>& interleavedStereo) {
+    if (interleavedStereo.size() < 2) {
+      return;
+    }
+    std::lock_guard<std::mutex> lock(st2110AudioMutex_);
+    if (st2110AudioSenders_.empty()) {
+      return;
+    }
+    const std::size_t frames = interleavedStereo.size() / 2;
+    for (auto* sender : st2110AudioSenders_) {
+      sender->pushSamples(interleavedStereo.data(), frames);
+    }
+  }
+
+  // The SDP a receiver needs. Surfaced in settings so the operator can copy it
+  // to the receiving device — an ST 2110 stream is undiscoverable without one
+  // until NMOS IS-04/05 exists.
+  std::string focusedOutputSt2110Sdp() {
+    const OutputTarget& output = focusedOutput();
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    using deckboy::platform::video::St2110Config;
+    using deckboy::platform::video::St2110Sampling;
+    St2110Config cfg;
+    cfg.destinationAddress = trim(output.st2110Address).empty()
+      ? std::string("239.20.10.1") : trim(output.st2110Address);
+    cfg.interfaceAddress = trim(output.st2110Interface);
+    cfg.destinationPort = std::clamp(output.st2110Port, 1, 65535);
+    cfg.width = std::max(2, rasterW & ~1);
+    cfg.height = std::max(1, rasterH);
+    cfg.frameRate = outputStreamFps(0.0);
+    cfg.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
+                                       : St2110Sampling::YCbCr422_8bit;
+    return deckboy::platform::video::st2110BuildSdp(
+      cfg, "Deckboy " + outputLabel(project_.focusedOutputIndex),
+      ptpClient_.locked(), ptpClient_.grandmasterIdentity(), project_.ptpDomain);
   }
 
   int ndiConnectionCountForOutput(int outputIndex) const {

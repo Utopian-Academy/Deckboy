@@ -126,10 +126,19 @@ if (Test-Path $DataSrc) {
     # up to v0.80.1 carried the packager's own local path into every download,
     # which leaks a local directory layout and leaves a fresh install offering
     # "open previous show" for a file the user has never had.
-    $StaleState = Join-Path (Join-Path $StageDir "data") "last_project.txt"
-    if (Test-Path $StaleState) {
-        Remove-Item $StaleState -Force
-        Write-Host "  - stripped data\last_project.txt (build-machine state)"
+    #
+    # data/default.deckboy is the same class of mistake and was still shipping:
+    # it is gitignored scratch state (the auto-loaded startup show), so whatever
+    # the packager last had open goes out in the zip. On this build machine that
+    # was a CAMERA cue naming a specific webcam model — releases were carrying
+    # the packager's hardware inventory, and a fresh install's first TAKE would
+    # open a webcam. Both files are per-machine state; neither ships.
+    foreach ($StaleName in @("last_project.txt", "default.deckboy")) {
+        $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
+        if (Test-Path $StaleState) {
+            Remove-Item $StaleState -Force
+            Write-Host "  - stripped data\$StaleName (build-machine state)"
+        }
     }
 }
 $LicenseSrc = Join-Path $RepoRoot "LICENSE"

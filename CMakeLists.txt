@@ -349,6 +349,17 @@ add_executable(deckboy-native
   native/platform/capture_backend.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
+  # ST 2110-20 sender: plain sockets only, no SDK, so it compiles unconditionally
+  # on every platform (same reasoning as decklink.cpp above — a feature-guarded
+  # translation unit whose symbols are referenced unguarded breaks the link).
+  native/platform/st2110_output.cpp
+  # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
+  native/platform/ptp_client.cpp
+  # Vendored Terrarium sim. This shim compiles upstream/terrarium_core.cpp
+  # INSIDE `namespace terra` — do not add that .cpp here directly, or its
+  # definitions land at global scope and fail to link. See
+  # native/extras/upstream/UPSTREAM.md.
+  native/extras/terrarium_vendor.cpp
   native/render/primitives.cpp
   native/render/text_renderer.cpp
   native/render/waveform_renderer.cpp
@@ -565,19 +576,16 @@ else()
   target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_LINK_LIBS})
 endif()
 
-# Terrarium — bundled companion ecosystem sim (the Konami easter egg source).
-# Ships as its own exe next to Deckboy; the egg launches it windowed and
-# captures its window via gdigrab.
-add_executable(terrarium native/extras/terrarium.cpp)
-target_compile_definitions(terrarium PRIVATE SDL_MAIN_HANDLED)
-if(DECKBOY_SDL_TARGET)
-  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL_TARGET})
-else()
-  target_link_libraries(terrarium PRIVATE ${DECKBOY_SDL_LINK_LIBS})
-endif()
-if(MSVC)
-  target_compile_options(terrarium PRIVATE /bigobj)
-endif()
+# The bundled `terrarium` companion exe was RETIRED in v0.81.5.
+#
+# It existed so the Konami egg could launch a windowed sim and capture it via
+# gdigrab. That has been unnecessary since v0.78.4, when the sim moved
+# in-process as pattern://terrarium — nothing has needed the exe since. It also
+# built against the old forked copy of the sim, which is exactly the file this
+# release replaced with a clean vendored upstream, so keeping it would have
+# meant maintaining two divergent copies of Terrarium inside Deckboy.
+#
+# The real standalone app lives in its own repo (Utopian-Academy/terrarium).
 
 if(UNIX AND NOT APPLE)
   target_link_libraries(deckboy-native PRIVATE dl)

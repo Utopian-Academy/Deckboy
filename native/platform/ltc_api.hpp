@@ -50,6 +50,22 @@ struct LtcDecodedTimecode {
   bool dropFrame = false;  // true for 29.97fps drop-frame timecode
 };
 
+// libltc's SMPTETimecode, laid out to match the library ABI exactly. We load
+// libltc dynamically and never include its headers, so this mirrors the public
+// struct: a 6-byte timezone string followed by the date and time fields as
+// unsigned chars. Getting this wrong writes garbage timecode, so it is spelled
+// out rather than guessed at a call site.
+struct LtcSmpteTimecode {
+  char timezone[6] {};   // e.g. "+0100"
+  unsigned char years = 0;
+  unsigned char months = 0;
+  unsigned char days = 0;
+  unsigned char hours = 0;
+  unsigned char mins = 0;
+  unsigned char secs = 0;
+  unsigned char frame = 0;
+};
+
 // Heuristic frame rate estimator based on observed timecode values.
 // Watches the highest frame number seen per second to determine whether
 // the source is 24, 25, or 30 fps. Drop-frame timecodes are immediately
@@ -143,6 +159,21 @@ struct LtcApi {
   int (*decoderReadFn)(void*, void*) = nullptr;              // ltc_decoder_read
   void (*decoderWriteS16Fn)(void*, std::int16_t*, size_t, std::int64_t) = nullptr; // ltc_decoder_write_s16
 
+  // ── Encoder (timecode OUT) ────────────────────────────────────────────────
+  // Deckboy could CHASE timecode but never GENERATE it, so it could not be
+  // master of a rig. libltc has always shipped these — the DLL exports all 27
+  // encoder symbols — they simply were not bound. Optional: a build that
+  // resolves only the decoder still works, `encoderAvailable` just stays false.
+  void* (*encoderCreateFn)(double, double, int, int) = nullptr;   // ltc_encoder_create(sample_rate, fps, standard, flags)
+  void (*encoderFreeFn)(void*) = nullptr;                          // ltc_encoder_free
+  void (*encoderSetTimecodeFn)(void*, const void*) = nullptr;      // ltc_encoder_set_timecode(SMPTETimecode*)
+  int  (*encoderEncodeFrameFn)(void*) = nullptr;                   // ltc_encoder_encode_frame
+  int  (*encoderGetBufferFn)(void*, void*) = nullptr;              // ltc_encoder_get_buffer(ltcsnd_sample_t*)
+  void (*encoderBufferFlushFn)(void*) = nullptr;                   // ltc_encoder_buffer_flush
+  int  (*encoderIncTimecodeFn)(void*) = nullptr;                   // ltc_encoder_inc_timecode
+  int  (*encoderSetVolumeFn)(void*, double) = nullptr;             // ltc_encoder_set_volume (dBFS)
+  std::atomic<bool> encoderAvailable {false};
+
   // Load libltc if not already attempted. Returns true if all symbols resolved.
   bool ensureLoaded() {
     if (attempted) {
@@ -188,6 +219,19 @@ struct LtcApi {
       lib_.unload();
       return false;
     }
+
+    // Encoder is OPTIONAL — resolve it, but never fail the load over it. An
+    // older libltc that lacks these still gives a working chase.
+    encoderCreateFn = lib_.loadSymbol<decltype(encoderCreateFn)>("ltc_encoder_create");
+    encoderFreeFn = lib_.loadSymbol<decltype(encoderFreeFn)>("ltc_encoder_free");
+    encoderSetTimecodeFn = lib_.loadSymbol<decltype(encoderSetTimecodeFn)>("ltc_encoder_set_timecode");
+    encoderEncodeFrameFn = lib_.loadSymbol<decltype(encoderEncodeFrameFn)>("ltc_encoder_encode_frame");
+    encoderGetBufferFn = lib_.loadSymbol<decltype(encoderGetBufferFn)>("ltc_encoder_get_buffer");
+    encoderBufferFlushFn = lib_.loadSymbol<decltype(encoderBufferFlushFn)>("ltc_encoder_buffer_flush");
+    encoderIncTimecodeFn = lib_.loadSymbol<decltype(encoderIncTimecodeFn)>("ltc_encoder_inc_timecode");
+    encoderSetVolumeFn = lib_.loadSymbol<decltype(encoderSetVolumeFn)>("ltc_encoder_set_volume");
+    encoderAvailable = encoderCreateFn && encoderFreeFn && encoderSetTimecodeFn &&
+                       encoderEncodeFrameFn && encoderGetBufferFn && encoderIncTimecodeFn;
 
     loaded = true;
     loadError.clear();

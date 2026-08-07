@@ -851,27 +851,52 @@
     }
 
     {
-      // Native Terrarium pattern (v0.78.4): the stateful sim must produce a
-      // frame at its native raster regardless of the cue's requested size,
-      // and the world must actually contain life (non-black pixels).
-      Cue terrCue;
-      terrCue.kind = CueKind::Pattern;
-      terrCue.path = "pattern://terrarium";
-      terrCue.width = 320;
-      terrCue.height = 180;
-      auto terr = MediaEngine::buildPatternFrame(terrCue, 1.0, 320, 180);
-      bool terrOk = terr.has_value() && terr->width == 1600 && terr->height == 896 &&
-                    !terr->pixels.empty();
-      if (terrOk) {
+      // Native Terrarium pattern. This used to assert a FIXED 1600x896 raster
+      // regardless of the size asked for — which was the bug, not the contract:
+      // terrarium was the only pattern that ignored --pattern-dump's size.
+      // The world is a 200x112 CELL grid, so the raster is now the requested
+      // size quantised DOWN to whole pixels-per-cell. The world must also
+      // actually contain life (non-black pixels).
+      // The terrarium world grid (TERRA_W/TERRA_H in the vendored core). Spelled
+      // out because the vendored header is only included by media_engine.cpp.
+      constexpr int kTerraW = 200;
+      constexpr int kTerraH = 112;
+      auto buildTerr = [](int w, int h) {
+        Cue c;
+        c.kind = CueKind::Pattern;
+        c.path = "pattern://terrarium";
+        c.width = w;
+        c.height = h;
+        return MediaEngine::buildPatternFrame(c, 1.0, w, h);
+      };
+      auto countLit = [](const DecodedFrame& f) {
         std::size_t lit = 0;
-        for (std::size_t i = 0; i + 3 < terr->pixels.size(); i += 4) {
-          if (terr->pixels[i] || terr->pixels[i + 1] || terr->pixels[i + 2]) {
+        for (std::size_t i = 0; i + 3 < f.pixels.size(); i += 4) {
+          if (f.pixels[i] || f.pixels[i + 1] || f.pixels[i + 2]) {
             ++lit;
           }
         }
-        terrOk = lit > 1000;  // a living world, not a black frame
-      }
-      expect(terrOk, "native terrarium pattern renders a living world");
+        return lit;
+      };
+      // Small ask -> 1 px per cell.
+      auto terrSmall = buildTerr(320, 180);
+      bool terrOk = terrSmall.has_value() && terrSmall->width == kTerraW &&
+                    terrSmall->height == kTerraH && countLit(*terrSmall) > 1000;
+      // Large ask -> more pixels per cell, still a whole multiple of the grid.
+      auto terrBig = buildTerr(1600, 900);
+      terrOk = terrOk && terrBig.has_value() &&
+               terrBig->width == kTerraW * 8 && terrBig->height == kTerraH * 8 &&
+               countLit(*terrBig) > 1000;
+      expect(terrOk, "native terrarium pattern renders a living world at the asked-for size");
+
+      // Pico is the Pi panel's picture: ALWAYS 1 px per cell, whatever it is
+      // asked for. If this ever tracks the request, the pico look is gone.
+      Cue picoCue;
+      picoCue.kind = CueKind::Pattern;
+      picoCue.path = "pattern://terrarium-pico";
+      auto pico = MediaEngine::buildPatternFrame(picoCue, 1.0, 1920, 1080);
+      expect(pico.has_value() && pico->width == kTerraW && pico->height == kTerraH,
+             "terrarium-pico stays 1px per cell");
     }
 
     {
@@ -1061,6 +1086,186 @@
     std::cout << "pattern-dump: wrote " << outPath << " ("
               << frame->width << "x" << frame->height << ")\n";
     return 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // runPatternBench — `--pattern-bench <pattern-id> [WxH] [frames]`
+  //
+  // Times buildPatternFrame in isolation: no window, no texture upload, no file
+  // I/O. Added while chasing "pocket-test is laggy at 4K" — the live OUTPUT fps
+  // readout was too noisy to tell whether the cost was the CPU build or the
+  // 33 MB-per-frame texture upload, and guessing between them is how you
+  // optimise the wrong half.
+  // ---------------------------------------------------------------------------
+  static int runPatternBench(const std::string& patternId, int w, int h, int frames) {
+    Cue cue;
+    cue.kind = CueKind::Pattern;
+    cue.name = "pattern-bench";
+    cue.path = patternId;
+    cue.width = w;
+    cue.height = h;
+
+    // One warm-up build so first-touch page faults and any lazy init don't land
+    // in the measurement.
+    auto warm = MediaEngine::buildPatternFrame(cue, 0.0, w, h);
+    if (!warm || warm->pixels.empty()) {
+      std::cout << "pattern-bench: build failed for " << patternId << '\n';
+      return 1;
+    }
+    const int outW = warm->width;
+    const int outH = warm->height;
+
+    double worstMs = 0.0;
+    const auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < frames; ++i) {
+      const auto t0 = std::chrono::steady_clock::now();
+      // Advance wall time so animated patterns do real per-frame work.
+      auto f = MediaEngine::buildPatternFrame(cue, 1.0 + i * (1.0 / 60.0), w, h);
+      const auto t1 = std::chrono::steady_clock::now();
+      const double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+      worstMs = std::max(worstMs, ms);
+      if (!f) {
+        std::cout << "pattern-bench: build returned nothing at frame " << i << '\n';
+        return 1;
+      }
+    }
+    const double totalMs =
+      std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
+    const double avgMs = totalMs / std::max(1, frames);
+    std::cout << "pattern-bench: " << patternId << "  " << outW << "x" << outH
+              << "  avg " << avgMs << " ms/frame"
+              << "  worst " << worstMs << " ms"
+              << "  => " << (avgMs > 0.0 ? 1000.0 / avgMs : 0.0) << " fps ceiling"
+              << "  (build only, no upload)\n";
+    return 0;
+  }
+
+  // ---------------------------------------------------------------------------
+  // runLtcGenerate — `--ltc-generate <out.wav> [HH:MM:SS:FF] [fps] [seconds]`
+  //
+  // Generates SMPTE LTC as a mono 48 kHz WAV, then DECODES ITS OWN OUTPUT with
+  // the same libltc decoder Deckboy chases with, and reports whether the
+  // timecode came back. Round-tripping is the point: an encoder that produces
+  // plausible-looking audio nobody can read is worse than none, and this proves
+  // the two halves agree.
+  //
+  // Deckboy could previously chase timecode but never generate it, so it could
+  // not be master of a rig. libltc always shipped the encoder; it was unbound.
+  // ---------------------------------------------------------------------------
+  static int runLtcGenerate(const std::string& outPath, const std::string& startTc,
+                            double fps, double seconds) {
+    LtcApi api;
+    if (!api.ensureLoaded()) {
+      std::cout << "ltc-generate: libltc unavailable: " << api.loadError << '\n';
+      return 1;
+    }
+    if (!api.encoderAvailable) {
+      std::cout << "ltc-generate: libltc has no encoder symbols\n";
+      return 1;
+    }
+
+    int hh = 10, mm = 0, ss = 0, ff = 0;
+    std::sscanf(startTc.c_str(), "%d:%d:%d:%d", &hh, &mm, &ss, &ff);
+
+    constexpr double kRate = 48000.0;
+    // standard 1 = LTC_TV_625_50 etc.; 0 (LTC_TV_525_60) is right for 30/29.97
+    // and is what a generic generator should emit.
+    void* enc = api.encoderCreateFn(kRate, fps, 0, 0);
+    if (!enc) {
+      std::cout << "ltc-generate: encoder_create failed\n";
+      return 1;
+    }
+    if (api.encoderSetVolumeFn) {
+      api.encoderSetVolumeFn(enc, -3.0);  // -3 dBFS: hot enough to read, not clipping
+    }
+
+    LtcSmpteTimecode tc {};
+    std::snprintf(tc.timezone, sizeof(tc.timezone), "+0000");
+    tc.hours = static_cast<unsigned char>(hh);
+    tc.mins  = static_cast<unsigned char>(mm);
+    tc.secs  = static_cast<unsigned char>(ss);
+    tc.frame = static_cast<unsigned char>(ff);
+    api.encoderSetTimecodeFn(enc, &tc);
+
+    const int frameCount = std::max(1, static_cast<int>(std::lround(seconds * fps)));
+    std::vector<std::int16_t> pcm;
+    // libltc emits unsigned 8-bit centred on 128 (ltcsnd_sample_t).
+    std::vector<std::uint8_t> frameBuf(static_cast<std::size_t>(kRate / fps) + 64);
+    for (int i = 0; i < frameCount; ++i) {
+      api.encoderEncodeFrameFn(enc);
+      const int got = api.encoderGetBufferFn(enc, frameBuf.data());
+      for (int s = 0; s < got; ++s) {
+        const int centred = static_cast<int>(frameBuf[static_cast<std::size_t>(s)]) - 128;
+        pcm.push_back(static_cast<std::int16_t>(std::clamp(centred * 256, -32768, 32767)));
+      }
+      if (api.encoderBufferFlushFn) {
+        api.encoderBufferFlushFn(enc);
+      }
+      api.encoderIncTimecodeFn(enc);
+    }
+    api.encoderFreeFn(enc);
+
+    if (pcm.empty()) {
+      std::cout << "ltc-generate: encoder produced no samples\n";
+      return 1;
+    }
+
+    // --- WAV (mono, 16-bit, 48 kHz) ---
+    {
+      std::ofstream wav(outPath, std::ios::binary | std::ios::trunc);
+      if (!wav) {
+        std::cout << "ltc-generate: cannot write " << outPath << '\n';
+        return 1;
+      }
+      const std::uint32_t dataBytes = static_cast<std::uint32_t>(pcm.size() * 2);
+      auto put32 = [&](std::uint32_t v) { wav.write(reinterpret_cast<const char*>(&v), 4); };
+      auto put16 = [&](std::uint16_t v) { wav.write(reinterpret_cast<const char*>(&v), 2); };
+      wav.write("RIFF", 4); put32(36 + dataBytes); wav.write("WAVE", 4);
+      wav.write("fmt ", 4); put32(16); put16(1); put16(1);
+      put32(48000); put32(48000 * 2); put16(2); put16(16);
+      wav.write("data", 4); put32(dataBytes);
+      wav.write(reinterpret_cast<const char*>(pcm.data()), dataBytes);
+    }
+
+    // --- Round-trip: decode what we just made ---
+    void* dec = api.decoderCreateFn(static_cast<int>(kRate / fps), 8);
+    int decoded = 0;
+    std::string firstTc, lastTc;
+    if (dec) {
+      std::vector<std::uint8_t> frameExt(LtcApi::kFrameExtBytes);
+      // Write in chunks and DRAIN AFTER EACH. libltc's decode queue holds only
+      // the size given to decoder_create (8 here); pushing the whole file in
+      // one call overflows it and everything but the last few frames is thrown
+      // away — which looked exactly like a broken encoder.
+      const std::size_t chunk = static_cast<std::size_t>(kRate / fps);
+      for (std::size_t off = 0; off < pcm.size(); off += chunk) {
+        const std::size_t n = std::min(chunk, pcm.size() - off);
+        api.decoderWriteS16Fn(dec, pcm.data() + off, n, static_cast<std::int64_t>(off));
+        while (api.decoderQueueLengthFn(dec) > 0) {
+          if (api.decoderReadFn(dec, frameExt.data()) <= 0) {
+            break;
+          }
+          if (auto got = decodeLtcFrameBytes(frameExt.data())) {
+            char buf[24];
+            std::snprintf(buf, sizeof(buf), "%02d:%02d:%02d:%02d",
+                          got->hours, got->minutes, got->seconds, got->frames);
+            if (decoded == 0) firstTc = buf;
+            lastTc = buf;
+            ++decoded;
+          }
+        }
+      }
+      api.decoderFreeFn(dec);
+    }
+
+    std::cout << "ltc-generate: wrote " << outPath << " ("
+              << pcm.size() << " samples, " << frameCount << " frames @ " << fps << "fps)\n";
+    std::cout << "ltc-generate: round-trip decoded " << decoded << " frames";
+    if (decoded > 0) {
+      std::cout << "  first=" << firstTc << "  last=" << lastTc;
+    }
+    std::cout << '\n';
+    return decoded > 0 ? 0 : 1;
   }
 
   // ---------------------------------------------------------------------------

@@ -52,7 +52,10 @@
 #include "core/pixel_effects.hpp"     // applyChromaKeyToPixels, applyColorControlsToPixels
 #include "core/subprocess.hpp"        // spawnProcess, ChildProcess
 #include "core/utils.hpp"             // trim, splitLines, formatTimecode
-#include "extras/terrarium_core.hpp"  // native Terrarium sim (pattern://terrarium)
+// Native Terrarium sim (pattern://terrarium, pattern://terrarium-pico).
+// The sim itself is vendored untouched under extras/upstream/; the namespace
+// wrapper and the RGBA renderer are Deckboy's. See extras/upstream/UPSTREAM.md.
+#include "extras/terrarium_render_rgba.hpp"
 #include "platform/capture_backend.hpp" // source capture for camera/window cues
 
 #include <mutex>
@@ -99,7 +102,7 @@ std::atomic<bool> g_inprocDecodeDisabled {false};
 // 1600x896 re-render only happens when the sim actually stepped. Guarded by
 // a mutex because pattern builds can come from preview paths too.
 // ---------------------------------------------------------------------------
-void buildTerrariumFrame(DecodedFrame& frame, double wallSeconds) {
+void buildTerrariumFrame(DecodedFrame& frame, double wallSeconds, int cellPx) {
   static std::mutex mutex;
   static terra::World world;
   static terra::Rng rng {0xDECB0Fu};
@@ -107,7 +110,12 @@ void buildTerrariumFrame(DecodedFrame& frame, double wallSeconds) {
   static int tick = 0;
   static double lastStepSeconds = -1.0;
   static bool seeded = false;
-  static std::vector<std::uint8_t> cached;
+  // Cached per cell size: the two patterns share ONE world (that is the point —
+  // pico and the full-size view are the same terrarium seen at two scales) but
+  // they rasterise to different rasters, so they cannot share a pixel buffer.
+  static std::vector<std::uint8_t> cached[2];
+  static float cachedAnimT[2] = {-1.0f, -1.0f};
+  const int cacheSlot = (cellPx <= 1) ? 0 : 1;
 
   std::lock_guard<std::mutex> lock(mutex);
   constexpr double kStepSeconds = 1.0 / 9.0;  // DEFAULT_TPS
@@ -135,13 +143,21 @@ void buildTerrariumFrame(DecodedFrame& frame, double wallSeconds) {
   if (wallSeconds - lastStepSeconds >= kStepSeconds) {
     lastStepSeconds = wallSeconds;  // fell far behind — drop the backlog
   }
-  if (dirty || cached.empty()) {
-    terra::renderWorldRgba(world, tick, cached);
+  // Surf, motes and fireflies move on wall-clock time, not on sim ticks — the
+  // sim only steps at 9 TPS, so animating from `tick` alone makes the water
+  // lurch. Re-render when the sim stepped OR when animT has moved enough to be
+  // worth a frame (~12 fps, matching the Pi panel's repaint rate).
+  const float animT = static_cast<float>(wallSeconds);
+  const bool animMoved = cachedAnimT[cacheSlot] < 0.0f ||
+                         (animT - cachedAnimT[cacheSlot]) >= (1.0f / 12.0f);
+  if (dirty || animMoved || cached[cacheSlot].empty()) {
+    terra::renderWorldRgba(world, tick, animT, cellPx, cached[cacheSlot]);
+    cachedAnimT[cacheSlot] = animT;
   }
-  frame.width = terra::kFrameW;
-  frame.height = terra::kFrameH;
+  frame.width = terra::frameWidthForCellPx(cellPx);
+  frame.height = terra::frameHeightForCellPx(cellPx);
   frame.format = FramePixelFormat::RGBA32;
-  frame.pixels = cached;
+  frame.pixels = cached[cacheSlot];
 }
 
 } // namespace
@@ -958,8 +974,8 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   // decides), never the render-loop rate (240 Hz floor): a full-raster CPU
   // rebuild + texture upload per loop tick pegs a core and lags the app.
   // Terrarium is slower still: it only changes on its 9 TPS sim tick.
-  const bool isTerrarium =
-    stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "terrarium";
+  const std::string terraBase = stripPatternMotionSuffix(normalizePatternTypeId(cue.path));
+  const bool isTerrarium = terraBase == "terrarium" || terraBase == "terrarium-pico";
   double refreshHz = 60.0;
   if (outputSizeProvider_) {
     OutputModeHint mode = outputSizeProvider_();
@@ -1897,6 +1913,9 @@ void MediaEngine::clearAudio() {
   // Safe here: callers only clear audio after decode threads are stopped,
   // and the sync pop runs on this (main) thread.
   audioDelayFifo_.clear();
+  // Open the limiter back up: a new cue must not start ducked by whatever
+  // transient the previous one ended on.
+  limiterGain_ = 1.0;
 }
 
 // ---------------------------------------------------------------------------
@@ -2378,7 +2397,14 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     return static_cast<std::int16_t>(std::clamp(
       static_cast<int>(std::lround(v)), -32768, 32767));
   };
-  for (size_t index = 0; index + 1 < scaled.size(); index += 2) {
+  const std::size_t frames = scaled.size() / 2;
+  limiterScratch_.resize(frames * 2);
+  limiterFramePeak_.resize(frames);
+  // Stage 1: gain / mono / pan into a float scratch, recording the per-frame
+  // peak the limiter needs. Quantising here (as this loop used to) would throw
+  // away the overshoot the limiter exists to catch.
+  for (std::size_t f = 0; f < frames; ++f) {
+    const std::size_t index = f * 2;
     double gain = static_cast<double>(volume_.load())
                 * static_cast<double>(masterGain_.load())
                 * cueGain
@@ -2388,9 +2414,20 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
     if (mono) {
       left = right = (left + right) * 0.5;
     }
-    scaled[index] = clip(left * gain * panL);
-    scaled[index + 1] = clip(right * gain * panR);
+    left *= gain * panL;
+    right *= gain * panR;
+    limiterScratch_[index] = left;
+    limiterScratch_[index + 1] = right;
+    limiterFramePeak_[f] = std::max(std::fabs(left), std::fabs(right));
     audioTime += 1.0 / 48000.0;
+  }
+  // Stage 2: hold the peaks under the ceiling by reducing gain, not by
+  // truncating the waveform.
+  applyPeakLimiter();
+  // Stage 3: quantise. The hard clamp stays as the last-resort safety net —
+  // the limiter should mean it never actually binds.
+  for (std::size_t i = 0; i < frames * 2; ++i) {
+    scaled[i] = clip(limiterScratch_[i]);
   }
   // The A/V master clock counts frames at PROCESS time, before the delay
   // line: video must anchor to the undelayed timeline so the configured
@@ -2398,6 +2435,66 @@ void MediaEngine::applyGainAndQueueAudio(std::vector<std::int16_t>& scaled, doub
   // instead of dragging video along with it.
   audioFramesQueued_.fetch_add(scaled.size() / 2, std::memory_order_relaxed);
   queueDelayedAudio(scaled);
+}
+
+// ── Peak limiter (v0.81.5) ──────────────────────────────────────────────────
+// R128 normalize applies the full loudness gain now, and dialogue-heavy TV/film
+// material runs a 18–22 dB peak-to-loudness ratio — so a quiet clip legitimately
+// wants +8 to +11 dB and its transients land well over full scale. The old hard
+// int16 clamp turned those into square waves. This is the standard broadcast
+// answer: gain-reduce the peaks instead of truncating them.
+//
+// ZERO ADDED LATENCY. The whole chunk is already in hand, so the "look-ahead"
+// costs nothing: the target gain at frame f is the minimum required gain over
+// the next kLimiterLookaheadFrames, so the ramp is already on its way down
+// before the peak arrives. Attack ramps over roughly that same window; release
+// is slow enough to stay inaudible under speech. The residual overshoot from
+// the exponential attack is what the −1 dBFS ceiling (rather than 0) absorbs.
+//
+// Operates on limiterScratch_/limiterFramePeak_, filled by the gain stage.
+void MediaEngine::applyPeakLimiter() {
+  constexpr int kLookaheadFrames = 72;         // 1.5 ms @ 48 kHz
+  constexpr double kAttackFrames = 24.0;       // ~0.5 ms time constant
+  constexpr double kReleaseFrames = 7200.0;    // 150 ms
+  // −1 dBFS of full scale, in the int16 units the scratch buffer carries.
+  constexpr double kCeiling = 32767.0 * 0.891250938133746;
+
+  const std::size_t frames = limiterFramePeak_.size();
+  if (frames == 0) {
+    return;
+  }
+  const double attackCoef = 1.0 - std::exp(-1.0 / kAttackFrames);
+  const double releaseCoef = 1.0 - std::exp(-1.0 / kReleaseFrames);
+
+  auto required = [this](std::size_t f) {
+    const double peak = limiterFramePeak_[f];
+    return peak > kCeiling ? kCeiling / peak : 1.0;
+  };
+
+  // Monotonic deque of frame indices with non-decreasing required gain, so the
+  // front is always the minimum over the live window.
+  limiterWindow_.clear();
+  std::size_t next = 0;
+  for (std::size_t f = 0; f < frames; ++f) {
+    const std::size_t windowEnd =
+      std::min(frames, f + static_cast<std::size_t>(kLookaheadFrames));
+    while (next < windowEnd) {
+      const double r = required(next);
+      while (!limiterWindow_.empty() && required(limiterWindow_.back()) >= r) {
+        limiterWindow_.pop_back();
+      }
+      limiterWindow_.push_back(next);
+      ++next;
+    }
+    while (!limiterWindow_.empty() && limiterWindow_.front() < f) {
+      limiterWindow_.pop_front();
+    }
+    const double target = limiterWindow_.empty() ? 1.0 : required(limiterWindow_.front());
+    const double coef = target < limiterGain_ ? attackCoef : releaseCoef;
+    limiterGain_ += (target - limiterGain_) * coef;
+    limiterScratch_[f * 2] *= limiterGain_;
+    limiterScratch_[f * 2 + 1] *= limiterGain_;
+  }
 }
 
 // Final audio stage shared by decode audio and the sync pop: hold samples in
@@ -4250,7 +4347,21 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
     buildTestClock(frame, animTime);
   } else if (basePatternType == "terrarium") {
     // Native Terrarium — the living ecosystem, ticking at its own 9 TPS.
-    buildTerrariumFrame(frame, animTime);
+    //
+    // The world is a fixed 200x112 CELL grid, so the raster can only be a whole
+    // number of pixels per cell. Derive that from the requested width instead
+    // of hardcoding 8: this pattern used to ignore the size it was asked for
+    // entirely (--pattern-dump terrarium out.ppm 320x180 produced 1600x896,
+    // while every other pattern honoured the argument), and on a 4K output it
+    // was upscaling a 1600px image rather than rendering closer to native.
+    // Still quantised to whole cells — 200x112 is the grid, not a suggestion.
+    const int terraCellPx = std::clamp(frame.width / terra::W, 1, 24);
+    buildTerrariumFrame(frame, animTime, terraCellPx);
+  } else if (basePatternType == "terrarium-pico") {
+    // The same world, one pixel per cell — exactly the picture on the Pi's LED
+    // panel. Deliberately tiny (200x112); Deckboy's textures are nearest-
+    // filtered, so it scales up to the output as crisp hard-edged pixels.
+    buildTerrariumFrame(frame, animTime, 1);
   // Pocket scene variants: force a specific scene index (0=day, 1=sunset, 2=night, 3=storm)
   } else if (basePatternType == "pocket-day") {
     buildPocketTest(frame, animTime, 0);

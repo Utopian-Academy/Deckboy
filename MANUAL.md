@@ -297,11 +297,11 @@ they never touch the programme bus.
 
 | Control | Range | Notes |
 |---------|-------|-------|
-| Gain | −24 … +12 dB | Live trim in the audio thread |
+| Gain | −40 … +40 dB | Live trim in the audio thread |
 | Pan | full L … full R | Constant-power balance; snaps to centre |
 | Mono | on/off | Downmix for mono sources / mono PA |
 | Audio fade in / out | follow / none / seconds | `follow` tracks the visual fade; set a length to duck audio independently |
-| Normalize (R128) | button | Measures EBU R128 loudness and sets gain for −16 LUFS |
+| Normalize (R128) | button | Measures EBU R128 loudness and sets gain for −16 LUFS. Target is always reached; peaks are handled by the deck limiter, not by backing the gain off |
 | Outs | pair 1-2 … 7-8 | Output pair on a multichannel device (below) |
 
 The **deck fader** is a deck-level level on top of each cue's gain (the master

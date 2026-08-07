@@ -183,6 +183,137 @@
   // Modal informing the operator that a runtime dependency is missing.
   // Mirrors renderQuitConfirm visually so it feels like part of the same
   // dialog family. CTA opens the vendor's download page.
+  // ── Loading overlay ────────────────────────────────────────────────────────
+  // Opening a 1,500-cue show parses, resolves and builds runtimes with the
+  // render loop stopped, so the window just sat there looking hung. This draws
+  // and PRESENTS its own frames from inside that work, which is the only way to
+  // show anything while the main loop is not turning.
+  //
+  // It stays hidden for the first quarter second: a loader that flashes up on
+  // every small file is worse than no loader at all, and most shows open too
+  // fast to need one.
+  void beginLoadingOverlay(std::string title, std::string detail = {}) {
+    loadingTitle_ = std::move(title);
+    loadingDetail_ = std::move(detail);
+    loadingFrac_ = 0.0;
+    loadingStartMs_ = SDL_GetTicks();
+    loadingLastPresentMs_ = 0;
+    loadingActive_ = true;
+    // Fresh hand of quips per load, so a long open isn't the same three lines.
+    loadingQuipSeed_ = static_cast<unsigned>(loadingStartMs_);
+  }
+
+  void loadingOverlayProgress(double frac, const std::string& detail = {}) {
+    if (!loadingActive_) {
+      return;
+    }
+    loadingFrac_ = std::clamp(frac, 0.0, 1.0);
+    if (!detail.empty()) {
+      loadingDetail_ = detail;
+    }
+    const Uint64 now = SDL_GetTicks();
+    constexpr Uint64 kAppearAfterMs = 250;   // don't flash on quick opens
+    constexpr Uint64 kFramePeriodMs = 33;    // ~30fps is plenty for a loader
+    if (now - loadingStartMs_ < kAppearAfterMs) {
+      return;
+    }
+    if (loadingLastPresentMs_ != 0 && now - loadingLastPresentMs_ < kFramePeriodMs) {
+      return;
+    }
+    loadingLastPresentMs_ = now;
+    // Keep Windows from marking the app "not responding" during a long open.
+    SDL_PumpEvents();
+    renderLoadingOverlayFrame();
+  }
+
+  void endLoadingOverlay() {
+    loadingActive_ = false;
+    loadingLastPresentMs_ = 0;
+  }
+
+  void renderLoadingOverlayFrame() {
+    if (!controlRenderer_) {
+      return;
+    }
+    int winW = 0, winH = 0;
+    SDL_GetCurrentRenderOutputSize(controlRenderer_, &winW, &winH);
+    if (winW <= 0 || winH <= 0) {
+      return;
+    }
+    const Uint64 nowMs = SDL_GetTicks();
+
+    SDL_SetRenderDrawColor(controlRenderer_, pal.shellOuter.r, pal.shellOuter.g,
+                           pal.shellOuter.b, 255);
+    SDL_RenderClear(controlRenderer_);
+
+    const int panelW = std::min(560, std::max(320, winW - 120));
+    const int panelH = 190;
+    SDL_Rect panel {(winW - panelW) / 2, (winH - panelH) / 2, panelW, panelH};
+    Primitives::drawFramedPanel(controlRenderer_, panel, pal.shellInner, pal.deep, pal.light);
+
+    drawCenteredTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
+                         SDL_Rect{panel.x, panel.y + 16, panel.w, 20},
+                         loadingTitle_, pal.fg);
+
+    // The cartridge: a row of blocks that fill left to right, with the leading
+    // block pulsing. Reads as "something is happening" even when the percentage
+    // is stuck on a slow drive.
+    constexpr int kBlocks = 12;
+    const int barW = panel.w - 64;
+    const int blockW = barW / kBlocks;
+    const int barX = panel.x + (panel.w - blockW * kBlocks) / 2;
+    const int barY = panel.y + 62;
+    const int filled = static_cast<int>(std::lround(loadingFrac_ * kBlocks));
+    for (int i = 0; i < kBlocks; ++i) {
+      SDL_Rect b {barX + i * blockW + 2, barY, blockW - 4, 22};
+      if (i < filled) {
+        Primitives::fillRect(controlRenderer_, b, pal.light);
+      } else if (i == filled) {
+        const float pulse = 0.5f + 0.5f * std::sin(static_cast<float>(nowMs) * 0.010f);
+        SDL_Color c {
+          static_cast<Uint8>(pal.mid.r + (pal.light.r - pal.mid.r) * pulse),
+          static_cast<Uint8>(pal.mid.g + (pal.light.g - pal.mid.g) * pulse),
+          static_cast<Uint8>(pal.mid.b + (pal.light.b - pal.mid.b) * pulse),
+          255};
+        Primitives::fillRect(controlRenderer_, b, c);
+      } else {
+        Primitives::fillRect(controlRenderer_, b, pal.deep);
+      }
+      Primitives::strokeRect(controlRenderer_, b, pal.mid);
+    }
+
+    char pct[16];
+    std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::lround(loadingFrac_ * 100.0)));
+    drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{panel.x, barY + 30, panel.w, 18}, pct, pal.fgSoft);
+
+    if (!loadingDetail_.empty()) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect{panel.x + 16, barY + 52, panel.w - 32, 18},
+                           loadingDetail_, pal.inkSoft);
+    }
+
+    // Same playful register as the boot console — a slow open should feel like
+    // the machine is doing something charming, not like it has died.
+    static const char* kQuips[] = {
+      "waking the cue gremlins",
+      "counting frames by hand",
+      "buttering the playhead",
+      "reticulating playlists",
+      "asking the drive nicely",
+      "warming the flux capacitor",
+      "alphabetising the sprockets",
+      "feeding the terrarium",
+    };
+    constexpr int kQuipCount = static_cast<int>(sizeof(kQuips) / sizeof(kQuips[0]));
+    const int quip = static_cast<int>(((nowMs / 1400) + loadingQuipSeed_) % kQuipCount);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{panel.x + 16, panel.y + panel.h - 34, panel.w - 32, 18},
+                         kQuips[quip], pal.mid);
+
+    SDL_RenderPresent(controlRenderer_);
+  }
+
   void renderDependencyPrompt() {
     if (!depPrompt_.active) {
       return;
@@ -326,6 +457,15 @@
                  SDL_Rect {modal.x + mw - 180, modal.y + 14, 170, 16},
                  "Ctrl+/ to close", pal.inkSoft);
 
+    // These MUST match handleKeyDown in app_input.ipp. Audited v0.81.5, where
+    // seven entries were found to be fiction: Ctrl+O was listed twice (it sets
+    // the out point and returns early, so it never opened a project — that is
+    // bare O), H/N/B/P named actions their keys do not perform (hold is E, N is
+    // NDI send, B adds a browser cue, P adds a pattern cue), G advertised an
+    // overlay feature that is parked, and Backspace was described as "clear all
+    // overlays" while it silently DELETES THE SELECTED CUE when no overlay is
+    // active. If you add or move a key binding, update this table in the same
+    // commit.
     struct ShortcutEntry { const char* key; const char* desc; };
     static const ShortcutEntry shortcuts[] = {
       {"Enter",           "Take selected cue live"},
@@ -350,18 +490,26 @@
       {"Ctrl+F",          "Find cue by name/number"},
       {"Ctrl+S",          "Save project"},
       {"Ctrl+Shift+E",    "Export bundled project"},
-      {"Ctrl+O",          "Open project"},
+      {"O",               "Open project"},
       {"Ctrl+N",          "New project"},
       {"L",               "Toggle loop"},
-      {"H",               "Toggle hold (pause at end)"},
+      {"E",               "Toggle hold (pause at end)"},
       {"X",               "Cycle end action"},
       {"K",               "Cycle color tag"},
-      {"G",               "Add as graphic overlay"},
-      {"Backspace",       "Clear all overlays"},
-      {"N",               "Toggle output window"},
+      {"J",               "Jump to the live cue"},
+      {"B",               "Blackout - instant, playback continues"},
+      {"C",               "Clear output - fade, stops playback"},
+      {"U",               "Clear overlays"},
+      {"N",               "Toggle NDI send"},
       {"F",               "Toggle fullscreen output"},
-      {"B",               "Toggle blackout"},
-      {"P",               "Open preferences"},
+      {"F11",             "Fullscreen the control window"},
+      {"Shift+B",         "Add browser cue"},
+      {"P",               "Add pattern cue"},
+      {"A / D",           "Cycle audio device / display"},
+      {"T",               "Run timecode"},
+      {"Shift+O",         "Toggle time overlay"},
+      {"[ / ]",           "Shorten / lengthen fade"},
+      {"Esc",             "Desk, then clear output, then quit"},
       {"Ctrl+/",          "This shortcut overlay"},
       {"+/-",             "Volume up/down"},
       {"Shift+drag",      "Snap warp corners to grid"},
