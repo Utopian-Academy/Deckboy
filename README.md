@@ -1,8 +1,13 @@
 Deckboy
 
-Open-source media playback and show control for live video workflows.
+An open-source video Swiss army knife — playback, show control, capture,
+conversion and signal plumbing in one native application.
 
-Deckboy is a native desktop application built for video engineers, AV technicians, and live operators who need a reliable way to organize media, trigger cues, loop content, and send video to production displays.
+Deckboy started as a cue deck: organize media, trigger clips, send video to a
+screen. It still does that, and it is what the interface is optimised for. But
+the same box now speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
+OSC, Art-Net and NMOS — which means most days it is not a playback tool at all.
+It is whatever the job needs at that moment.
 
 Load your media. Build your playlist. Take it live.
 
@@ -18,9 +23,13 @@ Load your media. Build your playlist. Take it live.
 
 Why Deckboy?
 
-Many video workflows need something between a basic media player and a full production suite.
+Most video work needs something between a basic media player and a full
+production suite — and it usually needs several somethings at once. A laptop
+that can play a cue, receive an NDI feed, convert an awkward file, generate a
+test pattern, restream to a CDN and put timecode on a spare audio channel is
+worth more than five utilities that each do one of those.
 
-Deckboy focuses on the everyday playback workflow:
+The everyday playback workflow is still the core:
 
 - Prepare media cues ahead of time
 - Trigger clips instantly during a show
@@ -28,7 +37,23 @@ Deckboy focuses on the everyday playback workflow:
 - Send video to dedicated fullscreen outputs
 - Control playback remotely from production tools
 
-Built as a native SDL3 application, Deckboy prioritizes predictable performance, simple deployment, and operator-focused controls.
+The rest of the toolkit is what makes it a Swiss army knife:
+
+- Convert media that will not play well, in place, without leaving the app
+  (NVENC where available, libx264 otherwise)
+- Inspect any file — codec, raster, frame rate, channels, duration — by
+  importing it
+- Generate test patterns and a test card to prove a chain end to end
+- Capture a camera, a window or a screen and treat it as a cue
+- Bridge formats: take NDI in and send SDI, ST 2110, SRT or RTMP out, in any
+  combination, simultaneously
+- Normalize loudness to EBU R128 when a client sends a clip mastered too quiet
+- Read the audio honestly with a content-authoritative stereo waveform
+- Generate LTC timecode on its own routable output
+
+Built as a native SDL3 application, Deckboy prioritizes predictable performance,
+simple deployment, and operator-focused controls. No installer, no account, no
+telemetry, and nothing phones home.
 
 Deckboy is fully open source. Windows is the primary development and release
 platform. macOS and Linux build from the same codebase and are verified on every
@@ -36,7 +61,7 @@ commit by CI; macOS additionally has a portable, self-contained app bundle.
 
 Built For
 
-Deckboy is designed for environments where reliable media playback matters:
+Environments where reliable media playback matters:
 
 - Live events
 - Corporate presentations
@@ -47,6 +72,17 @@ Deckboy is designed for environments where reliable media playback matters:
 - Projection systems
 - LED walls
 - Streaming productions
+
+And the jobs in between, which is where a Swiss army knife earns its keep:
+
+- Bench-testing a screen, projector or LED wall before anyone arrives
+- Proving a cable, converter or switcher input with a real test card
+- Getting an NDI source onto SDI, or an SDI-shaped workflow onto the network
+- Restreaming a local source to SRT and RTMP at the same time
+- Making a client's unplayable file playable, on site, minutes before doors
+- Checking what a file actually is before trusting it in a show
+- Putting timecode on a spare pair without disturbing the programme mix
+- Standing in as a playout source while the real system is being built
 
 Current Features
 
@@ -121,6 +157,16 @@ Sources
 - NDI source input
 - Test pattern generation, including a built-in test card
 
+Media Tools
+
+- In-app conversion for files that will not play well, using hardware encoding
+  where available and falling back to software
+- Media inspection on import: codec, container, raster, frame rate, audio
+  channels, sample rate and duration
+- Missing-media detection with folder relink, so a moved drive does not cost you
+  a rebuild
+- Test pattern generation, including a test card, for proving a signal chain
+
 Interface
 
 - Themeable, including high-contrast terminal themes suited to OLED panels
@@ -146,6 +192,12 @@ notarized, so a zip downloaded through a browser needs its quarantine flag
 cleared once:
 
     xattr -dr com.apple.quarantine Deckboy.app
+
+Linux builds are portable as well, via tools/package_linux.sh: a tar.gz holding
+the binary, its libraries, ffmpeg and the app data. Extract it anywhere and run
+./deckboy. Graphics, display server, audio and the C/C++ runtime deliberately
+come from the host — those must match the machine actually running, and a
+bundled libGL cannot load your GPU driver.
 
 Not everything is on every platform. Rather than hide it:
 
