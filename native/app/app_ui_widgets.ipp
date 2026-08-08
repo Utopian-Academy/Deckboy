@@ -210,9 +210,21 @@
         }});
       }
     }
-    contextItems_.push_back({"— delete cue", {80, 30, 30, 255}, [this, deckIdx, cueIdx]() {
-      requestDeleteCueIndices(deckIdx, {cueIdx});
-    }});
+    // Deleting the cue that is ON AIR is worth a warning, but the warning
+    // belongs in the LABEL, not in a second click the menu cannot deliver.
+    // Picking a named item out of a right-click menu is already deliberate, so
+    // this deletes on the first click and says plainly what it is about to do.
+    {
+      const bool isLive = cueIdx == deck.activeIndex ||
+        std::find(deck.overlayActiveIndices.begin(), deck.overlayActiveIndices.end(), cueIdx) !=
+          deck.overlayActiveIndices.end();
+      contextItems_.push_back({
+        isLive ? "— delete LIVE cue" : "— delete cue",
+        isLive ? SDL_Color{140, 30, 30, 255} : SDL_Color{80, 30, 30, 255},
+        [this, deckIdx, cueIdx]() {
+          requestDeleteCueIndices(deckIdx, {cueIdx}, /*alreadyConfirmed=*/true);
+        }});
+    }
 
     // Position menu so it fits on screen
     int winW = 0, winH = 0;
