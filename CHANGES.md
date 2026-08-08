@@ -1,5 +1,139 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-08 — v0.83.0 (NMOS IS-04/IS-05: the 2110 senders become discoverable)
+
+### The gap this closes
+An ST 2110 flow is undiscoverable on its own. Until now the only way a receiver
+learned about a Deckboy flow was an operator copying an SDP out of the settings
+modal and pasting it into a device by hand. Facilities do not work that way: a
+node registers itself with a Registration & Discovery System, and a broadcast
+controller connects it through IS-05. This is the difference between "emits
+valid packets" and "shows up in the plant".
+
+New `native/platform/nmos_node.{hpp,cpp}`:
+
+- **IS-04 v1.3 Node API** over HTTP — node, devices, sources, flows, senders.
+  Receivers are advertised as an empty list, because Deckboy is a source device
+  and an honest empty list is what stops a controller offering to route into it.
+- **IS-04 registration** — POSTs the resource tree in dependency order
+  (node → device → source → flow → sender; a registry rejects a flow whose
+  source it has not seen), then heartbeats every 5 s against the registry's 12 s
+  default health timeout. A 404 on heartbeat means the registry restarted and
+  forgot us, which triggers automatic re-registration rather than an error state.
+  A missing registry backs off 1s→30s instead of hammering the network.
+- **IS-05 v1.1 Connection API** — constraints / staged / active / transportfile
+  per sender. The transportfile is the *same* SDP the settings modal shows:
+  `st2110ConfigForOutput()` is now the single source of truth, so a receiver can
+  never be handed two different descriptions of one flow.
+- **IS-05 PATCH really reconfigures the sender.** `master_enable` and
+  `transport_params` with `activate_immediate` are applied to the actual
+  `OutputTarget` — moving the multicast group over IS-05 moves the stream, and
+  the paired audio leg follows the video base port by the +2 convention. The
+  handler blocks until the main thread has genuinely applied the change; telling
+  a controller a route moved before it had is the exact lie that makes a plant
+  untrustworthy.
+- **Resource ids are UUIDv5** derived from a fixed Deckboy namespace and a
+  stable per-output seed, so a controller's saved route survives an app restart
+  with nothing persisted to disk. Verified byte-identical against Python's
+  `uuid.uuid5` on three seeds.
+
+Settings: Video Outputs → Devices, directly under ST 2110 (it is meaningless
+without it). Remote command `NMOS ON|OFF|STATUS|REGISTRY|PORT|NIC`, mirroring
+the existing `ST2110` command. Actions 710–714; next free 715+.
+
+### Verified — AMWA official conformance suite
+Run against the real app with **AMWA's own NMOS Testing Tool** (`IS-05-01`,
+Connection Management API): **36 pass, 2 fail, 23 not applicable**. The 23 are
+all receiver tests — Deckboy is a source device and advertises an empty receiver
+list. The 2 failures are the deliberate scheduled-activation refusal below.
+
+The first run of that suite was **19 failures**, and every one was a real defect
+worth having found:
+
+- **`/transporttype` was missing entirely.** Controllers and the test suite
+  classify a sender from that endpoint; with no answer they treat it as having
+  no transport and skip all transport-specific handling. One missing endpoint
+  was suppressing 26 tests.
+- **`staged` and `active` were the same thing.** A PATCH applied straight to the
+  live sender and `GET /staged` answered from the live config, which makes a
+  controller's stage-then-activate workflow silently impossible — it stages a
+  change, reads it back, and sees its edit gone. There is now a real staged
+  scratch state per sender, with per-field "was set" flags so a PATCH touching
+  only `master_enable` cannot blank a previously staged destination.
+- **Unknown fields were ignored.** `{"bad":"data"}` returned 200; a controller
+  with a typo was told it had succeeded. Now 400.
+- **`/constraints` declared an invalid parameter combination** — the RTP core
+  five plus a lone `fec_enabled`/`rtcp_enabled`. IS-05 treats FEC and RTCP as
+  all-or-nothing groups, so a partial declaration is invalid rather than a
+  modest subset. Both removed, from constraints and from staged/active (which
+  must list the same keys).
+- **`/active` reported a settled null activation** instead of the activation
+  that produced its current state.
+- **`OPTIONS` answered 204**, which conformance tooling reads as the endpoint
+  declining to answer. Now 200.
+- **`transporttype` reported the `rtp.mcast` subclass.** The multicast
+  subclassification belongs on the IS-04 sender resource and in the SDP; the
+  base URN belongs here.
+
+Also fixed, found while doing the above: a local `quoted()` JSON helper was
+colliding with `std::quoted` through ADL, silently resolving to the wrong
+overload at some call sites. Renamed to `jsonQuote()`.
+
+Also verified against a mock registry driving the real app: 8 resources
+registered in correct order with zero dependency violations, heartbeats at
+exactly 5 s, recovery from a registry that was down at startup, an IS-05 PATCH
+moving the group to 239.99.1.5:21000 with the served SDP following it (audio to
+21002), and `master_enable:false` genuinely disarming the output. Graceful
+shutdown while registering takes 246 ms — `shutdownNmosNode()` releases any
+IS-05 caller parked in the patch handler *before* joining the node's threads,
+which would otherwise deadlock main against the HTTP thread.
+
+### Not implemented — do not claim it
+- **No mDNS / DNS-SD.** The registry is configured by URL. Deckboy cannot find a
+  registry on its own, and cannot be found in peer-to-peer mode. This is the
+  single biggest remaining gap.
+- **No scheduled activation.** `activate_scheduled_absolute` / `_relative`
+  return 501; honouring them needs the PTP clock to gate the switch, and taking
+  a source at the wrong instant is worse than refusing.
+- No IS-05 bulk staging (501), no receivers, no IS-07/08, no HTTPS, no IS-10 auth.
+- The underlying 2110 caveats stand: not PTP-locked, not narrow-model paced.
+- **`IS-04-01` (Node API suite) has not been run**, only `IS-05-01`. It needs
+  the tool's own registry and DNS-SD, which we do not support.
+
+### Verified — reference registry interop
+`nmos-cpp` (the AMWA reference implementation) run on a separate Linux machine.
+Deckboy registered its full resource tree; the registry held 1 device, 2 sources,
+2 flows, 2 senders, 0 receivers. That machine then fetched the SDP over the LAN
+via the advertised `manifest_href` and issued an IS-05 PATCH moving the group to
+239.77.7.7:22000, which the served SDP reflected. The registry's own
+`registration_expiry_interval` is 12 s, the timeout our 5 s heartbeat was sized
+against.
+
+That test caught a bug nothing local could: with the network set to LOCAL ONLY
+(the default) Deckboy still registered, publishing an `href` to its LAN address
+while the listener was bound to 127.0.0.1 — a controller would find the sender
+and fail to reach it. Registering an unreachable node is worse than not
+registering, so NMOS now **withholds registration** in that configuration and
+says why in the settings status line and in a toast when armed.
+
+### SDP origin line no longer claims loopback
+With no explicit ST 2110 interface configured, every SDP said
+`o=- 0 0 IN IP4 127.0.0.1` — describing the session as originating on the
+receiver's own loopback. The `c=` connection line a receiver actually joins on
+was always correct, so this was cosmetic, but it is exactly the line an engineer
+reads when a stream misbehaves.
+
+It now resolves the local address by asking the routing table which interface
+reaches **the stream's own destination group**. Probing a generic internet
+address instead would return the default route, which on a machine running a VPN
+is the tunnel — the SDP would then name an interface carrying no 2110 at all.
+Verified on a host with ProtonVPN up: origin resolves to the LAN NIC
+(192.168.1.50), not the tunnel (10.2.0.2) and not loopback.
+
+Memoised per destination with a 30 s refresh: SDPs are rebuilt every time the
+NMOS sender snapshot is taken, so resolving per call would open a socket at
+frame rate — the same mistake as the v0.82.1 pocket-test cache, avoided here.
+
 ## 2026-08-07 — v0.82.1 (pocket-test no longer thrashes the machine)
 
 ### The pocket-test card was churning tens of gigabytes

@@ -440,10 +440,40 @@ struct Project {
   int focusedOutputIndex = 0;                 // which output is selected in settings UI
 
   // -- UI preferences ----------------------------------------------------------
+  // -- SMPTE LTC generator (timecode OUT) --------------------------------------
+  // Deckboy could always CHASE timecode but never generate it, so it could only
+  // ever be a slave in a rig. This makes it a master: LTC is encoded to a real
+  // audio device, which is how every other box on the floor expects to receive
+  // it (feed it to a spare output pair, or an interface's dedicated TC out).
+  bool ltcOutputEnabled = false;
+  std::string ltcOutputDeviceName;         // empty = system default playback device
+  double ltcOutputFps = 30.0;              // 24 / 25 / 29.97 / 30
+  // LTC must be individually routable: it is a control signal, not programme
+  // audio, and putting it in the show mix is how you end up broadcasting a
+  // buzzsaw. It gets its own device AND its own channel on that device, with
+  // every other channel held silent — so a spare pair on the interface can
+  // carry timecode while the mix runs elsewhere.
+  int ltcOutputChannel = 0;                // 0-based channel index LTC is placed on
+  int ltcOutputChannelCount = 2;           // channels to open on that device
+
   // PTP domain for ST 2110 media-clock alignment. 127 is the SMPTE ST 2059-2
   // default; 0 is the generic IEEE 1588 default. Machine-wide rather than
   // per-output, because there is one clock and one PTP client.
   int ptpDomain = 127;
+
+  // AMWA NMOS IS-04/IS-05. An ST 2110 flow is undiscoverable on its own — a
+  // facility expects the node to register itself with a Registration &
+  // Discovery System and to be connectable through IS-05, not for an operator
+  // to hand-carry an SDP. Machine-wide for the same reason as ptpDomain: one
+  // node, advertising every armed 2110 sender on the box.
+  //
+  // NOTE: there is no mDNS/DNS-SD here, so the registry cannot be discovered
+  // automatically — it is configured by URL. Leaving the URL empty still serves
+  // the Node API and IS-05 locally (useful on the bench) but registers nowhere.
+  bool nmosEnabled = false;
+  std::string nmosRegistryUrl;             // e.g. "http://192.168.1.50:8010"
+  int nmosPort = 3210;                     // port the Node + Connection API serve on
+  std::string nmosInterfaceName = "eth0";  // name reported in interface_bindings
 
   // PARKED — reserved for Super Deckboy, read by nothing today.
   // It is set (and forced true when a show has >1 deck), saved and loaded, but
