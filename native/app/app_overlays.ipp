@@ -362,8 +362,32 @@
     SDL_RenderFillRect(controlRenderer_, &overlay);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    // Dialog panel
-    const int kDW = 660;
+    // Button width is derived from the MEASURED labels in the current font, and
+    // the dialog is then sized to hold them — not the other way round. The old
+    // code fixed the dialog at 660 and the buttons at 184, which left the three
+    // labels nearly filling the panel: fine in Segoe UI, but "NEW SHOW FILE"
+    // and "OPEN SAVED" ellipsized under the wider Arial/Liberation used on macOS
+    // and Linux ("NEW SHOW F...", "OPEN SAVED..."). This is the splash text the
+    // operator sees first, so it truncating reads as a broken build.
+    const char* kStartupLabels[3] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED"};
+    int startupWidest = 0;
+    for (const char* label : kStartupLabels) {
+      int lw = 0, lh = 0;
+      if (fontBase_) {
+        TTF_GetStringSize(fontBase_, label, std::strlen(label), &lw, &lh);
+      }
+      startupWidest = std::max(startupWidest, lw);
+    }
+    // +28 covers drawCenteredText's inset and the framed-panel bevel; 184 keeps
+    // the original size as a floor so Segoe UI is unchanged.
+    const int startupBtnW = std::max(184, startupWidest + 28);
+    const int startupBtnGap = 10;
+    const int startupMargin = 36;
+    const int startupRowW = startupBtnW * 3 + startupBtnGap * 2;
+
+    // Dialog panel — wide enough for the button row plus margins, never narrower
+    // than the original 660.
+    const int kDW = std::max(660, startupRowW + startupMargin * 2);
     const int kDH = 440;
     SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
     Primitives::drawFramedPanel(controlRenderer_, dialog, pal.shellInner, pal.deep, pal.shellOuter);
@@ -402,13 +426,14 @@
                    "No previous show file found at startup path.", dlgSub);
     }
 
-    // Buttons
+    // Buttons — centred as a row using the measured width computed above, so
+    // they stay inside the (possibly widened) dialog on every font.
     int buttonY = dialog.y + 270;
-    int buttonW = 184;
     int buttonH = 58;
-    startupNewBtn_ = {dialog.x + 36, buttonY, buttonW, buttonH};
-    startupLoadBtn_ = {startupNewBtn_.x + buttonW + 10, buttonY, buttonW, buttonH};
-    startupOpenSavedBtn_ = {startupLoadBtn_.x + buttonW + 10, buttonY, buttonW, buttonH};
+    int buttonRowX = dialog.x + (dialog.w - startupRowW) / 2;
+    startupNewBtn_ = {buttonRowX, buttonY, startupBtnW, buttonH};
+    startupLoadBtn_ = {startupNewBtn_.x + startupBtnW + startupBtnGap, buttonY, startupBtnW, buttonH};
+    startupOpenSavedBtn_ = {startupLoadBtn_.x + startupBtnW + startupBtnGap, buttonY, startupBtnW, buttonH};
 
     Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, pal.mid,
                                 pal.deep, pal.light);
@@ -421,7 +446,9 @@
 
     Primitives::drawFramedPanel(controlRenderer_, startupOpenSavedBtn_, pal.mid,
                                 pal.deep, pal.light);
-    drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED...", pal.deep, startupOpenSavedBtn_);
+    // "OPEN SAVED" without the trailing "..." — it cost width for no meaning
+    // (this is a button; clicking it opens the picker regardless).
+    drawCenteredText(controlRenderer_, fontBase_, "OPEN SAVED", pal.deep, startupOpenSavedBtn_);
 
     SDL_Color hintInk = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontSmall_,
