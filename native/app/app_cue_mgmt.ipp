@@ -862,78 +862,109 @@
     importPaths({rawPath});
   }
 
-  void importWithPicker() {
-    pushUndoSnapshot();
-    if (pendingImport_.valid() &&
-        pendingImport_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-      return;  // already picking
+  // ── Native file dialogs (SDL3) ──────────────────────────────────────────
+  // SDL_ShowOpenFileDialog and friends deliver their result through a C
+  // callback. It fires on the main thread during event pumping, but we do NOT
+  // act on it inline — a picked file kicks off importing or project loading,
+  // and running that re-entrantly inside SDL's event pump is asking for
+  // trouble. Instead the callback marshals a closure into sdlDialogActions_,
+  // which drainSdlDialogActions() (update loop) runs at a safe point.
+  //
+  // filelist == nullptr means the dialog errored; a non-null list whose first
+  // entry is nullptr means the user cancelled. Both collapse to an empty vector
+  // here, and every result handler treats "no files" as "do nothing".
+  struct SdlDialogRequest {
+    App* app = nullptr;
+    std::function<void(std::vector<std::string>)> onResult;
+  };
+
+  static void sdlDialogTrampoline(void* userdata, const char* const* filelist, int /*filter*/) {
+    std::unique_ptr<SdlDialogRequest> req(static_cast<SdlDialogRequest*>(userdata));
+    std::vector<std::string> files;
+    if (filelist) {
+      for (int i = 0; filelist[i] != nullptr; ++i) {
+        if (filelist[i][0] != '\0') {
+          files.emplace_back(filelist[i]);
+        }
+      }
     }
-    pendingImport_ = std::async(std::launch::async, [this] {
-      return pickFiles();
-    });
+    App* app = req->app;
+    auto cb = std::move(req->onResult);
+    {
+      std::lock_guard<std::mutex> lock(app->sdlDialogMutex_);
+      app->sdlDialogActions_.emplace_back(
+        [cb = std::move(cb), files = std::move(files)]() mutable { cb(files); });
+      app->sdlDialogOpen_ = false;
+    }
   }
 
-  std::optional<fs::path> pickProjectPath(bool saveMode,
-                                          std::string initialPath = {},
-                                          std::string dialogTitle = {}) {
-    if (dialogTitle.empty()) {
-      dialogTitle = saveMode ? "Save Deckboy playlist" : "Open Deckboy playlist";
+  // Run every queued dialog result. Main thread, called from the update loop.
+  void drainSdlDialogActions() {
+    std::vector<std::function<void()>> actions;
+    {
+      std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+      if (sdlDialogActions_.empty()) {
+        return;
+      }
+      actions.swap(sdlDialogActions_);
     }
-#ifdef _WIN32
-    // TopMost owner form forces the native dialog to the front of the z-order
-    // (it runs in a separate powershell process with no parent, so otherwise it
-    // can open behind the Deckboy window). See pickFiles() for the same fix.
-    const std::string ownerPrelude =
-      "Add-Type -AssemblyName System.Windows.Forms;"
-      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;";
-    std::string script = saveMode
-      ? ownerPrelude + "$dialog = New-Object System.Windows.Forms.SaveFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';$r=$dialog.ShowDialog($o);$o.Close();if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName"
-      : ownerPrelude + "$dialog = New-Object System.Windows.Forms.OpenFileDialog;$dialog.Title = '" + dialogTitle + "';$dialog.Filter = 'Deckboy Playlist (*.deckboy)|*.deckboy';$r=$dialog.ShowDialog($o);$o.Close();if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };$dialog.FileName";
-    auto text = readAllText({"powershell.exe", "-NoProfile", "-Command", script});
-#elif __APPLE__
-    auto text = saveMode
-      ? readAllText({
-          "osascript",
-          "-e",
-          "set targetFile to choose file name with prompt \"" + dialogTitle + "\"",
-          "-e",
-          "return POSIX path of targetFile"
-        })
-      : readAllText({
-          "osascript",
-          "-e",
-          "set pickedFile to choose file with prompt \"" + dialogTitle + "\"",
-          "-e",
-          "return POSIX path of pickedFile"
-        });
-#else
-    auto text = saveMode
-      ? readAllText({
-          "zenity",
-          "--file-selection",
-          "--save",
-          "--confirm-overwrite",
-          "--title=" + dialogTitle,
-          "--filename",
-          initialPath
-        })
-      : readAllText({
-          "zenity",
-          "--file-selection",
-          "--title=" + dialogTitle,
-          "--filename",
-          initialPath
-        });
-#endif
-    if (!text) {
-      return std::nullopt;
+    for (auto& action : actions) {
+      action();
     }
-    std::string value = trim(*text);
-    if (value.empty()) {
-      return std::nullopt;
-    }
-    return normalizeProjectPath(fs::absolute(value));
   }
+
+  void showOpenFileDialog(const std::vector<SDL_DialogFileFilter>& filters, bool allowMany,
+                          std::function<void(std::vector<std::string>)> onResult) {
+    if (sdlDialogOpen_) {
+      return;  // one native dialog at a time; a second click is a no-op
+    }
+    sdlDialogOpen_ = true;
+    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    SDL_ShowOpenFileDialog(&App::sdlDialogTrampoline, req, controlWindow_,
+                           filters.empty() ? nullptr : filters.data(),
+                           static_cast<int>(filters.size()), nullptr, allowMany);
+  }
+
+  void showSaveFileDialog(const std::vector<SDL_DialogFileFilter>& filters,
+                          std::function<void(std::vector<std::string>)> onResult) {
+    if (sdlDialogOpen_) {
+      return;
+    }
+    sdlDialogOpen_ = true;
+    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    SDL_ShowSaveFileDialog(&App::sdlDialogTrampoline, req, controlWindow_,
+                           filters.empty() ? nullptr : filters.data(),
+                           static_cast<int>(filters.size()), nullptr);
+  }
+
+  void showFolderDialog(std::function<void(std::vector<std::string>)> onResult) {
+    if (sdlDialogOpen_) {
+      return;
+    }
+    sdlDialogOpen_ = true;
+    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    SDL_ShowOpenFolderDialog(&App::sdlDialogTrampoline, req, controlWindow_, nullptr, false);
+  }
+
+  void importWithPicker() {
+    pushUndoSnapshot();
+    // The media filter is a convenience, not a restriction — "All files" stays
+    // available in the native dialog, and the previous osascript picker had no
+    // filter at all, so nothing the operator could pick before is blocked now.
+    static const std::vector<SDL_DialogFileFilter> kMediaFilters = {
+      {"Media files", "mp4;mov;m4v;mkv;avi;webm;mpg;mpeg;m2v;ts;wmv;flv;"
+                      "png;jpg;jpeg;bmp;gif;tif;tiff;webp;"
+                      "wav;mp3;aac;m4a;flac;ogg;aiff"},
+      {"All files", "*"},
+    };
+    showOpenFileDialog(kMediaFilters, /*allowMany=*/true,
+                       [this](std::vector<std::string> files) {
+                         if (!files.empty()) {
+                           importPaths(files);
+                         }
+                       });
+  }
+
 
   void openProjectFromPath(const fs::path& projectPath) {
     fs::path normalized = normalizeProjectPath(projectPath);
@@ -1018,136 +1049,42 @@
     }
   }
 
+  // One shared filter for the .deckboy project/playlist pickers.
+  static const std::vector<SDL_DialogFileFilter>& deckboyProjectFilters() {
+    static const std::vector<SDL_DialogFileFilter> filters = {
+      {"Deckboy playlist", "deckboy"},
+      {"All files", "*"},
+    };
+    return filters;
+  }
+
   void openProjectFromPicker() {
-    if (pendingProjectOpen_.valid() &&
-        pendingProjectOpen_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-      return;
-    }
-    std::string ip = currentProjectFile_.string();  // capture on main thread — no race
-    pendingProjectOpen_ = std::async(std::launch::async, [this, ip = std::move(ip)] {
-      return pickProjectPath(false, ip);
-    });
+    showOpenFileDialog(deckboyProjectFilters(), /*allowMany=*/false,
+                       [this](std::vector<std::string> files) {
+                         if (!files.empty()) {
+                           openProjectFromPath(normalizeProjectPath(fs::path(files[0])));
+                         }
+                       });
   }
 
   void saveProjectAsFromPicker() {
-    if (pendingProjectSaveAs_.valid() &&
-        pendingProjectSaveAs_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-      return;
-    }
-    std::string ip = currentProjectFile_.string();  // capture on main thread — no race
-    pendingProjectSaveAs_ = std::async(std::launch::async, [this, ip = std::move(ip)] {
-      return pickProjectPath(true, ip);
-    });
+    showSaveFileDialog(deckboyProjectFilters(),
+                       [this](std::vector<std::string> files) {
+                         if (files.empty()) {
+                           return;
+                         }
+                         fs::path chosen = normalizeProjectPath(fs::path(files[0]));
+                         // The native save dialog does not force an extension;
+                         // add .deckboy if the operator did not type one, so a
+                         // saved show is always openable by the .deckboy filter.
+                         if (chosen.extension() != ".deckboy") {
+                           chosen += ".deckboy";
+                         }
+                         currentProjectFile_ = chosen;
+                         saveProjectNow(true);
+                       });
   }
 
-  std::vector<std::string> pickFiles() {
-#ifdef _WIN32
-    auto text = readAllText({
-      "powershell.exe",
-      "-NoProfile",
-      "-Command",
-      "Add-Type -AssemblyName System.Windows.Forms;"
-      // Owner form is TopMost so the native dialog opens IN FRONT of Deckboy
-      // instead of behind it (the picker runs in a separate powershell process
-      // with no parent window, so without this it lands at the back of the
-      // z-order and looks like nothing happened).
-      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;"
-      "$dialog = New-Object System.Windows.Forms.OpenFileDialog;"
-      "$dialog.Multiselect = $true;"
-      "$r=$dialog.ShowDialog($o);$o.Close();"
-      "if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };"
-      "$dialog.FileNames -join \"`n\""
-    });
-#elif __APPLE__
-    auto text = readAllText({
-      "osascript",
-      "-e",
-      "set filesPicked to choose file with multiple selections allowed true",
-      "-e",
-      "set outputLines to {}",
-      "-e",
-      "repeat with currentFile in filesPicked",
-      "-e",
-      "set end of outputLines to POSIX path of currentFile",
-      "-e",
-      "end repeat",
-      "-e",
-      "set AppleScript's text item delimiters to linefeed",
-      "-e",
-      "return outputLines as text"
-    });
-#else
-    auto text = readAllText({
-      "zenity",
-      "--file-selection",
-      "--multiple",
-      "--separator=|",
-      "--title=Import media into Deckboy Native"
-    });
-#endif
-
-    if (!text) {
-      return {};
-    }
-
-    std::vector<std::string> paths;
-#ifdef __linux__
-    for (const auto& value : splitByChar(*text, '|')) {
-      if (!trim(value).empty()) {
-        paths.push_back(trim(value));
-      }
-    }
-#else
-    for (const auto& line : splitLines(*text)) {
-      if (!trim(line).empty()) {
-        paths.push_back(trim(line));
-      }
-    }
-#endif
-    return paths;
-  }
-
-  std::optional<fs::path> pickFolder(std::string dialogTitle) {
-#ifdef _WIN32
-    // Same TopMost owner-form trick as pickFiles() — see the comment there.
-    auto text = readAllText({
-      "powershell.exe",
-      "-NoProfile",
-      "-Command",
-      "Add-Type -AssemblyName System.Windows.Forms;"
-      "$o=New-Object System.Windows.Forms.Form;$o.TopMost=$true;$o.ShowInTaskbar=$false;$o.Opacity=0;$o.Show()|Out-Null;$o.Activate()|Out-Null;"
-      "$dialog = New-Object System.Windows.Forms.FolderBrowserDialog;"
-      "$dialog.Description = '" + dialogTitle + "';"
-      "$dialog.ShowNewFolderButton = $false;"
-      "$r=$dialog.ShowDialog($o);$o.Close();"
-      "if ($r -ne [System.Windows.Forms.DialogResult]::OK) { exit 1 };"
-      "$dialog.SelectedPath"
-    });
-#elif __APPLE__
-    auto text = readAllText({
-      "osascript",
-      "-e",
-      "set pickedFolder to choose folder with prompt \"" + dialogTitle + "\"",
-      "-e",
-      "return POSIX path of pickedFolder"
-    });
-#else
-    auto text = readAllText({
-      "zenity",
-      "--file-selection",
-      "--directory",
-      "--title=" + dialogTitle
-    });
-#endif
-    if (!text) {
-      return std::nullopt;
-    }
-    std::string picked = trim(*text);
-    if (picked.empty()) {
-      return std::nullopt;
-    }
-    return fs::path(picked);
-  }
 
   void applyDeckDefaultsToCue(Cue& cue, const Deck& deck) {
     cue.loop = deck.playlistDefaultLoop;
