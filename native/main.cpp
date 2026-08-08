@@ -136,6 +136,7 @@
 #ifndef _WIN32
 #include <arpa/inet.h>
 #include <dlfcn.h>
+#include <execinfo.h>  // backtrace / backtrace_symbols_fd in deckboyPosixCrashHandler
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -6628,10 +6629,125 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
 }
 #endif
 
+#ifndef _WIN32
+// POSIX counterpart to deckboyCrashHandler above. Without it a crash on Linux
+// or macOS leaves NOTHING behind — no faulting module, no stack, nothing — so
+// the platform where we have the least debugging history was also the platform
+// that told us the least. Same contract as the Windows handler: this is
+// diagnosis, not recovery. The process still dies, it just says why.
+//
+// Everything here runs in a signal handler, so it is restricted to
+// async-signal-safe calls: open/write/_exit and backtrace_symbols_fd. That is
+// why the log path is resolved ONCE at startup into a fixed buffer rather than
+// being built with std::filesystem when the fault arrives — allocating inside a
+// SIGSEGV handler is how a crash reporter becomes a second crash.
+static char g_crashLogPath[1024] = {0};
+
+extern "C" void deckboyPosixCrashHandler(int sig) {
+  static volatile sig_atomic_t handled = 0;
+  if (handled) {
+    _exit(128 + sig);           // a second fault while logging the first
+  }
+  handled = 1;
+
+  if (g_crashLogPath[0] != '\0') {
+    const int fd = open(g_crashLogPath, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (fd >= 0) {
+      auto emit = [fd](const char* text) {
+        ssize_t ignored = write(fd, text, std::strlen(text));
+        (void) ignored;
+      };
+      emit("\n=== Deckboy crash ");
+      emit(deckboy::core::version::kVersionTag);
+      emit(" ===\nsignal: ");
+      switch (sig) {
+        case SIGSEGV: emit("SIGSEGV (invalid memory access)"); break;
+        case SIGBUS:  emit("SIGBUS (bad address / misaligned)"); break;
+        case SIGFPE:  emit("SIGFPE (arithmetic fault)"); break;
+        case SIGILL:  emit("SIGILL (illegal instruction)"); break;
+        case SIGABRT: emit("SIGABRT (abort / uncaught exception)"); break;
+        default:      emit("unknown"); break;
+      }
+      emit("\nstack:\n");
+      void* frames[62];
+      const int captured = backtrace(frames, 62);
+      backtrace_symbols_fd(frames, captured, fd);
+      close(fd);
+    }
+  }
+
+  // Re-raise with the default handler so the shell and any supervisor still see
+  // a genuine crash (and a core file is still produced if enabled), rather than
+  // a tidy exit code that hides the fault.
+  signal(sig, SIG_DFL);
+  raise(sig);
+}
+
+static void installPosixCrashHandler() {
+  const std::string path = (Paths::dataDir() / "deckboy-crash.log").string();
+  if (path.size() < sizeof(g_crashLogPath)) {
+    std::memcpy(g_crashLogPath, path.c_str(), path.size() + 1);
+  }
+  for (int sig : {SIGSEGV, SIGBUS, SIGFPE, SIGILL, SIGABRT}) {
+    struct sigaction sa {};
+    sa.sa_handler = deckboyPosixCrashHandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESETHAND;
+    sigaction(sig, &sa, nullptr);
+  }
+}
+#endif
+
+// Put the executable's own directory on PATH, ahead of everything else.
+//
+// Deckboy spawns helpers by bare name ("ffmpeg", "ffprobe"), and on POSIX that
+// goes through execvp, which searches PATH and nothing else. A portable bundle
+// therefore ships an ffmpeg that the app can never actually find: it falls
+// through to a system copy if one exists, and simply fails to decode on a clean
+// machine — which is exactly the machine a portable build is for.
+//
+// Windows does not need this (CreateProcess searches the application directory
+// first), but doing it everywhere keeps one behaviour to reason about.
+//
+// In a dev build the executable's directory holds no ffmpeg, so the lookup
+// falls straight through to the system one and nothing changes.
+static void prependExecutableDirToPath() {
+  const std::filesystem::path exe = deckboy::core::Paths::executablePath();
+  if (exe.empty()) {
+    return;
+  }
+  const std::string dir = exe.parent_path().string();
+  if (dir.empty()) {
+    return;
+  }
+#ifdef _WIN32
+  const char kSep = ';';
+#else
+  const char kSep = ':';
+#endif
+  const char* existing = std::getenv("PATH");
+  std::string updated = dir;
+  if (existing && existing[0] != '\0') {
+    updated += kSep;
+    updated += existing;
+  }
+#ifdef _WIN32
+  _putenv_s("PATH", updated.c_str());
+#else
+  setenv("PATH", updated.c_str(), 1);
+#endif
+}
+
 int runDeckboyMain(int argc, char** argv) {
 #ifdef _WIN32
   SetUnhandledExceptionFilter(deckboyCrashHandler);
+#else
+  installPosixCrashHandler();
 #endif
+  // Before anything that might spawn ffmpeg — including --self-check, which
+  // reports whether ffmpeg is reachable and must therefore report the truth
+  // about THIS build's lookup path.
+  prependExecutableDirToPath();
   if (argc > 1 && std::string_view(argv[1]) == "--version") {
     printDeckboyVersion(std::cout);
     return 0;
