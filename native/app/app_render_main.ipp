@@ -957,7 +957,25 @@
           auto [fill, ink] = telemetryColors(telemetryLabel);
           drawUIPanel(badge, fill, pal.deep, pal.mid);
           auto [labelText, valueText] = splitTelemetryLabel(telemetryLabel);
-          int labelW = std::max(40, badge.w / 2 - 6);
+          // Size the label from the text it actually contains, not from half
+          // the badge. The fixed half-width was tuned to Segoe UI: on Linux
+          // (Liberation/DejaVu, both wider) the same badges rendered
+          // "OUTP...", "DEC...", "STRE..." at an identical window size, and
+          // macOS would differ again. Measuring makes the split font- and
+          // platform-independent, and it cannot crowd Windows — a narrower
+          // font simply measures smaller and hands the surplus to the value.
+          //
+          // The value is right-aligned and short ("OFF", "25.9", "--.-"), so it
+          // gets a reserved minimum and the label takes what is left.
+          constexpr int kBadgeValueMinW = 44;
+          int measuredLabelW = 0, measuredLabelH = 0;
+          TTF_GetStringSize(fontSmall_, labelText.c_str(), labelText.size(),
+                            &measuredLabelW, &measuredLabelH);
+          const int labelWCap = std::max(40, badge.w - kBadgeValueMinW - 16);
+          // +4: drawTextSafe insets the rect before laying out, so a rect
+          // measured to the exact string width still ellipsizes. Same lesson as
+          // the on-air badges in app_render_control.ipp.
+          int labelW = std::clamp(measuredLabelW + 4, 40, labelWCap);
           SDL_Rect badgeLabelRect {badge.x + 6, badge.y, labelW, badge.h};
           SDL_Rect badgeValueRect {badgeLabelRect.x + badgeLabelRect.w + 4, badge.y,
                                    std::max(20, badge.w - (badgeLabelRect.w + 16)), badge.h};
@@ -1596,7 +1614,22 @@
       // kCueSummaryH sized to hold up to 5 text rows (name + meta + source + tech + detail)
       // with heights large enough to contain fontBase_/fontSmall_ without bottom-clipping.
       constexpr int kCueSummaryH = 180;
-      constexpr int kSummaryBtnW = 60;
+      // Width comes from the widest label MEASURED in the current font, not a
+      // constant. 60px was tuned to Segoe UI; under Liberation/DejaVu on Linux
+      // "PASTE" and "RESET" rendered as "PAS..." and "RES...". Measuring keeps
+      // one layout correct on every platform, and on Windows the widest label
+      // measures under the old 60 so nothing moves.
+      int kSummaryBtnW = 60;
+      {
+        int widest = 0;
+        for (const char* label : {"COPY", "PASTE", "RESET", "CONVERT"}) {
+          int lw = 0, lh = 0;
+          TTF_GetStringSize(fontSmall_, label, std::strlen(label), &lw, &lh);
+          widest = std::max(widest, lw);
+        }
+        // +14 for the panel bevel and drawCenteredTextSafe's inset.
+        kSummaryBtnW = std::max(60, widest + 14);
+      }
       constexpr int kSummaryBtnGap = 6;
       constexpr int kSummaryPad = 6;   // inner padding inside the summary panel
       SDL_Rect summaryRect {ctrl.x + kInspectorInset, ctrlSettingsY, kCtrlW - kInspectorInset * 2, kCueSummaryH};
