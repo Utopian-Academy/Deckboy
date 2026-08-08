@@ -3647,6 +3647,13 @@
   // the project. Cheap when nothing changed — setSenders() early-outs on an
   // unchanged list, so this does not spam the registry at frame rate.
   void syncNmosNode() {
+    // Hard early-out for the overwhelmingly common case: NMOS off and never
+    // started. This runs on every update tick, and a show that never touches
+    // ST 2110 should not pay a mutex acquisition per frame for a subsystem it
+    // is not using. Two bool loads and out.
+    if (!project_.nmosEnabled && !nmosStarted_) {
+      return;
+    }
     applyPendingNmosPatches();
 
     const bool wantRunning = project_.nmosEnabled;
