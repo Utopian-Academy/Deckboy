@@ -30,7 +30,9 @@ Deckboy focuses on the everyday playback workflow:
 
 Built as a native SDL3 application, Deckboy prioritizes predictable performance, simple deployment, and operator-focused controls.
 
-Deckboy is fully open source. Windows is currently the primary development and release platform, with a cross-platform codebase targeting Linux and macOS.
+Deckboy is fully open source. Windows is the primary development and release
+platform. macOS and Linux build from the same codebase and are verified on every
+commit by CI; macOS additionally has a portable, self-contained app bundle.
 
 Built For
 
@@ -65,25 +67,66 @@ Video Output
 - Display selection
 - Display-native and fixed raster modes
 - Output recovery and fullscreen safety tools
+- Area of interest, edge feathering, and warp/keystone correction
 - NDI output support
-- SRT and RTMP streaming outputs
+- DeckLink (SDI) output (Windows builds)
+- Spout texture sharing (Windows)
+- SRT and RTMP streaming outputs, configurable independently and live at once
+
+Broadcast / IP Video
+
+- SMPTE ST 2110-20 uncompressed video output
+- SMPTE ST 2110-30 (AES67) audio output
+- PTP (IEEE 1588 / SMPTE ST 2059) media clock slaving
+- AMWA NMOS IS-04 registration and Node API
+- AMWA NMOS IS-05 connection management, so a broadcast controller can
+  discover and route Deckboy's senders
+
+ST 2110 output is marked EXPERIMENTAL in the interface, and honestly so: it is a
+conformant packetiser, but it is not narrow-model paced (that needs hardware
+pacing), and NMOS discovery is by configured registry URL rather than mDNS. See
+docs/ST2110_FEASIBILITY.md.
+
+Audio
+
+- Per-cue gain trim, pan, and mono fold-down
+- EBU R128 loudness normalization
+- Independent audio fade in/out, separate from video fades
+- Content-authoritative stereo waveform display
+- Audio-only cues
+- Per-cue audio mute
 
 Control
 
-- Bitfocus Companion integration
-- OSC input
+- Bitfocus Companion integration (module included)
+- OSC input and OSC Query
 - TCP command control
-- Timecode support
+- HyperDeck protocol emulation
+- LTC timecode input
+- LTC timecode generator, individually routable to its own device and channel
+- MIDI input
+- Art-Net / DMX
+- ATEM tally
 - Remote operation workflows
 
 Sources
 
 - Video clips
 - Images
-- Browser sources
+- Audio files
+- Browser sources (Windows)
 - Camera sources
 - Window capture
-- Test pattern generation
+- SRT, RTMP, RTSP and UDP stream input
+- NDI source input
+- Test pattern generation, including a built-in test card
+
+Interface
+
+- Themeable, including high-contrast terminal themes suited to OLED panels
+- Timeline with filmstrip thumbnails
+- Resizable program monitor and timeline
+- UI scaling
 
 Download
 
@@ -97,6 +140,16 @@ The fastest way to get started:
 
 Windows builds are portable and include the required runtime components.
 
+macOS builds are portable too: a self-contained Deckboy.app that carries its own
+libraries, built by tools/package_macos.sh. It is ad-hoc signed rather than
+notarized, so a zip downloaded through a browser needs its quarantine flag
+cleared once:
+
+    xattr -dr com.apple.quarantine Deckboy.app
+
+Browser cues and Spout output are Windows-only and are absent from the macOS
+build rather than broken in it.
+
 No installer required.
 
 Documentation
@@ -104,10 +157,10 @@ Documentation
 - "Code Map" (docs/CODEMAP.md)
 - "Build Instructions" (CLAUDE.md)
 - "Changelog" (CHANGES.md)
+- "ST 2110 Feasibility" (docs/ST2110_FEASIBILITY.md)
 
-For the complete list of implemented features, see:
-
-- "Feature Reference" (docs/FEATURES.md)
+The changelog is the authoritative record of what landed and, just as
+importantly, what each feature deliberately does not do.
 
 Roadmap
 
@@ -118,8 +171,10 @@ Deckboy is actively evolving. Future development is focused on expanding its cap
 - Picture-in-picture (PIP) layouts
 - Expanded show-control features
 - Additional production integrations
-- Improved Linux support and packaging
-- Improved macOS support and native build workflow
+- NMOS discovery over mDNS, so a registry no longer has to be configured by URL
+- Hardware-paced ST 2110 output for narrow-model compliance
+- Linux packaging to match the Windows and macOS portable builds
+- Developer ID signing and notarization for macOS releases
 - Expanded cross-platform testing and release automation
 
 The goal is to continue building a flexible, open-source playback platform that remains simple to operate while supporting increasingly advanced workflows across platforms.
@@ -141,4 +196,87 @@ Deckboy is actively developed and currently Windows-first.
 
 The core playback workflow is functional, including cue playlists, fullscreen outputs, remote control, and live production integrations.
 
+macOS and Linux build from the same source and are checked by CI on every commit. macOS has a portable, self-contained app bundle; Linux packaging is in progress.
+
 As the project grows, additional workflows and platform improvements are being developed.
+
+---
+
+# DECKBOY // RADICAL EDITION
+
+*(Same software. Same facts. Louder.)*
+
+```
+        ____  _____ ____ _  ______   ______  __
+       / __ \/ ___// __ \ |/ / __ ) / __ \ \/ /
+      / / / /\__ \/ / / /   / __  |/ / / /\  /
+     / /_/ /___/ / /_/ /   / /_/ // /_/ / / /
+    /_____//____/\____/_/|_/_____/ \____/ /_/
+                                  >> TAKE
+```
+
+## PRESS THE BUTTON. THE THING HAPPENS.
+
+That's it. That's the pitch.
+
+Deckboy is a **cue deck for people who cannot afford a maybe.** The house lights
+drop, somebody points at you, and a clip has to be on that wall *right now* —
+not after a spinner, not after a codec negotiation, not after a dialog asking if
+you're sure.
+
+Native SDL3. No Electron. No browser pretending to be an app. Just pixels going
+where you told them to go.
+
+## THINGS IT DOES THAT MAKE PEOPLE GO "wait, really?"
+
+**It speaks broadcast.** Real SMPTE ST 2110-20 video and ST 2110-30 audio out of
+a laptop. PTP clock slaving. Full AMWA NMOS IS-04 and IS-05 — meaning a
+broadcast controller can *discover Deckboy on the network and route it* like a
+proper piece of plant. That last part is verified against the reference NMOS
+registry, not vibes.
+
+**It speaks everything else too.** NDI. DeckLink SDI. Spout. SRT and RTMP
+simultaneously, not one-or-the-other. Art-Net. ATEM tally. OSC. LTC timecode in
+*and* out — and the LTC generator gets its own device and its own channel,
+because timecode in the programme mix is a buzzsaw and we're not doing that
+to you.
+
+**Thirty themes,** including proper black-background terminal palettes for OLED
+panels, because staring at a grey slab for a twelve-hour call is a choice and
+you shouldn't have to make it.
+
+**Waveforms that tell the truth.** A mono file in a stereo container draws as
+one lane, not two identical ones. R128 loudness normalization when the client
+sends you a clip mastered at negative-forty.
+
+**A test card.** An actual, beautiful, bouncing-ball test card. You know why.
+
+## THE HONEST BIT (WE PUT IT IN THE LOUD VERSION TOO)
+
+Hype is easy. Rigging is not. So:
+
+- **ST 2110 is EXPERIMENTAL and says so in the UI.** The packets are conformant.
+  It is *not* narrow-model paced — that wants hardware. A tolerant receiver is
+  fine. A strict analyser will have notes.
+- **NMOS has no mDNS yet.** You type in the registry URL. That's a real
+  deployment, but it's a smaller claim than auto-discovery and we're not going
+  to blur it.
+- **Browser cues and Spout are Windows-only.** They're absent on macOS, not
+  broken on macOS.
+- **macOS builds aren't notarized.** One `xattr` command, documented above.
+
+If a feature has a limit, it's written down — in the UI, in this README, and in
+CHANGES.md. A cue deck that overpromises is a cue deck that embarrasses you in
+front of an audience, and that is the one unforgivable bug.
+
+## GO
+
+```
+1. Download        2. Unzip        3. Run        4. TAKE
+```
+
+No installer. No account. No telemetry. No "sign in to continue."
+
+It's GPL-3.0. It's yours. Break it, fix it, send it back better.
+
+**Now go put something on that wall.**
