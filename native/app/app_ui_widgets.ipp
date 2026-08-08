@@ -201,11 +201,28 @@
                         (cue.kind == CueKind::Video || cue.kind == CueKind::Audio ||
                          cue.kind == CueKind::Image);
       if (fileBacked) {
-        contextItems_.push_back({"  show in explorer", {0, 0, 0, 0}, [this, mediaPath]() {
+        // The reveal itself is cross-platform (Explorer /select, Finder via
+        // `open -R`, the containing directory on Linux) but the label and toast
+        // said "explorer" everywhere, which is wrong on two of the three
+        // platforms it runs on.
+#if defined(_WIN32)
+        static constexpr const char* kRevealLabel = "  show in explorer";
+        static constexpr const char* kRevealOk = "opened in explorer";
+        static constexpr const char* kRevealFail = "couldn't open explorer";
+#elif defined(__APPLE__)
+        static constexpr const char* kRevealLabel = "  show in finder";
+        static constexpr const char* kRevealOk = "revealed in finder";
+        static constexpr const char* kRevealFail = "couldn't open finder";
+#else
+        static constexpr const char* kRevealLabel = "  show in file manager";
+        static constexpr const char* kRevealOk = "opened in file manager";
+        static constexpr const char* kRevealFail = "couldn't open file manager";
+#endif
+        contextItems_.push_back({kRevealLabel, {0, 0, 0, 0}, [this, mediaPath]() {
           if (deckboy::platform::revealFileInFileManager(mediaPath)) {
-            triggerToast("opened in explorer");
+            triggerToast(kRevealOk);
           } else {
-            triggerToast("couldn't open explorer");
+            triggerToast(kRevealFail);
           }
         }});
       }

@@ -235,7 +235,15 @@ std::string SiphonSpoutSender::getName() const {
 }
 
 bool SiphonSpoutSender::isSupported() {
-#if defined(__APPLE__) || defined(_WIN32)
+  // Only where a real sender exists. This file contains a Windows Spout
+  // implementation and nothing else — there is no Syphon backend yet — so
+  // returning true on __APPLE__ (the previous behaviour) advertised a macOS
+  // output that silently discarded every frame. A texture-share destination
+  // that reports "supported" and shares nothing is worse than one that admits
+  // it is missing: the operator wires it into a show and finds out live.
+  //
+  // When a Syphon backend lands, add its guard here alongside the Spout one.
+#if defined(DECKBOY_HAS_SPOUT) && defined(_WIN32)
   return true;
 #else
   return false;
