@@ -114,6 +114,46 @@ fi
 
 [ -f "$REPO_ROOT/LICENSE" ] && cp "$REPO_ROOT/LICENSE" "$STAGE_DIR/LICENSE"
 
+# --- App icon ---------------------------------------------------------------
+# Without an .icns AND a CFBundleIconFile pointing at it, Finder and the Dock
+# show the generic blank-document placeholder — which is the first thing anyone
+# sees and reads as "broken". macOS wants a .icns built from a set of sized PNGs
+# via iconutil (macOS-only, which is why this is done at package time, not
+# checked in). The 1024 slot must exist or high-DPI displays fall back to blank.
+ICON_MASTER="$REPO_ROOT/art/windows/icons/deckboy_app_master.png"
+HAVE_ICON=0
+if [ -f "$ICON_MASTER" ] && command -v iconutil >/dev/null && command -v sips >/dev/null; then
+  ICONSET="$(mktemp -d)/Deckboy.iconset"
+  mkdir -p "$ICONSET"
+  # "<pixels> <iconset-name>" — Apple's expected filenames, each size @1x and @2x.
+  printf '%s\n' \
+    "16 icon_16x16.png"        "32 icon_16x16@2x.png" \
+    "32 icon_32x32.png"        "64 icon_32x32@2x.png" \
+    "128 icon_128x128.png"     "256 icon_128x128@2x.png" \
+    "256 icon_256x256.png"     "512 icon_256x256@2x.png" \
+    "512 icon_512x512.png"     "1024 icon_512x512@2x.png" \
+  | while read -r px name; do
+      sips -z "$px" "$px" "$ICON_MASTER" --out "$ICONSET/$name" >/dev/null 2>&1
+    done
+  if iconutil -c icns "$ICONSET" -o "$RESOURCES_DIR/Deckboy.icns" 2>/dev/null; then
+    HAVE_ICON=1
+    echo "  + Deckboy.icns"
+  else
+    echo "  ! iconutil failed - shipping without an icon" >&2
+  fi
+  rm -rf "$(dirname "$ICONSET")"
+else
+  echo "  ! no icon master or iconutil/sips missing - shipping without an icon" >&2
+fi
+
+# Only reference the icon in Info.plist if it was actually produced, so a build
+# on a machine without iconutil still yields a valid (if blank) bundle rather
+# than a plist pointing at a file that is not there.
+ICON_PLIST_ENTRY=""
+if [ "$HAVE_ICON" = "1" ]; then
+  ICON_PLIST_ENTRY="  <key>CFBundleIconFile</key><string>Deckboy</string>"
+fi
+
 # --- Info.plist -------------------------------------------------------------
 # The usage descriptions are load-bearing, not boilerplate: macOS TERMINATES a
 # process that touches the camera or microphone without a matching
@@ -133,6 +173,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key><string>${VERSION}</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
+${ICON_PLIST_ENTRY}
   <key>NSCameraUsageDescription</key>
   <string>Deckboy uses the camera for live Camera cues.</string>
   <key>NSMicrophoneUsageDescription</key>
