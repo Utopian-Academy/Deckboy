@@ -276,6 +276,23 @@ fs::path Paths::fontPath(FontName name) {
 #else
       // Common Linux font package paths (Debian, Arch, Fedora)
       candidates.insert(candidates.end(), {
+        // Liberation Sans FIRST, DejaVu after it.
+        //
+        // The UI's fixed-width chips and button labels were laid out against
+        // Segoe UI on Windows. DejaVu Sans is markedly wider, so on Linux the
+        // same labels ellipsized where Windows showed them in full — "OUTPUT"
+        // became "OUTP...", "deck fader" became "deck fad...", PASTE and RESET
+        // lost their tails. Same layout, same window size, different font
+        // metrics.
+        //
+        // Liberation Sans is metric-compatible with Arial and close enough to
+        // Segoe UI's width to fit the existing layout. DejaVu remains as the
+        // fallback for distros that lack Liberation, where the labels shorten
+        // but nothing breaks.
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/liberation-sans/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/TTF/LiberationSans-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/TTF/DejaVuSans.ttf",
         "/usr/share/fonts/dejavu/DejaVuSans.ttf",
@@ -302,6 +319,14 @@ fs::path Paths::fontPath(FontName name) {
       });
 #else
       candidates.insert(candidates.end(), {
+        // Liberation Mono first, matching the Sans case above: it is the
+        // Courier-metric companion and sits closer to Consolas (the Windows
+        // pick) than DejaVu Sans Mono does, so timecodes and technical
+        // readouts occupy the width the layout expects.
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/liberation-mono/LiberationMono-Regular.ttf",
+        "/usr/share/fonts/TTF/LiberationMono-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
         "/usr/share/fonts/TTF/DejaVuSansMono.ttf",
         "/usr/share/fonts/dejavu/DejaVuSansMono.ttf",
