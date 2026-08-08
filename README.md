@@ -114,7 +114,7 @@ Sources
 - Video clips
 - Images
 - Audio files
-- Browser sources (Windows)
+- Browser sources (Windows and Linux)
 - Camera sources
 - Window capture
 - SRT, RTMP, RTSP and UDP stream input
@@ -147,8 +147,18 @@ cleared once:
 
     xattr -dr com.apple.quarantine Deckboy.app
 
-Browser cues and Spout output are Windows-only and are absent from the macOS
-build rather than broken in it.
+Not everything is on every platform. Rather than hide it:
+
+- Browser cues work on Windows (WebView2) and Linux (headless Chromium via
+  Xvfb). On macOS the backend is a scaffold and browser cues do not run.
+- Spout texture sharing is Windows-only. The macOS equivalent, Syphon, is not
+  implemented, and the app reports it as unavailable rather than accepting
+  frames and discarding them.
+- Camera and window capture work on Windows (DirectShow / gdigrab) and Linux
+  (V4L2 / x11grab). The macOS AVFoundation and ScreenCaptureKit backends are
+  scaffolds.
+- GPU zero-copy decode is Windows-only (D3D11VA). Other platforms decode on the
+  CPU, which is comfortable on modern hardware.
 
 No installer required.
 
