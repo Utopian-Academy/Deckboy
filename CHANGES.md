@@ -1,5 +1,52 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-07 — v0.82.1 (pocket-test no longer thrashes the machine)
+
+### The pocket-test card was churning tens of gigabytes
+`buildPocketTestCard` kept its static layer in a single process-wide cache keyed
+only on raster size. Deckboy runs at least two pattern engines — the programme
+output and the cue-preview runtime — so whenever their rasters differed that one
+entry was invalidated on **every call**: a full-raster reallocation (33 MB at
+4K) plus a complete redraw of the static card, twice per displayed frame.
+
+Committed memory oscillated between roughly 13 and 39 GB, exhausted the system
+commit limit, drove available RAM to zero and paged the whole machine. It
+presented as "pocket-test is laggy" and, more misleadingly, as "my computer is
+slow" — which in turn made every performance measurement taken during it
+worthless. No other pattern has this cache, which is why only this one misbehaved.
+
+Measured, with controls, at 3840x2160:
+
+| | private commit | swing |
+|---|---|---|
+| idle | 244 MB | 1 MB |
+| video playing | 265 MB | 1 MB |
+| smpte-bars (static) | 244 MB | 1 MB |
+| test-bars (animated) | 242 MB | 1 MB |
+| pocket-test **before** | 12,817 → 39,265 MB | **26 GB** |
+| pocket-test **after** | 245 → 246 MB | **1 MB** |
+
+Live output frame rate with pocket-test at 4K went from fluctuating 30→8 fps to
+a steady 60.0. Rendering is byte-identical.
+
+- The static card is now cached per raster in a small bounded set, so both
+  engines hit rather than evict each other.
+- Animated patterns also build **in place** into the frame the engine already
+  holds, instead of allocating a fresh full-raster DecodedFrame every rebuild.
+  Reusing that frame means all of its GPU zero-copy state (`gpuTexture`,
+  `gpuFrameRef`, `gpuDevice`, `format`) must be reset explicitly — `displayFrame_`
+  survives a cue change, so a pattern following a hardware-decoded video cue
+  would otherwise have rendered a stale decoder surface.
+
+### Deleting a cue from the right-click menu
+Deleting the **live** cue asked for a second confirmation with "press delete
+again" — written for the keyboard, where a repeat keypress is natural. From a
+context menu, which has already closed, that meant right-clicking and re-picking
+inside 2.5 seconds. The warning now lives in the label instead: the item reads
+"delete LIVE cue" in a hotter red and deletes on the first click, because
+choosing a named item from a context menu is already deliberate. The keyboard
+Delete path still requires confirmation.
+
 ## 2026-08-07 — v0.82.0 (SMPTE ST 2110 output, PTP, dual streaming, safety UI)
 
 ### SMPTE ST 2110

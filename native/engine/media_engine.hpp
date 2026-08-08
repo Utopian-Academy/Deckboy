@@ -229,6 +229,13 @@ class MediaEngine {
   static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
                                                        int fallbackWidth = kOutputWidth,
                                                        int fallbackHeight = kOutputHeight);
+  // Fill a caller-owned frame, reusing its pixel buffer. The per-frame path
+  // MUST use this: constructing a DecodedFrame per rebuild allocated a full
+  // raster every frame (33 MB at 4K, ~2 GB/s), which exhausted the system
+  // commit limit and slowed the entire machine. Resets all GPU/format state,
+  // since a reused frame may previously have held a zero-copy video frame.
+  static void buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, double animTime,
+                                    int fallbackWidth, int fallbackHeight);
 
   // Current visual fade gain (0–1) factoring in fade-in and fade-out curves.
   double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
