@@ -224,6 +224,40 @@ jobs:
           "$APP/Contents/MacOS/Deckboy" --smoke
           "$APP/Contents/MacOS/ffmpeg" -version | head -1
 
+      # THE test this job was missing. The earlier version ran --self-check with
+      # the runner's normal PATH, which has Homebrew ffmpeg on it — so it
+      # reported "ffmpeg: ok" and could not have detected that the BUNDLED
+      # ffmpeg was unreachable. It didn't: the app spawns helpers by bare name
+      # through execvp, which searches PATH only, and nothing put the bundle on
+      # PATH. Clearing PATH is what makes this check mean anything.
+      #
+      # The control case runs first, so a silently-passing test can't masquerade
+      # as a real one.
+      - name: Bundled ffmpeg must be reachable with PATH cleared
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          cp -R "$APP" "$RUNNER_TEMP/Relocated.app"   # also proves relocatability
+
+          echo "--- control: PATH cleared, bundled ffmpeg moved aside (expect missing) ---"
+          mv "$RUNNER_TEMP/Relocated.app/Contents/MacOS/ffmpeg" "$RUNNER_TEMP/ff.hidden"
+          control=$(env -i HOME="$HOME" PATH=/nonexistent \
+            "$RUNNER_TEMP/Relocated.app/Contents/MacOS/Deckboy" --self-check 2>&1 | grep '^ffmpeg:' || true)
+          echo "$control"
+          case "$control" in
+            *missing*) echo "control ok - the test can detect failure" ;;
+            *) echo "::error::control did not report missing; this check proves nothing"; exit 1 ;;
+          esac
+
+          echo "--- real: PATH cleared, bundled ffmpeg present (expect ok) ---"
+          mv "$RUNNER_TEMP/ff.hidden" "$RUNNER_TEMP/Relocated.app/Contents/MacOS/ffmpeg"
+          real=$(env -i HOME="$HOME" PATH=/nonexistent \
+            "$RUNNER_TEMP/Relocated.app/Contents/MacOS/Deckboy" --self-check 2>&1 | grep '^ffmpeg:' || true)
+          echo "$real"
+          case "$real" in
+            *ok*) echo "bundled ffmpeg is genuinely reachable" ;;
+            *) echo "::error::bundled ffmpeg NOT reachable with PATH cleared"; exit 1 ;;
+          esac
+
       - name: Confirm build-machine state was stripped
         run: |
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
