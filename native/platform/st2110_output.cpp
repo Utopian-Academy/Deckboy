@@ -26,6 +26,8 @@
 
 #include <algorithm>
 #include <chrono>
+#include <map>
+#include <mutex>
 #include <cmath>
 #include <cstring>
 #include <random>
@@ -56,6 +58,83 @@ namespace platform {
 namespace video {
 
 namespace {
+
+// The SDP origin address when no interface is explicitly configured.
+//
+// Hardcoding 127.0.0.1 here (the old behaviour) put "o=- 0 0 IN IP4 127.0.0.1"
+// in every SDP a plant receives, which describes the session as originating on
+// the receiver's own loopback. The connection line `c=` is what a receiver
+// actually joins on and was always correct, so this was cosmetic — but it is
+// the kind of detail an engineer reads when a stream misbehaves, and a wrong
+// answer there costs someone half an hour.
+//
+// Resolved by asking the routing table which interface reaches the stream's own
+// DESTINATION GROUP; no packet is sent. Probing a generic internet address
+// instead would answer with the default route, which on a machine running a VPN
+// is the tunnel — so the SDP would claim the stream originates on an interface
+// that carries no 2110 at all. Asking about the real destination gets the NIC
+// the multicast actually leaves by.
+//
+// MEMOISED per destination: SDPs are rebuilt whenever the NMOS sender snapshot
+// is taken, so doing this per call would open sockets at frame rate. Refreshed
+// every 30 s so a NIC change is picked up without polling.
+std::string defaultOriginAddress(const std::string& destination) {
+  struct Entry { std::string address; std::chrono::steady_clock::time_point at; };
+  static std::mutex cacheMutex;
+  static std::map<std::string, Entry> cache;
+
+  const auto now = std::chrono::steady_clock::now();
+  {
+    std::lock_guard<std::mutex> lock(cacheMutex);
+    auto it = cache.find(destination);
+    if (it != cache.end() && !it->second.address.empty() &&
+        now - it->second.at < std::chrono::seconds(30)) {
+      return it->second.address;
+    }
+  }
+
+  std::string resolved;
+  socket_t probe = ::socket(AF_INET, SOCK_DGRAM, 0);
+  if (probe != kInvalidSocket) {
+    sockaddr_in target {};
+    target.sin_family = AF_INET;
+    target.sin_port = htons(53);
+    const std::string peer = destination.empty() ? std::string("8.8.8.8") : destination;
+    if (::inet_pton(AF_INET, peer.c_str(), &target.sin_addr) == 1 &&
+        ::connect(probe, reinterpret_cast<sockaddr*>(&target), sizeof(target)) == 0) {
+      sockaddr_in local {};
+#ifdef _WIN32
+      int length = sizeof(local);
+#else
+      socklen_t length = sizeof(local);
+#endif
+      if (::getsockname(probe, reinterpret_cast<sockaddr*>(&local), &length) == 0) {
+        char buffer[INET_ADDRSTRLEN] = {};
+        if (::inet_ntop(AF_INET, &local.sin_addr, buffer, sizeof(buffer))) {
+          resolved = buffer;
+        }
+      }
+    }
+#ifdef _WIN32
+    ::closesocket(probe);
+#else
+    ::close(probe);
+#endif
+  }
+  // Only fall back to loopback if the machine genuinely has no route out.
+  if (resolved.empty()) {
+    resolved = "127.0.0.1";
+  }
+
+  std::lock_guard<std::mutex> lock(cacheMutex);
+  // Bounded: one entry per destination group in use, and a show has a handful.
+  // Clearing wholesale beats unbounded growth if something ever churns groups.
+  if (cache.size() > 16) {
+    cache.clear();
+  }
+  cache[destination] = Entry{resolved, now};
+  return resolved;
+}
 
 constexpr std::uint32_t kVideoClockRateHz = 90000;  // ST 2110-20 video RTP clock
 constexpr std::size_t kRtpHeaderBytes = 12;
@@ -146,7 +225,7 @@ std::string st2110BuildSdp(const St2110Config& config, const std::string& sessio
 
   std::ostringstream sdp;
   sdp << "v=0\r\n"
-      << "o=- 0 0 IN IP4 " << (config.interfaceAddress.empty() ? "127.0.0.1" : config.interfaceAddress) << "\r\n"
+      << "o=- 0 0 IN IP4 " << (config.interfaceAddress.empty() ? defaultOriginAddress(config.destinationAddress) : config.interfaceAddress) << "\r\n"
       << "s=" << (sessionName.empty() ? "Deckboy ST 2110-20" : sessionName) << "\r\n"
       << "t=0 0\r\n"
       << "m=video " << config.destinationPort << " RTP/AVP " << config.payloadType << "\r\n"
@@ -585,7 +664,7 @@ std::string st2110BuildAudioSdp(const St2110AudioConfig& config,
   std::ostringstream sdp;
   sdp << "v=0\r\n"
       << "o=- 0 0 IN IP4 "
-      << (config.interfaceAddress.empty() ? "127.0.0.1" : config.interfaceAddress) << "\r\n"
+      << (config.interfaceAddress.empty() ? defaultOriginAddress(config.destinationAddress) : config.interfaceAddress) << "\r\n"
       << "s=" << (sessionName.empty() ? "Deckboy ST 2110-30" : sessionName) << "\r\n"
       << "t=0 0\r\n"
       << "m=audio " << config.destinationPort << " RTP/AVP " << config.payloadType << "\r\n"

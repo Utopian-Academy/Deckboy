@@ -756,6 +756,67 @@
                    SDL_Rect{midiX, mapY + smallLineH * 3, midiTextW, sLineH},
                    "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft);
 
+      // ── LTC generator (timecode OUT) ─────────────────────────────────────
+      // Deckboy can chase timecode; this is what lets it BE the master.
+      // Individually routable on purpose: LTC is a control signal, so it gets
+      // its own device and its own channel, with the rest held silent. Putting
+      // it in the programme mix would broadcast a buzzsaw.
+      {
+        int ltcY = mapY + smallLineH * 4 + sGap;
+        SDL_Rect ltcRect {midiX - sPad, ltcY, midiRect.w, sTallH * 3 + sLineH + sPad * 3};
+        drawCard(ltcRect, "SMPTE LTC OUTPUT", "generate timecode for the rig to chase");
+        int lx = cardBodyX(ltcRect);
+        int lw = cardBodyW(ltcRect);
+        int ly = cardBodyY(ltcRect);
+        // The Audio tab has no drawActionBtn lambda (that one is local to the
+        // Video Outputs tab), so mirror the idiom the MIDI port button uses.
+        auto ltcBtn = [&](const SDL_Rect& r, const std::string& label, int action,
+                          bool active = false) {
+          Primitives::drawFramedPanel(controlRenderer_, r,
+                                      active ? pal.dark : pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r,
+                               ellipsizeToPixelWidth(fontSmall_, label, r.w - 12),
+                               active ? pal.light : ink);
+          settingsBtns_.push_back({r, action, "ltc_out"});
+        };
+
+        SDL_Rect ltcEnBtn {lx, ly, std::max(uiScaled(120), lw / 3), sRowH};
+        ltcBtn(ltcEnBtn,
+                      project_.ltcOutputEnabled ? "LTC OUT: ON" : "LTC OUT: OFF",
+                      kSettingsActionLtcOutToggle, project_.ltcOutputEnabled);
+        SDL_Rect ltcFpsBtn {ltcEnBtn.x + ltcEnBtn.w + sPad, ly,
+                            std::max(uiScaled(110), lw / 4), sRowH};
+        ltcBtn(ltcFpsBtn, "Rate: " + fmtFloat(project_.ltcOutputFps, 2) + " fps",
+                      kSettingsActionLtcOutFps);
+
+        int ly2 = ly + sRowH + sPad;
+        SDL_Rect ltcDevBtn {lx, ly2, lw, sRowH};
+        ltcBtn(ltcDevBtn, "Device: " + (project_.ltcOutputDeviceName.empty()
+                                               ? std::string("(system default)")
+                                               : project_.ltcOutputDeviceName),
+                      kSettingsActionLtcOutDevice);
+
+        int ly3 = ly2 + sRowH + sPad;
+        SDL_Rect ltcChBtn {lx, ly3, std::max(uiScaled(150), lw / 2 - sPad), sRowH};
+        ltcBtn(ltcChBtn, "Channel: " + std::to_string(project_.ltcOutputChannel + 1)
+                                 + " of " + std::to_string(project_.ltcOutputChannelCount),
+                      kSettingsActionLtcOutChannel);
+        SDL_Rect ltcChCntBtn {ltcChBtn.x + ltcChBtn.w + sPad, ly3,
+                              lw - ltcChBtn.w - sPad, sRowH};
+        ltcBtn(ltcChCntBtn, "Device channels: "
+                                    + std::to_string(project_.ltcOutputChannelCount),
+                      kSettingsActionLtcOutChannelCount);
+
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{lx, ly3 + sRowH + 2, lw, sLineH},
+                     project_.ltcOutputEnabled
+                       ? ("emitting " + formatTimecode(ltcOutputTimecodeSeconds(),
+                            std::clamp(project_.ltcOutputFps, 23.0, 60.0))
+                          + "  -  other channels held silent")
+                       : std::string("off - all channels silent"),
+                     soft);
+      }
+
     } else if (settingsTab_ == 2) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
         drawSettingsCard(rect, title, subtitle);
@@ -1569,6 +1630,60 @@
                          ptpStatusLabel(), locked ? pal.fg : soft);
           }
           sy += stH + kSectionGap;
+        }
+
+        // NMOS IS-04/05 — how the 2110 senders above become discoverable and
+        // connectable. Sits directly under ST 2110 because it is meaningless
+        // without it: with no 2110 output armed this node advertises nothing.
+        {
+          // 2 control rows + 1 status line.
+          int nmH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap)
+                  + (kLabelH + 4) + 12;
+          SDL_Rect nmSection {cx, sy, subContentW, nmH};
+          SDL_Rect nmBody = drawSectionFrame(nmSection, "AMWA NMOS  IS-04 / IS-05");
+          VerticalLayout nmLayout(nmBody, kRowGap);
+
+          {
+            SDL_Rect row = nmLayout.takeFixed(kRowH);
+            int halfNm = (row.w - 4) / 2;
+            SDL_Rect toggleBtn {row.x, row.y, halfNm, kRowH};
+            drawActionBtn(toggleBtn, project_.nmosEnabled ? "NMOS: ON" : "NMOS: OFF",
+                          kSettingsActionNmosToggle, project_.nmosEnabled);
+            SDL_Rect portBtn {row.x + halfNm + 4, row.y, row.w - halfNm - 4, kRowH};
+            drawActionBtn(portBtn, "Node port: " + std::to_string(project_.nmosPort),
+                          kSettingsActionNmosPortPrompt);
+          }
+          {
+            SDL_Rect row = nmLayout.takeFixed(kRowH);
+            int regW = (row.w - 4) * 2 / 3;
+            SDL_Rect regBtn {row.x, row.y, regW, kRowH};
+            std::string registry = trim(project_.nmosRegistryUrl);
+            // No mDNS, so there is nothing to auto-discover. Label the empty
+            // state as a decision the operator still has to make, not as a
+            // default that is quietly fine.
+            drawActionBtn(regBtn,
+                          registry.empty() ? std::string("Registry: NOT SET")
+                                           : "Registry: " + registry,
+                          kSettingsActionNmosRegistryPrompt);
+            SDL_Rect ifBtn {row.x + regW + 4, row.y, row.w - regW - 4, kRowH};
+            std::string ifName = trim(project_.nmosInterfaceName);
+            if (ifName.empty()) ifName = "eth0";
+            drawActionBtn(ifBtn, "NIC: " + ifName, kSettingsActionNmosInterfacePrompt);
+          }
+          {
+            SDL_Rect statusRect = nmLayout.takeFixed(kLabelH);
+            const bool good = project_.nmosEnabled && nmosStarted_ &&
+                              (nmosNode_.registered() || trim(project_.nmosRegistryUrl).empty());
+            drawTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{nmBody.x, statusRect.y, nmBody.w, kLabelH},
+                         nmosStatusLabel(), good ? pal.fg : soft);
+            // The node URL is the fastest way to check what the plant sees, so
+            // make it clickable rather than something to reconstruct by hand.
+            if (nmosStarted_) {
+              settingsBtns_.push_back({statusRect, kSettingsActionNmosShowUrl, "nmos_url"});
+            }
+          }
+          sy += nmH + kSectionGap;
         }
 
       // ═══════════════════════════════════════════════════════════════
@@ -2674,6 +2789,76 @@
           }
           markProjectDirty();
         }
+      } else if (sb.action == kSettingsActionLtcOutToggle) {
+        project_.ltcOutputEnabled = !project_.ltcOutputEnabled;
+        if (!project_.ltcOutputEnabled) {
+          stopLtcOutput();
+          triggerToast("ltc out: off");
+        }
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionLtcOutFps) {
+        // The four rates a rig actually runs at.
+        static const std::vector<std::pair<std::string, std::string>> kRates {
+          {"24", "24 fps (film)"}, {"25", "25 fps (PAL/EBU)"},
+          {"29.97", "29.97 fps (NTSC)"}, {"30", "30 fps"}
+        };
+        openDropdown("settings.ltc_fps", sb.rect, kRates,
+                     fmtFloat(project_.ltcOutputFps, 2),
+                     [this](const std::string& value) {
+                       try {
+                         project_.ltcOutputFps = std::clamp(std::stod(value), 23.0, 60.0);
+                         stopLtcOutput();  // re-open at the new rate
+                         markProjectDirty();
+                       } catch (...) { triggerToast("ltc fps: invalid"); }
+                     });
+      } else if (sb.action == kSettingsActionLtcOutDevice) {
+        // Same device list the decks use, plus an explicit default entry.
+        // outputAudioDeviceChoices() already yields "" first for the default.
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto& name : outputAudioDeviceChoices()) {
+          choices.push_back({name, name.empty() ? std::string("(system default)") : name});
+        }
+        openDropdown("settings.ltc_device", sb.rect, choices,
+                     project_.ltcOutputDeviceName,
+                     [this](const std::string& value) {
+                       project_.ltcOutputDeviceName = value;
+                       stopLtcOutput();
+                       markProjectDirty();
+                     });
+      } else if (sb.action == kSettingsActionLtcOutChannel) {
+        std::vector<std::pair<std::string, std::string>> choices;
+        const int count = std::clamp(project_.ltcOutputChannelCount, 1, 8);
+        for (int i = 0; i < count; ++i) {
+          choices.push_back({std::to_string(i),
+                             "Channel " + std::to_string(i + 1) +
+                             (i == 0 ? " (L)" : (i == 1 ? " (R)" : ""))});
+        }
+        openDropdown("settings.ltc_channel", sb.rect, choices,
+                     std::to_string(project_.ltcOutputChannel),
+                     [this](const std::string& value) {
+                       try {
+                         project_.ltcOutputChannel = std::clamp(std::stoi(value), 0, 7);
+                         stopLtcOutput();
+                         markProjectDirty();
+                       } catch (...) {}
+                     });
+      } else if (sb.action == kSettingsActionLtcOutChannelCount) {
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (int n : {1, 2, 4, 6, 8}) {
+          choices.push_back({std::to_string(n), std::to_string(n) + " channels"});
+        }
+        openDropdown("settings.ltc_channel_count", sb.rect, choices,
+                     std::to_string(project_.ltcOutputChannelCount),
+                     [this](const std::string& value) {
+                       try {
+                         project_.ltcOutputChannelCount = std::clamp(std::stoi(value), 1, 8);
+                         project_.ltcOutputChannel =
+                           std::clamp(project_.ltcOutputChannel, 0,
+                                      project_.ltcOutputChannelCount - 1);
+                         stopLtcOutput();
+                         markProjectDirty();
+                       } catch (...) {}
+                     });
       } else if (sb.action == kSettingsActionSt2110Toggle) {
         OutputTarget& output = focusedOutputMutable();
         output.st2110Enabled = !output.st2110Enabled;
@@ -2728,6 +2913,79 @@
                        {15, 56, 15, 255}, 2600);
         } else {
           triggerToast("st 2110: clipboard unavailable");
+        }
+      } else if (sb.action == kSettingsActionNmosToggle) {
+        project_.nmosEnabled = !project_.nmosEnabled;
+        if (!project_.nmosEnabled) {
+          shutdownNmosNode();
+          triggerToast("nmos: off");
+        } else if (!project_.allowRemoteNetwork && !trim(project_.nmosRegistryUrl).empty()) {
+          // Say it here, not only in the status line: this is the moment the
+          // operator expects the plant to see them.
+          triggerToast("nmos: network is LOCAL ONLY - not registering", {155, 188, 15, 220},
+                       {15, 56, 15, 255}, 3200);
+        } else if (trim(project_.nmosRegistryUrl).empty()) {
+          // Arming with no registry is legitimate but it is NOT discovery, and
+          // an operator who thinks it is will not find the node in a plant.
+          triggerToast("nmos: on - node API only, no registry set", {155, 188, 15, 220},
+                       {15, 56, 15, 255}, 2800);
+        } else {
+          triggerToast("nmos: on", {155, 188, 15, 220}, {15, 56, 15, 255}, 2200);
+        }
+        markProjectDirty();
+        syncNmosNode();   // apply now rather than waiting for the next tick
+      } else if (sb.action == kSettingsActionNmosRegistryPrompt) {
+        openInlineTextEditor("settings.nmos_registry", "NMOS Registry",
+                             "Registry URL (e.g. http://192.168.1.50:8010) - blank for none",
+                             trim(project_.nmosRegistryUrl),
+                             [this](const std::string& value) {
+                               const std::string url = trim(value);
+                               // Reject what the client genuinely cannot talk
+                               // to, at entry, instead of failing silently in a
+                               // background thread the operator never sees.
+                               if (!url.empty()) {
+                                 std::string host, path;
+                                 int port = 0;
+                                 if (!deckboy::platform::video::nmosParseUrl(url, host, port, path)) {
+                                   triggerToast("nmos: need http://host:port (https not supported)");
+                                   return;
+                                 }
+                               }
+                               project_.nmosRegistryUrl = url;
+                               markProjectDirty();
+                               syncNmosNode();
+                             });
+      } else if (sb.action == kSettingsActionNmosPortPrompt) {
+        openInlineTextEditor("settings.nmos_port", "NMOS Node Port",
+                             "Port the Node + Connection API serve on",
+                             std::to_string(project_.nmosPort),
+                             [this](const std::string& value) {
+                               try {
+                                 project_.nmosPort = std::clamp(std::stoi(trim(value)), 1, 65535);
+                                 markProjectDirty();
+                                 syncNmosNode();
+                               } catch (...) {
+                                 triggerToast("nmos: invalid port");
+                               }
+                             });
+      } else if (sb.action == kSettingsActionNmosInterfacePrompt) {
+        openInlineTextEditor("settings.nmos_interface", "NMOS Interface Name",
+                             "NIC name reported in interface_bindings (e.g. eth0)",
+                             trim(project_.nmosInterfaceName),
+                             [this](const std::string& value) {
+                               project_.nmosInterfaceName = trim(value);
+                               markProjectDirty();
+                               syncNmosNode();
+                             });
+      } else if (sb.action == kSettingsActionNmosShowUrl) {
+        const std::string url = nmosNode_.nodeApiUrl();
+        if (url.empty()) {
+          triggerToast("nmos: node not running");
+        } else if (SDL_SetClipboardText(url.c_str())) {
+          triggerToast("nmos node URL copied: " + url, {155, 188, 15, 220},
+                       {15, 56, 15, 255}, 2800);
+        } else {
+          triggerToast("nmos: clipboard unavailable");
         }
       } else if (sb.action == kSettingsActionMascotToggle) {
         // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the

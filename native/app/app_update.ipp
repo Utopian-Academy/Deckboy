@@ -555,6 +555,12 @@
 #endif
     // Apply any finished loudness-normalize analyses.
     drainNormalizeResults();
+    // Keep the LTC carrier topped up. Cheap when disabled (one bool test), and
+    // it must run every tick so the emitted code never develops a gap.
+    pumpLtcOutput();
+    // Keep the NMOS node in step with the project and drain any IS-05 patches
+    // a controller staged since the last tick. Early-outs when NMOS is off.
+    syncNmosNode();
 
     for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
       // Advance browser cue Xvfb startup state machine.

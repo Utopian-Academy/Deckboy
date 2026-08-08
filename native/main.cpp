@@ -90,6 +90,7 @@
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
 #include "platform/ptp_client.hpp"
+#include "platform/nmos_node.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
 #include "render/texture_helpers.hpp"
@@ -2903,6 +2904,13 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "focused_output\t" << project.focusedOutputIndex << '\n';
   output << "advanced_mode\t" << (project.advancedOutputMode ? 1 : 0) << '\n';
   output << "ptp_domain\t" << project.ptpDomain << '\n';
+  output << "nmos_enabled\t" << (project.nmosEnabled ? 1 : 0) << '\n';
+  output << "nmos_registry\t" << escapeField(project.nmosRegistryUrl) << '\n';
+  output << "nmos_port\t" << project.nmosPort << '\n';
+  output << "nmos_interface\t" << escapeField(project.nmosInterfaceName) << '\n';
+  output << "ltc_out\t" << (project.ltcOutputEnabled ? 1 : 0) << '\n';
+  output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
+  output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
@@ -3235,6 +3243,24 @@ Project loadProject(const fs::path& projectFile,
       project.advancedOutputMode = safeBool(fields, 1, false);
     } else if (fields[0] == "ptp_domain") {
       project.ptpDomain = std::clamp(safeInt(fields, 1, 127), 0, 127);
+    } else if (fields[0] == "nmos_enabled") {
+      project.nmosEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "nmos_registry") {
+      project.nmosRegistryUrl = safeString(fields, 1);
+    } else if (fields[0] == "nmos_port") {
+      project.nmosPort = std::clamp(safeInt(fields, 1, 3210), 1, 65535);
+    } else if (fields[0] == "nmos_interface") {
+      project.nmosInterfaceName = safeString(fields, 1);
+    } else if (fields[0] == "ltc_out") {
+      project.ltcOutputEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "ltc_out_device") {
+      project.ltcOutputDeviceName = safeString(fields, 1);
+    } else if (fields[0] == "ltc_out_fps") {
+      project.ltcOutputFps = std::clamp(safeDouble(fields, 1, 30.0), 23.0, 60.0);
+    } else if (fields[0] == "ltc_out_channel") {
+      project.ltcOutputChannel = std::clamp(safeInt(fields, 1, 0), 0, 7);
+    } else if (fields[0] == "ltc_out_channels") {
+      project.ltcOutputChannelCount = std::clamp(safeInt(fields, 1, 2), 1, 8);
     } else if (fields[0] == "selected") {
       ensureDeck(0).selectedIndex = safeInt(fields, 1, -1);
     } else if (fields[0] == "active") {
@@ -4131,6 +4157,9 @@ class App {
     stopHyperDeckServer();
     stopMidiInput();
     stopOscQueryServer();
+    // Before the output runtimes go away: this releases any IS-05 caller parked
+    // in the patch handler, then joins the node's threads.
+    shutdownNmosNode();
     stopCompanionControl();
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
@@ -5761,6 +5790,19 @@ class App {
   static constexpr int kStreamFieldSrtPassphrase = 6;
   static constexpr int kStreamFieldSrtStreamId = 7;
   static constexpr int kStreamFieldSrtMode = 8;
+  // LTC generator (Audio tab).
+  static constexpr int kSettingsActionLtcOutToggle = 702;
+  static constexpr int kSettingsActionLtcOutDevice = 703;
+  static constexpr int kSettingsActionLtcOutFps = 704;
+  static constexpr int kSettingsActionLtcOutChannel = 705;
+  static constexpr int kSettingsActionLtcOutChannelCount = 706;
+  // NMOS IS-04/05 (Video Outputs > Devices sub-tab, under ST 2110).
+  // Next free after these: 715+.
+  static constexpr int kSettingsActionNmosToggle = 710;
+  static constexpr int kSettingsActionNmosRegistryPrompt = 711;
+  static constexpr int kSettingsActionNmosPortPrompt = 712;
+  static constexpr int kSettingsActionNmosInterfacePrompt = 713;
+  static constexpr int kSettingsActionNmosShowUrl = 714;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -6246,6 +6288,47 @@ class App {
   // on the network and never touches those ports.
   deckboy::platform::video::PtpClient ptpClient_;
   bool ptpStartAttempted_ = false;
+
+  // One NMOS node for the machine, advertising every armed ST 2110 sender.
+  // Like PTP this binds a port, so there can only be one. Its IS-05 patch
+  // handler runs on the node's HTTP thread and hands work to the main thread
+  // through nmosPendingPatches_ — see applyPendingNmosPatches().
+  //
+  // The handler BLOCKS until the main thread has really applied the change (or
+  // a timeout expires and it reports failure). Returning success the instant a
+  // patch is queued would tell a broadcast controller the route moved before it
+  // had, which is the exact class of lie that makes a plant untrustworthy.
+  struct PendingNmosPatch {
+    deckboy::platform::video::NmosSenderPatch patch;
+    bool done = false;
+    bool applied = false;
+  };
+  deckboy::platform::video::NmosNode nmosNode_;
+  bool nmosStarted_ = false;
+  // True when NMOS is on and a registry is configured but the network is set to
+  // LOCAL ONLY, so we are deliberately withholding registration rather than
+  // publishing an href nothing can reach.
+  bool nmosLocalOnlyBlocked_ = false;
+  bool nmosLastEnabled_ = false;
+  int nmosLastPort_ = 0;
+  std::string nmosLastRegistry_;
+  std::mutex nmosPatchMutex_;
+  std::condition_variable nmosPatchCv_;
+  std::vector<std::shared_ptr<PendingNmosPatch>> nmosPendingPatches_;
+
+  // LTC generator (timecode OUT). Main-thread only: pumped from the update tick
+  // and torn down there too, so no locking is needed.
+  SDL_AudioStream* ltcOutStream_ = nullptr;
+  void* ltcEncoder_ = nullptr;
+  std::string ltcOutDeviceName_;
+  double ltcOutFps_ = 30.0;
+  int ltcOutChannels_ = 2;
+  int ltcOutChannel_ = 0;
+  double ltcOutBaseSeconds_ = 0.0;
+  long long ltcOutEmittedFrames_ = 0;
+  bool ltcOutPrimed_ = false;
+  std::vector<std::uint8_t> ltcOutFrameBuf_;
+  std::vector<std::int16_t> ltcOutPcm_;
 
   // ST 2110-30 senders, reachable from the AUDIO THREAD.
   // The tap that feeds them runs on the audio thread, and walking
