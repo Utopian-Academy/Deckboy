@@ -177,15 +177,22 @@ done
 # own directory to PATH for ffmpeg, so this exists only so users have something
 # obvious to double-click or type.
 cat > "$STAGE_DIR/deckboy" <<'LAUNCH'
-#!/usr/bin/env bash
-# Resolve symlinks so this works from a PATH entry or a desktop shortcut.
-SELF="${BASH_SOURCE[0]}"
+#!/bin/sh
+# POSIX sh with an absolute interpreter path, NOT `#!/usr/bin/env bash`.
+# `env bash` has to find bash on PATH, so the launcher failed outright in a
+# stripped environment while the binary beside it ran fine — a launcher that is
+# more fragile than the thing it launches. /bin/sh is always present.
+SELF="$0"
+# Resolve symlinks so this works via a PATH entry or a desktop shortcut.
 while [ -L "$SELF" ]; do
-  DIR="$(cd -P "$(dirname "$SELF")" && pwd)"
-  SELF="$(readlink "$SELF")"
-  [[ $SELF != /* ]] && SELF="$DIR/$SELF"
+  DIR=$(cd -P "$(dirname "$SELF")" && pwd)
+  SELF=$(readlink "$SELF")
+  case "$SELF" in
+    /*) ;;
+    *) SELF="$DIR/$SELF" ;;
+  esac
 done
-HERE="$(cd -P "$(dirname "$SELF")" && pwd)"
+HERE=$(cd -P "$(dirname "$SELF")" && pwd)
 exec "$HERE/bin/Deckboy" "$@"
 LAUNCH
 chmod +x "$STAGE_DIR/deckboy"
