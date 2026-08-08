@@ -972,10 +972,11 @@
           TTF_GetStringSize(fontSmall_, labelText.c_str(), labelText.size(),
                             &measuredLabelW, &measuredLabelH);
           const int labelWCap = std::max(40, badge.w - kBadgeValueMinW - 16);
-          // +4: drawTextSafe insets the rect before laying out, so a rect
-          // measured to the exact string width still ellipsizes. Same lesson as
-          // the on-air badges in app_render_control.ipp.
-          int labelW = std::clamp(measuredLabelW + 4, 40, labelWCap);
+          // +12, not +4: drawTextSafe insets the rect before laying out, so a
+          // rect measured to the exact string width still ellipsizes. The
+          // on-air badges in app_render_control.ipp hit this and pad by 10;
+          // measuring exactly and padding by 4 reproduced the bug ("OUT...").
+          int labelW = std::clamp(measuredLabelW + 12, 40, labelWCap);
           SDL_Rect badgeLabelRect {badge.x + 6, badge.y, labelW, badge.h};
           SDL_Rect badgeValueRect {badgeLabelRect.x + badgeLabelRect.w + 4, badge.y,
                                    std::max(20, badge.w - (badgeLabelRect.w + 16)), badge.h};
@@ -985,7 +986,7 @@
           // "OUT" reads as a deliberate label. Falls through to the ellipsizer
           // for anything not in this table, so nothing can overflow.
           std::string shownLabel = labelText;
-          if (measuredLabelW + 4 > labelWCap) {
+          if (measuredLabelW + 12 > labelWCap) {
             static const std::pair<const char*, const char*> kShortLabels[] = {
               {"OUTPUT", "OUT"}, {"DECODE", "DEC"}, {"STREAM", "STR"},
               {"PROGRAM", "PGM"}, {"PREVIEW", "PVW"},
