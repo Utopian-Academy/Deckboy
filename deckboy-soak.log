@@ -1,0 +1,8 @@
+2026-08-08 09:13:43  SOAK START cues=2 planned=2min rss=174.7MB
+2026-08-08 09:14:43  soak +1min rss=2321.3MB stalls=0 missing=0 active=1/2
+2026-08-08 09:15:43  soak +2min rss=228.1MB stalls=0 missing=0 active=1/2
+2026-08-08 09:15:43  SOAK COMPLETE 2min rss=228.3MB stalls=0 missing=0
+2026-08-08 09:16:35  SOAK START cues=2 planned=2min rss=174.5MB
+2026-08-08 09:17:35  soak +1min rss=1992.2MB stalls=0 missing=0 active=1/2
+2026-08-08 09:18:35  soak +2min rss=8838.4MB stalls=0 missing=0 active=1/2
+2026-08-08 09:18:35  SOAK COMPLETE 2min rss=8838.5MB stalls=0 missing=0
