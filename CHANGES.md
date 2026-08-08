@@ -1,5 +1,50 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-08 — v0.83.0 (portable macOS bundle)
+
+`tools/package_macos.sh` builds `dist/Deckboy-<VERSION>-macos-<arch>.zip`, the
+counterpart to the Windows portable zip: a double-clickable `Deckboy.app` that
+carries everything it needs.
+
+Homebrew installs SDL3 and FFmpeg under `/opt/homebrew`, so a bundle that merely
+links against those paths runs on the build machine and nowhere else. Every
+non-system dylib is copied into `Contents/Frameworks` and every reference
+rewritten to `@rpath` — recursively, because dependencies have dependencies.
+
+Two things that break naive macOS bundles, handled explicitly:
+
+- **`install_name_tool` invalidates a code signature.** On Apple Silicon a
+  binary with a broken signature is killed by the kernel on sight — the symptom
+  is `killed: 9`, which looks nothing like a linking fault. Everything is
+  re-signed ad-hoc *after* rewriting, inside-out.
+- **`Contents/MacOS` is a code-only directory.** Shipping `data/` next to the
+  executable risks failing signature validation. `data/` therefore goes in
+  `Contents/Resources`, and `Paths::resolveProjectRoot()` gained a small
+  `__APPLE__` branch that detects the `…/Contents/MacOS/<exe>` structure and
+  resolves the root accordingly. Detection is structural, not a `.app` suffix
+  test, because the bundle can be renamed by whoever downloads it. A plain
+  build-tree run on macOS is unaffected.
+
+The `Info.plist` carries `NSCameraUsageDescription` /
+`NSMicrophoneUsageDescription` / `NSLocalNetworkUsageDescription`. These are
+load-bearing rather than boilerplate: macOS terminates a process that touches
+the camera or microphone with no matching usage string, which would turn "add a
+camera cue" into an unexplained crash.
+
+Per-machine state (`last_project.txt`, `default.deckboy`) is stripped, same as
+the Windows packager.
+
+A new `macos-package` CI job runs the packager on a real Mac and then checks the
+result rather than assuming it: no `/opt/homebrew` or `/usr/local` reference
+survives in any binary, `codesign --verify --deep --strict` passes, the app runs
+`--self-check` and `--smoke` **from inside the bundle** (exercising the rewritten
+`@rpath` and the bundled `data/`), and no build-machine state shipped.
+
+Not done: no Developer ID signing or notarisation (a downloaded zip needs
+`xattr -dr com.apple.quarantine`, documented in the bundle's README), and no
+universal binary. Browser cues, Spout and d3d11va zero-copy decode are absent by
+construction — they are Windows features.
+
 ## 2026-08-08 — v0.83.0 (NMOS IS-04/IS-05: the 2110 senders become discoverable)
 
 ### The gap this closes
