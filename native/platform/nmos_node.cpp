@@ -24,6 +24,17 @@
 
 #include "network.hpp"
 
+// network.hpp brings in sockets, but NOT name resolution. On Windows
+// getaddrinfo/addrinfo arrive via <ws2tcpip.h>, which is why the registry
+// client's hostname path compiled there and failed on clang with "unknown type
+// name 'addrinfo'". POSIX puts them in <netdb.h>.
+#ifndef _WIN32
+#include <netdb.h>
+#endif
+
+#include <cctype>    // std::tolower  (header-scan on the request line)
+#include <cstdlib>   // std::strtoul / std::strtod / std::atoi (JSON + HTTP parsing)
+
 #include <algorithm>
 #include <array>
 #include <chrono>
