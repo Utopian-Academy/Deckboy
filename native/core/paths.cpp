@@ -133,7 +133,32 @@ fs::path resolveProjectRoot() {
     if (!ec && !abs.empty()) return abs;
   }
 
-  // Priority 2: walk up from executable directory
+  // Priority 2 (macOS only): inside a .app bundle, resources live in
+  // Contents/Resources — that is Apple's layout, and codesign treats
+  // Contents/MacOS as a code-only directory, so shipping data/ next to the
+  // executable there risks failing signature validation on Apple Silicon.
+  //
+  // Detected structurally (…/Contents/MacOS/<exe>) rather than by looking for a
+  // ".app" suffix, because the bundle can be renamed by whoever downloads it.
+  // Falls through to the normal walk-up when not bundled, so a plain
+  // build-tree run on macOS behaves exactly as before.
+#ifdef __APPLE__
+  {
+    fs::path exePath = getExecutablePath();
+    if (!exePath.empty()) {
+      fs::path macosDir = exePath.parent_path();
+      fs::path contentsDir = macosDir.parent_path();
+      if (macosDir.filename() == "MacOS" && contentsDir.filename() == "Contents") {
+        fs::path resources = contentsDir / "Resources";
+        if (fs::is_directory(resources / "data")) {
+          return resources;
+        }
+      }
+    }
+  }
+#endif
+
+  // Priority 3: walk up from executable directory
   fs::path exe = getExecutablePath();
   if (!exe.empty()) {
     fs::path dir = exe.parent_path();
@@ -162,7 +187,7 @@ fs::path resolveProjectRoot() {
     if (!fallback.empty()) return fallback;
   }
 
-  // Priority 3: current working directory
+  // Priority 4: current working directory
   return getCwd();
 }
 

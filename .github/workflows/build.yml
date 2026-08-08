@@ -166,6 +166,80 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+  macos-package:
+    name: macOS Portable Bundle
+    needs: macos-build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg
+
+      - name: Configure and build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j"$(sysctl -n hw.ncpu)"
+
+      - name: Package
+        run: |
+          chmod +x tools/package_macos.sh
+          ./tools/package_macos.sh
+
+      # The whole point of the bundle is that it runs on a machine with no
+      # Homebrew. A leftover /opt/homebrew or /usr/local reference in ANY
+      # binary means it does not — and that failure only shows up on the
+      # target machine, which is exactly where it is most expensive.
+      - name: Verify no Homebrew paths leak into the bundle
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          echo "Bundle: $APP"
+          leaked=0
+          while IFS= read -r bin; do
+            refs=$(otool -L "$bin" 2>/dev/null | tail -n +2 | awk '{print $1}' \
+                   | grep -E '^(/opt/homebrew|/usr/local)' || true)
+            if [ -n "$refs" ]; then
+              echo "::error::$bin still references:"; echo "$refs"; leaked=1
+            fi
+          done < <(find "$APP" -type f \( -perm +111 -o -name '*.dylib' \))
+          if [ "$leaked" -ne 0 ]; then
+            exit 1
+          fi
+          echo "clean - every dependency is bundled"
+
+      # install_name_tool invalidates signatures, and an unsigned/broken-signed
+      # binary is killed on sight by Apple Silicon. This proves the re-sign step
+      # actually took.
+      - name: Verify code signature
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      # Run the app FROM INSIDE THE BUNDLE, so this exercises the rewritten
+      # @rpath resolution and the bundled data/ directory, not the build tree.
+      - name: Run self-check and smoke from the bundle
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          "$APP/Contents/MacOS/Deckboy" --self-check
+          "$APP/Contents/MacOS/Deckboy" --smoke
+          "$APP/Contents/MacOS/ffmpeg" -version | head -1
+
+      - name: Confirm build-machine state was stripped
+        run: |
+          APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
+          for stale in last_project.txt default.deckboy; do
+            if [ -e "$APP/Contents/MacOS/data/$stale" ]; then
+              echo "::error::data/$stale shipped in the bundle"; exit 1
+            fi
+          done
+          echo "no per-machine state in the bundle"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-macos-portable
+          path: dist/*.zip
+          if-no-files-found: error
+
   windows-build:
     name: Windows Build (MSVC)
     needs: version-check
