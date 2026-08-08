@@ -50,6 +50,7 @@ cmake --build ../build/windows --config Release
 | `native/app/app_render_output.ipp` | Output compositor → window/NDI/DeckLink/Spout blit |
 | `native/app/app_output_mgmt.ipp` | Output lifecycle: windows, streams, NDI, DeckLink, Spout |
 | `native/platform/output_backend.hpp/cpp` | Output backend catalog + route planning |
+| `native/platform/nmos_node.hpp/cpp` | NMOS IS-04 registration + Node API and IS-05 Connection API for the ST 2110 senders. Own HTTP server + registration threads. Tear down ONLY via `shutdownNmosNode()` — see DEVNOTES |
 | `native/platform/siphon_spout.hpp/cpp` | Spout (Windows) / Syphon (macOS) texture sharing |
 | `CHANGES.md` | User-facing changelog |
 | `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
@@ -79,7 +80,7 @@ the primary source; that was the "preview lags the output" bug.
 
 ## Settings Action Constants
 
-Settings button actions are integer constants defined at the top of `main.cpp`. Current highest in the sequential range: **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips). Allocate next from **656+**. WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
+Settings button actions are integer constants defined at the top of `main.cpp`. The 600s range runs to **655** (`kSettingsActionOutputAoiHEdit`; 652–655 are the AOI typed-entry chips), so 656–701 are free. A 700s block is also in use: **702–706** LTC generator, **710–714** NMOS. Allocate next from **715+** (or from the 656–701 gap). WARNING: ids 634–637 were once double-allocated, which silently killed whichever button's handler ran second (the "Processing sub-tab does nothing" bug, v0.76.24). Before allocating, grep the value: `grep "= <id>;" native/main.cpp`. High ranges in use: 800+ (display select), 20000+ (routing tables).
 
 Pattern: define constants → add UI in `app_render_settings.ipp` → handle in settings action handler.
 

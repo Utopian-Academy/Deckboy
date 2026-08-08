@@ -355,6 +355,10 @@ add_executable(deckboy-native
   native/platform/st2110_output.cpp
   # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
   native/platform/ptp_client.cpp
+  # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
+  # senders. Plain sockets and a hand-rolled JSON reader, no SDK, so this also
+  # compiles unconditionally.
+  native/platform/nmos_node.cpp
   # Vendored Terrarium sim. This shim compiles upstream/terrarium_core.cpp
   # INSIDE `namespace terra` — do not add that .cpp here directly, or its
   # definitions land at global scope and fail to link. See

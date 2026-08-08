@@ -621,6 +621,178 @@
     return mainOut;
   }
 
+  // ── SMPTE LTC generator (timecode OUT) ─────────────────────────────────────
+  // Deckboy's own show clock, encoded as LTC onto a real audio device. This is
+  // what makes Deckboy a timecode MASTER rather than only a chaser: feed the
+  // chosen output to a spare pair or an interface's TC out and everything else
+  // on the floor can lock to the deck.
+  //
+  // The timecode emitted is the focused deck's playlist start offset plus the
+  // live cue's position. When nothing is playing the generator HOLDS the last
+  // value and keeps emitting it, rather than stopping — a receiver that loses
+  // carrier drops out of lock, and coming back from that is far more disruptive
+  // than sitting on a stationary code.
+  double ltcOutputTimecodeSeconds() const {
+    const Deck& deck = focusedDeck();
+    double seconds = deck.playlistStartOffsetSeconds;
+    if (const MediaEngine* engine = focusedMediaEngine()) {
+      seconds += std::max(0.0, engine->position());
+    }
+    return std::max(0.0, seconds);
+  }
+
+  bool startLtcOutput() {
+    if (ltcOutStream_) {
+      return true;
+    }
+    if (!ltcApi_.ensureLoaded()) {
+      triggerToast("ltc out: libltc unavailable");
+      return false;
+    }
+    if (!ltcApi_.encoderAvailable) {
+      triggerToast("ltc out: libltc has no encoder");
+      return false;
+    }
+    // 48 kHz s16. LTC is a single-channel biphase-mark signal, but the device is
+    // opened with the operator's channel count so the code can be placed on ONE
+    // channel and every other channel held silent — timecode is a control
+    // signal and must not leak into the programme mix.
+    ltcOutChannels_ = std::clamp(project_.ltcOutputChannelCount, 1, 8);
+    ltcOutChannel_ = std::clamp(project_.ltcOutputChannel, 0, ltcOutChannels_ - 1);
+    SDL_AudioSpec desired {};
+    desired.freq = 48000;
+    desired.format = SDL_AUDIO_S16;
+    desired.channels = ltcOutChannels_;
+
+    ltcOutDeviceName_ = trim(project_.ltcOutputDeviceName);
+    SDL_AudioDeviceID target = audioPlaybackDeviceIdForName(ltcOutDeviceName_);
+    if (target == 0) {
+      ltcOutDeviceName_.clear();
+      target = SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK;
+    }
+    ltcOutStream_ = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+    if (!ltcOutStream_ && target != SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK) {
+      ltcOutDeviceName_.clear();
+      ltcOutStream_ = SDL_OpenAudioDeviceStream(
+        SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, nullptr, nullptr);
+    }
+    if (!ltcOutStream_) {
+      triggerToast("ltc out: no audio device");
+      return false;
+    }
+
+    ltcOutFps_ = std::clamp(project_.ltcOutputFps, 23.0, 60.0);
+    // standard 0 = LTC_TV_525_60, the generic choice for 30/29.97.
+    ltcEncoder_ = ltcApi_.encoderCreateFn(48000.0, ltcOutFps_, 0, 0);
+    if (!ltcEncoder_) {
+      SDL_DestroyAudioStream(ltcOutStream_);
+      ltcOutStream_ = nullptr;
+      triggerToast("ltc out: encoder failed");
+      return false;
+    }
+    if (ltcApi_.encoderSetVolumeFn) {
+      // -3 dBFS: hot enough for a reader to lock, short of clipping.
+      ltcApi_.encoderSetVolumeFn(ltcEncoder_, -3.0);
+    }
+    ltcOutFrameBuf_.assign(static_cast<std::size_t>(48000.0 / ltcOutFps_) + 64, 0);
+    ltcOutPrimed_ = false;
+    deckboySetAudioPaused(ltcOutStream_, false);
+    triggerToast("ltc out: on @ " + fmtFloat(ltcOutFps_, 2) + "fps"
+                 + (ltcOutDeviceName_.empty() ? " (default device)" : (" - " + ltcOutDeviceName_)));
+    return true;
+  }
+
+  void stopLtcOutput() {
+    if (ltcEncoder_) {
+      ltcApi_.encoderFreeFn(ltcEncoder_);
+      ltcEncoder_ = nullptr;
+    }
+    if (ltcOutStream_) {
+      SDL_DestroyAudioStream(ltcOutStream_);
+      ltcOutStream_ = nullptr;
+    }
+    ltcOutPrimed_ = false;
+  }
+
+  // Called every tick. Keeps roughly 120 ms of LTC queued: enough that a
+  // scheduling hiccup cannot punch a hole in the carrier, short enough that the
+  // code a receiver reads is never far behind the deck.
+  void pumpLtcOutput() {
+    if (!project_.ltcOutputEnabled) {
+      if (ltcOutStream_) {
+        stopLtcOutput();
+      }
+      return;
+    }
+    // Re-open on a settings change (device or rate).
+    const double wantFps = std::clamp(project_.ltcOutputFps, 23.0, 60.0);
+    if (ltcOutStream_ && (std::abs(wantFps - ltcOutFps_) > 0.001 ||
+                          trim(project_.ltcOutputDeviceName) != ltcOutDeviceName_ ||
+                          std::clamp(project_.ltcOutputChannelCount, 1, 8) != ltcOutChannels_ ||
+                          std::clamp(project_.ltcOutputChannel, 0, ltcOutChannels_ - 1) != ltcOutChannel_)) {
+      stopLtcOutput();
+    }
+    if (!ltcOutStream_ && !startLtcOutput()) {
+      // Don't retry every frame on a hard failure — the operator turns it off.
+      project_.ltcOutputEnabled = false;
+      return;
+    }
+
+    constexpr int kTargetQueuedMs = 120;
+    // s16 x channels: the queue target must scale with the opened channel
+    // count or a multi-channel route would be starved.
+    const int targetBytes = 48000 * 2 * ltcOutChannels_ * kTargetQueuedMs / 1000;
+
+    double sourceSeconds = ltcOutputTimecodeSeconds();
+    int guard = 0;
+    while (SDL_GetAudioStreamQueued(ltcOutStream_) < targetBytes && guard++ < 32) {
+      // Re-seat the encoder when it has drifted more than a frame from the
+      // deck, but let it free-run otherwise: re-setting every frame from a
+      // jittery position read would make the emitted code stutter, and a
+      // stuttering master is worse than a slightly late one.
+      const double encoderSeconds = ltcOutEmittedFrames_ / ltcOutFps_ + ltcOutBaseSeconds_;
+      if (!ltcOutPrimed_ || std::abs(sourceSeconds - encoderSeconds) > (2.0 / ltcOutFps_)) {
+        const long long totalFrames =
+          static_cast<long long>(std::llround(sourceSeconds * ltcOutFps_));
+        const long long fpsWhole = static_cast<long long>(std::llround(ltcOutFps_));
+        LtcSmpteTimecode tc {};
+        std::snprintf(tc.timezone, sizeof(tc.timezone), "+0000");
+        tc.frame = static_cast<unsigned char>(totalFrames % std::max(1LL, fpsWhole));
+        const long long totalSecs = totalFrames / std::max(1LL, fpsWhole);
+        tc.secs  = static_cast<unsigned char>(totalSecs % 60);
+        tc.mins  = static_cast<unsigned char>((totalSecs / 60) % 60);
+        tc.hours = static_cast<unsigned char>((totalSecs / 3600) % 24);
+        ltcApi_.encoderSetTimecodeFn(ltcEncoder_, &tc);
+        ltcOutBaseSeconds_ = sourceSeconds;
+        ltcOutEmittedFrames_ = 0;
+        ltcOutPrimed_ = true;
+      }
+
+      ltcApi_.encoderEncodeFrameFn(ltcEncoder_);
+      const int got = ltcApi_.encoderGetBufferFn(ltcEncoder_, ltcOutFrameBuf_.data());
+      if (got <= 0) {
+        break;
+      }
+      // libltc emits unsigned 8-bit centred on 128; widen to s16 and place it on
+      // the routed channel only, leaving the rest silent.
+      const std::size_t frames = static_cast<std::size_t>(got);
+      ltcOutPcm_.assign(frames * static_cast<std::size_t>(ltcOutChannels_), 0);
+      for (std::size_t f = 0; f < frames; ++f) {
+        const int centred = static_cast<int>(ltcOutFrameBuf_[f]) - 128;
+        ltcOutPcm_[f * static_cast<std::size_t>(ltcOutChannels_) +
+                   static_cast<std::size_t>(ltcOutChannel_)] =
+          static_cast<std::int16_t>(std::clamp(centred * 256, -32768, 32767));
+      }
+      SDL_PutAudioStreamData(ltcOutStream_, ltcOutPcm_.data(),
+                             static_cast<int>(ltcOutPcm_.size() * sizeof(std::int16_t)));
+      if (ltcApi_.encoderBufferFlushFn) {
+        ltcApi_.encoderBufferFlushFn(ltcEncoder_);
+      }
+      ltcApi_.encoderIncTimecodeFn(ltcEncoder_);
+      ++ltcOutEmittedFrames_;
+    }
+  }
+
   double defaultLtcCaptureFpsHint() const {
     if (project_.focusedDeckIndex >= 0 &&
         project_.focusedDeckIndex < static_cast<int>(project_.decks.size())) {
@@ -3287,14 +3459,18 @@
     }
   }
 
-  // The SDP a receiver needs. Surfaced in settings so the operator can copy it
-  // to the receiving device — an ST 2110 stream is undiscoverable without one
-  // until NMOS IS-04/05 exists.
-  std::string focusedOutputSt2110Sdp() {
-    const OutputTarget& output = focusedOutput();
-    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+  // The ST 2110-20 config for one output, exactly as the sender would open it.
+  // Single source of truth: both the SDP shown in settings and the SDP served
+  // as the NMOS IS-05 transportfile come from here, so a receiver can never be
+  // handed two different descriptions of the same flow.
+  deckboy::platform::video::St2110Config st2110ConfigForOutput(int outputIndex) const {
     using deckboy::platform::video::St2110Config;
     using deckboy::platform::video::St2110Sampling;
+    static const OutputTarget kFallback {};
+    const bool valid = outputIndex >= 0 &&
+                       outputIndex < static_cast<int>(project_.outputs.size());
+    const OutputTarget& output = valid ? project_.outputs[outputIndex] : kFallback;
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(outputIndex);
     St2110Config cfg;
     cfg.destinationAddress = trim(output.st2110Address).empty()
       ? std::string("239.20.10.1") : trim(output.st2110Address);
@@ -3305,9 +3481,266 @@
     cfg.frameRate = outputStreamFps(0.0);
     cfg.sampling = output.st2110TenBit ? St2110Sampling::YCbCr422_10bit
                                        : St2110Sampling::YCbCr422_8bit;
+    return cfg;
+  }
+
+  std::string outputSt2110Sdp(int outputIndex) {
     return deckboy::platform::video::st2110BuildSdp(
-      cfg, "Deckboy " + outputLabel(project_.focusedOutputIndex),
+      st2110ConfigForOutput(outputIndex), "Deckboy " + outputLabel(outputIndex),
       ptpClient_.locked(), ptpClient_.grandmasterIdentity(), project_.ptpDomain);
+  }
+
+  // The SDP a receiver needs. Surfaced in settings so the operator can copy it
+  // to the receiving device by hand — still the fallback when no NMOS registry
+  // is configured, or when the receiving device predates IS-05.
+  std::string focusedOutputSt2110Sdp() {
+    return outputSt2110Sdp(project_.focusedOutputIndex);
+  }
+
+  // ── NMOS ──────────────────────────────────────────────────────────────────
+  // Build the sender list the node advertises: every output with ST 2110 armed
+  // contributes a video sender, and a paired audio sender on the +2 port that
+  // shutdownOutputSt2110/ensureOutputSt2110 use by convention.
+  std::vector<deckboy::platform::video::NmosSenderInfo> nmosSenderSnapshot() {
+    using deckboy::platform::video::NmosFormat;
+    using deckboy::platform::video::NmosSenderInfo;
+    std::vector<NmosSenderInfo> senders;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      const OutputTarget& output = project_.outputs[i];
+      if (!output.st2110Enabled) {
+        continue;
+      }
+      const auto cfg = st2110ConfigForOutput(i);
+      const std::string label = outputLabel(i);
+      const OutputRuntime* runtime = runtimeForOutput(i);
+
+      NmosSenderInfo video;
+      // The key is the stable identity seed. It must depend ONLY on which
+      // output this is — fold in the address or the label and every retune
+      // would look like a brand new sender to every controller that has us
+      // saved.
+      video.key = "output-" + std::to_string(i) + "-video";
+      video.label = "Deckboy " + label;
+      video.description = "Deckboy programme output " + std::to_string(i + 1);
+      video.format = NmosFormat::Video;
+      video.destinationAddress = cfg.destinationAddress;
+      video.destinationPort = cfg.destinationPort;
+      video.sourceAddress = cfg.interfaceAddress;
+      video.active = runtime && runtime->st2110Sender && runtime->st2110Sender->isOpen();
+      video.width = cfg.width;
+      video.height = cfg.height;
+      video.frameRate = cfg.frameRate;
+      video.bitDepth = output.st2110TenBit ? 10 : 8;
+      video.sdp = outputSt2110Sdp(i);
+      senders.push_back(std::move(video));
+
+      deckboy::platform::video::St2110AudioConfig audioCfg;
+      audioCfg.destinationAddress = cfg.destinationAddress;
+      audioCfg.interfaceAddress = cfg.interfaceAddress;
+      audioCfg.destinationPort = cfg.destinationPort + 2;
+      audioCfg.channels = 2;
+
+      NmosSenderInfo audio;
+      audio.key = "output-" + std::to_string(i) + "-audio";
+      audio.label = "Deckboy " + label + " Audio";
+      audio.description = "Deckboy programme output " + std::to_string(i + 1) + " audio";
+      audio.format = NmosFormat::Audio;
+      audio.destinationAddress = audioCfg.destinationAddress;
+      audio.destinationPort = audioCfg.destinationPort;
+      audio.sourceAddress = cfg.interfaceAddress;
+      audio.active = runtime && runtime->st2110AudioSender && runtime->st2110AudioSender->isOpen();
+      audio.channels = 2;
+      audio.sampleRate = 48000;
+      audio.sdp = deckboy::platform::video::st2110BuildAudioSdp(
+        audioCfg, "Deckboy " + label + " Audio", ptpClient_.locked(),
+        ptpClient_.grandmasterIdentity(), project_.ptpDomain);
+      senders.push_back(std::move(audio));
+    }
+    return senders;
+  }
+
+  // Map a sender key back to the output it came from. Returns -1 if the key is
+  // not one we minted.
+  int nmosOutputIndexForKey(const std::string& key) const {
+    if (key.rfind("output-", 0) != 0) {
+      return -1;
+    }
+    const std::size_t dash = key.find('-', 7);
+    if (dash == std::string::npos) {
+      return -1;
+    }
+    const int index = std::atoi(key.substr(7, dash - 7).c_str());
+    if (index < 0 || index >= static_cast<int>(project_.outputs.size())) {
+      return -1;
+    }
+    return index;
+  }
+
+  // Main thread. Drains IS-05 patches queued by the node's HTTP thread and
+  // really applies them, then wakes whoever is blocked waiting on the result.
+  void applyPendingNmosPatches() {
+    std::vector<std::shared_ptr<PendingNmosPatch>> batch;
+    {
+      std::lock_guard<std::mutex> lock(nmosPatchMutex_);
+      if (nmosPendingPatches_.empty()) {
+        return;
+      }
+      batch.swap(nmosPendingPatches_);
+    }
+    for (auto& pending : batch) {
+      const auto& patch = pending->patch;
+      const int index = nmosOutputIndexForKey(patch.senderKey);
+      bool applied = false;
+      if (index >= 0) {
+        OutputTarget& output = project_.outputs[index];
+        const bool isAudioLeg = patch.senderKey.find("-audio") != std::string::npos;
+        if (patch.destinationChanged) {
+          // The audio leg lives at video port + 2 by convention, so a
+          // controller retuning audio moves the video base port with it rather
+          // than silently splitting the pair.
+          output.st2110Address = patch.destinationAddress;
+          output.st2110Port = isAudioLeg ? std::max(1, patch.destinationPort - 2)
+                                         : patch.destinationPort;
+        }
+        if (patch.masterEnableChanged) {
+          output.st2110Enabled = patch.masterEnable;
+        }
+        if (patch.destinationChanged || patch.masterEnableChanged) {
+          // Tear the sender down; the render loop reopens it on the next frame
+          // with the new config. This is the same path a settings edit takes.
+          if (OutputRuntime* runtime = runtimeForOutput(index)) {
+            shutdownOutputSt2110(*runtime);
+          }
+          markProjectDirty();
+        }
+        applied = true;
+      }
+      {
+        std::lock_guard<std::mutex> lock(nmosPatchMutex_);
+        pending->applied = applied;
+        pending->done = true;
+      }
+    }
+    nmosPatchCv_.notify_all();
+  }
+
+  // Stopping the node JOINS its HTTP thread — and that thread may be parked in
+  // the patch handler waiting for this very thread to apply its change. Joining
+  // without releasing it first is a straight deadlock (it would eventually
+  // break on the handler's 2s timeout, but a 2s freeze on every settings change
+  // is not acceptable either). So: fail every waiter, wake them, then join.
+  void shutdownNmosNode() {
+    {
+      std::lock_guard<std::mutex> lock(nmosPatchMutex_);
+      for (auto& pending : nmosPendingPatches_) {
+        pending->applied = false;
+        pending->done = true;
+      }
+      nmosPendingPatches_.clear();
+    }
+    nmosPatchCv_.notify_all();
+    nmosNode_.stop();
+    nmosStarted_ = false;
+  }
+
+  // Called every update tick. Starts, stops and refreshes the node to match
+  // the project. Cheap when nothing changed — setSenders() early-outs on an
+  // unchanged list, so this does not spam the registry at frame rate.
+  void syncNmosNode() {
+    applyPendingNmosPatches();
+
+    const bool wantRunning = project_.nmosEnabled;
+    const int wantPort = std::clamp(project_.nmosPort, 1, 65535);
+    // NMOS only means anything if the node is reachable. With LOCAL ONLY the
+    // listener binds 127.0.0.1, so registering would publish an href to the
+    // machine's LAN address that nothing on the network can open — a
+    // controller would find the sender, try to fetch its transport file, and
+    // fail. Refusing to register is the honest behaviour; the operator sees
+    // why in the status line and flips REMOTE ON in the Network tab.
+    nmosLocalOnlyBlocked_ = wantRunning && !project_.allowRemoteNetwork &&
+                            !trim(project_.nmosRegistryUrl).empty();
+    const std::string wantRegistry =
+      nmosLocalOnlyBlocked_ ? std::string() : trim(project_.nmosRegistryUrl);
+
+    // A port or registry change needs a genuine restart — the listen socket is
+    // already bound and the registry client caches the parsed URL.
+    const bool settingsMoved =
+      nmosStarted_ && (wantPort != nmosLastPort_ || wantRegistry != nmosLastRegistry_);
+
+    if ((!wantRunning && nmosStarted_) || settingsMoved) {
+      shutdownNmosNode();
+    }
+
+    if (wantRunning && !nmosStarted_) {
+      deckboy::platform::video::NmosConfig cfg;
+      cfg.enabled = true;
+      cfg.registryUrl = wantRegistry;
+      cfg.nodePort = wantPort;
+      cfg.label = "Deckboy";
+      cfg.interfaceName = trim(project_.nmosInterfaceName).empty()
+        ? std::string("eth0") : trim(project_.nmosInterfaceName);
+      cfg.allowRemote = project_.allowRemoteNetwork;
+      cfg.ptpLocked = ptpClient_.locked();
+      cfg.ptpGrandmaster = ptpClient_.grandmasterIdentity();
+      nmosNode_.setPatchHandler([this](const deckboy::platform::video::NmosSenderPatch& patch) {
+        auto pending = std::make_shared<PendingNmosPatch>();
+        pending->patch = patch;
+        {
+          std::lock_guard<std::mutex> lock(nmosPatchMutex_);
+          nmosPendingPatches_.push_back(pending);
+        }
+        // Block until the main thread has really done it. Two seconds is far
+        // longer than a frame; if we time out the app is wedged and reporting
+        // failure to the controller is the truthful answer.
+        std::unique_lock<std::mutex> lock(nmosPatchMutex_);
+        const bool settled = nmosPatchCv_.wait_for(
+          lock, std::chrono::seconds(2), [&pending]() { return pending->done; });
+        return settled && pending->applied;
+      });
+      if (!nmosNode_.start(cfg)) {
+        triggerToast("nmos: " + nmosNode_.lastError());
+        project_.nmosEnabled = false;   // don't retry every tick against a bound port
+        return;
+      }
+      nmosStarted_ = true;
+      nmosLastPort_ = wantPort;
+      nmosLastRegistry_ = wantRegistry;
+    }
+
+    if (!nmosStarted_) {
+      return;
+    }
+    nmosNode_.setPtpState(ptpClient_.locked(), ptpClient_.grandmasterIdentity());
+    nmosNode_.setSenders(nmosSenderSnapshot());
+  }
+
+  // One line for the settings panel.
+  std::string nmosStatusLabel() const {
+    if (!project_.nmosEnabled) {
+      return "NMOS: off";
+    }
+    if (!nmosStarted_ || !nmosNode_.httpReady()) {
+      return "NMOS: not running";
+    }
+    if (nmosLocalOnlyBlocked_) {
+      return "NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)";
+    }
+    const int senders = nmosNode_.senderCount();
+    if (trim(project_.nmosRegistryUrl).empty()) {
+      char buf[160];
+      std::snprintf(buf, sizeof(buf), "NMOS: node API on :%d, %d sender%s - no registry set",
+                    project_.nmosPort, senders, senders == 1 ? "" : "s");
+      return buf;
+    }
+    if (!nmosNode_.registered()) {
+      return "NMOS: registering... " + nmosNode_.lastError();
+    }
+    char buf[160];
+    std::snprintf(buf, sizeof(buf), "NMOS REGISTERED  %d sender%s  %llu heartbeat%s",
+                  senders, senders == 1 ? "" : "s",
+                  static_cast<unsigned long long>(nmosNode_.heartbeatCount()),
+                  nmosNode_.heartbeatCount() == 1 ? "" : "s");
+    return buf;
   }
 
   int ndiConnectionCountForOutput(int outputIndex) const {

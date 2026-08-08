@@ -1,5 +1,76 @@
 # DEVNOTES
 
+## NMOS Node: One Node, Blocking Patches, One SDP (v0.83.0)
+
+**One node per machine, like PTP.** `NmosNode` binds a TCP port, so there can
+only be one — it is a member of the app, not of `OutputRuntime`, and it
+advertises *every* output that has ST 2110 armed. `syncNmosNode()` runs each
+update tick; `setSenders()` early-outs on an unchanged list, so this does not
+bump resource versions (and re-POST to the registry) at frame rate. Only a
+port or registry-URL change forces a real restart, because the listen socket is
+already bound and the registry client caches the parsed URL.
+
+**IDs are derived, not stored.** `nmosDeterministicUuid()` is UUIDv5 (SHA-1)
+over a fixed namespace constant plus a per-output seed like
+`"sender:output-0-video"`. That gives stable ids across restarts with nothing
+written to disk, so a controller's saved route survives. Two consequences:
+never change `kDeckboyNamespace` (it renames every sender in every controller
+that has us saved), and keep the seed dependent only on *which output* this is
+— folding in the address or label would make every retune look like a brand new
+sender.
+
+**The patch handler blocks on purpose.** IS-05 arrives on the node's HTTP
+thread but the state it changes (`OutputTarget`) belongs to the main thread. The
+handler queues the patch and *waits* (2 s cap) for the main thread to really
+apply it, then reports the true result. Returning success at queue time would
+tell a controller a route moved before it had.
+
+That creates a deadlock: `NmosNode::stop()` joins the HTTP thread, but that
+thread may be parked waiting for the main thread — which is the thread calling
+`stop()`. **Always tear down via `shutdownNmosNode()`, never `nmosNode_.stop()`
+directly**: it fails every waiter and wakes them *before* joining. The 2 s
+timeout would eventually break it, but a 2 s freeze on every settings change is
+not acceptable either.
+
+**`staged` and `active` are NOT the same object.** `staged` is a scratch area a
+controller writes and reads back at will; `active` changes only on activation.
+Collapsing them (the original implementation did) makes stage-then-activate
+silently impossible. Every staged field carries a `*Set` flag so a PATCH
+touching one field cannot blank another. `applyStagedPatch()` is shared by
+`single/` and `bulk/` so the two can never drift in what they accept, and it
+works on a *copy* — a rejected PATCH must leave staged untouched.
+
+**Conformance is testable, so test it.** The AMWA NMOS Testing Tool
+(`IS-05-01`) runs against a live Deckboy in minutes and found nineteen real
+defects the hand-rolled mock could not — a missing `/transporttype` (which
+suppressed 26 further tests), the staged/active collapse, unknown fields
+returning 200, and an invalid FEC/RTCP constraint combination. **Re-run it after
+any change to the connection API.** Point it at the node port:
+`nmos-test.py suite IS-05-01 --host <ip> --port <nodePort> --version v1.1`.
+Note that the tool persists nothing but Deckboy does: a failed run can leave a
+bad value (e.g. a literal `"auto"`) saved in the project, so reset the fixture
+before re-testing or you will chase a ghost.
+
+**NMOS requires remote reachability, so it refuses to lie about it.** With the
+Network tab set to LOCAL ONLY the listener binds 127.0.0.1, but the registration
+still advertises the machine's LAN address — a controller finds the sender and
+cannot open it. `syncNmosNode()` detects that combination
+(`nmosLocalOnlyBlocked_`), serves the node API locally, and **does not register**.
+Do not "fix" this by forcing the bind open: LOCAL ONLY is a deliberate operator
+choice, and silently overriding it is worse than declining to publish.
+
+**One SDP.** `st2110ConfigForOutput(i)` is the single source of truth; both the
+settings modal's "SHOW SDP" and the IS-05 transportfile derive from it. Do not
+add a second SDP builder — a receiver handed two different descriptions of one
+flow is a fault that only shows up at a venue.
+
+**Honesty constraints baked in.** The advertised clock reports `ref_type:ptp`
+only when genuinely locked, otherwise `internal`; `hostname` is folded to the
+RFC 1123 character set (an operator label with a space fails schema validation
+and gets the whole node rejected); scheduled activation returns 501 rather than
+pretending. There is no mDNS, so an empty registry URL is labelled "NOT SET" in
+the UI rather than presented as a working default.
+
 ## AOI / Edge Blend: Pixel View Over Fraction Storage (v0.80.0)
 
 The settings UI edits the Area of Interest as a pixel rect (`X/Y/W/H` of the
