@@ -751,7 +751,16 @@
     return index - static_cast<int>(std::distance(deletedIndices.begin(), it));
   }
 
-  bool requestDeleteCueIndices(int deckIndex, std::vector<int> indices) {
+  // alreadyConfirmed: the caller has ITSELF obtained a deliberate confirmation,
+  // so skip the press-again guard. The guard exists to stop a stray Delete
+  // keystroke wiping what is on air, and "press delete again" only makes sense
+  // for a key you can press twice. From a right-click menu the menu has already
+  // closed by then, so the user would have to right-click and re-pick inside a
+  // 2.5 s window — impractical, and it read as the delete being broken.
+  // A context menu says which cue it will delete and requires an explicit pick;
+  // that IS the confirmation, so the label carries the warning instead.
+  bool requestDeleteCueIndices(int deckIndex, std::vector<int> indices,
+                               bool alreadyConfirmed = false) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return false;
     }
@@ -766,7 +775,7 @@
       return false;
     }
 
-    if (cueIndicesIncludeLiveCue(deck, indices)) {
+    if (cueIndicesIncludeLiveCue(deck, indices) && !alreadyConfirmed) {
       Uint64 now = SDL_GetTicks();
       std::string signature = cueDeleteSignatureForDeck(deck, indices);
       bool confirmed = pendingLiveDeleteConfirmDeckIndex_ == deckIndex &&

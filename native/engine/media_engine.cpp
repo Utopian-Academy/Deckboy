@@ -989,10 +989,17 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   }
   lastPatternRebuildSeconds_ = wallSeconds;
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
-  auto frame = buildPatternFrame(cue, wallSeconds, fallbackW, fallbackH);
-  if (frame) {
-    frame->index = ++displayFrameSerial_;
-    displayFrame_ = std::move(frame);
+  // Build IN PLACE into the frame we already hold. Constructing a fresh
+  // DecodedFrame here meant a new full-raster allocation every single frame —
+  // 33 MB at 4K, ~2 GB/s of churn, which exhausted the system commit limit and
+  // dragged the whole machine down. Reusing the buffer makes the steady state
+  // allocation-free; only a raster change resizes it.
+  if (!displayFrame_) {
+    displayFrame_.emplace();
+  }
+  buildPatternFrameInto(*displayFrame_, cue, wallSeconds, fallbackW, fallbackH);
+  if (!displayFrame_->pixels.empty()) {
+    displayFrame_->index = ++displayFrameSerial_;
     uploadFrame(*displayFrame_);
   }
 }
@@ -3506,18 +3513,59 @@ void MediaEngine::buildPocketTestCard(DecodedFrame& frame, double t) {
   int scene = static_cast<int>(cycle / kSceneSeconds) % 4;
   double inScene = cycle - scene * kSceneSeconds;
 
-  // Static layer: cached per raster size, shared process-wide.
+  // Static layer, cached PER RASTER SIZE and shared process-wide.
+  //
+  // This was a single cache entry, which meant it only worked while exactly one
+  // raster asked for it. Deckboy runs at least two pattern engines — the
+  // programme output and the cue-preview runtime — and when their rasters
+  // differ the single entry was invalidated on EVERY call: a full-raster
+  // reallocation (33 MB at 4K) plus a complete redraw of the static card, twice
+  // per displayed frame. That churned tens of gigabytes of committed memory per
+  // minute, exhausted the system commit limit, and dragged the whole machine
+  // into paging — reported as "pocket-test is laggy" and "my computer is slow".
+  // No other pattern has this cache, which is why only this one misbehaved.
+  //
+  // A tiny keyed cache fixes it: each distinct raster keeps its own card, so
+  // both engines hit rather than evict. Bounded, because the set of live
+  // rasters is small (outputs + preview) and must never grow without limit.
   {
+    struct CachedCard {
+      int width = 0;
+      int height = 0;
+      std::vector<std::uint8_t> pixels;
+    };
+    constexpr std::size_t kMaxCachedCards = 4;
     static std::mutex cacheMutex;
-    static DecodedFrame cardCache;
+    static std::vector<CachedCard> cardCaches;
+
     std::lock_guard<std::mutex> lock(cacheMutex);
-    if (cardCache.width != frame.width || cardCache.height != frame.height) {
-      cardCache.width = frame.width;
-      cardCache.height = frame.height;
-      cardCache.pixels.assign(frame.pixels.size(), 255);
-      drawPocketTestCardStatic(cardCache);
+    CachedCard* hit = nullptr;
+    for (auto& entry : cardCaches) {
+      if (entry.width == frame.width && entry.height == frame.height) {
+        hit = &entry;
+        break;
+      }
     }
-    frame.pixels = cardCache.pixels;
+    if (hit == nullptr) {
+      if (cardCaches.size() >= kMaxCachedCards) {
+        // Evict oldest; rasters change rarely, so simple FIFO is enough.
+        cardCaches.erase(cardCaches.begin());
+      }
+      cardCaches.push_back(CachedCard {});
+      hit = &cardCaches.back();
+      hit->width = frame.width;
+      hit->height = frame.height;
+      // Build the static layer once, into a scratch frame that borrows the
+      // cache's buffer, then keep it.
+      DecodedFrame scratch;
+      scratch.width = frame.width;
+      scratch.height = frame.height;
+      scratch.pixels.assign(frame.pixels.size(), 255);
+      drawPocketTestCardStatic(scratch);
+      hit->pixels = std::move(scratch.pixels);
+    }
+    // Same size on both sides, so this reuses the destination's capacity.
+    frame.pixels = hit->pixels;
   }
 
   // The living scene at its fixed internal raster (with the crossfade).
@@ -4277,8 +4325,21 @@ void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
 // Returns nullopt only if something goes wrong (shouldn't happen in practice).
 // The animTime parameter drives all animation — 0.0 gives the static initial state.
 // ---------------------------------------------------------------------------
-std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, double animTime,
-                                                           int fallbackWidth, int fallbackHeight) {
+// Fill a CALLER-OWNED frame. This exists so the per-frame path can reuse one
+// buffer forever instead of allocating a new full-raster one every rebuild.
+//
+// That allocation was a genuine bug, not a micro-optimisation: at 3840x2160 a
+// pattern frame is 33 MB, and rebuildPatternFrame runs once per output frame,
+// so an animated pattern churned ~2 GB/s. Committed memory ballooned to 40+ GB
+// (oscillating, not leaking — the allocator simply could not recycle pages that
+// fast), the system commit limit was exhausted, available RAM hit zero, and the
+// WHOLE MACHINE started paging. It presented as "Deckboy is laggy" and as
+// "my computer is slow", and it made every performance measurement meaningless.
+//
+// vector::assign on a vector that is already the right size reuses its capacity,
+// so once the raster settles this allocates nothing at all.
+void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, double animTime,
+                                        int fallbackWidth, int fallbackHeight) {
   // Patterns ALWAYS build at the live output raster (the fallback hint —
   // rebuildPatternFrame feeds it the current program-output size). A test
   // pattern that isn't pixel-mapped to the selected display is lying, and
@@ -4287,8 +4348,28 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
   int sourceW = fallbackWidth > 0 ? fallbackWidth : cue.width;
   int sourceH = fallbackHeight > 0 ? fallbackHeight : cue.height;
 
-  // Allocate the frame buffer (minimum 320x180 for readability)
-  DecodedFrame frame;
+  // ── Reset EVERY non-pixel field before reuse ──────────────────────────────
+  // The caller's frame may be the one that previously held a hardware-decoded
+  // VIDEO frame, because displayFrame_ persists across a cue change. Leaving
+  // that state behind is not cosmetic:
+  //   * gpuTexture non-null makes isGpu() true, so the compositor would render
+  //     a stale decoder surface instead of this pattern;
+  //   * gpuFrameRef would pin that decoder surface alive indefinitely;
+  //   * a leftover NV12 `format` would send RGBA bytes through
+  //     SDL_UpdateNVTexture.
+  // A freshly-constructed DecodedFrame got these defaults for free; a reused
+  // one must be given them explicitly.
+  frame.gpuFrameRef.reset();
+  frame.gpuTexture = nullptr;
+  frame.gpuSubresource = 0;
+  frame.gpuDevice = nullptr;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.presentationSeconds = -1.0;
+  frame.index = 0;
+
+  // Size + clear. Every pattern is drawn over an opaque white ground, so this
+  // also guarantees no stale pixels survive from the previous frame when the
+  // buffer is reused.
   frame.width  = std::max(320, sourceW);
   frame.height = std::max(180, sourceH);
   frame.index  = 0;
@@ -4376,6 +4457,17 @@ std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, doubl
     // plus the diegetic instrumentation overlay.
     buildPocketTestCard(frame, animTime);
   }
+}
 
+// One-shot convenience wrapper. Used by --pattern-dump, --pattern-bench, the
+// smoke suite and loadPatternFrame — places that build a single frame and do
+// not care about reuse. The per-frame path must use buildPatternFrameInto.
+std::optional<DecodedFrame> MediaEngine::buildPatternFrame(const Cue& cue, double animTime,
+                                                           int fallbackWidth, int fallbackHeight) {
+  DecodedFrame frame;
+  buildPatternFrameInto(frame, cue, animTime, fallbackWidth, fallbackHeight);
+  if (frame.pixels.empty()) {
+    return std::nullopt;
+  }
   return frame;
 }
