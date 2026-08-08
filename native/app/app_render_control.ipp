@@ -54,23 +54,42 @@
     SDL_Rect tokenR {row.x + 26, row.y + (row.h - 18) / 2, 44, 18};
     drawTextSafe(controlRenderer_, fontMono_, tokenR, token, subInk);
 
+    // Remaining-time badge geometry is resolved FIRST, because the cue name
+    // needs to know how much room it actually loses. The old code hardcoded a
+    // 58px badge and reserved 66px from the name; "-00:15.2" is eight
+    // monospace glyphs, which fits Consolas on Windows but not the wider
+    // Liberation/DejaVu Mono on Linux, where it rendered as "-00...".
+    // Measuring keeps one layout correct on every platform, and 58 stays the
+    // floor so Windows geometry is unchanged.
+    std::string remStr;
+    int remBadgeW = 0;
+    if (isLive) {
+      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
+      if (engine && engine->duration() > 0.0) {
+        remStr = "-" + formatSeconds(std::max(0.0, engine->duration() - engine->position()));
+        int remTextW = 0, remTextH = 0;
+        TTF_GetStringSize(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
+        // +12 for the badge fill and drawCenteredTextSafe's inset — measuring
+        // exactly and padding thinly is what reproduced the truncation in the
+        // timeline chips.
+        remBadgeW = std::max(58, remTextW + 12);
+        // Never let the badge crowd the name off the row entirely.
+        remBadgeW = std::min(remBadgeW, std::max(58, row.w - 72 - 40));
+      }
+    }
+
     // Cue name — narrower when live (leaves room for remaining-time badge)
     int nameX = row.x + 72;
-    int nameW = isLive ? std::max(10, row.w - 72 - 66) : std::max(10, row.w - 72 - 4);
+    int nameW = remBadgeW > 0 ? std::max(10, row.w - 72 - (remBadgeW + 8))
+                              : std::max(10, row.w - 72 - 4);
     std::string name = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
     SDL_Rect nameR {nameX, row.y + (row.h - 18) / 2, nameW, 18};
     drawTextSafe(controlRenderer_, fontSmall_, nameR, name, ink);
 
-    // Remaining time badge (live row only)
-    if (isLive) {
-      const MediaEngine* engine = mediaEngineForDeck(deckIndex);
-      if (engine && engine->duration() > 0.0) {
-        std::string remStr = "-" + formatSeconds(std::max(0.0, engine->duration() - engine->position()));
-        SDL_Rect remR {row.x + row.w - 62, row.y + 2, 58, row.h - 4};
-        Primitives::fillRect(controlRenderer_, remR, pal.dark);
-        drawCenteredTextSafe(controlRenderer_, fontMono_, remR, remStr,
-                             pal.light);
-      }
+    if (remBadgeW > 0) {
+      SDL_Rect remR {row.x + row.w - (remBadgeW + 4), row.y + 2, remBadgeW, row.h - 4};
+      Primitives::fillRect(controlRenderer_, remR, pal.dark);
+      drawCenteredTextSafe(controlRenderer_, fontMono_, remR, remStr, pal.light);
     }
 
     decksPanelCueHits_.push_back({deckIndex, cueIndex, row});
