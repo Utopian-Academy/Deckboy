@@ -979,8 +979,26 @@
           SDL_Rect badgeLabelRect {badge.x + 6, badge.y, labelW, badge.h};
           SDL_Rect badgeValueRect {badgeLabelRect.x + badgeLabelRect.w + 4, badge.y,
                                    std::max(20, badge.w - (badgeLabelRect.w + 16)), badge.h};
+          // When the full word will not fit, drop to a DESIGNED abbreviation
+          // rather than letting the ellipsizer chew it. In a 116px status chip
+          // "OUTP..." spends three characters on dots and reads as damage;
+          // "OUT" reads as a deliberate label. Falls through to the ellipsizer
+          // for anything not in this table, so nothing can overflow.
+          std::string shownLabel = labelText;
+          if (measuredLabelW + 4 > labelWCap) {
+            static const std::pair<const char*, const char*> kShortLabels[] = {
+              {"OUTPUT", "OUT"}, {"DECODE", "DEC"}, {"STREAM", "STR"},
+              {"PROGRAM", "PGM"}, {"PREVIEW", "PVW"},
+            };
+            for (const auto& [full, shortForm] : kShortLabels) {
+              if (labelText == full) {
+                shownLabel = shortForm;
+                break;
+              }
+            }
+          }
           drawTextSafe(controlRenderer_, fontSmall_, badgeLabelRect,
-                       ellipsizeToPixelWidth(fontSmall_, labelText, badgeLabelRect.w), ink);
+                       ellipsizeToPixelWidth(fontSmall_, shownLabel, badgeLabelRect.w), ink);
           TTF_Font* valueFont = valueText.size() > 4 ? fontSmall_ : fontMono_;
           std::string shownValue = valueText.empty() ? "--.-" : valueText;
           shownValue = ellipsizeToPixelWidth(valueFont, shownValue, badgeValueRect.w);
