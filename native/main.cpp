@@ -4299,6 +4299,8 @@ class App {
   void drainPickers() {
     try {
       drainPickersUnsafe();
+      // Native SDL dialogs deliver results the same way — run any that landed.
+      drainSdlDialogActions();
     } catch (const std::exception& e) {
       triggerToast(std::string("file dialog failed: ") + e.what());
     } catch (...) {
@@ -6193,6 +6195,14 @@ class App {
   std::future<std::vector<std::string>> pendingImport_;
   std::future<std::optional<fs::path>> pendingProjectOpen_;
   std::future<std::optional<fs::path>> pendingProjectSaveAs_;
+  // SDL3 native file-dialog results, marshalled from the dialog callback onto
+  // the main thread. See the async dialog helpers in app_cue_mgmt.ipp — this
+  // replaces the osascript/powershell/zenity subprocess pickers, which had to
+  // run on a background thread and could not fork a GUI subprocess from a
+  // non-main thread on macOS (why IMPORT silently did nothing there).
+  std::mutex sdlDialogMutex_;
+  std::vector<std::function<void()>> sdlDialogActions_;
+  bool sdlDialogOpen_ = false;   // one native dialog at a time
   std::future<std::optional<fs::path>> pendingProjectBundleExport_;
   std::future<std::optional<fs::path>> pendingMediaRelink_;
   // Async media-presence scan (boot / project open). The worker stats every

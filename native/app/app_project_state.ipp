@@ -1236,14 +1236,17 @@
   }
 
   void exportProjectBundleFromPicker() {
-    if (pendingProjectBundleExport_.valid() &&
-        pendingProjectBundleExport_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-      return;
-    }
-    std::string ip = currentProjectFile_.string();
-    pendingProjectBundleExport_ = std::async(std::launch::async, [this, ip = std::move(ip)] {
-      return pickProjectPath(true, ip, "Export Deckboy bundle");
-    });
+    showSaveFileDialog(deckboyProjectFilters(),
+                       [this](std::vector<std::string> files) {
+                         if (files.empty()) {
+                           return;
+                         }
+                         fs::path chosen = normalizeProjectPath(fs::path(files[0]));
+                         if (chosen.extension() != ".deckboy") {
+                           chosen += ".deckboy";
+                         }
+                         exportProjectBundleTo(chosen, true);
+                       });
   }
 
   // Missing-media scan: flags file-backed cues whose media can't be found on
@@ -1438,12 +1441,10 @@
   }
 
   void relinkMediaFromPicker() {
-    if (pendingMediaRelink_.valid() &&
-        pendingMediaRelink_.wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) {
-      return;
-    }
-    pendingMediaRelink_ = std::async(std::launch::async, [this] {
-      return pickFolder("Locate missing media - pick the folder that now holds the files");
+    showFolderDialog([this](std::vector<std::string> folders) {
+      if (!folders.empty()) {
+        relinkMissingMediaFromFolder(fs::path(folders[0]));
+      }
     });
   }
 

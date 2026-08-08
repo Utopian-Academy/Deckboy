@@ -2031,8 +2031,7 @@
       if (!pointInRect(mx, my, sb.rect)) continue;
       if (sb.action == kSettingsActionEncoderConvertAll) { convertAllFlaggedCues(); continue; }
       if (sb.action == kSettingsActionEncoderAddFile) {
-        auto pf = pickFiles();
-        if (!pf.empty()) { importPaths(pf); }
+        importWithPicker();  // native async dialog, same as the IMPORT button
         continue;
       }
       if (sb.action >= 100 && sb.action <= 105) {
