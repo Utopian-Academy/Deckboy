@@ -1332,13 +1332,24 @@
                           cue.hasAudio, cue.hasAudio ? "Toggle cue audio" : "Cue has no audio");
     }
 
-    // Remaining time badge for live row
+    // Remaining time badge for live row.
+    // Width is measured, not the old fixed 80px: "-00:15.2" is eight monospace
+    // glyphs, which fits Consolas on Windows but not the wider Liberation/DejaVu
+    // Mono on Linux, where it rendered "-00...". drawUIPanel's bevel AND
+    // drawCenteredTextSafe's inset both eat into the rect, hence the generous
+    // pad — measuring exactly and padding thinly is precisely what reproduced
+    // this bug in the timeline chips. 80 stays the floor, so Windows is
+    // unchanged.
     if (isLive) {
       const MediaEngine* engine = mediaEngineForDeck(deckIndex);
       if (engine && engine->duration() > 0.0) {
         double remaining = std::max(0.0, engine->duration() - engine->position());
         std::string remStr = "-" + formatSeconds(remaining);
-        SDL_Rect badge {row.x + row.w - 84, row.y + 4, 80, 24};
+        int remTextW = 0, remTextH = 0;
+        TTF_GetStringSize(fontMono_, remStr.c_str(), remStr.size(), &remTextW, &remTextH);
+        int badgeW = std::max(80, remTextW + 16);
+        badgeW = std::min(badgeW, std::max(80, row.w - 24));  // never overrun the row
+        SDL_Rect badge {row.x + row.w - (badgeW + 4), row.y + 4, badgeW, 24};
         drawUIPanel(badge, pal.dark, pal.light, pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontMono_, badge, remStr, pal.light);
       }
