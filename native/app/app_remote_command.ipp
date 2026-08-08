@@ -1937,6 +1937,54 @@
       markProjectDirty();
       return;
     }
+    if (command == "LTCOUT") {
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      if (sub == "STATUS") {
+        char buf[200];
+        const int queued = ltcOutStream_
+          ? std::max(0, SDL_GetAudioStreamQueued(ltcOutStream_)) : 0;
+        std::snprintf(buf, sizeof(buf),
+                      "ltcout %s fps=%.2f queued=%dB emitted=%lld tc=%s dev=%s",
+                      project_.ltcOutputEnabled ? "on" : "off",
+                      project_.ltcOutputFps, queued,
+                      static_cast<long long>(ltcOutEmittedFrames_),
+                      formatTimecode(ltcOutputTimecodeSeconds(),
+                                     std::clamp(project_.ltcOutputFps, 23.0, 60.0)).c_str(),
+                      ltcOutDeviceName_.empty() ? "(default)" : ltcOutDeviceName_.c_str());
+        // stdout so a scripted check can read it; toast for the operator.
+        std::cout << buf << std::endl;
+        triggerToast(buf);
+        return;
+      }
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        project_.ltcOutputEnabled = (sub == "ON") ? true
+                                  : (sub == "OFF") ? false : !project_.ltcOutputEnabled;
+        if (!project_.ltcOutputEnabled) {
+          stopLtcOutput();
+          triggerToast("ltc out: off");
+        }
+        markProjectDirty();
+        return;
+      }
+      if (sub == "FPS" && parts.size() > 2) {
+        if (auto v = parseNumber(2); v) {
+          project_.ltcOutputFps = std::clamp(*v, 23.0, 60.0);
+          triggerToast("ltc out fps: " + fmtFloat(project_.ltcOutputFps, 2));
+          markProjectDirty();
+        }
+        return;
+      }
+      if (sub == "DEVICE") {
+        project_.ltcOutputDeviceName = parts.size() > 2 ? trim(joinParts(parts, 2)) : std::string();
+        stopLtcOutput();  // reopen on the new device next tick
+        triggerToast("ltc out device: " + (project_.ltcOutputDeviceName.empty()
+                                           ? std::string("(default)")
+                                           : project_.ltcOutputDeviceName));
+        markProjectDirty();
+        return;
+      }
+      return;
+    }
     if (command == "ST2110") {
       int foIdx = project_.focusedOutputIndex;
       if (foIdx < 0 || foIdx >= static_cast<int>(project_.outputs.size())) {
@@ -1980,6 +2028,58 @@
         triggerToast("st2110 sdp written to stdout");
       }
       markProjectDirty();
+      return;
+    }
+    if (command == "NMOS") {
+      // Mirrors ST2110 above. NMOS is machine-wide, so unlike ST2110 there is
+      // no focused-output lookup here.
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      if (sub == "STATUS") {
+        // stdout as well as a toast: this is the one command a test harness
+        // needs to read back, and a toast is not capturable.
+        std::cout << nmosStatusLabel()
+                  << "  node=" << (nmosNode_.nodeApiUrl().empty()
+                                     ? std::string("-") : nmosNode_.nodeApiUrl())
+                  << "  registry=" << (trim(project_.nmosRegistryUrl).empty()
+                                         ? std::string("-") : trim(project_.nmosRegistryUrl))
+                  << std::endl;
+        triggerToast(nmosStatusLabel());
+        return;
+      }
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        project_.nmosEnabled = (sub == "ON") ? true
+                             : (sub == "OFF") ? false : !project_.nmosEnabled;
+        if (!project_.nmosEnabled) {
+          shutdownNmosNode();
+        }
+        triggerToast(std::string("nmos: ") + (project_.nmosEnabled ? "on" : "off"));
+      } else if (sub == "REGISTRY") {
+        // Bare "NMOS REGISTRY" clears it — that is how you deliberately go back
+        // to serving the node API with no registration.
+        const std::string url = parts.size() > 2 ? trim(parts[2]) : std::string();
+        if (!url.empty()) {
+          std::string host, path;
+          int port = 0;
+          if (!deckboy::platform::video::nmosParseUrl(url, host, port, path)) {
+            triggerToast("nmos: need http://host:port");
+            return;
+          }
+        }
+        project_.nmosRegistryUrl = url;
+        triggerToast("nmos registry " + (url.empty() ? std::string("cleared") : url));
+      } else if (sub == "PORT") {
+        if (auto val = parseNumber(2); val) {
+          project_.nmosPort = std::clamp(static_cast<int>(*val), 1, 65535);
+          triggerToast("nmos port " + std::to_string(project_.nmosPort));
+        }
+      } else if (sub == "NIC" || sub == "INTERFACE") {
+        if (parts.size() > 2) {
+          project_.nmosInterfaceName = trim(parts[2]);
+          triggerToast("nmos nic " + project_.nmosInterfaceName);
+        }
+      }
+      markProjectDirty();
+      syncNmosNode();   // apply immediately so a scripted STATUS reads the truth
       return;
     }
     if (command == "BLACKOUT") {
