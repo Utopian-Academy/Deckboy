@@ -1,13 +1,18 @@
 Deckboy
 
-An open-source video Swiss army knife — playback, show control, capture,
-conversion and signal plumbing in one native application.
+Open-source media playback and show control for live video workflows.
 
-Deckboy started as a cue deck: organize media, trigger clips, send video to a
-screen. It still does that, and it is what the interface is optimised for. But
-the same box now speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
-OSC, Art-Net and NMOS — which means most days it is not a playback tool at all.
-It is whatever the job needs at that moment.
+Deckboy is a native desktop application built for video engineers, AV
+technicians, and live operators who need a reliable way to organize media,
+trigger cues, loop content, and send video to production displays. That is the
+job it is built around and the job the interface is optimised for: when the
+lights go down, playback has to be right.
+
+It also happens to be a very good video Swiss army knife. The same box speaks
+NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode, OSC, Art-Net and NMOS,
+converts awkward media in place, captures cameras and screens, and generates
+test patterns — so the machine you brought for playback usually solves the other
+five problems on the day as well.
 
 Load your media. Build your playlist. Take it live.
 
@@ -23,13 +28,9 @@ Load your media. Build your playlist. Take it live.
 
 Why Deckboy?
 
-Most video work needs something between a basic media player and a full
-production suite — and it usually needs several somethings at once. A laptop
-that can play a cue, receive an NDI feed, convert an awkward file, generate a
-test pattern, restream to a CDN and put timecode on a spare audio channel is
-worth more than five utilities that each do one of those.
-
-The everyday playback workflow is still the core:
+Many video workflows need something between a basic media player and a full
+production suite. Deckboy is built for that gap, and playback is the point of
+it. The everyday playback workflow is the core of the app:
 
 - Prepare media cues ahead of time
 - Trigger clips instantly during a show
@@ -37,7 +38,8 @@ The everyday playback workflow is still the core:
 - Send video to dedicated fullscreen outputs
 - Control playback remotely from production tools
 
-The rest of the toolkit is what makes it a Swiss army knife:
+Around that core sits a toolkit that means one laptop usually covers the rest of
+the day as well:
 
 - Convert media that will not play well, in place, without leaving the app
   (NVENC where available, libx264 otherwise)
@@ -52,8 +54,19 @@ The rest of the toolkit is what makes it a Swiss army knife:
 - Generate LTC timecode on its own routable output
 
 Built as a native SDL3 application, Deckboy prioritizes predictable performance,
-simple deployment, and operator-focused controls. No installer, no account, no
-telemetry, and nothing phones home.
+simple deployment, and operator-focused controls. No installer and no account.
+
+Deckboy collects nothing and sends nothing to its developers: there is no
+analytics, no usage reporting, no crash upload and no update check. Crash logs
+are written to a file next to the app for you to read or forward, and stay
+there.
+
+It is, however, deliberately network-active — NDI discovery, PTP, NMOS
+registration, OSC, Companion control and streaming all talk to the network by
+design. Every one of those goes to your own LAN or to a destination you
+configured. The only outbound links in the app are vendor download pages
+(NDI, Blackmagic, WebView2), opened in your browser when you click the button
+in a missing-dependency prompt.
 
 Deckboy is fully open source. Windows is the primary development and release
 platform. macOS and Linux build from the same codebase and are verified on every
@@ -165,7 +178,6 @@ Media Tools
   channels, sample rate and duration
 - Missing-media detection with folder relink, so a moved drive does not cost you
   a rebuild
-- Test pattern generation, including a test card, for proving a signal chain
 
 Interface
 
