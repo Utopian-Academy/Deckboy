@@ -109,16 +109,26 @@ fi
 
 # --- Which libraries stay on the host -------------------------------------
 # Matched against the SONAME. See the rationale at the top of this file.
+# Patterns are PREFIX-based, not ".so.N"-based. The first version of this list
+# required a numeric suffix and so happily bundled libpulsecommon-16.1.so —
+# PulseAudio's own internals — because that name ends in a bare ".so". Shipping
+# a sound server's guts alongside a different host build of it is precisely the
+# class of breakage this list exists to prevent.
 is_excluded() {
   case "$1" in
+    # loader + glibc
     ld-linux*|libc.so.*|libm.so.*|libdl.so.*|librt.so.*|libpthread.so.*) return 0 ;;
-    libresolv.so.*|libnsl.so.*|libutil.so.*|libcrypt.so.*)               return 0 ;;
-    libstdc++.so.*|libgcc_s.so.*)                                        return 0 ;;
-    libGL.so.*|libGLX.so.*|libEGL.so.*|libGLdispatch.so.*|libOpenGL.so.*) return 0 ;;
-    libGLESv2.so.*|libgbm.so.*|libdrm.so.*)                              return 0 ;;
-    libX11*.so.*|libxcb*.so.*|libX*.so.*|libwayland*.so.*|libxkbcommon*.so.*) return 0 ;;
-    libasound.so.*|libpulse*.so.*|libjack*.so.*|libpipewire*.so.*)       return 0 ;;
-    libdbus*.so.*|libudev.so.*|libsystemd.so.*|libselinux.so.*)          return 0 ;;
+    libresolv.so.*|libnsl.so.*|libutil.so.*|libcrypt.so.*|libanl.so.*)   return 0 ;;
+    # C++ runtime — must not sit in front of the host's Mesa
+    libstdc++*|libgcc_s*)                                                return 0 ;;
+    # GPU / graphics: these load the machine's own driver
+    libGL*|libEGL*|libOpenGL*|libGLdispatch*|libglapi*|libgbm*|libdrm*)  return 0 ;;
+    # display server
+    libX*|libxcb*|libwayland*|libxkbcommon*|libxshmfence*)               return 0 ;;
+    # sound servers — prefix form catches libpulsecommon-16.1.so
+    libasound*|libpulse*|libjack*|libpipewire*|libsndio*|libasyncns*)    return 0 ;;
+    # system policy / init / device management
+    libdbus*|libudev*|libsystemd*|libselinux*|libapparmor*|libcap.so.*)  return 0 ;;
     *) return 1 ;;
   esac
 }
