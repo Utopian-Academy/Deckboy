@@ -1933,7 +1933,10 @@
         optional.push_back("WebView2");
 #endif
 #if defined(DECKBOY_HAS_CEF)
-        optional.push_back("CEF");
+        // Linked, but browser cues do not run on it yet — the off-screen
+        // backend is phase 3 of docs/BROWSER_CEF_PLAN.md. Listing a bare "CEF"
+        // here read as a working feature when nothing used it at all.
+        optional.push_back("CEF (linked, not yet used)");
 #endif
         std::string joined;
         for (std::size_t i = 0; i < optional.size(); ++i) {
