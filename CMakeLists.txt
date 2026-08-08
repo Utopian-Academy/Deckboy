@@ -322,16 +322,44 @@ endif()
 
 # CEF (Chromium Embedded Framework)
 if(ENABLE_CEF)
+  # Headers alone are NOT enough to claim CEF support. The previous version of
+  # this block located cef_api_hash.h, defined DECKBOY_HAS_CEF, and stopped —
+  # so a build with -DENABLE_CEF=ON advertised CEF in the About dialog while
+  # browser cues still went through Xvfb. Require the library too, and the
+  # wrapper static lib that every real CEF app links.
   find_path(CEF_INCLUDE_DIR
     NAMES cef_api_hash.h
     PATHS
       "$ENV{CEF_SDK}/include"
+      "/opt/cef/include"
       "/opt/cef"
+    PATH_SUFFIXES include
   )
-  if(NOT CEF_INCLUDE_DIR)
-    message(FATAL_ERROR "CEF SDK not found. Disable ENABLE_CEF or set CEF_SDK env var")
+  find_library(CEF_LIBRARY
+    NAMES cef libcef
+    PATHS
+      "$ENV{CEF_SDK}/Release"
+      "$ENV{CEF_SDK}/lib"
+      "/opt/cef/Release"
+  )
+  find_library(CEF_DLL_WRAPPER
+    NAMES cef_dll_wrapper libcef_dll_wrapper
+    PATHS
+      "$ENV{CEF_SDK}/libcef_dll_wrapper"
+      "$ENV{CEF_SDK}/build/libcef_dll_wrapper/Release"
+      "$ENV{CEF_SDK}/Release"
+      "/opt/cef/libcef_dll_wrapper"
+  )
+  if(NOT CEF_INCLUDE_DIR OR NOT CEF_LIBRARY OR NOT CEF_DLL_WRAPPER)
+    message(FATAL_ERROR
+      "ENABLE_CEF=ON but a complete CEF SDK was not found.\n"
+      "  headers     : ${CEF_INCLUDE_DIR}\n"
+      "  libcef      : ${CEF_LIBRARY}\n"
+      "  dll_wrapper : ${CEF_DLL_WRAPPER}\n"
+      "Set CEF_SDK to a CEF binary distribution whose libcef_dll_wrapper has "
+      "been built, or disable ENABLE_CEF. See docs/BROWSER_CEF_PLAN.md.")
   endif()
-  message(STATUS "CEF support enabled")
+  message(STATUS "CEF support enabled: ${CEF_LIBRARY}")
 endif()
 
 # WebView (macOS/Windows native)
@@ -514,6 +542,10 @@ endif()
 
 if(ENABLE_CEF)
   target_include_directories(deckboy-native PRIVATE ${CEF_INCLUDE_DIR})
+  target_link_libraries(deckboy-native PRIVATE ${CEF_DLL_WRAPPER} ${CEF_LIBRARY})
+  # DECKBOY_HAS_CEF means "libcef is linked into this binary". It does NOT yet
+  # mean browser cues run on CEF — that is gated separately at runtime until the
+  # off-screen backend lands (docs/BROWSER_CEF_PLAN.md, phase 3).
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_CEF=1)
 endif()
 
