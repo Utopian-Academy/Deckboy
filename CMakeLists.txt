@@ -399,6 +399,17 @@ add_executable(deckboy-native
 )
 
 set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
+
+# Export dynamic symbols on POSIX so the crash handler's backtrace resolves to
+# function names. Without this, backtrace_symbols_fd can only print
+# "Deckboy(+0x4b83b)" for our own frames — the crash log tells you a crash
+# happened and nothing about where, which is most of its value gone. Verified
+# on Linux: the difference between an offset and `App::renderOutputWindow`.
+# Costs a slightly larger dynamic symbol table and nothing else.
+if(NOT MSVC)
+  set_target_properties(deckboy-native PROPERTIES ENABLE_EXPORTS ON)
+  target_link_options(deckboy-native PRIVATE -rdynamic)
+endif()
 add_dependencies(deckboy-native deckboy_generate_version)
 if(WIN32)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
