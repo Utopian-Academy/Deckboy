@@ -4288,62 +4288,19 @@ class App {
     }
   }
 
-  // Every picker runs its native dialog on a std::async worker, so ANY exception
-  // thrown in that worker — a failed process spawn, a bad_alloc, a filesystem
-  // error — is stored in the future and RETHROWN by .get() here, on the main
-  // thread, where nothing was catching it. An uncaught exception is
-  // std::terminate, which Windows reports as 0xC0000409 in ucrtbase: the app
-  // vanishes with no message. Deckboy has crashed that way repeatedly.
-  //
-  // A picker that fails must lose the picked path, not the show.
+  // Native SDL dialog results run their handlers here (importing, project load,
+  // save, relink). A handler can throw — a filesystem error, a bad_alloc — and
+  // an uncaught exception on the main thread is std::terminate, which Windows
+  // reports as 0xC0000409 in ucrtbase: the app vanishes with no message.
+  // Deckboy has crashed that way before. A dialog that fails must lose the
+  // picked path, not the show.
   void drainPickers() {
     try {
-      drainPickersUnsafe();
-      // Native SDL dialogs deliver results the same way — run any that landed.
       drainSdlDialogActions();
     } catch (const std::exception& e) {
       triggerToast(std::string("file dialog failed: ") + e.what());
     } catch (...) {
       triggerToast("file dialog failed");
-    }
-  }
-
-  void drainPickersUnsafe() {
-    if (pendingImport_.valid() &&
-        pendingImport_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-      auto paths = pendingImport_.get();
-      if (!paths.empty()) {
-        importPaths(paths);
-      }
-    }
-    if (pendingProjectOpen_.valid() &&
-        pendingProjectOpen_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-      auto path = pendingProjectOpen_.get();
-      if (path) {
-        openProjectFromPath(*path);
-      }
-    }
-    if (pendingProjectSaveAs_.valid() &&
-        pendingProjectSaveAs_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-      auto path = pendingProjectSaveAs_.get();
-      if (path) {
-        currentProjectFile_ = *path;
-        saveProjectNow(true);
-      }
-    }
-    if (pendingProjectBundleExport_.valid() &&
-        pendingProjectBundleExport_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-      auto path = pendingProjectBundleExport_.get();
-      if (path) {
-        exportProjectBundleTo(*path, true);
-      }
-    }
-    if (pendingMediaRelink_.valid() &&
-        pendingMediaRelink_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-      auto path = pendingMediaRelink_.get();
-      if (path) {
-        relinkMissingMediaFromFolder(*path);
-      }
     }
   }
 
@@ -6192,9 +6149,6 @@ class App {
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
   SDL_Rect startupOpenSavedBtn_ {};
-  std::future<std::vector<std::string>> pendingImport_;
-  std::future<std::optional<fs::path>> pendingProjectOpen_;
-  std::future<std::optional<fs::path>> pendingProjectSaveAs_;
   // SDL3 native file-dialog results, marshalled from the dialog callback onto
   // the main thread. See the async dialog helpers in app_cue_mgmt.ipp — this
   // replaces the osascript/powershell/zenity subprocess pickers, which had to
@@ -6203,8 +6157,6 @@ class App {
   std::mutex sdlDialogMutex_;
   std::vector<std::function<void()>> sdlDialogActions_;
   bool sdlDialogOpen_ = false;   // one native dialog at a time
-  std::future<std::optional<fs::path>> pendingProjectBundleExport_;
-  std::future<std::optional<fs::path>> pendingMediaRelink_;
   // Async media-presence scan (boot / project open). The worker stats every
   // file cue off-thread; results land on the update tick by cue id. The
   // generation counter supersedes stale workers (they bail at their next
