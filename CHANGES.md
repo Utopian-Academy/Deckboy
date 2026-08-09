@@ -1,5 +1,63 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-09 — post-0.83.0 fixes (macOS field-testing + installers)
+
+Deckboy was run on a Mac for the first time. That surfaced a chain of real
+issues, each fixed and verified, plus proper installers for all three platforms.
+
+### macOS, from "opens but nothing works" to working
+- **File pickers did nothing** (import, open, save, relink). They shelled out to
+  `osascript`/`powershell`/`zenity` — and import ran that on a background thread,
+  which macOS cannot do (forking a GUI subprocess off the main thread fails
+  silently). Replaced ALL of them with SDL3's native in-process dialogs
+  (`SDL_ShowOpenFileDialog` etc.): one native code path instead of three
+  shell-outs, no subprocess, no thread fragility. A later review against SDL's
+  docs fixed a data race (the callback can land on any thread) and documented
+  the filter-lifetime contract.
+- **iPhone photos "stuck loading."** An `IMG_*.HEIC` is a single-frame still, but
+  `.heic` was not classified as an image, so it loaded as a *video* and the
+  transport waited forever for a stream that yields one frame. Now HEIC/HEIF load
+  as stills. They also needed `-filter_complex` instead of `-vf scale` — HEIF is
+  reconstructed through an internal complex filtergraph that a simple filter
+  cannot compose with (it produced zero bytes). Verified on the real file.
+- **Still decode failures were silent.** A still that produces no frame
+  (unsupported format, corrupt file) sat blank forever. It now reports the
+  failure to the operator, distinguishing a genuine failure from a decode killed
+  by a cue switch.
+- **Startup splash text truncated** (`NEW SHOW F...`) in the wider macOS/Linux
+  font. Its buttons and dialog now size from measured text.
+- **Blank app icon** — the bundle had no `.icns`. Now built from the master art.
+
+### Cross-platform parity
+- **libltc is now bundled** in the macOS and Linux portable builds. LTC timecode
+  is a real cross-platform feature but was `dlopen`'d at runtime and never
+  shipped, so it only worked where libltc happened to be installed. The packagers
+  copy it and the loader looks for it relative to the executable first.
+- **Controls audit:** OSC, Companion, HyperDeck, Art-Net and TSL tally have no
+  platform gating — they already work identically everywhere. Verified.
+- Bundled `ffmpeg` is now reachable off Windows (startup PATH-prepend), a POSIX
+  crash handler writes `deckboy-crash.log` on Linux/macOS, and the backtrace is
+  symbolised (`-rdynamic`). See the v0.83.0 notes for NMOS.
+
+### Proper installers (new)
+- **macOS `.dmg`** — drag-to-Applications; installing out of Downloads also
+  sidesteps App Translocation. CI mounts it and checks its contents.
+- **Windows Inno Setup `.exe`** — Start Menu, optional desktop shortcut, opt-in
+  `.deckboy` association, real uninstaller. Verified install → run → uninstall.
+- **Linux AppImage** — one self-contained file, runs on any current distro.
+  Verified running with a cleared environment (`ffmpeg` and `libltc` both found).
+
+Full build instructions for every format: `docs/PACKAGING.md`.
+
+### Not done (needs your accounts)
+- macOS notarization (Apple Developer ID) — a downloaded build still needs a
+  one-time `xattr -dr com.apple.quarantine`.
+- Windows code signing (certificate) — first run shows an "unknown publisher"
+  prompt.
+- HEIC on Linux specifically: Ubuntu 24.04's ffmpeg 6.1 has no HEIF demuxer at
+  all (that landed in ffmpeg 7.1), so HEIC decodes on macOS but not the current
+  Linux build regardless of the fixes above.
+
 ## 2026-08-08 — v0.83.0 (portable macOS bundle)
 
 `tools/package_macos.sh` builds `dist/Deckboy-<VERSION>-macos-<arch>.zip`, the
