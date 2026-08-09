@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
-## 2026-08-09 — post-0.83.0 fixes (macOS field-testing + installers)
+## 2026-08-09 — v0.83.1 (macOS field-testing fixes + proper installers)
 
 Deckboy was run on a Mac for the first time. That surfaced a chain of real
 issues, each fixed and verified, plus proper installers for all three platforms.
