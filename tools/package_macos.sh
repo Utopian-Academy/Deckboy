@@ -313,11 +313,22 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   [ -e "$lib" ] || continue
   codesign "${SIGN_ARGS[@]}" "$lib" >/dev/null 2>&1 || true
 done
-for exe in "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/Deckboy"; do
+for exe in "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/Deckboy"; do
   [ -f "$exe" ] && codesign "${SIGN_ARGS[@]}" "$exe" >/dev/null 2>&1 || true
 done
-# --deep with the real identity re-signs nested code under the same cert.
-codesign "${SIGN_ARGS[@]}" --deep "$APP" >/dev/null 2>&1 || true
+# The screen-capture helper has no Info.plist, so codesign otherwise mints its
+# identifier from the binary's content hash (deckboy-sckcapture-<hash>) — a value
+# that CHANGES every build. macOS keys the Screen Recording TCC grant to that
+# identifier, so a per-build id makes the grant impossible to persist: every
+# rebuild (and sometimes every capture) re-shows the permission prompt, looping
+# even after the user clicks Allow. Pin a STABLE identifier so the grant sticks.
+if [ -f "$MACOS_DIR/deckboy-sckcapture" ]; then
+  codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.sckcapture \
+    "$MACOS_DIR/deckboy-sckcapture" >/dev/null 2>&1 || true
+fi
+# Seal the bundle over the already-signed nested code, inside-out. NOT --deep:
+# that would re-sign the helper and re-mint the identifier we just pinned.
+codesign "${SIGN_ARGS[@]}" "$APP" >/dev/null 2>&1 || true
 
 # --- Operator notes ---------------------------------------------------------
 cat > "$STAGE_DIR/README-macOS.txt" <<NOTE

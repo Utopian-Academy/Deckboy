@@ -343,6 +343,16 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
       device = ref;  // numeric index or exact device name
     }
 
+    // avfoundation is strict: it hard-rejects any (size, framerate, pixel-format)
+    // the device doesn't list EXACTLY, and does NOT snap to the nearest. On the
+    // MacBook camera ffmpeg's own defaults are both rejected — 29.97 fps ("not
+    // supported by the device") and yuv420p ("not supported... overriding") —
+    // which made the cue open then freeze with zero frames delivered. The device
+    // reports modes like 1280x720@[15,30] in nv12/uyvy422, so pin an explicit
+    // supported mode (1280x720 @ exactly 30 @ nv12) and let the scale filter
+    // resample to whatever size the cue reads. 1280x720@30 is near-universal;
+    // external webcams that lack it fail cleanly and the deck reracks.
+    int camFps = (fps <= 22) ? 15 : 30;   // device lists 15 and 30 — snap to one
     plan.supported = true;
     plan.backendId = id();
     plan.ffmpegArgs = {
@@ -350,14 +360,9 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
       "-hide_banner",
       "-loglevel", "error",
       "-f", "avfoundation",
-      // Do NOT force -video_size on the input: avfoundation does not snap to the
-      // nearest mode, it hard-rejects any capture size the camera does not list
-      // exactly (MacBook cameras have non-16:9 native modes), so a forced size
-      // makes ffmpeg exit with zero frames — the "camera does nothing" bug. Open
-      // the device in whatever native mode it prefers and let the scale filter
-      // below pin the output to the size Deckboy reads. -framerate stays: 30 is
-      // universally supported and avfoundation wants an input rate set.
-      "-framerate", std::to_string(fps),
+      "-framerate", std::to_string(camFps),
+      "-video_size", "1280x720",
+      "-pixel_format", "nv12",
       "-i", device + ":none",
       "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
       "-f", "rawvideo",
