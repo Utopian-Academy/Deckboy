@@ -188,28 +188,38 @@ Interface
 
 Download
 
-The fastest way to get started:
+Every release ships both a proper installer and a portable build for each
+platform. Grab whichever you prefer from the releases page:
 
-1. Download the latest release
-2. Extract the ZIP
-3. Run Deckboy.exe
-4. Load your media
-5. Take your first cue
+| Platform | Installer | Portable |
+|----------|-----------|----------|
+| Windows  | `...-windows-x64-setup.exe` (Start Menu, uninstaller, `.deckboy` files) | `...-windows-x64.zip` |
+| macOS    | `...-macos-arm64.dmg` (drag to Applications) | `...-macos-arm64.zip` |
+| Linux    | `...-x86_64.AppImage` (one file, `chmod +x` and run) | `...-linux-x86_64.tar.gz` |
 
-Windows builds are portable and include the required runtime components.
+Every build bundles everything it needs — the binary, ffmpeg, and its runtime
+libraries. No separate downloads.
 
-macOS builds are portable too: a self-contained Deckboy.app that carries its own
-libraries, built by tools/package_macos.sh. It is ad-hoc signed rather than
-notarized, so a zip downloaded through a browser needs its quarantine flag
-cleared once:
+A note on the "unknown developer" warnings: Deckboy is free software and is not
+code-signed (that means paying Apple/Microsoft, which rather defeats the point).
+The builds are safe; the OS just does not recognise an unpaid publisher. One-time
+steps:
 
-    xattr -dr com.apple.quarantine Deckboy.app
+- **macOS** — if it says the app is damaged or cannot be opened, clear the
+  quarantine flag once:
 
-Linux builds are portable as well, via tools/package_linux.sh: a tar.gz holding
-the binary, its libraries, ffmpeg and the app data. Extract it anywhere and run
-./deckboy. Graphics, display server, audio and the C/C++ runtime deliberately
-come from the host — those must match the machine actually running, and a
-bundled libGL cannot load your GPU driver.
+      xattr -dr com.apple.quarantine /Applications/Deckboy.app
+
+  Installing from the `.dmg` into Applications (rather than running from
+  Downloads) is also what avoids Gatekeeper's App Translocation sandbox.
+- **Windows** — SmartScreen may show "Windows protected your PC". Click
+  **More info → Run anyway**.
+
+On Linux the AppImage runs on any current distribution. Graphics (Mesa), the
+display server, audio and the C/C++ runtime deliberately come from the host —
+they must match the machine actually running, and a bundled libGL cannot load
+your GPU driver. Built on Ubuntu 24.04 / Mint 22, so target something of that
+vintage or newer.
 
 Not everything is on every platform. Rather than hide it:
 
@@ -223,8 +233,6 @@ Not everything is on every platform. Rather than hide it:
   scaffolds.
 - GPU zero-copy decode is Windows-only (D3D11VA). Other platforms decode on the
   CPU, which is comfortable on modern hardware.
-
-No installer required.
 
 Documentation
 
