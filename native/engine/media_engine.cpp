@@ -1793,13 +1793,48 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
     h = std::max(1, static_cast<int>(h * scale));
   }
 
-  if (!spawnPipeProcess(imageProcess_, {
+  // HEIF/HEIC (iPhone photos) are reconstructed from tiles through an INTERNAL
+  // complex filtergraph, and ffmpeg refuses to also apply a simple `-vf` filter
+  // on top of that ("Simple and complex filtering cannot be used together for
+  // the same stream") — so `-vf scale` produced zero bytes and the still cue
+  // loaded but never showed a frame. The fix is to express the scale as a
+  // `-filter_complex` graph, which composes with the tile reconstruction. That
+  // form works for ordinary images too, but `-vf` is kept as the default so the
+  // long-proven PNG/JPG path is untouched; only the complex-graph formats take
+  // the new branch.
+  const std::string scaleExpr =
+    "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor";
+  // Extension check without pulling in <filesystem> here: take the tail after
+  // the last '.' and lowercase it.
+  std::string lowerExt;
+  if (auto dot = mediaPath.find_last_of('.'); dot != std::string::npos) {
+    lowerExt = mediaPath.substr(dot);
+    std::transform(lowerExt.begin(), lowerExt.end(), lowerExt.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+  }
+  const bool complexGraphFormat = (lowerExt == ".heic" || lowerExt == ".heif");
+
+  std::vector<std::string> stillArgs = {
     "ffmpeg", "-hide_banner", "-loglevel", "error",
     "-i", mediaPath,
     "-frames:v", "1",
-    "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
-    "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
-  })) {
+  };
+  if (complexGraphFormat) {
+    stillArgs.push_back("-filter_complex");
+    stillArgs.push_back("[0:v]" + scaleExpr + "[o]");
+    stillArgs.push_back("-map");
+    stillArgs.push_back("[o]");
+  } else {
+    stillArgs.push_back("-vf");
+    stillArgs.push_back(scaleExpr);
+  }
+  stillArgs.push_back("-f");
+  stillArgs.push_back("rawvideo");
+  stillArgs.push_back("-pix_fmt");
+  stillArgs.push_back("rgba");
+  stillArgs.push_back("pipe:1");
+
+  if (!spawnPipeProcess(imageProcess_, stillArgs)) {
     return;
   }
 
