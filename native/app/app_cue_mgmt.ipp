@@ -1754,13 +1754,12 @@
     contextMenuCueIdx_ = -1;
     contextItems_.clear();
 
-    static const std::vector<std::pair<std::string, std::string>> kSourceTypes = {
-      {"window",  "Window Source"},
-      {"camera",  "Camera Source"},
-      {"syphon",  "Syphon/Spout Source"},
-    };
-
-    for (const auto& [token, label] : kSourceTypes) {
+    // Only the capture sources whose backend works on this platform (same
+    // catalog-driven list the inspector's type dropdown uses). On macOS every
+    // capture backend is a scaffold, so this list is empty there and the menu
+    // falls through to the stream/NDI entries below rather than offering three
+    // cues that do nothing.
+    for (const auto& [token, label] : sourceCueTypeChoices()) {
       bool isDefault = (token == sourceDefaultTypeId_);
       contextItems_.push_back({
         (isDefault ? "* " : "  ") + label,
@@ -1773,11 +1772,15 @@
       });
     }
 
+    // Browser cues run on Windows (WebView2/Edge) and Linux (Xvfb+Chromium) but
+    // the macOS backend is a scaffold — do not offer what cannot run.
+#ifndef __APPLE__
     contextItems_.push_back({
       "  Browser / URL Cue",
       {0, 0, 0, 0},
       [this]() { addBrowserCueFromPrompt(); }
     });
+#endif
     contextItems_.push_back({
       "  Stream Cue (SRT / RTMP / RTSP)",
       {0, 0, 0, 0},
