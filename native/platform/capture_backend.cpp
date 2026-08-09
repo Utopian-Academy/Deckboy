@@ -37,6 +37,8 @@
 
 #include "platform/capture_backend.hpp"
 #include "core/utils.hpp"
+#include "core/paths.hpp"    // executablePath() to locate the mac capture helper
+#include <filesystem>
 
 #include <algorithm>
 #include <cctype>
@@ -364,18 +366,53 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
 // capture reports honestly unsupported rather than shipping an ffmpeg command
 // that captures nothing and hangs.
 #if defined(__APPLE__)
-class MacUnsupportedWindowCaptureBackend final : public SourceCaptureBackend {
+class MacScreenCaptureBackend final : public SourceCaptureBackend {
  public:
   SourceCaptureKind kind() const override { return SourceCaptureKind::Window; }
   std::string id() const override { return "screencapturekit"; }
+
   SourceCapturePlan plan(const SourceCaptureRequest& request) const override {
-    (void) request;
     SourceCapturePlan plan;
-    plan.supported = false;
     plan.backendId = id();
-    plan.reasonUnavailable =
-      "screen capture needs a ScreenCaptureKit backend (avfoundation screen "
-      "capture is gone on current macOS)";
+
+    // The helper lives next to the executable (Contents/MacOS/ in a bundle).
+    std::filesystem::path exeDir =
+        deckboy::core::Paths::executablePath().parent_path();
+    std::filesystem::path helper = exeDir / "deckboy-sckcapture";
+    std::error_code ec;
+    if (exeDir.empty() || !std::filesystem::exists(helper, ec)) {
+      plan.supported = false;
+      plan.reasonUnavailable = "deckboy-sckcapture helper not found beside the app";
+      return plan;
+    }
+
+    // sourceRef -> display index. "" / "default" / "screen" -> 0; a bare number
+    // or "screen:N" picks another display.
+    std::string ref = trim(request.sourceRef);
+    std::string refLower = toLower(ref);
+    int display = 0;
+    if (refLower.rfind("screen:", 0) == 0) {
+      display = std::atoi(ref.substr(7).c_str());
+    } else if (!ref.empty() &&
+               std::all_of(ref.begin(), ref.end(),
+                           [](unsigned char c) { return std::isdigit(c); })) {
+      display = std::atoi(ref.c_str());
+    }
+
+    int w = std::max(1, request.width);
+    int h = std::max(1, request.height);
+    int fps = std::clamp(request.frameRate, 1, 60);
+
+    plan.supported = true;
+    // These reuse the ffmpegArgs channel: MediaEngine spawns args[0] and reads
+    // raw RGBA frames from its stdout, and the helper emits exactly that.
+    plan.ffmpegArgs = {
+      helper.string(),
+      "--display", std::to_string(display),
+      "--width", std::to_string(w),
+      "--height", std::to_string(h),
+      "--fps", std::to_string(fps),
+    };
     return plan;
   }
 };
@@ -560,12 +597,10 @@ class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
     // (the device enumerates as "[0] <model> Camera"). First use triggers the
     // camera permission prompt via NSCameraUsageDescription.
     out.push_back({CaptureBackendKind::Camera, "avfoundation", "Camera Capture (AVFoundation)", true, ""});
-    // Screen/window capture: Apple deprecated AVCaptureScreenInput for
-    // ScreenCaptureKit, and on current macOS ffmpeg's avfoundation no longer
-    // enumerates a "Capture screen" device, so it cannot be relied on. Kept
-    // honest as unsupported until a ScreenCaptureKit backend exists rather than
-    // shipping one that silently captures nothing.
-    out.push_back({CaptureBackendKind::Window, "screencapturekit", "Screen Capture (ScreenCaptureKit)", false, "needs a ScreenCaptureKit backend (avfoundation screen capture is gone on current macOS)"});
+    // Screen capture via the deckboy-sckcapture ScreenCaptureKit helper (real —
+    // avfoundation screen capture was removed on current macOS). Whole-display
+    // capture; per-window is a future extension of the same helper.
+    out.push_back({CaptureBackendKind::Window, "screencapturekit", "Screen Capture (ScreenCaptureKit)", true, ""});
     out.push_back({CaptureBackendKind::AppTexture, "syphon", "Syphon App Texture", false, "backend scaffold only"});
 #endif
 
@@ -596,7 +631,7 @@ std::unique_ptr<SourceCaptureBackend> createWindowCaptureBackend() {
 #if defined(_WIN32)
   return std::make_unique<WindowsGdigrabCaptureBackend>();
 #elif defined(__APPLE__)
-  return std::make_unique<MacUnsupportedWindowCaptureBackend>();
+  return std::make_unique<MacScreenCaptureBackend>();
 #else
   return std::make_unique<LinuxWindowCaptureBackend>();
 #endif

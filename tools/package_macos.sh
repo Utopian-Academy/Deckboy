@@ -93,6 +93,16 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
+# --- deckboy-sckcapture (ScreenCaptureKit screen-capture helper) ------------
+# Window/screen cues spawn this next to the app. Built by the same cmake build.
+if [ -f "$BUILD_DIR/deckboy-sckcapture" ]; then
+  cp "$BUILD_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-sckcapture"
+  chmod +x "$MACOS_DIR/deckboy-sckcapture"
+  echo "  + deckboy-sckcapture"
+else
+  echo "  ! deckboy-sckcapture not found in $BUILD_DIR - screen capture will be unavailable" >&2
+fi
+
 # --- libltc (LTC timecode) --------------------------------------------------
 # Deckboy dlopen()s libltc at runtime; it is never linked, so the dependency
 # walk below cannot find it. Copy it in explicitly (ltc_api.hpp looks in
@@ -211,7 +221,7 @@ is_system_lib() {
 }
 
 WORKLIST=()
-for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe"; do
+for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
@@ -273,7 +283,7 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   install_name_tool -add_rpath "@loader_path" "$lib" 2>/dev/null || true
 done
 
-for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe"; do
+for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture"; do
   [ -f "$exe" ] || continue
   retarget "$exe"
   install_name_tool -add_rpath "@executable_path/../Frameworks" "$exe" 2>/dev/null || true
@@ -303,7 +313,7 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   [ -e "$lib" ] || continue
   codesign "${SIGN_ARGS[@]}" "$lib" >/dev/null 2>&1 || true
 done
-for exe in "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/Deckboy"; do
+for exe in "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/Deckboy"; do
   [ -f "$exe" ] && codesign "${SIGN_ARGS[@]}" "$exe" >/dev/null 2>&1 || true
 done
 # --deep with the real identity re-signs nested code under the same cert.
