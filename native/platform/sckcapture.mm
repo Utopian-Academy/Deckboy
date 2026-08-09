@@ -14,7 +14,10 @@
 // process for the same reason ffmpeg is: capture failure never takes the app
 // down, and the helper can hold the Screen Recording permission cleanly.
 //
-// Usage:  deckboy-sckcapture --display <index> --width <w> --height <h> --fps <n>
+// Usage:  deckboy-sckcapture --width <w> --height <h> --fps <n>
+//                            [--display <index> | --window <CGWindowID>]
+//         --display captures a whole screen (default, index 0); --window
+//         captures one window by its CGWindowID (from the app's window picker).
 // Output: continuous tightly-packed RGBA8 frames on stdout (w*h*4 bytes each).
 //
 // PERMISSION: screen capture requires the Screen Recording TCC grant, attributed
@@ -39,6 +42,7 @@ int g_width = 1280;
 int g_height = 720;
 int g_fps = 30;
 int g_displayIndex = 0;
+long g_windowId = 0;   // >0 -> capture this CGWindowID instead of a whole display
 std::atomic<bool> g_running{true};
 
 int parseIntArg(const char* v, int fallback) {
@@ -111,11 +115,13 @@ int main(int argc, const char* argv[]) {
     else if (std::strcmp(argv[i], "--width") == 0) g_width = parseIntArg(argv[i + 1], 1280);
     else if (std::strcmp(argv[i], "--height") == 0) g_height = parseIntArg(argv[i + 1], 720);
     else if (std::strcmp(argv[i], "--fps") == 0) g_fps = parseIntArg(argv[i + 1], 30);
+    else if (std::strcmp(argv[i], "--window") == 0) g_windowId = std::strtol(argv[i + 1], nullptr, 10);
   }
 
   if (@available(macOS 12.3, *)) {
     @autoreleasepool {
       __block SCDisplay* chosen = nil;
+      __block SCWindow* chosenWindow = nil;
       __block NSError* contentError = nil;
       dispatch_semaphore_t sem = dispatch_semaphore_create(0);
 
@@ -124,23 +130,39 @@ int main(int argc, const char* argv[]) {
       [SCShareableContent getShareableContentWithCompletionHandler:^(
           SCShareableContent* content, NSError* error) {
         contentError = error;
-        if (content && content.displays.count > 0) {
-          NSInteger idx = g_displayIndex;
-          if (idx < 0 || idx >= (NSInteger)content.displays.count) idx = 0;
-          chosen = content.displays[idx];
+        if (content) {
+          if (g_windowId > 0) {
+            // Find the specific window the picker chose, by its CGWindowID.
+            for (SCWindow* w in content.windows) {
+              if ((long)w.windowID == g_windowId) { chosenWindow = w; break; }
+            }
+          }
+          if (!chosenWindow && content.displays.count > 0) {
+            NSInteger idx = g_displayIndex;
+            if (idx < 0 || idx >= (NSInteger)content.displays.count) idx = 0;
+            chosen = content.displays[idx];
+          }
         }
         dispatch_semaphore_signal(sem);
       }];
       dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10LL * NSEC_PER_SEC));
 
-      if (!chosen) {
+      if (g_windowId > 0 && !chosenWindow) {
+        // The requested window is gone (closed/minimised) or permission denied.
+        fprintf(stderr, "sckcapture: requested window %ld not capturable "
+                        "(closed, or Screen Recording permission denied)\n", g_windowId);
+        return 2;
+      }
+      if (!chosenWindow && !chosen) {
         fprintf(stderr, "sckcapture: no capturable display "
                         "(Screen Recording permission may be denied)\n");
         return 2;
       }
 
       SCContentFilter* filter =
-          [[SCContentFilter alloc] initWithDisplay:chosen excludingWindows:@[]];
+          chosenWindow
+              ? [[SCContentFilter alloc] initWithDesktopIndependentWindow:chosenWindow]
+              : [[SCContentFilter alloc] initWithDisplay:chosen excludingWindows:@[]];
 
       SCStreamConfiguration* config = [[SCStreamConfiguration alloc] init];
       config.width = g_width;
