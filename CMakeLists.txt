@@ -420,6 +420,13 @@ if(APPLE)
     "-framework Foundation")
   # Deckboy depends on the helper existing next to it, so build it alongside.
   add_dependencies(deckboy-native deckboy-sckcapture)
+
+  # The main app's window picker (listCaptureWindows in capture_backend.cpp)
+  # enumerates on-screen windows via CoreGraphics/CoreFoundation, so the app
+  # itself must link them (the helper's own link line above is separate).
+  target_link_libraries(deckboy-native PRIVATE
+    "-framework CoreGraphics"
+    "-framework CoreFoundation")
 endif()
 
 # Export dynamic symbols on POSIX so the crash handler's backtrace resolves to
