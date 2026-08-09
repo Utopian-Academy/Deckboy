@@ -377,11 +377,31 @@
   }
 
   std::vector<std::pair<std::string, std::string>> sourceCueTypeChoices() const {
-    std::vector<std::pair<std::string, std::string>> choices {
-      {"window", "Window Source"},
-      {"camera", "Camera Source"},
-    };
-    choices.push_back({"syphon", "Syphon/Spout Source"});
+    // Only offer capture sources whose backend actually works on THIS platform.
+    // Listing all three everywhere was theatre: on macOS every capture backend
+    // is a scaffold (a user picked "Camera Source" and nothing happened), and
+    // Syphon/Spout *capture* is a scaffold on Windows too (Spout OUTPUT works;
+    // capturing a Spout sender as input does not). The self-check already knows
+    // this per platform — drive the menu from the same catalog so the two can
+    // never disagree.
+    std::vector<std::pair<std::string, std::string>> choices;
+    auto catalog = deckboy::platform::createCaptureBackendCatalog();
+    for (const auto& info : catalog->list()) {
+      if (!info.supported) {
+        continue;
+      }
+      switch (info.kind) {
+        case deckboy::platform::CaptureBackendKind::Window:
+          choices.emplace_back("window", "Window Source");
+          break;
+        case deckboy::platform::CaptureBackendKind::Camera:
+          choices.emplace_back("camera", "Camera Source");
+          break;
+        case deckboy::platform::CaptureBackendKind::AppTexture:
+          choices.emplace_back("syphon", "Syphon/Spout Source");
+          break;
+      }
+    }
     return choices;
   }
 
