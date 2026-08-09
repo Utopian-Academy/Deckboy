@@ -36,8 +36,10 @@
 // ============================================================================
 
 #include "platform/capture_backend.hpp"
+#include "platform/dynamic_library.hpp"  // dlopen libX11 for the Linux window picker
 #include "core/utils.hpp"
 #include "core/paths.hpp"    // executablePath() to locate the mac capture helper
+#include <cstdio>
 #include <filesystem>
 
 #include <algorithm>
@@ -812,8 +814,81 @@ std::vector<CaptureWindowInfo> listCaptureWindows() {
     CFRelease(windowList);
   }
 #elif defined(__linux__)
-  // On Linux, window enumeration would require X11/XCB — not implemented yet.
-  // The text editor fallback still works for typing x11grab source refs.
+  // Enumerate managed top-level windows via EWMH _NET_CLIENT_LIST, using a
+  // dlopen'd libX11 so the app carries no build-time X11 dependency (matches the
+  // NDI/libltc convention). Each window becomes an "id:0x..." sourceRef, which
+  // LinuxWindowCaptureBackend already feeds to x11grab's -window_id. If libX11
+  // is missing or we're on a bare Wayland session, we fall through with just the
+  // Desktop entry rather than failing.
+  using XDisplay = void;
+  using XWindow = unsigned long;
+  using XAtom = unsigned long;
+
+  DynamicLibrary xlib({"libX11.so.6", "libX11.so"});
+  if (xlib.load()) {
+    auto pXOpenDisplay = xlib.loadSymbol<XDisplay* (*)(const char*)>("XOpenDisplay");
+    auto pXCloseDisplay = xlib.loadSymbol<int (*)(XDisplay*)>("XCloseDisplay");
+    auto pXDefaultRootWindow = xlib.loadSymbol<XWindow (*)(XDisplay*)>("XDefaultRootWindow");
+    auto pXInternAtom = xlib.loadSymbol<XAtom (*)(XDisplay*, const char*, int)>("XInternAtom");
+    auto pXGetWindowProperty = xlib.loadSymbol<int (*)(
+        XDisplay*, XWindow, XAtom, long, long, int, XAtom,
+        XAtom*, int*, unsigned long*, unsigned long*, unsigned char**)>("XGetWindowProperty");
+    auto pXFree = xlib.loadSymbol<int (*)(void*)>("XFree");
+    auto pXFetchName = xlib.loadSymbol<int (*)(XDisplay*, XWindow, char**)>("XFetchName");
+
+    if (pXOpenDisplay && pXCloseDisplay && pXDefaultRootWindow && pXInternAtom &&
+        pXGetWindowProperty && pXFree) {
+      if (XDisplay* dpy = pXOpenDisplay(nullptr)) {
+        const XAtom XA_WINDOW = 33;  // from Xatom.h, stable
+        XAtom clientList = pXInternAtom(dpy, "_NET_CLIENT_LIST", 1 /*only if exists*/);
+        XAtom netWmName = pXInternAtom(dpy, "_NET_WM_NAME", 0);
+        XAtom utf8 = pXInternAtom(dpy, "UTF8_STRING", 0);
+
+        // Resolve a window's title: prefer UTF-8 _NET_WM_NAME, fall back to the
+        // legacy WM_NAME via XFetchName.
+        auto titleOf = [&](XWindow w) -> std::string {
+          XAtom aType = 0; int aFmt = 0; unsigned long n = 0, after = 0;
+          unsigned char* data = nullptr;
+          if (netWmName &&
+              pXGetWindowProperty(dpy, w, netWmName, 0, 1024, 0, utf8,
+                                  &aType, &aFmt, &n, &after, &data) == 0 && data) {
+            std::string s(reinterpret_cast<char*>(data), static_cast<size_t>(n));
+            pXFree(data);
+            if (!s.empty()) return s;
+          }
+          if (pXFetchName) {
+            char* nm = nullptr;
+            if (pXFetchName(dpy, w, &nm) != 0 && nm) {
+              std::string s(nm);
+              pXFree(nm);
+              return s;
+            }
+          }
+          return std::string();
+        };
+
+        XWindow root = pXDefaultRootWindow(dpy);
+        XAtom aType = 0; int aFmt = 0; unsigned long n = 0, after = 0;
+        unsigned char* data = nullptr;
+        if (clientList &&
+            pXGetWindowProperty(dpy, root, clientList, 0, 4096, 0, XA_WINDOW,
+                                &aType, &aFmt, &n, &after, &data) == 0 && data) {
+          // Format-32 properties come back as an array of `long` (native width).
+          auto* wins = reinterpret_cast<XWindow*>(data);
+          for (unsigned long i = 0; i < n; ++i) {
+            XWindow w = wins[i];
+            std::string title = titleOf(w);
+            if (title.empty()) continue;
+            char idbuf[32];
+            std::snprintf(idbuf, sizeof(idbuf), "id:0x%lx", w);
+            result.push_back({idbuf, title});
+          }
+          pXFree(data);
+        }
+        pXCloseDisplay(dpy);
+      }
+    }
+  }
 #endif
 
   return result;
