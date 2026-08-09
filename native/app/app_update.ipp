@@ -591,6 +591,17 @@
           : "DECODE STALLED — deck " + deckDefaultName(deckIndex) + " reracked");
       }
 
+      // A still image that produced no frame — unsupported format (e.g. HEIC on
+      // an ffmpeg without HEIF support) or a corrupt file. Without this the cue
+      // just sat blank with no explanation.
+      if (engine->consumeStillDecodeFailure()) {
+        const Cue* failedCue = activeCuePtr(deckIndex);
+        std::string cueName = failedCue ? failedCue->name : std::string();
+        triggerToast(cueName.empty()
+          ? "couldn't decode still image — unsupported format or corrupt file"
+          : "couldn't decode \"" + cueName + "\" — unsupported format or corrupt file");
+      }
+
       // Animate pattern cues: rebuild frame every tick using wall-clock time.
       const Cue* activeCue = activeCuePtr(deckIndex);
       if (activeCue && activeCue->kind == CueKind::Pattern) {

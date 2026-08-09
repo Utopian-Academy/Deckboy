@@ -215,6 +215,10 @@ class MediaEngine {
   bool inprocDecodeActive() const { return inprocDecodeActive_; }
   void* activeDecodeDevice() const { return activeDecodeDevice_; }
   bool consumeDecodeStall();
+  // Latches true once when a still-image cue failed to decode (unsupported
+  // format or corrupt file). The app polls this and tells the operator, instead
+  // of the cue silently showing nothing. Cleared on read.
+  bool consumeStillDecodeFailure();
   // Process-wide break-glass switch (--no-inproc-decode, decode bench): when
   // disabled, every new decode uses the ffmpeg CLI pipe path even in builds
   // compiled with DECKBOY_INPROC_DECODE. Affects the next TAKE, not running decodes.
@@ -403,6 +407,14 @@ class MediaEngine {
   std::mutex imageMutex_;                    // protects pendingImageFrame_
   std::optional<DecodedFrame> pendingImageFrame_; // still frame waiting to be consumed by main thread
   std::atomic<bool> imageFramePending_ {false};   // flag: pendingImageFrame_ is ready
+  // A still decode that produces no frame (unsupported format — e.g. HEIC on an
+  // ffmpeg without HEIF demux — or a corrupt/truncated file) used to fail
+  // SILENTLY: the cue loaded and simply showed nothing, forever. imageDecodeFailed_
+  // latches a genuine failure so the app can tell the operator. imageCancelRequested_
+  // suppresses the latch when the decode was killed on purpose by a cue switch
+  // (which also makes the pipe read fail), so a normal retake never false-alarms.
+  std::atomic<bool> imageDecodeFailed_ {false};
+  std::atomic<bool> imageCancelRequested_ {false};
 
   // -- State: audio tap --------------------------------------------------------
   AudioTapCallback audioTap_;                // callback for waveform/VU meter display
