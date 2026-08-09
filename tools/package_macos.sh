@@ -283,15 +283,31 @@ done
 # MUST come after install_name_tool. Ad-hoc ("-") is enough to execute locally;
 # it is not Developer ID and does not survive Gatekeeper on a downloaded zip.
 # Inside-out: dependencies before the things that load them.
-echo "Re-signing (ad-hoc)"
+#
+# SIGNING IDENTITY is DORMANT SCAFFOLDING. By default (no env set) everything is
+# ad-hoc signed and the free "clear the quarantine flag" path applies — which is
+# the deliberate, zero-cost default. If DECKBOY_MACOS_SIGN_IDENTITY is set to a
+# "Developer ID Application: ..." identity (from a paid Apple Developer Program
+# membership), the SAME structure signs for real with the hardened runtime + a
+# secure timestamp, which is the half notarisation needs. Nothing here forces
+# anyone to pay Apple; it just means the day you decide to, one env var flips it.
+SIGN_ID="${DECKBOY_MACOS_SIGN_IDENTITY:-}"
+if [ -n "$SIGN_ID" ]; then
+  echo "Re-signing (Developer ID: $SIGN_ID)"
+  SIGN_ARGS=(--force --options runtime --timestamp --sign "$SIGN_ID")
+else
+  echo "Re-signing (ad-hoc — unsigned distribution; see README for the xattr step)"
+  SIGN_ARGS=(--force --timestamp=none --sign -)
+fi
 for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   [ -e "$lib" ] || continue
-  codesign --force --timestamp=none --sign - "$lib" >/dev/null 2>&1 || true
+  codesign "${SIGN_ARGS[@]}" "$lib" >/dev/null 2>&1 || true
 done
 for exe in "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/Deckboy"; do
-  [ -f "$exe" ] && codesign --force --timestamp=none --sign - "$exe" >/dev/null 2>&1 || true
+  [ -f "$exe" ] && codesign "${SIGN_ARGS[@]}" "$exe" >/dev/null 2>&1 || true
 done
-codesign --force --deep --timestamp=none --sign - "$APP" >/dev/null 2>&1 || true
+# --deep with the real identity re-signs nested code under the same cert.
+codesign "${SIGN_ARGS[@]}" --deep "$APP" >/dev/null 2>&1 || true
 
 # --- Operator notes ---------------------------------------------------------
 cat > "$STAGE_DIR/README-macOS.txt" <<NOTE
@@ -361,4 +377,40 @@ if command -v hdiutil >/dev/null; then
   rm -rf "$(dirname "$DMG_STAGE")"
 else
   echo "  ! hdiutil not found - skipping .dmg" >&2
+fi
+
+# --- Notarisation (DORMANT — only runs when credentials are provided) --------
+# The free default skips this entirely: an un-notarised download needs the
+# one-time `xattr -dr com.apple.quarantine` documented in the README, and that
+# is a perfectly legitimate way to ship. Notarisation removes that step, but it
+# requires a paid Apple Developer Program membership, so it is opt-in by
+# environment and nothing here nags for it.
+#
+# Provide an App Store Connect API key (the clean CI path):
+#   DECKBOY_NOTARY_KEY_ID, DECKBOY_NOTARY_ISSUER_ID, DECKBOY_NOTARY_KEY_P8 (path)
+# Notarisation only makes sense on a Developer-ID-signed build, so it also needs
+# DECKBOY_MACOS_SIGN_IDENTITY to have been set above.
+if [ -n "${DECKBOY_NOTARY_KEY_ID:-}" ] && [ -n "${DECKBOY_NOTARY_ISSUER_ID:-}" ] \
+   && [ -n "${DECKBOY_NOTARY_KEY_P8:-}" ] && [ -n "$SIGN_ID" ] \
+   && command -v xcrun >/dev/null; then
+  echo "Notarising (App Store Connect API key)"
+  for artifact in "$ZIP_PATH" "${DMG_PATH:-}"; do
+    [ -f "$artifact" ] || continue
+    if xcrun notarytool submit "$artifact" \
+         --key "$DECKBOY_NOTARY_KEY_P8" \
+         --key-id "$DECKBOY_NOTARY_KEY_ID" \
+         --issuer "$DECKBOY_NOTARY_ISSUER_ID" \
+         --wait >/dev/null 2>&1; then
+      # Staple only the .dmg/.app — a .zip cannot hold a stapled ticket, but the
+      # notarisation is recorded against its contents' hash regardless.
+      case "$artifact" in
+        *.dmg) xcrun stapler staple "$artifact" >/dev/null 2>&1 || true ;;
+      esac
+      echo "  notarised: $(basename "$artifact")"
+    else
+      echo "  ! notarisation failed for $(basename "$artifact") (shipping as-is)" >&2
+    fi
+  done
+  # Staple the app inside the tree too, so a fresh zip/dmg from it carries it.
+  xcrun stapler staple "$APP" >/dev/null 2>&1 || true
 fi
