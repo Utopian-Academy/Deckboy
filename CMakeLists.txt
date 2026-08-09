@@ -404,6 +404,24 @@ add_executable(deckboy-native
 
 set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
 
+# macOS screen capture helper. avfoundation screen capture is gone on current
+# macOS, so window/screen cues run this small ScreenCaptureKit binary, which
+# writes raw RGBA frames to stdout exactly like ffmpeg does. Built for every
+# macOS build (no feature flag) so the bundle always ships it. @available guards
+# the 12.3+ symbols, so the deployment target stays at the app's minimum.
+if(APPLE)
+  add_executable(deckboy-sckcapture native/platform/sckcapture.mm)
+  set_target_properties(deckboy-sckcapture PROPERTIES OUTPUT_NAME "deckboy-sckcapture")
+  target_link_libraries(deckboy-sckcapture PRIVATE
+    "-framework ScreenCaptureKit"
+    "-framework CoreMedia"
+    "-framework CoreVideo"
+    "-framework CoreGraphics"
+    "-framework Foundation")
+  # Deckboy depends on the helper existing next to it, so build it alongside.
+  add_dependencies(deckboy-native deckboy-sckcapture)
+endif()
+
 # Export dynamic symbols on POSIX so the crash handler's backtrace resolves to
 # function names. Without this, backtrace_symbols_fd can only print
 # "Deckboy(+0x4b83b)" for our own frames — the crash log tells you a crash
