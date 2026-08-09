@@ -57,6 +57,11 @@ cmake --build ../build/windows --config Release
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
+| `tools/deckboy.iss` | Inno Setup Windows installer (Start Menu, `.deckboy` assoc, uninstaller). Needs the zip packager's staging dir. `iscc /DDeckboyVersion=<ver> tools\deckboy.iss` |
+| `tools/package_macos.sh` | macOS `.app` bundle → `.zip` AND `.dmg` (drag-to-Applications). Relocates dylibs to Frameworks, re-signs ad-hoc AFTER `install_name_tool` (order is load-bearing), bundles libltc + builds `.icns` |
+| `tools/package_linux.sh` | Portable Linux `.tar.gz` (bin/lib/data + `$ORIGIN` RPATH). Host provides GPU/X11/audio/glibc/libstdc++ — see comments |
+| `tools/package_linux_appimage.sh` | Single-file `.AppImage` (wraps the portable tree; fetches appimagetool) |
+| `docs/PACKAGING.md` | The full per-platform packaging/installer guide — read this first for anything build-distribution |
 | `native/core/system_browser.hpp` | Cross-platform `openExternalUrl()` for dep prompts |
 | `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
 | `native/engine/libav_decoder.hpp/.cpp` | In-process libav decode pipelines (v0.78.0): d3d11va zero-copy video, audio→s16/48k, D3D11 interop helpers. Behind `DECKBOY_INPROC_DECODE` |
@@ -219,6 +224,34 @@ The app runs on SDL3 (migrated from SDL2 in v0.77.0). Rules that keep it working
   without it SDL's D3D11 devices are single-threaded and the in-process
   decoder cannot share them (random crash/deadlock); never remove.
 - Full migration notes: DEVNOTES "SDL2 → SDL3 Migration".
+
+## File Dialogs (native, async)
+
+All file/folder pickers use SDL3's native dialogs — `showOpenFileDialog` /
+`showSaveFileDialog` / `showFolderDialog` in `app_cue_mgmt.ipp`. Do NOT reintroduce
+the old `osascript`/`powershell`/`zenity` subprocess pickers: import ran one on a
+`std::async` thread, and macOS cannot fork a GUI subprocess off the main thread —
+it failed silently. Rules:
+- The result callback (`sdlDialogTrampoline`) may fire on **any thread** (SDL's
+  contract), so it only marshals a closure into `sdlDialogActions_` under a mutex;
+  the real work runs on the main thread via `drainSdlDialogActions()` in the
+  update loop. `sdlDialogOpen_` is atomic for the same reason.
+- Filters passed to the helpers MUST have static/long lifetime — SDL requires the
+  filter array stay valid until the callback fires. Every caller uses a
+  `static const` list; never pass a temporary.
+
+## Media Formats
+
+- Image cues: `isImagePath()` (main.cpp) lists the still extensions, incl.
+  `.heic`/`.heif`. HEIC/HEIF are HEIF-container stills reconstructed via ffmpeg's
+  INTERNAL complex filtergraph, so `loadStillFrame` scales them with
+  `-filter_complex`, not `-vf` (which errors "simple and complex filtering cannot
+  be used together" and yields zero bytes). Needs ffmpeg ≥ 7.1 for HEIF demux
+  (macOS Homebrew has it; Ubuntu 24.04's 6.1 does NOT).
+- A still that decodes to no frame latches `consumeStillDecodeFailure()` so the
+  operator is told, instead of a blank cue.
+- libltc is dlopen'd at runtime and BUNDLED by the packagers (Frameworks on mac,
+  lib/ on Linux); `ltc_api.hpp` looks for it relative to the exe first.
 
 ## Key Conventions
 
