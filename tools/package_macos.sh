@@ -93,6 +93,21 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
+# --- libltc (LTC timecode) --------------------------------------------------
+# Deckboy dlopen()s libltc at runtime; it is never linked, so the dependency
+# walk below cannot find it. Copy it in explicitly (ltc_api.hpp looks in
+# Frameworks relative to the executable). Without this the bundle advertised LTC
+# in/out but it only worked on a Mac that already had `brew install libltc`.
+for ltccand in /opt/homebrew/lib/libltc.dylib /usr/local/lib/libltc.dylib; do
+  if [ -f "$ltccand" ]; then
+    cp -L "$ltccand" "$FRAMEWORKS_DIR/libltc.dylib"
+    chmod u+w "$FRAMEWORKS_DIR/libltc.dylib"
+    echo "  + Frameworks/libltc.dylib"
+    break
+  fi
+done
+[ -f "$FRAMEWORKS_DIR/libltc.dylib" ] || echo "  ! libltc not found - LTC timecode will be unavailable in this bundle" >&2
+
 # --- data/ ------------------------------------------------------------------
 # Contents/Resources, per Apple's layout. codesign treats Contents/MacOS as a
 # code-only directory, so a data/ tree next to the executable risks failing
