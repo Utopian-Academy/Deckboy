@@ -331,3 +331,34 @@ rm -f "$ZIP_PATH"
 echo
 echo "Wrote $ZIP_PATH"
 du -h "$ZIP_PATH" | awk '{print "  size: " $1}'
+
+# --- Disk image (drag-to-Applications installer) ----------------------------
+# The .dmg is the "proper installer" a Mac user expects: open it, drag Deckboy
+# onto the Applications shortcut, done. It also moves the app OUT of Downloads,
+# which matters here — an app run from Downloads is subject to App Translocation
+# (Gatekeeper runs it from a read-only random path), the very thing that made
+# the file picker fail on the first test. Installed to /Applications it runs
+# normally. Quarantine still applies to an un-notarized download; the README
+# inside the image documents the one-time `xattr` clear.
+#
+# hdiutil is macOS-only, so this whole packager already requires macOS.
+if command -v hdiutil >/dev/null; then
+  DMG_STAGE="$(mktemp -d)/dmg"
+  mkdir -p "$DMG_STAGE"
+  cp -R "$APP" "$DMG_STAGE/Deckboy.app"
+  ln -s /Applications "$DMG_STAGE/Applications"     # drag target
+  [ -f "$STAGE_DIR/README-macOS.txt" ] && cp "$STAGE_DIR/README-macOS.txt" "$DMG_STAGE/README.txt"
+  DMG_PATH="$OUTPUT_DIR/$STAGE_NAME.dmg"
+  rm -f "$DMG_PATH"
+  # UDZO = zlib-compressed read-only image, the standard for distribution.
+  if hdiutil create -volname "Deckboy $VERSION" -srcfolder "$DMG_STAGE" \
+       -ov -format UDZO "$DMG_PATH" >/dev/null 2>&1; then
+    echo "Wrote $DMG_PATH"
+    du -h "$DMG_PATH" | awk '{print "  size: " $1}'
+  else
+    echo "  ! hdiutil failed - .dmg not produced (zip is still available)" >&2
+  fi
+  rm -rf "$(dirname "$DMG_STAGE")"
+else
+  echo "  ! hdiutil not found - skipping .dmg" >&2
+fi

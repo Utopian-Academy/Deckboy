@@ -262,16 +262,31 @@ jobs:
         run: |
           APP=$(find dist/staging -maxdepth 2 -name 'Deckboy.app' | head -1)
           for stale in last_project.txt default.deckboy; do
-            if [ -e "$APP/Contents/MacOS/data/$stale" ]; then
+            if [ -e "$APP/Contents/Resources/data/$stale" ]; then
               echo "::error::data/$stale shipped in the bundle"; exit 1
             fi
           done
           echo "no per-machine state in the bundle"
 
+      # The .dmg must exist, mount, and contain both the app and the
+      # /Applications drag target. A dmg that will not mount is worse than none.
+      - name: Verify the .dmg mounts and is a real installer
+        run: |
+          DMG=$(ls dist/*.dmg | head -1)
+          echo "dmg: $DMG"
+          MNT=$(mktemp -d)
+          hdiutil attach "$DMG" -mountpoint "$MNT" -nobrowse -quiet
+          test -d "$MNT/Deckboy.app" || { echo "::error::no Deckboy.app in dmg"; exit 1; }
+          test -L "$MNT/Applications" || { echo "::error::no /Applications drag target"; exit 1; }
+          echo "dmg mounts, contains Deckboy.app + Applications shortcut"
+          hdiutil detach "$MNT" -quiet
+
       - uses: actions/upload-artifact@v4
         with:
           name: deckboy-macos-portable
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.dmg
           if-no-files-found: error
 
   windows-build:
