@@ -291,13 +291,17 @@ else()
   message(STATUS "RtMidi support disabled (ENABLE_MIDI=OFF)")
 endif()
 
-# Siphon (macOS)
+# Syphon (macOS). NOTE: the framework is "Syphon" (with a y); the earlier
+# scaffolding searched for "Siphon" and so could never have found it. The build
+# OPTION keeps the historical ENABLE_SIPHON spelling for compatibility.
 if(ENABLE_SIPHON AND APPLE)
-  find_library(SIPHON_FRAMEWORK Siphon)
-  if(NOT SIPHON_FRAMEWORK)
-    message(FATAL_ERROR "Siphon framework not found on macOS. Disable ENABLE_SIPHON or install Siphon")
+  find_library(SYPHON_FRAMEWORK Syphon)
+  if(NOT SYPHON_FRAMEWORK)
+    message(FATAL_ERROR "Syphon.framework not found. Build it from "
+      "github.com/Syphon/Syphon-Framework and install it where find_library can "
+      "see it, or disable ENABLE_SIPHON. See docs/SYPHON_PLAN.md.")
   endif()
-  message(STATUS "Siphon support enabled")
+  message(STATUS "Syphon support enabled: ${SYPHON_FRAMEWORK}")
 endif()
 
 # Spout (Windows) — auto-detect from vcpkg or manual SDK path
@@ -538,7 +542,10 @@ if(ENABLE_MIDI)
 endif()
 
 if(ENABLE_SIPHON AND APPLE)
-  deckboy_target_link_frameworks(deckboy-native Siphon)
+  # The Objective-C++ publisher and the frameworks it needs. Only pulled in with
+  # ENABLE_SIPHON so a default macOS build stays free of Metal/Syphon.
+  target_sources(deckboy-native PRIVATE native/platform/syphon_metal.mm)
+  deckboy_target_link_frameworks(deckboy-native Syphon Metal Foundation)
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SIPHON=1)
 endif()
 
