@@ -182,9 +182,24 @@ jobs:
           cmake --build build -j"$(sysctl -n hw.ncpu)"
 
       - name: Package
+        # The signing/notarisation env is passed through from repo secrets. When
+        # the secrets are unset (forks, the default free path) these expand to
+        # empty and the packager stays ad-hoc — nothing here requires an Apple
+        # account. Wiring the .p8 from a secret needs a file, so it is only
+        # materialised when the secret exists.
+        env:
+          DECKBOY_MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          DECKBOY_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          DECKBOY_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
+          MACOS_NOTARY_KEY_P8_BASE64: ${{ secrets.MACOS_NOTARY_KEY_P8_BASE64 }}
         run: |
           chmod +x tools/package_macos.sh
+          if [ -n "$MACOS_NOTARY_KEY_P8_BASE64" ]; then
+            printf '%s' "$MACOS_NOTARY_KEY_P8_BASE64" | base64 -d > "$RUNNER_TEMP/notary.p8"
+            export DECKBOY_NOTARY_KEY_P8="$RUNNER_TEMP/notary.p8"
+          fi
           ./tools/package_macos.sh
+          rm -f "$RUNNER_TEMP/notary.p8"
 
       # The whole point of the bundle is that it runs on a machine with no
       # Homebrew. A leftover /opt/homebrew or /usr/local reference in ANY

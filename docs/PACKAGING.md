@@ -138,13 +138,36 @@ for the macOS bundle.
 
 ---
 
-## Signing & notarization (not done)
+## Signing & notarization (optional — dormant scaffolding is already wired)
 
-- **macOS notarization** — needs an Apple Developer ID ($99/yr). Without it the
-  one-time `xattr` clear above is required on downloaded builds.
-- **Windows code signing** — needs a code-signing certificate. Without it
-  SmartScreen shows an "unknown publisher" prompt on first run.
+**You do not need any of this.** The unsigned default is a legitimate way to
+ship free software: a downloaded macOS build needs the one-time `xattr` clear
+above, and a Windows build shows a one-click SmartScreen "Run anyway". Signing
+just removes those prompts for people who do not know you, at the cost of a paid
+membership/certificate. It is off by default and nothing nags for it.
 
-Both are credential/account decisions, not code. When the accounts exist, the
-signing steps slot into `package_macos.sh` (a `codesign` with the Developer ID +
-`notarytool`) and the Inno Setup build (a `signtool` pass), respectively.
+The signing steps are **already in the packagers, dormant** — they activate only
+when the relevant environment variables are set, so the day you decide to pay,
+you set some secrets and nothing else changes.
+
+### macOS (`package_macos.sh`)
+- **Sign for real:** set `DECKBOY_MACOS_SIGN_IDENTITY` to your
+  `Developer ID Application: <name> (<team>)` identity (from a paid Apple
+  Developer Program membership, $99/yr). The packager then signs with the
+  hardened runtime + a secure timestamp instead of ad-hoc.
+- **Notarize:** additionally set an App Store Connect API key —
+  `DECKBOY_NOTARY_KEY_ID`, `DECKBOY_NOTARY_ISSUER_ID`, `DECKBOY_NOTARY_KEY_P8`
+  (path to the `.p8`). The packager submits the zip and dmg to `notarytool` and
+  staples the dmg. Result: opens with no warning at all.
+
+### Windows (`package_windows_installer.ps1`)
+- Set `DECKBOY_WIN_SIGNTOOL_ARGS` to the full `signtool` command minus the target
+  file, e.g.
+  `sign /fd SHA256 /tr http://timestamp.acme/rfc3161 /td SHA256 <backend flags>`.
+  One string covers every backend: Azure Trusted Signing (~$10/mo cloud HSM, the
+  easiest CI path since a publicly-trusted key must now live on hardware), a USB
+  token, or a test `.pfx` (`/f cert.pfx /p pass`). Both `Deckboy.exe` and the
+  installer get signed. Empty ⇒ both steps skipped.
+
+In CI these come from repository secrets; the workflow passes them through only
+when present, so forks and unconfigured builds stay on the free ad-hoc path.
