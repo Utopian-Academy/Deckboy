@@ -357,58 +357,25 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
 
 // ── macOS screen capture via ffmpeg avfoundation ────────────────────────────
 // avfoundation exposes screens as capture devices named "Capture screen N",
-// listed AFTER the cameras. Capturing a specific WINDOW is not something
-// avfoundation can do (that needs ScreenCaptureKit); this captures a whole
-// display, which is the honest, useful subset. The catalog label says so.
-//
-// sourceRef formats:
-//   "" / "default" / "screen"          -> "Capture screen 0"
-//   "screen:1" or a bare number "1"    -> "Capture screen 1"
-//   "Capture screen 0"                 -> passed through verbatim
+// listed AFTER the cameras. On current macOS (verified on 26.6) avfoundation no
+// longer enumerates a "Capture screen" device — Apple deprecated
+// AVCaptureScreenInput for ScreenCaptureKit — so a real screen backend needs
+// ScreenCaptureKit (native, a future task). Until then macOS window/screen
+// capture reports honestly unsupported rather than shipping an ffmpeg command
+// that captures nothing and hangs.
 #if defined(__APPLE__)
-class MacScreenCaptureBackend final : public SourceCaptureBackend {
+class MacUnsupportedWindowCaptureBackend final : public SourceCaptureBackend {
  public:
   SourceCaptureKind kind() const override { return SourceCaptureKind::Window; }
-  std::string id() const override { return "avfoundation-screen"; }
-
+  std::string id() const override { return "screencapturekit"; }
   SourceCapturePlan plan(const SourceCaptureRequest& request) const override {
+    (void) request;
     SourceCapturePlan plan;
-    std::string ref = trim(request.sourceRef);
-    std::string refLower = toLower(ref);
-    int w = std::max(1, request.width);
-    int h = std::max(1, request.height);
-    int fps = std::clamp(request.frameRate, 1, 60);
-
-    std::string device;
-    auto isNumber = [](const std::string& s) {
-      return !s.empty() && std::all_of(s.begin(), s.end(),
-        [](unsigned char c) { return std::isdigit(c); });
-    };
-    if (refLower.empty() || refLower == "default" || refLower == "screen") {
-      device = "Capture screen 0";
-    } else if (refLower.rfind("screen:", 0) == 0) {
-      device = "Capture screen " + trim(ref.substr(7));
-    } else if (isNumber(ref)) {
-      device = "Capture screen " + ref;
-    } else {
-      device = ref;  // already a full "Capture screen N" name
-    }
-
-    plan.supported = true;
+    plan.supported = false;
     plan.backendId = id();
-    plan.ffmpegArgs = {
-      "ffmpeg",
-      "-hide_banner",
-      "-loglevel", "error",
-      "-f", "avfoundation",
-      "-capture_cursor", "1",
-      "-framerate", std::to_string(fps),
-      "-i", device + ":none",
-      "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
-      "-f", "rawvideo",
-      "-pix_fmt", "rgba",
-      "pipe:1"
-    };
+    plan.reasonUnavailable =
+      "screen capture needs a ScreenCaptureKit backend (avfoundation screen "
+      "capture is gone on current macOS)";
     return plan;
   }
 };
@@ -589,11 +556,16 @@ class DefaultCaptureBackendCatalog final : public CaptureBackendCatalog {
 #endif
 
 #if defined(__APPLE__)
-    // Screen (not per-window) capture and camera capture both go through
-    // ffmpeg's avfoundation input — real, not scaffold. Per-window capture and
-    // Syphon still need native APIs (ScreenCaptureKit / the Syphon framework).
-    out.push_back({CaptureBackendKind::Window, "avfoundation-screen", "Screen Capture (AVFoundation)", true, ""});
+    // Camera capture goes through ffmpeg's avfoundation input — real, verified
+    // (the device enumerates as "[0] <model> Camera"). First use triggers the
+    // camera permission prompt via NSCameraUsageDescription.
     out.push_back({CaptureBackendKind::Camera, "avfoundation", "Camera Capture (AVFoundation)", true, ""});
+    // Screen/window capture: Apple deprecated AVCaptureScreenInput for
+    // ScreenCaptureKit, and on current macOS ffmpeg's avfoundation no longer
+    // enumerates a "Capture screen" device, so it cannot be relied on. Kept
+    // honest as unsupported until a ScreenCaptureKit backend exists rather than
+    // shipping one that silently captures nothing.
+    out.push_back({CaptureBackendKind::Window, "screencapturekit", "Screen Capture (ScreenCaptureKit)", false, "needs a ScreenCaptureKit backend (avfoundation screen capture is gone on current macOS)"});
     out.push_back({CaptureBackendKind::AppTexture, "syphon", "Syphon App Texture", false, "backend scaffold only"});
 #endif
 
@@ -624,7 +596,7 @@ std::unique_ptr<SourceCaptureBackend> createWindowCaptureBackend() {
 #if defined(_WIN32)
   return std::make_unique<WindowsGdigrabCaptureBackend>();
 #elif defined(__APPLE__)
-  return std::make_unique<MacScreenCaptureBackend>();
+  return std::make_unique<MacUnsupportedWindowCaptureBackend>();
 #else
   return std::make_unique<LinuxWindowCaptureBackend>();
 #endif
