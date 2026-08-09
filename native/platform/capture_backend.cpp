@@ -342,10 +342,14 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
       "-hide_banner",
       "-loglevel", "error",
       "-f", "avfoundation",
+      // Do NOT force -video_size on the input: avfoundation does not snap to the
+      // nearest mode, it hard-rejects any capture size the camera does not list
+      // exactly (MacBook cameras have non-16:9 native modes), so a forced size
+      // makes ffmpeg exit with zero frames — the "camera does nothing" bug. Open
+      // the device in whatever native mode it prefers and let the scale filter
+      // below pin the output to the size Deckboy reads. -framerate stays: 30 is
+      // universally supported and avfoundation wants an input rate set.
       "-framerate", std::to_string(fps),
-      // Ask for a close capture size; avfoundation snaps to the nearest mode the
-      // camera actually supports, and the scale filter fixes up the rest.
-      "-video_size", std::to_string(w) + "x" + std::to_string(h),
       "-i", device + ":none",
       "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
       "-f", "rawvideo",
