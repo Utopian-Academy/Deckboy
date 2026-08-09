@@ -391,7 +391,14 @@
 #elif defined(_WIN32)
       expect(plan.supported && !plan.ffmpegArgs.empty() && plan.backendId == "gdigrab", "capture backend plan");
 #else
-      expect(!plan.supported && !plan.backendId.empty(), "capture backend plan");
+      // macOS: window/screen capture is the ScreenCaptureKit helper. It reports
+      // supported once deckboy-sckcapture is beside the exe (as it is in the
+      // build tree and the bundle), and emits the helper's argv as ffmpegArgs;
+      // if the helper is missing it stays honest with a reason.
+      expect(plan.backendId == "screencapturekit" &&
+                 (plan.supported ? !plan.ffmpegArgs.empty()
+                                 : !plan.reasonUnavailable.empty()),
+             "capture backend plan");
 #endif
     }
 
