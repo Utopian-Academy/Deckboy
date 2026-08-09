@@ -42,11 +42,17 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <stdexcept>
 #include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
+#endif
+
+#ifdef __APPLE__
+#include <CoreGraphics/CoreGraphics.h>   // CGWindowListCopyWindowInfo for the window picker
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 namespace deckboy::platform {
@@ -390,12 +396,17 @@ class MacScreenCaptureBackend final : public SourceCaptureBackend {
       return plan;
     }
 
-    // sourceRef -> display index. "" / "default" / "screen" -> 0; a bare number
-    // or "screen:N" picks another display.
+    // sourceRef selects what to capture:
+    //   "window:<id>"        -> a specific window (from the picker enumeration)
+    //   "" / "default" / "screen" / "desktop" -> whole display 0
+    //   "screen:N" or a bare number           -> whole display N
     std::string ref = trim(request.sourceRef);
     std::string refLower = toLower(ref);
     int display = 0;
-    if (refLower.rfind("screen:", 0) == 0) {
+    long windowId = 0;
+    if (refLower.rfind("window:", 0) == 0) {
+      windowId = std::atol(ref.substr(7).c_str());
+    } else if (refLower.rfind("screen:", 0) == 0) {
       display = std::atoi(ref.substr(7).c_str());
     } else if (!ref.empty() &&
                std::all_of(ref.begin(), ref.end(),
@@ -412,11 +423,18 @@ class MacScreenCaptureBackend final : public SourceCaptureBackend {
     // raw RGBA frames from its stdout, and the helper emits exactly that.
     plan.ffmpegArgs = {
       helper.string(),
-      "--display", std::to_string(display),
       "--width", std::to_string(w),
       "--height", std::to_string(h),
       "--fps", std::to_string(fps),
     };
+    // A specific window overrides the display; otherwise capture the display.
+    if (windowId > 0) {
+      plan.ffmpegArgs.push_back("--window");
+      plan.ffmpegArgs.push_back(std::to_string(windowId));
+    } else {
+      plan.ffmpegArgs.push_back("--display");
+      plan.ffmpegArgs.push_back(std::to_string(display));
+    }
     return plan;
   }
 };
@@ -730,6 +748,69 @@ std::vector<CaptureWindowInfo> listCaptureWindows() {
     ctx->out->push_back({"title:" + title, title});
     return TRUE;
   }, reinterpret_cast<LPARAM>(&ctx));
+#elif defined(__APPLE__)
+  // Enumerate on-screen windows via CoreGraphics. Each becomes a
+  // "window:<CGWindowID>" sourceRef; the sckcapture helper resolves that id to
+  // an SCWindow and captures just that window. The numeric id is stabler than a
+  // title (titles repeat and change), and the display name pairs the owning app
+  // with the window title so the dropdown is readable. (kCGWindowName is only
+  // populated once Screen Recording is granted; owner name is always present,
+  // so we fall back to it.)
+  CFArrayRef windowList = CGWindowListCopyWindowInfo(
+      kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
+      kCGNullWindowID);
+  if (windowList) {
+    const CFIndex count = CFArrayGetCount(windowList);
+    for (CFIndex i = 0; i < count; ++i) {
+      auto info = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(windowList, i));
+      if (!info) continue;
+
+      // Normal application windows live on layer 0; skip menus, the Dock,
+      // shadows and other chrome that sit on other layers.
+      int layer = -1;
+      if (auto layerNum = static_cast<CFNumberRef>(
+              CFDictionaryGetValue(info, kCGWindowLayer))) {
+        CFNumberGetValue(layerNum, kCFNumberIntType, &layer);
+      }
+      if (layer != 0) continue;
+
+      // Window id (kCGWindowNumber).
+      long windowId = 0;
+      if (auto numRef = static_cast<CFNumberRef>(
+              CFDictionaryGetValue(info, kCGWindowNumber))) {
+        CFNumberGetValue(numRef, kCFNumberLongType, &windowId);
+      }
+      if (windowId <= 0) continue;
+
+      auto cfToUtf8 = [](CFStringRef s) -> std::string {
+        if (!s) return std::string();
+        CFIndex len = CFStringGetLength(s);
+        CFIndex maxBytes = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8) + 1;
+        std::string out(static_cast<size_t>(maxBytes), '\0');
+        if (CFStringGetCString(s, out.data(), maxBytes, kCFStringEncodingUTF8)) {
+          out.resize(std::strlen(out.c_str()));
+          return out;
+        }
+        return std::string();
+      };
+
+      std::string owner = cfToUtf8(static_cast<CFStringRef>(
+          CFDictionaryGetValue(info, kCGWindowOwnerName)));
+      std::string title = cfToUtf8(static_cast<CFStringRef>(
+          CFDictionaryGetValue(info, kCGWindowName)));
+
+      // Skip our own windows and untitled/empty owners — they add noise.
+      if (owner.empty()) continue;
+      if (owner == "Deckboy") continue;
+      if (owner == "Window Server" || owner == "Dock" || owner == "Control Center") continue;
+
+      std::string label = owner;
+      if (!title.empty() && title != owner) label += " — " + title;
+
+      result.push_back({"window:" + std::to_string(windowId), label});
+    }
+    CFRelease(windowList);
+  }
 #elif defined(__linux__)
   // On Linux, window enumeration would require X11/XCB — not implemented yet.
   // The text editor fallback still works for typing x11grab source refs.
