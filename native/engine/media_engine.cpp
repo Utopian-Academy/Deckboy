@@ -836,6 +836,10 @@ bool MediaEngine::consumeDecodeStall() {
   return false;
 }
 
+bool MediaEngine::consumeStillDecodeFailure() {
+  return imageDecodeFailed_.exchange(false, std::memory_order_acq_rel);
+}
+
 // Reset all FPS measurement state. Called on cue load and after runtime refresh
 // to start a fresh measurement window for the new decode stream.
 void MediaEngine::resetMediaFpsTelemetry() {
@@ -1710,11 +1714,21 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
 // leaking the previous thread. Uses the two-phase shutdown pattern: kill the
 // process first (unblocks readExact in the thread), then join.
 void MediaEngine::stopImageThread() {
+  // Announce the kill BEFORE it happens: killing the process makes the decode
+  // thread's pipe read fail, and without this flag that read would be
+  // indistinguishable from a genuine decode failure and would false-alarm the
+  // operator on every ordinary cue switch.
+  imageCancelRequested_.store(true, std::memory_order_release);
   imageProcess_.killProcessOnly();
   if (imageThread_.joinable()) {
     imageThread_.join();
   }
   imageProcess_.stop();
+  imageCancelRequested_.store(false, std::memory_order_release);
+  // Clear any unconsumed failure latch here — this is the single point every
+  // new still decode passes through (loadStillFrame calls it first), so a
+  // failure from a previous cue can never leak a stale toast onto the next one.
+  imageDecodeFailed_.store(false, std::memory_order_release);
   std::lock_guard<std::mutex> lk(imageMutex_);
   pendingImageFrame_.reset();
   imageFramePending_.store(false);
@@ -1851,6 +1865,12 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
       std::lock_guard<std::mutex> lk(imageMutex_);
       pendingImageFrame_ = std::move(frame);
       imageFramePending_.store(true);  // signal main thread via update()
+    } else if (!imageCancelRequested_.load(std::memory_order_acquire)) {
+      // The pipe closed before a full frame arrived and we did NOT ask for that
+      // (a cue switch would have — stopImageThread sets imageCancelRequested_
+      // before killing the process). So this is a real decode failure: ffmpeg
+      // could not produce the still. Latch it for the app to report.
+      imageDecodeFailed_.store(true, std::memory_order_release);
     }
   });
 }
