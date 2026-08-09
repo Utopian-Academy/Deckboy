@@ -953,7 +953,7 @@
     // filter at all, so nothing the operator could pick before is blocked now.
     static const std::vector<SDL_DialogFileFilter> kMediaFilters = {
       {"Media files", "mp4;mov;m4v;mkv;avi;webm;mpg;mpeg;m2v;ts;wmv;flv;"
-                      "png;jpg;jpeg;bmp;gif;tif;tiff;webp;"
+                      "png;jpg;jpeg;bmp;gif;tif;tiff;webp;avif;heic;heif;"
                       "wav;mp3;aac;m4a;flac;ogg;aiff"},
       {"All files", "*"},
     };

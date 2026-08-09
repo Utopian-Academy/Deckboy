@@ -2707,8 +2707,16 @@ bool isImagePath(const fs::path& path) {
   std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
     return static_cast<char>(std::tolower(ch));
   });
-  static const std::array<std::string, 9> kImageExts {
-    ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff", ".avif"
+  static const std::array<std::string, 12> kImageExts {
+    ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff", ".avif",
+    // Apple stills. An iPhone photo is HEIC (a single-frame "Main Still
+    // Picture" HEVC in a HEIF container); without these it was classified as a
+    // VIDEO cue and the transport waited forever for a stream that only ever
+    // yields one frame — the "clip stuck loading" an operator hits the first
+    // time they drop a photo straight off a phone. ffmpeg decodes HEIC/HEIF on
+    // every platform, and the still path already uses ffmpeg, so this works
+    // everywhere, not just macOS.
+    ".heic", ".heif"
   };
   return std::find(kImageExts.begin(), kImageExts.end(), ext) != kImageExts.end();
 }
