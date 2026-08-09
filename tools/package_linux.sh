@@ -91,6 +91,21 @@ for tool in ffmpeg ffprobe; do
   fi
 done
 
+# libltc (LTC timecode) is dlopen()d at runtime, never linked, so the ldd walk
+# below cannot see it. Copy it into lib/ explicitly; ltc_api.hpp looks in
+# ../lib relative to the executable. Without this the bundle claimed LTC but it
+# only worked where libltc happened to be installed.
+for ltccand in /usr/lib/x86_64-linux-gnu/libltc.so.11 /usr/lib/libltc.so.11 \
+               /usr/local/lib/libltc.so.11; do
+  if [ -f "$ltccand" ]; then
+    cp -L "$ltccand" "$STAGE_DIR/lib/libltc.so.11"
+    chmod u+w "$STAGE_DIR/lib/libltc.so.11"
+    echo "  + lib/libltc.so.11"
+    break
+  fi
+done
+[ -f "$STAGE_DIR/lib/libltc.so.11" ] || echo "  ! libltc not found - LTC unavailable in this bundle" >&2
+
 if [ -d "$REPO_ROOT/data" ]; then
   cp -R "$REPO_ROOT/data" "$STAGE_DIR/data"
   # Per-machine state, exactly as the Windows and macOS packagers strip it:

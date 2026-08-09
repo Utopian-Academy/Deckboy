@@ -148,7 +148,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc
 
       - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
@@ -174,7 +174,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg
+        run: brew install cmake pkg-config sdl3 sdl3_ttf ffmpeg libltc
 
       - name: Configure and build
         run: |
