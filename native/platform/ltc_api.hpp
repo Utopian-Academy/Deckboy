@@ -40,6 +40,8 @@
 #include <vector>
 
 #include "dynamic_library.hpp"
+#include "../core/paths.hpp"   // executablePath() for bundle-relative candidates
+#include <filesystem>
 
 // A decoded SMPTE timecode value extracted from an LTC audio frame.
 struct LtcDecodedTimecode {
@@ -185,6 +187,32 @@ struct LtcApi {
     if (const char* env = std::getenv("DECKBOY_LTC_LIB"); env && *env) {
       candidates.emplace_back(env);
     }
+
+    // BUNDLE-RELATIVE candidates FIRST, so a portable build finds the libltc it
+    // ships rather than depending on a system install. libltc is loaded by
+    // dlopen/LoadLibrary at runtime (never linked), so the packagers' link-walk
+    // never sees it and cannot auto-bundle it — the packager copies it in
+    // explicitly and we look for it here by absolute path relative to the
+    // executable. Without this, the portable builds advertised LTC but it only
+    // worked on a machine that happened to have libltc installed.
+    std::error_code exeEc;
+    std::filesystem::path exeDir =
+        deckboy::core::Paths::executablePath().parent_path();
+    if (!exeDir.empty()) {
+#ifdef _WIN32
+      candidates.emplace_back((exeDir / "ltc.dll").string());
+      candidates.emplace_back((exeDir / "libltc.dll").string());
+#elif defined(__APPLE__)
+      // Contents/MacOS/Deckboy -> Contents/Frameworks/libltc.dylib
+      candidates.emplace_back((exeDir / ".." / "Frameworks" / "libltc.dylib").lexically_normal().string());
+#else
+      // bin/Deckboy -> lib/libltc.so*
+      candidates.emplace_back((exeDir / ".." / "lib" / "libltc.so.11").lexically_normal().string());
+      candidates.emplace_back((exeDir / ".." / "lib" / "libltc.so").lexically_normal().string());
+#endif
+    }
+    (void) exeEc;
+
 #ifdef _WIN32
     candidates.emplace_back("ltc.dll");
     candidates.emplace_back("libltc.dll");
