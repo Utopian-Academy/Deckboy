@@ -894,8 +894,10 @@
       std::lock_guard<std::mutex> lock(app->sdlDialogMutex_);
       app->sdlDialogActions_.emplace_back(
         [cb = std::move(cb), files = std::move(files)]() mutable { cb(files); });
-      app->sdlDialogOpen_ = false;
     }
+    // Released outside the queue lock; the flag has its own atomicity. Cleared
+    // LAST so a fresh dialog cannot be opened until this result is fully queued.
+    app->sdlDialogOpen_.store(false, std::memory_order_release);
   }
 
   // Run every queued dialog result. Main thread, called from the update loop.
@@ -913,13 +915,20 @@
     }
   }
 
+  // IMPORTANT for all three helpers: `filters` MUST outlive the async call —
+  // SDL's docs require the filter array stay valid "until the callback is
+  // invoked", which can be much later (the dialog is modal to the user, not to
+  // us). Every caller passes a `static const` filter list for exactly this
+  // reason; never pass a local/temporary. The dialog is main-thread-only to
+  // open; the result callback may land on another thread, which is why
+  // sdlDialogOpen_ is atomic and results are marshalled through a locked queue.
   void showOpenFileDialog(const std::vector<SDL_DialogFileFilter>& filters, bool allowMany,
                           std::function<void(std::vector<std::string>)> onResult) {
-    if (sdlDialogOpen_) {
+    if (sdlDialogOpen_.load(std::memory_order_acquire)) {
       return;  // one native dialog at a time; a second click is a no-op
     }
-    sdlDialogOpen_ = true;
-    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    sdlDialogOpen_.store(true, std::memory_order_release);
+    auto* req = new SdlDialogRequest{this, std::move(onResult)};
     SDL_ShowOpenFileDialog(&App::sdlDialogTrampoline, req, controlWindow_,
                            filters.empty() ? nullptr : filters.data(),
                            static_cast<int>(filters.size()), nullptr, allowMany);
@@ -927,22 +936,22 @@
 
   void showSaveFileDialog(const std::vector<SDL_DialogFileFilter>& filters,
                           std::function<void(std::vector<std::string>)> onResult) {
-    if (sdlDialogOpen_) {
+    if (sdlDialogOpen_.load(std::memory_order_acquire)) {
       return;
     }
-    sdlDialogOpen_ = true;
-    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    sdlDialogOpen_.store(true, std::memory_order_release);
+    auto* req = new SdlDialogRequest{this, std::move(onResult)};
     SDL_ShowSaveFileDialog(&App::sdlDialogTrampoline, req, controlWindow_,
                            filters.empty() ? nullptr : filters.data(),
                            static_cast<int>(filters.size()), nullptr);
   }
 
   void showFolderDialog(std::function<void(std::vector<std::string>)> onResult) {
-    if (sdlDialogOpen_) {
+    if (sdlDialogOpen_.load(std::memory_order_acquire)) {
       return;
     }
-    sdlDialogOpen_ = true;
-    auto* req = new SdlDialogRequest{static_cast<App*>(this), std::move(onResult)};
+    sdlDialogOpen_.store(true, std::memory_order_release);
+    auto* req = new SdlDialogRequest{this, std::move(onResult)};
     SDL_ShowOpenFolderDialog(&App::sdlDialogTrampoline, req, controlWindow_, nullptr, false);
   }
 

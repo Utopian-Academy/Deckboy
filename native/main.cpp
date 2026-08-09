@@ -6164,7 +6164,11 @@ class App {
   // non-main thread on macOS (why IMPORT silently did nothing there).
   std::mutex sdlDialogMutex_;
   std::vector<std::function<void()>> sdlDialogActions_;
-  bool sdlDialogOpen_ = false;   // one native dialog at a time
+  // ATOMIC on purpose: SDL's docs say the dialog callback "may be invoked from
+  // the same thread or from a different thread", so this flag is set true on the
+  // main thread (showXDialog) and cleared from the callback, which may be
+  // another thread. A plain bool would be a data race.
+  std::atomic<bool> sdlDialogOpen_ {false};   // one native dialog at a time
   // Async media-presence scan (boot / project open). The worker stats every
   // file cue off-thread; results land on the update tick by cue id. The
   // generation counter supersedes stale workers (they bail at their next
