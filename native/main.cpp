@@ -4023,10 +4023,29 @@ class App {
       uiProfileLog("ui profiling enabled (DECKBOY_UI_PROFILE)");
     }
 
+    // Clamp the initial window (and its minimum) to the display's usable bounds.
+    // The defaults (1760x1020, min 1500x900) are fine on a desktop monitor but
+    // overflow a laptop panel — a 13"/15" MacBook Air's logical screen is only
+    // ~1470-1710 points wide, so the window opened "a tad big" and spilled off,
+    // and a 1500 minimum could exceed the screen entirely (unresizable-smaller).
+    // SDL sizes and usable bounds are both in points, so this compares directly.
+    int startW = kControlWidth, startH = kControlHeight;
+    int minW = 1500, minH = 900;
+    {
+      SDL_Rect usable{};
+      SDL_DisplayID disp = SDL_GetPrimaryDisplay();
+      if (disp != 0 && SDL_GetDisplayUsableBounds(disp, &usable) &&
+          usable.w > 0 && usable.h > 0) {
+        startW = std::min(startW, usable.w);
+        startH = std::min(startH, usable.h);
+        minW = std::min(minW, usable.w);
+        minH = std::min(minH, usable.h);
+      }
+    }
     controlWindow_ = SDL_CreateWindow(
       kAppTitle.data(),
-      kControlWidth,
-      kControlHeight,
+      startW,
+      startH,
       SDL_WINDOW_RESIZABLE
     );
     if (!controlWindow_) {
@@ -4035,7 +4054,7 @@ class App {
     }
     SDL_SetWindowPosition(controlWindow_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     applyDeckboyWindowIcon(controlWindow_);
-    SDL_SetWindowMinimumSize(controlWindow_, 1500, 900);
+    SDL_SetWindowMinimumSize(controlWindow_, minW, minH);
 
     controlRenderer_ = SDL_CreateRenderer(controlWindow_, nullptr);
     if (!controlRenderer_) {
@@ -4153,7 +4172,14 @@ class App {
     }
     startHyperDeckServer();
     startIntegrationBridges();
-    layoutButtons(kControlWidth, kControlHeight);
+    // Lay out against the actual (possibly display-clamped) window size, not the
+    // nominal constant, so the first frame is already correct on small screens.
+    {
+      int lw = 0, lh = 0;
+      SDL_GetWindowSize(controlWindow_, &lw, &lh);
+      if (lw <= 0 || lh <= 0) { lw = kControlWidth; lh = kControlHeight; }
+      layoutButtons(lw, lh);
+    }
     return true;
   }
 
