@@ -688,12 +688,42 @@
         "ironing the pixel grid... flat",
         "auditioning standby pixels... cast",
         "sandbagging the render queue... secure",
+        "spinning down the tape reels... ok",
+        "buffering the laugh track... 1 loop",
+        "calibrating the fog machine... haze nominal",
+        "checking gaff tape reserves... 3 rolls",
+        "aligning the follow spot... on their mark",
+        "rechecking the redundant redundancy... twice",
+        "waxing the fader caps... slick",
+        "flushing the frame buffer... whoosh",
+        "counting spare fuses... 5A x4",
+        "negotiating with the smoke detector... truce",
+        "seeding the random number goblin...",
+        "syncing genlock to the moon... tidal",
+        "topping up phantom power... +48V",
+        "checking the gate for hairs... clean",
+        "tightening truss bolts... 40 Nm",
+        "coiling cables over-under... tidy",
+        "labelling the mystery cable... 'do not touch'",
+        "polling the stage manager... standing by",
+        "counting gobos... 24 in the wheel",
+        "leveling the turntable... 33 1/3",
+        "checking latency budget... 2 frames",
+        "waking the render farm... 1 node, brave",
+        "aligning projector convergence... rgb stacked",
+        "checking the fire curtain... ready",
+        "chalking the spike marks... taped",
+        "muting the green room monitor... shh",
+        "swapping the gaffer's AA batteries... fresh",
+        "priming haze timing... 8 s",
       };
       constexpr int kWhimsyCount = static_cast<int>(std::size(kBootWhimsyPool));
-      // Deal a hand of 8 distinct lines via partial Fisher-Yates.
+      // Deal a random-sized hand of distinct lines via partial Fisher-Yates.
+      // The size itself varies per boot (9-13) so no two boots feel alike.
       int whimsyIdx[kWhimsyCount];
       for (int i = 0; i < kWhimsyCount; ++i) whimsyIdx[i] = i;
-      constexpr int kHand = 8;
+      int kHand = 9 + static_cast<int>(nextRand() % 5);
+      kHand = std::min(kHand, kWhimsyCount);
       for (int i = 0; i < kHand; ++i) {
         int j = i + static_cast<int>(nextRand() % static_cast<uint32_t>(kWhimsyCount - i));
         std::swap(whimsyIdx[i], whimsyIdx[j]);
