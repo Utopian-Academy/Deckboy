@@ -4023,14 +4023,12 @@ class App {
       uiProfileLog("ui profiling enabled (DECKBOY_UI_PROFILE)");
     }
 
-    // Clamp the initial window (and its minimum) to the display's usable bounds.
-    // The defaults (1760x1020, min 1500x900) are fine on a desktop monitor but
-    // overflow a laptop panel — a 13"/15" MacBook Air's logical screen is only
-    // ~1470-1710 points wide, so the window opened "a tad big" and spilled off,
-    // and a 1500 minimum could exceed the screen entirely (unresizable-smaller).
-    // SDL sizes and usable bounds are both in points, so this compares directly.
+    // Pre-clamp the initial size to the primary display so we never create a
+    // window larger than a screen. The defaults (1760x1020) overflow a laptop
+    // panel — a MacBook Air's logical screen is only ~1470-1710 points wide, so
+    // the window opened "a tad big" and spilled off. SDL sizes and usable bounds
+    // are both in points, so they compare directly.
     int startW = kControlWidth, startH = kControlHeight;
-    int minW = 1500, minH = 900;
     {
       SDL_Rect usable{};
       SDL_DisplayID disp = SDL_GetPrimaryDisplay();
@@ -4038,8 +4036,6 @@ class App {
           usable.w > 0 && usable.h > 0) {
         startW = std::min(startW, usable.w);
         startH = std::min(startH, usable.h);
-        minW = std::min(minW, usable.w);
-        minH = std::min(minH, usable.h);
       }
     }
     controlWindow_ = SDL_CreateWindow(
@@ -4054,6 +4050,29 @@ class App {
     }
     SDL_SetWindowPosition(controlWindow_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     applyDeckboyWindowIcon(controlWindow_);
+
+    // Multi-display robust: after centering, re-clamp to the display the window
+    // ACTUALLY landed on — the primary and the target can differ wildly (a small
+    // Retina laptop panel plus a large external). Shrink-and-recenter if it
+    // overflows, and cap the minimum size so the window can always fit this
+    // screen (a fixed 1500x900 minimum could exceed a 13" panel outright).
+    int minW = 1500, minH = 900;
+    {
+      SDL_Rect ub{};
+      SDL_DisplayID wd = SDL_GetDisplayForWindow(controlWindow_);
+      if (wd == 0) wd = SDL_GetPrimaryDisplay();
+      if (wd != 0 && SDL_GetDisplayUsableBounds(wd, &ub) && ub.w > 0 && ub.h > 0) {
+        int cw = 0, ch = 0;
+        SDL_GetWindowSize(controlWindow_, &cw, &ch);
+        int nw = std::min(cw, ub.w), nh = std::min(ch, ub.h);
+        if (nw != cw || nh != ch) {
+          SDL_SetWindowSize(controlWindow_, nw, nh);
+          SDL_SetWindowPosition(controlWindow_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        }
+        minW = std::min(minW, ub.w);
+        minH = std::min(minH, ub.h);
+      }
+    }
     SDL_SetWindowMinimumSize(controlWindow_, minW, minH);
 
     controlRenderer_ = SDL_CreateRenderer(controlWindow_, nullptr);
