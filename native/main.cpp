@@ -6630,6 +6630,25 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
     for (USHORT i = 0; i < captured; ++i) {
       const DWORD64 addr = reinterpret_cast<DWORD64>(frames[i]);
       log << "  [" << i << "] " << frames[i];
+      // Log module + RVA even when no PDB is loaded. Deckboy's own frames have
+      // no runtime symbols, so SymFromAddr falls back to the nearest EXPORT
+      // (wrong — e.g. "RtMidiError::what" for an App:: method). module+0xRVA is
+      // exact and resolves offline against the matching build's .pdb/.map, which
+      // is the only way to read a release crash. Format: Deckboy.exe+0x231b07.
+      HMODULE mod = nullptr;
+      if (GetModuleHandleExW(
+              GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+              reinterpret_cast<LPCWSTR>(addr), &mod) && mod) {
+        wchar_t modPath[MAX_PATH] {};
+        if (GetModuleFileNameW(mod, modPath, MAX_PATH)) {
+          const wchar_t* base = wcsrchr(modPath, L'\\');
+          const wchar_t* name = base ? base + 1 : modPath;
+          char nameA[MAX_PATH] {};
+          WideCharToMultiByte(CP_UTF8, 0, name, -1, nameA, MAX_PATH, nullptr, nullptr);
+          const DWORD64 rva = addr - reinterpret_cast<DWORD64>(mod);
+          log << "  " << nameA << "+0x" << std::hex << rva << std::dec;
+        }
+      }
       DWORD64 displacement = 0;
       if (SymFromAddr(process, addr, &displacement, symbol)) {
         log << "  " << symbol->Name;
