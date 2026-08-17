@@ -554,6 +554,7 @@
       }
       companionClients_.clear();
       companionClientBuffers_.clear();
+      companionDrainingClients_.clear();  // sockets already closed by the loop above
     }
     oscSubscribers_.clear();
     lastOscFeedbackPayload_.clear();
@@ -1827,7 +1828,14 @@
       std::vector<SocketHandle> clientSnapshot;
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
-        clientSnapshot = companionClients_;
+        for (SocketHandle client : companionClients_) {
+          // A half-closed client reads EOF forever. Selecting on it would spin
+          // this loop and keep pushing its deadline back; it is only waiting
+          // for its reply now, not for us to read from it.
+          if (companionDrainingClients_.count(client) == 0) {
+            clientSnapshot.push_back(client);
+          }
+        }
       }
       for (auto client : clientSnapshot) {
         FD_SET(client, &readFds);
@@ -1849,6 +1857,7 @@
       }
       if (ready == 0) {
         maybeBroadcastOscState();
+        retireDrainedCompanionClients();
         continue;
       }
 
@@ -1916,7 +1925,7 @@
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
         for (auto client : companionClients_) {
-          if (!FD_ISSET(client, &readFds)) {
+          if (!FD_ISSET(client, &readFds) || companionDrainingClients_.count(client)) {
             continue;
           }
 
@@ -1951,25 +1960,33 @@
           }
         }
 
-        // Remove closed clients while still holding lock
+        // A client that stops sending is NOT necessarily gone. `printf 'TAKE\n'
+        // | nc host 5510` — the obvious way to script this — half-closes the
+        // moment its input ends, which arrives here as recv() == 0 while the
+        // socket is still perfectly writable. Closing immediately threw away
+        // the OK/ERR the main thread was about to produce, so the command ran
+        // but the caller saw silence: the exact failure the acks exist to fix.
+        //
+        // So a half-closed client lingers briefly instead. Its commands are
+        // already queued with it as the reply target, the queue drains every
+        // frame, and the deadline bounds the wait if the peer is truly gone.
         for (auto client : closedClients) {
           auto pendingIt = companionClientBuffers_.find(client);
           if (pendingIt != companionClientBuffers_.end()) {
             std::string leftover = trim(pendingIt->second);
             if (!leftover.empty()) {
               if (!maybeRespondToCompanionQuery(client, leftover)) {
-                enqueueRemoteCommand(leftover);
+                enqueueRemoteCommand(leftover, client);
               }
             }
             companionClientBuffers_.erase(pendingIt);
           }
-          closeSocket(client);
-          companionClients_.erase(
-            std::remove(companionClients_.begin(), companionClients_.end(), client),
-            companionClients_.end()
-          );
+          companionDrainingClients_[client] = SDL_GetTicks() + kCompanionDrainMs;
         }
+
+        retireDrainedCompanionClientsLocked();
       }
+      retireDrainedCompanionClients();
       maybeBroadcastOscState();
     }
   }
@@ -2060,6 +2077,32 @@
     if (project_.tslTallyEnabled) {
       sendTslTallyState();
     }
+  }
+
+  // Close half-closed clients whose linger has expired. Caller holds
+  // companionClientsMutex_.
+  void retireDrainedCompanionClientsLocked() {
+    const Uint64 nowMs = SDL_GetTicks();
+    for (auto it = companionDrainingClients_.begin(); it != companionDrainingClients_.end();) {
+      if (nowMs < it->second) {
+        ++it;
+        continue;
+      }
+      SocketHandle client = it->first;
+      it = companionDrainingClients_.erase(it);
+      closeSocket(client);
+      companionClients_.erase(
+        std::remove(companionClients_.begin(), companionClients_.end(), client),
+        companionClients_.end()
+      );
+    }
+  }
+
+  // Same, taking the lock. Runs on the idle path too — a quiet socket must
+  // still be retired, or the descriptor lingers until the next packet arrives.
+  void retireDrainedCompanionClients() {
+    std::lock_guard<std::mutex> lk(companionClientsMutex_);
+    retireDrainedCompanionClientsLocked();
   }
 
   // Write one line to a Companion client, from any thread. Takes the same lock
