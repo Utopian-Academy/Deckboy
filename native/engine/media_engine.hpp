@@ -231,6 +231,20 @@ class MediaEngine {
   static void setInprocDecodeDisabled(bool disabled);
   static bool inprocDecodeDisabled();
 
+  // Latched by App::shutdown() immediately before SDL_Quit(). SDL_Quit frees
+  // every audio stream and texture SDL still owns, so a MediaEngine torn down
+  // after that point must not call into SDL — the handles it holds are already
+  // freed and touching one is a segfault, not a leak.
+  //
+  // This is a backstop, not the plan: engines are shut down inside shutdown()
+  // while SDL is alive. It exists because a field crash proved an engine can
+  // reach ~App (the stack was ~MediaEngine -> stopAll -> SDL_ClearAudioStream
+  // called from runDeckboyMain, i.e. after shutdown() had already returned),
+  // and a crash on quit is worth making structurally impossible rather than
+  // merely unlikely.
+  static void setSdlTornDown(bool tornDown);
+  static bool sdlTornDown();
+
   // -- Single-frame decode (for thumbnail generation) --------------------------
   std::optional<DecodedFrame> decodeSingleFrame(ChildProcess& process, const std::string& path,
                                                  int width, int height, double seconds);
