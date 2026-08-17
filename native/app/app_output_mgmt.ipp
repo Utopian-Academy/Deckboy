@@ -1017,6 +1017,11 @@
 
   void destroyDeckRuntime(DeckRuntime& runtime) {
     if (runtime.mediaEngine) {
+      // Take the device back BEFORE tearing the engine down. Without this the
+      // engine still holds the stream through stopAll() and again through
+      // ~MediaEngine's own stopAll(), touching an SDL audio stream while the
+      // rest of the shutdown is pulling the audio subsystem apart around it.
+      runtime.mediaEngine->detachAudioDevice();
       runtime.mediaEngine->stopAll();
       runtime.mediaEngine.reset();
     }

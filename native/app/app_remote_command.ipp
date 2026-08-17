@@ -4,12 +4,17 @@
 // Processes text-based remote commands received via OSC, Companion, or
 // other network integrations. Commands follow a simple verb + args format:
 //
-//   Transport: GO, STOP, PAUSE, PLAY, RERACK, CLEAR, FADE
-//   Navigation: NEXT, PREV, JUMP <index>, SELECT <index>
-//   Cue control: LOOP ON/OFF, VOLUME <0-100>, SPEED <factor>
-//   Output: OUTPUT ON/OFF, DIMMER <0-100>, FULLSCREEN ON/OFF
-//   Project: SAVE, LOAD <path>, RELOAD
-//   Query: STATUS, CUE_LIST, ACTIVE_CUE
+//   Transport: TAKE, GO, PLAY, PAUSE, STOP, RERACK, CLEAR, SKIP, SKIPBACK
+//   Navigation: NEXT, PREV, GOTO <index>, SELECT <index>, FIND <text>
+//   Cue control: LOOP ON/OFF, VOLUME <0-100>, SPEED <factor>, AUDIOGAIN <dB>
+//   Output: OUT ON/OFF, DIMMER <0-100>, BLACKOUT, FULLSCREEN ON/OFF
+//   Query: STATUS, STATUS JSON, STATUS CUES, HELP (answered on the socket by
+//     maybeRespondToCompanionQuery, not here)
+//
+// Anything not matched here falls off the end of handleRemoteCommand, which
+// clears remoteCommandRecognized_ so the caller gets an ERR rather than
+// silence. Keep this list honest: it previously advertised SAVE/LOAD/RELOAD/
+// FADE, none of which were ever implemented.
 //
 // Also handles OSC address-based routing (/deck/1/go, /cue/select, etc.)
 // and Companion button feedback updates.
@@ -21,6 +26,12 @@
   // Process a remote command string (from OSC, Companion, or other sources).
   // Splits the command into verb + arguments and dispatches to the handler.
   void handleRemoteCommand(const std::string& rawCommand) {
+    // Cleared only by falling off the end of this function (see the note
+    // there); processRemoteCommands reads it to answer the caller OK or ERR.
+    // Set here rather than at the call site so a nested dispatch — "DECK 1 GO"
+    // re-entering with "GO" — reports on the verb that actually ran.
+    remoteCommandRecognized_ = true;
+    remoteCommandError_.clear();
     auto parts = splitWhitespace(rawCommand);
     if (parts.empty()) {
       return;
@@ -167,6 +178,13 @@
     }
     if (command == "STOP") {
       stopTransport();
+      return;
+    }
+    if (command == "RERACK") {
+      // Documented in this file's header and whitelisted for integration
+      // triggers since forever, but never actually implemented — a RERACK over
+      // the wire did nothing at all. It is one of the four transport buttons.
+      rerackTransport();
       return;
     }
     if (command == "JUMPMODE" || command == "JUMP_MODE") {
@@ -2103,13 +2121,49 @@
       return;
     }
     if (command == "MASTERVOL" || command == "MASTERVOLUME") {
-      auto value = parseNumber(1);
-      if (value) {
-        project_.masterVolume = std::clamp(*value, 0.0, 2.0);
-        int pct = static_cast<int>(std::round(project_.masterVolume * 100.0));
-        triggerToast("master vol " + std::to_string(pct) + "%");
-        markProjectDirty();
+      // UNITS: PERCENT, 0-200. Everything else in the system already spoke
+      // percent — STATE's master_vol, the toast, the Companion module's 0-200
+      // action, the MIDI CC and OSC senders — while this handler alone read a
+      // 0-2 multiplier and CLAMPED. So "MASTERVOL 60" quietly pinned the show
+      // at 200%, and every Companion master-volume press did the same.
+      //
+      // Explicit spellings: "150%" percent, "1.5x" multiplier. A bare
+      // fractional value <= 2 is still read as a multiplier so scripts written
+      // against the old units keep meaning what they said. Out of range is
+      // refused with a message rather than clamped — the clamp is what made
+      // the wrong units invisible.
+      if (parts.size() < 2) {
+        failRemoteCommand("master vol: expected 0-200 (percent)");
+        return;
       }
+      std::string token = parts[1];
+      bool asMultiplier = false;
+      bool asPercent = false;
+      if (!token.empty() && (token.back() == 'x' || token.back() == 'X')) {
+        token.pop_back();
+        asMultiplier = true;
+      } else if (!token.empty() && token.back() == '%') {
+        token.pop_back();
+        asPercent = true;
+      }
+      double parsed = 0.0;
+      try {
+        parsed = std::stod(token);
+      } catch (...) {
+        failRemoteCommand("master vol: not a number (" + parts[1] + ")");
+        return;
+      }
+      const bool legacyMultiplier =
+        !asMultiplier && !asPercent && token.find('.') != std::string::npos && parsed <= 2.0;
+      const double gain = (asMultiplier || legacyMultiplier) ? parsed : parsed / 100.0;
+      if (!(gain >= 0.0) || gain > 2.0) {
+        failRemoteCommand("master vol: 0-200% (got " + parts[1] + ")");
+        return;
+      }
+      project_.masterVolume = gain;
+      int pct = static_cast<int>(std::round(project_.masterVolume * 100.0));
+      triggerToast("master vol " + std::to_string(pct) + "%");
+      markProjectDirty();
       return;
     }
     if (command == "SPEED") {
@@ -2320,4 +2374,9 @@
       }
       return;
     }
+
+    // Fell through every branch: the verb is not one we know. Only reachable
+    // this way — every recognized command returns above — so this is what
+    // turns an unknown command into an ERR reply instead of silence.
+    remoteCommandRecognized_ = false;
   }

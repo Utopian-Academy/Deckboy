@@ -4215,6 +4215,18 @@ class App {
     // in the patch handler, then joins the node's threads.
     shutdownNmosNode();
     stopCompanionControl();
+    // PIP overlay engines hold textures on the control renderer. They live in a
+    // member map, so without this they were destroyed by ~App — i.e. AFTER
+    // SDL_DestroyRenderer and SDL_Quit below — and their destructors ran
+    // SDL_DestroyTexture against a torn-down SDL.
+    for (auto& [key, runtime] : pipOverlayRuntimes_) {
+      (void) key;
+      if (runtime.mediaEngine) {
+        runtime.mediaEngine->detachAudioDevice();
+        runtime.mediaEngine->stopAll();
+      }
+    }
+    pipOverlayRuntimes_.clear();
     for (auto& runtime : deckRuntimes_) {
       destroyDeckRuntime(runtime);
     }
@@ -4251,6 +4263,7 @@ class App {
       timelineStripTex_ = nullptr;
     }
     if (previewMediaEngine_) {
+      previewMediaEngine_->detachAudioDevice();
       previewMediaEngine_->stopAll();
       previewMediaEngine_.reset();
     }
@@ -4380,7 +4393,9 @@ class App {
   void enableSoakMode(double minutes) {
     soakMode_ = true;
     soakMinutes_ = minutes;
-    soakLogFile_.open("deckboy-soak.log", std::ios::app);
+    // State dir, not the working directory: launched from Finder or a shortcut
+    // the cwd is somewhere arbitrary (or unwritable) and the log vanishes.
+    soakLogFile_.open(Paths::stateDir() / "deckboy-soak.log", std::ios::app);
   }
 
   // Dev/test conveniences (CLI: --import <file>, --settings [tab]) — import
@@ -4391,6 +4406,24 @@ class App {
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
     handleDropFile(path.c_str());
+  }
+
+  // A show named on the command line — what the .deckboy file association and
+  // "open with" hand us. Opening it is the whole point of the launch, so the
+  // startup menu (which would offer to open something else) is skipped.
+  void openProjectFromCommandLine(const fs::path& projectPath) {
+    showStartupDialog_ = false;
+    showSplashOverlay_ = false;
+    std::error_code ec;
+    fs::path resolved = fs::absolute(projectPath, ec);
+    if (ec) {
+      resolved = projectPath;
+    }
+    if (!fs::exists(resolved)) {
+      triggerToast("show not found: " + resolved.filename().string());
+      return;
+    }
+    openProjectFromPath(normalizeProjectPath(resolved));
   }
 
   void debugOpenSettings(int tab, int videoSubTab = 0) {
@@ -6386,7 +6419,21 @@ class App {
   std::atomic<bool> companionStop_ {false};
   std::thread companionThread_;
   std::mutex remoteCommandMutex_;
-  std::deque<std::string> remoteCommands_;
+  // A queued command, plus the Companion client (if any) waiting to be told
+  // what happened to it. Commands arriving from OSC/MIDI/ATEM/NDI have no
+  // reply socket and carry kInvalidSocket.
+  struct PendingRemoteCommand {
+    std::string text;
+    SocketHandle replyTo = kInvalidSocket;
+  };
+  std::deque<PendingRemoteCommand> remoteCommands_;
+  // Set true at the top of handleRemoteCommand and cleared only by falling off
+  // its end, which is what an unrecognized verb does. Read straight after the
+  // call in processRemoteCommands to answer OK or ERR.
+  bool remoteCommandRecognized_ = true;
+  // Set by failRemoteCommand() when a verb was understood but its arguments
+  // were not — an ERR with a reason, not a bare OK.
+  std::string remoteCommandError_;
   std::mutex statusSnapshotMutex_;
   std::string statusSnapshot_;
   std::string statusSnapshotJson_;
@@ -6583,15 +6630,10 @@ class App {
 // Entry points
 // ════════════════════════════════════════════════════════════════════════════
 
-// Shared entry point for both main() and WinMain(). Handles:
-//   --version       → print version and exit
-//   --self-check    → run self-check diagnostics and exit
-//   --smoke         → run smoke tests and exit
-//   --decode-bench <file> [seconds] [cli] → measure decode throughput and exit
-//   --pattern-dump <pattern-id> <out.ppm> [WxH] [t] → render a pattern frame and exit
-//   --no-inproc-decode → force the ffmpeg CLI decode path (break-glass)
-//   --allow-multi-instance → skip single-instance lock
-// Otherwise: acquire instance lock → App::init() → App::run() → App::shutdown()
+// Shared entry point for both main() and WinMain(). Parses the command line
+// (see the block comment above runDeckboyMain for the rules and `--help` for
+// the flags), runs a mode flag headless if one is present, otherwise:
+// acquire instance lock → App::init() → App::run() → App::shutdown()
 #ifdef _WIN32
 // ── Crash logger ────────────────────────────────────────────────────────────
 // Deckboy has been dying silently: Windows Error Reporting keeps a dump and a
@@ -6608,7 +6650,7 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
   if (!handled.compare_exchange_strong(expected, true)) {
     return EXCEPTION_EXECUTE_HANDLER;  // a second fault while logging the first
   }
-  fs::path logPath = Paths::dataDir() / "deckboy-crash.log";
+  fs::path logPath = Paths::stateDir() / "deckboy-crash.log";
   std::ofstream log(logPath, std::ios::app);
   if (log) {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -6722,7 +6764,7 @@ extern "C" void deckboyPosixCrashHandler(int sig) {
 }
 
 static void installPosixCrashHandler() {
-  const std::string path = (Paths::dataDir() / "deckboy-crash.log").string();
+  const std::string path = (Paths::stateDir() / "deckboy-crash.log").string();
   if (path.size() < sizeof(g_crashLogPath)) {
     std::memcpy(g_crashLogPath, path.c_str(), path.size() + 1);
   }
@@ -6776,6 +6818,213 @@ static void prependExecutableDirToPath() {
 #endif
 }
 
+// ---------------------------------------------------------------------------
+// Command line
+//
+// Flags come in two shapes:
+//   MODE flags take the process over: they run headless and exit (--smoke,
+//     --pattern-dump, --decode-bench, …). At most one may appear.
+//   OPTION flags modify a run (--import, --settings, --soak) or apply to any
+//     run at all (--no-inproc-decode, --allow-multi-instance).
+//
+// Three rules this parser enforces, each of which used to fail SILENTLY:
+//   * option flags are read wherever they sit on the line, not only in argv[1]
+//     ("--decode-bench clip.mp4 --no-inproc-decode" ignored the modifier, and
+//     swapping the order launched the GUI instead);
+//   * "--flag=value" is accepted as well as "--flag value"
+//     ("--pattern-bench=terrarium" launched the GUI);
+//   * an unknown flag, or a mode flag missing its operands, is an ERROR with a
+//     message — never a fall-through into the GUI.
+// A bare path is the show (or media) to open, which is what the Windows
+// .deckboy file association and a Finder/Explorer "open with" actually pass.
+// ---------------------------------------------------------------------------
+namespace {
+
+struct CliFlagHelp {
+  const char* usage;
+  const char* text;
+};
+
+constexpr CliFlagHelp kCliModeHelp[] = {
+  {"--help, -h", "print this help and exit"},
+  {"--version", "print the version and exit"},
+  {"--self-check", "report ffmpeg / SDK / runtime availability and exit"},
+  {"--smoke", "run the built-in smoke suite and exit"},
+  {"--sync-pop-test", "run the A/V sync pop test and exit"},
+  {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
+  {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
+  {"--ltc-generate <out.wav> [tc] [fps] [seconds]", "write a SMPTE LTC timecode WAV"},
+};
+
+constexpr CliFlagHelp kCliOptionHelp[] = {
+  {"--import <path>", "import media at launch (skips splash and startup menu)"},
+  {"--settings [tab[.subtab]]", "open the settings modal at boot, e.g. --settings 3.1"},
+  {"--soak [minutes]", "long-run stability harness (default 1440); logs to deckboy-soak.log"},
+  {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
+  {"--allow-multi-instance", "bypass the single-instance lock"},
+};
+
+constexpr const char* kCliModeFlags[] = {
+  "--version", "--self-check", "--smoke", "--sync-pop-test",
+  "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
+};
+
+constexpr CliFlagHelp kCliEnvHelp[] = {
+  {"DECKBOY_ROOT", "project root holding data/ (also makes that dir the writable one)"},
+  {"DECKBOY_STATE_DIR", "where shows/state/crash logs are written"},
+  {"DECKBOY_PROJECT", "show file to open instead of the remembered one"},
+  {"DECKBOY_COMPANION_PORT", "Companion control port (default 5510)"},
+  {"DECKBOY_FFMPEG / DECKBOY_FFPROBE", "explicit paths to the ffmpeg binaries"},
+};
+
+bool isCliModeFlag(const std::string& token) {
+  for (const char* flag : kCliModeFlags) {
+    if (token == flag) return true;
+  }
+  return false;
+}
+
+void printDeckboyUsage(std::ostream& out) {
+  printDeckboyVersion(out);
+  out << "\nUsage:\n"
+      << "  Deckboy [show.deckboy | media...] [options]\n"
+      << "  Deckboy <mode> [arguments]\n"
+      << "\nModes (run headless and exit):\n";
+  for (const CliFlagHelp& help : kCliModeHelp) {
+    out << "  " << std::left << std::setw(52) << help.usage << help.text << '\n';
+  }
+  out << "\nOptions:\n";
+  for (const CliFlagHelp& help : kCliOptionHelp) {
+    out << "  " << std::left << std::setw(52) << help.usage << help.text << '\n';
+  }
+  out << "\nEnvironment:\n";
+  for (const CliFlagHelp& help : kCliEnvHelp) {
+    out << "  " << std::left << std::setw(52) << help.usage << help.text << '\n';
+  }
+  out << "\nBoth spellings work everywhere: --flag value and --flag=value.\n"
+      << std::right;
+}
+
+void printCliError(const std::string& message) {
+  std::cerr << "deckboy: " << message << "\nTry 'Deckboy --help'.\n";
+}
+
+// Normalize argv for parsing: split "--flag=value", and drop the process-serial
+// argument macOS's Finder appends when it launches a bundle (it is not ours and
+// must not be reported as an unknown flag).
+std::vector<std::string> normalizeCliArgs(int argc, char** argv) {
+  std::vector<std::string> out;
+  out.reserve(static_cast<size_t>(argc > 1 ? argc - 1 : 0));
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = argv[i] ? argv[i] : "";
+    if (arg.empty() || arg.rfind("-psn_", 0) == 0) {
+      continue;
+    }
+    if (arg.rfind("--", 0) == 0) {
+      const auto eq = arg.find('=');
+      if (eq != std::string::npos && eq > 2) {
+        out.push_back(arg.substr(0, eq));
+        out.push_back(arg.substr(eq + 1));
+        continue;
+      }
+    }
+    out.push_back(std::move(arg));
+  }
+  return out;
+}
+
+// "1920x1080" → raster. Shared by the operand lists of --pattern-bench and
+// --pattern-dump, where sizes and counts may appear in either order.
+bool parseCliRaster(const std::string& token, int& width, int& height) {
+  const auto xPos = token.find('x');
+  if (xPos == std::string::npos || xPos == 0) {
+    return false;
+  }
+  const int w = std::atoi(token.substr(0, xPos).c_str());
+  const int h = std::atoi(token.substr(xPos + 1).c_str());
+  if (w <= 0 || h <= 0) {
+    return false;
+  }
+  width = w;
+  height = h;
+  return true;
+}
+
+// Run a mode flag. `ops` is everything after it, with the global modifiers
+// already removed, so a modifier may sit anywhere on the line.
+int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& ops) {
+  auto missing = [&](const char* operands) {
+    printCliError(mode + " needs " + operands);
+    return 2;
+  };
+
+  if (mode == "--version") {
+    printDeckboyVersion(std::cout);
+    return 0;
+  }
+  if (mode == "--self-check") {
+    return App::runSelfCheck();
+  }
+  if (mode == "--smoke") {
+    return App::runSmoke();
+  }
+  if (mode == "--sync-pop-test") {
+    return App::runSyncPopTest();
+  }
+  if (mode == "--pattern-bench") {
+    if (ops.empty()) return missing("<pattern> [WxH] [frames]");
+    int bw = 3840, bh = 2160, bframes = 60;
+    for (size_t i = 1; i < ops.size(); ++i) {
+      if (parseCliRaster(ops[i], bw, bh)) continue;
+      const int n = std::atoi(ops[i].c_str());
+      if (n > 0) bframes = n;
+    }
+    return App::runPatternBench(ops[0], bw, bh, bframes);
+  }
+  if (mode == "--pattern-dump") {
+    if (ops.size() < 2) return missing("<pattern> <out.ppm> [WxH] [seconds]");
+    int dumpW = 1280, dumpH = 720;
+    double dumpT = 30.0;
+    for (size_t i = 2; i < ops.size(); ++i) {
+      if (parseCliRaster(ops[i], dumpW, dumpH)) continue;
+      const double parsed = std::atof(ops[i].c_str());
+      if (parsed >= 0.0) dumpT = parsed;
+    }
+    return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--decode-bench") {
+    if (ops.empty()) return missing("<file> [seconds] [cli]");
+    double benchSeconds = 10.0;
+    // --no-inproc-decode is the documented way to force the pipe path, so it
+    // has to reach the bench too — otherwise the CLI decode path could not be
+    // benchmarked at all. "cli" stays as the positional spelling.
+    bool forceCli = MediaEngine::inprocDecodeDisabled();
+    for (size_t i = 1; i < ops.size(); ++i) {
+      if (ops[i] == "cli") {
+        forceCli = true;
+        continue;
+      }
+      const double parsed = std::atof(ops[i].c_str());
+      if (parsed > 0.0) benchSeconds = parsed;
+    }
+    return App::runDecodeBench(ops[0], benchSeconds, forceCli);
+  }
+  if (mode == "--ltc-generate") {
+    if (ops.empty()) return missing("<out.wav> [tc] [fps] [seconds]");
+    const std::string startTc = ops.size() > 1 ? ops[1] : "10:00:00:00";
+    const double fps = ops.size() > 2 ? std::atof(ops[2].c_str()) : 30.0;
+    const double secs = ops.size() > 3 ? std::atof(ops[3].c_str()) : 2.0;
+    return App::runLtcGenerate(ops[0], startTc, fps > 0.0 ? fps : 30.0,
+                               secs > 0.0 ? secs : 2.0);
+  }
+
+  printCliError("unhandled mode " + mode);  // unreachable while kCliModeFlags matches
+  return 2;
+}
+
+}  // namespace
+
 int runDeckboyMain(int argc, char** argv) {
 #ifdef _WIN32
   SetUnhandledExceptionFilter(deckboyCrashHandler);
@@ -6786,102 +7035,67 @@ int runDeckboyMain(int argc, char** argv) {
   // reports whether ffmpeg is reachable and must therefore report the truth
   // about THIS build's lookup path.
   prependExecutableDirToPath();
-  if (argc > 1 && std::string_view(argv[1]) == "--version") {
-    printDeckboyVersion(std::cout);
-    return 0;
-  }
-  if (argc > 1 && std::string_view(argv[1]) == "--self-check") {
-    return App::runSelfCheck();
-  }
-  if (argc > 1 && std::string_view(argv[1]) == "--smoke") {
-    return App::runSmoke();
-  }
-  if (argc > 2 && std::string_view(argv[1]) == "--pattern-bench") {
-    int bw = 3840, bh = 2160, bframes = 60;
-    for (int i = 3; i < argc; ++i) {
-      std::string_view arg(argv[i]);
-      auto xPos = arg.find('x');
-      if (xPos != std::string_view::npos) {
-        int w = std::atoi(std::string(arg.substr(0, xPos)).c_str());
-        int h = std::atoi(std::string(arg.substr(xPos + 1)).c_str());
-        if (w > 0 && h > 0) { bw = w; bh = h; }
-      } else {
-        int n = std::atoi(std::string(arg).c_str());
-        if (n > 0) bframes = n;
-      }
+
+  const std::vector<std::string> args = normalizeCliArgs(argc, argv);
+  for (const std::string& arg : args) {
+    if (arg == "--help" || arg == "-h" || arg == "-?" || arg == "/?") {
+      printDeckboyUsage(std::cout);
+      return 0;
     }
-    return App::runPatternBench(argv[2], bw, bh, bframes);
-  }
-  if (argc > 2 && std::string_view(argv[1]) == "--ltc-generate") {
-    const std::string outWav = argv[2];
-    const std::string startTc = argc > 3 ? argv[3] : "10:00:00:00";
-    const double fps = argc > 4 ? std::atof(argv[4]) : 30.0;
-    const double secs = argc > 5 ? std::atof(argv[5]) : 2.0;
-    return App::runLtcGenerate(outWav, startTc, fps > 0.0 ? fps : 30.0,
-                               secs > 0.0 ? secs : 2.0);
-  }
-  if (argc > 3 && std::string_view(argv[1]) == "--pattern-dump") {
-    int dumpW = 1280;
-    int dumpH = 720;
-    double dumpT = 30.0;
-    for (int i = 4; i < argc; ++i) {
-      std::string_view arg(argv[i]);
-      auto xPos = arg.find('x');
-      if (xPos != std::string_view::npos) {
-        int w = std::atoi(std::string(arg.substr(0, xPos)).c_str());
-        int h = std::atoi(std::string(arg.substr(xPos + 1)).c_str());
-        if (w > 0 && h > 0) {
-          dumpW = w;
-          dumpH = h;
-        }
-      } else {
-        double parsed = std::atof(argv[i]);
-        if (parsed >= 0.0) {
-          dumpT = parsed;
-        }
-      }
-    }
-    return App::runPatternDump(argv[2], argv[3], dumpW, dumpH, dumpT);
-  }
-  if (argc > 1 && std::string_view(argv[1]) == "--sync-pop-test") {
-    return App::runSyncPopTest();
-  }
-  if (argc > 2 && std::string_view(argv[1]) == "--decode-bench") {
-    double benchSeconds = 10.0;
-    bool forceCli = false;
-    for (int i = 3; i < argc; ++i) {
-      std::string_view arg(argv[i]);
-      if (arg == "cli") {
-        forceCli = true;
-      } else {
-        double parsed = std::atof(argv[i]);
-        if (parsed > 0.0) {
-          benchSeconds = parsed;
-        }
-      }
-    }
-    return App::runDecodeBench(argv[2], benchSeconds, forceCli);
   }
 
+  // Global modifiers first, and removed from the line, so they may appear
+  // before or after a mode flag and its operands.
   bool allowMultiInstance = false;
+  std::vector<std::string> rest;
+  rest.reserve(args.size());
+  for (const std::string& arg : args) {
+    if (arg == "--no-inproc-decode") {
+      // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
+      // for this run (robustness over Pocket performance).
+      MediaEngine::setInprocDecodeDisabled(true);
+      continue;
+    }
+    if (arg == "--allow-multi-instance") {
+      allowMultiInstance = true;
+      continue;
+    }
+    rest.push_back(arg);
+  }
+
+  for (size_t i = 0; i < rest.size(); ++i) {
+    if (!isCliModeFlag(rest[i])) {
+      continue;
+    }
+    if (i != 0) {
+      printCliError(rest[i] + " must come before its arguments (saw '" + rest[0] + "' first)");
+      return 2;
+    }
+    return runDeckboyCliMode(rest[0], {rest.begin() + 1, rest.end()});
+  }
+
   double soakMinutes = -1.0;
   std::vector<std::string> importPathsArg;
+  fs::path startupProjectArg;
   int openSettingsTab = -1;
   int openSettingsSubTab = 0;
-  for (int i = 1; i < argc; ++i) {
-    if (std::string_view(argv[i]) == "--allow-multi-instance") {
-      allowMultiInstance = true;
+  for (size_t i = 0; i < rest.size(); ++i) {
+    const std::string& arg = rest[i];
+    if (arg == "--import") {
+      if (i + 1 >= rest.size()) {
+        printCliError("--import needs a path");
+        return 2;
+      }
+      importPathsArg.push_back(rest[++i]);
+      continue;
     }
-    if (std::string_view(argv[i]) == "--import" && i + 1 < argc) {
-      importPathsArg.emplace_back(argv[++i]);
-    }
-    if (std::string_view(argv[i]) == "--settings") {
+    if (arg == "--settings") {
       // Optional "tab" or "tab.subtab" (video sub-tab), e.g. --settings 3.1
       openSettingsTab = 0;
-      if (i + 1 < argc) {
+      if (i + 1 < rest.size()) {
         char* end = nullptr;
-        long parsed = std::strtol(argv[i + 1], &end, 10);
-        if (end && (*end == '\0' || *end == '.')) {
+        const long parsed = std::strtol(rest[i + 1].c_str(), &end, 10);
+        if (end && end != rest[i + 1].c_str() && (*end == '\0' || *end == '.')) {
           openSettingsTab = static_cast<int>(parsed);
           if (*end == '.') {
             openSettingsSubTab = static_cast<int>(std::strtol(end + 1, nullptr, 10));
@@ -6889,22 +7103,32 @@ int runDeckboyMain(int argc, char** argv) {
           ++i;
         }
       }
+      continue;
     }
-    if (std::string_view(argv[i]) == "--no-inproc-decode") {
-      // Operator break-glass: keep every decode on the ffmpeg CLI pipe path
-      // for this run (robustness over Pocket performance).
-      MediaEngine::setInprocDecodeDisabled(true);
-    }
-    if (std::string_view(argv[i]) == "--soak") {
+    if (arg == "--soak") {
       // Long-run stability harness on the real app loop. Optional minutes
       // argument; default 24 h. Loops the loaded show (see tickSoak).
       soakMinutes = 1440.0;
-      if (i + 1 < argc) {
-        double parsed = std::atof(argv[i + 1]);
+      if (i + 1 < rest.size()) {
+        const double parsed = std::atof(rest[i + 1].c_str());
         if (parsed > 0.0) {
           soakMinutes = parsed;
+          ++i;
         }
       }
+      continue;
+    }
+    if (arg.rfind("-", 0) == 0) {
+      printCliError("unknown flag " + arg);
+      return 2;
+    }
+    // Bare path: a show opens as the project, anything else is imported. This
+    // is the shape the .deckboy file association hands us.
+    fs::path candidate(arg);
+    if (startupProjectArg.empty() && candidate.extension() == ".deckboy") {
+      startupProjectArg = candidate;
+    } else {
+      importPathsArg.push_back(arg);
     }
   }
 #ifndef _WIN32
@@ -6932,6 +7156,9 @@ int runDeckboyMain(int argc, char** argv) {
 
   if (soakMinutes > 0.0) {
     app.enableSoakMode(soakMinutes);
+  }
+  if (!startupProjectArg.empty()) {
+    app.openProjectFromCommandLine(startupProjectArg);
   }
   for (const std::string& importPath : importPathsArg) {
     app.debugImportPath(importPath);

@@ -19,6 +19,7 @@
 
 #include "paths.hpp"
 #include <cstdlib>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -191,6 +192,98 @@ fs::path resolveProjectRoot() {
   return getCwd();
 }
 
+// True when the executable sits at …/Contents/MacOS/<exe>, i.e. we are running
+// from inside a bundle whose Resources are sealed by the code signature.
+bool runningFromMacBundle() {
+#ifdef __APPLE__
+  fs::path exePath = getExecutablePath();
+  if (exePath.empty()) {
+    return false;
+  }
+  fs::path macosDir = exePath.parent_path();
+  fs::path contentsDir = macosDir.parent_path();
+  return macosDir.filename() == "MacOS" && contentsDir.filename() == "Contents";
+#else
+  return false;
+#endif
+}
+
+// Per-user application data directory for this platform.
+fs::path userApplicationDataDir() {
+  const char* home = std::getenv("HOME");
+#if defined(_WIN32)
+  if (const char* appData = std::getenv("APPDATA"); appData && appData[0] != '\0') {
+    return fs::path(appData) / "Deckboy";
+  }
+  if (const char* profile = std::getenv("USERPROFILE"); profile && profile[0] != '\0') {
+    return fs::path(profile) / "AppData" / "Roaming" / "Deckboy";
+  }
+#elif defined(__APPLE__)
+  if (home && home[0] != '\0') {
+    return fs::path(home) / "Library" / "Application Support" / "Deckboy";
+  }
+#else
+  if (const char* xdg = std::getenv("XDG_DATA_HOME"); xdg && xdg[0] != '\0') {
+    return fs::path(xdg) / "deckboy";
+  }
+  if (home && home[0] != '\0') {
+    return fs::path(home) / ".local" / "share" / "deckboy";
+  }
+#endif
+  (void) home;
+  return getCwd() / "deckboy-data";  // last resort; better than a path we can't write
+}
+
+// Can we create files in this directory? Probes for real rather than trusting
+// permission bits: a read-only DMG, a Gatekeeper-translocated bundle and a
+// non-admin /Applications install all fail here, and each of those is a machine
+// Deckboy is expected to run on.
+bool directoryIsWritable(const fs::path& dir) {
+  std::error_code ec;
+  fs::create_directories(dir, ec);
+  if (!fs::is_directory(dir, ec)) {
+    return false;
+  }
+  fs::path probe = dir / ".deckboy-write-probe";
+  {
+    std::ofstream out(probe, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      return false;
+    }
+    out << 'x';
+    if (!out) {
+      return false;
+    }
+  }
+  fs::remove(probe, ec);
+  return true;
+}
+
+fs::path resolveStateDir() {
+  if (const char* env = std::getenv("DECKBOY_STATE_DIR"); env && env[0] != '\0') {
+    std::error_code ec;
+    fs::path abs = fs::absolute(fs::path(env), ec);
+    if (!ec && !abs.empty()) return abs;
+  }
+  // The data dir is the answer whenever it can be one: that is what keeps a
+  // portable install portable, and what DECKBOY_ROOT selects for an isolated
+  // test run. Two things disqualify it.
+  //
+  // Inside a bundle it is Contents/Resources/data, and writing there
+  // invalidates the code signature ("a sealed resource is missing or invalid")
+  // even where the disk permits it — so the bundle is ruled out before the
+  // probe rather than by it. The probe then covers read-only volumes and
+  // installs the user has no write access to.
+  fs::path data = Paths::dataDir();
+  if (!runningFromMacBundle() && directoryIsWritable(data)) {
+    return data;
+  }
+  fs::path userDir = userApplicationDataDir();
+  std::error_code ec;
+  fs::create_directories(userDir, ec);
+  return userDir;
+}
+
 }  // anonymous namespace
 
 // -- Public API (delegates to the anonymous-namespace helpers above) ----------
@@ -207,14 +300,38 @@ fs::path Paths::dataDir() {
   return projectRoot() / "data";  // always a subdirectory of the resolved project root
 }
 
+fs::path Paths::stateDir() {
+  // Resolved once: the writability probe touches the disk, and every caller
+  // (crash handler included) expects a cheap accessor. Nothing that feeds the
+  // decision changes within a run.
+  static const fs::path resolved = resolveStateDir();
+  return resolved;
+}
+
 fs::path Paths::defaultProjectFile() {
-  return dataDir() / "default.deckboy";  // auto-loaded at startup if it exists
+  return stateDir() / "default.deckboy";  // auto-loaded at startup if it exists
 }
 
 bool Paths::ensureDataDir() {
-  std::error_code ec;
-  fs::create_directories(dataDir(), ec);  // creates all intermediate dirs; no-op if exists
-  return !ec;
+  std::error_code dataEc;
+  fs::create_directories(dataDir(), dataEc);  // creates all intermediate dirs; no-op if exists
+  std::error_code stateEc;
+  fs::create_directories(stateDir(), stateEc);
+
+  // Versions before the split wrote the show and the last-opened pointer into
+  // data/. When that is no longer where we write, carry them across once so an
+  // upgrade in place doesn't look like the operator's show disappeared.
+  if (!dataEc && !stateEc && stateDir() != dataDir()) {
+    for (const char* name : {"default.deckboy", "last_project.txt"}) {
+      std::error_code ec;
+      fs::path from = dataDir() / name;
+      fs::path to = stateDir() / name;
+      if (fs::exists(from, ec) && !fs::exists(to, ec)) {
+        fs::copy_file(from, to, ec);
+      }
+    }
+  }
+  return !dataEc && !stateEc;
 }
 
 // ---------------------------------------------------------------------------

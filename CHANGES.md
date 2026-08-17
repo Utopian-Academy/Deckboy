@@ -1,5 +1,77 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-16 — v0.83.2 (macOS field report: bundle writes, CLI, remote protocol)
+
+A second macOS field pass produced a list of defects. All but the first are
+fixed and verified.
+
+### The app wrote inside its own bundle and broke its signature
+`default.deckboy`, `last_project.txt` and `deckboy-crash.log` were written to
+the data dir, which inside a `.app` is `Contents/Resources/data` — sealed by the
+code signature. After one run `codesign --verify --deep --strict` failed with "a
+sealed resource is missing or invalid", and the app could not run from a
+read-only volume or an install the user lacks write access to at all.
+
+Read-only resources and writable state are now separate. `Paths::dataDir()` is
+bundled assets (themes, fonts, sounds); the new `Paths::stateDir()` is where the
+app writes. It resolves to `DECKBOY_STATE_DIR`, else the data dir when that is
+both writable and not inside a bundle — so a portable Windows/Linux install is
+byte-for-byte unchanged — else per-user application data
+(`%APPDATA%\Deckboy`, `~/Library/Application Support/Deckboy`,
+`$XDG_DATA_HOME/deckboy`). An existing show and last-opened pointer are copied
+across once, so an upgrade in place doesn't look like the show disappeared.
+The soak log and the `_converted` media dir moved off the bundle too.
+
+### The command line
+- **`--help` exists.** There was none: `--help` launched the GUI, and the only
+  way to learn the flags was to run `strings` on the binary.
+- **Option flags are read wherever they appear.** They were only ever read from
+  `argv[1]`, so `--decode-bench clip.mp4 --no-inproc-decode` silently ignored
+  the modifier and `--no-inproc-decode --decode-bench clip.mp4` silently
+  launched the GUI. The CLI decode path could not be benchmarked at all;
+  `--no-inproc-decode` now reaches `--decode-bench` from either side.
+- **`--flag=value` works.** `--pattern-bench=terrarium` used to launch the full
+  GUI rather than say anything.
+- **Unknown flags and missing operands are errors** (message + exit 2), not a
+  silent fall-through into the GUI.
+- **A bare path on the command line opens that show or imports that media.**
+  It was ignored, which meant the `.deckboy` file association the Windows
+  installer registers — `"Deckboy.exe" "%1"` — did nothing but launch the app.
+
+### Remote control answers you
+Commands were write-only: the only feedback was a toast on the control window,
+so over a socket a working command, a mistyped one and an unimplemented one were
+identical silence. Every command now gets a line back — `OK <VERB>`,
+`ERR unknown command: <VERB>`, or `ERR <VERB>: <reason>` — and `HELP` lists the
+protocol. The Companion module ignores the acks and logs the errors.
+
+- **`MASTERVOL` units contradicted everything else.** `STATE`, the toast, the
+  Companion module's action, the MIDI CC and OSC senders all speak percent;
+  this one handler read a 0–2 multiplier and clamped. `MASTERVOL 60` meant
+  200%, and every Companion master-volume press did the same. It now takes
+  percent (0–200), accepts explicit `150%` / `1.5x`, still reads a bare
+  fractional value ≤ 2 as a multiplier so old scripts mean what they said, and
+  refuses out-of-range input instead of clamping it out of sight.
+- **`RERACK` now exists.** It was documented in the handler's own header and
+  whitelisted for integration triggers, but never implemented — one of the four
+  transport buttons did nothing over the wire. `SAVE`, `LOAD`, `RELOAD` and
+  `FADE` were advertised the same way and do not exist; that comment is now
+  honest rather than aspirational.
+
+### Teardown
+A 1-in-20 SIGSEGV on quit was reported on macOS — `~MediaEngine` →
+`stopAll()` → `SDL_ClearAudioStream` — and could not be reproduced. **Not proven
+fixed**, but the surrounding lifetime bugs are:
+- `MediaEngine::detachAudioDevice()` gives the stream back before the owner
+  destroys it, and every owner now calls it first, so no engine can touch an
+  SDL audio stream during or after teardown.
+- The audio decode thread's writes to that stream are serialized against a
+  device swap or detach on the main thread; previously the pointer could be
+  swapped and the old stream freed mid-write.
+- PIP overlay engines were destroyed by `~App` — i.e. after `SDL_DestroyRenderer`
+  and `SDL_Quit` — and ran `SDL_DestroyTexture` against a torn-down SDL. They
+  are now shut down inside `shutdown()`.
+
 ## 2026-08-09 — v0.83.1 (macOS field-testing fixes + proper installers)
 
 Deckboy was run on a Mac for the first time. That surfaced a chain of real

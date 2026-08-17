@@ -2257,7 +2257,7 @@
   fs::path convertedMediaDir() const {
     fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
       ? currentProjectFile_.parent_path()   // portable: lives next to the show
-      : Paths::dataDir();
+      : Paths::stateDir();                  // no show yet — never inside the bundle
     return base / "_converted";
   }
 
