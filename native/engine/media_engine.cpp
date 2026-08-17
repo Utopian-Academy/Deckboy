@@ -92,6 +92,8 @@ int phaseFromProgress(double progress, int period) {
 }
 
 std::atomic<bool> g_inprocDecodeDisabled {false};
+// Latched immediately before SDL_Quit(); after that no engine may call SDL.
+std::atomic<bool> g_sdlTornDown {false};
 
 // ---------------------------------------------------------------------------
 // buildTerrariumFrame — Stateful pattern source for pattern://terrarium.
@@ -170,6 +172,15 @@ void MediaEngine::setInprocDecodeDisabled(bool disabled) {
 
 bool MediaEngine::inprocDecodeDisabled() {
   return g_inprocDecodeDisabled.load();
+}
+
+// Set once, just before SDL_Quit(). See the header for why this exists.
+void MediaEngine::setSdlTornDown(bool tornDown) {
+  g_sdlTornDown.store(tornDown);
+}
+
+bool MediaEngine::sdlTornDown() {
+  return g_sdlTornDown.load();
 }
 
 // Destructor ensures all decode threads are joined and subprocesses killed.
@@ -1414,10 +1425,10 @@ void MediaEngine::beginTransition(double seconds, TransitionStyle style, float s
 // Called when a transition completes (progress >= 1.0), when a new cue is
 // loaded (via beginTransition → clearTransitionTexture first), or during stopAll.
 void MediaEngine::clearTransitionTexture() {
-  if (transitionTexture_) {
+  if (transitionTexture_ && !sdlTornDown()) {
     SDL_DestroyTexture(transitionTexture_);
-    transitionTexture_ = nullptr;
   }
+  transitionTexture_ = nullptr;
   transitionTextureWidth_ = 0;
   transitionTextureHeight_ = 0;
   transitionActive_ = false;
@@ -1649,10 +1660,10 @@ void MediaEngine::handlePlaybackEnd() {
 // Release the main frame GPU texture. Called when clearing the deck,
 // loading a new cue, or during stopAll cleanup.
 void MediaEngine::clearTexture() {
-  if (texture_) {
+  if (texture_ && !sdlTornDown()) {
     SDL_DestroyTexture(texture_);
-    texture_ = nullptr;
   }
+  texture_ = nullptr;
   textureWidth_ = 0;
   textureHeight_ = 0;
   textureFormat_ = 0;
@@ -1992,7 +2003,8 @@ void MediaEngine::loadSourceFrame(const Cue& cue) {
 // transitions, stop, and cleanup to prevent leftover audio from bleeding
 // into the next cue or playing after the cue has stopped.
 void MediaEngine::clearAudio() {
-  if (audioStream_) {
+  // sdlTornDown(): SDL_Quit already freed this stream. See setSdlTornDown().
+  if (audioStream_ && !sdlTornDown()) {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, true);
   }
