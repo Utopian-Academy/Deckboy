@@ -6577,6 +6577,11 @@ class App {
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
+  // Clients that half-closed (sent EOF) but are still owed an OK/ERR for a
+  // command already queued. Value is the SDL_GetTicks deadline after which the
+  // socket is closed regardless. See the linger note in the reader loop.
+  std::map<SocketHandle, Uint64> companionDrainingClients_;
+  static constexpr Uint64 kCompanionDrainMs = 750;
   std::map<std::string, std::pair<sockaddr_in, Uint64>> oscSubscribers_;
   Uint64 lastOscFeedbackBroadcastMs_ = 0;
   std::string lastOscFeedbackPayload_;
