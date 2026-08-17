@@ -4303,6 +4303,12 @@ class App {
       controlWindow_ = nullptr;
     }
     TTF_Quit();
+    // Last thing before the subsystem goes away: anything torn down after this
+    // (a MediaEngine still owned by an App member, destroyed by ~App) must not
+    // call into SDL. A field crash on macOS was exactly that — ~MediaEngine ->
+    // stopAll -> SDL_ClearAudioStream, from runDeckboyMain's frame, i.e. after
+    // shutdown() had already returned.
+    MediaEngine::setSdlTornDown(true);
     SDL_Quit();
 #ifdef _WIN32
     WSACleanup();
