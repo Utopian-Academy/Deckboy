@@ -42,16 +42,31 @@ struct Paths {
   /// doesn't support exe path discovery (rare; handled gracefully by callers).
   static std::filesystem::path executablePath();
 
-  /// Data directory (project_root / "data"). Contains fonts, default show file,
-  /// UI sounds, and other bundled assets. Created on first run by ensureDataDir().
+  /// Data directory (project_root / "data"). Contains fonts, themes, UI sounds
+  /// and the other bundled assets. READ-ONLY as far as the app is concerned —
+  /// inside a macOS .app this is Contents/Resources/data, which is covered by
+  /// the code signature. Write to stateDir() instead.
   static std::filesystem::path dataDir();
 
-  /// Default show file path: data_dir / "default.deckboy".
+  /// Where the app WRITES: the default show, the last-opened pointer, crash
+  /// logs. Usually dataDir() itself, which keeps a portable install portable —
+  /// but never a directory the app must not modify or cannot write to.
+  ///
+  /// Order:
+  ///   1. DECKBOY_STATE_DIR env (explicit override)
+  ///   2. dataDir(), unless we are inside a macOS .app bundle (writing there
+  ///      breaks the code signature) or it is not writable (read-only volume,
+  ///      install the user has no rights to)
+  ///   3. per-user application data (%APPDATA%, ~/Library/Application Support,
+  ///      XDG_DATA_HOME)
+  static std::filesystem::path stateDir();
+
+  /// Default show file path: state_dir / "default.deckboy".
   /// Loaded automatically at startup if it exists.
   static std::filesystem::path defaultProjectFile();
 
-  /// Create the data directory if it doesn't exist. Returns false on failure.
-  /// Called once during app initialization in main.cpp.
+  /// Create the data and state directories if they don't exist.
+  /// Returns false on failure. Called once during app initialization.
   static bool ensureDataDir();
 
   /// Resolve a font file path for a logical font name.

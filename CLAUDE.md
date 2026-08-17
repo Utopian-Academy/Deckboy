@@ -240,6 +240,38 @@ it failed silently. Rules:
   filter array stay valid until the callback fires. Every caller uses a
   `static const` list; never pass a temporary.
 
+## Read-only Resources vs Writable State (v0.83.2)
+
+`Paths::dataDir()` is **read-only**: bundled themes, fonts, sounds, UI packs.
+`Paths::stateDir()` is the **only** place the app may write — the show, the
+last-opened pointer, crash and soak logs, `_converted` media with no project
+open. Inside a macOS `.app` the data dir is `Contents/Resources/data`, sealed by
+the code signature, so writing there fails `codesign --verify --deep --strict`
+after the very first run and breaks read-only / non-admin installs outright.
+
+stateDir resolves to `DECKBOY_STATE_DIR` → the data dir when it is writable and
+we are not in a bundle (portable installs unchanged, and what the isolated-test
+`DECKBOY_ROOT` recipe selects) → per-user application data. **When adding
+anything the app writes, use `stateDir()`.**
+
+## Remote Protocol: every command answers (v0.83.2)
+
+Companion/TCP commands are queued to the main thread with the client socket
+attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
+`OK <VERB>`, `ERR unknown command: <VERB>`, or `ERR <VERB>: <reason>`.
+
+- Unknown verbs are detected by *falling off the end* of `handleRemoteCommand`,
+  which clears `remoteCommandRecognized_`. Every recognized branch must
+  `return` — a branch that falls through would report a false ERR.
+- A verb that was understood but can't act calls `failRemoteCommand(reason)`
+  instead of `triggerToast(reason)`: the operator gets the same toast and the
+  caller gets the reason. Prefer it for every argument-validation failure.
+- `HELP` over the socket lists the protocol. Keep it honest — it advertised
+  SAVE/LOAD/RELOAD/FADE for a long time, none of which exist.
+- Do NOT silently clamp a remote value into range. `MASTERVOL` clamped a percent
+  into a 0–2 multiplier for years and nobody could see it; units are percent,
+  out-of-range is an error.
+
 ## Media Formats
 
 - Image cues: `isImagePath()` (main.cpp) lists the still extensions, incl.

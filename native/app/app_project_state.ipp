@@ -39,7 +39,7 @@
   }
 
   fs::path lastOpenedProjectPointerFile() const {
-    return Paths::dataDir() / "last_project.txt";
+    return Paths::stateDir() / "last_project.txt";
   }
 
   fs::path startupProjectFile() const {
@@ -3068,9 +3068,17 @@
     });
   }
 
-  void enqueueRemoteCommand(std::string command) {
+  // A command whose verb we know but whose arguments we can't act on. The
+  // operator gets the toast they always got; a Companion or script caller now
+  // also gets ERR with the same words instead of an OK that wasn't true.
+  void failRemoteCommand(const std::string& reason) {
+    remoteCommandError_ = reason;
+    triggerToast(reason);
+  }
+
+  void enqueueRemoteCommand(std::string command, SocketHandle replyTo = kInvalidSocket) {
     std::lock_guard<std::mutex> lock(remoteCommandMutex_);
-    remoteCommands_.push_back(std::move(command));
+    remoteCommands_.push_back(PendingRemoteCommand {std::move(command), replyTo});
   }
 
   void enqueueRemoteCommandBatch(const std::string& payload, char separatorHint = '\n') {

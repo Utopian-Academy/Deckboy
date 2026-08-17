@@ -412,6 +412,21 @@
       }
     };
 
+    if (upper == "HELP" || upper == "?") {
+      // Discoverability over the wire. The only way to learn the protocol used
+      // to be reading the source or guessing, and a guess that missed looked
+      // exactly like a broken command.
+      sendSnapshot(
+        "DECKBOY_0.01 help\n"
+        "queries (answered immediately): STATUS | STATUS JSON | STATUS CUES | STATUS <deck> | FINDSTATUS | HELP\n"
+        "transport: TAKE GO PLAY PAUSE STOP TOGGLE RERACK CLEAR SKIP SKIPBACK NEXT PREV SEEK <s> LOOP <on|off>\n"
+        "navigation: SELECT <n> GOTO <n> FIND <text> FINDNEXT FINDTAKE DECK <n> [command] DECKNEXT DECKPREV\n"
+        "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
+        "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN <dB> AUDIONORM SPEED <0.25-4>\n"
+        "output: OUT <on|off> FULLSCREEN <on|off> DISPLAY <n> TC <hh:mm:ss:ff>\n"
+        "cue indices are 1-based; every command answers 'OK <VERB>' or 'ERR unknown command: <VERB>'\n");
+      return true;
+    }
     if (upper == "STATUS JSON" || upper == "STATE JSON") {
       std::string snapshotJson;
       {
@@ -1426,7 +1441,7 @@
       return;
     }
     std::lock_guard<std::mutex> lk(remoteCommandMutex_);
-    remoteCommands_.push_back(std::move(cmd));
+    remoteCommands_.push_back(PendingRemoteCommand {std::move(cmd), kInvalidSocket});
   }
 
   void onMidiNoteOn(int note, int velocity) {
@@ -1622,7 +1637,7 @@
 
       if (!cmd.empty()) {
         std::lock_guard<std::mutex> lk(remoteCommandMutex_);
-        remoteCommands_.push_back(std::move(cmd));
+        remoteCommands_.push_back(PendingRemoteCommand {std::move(cmd), kInvalidSocket});
       }
       snd_seq_free_event(ev);
     }
@@ -1928,7 +1943,9 @@
             pending.erase(0, newlinePos + 1);
             if (!line.empty()) {
               if (!maybeRespondToCompanionQuery(client, line)) {
-                enqueueRemoteCommand(line);
+                // The client gets an OK/ERR line once the main thread has run
+                // this command.
+                enqueueRemoteCommand(line, client);
               }
             }
           }
@@ -2045,14 +2062,49 @@
     }
   }
 
+  // Write one line to a Companion client, from any thread. Takes the same lock
+  // the network thread holds while it reads and answers queries, so the two
+  // can't interleave mid-line, and skips a client that has since disconnected.
+  void sendCompanionLine(SocketHandle client, const std::string& line) {
+    if (client == kInvalidSocket) {
+      return;
+    }
+    const std::string payload = line + "\n";
+    std::lock_guard<std::mutex> lk(companionClientsMutex_);
+    if (std::find(companionClients_.begin(), companionClients_.end(), client)
+        == companionClients_.end()) {
+      return;
+    }
+    send(client, payload.c_str(), static_cast<int>(payload.size()), kSocketSendFlags);
+  }
+
   void processRemoteCommands() {
-    std::deque<std::string> pending;
+    std::deque<PendingRemoteCommand> pending;
     {
       std::lock_guard<std::mutex> lock(remoteCommandMutex_);
       pending.swap(remoteCommands_);
     }
 
     for (const auto& command : pending) {
-      handleRemoteCommand(command);
+      remoteCommandRecognized_ = true;
+      handleRemoteCommand(command.text);
+      if (command.replyTo == kInvalidSocket) {
+        continue;
+      }
+      // Every command gets an answer. Without one the only feedback a command
+      // has is a toast on the control window, which is useless to Companion,
+      // to a script, and to anyone testing over SSH — an unknown verb and a
+      // verb that worked were indistinguishable silence.
+      auto parts = splitWhitespace(command.text);
+      const std::string verb = parts.empty() ? std::string() : toUpper(parts[0]);
+      std::string reply;
+      if (!remoteCommandRecognized_) {
+        reply = "ERR unknown command: " + verb;
+      } else if (!remoteCommandError_.empty()) {
+        reply = "ERR " + verb + ": " + remoteCommandError_;
+      } else {
+        reply = "OK " + verb;
+      }
+      sendCompanionLine(command.replyTo, reply);
     }
   }

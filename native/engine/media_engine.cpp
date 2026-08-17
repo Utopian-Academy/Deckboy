@@ -410,11 +410,35 @@ void MediaEngine::setAudioDevice(SDL_AudioStream* stream) {
   // Redirect PCM output to a newly opened device. The caller closes the old
   // device after this returns; start the new one clean and matched to the
   // current transport so a device change never interrupts playback.
-  audioStream_ = stream;
+  //
+  // Under the lock: the audio thread keeps decoding across the swap, and it
+  // must not be holding the outgoing pointer when the caller frees it.
+  {
+    std::lock_guard<std::mutex> lock(audioStreamMutex_);
+    audioStream_ = stream;
+  }
   if (audioStream_) {
     SDL_ClearAudioStream(audioStream_);
     deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
   }
+}
+
+// Hand the device back. Decode stops first, which joins the audio thread — the
+// only other user of the pointer — so after this returns nothing in the engine
+// can reach the stream and the owner is free to destroy it.
+void MediaEngine::detachAudioDevice() {
+  stopDecoderThreads();
+  SDL_AudioStream* stream = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(audioStreamMutex_);
+    stream = audioStream_;
+    audioStream_ = nullptr;
+  }
+  if (stream) {
+    SDL_ClearAudioStream(stream);
+    deckboySetAudioPaused(stream, true);
+  }
+  audioDelayFifo_.clear();
 }
 
 void MediaEngine::play() {
@@ -2417,7 +2441,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
         while (!decoderStop_.load()) {
           // Backpressure: ~120 ms queued (5760 frames), whatever the stream's
           // channel count — byte thresholds must scale with the open spec.
-          if (SDL_GetAudioStreamQueued(audioStream_) > 5760 * audioStreamBytesPerFrame()) {
+          if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
           }
@@ -2595,6 +2619,14 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
 // carry silence. A pair beyond the opened channel count clamps to outs 1-2
 // so a routed cue is never silently dropped.
 void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
+  // Runs on the audio decode thread. The lock is what makes a device swap or a
+  // detach on the main thread safe: the owner cannot free the stream while a
+  // write to it is in flight, and after detachAudioDevice() the pointer reads
+  // null here instead of dangling.
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  if (!audioStream_) {
+    return;
+  }
   const int deviceChannels = audioDeviceChannels_.load(std::memory_order_relaxed);
   if (deviceChannels <= 2) {
     SDL_PutAudioStreamData(audioStream_, stereo.data(),
@@ -2731,7 +2763,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
         double audioTime = cueStartSeconds;
         while (!decoderStop_.load()) {
           // ~120 ms queued (5760 frames) at the stream's channel count.
-          if (SDL_GetAudioStreamQueued(audioStream_) > 5760 * audioStreamBytesPerFrame()) {
+          if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
           }
