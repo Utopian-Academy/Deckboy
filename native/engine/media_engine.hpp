@@ -143,6 +143,12 @@ class MediaEngine {
   // disturbing the loaded cue, decode, or transport — used when the operator
   // changes the deck's audio output while a cue is playing.
   void setAudioDevice(SDL_AudioStream* stream);
+  // Give the output device back before the owner destroys it. Stops decode
+  // (which joins the audio thread) and forgets the stream, so nothing in the
+  // engine — including the destructor's own stopAll() — can touch a stream
+  // that is about to be, or has already been, freed. Every owner must call
+  // this before SDL_DestroyAudioStream.
+  void detachAudioDevice();
   void pause();                           // pause playback (hold current frame)
   void toggle();                          // play ↔ pause toggle
   // Stop playback and rerack to the start. clearVisual=true additionally
@@ -300,6 +306,15 @@ class MediaEngine {
            * static_cast<int>(sizeof(std::int16_t));
   }
 
+  // Bytes the output device still has to play, read from the decode threads.
+  // Guarded like every other audio-thread touch of the stream; reads 0 once the
+  // device has been detached, which unblocks the backpressure wait so the
+  // thread can see decoderStop_ and exit.
+  int queuedAudioBytes() {
+    std::lock_guard<std::mutex> lock(audioStreamMutex_);
+    return audioStream_ ? std::max(0, SDL_GetAudioStreamQueued(audioStream_)) : 0;
+  }
+
   // -- Pattern rendering helpers (static, pure) --------------------------------
   static void writePixel(DecodedFrame& frame, int x, int y, SDL_Color color);
   static void fillPixelRect(DecodedFrame& frame, int x, int y, int w, int h, SDL_Color color);
@@ -317,7 +332,12 @@ class MediaEngine {
 
   // -- State: core references --------------------------------------------------
   SDL_Renderer* outputRenderer_ = nullptr;  // SDL renderer for texture upload and blit
-  SDL_AudioStream* audioStream_ = nullptr;  // device-bound SDL3 stream for PCM output
+  // Device-bound SDL3 stream for PCM output. NOT owned — the app opens and
+  // destroys it. The audio decode thread writes to it while the main thread can
+  // swap or detach it (device change, deck teardown), so those two operations
+  // are serialized by audioStreamMutex_; see detachAudioDevice().
+  SDL_AudioStream* audioStream_ = nullptr;
+  std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
   // The engine OWNS a snapshot of the loaded cue. activeCue_ points at
   // activeCueSnapshot_ (or nullptr) — never into Deck::cues, whose vector

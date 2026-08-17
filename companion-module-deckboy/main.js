@@ -178,6 +178,14 @@ class DeckboyInstance extends InstanceBase {
 		if (lines.length === 0) return
 
 		for (const line of lines) {
+			// Command acknowledgements are not part of a report and may land in
+			// the same chunk as one. ERR is worth surfacing — it means the verb or
+			// its arguments were wrong, which used to be silent.
+			if (line.startsWith('OK ')) continue
+			if (line.startsWith('ERR ')) {
+				this.log('warn', `Deckboy rejected a command: ${line.slice(4)}`)
+				continue
+			}
 			if (line.startsWith('DECKBOY')) {
 				this.flushReport()
 				this.pendingReport = [line]
