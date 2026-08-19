@@ -280,7 +280,10 @@ class MediaEngine {
   void uploadFrame(const DecodedFrame& frame);             // push decoded frame pixels to GPU texture
   void stopImageThread();                                  // join and clean up the still-image decode thread
   std::pair<int, int> currentOutputSizeHint() const;       // get output dimensions for ffmpeg -s flag
-  std::string mediaPathForCue(const Cue& cue) const;      // resolve cue path (may use CuePathResolver callback)
+  std::string mediaPathForCue(const Cue& cue) const;       // resolve cue path (may use CuePathResolver callback)
+  // True only for a file-backed video cue that has a prepared mosh copy on
+  // disk. Everything else reports false so the toggle can say why.
+  bool datamoshActiveForCue(const Cue& cue) const;
   void loadStillFrame(const Cue& cue);                     // async-decode a single frame for still cues
   void loadPatternFrame(const Cue& cue);                   // generate a pattern frame and upload
   void loadSourceFrame(const Cue& cue);                    // start source capture for camera/window cues

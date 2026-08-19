@@ -3210,6 +3210,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.audioFadeInSeconds
         << '\t' << cue.audioFadeOutSeconds
         << '\t' << cue.audioOutputPair
+        << '\t' << (cue.datamoshEnabled ? "1" : "0")
+        << '\t' << escapeField(cue.moshPath)
         << '\n';
     }
   }
@@ -3718,6 +3720,9 @@ Project loadProject(const fs::path& projectFile,
       cue.audioFadeInSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 7, -1.0)), -1.0f, 60.0f);
       cue.audioFadeOutSeconds = std::clamp(static_cast<float>(safeDouble(fields, subtitleBase + 8, -1.0)), -1.0f, 60.0f);
       cue.audioOutputPair = std::clamp(safeInt(fields, subtitleBase + 9, 0), 0, 7);
+      // Appended after audioOutputPair; older saves simply lack them.
+      cue.datamoshEnabled = safeBool(fields, subtitleBase + 10, false);
+      cue.moshPath = safeString(fields, subtitleBase + 11);
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -6566,6 +6571,9 @@ class App {
     std::string label;    // cue name, shown on the busy panel
     ConversionState state = ConversionState::Queued;
     EncoderPreset preset = EncoderPreset::DeliveryH264;
+    // Datamosh output sits BESIDE the original (the effect swaps between the
+    // two), so completion sets cue.moshPath instead of repointing cue.path.
+    bool keepsOriginal = false;
     // Set by the UI to ask a running encode to stop; the worker checks it
     // between pipe reads and kills ffmpeg.
     std::shared_ptr<std::atomic<bool>> cancel;

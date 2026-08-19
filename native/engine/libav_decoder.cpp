@@ -194,6 +194,11 @@ struct SharedAvFrameDeleter {
 struct VideoPipeline::Impl {
   VideoOpenParams params;
   std::atomic<bool> interrupt {false};
+  // Datamosh. `seenFirstKey` is load-bearing: a decoder needs one real
+  // keyframe after open or seek or it never produces a picture at all, so the
+  // first one always passes and only later ones are dropped.
+  std::atomic<bool> datamosh {false};
+  bool seenFirstKey = false;
 
   AVFormatContext* fmtCtx = nullptr;
   AVCodecContext* codecCtx = nullptr;
@@ -267,7 +272,12 @@ struct VideoPipeline::Impl {
       return false;
     }
 
-    bool useHw = tryHw && codecSupportsD3D11(codec);
+    // Datamosh decodes in SOFTWARE on purpose. A hardware decoder handed
+    // P-frames with no valid reference is driver-dependent - it may smear, it
+    // may error, it may reset - and an error run trips kMaxConsecutiveErrors
+    // and kills the decode outright. libavcodec conceals predictably and
+    // identically on every machine, which is what an effect needs.
+    bool useHw = tryHw && codecSupportsD3D11(codec) && !datamosh.load();
 #ifdef _WIN32
     if (useHw) {
       if (params.d3dDevice && params.format == FramePixelFormat::NV12) {
@@ -381,6 +391,19 @@ struct VideoPipeline::Impl {
       if (packet->stream_index != streamIndex) {
         av_packet_unref(packet);
         continue;
+      }
+      // ---- Datamosh -------------------------------------------------------
+      // Withhold keyframes from the decoder. The following P-frames still
+      // carry their motion vectors and residuals, but the reference they
+      // compensate against is now whatever was on screen before, so the old
+      // picture is dragged along the new motion. The decoder does the work;
+      // there is no pixel maths here.
+      if (packet->flags & AV_PKT_FLAG_KEY) {
+        if (datamosh.load() && seenFirstKey) {
+          av_packet_unref(packet);
+          continue;
+        }
+        seenFirstKey = true;
       }
       int sendErr = avcodec_send_packet(codecCtx, packet);
       av_packet_unref(packet);
@@ -513,6 +536,8 @@ VideoPipeline::~VideoPipeline() { close(); }
 
 bool VideoPipeline::open(const VideoOpenParams& params) {
   impl_->params = params;
+  // Must be set before openInternal: it decides hardware vs software decode.
+  impl_->datamosh.store(params.datamosh);
   if (impl_->openInternal(true)) {
     return true;
   }
@@ -548,6 +573,8 @@ void* VideoPipeline::device() const {
 }
 
 void VideoPipeline::requestStop() { impl_->interrupt.store(true); }
+
+void VideoPipeline::setDatamosh(bool enabled) { impl_->datamosh.store(enabled); }
 
 void VideoPipeline::close() { impl_->closeAll(); }
 
