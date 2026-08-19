@@ -52,6 +52,11 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D26 | Keyframes every 2s in the mosh file for SEEKING; dropped at decode for the effect | **CLAUDE** | Verified: keyframes at 0/2/4/6/8/10s, scene-cut disabled so they stay regular. |
 | D27 | Datamosh output is `<stem>_mosh.mp4` beside the original, not a replacement | **CLAUDE** | Required by D6 (toggle swaps between the two). Awaiting the owner's confirmation. |
 | D28 | Leave Delivery preset quality as-is for now | **CLAUDE** | 22min -> 479MB is generous, but changing his existing default silently is his call. OPEN. |
+| D29 | Re-encode to ANY format, driven by a probed catalog ("like Media Encoder") | **OWNER** | 2026-08-19. 20 formats; availability probed from `ffmpeg -encoders`, never assumed. |
+| D30 | Format availability is PROBED, not hardcoded | **CLAUDE** | Different ffmpeg builds ship different encoders; an offered-but-missing format fails into "conversion failed" with no reason. Verified: HAP correctly excluded on this build. |
+| D31 | Quality args are per-codec, not one template | **CLAUDE** | x264/x265 `-crf`, NVENC `-cq`, ProRes/DNxHD profiles, VP9/AV1 need `-b:v 0`, GIF/PNG/audio must drop the stream they lack. All 17 available formats test-encoded OK. |
+| D32 | Add HAP rows now, but do NOT advertise HAP as fast | **CLAUDE** | Through the ordinary decode path HAP is SLOWER than H.264 (CPU DXT->RGB) for 5-10x the file size. Needs the GPU path first. |
+| D33 | HAP accelerated playback is its own project, not part of v0.83.2 | **CLAUDE** | New decode path: demux -> Snappy -> BC texture -> GPU bridge. See docs/HAP_PLAYBACK_PLAN.md. |
 
 ---
 
