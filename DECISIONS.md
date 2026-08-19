@@ -65,6 +65,10 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D39 | RENAMED the flavours after MEASURING them: CLASSIC / SUBTLE, not CHUNKY / SMOOTH | **CLAUDE** | H.264 barely moshes - a P-frame may contain INTRA macroblocks, so x264 self-heals within frames and there is no switch to stop it. MPEG-4 Part 2 gives the full effect. Labels now describe what they do, not what I assumed. |
 | D40 | Format picker: all 22 catalog rows as wrapping chips in the Encoder tab | **CLAUDE** | Finishes the matrix; unavailable rows are drawn dim AND labelled. |
 | D41 | Mark unavailable formats in TEXT ("n/a"), not by dimming alone | **CLAUDE** | Across 30 colorways a colour-only signal is not reliably readable - same class as the dark-on-dark encoder rows. |
+| D42 | Build HAP playback | **OWNER** | 2026-08-19 "Build it?". Decode half done+verified; GPU upload remains. |
+| D43 | VENDOR a Snappy decompressor rather than link libsnappy | **CLAUDE** | Decompress-only is a small frozen format; a per-platform dep is what kept this CI red for months. Verified against the reference impl. |
+| D44 | Ship `tools/make_hap_sample.py` to generate HAP test media | **CLAUDE** | ffmpeg only ENCODES HAP with --enable-libsnappy, which the owner's build lacks. Output validated by ffmpeg's own HAP decoder. |
+| D45 | Demux HAP without ever calling avcodec_send_packet | **CLAUDE** | Letting ffmpeg decode HAP unpacks DXT to RGB on the CPU - the exact cost the feature exists to avoid. |
 
 ---
 

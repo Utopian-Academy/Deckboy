@@ -76,6 +76,7 @@
 #include "core/subtitle_parser.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
+#include "engine/hap_decoder.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
@@ -6945,6 +6946,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--self-check", "report ffmpeg / SDK / runtime availability and exit"},
   {"--smoke", "run the built-in smoke suite and exit"},
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
+  {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
@@ -6962,6 +6964,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
+  "--hap-probe",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -7062,6 +7065,27 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--smoke") {
     return App::runSmoke();
+  }
+  if (mode == "--hap-probe") {
+    if (ops.empty()) return missing("<file.mov>");
+#if DECKBOY_INPROC_DECODE
+    deckboy::libav::HapProbeResult r {};
+    std::string err;
+    if (!deckboy::libav::probeHapFile(ops[0], r, err)) {
+      std::cerr << "hap-probe: " << err << '\n';
+      return 1;
+    }
+    std::cout << "hap-probe: " << ops[0] << '\n'
+              << "  stream=hap " << r.width << "x" << r.height
+              << " fps=" << r.fps << '\n'
+              << "  frames-decoded=" << r.frames
+              << " texture=" << r.textureFormat
+              << " block-bytes=" << r.blockBytes << '\n';
+    return 0;
+#else
+    std::cerr << "hap-probe: this build has no in-process decoder" << '\n';
+    return 2;
+#endif
   }
   if (mode == "--sync-pop-test") {
     return App::runSyncPopTest();

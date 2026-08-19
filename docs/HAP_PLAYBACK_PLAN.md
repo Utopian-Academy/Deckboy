@@ -1,7 +1,31 @@
-# HAP Accelerated Playback — Plan
+# HAP Accelerated Playback - Plan
 
-**Status:** not started. Catalog rows exist (`hap`, `hap_alpha`, `hap_q`) and
-probe as unavailable on builds without `--enable-libsnappy`.
+**Status: DECODE HALF DONE AND VERIFIED. GPU upload not started.**
+
+Done:
+- `native/engine/hap_decoder.{hpp,cpp}` - container parse (all three
+  second-stage compressors: none, Snappy, chunked/complex) plus a vendored
+  Snappy decompressor. No new build dependency on any platform.
+- `probeHapFile()` in libav_decoder.cpp - demuxes HAP packets WITHOUT calling
+  avcodec_send_packet, so ffmpeg never CPU-unpacks the DXT.
+- `--hap-probe <file.mov>` dev flag, and smoke coverage.
+- `tools/make_hap_sample.py` - writes real HAP media (DXT1 + Snappy + minimal
+  MOV), because ffmpeg only encodes HAP with --enable-libsnappy.
+
+Verified:
+- The Snappy decompressor round-trips six vectors produced by the REFERENCE
+  implementation (python-snappy), covering long literals, 1/2/4-byte copy
+  offsets and overlapping runs. Non-circular: those streams come from Google
+  format, not from anything in this repo.
+- The generated sample decodes correctly in **ffmpeg's own HAP decoder** to the
+  exact expected pixels, which independently validates the container, the
+  Snappy layer and the DXT1 encoding.
+- `--hap-probe` on that file: 20/20 frames demuxed and decoded to RGB_DXT1,
+  32768 bytes each -- exactly 256x256 / 16 pixels-per-block * 8 bytes.
+
+Remaining: upload those blocks as a compressed GPU texture and composite them
+(step 3-4 below). That is the part that still needs the D3D11 bridge and a
+display to verify.
 
 ## Why
 

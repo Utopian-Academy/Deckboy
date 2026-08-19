@@ -11,6 +11,7 @@
 #if DECKBOY_INPROC_DECODE
 
 #include "engine/libav_decoder.hpp"
+#include "engine/hap_decoder.hpp"
 
 #include "core/constants.hpp"
 
@@ -1078,6 +1079,77 @@ bool downloadGpuFrameNV12(const DecodedFrame& frame, DecodedFrame& out) {
     }
   }
   av_frame_free(&cpu);
+  return ok;
+}
+
+// ---------------------------------------------------------------------------
+// probeHapFile - demux HAP packets and decode them to blocks.
+//
+// Deliberately never calls avcodec_send_packet: letting ffmpeg decode HAP
+// would unpack DXT to RGB on the CPU, which is the exact cost this path exists
+// to avoid. The codec id is used only to CONFIRM the stream is HAP.
+// ---------------------------------------------------------------------------
+bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& error) {
+  AVFormatContext* fmt = nullptr;
+  if (avformat_open_input(&fmt, path.c_str(), nullptr, nullptr) < 0) {
+    error = "could not open " + path;
+    return false;
+  }
+  if (avformat_find_stream_info(fmt, nullptr) < 0) {
+    avformat_close_input(&fmt);
+    error = "no stream info";
+    return false;
+  }
+  int stream = -1;
+  for (unsigned i = 0; i < fmt->nb_streams; ++i) {
+    if (fmt->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+      stream = static_cast<int>(i);
+      break;
+    }
+  }
+  if (stream < 0) {
+    avformat_close_input(&fmt);
+    error = "no video stream";
+    return false;
+  }
+  AVCodecParameters* par = fmt->streams[stream]->codecpar;
+  out.isHap = par->codec_id == AV_CODEC_ID_HAP;
+  out.width = par->width;
+  out.height = par->height;
+  const AVRational rate = fmt->streams[stream]->avg_frame_rate;
+  out.fps = rate.den > 0 ? static_cast<double>(rate.num) / rate.den : 0.0;
+  if (!out.isHap) {
+    avformat_close_input(&fmt);
+    error = "not a HAP stream";
+    return false;
+  }
+
+  AVPacket* packet = av_packet_alloc();
+  deckboy::hap::Frame frame;
+  std::string decodeError;
+  bool ok = true;
+  while (av_read_frame(fmt, packet) >= 0) {
+    if (packet->stream_index == stream) {
+      if (!deckboy::hap::decodeFrame(packet->data,
+                                     static_cast<std::size_t>(packet->size),
+                                     frame, decodeError)) {
+        error = decodeError;
+        ok = false;
+        av_packet_unref(packet);
+        break;
+      }
+      ++out.frames;
+      out.textureFormat = deckboy::hap::textureFormatName(frame.format);
+      out.blockBytes = frame.data.size();
+    }
+    av_packet_unref(packet);
+  }
+  av_packet_free(&packet);
+  avformat_close_input(&fmt);
+  if (ok && out.frames == 0) {
+    error = "no HAP frames found";
+    return false;
+  }
   return ok;
 }
 

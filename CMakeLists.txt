@@ -385,6 +385,12 @@ add_executable(deckboy-native
   # on every platform (same reasoning as decklink.cpp above — a feature-guarded
   # translation unit whose symbols are referenced unguarded breaks the link).
   native/platform/st2110_output.cpp
+  # HAP frame decoding: container parse + a vendored Snappy decompressor, no
+  # SDK and no new dependency, so it compiles unconditionally like the two
+  # above. Snappy is vendored rather than linked because decompression is a
+  # small frozen format and a per-platform dep is exactly what kept this CI
+  # red for months.
+  native/engine/hap_decoder.cpp
   # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
   native/platform/ptp_client.cpp
   # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
