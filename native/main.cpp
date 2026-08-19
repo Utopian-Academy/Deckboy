@@ -5859,6 +5859,9 @@ class App {
   // Per-row cancel for the (max 4) jobs the busy panel shows: 731..734.
   static constexpr int kSettingsActionEncoderCancelRowBase = 731;
   static constexpr int kSettingsActionEncoderMoshLook = 721;
+  // One id per catalog row. 1400 block: clear of 715-734, 750 and the 800/20000
+  // ranges. Grep before allocating near it.
+  static constexpr int kSettingsActionEncoderFormatBase = 1400;
   static constexpr int kSettingsActionAudioDelayDec = 649;
   static constexpr int kSettingsActionAudioDelayInc = 650;
   static constexpr int kSettingsActionAudioChannelsCycle = 651;

@@ -63,6 +63,8 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D37 | Datamosh DECODE half built: withhold keyframes before avcodec_send_packet | **CLAUDE** | Verified live: `moshing=1`, first keyframe passes, later ones dropped. Forces software decode + disables zero-copy for moshed cues. |
 | D38 | Toggle refuses when a cue is not prepared; NEVER transcodes from a live toggle | **CLAUDE** | Show-day rule (D9). Returns `ERR DATAMOSH: not prepared...`. |
 | D39 | RENAMED the flavours after MEASURING them: CLASSIC / SUBTLE, not CHUNKY / SMOOTH | **CLAUDE** | H.264 barely moshes - a P-frame may contain INTRA macroblocks, so x264 self-heals within frames and there is no switch to stop it. MPEG-4 Part 2 gives the full effect. Labels now describe what they do, not what I assumed. |
+| D40 | Format picker: all 22 catalog rows as wrapping chips in the Encoder tab | **CLAUDE** | Finishes the matrix; unavailable rows are drawn dim AND labelled. |
+| D41 | Mark unavailable formats in TEXT ("n/a"), not by dimming alone | **CLAUDE** | Across 30 colorways a colour-only signal is not reliably readable - same class as the dark-on-dark encoder rows. |
 
 ---
 
