@@ -110,6 +110,29 @@ class VideoPipeline {
   std::unique_ptr<Impl> impl_;
 };
 
+// ---------------------------------------------------------------------------
+// HAP: demux only, never decode.
+//
+// HAP frames are already GPU-ready block data, so the whole point is to pull
+// the packets out of the container and hand them to hap::decodeFrame -- NOT to
+// run them through ffmpeg's hap decoder, which unpacks DXT to RGB on the CPU
+// and is slower than H.264 for several times the file size.
+// ---------------------------------------------------------------------------
+struct HapProbeResult {
+  bool isHap = false;
+  int width = 0;
+  int height = 0;
+  double fps = 0.0;
+  int frames = 0;              // packets successfully decoded to blocks
+  std::string textureFormat;   // e.g. RGB_DXT1
+  std::size_t blockBytes = 0;  // size of the last decoded frame
+};
+
+// Open `path`, confirm the video stream is HAP, and decode every frame to
+// blocks via the vendored decoder. Used by --hap-probe and the smoke suite to
+// prove the demux+decode path without needing a window.
+bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& error);
+
 struct AudioOpenParams {
   std::string path;
   double startSeconds = 0.0;

@@ -999,6 +999,53 @@
              "vanished media is flagged and refused at take");
     }
 
+    // ---- HAP ---------------------------------------------------------------
+    // The Snappy vectors are real streams from the reference implementation
+    // (python-snappy), not something this repo produced, so passing them means
+    // the vendored decompressor agrees with Google format rather than with
+    // itself. See docs/HAP_PLAYBACK_PLAN.md.
+    {
+      #include "engine/hap_test_vectors.inc"
+      bool allOk = true;
+      for (const SnappyVector& v : kSnappyVectors) {
+        std::vector<std::uint8_t> got;
+        std::string err;
+        const bool ok = deckboy::hap::snappyUncompress(v.comp, v.compSize, got, err);
+        const bool match = ok && got.size() == v.rawSize &&
+                           std::memcmp(got.data(), v.raw, v.rawSize) == 0;
+        if (!match) {
+          allOk = false;
+          std::cout << "  snappy vector failed: " << v.name
+                    << (err.empty() ? "" : (" (" + err + ")")) << "\n";
+        }
+      }
+      expect(allOk, "snappy decompresses the reference implementation output");
+
+      // A HAP frame the decoder builds itself: uncompressed section, DXT1.
+      std::vector<std::uint8_t> frame;
+      const std::vector<std::uint8_t> blocks(64, 0x5A);
+      frame.push_back(static_cast<std::uint8_t>(blocks.size() & 0xFF));
+      frame.push_back(static_cast<std::uint8_t>((blocks.size() >> 8) & 0xFF));
+      frame.push_back(static_cast<std::uint8_t>((blocks.size() >> 16) & 0xFF));
+      frame.push_back(0xAB);            // compressor none | RGB_DXT1
+      frame.insert(frame.end(), blocks.begin(), blocks.end());
+      deckboy::hap::Frame decoded;
+      std::string hapErr;
+      const bool hapOk = deckboy::hap::decodeFrame(frame.data(), frame.size(),
+                                                   decoded, hapErr);
+      expect(hapOk && decoded.format == deckboy::hap::TextureFormat::RgbDxt1 &&
+             decoded.data == blocks,
+             "hap decodes an uncompressed DXT1 frame");
+
+      // Truncated frames must fail cleanly rather than read past the buffer.
+      deckboy::hap::Frame bad;
+      std::string badErr;
+      const bool rejected =
+        !deckboy::hap::decodeFrame(frame.data(), 3, bad, badErr) &&
+        !deckboy::hap::decodeFrame(frame.data(), frame.size() / 2, bad, badErr);
+      expect(rejected, "hap rejects truncated frames instead of overrunning");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }
