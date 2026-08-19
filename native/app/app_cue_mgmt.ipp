@@ -2315,6 +2315,161 @@
     pumpConversionQueue();
   }
 
+  // Build the ffmpeg args for a catalog format. Quality and stream handling are
+  // per-codec because there is no universal knob: x264/x265 take -crf, NVENC
+  // takes -cq, ProRes and DNxHD take profiles, VP9/AV1 want -b:v 0 alongside
+  // -crf, and the still/audio formats have to explicitly drop the stream they
+  // do not carry or ffmpeg errors out.
+  static std::vector<std::string> encodeArgsForFormat(const EncoderFormat& fmt,
+                                                      const std::string& src,
+                                                      const std::string& dst) {
+    std::vector<std::string> a {"ffmpeg", "-y", "-i", src};
+    const std::string id = fmt.id;
+    auto add = [&](std::initializer_list<const char*> more) {
+      for (const char* s : more) a.push_back(s);
+    };
+
+    if (!fmt.encoder || !*fmt.encoder) {
+      add({"-vn"});                       // audio-only target
+    } else {
+      a.push_back("-c:v");
+      a.push_back(fmt.encoder);
+      if (id == "h264" || id == "h265")            add({"-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p"});
+      else if (id == "h264_gpu" || id == "h265_gpu") add({"-preset", "p4", "-cq", "21", "-pix_fmt", "yuv420p"});
+      else if (id == "prores")                     add({"-profile:v", "3", "-pix_fmt", "yuv422p10le"});
+      else if (id == "prores4444")                 add({"-profile:v", "4444", "-pix_fmt", "yuva444p10le"});
+      else if (id == "dnxhr")                      add({"-profile:v", "dnxhr_hq", "-pix_fmt", "yuv422p"});
+      else if (id == "qtrle")                      add({"-pix_fmt", "argb"});
+      else if (id == "vp9")                        add({"-crf", "30", "-b:v", "0", "-pix_fmt", "yuv420p"});
+      else if (id == "av1")                        add({"-crf", "30", "-b:v", "0", "-cpu-used", "6", "-pix_fmt", "yuv420p"});
+      else if (id == "ffv1")                       add({"-level", "3", "-pix_fmt", "yuv422p"});
+      else if (id == "mpeg4")                      add({"-qscale:v", "3", "-bf", "0", "-g", "120", "-pix_fmt", "yuv420p"});
+      else if (id == "mjpeg")                      add({"-qscale:v", "3", "-pix_fmt", "yuvj420p"});
+      else if (id == "gif")                        add({"-vf", "fps=12,scale=480:-1:flags=lanczos", "-loop", "0"});
+      else if (id == "hap")                        add({"-format", "hap", "-chunks", "4"});
+      else if (id == "hap_alpha")                  add({"-format", "hap_alpha", "-chunks", "4"});
+      else if (id == "hap_q")                      add({"-format", "hap_q", "-chunks", "4"});
+      else if (id == "png_seq")                    add({"-pix_fmt", "rgba"});
+    }
+
+    if (!fmt.audioEncoder || !*fmt.audioEncoder) {
+      add({"-an"});                       // GIF / image sequence carry no audio
+    } else {
+      a.push_back("-c:a");
+      a.push_back(fmt.audioEncoder);
+      const std::string ac = fmt.audioEncoder;
+      if (ac == "aac" || ac == "libmp3lame" || ac == "libopus") add({"-b:a", "192k"});
+    }
+
+    if (id == "png_seq") {
+      // image2 needs a numbered pattern, not a single filename.
+      fs::path stem = fs::path(dst).parent_path() / fs::path(dst).stem();
+      a.push_back(stem.string() + "_%05d.png");
+      return a;
+    }
+    if (std::string(fmt.container) == "mp4" || std::string(fmt.container) == "mov") {
+      add({"-movflags", "+faststart"});
+    }
+    a.push_back(dst);
+    return a;
+  }
+
+  // Which encoders this ffmpeg actually has. Probed once, lazily, off the
+  // Encoder tab rather than at boot - it costs an ffmpeg spawn and most
+  // sessions never open the tab.
+  const std::set<std::string>& availableEncoders() {
+    if (!encoderProbeDone_) {
+      encoderProbeDone_ = true;
+      if (auto out = readAllText({"ffmpeg", "-hide_banner", "-encoders"})) {
+        for (const std::string& raw : splitLines(*out)) {
+          // Rows look like " V....D libx264   H.264 ..." - the flags column,
+          // then the encoder name. Anything without at least two tokens is a
+          // header line.
+          auto parts = splitWhitespace(raw);
+          if (parts.size() < 2) continue;
+          const std::string& flags = parts[0];
+          if (flags.empty() || (flags[0] != 'V' && flags[0] != 'A')) continue;
+          encoderProbeResult_.insert(parts[1]);
+        }
+      }
+    }
+    return encoderProbeResult_;
+  }
+
+  // A format is usable when every encoder it names is present. An empty name
+  // means "no stream of that kind" (audio-only, or GIF/PNG which carry none).
+  bool encoderFormatAvailable(const EncoderFormat& fmt) {
+    const auto& have = availableEncoders();
+    auto ok = [&](const char* name) {
+      return !name || !*name || have.count(name) > 0;
+    };
+    return ok(fmt.encoder) && ok(fmt.audioEncoder);
+  }
+
+  // The format matrix. Order is roughly "most likely to least".
+  static const std::vector<EncoderFormat>& encoderFormatCatalog() {
+    static const std::vector<EncoderFormat> kFormats {
+      {"h264", "H.264 / MP4", "libx264", "aac", "mp4", "universal delivery", false},
+      {"h265", "H.265 / MP4", "libx265", "aac", "mp4", "half the size, fussier playback", false},
+      {"h264_gpu", "H.264 (NVENC)", "h264_nvenc", "aac", "mp4", "fast GPU encode", false},
+      {"h265_gpu", "H.265 (NVENC)", "hevc_nvenc", "aac", "mp4", "fast GPU encode", false},
+      {"prores", "ProRes 422 / MOV", "prores_ks", "pcm_s16le", "mov", "edit + interchange master", false},
+      {"prores4444", "ProRes 4444 / MOV", "prores_ks", "pcm_s16le", "mov", "master WITH alpha", true},
+      {"dnxhr", "DNxHR / MXF", "dnxhd", "pcm_s16le", "mxf", "Avid + broadcast delivery", false},
+      {"qtrle", "QuickTime RLE / MOV", "qtrle", "pcm_s16le", "mov", "lossless alpha, big files", true},
+      {"vp9", "VP9 / WebM", "libvpx-vp9", "libopus", "webm", "web delivery", false},
+      {"av1", "AV1 / MKV", "libaom-av1", "libopus", "matroska", "smallest, slow to encode", false},
+      {"ffv1", "FFV1 / MKV", "ffv1", "flac", "matroska", "lossless archival", false},
+      {"mpeg4", "MPEG-4 Part 2 / AVI", "mpeg4", "libmp3lame", "avi", "the classic datamosh look", false},
+      {"mjpeg", "Motion JPEG / AVI", "mjpeg", "pcm_s16le", "avi", "every frame a keyframe", false},
+      {"gif", "Animated GIF", "gif", "", "gif", "no audio, palette limited", false},
+      {"png_seq", "PNG sequence", "png", "", "image2", "frames as stills, alpha", true},
+      // HAP: GPU-native DXT/BC texture video, the live/VJ standard. ffmpeg
+      // DECODES it in most builds but only ENCODES with --enable-libsnappy, so
+      // these usually probe as unavailable - which is exactly why availability
+      // is probed rather than assumed.
+      // WARNING: playing HAP through the ordinary decode path decompresses DXT
+      // to RGB on the CPU and is SLOWER than H.264, for much larger files. Do
+      // not advertise HAP as fast until the GPU path in
+      // docs/HAP_PLAYBACK_PLAN.md exists.
+      {"hap", "HAP / MOV", "hap", "pcm_s16le", "mov", "GPU-native, many layers", false},
+      {"hap_alpha", "HAP Alpha / MOV", "hap", "pcm_s16le", "mov", "GPU-native WITH alpha", true},
+      {"hap_q", "HAP Q / MOV", "hap", "pcm_s16le", "mov", "GPU-native, higher quality", false},
+      {"wav", "WAV (audio only)", "", "pcm_s24le", "wav", "audio stem, 24-bit", false},
+      {"mp3", "MP3 (audio only)", "", "libmp3lame", "mp3", "audio stem, compressed", false},
+    };
+    return kFormats;
+  }
+
+  const EncoderFormat* encoderFormatById(const std::string& id) {
+    for (const EncoderFormat& f : encoderFormatCatalog()) {
+      if (id == f.id) return &f;
+    }
+    return nullptr;
+  }
+
+  const EncoderFormat& selectedEncoderFormat() {
+    if (const EncoderFormat* f = encoderFormatById(encoderFormatId_)) return *f;
+    return encoderFormatCatalog().front();
+  }
+
+  bool setEncoderFormat(const std::string& id) {
+    const EncoderFormat* f = encoderFormatById(id);
+    if (!f) {
+      return false;
+    }
+    if (!encoderFormatAvailable(*f)) {
+      // Say why rather than letting the encode fail later with nothing useful.
+      triggerToast(std::string("format unavailable in this ffmpeg: ") + f->label);
+      playUiSound(UiSoundEffect::Error);
+      return false;
+    }
+    encoderFormatId_ = f->id;
+    triggerToast(std::string("format: ") + f->label);
+    playUiSound(UiSoundEffect::Toggle);
+    return true;
+  }
+
   void setEncoderPreset(EncoderPreset preset) {
     encoderPreset_ = preset;
     triggerToast(std::string("encode preset: ") + encoderPresetLabel(preset));

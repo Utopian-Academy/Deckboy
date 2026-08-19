@@ -1931,6 +1931,22 @@ struct DeckStreamAudioBuffer {
 // body ABOVE where members are declared, and a parameter type has to be
 // visible at declaration (function bodies are a complete-class context,
 // parameter lists are not).
+// One row of the encode format matrix. The catalog below is curated (ffmpeg
+// exposes ~200 encoders, most meaningless for a cue deck) but AVAILABILITY is
+// probed from the local ffmpeg at runtime, never assumed: a portable build, a
+// distro package and a Homebrew build all ship different encoder sets, and a
+// format that is offered but cannot run just fails silently into "conversion
+// failed" with no explanation.
+struct EncoderFormat {
+  const char* id;          // stable token, used by the remote verb
+  const char* label;       // what the operator sees
+  const char* encoder;     // ffmpeg -c:v name, "" for audio-only formats
+  const char* audioEncoder;// ffmpeg -c:a name
+  const char* container;   // output extension, without the dot
+  const char* note;        // one line of why you would pick it
+  bool alpha;              // carries an alpha channel
+};
+
 enum class EncoderPreset {
   DeliveryH264,      // the historical behaviour: NVENC, libx264 fallback
   Proxy,             // 720p, fast, for scrubbing on weak machines
@@ -6564,6 +6580,10 @@ class App {
   // or for the drive the media is streaming off during a show.
   int encoderConcurrency_ = 1;
   EncoderPreset encoderPreset_ = EncoderPreset::DeliveryH264;
+  // Lazily probed from "ffmpeg -encoders"; see availableEncoders().
+  bool encoderProbeDone_ = false;
+  std::set<std::string> encoderProbeResult_;
+  std::string encoderFormatId_ = "h264";   // selected row of the format matrix
   bool encoderQueuePaused_ = false;
   std::set<std::string> unreadablePaths_;  // probe returned nothing → offer convert
   // Waveform analysis cache (path → peaks vector)
