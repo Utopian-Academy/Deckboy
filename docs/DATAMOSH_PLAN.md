@@ -1,7 +1,15 @@
 # Datamosh — Plan
 
-**Status:** the encode half is DONE and verified (the `Datamosh` preset). The
-decode half — dropping I-frames at playback — is not started.
+**Status:** DONE and verified end to end. Encode preset, decode-side keyframe
+dropping, the per-cue toggle and the clip swap all work.
+
+**Measured finding that changed the design:** H.264 barely moshes. A P-frame may
+legally contain INTRA-coded macroblocks, so x264 refreshes regions on its own and
+the smear heals within a few frames — fastest on high-detail content. There is no
+x264 switch to suppress intra MBs, so this is a floor, not a tuning problem.
+MPEG-4 Part 2 has no such refresh and produces the full effect. The flavours are
+therefore CLASSIC (MPEG-4, the real thing) and SUBTLE (H.264, a gentle wobble) —
+not the "chunky vs smooth" split originally assumed.
 
 Design decisions and who made them are in `DECISIONS.md` (D3–D9, D24–D28).
 

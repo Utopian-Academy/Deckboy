@@ -221,6 +221,12 @@ struct Cue {
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
   bool transitionToNext = true;   // allow deck-level transition when this cue ends
+  // Datamosh: play the prepared copy with keyframes withheld, so P-frames drag
+  // the previous picture along their motion. moshPath is the prepared file
+  // (Encoder tab -> Datamosh preset); empty means this cue has not been
+  // prepared and the toggle should say so rather than silently doing nothing.
+  bool datamoshEnabled = false;
+  std::string moshPath;
   bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor
   bool subtitleEnabled = true;    // render subtitles (if subtitle track available)
   bool refreshOnTake = false;     // Browser cue: reload page each time cue is taken

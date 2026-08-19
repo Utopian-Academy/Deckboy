@@ -2432,14 +2432,25 @@
       {"av1", "AV1 / MKV", "libaom-av1", "libopus", "matroska", "smallest, slow to encode", false},
       {"ffv1", "FFV1 / MKV", "ffv1", "flac", "matroska", "lossless archival", false},
       // Two datamosh flavours. Both are prepared for I-frame dropping at
-      // decode; they differ in how the smear LOOKS.
+      // decode. MEASURED difference, not theory:
+      //   classic - MPEG-4 Part 2. Produces the full effect: the previous
+      //             picture is dragged through the new motion and stays
+      //             smeared for seconds. This is the one that looks like
+      //             datamosh.
+      //   subtle  - H.264. Much weaker, because a P-frame may legally contain
+      //             INTRA-coded macroblocks: x264 refreshes regions on its own
+      //             and the smear heals within a few frames, fastest on
+      //             high-detail content. There is no x264 switch to suppress
+      //             intra MBs, so this is a floor, not a tuning problem. Keep
+      //             it for a gentle wobble; reach for classic for the real
+      //             thing.
       //   modern  - H.264. Its in-loop deblocking filter tidies block edges as
       //             it decodes, so the smear reads as flowing and liquid.
       //   classic - MPEG-4 Part 2. No deblocking filter at all, so blocks stay
       //             hard-edged: the chunky 2010s look people picture when they
       //             say "datamosh".
-      {"datamosh", "Datamosh - modern smooth", "libx264", "aac", "mp4", "H.264, flowing liquid smear", false},
-      {"datamosh_classic", "Datamosh - classic chunky", "mpeg4", "libmp3lame", "avi", "MPEG-4 Part 2, hard-edged blocks", false},
+      {"datamosh", "Datamosh - subtle (H.264)", "libx264", "aac", "mp4", "gentler; self-heals fast", false},
+      {"datamosh_classic", "Datamosh - classic (MPEG-4)", "mpeg4", "libmp3lame", "avi", "the full smeary effect", false},
       {"mpeg4", "MPEG-4 Part 2 / AVI", "mpeg4", "libmp3lame", "avi", "the classic datamosh look", false},
       {"mjpeg", "Motion JPEG / AVI", "mjpeg", "pcm_s16le", "avi", "every frame a keyframe", false},
       {"gif", "Animated GIF", "gif", "", "gif", "no audio, palette limited", false},
@@ -2467,7 +2478,7 @@
   }
 
   const char* moshLookLabel() const {
-    return moshClassicLook_ ? "CHUNKY" : "SMOOTH";
+    return moshClassicLook_ ? "CLASSIC" : "SUBTLE";
   }
 
   void toggleMoshLook() {
@@ -2477,8 +2488,8 @@
     if (encoderFormatId_ == "datamosh" || encoderFormatId_ == "datamosh_classic") {
       encoderFormatId_ = activeMoshFormatId();
     }
-    triggerToast(moshClassicLook_ ? "datamosh: classic chunky (MPEG-4 Part 2)"
-                                  : "datamosh: modern smooth (H.264)");
+    triggerToast(moshClassicLook_ ? "datamosh: classic, full effect (MPEG-4)"
+                                  : "datamosh: subtle, self-heals (H.264)");
     playUiSound(UiSoundEffect::Toggle);
   }
 
@@ -2669,6 +2680,7 @@
     job.sourceSeconds = cue.duration > 0.0 ? cue.duration : 0.0;
     job.state = ConversionState::Queued;
     job.preset = encoderPreset_;
+    job.keepsOriginal = presetKeepsOriginal(encoderPreset_);
     conversionJobs_.push_back(std::move(job));
     triggerToast("queued " + src.filename().string());
     playUiSound(UiSoundEffect::Import);

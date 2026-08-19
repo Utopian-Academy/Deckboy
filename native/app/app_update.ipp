@@ -355,7 +355,16 @@
         if (ok && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
           Deck& deck = project_.decks[it->deckIndex];
           for (auto& cue : deck.cues) {
-            if (cue.path == it->sourcePath) {
+            if (cue.path != it->sourcePath) {
+              continue;
+            }
+            if (it->keepsOriginal) {
+              // Datamosh: remember the prepared copy, leave the original as
+              // the cue media. The per-cue toggle swaps between them.
+              cue.moshPath = it->destPath;
+              continue;
+            }
+            {
               cue.path = it->destPath;
               cue.width = 0;
               cue.height = 0;  // force a re-probe of the converted file
