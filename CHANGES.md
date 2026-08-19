@@ -58,8 +58,31 @@ Four new scenes (beach, autumn rooftop, winter campfire, Brooklyn waterfront),
 desaturated to grayscale masters and gamma-matched to the existing pool. The
 cycle tints them per theme, so colour art would multiply to mud.
 
+### Datamosh look: smooth or chunky
+A `MOSH: SMOOTH / CHUNKY` toggle picks which recipe the Datamosh preset
+prepares. **Smooth** is H.264 — its in-loop deblocking filter tidies block
+edges as it decodes, so the smear reads as flowing and liquid. **Chunky** is
+MPEG-4 Part 2, which has no deblocking at all, so blocks stay hard-edged: the
+look people picture when they say "datamosh". Both verified moshable (no
+B-frames, `IPPPPPP`, identical frame counts so either stays swappable with the
+original); chunky writes `_mosh.avi`, smooth `_mosh.mp4`.
+
+### Formats you can actually reach
+Twenty-two output formats, with availability PROBED from `ffmpeg -encoders`
+rather than assumed — a format that is offered but cannot run otherwise fails
+into "conversion failed" with nothing useful to say. Includes ProRes 422/4444,
+DNxHR, QuickTime RLE, VP9, AV1, FFV1, MJPEG, GIF, PNG sequence, WAV/MP3 stems,
+and HAP/HAP Alpha/HAP Q. Quality args are per-codec because there is no
+universal knob. Bulk-encoding 5+ cues to a mastering codec now warns about disk
+space first.
+
+HAP is present but deliberately not advertised as fast: through the ordinary
+decode path it decompresses DXT to RGB on the CPU, which is slower than H.264
+for much larger files. See `docs/HAP_PLAYBACK_PLAN.md`.
+
 ### Also
-`DECISIONS.md` records who decided what.
+`DECISIONS.md` records who decided what. `docs/DATAMOSH_PLAN.md` and
+`docs/HAP_PLAYBACK_PLAN.md` specify the two features still to be built.
 
 ## 2026-08-16 — v0.83.2 (macOS field report: bundle writes, CLI, remote protocol)
 
