@@ -2976,6 +2976,44 @@
     markProjectDirty();
   }
 
+  // Datamosh needs a PREPARED copy (Encoder tab -> Datamosh preset): a normal
+  // H.264 file with B-frames smears badly and an all-intra one cannot smear at
+  // all. Rather than silently doing nothing, say which state the cue is in.
+  void toggleSelectedDatamosh() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      failRemoteCommand("datamosh: select a cue");
+      return;
+    }
+    if (cue->kind != CueKind::Video || cue->path.empty()) {
+      failRemoteCommand("datamosh: file-backed video cues only");
+      playUiSound(UiSoundEffect::Error);
+      return;
+    }
+    if (cue->datamoshEnabled) {
+      cue->datamoshEnabled = false;
+      triggerToast("datamosh off");
+      playUiSound(UiSoundEffect::Toggle);
+      refreshFocusedLiveCueRuntimeIfSelected();  // swaps back to the original
+      markProjectDirty();
+      return;
+    }
+    std::error_code ec;
+    if (cue->moshPath.empty() || !fs::exists(fs::path(cue->moshPath), ec)) {
+      // Prep is a PRE-PRODUCTION action. Never start a transcode from a live
+      // toggle - a 4K encode starting behind the fader mid-show is exactly the
+      // thing this must not do.
+      failRemoteCommand("not prepared - Settings > Encoder > DATAMOSH, then convert");
+      playUiSound(UiSoundEffect::Error);
+      return;
+    }
+    cue->datamoshEnabled = true;
+    triggerToast("DATAMOSH on");
+    playUiSound(UiSoundEffect::Toggle);
+    refreshFocusedLiveCueRuntimeIfSelected();    // swaps to the moshed copy
+    markProjectDirty();
+  }
+
   void toggleSelectedChromaKey() {
     Cue* cue = firstFocusedSelectedCueMutable([&](const Cue& each) {
       return cueSupportsKeying(&each);

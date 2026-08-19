@@ -210,6 +210,26 @@
       }
       return;
     }
+    if (command == "MOSHLOOK") {
+      if (parts.size() >= 2) {
+        std::string v = toUpper(parts[1]);
+        if (v == "CHUNKY" || v == "CLASSIC") moshClassicLook_ = true;
+        else if (v == "SMOOTH" || v == "MODERN") moshClassicLook_ = false;
+        else { failRemoteCommand("moshlook: smooth | chunky"); return; }
+        if (encoderFormatId_ == "datamosh" || encoderFormatId_ == "datamosh_classic") {
+          encoderFormatId_ = activeMoshFormatId();
+        }
+      } else {
+        toggleMoshLook();
+        return;
+      }
+      triggerToast(std::string("datamosh look: ") + moshLookLabel());
+      return;
+    }
+    if (command == "DATAMOSH" || command == "MOSH") {
+      toggleSelectedDatamosh();
+      return;
+    }
     if (command == "ENCODEPRESET") {
       if (parts.size() < 2) {
         failRemoteCommand("preset: delivery | proxy | match | datamosh");

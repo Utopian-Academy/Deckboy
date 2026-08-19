@@ -36,6 +36,7 @@
 #include "engine/media_engine.hpp"
 
 #include "core/sdl_compat.hpp"
+#include <filesystem>
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -1798,6 +1799,17 @@ std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
 // Resolve the media file path for a cue. If a CuePathResolver callback was
 // provided (e.g. to transform relative paths to absolute), it gets first
 // priority. Falls back to cue.path if the resolver returns empty.
+// Datamosh only applies to a file-backed video cue that has actually been
+// prepared. Everything else - stills, patterns, browser, live sources, and an
+// unprepared cue - reports false, so the toggle can say "not prepared" instead
+// of silently doing nothing.
+bool MediaEngine::datamoshActiveForCue(const Cue& cue) const {
+  if (!cue.datamoshEnabled || cue.kind != CueKind::Video) return false;
+  if (cue.moshPath.empty()) return false;
+  std::error_code ec;
+  return std::filesystem::exists(cue.moshPath, ec);
+}
+
 std::string MediaEngine::mediaPathForCue(const Cue& cue) const {
   if (cuePathResolver_) {
     std::string resolved = cuePathResolver_(cue);
@@ -2228,7 +2240,14 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
 //   - Unknown dimensions: ffprobe is called first (only for non-ingested cues)
 // ---------------------------------------------------------------------------
 void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
-  std::string mediaPath = mediaPathForCue(cue);
+  // Datamosh swaps the FILE, not just the decode flag: the prepared copy is a
+  // separate encode (no B-frames, single reference) sitting beside the
+  // original. Done here rather than in mediaPathForCue on purpose - that goes
+  // through the app resolver, which is ALSO used by waveform analysis,
+  // thumbnails, the timeline filmstrip, the missing-media scan and loudness
+  // normalize. Swapping there would quietly point all of them at the mosh file.
+  const bool moshing = datamoshActiveForCue(cue);
+  std::string mediaPath = moshing ? cue.moshPath : mediaPathForCue(cue);
   if (mediaPath.empty()) {
     return;
   }
@@ -2691,7 +2710,10 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     videoParams.targetWidth = decodeW;
     videoParams.targetHeight = decodeH;
     videoParams.format = decodeFormat;
-    if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_) {
+    // Withhold keyframes at decode; also forces software decode (see
+    // VideoOpenParams::datamosh).
+    videoParams.datamosh = datamoshActiveForCue(cue);
+    if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_ && !videoParams.datamosh) {
       videoParams.d3dDevice = decodeDeviceProvider_();
     }
     videoPipeline_ = std::make_unique<deckboy::libav::VideoPipeline>();

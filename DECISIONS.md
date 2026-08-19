@@ -60,6 +60,9 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D34 | Datamosh needs a SMOOTH/CHUNKY toggle, not two buried list entries | **OWNER** | 2026-08-19: "I would love an option, between classic chunky and modern smooth" + "maybe a toggle". DONE. |
 | D35 | Smooth = H.264 (deblocking softens the smear), chunky = MPEG-4 Part 2 (none) | **CLAUDE** | Both verified moshable: no B-frames, IPPPP, identical frame counts so both stay swappable with the original. |
 | D36 | Warn before bulk-encoding to a mastering format | **CLAUDE** | ProRes ~167MB/3s, QTRLE ~424MB/3s. 5+ cues to a mastering codec now warns rather than filling the drive silently. |
+| D37 | Datamosh DECODE half built: withhold keyframes before avcodec_send_packet | **CLAUDE** | Verified live: `moshing=1`, first keyframe passes, later ones dropped. Forces software decode + disables zero-copy for moshed cues. |
+| D38 | Toggle refuses when a cue is not prepared; NEVER transcodes from a live toggle | **CLAUDE** | Show-day rule (D9). Returns `ERR DATAMOSH: not prepared...`. |
+| D39 | RENAMED the flavours after MEASURING them: CLASSIC / SUBTLE, not CHUNKY / SMOOTH | **CLAUDE** | H.264 barely moshes - a P-frame may contain INTRA macroblocks, so x264 self-heals within frames and there is no switch to stop it. MPEG-4 Part 2 gives the full effect. Labels now describe what they do, not what I assumed. |
 
 ---
 

@@ -65,6 +65,12 @@ struct VideoOpenParams {
   int targetHeight = 0;
   FramePixelFormat format = FramePixelFormat::NV12;
   void* d3dDevice = nullptr;           // ID3D11Device* → zero-copy; null → CPU output
+  // Datamosh: drop every keyframe after the first so P-frames apply their
+  // motion onto a stale reference and the picture smears. Forces SOFTWARE
+  // decode regardless of d3dDevice - hardware decoders fed P-frames with no
+  // valid reference are driver-dependent (may smear, may error, may reset),
+  // and the error run would trip kMaxConsecutiveErrors and kill the decode.
+  bool datamosh = false;
 };
 
 class VideoPipeline {
@@ -88,8 +94,14 @@ class VideoPipeline {
   void* device() const;                // ID3D11Device* in use (null in CPU/sw mode)
 
   // Unblock any av_read_frame stuck in I/O; nextFrame() then returns false.
-  // Callable from another thread (the only cross-thread entry point).
+  // Callable from another thread, as is setDatamosh below; everything else on
+  // this class belongs to the decode thread.
   void requestStop();
+
+  // Toggle keyframe dropping on a already-open pipeline. Turning it OFF does
+  // not clean the picture until the next keyframe arrives, which is why the
+  // app swaps clips instead of relying on this mid-cue.
+  void setDatamosh(bool enabled);
 
   void close();
 
