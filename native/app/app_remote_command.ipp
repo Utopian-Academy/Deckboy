@@ -190,6 +190,26 @@
       convertAllFlaggedCues();
       return;
     }
+    if (command == "ENCODEFORMAT") {
+      if (parts.size() < 2) {
+        // No argument: list what this ffmpeg can actually do.
+        std::string names;
+        for (const EncoderFormat& f : encoderFormatCatalog()) {
+          if (!encoderFormatAvailable(f)) continue;
+          if (!names.empty()) names += " ";
+          names += f.id;
+        }
+        failRemoteCommand("format: " + names);
+        return;
+      }
+      std::string id = parts[1];
+      std::transform(id.begin(), id.end(), id.begin(),
+                     [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      if (!setEncoderFormat(id)) {
+        failRemoteCommand("unknown or unavailable format: " + parts[1]);
+      }
+      return;
+    }
     if (command == "ENCODEPRESET") {
       if (parts.size() < 2) {
         failRemoteCommand("preset: delivery | proxy | match | datamosh");
