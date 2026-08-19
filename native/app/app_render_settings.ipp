@@ -2155,6 +2155,43 @@
         }
         ey += sChipH + sGap;
       }
+      {
+        // The format matrix. Every catalog row gets a chip; rows whose encoder
+        // this ffmpeg does not have are drawn dim and are not clickable, so an
+        // unavailable format is visibly unavailable rather than a job that
+        // fails later with nothing useful to say.
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
+                     "FORMAT", soft);
+        ey += sLineH + sGap / 2;
+        int fx = ex;
+        for (const EncoderFormat& fmt : encoderFormatCatalog()) {
+          const bool haveFmt = encoderFormatAvailable(fmt);
+          // Mark unavailability in the TEXT, not only by dimming: across 30
+          // colorways a colour-only signal is not reliably readable, and this
+          // has to survive an OLED theme as well as a bright moulded one.
+          const std::string chipLabel =
+            haveFmt ? std::string(fmt.label) : std::string(fmt.label) + "  n/a";
+          int tw = 0, th = 0;
+          TTF_GetStringSize(fontSmall_, chipLabel.c_str(), 0, &tw, &th);
+          int chipW = tw + uiScaled(16);
+          if (fx + chipW > ex + ew) {          // wrap
+            fx = ex;
+            ey += sChipH + sGap / 2;
+          }
+          SDL_Rect r {fx, ey, chipW, sChipH};
+          const bool on = encoderFormatId_ == fmt.id;
+          drawUIPanel(r, on ? pal.light : (haveFmt ? pal.mid : pal.dark), pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, chipLabel,
+                               on ? pal.deep : (haveFmt ? pal.light : pal.inkSoft));
+          if (haveFmt) {
+            settingsBtns_.push_back({r,
+              kSettingsActionEncoderFormatBase + static_cast<int>(&fmt - encoderFormatCatalog().data()),
+              fmt.note});
+          }
+          fx += chipW + sGap / 2;
+        }
+        ey += sChipH + sGap;
+      }
       if (!conversionJobs_.empty()) {
         SDL_Rect busy {ex, ey, ew, std::max(uiScaled(164), sRowH * 4 + sLineH + sPad * 3)};
         drawEncoderBusyPanel(busy, animationNow_);
@@ -2207,6 +2244,13 @@
       if (sb.action == kSettingsActionEncoderPauseToggle) { toggleEncoderQueuePaused(); continue; }
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
       if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
+      if (sb.action >= kSettingsActionEncoderFormatBase &&
+          sb.action < kSettingsActionEncoderFormatBase +
+                        static_cast<int>(encoderFormatCatalog().size())) {
+        setEncoderFormat(
+          encoderFormatCatalog()[sb.action - kSettingsActionEncoderFormatBase].id);
+        continue;
+      }
       if (sb.action >= kSettingsActionEncoderCancelRowBase &&
           sb.action < kSettingsActionEncoderCancelRowBase + 4) {
         cancelConversionAt(static_cast<std::size_t>(sb.action - kSettingsActionEncoderCancelRowBase));
