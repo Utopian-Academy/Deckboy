@@ -180,6 +180,35 @@
       stopTransport();
       return;
     }
+    if (command == "ENCODE" || command == "CONVERT") {
+      // Queue the selected cue(s) for transcode. Deliberately NOT in the
+      // integration-safe list: encoding is heavy work, not a transport verb.
+      convertSelectedCueMedia();
+      return;
+    }
+    if (command == "ENCODEALL") {
+      convertAllFlaggedCues();
+      return;
+    }
+    if (command == "ENCODEPRESET") {
+      if (parts.size() < 2) {
+        failRemoteCommand("preset: delivery | proxy | match | datamosh");
+        return;
+      }
+      std::string v = toUpper(parts[1]);
+      if (v == "DELIVERY" || v == "H264")   setEncoderPreset(EncoderPreset::DeliveryH264);
+      else if (v == "PROXY")                setEncoderPreset(EncoderPreset::Proxy);
+      else if (v == "MATCH")                setEncoderPreset(EncoderPreset::MatchSource);
+      else if (v == "DATAMOSH" || v == "MOSH") setEncoderPreset(EncoderPreset::DatamoshFriendly);
+      else failRemoteCommand("preset: delivery | proxy | match | datamosh");
+      return;
+    }
+    if (command == "ENCODEPAUSE") {
+      encoderQueuePaused_ = !encoderQueuePaused_;
+      triggerToast(encoderQueuePaused_ ? "encoder queue paused" : "encoder queue running");
+      pumpConversionQueue();
+      return;
+    }
     if (command == "RERACK") {
       // Documented in this file's header and whitelisted for integration
       // triggers since forever, but never actually implemented — a RERACK over
