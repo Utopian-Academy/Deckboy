@@ -2139,6 +2139,20 @@
           settingsBtns_.push_back({chipRect, chip.action, "encode preset"});
           px += chipRect.w + sGap;
         }
+        // Datamosh flavour. Both recipes mosh; they differ in how the smear
+        // looks, so this is a look switch rather than another preset.
+        {
+          std::string lookLabel = std::string("MOSH: ") + moshLookLabel();
+          int lw = 0, lh = 0;
+          TTF_GetStringSize(fontSmall_, lookLabel.c_str(), 0, &lw, &lh);
+          SDL_Rect lookRect {px, ey, lw + uiScaled(18), sChipH};
+          bool moshActive = encoderPreset_ == EncoderPreset::DatamoshFriendly;
+          drawUIPanel(lookRect, moshActive ? pal.mid : pal.dark, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, lookRect, lookLabel,
+                               moshActive ? pal.light : pal.inkSoft);
+          settingsBtns_.push_back({lookRect, kSettingsActionEncoderMoshLook,
+                                   "smooth (H.264) or chunky (MPEG-4 Part 2)"});
+        }
         ey += sChipH + sGap;
       }
       if (!conversionJobs_.empty()) {
@@ -2192,6 +2206,7 @@
       if (sb.action == kSettingsActionEncoderPresetDatamosh) { setEncoderPreset(EncoderPreset::DatamoshFriendly); continue; }
       if (sb.action == kSettingsActionEncoderPauseToggle) { toggleEncoderQueuePaused(); continue; }
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
+      if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
       if (sb.action >= kSettingsActionEncoderCancelRowBase &&
           sb.action < kSettingsActionEncoderCancelRowBase + 4) {
         cancelConversionAt(static_cast<std::size_t>(sb.action - kSettingsActionEncoderCancelRowBase));

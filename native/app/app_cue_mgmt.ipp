@@ -2346,6 +2346,17 @@
       else if (id == "mpeg4")                      add({"-qscale:v", "3", "-bf", "0", "-g", "120", "-pix_fmt", "yuv420p"});
       else if (id == "mjpeg")                      add({"-qscale:v", "3", "-pix_fmt", "yuvj420p"});
       else if (id == "gif")                        add({"-vf", "fps=12,scale=480:-1:flags=lanczos", "-loop", "0"});
+      else if (id == "datamosh")
+        // Regular keyframes stay in the FILE for seeking; the decoder drops
+        // them at playback. -vsync cfr keeps this frame-for-frame swappable
+        // with the original.
+        add({"-preset", "medium", "-crf", "18", "-bf", "0", "-sc_threshold", "0",
+             "-refs", "1", "-g", "120", "-pix_fmt", "yuv420p", "-vsync", "cfr"});
+      else if (id == "datamosh_classic")
+        // MPEG-4 ASP has no deblocking to soften the blocks, which is the
+        // whole point of this variant.
+        add({"-qscale:v", "3", "-bf", "0", "-sc_threshold", "0", "-g", "120",
+             "-pix_fmt", "yuv420p", "-vsync", "cfr"});
       else if (id == "hap")                        add({"-format", "hap", "-chunks", "4"});
       else if (id == "hap_alpha")                  add({"-format", "hap_alpha", "-chunks", "4"});
       else if (id == "hap_q")                      add({"-format", "hap_q", "-chunks", "4"});
@@ -2420,6 +2431,15 @@
       {"vp9", "VP9 / WebM", "libvpx-vp9", "libopus", "webm", "web delivery", false},
       {"av1", "AV1 / MKV", "libaom-av1", "libopus", "matroska", "smallest, slow to encode", false},
       {"ffv1", "FFV1 / MKV", "ffv1", "flac", "matroska", "lossless archival", false},
+      // Two datamosh flavours. Both are prepared for I-frame dropping at
+      // decode; they differ in how the smear LOOKS.
+      //   modern  - H.264. Its in-loop deblocking filter tidies block edges as
+      //             it decodes, so the smear reads as flowing and liquid.
+      //   classic - MPEG-4 Part 2. No deblocking filter at all, so blocks stay
+      //             hard-edged: the chunky 2010s look people picture when they
+      //             say "datamosh".
+      {"datamosh", "Datamosh - modern smooth", "libx264", "aac", "mp4", "H.264, flowing liquid smear", false},
+      {"datamosh_classic", "Datamosh - classic chunky", "mpeg4", "libmp3lame", "avi", "MPEG-4 Part 2, hard-edged blocks", false},
       {"mpeg4", "MPEG-4 Part 2 / AVI", "mpeg4", "libmp3lame", "avi", "the classic datamosh look", false},
       {"mjpeg", "Motion JPEG / AVI", "mjpeg", "pcm_s16le", "avi", "every frame a keyframe", false},
       {"gif", "Animated GIF", "gif", "", "gif", "no audio, palette limited", false},
@@ -2439,6 +2459,58 @@
       {"mp3", "MP3 (audio only)", "", "libmp3lame", "mp3", "audio stem, compressed", false},
     };
     return kFormats;
+  }
+
+  // The datamosh recipe currently selected by the SMOOTH/CHUNKY toggle.
+  const char* activeMoshFormatId() const {
+    return moshClassicLook_ ? "datamosh_classic" : "datamosh";
+  }
+
+  const char* moshLookLabel() const {
+    return moshClassicLook_ ? "CHUNKY" : "SMOOTH";
+  }
+
+  void toggleMoshLook() {
+    moshClassicLook_ = !moshClassicLook_;
+    // If datamosh is the active format, follow the toggle immediately so the
+    // next queued job uses the flavour actually shown.
+    if (encoderFormatId_ == "datamosh" || encoderFormatId_ == "datamosh_classic") {
+      encoderFormatId_ = activeMoshFormatId();
+    }
+    triggerToast(moshClassicLook_ ? "datamosh: classic chunky (MPEG-4 Part 2)"
+                                  : "datamosh: modern smooth (H.264)");
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  // Attempts for a queued job. The datamosh preset resolves through the
+  // SMOOTH/CHUNKY toggle rather than a fixed recipe, so the chip and the encode
+  // can never disagree.
+  std::vector<std::vector<std::string>> attemptsForJob(EncoderPreset preset,
+                                                       const std::string& src,
+                                                       const std::string& dst) {
+    if (preset == EncoderPreset::DatamoshFriendly) {
+      if (const EncoderFormat* f = encoderFormatById(activeMoshFormatId())) {
+        return { encodeArgsForFormat(*f, src, dst) };
+      }
+    }
+    return encodeAttemptsFor(preset, src, dst);
+  }
+
+  // Mastering codecs are enormous - ProRes 422 measured ~167 MB for 3 seconds,
+  // QuickTime RLE ~424 MB. Queueing one across a big playlist fills a drive,
+  // and the operator finds out when the disk dies mid-show rather than now.
+  static bool formatIsMastering(const std::string& id) {
+    return id == "prores" || id == "prores4444" || id == "dnxhr" ||
+           id == "qtrle"  || id == "ffv1"       || id == "png_seq";
+  }
+
+  void warnIfBulkMasteringEncode(int queuedCount) {
+    if (queuedCount < 5 || !formatIsMastering(encoderFormatId_)) {
+      return;
+    }
+    triggerToast(std::to_string(queuedCount) + " cues to " +
+                 selectedEncoderFormat().label + " - check free disk space");
+    playUiSound(UiSoundEffect::Error);
   }
 
   const EncoderFormat* encoderFormatById(const std::string& id) {
@@ -2488,6 +2560,13 @@
 
   // Datamosh output sits beside the original rather than replacing it: the
   // effect toggles between the two, so both have to survive.
+  // Datamosh output sits BESIDE the original: the effect toggles between the
+  // two, so both have to survive.
+  static bool formatKeepsOriginal(const EncoderFormat& fmt) {
+    const std::string id = fmt.id;
+    return id == "datamosh" || id == "datamosh_classic";
+  }
+
   static bool presetKeepsOriginal(EncoderPreset preset) {
     return preset == EncoderPreset::DatamoshFriendly;
   }
@@ -2569,8 +2648,11 @@
     fs::path src(cue.path);
     fs::path outDir = convertedMediaDir();
     fs::create_directories(outDir, ec);
-    const std::string suffix =
-      presetKeepsOriginal(encoderPreset_) ? "_mosh.mp4" : ".mp4";
+    std::string suffix = ".mp4";
+    if (presetKeepsOriginal(encoderPreset_)) {
+      // Classic chunky is MPEG-4 Part 2 in AVI, so the container differs.
+      suffix = moshClassicLook_ ? "_mosh.avi" : "_mosh.mp4";
+    }
     fs::path dst = outDir / (src.stem().string() + suffix);
     if (fs::exists(dst, ec) && fs::equivalent(dst, src, ec)) {
       dst = outDir / (src.stem().string() + "_conv.mp4");
@@ -2626,7 +2708,7 @@
     auto progress = job.progress;
     auto cancel = job.cancel;
     const double totalSeconds = job.sourceSeconds;
-    const auto attempts = encodeAttemptsFor(job.preset, srcStr, dstStr);
+    const auto attempts = attemptsForJob(job.preset, srcStr, dstStr);
     job.state = ConversionState::Running;
     job.future = std::async(std::launch::async, [dstStr, progress, cancel, totalSeconds, attempts]() -> bool {
       auto produced = [&]() {
@@ -2708,6 +2790,8 @@
     }
     if (started == 0) {
       triggerToast("encoder: nothing to convert");
+    } else {
+      warnIfBulkMasteringEncode(started);
     }
     return started;
   }
