@@ -2270,6 +2270,134 @@
     return false;
   }
 
+  // Cancel one job. A running job is asked to stop (the worker kills ffmpeg
+  // and removes the half-written file); a queued one is simply dropped, since
+  // nothing has been started for it yet.
+  void cancelConversionAt(std::size_t index) {
+    if (index >= conversionJobs_.size()) {
+      return;
+    }
+    ConversionJob& job = conversionJobs_[index];
+    if (job.state == ConversionState::Running) {
+      if (job.cancel) job.cancel->store(true);
+      triggerToast("cancelling " + job.label);
+      return;   // the update poll retires it once the worker returns
+    }
+    triggerToast("removed " + job.label);
+    conversionJobs_.erase(conversionJobs_.begin() + static_cast<std::ptrdiff_t>(index));
+  }
+
+  void cancelAllConversions() {
+    int running = 0;
+    for (auto& job : conversionJobs_) {
+      if (job.state == ConversionState::Running) {
+        if (job.cancel) job.cancel->store(true);
+        ++running;
+      }
+    }
+    // Drop everything not yet started; running jobs retire themselves.
+    conversionJobs_.erase(
+      std::remove_if(conversionJobs_.begin(), conversionJobs_.end(),
+                     [](const ConversionJob& j) {
+                       return j.state != ConversionState::Running;
+                     }),
+      conversionJobs_.end());
+    triggerToast(running > 0 ? "encoder: cancelling, queue cleared"
+                             : "encoder: queue cleared");
+    playUiSound(UiSoundEffect::Clear);
+  }
+
+  void toggleEncoderQueuePaused() {
+    encoderQueuePaused_ = !encoderQueuePaused_;
+    triggerToast(encoderQueuePaused_ ? "encoder queue paused"
+                                     : "encoder queue running");
+    playUiSound(UiSoundEffect::Toggle);
+    pumpConversionQueue();
+  }
+
+  void setEncoderPreset(EncoderPreset preset) {
+    encoderPreset_ = preset;
+    triggerToast(std::string("encode preset: ") + encoderPresetLabel(preset));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  static const char* encoderPresetLabel(EncoderPreset preset) {
+    switch (preset) {
+      case EncoderPreset::Proxy:            return "PROXY 720p";
+      case EncoderPreset::MatchSource:      return "MATCH SOURCE";
+      case EncoderPreset::DatamoshFriendly: return "DATAMOSH";
+      case EncoderPreset::DeliveryH264:
+      default:                              return "DELIVERY H.264";
+    }
+  }
+
+  // Datamosh output sits beside the original rather than replacing it: the
+  // effect toggles between the two, so both have to survive.
+  static bool presetKeepsOriginal(EncoderPreset preset) {
+    return preset == EncoderPreset::DatamoshFriendly;
+  }
+
+  // Attempts in order; the queue keeps the first that produces a file.
+  static std::vector<std::vector<std::string>> encodeAttemptsFor(
+      EncoderPreset preset, const std::string& src, const std::string& dst) {
+    const std::vector<std::string> head {"ffmpeg", "-y", "-i", src};
+    auto build = [&](std::vector<std::string> mid) {
+      std::vector<std::string> args = head;
+      args.insert(args.end(), mid.begin(), mid.end());
+      args.push_back("-movflags");
+      args.push_back("+faststart");
+      args.push_back(dst);
+      return args;
+    };
+    switch (preset) {
+      case EncoderPreset::DatamoshFriendly:
+        // Deliberately hostile to normal encoding practice, because the point
+        // is a stream that smears when its keyframes are dropped at decode:
+        //   -bf 0          B-frames reference both directions and break worst
+        //   -sc_threshold 0 no keyframe at every scene change - those cuts are
+        //                  exactly the moments the effect should carry through
+        //   -refs 1        motion vectors read only the previous frame
+        //   -g 120         regular keyframes for SEEKING only; the decoder
+        //                  drops them at playback, so this is seek granularity,
+        //                  not an effect parameter
+        //   -vsync cfr     the moshed copy must stay frame-for-frame
+        //                  interchangeable with the original, or swapping
+        //                  between them shifts sync
+        // libx264 ONLY: NVENC ignores or constrains refs/scenecut and injects
+        // its own IDR frames, which would quietly undo all of this.
+        return { build({"-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                        "-bf", "0", "-sc_threshold", "0", "-refs", "1", "-g", "120",
+                        "-pix_fmt", "yuv420p", "-vsync", "cfr",
+                        "-c:a", "aac", "-b:a", "192k"}) };
+      case EncoderPreset::Proxy:
+        return { build({"-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
+                        "-vf", "scale=-2:720", "-pix_fmt", "yuv420p",
+                        "-c:a", "aac", "-b:a", "128k"}) };
+      case EncoderPreset::MatchSource:
+        return { build({"-c:v", "libx264", "-preset", "slow", "-crf", "18",
+                        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k"}) };
+      case EncoderPreset::DeliveryH264:
+      default:
+        // GPU first with a CPU decode (robust on odd inputs); libx264 if NVENC
+        // is unavailable or produced nothing.
+        return { build({"-c:v", "h264_nvenc", "-preset", "p4", "-cq", "23",
+                        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k"}),
+                 build({"-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+                        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k"}) };
+    }
+  }
+
+  // "" when this cue has no job, otherwise whether it is actually encoding or
+  // still waiting behind the concurrency cap. The list used to call every job
+  // "[converting...]", which was a lie for 30 of 31 of them.
+  const char* cueQueueStateLabel(const std::string& path) const {
+    for (const auto& job : conversionJobs_) {
+      if (job.sourcePath != path) continue;
+      return job.state == ConversionState::Running ? "   [converting...]" : "   [queued]";
+    }
+    return "";
+  }
+
   void convertCueMedia(int deckIndex, int cueIndex) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
@@ -2286,7 +2414,9 @@
     fs::path src(cue.path);
     fs::path outDir = convertedMediaDir();
     fs::create_directories(outDir, ec);
-    fs::path dst = outDir / (src.stem().string() + ".mp4");
+    const std::string suffix =
+      presetKeepsOriginal(encoderPreset_) ? "_mosh.mp4" : ".mp4";
+    fs::path dst = outDir / (src.stem().string() + suffix);
     if (fs::exists(dst, ec) && fs::equivalent(dst, src, ec)) {
       dst = outDir / (src.stem().string() + "_conv.mp4");
     }
@@ -2296,27 +2426,117 @@
     job.deckIndex = deckIndex;
     job.sourcePath = cue.path;
     job.destPath = dstStr;
-    job.future = std::async(std::launch::async, [srcStr, dstStr]() -> bool {
+    job.label = cue.name.empty() ? src.filename().string() : cue.name;
+    job.progress = std::make_shared<std::atomic<double>>(-1.0);
+    job.cancel = std::make_shared<std::atomic<bool>>(false);
+    job.sourceSeconds = cue.duration > 0.0 ? cue.duration : 0.0;
+    job.state = ConversionState::Queued;
+    job.preset = encoderPreset_;
+    conversionJobs_.push_back(std::move(job));
+    triggerToast("queued " + src.filename().string());
+    playUiSound(UiSoundEffect::Import);
+    pumpConversionQueue();
+  }
+
+  // Start queued jobs up to the concurrency cap. Called on enqueue and once per
+  // update tick, so a finishing job immediately pulls the next one in.
+  void pumpConversionQueue() {
+    if (encoderQueuePaused_) {
+      return;
+    }
+    int running = 0;
+    for (const auto& job : conversionJobs_) {
+      if (job.state == ConversionState::Running) ++running;
+    }
+    for (std::size_t i = 0; i < conversionJobs_.size(); ++i) {
+      if (running >= std::max(1, encoderConcurrency_)) {
+        break;
+      }
+      if (conversionJobs_[i].state != ConversionState::Queued) {
+        continue;
+      }
+      startConversionJob(i);
+      ++running;
+    }
+  }
+
+  // Takes an index rather than a reference: ConversionJob is declared further
+  // down the class body than this include, so it cannot name the type in a
+  // parameter list (function bodies are fine - they are a complete-class
+  // context, parameter types are not).
+  void startConversionJob(std::size_t index) {
+    auto& job = conversionJobs_[index];
+    const std::string srcStr = job.sourcePath;
+    const std::string dstStr = job.destPath;
+    auto progress = job.progress;
+    auto cancel = job.cancel;
+    const double totalSeconds = job.sourceSeconds;
+    const auto attempts = encodeAttemptsFor(job.preset, srcStr, dstStr);
+    job.state = ConversionState::Running;
+    job.future = std::async(std::launch::async, [dstStr, progress, cancel, totalSeconds, attempts]() -> bool {
       auto produced = [&]() {
         std::error_code e;
         return fs::exists(dstStr, e) && fs::file_size(dstStr, e) > 1024;
       };
-      // GPU (NVENC) first with a CPU decode (robust on odd inputs); fall back
-      // to libx264 if NVENC is unavailable or produced nothing.
-      readAllText({"ffmpeg", "-y", "-i", srcStr, "-c:v", "h264_nvenc",
-                   "-preset", "p4", "-cq", "23", "-pix_fmt", "yuv420p",
-                   "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", dstStr});
-      if (produced()) {
-        return true;
+      // Run one encode, streaming ffmpeg's own progress report back into the
+      // shared counter. `-progress pipe:1` emits key=value lines on stdout; the
+      // one that matters is out_time_us, which divided by the probed duration
+      // is the fraction encoded. Without a duration there is nothing to divide
+      // by, so the job stays indeterminate and the UI spins instead.
+      auto runEncode = [&](std::vector<std::string> args) {
+        args.insert(args.begin() + 1, "-nostdin");
+        args.insert(args.end() - 1, "-progress");
+        args.insert(args.end() - 1, "pipe:1");
+        ChildProcess proc;
+        if (!spawnPipeProcess(proc, args)) {
+          return;
+        }
+        std::string pending;
+        std::array<char, 4096> chunk {};
+        while (true) {
+          if (cancel->load()) {
+            proc.stop();
+            std::error_code ce;
+            fs::remove(dstStr, ce);  // a half-written file is not a usable cue
+            return;
+          }
+          int n = readSome(proc.readFd, chunk.data(), chunk.size());
+          if (n <= 0) {
+            break;  // ffmpeg closed stdout — it has exited or is about to
+          }
+          pending.append(chunk.data(), static_cast<size_t>(n));
+          size_t nl;
+          while ((nl = pending.find('\n')) != std::string::npos) {
+            std::string line = trim(pending.substr(0, nl));
+            pending.erase(0, nl + 1);
+            if (totalSeconds <= 0.0 || line.rfind("out_time_us=", 0) != 0) {
+              continue;
+            }
+            double us = std::atof(line.c_str() + 12);
+            if (us >= 0.0) {
+              progress->store(std::clamp((us / 1000000.0) / totalSeconds, 0.0, 1.0));
+            }
+          }
+        }
+        proc.stop();
+      };
+
+      // Try each attempt for this preset in turn; keep the first that lands.
+      for (std::size_t a = 0; a < attempts.size(); ++a) {
+        if (a > 0) {
+          progress->store(-1.0);   // a fallback restarts from zero
+        }
+        runEncode(attempts[a]);
+        if (cancel->load()) {
+          return false;
+        }
+        if (produced()) {
+          progress->store(1.0);
+          return true;
+        }
       }
-      readAllText({"ffmpeg", "-y", "-i", srcStr, "-c:v", "libx264",
-                   "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
-                   "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", dstStr});
-      return produced();
+      return false;
     });
-    conversionJobs_.push_back(std::move(job));
-    triggerToast("converting " + src.filename().string() + " ...");
-    playUiSound(UiSoundEffect::Import);
   }
 
   // Convert every flagged cue across all decks (used by the Encoder tab).

@@ -287,6 +287,33 @@ static std::wstring buildCommandLine(const std::vector<std::string>& args) {
   return cmdline;
 }
 
+// Every child we spawn joins one process-wide job object configured to kill
+// its members when the last handle closes - which happens when Deckboy exits,
+// however it exits. Without this a hard kill (Task Manager, a crash, a test
+// harness) orphans whatever ffmpeg was running: a transcode keeps burning CPU
+// and writing a file nobody is waiting for, and a decoder keeps holding the
+// capture device. Observed in the wild on both Windows and the macOS field Mac.
+//
+// CREATE_BREAKAWAY_FROM_JOB is deliberately NOT set: children should die with
+// us. Nested jobs are supported on Windows 8+, so being inside someone else's
+// job (a CI runner, a debugger) is fine.
+static HANDLE deckboyChildJobObject() {
+  static HANDLE job = [] () -> HANDLE {
+    HANDLE h = CreateJobObjectW(nullptr, nullptr);
+    if (!h) {
+      return nullptr;
+    }
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION info {};
+    info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    if (!SetInformationJobObject(h, JobObjectExtendedLimitInformation,
+                                 &info, sizeof(info))) {
+      CloseHandle(h);
+      return nullptr;
+    }
+    return h;
+  }();
+  return job;
+}
 bool spawnProcess(ChildProcess& process,
                   const std::vector<std::string>& args,
                   const SpawnOptions& options) {
@@ -414,6 +441,13 @@ bool spawnProcess(ChildProcess& process,
     if (hReadPipe != INVALID_HANDLE_VALUE) CloseHandle(hReadPipe);
     if (hStdinWritePipe != INVALID_HANDLE_VALUE) CloseHandle(hStdinWritePipe);
     return false;
+  }
+
+  // Tie the child's lifetime to ours before anything else can go wrong.
+  if (!options.detached) {
+    if (HANDLE job = deckboyChildJobObject()) {
+      AssignProcessToJobObject(job, pi.hProcess);  // best effort
+    }
   }
 
   // We don't need the thread handle

@@ -345,6 +345,10 @@
     }
     // Poll async media conversion jobs
     for (auto it = conversionJobs_.begin(); it != conversionJobs_.end(); ) {
+      if (it->state != ConversionState::Running) {
+        ++it;   // still queued behind the concurrency cap
+        continue;
+      }
       if (it->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
         bool ok = false;
         try { ok = it->future.get(); } catch (...) { ok = false; }
@@ -376,6 +380,8 @@
         ++it;
       }
     }
+    // A slot may have just freed up - pull the next queued job in.
+    pumpConversionQueue();
     // Poll waveform analysis futures
     {
       std::lock_guard<std::mutex> lk(waveformMutex_);

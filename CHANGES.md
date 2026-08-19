@@ -1,5 +1,66 @@
 # CHANGES - Incremental Updates (March–August 2026)
 
+## 2026-08-19 — v0.83.2 (media encoder: queue, presets, progress)
+
+The Encoder tab went from a single button to a real queue.
+
+### The encoder was launching one ffmpeg per cue, simultaneously
+`convertAllFlaggedCues` called `convertCueMedia` for every flagged cue, and each
+immediately fired its own `std::async` + ffmpeg. On a large show that is one
+encoder process per cue, all at once. Jobs are now ENQUEUED and started by
+`pumpConversionQueue()` at most `encoderConcurrency_` at a time, default **1** —
+encoding must never outbid playback for CPU or for the drive the media is
+streaming off during a show. Verified: CONVERT ALL FLAGGED on a 31-cue show now
+queues 31 and runs 1.
+
+### Real progress, not a spinner
+Jobs stream ffmpeg's own `-progress pipe:1` output and parse `out_time_us`
+against the probed duration (note: `out_time_ms` is misleadingly also in
+microseconds). Progress is indeterminate until ffmpeg first reports, which it
+does about once a second.
+
+### Presets
+Four, selectable from chips in the tab or by `ENCODEPRESET` over the wire:
+**Delivery H.264** (NVENC with libx264 fallback), **Proxy 720p**, **Match
+Source**, and **Datamosh** — `-bf 0 -sc_threshold 0 -refs 1 -g 120`, libx264
+only. Verified against the source: B-frames 1 -> 0, refs -> 1, GOP `IBBPBBP` ->
+`IPPPPPP`, keyframes regular at 2.0 s, and frame/duration parity with a normal
+encode (1200 frames / 20.000000 s both) so the moshed copy can be swapped for
+the original without shifting sync. Datamosh writes `<stem>_mosh.mp4` beside
+the original rather than replacing it. NVENC is excluded from that preset
+deliberately: it ignores the reference and scene-cut controls and injects its
+own IDR frames.
+
+### Queue control and the busy panel
+Pause/resume, cancel-all, and a per-row cancel that kills ffmpeg and deletes the
+half-written file (a partial encode is not a usable cue). The panel fronts the
+startup mascot — reused via a new `overrideTip` parameter rather than a second
+mascot — with a bar per job and a whimsy line.
+
+### Children now die with the parent
+Every spawned process joins a job object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`.
+A hard kill used to orphan whatever ffmpeg was running: a transcode kept burning
+CPU and writing a file nobody was waiting for. Verified by hard-killing Deckboy
+mid-encode — ffmpeg went from 1 to 0.
+
+### Encoder tab layout
+It was the last part of the settings modal never converted in the uiScale sweep:
+fully 1x-authored, including a hardcoded `cy + 56` card-header offset where every
+other tab uses `cardBodyY()` (the same failure the display list had with its
+hardcoded 32). It also inked body text with `pal.deep`, the DARK role, so on a
+dark colorway the cue rows rendered invisibly — they were being drawn the whole
+time, which is why "+N more" sat alone at the bottom of an apparently empty card.
+Both fixed; `PRESET` and the queue whimsy line now measure their labels instead
+of guessing a width.
+
+### Splash pool
+Four new scenes (beach, autumn rooftop, winter campfire, Brooklyn waterfront),
+desaturated to grayscale masters and gamma-matched to the existing pool. The
+cycle tints them per theme, so colour art would multiply to mud.
+
+### Also
+`DECISIONS.md` records who decided what.
+
 ## 2026-08-16 — v0.83.2 (macOS field report: bundle writes, CLI, remote protocol)
 
 A second macOS field pass produced a list of defects. All but the first are

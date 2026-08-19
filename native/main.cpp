@@ -1923,6 +1923,21 @@ struct DeckStreamAudioBuffer {
   std::uint64_t droppedSamples = 0;     // Samples dropped due to buffer overflow
 };
 
+// Encode presets. Each builds its own ffmpeg args; the queue tries them in
+// order and keeps the first that produces a file, so a GPU-first preset can
+// fall back to libx264 on machines without NVENC.
+//
+// File scope, not a class member: the .ipp files are included into the class
+// body ABOVE where members are declared, and a parameter type has to be
+// visible at declaration (function bodies are a complete-class context,
+// parameter lists are not).
+enum class EncoderPreset {
+  DeliveryH264,      // the historical behaviour: NVENC, libx264 fallback
+  Proxy,             // 720p, fast, for scrubbing on weak machines
+  MatchSource,       // same raster, high quality, CPU only
+  DatamoshFriendly,  // no B-frames, no scene-cut keyframes, single reference
+};
+
 // Per-deck runtime state: the playback engine, audio device, and browser renderer.
 // Each deck has its own MediaEngine instance that handles video/audio decode
 // and frame upload independently.
@@ -5812,6 +5827,16 @@ class App {
   static constexpr int kSettingsActionVideoSubTabBase = 642; // 642–645 for 4 sub-tabs
   static constexpr int kSettingsActionEncoderConvertAll = 647;
   static constexpr int kSettingsActionEncoderAddFile = 648;
+  // Preset chips. 715-718 (656-701 and 715+ were the free blocks; 720 and 750
+  // are taken, so this sits in the 715 gap). Grep before allocating more.
+  static constexpr int kSettingsActionEncoderPresetDelivery = 715;
+  static constexpr int kSettingsActionEncoderPresetProxy = 716;
+  static constexpr int kSettingsActionEncoderPresetMatch = 717;
+  static constexpr int kSettingsActionEncoderPresetDatamosh = 718;
+  static constexpr int kSettingsActionEncoderPauseToggle = 719;
+  static constexpr int kSettingsActionEncoderCancelAll = 730;
+  // Per-row cancel for the (max 4) jobs the busy panel shows: 731..734.
+  static constexpr int kSettingsActionEncoderCancelRowBase = 731;
   static constexpr int kSettingsActionAudioDelayDec = 649;
   static constexpr int kSettingsActionAudioDelayInc = 650;
   static constexpr int kSettingsActionAudioChannelsCycle = 651;
@@ -6510,13 +6535,36 @@ class App {
   // ── Built-in media converter ───────────────────────────────────────────
   // Async ffmpeg transcode of cues Deckboy can't play (or would play poorly)
   // into a compatible H.264 MP4, kept portable in <show>/_converted/.
+  // A queued encode. Jobs are ENQUEUED by convertCueMedia and only started by
+  // pumpConversionQueue, at most kEncoderMaxConcurrent at a time. Before this
+  // every flagged cue span its own ffmpeg the instant it was added, so
+  // "convert all" on a big show launched one encoder per cue simultaneously.
+  enum class ConversionState { Queued, Running, Done, Failed };
+
+
   struct ConversionJob {
     int deckIndex;
     std::string sourcePath;
     std::string destPath;
+    std::string label;    // cue name, shown on the busy panel
+    ConversionState state = ConversionState::Queued;
+    EncoderPreset preset = EncoderPreset::DeliveryH264;
+    // Set by the UI to ask a running encode to stop; the worker checks it
+    // between pipe reads and kills ffmpeg.
+    std::shared_ptr<std::atomic<bool>> cancel;
+    double sourceSeconds = 0.0;   // probed duration, the divisor for progress
+    // 0..1 while encoding, <0 until ffmpeg reports anything. Shared rather than
+    // held by value because the job is moved into the vector while the worker
+    // thread writes it from the other side.
+    std::shared_ptr<std::atomic<double>> progress;
     std::future<bool> future;
   };
   std::vector<ConversionJob> conversionJobs_;
+  // One at a time by default: encoding must never outbid playback for CPU
+  // or for the drive the media is streaming off during a show.
+  int encoderConcurrency_ = 1;
+  EncoderPreset encoderPreset_ = EncoderPreset::DeliveryH264;
+  bool encoderQueuePaused_ = false;
   std::set<std::string> unreadablePaths_;  // probe returned nothing → offer convert
   // Waveform analysis cache (path → peaks vector)
   std::map<std::string, WaveformPeaks> waveformCache_;

@@ -49,6 +49,102 @@
   // the chrome contract in CLAUDE.md — structural panels ink with fg, small
   // raised controls with light — and a shared widget has to be told which it is
   // sitting on.
+  // Whimsy while you wait. Same shape as the boot console pool: a hand of lines
+  // picked from a bigger set, advanced on a timer rather than per frame so it
+  // reads instead of strobing.
+  static const char* encoderWhimsyLine(Uint64 nowMs) {
+    static const char* kLines[] = {
+      "reticulating macroblocks",
+      "convincing B-frames to leave quietly",
+      "teaching pixels to forget",
+      "negotiating with the chroma planes",
+      "aligning the flux capacitor to GOP boundaries",
+      "this one has opinions about colour space",
+      "counting keyframes, losing count",
+      "politely asking the GPU",
+      "rewrapping, restacking, re-something",
+      "the gremlins are compressing",
+    };
+    const int n = static_cast<int>(sizeof(kLines) / sizeof(kLines[0]));
+    return kLines[static_cast<int>(nowMs / 3200) % n];
+  }
+
+  // The encoder's busy surface: the mascot fronting whatever the queue is
+  // chewing through, with a real bar per job. Progress < 0 means ffmpeg has not
+  // reported yet (it emits roughly once a second), so that reads as a pulse
+  // rather than a misleading 0%.
+  void drawEncoderBusyPanel(const SDL_Rect& area, Uint64 nowMs) {
+    drawUIPanel(area, pal.dark, pal.deep, pal.mid);
+    const int pad = uiScaled(6);
+    const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+    // The whimsy line runs the full width along the bottom, NOT inside the
+    // face column: squeezed into the narrow column it ellipsized to nonsense
+    // ("this one has opi..."). The mascot also refuses to draw its face below
+    // 150x120 and silently falls back to a text line, so the column has to
+    // clear that or you get the truncated text and no friend.
+    SDL_Rect face {area.x + pad, area.y + pad,
+                   std::max(uiScaled(164), area.w / 5),
+                   area.h - pad * 2 - lineH};
+    drawStartupMascot(face, nowMs, "");
+    drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                         SDL_Rect{area.x + pad, area.y + area.h - lineH - pad / 2,
+                                  area.w - pad * 2, lineH},
+                         encoderWhimsyLine(nowMs), pal.mid);
+
+    int rx = face.x + face.w + uiScaled(10);
+    int rw = area.x + area.w - rx - uiScaled(10);
+    int ry = area.y + pad;
+    const int rowH = 30;
+    int shown = 0;
+    const int xW = uiScaled(18);
+    for (std::size_t jobIndex = 0; jobIndex < conversionJobs_.size(); ++jobIndex) {
+      const auto& job = conversionJobs_[jobIndex];
+      if (ry + rowH > face.y + face.h || shown >= 4) {
+        break;
+      }
+      double pct = job.progress ? job.progress->load() : -1.0;
+      bool running = job.state == ConversionState::Running;
+      std::string head = (running ? "" : "queued  ") + job.label;
+      const int pctW = uiScaled(42);
+      const int textW = rw - pctW - xW - uiScaled(6);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx, ry, textW, lineH},
+                   ellipsizeToPixelWidth(fontSmall_, head, textW), pal.light);
+      // Per-row cancel. Only the first four rows get one, matching what the
+      // panel can show; the rest are reachable via CANCEL ALL.
+      SDL_Rect xBtn {rx + rw - xW, ry, xW, lineH};
+      drawUIPanel(xBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, xBtn, "x", pal.light);
+      settingsBtns_.push_back({xBtn,
+                               kSettingsActionEncoderCancelRowBase + static_cast<int>(jobIndex),
+                               running ? "cancel this encode" : "remove from queue"});
+      if (pct >= 0.0) {
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx + rw - xW - uiScaled(46), ry, uiScaled(42), lineH},
+                     std::to_string(static_cast<int>(pct * 100.0 + 0.5)) + "%", pal.light);
+      }
+      SDL_Rect bar {rx, ry + lineH + uiScaled(3), rw - xW - uiScaled(6), uiScaled(8)};
+      Primitives::fillRect(controlRenderer_, bar, pal.deep);
+      if (pct >= 0.0) {
+        SDL_Rect fill {bar.x, bar.y, static_cast<int>(bar.w * std::clamp(pct, 0.0, 1.0)), bar.h};
+        Primitives::fillRect(controlRenderer_, fill, pal.light);
+      } else if (running) {
+        // Indeterminate: a block sliding along the track.
+        int bw = std::max(24, bar.w / 6);
+        double u = std::fmod(static_cast<double>(nowMs) / 1400.0, 1.0);
+        int bx = bar.x + static_cast<int>((bar.w + bw) * u) - bw;
+        SDL_Rect fill {std::max(bar.x, bx), bar.y,
+                       std::min(bw, bar.x + bar.w - std::max(bar.x, bx)), bar.h};
+        if (fill.w > 0) Primitives::fillRect(controlRenderer_, fill, pal.mid);
+      }
+      ry += rowH;
+      ++shown;
+    }
+    if (static_cast<int>(conversionJobs_.size()) > shown) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx, ry, rw, 14},
+                   "+" + std::to_string(static_cast<int>(conversionJobs_.size()) - shown)
+                     + " more queued", pal.mid);
+    }
+  }
+
   void drawStreamOnAirBadge(const SDL_Rect& rect, bool configured, bool armed,
                             OutputHealthState health, SDL_Color activeTint) {
     const Uint64 nowMs = SDL_GetTicks();
@@ -1959,12 +2055,16 @@
       aboutRow(rightAbout, rightRowY, "", "S Stop   C Clear   Esc Panic");
     } else if (settingsTab_ == 5) {
       // Encoder tab — the built-in media converter surface.
-      drawSettingsCard(SDL_Rect{cx, cy, content.w - 24, content.h - 20}, "MEDIA ENCODER",
+      SDL_Rect encRect {cx, cy, content.w - sPad * 3, content.h - sPad * 2};
+      drawSettingsCard(encRect, "MEDIA ENCODER",
                        "Convert cues Deckboy can't play (or plays poorly) to H.264");
-      int ex = cx + 8;
-      int ey = cy + 56;
-      int ew = content.w - 40;
-      struct FlaggedCue { int deck; int cue; std::string label; std::string reason; bool converting; };
+      // Body origin from the shared helpers, never a hardcoded header offset:
+      // cy + 56 was authored at 1x, so at larger uiScale the first row sat
+      // inside the card header. Same failure the display list had with its 32.
+      const int ex = cardBodyX(encRect);
+      int ey = cardBodyY(encRect);
+      const int ew = cardBodyW(encRect);
+      struct FlaggedCue { int deck; int cue; std::string label; std::string reason; std::string queueState; };
       std::vector<FlaggedCue> flagged;
       bool anyToConvert = false;
       for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
@@ -1973,46 +2073,102 @@
           const Cue& cue = deck.cues[c];
           if (auto r = cueConvertReason(cue)) {
             bool cv = isCueConverting(cue.path);
-            flagged.push_back({d, c, cue.name, *r, cv});
+            flagged.push_back({d, c, cue.name, *r, cueQueueStateLabel(cue.path)});
             if (!cv) anyToConvert = true;
           }
         }
       }
-      SDL_Rect convAllBtn {ex, ey, 190, 28};
+      SDL_Rect convAllBtn {ex, ey, uiScaled(190), sTallH};
       drawUIPanel(convAllBtn, anyToConvert ? pal.dark : pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, convAllBtn,
                            "CONVERT ALL FLAGGED", anyToConvert ? pal.light : pal.inkSoft);
       if (anyToConvert) {
         settingsBtns_.push_back({convAllBtn, kSettingsActionEncoderConvertAll, "convert all flagged cues"});
       }
-      SDL_Rect addBtn {ex + 200, ey, 120, 28};
+      SDL_Rect addBtn {ex + uiScaled(200), ey, uiScaled(120), sTallH};
       drawUIPanel(addBtn, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "ADD FILE...", pal.deep);
       settingsBtns_.push_back({addBtn, kSettingsActionEncoderAddFile, "add file(s) to the show for conversion"});
-      ey += 40;
-      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+      if (!conversionJobs_.empty()) {
+        const char* pauseLabel = encoderQueuePaused_ ? "RESUME QUEUE" : "PAUSE QUEUE";
+        int pw = 0, ph = 0;
+        TTF_GetStringSize(fontSmall_, pauseLabel, 0, &pw, &ph);
+        SDL_Rect pauseBtn {addBtn.x + addBtn.w + sGap, ey, pw + uiScaled(20), sTallH};
+        drawUIPanel(pauseBtn, encoderQueuePaused_ ? pal.light : pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, pauseBtn, pauseLabel,
+                             encoderQueuePaused_ ? pal.deep : pal.light);
+        settingsBtns_.push_back({pauseBtn, kSettingsActionEncoderPauseToggle,
+                                 "pause/resume the encode queue"});
+        int cw = 0, ch = 0;
+        TTF_GetStringSize(fontSmall_, "CANCEL ALL", 0, &cw, &ch);
+        SDL_Rect cancelBtn {pauseBtn.x + pauseBtn.w + sGap, ey, cw + uiScaled(20), sTallH};
+        drawUIPanel(cancelBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, cancelBtn, "CANCEL ALL", pal.light);
+        settingsBtns_.push_back({cancelBtn, kSettingsActionEncoderCancelAll,
+                                 "cancel running job and clear the queue"});
+      }
+      ey += sTallH + sGap;
+      {
+        // Preset row. Chips size to their labels so a longer preset name never
+        // ellipsizes into nonsense the way the queue whimsy line did.
+        struct PresetChip { EncoderPreset preset; int action; };
+        const PresetChip chips[] = {
+          {EncoderPreset::DeliveryH264,     kSettingsActionEncoderPresetDelivery},
+          {EncoderPreset::Proxy,            kSettingsActionEncoderPresetProxy},
+          {EncoderPreset::MatchSource,      kSettingsActionEncoderPresetMatch},
+          {EncoderPreset::DatamoshFriendly, kSettingsActionEncoderPresetDatamosh},
+        };
+        int px = ex;
+        // Measure the label instead of guessing a width - uiScaled(56) clipped
+        // it to "PRES..." at this font. Same trap as the >LIVE chip.
+        int labelW = 0, labelH = 0;
+        TTF_GetStringSize(fontSmall_, "PRESET", 0, &labelW, &labelH);
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{px, ey + (sChipH - sLineH) / 2, labelW + uiScaled(10), sLineH},
+                     "PRESET", soft);
+        px += labelW + uiScaled(14);
+        for (const PresetChip& chip : chips) {
+          const char* label = encoderPresetLabel(chip.preset);
+          int tw = 0, th = 0;
+          TTF_GetStringSize(fontSmall_, label, 0, &tw, &th);
+          SDL_Rect chipRect {px, ey, tw + uiScaled(18), sChipH};
+          bool on = encoderPreset_ == chip.preset;
+          drawUIPanel(chipRect, on ? pal.light : pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, chipRect, label,
+                               on ? pal.deep : pal.light);
+          settingsBtns_.push_back({chipRect, chip.action, "encode preset"});
+          px += chipRect.w + sGap;
+        }
+        ey += sChipH + sGap;
+      }
+      if (!conversionJobs_.empty()) {
+        SDL_Rect busy {ex, ey, ew, std::max(uiScaled(164), sRowH * 4 + sLineH + sPad * 3)};
+        drawEncoderBusyPanel(busy, animationNow_);
+        ey += busy.h + sGap;
+      }
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                    "Target: H.264 MP4 (GPU, libx264 fallback) -> portable _converted/ next to show   |   active jobs: "
                    + std::to_string(static_cast<int>(conversionJobs_.size())), soft);
-      ey += 24;
-      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+      ey += sLineH + sGap;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                    flagged.empty() ? "No cues need conversion." :
-                     (std::to_string(static_cast<int>(flagged.size())) + " cue(s) flagged:"), ink);
-      ey += 22;
-      const int rowH = 20;
-      int maxRows = std::max(0, (content.y + content.h - 14 - ey) / rowH);
+                     (std::to_string(static_cast<int>(flagged.size())) + " cue(s) flagged:"), pal.light);
+      ey += sLineH + sGap;
+      const int rowH = sRowH;
+      int maxRows = std::max(0, (encRect.y + encRect.h - sPad - ey) / rowH);
       int shown = 0;
       for (const auto& f : flagged) {
         if (shown >= maxRows) break;
         std::string line = "D" + std::to_string(f.deck + 1) + " Q" + std::to_string(f.cue + 1)
                          + "  " + f.label + "   (" + f.reason + ")"
-                         + (f.converting ? "   [converting...]" : "");
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
-                     ellipsizeToPixelWidth(fontSmall_, line, ew), f.converting ? soft : ink);
+                         + f.queueState;
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
+                     ellipsizeToPixelWidth(fontSmall_, line, ew), f.queueState.empty() ? pal.light : soft);
         ey += rowH;
         ++shown;
       }
       if (static_cast<int>(flagged.size()) > shown) {
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, 16},
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                      "  +" + std::to_string(static_cast<int>(flagged.size()) - shown) + " more", soft);
       }
     }
@@ -2030,6 +2186,17 @@
     for (const auto& sb : settingsBtns_) {
       if (!pointInRect(mx, my, sb.rect)) continue;
       if (sb.action == kSettingsActionEncoderConvertAll) { convertAllFlaggedCues(); continue; }
+      if (sb.action == kSettingsActionEncoderPresetDelivery) { setEncoderPreset(EncoderPreset::DeliveryH264); continue; }
+      if (sb.action == kSettingsActionEncoderPresetProxy)    { setEncoderPreset(EncoderPreset::Proxy); continue; }
+      if (sb.action == kSettingsActionEncoderPresetMatch)    { setEncoderPreset(EncoderPreset::MatchSource); continue; }
+      if (sb.action == kSettingsActionEncoderPresetDatamosh) { setEncoderPreset(EncoderPreset::DatamoshFriendly); continue; }
+      if (sb.action == kSettingsActionEncoderPauseToggle) { toggleEncoderQueuePaused(); continue; }
+      if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
+      if (sb.action >= kSettingsActionEncoderCancelRowBase &&
+          sb.action < kSettingsActionEncoderCancelRowBase + 4) {
+        cancelConversionAt(static_cast<std::size_t>(sb.action - kSettingsActionEncoderCancelRowBase));
+        continue;
+      }
       if (sb.action == kSettingsActionEncoderAddFile) {
         importWithPicker();  // native async dialog, same as the IMPORT button
         continue;

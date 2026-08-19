@@ -412,6 +412,25 @@
       }
     };
 
+    if (upper == "STATUS ENCODER" || upper == "STATE ENCODER") {
+      // The encode queue, readable from a script or Companion. Progress is a
+      // percentage, or "--" before ffmpeg has reported anything.
+      std::string reply = "DECKBOY_0.01 encoder jobs=" +
+                          std::to_string(static_cast<int>(conversionJobs_.size())) +
+                          " concurrency=" + std::to_string(encoderConcurrency_) +
+                          (encoderQueuePaused_ ? " paused=on" : " paused=off") + "\n";
+      for (const auto& job : conversionJobs_) {
+        double pct = job.progress ? job.progress->load() : -1.0;
+        const char* st = job.state == ConversionState::Running ? "running"
+                       : job.state == ConversionState::Queued  ? "queued" : "done";
+        reply += std::string("JOB state=") + st + " progress=" +
+                 (pct < 0.0 ? std::string("--")
+                            : std::to_string(static_cast<int>(pct * 100.0 + 0.5))) +
+                 " name=\"" + job.label + "\"\n";
+      }
+      sendSnapshot(reply);
+      return true;
+    }
     if (upper == "HELP" || upper == "?") {
       // Discoverability over the wire. The only way to learn the protocol used
       // to be reading the source or guessing, and a guess that missed looked

@@ -27,7 +27,10 @@
   // mouth) drifts and breathes on its own phase, so they float semi-
   // independently. Plus eased squish-blinks and orbiting twinkle-stars.
   // Glowing + theme-tinted; up until the first clip loads this session.
-  void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs) {
+  // overrideTip replaces the rotating hint line, so the same face can front
+  // other waits (the media encoder) without inventing a second mascot.
+  void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
+                         const char* overrideTip = nullptr) {
     static const char* kTips[] = {
       "hi! i'm deckboy :)",
       "press I to import a clip",
@@ -52,7 +55,8 @@
 
     if (area.w < 150 || area.h < 120) {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, area,
-                           "hi! press I to import a clip", pal.fg);
+                           overrideTip ? overrideTip : "hi! press I to import a clip",
+                           pal.fg);
       return;
     }
 
@@ -145,7 +149,8 @@
     int tipH = std::max(22, textLineHeight(tipFont) + 4);
     int tipY = std::min(area.y + area.h - tipH - 6, cy + unit * 3);
     SDL_Rect tipRect {area.x + 12, tipY, area.w - 24, tipH};
-    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect, kTips[tipIdx], pal.fg);
+    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect,
+                         overrideTip ? overrideTip : kTips[tipIdx], pal.fg);
   }
 
   // Render the main panel split into program area (left) and inspector (right).
