@@ -57,6 +57,9 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D31 | Quality args are per-codec, not one template | **CLAUDE** | x264/x265 `-crf`, NVENC `-cq`, ProRes/DNxHD profiles, VP9/AV1 need `-b:v 0`, GIF/PNG/audio must drop the stream they lack. All 17 available formats test-encoded OK. |
 | D32 | Add HAP rows now, but do NOT advertise HAP as fast | **CLAUDE** | Through the ordinary decode path HAP is SLOWER than H.264 (CPU DXT->RGB) for 5-10x the file size. Needs the GPU path first. |
 | D33 | HAP accelerated playback is its own project, not part of v0.83.2 | **CLAUDE** | New decode path: demux -> Snappy -> BC texture -> GPU bridge. See docs/HAP_PLAYBACK_PLAN.md. |
+| D34 | Datamosh needs a SMOOTH/CHUNKY toggle, not two buried list entries | **OWNER** | 2026-08-19: "I would love an option, between classic chunky and modern smooth" + "maybe a toggle". DONE. |
+| D35 | Smooth = H.264 (deblocking softens the smear), chunky = MPEG-4 Part 2 (none) | **CLAUDE** | Both verified moshable: no B-frames, IPPPP, identical frame counts so both stay swappable with the original. |
+| D36 | Warn before bulk-encoding to a mastering format | **CLAUDE** | ProRes ~167MB/3s, QTRLE ~424MB/3s. 5+ cues to a mastering codec now warns rather than filling the drive silently. |
 
 ---
 

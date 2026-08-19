@@ -5853,6 +5853,7 @@ class App {
   static constexpr int kSettingsActionEncoderCancelAll = 730;
   // Per-row cancel for the (max 4) jobs the busy panel shows: 731..734.
   static constexpr int kSettingsActionEncoderCancelRowBase = 731;
+  static constexpr int kSettingsActionEncoderMoshLook = 721;
   static constexpr int kSettingsActionAudioDelayDec = 649;
   static constexpr int kSettingsActionAudioDelayInc = 650;
   static constexpr int kSettingsActionAudioChannelsCycle = 651;
@@ -6584,6 +6585,9 @@ class App {
   bool encoderProbeDone_ = false;
   std::set<std::string> encoderProbeResult_;
   std::string encoderFormatId_ = "h264";   // selected row of the format matrix
+  // Which datamosh flavour the DATAMOSH preset prepares. Both are moshable;
+  // they differ only in how the smear looks (see the catalog comment).
+  bool moshClassicLook_ = false;   // false = modern smooth, true = classic chunky
   bool encoderQueuePaused_ = false;
   std::set<std::string> unreadablePaths_;  // probe returned nothing → offer convert
   // Waveform analysis cache (path → peaks vector)
