@@ -226,6 +226,29 @@
       triggerToast(std::string("datamosh look: ") + moshLookLabel());
       return;
     }
+    // Stage timer control. Deliberately separate from transport: these change
+    // the CLOCK while the cue stays on air.
+    if (command == "TIMER") {
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
+      if (sub == "START" || sub == "GO" || sub == "PAUSE" || sub == "TOGGLE") {
+        timerToggleRun();
+      } else if (sub == "RESET") {
+        timerReset();
+      } else if (sub == "ADD" || sub == "PLUS") {
+        timerNudge(parts.size() > 2 ? std::atof(parts[2].c_str()) : 60.0);
+      } else if (sub == "SUB" || sub == "MINUS") {
+        timerNudge(-(parts.size() > 2 ? std::atof(parts[2].c_str()) : 60.0));
+      } else if (sub == "SET") {
+        if (parts.size() > 2) {
+          timerSetRemaining(std::atof(parts[2].c_str()));
+        } else {
+          failRemoteCommand("timer set: needs seconds remaining");
+        }
+      } else {
+        failRemoteCommand("timer: start | pause | reset | add <s> | sub <s> | set <s>");
+      }
+      return;
+    }
     if (command == "TIMERCUE" || command == "ADDTIMER") {
       int seconds = 300;
       if (auto v = parseNumber(1); v && *v > 0.0) {

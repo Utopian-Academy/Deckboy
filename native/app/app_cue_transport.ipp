@@ -2984,6 +2984,90 @@
   // additionally requires the prepared file to exist -- so the cue keeps playing
   // the original until the transcode lands, then picks up the moshed copy on the
   // next load. No half-written file is ever taken.
+  // ---- Stage timer controls -----------------------------------------------
+  // These drive the timer WITHOUT touching transport, so the clock can be
+  // started, held, reset or nudged while the cue stays live on the stage
+  // screen. Anything that takes the cue off air to change the time is wrong.
+
+  TimerRuntime& timerRuntimeFor(const Cue& cue) {
+    return timerRuntimes_[cue.id];
+  }
+
+  // The timer the operator means: the LIVE one if a timer is on air, otherwise
+  // the selected one. Mid-show the live clock is almost always the intent.
+  Cue* activeTimerCue() {
+    Deck& deck = focusedDeckMutable();
+    if (deck.activeIndex >= 0 && deck.activeIndex < static_cast<int>(deck.cues.size()) &&
+        deck.cues[deck.activeIndex].kind == CueKind::Timer) {
+      return &deck.cues[deck.activeIndex];
+    }
+    Cue* sel = selectedCueMutable();
+    return (sel && sel->kind == CueKind::Timer) ? sel : nullptr;
+  }
+
+  void advanceTimerRuntimes(Uint64 nowMs) {
+    for (auto& [id, rt] : timerRuntimes_) {
+      if (!rt.running) {
+        rt.lastTickMs = nowMs;
+        continue;
+      }
+      if (rt.lastTickMs == 0) {
+        rt.lastTickMs = nowMs;
+        continue;
+      }
+      // Wall-clock delta, not a fixed per-frame increment: a dropped frame or a
+      // busy render loop must not make the countdown drift slow.
+      rt.elapsedSeconds += static_cast<double>(nowMs - rt.lastTickMs) / 1000.0;
+      rt.lastTickMs = nowMs;
+    }
+  }
+
+  void timerToggleRun() {
+    Cue* cue = activeTimerCue();
+    if (!cue) { failRemoteCommand("timer: no timer cue"); return; }
+    TimerRuntime& rt = timerRuntimeFor(*cue);
+    rt.running = !rt.running;
+    rt.lastTickMs = SDL_GetTicks();
+    triggerToast(rt.running ? "timer running" : "timer held");
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void timerReset() {
+    Cue* cue = activeTimerCue();
+    if (!cue) { failRemoteCommand("timer: no timer cue"); return; }
+    TimerRuntime& rt = timerRuntimeFor(*cue);
+    rt.elapsedSeconds = 0.0;
+    rt.lastTickMs = SDL_GetTicks();
+    triggerToast("timer reset");
+    playUiSound(UiSoundEffect::Stop);
+  }
+
+  // Nudge the clock. Positive adds TIME REMAINING (so it counts elapsed DOWN),
+  // which is what an operator means by "+1 minute" -- they are giving the
+  // speaker another minute, not aging the clock.
+  void timerNudge(double seconds) {
+    Cue* cue = activeTimerCue();
+    if (!cue) { failRemoteCommand("timer: no timer cue"); return; }
+    TimerRuntime& rt = timerRuntimeFor(*cue);
+    rt.elapsedSeconds = std::max(0.0, rt.elapsedSeconds - seconds);
+    const int mins = static_cast<int>(std::abs(seconds)) / 60;
+    triggerToast(std::string(seconds >= 0 ? "+" : "-") +
+                 (mins > 0 ? std::to_string(mins) + " min" : std::to_string(static_cast<int>(std::abs(seconds))) + " sec"));
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
+  // Jump to a specific REMAINING time.
+  void timerSetRemaining(double remainingSeconds) {
+    Cue* cue = activeTimerCue();
+    if (!cue) { failRemoteCommand("timer: no timer cue"); return; }
+    TimerRuntime& rt = timerRuntimeFor(*cue);
+    rt.elapsedSeconds =
+      std::max(0.0, static_cast<double>(cue->timer.durationSeconds) - remainingSeconds);
+    rt.lastTickMs = SDL_GetTicks();
+    triggerToast("timer set");
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
   void toggleSelectedDatamosh() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
