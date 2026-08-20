@@ -17,6 +17,7 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | S3 | Fix themes as data, never the renderer | **OWNER** | Exception: adding theme *roles* is allowed. |
 | S4 | Never raise bot XP rate / never seed population (WoW) | **OWNER** | Out of scope here, kept for cross-project consistency. |
 | S5 | Encoding must never outbid playback during a show | **CLAUDE** | Drives the concurrency cap; challenge if you disagree. |
+| S6 | Reality outranks notes; a note counts only if checked at the moment of use | **OWNER** | 2026-08-19. Verify paths/flags/capabilities against the live system in the turn that uses them. The system wins over any note, comment, or earlier claim of mine. |
 
 ---
 
@@ -72,6 +73,8 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D46 | CPU DXT expansion first; GPU BC upload deferred | **CLAUDE** | SDL3 has no BC pixel format, so the GPU route needs a D3D11 texture + shader outside SDL. The CPU path makes HAP PLAY and gives all-intra seeking now. |
 | D47 | Do NOT chase bit-parity with ffmpeg on DXT output | **CLAUDE** | Measured: 87% identical, max diff 1, and both are equally accurate vs the original image (1.22 vs 1.29 of 255). DXT decode is not specified bit-exact - GPU vendors disagree too. |
 | D48 | HAP wired into VideoPipeline as a demux-only mode | **CLAUDE** | HAP cues now PLAY. Detected by codec id before any avcodec setup; output is ordinary RGBA32 so nothing downstream changes. All-intra means seek needs no keyframe walk. |
+| D49 | Install ffmpeg n8.1 WITH libsnappy (stable release, not master) | **OWNER** asked / **CLAUDE** chose the build | HAP encode needs it. Chose a tagged release over the nightly for a show tool. Old binaries backed up to `C:fmpegin-backup-20260819`. |
+| D50 | FIXED: the format picker was a DEAD CONTROL | **CLAUDE** | `attemptsForJob` only consulted the catalog for the datamosh preset; every other job silently encoded H.264 whatever ENCODEFORMAT said, and the extension was hardcoded .mp4. Presets now SELECT a format so there is exactly one thing deciding the encode. |
 
 ---
 

@@ -2335,6 +2335,7 @@
       a.push_back("-c:v");
       a.push_back(fmt.encoder);
       if (id == "h264" || id == "h265")            add({"-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p"});
+      else if (id == "proxy")                      add({"-preset", "veryfast", "-crf", "26", "-vf", "scale=-2:720", "-pix_fmt", "yuv420p"});
       else if (id == "h264_gpu" || id == "h265_gpu") add({"-preset", "p4", "-cq", "21", "-pix_fmt", "yuv420p"});
       else if (id == "prores")                     add({"-profile:v", "3", "-pix_fmt", "yuv422p10le"});
       else if (id == "prores4444")                 add({"-profile:v", "4444", "-pix_fmt", "yuva444p10le"});
@@ -2421,6 +2422,7 @@
   static const std::vector<EncoderFormat>& encoderFormatCatalog() {
     static const std::vector<EncoderFormat> kFormats {
       {"h264", "H.264 / MP4", "libx264", "aac", "mp4", "universal delivery", false},
+      {"proxy", "Proxy 720p", "libx264", "aac", "mp4", "fast, for scrubbing", false},
       {"h265", "H.265 / MP4", "libx265", "aac", "mp4", "half the size, fussier playback", false},
       {"h264_gpu", "H.264 (NVENC)", "h264_nvenc", "aac", "mp4", "fast GPU encode", false},
       {"h265_gpu", "H.265 (NVENC)", "hevc_nvenc", "aac", "mp4", "fast GPU encode", false},
@@ -2496,15 +2498,30 @@
   // Attempts for a queued job. The datamosh preset resolves through the
   // SMOOTH/CHUNKY toggle rather than a fixed recipe, so the chip and the encode
   // can never disagree.
-  std::vector<std::vector<std::string>> attemptsForJob(EncoderPreset preset,
+  // What the queue actually runs. Resolves the FORMAT, always -- there is no
+  // second path that can quietly ignore it.
+  std::vector<std::vector<std::string>> attemptsForJob(const std::string& formatId,
                                                        const std::string& src,
                                                        const std::string& dst) {
-    if (preset == EncoderPreset::DatamoshFriendly) {
-      if (const EncoderFormat* f = encoderFormatById(activeMoshFormatId())) {
-        return { encodeArgsForFormat(*f, src, dst) };
-      }
+    const EncoderFormat* fmt = encoderFormatById(formatId);
+    if (!fmt) {
+      fmt = encoderFormatById("h264");
     }
-    return encodeAttemptsFor(preset, src, dst);
+    if (!fmt) {
+      return {};
+    }
+    if (std::string(fmt->id) == "h264_gpu") {
+      // The one format with a fallback: NVENC first for speed, libx264 if the
+      // machine has no NVIDIA encoder.
+      const EncoderFormat* cpu = encoderFormatById("h264");
+      std::vector<std::vector<std::string>> attempts {
+        encodeArgsForFormat(*fmt, src, dst)};
+      if (cpu) {
+        attempts.push_back(encodeArgsForFormat(*cpu, src, dst));
+      }
+      return attempts;
+    }
+    return { encodeArgsForFormat(*fmt, src, dst) };
   }
 
   // Mastering codecs are enormous - ProRes 422 measured ~167 MB for 3 seconds,
@@ -2553,8 +2570,24 @@
     return true;
   }
 
+  // Presets are named entry points into the format matrix, not a parallel
+  // system. Selecting one selects a format, so there is exactly ONE thing that
+  // decides what the encoder runs. They used to be independent, which made the
+  // whole format picker a dead control: ENCODEFORMAT set a value nothing read,
+  // and every job silently encoded H.264 regardless.
+  const char* formatIdForPreset(EncoderPreset preset) const {
+    switch (preset) {
+      case EncoderPreset::Proxy:            return "proxy";
+      case EncoderPreset::MatchSource:      return "h264";
+      case EncoderPreset::DatamoshFriendly: return activeMoshFormatId();
+      case EncoderPreset::DeliveryH264:
+      default:                              return "h264_gpu";
+    }
+  }
+
   void setEncoderPreset(EncoderPreset preset) {
     encoderPreset_ = preset;
+    encoderFormatId_ = formatIdForPreset(preset);
     triggerToast(std::string("encode preset: ") + encoderPresetLabel(preset));
     playUiSound(UiSoundEffect::Toggle);
   }
@@ -2659,11 +2692,16 @@
     fs::path src(cue.path);
     fs::path outDir = convertedMediaDir();
     fs::create_directories(outDir, ec);
-    std::string suffix = ".mp4";
-    if (presetKeepsOriginal(encoderPreset_)) {
-      // Classic chunky is MPEG-4 Part 2 in AVI, so the container differs.
-      suffix = moshClassicLook_ ? "_mosh.avi" : "_mosh.mp4";
-    }
+    // Extension comes from the SELECTED FORMAT, not a hardcoded ".mp4" -- HAP
+    // and ProRes need .mov, VP9 .webm, FFV1 .mkv, and writing them all as .mp4
+    // produced files ffmpeg would refuse or mislabel.
+    const EncoderFormat& chosen = selectedEncoderFormat();
+    std::string container = chosen.container;
+    if (container == "matroska") container = "mkv";
+    if (container == "image2")   container = "png";
+    const std::string suffix = presetKeepsOriginal(encoderPreset_)
+                                 ? ("_mosh." + container)
+                                 : ("." + container);
     fs::path dst = outDir / (src.stem().string() + suffix);
     if (fs::exists(dst, ec) && fs::equivalent(dst, src, ec)) {
       dst = outDir / (src.stem().string() + "_conv.mp4");
@@ -2681,6 +2719,7 @@
     job.state = ConversionState::Queued;
     job.preset = encoderPreset_;
     job.keepsOriginal = presetKeepsOriginal(encoderPreset_);
+    job.formatId = encoderFormatId_;
     conversionJobs_.push_back(std::move(job));
     triggerToast("queued " + src.filename().string());
     playUiSound(UiSoundEffect::Import);
@@ -2720,7 +2759,7 @@
     auto progress = job.progress;
     auto cancel = job.cancel;
     const double totalSeconds = job.sourceSeconds;
-    const auto attempts = attemptsForJob(job.preset, srcStr, dstStr);
+    const auto attempts = attemptsForJob(job.formatId, srcStr, dstStr);
     job.state = ConversionState::Running;
     job.future = std::async(std::launch::async, [dstStr, progress, cancel, totalSeconds, attempts]() -> bool {
       auto produced = [&]() {
