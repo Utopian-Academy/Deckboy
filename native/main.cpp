@@ -5897,6 +5897,9 @@ class App {
   static constexpr int kSettingsActionEncoderCancelAll = 730;
   // Per-row cancel for the (max 4) jobs the busy panel shows: 731..734.
   static constexpr int kSettingsActionEncoderCancelRowBase = 731;
+  // Per-row queue controls for the four jobs the panel shows.
+  static constexpr int kSettingsActionEncoderUpRowBase = 736;    // 736..739
+  static constexpr int kSettingsActionEncoderHoldRowBase = 741;  // 741..744
   static constexpr int kSettingsActionEncoderMoshLook = 721;
   // One id per catalog row. 1400 block: clear of 715-734, 750 and the 800/20000
   // ranges. Grep before allocating near it.
@@ -6618,6 +6621,9 @@ class App {
     // two), so completion sets cue.moshPath instead of repointing cue.path.
     bool keepsOriginal = false;
     std::string formatId;   // catalog row this job encodes with
+    // Held jobs are skipped by the scheduler until released. Distinct from the
+    // whole-queue pause: this parks ONE job while the rest continue.
+    bool held = false;
     // Set by the UI to ask a running encode to stop; the worker checks it
     // between pipe reads and kills ffmpeg.
     std::shared_ptr<std::atomic<bool>> cancel;
