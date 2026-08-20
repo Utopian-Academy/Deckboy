@@ -1950,6 +1950,16 @@ struct EncoderFormat {
   bool alpha;              // carries an alpha channel
 };
 
+// Live state of one Timer cue. File scope for the same reason EncoderPreset is:
+// the .ipp files are included into the class body above where members are
+// declared, so a type used as a RETURN or PARAMETER type there must already be
+// visible (function bodies are a complete-class context; signatures are not).
+struct TimerRuntime {
+  bool running = false;
+  double elapsedSeconds = 0.0;
+  Uint64 lastTickMs = 0;
+};
+
 enum class EncoderPreset {
   DeliveryH264,      // the historical behaviour: NVENC, libx264 fallback
   Proxy,             // 720p, fast, for scrubbing on weak machines
@@ -3215,6 +3225,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.audioOutputPair
         << '\t' << (cue.datamoshEnabled ? "1" : "0")
         << '\t' << escapeField(cue.moshPath)
+        << '\t' << cue.timer.durationSeconds
+        << '\t' << cue.timer.amberSeconds
+        << '\t' << cue.timer.redSeconds
+        << '\t' << (cue.timer.countUpAfterZero ? "1" : "0")
+        << '\t' << (cue.timer.blinkAtZero ? "1" : "0")
+        << '\t' << escapeField(cue.timer.message)
         << '\n';
     }
   }
@@ -3726,6 +3742,17 @@ Project loadProject(const fs::path& projectFile,
       // Appended after audioOutputPair; older saves simply lack them.
       cue.datamoshEnabled = safeBool(fields, subtitleBase + 10, false);
       cue.moshPath = safeString(fields, subtitleBase + 11);
+      // Timer settings, appended after moshPath. Older saves lack them and
+      // fall back to the struct defaults, which are a sane 5:00 / 60 / 15.
+      {
+        const std::size_t tb = subtitleBase + 12;
+        cue.timer.durationSeconds = safeInt(fields, tb + 0, cue.timer.durationSeconds);
+        cue.timer.amberSeconds    = safeInt(fields, tb + 1, cue.timer.amberSeconds);
+        cue.timer.redSeconds      = safeInt(fields, tb + 2, cue.timer.redSeconds);
+        cue.timer.countUpAfterZero = safeBool(fields, tb + 3, cue.timer.countUpAfterZero);
+        cue.timer.blinkAtZero      = safeBool(fields, tb + 4, cue.timer.blinkAtZero);
+        cue.timer.message          = safeString(fields, tb + 5);
+      }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
           cue.name = fs::path(cue.path).stem().string();
@@ -6297,6 +6324,15 @@ class App {
   std::map<std::string, TimelineStripCacheEntry> timelineStripCache_;
   std::deque<std::string> timelineStripCacheOrder_;
   std::atomic<std::uint64_t> timelineStripJobSerial_ {0};
+  // Timer cues run their OWN clock, deliberately not the transport (the owner,
+  // 2026-08-20). The cue stays live on the stage screen while the operator
+  // starts, pauses, resets or jumps the countdown -- tying it to transport
+  // meant pausing the clock also took the display off air.
+  //
+  // Keyed by cue id rather than index so it survives reordering, insertion and
+  // deletion in the cue list.
+  std::map<std::string, TimerRuntime> timerRuntimes_;
+
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;
   std::vector<int> deckScrollMax_;                  // per-deck clamp bound, set at render

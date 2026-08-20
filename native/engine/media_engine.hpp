@@ -181,7 +181,7 @@ class MediaEngine {
   // separate clock: taking the cue starts it, pause holds it, rerack resets it,
   // so the timer inherits the transport the operator already knows instead of
   // inventing a parallel set of controls.
-  void rebuildTimerFrame(const Cue& cue);
+  void rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool running);
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,

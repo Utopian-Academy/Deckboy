@@ -323,15 +323,16 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     // keeps advancing past zero instead of hitting its end and auto-advancing
     // to the next cue while a speaker is still talking. Without count-up it
     // stops exactly at zero, which is what the operator asked for.
-    duration_ = cue->timer.countUpAfterZero
-                  ? static_cast<double>(cue->timer.durationSeconds) + 3600.0
-                  : static_cast<double>(cue->timer.durationSeconds);
+    // The timer runs its OWN clock (see TimerRuntime); the transport just
+    // holds the cue on air. Duration 0 = hold indefinitely, so taking a timer
+    // never auto-advances the playlist out from under a live countdown.
+    duration_ = 0.0;
     currentPosition_ = 0.0;
     pausedPosition_ = 0.0;
     playbackStartPosition_ = 0.0;
     playbackClockStart_ = std::chrono::steady_clock::now();
-    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
-    rebuildTimerFrame(*cue);
+    state_ = TransportState::Paused;
+    rebuildTimerFrame(*cue, 0.0, false);
     return;
   }
 
@@ -1027,7 +1028,7 @@ void MediaEngine::render(SDL_Rect target) {
 // so the pattern progresses smoothly regardless of frame rate.
 // Regenerate a Timer cue from the transport clock. See the header for why the
 // transport IS the timer rather than a clock beside it.
-void MediaEngine::rebuildTimerFrame(const Cue& cue) {
+void MediaEngine::rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool running) {
   auto size = currentOutputSizeHint();
   const int w = size.first;
   const int h = size.second;
@@ -1039,7 +1040,7 @@ void MediaEngine::rebuildTimerFrame(const Cue& cue) {
   frame.height = h;
   frame.format = FramePixelFormat::RGBA32;
   frame.pixels.assign(static_cast<std::size_t>(w) * h * 4, 0);
-  buildTimerFrame(frame, cue.timer, position(), state_ == TransportState::Playing);
+  buildTimerFrame(frame, cue.timer, elapsedSeconds, running);
   displayFrame_ = std::move(frame);
   displayFrame_->index = ++displayFrameSerial_;
   uploadFrame(*displayFrame_);
