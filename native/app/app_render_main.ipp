@@ -2002,6 +2002,7 @@
     auto drawColorRows = [&](int startY, const Cue& cue) { return inspDrawColorRows(ix, startY, cue); };
     auto drawKeyRows = [&](int startY, const Cue& cue) { return inspDrawKeyRows(ix, startY, cue); };
     auto drawEffectsRows = [&](int startY, const Cue& cue) { return inspDrawEffectsRows(ix, startY, cue); };
+    auto drawTimerRows = [&](int startY, const Cue& cue) { return inspDrawTimerRows(ix, startY, cue); };
     auto beginInspectorSection = [&](int rowY, const std::string& title, bool open,
                                      QuickAction toggleAction, const std::string& tip) {
       return inspBeginSection(ix, rowY, title, open, toggleAction, tip);
@@ -2592,6 +2593,20 @@
         geoY = drawKeyRows(geoY, *selectedCue);
       }
       finishInspectorSection(keySection, geoY);
+
+      // TIMER - stage clock controls. Only for Timer cues, and placed FIRST
+      // among the effect-ish sections because on a timer cue it is the only
+      // section the operator actually reaches for mid-show.
+      if (selectedCue->kind == CueKind::Timer) {
+        auto timerSection = beginInspectorSection(geoY, "TIMER", cueSectionTimerOpen_,
+                                                  QuickAction::CueSectionTimerToggle,
+                                                  "Collapse/expand stage timer controls");
+        geoY = timerSection.bodyStartY;
+        if (cueSectionTimerOpen_) {
+          geoY = drawTimerRows(geoY, *selectedCue);
+        }
+        finishInspectorSection(timerSection, geoY);
+      }
 
       // EFFECTS - per-cue image effects that are not keying. Datamosh is the
       // first; this is where later ones belong.
@@ -3347,6 +3362,20 @@
                                              "Set short cue label for search/goto");
       }
       finishInspectorSection(metadataSection, metadataY);
+
+    } else if (selectedCue && selectedCue->kind == CueKind::Timer) {
+      // Timer cues get their own branch. They previously fell through to
+      // "no per-cue settings for this type", which meant the stage clock was
+      // only controllable over the wire.
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      auto timerSection = beginInspectorSection(ry, "TIMER", cueSectionTimerOpen_,
+                                                QuickAction::CueSectionTimerToggle,
+                                                "Stage timer controls");
+      int timerY = timerSection.bodyStartY;
+      if (cueSectionTimerOpen_) {
+        timerY = inspDrawTimerRows(ix, timerY, *selectedCue);
+      }
+      finishInspectorSection(timerSection, timerY);
 
     } else if (!selectedCue) {
       // The "SELECTED CUE" summary panel above already renders the
