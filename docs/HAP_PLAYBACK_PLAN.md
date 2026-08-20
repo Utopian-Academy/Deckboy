@@ -23,6 +23,28 @@ Verified:
 - `--hap-probe` on that file: 20/20 frames demuxed and decoded to RGB_DXT1,
   32768 bytes each -- exactly 256x256 / 16 pixels-per-block * 8 bytes.
 
+- `decompressToRgba()` - DXT1/DXT5 block expansion on the CPU. Verified against
+  ffmpeg's HAP decoder on real media: **87% of bytes identical, max difference
+  1 level**, and measured against the ORIGINAL uncompressed image both decoders
+  are equally accurate (mean absolute error 1.22 for ffmpeg, 1.29 here, out of
+  255). That residue is a rounding convention, not a defect: S3TC/DXT
+  decompression is not specified to be bit-exact, which is why GPUs from
+  different vendors also disagree by a level on the same block. Do not spend
+  time chasing bit-parity with any one decoder.
+
+**What the CPU path does and does not buy.** It makes HAP play, with the
+all-intra instant seeking that is half the reason to use the format. It does
+NOT buy the many-layers-at-no-CPU win, which needs the blocks uploaded as a
+compressed texture.
+
+The blocker for that is concrete: **SDL3 has no pixel format for BC data.**
+`SDL_CreateTexture` cannot express BC1/BC3 and `SDL_UpdateTexture` has no notion
+of block pitch, so blocks cannot be handed to the renderer the way the NV12
+zero-copy path hands it decoder surfaces (`createWrappedNV12Texture` works only
+because SDL *does* know NV12). The GPU route therefore needs a D3D11 texture
+created outside SDL, sampled through a shader into an SDL-wrappable RGBA target
+-- the sampler decompresses BC for free in hardware. That is the remaining work.
+
 Remaining: upload those blocks as a compressed GPU texture and composite them
 (step 3-4 below). That is the part that still needs the D3D11 bridge and a
 display to verify.

@@ -1138,6 +1138,11 @@ bool probeHapFile(const std::string& path, HapProbeResult& out, std::string& err
         av_packet_unref(packet);
         break;
       }
+      if (out.frames == 0) {
+        std::string expandError;
+        deckboy::hap::decompressToRgba(frame, out.width, out.height,
+                                       out.rgbaFirstFrame, expandError);
+      }
       ++out.frames;
       out.textureFormat = deckboy::hap::textureFormatName(frame.format);
       out.blockBytes = frame.data.size();

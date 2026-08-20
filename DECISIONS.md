@@ -69,6 +69,8 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D43 | VENDOR a Snappy decompressor rather than link libsnappy | **CLAUDE** | Decompress-only is a small frozen format; a per-platform dep is what kept this CI red for months. Verified against the reference impl. |
 | D44 | Ship `tools/make_hap_sample.py` to generate HAP test media | **CLAUDE** | ffmpeg only ENCODES HAP with --enable-libsnappy, which the owner's build lacks. Output validated by ffmpeg's own HAP decoder. |
 | D45 | Demux HAP without ever calling avcodec_send_packet | **CLAUDE** | Letting ffmpeg decode HAP unpacks DXT to RGB on the CPU - the exact cost the feature exists to avoid. |
+| D46 | CPU DXT expansion first; GPU BC upload deferred | **CLAUDE** | SDL3 has no BC pixel format, so the GPU route needs a D3D11 texture + shader outside SDL. The CPU path makes HAP PLAY and gives all-intra seeking now. |
+| D47 | Do NOT chase bit-parity with ffmpeg on DXT output | **CLAUDE** | Measured: 87% identical, max diff 1, and both are equally accurate vs the original image (1.22 vs 1.29 of 255). DXT decode is not specified bit-exact - GPU vendors disagree too. |
 
 ---
 
