@@ -36,6 +36,7 @@
 #include "engine/media_engine.hpp"
 
 #include "core/sdl_compat.hpp"
+#include <ctime>
 #include <filesystem>
 #include <algorithm>
 #include <array>
@@ -4446,10 +4447,33 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
     return;
   }
 
-  const double remaining = static_cast<double>(cfg.durationSeconds) - elapsedSeconds;
-  const bool overtime = remaining < 0.0;
-  const double rawSeconds = overtime ? std::floor(-remaining) : std::ceil(remaining);
-  const int totalSeconds = std::max(0, static_cast<int>(rawSeconds));
+  // MODE decides what the clock shows. It was previously declared and cycled in
+  // the inspector but never read here, so count-up and time-of-day rendered
+  // identically to a countdown -- the same "wired to state but not to effect"
+  // bug the encoder format picker had, found by auditing for it.
+  double remaining = 0.0;
+  bool overtime = false;
+  int totalSeconds = 0;
+  if (cfg.mode == TimerMode::TimeOfDay) {
+    const std::time_t nowT = std::time(nullptr);
+    std::tm local {};
+#ifdef _WIN32
+    localtime_s(&local, &nowT);
+#else
+    localtime_r(&nowT, &local);
+#endif
+    totalSeconds = local.tm_hour * 3600 + local.tm_min * 60 + local.tm_sec;
+    remaining = 1e9;              // a wall clock never runs low
+  } else if (cfg.mode == TimerMode::CountUp) {
+    totalSeconds = std::max(0, static_cast<int>(std::floor(elapsedSeconds)));
+    remaining = static_cast<double>(cfg.durationSeconds) - elapsedSeconds;
+    overtime = remaining < 0.0;
+  } else {
+    remaining = static_cast<double>(cfg.durationSeconds) - elapsedSeconds;
+    overtime = remaining < 0.0;
+    const double rawSeconds = overtime ? std::floor(-remaining) : std::ceil(remaining);
+    totalSeconds = std::max(0, static_cast<int>(rawSeconds));
+  }
   const int hours = totalSeconds / 3600;
   const int minutes = (totalSeconds % 3600) / 60;
   const int seconds = totalSeconds % 60;
@@ -4481,8 +4505,9 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   }
 
   std::vector<int> glyphs;            // 0-9 digit, 10 plus, -1 colon
-  if (overtime) glyphs.push_back(10);
-  if (hours > 0) {
+  // Time of day never shows a "+" and always shows h:mm:ss.
+  if (overtime && cfg.mode != TimerMode::TimeOfDay) glyphs.push_back(10);
+  if (hours > 0 || cfg.mode == TimerMode::TimeOfDay) {
     glyphs.push_back(hours % 10);
     glyphs.push_back(-1);
     glyphs.push_back(minutes / 10);
@@ -4536,6 +4561,23 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
       const int cy = y + digitH / 2;
       fillTimerRect(frame, cx - armW / 2, cy - thick / 2, armW, thick, ink);
       fillTimerRect(frame, cx - thick / 2, cy - armW / 2, thick, armW, ink);
+      x += digitW + gap;
+    } else if (cfg.face == TimerFace::Blocky) {
+      // Same 5x7 table the message line uses, scaled to digit height. A second
+      // real face without reaching for a TTF the engine cannot see.
+      const std::uint8_t* rows =
+        timerGlyph5x7(static_cast<unsigned char>(48 + glyphs[i]));
+      if (rows) {
+        const int cw = std::max(1, digitW / 5);
+        const int ch = std::max(1, digitH / 7);
+        for (int r = 0; r < 7; ++r) {
+          for (int b = 0; b < 5; ++b) {
+            if (rows[r] & (1 << (4 - b))) {
+              fillTimerRect(frame, x + b * cw, y + r * ch, cw, ch, ink);
+            }
+          }
+        }
+      }
       x += digitW + gap;
     } else {
       drawSevenSeg(frame, glyphs[i], x, y, digitW, digitH, thick, ink);
