@@ -82,7 +82,7 @@ install means ASIO. This is the biggest *professional* gap on the list.
 
 ## Moved to Super Deckboy (Deckboy 2)
 
-Accepted by the owner, but deferred: see `DEVNOTES.md`. Both change the render or
+Accepted by the owner, but deferred: see `DEVNOTES.md`. All three change the render or
 time-ownership model rather than adding a feature, which is exactly why they do
 not belong in a v1 that people run shows with.
 
@@ -92,18 +92,6 @@ not belong in a v1 that people run shows with.
   source, and only pays off once multi-deck compositing is normal.
 - **Output layout map** — ProVideoPlayer, disguise scaled down. Worth building
   once several warped/blended outputs are routine.
-
-## 6. Output layout preview — disguise, Pixera (scaled down)
-
-**What:** disguise and Pixera do full real-time 3D stage previz with FBX import
-and marker calibration. That is a different product, not a feature.
-
-**The stealable part:** a flat 2D map of how outputs land on screens, so a
-multi-output show can be checked before doors. Deckboy already knows every
-output's raster, display, AOI and edge blend — this is drawing what it already
-knows.
-
-**Effort:** medium. Explicitly NOT chasing 3D previz.
 
 ---
 
