@@ -196,6 +196,14 @@ struct Cue {
   double inPointSeconds = 0.0;            // trim: playback starts here (0 = beginning)
   double outPointSeconds = 0.0;           // trim: playback ends here (0 = use full duration)
   double triggerTimecodeSeconds = -1.0;   // SMPTE timecode to auto-trigger this cue (-1 = disabled)
+  // Wall-clock auto-start: seconds since local midnight at which this cue fires
+  // (-1 = disabled). Distinct from triggerTimecodeSeconds, which chases INCOMING
+  // timecode -- this one needs no external source, which is what makes
+  // unattended playback possible.
+  double scheduledStartSeconds = -1.0;
+  // Runtime only: set once the schedule has fired so it cannot re-fire every
+  // tick for the rest of that second, and cleared at midnight rollover.
+  bool scheduledStartFired = false;
   double stillDurationSeconds = 0.0;      // display time for Image/Pattern/Browser cues
   double cueTransitionSeconds = -1.0;     // per-cue transition duration override (-1 = inherit)
   double playbackSpeed = 1.0;             // speed multiplier (0.25–4.0; 1.0 = normal)

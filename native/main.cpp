@@ -3235,6 +3235,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << static_cast<int>(cue.timer.face)
         << '\t' << (cue.timer.showProgressBar ? "1" : "0")
         << '\t' << (cue.timer.messageIsUrgent ? "1" : "0")
+        << '\t' << cue.scheduledStartSeconds
         << '\n';
     }
   }
@@ -3762,6 +3763,7 @@ Project loadProject(const fs::path& projectFile,
         cue.timer.face = static_cast<TimerFace>(std::clamp(safeInt(fields, tb + 7, 0), 0, 1));
         cue.timer.showProgressBar = safeBool(fields, tb + 8, true);
         cue.timer.messageIsUrgent = safeBool(fields, tb + 9, false);
+        cue.scheduledStartSeconds = safeDouble(fields, tb + 10, -1.0);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6516,6 +6518,7 @@ class App {
   // Show log: append-only record of what fired and when. See showLog().
   std::ofstream showLogFile_;
   bool showLogEnabled_ = true;
+  double lastScheduleCheckSeconds_ = -1.0;  // see processScheduledStarts()
 
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;
