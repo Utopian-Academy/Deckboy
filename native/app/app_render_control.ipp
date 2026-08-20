@@ -1552,8 +1552,12 @@
         int textX = iconX + iconSize + 4;
         int textW = button.rect.x + button.rect.w - textX - 6;
         SDL_Rect labelRect {textX, button.rect.y + 8, textW, button.rect.h - 14};
-        std::string clipped = ellipsizeToPixelWidth(fontSmall_, button.label, std::max(0, textW));
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, labelRect, clipped, button.text);
+        // Icon+text buttons take the pixel face too, matching the text-only
+        // branch below: these are short fixed labels (TAKE, STOP, IMPORT), the
+        // half of the UI the pixel font is actually good at.
+        TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+        std::string clipped = ellipsizeToPixelWidth(btnFont, button.label, std::max(0, textW));
+        drawCenteredTextSafe(controlRenderer_, btnFont, labelRect, clipped, button.text);
       } else {
         // Text only — centered, prefer pixel font for that Nintendo feel
         TTF_Font* titleFont = fontPixelSmall_ ? fontPixelSmall_ :

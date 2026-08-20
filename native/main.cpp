@@ -5394,17 +5394,17 @@ class App {
     const auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
     const auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
     const auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
-    // the owner chose Press Start 2P as the UI face (2026-08-19): the app is a Game
-    // Boy, so the chrome should read like one. It is far wider per character
-    // than a proportional sans, so these are NOT the old sans point sizes -- at
-    // 21pt it would be enormous and truncate every filename. Roughly 0.62x the
-    // previous sizes matches the old cap height and line rhythm.
+    // HYBRID (the owner, 2026-08-19): pixel face on the CHROME, readable sans for
+    // user text. Press Start 2P looks right and reads fine on short strings you
+    // already know -- button labels, panel headers, section titles. It reads
+    // badly on arbitrary filenames: at UI sizes 0/O and 6/G are near-identical,
+    // so "S06E01" scanned as "S0GE0" in the cue list.
     //
-    // Long user-supplied text (cue names, paths) costs more width than it did;
-    // that is the deliberate trade, not a bug to fix by shrinking rows.
-    fontLarge_      = TTF_OpenFont(pixel.c_str(), pt(20));
-    fontBase_       = TTF_OpenFont(pixel.c_str(), pt(13));
-    fontSmall_      = TTF_OpenFont(pixel.c_str(), pt(11));
+    // So these three stay SANS. Chrome sites use fontPixel_/fontPixelSmall_.
+    // Do not "unify" them back to one face; the split is the whole point.
+    fontLarge_      = TTF_OpenFont(sans.c_str(),  pt(32));
+    fontBase_       = TTF_OpenFont(sans.c_str(),  pt(21));
+    fontSmall_      = TTF_OpenFont(sans.c_str(),  pt(17));
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
