@@ -80,6 +80,9 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D53 | Accept wider text as the cost of the pixel font | **CLAUDE** | Press Start 2P is much wider per char, so cue names truncate sooner. Fixed-width inspector LABEL columns now clip ("deck ...") and need widening - that part IS a bug. |
 | D54 | REVISED D52 to a hybrid after seeing it in situ | **OWNER** | He flagged the readability himself; the screenshot showed "S06E01" scanning as "S0GE0" - 0/O and 6/G are near-identical in Press Start 2P at UI sizes. Pixel face on labels/buttons/headers, sans on cue names/paths/metadata. |
 | D55 | Icon rects must match their button rects | **CLAUDE** | Icons drew into snapRectToGrid(btn) while the button painted btn - up to 7px offset, glyphs outside their boxes. Pre-dated the font change. Same class as the v0.81.0 text-placement contract. |
+| D56 | Encoder queue needs reorder + per-job start/pause/stop | **OWNER** | 2026-08-20. Only cancel exists today. |
+| D57 | **REVERSES D9**: datamosh toggle AUTO-transcodes on enable | **OWNER** | 2026-08-20: "toggle it on, it immediately transcodes... or gives a warning if it cannot". I had ruled prep must never start from a live toggle; the owner overruled. Implement with clear in-progress state; warn rather than silently start on huge files. |
+| D58 | New `Timer` source cue = full stage/speaker timer | **OWNER** | 2026-08-20. Port from ~/OneDrive/Desktop/speakertimer (C#/WPF). Countdown, presets, amber/red thresholds, overtime count-up, blink, message overlay. |
 
 ---
 

@@ -2676,6 +2676,29 @@
     return "";
   }
 
+  // Queue a datamosh prep for one cue WITHOUT disturbing the operator's
+  // selected encoder format. The toggle drives this, so it must not silently
+  // repoint the Encoder tab at DATAMOSH for the next manual convert.
+  void queueDatamoshPrepForCue(int deckIndex, int cueIndex) {
+    const EncoderPreset savedPreset = encoderPreset_;
+    const std::string savedFormat = encoderFormatId_;
+    encoderPreset_ = EncoderPreset::DatamoshFriendly;
+    encoderFormatId_ = activeMoshFormatId();
+    convertCueMedia(deckIndex, cueIndex);
+    encoderPreset_ = savedPreset;
+    encoderFormatId_ = savedFormat;
+  }
+
+  // Is a prep already running or queued for this cue?
+  bool datamoshPrepInFlight(const std::string& sourcePath) const {
+    for (const auto& job : conversionJobs_) {
+      if (job.sourcePath == sourcePath && job.keepsOriginal) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void convertCueMedia(int deckIndex, int cueIndex) {
     if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
