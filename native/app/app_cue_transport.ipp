@@ -263,6 +263,7 @@
   }
 
   void stopTransport() {
+    showLog("STOP", showLogCueRef(project_.focusedDeckIndex, focusedDeck().activeIndex));
     MediaEngine* engine = focusedMediaEngine();
     DeckRuntime* runtime = focusedRuntime();
     const Cue* activeCue = activeCuePtr();
@@ -337,6 +338,7 @@
   }
 
   void rerackTransport() {
+    showLog("RERACK", showLogCueRef(project_.focusedDeckIndex, focusedDeck().activeIndex));
     MediaEngine* engine = focusedMediaEngine();
     if (!engine) return;
     engine->seek(0.0);
@@ -491,6 +493,7 @@
     // to black in ~100 ms and (on auto-advance) cascade through the playlist.
     // Flag it, tell the operator, keep whatever is on the output.
     if (!cueMediaAvailableForTake(deck.cues[deck.selectedIndex])) {
+      showLog("TAKE-BLOCKED", showLogCueRef(deckIndex, deck.selectedIndex) + " media missing");
       triggerToast("MEDIA MISSING: " + deck.cues[deck.selectedIndex].name + " — take blocked");
       playUiSound(UiSoundEffect::Error);
       return;
@@ -513,6 +516,7 @@
       clearVuMeterState(false);
     }
 
+    showLog("TAKE", showLogCueRef(deckIndex, deck.selectedIndex));
     deck.activeIndex = deck.selectedIndex;
     // If refreshOnTake is set and a browser renderer is already running for this
     // cue, reload the page instead of tearing down and restarting.
