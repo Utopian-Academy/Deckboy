@@ -1791,6 +1791,13 @@
       {0, 0, 0, 0},
       [this]() { addNdiSourceCueFromPrompt(); }
     });
+    // Stage timer. Without this the Timer cue was only reachable over the wire
+    // (TIMERCUE), i.e. not reachable at all from inside the app.
+    contextItems_.push_back({
+      "  Stage Timer Cue",
+      {0, 0, 0, 0},
+      [this]() { addTimerCue(300); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;

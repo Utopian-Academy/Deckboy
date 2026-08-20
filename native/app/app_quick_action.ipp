@@ -322,6 +322,41 @@
       case QuickAction::TimerCycleMode:   cycleTimerMode(); break;
       case QuickAction::TimerCycleFace:   cycleTimerFace(); break;
       case QuickAction::TimerCountUpToggle: toggleTimerCountUp(); break;
+      case QuickAction::TimerEditMessage: {
+        Cue* sel = selectedCueMutable();
+        if (sel && sel->kind == CueKind::Timer) {
+          openInlineTextEditor("timer.message", "Timer Message",
+                               "Message shown under the clock:", sel->timer.message,
+                               [this](const std::string& value) {
+            if (Cue* c = selectedCueMutable()) {
+              c->timer.message = value;
+              markProjectDirty();
+            }
+          });
+        }
+        break;
+      }
+      case QuickAction::TimerUrgentToggle: {
+        Cue* sel = selectedCueMutable();
+        if (sel && sel->kind == CueKind::Timer) {
+          sel->timer.messageIsUrgent = !sel->timer.messageIsUrgent;
+          triggerToast(sel->timer.messageIsUrgent ? "message: URGENT (red)"
+                                                  : "message: normal");
+          playUiSound(UiSoundEffect::Toggle);
+          markProjectDirty();
+        }
+        break;
+      }
+      case QuickAction::TimerProgressToggle: {
+        Cue* sel = selectedCueMutable();
+        if (sel && sel->kind == CueKind::Timer) {
+          sel->timer.showProgressBar = !sel->timer.showProgressBar;
+          triggerToast(sel->timer.showProgressBar ? "progress bar on" : "progress bar off");
+          playUiSound(UiSoundEffect::Toggle);
+          markProjectDirty();
+        }
+        break;
+      }
       case QuickAction::KeyTolDec:
         adjustSelectedKeyTolerance(-5.0f);
         break;
