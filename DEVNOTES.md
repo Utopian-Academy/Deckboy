@@ -1696,9 +1696,47 @@ What already helps when it comes:
 - `LayoutDragMode::Timeline` already handles the resizable lane area.
 - Cue in/out points, pause points and trigger timecodes are already per-cue.
 
-Open question to settle first: does a Super Deckboy timeline drive cues (cues
-are clips on it), or observe them (it shows what the playlist is doing)? Those
-are different products.
+**SETTLED (the owner, 2026-08-20): MASTER CUES that fire individual SUBCUES.** Not a
+ruler with clips on it. A master cue fans out to children, each of which keeps
+owning its own time.
+
+**This is the better design, and cheaper than a timeline.** Worth writing down
+why, because the obvious reading is that it is the smaller idea:
+
+- **It does not invert time ownership.** A timeline needs a show-level clock
+  that decks follow, which is the expensive, invasive part of this whole
+  section. Master cues need none of it: firing is the existing take path with a
+  fan-out, and every subcue still owns its own position. That is why this may
+  not even need to wait for v2, where a real timeline does.
+- **It degrades gracefully live.** Absolute positions on a ruler drift the
+  moment a speaker overruns, and the operator spends the show nudging. Relative
+  firing (pre-wait / post-wait per child) does not care how long the previous
+  item took.
+- **It matches the mental model already in the app.** Deckboy is a list you
+  fire. A master cue is still a cue you fire; it just does more.
+
+It is NOT novel -- this is QLab's Group Cue, and QLab dominates theatre and live
+events. That is a point in its favour (proven model), and it is genuinely
+uncommon in the VIDEO playback space: Mitti has no equivalent. A cue deck with
+video-server outputs and group cues is a real differentiator.
+
+Where a timeline still wins, and why it stays on the v2 list anyway: tightly
+choreographed content, where absolute positions ARE the point (music-synced LED
+sequences). The two can coexist -- QLab effectively has both -- but they answer
+different questions and should not be conflated.
+
+What already exists for master cues:
+
+- **Firing another deck's cue** is half-built: `handleRemoteCommand` routes
+  `DECK <n> <command>` by re-entering itself, so "deck 2, take cue 5" is an
+  existing code path. A master-cue fan-out is that call from a different source.
+- **A cue that references another cue** is already modelled twice: Pip cues
+  (`buildResolvedPipSourceCue`) and Composite cues (`compositeSlots`).
+- **Per-cue waits** map onto existing fade/still-duration timing fields.
+
+Decide early: does firing a master cue TAKE each subcue on its own deck (fan-out
+to decks), or does one deck play them in sequence (a nested playlist)? Both are
+defensible; they are different features.
 
 ### Per-LAYER warp and mask — from Millumin
 
