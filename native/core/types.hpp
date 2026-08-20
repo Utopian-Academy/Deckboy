@@ -187,6 +187,11 @@ struct Cue {
   // -- 8-byte aligned: vectors ------------------------------------------------
   std::vector<CompositeSlot> compositeSlots; // sub-regions for Composite cue layout
   std::vector<double> pausePoints;           // timecodes (seconds) where playback auto-pauses
+  // Named jump marks inside a clip (PLAYDECK-style). Distinct from pausePoints,
+  // which STOP playback: a marker is somewhere you can jump TO. Kept sorted by
+  // time so "next marker" is a scan forward rather than a search.
+  std::vector<double> markerSeconds;
+  std::vector<std::string> markerNames;      // parallel to markerSeconds
 
   // -- 8-byte aligned: doubles + uint64 ----------------------------------------
   double duration = 0.0;                   // total media duration in seconds (from ffprobe)

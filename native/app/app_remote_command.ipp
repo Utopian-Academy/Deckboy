@@ -249,6 +249,15 @@
       }
       return;
     }
+    if (command == "MARKER" || command == "MARK") {
+      std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "ADD";
+      if (sub == "ADD" || sub == "SET")        addMarkerAtPlayhead();
+      else if (sub == "NEXT")                  jumpToMarker(1);
+      else if (sub == "PREV" || sub == "PREVIOUS") jumpToMarker(-1);
+      else if (sub == "CLEAR")                 clearMarkers();
+      else failRemoteCommand("marker: add | next | prev | clear");
+      return;
+    }
     if (command == "SCHEDULE") {
       Cue* cue = selectedCueMutable();
       if (!cue) { failRemoteCommand("schedule: select a cue"); return; }

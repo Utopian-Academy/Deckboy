@@ -2988,6 +2988,85 @@
   // additionally requires the prepared file to exist -- so the cue keeps playing
   // the original until the transcode lands, then picks up the moshed copy on the
   // next load. No half-written file is ever taken.
+  // ---- Cue markers ---------------------------------------------------------
+  // Named jump marks inside a clip. Distinct from pause points, which stop
+  // playback; a marker is somewhere you jump TO. For a long clip an operator
+  // wants "verse 2", not a scrub bar.
+
+  // Drop a marker at the live position. Named by index unless the operator
+  // renames it, because being made to type mid-show is worse than a dull name.
+  void addMarkerAtPlayhead() {
+    Cue* cue = selectedCueMutable();
+    MediaEngine* engine = focusedMediaEngine();
+    if (!cue || !engine) {
+      failRemoteCommand("marker: select a cue");
+      return;
+    }
+    const double at = std::max(0.0, engine->position());
+    // Keep sorted on insert so nextMarker/prevMarker stay a linear scan.
+    auto it = std::lower_bound(cue->markerSeconds.begin(), cue->markerSeconds.end(), at);
+    const std::size_t idx = static_cast<std::size_t>(it - cue->markerSeconds.begin());
+    cue->markerSeconds.insert(it, at);
+    cue->markerNames.insert(cue->markerNames.begin() + static_cast<std::ptrdiff_t>(idx),
+                            "mark " + std::to_string(cue->markerSeconds.size()));
+    triggerToast("marker at " + formatSeconds(at));
+    playUiSound(UiSoundEffect::Toggle);
+    showLog("MARKER-ADD", showLogCueRef(project_.focusedDeckIndex,
+                                        focusedDeck().selectedIndex) +
+                          " @" + formatSeconds(at));
+    markProjectDirty();
+  }
+
+  void clearMarkers() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) { failRemoteCommand("marker: select a cue"); return; }
+    cue->markerSeconds.clear();
+    cue->markerNames.clear();
+    triggerToast("markers cleared");
+    markProjectDirty();
+  }
+
+  // Jump to the next/previous marker on the LIVE cue. Seeks rather than takes,
+  // so the cue stays on air and the picture does not blink.
+  void jumpToMarker(int direction) {
+    Deck& deck = focusedDeckMutable();
+    MediaEngine* engine = focusedMediaEngine();
+    if (!engine || deck.activeIndex < 0 ||
+        deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      failRemoteCommand("marker: nothing live");
+      return;
+    }
+    const Cue& cue = deck.cues[deck.activeIndex];
+    if (cue.markerSeconds.empty()) {
+      failRemoteCommand("marker: none on this cue");
+      return;
+    }
+    const double now = engine->position();
+    // 0.75s of slack going backwards, so pressing prev just after a marker
+    // returns to THAT marker rather than skipping to the one before it -- the
+    // same convention as track-skip on a CD player, and what a hand expects.
+    double target = -1.0;
+    if (direction > 0) {
+      for (double m : cue.markerSeconds) {
+        if (m > now + 0.05) { target = m; break; }
+      }
+    } else {
+      for (auto it = cue.markerSeconds.rbegin(); it != cue.markerSeconds.rend(); ++it) {
+        if (*it < now - 0.75) { target = *it; break; }
+      }
+      if (target < 0.0 && !cue.markerSeconds.empty()) {
+        target = cue.markerSeconds.front();
+      }
+    }
+    if (target < 0.0) {
+      triggerToast(direction > 0 ? "no marker ahead" : "no marker behind");
+      return;
+    }
+    engine->seek(target);
+    triggerToast("marker " + formatSeconds(target));
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
   // ---- Scheduled start -----------------------------------------------------
   // Fires a cue at a wall-clock time, with no external timecode source. That
   // is the difference from the existing trigger-timecode path and the whole
