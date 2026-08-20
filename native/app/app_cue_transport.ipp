@@ -3022,6 +3022,57 @@
     }
   }
 
+  // Edit a timer setting on the SELECTED cue (not the live one): these are
+  // authoring changes, unlike the run/reset/nudge controls which target
+  // whatever clock is on air.
+  void adjustTimerField(int TimerSettings::*field, int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) {
+      return;
+    }
+    int& v = cue->timer.*field;
+    v = std::clamp(v + delta, 0, 24 * 3600);
+    // Thresholds must stay ordered or the colour logic silently never fires.
+    cue->timer.amberSeconds = std::min(cue->timer.amberSeconds, cue->timer.durationSeconds);
+    cue->timer.redSeconds = std::min(cue->timer.redSeconds, cue->timer.amberSeconds);
+    markProjectDirty();
+  }
+
+  void cycleTimerMode() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    cue->timer.mode = cue->timer.mode == TimerMode::Countdown ? TimerMode::CountUp
+                    : cue->timer.mode == TimerMode::CountUp   ? TimerMode::TimeOfDay
+                                                              : TimerMode::Countdown;
+    triggerToast(cue->timer.mode == TimerMode::CountUp ? "timer: count up"
+                 : cue->timer.mode == TimerMode::TimeOfDay ? "timer: time of day"
+                                                           : "timer: countdown");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void cycleTimerFace() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    cue->timer.face = cue->timer.face == TimerFace::SevenSegment ? TimerFace::Pixel
+                    : cue->timer.face == TimerFace::Pixel        ? TimerFace::Sans
+                                                                 : TimerFace::SevenSegment;
+    triggerToast(cue->timer.face == TimerFace::Pixel ? "timer face: pixel"
+                 : cue->timer.face == TimerFace::Sans ? "timer face: sans"
+                                                      : "timer face: 7-segment");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
+  void toggleTimerCountUp() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    cue->timer.countUpAfterZero = !cue->timer.countUpAfterZero;
+    triggerToast(cue->timer.countUpAfterZero ? "overtime: counts up" : "overtime: stops at 0");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   void timerToggleRun() {
     Cue* cue = activeTimerCue();
     if (!cue) { failRemoteCommand("timer: no timer cue"); return; }
