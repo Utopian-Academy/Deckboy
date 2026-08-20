@@ -952,6 +952,9 @@
   }
 
   bool runPanicOutputsOff(bool requireSafetyContext, Uint32 sourceWindowId) {
+    // Panic is THE event you want in a show log: it means something went wrong
+    // enough that the operator hit the big button.
+    showLog("PANIC", "outputs off, engines stopped");
     normalizeProject(project_);
 
     bool fromOutputWindow = outputIndexForWindowId(sourceWindowId).has_value();

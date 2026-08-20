@@ -4516,6 +4516,69 @@ class App {
     settingsVideoSubTab_ = std::clamp(videoSubTab, 0, 3);
   }
 
+  // ---- Show log ------------------------------------------------------------
+  // Append-only record of what actually happened, so that after a show goes
+  // wrong the operator can answer "what fired, and when?". Deckboy could not
+  // answer that at all before this. Borrowed from QLab, whose show log is the
+  // reason people trust it with real events.
+  //
+  // Deliberately dumb: line-per-event, opened once, flushed every write. A log
+  // that buffers is a log that loses the last few seconds -- which is exactly
+  // the part you need after a crash. It lives in stateDir(), never inside a
+  // macOS .app bundle.
+  void showLog(const std::string& event, const std::string& detail = "") {
+    if (!showLogEnabled_) {
+      return;
+    }
+    if (!showLogFile_.is_open()) {
+      std::error_code ec;
+      fs::create_directories(Paths::stateDir(), ec);
+      showLogFile_.open(Paths::stateDir() / "deckboy-show.log",
+                        std::ios::app);
+      if (!showLogFile_.is_open()) {
+        showLogEnabled_ = false;   // do not retry every event
+        return;
+      }
+      std::time_t t = std::time(nullptr);
+      char stamp[32] = "";
+      if (std::tm* lt = std::localtime(&t)) {
+        std::strftime(stamp, sizeof(stamp), "%Y-%m-%d %H:%M:%S", lt);
+      }
+      showLogFile_ << "\n=== show log opened " << stamp
+                   << "  " << kAppTitle << " " << kAppVersionTag << " ===\n";
+    }
+    // Wall clock AND running milliseconds: the first tells you when in the day,
+    // the second gives exact spacing between events, which is what matters when
+    // reconstructing a sequence that went wrong.
+    std::time_t t = std::time(nullptr);
+    char stamp[16] = "";
+    if (std::tm* lt = std::localtime(&t)) {
+      std::strftime(stamp, sizeof(stamp), "%H:%M:%S", lt);
+    }
+    showLogFile_ << stamp << "  +" << SDL_GetTicks() << "ms  " << event;
+    if (!detail.empty()) {
+      showLogFile_ << "  " << detail;
+    }
+    showLogFile_ << '\n';
+    showLogFile_.flush();
+  }
+
+  // Cue identity as it will read back weeks later: number, name, and the deck it
+  // was on. An index alone is useless once the playlist has been edited.
+  std::string showLogCueRef(int deckIndex, int cueIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return "(no deck)";
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return "(no cue)";
+    }
+    const Cue& cue = deck.cues[cueIndex];
+    return "deck" + std::to_string(deckIndex + 1) +
+           " q" + std::to_string(cueIndex + 1) +
+           " \"" + cue.name + "\"";
+  }
+
   void soakLog(const std::string& line) {
     std::time_t t = std::time(nullptr);
     char stamp[32] = "";
@@ -6450,6 +6513,9 @@ class App {
   // deletion in the cue list.
   std::map<std::string, TimerRuntime> timerRuntimes_;
   Uint64 lastTimerPruneSec_ = 0;
+  // Show log: append-only record of what fired and when. See showLog().
+  std::ofstream showLogFile_;
+  bool showLogEnabled_ = true;
 
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;

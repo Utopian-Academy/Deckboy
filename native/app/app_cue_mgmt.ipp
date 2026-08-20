@@ -976,6 +976,7 @@
 
 
   void openProjectFromPath(const fs::path& projectPath) {
+    showLog("SHOW-OPEN", projectPath.filename().string());
     fs::path normalized = normalizeProjectPath(projectPath);
     resetTransientPreviewState();
     currentProjectFile_ = normalized;
