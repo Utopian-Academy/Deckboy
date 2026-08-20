@@ -6578,6 +6578,7 @@ class App {
     // Datamosh output sits BESIDE the original (the effect swaps between the
     // two), so completion sets cue.moshPath instead of repointing cue.path.
     bool keepsOriginal = false;
+    std::string formatId;   // catalog row this job encodes with
     // Set by the UI to ask a running encode to stop; the worker checks it
     // between pipe reads and kills ffmpeg.
     std::shared_ptr<std::atomic<bool>> cancel;
