@@ -352,6 +352,16 @@
       if (it->future.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
         bool ok = false;
         try { ok = it->future.get(); } catch (...) { ok = false; }
+        if (it->held) {
+          // Held mid-encode: the worker cancelled and removed its partial file,
+          // so park the job back in the queue rather than reporting a failure.
+          // It restarts from the top when released - ffmpeg has no resume.
+          it->state = ConversionState::Queued;
+          if (it->cancel) it->cancel->store(false);
+          if (it->progress) it->progress->store(-1.0);
+          ++it;
+          continue;
+        }
         if (ok && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
           Deck& deck = project_.decks[it->deckIndex];
           for (auto& cue : deck.cues) {

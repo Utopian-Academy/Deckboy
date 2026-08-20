@@ -2273,6 +2273,44 @@
   // Cancel one job. A running job is asked to stop (the worker kills ffmpeg
   // and removes the half-written file); a queued one is simply dropped, since
   // nothing has been started for it yet.
+  // Move a QUEUED job earlier or later. A running job cannot be reordered --
+  // it is already the one encoding -- so it acts as a floor.
+  void moveConversionJob(std::size_t index, int delta) {
+    if (index >= conversionJobs_.size()) {
+      return;
+    }
+    const std::ptrdiff_t target = static_cast<std::ptrdiff_t>(index) + delta;
+    if (target < 0 || target >= static_cast<std::ptrdiff_t>(conversionJobs_.size())) {
+      return;
+    }
+    if (conversionJobs_[index].state == ConversionState::Running ||
+        conversionJobs_[static_cast<std::size_t>(target)].state == ConversionState::Running) {
+      triggerToast("cannot reorder a running job");
+      return;
+    }
+    std::swap(conversionJobs_[index], conversionJobs_[static_cast<std::size_t>(target)]);
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
+  // Park or release a single job. A running job is cancelled back to Queued so
+  // it can be resumed later; the partial output is removed by the worker.
+  void toggleConversionHold(std::size_t index) {
+    if (index >= conversionJobs_.size()) {
+      return;
+    }
+    ConversionJob& job = conversionJobs_[index];
+    if (job.state == ConversionState::Running) {
+      if (job.cancel) job.cancel->store(true);
+      job.held = true;
+      triggerToast("holding " + job.label + " (restarts from the top)");
+      return;
+    }
+    job.held = !job.held;
+    triggerToast(job.held ? ("held " + job.label) : ("released " + job.label));
+    playUiSound(UiSoundEffect::Toggle);
+    pumpConversionQueue();
+  }
+
   void cancelConversionAt(std::size_t index) {
     if (index >= conversionJobs_.size()) {
       return;
@@ -2763,7 +2801,8 @@
       if (running >= std::max(1, encoderConcurrency_)) {
         break;
       }
-      if (conversionJobs_[i].state != ConversionState::Queued) {
+      if (conversionJobs_[i].state != ConversionState::Queued ||
+          conversionJobs_[i].held) {
         continue;
       }
       startConversionJob(i);

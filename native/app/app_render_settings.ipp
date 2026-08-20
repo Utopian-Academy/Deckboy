@@ -104,24 +104,45 @@
       }
       double pct = job.progress ? job.progress->load() : -1.0;
       bool running = job.state == ConversionState::Running;
-      std::string head = (running ? "" : "queued  ") + job.label;
+      std::string head = (running ? "" : (job.held ? "held    " : "queued  ")) + job.label;
       const int pctW = uiScaled(42);
-      const int textW = rw - pctW - xW - uiScaled(6);
+      const int textW = rw - pctW - xW * 3 - uiScaled(12);
       drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx, ry, textW, lineH},
                    ellipsizeToPixelWidth(fontSmall_, head, textW), pal.light);
       // Per-row cancel. Only the first four rows get one, matching what the
       // panel can show; the rest are reachable via CANCEL ALL.
+      // Row controls, right to left: cancel, hold/release, move up. Only the
+      // first four rows get them, matching what the panel can show; the rest
+      // are reachable once these clear.
       SDL_Rect xBtn {rx + rw - xW, ry, xW, lineH};
       drawUIPanel(xBtn, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, xBtn, "x", pal.light);
       settingsBtns_.push_back({xBtn,
                                kSettingsActionEncoderCancelRowBase + static_cast<int>(jobIndex),
                                running ? "cancel this encode" : "remove from queue"});
+
+      SDL_Rect holdBtn {xBtn.x - xW - uiScaled(3), ry, xW, lineH};
+      drawUIPanel(holdBtn, job.held ? pal.light : pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, holdBtn,
+                           job.held ? ">" : "=",
+                           job.held ? pal.deep : pal.light);
+      settingsBtns_.push_back({holdBtn,
+                               kSettingsActionEncoderHoldRowBase + static_cast<int>(jobIndex),
+                               job.held ? "release this job" : "hold this job"});
+
+      if (jobIndex > 0) {
+        SDL_Rect upBtn {holdBtn.x - xW - uiScaled(3), ry, xW, lineH};
+        drawUIPanel(upBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, upBtn, "^", pal.light);
+        settingsBtns_.push_back({upBtn,
+                                 kSettingsActionEncoderUpRowBase + static_cast<int>(jobIndex),
+                                 "move earlier in the queue"});
+      }
       if (pct >= 0.0) {
-        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx + rw - xW - uiScaled(46), ry, uiScaled(42), lineH},
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{rx + rw - xW * 3 - uiScaled(52), ry, uiScaled(42), lineH},
                      std::to_string(static_cast<int>(pct * 100.0 + 0.5)) + "%", pal.light);
       }
-      SDL_Rect bar {rx, ry + lineH + uiScaled(3), rw - xW - uiScaled(6), uiScaled(8)};
+      SDL_Rect bar {rx, ry + lineH + uiScaled(3), rw - xW * 3 - uiScaled(12), uiScaled(8)};
       Primitives::fillRect(controlRenderer_, bar, pal.deep);
       if (pct >= 0.0) {
         SDL_Rect fill {bar.x, bar.y, static_cast<int>(bar.w * std::clamp(pct, 0.0, 1.0)), bar.h};
@@ -2249,6 +2270,16 @@
                         static_cast<int>(encoderFormatCatalog().size())) {
         setEncoderFormat(
           encoderFormatCatalog()[sb.action - kSettingsActionEncoderFormatBase].id);
+        continue;
+      }
+      if (sb.action >= kSettingsActionEncoderUpRowBase &&
+          sb.action < kSettingsActionEncoderUpRowBase + 4) {
+        moveConversionJob(static_cast<std::size_t>(sb.action - kSettingsActionEncoderUpRowBase), -1);
+        continue;
+      }
+      if (sb.action >= kSettingsActionEncoderHoldRowBase &&
+          sb.action < kSettingsActionEncoderHoldRowBase + 4) {
+        toggleConversionHold(static_cast<std::size_t>(sb.action - kSettingsActionEncoderHoldRowBase));
         continue;
       }
       if (sb.action >= kSettingsActionEncoderCancelRowBase &&
