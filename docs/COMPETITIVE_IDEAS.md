@@ -4,6 +4,13 @@ Survey of the field, 2026-08-20, done at the owner's request. Ordered by value p
 unit of effort **for Deckboy specifically** — not by how impressive the feature
 is in the product it came from.
 
+**Status (the owner, 2026-08-20):** items 1–5 below are ACCEPTED for v1 and are the
+working list. The timeline and per-layer warp ideas were also accepted, but as
+**Super Deckboy (Deckboy 2)** work — they are written up in `DEVNOTES.md` under
+"Super Deckboy (Deckboy 2) — deferred by design", with the reason each one
+changes the shape of the app rather than adding to it. Do not start them inside
+v1.
+
 ## Where Deckboy already stands
 
 Worth stating first, because it changes what is worth copying. Against **Mitti**
@@ -72,6 +79,19 @@ cue, so the routing concept is already modelled, but on Windows a pro audio
 install means ASIO. This is the biggest *professional* gap on the list.
 
 **Effort:** high. New audio backend.
+
+## Moved to Super Deckboy (Deckboy 2)
+
+Accepted by the owner, but deferred: see `DEVNOTES.md`. Both change the render or
+time-ownership model rather than adding a feature, which is exactly why they do
+not belong in a v1 that people run shows with.
+
+- **Timeline sequencing** — Resolume, Millumin, disguise, Pixera. Needs a
+  show-level clock; today transport position belongs to the live cue.
+- **Per-layer warp and mask** — Millumin. Needs a geometry pass per composited
+  source, and only pays off once multi-deck compositing is normal.
+- **Output layout map** — ProVideoPlayer, disguise scaled down. Worth building
+  once several warped/blended outputs are routine.
 
 ## 6. Output layout preview — disguise, Pixera (scaled down)
 

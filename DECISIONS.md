@@ -89,6 +89,8 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D62 | Timer has its OWN clock, independent of transport | **OWNER** | 2026-08-20: the cue stays live on the stage screen while the operator starts/pauses/resets/jumps the countdown. Tying it to transport meant pausing the clock took the display off air, which is wrong for a stage timer. |
 | D63 | AUDIT found 3 dead controls in same-day code (timer mode/face/serialization) | **CLAUDE** | Same class as the encoder format picker. Auditing for 'written but never read' is now worth doing routinely, not once. |
 | D64 | Competitive survey recorded in docs/COMPETITIVE_IDEAS.md | **OWNER** asked | Ranked by value-per-effort FOR DECKBOY, noting where it is already at parity (Mitti) rather than listing impressive features. |
+| D65 | Items 1-5 of the survey ACCEPTED as the v1 working list | **OWNER** | 2026-08-20: show log, scheduled start, cue markers, record input, ASIO/Dante. |
+| D66 | Timeline + per-layer warp + output map = SUPER DECKBOY (v2), not v1 | **OWNER** | 2026-08-20. Written up in DEVNOTES under 'Super Deckboy (Deckboy 2)'. Each changes the app's shape (time ownership / render pipeline), so starting one inside v1 would destabilise a live tool. |
 
 ---
 
