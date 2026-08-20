@@ -4963,14 +4963,14 @@ class App {
     const bool prepared =
       !cue.moshPath.empty() && fs::exists(fs::path(cue.moshPath), moshEc);
     inspDrawQuickRow(ix, rowY, "datamosh", QuickAction::DatamoshToggle,
-                     cue.datamoshEnabled ? "ON" : (prepared ? "off" : "not prepared"),
+                     cue.datamoshEnabled ? (prepared ? "ON" : "preparing...") : "off",
                      QuickAction::DatamoshToggle, QuickAction::DatamoshToggle,
                      true, cue.datamoshEnabled,
-                     prepared ? "Withhold keyframes so the picture smears"
-                              : "Prepare this cue first: Settings > Encoder > DATAMOSH");
+                     "Withhold keyframes so the picture smears. Prepares the "
+                     "cue automatically the first time it is enabled.");
     rowY += ix.rowStep;
-    if (!prepared) {
-      rowY = inspDrawMessageRow(ix, rowY, "prepare in Settings > Encoder",
+    if (cue.datamoshEnabled && !prepared) {
+      rowY = inspDrawMessageRow(ix, rowY, "transcoding - plays clean until ready",
                                 pal.mid, pal.deep);
     }
     return rowY;
