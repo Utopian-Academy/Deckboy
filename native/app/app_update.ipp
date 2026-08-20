@@ -635,6 +635,13 @@
           engine->rebuildPatternFrame(*activeCue, static_cast<double>(now) / 1000.0);
         }
       }
+      // Timer cues redraw every tick from the transport clock. Unlike patterns
+      // this runs even while PAUSED: a held clock still has to repaint (the
+      // hold marker, and the overtime blink the source app requires to keep
+      // flashing when stopped).
+      if (activeCue && activeCue->kind == CueKind::Timer) {
+        engine->rebuildTimerFrame(*activeCue);
+      }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
       if (engine->reachedEnd()) {
         Deck& deck = project_.decks[deckIndex];

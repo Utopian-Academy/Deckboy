@@ -2109,6 +2109,36 @@
     applyPatternTypeToSelectedCue(motion ? baseType : (baseType + "-motion"), true);
   }
 
+  // Stage/speaker timer. Held by default: a countdown that auto-advanced to the
+  // next cue the moment it hit zero would be actively dangerous on a show.
+  void addTimerCue(int durationSeconds = 300) {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::Timer;
+    cue.path = "timer://";
+    cue.timer.durationSeconds = std::max(1, durationSeconds);
+    const int mins = cue.timer.durationSeconds / 60;
+    const int secs = cue.timer.durationSeconds % 60;
+    char label[64];
+    std::snprintf(label, sizeof(label), "Timer %d:%02d", mins, secs);
+    cue.name = label;
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {120, 60, 50, 255};
+    cue.formatName = "generated";
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast(std::string("timer: ") + cue.name);
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
   void addPatternCue(const std::string& rawTypeId) {
     std::string typeId = normalizePatternTypeId(rawTypeId);
     if (typeId.empty()) {

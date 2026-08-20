@@ -177,6 +177,11 @@ class MediaEngine {
   void update();                          // pop frames from decode queue, advance position
   void render(SDL_Rect target);           // blit current frame + transition overlay to renderer
   void rebuildPatternFrame(const Cue& cue, double wallSeconds); // regenerate a pattern cue's pixels
+  // Regenerate a Timer cue. Elapsed comes from the TRANSPORT rather than a
+  // separate clock: taking the cue starts it, pause holds it, rerack resets it,
+  // so the timer inherits the transport the operator already knows instead of
+  // inventing a parallel set of controls.
+  void rebuildTimerFrame(const Cue& cue);
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,

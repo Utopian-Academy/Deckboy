@@ -83,6 +83,9 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D56 | Encoder queue needs reorder + per-job start/pause/stop | **OWNER** | 2026-08-20. Only cancel exists today. |
 | D57 | **REVERSES D9**: datamosh toggle AUTO-transcodes on enable | **OWNER** | 2026-08-20: "toggle it on, it immediately transcodes... or gives a warning if it cannot". I had ruled prep must never start from a live toggle; the owner overruled. Implement with clear in-progress state; warn rather than silently start on huge files. |
 | D58 | New `Timer` source cue = full stage/speaker timer | **OWNER** | 2026-08-20. Port from ~/OneDrive/Desktop/speakertimer (C#/WPF). Countdown, presets, amber/red thresholds, overtime count-up, blink, message overlay. |
+| D59 | Timer uses the TRANSPORT as its clock, not a parallel one | **CLAUDE** | TAKE starts, PAUSE holds, RERACK resets. The operator gets the controls they already know instead of a second set of timer buttons. |
+| D60 | Timer duration = countdown + 1h overtime allowance when count-up is on | **CLAUDE** | Otherwise the transport hits its end at zero and auto-advances to the next cue while a speaker is still talking. |
+| D61 | Timer cues default to hold, endAction Stop | **CLAUDE** | A countdown that auto-advanced at zero would be actively dangerous on a show. |
 
 ---
 

@@ -226,6 +226,14 @@
       triggerToast(std::string("datamosh look: ") + moshLookLabel());
       return;
     }
+    if (command == "TIMERCUE" || command == "ADDTIMER") {
+      int seconds = 300;
+      if (auto v = parseNumber(1); v && *v > 0.0) {
+        seconds = static_cast<int>(*v);
+      }
+      addTimerCue(seconds);
+      return;
+    }
     if (command == "DATAMOSH" || command == "MOSH") {
       toggleSelectedDatamosh();
       return;

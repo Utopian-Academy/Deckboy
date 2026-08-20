@@ -318,6 +318,23 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
+  if (cue->kind == CueKind::Timer) {
+    // Duration is the countdown PLUS an overtime allowance, so the transport
+    // keeps advancing past zero instead of hitting its end and auto-advancing
+    // to the next cue while a speaker is still talking. Without count-up it
+    // stops exactly at zero, which is what the operator asked for.
+    duration_ = cue->timer.countUpAfterZero
+                  ? static_cast<double>(cue->timer.durationSeconds) + 3600.0
+                  : static_cast<double>(cue->timer.durationSeconds);
+    currentPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    playbackStartPosition_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+    rebuildTimerFrame(*cue);
+    return;
+  }
+
   if (isSourceCueKind(cue->kind)) {
     loadSourceFrame(*cue);
     duration_ = 0.0;
@@ -1008,6 +1025,26 @@ void MediaEngine::render(SDL_Rect target) {
 // Called each frame from the main loop for animated patterns (e.g. pocket-test,
 // any pattern with the -motion suffix). The wall time drives animation phase
 // so the pattern progresses smoothly regardless of frame rate.
+// Regenerate a Timer cue from the transport clock. See the header for why the
+// transport IS the timer rather than a clock beside it.
+void MediaEngine::rebuildTimerFrame(const Cue& cue) {
+  auto size = currentOutputSizeHint();
+  const int w = size.first;
+  const int h = size.second;
+  if (w <= 0 || h <= 0) {
+    return;
+  }
+  DecodedFrame frame;
+  frame.width = w;
+  frame.height = h;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.assign(static_cast<std::size_t>(w) * h * 4, 0);
+  buildTimerFrame(frame, cue.timer, position(), state_ == TransportState::Playing);
+  displayFrame_ = std::move(frame);
+  displayFrame_->index = ++displayFrameSerial_;
+  uploadFrame(*displayFrame_);
+}
+
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   // Animated patterns rebuild at the SELECTED DISPLAY's refresh rate (or
   // the project's explicit refresh override — the app's mode provider
