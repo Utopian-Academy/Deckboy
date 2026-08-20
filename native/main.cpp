@@ -4980,6 +4980,97 @@ class App {
   // Per-cue effects. The status line matters more than usual: datamosh has
   // three states and, without it, the only way to learn which one a cue is in
   // was to hit the toggle and read a toast.
+  // Stage timer controls. These act on the CLOCK, not the transport: the cue
+  // stays on air on the stage screen while the operator runs, holds, resets or
+  // nudges it. That separation is the whole point of the section existing.
+  int inspDrawTimerRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    auto it = timerRuntimes_.find(cue.id);
+    const bool running = it != timerRuntimes_.end() && it->second.running;
+    const double elapsed = it != timerRuntimes_.end() ? it->second.elapsedSeconds : 0.0;
+
+    auto mmss = [](double seconds) {
+      const bool neg = seconds < 0.0;
+      int t = static_cast<int>(std::floor(std::abs(seconds)));
+      char buf[32];
+      if (t >= 3600) {
+        std::snprintf(buf, sizeof(buf), "%s%d:%02d:%02d", neg ? "+" : "",
+                      t / 3600, (t % 3600) / 60, t % 60);
+      } else {
+        std::snprintf(buf, sizeof(buf), "%s%d:%02d", neg ? "+" : "", t / 60, t % 60);
+      }
+      return std::string(buf);
+    };
+
+    // Live readout first: what the stage screen is showing right now.
+    const double remaining = static_cast<double>(cue.timer.durationSeconds) - elapsed;
+    inspDrawQuickRow(ix, rowY, "clock", QuickAction::TimerRunToggle,
+                     mmss(remaining), QuickAction::TimerRunToggle,
+                     QuickAction::TimerRunToggle, true, running,
+                     running ? "Hold the clock" : "Run the clock");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "nudge", QuickAction::TimerNudgeDown,
+                     "+/- 1 min", QuickAction::TimerNudgeUp,
+                     QuickAction::ToggleLoop, false, false,
+                     "Give or take a minute without stopping the clock");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "reset", QuickAction::TimerResetAction,
+                     "back to start", QuickAction::TimerResetAction,
+                     QuickAction::TimerResetAction, false, false,
+                     "Reset the clock to its full duration");
+    rowY += ix.rowStep;
+
+    const char* modeLabel =
+      cue.timer.mode == TimerMode::CountUp   ? "count up"
+      : cue.timer.mode == TimerMode::TimeOfDay ? "time of day"
+                                               : "countdown";
+    inspDrawQuickRow(ix, rowY, "mode", QuickAction::TimerCycleMode, modeLabel,
+                     QuickAction::TimerCycleMode, QuickAction::ToggleLoop, false,
+                     false, "Countdown, count up, or wall clock");
+    rowY += ix.rowStep;
+
+    const char* faceLabel =
+      cue.timer.face == TimerFace::Pixel ? "pixel"
+      : cue.timer.face == TimerFace::Sans ? "sans" : "7-segment";
+    inspDrawQuickRow(ix, rowY, "face", QuickAction::TimerCycleFace, faceLabel,
+                     QuickAction::TimerCycleFace, QuickAction::ToggleLoop, false,
+                     false, "Clock typeface");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "duration", QuickAction::TimerDurDec,
+                     mmss(cue.timer.durationSeconds), QuickAction::TimerDurInc,
+                     QuickAction::ToggleLoop, false, false, "Total time");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "amber at", QuickAction::TimerAmberDec,
+                     mmss(cue.timer.amberSeconds), QuickAction::TimerAmberInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Seconds REMAINING when the clock turns amber");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "red at", QuickAction::TimerRedDec,
+                     mmss(cue.timer.redSeconds), QuickAction::TimerRedInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Seconds REMAINING when the clock turns red");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "overtime", QuickAction::TimerCountUpToggle,
+                     cue.timer.countUpAfterZero ? "count up" : "stop at 0",
+                     QuickAction::TimerCountUpToggle,
+                     QuickAction::TimerCountUpToggle, true,
+                     cue.timer.countUpAfterZero,
+                     "Keep counting past zero, or stop dead");
+    rowY += ix.rowStep;
+
+    if (!cue.timer.message.empty()) {
+      rowY = inspDrawMessageRow(ix, rowY, "msg: " + cue.timer.message,
+                                pal.mid, pal.deep);
+    }
+    return rowY;
+  }
+
   int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
@@ -6273,6 +6364,7 @@ class App {
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
   bool cueSectionEffectsOpen_ = true;   // datamosh lives here
+  bool cueSectionTimerOpen_ = true;     // stage timer controls
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

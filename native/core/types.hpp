@@ -61,12 +61,31 @@ enum class CueKind {
 // Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
 // (C#/WPF) -- see docs/TIMER_PLAN.md. Thresholds are SECONDS REMAINING, so
 // amber 60 means "turn amber with a minute left".
+// Timer display mode. Matches the three stagetimer.io offers, because they are
+// the three a show actually needs: how long is left, how long you have run,
+// and what time it is now.
+enum class TimerMode {
+  Countdown,   // duration -> 0, then overtime
+  CountUp,     // 0 -> duration
+  TimeOfDay,   // wall clock
+};
+
+// Which face the clock is drawn with. Seven-segment is the default because it
+// never depends on installed fonts; the others use the UI faces already loaded.
+enum class TimerFace {
+  SevenSegment,
+  Pixel,       // Press Start 2P
+  Sans,        // the readable UI face
+};
+
 struct TimerSettings {
   int durationSeconds = 300;    // 5:00
   int amberSeconds = 60;        // <= this many left: amber
   int redSeconds = 15;          // <= this many left: red
   bool countUpAfterZero = true; // keep counting as +m:ss instead of stopping
   bool blinkAtZero = true;      // flash once time is up
+  TimerMode mode = TimerMode::Countdown;
+  TimerFace face = TimerFace::SevenSegment;
   std::string message;          // optional line under the clock
 };
 
@@ -779,6 +798,18 @@ enum class QuickAction {
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
   DatamoshToggle,
+  // Stage timer. Run/Reset/Nudge act on the CLOCK, not the transport.
+  CueSectionTimerToggle,
+  TimerRunToggle,
+  TimerResetAction,
+  TimerNudgeDown,
+  TimerNudgeUp,
+  TimerDurDec, TimerDurInc,
+  TimerAmberDec, TimerAmberInc,
+  TimerRedDec, TimerRedInc,
+  TimerCycleMode,
+  TimerCycleFace,
+  TimerCountUpToggle,
   CueSectionRoutingToggle,
   // -- Overlays (PiP / lower third / composite) --
   ClearOverlay,

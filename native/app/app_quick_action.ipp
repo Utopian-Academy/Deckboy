@@ -306,6 +306,22 @@
       case QuickAction::CueSectionEffectsToggle:
         cueSectionEffectsOpen_ = !cueSectionEffectsOpen_;
         break;
+      case QuickAction::CueSectionTimerToggle:
+        cueSectionTimerOpen_ = !cueSectionTimerOpen_;
+        break;
+      case QuickAction::TimerRunToggle:   timerToggleRun(); break;
+      case QuickAction::TimerResetAction: timerReset(); break;
+      case QuickAction::TimerNudgeUp:     timerNudge(60.0); break;
+      case QuickAction::TimerNudgeDown:   timerNudge(-60.0); break;
+      case QuickAction::TimerDurDec:      adjustTimerField(&TimerSettings::durationSeconds, -30); break;
+      case QuickAction::TimerDurInc:      adjustTimerField(&TimerSettings::durationSeconds, 30); break;
+      case QuickAction::TimerAmberDec:    adjustTimerField(&TimerSettings::amberSeconds, -15); break;
+      case QuickAction::TimerAmberInc:    adjustTimerField(&TimerSettings::amberSeconds, 15); break;
+      case QuickAction::TimerRedDec:      adjustTimerField(&TimerSettings::redSeconds, -5); break;
+      case QuickAction::TimerRedInc:      adjustTimerField(&TimerSettings::redSeconds, 5); break;
+      case QuickAction::TimerCycleMode:   cycleTimerMode(); break;
+      case QuickAction::TimerCycleFace:   cycleTimerFace(); break;
+      case QuickAction::TimerCountUpToggle: toggleTimerCountUp(); break;
       case QuickAction::KeyTolDec:
         adjustSelectedKeyTolerance(-5.0f);
         break;
