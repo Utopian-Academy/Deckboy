@@ -1140,7 +1140,11 @@
     int actionStripX = row.x + row.w - actionStripW - 6;
 
     int nameX = row.x + 52;
-    int nameW = showActionStrip ? std::max(52, actionStripX - nameX - 8) : (row.w - 68);
+    // The action strip used to sit on the NAME line, right-aligned, which cost
+    // the name 144px and truncated most real filenames to "Rick and Mo...".
+    // It now sits on the metadata line, so the name gets the full row width and
+    // the toggles read as a group under it rather than floating beside it.
+    int nameW = row.w - nameX - 10 + row.x;
 
     // Cached display strings — avoids TTF loop in ellipsizeToPixelWidth every frame
     bool isProbing = cue.width == 0 && cue.height == 0 && !cue.path.empty()
@@ -1202,7 +1206,10 @@
     drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
 
     // Metadata — line 3 (bottom of row, within bounds)
-    SDL_Rect metaRect {nameX, row.y + 50, nameW, 18};
+    // Metadata shares the bottom line with the action strip, so it stops short
+    // of it instead of running underneath.
+    const int metaW = showActionStrip ? std::max(40, actionStripX - nameX - 8) : nameW;
+    SDL_Rect metaRect {nameX, row.y + 50, metaW, 18};
     drawTextSafe(controlRenderer_, fontSmall_, metaRect, dc.meta, isProbing ? pal.inkSoft : subInk);
 
     // Missing-media badge — right end of the name column, drawn live (not
@@ -1295,7 +1302,7 @@
 
     bool toggleHover = false;
     auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
-      SDL_Rect btn {buttonX, row.y + (row.h - kCueActionBtnH) / 2, kCueActionBtnW, kCueActionBtnH};
+      SDL_Rect btn {buttonX, row.y + 48, kCueActionBtnW, kCueActionBtnH};
       SDL_Color fill = !enabled
         ? pal.mid
         : (on ? pal.dark : pal.light);
