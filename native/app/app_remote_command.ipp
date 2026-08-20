@@ -249,6 +249,33 @@
       }
       return;
     }
+    if (command == "SCHEDULE") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) { failRemoteCommand("schedule: select a cue"); return; }
+      if (parts.size() < 2) {
+        failRemoteCommand("schedule: HH:MM[:SS] | off");
+        return;
+      }
+      if (toUpper(parts[1]) == "OFF" || toUpper(parts[1]) == "NONE") {
+        cue->scheduledStartSeconds = -1.0;
+        cue->scheduledStartFired = false;
+        triggerToast("schedule cleared");
+        markProjectDirty();
+        return;
+      }
+      int hh = 0, mm = 0, ss = 0;
+      if (std::sscanf(parts[1].c_str(), "%d:%d:%d", &hh, &mm, &ss) < 2) {
+        failRemoteCommand("schedule: HH:MM[:SS] | off");
+        return;
+      }
+      cue->scheduledStartSeconds = hh * 3600.0 + mm * 60.0 + ss;
+      cue->scheduledStartFired = false;
+      char buf[32];
+      std::snprintf(buf, sizeof(buf), "%02d:%02d:%02d", hh, mm, ss);
+      triggerToast(std::string("scheduled for ") + buf);
+      markProjectDirty();
+      return;
+    }
     if (command == "TIMERCUE" || command == "ADDTIMER") {
       int seconds = 300;
       if (auto v = parseNumber(1); v && *v > 0.0) {

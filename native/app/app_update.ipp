@@ -278,6 +278,7 @@
     // Advance every timer cue clock. Done once per tick for ALL timers, not
     // only the live one: a timer prepared on another deck keeps counting so it
     // is correct the moment it is taken.
+    processScheduledStarts();
     advanceTimerRuntimes(SDL_GetTicks());
     // Once a second is plenty: this only matters after a cue is deleted.
     if ((SDL_GetTicks() / 1000) != lastTimerPruneSec_) {

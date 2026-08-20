@@ -2988,6 +2988,55 @@
   // additionally requires the prepared file to exist -- so the cue keeps playing
   // the original until the transcode lands, then picks up the moshed copy on the
   // next load. No half-written file is ever taken.
+  // ---- Scheduled start -----------------------------------------------------
+  // Fires a cue at a wall-clock time, with no external timecode source. That
+  // is the difference from the existing trigger-timecode path and the whole
+  // point: it makes unattended playback possible.
+  void processScheduledStarts() {
+    const std::time_t now = std::time(nullptr);
+    std::tm lt {};
+#ifdef _WIN32
+    localtime_s(&lt, &now);
+#else
+    localtime_r(&now, &lt);
+#endif
+    const double secondsToday = lt.tm_hour * 3600.0 + lt.tm_min * 60.0 + lt.tm_sec;
+
+    // Midnight rollover: clear the fired latches so a daily schedule repeats.
+    if (secondsToday < lastScheduleCheckSeconds_) {
+      for (Deck& deck : project_.decks) {
+        for (Cue& cue : deck.cues) {
+          cue.scheduledStartFired = false;
+        }
+      }
+      showLog("SCHEDULE", "midnight rollover, daily schedule re-armed");
+    }
+
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      Deck& deck = project_.decks[d];
+      for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
+        Cue& cue = deck.cues[c];
+        if (cue.scheduledStartSeconds < 0.0 || cue.scheduledStartFired) {
+          continue;
+        }
+        // Edge-triggered on crossing the time, not "is it now": a tick can be
+        // late, and a schedule that only fires on an exact match would be
+        // skipped entirely by one long frame.
+        if (lastScheduleCheckSeconds_ < cue.scheduledStartSeconds &&
+            secondsToday >= cue.scheduledStartSeconds) {
+          cue.scheduledStartFired = true;
+          showLog("SCHEDULED-TAKE", showLogCueRef(d, c));
+          const int savedDeck = project_.focusedDeckIndex;
+          project_.focusedDeckIndex = d;
+          deck.selectedIndex = c;
+          takeSelected(true);
+          project_.focusedDeckIndex = savedDeck;
+        }
+      }
+    }
+    lastScheduleCheckSeconds_ = secondsToday;
+  }
+
   // ---- Stage timer controls -----------------------------------------------
   // These drive the timer WITHOUT touching transport, so the clock can be
   // started, held, reset or nudged while the cue stays live on the stage
