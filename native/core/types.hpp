@@ -758,6 +758,10 @@ enum class QuickAction {
   CueSectionMetadataToggle,
   CueSectionGeometryToggle,
   CueSectionKeyToggle,
+  // Per-cue effects section. Datamosh is the first member; the section exists
+  // so future per-cue effects have an obvious home that is not "KEY".
+  CueSectionEffectsToggle,
+  DatamoshToggle,
   CueSectionRoutingToggle,
   // -- Overlays (PiP / lower third / composite) --
   ClearOverlay,

@@ -75,6 +75,9 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D48 | HAP wired into VideoPipeline as a demux-only mode | **CLAUDE** | HAP cues now PLAY. Detected by codec id before any avcodec setup; output is ordinary RGBA32 so nothing downstream changes. All-intra means seek needs no keyframe walk. |
 | D49 | Install ffmpeg n8.1 WITH libsnappy (stable release, not master) | **OWNER** asked / **CLAUDE** chose the build | HAP encode needs it. Chose a tagged release over the nightly for a show tool. Old binaries backed up to `C:fmpegin-backup-20260819`. |
 | D50 | FIXED: the format picker was a DEAD CONTROL | **CLAUDE** | `attemptsForJob` only consulted the catalog for the datamosh preset; every other job silently encoded H.264 whatever ENCODEFORMAT said, and the extension was hardcoded .mp4. Presets now SELECT a format so there is exactly one thing deciding the encode. |
+| D51 | EFFECTS inspector section, datamosh as its first member | **OWNER** asked for a home / **CLAUDE** proposed EFFECTS over renaming KEY | The toggle previously had NO UI - remote verb only. Section shows the three states (ON / off / not prepared) instead of making you trigger it to find out. |
+| D52 | Press Start 2P as the global UI font | **OWNER** | 2026-08-19, chose it from a rendered comparison of 5 candidates. Already bundled + OFL. Point sizes ~0.62x the old sans sizes to keep cap height and line rhythm. |
+| D53 | Accept wider text as the cost of the pixel font | **CLAUDE** | Press Start 2P is much wider per char, so cue names truncate sooner. Fixed-width inspector LABEL columns now clip ("deck ...") and need widening - that part IS a bug. |
 
 ---
 
