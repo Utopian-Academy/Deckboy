@@ -201,6 +201,12 @@ struct VideoPipeline::Impl {
   std::atomic<bool> datamosh {false};
   bool seenFirstKey = false;
 
+  // HAP is demuxed, never sent to avcodec: its frames are already GPU-ready
+  // block data, and ffmpeg would unpack them to RGB on the CPU. When this is
+  // set, nextFrame reads packets and runs the vendored decoder instead.
+  bool hapMode = false;
+  std::vector<std::uint8_t> hapRgba;
+
   AVFormatContext* fmtCtx = nullptr;
   AVCodecContext* codecCtx = nullptr;
   AVBufferRef* hwDevice = nullptr;
@@ -240,6 +246,59 @@ struct VideoPipeline::Impl {
     consecutiveErrors = 0;
   }
 
+  // Pull one HAP packet and expand it. Output is ordinary RGBA32 in the same
+  // DecodedFrame the rest of the engine already handles, so nothing downstream
+  // needs to know this cue came from HAP.
+  bool readHapFrame(DecodedFrame& out) {
+    const AVStream* stream = fmtCtx->streams[streamIndex];
+    const int width = stream->codecpar->width;
+    const int height = stream->codecpar->height;
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    while (true) {
+      if (interrupt.load()) {
+        finished = true;
+        return false;
+      }
+      const int readErr = av_read_frame(fmtCtx, packet);
+      if (readErr < 0) {
+        finished = true;
+        return false;
+      }
+      if (packet->stream_index != streamIndex) {
+        av_packet_unref(packet);
+        continue;
+      }
+      deckboy::hap::Frame hapFrame;
+      std::string hapError;
+      const bool ok =
+        deckboy::hap::decodeFrame(packet->data,
+                                  static_cast<std::size_t>(packet->size),
+                                  hapFrame, hapError) &&
+        deckboy::hap::decompressToRgba(hapFrame, width, height, hapRgba,
+                                       hapError);
+      const double pts = packet->pts != AV_NOPTS_VALUE
+                           ? packet->pts * av_q2d(timeBase)
+                           : 0.0;
+      av_packet_unref(packet);
+      if (!ok) {
+        if (++consecutiveErrors > kMaxConsecutiveErrors) {
+          finished = true;
+          return false;
+        }
+        continue;
+      }
+      consecutiveErrors = 0;
+      out.width = width;
+      out.height = height;
+      out.format = FramePixelFormat::RGBA32;
+      out.pixels = hapRgba;
+      out.presentationSeconds = pts;
+      return true;
+    }
+  }
+
   bool openInternal(bool tryHw) {
     closeAll();
 
@@ -266,6 +325,30 @@ struct VideoPipeline::Impl {
       return false;  // CLI autorotates; we don't — fall back
     }
     timeBase = stream->time_base;
+
+    // HAP: skip the decoder entirely. Everything below this point sets up
+    // avcodec, which is exactly what must not happen for HAP.
+    hapMode = stream->codecpar->codec_id == AV_CODEC_ID_HAP;
+    if (hapMode) {
+      packet = av_packet_alloc();
+      if (!packet) {
+        return false;
+      }
+      if (params.startSeconds > 0.001) {
+        const int64_t ts =
+          static_cast<int64_t>(params.startSeconds / av_q2d(timeBase));
+        // HAP is all-intra, so any frame is a valid seek target: no need to
+        // decode forward from a keyframe, and no dropBeforeSeconds pass.
+        av_seek_frame(fmtCtx, streamIndex, ts, AVSEEK_FLAG_BACKWARD);
+      }
+      DecodedFrame primed;
+      if (!readHapFrame(primed)) {
+        return false;
+      }
+      pendingFrame = std::move(primed);
+      havePending = true;
+      return true;
+    }
 
     codecCtx = avcodec_alloc_context3(codec);
     if (!codecCtx ||
@@ -554,6 +637,10 @@ bool VideoPipeline::nextFrame(DecodedFrame& out) {
     impl_->pendingFrame = DecodedFrame{};
     impl_->havePending = false;
     return true;
+  }
+  if (impl_->hapMode) {
+    // No decoder to pump: one packet in, one frame out.
+    return !impl_->finished && impl_->readHapFrame(out);
   }
   while (!impl_->interrupt.load()) {
     int produced = impl_->pumpOnce(out);

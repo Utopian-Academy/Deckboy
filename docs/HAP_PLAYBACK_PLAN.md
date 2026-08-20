@@ -1,6 +1,16 @@
 # HAP Accelerated Playback - Plan
 
-**Status: DECODE HALF DONE AND VERIFIED. GPU upload not started.**
+**Status: HAP PLAYS. GPU block upload not started.**
+
+A HAP cue can be imported, taken and played like any other clip. The pipeline
+detects `AV_CODEC_ID_HAP` and demuxes instead of decoding; frames come out as
+ordinary RGBA32 `DecodedFrame`s, so nothing downstream knows the difference.
+Measured on 1080p: 12 frames demuxed and decoded in 0.14 s of wall time
+including process start, and the normal H.264 path still reports
+`mode=inproc-zerocopy` with 180/180 GPU frames, so nothing regressed.
+
+Seeking is direct: HAP is all-intra, so any frame is a valid seek target and
+there is no decode-forward-from-a-keyframe pass.
 
 Done:
 - `native/engine/hap_decoder.{hpp,cpp}` - container parse (all three
