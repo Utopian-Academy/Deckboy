@@ -86,6 +86,8 @@ struct TimerSettings {
   bool blinkAtZero = true;      // flash once time is up
   TimerMode mode = TimerMode::Countdown;
   TimerFace face = TimerFace::SevenSegment;
+  bool showProgressBar = true;  // length is readable from further back than digits
+  bool messageIsUrgent = false; // red rather than white: the "wrap up NOW" state
   std::string message;          // optional line under the clock
 };
 
