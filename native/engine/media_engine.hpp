@@ -250,6 +250,13 @@ class MediaEngine {
                                                  int width, int height, double seconds);
 
   // -- Static pattern frame generator -----------------------------------------
+  // Stage/speaker countdown. Seven-segment geometry, never text: a stage clock
+  // has to render the same on every machine whatever fonts are installed.
+  // Public alongside the pattern builders so the smoke suite can render it
+  // headlessly without a deck.
+  static void buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
+                              double elapsedSeconds, bool running);
+
   static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
                                                        int fallbackWidth = kOutputWidth,
                                                        int fallbackHeight = kOutputHeight);
@@ -342,7 +349,7 @@ class MediaEngine {
   static void buildPocketTest(DecodedFrame& frame, double t, int forcedScene = -1);    // animated pixel art scene
   static void buildPocketTestCard(DecodedFrame& frame, double t);                      // PM5544-style card: bouncing scene porthole
   static void buildTestBars(DecodedFrame& frame, double t);                            // testsrc2-style motion-diagnostics bars
-  static void buildTestClock(DecodedFrame& frame, double t);                           // testsrc-style sync/latency clock card
+  static void buildTestClock(DecodedFrame& frame, double t);
   static void drawPocketTestCardStatic(DecodedFrame& frame);                           // cacheable layer: grid, bands, patches, border, crosshair
   static void drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sceneFrame,
                                  double t, int scene);                                 // dynamic layer: sweep, ball, shimmer, beacon, ID

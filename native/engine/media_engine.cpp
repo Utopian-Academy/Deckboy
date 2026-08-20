@@ -4287,6 +4287,182 @@ void MediaEngine::buildTestBars(DecodedFrame& frame, double t) {
 //
 // Always animated (patternTypeIsAnimated) — a still sync card is useless.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// buildTimerFrame - stage/speaker countdown.
+//
+// Digits are drawn as SEVEN-SEGMENT geometry, not text. A timer on a stage
+// screen must render identically on every machine regardless of which fonts are
+// installed, and the cue-row icons already taught us that leaning on font
+// coverage for a glyph is how you get tofu. Segments also scale to any raster
+// without hinting artefacts, which a bitmap font would not.
+//
+// Format matches the source app: m:ss under an hour, h:mm:ss at or above it,
+// and a "+" while in overtime. The ceiling/floor asymmetry is deliberate and
+// load-bearing: counting DOWN rounds up so the final second reads 0:01 rather
+// than 0:00, and overtime rounds down so it starts at +0:00. Get it wrong and
+// the clock looks a second off all the way through.
+// ---------------------------------------------------------------------------
+namespace {
+
+// Segment order: a(top) b(upper right) c(lower right) d(bottom) e(lower left)
+// f(upper left) g(middle). Index 10 is a bare middle bar, used as "+".
+const bool kSevenSeg[11][7] = {
+  {1,1,1,1,1,1,0},  // 0
+  {0,1,1,0,0,0,0},  // 1
+  {1,1,0,1,1,0,1},  // 2
+  {1,1,1,1,0,0,1},  // 3
+  {0,1,1,0,0,1,1},  // 4
+  {1,0,1,1,0,1,1},  // 5
+  {1,0,1,1,1,1,1},  // 6
+  {1,1,1,0,0,0,0},  // 7
+  {1,1,1,1,1,1,1},  // 8
+  {1,1,1,1,0,1,1},  // 9
+  {0,0,0,0,0,0,1},  // 10 = plus
+};
+
+void fillTimerRect(DecodedFrame& f, int x, int y, int w, int h, SDL_Color c) {
+  for (int py = std::max(0, y); py < std::min(f.height, y + h); ++py) {
+    for (int px = std::max(0, x); px < std::min(f.width, x + w); ++px) {
+      const std::size_t o = (static_cast<std::size_t>(py) * f.width + px) * 4;
+      f.pixels[o + 0] = c.r;
+      f.pixels[o + 1] = c.g;
+      f.pixels[o + 2] = c.b;
+      f.pixels[o + 3] = 255;
+    }
+  }
+}
+
+void drawSevenSeg(DecodedFrame& f, int digit, int x, int y, int w, int h,
+                  int thick, SDL_Color on) {
+  if (digit < 0 || digit > 10) return;
+  const bool* s = kSevenSeg[digit];
+  const int half = h / 2;
+  if (s[0]) fillTimerRect(f, x, y, w, thick, on);
+  if (s[1]) fillTimerRect(f, x + w - thick, y, thick, half, on);
+  if (s[2]) fillTimerRect(f, x + w - thick, y + half, thick, half, on);
+  if (s[3]) fillTimerRect(f, x, y + h - thick, w, thick, on);
+  if (s[4]) fillTimerRect(f, x, y + half, thick, half, on);
+  if (s[5]) fillTimerRect(f, x, y, thick, half, on);
+  if (s[6]) fillTimerRect(f, x, y + half - thick / 2, w, thick, on);
+}
+
+}  // namespace
+
+void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
+                                  double elapsedSeconds, bool running) {
+  const int W = frame.width;
+  const int H = frame.height;
+  if (W <= 0 || H <= 0 || frame.pixels.size() < static_cast<std::size_t>(W) * H * 4) {
+    return;
+  }
+
+  const double remaining = static_cast<double>(cfg.durationSeconds) - elapsedSeconds;
+  const bool overtime = remaining < 0.0;
+  const double rawSeconds = overtime ? std::floor(-remaining) : std::ceil(remaining);
+  const int totalSeconds = std::max(0, static_cast<int>(rawSeconds));
+  const int hours = totalSeconds / 3600;
+  const int minutes = (totalSeconds % 3600) / 60;
+  const int seconds = totalSeconds % 60;
+
+  // Thresholds are SECONDS REMAINING, so amber 60 means "a minute left".
+  SDL_Color ink {255, 255, 255, 255};
+  if (overtime || remaining <= static_cast<double>(cfg.redSeconds)) {
+    ink = SDL_Color {255, 64, 64, 255};
+  } else if (remaining <= static_cast<double>(cfg.amberSeconds)) {
+    ink = SDL_Color {255, 190, 40, 255};
+  }
+
+  // Blink keyed to wall-clock elapsed, so an overtime clock keeps flashing even
+  // while the ticker is held. The source app is explicit that a stopped
+  // overtime clock must still be visibly angry.
+  bool blankThisFrame = false;
+  if (cfg.blinkAtZero && overtime) {
+    blankThisFrame = (static_cast<int>(std::floor(elapsedSeconds * 2.0)) % 2) == 1;
+  }
+
+  for (std::size_t i = 0; i < frame.pixels.size(); i += 4) {
+    frame.pixels[i + 0] = 0;
+    frame.pixels[i + 1] = 0;
+    frame.pixels[i + 2] = 0;
+    frame.pixels[i + 3] = 255;
+  }
+  if (blankThisFrame) {
+    return;
+  }
+
+  std::vector<int> glyphs;            // 0-9 digit, 10 plus, -1 colon
+  if (overtime) glyphs.push_back(10);
+  if (hours > 0) {
+    glyphs.push_back(hours % 10);
+    glyphs.push_back(-1);
+    glyphs.push_back(minutes / 10);
+    glyphs.push_back(minutes % 10);
+  } else {
+    if (minutes >= 10) glyphs.push_back(minutes / 10);
+    glyphs.push_back(minutes % 10);
+  }
+  glyphs.push_back(-1);
+  glyphs.push_back(seconds / 10);
+  glyphs.push_back(seconds % 10);
+
+  int colonCount = 0;
+  for (int g : glyphs) {
+    if (g == -1) ++colonCount;
+  }
+  const int digitCount = std::max(1, static_cast<int>(glyphs.size()) - colonCount);
+  const int usableW = W * 82 / 100;
+  const int gap = std::max(2, W / 120);
+  int digitW = (usableW - gap * (static_cast<int>(glyphs.size()) - 1) -
+                colonCount * (usableW / 24)) / digitCount;
+  digitW = std::max(4, digitW);
+  int digitH = std::min(H * 55 / 100, digitW * 9 / 5);
+  digitW = std::min(digitW, std::max(4, digitH * 5 / 9));
+  const int thick = std::max(2, digitH / 8);
+  const int colonW = std::max(thick, digitW / 3);
+
+  int totalW = 0;
+  for (std::size_t i = 0; i < glyphs.size(); ++i) {
+    totalW += (glyphs[i] == -1 ? colonW : digitW);
+    if (i + 1 < glyphs.size()) totalW += gap;
+  }
+  int x = (W - totalW) / 2;
+  const int y = (H - digitH) / 2;
+
+  for (std::size_t i = 0; i < glyphs.size(); ++i) {
+    if (glyphs[i] == -1) {
+      const int dotH = std::max(thick, digitH / 10);
+      fillTimerRect(frame, x + (colonW - thick) / 2, y + digitH / 3 - dotH / 2,
+                    thick, dotH, ink);
+      fillTimerRect(frame, x + (colonW - thick) / 2, y + digitH * 2 / 3 - dotH / 2,
+                    thick, dotH, ink);
+      x += colonW + gap;
+    } else if (glyphs[i] == 10) {
+      // Plus, drawn as a cross. Seven segments cannot express one -- a bare
+      // middle bar reads as a MINUS, which states the opposite of the truth:
+      // "-0:20" looks like twenty seconds remaining when the speaker is twenty
+      // seconds over.
+      const int armW = digitW * 3 / 4;
+      const int cx = x + digitW / 2;
+      const int cy = y + digitH / 2;
+      fillTimerRect(frame, cx - armW / 2, cy - thick / 2, armW, thick, ink);
+      fillTimerRect(frame, cx - thick / 2, cy - armW / 2, thick, armW, ink);
+      x += digitW + gap;
+    } else {
+      drawSevenSeg(frame, glyphs[i], x, y, digitW, digitH, thick, ink);
+      x += digitW + gap;
+    }
+  }
+
+  // Paused marker: two bars top-left, so an operator glancing at the stage
+  // screen can tell a held clock from a running one.
+  if (!running) {
+    const int bw = std::max(3, W / 90);
+    const int bh = bw * 4;
+    fillTimerRect(frame, W / 40, H / 40, bw, bh, ink);
+    fillTimerRect(frame, W / 40 + bw * 2, H / 40, bw, bh, ink);
+  }
+}
+
 void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
   const int W = frame.width;
   const int H = frame.height;

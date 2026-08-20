@@ -53,7 +53,21 @@ enum class CueKind {
   Pip,           // picture-in-picture composite (references another cue)
   LowerThird,    // text overlay with optional background bar
   Composite,     // multi-slot layout (quad-split, side-by-side, etc.)
-  Audio          // audio-only cue (no video output)
+  Audio,         // audio-only cue (no video output)
+  Timer          // stage/speaker countdown, generated like a pattern but with
+                 // its own transport-linked state (see TimerState)
+};
+
+// Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
+// (C#/WPF) -- see docs/TIMER_PLAN.md. Thresholds are SECONDS REMAINING, so
+// amber 60 means "turn amber with a minute left".
+struct TimerSettings {
+  int durationSeconds = 300;    // 5:00
+  int amberSeconds = 60;        // <= this many left: amber
+  int redSeconds = 15;          // <= this many left: red
+  bool countUpAfterZero = true; // keep counting as +m:ss instead of stopping
+  bool blinkAtZero = true;      // flash once time is up
+  std::string message;          // optional line under the clock
 };
 
 // What happens when a cue reaches its end. "Inherit" defers to the deck-level default.
@@ -225,6 +239,9 @@ struct Cue {
   // the previous picture along their motion. moshPath is the prepared file
   // (Encoder tab -> Datamosh preset); empty means this cue has not been
   // prepared and the toggle should say so rather than silently doing nothing.
+  // Timer cue settings. Only meaningful when kind == CueKind::Timer.
+  TimerSettings timer;
+
   bool datamoshEnabled = false;
   std::string moshPath;
   bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor

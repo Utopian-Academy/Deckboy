@@ -328,6 +328,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::LowerThird: return "Lower Third";
     case CueKind::Composite:  return "Composite";
     case CueKind::Audio:      return "Audio";
+    case CueKind::Timer:      return "Timer";
     case CueKind::Video:
     default:                  return "Video";
   }
@@ -348,6 +349,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::LowerThird: return "lower_third";
     case CueKind::Composite:  return "composite";
     case CueKind::Audio:      return "audio";
+    case CueKind::Timer:      return "timer";
     case CueKind::Video:
     default:                  return "video";
   }
@@ -5704,6 +5706,7 @@ class App {
       case CueKind::LowerThird: return &uiCueIconLowerThird_;
       case CueKind::Composite:  return &uiCueIconPattern_;
       case CueKind::Audio:      return &uiCueIconAudio_;
+      case CueKind::Timer:      return &uiCueIconPattern_;
       case CueKind::WindowSource:
       case CueKind::Camera:
       case CueKind::Syphon:
@@ -6993,6 +6996,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--smoke", "run the built-in smoke suite and exit"},
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
   {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
+  {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
@@ -7010,7 +7014,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
-  "--hap-probe",
+  "--hap-probe", "--timer-dump",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -7111,6 +7115,27 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--smoke") {
     return App::runSmoke();
+  }
+  if (mode == "--timer-dump") {
+    // Render one timer frame headlessly. ops: <out.ppm> [duration] [elapsed]
+    if (ops.empty()) return missing("<out.ppm> [durationSeconds] [elapsedSeconds]");
+    TimerSettings cfg;
+    if (ops.size() > 1) cfg.durationSeconds = std::atoi(ops[1].c_str());
+    const double elapsed = ops.size() > 2 ? std::atof(ops[2].c_str()) : 0.0;
+    cfg.blinkAtZero = false;
+    DecodedFrame f;
+    f.width = 960; f.height = 540;
+    f.pixels.assign(static_cast<std::size_t>(f.width) * f.height * 4, 0);
+    MediaEngine::buildTimerFrame(f, cfg, elapsed, true);
+    std::ofstream ppm(ops[0], std::ios::binary);
+    ppm << "P6" << '\n' << f.width << " " << f.height << " 255" << '\n';
+    for (std::size_t i = 0; i + 3 < f.pixels.size(); i += 4) {
+      ppm.put(static_cast<char>(f.pixels[i]));
+      ppm.put(static_cast<char>(f.pixels[i + 1]));
+      ppm.put(static_cast<char>(f.pixels[i + 2]));
+    }
+    std::cout << "timer-dump: " << ops[0] << '\n';
+    return 0;
   }
   if (mode == "--hap-probe") {
     if (ops.empty()) return missing("<file.mov>");

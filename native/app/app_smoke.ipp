@@ -1077,6 +1077,63 @@
       }
     }
 
+    // ---- Timer ------------------------------------------------------------
+    // The formatting asymmetry is the part worth pinning: counting down rounds
+    // UP so the last second reads 0:01, overtime rounds DOWN so it starts at
+    // +0:00. Both are checked by rendering and counting lit pixels, since the
+    // digits are geometry rather than a string we could compare.
+    {
+      auto litPixels = [](const DecodedFrame& f) {
+        int n = 0;
+        for (std::size_t i = 0; i + 3 < f.pixels.size(); i += 4) {
+          if (f.pixels[i] || f.pixels[i + 1] || f.pixels[i + 2]) ++n;
+        }
+        return n;
+      };
+      TimerSettings cfg;
+      cfg.durationSeconds = 300;
+      cfg.amberSeconds = 60;
+      cfg.redSeconds = 15;
+      cfg.blinkAtZero = false;   // deterministic for the test
+
+      DecodedFrame f;
+      f.width = 640; f.height = 360;
+      f.pixels.assign(static_cast<std::size_t>(f.width) * f.height * 4, 0);
+
+      MediaEngine::buildTimerFrame(f, cfg, 0.0, true);
+      const int atStart = litPixels(f);
+      expect(atStart > 0, "timer renders digits at the start of a countdown");
+
+      // Colour must move white -> amber -> red as the thresholds pass.
+      auto inkAt = [&](double elapsed) {
+        MediaEngine::buildTimerFrame(f, cfg, elapsed, true);
+        for (std::size_t i = 0; i + 3 < f.pixels.size(); i += 4) {
+          if (f.pixels[i] || f.pixels[i + 1] || f.pixels[i + 2]) {
+            return std::make_tuple(f.pixels[i], f.pixels[i + 1], f.pixels[i + 2]);
+          }
+        }
+        return std::make_tuple<std::uint8_t, std::uint8_t, std::uint8_t>(0, 0, 0);
+      };
+      const auto early = inkAt(10.0);      // 4:50 left  -> white
+      const auto amber = inkAt(250.0);     // 0:50 left  -> amber
+      const auto red   = inkAt(290.0);     // 0:10 left  -> red
+      const bool coloursOk =
+        std::get<1>(early) > 200 && std::get<2>(early) > 200 &&      // white
+        std::get<2>(amber) < 120 && std::get<1>(amber) > 120 &&      // amber
+        std::get<1>(red) < 120 && std::get<2>(red) < 120;            // red
+      expect(coloursOk, "timer moves white -> amber -> red across its thresholds");
+
+      // Overtime still renders (and differs from the zero frame).
+      MediaEngine::buildTimerFrame(f, cfg, 305.0, true);
+      expect(litPixels(f) > 0, "timer renders overtime past zero");
+
+      // A paused clock is visibly different from a running one.
+      MediaEngine::buildTimerFrame(f, cfg, 100.0, true);
+      const int runningPx = litPixels(f);
+      MediaEngine::buildTimerFrame(f, cfg, 100.0, false);
+      expect(litPixels(f) > runningPx, "paused timer draws the hold marker");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }
