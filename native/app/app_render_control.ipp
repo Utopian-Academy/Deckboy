@@ -1252,11 +1252,25 @@
           }
           break;
         }
-        case QuickAction::ToggleLoop:
-          // ∞ glyph sits below the optical centre in most fonts — nudge up 2px
-          drawCenteredTextSafe(controlRenderer_, fontSmall_,
-            SDL_Rect{rect.x, rect.y - 2, rect.w, rect.h}, "\xe2\x88\x9e", inkColor);
+        case QuickAction::ToggleLoop: {
+          // Drawn, not typed. This used to render the Unicode infinity glyph
+          // through the UI font; Press Start 2P has no U+221E, so it came out
+          // as tofu spilling out of the top-left of the button. Every icon in
+          // this strip is now geometry, which cannot depend on font coverage.
+          const int cx = rect.x + rect.w / 2;
+          const int cy = rect.y + rect.h / 2;
+          const int r = std::max(2, rect.h / 2 - 4);
+          for (int lobe = -1; lobe <= 1; lobe += 2) {
+            const int ox = cx + lobe * r;
+            for (int a = 0; a < 360; a += 12) {
+              const double rad = a * 3.14159265 / 180.0;
+              SDL_RenderPoint(controlRenderer_,
+                              static_cast<float>(ox + std::cos(rad) * r),
+                              static_cast<float>(cy + std::sin(rad) * r * 0.9));
+            }
+          }
           break;
+        }
         case QuickAction::ToggleHold: {
           // 3px pause bars — 2px reads as hairlines next to the solid wedges.
           SDL_Rect barL {rect.x + rect.w / 2 - 5, rect.y + 4, 3, rect.h - 8};
@@ -1311,7 +1325,13 @@
         ? pal.inkSoft
         : (on ? pal.light : pal.deep);
       drawUIPanel(btn, fill, pal.deep, accent);
-      drawCueRowActionIcon(snapRectToGrid(btn), action, iconInk, on);
+      // The icon must use the SAME rect the button was painted with. This used
+      // to pass snapRectToGrid(btn) while drawUIPanel painted btn unsnapped, so
+      // box and glyph lived in different coordinate spaces and every icon sat up
+      // to 7px up-and-left of its box -- "outside their box", as it looked.
+      // Same class as the v0.81.0 text-placement fix: when drawUIPanel stopped
+      // grid-snapping, this call was missed.
+      drawCueRowActionIcon(btn, action, iconInk, on);
       if (enabled) {
         cueRowActionHits_.push_back({btn, deckIndex, index, action, true, tip});
       }
