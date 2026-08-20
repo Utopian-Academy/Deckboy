@@ -4945,6 +4945,36 @@ class App {
     return rowY;
   }
 
+  // Per-cue effects. The status line matters more than usual here: datamosh has
+  // three states and, without it, the only way to learn which one a cue is in
+  // was to hit the toggle and read a toast.
+  // Per-cue effects. The status line matters more than usual: datamosh has
+  // three states and, without it, the only way to learn which one a cue is in
+  // was to hit the toggle and read a toast.
+  int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
+    if (!fileBackedVideo) {
+      rowY = inspDrawMessageRow(ix, rowY, "datamosh: file-backed video only",
+                                pal.mid, pal.deep);
+      return rowY;
+    }
+    std::error_code moshEc;
+    const bool prepared =
+      !cue.moshPath.empty() && fs::exists(fs::path(cue.moshPath), moshEc);
+    inspDrawQuickRow(ix, rowY, "datamosh", QuickAction::DatamoshToggle,
+                     cue.datamoshEnabled ? "ON" : (prepared ? "off" : "not prepared"),
+                     QuickAction::DatamoshToggle, QuickAction::DatamoshToggle,
+                     true, cue.datamoshEnabled,
+                     prepared ? "Withhold keyframes so the picture smears"
+                              : "Prepare this cue first: Settings > Encoder > DATAMOSH");
+    rowY += ix.rowStep;
+    if (!prepared) {
+      rowY = inspDrawMessageRow(ix, rowY, "prepare in Settings > Encoder",
+                                pal.mid, pal.deep);
+    }
+    return rowY;
+  }
   int inspDrawKeyRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     if (!cueSupportsKeying(&cue)) return rowY;
@@ -5364,9 +5394,17 @@ class App {
     const auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
     const auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
     const auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
-    fontLarge_      = TTF_OpenFont(sans.c_str(),  pt(32));
-    fontBase_       = TTF_OpenFont(sans.c_str(),  pt(21));
-    fontSmall_      = TTF_OpenFont(sans.c_str(),  pt(17));
+    // the owner chose Press Start 2P as the UI face (2026-08-19): the app is a Game
+    // Boy, so the chrome should read like one. It is far wider per character
+    // than a proportional sans, so these are NOT the old sans point sizes -- at
+    // 21pt it would be enormous and truncate every filename. Roughly 0.62x the
+    // previous sizes matches the old cap height and line rhythm.
+    //
+    // Long user-supplied text (cue names, paths) costs more width than it did;
+    // that is the deliberate trade, not a bug to fix by shrinking rows.
+    fontLarge_      = TTF_OpenFont(pixel.c_str(), pt(20));
+    fontBase_       = TTF_OpenFont(pixel.c_str(), pt(13));
+    fontSmall_      = TTF_OpenFont(pixel.c_str(), pt(11));
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
@@ -6201,6 +6239,7 @@ class App {
   bool cueSectionMetadataOpen_ = true;
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
+  bool cueSectionEffectsOpen_ = true;   // datamosh lives here
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

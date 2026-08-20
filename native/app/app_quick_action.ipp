@@ -300,6 +300,12 @@
       case QuickAction::KeyToggle:
         toggleSelectedChromaKey();
         break;
+      case QuickAction::DatamoshToggle:
+        toggleSelectedDatamosh();
+        break;
+      case QuickAction::CueSectionEffectsToggle:
+        cueSectionEffectsOpen_ = !cueSectionEffectsOpen_;
+        break;
       case QuickAction::KeyTolDec:
         adjustSelectedKeyTolerance(-5.0f);
         break;

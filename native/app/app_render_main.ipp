@@ -2001,6 +2001,7 @@
     };
     auto drawColorRows = [&](int startY, const Cue& cue) { return inspDrawColorRows(ix, startY, cue); };
     auto drawKeyRows = [&](int startY, const Cue& cue) { return inspDrawKeyRows(ix, startY, cue); };
+    auto drawEffectsRows = [&](int startY, const Cue& cue) { return inspDrawEffectsRows(ix, startY, cue); };
     auto beginInspectorSection = [&](int rowY, const std::string& title, bool open,
                                      QuickAction toggleAction, const std::string& tip) {
       return inspBeginSection(ix, rowY, title, open, toggleAction, tip);
@@ -2591,6 +2592,17 @@
         geoY = drawKeyRows(geoY, *selectedCue);
       }
       finishInspectorSection(keySection, geoY);
+
+      // EFFECTS - per-cue image effects that are not keying. Datamosh is the
+      // first; this is where later ones belong.
+      auto fxSection = beginInspectorSection(geoY, "EFFECTS", cueSectionEffectsOpen_,
+                                             QuickAction::CueSectionEffectsToggle,
+                                             "Collapse/expand per-cue effects");
+      geoY = fxSection.bodyStartY;
+      if (cueSectionEffectsOpen_) {
+        geoY = drawEffectsRows(geoY, *selectedCue);
+      }
+      finishInspectorSection(fxSection, geoY);
 
     } else if (selectedCue && selectedCue->kind == CueKind::Composite) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
