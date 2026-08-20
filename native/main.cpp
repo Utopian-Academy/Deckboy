@@ -1997,6 +1997,59 @@ struct PipOverlayRuntime {
 // special characters (backslash, tab, newline) so field values can contain
 // arbitrary text without breaking the delimiter format.
 
+// Markers serialize as comma-separated lists in two parallel fields. Comma
+// rather than tab because tab is the record separator; the names field is
+// escaped like any other string.
+std::string joinMarkerTimes(const Cue& cue) {
+  std::string out;
+  for (double t : cue.markerSeconds) {
+    if (!out.empty()) out += ",";
+    out += std::to_string(t);
+  }
+  return out;
+}
+
+std::string joinMarkerNames(const Cue& cue) {
+  std::string out;
+  for (const std::string& n : cue.markerNames) {
+    if (!out.empty()) out += ",";
+    std::string safe = n;
+    std::replace(safe.begin(), safe.end(), ',', ';');   // commas are our separator
+    out += safe;
+  }
+  return out;
+}
+
+void parseMarkerTimes(Cue& cue, const std::string& field) {
+  cue.markerSeconds.clear();
+  if (field.empty()) return;
+  std::size_t start = 0;
+  while (start <= field.size()) {
+    std::size_t comma = field.find(',', start);
+    std::string tok = field.substr(start, comma == std::string::npos ? std::string::npos : comma - start);
+    if (!tok.empty()) {
+      try { cue.markerSeconds.push_back(std::stod(tok)); } catch (...) {}
+    }
+    if (comma == std::string::npos) break;
+    start = comma + 1;
+  }
+  std::sort(cue.markerSeconds.begin(), cue.markerSeconds.end());
+}
+
+void parseMarkerNames(Cue& cue, const std::string& field) {
+  cue.markerNames.clear();
+  std::size_t start = 0;
+  while (start <= field.size() && !field.empty()) {
+    std::size_t comma = field.find(',', start);
+    cue.markerNames.push_back(
+      field.substr(start, comma == std::string::npos ? std::string::npos : comma - start));
+    if (comma == std::string::npos) break;
+    start = comma + 1;
+  }
+  // Names must stay parallel to times or the pairing silently shifts.
+  cue.markerNames.resize(cue.markerSeconds.size());
+}
+
 std::string escapeField(const std::string& value) {
   std::string out;
   out.reserve(value.size());
@@ -3236,6 +3289,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.timer.showProgressBar ? "1" : "0")
         << '\t' << (cue.timer.messageIsUrgent ? "1" : "0")
         << '\t' << cue.scheduledStartSeconds
+        << '\t' << joinMarkerTimes(cue)
+        << '\t' << escapeField(joinMarkerNames(cue))
         << '\n';
     }
   }
@@ -3764,6 +3819,8 @@ Project loadProject(const fs::path& projectFile,
         cue.timer.showProgressBar = safeBool(fields, tb + 8, true);
         cue.timer.messageIsUrgent = safeBool(fields, tb + 9, false);
         cue.scheduledStartSeconds = safeDouble(fields, tb + 10, -1.0);
+        parseMarkerTimes(cue, safeString(fields, tb + 11));
+        parseMarkerNames(cue, safeString(fields, tb + 12));
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
