@@ -1667,3 +1667,72 @@ Click handling lives in `handleSettingsClick()`.
   - applied via `ingestIntegrationTimecode(...)`.
 - Art-Net runtime command mapping is centralized in `handleArtNetEvent(...)`
   (ch1-10 mapping to transport/master cue commands).
+
+## Super Deckboy (Deckboy 2) — deferred by design
+
+Ideas that are **not** v1 work. They are here so they are not lost and not
+half-started: each one changes the shape of the app rather than adding to it,
+and starting any of them inside v1 would destabilise a tool people run shows
+with. Revisit after 1.0 stability.
+
+Survey they came from: `docs/COMPETITIVE_IDEAS.md` (2026-08-20).
+
+### Timeline sequencing — from Resolume Arena, Millumin, disguise, Pixera
+
+Every high-end server in the field puts cues on a **timeline** as well as in a
+list, so a show can be scheduled and edited as a whole rather than fired cue by
+cue. disguise calls it the thing that lets you "schedule and edit all the
+visuals needed to run the show"; Pixera supports several timelines at once.
+
+**Why it is a v2 item, not a v1 feature:** Deckboy's model is a *playlist of
+cues with a focused deck*, and transport position belongs to the live cue. A
+timeline means a show-level clock that cues are placed against, which is a
+different ownership model for time — the same thing that made the stage timer
+need its own clock instead of borrowing the transport. Bolting it onto v1 would
+mean two competing notions of "now".
+
+What already helps when it comes:
+- The timeline PANEL and its filmstrip/waveform lanes already exist.
+- `LayoutDragMode::Timeline` already handles the resizable lane area.
+- Cue in/out points, pause points and trigger timecodes are already per-cue.
+
+Open question to settle first: does a Super Deckboy timeline drive cues (cues
+are clips on it), or observe them (it shows what the playlist is doing)? Those
+are different products.
+
+### Per-LAYER warp and mask — from Millumin
+
+Millumin does perspective transform, mesh warping and masks **at the layer level
+as well as the output level**. Deckboy warps per OUTPUT only (`OutputTarget`
+carries warp corners, warp mode, edge blend).
+
+**Why v2:** per-layer warp means every composited source needs its own geometry
+pass before the compositor combines them, which is a change to the render
+pipeline rather than a new field. It also only becomes genuinely useful once
+multi-deck compositing is the normal way to work — i.e. once Super Deckboy's
+multi-deck mode exists — because with a single deck the output warp is already
+the layer warp.
+
+What already helps when it comes:
+- Per-cue geometry (scale, offset, crop, rotation) is already modelled and
+  applied per cue in the compositor.
+- Warp maths and the four-corner UI already exist for outputs; the algorithm is
+  reusable, it is the plumbing that changes.
+- The per-deck GPU bridge from the v0.78.0 zero-copy work already composites
+  multiple sources onto one output device.
+
+### Multi-output screen layout map — from ProVideoPlayer, disguise (scaled down)
+
+A flat 2D map of how outputs land on physical screens, so a multi-output show
+can be checked before doors. Explicitly NOT 3D previz — that is a different
+product (see COMPETITIVE_IDEAS.md).
+
+**Why v2:** it is only worth building once there are routinely several outputs
+with warp and blend between them, which is the Super Deckboy use case. Deckboy
+already knows every output's raster, display, AOI and edge blend, so this is
+drawing what it already knows — the work is deciding what the drawing is FOR.
+
+### Not pursuing at any version
+
+3D projection mapping, FBX import, marker calibration, Notch/Unreal/TouchDesigner
+blocks, cloud collaboration. Different products, not features.
