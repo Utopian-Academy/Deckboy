@@ -3054,11 +3054,9 @@
   void cycleTimerFace() {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;
-    cue->timer.face = cue->timer.face == TimerFace::SevenSegment ? TimerFace::Pixel
-                    : cue->timer.face == TimerFace::Pixel        ? TimerFace::Sans
+    cue->timer.face = cue->timer.face == TimerFace::SevenSegment ? TimerFace::Blocky
                                                                  : TimerFace::SevenSegment;
-    triggerToast(cue->timer.face == TimerFace::Pixel ? "timer face: pixel"
-                 : cue->timer.face == TimerFace::Sans ? "timer face: sans"
+    triggerToast(cue->timer.face == TimerFace::Blocky ? "timer face: blocky"
                                                       : "timer face: 7-segment");
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();

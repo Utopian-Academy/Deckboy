@@ -72,10 +72,12 @@ enum class TimerMode {
 
 // Which face the clock is drawn with. Seven-segment is the default because it
 // never depends on installed fonts; the others use the UI faces already loaded.
+// Which face the clock is drawn with. Both are BUNDLED GEOMETRY, not TTFs: the
+// frame is built in the engine, which has no access to the app's fonts, and a
+// stage screen must render identically wherever it runs regardless.
 enum class TimerFace {
-  SevenSegment,
-  Pixel,       // Press Start 2P
-  Sans,        // the readable UI face
+  SevenSegment,  // LED-panel look, chunky, maximum legibility at distance
+  Blocky,        // 5x7 dot-matrix, squarer and more retro
 };
 
 struct TimerSettings {
