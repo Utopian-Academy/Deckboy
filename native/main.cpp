@@ -6432,6 +6432,7 @@ class App {
   // Keyed by cue id rather than index so it survives reordering, insertion and
   // deletion in the cue list.
   std::map<std::string, TimerRuntime> timerRuntimes_;
+  Uint64 lastTimerPruneSec_ = 0;
 
   std::unordered_map<std::string, PipOverlayRuntime> pipOverlayRuntimes_;
   std::vector<int> deckScrolls_;

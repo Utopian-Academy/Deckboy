@@ -3005,6 +3005,27 @@
     return (sel && sel->kind == CueKind::Timer) ? sel : nullptr;
   }
 
+  // Drop runtime state for timer cues that no longer exist. Without this the
+  // map grows for the life of the session as cues are added and deleted, and a
+  // recreated cue could inherit a dead clock. Cheap: only runs when the count
+  // looks stale, and shows have tens of cues, not thousands.
+  void pruneTimerRuntimes() {
+    if (timerRuntimes_.empty()) {
+      return;
+    }
+    std::set<std::string> live;
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& cue : deck.cues) {
+        if (cue.kind == CueKind::Timer) {
+          live.insert(cue.id);
+        }
+      }
+    }
+    for (auto it = timerRuntimes_.begin(); it != timerRuntimes_.end();) {
+      it = live.count(it->first) ? std::next(it) : timerRuntimes_.erase(it);
+    }
+  }
+
   void advanceTimerRuntimes(Uint64 nowMs) {
     for (auto& [id, rt] : timerRuntimes_) {
       if (!rt.running) {

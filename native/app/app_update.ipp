@@ -279,6 +279,11 @@
     // only the live one: a timer prepared on another deck keeps counting so it
     // is correct the moment it is taken.
     advanceTimerRuntimes(SDL_GetTicks());
+    // Once a second is plenty: this only matters after a cue is deleted.
+    if ((SDL_GetTicks() / 1000) != lastTimerPruneSec_) {
+      lastTimerPruneSec_ = SDL_GetTicks() / 1000;
+      pruneTimerRuntimes();
+    }
     processRemoteCommands();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
@@ -644,8 +649,12 @@
       // hold marker, and the overtime blink the source app requires to keep
       // flashing when stopped).
       if (activeCue && activeCue->kind == CueKind::Timer) {
-        const TimerRuntime& rt = timerRuntimes_[activeCue->id];
-        engine->rebuildTimerFrame(*activeCue, rt.elapsedSeconds, rt.running);
+        // find, not operator[]: this runs every tick on the render path and
+        // operator[] would INSERT, quietly mutating the map from a read.
+        auto rtIt = timerRuntimes_.find(activeCue->id);
+        const double el = rtIt != timerRuntimes_.end() ? rtIt->second.elapsedSeconds : 0.0;
+        const bool run = rtIt != timerRuntimes_.end() && rtIt->second.running;
+        engine->rebuildTimerFrame(*activeCue, el, run);
       }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
       if (engine->reachedEnd()) {
