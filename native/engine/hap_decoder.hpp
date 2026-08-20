@@ -64,6 +64,21 @@ struct Frame {
 bool decodeFrame(const std::uint8_t* packet, std::size_t size, Frame& out,
                  std::string& error);
 
+// Expand block-compressed texels to 8-bit RGBA, row-major, `width`*`height`*4.
+//
+// This is the CPU path. It exists because SDL3 has no pixel format for BC data
+// -- SDL_CreateTexture cannot express BC1/BC3 and SDL_UpdateTexture has no
+// notion of block pitch -- so blocks cannot simply be handed to the renderer.
+// DXT decompression itself is cheap (a few ms at 1080p, far below H.264
+// decode), and it already buys HAP's all-intra instant seeking. What it does
+// NOT buy is the many-layers-at-no-CPU win, which needs the blocks uploaded as
+// a compressed GPU texture; see docs/HAP_PLAYBACK_PLAN.md.
+//
+// `out` is resized to width*height*4. Returns false if the data is too small
+// for the stated raster.
+bool decompressToRgba(const Frame& frame, int width, int height,
+                      std::vector<std::uint8_t>& out, std::string& error);
+
 // Raw Snappy block decompression (not the framing format). Exposed for tests.
 // `expectedSize` of 0 means "trust the stream's own preamble".
 bool snappyUncompress(const std::uint8_t* src, std::size_t srcSize,

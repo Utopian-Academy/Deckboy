@@ -296,6 +296,163 @@ bool decodeComplexFrame(const std::uint8_t* body, std::size_t bodySize,
 
 }  // namespace
 
+// ---------------------------------------------------------------------------
+// Block expansion to RGBA.
+//
+// DXT1: two RGB565 endpoints then sixteen 2-bit indices. When c0 > c1 the
+// block has four opaque colours; otherwise it has three plus transparent black,
+// which is how DXT1 encodes 1-bit alpha. Getting that comparison backwards is
+// the classic DXT bug and shows up as wrong midtones, so it is explicit here.
+//
+// DXT5: an 8-byte alpha block (two endpoints + sixteen 3-bit indices, packed
+// across 6 bytes little-endian) followed by a DXT1-style colour block that is
+// ALWAYS in four-colour mode regardless of endpoint order.
+// ---------------------------------------------------------------------------
+namespace {
+
+// Bit replication, not a multiply-divide. Both map the endpoints to 0..255,
+// but replication is what GPUs and reference decoders do, and the two disagree
+// by 1 on some values -- which showed up immediately as a max-1 diff against
+// ffmpeg output. Matching exactly means the CPU path and any reference decoder
+// agree bit for bit, so a future GPU path can be diffed against this one.
+inline void unpack565(std::uint16_t c, int rgb[3]) {
+  const int r = (c >> 11) & 0x1F;
+  const int g = (c >> 5) & 0x3F;
+  const int b = c & 0x1F;
+  rgb[0] = (r << 3) | (r >> 2);
+  rgb[1] = (g << 2) | (g >> 4);
+  rgb[2] = (b << 3) | (b >> 2);
+}
+
+void decodeColourBlock(const std::uint8_t* block, bool forceFourColour,
+                       std::uint8_t rgba[16][4]) {
+  const std::uint16_t c0 = static_cast<std::uint16_t>(block[0] | (block[1] << 8));
+  const std::uint16_t c1 = static_cast<std::uint16_t>(block[2] | (block[3] << 8));
+  int e0[3], e1[3];
+  unpack565(c0, e0);
+  unpack565(c1, e1);
+
+  int palette[4][4];
+  for (int i = 0; i < 3; ++i) {
+    palette[0][i] = e0[i];
+    palette[1][i] = e1[i];
+  }
+  palette[0][3] = palette[1][3] = 255;
+
+  if (forceFourColour || c0 > c1) {
+    for (int i = 0; i < 3; ++i) {
+      // Rounded, not truncated: reference decoders add half a step before
+      // dividing, and truncating leaves a max-1 error on ~13% of texels.
+      palette[2][i] = (2 * e0[i] + e1[i] + 1) / 3;
+      palette[3][i] = (e0[i] + 2 * e1[i] + 1) / 3;
+    }
+    palette[2][3] = palette[3][3] = 255;
+  } else {
+    for (int i = 0; i < 3; ++i) {
+      palette[2][i] = (e0[i] + e1[i] + 1) / 2;
+      palette[3][i] = 0;
+    }
+    palette[2][3] = 255;
+    palette[3][3] = 0;          // 1-bit alpha: index 3 is transparent
+  }
+
+  const std::uint32_t indices = static_cast<std::uint32_t>(block[4]) |
+                                (static_cast<std::uint32_t>(block[5]) << 8) |
+                                (static_cast<std::uint32_t>(block[6]) << 16) |
+                                (static_cast<std::uint32_t>(block[7]) << 24);
+  for (int i = 0; i < 16; ++i) {
+    const int sel = (indices >> (2 * i)) & 0x03;
+    for (int c = 0; c < 4; ++c) {
+      rgba[i][c] = static_cast<std::uint8_t>(palette[sel][c]);
+    }
+  }
+}
+
+void decodeAlphaBlock(const std::uint8_t* block, std::uint8_t alpha[16]) {
+  const int a0 = block[0];
+  const int a1 = block[1];
+  int lut[8] = {a0, a1, 0, 0, 0, 0, 0, 0};
+  if (a0 > a1) {
+    for (int i = 1; i <= 6; ++i) {
+      lut[i + 1] = ((7 - i) * a0 + i * a1) / 7;
+    }
+  } else {
+    for (int i = 1; i <= 4; ++i) {
+      lut[i + 1] = ((5 - i) * a0 + i * a1) / 5;
+    }
+    lut[6] = 0;
+    lut[7] = 255;
+  }
+  // Sixteen 3-bit indices packed into 6 bytes, little-endian, as two 24-bit
+  // halves of eight indices each.
+  for (int half = 0; half < 2; ++half) {
+    const std::uint32_t bits =
+      static_cast<std::uint32_t>(block[2 + half * 3]) |
+      (static_cast<std::uint32_t>(block[3 + half * 3]) << 8) |
+      (static_cast<std::uint32_t>(block[4 + half * 3]) << 16);
+    for (int i = 0; i < 8; ++i) {
+      alpha[half * 8 + i] = static_cast<std::uint8_t>(lut[(bits >> (3 * i)) & 0x07]);
+    }
+  }
+}
+
+}  // namespace
+
+bool decompressToRgba(const Frame& frame, int width, int height,
+                      std::vector<std::uint8_t>& out, std::string& error) {
+  const int bpb = blockBytes(frame.format);
+  if (bpb == 0 || width <= 0 || height <= 0) {
+    error = "hap: cannot expand this frame";
+    return false;
+  }
+  const int blocksX = (width + 3) / 4;
+  const int blocksY = (height + 3) / 4;
+  const std::size_t needed =
+    static_cast<std::size_t>(blocksX) * blocksY * static_cast<std::size_t>(bpb);
+  if (frame.data.size() < needed) {
+    error = "hap: block data too small for " + std::to_string(width) + "x" +
+            std::to_string(height);
+    return false;
+  }
+
+  out.assign(static_cast<std::size_t>(width) * height * 4, 0);
+  const bool hasAlphaBlock = frame.format == TextureFormat::RgbaDxt5 ||
+                             frame.format == TextureFormat::YCoCgDxt5;
+
+  for (int by = 0; by < blocksY; ++by) {
+    for (int bx = 0; bx < blocksX; ++bx) {
+      const std::uint8_t* block =
+        frame.data.data() +
+        (static_cast<std::size_t>(by) * blocksX + bx) * static_cast<std::size_t>(bpb);
+      std::uint8_t texels[16][4] = {};
+      std::uint8_t alpha[16];
+      for (int i = 0; i < 16; ++i) {
+        alpha[i] = 255;
+      }
+      if (hasAlphaBlock) {
+        decodeAlphaBlock(block, alpha);
+        decodeColourBlock(block + 8, true, texels);
+      } else {
+        decodeColourBlock(block, false, texels);
+      }
+      for (int i = 0; i < 16; ++i) {
+        const int px = bx * 4 + (i % 4);
+        const int py = by * 4 + (i / 4);
+        if (px >= width || py >= height) {
+          continue;                 // partial block at a non-multiple-of-4 edge
+        }
+        std::uint8_t* dst = out.data() +
+          (static_cast<std::size_t>(py) * width + px) * 4;
+        dst[0] = texels[i][0];
+        dst[1] = texels[i][1];
+        dst[2] = texels[i][2];
+        dst[3] = hasAlphaBlock ? alpha[i] : texels[i][3];
+      }
+    }
+  }
+  return true;
+}
+
 bool decodeFrame(const std::uint8_t* packet, std::size_t size, Frame& out,
                  std::string& error) {
   SectionHeader header {};

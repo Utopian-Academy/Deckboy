@@ -51,6 +51,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace deckboy::libav {
 
@@ -126,6 +127,9 @@ struct HapProbeResult {
   int frames = 0;              // packets successfully decoded to blocks
   std::string textureFormat;   // e.g. RGB_DXT1
   std::size_t blockBytes = 0;  // size of the last decoded frame
+  // First frame expanded to RGBA, for verifying the CPU expansion against a
+  // reference decoder. Empty unless the caller asked for it.
+  std::vector<std::uint8_t> rgbaFirstFrame;
 };
 
 // Open `path`, confirm the video stream is HAP, and decode every frame to
