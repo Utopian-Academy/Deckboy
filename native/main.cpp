@@ -3231,6 +3231,10 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.timer.countUpAfterZero ? "1" : "0")
         << '\t' << (cue.timer.blinkAtZero ? "1" : "0")
         << '\t' << escapeField(cue.timer.message)
+        << '\t' << static_cast<int>(cue.timer.mode)
+        << '\t' << static_cast<int>(cue.timer.face)
+        << '\t' << (cue.timer.showProgressBar ? "1" : "0")
+        << '\t' << (cue.timer.messageIsUrgent ? "1" : "0")
         << '\n';
     }
   }
@@ -3752,6 +3756,12 @@ Project loadProject(const fs::path& projectFile,
         cue.timer.countUpAfterZero = safeBool(fields, tb + 3, cue.timer.countUpAfterZero);
         cue.timer.blinkAtZero      = safeBool(fields, tb + 4, cue.timer.blinkAtZero);
         cue.timer.message          = safeString(fields, tb + 5);
+        // Appended after message. These four were rendering but NOT persisting,
+        // so a saved show lost its timer mode and face on reload.
+        cue.timer.mode = static_cast<TimerMode>(std::clamp(safeInt(fields, tb + 6, 0), 0, 2));
+        cue.timer.face = static_cast<TimerFace>(std::clamp(safeInt(fields, tb + 7, 0), 0, 1));
+        cue.timer.showProgressBar = safeBool(fields, tb + 8, true);
+        cue.timer.messageIsUrgent = safeBool(fields, tb + 9, false);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -5031,9 +5041,7 @@ class App {
                      false, "Countdown, count up, or wall clock");
     rowY += ix.rowStep;
 
-    const char* faceLabel =
-      cue.timer.face == TimerFace::Pixel ? "pixel"
-      : cue.timer.face == TimerFace::Sans ? "sans" : "7-segment";
+    const char* faceLabel = cue.timer.face == TimerFace::Blocky ? "blocky" : "7-segment";
     inspDrawQuickRow(ix, rowY, "face", QuickAction::TimerCycleFace, faceLabel,
                      QuickAction::TimerCycleFace, QuickAction::ToggleLoop, false,
                      false, "Clock typeface");
@@ -7250,6 +7258,11 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     TimerSettings cfg;
     if (ops.size() > 1) cfg.durationSeconds = std::atoi(ops[1].c_str());
     if (ops.size() > 3) cfg.message = ops[3];
+    // ops[4]: 0 countdown, 1 count-up, 2 time-of-day. Lets the modes be diffed
+    // headlessly, which is how the dead-control bug in them was caught.
+    if (ops.size() > 4) {
+      cfg.mode = static_cast<TimerMode>(std::clamp(std::atoi(ops[4].c_str()), 0, 2));
+    }
     const double elapsed = ops.size() > 2 ? std::atof(ops[2].c_str()) : 0.0;
     cfg.blinkAtZero = false;
     DecodedFrame f;
