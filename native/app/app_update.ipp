@@ -275,6 +275,10 @@
       }
     }
     flushDirtyProject();
+    // Advance every timer cue clock. Done once per tick for ALL timers, not
+    // only the live one: a timer prepared on another deck keeps counting so it
+    // is correct the moment it is taken.
+    advanceTimerRuntimes(SDL_GetTicks());
     processRemoteCommands();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();
@@ -640,7 +644,8 @@
       // hold marker, and the overtime blink the source app requires to keep
       // flashing when stopped).
       if (activeCue && activeCue->kind == CueKind::Timer) {
-        engine->rebuildTimerFrame(*activeCue);
+        const TimerRuntime& rt = timerRuntimes_[activeCue->id];
+        engine->rebuildTimerFrame(*activeCue, rt.elapsedSeconds, rt.running);
       }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
       if (engine->reachedEnd()) {
