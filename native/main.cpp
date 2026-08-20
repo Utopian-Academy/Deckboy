@@ -5072,10 +5072,27 @@ class App {
                      "Keep counting past zero, or stop dead");
     rowY += ix.rowStep;
 
-    if (!cue.timer.message.empty()) {
-      rowY = inspDrawMessageRow(ix, rowY, "msg: " + cue.timer.message,
-                                pal.mid, pal.deep);
-    }
+    inspDrawQuickRow(ix, rowY, "prog bar", QuickAction::TimerProgressToggle,
+                     cue.timer.showProgressBar ? "on" : "off",
+                     QuickAction::TimerProgressToggle,
+                     QuickAction::TimerProgressToggle, true, cue.timer.showProgressBar,
+                     "Bar across the foot - readable further back than digits");
+    rowY += ix.rowStep;
+
+    // The message was renderable and saveable but had no way to SET it, and the
+    // urgent flag had no setter at all, so the red "wrap up NOW" state could
+    // never fire. Both are editable here now.
+    rowY = inspDrawEditableRow(ix, rowY, "message",
+                               cue.timer.message.empty() ? "(none)" : cue.timer.message,
+                               QuickAction::TimerEditMessage,
+                               "Line shown under the clock",
+                               cue.timer.message.empty() ? pal.inkSoft : pal.deep);
+    inspDrawQuickRow(ix, rowY, "urgent", QuickAction::TimerUrgentToggle,
+                     cue.timer.messageIsUrgent ? "RED" : "normal",
+                     QuickAction::TimerUrgentToggle,
+                     QuickAction::TimerUrgentToggle, true, cue.timer.messageIsUrgent,
+                     "Show the message in red - the wrap up NOW state");
+    rowY += ix.rowStep;
     return rowY;
   }
 

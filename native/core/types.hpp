@@ -814,6 +814,9 @@ enum class QuickAction {
   TimerCycleMode,
   TimerCycleFace,
   TimerCountUpToggle,
+  TimerEditMessage,
+  TimerUrgentToggle,
+  TimerProgressToggle,
   CueSectionRoutingToggle,
   // -- Overlays (PiP / lower third / composite) --
   ClearOverlay,
