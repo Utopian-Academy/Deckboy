@@ -2979,6 +2979,11 @@
   // Datamosh needs a PREPARED copy (Encoder tab -> Datamosh preset): a normal
   // H.264 file with B-frames smears badly and an all-intra one cannot smear at
   // all. Rather than silently doing nothing, say which state the cue is in.
+  // Toggling ON prepares the cue automatically (the owner, 2026-08-20). It does NOT
+  // block: datamoshEnabled is set immediately, and datamoshActiveForCue()
+  // additionally requires the prepared file to exist -- so the cue keeps playing
+  // the original until the transcode lands, then picks up the moshed copy on the
+  // next load. No half-written file is ever taken.
   void toggleSelectedDatamosh() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
@@ -2998,22 +3003,33 @@
       markProjectDirty();
       return;
     }
+
     std::error_code ec;
-    if (cue->moshPath.empty() || !fs::exists(fs::path(cue->moshPath), ec)) {
-      // Prep is a PRE-PRODUCTION action. Never start a transcode from a live
-      // toggle - a 4K encode starting behind the fader mid-show is exactly the
-      // thing this must not do.
-      failRemoteCommand("not prepared - Settings > Encoder > DATAMOSH, then convert");
-      playUiSound(UiSoundEffect::Error);
+    const bool prepared =
+      !cue->moshPath.empty() && fs::exists(fs::path(cue->moshPath), ec);
+    cue->datamoshEnabled = true;
+    markProjectDirty();
+
+    if (prepared) {
+      triggerToast("DATAMOSH on");
+      playUiSound(UiSoundEffect::Toggle);
+      refreshFocusedLiveCueRuntimeIfSelected();
       return;
     }
-    cue->datamoshEnabled = true;
-    triggerToast("DATAMOSH on");
+    if (datamoshPrepInFlight(cue->path)) {
+      triggerToast("datamosh: already preparing");
+      return;
+    }
+    // A long source is minutes of encoding. Say so rather than appear to hang;
+    // the operator can watch it in Settings > Encoder.
+    const int deckIndex = project_.focusedDeckIndex;
+    const int cueIndex = focusedDeck().selectedIndex;
+    queueDatamoshPrepForCue(deckIndex, cueIndex);
+    triggerToast(cue->duration > 120.0
+                   ? "DATAMOSH on - preparing (long clip, watch Encoder tab)"
+                   : "DATAMOSH on - preparing...");
     playUiSound(UiSoundEffect::Toggle);
-    refreshFocusedLiveCueRuntimeIfSelected();    // swaps to the moshed copy
-    markProjectDirty();
   }
-
   void toggleSelectedChromaKey() {
     Cue* cue = firstFocusedSelectedCueMutable([&](const Cue& each) {
       return cueSupportsKeying(&each);
