@@ -7249,6 +7249,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     if (ops.empty()) return missing("<out.ppm> [durationSeconds] [elapsedSeconds]");
     TimerSettings cfg;
     if (ops.size() > 1) cfg.durationSeconds = std::atoi(ops[1].c_str());
+    if (ops.size() > 3) cfg.message = ops[3];
     const double elapsed = ops.size() > 2 ? std::atof(ops[2].c_str()) : 0.0;
     cfg.blinkAtZero = false;
     DecodedFrame f;
