@@ -4370,6 +4370,58 @@ void fillTimerRect(DecodedFrame& f, int x, int y, int w, int h, SDL_Color c) {
   }
 }
 
+// 5x7 bitmap font for the timer message line. Bundled as data rather than
+// drawn from a TTF for the same reason the digits are seven-segment: a stage
+// screen must render identically wherever it runs.
+const std::uint8_t* timerGlyph5x7(unsigned char c) {
+  switch (c) {
+    case ' ': { static const std::uint8_t g[7] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00}; return g; }
+    case '!': { static const std::uint8_t g[7] = {0x04,0x04,0x04,0x04,0x04,0x00,0x04}; return g; }
+    case '\'': { static const std::uint8_t g[7] = {0x04,0x04,0x00,0x00,0x00,0x00,0x00}; return g; }
+    case ',': { static const std::uint8_t g[7] = {0x00,0x00,0x00,0x00,0x00,0x04,0x08}; return g; }
+    case '-': { static const std::uint8_t g[7] = {0x00,0x00,0x00,0x1F,0x00,0x00,0x00}; return g; }
+    case '.': { static const std::uint8_t g[7] = {0x00,0x00,0x00,0x00,0x00,0x0C,0x0C}; return g; }
+    case '0': { static const std::uint8_t g[7] = {0x0E,0x11,0x13,0x15,0x19,0x11,0x0E}; return g; }
+    case '1': { static const std::uint8_t g[7] = {0x04,0x0C,0x04,0x04,0x04,0x04,0x0E}; return g; }
+    case '2': { static const std::uint8_t g[7] = {0x0E,0x11,0x01,0x02,0x04,0x08,0x1F}; return g; }
+    case '3': { static const std::uint8_t g[7] = {0x1F,0x02,0x04,0x02,0x01,0x11,0x0E}; return g; }
+    case '4': { static const std::uint8_t g[7] = {0x02,0x06,0x0A,0x12,0x1F,0x02,0x02}; return g; }
+    case '5': { static const std::uint8_t g[7] = {0x1F,0x10,0x1E,0x01,0x01,0x11,0x0E}; return g; }
+    case '6': { static const std::uint8_t g[7] = {0x06,0x08,0x10,0x1E,0x11,0x11,0x0E}; return g; }
+    case '7': { static const std::uint8_t g[7] = {0x1F,0x01,0x02,0x04,0x08,0x08,0x08}; return g; }
+    case '8': { static const std::uint8_t g[7] = {0x0E,0x11,0x11,0x0E,0x11,0x11,0x0E}; return g; }
+    case '9': { static const std::uint8_t g[7] = {0x0E,0x11,0x11,0x0F,0x01,0x02,0x0C}; return g; }
+    case ':': { static const std::uint8_t g[7] = {0x00,0x0C,0x0C,0x00,0x0C,0x0C,0x00}; return g; }
+    case '?': { static const std::uint8_t g[7] = {0x0E,0x11,0x01,0x02,0x04,0x00,0x04}; return g; }
+    case 'A': { static const std::uint8_t g[7] = {0x0E,0x11,0x11,0x1F,0x11,0x11,0x11}; return g; }
+    case 'B': { static const std::uint8_t g[7] = {0x1E,0x11,0x1E,0x11,0x11,0x11,0x1E}; return g; }
+    case 'C': { static const std::uint8_t g[7] = {0x0E,0x11,0x10,0x10,0x10,0x11,0x0E}; return g; }
+    case 'D': { static const std::uint8_t g[7] = {0x1E,0x11,0x11,0x11,0x11,0x11,0x1E}; return g; }
+    case 'E': { static const std::uint8_t g[7] = {0x1F,0x10,0x1E,0x10,0x10,0x10,0x1F}; return g; }
+    case 'F': { static const std::uint8_t g[7] = {0x1F,0x10,0x1E,0x10,0x10,0x10,0x10}; return g; }
+    case 'G': { static const std::uint8_t g[7] = {0x0E,0x11,0x10,0x17,0x11,0x11,0x0F}; return g; }
+    case 'H': { static const std::uint8_t g[7] = {0x11,0x11,0x1F,0x11,0x11,0x11,0x11}; return g; }
+    case 'I': { static const std::uint8_t g[7] = {0x0E,0x04,0x04,0x04,0x04,0x04,0x0E}; return g; }
+    case 'J': { static const std::uint8_t g[7] = {0x07,0x02,0x02,0x02,0x02,0x12,0x0C}; return g; }
+    case 'K': { static const std::uint8_t g[7] = {0x11,0x12,0x14,0x18,0x14,0x12,0x11}; return g; }
+    case 'L': { static const std::uint8_t g[7] = {0x10,0x10,0x10,0x10,0x10,0x10,0x1F}; return g; }
+    case 'M': { static const std::uint8_t g[7] = {0x11,0x1B,0x15,0x15,0x11,0x11,0x11}; return g; }
+    case 'N': { static const std::uint8_t g[7] = {0x11,0x19,0x15,0x13,0x11,0x11,0x11}; return g; }
+    case 'O': { static const std::uint8_t g[7] = {0x0E,0x11,0x11,0x11,0x11,0x11,0x0E}; return g; }
+    case 'P': { static const std::uint8_t g[7] = {0x1E,0x11,0x11,0x1E,0x10,0x10,0x10}; return g; }
+    case 'Q': { static const std::uint8_t g[7] = {0x0E,0x11,0x11,0x11,0x15,0x12,0x0D}; return g; }
+    case 'R': { static const std::uint8_t g[7] = {0x1E,0x11,0x11,0x1E,0x14,0x12,0x11}; return g; }
+    case 'S': { static const std::uint8_t g[7] = {0x0F,0x10,0x10,0x0E,0x01,0x01,0x1E}; return g; }
+    case 'T': { static const std::uint8_t g[7] = {0x1F,0x04,0x04,0x04,0x04,0x04,0x04}; return g; }
+    case 'U': { static const std::uint8_t g[7] = {0x11,0x11,0x11,0x11,0x11,0x11,0x0E}; return g; }
+    case 'V': { static const std::uint8_t g[7] = {0x11,0x11,0x11,0x11,0x11,0x0A,0x04}; return g; }
+    case 'W': { static const std::uint8_t g[7] = {0x11,0x11,0x11,0x15,0x15,0x1B,0x11}; return g; }
+    case 'X': { static const std::uint8_t g[7] = {0x11,0x0A,0x04,0x04,0x04,0x0A,0x11}; return g; }
+    case 'Y': { static const std::uint8_t g[7] = {0x11,0x0A,0x04,0x04,0x04,0x04,0x04}; return g; }
+    case 'Z': { static const std::uint8_t g[7] = {0x1F,0x01,0x02,0x04,0x08,0x10,0x1F}; return g; }
+    default: return nullptr;
+  }
+}
 void drawSevenSeg(DecodedFrame& f, int digit, int x, int y, int w, int h,
                   int thick, SDL_Color on) {
   if (digit < 0 || digit > 10) return;
@@ -4488,6 +4540,56 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
     } else {
       drawSevenSeg(frame, glyphs[i], x, y, digitW, digitH, thick, ink);
       x += digitW + gap;
+    }
+  }
+
+  // Progress bar across the foot of the frame. Stagetimer charges for this and
+  // it is genuinely useful: from the back of a room the bar is readable when
+  // the digits are not, because length is easier to judge at distance than a
+  // number is to read.
+  if (cfg.showProgressBar && cfg.durationSeconds > 0 &&
+      cfg.mode != TimerMode::TimeOfDay) {
+    const double fraction =
+      std::clamp(elapsedSeconds / static_cast<double>(cfg.durationSeconds), 0.0, 1.0);
+    const int barH = std::max(4, H / 36);
+    const int barY = H - barH - H / 24;
+    const int inset = W / 12;
+    const int barW = W - inset * 2;
+    // Track first, then fill, so the remaining portion still reads as "space
+    // left" rather than as empty background.
+    SDL_Color track {40, 40, 40, 255};
+    fillTimerRect(frame, inset, barY, barW, barH, track);
+    const int fillW = static_cast<int>(barW * (1.0 - fraction));
+    if (fillW > 0) {
+      fillTimerRect(frame, inset, barY, fillW, barH, ink);
+    }
+  }
+
+  // Message under the clock. Drawn as a blocky 5x7 bitmap for the same reason
+  // the digits are seven-segment: a stage screen must not depend on which fonts
+  // happen to be installed on the machine driving it.
+  if (!cfg.message.empty()) {
+    const int cell = std::max(2, W / 200);
+    const int charW = cell * 6;
+    const std::string msg = cfg.message.size() > 40 ? cfg.message.substr(0, 40) : cfg.message;
+    const int textW = static_cast<int>(msg.size()) * charW;
+    int mx = (W - textW) / 2;
+    const int my = H - H / 5;
+    SDL_Color msgInk = cfg.messageIsUrgent ? SDL_Color {255, 64, 64, 255}
+                                           : SDL_Color {255, 255, 255, 255};
+    for (char raw : msg) {
+      const unsigned char c = static_cast<unsigned char>(std::toupper(raw));
+      const std::uint8_t* rows = timerGlyph5x7(c);
+      if (rows) {
+        for (int r = 0; r < 7; ++r) {
+          for (int b = 0; b < 5; ++b) {
+            if (rows[r] & (1 << (4 - b))) {
+              fillTimerRect(frame, mx + b * cell, my + r * cell, cell, cell, msgInk);
+            }
+          }
+        }
+      }
+      mx += charW;
     }
   }
 
