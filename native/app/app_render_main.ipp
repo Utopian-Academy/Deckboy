@@ -178,12 +178,12 @@
     {
       SDL_Rect hdr {programShell.x, programShell.y, programShell.w, kOpHeaderH};
       drawUIPanel(hdr, pal.dark, pal.deep, pal.mid);
-      drawText(controlRenderer_, fontSmall_, "TIMELINE", pal.light, hdr.x + 6, hdr.y + 4);
+      drawText(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, "TIMELINE", pal.light, hdr.x + 6, hdr.y + 4);
     }
     {
       SDL_Rect hdr {inspectorShell.x, inspectorShell.y, inspectorShell.w, kOpHeaderH};
       drawUIPanel(hdr, pal.dark, pal.deep, pal.mid);
-      drawText(controlRenderer_, fontSmall_, "CUE INSPECTOR", pal.light, hdr.x + 6, hdr.y + 4);
+      drawText(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, "CUE INSPECTOR", pal.light, hdr.x + 6, hdr.y + 4);
     }
     if (inspectorSplitterRect_.w > 0 && inspectorSplitterRect_.h > 0) {
       bool active = layoutDragMode_ == LayoutDragMode::Inspector;

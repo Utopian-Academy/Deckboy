@@ -76,8 +76,10 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D49 | Install ffmpeg n8.1 WITH libsnappy (stable release, not master) | **OWNER** asked / **CLAUDE** chose the build | HAP encode needs it. Chose a tagged release over the nightly for a show tool. Old binaries backed up to `C:fmpegin-backup-20260819`. |
 | D50 | FIXED: the format picker was a DEAD CONTROL | **CLAUDE** | `attemptsForJob` only consulted the catalog for the datamosh preset; every other job silently encoded H.264 whatever ENCODEFORMAT said, and the extension was hardcoded .mp4. Presets now SELECT a format so there is exactly one thing deciding the encode. |
 | D51 | EFFECTS inspector section, datamosh as its first member | **OWNER** asked for a home / **CLAUDE** proposed EFFECTS over renaming KEY | The toggle previously had NO UI - remote verb only. Section shows the three states (ON / off / not prepared) instead of making you trigger it to find out. |
-| D52 | Press Start 2P as the global UI font | **OWNER** | 2026-08-19, chose it from a rendered comparison of 5 candidates. Already bundled + OFL. Point sizes ~0.62x the old sans sizes to keep cap height and line rhythm. |
+| D52 | Press Start 2P on CHROME only, sans for user text (hybrid) | **OWNER** | 2026-08-19, chose it from a rendered comparison of 5 candidates. Already bundled + OFL. Point sizes ~0.62x the old sans sizes to keep cap height and line rhythm. |
 | D53 | Accept wider text as the cost of the pixel font | **CLAUDE** | Press Start 2P is much wider per char, so cue names truncate sooner. Fixed-width inspector LABEL columns now clip ("deck ...") and need widening - that part IS a bug. |
+| D54 | REVISED D52 to a hybrid after seeing it in situ | **OWNER** | He flagged the readability himself; the screenshot showed "S06E01" scanning as "S0GE0" - 0/O and 6/G are near-identical in Press Start 2P at UI sizes. Pixel face on labels/buttons/headers, sans on cue names/paths/metadata. |
+| D55 | Icon rects must match their button rects | **CLAUDE** | Icons drew into snapRectToGrid(btn) while the button painted btn - up to 7px offset, glyphs outside their boxes. Pre-dated the font change. Same class as the v0.81.0 text-placement contract. |
 
 ---
 
