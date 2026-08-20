@@ -1044,6 +1044,37 @@
         !deckboy::hap::decodeFrame(frame.data(), 3, bad, badErr) &&
         !deckboy::hap::decodeFrame(frame.data(), frame.size() / 2, bad, badErr);
       expect(rejected, "hap rejects truncated frames instead of overrunning");
+
+      // Block expansion. A single DXT1 block with known endpoints: white and
+      // black, indices all 0, so every texel must come out pure white. This
+      // pins endpoint decoding, index order and row layout without depending
+      // on any reference decoder.
+      {
+        std::vector<std::uint8_t> one;
+        const std::uint16_t white = 0xFFFF;   // 565 all-ones
+        const std::uint16_t black = 0x0000;
+        one.push_back(white & 0xFF); one.push_back(white >> 8);
+        one.push_back(black & 0xFF); one.push_back(black >> 8);
+        for (int i = 0; i < 4; ++i) one.push_back(0x00);   // all indices 0
+        deckboy::hap::Frame f;
+        f.format = deckboy::hap::TextureFormat::RgbDxt1;
+        f.data = one;
+        std::vector<std::uint8_t> rgba;
+        std::string e2;
+        const bool ok2 = deckboy::hap::decompressToRgba(f, 4, 4, rgba, e2);
+        bool allWhite = ok2 && rgba.size() == 4 * 4 * 4;
+        for (std::size_t i = 0; allWhite && i < rgba.size(); i += 4) {
+          allWhite = rgba[i] == 255 && rgba[i+1] == 255 && rgba[i+2] == 255 &&
+                     rgba[i+3] == 255;
+        }
+        expect(allWhite, "hap expands DXT1 blocks to the expected texels");
+
+        // Too little data for the stated raster must be refused, not read past.
+        std::vector<std::uint8_t> ignored;
+        std::string e3;
+        expect(!deckboy::hap::decompressToRgba(f, 64, 64, ignored, e3),
+               "hap refuses to expand undersized block data");
+      }
     }
 
     std::cout << "smoke failures: " << failures << '\n';

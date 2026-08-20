@@ -7075,6 +7075,18 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       std::cerr << "hap-probe: " << err << '\n';
       return 1;
     }
+    // Optional second operand: dump frame 1 as a PPM so the CPU expansion can
+    // be diffed against a reference decoder pixel for pixel.
+    if (ops.size() > 1 && !r.rgbaFirstFrame.empty()) {
+      std::ofstream ppm(ops[1], std::ios::binary);
+      ppm << "P6" << '\n' << r.width << " " << r.height << " 255" << '\n';
+      for (std::size_t px = 0; px + 3 < r.rgbaFirstFrame.size(); px += 4) {
+        ppm.put(static_cast<char>(r.rgbaFirstFrame[px]));
+        ppm.put(static_cast<char>(r.rgbaFirstFrame[px + 1]));
+        ppm.put(static_cast<char>(r.rgbaFirstFrame[px + 2]));
+      }
+      std::cout << "  wrote " << ops[1] << '\n';
+    }
     std::cout << "hap-probe: " << ops[0] << '\n'
               << "  stream=hap " << r.width << "x" << r.height
               << " fps=" << r.fps << '\n'
