@@ -3,6 +3,7 @@
 // This file is part of Deckboy, a cue deck for live events.
 // See LICENSE for details.
 
+#include <thread>
 #include "engine/hap_decoder.hpp"
 
 #include <cstring>
@@ -419,36 +420,66 @@ bool decompressToRgba(const Frame& frame, int width, int height,
   const bool hasAlphaBlock = frame.format == TextureFormat::RgbaDxt5 ||
                              frame.format == TextureFormat::YCoCgDxt5;
 
-  for (int by = 0; by < blocksY; ++by) {
-    for (int bx = 0; bx < blocksX; ++bx) {
-      const std::uint8_t* block =
-        frame.data.data() +
-        (static_cast<std::size_t>(by) * blocksX + bx) * static_cast<std::size_t>(bpb);
-      std::uint8_t texels[16][4] = {};
-      std::uint8_t alpha[16];
-      for (int i = 0; i < 16; ++i) {
-        alpha[i] = 255;
-      }
-      if (hasAlphaBlock) {
-        decodeAlphaBlock(block, alpha);
-        decodeColourBlock(block + 8, true, texels);
-      } else {
-        decodeColourBlock(block, false, texels);
-      }
-      for (int i = 0; i < 16; ++i) {
-        const int px = bx * 4 + (i % 4);
-        const int py = by * 4 + (i / 4);
-        if (px >= width || py >= height) {
-          continue;                 // partial block at a non-multiple-of-4 edge
+  // Block rows are independent -- each writes its own output rows and nothing
+  // else -- so the expansion threads with no locking and no seams. This is the
+  // whole reason HAP costs less CPU per layer than H.264, so it is worth
+  // taking: at 1080p there are 270 block rows to share out.
+  auto expandRows = [&](int rowBegin, int rowEnd) {
+    for (int by = rowBegin; by < rowEnd; ++by) {
+      for (int bx = 0; bx < blocksX; ++bx) {
+        const std::uint8_t* block =
+          frame.data.data() +
+          (static_cast<std::size_t>(by) * blocksX + bx) * static_cast<std::size_t>(bpb);
+        std::uint8_t texels[16][4] = {};
+        std::uint8_t alpha[16];
+        for (int i = 0; i < 16; ++i) {
+          alpha[i] = 255;
         }
-        std::uint8_t* dst = out.data() +
-          (static_cast<std::size_t>(py) * width + px) * 4;
-        dst[0] = texels[i][0];
-        dst[1] = texels[i][1];
-        dst[2] = texels[i][2];
-        dst[3] = hasAlphaBlock ? alpha[i] : texels[i][3];
+        if (hasAlphaBlock) {
+          decodeAlphaBlock(block, alpha);
+          decodeColourBlock(block + 8, true, texels);
+        } else {
+          decodeColourBlock(block, false, texels);
+        }
+        for (int i = 0; i < 16; ++i) {
+          const int px = bx * 4 + (i % 4);
+          const int py = by * 4 + (i / 4);
+          if (px >= width || py >= height) {
+            continue;                 // partial block at a non-multiple-of-4 edge
+          }
+          std::uint8_t* dst = out.data() +
+            (static_cast<std::size_t>(py) * width + px) * 4;
+          dst[0] = texels[i][0];
+          dst[1] = texels[i][1];
+          dst[2] = texels[i][2];
+          dst[3] = hasAlphaBlock ? alpha[i] : texels[i][3];
+        }
       }
     }
+  };
+
+  // Threading a small frame costs more than it saves, so below the threshold
+  // it stays on the calling thread. Threads are capped at the hardware count
+  // AND at one per 8 block rows, so a 240p clip does not spawn eight threads
+  // to do a few microseconds of work each.
+  unsigned hw = std::thread::hardware_concurrency();
+  if (hw == 0) hw = 1;
+  const int maxByRows = std::max(1, blocksY / 8);
+  const int workers = std::max(1, std::min<int>(static_cast<int>(hw), maxByRows));
+  if (workers <= 1 || blocksY < 16) {
+    expandRows(0, blocksY);
+  } else {
+    std::vector<std::thread> pool;
+    pool.reserve(static_cast<std::size_t>(workers - 1));
+    const int span = (blocksY + workers - 1) / workers;
+    for (int w = 1; w < workers; ++w) {
+      const int begin = std::min(blocksY, w * span);
+      const int end = std::min(blocksY, begin + span);
+      if (begin >= end) break;
+      pool.emplace_back(expandRows, begin, end);
+    }
+    expandRows(0, std::min(blocksY, span));   // this thread takes the first slice
+    for (std::thread& t : pool) t.join();
   }
   return true;
 }
