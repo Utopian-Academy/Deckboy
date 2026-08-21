@@ -3074,6 +3074,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
+  output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
@@ -3459,6 +3460,8 @@ Project loadProject(const fs::path& projectFile,
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "hap_suggestion_dismissed") {
+      project.hapSuggestionDismissed = safeBool(fields, 1, false);
     } else if (fields[0] == "recording_dir") {
       project.recordingDir = safeString(fields, 1);
     } else if (fields[0] == "splash_character") {
@@ -6445,6 +6448,8 @@ class App {
   // second, which is exactly how the Processing sub-tab died in v0.76.24.
   // Recording runtime. Mutable because buildOutputStreamArgs is const and is
   // where the timestamped path is minted.
+  bool hapSuggestionShown_ = false;   // once per session, whatever the answer
+  bool hapStallSeen_ = false;        // a decode actually struggled
   mutable std::string lastRecordingPath_;
   Uint64 recordingStartedMs_ = 0;
   static constexpr int kSettingsActionRecordToggle   = 770;
@@ -6866,6 +6871,10 @@ class App {
     std::string body;        // e.g. one or two sentences of context
     std::string url;         // vendor download page (https://...)
     std::string ctaLabel;    // e.g. "Open NDI Tools download page"
+    // When set, the CTA RUNS this instead of opening url. Lets the same modal
+    // carry an offer to act (convert these cues) as well as a download link,
+    // rather than growing a second prompt system beside this one.
+    std::function<void()> onCta;
     SDL_Rect ctaRect {};
     SDL_Rect closeRect {};
   };

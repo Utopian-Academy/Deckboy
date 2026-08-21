@@ -2644,6 +2644,34 @@
   }
 
   // ---- Encoder override controls -------------------------------------------
+  // Does this ffmpeg have the HAP encoder? Probed, not assumed -- suggesting a
+  // conversion the machine cannot perform is worse than staying quiet.
+  bool encoderHasHapSupport() {
+    for (const EncoderFormat& fmt : encoderFormatCatalog()) {
+      if (std::string(fmt.id) == "hap") return encoderFormatAvailable(fmt);
+    }
+    return false;
+  }
+
+  // Queue every listed cue for HAP conversion. Uses the datamosh-style prep so
+  // the ORIGINAL survives: a show mid-run must not lose its media because a
+  // conversion was accepted, and HAP files are large enough that an operator
+  // may well want to undo the decision.
+  void convertCuesToHap(const std::vector<std::pair<int, int>>& targets) {
+    const EncoderPreset savedPreset = encoderPreset_;
+    const std::string savedFormat = encoderFormatId_;
+    encoderFormatId_ = "hap";
+    int queued = 0;
+    for (const auto& [deckIndex, cueIndex] : targets) {
+      convertCueMedia(deckIndex, cueIndex);
+      ++queued;
+    }
+    encoderPreset_ = savedPreset;
+    encoderFormatId_ = savedFormat;
+    triggerToast("queued " + std::to_string(queued) + " HAP conversion(s)");
+    showLog("HAP CONVERT", std::to_string(queued) + " cue(s) queued");
+  }
+
   void cycleEncoderRateMode() {
     using Rate = EncoderOverrides::Rate;
     switch (encoderOverrides_.rate) {

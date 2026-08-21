@@ -611,9 +611,13 @@
       // instead of hanging it mid-show, and the operator gets told. A stall
       // whose file is GONE (drive pulled, share dropped) is reported as lost
       // media and raises the RELINK state, not as a decoder fault.
+      maybeSuggestHapConversion();
       if (engine->consumeDecodeStall()) {
         engine->stop(true);
         ++decodeStallTotal_;
+        // Evidence the machine is struggling to decode, which is the honest
+        // trigger for suggesting HAP.
+        hapStallSeen_ = true;
         bool mediaLost = false;
         {
           Deck& deck = project_.decks[deckIndex];

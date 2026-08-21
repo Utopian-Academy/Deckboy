@@ -174,6 +174,85 @@
     depPrompt_.active = true;
   }
 
+  // ---- HAP suggestion ------------------------------------------------------
+  // Offer HAP only when it would actually pay, and say what it costs. MEASURED
+  // on this machine, 5s of 1080p:
+  //   per-stream CPU (1 thread)   H.264 454ms   HAP 265ms   -> 1.7x cheaper
+  //   six concurrent (1 thread)   H.264 540ms   HAP 361ms
+  //   file size                   H.264 4.5MB   HAP 19.3MB  -> 4.3x bigger
+  // So the win is CPU per LAYER, which compounds with how many run at once,
+  // and the price is disk. A single-layer show gains almost nothing and pays
+  // the full 4x, which is why this does not fire on cue count alone.
+  //
+  // Trigger: the operator has actually SEEN decode trouble (a stall), or is
+  // running video on more than one deck at once. Never twice in a session, and
+  // never again once dismissed.
+  void maybeSuggestHapConversion() {
+    if (hapSuggestionShown_ || project_.hapSuggestionDismissed) return;
+    if (depPrompt_.active) return;
+    if (!encoderHasHapSupport()) return;
+
+    int liveVideoDecks = 0;
+    for (const Deck& deck : project_.decks) {
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+      const Cue& cue = deck.cues[deck.activeIndex];
+      if (cue.kind == CueKind::Video && !cue.path.empty()) ++liveVideoDecks;
+    }
+    const bool worthIt = hapStallSeen_ || liveVideoDecks >= 2;
+    if (!worthIt) return;
+
+    // Count what would convert, and what it would cost on disk.
+    std::vector<std::pair<int, int>> targets;   // deck, cue
+    std::uintmax_t sourceBytes = 0;
+    std::error_code ec;
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      const Deck& deck = project_.decks[d];
+      for (std::size_t c = 0; c < deck.cues.size(); ++c) {
+        const Cue& cue = deck.cues[c];
+        if (cue.kind != CueKind::Video || cue.path.empty()) continue;
+        const std::string ext = toLower(fs::path(cue.path).extension().string());
+        if (ext == ".mov" && toLower(cue.videoCodec).find("hap") != std::string::npos) continue;
+        auto n = fs::file_size(fs::path(cue.path), ec);
+        if (!ec) sourceBytes += n;
+        targets.emplace_back(static_cast<int>(d), static_cast<int>(c));
+      }
+    }
+    if (targets.empty()) return;
+
+    // 4.3x measured, rounded up. If the disk cannot take it, say so and offer
+    // nothing -- an offer that fills the operator's disk mid-show is worse
+    // than no offer.
+    const std::uintmax_t needBytes = static_cast<std::uintmax_t>(sourceBytes * 4.5);
+    auto space = fs::space(convertedMediaDir().empty() ? Paths::stateDir() : convertedMediaDir(), ec);
+    const bool roomOnDisk = !ec && space.available > needBytes;
+
+    hapSuggestionShown_ = true;
+    const int mb = static_cast<int>(needBytes / (1024 * 1024));
+    std::string body =
+      "This show runs several video layers at once. HAP costs about 1.7x less "
+      "CPU per layer than H.264, which is what decides how many you can run "
+      "together, and it seeks instantly because every frame is a keyframe.\n\n"
+      "It is not free: HAP files are roughly 4x larger. Converting "
+      + std::to_string(static_cast<int>(targets.size())) + " clip(s) needs about "
+      + std::to_string(mb) + " MB.\n\n"
+      "Originals are kept either way.";
+    if (!roomOnDisk) {
+      body += "\n\nThere is NOT enough free space on the encoder's disk for this, "
+              "so conversion is not offered. Point the encoder at a bigger drive "
+              "in Settings > Encoder if you want to reconsider.";
+    }
+    depPrompt_ = DependencyPromptState{};
+    depPrompt_.title = "HAP would help this show";
+    depPrompt_.body = body;
+    depPrompt_.ctaLabel = roomOnDisk
+      ? ("Convert " + std::to_string(static_cast<int>(targets.size())) + " clip(s) to HAP")
+      : "";
+    if (roomOnDisk) {
+      depPrompt_.onCta = [this, targets]() { convertCuesToHap(targets); };
+    }
+    depPrompt_.active = true;
+  }
+
   void dismissDependencyPrompt() {
     depPrompt_.active = false;
     depPrompt_.ctaRect = {};
