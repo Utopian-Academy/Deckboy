@@ -320,6 +320,7 @@
       case QuickAction::ToneLevelInc:   adjustToneLevel(1.0); break;
       case QuickAction::ToneChannelDec: adjustToneChannel(-1); break;
       case QuickAction::ToneChannelInc: adjustToneChannel(1); break;
+      case QuickAction::ToneCycleVisual: cycleToneVisual(); break;
       case QuickAction::TimerClearLogo:         clearTimerLogo(); break;
       case QuickAction::TimerCycleColorNormal:
         cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;
