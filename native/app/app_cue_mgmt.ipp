@@ -2643,6 +2643,121 @@
     }
   }
 
+  // ---- Encoder override controls -------------------------------------------
+  void cycleEncoderRateMode() {
+    using Rate = EncoderOverrides::Rate;
+    switch (encoderOverrides_.rate) {
+      case Rate::Auto:    encoderOverrides_.rate = Rate::Quality; break;
+      case Rate::Quality: encoderOverrides_.rate = Rate::Bitrate; break;
+      default:            encoderOverrides_.rate = Rate::Auto;    break;
+    }
+    // Say plainly when the choice cannot reach the selected format, rather than
+    // letting the operator set a number that will be discarded.
+    const EncoderFormat& fmt = selectedEncoderFormat();
+    if (encoderOverrides_.rate != Rate::Auto && !rateFlagForFormat(fmt.id)) {
+      triggerToast(std::string(fmt.label) + " is profile-based - rate ignored");
+    } else {
+      triggerToast(std::string("encoder rate: ") + encoderRateModeLabel());
+    }
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void nudgeEncoderRate(int direction) {
+    using Rate = EncoderOverrides::Rate;
+    if (encoderOverrides_.rate == Rate::Quality) {
+      encoderOverrides_.quality0to100 =
+        std::clamp(encoderOverrides_.quality0to100 + direction * 5, 0, 100);
+      triggerToast("quality " + std::to_string(encoderOverrides_.quality0to100));
+    } else if (encoderOverrides_.rate == Rate::Bitrate) {
+      // Step proportionally: 500k steps are meaningless at 50Mbps and far too
+      // coarse at 1Mbps.
+      const int step = encoderOverrides_.videoBitrateKbps >= 20000 ? 5000
+                     : encoderOverrides_.videoBitrateKbps >= 5000  ? 1000
+                                                                   : 250;
+      encoderOverrides_.videoBitrateKbps =
+        std::clamp(encoderOverrides_.videoBitrateKbps + direction * step, 250, 200000);
+      triggerToast(std::to_string(encoderOverrides_.videoBitrateKbps) + "k");
+    }
+  }
+
+  void cycleEncoderFps() {
+    // 0 means "keep the source". The rest are the rates a show actually runs
+    // at, including the film rates, so nobody has to type 23.976.
+    static const double kRates[] = {0.0, 23.976, 24.0, 25.0, 29.97, 30.0, 50.0, 59.94, 60.0};
+    const int n = static_cast<int>(sizeof(kRates) / sizeof(kRates[0]));
+    int i = 0;
+    for (; i < n; ++i) {
+      if (std::abs(kRates[i] - encoderOverrides_.fps) < 0.001) break;
+    }
+    encoderOverrides_.fps = kRates[(i + 1) % n];
+    triggerToast("encoder fps: " + encoderFpsLabel());
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleEncoderSize() {
+    static const int kSizes[][2] = {
+      {0, 0}, {3840, 2160}, {2560, 1440}, {1920, 1080}, {1280, 720}, {854, 480},
+    };
+    const int n = static_cast<int>(sizeof(kSizes) / sizeof(kSizes[0]));
+    int i = 0;
+    for (; i < n; ++i) {
+      if (kSizes[i][0] == encoderOverrides_.width &&
+          kSizes[i][1] == encoderOverrides_.height) break;
+    }
+    const int next = (i >= n ? 0 : (i + 1) % n);
+    encoderOverrides_.width  = kSizes[next][0];
+    encoderOverrides_.height = kSizes[next][1];
+    triggerToast("encoder size: " + encoderSizeLabel());
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleEncoderAudioRate() {
+    static const int kRates[] = {0, 96, 128, 192, 256, 320};
+    const int n = static_cast<int>(sizeof(kRates) / sizeof(kRates[0]));
+    int i = 0;
+    for (; i < n; ++i) {
+      if (kRates[i] == encoderOverrides_.audioBitrateKbps) break;
+    }
+    encoderOverrides_.audioBitrateKbps = kRates[(i >= n ? 0 : (i + 1) % n)];
+    triggerToast("audio: " + encoderAudioRateLabel());
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void pickEncoderOutputDir() {
+    showFolderDialog([this](std::vector<std::string> chosen) {
+      if (chosen.empty() || chosen.front().empty()) return;   // cancelled
+      encoderOverrides_.outputDir = chosen.front();
+      triggerToast("encoder destination set");
+    });
+  }
+
+  // ---- Encoder override labels ---------------------------------------------
+  // Each returns what is CURRENTLY in force, so a chip reading AUTO or SOURCE
+  // is stating a fact rather than offering a choice.
+  const char* encoderRateModeLabel() const {
+    switch (encoderOverrides_.rate) {
+      case EncoderOverrides::Rate::Quality: return "QUALITY";
+      case EncoderOverrides::Rate::Bitrate: return "BITRATE";
+      default:                              return "AUTO";
+    }
+  }
+
+  std::string encoderFpsLabel() const {
+    if (encoderOverrides_.fps <= 0.0) return "SOURCE";
+    return fmtFloat(encoderOverrides_.fps, 3);
+  }
+
+  std::string encoderSizeLabel() const {
+    if (encoderOverrides_.width <= 0 || encoderOverrides_.height <= 0) return "SOURCE";
+    return std::to_string(encoderOverrides_.width) + "x" +
+           std::to_string(encoderOverrides_.height);
+  }
+
+  std::string encoderAudioRateLabel() const {
+    if (encoderOverrides_.audioBitrateKbps <= 0) return "DEFAULT";
+    return std::to_string(encoderOverrides_.audioBitrateKbps) + "k";
+  }
+
   static const char* moshLookLabelFor(int look) {
     switch (look) {
       case kDatamoshLookSubtle:  return "SUBTLE";

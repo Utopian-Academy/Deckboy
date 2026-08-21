@@ -2213,14 +2213,76 @@
         }
         ey += sChipH + sGap;
       }
+      {
+        // OUTPUT: the knobs that used to be hardcoded. Each chip shows its
+        // CURRENT value, so "AUTO" states plainly that the format default is in
+        // force rather than leaving the operator to guess.
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
+                     "OUTPUT", soft);
+        ey += sLineH + sGap / 2;
+        int ox = ex;
+        auto chip = [&](const std::string& label, int action, const char* tip,
+                        bool active) {
+          int tw = 0, th = 0;
+          TTF_GetStringSize(fontSmall_, label.c_str(), 0, &tw, &th);
+          int cw = tw + uiScaled(16);
+          if (ox + cw > ex + ew) { ox = ex; ey += sChipH + sGap / 2; }
+          SDL_Rect r {ox, ey, cw, sChipH};
+          drawUIPanel(r, active ? pal.light : pal.mid, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label,
+                               active ? pal.deep : pal.light);
+          settingsBtns_.push_back({r, action, tip});
+          ox += cw + sGap / 2;
+        };
+
+        const EncoderOverrides& ov = encoderOverrides_;
+        const bool rateOn = ov.rate != EncoderOverrides::Rate::Auto;
+        chip(std::string("RATE: ") + encoderRateModeLabel(), kSettingsActionEncoderRateMode,
+             "Auto uses the format's own default. Quality is constant-quality "
+             "mapped onto whatever knob the codec has. Bitrate is constant -b:v.",
+             rateOn);
+        if (ov.rate == EncoderOverrides::Rate::Quality) {
+          chip("Q -", kSettingsActionEncoderQualityDec, "Lower quality, smaller file", false);
+          chip(std::to_string(ov.quality0to100), kSettingsActionEncoderQualityInc,
+               "Quality 0-100. Mapped per codec; profile-only formats ignore it.", true);
+          chip("Q +", kSettingsActionEncoderQualityInc, "Higher quality, bigger file", false);
+        } else if (ov.rate == EncoderOverrides::Rate::Bitrate) {
+          chip("BR -", kSettingsActionEncoderQualityDec, "Lower bitrate", false);
+          chip(std::to_string(ov.videoBitrateKbps) + "k", kSettingsActionEncoderQualityInc,
+               "Target video bitrate", true);
+          chip("BR +", kSettingsActionEncoderQualityInc, "Higher bitrate", false);
+        }
+        chip(std::string("FPS: ") + encoderFpsLabel(), kSettingsActionEncoderFpsCycle,
+             "Output frame rate. SOURCE keeps whatever the file has.", ov.fps > 0.0);
+        chip(std::string("SIZE: ") + encoderSizeLabel(), kSettingsActionEncoderSizeCycle,
+             "Output raster. SOURCE keeps the original. Merges with any filter "
+             "the format already applies.", ov.width > 0);
+        chip(std::string("AUDIO: ") + encoderAudioRateLabel(), kSettingsActionEncoderAudioRate,
+             "Audio bitrate for the compressed audio codecs.", ov.audioBitrateKbps > 0);
+        ey += sChipH + sGap / 2;
+        ox = ex;
+        chip("DEST...", kSettingsActionEncoderOutDirPick,
+             "Choose where converted files are written.", !ov.outputDir.empty());
+        if (!ov.outputDir.empty()) {
+          chip("DEST: default", kSettingsActionEncoderOutDirClear,
+               "Go back to _converted/ beside the show.", false);
+        }
+        ey += sChipH + sGap;
+      }
       if (!conversionJobs_.empty()) {
         SDL_Rect busy {ex, ey, ew, std::max(uiScaled(164), sRowH * 4 + sLineH + sPad * 3)};
         drawEncoderBusyPanel(busy, animationNow_);
         ey += busy.h + sGap;
       }
+      // Describe what is ACTUALLY selected. This line used to be hardcoded to
+      // "H.264 MP4 -> _converted/ next to show", which stopped being true once
+      // the format became selectable and the destination overridable.
       drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
-                   "Target: H.264 MP4 (GPU, libx264 fallback) -> portable _converted/ next to show   |   active jobs: "
-                   + std::to_string(static_cast<int>(conversionJobs_.size())), soft);
+                   ellipsizeToPixelWidth(fontSmall_,
+                     "Target: " + std::string(selectedEncoderFormat().label) +
+                     "  ->  " + convertedMediaDir().string() +
+                     "   |   active jobs: " +
+                     std::to_string(static_cast<int>(conversionJobs_.size())), ew), soft);
       ey += sLineH + sGap;
       drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                    flagged.empty() ? "No cues need conversion." :
@@ -2265,6 +2327,18 @@
       if (sb.action == kSettingsActionEncoderPauseToggle) { toggleEncoderQueuePaused(); continue; }
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
       if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
+      if (sb.action == kSettingsActionEncoderRateMode)    { cycleEncoderRateMode(); continue; }
+      if (sb.action == kSettingsActionEncoderQualityDec)  { nudgeEncoderRate(-1); continue; }
+      if (sb.action == kSettingsActionEncoderQualityInc)  { nudgeEncoderRate(+1); continue; }
+      if (sb.action == kSettingsActionEncoderFpsCycle)    { cycleEncoderFps(); continue; }
+      if (sb.action == kSettingsActionEncoderSizeCycle)   { cycleEncoderSize(); continue; }
+      if (sb.action == kSettingsActionEncoderAudioRate)   { cycleEncoderAudioRate(); continue; }
+      if (sb.action == kSettingsActionEncoderOutDirPick)  { pickEncoderOutputDir(); continue; }
+      if (sb.action == kSettingsActionEncoderOutDirClear) {
+        encoderOverrides_.outputDir.clear();
+        triggerToast("encoder destination: _converted beside the show");
+        continue;
+      }
       if (sb.action >= kSettingsActionEncoderFormatBase &&
           sb.action < kSettingsActionEncoderFormatBase +
                         static_cast<int>(encoderFormatCatalog().size())) {

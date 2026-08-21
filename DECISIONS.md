@@ -94,12 +94,14 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D67 | MASTER CUES fire individual SUBCUES (not a ruler with clips) | **OWNER** | 2026-08-20, their original idea, refined. Fan-out from the existing take path. |
 | D68 | Master cues are BETTER than a timeline here, and cheaper | **CLAUDE**, agreeing with the owner | They do NOT invert time ownership (each subcue keeps its own position), so this may not need to wait for v2. They also degrade gracefully when a show runs long, where an absolute timeline drifts. Not novel — it is QLab's Group Cue — but uncommon in VIDEO playback (Mitti has none). |
 | D69 | Recording: build PROGRAM first, INPUT is a separate harder feature | **CLAUDE** | Program recording reuses the stream egress path with a file target (small). Input recording needs a second capture of an exclusive-open device, or a tee off the decode pipe -- not small, and not to be started without that decision. |
+| D70 | Datamosh look is PER-CUE and saved with the show, not a global chip | **CLAUDE** | 2026-08-21. It was a global unserialized bool in the Encoder tab, so it reset to the weakest flavour every launch and the operator was silently always on SUBTLE. A look choice about one clip belongs on that clip. |
+| D71 | Added EXTREME, and CLASSIC replaces SUBTLE as the default for new cues | **CLAUDE**, confirmed by the OWNER | 2026-08-21. MEASURED on a 10s/24fps clip: CLASSIC yields 2 keyframes = 1 droppable = ONE smear in ten seconds; EXTREME yields 10 = 9 droppable, at half the file size. The owner checked EXTREME on real footage: "fantastic, and just about exactly what i wanted". |
+| D72 | Encoder rate overrides are CODEC-AWARE, and refused where they cannot apply | **CLAUDE** | 2026-08-21. There is no universal quality knob (-crf, -cq, -qscale:v all differ in meaning and range; ProRes/DNxHR/HAP/FFV1 are profile-driven with no continuous axis). A single "CRF" field would be a lie on more than half the catalogue, and silently ignoring an override is the dead-control pattern. |
 
 ---
 
 ## Open questions awaiting the owner
 
 - Destructive vs non-destructive prep output naming (`<stem>_mosh.mp4`).
-- Whether prep runs automatically on toggle, or on demand only.
-- H.264 vs MPEG-4 Part 2 for the mosh preset (the latter is the classic look).
-- Whether to tag/release v0.83.2 — 18 commits of cross-platform work are unreleased.
+
+_Resolved and removed 2026-08-21: prep-on-toggle (yes), H.264 vs MPEG-4 for the mosh preset (MPEG-4, D71), and the v0.83.2 release question (v0.84.0 has since shipped)._
