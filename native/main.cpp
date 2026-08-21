@@ -91,6 +91,7 @@
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
 #include "platform/ptp_client.hpp"
+#include "platform/asio_audio.hpp"
 #include "platform/nmos_node.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
@@ -7550,6 +7551,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--smoke", "run the built-in smoke suite and exit"},
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
   {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
+  {"--asio-probe [name]", "list ASIO drivers; with a name, load and report its channels"},
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
@@ -7568,7 +7570,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
-  "--hap-probe", "--timer-dump",
+  "--hap-probe", "--asio-probe", "--timer-dump",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -7697,6 +7699,36 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     std::cout << "timer-dump: " << ops[0] << '\n';
     return 0;
   }
+  if (mode == "--asio-probe") {
+    // No operand: list what is installed, which is cheap and touches no
+    // driver. With a name: LOAD that driver and report its real capabilities,
+    // which is intrusive enough that it must stay opt-in.
+    if (!deckboy::platform::audio::asioSupportCompiled()) {
+      std::cerr << "asio-probe: this build has no ASIO support\n";
+      return 1;
+    }
+    auto devices = deckboy::platform::audio::listAsioDevices();
+    if (ops.empty()) {
+      std::cout << "asio drivers installed: " << devices.size() << '\n';
+      for (const auto& dev : devices) {
+        std::cout << "  " << dev.name << '\n';
+      }
+      return devices.empty() ? 2 : 0;
+    }
+    deckboy::platform::audio::AsioDeviceInfo info;
+    if (!deckboy::platform::audio::probeAsioDevice(ops[0], info)) {
+      std::cerr << "asio-probe: " << (info.error.empty() ? "failed" : info.error) << '\n';
+      return 1;
+    }
+    std::cout << "asio driver: " << info.name << '\n'
+              << "  inputs=" << info.inputChannels
+              << " outputs=" << info.outputChannels << '\n'
+              << "  preferred-buffer=" << info.preferredBufferFrames
+              << " frames" << '\n'
+              << "  sample-rate=" << info.sampleRate << '\n';
+    return 0;
+  }
+
   if (mode == "--hap-probe") {
     if (ops.empty()) return missing("<file.mov>");
 #if DECKBOY_INPROC_DECODE
