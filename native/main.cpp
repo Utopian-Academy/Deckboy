@@ -3356,6 +3356,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.timer.chimeAtRed ? "1" : "0")
         << '\t' << (cue.timer.chimeAtZero ? "1" : "0")
         << '\t' << cue.timer.chimeSound
+        << '\t' << static_cast<int>(cue.tone.waveform)
+        << '\t' << cue.tone.frequencyHz
+        << '\t' << cue.tone.levelDbfs
+        << '\t' << cue.tone.channel
+        << '\t' << static_cast<int>(cue.tone.visual)
+        << '\t' << (cue.tone.visualEnabled ? "1" : "0")
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -3907,6 +3913,16 @@ Project loadProject(const fs::path& projectFile,
         cue.timer.chimeAtRed      = safeBool(fields, tb + 19, false);
         cue.timer.chimeAtZero     = safeBool(fields, tb + 20, true);
         cue.timer.chimeSound      = std::clamp(safeInt(fields, tb + 21, 0), 0, 5);
+        // Tone settings. Appended after the timer block; a show saved before
+        // tone cues existed simply gets the defaults.
+        cue.tone.waveform = static_cast<ToneWaveform>(
+          std::clamp(safeInt(fields, tb + 24, 0), 0, 4));
+        cue.tone.frequencyHz = std::clamp(safeDouble(fields, tb + 25, 1000.0), 20.0, 20000.0);
+        cue.tone.levelDbfs = std::clamp(safeDouble(fields, tb + 26, -18.0), -60.0, -1.0);
+        cue.tone.channel = std::clamp(safeInt(fields, tb + 27, -1), -1, 15);
+        cue.tone.visual = static_cast<ToneVisual>(
+          std::clamp(safeInt(fields, tb + 28, 1), 0, 3));
+        cue.tone.visualEnabled = safeBool(fields, tb + 29, true);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5426,6 +5442,12 @@ class App {
                        "every one.");
       rowY += ix.rowStep;
     }
+    inspDrawQuickRow(ix, rowY, "visuals", QuickAction::ToneVisualToggle,
+                     cue.tone.visualEnabled ? "on" : "off",
+                     QuickAction::ToneVisualToggle, QuickAction::ToneVisualToggle,
+                     true, cue.tone.visualEnabled,
+                     "Draw the diagnostic over the card, or just the text.");
+    rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "display", QuickAction::ToneCycleVisual,
                      toneVisualLabel(cue.tone.visual),
                      QuickAction::ToneCycleVisual, QuickAction::ToggleLoop,

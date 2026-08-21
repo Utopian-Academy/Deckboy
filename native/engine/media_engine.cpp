@@ -4713,7 +4713,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
   const SDL_Color dim   {60, 90, 70, 255};
 
   // Draw the diagnostic BEHIND the text, so the card stays readable across it.
-  if (cue.tone.visual != ToneVisual::None && !toneScopeL_.empty()) {
+  if (cue.tone.visualEnabled && cue.tone.visual != ToneVisual::None &&
+      !toneScopeL_.empty()) {
     const int plotH = H / 3;
     const int plotY = H / 2 - plotH / 2;
     const std::size_t n = toneScopeL_.size();

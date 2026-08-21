@@ -321,6 +321,14 @@
       case QuickAction::ToneChannelDec: adjustToneChannel(-1); break;
       case QuickAction::ToneChannelInc: adjustToneChannel(1); break;
       case QuickAction::ToneCycleVisual: cycleToneVisual(); break;
+      case QuickAction::ToneVisualToggle:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.visualEnabled = !c->tone.visualEnabled;
+          markProjectDirty();
+          triggerToast(c->tone.visualEnabled ? "display on" : "display off");
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
       case QuickAction::TimerClearLogo:         clearTimerLogo(); break;
       case QuickAction::TimerCycleColorNormal:
         cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;
