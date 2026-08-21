@@ -303,6 +303,21 @@
       case QuickAction::DatamoshToggle:
         toggleSelectedDatamosh();
         break;
+      case QuickAction::TimerChimeAmberToggle:
+        toggleTimerFlag(&TimerSettings::chimeAtAmber, "chime amber"); break;
+      case QuickAction::TimerChimeRedToggle:
+        toggleTimerFlag(&TimerSettings::chimeAtRed, "chime red"); break;
+      case QuickAction::TimerChimeZeroToggle:
+        toggleTimerFlag(&TimerSettings::chimeAtZero, "chime zero"); break;
+      case QuickAction::TimerCycleChimeSound:   cycleTimerChimeSound(); break;
+      case QuickAction::TimerCycleColorNormal:
+        cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;
+      case QuickAction::TimerCycleColorAmber:
+        cycleTimerColor(&TimerSettings::colorAmber, "amber colour"); break;
+      case QuickAction::TimerCycleColorRed:
+        cycleTimerColor(&TimerSettings::colorRed, "red colour"); break;
+      case QuickAction::TimerCycleColorBackground:
+        cycleTimerColor(&TimerSettings::colorBackground, "backdrop"); break;
       case QuickAction::DatamoshLookPrev: cycleSelectedDatamoshLook(-1); break;
       case QuickAction::DatamoshLookNext: cycleSelectedDatamoshLook(+1); break;
       case QuickAction::CueSectionEffectsToggle:

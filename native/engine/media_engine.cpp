@@ -4479,12 +4479,21 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   const int seconds = totalSeconds % 60;
 
   // Thresholds are SECONDS REMAINING, so amber 60 means "a minute left".
-  SDL_Color ink {255, 255, 255, 255};
+  // A packed override of -1 means "keep the built-in", so a show that predates
+  // custom colours renders exactly as it always did.
+  auto pick = [](int packed, SDL_Color fallback) {
+    if (packed < 0) return fallback;
+    return SDL_Color {static_cast<Uint8>((packed >> 16) & 0xFF),
+                      static_cast<Uint8>((packed >> 8) & 0xFF),
+                      static_cast<Uint8>(packed & 0xFF), 255};
+  };
+  SDL_Color ink = pick(cfg.colorNormal, SDL_Color {255, 255, 255, 255});
   if (overtime || remaining <= static_cast<double>(cfg.redSeconds)) {
-    ink = SDL_Color {255, 64, 64, 255};
+    ink = pick(cfg.colorRed, SDL_Color {255, 64, 64, 255});
   } else if (remaining <= static_cast<double>(cfg.amberSeconds)) {
-    ink = SDL_Color {255, 190, 40, 255};
+    ink = pick(cfg.colorAmber, SDL_Color {255, 190, 40, 255});
   }
+  const SDL_Color bg = pick(cfg.colorBackground, SDL_Color {0, 0, 0, 255});
 
   // Blink keyed to wall-clock elapsed, so an overtime clock keeps flashing even
   // while the ticker is held. The source app is explicit that a stopped
@@ -4495,9 +4504,9 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   }
 
   for (std::size_t i = 0; i < frame.pixels.size(); i += 4) {
-    frame.pixels[i + 0] = 0;
-    frame.pixels[i + 1] = 0;
-    frame.pixels[i + 2] = 0;
+    frame.pixels[i + 0] = bg.b;
+    frame.pixels[i + 1] = bg.g;
+    frame.pixels[i + 2] = bg.r;
     frame.pixels[i + 3] = 255;
   }
   if (blankThisFrame) {

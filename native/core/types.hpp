@@ -91,6 +91,23 @@ struct TimerSettings {
   bool showProgressBar = true;  // length is readable from further back than digits
   bool messageIsUrgent = false; // red rather than white: the "wrap up NOW" state
   std::string message;          // optional line under the clock
+
+  // Custom colours, packed 0xRRGGBB. -1 means "use the built-in default for
+  // this state", which is what every existing show carries -- so adding these
+  // changes nothing until an operator sets one.
+  int colorNormal = -1;         // default white
+  int colorAmber = -1;          // default amber
+  int colorRed = -1;            // default red
+  int colorBackground = -1;     // default black
+
+  // Audible cues. A speaker looking at the audience is not looking at the
+  // clock, which is the whole reason stage timers chime.
+  bool chimeAtAmber = false;
+  bool chimeAtRed = false;
+  bool chimeAtZero = true;
+  // Which chime. Six because a stage timer often shares a room with other
+  // cues and the operator needs one that does not collide with them.
+  int chimeSound = 0;
 };
 
 // What happens when a cue reaches its end. "Inherit" defers to the deck-level default.
@@ -849,6 +866,10 @@ enum class QuickAction {
   // Per-cue effects section. Datamosh is the first member; the section exists
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
+  TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
+  TimerCycleChimeSound,
+  TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
+  TimerCycleColorBackground,
   DatamoshToggle,
   DatamoshLookPrev, DatamoshLookNext,
   // Stage timer. Run/Reset/Nudge act on the CLOCK, not the transport.
