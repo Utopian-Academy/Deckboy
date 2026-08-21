@@ -522,9 +522,14 @@
   }
 
   std::vector<std::pair<std::string, std::string>> outputStreamProtocolDropdownChoices() const {
+    // RTMPS was fully implemented -- its own default URL, the FLV muxer, TLS --
+    // but appeared in neither this list nor the cycle, so it was unreachable
+    // from the UI. FILE is the program recorder.
     return {
       {"srt", "SRT"},
       {"rtmp", "RTMP"},
+      {"rtmps", "RTMPS"},
+      {"file", "RECORD TO FILE"},
     };
   }
 
