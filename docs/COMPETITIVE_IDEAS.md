@@ -65,10 +65,27 @@ rather than scrub.
 **What:** record a live input, and edit the clip while it is still recording.
 
 **Why:** Deckboy has capture inputs (camera, window, NDI, SRT) and can encode —
-it simply never writes an input to disk. For an event that wants an instant
-replay or a same-day edit this is significant, and most of the plumbing exists.
+it simply never writes to disk. For an event that wants an instant replay or a
+same-day edit this is significant, and most of the plumbing exists.
 
-**Effort:** medium.
+**Decide first: PROGRAM or INPUT?** They are different features and only one is
+cheap.
+
+- **Program recording** (what went to air) is nearly free. The stream egress
+  path already pipes composited frames into ffmpeg's stdin and muxes them to a
+  URL (`spawnOutputStreamProcess`, `startOutputStreamWriter`). Recording is the
+  same pipeline with a file target: add a `file` protocol alongside srt/rtmp in
+  `normalizeOutputStreamProtocol`, let the muxer follow the extension, and skip
+  `applySrtUrlParameters`. Audio already arrives on the same pipe. **This is the
+  one to build first.**
+- **Input recording** (a clean feed, what PLAYDECK does) needs a SECOND capture
+  of the source, because the existing one is consumed by the decode path and the
+  devices are exclusive-open on Windows — the same constraint that already stops
+  previewing a camera while it is live. That means either a tee off the decode
+  pipe or a second device handle, and neither is a small change.
+
+**Effort:** program recording is small; input recording is medium-to-large and
+should not be started without deciding the tee-vs-second-handle question.
 
 ## 5. ASIO / Dante audio — PlayDeck
 

@@ -93,6 +93,7 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D66 | Timeline + per-layer warp + output map = SUPER DECKBOY (v2), not v1 | **OWNER** | 2026-08-20. Written up in DEVNOTES under 'Super Deckboy (Deckboy 2)'. Each changes the app's shape (time ownership / render pipeline), so starting one inside v1 would destabilise a live tool. |
 | D67 | MASTER CUES fire individual SUBCUES (not a ruler with clips) | **OWNER** | 2026-08-20, his original idea, refined. Fan-out from the existing take path. |
 | D68 | Master cues are BETTER than a timeline here, and cheaper | **CLAUDE**, agreeing with the owner | They do NOT invert time ownership (each subcue keeps its own position), so this may not need to wait for v2. They also degrade gracefully when a show runs long, where an absolute timeline drifts. Not novel — it is QLab's Group Cue — but uncommon in VIDEO playback (Mitti has none). |
+| D69 | Recording: build PROGRAM first, INPUT is a separate harder feature | **CLAUDE** | Program recording reuses the stream egress path with a file target (small). Input recording needs a second capture of an exclusive-open device, or a tee off the decode pipe -- not small, and not to be started without that decision. |
 
 ---
 
