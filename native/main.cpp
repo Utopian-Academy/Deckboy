@@ -2477,7 +2477,20 @@ std::string normalizeOutputStreamProtocol(std::string protocol) {
   if (protocol == "rtmps") {
     return "rtmps";
   }
+  // "file" records the finished program to disk instead of sending it. Same
+  // pipeline, different sink -- the compositor already hands finished frames to
+  // ffmpeg's stdin, so recording is a muxer and a target away from streaming.
+  if (protocol == "file") {
+    return "file";
+  }
   return "srt";
+}
+
+// True when the egress target is a file on disk rather than a network sink.
+// The streaming-only muxer flags (mpegts header resend, zero mux delay) are
+// wrong for a recording and some are rejected outright by the mp4 muxer.
+inline bool outputStreamProtocolIsFile(const std::string& normalizedProtocol) {
+  return normalizedProtocol == "file";
 }
 
 // True for the RTMP family, which is what takes a stream key and the FLV muxer.
@@ -2576,6 +2589,13 @@ std::string defaultOutputStreamUrl(const std::string& protocol, int outputIndex)
     // RTMPS had no default at all (it normalized to SRT), so choosing it left
     // the operator with an srt:// URL and no clue why nothing connected.
     return "rtmps://127.0.0.1:443/live/output" + std::to_string(normalizedIndex);
+  }
+  if (normalized == "file") {
+    // A NAME, not a final path: buildOutputStreamArgs stamps the time onto the
+    // stem at spawn so a second recording can never overwrite the first. The
+    // folder is resolved there too, because it depends on whether a show is
+    // open and this function does not know.
+    return "program-output" + std::to_string(normalizedIndex) + ".mp4";
   }
   // Bare host:port — the transport parameters are added from the SRT fields by
   // applySrtUrlParameters, so they are no longer baked into the default string.

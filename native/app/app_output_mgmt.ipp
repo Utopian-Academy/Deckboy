@@ -291,17 +291,22 @@
   bool cycleFocusedOutputStreamProtocol(int direction) {
     normalizeProject(project_);
     OutputTarget& output = focusedOutputMutable();
-    static const std::array<std::string, 2> protocols {"srt", "rtmp"};
+    // Derived from the dropdown rather than repeated here. The two lists had
+    // already drifted -- this one was {"srt","rtmp"} while the dropdown offered
+    // more -- so cycling could never reach the extra protocols.
+    const auto choices = outputStreamProtocolDropdownChoices();
+    if (choices.empty()) return false;
+    const int count = static_cast<int>(choices.size());
     std::string current = normalizeOutputStreamProtocol(output.streamProtocol);
     int index = 0;
-    for (int i = 0; i < static_cast<int>(protocols.size()); ++i) {
-      if (protocols[i] == current) {
+    for (int i = 0; i < count; ++i) {
+      if (choices[i].first == current) {
         index = i;
         break;
       }
     }
-    int next = (index + direction + static_cast<int>(protocols.size())) % static_cast<int>(protocols.size());
-    return setFocusedOutputStreamProtocol(protocols[next]);
+    int next = ((index + direction) % count + count) % count;
+    return setFocusedOutputStreamProtocol(choices[next].first);
   }
 
   bool setFocusedOutputStreamUrl(const std::string& streamUrl) {
@@ -1408,6 +1413,40 @@
     return spec.str();
   }
 
+  // Turn the operator's recording NAME into a real path, stamped with the
+  // start time. Two invariants:
+  //   1. A recording never overwrites a previous take. The operator is running
+  //      a live show; losing the last one to a same-named restart is not a
+  //      recoverable mistake.
+  //   2. It never writes inside a macOS .app bundle. A bare name lands in
+  //      recordings/ beside the show, or in stateDir() when no show is open --
+  //      the same rule the converted-media cache follows.
+  // An absolute path from the operator is honoured as-is, minus the stamp.
+  std::string resolveRecordingPath(const std::string& nameOrPath) const {
+    std::error_code ec;
+    fs::path given(trim(nameOrPath));
+    fs::path dir;
+    fs::path stem = given.stem();
+    std::string ext = given.extension().string();
+    if (given.is_absolute() && given.has_parent_path()) {
+      dir = given.parent_path();
+    } else {
+      fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
+        ? currentProjectFile_.parent_path()
+        : Paths::stateDir();
+      dir = base / "recordings";
+    }
+    if (stem.empty()) stem = "program";
+    if (ext.empty())  ext = ".mp4";
+    std::time_t now = std::time(nullptr);
+    char stamp[32] = "";
+    if (std::tm* lt = std::localtime(&now)) {
+      std::strftime(stamp, sizeof(stamp), "%Y%m%d-%H%M%S", lt);
+    }
+    fs::create_directories(dir, ec);
+    return (dir / (stem.string() + "_" + stamp + ext)).string();
+  }
+
   std::vector<std::string> buildOutputStreamArgs(int outputIndex,
                                                  int width,
                                                  int height,
@@ -1427,6 +1466,12 @@
       if (url.back() != '/') url += '/';
       url += key;
     }
+    // Recording resolves to a real path with a timestamp stamped on so a
+    // second take can never overwrite the first.
+    const bool toFile = outputStreamProtocolIsFile(protocol);
+    if (toFile) {
+      url = resolveRecordingPath(url);
+    }
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);
@@ -1438,7 +1483,17 @@
       fps * std::clamp(output.streamKeyframeSeconds, 1, 10))));
     // RTMPS is RTMP over TLS — same FLV muxer. It used to normalize to "srt"
     // and land here as mpegts, which no RTMP server would accept.
+    // A recording follows its own EXTENSION -- an .mp4 written as mpegts is a
+    // file most editors will not open.
     std::string mux = outputStreamProtocolIsRtmp(protocol) ? "flv" : "mpegts";
+    if (toFile) {
+      const std::string ext = toLower(fs::path(url).extension().string());
+      mux = (ext == ".mov")  ? "mov"
+          : (ext == ".mkv")  ? "matroska"
+          : (ext == ".ts")   ? "mpegts"
+          : (ext == ".avi")  ? "avi"
+                             : "mp4";
+    }
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     std::ostringstream fpsText;
     fpsText << std::fixed << std::setprecision(2) << fps;
@@ -1462,9 +1517,14 @@
       "-map", "1:a:0",
       "-c:v", "libx264",
       "-preset", "veryfast",
-      "-tune", "zerolatency",
       "-pix_fmt", "yuv420p"
     };
+    if (!toFile) {
+      // zerolatency exists to cut STREAM delay: it disables lookahead and
+      // B-frames, which costs real quality. A recording is not watched live,
+      // so it keeps the encoder's normal behaviour.
+      args.insert(args.end(), {"-tune", "zerolatency"});
+    }
     if (colorSpace == "bt709") {
       args.insert(args.end(), {
         "-colorspace", "bt709",
@@ -1480,11 +1540,6 @@
     }
     args.insert(args.end(), {
       "-fflags", "+genpts",
-      "-max_interleave_delta", "0",
-      "-flush_packets", "1",
-      "-muxdelay", "0",
-      "-muxpreload", "0",
-      "-mpegts_flags", "+resend_headers",
       "-g", std::to_string(gop),
       "-b:v", std::to_string(bitrateKbps) + "k",
       "-maxrate", std::to_string(bitrateKbps) + "k",
@@ -1492,10 +1547,40 @@
       "-c:a", "aac",
       "-b:a", "160k",
       "-ar", "48000",
-      "-ac", "2",
-      "-f", mux,
-      url
+      "-ac", "2"
     });
+    if (toFile) {
+      // The audio source (anullsrc) is INFINITE. Without -shortest the
+      // recording does not end when the video pipe closes -- it keeps muxing
+      // silence forever. MEASURED: a 2s source produced a 26MB file and was
+      // still growing when killed.
+      args.insert(args.end(), {"-shortest"});
+      // FRAGMENTED mp4, deliberately NOT +faststart. faststart rewrites the
+      // whole file at close to move the moov atom to the front; shutdown
+      // closes stdin and force-kills after 500ms, which on a show-length
+      // recording lands mid-rewrite and leaves a file with NO moov atom at
+      // all. MEASURED: ffprobe on such a file reports "moov atom not found"
+      // and it will not open anywhere. A fragmented file is valid at every
+      // instant, so a killed -- or crashed -- recording is still playable up
+      // to the last keyframe. That matters more here than the marginal
+      // compatibility faststart buys.
+      if (mux == "mp4" || mux == "mov") {
+        args.insert(args.end(), {"-movflags", "+frag_keyframe+empty_moov+default_base_moof"});
+      }
+    } else {
+      // Low-latency muxing, for network sinks only. resend_headers is an
+      // mpegts option and the mp4 muxer rejects it outright.
+      args.insert(args.end(), {
+        "-max_interleave_delta", "0",
+        "-flush_packets", "1",
+        "-muxdelay", "0",
+        "-muxpreload", "0"
+      });
+      if (mux == "mpegts") {
+        args.insert(args.end(), {"-mpegts_flags", "+resend_headers"});
+      }
+    }
+    args.insert(args.end(), {"-f", mux, url});
     return args;
   }
 
