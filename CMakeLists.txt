@@ -155,6 +155,7 @@ option(ENABLE_DECKLINK "Build with Blackmagic DeckLink 10-bit SDI/HDMI output" O
 option(ENABLE_MIDI "Build with RtMidi cross-platform MIDI input" OFF)
 option(ENABLE_SIPHON "Build with macOS Siphon interprocess texture sharing" OFF)
 option(ENABLE_SPOUT "Build with Windows Spout interprocess texture sharing" OFF)
+option(ENABLE_ASIO "Build with Steinberg ASIO low-latency audio (Windows)" ON)
 option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
 option(ENABLE_WEBVIEW "Build with native WebView APIs (macOS WKWebView, Windows WebView2)" OFF)
 
@@ -433,6 +434,43 @@ if(APPLE)
   target_link_libraries(deckboy-native PRIVATE
     "-framework CoreGraphics"
     "-framework CoreFoundation")
+endif()
+
+# ── Steinberg ASIO ───────────────────────────────────────────────────────────
+# The vendored SDK subset is used under the GPL v3 half of its DUAL licence,
+# which is compatible with Deckboy's own GPL-3.0-or-later. See
+# native/third_party/asio/README.md before assuming otherwise -- the common
+# advice that ASIO cannot ship in a GPL program describes older SDK releases.
+#
+# ON by default because there is no licence obstacle and no external dependency
+# to install: the driver itself is supplied by the user's audio interface, and
+# its absence is a runtime condition rather than a build one.
+if(WIN32 AND ENABLE_ASIO)
+  set(DECKBOY_ASIO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/native/third_party/asio")
+  if(EXISTS "${DECKBOY_ASIO_DIR}/asio.h")
+    target_sources(deckboy-native PRIVATE
+      "${DECKBOY_ASIO_DIR}/asio.cpp"
+      "${DECKBOY_ASIO_DIR}/asiodrivers.cpp"
+      "${DECKBOY_ASIO_DIR}/asiolist.cpp"
+      "${CMAKE_CURRENT_SOURCE_DIR}/native/platform/asio_audio.cpp")
+    target_include_directories(deckboy-native PRIVATE "${DECKBOY_ASIO_DIR}")
+    target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_ASIO=1)
+    # The SDK predates modern warning levels and is not ours to clean up.
+    if(MSVC)
+      set_source_files_properties(
+        "${DECKBOY_ASIO_DIR}/asio.cpp"
+        "${DECKBOY_ASIO_DIR}/asiodrivers.cpp"
+        "${DECKBOY_ASIO_DIR}/asiolist.cpp"
+        # /FI force-includes: the SDK sources use the COM `interface` macro
+        # and IUnknown without including the headers that define them, relying
+        # on the host project having done so first. Forcing them per-TU is
+        # cleaner than editing vendored code we will re-extract on update.
+        PROPERTIES COMPILE_FLAGS "/w /FIwindows.h /FIobjbase.h")
+    endif()
+    message(STATUS "ASIO: enabled (vendored SDK 2.3.4, GPLv3 option)")
+  else()
+    message(STATUS "ASIO: SDK sources missing, skipping")
+  endif()
 endif()
 
 # Export dynamic symbols on POSIX so the crash handler's backtrace resolves to
