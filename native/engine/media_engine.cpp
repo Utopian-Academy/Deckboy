@@ -4169,7 +4169,7 @@ void MediaEngine::drawPocketTestCard(DecodedFrame& frame, const DecodedFrame& sc
 // ---------------------------------------------------------------------------
 // buildTestBars — testsrc2-homage motion diagnostics ("Test Bars").
 //
-// the owner took a shine to ffmpeg's testsrc2 during decoder testing, so this is
+// The owner took a shine to ffmpeg's testsrc2 during decoder testing, so this is
 // the Deckboy edition: six saturated bars for color checks, a bouncing
 // rainbow diagonal for motion/tearing, a dissolving checker patch for
 // deinterlace/scaler artefacts, a sliding grey reference block for judder,

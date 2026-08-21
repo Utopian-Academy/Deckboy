@@ -450,7 +450,7 @@ reaches **the stream's own destination group**. Probing a generic internet
 address instead would return the default route, which on a machine running a VPN
 is the tunnel — the SDP would then name an interface carrying no 2110 at all.
 Verified on a host with ProtonVPN up: origin resolves to the LAN NIC
-(192.168.1.50), not the tunnel (10.2.0.2) and not loopback.
+(the LAN address), not the tunnel (10.2.0.2) and not loopback.
 
 Memoised per destination with a 30 s refresh: SDPs are rebuilt every time the
 NMOS sender snapshot is taken, so resolving per call would open a socket at

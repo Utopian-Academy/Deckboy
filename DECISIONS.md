@@ -1,10 +1,10 @@
 # Deckboy Decision Log
 
 Every decision gets logged with **who made it**. the owner's decisions take priority
-over mine and are not to be revisited or "improved" without him saying so — if I
+over mine and are not to be revisited or "improved" without them saying so — if I
 think one is wrong, I raise it, he rules, and the ruling gets logged here.
 
-Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
+Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challenge.
 
 ---
 
@@ -13,7 +13,7 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | # | Decision | Who | Notes |
 |---|---|---|---|
 | S1 | Log every decision, marking who made it; prioritise the owner's | **OWNER** | 2026-08-19. This file. |
-| S2 | Text placement is a contract — fix alignment systemically, never per-widget | **OWNER** | He judges quality by consistent text placement. |
+| S2 | Text placement is a contract — fix alignment systemically, never per-widget | **OWNER** | They judge quality by consistent text placement. |
 | S3 | Fix themes as data, never the renderer | **OWNER** | Exception: adding theme *roles* is allowed. |
 | S4 | Never raise bot XP rate / never seed population (WoW) | **OWNER** | Out of scope here, kept for cross-project consistency. |
 | S5 | Encoding must never outbid playback during a show | **CLAUDE** | Drives the concurrency cap; challenge if you disagree. |
@@ -28,7 +28,7 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D1 | Add the magenta beach splash to the cycle pool | **OWNER** | "You can add the decent one." DONE — `splash_5.png`. |
 | D2 | Desaturate + gamma-match it to the existing pool | **CLAUDE** | Pool is grayscale masters tinted per theme; colour art multiplies to mud. Matched mean 22.7 vs pool 19–25. |
 | D3 | Datamosh as a per-cue **toggle** | **OWNER** | Not a global or deck-level effect. |
-| D4 | Real bitstream datamosh (drop I-frames), not a pixel-domain fake | **OWNER** | He specified "removing all iframe". Fake offered as cheaper alt, not chosen. |
+| D4 | Real bitstream datamosh (drop I-frames), not a pixel-domain fake | **OWNER** | They specified "removing all iframe". Fake offered as cheaper alt, not chosen. |
 | D5 | Re-encode source to a datamosh-friendly format when needed | **OWNER** | "if necessary it could include the option to re-encode." |
 | D6 | Toggle swaps between original clip and prepped moshable clip | **OWNER** | Non-destructive; makes toggle-off instant. Better than my in-place plan. |
 | D7 | Keyframes stay in the prepped file for seeking; dropped at decode | **CLAUDE** | Resolves long-GOP vs seek-cost tension. GOP = seek granularity, not an effect parameter. |
@@ -45,14 +45,14 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D18 | Add three more splashes (autumn rooftop / winter campfire / brooklyn) | **OWNER** | 2026-08-19. DONE - splash_6/7/8, grayscale + gamma-matched to pool mean 22.7. Pool now 8. |
 | D19 | Encoder tab body text must use light/soft, not `pal.deep` | **CLAUDE** | Root cause of "layout looks fucked up": rows rendered dark-on-dark. Last holdout in the modal (ink used 5x vs soft 26x / light 55x). FIXED. |
 | D20 | Encoder tab joins the uiScale sweep (shared sPad/sLineH/sRowH + cardBody helpers) | **CLAUDE** | It was fully 1x-authored, incl. a hardcoded `cy + 56` header offset. Same failure as the display list's hardcoded 32. FIXED. |
-| D21 | Whimsy line runs full width below the mascot, not inside the face column | **OWNER** | He reported "info text in the cue is being cut off" - it ellipsized to "this one has opi...". Mascot also silently text-falls-back under 150x120. FIXED. |
+| D21 | Whimsy line runs full width below the mascot, not inside the face column | **OWNER** | They reported "info text in the cue is being cut off" - it ellipsized to "this one has opi...". Mascot also silently text-falls-back under 150x120. FIXED. |
 | D22 | Queue list distinguishes [converting...] from [queued] | **CLAUDE** | It called all 31 jobs "converting" when only 1 was. FIXED. |
 | D23 | Work order: presets -> other encoder fixes -> cancel/pause UI -> cut v0.83.2 | **OWNER** | 2026-08-19, explicit; release last. |
 | D24 | Four encode presets: Delivery H.264 / Proxy 720p / Match Source / Datamosh | **CLAUDE** | Scoping the owner's "AME+" ask. DONE + verified. |
 | D25 | Datamosh preset is libx264 ONLY (no NVENC) | **CLAUDE** | NVENC ignores/constrains refs + scenecut and injects its own IDRs, silently undoing the preset. |
 | D26 | Keyframes every 2s in the mosh file for SEEKING; dropped at decode for the effect | **CLAUDE** | Verified: keyframes at 0/2/4/6/8/10s, scene-cut disabled so they stay regular. |
 | D27 | Datamosh output is `<stem>_mosh.mp4` beside the original, not a replacement | **CLAUDE** | Required by D6 (toggle swaps between the two). Awaiting the owner's confirmation. |
-| D28 | Leave Delivery preset quality as-is for now | **CLAUDE** | 22min -> 479MB is generous, but changing his existing default silently is his call. OPEN. |
+| D28 | Leave Delivery preset quality as-is for now | **CLAUDE** | 22min -> 479MB is generous, but changing their existing default silently is their call. OPEN. |
 | D29 | Re-encode to ANY format, driven by a probed catalog ("like Media Encoder") | **OWNER** | 2026-08-19. 20 formats; availability probed from `ffmpeg -encoders`, never assumed. |
 | D30 | Format availability is PROBED, not hardcoded | **CLAUDE** | Different ffmpeg builds ship different encoders; an offered-but-missing format fails into "conversion failed" with no reason. Verified: HAP correctly excluded on this build. |
 | D31 | Quality args are per-codec, not one template | **CLAUDE** | x264/x265 `-crf`, NVENC `-cq`, ProRes/DNxHD profiles, VP9/AV1 need `-b:v 0`, GIF/PNG/audio must drop the stream they lack. All 17 available formats test-encoded OK. |
@@ -78,11 +78,11 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D51 | EFFECTS inspector section, datamosh as its first member | **OWNER** asked for a home / **CLAUDE** proposed EFFECTS over renaming KEY | The toggle previously had NO UI - remote verb only. Section shows the three states (ON / off / not prepared) instead of making you trigger it to find out. |
 | D52 | Press Start 2P on CHROME only, sans for user text (hybrid) | **OWNER** | 2026-08-19, chose it from a rendered comparison of 5 candidates. Already bundled + OFL. Point sizes ~0.62x the old sans sizes to keep cap height and line rhythm. |
 | D53 | Accept wider text as the cost of the pixel font | **CLAUDE** | Press Start 2P is much wider per char, so cue names truncate sooner. Fixed-width inspector LABEL columns now clip ("deck ...") and need widening - that part IS a bug. |
-| D54 | REVISED D52 to a hybrid after seeing it in situ | **OWNER** | He flagged the readability himself; the screenshot showed "S06E01" scanning as "S0GE0" - 0/O and 6/G are near-identical in Press Start 2P at UI sizes. Pixel face on labels/buttons/headers, sans on cue names/paths/metadata. |
+| D54 | REVISED D52 to a hybrid after seeing it in situ | **OWNER** | They flagged the readability himself; the screenshot showed "S06E01" scanning as "S0GE0" - 0/O and 6/G are near-identical in Press Start 2P at UI sizes. Pixel face on labels/buttons/headers, sans on cue names/paths/metadata. |
 | D55 | Icon rects must match their button rects | **CLAUDE** | Icons drew into snapRectToGrid(btn) while the button painted btn - up to 7px offset, glyphs outside their boxes. Pre-dated the font change. Same class as the v0.81.0 text-placement contract. |
 | D56 | Encoder queue needs reorder + per-job start/pause/stop | **OWNER** | 2026-08-20. Only cancel exists today. |
 | D57 | **REVERSES D9**: datamosh toggle AUTO-transcodes on enable | **OWNER** | 2026-08-20: "toggle it on, it immediately transcodes... or gives a warning if it cannot". I had ruled prep must never start from a live toggle; the owner overruled. Implement with clear in-progress state; warn rather than silently start on huge files. |
-| D58 | New `Timer` source cue = full stage/speaker timer | **OWNER** | 2026-08-20. Port from ~/OneDrive/Desktop/speakertimer (C#/WPF). Countdown, presets, amber/red thresholds, overtime count-up, blink, message overlay. |
+| D58 | New `Timer` source cue = full stage/speaker timer | **OWNER** | 2026-08-20. Port from a local C#/WPF speaker-timer app. Countdown, presets, amber/red thresholds, overtime count-up, blink, message overlay. |
 | D59 | ~~Timer uses the TRANSPORT as its clock~~ REVERSED by D62 | **CLAUDE, overruled** | TAKE starts, PAUSE holds, RERACK resets. The operator gets the controls they already know instead of a second set of timer buttons. |
 | D60 | Timer duration = countdown + 1h overtime allowance when count-up is on | **CLAUDE** | Otherwise the transport hits its end at zero and auto-advances to the next cue while a speaker is still talking. |
 | D61 | Timer cues default to hold, endAction Stop | **CLAUDE** | A countdown that auto-advanced at zero would be actively dangerous on a show. |
@@ -91,7 +91,7 @@ Legend: **[OWNER]** = his call, binding. **[CLAUDE]** = mine, open to challenge.
 | D64 | Competitive survey recorded in docs/COMPETITIVE_IDEAS.md | **OWNER** asked | Ranked by value-per-effort FOR DECKBOY, noting where it is already at parity (Mitti) rather than listing impressive features. |
 | D65 | Items 1-5 of the survey ACCEPTED as the v1 working list | **OWNER** | 2026-08-20: show log, scheduled start, cue markers, record input, ASIO/Dante. |
 | D66 | Timeline + per-layer warp + output map = SUPER DECKBOY (v2), not v1 | **OWNER** | 2026-08-20. Written up in DEVNOTES under 'Super Deckboy (Deckboy 2)'. Each changes the app's shape (time ownership / render pipeline), so starting one inside v1 would destabilise a live tool. |
-| D67 | MASTER CUES fire individual SUBCUES (not a ruler with clips) | **OWNER** | 2026-08-20, his original idea, refined. Fan-out from the existing take path. |
+| D67 | MASTER CUES fire individual SUBCUES (not a ruler with clips) | **OWNER** | 2026-08-20, their original idea, refined. Fan-out from the existing take path. |
 | D68 | Master cues are BETTER than a timeline here, and cheaper | **CLAUDE**, agreeing with the owner | They do NOT invert time ownership (each subcue keeps its own position), so this may not need to wait for v2. They also degrade gracefully when a show runs long, where an absolute timeline drifts. Not novel — it is QLab's Group Cue — but uncommon in VIDEO playback (Mitti has none). |
 | D69 | Recording: build PROGRAM first, INPUT is a separate harder feature | **CLAUDE** | Program recording reuses the stream egress path with a file target (small). Input recording needs a second capture of an exclusive-open device, or a tee off the decode pipe -- not small, and not to be started without that decision. |
 

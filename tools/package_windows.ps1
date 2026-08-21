@@ -140,6 +140,18 @@ if (Test-Path $DataSrc) {
             Write-Host "  - stripped data\$StaleName (build-machine state)"
         }
     }
+
+    # data/_converted/ holds the operator OWN transcoded media -- datamosh
+    # preps, proxies, format conversions. It is gitignored, but .gitignore does
+    # not apply to a file copy, so without this the zip ships whatever personal
+    # footage is on the packaging machine. One real prep here was 1.7 GB, which
+    # is how this was noticed.
+    $ConvertedDir = Join-Path (Join-Path $StageDir "data") "_converted"
+    if (Test-Path $ConvertedDir) {
+        $ConvertedMB = [math]::Round(((Get-ChildItem $ConvertedDir -Recurse -File | Measure-Object Length -Sum).Sum) / 1MB)
+        Remove-Item $ConvertedDir -Recurse -Force
+        Write-Host "  - stripped data\_converted (operator media, $ConvertedMB MB)"
+    }
 }
 $LicenseSrc = Join-Path $RepoRoot "LICENSE"
 if (Test-Path $LicenseSrc) {
@@ -148,8 +160,20 @@ if (Test-Path $LicenseSrc) {
 # FFmpeg license notice for the bundled libav* DLLs (in-process decode).
 # vcpkg installs the port's consolidated copyright file; carrying it in the
 # zip satisfies the LGPL/GPL notice requirement for redistribution.
-$FfmpegCopyright = "C:\Users\user\vcpkg\installed\x64-windows\share\ffmpeg\copyright"
-if (Test-Path $FfmpegCopyright) {
+# Derived, not hardcoded to one machine: VCPKG_ROOT if set, else the usual
+# locations. This was a literal path under one developer home directory, which
+# both put a username in the repo and silently skipped the licence notice on
+# every other machine.
+$VcpkgRoot = $env:VCPKG_ROOT
+if (-not $VcpkgRoot) {
+    foreach ($candidate in @("$env:USERPROFILE\vcpkg", "C:\vcpkg", "C:\dev\vcpkg")) {
+        if (Test-Path (Join-Path $candidate "vcpkg.exe")) { $VcpkgRoot = $candidate; break }
+    }
+}
+$FfmpegCopyright = if ($VcpkgRoot) {
+    Join-Path $VcpkgRoot "installed\x64-windows\share\ffmpeg\copyright"
+} else { "" }
+if ($FfmpegCopyright -and (Test-Path $FfmpegCopyright)) {
     Copy-Item $FfmpegCopyright -Destination (Join-Path $StageDir "LICENSE-ffmpeg.txt")
 } else {
     Write-Warning "FFmpeg copyright file not found at $FfmpegCopyright; zip ships libav DLLs without their license notice."

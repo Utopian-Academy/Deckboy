@@ -17,6 +17,16 @@ data/last_project.txt
 # Media converter output (portable per-show cache)
 _converted/
 
+# Runtime logs. The show log records real cue NAMES from real shows, so this is
+# a privacy rule, not just hygiene -- never let one reach the repo. In a portable
+# install stateDir() IS data/, which is why they land there.
+*.log
+data/deckboy-*.log
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc
+
 # OS junk
 .DS_Store
 Thumbs.db
