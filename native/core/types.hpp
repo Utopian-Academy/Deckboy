@@ -108,6 +108,10 @@ struct TimerSettings {
   // Which chime. Six because a stage timer often shares a room with other
   // cues and the operator needs one that does not collide with them.
   int chimeSound = 0;
+  // Optional logo drawn above the clock (event branding, sponsor mark). Empty
+  // = none. Decoded once and cached; see MediaEngine::timerLogoPixels.
+  std::string logoPath;
+  int logoHeightPercent = 18;   // of frame height; width follows the aspect
 };
 
 // What happens when a cue reaches its end. "Inherit" defers to the deck-level default.
@@ -867,7 +871,7 @@ enum class QuickAction {
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
-  TimerCycleChimeSound,
+  TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
   DatamoshToggle,

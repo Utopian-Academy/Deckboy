@@ -310,6 +310,8 @@
       case QuickAction::TimerChimeZeroToggle:
         toggleTimerFlag(&TimerSettings::chimeAtZero, "chime zero"); break;
       case QuickAction::TimerCycleChimeSound:   cycleTimerChimeSound(); break;
+      case QuickAction::TimerPickLogo:          pickTimerLogo(); break;
+      case QuickAction::TimerClearLogo:         clearTimerLogo(); break;
       case QuickAction::TimerCycleColorNormal:
         cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;
       case QuickAction::TimerCycleColorAmber:
