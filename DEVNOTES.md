@@ -1770,6 +1770,53 @@ with warp and blend between them, which is the Super Deckboy use case. Deckboy
 already knows every output's raster, display, AOI and edge blend, so this is
 drawing what it already knows — the work is deciding what the drawing is FOR.
 
+### HAP GPU block upload — deferred, compatibility stays
+
+HAP PLAYBACK AND ENCODING SHIP AND STAY. Deckboy decodes HAP, HAP Alpha, HAP Q
+and HAP Alpha Only (own container parser + vendored Snappy), encodes all three
+variants from the Encoder tab, and offers a conversion when it would actually
+pay. None of that is affected by this deferral. What is deferred is uploading
+the DXT/BC blocks straight to the GPU instead of expanding them to RGBA on the
+CPU first.
+
+**Why it is a v2 item.** SDL3 has no BC pixel format: `SDL_CreateTexture`
+cannot express BC1/BC3 and `SDL_UpdateTexture` has no notion of block pitch, so
+blocks cannot be handed to the renderer at all. And a BC texture cannot be
+`CopySubresourceRegion`'d into the RGBA `SDL_Texture` the compositor samples --
+the formats do not match. Doing it properly means a D3D11 pass of our own:
+create the BC texture, bind it as an SRV, draw a fullscreen quad through a
+pixel shader into an RGBA render target, and hand THAT to the compositor. Hap Q
+needs a YCoCg->RGB conversion in the same shader. That is a rendering pipeline
+Deckboy does not otherwise have, per platform, which is a change in the shape
+of the renderer rather than an addition to it.
+
+**What it would buy, measured** (5s of 1080p on the dev machine):
+
+| | H.264 | HAP |
+|---|---|---|
+| per stream, one thread | 454ms | 265ms |
+| six concurrent | 540ms | 361ms |
+| file size | 4.5MB | 19.3MB |
+
+The CPU path already delivers most of this: HAP is 1.7x cheaper per layer than
+H.264 today, without any GPU work, because DXT decompression is far cheaper
+than H.264 decode. GPU upload would remove the remaining decompress and cut the
+upload to a quarter of the bytes. Real, but a refinement of a working feature
+rather than the feature itself -- which is exactly why it waits.
+
+**Cheaper win to try first, inside v1.** `hap_decoder.cpp` decodes chunked
+frames in order. The format's chunking exists specifically so a decoder can
+spread the work across threads; correctness does not depend on doing so. Both
+the chunk decode and the DXT expansion are embarrassingly parallel. That is
+measurable CPU savings with no shader pipeline and no platform-specific code.
+
+What already helps when GPU upload comes:
+- `hap::Frame::data` is already raw block data, ready for upload as-is.
+- `TextureFormat` already maps 1:1 onto DXGI BC formats.
+- `DecodedFrame` already carries a GPU payload (`gpuTexture`/`gpuDevice`) and
+  the per-deck D3D11 bridge from the v0.78.0 zero-copy work already composites
+  GPU-resident frames.
+
 ### Not pursuing at any version
 
 3D projection mapping, FBX import, marker calibration, Notch/Unreal/TouchDesigner
