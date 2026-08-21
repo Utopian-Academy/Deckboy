@@ -1,5 +1,68 @@
-# CHANGES - Incremental Updates (March–August 2026)
+# CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-20 - v0.84.0 (datamosh, HAP, stage timer, show log)
+
+The largest feature release since the SDL3 migration. Four new things Deckboy
+could not do at all, plus the first three items off the competitive survey.
+
+### Datamosh
+A per-cue effect that withholds keyframes from the decoder, so P-frames drag the
+previous picture along their motion. Toggle it on and the cue prepares itself in
+the background; it keeps playing the original until the transcode lands, so
+taking the cue mid-prepare is safe and a half-written file can never go to air.
+
+**CLASSIC vs SUBTLE, and why they are named that.** H.264 barely moshes: a
+P-frame may legally carry intra-coded macroblocks, so x264 refreshes regions on
+its own and the smear heals within a few frames -- fastest on exactly the
+high-detail content you would want to mosh, and there is no encoder switch to
+stop it. MPEG-4 Part 2 has no such refresh and gives the real effect. The names
+describe measured behaviour, not an aesthetic choice.
+
+### HAP playback
+HAP files play, decoded by a vendored container parser and Snappy decompressor
+rather than by ffmpeg -- letting ffmpeg decode HAP unpacks DXT to RGB on the
+CPU, which is the cost the format exists to avoid. All-intra means seeking is
+direct, with no decode-forward from a keyframe.
+
+`tools/make_hap_sample.py` generates HAP test media, because ffmpeg only encodes
+HAP when built with libsnappy.
+
+### Stage timer
+A new Timer cue: countdown, count-up or time-of-day, with amber/red thresholds,
+overtime, a message line, and a progress bar. Digits are seven-segment or
+dot-matrix GEOMETRY rather than text, so a stage screen renders identically
+wherever it runs regardless of installed fonts.
+
+The clock is deliberately NOT the transport. The cue stays on air while the
+operator runs, holds, resets or nudges it -- tying it to transport would mean
+pausing the clock took the display off air.
+
+### Show log
+Deckboy now records what fired and when: takes, blocked takes, stops, reracks,
+panics and show opens, with wall clock and running milliseconds. It could not
+answer "what happened?" after a show at all before this. Flushed on every write,
+because a log that buffers loses the part you need after a crash.
+
+### Scheduled start
+A cue can fire at a wall-clock time with no external timecode source, which is
+what makes unattended playback possible. Edge-triggered on crossing the time, so
+one long frame cannot skip a schedule, and daily schedules re-arm at midnight.
+
+### Cue markers
+Named jump marks inside a clip. Jumping seeks rather than takes, so the picture
+does not blink, and stepping backwards has slack so it returns to the marker you
+just passed rather than the one before it.
+
+### Media encoder
+Twenty-two output formats with availability probed from your ffmpeg, per-job
+hold and reorder, and a real progress readout. Two bugs fixed along the way: the
+queue used to launch one ffmpeg per flagged cue simultaneously, and the format
+picker was a dead control that silently encoded H.264 whatever you selected.
+
+### Also
+Press Start 2P on the chrome with a readable face for filenames; cue-row icons
+no longer draw outside their boxes; four new splash scenes; child processes now
+die with the parent instead of orphaning a running transcode.
 ## 2026-08-19 — v0.83.2 (media encoder: queue, presets, progress)
 
 The Encoder tab went from a single button to a real queue.
