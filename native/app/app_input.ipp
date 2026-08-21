@@ -104,6 +104,12 @@
       // CTA opens the vendor's download page. Either way, dismiss the prompt
       // so the operator can return to whatever they were doing.
       if (pointInRect(x, y, depPrompt_.ctaRect)) {
+        if (depPrompt_.onCta) {
+          auto action = depPrompt_.onCta;   // copy: the action clears the prompt
+          depPrompt_ = DependencyPromptState{};
+          action();
+          return;
+        }
         deckboy::platform::openExternalUrl(depPrompt_.url);
       }
       dismissDependencyPrompt();
