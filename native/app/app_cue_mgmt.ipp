@@ -2133,6 +2133,7 @@
       case ToneWaveform::White:    return "white noise";
       case ToneWaveform::Sweep:    return "sweep";
       case ToneWaveform::Identify: return "identify";
+      case ToneWaveform::Fds:      return "FDS synth";
       default:                     return "sine";
     }
   }
@@ -2164,7 +2165,7 @@
   void cycleToneWaveform() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    const int next = (static_cast<int>(cue->tone.waveform) + 1) % 5;
+    const int next = (static_cast<int>(cue->tone.waveform) + 1) % 6;
     cue->tone.waveform = static_cast<ToneWaveform>(next);
     markProjectDirty();
     triggerToast(std::string("tone: ") + toneWaveformLabel(cue->tone.waveform));

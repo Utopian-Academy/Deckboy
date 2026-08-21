@@ -4539,6 +4539,124 @@ inline double nextPink(double* rows, double& running, std::uint32_t& counter,
 
 }  // namespace
 
+
+// ---------------------------------------------------------------------------
+// FDS wavetable voice
+//
+// Built from the DOCUMENTED behaviour of the Famicom Disk System sound
+// hardware. The carrier is a 64-entry, 6-bit table; the modulator is a
+// 32-entry table of signed increments that accumulate into a frequency BEND
+// applied to the carrier. That bend, not any mixing of the two oscillators, is
+// what makes FDS sound like FDS.
+// ---------------------------------------------------------------------------
+namespace {
+
+// 64 steps, values 0..63, exactly the hardware's wave RAM shape.
+void fdsBuildCarrier(FdsCarrier kind, double* table) {
+  for (int i = 0; i < 64; ++i) {
+    const double t = static_cast<double>(i) / 64.0;
+    double v = 0.0;
+    switch (kind) {
+      case FdsCarrier::Triangle:
+        v = (t < 0.5) ? (4.0 * t - 1.0) : (3.0 - 4.0 * t);
+        break;
+      case FdsCarrier::Pulse25:
+        v = (t < 0.25) ? 1.0 : -1.0;
+        break;
+      case FdsCarrier::Saw:
+        v = 2.0 * t - 1.0;
+        break;
+      case FdsCarrier::Additive:
+        // First four harmonics at 1/n. Organ-like, and the closest thing the
+        // hardware has to a "rich" preset.
+        v = std::sin(2.0 * 3.14159265358979323846 * t)
+          + std::sin(4.0 * 3.14159265358979323846 * t) / 2.0
+          + std::sin(6.0 * 3.14159265358979323846 * t) / 3.0
+          + std::sin(8.0 * 3.14159265358979323846 * t) / 4.0;
+        v /= 2.083;   // normalise the harmonic sum back to +/-1
+        break;
+      default:
+        v = std::sin(2.0 * 3.14159265358979323846 * t);
+        break;
+    }
+    // Quantise to the hardware's 6 bits. This is audible -- it is part of the
+    // sound, not an imperfection to smooth away.
+    const double q = std::round((v * 0.5 + 0.5) * 63.0);
+    table[i] = (q / 63.0) * 2.0 - 1.0;
+  }
+}
+
+// 32 signed increments. The hardware stores 3-bit codes meaning
+// +0 +1 +2 +4 reset -4 -2 -1; these presets are built from that vocabulary.
+void fdsBuildModulator(FdsModulator kind, double* table) {
+  for (int i = 0; i < 32; ++i) {
+    double v = 0.0;
+    switch (kind) {
+      case FdsModulator::Ramp:    v = (i < 16) ? 1.0 : -1.0; break;
+      case FdsModulator::Square:  v = (i < 16) ? 4.0 : -4.0; break;
+      case FdsModulator::Vibrato: v = std::sin(2.0 * 3.14159265358979323846 * i / 32.0) * 2.0; break;
+      case FdsModulator::Growl:   v = ((i / 4) % 2 == 0) ? 4.0 : -4.0; break;
+      default:                    v = 0.0; break;
+    }
+    table[i] = v;
+  }
+}
+
+}  // namespace
+
+double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
+  double carrier[64];
+  double modulator[32];
+  // Rebuilt per block by the caller would be cheaper, but these are 96 doubles
+  // and the clarity of keeping the voice self-contained is worth more than the
+  // cycles at 48kHz.
+  fdsBuildCarrier(tone.fds.carrier, carrier);
+  fdsBuildModulator(tone.fds.modulator, modulator);
+
+  const double note = std::clamp(tone.fds.noteHz, 20.0, 8000.0);
+  const double depth = std::clamp(tone.fds.modDepth, 0, 63) / 63.0;
+
+  // Modulator runs at a RATIO of the note, which is what makes the bend track
+  // pitch instead of turning into a fixed wobble as you play up the keyboard.
+  const double modHz = note * std::clamp(tone.fds.modRatio, 0.0, 8.0);
+  fdsModPhase_ += modHz * 32.0 * dt;
+  while (fdsModPhase_ >= 32.0) fdsModPhase_ -= 32.0;
+  const int modIndex = static_cast<int>(fdsModPhase_) & 31;
+
+  // Accumulate, then decay slightly. Without the decay the accumulator walks
+  // off and the pitch never returns, which the hardware avoids by resetting.
+  fdsModAccum_ = fdsModAccum_ * 0.999 + modulator[modIndex] * dt * 60.0;
+  fdsModAccum_ = std::clamp(fdsModAccum_, -8.0, 8.0);
+
+  // The bend: a multiplier on the carrier frequency, scaled by depth.
+  const double bend = 1.0 + fdsModAccum_ * depth * 0.25;
+  fdsCarrierPhase_ += note * bend * 64.0 * dt;
+  while (fdsCarrierPhase_ >= 64.0) fdsCarrierPhase_ -= 64.0;
+  while (fdsCarrierPhase_ < 0.0) fdsCarrierPhase_ += 64.0;
+
+  const int idx = static_cast<int>(fdsCarrierPhase_) & 63;
+  double sample = carrier[idx];
+
+  // Envelope. A retrigger of 0 holds the note, which is what a drone wants;
+  // anything else re-strikes, so the voice is usable without a keyboard.
+  if (tone.fds.retriggerSeconds > 0.0) {
+    fdsEnvSeconds_ += dt;
+    if (fdsEnvSeconds_ >= tone.fds.retriggerSeconds) fdsEnvSeconds_ = 0.0;
+  } else {
+    fdsEnvSeconds_ = std::min(fdsEnvSeconds_ + dt, 1e6);
+  }
+  const double a = std::max(0.001, tone.fds.attackSeconds);
+  const double r = std::max(0.001, tone.fds.releaseSeconds);
+  double env = 1.0;
+  if (fdsEnvSeconds_ < a) {
+    env = fdsEnvSeconds_ / a;
+  } else if (tone.fds.retriggerSeconds > 0.0) {
+    const double since = fdsEnvSeconds_ - a;
+    env = std::max(0.0, 1.0 - since / r);
+  }
+  return sample * env;
+}
+
 void MediaEngine::pumpToneAudio(const Cue& cue) {
   if (cue.kind != CueKind::Tone) return;
 
@@ -4576,6 +4694,9 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
       }
       case ToneWaveform::White:
         sample = nextWhite(toneSeed_);
+        break;
+      case ToneWaveform::Fds:
+        sample = fdsNextSample(cue.tone, dt);
         break;
       case ToneWaveform::Pink:
         sample = nextPink(tonePinkRows_, tonePinkRunning_, tonePinkCounter_, toneSeed_);
@@ -4664,6 +4785,7 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
     case ToneWaveform::White:    name = "WHITE NOISE"; break;
     case ToneWaveform::Sweep:    name = "SWEEP"; break;
     case ToneWaveform::Identify: name = "IDENTIFY"; break;
+    case ToneWaveform::Fds:      name = "FDS SYNTH"; break;
     default: break;
   }
   char levelText[48];

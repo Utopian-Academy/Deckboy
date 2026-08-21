@@ -85,6 +85,49 @@ enum class ToneWaveform {
   Sweep,     // slow log sweep, for hearing where a room rings
   Identify,  // walks the channels one at a time, so an engineer can point at
              // a speaker and say which output feeds it
+  Fds,       // Famicom Disk System wavetable voice -- a musical source rather
+             // than a test signal, and a usable emergency synth
+};
+
+// ---------------------------------------------------------------------------
+// FDS wavetable voice.
+//
+// Implemented from the DOCUMENTED behaviour of the Famicom Disk System sound
+// hardware, which is public: a 64-step, 6-bit wavetable carrier whose pitch is
+// bent by a separate 32-step modulator table. Nothing here is derived from any
+// plugin binary.
+//
+// The modulator is what gives FDS its character. It does not mix with the
+// carrier like FM; it accumulates a signed offset that BENDS the carrier's
+// frequency, so a static wavetable still growls and sweeps.
+// ---------------------------------------------------------------------------
+enum class FdsCarrier {
+  Sine,       // the mildest starting point
+  Triangle,
+  Pulse25,    // hollow and reedy
+  Saw,
+  Additive,   // first four harmonics, organ-like
+};
+
+enum class FdsModulator {
+  Off,        // static wavetable, no bend
+  Ramp,       // steady rising bend -- the classic FDS sweep
+  Square,     // alternating bend, a hard vibrato
+  Vibrato,    // gentle symmetric bend
+  Growl,      // deep alternating bend, the sound FDS is remembered for
+};
+
+struct FdsSettings {
+  FdsCarrier carrier = FdsCarrier::Sine;
+  FdsModulator modulator = FdsModulator::Ramp;
+  int modDepth = 16;          // 0-63, the hardware gain range
+  double modRatio = 0.5;      // modulator frequency as a ratio of the note
+  double noteHz = 220.0;      // A3
+  double attackSeconds = 0.01;
+  double releaseSeconds = 0.30;
+  // Retrigger the envelope this often. 0 = hold one note indefinitely, which
+  // is what a drone or a held pad wants.
+  double retriggerSeconds = 0.0;
 };
 
 struct ToneSettings {
@@ -108,6 +151,9 @@ struct ToneSettings {
   // without losing which style they had chosen.
   bool visualEnabled = true;
   ToneVisual visual = ToneVisual::Scope;
+
+  // Only meaningful when waveform == ToneWaveform::Fds.
+  FdsSettings fds;
 };
 
 // Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
