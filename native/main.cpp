@@ -3069,6 +3069,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
+  output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
@@ -3444,6 +3445,8 @@ Project loadProject(const fs::path& projectFile,
       project.uiSoundsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_transitions") {
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "recording_dir") {
+      project.recordingDir = safeString(fields, 1);
     } else if (fields[0] == "splash_character") {
       std::string v = safeString(fields, 1);
       project.splashCharacter = v.empty() ? std::string("deckbot") : v;
@@ -6345,6 +6348,18 @@ class App {
   // Streaming destinations. Two of them (0 = SRT, 1 = RTMP), each with its own
   // full control set, so the ids are allocated as base + dest*stride + field
   // rather than as twenty separate constants. Next free block: 670 + 2*16 = 702.
+  // Recording gets its OWN block rather than a third stream-destination slot:
+  // dest base 670 with stride 16 would put slot 2 at 702-717, straight through
+  // the LTC generator (702-706), NMOS (710-714) and the encoder presets
+  // (715-717). A double-allocated id silently kills whichever handler runs
+  // second, which is exactly how the Processing sub-tab died in v0.76.24.
+  // Recording runtime. Mutable because buildOutputStreamArgs is const and is
+  // where the timestamped path is minted.
+  mutable std::string lastRecordingPath_;
+  Uint64 recordingStartedMs_ = 0;
+  static constexpr int kSettingsActionRecordToggle   = 770;
+  static constexpr int kSettingsActionRecordDirPick  = 771;
+  static constexpr int kSettingsActionRecordDirClear = 772;
   static constexpr int kSettingsActionStreamDestBase = 670;
   static constexpr int kSettingsActionStreamDestStride = 16;
   static constexpr int kStreamFieldToggle = 0;

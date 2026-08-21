@@ -577,6 +577,13 @@ struct Project {
   // An animated mascot path will reuse this field — load .gif/.mp4 instead of
   // .png when the matching file exists, keeping the swap surface stable.
   std::string splashCharacter = "deckbot";
+
+  // Where program recordings are written. Deliberately SEPARATE from the
+  // encoder's output directory: an operator recording a live show usually
+  // wants a different physical disk from the one Deckboy is reading media
+  // from, both to avoid I/O contention and so a full disk cannot take the app
+  // down with the recording. Empty = recordings/ beside the show.
+  std::string recordingDir;
   // UI color theme — directory name under data/themes/ (e.g. "gameboy",
   // "nebula", "switch-neon"). Empty means "leave the active theme untouched"
   // so opening an older, theme-less show doesn't override the operator's pick.
