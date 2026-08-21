@@ -605,6 +605,10 @@ struct Project {
   // from, both to avoid I/O contention and so a full disk cannot take the app
   // down with the recording. Empty = recordings/ beside the show.
   std::string recordingDir;
+
+  // Set once the operator says no to the HAP suggestion, so it never nags
+  // again for this show.
+  bool hapSuggestionDismissed = false;
   // UI color theme — directory name under data/themes/ (e.g. "gameboy",
   // "nebula", "switch-neon"). Empty means "leave the active theme untouched"
   // so opening an older, theme-less show doesn't override the operator's pick.
