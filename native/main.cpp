@@ -1967,6 +1967,35 @@ enum class EncoderPreset {
   DatamoshFriendly,  // no B-frames, no scene-cut keyframes, single reference
 };
 
+// Operator overrides for a conversion. Everything here defaults to "leave it
+// alone", so the encoder behaves exactly as before until something is changed.
+//
+// File scope for the same reason EncoderPreset is: the .ipp files are included
+// into the class body above where members are declared, so a type used as a
+// RETURN or PARAMETER type there must already be visible.
+struct EncoderOverrides {
+  // There is no universal quality knob -- x264/x265 take -crf, NVENC -cq,
+  // MPEG-4/MJPEG -qscale:v, VP9/AV1 -crf alongside -b:v 0, and ProRes/DNxHR
+  // only take profiles. So the operator sets an intent and each codec maps it
+  // onto whatever it actually has; a single "CRF" field would be a lie on
+  // more than half the catalogue.
+  enum class Rate {
+    Auto,     // the per-format default
+    Quality,  // constant quality, mapped per codec from quality0to100
+    Bitrate,  // constant bitrate, -b:v
+  };
+  Rate rate = Rate::Auto;
+  int quality0to100 = 65;        // higher = better picture, bigger file
+  int videoBitrateKbps = 8000;
+  int audioBitrateKbps = 0;      // 0 = the format's own default
+  double fps = 0.0;              // 0 = keep the source rate
+  int width = 0;                 // 0 = keep the source raster
+  int height = 0;
+  std::string outputDir;         // empty = _converted beside the show
+
+  bool touchesVideoRate() const { return rate != Rate::Auto; }
+};
+
 // Per-deck runtime state: the playback engine, audio device, and browser renderer.
 // Each deck has its own MediaEngine instance that handles video/audio decode
 // and frame upload independently.
@@ -3291,6 +3320,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.scheduledStartSeconds
         << '\t' << joinMarkerTimes(cue)
         << '\t' << escapeField(joinMarkerNames(cue))
+        << '\t' << cue.datamoshLook
         << '\n';
     }
   }
@@ -3821,6 +3851,11 @@ Project loadProject(const fs::path& projectFile,
         cue.scheduledStartSeconds = safeDouble(fields, tb + 10, -1.0);
         parseMarkerTimes(cue, safeString(fields, tb + 11));
         parseMarkerNames(cue, safeString(fields, tb + 12));
+        // Appended after the markers. Shows saved before the look existed were
+        // all prepared with the CLASSIC recipe, which is this field's default,
+        // so an old show keeps playing exactly as it did.
+        cue.datamoshLook = std::clamp(safeInt(fields, tb + 13, kDatamoshLookClassic),
+                                      0, kDatamoshLookCount - 1);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -5235,6 +5270,17 @@ class App {
                      true, cue.datamoshEnabled,
                      "Withhold keyframes so the picture smears. Prepares the "
                      "cue automatically the first time it is enabled.");
+    rowY += ix.rowStep;
+    // The look lives next to the toggle, not in the Encoder tab: it is a
+    // property of this clip, and an operator who has just switched datamosh on
+    // and found it underwhelming looks HERE for the strength control.
+    inspDrawQuickRow(ix, rowY, "look", QuickAction::DatamoshLookPrev,
+                     moshLookLabelFor(cue.datamoshLook),
+                     QuickAction::DatamoshLookNext, QuickAction::DatamoshLookNext,
+                     false, false,
+                     "SUBTLE self-heals (H.264). CLASSIC is the real smear "
+                     "(MPEG-4). EXTREME is chunkier and smears constantly. "
+                     "Changing this re-prepares the cue.");
     rowY += ix.rowStep;
     if (cue.datamoshEnabled && !prepared) {
       rowY = inspDrawMessageRow(ix, rowY, "transcoding - plays clean until ready",
@@ -6928,7 +6974,9 @@ class App {
   std::string encoderFormatId_ = "h264";   // selected row of the format matrix
   // Which datamosh flavour the DATAMOSH preset prepares. Both are moshable;
   // they differ only in how the smear looks (see the catalog comment).
-  bool moshClassicLook_ = false;   // false = modern smooth, true = classic chunky
+  bool moshClassicLook_ = false;   // Encoder-tab manual converts only; cue
+                                   // datamosh reads Cue::datamoshLook instead
+  EncoderOverrides encoderOverrides_;  // quality/bitrate/fps/size/destination
   bool encoderQueuePaused_ = false;
   std::set<std::string> unreadablePaths_;  // probe returned nothing → offer convert
   // Waveform analysis cache (path → peaks vector)
