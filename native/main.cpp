@@ -4313,6 +4313,7 @@ class App {
     // the first frame hostage for seconds of black window before the splash.
     startMediaPresenceScanAsync(true);
     // Project may override the boot-time splash character (deckbot default).
+    resolveFirstRunFlag();
     refreshSplashAsset();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
     applyUiScale();
@@ -5806,6 +5807,32 @@ class App {
   // Re-resolve and reload the splash texture using the current project
   // setting. Safe to call any time the character changes — releaseUiImage
   // drops the cached texture so the next render frame re-decodes from disk.
+  // True only on the very first launch on this machine. Determined ONCE at
+  // boot and remembered for the session, so the answer cannot change halfway
+  // through (refreshSplashAsset runs again whenever the mascot changes).
+  //
+  // The marker lives in stateDir() because it is written state, not a bundled
+  // resource -- inside a macOS .app the resource dir is sealed by the code
+  // signature and writing there breaks `codesign --verify`.
+  void resolveFirstRunFlag() {
+    std::error_code ec;
+    const fs::path marker = Paths::stateDir() / "deckboy-first-run";
+    if (fs::exists(marker, ec)) {
+      firstRunEver_ = false;
+      return;
+    }
+    firstRunEver_ = true;
+    fs::create_directories(Paths::stateDir(), ec);
+    std::ofstream out(marker);
+    // Nothing reads the contents; a human finding the file should be able to
+    // tell what it is and that deleting it is harmless.
+    out << "Deckboy has been launched on this machine.\n"
+        << "Delete this file to see the first-run splash again.\n";
+    // If the write fails the flag still holds for THIS session -- the operator
+    // gets the branded splash once more next boot, which is harmless. Better
+    // than refusing to boot over a splash.
+  }
+
   void refreshSplashAsset() {
     if (!uiPackAvailable_) {
       return;
@@ -5843,9 +5870,18 @@ class App {
       if (fs::exists(candidate, ec)) { branded.push_back(candidate); break; }
     }
 
-    std::vector<fs::path> pool = gray;
-    pool.insert(pool.end(), colour.begin(), colour.end());
-    pool.insert(pool.end(), branded.begin(), branded.end());
+    // The VERY FIRST launch on this machine always shows the green branded
+    // splash. A first impression should be the wordmark, not a random scene --
+    // the rotation is a reward for coming back, not the introduction. Every
+    // later boot draws from the pool.
+    std::vector<fs::path> pool;
+    if (firstRunEver_ && !branded.empty()) {
+      pool.push_back(branded.front());   // a pool of exactly one: the wordmark
+    } else {
+      pool = gray;
+      pool.insert(pool.end(), colour.begin(), colour.end());
+      pool.insert(pool.end(), branded.begin(), branded.end());
+    }
     if (!pool.empty()) {
       // Seeded from random_device, not the performance counter: the counter is
       // read at almost the same point in every boot, so its low bits are not
@@ -6515,6 +6551,7 @@ class App {
   UiImageAsset uiSplashArt_;
   // How much theme accent the current splash takes: 1.0 for the grayscale
   // masters, ~0.35 for finished colour art, 0 for the branded wordmark.
+  bool firstRunEver_ = false;   // very first launch on this machine
   float splashTintStrength_ = 0.0f;
   fs::path lastSplashChoice_;    // so two boots running do not pick the same art
   UiImageAsset uiMonitorFrameArt_;
