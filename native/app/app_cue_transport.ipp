@@ -3230,6 +3230,41 @@
     playUiSound(UiSoundEffect::Toggle);
   }
 
+  void pickTimerLogo() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) {
+      failRemoteCommand("logo: select a timer cue");
+      return;
+    }
+    // Static so the filter list outlives the call: SDL requires it stay valid
+    // until the callback fires, which is on another thread and later.
+    // Static: SDL requires the filter array stay valid until the callback
+    // fires, which happens later and on another thread.
+    static const std::vector<SDL_DialogFileFilter> kLogoFilters {
+      {"Images", "png;jpg;jpeg;bmp;gif;webp"},
+      {"All files", "*"},
+    };
+    showOpenFileDialog(kLogoFilters, /*allowMany=*/false,
+                       [this](std::vector<std::string> chosen) {
+      if (chosen.empty() || chosen.front().empty()) return;
+      Cue* c = selectedCueMutable();
+      if (!c || c->kind != CueKind::Timer) return;
+      c->timer.logoPath = chosen.front();
+      markProjectDirty();
+      triggerToast("timer logo set");
+    });
+  }
+
+  void clearTimerLogo() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    if (cue->timer.logoPath.empty()) return;
+    cue->timer.logoPath.clear();
+    markProjectDirty();
+    triggerToast("timer logo cleared");
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
   void cycleTimerChimeSound() {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;
