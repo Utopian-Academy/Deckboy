@@ -4439,6 +4439,70 @@ void drawSevenSeg(DecodedFrame& f, int digit, int x, int y, int w, int h,
 
 }  // namespace
 
+// Timer logo cache. buildTimerFrame is static, so this lives at file scope.
+// Decoded ONCE per path+size: the decode is a synchronous ffmpeg call, which is
+// fine as a one-off when the operator sets a logo, and unacceptable per frame.
+// Failures are remembered too, so a missing file does not respawn ffmpeg 60
+// times a second.
+namespace {
+
+struct TimerLogoCache {
+  std::string path;
+  int targetH = 0;
+  int w = 0;
+  int h = 0;
+  bool failed = false;
+  std::vector<std::uint8_t> rgba;   // tightly packed, w*h*4
+};
+
+std::mutex gTimerLogoMutex;
+TimerLogoCache gTimerLogo;
+
+const TimerLogoCache* timerLogoFor(const std::string& path, int targetH) {
+  if (path.empty() || targetH <= 0) return nullptr;
+  std::lock_guard<std::mutex> lock(gTimerLogoMutex);
+  if (gTimerLogo.path == path && gTimerLogo.targetH == targetH) {
+    return gTimerLogo.failed ? nullptr : &gTimerLogo;
+  }
+  gTimerLogo = TimerLogoCache{};
+  gTimerLogo.path = path;
+  gTimerLogo.targetH = targetH;
+
+  // Height is fixed and width follows the source aspect, so a wordmark is not
+  // squashed into a square.
+  const std::vector<std::string> probeArgs {
+    "ffprobe", "-v", "error", "-select_streams", "v:0",
+    "-show_entries", "stream=width,height", "-of", "csv=p=0", path
+  };
+  int srcW = 0, srcH = 0;
+  if (auto probe = readAllText(probeArgs)) {
+    std::sscanf(probe->c_str(), "%d,%d", &srcW, &srcH);
+  }
+  if (srcW <= 0 || srcH <= 0) { gTimerLogo.failed = true; return nullptr; }
+  const int outH = targetH;
+  const int outW = std::max(1, static_cast<int>(std::llround(
+    static_cast<double>(srcW) * outH / static_cast<double>(srcH))));
+
+  ChildProcess proc;
+  const std::vector<std::string> args {
+    "ffmpeg", "-hide_banner", "-loglevel", "error", "-i", path,
+    "-frames:v", "1",
+    "-vf", "scale=" + std::to_string(outW) + ":" + std::to_string(outH),
+    "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
+  };
+  if (!spawnPipeProcess(proc, args)) { gTimerLogo.failed = true; return nullptr; }
+  const std::size_t want = static_cast<std::size_t>(outW) * outH * 4;
+  gTimerLogo.rgba.resize(want);
+  const bool ok = readExact(proc.readFd, gTimerLogo.rgba.data(), want);
+  proc.stop();
+  if (!ok) { gTimerLogo.failed = true; gTimerLogo.rgba.clear(); return nullptr; }
+  gTimerLogo.w = outW;
+  gTimerLogo.h = outH;
+  return &gTimerLogo;
+}
+
+}  // namespace
+
 void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
                                   double elapsedSeconds, bool running) {
   const int W = frame.width;
@@ -4622,7 +4686,44 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   if (!cfg.message.empty()) {
     const int cell = std::max(2, W / 200);
     const int charW = cell * 6;
-    const std::string msg = cfg.message.size() > 40 ? cfg.message.substr(0, 40) : cfg.message;
+    // Placeholders, so one message can serve a whole show: "{remaining} left"
+    // reads correctly at every point in the talk without the operator retyping
+    // it. Substituted here rather than when the message is set, because the
+    // values change every frame.
+    std::string expanded = cfg.message;
+    {
+      auto two = [](int v) {
+        char b[8];
+        std::snprintf(b, sizeof(b), "%02d", v);
+        return std::string(b);
+      };
+      const int remSecs = std::max(0, static_cast<int>(std::llround(std::fabs(remaining))));
+      const int elaSecs = std::max(0, static_cast<int>(std::llround(elapsedSeconds)));
+      auto clockText = [&](int total) {
+        const int h = total / 3600;
+        const std::string ms = two((total % 3600) / 60) + ":" + two(total % 60);
+        return h > 0 ? (std::to_string(h) + ":" + ms) : ms;
+      };
+      std::time_t nowT = std::time(nullptr);
+      char wall[16] = "";
+      if (std::tm* lt = std::localtime(&nowT)) {
+        std::strftime(wall, sizeof(wall), "%H:%M", lt);
+      }
+      const std::pair<const char*, std::string> kTokens[] = {
+        {"{remaining}", clockText(remSecs)},
+        {"{elapsed}",   clockText(elaSecs)},
+        {"{duration}",  clockText(std::max(0, cfg.durationSeconds))},
+        {"{time}",      wall},
+      };
+      for (const auto& [token, value] : kTokens) {
+        for (std::size_t at = expanded.find(token);
+             at != std::string::npos;
+             at = expanded.find(token, at + value.size())) {
+          expanded.replace(at, std::strlen(token), value);
+        }
+      }
+    }
+    const std::string msg = expanded.size() > 40 ? expanded.substr(0, 40) : expanded;
     const int textW = static_cast<int>(msg.size()) * charW;
     int mx = (W - textW) / 2;
     const int my = H - H / 5;
@@ -4641,6 +4742,35 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
         }
       }
       mx += charW;
+    }
+  }
+
+  // Event logo above the clock. Alpha-composited over whatever is already
+  // there, so a PNG with transparency keeps its shape against the backdrop.
+  if (!cfg.logoPath.empty()) {
+    const int logoH = std::max(1, H * std::clamp(cfg.logoHeightPercent, 2, 40) / 100);
+    if (const TimerLogoCache* logo = timerLogoFor(cfg.logoPath, logoH)) {
+      const int lx = (W - logo->w) / 2;
+      const int ly = H / 24;
+      for (int y = 0; y < logo->h; ++y) {
+        const int dy = ly + y;
+        if (dy < 0 || dy >= H) continue;
+        for (int x = 0; x < logo->w; ++x) {
+          const int dx = lx + x;
+          if (dx < 0 || dx >= W) continue;
+          const std::size_t s = (static_cast<std::size_t>(y) * logo->w + x) * 4;
+          const int a = logo->rgba[s + 3];
+          if (a == 0) continue;
+          const std::size_t o = (static_cast<std::size_t>(dy) * W + dx) * 4;
+          // Frame is BGRA; the decoded logo is RGBA.
+          frame.pixels[o + 0] = static_cast<std::uint8_t>(
+            (logo->rgba[s + 2] * a + frame.pixels[o + 0] * (255 - a)) / 255);
+          frame.pixels[o + 1] = static_cast<std::uint8_t>(
+            (logo->rgba[s + 1] * a + frame.pixels[o + 1] * (255 - a)) / 255);
+          frame.pixels[o + 2] = static_cast<std::uint8_t>(
+            (logo->rgba[s + 0] * a + frame.pixels[o + 2] * (255 - a)) / 255);
+        }
+      }
     }
   }
 

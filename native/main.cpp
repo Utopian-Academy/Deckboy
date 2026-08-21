@@ -3354,6 +3354,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.timer.chimeAtRed ? "1" : "0")
         << '\t' << (cue.timer.chimeAtZero ? "1" : "0")
         << '\t' << cue.timer.chimeSound
+        << '\t' << escapeField(cue.timer.logoPath)
+        << '\t' << cue.timer.logoHeightPercent
         << '\n';
     }
   }
@@ -3901,6 +3903,8 @@ Project loadProject(const fs::path& projectFile,
         cue.timer.chimeAtRed      = safeBool(fields, tb + 19, false);
         cue.timer.chimeAtZero     = safeBool(fields, tb + 20, true);
         cue.timer.chimeSound      = std::clamp(safeInt(fields, tb + 21, 0), 0, 5);
+        cue.timer.logoPath          = safeString(fields, tb + 22);
+        cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -5295,6 +5299,15 @@ class App {
                      QuickAction::TimerChimeZeroToggle, true,
                      cue.timer.chimeAtZero, "Sound when time is up");
     rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "logo", QuickAction::TimerPickLogo,
+                     cue.timer.logoPath.empty()
+                       ? std::string("none")
+                       : fs::path(cue.timer.logoPath).filename().string(),
+                     QuickAction::TimerPickLogo, QuickAction::TimerClearLogo,
+                     false, false,
+                     "Image drawn above the clock. Right-click clears it.");
+    rowY += ix.rowStep;
+
     inspDrawQuickRow(ix, rowY, "chime", QuickAction::TimerCycleChimeSound,
                      timerChimeName(cue.timer.chimeSound),
                      QuickAction::TimerCycleChimeSound,
