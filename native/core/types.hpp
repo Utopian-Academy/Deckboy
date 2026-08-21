@@ -104,6 +104,9 @@ struct ToneSettings {
   //   Scope      is the signal clipping, and is it the shape I asked for
   //   Lissajous  are these two channels in phase, and is either inverted
   //   Spectrum   what is the room or the desk doing to the signal
+  // Separate from the style so the operator can kill the display outright
+  // without losing which style they had chosen.
+  bool visualEnabled = true;
   ToneVisual visual = ToneVisual::Scope;
 };
 
@@ -932,7 +935,7 @@ enum class QuickAction {
   ToneFreqDec, ToneFreqInc,
   ToneLevelDec, ToneLevelInc,
   ToneChannelDec, ToneChannelInc,
-  ToneCycleVisual,
+  ToneCycleVisual, ToneVisualToggle,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
   DatamoshToggle,
