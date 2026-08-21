@@ -1799,6 +1799,14 @@
       {0, 0, 0, 0},
       [this]() { addTimerCue(300); }
     });
+    // Test tone. The audio counterpart of a test pattern: line-up tone, pink
+    // noise for ringing out a PA, and a channel walk for proving which output
+    // feeds which speaker.
+    contextItems_.push_back({
+      "  Test Tone Cue",
+      {0, 0, 0, 0},
+      [this]() { addToneCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -2119,6 +2127,89 @@
 
   // Stage/speaker timer. Held by default: a countdown that auto-advanced to the
   // next cue the moment it hit zero would be actively dangerous on a show.
+  static const char* toneWaveformLabel(ToneWaveform w) {
+    switch (w) {
+      case ToneWaveform::Pink:     return "pink noise";
+      case ToneWaveform::White:    return "white noise";
+      case ToneWaveform::Sweep:    return "sweep";
+      case ToneWaveform::Identify: return "identify";
+      default:                     return "sine";
+    }
+  }
+
+  Cue* selectedToneCueMutable() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::Tone) ? cue : nullptr;
+  }
+
+  void cycleToneWaveform() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    const int next = (static_cast<int>(cue->tone.waveform) + 1) % 5;
+    cue->tone.waveform = static_cast<ToneWaveform>(next);
+    markProjectDirty();
+    triggerToast(std::string("tone: ") + toneWaveformLabel(cue->tone.waveform));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  // Frequency steps in THIRD-OCTAVES rather than a fixed number of Hz. 100Hz
+  // steps are uselessly fine at the bottom and uselessly coarse at the top;
+  // the ear works in ratios, so the control should too.
+  void adjustToneFrequency(int direction) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    const double factor = std::pow(2.0, 1.0 / 3.0);
+    double hz = cue->tone.frequencyHz * (direction > 0 ? factor : 1.0 / factor);
+    cue->tone.frequencyHz = std::clamp(hz, 20.0, 20000.0);
+    markProjectDirty();
+    triggerToast(std::to_string(static_cast<int>(cue->tone.frequencyHz)) + " Hz");
+  }
+
+  void adjustToneLevel(double deltaDb) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    // Never reaches 0 dBFS: this feeds a live PA and a generated signal has no
+    // reason to be at full scale.
+    cue->tone.levelDbfs = std::clamp(cue->tone.levelDbfs + deltaDb, -60.0, -1.0);
+    markProjectDirty();
+    triggerToast(fmtFloat(cue->tone.levelDbfs, 1) + " dBFS");
+  }
+
+  void adjustToneChannel(int direction) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    // -1 is a real value meaning ALL, so the range starts one below zero.
+    cue->tone.channel = std::clamp(cue->tone.channel + direction, -1, 15);
+    markProjectDirty();
+    triggerToast(cue->tone.channel < 0
+      ? "tone: all channels"
+      : "tone: channel " + std::to_string(cue->tone.channel + 1));
+  }
+
+  void addToneCue() {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::Tone;
+    cue.path = "tone://";
+    cue.name = "Test Tone 1kHz";
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {60, 110, 120, 255};
+    cue.formatName = "generated";
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    // A line-up tone runs until it is STOPPED. Auto-advancing off the end of
+    // the playlist part way through a sound check would be actively unhelpful.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("tone cue added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
   void addTimerCue(int durationSeconds = 300) {
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
     Cue cue;

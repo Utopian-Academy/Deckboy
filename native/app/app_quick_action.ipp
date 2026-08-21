@@ -311,6 +311,15 @@
         toggleTimerFlag(&TimerSettings::chimeAtZero, "chime zero"); break;
       case QuickAction::TimerCycleChimeSound:   cycleTimerChimeSound(); break;
       case QuickAction::TimerPickLogo:          pickTimerLogo(); break;
+      case QuickAction::CueSectionToneToggle:
+        cueSectionToneOpen_ = !cueSectionToneOpen_; break;
+      case QuickAction::ToneCycleWaveform: cycleToneWaveform(); break;
+      case QuickAction::ToneFreqDec:    adjustToneFrequency(-1); break;
+      case QuickAction::ToneFreqInc:    adjustToneFrequency(1); break;
+      case QuickAction::ToneLevelDec:   adjustToneLevel(-1.0); break;
+      case QuickAction::ToneLevelInc:   adjustToneLevel(1.0); break;
+      case QuickAction::ToneChannelDec: adjustToneChannel(-1); break;
+      case QuickAction::ToneChannelInc: adjustToneChannel(1); break;
       case QuickAction::TimerClearLogo:         clearTimerLogo(); break;
       case QuickAction::TimerCycleColorNormal:
         cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;

@@ -2608,6 +2608,19 @@
         finishInspectorSection(timerSection, geoY);
       }
 
+      // TONE - same reasoning as TIMER: on a tone cue this is the only
+      // section the operator touches, so it sits where the eye already is.
+      if (selectedCue->kind == CueKind::Tone) {
+        auto toneSection = beginInspectorSection(geoY, "TONE", cueSectionToneOpen_,
+                                                 QuickAction::CueSectionToneToggle,
+                                                 "Collapse/expand tone generator controls");
+        geoY = toneSection.bodyStartY;
+        if (cueSectionToneOpen_) {
+          geoY = inspDrawToneRows(ix, geoY, *selectedCue);
+        }
+        finishInspectorSection(toneSection, geoY);
+      }
+
       // EFFECTS - per-cue image effects that are not keying. Datamosh is the
       // first; this is where later ones belong.
       auto fxSection = beginInspectorSection(geoY, "EFFECTS", cueSectionEffectsOpen_,
