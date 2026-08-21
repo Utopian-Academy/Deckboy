@@ -182,6 +182,15 @@ class MediaEngine {
   // so the timer inherits the transport the operator already knows instead of
   // inventing a parallel set of controls.
   void rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool running);
+  // ---- Tone generator ------------------------------------------------------
+  // Procedural audio, the counterpart of the pattern generator. Called from the
+  // update loop while a Tone cue is live: it tops the output up rather than
+  // rendering a fixed block, so the tone is continuous no matter how the frame
+  // rate wanders.
+  void pumpToneAudio(const Cue& cue);
+  // The cue's on-screen card: what is playing, at what level, on which output.
+  void rebuildToneFrame(const Cue& cue);
+
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,
@@ -365,6 +374,17 @@ class MediaEngine {
   // destroys it. The audio decode thread writes to it while the main thread can
   // swap or detach it (device change, deck teardown), so those two operations
   // are serialized by audioStreamMutex_; see detachAudioDevice().
+  // Tone generator state. Lives across pump calls so the waveform is
+  // continuous -- restarting the phase every block would click audibly.
+  double tonePhase_ = 0.0;
+  double toneSweepSeconds_ = 0.0;
+  int toneIdentifyChannel_ = 0;
+  std::uint32_t toneSeed_ = 0x1234567u;
+  // Voss-McCartney pink rows, kept as plain members: the algorithm needs no
+  // type of its own and a pimpl here would buy nothing.
+  double tonePinkRows_[16] = {};
+  double tonePinkRunning_ = 0.0;
+  std::uint32_t tonePinkCounter_ = 0;
   SDL_AudioStream* audioStream_ = nullptr;
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback

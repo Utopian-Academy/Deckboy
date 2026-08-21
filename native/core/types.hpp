@@ -56,6 +56,41 @@ enum class CueKind {
   Audio,         // audio-only cue (no video output)
   Timer          // stage/speaker countdown, generated like a pattern but with
                  // its own transport-linked state (see TimerState)
+,
+  Tone           // procedurally generated audio: line-up tone, noise, sweep,
+                 // channel identify. The audio equivalent of Pattern
+};
+
+// ---------------------------------------------------------------------------
+// Tone generator settings, per cue. The audio counterpart of a test pattern:
+// what an engineer reaches for to line up a desk, ring out a PA, or prove
+// which physical output is which before doors.
+//
+// Levels are dBFS because that is the unit printed on every meter the operator
+// will be looking at. -18 dBFS is the EBU alignment level and the default;
+// SMPTE houses use -20. Deliberately NOT full scale: a test tone is played
+// into a live PA, and a mistake at 0 dBFS damages ears and drivers.
+// ---------------------------------------------------------------------------
+enum class ToneWaveform {
+  Sine,      // the line-up tone. 1kHz unless changed
+  Pink,      // equal energy per octave -- what a PA is tuned with
+  White,     // equal energy per Hz; harsher, for finding rattles
+  Sweep,     // slow log sweep, for hearing where a room rings
+  Identify,  // walks the channels one at a time, so an engineer can point at
+             // a speaker and say which output feeds it
+};
+
+struct ToneSettings {
+  ToneWaveform waveform = ToneWaveform::Sine;
+  double frequencyHz = 1000.0;    // Sine only. 1kHz is the convention
+  double levelDbfs = -18.0;       // EBU alignment level
+  double sweepLowHz = 20.0;       // Sweep only
+  double sweepHighHz = 20000.0;
+  double sweepSeconds = 10.0;
+  // Which output channel to feed. -1 = every channel. Identify overrides this
+  // by walking channels itself.
+  int channel = -1;
+  double identifySecondsPerChannel = 2.0;
 };
 
 // Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
@@ -320,6 +355,8 @@ struct Cue {
   // prepared and the toggle should say so rather than silently doing nothing.
   // Timer cue settings. Only meaningful when kind == CueKind::Timer.
   TimerSettings timer;
+  // Tone generator settings. Only meaningful when kind == CueKind::Tone.
+  ToneSettings tone;
 
   bool datamoshEnabled = false;
   std::string moshPath;
@@ -876,6 +913,11 @@ enum class QuickAction {
   CueSectionEffectsToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,
+  CueSectionToneToggle,
+  ToneCycleWaveform,
+  ToneFreqDec, ToneFreqInc,
+  ToneLevelDec, ToneLevelInc,
+  ToneChannelDec, ToneChannelInc,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
   DatamoshToggle,
