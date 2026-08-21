@@ -660,6 +660,12 @@
         const double el = rtIt != timerRuntimes_.end() ? rtIt->second.elapsedSeconds : 0.0;
         const bool run = rtIt != timerRuntimes_.end() && rtIt->second.running;
         engine->rebuildTimerFrame(*activeCue, el, run);
+      } else if (activeCue && activeCue->kind == CueKind::Tone) {
+        // Topped up every tick rather than rendered in one block, so a level
+        // or frequency change is heard immediately instead of after the old
+        // buffer drains.
+        engine->pumpToneAudio(*activeCue);
+        engine->rebuildToneFrame(*activeCue);
       }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
       if (engine->reachedEnd()) {

@@ -5371,6 +5371,64 @@ class App {
     return rowY;
   }
 
+  // Tone generator rows. Frequency only appears for SINE and the sweep range
+  // only for SWEEP, because a control that does nothing for the current
+  // waveform is worse than no control -- it invites the operator to change it
+  // and wonder why nothing happened.
+  int inspDrawToneRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    if (cue.kind != CueKind::Tone) {
+      return rowY;
+    }
+    inspDrawQuickRow(ix, rowY, "signal", QuickAction::ToneCycleWaveform,
+                     toneWaveformLabel(cue.tone.waveform),
+                     QuickAction::ToneCycleWaveform, QuickAction::ToggleLoop,
+                     false, false,
+                     "Sine for line-up, pink to ring out a PA, white to find "
+                     "rattles, sweep to hear where a room rings, identify to "
+                     "walk the outputs one at a time.");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "level", QuickAction::ToneLevelDec,
+                     fmtFloat(cue.tone.levelDbfs, 1) + " dBFS",
+                     QuickAction::ToneLevelInc, QuickAction::ToggleLoop,
+                     false, false,
+                     "-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: "
+                     "this feeds a live PA.");
+    rowY += ix.rowStep;
+
+    if (cue.tone.waveform == ToneWaveform::Sine) {
+      inspDrawQuickRow(ix, rowY, "freq", QuickAction::ToneFreqDec,
+                       std::to_string(static_cast<int>(cue.tone.frequencyHz)) + " Hz",
+                       QuickAction::ToneFreqInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Steps in third-octaves, because the ear works in "
+                       "ratios. 1kHz is the convention.");
+      rowY += ix.rowStep;
+    } else if (cue.tone.waveform == ToneWaveform::Sweep) {
+      rowY = inspDrawMessageRow(ix, rowY,
+        std::to_string(static_cast<int>(cue.tone.sweepLowHz)) + "-" +
+        std::to_string(static_cast<int>(cue.tone.sweepHighHz)) + " Hz log sweep",
+        pal.mid, pal.deep);
+    }
+
+    if (cue.tone.waveform == ToneWaveform::Identify) {
+      rowY = inspDrawMessageRow(ix, rowY, "walks every output in turn",
+                                pal.mid, pal.deep);
+    } else {
+      inspDrawQuickRow(ix, rowY, "output", QuickAction::ToneChannelDec,
+                       cue.tone.channel < 0
+                         ? std::string("all")
+                         : ("ch " + std::to_string(cue.tone.channel + 1)),
+                       QuickAction::ToneChannelInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Which output channel carries the signal. 'all' feeds "
+                       "every one.");
+      rowY += ix.rowStep;
+    }
+    return rowY;
+  }
+
   int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
@@ -6781,6 +6839,7 @@ class App {
   bool cueSectionKeyOpen_ = false;
   bool cueSectionEffectsOpen_ = true;   // datamosh lives here
   bool cueSectionTimerOpen_ = true;     // stage timer controls
+  bool cueSectionToneOpen_ = true;      // test tone generator controls
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

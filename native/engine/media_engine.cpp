@@ -1029,6 +1029,7 @@ void MediaEngine::render(SDL_Rect target) {
 // so the pattern progresses smoothly regardless of frame rate.
 // Regenerate a Timer cue from the transport clock. See the header for why the
 // transport IS the timer rather than a clock beside it.
+
 void MediaEngine::rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool running) {
   auto size = currentOutputSizeHint();
   const int w = size.first;
@@ -4502,6 +4503,205 @@ const TimerLogoCache* timerLogoFor(const std::string& path, int targetH) {
 }
 
 }  // namespace
+
+// ---------------------------------------------------------------------------
+// Tone generator
+// ---------------------------------------------------------------------------
+
+// Pink noise via the Voss-McCartney update: cheap, and flat to within a
+// fraction of a dB across the audio band, which white-noise-through-a-filter
+// is not without a much longer filter than a live tool wants to run.
+namespace {
+
+inline double nextWhite(std::uint32_t& seed) {
+  // xorshift32: no allocation, no locking, and identical on every platform,
+  // which matters because a test signal that differs between machines is not
+  // a reference.
+  seed ^= seed << 13;
+  seed ^= seed >> 17;
+  seed ^= seed << 5;
+  return (static_cast<double>(seed) / 2147483648.0) - 1.0;
+}
+
+inline double nextPink(double* rows, double& running, std::uint32_t& counter,
+                       std::uint32_t& seed) {
+  // Only ONE row changes per sample -- which row is given by the lowest set
+  // bit of the counter. That is the whole trick: 1/f without a filter.
+  counter++;
+  unsigned index = 0;
+  std::uint32_t n = counter;
+  while ((n & 1u) == 0u && index < 15u) { n >>= 1; ++index; }
+  running -= rows[index];
+  rows[index] = nextWhite(seed) * 0.25;
+  running += rows[index];
+  return running;
+}
+
+}  // namespace
+
+void MediaEngine::pumpToneAudio(const Cue& cue) {
+  if (cue.kind != CueKind::Tone) return;
+
+  const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
+  // Keep roughly a fifth of a second queued. Enough that a slow frame cannot
+  // starve the device, short enough that a level or frequency change is heard
+  // immediately rather than after the old buffer drains.
+  const int targetBytes = (kAudioRate / 5) * channels * static_cast<int>(sizeof(std::int16_t));
+  const int queued = queuedAudioBytes();
+  if (queued >= targetBytes) return;
+
+  const int bytesPerFrame = channels * static_cast<int>(sizeof(std::int16_t));
+  const std::size_t frames =
+    static_cast<std::size_t>((targetBytes - queued) / std::max(1, bytesPerFrame));
+  if (frames == 0) return;
+
+  // dBFS -> linear, clamped. The ceiling is -1 dBFS rather than 0: a test tone
+  // goes into a live PA and there is never a reason to push a generated signal
+  // to full scale.
+  const double db = std::clamp(cue.tone.levelDbfs, -60.0, -1.0);
+  const double amplitude = std::pow(10.0, db / 20.0) * 32767.0;
+
+  std::vector<std::int16_t> out(frames * static_cast<std::size_t>(channels), 0);
+  const double dt = 1.0 / static_cast<double>(kAudioRate);
+
+  for (std::size_t f = 0; f < frames; ++f) {
+    double sample = 0.0;
+    switch (cue.tone.waveform) {
+      case ToneWaveform::Sine: {
+        const double hz = std::clamp(cue.tone.frequencyHz, 20.0, 20000.0);
+        tonePhase_ += 2.0 * 3.14159265358979323846 * hz * dt;
+        if (tonePhase_ > 6.283185307179586) tonePhase_ -= 6.283185307179586;
+        sample = std::sin(tonePhase_);
+        break;
+      }
+      case ToneWaveform::White:
+        sample = nextWhite(toneSeed_);
+        break;
+      case ToneWaveform::Pink:
+        sample = nextPink(tonePinkRows_, tonePinkRunning_, tonePinkCounter_, toneSeed_);
+        break;
+      case ToneWaveform::Sweep: {
+        // Logarithmic, because a room's response is heard in octaves. A linear
+        // sweep spends most of its time above 10kHz and tells you little.
+        const double span = std::max(0.5, cue.tone.sweepSeconds);
+        const double lo = std::clamp(cue.tone.sweepLowHz, 20.0, 19000.0);
+        const double hi = std::clamp(cue.tone.sweepHighHz, lo + 1.0, 20000.0);
+        toneSweepSeconds_ += dt;
+        if (toneSweepSeconds_ > span) toneSweepSeconds_ -= span;
+        const double t = toneSweepSeconds_ / span;
+        const double hz = lo * std::pow(hi / lo, t);
+        tonePhase_ += 2.0 * 3.14159265358979323846 * hz * dt;
+        if (tonePhase_ > 6.283185307179586) tonePhase_ -= 6.283185307179586;
+        sample = std::sin(tonePhase_);
+        break;
+      }
+      case ToneWaveform::Identify: {
+        const double hold = std::max(0.25, cue.tone.identifySecondsPerChannel);
+        toneSweepSeconds_ += dt;
+        if (toneSweepSeconds_ >= hold) {
+          toneSweepSeconds_ -= hold;
+          toneIdentifyChannel_ = (toneIdentifyChannel_ + 1) % channels;
+        }
+        tonePhase_ += 2.0 * 3.14159265358979323846 * 1000.0 * dt;
+        if (tonePhase_ > 6.283185307179586) tonePhase_ -= 6.283185307179586;
+        // Gate the last quarter second so consecutive channels are separated
+        // by silence; without it a walk sounds like one unbroken tone.
+        const bool gap = toneSweepSeconds_ > (hold - 0.25);
+        sample = gap ? 0.0 : std::sin(tonePhase_);
+        break;
+      }
+    }
+
+    const std::int16_t v = static_cast<std::int16_t>(
+      std::clamp(sample * amplitude, -32767.0, 32767.0));
+    if (cue.tone.waveform == ToneWaveform::Identify) {
+      out[f * channels + toneIdentifyChannel_] = v;   // one channel at a time
+    } else if (cue.tone.channel >= 0 && cue.tone.channel < channels) {
+      out[f * channels + cue.tone.channel] = v;       // a single named output
+    } else {
+      for (int c = 0; c < channels; ++c) out[f * channels + c] = v;
+    }
+  }
+
+  putAudioToStream(out);
+}
+
+void MediaEngine::rebuildToneFrame(const Cue& cue) {
+  auto [w, h] = currentOutputSizeHint();
+  const int W = std::max(64, w);
+  const int H = std::max(64, h);
+  DecodedFrame frame;
+  frame.width = W;
+  frame.height = H;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.assign(static_cast<std::size_t>(W) * H * 4, 0);
+  for (std::size_t i = 0; i < frame.pixels.size(); i += 4) {
+    frame.pixels[i + 3] = 255;
+  }
+
+  // The card says what is actually going out. An engineer at the far end of a
+  // room needs to read the level and the channel from the screen, because the
+  // whole point is that they are NOT at the machine.
+  const char* name = "SINE";
+  switch (cue.tone.waveform) {
+    case ToneWaveform::Pink:     name = "PINK NOISE"; break;
+    case ToneWaveform::White:    name = "WHITE NOISE"; break;
+    case ToneWaveform::Sweep:    name = "SWEEP"; break;
+    case ToneWaveform::Identify: name = "IDENTIFY"; break;
+    default: break;
+  }
+  char levelText[48];
+  std::snprintf(levelText, sizeof(levelText), "%.1f dBFS", cue.tone.levelDbfs);
+
+  std::string detail;
+  if (cue.tone.waveform == ToneWaveform::Sine) {
+    char hz[32];
+    std::snprintf(hz, sizeof(hz), "%.0f Hz", cue.tone.frequencyHz);
+    detail = hz;
+  } else if (cue.tone.waveform == ToneWaveform::Sweep) {
+    char sw[48];
+    std::snprintf(sw, sizeof(sw), "%.0f-%.0f Hz", cue.tone.sweepLowHz, cue.tone.sweepHighHz);
+    detail = sw;
+  } else if (cue.tone.waveform == ToneWaveform::Identify) {
+    detail = "CH " + std::to_string(toneIdentifyChannel_ + 1);
+  } else if (cue.tone.channel >= 0) {
+    detail = "CH " + std::to_string(cue.tone.channel + 1);
+  } else {
+    detail = "ALL CH";
+  }
+
+  const int cell = std::max(3, W / 120);
+  auto drawLine = [&](const std::string& text, int y, SDL_Color ink, int scale) {
+    const int c = cell * scale;
+    const int charW = c * 6;
+    const int textW = static_cast<int>(text.size()) * charW;
+    int x = (W - textW) / 2;
+    for (char raw : text) {
+      const unsigned char ch = static_cast<unsigned char>(std::toupper(raw));
+      if (const std::uint8_t* rows = timerGlyph5x7(ch)) {
+        for (int r = 0; r < 7; ++r) {
+          for (int b = 0; b < 5; ++b) {
+            if (rows[r] & (1 << (4 - b))) {
+              fillTimerRect(frame, x + b * c, y + r * c, c, c, ink);
+            }
+          }
+        }
+      }
+      x += charW;
+    }
+  };
+
+  const SDL_Color amber {255, 190, 40, 255};
+  const SDL_Color white {255, 255, 255, 255};
+  drawLine(name,      H / 2 - cell * 22, amber, 3);
+  drawLine(levelText, H / 2 + cell * 2,  white, 2);
+  drawLine(detail,    H / 2 + cell * 20, white, 2);
+
+  displayFrame_ = std::move(frame);
+  displayFrame_->index = ++displayFrameSerial_;
+  uploadFrame(*displayFrame_);
+}
+
 
 void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
                                   double elapsedSeconds, bool running) {
