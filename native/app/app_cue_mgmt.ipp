@@ -2293,9 +2293,15 @@
   }
 
   fs::path convertedMediaDir() const {
+    // An explicit destination wins. Without one the output stays beside the
+    // show so it travels with it, falling back to stateDir() when no show is
+    // open -- never inside a macOS bundle, which the signature seals.
+    if (!encoderOverrides_.outputDir.empty()) {
+      return fs::path(encoderOverrides_.outputDir);
+    }
     fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
-      ? currentProjectFile_.parent_path()   // portable: lives next to the show
-      : Paths::stateDir();                  // no show yet — never inside the bundle
+      ? currentProjectFile_.parent_path()
+      : Paths::stateDir();
     return base / "_converted";
   }
 
@@ -2396,9 +2402,46 @@
   // takes -cq, ProRes and DNxHD take profiles, VP9/AV1 want -b:v 0 alongside
   // -crf, and the still/audio formats have to explicitly drop the stream they
   // do not carry or ffmpeg errors out.
+  // Which rate-control knob a codec actually accepts. nullptr means the codec
+  // is PROFILE-driven (ProRes, DNxHR, HAP, FFV1, QT RLE, PNG) and has no
+  // continuous quality axis, so a quality/bitrate override cannot be honoured
+  // and must be reported rather than silently dropped.
+  static const char* rateFlagForFormat(const std::string& id) {
+    if (id == "h264" || id == "h265" || id == "proxy" || id == "datamosh" ||
+        id == "vp9" || id == "av1") return "-crf";
+    if (id == "h264_gpu" || id == "h265_gpu") return "-cq";
+    if (id == "mpeg4" || id == "mjpeg" || id == "datamosh_classic" ||
+        id == "datamosh_extreme") return "-qscale:v";
+    return nullptr;
+  }
+
+  // Map the operator's 0..100 intent onto the codec's own scale. Every one of
+  // these is inverted (lower number = better) and they do not share a range,
+  // which is exactly why the UI shows an intent rather than a raw number.
+  static int mapQualityForFlag(const std::string& id, const char* flag, int q) {
+    q = std::clamp(q, 0, 100);
+    auto lerp = [q](int worst, int best) {
+      return worst + (best - worst) * q / 100;
+    };
+    if (std::string(flag) == "-qscale:v") return lerp(31, 2);   // MPEG-4 / MJPEG
+    if (id == "vp9" || id == "av1")       return lerp(50, 10);  // wider CRF scale
+    return lerp(34, 10);                                        // x264/x265/NVENC
+  }
+
+  // Drop a flag and its value wherever it appears, so an override replaces the
+  // format default instead of sitting next to it. Two rate knobs on one command
+  // line is undefined at best and an ffmpeg error at worst.
+  static void stripArg(std::vector<std::string>& a, const std::string& flag) {
+    for (std::size_t i = 0; i + 1 < a.size();) {
+      if (a[i] == flag) a.erase(a.begin() + i, a.begin() + i + 2);
+      else ++i;
+    }
+  }
+
   static std::vector<std::string> encodeArgsForFormat(const EncoderFormat& fmt,
                                                       const std::string& src,
-                                                      const std::string& dst) {
+                                                      const std::string& dst,
+                                                      const EncoderOverrides& ov) {
     std::vector<std::string> a {"ffmpeg", "-y", "-i", src};
     const std::string id = fmt.id;
     auto add = [&](std::initializer_list<const char*> more) {
@@ -2434,10 +2477,60 @@
         // whole point of this variant.
         add({"-qscale:v", "3", "-bf", "0", "-sc_threshold", "0", "-g", "120",
              "-pix_fmt", "yuv420p", "-vsync", "cfr"});
+      else if (id == "datamosh_extreme")
+        // Two knobs over CLASSIC, both of which the operator can SEE:
+        //   -g 24    one keyframe per ~second instead of per five, so a fresh
+        //            smear starts constantly rather than occasionally. This is
+        //            the setting that makes the effect feel continuous; a long
+        //            GOP is why the gentler recipes look like nothing is
+        //            happening for seconds at a time.
+        //   qscale 8 a coarse quantiser, so residuals are large and blocky and
+        //            the drag reads as hard 16x16 chunks.
+        // Do NOT push -g higher for "more" effect: the decoder keeps the first
+        // keyframe and drops the rest, so a file with only one keyframe has
+        // nothing to drop and does not mosh at all.
+        add({"-qscale:v", "8", "-bf", "0", "-sc_threshold", "0", "-g", "24",
+             "-pix_fmt", "yuv420p", "-vsync", "cfr"});
       else if (id == "hap")                        add({"-format", "hap", "-chunks", "4"});
       else if (id == "hap_alpha")                  add({"-format", "hap_alpha", "-chunks", "4"});
       else if (id == "hap_q")                      add({"-format", "hap_q", "-chunks", "4"});
       else if (id == "png_seq")                    add({"-pix_fmt", "rgba"});
+
+      // ---- operator overrides --------------------------------------------
+      // Applied AFTER the defaults so an untouched encoder produces byte-for-
+      // byte the same command line it always did.
+      if (const char* rateFlag = rateFlagForFormat(id)) {
+        if (ov.rate == EncoderOverrides::Rate::Quality) {
+          for (const char* f : {"-crf", "-cq", "-qscale:v", "-b:v"}) stripArg(a, f);
+          a.push_back(rateFlag);
+          a.push_back(std::to_string(mapQualityForFlag(id, rateFlag, ov.quality0to100)));
+          // VP9/AV1 read -crf as a CAP unless the bitrate is explicitly zeroed,
+          // so constant quality needs both.
+          if (id == "vp9" || id == "av1") add({"-b:v", "0"});
+        } else if (ov.rate == EncoderOverrides::Rate::Bitrate) {
+          for (const char* f : {"-crf", "-cq", "-qscale:v", "-b:v"}) stripArg(a, f);
+          a.push_back("-b:v");
+          a.push_back(std::to_string(std::max(1, ov.videoBitrateKbps)) + "k");
+        }
+      }
+      if (ov.fps > 0.0) {
+        a.push_back("-r");
+        a.push_back(fmtFloat(ov.fps, 3));
+      }
+      if (ov.width > 0 && ov.height > 0) {
+        // Merge with any filter the format already set (proxy scales, gif builds
+        // a palette) rather than replacing it -- a second -vf silently wins and
+        // would drop the format's own filtering.
+        std::string scale = "scale=" + std::to_string(ov.width) + ":" +
+                            std::to_string(ov.height) + ":flags=lanczos";
+        std::string existing;
+        for (std::size_t i = 0; i + 1 < a.size(); ++i) {
+          if (a[i] == "-vf") { existing = a[i + 1]; break; }
+        }
+        stripArg(a, "-vf");
+        a.push_back("-vf");
+        a.push_back(existing.empty() ? scale : (scale + "," + existing));
+      }
     }
 
     if (!fmt.audioEncoder || !*fmt.audioEncoder) {
@@ -2446,7 +2539,11 @@
       a.push_back("-c:a");
       a.push_back(fmt.audioEncoder);
       const std::string ac = fmt.audioEncoder;
-      if (ac == "aac" || ac == "libmp3lame" || ac == "libopus") add({"-b:a", "192k"});
+      if (ac == "aac" || ac == "libmp3lame" || ac == "libopus") {
+        const int kbps = ov.audioBitrateKbps > 0 ? ov.audioBitrateKbps : 192;
+        a.push_back("-b:a");
+        a.push_back(std::to_string(kbps) + "k");
+      }
     }
 
     if (id == "png_seq") {
@@ -2509,26 +2606,12 @@
       {"vp9", "VP9 / WebM", "libvpx-vp9", "libopus", "webm", "web delivery", false},
       {"av1", "AV1 / MKV", "libaom-av1", "libopus", "matroska", "smallest, slow to encode", false},
       {"ffv1", "FFV1 / MKV", "ffv1", "flac", "matroska", "lossless archival", false},
-      // Two datamosh flavours. Both are prepared for I-frame dropping at
-      // decode. MEASURED difference, not theory:
-      //   classic - MPEG-4 Part 2. Produces the full effect: the previous
-      //             picture is dragged through the new motion and stays
-      //             smeared for seconds. This is the one that looks like
-      //             datamosh.
-      //   subtle  - H.264. Much weaker, because a P-frame may legally contain
-      //             INTRA-coded macroblocks: x264 refreshes regions on its own
-      //             and the smear heals within a few frames, fastest on
-      //             high-detail content. There is no x264 switch to suppress
-      //             intra MBs, so this is a floor, not a tuning problem. Keep
-      //             it for a gentle wobble; reach for classic for the real
-      //             thing.
-      //   modern  - H.264. Its in-loop deblocking filter tidies block edges as
-      //             it decodes, so the smear reads as flowing and liquid.
-      //   classic - MPEG-4 Part 2. No deblocking filter at all, so blocks stay
-      //             hard-edged: the chunky 2010s look people picture when they
-      //             say "datamosh".
+      // Three datamosh flavours, weakest to strongest. All are prepared for
+      // I-frame dropping at decode; see kDatamoshLook* in types.hpp for why
+      // they differ, which is measured rather than stylistic.
       {"datamosh", "Datamosh - subtle (H.264)", "libx264", "aac", "mp4", "gentler; self-heals fast", false},
       {"datamosh_classic", "Datamosh - classic (MPEG-4)", "mpeg4", "libmp3lame", "avi", "the full smeary effect", false},
+      {"datamosh_extreme", "Datamosh - extreme (MPEG-4)", "mpeg4", "libmp3lame", "avi", "chunkiest, smears constantly", false},
       {"mpeg4", "MPEG-4 Part 2 / AVI", "mpeg4", "libmp3lame", "avi", "the classic datamosh look", false},
       {"mjpeg", "Motion JPEG / AVI", "mjpeg", "pcm_s16le", "avi", "every frame a keyframe", false},
       {"gif", "Animated GIF", "gif", "", "gif", "no audio, palette limited", false},
@@ -2550,7 +2633,27 @@
     return kFormats;
   }
 
-  // The datamosh recipe currently selected by the SMOOTH/CHUNKY toggle.
+  // Format id for a per-cue look. Clamps, because the value is serialized and
+  // an older or newer show file may carry something outside the range.
+  static const char* moshFormatIdForLook(int look) {
+    switch (look) {
+      case kDatamoshLookSubtle:  return "datamosh";
+      case kDatamoshLookExtreme: return "datamosh_extreme";
+      default:                   return "datamosh_classic";
+    }
+  }
+
+  static const char* moshLookLabelFor(int look) {
+    switch (look) {
+      case kDatamoshLookSubtle:  return "SUBTLE";
+      case kDatamoshLookExtreme: return "EXTREME";
+      default:                   return "CLASSIC";
+    }
+  }
+
+  // The datamosh recipe the ENCODER TAB will use for a manual convert. Cue
+  // datamosh does not read this -- it reads the cue's own look, so that a show
+  // reopened tomorrow moshes exactly as it did today.
   const char* activeMoshFormatId() const {
     return moshClassicLook_ ? "datamosh_classic" : "datamosh";
   }
@@ -2591,13 +2694,13 @@
       // machine has no NVIDIA encoder.
       const EncoderFormat* cpu = encoderFormatById("h264");
       std::vector<std::vector<std::string>> attempts {
-        encodeArgsForFormat(*fmt, src, dst)};
+        encodeArgsForFormat(*fmt, src, dst, encoderOverrides_)};
       if (cpu) {
-        attempts.push_back(encodeArgsForFormat(*cpu, src, dst));
+        attempts.push_back(encodeArgsForFormat(*cpu, src, dst, encoderOverrides_));
       }
       return attempts;
     }
-    return { encodeArgsForFormat(*fmt, src, dst) };
+    return { encodeArgsForFormat(*fmt, src, dst, encoderOverrides_) };
   }
 
   // Mastering codecs are enormous - ProRes 422 measured ~167 MB for 3 seconds,
@@ -2678,13 +2781,11 @@
     }
   }
 
-  // Datamosh output sits beside the original rather than replacing it: the
-  // effect toggles between the two, so both have to survive.
   // Datamosh output sits BESIDE the original: the effect toggles between the
   // two, so both have to survive.
   static bool formatKeepsOriginal(const EncoderFormat& fmt) {
     const std::string id = fmt.id;
-    return id == "datamosh" || id == "datamosh_classic";
+    return id.rfind("datamosh", 0) == 0;
   }
 
   static bool presetKeepsOriginal(EncoderPreset preset) {
@@ -2756,10 +2857,19 @@
   // selected encoder format. The toggle drives this, so it must not silently
   // repoint the Encoder tab at DATAMOSH for the next manual convert.
   void queueDatamoshPrepForCue(int deckIndex, int cueIndex) {
+    // The recipe comes from the CUE, not the Encoder tab's chip: this prep is
+    // for this clip's look and must survive a save/reload.
+    int look = kDatamoshLookClassic;
+    if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size())) {
+      const Deck& deck = project_.decks[deckIndex];
+      if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size())) {
+        look = deck.cues[cueIndex].datamoshLook;
+      }
+    }
     const EncoderPreset savedPreset = encoderPreset_;
     const std::string savedFormat = encoderFormatId_;
     encoderPreset_ = EncoderPreset::DatamoshFriendly;
-    encoderFormatId_ = activeMoshFormatId();
+    encoderFormatId_ = moshFormatIdForLook(look);
     convertCueMedia(deckIndex, cueIndex);
     encoderPreset_ = savedPreset;
     encoderFormatId_ = savedFormat;

@@ -303,6 +303,8 @@
       case QuickAction::DatamoshToggle:
         toggleSelectedDatamosh();
         break;
+      case QuickAction::DatamoshLookPrev: cycleSelectedDatamoshLook(-1); break;
+      case QuickAction::DatamoshLookNext: cycleSelectedDatamoshLook(+1); break;
       case QuickAction::CueSectionEffectsToggle:
         cueSectionEffectsOpen_ = !cueSectionEffectsOpen_;
         break;

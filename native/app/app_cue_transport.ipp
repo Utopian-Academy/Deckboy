@@ -3316,6 +3316,49 @@
                    : "DATAMOSH on - preparing...");
     playUiSound(UiSoundEffect::Toggle);
   }
+  // Change which mosh recipe this cue uses. The prepared file was encoded with
+  // the OLD recipe, so it is stale the moment the look changes: drop it and
+  // re-prepare, otherwise the label would claim EXTREME while the cue kept
+  // playing the gentle version -- a control that reads as wired but is not.
+  void cycleSelectedDatamoshLook(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      failRemoteCommand("datamosh look: select a cue");
+      return;
+    }
+    if (cue->kind != CueKind::Video || cue->path.empty()) {
+      failRemoteCommand("datamosh look: file-backed video cues only");
+      playUiSound(UiSoundEffect::Error);
+      return;
+    }
+    const int previous = cue->datamoshLook;
+    int next = previous + delta;
+    while (next < 0) next += kDatamoshLookCount;
+    next %= kDatamoshLookCount;
+    if (next == previous) return;
+    cue->datamoshLook = next;
+    cue->moshPath.clear();
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+
+    if (!cue->datamoshEnabled) {
+      // Not on yet, so nothing to re-encode: the new look is simply what the
+      // toggle will prepare when it is switched on.
+      triggerToast(std::string("datamosh look: ") + moshLookLabelFor(next));
+      return;
+    }
+    // Live cue is now playing the original again until the new prep lands.
+    refreshFocusedLiveCueRuntimeIfSelected();
+    if (datamoshPrepInFlight(cue->path)) {
+      triggerToast(std::string("datamosh look: ") + moshLookLabelFor(next) +
+                   " - already preparing");
+      return;
+    }
+    queueDatamoshPrepForCue(project_.focusedDeckIndex, focusedDeck().selectedIndex);
+    triggerToast(std::string("datamosh look: ") + moshLookLabelFor(next) +
+                 " - re-preparing...");
+  }
+
   void toggleSelectedChromaKey() {
     Cue* cue = firstFocusedSelectedCueMutable([&](const Cue& each) {
       return cueSupportsKeying(&each);

@@ -148,6 +148,28 @@ struct CompositeSlot {
 };
 
 // ---------------------------------------------------------------------------
+// Datamosh flavours, weakest to strongest. Plain ints rather than an enum class
+// because Cue is serialized field-by-field and an unknown future value must
+// clamp rather than become an invalid enumerator.
+//
+// The differences are MEASURED, not stylistic preference:
+//   SUBTLE  - H.264. A P-frame may legally carry INTRA-coded macroblocks, so
+//             x264 refreshes regions on its own and the smear heals within a
+//             few frames, fastest on high-detail content. No x264 switch
+//             suppresses intra MBs, so this is a floor, not a tuning problem.
+//   CLASSIC - MPEG-4 Part 2. No in-loop deblocking, no self-healing: the old
+//             picture is dragged through the new motion and stays smeared.
+//             This is the look people mean by "datamosh".
+//   EXTREME - CLASSIC with a coarser quantiser and a much shorter GOP, so the
+//             blocks are bigger and a fresh smear starts roughly every second
+//             instead of every five.
+// ---------------------------------------------------------------------------
+inline constexpr int kDatamoshLookSubtle  = 0;
+inline constexpr int kDatamoshLookClassic = 1;
+inline constexpr int kDatamoshLookExtreme = 2;
+inline constexpr int kDatamoshLookCount   = 3;
+
+// ---------------------------------------------------------------------------
 // Cue — A single playback item in a deck's cue list.
 //
 // This is the central content unit. Each Cue holds everything needed to:
@@ -280,6 +302,12 @@ struct Cue {
 
   bool datamoshEnabled = false;
   std::string moshPath;
+  // Which mosh recipe this cue was prepared with. Per-cue because it is a look
+  // choice about THIS clip, and because a global flag could not be saved with
+  // the show -- it reset to the weakest flavour on every launch, so the toggle
+  // quietly did less than the operator expected. Changing it clears moshPath so
+  // the cue re-prepares with the new recipe. See DatamoshLook.
+  int datamoshLook = kDatamoshLookClassic;
   bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor
   bool subtitleEnabled = true;    // render subtitles (if subtitle track available)
   bool refreshOnTake = false;     // Browser cue: reload page each time cue is taken
@@ -815,6 +843,7 @@ enum class QuickAction {
   // so future per-cue effects have an obvious home that is not "KEY".
   CueSectionEffectsToggle,
   DatamoshToggle,
+  DatamoshLookPrev, DatamoshLookNext,
   // Stage timer. Run/Reset/Nudge act on the CLOCK, not the transport.
   CueSectionTimerToggle,
   TimerRunToggle,
