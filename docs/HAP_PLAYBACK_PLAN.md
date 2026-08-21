@@ -1,5 +1,11 @@
 # HAP Accelerated Playback - Plan
 
+> **STATUS 2026-08-21 (OWNER): shipped as far as it goes in v1.** HAP decode,
+> encode and the evidence-based conversion offer are DONE and stay. The GPU
+> block-upload path described below is DEFERRED to Super Deckboy -- see
+> DEVNOTES.md, "HAP GPU block upload". Read this as the design for that future
+> work, not as outstanding v1 scope.
+
 **Status: HAP PLAYS. GPU block upload not started.**
 
 A HAP cue can be imported, taken and played like any other clip. The pipeline
