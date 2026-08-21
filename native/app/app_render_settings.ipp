@@ -1819,7 +1819,7 @@
         {
           const char* kProtoIds[2] = {"srt", "rtmp"};
           const char* kProtoNames[2] = {"SRT", "RTMP / RTMPS"};
-          int destH = (subContentH - kSectionGap) / 2;
+          int destH = (subContentH - kSectionGap) / 3;
           for (int dest = 0; dest < 2; ++dest) {
             const std::string protoId = kProtoIds[dest];
             const bool isSrt = (dest == 0);
@@ -1914,6 +1914,60 @@
               drawActionBtn(kfBtn, "Keyframe: "
                             + std::to_string(exists ? st->streamKeyframeSeconds : 2)
                             + "s", act(kStreamFieldKeyframe));
+            }
+            sy += destH + kSectionGap;
+          }
+
+          // -- RECORD TO DISK -----------------------------------------------
+          // Recording deserves its own destination rather than hiding as a
+          // protocol on some output the operator has to go and find. It is the
+          // one egress an operator starts and stops by hand mid-show.
+          {
+            const bool rec = recordingActive();
+            SDL_Rect recSection {cx, sy, subContentW, destH};
+            SDL_Rect rBody = drawSectionFrame(recSection, "RECORD TO DISK");
+            VerticalLayout rl(rBody, kRowGap);
+            {
+              SDL_Rect row = rl.takeFixed(kRowH);
+              int halfR = (row.w - 4) / 2;
+              SDL_Rect recBtn {row.x, row.y, halfR, kRowH};
+              drawActionBtn(recBtn, rec ? "STOP RECORDING" : "START RECORDING",
+                            kSettingsActionRecordToggle, rec);
+              SDL_Rect badge {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              if (rec) {
+                // Elapsed AND bytes on disk. Elapsed alone cannot tell you the
+                // encoder is actually writing; a size that climbs can.
+                const int secs = static_cast<int>(recordingElapsedSeconds());
+                const std::uintmax_t mb = recordingBytesOnDisk() / (1024 * 1024);
+                char t[64];
+                std::snprintf(t, sizeof(t), "REC  %d:%02d:%02d   %llu MB",
+                              secs / 3600, (secs / 60) % 60, secs % 60,
+                              static_cast<unsigned long long>(mb));
+                drawCenteredText(controlRenderer_, fontSmall_, t, pal.light, badge);
+              } else {
+                drawCenteredText(controlRenderer_, fontSmall_, "idle", pal.inkSoft, badge);
+              }
+            }
+            {
+              SDL_Rect row = rl.takeFixed(kRowH);
+              int pickW = row.w / 4;
+              SDL_Rect pathRect {row.x, row.y, row.w - pickW * 2 - 8, kRowH};
+              drawTextSafe(controlRenderer_, fontSmall_, pathRect,
+                           ellipsizeToPixelWidth(fontSmall_, recordingDirLabel(), pathRect.w),
+                           ink);
+              SDL_Rect pickBtn {pathRect.x + pathRect.w + 4, row.y, pickW, kRowH};
+              drawActionBtn(pickBtn, "FOLDER...", kSettingsActionRecordDirPick,
+                            !project_.recordingDir.empty());
+              SDL_Rect clrBtn {pickBtn.x + pickW + 4, row.y, pickW, kRowH};
+              drawActionBtn(clrBtn, "DEFAULT", kSettingsActionRecordDirClear);
+            }
+            if (recordingSharesAppVolume()) {
+              // Stated, not enforced. It is a legitimate choice on a machine
+              // with one fast disk -- but it should be a choice.
+              SDL_Rect row = rl.takeFixed(kRowH);
+              drawTextSafe(controlRenderer_, fontSmall_, row,
+                           "same disk as Deckboy - a separate drive is safer",
+                           pal.inkSoft);
             }
             sy += destH + kSectionGap;
           }
@@ -2327,6 +2381,14 @@
       if (sb.action == kSettingsActionEncoderPauseToggle) { toggleEncoderQueuePaused(); continue; }
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
       if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
+      if (sb.action == kSettingsActionRecordToggle)   { toggleRecording(); continue; }
+      if (sb.action == kSettingsActionRecordDirPick)  { pickRecordingDir(); continue; }
+      if (sb.action == kSettingsActionRecordDirClear) {
+        project_.recordingDir.clear();
+        markProjectDirty();
+        triggerToast("record folder: recordings/ beside the show");
+        continue;
+      }
       if (sb.action == kSettingsActionEncoderRateMode)    { cycleEncoderRateMode(); continue; }
       if (sb.action == kSettingsActionEncoderQualityDec)  { nudgeEncoderRate(-1); continue; }
       if (sb.action == kSettingsActionEncoderQualityInc)  { nudgeEncoderRate(+1); continue; }

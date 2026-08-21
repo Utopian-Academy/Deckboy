@@ -1372,7 +1372,9 @@
     }
     OutputTarget& out = project_.outputs[index];
     out.streamProtocol = wanted;
-    out.name = (wanted == "srt") ? "SRT Stream" : "RTMP Stream";
+    out.name = (wanted == "srt")  ? "SRT Stream"
+             : (wanted == "file") ? "Program Recording"
+                                  : "RTMP Stream";
     out.streamUrl = defaultOutputStreamUrl(wanted, index);
     out.streamEnabled = false;   // configured, not yet live
     out.enabled = false;
@@ -1422,6 +1424,91 @@
   //      recordings/ beside the show, or in stateDir() when no show is open --
   //      the same rule the converted-media cache follows.
   // An absolute path from the operator is honoured as-is, minus the stamp.
+  // ---- Program recording ---------------------------------------------------
+  // Recording IS a stream output whose sink is a file, so it reuses the whole
+  // egress path. These wrap that so the operator never has to know.
+  int recordingOutputIndex() const { return findStreamOutputForProtocol("file"); }
+
+  bool recordingActive() const {
+    const int idx = recordingOutputIndex();
+    if (idx < 0) return false;
+    const OutputTarget& out = project_.outputs[idx];
+    return out.enabled && out.streamEnabled;
+  }
+
+  double recordingElapsedSeconds() const {
+    if (!recordingActive() || recordingStartedMs_ == 0) return 0.0;
+    return (SDL_GetTicks() - recordingStartedMs_) / 1000.0;
+  }
+
+  // Size of the file being written right now. Cheap enough to poll per frame,
+  // and it is the only honest confirmation that bytes are actually landing --
+  // an armed output that is silently failing looks identical otherwise.
+  std::uintmax_t recordingBytesOnDisk() const {
+    if (lastRecordingPath_.empty()) return 0;
+    std::error_code ec;
+    auto n = fs::file_size(fs::path(lastRecordingPath_), ec);
+    return ec ? 0 : n;
+  }
+
+  void toggleRecording() {
+    const bool wasActive = recordingActive();
+    int idx = wasActive ? recordingOutputIndex() : ensureStreamOutputForProtocol("file");
+    if (idx < 0 || idx >= static_cast<int>(project_.outputs.size())) {
+      failRemoteCommand("record: could not create a recording output");
+      return;
+    }
+    OutputTarget& out = project_.outputs[idx];
+    out.enabled = !wasActive;
+    out.streamEnabled = !wasActive;
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+    if (wasActive) {
+      const std::uintmax_t bytes = recordingBytesOnDisk();
+      triggerToast(bytes > 0
+        ? "RECORDING STOPPED - " + std::to_string(bytes / (1024 * 1024)) + " MB"
+        : "RECORDING STOPPED");
+      showLog("RECORD STOP", lastRecordingPath_);
+      recordingStartedMs_ = 0;
+    } else {
+      recordingStartedMs_ = SDL_GetTicks();
+      lastRecordingPath_.clear();   // filled in when the args are built
+      triggerToast("RECORDING");
+      showLog("RECORD START", recordingDirLabel());
+    }
+  }
+
+  // Where recordings will land, for display. Mirrors resolveRecordingPath's
+  // rules so the label can never disagree with what actually happens.
+  std::string recordingDirLabel() const {
+    if (!project_.recordingDir.empty()) return project_.recordingDir;
+    fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
+      ? currentProjectFile_.parent_path()
+      : Paths::stateDir();
+    return (base / "recordings").string();
+  }
+
+  // True when recordings would land on the same volume Deckboy is running
+  // from. Worth saying out loud: a live recording competes for seek bandwidth
+  // with media playback, and a disk that fills takes the app down too.
+  bool recordingSharesAppVolume() const {
+    std::error_code ec;
+    const fs::path rec(recordingDirLabel());
+    const fs::path app = Paths::stateDir();
+    return fs::path(rec).root_name().string() == fs::path(app).root_name().string();
+  }
+
+  void pickRecordingDir() {
+    showFolderDialog([this](std::vector<std::string> chosen) {
+      if (chosen.empty() || chosen.front().empty()) return;
+      project_.recordingDir = chosen.front();
+      markProjectDirty();
+      triggerToast(recordingSharesAppVolume()
+        ? "record folder set - SAME DISK as Deckboy"
+        : "record folder set");
+    });
+  }
+
   std::string resolveRecordingPath(const std::string& nameOrPath) const {
     std::error_code ec;
     fs::path given(trim(nameOrPath));
@@ -1430,6 +1517,12 @@
     std::string ext = given.extension().string();
     if (given.is_absolute() && given.has_parent_path()) {
       dir = given.parent_path();
+    } else if (!project_.recordingDir.empty()) {
+      // An explicitly chosen record volume. Separate from the encoder's output
+      // directory on purpose: recording a live show to the same disk Deckboy is
+      // reading media from costs seek bandwidth, and a disk that fills takes
+      // both the recording AND the app down with it.
+      dir = fs::path(project_.recordingDir);
     } else {
       fs::path base = (!currentProjectFile_.empty() && currentProjectFile_.has_parent_path())
         ? currentProjectFile_.parent_path()
@@ -1444,7 +1537,12 @@
       std::strftime(stamp, sizeof(stamp), "%Y%m%d-%H%M%S", lt);
     }
     fs::create_directories(dir, ec);
-    return (dir / (stem.string() + "_" + stamp + ext)).string();
+    // Remembered so the UI can report the size of the file actually being
+    // written. Mutable because the args builder is const; the alternative was
+    // recomputing the timestamp for display, which would drift from the real
+    // filename.
+    lastRecordingPath_ = (dir / (stem.string() + "_" + stamp + ext)).string();
+    return lastRecordingPath_;
   }
 
   std::vector<std::string> buildOutputStreamArgs(int outputIndex,
