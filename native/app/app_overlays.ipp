@@ -571,13 +571,23 @@
     SDL_RenderFillRect(controlRenderer_, &full);
     if (uiPackAvailable_) {
       SDL_Rect artRect {0, 0, width, height};
-      // Cycle splashes are grayscale masters — tint them to the theme accent so
-      // the boot screen matches whatever colorway is active.
-      bool tint = splashTintable_;
+      // Tint strength depends on which pool the art came from. The grayscale
+      // masters take the theme accent FULLY -- they have no colour of their own
+      // to lose. The colour scenes take it only PARTLY: colour-modulation is a
+      // multiply, so tinting a saturated image to the accent muddies it, but
+      // leaving it untouched makes it ignore the colorway entirely. Mixing the
+      // accent toward white pulls the scene toward the theme while keeping the
+      // artwork's own palette readable.
+      const float k = splashTintStrength_;
+      const bool tint = k > 0.01f;
       if (tint) {
         ensureUiImageLoaded(uiSplashArt_);
         if (uiSplashArt_.texture) {
-          SDL_SetTextureColorMod(uiSplashArt_.texture, pal.light.r, pal.light.g, pal.light.b);
+          auto mix = [k](Uint8 accent) {
+            return static_cast<Uint8>(255.0f + (accent - 255.0f) * k);
+          };
+          SDL_SetTextureColorMod(uiSplashArt_.texture,
+                                 mix(pal.light.r), mix(pal.light.g), mix(pal.light.b));
         }
       }
       drawUiImageCover(uiSplashArt_, artRect, tint ? 235 : 220);

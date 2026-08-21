@@ -5812,26 +5812,68 @@ class App {
     }
     fs::path chosen;
     std::error_code ec;
-    // In the DEFAULT (gameboy) theme, boot the branded DECKBOY-wordmark splash.
-    // Other themes cycle the grayscale scene pool, tinted to the colorway.
-    // (currentThemeName_ once a theme is loaded, else the project's saved theme.)
-    std::string activeTheme = !currentThemeName_.empty() ? currentThemeName_ : project_.theme;
-    bool defaultTheme = activeTheme.empty() || activeTheme == "gameboy";
-    fs::path cycleDir = uiPackRoot_ / "splash" / "cycle";
-    std::vector<fs::path> pool;
-    if (!defaultTheme && fs::is_directory(cycleDir, ec)) {
-      for (const auto& e : fs::directory_iterator(cycleDir, ec)) {
+    // Every boot draws a different splash, on EVERY theme. This used to be
+    // gated so the default colorway always showed the branded wordmark, which
+    // meant most operators never saw the pool at all.
+    //
+    // Two pools, differing only in how much theme tint they can take:
+    //   splash/cycle/       grayscale masters  -> full accent tint
+    //   splash/cycle_color/ finished colour art -> light tint only
+    std::vector<fs::path> gray, colour;
+    auto gather = [&](const fs::path& dir, std::vector<fs::path>& into) {
+      if (!fs::is_directory(dir, ec)) return;
+      for (const auto& e : fs::directory_iterator(dir, ec)) {
         if (e.is_regular_file() && e.path().extension() == ".png") {
-          pool.push_back(e.path());
+          into.push_back(e.path());
         }
       }
+      std::sort(into.begin(), into.end());
+    };
+    gather(uiPackRoot_ / "splash" / "cycle", gray);
+    gather(uiPackRoot_ / "splash" / "cycle_color", colour);
+
+    // The branded wordmark splash joins the rotation rather than being a
+    // special case that suppressed it. This is also what keeps the Mascot
+    // setting HONEST: once every boot draws from the pool, a setting that only
+    // fed the old branded-only path would change nothing an operator could
+    // ever see -- a dead control.
+    std::vector<fs::path> branded;
+    for (const auto& rel : pickSplashCandidates(project_.splashCharacter)) {
+      fs::path candidate = uiPackRoot_ / rel;
+      if (fs::exists(candidate, ec)) { branded.push_back(candidate); break; }
     }
-    splashTintable_ = !pool.empty();
-    if (splashTintable_) {
-      std::sort(pool.begin(), pool.end());
-      size_t idx = static_cast<size_t>(SDL_GetPerformanceCounter() % pool.size());
+
+    std::vector<fs::path> pool = gray;
+    pool.insert(pool.end(), colour.begin(), colour.end());
+    pool.insert(pool.end(), branded.begin(), branded.end());
+    if (!pool.empty()) {
+      // Seeded from random_device, not the performance counter: the counter is
+      // read at almost the same point in every boot, so its low bits are not
+      // reliably spread across a small pool.
+      static std::mt19937 rng{std::random_device{}()};
+      std::uniform_int_distribution<std::size_t> pick(0, pool.size() - 1);
+      std::size_t idx = pick(rng);
+      // Avoid repeating the previous boot's pick when there is a choice, so
+      // "random" does not visibly stutter on the same image twice running.
+      if (pool.size() > 1 && pool[idx] == lastSplashChoice_) {
+        idx = (idx + 1) % pool.size();
+      }
       chosen = pool[idx];
+      lastSplashChoice_ = chosen;
+      // Grayscale masters take the accent fully; finished colour art takes a
+      // little; the branded wordmark takes none, since it is already drawn in
+      // the house colours and tinting it would fight its own artwork.
+      if (std::find(branded.begin(), branded.end(), chosen) != branded.end()) {
+        splashTintStrength_ = 0.0f;
+      } else if (std::find(colour.begin(), colour.end(), chosen) != colour.end()) {
+        splashTintStrength_ = 0.35f;
+      } else {
+        splashTintStrength_ = 1.0f;
+      }
     } else {
+      splashTintStrength_ = 0.0f;
+    }
+    if (chosen.empty()) {
       auto candidates = pickSplashCandidates(project_.splashCharacter);
       chosen = uiPackRoot_ / candidates.front();
       for (const auto& rel : candidates) {
@@ -6215,6 +6257,16 @@ class App {
   static constexpr int kSettingsActionEncoderUpRowBase = 736;    // 736..739
   static constexpr int kSettingsActionEncoderHoldRowBase = 741;  // 741..744
   static constexpr int kSettingsActionEncoderMoshLook = 721;
+  // Encoder output overrides. 760-768; 750 was already taken, so this block
+  // starts clear of it. Next free after this is 769+.
+  static constexpr int kSettingsActionEncoderRateMode   = 760;
+  static constexpr int kSettingsActionEncoderQualityDec = 761;
+  static constexpr int kSettingsActionEncoderQualityInc = 762;
+  static constexpr int kSettingsActionEncoderFpsCycle   = 763;
+  static constexpr int kSettingsActionEncoderSizeCycle  = 764;
+  static constexpr int kSettingsActionEncoderOutDirPick = 765;
+  static constexpr int kSettingsActionEncoderOutDirClear = 766;
+  static constexpr int kSettingsActionEncoderAudioRate  = 767;
   // One id per catalog row. 1400 block: clear of 715-734, 750 and the 800/20000
   // ranges. Grep before allocating near it.
   static constexpr int kSettingsActionEncoderFormatBase = 1400;
@@ -6461,7 +6513,10 @@ class App {
   UiImageAsset uiHeaderArt_;
   UiImageAsset uiAboutLogo_;
   UiImageAsset uiSplashArt_;
-  bool splashTintable_ = false;  // true when the splash is a grayscale cycle master (tint to theme)
+  // How much theme accent the current splash takes: 1.0 for the grayscale
+  // masters, ~0.35 for finished colour art, 0 for the branded wordmark.
+  float splashTintStrength_ = 0.0f;
+  fs::path lastSplashChoice_;    // so two boots running do not pick the same art
   UiImageAsset uiMonitorFrameArt_;
   UiImageAsset uiOutputChipIdleArt_;
   UiImageAsset uiOutputChipArmedArt_;
