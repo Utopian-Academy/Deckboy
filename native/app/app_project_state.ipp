@@ -1874,7 +1874,12 @@
       int ramp = std::max(4, samples / 10);
       for (int sampleIndex = 0; sampleIndex < samples; ++sampleIndex) {
         double time = static_cast<double>(sampleIndex) / static_cast<double>(kAudioRate);
-        double wave = std::sin(time * frequency * 6.28318530718) >= 0.0 ? 1.0 : -1.0;
+        // A frequency of zero is a REST, not a tone. Without this the square
+        // wave takes the >= 0 branch and emits full-level DC for the whole
+        // note -- an audible thump rather than the silence a caller asked for.
+        double wave = frequency > 0.0
+          ? (std::sin(time * frequency * 6.28318530718) >= 0.0 ? 1.0 : -1.0)
+          : 0.0;
         double envelope = 1.0;
         if (sampleIndex < ramp) {
           envelope = static_cast<double>(sampleIndex) / static_cast<double>(ramp);
@@ -2028,6 +2033,51 @@
     queueDmgPattern(song, 0.11f);
     // Hold ordinary bloops off until the last chord rings out.
     uiJingleUntilMs_ = SDL_GetTicks() + 3060;
+  }
+
+  // Stage chimes, deliberately NOT the UI bleeps: those are tuned to be
+  // unobtrusive next to the operator, whereas a chime has to carry to a
+  // speaker on stage and be distinct from every other sound in the room.
+  // stage: 1 amber, 2 red, 3 time up -- later stages are more insistent.
+  static const char* timerChimeName(int sound) {
+    switch (((sound % 6) + 6) % 6) {
+      case 1:  return "triple beep";
+      case 2:  return "gong";
+      case 3:  return "rising";
+      case 4:  return "buzzer";
+      case 5:  return "soft";
+      default: return "bell";
+    }
+  }
+
+  void playTimerChime(int sound, int stage) {
+    const int s = ((sound % 6) + 6) % 6;
+    const float level = stage >= 3 ? 0.22f : stage == 2 ? 0.18f : 0.15f;
+    const int reps = std::clamp(stage, 1, 3);   // 1 ping amber, 3 at time up
+    std::vector<std::pair<double, int>> notes;
+    for (int r = 0; r < reps; ++r) {
+      switch (s) {
+        case 1:  // triple beep - dry and unmistakable
+          notes.insert(notes.end(), {{1046.5, 70}, {0.0, 60}});
+          break;
+        case 2:  // gong - low and long, carries over a room
+          notes.insert(notes.end(), {{164.8, 240}, {123.5, 300}, {0.0, 90}});
+          break;
+        case 3:  // rising - reads as "wrap up" rather than "stop"
+          notes.insert(notes.end(), {{523.3, 70}, {659.3, 70}, {784.0, 120}, {0.0, 80}});
+          break;
+        case 4:  // buzzer - harsh, for a hard stop
+          notes.insert(notes.end(), {{196.0, 150}, {146.8, 200}, {0.0, 80}});
+          break;
+        case 5:  // soft - a polite nudge that will not startle a speaker
+          notes.insert(notes.end(), {{659.3, 90}, {880.0, 160}, {0.0, 120}});
+          break;
+        default: // bell - the classic ding, struck then ringing down
+          notes.insert(notes.end(), {{1318.5, 60}, {1046.5, 90}, {880.0, 180}, {0.0, 90}});
+          break;
+      }
+    }
+    queueUiPattern(notes, level);
   }
 
   void playUiSound(UiSoundEffect effect) {

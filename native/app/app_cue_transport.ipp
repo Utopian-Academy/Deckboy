@@ -3125,6 +3125,19 @@
     return timerRuntimes_[cue.id];
   }
 
+  // Runtimes are keyed by cue id, so anything driven off a runtime needs the
+  // reverse lookup. Linear over the show: cue counts are in the hundreds and
+  // this runs once per running timer per frame.
+  const Cue* findCueById(const std::string& cueId) const {
+    if (cueId.empty()) return nullptr;
+    for (const Deck& deck : project_.decks) {
+      for (const Cue& cue : deck.cues) {
+        if (cue.id == cueId) return &cue;
+      }
+    }
+    return nullptr;
+  }
+
   // The timer the operator means: the LIVE one if a timer is on air, otherwise
   // the selected one. Mid-show the live clock is almost always the intent.
   Cue* activeTimerCue() {
@@ -3172,12 +3185,102 @@
       // busy render loop must not make the countdown drift slow.
       rt.elapsedSeconds += static_cast<double>(nowMs - rt.lastTickMs) / 1000.0;
       rt.lastTickMs = nowMs;
+      fireTimerChimes(id, rt);
     }
+  }
+
+  // A speaker looking at the audience is not looking at the clock, which is
+  // the whole reason stage timers chime. Latched per stage so a crossing
+  // sounds ONCE, and wound back if the clock is reset or nudged forward again.
+  void fireTimerChimes(const std::string& cueId, TimerRuntime& rt) {
+    const Cue* cue = findCueById(cueId);
+    if (!cue || cue->kind != CueKind::Timer) return;
+    const TimerSettings& t = cue->timer;
+    if (t.mode == TimerMode::TimeOfDay || t.durationSeconds <= 0) return;
+    const double remaining = static_cast<double>(t.durationSeconds) - rt.elapsedSeconds;
+    int stage = 0;
+    if (remaining <= 0.0)                                    stage = 3;
+    else if (remaining <= static_cast<double>(t.redSeconds))   stage = 2;
+    else if (remaining <= static_cast<double>(t.amberSeconds)) stage = 1;
+    if (stage < rt.chimedStage) {
+      rt.chimedStage = stage;   // wound back: re-arm the chimes above it
+      return;
+    }
+    if (stage == rt.chimedStage) return;
+    rt.chimedStage = stage;
+    const bool wanted = (stage == 1 && t.chimeAtAmber)
+                     || (stage == 2 && t.chimeAtRed)
+                     || (stage == 3 && t.chimeAtZero);
+    if (!wanted) return;
+    playTimerChime(t.chimeSound, stage);
+    showLog("TIMER CHIME", cue->name + (stage == 3 ? " time up" :
+                                        stage == 2 ? " red" : " amber"));
   }
 
   // Edit a timer setting on the SELECTED cue (not the live one): these are
   // authoring changes, unlike the run/reset/nudge controls which target
   // whatever clock is on air.
+  void toggleTimerFlag(bool TimerSettings::*field, const char* label) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    bool& v = cue->timer.*field;
+    v = !v;
+    markProjectDirty();
+    triggerToast(std::string(label) + (v ? ": on" : ": off"));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleTimerChimeSound() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    cue->timer.chimeSound = (cue->timer.chimeSound + 1) % 6;
+    markProjectDirty();
+    triggerToast(std::string("chime: ") + timerChimeName(cue->timer.chimeSound));
+    // PLAY it. Choosing a chime by name is guesswork; the operator needs to
+    // hear the one that will fire in the room.
+    playTimerChime(cue->timer.chimeSound, 1);
+  }
+
+  // Named swatches rather than a colour picker: a stage clock wants a handful
+  // of high-contrast choices, and cycling is faster than a picker mid-show.
+  static const std::array<std::pair<int, const char*>, 8>& timerColorSwatches() {
+    static const std::array<std::pair<int, const char*>, 8> kSwatches {{
+      {-1,       "default"},
+      {0xFFFFFF, "white"},
+      {0x00FF66, "green"},
+      {0xFFC400, "amber"},
+      {0xFF4040, "red"},
+      {0x40A0FF, "blue"},
+      {0xFF40C0, "pink"},
+      {0x000000, "black"},
+    }};
+    return kSwatches;
+  }
+
+  std::string timerColorLabel(int packed) const {
+    for (const auto& s : timerColorSwatches()) {
+      if (s.first == packed) return s.second;
+    }
+    char buf[16];
+    std::snprintf(buf, sizeof(buf), "#%06X", packed & 0xFFFFFF);
+    return buf;
+  }
+
+  void cycleTimerColor(int TimerSettings::*field, const char* label) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    const auto& sw = timerColorSwatches();
+    int idx = 0;
+    for (std::size_t i = 0; i < sw.size(); ++i) {
+      if (sw[i].first == cue->timer.*field) { idx = static_cast<int>(i); break; }
+    }
+    idx = (idx + 1) % static_cast<int>(sw.size());
+    cue->timer.*field = sw[idx].first;
+    markProjectDirty();
+    triggerToast(std::string(label) + ": " + sw[idx].second);
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
   void adjustTimerField(int TimerSettings::*field, int delta) {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) {
@@ -3240,6 +3343,7 @@
     TimerRuntime& rt = timerRuntimeFor(*cue);
     rt.elapsedSeconds = 0.0;
     rt.lastTickMs = SDL_GetTicks();
+    rt.chimedStage = 0;   // re-arm: a restarted talk must chime again
     triggerToast("timer reset");
     playUiSound(UiSoundEffect::Stop);
   }

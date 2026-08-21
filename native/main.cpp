@@ -1958,6 +1958,10 @@ struct TimerRuntime {
   bool running = false;
   double elapsedSeconds = 0.0;
   Uint64 lastTickMs = 0;
+  // Highest chime already sounded: 0 none, 1 amber, 2 red, 3 zero. Latched so
+  // a chime fires ONCE on crossing rather than every frame it is past the
+  // threshold, and resets when the clock is reset or wound back.
+  int chimedStage = 0;
 };
 
 enum class EncoderPreset {
@@ -3342,6 +3346,14 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << joinMarkerTimes(cue)
         << '\t' << escapeField(joinMarkerNames(cue))
         << '\t' << cue.datamoshLook
+        << '\t' << cue.timer.colorNormal
+        << '\t' << cue.timer.colorAmber
+        << '\t' << cue.timer.colorRed
+        << '\t' << cue.timer.colorBackground
+        << '\t' << (cue.timer.chimeAtAmber ? "1" : "0")
+        << '\t' << (cue.timer.chimeAtRed ? "1" : "0")
+        << '\t' << (cue.timer.chimeAtZero ? "1" : "0")
+        << '\t' << cue.timer.chimeSound
         << '\n';
     }
   }
@@ -3879,6 +3891,16 @@ Project loadProject(const fs::path& projectFile,
         // so an old show keeps playing exactly as it did.
         cue.datamoshLook = std::clamp(safeInt(fields, tb + 13, kDatamoshLookClassic),
                                       0, kDatamoshLookCount - 1);
+        // Timer colours and chimes, appended last. -1 keeps the built-in
+        // colour, so a show saved before these existed looks unchanged.
+        cue.timer.colorNormal     = safeInt(fields, tb + 14, -1);
+        cue.timer.colorAmber      = safeInt(fields, tb + 15, -1);
+        cue.timer.colorRed        = safeInt(fields, tb + 16, -1);
+        cue.timer.colorBackground = safeInt(fields, tb + 17, -1);
+        cue.timer.chimeAtAmber    = safeBool(fields, tb + 18, false);
+        cue.timer.chimeAtRed      = safeBool(fields, tb + 19, false);
+        cue.timer.chimeAtZero     = safeBool(fields, tb + 20, true);
+        cue.timer.chimeSound      = std::clamp(safeInt(fields, tb + 21, 0), 0, 5);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -5251,6 +5273,61 @@ class App {
                      QuickAction::TimerCountUpToggle, true,
                      cue.timer.countUpAfterZero,
                      "Keep counting past zero, or stop dead");
+    rowY += ix.rowStep;
+
+    // Chimes. A speaker facing the audience is not watching the clock, which
+    // is the whole reason a stage timer makes noise.
+    inspDrawQuickRow(ix, rowY, "chime amber", QuickAction::TimerChimeAmberToggle,
+                     cue.timer.chimeAtAmber ? "on" : "off",
+                     QuickAction::TimerChimeAmberToggle,
+                     QuickAction::TimerChimeAmberToggle, true,
+                     cue.timer.chimeAtAmber, "Sound when the clock turns amber");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "chime red", QuickAction::TimerChimeRedToggle,
+                     cue.timer.chimeAtRed ? "on" : "off",
+                     QuickAction::TimerChimeRedToggle,
+                     QuickAction::TimerChimeRedToggle, true,
+                     cue.timer.chimeAtRed, "Sound when the clock turns red");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "chime zero", QuickAction::TimerChimeZeroToggle,
+                     cue.timer.chimeAtZero ? "on" : "off",
+                     QuickAction::TimerChimeZeroToggle,
+                     QuickAction::TimerChimeZeroToggle, true,
+                     cue.timer.chimeAtZero, "Sound when time is up");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "chime", QuickAction::TimerCycleChimeSound,
+                     timerChimeName(cue.timer.chimeSound),
+                     QuickAction::TimerCycleChimeSound,
+                     QuickAction::ToggleLoop, false, false,
+                     "Which chime. Cycling PLAYS it, so it can be chosen by ear "
+                     "rather than by name.");
+    rowY += ix.rowStep;
+
+    // Colours. "default" is a real state, not a colour -- it means the
+    // built-in, so an untouched timer says so rather than naming a swatch.
+    inspDrawQuickRow(ix, rowY, "colour", QuickAction::TimerCycleColorNormal,
+                     timerColorLabel(cue.timer.colorNormal),
+                     QuickAction::TimerCycleColorNormal,
+                     QuickAction::ToggleLoop, false, false,
+                     "Digit colour while there is time in hand");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "amber col", QuickAction::TimerCycleColorAmber,
+                     timerColorLabel(cue.timer.colorAmber),
+                     QuickAction::TimerCycleColorAmber,
+                     QuickAction::ToggleLoop, false, false,
+                     "Digit colour once amber is reached");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "red col", QuickAction::TimerCycleColorRed,
+                     timerColorLabel(cue.timer.colorRed),
+                     QuickAction::TimerCycleColorRed,
+                     QuickAction::ToggleLoop, false, false,
+                     "Digit colour once red is reached, and in overtime");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "backdrop", QuickAction::TimerCycleColorBackground,
+                     timerColorLabel(cue.timer.colorBackground),
+                     QuickAction::TimerCycleColorBackground,
+                     QuickAction::ToggleLoop, false, false,
+                     "Screen behind the clock");
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "prog bar", QuickAction::TimerProgressToggle,
