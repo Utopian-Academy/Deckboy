@@ -190,6 +190,9 @@ class MediaEngine {
   void pumpToneAudio(const Cue& cue);
   // The cue's on-screen card: what is playing, at what level, on which output.
   void rebuildToneFrame(const Cue& cue);
+  // One sample of the FDS voice. Advances the carrier, modulator and
+  // envelope by dt seconds.
+  double fdsNextSample(const ToneSettings& tone, double dt);
 
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
@@ -391,6 +394,13 @@ class MediaEngine {
   std::vector<std::int16_t> toneScopeL_;
   std::vector<std::int16_t> toneScopeR_;
   std::size_t toneScopePos_ = 0;
+  // FDS voice state. Phases are kept in the 0..64 and 0..32 table domains
+  // rather than radians, because that is how the hardware addresses them and
+  // it keeps the wrap arithmetic exact.
+  double fdsCarrierPhase_ = 0.0;
+  double fdsModPhase_ = 0.0;
+  double fdsModAccum_ = 0.0;
+  double fdsEnvSeconds_ = 0.0;
   SDL_AudioStream* audioStream_ = nullptr;
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
