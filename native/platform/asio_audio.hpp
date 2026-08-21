@@ -23,6 +23,7 @@
 #ifndef DECKBOY_PLATFORM_ASIO_AUDIO_HPP
 #define DECKBOY_PLATFORM_ASIO_AUDIO_HPP
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -55,6 +56,56 @@ std::vector<AsioDeviceInfo> listAsioDevices();
 // drivers show their own control panel or seize the device on load, so this is
 // only called when the operator asks for it, never on a timer or at boot.
 bool probeAsioDevice(const std::string& name, AsioDeviceInfo& out);
+
+// ---------------------------------------------------------------------------
+// AsioOutput — a running ASIO output stream.
+//
+// Deckboy's engine produces INTERLEAVED s16 at 48kHz; ASIO wants per-channel,
+// non-interleaved buffers in whatever sample type the driver chose, filled from
+// a callback on the driver's own real-time thread. This class is the adapter:
+// push interleaved s16 with write(), and the callback de-interleaves and
+// converts.
+//
+// The callback runs on a driver thread with hard deadlines. It therefore never
+// allocates, never locks, and never blocks -- it drains a ring buffer and, if
+// there is not enough, outputs silence and counts the underrun. An audio
+// callback that waits is an audio callback that glitches.
+//
+// ASIO is a process-wide SINGLETON, so exactly one AsioOutput may be open at a
+// time; opening a second returns an error rather than corrupting the first.
+// ---------------------------------------------------------------------------
+class AsioOutput {
+ public:
+  AsioOutput() = default;
+  ~AsioOutput();
+  AsioOutput(const AsioOutput&) = delete;
+  AsioOutput& operator=(const AsioOutput&) = delete;
+
+  // Open `channels` outputs on `driverName` and start the stream. The driver
+  // decides the buffer size and (usually) the sample rate; `requestedRate` is
+  // asked for but a driver may refuse, so check sampleRate() afterwards rather
+  // than assuming.
+  bool open(const std::string& driverName, int channels, double requestedRate,
+            std::string& error);
+  void close();
+
+  bool running() const;
+  int channels() const;
+  double sampleRate() const;
+  int bufferFrames() const;
+
+  // Queue interleaved s16 frames (frames = samples per channel). Returns the
+  // number of FRAMES accepted; a short return means the ring is full and the
+  // caller should try again rather than spin.
+  std::size_t write(const std::int16_t* interleaved, std::size_t frames);
+
+  // Frames currently buffered and not yet played. The backpressure signal.
+  std::size_t queuedFrames() const;
+
+  // Times the callback ran short of data since open(). Non-zero means audible
+  // glitching, so it is surfaced rather than hidden.
+  std::uint64_t underruns() const;
+};
 
 }  // namespace audio
 }  // namespace platform

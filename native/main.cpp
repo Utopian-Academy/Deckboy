@@ -7552,6 +7552,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
   {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
   {"--asio-probe [name]", "list ASIO drivers; with a name, load and report its channels"},
+  {"--asio-tone <name> [secs] [ch]", "play a quiet 440Hz tone through an ASIO driver"},
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
@@ -7570,7 +7571,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
-  "--hap-probe", "--asio-probe", "--timer-dump",
+  "--hap-probe", "--asio-probe", "--asio-tone", "--timer-dump",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -7699,6 +7700,55 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     std::cout << "timer-dump: " << ops[0] << '\n';
     return 0;
   }
+  if (mode == "--asio-tone") {
+    // Deliberately opt-in and time-limited. This OPENS the operator's audio
+    // interface and makes noise through it, so it is never run automatically
+    // and never runs unbounded.
+    if (ops.empty()) return missing("<driver-name> [seconds] [channels]");
+    const double seconds = ops.size() > 1 ? std::max(0.5, std::atof(ops[1].c_str())) : 2.0;
+    const int chans = ops.size() > 2 ? std::max(1, std::atoi(ops[2].c_str())) : 2;
+    deckboy::platform::audio::AsioOutput out;
+    std::string err;
+    if (!out.open(ops[0], chans, 48000.0, err)) {
+      std::cerr << "asio-tone: " << err << "\n";
+      return 1;
+    }
+    std::cout << "asio-tone: " << ops[0]
+              << "  channels=" << out.channels()
+              << " rate=" << out.sampleRate()
+              << " buffer=" << out.bufferFrames() << " frames\n";
+    // A quiet 440Hz sine. Quiet on purpose: this may be going to a PA.
+    const double rate = out.sampleRate() > 0.0 ? out.sampleRate() : 48000.0;
+    const std::size_t total = static_cast<std::size_t>(rate * seconds);
+    std::vector<std::int16_t> chunk(static_cast<std::size_t>(chans) * 256);
+    std::size_t written = 0;
+    double phase = 0.0;
+    const double step = 2.0 * 3.14159265358979 * 440.0 / rate;
+    while (written < total) {
+      const std::size_t frames = std::min<std::size_t>(256, total - written);
+      for (std::size_t f = 0; f < frames; ++f) {
+        const std::int16_t v =
+          static_cast<std::int16_t>(std::sin(phase) * 3000.0);
+        phase += step;
+        for (int c = 0; c < chans; ++c) chunk[f * chans + c] = v;
+      }
+      std::size_t done = 0;
+      while (done < frames) {
+        const std::size_t n = out.write(chunk.data() + done * chans, frames - done);
+        done += n;
+        if (n == 0) SDL_Delay(1);   // ring full: let the driver drain
+      }
+      written += frames;
+    }
+    // Let the tail play out before tearing the driver down.
+    while (out.queuedFrames() > 0) SDL_Delay(1);
+    SDL_Delay(50);
+    const std::uint64_t under = out.underruns();
+    out.close();
+    std::cout << "asio-tone: done, underruns=" << under << "\n";
+    return under == 0 ? 0 : 3;
+  }
+
   if (mode == "--asio-probe") {
     // No operand: list what is installed, which is cheap and touches no
     // driver. With a name: LOAD that driver and report its real capabilities,
