@@ -71,6 +71,13 @@ enum class CueKind {
 // SMPTE houses use -20. Deliberately NOT full scale: a test tone is played
 // into a live PA, and a mistake at 0 dBFS damages ears and drivers.
 // ---------------------------------------------------------------------------
+enum class ToneVisual {
+  None,       // just the text card
+  Scope,      // waveform against time
+  Lissajous,  // channel 1 against channel 2: phase and polarity at a glance
+  Spectrum,   // third-octave bars via a Goertzel bank
+};
+
 enum class ToneWaveform {
   Sine,      // the line-up tone. 1kHz unless changed
   Pink,      // equal energy per octave -- what a PA is tuned with
@@ -91,6 +98,13 @@ struct ToneSettings {
   // by walking channels itself.
   int channel = -1;
   double identifySecondsPerChannel = 2.0;
+
+  // On-screen display. These are DIAGNOSTIC first and decorative second --
+  // each one answers a question an engineer actually asks during a check.
+  //   Scope      is the signal clipping, and is it the shape I asked for
+  //   Lissajous  are these two channels in phase, and is either inverted
+  //   Spectrum   what is the room or the desk doing to the signal
+  ToneVisual visual = ToneVisual::Scope;
 };
 
 // Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
@@ -918,6 +932,7 @@ enum class QuickAction {
   ToneFreqDec, ToneFreqInc,
   ToneLevelDec, ToneLevelInc,
   ToneChannelDec, ToneChannelInc,
+  ToneCycleVisual,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
   DatamoshToggle,

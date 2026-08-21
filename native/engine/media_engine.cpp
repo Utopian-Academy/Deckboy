@@ -4623,6 +4623,22 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
     }
   }
 
+  // Keep the tail of what we just produced for the on-screen scope. Sized to
+  // about 40ms, which is a few cycles at 100Hz and plenty at 1kHz.
+  {
+    const std::size_t keep = static_cast<std::size_t>(kAudioRate) / 25;
+    if (toneScopeL_.size() != keep) {
+      toneScopeL_.assign(keep, 0);
+      toneScopeR_.assign(keep, 0);
+      toneScopePos_ = 0;
+    }
+    for (std::size_t f = 0; f < frames; ++f) {
+      toneScopeL_[toneScopePos_] = out[f * channels + 0];
+      toneScopeR_[toneScopePos_] = out[f * channels + (channels > 1 ? 1 : 0)];
+      toneScopePos_ = (toneScopePos_ + 1) % keep;
+    }
+  }
+
   putAudioToStream(out);
 }
 
@@ -4693,6 +4709,74 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
 
   const SDL_Color amber {255, 190, 40, 255};
   const SDL_Color white {255, 255, 255, 255};
+  const SDL_Color green {80, 255, 140, 255};
+  const SDL_Color dim   {60, 90, 70, 255};
+
+  // Draw the diagnostic BEHIND the text, so the card stays readable across it.
+  if (cue.tone.visual != ToneVisual::None && !toneScopeL_.empty()) {
+    const int plotH = H / 3;
+    const int plotY = H / 2 - plotH / 2;
+    const std::size_t n = toneScopeL_.size();
+    const int dot = std::max(1, W / 400);
+
+    if (cue.tone.visual == ToneVisual::Scope) {
+      // Centre line first: without a reference an operator cannot see DC
+      // offset or asymmetric clipping, which is half the point of a scope.
+      fillTimerRect(frame, 0, plotY + plotH / 2, W, std::max(1, dot / 2), dim);
+      for (int x = 0; x < W; ++x) {
+        const std::size_t i = (toneScopePos_ + (static_cast<std::size_t>(x) * n) / W) % n;
+        const double v = toneScopeL_[i] / 32768.0;
+        const int y = plotY + plotH / 2 - static_cast<int>(v * (plotH / 2 - 2));
+        fillTimerRect(frame, x, y, dot, dot, green);
+      }
+    } else if (cue.tone.visual == ToneVisual::Lissajous) {
+      // X = channel 1, Y = channel 2. A diagonal means in phase, the opposite
+      // diagonal means one channel is POLARITY INVERTED, and a circle means
+      // 90 degrees out. This finds a miswired cable in seconds.
+      const int size = plotH;
+      const int cx = W / 2;
+      const int cy = plotY + plotH / 2;
+      fillTimerRect(frame, cx - size / 2, cy, size, std::max(1, dot / 2), dim);
+      fillTimerRect(frame, cx, cy - size / 2, std::max(1, dot / 2), size, dim);
+      for (std::size_t i = 0; i < n; ++i) {
+        const double lx = toneScopeL_[i] / 32768.0;
+        const double ly = toneScopeR_[i] / 32768.0;
+        const int px = cx + static_cast<int>(lx * (size / 2 - 2));
+        const int py = cy - static_cast<int>(ly * (size / 2 - 2));
+        fillTimerRect(frame, px, py, dot, dot, green);
+      }
+    } else if (cue.tone.visual == ToneVisual::Spectrum) {
+      // Goertzel per band rather than an FFT: 16 third-octave bands is a tiny
+      // amount of work, needs no window, no buffer of a power-of-two length,
+      // and third-octaves are how a PA is actually measured.
+      const int bands = 16;
+      const int barW = std::max(2, W / (bands * 2));
+      const int gap = barW;
+      const int totalW = bands * (barW + gap) - gap;
+      int bx = (W - totalW) / 2;
+      for (int b = 0; b < bands; ++b) {
+        const double hz = 31.5 * std::pow(2.0, b / 3.0 * 1.0);
+        if (hz > kAudioRate / 2.0) break;
+        const double w = 2.0 * 3.14159265358979323846 * hz / kAudioRate;
+        const double coeff = 2.0 * std::cos(w);
+        double s0 = 0.0, s1 = 0.0, s2 = 0.0;
+        for (std::size_t i = 0; i < n; ++i) {
+          s0 = (toneScopeL_[i] / 32768.0) + coeff * s1 - s2;
+          s2 = s1;
+          s1 = s0;
+        }
+        const double power = s1 * s1 + s2 * s2 - coeff * s1 * s2;
+        const double mag = std::sqrt(std::max(0.0, power)) / static_cast<double>(n);
+        // dB, floored at -60 so a silent band is a stub rather than nothing.
+        const double db = 20.0 * std::log10(std::max(mag, 1e-6));
+        const double norm = std::clamp((db + 60.0) / 60.0, 0.0, 1.0);
+        const int barH = std::max(1, static_cast<int>(norm * plotH));
+        fillTimerRect(frame, bx, plotY + plotH - barH, barW, barH, green);
+        bx += barW + gap;
+      }
+    }
+  }
+
   drawLine(name,      H / 2 - cell * 22, amber, 3);
   drawLine(levelText, H / 2 + cell * 2,  white, 2);
   drawLine(detail,    H / 2 + cell * 20, white, 2);

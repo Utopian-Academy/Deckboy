@@ -5426,6 +5426,15 @@ class App {
                        "every one.");
       rowY += ix.rowStep;
     }
+    inspDrawQuickRow(ix, rowY, "display", QuickAction::ToneCycleVisual,
+                     toneVisualLabel(cue.tone.visual),
+                     QuickAction::ToneCycleVisual, QuickAction::ToggleLoop,
+                     false, false,
+                     "Scope shows shape and clipping. Lissajous shows phase "
+                     "and polarity between the first two channels -- a "
+                     "diagonal the wrong way means one is inverted. Spectrum "
+                     "is third-octave bars.");
+    rowY += ix.rowStep;
     return rowY;
   }
 

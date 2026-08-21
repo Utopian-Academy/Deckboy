@@ -2142,6 +2142,25 @@
     return (cue && cue->kind == CueKind::Tone) ? cue : nullptr;
   }
 
+  static const char* toneVisualLabel(ToneVisual v) {
+    switch (v) {
+      case ToneVisual::Scope:     return "scope";
+      case ToneVisual::Lissajous: return "lissajous";
+      case ToneVisual::Spectrum:  return "spectrum";
+      default:                    return "off";
+    }
+  }
+
+  void cycleToneVisual() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.visual = static_cast<ToneVisual>(
+      (static_cast<int>(cue->tone.visual) + 1) % 4);
+    markProjectDirty();
+    triggerToast(std::string("display: ") + toneVisualLabel(cue->tone.visual));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
   void cycleToneWaveform() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;

@@ -385,6 +385,12 @@ class MediaEngine {
   double tonePinkRows_[16] = {};
   double tonePinkRunning_ = 0.0;
   std::uint32_t tonePinkCounter_ = 0;
+  // The last fraction of a second of generated audio, kept so the card can
+  // draw what was ACTUALLY emitted rather than re-deriving it and possibly
+  // drawing something the operator is not hearing.
+  std::vector<std::int16_t> toneScopeL_;
+  std::vector<std::int16_t> toneScopeR_;
+  std::size_t toneScopePos_ = 0;
   SDL_AudioStream* audioStream_ = nullptr;
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
