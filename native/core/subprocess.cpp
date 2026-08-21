@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Deckboy — Cross-platform subprocess implementation
- * Copyright 2025 the owner
+ * Copyright (C) 2026 Deckboy Contributors
  */
 
 // ============================================================================

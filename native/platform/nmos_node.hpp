@@ -161,7 +161,7 @@ struct NmosStagedState {
 
 struct NmosConfig {
   bool enabled = false;
-  // Registry base URL, e.g. "http://192.168.1.50:8010". Empty = serve the Node
+  // Registry base URL, e.g. "http://registry.local:8010". Empty = serve the Node
   // API and IS-05 locally but do not register anywhere (useful for testing, and
   // the closest thing to peer-to-peer mode we can offer without mDNS).
   std::string registryUrl;
