@@ -4034,7 +4034,7 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
         cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
         cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 59, 0.0), 0.0, 1.0);
-        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 3);
+        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 4);
         cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 61, 0), 0, 8);
         // Older shows carry only the green boolean; map it onto the ink mode
         // so they reopen looking the way they were left.
