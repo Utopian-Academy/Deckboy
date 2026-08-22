@@ -3400,6 +3400,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.feedbackZoom
         << '\t' << cue.videoSynth.feedbackRotate
         << '\t' << cue.videoSynth.audioReactivity
+        << '\t' << cue.videoSynth.resolution
+        << '\t' << cue.videoSynth.pixelSort
+        << '\t' << cue.videoSynth.glitch
+        << '\t' << (cue.videoSynth.ascii ? "1" : "0")
+        << '\t' << cue.videoSynth.asciiCols
+        << '\t' << (cue.videoSynth.asciiGreen ? "1" : "0")
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -4017,6 +4023,12 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, tb + 50, 1.02), 0.90, 1.15);
         cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, tb + 51, 0.6), -10.0, 10.0);
         cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, tb + 52, 0.5), 0.0, 1.0);
+        cue.videoSynth.resolution = std::clamp(safeInt(fields, tb + 53, 2), 1, 5);
+        cue.videoSynth.pixelSort = std::clamp(safeDouble(fields, tb + 54, 0.0), 0.0, 1.0);
+        cue.videoSynth.glitch = std::clamp(safeDouble(fields, tb + 55, 0.0), 0.0, 1.0);
+        cue.videoSynth.ascii = safeBool(fields, tb + 56, false);
+        cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
+        cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5724,6 +5736,49 @@ class App {
                      "How much playing audio widens and brightens the "
                      "pattern. 0 free-runs.");
     rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "detail", QuickAction::VsResDec,
+                     std::to_string(v.resolution), QuickAction::VsResInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Internal resolution, 1 chunkiest to 5 finest. This is an "
+                     "aesthetic control as much as a speed one -- the 8-bit "
+                     "look comes from big pixels.");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "smear", QuickAction::VsSortDec,
+                     fmtFloat(v.pixelSort, 2), QuickAction::VsSortInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Pixel sort: runs of pixels sorted by brightness within a "
+                     "row, which is what makes datamosh look melted.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "glitch", QuickAction::VsGlitchDec,
+                     fmtFloat(v.glitch, 2), QuickAction::VsGlitchInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Torn scanline bands and RGB separation. In text mode it "
+                     "also corrupts CELLS -- whole rows lock to one repeating "
+                     "character, the way a real text screen loses sync.");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "text mode", QuickAction::VsAsciiToggle,
+                     v.ascii ? "on" : "off",
+                     QuickAction::VsAsciiToggle, QuickAction::VsAsciiToggle,
+                     true, v.ascii,
+                     "Render as a character grid with a 16-colour indexed "
+                     "palette, rather than as pixels.");
+    rowY += ix.rowStep;
+    if (v.ascii) {
+      inspDrawQuickRow(ix, rowY, "columns", QuickAction::VsAsciiColsDec,
+                       std::to_string(v.asciiCols), QuickAction::VsAsciiColsInc,
+                       QuickAction::ToggleLoop, false, false,
+                       "Characters across. Fewer means bigger cells.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "green", QuickAction::VsAsciiGreenToggle,
+                       v.asciiGreen ? "on" : "off",
+                       QuickAction::VsAsciiGreenToggle,
+                       QuickAction::VsAsciiGreenToggle, true, v.asciiGreen,
+                       "Monochrome terminal green, or the full 16-colour "
+                       "palette taken from the picture.");
+      rowY += ix.rowStep;
+    }
     return rowY;
   }
 
