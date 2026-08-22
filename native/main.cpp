@@ -3406,6 +3406,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.videoSynth.ascii ? "1" : "0")
         << '\t' << cue.videoSynth.asciiCols
         << '\t' << (cue.videoSynth.asciiGreen ? "1" : "0")
+        << '\t' << cue.videoSynth.crt
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -4029,6 +4030,7 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.ascii = safeBool(fields, tb + 56, false);
         cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
         cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
+        cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 59, 0.0), 0.0, 1.0);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5758,6 +5760,13 @@ class App {
                      "character, the way a real text screen loses sync.");
     rowY += ix.rowStep;
 
+    inspDrawQuickRow(ix, rowY, "crt", QuickAction::VsCrtDec,
+                     fmtFloat(v.crt, 2), QuickAction::VsCrtInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Scanlines, phosphor bloom and RGB fringing. The bloom is "
+                     "the part that matters -- a phosphor spills sideways, "
+                     "which is why a CRT looks like it is emitting light.");
+    rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "text mode", QuickAction::VsAsciiToggle,
                      v.ascii ? "on" : "off",
                      QuickAction::VsAsciiToggle, QuickAction::VsAsciiToggle,

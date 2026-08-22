@@ -99,6 +99,16 @@ enum class VideoSynthPalette {
   Ice,
   Fire,
   Mono,
+  // Hardware palettes. These are not arbitrary colour schemes -- each is the
+  // actual set a machine could display, which is why work made on them shares
+  // a look that a freely-chosen palette never quite gets.
+  Ega,        // the 16-colour IBM set: harsh, saturated, unmistakable
+  C64,        // Commodore 64: muted, muddy, and instantly period
+  Gameboy,    // four greens, the original DMG
+  Cga,        // cyan/magenta/white on black -- the loudest four colours in
+              // computing, and the reason CGA is remembered at all
+  Nes,        // NES-ish: soft pastels against hard darks
+  Vapor,      // pink/cyan/purple, the modern glitch-art convention
 };
 
 struct VideoSynthSettings {
@@ -141,6 +151,12 @@ struct VideoSynthSettings {
   bool ascii = false;
   int asciiCols = 80;              // characters across; height follows aspect
   bool asciiGreen = true;          // terminal green, the reference look
+
+  // CRT: scanlines, phosphor bloom and RGB fringing. Applied at OUTPUT
+  // resolution, after everything else, because it models the DISPLAY rather
+  // than the signal -- doing it before the upscale would scale the scanlines
+  // up with the picture and they would read as stripes instead of a screen.
+  double crt = 0.0;
 };
 
 // ---------------------------------------------------------------------------
@@ -1152,6 +1168,7 @@ enum class QuickAction {
   VsGlitchDec, VsGlitchInc,
   VsAsciiToggle, VsAsciiGreenToggle,
   VsAsciiColsDec, VsAsciiColsInc,
+  VsCrtDec, VsCrtInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
   SynthAttackDec, SynthAttackInc,

@@ -2400,7 +2400,13 @@
       case VideoSynthPalette::Amber: return "amber";
       case VideoSynthPalette::Ice:   return "ice";
       case VideoSynthPalette::Fire:  return "fire";
-      case VideoSynthPalette::Mono:  return "mono";
+      case VideoSynthPalette::Mono:    return "mono";
+      case VideoSynthPalette::Ega:     return "EGA 16";
+      case VideoSynthPalette::C64:     return "C64";
+      case VideoSynthPalette::Gameboy: return "Game Boy";
+      case VideoSynthPalette::Cga:     return "CGA";
+      case VideoSynthPalette::Nes:     return "NES";
+      case VideoSynthPalette::Vapor:   return "vapor";
       default:                       return "spectrum";
     }
   }
@@ -2421,7 +2427,7 @@
       v.mirror = static_cast<VideoSynthMirror>((static_cast<int>(v.mirror) + 1) % 4);
       triggerToast(std::string("mirror: ") + vsMirrorLabel(v.mirror));
     } else {
-      v.palette = static_cast<VideoSynthPalette>((static_cast<int>(v.palette) + 1) % 5);
+      v.palette = static_cast<VideoSynthPalette>((static_cast<int>(v.palette) + 1) % 11);
       triggerToast(std::string("palette: ") + vsPaletteLabel(v.palette));
     }
     markProjectDirty();
