@@ -672,6 +672,9 @@ struct OutputTarget {
   std::string streamUrl;                   // destination URL (e.g. "srt://host:port")
   std::string streamKey;                   // stream key (appended to RTMP URL as /key)
   int streamBitrateKbps = 6000;            // target video bitrate for encoder
+  // Audio bitrate for the stream/recording muxer. Was hardcoded at 160k, which
+  // is thin for a music recording and wasteful for a talk.
+  int streamAudioBitrateKbps = 160;
   // -- SRT transport parameters ------------------------------------------------
   // Previously the ONLY way to set these was hand-typing a query string onto
   // streamUrl, which is not something to ask of an operator mid-show. They are
@@ -821,6 +824,14 @@ struct Project {
   // driving the PA is a feedback loop, and an operator who wants to hear
   // themselves has a desk for it.
   bool audioInputToProgram = true;
+  // A microphone is a MONO source. Capturing it as stereo puts the signal in
+  // one leg and silence in the other, which sounds like a dead channel to
+  // anyone listening back -- so mono is the default and is summed to both.
+  bool audioInputMono = true;
+  // Latched clip indicator. A peak meter that has already fallen back tells
+  // you nothing about the transient that distorted; this stays lit until
+  // cleared, because the question is "did it clip at ANY point".
+  bool audioInputClipLatch = false;
 
   std::string asioDriverName;
   int asioChannels = 2;
