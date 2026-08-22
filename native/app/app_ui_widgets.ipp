@@ -524,6 +524,23 @@
   // Installed ASIO drivers, with the SDL device as an explicit first choice
   // rather than an empty row -- "none" reads as broken, "system audio" reads
   // as a decision.
+  // Input devices, with the system default as an explicit first entry.
+  std::vector<std::pair<std::string, std::string>> audioInputDeviceDropdownChoices() const {
+    std::vector<std::pair<std::string, std::string>> out;
+    out.emplace_back("__off__", "Off");
+    out.emplace_back("", "System default input");
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioRecordingDevices(&count)) {
+      for (int i = 0; i < count; ++i) {
+        if (const char* n = SDL_GetAudioDeviceName(ids[i])) {
+          out.emplace_back(n, n);
+        }
+      }
+      SDL_free(ids);
+    }
+    return out;
+  }
+
   std::vector<std::pair<std::string, std::string>> asioDriverDropdownChoices() const {
     std::vector<std::pair<std::string, std::string>> out;
     out.emplace_back("", "System audio (SDL)");

@@ -611,6 +611,25 @@
       // instead of hanging it mid-show, and the operator gets told. A stall
       // whose file is GONE (drive pulled, share dropped) is reported as lost
       // media and raises the RELINK state, not as a decoder fault.
+      // Live input first, then fall back to the programme mix. Input wins
+      // because when an operator has plugged a mic in to drive a visualiser,
+      // that is plainly what they want it reacting to.
+      pumpAudioInput();
+      if (audioInputRunning()) {
+        reactiveAudioLevel_ = audioInputPeak_;
+      } else {
+        double vu = 0.0;
+        {
+          std::lock_guard<std::mutex> lock(vuSamplesMutex_);
+          for (std::int16_t s : vuSamples_) {
+            const double v = std::abs(s / 32768.0);
+            if (v > vu) vu = v;
+          }
+        }
+        // Same asymmetric ballistics as the input meter.
+        reactiveAudioLevel_ = (vu > reactiveAudioLevel_)
+          ? vu : reactiveAudioLevel_ + (vu - reactiveAudioLevel_) * 0.08;
+      }
       maybeSuggestHapConversion();
       if (engine->consumeDecodeStall()) {
         engine->stop(true);
