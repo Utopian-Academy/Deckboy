@@ -453,6 +453,11 @@ class MediaEngine {
   // Previous video-synth frame, for the feedback path. Kept as RGBA at the
   // output raster; reallocated only when the raster changes.
   std::vector<std::uint8_t> vsynthPrev_;
+  // Persistent working buffers. These were allocated fresh every frame -- the
+  // low-res raster, and an 8MB copy of the whole output for the CRT pass.
+  // Reused now, so a steady-state frame allocates nothing.
+  std::vector<std::uint8_t> vsynthSmall_;
+  std::vector<std::uint8_t> vsynthCrtSrc_;
   int vsynthPrevW_ = 0;
   int vsynthPrevH_ = 0;
   double vsynthRotation_ = 0.0;
