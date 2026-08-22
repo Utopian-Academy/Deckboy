@@ -1103,6 +1103,42 @@ const std::uint8_t kCellJunk[][7] = {
 };
 constexpr int kCellJunkCount = static_cast<int>(sizeof(kCellJunk) / sizeof(kCellJunk[0]));
 
+// Hardware palettes, each the real set the machine could show. A limited,
+// AUTHENTIC palette is most of why period work looks period: the colours had
+// relationships to each other that a freely-picked set does not.
+const std::uint8_t kPalC64[16][3] = {
+  {  0,  0,  0}, {255,255,255}, {136, 57, 50}, {103,182,189},
+  {139, 63,150}, { 85,160, 73}, { 64, 49,141}, {191,206,114},
+  {139, 84, 41}, { 87, 66,  0}, {184,105, 98}, { 80, 80, 80},
+  {120,120,120}, {148,224,137}, {120,105,196}, {159,159,159},
+};
+const std::uint8_t kPalGameboy[4][3] = {
+  { 15, 56, 15}, { 48, 98, 48}, {139,172, 15}, {155,188, 15},
+};
+const std::uint8_t kPalCga[4][3] = {
+  {  0,  0,  0}, { 85,255,255}, {255, 85,255}, {255,255,255},
+};
+const std::uint8_t kPalNes[12][3] = {
+  {  0,  0,  0}, { 60, 60, 60}, {124,124,124}, {188,188,188},
+  {252,252,252}, {172, 16,  0}, {248, 56,  0}, {252,160, 68},
+  {  0,120,248}, { 60,188,252}, {  0,168,  0}, {184,248,184},
+};
+const std::uint8_t kPalVapor[8][3] = {
+  { 16,  0, 32}, { 64,  0, 96}, {148, 32,180}, {255, 64,180},
+  {255,128,220}, { 64,224,255}, {160,255,255}, {255,255,255},
+};
+
+// Quantise a normalised value to a table. Nearest-by-index rather than
+// nearest-by-colour: the input is a ramp position, not a measured colour, and
+// walking the table in order keeps the palette's own progression intact.
+inline void samplePalette(const std::uint8_t table[][3], int count, double u,
+                          double& r, double& g, double& b) {
+  const int i = std::clamp(static_cast<int>(u * count), 0, count - 1);
+  r = table[i][0] / 255.0;
+  g = table[i][1] / 255.0;
+  b = table[i][2] / 255.0;
+}
+
 // A 16-entry indexed palette, the EGA/VGA set the references were made on.
 // Quantising to it is most of why they look like hardware and not like a
 // gradient: a limited palette forces flat areas and hard colour boundaries.
@@ -1136,6 +1172,26 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   if (outW <= 0 || outH <= 0) return;
 
   const VideoSynthSettings& vs = cue.videoSynth;
+
+  // Rate-limited to the DISPLAY. This ran on every update tick, and the update
+  // loop has a 240Hz floor -- so on a 60Hz output it was generating (and
+  // discarding) up to four frames for every one shown. rebuildPatternFrame has
+  // had this limiter all along; the video synth simply never got one, which is
+  // the single largest cause of it feeling heavy.
+  {
+    double refreshHz = 60.0;
+    if (outputSizeProvider_) {
+      OutputModeHint mode = outputSizeProvider_();
+      if (mode.refreshHz >= 1.0) {
+        refreshHz = std::clamp(mode.refreshHz, 23.0, 240.0);
+      }
+    }
+    const double minInterval = 1.0 / refreshHz;
+    if (displayFrame_ && wallSeconds - lastVideoSynthSeconds_ < minInterval * 0.98) {
+      return;
+    }
+    lastVideoSynthSeconds_ = wallSeconds;
+  }
 
   // RENDER SMALL, THEN UPSCALE. The first version generated every pixel of a
   // 1080p raster with three or four sin() calls each -- about eight million
@@ -1260,6 +1316,23 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
         case VideoSynthPalette::Ice:   r8 = q * 0.2; g8 = q * 0.65; b8 = q; break;
         case VideoSynthPalette::Fire:  r8 = q; g8 = q * q * 0.6; b8 = q * q * q * 0.2; break;
         case VideoSynthPalette::Mono:  r8 = g8 = b8 = q; break;
+        case VideoSynthPalette::Ega: {
+          const int i = std::clamp(static_cast<int>(q * 16), 0, 15);
+          r8 = kCellPalette[i][0] / 255.0;
+          g8 = kCellPalette[i][1] / 255.0;
+          b8 = kCellPalette[i][2] / 255.0;
+          break;
+        }
+        case VideoSynthPalette::C64:
+          samplePalette(kPalC64, 16, q, r8, g8, b8); break;
+        case VideoSynthPalette::Gameboy:
+          samplePalette(kPalGameboy, 4, q, r8, g8, b8); break;
+        case VideoSynthPalette::Cga:
+          samplePalette(kPalCga, 4, q, r8, g8, b8); break;
+        case VideoSynthPalette::Nes:
+          samplePalette(kPalNes, 12, q, r8, g8, b8); break;
+        case VideoSynthPalette::Vapor:
+          samplePalette(kPalVapor, 8, q, r8, g8, b8); break;
         default: {
           const double hue = std::fmod(q + t * 0.08, 1.0) * 6.0;
           const int seg = static_cast<int>(hue) % 6;
@@ -1444,7 +1517,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   }
 
   if (feedbackOn) {
-    vsynthPrev_ = small;
+    // SWAP, not copy. `small` is about to go out of scope after the upscale
+    // reads it, so keeping the buffer costs nothing -- copying it duplicated
+    // the whole raster every frame for no reason.
+    vsynthPrev_.swap(small);
+    small = vsynthPrev_;   // upscale still needs to read it
     vsynthPrevW_ = W;
     vsynthPrevH_ = H;
   } else if (!vsynthPrev_.empty()) {
@@ -1526,33 +1603,116 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
         const int px0 = cx * cellW;
         const int py0 = cy * cellH;
 
+        // A 5x7 glyph in a cell many pixels tall means each glyph row repeats
+        // over several output rows. Draw it once and memcpy the repeats: the
+        // per-pixel path ran for the entire output raster, which in text mode
+        // was the dominant cost.
+        int prevGy = -1;
+        const std::uint8_t* prevRowStart = nullptr;
+        const int spanW = std::min(cellW, outW - px0);
+        if (spanW <= 0) continue;
         for (int ry = 0; ry < cellH; ++ry) {
-          const int gy = std::min(6, (ry * 7) / cellH);
+          if (py0 + ry >= outH) break;
           std::uint8_t* row = frame.pixels.data() +
             (static_cast<std::size_t>(py0 + ry) * outW) * 4;
-          if (py0 + ry >= outH) break;
-          for (int rx = 0; rx < cellW; ++rx) {
-            if (px0 + rx >= outW) break;
+          std::uint8_t* cellStart = row + static_cast<std::size_t>(px0) * 4;
+          const int gy = std::min(6, (ry * 7) / cellH);
+          if (gy == prevGy && prevRowStart) {
+            std::memcpy(cellStart, prevRowStart, static_cast<std::size_t>(spanW) * 4);
+            continue;
+          }
+          for (int rx = 0; rx < spanW; ++rx) {
             const int gx = std::min(4, (rx * 5) / cellW);
             const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
             const std::uint8_t* c = on ? ink : bg;
-            std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+            std::uint8_t* p = cellStart + static_cast<std::size_t>(rx) * 4;
             p[0] = c[2]; p[1] = c[1]; p[2] = c[0]; p[3] = 255;
           }
+          prevGy = gy;
+          prevRowStart = cellStart;
         }
       }
     }
   } else {
     // Nearest-neighbour upscale. Deliberately not interpolated: soft edges
     // would undo the posterisation and the hard shapes the look depends on.
+    //
+    // The x mapping is the same for every row, so it is computed ONCE rather
+    // than per pixel, and consecutive output rows that map to the same source
+    // row are a straight memcpy of the row above. At the default resolution
+    // each internal row covers eight output rows, so seven in eight rows cost
+    // one memcpy instead of 1920 four-byte copies.
+    std::vector<int> xmap(static_cast<std::size_t>(outW));
+    for (int x = 0; x < outW; ++x) xmap[static_cast<std::size_t>(x)] = ((x * W) / outW) * 4;
+
+    int lastSrcRow = -1;
+    const std::uint8_t* lastDstRow = nullptr;
     for (int y = 0; y < outH; ++y) {
       const int sy2 = (y * H) / outH;
-      const std::uint8_t* srcRow = small.data() + static_cast<std::size_t>(sy2) * W * 4;
       std::uint8_t* dstRow = frame.pixels.data() + static_cast<std::size_t>(y) * outW * 4;
+      if (sy2 == lastSrcRow && lastDstRow) {
+        std::memcpy(dstRow, lastDstRow, static_cast<std::size_t>(outW) * 4);
+        continue;
+      }
+      const std::uint8_t* srcRow = small.data() + static_cast<std::size_t>(sy2) * W * 4;
       for (int x = 0; x < outW; ++x) {
-        const int sx2 = (x * W) / outW;
         std::memcpy(dstRow + static_cast<std::size_t>(x) * 4,
-                    srcRow + static_cast<std::size_t>(sx2) * 4, 4);
+                    srcRow + xmap[static_cast<std::size_t>(x)], 4);
+      }
+      lastSrcRow = sy2;
+      lastDstRow = dstRow;
+    }
+  }
+
+  // ---- CRT ------------------------------------------------------------
+  // Models the SCREEN, not the signal, so it runs last and at output
+  // resolution -- applied before the upscale the scanlines would scale up with
+  // the picture and read as stripes rather than as a display.
+  //
+  // Three parts, and the bloom is the one that matters: a phosphor does not
+  // stop at the pixel boundary, it spills sideways into its neighbours, which
+  // is why bright areas on a CRT look like they are emitting rather than being
+  // displayed. Scanlines alone just look like a dark grille.
+  const double crtAmt = std::clamp(vs.crt, 0.0, 1.0);
+  if (crtAmt > 0.01) {
+    const int rowBytes = outW * 4;
+    std::vector<std::uint8_t> src(frame.pixels);
+    const int spread = 1 + static_cast<int>(crtAmt * 3.0);
+    for (int y = 0; y < outH; ++y) {
+      std::uint8_t* dst = frame.pixels.data() + static_cast<std::size_t>(y) * rowBytes;
+      const std::uint8_t* s = src.data() + static_cast<std::size_t>(y) * rowBytes;
+      // Scanline darkening on alternate lines, weighted by the amount. Every
+      // other line rather than a pattern: that is what the reference photo of
+      // a real tube shows.
+      const double lineGain = ((y & 1) == 0) ? 1.0 : (1.0 - crtAmt * 0.45);
+      for (int x = 0; x < outW; ++x) {
+        double b = 0.0, g = 0.0, r = 0.0;
+        double weight = 0.0;
+        for (int k = -spread; k <= spread; ++k) {
+          const int sx = std::clamp(x + k, 0, outW - 1);
+          // Triangular falloff: a box blur reads as smearing, a peak that
+          // falls off reads as glow.
+          const double w = 1.0 - (std::abs(k) / static_cast<double>(spread + 1));
+          const std::size_t o = static_cast<std::size_t>(sx) * 4;
+          b += s[o + 0] * w; g += s[o + 1] * w; r += s[o + 2] * w;
+          weight += w;
+        }
+        if (weight <= 0.0) weight = 1.0;
+        const std::size_t o = static_cast<std::size_t>(x) * 4;
+        // Bloom ADDS to the original rather than replacing it, so edges stay
+        // sharp and only the light spills -- replacing would just be a blur.
+        const double bloom = crtAmt * 0.55;
+        double ob = s[o + 0] + (b / weight) * bloom;
+        double og = s[o + 1] + (g / weight) * bloom;
+        double orr = s[o + 2] + (r / weight) * bloom;
+        // RGB fringing: the shadow mask does not align the three guns exactly.
+        const int xr = std::clamp(x + 1, 0, outW - 1);
+        const int xb = std::clamp(x - 1, 0, outW - 1);
+        orr = orr * (1.0 - crtAmt * 0.3) + s[static_cast<std::size_t>(xr) * 4 + 2] * crtAmt * 0.3;
+        ob = ob * (1.0 - crtAmt * 0.3) + s[static_cast<std::size_t>(xb) * 4 + 0] * crtAmt * 0.3;
+        dst[o + 0] = static_cast<std::uint8_t>(std::clamp(ob * lineGain, 0.0, 255.0));
+        dst[o + 1] = static_cast<std::uint8_t>(std::clamp(og * lineGain, 0.0, 255.0));
+        dst[o + 2] = static_cast<std::uint8_t>(std::clamp(orr * lineGain, 0.0, 255.0));
       }
     }
   }

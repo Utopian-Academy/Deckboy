@@ -354,6 +354,8 @@
       case QuickAction::VsResInc:     adjustVsInt(&VideoSynthSettings::resolution, 1, 1, 5, "detail"); break;
       case QuickAction::VsAsciiColsDec: adjustVsInt(&VideoSynthSettings::asciiCols, -10, 20, 200, "columns"); break;
       case QuickAction::VsAsciiColsInc: adjustVsInt(&VideoSynthSettings::asciiCols, 10, 20, 200, "columns"); break;
+      case QuickAction::VsCrtDec: adjustVs(&VideoSynthSettings::crt, -0.1, 0.0, 1.0, "crt"); break;
+      case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsAsciiToggle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
           c->videoSynth.ascii = !c->videoSynth.ascii;
