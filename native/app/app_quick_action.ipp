@@ -336,8 +336,8 @@
       case QuickAction::VsCycleShape:   cycleVsEnum(0); break;
       case QuickAction::VsCycleMirror:  cycleVsEnum(1); break;
       case QuickAction::VsCyclePalette: cycleVsEnum(2); break;
-      case QuickAction::VsSpeedDec:    adjustVs(&VideoSynthSettings::speed, -0.1, 0.05, 8.0, "speed"); break;
-      case QuickAction::VsSpeedInc:    adjustVs(&VideoSynthSettings::speed, 0.1, 0.05, 8.0, "speed"); break;
+      case QuickAction::VsSpeedDec:    scaleVsSpeed(1.0 / 1.3); break;
+      case QuickAction::VsSpeedInc:    scaleVsSpeed(1.3); break;
       case QuickAction::VsScaleDec:    adjustVs(&VideoSynthSettings::scale, -0.1, 0.1, 8.0, "scale"); break;
       case QuickAction::VsScaleInc:    adjustVs(&VideoSynthSettings::scale, 0.1, 0.1, 8.0, "scale"); break;
       case QuickAction::VsFeedbackDec: adjustVs(&VideoSynthSettings::feedbackAmount, -0.05, 0.0, 0.95, "feedback"); break;

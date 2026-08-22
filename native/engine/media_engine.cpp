@@ -1074,18 +1074,34 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // correct look: Atari Video Music ran at broadcast-era resolution and Hypno
   // works at a low internal size too. Big soft pixels ARE the aesthetic. This
   // also makes the feedback path cheap enough to be interesting.
-  const int W = std::clamp(outW / 4, 160, 480);
+  // Finer than the first pass. At 480 wide the nearest-neighbour upscale makes
+  // every internal pixel a 4x4 block, so slow motion crawls in visible jumps
+  // rather than gliding -- the quantisation, not the speed, is what stops it
+  // looking smooth. The hard-edged shapes cost no transcendentals, so this is
+  // affordable now in a way it was not when everything went through sin().
+  const int W = std::clamp(outW / 2, 320, 960);
   const int H = std::max(90, (W * outH) / std::max(1, outW));
 
   const double lvl = std::clamp(audioLevel, 0.0, 1.0);
   const double react = std::clamp(vs.audioReactivity, 0.0, 1.0);
   const double drive = 1.0 + lvl * react * 1.5;
-  const double t = wallSeconds * std::clamp(vs.speed, 0.05, 8.0);
+  const double t = wallSeconds * std::clamp(vs.speed, 0.01, 8.0);
 
   const bool feedbackOn = vs.feedbackAmount > 0.01;
   const bool havePrev = feedbackOn && vsynthPrevW_ == W && vsynthPrevH_ == H &&
                         vsynthPrev_.size() == static_cast<std::size_t>(W) * H * 4;
-  vsynthRotation_ += vs.feedbackRotate * 0.017453292519943295;
+  // Per SECOND, not per frame, and scaled by speed like everything else.
+  // This advanced once per frame regardless of elapsed time, so the rotation
+  // ran at whatever rate the render loop happened to hit and ignored the speed
+  // control entirely -- which is precisely why the motion could not be dialled
+  // down. Framerate-dependent animation is never right; here it also made the
+  // one control that should have fixed it useless.
+  const double dt = (vsynthLastSeconds_ > 0.0)
+    ? std::clamp(wallSeconds - vsynthLastSeconds_, 0.0, 0.25)
+    : 0.0;
+  vsynthLastSeconds_ = wallSeconds;
+  vsynthRotation_ += vs.feedbackRotate * 0.017453292519943295 * dt *
+                     std::clamp(vs.speed, 0.01, 8.0) * 60.0;
 
   const double scale = std::clamp(vs.scale, 0.1, 8.0) * 4.0;
   const double warp = std::clamp(vs.warp, 0.0, 2.0);

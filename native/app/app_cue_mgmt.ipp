@@ -2428,6 +2428,18 @@
     playUiSound(UiSoundEffect::Toggle);
   }
 
+  // Speed steps MULTIPLICATIVELY. Adding a fixed amount makes the slow end
+  // unreachable: from 1.0, subtracting 0.1 nine times only gets to 0.1, and
+  // every step there is a huge proportional change. Scaling by a ratio gives
+  // fine control exactly where slow, smooth motion lives.
+  void scaleVsSpeed(double factor) {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) return;
+    cue->videoSynth.speed = std::clamp(cue->videoSynth.speed * factor, 0.01, 8.0);
+    markProjectDirty();
+    triggerToast("speed " + fmtFloat(cue->videoSynth.speed, 3));
+  }
+
   void adjustVs(double VideoSynthSettings::*field, double delta,
                 double lo, double hi, const char* label) {
     Cue* cue = selectedVideoSynthCueMutable();
