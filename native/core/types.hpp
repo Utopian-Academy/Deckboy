@@ -816,6 +816,11 @@ struct Project {
   std::string audioInputDeviceName;   // empty = system default
   bool audioInputEnabled = false;     // opening a mic is opt-in, never implicit
   double audioInputGainDb = 0.0;      // -40..+40, applied before metering
+  // Mix the input into what is STREAMED and RECORDED. Deliberately not into
+  // the speakers: monitoring a room mic through the same machine that is
+  // driving the PA is a feedback loop, and an operator who wants to hear
+  // themselves has a desk for it.
+  bool audioInputToProgram = true;
 
   std::string asioDriverName;
   int asioChannels = 2;
