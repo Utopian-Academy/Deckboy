@@ -954,6 +954,10 @@
     audioInputStream_ = nullptr;
     audioInputActiveDevice_.clear();
     audioInputPeak_ = 0.0;
+    // Drop anything captured but not yet muxed, or the next recording would
+    // open with audio from the previous session.
+    std::lock_guard<std::mutex> lock(audioInputMixMutex_);
+    audioInputMixBuffer_.clear();
   }
 
   bool audioInputRunning() const { return audioInputStream_ != nullptr; }
@@ -972,9 +976,28 @@
     const std::size_t n = static_cast<std::size_t>(got) / sizeof(std::int16_t);
     const double gain = std::pow(10.0, std::clamp(project_.audioInputGainDb, -40.0, 40.0) / 20.0);
     double peak = 0.0;
+    // Gain is applied to the SAMPLES, not just to the meter. Metering a level
+    // the recording does not actually carry would make the meter a liar.
     for (std::size_t i = 0; i < n; ++i) {
-      const double v = std::abs(audioInputScratch_[i] / 32768.0) * gain;
+      const double scaled = audioInputScratch_[i] * gain;
+      audioInputScratch_[i] = static_cast<std::int16_t>(std::clamp(scaled, -32768.0, 32767.0));
+      const double v = std::abs(audioInputScratch_[i] / 32768.0);
       if (v > peak) peak = v;
+    }
+    if (project_.audioInputToProgram) {
+      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
+      audioInputMixBuffer_.insert(audioInputMixBuffer_.end(),
+                                  audioInputScratch_.begin(),
+                                  audioInputScratch_.begin() + static_cast<std::ptrdiff_t>(n));
+      // Bounded like the deck buffers. An input nobody is consuming -- no
+      // stream armed -- must not grow without limit for the length of a show.
+      constexpr std::size_t kMaxInputSamples = 48000 * 2 * 4;   // ~4s stereo
+      if (audioInputMixBuffer_.size() > kMaxInputSamples) {
+        audioInputMixBuffer_.erase(
+          audioInputMixBuffer_.begin(),
+          audioInputMixBuffer_.begin() +
+            static_cast<std::ptrdiff_t>(audioInputMixBuffer_.size() - kMaxInputSamples));
+      }
     }
     // Fast attack, slow release. A meter that falls as fast as it rises is
     // unreadable, and a visualiser driven by one twitches instead of moving.
@@ -2199,6 +2222,14 @@
 
   void primeOutputStreamAudioReadPositions(int outputIndex, OutputRuntime& runtime) {
     runtime.streamAudioReadSamplesByDeck.clear();
+    // Discard captured input that predates this stream. Without it a recording
+    // starts by muxing up to four seconds of STALE microphone -- the buffer
+    // fills while nothing is armed -- and the mic stays that far out of sync
+    // for the whole take.
+    {
+      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
+      audioInputMixBuffer_.clear();
+    }
     auto deckIndices = streamAudioDecksForOutput(outputIndex);
     std::lock_guard<std::mutex> lock(streamAudioMutex_);
     for (int deckIndex : deckIndices) {
@@ -2274,6 +2305,23 @@
         }
         readPos += static_cast<std::uint64_t>(toMix);
       }
+    }
+
+    // Live input, summed with the deck mix. This reaches the STREAM and the
+    // RECORDING but never the speakers, which is deliberate -- see
+    // Project::audioInputToProgram.
+    if (project_.audioInputToProgram) {
+      std::lock_guard<std::mutex> lock(audioInputMixMutex_);
+      const std::size_t take =
+        std::min(audioInputMixBuffer_.size(), static_cast<std::size_t>(interleavedSamples));
+      for (std::size_t i = 0; i < take; ++i) {
+        mixed[i] += static_cast<std::int32_t>(audioInputMixBuffer_[i]);
+      }
+      // Consume what was mixed. Leaving it would replay the same audio on the
+      // next frame and the microphone would stutter.
+      audioInputMixBuffer_.erase(audioInputMixBuffer_.begin(),
+                                 audioInputMixBuffer_.begin() +
+                                   static_cast<std::ptrdiff_t>(take));
     }
 
     std::vector<std::int16_t> out(interleavedSamples, 0);

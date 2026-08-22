@@ -3086,6 +3086,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "audio_input_device\t" << escapeField(project.audioInputDeviceName) << '\n';
   output << "audio_input_enabled\t" << (project.audioInputEnabled ? 1 : 0) << '\n';
   output << "audio_input_gain_db\t" << project.audioInputGainDb << '\n';
+  output << "audio_input_to_program\t" << (project.audioInputToProgram ? 1 : 0) << '\n';
   output << "asio_channels\t" << project.asioChannels << '\n';
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
@@ -3508,6 +3509,8 @@ Project loadProject(const fs::path& projectFile,
       project.audioInputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "audio_input_enabled") {
       project.audioInputEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "audio_input_to_program") {
+      project.audioInputToProgram = safeBool(fields, 1, true);
     } else if (fields[0] == "audio_input_gain_db") {
       project.audioInputGainDb = std::clamp(safeDouble(fields, 1, 0.0), -40.0, 40.0);
     } else if (fields[0] == "asio_driver") {
@@ -6800,6 +6803,7 @@ class App {
   mutable std::string lastRecordingPath_;
   Uint64 recordingStartedMs_ = 0;
   static constexpr int kSettingsActionAudioInputDropdown = 778;
+  static constexpr int kSettingsActionAudioInputToProgram = 779;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
@@ -7141,6 +7145,10 @@ class App {
   std::string audioInputActiveDevice_;   // what actually opened, not what was asked for
   double audioInputPeak_ = 0.0;          // 0..1, decays; drives the meter
   std::vector<std::int16_t> audioInputScratch_;
+  // Captured audio waiting to be muxed. Guarded because the capture pump runs
+  // on the main thread while the encoder collection runs from the output path.
+  std::mutex audioInputMixMutex_;
+  std::vector<std::int16_t> audioInputMixBuffer_;
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

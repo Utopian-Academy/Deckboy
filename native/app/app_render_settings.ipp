@@ -827,6 +827,16 @@
         settingsBtns_.push_back({inBtn, kSettingsActionAudioInputDropdown,
                                  "Microphone or line input. Drives the video "
                                  "synth's audio reactivity."});
+        if (audioInputRunning()) {
+          SDL_Rect progBtn {audioX, inBtn.y + inBtn.h + 4, cardBodyW(audioRect), sRowH};
+          drawPillToggle(progBtn, project_.audioInputToProgram,
+                         "MIC -> RECORDING", "MIC NOT RECORDED");
+          settingsBtns_.push_back({progBtn, kSettingsActionAudioInputToProgram,
+                                   "Mix the input into what is streamed and "
+                                   "recorded. It does NOT go to the speakers: "
+                                   "monitoring a room mic through the machine "
+                                   "driving the PA is a feedback loop."});
+        }
       }
 #if defined(DECKBOY_HAS_ASIO)
       {
@@ -3520,6 +3530,13 @@
                  sb.action < kSettingsActionOutputDisplaySelectBase + 32) {
         int selectedDisplay = sb.action - kSettingsActionOutputDisplaySelectBase;
         setOutputDisplayIndex(selectedDisplay);
+      } else if (sb.action == kSettingsActionAudioInputToProgram) {
+        project_.audioInputToProgram = !project_.audioInputToProgram;
+        markProjectDirty();
+        triggerToast(project_.audioInputToProgram
+          ? "mic mixed into recording"
+          : "mic not recorded");
+        return;
       } else if (sb.action == kSettingsActionAudioInputDropdown) {
         openDropdown(
           "settings.audio_input",
