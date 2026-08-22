@@ -3083,6 +3083,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
   output << "asio_driver\t" << escapeField(project.asioDriverName) << '\n';
+  output << "audio_input_device\t" << escapeField(project.audioInputDeviceName) << '\n';
+  output << "audio_input_enabled\t" << (project.audioInputEnabled ? 1 : 0) << '\n';
+  output << "audio_input_gain_db\t" << project.audioInputGainDb << '\n';
   output << "asio_channels\t" << project.asioChannels << '\n';
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
@@ -3501,6 +3504,12 @@ Project loadProject(const fs::path& projectFile,
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "hap_suggestion_dismissed") {
       project.hapSuggestionDismissed = safeBool(fields, 1, false);
+    } else if (fields[0] == "audio_input_device") {
+      project.audioInputDeviceName = safeString(fields, 1);
+    } else if (fields[0] == "audio_input_enabled") {
+      project.audioInputEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "audio_input_gain_db") {
+      project.audioInputGainDb = std::clamp(safeDouble(fields, 1, 0.0), -40.0, 40.0);
     } else if (fields[0] == "asio_driver") {
       project.asioDriverName = safeString(fields, 1);
     } else if (fields[0] == "asio_channels") {
@@ -4456,6 +4465,19 @@ class App {
     // the first frame hostage for seconds of black window before the splash.
     startMediaPresenceScanAsync(true);
     // Project may override the boot-time splash character (deckbot default).
+    // Restore the saved audio devices. Both settings PERSISTED but neither was
+    // ever re-applied, so an operator who armed ASIO or a microphone found it
+    // silently back on the system device next launch -- the setting remembered,
+    // the effect forgotten.
+    if (project_.audioInputEnabled && !startAudioInput()) {
+      project_.audioInputEnabled = false;
+    }
+    if (!project_.asioDriverName.empty() &&
+        !armAsioOutput(project_.asioDriverName, project_.asioChannels)) {
+      // Interface not plugged in yet: keep the CHOICE so it comes back when the
+      // hardware does, rather than quietly forgetting what they picked.
+      showLog("ASIO", "saved driver unavailable at boot: " + project_.asioDriverName);
+    }
     resolveFirstRunFlag();
     refreshSplashAsset();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
@@ -6777,6 +6799,7 @@ class App {
   bool hapStallSeen_ = false;        // a decode actually struggled
   mutable std::string lastRecordingPath_;
   Uint64 recordingStartedMs_ = 0;
+  static constexpr int kSettingsActionAudioInputDropdown = 778;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
@@ -7114,6 +7137,10 @@ class App {
   // Smoothed output level, 0..1, for anything that reacts to audio.
   // Smoothed because a raw peak makes a visualiser twitch rather than move.
   double reactiveAudioLevel_ = 0.0;
+  SDL_AudioStream* audioInputStream_ = nullptr;
+  std::string audioInputActiveDevice_;   // what actually opened, not what was asked for
+  double audioInputPeak_ = 0.0;          // 0..1, decays; drives the meter
+  std::vector<std::int16_t> audioInputScratch_;
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

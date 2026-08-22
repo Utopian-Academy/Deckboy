@@ -808,6 +808,26 @@
       SDL_Rect devBtn {audioX, cardBodyY(audioRect), cardBodyW(audioRect), sTallH};
       drawUIDropdown(devBtn, "Device", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
+      {
+        // Live input. Sits with the output device because they are the two ends
+        // of the same question: where audio comes from, and where it goes.
+        SDL_Rect inBtn {audioX, devBtn.y + devBtn.h + 4, cardBodyW(audioRect), sTallH};
+        std::string inLabel = audioInputRunning()
+          ? (audioInputActiveDevice_.empty() ? std::string("System default input")
+                                             : audioInputActiveDevice_)
+          : std::string("off");
+        if (audioInputRunning()) {
+          // A live meter: the only question an operator has about a microphone
+          // is whether it is hearing anything.
+          const int bars = static_cast<int>(audioInputPeak_ * 10.0);
+          inLabel += "  ";
+          for (int b = 0; b < 10; ++b) inLabel += (b < bars) ? "|" : ".";
+        }
+        drawUIDropdown(inBtn, "Input", inLabel, "settings.audio_input");
+        settingsBtns_.push_back({inBtn, kSettingsActionAudioInputDropdown,
+                                 "Microphone or line input. Drives the video "
+                                 "synth's audio reactivity."});
+      }
 #if defined(DECKBOY_HAS_ASIO)
       {
         // ASIO sits directly under the system device, because it REPLACES it.
@@ -3500,6 +3520,26 @@
                  sb.action < kSettingsActionOutputDisplaySelectBase + 32) {
         int selectedDisplay = sb.action - kSettingsActionOutputDisplaySelectBase;
         setOutputDisplayIndex(selectedDisplay);
+      } else if (sb.action == kSettingsActionAudioInputDropdown) {
+        openDropdown(
+          "settings.audio_input",
+          sb.rect,
+          audioInputDeviceDropdownChoices(),
+          project_.audioInputEnabled ? project_.audioInputDeviceName
+                                     : std::string("__off__"),
+          [this](const std::string& value) {
+            if (value == "__off__") {
+              project_.audioInputEnabled = false;
+              stopAudioInput();
+              triggerToast("audio input off");
+            } else {
+              project_.audioInputDeviceName = value;
+              project_.audioInputEnabled = true;
+              if (!startAudioInput()) project_.audioInputEnabled = false;
+            }
+            markProjectDirty();
+          });
+        return;
       } else if (sb.action == kSettingsActionAsioDropdown) {
         openDropdown(
           "settings.asio",

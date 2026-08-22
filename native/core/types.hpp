@@ -810,6 +810,13 @@ struct Project {
   // ASIO driver to play through. Empty = the SDL device, which is the
   // default and what every existing show carries. Stored by NAME rather than
   // index because driver indices shuffle when the operator installs anything.
+  // Live audio input: a microphone or line feed. Deckboy had no capture path
+  // at all -- only device ENUMERATION, used to pick an LTC timecode source --
+  // so a room mic could neither drive a visualiser nor reach a recording.
+  std::string audioInputDeviceName;   // empty = system default
+  bool audioInputEnabled = false;     // opening a mic is opt-in, never implicit
+  double audioInputGainDb = 0.0;      // -40..+40, applied before metering
+
   std::string asioDriverName;
   int asioChannels = 2;
 

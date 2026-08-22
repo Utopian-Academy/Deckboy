@@ -901,6 +901,90 @@
   }
 
   // Resolve a preferred recording device name to a live SDL3 device id.
+  // ---- Live audio input ----------------------------------------------------
+  // Opening someone's microphone is not something to do implicitly, so this is
+  // strictly opt-in and reports the device that actually opened rather than the
+  // one that was asked for -- they differ whenever the saved device has been
+  // unplugged, and silently falling back to a different mic is the kind of
+  // surprise that ruins a recording.
+  bool startAudioInput() {
+    stopAudioInput();
+    SDL_AudioSpec desired {};
+    desired.freq = kAudioRate;
+    desired.format = SDL_AUDIO_S16;
+    desired.channels = 2;
+
+    std::string wanted = project_.audioInputDeviceName;
+    std::string effective = wanted;
+    SDL_AudioDeviceID target = audioRecordingDeviceIdForName(wanted);
+    if (target == 0) {
+      effective.clear();
+      target = SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
+    }
+    SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
+    if (!stream && target != SDL_AUDIO_DEVICE_DEFAULT_RECORDING) {
+      effective.clear();
+      stream = SDL_OpenAudioDeviceStream(
+        SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &desired, nullptr, nullptr);
+    }
+    if (!stream) {
+      failRemoteCommand("audio input: device unavailable");
+      showLog("AUDIO IN FAIL", wanted.empty() ? "(default)" : wanted);
+      return false;
+    }
+    // A recording stream opens PAUSED like any other; without this it captures
+    // nothing and the meter sits at zero looking like a dead microphone.
+    deckboySetAudioPaused(stream, false);
+    audioInputStream_ = stream;
+    audioInputActiveDevice_ = effective;
+    const std::string shown = effective.empty() ? "(system default)" : effective;
+    triggerToast("audio input: " + shown);
+    showLog("AUDIO IN", shown);
+    if (!wanted.empty() && effective.empty()) {
+      // Said out loud rather than swallowed: the operator chose a device and
+      // is getting a different one.
+      triggerToast("requested input missing - using default");
+    }
+    return true;
+  }
+
+  void stopAudioInput() {
+    if (!audioInputStream_) return;
+    SDL_DestroyAudioStream(audioInputStream_);
+    audioInputStream_ = nullptr;
+    audioInputActiveDevice_.clear();
+    audioInputPeak_ = 0.0;
+  }
+
+  bool audioInputRunning() const { return audioInputStream_ != nullptr; }
+
+  // Drain whatever the device has and reduce it to a level. Called every tick;
+  // the data is DISCARDED after metering because nothing routes it yet -- if it
+  // were left in the stream it would back up until the device stalled.
+  void pumpAudioInput() {
+    if (!audioInputStream_) return;
+    const int avail = SDL_GetAudioStreamAvailable(audioInputStream_);
+    if (avail <= 0) return;
+    audioInputScratch_.resize(static_cast<std::size_t>(avail) / sizeof(std::int16_t));
+    const int got = SDL_GetAudioStreamData(
+      audioInputStream_, audioInputScratch_.data(), avail);
+    if (got <= 0) return;
+    const std::size_t n = static_cast<std::size_t>(got) / sizeof(std::int16_t);
+    const double gain = std::pow(10.0, std::clamp(project_.audioInputGainDb, -40.0, 40.0) / 20.0);
+    double peak = 0.0;
+    for (std::size_t i = 0; i < n; ++i) {
+      const double v = std::abs(audioInputScratch_[i] / 32768.0) * gain;
+      if (v > peak) peak = v;
+    }
+    // Fast attack, slow release. A meter that falls as fast as it rises is
+    // unreadable, and a visualiser driven by one twitches instead of moving.
+    if (peak > audioInputPeak_) {
+      audioInputPeak_ = peak;
+    } else {
+      audioInputPeak_ += (peak - audioInputPeak_) * 0.08;
+    }
+  }
+
   SDL_AudioDeviceID audioRecordingDeviceIdForName(const std::string& name) {
     if (name.empty()) {
       return SDL_AUDIO_DEVICE_DEFAULT_RECORDING;
