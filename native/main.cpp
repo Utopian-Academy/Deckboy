@@ -5371,16 +5371,34 @@ class App {
 
     // Live readout first: what the stage screen is showing right now.
     const double remaining = static_cast<double>(cue.timer.durationSeconds) - elapsed;
+    // An explicit transport row. The clock row below TOGGLES on click, but it
+    // reads as a time display rather than a button, so an operator looking for
+    // start/stop did not find one -- which is what happened.
+    inspDrawQuickRow(ix, rowY, running ? "STOP" : "START",
+                     QuickAction::TimerRunToggle,
+                     running ? "running" : "held",
+                     QuickAction::TimerRunToggle, QuickAction::TimerRunToggle,
+                     true, running,
+                     "Start or stop the clock. The timer runs its own clock, "
+                     "so this does not touch playback.");
+    rowY += ix.rowStep;
+
     inspDrawQuickRow(ix, rowY, "clock", QuickAction::TimerRunToggle,
                      mmss(remaining), QuickAction::TimerRunToggle,
                      QuickAction::TimerRunToggle, true, running,
                      running ? "Hold the clock" : "Run the clock");
     rowY += ix.rowStep;
 
-    inspDrawQuickRow(ix, rowY, "nudge", QuickAction::TimerNudgeDown,
+    inspDrawQuickRow(ix, rowY, "nudge min", QuickAction::TimerNudgeDown,
                      "+/- 1 min", QuickAction::TimerNudgeUp,
                      QuickAction::ToggleLoop, false, false,
                      "Give or take a minute without stopping the clock");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "nudge sec", QuickAction::TimerNudgeSecDown,
+                     "+/- 10 sec", QuickAction::TimerNudgeSecUp,
+                     QuickAction::ToggleLoop, false, false,
+                     "Finer adjustment, for trimming a countdown mid-talk "
+                     "rather than reshaping it.");
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "reset", QuickAction::TimerResetAction,

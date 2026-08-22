@@ -454,6 +454,8 @@
       case QuickAction::TimerResetAction: timerReset(); break;
       case QuickAction::TimerNudgeUp:     timerNudge(60.0); break;
       case QuickAction::TimerNudgeDown:   timerNudge(-60.0); break;
+      case QuickAction::TimerNudgeSecUp:   timerNudge(10.0); break;
+      case QuickAction::TimerNudgeSecDown: timerNudge(-10.0); break;
       case QuickAction::TimerDurDec:      adjustTimerField(&TimerSettings::durationSeconds, -30); break;
       case QuickAction::TimerDurInc:      adjustTimerField(&TimerSettings::durationSeconds, 30); break;
       case QuickAction::TimerAmberDec:    adjustTimerField(&TimerSettings::amberSeconds, -15); break;
