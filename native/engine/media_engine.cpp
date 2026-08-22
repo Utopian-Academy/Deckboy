@@ -1266,7 +1266,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   const double zoom = std::clamp(vs.feedbackZoom, 0.90, 1.15);
   const double fb = std::clamp(vs.feedbackAmount, 0.0, 0.95);
 
-  std::vector<std::uint8_t> small(static_cast<std::size_t>(W) * H * 4, 0);
+  // Reused across frames. assign() only reallocates when the size changes,
+  // which happens when the operator moves the detail control, not per frame.
+  const std::size_t smallBytes = static_cast<std::size_t>(W) * H * 4;
+  if (vsynthSmall_.size() != smallBytes) vsynthSmall_.assign(smallBytes, 0);
+  std::vector<std::uint8_t>& small = vsynthSmall_;
 
   // Precompute the row term once per row instead of per pixel. Halves the
   // transcendental count on its own.
@@ -1543,11 +1547,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   }
 
   if (feedbackOn) {
-    // SWAP, not copy. `small` is about to go out of scope after the upscale
-    // reads it, so keeping the buffer costs nothing -- copying it duplicated
-    // the whole raster every frame for no reason.
-    vsynthPrev_.swap(small);
-    small = vsynthPrev_;   // upscale still needs to read it
+    // The previous attempt at this swapped and then COPIED BACK, which is
+    // exactly a copy with extra steps -- it saved nothing. The upscale below
+    // still needs to read the frame just rendered, so the buffers are swapped
+    // AFTER it, at the end of the function. Here we only record the geometry.
     vsynthPrevW_ = W;
     vsynthPrevH_ = H;
   } else if (!vsynthPrev_.empty()) {
@@ -1583,7 +1586,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     };
     const double corrupt = std::clamp(vs.glitch, 0.0, 1.0);
 
-    for (int cy = 0; cy < rows; ++cy) {
+    // Threaded by cell row. Text mode writes the ENTIRE output raster one
+    // cell at a time, which at 1080p is two million pixels on a single thread
+    // -- the largest remaining cost once the CRT was fixed.
+    auto renderCellRows = [&](int rowBegin, int rowEnd) {
+    for (int cy = rowBegin; cy < rowEnd; ++cy) {
       // ROW LOCK. A corrupted text screen does not scatter random cells -- a
       // row loses sync and repeats ONE character across its whole width, in
       // one colour pair. That banding is the signature of the reference
@@ -1716,6 +1723,27 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
         }
       }
     }
+    };   // renderCellRows
+
+    unsigned chw = std::thread::hardware_concurrency();
+    if (chw == 0) chw = 1;
+    const int cworkers = std::max(1, std::min<int>(static_cast<int>(chw),
+                                                   std::max(1, rows / 4)));
+    if (cworkers <= 1) {
+      renderCellRows(0, rows);
+    } else {
+      std::vector<std::thread> cpool;
+      cpool.reserve(static_cast<std::size_t>(cworkers - 1));
+      const int cspan = (rows + cworkers - 1) / cworkers;
+      for (int w = 1; w < cworkers; ++w) {
+        const int b = std::min(rows, w * cspan);
+        const int e = std::min(rows, b + cspan);
+        if (b >= e) break;
+        cpool.emplace_back(renderCellRows, b, e);
+      }
+      renderCellRows(0, std::min(rows, cspan));
+      for (std::thread& t : cpool) t.join();
+    }
   } else {
     // Nearest-neighbour upscale. Deliberately not interpolated: soft edges
     // would undo the posterisation and the hard shapes the look depends on.
@@ -1772,7 +1800,13 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     // Radius spans roughly one block at full amount, so the glow always
     // crosses an edge and is visible at any detail setting.
     const int radius = std::max(2, static_cast<int>(blockW * (0.4 + crtAmt * 0.9)));
-    const std::vector<std::uint8_t> src(frame.pixels);
+    // Reused. This allocated and copied the entire output raster -- about
+    // 8MB at 1080p -- every single frame.
+    if (vsynthCrtSrc_.size() != frame.pixels.size()) {
+      vsynthCrtSrc_.resize(frame.pixels.size());
+    }
+    std::memcpy(vsynthCrtSrc_.data(), frame.pixels.data(), frame.pixels.size());
+    const std::vector<std::uint8_t>& src = vsynthCrtSrc_;
 
     auto crtRows = [&](int y0, int y1) {
       std::vector<int> sum(3, 0);
@@ -1846,6 +1880,13 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       crtRows(0, std::min(outH, span));
       for (std::thread& t : pool) t.join();
     }
+  }
+
+  // NOW the buffers can trade places: everything that needed to read this
+  // frame has read it. Next frame renders into what is currently `prev` and
+  // reads what is currently `small`, so neither is ever copied.
+  if (feedbackOn) {
+    vsynthSmall_.swap(vsynthPrev_);
   }
 
   displayFrame_ = std::move(frame);
