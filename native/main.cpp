@@ -7915,7 +7915,8 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
               << " outputs=" << info.outputChannels << '\n'
               << "  preferred-buffer=" << info.preferredBufferFrames
               << " frames" << '\n'
-              << "  sample-rate=" << info.sampleRate << '\n';
+              << "  sample-rate=" << info.sampleRate << '\n'
+              << "  output-latency=" << info.outputLatencyFrames << " frames" << '\n';
     return 0;
   }
 

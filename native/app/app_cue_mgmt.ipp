@@ -2938,10 +2938,16 @@
     for (auto& runtime : deckRuntimes_) {
       if (runtime.mediaEngine) runtime.mediaEngine->setExternalAudioSink(sink);
     }
+    const int latMs = static_cast<int>(asioOutput_->outputLatencySeconds() * 1000.0);
     triggerToast("ASIO: " + driverName + "  " +
                  std::to_string(asioOutput_->channels()) + "ch  " +
-                 std::to_string(asioOutput_->bufferFrames()) + " frames");
-    showLog("ASIO START", driverName);
+                 std::to_string(asioOutput_->bufferFrames()) + " frames  " +
+                 std::to_string(latMs) + "ms");
+    // Logged because it is the number that decides A/V sync: video slaves to
+    // the audio clock, so swapping SDL for ASIO shifts lip sync by the
+    // DIFFERENCE in output latency. An operator chasing a sync problem needs
+    // this written down, not guessed at.
+    showLog("ASIO START", driverName + "  latency=" + std::to_string(latMs) + "ms");
     return true;
   }
 
