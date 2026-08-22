@@ -357,6 +357,11 @@ class MediaEngine {
   // Last write: expand processed stereo onto the cue's output pair when the
   // stream is open with >2 channels, then SDL_PutAudioStreamData.
   void putAudioToStream(const std::vector<std::int16_t>& stereo);
+  // Already at DEVICE width. putAudioToStream takes STEREO and widens it onto
+  // a pair, which is wrong for a generator that addresses channels
+  // individually -- a 1kHz tone sent to output 6 must not be folded into a
+  // stereo pair on the way out.
+  void putWideAudioToStream(const std::vector<std::int16_t>& wide, int channels);
   // Bytes per sample FRAME as the SDL stream sees them (channels × s16).
   // Every queued-bytes → seconds/backpressure conversion must use this.
   int audioStreamBytesPerFrame() const {
@@ -426,7 +431,16 @@ class MediaEngine {
   double fdsModPhase_ = 0.0;
   double fdsModAccum_ = 0.0;
   double fdsEnvSeconds_ = 0.0;
+  // Wavetables, rebuilt only when the operator changes carrier or modulator.
+  double fdsCarrierTable_[64] = {};
+  double fdsModTable_[32] = {};
+  int fdsCachedCarrier_ = -1;
+  int fdsCachedModulator_ = -1;
+  bool fdsTablesValid_ = false;
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
+  // Audio the sink could not take yet. Carried rather than dropped or waited
+  // on; see putAudioToStream for why waiting here is not an option.
+  std::vector<std::int16_t> pendingSinkAudio_;
   SDL_AudioStream* audioStream_ = nullptr;
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback

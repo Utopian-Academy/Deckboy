@@ -6,6 +6,7 @@
 #include "platform/asio_audio.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -137,6 +138,11 @@ bool probeAsioDevice(const std::string& name, AsioDeviceInfo& out) {
     out.sampleRate = static_cast<double>(rate);
   }
 
+  long inLat = 0, outLat = 0;
+  if (ASIOGetLatencies(&inLat, &outLat) == ASE_OK) {
+    out.outputLatencyFrames = static_cast<int>(outLat);
+  }
+
   // Release immediately. Holding a driver open blocks every other application
   // on the machine from using the interface, which during a show would be the
   // worst kind of side effect from merely LOOKING at a settings page.
@@ -166,6 +172,8 @@ struct AsioRuntime {
   long bufferFrames = 0;
   double sampleRate = 0.0;
   bool started = false;
+  bool outputReadySupported = false;   // queried once at open, not per callback
+  long outputLatency = 0;              // frames, from ASIOGetLatencies
 
   // Single-producer / single-consumer ring of interleaved s16. The writer is
   // the audio thread, the reader is the driver callback; head and tail are
@@ -236,13 +244,18 @@ void bufferSwitch(long index, ASIOBool /*directProcess*/) {
     rt->underruns.fetch_add(1, std::memory_order_relaxed);
   }
 
+  // Walk the ring ONCE per channel with a running index instead of a modulo
+  // per sample. In a callback with a hard deadline the difference is real:
+  // this is chans * frames divisions removed from the critical path.
   for (int ch = 0; ch < chans; ++ch) {
     void* dst = rt->bufferInfos[ch].buffers[index];
     if (!dst) continue;
     const ASIOSampleType type = rt->sampleTypes[ch];
+    std::size_t pos = (tail + static_cast<std::size_t>(ch)) % ringSize;
     for (std::size_t f = 0; f < haveFrames; ++f) {
-      const std::size_t pos = (tail + f * chans + ch) % ringSize;
       storeSample(dst, static_cast<long>(f), type, rt->ring[pos]);
+      pos += static_cast<std::size_t>(chans);
+      if (pos >= ringSize) pos -= ringSize;
     }
     // Silence the remainder rather than leaving stale audio behind.
     for (std::size_t f = haveFrames; f < static_cast<std::size_t>(frames); ++f) {
@@ -251,7 +264,10 @@ void bufferSwitch(long index, ASIOBool /*directProcess*/) {
   }
   rt->tail.store(tail + haveFrames * chans, std::memory_order_release);
   (void)wantSamples;
-  ASIOOutputReady();   // harmless when the driver does not support it
+  // Only when the driver actually supports it. Calling it blindly every
+  // callback is a wasted driver round-trip on hardware that does not implement
+  // it, in the one place where wasted work is measured in dropouts.
+  if (rt->outputReadySupported) ASIOOutputReady();
 }
 
 void sampleRateDidChange(ASIOSampleRate /*rate*/) {}
@@ -398,6 +414,16 @@ bool AsioOutput::open(const std::string& driverName, int channels,
     rt->drivers.removeCurrentDriver();
     return false;
   }
+  // Latency is only meaningful once the buffers exist, which is why it is read
+  // here rather than during the capability probe.
+  {
+    long inLat = 0, outLat = 0;
+    if (ASIOGetLatencies(&inLat, &outLat) == ASE_OK) {
+      rt->outputLatency = outLat;
+    }
+  }
+  // Queried once. ASE_OK here means the driver implements the optimisation.
+  rt->outputReadySupported = (ASIOOutputReady() == ASE_OK);
   rt->started = true;
   rt.release();   // ownership moves to gRuntime until close()
   return true;
@@ -465,10 +491,16 @@ std::size_t AsioOutput::write(const std::int16_t* interleaved, std::size_t frame
   // One sample of slack keeps head == tail meaning EMPTY rather than full.
   const std::size_t freeSamples = ringSize - (head - tail) - 1;
   const std::size_t writeFrames = std::min(frames, freeSamples / chans);
-  for (std::size_t f = 0; f < writeFrames; ++f) {
-    for (std::size_t ch = 0; ch < chans; ++ch) {
-      rt->ring[(head + f * chans + ch) % ringSize] = interleaved[f * chans + ch];
-    }
+  // Two contiguous copies rather than a modulo per sample: the ring wraps at
+  // most once per write, so find the split and memcpy each side.
+  const std::size_t writeSamples = writeFrames * chans;
+  const std::size_t start = head % ringSize;
+  const std::size_t firstRun = std::min(writeSamples, ringSize - start);
+  std::memcpy(rt->ring.data() + start, interleaved,
+              firstRun * sizeof(std::int16_t));
+  if (writeSamples > firstRun) {
+    std::memcpy(rt->ring.data(), interleaved + firstRun,
+                (writeSamples - firstRun) * sizeof(std::int16_t));
   }
   rt->head.store(head + writeFrames * chans, std::memory_order_release);
   return writeFrames;
@@ -485,6 +517,20 @@ std::size_t AsioOutput::queuedFrames() const {
 #else
   return 0;
 #endif
+}
+
+int AsioOutput::outputLatencyFrames() const {
+#if defined(DECKBOY_HAS_ASIO)
+  return gRuntime ? gRuntime->outputLatency : 0;
+#else
+  return 0;
+#endif
+}
+
+double AsioOutput::outputLatencySeconds() const {
+  const double rate = sampleRate();
+  if (rate <= 0.0) return 0.0;
+  return static_cast<double>(outputLatencyFrames()) / rate;
 }
 
 std::uint64_t AsioOutput::underruns() const {

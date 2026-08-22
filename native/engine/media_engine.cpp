@@ -2700,6 +2700,26 @@ bool MediaEngine::usingExternalAudioSink() const {
   return static_cast<bool>(externalSink_.write);
 }
 
+void MediaEngine::putWideAudioToStream(const std::vector<std::int16_t>& wide,
+                                       int channels) {
+  if (wide.empty() || channels <= 0) return;
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  if (externalSink_.write) {
+    const std::size_t frames = wide.size() / static_cast<std::size_t>(channels);
+    const std::size_t took = externalSink_.write(wide.data(), frames);
+    if (took < frames) {
+      pendingSinkAudio_.insert(
+        pendingSinkAudio_.end(),
+        wide.begin() + static_cast<std::ptrdiff_t>(took * static_cast<std::size_t>(channels)),
+        wide.end());
+    }
+    return;
+  }
+  if (!audioStream_) return;
+  SDL_PutAudioStreamData(audioStream_, wide.data(),
+                         static_cast<int>(wide.size() * sizeof(std::int16_t)));
+}
+
 void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
   // Runs on the audio decode thread. The lock is what makes a device swap or a
   // detach on the main thread safe: the owner cannot free the stream while a
@@ -2721,21 +2741,37 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
       out[off] = stereo[f * 2];
       out[off + 1] = stereo[f * 2 + 1];
     }
-    // Retry the remainder rather than dropping it. The sink is a ring the
-    // driver drains in real time, so a short write means "not yet", and
-    // discarding the tail would be an audible gap rather than a glitch.
-    std::size_t done = 0;
-    int spins = 0;
-    while (done < frames && spins < 2000) {
-      const std::size_t n = externalSink_.write(
-        wide.data() + done * static_cast<std::size_t>(sinkChannels), frames - done);
-      if (n == 0) {
-        SDL_Delay(1);
-        ++spins;
+    // NEVER BLOCK HERE. This runs on the decode thread while holding the audio
+    // lock, so sleeping to wait for ring space would stall any main-thread
+    // device swap or detach behind it for as long as the wait -- textbook
+    // priority inversion, and in a live tool it presents as a freeze.
+    //
+    // Instead: flush whatever was left over last time, write what fits now,
+    // and carry the remainder. Nothing is dropped and nothing waits, because
+    // the decode threads already pace themselves against queuedAudioBytes(),
+    // which reports the sink's own queue.
+    if (!pendingSinkAudio_.empty()) {
+      const std::size_t pendFrames =
+        pendingSinkAudio_.size() / static_cast<std::size_t>(sinkChannels);
+      const std::size_t took = externalSink_.write(pendingSinkAudio_.data(), pendFrames);
+      if (took >= pendFrames) {
+        pendingSinkAudio_.clear();
       } else {
-        done += n;
-        spins = 0;
+        pendingSinkAudio_.erase(
+          pendingSinkAudio_.begin(),
+          pendingSinkAudio_.begin() +
+            static_cast<std::ptrdiff_t>(took * static_cast<std::size_t>(sinkChannels)));
+        // Still backed up: queue this block behind the backlog rather than
+        // letting it overtake and play out of order.
+        pendingSinkAudio_.insert(pendingSinkAudio_.end(), wide.begin(), wide.end());
+        return;
       }
+    }
+    const std::size_t took = externalSink_.write(wide.data(), frames);
+    if (took < frames) {
+      pendingSinkAudio_.assign(
+        wide.begin() + static_cast<std::ptrdiff_t>(took * static_cast<std::size_t>(sinkChannels)),
+        wide.end());
     }
     return;
   }
@@ -4649,13 +4685,20 @@ void fdsBuildModulator(FdsModulator kind, double* table) {
 }  // namespace
 
 double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
-  double carrier[64];
-  double modulator[32];
-  // Rebuilt per block by the caller would be cheaper, but these are 96 doubles
-  // and the clarity of keeping the voice self-contained is worth more than the
-  // cycles at 48kHz.
-  fdsBuildCarrier(tone.fds.carrier, carrier);
-  fdsBuildModulator(tone.fds.modulator, modulator);
+  // Cached. These were rebuilt EVERY SAMPLE -- 96 doubles including four sin()
+  // calls per entry, 48,000 times a second, to produce a table that only
+  // changes when the operator turns a knob. Rebuild on change only.
+  if (!fdsTablesValid_ ||
+      fdsCachedCarrier_ != static_cast<int>(tone.fds.carrier) ||
+      fdsCachedModulator_ != static_cast<int>(tone.fds.modulator)) {
+    fdsBuildCarrier(tone.fds.carrier, fdsCarrierTable_);
+    fdsBuildModulator(tone.fds.modulator, fdsModTable_);
+    fdsCachedCarrier_ = static_cast<int>(tone.fds.carrier);
+    fdsCachedModulator_ = static_cast<int>(tone.fds.modulator);
+    fdsTablesValid_ = true;
+  }
+  const double* carrier = fdsCarrierTable_;
+  const double* modulator = fdsModTable_;
 
   const double note = std::clamp(tone.fds.noteHz, 20.0, 8000.0);
   const double depth = std::clamp(tone.fds.modDepth, 0, 63) / 63.0;
@@ -4804,7 +4847,9 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
     }
   }
 
-  putAudioToStream(out);
+  // Device-width already: the generator addresses channels individually, so it
+  // must NOT go through the stereo-and-widen path.
+  putWideAudioToStream(out, channels);
 }
 
 void MediaEngine::rebuildToneFrame(const Cue& cue) {

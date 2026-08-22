@@ -41,6 +41,7 @@ struct AsioDeviceInfo {
   int outputChannels = 0;
   int preferredBufferFrames = 0;
   double sampleRate = 0.0;
+  int outputLatencyFrames = 0;  // driver-reported output latency
   bool probed = false;          // false = registry entry only, counts unknown
   std::string error;            // why a probe failed, for the operator
 };
@@ -101,6 +102,14 @@ class AsioOutput {
 
   // Frames currently buffered and not yet played. The backpressure signal.
   std::size_t queuedFrames() const;
+
+  // Output latency in FRAMES, as the driver reports it: the delay between
+  // handing a sample to the ring and it leaving the socket. Deckboy slaves
+  // video to the audio clock, so a switch from SDL to ASIO changes this
+  // number and lip sync drifts by the difference unless it is accounted for.
+  // Reported rather than silently assumed.
+  int outputLatencyFrames() const;
+  double outputLatencySeconds() const;
 
   // Times the callback ran short of data since open(). Non-zero means audible
   // glitching, so it is surfaced rather than hidden.
