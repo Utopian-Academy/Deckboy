@@ -356,6 +356,34 @@
       case QuickAction::VsAsciiColsInc: adjustVsInt(&VideoSynthSettings::asciiCols, 10, 20, 200, "columns"); break;
       case QuickAction::VsCrtDec: adjustVs(&VideoSynthSettings::crt, -0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
+      case QuickAction::VsCharSetCycle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % 4;
+          markProjectDirty();
+          triggerToast(std::string("characters: ") + vsCharSetLabel(c->videoSynth.asciiCharSet));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsShuffleCycle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          // Steps through seeds rather than randomising live: the same seed
+          // must give the same look every time the show is opened.
+          c->videoSynth.asciiShuffle = (c->videoSynth.asciiShuffle + 1) % 9;
+          markProjectDirty();
+          triggerToast(c->videoSynth.asciiShuffle == 0
+            ? "glyphs: by density"
+            : "glyphs: shuffle " + std::to_string(c->videoSynth.asciiShuffle));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsInkCycle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.asciiInk = (c->videoSynth.asciiInk + 1) % 6;
+          markProjectDirty();
+          triggerToast(std::string("ink: ") + vsInkLabel(c->videoSynth.asciiInk));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
       case QuickAction::VsAsciiToggle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
           c->videoSynth.ascii = !c->videoSynth.ascii;

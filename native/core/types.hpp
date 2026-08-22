@@ -150,7 +150,25 @@ struct VideoSynthSettings {
   // REPLACEMENT of it, which is why it is a mode rather than an amount.
   bool ascii = false;
   int asciiCols = 80;              // characters across; height follows aspect
-  bool asciiGreen = true;          // terminal green, the reference look
+  // Which glyphs the grid is built from. Density is all a cell needs to say,
+  // but WHICH marks carry that density changes the character of the whole
+  // image, so it is a choice rather than a constant.
+  int asciiCharSet = 0;            // 0 blocks, 1 ASCII ramp, 2 symbols, 3 mixed
+  // Shuffles which glyph maps to which density. Same set, different
+  // handwriting -- and it is a seed rather than live randomness so the look is
+  // repeatable and stays put when the show is reopened.
+  int asciiShuffle = 0;            // 0 = ordered by density
+
+  // Ink colour. The old on/off green toggle only offered two of these.
+  //   0 picture   colour sampled from the image, 16-colour quantised
+  //   1 green     terminal phosphor
+  //   2 amber     the other terminal phosphor
+  //   3 cyan
+  //   4 white
+  //   5 palette   locked to whichever hardware palette is selected above,
+  //               which is how a real machine would have drawn it
+  int asciiInk = 1;
+  bool asciiGreen = true;          // legacy; kept so old shows still load
 
   // CRT: scanlines, phosphor bloom and RGB fringing. Applied at OUTPUT
   // resolution, after everything else, because it models the DISPLAY rather
@@ -1169,6 +1187,7 @@ enum class QuickAction {
   VsAsciiToggle, VsAsciiGreenToggle,
   VsAsciiColsDec, VsAsciiColsInc,
   VsCrtDec, VsCrtInc,
+  VsCharSetCycle, VsShuffleCycle, VsInkCycle,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
   SynthAttackDec, SynthAttackInc,

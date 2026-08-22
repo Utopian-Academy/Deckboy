@@ -2411,6 +2411,25 @@
     }
   }
 
+  static const char* vsCharSetLabel(int s) {
+    switch (s) {
+      case 1:  return "ASCII ramp";
+      case 2:  return "symbols";
+      case 3:  return "mixed";
+      default: return "blocks";
+    }
+  }
+  static const char* vsInkLabel(int i) {
+    switch (i) {
+      case 1:  return "green";
+      case 2:  return "amber";
+      case 3:  return "cyan";
+      case 4:  return "white";
+      case 5:  return "palette";
+      default: return "picture";
+    }
+  }
+
   Cue* selectedVideoSynthCueMutable() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::VideoSynth) ? cue : nullptr;
