@@ -2185,32 +2185,96 @@
     return std::string(kNames[step]) + std::to_string(octave);
   }
 
+  static const char* synthChipLabel(SynthChip c) {
+    return c == SynthChip::Nes ? "2A03 (NES)" : "FDS";
+  }
+  static const char* nesVoiceLabel(NesVoice v) {
+    switch (v) {
+      case NesVoice::Triangle: return "triangle";
+      case NesVoice::Noise:    return "noise";
+      default:                 return "pulse";
+    }
+  }
+  static const char* nesDutyLabel(NesDuty d) {
+    switch (d) {
+      case NesDuty::Eighth:       return "12.5%";
+      case NesDuty::Quarter:      return "25%";
+      case NesDuty::ThreeQuarter: return "75%";
+      default:                    return "50%";
+    }
+  }
+
+  void cycleSynthChip() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.synth.chip = (cue->tone.synth.chip == SynthChip::Fds)
+      ? SynthChip::Nes : SynthChip::Fds;
+    markProjectDirty();
+    triggerToast(std::string("chip: ") + synthChipLabel(cue->tone.synth.chip));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleNesVoice() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.synth.nesVoice = static_cast<NesVoice>(
+      (static_cast<int>(cue->tone.synth.nesVoice) + 1) % 3);
+    markProjectDirty();
+    triggerToast(std::string("voice: ") + nesVoiceLabel(cue->tone.synth.nesVoice));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleNesDuty() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.synth.nesDuty = static_cast<NesDuty>(
+      (static_cast<int>(cue->tone.synth.nesDuty) + 1) % 4);
+    markProjectDirty();
+    triggerToast(std::string("duty: ") + nesDutyLabel(cue->tone.synth.nesDuty));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void adjustSynthEnv(bool attack, double delta) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    if (attack) {
+      cue->tone.synth.attackSeconds =
+        std::clamp(cue->tone.synth.attackSeconds + delta, 0.0, 2.0);
+      triggerToast("attack " + fmtFloat(cue->tone.synth.attackSeconds, 2) + "s");
+    } else {
+      cue->tone.synth.releaseSeconds =
+        std::clamp(cue->tone.synth.releaseSeconds + delta, 0.01, 4.0);
+      triggerToast("release " + fmtFloat(cue->tone.synth.releaseSeconds, 2) + "s");
+    }
+    markProjectDirty();
+  }
+
   void cycleFdsCarrier() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    cue->tone.fds.carrier = static_cast<FdsCarrier>(
-      (static_cast<int>(cue->tone.fds.carrier) + 1) % 5);
+    cue->tone.synth.carrier = static_cast<FdsCarrier>(
+      (static_cast<int>(cue->tone.synth.carrier) + 1) % 5);
     markProjectDirty();
-    triggerToast(std::string("carrier: ") + fdsCarrierLabel(cue->tone.fds.carrier));
+    triggerToast(std::string("carrier: ") + fdsCarrierLabel(cue->tone.synth.carrier));
     playUiSound(UiSoundEffect::Toggle);
   }
 
   void cycleFdsModulator() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    cue->tone.fds.modulator = static_cast<FdsModulator>(
-      (static_cast<int>(cue->tone.fds.modulator) + 1) % 5);
+    cue->tone.synth.modulator = static_cast<FdsModulator>(
+      (static_cast<int>(cue->tone.synth.modulator) + 1) % 5);
     markProjectDirty();
-    triggerToast(std::string("modulator: ") + fdsModulatorLabel(cue->tone.fds.modulator));
+    triggerToast(std::string("modulator: ") + fdsModulatorLabel(cue->tone.synth.modulator));
     playUiSound(UiSoundEffect::Toggle);
   }
 
   void adjustFdsDepth(int delta) {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    cue->tone.fds.modDepth = std::clamp(cue->tone.fds.modDepth + delta, 0, 63);
+    cue->tone.synth.modDepth = std::clamp(cue->tone.synth.modDepth + delta, 0, 63);
     markProjectDirty();
-    triggerToast("depth " + std::to_string(cue->tone.fds.modDepth));
+    triggerToast("depth " + std::to_string(cue->tone.synth.modDepth));
   }
 
   // Ratio steps through MUSICAL intervals, not linear increments: the
@@ -2224,33 +2288,33 @@
     const int n = static_cast<int>(sizeof(kRatios) / sizeof(kRatios[0]));
     int i = 0;
     for (; i < n; ++i) {
-      if (std::abs(kRatios[i] - cue->tone.fds.modRatio) < 0.001) break;
+      if (std::abs(kRatios[i] - cue->tone.synth.modRatio) < 0.001) break;
     }
     i = std::clamp((i >= n ? 3 : i) + direction, 0, n - 1);
-    cue->tone.fds.modRatio = kRatios[i];
+    cue->tone.synth.modRatio = kRatios[i];
     markProjectDirty();
-    triggerToast("ratio " + fmtFloat(cue->tone.fds.modRatio, 3));
+    triggerToast("ratio " + fmtFloat(cue->tone.synth.modRatio, 3));
   }
 
   void adjustFdsNote(int semitones) {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    const double hz = cue->tone.fds.noteHz * std::pow(2.0, semitones / 12.0);
-    cue->tone.fds.noteHz = std::clamp(hz, 20.0, 8000.0);
+    const double hz = cue->tone.synth.noteHz * std::pow(2.0, semitones / 12.0);
+    cue->tone.synth.noteHz = std::clamp(hz, 20.0, 8000.0);
     markProjectDirty();
-    triggerToast("note " + fdsNoteName(cue->tone.fds.noteHz));
+    triggerToast("note " + fdsNoteName(cue->tone.synth.noteHz));
   }
 
   void adjustFdsRetrigger(double delta) {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
-    double v = cue->tone.fds.retriggerSeconds + delta;
+    double v = cue->tone.synth.retriggerSeconds + delta;
     if (v < 0.05) v = 0.0;   // below the smallest step means HOLD
-    cue->tone.fds.retriggerSeconds = std::clamp(v, 0.0, 4.0);
+    cue->tone.synth.retriggerSeconds = std::clamp(v, 0.0, 4.0);
     markProjectDirty();
-    triggerToast(cue->tone.fds.retriggerSeconds <= 0.0
+    triggerToast(cue->tone.synth.retriggerSeconds <= 0.0
       ? "retrigger: hold"
-      : "retrigger " + fmtFloat(cue->tone.fds.retriggerSeconds, 2) + "s");
+      : "retrigger " + fmtFloat(cue->tone.synth.retriggerSeconds, 2) + "s");
   }
 
   void cycleToneVisual() {
