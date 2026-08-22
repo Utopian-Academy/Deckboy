@@ -2413,9 +2413,10 @@
 
   static const char* vsCharSetLabel(int s) {
     switch (s) {
-      case 1:  return "ASCII ramp";
+      case 1:  return "ASCII 95 (density)";
       case 2:  return "symbols";
       case 3:  return "mixed";
+      case 4:  return "ASCII 95 (raw)";
       default: return "blocks";
     }
   }
