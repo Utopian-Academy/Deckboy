@@ -3407,6 +3407,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.asciiCols
         << '\t' << (cue.videoSynth.asciiGreen ? "1" : "0")
         << '\t' << cue.videoSynth.crt
+        << '\t' << cue.videoSynth.asciiCharSet
+        << '\t' << cue.videoSynth.asciiShuffle
+        << '\t' << cue.videoSynth.asciiInk
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -4031,6 +4034,12 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
         cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
         cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 59, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 3);
+        cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 61, 0), 0, 8);
+        // Older shows carry only the green boolean; map it onto the ink mode
+        // so they reopen looking the way they were left.
+        cue.videoSynth.asciiInk =
+          std::clamp(safeInt(fields, tb + 62, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5780,12 +5789,28 @@ class App {
                        QuickAction::ToggleLoop, false, false,
                        "Characters across. Fewer means bigger cells.");
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "green", QuickAction::VsAsciiGreenToggle,
-                       v.asciiGreen ? "on" : "off",
-                       QuickAction::VsAsciiGreenToggle,
-                       QuickAction::VsAsciiGreenToggle, true, v.asciiGreen,
-                       "Monochrome terminal green, or the full 16-colour "
-                       "palette taken from the picture.");
+      inspDrawQuickRow(ix, rowY, "glyphs", QuickAction::VsCharSetCycle,
+                       vsCharSetLabel(v.asciiCharSet),
+                       QuickAction::VsCharSetCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Blocks and dithers read as density; the ASCII ramp "
+                       "reads as text; symbols read as wreckage.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "shuffle", QuickAction::VsShuffleCycle,
+                       v.asciiShuffle == 0 ? std::string("by density")
+                                           : std::to_string(v.asciiShuffle),
+                       QuickAction::VsShuffleCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Scramble which glyph means which brightness. Same set, "
+                       "different handwriting. Seeded, so it stays put.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
+                       vsInkLabel(v.asciiInk),
+                       QuickAction::VsInkCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Picture takes colour from the image. Green, amber and "
+                       "cyan are terminal phosphors. Palette locks the text to "
+                       "whichever hardware palette is selected above.");
       rowY += ix.rowStep;
     }
     return rowY;

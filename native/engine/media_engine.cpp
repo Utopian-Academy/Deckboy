@@ -1103,6 +1103,32 @@ const std::uint8_t kCellJunk[][7] = {
 };
 constexpr int kCellJunkCount = static_cast<int>(sizeof(kCellJunk) / sizeof(kCellJunk[0]));
 
+// A conventional ASCII density ramp, drawn rather than borrowed from the timer
+// font so the set is self-contained and ordered exactly by ink coverage.
+// space . : - + * o X # @
+const std::uint8_t kCellAscii[][7] = {
+  {0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+  {0x00,0x00,0x00,0x00,0x00,0x04,0x00},   // .
+  {0x00,0x04,0x00,0x00,0x04,0x00,0x00},   // :
+  {0x00,0x00,0x00,0x0E,0x00,0x00,0x00},   // -
+  {0x00,0x04,0x04,0x1F,0x04,0x04,0x00},   // +
+  {0x00,0x11,0x0A,0x1F,0x0A,0x11,0x00},   // *
+  {0x00,0x0E,0x11,0x11,0x11,0x0E,0x00},   // o
+  {0x11,0x0A,0x04,0x0A,0x11,0x00,0x00},   // X
+  {0x0A,0x1F,0x0A,0x0A,0x1F,0x0A,0x00},   // #
+  {0x0E,0x11,0x17,0x15,0x17,0x10,0x0E},   // @
+};
+constexpr int kCellAsciiCount = static_cast<int>(sizeof(kCellAscii) / sizeof(kCellAscii[0]));
+
+// Pick the glyph table for a set, and report how many entries it has.
+inline const std::uint8_t (*cellSetFor(int set, int& count))[7] {
+  switch (set) {
+    case 1:  count = kCellAsciiCount; return kCellAscii;
+    case 2:  count = kCellJunkCount;  return kCellJunk;
+    default: count = kCellRampCount;  return kCellRamp;
+  }
+}
+
 // Hardware palettes, each the real set the machine could show. A limited,
 // AUTHENTIC palette is most of why period work looks period: the colours had
 // relationships to each other that a freely-picked set does not.
@@ -1534,7 +1560,13 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   frame.width = outW;
   frame.height = outH;
   frame.format = FramePixelFormat::RGBA32;
-  frame.pixels.assign(static_cast<std::size_t>(outW) * outH * 4, 255);
+  // Opaque BLACK, not white. The buffer was filled with 255 -- white, fully
+  // opaque -- and in text mode the cell grid only covers outH/cellH whole
+  // rows, so whatever remainder did not divide evenly stayed white. That was
+  // the bright line along the bottom edge, and the same applied to any
+  // leftover column on the right.
+  frame.pixels.assign(static_cast<std::size_t>(outW) * outH * 4, 0);
+  for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
 
   if (vs.ascii) {
     // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
@@ -1582,20 +1614,71 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
         sr /= count; sg /= count; sb /= count;
 
         const int luma = (sr * 77 + sg * 151 + sb * 28) >> 8;
-        int rampIndex = (luma * (kCellRampCount - 1)) / 255;
-        const std::uint8_t* glyph = kCellRamp[std::clamp(rampIndex, 0, kCellRampCount - 1)];
-        int inkIdx = vs.asciiGreen ? 10 : nearestPaletteIndex(sr, sg, sb);
+        int setCount = 0;
+        const std::uint8_t (*set)[7] = cellSetFor(vs.asciiCharSet, setCount);
+        // Mixed draws from both the density ramp and the structural glyphs,
+        // chosen by position rather than at random -- random per frame would
+        // make every cell flicker between alphabets.
+        if (vs.asciiCharSet == 3) {
+          if (((cx * 7 + cy * 13) & 3) == 0) { set = kCellJunk; setCount = kCellJunkCount; }
+          else { set = kCellRamp; setCount = kCellRampCount; }
+        }
+        int rampIndex = (luma * (setCount - 1)) / 255;
+        rampIndex = std::clamp(rampIndex, 0, setCount - 1);
+        if (vs.asciiShuffle > 0) {
+          // A fixed permutation from the seed: same glyphs, different
+          // handwriting. Deterministic, so the look is repeatable.
+          std::uint32_t h = static_cast<std::uint32_t>(rampIndex * 2654435761u +
+                                                       vs.asciiShuffle * 40503u);
+          h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+          rampIndex = static_cast<int>(h % static_cast<std::uint32_t>(setCount));
+        }
+        const std::uint8_t* glyph = set[rampIndex];
+
+        // Ink. The old boolean offered green or picture-colour and nothing
+        // else; these are the phosphors people actually mean, plus a mode that
+        // locks the text to the selected hardware palette.
+        int inkIdx;
+        switch (vs.asciiInk) {
+          case 1:  inkIdx = 10; break;   // green
+          case 2:  inkIdx = 14; break;   // amber
+          case 3:  inkIdx = 11; break;   // cyan
+          case 4:  inkIdx = 15; break;   // white
+          case 5: {
+            // Palette-locked: quantise the cell's own colour into the palette
+            // already chosen for the picture, so text mode and pixel mode
+            // agree about what machine this is.
+            double pr = 0, pg = 0, pb = 0;
+            const double u = luma / 255.0;
+            switch (vs.palette) {
+              case VideoSynthPalette::C64:     samplePalette(kPalC64, 16, u, pr, pg, pb); break;
+              case VideoSynthPalette::Gameboy: samplePalette(kPalGameboy, 4, u, pr, pg, pb); break;
+              case VideoSynthPalette::Cga:     samplePalette(kPalCga, 4, u, pr, pg, pb); break;
+              case VideoSynthPalette::Nes:     samplePalette(kPalNes, 12, u, pr, pg, pb); break;
+              case VideoSynthPalette::Vapor:   samplePalette(kPalVapor, 8, u, pr, pg, pb); break;
+              default: pr = sr / 255.0; pg = sg / 255.0; pb = sb / 255.0; break;
+            }
+            inkIdx = nearestPaletteIndex(static_cast<int>(pr * 255),
+                                         static_cast<int>(pg * 255),
+                                         static_cast<int>(pb * 255));
+            break;
+          }
+          default: inkIdx = nearestPaletteIndex(sr, sg, sb); break;
+        }
+        const bool monoInk = vs.asciiInk >= 1 && vs.asciiInk <= 4;
         int bgIdx = 0;
 
         if (rowLocked) {
           glyph = kCellJunk[lockGlyph];
-          inkIdx = vs.asciiGreen ? 10 : lockInk;
-          bgIdx = vs.asciiGreen ? 0 : lockBg;
+          // A mono phosphor screen corrupts by BRIGHTNESS, not by hue -- a
+          // green terminal cannot suddenly show magenta. Colour-pair
+          // corruption belongs to the palette modes.
+          if (!monoInk) { inkIdx = lockInk; bgIdx = lockBg; }
         } else if (corrupt > 0.05 &&
                    (crnd() % 1000u) < static_cast<std::uint32_t>(corrupt * 90.0)) {
           // Scattered single-cell corruption on top of the row banding.
           glyph = kCellJunk[crnd() % static_cast<std::uint32_t>(kCellJunkCount)];
-          if (!vs.asciiGreen) inkIdx = static_cast<int>(crnd() % 16u);
+          if (!monoInk) inkIdx = static_cast<int>(crnd() % 16u);
         }
 
         const std::uint8_t* ink = kCellPalette[inkIdx];
@@ -1665,55 +1748,103 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   }
 
   // ---- CRT ------------------------------------------------------------
-  // Models the SCREEN, not the signal, so it runs last and at output
-  // resolution -- applied before the upscale the scanlines would scale up with
-  // the picture and read as stripes rather than as a display.
+  // Rewritten: the first version was invisible AND expensive, which is the
+  // worst combination. Two measured reasons.
   //
-  // Three parts, and the bloom is the one that matters: a phosphor does not
-  // stop at the pixel boundary, it spills sideways into its neighbours, which
-  // is why bright areas on a CRT look like they are emitting rather than being
-  // displayed. Scanlines alone just look like a dark grille.
+  // The bloom radius was in OUTPUT pixels -- 2 to 4 of them -- while at the
+  // default resolution each source pixel occupies an 8-pixel block. So the
+  // glow reached a quarter of one block and never crossed a visible edge. The
+  // radius is now expressed relative to the BLOCK size, so it always spans
+  // real picture features whatever the detail setting.
+  //
+  // The scanlines darkened alternate OUTPUT rows: one pixel in 1080, which no
+  // display shows and no eye resolves. They are now the height of a source
+  // pixel, which is what a scanline actually is.
+  //
+  // And it cost 18 million single-threaded operations a frame. The blur is now
+  // a RUNNING SUM -- each step adds one sample and drops one, so the cost no
+  // longer depends on the radius at all -- and it is threaded by row.
   const double crtAmt = std::clamp(vs.crt, 0.0, 1.0);
   if (crtAmt > 0.01) {
     const int rowBytes = outW * 4;
-    std::vector<std::uint8_t> src(frame.pixels);
-    const int spread = 1 + static_cast<int>(crtAmt * 3.0);
-    for (int y = 0; y < outH; ++y) {
-      std::uint8_t* dst = frame.pixels.data() + static_cast<std::size_t>(y) * rowBytes;
-      const std::uint8_t* s = src.data() + static_cast<std::size_t>(y) * rowBytes;
-      // Scanline darkening on alternate lines, weighted by the amount. Every
-      // other line rather than a pattern: that is what the reference photo of
-      // a real tube shows.
-      const double lineGain = ((y & 1) == 0) ? 1.0 : (1.0 - crtAmt * 0.45);
-      for (int x = 0; x < outW; ++x) {
-        double b = 0.0, g = 0.0, r = 0.0;
-        double weight = 0.0;
-        for (int k = -spread; k <= spread; ++k) {
-          const int sx = std::clamp(x + k, 0, outW - 1);
-          // Triangular falloff: a box blur reads as smearing, a peak that
-          // falls off reads as glow.
-          const double w = 1.0 - (std::abs(k) / static_cast<double>(spread + 1));
+    const int blockW = std::max(1, outW / W);
+    const int blockH = std::max(1, outH / H);
+    // Radius spans roughly one block at full amount, so the glow always
+    // crosses an edge and is visible at any detail setting.
+    const int radius = std::max(2, static_cast<int>(blockW * (0.4 + crtAmt * 0.9)));
+    const std::vector<std::uint8_t> src(frame.pixels);
+
+    auto crtRows = [&](int y0, int y1) {
+      std::vector<int> sum(3, 0);
+      for (int y = y0; y < y1; ++y) {
+        const std::uint8_t* s = src.data() + static_cast<std::size_t>(y) * rowBytes;
+        std::uint8_t* dst = frame.pixels.data() + static_cast<std::size_t>(y) * rowBytes;
+
+        // Scanline gain at SOURCE pixel height: one dark line per block row.
+        const bool darkLine = ((y / blockH) & 1) != 0;
+        const double lineGain = darkLine ? (1.0 - crtAmt * 0.5) : 1.0;
+
+        // Prime the running sum for x = 0.
+        sum[0] = sum[1] = sum[2] = 0;
+        for (int k = -radius; k <= radius; ++k) {
+          const int sx = std::clamp(k, 0, outW - 1);
           const std::size_t o = static_cast<std::size_t>(sx) * 4;
-          b += s[o + 0] * w; g += s[o + 1] * w; r += s[o + 2] * w;
-          weight += w;
+          sum[0] += s[o + 0]; sum[1] += s[o + 1]; sum[2] += s[o + 2];
         }
-        if (weight <= 0.0) weight = 1.0;
-        const std::size_t o = static_cast<std::size_t>(x) * 4;
-        // Bloom ADDS to the original rather than replacing it, so edges stay
-        // sharp and only the light spills -- replacing would just be a blur.
-        const double bloom = crtAmt * 0.55;
-        double ob = s[o + 0] + (b / weight) * bloom;
-        double og = s[o + 1] + (g / weight) * bloom;
-        double orr = s[o + 2] + (r / weight) * bloom;
-        // RGB fringing: the shadow mask does not align the three guns exactly.
-        const int xr = std::clamp(x + 1, 0, outW - 1);
-        const int xb = std::clamp(x - 1, 0, outW - 1);
-        orr = orr * (1.0 - crtAmt * 0.3) + s[static_cast<std::size_t>(xr) * 4 + 2] * crtAmt * 0.3;
-        ob = ob * (1.0 - crtAmt * 0.3) + s[static_cast<std::size_t>(xb) * 4 + 0] * crtAmt * 0.3;
-        dst[o + 0] = static_cast<std::uint8_t>(std::clamp(ob * lineGain, 0.0, 255.0));
-        dst[o + 1] = static_cast<std::uint8_t>(std::clamp(og * lineGain, 0.0, 255.0));
-        dst[o + 2] = static_cast<std::uint8_t>(std::clamp(orr * lineGain, 0.0, 255.0));
+        const int window = radius * 2 + 1;
+
+        for (int x = 0; x < outW; ++x) {
+          const std::size_t o = static_cast<std::size_t>(x) * 4;
+          // Bloom ADDS, so edges stay sharp and only the light spills.
+          // Replacing would just be a blur, which is not what a phosphor does.
+          const double bloom = crtAmt * 0.9;
+          double ob = s[o + 0] + (sum[0] / static_cast<double>(window)) * bloom;
+          double og = s[o + 1] + (sum[1] / static_cast<double>(window)) * bloom;
+          double orr = s[o + 2] + (sum[2] / static_cast<double>(window)) * bloom;
+
+          // Gun misalignment, also at block scale so it is visible.
+          const int fringe = std::max(1, blockW / 3);
+          const int xr = std::clamp(x + fringe, 0, outW - 1);
+          const int xb = std::clamp(x - fringe, 0, outW - 1);
+          orr = orr * (1.0 - crtAmt * 0.35) +
+                s[static_cast<std::size_t>(xr) * 4 + 2] * crtAmt * 0.35;
+          ob = ob * (1.0 - crtAmt * 0.35) +
+               s[static_cast<std::size_t>(xb) * 4 + 0] * crtAmt * 0.35;
+
+          dst[o + 0] = static_cast<std::uint8_t>(std::clamp(ob * lineGain, 0.0, 255.0));
+          dst[o + 1] = static_cast<std::uint8_t>(std::clamp(og * lineGain, 0.0, 255.0));
+          dst[o + 2] = static_cast<std::uint8_t>(std::clamp(orr * lineGain, 0.0, 255.0));
+
+          // Slide the window: add the sample entering, drop the one leaving.
+          const int addX = std::clamp(x + radius + 1, 0, outW - 1);
+          const int dropX = std::clamp(x - radius, 0, outW - 1);
+          const std::size_t oa = static_cast<std::size_t>(addX) * 4;
+          const std::size_t od = static_cast<std::size_t>(dropX) * 4;
+          sum[0] += s[oa + 0] - s[od + 0];
+          sum[1] += s[oa + 1] - s[od + 1];
+          sum[2] += s[oa + 2] - s[od + 2];
+        }
       }
+    };
+
+    unsigned hw = std::thread::hardware_concurrency();
+    if (hw == 0) hw = 1;
+    const int workers = std::max(1, std::min<int>(static_cast<int>(hw),
+                                                  std::max(1, outH / 32)));
+    if (workers <= 1) {
+      crtRows(0, outH);
+    } else {
+      std::vector<std::thread> pool;
+      pool.reserve(static_cast<std::size_t>(workers - 1));
+      const int span = (outH + workers - 1) / workers;
+      for (int w = 1; w < workers; ++w) {
+        const int b = std::min(outH, w * span);
+        const int e = std::min(outH, b + span);
+        if (b >= e) break;
+        pool.emplace_back(crtRows, b, e);
+      }
+      crtRows(0, std::min(outH, span));
+      for (std::thread& t : pool) t.join();
     }
   }
 
