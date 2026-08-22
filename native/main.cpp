@@ -5442,6 +5442,46 @@ class App {
                        "every one.");
       rowY += ix.rowStep;
     }
+    if (cue.tone.waveform == ToneWaveform::Fds) {
+      inspDrawQuickRow(ix, rowY, "carrier", QuickAction::FdsCycleCarrier,
+                       fdsCarrierLabel(cue.tone.fds.carrier),
+                       QuickAction::FdsCycleCarrier, QuickAction::ToggleLoop,
+                       false, false, "The 64-step wavetable, quantised to 6 bits "
+                       "like the hardware.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "modulator", QuickAction::FdsCycleModulator,
+                       fdsModulatorLabel(cue.tone.fds.modulator),
+                       QuickAction::FdsCycleModulator, QuickAction::ToggleLoop,
+                       false, false, "Bends the carrier's PITCH rather than "
+                       "mixing with it. This is what makes FDS growl.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "depth", QuickAction::FdsDepthDec,
+                       std::to_string(cue.tone.fds.modDepth),
+                       QuickAction::FdsDepthInc, QuickAction::ToggleLoop,
+                       false, false, "How far the modulator bends the pitch. 0-63, "
+                       "the hardware's own gain range.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "ratio", QuickAction::FdsRatioDec,
+                       fmtFloat(cue.tone.fds.modRatio, 3),
+                       QuickAction::FdsRatioInc, QuickAction::ToggleLoop,
+                       false, false, "Modulator speed as a ratio of the note, so "
+                       "the bend tracks pitch. Simple ratios are the useful ones.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "note", QuickAction::FdsNoteDec,
+                       fdsNoteName(cue.tone.fds.noteHz),
+                       QuickAction::FdsNoteInc, QuickAction::ToggleLoop,
+                       false, false, "Pitch, in semitones.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "retrigger", QuickAction::FdsRetrigDec,
+                       cue.tone.fds.retriggerSeconds <= 0.0
+                         ? std::string("hold")
+                         : fmtFloat(cue.tone.fds.retriggerSeconds, 2) + "s",
+                       QuickAction::FdsRetrigInc, QuickAction::ToggleLoop,
+                       false, false, "Re-strike the envelope this often. Hold "
+                       "sustains one note, which is what a drone wants.");
+      rowY += ix.rowStep;
+    }
+
     inspDrawQuickRow(ix, rowY, "visuals", QuickAction::ToneVisualToggle,
                      cue.tone.visualEnabled ? "on" : "off",
                      QuickAction::ToneVisualToggle, QuickAction::ToneVisualToggle,

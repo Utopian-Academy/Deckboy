@@ -321,6 +321,16 @@
       case QuickAction::ToneChannelDec: adjustToneChannel(-1); break;
       case QuickAction::ToneChannelInc: adjustToneChannel(1); break;
       case QuickAction::ToneCycleVisual: cycleToneVisual(); break;
+      case QuickAction::FdsCycleCarrier:   cycleFdsCarrier(); break;
+      case QuickAction::FdsCycleModulator: cycleFdsModulator(); break;
+      case QuickAction::FdsDepthDec:  adjustFdsDepth(-4); break;
+      case QuickAction::FdsDepthInc:  adjustFdsDepth(4); break;
+      case QuickAction::FdsRatioDec:  adjustFdsRatio(-1); break;
+      case QuickAction::FdsRatioInc:  adjustFdsRatio(1); break;
+      case QuickAction::FdsNoteDec:   adjustFdsNote(-1); break;
+      case QuickAction::FdsNoteInc:   adjustFdsNote(1); break;
+      case QuickAction::FdsRetrigDec: adjustFdsRetrigger(-0.05); break;
+      case QuickAction::FdsRetrigInc: adjustFdsRetrigger(0.05); break;
       case QuickAction::ToneVisualToggle:
         if (Cue* c = selectedToneCueMutable()) {
           c->tone.visualEnabled = !c->tone.visualEnabled;
