@@ -1807,6 +1807,13 @@
       {0, 0, 0, 0},
       [this]() { addToneCue(); }
     });
+    // Video synth: oscillators, mirrors and feedback, after Atari Video Music
+    // and Sleepy Circuits Hypno.
+    contextItems_.push_back({
+      "  Video Synth Cue",
+      {0, 0, 0, 0},
+      [this]() { addVideoSynthCue(); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -2369,6 +2376,89 @@
     triggerToast(cue->tone.channel < 0
       ? "tone: all channels"
       : "tone: channel " + std::to_string(cue->tone.channel + 1));
+  }
+
+  static const char* vsShapeLabel(VideoSynthShape s) {
+    switch (s) {
+      case VideoSynthShape::Diamond: return "diamond";
+      case VideoSynthShape::Rings:   return "rings";
+      case VideoSynthShape::Grid:    return "grid";
+      case VideoSynthShape::Moire:   return "moire";
+      default:                       return "plasma";
+    }
+  }
+  static const char* vsMirrorLabel(VideoSynthMirror m) {
+    switch (m) {
+      case VideoSynthMirror::Horizontal: return "horizontal";
+      case VideoSynthMirror::Quad:       return "quad";
+      case VideoSynthMirror::Kaleido:    return "kaleido";
+      default:                           return "none";
+    }
+  }
+  static const char* vsPaletteLabel(VideoSynthPalette p) {
+    switch (p) {
+      case VideoSynthPalette::Amber: return "amber";
+      case VideoSynthPalette::Ice:   return "ice";
+      case VideoSynthPalette::Fire:  return "fire";
+      case VideoSynthPalette::Mono:  return "mono";
+      default:                       return "spectrum";
+    }
+  }
+
+  Cue* selectedVideoSynthCueMutable() {
+    Cue* cue = selectedCueMutable();
+    return (cue && cue->kind == CueKind::VideoSynth) ? cue : nullptr;
+  }
+
+  void cycleVsEnum(int which) {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) return;
+    VideoSynthSettings& v = cue->videoSynth;
+    if (which == 0) {
+      v.shape = static_cast<VideoSynthShape>((static_cast<int>(v.shape) + 1) % 5);
+      triggerToast(std::string("shape: ") + vsShapeLabel(v.shape));
+    } else if (which == 1) {
+      v.mirror = static_cast<VideoSynthMirror>((static_cast<int>(v.mirror) + 1) % 4);
+      triggerToast(std::string("mirror: ") + vsMirrorLabel(v.mirror));
+    } else {
+      v.palette = static_cast<VideoSynthPalette>((static_cast<int>(v.palette) + 1) % 5);
+      triggerToast(std::string("palette: ") + vsPaletteLabel(v.palette));
+    }
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void adjustVs(double VideoSynthSettings::*field, double delta,
+                double lo, double hi, const char* label) {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) return;
+    double& v = cue->videoSynth.*field;
+    v = std::clamp(v + delta, lo, hi);
+    markProjectDirty();
+    triggerToast(std::string(label) + " " + fmtFloat(v, 2));
+  }
+
+  void addVideoSynthCue() {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::VideoSynth;
+    cue.path = "vsynth://";
+    cue.name = "Video Synth";
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {90, 50, 120, 255};
+    cue.formatName = "generated";
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    // Runs until stopped, like the other generated sources.
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("video synth added");
+    playUiSound(UiSoundEffect::Import);
   }
 
   void addToneCue() {

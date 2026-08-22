@@ -3377,6 +3377,16 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << static_cast<int>(cue.tone.synth.nesDuty)
         << '\t' << (cue.tone.synth.nesNoiseShort ? "1" : "0")
         << '\t' << (cue.tone.synth.nesQuantise ? "1" : "0")
+        << '\t' << static_cast<int>(cue.videoSynth.shape)
+        << '\t' << static_cast<int>(cue.videoSynth.mirror)
+        << '\t' << static_cast<int>(cue.videoSynth.palette)
+        << '\t' << cue.videoSynth.speed
+        << '\t' << cue.videoSynth.scale
+        << '\t' << cue.videoSynth.warp
+        << '\t' << cue.videoSynth.feedbackAmount
+        << '\t' << cue.videoSynth.feedbackZoom
+        << '\t' << cue.videoSynth.feedbackRotate
+        << '\t' << cue.videoSynth.audioReactivity
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -3965,6 +3975,21 @@ Project loadProject(const fs::path& projectFile,
           std::clamp(safeInt(fields, tb + 40, 2), 0, 3));
         cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 41, false);
         cue.tone.synth.nesQuantise = safeBool(fields, tb + 42, true);
+        // Video synth. Written at the same time as the feature rather than
+        // discovered missing on reload, which is how the last three went.
+        cue.videoSynth.shape = static_cast<VideoSynthShape>(
+          std::clamp(safeInt(fields, tb + 43, 0), 0, 4));
+        cue.videoSynth.mirror = static_cast<VideoSynthMirror>(
+          std::clamp(safeInt(fields, tb + 44, 2), 0, 3));
+        cue.videoSynth.palette = static_cast<VideoSynthPalette>(
+          std::clamp(safeInt(fields, tb + 45, 0), 0, 4));
+        cue.videoSynth.speed = std::clamp(safeDouble(fields, tb + 46, 1.0), 0.05, 8.0);
+        cue.videoSynth.scale = std::clamp(safeDouble(fields, tb + 47, 1.0), 0.1, 8.0);
+        cue.videoSynth.warp = std::clamp(safeDouble(fields, tb + 48, 0.35), 0.0, 2.0);
+        cue.videoSynth.feedbackAmount = std::clamp(safeDouble(fields, tb + 49, 0.55), 0.0, 0.95);
+        cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, tb + 50, 1.02), 0.90, 1.15);
+        cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, tb + 51, 0.6), -10.0, 10.0);
+        cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, tb + 52, 0.5), 0.0, 1.0);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5610,6 +5635,58 @@ class App {
     return rowY;
   }
 
+  int inspDrawVideoSynthRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    if (cue.kind != CueKind::VideoSynth) return rowY;
+    const VideoSynthSettings& v = cue.videoSynth;
+
+    inspDrawQuickRow(ix, rowY, "shape", QuickAction::VsCycleShape,
+                     vsShapeLabel(v.shape), QuickAction::VsCycleShape,
+                     QuickAction::ToggleLoop, false, false,
+                     "Diamond is the hard-edged Atari Video Music lattice; "
+                     "rings tunnel well with feedback zoom.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "mirror", QuickAction::VsCycleMirror,
+                     vsMirrorLabel(v.mirror), QuickAction::VsCycleMirror,
+                     QuickAction::ToggleLoop, false, false,
+                     "Folding is what turns an arbitrary pattern into "
+                     "something that reads as designed.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "palette", QuickAction::VsCyclePalette,
+                     vsPaletteLabel(v.palette), QuickAction::VsCyclePalette,
+                     QuickAction::ToggleLoop, false, false,
+                     "Amber is closest to the 1976 single-phosphor look.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "speed", QuickAction::VsSpeedDec,
+                     fmtFloat(v.speed, 2), QuickAction::VsSpeedInc,
+                     QuickAction::ToggleLoop, false, false, "Master oscillator rate.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "scale", QuickAction::VsScaleDec,
+                     fmtFloat(v.scale, 2), QuickAction::VsScaleInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "How many features fit on screen.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "feedback", QuickAction::VsFeedbackDec,
+                     fmtFloat(v.feedbackAmount, 2), QuickAction::VsFeedbackInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Each frame blended into the next. This is the Hypno "
+                     "signature -- at 0 it is a pattern generator, above it "
+                     "the picture starts feeding on itself.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "zoom", QuickAction::VsZoomDec,
+                     fmtFloat(v.feedbackZoom, 3), QuickAction::VsZoomInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Above 1 tunnels inward, below 1 blooms outward.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "audio", QuickAction::VsReactDec,
+                     fmtFloat(v.audioReactivity, 2), QuickAction::VsReactInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "How much playing audio widens and brightens the "
+                     "pattern. 0 free-runs.");
+    rowY += ix.rowStep;
+    return rowY;
+  }
+
   int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
@@ -7026,6 +7103,10 @@ class App {
   bool cueSectionTimerOpen_ = true;     // stage timer controls
   bool cueSectionToneOpen_ = true;      // test tone generator controls
   bool cueSectionSynthOpen_ = true;    // chip voice controls
+  bool cueSectionVideoSynthOpen_ = true;  // video synth controls
+  // Smoothed output level, 0..1, for anything that reacts to audio.
+  // Smoothed because a raw peak makes a visualiser twitch rather than move.
+  double reactiveAudioLevel_ = 0.0;
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {

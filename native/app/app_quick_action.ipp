@@ -331,6 +331,21 @@
       case QuickAction::FdsNoteInc:   adjustFdsNote(1); break;
       case QuickAction::FdsRetrigDec: adjustFdsRetrigger(-0.05); break;
       case QuickAction::FdsRetrigInc: adjustFdsRetrigger(0.05); break;
+      case QuickAction::CueSectionVideoSynthToggle:
+        cueSectionVideoSynthOpen_ = !cueSectionVideoSynthOpen_; break;
+      case QuickAction::VsCycleShape:   cycleVsEnum(0); break;
+      case QuickAction::VsCycleMirror:  cycleVsEnum(1); break;
+      case QuickAction::VsCyclePalette: cycleVsEnum(2); break;
+      case QuickAction::VsSpeedDec:    adjustVs(&VideoSynthSettings::speed, -0.1, 0.05, 8.0, "speed"); break;
+      case QuickAction::VsSpeedInc:    adjustVs(&VideoSynthSettings::speed, 0.1, 0.05, 8.0, "speed"); break;
+      case QuickAction::VsScaleDec:    adjustVs(&VideoSynthSettings::scale, -0.1, 0.1, 8.0, "scale"); break;
+      case QuickAction::VsScaleInc:    adjustVs(&VideoSynthSettings::scale, 0.1, 0.1, 8.0, "scale"); break;
+      case QuickAction::VsFeedbackDec: adjustVs(&VideoSynthSettings::feedbackAmount, -0.05, 0.0, 0.95, "feedback"); break;
+      case QuickAction::VsFeedbackInc: adjustVs(&VideoSynthSettings::feedbackAmount, 0.05, 0.0, 0.95, "feedback"); break;
+      case QuickAction::VsZoomDec:     adjustVs(&VideoSynthSettings::feedbackZoom, -0.01, 0.90, 1.15, "zoom"); break;
+      case QuickAction::VsZoomInc:     adjustVs(&VideoSynthSettings::feedbackZoom, 0.01, 0.90, 1.15, "zoom"); break;
+      case QuickAction::VsReactDec:    adjustVs(&VideoSynthSettings::audioReactivity, -0.1, 0.0, 1.0, "audio"); break;
+      case QuickAction::VsReactInc:    adjustVs(&VideoSynthSettings::audioReactivity, 0.1, 0.0, 1.0, "audio"); break;
       case QuickAction::CueSectionSynthToggle:
         cueSectionSynthOpen_ = !cueSectionSynthOpen_; break;
       case QuickAction::SynthCycleChip:      cycleSynthChip(); break;
