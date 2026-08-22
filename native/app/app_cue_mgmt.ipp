@@ -2152,6 +2152,107 @@
     }
   }
 
+  static const char* fdsCarrierLabel(FdsCarrier c) {
+    switch (c) {
+      case FdsCarrier::Triangle: return "triangle";
+      case FdsCarrier::Pulse25:  return "pulse 25%";
+      case FdsCarrier::Saw:      return "saw";
+      case FdsCarrier::Additive: return "additive";
+      default:                   return "sine";
+    }
+  }
+
+  static const char* fdsModulatorLabel(FdsModulator m) {
+    switch (m) {
+      case FdsModulator::Ramp:    return "ramp";
+      case FdsModulator::Square:  return "square";
+      case FdsModulator::Vibrato: return "vibrato";
+      case FdsModulator::Growl:   return "growl";
+      default:                    return "off";
+    }
+  }
+
+  // Note names rather than raw Hz. A musician thinks in notes, and a synth
+  // whose pitch control reads "233 Hz" is a test generator wearing a hat.
+  static std::string fdsNoteName(double hz) {
+    if (hz <= 0.0) return "-";
+    const double semis = 12.0 * std::log2(hz / 440.0);
+    const int n = static_cast<int>(std::lround(semis)) + 57;   // A4 = index 57
+    static const char* kNames[12] = {"C", "C#", "D", "D#", "E", "F",
+                                     "F#", "G", "G#", "A", "A#", "B"};
+    const int octave = n / 12;
+    const int step = ((n % 12) + 12) % 12;
+    return std::string(kNames[step]) + std::to_string(octave);
+  }
+
+  void cycleFdsCarrier() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.fds.carrier = static_cast<FdsCarrier>(
+      (static_cast<int>(cue->tone.fds.carrier) + 1) % 5);
+    markProjectDirty();
+    triggerToast(std::string("carrier: ") + fdsCarrierLabel(cue->tone.fds.carrier));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void cycleFdsModulator() {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.fds.modulator = static_cast<FdsModulator>(
+      (static_cast<int>(cue->tone.fds.modulator) + 1) % 5);
+    markProjectDirty();
+    triggerToast(std::string("modulator: ") + fdsModulatorLabel(cue->tone.fds.modulator));
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
+  void adjustFdsDepth(int delta) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    cue->tone.fds.modDepth = std::clamp(cue->tone.fds.modDepth + delta, 0, 63);
+    markProjectDirty();
+    triggerToast("depth " + std::to_string(cue->tone.fds.modDepth));
+  }
+
+  // Ratio steps through MUSICAL intervals, not linear increments: the
+  // interesting settings are the simple ratios, and a linear sweep walks past
+  // all of them.
+  void adjustFdsRatio(int direction) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    static const double kRatios[] = {0.0, 0.125, 0.25, 0.5, 0.75, 1.0,
+                                     1.5, 2.0, 3.0, 4.0};
+    const int n = static_cast<int>(sizeof(kRatios) / sizeof(kRatios[0]));
+    int i = 0;
+    for (; i < n; ++i) {
+      if (std::abs(kRatios[i] - cue->tone.fds.modRatio) < 0.001) break;
+    }
+    i = std::clamp((i >= n ? 3 : i) + direction, 0, n - 1);
+    cue->tone.fds.modRatio = kRatios[i];
+    markProjectDirty();
+    triggerToast("ratio " + fmtFloat(cue->tone.fds.modRatio, 3));
+  }
+
+  void adjustFdsNote(int semitones) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    const double hz = cue->tone.fds.noteHz * std::pow(2.0, semitones / 12.0);
+    cue->tone.fds.noteHz = std::clamp(hz, 20.0, 8000.0);
+    markProjectDirty();
+    triggerToast("note " + fdsNoteName(cue->tone.fds.noteHz));
+  }
+
+  void adjustFdsRetrigger(double delta) {
+    Cue* cue = selectedToneCueMutable();
+    if (!cue) return;
+    double v = cue->tone.fds.retriggerSeconds + delta;
+    if (v < 0.05) v = 0.0;   // below the smallest step means HOLD
+    cue->tone.fds.retriggerSeconds = std::clamp(v, 0.0, 4.0);
+    markProjectDirty();
+    triggerToast(cue->tone.fds.retriggerSeconds <= 0.0
+      ? "retrigger: hold"
+      : "retrigger " + fmtFloat(cue->tone.fds.retriggerSeconds, 2) + "s");
+  }
+
   void cycleToneVisual() {
     Cue* cue = selectedToneCueMutable();
     if (!cue) return;
