@@ -1814,6 +1814,18 @@
       {0, 0, 0, 0},
       [this]() { addVideoSynthCue(); }
     });
+    // Both chips get their own entry. One menu item that then needs a second
+    // control changed is the same discoverability problem one level down.
+    contextItems_.push_back({
+      "  2A03 Synth (NES)",
+      {0, 0, 0, 0},
+      [this]() { addSynthCue(SynthChip::Nes); }
+    });
+    contextItems_.push_back({
+      "  FDS Synth",
+      {0, 0, 0, 0},
+      [this]() { addSynthCue(SynthChip::Fds); }
+    });
 
     // Anchor menu above the SOURCE button (index 1 in buttons_)
     int winW = 0, winH = 0;
@@ -2506,6 +2518,38 @@
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
     triggerToast("video synth added");
+    playUiSound(UiSoundEffect::Import);
+  }
+
+  // The chip voice was only reachable by adding a tone cue and cycling the
+  // signal control six times to land on it -- which nobody would ever guess,
+  // and the owner did not. Same cue kind, but it arrives already set up as an
+  // instrument, so the synth is one click from the SOURCE menu.
+  void addSynthCue(SynthChip chip) {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::Tone;
+    cue.path = "tone://";
+    cue.tone.waveform = ToneWaveform::Fds;
+    cue.tone.synth.chip = chip;
+    // Audible immediately. A synth cue that arrives silent looks broken, and
+    // the operator has no way to know whether it is the cue or the routing.
+    cue.tone.synth.retriggerSeconds = 0.0;   // hold the note
+    cue.tone.levelDbfs = -18.0;
+    cue.name = (chip == SynthChip::Nes) ? "2A03 Synth" : "FDS Synth";
+    cue.width = rasterW;
+    cue.height = rasterH;
+    cue.color = {70, 90, 140, 255};
+    cue.formatName = "generated";
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    cue.pauseOnLastFrame = true;
+    cue.stillDurationSeconds = 0.0;
+    cue.endAction = CueEndAction::Stop;
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast(cue.name + " added");
     playUiSound(UiSoundEffect::Import);
   }
 
