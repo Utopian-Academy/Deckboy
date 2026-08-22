@@ -619,6 +619,69 @@
       };
       bool isFullscreen = isAnyOutputFullscreen();
       constexpr int kIconBtnW = 44;
+
+      // ─── Recording indicator ───────────────────────────────────────────
+      // On the TOOLBAR, not in the settings modal. An operator running a show
+      // is on the deck firing cues -- nobody sits in a settings page during a
+      // take, so a record readout there is a readout nobody sees.
+      //
+      // Only takes space while recording. A permanent "not recording" badge is
+      // noise on every other show.
+      if (recordingActive()) {
+          const int secs = static_cast<int>(recordingElapsedSeconds());
+          char t[32];
+          std::snprintf(t, sizeof(t), "REC %d:%02d:%02d",
+                        secs / 3600, (secs / 60) % 60, secs % 60);
+          const int recW = autoW(t, 130);
+          SDL_Rect recRect {rx - recW, ty, recW, kTBtnH};
+          rx -= recW + kTBtnGap;
+
+          // Pulsing border, same language as blackout: this is a state the
+          // operator must not lose track of.
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+          const double pulse =
+            0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) * 0.006);
+          SDL_SetRenderDrawColor(controlRenderer_, 230, 40, 40,
+                                 static_cast<Uint8>(80 + 140 * pulse));
+          SDL_Rect glow {recRect.x - 2, recRect.y - 2, recRect.w + 4, recRect.h + 4};
+          SDL_RenderRect(controlRenderer_, &glow);
+          SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+          drawUIPanel(recRect, SDL_Color{150, 20, 20, 255}, pal.deep, pal.light);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, recRect, t,
+                               SDL_Color{255, 210, 210, 255});
+
+          // Input level beside it, when a microphone is open. Elapsed time
+          // alone cannot tell an operator the recording is capturing anything;
+          // a level that moves can, and that is the question actually being
+          // asked mid-take.
+          if (audioInputRunning()) {
+            const int meterW = 90;
+            SDL_Rect meter {rx - meterW, ty, meterW, kTBtnH};
+            rx -= meterW + kTBtnGap;
+            drawUIPanel(meter, pal.dark, pal.deep, pal.mid);
+            const int inset = 4;
+            const int barMax = meter.w - inset * 2;
+            const int barW = std::clamp(
+              static_cast<int>(audioInputPeak_ * barMax), 0, barMax);
+            if (barW > 0) {
+              // Green until it is close to clipping, then red. The number an
+              // operator needs at a glance is "is this about to distort".
+              const bool hot = audioInputPeak_ > 0.89;
+              SDL_Color lvl = hot ? SDL_Color{240, 60, 60, 255}
+                                  : SDL_Color{60, 220, 110, 255};
+              SDL_SetRenderDrawColor(controlRenderer_, lvl.r, lvl.g, lvl.b, 255);
+              SDL_Rect fill {meter.x + inset, meter.y + inset,
+                             barW, meter.h - inset * 2};
+              SDL_RenderFillRect(controlRenderer_, &fill);
+            }
+            if (project_.audioInputClipLatch) {
+              drawCenteredTextSafe(controlRenderer_, fontSmall_, meter, "CLIP",
+                                   SDL_Color{255, 230, 230, 255});
+            }
+        }
+      }
+
       settingsGearRect_  = SDL_Rect {}; // settings moved to bottom bar
       blackoutBtnRect_   = {rx - kIconBtnW, ty, kIconBtnW, kTBtnH}; rx -= kIconBtnW + kTBtnGap;
       fullscreenBtnRect_ = {rx - kIconBtnW, ty, kIconBtnW, kTBtnH}; rx -= kIconBtnW + kTGrpGap;
