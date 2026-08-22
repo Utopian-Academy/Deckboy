@@ -521,6 +521,18 @@
     return "Output " + std::to_string(sourceOutputIndex + 1) + "  " + outputLabel(sourceOutputIndex);
   }
 
+  // Installed ASIO drivers, with the SDL device as an explicit first choice
+  // rather than an empty row -- "none" reads as broken, "system audio" reads
+  // as a decision.
+  std::vector<std::pair<std::string, std::string>> asioDriverDropdownChoices() const {
+    std::vector<std::pair<std::string, std::string>> out;
+    out.emplace_back("", "System audio (SDL)");
+    for (const auto& dev : deckboy::platform::audio::listAsioDevices()) {
+      out.emplace_back(dev.name, dev.name);
+    }
+    return out;
+  }
+
   std::vector<std::pair<std::string, std::string>> outputStreamProtocolDropdownChoices() const {
     // RTMPS was fully implemented -- its own default URL, the FLV muxer, TLS --
     // but appeared in neither this list nor the cycle, so it was unreachable

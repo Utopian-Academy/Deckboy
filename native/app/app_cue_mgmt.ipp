@@ -2884,6 +2884,73 @@
     showLog("HAP CONVERT", std::to_string(queued) + " cue(s) queued");
   }
 
+  // ---- ASIO playback -------------------------------------------------------
+  // Arming replaces the SDL sink on every deck. Disarming restores it. Both
+  // are safe mid-show: MediaEngine takes its audio lock, so a swap cannot race
+  // a write already in flight.
+  bool asioArmed() const { return asioOutput_ && asioOutput_->running(); }
+
+  void disarmAsioOutput(const char* reason = nullptr) {
+    if (!asioOutput_) return;
+    for (auto& runtime : deckRuntimes_) {
+      if (runtime.mediaEngine) {
+        runtime.mediaEngine->setExternalAudioSink(MediaEngine::ExternalAudioSink{});
+      }
+    }
+    asioOutput_->close();
+    asioOutput_.reset();
+    if (reason) {
+      triggerToast(std::string("ASIO off: ") + reason);
+      showLog("ASIO STOP", reason);
+    }
+  }
+
+  bool armAsioOutput(const std::string& driverName, int channels) {
+    disarmAsioOutput();
+    if (driverName.empty()) return false;
+    auto out = std::make_unique<deckboy::platform::audio::AsioOutput>();
+    std::string err;
+    if (!out->open(driverName, std::max(2, channels), static_cast<double>(kAudioRate), err)) {
+      failRemoteCommand("ASIO: " + err);
+      showLog("ASIO FAIL", driverName + ": " + err);
+      return false;
+    }
+    // A driver clocked to external word clock may refuse 48k. Playing anyway
+    // would pitch the whole show, so this refuses rather than guesses.
+    const double rate = out->sampleRate();
+    if (rate > 0.0 && std::abs(rate - static_cast<double>(kAudioRate)) > 1.0) {
+      const std::string msg = "driver is at " + std::to_string(static_cast<int>(rate)) +
+                              " Hz, Deckboy needs " + std::to_string(kAudioRate);
+      out->close();
+      failRemoteCommand("ASIO: " + msg);
+      showLog("ASIO FAIL", msg);
+      return false;
+    }
+    asioOutput_ = std::move(out);
+
+    MediaEngine::ExternalAudioSink sink;
+    sink.channels = asioOutput_->channels();
+    deckboy::platform::audio::AsioOutput* raw = asioOutput_.get();
+    sink.write = [raw](const std::int16_t* data, std::size_t frames) {
+      return raw->write(data, frames);
+    };
+    sink.queued = [raw]() { return raw->queuedFrames(); };
+    for (auto& runtime : deckRuntimes_) {
+      if (runtime.mediaEngine) runtime.mediaEngine->setExternalAudioSink(sink);
+    }
+    triggerToast("ASIO: " + driverName + "  " +
+                 std::to_string(asioOutput_->channels()) + "ch  " +
+                 std::to_string(asioOutput_->bufferFrames()) + " frames");
+    showLog("ASIO START", driverName);
+    return true;
+  }
+
+  // Surfaced so the operator learns about glitching from the app rather than
+  // from the room.
+  std::uint64_t asioUnderruns() const {
+    return asioOutput_ ? asioOutput_->underruns() : 0;
+  }
+
   void cycleEncoderRateMode() {
     using Rate = EncoderOverrides::Rate;
     switch (encoderOverrides_.rate) {

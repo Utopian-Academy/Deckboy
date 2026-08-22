@@ -3075,6 +3075,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
+  output << "asio_driver\t" << escapeField(project.asioDriverName) << '\n';
+  output << "asio_channels\t" << project.asioChannels << '\n';
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
@@ -3469,6 +3471,10 @@ Project loadProject(const fs::path& projectFile,
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "hap_suggestion_dismissed") {
       project.hapSuggestionDismissed = safeBool(fields, 1, false);
+    } else if (fields[0] == "asio_driver") {
+      project.asioDriverName = safeString(fields, 1);
+    } else if (fields[0] == "asio_channels") {
+      project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, 64);
     } else if (fields[0] == "recording_dir") {
       project.recordingDir = safeString(fields, 1);
     } else if (fields[0] == "splash_character") {
@@ -6578,10 +6584,14 @@ class App {
   // second, which is exactly how the Processing sub-tab died in v0.76.24.
   // Recording runtime. Mutable because buildOutputStreamArgs is const and is
   // where the timestamped path is minted.
+  std::unique_ptr<deckboy::platform::audio::AsioOutput> asioOutput_;
   bool hapSuggestionShown_ = false;   // once per session, whatever the answer
   bool hapStallSeen_ = false;        // a decode actually struggled
   mutable std::string lastRecordingPath_;
   Uint64 recordingStartedMs_ = 0;
+  static constexpr int kSettingsActionAsioDropdown   = 775;
+  static constexpr int kSettingsActionAsioChannelsDec = 776;
+  static constexpr int kSettingsActionAsioChannelsInc = 777;
   static constexpr int kSettingsActionRecordToggle   = 770;
   static constexpr int kSettingsActionRecordDirPick  = 771;
   static constexpr int kSettingsActionRecordDirClear = 772;

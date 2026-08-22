@@ -2689,12 +2689,56 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
 // only this last write knows the stream is wider. Channels outside the pair
 // carry silence. A pair beyond the opened channel count clamps to outs 1-2
 // so a routed cue is never silently dropped.
+void MediaEngine::setExternalAudioSink(ExternalAudioSink sink) {
+  // Same lock as every other audio-thread touch of the output, so arming or
+  // clearing a sink mid-show cannot race a write already in flight.
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  externalSink_ = std::move(sink);
+}
+
+bool MediaEngine::usingExternalAudioSink() const {
+  return static_cast<bool>(externalSink_.write);
+}
+
 void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
   // Runs on the audio decode thread. The lock is what makes a device swap or a
   // detach on the main thread safe: the owner cannot free the stream while a
   // write to it is in flight, and after detachAudioDevice() the pointer reads
   // null here instead of dangling.
   std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  // An armed external sink takes precedence over SDL. Checked FIRST so an ASIO
+  // device works even when no SDL stream was ever opened -- otherwise the early
+  // return below would silently discard every sample.
+  if (externalSink_.write) {
+    const int sinkChannels = std::max(2, externalSink_.channels);
+    const std::size_t frames = stereo.size() / 2;
+    std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(sinkChannels), 0);
+    int pair = audioCuePairOffset_.load(std::memory_order_relaxed);
+    if (pair < 0 || pair * 2 + 1 >= sinkChannels) pair = 0;
+    const std::size_t off = static_cast<std::size_t>(pair) * 2;
+    for (std::size_t f = 0; f < frames; ++f) {
+      std::int16_t* out = wide.data() + f * static_cast<std::size_t>(sinkChannels);
+      out[off] = stereo[f * 2];
+      out[off + 1] = stereo[f * 2 + 1];
+    }
+    // Retry the remainder rather than dropping it. The sink is a ring the
+    // driver drains in real time, so a short write means "not yet", and
+    // discarding the tail would be an audible gap rather than a glitch.
+    std::size_t done = 0;
+    int spins = 0;
+    while (done < frames && spins < 2000) {
+      const std::size_t n = externalSink_.write(
+        wide.data() + done * static_cast<std::size_t>(sinkChannels), frames - done);
+      if (n == 0) {
+        SDL_Delay(1);
+        ++spins;
+      } else {
+        done += n;
+        spins = 0;
+      }
+    }
+    return;
+  }
   if (!audioStream_) {
     return;
   }
