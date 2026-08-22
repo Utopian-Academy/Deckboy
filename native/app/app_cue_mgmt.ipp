@@ -1777,25 +1777,25 @@
     // the macOS backend is a scaffold — do not offer what cannot run.
 #ifndef __APPLE__
     contextItems_.push_back({
-      "  Browser / URL Cue",
+      "  Browser / URL",
       {0, 0, 0, 0},
       [this]() { addBrowserCueFromPrompt(); }
     });
 #endif
     contextItems_.push_back({
-      "  Stream Cue (SRT / RTMP / RTSP)",
+      "  Stream (SRT / RTMP / RTSP)",
       {0, 0, 0, 0},
       [this]() { addSrtStreamCueFromPrompt(); }
     });
     contextItems_.push_back({
-      "  NDI Source Cue",
+      "  NDI",
       {0, 0, 0, 0},
       [this]() { addNdiSourceCueFromPrompt(); }
     });
     // Stage timer. Without this the Timer cue was only reachable over the wire
     // (TIMERCUE), i.e. not reachable at all from inside the app.
     contextItems_.push_back({
-      "  Stage Timer Cue",
+      "  Stage Timer",
       {0, 0, 0, 0},
       [this]() { addTimerCue(300); }
     });
@@ -1803,14 +1803,14 @@
     // noise for ringing out a PA, and a channel walk for proving which output
     // feeds which speaker.
     contextItems_.push_back({
-      "  Test Tone Cue",
+      "  Test Tone",
       {0, 0, 0, 0},
       [this]() { addToneCue(); }
     });
     // Video synth: oscillators, mirrors and feedback, after Atari Video Music
     // and Sleepy Circuits Hypno.
     contextItems_.push_back({
-      "  Video Synth Cue",
+      "  Video Synth",
       {0, 0, 0, 0},
       [this]() { addVideoSynthCue(); }
     });
