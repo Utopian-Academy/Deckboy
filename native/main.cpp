@@ -3087,6 +3087,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "audio_input_enabled\t" << (project.audioInputEnabled ? 1 : 0) << '\n';
   output << "audio_input_gain_db\t" << project.audioInputGainDb << '\n';
   output << "audio_input_to_program\t" << (project.audioInputToProgram ? 1 : 0) << '\n';
+  output << "audio_input_mono\t" << (project.audioInputMono ? 1 : 0) << '\n';
   output << "asio_channels\t" << project.asioChannels << '\n';
   output << "hap_suggestion_dismissed\t" << (project.hapSuggestionDismissed ? 1 : 0) << '\n';
   output << "theme\t" << escapeField(project.theme) << '\n';
@@ -3177,6 +3178,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.srtStreamId)
       << '\t' << escapeField(outputTarget.srtMode)
       << '\t' << outputTarget.streamKeyframeSeconds
+      << '\t' << outputTarget.streamAudioBitrateKbps
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -3509,6 +3511,8 @@ Project loadProject(const fs::path& projectFile,
       project.audioInputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "audio_input_enabled") {
       project.audioInputEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "audio_input_mono") {
+      project.audioInputMono = safeBool(fields, 1, true);
     } else if (fields[0] == "audio_input_to_program") {
       project.audioInputToProgram = safeBool(fields, 1, true);
     } else if (fields[0] == "audio_input_gain_db") {
@@ -3668,6 +3672,10 @@ Project loadProject(const fs::path& projectFile,
                             (safeString(fields, 44) == "listener") ? "listener" : "caller";
                           outputTarget.streamKeyframeSeconds =
                             std::clamp(safeInt(fields, 45, 2), 1, 10);
+                          // Appended after the keyframe field; older
+                          // shows take the previous hardcoded 160.
+                          outputTarget.streamAudioBitrateKbps =
+                            std::clamp(safeInt(fields, 46, 160), 32, 512);
                         }
                       }
                     }
@@ -6804,6 +6812,10 @@ class App {
   Uint64 recordingStartedMs_ = 0;
   static constexpr int kSettingsActionAudioInputDropdown = 778;
   static constexpr int kSettingsActionAudioInputToProgram = 779;
+  static constexpr int kSettingsActionAudioInputGainDec = 780;
+  static constexpr int kSettingsActionAudioInputGainInc = 781;
+  static constexpr int kSettingsActionAudioInputClipClear = 782;
+  static constexpr int kSettingsActionAudioInputMono = 783;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
@@ -6821,6 +6833,7 @@ class App {
   static constexpr int kStreamFieldSrtPassphrase = 6;
   static constexpr int kStreamFieldSrtStreamId = 7;
   static constexpr int kStreamFieldSrtMode = 8;
+  static constexpr int kStreamFieldAudioBitrate = 9;
   // LTC generator (Audio tab).
   static constexpr int kSettingsActionLtcOutToggle = 702;
   static constexpr int kSettingsActionLtcOutDevice = 703;

@@ -980,9 +980,25 @@
     // the recording does not actually carry would make the meter a liar.
     for (std::size_t i = 0; i < n; ++i) {
       const double scaled = audioInputScratch_[i] * gain;
+      // Clip is detected BEFORE the clamp. Checking the clamped value can only
+      // ever report exactly full scale, which real signals rarely hit even
+      // when badly overdriven.
+      if (std::abs(scaled) >= 32767.0) project_.audioInputClipLatch = true;
       audioInputScratch_[i] = static_cast<std::int16_t>(std::clamp(scaled, -32768.0, 32767.0));
       const double v = std::abs(audioInputScratch_[i] / 32768.0);
       if (v > peak) peak = v;
+    }
+    // A mono source captured as stereo lands in one leg with silence in the
+    // other. Sum to both so it plays back centred rather than one-sided.
+    if (project_.audioInputMono) {
+      for (std::size_t i = 0; i + 1 < n; i += 2) {
+        const int mixL = audioInputScratch_[i];
+        const int mixR = audioInputScratch_[i + 1];
+        const std::int16_t m = static_cast<std::int16_t>(
+          std::clamp((mixL + mixR) / 2, -32768, 32767));
+        audioInputScratch_[i] = m;
+        audioInputScratch_[i + 1] = m;
+      }
     }
     if (project_.audioInputToProgram) {
       std::lock_guard<std::mutex> lock(audioInputMixMutex_);
@@ -1759,7 +1775,7 @@
       "-maxrate", std::to_string(bitrateKbps) + "k",
       "-bufsize", std::to_string(bufferKbps) + "k",
       "-c:a", "aac",
-      "-b:a", "160k",
+      "-b:a", std::to_string(std::clamp(output.streamAudioBitrateKbps, 32, 512)) + "k",
       "-ar", "48000",
       "-ac", "2"
     });
