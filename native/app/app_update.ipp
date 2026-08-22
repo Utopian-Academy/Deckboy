@@ -682,7 +682,17 @@
       } else if (activeCue && activeCue->kind == CueKind::VideoSynth) {
         // Free-runs when nothing is playing: a visualiser that shows nothing
         // without audio is useless during setup.
-        engine->rebuildVideoSynthFrame(*activeCue, animationNow_, reactiveAudioLevel_);
+        // SECONDS. animationNow_ is SDL_GetTicks(), i.e. MILLISECONDS, and the
+        // generator's parameter is wallSeconds -- passing it raw ran the
+        // oscillators a thousand times too fast. At 60fps that is ~16 units of
+        // phase per frame, which for sin() is not fast motion but complete
+        // aliasing: incoherent noise that changes every frame. It also put the
+        // usable speed range around 0.001 while the control floor was 0.01,
+        // which is why speed appeared to do nothing. rebuildPatternFrame
+        // already divides here; this did not.
+        engine->rebuildVideoSynthFrame(*activeCue,
+                                       static_cast<double>(animationNow_) / 1000.0,
+                                       reactiveAudioLevel_);
       } else if (activeCue && activeCue->kind == CueKind::Tone) {
         // Topped up every tick rather than rendered in one block, so a level
         // or frequency change is heard immediately instead of after the old
