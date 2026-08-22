@@ -706,6 +706,12 @@ struct Project {
   // down with the recording. Empty = recordings/ beside the show.
   std::string recordingDir;
 
+  // ASIO driver to play through. Empty = the SDL device, which is the
+  // default and what every existing show carries. Stored by NAME rather than
+  // index because driver indices shuffle when the operator installs anything.
+  std::string asioDriverName;
+  int asioChannels = 2;
+
   // Set once the operator says no to the HAP suggestion, so it never nags
   // again for this show.
   bool hapSuggestionDismissed = false;

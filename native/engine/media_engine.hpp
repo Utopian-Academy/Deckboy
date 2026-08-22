@@ -143,6 +143,23 @@ class MediaEngine {
   // disturbing the loaded cue, decode, or transport — used when the operator
   // changes the deck's audio output while a cue is playing.
   void setAudioDevice(SDL_AudioStream* stream);
+
+  // Redirect finished audio somewhere other than SDL. Set by the app when an
+  // ASIO device is armed; cleared to fall back to SDL. Deliberately a
+  // std::function of plain interleaved s16 so the engine keeps knowing nothing
+  // about ASIO, Windows, or COM.
+  //
+  //   write   accepts FRAMES, returns how many it took. A short return is
+  //           backpressure, not an error -- the caller retries.
+  //   queued  frames still to play, so the decode threads can pace themselves
+  //           exactly as they do against SDL's queue.
+  struct ExternalAudioSink {
+    std::function<std::size_t(const std::int16_t*, std::size_t)> write;
+    std::function<std::size_t()> queued;
+    int channels = 0;
+  };
+  void setExternalAudioSink(ExternalAudioSink sink);
+  bool usingExternalAudioSink() const;
   // Give the output device back before the owner destroys it. Stops decode
   // (which joins the audio thread) and forgets the stream, so nothing in the
   // engine — including the destructor's own stopAll() — can touch a stream
@@ -353,6 +370,14 @@ class MediaEngine {
   // thread can see decoderStop_ and exit.
   int queuedAudioBytes() {
     std::lock_guard<std::mutex> lock(audioStreamMutex_);
+    // With an external sink the SDL stream is not the thing playing, so its
+    // queue is meaningless -- reading it would report 0 forever and the decode
+    // threads would race ahead until memory ran out.
+    if (externalSink_.queued) {
+      const int chans = std::max(2, externalSink_.channels);
+      return static_cast<int>(externalSink_.queued()) * chans *
+             static_cast<int>(sizeof(std::int16_t));
+    }
     return audioStream_ ? std::max(0, SDL_GetAudioStreamQueued(audioStream_)) : 0;
   }
 
@@ -401,6 +426,7 @@ class MediaEngine {
   double fdsModPhase_ = 0.0;
   double fdsModAccum_ = 0.0;
   double fdsEnvSeconds_ = 0.0;
+  ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   SDL_AudioStream* audioStream_ = nullptr;
   std::mutex audioStreamMutex_;
   CuePathResolver cuePathResolver_;          // optional path transform callback
