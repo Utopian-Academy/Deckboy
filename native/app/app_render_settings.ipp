@@ -808,6 +808,32 @@
       SDL_Rect devBtn {audioX, cardBodyY(audioRect), cardBodyW(audioRect), sTallH};
       drawUIDropdown(devBtn, "Device", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
+#if defined(DECKBOY_HAS_ASIO)
+      {
+        // ASIO sits directly under the system device, because it REPLACES it.
+        // Enumerating drivers loads nothing and is safe mid-show; arming is
+        // what touches hardware.
+        SDL_Rect asioBtn {audioX, devBtn.y + devBtn.h + 4, cardBodyW(audioRect), sTallH};
+        std::string label = project_.asioDriverName.empty()
+          ? std::string("System audio (SDL)")
+          : project_.asioDriverName;
+        if (asioArmed()) {
+          label += "  [" + std::to_string(asioOutput_->channels()) + "ch " +
+                   std::to_string(asioOutput_->bufferFrames()) + "]";
+          const std::uint64_t under = asioUnderruns();
+          if (under > 0) {
+            // Said out loud. Underruns are audible damage and an operator who
+            // is not told will blame the PA.
+            label += "  " + std::to_string(under) + " DROPS";
+          }
+        }
+        drawUIDropdown(asioBtn, "ASIO", label, "settings.asio");
+        settingsBtns_.push_back({asioBtn, kSettingsActionAsioDropdown,
+                                 "Play through an ASIO driver instead of the "
+                                 "system device: lower latency and more "
+                                 "channels. The driver comes from your interface."});
+      }
+#endif
       // Audio buffer size cycle button
       int bufSamples = project_.audioBufferSamples;
       std::string bufLabel = "Buffer: " + std::to_string(bufSamples) + " smp";
@@ -2096,6 +2122,9 @@
 #endif
 #if defined(DECKBOY_HAS_SIPHON)
         optional.push_back("Syphon");
+#endif
+#if defined(DECKBOY_HAS_ASIO)
+        optional.push_back("ASIO");
 #endif
 #if defined(DECKBOY_HAS_MIDI)
         optional.push_back("RtMidi");
@@ -3465,6 +3494,24 @@
                  sb.action < kSettingsActionOutputDisplaySelectBase + 32) {
         int selectedDisplay = sb.action - kSettingsActionOutputDisplaySelectBase;
         setOutputDisplayIndex(selectedDisplay);
+      } else if (sb.action == kSettingsActionAsioDropdown) {
+        openDropdown(
+          "settings.asio",
+          sb.rect,
+          asioDriverDropdownChoices(),
+          project_.asioDriverName,
+          [this](const std::string& value) {
+            project_.asioDriverName = value;
+            markProjectDirty();
+            if (value.empty()) {
+              disarmAsioOutput("system audio");
+            } else if (!armAsioOutput(value, project_.asioChannels)) {
+              // Failed to open: fall back rather than leaving the operator
+              // pointed at a device that is not playing anything.
+              project_.asioDriverName.clear();
+            }
+          });
+        return;
       } else if (sb.action == kSettingsActionOutputStreamProtocolDropdown) {
         openDropdown(
           "settings.stream_proto",
