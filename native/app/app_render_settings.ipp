@@ -828,7 +828,45 @@
                                  "Microphone or line input. Drives the video "
                                  "synth's audio reactivity."});
         if (audioInputRunning()) {
-          SDL_Rect progBtn {audioX, inBtn.y + inBtn.h + 4, cardBodyW(audioRect), sRowH};
+          // Gain, with the value between the steps. This existed as a setting
+          // with NO control at all -- saved, loaded, applied, and unreachable.
+          SDL_Rect gainRow {audioX, inBtn.y + inBtn.h + 4, cardBodyW(audioRect), sRowH};
+          const int gw = gainRow.w / 5;
+          SDL_Rect gDec {gainRow.x, gainRow.y, gw, sRowH};
+          SDL_Rect gVal {gDec.x + gw + 4, gainRow.y, gainRow.w - gw * 3 - 8, sRowH};
+          SDL_Rect gInc {gVal.x + gVal.w + 4, gainRow.y, gw, sRowH};
+          auto stepBtn = [&](const SDL_Rect& r, const char* label, int action) {
+            drawUIPanel(r, pal.mid, pal.deep, pal.light);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label, ink);
+            settingsBtns_.push_back({r, action, label});
+          };
+          stepBtn(gDec, "GAIN -", kSettingsActionAudioInputGainDec);
+          {
+            char g[48];
+            std::snprintf(g, sizeof(g), "%+.1f dB", project_.audioInputGainDb);
+            std::string gl = g;
+            if (project_.audioInputClipLatch) gl += "   CLIP";
+            drawUIPanel(gVal, project_.audioInputClipLatch ? pal.light : pal.mid,
+                        pal.deep, pal.light);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, gVal, gl,
+                                 project_.audioInputClipLatch ? pal.deep : ink);
+            // Clicking the readout clears the latch: the operator has seen it.
+            settingsBtns_.push_back({gVal, kSettingsActionAudioInputClipClear,
+                                     "Peak gain. CLIP latches until clicked -- "
+                                     "a meter that has fallen back cannot tell "
+                                     "you about the transient that distorted."});
+          }
+          stepBtn(gInc, "GAIN +", kSettingsActionAudioInputGainInc);
+
+          SDL_Rect monoBtn {audioX, gainRow.y + sRowH + 4, cardBodyW(audioRect), sRowH};
+          drawPillToggle(monoBtn, project_.audioInputMono,
+                         "MONO (summed)", "STEREO");
+          settingsBtns_.push_back({monoBtn, kSettingsActionAudioInputMono,
+                                   "A microphone is a mono source. Captured as "
+                                   "stereo it lands in one leg with silence in "
+                                   "the other."});
+
+          SDL_Rect progBtn {audioX, monoBtn.y + sRowH + 4, cardBodyW(audioRect), sRowH};
           drawPillToggle(progBtn, project_.audioInputToProgram,
                          "MIC -> RECORDING", "MIC NOT RECORDED");
           settingsBtns_.push_back({progBtn, kSettingsActionAudioInputToProgram,
@@ -1976,6 +2014,14 @@
               drawActionBtn(kfBtn, "Keyframe: "
                             + std::to_string(exists ? st->streamKeyframeSeconds : 2)
                             + "s", act(kStreamFieldKeyframe));
+            }
+            {
+              // Audio bitrate. Was hardcoded at 160k for every stream and
+              // recording -- thin for music, wasteful for a talk.
+              SDL_Rect row = dl.takeFixed(kRowH);
+              drawActionBtn(row, "Audio: "
+                            + std::to_string(exists ? st->streamAudioBitrateKbps : 160)
+                            + " kbps", act(kStreamFieldAudioBitrate));
             }
             sy += destH + kSectionGap;
           }
@@ -3190,6 +3236,21 @@
                                      } catch (...) { triggerToast("bitrate: invalid"); }
                                    });
               break;
+            case kStreamFieldAudioBitrate:
+              openInlineTextEditor("settings.stream_abr_" + protoId, "Audio bitrate",
+                                   "kbps (32-512; 160 is a sane default)",
+                                   std::to_string(st.streamAudioBitrateKbps),
+                                   [this, outIdx](const std::string& v) {
+                                     try {
+                                       project_.outputs[outIdx].streamAudioBitrateKbps =
+                                         std::clamp(std::stoi(trim(v)), 32, 512);
+                                       // Restart: the bitrate is baked into the
+                                       // encoder command line at spawn.
+                                       stopOutputStream(outIdx);
+                                       markProjectDirty();
+                                     } catch (...) { triggerToast("audio bitrate: invalid"); }
+                                   });
+              break;
             case kStreamFieldKeyframe:
               openInlineTextEditor("settings.stream_gop_" + protoId, "Keyframe interval",
                                    "seconds (1-10; most platforms want 2)",
@@ -3530,6 +3591,23 @@
                  sb.action < kSettingsActionOutputDisplaySelectBase + 32) {
         int selectedDisplay = sb.action - kSettingsActionOutputDisplaySelectBase;
         setOutputDisplayIndex(selectedDisplay);
+      } else if (sb.action == kSettingsActionAudioInputGainDec) {
+        project_.audioInputGainDb = std::clamp(project_.audioInputGainDb - 1.0, -40.0, 40.0);
+        markProjectDirty();
+        return;
+      } else if (sb.action == kSettingsActionAudioInputGainInc) {
+        project_.audioInputGainDb = std::clamp(project_.audioInputGainDb + 1.0, -40.0, 40.0);
+        markProjectDirty();
+        return;
+      } else if (sb.action == kSettingsActionAudioInputClipClear) {
+        project_.audioInputClipLatch = false;
+        triggerToast("clip cleared");
+        return;
+      } else if (sb.action == kSettingsActionAudioInputMono) {
+        project_.audioInputMono = !project_.audioInputMono;
+        markProjectDirty();
+        triggerToast(project_.audioInputMono ? "input: mono (summed)" : "input: stereo");
+        return;
       } else if (sb.action == kSettingsActionAudioInputToProgram) {
         project_.audioInputToProgram = !project_.audioInputToProgram;
         markProjectDirty();
