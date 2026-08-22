@@ -210,6 +210,10 @@ class MediaEngine {
   // One sample of the FDS voice. Advances the carrier, modulator and
   // envelope by dt seconds.
   double fdsNextSample(const ToneSettings& tone, double dt);
+  // One sample of the 2A03 voice: pulse, triangle or noise.
+  double nesNextSample(const ToneSettings& tone, double dt);
+  // Attack/hold/release shared by every chip.
+  double chipEnvelope(const ToneSettings& tone, double dt);
 
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
@@ -437,6 +441,11 @@ class MediaEngine {
   int fdsCachedCarrier_ = -1;
   int fdsCachedModulator_ = -1;
   bool fdsTablesValid_ = false;
+  // 2A03 state. The LFSR seeds to 1 because a zero register never leaves zero
+  // -- the hardware powers up with bit 0 set for the same reason.
+  double nesPhase_ = 0.0;
+  double nesNoiseAccum_ = 0.0;
+  unsigned nesLfsr_ = 1u;
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   // Audio the sink could not take yet. Carried rather than dropped or waited
   // on; see putAudioToStream for why waiting here is not an option.

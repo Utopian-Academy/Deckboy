@@ -4684,28 +4684,104 @@ void fdsBuildModulator(FdsModulator kind, double* table) {
 
 }  // namespace
 
+// One sample of the 2A03 voice. Implemented from the documented behaviour of
+// the chip: duty-cycled pulse, a 4-bit stepped triangle with NO volume
+// control, and noise from a 15-bit linear feedback shift register.
+double MediaEngine::nesNextSample(const ToneSettings& tone, double dt) {
+  const double note = std::clamp(tone.synth.noteHz, 20.0, 8000.0);
+  double sample = 0.0;
+
+  switch (tone.synth.nesVoice) {
+    case NesVoice::Triangle: {
+      nesPhase_ += note * dt;
+      while (nesPhase_ >= 1.0) nesPhase_ -= 1.0;
+      // 32 steps up and down, exactly like the hardware's sequencer. The
+      // stepping is audible and is why the NES triangle sounds like a NES
+      // triangle rather than a synth triangle.
+      const int step = static_cast<int>(nesPhase_ * 32.0) & 31;
+      const int level = (step < 16) ? (15 - step) : (step - 16);
+      sample = (level / 7.5) - 1.0;
+      break;
+    }
+    case NesVoice::Noise: {
+      // The LFSR is clocked at a RATE derived from the note rather than being
+      // an oscillator: noise has no pitch, only a period.
+      nesNoiseAccum_ += note * dt * 16.0;
+      while (nesNoiseAccum_ >= 1.0) {
+        nesNoiseAccum_ -= 1.0;
+        // Tap 1 normally, tap 6 in short mode. Short mode's period is brief
+        // enough to read as pitched metal, which is what trackers call
+        // "periodic noise".
+        const unsigned tap = tone.synth.nesNoiseShort ? 6u : 1u;
+        const unsigned bit = ((nesLfsr_ ^ (nesLfsr_ >> tap)) & 1u);
+        nesLfsr_ = (nesLfsr_ >> 1) | (bit << 14);
+      }
+      sample = (nesLfsr_ & 1u) ? 1.0 : -1.0;
+      break;
+    }
+    default: {
+      nesPhase_ += note * dt;
+      while (nesPhase_ >= 1.0) nesPhase_ -= 1.0;
+      double duty = 0.5;
+      switch (tone.synth.nesDuty) {
+        case NesDuty::Eighth:       duty = 0.125; break;
+        case NesDuty::Quarter:      duty = 0.25;  break;
+        case NesDuty::ThreeQuarter: duty = 0.75;  break;
+        default:                    duty = 0.5;   break;
+      }
+      sample = (nesPhase_ < duty) ? 1.0 : -1.0;
+      break;
+    }
+  }
+
+  // 4-bit output. Optional, but on by default: the steps ARE the sound, and
+  // smoothing them makes a chiptune voice sound like a synth imitating one.
+  if (tone.synth.nesQuantise) {
+    sample = std::round(sample * 7.5) / 7.5;
+  }
+  return sample * chipEnvelope(tone, dt);
+}
+
+// Shared envelope. Pitch and envelope belong to the NOTE, not to whichever
+// oscillator happens to be playing it, so both chips use this.
+double MediaEngine::chipEnvelope(const ToneSettings& tone, double dt) {
+  if (tone.synth.retriggerSeconds > 0.0) {
+    fdsEnvSeconds_ += dt;
+    if (fdsEnvSeconds_ >= tone.synth.retriggerSeconds) fdsEnvSeconds_ = 0.0;
+  } else {
+    fdsEnvSeconds_ = std::min(fdsEnvSeconds_ + dt, 1e6);
+  }
+  const double a = std::max(0.001, tone.synth.attackSeconds);
+  const double r = std::max(0.001, tone.synth.releaseSeconds);
+  if (fdsEnvSeconds_ < a) return fdsEnvSeconds_ / a;
+  if (tone.synth.retriggerSeconds > 0.0) {
+    return std::max(0.0, 1.0 - (fdsEnvSeconds_ - a) / r);
+  }
+  return 1.0;
+}
+
 double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
   // Cached. These were rebuilt EVERY SAMPLE -- 96 doubles including four sin()
   // calls per entry, 48,000 times a second, to produce a table that only
   // changes when the operator turns a knob. Rebuild on change only.
   if (!fdsTablesValid_ ||
-      fdsCachedCarrier_ != static_cast<int>(tone.fds.carrier) ||
-      fdsCachedModulator_ != static_cast<int>(tone.fds.modulator)) {
-    fdsBuildCarrier(tone.fds.carrier, fdsCarrierTable_);
-    fdsBuildModulator(tone.fds.modulator, fdsModTable_);
-    fdsCachedCarrier_ = static_cast<int>(tone.fds.carrier);
-    fdsCachedModulator_ = static_cast<int>(tone.fds.modulator);
+      fdsCachedCarrier_ != static_cast<int>(tone.synth.carrier) ||
+      fdsCachedModulator_ != static_cast<int>(tone.synth.modulator)) {
+    fdsBuildCarrier(tone.synth.carrier, fdsCarrierTable_);
+    fdsBuildModulator(tone.synth.modulator, fdsModTable_);
+    fdsCachedCarrier_ = static_cast<int>(tone.synth.carrier);
+    fdsCachedModulator_ = static_cast<int>(tone.synth.modulator);
     fdsTablesValid_ = true;
   }
   const double* carrier = fdsCarrierTable_;
   const double* modulator = fdsModTable_;
 
-  const double note = std::clamp(tone.fds.noteHz, 20.0, 8000.0);
-  const double depth = std::clamp(tone.fds.modDepth, 0, 63) / 63.0;
+  const double note = std::clamp(tone.synth.noteHz, 20.0, 8000.0);
+  const double depth = std::clamp(tone.synth.modDepth, 0, 63) / 63.0;
 
   // Modulator runs at a RATIO of the note, which is what makes the bend track
   // pitch instead of turning into a fixed wobble as you play up the keyboard.
-  const double modHz = note * std::clamp(tone.fds.modRatio, 0.0, 8.0);
+  const double modHz = note * std::clamp(tone.synth.modRatio, 0.0, 8.0);
   fdsModPhase_ += modHz * 32.0 * dt;
   while (fdsModPhase_ >= 32.0) fdsModPhase_ -= 32.0;
   const int modIndex = static_cast<int>(fdsModPhase_) & 31;
@@ -4724,24 +4800,7 @@ double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
   const int idx = static_cast<int>(fdsCarrierPhase_) & 63;
   double sample = carrier[idx];
 
-  // Envelope. A retrigger of 0 holds the note, which is what a drone wants;
-  // anything else re-strikes, so the voice is usable without a keyboard.
-  if (tone.fds.retriggerSeconds > 0.0) {
-    fdsEnvSeconds_ += dt;
-    if (fdsEnvSeconds_ >= tone.fds.retriggerSeconds) fdsEnvSeconds_ = 0.0;
-  } else {
-    fdsEnvSeconds_ = std::min(fdsEnvSeconds_ + dt, 1e6);
-  }
-  const double a = std::max(0.001, tone.fds.attackSeconds);
-  const double r = std::max(0.001, tone.fds.releaseSeconds);
-  double env = 1.0;
-  if (fdsEnvSeconds_ < a) {
-    env = fdsEnvSeconds_ / a;
-  } else if (tone.fds.retriggerSeconds > 0.0) {
-    const double since = fdsEnvSeconds_ - a;
-    env = std::max(0.0, 1.0 - since / r);
-  }
-  return sample * env;
+  return sample * chipEnvelope(tone, dt);
 }
 
 void MediaEngine::pumpToneAudio(const Cue& cue) {
@@ -4783,7 +4842,9 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
         sample = nextWhite(toneSeed_);
         break;
       case ToneWaveform::Fds:
-        sample = fdsNextSample(cue.tone, dt);
+        sample = (cue.tone.synth.chip == SynthChip::Nes)
+                   ? nesNextSample(cue.tone, dt)
+                   : fdsNextSample(cue.tone, dt);
         break;
       case ToneWaveform::Pink:
         sample = nextPink(tonePinkRows_, tonePinkRunning_, tonePinkCounter_, toneSeed_);

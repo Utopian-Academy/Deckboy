@@ -3364,6 +3364,19 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.tone.channel
         << '\t' << static_cast<int>(cue.tone.visual)
         << '\t' << (cue.tone.visualEnabled ? "1" : "0")
+        << '\t' << static_cast<int>(cue.tone.synth.chip)
+        << '\t' << cue.tone.synth.noteHz
+        << '\t' << cue.tone.synth.attackSeconds
+        << '\t' << cue.tone.synth.releaseSeconds
+        << '\t' << cue.tone.synth.retriggerSeconds
+        << '\t' << static_cast<int>(cue.tone.synth.carrier)
+        << '\t' << static_cast<int>(cue.tone.synth.modulator)
+        << '\t' << cue.tone.synth.modDepth
+        << '\t' << cue.tone.synth.modRatio
+        << '\t' << static_cast<int>(cue.tone.synth.nesVoice)
+        << '\t' << static_cast<int>(cue.tone.synth.nesDuty)
+        << '\t' << (cue.tone.synth.nesNoiseShort ? "1" : "0")
+        << '\t' << (cue.tone.synth.nesQuantise ? "1" : "0")
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -3929,6 +3942,29 @@ Project loadProject(const fs::path& projectFile,
         cue.tone.visual = static_cast<ToneVisual>(
           std::clamp(safeInt(fields, tb + 28, 1), 0, 3));
         cue.tone.visualEnabled = safeBool(fields, tb + 29, true);
+        // Chip voice. Appended after the tone block; a show saved before the
+        // synth existed takes the defaults. This is the THIRD time a cue field
+        // shipped wired to state and effect but not to storage -- it works
+        // perfectly until the show is reopened, which is the worst moment to
+        // find out. Worth checking deliberately, not eventually.
+        cue.tone.synth.chip = static_cast<SynthChip>(
+          std::clamp(safeInt(fields, tb + 30, 0), 0, 1));
+        cue.tone.synth.noteHz = std::clamp(safeDouble(fields, tb + 31, 220.0), 20.0, 8000.0);
+        cue.tone.synth.attackSeconds = std::clamp(safeDouble(fields, tb + 32, 0.01), 0.0, 2.0);
+        cue.tone.synth.releaseSeconds = std::clamp(safeDouble(fields, tb + 33, 0.30), 0.01, 4.0);
+        cue.tone.synth.retriggerSeconds = std::clamp(safeDouble(fields, tb + 34, 0.0), 0.0, 4.0);
+        cue.tone.synth.carrier = static_cast<FdsCarrier>(
+          std::clamp(safeInt(fields, tb + 35, 0), 0, 4));
+        cue.tone.synth.modulator = static_cast<FdsModulator>(
+          std::clamp(safeInt(fields, tb + 36, 1), 0, 4));
+        cue.tone.synth.modDepth = std::clamp(safeInt(fields, tb + 37, 16), 0, 63);
+        cue.tone.synth.modRatio = std::clamp(safeDouble(fields, tb + 38, 0.5), 0.0, 8.0);
+        cue.tone.synth.nesVoice = static_cast<NesVoice>(
+          std::clamp(safeInt(fields, tb + 39, 0), 0, 2));
+        cue.tone.synth.nesDuty = static_cast<NesDuty>(
+          std::clamp(safeInt(fields, tb + 40, 2), 0, 3));
+        cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 41, false);
+        cue.tone.synth.nesQuantise = safeBool(fields, tb + 42, true);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5448,46 +5484,6 @@ class App {
                        "every one.");
       rowY += ix.rowStep;
     }
-    if (cue.tone.waveform == ToneWaveform::Fds) {
-      inspDrawQuickRow(ix, rowY, "carrier", QuickAction::FdsCycleCarrier,
-                       fdsCarrierLabel(cue.tone.fds.carrier),
-                       QuickAction::FdsCycleCarrier, QuickAction::ToggleLoop,
-                       false, false, "The 64-step wavetable, quantised to 6 bits "
-                       "like the hardware.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "modulator", QuickAction::FdsCycleModulator,
-                       fdsModulatorLabel(cue.tone.fds.modulator),
-                       QuickAction::FdsCycleModulator, QuickAction::ToggleLoop,
-                       false, false, "Bends the carrier's PITCH rather than "
-                       "mixing with it. This is what makes FDS growl.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "depth", QuickAction::FdsDepthDec,
-                       std::to_string(cue.tone.fds.modDepth),
-                       QuickAction::FdsDepthInc, QuickAction::ToggleLoop,
-                       false, false, "How far the modulator bends the pitch. 0-63, "
-                       "the hardware's own gain range.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "ratio", QuickAction::FdsRatioDec,
-                       fmtFloat(cue.tone.fds.modRatio, 3),
-                       QuickAction::FdsRatioInc, QuickAction::ToggleLoop,
-                       false, false, "Modulator speed as a ratio of the note, so "
-                       "the bend tracks pitch. Simple ratios are the useful ones.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "note", QuickAction::FdsNoteDec,
-                       fdsNoteName(cue.tone.fds.noteHz),
-                       QuickAction::FdsNoteInc, QuickAction::ToggleLoop,
-                       false, false, "Pitch, in semitones.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "retrigger", QuickAction::FdsRetrigDec,
-                       cue.tone.fds.retriggerSeconds <= 0.0
-                         ? std::string("hold")
-                         : fmtFloat(cue.tone.fds.retriggerSeconds, 2) + "s",
-                       QuickAction::FdsRetrigInc, QuickAction::ToggleLoop,
-                       false, false, "Re-strike the envelope this often. Hold "
-                       "sustains one note, which is what a drone wants.");
-      rowY += ix.rowStep;
-    }
-
     inspDrawQuickRow(ix, rowY, "visuals", QuickAction::ToneVisualToggle,
                      cue.tone.visualEnabled ? "on" : "off",
                      QuickAction::ToneVisualToggle, QuickAction::ToneVisualToggle,
@@ -5502,6 +5498,114 @@ class App {
                      "and polarity between the first two channels -- a "
                      "diagonal the wrong way means one is inverted. Spectrum "
                      "is third-octave bars.");
+    rowY += ix.rowStep;
+    return rowY;
+  }
+
+  // Chip voice rows. Its own section rather than more of TONE: a test signal
+  // and a synth voice are different jobs, and by the time both chips have their
+  // parameters the combined list is too long to scan mid-show.
+  int inspDrawSynthRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    if (cue.kind != CueKind::Tone || cue.tone.waveform != ToneWaveform::Fds) {
+      return rowY;
+    }
+    const SynthSettings& s = cue.tone.synth;
+
+    inspDrawQuickRow(ix, rowY, "chip", QuickAction::SynthCycleChip,
+                     synthChipLabel(s.chip),
+                     QuickAction::SynthCycleChip, QuickAction::ToggleLoop,
+                     false, false,
+                     "FDS is a wavetable bent by a modulator. 2A03 is the "
+                     "pulse/triangle/noise set most chiptune is made of.");
+    rowY += ix.rowStep;
+
+    inspDrawQuickRow(ix, rowY, "note", QuickAction::FdsNoteDec,
+                     fdsNoteName(s.noteHz),
+                     QuickAction::FdsNoteInc, QuickAction::ToggleLoop,
+                     false, false, "Pitch, in semitones.");
+    rowY += ix.rowStep;
+
+    if (s.chip == SynthChip::Nes) {
+      inspDrawQuickRow(ix, rowY, "voice", QuickAction::SynthCycleNesVoice,
+                       nesVoiceLabel(s.nesVoice),
+                       QuickAction::SynthCycleNesVoice, QuickAction::ToggleLoop,
+                       false, false,
+                       "The chip's three channels. They differ in kind: "
+                       "triangle has no volume control on the hardware, and "
+                       "noise is a shift register rather than an oscillator.");
+      rowY += ix.rowStep;
+      if (s.nesVoice == NesVoice::Pulse) {
+        inspDrawQuickRow(ix, rowY, "duty", QuickAction::SynthCycleNesDuty,
+                         nesDutyLabel(s.nesDuty),
+                         QuickAction::SynthCycleNesDuty, QuickAction::ToggleLoop,
+                         false, false,
+                         "12.5 and 25 are thin and reedy, 50 is hollow. 75 "
+                         "sounds identical to 25 -- it is here because "
+                         "trackers expose it.");
+        rowY += ix.rowStep;
+      } else if (s.nesVoice == NesVoice::Noise) {
+        inspDrawQuickRow(ix, rowY, "periodic", QuickAction::SynthToggleNoiseShort,
+                         s.nesNoiseShort ? "on" : "off",
+                         QuickAction::SynthToggleNoiseShort,
+                         QuickAction::SynthToggleNoiseShort, true, s.nesNoiseShort,
+                         "Short LFSR mode. The period is brief enough to read "
+                         "as pitched metal rather than hiss.");
+        rowY += ix.rowStep;
+      }
+      inspDrawQuickRow(ix, rowY, "4-bit", QuickAction::SynthToggleQuantise,
+                       s.nesQuantise ? "on" : "off",
+                       QuickAction::SynthToggleQuantise,
+                       QuickAction::SynthToggleQuantise, true, s.nesQuantise,
+                       "Quantise the output like the hardware. The steps ARE "
+                       "the sound; smoothing them makes it a synth imitating "
+                       "a chip.");
+      rowY += ix.rowStep;
+    } else {
+      inspDrawQuickRow(ix, rowY, "carrier", QuickAction::FdsCycleCarrier,
+                       fdsCarrierLabel(s.carrier),
+                       QuickAction::FdsCycleCarrier, QuickAction::ToggleLoop,
+                       false, false, "The 64-step wavetable, quantised to 6 "
+                       "bits like the hardware.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "modulator", QuickAction::FdsCycleModulator,
+                       fdsModulatorLabel(s.modulator),
+                       QuickAction::FdsCycleModulator, QuickAction::ToggleLoop,
+                       false, false, "Bends the carrier's PITCH rather than "
+                       "mixing with it. This is what makes FDS growl.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "depth", QuickAction::FdsDepthDec,
+                       std::to_string(s.modDepth),
+                       QuickAction::FdsDepthInc, QuickAction::ToggleLoop,
+                       false, false, "How far the modulator bends the pitch. "
+                       "0-63, the hardware's own gain range.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "ratio", QuickAction::FdsRatioDec,
+                       fmtFloat(s.modRatio, 3),
+                       QuickAction::FdsRatioInc, QuickAction::ToggleLoop,
+                       false, false, "Modulator speed as a ratio of the note, "
+                       "so the bend tracks pitch.");
+      rowY += ix.rowStep;
+    }
+
+    inspDrawQuickRow(ix, rowY, "attack", QuickAction::SynthAttackDec,
+                     fmtFloat(s.attackSeconds, 2) + "s",
+                     QuickAction::SynthAttackInc, QuickAction::ToggleLoop,
+                     false, false, "How long the note takes to reach full level.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "release", QuickAction::SynthReleaseDec,
+                     fmtFloat(s.releaseSeconds, 2) + "s",
+                     QuickAction::SynthReleaseInc, QuickAction::ToggleLoop,
+                     false, false, "How long it takes to fall away after the "
+                     "attack. Only audible when retrigger is set.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "retrigger", QuickAction::FdsRetrigDec,
+                     s.retriggerSeconds <= 0.0
+                       ? std::string("hold")
+                       : fmtFloat(s.retriggerSeconds, 2) + "s",
+                     QuickAction::FdsRetrigInc, QuickAction::ToggleLoop,
+                     false, false, "Re-strike the envelope this often. Hold "
+                     "sustains one note, which is what a drone wants.");
     rowY += ix.rowStep;
     return rowY;
   }
@@ -6921,6 +7025,7 @@ class App {
   bool cueSectionEffectsOpen_ = true;   // datamosh lives here
   bool cueSectionTimerOpen_ = true;     // stage timer controls
   bool cueSectionToneOpen_ = true;      // test tone generator controls
+  bool cueSectionSynthOpen_ = true;    // chip voice controls
   bool cueSectionRoutingOpen_ = true;
   bool cueSectionAudioOpen_ = true;
   struct TimelineStripCacheEntry {
