@@ -320,6 +320,33 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
+  // Generated cues that produce their own content from the update loop. Both
+  // of these had NO branch here, so taking one fell through to the file-decode
+  // path with a "tone://" or "vsynth://" path that cannot decode. The video
+  // synth appeared to work because its frames come from the update loop
+  // regardless, but the TONE never played a sample -- which is exactly what
+  // the operator reported.
+  //
+  // Like Timer: duration 0 so the transport holds them on air indefinitely
+  // rather than auto-advancing the playlist out from under a live signal.
+  if (cue->kind == CueKind::Tone || cue->kind == CueKind::VideoSynth) {
+    duration_ = 0.0;
+    currentPosition_ = 0.0;
+    pausedPosition_ = 0.0;
+    playbackStartPosition_ = 0.0;
+    playbackClockStart_ = std::chrono::steady_clock::now();
+    // PLAYING when taken, unlike the timer: a tone or a synth is generating
+    // continuously and the operator expects sound the moment it goes live.
+    // The timer holds paused because a countdown is started deliberately.
+    state_ = autoplay ? TransportState::Playing : TransportState::Paused;
+    if (cue->kind == CueKind::VideoSynth) {
+      rebuildVideoSynthFrame(*cue, 0.0, 0.0);
+    } else {
+      rebuildToneFrame(*cue);
+    }
+    return;
+  }
+
   if (cue->kind == CueKind::Timer) {
     // Duration is the countdown PLUS an overtime allowance, so the transport
     // keeps advancing past zero instead of hitting its end and auto-advancing
@@ -6109,9 +6136,14 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   }
 
   for (std::size_t i = 0; i < frame.pixels.size(); i += 4) {
-    frame.pixels[i + 0] = bg.b;
+    // RGBA32, so byte 0 is RED. This wrote blue into the red slot and vice
+    // versa, which transposed every custom background: amber came out cyan
+    // and blue came out amber. fillTimerRect three hundred lines up writes
+    // r,g,b in order -- so the digits were right and only the background was
+    // wrong, which is exactly how it presented.
+    frame.pixels[i + 0] = bg.r;
     frame.pixels[i + 1] = bg.g;
-    frame.pixels[i + 2] = bg.r;
+    frame.pixels[i + 2] = bg.b;
     frame.pixels[i + 3] = 255;
   }
   if (blankThisFrame) {
