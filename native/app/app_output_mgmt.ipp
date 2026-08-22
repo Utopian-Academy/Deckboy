@@ -1549,7 +1549,8 @@
                                                  int width,
                                                  int height,
                                                  double fpsHint,
-                                                 const std::string& videoInputPath) const {
+                                                 const std::string& videoInputPath,
+                                                 const std::string& audioInputPath = {}) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return {};
     }
@@ -1607,10 +1608,18 @@
       "-video_size", std::to_string(width) + "x" + std::to_string(height),
       "-framerate", fpsText.str(),
       "-i", videoInputPath.empty() ? "pipe:0" : videoInputPath,
-      // Keep a stable AAC track present so SRT/RTMP egress starts cleanly
-      // even when there is no routed deck audio available yet.
-      "-f", "lavfi",
-      "-i", "anullsrc=r=48000:cl=stereo",
+      // Real programme audio when a pipe is available, silence only as a
+      // fallback. anullsrc was UNCONDITIONAL on Windows, so every SRT stream,
+      // RTMP stream and file recording carried a silent audio track while the
+      // deck audio sat buffered and unread. NDI was unaffected because it
+      // reads those buffers directly.
+      "-f", audioInputPath.empty() ? "lavfi" : "s16le",
+      // s16le carries no header, so the rate and layout must be stated or
+      // ffmpeg guesses and the audio plays at the wrong speed.
+      "-ar", "48000",
+      "-ac", "2",
+      "-i", audioInputPath.empty() ? std::string("anullsrc=r=48000:cl=stereo")
+                                   : audioInputPath,
       "-map", "0:v:0",
       "-map", "1:a:0",
       "-c:v", "libx264",
@@ -1815,7 +1824,7 @@
 #endif
     auto writer = std::make_shared<OutputStreamWriterState>();
     writer->videoPipeFd = videoPipeFd;
-    writer->audioPipeFd = audioPipeFd;
+    writer->audioPipeFd.store(audioPipeFd, std::memory_order_release);
     writer->thread = std::thread([writer]() {
       for (;;) {
         OutputStreamPacket packet;
@@ -1831,13 +1840,16 @@
           writer->hasPendingPacket = false;
         }
 
-        if (!packet.audioSamples.empty() && writer->audioPipeFd >= 0) {
+        // Read the fd fresh each time: on Windows it is assigned once ffmpeg
+        // connects to the named pipe, which happens after this thread starts.
+        const int audioFd = writer->audioPipeFd.load(std::memory_order_acquire);
+        if (!packet.audioSamples.empty() && audioFd >= 0) {
           const std::uint8_t* audioBytes =
             reinterpret_cast<const std::uint8_t*>(packet.audioSamples.data());
           size_t audioByteCount = packet.audioSamples.size() * sizeof(std::int16_t);
           if (!writeOutputStreamBytesBestEffort(
                 writer,
-                writer->audioPipeFd,
+                audioFd,
                 audioBytes,
                 audioByteCount,
                 "stream audio stopped")) {
@@ -1882,6 +1894,18 @@
   }
 
   void stopOutputStreamRuntime(OutputRuntime& runtime) {
+#ifdef _WIN32
+    // Close the audio pipe's SERVER end. Once ffmpeg connected, the handle was
+    // adopted by a CRT fd and closing that fd closes it -- but if the encoder
+    // never connected (bad URL, instant exit) the handle is still ours, and
+    // leaking one per stream start would accumulate over a long show.
+    if (runtime.streamAudioPipeHandle &&
+        runtime.streamWriter &&
+        runtime.streamWriter->audioPipeFd.load(std::memory_order_acquire) < 0) {
+      CloseHandle(reinterpret_cast<HANDLE>(runtime.streamAudioPipeHandle));
+    }
+    runtime.streamAudioPipeHandle = nullptr;
+#endif
     auto writer = runtime.streamWriter;
     runtime.streamWriter.reset();
     if (writer) {
@@ -1961,6 +1985,52 @@
 #ifdef _WIN32
   // Windows: spawn ffmpeg with stdin pipe for video input.
   // The args should use "pipe:0" or "-" as the input path for reading from stdin.
+  // A Windows child gets exactly one piped stdin, which video already uses, so
+  // audio needs its own channel. A NAMED PIPE is the way: ffmpeg opens it by
+  // path like any other input, and converting the handle to a CRT fd afterwards
+  // means the existing writer code works unchanged.
+  std::string createOutputAudioPipe(OutputRuntime& runtime, int outputIndex) {
+    const std::string name = "\\\\.\\pipe\\deckboy-audio-" +
+                             std::to_string(GetCurrentProcessId()) + "-" +
+                             std::to_string(outputIndex);
+    HANDLE h = CreateNamedPipeA(
+      name.c_str(),
+      PIPE_ACCESS_OUTBOUND,
+      PIPE_TYPE_BYTE | PIPE_WAIT,
+      1,                      // one client: ffmpeg
+      1 << 20, 1 << 20,       // 1MB each way, ample for 48k stereo
+      0, nullptr);
+    if (h == INVALID_HANDLE_VALUE) {
+      return {};
+    }
+    runtime.streamAudioPipeHandle = reinterpret_cast<void*>(h);
+    return name;
+  }
+
+  // ConnectNamedPipe BLOCKS until ffmpeg opens its end, so it cannot run on the
+  // main thread -- arming an output would freeze the UI until the encoder got
+  // round to it. Detached, and it publishes the fd when the connection lands.
+  void connectOutputAudioPipeAsync(OutputRuntime& runtime) {
+    HANDLE h = reinterpret_cast<HANDLE>(runtime.streamAudioPipeHandle);
+    if (h == nullptr || h == INVALID_HANDLE_VALUE) return;
+    auto writer = runtime.streamWriter;
+    std::thread([h, writer]() {
+      const BOOL ok = ConnectNamedPipe(h, nullptr);
+      if (!ok && GetLastError() != ERROR_PIPE_CONNECTED) {
+        CloseHandle(h);
+        return;
+      }
+      const int fd = _open_osfhandle(reinterpret_cast<intptr_t>(h), 0);
+      if (fd < 0) {
+        CloseHandle(h);
+        return;
+      }
+      if (writer) {
+        writer->audioPipeFd.store(fd, std::memory_order_release);
+      }
+    }).detach();
+  }
+
   bool spawnOutputStreamProcess(OutputRuntime& runtime,
                                 const std::vector<std::string>& args) {
     if (args.empty()) {
@@ -2176,8 +2246,12 @@
     stopOutputStreamRuntime(*runtime);
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
 #ifdef _WIN32
-    // Windows: use stdin pipe (pipe:0) instead of named FIFO
-    std::vector<std::string> args = buildOutputStreamArgs(outputIndex, width, height, fpsHint, "");
+    // Windows: video over stdin (pipe:0), audio over a named pipe. The pipe
+    // must EXIST before ffmpeg starts, or its open fails and the encoder dies
+    // with a confusing "no such file" on an input the operator never chose.
+    const std::string audioPipeName = createOutputAudioPipe(*runtime, outputIndex);
+    std::vector<std::string> args =
+      buildOutputStreamArgs(outputIndex, width, height, fpsHint, "", audioPipeName);
     // Remove -nostdin since we're piping video via stdin
     args.erase(std::remove(args.begin(), args.end(), "-nostdin"), args.end());
 #else
@@ -2216,6 +2290,11 @@
     runtime->streamStartFailed = false;
     runtime->streamRestartBlockedUntilMs = 0;
     startOutputStreamWriter(*runtime);
+#ifdef _WIN32
+    // Must come AFTER the writer exists: the connect thread publishes the fd
+    // into it once ffmpeg opens the pipe.
+    connectOutputAudioPipeAsync(*runtime);
+#endif
     setOutputHealthState(outputIndex, OutputHealthState::Live);
     return true;
   }
@@ -2628,15 +2707,27 @@
     packet.height = height;
     packet.capturedAtMs = frame->capturedAtMs;
     packet.videoBytes = frame->pixels;
-#ifndef _WIN32
-    if (runtime->streamAudioPipeFd >= 0) {
-      packet.audioSamples = collectOutputAudioFrameSamples(
-        outputIndex,
-        runtime->streamAudioReadSamplesByDeck,
-        runtime->streamAudioSampleRemainder,
-        fpsHint);
-    }
+    // Cross-platform. This was inside #ifndef _WIN32, so on Windows the packet
+    // NEVER carried audio -- the deck mix sat buffered and unread while the
+    // encoder muxed silence. Gated on the writer actually having somewhere to
+    // put it, which on Windows arrives once ffmpeg connects to the named pipe.
+    {
+      bool haveAudioSink = false;
+#ifdef _WIN32
+      haveAudioSink = runtime->streamWriter &&
+                      runtime->streamWriter->audioPipeFd.load(
+                        std::memory_order_acquire) >= 0;
+#else
+      haveAudioSink = runtime->streamAudioPipeFd >= 0;
 #endif
+      if (haveAudioSink) {
+        packet.audioSamples = collectOutputAudioFrameSamples(
+          outputIndex,
+          runtime->streamAudioReadSamplesByDeck,
+          runtime->streamAudioSampleRemainder,
+          fpsHint);
+      }
+    }
 
     auto writer = runtime->streamWriter;
     bool writerFailed = false;

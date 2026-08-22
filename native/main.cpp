@@ -1768,7 +1768,9 @@ struct OutputStreamWriterState {
   std::condition_variable cv;
   std::thread thread;
   int videoPipeFd = -1;             // Pipe fd to ffmpeg video stdin
-  int audioPipeFd = -1;             // Pipe fd to ffmpeg audio stdin
+  // Atomic: on Windows this is assigned by the named-pipe connect thread
+  // AFTER the writer starts, because ffmpeg only opens its end once running.
+  std::atomic<int> audioPipeFd {-1};   // Pipe fd to ffmpeg audio input
   bool stop = false;                // Signal the writer thread to exit
   bool failed = false;              // Writer encountered a fatal error
   std::string failureReason;
@@ -1783,6 +1785,11 @@ struct OutputStreamWriterState {
 // Per-output runtime state: SDL window/renderer, compositor, stream writer,
 // NDI sender, DeckLink output, and FPS telemetry.
 struct OutputRuntime {
+#ifdef _WIN32
+  // Server end of the audio named pipe. Windows children get one piped
+  // stdin and video already uses it, so audio needs its own channel.
+  void* streamAudioPipeHandle = nullptr;
+#endif
   // Pixel buffer snapshot for streaming/NDI/DeckLink sinks.
   struct CapturedFrame {
     int width = 0;
