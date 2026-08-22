@@ -5,7 +5,10 @@
 
 #include "platform/asio_audio.hpp"
 
+#include "core/sdl_compat.hpp"
+
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <atomic>
 #include <memory>
@@ -174,6 +177,13 @@ struct AsioRuntime {
   bool started = false;
   bool outputReadySupported = false;   // queried once at open, not per callback
   long outputLatency = 0;              // frames, from ASIOGetLatencies
+  // Rate conversion, when the device does not run at the source rate. SDL's
+  // audio stream is used purely as a resampler here -- it is already a
+  // dependency and its conversion quality is better than anything worth
+  // hand-rolling for this.
+  SDL_AudioStream* resampler = nullptr;
+  double sourceRate = 0.0;
+  std::vector<std::int16_t> convertScratch;
 
   // Single-producer / single-consumer ring of interleaved s16. The writer is
   // the audio thread, the reader is the driver callback; head and tail are
@@ -298,9 +308,9 @@ ASIOTime* bufferSwitchTimeInfo(ASIOTime* params, long index, ASIOBool directProc
 AsioOutput::~AsioOutput() { close(); }
 
 bool AsioOutput::open(const std::string& driverName, int channels,
-                      double requestedRate, std::string& error) {
+                      double sourceRate, std::string& error) {
 #if !defined(DECKBOY_HAS_ASIO)
-  (void)driverName; (void)channels; (void)requestedRate;
+  (void)driverName; (void)channels; (void)sourceRate;
   error = "built without ASIO support";
   return false;
 #else
@@ -341,9 +351,9 @@ bool AsioOutput::open(const std::string& driverName, int channels,
   // Ask for the rate, then read back what we actually got. Drivers clocked to
   // external word clock will refuse, and pretending otherwise would resample
   // nothing and play everything at the wrong pitch.
-  if (requestedRate > 0.0) {
-    if (ASIOCanSampleRate(requestedRate) == ASE_OK) {
-      ASIOSetSampleRate(requestedRate);
+  if (sourceRate > 0.0) {
+    if (ASIOCanSampleRate(sourceRate) == ASE_OK) {
+      ASIOSetSampleRate(sourceRate);
     }
   }
   ASIOSampleRate actual = 0.0;
@@ -402,6 +412,26 @@ bool AsioOutput::open(const std::string& driverName, int channels,
     rt->sampleTypes[ch] = ci.type;
   }
 
+  // Resample only when the rates actually differ. Creating a stream with
+  // matched rates would add a pointless copy to every block.
+  rt->sourceRate = sourceRate > 0.0 ? sourceRate : rt->sampleRate;
+  if (std::abs(rt->sampleRate - rt->sourceRate) > 0.5) {
+    SDL_AudioSpec src {};
+    src.format = SDL_AUDIO_S16;
+    src.channels = channels;
+    src.freq = static_cast<int>(std::lround(rt->sourceRate));
+    SDL_AudioSpec dst = src;
+    dst.freq = static_cast<int>(std::lround(rt->sampleRate));
+    rt->resampler = SDL_CreateAudioStream(&src, &dst);
+    if (!rt->resampler) {
+      error = "could not create a resampler for " +
+              std::to_string(src.freq) + " -> " + std::to_string(dst.freq) + " Hz";
+      ASIODisposeBuffers();
+      rt->drivers.removeCurrentDriver();
+      return false;
+    }
+  }
+
   // Ring holds ~8 driver buffers. Big enough to absorb a late writer, small
   // enough that stopping does not leave a second of stale audio to play out.
   rt->ring.assign(static_cast<std::size_t>(preferred) * channels * 8, 0);
@@ -440,6 +470,10 @@ void AsioOutput::close() {
   gRuntime = nullptr;
   if (rt->started) ASIOStop();
   ASIODisposeBuffers();
+  if (rt->resampler) {
+    SDL_DestroyAudioStream(rt->resampler);
+    rt->resampler = nullptr;
+  }
   rt->drivers.removeCurrentDriver();
   delete rt;
 #endif
@@ -485,6 +519,48 @@ std::size_t AsioOutput::write(const std::int16_t* interleaved, std::size_t frame
   AsioRuntime* rt = gRuntime;
   if (!rt || !interleaved || frames == 0) return 0;
   const std::size_t chans = static_cast<std::size_t>(rt->channels);
+
+  // Converting path: hand the block to SDL, take back whatever it has ready at
+  // the device rate, and ring-buffer that. The caller is told it consumed the
+  // WHOLE block, because it did -- the conversion holds the remainder, not the
+  // caller.
+  if (rt->resampler) {
+    if (!SDL_PutAudioStreamData(rt->resampler, interleaved,
+                                static_cast<int>(frames * chans * sizeof(std::int16_t)))) {
+      return 0;
+    }
+    const int availBytes = SDL_GetAudioStreamAvailable(rt->resampler);
+    if (availBytes > 0) {
+      rt->convertScratch.resize(static_cast<std::size_t>(availBytes) / sizeof(std::int16_t));
+      const int got = SDL_GetAudioStreamData(
+        rt->resampler, rt->convertScratch.data(), availBytes);
+      if (got > 0) {
+        const std::size_t gotFrames =
+          static_cast<std::size_t>(got) / sizeof(std::int16_t) / chans;
+        // Recurse once through the direct path with the converted audio. Any
+        // frames the ring cannot take are DROPPED rather than re-queued,
+        // because the resampler has already advanced past them -- which is why
+        // the ring is sized generously and the caller paces on queuedFrames().
+        const std::size_t head = rt->head.load(std::memory_order_relaxed);
+        const std::size_t tail = rt->tail.load(std::memory_order_acquire);
+        const std::size_t ringSize = rt->ring.size();
+        const std::size_t freeSamples = ringSize - (head - tail) - 1;
+        const std::size_t take = std::min(gotFrames, freeSamples / chans);
+        const std::size_t takeSamples = take * chans;
+        const std::size_t start = head % ringSize;
+        const std::size_t firstRun = std::min(takeSamples, ringSize - start);
+        std::memcpy(rt->ring.data() + start, rt->convertScratch.data(),
+                    firstRun * sizeof(std::int16_t));
+        if (takeSamples > firstRun) {
+          std::memcpy(rt->ring.data(), rt->convertScratch.data() + firstRun,
+                      (takeSamples - firstRun) * sizeof(std::int16_t));
+        }
+        rt->head.store(head + takeSamples, std::memory_order_release);
+      }
+    }
+    return frames;
+  }
+
   const std::size_t ringSize = rt->ring.size();
   const std::size_t head = rt->head.load(std::memory_order_relaxed);
   const std::size_t tail = rt->tail.load(std::memory_order_acquire);
@@ -513,7 +589,22 @@ std::size_t AsioOutput::queuedFrames() const {
   if (!rt || rt->channels <= 0) return 0;
   const std::size_t head = rt->head.load(std::memory_order_acquire);
   const std::size_t tail = rt->tail.load(std::memory_order_acquire);
-  return (head - tail) / static_cast<std::size_t>(rt->channels);
+  std::size_t deviceFrames = (head - tail) / static_cast<std::size_t>(rt->channels);
+  if (rt->resampler) {
+    // Audio still inside the converter counts as queued too, or the caller
+    // sees a shallower buffer than really exists and over-feeds.
+    const int pending = SDL_GetAudioStreamAvailable(rt->resampler);
+    if (pending > 0) {
+      deviceFrames += static_cast<std::size_t>(pending) / sizeof(std::int16_t) /
+                      static_cast<std::size_t>(rt->channels);
+    }
+    // Scale to SOURCE frames so the caller's pacing maths stays honest.
+    if (rt->sampleRate > 0.0 && rt->sourceRate > 0.0) {
+      deviceFrames = static_cast<std::size_t>(
+        deviceFrames * (rt->sourceRate / rt->sampleRate));
+    }
+  }
+  return deviceFrames;
 #else
   return 0;
 #endif
@@ -531,6 +622,14 @@ double AsioOutput::outputLatencySeconds() const {
   const double rate = sampleRate();
   if (rate <= 0.0) return 0.0;
   return static_cast<double>(outputLatencyFrames()) / rate;
+}
+
+bool AsioOutput::resampling() const {
+#if defined(DECKBOY_HAS_ASIO)
+  return gRuntime && gRuntime->resampler != nullptr;
+#else
+  return false;
+#endif
 }
 
 std::uint64_t AsioOutput::underruns() const {

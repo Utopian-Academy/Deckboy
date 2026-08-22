@@ -2915,17 +2915,10 @@
       showLog("ASIO FAIL", driverName + ": " + err);
       return false;
     }
-    // A driver clocked to external word clock may refuse 48k. Playing anyway
-    // would pitch the whole show, so this refuses rather than guesses.
-    const double rate = out->sampleRate();
-    if (rate > 0.0 && std::abs(rate - static_cast<double>(kAudioRate)) > 1.0) {
-      const std::string msg = "driver is at " + std::to_string(static_cast<int>(rate)) +
-                              " Hz, Deckboy needs " + std::to_string(kAudioRate);
-      out->close();
-      failRemoteCommand("ASIO: " + msg);
-      showLog("ASIO FAIL", msg);
-      return false;
-    }
+    // A driver clocked to external word clock will refuse 48k, and an
+    // interface running the rest of a rig at 44.1 or 96 is a normal setup
+    // rather than an error. AsioOutput converts between the rates, so this
+    // reports the situation instead of refusing to open.
     asioOutput_ = std::move(out);
 
     MediaEngine::ExternalAudioSink sink;
@@ -2947,7 +2940,18 @@
     // the audio clock, so swapping SDL for ASIO shifts lip sync by the
     // DIFFERENCE in output latency. An operator chasing a sync problem needs
     // this written down, not guessed at.
-    showLog("ASIO START", driverName + "  latency=" + std::to_string(latMs) + "ms");
+    showLog("ASIO START", driverName + "  latency=" + std::to_string(latMs) + "ms" +
+            (asioOutput_->resampling()
+               ? "  resampled to " + std::to_string(static_cast<int>(asioOutput_->sampleRate())) + "Hz"
+               : ""));
+    if (asioOutput_->resampling()) {
+      // Worth saying: conversion costs a little quality and adds a little
+      // latency, and an operator who chose the device rate deliberately should
+      // know Deckboy is not fighting them about it.
+      triggerToast("ASIO running at " +
+                   std::to_string(static_cast<int>(asioOutput_->sampleRate())) +
+                   " Hz - audio resampled");
+    }
     return true;
   }
 

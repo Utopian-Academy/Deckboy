@@ -822,6 +822,10 @@
                    std::to_string(asioOutput_->bufferFrames()) + " " +
                    std::to_string(static_cast<int>(
                      asioOutput_->outputLatencySeconds() * 1000.0)) + "ms]";
+          if (asioOutput_->resampling()) {
+            label += "  " + std::to_string(static_cast<int>(asioOutput_->sampleRate()))
+                   + "Hz RESAMPLED";
+          }
           const std::uint64_t under = asioUnderruns();
           if (under > 0) {
             // Said out loud. Underruns are audible damage and an operator who
