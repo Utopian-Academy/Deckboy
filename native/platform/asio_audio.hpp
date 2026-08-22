@@ -82,11 +82,14 @@ class AsioOutput {
   AsioOutput(const AsioOutput&) = delete;
   AsioOutput& operator=(const AsioOutput&) = delete;
 
-  // Open `channels` outputs on `driverName` and start the stream. The driver
-  // decides the buffer size and (usually) the sample rate; `requestedRate` is
-  // asked for but a driver may refuse, so check sampleRate() afterwards rather
-  // than assuming.
-  bool open(const std::string& driverName, int channels, double requestedRate,
+  // Open `channels` outputs on `driverName` and start the stream.
+  //
+  // `sourceRate` is the rate the CALLER produces, not a wish. The driver picks
+  // its own rate -- one slaved to external word clock will refuse to change --
+  // so when the two differ this class resamples between them rather than
+  // refusing to open. Refusing would be safe but wrong: an interface clocked
+  // to 44.1 or 96 for the rest of the rig is a normal setup, not an error.
+  bool open(const std::string& driverName, int channels, double sourceRate,
             std::string& error);
   void close();
 
@@ -100,7 +103,13 @@ class AsioOutput {
   // caller should try again rather than spin.
   std::size_t write(const std::int16_t* interleaved, std::size_t frames);
 
-  // Frames currently buffered and not yet played. The backpressure signal.
+  // True when the device runs at a different rate from the source and audio is
+  // being converted on the way through.
+  bool resampling() const;
+
+  // Frames currently buffered and not yet played, expressed in SOURCE frames
+  // so callers pacing against it do not have to know about the conversion.
+  // The backpressure signal.
   std::size_t queuedFrames() const;
 
   // Output latency in FRAMES, as the driver reports it: the delay between
