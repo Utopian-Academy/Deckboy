@@ -379,7 +379,7 @@
   std::vector<std::pair<std::string, std::string>> sourceCueTypeChoices() const {
     // Only offer capture sources whose backend actually works on THIS platform.
     // Listing all three everywhere was theatre: on macOS every capture backend
-    // is a scaffold (a user picked "Camera Source" and nothing happened), and
+    // is a scaffold (a user picked "Camera" and nothing happened), and
     // Syphon/Spout *capture* is a scaffold on Windows too (Spout OUTPUT works;
     // capturing a Spout sender as input does not). The self-check already knows
     // this per platform — drive the menu from the same catalog so the two can
@@ -392,13 +392,13 @@
       }
       switch (info.kind) {
         case deckboy::platform::CaptureBackendKind::Window:
-          choices.emplace_back("window", "Window Source");
+          choices.emplace_back("window", "Window");
           break;
         case deckboy::platform::CaptureBackendKind::Camera:
-          choices.emplace_back("camera", "Camera Source");
+          choices.emplace_back("camera", "Camera");
           break;
         case deckboy::platform::CaptureBackendKind::AppTexture:
-          choices.emplace_back("syphon", "Syphon/Spout Source");
+          choices.emplace_back("syphon", "Syphon / Spout");
           break;
       }
     }
@@ -408,12 +408,12 @@
   std::string sourceCueLabelForType(std::string token) const {
     token = toLower(trim(token));
     if (token == "camera") {
-      return "Camera Source";
+      return "Camera";
     }
     if (token == "spout" || token == "syphon") {
-      return "Syphon/Spout Source";
+      return "Syphon / Spout";
     }
-    return "Window Source";
+    return "Window";
   }
 
   CueKind sourceCueKindFromToken(std::string token) const {
@@ -431,9 +431,9 @@
     return {
       {"media", "Media File / Still"},
       {"browser", "Browser URL"},
-      {"window", "Window Source"},
-      {"camera", "Camera Source"},
-      {"syphon", "Syphon/Spout Source"},
+      {"window", "Window"},
+      {"camera", "Camera"},
+      {"syphon", "Syphon / Spout"},
     };
   }
 
@@ -443,13 +443,13 @@
       return "Browser URL";
     }
     if (token == "window") {
-      return "Window Source";
+      return "Window";
     }
     if (token == "camera") {
-      return "Camera Source";
+      return "Camera";
     }
     if (token == "syphon" || token == "spout") {
-      return "Syphon/Spout Source";
+      return "Syphon / Spout";
     }
     if (token == "legacy") {
       return "Legacy Cue Link";
