@@ -358,7 +358,7 @@
       case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCharSetCycle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
-          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % 4;
+          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % 5;
           markProjectDirty();
           triggerToast(std::string("characters: ") + vsCharSetLabel(c->videoSynth.asciiCharSet));
           playUiSound(UiSoundEffect::Toggle);
