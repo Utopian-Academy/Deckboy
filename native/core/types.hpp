@@ -118,6 +118,29 @@ struct VideoSynthSettings {
   // Audio reactivity. 0 = free-running, which must stay usable: a video synth
   // with no audio playing should still be worth looking at.
   double audioReactivity = 0.5;
+
+  // Internal render resolution, 1 (chunkiest, cheapest) to 5 (finest). This is
+  // an AESTHETIC control as much as a performance one -- the 8-bit look comes
+  // from big pixels -- so it belongs to the operator rather than being tuned
+  // once in code.
+  int resolution = 2;
+
+  // ---- Glitch stack --------------------------------------------------------
+  // Each is 0 = off, so the synth starts clean and every effect is something
+  // the operator turned on deliberately. They stack in a fixed order:
+  // pattern -> feedback -> pixel sort -> block glitch -> ASCII.
+
+  // Datamosh-style smear: runs of pixels sorted by brightness within a row,
+  // which is what produces the dragged, melted look.
+  double pixelSort = 0.0;
+  // Displaced scanline bands plus RGB channel separation -- the 8-bit
+  // corrupted-frame look.
+  double glitch = 0.0;
+  // Render the picture as ASCII characters. Not a filter over the image but a
+  // REPLACEMENT of it, which is why it is a mode rather than an amount.
+  bool ascii = false;
+  int asciiCols = 80;              // characters across; height follows aspect
+  bool asciiGreen = true;          // terminal green, the reference look
 };
 
 // ---------------------------------------------------------------------------
@@ -1124,6 +1147,11 @@ enum class QuickAction {
   VsFeedbackDec, VsFeedbackInc,
   VsZoomDec, VsZoomInc,
   VsReactDec, VsReactInc,
+  VsResDec, VsResInc,
+  VsSortDec, VsSortInc,
+  VsGlitchDec, VsGlitchInc,
+  VsAsciiToggle, VsAsciiGreenToggle,
+  VsAsciiColsDec, VsAsciiColsInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
   SynthAttackDec, SynthAttackInc,

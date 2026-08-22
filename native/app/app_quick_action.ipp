@@ -346,6 +346,30 @@
       case QuickAction::VsZoomInc:     adjustVs(&VideoSynthSettings::feedbackZoom, 0.01, 0.90, 1.15, "zoom"); break;
       case QuickAction::VsReactDec:    adjustVs(&VideoSynthSettings::audioReactivity, -0.1, 0.0, 1.0, "audio"); break;
       case QuickAction::VsReactInc:    adjustVs(&VideoSynthSettings::audioReactivity, 0.1, 0.0, 1.0, "audio"); break;
+      case QuickAction::VsSortDec:    adjustVs(&VideoSynthSettings::pixelSort, -0.1, 0.0, 1.0, "smear"); break;
+      case QuickAction::VsSortInc:    adjustVs(&VideoSynthSettings::pixelSort, 0.1, 0.0, 1.0, "smear"); break;
+      case QuickAction::VsGlitchDec:  adjustVs(&VideoSynthSettings::glitch, -0.1, 0.0, 1.0, "glitch"); break;
+      case QuickAction::VsGlitchInc:  adjustVs(&VideoSynthSettings::glitch, 0.1, 0.0, 1.0, "glitch"); break;
+      case QuickAction::VsResDec:     adjustVsInt(&VideoSynthSettings::resolution, -1, 1, 5, "detail"); break;
+      case QuickAction::VsResInc:     adjustVsInt(&VideoSynthSettings::resolution, 1, 1, 5, "detail"); break;
+      case QuickAction::VsAsciiColsDec: adjustVsInt(&VideoSynthSettings::asciiCols, -10, 20, 200, "columns"); break;
+      case QuickAction::VsAsciiColsInc: adjustVsInt(&VideoSynthSettings::asciiCols, 10, 20, 200, "columns"); break;
+      case QuickAction::VsAsciiToggle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.ascii = !c->videoSynth.ascii;
+          markProjectDirty();
+          triggerToast(c->videoSynth.ascii ? "text mode" : "pixels");
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsAsciiGreenToggle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.asciiGreen = !c->videoSynth.asciiGreen;
+          markProjectDirty();
+          triggerToast(c->videoSynth.asciiGreen ? "terminal green" : "16 colour");
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
       case QuickAction::CueSectionSynthToggle:
         cueSectionSynthOpen_ = !cueSectionSynthOpen_; break;
       case QuickAction::SynthCycleChip:      cycleSynthChip(); break;

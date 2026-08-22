@@ -1057,6 +1057,77 @@ void MediaEngine::rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool 
 // The feedback is what makes it look alive rather than like a screensaver, so
 // it is the structural centre of this rather than a post-effect.
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Text-mode cell rendering.
+//
+// The references are not "a filter over a picture" -- they are a CHARACTER
+// GRID with an indexed palette, corrupted at the CELL level: wrong glyph,
+// wrong colour pair, whole rows locked to one repeating character. That is
+// what makes a corrupted NES tilemap or a torn ANSI screen read as authentic
+// rather than as a post-effect, so this renders cells rather than filtering
+// pixels.
+//
+// The ramp is deliberately BLOCK and DITHER characters rather than letters.
+// Letters carry meaning the picture does not have; blocks and dithers carry
+// density, which is the only thing a cell needs to say.
+// ---------------------------------------------------------------------------
+namespace {
+
+// 5x7 cells, densest last. Bit 4 is the leftmost pixel.
+const std::uint8_t kCellRamp[][7] = {
+  {0x00,0x00,0x00,0x00,0x00,0x00,0x00},   // empty
+  {0x00,0x00,0x04,0x00,0x00,0x00,0x00},   // single dot
+  {0x00,0x0A,0x00,0x0A,0x00,0x0A,0x00},   // sparse dither
+  {0x15,0x00,0x0A,0x00,0x15,0x00,0x0A},   // 25% checker
+  {0x15,0x0A,0x15,0x0A,0x15,0x0A,0x15},   // 50% checker
+  {0x00,0x0E,0x0A,0x0E,0x00,0x00,0x00},   // small box
+  {0x1F,0x11,0x11,0x11,0x11,0x11,0x1F},   // hollow block
+  {0x0A,0x1F,0x1F,0x1F,0x1F,0x1F,0x0A},   // heavy
+  {0x1F,0x1F,0x1F,0x1F,0x1F,0x1F,0x1F},   // solid
+};
+constexpr int kCellRampCount = static_cast<int>(sizeof(kCellRamp) / sizeof(kCellRamp[0]));
+
+// Glyphs that are STRUCTURE rather than density -- lines and corners. Cell
+// corruption swaps in one of these, which is what produces the box-drawing
+// wreckage in a torn text screen instead of a tidy density gradient.
+const std::uint8_t kCellJunk[][7] = {
+  {0x04,0x04,0x04,0x1F,0x04,0x04,0x04},   // cross
+  {0x00,0x00,0x1F,0x00,0x1F,0x00,0x00},   // equals
+  {0x1C,0x10,0x10,0x10,0x10,0x10,0x1C},   // bracket
+  {0x11,0x0A,0x04,0x0A,0x11,0x00,0x00},   // x
+  {0x1F,0x10,0x10,0x1E,0x10,0x10,0x10},   // F
+  {0x04,0x04,0x04,0x04,0x04,0x04,0x04},   // pipe
+  {0x00,0x1F,0x00,0x00,0x00,0x1F,0x00},   // rails
+  {0x0E,0x11,0x11,0x11,0x11,0x11,0x0E},   // O
+};
+constexpr int kCellJunkCount = static_cast<int>(sizeof(kCellJunk) / sizeof(kCellJunk[0]));
+
+// A 16-entry indexed palette, the EGA/VGA set the references were made on.
+// Quantising to it is most of why they look like hardware and not like a
+// gradient: a limited palette forces flat areas and hard colour boundaries.
+const std::uint8_t kCellPalette[16][3] = {
+  {  0,  0,  0}, {  0,  0,170}, {  0,170,  0}, {  0,170,170},
+  {170,  0,  0}, {170,  0,170}, {170, 85,  0}, {170,170,170},
+  { 85, 85, 85}, { 85, 85,255}, { 85,255, 85}, { 85,255,255},
+  {255, 85, 85}, {255, 85,255}, {255,255, 85}, {255,255,255},
+};
+
+int nearestPaletteIndex(int r, int g, int b) {
+  int best = 0;
+  int bestDist = 1 << 30;
+  for (int i = 0; i < 16; ++i) {
+    const int dr = r - kCellPalette[i][0];
+    const int dg = g - kCellPalette[i][1];
+    const int db = b - kCellPalette[i][2];
+    const int dist = dr * dr + dg * dg + db * db;
+    if (dist < bestDist) { bestDist = dist; best = i; }
+  }
+  return best;
+}
+
+}  // namespace
+
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                          double audioLevel) {
   auto size = currentOutputSizeHint();
@@ -1079,7 +1150,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // rather than gliding -- the quantisation, not the speed, is what stops it
   // looking smooth. The hard-edged shapes cost no transcendentals, so this is
   // affordable now in a way it was not when everything went through sin().
-  const int W = std::clamp(outW / 2, 320, 960);
+  // Resolution is the operator's, not a constant. Divisor 8 down to 2: at the
+  // coarse end this is both the chunky look and a quarter of the pixels.
+  const int divisor = 10 - 2 * std::clamp(vs.resolution, 1, 5) + 2;  // 1->10 .. 5->2
+  const int W = std::clamp(outW / std::max(2, divisor), 120, 960);
   const int H = std::max(90, (W * outH) / std::max(1, outW));
 
   const double lvl = std::clamp(audioLevel, 0.0, 1.0);
@@ -1114,7 +1188,12 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
 
   // Precompute the row term once per row instead of per pixel. Halves the
   // transcendental count on its own.
-  for (int y = 0; y < H; ++y) {
+  // Threaded by row. Rows are independent -- each writes only its own output
+  // and reads only the PREVIOUS frame -- so this parallelises with no locking.
+  // Raising the internal resolution without doing this is what made the
+  // controls feel like they bogged the app down.
+  auto renderRows = [&](int rowBegin, int rowEnd) {
+  for (int y = rowBegin; y < rowEnd; ++y) {
     const double nyRaw = (static_cast<double>(y) / H - 0.5) * 2.0;
     for (int x = 0; x < W; ++x) {
       double nx = (static_cast<double>(x) / W - 0.5) * 2.0 *
@@ -1205,8 +1284,15 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
         const double dy = (y - cy) / zoom;
         const int px = static_cast<int>(dx * cosR - dy * sinR + cx);
         const int py = static_cast<int>(dx * sinR + dy * cosR + cy);
-        if (px >= 0 && px < W && py >= 0 && py < H) {
-          const std::size_t o = (static_cast<std::size_t>(py) * W + px) * 4;
+        // CLAMPED, not skipped. With zoom below 1 the sample coordinates
+        // expand past the raster at the edges, and skipping meant those pixels
+        // received no feedback at all -- a clean border where the effect
+        // visibly stopped. Clamping smears the edge outward instead, which is
+        // what the analogue machines did anyway.
+        {
+          const int cpx = std::clamp(px, 0, W - 1);
+          const int cpy = std::clamp(py, 0, H - 1);
+          const std::size_t o = (static_cast<std::size_t>(cpy) * W + cpx) * 4;
           // Feedback is ADDITIVE-leaning rather than a plain crossfade: the
           // trails brighten where they overlap, which is what makes a video
           // feedback loop look like light rather than like a blur.
@@ -1225,6 +1311,137 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       small[off + 3] = 255;
     }
   }
+  };   // renderRows
+
+  {
+    unsigned hw = std::thread::hardware_concurrency();
+    if (hw == 0) hw = 1;
+    const int workers = std::max(1, std::min<int>(static_cast<int>(hw), std::max(1, H / 16)));
+    if (workers <= 1) {
+      renderRows(0, H);
+    } else {
+      std::vector<std::thread> pool;
+      pool.reserve(static_cast<std::size_t>(workers - 1));
+      const int span = (H + workers - 1) / workers;
+      for (int w = 1; w < workers; ++w) {
+        const int b = std::min(H, w * span);
+        const int e = std::min(H, b + span);
+        if (b >= e) break;
+        pool.emplace_back(renderRows, b, e);
+      }
+      renderRows(0, std::min(H, span));
+      for (std::thread& t : pool) t.join();
+    }
+  }
+
+  // ---- Glitch stack --------------------------------------------------------
+  // Applied to the low-resolution buffer, in a fixed order. Each is skipped
+  // entirely at 0, so an operator who wants the clean synth pays nothing.
+  {
+    // Deterministic per-frame randomness. A different seed each frame gives
+    // movement; a HASH of the frame counter rather than a running generator
+    // means the look does not depend on how many frames have been drawn, so
+    // the same settings look the same whenever they are dialled up.
+    std::uint32_t seed = static_cast<std::uint32_t>(displayFrameSerial_ * 2654435761u) | 1u;
+    auto rnd = [&seed]() {
+      seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
+      return seed;
+    };
+
+    // PIXEL SORT. Runs of pixels within a row, sorted by brightness. This is
+    // what produces the dragged, melted, datamosh look: bright material slides
+    // along the row and pools against whatever stops it.
+    const double sortAmt = std::clamp(vs.pixelSort, 0.0, 1.0);
+    if (sortAmt > 0.01) {
+      // The threshold falls as the amount rises, so more of each row qualifies
+      // and the runs grow longer. Driving run LENGTH directly instead would
+      // cut spans at arbitrary points and look like banding rather than flow.
+      const int threshold = static_cast<int>(200.0 - sortAmt * 170.0);
+      auto luma = [&](std::size_t o) {
+        return (small[o + 2] * 77 + small[o + 1] * 151 + small[o + 0] * 28) >> 8;
+      };
+      std::vector<std::uint32_t> run;
+      for (int y = 0; y < H; ++y) {
+        const std::size_t rowOff = static_cast<std::size_t>(y) * W * 4;
+        int x = 0;
+        while (x < W) {
+          if (static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) < threshold) {
+            ++x; continue;
+          }
+          const int begin = x;
+          while (x < W &&
+                 static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) >= threshold) {
+            ++x;
+          }
+          const int len = x - begin;
+          if (len < 3) continue;
+          run.clear();
+          run.reserve(static_cast<std::size_t>(len));
+          for (int i = 0; i < len; ++i) {
+            std::uint32_t px = 0;
+            std::memcpy(&px, small.data() + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
+            run.push_back(px);
+          }
+          std::sort(run.begin(), run.end(), [](std::uint32_t a, std::uint32_t b) {
+            const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
+            const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
+            return la < lb;
+          });
+          for (int i = 0; i < len; ++i) {
+            std::memcpy(small.data() + rowOff + static_cast<std::size_t>(begin + i) * 4,
+                        &run[static_cast<std::size_t>(i)], 4);
+          }
+        }
+      }
+    }
+
+    // BLOCK GLITCH. Displaced scanline bands plus RGB channel separation --
+    // the corrupted-frame look. Bands are whole rows because that is how real
+    // decode corruption presents: a block row loses sync and the remainder of
+    // the line arrives shifted.
+    const double glitchAmt = std::clamp(vs.glitch, 0.0, 1.0);
+    if (glitchAmt > 0.01) {
+      const int bands = 1 + static_cast<int>(glitchAmt * 14.0);
+      std::vector<std::uint8_t> rowCopy(static_cast<std::size_t>(W) * 4);
+      for (int b = 0; b < bands; ++b) {
+        const int y0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, H)));
+        const int hgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
+          std::max(1, static_cast<int>(H * glitchAmt / 8) + 1)));
+        const int shift = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, W / 3))) -
+                          (W / 6);
+        for (int y = y0; y < std::min(H, y0 + hgt); ++y) {
+          std::uint8_t* row = small.data() + static_cast<std::size_t>(y) * W * 4;
+          std::memcpy(rowCopy.data(), row, rowCopy.size());
+          for (int x = 0; x < W; ++x) {
+            // WRAPPED, not clamped: a shifted band that clamps smears its edge
+            // pixel across the gap, which reads as a stretch. Wrapping reads
+            // as torn, which is what corruption actually looks like.
+            int sx = x - shift;
+            sx = ((sx % W) + W) % W;
+            std::memcpy(row + static_cast<std::size_t>(x) * 4,
+                        rowCopy.data() + static_cast<std::size_t>(sx) * 4, 4);
+          }
+        }
+      }
+      // Channel separation. Red and blue pull apart horizontally, which is the
+      // single most recognisable glitch cue and costs one pass.
+      const int sep = static_cast<int>(glitchAmt * (W / 60.0)) + 1;
+      if (sep > 0) {
+        for (int y = 0; y < H; ++y) {
+          std::uint8_t* row = small.data() + static_cast<std::size_t>(y) * W * 4;
+          std::memcpy(rowCopy.data(), row, rowCopy.size());
+          for (int x = 0; x < W; ++x) {
+            const int xr = std::clamp(x + sep, 0, W - 1);
+            const int xb = std::clamp(x - sep, 0, W - 1);
+            row[static_cast<std::size_t>(x) * 4 + 2] =
+              rowCopy[static_cast<std::size_t>(xr) * 4 + 2];   // R
+            row[static_cast<std::size_t>(x) * 4 + 0] =
+              rowCopy[static_cast<std::size_t>(xb) * 4 + 0];   // B
+          }
+        }
+      }
+    }
+  }
 
   if (feedbackOn) {
     vsynthPrev_ = small;
@@ -1236,21 +1453,107 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     vsynthPrevW_ = vsynthPrevH_ = 0;
   }
 
-  // Nearest-neighbour upscale. Deliberately not interpolated: soft edges would
-  // undo the posterisation and the hard shapes that the look depends on.
   DecodedFrame frame;
   frame.width = outW;
   frame.height = outH;
   frame.format = FramePixelFormat::RGBA32;
   frame.pixels.assign(static_cast<std::size_t>(outW) * outH * 4, 255);
-  for (int y = 0; y < outH; ++y) {
-    const int sy2 = (y * H) / outH;
-    const std::uint8_t* srcRow = small.data() + static_cast<std::size_t>(sy2) * W * 4;
-    std::uint8_t* dstRow = frame.pixels.data() + static_cast<std::size_t>(y) * outW * 4;
-    for (int x = 0; x < outW; ++x) {
-      const int sx2 = (x * W) / outW;
-      std::memcpy(dstRow + static_cast<std::size_t>(x) * 4,
-                  srcRow + static_cast<std::size_t>(sx2) * 4, 4);
+
+  if (vs.ascii) {
+    // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
+    // edges stay crisp -- rendering them small and scaling up would blur the
+    // one thing the look depends on.
+    const int cols = std::clamp(vs.asciiCols, 20, 200);
+    const int cellW = std::max(3, outW / cols);
+    const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
+    const int rows = std::max(1, outH / cellH);
+    std::uint32_t cseed = static_cast<std::uint32_t>(displayFrameSerial_ * 2246822519u) | 1u;
+    auto crnd = [&cseed]() {
+      cseed ^= cseed << 13; cseed ^= cseed >> 17; cseed ^= cseed << 5;
+      return cseed;
+    };
+    const double corrupt = std::clamp(vs.glitch, 0.0, 1.0);
+
+    for (int cy = 0; cy < rows; ++cy) {
+      // ROW LOCK. A corrupted text screen does not scatter random cells -- a
+      // row loses sync and repeats ONE character across its whole width, in
+      // one colour pair. That banding is the signature of the reference
+      // images, and scattering instead just looks like noise.
+      const bool rowLocked = corrupt > 0.05 &&
+        (crnd() % 100u) < static_cast<std::uint32_t>(corrupt * 35.0);
+      const int lockGlyph = static_cast<int>(crnd() % static_cast<std::uint32_t>(kCellJunkCount));
+      const int lockInk = static_cast<int>(crnd() % 16u);
+      const int lockBg = static_cast<int>(crnd() % 16u);
+
+      for (int cx = 0; cx < cols; ++cx) {
+        // Average the source cell rather than point-sampling: a single pixel
+        // from a dithered pattern reports whichever phase it landed on and the
+        // grid flickers.
+        int sr = 0, sg = 0, sb = 0, count = 0;
+        const int sx0 = (cx * W) / cols;
+        const int sx1 = std::max(sx0 + 1, ((cx + 1) * W) / cols);
+        const int sy0 = (cy * H) / rows;
+        const int sy1 = std::max(sy0 + 1, ((cy + 1) * H) / rows);
+        for (int sy = sy0; sy < std::min(sy1, H); ++sy) {
+          for (int sx = sx0; sx < std::min(sx1, W); ++sx) {
+            const std::size_t o = (static_cast<std::size_t>(sy) * W + sx) * 4;
+            sb += small[o + 0]; sg += small[o + 1]; sr += small[o + 2];
+            ++count;
+          }
+        }
+        if (count == 0) count = 1;
+        sr /= count; sg /= count; sb /= count;
+
+        const int luma = (sr * 77 + sg * 151 + sb * 28) >> 8;
+        int rampIndex = (luma * (kCellRampCount - 1)) / 255;
+        const std::uint8_t* glyph = kCellRamp[std::clamp(rampIndex, 0, kCellRampCount - 1)];
+        int inkIdx = vs.asciiGreen ? 10 : nearestPaletteIndex(sr, sg, sb);
+        int bgIdx = 0;
+
+        if (rowLocked) {
+          glyph = kCellJunk[lockGlyph];
+          inkIdx = vs.asciiGreen ? 10 : lockInk;
+          bgIdx = vs.asciiGreen ? 0 : lockBg;
+        } else if (corrupt > 0.05 &&
+                   (crnd() % 1000u) < static_cast<std::uint32_t>(corrupt * 90.0)) {
+          // Scattered single-cell corruption on top of the row banding.
+          glyph = kCellJunk[crnd() % static_cast<std::uint32_t>(kCellJunkCount)];
+          if (!vs.asciiGreen) inkIdx = static_cast<int>(crnd() % 16u);
+        }
+
+        const std::uint8_t* ink = kCellPalette[inkIdx];
+        const std::uint8_t* bg = kCellPalette[bgIdx];
+        const int px0 = cx * cellW;
+        const int py0 = cy * cellH;
+
+        for (int ry = 0; ry < cellH; ++ry) {
+          const int gy = std::min(6, (ry * 7) / cellH);
+          std::uint8_t* row = frame.pixels.data() +
+            (static_cast<std::size_t>(py0 + ry) * outW) * 4;
+          if (py0 + ry >= outH) break;
+          for (int rx = 0; rx < cellW; ++rx) {
+            if (px0 + rx >= outW) break;
+            const int gx = std::min(4, (rx * 5) / cellW);
+            const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
+            const std::uint8_t* c = on ? ink : bg;
+            std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+            p[0] = c[2]; p[1] = c[1]; p[2] = c[0]; p[3] = 255;
+          }
+        }
+      }
+    }
+  } else {
+    // Nearest-neighbour upscale. Deliberately not interpolated: soft edges
+    // would undo the posterisation and the hard shapes the look depends on.
+    for (int y = 0; y < outH; ++y) {
+      const int sy2 = (y * H) / outH;
+      const std::uint8_t* srcRow = small.data() + static_cast<std::size_t>(sy2) * W * 4;
+      std::uint8_t* dstRow = frame.pixels.data() + static_cast<std::size_t>(y) * outW * 4;
+      for (int x = 0; x < outW; ++x) {
+        const int sx2 = (x * W) / outW;
+        std::memcpy(dstRow + static_cast<std::size_t>(x) * 4,
+                    srcRow + static_cast<std::size_t>(sx2) * 4, 4);
+      }
     }
   }
 

@@ -2440,6 +2440,16 @@
     triggerToast("speed " + fmtFloat(cue->videoSynth.speed, 3));
   }
 
+  void adjustVsInt(int VideoSynthSettings::*field, int delta,
+                   int lo, int hi, const char* label) {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) return;
+    int& v = cue->videoSynth.*field;
+    v = std::clamp(v + delta, lo, hi);
+    markProjectDirty();
+    triggerToast(std::string(label) + " " + std::to_string(v));
+  }
+
   void adjustVs(double VideoSynthSettings::*field, double delta,
                 double lo, double hi, const char* label) {
     Cue* cue = selectedVideoSynthCueMutable();
