@@ -207,6 +207,10 @@ class MediaEngine {
   void pumpToneAudio(const Cue& cue);
   // The cue's on-screen card: what is playing, at what level, on which output.
   void rebuildToneFrame(const Cue& cue);
+  // Oscillator video with feedback. `audioLevel` is 0..1 and may be 0 -- the
+  // synth free-runs when nothing is playing, because a visualiser that shows
+  // nothing without audio is useless during setup.
+  void rebuildVideoSynthFrame(const Cue& cue, double wallSeconds, double audioLevel);
   // One sample of the FDS voice. Advances the carrier, modulator and
   // envelope by dt seconds.
   double fdsNextSample(const ToneSettings& tone, double dt);
@@ -446,6 +450,12 @@ class MediaEngine {
   double nesPhase_ = 0.0;
   double nesNoiseAccum_ = 0.0;
   unsigned nesLfsr_ = 1u;
+  // Previous video-synth frame, for the feedback path. Kept as RGBA at the
+  // output raster; reallocated only when the raster changes.
+  std::vector<std::uint8_t> vsynthPrev_;
+  int vsynthPrevW_ = 0;
+  int vsynthPrevH_ = 0;
+  double vsynthRotation_ = 0.0;
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   // Audio the sink could not take yet. Carried rather than dropped or waited
   // on; see putAudioToStream for why waiting here is not an option.

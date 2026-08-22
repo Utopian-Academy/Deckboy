@@ -57,8 +57,67 @@ enum class CueKind {
   Timer          // stage/speaker countdown, generated like a pattern but with
                  // its own transport-linked state (see TimerState)
 ,
-  Tone           // procedurally generated audio: line-up tone, noise, sweep,
+  Tone,          // procedurally generated audio: line-up tone, noise, sweep,
                  // channel identify. The audio equivalent of Pattern
+  VideoSynth     // oscillator-driven video with feedback and mirroring, in the
+                 // lineage of Atari Video Music and Sleepy Circuits Hypno
+};
+
+// ---------------------------------------------------------------------------
+// Video synth.
+//
+// Two machines are the reference. Atari Video Music (1976) folded simple
+// shapes through mirrors and cycled colour with the music -- hard-edged,
+// symmetrical, chunky. Sleepy Circuits Hypno is the modern descendant, and its
+// signature is FEEDBACK: each frame is transformed and blended back into the
+// next, which is what produces the endless tunnels and blooms that no
+// single-pass generator can imitate.
+//
+// So feedback is not an effect bolted on here, it is the point. A generator
+// without it looks like a screensaver; with it, it looks alive.
+// ---------------------------------------------------------------------------
+enum class VideoSynthShape {
+  Plasma,     // interfering sine fields -- the warm, liquid one
+  Diamond,    // Atari Video Music's hard rhombus lattice
+  Rings,      // concentric, good with feedback zoom for tunnels
+  Grid,       // rectilinear interference, sharp and technical
+  Moire,      // two rotating grids beating against each other
+};
+
+// How the frame is folded before it is drawn. Mirroring is what turns an
+// arbitrary pattern into something that reads as designed.
+enum class VideoSynthMirror {
+  None,
+  Horizontal,
+  Quad,       // both axes: the classic kaleidoscope quarter
+  Kaleido,    // quad plus a diagonal fold, six-way symmetry
+};
+
+enum class VideoSynthPalette {
+  Spectrum,   // full hue sweep
+  Amber,      // single-hue phosphor, closest to the 1976 look
+  Ice,
+  Fire,
+  Mono,
+};
+
+struct VideoSynthSettings {
+  VideoSynthShape shape = VideoSynthShape::Plasma;
+  VideoSynthMirror mirror = VideoSynthMirror::Quad;
+  VideoSynthPalette palette = VideoSynthPalette::Spectrum;
+
+  double speed = 1.0;         // master rate for every oscillator
+  double scale = 1.0;         // spatial frequency: how many features fit
+  double warp = 0.35;         // cross-modulation between the two axes
+
+  // Feedback. amount 0 disables the whole path, which also skips keeping the
+  // previous frame around.
+  double feedbackAmount = 0.55;
+  double feedbackZoom = 1.02;    // >1 tunnels inward, <1 blooms outward
+  double feedbackRotate = 0.6;   // degrees per frame
+  // Audio reactivity. 0 = free-running, which must stay usable: a video synth
+  // with no audio playing should still be worth looking at.
+  double audioReactivity = 0.5;
 };
 
 // ---------------------------------------------------------------------------
@@ -460,6 +519,8 @@ struct Cue {
   TimerSettings timer;
   // Tone generator settings. Only meaningful when kind == CueKind::Tone.
   ToneSettings tone;
+  // Only meaningful when kind == CueKind::VideoSynth.
+  VideoSynthSettings videoSynth;
 
   bool datamoshEnabled = false;
   std::string moshPath;
@@ -1033,7 +1094,13 @@ enum class QuickAction {
   FdsRatioDec, FdsRatioInc,
   FdsNoteDec, FdsNoteInc,
   FdsRetrigDec, FdsRetrigInc,
-  CueSectionSynthToggle,
+  CueSectionSynthToggle, CueSectionVideoSynthToggle,
+  VsCycleShape, VsCycleMirror, VsCyclePalette,
+  VsSpeedDec, VsSpeedInc,
+  VsScaleDec, VsScaleInc,
+  VsFeedbackDec, VsFeedbackInc,
+  VsZoomDec, VsZoomInc,
+  VsReactDec, VsReactInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
   SynthAttackDec, SynthAttackInc,
