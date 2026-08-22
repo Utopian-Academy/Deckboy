@@ -3416,6 +3416,45 @@
       }
       finishInspectorSection(timerSection, timerY);
 
+    } else if (selectedCue && selectedCue->kind == CueKind::Tone) {
+      // Generated-audio cues need their own branch for the same reason Timer
+      // does: this inspector dispatches BY CUE KIND, and anything without a
+      // branch falls through to "no per-cue settings for this type". The tone
+      // and synth sections were added to the other layout only, so on this one
+      // every control was simply absent.
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      if (selectedCue->tone.waveform == ToneWaveform::Fds) {
+        auto synthSection = beginInspectorSection(ry, "SYNTH", cueSectionSynthOpen_,
+                                                  QuickAction::CueSectionSynthToggle,
+                                                  "Chip voice controls");
+        int sy = synthSection.bodyStartY;
+        if (cueSectionSynthOpen_) {
+          sy = inspDrawSynthRows(ix, sy, *selectedCue);
+        }
+        finishInspectorSection(synthSection, sy);
+        ry = sy + kInspectorSectionGap;
+      }
+      auto toneSection = beginInspectorSection(ry, "TONE", cueSectionToneOpen_,
+                                               QuickAction::CueSectionToneToggle,
+                                               "Tone generator controls");
+      int ty = toneSection.bodyStartY;
+      if (cueSectionToneOpen_) {
+        ty = inspDrawToneRows(ix, ty, *selectedCue);
+      }
+      finishInspectorSection(toneSection, ty);
+
+    } else if (selectedCue && selectedCue->kind == CueKind::VideoSynth) {
+      int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
+      auto vsSection = beginInspectorSection(ry, "VIDEO SYNTH",
+                                             cueSectionVideoSynthOpen_,
+                                             QuickAction::CueSectionVideoSynthToggle,
+                                             "Video synth controls");
+      int vy = vsSection.bodyStartY;
+      if (cueSectionVideoSynthOpen_) {
+        vy = inspDrawVideoSynthRows(ix, vy, *selectedCue);
+      }
+      finishInspectorSection(vsSection, vy);
+
     } else if (!selectedCue) {
       // The "SELECTED CUE" summary panel above already renders the
       // NO CUE SELECTED empty state — nothing further to draw here.
