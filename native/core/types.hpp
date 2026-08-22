@@ -85,8 +85,9 @@ enum class ToneWaveform {
   Sweep,     // slow log sweep, for hearing where a room rings
   Identify,  // walks the channels one at a time, so an engineer can point at
              // a speaker and say which output feeds it
-  Fds,       // Famicom Disk System wavetable voice -- a musical source rather
-             // than a test signal, and a usable emergency synth
+  Fds,       // Chip voice -- FDS or 2A03. A musical source rather than a test
+             // signal, and a usable emergency synth. The token stays "Fds" so
+             // shows saved before the 2A03 merge still load.
 };
 
 // ---------------------------------------------------------------------------
@@ -117,17 +118,55 @@ enum class FdsModulator {
   Growl,      // deep alternating bend, the sound FDS is remembered for
 };
 
-struct FdsSettings {
-  FdsCarrier carrier = FdsCarrier::Sine;
-  FdsModulator modulator = FdsModulator::Ramp;
-  int modDepth = 16;          // 0-63, the hardware gain range
-  double modRatio = 0.5;      // modulator frequency as a ratio of the note
+// Which chip the voice imitates. Both are implemented from public hardware
+// documentation; neither derives from any plugin binary.
+enum class SynthChip {
+  Fds,    // Famicom Disk System: wavetable carrier bent by a modulator table
+  Nes,    // 2A03: the pulse/triangle/noise set most chiptune is actually made of
+};
+
+// 2A03 voice selection. These are the actual channels of the chip, and they
+// differ in kind rather than in tone -- triangle has no volume control on the
+// hardware, and noise is a shift register rather than an oscillator.
+enum class NesVoice {
+  Pulse,     // duty-cycled square: leads and bass
+  Triangle,  // fixed-volume, 4-bit stepped: basslines
+  Noise,     // LFSR: percussion and effects
+};
+
+// Pulse duty cycles the hardware actually offers. 12.5 and 25 are thin and
+// reedy, 50 is hollow, and 75 sounds identical to 25 (inverted phase) -- it is
+// included because trackers expose it and people expect to see it.
+enum class NesDuty { Eighth, Quarter, Half, ThreeQuarter };
+
+struct SynthSettings {
+  SynthChip chip = SynthChip::Fds;
+
+  // Shared by every chip: pitch and envelope belong to the NOTE, not to the
+  // oscillator that happens to be playing it.
   double noteHz = 220.0;      // A3
   double attackSeconds = 0.01;
   double releaseSeconds = 0.30;
   // Retrigger the envelope this often. 0 = hold one note indefinitely, which
   // is what a drone or a held pad wants.
   double retriggerSeconds = 0.0;
+
+  // -- FDS ------------------------------------------------------------------
+  FdsCarrier carrier = FdsCarrier::Sine;
+  FdsModulator modulator = FdsModulator::Ramp;
+  int modDepth = 16;          // 0-63, the hardware gain range
+  double modRatio = 0.5;      // modulator frequency as a ratio of the note
+
+  // -- 2A03 -----------------------------------------------------------------
+  NesVoice nesVoice = NesVoice::Pulse;
+  NesDuty nesDuty = NesDuty::Half;
+  // The chip's noise has a short mode whose period is so brief it reads as
+  // pitched metal rather than hiss. Trackers call it "periodic noise".
+  bool nesNoiseShort = false;
+  // 4-bit output like the hardware. Off is cleaner but wrong: the steps ARE
+  // the sound, and smoothing them makes a chiptune voice sound like a synth
+  // pretending.
+  bool nesQuantise = true;
 };
 
 struct ToneSettings {
@@ -152,8 +191,9 @@ struct ToneSettings {
   bool visualEnabled = true;
   ToneVisual visual = ToneVisual::Scope;
 
-  // Only meaningful when waveform == ToneWaveform::Fds.
-  FdsSettings fds;
+  // Only meaningful when waveform == ToneWaveform::Fds. Named for what it is
+  // now that it covers more than one chip.
+  SynthSettings synth;
 };
 
 // Stage/speaker timer settings, per cue. Ported from the owner's SpeakerTimer
@@ -993,6 +1033,11 @@ enum class QuickAction {
   FdsRatioDec, FdsRatioInc,
   FdsNoteDec, FdsNoteInc,
   FdsRetrigDec, FdsRetrigInc,
+  CueSectionSynthToggle,
+  SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
+  SynthToggleNoiseShort, SynthToggleQuantise,
+  SynthAttackDec, SynthAttackInc,
+  SynthReleaseDec, SynthReleaseInc,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
   DatamoshToggle,

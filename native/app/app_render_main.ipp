@@ -2608,6 +2608,20 @@
         finishInspectorSection(timerSection, geoY);
       }
 
+      // SYNTH - only for the chip voice, and above TONE because when it is a
+      // synth the chip parameters are what the operator is reaching for.
+      if (selectedCue->kind == CueKind::Tone &&
+          selectedCue->tone.waveform == ToneWaveform::Fds) {
+        auto synthSection = beginInspectorSection(geoY, "SYNTH", cueSectionSynthOpen_,
+                                                  QuickAction::CueSectionSynthToggle,
+                                                  "Collapse/expand chip voice controls");
+        geoY = synthSection.bodyStartY;
+        if (cueSectionSynthOpen_) {
+          geoY = inspDrawSynthRows(ix, geoY, *selectedCue);
+        }
+        finishInspectorSection(synthSection, geoY);
+      }
+
       // TONE - same reasoning as TIMER: on a tone cue this is the only
       // section the operator touches, so it sits where the eye already is.
       if (selectedCue->kind == CueKind::Tone) {

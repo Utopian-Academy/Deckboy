@@ -331,6 +331,31 @@
       case QuickAction::FdsNoteInc:   adjustFdsNote(1); break;
       case QuickAction::FdsRetrigDec: adjustFdsRetrigger(-0.05); break;
       case QuickAction::FdsRetrigInc: adjustFdsRetrigger(0.05); break;
+      case QuickAction::CueSectionSynthToggle:
+        cueSectionSynthOpen_ = !cueSectionSynthOpen_; break;
+      case QuickAction::SynthCycleChip:      cycleSynthChip(); break;
+      case QuickAction::SynthCycleNesVoice:  cycleNesVoice(); break;
+      case QuickAction::SynthCycleNesDuty:   cycleNesDuty(); break;
+      case QuickAction::SynthToggleNoiseShort:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.synth.nesNoiseShort = !c->tone.synth.nesNoiseShort;
+          markProjectDirty();
+          triggerToast(c->tone.synth.nesNoiseShort ? "periodic noise" : "noise");
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::SynthToggleQuantise:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.synth.nesQuantise = !c->tone.synth.nesQuantise;
+          markProjectDirty();
+          triggerToast(c->tone.synth.nesQuantise ? "4-bit steps" : "smooth");
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::SynthAttackDec:  adjustSynthEnv(true, -0.01); break;
+      case QuickAction::SynthAttackInc:  adjustSynthEnv(true, 0.01); break;
+      case QuickAction::SynthReleaseDec: adjustSynthEnv(false, -0.05); break;
+      case QuickAction::SynthReleaseInc: adjustSynthEnv(false, 0.05); break;
       case QuickAction::ToneVisualToggle:
         if (Cue* c = selectedToneCueMutable()) {
           c->tone.visualEnabled = !c->tone.visualEnabled;
