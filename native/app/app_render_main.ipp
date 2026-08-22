@@ -2608,6 +2608,18 @@
         finishInspectorSection(timerSection, geoY);
       }
 
+      if (selectedCue->kind == CueKind::VideoSynth) {
+        auto vsSection = beginInspectorSection(geoY, "VIDEO SYNTH",
+                                               cueSectionVideoSynthOpen_,
+                                               QuickAction::CueSectionVideoSynthToggle,
+                                               "Collapse/expand video synth controls");
+        geoY = vsSection.bodyStartY;
+        if (cueSectionVideoSynthOpen_) {
+          geoY = inspDrawVideoSynthRows(ix, geoY, *selectedCue);
+        }
+        finishInspectorSection(vsSection, geoY);
+      }
+
       // SYNTH - only for the chip voice, and above TONE because when it is a
       // synth the chip parameters are what the operator is reaching for.
       if (selectedCue->kind == CueKind::Tone &&

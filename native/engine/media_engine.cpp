@@ -1048,6 +1048,186 @@ void MediaEngine::rebuildTimerFrame(const Cue& cue, double elapsedSeconds, bool 
   uploadFrame(*displayFrame_);
 }
 
+
+// ---------------------------------------------------------------------------
+// Video synth
+//
+// Atari Video Music folded simple shapes through mirrors; Sleepy Circuits
+// Hypno adds FEEDBACK, transforming each frame and blending it into the next.
+// The feedback is what makes it look alive rather than like a screensaver, so
+// it is the structural centre of this rather than a post-effect.
+// ---------------------------------------------------------------------------
+void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
+                                         double audioLevel) {
+  auto size = currentOutputSizeHint();
+  const int W = size.first;
+  const int H = size.second;
+  if (W <= 0 || H <= 0) return;
+
+  const VideoSynthSettings& vs = cue.videoSynth;
+  const double lvl = std::clamp(audioLevel, 0.0, 1.0);
+  // Audio widens the pattern and lifts brightness rather than gating it: a
+  // visualiser that goes black between beats is a worse visualiser.
+  const double react = std::clamp(vs.audioReactivity, 0.0, 1.0);
+  const double drive = 1.0 + lvl * react * 2.0;
+  const double t = wallSeconds * std::clamp(vs.speed, 0.05, 8.0);
+
+  DecodedFrame frame;
+  frame.width = W;
+  frame.height = H;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.assign(static_cast<std::size_t>(W) * H * 4, 0);
+
+  const bool feedbackOn = vs.feedbackAmount > 0.01;
+  const bool havePrev = feedbackOn && vsynthPrevW_ == W && vsynthPrevH_ == H &&
+                        vsynthPrev_.size() == frame.pixels.size();
+  vsynthRotation_ += vs.feedbackRotate * 0.017453292519943295;
+
+  const double scale = std::clamp(vs.scale, 0.1, 8.0) * 6.0;
+  const double warp = std::clamp(vs.warp, 0.0, 2.0);
+  const double cosR = std::cos(vsynthRotation_);
+  const double sinR = std::sin(vsynthRotation_);
+  const double zoom = std::clamp(vs.feedbackZoom, 0.90, 1.15);
+  const double fb = std::clamp(vs.feedbackAmount, 0.0, 0.95);
+
+  for (int y = 0; y < H; ++y) {
+    for (int x = 0; x < W; ++x) {
+      // Normalised, centre-origin, aspect-corrected so a circle is a circle.
+      double nx = (static_cast<double>(x) / W - 0.5) * 2.0 * (static_cast<double>(W) / H);
+      double ny = (static_cast<double>(y) / H - 0.5) * 2.0;
+
+      // Fold FIRST, so the pattern is generated in the folded space and the
+      // seams land on the symmetry axes where they read as intentional.
+      switch (vs.mirror) {
+        case VideoSynthMirror::Horizontal: nx = std::abs(nx); break;
+        case VideoSynthMirror::Quad:       nx = std::abs(nx); ny = std::abs(ny); break;
+        case VideoSynthMirror::Kaleido: {
+          nx = std::abs(nx); ny = std::abs(ny);
+          if (ny > nx) std::swap(nx, ny);   // diagonal fold -> six-way
+          break;
+        }
+        default: break;
+      }
+
+      const double sx = nx * scale * drive;
+      const double sy = ny * scale * drive;
+      double v = 0.0;
+      switch (vs.shape) {
+        case VideoSynthShape::Diamond:
+          // Rhombus lattice: the Atari Video Music signature is the hard edge,
+          // so this stays a sum of absolutes rather than a smooth field.
+          v = std::sin((std::abs(sx) + std::abs(sy)) + t * 2.0);
+          break;
+        case VideoSynthShape::Rings: {
+          const double r = std::sqrt(sx * sx + sy * sy);
+          v = std::sin(r * 2.0 - t * 3.0);
+          break;
+        }
+        case VideoSynthShape::Grid:
+          v = std::sin(sx + t) * std::sin(sy - t * 1.3);
+          break;
+        case VideoSynthShape::Moire: {
+          const double a1 = sx * cosR - sy * sinR;
+          const double a2 = sx * std::cos(vsynthRotation_ * 1.7) +
+                            sy * std::sin(vsynthRotation_ * 1.7);
+          v = std::sin(a1 * 2.0 + t) * std::sin(a2 * 2.1 - t);
+          break;
+        }
+        default:
+          // Plasma: three interfering fields, the third cross-modulated by
+          // `warp` so the axes bleed into each other instead of staying a
+          // separable grid.
+          v = std::sin(sx + t)
+            + std::sin(sy - t * 1.1)
+            + std::sin((sx + sy) * warp + t * 0.7);
+          v /= 3.0;
+          break;
+      }
+
+      // -1..1 -> 0..1
+      const double u = std::clamp(v * 0.5 + 0.5, 0.0, 1.0);
+
+      // Palette. Hue rotates with time so colour cycles the way the original
+      // machines did, driven by a knob rather than by the picture content.
+      double r8 = 0.0, g8 = 0.0, b8 = 0.0;
+      switch (vs.palette) {
+        case VideoSynthPalette::Amber:
+          r8 = u; g8 = u * 0.62; b8 = u * 0.08;
+          break;
+        case VideoSynthPalette::Ice:
+          r8 = u * 0.25; g8 = u * 0.7; b8 = u;
+          break;
+        case VideoSynthPalette::Fire:
+          r8 = u; g8 = u * u * 0.75; b8 = u * u * u * 0.3;
+          break;
+        case VideoSynthPalette::Mono:
+          r8 = g8 = b8 = u;
+          break;
+        default: {
+          const double hue = std::fmod(u + t * 0.05, 1.0) * 6.0;
+          const int seg = static_cast<int>(hue) % 6;
+          const double f = hue - std::floor(hue);
+          switch (seg) {
+            case 0: r8 = 1;     g8 = f;     b8 = 0;     break;
+            case 1: r8 = 1 - f; g8 = 1;     b8 = 0;     break;
+            case 2: r8 = 0;     g8 = 1;     b8 = f;     break;
+            case 3: r8 = 0;     g8 = 1 - f; b8 = 1;     break;
+            case 4: r8 = f;     g8 = 0;     b8 = 1;     break;
+            default: r8 = 1;    g8 = 0;     b8 = 1 - f; break;
+          }
+          const double bright = 0.35 + 0.65 * u;
+          r8 *= bright; g8 *= bright; b8 *= bright;
+          break;
+        }
+      }
+
+      double fr = r8 * 255.0, fg = g8 * 255.0, fbc = b8 * 255.0;
+
+      if (havePrev) {
+        // Sample the PREVIOUS frame through a zoom+rotate about the centre.
+        // Sampling the source through an inverse transform (rather than
+        // scattering pixels forward) is what keeps the tunnel free of holes.
+        const double cx = W * 0.5, cy = H * 0.5;
+        const double dx = (x - cx) / zoom;
+        const double dy = (y - cy) / zoom;
+        const double rx = dx * cosR - dy * sinR + cx;
+        const double ry = dx * sinR + dy * cosR + cy;
+        const int px = static_cast<int>(rx);
+        const int py = static_cast<int>(ry);
+        if (px >= 0 && px < W && py >= 0 && py < H) {
+          const std::size_t o = (static_cast<std::size_t>(py) * W + px) * 4;
+          // Slight decay so feedback settles instead of saturating to white.
+          fr = fr * (1.0 - fb) + vsynthPrev_[o + 2] * fb * 0.97;
+          fg = fg * (1.0 - fb) + vsynthPrev_[o + 1] * fb * 0.97;
+          fbc = fbc * (1.0 - fb) + vsynthPrev_[o + 0] * fb * 0.97;
+        }
+      }
+
+      const std::size_t off = (static_cast<std::size_t>(y) * W + x) * 4;
+      frame.pixels[off + 0] = static_cast<std::uint8_t>(std::clamp(fbc, 0.0, 255.0));
+      frame.pixels[off + 1] = static_cast<std::uint8_t>(std::clamp(fg, 0.0, 255.0));
+      frame.pixels[off + 2] = static_cast<std::uint8_t>(std::clamp(fr, 0.0, 255.0));
+      frame.pixels[off + 3] = 255;
+    }
+  }
+
+  if (feedbackOn) {
+    vsynthPrev_ = frame.pixels;
+    vsynthPrevW_ = W;
+    vsynthPrevH_ = H;
+  } else if (!vsynthPrev_.empty()) {
+    // Release the buffer when feedback is off rather than holding a
+    // full-raster copy nothing reads.
+    vsynthPrev_.clear();
+    vsynthPrev_.shrink_to_fit();
+    vsynthPrevW_ = vsynthPrevH_ = 0;
+  }
+
+  displayFrame_ = std::move(frame);
+  displayFrame_->index = ++displayFrameSerial_;
+  uploadFrame(*displayFrame_);
+}
+
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   // Animated patterns rebuild at the SELECTED DISPLAY's refresh rate (or
   // the project's explicit refresh override — the app's mode provider
