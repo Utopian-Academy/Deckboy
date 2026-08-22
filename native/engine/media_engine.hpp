@@ -456,6 +456,7 @@ class MediaEngine {
   int vsynthPrevW_ = 0;
   int vsynthPrevH_ = 0;
   double vsynthRotation_ = 0.0;
+  double vsynthLastSeconds_ = 0.0;   // for a real dt, not a per-frame step
   ExternalAudioSink externalSink_;   // guarded by audioStreamMutex_
   // Audio the sink could not take yet. Carried rather than dropped or waited
   // on; see putAudioToStream for why waiting here is not an option.
