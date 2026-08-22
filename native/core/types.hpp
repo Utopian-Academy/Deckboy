@@ -1163,6 +1163,7 @@ enum class QuickAction {
   CueSectionEffectsToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,
+  TimerNudgeSecUp, TimerNudgeSecDown,
   CueSectionToneToggle,
   ToneCycleWaveform,
   ToneFreqDec, ToneFreqInc,
