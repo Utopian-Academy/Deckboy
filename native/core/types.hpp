@@ -1197,6 +1197,8 @@ enum class QuickAction {
   VsAsciiColsDec, VsAsciiColsInc,
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
+  VsSheetPick, VsSheetClear,
+  VsTileWDec, VsTileWInc, VsTileHDec, VsTileHInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
   SynthAttackDec, SynthAttackInc,

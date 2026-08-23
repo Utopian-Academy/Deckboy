@@ -358,7 +358,10 @@
       case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCharSetCycle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
-          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % 5;
+          // Sheet mode is only offered once a sheet exists, so the cycle
+          // never lands on a mode that cannot draw anything.
+          const int sets = c->videoSynth.spriteSheetPath.empty() ? 5 : 6;
+          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % sets;
           markProjectDirty();
           triggerToast(std::string("characters: ") + vsCharSetLabel(c->videoSynth.asciiCharSet));
           playUiSound(UiSoundEffect::Toggle);
@@ -376,6 +379,22 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsSheetPick:  pickSpriteSheet(); break;
+      case QuickAction::VsSheetClear:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.spriteSheetPath.clear();
+          // Fall back to blocks rather than leaving the cue pointed at sheet
+          // mode with no sheet, which would silently draw the fallback and
+          // look like the clear did nothing.
+          if (c->videoSynth.asciiCharSet == 5) c->videoSynth.asciiCharSet = 0;
+          markProjectDirty();
+          triggerToast("sprite sheet cleared");
+        }
+        break;
+      case QuickAction::VsTileWDec: adjustVsInt(&VideoSynthSettings::spriteTileW, -8, 8, 128, "tile w"); break;
+      case QuickAction::VsTileWInc: adjustVsInt(&VideoSynthSettings::spriteTileW, 8, 8, 128, "tile w"); break;
+      case QuickAction::VsTileHDec: adjustVsInt(&VideoSynthSettings::spriteTileH, -8, 8, 128, "tile h"); break;
+      case QuickAction::VsTileHInc: adjustVsInt(&VideoSynthSettings::spriteTileH, 8, 8, 128, "tile h"); break;
       case QuickAction::VsInkCycle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
           c->videoSynth.asciiInk = (c->videoSynth.asciiInk + 1) % 6;

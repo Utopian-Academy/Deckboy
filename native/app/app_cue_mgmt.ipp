@@ -2429,6 +2429,7 @@
       case 2:  return "symbols";
       case 3:  return "mixed";
       case 4:  return "ASCII 95 (raw)";
+      case 5:  return "sprite sheet";
       default: return "blocks";
     }
   }
@@ -2446,6 +2447,34 @@
   Cue* selectedVideoSynthCueMutable() {
     Cue* cue = selectedCueMutable();
     return (cue && cue->kind == CueKind::VideoSynth) ? cue : nullptr;
+  }
+
+  void pickSpriteSheet() {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) {
+      failRemoteCommand("sprite sheet: select a video synth cue");
+      return;
+    }
+    // Static: SDL needs the filter list to outlive the call, since the
+    // callback fires later and on another thread.
+    static const std::vector<SDL_DialogFileFilter> kSheetFilters {
+      {"Images", "png;gif;bmp;jpg;jpeg;webp"},
+      {"All files", "*"},
+    };
+    showOpenFileDialog(kSheetFilters, /*allowMany=*/false,
+                       [this](std::vector<std::string> chosen) {
+      if (chosen.empty() || chosen.front().empty()) return;
+      Cue* c = selectedVideoSynthCueMutable();
+      if (!c) return;
+      c->videoSynth.spriteSheetPath = chosen.front();
+      // Switch to sheet mode on load. Picking a sheet and then having to find
+      // a second control to see it is the discoverability trap the chip synths
+      // already fell into.
+      c->videoSynth.asciiCharSet = 5;
+      c->videoSynth.ascii = true;
+      markProjectDirty();
+      triggerToast("sprite sheet loaded");
+    });
   }
 
   void cycleVsEnum(int which) {

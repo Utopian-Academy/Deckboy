@@ -3410,6 +3410,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.asciiCharSet
         << '\t' << cue.videoSynth.asciiShuffle
         << '\t' << cue.videoSynth.asciiInk
+        << '\t' << escapeField(cue.videoSynth.spriteSheetPath)
+        << '\t' << cue.videoSynth.spriteTileW
+        << '\t' << cue.videoSynth.spriteTileH
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -4034,12 +4037,15 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
         cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
         cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 59, 0.0), 0.0, 1.0);
-        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 4);
+        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 5);
         cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 61, 0), 0, 8);
         // Older shows carry only the green boolean; map it onto the ink mode
         // so they reopen looking the way they were left.
         cue.videoSynth.asciiInk =
           std::clamp(safeInt(fields, tb + 62, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
+        cue.videoSynth.spriteSheetPath = safeString(fields, tb + 63);
+        cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, tb + 64, 16), 8, 128);
+        cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, tb + 65, 16), 8, 128);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5822,6 +5828,30 @@ class App {
                        "Scramble which glyph means which brightness. Same set, "
                        "different handwriting. Seeded, so it stays put.");
       rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
+                       v.spriteSheetPath.empty()
+                         ? std::string("none")
+                         : fs::path(v.spriteSheetPath).filename().string(),
+                       QuickAction::VsSheetPick, QuickAction::VsSheetClear,
+                       false, false,
+                       "Load a sprite sheet and use its tiles as the alphabet. "
+                       "Tiles are picked by brightness like glyphs are. "
+                       "Right-click clears.");
+      rowY += ix.rowStep;
+      if (!v.spriteSheetPath.empty()) {
+        inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
+                         std::to_string(v.spriteTileW),
+                         QuickAction::VsTileWInc, QuickAction::ToggleLoop,
+                         false, false,
+                         "Tile width in pixels. Must match the sheet's grid or "
+                         "the slices land across neighbouring sprites.");
+        rowY += ix.rowStep;
+        inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
+                         std::to_string(v.spriteTileH),
+                         QuickAction::VsTileHInc, QuickAction::ToggleLoop,
+                         false, false, "Tile height in pixels.");
+        rowY += ix.rowStep;
+      }
       inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
                        vsInkLabel(v.asciiInk),
                        QuickAction::VsInkCycle, QuickAction::ToggleLoop,
