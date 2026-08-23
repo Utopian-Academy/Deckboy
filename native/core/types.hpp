@@ -1228,6 +1228,7 @@ enum class QuickAction {
   SynthKeyboardToggle, SynthMidiToggle,
   SynthCycleTuning, SynthRefDec, SynthRefInc,
   VsSheetPick, VsSheetClear,
+  VsSpriteSetPrev, VsSpriteSetNext,
   VsTileWDec, VsTileWInc, VsTileHDec, VsTileHInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,

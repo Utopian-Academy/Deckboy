@@ -2461,6 +2461,92 @@
     return (cue && cue->kind == CueKind::VideoSynth) ? cue : nullptr;
   }
 
+  // Sprite sets that ship with the install, or that the operator has dropped
+  // into data/sprites. Each subfolder is one set, named by its folder.
+  //
+  // Scanned rather than listed in code: whatever is in the folder is what is
+  // offered, so adding a set is a matter of copying files in rather than
+  // editing a table and rebuilding.
+  const std::vector<std::pair<std::string, std::string>>& builtinSpriteSets() {
+    static std::vector<std::pair<std::string, std::string>> sets;
+    static bool scanned = false;
+    if (!scanned) {
+      scanned = true;
+      std::error_code ec;
+      const fs::path root = Paths::dataDir() / "sprites";
+      if (fs::is_directory(root, ec)) {
+        for (const auto& entry : fs::directory_iterator(root, ec)) {
+          if (!entry.is_directory()) continue;
+          // A set is only offered if it actually contains images; an empty
+          // folder in the tree would otherwise appear as a set that draws
+          // nothing.
+          bool hasImage = false;
+          for (const auto& f : fs::directory_iterator(entry.path(), ec)) {
+            if (!f.is_regular_file()) continue;
+            std::string ext = f.path().extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(),
+                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            if (ext == ".png" || ext == ".gif" || ext == ".bmp" ||
+                ext == ".jpg" || ext == ".jpeg" || ext == ".webp") {
+              hasImage = true;
+              break;
+            }
+          }
+          if (hasImage) {
+            sets.emplace_back(entry.path().string(),
+                              entry.path().filename().string());
+          }
+        }
+        std::sort(sets.begin(), sets.end(),
+                  [](const auto& a, const auto& b) { return a.second < b.second; });
+      }
+    }
+    return sets;
+  }
+
+  std::string currentSpriteSetLabel(const Cue& cue) const {
+    if (cue.videoSynth.spriteSheetPath.empty()) return "none";
+    for (const auto& [path, name] : const_cast<App*>(this)->builtinSpriteSets()) {
+      if (path == cue.videoSynth.spriteSheetPath) return name;
+    }
+    // A hand-picked path that is not one of the installed sets: show the
+    // filename so it is still identifiable.
+    return fs::path(cue.videoSynth.spriteSheetPath).filename().string();
+  }
+
+  // Step through the installed sets. Wraps back to none so a set can be turned
+  // off without opening a file dialog.
+  void cycleSpriteSet(int direction) {
+    Cue* cue = selectedVideoSynthCueMutable();
+    if (!cue) return;
+    const auto& sets = builtinSpriteSets();
+    if (sets.empty()) {
+      triggerToast("no sprite sets in data/sprites");
+      return;
+    }
+    const int count = static_cast<int>(sets.size()) + 1;   // +1 for "none"
+    int index = 0;
+    for (std::size_t i = 0; i < sets.size(); ++i) {
+      if (sets[i].first == cue->videoSynth.spriteSheetPath) {
+        index = static_cast<int>(i) + 1;
+        break;
+      }
+    }
+    index = ((index + direction) % count + count) % count;
+    if (index == 0) {
+      cue->videoSynth.spriteSheetPath.clear();
+      if (cue->videoSynth.asciiCharSet == 5) cue->videoSynth.asciiCharSet = 0;
+      triggerToast("sprites off");
+    } else {
+      cue->videoSynth.spriteSheetPath = sets[static_cast<std::size_t>(index - 1)].first;
+      cue->videoSynth.asciiCharSet = 5;
+      cue->videoSynth.ascii = true;
+      triggerToast("sprites: " + sets[static_cast<std::size_t>(index - 1)].second);
+    }
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+  }
+
   void pickSpriteSheet() {
     Cue* cue = selectedVideoSynthCueMutable();
     if (!cue) {
