@@ -2541,10 +2541,27 @@
       cue->videoSynth.spriteSheetPath = sets[static_cast<std::size_t>(index - 1)].first;
       cue->videoSynth.asciiCharSet = 5;
       cue->videoSynth.ascii = true;
+      loadSpriteSetForCue(*cue);
       triggerToast("sprites: " + sets[static_cast<std::size_t>(index - 1)].second);
     }
     markProjectDirty();
     playUiSound(UiSoundEffect::Toggle);
+  }
+
+  // Decode a set into every engine that might draw it. Slow by nature -- a
+  // subprocess per sprite -- which is exactly why it happens HERE, on an
+  // operator action, rather than lazily on the first frame that needs it.
+  void loadSpriteSetForCue(const Cue& cue) {
+    if (cue.videoSynth.spriteSheetPath.empty()) return;
+    for (auto& runtime : deckRuntimes_) {
+      if (!runtime.mediaEngine) continue;
+      if (!runtime.mediaEngine->ensureSpriteSheet(cue.videoSynth.spriteSheetPath,
+                                                  cue.videoSynth.spriteTileW,
+                                                  cue.videoSynth.spriteTileH)) {
+        triggerToast("sprite set could not be read");
+        return;
+      }
+    }
   }
 
   void pickSpriteSheet() {
