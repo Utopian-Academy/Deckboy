@@ -2187,6 +2187,39 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
             jh ^= jh >> 15;
             jitter = 1.0 - vs.spriteJitter * ((jh & 0xFFFFu) / 65535.0) * 0.6;
           }
+          // Nothing to transform: take the integer path. The transform below
+          // does two divisions per PIXEL plus trig when spinning, which at
+          // 1080p is millions of floating-point operations a frame -- and the
+          // default is no transform at all, so paying for it unconditionally
+          // was a straight regression.
+          const bool plain = (quarter == 0) && (freeRad == 0.0) &&
+                             !flipX && !flipY && (jitter > 0.999);
+          if (plain) {
+            for (int ry = 0; ry < cellH; ++ry) {
+              if (py0 + ry >= outH) break;
+              const int sy = ty0 + (ry * spriteSheetTileH_) / cellH;
+              std::uint8_t* row = frame.pixels.data() +
+                (static_cast<std::size_t>(py0 + ry) * outW) * 4;
+              for (int rx = 0; rx < cellW; ++rx) {
+                if (px0 + rx >= outW) break;
+                const int sx = tx0 + (rx * spriteSheetTileW_) / cellW;
+                const std::size_t so =
+                  (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
+                std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+                if (so + 3 >= spriteSheetRgba_.size() ||
+                    spriteSheetRgba_[so + 3] < 32) {
+                  p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255;
+                  continue;
+                }
+                p[0] = spriteSheetRgba_[so + 0];
+                p[1] = spriteSheetRgba_[so + 1];
+                p[2] = spriteSheetRgba_[so + 2];
+                p[3] = 255;
+              }
+            }
+            continue;
+          }
+
           for (int ry = 0; ry < cellH; ++ry) {
             if (py0 + ry >= outH) break;
             // Cell-local coordinates, centred, so every transform is about
