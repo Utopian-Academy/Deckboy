@@ -153,7 +153,15 @@ struct VideoSynthSettings {
   // Which glyphs the grid is built from. Density is all a cell needs to say,
   // but WHICH marks carry that density changes the character of the whole
   // image, so it is a choice rather than a constant.
-  int asciiCharSet = 0;            // 0 blocks, 1 ASCII ramp, 2 symbols, 3 mixed
+  // 0 blocks, 1 ASCII density, 2 symbols, 3 mixed, 4 ASCII raw, 5 sprite sheet
+  int asciiCharSet = 0;
+  // An imported sheet. Tiles are sliced on a fixed grid and used exactly like
+  // glyphs -- chosen by brightness, corrupted by the same cell logic. Kept as
+  // a PATH rather than baked into the show so the show file stays small and
+  // the operator keeps their own artwork where they put it.
+  std::string spriteSheetPath;
+  int spriteTileW = 16;
+  int spriteTileH = 16;
   // Shuffles which glyph maps to which density. Same set, different
   // handwriting -- and it is a seed rather than live randomness so the look is
   // repeatable and stays put when the show is reopened.

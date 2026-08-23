@@ -1348,6 +1348,93 @@ int nearestPaletteIndex(int r, int g, int b) {
 
 }  // namespace
 
+
+// ---------------------------------------------------------------------------
+// Sprite sheet import.
+//
+// Tiles are used exactly like glyphs: chosen by brightness, corrupted by the
+// same cell logic, drawn into the same grid. That is deliberate -- a sheet is
+// another alphabet, not a separate feature, so everything already built for
+// text mode applies to it unchanged.
+// ---------------------------------------------------------------------------
+bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tileH) {
+  if (path.empty() || tileW < 2 || tileH < 2) return false;
+  if (spriteSheetLoaded_ == path && spriteSheetTileW_ == tileW &&
+      spriteSheetTileH_ == tileH) {
+    return !spriteTilesByLuma_.empty();
+  }
+  spriteSheetLoaded_ = path;
+  spriteSheetTileW_ = tileW;
+  spriteSheetTileH_ = tileH;
+  spriteTilesByLuma_.clear();
+  spriteSheetRgba_.clear();
+
+  // Size first, so the buffer can be exact. A sheet is an ordinary image, so
+  // this is the same probe the still-image path uses.
+  int srcW = 0, srcH = 0;
+  {
+    const std::vector<std::string> probeArgs {
+      "ffprobe", "-v", "error", "-select_streams", "v:0",
+      "-show_entries", "stream=width,height", "-of", "csv=p=0", path
+    };
+    if (auto probe = readAllText(probeArgs)) {
+      std::sscanf(probe->c_str(), "%d,%d", &srcW, &srcH);
+    }
+  }
+  if (srcW <= 0 || srcH <= 0) return false;
+
+  ChildProcess proc;
+  const std::vector<std::string> args {
+    "ffmpeg", "-hide_banner", "-loglevel", "error", "-i", path,
+    "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
+  };
+  if (!spawnPipeProcess(proc, args)) return false;
+  const std::size_t want = static_cast<std::size_t>(srcW) * srcH * 4;
+  spriteSheetRgba_.resize(want);
+  const bool ok = readExact(proc.readFd, spriteSheetRgba_.data(), want);
+  proc.stop();
+  if (!ok) { spriteSheetRgba_.clear(); return false; }
+
+  spriteSheetW_ = srcW;
+  spriteSheetH_ = srcH;
+  spriteSheetCols_ = srcW / tileW;
+  spriteSheetRows_ = srcH / tileH;
+  if (spriteSheetCols_ <= 0 || spriteSheetRows_ <= 0) return false;
+
+  // Rank tiles by mean brightness, weighted by ALPHA. Sprite sheets are mostly
+  // transparent padding, and a tile that is 90% empty should read as dark
+  // whatever colour the remaining pixels are.
+  for (int ty = 0; ty < spriteSheetRows_; ++ty) {
+    for (int tx = 0; tx < spriteSheetCols_; ++tx) {
+      long long total = 0;
+      long long covered = 0;
+      for (int y = 0; y < tileH; ++y) {
+        const std::size_t rowOff =
+          (static_cast<std::size_t>(ty * tileH + y) * srcW + tx * tileW) * 4;
+        for (int x = 0; x < tileW; ++x) {
+          const std::size_t o = rowOff + static_cast<std::size_t>(x) * 4;
+          const int a = spriteSheetRgba_[o + 3];
+          if (a < 32) continue;
+          const int l = (spriteSheetRgba_[o + 0] * 77 +
+                         spriteSheetRgba_[o + 1] * 151 +
+                         spriteSheetRgba_[o + 2] * 28) >> 8;
+          total += l;
+          ++covered;
+        }
+      }
+      const int area = tileW * tileH;
+      if (covered * 4 < area) continue;   // mostly empty: not a usable tile
+      const int mean = static_cast<int>(total / std::max<long long>(1, covered));
+      // Scale by coverage so a sparse tile ranks darker than a solid one of
+      // the same colour.
+      const int weighted = static_cast<int>(mean * covered / area);
+      spriteTilesByLuma_.emplace_back(weighted, ty * spriteSheetCols_ + tx);
+    }
+  }
+  std::sort(spriteTilesByLuma_.begin(), spriteTilesByLuma_.end());
+  return !spriteTilesByLuma_.empty();
+}
+
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                          double audioLevel) {
   auto size = currentOutputSizeHint();
@@ -1743,6 +1830,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       return cseed;
     };
     const double corrupt = std::clamp(vs.glitch, 0.0, 1.0);
+    // Sheet mode only engages if the sheet actually loaded. A missing file
+    // falls back to blocks rather than drawing nothing, because an empty
+    // screen gives the operator no clue which of the two went wrong.
+    const bool useSprites = vs.asciiCharSet == 5 &&
+      ensureSpriteSheet(vs.spriteSheetPath, vs.spriteTileW, vs.spriteTileH);
 
     // Threaded by cell row. Text mode writes the ENTIRE output raster one
     // cell at a time, which at 1080p is two million pixels on a single thread
@@ -1853,10 +1945,47 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
           if (!monoInk) inkIdx = static_cast<int>(crnd() % 16u);
         }
 
-        const std::uint8_t* ink = kCellPalette[inkIdx];
-        const std::uint8_t* bg = kCellPalette[bgIdx];
+        // Cell origin, needed by BOTH the sprite branch below and the glyph
+        // path after it, so it is computed once here.
         const int px0 = cx * cellW;
         const int py0 = cy * cellH;
+
+        if (useSprites) {
+          // Draw a TILE instead of a glyph, chosen by the same brightness the
+          // glyph ramp uses, so the picture still reads through the sprites.
+          const std::size_t n = spriteTilesByLuma_.size();
+          std::size_t pick = static_cast<std::size_t>(luma) * n / 256u;
+          if (pick >= n) pick = n - 1;
+          if (rowLocked) pick = static_cast<std::size_t>(lockGlyph) % n;
+          const int tile = spriteTilesByLuma_[pick].second;
+          const int tx0 = (tile % spriteSheetCols_) * spriteSheetTileW_;
+          const int ty0 = (tile / spriteSheetCols_) * spriteSheetTileH_;
+          for (int ry = 0; ry < cellH; ++ry) {
+            if (py0 + ry >= outH) break;
+            const int sy = ty0 + (ry * spriteSheetTileH_) / cellH;
+            std::uint8_t* row = frame.pixels.data() +
+              (static_cast<std::size_t>(py0 + ry) * outW) * 4;
+            for (int rx = 0; rx < cellW; ++rx) {
+              if (px0 + rx >= outW) break;
+              const int sx = tx0 + (rx * spriteSheetTileW_) / cellW;
+              const std::size_t so =
+                (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
+              if (so + 3 >= spriteSheetRgba_.size()) continue;
+              const int a = spriteSheetRgba_[so + 3];
+              std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+              if (a < 32) { p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255; continue; }
+              p[0] = spriteSheetRgba_[so + 0];
+              p[1] = spriteSheetRgba_[so + 1];
+              p[2] = spriteSheetRgba_[so + 2];
+              p[3] = 255;
+            }
+          }
+          continue;
+        }
+
+
+        const std::uint8_t* ink = kCellPalette[inkIdx];
+        const std::uint8_t* bg = kCellPalette[bgIdx];
 
         // A 5x7 glyph in a cell many pixels tall means each glyph row repeats
         // over several output rows. Draw it once and memcpy the repeats: the
