@@ -1968,8 +1968,16 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     // Sheet mode only engages if the sheet actually loaded. A missing file
     // falls back to blocks rather than drawing nothing, because an empty
     // screen gives the operator no clue which of the two went wrong.
+    // Uses the sheet only if it is ALREADY loaded. This used to call
+    // ensureSpriteSheet from here, which on a folder spawns two subprocesses
+    // per file -- two hundred of them for a hundred sprites -- synchronously,
+    // in the middle of drawing a frame. The app froze hard.
+    //
+    // Loading now happens when the operator CHOOSES a set, which is a moment
+    // that can afford to take a second, and this only ever reads the result.
     const bool useSprites = vs.asciiCharSet == 5 &&
-      ensureSpriteSheet(vs.spriteSheetPath, vs.spriteTileW, vs.spriteTileH);
+      spriteSheetLoaded_ == vs.spriteSheetPath &&
+      !spriteTilesByLuma_.empty() && spriteSheetCols_ > 0;
 
     // Threaded by cell row. Text mode writes the ENTIRE output raster one
     // cell at a time, which at 1080p is two million pixels on a single thread

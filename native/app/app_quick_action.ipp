@@ -393,7 +393,11 @@
           triggerToast("sprite sheet cleared");
         }
         break;
-      case QuickAction::VsTileWDec: adjustVsInt(&VideoSynthSettings::spriteTileW, -8, 8, 128, "tile w"); break;
+      case QuickAction::VsTileWDec:
+        adjustVsInt(&VideoSynthSettings::spriteTileW, -8, 8, 128, "tile w");
+        // The cached slice is keyed on tile size, so a change invalidates it.
+        if (Cue* c = selectedVideoSynthCueMutable()) loadSpriteSetForCue(*c);
+        break;
       case QuickAction::VsTileWInc: adjustVsInt(&VideoSynthSettings::spriteTileW, 8, 8, 128, "tile w"); break;
       case QuickAction::VsTileHDec: adjustVsInt(&VideoSynthSettings::spriteTileH, -8, 8, 128, "tile h"); break;
       case QuickAction::VsTileHInc: adjustVsInt(&VideoSynthSettings::spriteTileH, 8, 8, 128, "tile h"); break;
