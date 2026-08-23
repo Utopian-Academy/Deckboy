@@ -1368,46 +1368,35 @@ int nearestPaletteIndex(int r, int g, int b) {
 static bool decodeSpriteInto(const std::string& file, int tileW, int tileH,
                              std::vector<std::uint8_t>& atlas,
                              std::size_t atlasW, int col, int row) {
-  int sw = 0, sh = 0;
-  {
-    const std::vector<std::string> probeArgs {
-      "ffprobe", "-v", "error", "-select_streams", "v:0",
-      "-show_entries", "stream=width,height", "-of", "csv=p=0", file
-    };
-    if (auto probe = readAllText(probeArgs)) {
-      std::sscanf(probe->c_str(), "%d,%d", &sw, &sh);
-    }
-  }
-  if (sw <= 0 || sh <= 0) return false;
-
-  const double scale = std::min(static_cast<double>(tileW) / sw,
-                                static_cast<double>(tileH) / sh);
-  const int dw = std::max(1, static_cast<int>(sw * scale));
-  const int dh = std::max(1, static_cast<int>(sh * scale));
+  // The filter does the fitting, so the output is ALWAYS tileW x tileH and its
+  // size is known without probing the source first. Scaled to FIT and padded
+  // centred: a sprite drawn to the edges of its cell loses the silhouette, and
+  // the silhouette is the only legible thing once a sprite stands in for a
+  // character. Nearest neighbour because this is pixel art and smoothing it on
+  // the way in destroys what makes it worth using.
+  const std::string chain =
+    "scale=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
+    ":force_original_aspect_ratio=decrease:flags=neighbor,"
+    "pad=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
+    ":(ow-iw)/2:(oh-ih)/2:color=0x00000000";
 
   ChildProcess proc;
   const std::vector<std::string> args {
     "ffmpeg", "-hide_banner", "-loglevel", "error", "-i", file,
-    "-frames:v", "1",
-    // Nearest neighbour: these are pixel art, and smoothing them on the way in
-    // would destroy exactly what makes them worth using.
-    "-vf", "scale=" + std::to_string(dw) + ":" + std::to_string(dh) +
-           ":flags=neighbor",
+    "-frames:v", "1", "-vf", chain,
     "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
   };
   if (!spawnPipeProcess(proc, args)) return false;
-  std::vector<std::uint8_t> px(static_cast<std::size_t>(dw) * dh * 4);
+  std::vector<std::uint8_t> px(static_cast<std::size_t>(tileW) * tileH * 4);
   const bool ok = readExact(proc.readFd, px.data(), px.size());
   proc.stop();
   if (!ok) return false;
 
-  const int offX = (tileW - dw) / 2;
-  const int offY = (tileH - dh) / 2;
-  for (int y = 0; y < dh; ++y) {
-    for (int x = 0; x < dw; ++x) {
-      const std::size_t src = (static_cast<std::size_t>(y) * dw + x) * 4;
-      const std::size_t dstX = static_cast<std::size_t>(col * tileW + offX + x);
-      const std::size_t dstY = static_cast<std::size_t>(row * tileH + offY + y);
+  for (int y = 0; y < tileH; ++y) {
+    for (int x = 0; x < tileW; ++x) {
+      const std::size_t src = (static_cast<std::size_t>(y) * tileW + x) * 4;
+      const std::size_t dstX = static_cast<std::size_t>(col * tileW + x);
+      const std::size_t dstY = static_cast<std::size_t>(row * tileH + y);
       const std::size_t dst = (dstY * atlasW + dstX) * 4;
       if (dst + 3 >= atlas.size()) continue;
       atlas[dst + 0] = px[src + 0];
@@ -1467,54 +1456,20 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
     spriteSheetRgba_.assign(
       static_cast<std::size_t>(spriteSheetW_) * spriteSheetH_ * 4, 0);
 
-    // ONE ffmpeg call for the whole folder, not one per file.
+    // Per file, because the concat demuxer requires every input to share
+    // stream parameters and a folder of individual sprites is by definition
+    // all different sizes. The one-pass version built an atlas that scored
+    // zero usable tiles and rendered black -- correct for a real sheet,
+    // useless for the case this path exists to serve.
     //
-    // The previous version spawned ffprobe and ffmpeg per sprite -- two hundred
-    // processes for a hundred sprites -- which froze the app for seconds
-    // wherever it ran. Moving it off the render path only moved the freeze.
-    //
-    // The concat demuxer reads a list of files as a sequence, and the filter
-    // chain scales each to fit, pads it centred with transparency, and tiles
-    // the lot into one atlas. Concat rather than a glob because Windows ffmpeg
-    // builds frequently lack glob support, and a silent failure there would
-    // look exactly like this bug again.
-    std::error_code listEc;
-    const std::filesystem::path listPath =
-      std::filesystem::temp_directory_path(listEc) / "deckboy-sprites.txt";
-    {
-      std::ofstream list(listPath, std::ios::binary);
-      if (!list) return false;
-      list << "ffconcat version 1.0" << '\n';
-      for (const auto& f : files) {
-        // Single quotes are the concat demuxer's escape; a path containing one
-        // would break the list, so those files are skipped rather than
-        // corrupting the whole set.
-        if (f.find('\'') != std::string::npos) continue;
-        list << "file '" << f << "'" << '\n';
-        list << "duration 1" << '\n';
-      }
+    // ffprobe is NOT called any more: the filter chain pads every sprite to
+    // exactly the tile size, so the output byte count is known in advance.
+    // That halves the process count against the first version.
+    for (std::size_t i = 0; i < files.size(); ++i) {
+      decodeSpriteInto(files[i], tileW, tileH, spriteSheetRgba_,
+                       static_cast<std::size_t>(spriteSheetW_),
+                       static_cast<int>(i % cols), static_cast<int>(i / cols));
     }
-
-    const std::string chain =
-      "scale=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
-      ":force_original_aspect_ratio=decrease:flags=neighbor,"
-      "pad=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
-      ":(ow-iw)/2:(oh-ih)/2:color=0x00000000,"
-      "tile=" + std::to_string(cols) + "x" + std::to_string(rows);
-
-    ChildProcess atlasProc;
-    const std::vector<std::string> atlasArgs {
-      "ffmpeg", "-hide_banner", "-loglevel", "error",
-      "-f", "concat", "-safe", "0", "-i", listPath.string(),
-      "-vf", chain,
-      "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
-    };
-    if (!spawnPipeProcess(atlasProc, atlasArgs)) return false;
-    const bool atlasOk = readExact(atlasProc.readFd, spriteSheetRgba_.data(),
-                                   spriteSheetRgba_.size());
-    atlasProc.stop();
-    std::filesystem::remove(listPath, listEc);
-    if (!atlasOk) return false;
 
     // Rank exactly as the sheet path does, but WITHOUT the coverage filter: a
     // small sprite centred on a large tile is legitimately sparse, and
