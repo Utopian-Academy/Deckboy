@@ -458,6 +458,22 @@ class MediaEngine {
   // Reused now, so a steady-state frame allocates nothing.
   std::vector<std::uint8_t> vsynthSmall_;
   std::vector<std::uint8_t> vsynthCrtSrc_;
+  // Imported sprite sheet, decoded once and sliced into tiles. Cached by path
+  // and tile size: decoding is a synchronous ffmpeg call, fine as a one-off
+  // when the operator picks a sheet and unacceptable per frame.
+  std::string spriteSheetLoaded_;
+  int spriteSheetTileW_ = 0;
+  int spriteSheetTileH_ = 0;
+  int spriteSheetCols_ = 0;
+  int spriteSheetRows_ = 0;
+  int spriteSheetW_ = 0;
+  int spriteSheetH_ = 0;
+  std::vector<std::uint8_t> spriteSheetRgba_;
+  // Mean brightness per tile, so a tile can be chosen by density the same way
+  // a glyph is. Blank tiles are excluded -- a sheet is mostly empty space and
+  // picking those would just punch holes in the picture.
+  std::vector<std::pair<int, int>> spriteTilesByLuma_;   // {luma, tileIndex}
+  bool ensureSpriteSheet(const std::string& path, int tileW, int tileH);
   int vsynthPrevW_ = 0;
   int vsynthPrevH_ = 0;
   double vsynthRotation_ = 0.0;
