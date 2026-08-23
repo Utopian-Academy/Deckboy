@@ -236,6 +236,8 @@ class MediaEngine {
   // Sprite sheet slicing. Public because --sheet-probe drives it
   // directly: a sheet that yields no tiles needs diagnosing without
   // opening the app.
+  // EXPENSIVE: decodes the whole sheet or folder, spawning a subprocess per
+  // file. Call it when a set is selected, never from a render path.
   bool ensureSpriteSheet(const std::string& path, int tileW, int tileH);
   // Diagnostics for --sheet-probe: how the sheet sliced, and how many
   // tiles survived the coverage filter.
