@@ -1972,6 +1972,78 @@ struct TimerRuntime {
   int chimedStage = 0;
 };
 
+// MIDI note number to frequency under a chosen tuning. Note 69 is A above
+// middle C and is the reference in every system here, so they all agree on
+// that one pitch and diverge from it.
+inline double synthNoteToHz(int midiNote, SynthTuning tuning, double referenceHz) {
+  const double ref = (referenceHz > 0.0) ? referenceHz : 440.0;
+  const int rel = midiNote - 69;
+  switch (tuning) {
+    case SynthTuning::Equal19:
+      // Nineteen steps to the octave. The keyboard still sends twelve per
+      // octave, so this stretches those twelve across the 19-step grid rather
+      // than pretending extra keys exist.
+      return ref * std::pow(2.0, (rel * 19.0 / 12.0) / 19.0);
+    case SynthTuning::Equal24:
+      return ref * std::pow(2.0, (rel * 24.0 / 12.0) / 24.0);
+    case SynthTuning::BohlenPierce:
+      // Thirteen equal divisions of 3:1 rather than 2:1. There is no octave in
+      // this system at all, which is the point.
+      return ref * std::pow(3.0, rel / 13.0);
+    case SynthTuning::Just: {
+      // 5-limit just intonation. Pure ratios inside the octave, transposed by
+      // whole octaves outside it.
+      static const double kRatios[12] = {
+        1.0, 16.0/15, 9.0/8, 6.0/5, 5.0/4, 4.0/3,
+        45.0/32, 3.0/2, 8.0/5, 5.0/3, 9.0/5, 15.0/8
+      };
+      const int oct = static_cast<int>(std::floor(rel / 12.0));
+      const int step = ((rel % 12) + 12) % 12;
+      return ref * kRatios[step] * std::pow(2.0, oct);
+    }
+    case SynthTuning::Pythagorean: {
+      // Built from stacked perfect fifths, so fifths are exact and thirds are
+      // wide and bright.
+      static const double kRatios[12] = {
+        1.0, 256.0/243, 9.0/8, 32.0/27, 81.0/64, 4.0/3,
+        729.0/512, 3.0/2, 128.0/81, 27.0/16, 16.0/9, 243.0/128
+      };
+      const int oct = static_cast<int>(std::floor(rel / 12.0));
+      const int step = ((rel % 12) + 12) % 12;
+      return ref * kRatios[step] * std::pow(2.0, oct);
+    }
+    case SynthTuning::Meantone: {
+      // Quarter-comma meantone: fifths narrowed so that thirds come out pure.
+      static const double kCents[12] = {
+        0.0, 76.0, 193.2, 310.3, 386.3, 503.4,
+        579.5, 696.6, 772.6, 889.7, 1006.8, 1082.9
+      };
+      const int oct = static_cast<int>(std::floor(rel / 12.0));
+      const int step = ((rel % 12) + 12) % 12;
+      return ref * std::pow(2.0, kCents[step] / 1200.0) * std::pow(2.0, oct);
+    }
+    default:
+      return ref * std::pow(2.0, rel / 12.0);
+  }
+}
+
+// Ableton's layout: the home row is the white keys and the row above holds the
+// sharps where they physically sit on a piano. Anyone who has used a tracker
+// or a DAW already knows it, so it needs no explanation.
+inline int synthKeyToSemitone(SDL_Keycode key) {
+  switch (key) {
+    case SDLK_A: return 0;   case SDLK_W: return 1;
+    case SDLK_S: return 2;   case SDLK_E: return 3;
+    case SDLK_D: return 4;   case SDLK_F: return 5;
+    case SDLK_T: return 6;   case SDLK_G: return 7;
+    case SDLK_Y: return 8;   case SDLK_H: return 9;
+    case SDLK_U: return 10;  case SDLK_J: return 11;
+    case SDLK_K: return 12;  case SDLK_O: return 13;
+    case SDLK_L: return 14;
+    default: return -1;
+  }
+}
+
 enum class EncoderPreset {
   DeliveryH264,      // the historical behaviour: NVENC, libx264 fallback
   Proxy,             // 720p, fast, for scrubbing on weak machines
@@ -5800,6 +5872,34 @@ class App {
                      "the part that matters -- a phosphor spills sideways, "
                      "which is why a CRT looks like it is emitting light.");
     rowY += ix.rowStep;
+    // Sheet picking sits OUTSIDE the text-mode gate. It was inside, so a
+    // sprite sheet could not be found without first toggling an unrelated
+    // control -- the same discoverability trap the chip synths had, and the
+    // owner hit it twice. Picking a sheet turns text mode on by itself.
+    inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
+                     v.spriteSheetPath.empty()
+                       ? std::string("none")
+                       : fs::path(v.spriteSheetPath).filename().string(),
+                     QuickAction::VsSheetPick, QuickAction::VsSheetClear,
+                     false, false,
+                     "Load a sprite sheet and use its tiles as the alphabet. "
+                     "Tiles are picked by brightness like glyphs are. "
+                     "Right-click clears.");
+    rowY += ix.rowStep;
+    if (!v.spriteSheetPath.empty()) {
+      inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
+                       std::to_string(v.spriteTileW),
+                       QuickAction::VsTileWInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Tile width in pixels. Must match the sheet's grid or "
+                       "the slices land across neighbouring sprites.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
+                       std::to_string(v.spriteTileH),
+                       QuickAction::VsTileHInc, QuickAction::ToggleLoop,
+                       false, false, "Tile height in pixels.");
+      rowY += ix.rowStep;
+    }
     inspDrawQuickRow(ix, rowY, "text mode", QuickAction::VsAsciiToggle,
                      v.ascii ? "on" : "off",
                      QuickAction::VsAsciiToggle, QuickAction::VsAsciiToggle,
@@ -5828,30 +5928,6 @@ class App {
                        "Scramble which glyph means which brightness. Same set, "
                        "different handwriting. Seeded, so it stays put.");
       rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
-                       v.spriteSheetPath.empty()
-                         ? std::string("none")
-                         : fs::path(v.spriteSheetPath).filename().string(),
-                       QuickAction::VsSheetPick, QuickAction::VsSheetClear,
-                       false, false,
-                       "Load a sprite sheet and use its tiles as the alphabet. "
-                       "Tiles are picked by brightness like glyphs are. "
-                       "Right-click clears.");
-      rowY += ix.rowStep;
-      if (!v.spriteSheetPath.empty()) {
-        inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
-                         std::to_string(v.spriteTileW),
-                         QuickAction::VsTileWInc, QuickAction::ToggleLoop,
-                         false, false,
-                         "Tile width in pixels. Must match the sheet's grid or "
-                         "the slices land across neighbouring sprites.");
-        rowY += ix.rowStep;
-        inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
-                         std::to_string(v.spriteTileH),
-                         QuickAction::VsTileHInc, QuickAction::ToggleLoop,
-                         false, false, "Tile height in pixels.");
-        rowY += ix.rowStep;
-      }
       inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
                        vsInkLabel(v.asciiInk),
                        QuickAction::VsInkCycle, QuickAction::ToggleLoop,

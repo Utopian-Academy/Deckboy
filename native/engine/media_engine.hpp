@@ -219,6 +219,20 @@ class MediaEngine {
   // Attack/hold/release shared by every chip.
   double chipEnvelope(const ToneSettings& tone, double dt);
 
+  // ---- Played notes --------------------------------------------------------
+  // A note from a MIDI keyboard or the computer keyboard. Until one arrives the
+  // voice free-runs on the cue's own pitch and retrigger settings, which is
+  // what a drone or a test signal wants; the first note switches it to GATED,
+  // where the envelope follows key down and key up instead.
+  //
+  // Monophonic with last-note priority, which is what the hardware was: a
+  // single 2A03 pulse channel plays one note, and pretending otherwise would
+  // be a synth wearing a chip's clothes.
+  void synthNoteOn(double hz, int velocity);
+  void synthNoteOff(double hz);
+  void synthAllNotesOff();
+  bool synthGated() const { return chipGated_; }
+
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,
@@ -450,6 +464,11 @@ class MediaEngine {
   double nesPhase_ = 0.0;
   double nesNoiseAccum_ = 0.0;
   unsigned nesLfsr_ = 1u;
+  bool chipGated_ = false;      // a keyboard has taken over from the cue's own pitch
+  bool chipGateOpen_ = false;   // a key is currently down
+  double chipNoteHz_ = 0.0;     // the note being held
+  double chipVelocity_ = 1.0;
+  double chipReleaseLevel_ = 0.0;   // level at the moment the key was released
   // Previous video-synth frame, for the feedback path. Kept as RGBA at the
   // output raster; reallocated only when the raster changes.
   std::vector<std::uint8_t> vsynthPrev_;
