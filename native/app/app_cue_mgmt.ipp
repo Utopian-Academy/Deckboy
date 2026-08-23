@@ -2402,6 +2402,25 @@
       : "tone: channel " + std::to_string(cue->tone.channel + 1));
   }
 
+  static const char* vsRotateLabel(int r) {
+    switch (r) {
+      case 1:  return "90";
+      case 2:  return "180";
+      case 3:  return "270";
+      case 4:  return "by brightness";
+      case 5:  return "spinning";
+      default: return "none";
+    }
+  }
+  static const char* vsFlipLabel(int f) {
+    switch (f) {
+      case 1:  return "horizontal";
+      case 2:  return "vertical";
+      case 3:  return "alternating";
+      default: return "none";
+    }
+  }
+
   static const char* vsShapeLabel(VideoSynthShape s) {
     switch (s) {
       case VideoSynthShape::Diamond: return "diamond";

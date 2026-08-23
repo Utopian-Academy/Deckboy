@@ -3490,6 +3490,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.videoSynth.spriteSheetPath)
         << '\t' << cue.videoSynth.spriteTileW
         << '\t' << cue.videoSynth.spriteTileH
+        << '\t' << cue.videoSynth.spriteRotate
+        << '\t' << cue.videoSynth.spriteFreeAngle
+        << '\t' << cue.videoSynth.spriteFlip
+        << '\t' << cue.videoSynth.spriteJitter
+        << '\t' << cue.videoSynth.spriteChaos
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
         << '\n';
@@ -4133,6 +4138,14 @@ Project loadProject(const fs::path& projectFile,
         cue.videoSynth.spriteSheetPath = safeString(fields, tb + 63);
         cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, tb + 64, 16), 8, 128);
         cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, tb + 65, 16), 8, 128);
+        cue.videoSynth.spriteRotate = std::clamp(safeInt(fields, tb + 68, 0), 0, 5);
+        cue.videoSynth.spriteFreeAngle =
+          std::clamp(safeDouble(fields, tb + 69, 0.0), -720.0, 720.0);
+        cue.videoSynth.spriteFlip = std::clamp(safeInt(fields, tb + 70, 0), 0, 3);
+        cue.videoSynth.spriteJitter =
+          std::clamp(safeDouble(fields, tb + 71, 0.0), 0.0, 1.0);
+        cue.videoSynth.spriteChaos =
+          std::clamp(safeDouble(fields, tb + 72, 0.0), 0.0, 1.0);
         cue.timer.logoPath          = safeString(fields, tb + 22);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
       }
@@ -5931,6 +5944,45 @@ class App {
                      "Sprite sets installed in data/sprites. Each folder there "
                      "is a set; cycling picks one and wraps back to none.");
     rowY += ix.rowStep;
+    if (!v.spriteSheetPath.empty()) {
+      inspDrawQuickRow(ix, rowY, "rotate", QuickAction::VsRotateCycle,
+                       vsRotateLabel(v.spriteRotate),
+                       QuickAction::VsRotateCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Quarter turns are exact and stay crisp. Spinning "
+                       "samples at an angle, which tears pixel art -- "
+                       "sometimes that is what you want.");
+      rowY += ix.rowStep;
+      if (v.spriteRotate == 5) {
+        inspDrawQuickRow(ix, rowY, "spin", QuickAction::VsFreeAngleDec,
+                         fmtFloat(v.spriteFreeAngle, 0) + " deg/s",
+                         QuickAction::VsFreeAngleInc, QuickAction::ToggleLoop,
+                         false, false, "Rotation speed, degrees per second.");
+        rowY += ix.rowStep;
+      }
+      inspDrawQuickRow(ix, rowY, "flip", QuickAction::VsFlipCycle,
+                       vsFlipLabel(v.spriteFlip),
+                       QuickAction::VsFlipCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Alternating mirrors by cell position, which reads as "
+                       "pattern where random flipping reads as noise.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "jitter", QuickAction::VsJitterDec,
+                       fmtFloat(v.spriteJitter, 2),
+                       QuickAction::VsJitterInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Vary tile size per cell, so the grid stops looking "
+                       "like a grid.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsChaosDec,
+                       fmtFloat(v.spriteChaos, 2),
+                       QuickAction::VsChaosInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "0 picks tiles by brightness so the picture reads. 1 "
+                       "picks at random so the grid becomes texture.");
+      rowY += ix.rowStep;
+    }
+
     inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
                      v.spriteSheetPath.empty()
                        ? std::string("none")
