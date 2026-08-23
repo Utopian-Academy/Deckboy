@@ -1775,18 +1775,22 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
           // Feedback is ADDITIVE-leaning rather than a plain crossfade: the
           // trails brighten where they overlap, which is what makes a video
           // feedback loop look like light rather than like a blur.
-          fr = std::min(255.0, fr * (1.0 - fb * 0.6) + vsynthPrev_[o + 2] * fb);
+          fr = std::min(255.0, fr * (1.0 - fb * 0.6) + vsynthPrev_[o + 0] * fb);
           fg = std::min(255.0, fg * (1.0 - fb * 0.6) + vsynthPrev_[o + 1] * fb);
-          fbc = std::min(255.0, fbc * (1.0 - fb * 0.6) + vsynthPrev_[o + 0] * fb);
+          fbc = std::min(255.0, fbc * (1.0 - fb * 0.6) + vsynthPrev_[o + 2] * fb);
           // Decay, or the loop saturates to white within a second.
           fr *= 0.94; fg *= 0.94; fbc *= 0.94;
         }
       }
 
       const std::size_t off = (static_cast<std::size_t>(y) * W + x) * 4;
-      small[off + 0] = static_cast<std::uint8_t>(std::clamp(fbc, 0.0, 255.0));
+      // Red first, matching RGBA32. This wrote blue into byte 0, which put
+      // every hardware palette out by a red/blue exchange -- the palettes are
+      // the whole point of those modes, so they were the most wrong thing on
+      // screen while still looking superficially plausible.
+      small[off + 0] = static_cast<std::uint8_t>(std::clamp(fr, 0.0, 255.0));
       small[off + 1] = static_cast<std::uint8_t>(std::clamp(fg, 0.0, 255.0));
-      small[off + 2] = static_cast<std::uint8_t>(std::clamp(fr, 0.0, 255.0));
+      small[off + 2] = static_cast<std::uint8_t>(std::clamp(fbc, 0.0, 255.0));
       small[off + 3] = 255;
     }
   }
@@ -2141,7 +2145,12 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
             const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
             const std::uint8_t* c = on ? ink : bg;
             std::uint8_t* p = cellStart + static_cast<std::size_t>(rx) * 4;
-            p[0] = c[2]; p[1] = c[1]; p[2] = c[0]; p[3] = 255;
+            // RGBA32: byte 0 is RED. This wrote c[2] -- blue -- into it, so
+            // every palette colour came out with red and blue exchanged.
+            // Amber rendered as cyan and cyan as amber, which is how it
+            // was spotted. fillTimerRect writes r,g,b in order and its
+            // digits were always correct, which is the reference.
+            p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
           }
           prevGy = gy;
           prevRowStart = cellStart;
