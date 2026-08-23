@@ -3156,6 +3156,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
   output << "asio_driver\t" << escapeField(project.asioDriverName) << '\n';
   output << "audio_input_device\t" << escapeField(project.audioInputDeviceName) << '\n';
+  output << "synth_keyboard\t" << (project.synthKeyboardEnabled ? 1 : 0) << '\n';
+  output << "synth_octave\t" << project.synthKeyboardOctave << '\n';
+  output << "midi_to_synth\t" << (project.midiToSynth ? 1 : 0) << '\n';
   output << "audio_input_enabled\t" << (project.audioInputEnabled ? 1 : 0) << '\n';
   output << "audio_input_gain_db\t" << project.audioInputGainDb << '\n';
   output << "audio_input_to_program\t" << (project.audioInputToProgram ? 1 : 0) << '\n';
@@ -3462,6 +3465,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << static_cast<int>(cue.tone.synth.nesDuty)
         << '\t' << (cue.tone.synth.nesNoiseShort ? "1" : "0")
         << '\t' << (cue.tone.synth.nesQuantise ? "1" : "0")
+        << '\t' << static_cast<int>(cue.tone.synth.tuning)
+        << '\t' << cue.tone.synth.referenceHz
         << '\t' << static_cast<int>(cue.videoSynth.shape)
         << '\t' << static_cast<int>(cue.videoSynth.mirror)
         << '\t' << static_cast<int>(cue.videoSynth.palette)
@@ -3592,6 +3597,12 @@ Project loadProject(const fs::path& projectFile,
       project.uiTransitionsEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "hap_suggestion_dismissed") {
       project.hapSuggestionDismissed = safeBool(fields, 1, false);
+    } else if (fields[0] == "synth_keyboard") {
+      project.synthKeyboardEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "synth_octave") {
+      project.synthKeyboardOctave = std::clamp(safeInt(fields, 1, 4), 0, 8);
+    } else if (fields[0] == "midi_to_synth") {
+      project.midiToSynth = safeBool(fields, 1, false);
     } else if (fields[0] == "audio_input_device") {
       project.audioInputDeviceName = safeString(fields, 1);
     } else if (fields[0] == "audio_input_enabled") {
@@ -4087,6 +4098,10 @@ Project loadProject(const fs::path& projectFile,
           std::clamp(safeInt(fields, tb + 40, 2), 0, 3));
         cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 41, false);
         cue.tone.synth.nesQuantise = safeBool(fields, tb + 42, true);
+        cue.tone.synth.tuning = static_cast<SynthTuning>(
+          std::clamp(safeInt(fields, tb + 66, 0), 0, 6));
+        cue.tone.synth.referenceHz =
+          std::clamp(safeDouble(fields, tb + 67, 440.0), 380.0, 480.0);
         // Video synth. Written at the same time as the feature rather than
         // discovered missing on reload, which is how the last three went.
         cue.videoSynth.shape = static_cast<VideoSynthShape>(
@@ -5771,6 +5786,39 @@ class App {
                        "so the bend tracks pitch.");
       rowY += ix.rowStep;
     }
+
+    inspDrawQuickRow(ix, rowY, "tuning", QuickAction::SynthCycleTuning,
+                     synthTuningLabel(s.tuning),
+                     QuickAction::SynthCycleTuning, QuickAction::ToggleLoop,
+                     false, false,
+                     "Equal temperament buys free modulation at the cost of "
+                     "every interval being slightly wrong. Just and "
+                     "pythagorean are exactly in tune in one key. "
+                     "Bohlen-Pierce divides a twelfth, so it has no octaves.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "A =", QuickAction::SynthRefDec,
+                     fmtFloat(s.referenceHz, 0) + " Hz",
+                     QuickAction::SynthRefInc, QuickAction::ToggleLoop,
+                     false, false,
+                     "Reference pitch. 440 is modern standard, 432 the common "
+                     "alternative, and older instruments sat lower still.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "keyboard", QuickAction::SynthKeyboardToggle,
+                     project_.synthKeyboardEnabled ? "PLAYING" : "off",
+                     QuickAction::SynthKeyboardToggle,
+                     QuickAction::SynthKeyboardToggle, true,
+                     project_.synthKeyboardEnabled,
+                     "Play from the computer keyboard, Ableton layout: A W S E "
+                     "D F T G Y H U J, Z and X for octave. While this is ON "
+                     "those keys make notes instead of firing cues.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "midi in", QuickAction::SynthMidiToggle,
+                     project_.midiToSynth ? "plays synth" : "fires cues",
+                     QuickAction::SynthMidiToggle,
+                     QuickAction::SynthMidiToggle, true, project_.midiToSynth,
+                     "Whether incoming MIDI notes play this synth or trigger "
+                     "cues as they always have.");
+    rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "attack", QuickAction::SynthAttackDec,
                      fmtFloat(s.attackSeconds, 2) + "s",

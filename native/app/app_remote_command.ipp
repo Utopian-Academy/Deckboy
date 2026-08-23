@@ -691,6 +691,46 @@
       }
       return;
     }
+    // Notes from a MIDI keyboard, routed here rather than acted on in the
+    // MIDI thread: everything that touches a cue or an engine has to happen on
+    // the main thread, and the remote queue is the existing road for that.
+    if (command == "SYNTHNOTEON" || command == "SYNTHNOTEOFF") {
+      if (parts.size() < 2) {
+        failRemoteCommand(command + ": needs a note number");
+        return;
+      }
+      int note = 60;
+      int velocity = 100;
+      try {
+        note = std::stoi(parts[1]);
+        if (parts.size() > 2) velocity = std::stoi(parts[2]);
+      } catch (...) {
+        failRemoteCommand(command + ": note must be a number");
+        return;
+      }
+      Cue* cue = liveSynthCue();
+      if (!cue) {
+        // Said out loud rather than silently dropped: an operator playing keys
+        // with no synth on air needs to know it is the routing, not the
+        // keyboard.
+        failRemoteCommand("no synth cue is live");
+        return;
+      }
+      MediaEngine* engine = liveSynthEngine();
+      if (!engine) {
+        failRemoteCommand("synth cue has no engine");
+        return;
+      }
+      const double hz = synthNoteToHz(note, cue->tone.synth.tuning,
+                                      cue->tone.synth.referenceHz);
+      if (command == "SYNTHNOTEON") {
+        engine->synthNoteOn(hz, velocity);
+      } else {
+        engine->synthNoteOff(hz);
+      }
+      return;
+    }
+
     if (command == "GOTO") {
       std::string token = joinParts(parts, 1);
       if (token.empty()) {
