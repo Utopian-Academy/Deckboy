@@ -263,8 +263,27 @@ enum class NesVoice {
 // included because trackers expose it and people expect to see it.
 enum class NesDuty { Eighth, Quarter, Half, ThreeQuarter };
 
+// Tuning systems. Equal temperament is a compromise that lets you change key
+// freely at the cost of every interval being slightly wrong; the older systems
+// are exactly in tune in one key and progressively worse as you move away.
+// Chip music has no reason to be stuck with the compromise.
+enum class SynthTuning {
+  Equal12,      // the modern default
+  Just,         // small whole-number ratios: audibly PURE, and only in one key
+  Pythagorean,  // stacked fifths; bright thirds, and one unusable interval
+  Meantone,     // renaissance compromise, sweeter thirds than equal
+  Equal19,      // 19 steps: better thirds than 12, and genuinely playable
+  Equal24,      // quarter tones
+  BohlenPierce, // divides a TWELFTH, not an octave -- no octaves at all, which
+                // is why it sounds alien rather than merely unusual
+};
+
 struct SynthSettings {
   SynthChip chip = SynthChip::Fds;
+  SynthTuning tuning = SynthTuning::Equal12;
+  // Reference pitch. 440 is the modern standard, 432 the common alternative,
+  // and older instruments sat anywhere from 415 upward.
+  double referenceHz = 440.0;
 
   // Shared by every chip: pitch and envelope belong to the NOTE, not to the
   // oscillator that happens to be playing it.
@@ -881,6 +900,15 @@ struct Project {
   // Live audio input: a microphone or line feed. Deckboy had no capture path
   // at all -- only device ENUMERATION, used to pick an LTC timecode source --
   // so a room mic could neither drive a visualiser nor reach a recording.
+  // Play the chip synths from the computer keyboard, Ableton-style. OFF by
+  // default and deliberately so: while it is on the letter keys make notes
+  // instead of firing cues, and silently stealing an operator's shortcuts
+  // mid-show would be indefensible.
+  bool synthKeyboardEnabled = false;
+  int synthKeyboardOctave = 4;
+  // Route incoming MIDI notes to a live synth cue instead of firing GOTO.
+  bool midiToSynth = false;
+
   std::string audioInputDeviceName;   // empty = system default
   bool audioInputEnabled = false;     // opening a mic is opt-in, never implicit
   double audioInputGainDb = 0.0;      // -40..+40, applied before metering
