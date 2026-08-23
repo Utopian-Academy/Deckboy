@@ -2145,17 +2145,83 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
           std::size_t pick = static_cast<std::size_t>(luma) * n / 256u;
           if (pick >= n) pick = n - 1;
           if (rowLocked) pick = static_cast<std::size_t>(lockGlyph) % n;
+          // CHAOS mixes a position-hashed random pick against the
+          // brightness-ranked one. Hashed rather than time-random: a tile that
+          // reshuffles every frame is a flicker, not a texture.
+          if (vs.spriteChaos > 0.001) {
+            std::uint32_t h = static_cast<std::uint32_t>(cx * 73856093u ^ cy * 19349663u);
+            h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+            const double mix = (h & 0xFFFFu) / 65535.0;
+            if (mix < vs.spriteChaos) pick = (h >> 16) % n;
+          }
           const int tile = spriteTilesByLuma_[pick].second;
           const int tx0 = (tile % spriteSheetCols_) * spriteSheetTileW_;
           const int ty0 = (tile / spriteSheetCols_) * spriteSheetTileH_;
+
+          // Per-cell transform. Quarter turns are index swaps rather than real
+          // rotation, so they stay pixel-exact; only free rotation samples at
+          // an angle, and it is opt-in for that reason.
+          int quarter = 0;
+          double freeRad = 0.0;
+          switch (vs.spriteRotate) {
+            case 1: quarter = 1; break;
+            case 2: quarter = 2; break;
+            case 3: quarter = 3; break;
+            case 4: quarter = (luma * 4) / 256; break;   // by brightness
+            case 5: freeRad = t * vs.spriteFreeAngle * 0.017453292519943295; break;
+            default: break;
+          }
+          bool flipX = vs.spriteFlip == 1;
+          bool flipY = vs.spriteFlip == 2;
+          if (vs.spriteFlip == 3) {
+            // Alternating by cell position: a checkerboard of mirrored tiles,
+            // which reads as deliberate pattern where random flipping reads as
+            // noise.
+            flipX = ((cx + cy) & 1) != 0;
+            flipY = ((cx ^ cy) & 2) != 0;
+          }
+          // Jitter shrinks a cell's tile, hashed by position so it holds still.
+          double jitter = 1.0;
+          if (vs.spriteJitter > 0.001) {
+            std::uint32_t jh = static_cast<std::uint32_t>(cx * 2654435761u ^ cy * 40503u);
+            jh ^= jh >> 15;
+            jitter = 1.0 - vs.spriteJitter * ((jh & 0xFFFFu) / 65535.0) * 0.6;
+          }
           for (int ry = 0; ry < cellH; ++ry) {
             if (py0 + ry >= outH) break;
-            const int sy = ty0 + (ry * spriteSheetTileH_) / cellH;
+            // Cell-local coordinates, centred, so every transform is about
+            // the tile's middle rather than its corner.
+            double lx = (static_cast<double>(ry) / cellH) - 0.5;
             std::uint8_t* row = frame.pixels.data() +
               (static_cast<std::size_t>(py0 + ry) * outW) * 4;
             for (int rx = 0; rx < cellW; ++rx) {
               if (px0 + rx >= outW) break;
-              const int sx = tx0 + (rx * spriteSheetTileW_) / cellW;
+              double ux = (static_cast<double>(rx) / cellW) - 0.5;
+              double uy = lx;
+              if (jitter < 0.999) { ux /= jitter; uy /= jitter; }
+              if (freeRad != 0.0) {
+                const double cs = std::cos(freeRad), sn = std::sin(freeRad);
+                const double rxr = ux * cs - uy * sn;
+                uy = ux * sn + uy * cs;
+                ux = rxr;
+              }
+              for (int q = 0; q < quarter; ++q) {
+                const double tmp = ux;
+                ux = -uy;
+                uy = tmp;
+              }
+              if (flipX) ux = -ux;
+              if (flipY) uy = -uy;
+              // Outside the tile after transforming: leave it transparent
+              // rather than clamping, which would smear the edge pixel into a
+              // streak across the cell.
+              if (ux < -0.5 || ux >= 0.5 || uy < -0.5 || uy >= 0.5) {
+                std::uint8_t* pc = row + static_cast<std::size_t>(px0 + rx) * 4;
+                pc[0] = 0; pc[1] = 0; pc[2] = 0; pc[3] = 255;
+                continue;
+              }
+              const int sx = tx0 + static_cast<int>((ux + 0.5) * spriteSheetTileW_);
+              const int sy = ty0 + static_cast<int>((uy + 0.5) * spriteSheetTileH_);
               const std::size_t so =
                 (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
               if (so + 3 >= spriteSheetRgba_.size()) continue;
