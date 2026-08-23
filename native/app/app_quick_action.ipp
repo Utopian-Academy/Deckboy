@@ -381,6 +381,28 @@
         break;
       case QuickAction::VsSpriteSetPrev: cycleSpriteSet(-1); break;
       case QuickAction::VsSpriteSetNext: cycleSpriteSet(1); break;
+      case QuickAction::VsRotateCycle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.spriteRotate = (c->videoSynth.spriteRotate + 1) % 6;
+          markProjectDirty();
+          triggerToast(std::string("rotate: ") + vsRotateLabel(c->videoSynth.spriteRotate));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsFlipCycle:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          c->videoSynth.spriteFlip = (c->videoSynth.spriteFlip + 1) % 4;
+          markProjectDirty();
+          triggerToast(std::string("flip: ") + vsFlipLabel(c->videoSynth.spriteFlip));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsJitterDec: adjustVs(&VideoSynthSettings::spriteJitter, -0.1, 0.0, 1.0, "jitter"); break;
+      case QuickAction::VsJitterInc: adjustVs(&VideoSynthSettings::spriteJitter, 0.1, 0.0, 1.0, "jitter"); break;
+      case QuickAction::VsChaosDec:  adjustVs(&VideoSynthSettings::spriteChaos, -0.1, 0.0, 1.0, "chaos"); break;
+      case QuickAction::VsChaosInc:  adjustVs(&VideoSynthSettings::spriteChaos, 0.1, 0.0, 1.0, "chaos"); break;
+      case QuickAction::VsFreeAngleDec: adjustVs(&VideoSynthSettings::spriteFreeAngle, -15.0, -720.0, 720.0, "spin"); break;
+      case QuickAction::VsFreeAngleInc: adjustVs(&VideoSynthSettings::spriteFreeAngle, 15.0, -720.0, 720.0, "spin"); break;
       case QuickAction::VsSheetPick:  pickSpriteSheet(); break;
       case QuickAction::VsSheetClear:
         if (Cue* c = selectedVideoSynthCueMutable()) {

@@ -160,6 +160,19 @@ struct VideoSynthSettings {
   // a PATH rather than baked into the show so the show file stays small and
   // the operator keeps their own artwork where they put it.
   std::string spriteSheetPath;
+  // ---- Tile manipulation ---------------------------------------------------
+  // Rotation in 90-degree STEPS by default. Pixel art rotated to an arbitrary
+  // angle through a nearest-neighbour sampler tears badly; quarter turns are
+  // exact and stay crisp. Free rotation is available for when that roughness
+  // is wanted, which for this aesthetic it sometimes is.
+  int spriteRotate = 0;        // 0 none, 1 90, 2 180, 3 270, 4 by brightness, 5 free
+  double spriteFreeAngle = 0.0;   // degrees per second, only when spriteRotate == 5
+  int spriteFlip = 0;          // 0 none, 1 horizontal, 2 vertical, 3 alternating
+  double spriteJitter = 0.0;   // 0..1 size variation per cell
+  // 0 picks strictly by brightness so the picture reads; 1 picks at random so
+  // the grid becomes texture. In between is the interesting part.
+  double spriteChaos = 0.0;
+
   int spriteTileW = 16;
   int spriteTileH = 16;
   // Shuffles which glyph maps to which density. Same set, different
@@ -1229,6 +1242,10 @@ enum class QuickAction {
   SynthCycleTuning, SynthRefDec, SynthRefInc,
   VsSheetPick, VsSheetClear,
   VsSpriteSetPrev, VsSpriteSetNext,
+  VsRotateCycle, VsFlipCycle,
+  VsJitterDec, VsJitterInc,
+  VsChaosDec, VsChaosInc,
+  VsFreeAngleDec, VsFreeAngleInc,
   VsTileWDec, VsTileWInc, VsTileHDec, VsTileHInc,
   SynthCycleChip, SynthCycleNesVoice, SynthCycleNesDuty,
   SynthToggleNoiseShort, SynthToggleQuantise,
