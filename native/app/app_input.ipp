@@ -843,6 +843,41 @@
     }
   }
 
+  // Musical keys go to the synth BEFORE anything else looks at them, but only
+  // while the mode is armed. Returns true when the key was consumed as a note,
+  // so the normal shortcut handling never sees it.
+  bool handleSynthKey(SDL_Keycode key, bool keyRepeat, bool down) {
+    if (!project_.synthKeyboardEnabled) return false;
+    // Octave shift. Z and X because that is where every tracker and DAW put
+    // them, so it needs no learning.
+    if (down && !keyRepeat && (key == SDLK_Z || key == SDLK_X)) {
+      project_.synthKeyboardOctave = std::clamp(
+        project_.synthKeyboardOctave + (key == SDLK_X ? 1 : -1), 0, 8);
+      triggerToast("octave " + std::to_string(project_.synthKeyboardOctave));
+      return true;
+    }
+    const int semi = synthKeyToSemitone(key);
+    if (semi < 0) return false;
+    // A held key repeats; retriggering the envelope on every repeat would
+    // machine-gun the note instead of sustaining it.
+    if (keyRepeat) return true;
+
+    Cue* cue = liveSynthCue();
+    if (!cue) return false;
+    const int midiNote = 12 * (project_.synthKeyboardOctave + 1) + semi;
+    const double hz = synthNoteToHz(midiNote, cue->tone.synth.tuning,
+                                    cue->tone.synth.referenceHz);
+    if (MediaEngine* engine = liveSynthEngine()) {
+      if (down) engine->synthNoteOn(hz, 100);
+      else engine->synthNoteOff(hz);
+    }
+    return true;
+  }
+
+  void handleKeyUp(SDL_Keycode key) {
+    handleSynthKey(key, /*keyRepeat=*/false, /*down=*/false);
+  }
+
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
     bool ctrl = (mod & SDL_KMOD_CTRL) != 0;
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
@@ -851,6 +886,12 @@
       if (key == SDLK_RETURN || key == SDLK_KP_ENTER || key == SDLK_ESCAPE) {
         showSplashOverlay_ = false;
       }
+      return;
+    }
+
+    // Before shortcuts: while the musical keyboard is armed, letter keys make
+    // notes. It is off by default precisely because this steals them.
+    if (handleSynthKey(key, keyRepeat, /*down=*/true)) {
       return;
     }
 
