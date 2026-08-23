@@ -233,6 +233,17 @@
             }
           }
           break;
+        case SDL_EVENT_KEY_UP:
+          {
+            // The app had NO key-up handling at all. Nothing needed it until
+            // now: a musical keyboard is the first feature where letting go of
+            // a key means something.
+            Uint32 controlWindowId = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
+            if (controlWindowId != 0 && event.key.windowID == controlWindowId) {
+              handleKeyUp(event.key.key);
+            }
+          }
+          break;
         case SDL_EVENT_TEXT_INPUT:
           if (event.text.windowID == SDL_GetWindowID(controlWindow_)) {
             handleInlineTextEditorTextInput(event.text.text);

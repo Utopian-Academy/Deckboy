@@ -1357,6 +1357,67 @@ int nearestPaletteIndex(int r, int g, int b) {
 // another alphabet, not a separate feature, so everything already built for
 // text mode applies to it unchanged.
 // ---------------------------------------------------------------------------
+// Decode one image, scaled to fit a tile and centred on it. Used by the folder
+// path, where every file is a separate sprite of its own size rather than a
+// cell in a grid.
+//
+// Scaled to FIT rather than filled: a sprite drawn to the edges of its cell
+// loses the silhouette, and the silhouette is the only thing legible once a
+// sprite is standing in for a character.
+static bool decodeSpriteInto(const std::string& file, int tileW, int tileH,
+                             std::vector<std::uint8_t>& atlas,
+                             std::size_t atlasW, int col, int row) {
+  int sw = 0, sh = 0;
+  {
+    const std::vector<std::string> probeArgs {
+      "ffprobe", "-v", "error", "-select_streams", "v:0",
+      "-show_entries", "stream=width,height", "-of", "csv=p=0", file
+    };
+    if (auto probe = readAllText(probeArgs)) {
+      std::sscanf(probe->c_str(), "%d,%d", &sw, &sh);
+    }
+  }
+  if (sw <= 0 || sh <= 0) return false;
+
+  const double scale = std::min(static_cast<double>(tileW) / sw,
+                                static_cast<double>(tileH) / sh);
+  const int dw = std::max(1, static_cast<int>(sw * scale));
+  const int dh = std::max(1, static_cast<int>(sh * scale));
+
+  ChildProcess proc;
+  const std::vector<std::string> args {
+    "ffmpeg", "-hide_banner", "-loglevel", "error", "-i", file,
+    "-frames:v", "1",
+    // Nearest neighbour: these are pixel art, and smoothing them on the way in
+    // would destroy exactly what makes them worth using.
+    "-vf", "scale=" + std::to_string(dw) + ":" + std::to_string(dh) +
+           ":flags=neighbor",
+    "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
+  };
+  if (!spawnPipeProcess(proc, args)) return false;
+  std::vector<std::uint8_t> px(static_cast<std::size_t>(dw) * dh * 4);
+  const bool ok = readExact(proc.readFd, px.data(), px.size());
+  proc.stop();
+  if (!ok) return false;
+
+  const int offX = (tileW - dw) / 2;
+  const int offY = (tileH - dh) / 2;
+  for (int y = 0; y < dh; ++y) {
+    for (int x = 0; x < dw; ++x) {
+      const std::size_t src = (static_cast<std::size_t>(y) * dw + x) * 4;
+      const std::size_t dstX = static_cast<std::size_t>(col * tileW + offX + x);
+      const std::size_t dstY = static_cast<std::size_t>(row * tileH + offY + y);
+      const std::size_t dst = (dstY * atlasW + dstX) * 4;
+      if (dst + 3 >= atlas.size()) continue;
+      atlas[dst + 0] = px[src + 0];
+      atlas[dst + 1] = px[src + 1];
+      atlas[dst + 2] = px[src + 2];
+      atlas[dst + 3] = px[src + 3];
+    }
+  }
+  return true;
+}
+
 bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tileH) {
   if (path.empty() || tileW < 2 || tileH < 2) return false;
   if (spriteSheetLoaded_ == path && spriteSheetTileW_ == tileW &&
@@ -1368,6 +1429,76 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
   spriteSheetTileH_ = tileH;
   spriteTilesByLuma_.clear();
   spriteSheetRgba_.clear();
+
+  // A FOLDER of individual sprites, rather than one gridded sheet. This is how
+  // most sprite collections actually arrive -- one file per sprite, each its
+  // own size -- and slicing such a file on a grid yields a single tile, which
+  // renders as the same sprite in every cell and looks like the feature is
+  // doing nothing.
+  std::error_code dirEc;
+  if (std::filesystem::is_directory(path, dirEc)) {
+    std::vector<std::string> files;
+    for (const auto& entry : std::filesystem::directory_iterator(path, dirEc)) {
+      if (!entry.is_regular_file()) continue;
+      std::string ext = entry.path().extension().string();
+      std::transform(ext.begin(), ext.end(), ext.begin(),
+                     [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      if (ext == ".png" || ext == ".gif" || ext == ".bmp" ||
+          ext == ".jpg" || ext == ".jpeg" || ext == ".webp") {
+        files.push_back(entry.path().string());
+      }
+    }
+    std::sort(files.begin(), files.end());
+    // Capped. Each file is a separate ffmpeg decode, so a folder of thousands
+    // would stall for minutes; 256 tiles is already far more alphabet than a
+    // cell grid can show at once.
+    constexpr std::size_t kMaxTiles = 256;
+    if (files.size() > kMaxTiles) files.resize(kMaxTiles);
+    if (files.empty()) return false;
+
+    const int cols = static_cast<int>(std::ceil(std::sqrt(
+      static_cast<double>(files.size()))));
+    const int rows = static_cast<int>((files.size() + cols - 1) / cols);
+    spriteSheetW_ = cols * tileW;
+    spriteSheetH_ = rows * tileH;
+    spriteSheetCols_ = cols;
+    spriteSheetRows_ = rows;
+    spriteSheetRgba_.assign(
+      static_cast<std::size_t>(spriteSheetW_) * spriteSheetH_ * 4, 0);
+
+    for (std::size_t i = 0; i < files.size(); ++i) {
+      decodeSpriteInto(files[i], tileW, tileH, spriteSheetRgba_,
+                       static_cast<std::size_t>(spriteSheetW_),
+                       static_cast<int>(i % cols), static_cast<int>(i / cols));
+    }
+    // Rank exactly as the sheet path does, but WITHOUT the coverage filter: a
+    // small sprite centred on a large tile is legitimately sparse, and
+    // dropping it would discard most of a folder.
+    for (std::size_t i = 0; i < files.size(); ++i) {
+      const int tx = static_cast<int>(i % cols);
+      const int ty = static_cast<int>(i / cols);
+      long long total = 0, covered = 0;
+      for (int y = 0; y < tileH; ++y) {
+        const std::size_t rowOff =
+          (static_cast<std::size_t>(ty * tileH + y) * spriteSheetW_ + tx * tileW) * 4;
+        for (int x = 0; x < tileW; ++x) {
+          const std::size_t o = rowOff + static_cast<std::size_t>(x) * 4;
+          if (o + 3 >= spriteSheetRgba_.size()) continue;
+          if (spriteSheetRgba_[o + 3] < 32) continue;
+          total += (spriteSheetRgba_[o + 0] * 77 + spriteSheetRgba_[o + 1] * 151 +
+                    spriteSheetRgba_[o + 2] * 28) >> 8;
+          ++covered;
+        }
+      }
+      if (covered == 0) continue;
+      const int mean = static_cast<int>(total / covered);
+      const int weighted =
+        static_cast<int>(mean * covered / std::max(1, tileW * tileH));
+      spriteTilesByLuma_.emplace_back(weighted, static_cast<int>(i));
+    }
+    std::sort(spriteTilesByLuma_.begin(), spriteTilesByLuma_.end());
+    return !spriteTilesByLuma_.empty();
+  }
 
   // Size first, so the buffer can be exact. A sheet is an ordinary image, so
   // this is the same probe the still-image path uses.

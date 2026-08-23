@@ -233,6 +233,22 @@ class MediaEngine {
   void synthAllNotesOff();
   bool synthGated() const { return chipGated_; }
 
+  // Sprite sheet slicing. Public because --sheet-probe drives it
+  // directly: a sheet that yields no tiles needs diagnosing without
+  // opening the app.
+  bool ensureSpriteSheet(const std::string& path, int tileW, int tileH);
+  // Diagnostics for --sheet-probe: how the sheet sliced, and how many
+  // tiles survived the coverage filter.
+  int spriteSheetWidth() const { return spriteSheetW_; }
+  int spriteSheetHeight() const { return spriteSheetH_; }
+  int spriteSheetCols() const { return spriteSheetCols_; }
+  int spriteSheetRows() const { return spriteSheetRows_; }
+  int spriteUsableTiles() const {
+    return static_cast<int>(spriteTilesByLuma_.size());
+  }
+ 
+
+
 
   // -- Browser cue interface (called from platform/browser.*) ------------------
   bool startBrowserCapture(const std::string& displayId, int w, int h,
@@ -492,8 +508,7 @@ class MediaEngine {
   // a glyph is. Blank tiles are excluded -- a sheet is mostly empty space and
   // picking those would just punch holes in the picture.
   std::vector<std::pair<int, int>> spriteTilesByLuma_;   // {luma, tileIndex}
-  bool ensureSpriteSheet(const std::string& path, int tileW, int tileH);
-  int vsynthPrevW_ = 0;
+ int vsynthPrevW_ = 0;
   int vsynthPrevH_ = 0;
   double vsynthRotation_ = 0.0;
   double vsynthLastSeconds_ = 0.0;   // for a real dt, not a per-frame step
