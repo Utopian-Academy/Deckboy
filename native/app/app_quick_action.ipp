@@ -379,6 +379,8 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsSpriteSetPrev: cycleSpriteSet(-1); break;
+      case QuickAction::VsSpriteSetNext: cycleSpriteSet(1); break;
       case QuickAction::VsSheetPick:  pickSpriteSheet(); break;
       case QuickAction::VsSheetClear:
         if (Cue* c = selectedVideoSynthCueMutable()) {

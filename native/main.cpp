@@ -5924,6 +5924,13 @@ class App {
     // sprite sheet could not be found without first toggling an unrelated
     // control -- the same discoverability trap the chip synths had, and the
     // owner hit it twice. Picking a sheet turns text mode on by itself.
+    inspDrawQuickRow(ix, rowY, "sprites", QuickAction::VsSpriteSetPrev,
+                     currentSpriteSetLabel(cue),
+                     QuickAction::VsSpriteSetNext, QuickAction::ToggleLoop,
+                     false, false,
+                     "Sprite sets installed in data/sprites. Each folder there "
+                     "is a set; cycling picks one and wraps back to none.");
+    rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
                      v.spriteSheetPath.empty()
                        ? std::string("none")
