@@ -8146,6 +8146,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--sync-pop-test", "run the A/V sync pop test and exit"},
   {"--hap-probe <file.mov>", "demux a HAP file to blocks and report, no window"},
   {"--asio-probe [name]", "list ASIO drivers; with a name, load and report its channels"},
+  {"--sheet-probe <png> [tw] [th]", "slice a sprite sheet and report the tile grid"},
   {"--asio-tone <name> [secs] [ch]", "play a quiet 440Hz tone through an ASIO driver"},
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
@@ -8165,7 +8166,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
-  "--hap-probe", "--asio-probe", "--asio-tone", "--timer-dump",
+  "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -8341,6 +8342,30 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     out.close();
     std::cout << "asio-tone: done, underruns=" << under << "\n";
     return under == 0 ? 0 : 3;
+  }
+
+  if (mode == "--sheet-probe") {
+    // Reports every stage of the slice so a sheet that produces no tiles can
+    // be diagnosed without opening the app: decode, grid, and how many tiles
+    // survived the coverage filter.
+    if (ops.empty()) return missing("<sheet.png> [tileW] [tileH]");
+    const int tw = ops.size() > 1 ? std::max(2, std::atoi(ops[1].c_str())) : 16;
+    const int th = ops.size() > 2 ? std::max(2, std::atoi(ops[2].c_str())) : tw;
+    MediaEngine probe(nullptr, nullptr, MediaEngine::AudioTapCallback {},
+                      [](const Cue&) { return std::string(); });
+    const bool ok = probe.ensureSpriteSheet(ops[0], tw, th);
+    std::cout << "sheet: " << ops[0] << '\n'
+              << "  decoded: " << probe.spriteSheetWidth() << "x"
+              << probe.spriteSheetHeight() << '\n'
+              << "  tile: " << tw << "x" << th << '\n'
+              << "  grid: " << probe.spriteSheetCols() << " x "
+              << probe.spriteSheetRows() << " = "
+              << (probe.spriteSheetCols() * probe.spriteSheetRows())
+              << " tiles" << '\n'
+              << "  usable after coverage filter: "
+              << probe.spriteUsableTiles() << '\n'
+              << "  result: " << (ok ? "OK" : "FAILED") << '\n';
+    return ok ? 0 : 1;
   }
 
   if (mode == "--asio-probe") {

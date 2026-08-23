@@ -2554,6 +2554,37 @@
   // signal control six times to land on it -- which nobody would ever guess,
   // and the owner did not. Same cue kind, but it arrives already set up as an
   // instrument, so the synth is one click from the SOURCE menu.
+  // The synth cue currently on air, if any. Notes go to what is LIVE rather
+  // than what is selected: an operator playing along with a show is watching
+  // the output, not the playlist.
+  Cue* liveSynthCue() {
+    for (auto& deck : project_.decks) {
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      Cue& cue = deck.cues[deck.activeIndex];
+      if (cue.kind == CueKind::Tone && cue.tone.waveform == ToneWaveform::Fds) {
+        return &cue;
+      }
+    }
+    return nullptr;
+  }
+
+  MediaEngine* liveSynthEngine() {
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
+      const Deck& deck = project_.decks[d];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      const Cue& cue = deck.cues[deck.activeIndex];
+      if (cue.kind != CueKind::Tone || cue.tone.waveform != ToneWaveform::Fds) continue;
+      if (d < deckRuntimes_.size() && deckRuntimes_[d].mediaEngine) {
+        return deckRuntimes_[d].mediaEngine.get();
+      }
+    }
+    return nullptr;
+  }
+
   void addSynthCue(SynthChip chip) {
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
     Cue cue;

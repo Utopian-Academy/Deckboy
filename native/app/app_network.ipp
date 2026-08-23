@@ -1465,6 +1465,18 @@
   }
 
   void onMidiNoteOn(int note, int velocity) {
+    // Routed to a live synth when the operator has asked for that, otherwise
+    // the historical behaviour: notes fire cues. Both are legitimate uses of a
+    // MIDI keyboard and only the operator knows which they want, so this is a
+    // switch rather than a guess.
+    if (project_.midiToSynth) {
+      // Velocity 0 is note-off by MIDI convention -- the wrapper surfaces only
+      // note-on, so this is where the distinction is made.
+      queueMidiCommand(velocity > 0
+        ? ("SYNTHNOTEON " + std::to_string(note) + " " + std::to_string(velocity))
+        : ("SYNTHNOTEOFF " + std::to_string(note)));
+      return;
+    }
     if (velocity > 0) {
       queueMidiCommand("GOTO " + std::to_string(note + 1));
     }
