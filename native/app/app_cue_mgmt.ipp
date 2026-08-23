@@ -2204,6 +2204,18 @@
     return std::string(kNames[step]) + std::to_string(octave);
   }
 
+  static const char* synthTuningLabel(SynthTuning t) {
+    switch (t) {
+      case SynthTuning::Just:         return "just";
+      case SynthTuning::Pythagorean:  return "pythagorean";
+      case SynthTuning::Meantone:     return "meantone";
+      case SynthTuning::Equal19:      return "19-TET";
+      case SynthTuning::Equal24:      return "24-TET";
+      case SynthTuning::BohlenPierce: return "bohlen-pierce";
+      default:                        return "12-TET";
+    }
+  }
+
   static const char* synthChipLabel(SynthChip c) {
     return c == SynthChip::Nes ? "2A03 (NES)" : "FDS";
   }
