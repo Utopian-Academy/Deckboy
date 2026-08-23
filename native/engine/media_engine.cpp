@@ -38,6 +38,7 @@
 #include "core/sdl_compat.hpp"
 #include <ctime>
 #include <filesystem>
+#include <fstream>
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -1466,11 +1467,55 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
     spriteSheetRgba_.assign(
       static_cast<std::size_t>(spriteSheetW_) * spriteSheetH_ * 4, 0);
 
-    for (std::size_t i = 0; i < files.size(); ++i) {
-      decodeSpriteInto(files[i], tileW, tileH, spriteSheetRgba_,
-                       static_cast<std::size_t>(spriteSheetW_),
-                       static_cast<int>(i % cols), static_cast<int>(i / cols));
+    // ONE ffmpeg call for the whole folder, not one per file.
+    //
+    // The previous version spawned ffprobe and ffmpeg per sprite -- two hundred
+    // processes for a hundred sprites -- which froze the app for seconds
+    // wherever it ran. Moving it off the render path only moved the freeze.
+    //
+    // The concat demuxer reads a list of files as a sequence, and the filter
+    // chain scales each to fit, pads it centred with transparency, and tiles
+    // the lot into one atlas. Concat rather than a glob because Windows ffmpeg
+    // builds frequently lack glob support, and a silent failure there would
+    // look exactly like this bug again.
+    std::error_code listEc;
+    const std::filesystem::path listPath =
+      std::filesystem::temp_directory_path(listEc) / "deckboy-sprites.txt";
+    {
+      std::ofstream list(listPath, std::ios::binary);
+      if (!list) return false;
+      list << "ffconcat version 1.0" << '\n';
+      for (const auto& f : files) {
+        // Single quotes are the concat demuxer's escape; a path containing one
+        // would break the list, so those files are skipped rather than
+        // corrupting the whole set.
+        if (f.find('\'') != std::string::npos) continue;
+        list << "file '" << f << "'" << '\n';
+        list << "duration 1" << '\n';
+      }
     }
+
+    const std::string chain =
+      "scale=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
+      ":force_original_aspect_ratio=decrease:flags=neighbor,"
+      "pad=" + std::to_string(tileW) + ":" + std::to_string(tileH) +
+      ":(ow-iw)/2:(oh-ih)/2:color=0x00000000,"
+      "tile=" + std::to_string(cols) + "x" + std::to_string(rows);
+
+    ChildProcess atlasProc;
+    const std::vector<std::string> atlasArgs {
+      "ffmpeg", "-hide_banner", "-loglevel", "error",
+      "-f", "concat", "-safe", "0", "-i", listPath.string(),
+      "-vf", chain,
+      "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
+    };
+    if (!spawnPipeProcess(atlasProc, atlasArgs)) return false;
+    const bool atlasOk = readExact(atlasProc.readFd, spriteSheetRgba_.data(),
+                                   spriteSheetRgba_.size());
+    atlasProc.stop();
+    std::filesystem::remove(listPath, listEc);
+    if (!atlasOk) return false;
+
     // Rank exactly as the sheet path does, but WITHOUT the coverage filter: a
     // small sprite centred on a large tile is legitimately sparse, and
     // dropping it would discard most of a folder.
