@@ -5828,7 +5828,10 @@ void fdsBuildModulator(FdsModulator kind, double* table) {
 // the chip: duty-cycled pulse, a 4-bit stepped triangle with NO volume
 // control, and noise from a 15-bit linear feedback shift register.
 double MediaEngine::nesNextSample(const ToneSettings& tone, double dt) {
-  const double note = std::clamp(tone.synth.noteHz, 20.0, 8000.0);
+  // A played note overrides the cue's pitch; without a keyboard the cue's own
+  // setting stands, so a drone still works untouched.
+  const double note = std::clamp(
+    chipGated_ ? chipNoteHz_ : tone.synth.noteHz, 20.0, 8000.0);
   double sample = 0.0;
 
   switch (tone.synth.nesVoice) {
@@ -5884,7 +5887,54 @@ double MediaEngine::nesNextSample(const ToneSettings& tone, double dt) {
 
 // Shared envelope. Pitch and envelope belong to the NOTE, not to whichever
 // oscillator happens to be playing it, so both chips use this.
+
+// ---------------------------------------------------------------------------
+// Played notes
+// ---------------------------------------------------------------------------
+void MediaEngine::synthNoteOn(double hz, int velocity) {
+  if (hz <= 0.0) return;
+  chipGated_ = true;
+  chipGateOpen_ = true;
+  chipNoteHz_ = hz;
+  // Velocity scales level. A chip had no velocity, but a keyboard does, and
+  // ignoring it makes every note identical in a way that feels broken to
+  // anyone playing rather than programming.
+  chipVelocity_ = std::clamp(velocity / 127.0, 0.05, 1.0);
+  fdsEnvSeconds_ = 0.0;   // restart the attack
+}
+
+void MediaEngine::synthNoteOff(double hz) {
+  // Ignore the release of a note that is no longer the one sounding. On a
+  // monophonic voice, rolling from one key to the next means the first key's
+  // release arrives AFTER the second key's press, and honouring it would cut
+  // off the note just started.
+  if (!chipGated_) return;
+  if (hz > 0.0 && std::abs(hz - chipNoteHz_) > 0.01) return;
+  chipGateOpen_ = false;
+  chipReleaseLevel_ = 1.0;
+  fdsEnvSeconds_ = 0.0;   // release timing starts now
+}
+
+void MediaEngine::synthAllNotesOff() {
+  chipGateOpen_ = false;
+  chipGated_ = false;
+  chipReleaseLevel_ = 0.0;
+}
 double MediaEngine::chipEnvelope(const ToneSettings& tone, double dt) {
+  // Gated: the envelope follows the key rather than the cue's retrigger.
+  if (chipGated_) {
+    fdsEnvSeconds_ += dt;
+    const double a = std::max(0.001, tone.synth.attackSeconds);
+    const double r = std::max(0.001, tone.synth.releaseSeconds);
+    if (chipGateOpen_) {
+      // Attack, then HOLD. A held key sustains -- this is the difference
+      // between an instrument and a one-shot.
+      const double env = (fdsEnvSeconds_ < a) ? (fdsEnvSeconds_ / a) : 1.0;
+      return env * chipVelocity_;
+    }
+    const double env = std::max(0.0, chipReleaseLevel_ - fdsEnvSeconds_ / r);
+    return env * chipVelocity_;
+  }
   if (tone.synth.retriggerSeconds > 0.0) {
     fdsEnvSeconds_ += dt;
     if (fdsEnvSeconds_ >= tone.synth.retriggerSeconds) fdsEnvSeconds_ = 0.0;
@@ -5916,7 +5966,10 @@ double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
   const double* carrier = fdsCarrierTable_;
   const double* modulator = fdsModTable_;
 
-  const double note = std::clamp(tone.synth.noteHz, 20.0, 8000.0);
+  // A played note overrides the cue's pitch; without a keyboard the cue's
+  // own setting stands, so a drone still works untouched.
+  const double note = std::clamp(
+    chipGated_ ? chipNoteHz_ : tone.synth.noteHz, 20.0, 8000.0);
   const double depth = std::clamp(tone.synth.modDepth, 0, 63) / 63.0;
 
   // Modulator runs at a RATIO of the note, which is what makes the bend track
