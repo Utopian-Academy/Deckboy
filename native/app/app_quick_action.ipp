@@ -422,6 +422,49 @@
       case QuickAction::CueSectionSynthToggle:
         cueSectionSynthOpen_ = !cueSectionSynthOpen_; break;
       case QuickAction::SynthCycleChip:      cycleSynthChip(); break;
+      case QuickAction::SynthKeyboardToggle:
+        project_.synthKeyboardEnabled = !project_.synthKeyboardEnabled;
+        markProjectDirty();
+        if (!project_.synthKeyboardEnabled) {
+          // Release anything held, or a note sustains forever after the mode
+          // is switched off mid-press.
+          if (MediaEngine* e = liveSynthEngine()) e->synthAllNotesOff();
+        }
+        triggerToast(project_.synthKeyboardEnabled
+          ? "computer keyboard: PLAYING (letter keys are notes)"
+          : "computer keyboard off");
+        playUiSound(UiSoundEffect::Toggle);
+        break;
+      case QuickAction::SynthMidiToggle:
+        project_.midiToSynth = !project_.midiToSynth;
+        markProjectDirty();
+        triggerToast(project_.midiToSynth ? "MIDI plays the synth"
+                                          : "MIDI fires cues");
+        playUiSound(UiSoundEffect::Toggle);
+        break;
+      case QuickAction::SynthCycleTuning:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.synth.tuning = static_cast<SynthTuning>(
+            (static_cast<int>(c->tone.synth.tuning) + 1) % 7);
+          markProjectDirty();
+          triggerToast(std::string("tuning: ") + synthTuningLabel(c->tone.synth.tuning));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::SynthRefDec:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.synth.referenceHz = std::clamp(c->tone.synth.referenceHz - 1.0, 380.0, 480.0);
+          markProjectDirty();
+          triggerToast("A = " + fmtFloat(c->tone.synth.referenceHz, 0) + " Hz");
+        }
+        break;
+      case QuickAction::SynthRefInc:
+        if (Cue* c = selectedToneCueMutable()) {
+          c->tone.synth.referenceHz = std::clamp(c->tone.synth.referenceHz + 1.0, 380.0, 480.0);
+          markProjectDirty();
+          triggerToast("A = " + fmtFloat(c->tone.synth.referenceHz, 0) + " Hz");
+        }
+        break;
       case QuickAction::SynthCycleNesVoice:  cycleNesVoice(); break;
       case QuickAction::SynthCycleNesDuty:   cycleNesDuty(); break;
       case QuickAction::SynthToggleNoiseShort:
