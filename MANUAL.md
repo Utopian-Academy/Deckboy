@@ -306,11 +306,15 @@ A recording that runs short will never look healthy.
 **On stop**, a fragmented recording is remuxed into a normal MP4. A power cut
 therefore leaves a playable file, and a clean stop leaves a tidy one.
 
-**Platform note.** The frame leaves the GPU through an asynchronous path on
-Windows, which sustains every standard up to 2160p59.94. macOS and Linux use a
-portable read that is frame-exact to 1080p59.94 and 2160p25, and falls behind
-at 4K above 30p — where the alarm above will tell you. Record 4K at 25 or 30, or
-record 1080 off a 4K programme, and every platform is frame-exact.
+**Platform note.** The frame leaves the GPU asynchronously on every platform:
+Windows through a D3D11 staging ring, macOS and Linux through SDL_GPU's texture
+download (Metal and Vulkan underneath), which is why output windows there ask
+for the `gpu` renderer. Set `DECKBOY_OUTPUT_RENDERER=<driver>` to override that
+choice if a driver misbehaves.
+
+Whether a given machine sustains 4K60 then comes down to its decoder and
+encoder, not to the recording path — and the dropped-frame alarm will say so if
+it does not.
 
 Over the wire: `RECORD [on|off|toggle]`, `RECFORMAT <WxH|program> [fps|program]`,
 `RECCODEC <token>`, `RECTC <hh:mm:ss:ff|timeofday> [df|ndf|auto]`,
@@ -578,5 +582,7 @@ Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
 
 Environment: `DECKBOY_PROJECT` (open a specific show), `DECKBOY_THEME` (force a
 colourway), `DECKBOY_COMPANION_PORT` (control port), `DECKBOY_UI_PROFILE=1`
-(UI timing + watchdog logs), `DECKBOY_EGRESS_READBACK=sync` (force the portable
-recording readback, for comparing platforms from one desk).
+(UI timing + watchdog logs), `DECKBOY_EGRESS_READBACK=sync` (force the plain
+synchronous recording readback), `DECKBOY_EGRESS_BENCH=1` (print readback costs),
+`DECKBOY_OUTPUT_RENDERER=<driver>` (choose the output window's renderer, e.g.
+`gpu`, `direct3d11`, `metal`, `opengl`).
