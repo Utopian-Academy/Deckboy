@@ -56,7 +56,8 @@ cmake --build ../build/windows --config Release
 | `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
-| `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip` |
+| `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
+| `tools/record_rate_check.py` | Record a known duration and count what landed in the file: frames delivered vs owed, plus the app's own dropped-frame alarm. `--renderer` / `--readback` pin the backend so one platform's behaviour can be measured from another |
 | `tools/deckboy.iss` | Inno Setup Windows installer (Start Menu, `.deckboy` assoc, uninstaller). Needs the zip packager's staging dir. `iscc /DDeckboyVersion=<ver> tools\deckboy.iss` |
 | `tools/package_macos.sh` | macOS `.app` bundle → `.zip` AND `.dmg` (drag-to-Applications). Relocates dylibs to Frameworks, re-signs ad-hoc AFTER `install_name_tool` (order is load-bearing), bundles libltc + builds `.icns` |
 | `tools/package_linux.sh` | Portable Linux `.tar.gz` (bin/lib/data + `$ORIGIN` RPATH). Host provides GPU/X11/audio/glibc/libstdc++ — see comments |
@@ -293,6 +294,14 @@ attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
 - All color/geometry values normalized (0–1 for fractions, degrees for rotation)
 - **Operators see pixels, storage keeps fractions**: cue geometry (v0.76.21), AOI rect + edge blend in settings (v0.80.0). Convert at the UI edge only (`focusedOutputAoiRectPx`/`applyFocusedOutputAoiRectPx` pattern)
 - Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]` — all scriptable for screenshot verification
-- Windows-first for new features (primary dev target)
+- **Every change must work on Windows, macOS AND Linux** — same quality, not
+  necessarily the same solution. Windows is where the work usually gets done, but
+  a feature is not finished until the `#ifdef` structure has been checked and the
+  other two either share the path or have a fallback that is *measured*, not
+  assumed. Build the DISABLED configurations too (`-DENABLE_ASIO=OFF`,
+  `-DDECKBOY_INPROC_DECODE=OFF`): the default local build hides link errors that
+  only the other platforms hit. Push before tagging so CI rules on all three.
+- SDL 3.4 is the floor (the recording readback needs the SDL_GPU texture
+  property, absent in 3.2).
 - `#ifndef _WIN32` / `#ifdef _WIN32` guards for platform-specific code
 - Copyright year: 2026; license: GPL-3.0-or-later
