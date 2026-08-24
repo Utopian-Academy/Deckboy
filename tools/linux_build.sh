@@ -32,7 +32,10 @@ done
 
 install_deps() {
   echo "== dependencies =="
-  sudo apt-get update
+  # A broken third-party repo must not stop a build. Real machines accumulate
+  # them (Spotify, Cursor, whatever) and one missing GPG key would otherwise
+  # abort everything here under `set -e`, for reasons nothing to do with us.
+  sudo apt-get update || echo "  (apt update reported errors; continuing)"
   sudo apt-get install -y \
     build-essential cmake pkg-config git \
     libfreetype-dev libharfbuzz-dev \
