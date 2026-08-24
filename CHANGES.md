@@ -95,6 +95,11 @@ message placeholders.
 - First launch always shows the green branded wordmark; splashes rotate per theme.
 - Source type labels lost the redundant "Source" suffix.
 - Personal information scrubbed from the repository history.
+- **The macOS and Linux builds are fixed.** ASIO's stub file was only compiled
+  on Windows, so the other two platforms linked against declarations with no
+  definitions; and the recording readback sat inside the decoder's namespace,
+  which a build without in-process decode does not compile at all. Both are
+  structural, both are fixed, and all three platforms build and smoke clean.
 
 ## 2026-08-20 - v0.84.0 (datamosh, HAP, stage timer, show log)
 
