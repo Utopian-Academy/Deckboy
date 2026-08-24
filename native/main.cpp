@@ -1815,6 +1815,9 @@ struct OutputRuntime {
   void* egressReadback = nullptr;
   int egressReadbackW = 0;
   int egressReadbackH = 0;
+  // Latched when the renderer turns out to have no asynchronous readback, so
+  // the creation is not retried on the render thread every single frame.
+  bool egressReadbackUnavailable = false;
   // CFR pacer for a file recording. A broadcast deliverable must contain
   // exactly rate x elapsed frames; the encoder stamps by ARRIVAL ORDER at the
   // declared rate, so delivering fewer frames than promised does not slow the

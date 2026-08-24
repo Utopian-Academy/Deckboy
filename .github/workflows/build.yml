@@ -97,15 +97,21 @@ jobs:
       - name: Install SDL3
         run: |
           set -e
-          if sudo apt-get install -y libsdl3-dev libsdl3-ttf-dev; then
-            echo "SDL3 installed from apt"
+          # 3.4 is the floor, not a preference: the recording readback uses the
+          # SDL_GPU renderer's texture property, which does not exist in 3.2.
+          # Taking whatever apt happens to ship meant Linux built against 3.2
+          # while Windows built against 3.4, and the difference only showed up
+          # as a compile error on one of the three.
+          if sudo apt-get install -y libsdl3-dev libsdl3-ttf-dev && pkg-config --atleast-version=3.4.0 sdl3; then
+            echo "SDL3 $(pkg-config --modversion sdl3) installed from apt"
             exit 0
           fi
-          echo "SDL3 not packaged on this image — building from source"
-          git clone --depth 1 --branch release-3.2.x https://github.com/libsdl-org/SDL.git /tmp/SDL
+          echo "SDL3 >= 3.4 not packaged on this image — building from source"
+          git clone --depth 1 --branch release-3.4.x https://github.com/libsdl-org/SDL.git /tmp/SDL
           cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
           cmake --build /tmp/SDL/build -j"$(nproc)"
           sudo cmake --install /tmp/SDL/build
+          # SDL_ttf has no 3.4 branch; 3.2 builds against SDL 3.4 unchanged.
           git clone --depth 1 --branch release-3.2.x --recurse-submodules \
             https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
           cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON
