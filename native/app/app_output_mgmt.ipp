@@ -3674,7 +3674,26 @@
       //
       // Reported once a second while it persists, so a wedged disk is loud
       // without spamming the operator every frame.
-      if (owed > runtime->recordFramesWritten + 2) {
+      // The asynchronous readback is a PIPELINE: the frame handed to the writer
+      // is kAsyncReadbackDepth behind the one just rendered, so a perfectly
+      // healthy recording sits a constant few frames behind what the pacer says
+      // is owed. Reporting that as a drop meant EVERY 4K take raised
+      // "RECORDING DROPPING FRAMES - 3 behind" once a second for its whole
+      // length and drove the output into an error state -- while the file came
+      // out 449 frames of 450. An alarm that cries wolf on every take is worse
+      // than no alarm, because the operator learns to ignore the one that
+      // matters. MEASURED after this: 4K at 30, 50 and 60 all silent, and the
+      // genuinely starved synchronous path at 2160p50 still shouts.
+      //
+      // The floor is a QUARTER SECOND of frames, not a frame count, because
+      // that is the thing an operator can act on: "you are 5 frames behind at
+      // 60" is jitter the pacer absorbs, while "you are a quarter second
+      // behind" is a disk or an encoder in trouble. A starved capture sits
+      // HUNDREDS behind and trips this instantly.
+      const std::uint64_t pacerAllowance = std::max<std::uint64_t>(
+        static_cast<std::uint64_t>(deckboy::gpu::kAsyncReadbackDepth) + 2u,
+        static_cast<std::uint64_t>(rate / 4.0));
+      if (owed > runtime->recordFramesWritten + pacerAllowance) {
         const std::uint64_t behind = owed - runtime->recordFramesWritten;
         if (nowMs - runtime->lastDropWarnMs >= 1000) {
           runtime->lastDropWarnMs = nowMs;

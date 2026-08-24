@@ -41,8 +41,9 @@ ID3D11Device* rendererDevice(SDL_Renderer* renderer) {
 
 namespace {
 // Three deep in both implementations: one slot being written by the GPU, one in
-// flight, one safe to read.
-constexpr int kStagingRingSize = 3;
+// flight, one safe to read. Published in the header because the recording
+// pacer has to allow for this latency (see kAsyncReadbackDepth).
+constexpr int kStagingRingSize = kAsyncReadbackDepth;
 #ifdef _WIN32
 struct StagingReadback {
   ID3D11Device* device = nullptr;

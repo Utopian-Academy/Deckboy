@@ -16,6 +16,12 @@
 
 namespace deckboy::gpu {
 
+// How many frames deep the asynchronous readback is. Both implementations use
+// the same depth, and callers need it: the frame the writer receives is this
+// many behind the one just rendered, so anything measuring "am I keeping up"
+// has to allow for it or it will report a healthy pipeline as a fault.
+inline constexpr int kAsyncReadbackDepth = 3;
+
 // Asynchronous GPU -> CPU readback, for the recording/egress path.
 // SDL_RenderReadPixels blocks the render thread until the GPU drains the copy
 // (MEASURED: 11.8ms per 1080 frame, 21-24ms at 4K), which is what capped the
