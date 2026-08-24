@@ -57,6 +57,7 @@ cmake --build ../build/windows --config Release
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
+| `tools/linux_build.sh` | Dependencies + build on a fresh Debian/Ubuntu box, including building SDL 3.4 from source where the distro's is older |
 | `tools/record_rate_check.py` | Record a known duration and count what landed in the file: frames delivered vs owed, plus the app's own dropped-frame alarm. `--renderer` / `--readback` pin the backend so one platform's behaviour can be measured from another |
 | `tools/deckboy.iss` | Inno Setup Windows installer (Start Menu, `.deckboy` assoc, uninstaller). Needs the zip packager's staging dir. `iscc /DDeckboyVersion=<ver> tools\deckboy.iss` |
 | `tools/package_macos.sh` | macOS `.app` bundle → `.zip` AND `.dmg` (drag-to-Applications). Relocates dylibs to Frameworks, re-signs ad-hoc AFTER `install_name_tool` (order is load-bearing), bundles libltc + builds `.icns` |
