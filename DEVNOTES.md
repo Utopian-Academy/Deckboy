@@ -55,6 +55,57 @@ So the portable path is frame-exact for every raster and rate a show is likely
 to deliver, and only 4K above 30p outruns it -- where the dropped-frame alarm
 fires once a second on the output health state and in the show log.
 
+### Closing the 4K60 gap: the SDL_GPU download
+
+4K at 50 and 60 was the one thing the portable read could not do, and 60fps has
+16.7ms a frame in total against a read that costs 19. It matters -- a 4K60
+deliverable is not an exotic ask -- so it needed a real asynchronous path, not a
+smaller stall.
+
+**There is no Metal path through SDL's public API.** SDL3.4 exposes
+`SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER`, the OpenGL texture id, the Vulkan
+image and the SDL_GPU texture -- but nothing that reaches the `MTLTexture`
+behind an SDL texture. A Metal-specific readback is not expressible, however
+much one would like to write it.
+
+**SDL_GPU is the way through, and it covers all three at once.** The SDL_GPU
+renderer publishes both its device (`SDL_PROP_RENDERER_GPU_DEVICE_POINTER`) and
+its textures (`SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER`), and
+`SDL_DownloadFromGPUTexture` runs on the GPU timeline and hands back a fence.
+That is one implementation over Metal, Vulkan and D3D12. It has the same shape
+as the D3D11 ring: issue this frame's download, read the oldest slot only if
+`SDL_QueryGPUFence` says it has already signalled, and never wait.
+
+Two things it must do that are easy to miss:
+
+- **Flush the renderer first.** SDL batches draws. Without `SDL_FlushRenderer`
+  the download can be submitted ahead of the draw that filled the texture, and
+  the recording quietly contains the previous picture.
+- **Wait on an in-flight fence before releasing its transfer buffer**, in
+  teardown only. It is the single place this path blocks, and skipping it lets
+  the GPU write into freed memory.
+
+So `createOutputRenderer` asks for the `"gpu"` driver on macOS and Linux, and
+leaves Windows on D3D11 -- which is both faster there and the only backend where
+the in-process zero-copy decode works. `DECKBOY_OUTPUT_RENDERER=<driver>`
+overrides either way; forcing `gpu` on a Windows desk is how this path gets
+tested at all.
+
+MEASURED on Windows with the GPU renderer forced, 20s takes off a 4K programme:
+
+| standard | frames | readback cost |
+|---|---|---|
+| 1080p60 | 1199 / 1201 | flush 0.0006ms, submit 0.13ms, map+copy 3.0ms |
+| 2160p30 | 599 / 601 | as above |
+| 2160p60 | 850 / 1201 | as above |
+
+The readback is no longer the limiter anywhere: 3.2ms against a 16.7ms budget,
+where the synchronous read cost 19. What holds 2160p60 back on *this* desk is
+that the SDL_GPU renderer cannot use the D3D11 zero-copy decode path, so the 4K
+source is decoded and uploaded on the CPU alongside the recording. That penalty
+is specific to Windows, which does not use this path anyway. `DECKBOY_EGRESS_BENCH=1`
+prints the three costs every 100 frames.
+
 **A ping-pong between two scale targets does not help.** Blit into one, read
 back the other -- last frame's, which the GPU finished with long ago -- was
 tried and measured *no better* (311 frames against 326). SDL copies and maps in

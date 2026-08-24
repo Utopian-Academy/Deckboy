@@ -3217,6 +3217,40 @@
     return mode;
   }
 
+  // The renderer an OUTPUT window gets. This is deliberately not the default on
+  // every platform: recording reads each frame back off the GPU, and only two
+  // backends can do that without stalling the render thread -- D3D11, through
+  // its staging ring, and SDL_GPU, through SDL_DownloadFromGPUTexture. Anything
+  // else falls back to a synchronous read that costs 16.8-18.8ms at 4K, which
+  // 60fps (16.7ms a frame in total) simply cannot afford.
+  //
+  // So Windows keeps its default D3D11 renderer, and macOS and Linux ask for
+  // "gpu" -- Metal and Vulkan underneath -- falling back to the default if it
+  // will not create. DECKBOY_OUTPUT_RENDERER overrides the choice by driver
+  // name, both to force "gpu" on a Windows desk (which is how this path gets
+  // tested at all) and to get an operator back to the old behaviour in a hurry
+  // if a driver misbehaves in the field.
+  SDL_Renderer* createOutputRenderer(SDL_Window* window) {
+    if (const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER")) {
+      if (*forced) {
+        if (SDL_Renderer* r = SDL_CreateRenderer(window, forced)) {
+          return r;
+        }
+        std::cerr << "output-renderer: DECKBOY_OUTPUT_RENDERER=" << forced
+                  << " could not be created, falling back" << std::endl;
+      }
+    }
+#if !defined(_WIN32)
+    if (SDL_Renderer* r = SDL_CreateRenderer(window, "gpu")) {
+      return r;
+    }
+#endif
+    if (SDL_Renderer* r = SDL_CreateRenderer(window, nullptr)) {
+      return r;
+    }
+    return SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
+  }
+
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
@@ -5617,10 +5651,7 @@
     }
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
-    if (!runtime.outputRenderer) {
-      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
-    }
+    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow);
     if (!runtime.outputRenderer) {
       destroyDeckRuntime(runtime);
       return false;
@@ -5673,10 +5704,7 @@
     SDL_SetWindowPosition(runtime.outputWindow, windowX, windowY);
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
-    if (!runtime.outputRenderer) {
-      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
-    }
+    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow);
     if (runtime.outputRenderer && !streamType) {
       // Program output stays vsynced to its display; stream-only outputs run
       // unthrottled (per-renderer vsync is an SDL3 runtime property).

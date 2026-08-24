@@ -1,6 +1,8 @@
 #include "gpu_readback.hpp"
 
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 #ifdef _WIN32
 #include <d3d11.h>
@@ -38,8 +40,10 @@ ID3D11Device* rendererDevice(SDL_Renderer* renderer) {
 // ============================================================================
 
 namespace {
-#ifdef _WIN32
+// Three deep in both implementations: one slot being written by the GPU, one in
+// flight, one safe to read.
 constexpr int kStagingRingSize = 3;
+#ifdef _WIN32
 struct StagingReadback {
   ID3D11Device* device = nullptr;
   ID3D11DeviceContext* context = nullptr;
@@ -50,9 +54,204 @@ struct StagingReadback {
   int primed = 0;         // frames issued but not yet read back
 };
 #endif
-}  // namespace
+// ----------------------------------------------------------------------------
+// SDL_GPU path: one asynchronous readback for Metal, Vulkan and D3D12.
+//
+// The D3D11 ring below only ever helped Windows, and 4K at 50 and 60 was
+// unreachable everywhere else -- the synchronous read costs 16.8-18.8ms a frame
+// and 60fps has 16.7ms to spend in total. SDL3 has no way to reach the
+// MTLTexture behind an SDL texture, so a Metal-specific path is not even
+// expressible through the public API; but the SDL_GPU renderer exposes both its
+// device and its textures, and SDL_DownloadFromGPUTexture is genuinely
+// asynchronous -- it runs on the GPU timeline and hands back a fence.
+//
+// Same shape as the D3D11 ring: issue this frame's download, then read the
+// OLDEST slot only if its fence has already signalled. QueryGPUFence never
+// blocks, so a slow frame degrades into a repeat rather than a stall.
+struct GpuDownloadReadback {
+  SDL_Renderer* renderer = nullptr;
+  SDL_GPUDevice* device = nullptr;
+  SDL_GPUTransferBuffer* ring[kStagingRingSize] = {nullptr, nullptr, nullptr};
+  SDL_GPUFence* fence[kStagingRingSize] = {nullptr, nullptr, nullptr};
+  int width = 0;
+  int height = 0;
+  int cursor = 0;
+  int primed = 0;
+};
 
-void* createStagingReadback(SDL_Renderer* renderer, int width, int height) {
+SDL_GPUDevice* rendererGpuDevice(SDL_Renderer* renderer) {
+  if (!renderer) {
+    return nullptr;
+  }
+  return static_cast<SDL_GPUDevice*>(
+    SDL_GetPointerProperty(SDL_GetRendererProperties(renderer),
+                           SDL_PROP_RENDERER_GPU_DEVICE_POINTER, nullptr));
+}
+
+SDL_GPUTexture* textureGpuHandle(SDL_Texture* texture) {
+  if (!texture) {
+    return nullptr;
+  }
+  return static_cast<SDL_GPUTexture*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(texture),
+                           SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+}
+
+void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height) {
+  SDL_GPUDevice* device = rendererGpuDevice(renderer);
+  if (!device || width <= 0 || height <= 0) {
+    return nullptr;
+  }
+  auto* rb = new GpuDownloadReadback();
+  rb->renderer = renderer;
+  rb->device = device;
+  rb->width = width;
+  rb->height = height;
+  const Uint32 bytes = static_cast<Uint32>(width) * static_cast<Uint32>(height) * 4u;
+  for (int i = 0; i < kStagingRingSize; ++i) {
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    info.size = bytes;
+    rb->ring[i] = SDL_CreateGPUTransferBuffer(device, &info);
+    if (!rb->ring[i]) {
+      for (int j = 0; j < i; ++j) {
+        SDL_ReleaseGPUTransferBuffer(device, rb->ring[j]);
+      }
+      delete rb;
+      return nullptr;
+    }
+  }
+  return rb;
+}
+
+void destroyGpuDownloadReadback(void* handle) {
+  auto* rb = static_cast<GpuDownloadReadback*>(handle);
+  if (!rb) return;
+  for (int i = 0; i < kStagingRingSize; ++i) {
+    // A fence still in flight must be waited on before its buffer goes away,
+    // or the GPU writes into freed memory. This is the one place we DO block.
+    if (rb->fence[i]) {
+      SDL_WaitForGPUFences(rb->device, true, &rb->fence[i], 1);
+      SDL_ReleaseGPUFence(rb->device, rb->fence[i]);
+      rb->fence[i] = nullptr;
+    }
+    if (rb->ring[i]) {
+      SDL_ReleaseGPUTransferBuffer(rb->device, rb->ring[i]);
+      rb->ring[i] = nullptr;
+    }
+  }
+  delete rb;
+}
+
+bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
+                              std::uint8_t* out, std::size_t outBytes,
+                              int width, int height) {
+  auto* rb = static_cast<GpuDownloadReadback*>(handle);
+  if (!rb || !source || !out) {
+    return false;
+  }
+  if (rb->width != width || rb->height != height) {
+    return false;   // caller recreates on a raster change
+  }
+  SDL_GPUTexture* tex = textureGpuHandle(source);
+  if (!tex) {
+    return false;
+  }
+  // DECKBOY_EGRESS_BENCH=1 prints the three costs every 100 frames. Read once:
+  // this runs on the render thread at frame rate.
+  static const bool bench = [] {
+    const char* e = std::getenv("DECKBOY_EGRESS_BENCH");
+    return e && *e;
+  }();
+  const Uint64 t0 = SDL_GetPerformanceCounter();
+  // The renderer batches; without this the download can be submitted BEFORE the
+  // draw that filled the texture, and the recording gets last frame's picture.
+  SDL_FlushRenderer(rb->renderer);
+  const Uint64 t1 = SDL_GetPerformanceCounter();
+
+  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(rb->device);
+  if (!cmd) {
+    return false;
+  }
+  SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
+  if (!pass) {
+    SDL_SubmitGPUCommandBuffer(cmd);
+    return false;
+  }
+  SDL_GPUTextureRegion region {};
+  region.texture = tex;
+  region.w = static_cast<Uint32>(width);
+  region.h = static_cast<Uint32>(height);
+  region.d = 1;
+  SDL_GPUTextureTransferInfo dst {};
+  dst.transfer_buffer = rb->ring[rb->cursor];
+  dst.pixels_per_row = static_cast<Uint32>(width);
+  dst.rows_per_layer = static_cast<Uint32>(height);
+  SDL_DownloadFromGPUTexture(pass, &region, &dst);
+  SDL_EndGPUCopyPass(pass);
+
+  if (rb->fence[rb->cursor]) {
+    // Should already be consumed by the read below; released here so a slot
+    // can never leak a fence if the ring order is ever changed.
+    SDL_ReleaseGPUFence(rb->device, rb->fence[rb->cursor]);
+    rb->fence[rb->cursor] = nullptr;
+  }
+  rb->fence[rb->cursor] = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+  rb->cursor = (rb->cursor + 1) % kStagingRingSize;
+  if (rb->primed < kStagingRingSize) {
+    rb->primed += 1;
+    return false;   // ring still filling
+  }
+
+  const Uint64 t2 = SDL_GetPerformanceCounter();
+  const int oldest = rb->cursor;
+  if (!rb->fence[oldest] || !SDL_QueryGPUFence(rb->device, rb->fence[oldest])) {
+    if (bench) {
+      static int miss = 0;
+      if (++miss % 100 == 0) {
+        std::cerr << "gpu-readback fence-miss x" << miss << std::endl;
+      }
+    }
+
+    return false;   // still in flight; never wait on the render thread
+  }
+  const std::size_t frameBytes = static_cast<std::size_t>(width) *
+                                 static_cast<std::size_t>(height) * 4u;
+  bool ok = outBytes >= frameBytes;
+  if (ok) {
+    if (void* mapped = SDL_MapGPUTransferBuffer(rb->device, rb->ring[oldest], false)) {
+      std::memcpy(out, mapped, frameBytes);
+      SDL_UnmapGPUTransferBuffer(rb->device, rb->ring[oldest]);
+    } else {
+      ok = false;
+    }
+  }
+  SDL_ReleaseGPUFence(rb->device, rb->fence[oldest]);
+  rb->fence[oldest] = nullptr;
+  if (bench) {
+    static int n = 0; static double flush = 0, submit = 0, map = 0;
+    const double f = static_cast<double>(SDL_GetPerformanceFrequency());
+    flush += (t1 - t0) * 1000.0 / f;
+    submit += (t2 - t1) * 1000.0 / f;
+    map += (SDL_GetPerformanceCounter() - t2) * 1000.0 / f;
+    if (++n == 100) {
+      std::cerr << "gpu-readback flush=" << (flush / n) << "ms submit="
+                << (submit / n) << "ms map=" << (map / n) << "ms" << std::endl;
+      n = 0; flush = 0; submit = 0; map = 0;
+    }
+  }
+  return ok;
+}
+
+// Which implementation a handle belongs to. Both rings hand back the same
+// "false means reuse the previous picture" contract, so the only thing the
+// caller ever sees is that one of them exists.
+struct ReadbackHandle {
+  void* d3d11 = nullptr;
+  void* gpu = nullptr;
+};
+
+void* createD3D11Readback(SDL_Renderer* renderer, int width, int height) {
 #ifdef _WIN32
   ID3D11Device* device = rendererDevice(renderer);
   if (!device || width <= 0 || height <= 0) {
@@ -95,7 +294,7 @@ void* createStagingReadback(SDL_Renderer* renderer, int width, int height) {
 #endif
 }
 
-void destroyStagingReadback(void* handle) {
+void destroyD3D11Readback(void* handle) {
 #ifdef _WIN32
   auto* rb = reinterpret_cast<StagingReadback*>(handle);
   if (!rb) return;
@@ -109,9 +308,9 @@ void destroyStagingReadback(void* handle) {
 #endif
 }
 
-bool stagingReadbackFrame(void* handle, SDL_Texture* source,
-                          std::uint8_t* out, std::size_t outBytes,
-                          int width, int height) {
+bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
+                        std::uint8_t* out, std::size_t outBytes,
+                        int width, int height) {
 #ifdef _WIN32
   auto* rb = reinterpret_cast<StagingReadback*>(handle);
   if (!rb || !source || !out) {
@@ -160,6 +359,50 @@ bool stagingReadbackFrame(void* handle, SDL_Texture* source,
   (void) width; (void) height;
   return false;
 #endif
+}
+
+}  // namespace
+
+// ----------------------------------------------------------------------------
+// Public entry points. D3D11 first where it exists, because it is the path with
+// years of frames behind it; the SDL_GPU download is what gives macOS, Linux --
+// and a Windows machine running the "gpu" renderer -- the same 4K60 headroom.
+void* createStagingReadback(SDL_Renderer* renderer, int width, int height) {
+  void* d3d11 = nullptr;
+#ifdef _WIN32
+  d3d11 = createD3D11Readback(renderer, width, height);
+#endif
+  void* gpu = d3d11 ? nullptr : createGpuDownloadReadback(renderer, width, height);
+  if (!d3d11 && !gpu) {
+    return nullptr;   // caller falls back to SDL_RenderReadPixels
+  }
+  auto* handle = new ReadbackHandle();
+  handle->d3d11 = d3d11;
+  handle->gpu = gpu;
+  return handle;
+}
+
+void destroyStagingReadback(void* handle) {
+  auto* h = static_cast<ReadbackHandle*>(handle);
+  if (!h) return;
+#ifdef _WIN32
+  destroyD3D11Readback(h->d3d11);
+#endif
+  destroyGpuDownloadReadback(h->gpu);
+  delete h;
+}
+
+bool stagingReadbackFrame(void* handle, SDL_Texture* source,
+                          std::uint8_t* out, std::size_t outBytes,
+                          int width, int height) {
+  auto* h = static_cast<ReadbackHandle*>(handle);
+  if (!h) return false;
+#ifdef _WIN32
+  if (h->d3d11) {
+    return d3d11ReadbackFrame(h->d3d11, source, out, outBytes, width, height);
+  }
+#endif
+  return gpuDownloadReadbackFrame(h->gpu, source, out, outBytes, width, height);
 }
 
 }  // namespace deckboy::gpu
