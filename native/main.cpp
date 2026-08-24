@@ -77,6 +77,7 @@
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/hap_decoder.hpp"
+#include "engine/gpu_readback.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
@@ -1809,7 +1810,7 @@ struct OutputRuntime {
   SDL_Texture* egressScaleTexture = nullptr;
   int egressScaleW = 0;
   int egressScaleH = 0;
-  // Staging ring for the asynchronous readback (see libav_decoder.hpp). Null on
+  // Staging ring for the asynchronous readback (see gpu_readback.hpp). Null on
   // a non-D3D11 renderer, where the path falls back to SDL_RenderReadPixels.
   void* egressReadback = nullptr;
   int egressReadbackW = 0;

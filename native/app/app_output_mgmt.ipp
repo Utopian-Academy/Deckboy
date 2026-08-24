@@ -3353,11 +3353,11 @@
         readbackTarget == runtime.egressScaleTexture) {
       if (runtime.egressReadback &&
           (runtime.egressReadbackW != captureW || runtime.egressReadbackH != captureH)) {
-        deckboy::libav::destroyStagingReadback(runtime.egressReadback);
+        deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
         runtime.egressReadback = nullptr;
       }
       if (!runtime.egressReadback) {
-        runtime.egressReadback = deckboy::libav::createStagingReadback(
+        runtime.egressReadback = deckboy::gpu::createStagingReadback(
           runtime.outputRenderer, captureW, captureH);
         runtime.egressReadbackW = captureW;
         runtime.egressReadbackH = captureH;
@@ -3367,7 +3367,7 @@
         // zero-filled an 8MB temporary EVERY FRAME and then walked it twice
         // more (memcpy, then a format conversion) -- about 24MB of pointless
         // traffic per frame on the render thread.
-        const bool got = deckboy::libav::stagingReadbackFrame(
+        const bool got = deckboy::gpu::stagingReadbackFrame(
           runtime.egressReadback, runtime.egressScaleTexture,
           runtime.latestCapturedFrame.pixels.data(),
           runtime.latestCapturedFrame.pixels.size(), captureW, captureH);
@@ -3769,7 +3769,7 @@
       runtime.egressScaleH = 0;
     }
     if (runtime.egressReadback) {
-      deckboy::libav::destroyStagingReadback(runtime.egressReadback);
+      deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
       runtime.egressReadback = nullptr;
       runtime.egressReadbackW = 0;
       runtime.egressReadbackH = 0;
