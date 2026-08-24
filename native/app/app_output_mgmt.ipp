@@ -2088,6 +2088,21 @@
       "-pix_fmt", "yuv420p"
     });
     if (toFile) {
+      // Normally the composite is scaled to the recording raster on the GPU
+      // before readback, so the frames arriving here are already the right
+      // size and this filter is absent. It is needed only where the captured
+      // frame is SHARED with NDI, DeckLink, Spout, ST 2110 or the output delay:
+      // those must have the programme raster, so the capture keeps it and the
+      // encoder resizes instead. Slower than the GPU blit, and correct -- the
+      // alternative was silently sending every one of them at the recording's
+      // size.
+      const int wantW = project_.recordingWidth;
+      const int wantH = project_.recordingHeight;
+      if (wantW > 0 && wantH > 0 && (wantW != width || wantH != height)) {
+        args.insert(args.end(),
+                    {"-vf", "scale=" + std::to_string(wantW) + ":" +
+                            std::to_string(wantH) + ":flags=bicubic"});
+      }
       const std::vector<std::string> codecArgs = recordingCodecArgs();
       args.insert(args.end(), codecArgs.begin(), codecArgs.end());
     } else {
@@ -3321,9 +3336,28 @@
     // The blit is 1:1 when no resize is asked for, and nearly free; its real
     // job is putting the frame into a BGRA target we own, which is what the
     // asynchronous staging readback needs.
+    // The captured frame is SHARED. NDI, DeckLink, Spout, ST 2110 and the output
+    // delay buffer all read `latestCapturedFrame`, and they must have the
+    // PROGRAMME raster. Scaling it to the recording's raster silently dropped
+    // every one of them to the recording size -- a 4K NDI send became 1080
+    // because someone armed a 1080 recording on the same output. The comment
+    // above claimed this could not happen; the guard did not enforce it, and
+    // these are independent per-output flags that can all be on at once.
+    //
+    // So the fast path is taken only when the recording is the frame's ONLY
+    // consumer, which is the ordinary case. Where it is not, the capture keeps
+    // the programme raster and the recording is scaled by the encoder instead
+    // (see recordingScaleFilterArgs) -- slower, and correct.
+    const OutputTarget& egressOutput = project_.outputs[outputIndex];
+    const bool sharedWithOtherEgress =
+      egressOutput.ndiEnabled || egressOutput.ndiKeyEnabled ||
+      egressOutput.deckLinkEnabled || egressOutput.spoutEnabled ||
+      egressOutput.st2110Enabled ||
+      std::clamp(egressOutput.outputDelayMs, 0, 5000) > 0;
     const bool scaledEgress =
       outputStreamProtocolIsFile(
-        normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)) &&
+        normalizeOutputStreamProtocol(egressOutput.streamProtocol)) &&
+      !sharedWithOtherEgress &&
       runtime.compositorTexture;
     const int readbackMode = egressReadbackMode();
     if (scaledEgress) {
@@ -3380,6 +3414,7 @@
       return false;
     }
 
+    bool asyncCaptured = false;
     // ── Asynchronous path ──────────────────────────────────────────────────
     // Only for the scaled recording target, which is a plain RGBA render target
     // we own. Everything else keeps the synchronous readback below.
@@ -3390,11 +3425,15 @@
         deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
         runtime.egressReadback = nullptr;
       }
-      if (!runtime.egressReadback) {
+      if (!runtime.egressReadback && !runtime.egressReadbackUnavailable) {
         runtime.egressReadback = deckboy::gpu::createStagingReadback(
           runtime.outputRenderer, captureW, captureH);
         runtime.egressReadbackW = captureW;
         runtime.egressReadbackH = captureH;
+        // A renderer with no asynchronous path says so once. Without this the
+        // creation was attempted EVERY FRAME for the whole session, on the
+        // render thread, for a null that was never going to change.
+        runtime.egressReadbackUnavailable = runtime.egressReadback == nullptr;
       }
       if (runtime.egressReadback) {
         // Straight into the egress buffer. The earlier version allocated and
@@ -3405,31 +3444,32 @@
           runtime.egressReadback, runtime.egressScaleTexture,
           runtime.latestCapturedFrame.pixels.data(),
           runtime.latestCapturedFrame.pixels.size(), captureW, captureH);
-        if (got) {
-          runtime.latestCapturedFrame.width = captureW;
-          runtime.latestCapturedFrame.height = captureH;
-          runtime.latestCapturedFrame.capturedAtMs = nowMs;
-          runtime.lastEgressCaptureAtMs = nowMs;
-          return true;
-        }
+        // NOT a return: this used to hand the frame straight back, which
+        // skipped the orientation rotation below -- so a rotated output
+        // recorded UNROTATED on the asynchronous path and rotated on the
+        // synchronous one. Falling through means both paths agree.
+        asyncCaptured = got;
         // Nothing ready: keep the previous picture. The CFR pacer will repeat
         // it, which is exactly the right behaviour -- a held frame, never a
-        // gap in the timeline.
-        if (runtime.latestCapturedFrame.width > 0) {
+        // gap in the timeline. The held frame was already rotated when it was
+        // captured, so this one DOES return early.
+        if (!got && runtime.latestCapturedFrame.width > 0) {
           runtime.lastEgressCaptureAtMs = nowMs;
           return true;
         }
       }
     }
 
+    bool ok = asyncCaptured;
     SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
-    if (readbackTarget) {
+    if (!asyncCaptured && readbackTarget) {
       SDL_SetRenderTarget(runtime.outputRenderer, readbackTarget);
     }
     // SDL3: read into a temporary surface, then convert into the persistent
     // BGRA egress buffer (SDL2 wrote the requested format directly).
-    bool ok = false;
-    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, &readbackRect)) {
+    if (SDL_Surface* captured = asyncCaptured
+          ? nullptr
+          : SDL_RenderReadPixels(runtime.outputRenderer, &readbackRect)) {
       ok = captured->w == captureW && captured->h == captureH &&
            SDL_ConvertPixels(captured->w, captured->h,
                              captured->format, captured->pixels, captured->pitch,
@@ -3438,7 +3478,7 @@
                              static_cast<int>(stride));
       SDL_DestroySurface(captured);
     }
-    if (readbackTarget) {
+    if (!asyncCaptured && readbackTarget) {
       SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
     }
     if (!ok) {
@@ -3808,6 +3848,10 @@
       runtime.egressReadbackW = 0;
       runtime.egressReadbackH = 0;
     }
+    // Outside the branch above: when the renderer had no asynchronous path
+    // there is no handle to free, and clearing the latch only inside it would
+    // mean a new renderer never got asked.
+    runtime.egressReadbackUnavailable = false;
     releaseOutputPreviewTap(runtime);
     runtime.compositorWidth = 0;
     runtime.compositorHeight = 0;
@@ -5651,7 +5695,14 @@
     }
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow);
+    // NOT createOutputRenderer: this hidden renderer is the media engine's
+    // decode/upload target, never an egress surface, so it has nothing to gain
+    // from a backend chosen for asynchronous readback -- and on Windows it is
+    // where zero-copy D3D11 decode lives, which a different backend would cost.
+    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
+    if (!runtime.outputRenderer) {
+      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
+    }
     if (!runtime.outputRenderer) {
       destroyDeckRuntime(runtime);
       return false;

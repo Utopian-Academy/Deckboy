@@ -68,6 +68,12 @@ struct StagingReadback {
 // Same shape as the D3D11 ring: issue this frame's download, then read the
 // OLDEST slot only if its fence has already signalled. QueryGPUFence never
 // blocks, so a slow frame degrades into a repeat rather than a stall.
+// SDL 3.4 is the floor: SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER does not exist in
+// 3.2, and building against it there is a compile error rather than a graceful
+// absence. CI found exactly that -- it built SDL from release-3.2.x while this
+// desk had 3.4 from vcpkg. CI now requires 3.4; this guard is for anyone
+// building against an older SDL, who falls back to the synchronous read.
+#if SDL_VERSION_ATLEAST(3, 4, 0)
 struct GpuDownloadReadback {
   SDL_Renderer* renderer = nullptr;
   SDL_GPUDevice* device = nullptr;
@@ -169,6 +175,15 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   SDL_FlushRenderer(rb->renderer);
   const Uint64 t1 = SDL_GetPerformanceCounter();
 
+  // The slot about to be written may still have a download in flight -- three
+  // frames is normally ample, but if the GPU falls behind, issuing a second
+  // download into the same transfer buffer would race the first. Skip this
+  // frame instead; the caller repeats the previous picture, which is what it
+  // does for every other "not ready" case.
+  if (rb->fence[rb->cursor] && !SDL_QueryGPUFence(rb->device, rb->fence[rb->cursor])) {
+    return false;
+  }
+
   SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(rb->device);
   if (!cmd) {
     return false;
@@ -191,8 +206,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   SDL_EndGPUCopyPass(pass);
 
   if (rb->fence[rb->cursor]) {
-    // Should already be consumed by the read below; released here so a slot
-    // can never leak a fence if the ring order is ever changed.
+    // Signalled (checked above), so this only releases our reference.
     SDL_ReleaseGPUFence(rb->device, rb->fence[rb->cursor]);
     rb->fence[rb->cursor] = nullptr;
   }
@@ -242,6 +256,12 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   }
   return ok;
 }
+#else   // SDL < 3.4: there is no SDL_GPU texture property to read from.
+void* createGpuDownloadReadback(SDL_Renderer*, int, int) { return nullptr; }
+void destroyGpuDownloadReadback(void*) {}
+bool gpuDownloadReadbackFrame(void*, SDL_Texture*, std::uint8_t*, std::size_t,
+                              int, int) { return false; }
+#endif
 
 // Which implementation a handle belongs to. Both rings hand back the same
 // "false means reuse the previous picture" contract, so the only thing the
