@@ -3984,16 +3984,23 @@ Project loadProject(const fs::path& projectFile,
         kind == "tone" ? CueKind::Tone :
         (kind == "video_synth" || kind == "vsynth") ? CueKind::VideoSynth :
         CueKind::Video;
-      // Repair shows written while the round trip was broken. Those saved a
-      // generated cue as "video" but kept its real path, so the path is the
-      // surviving evidence of what the cue actually is -- and a Video cue
-      // pointed at tone:// can never play. Without this, every show saved
-      // before the fix stays broken after it.
+      // Repair shows written while the round trip was broken. cueKindToken was
+      // missing SEVEN kinds, so each was saved as "video" while keeping its
+      // real path -- and a Video cue pointed at timer:// can never play, it
+      // just racks. v0.84.0 shipped this way, which means every Timer, Pip,
+      // Composite, Camera, Window and Syphon cue in a show saved by it comes
+      // back dead. The path is the surviving evidence of what the cue was, and
+      // every affected kind has its own scheme, so all of them recover.
       if (cue.kind == CueKind::Video) {
         const std::string& p = cue.path;
-        if (p.rfind("tone://", 0) == 0)        cue.kind = CueKind::Tone;
-        else if (p.rfind("timer://", 0) == 0)  cue.kind = CueKind::Timer;
-        else if (p.rfind("vsynth://", 0) == 0) cue.kind = CueKind::VideoSynth;
+        if (p.rfind("tone://", 0) == 0)               cue.kind = CueKind::Tone;
+        else if (p.rfind("timer://", 0) == 0)         cue.kind = CueKind::Timer;
+        else if (p.rfind("vsynth://", 0) == 0)        cue.kind = CueKind::VideoSynth;
+        else if (p.rfind("graphic://pip", 0) == 0)    cue.kind = CueKind::Pip;
+        else if (p.rfind("graphic://composite", 0) == 0) cue.kind = CueKind::Composite;
+        else if (p.rfind("source://camera/", 0) == 0) cue.kind = CueKind::Camera;
+        else if (p.rfind("source://window/", 0) == 0) cue.kind = CueKind::WindowSource;
+        else if (p.rfind("source://syphon/", 0) == 0) cue.kind = CueKind::Syphon;
       }
       cue.duration = safeDouble(fields, offset + 3, 0.0);
       cue.width = safeInt(fields, offset + 4, 0);
@@ -8372,6 +8379,7 @@ constexpr CliFlagHelp kCliEnvHelp[] = {
   {"DECKBOY_PROJECT", "show file to open instead of the remembered one"},
   {"DECKBOY_COMPANION_PORT", "Companion control port (default 5510)"},
   {"DECKBOY_FFMPEG / DECKBOY_FFPROBE", "explicit paths to the ffmpeg binaries"},
+  {"DECKBOY_EGRESS_READBACK", "sync = force the portable recording readback (diagnostic)"},
 };
 
 bool isCliModeFlag(const std::string& token) {
