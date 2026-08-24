@@ -715,6 +715,8 @@
     }
     const OutputTarget& output = project_.outputs[outputIndex];
     if (!output.enabled) {
+      // Egress teardown for a disabled output happens in the render loop (see
+      // stopEgressForDisabledOutput) -- this function is never called for one.
       return;
     }
     runtime->blackedWhileDisabled = false;  // active again — re-black on next disable

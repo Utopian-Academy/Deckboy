@@ -1347,6 +1347,309 @@
     return resolveIntegrationBackendRuntimeRoute().summary;
   }
 
+  // The rate a RECORDING is written at. Stated explicitly, never inferred:
+  // a deliverable has to land on the standard it claims, and "whatever the
+  // operator's monitor refreshes at" is not a standard. 0 = follow programme.
+  double recordingFps(double fpsHint) const {
+    if (std::isfinite(project_.recordingFps) && project_.recordingFps > 1.0) {
+      return std::clamp(project_.recordingFps, 1.0, 120.0);
+    }
+    return outputStreamFps(fpsHint);
+  }
+
+  // Video encoder for RECORDINGS, probed once against the ffmpeg actually
+  // installed. Software x264 cannot hold a broadcast rate here: the app is
+  // already compositing a 4K programme, and at 1080p50 the encoder fell behind,
+  // built a backlog and the take was truncated when the muxer was closed
+  // (MEASURED: 601 frames delivered, 100 in the file). A GPU encoder runs
+  // 1080p50 at 222fps -- 4.4x realtime -- and costs the CPU nothing.
+  //
+  // Order is by how widely each is available on show hardware. Empty means no
+  // hardware encoder, and the caller falls back to libx264.
+  const std::string& recordingVideoEncoder() const {
+    static bool probed = false;
+    static std::string chosen;
+    if (probed) {
+      return chosen;
+    }
+    probed = true;
+    if (auto text = readAllText({"ffmpeg", "-hide_banner", "-encoders"})) {
+      for (const char* candidate : {"h264_nvenc", "h264_qsv", "h264_amf"}) {
+        if (text->find(candidate) != std::string::npos) {
+          chosen = candidate;
+          break;
+        }
+      }
+    }
+    return chosen;
+  }
+
+  // Is anything actually going OUT of the box right now — a recording, a
+  // stream, NDI, DeckLink, Spout or ST 2110? While something is, the capture
+  // path is on the critical path and the UI must not pace the loop.
+  bool anyOutputEgressActive() const {
+    for (const OutputTarget& out : project_.outputs) {
+      if (!out.enabled) {
+        continue;
+      }
+      if (out.streamEnabled || out.ndiEnabled || out.ndiKeyEnabled ||
+          out.deckLinkEnabled || out.spoutEnabled || out.st2110Enabled) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Should the take roll onto a new file now?
+  //
+  // Two operator-set caps (time and size), plus a hard ceiling that is not
+  // optional. FAT32 -- which is what most USB media arrives formatted as --
+  // cannot hold a file over 4GB, and the failure mode is losing the take at the
+  // moment it crosses the line. Every hardware recorder segments for exactly
+  // this reason; AJA does it at both the operator's cap and the filesystem's.
+  // Rolling at 3.8GB costs nothing on NTFS or exFAT and saves the show on FAT32.
+  bool shouldRollRecordingSegment(OutputRuntime& runtime) const {
+    if (runtime.recordPacerStartMs == 0) {
+      return false;
+    }
+    const Uint64 nowMs = SDL_GetTicks();
+    const int minutes = std::clamp(project_.recordingSegmentMinutes, 0, 240);
+    if (minutes > 0 &&
+        (nowMs - runtime.recordPacerStartMs) >=
+          static_cast<Uint64>(minutes) * 60000u) {
+      return true;
+    }
+    // Size is a filesystem stat ON A FILE THE ENCODER IS ACTIVELY WRITING, so
+    // it is deliberately infrequent: every five seconds, not every frame. Even
+    // at DNxHR HQ rates it takes minutes to cover the gap between checks, and
+    // this runs on the render thread where a stall costs frames.
+    if (nowMs - runtime.lastSegmentSizeCheckMs < 5000) {
+      return false;
+    }
+    runtime.lastSegmentSizeCheckMs = nowMs;
+    constexpr std::uintmax_t kFat32Ceiling =
+      static_cast<std::uintmax_t>(3800) * 1024u * 1024u;
+    const std::uintmax_t cap =
+      project_.recordingSegmentMegabytes > 0
+        ? std::min<std::uintmax_t>(
+            static_cast<std::uintmax_t>(project_.recordingSegmentMegabytes) * 1024u * 1024u,
+            kFat32Ceiling)
+        : kFat32Ceiling;
+    return recordingBytesOnDisk() >= cap;
+  }
+
+  // Rewrite a finished recording from fragmented into an ordinary MP4/MOV.
+  //
+  // Fragmented is what makes a killed or crashed encoder still leave a playable
+  // file, and that is worth keeping. But a fragmented file is awkward
+  // downstream: browsers cannot show its duration, seeking misbehaves in some
+  // players, and plenty of editors reject it outright. OBS solved this with
+  // what they call hybrid MP4 -- fragmented while recording, rewritten to a
+  // normal file at stop. This is the same trade done with a stream copy, so it
+  // costs seconds and not a single re-encoded pixel.
+  //
+  // Detached: a long take takes a moment to rewrite and the operator must not
+  // wait for it. The original is only replaced once the rewrite has succeeded
+  // and produced a non-empty file, so a failure here can never cost the take.
+  void queueRecordingRemux(const std::string& path) {
+    if (path.empty()) {
+      return;
+    }
+    std::thread([path]() {
+      std::error_code ec;
+      if (!fs::exists(path, ec) || fs::file_size(path, ec) == 0) {
+        return;
+      }
+      const fs::path src(path);
+      const fs::path tmp = fs::path(src).replace_extension(
+        ".remux" + src.extension().string());
+      const std::vector<std::string> args {
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin",
+        "-y", "-i", path,
+        "-c", "copy",
+        // Index at the FRONT, which is what makes the file seek instantly and
+        // is the whole point of the rewrite.
+        "-movflags", "+faststart",
+        tmp.string()
+      };
+      if (!readAllText(args)) {
+        fs::remove(tmp, ec);
+        return;   // keep the fragmented original; it is still playable
+      }
+      if (!fs::exists(tmp, ec) || fs::file_size(tmp, ec) == 0) {
+        fs::remove(tmp, ec);
+        return;
+      }
+      fs::remove(src, ec);
+      fs::rename(tmp, src, ec);
+      if (ec) {
+        // Rename failed (AV scanner, permissions): leave both rather than lose
+        // the take.
+        return;
+      }
+    }).detach();
+  }
+
+  // ── Recording codec ────────────────────────────────────────────────────────
+  static std::string normalizeRecordingCodec(std::string token) {
+    token = toLower(trim(token));
+    static const std::set<std::string> known {
+      "h264", "hevc",
+      "prores_proxy", "prores_lt", "prores_422", "prores_hq", "prores_4444",
+      "dnxhr_lb", "dnxhr_sq", "dnxhr_hq", "dnxhr_hqx"
+    };
+    return known.count(token) ? token : std::string("h264");
+  }
+
+  static bool recordingCodecIsProRes(const std::string& c) {
+    return c.rfind("prores", 0) == 0;
+  }
+  static bool recordingCodecIsDnx(const std::string& c) {
+    return c.rfind("dnxhr", 0) == 0;
+  }
+
+  // The container a codec has to live in. ProRes and DNxHR are QuickTime-native
+  // and an .mp4 wrapper is exactly the kind of file an edit suite bounces.
+  std::string recordingContainerExtension() const {
+    const std::string c = normalizeRecordingCodec(project_.recordingCodec);
+    return (recordingCodecIsProRes(c) || recordingCodecIsDnx(c)) ? ".mov" : ".mp4";
+  }
+
+  // Encoder arguments for the chosen codec. ProRes profile numbers follow
+  // prores_ks: 0 proxy, 1 LT, 2 standard(422), 3 HQ, 4 4444.
+  std::vector<std::string> recordingCodecArgs() const {
+    const std::string c = normalizeRecordingCodec(project_.recordingCodec);
+    if (recordingCodecIsProRes(c)) {
+      const char* profile = c == "prores_proxy" ? "0"
+                          : c == "prores_lt"    ? "1"
+                          : c == "prores_422"   ? "2"
+                          : c == "prores_4444"  ? "4"
+                                                : "3";   // hq
+      // 4444 carries alpha and needs a 4:4:4 pixel format; everything else is
+      // 10-bit 4:2:2, which is what ProRes actually is -- feeding it 8-bit
+      // yuv420p would throw away the reason for choosing it.
+      return {"-c:v", "prores_ks", "-profile:v", profile,
+              "-pix_fmt", (c == "prores_4444") ? "yuva444p10le" : "yuv422p10le",
+              "-vendor", "apl0"};
+    }
+    if (recordingCodecIsDnx(c)) {
+      const std::string profile =
+        c == "dnxhr_lb"  ? "dnxhr_lb"  :
+        c == "dnxhr_sq"  ? "dnxhr_sq"  :
+        c == "dnxhr_hqx" ? "dnxhr_hqx" : "dnxhr_hq";
+      // HQX is the 10-bit rung; LB/SQ/HQ are 8-bit 4:2:2.
+      return {"-c:v", "dnxhd", "-profile:v", profile,
+              "-pix_fmt", (c == "dnxhr_hqx") ? "yuv422p10le" : "yuv422p"};
+    }
+    if (c == "hevc") {
+      return {"-c:v", "libx265", "-preset", "veryfast", "-pix_fmt", "yuv420p"};
+    }
+    return {"-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"};
+  }
+
+  // Mezzanine codecs are CONSTANT quality by profile -- a bitrate ceiling is
+  // meaningless and ffmpeg rejects some of these combinations outright.
+  bool recordingCodecUsesBitrate() const {
+    const std::string c = normalizeRecordingCodec(project_.recordingCodec);
+    return !recordingCodecIsProRes(c) && !recordingCodecIsDnx(c);
+  }
+
+  // ── Broadcast rates are RATIONAL ───────────────────────────────────────────
+  // 23.976, 29.97 and 59.94 are 24000/1001, 30000/1001 and 60000/1001. Writing
+  // them as two-decimal strings ("23.98", "29.97") is close but WRONG: 23.98
+  // against 23.976023976 drifts about 0.6 seconds an hour, which is nothing to
+  // a viewer and fatal to anything conformed against timecode. ffmpeg accepts
+  // the exact ratio, so give it the exact ratio.
+  static std::string exactRateToken(double fps) {
+    struct Known { double value; const char* token; };
+    static const Known table[] = {
+      {24000.0 / 1001.0, "24000/1001"},
+      {30000.0 / 1001.0, "30000/1001"},
+      {60000.0 / 1001.0, "60000/1001"},
+      {120000.0 / 1001.0, "120000/1001"},
+    };
+    for (const Known& k : table) {
+      // Generous window: the operator may have typed 23.98, 23.976 or 23.9760.
+      if (std::fabs(fps - k.value) < 0.02) {
+        return k.token;
+      }
+    }
+    std::ostringstream out;
+    if (std::fabs(fps - std::lround(fps)) < 1e-6) {
+      out << std::lround(fps);        // 25, 30, 50 -- no spurious decimals
+    } else {
+      out << std::fixed << std::setprecision(6) << fps;
+    }
+    return out.str();
+  }
+
+  // True when the rate is one of the NTSC fractional family, which is the only
+  // case where drop-frame timecode means anything.
+  static bool rateIsFractional(double fps) {
+    return std::fabs(fps - std::lround(fps)) > 1e-6;
+  }
+
+  // Drop-frame skips two timecode NUMBERS at the top of every minute except
+  // every tenth, so the count tracks wall clock at 29.97/59.94. No video frame
+  // is ever lost -- only labels. At an integer rate it is meaningless, and AJA
+  // resolves it exactly this way: auto-select by the detected rate.
+  bool recordingUsesDropFrame(double rate) const {
+    const std::string mode = toLower(trim(project_.recordingTimecodeDropFrame));
+    if (mode == "df")  return rateIsFractional(rate);
+    if (mode == "ndf") return false;
+    return rateIsFractional(rate);
+  }
+
+  // The timecode stamped onto the take. Separator carries the DF/NDF flag:
+  // ';' before the frames field means drop-frame, ':' means non-drop. That is
+  // the SMPTE convention and what ffmpeg's tmcd writer reads.
+  std::string recordingStartTimecode(double rate) const {
+    int hh = 0, mm = 0, ss = 0, ff = 0;
+    if (toLower(trim(project_.recordingTimecodeMode)) == "timeofday") {
+      const std::time_t now = std::time(nullptr);
+      if (std::tm* lt = std::localtime(&now)) {
+        hh = lt->tm_hour; mm = lt->tm_min; ss = lt->tm_sec;
+      }
+    } else {
+      const std::string& s = project_.recordingTimecodeStart;
+      if (std::sscanf(s.c_str(), "%d:%d:%d:%d", &hh, &mm, &ss, &ff) != 4) {
+        hh = mm = ss = ff = 0;
+      }
+    }
+    const int maxFrame = std::max(1, static_cast<int>(std::lround(rate))) - 1;
+    char buf[24];
+    std::snprintf(buf, sizeof(buf), "%02d:%02d:%02d%c%02d",
+                  std::clamp(hh, 0, 23), std::clamp(mm, 0, 59),
+                  std::clamp(ss, 0, 59),
+                  recordingUsesDropFrame(rate) ? ';' : ':',
+                  std::clamp(ff, 0, maxFrame));
+    return buf;
+  }
+
+  // Human-readable recording standard, for toasts, STATUS and the settings UI.
+  std::string recordingFormatLabel() const {
+    std::string raster = (project_.recordingWidth > 0 && project_.recordingHeight > 0)
+      ? (std::to_string(project_.recordingWidth) + "x" +
+         std::to_string(project_.recordingHeight))
+      : std::string("programme");
+    std::string rate;
+    if (std::isfinite(project_.recordingFps) && project_.recordingFps > 1.0) {
+      char buf[32];
+      // 23.98/29.97/59.94 must not be rounded away in the label; a trailing
+      // ".00" on an integer rate is noise.
+      const double r = project_.recordingFps;
+      if (std::fabs(r - std::lround(r)) < 0.005) {
+        std::snprintf(buf, sizeof(buf), "%ld", std::lround(r));
+      } else {
+        std::snprintf(buf, sizeof(buf), "%.2f", r);
+      }
+      rate = buf;
+    } else {
+      rate = "programme";
+    }
+    return raster + " @ " + rate;
+  }
+
   double outputStreamFps(double fpsHint) const {
     if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
       return std::clamp(project_.outputRefreshRateHz, 1.0, 120.0);
@@ -1526,7 +1829,8 @@
     }
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
-    double fps = outputStreamFps(fpsHint);
+    double fps = outputStreamProtocolIsFile(protocol)
+      ? recordingFps(fpsHint) : outputStreamFps(fpsHint);
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     std::ostringstream spec;
     spec << protocol << '|'
@@ -1653,7 +1957,10 @@
       dir = base / "recordings";
     }
     if (stem.empty()) stem = "program";
-    if (ext.empty())  ext = ".mp4";
+    // The CODEC decides the container, not whatever extension the URL happens
+    // to carry. A ProRes or DNxHR essence in an .mp4 wrapper is the kind of
+    // file an edit suite bounces, and the default URL says .mp4 for everything.
+    ext = recordingContainerExtension();
     std::time_t now = std::time(nullptr);
     char stamp[32] = "";
     if (std::tm* lt = std::localtime(&now)) {
@@ -1697,7 +2004,8 @@
     url = applySrtUrlParameters(output, url);
     int bitrateKbps = std::clamp(output.streamBitrateKbps, 500, 50000);
     int bufferKbps = std::clamp(bitrateKbps * 2, 1000, 100000);
-    double fps = outputStreamFps(fpsHint);
+    double fps = outputStreamProtocolIsFile(protocol)
+      ? recordingFps(fpsHint) : outputStreamFps(fpsHint);
     // GOP was hardcoded to one second. A keyframe every second is a lot of
     // bitrate spent on I-frames; most platforms want 2s, and some (YouTube)
     // require <= 4s. Now the operator's setting.
@@ -1718,37 +2026,74 @@
     }
     std::string colorSpace = normalizeOutputColorSpace(output.outputColorSpace);
     std::ostringstream fpsText;
-    fpsText << std::fixed << std::setprecision(2) << fps;
+    if (toFile) {
+      fpsText << exactRateToken(fps);
+    } else {
+      fpsText << std::fixed << std::setprecision(2) << fps;
+    }
 
     std::vector<std::string> args {
       "ffmpeg",
       "-hide_banner",
       "-nostdin",
       "-loglevel", "error",
-      "-thread_queue_size", "2048",
+      // Sized in FRAMES, and these frames are raw BGRA: at 4K one packet is
+      // 33MB, so the old flat 2048 authorised sixty-eight GIGABYTES of input
+      // queue. When the encoder fell behind (it does at 4K) ffmpeg grew to
+      // 1.5GB rather than applying backpressure, and the app kept shovelling.
+      // Cap the queue by BYTES instead so the ceiling is the same at every
+      // raster, and a slow encoder pushes back on the writer as it should.
+      "-thread_queue_size", std::to_string(std::clamp(
+        (256 * 1024 * 1024) /
+          std::max(1, width * height * 4), 8, 512)),
       "-f", "rawvideo",
       "-pix_fmt", "bgra",
       "-video_size", std::to_string(width) + "x" + std::to_string(height),
       "-framerate", fpsText.str(),
+      // KNOWN LIMITATION, measured twice. -framerate is a PROMISE the capture
+      // path cannot keep: at 4K it delivers ~13fps against a declared 30,
+      // because each frame is 33MB of raw BGRA down a pipe. Every undelivered
+      // frame shortens the file, so a 20-second take lands as 8.07s and plays
+      // ~2.5x fast.
+      //
+      // -use_wallclock_as_timestamps is the textbook fix and works when ffmpeg
+      // is driven directly, but NOT here: retested after the deadlock and
+      // -shortest bugs were fixed, it made the same take 2.17s. Do not reach
+      // for it again without re-measuring.
+      //
+      // The real fix is to move fewer bytes -- NV12 is 12bpp against BGRA's 32,
+      // which is 2.7x less down the pipe -- or to record a smaller raster.
       "-i", videoInputPath.empty() ? "pipe:0" : videoInputPath,
       // Real programme audio when a pipe is available, silence only as a
       // fallback. anullsrc was UNCONDITIONAL on Windows, so every SRT stream,
       // RTMP stream and file recording carried a silent audio track while the
       // deck audio sat buffered and unread. NDI was unaffected because it
       // reads those buffers directly.
-      "-f", audioInputPath.empty() ? "lavfi" : "s16le",
+      "-f", audioInputPath.empty() ? "lavfi" : "s16le"
+    };
+    if (audioInputPath.empty()) {
+      // lavfi takes its rate and layout INSIDE the graph description. Passing
+      // -ar/-ac as input options to it is an error on current ffmpeg
+      // ("Option sample_rate not found") and kills the whole encode, so the
+      // silence fallback could never have run on this build.
+      args.insert(args.end(), {"-i", "anullsrc=r=48000:cl=stereo"});
+    } else {
       // s16le carries no header, so the rate and layout must be stated or
       // ffmpeg guesses and the audio plays at the wrong speed.
-      "-ar", "48000",
-      "-ac", "2",
-      "-i", audioInputPath.empty() ? std::string("anullsrc=r=48000:cl=stereo")
-                                   : audioInputPath,
+      args.insert(args.end(), {"-ar", "48000", "-ac", "2", "-i", audioInputPath});
+    }
+    args.insert(args.end(), {
       "-map", "0:v:0",
       "-map", "1:a:0",
-      "-c:v", "libx264",
-      "-preset", "veryfast",
       "-pix_fmt", "yuv420p"
-    };
+    });
+    if (toFile) {
+      const std::vector<std::string> codecArgs = recordingCodecArgs();
+      args.insert(args.end(), codecArgs.begin(), codecArgs.end());
+    } else {
+      args.insert(args.end(),
+                  {"-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p"});
+    }
     if (!toFile) {
       // zerolatency exists to cut STREAM delay: it disables lookahead and
       // B-frames, which costs real quality. A recording is not watched live,
@@ -1768,23 +2113,52 @@
         "-color_trc", "iec61966-2-1"
       });
     }
-    args.insert(args.end(), {
-      "-fflags", "+genpts",
-      "-g", std::to_string(gop),
-      "-b:v", std::to_string(bitrateKbps) + "k",
-      "-maxrate", std::to_string(bitrateKbps) + "k",
-      "-bufsize", std::to_string(bufferKbps) + "k",
-      "-c:a", "aac",
-      "-b:a", std::to_string(std::clamp(output.streamAudioBitrateKbps, 32, 512)) + "k",
-      "-ar", "48000",
-      "-ac", "2"
-    });
+    args.insert(args.end(), {"-fflags", "+genpts"});
     if (toFile) {
-      // The audio source (anullsrc) is INFINITE. Without -shortest the
-      // recording does not end when the video pipe closes -- it keeps muxing
-      // silence forever. MEASURED: a 2s source produced a 26MB file and was
-      // still growing when killed.
-      args.insert(args.end(), {"-shortest"});
+      // A real tmcd track, so the take can be conformed against a running
+      // order. mov and mp4 both carry it; ';' in the value is the drop-frame
+      // flag. Without this the file has no timecode at all, which on its own
+      // disqualifies it as a deliverable.
+      args.insert(args.end(), {"-timecode", recordingStartTimecode(fps)});
+    }
+    if (!toFile || recordingCodecUsesBitrate()) {
+      // Rate control belongs to the long-GOP codecs only. A mezzanine codec is
+      // constant quality chosen by PROFILE; handing prores_ks a -b:v/-maxrate
+      // is at best ignored and at worst refused.
+      args.insert(args.end(), {
+        "-g", std::to_string(gop),
+        "-b:v", std::to_string(bitrateKbps) + "k",
+        "-maxrate", std::to_string(bitrateKbps) + "k",
+        "-bufsize", std::to_string(bufferKbps) + "k"
+      });
+    }
+    if (toFile && !recordingCodecUsesBitrate()) {
+      // Uncompressed audio alongside a mezzanine picture: a facility expects
+      // PCM in a ProRes/DNx MOV, not a lossy AAC track.
+      args.insert(args.end(), {"-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2"});
+    } else {
+      args.insert(args.end(), {
+        "-c:a", "aac",
+        "-b:a", std::to_string(std::clamp(output.streamAudioBitrateKbps, 32, 512)) + "k",
+        "-ar", "48000",
+        "-ac", "2"
+      });
+    }
+    if (toFile) {
+      // -shortest ONLY for the anullsrc fallback, whose silence is INFINITE:
+      // without it the recording never ends when the video pipe closes, it
+      // keeps muxing silence forever (MEASURED: a 2s source produced a 26MB
+      // file and was still growing when killed).
+      //
+      // It must NOT be applied to the real audio pipe. With a live pipe that
+      // has not yet delivered a packet, -shortest lets ffmpeg treat the output
+      // as already finished: it went on draining our video pipe -- eleven
+      // GIGABYTES of it -- while reporting frame=0 and leaving the file at its
+      // bare header. That pipe ends on its own when we close it at stop, so
+      // there is nothing for -shortest to do here anyway.
+      if (audioInputPath.empty()) {
+        args.insert(args.end(), {"-shortest"});
+      }
       // FRAGMENTED mp4, deliberately NOT +faststart. faststart rewrites the
       // whole file at close to move the moov atom to the front; shutdown
       // closes stdin and force-kills after 500ms, which on a show-length
@@ -1795,8 +2169,30 @@
       // to the last keyframe. That matters more here than the marginal
       // compatibility faststart buys.
       if (mux == "mp4" || mux == "mov") {
-        args.insert(args.end(), {"-movflags", "+frag_keyframe+empty_moov+default_base_moof"});
+        // +frag_keyframe starts a fragment at every keyframe. On a long-GOP
+        // codec that is once per GOP, which is what we want. On an INTRA codec
+        // -- ProRes, DNxHR -- every frame is a keyframe, so it would emit a
+        // fragment per frame and bloat the file with thousands of moof boxes.
+        // Those rely on the time-based cap alone.
+        args.insert(args.end(), {"-movflags",
+          recordingCodecUsesBitrate()
+            ? "+frag_keyframe+empty_moov+default_base_moof"
+            : "+empty_moov+default_base_moof"});
+        // A fragment lands on every keyframe -- ONE PER GOP, and the GOP is in
+        // FRAMES. At 4K the encoder runs well under realtime, so a 120-frame
+        // GOP is most of a minute of wall clock: a short take reached its
+        // second keyframe never, no fragment was ever emitted, and the moov sat
+        // in the muxer's buffer until the process died. MEASURED: every
+        // recording under a minute was exactly 28 bytes on disk -- the ftyp box
+        // and nothing else. A time-based fragment cap makes the file grow on a
+        // schedule the operator can actually observe.
+        args.insert(args.end(), {"-frag_duration", "2000000"});
       }
+      // Flush as we go. This was on the network branch only, on the reasoning
+      // that latency is a streaming concern -- but an unflushed RECORDING is
+      // worse than a late one: the bytes exist nowhere until the muxer decides
+      // to write them, so a crash mid-show loses a take that looked healthy.
+      args.insert(args.end(), {"-flush_packets", "1"});
     } else {
       // Low-latency muxing, for network sinks only. resend_headers is an
       // mpegts option and the mp4 muxer rejects it outright.
@@ -1895,7 +2291,17 @@
       int fd,
       const std::uint8_t* bytes,
       size_t byteCount,
-      const char* reason) {
+      const char* reason,
+      // An AUDIO write failure must not abort the take. The egress-wide failed
+      // flag tears the encoder down and opens a NEW file, so a transient on the
+      // audio pipe -- which happens around take boundaries, where ffmpeg has
+      // connected but is being replaced -- cost the operator the top of the
+      // next recording as a stray 0.05-second fragment. MEASURED: the teardown
+      // reason was this failure path, twice across three takes.
+      //
+      // Video is the essence. Losing audio is a defect worth reporting, not
+      // worth throwing the recording away for.
+      bool fatal = true) {
     size_t offset = 0;
     while (offset < byteCount) {
       {
@@ -1922,6 +2328,9 @@
       }
 #endif
       std::lock_guard<std::mutex> lock(writer->mutex);
+      if (!fatal) {
+        return false;   // this pipe gives up; the take carries on without it
+      }
       writer->failed = true;
       writer->failureReason = reason ? reason : "stream write failed";
       writer->stop = true;
@@ -1963,25 +2372,28 @@
           writer->hasPendingPacket = false;
         }
 
-        // Read the fd fresh each time: on Windows it is assigned once ffmpeg
-        // connects to the named pipe, which happens after this thread starts.
-        const int audioFd = writer->audioPipeFd.load(std::memory_order_acquire);
-        if (!packet.audioSamples.empty() && audioFd >= 0) {
-          const std::uint8_t* audioBytes =
-            reinterpret_cast<const std::uint8_t*>(packet.audioSamples.data());
-          size_t audioByteCount = packet.audioSamples.size() * sizeof(std::int16_t);
-          if (!writeOutputStreamBytesBestEffort(
-                writer,
-                audioFd,
-                audioBytes,
-                audioByteCount,
-                "stream audio stopped")) {
-            break;
-          }
+        // Audio is handed to its own thread (see OutputStreamWriterState): the
+        // video write below BLOCKS, and doing both here is what deadlocked the
+        // encoder.
+        if (!packet.audioSamples.empty()) {
           {
-            std::lock_guard<std::mutex> lock(writer->mutex);
-            writer->audioBytesWritten += static_cast<std::uint64_t>(audioByteCount);
+            std::lock_guard<std::mutex> lock(writer->audioMutex);
+            // Bounded: about two seconds of 48k stereo. If the audio pipe ever
+            // does stall, drop the oldest rather than grow without limit -- a
+            // gap in a recording beats the app eating memory during a show.
+            constexpr std::size_t kMaxPendingSamples = 48000 * 2 * 2;
+            writer->pendingAudio.insert(writer->pendingAudio.end(),
+                                        packet.audioSamples.begin(),
+                                        packet.audioSamples.end());
+            if (writer->pendingAudio.size() > kMaxPendingSamples) {
+              writer->pendingAudio.erase(
+                writer->pendingAudio.begin(),
+                writer->pendingAudio.begin() +
+                  static_cast<std::ptrdiff_t>(writer->pendingAudio.size() -
+                                              kMaxPendingSamples));
+            }
           }
+          writer->audioCv.notify_one();
         }
 
         if (!packet.videoBytes.empty() && writer->videoPipeFd >= 0) {
@@ -1998,6 +2410,50 @@
             writer->packetsWritten += 1;
             writer->videoBytesWritten += static_cast<std::uint64_t>(packet.videoBytes.size());
           }
+        }
+      }
+      // Nothing more will be queued, so release anyone waiting on audio.
+      {
+        std::lock_guard<std::mutex> lock(writer->mutex);
+        writer->stop = true;
+      }
+      writer->audioCv.notify_all();
+    });
+    writer->audioThread = std::thread([writer]() {
+      std::vector<std::int16_t> chunk;
+      for (;;) {
+        {
+          std::unique_lock<std::mutex> lock(writer->audioMutex);
+          writer->audioCv.wait(lock, [&]() {
+            if (!writer->pendingAudio.empty()) {
+              return true;
+            }
+            std::lock_guard<std::mutex> stopLock(writer->mutex);
+            return writer->stop;
+          });
+          if (writer->pendingAudio.empty()) {
+            break;   // stopping, and nothing left to flush
+          }
+          chunk.swap(writer->pendingAudio);
+          writer->pendingAudio.clear();
+        }
+        // Read the fd fresh each time: on Windows it is assigned once ffmpeg
+        // connects to the named pipe, which happens after this thread starts.
+        const int audioFd = writer->audioPipeFd.load(std::memory_order_acquire);
+        if (audioFd < 0) {
+          continue;   // encoder has not opened its end yet; drop this chunk
+        }
+        const std::uint8_t* audioBytes =
+          reinterpret_cast<const std::uint8_t*>(chunk.data());
+        const std::size_t audioByteCount = chunk.size() * sizeof(std::int16_t);
+        if (!writeOutputStreamBytesBestEffort(
+              writer, audioFd, audioBytes, audioByteCount,
+              "stream audio stopped", /*fatal=*/false)) {
+          break;
+        }
+        {
+          std::lock_guard<std::mutex> lock(writer->mutex);
+          writer->audioBytesWritten += static_cast<std::uint64_t>(audioByteCount);
         }
       }
     });
@@ -2038,6 +2494,7 @@
         writer->hasPendingPacket = false;
       }
       writer->cv.notify_all();
+      writer->audioCv.notify_all();
     }
 #ifdef _WIN32
     // Close the write pipe first so ffmpeg gets EOF on stdin and exits gracefully
@@ -2045,14 +2502,42 @@
       _close(runtime.streamProcess.writeFd);
       runtime.streamProcess.writeFd = -1;
     }
+    // EOF on the AUDIO input, BEFORE joining its thread. Two reasons, and the
+    // order is load-bearing for both.
+    //
+    // 1. ffmpeg needs EOF on input 1 or it never reaches its finalize: closing
+    //    stdin only ends input 0, so the grace period below always expired into
+    //    a force-kill with the mp4 header still unflushed. MEASURED: an
+    //    eight-second recording produced a 28-byte file, the ftyp box alone.
+    // 2. The audio writer BLOCKS on a full pipe. Joining it before closing its
+    //    fd hangs the main thread for as long as the encoder is wedged -- which
+    //    is exactly when a stop matters. Closing first makes the blocked write
+    //    fail immediately and the thread exit.
+    if (writer) {
+      const int audioFd = writer->audioPipeFd.exchange(-1, std::memory_order_acq_rel);
+      if (audioFd >= 0) {
+        _close(audioFd);
+      }
+    }
     if (writer && writer->thread.joinable()) {
       writer->thread.join();
     }
-    // Give ffmpeg a moment to exit gracefully before force-killing
-    if (runtime.streamProcess.running()) {
-      WaitForSingleObject(runtime.streamProcess.hProcess, 500);
+    if (writer && writer->audioThread.joinable()) {
+      writer->audioThread.join();
     }
+    // Give ffmpeg a moment to exit gracefully before force-killing. A network
+    // sink has nothing to finalize, so 500ms is plenty; a file has to flush and
+    // write its trailer, and killing it early is exactly what corrupts the take
+    // the operator is least able to redo.
+    if (runtime.streamProcess.running()) {
+      WaitForSingleObject(runtime.streamProcess.hProcess,
+                          runtime.streamToFile ? 8000 : 500);
+    }
+    const bool remuxThisTake = runtime.streamToFile && project_.recordingRemuxOnStop;
     runtime.streamProcess.stop();
+    if (remuxThisTake) {
+      queueRecordingRemux(lastRecordingPath_);
+    }
 #else
     pid_t streamPid = runtime.streamPid;
     runtime.streamPid = -1;
@@ -2070,9 +2555,14 @@
     if (writer && writer->thread.joinable()) {
       writer->thread.join();
     }
+    if (writer && writer->audioThread.joinable()) {
+      writer->audioThread.join();
+    }
     if (streamPid > 0) {
       int status = 0;
-      Uint64 deadline = SDL_GetTicks() + 500;
+      // Same asymmetry as the Windows branch: a file has a trailer to write,
+      // and SIGKILLing the muxer mid-finalize is what leaves an unopenable take.
+      Uint64 deadline = SDL_GetTicks() + (runtime.streamToFile ? 8000 : 500);
       while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks() < deadline) {
         SDL_Delay(10);
       }
@@ -2087,6 +2577,13 @@
     }
 #endif
     runtime.streamSpec.clear();
+    runtime.streamToFile = false;
+    // Per TAKE, not per session: take two must start its own frame clock.
+    runtime.recordPacerStartMs = 0;
+    runtime.recordFramesWritten = 0;
+    runtime.lastSegmentSizeCheckMs = 0;
+    runtime.lastDropWarnMs = 0;
+    runtime.recordDroppedFrames = 0;
     runtime.streamCommand.clear();
     runtime.streamFrameBuffer.clear();
     runtime.streamAudioReadSamplesByDeck.clear();
@@ -2095,6 +2592,36 @@
     runtime.streamFrameHeight = 0;
     runtime.lastStreamCaptureSentAtMs = 0;
     resetOutputStreamFpsTelemetry(runtime);
+  }
+
+  // Stop a disabled output's encoder. Called from the render loop, which is the
+  // ONLY place that runs for a disabled output: renderOutputWindow holds the
+  // other teardown but the loop never calls it once the output is off, and
+  // clearDisabledOutputWindow returns immediately for a stream output because
+  // it has no window. So nothing stopped the encoder -- and turning an output
+  // off is exactly what STOP RECORDING does. MEASURED: ffmpeg ran on holding
+  // the file open, outlived the app, and the next start reused it, appending
+  // three separate takes into one file (8s -> 20s -> 32s).
+  //
+  // Guarded so the common case (an output that has been off all show) costs a
+  // pointer check per frame rather than a full teardown.
+  void stopEgressForDisabledOutput(int outputIndex) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime) {
+      return;
+    }
+    const bool egressAlive =
+      runtime->streamWriter != nullptr
+#ifdef _WIN32
+      || runtime->streamProcess.running();
+#else
+      || runtime->streamPid > 0;
+#endif
+    if (!egressAlive) {
+      return;
+    }
+    stopOutputStreamRuntime(*runtime);
+    resetOutputStreamFpsTelemetry(*runtime);
   }
 
   void stopOutputStream(int outputIndex) {
@@ -2113,9 +2640,19 @@
   // path like any other input, and converting the handle to a CRT fd afterwards
   // means the existing writer code works unchanged.
   std::string createOutputAudioPipe(OutputRuntime& runtime, int outputIndex) {
+    // UNIQUE PER START. The name used to be just pid-outputIndex, i.e. the same
+    // string for every take on an output, and the pipe is created with
+    // nMaxInstances = 1. Starting a second recording while the previous
+    // instance was still closing therefore failed, and the encoder died and was
+    // retried until the old handle finally went away. MEASURED: take one wrote
+    // a single clean file; take two produced two stray 0.055-second fragments
+    // first. The POSIX fifo path already stamps its name for this reason.
+    static std::atomic<unsigned> pipeSerial {0};
     const std::string name = "\\\\.\\pipe\\deckboy-audio-" +
                              std::to_string(GetCurrentProcessId()) + "-" +
-                             std::to_string(outputIndex);
+                             std::to_string(outputIndex) + "-" +
+                             std::to_string(pipeSerial.fetch_add(1,
+                                              std::memory_order_relaxed));
     HANDLE h = CreateNamedPipeA(
       name.c_str(),
       PIPE_ACCESS_OUTBOUND,
@@ -2283,7 +2820,14 @@
     constexpr int kSampleRate = 48000;
     constexpr int kChannels = 2;
 
-    double fps = outputStreamFps(fpsHint);
+    // Must be the SAME rate the video is written at, or audio and video drift:
+    // this decides how many samples accompany one frame.
+    const double fps =
+      (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+       outputStreamProtocolIsFile(
+         normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)))
+        ? recordingFps(fpsHint)
+        : outputStreamFps(fpsHint);
     double exactFrames = (static_cast<double>(kSampleRate) / std::max(1.0, fps)) + sampleRemainder;
     int sampleFrames = std::max(1, static_cast<int>(std::floor(exactFrames)));
     sampleRemainder = exactFrames - static_cast<double>(sampleFrames);
@@ -2390,6 +2934,22 @@
       }
       return true;
     }
+    // A RECORDING never restarts mid-take. Restarting closes the current file
+    // and opens a new one, so a spec change a few frames in silently splits the
+    // take in two and the operator loses the top of it in a stray fragment.
+    // MEASURED: every recording produced an extra 0.088-second file -- two
+    // frames -- before the real one, because the fps in the spec settles just
+    // after the output comes up.
+    //
+    // A network sink genuinely should re-dial on a parameter change; a file
+    // sink should keep writing with the parameters it opened with. The new
+    // settings apply to the NEXT take, which is when the operator expects them.
+    if (processAlive && !runtime->streamSpec.empty() && runtime->streamToFile) {
+      if (output.enabled) {
+        setOutputHealthState(outputIndex, OutputHealthState::Live);
+      }
+      return true;
+    }
 
     stopOutputStreamRuntime(*runtime);
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
@@ -2429,6 +2989,8 @@
       return false;
     }
     runtime->streamSpec = desiredSpec;
+    runtime->streamToFile = outputStreamProtocolIsFile(
+      normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
     runtime->streamCommand = shellCommandString(args);
     runtime->streamFrameWidth = width;
     runtime->streamFrameHeight = height;
@@ -2625,7 +3187,16 @@
       return false;
     }
     Uint64 nowMs = SDL_GetTicks();
-    double captureFps = outputStreamFps(fpsHint);
+    // A recording captures at ITS OWN rate. This used the stream rate, which
+    // follows the display refresh or a 30fps default -- so asking for a 50 or
+    // 59.94 recording still only ever captured ~30 frames a second and the file
+    // came out short no matter how fast the readback and the encoder were.
+    double captureFps =
+      (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
+       outputStreamProtocolIsFile(
+         normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)))
+        ? recordingFps(fpsHint)
+        : outputStreamFps(fpsHint);
     Uint64 minCaptureIntervalMs = static_cast<Uint64>(std::max(1.0, std::floor(1000.0 / std::max(1.0, captureFps))));
     if (runtime.latestCapturedFrame.width > 0 &&
         runtime.latestCapturedFrame.height > 0 &&
@@ -2655,6 +3226,78 @@
 
     int captureW = std::max(1, captureRect.w);
     int captureH = std::max(1, captureRect.h);
+
+    // ── Scale to the RECORDING raster on the GPU, before readback ───────────
+    // Reading the full programme raster back and letting something downstream
+    // resize it is what made a broadcast rate unreachable: at 4K the readback
+    // alone costs 21-24ms per frame (MEASURED), i.e. a ~45fps ceiling before
+    // the encoder is handed anything, on the render thread. Blitting the
+    // composite into a target already at the delivery raster is a GPU
+    // operation, and the readback then moves (recW*recH)/(progW*progH) of the
+    // bytes -- a quarter, for 1080 off a 4K programme.
+    //
+    // Only the file-recording output takes this path. NDI, DeckLink and Spout
+    // read the same captured frame and must keep the programme raster.
+    SDL_Texture* readbackTarget = runtime.compositorTexture;
+    SDL_Rect readbackRect = captureRect;
+    // EVERY file recording takes this path, including the default one that
+    // follows the input raster. It was gated on an explicit recording size,
+    // which meant the DEFAULT configuration -- the one most shows will use --
+    // fell through to the synchronous readback and its 21ms-per-frame stall at
+    // 4K. MEASURED: 320 frames where 360 were owed, purely from that.
+    //
+    // The blit is 1:1 when no resize is asked for, and nearly free; its real
+    // job is putting the frame into a BGRA target we own, which is what the
+    // asynchronous staging readback needs.
+    const bool scaledEgress =
+      outputStreamProtocolIsFile(
+        normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)) &&
+      runtime.compositorTexture;
+    if (scaledEgress) {
+      // 0 means "follow the input", which is the default and the sane one: a
+      // recording should look like what went in unless someone says otherwise.
+      const int targetW = project_.recordingWidth  > 0 ? project_.recordingWidth  : captureW;
+      const int targetH = project_.recordingHeight > 0 ? project_.recordingHeight : captureH;
+      if (runtime.egressScaleTexture &&
+          (runtime.egressScaleW != targetW || runtime.egressScaleH != targetH)) {
+        SDL_DestroyTexture(runtime.egressScaleTexture);
+        runtime.egressScaleTexture = nullptr;
+      }
+      if (!runtime.egressScaleTexture) {
+        // The held frame is now the WRONG SIZE. The async path serves the
+        // previous picture whenever the staging ring has nothing ready, so
+        // without dropping it here the first frames of a take after a raster
+        // change are the old raster -- and the encoder is started from the
+        // first frame it sees, so it locks to the old size for the whole take.
+        // MEASURED: a recording asked for 1280x720 came back 1920x1080.
+        runtime.latestCapturedFrame = {};
+        // BGRA32 so the staging readback lands in exactly the byte order the
+        // encoder is fed (-pix_fmt bgra) and no conversion pass is needed.
+        runtime.egressScaleTexture = deckboyCreateTexture(
+          runtime.outputRenderer, SDL_PIXELFORMAT_BGRA32,
+          SDL_TEXTUREACCESS_TARGET, targetW, targetH);
+        runtime.egressScaleW = targetW;
+        runtime.egressScaleH = targetH;
+      }
+      if (runtime.egressScaleTexture) {
+        SDL_Texture* savedTarget = SDL_GetRenderTarget(runtime.outputRenderer);
+        SDL_SetRenderTarget(runtime.outputRenderer, runtime.egressScaleTexture);
+        SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(runtime.outputRenderer);
+        const SDL_FRect src {static_cast<float>(captureRect.x),
+                             static_cast<float>(captureRect.y),
+                             static_cast<float>(captureW),
+                             static_cast<float>(captureH)};
+        SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture,
+                          &src, nullptr);
+        SDL_SetRenderTarget(runtime.outputRenderer, savedTarget);
+        readbackTarget = runtime.egressScaleTexture;
+        readbackRect = SDL_Rect {0, 0, targetW, targetH};
+        captureW = targetW;
+        captureH = targetH;
+      }
+    }
+
     size_t stride = static_cast<size_t>(captureW) * 4u;
     size_t frameBytes = stride * static_cast<size_t>(captureH);
     if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
@@ -2664,14 +3307,55 @@
       return false;
     }
 
+    // ── Asynchronous path ──────────────────────────────────────────────────
+    // Only for the scaled recording target, which is a plain RGBA render target
+    // we own. Everything else keeps the synchronous readback below.
+    if (scaledEgress && readbackTarget == runtime.egressScaleTexture) {
+      if (runtime.egressReadback &&
+          (runtime.egressReadbackW != captureW || runtime.egressReadbackH != captureH)) {
+        deckboy::libav::destroyStagingReadback(runtime.egressReadback);
+        runtime.egressReadback = nullptr;
+      }
+      if (!runtime.egressReadback) {
+        runtime.egressReadback = deckboy::libav::createStagingReadback(
+          runtime.outputRenderer, captureW, captureH);
+        runtime.egressReadbackW = captureW;
+        runtime.egressReadbackH = captureH;
+      }
+      if (runtime.egressReadback) {
+        // Straight into the egress buffer. The earlier version allocated and
+        // zero-filled an 8MB temporary EVERY FRAME and then walked it twice
+        // more (memcpy, then a format conversion) -- about 24MB of pointless
+        // traffic per frame on the render thread.
+        const bool got = deckboy::libav::stagingReadbackFrame(
+          runtime.egressReadback, runtime.egressScaleTexture,
+          runtime.latestCapturedFrame.pixels.data(),
+          runtime.latestCapturedFrame.pixels.size(), captureW, captureH);
+        if (got) {
+          runtime.latestCapturedFrame.width = captureW;
+          runtime.latestCapturedFrame.height = captureH;
+          runtime.latestCapturedFrame.capturedAtMs = nowMs;
+          runtime.lastEgressCaptureAtMs = nowMs;
+          return true;
+        }
+        // Nothing ready: keep the previous picture. The CFR pacer will repeat
+        // it, which is exactly the right behaviour -- a held frame, never a
+        // gap in the timeline.
+        if (runtime.latestCapturedFrame.width > 0) {
+          runtime.lastEgressCaptureAtMs = nowMs;
+          return true;
+        }
+      }
+    }
+
     SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
-    if (runtime.compositorTexture) {
-      SDL_SetRenderTarget(runtime.outputRenderer, runtime.compositorTexture);
+    if (readbackTarget) {
+      SDL_SetRenderTarget(runtime.outputRenderer, readbackTarget);
     }
     // SDL3: read into a temporary surface, then convert into the persistent
     // BGRA egress buffer (SDL2 wrote the requested format directly).
     bool ok = false;
-    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, &captureRect)) {
+    if (SDL_Surface* captured = SDL_RenderReadPixels(runtime.outputRenderer, &readbackRect)) {
       ok = captured->w == captureW && captured->h == captureH &&
            SDL_ConvertPixels(captured->w, captured->h,
                              captured->format, captured->pixels, captured->pitch,
@@ -2680,7 +3364,7 @@
                              static_cast<int>(stride));
       SDL_DestroySurface(captured);
     }
-    if (runtime.compositorTexture) {
+    if (readbackTarget) {
       SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
     }
     if (!ok) {
@@ -2836,7 +3520,63 @@
     if (!processAlive || !runtime->streamWriter) {
       return;
     }
-    if (runtime->lastStreamCaptureSentAtMs == frame->capturedAtMs) {
+    // ── Frame pacing ───────────────────────────────────────────────────────
+    // A network stream sends only what is NEW: a duplicate frame costs
+    // bandwidth and buys nothing, and the receiver has its own clock.
+    //
+    // A RECORDING is the opposite. The muxer stamps frames by arrival order at
+    // the declared rate, so a frame we fail to deliver does not slow the file
+    // down -- it shortens it. That is the whole "20-second take is 8 seconds
+    // long and plays 2.5x fast" defect: it was never a timestamp problem, it
+    // was a frame-COUNT problem. So the recording delivers exactly
+    // rate x elapsed frames, repeating the last picture to cover a gap, which
+    // is what a broadcast recorder does and what makes the duration correct by
+    // construction instead of dependent on the capture keeping up.
+    const bool toFileSink = outputStreamProtocolIsFile(
+      normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
+    // Roll onto a new file at the operator's cap or the filesystem's. The take
+    // keeps running; only the file changes, and the next frame opens the next
+    // segment with a fresh timestamped name.
+    if (toFileSink && shouldRollRecordingSegment(*runtime)) {
+      stopOutputStreamRuntime(*runtime);
+      return;
+    }
+    if (toFileSink) {
+      const Uint64 nowMs = SDL_GetTicks();
+      if (runtime->recordPacerStartMs == 0) {
+        runtime->recordPacerStartMs = nowMs;
+        runtime->recordFramesWritten = 0;
+      }
+      const double rate = std::max(1.0, recordingFps(fpsHint));
+      const std::uint64_t owed = static_cast<std::uint64_t>(
+        (static_cast<double>(nowMs - runtime->recordPacerStartMs) * rate) / 1000.0) + 1;
+      // ── Dropped-frame alarm ──────────────────────────────────────────────
+      // The pacer knows exactly what the timeline owes and exactly what has
+      // been delivered, so a shortfall is measurable rather than inferred. Both
+      // AJA and OBS treat this as a first-class warning, and rightly: a
+      // recording that quietly runs short looks perfectly healthy until an
+      // editor opens it. Deckboy dropped frames silently, which is how a
+      // twenty-second take became eight seconds with nobody the wiser.
+      //
+      // Reported once a second while it persists, so a wedged disk is loud
+      // without spamming the operator every frame.
+      if (owed > runtime->recordFramesWritten + 2) {
+        const std::uint64_t behind = owed - runtime->recordFramesWritten;
+        if (nowMs - runtime->lastDropWarnMs >= 1000) {
+          runtime->lastDropWarnMs = nowMs;
+          const std::string msg =
+            "RECORDING DROPPING FRAMES - " + std::to_string(behind) + " behind";
+          setOutputHealthState(outputIndex, OutputHealthState::Error, msg);
+          triggerToast(msg);
+          showLog("RECORD DROP", msg);
+        }
+        runtime->recordDroppedFrames = behind;
+      }
+      if (runtime->recordFramesWritten >= owed) {
+        return;   // ahead of schedule; nothing is due yet
+      }
+
+    } else if (runtime->lastStreamCaptureSentAtMs == frame->capturedAtMs) {
       return;
     }
 
@@ -2906,6 +3646,9 @@
     }
     writer->cv.notify_one();
     runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
+    if (toFileSink) {
+      runtime->recordFramesWritten += 1;
+    }
   }
 
   void destroyOutputRuntime(OutputRuntime& runtime) {
@@ -2978,6 +3721,18 @@
     if (runtime.compositorTexture) {
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
+    }
+    if (runtime.egressScaleTexture) {
+      SDL_DestroyTexture(runtime.egressScaleTexture);
+      runtime.egressScaleTexture = nullptr;
+      runtime.egressScaleW = 0;
+      runtime.egressScaleH = 0;
+    }
+    if (runtime.egressReadback) {
+      deckboy::libav::destroyStagingReadback(runtime.egressReadback);
+      runtime.egressReadback = nullptr;
+      runtime.egressReadbackW = 0;
+      runtime.egressReadbackH = 0;
     }
     releaseOutputPreviewTap(runtime);
     runtime.compositorWidth = 0;
@@ -4240,6 +4995,20 @@
   std::pair<int, int> outputRenderSizeForOutput(int outputIndex) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return fixedOutputRenderSize();
+    }
+    // A RECORDING composites at its DELIVERY raster, never the display's. It
+    // has no display, and "follow display" made it build the full programme
+    // raster only to scale that down again for readback -- so with a programme
+    // output also armed the app composited 4K TWICE per loop. MEASURED: that
+    // pinned the loop at 15-23fps and put every rate above 30 out of reach.
+    // Compositing straight to 1080 is a quarter of the pixels and skips the
+    // scale entirely.
+    const OutputTarget& recOut = project_.outputs[outputIndex];
+    if (project_.recordingWidth > 0 && project_.recordingHeight > 0 &&
+        normalizeOutputType(recOut.outputType) == "stream" &&
+        outputStreamProtocolIsFile(
+          normalizeOutputStreamProtocol(recOut.streamProtocol))) {
+      return {project_.recordingWidth, project_.recordingHeight};
     }
     if (project_.outputFollowDisplay) {
       return displayNativeRenderSize(outputDisplayIndex(outputIndex));

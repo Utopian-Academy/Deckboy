@@ -907,6 +907,55 @@ struct Project {
   // down with the recording. Empty = recordings/ beside the show.
   std::string recordingDir;
 
+  // Recording FORMAT, independent of the program raster and of the display.
+  // A recording is a deliverable: it has to land on a stated standard and rate
+  // that an edit or a playout chain will accept, not on whatever raster the
+  // operator's monitor happens to be.
+  //
+  // 0 = follow the program raster / rate. Any other value is honoured exactly:
+  // the compositor is scaled into the recording raster ON THE GPU before
+  // readback, which is also what makes the rate achievable -- reading a 4K
+  // frame back costs 21-24ms (MEASURED), a ~45fps ceiling before the encoder
+  // sees anything, while 1080 is roughly a quarter of that.
+  int recordingWidth = 0;
+  int recordingHeight = 0;
+
+  // Recording CODEC. Long-GOP H.264 at a few Mb/s is a viewing copy, not a
+  // deliverable: a facility ingests intra-frame mezzanine, where every frame is
+  // a keyframe and the file cuts natively. Tokens:
+  //   h264 | hevc
+  //   prores_proxy | prores_lt | prores_422 | prores_hq | prores_4444
+  //   dnxhr_lb | dnxhr_sq | dnxhr_hq | dnxhr_hqx
+  // The container follows the codec (see recordingContainerExtension).
+  std::string recordingCodec = "h264";
+
+  // Timecode written into the recording. A deliverable that cannot be conformed
+  // against a running order is not a deliverable.
+  //   value       — start at recordingTimecodeStart (default)
+  //   timeofday   — the machine clock when the take starts
+  std::string recordingTimecodeMode = "value";
+  std::string recordingTimecodeStart = "00:00:00:00";
+  // Drop-frame reconciles fractional rates (29.97, 59.94) with wall clock by
+  // skipping timecode NUMBERS -- never frames. Meaningless at integer rates.
+  //   auto — DF for fractional rates, NDF for integer (what AJA does)
+  //   df | ndf — force it
+  std::string recordingTimecodeDropFrame = "auto";
+
+  // Segmenting. A four-hour record must not be one unbounded file, and FAT32
+  // media dies at 4GB. 0 = no limit.
+  int recordingSegmentMinutes = 0;
+  int recordingSegmentMegabytes = 0;
+
+  // Rewrite the fragmented recording into a normal MP4/MOV when the take ends.
+  // Fragmented is what makes a killed encoder still leave a playable file, but
+  // browsers cannot show its duration, seeking breaks in some players and many
+  // editors reject it outright. Remuxing on stop keeps the resilience and hands
+  // over an ordinary file (the trade OBS calls "hybrid MP4").
+  bool recordingRemuxOnStop = true;
+  // Broadcast rates are not integers. 23.976/29.97/59.94 are 24000/1001 etc,
+  // so this is a double and the muxer is given the exact ratio.
+  double recordingFps = 0.0;
+
   // ASIO driver to play through. Empty = the SDL device, which is the
   // default and what every existing show carries. Stored by NAME rather than
   // index because driver indices shuffle when the operator installs anything.
