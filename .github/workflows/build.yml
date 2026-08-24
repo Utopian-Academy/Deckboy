@@ -86,7 +86,8 @@ jobs:
             libxkbcommon-dev libwayland-dev wayland-protocols \
             libegl1-mesa-dev libgl1-mesa-dev \
             libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev \
-            libxss-dev libxfixes-dev libxinerama-dev
+            libxss-dev libxfixes-dev libxinerama-dev libxtst-dev \
+            libdbus-1-dev libibus-1.0-dev libgles2-mesa-dev libdecor-0-dev
 
       - name: Install RtMidi (feature builds)
         if: matrix.features == 'all'
@@ -110,7 +111,10 @@ jobs:
           echo "SDL3 >= 3.4 not packaged on this image — building from source"
           git clone --depth 1 --branch release-3.4.x https://github.com/libsdl-org/SDL.git /tmp/SDL
           # 3.4 HARD-FAILS on a missing X11 dev package where 3.2 quietly turned
-          # the feature off, so the dependency list above is now load-bearing.
+          # the feature off, so the dependency list above is now load-bearing --
+          # it is SDL's documented Linux set rather than the minimum that
+          # happened to work, because discovering them one CI run at a time
+          # (XScreenSaver, then XTEST, then...) is not a method.
           cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
           cmake --build /tmp/SDL/build -j"$(nproc)"
           sudo cmake --install /tmp/SDL/build
