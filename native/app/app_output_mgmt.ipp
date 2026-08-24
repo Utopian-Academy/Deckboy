@@ -3683,6 +3683,14 @@
           setOutputHealthState(outputIndex, OutputHealthState::Error, msg);
           triggerToast(msg);
           showLog("RECORD DROP", msg);
+          // Also to stderr. The three lines above reach the operator's screen
+          // and the show log, which is the right place for an operator -- but
+          // it left the condition invisible to anything reading the process's
+          // output: a support bundle, a CI harness, a field diagnosis over ssh.
+          // A recording running short is exactly the thing you want in the log
+          // you actually have.
+          std::cerr << "record-drop: " << msg << " (output " << outputIndex
+                    << ")" << std::endl;
         }
         runtime->recordDroppedFrames = behind;
       }

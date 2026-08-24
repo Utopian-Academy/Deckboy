@@ -133,7 +133,15 @@ def run_case(args, standard):
         log.close()
 
     text = open(log_path, errors="replace").read()
-    alarms = text.count("RECORDING DROPPING FRAMES")
+    # "record-drop:" is the stderr line. Counting only the operator-facing
+    # wording was a mistake that made this column ALWAYS zero -- the toast and
+    # the show log never touch stdout, so the harness was reporting "no alarms"
+    # for takes that were plainly short. Count both, and treat the show log in
+    # the isolated root as a third witness.
+    alarms = text.count("record-drop:")
+    show_log = os.path.join(root, "deckboy-show.log")
+    if os.path.exists(show_log):
+        alarms += open(show_log, errors="replace").read().count("RECORD DROP")
     files = sorted(glob.glob(os.path.join(recordings, "*.*")), key=os.path.getmtime)
     if not files:
         return {"standard": standard, "error": "no file written", "alarms": alarms}
