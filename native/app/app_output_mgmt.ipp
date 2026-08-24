@@ -2473,6 +2473,11 @@
   }
 
   void stopOutputStreamRuntime(OutputRuntime& runtime) {
+    // Captured BEFORE the platform split and acted on after it: the remux is
+    // not a Windows feature, and it lived inside the #ifdef so a macOS or
+    // Linux recording stayed fragmented forever.
+    const bool remuxThisTake = runtime.streamToFile && project_.recordingRemuxOnStop;
+    const std::string remuxPath = lastRecordingPath_;
 #ifdef _WIN32
     // Close the audio pipe's SERVER end. Once ffmpeg connected, the handle was
     // adopted by a CRT fd and closing that fd closes it -- but if the encoder
@@ -2533,11 +2538,7 @@
       WaitForSingleObject(runtime.streamProcess.hProcess,
                           runtime.streamToFile ? 8000 : 500);
     }
-    const bool remuxThisTake = runtime.streamToFile && project_.recordingRemuxOnStop;
     runtime.streamProcess.stop();
-    if (remuxThisTake) {
-      queueRecordingRemux(lastRecordingPath_);
-    }
 #else
     pid_t streamPid = runtime.streamPid;
     runtime.streamPid = -1;
@@ -2576,6 +2577,9 @@
       runtime.streamVideoPipePath.clear();
     }
 #endif
+    if (remuxThisTake) {
+      queueRecordingRemux(remuxPath);
+    }
     runtime.streamSpec.clear();
     runtime.streamToFile = false;
     // Per TAKE, not per session: take two must start its own frame clock.
@@ -3179,6 +3183,40 @@
     return outputIndex;
   }
 
+  // How the recording frame gets off the GPU. AUTO takes the asynchronous
+  // staging ring where the backend has one (D3D11 today) and falls back to the
+  // plain synchronous read where it does not -- which is macOS and Linux.
+  //
+  // DECKBOY_EGRESS_READBACK=sync forces the fallback on a machine that HAS the
+  // fast path, which is the only way to measure the other platforms' behaviour
+  // from here. Measured on a 4K programme, 14s takes:
+  //
+  //     1080p50     700/700      1080p59.94  838/839
+  //     2160p25     349/350      2160p50     326/700
+  //
+  // So the fallback is frame-exact for every raster and rate a show is likely
+  // to deliver, and only 4K above 30p outruns it. The cost is the GPU round
+  // trip inside SDL_RenderReadPixels (16.8-18.8ms at 4K); the CPU-side format
+  // conversion is 2.9ms of it, so there is nothing to win by tightening this
+  // side of the call. A ping-pong between two scale targets -- read the one the
+  // GPU finished with last frame -- was tried and MEASURED NO BETTER (311 vs
+  // 326 frames), because SDL copies and maps in a single call and the map waits
+  // on the copy regardless of the texture's age. Closing the 4K gap needs a
+  // real per-backend async path (GL pixel buffer objects, a Metal blit with a
+  // completion handler), not a rearrangement of SDL calls.
+  static constexpr int kEgressReadbackAuto = 0;
+  static constexpr int kEgressReadbackSync = 1;
+
+  static int egressReadbackMode() {
+    static const int mode = [] {
+      const char* env = std::getenv("DECKBOY_EGRESS_READBACK");
+      if (!env || !*env) return kEgressReadbackAuto;
+      return deckboy::core::utils::toLower(env) == "sync" ? kEgressReadbackSync
+                                                          : kEgressReadbackAuto;
+    }();
+    return mode;
+  }
+
   bool captureOutputFrameForEgress(int outputIndex,
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
@@ -3253,6 +3291,7 @@
       outputStreamProtocolIsFile(
         normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol)) &&
       runtime.compositorTexture;
+    const int readbackMode = egressReadbackMode();
     if (scaledEgress) {
       // 0 means "follow the input", which is the default and the sane one: a
       // recording should look like what went in unless someone says otherwise.
@@ -3310,7 +3349,8 @@
     // ── Asynchronous path ──────────────────────────────────────────────────
     // Only for the scaled recording target, which is a plain RGBA render target
     // we own. Everything else keeps the synchronous readback below.
-    if (scaledEgress && readbackTarget == runtime.egressScaleTexture) {
+    if (scaledEgress && readbackMode == kEgressReadbackAuto &&
+        readbackTarget == runtime.egressScaleTexture) {
       if (runtime.egressReadback &&
           (runtime.egressReadbackW != captureW || runtime.egressReadbackH != captureH)) {
         deckboy::libav::destroyStagingReadback(runtime.egressReadback);
