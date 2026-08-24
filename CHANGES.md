@@ -1,5 +1,101 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-24 - v0.85.0 (program recording, audio in, the synth sources)
+
+Deckboy can now record what it puts to air, take audio *in*, and generate its
+own pictures and sound. Three capabilities it did not have, plus the recording
+work that turns the first one from a viewing copy into something an edit suite
+will accept.
+
+### Program recording
+
+The program output can be written to a file while the show runs. RECORD sits on
+the button bar in the OUTPUT group, pulses while armed, and shows the running
+file size; the destination is its own setting, separate from the encode queue's.
+
+Getting from "it writes a file" to "a facility would accept the file" was most
+of the work:
+
+**The recording is its own standard.** Raster and rate are set independently of
+the programme -- `RECFORMAT 1920x1080 59.94` off a 4K programme scales on the
+GPU before readback, so the recording moves a quarter of the bytes. Both default
+to *following the input*, because a recording should look like what went in
+unless somebody says otherwise. Rates are exact where broadcast says they are
+exact: 23.976 is 24000/1001, not 23.98.
+
+**Constant frame rate by construction.** The file has to contain exactly
+`rate x elapsed` frames. The encoder stamps by arrival order at the declared
+rate, so delivering fewer frames than promised does not slow the file down, it
+*shortens* it -- a twenty-second take became eight seconds and looked healthy
+until an editor opened it. The pacer counts what is owed and repeats the last
+picture to cover a gap, and if it cannot keep up it says so out loud, once a
+second, on the output health state and in the show log.
+
+**Timecode.** Start at a value, at time of day, or at zero, drop-frame or
+non-drop, with auto picking correctly by rate -- DF only means anything at
+29.97 and 59.94, where it skips two timecode *numbers* a minute (except every
+tenth) to keep the count against the clock. No video frame is ever dropped. The
+flag is carried in the file as SMPTE intends it.
+
+**Codecs a post house asked for.** ProRes (LT, 422, HQ, 4444) and DNxHR
+(LB, SQ, HQ, HQX) alongside H.264 and HEVC, in the right container, at the right
+pixel format, with the right vendor tag.
+
+**Segmentation and safety.** Roll to a new file every N minutes or N megabytes,
+with a 3.8 GB ceiling so a FAT32 card cannot silently truncate a take. On stop,
+a fragmented recording is remuxed into a normal MP4 -- the same trade OBS makes,
+so a power cut leaves a playable file and a clean stop leaves a tidy one.
+
+**It keeps up.** The frame leaves the GPU through an asynchronous staging ring
+instead of a synchronous read that stalled the render thread for 21ms a frame,
+and the control window stops taking vsync while an output is recording. Verified
+against a 4K programme: 2160p25, 2160p30, 2160p50, 2160p59.94, 1080p50,
+1080p29.97 and ProRes HQ 1080p25 all frame-exact.
+
+That fast path is Windows-only, so macOS and Linux take the portable read. It is
+measured, not assumed -- frame-exact at 1080p50, 1080p59.94 and 2160p25, and
+behind only at 4K above 30p, where the alarm fires. See DEVNOTES.
+
+### Audio input
+
+Microphone and line input, with device selection, gain, a clip indicator, mono
+folding, and a settable recording bitrate. It routes to the program, so it
+reaches the stream and the recording. Streaming and recording had been carrying
+silent audio on Windows entirely; that is fixed.
+
+### ASIO
+
+Vendored SDK, driver enumeration, and a real-time output callback with a ring
+buffer, so cue audio can reach an interface directly. A device whose sample rate
+does not match gets a conversion rather than a refusal.
+
+### The synth sources
+
+**Tone generator** -- the audio counterpart of a test pattern, with diagnostic
+displays and explicit visuals on/off.
+
+**Chip voices** -- 2A03 and FDS as one SYNTH section, playable from parameters
+rather than presets, reachable from the SOURCE menu, and playable live over MIDI
+or the computer keyboard.
+
+**Video synth** -- oscillators, mirrors and feedback, a glitch stack, hardware
+palettes, CRT, a text mode with the full 95-glyph ASCII set, and sprite sets
+loaded from `data/sprites` with rotation, flip, jitter and chaos per tile. A
+sprite sheet or a folder of sprites can be imported through a picker.
+
+### Timer
+
+Custom colours, six chimes, a rest that is actually silent, an event logo, and
+message placeholders.
+
+### Elsewhere
+
+- HAP conversion is offered where it would actually pay, with the real numbers.
+- Datamosh gains an EXTREME recipe and per-cue encoder overrides.
+- First launch always shows the green branded wordmark; splashes rotate per theme.
+- Source type labels lost the redundant "Source" suffix.
+- Personal information scrubbed from the repository history.
+
 ## 2026-08-20 - v0.84.0 (datamosh, HAP, stage timer, show log)
 
 The largest feature release since the SDL3 migration. Four new things Deckboy

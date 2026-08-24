@@ -27,17 +27,18 @@ the primary platform; Linux and macOS builds share the same core.
 10. [Transitions](#10-transitions)
 11. [Multi-Deck Operation](#11-multi-deck-operation)
 12. [Outputs & Routing](#12-outputs--routing)
-13. [Output Geometry: AOI, Warp, Edge Blend](#13-output-geometry-aoi-warp-edge-blend)
-14. [Overlays: PiP & Lower Thirds](#14-overlays-pip--lower-thirds)
-15. [Audio](#15-audio)
-16. [Test Patterns](#16-test-patterns)
-17. [Timecode & Chase](#17-timecode--chase)
-18. [Show Files, Bundling & Missing Media](#18-show-files-bundling--missing-media)
-19. [Themes](#19-themes)
-20. [Remote Control](#20-remote-control)
-21. [Reliability & Soak Testing](#21-reliability--soak-testing)
-22. [Keyboard Reference](#22-keyboard-reference)
-23. [Command-Line Flags](#23-command-line-flags)
+13. [Recording](#13-recording)
+14. [Output Geometry: AOI, Warp, Edge Blend](#14-output-geometry-aoi-warp-edge-blend)
+15. [Overlays: PiP & Lower Thirds](#15-overlays-pip--lower-thirds)
+16. [Audio](#16-audio)
+17. [Test Patterns](#17-test-patterns)
+18. [Timecode & Chase](#18-timecode--chase)
+19. [Show Files, Bundling & Missing Media](#19-show-files-bundling--missing-media)
+20. [Themes](#20-themes)
+21. [Remote Control](#21-remote-control)
+22. [Reliability & Soak Testing](#22-reliability--soak-testing)
+23. [Keyboard Reference](#23-keyboard-reference)
+24. [Command-Line Flags](#24-command-line-flags)
 
 ---
 
@@ -133,7 +134,7 @@ timeline lanes, down to give the height back.
 |------|--------|
 | **Video** | A video file (any FFmpeg-readable container/codec, incl. HAP, ProRes, H.264/265 hardware-decoded) |
 | **Image** | A still (held for a set duration or until taken away) |
-| **Pattern** | A generated test pattern (see §16) |
+| **Pattern** | A generated test pattern (see §17) |
 | **Browser** | A live web page rendered via WebView2 (Windows) |
 | **Window / Screen** | Desktop window or screen capture |
 | **Camera** | A capture device |
@@ -144,6 +145,10 @@ timeline lanes, down to give the height back.
 | **Lower Third** | Text overlay bar |
 | **Composite** | A multi-slot scene (2-up, quad, 70/30, etc.) |
 | **Audio** | An audio-only file with a waveform lane |
+| **Tone** | A generated audio test tone, with optional on-screen diagnostics |
+| **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages |
+| **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
+| **Synth** | A playable chip voice (2A03 / FDS), driven from MIDI or the computer keyboard |
 
 ---
 
@@ -170,7 +175,7 @@ have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
   speed (0.25–4×, pitch-corrected audio), fade in/out, in/out trim, pause
   points, end action, goto target, next-transition toggle.
 - **AUDIO** — per-cue gain, pan, mono, independent audio fades, loudness
-  normalize, and output-pair routing (see §15).
+  normalize, and output-pair routing (see §16).
 - **GEOMETRY** — scale mode (fit/fill/stretch/unscaled), scale, offset, crop,
   rotation, and colour controls (brightness/contrast/saturation/hue).
 - **KEY** — chroma key colour, tolerance, and softness.
@@ -216,7 +221,7 @@ Deck modes (toolbar toggles):
   seeded from a real entropy source at launch, so the order differs every run.
 
 Missing cues are skipped on auto-advance so a single missing file can't stop
-the show (see §18).
+the show (see §19).
 
 ---
 
@@ -262,7 +267,58 @@ profiles give a one-key safe state.
 
 ---
 
-## 13. Output Geometry: AOI, Warp, Edge Blend
+## 13. Recording
+
+The program output can be written to a file while the show runs. `RECORD` sits
+on the button bar in the OUTPUT group; it pulses while armed and shows the
+running file size. Recordings land in `Settings → Recording → Destination`,
+which is deliberately separate from the encode queue's output folder.
+
+**The recording is its own standard.** Raster and rate are set independently of
+the programme, and both default to *following the input* — a recording should
+look like what went in unless you say otherwise. Ask for something smaller and
+the composite is scaled on the GPU before it is read back, so a 1080 recording
+off a 4K programme moves a quarter of the bytes.
+
+Rates are exact where broadcast says they are exact: 23.976 is 24000/1001, and
+the file carries it that way.
+
+**Timecode.** Start at a value, at time of day, or at zero. Drop-frame,
+non-drop, or auto — auto picks DF at 29.97 and 59.94 and NDF everywhere else,
+which is the correct answer. Drop-frame skips two timecode *numbers* a minute
+(except every tenth minute) so the count keeps pace with the wall clock; it
+never drops a picture.
+
+**Codecs.** H.264 and HEVC for a viewing copy; ProRes (LT, 422, HQ, 4444) and
+DNxHR (LB, SQ, HQ, HQX) for delivery, written to `.mov` at the right pixel
+format.
+
+**Segmentation.** Roll to a new file every N minutes or N megabytes. A 3.8 GB
+ceiling always applies, so a FAT32 card cannot silently truncate a take.
+
+**If it cannot keep up, it says so.** The file must contain exactly
+`rate × elapsed` frames — an encoder stamps by arrival order, so a shortfall
+does not slow the file down, it *shortens* it. Deckboy counts what is owed,
+repeats the last picture to cover a gap, and raises `RECORDING DROPPING FRAMES`
+on the output health state, as a toast, and in the show log if it falls behind.
+A recording that runs short will never look healthy.
+
+**On stop**, a fragmented recording is remuxed into a normal MP4. A power cut
+therefore leaves a playable file, and a clean stop leaves a tidy one.
+
+**Platform note.** The frame leaves the GPU through an asynchronous path on
+Windows, which sustains every standard up to 2160p59.94. macOS and Linux use a
+portable read that is frame-exact to 1080p59.94 and 2160p25, and falls behind
+at 4K above 30p — where the alarm above will tell you. Record 4K at 25 or 30, or
+record 1080 off a 4K programme, and every platform is frame-exact.
+
+Over the wire: `RECORD [on|off|toggle]`, `RECFORMAT <WxH|program> [fps|program]`,
+`RECCODEC <token>`, `RECTC <hh:mm:ss:ff|timeofday> [df|ndf|auto]`,
+`RECSEGMENT <minutes> [megabytes]`.
+
+---
+
+## 14. Output Geometry: AOI, Warp, Edge Blend
 
 Applied per output (not per cue):
 
@@ -277,7 +333,7 @@ inspector instead (§7).
 
 ---
 
-## 14. Overlays: PiP & Lower Thirds
+## 15. Overlays: PiP & Lower Thirds
 
 Lower-third and PiP cues fire into an overlay slot independently of the main
 program cue, so you can bring a name strap or inset up over whatever is live.
@@ -287,7 +343,7 @@ another cue/camera/NDI source. `G` adds the selected cue as a graphic overlay;
 
 ---
 
-## 15. Audio
+## 16. Audio
 
 Video, audio, and browser cues play through the focused deck's selected audio
 device (`Settings → AUDIO OUTPUT`). UI click sounds use a separate device so
@@ -327,9 +383,22 @@ route at the venue.
 
 Companion: `AUDIOGAIN`, `AUDIOPAN`, `AUDIOMONO`, `AUDIONORM`, `AUDIOOUTS`.
 
+### Audio input
+
+`Settings → AUDIO INPUT` opens a microphone or line input by device, with gain,
+a clip indicator, mono folding, and a recording bitrate. Routed to the programme
+it reaches both the stream and the recording, so a presenter's mic or a desk
+feed can be laid against the playback.
+
+### ASIO
+
+On Windows, an ASIO interface can be opened directly for cue audio, with a
+real-time callback and a ring buffer. A device whose sample rate does not match
+the material is converted rather than refused.
+
 ---
 
-## 16. Test Patterns
+## 17. Test Patterns
 
 Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
@@ -353,7 +422,7 @@ smooth, and diagonal; full-frame solid colours have no motion option.
 
 ---
 
-## 17. Timecode & Chase
+## 18. Timecode & Chase
 
 Each deck can **chase** incoming timecode (follow an external master),
 **run/generate** timecode, and **trigger** cues at set SMPTE times. MTC and LTC
@@ -362,7 +431,7 @@ deck's frame rate and freewheel behaviour in the timecode controls.
 
 ---
 
-## 18. Show Files, Bundling & Missing Media
+## 19. Show Files, Bundling & Missing Media
 
 Shows are `.deckboy` files (plain text, tab-delimited).
 
@@ -392,7 +461,7 @@ skips missing cues instead of cascading to black.
 
 ---
 
-## 19. Themes
+## 20. Themes
 
 Deckboy ships many console-inspired colourways (`Settings → theme`), from the
 default **gameboy** green through famicom, super-famicom, gamecube, n64,
@@ -416,7 +485,7 @@ audit.
 
 ---
 
-## 20. Remote Control
+## 21. Remote Control
 
 All remote inputs normalise to plain-text commands.
 
@@ -440,7 +509,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 21. Reliability & Soak Testing
+## 22. Reliability & Soak Testing
 
 - **Decode watchdog** — a wedged decode reracks the deck dark and toasts the
   operator rather than hanging the show; if the file is gone it reports
@@ -456,7 +525,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 22. Keyboard Reference
+## 23. Keyboard Reference
 
 | Key | Action |
 |-----|--------|
@@ -495,7 +564,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 23. Command-Line Flags
+## 24. Command-Line Flags
 
 ```
 Deckboy.exe --self-check            # verify dependencies + backend wiring
@@ -509,4 +578,5 @@ Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
 
 Environment: `DECKBOY_PROJECT` (open a specific show), `DECKBOY_THEME` (force a
 colourway), `DECKBOY_COMPANION_PORT` (control port), `DECKBOY_UI_PROFILE=1`
-(UI timing + watchdog logs).
+(UI timing + watchdog logs), `DECKBOY_EGRESS_READBACK=sync` (force the portable
+recording readback, for comparing platforms from one desk).
