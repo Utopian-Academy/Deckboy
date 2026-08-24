@@ -218,17 +218,35 @@ std::string cueKindLabel(CueKind kind) {
 }
 
 // Machine-readable tokens for cue kinds (used in serialization and OSC commands).
+// EVERY CueKind must appear here. A kind that falls through to the default is
+// SAVED AS "video" and comes back from disk as a video cue: a tone:// or
+// timer:// path handed to the file decoder, which cannot decode it, so the cue
+// racks and never plays. That is exactly what happened -- Timer, Tone and
+// VideoSynth were all missing, and a saved show could not fire any of them.
+//
+// This was also DUPLICATED in main.cpp with a different (also incomplete) set
+// of cases. Two non-static definitions of one function is an ODR violation and
+// the linker silently picks one, so which cases existed depended on the build.
+// This is the only definition now; do not add another.
 std::string cueKindToken(CueKind kind) {
   switch (kind) {
-    case CueKind::Image:      return "image";
-    case CueKind::Pattern:    return "pattern";
-    case CueKind::Browser:    return "browser";
-    case CueKind::LowerThird: return "lower_third";
-    case CueKind::Audio:      return "audio";
-    case CueKind::SrtStream:  return "srt_stream";
-    case CueKind::NdiSource:  return "ndi_source";
+    case CueKind::Image:        return "image";
+    case CueKind::Pattern:      return "pattern";
+    case CueKind::Browser:      return "browser";
+    case CueKind::WindowSource: return "window_source";
+    case CueKind::Camera:       return "camera";
+    case CueKind::Syphon:       return "syphon";
+    case CueKind::SrtStream:    return "srt_stream";
+    case CueKind::NdiSource:    return "ndi_source";
+    case CueKind::Pip:          return "pip";
+    case CueKind::LowerThird:   return "lower_third";
+    case CueKind::Composite:    return "composite";
+    case CueKind::Audio:        return "audio";
+    case CueKind::Timer:        return "timer";
+    case CueKind::Tone:         return "tone";
+    case CueKind::VideoSynth:   return "video_synth";
     case CueKind::Video:
-    default:                         return "video";
+    default:                    return "video";
   }
 }
 

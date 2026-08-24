@@ -336,25 +336,10 @@ std::string cueKindLabel(CueKind kind) {
 }
 
 // Returns the serialization token for a CueKind (used in .deckboy project files).
-std::string cueKindToken(CueKind kind) {
-  switch (kind) {
-    case CueKind::Image:      return "image";
-    case CueKind::Pattern:    return "pattern";
-    case CueKind::Browser:    return "browser";
-    case CueKind::WindowSource: return "window_source";
-    case CueKind::Camera:     return "camera";
-    case CueKind::Syphon:     return "syphon";
-    case CueKind::SrtStream:  return "srt_stream";
-    case CueKind::NdiSource:  return "ndi_source";
-    case CueKind::Pip:        return "pip";
-    case CueKind::LowerThird: return "lower_third";
-    case CueKind::Composite:  return "composite";
-    case CueKind::Audio:      return "audio";
-    case CueKind::Timer:      return "timer";
-    case CueKind::Video:
-    default:                  return "video";
-  }
-}
+// cueKindToken lives in core/utils.cpp -- it is declared in core/utils.hpp and
+// this file had a SECOND definition of it with a different set of cases. Two
+// non-static definitions of one function is an ODR violation; the linker
+// picked one and the other silently did nothing.
 
 // Normalize user-entered composite layout names to canonical tokens.
 // Accepts various aliases: "split", "pip", "four" → "2up", "7030", "quad".
@@ -1776,6 +1761,18 @@ struct OutputStreamWriterState {
   std::string failureReason;
   bool hasPendingPacket = false;    // A new packet is ready to write
   OutputStreamPacket pendingPacket;
+  // Audio rides its OWN thread and mailbox. Both pipes used to be fed from one
+  // thread, audio first and then a BLOCKING video write -- which deadlocks: the
+  // mp4 muxer will not drain video until it has audio covering the same
+  // timestamps, so the video write blocked, which stopped the only thread that
+  // could have supplied that audio. MEASURED: every recording froze after
+  // exactly 170 frames with ffmpeg reporting frame=0, and the same ffmpeg
+  // command driven by hand ran fine. Two pipes drained in an order the reader
+  // chooses need two writers.
+  std::mutex audioMutex;
+  std::condition_variable audioCv;
+  std::thread audioThread;
+  std::vector<std::int16_t> pendingAudio;
   std::uint64_t packetsQueued = 0;  // Total packets queued by main thread
   std::uint64_t packetsWritten = 0; // Total packets written by writer thread
   std::uint64_t videoBytesWritten = 0;
@@ -1806,6 +1803,28 @@ struct OutputRuntime {
   // Reset whenever the output renders again, so re-disabling re-blacks it.
   bool blackedWhileDisabled = false;
   SDL_Texture* compositorTexture = nullptr;  // Offscreen compositor target
+  // Scratch target at the RECORDING raster. The composite is blitted into this
+  // on the GPU and this is what gets read back, so a 1080 recording off a 4K
+  // programme moves a quarter of the bytes across the bus.
+  SDL_Texture* egressScaleTexture = nullptr;
+  int egressScaleW = 0;
+  int egressScaleH = 0;
+  // Staging ring for the asynchronous readback (see libav_decoder.hpp). Null on
+  // a non-D3D11 renderer, where the path falls back to SDL_RenderReadPixels.
+  void* egressReadback = nullptr;
+  int egressReadbackW = 0;
+  int egressReadbackH = 0;
+  // CFR pacer for a file recording. A broadcast deliverable must contain
+  // exactly rate x elapsed frames; the encoder stamps by ARRIVAL ORDER at the
+  // declared rate, so delivering fewer frames than promised does not slow the
+  // file down, it SHORTENS it. Counting what is owed and repeating the last
+  // frame to cover a gap makes the duration correct by construction rather
+  // than dependent on the capture keeping up.
+  Uint64 recordPacerStartMs = 0;
+  std::uint64_t recordFramesWritten = 0;
+  Uint64 lastSegmentSizeCheckMs = 0;   // segment size is stat'd ~1Hz, not per frame
+  Uint64 lastDropWarnMs = 0;           // dropped-frame alarm, rate limited to 1Hz
+  std::uint64_t recordDroppedFrames = 0;
   int compositorWidth = 0;
   int compositorHeight = 0;
   Uint32 compositorFormat = SDL_PIXELFORMAT_UNKNOWN;
@@ -1860,6 +1879,10 @@ struct OutputRuntime {
   int streamFrameWidth = 0;
   int streamFrameHeight = 0;
   bool streamStartFailed = false;
+  // A file sink has to FINALIZE — flush the muxer and write its trailer. A
+  // network sink has nothing to finalize, so the two get different shutdown
+  // budgets; see stopOutputStreamRuntime.
+  bool streamToFile = false;
   Uint64 streamRestartBlockedUntilMs = 0;
   std::shared_ptr<OutputStreamWriterState> streamWriter;
   CapturedFrame latestCapturedFrame;
@@ -3154,6 +3177,20 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
+  // The recording FORMAT is part of the show. An operator who set 1080p25
+  // ProRes with drop-frame timecode must get it back tomorrow, not the
+  // defaults — a setting that does not round-trip is a setting that does not
+  // exist, which is exactly what the cue-kind bug taught.
+  output << "recording_width\t" << project.recordingWidth << '\n';
+  output << "recording_height\t" << project.recordingHeight << '\n';
+  output << "recording_fps\t" << project.recordingFps << '\n';
+  output << "recording_codec\t" << escapeField(project.recordingCodec) << '\n';
+  output << "recording_tc_mode\t" << escapeField(project.recordingTimecodeMode) << '\n';
+  output << "recording_tc_start\t" << escapeField(project.recordingTimecodeStart) << '\n';
+  output << "recording_tc_df\t" << escapeField(project.recordingTimecodeDropFrame) << '\n';
+  output << "recording_segment_minutes\t" << project.recordingSegmentMinutes << '\n';
+  output << "recording_segment_mb\t" << project.recordingSegmentMegabytes << '\n';
+  output << "recording_remux\t" << (project.recordingRemuxOnStop ? 1 : 0) << '\n';
   output << "asio_driver\t" << escapeField(project.asioDriverName) << '\n';
   output << "audio_input_device\t" << escapeField(project.audioInputDeviceName) << '\n';
   output << "synth_keyboard\t" << (project.synthKeyboardEnabled ? 1 : 0) << '\n';
@@ -3624,6 +3661,26 @@ Project loadProject(const fs::path& projectFile,
       project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, 64);
     } else if (fields[0] == "recording_dir") {
       project.recordingDir = safeString(fields, 1);
+    } else if (fields[0] == "recording_width") {
+      project.recordingWidth = safeInt(fields, 1, 0);
+    } else if (fields[0] == "recording_height") {
+      project.recordingHeight = safeInt(fields, 1, 0);
+    } else if (fields[0] == "recording_fps") {
+      project.recordingFps = safeDouble(fields, 1, 0.0);
+    } else if (fields[0] == "recording_codec") {
+      project.recordingCodec = safeString(fields, 1);
+    } else if (fields[0] == "recording_tc_mode") {
+      project.recordingTimecodeMode = safeString(fields, 1);
+    } else if (fields[0] == "recording_tc_start") {
+      project.recordingTimecodeStart = safeString(fields, 1);
+    } else if (fields[0] == "recording_tc_df") {
+      project.recordingTimecodeDropFrame = safeString(fields, 1);
+    } else if (fields[0] == "recording_segment_minutes") {
+      project.recordingSegmentMinutes = safeInt(fields, 1, 0);
+    } else if (fields[0] == "recording_segment_mb") {
+      project.recordingSegmentMegabytes = safeInt(fields, 1, 0);
+    } else if (fields[0] == "recording_remux") {
+      project.recordingRemuxOnStop = safeBool(fields, 1, true);
     } else if (fields[0] == "splash_character") {
       std::string v = safeString(fields, 1);
       project.splashCharacter = v.empty() ? std::string("deckbot") : v;
@@ -3919,7 +3976,25 @@ Project loadProject(const fs::path& projectFile,
         kind == "lower_third" ? CueKind::LowerThird :
         kind == "composite" ? CueKind::Composite :
         kind == "audio" ? CueKind::Audio :
+        // Timer, Tone and VideoSynth were missing here as well as in
+        // cueKindToken, so even a correctly-written show came back with all
+        // three demoted to Video. Keep this list in step with that function --
+        // a kind that only one side knows about does not survive a round trip.
+        kind == "timer" ? CueKind::Timer :
+        kind == "tone" ? CueKind::Tone :
+        (kind == "video_synth" || kind == "vsynth") ? CueKind::VideoSynth :
         CueKind::Video;
+      // Repair shows written while the round trip was broken. Those saved a
+      // generated cue as "video" but kept its real path, so the path is the
+      // surviving evidence of what the cue actually is -- and a Video cue
+      // pointed at tone:// can never play. Without this, every show saved
+      // before the fix stays broken after it.
+      if (cue.kind == CueKind::Video) {
+        const std::string& p = cue.path;
+        if (p.rfind("tone://", 0) == 0)        cue.kind = CueKind::Tone;
+        else if (p.rfind("timer://", 0) == 0)  cue.kind = CueKind::Timer;
+        else if (p.rfind("vsynth://", 0) == 0) cue.kind = CueKind::VideoSynth;
+      }
       cue.duration = safeDouble(fields, offset + 3, 0.0);
       cue.width = safeInt(fields, offset + 4, 0);
       cue.height = safeInt(fields, offset + 5, 0);
@@ -4073,81 +4148,92 @@ Project loadProject(const fs::path& projectFile,
         // Tone settings. Appended after the timer block; a show saved before
         // tone cues existed simply gets the defaults.
         cue.tone.waveform = static_cast<ToneWaveform>(
-          std::clamp(safeInt(fields, tb + 24, 0), 0, 4));
-        cue.tone.frequencyHz = std::clamp(safeDouble(fields, tb + 25, 1000.0), 20.0, 20000.0);
-        cue.tone.levelDbfs = std::clamp(safeDouble(fields, tb + 26, -18.0), -60.0, -1.0);
-        cue.tone.channel = std::clamp(safeInt(fields, tb + 27, -1), -1, 15);
+          std::clamp(safeInt(fields, tb + 22, 0), 0, 4));
+        cue.tone.frequencyHz = std::clamp(safeDouble(fields, tb + 23, 1000.0), 20.0, 20000.0);
+        cue.tone.levelDbfs = std::clamp(safeDouble(fields, tb + 24, -18.0), -60.0, -1.0);
+        cue.tone.channel = std::clamp(safeInt(fields, tb + 25, -1), -1, 15);
         cue.tone.visual = static_cast<ToneVisual>(
-          std::clamp(safeInt(fields, tb + 28, 1), 0, 3));
-        cue.tone.visualEnabled = safeBool(fields, tb + 29, true);
+          std::clamp(safeInt(fields, tb + 26, 1), 0, 3));
+        cue.tone.visualEnabled = safeBool(fields, tb + 27, true);
         // Chip voice. Appended after the tone block; a show saved before the
         // synth existed takes the defaults. This is the THIRD time a cue field
         // shipped wired to state and effect but not to storage -- it works
         // perfectly until the show is reopened, which is the worst moment to
         // find out. Worth checking deliberately, not eventually.
         cue.tone.synth.chip = static_cast<SynthChip>(
-          std::clamp(safeInt(fields, tb + 30, 0), 0, 1));
-        cue.tone.synth.noteHz = std::clamp(safeDouble(fields, tb + 31, 220.0), 20.0, 8000.0);
-        cue.tone.synth.attackSeconds = std::clamp(safeDouble(fields, tb + 32, 0.01), 0.0, 2.0);
-        cue.tone.synth.releaseSeconds = std::clamp(safeDouble(fields, tb + 33, 0.30), 0.01, 4.0);
-        cue.tone.synth.retriggerSeconds = std::clamp(safeDouble(fields, tb + 34, 0.0), 0.0, 4.0);
+          std::clamp(safeInt(fields, tb + 28, 0), 0, 1));
+        cue.tone.synth.noteHz = std::clamp(safeDouble(fields, tb + 29, 220.0), 20.0, 8000.0);
+        cue.tone.synth.attackSeconds = std::clamp(safeDouble(fields, tb + 30, 0.01), 0.0, 2.0);
+        cue.tone.synth.releaseSeconds = std::clamp(safeDouble(fields, tb + 31, 0.30), 0.01, 4.0);
+        cue.tone.synth.retriggerSeconds = std::clamp(safeDouble(fields, tb + 32, 0.0), 0.0, 4.0);
         cue.tone.synth.carrier = static_cast<FdsCarrier>(
-          std::clamp(safeInt(fields, tb + 35, 0), 0, 4));
+          std::clamp(safeInt(fields, tb + 33, 0), 0, 4));
         cue.tone.synth.modulator = static_cast<FdsModulator>(
-          std::clamp(safeInt(fields, tb + 36, 1), 0, 4));
-        cue.tone.synth.modDepth = std::clamp(safeInt(fields, tb + 37, 16), 0, 63);
-        cue.tone.synth.modRatio = std::clamp(safeDouble(fields, tb + 38, 0.5), 0.0, 8.0);
+          std::clamp(safeInt(fields, tb + 34, 1), 0, 4));
+        cue.tone.synth.modDepth = std::clamp(safeInt(fields, tb + 35, 16), 0, 63);
+        cue.tone.synth.modRatio = std::clamp(safeDouble(fields, tb + 36, 0.5), 0.0, 8.0);
         cue.tone.synth.nesVoice = static_cast<NesVoice>(
-          std::clamp(safeInt(fields, tb + 39, 0), 0, 2));
+          std::clamp(safeInt(fields, tb + 37, 0), 0, 2));
         cue.tone.synth.nesDuty = static_cast<NesDuty>(
-          std::clamp(safeInt(fields, tb + 40, 2), 0, 3));
-        cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 41, false);
-        cue.tone.synth.nesQuantise = safeBool(fields, tb + 42, true);
+          std::clamp(safeInt(fields, tb + 38, 2), 0, 3));
+        cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 39, false);
+        cue.tone.synth.nesQuantise = safeBool(fields, tb + 40, true);
         cue.tone.synth.tuning = static_cast<SynthTuning>(
-          std::clamp(safeInt(fields, tb + 66, 0), 0, 6));
+          std::clamp(safeInt(fields, tb + 64, 0), 0, 6));
         cue.tone.synth.referenceHz =
-          std::clamp(safeDouble(fields, tb + 67, 440.0), 380.0, 480.0);
+          std::clamp(safeDouble(fields, tb + 65, 440.0), 380.0, 480.0);
         // Video synth. Written at the same time as the feature rather than
         // discovered missing on reload, which is how the last three went.
         cue.videoSynth.shape = static_cast<VideoSynthShape>(
-          std::clamp(safeInt(fields, tb + 43, 0), 0, 4));
+          std::clamp(safeInt(fields, tb + 41, 0), 0, 4));
         cue.videoSynth.mirror = static_cast<VideoSynthMirror>(
-          std::clamp(safeInt(fields, tb + 44, 2), 0, 3));
+          std::clamp(safeInt(fields, tb + 42, 2), 0, 3));
         cue.videoSynth.palette = static_cast<VideoSynthPalette>(
-          std::clamp(safeInt(fields, tb + 45, 0), 0, 4));
-        cue.videoSynth.speed = std::clamp(safeDouble(fields, tb + 46, 1.0), 0.05, 8.0);
-        cue.videoSynth.scale = std::clamp(safeDouble(fields, tb + 47, 1.0), 0.1, 8.0);
-        cue.videoSynth.warp = std::clamp(safeDouble(fields, tb + 48, 0.35), 0.0, 2.0);
-        cue.videoSynth.feedbackAmount = std::clamp(safeDouble(fields, tb + 49, 0.55), 0.0, 0.95);
-        cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, tb + 50, 1.02), 0.90, 1.15);
-        cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, tb + 51, 0.6), -10.0, 10.0);
-        cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, tb + 52, 0.5), 0.0, 1.0);
-        cue.videoSynth.resolution = std::clamp(safeInt(fields, tb + 53, 2), 1, 5);
-        cue.videoSynth.pixelSort = std::clamp(safeDouble(fields, tb + 54, 0.0), 0.0, 1.0);
-        cue.videoSynth.glitch = std::clamp(safeDouble(fields, tb + 55, 0.0), 0.0, 1.0);
-        cue.videoSynth.ascii = safeBool(fields, tb + 56, false);
-        cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 57, 80), 20, 200);
-        cue.videoSynth.asciiGreen = safeBool(fields, tb + 58, true);
-        cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 59, 0.0), 0.0, 1.0);
-        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 60, 0), 0, 5);
-        cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 61, 0), 0, 8);
+          std::clamp(safeInt(fields, tb + 43, 0), 0, 4));
+        cue.videoSynth.speed = std::clamp(safeDouble(fields, tb + 44, 1.0), 0.05, 8.0);
+        cue.videoSynth.scale = std::clamp(safeDouble(fields, tb + 45, 1.0), 0.1, 8.0);
+        cue.videoSynth.warp = std::clamp(safeDouble(fields, tb + 46, 0.35), 0.0, 2.0);
+        cue.videoSynth.feedbackAmount = std::clamp(safeDouble(fields, tb + 47, 0.55), 0.0, 0.95);
+        cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, tb + 48, 1.02), 0.90, 1.15);
+        cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, tb + 49, 0.6), -10.0, 10.0);
+        cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, tb + 50, 0.5), 0.0, 1.0);
+        cue.videoSynth.resolution = std::clamp(safeInt(fields, tb + 51, 2), 1, 5);
+        cue.videoSynth.pixelSort = std::clamp(safeDouble(fields, tb + 52, 0.0), 0.0, 1.0);
+        cue.videoSynth.glitch = std::clamp(safeDouble(fields, tb + 53, 0.0), 0.0, 1.0);
+        cue.videoSynth.ascii = safeBool(fields, tb + 54, false);
+        cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 55, 80), 20, 200);
+        cue.videoSynth.asciiGreen = safeBool(fields, tb + 56, true);
+        cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 57, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 58, 0), 0, 5);
+        cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 59, 0), 0, 8);
         // Older shows carry only the green boolean; map it onto the ink mode
         // so they reopen looking the way they were left.
         cue.videoSynth.asciiInk =
-          std::clamp(safeInt(fields, tb + 62, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
-        cue.videoSynth.spriteSheetPath = safeString(fields, tb + 63);
-        cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, tb + 64, 16), 8, 128);
-        cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, tb + 65, 16), 8, 128);
-        cue.videoSynth.spriteRotate = std::clamp(safeInt(fields, tb + 68, 0), 0, 5);
+          std::clamp(safeInt(fields, tb + 60, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
+        cue.videoSynth.spriteSheetPath = safeString(fields, tb + 61);
+        cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, tb + 62, 16), 8, 128);
+        cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, tb + 63, 16), 8, 128);
+        cue.videoSynth.spriteRotate = std::clamp(safeInt(fields, tb + 66, 0), 0, 5);
         cue.videoSynth.spriteFreeAngle =
-          std::clamp(safeDouble(fields, tb + 69, 0.0), -720.0, 720.0);
-        cue.videoSynth.spriteFlip = std::clamp(safeInt(fields, tb + 70, 0), 0, 3);
+          std::clamp(safeDouble(fields, tb + 67, 0.0), -720.0, 720.0);
+        cue.videoSynth.spriteFlip = std::clamp(safeInt(fields, tb + 68, 0), 0, 3);
         cue.videoSynth.spriteJitter =
-          std::clamp(safeDouble(fields, tb + 71, 0.0), 0.0, 1.0);
+          std::clamp(safeDouble(fields, tb + 69, 0.0), 0.0, 1.0);
         cue.videoSynth.spriteChaos =
-          std::clamp(safeDouble(fields, tb + 72, 0.0), 0.0, 1.0);
-        cue.timer.logoPath          = safeString(fields, tb + 22);
-        cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 23, 18), 2, 40);
+          std::clamp(safeDouble(fields, tb + 70, 0.0), 0.0, 1.0);
+        // APPENDED, so they read from the END of the record — which is where
+        // saveProject writes them. They were read from tb+22/tb+23 instead,
+        // i.e. inserted into the MIDDLE, which silently shifted the loader's
+        // view of every field after them by two: the whole tone block and all
+        // ~47 video-synth fields. Symptom: a cue named "Test Tone 1kHz" came
+        // back as 20Hz at -1.0dBFS, because frequencyHz was reading the
+        // channel column (-1, clamped up to 20) and levelDbfs was reading the
+        // visual column (1, clamped down to -1).
+        //
+        // Append new cue fields at the END and read them at the END. Inserting
+        // mid-record corrupts everything downstream of the insertion.
+        cue.timer.logoPath          = safeString(fields, tb + 71);
+        cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 72, 18), 2, 40);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -7682,6 +7768,10 @@ class App {
   bool keyColorPickerArmed_ = false;
   ToastState toast_;
   Uint64 animationNow_ = 0;
+  // UI vsync is dropped while anything is being recorded or streamed, so the
+  // programme output alone paces the loop (see App::render).
+  int controlVsyncApplied_ = 1;
+  Uint64 lastControlDrawMs_ = 0;
   Uint64 selectionChangedAt_ = 0;
   bool uiProfileEnabled_ = false;
   double lastUiLayoutMs_ = 0.0;

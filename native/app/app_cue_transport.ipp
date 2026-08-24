@@ -51,6 +51,8 @@
       masterDimmerTarget_ = dark ? 1.0 : 0.0;
       triggerToast(dark ? "blackout off" : "BLACKOUT");
       playUiSound(dark ? UiSoundEffect::Toggle : UiSoundEffect::Clear);
+    } else if (label == "RECORD") {
+      toggleRecording();
     } else if (label == "SETTINGS") {
       settingsOpen_ = true;
       settingsTab_ = 3;

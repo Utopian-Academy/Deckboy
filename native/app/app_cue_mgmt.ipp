@@ -4139,6 +4139,21 @@
     // whole decision and the labels hide it.
     push("BLACKOUT",   pal.mid, "B — picture off instantly, playback keeps running (reversible)");
     push("CLEAR",      pal.mid, "C — fade out, drop overlays, stop playback");
+    // RECORD belongs on the bar, not buried in Settings → Streaming. Arming a
+    // capture is a SHOW action taken at the top of a take: an operator should
+    // not have to open a modal to start one, and — worse — could not tell from
+    // the desk whether one was already rolling. The toolbar badge only appears
+    // once recording is live, so before this there was no way to START from the
+    // main UI at all. Red while rolling, same language as the badge.
+    {
+      const bool rec = recordingActive();
+      push("RECORD", rec ? SDL_Color{160, 18, 18, 255} : pal.mid,
+           rec ? "Stop recording — file lands in " + recordingDirLabel()
+               : "Record the program to disk (" + recordingDirLabel() + ")");
+      if (rec) {
+        buttons_.back().text = SDL_Color{255, 210, 210, 255};
+      }
+    }
     push("SETTINGS",   pal.mid, "Open settings");
 
     auto placeGroupButtons = [&](int startIndex, int count, const SDL_Rect& groupRect, int overrideW = 0) {
@@ -4151,12 +4166,12 @@
         x += bw + kLayoutButtonGap;
       }
     };
-    if (buttons_.size() == 9) {
+    if (buttons_.size() == 10) {
       placeGroupButtons(0, 3, mediaGroupRect_);
       placeGroupButtons(3, 3, transportGroupRect_);
-      // OUTPUT now holds three: BLACKOUT, CLEAR, SETTINGS.
-      int outBtnW = std::min(buttonW + 12, (outputGroupRect_.w - kLayoutButtonGap * 4) / 3);
-      placeGroupButtons(6, 3, outputGroupRect_, outBtnW);
+      // OUTPUT now holds four: BLACKOUT, CLEAR, RECORD, SETTINGS.
+      int outBtnW = std::clamp((outputGroupRect_.w - kLayoutButtonGap * 5) / 4, 72, buttonW);
+      placeGroupButtons(6, 4, outputGroupRect_, outBtnW);
     }
   }
 

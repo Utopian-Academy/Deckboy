@@ -1601,9 +1601,54 @@
     for (const auto& button : buttons_) {
       bool emphasized = button.label == "TAKE";
       UiImageAsset* icon = buttonIconForLabel(button.label);
+      // Pulsing red border while rolling — the same language blackout uses,
+      // because it is the same kind of state: one the operator must not lose
+      // track of, and one whose cost of not noticing is the whole show.
+      if (button.label == "RECORD" && recordingActive()) {
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+        double pulse = 0.5 + 0.5 * std::sin(static_cast<double>(animationNow_) * 0.006);
+        Uint8 glowA = static_cast<Uint8>(80 + 140 * pulse);
+        SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30, glowA);
+        SDL_Rect glow {button.rect.x - 2, button.rect.y - 2,
+                       button.rect.w + 4, button.rect.h + 4};
+        SDL_RenderRect(controlRenderer_, &glow);
+        SDL_SetRenderDrawColor(controlRenderer_, 220, 30, 30,
+                               static_cast<Uint8>(glowA / 2));
+        SDL_Rect glow2 {button.rect.x - 3, button.rect.y - 3,
+                        button.rect.w + 6, button.rect.h + 6};
+        SDL_RenderRect(controlRenderer_, &glow2);
+        SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+      }
       // Draw button chrome (bevel lines in drawUIPanel provide the raised look)
       SDL_Color accent = emphasized ? pal.light : pal.dark;
       drawUIPanel(button.rect, button.fill, pal.deep, accent);
+
+      // An icon is an ADORNMENT; the label is the control. When both cannot
+      // fit, drop the icon, not the word — a gear beside "SET..." tells an
+      // operator strictly less than "SETTINGS" alone. Narrowing the OUTPUT
+      // group to fit RECORD is what surfaced this, but it was always latent:
+      // any window narrow enough truncated a labelled button silently.
+      if (icon && icon->texture) {
+        TTF_Font* probeFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+        const int probeIcon = std::min(24, button.rect.h - 16);
+        const int probeTextX = button.rect.x + 8 + probeIcon + 4;
+        // Measure against the rect the label ACTUALLY gets: drawCenteredTextSafe
+        // runs safeTextRect first, so comparing against the raw width leaves the
+        // label ellipsized anyway. That inset is why the first attempt at this
+        // changed nothing.
+        const SDL_Rect probeRect = safeTextRect(SDL_Rect {
+          probeTextX, button.rect.y + 8,
+          button.rect.x + button.rect.w - probeTextX - 6,
+          button.rect.h - 14});
+        int fullW = 0;
+        if (probeFont) {
+          TTF_GetStringSize(probeFont, button.label.c_str(), button.label.size(),
+                            &fullW, nullptr);
+        }
+        if (fullW > probeRect.w) {
+          icon = nullptr;
+        }
+      }
 
       if (icon && icon->texture) {
         // Icon on left, label on right
@@ -1642,17 +1687,18 @@
     // ─── Bottom bar sparkle area ───
     // Ambient sparkles + state-indicating animations in the empty space
     // within the output group, after the 2 buttons
-    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 9) {
-      // Rightmost button in the output group — SETTINGS, now buttons_[8]
-      // after BLACKOUT joined the group. Index-based anchors like this are
-      // exactly what breaks when the bar changes; keep it in step.
-      SDL_Rect lastOutBtn = buttons_[8].rect;
+    if (bottomBarRect_.w > 0 && bottomBarRect_.h > 0 && buttons_.size() >= 10) {
+      // Rightmost button in the output group — SETTINGS, now buttons_[9]
+      // after BLACKOUT and RECORD joined the group. Index-based anchors like
+      // this are exactly what breaks when the bar changes; keep it in step.
+      SDL_Rect lastOutBtn = buttons_[9].rect;
       int sparkleAreaX = lastOutBtn.x + lastOutBtn.w + 12;
       int sparkleAreaW = outputGroupRect_.x + outputGroupRect_.w - sparkleAreaX - 8;
       if (sparkleAreaW < 40) {
-        // Fallback: use area below the output buttons
-        sparkleAreaX = outputGroupRect_.x + 12;
-        sparkleAreaW = outputGroupRect_.w - 24;
+        // No room: draw nothing. The old fallback re-anchored to the whole
+        // group and drew the sparkles straight over the buttons, since they
+        // are painted after them — decoration on top of controls.
+        sparkleAreaW = 0;
       }
       if (sparkleAreaW > 30) {
         int sparkleAreaCY = bottomBarRect_.y + bottomBarRect_.h / 2;

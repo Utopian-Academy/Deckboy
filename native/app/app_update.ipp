@@ -938,13 +938,50 @@
 
   void render() {
     animationNow_ = SDL_GetTicks();
-    renderControlWindow();
-    renderMonitorsWindow();
-    
+
+    // ── Decouple the UI from the programme clock ───────────────────────────
+    // The control window and the programme output were BOTH presenting with
+    // vsync, so every pass through this loop waited on two vblanks: 30fps on a
+    // 60Hz display, whatever the machine was capable of. Capture happens inside
+    // this loop, so that was a hard ceiling on the recording rate -- 50 and
+    // 59.94 were unreachable by construction, and no amount of encoder or
+    // readback work could have fixed it. MEASURED: the loop sat at 30-34fps
+    // with the readback costing 0.01ms.
+    //
+    // While anything is being recorded or streamed, the UI gives up its vsync
+    // lock and is capped to 60Hz by the clock instead. The PROGRAMME output
+    // keeps its vsync -- a torn programme is never acceptable -- so the loop is
+    // now gated by one vblank rather than two.
+    const bool egressActive = anyOutputEgressActive();
+    const int wantControlVsync = egressActive ? 0 : 1;
+    if (wantControlVsync != controlVsyncApplied_) {
+      SDL_SetRenderVSync(controlRenderer_, wantControlVsync);
+      controlVsyncApplied_ = wantControlVsync;
+    }
+    // With vsync off the UI would otherwise redraw at whatever the loop runs
+    // at, which is pure waste: nothing in this interface benefits from more
+    // than 60 redraws a second.
+    bool drawControl = true;
+    if (!wantControlVsync) {
+      constexpr Uint64 kControlFrameMs = 16;
+      if (animationNow_ - lastControlDrawMs_ < kControlFrameMs) {
+        drawControl = false;
+      } else {
+        lastControlDrawMs_ = animationNow_;
+      }
+    }
+    if (drawControl) {
+      renderControlWindow();
+      renderMonitorsWindow();
+    }
+
     ensureOutputRuntimesSynced();
 
     for (int outputIndex = 0; outputIndex < static_cast<int>(project_.outputs.size()); ++outputIndex) {
       if (!project_.outputs[outputIndex].enabled) {
+        // Disabling an output must also stop its EGRESS, not just black its
+        // window — this is the path STOP RECORDING takes.
+        stopEgressForDisabledOutput(outputIndex);
         clearDisabledOutputWindow(outputIndex);
         continue;
       }

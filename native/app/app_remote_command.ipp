@@ -7,7 +7,7 @@
 //   Transport: TAKE, GO, PLAY, PAUSE, STOP, RERACK, CLEAR, SKIP, SKIPBACK
 //   Navigation: NEXT, PREV, GOTO <index>, SELECT <index>, FIND <text>
 //   Cue control: LOOP ON/OFF, VOLUME <0-100>, SPEED <factor>, AUDIOGAIN <dB>
-//   Output: OUT ON/OFF, DIMMER <0-100>, BLACKOUT, FULLSCREEN ON/OFF
+//   Output: OUT ON/OFF, DIMMER <0-100>, BLACKOUT, FULLSCREEN ON/OFF, RECORD
 //   Query: STATUS, STATUS JSON, STATUS CUES, HELP (answered on the socket by
 //     maybeRespondToCompanionQuery, not here)
 //
@@ -2284,6 +2284,126 @@
       else if (auto v = parseNumber(1); v) masterDimmerTarget_ = std::clamp(*v, 0.0, 1.0);
       triggerToast(masterDimmerTarget_ < 0.5 ? "blackout ON" : "blackout off");
       markProjectDirty();
+      return;
+    }
+    if (command == "RECFORMAT") {
+      // RECFORMAT <WxH|program> [fps|program] -- the recording's STANDARD,
+      // independent of the programme raster and of the display.
+      if (parts.size() < 2) {
+        failRemoteCommand("recformat: expected <WxH|program> [fps]");
+        return;
+      }
+      const std::string raster = toUpper(parts[1]);
+      if (raster == "PROGRAM" || raster == "PROGRAMME") {
+        project_.recordingWidth = 0;
+        project_.recordingHeight = 0;
+      } else {
+        int w = 0, h = 0;
+        if (std::sscanf(parts[1].c_str(), "%dx%d", &w, &h) != 2 ||
+            w < 16 || h < 16 || w > 7680 || h > 4320) {
+          failRemoteCommand("recformat: bad raster '" + parts[1] + "'");
+          return;
+        }
+        // Even dimensions: yuv420p has half-resolution chroma and an odd
+        // raster cannot be encoded.
+        project_.recordingWidth = w & ~1;
+        project_.recordingHeight = h & ~1;
+      }
+      if (parts.size() > 2) {
+        const std::string rateTok = toUpper(parts[2]);
+        if (rateTok == "PROGRAM" || rateTok == "PROGRAMME") {
+          project_.recordingFps = 0.0;
+        } else {
+          const double r = std::atof(parts[2].c_str());
+          if (!(r > 0.0) || r > 120.0) {
+            failRemoteCommand("recformat: bad rate '" + parts[2] + "'");
+            return;
+          }
+          project_.recordingFps = r;
+        }
+      }
+      markProjectDirty();
+      triggerToast("recording format " + recordingFormatLabel());
+      return;
+    }
+    if (command == "RECCODEC") {
+      // RECCODEC <token>  -- h264|hevc|prores_*|dnxhr_*
+      if (parts.size() < 2) {
+        failRemoteCommand("reccodec: expected a codec token");
+        return;
+      }
+      const std::string want = toLower(trim(parts[1]));
+      const std::string normalized = normalizeRecordingCodec(want);
+      if (normalized != want) {
+        failRemoteCommand("reccodec: unknown codec '" + parts[1] + "'");
+        return;
+      }
+      project_.recordingCodec = normalized;
+      markProjectDirty();
+      triggerToast("recording codec " + normalized);
+      return;
+    }
+    if (command == "RECTC") {
+      // RECTC <value HH:MM:SS:FF | timeofday> [df|ndf|auto]
+      if (parts.size() < 2) {
+        failRemoteCommand("rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]");
+        return;
+      }
+      const std::string first = toLower(trim(parts[1]));
+      if (first == "timeofday" || first == "tod") {
+        project_.recordingTimecodeMode = "timeofday";
+      } else {
+        int hh = 0, mm = 0, ss = 0, ff = 0;
+        if (std::sscanf(first.c_str(), "%d:%d:%d:%d", &hh, &mm, &ss, &ff) != 4) {
+          failRemoteCommand("rectc: bad timecode '" + parts[1] + "'");
+          return;
+        }
+        project_.recordingTimecodeMode = "value";
+        project_.recordingTimecodeStart = first;
+      }
+      if (parts.size() > 2) {
+        const std::string df = toLower(trim(parts[2]));
+        if (df != "df" && df != "ndf" && df != "auto") {
+          failRemoteCommand("rectc: expected df|ndf|auto, got " + parts[2]);
+          return;
+        }
+        project_.recordingTimecodeDropFrame = df;
+      }
+      markProjectDirty();
+      triggerToast("recording tc " + project_.recordingTimecodeMode + " " +
+                   project_.recordingTimecodeDropFrame);
+      return;
+    }
+    if (command == "RECSEGMENT") {
+      // RECSEGMENT <minutes|0> [megabytes|0]
+      if (parts.size() < 2) {
+        failRemoteCommand("recsegment: expected <minutes> [megabytes]");
+        return;
+      }
+      project_.recordingSegmentMinutes = std::clamp(std::atoi(parts[1].c_str()), 0, 240);
+      if (parts.size() > 2) {
+        project_.recordingSegmentMegabytes =
+          std::clamp(std::atoi(parts[2].c_str()), 0, 1024 * 1024);
+      }
+      markProjectDirty();
+      triggerToast("segment " + std::to_string(project_.recordingSegmentMinutes) +
+                   "min / " + std::to_string(project_.recordingSegmentMegabytes) + "MB");
+      return;
+    }
+    if (command == "RECORD" || command == "REC") {
+      // toggleRecording already answers with failRemoteCommand when it cannot
+      // create the output, so the caller gets a reason rather than a silent OK.
+      const std::string val = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
+      const bool rolling = recordingActive();
+      if (val == "ON" || val == "START") {
+        if (!rolling) toggleRecording();
+      } else if (val == "OFF" || val == "STOP") {
+        if (rolling) toggleRecording();
+      } else if (val == "TOGGLE") {
+        toggleRecording();
+      } else {
+        failRemoteCommand("record: expected on|off|toggle, got " + parts[1]);
+      }
       return;
     }
     if (command == "DIMMER") {
