@@ -56,6 +56,17 @@ $Exe = Join-Path $BuildDir "Deckboy.exe"
 if (-not (Test-Path $Exe)) {
     throw "Deckboy.exe not found at $Exe. Build first: cmake --build build\windows --config $Configuration"
 }
+# The binary must BE the version we are about to name the zip after. This script
+# takes its version from the VERSION file and the binary from a build directory,
+# and nothing tied the two together -- so packaging from a stale or unrelated
+# build directory produced a "0.85.0" zip containing a 0.84.0 executable, which
+# is exactly the sort of thing nobody checks until it is in someone's hands.
+$ExeVersion = (& $Exe --version 2>&1 | Select-Object -First 1) -replace '^Deckboy\s+v?', ''
+$ExeVersion = $ExeVersion.Trim()
+if ($ExeVersion -ne $Version) {
+    throw ("Version mismatch: VERSION says $Version but $Exe reports '$ExeVersion'. " +
+           "Rebuild that directory, or pass -BuildDir <the one you actually built>.")
+}
 if (-not (Test-Path (Join-Path $FfmpegDir "ffmpeg.exe"))) {
     throw "ffmpeg.exe not found in $FfmpegDir. Pass -FfmpegDir <path> if installed elsewhere."
 }
