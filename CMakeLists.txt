@@ -392,6 +392,10 @@ add_executable(deckboy-native
   # small frozen format and a per-platform dep is exactly what kept this CI
   # red for months.
   native/engine/hap_decoder.cpp
+  # Always compiled: the recording readback is a RENDERER concern, and
+  # living in libav_decoder.cpp meant a build with in-process decode off
+  # did not have it at all.
+  native/engine/gpu_readback.cpp
   # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
   native/platform/ptp_client.cpp
   # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
@@ -445,14 +449,22 @@ endif()
 # ON by default because there is no licence obstacle and no external dependency
 # to install: the driver itself is supplied by the user's audio interface, and
 # its absence is a runtime condition rather than a build one.
+#
+# asio_audio.cpp is compiled EVERYWHERE. It carries a full set of stubs under
+# `#if !defined(DECKBOY_HAS_ASIO)` -- "built without ASIO support" -- and the
+# app calls AsioOutput unconditionally. Adding the file only inside this Windows
+# branch meant macOS and Linux linked against declarations with no definitions
+# and failed at link, which is how ASIO broke both of those builds outright.
+target_sources(deckboy-native PRIVATE
+  "${CMAKE_CURRENT_SOURCE_DIR}/native/platform/asio_audio.cpp")
+
 if(WIN32 AND ENABLE_ASIO)
   set(DECKBOY_ASIO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/native/third_party/asio")
   if(EXISTS "${DECKBOY_ASIO_DIR}/asio.h")
     target_sources(deckboy-native PRIVATE
       "${DECKBOY_ASIO_DIR}/asio.cpp"
       "${DECKBOY_ASIO_DIR}/asiodrivers.cpp"
-      "${DECKBOY_ASIO_DIR}/asiolist.cpp"
-      "${CMAKE_CURRENT_SOURCE_DIR}/native/platform/asio_audio.cpp")
+      "${DECKBOY_ASIO_DIR}/asiolist.cpp")
     target_include_directories(deckboy-native PRIVATE "${DECKBOY_ASIO_DIR}")
     target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_ASIO=1)
     # The SDK predates modern warning levels and is not ours to clean up.
