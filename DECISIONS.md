@@ -18,6 +18,7 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | S4 | Never raise bot XP rate / never seed population (WoW) | **OWNER** | Out of scope here, kept for cross-project consistency. |
 | S5 | Encoding must never outbid playback during a show | **CLAUDE** | Drives the concurrency cap; challenge if you disagree. |
 | S6 | Reality outranks notes; a note counts only if checked at the moment of use | **OWNER** | 2026-08-19. Verify paths/flags/capabilities against the live system in the turn that uses them. The system wins over any note, comment, or earlier claim of mine. |
+| S7 | Every change must work on Windows, macOS and Linux -- same quality, not necessarily the same solution | **OWNER** | 2026-08-24. See D81. Check the `#ifdef` structure before saying done. |
 
 ---
 
@@ -99,6 +100,14 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D72 | Encoder rate overrides are CODEC-AWARE, and refused where they cannot apply | **CLAUDE** | 2026-08-21. There is no universal quality knob (-crf, -cq, -qscale:v all differ in meaning and range; ProRes/DNxHR/HAP/FFV1 are profile-driven with no continuous axis). A single "CRF" field would be a lie on more than half the catalogue, and silently ignoring an override is the dead-control pattern. |
 | D73 | HAP compatibility STAYS; GPU block upload deferred to Super Deckboy | **OWNER** | 2026-08-21. Decode, encode and the conversion offer all ship. Only the DXT-blocks-straight-to-GPU refinement waits, because it needs a D3D11 shader pipeline Deckboy does not otherwise have -- a change in the renderer's shape, not an addition. |
 | D74 | HAP is a PREFERRED option, not a default or a recommendation | **OWNER** | 2026-08-21. Measured: 1.7x less CPU per layer but 4.3x the disk. It earns its place on multi-layer shows and heavy scrubbing, not on a single clip, so it is offered on evidence rather than pushed. |
+| D75 | Recording is a SEPARATE STANDARD from the programme, defaulting to follow-input | **OWNER** | 2026-08-23: "resolution should be configurable, but it should default to the input resolution". Raster and rate are set independently and scale on the GPU before readback; 0x0 means follow the input. |
+| D76 | Recording must meet broadcast rates exactly, not approximately | **OWNER** | 2026-08-23: "not goofy recording framerate nonsense. i want CT and NEP using this". 23.976 is 24000/1001. The file must contain exactly rate x elapsed frames; a shortfall is an alarm, never a shorter file left to look healthy. |
+| D77 | Drop-frame is a TIMECODE convention, and auto picks it by rate | **CLAUDE** | DF skips two timecode numbers a minute (except every tenth) at 29.97/59.94 and is meaningless at integer rates; no video frame is ever dropped. Auto is right by default, with an explicit override for a house that insists. |
+| D78 | Feature set modelled on the AJA Ki Pro Go2/Ultra and OBS, not invented | **OWNER** asked | 2026-08-23. Segmentation, media-full behaviour, timecode source, codec list and the fragmented-then-remux trade all come from what those actually do. |
+| D79 | Fragmented while recording, remuxed on stop | **CLAUDE** | OBS's trade, and the right one: a power cut leaves a playable file, a clean stop leaves a tidy one. It was inside an `#ifdef _WIN32` and shipped broken on the other two platforms -- see D82. |
+| D80 | Cadence catch-up fill NOT attempted a third time | **CLAUDE**, after the OWNER pushed back | Bursting repeats to close a deficit wedged the encoder pipe twice (caps of 32, then 8/4). The owner: "something must be wrong or silly here". The pacer repeats at most its normal cadence and the alarm carries the rest. |
+| D81 | Every change must work on Windows, macOS and Linux | **OWNER** | 2026-08-24: "going forward all changes must work on all 3", and "not necessarily the same solution, they all just have to work with the same level of quality". Supersedes the older Windows-first posture. |
+| D82 | The D3D11 async readback stays Windows-only; the fallback is MEASURED, not assumed | **CLAUDE** | 2026-08-24. `DECKBOY_EGRESS_READBACK=sync` forces the portable path on a Windows desk: frame-exact at 1080p50, 1080p59.94 and 2160p25, behind only at 4K above 30p where the alarm fires. A portable ping-pong readback was tried and measured no better (311 vs 326 frames) -- SDL maps and copies in one call. Closing the 4K gap needs GL PBOs or a Metal blit, which is real work and not to be shipped untested to a field-test Mac. |
 
 ---
 

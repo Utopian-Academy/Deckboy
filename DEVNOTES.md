@@ -1,5 +1,87 @@
 # DEVNOTES
 
+## Recording Egress: Getting The Frame Off The GPU (v0.85.0)
+
+**The readback was the whole bottleneck.** `SDL_RenderReadPixels` is
+synchronous: it issues a copy and maps it in one call, so the render thread
+waits for the GPU. At 4K that is 16.8-18.8ms per frame, and with the render
+thread parked the capture could only run at about 23fps -- a 50p recording came
+out at 326 frames where 700 were owed. Only 2.9ms of it is the CPU-side format
+conversion, so there is nothing to win by tightening this side of the call.
+
+**The Windows path is a three-deep D3D11 staging ring.** `CopyResource` into
+the ring each frame, `Map` the *oldest* with `D3D11_MAP_FLAG_DO_NOT_WAIT`, and
+copy its rows straight into the egress buffer -- no temporary, no conversion.
+Cost falls from ~21ms to about 0.01ms. Two consequences worth knowing: the
+recording runs a few frames behind the programme, and while the ring primes
+there is nothing to read, so the caller keeps the previous picture and lets the
+CFR pacer repeat it. A held frame is right; a gap in the timeline is not.
+
+**The staging texture is BGRA on purpose.** It matches both the scale target and
+the byte order ffmpeg is fed (`-pix_fmt bgra`), so the mapped rows memcpy
+straight out. An earlier version allocated and zero-filled an 8MB temporary
+every frame and then walked it twice more -- about 24MB of pointless traffic per
+frame, on the render thread.
+
+**Scale before readback, not after.** The composite is blitted into a target at
+the *recording* raster first, so a 1080 recording off a 4K programme moves a
+quarter of the bytes. The blit is 1:1 and nearly free when no resize is asked
+for; its real job is putting the frame into a BGRA target we own, which is what
+the staging path needs. This runs for *every* file recording, including the
+default that follows the input -- gating it on an explicit recording size meant
+the most common configuration fell through to the slow path.
+
+**On a raster change, drop the held frame.** The async path serves the previous
+picture whenever the ring has nothing ready, and the encoder locks to the size
+of the first frame it sees. Without dropping it, a take started right after a
+raster change encodes the whole thing at the old size. Measured: a recording
+asked for 1280x720 came back 1920x1080.
+
+### What the other two platforms get
+
+The staging ring is D3D11-only, so macOS and Linux take the synchronous read.
+`DECKBOY_EGRESS_READBACK=sync` forces that path on a machine that has the fast
+one, which is the only way to measure their behaviour from a Windows desk.
+Measured over 14-second takes off a 4K programme:
+
+| standard | frames delivered / owed |
+|---|---|
+| 1080p50 | 700 / 700 |
+| 1080p59.94 | 838 / 839 |
+| 2160p25 | 349 / 350 |
+| 2160p50 | 326 / 700 |
+
+So the portable path is frame-exact for every raster and rate a show is likely
+to deliver, and only 4K above 30p outruns it -- where the dropped-frame alarm
+fires once a second on the output health state and in the show log.
+
+**A ping-pong between two scale targets does not help.** Blit into one, read
+back the other -- last frame's, which the GPU finished with long ago -- was
+tried and measured *no better* (311 frames against 326). SDL copies and maps in
+a single call and the map waits on the copy whatever the texture's age. Closing
+the 4K gap on those platforms needs a real per-backend async path: GL pixel
+buffer objects, or a Metal blit into a shared buffer with a completion handler.
+Do not spend another afternoon rearranging SDL calls.
+
+## The Control Window Was Stealing Half The Frame Rate (v0.85.0)
+
+Two windows both waiting on vsync means the render loop runs at half the refresh
+-- with a 60Hz control window and a 60Hz output, the ceiling for capture was 30
+fps no matter how fast the readback was. While any output is running egress the
+control window drops vsync and its redraw is capped to 16ms. The show window
+keeps its own pacing; the operator's window is the one that can afford to be
+late.
+
+## cueKindToken Was Defined Twice (v0.85.0)
+
+`main.cpp` and `core/utils.cpp` each had a non-static definition. The linker
+picks one without complaining, and the one it picked was the incomplete copy --
+seven of the fifteen cue kinds serialised as plain `video`, so tone, timer,
+video synth, PIP, composite, camera, window and Syphon cues all came back as
+broken video cues on the next load. The definition now lives in `core/utils.cpp`
+only, and the loader repairs the affected saves by looking at the path scheme.
+If a token function is worth having, it is worth having once.
+
 ## NMOS Node: One Node, Blocking Patches, One SDP (v0.83.0)
 
 **One node per machine, like PTP.** `NmosNode` binds a TCP port, so there can
