@@ -63,3 +63,7 @@ playboy/
 
 # Working roadmap notes — kept locally, not part of the published repo
 Notes
+
+# Program recordings and the first-run marker — runtime output, not source
+/data/recordings/
+/data/deckboy-first-run

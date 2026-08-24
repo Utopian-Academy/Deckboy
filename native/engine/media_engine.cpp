@@ -343,6 +343,18 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     if (cue->kind == CueKind::VideoSynth) {
       rebuildVideoSynthFrame(*cue, 0.0, 0.0);
     } else {
+      // The audio device is opened PAUSED, and the ONLY resume is at the end of
+      // this function on the file-decode path -- which this branch returns
+      // before reaching. So the tone generated its first fifth of a second,
+      // found the stream still full because nothing was draining it, and never
+      // produced another sample. MEASURED: pumpToneAudio ran exactly ONCE per
+      // take (peak 29203, tap connected) -- so the generator, the routing and
+      // the tap were all fine and the device was simply never started. That is
+      // the silent output, the dead VU meter and the -91 dBFS recording, all
+      // from one missing line.
+      if (audioStream_) {
+        deckboySetAudioPaused(audioStream_, !autoplay);
+      }
       rebuildToneFrame(*cue);
     }
     return;
@@ -6346,6 +6358,26 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
       toneScopeR_[toneScopePos_] = out[f * channels + (channels > 1 ? 1 : 0)];
       toneScopePos_ = (toneScopePos_ + 1) % keep;
     }
+  }
+
+  // Feed the metering/egress tap. The tap is invoked from queueDelayedAudio,
+  // which ONLY the decode path goes through -- a generated tone went straight
+  // to putWideAudioToStream, the last write, which deliberately knows nothing
+  // about metering. So the tone was audible while the VU meter sat still, and
+  // the stream/record mix never saw a sample: every recording of a tone
+  // measured -91 dBFS, digital silence.
+  //
+  // The tap is STEREO by contract (see queueDelayedAudio), so hand it the
+  // first output pair. A tone deliberately routed to some other channel is
+  // genuinely not in the stereo programme and correctly reads as silence.
+  if (audioTap_) {
+    std::vector<std::int16_t> stereo(frames * 2, 0);
+    for (std::size_t f = 0; f < frames; ++f) {
+      stereo[f * 2]     = out[f * static_cast<std::size_t>(channels)];
+      stereo[f * 2 + 1] = out[f * static_cast<std::size_t>(channels) +
+                              (channels > 1 ? 1 : 0)];
+    }
+    audioTap_(stereo);
   }
 
   // Device-width already: the generator addresses channels individually, so it

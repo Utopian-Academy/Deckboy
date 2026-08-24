@@ -180,6 +180,21 @@ SDL_Texture* createWrappedNV12Texture(SDL_Renderer* renderer, int w, int h,
                                       void** outTexture2D);
 void releaseD3D11Texture(void* texture2D);
 
+// Asynchronous GPU -> CPU readback, for the recording/egress path.
+// SDL_RenderReadPixels blocks the render thread until the GPU drains the copy
+// (MEASURED: 11.8ms per 1080 frame, 21-24ms at 4K), which is what capped the
+// achievable recording rate. These copy into a staging ring and map the oldest
+// entry without waiting, so the CPU never stalls. Two frames of latency.
+// createStagingReadback returns null on non-Windows or a non-D3D11 renderer;
+// callers must fall back to SDL_RenderReadPixels.
+void* createStagingReadback(SDL_Renderer* renderer, int width, int height);
+void destroyStagingReadback(void* handle);
+// False when no frame was ready this tick (ring priming, or the GPU is still
+// busy) -- not an error; the caller simply reuses the previous picture.
+bool stagingReadbackFrame(void* handle, SDL_Texture* source,
+                          std::uint8_t* out, std::size_t outBytes,
+                          int width, int height);
+
 // GPU→GPU copy of a zero-copy frame's texture-array slice into a texture
 // created by createWrappedNV12Texture on the SAME device.
 bool copyGpuFrameToTexture(const DecodedFrame& frame, void* dstTexture2D);
