@@ -1818,6 +1818,9 @@ struct OutputRuntime {
   // Latched when the renderer turns out to have no asynchronous readback, so
   // the creation is not retried on the render thread every single frame.
   bool egressReadbackUnavailable = false;
+  // Which capture path this output's recording is on, so the choice is
+  // reportable rather than deduced. -1 = not yet logged.
+  int egressPathLogged = -1;
   // CFR pacer for a file recording. A broadcast deliverable must contain
   // exactly rate x elapsed frames; the encoder stamps by ARRIVAL ORDER at the
   // declared rate, so delivering fewer frames than promised does not slow the
