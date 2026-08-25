@@ -1603,7 +1603,61 @@
   // The timecode stamped onto the take. Separator carries the DF/NDF flag:
   // ';' before the frames field means drop-frame, ':' means non-drop. That is
   // the SMPTE convention and what ffmpeg's tmcd writer reads.
-  std::string recordingStartTimecode(double rate) const {
+  // ---- SMPTE timecode arithmetic ------------------------------------------
+  // Needed because a SEGMENTED recording must carry CONTINUOUS timecode. Each
+  // segment is a fresh encoder invocation with its own -timecode, and every one
+  // of them was handed the same start value -- so rolling a take into four
+  // files gave four files all starting at 00:00:00:00, which cannot be laid end
+  // to end or conformed against a running order. Segmentation exists for long
+  // takes; long takes are exactly the ones that get conformed.
+  //
+  // Drop-frame is a renumbering, never a dropped picture: at 29.97 and 59.94 it
+  // skips two frame NUMBERS (four at 59.94) at the top of each minute except
+  // every tenth, so the count keeps pace with the wall clock.
+  static int timecodeNominalRate(double rate) {
+    return std::max(1, static_cast<int>(std::lround(rate)));
+  }
+
+  static std::uint64_t timecodeToFrames(int hh, int mm, int ss, int ff,
+                                        double rate, bool dropFrame) {
+    const int nominal = timecodeNominalRate(rate);
+    std::int64_t frames = static_cast<std::int64_t>(hh) * nominal * 3600 +
+                          static_cast<std::int64_t>(mm) * nominal * 60 +
+                          static_cast<std::int64_t>(ss) * nominal + ff;
+    if (dropFrame) {
+      const std::int64_t dropPerMinute = 2 * (nominal / 30);
+      const std::int64_t totalMinutes = static_cast<std::int64_t>(hh) * 60 + mm;
+      frames -= dropPerMinute * (totalMinutes - totalMinutes / 10);
+    }
+    return static_cast<std::uint64_t>(std::max<std::int64_t>(0, frames));
+  }
+
+  static void framesToTimecode(std::uint64_t frameNumber, double rate, bool dropFrame,
+                               int& hh, int& mm, int& ss, int& ff) {
+    const int nominal = timecodeNominalRate(rate);
+    std::uint64_t frames = frameNumber;
+    if (dropFrame) {
+      const std::uint64_t dropPerMinute = 2u * static_cast<std::uint64_t>(nominal / 30);
+      const std::uint64_t framesPerTenMinutes =
+        static_cast<std::uint64_t>(nominal) * 600u - 9u * dropPerMinute;
+      const std::uint64_t framesPerMinute =
+        static_cast<std::uint64_t>(nominal) * 60u - dropPerMinute;
+      const std::uint64_t tens = frames / framesPerTenMinutes;
+      const std::uint64_t rest = frames % framesPerTenMinutes;
+      frames += dropPerMinute * 9u * tens;
+      if (rest >= dropPerMinute) {
+        frames += dropPerMinute * ((rest - dropPerMinute) / framesPerMinute);
+      }
+    }
+    const std::uint64_t n = static_cast<std::uint64_t>(nominal);
+    ff = static_cast<int>(frames % n);
+    ss = static_cast<int>((frames / n) % 60u);
+    mm = static_cast<int>((frames / (n * 60u)) % 60u);
+    hh = static_cast<int>((frames / (n * 3600u)) % 24u);
+  }
+
+  std::string recordingStartTimecode(double rate,
+                                     std::uint64_t offsetFrames = 0) const {
     int hh = 0, mm = 0, ss = 0, ff = 0;
     if (toLower(trim(project_.recordingTimecodeMode)) == "timeofday") {
       const std::time_t now = std::time(nullptr);
@@ -1616,13 +1670,20 @@
         hh = mm = ss = ff = 0;
       }
     }
-    const int maxFrame = std::max(1, static_cast<int>(std::lround(rate))) - 1;
+    const int maxFrame = timecodeNominalRate(rate) - 1;
+    hh = std::clamp(hh, 0, 23);
+    mm = std::clamp(mm, 0, 59);
+    ss = std::clamp(ss, 0, 59);
+    ff = std::clamp(ff, 0, maxFrame);
+    const bool df = recordingUsesDropFrame(rate);
+    if (offsetFrames > 0) {
+      // A SEGMENT's start is the take's start plus everything already written.
+      framesToTimecode(timecodeToFrames(hh, mm, ss, ff, rate, df) + offsetFrames,
+                       rate, df, hh, mm, ss, ff);
+    }
     char buf[24];
     std::snprintf(buf, sizeof(buf), "%02d:%02d:%02d%c%02d",
-                  std::clamp(hh, 0, 23), std::clamp(mm, 0, 59),
-                  std::clamp(ss, 0, 59),
-                  recordingUsesDropFrame(rate) ? ';' : ':',
-                  std::clamp(ff, 0, maxFrame));
+                  hh, mm, ss, df ? ';' : ':', ff);
     return buf;
   }
 
@@ -1980,7 +2041,8 @@
                                                  int height,
                                                  double fpsHint,
                                                  const std::string& videoInputPath,
-                                                 const std::string& audioInputPath = {}) const {
+                                                 const std::string& audioInputPath = {},
+                                                 std::uint64_t takeFramesSoFar = 0) const {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return {};
     }
@@ -2134,7 +2196,8 @@
       // order. mov and mp4 both carry it; ';' in the value is the drop-frame
       // flag. Without this the file has no timecode at all, which on its own
       // disqualifies it as a deliverable.
-      args.insert(args.end(), {"-timecode", recordingStartTimecode(fps)});
+      args.insert(args.end(),
+                  {"-timecode", recordingStartTimecode(fps, takeFramesSoFar)});
     }
     if (!toFile || recordingCodecUsesBitrate()) {
       // Rate control belongs to the long-GOP codecs only. A mezzanine codec is
@@ -2487,7 +2550,7 @@
     return writer->failureReason.empty() ? "stream write failed" : writer->failureReason;
   }
 
-  void stopOutputStreamRuntime(OutputRuntime& runtime) {
+  void stopOutputStreamRuntime(OutputRuntime& runtime, bool rollingSegment = false) {
     // Captured BEFORE the platform split and acted on after it: the remux is
     // not a Windows feature, and it lived inside the #ifdef so a macOS or
     // Linux recording stayed fragmented forever.
@@ -2600,6 +2663,10 @@
     // Per TAKE, not per session: take two must start its own frame clock.
     runtime.recordPacerStartMs = 0;
     runtime.recordFramesWritten = 0;
+    // Per TAKE, not per segment: a roll is the same take continuing.
+    if (!rollingSegment) {
+      runtime.recordTakeFrames = 0;
+    }
     runtime.lastSegmentSizeCheckMs = 0;
     runtime.lastDropWarnMs = 0;
     runtime.recordDroppedFrames = 0;
@@ -2970,7 +3037,15 @@
       return true;
     }
 
+    // Captured and put back around the stop below. That call clears the take
+    // counter -- correctly, it is the generic teardown -- but it runs HERE, on
+    // the way in, immediately before the arguments are built. So the segment's
+    // timecode offset was read after the thing that zeroes it and every
+    // segment started at the take's base value, which is the whole defect this
+    // counter exists to fix.
+    const std::uint64_t takeFramesSoFar = runtime->recordTakeFrames;
     stopOutputStreamRuntime(*runtime);
+    runtime->recordTakeFrames = takeFramesSoFar;
     setOutputHealthState(outputIndex, OutputHealthState::Recovering, "starting stream");
 #ifdef _WIN32
     // Windows: video over stdin (pipe:0), audio over a named pipe. The pipe
@@ -2978,13 +3053,15 @@
     // with a confusing "no such file" on an input the operator never chose.
     const std::string audioPipeName = createOutputAudioPipe(*runtime, outputIndex);
     std::vector<std::string> args =
-      buildOutputStreamArgs(outputIndex, width, height, fpsHint, "", audioPipeName);
+      buildOutputStreamArgs(outputIndex, width, height, fpsHint, "", audioPipeName,
+                            takeFramesSoFar);
     // Remove -nostdin since we're piping video via stdin
     args.erase(std::remove(args.begin(), args.end(), "-nostdin"), args.end());
 #else
     std::string videoInputPath = (fs::temp_directory_path() /
       ("deckboy_stream_video_" + std::to_string(outputIndex) + "_" + std::to_string(SDL_GetTicks()) + ".fifo")).string();
-    std::vector<std::string> args = buildOutputStreamArgs(outputIndex, width, height, fpsHint, videoInputPath);
+    std::vector<std::string> args = buildOutputStreamArgs(
+      outputIndex, width, height, fpsHint, videoInputPath, {}, takeFramesSoFar);
 #endif
     if (args.empty()) {
       runtime->streamStartFailed = true;
@@ -3652,7 +3729,9 @@
     // keeps running; only the file changes, and the next frame opens the next
     // segment with a fresh timestamped name.
     if (toFileSink && shouldRollRecordingSegment(*runtime)) {
-      stopOutputStreamRuntime(*runtime);
+      // Rolling, not stopping: the take continues into the next file, so its
+      // frame count -- and therefore its timecode -- must carry over.
+      stopOutputStreamRuntime(*runtime, /*rollingSegment=*/true);
       return;
     }
     if (toFileSink) {
@@ -3789,6 +3868,7 @@
     runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
     if (toFileSink) {
       runtime->recordFramesWritten += 1;
+      runtime->recordTakeFrames += 1;
     }
   }
 

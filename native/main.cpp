@@ -1826,6 +1826,10 @@ struct OutputRuntime {
   // than dependent on the capture keeping up.
   Uint64 recordPacerStartMs = 0;
   std::uint64_t recordFramesWritten = 0;
+  // Frames written across the WHOLE take, surviving segment rolls, so each
+  // segment's timecode continues where the previous one stopped rather than
+  // restarting at the take's start value.
+  std::uint64_t recordTakeFrames = 0;
   Uint64 lastSegmentSizeCheckMs = 0;   // segment size is stat'd ~1Hz, not per frame
   Uint64 lastDropWarnMs = 0;           // dropped-frame alarm, rate limited to 1Hz
   std::uint64_t recordDroppedFrames = 0;

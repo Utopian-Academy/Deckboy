@@ -3083,6 +3083,17 @@
 #endif
     const double secondsToday = lt.tm_hour * 3600.0 + lt.tm_min * 60.0 + lt.tm_sec;
 
+    // ARM FROM NOW, never from the beginning of time. lastScheduleCheckSeconds_
+    // starts at -1, and the crossing test below is "was it before, is it now
+    // after" -- so on the first tick after launch EVERY cue scheduled earlier
+    // today satisfied both halves and went STRAIGHT TO AIR. Open a show at 2pm
+    // and the morning's schedule fired at once, unbidden. A schedule is a
+    // promise about the future; a time that has already passed is not one.
+    if (lastScheduleCheckSeconds_ < 0.0) {
+      lastScheduleCheckSeconds_ = secondsToday;
+      return;
+    }
+
     // Midnight rollover: clear the fired latches so a daily schedule repeats.
     if (secondsToday < lastScheduleCheckSeconds_) {
       for (Deck& deck : project_.decks) {
