@@ -3482,6 +3482,28 @@
       }
     }
 
+    // Say which path this recording is taking, once, whenever it changes. The
+    // difference between them is the difference between keeping up at 4K and
+    // delivering a third of the frames, and until now the only way to know
+    // which one an operator was on was to infer it from the damage.
+    if (outputStreamProtocolIsFile(
+          normalizeOutputStreamProtocol(egressOutput.streamProtocol))) {
+      const int path = !scaledEgress ? 0 : (readbackMode != kEgressReadbackAuto ? 1 : 2);
+      if (runtime.egressPathLogged != path) {
+        runtime.egressPathLogged = path;
+        const char* how =
+          path == 0 ? "programme-raster SYNCHRONOUS readback (the frame is shared "
+                      "with NDI/DeckLink/Spout/ST2110 or an output delay, so it "
+                      "cannot be scaled; the encoder resizes instead)"
+        : path == 1 ? "scaled, synchronous readback (forced by "
+                      "DECKBOY_EGRESS_READBACK)"
+                    : "scaled, asynchronous readback";
+        std::cerr << "recording-capture: output " << outputIndex << " using "
+                  << how << " at " << captureW << "x" << captureH << std::endl;
+        showLog("RECORD PATH", how);
+      }
+    }
+
     size_t stride = static_cast<size_t>(captureW) * 4u;
     size_t frameBytes = stride * static_cast<size_t>(captureH);
     if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
