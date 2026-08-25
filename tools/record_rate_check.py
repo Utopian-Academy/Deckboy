@@ -105,7 +105,7 @@ def run_case(args, standard):
     log = open(log_path, "w")
     # Media arrives as an argument -- there is no IMPORT verb on the control
     # port, and the usage line takes media paths directly.
-    proc = subprocess.Popen([args.exe, args.media], env=env,
+    proc = subprocess.Popen([args.exe, "--import", args.media], env=env,
                             cwd=os.path.dirname(args.exe) or ".",
                             stdout=log, stderr=subprocess.STDOUT)
     try:
