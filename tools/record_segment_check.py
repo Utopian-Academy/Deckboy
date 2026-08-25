@@ -111,7 +111,8 @@ def main():
     env["DECKBOY_COMPANION_PORT"] = str(args.port)
 
     log = open(os.path.join(root, "log.txt"), "w")
-    proc = subprocess.Popen([args.exe, args.media], env=env,
+    # --import skips the splash/startup menu; a bare path does not.
+    proc = subprocess.Popen([args.exe, "--import", args.media], env=env,
                             cwd=os.path.dirname(args.exe) or ".",
                             stdout=log, stderr=subprocess.STDOUT)
     try:
