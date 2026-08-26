@@ -34,6 +34,9 @@ import sys
 import tempfile
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import deckboy_testroot  # noqa: E402
+
 CONTROL_TIMEOUT = 5.0
 
 
@@ -143,6 +146,18 @@ def run_case(args, standard):
         send(args.port, "RECFORMAT %dx%d %s" % (width, height, rate))
         send(args.port, "SELECT 1")
         send(args.port, "TAKE")
+        # WAIT for the deck to actually be playing before recording. A fixed
+        # sleep records whatever is on screen at the time, and on a slow boot
+        # that is the empty monitor -- which then reports as a frozen recording
+        # and sends you hunting a bug that is not there. Seen once; that was
+        # enough.
+        deadline = time.time() + 20.0
+        while time.time() < deadline:
+            if 'status=Playing' in send(args.port, "STATUS"):
+                break
+            time.sleep(0.25)
+        else:
+            print("warning: deck never reported Playing; recording anyway")
         time.sleep(args.settle)
         send(args.port, "RECORD on")
         started = time.time()
@@ -223,6 +238,7 @@ def main():
     temporary = not args.root
     args.root = args.root or tempfile.mkdtemp(prefix="deckboy-ratecheck-")
     os.makedirs(os.path.join(args.root, "data"), exist_ok=True)
+    deckboy_testroot.populate(args.root, verbose=True)
     print("project root: %s" % args.root)
 
     results = []
