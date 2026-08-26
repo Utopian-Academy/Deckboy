@@ -1974,8 +1974,29 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // rows, so whatever remainder did not divide evenly stayed white. That was
   // the bright line along the bottom edge, and the same applied to any
   // leftover column on the right.
-  frame.pixels.assign(static_cast<std::size_t>(outW) * outH * 4, 0);
-  for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
+  //
+  // MEASURED at 4K this pair of lines cost 12ms a frame -- more than the whole
+  // rest of the synth after the CRT fix -- and almost all of it was wasted.
+  // `assign` allocated and zero-filled 33MB every frame, then a strided loop
+  // touched 8.3 million alpha bytes, and the upscale below immediately
+  // overwrote every pixel including alpha.
+  //
+  // So: recycle the previous frame's buffer rather than allocating a new one,
+  // and clear only when something might not be written. The nearest-neighbour
+  // upscale covers every output pixel; TEXT MODE does not, because the cell
+  // grid only covers outH/cellH whole rows and any remainder would otherwise
+  // show whatever the last frame left there. That remainder is the bright edge
+  // the original clear was added to fix, so it still gets one.
+  const std::size_t frameBytes = static_cast<std::size_t>(outW) * outH * 4;
+  if (displayFrame_ && displayFrame_->pixels.size() == frameBytes) {
+    frame.pixels = std::move(displayFrame_->pixels);
+  } else {
+    frame.pixels.resize(frameBytes);
+  }
+  if (vs.ascii) {
+    std::memset(frame.pixels.data(), 0, frameBytes);
+    for (std::size_t i = 3; i < frameBytes; i += 4) frame.pixels[i] = 255;
+  }
 
   if (synthBench) benchGlitch = SynthClock::now();
 
