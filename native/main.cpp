@@ -1765,8 +1765,20 @@ struct OutputStreamWriterState {
   bool stop = false;                // Signal the writer thread to exit
   bool failed = false;              // Writer encountered a fatal error
   std::string failureReason;
-  bool hasPendingPacket = false;    // A new packet is ready to write
-  OutputStreamPacket pendingPacket;
+  // A QUEUE, not a mailbox. This was a single pendingPacket slot, so a second
+  // frame pushed before the writer drained the first SILENTLY REPLACED it --
+  // while the pacer counted both as written. That is why a recording ran short
+  // whenever capture outpaced the writer, and why the two attempts at filling
+  // the cadence with repeats did nothing: every repeat landed in the same slot
+  // and only one was ever written.
+  //
+  // Bounded, because the alternative to dropping under sustained overload is
+  // growing without limit during a show. Depth is in FRAMES and deliberately
+  // small: at 4K a frame is 33MB, and a deep queue would mean a recording that
+  // lags seconds behind the programme before anyone notices.
+  static constexpr std::size_t kMaxQueuedPackets = 8;
+  std::deque<OutputStreamPacket> queue;
+  std::uint64_t packetsDropped = 0;  // queue was full: a REAL lost frame
   // Audio rides its OWN thread and mailbox. Both pipes used to be fed from one
   // thread, audio first and then a BLOCKING video write -- which deadlocks: the
   // mp4 muxer will not drain video until it has audio covering the same
@@ -1844,6 +1856,13 @@ struct OutputRuntime {
   // segment's timecode continues where the previous one stopped rather than
   // restarting at the take's start value.
   std::uint64_t recordTakeFrames = 0;
+  // Frames carrying a NEW picture, as opposed to frames delivered. The pacer
+  // repeats the last picture to keep the duration right, and those repeats
+  // must not be allowed to satisfy the dropped-frame alarm -- otherwise a
+  // capture that has stalled completely produces a duration-correct file of
+  // one still image and reports itself healthy.
+  std::uint64_t recordFreshFrames = 0;
+  Uint64 lastFreshCaptureMs = 0;     // when the picture last actually changed
   Uint64 lastSegmentSizeCheckMs = 0;   // segment size is stat'd ~1Hz, not per frame
   Uint64 lastDropWarnMs = 0;           // dropped-frame alarm, rate limited to 1Hz
   std::uint64_t recordDroppedFrames = 0;
