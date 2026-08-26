@@ -1,7 +1,9 @@
 # Per-Cue Effects — design notes
 
 Status: **proposal, nothing built.** Written 2026-08-26 after a survey of what
-the glitch/pixel-art field is currently doing.
+the glitch/pixel-art field is currently doing. Revised the same day after
+looking at GitHub and the TouchDesigner forums, which corrected two novelty
+claims in the first draft -- see 1b.
 
 ---
 
@@ -18,8 +20,43 @@ Pixel sorting is the clearest case. Asendorf published it in 2011, open-sourced
 it in 2012, and the fifteen years since have produced variations on *which*
 interval to sort and *what* to sort by — not a successor technique.
 
-**Conclusion: copying the field produces derivative work by construction.**
-Anything genuinely new has to come from somewhere else.
+**Conclusion: copying the ART discourse produces derivative work by
+construction.** Anything genuinely new has to come from somewhere else.
+
+### 1b. Where the practitioners actually are
+
+The art-world sources are the wrong place to look, and the first draft of this
+document was written before checking the right ones. **GitHub and the
+TouchDesigner forums are where the method lives**, and they are considerably
+further ahead than the festival write-ups suggest.
+
+**FFglitch** (ramiropolla) is the serious tool here and has been since about
+2020. It exposes a video's *bitstream* to a JavaScript engine: motion vectors --
+split into their prediction and delta parts -- DC coefficients and the
+quantizer, all scriptable per frame for MPEG-2 and MPEG-4. There is a tutorial
+series and a scripts repository. Motion-vector averaging across frames is a
+worked example there, not a frontier.
+
+**tiberiuiancu/datamoshing** combines *two videos' motion vectors by adding
+them together*, via ffgac/ffedit. **LukasBommes/mv-extractor** pulls frames and
+motion vectors out of H.264 and MPEG-4 with a documented vector format.
+
+**TouchDesigner** ships an **Optical Flow TOP** (X motion in red, Y in green)
+and the forum has years of optical-flow warp feedback patches -- iterative loops
+that displace the previous frame by the current motion field. Worth noting: that
+operator requires an Nvidia 3000-series or newer.
+
+**What this corrects in the first draft:**
+
+- *Motion-vector puppetry* is **not** unprecedented. Combining and rewriting
+  motion vectors is established offline practice with a mature toolchain. What
+  does not exist is doing it **live, at frame rate, on a running cue, with the
+  vectors driving a different source** -- a camera, a synth, another deck. Still
+  distinctive, but the claim is about *liveness and cross-source*, not the idea.
+- *Flow feedback* is **not** novel at all. It is a standard TouchDesigner patch.
+  Struck from the novel list below and moved to table stakes -- though taking
+  the flow from decoder motion vectors would let Deckboy do it on any GPU
+  rather than Nvidia-only.
 
 ## 2. Where new material actually is
 
@@ -90,22 +127,26 @@ integrates shades that are not in the palette at all — a 4-colour image that
 reads as continuous tone, and freezes into visible checkerboard the moment you
 pause. Ties directly to the existing hardware palettes.
 
-**Flow feedback.** Advect the previous frame along the current frame's motion
-field. Unlike the synth's feedback (a fixed zoom/rotate), this feedback is
-*steered by the content*, so trails follow what actually moved.
+*(Flow feedback was listed here in the first draft and has been struck: it is a
+standard TouchDesigner patch, not a new idea. It still belongs in the product --
+see 1b -- just not as a claim to originality.)*
 
 ## 6. Tier 3 — novel because of what Deckboy is
 
 The strongest ideas. None of these are expressible in a file-based tool.
 
-**Motion-vector puppetry.** *The standout.* Deckboy decodes H.264 in-process,
-so it can read the real per-macroblock motion vectors out of a clip. Apply one
-clip's motion vectors to a *different* clip's pixels and the second picture is
-puppeteered by the first one's movement — a still portrait animated by a
-crowd scene's motion. Datamosh already exploits the codec, but only by
-*removing* information; this uses what the codec actually knows. This is a real
-technique in the research literature and, as far as the survey found, has never
-been a live effect.
+**Live motion-vector puppetry.** *Still the standout, with a narrower claim.*
+Deckboy decodes H.264 in-process, so it can read real per-macroblock motion
+vectors out of a playing clip. Apply one clip's vectors to a *different
+source's* pixels and that source is puppeteered by the first one's movement —
+a camera feed animated by a crowd scene, a synth driven by a dancer.
+
+Rewriting motion vectors offline is mature practice (FFglitch, 1b). Doing it
+**live, at frame rate, across two sources, while the show is running** is not,
+and it is what a file-based toolchain structurally cannot do: FFglitch edits a
+bitstream and writes a new file, which is not an operation you can put on a cue.
+Datamosh already exploits the codec but only by *removing* information; this
+uses what the codec actually knows.
 
 **Cue bleed.** The effect knows the running order: the outgoing cue's frames
 persist inside the incoming cue's dark regions, so a cut leaves a residue that
@@ -118,6 +159,13 @@ and the trails run backwards. The operator's hands are in the effect.
 **Programme-bus reaction.** The synth already reacts to audio. Extend it to
 every effect, driven by the *programme* mix — the effect responds to what the
 audience is hearing, not to a file.
+
+**Live quantizer bend.** FFglitch's other lever, which the first draft
+missed entirely: the DC coefficients and the quantizer, not just the motion
+vectors. Driving the quantizer live — from audio, from the transport, from a
+fader — makes the *compression itself* an instrument, and the picture blocks
+up and recovers under the operator's hand. Offline tooling for this exists; a
+live control surface for it does not.
 
 ## 7. Architecture sketch
 
@@ -136,10 +184,11 @@ audience is hearing, not to a file.
 
 ## 8. What to build first
 
-1. **Motion-vector puppetry**, as a spike. It is the most distinctive thing on
-   this list, it exercises the decoder plumbing, and if the vectors turn out to
-   be unavailable or useless the whole flow family needs rethinking. Fail fast
-   on the interesting one.
+1. **Live motion-vector puppetry**, as a spike. Most distinctive thing on the
+   list, exercises the decoder plumbing, and if the vectors turn out to be
+   unavailable or too coarse at frame rate then the whole flow family needs
+   rethinking. Fail fast on the interesting one. `mv-extractor` documents the
+   vector format; FFglitch's tutorials explain the prediction/delta split.
 2. **Temporal dither**, as the cheap win — small, self-contained, immediately
    striking, and it makes the existing hardware palettes far more interesting.
 3. **Tier 1**, in bulk, once the stack exists.
