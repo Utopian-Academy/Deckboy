@@ -551,9 +551,22 @@
                             uv, sourceFrame->width);
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
-        if (cueHasPixelEffects(*sourceCue)) {
+        const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
+        if (cueHasPixelEffects(*sourceCue) || wantsStack) {
           outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
           applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+          if (wantsStack) {
+            // Effects run AFTER the colour controls, on the graded picture --
+            // grading a posterised image would quantise first and then push the
+            // few remaining levels around, which is not what either control is
+            // for. The frame index drives anything that advances per frame.
+            deckboy::effects::CueEffectContext fxCtx;
+            fxCtx.width = sourceFrame->width;
+            fxCtx.height = sourceFrame->height;
+            fxCtx.frameIndex = sourceFrame->index;
+            deckboy::effects::applyCueEffectStack(
+              outputRuntime->layerBridgeScratchPixels, sourceCue->effects, fxCtx);
+          }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
         SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);

@@ -3793,9 +3793,14 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // frozen at decode start — toggling effects mid-playback on an NV12 cue
   // will not take visual effect until the next TAKE. Documented in
   // DEVNOTES.md (`GPU Hardware Decode Note`).
+  // The effect stack counts too. Without it here a cue carrying effects still
+  // took the NV12 fast path and the whole stack was silently skipped -- the
+  // pixels never reached a CPU buffer for it to run on. Same trap the chroma
+  // key would have hit if this predicate had not existed.
   const bool needsRgbaForEffects =
     cue.chromaKeyEnabled ||
-    colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift);
+    colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
+    deckboy::effects::cueEffectStackActive(cue.effects);
   const FramePixelFormat decodeFormat =
     needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
   const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";
