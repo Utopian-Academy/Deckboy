@@ -2474,19 +2474,20 @@
           writer->audioCv.notify_one();
         }
 
-        if (!packet.videoBytes.empty() && writer->videoPipeFd >= 0) {
+        if (packet.videoBytes && !packet.videoBytes->empty() &&
+            writer->videoPipeFd >= 0) {
           if (!writeOutputStreamBytesBlocking(
                 writer,
                 writer->videoPipeFd,
-                packet.videoBytes.data(),
-                packet.videoBytes.size(),
+                packet.videoBytes->data(),
+                packet.videoBytes->size(),
                 "stream video stopped")) {
             break;
           }
           {
             std::lock_guard<std::mutex> lock(writer->mutex);
             writer->packetsWritten += 1;
-            writer->videoBytesWritten += static_cast<std::uint64_t>(packet.videoBytes.size());
+            writer->videoBytesWritten += static_cast<std::uint64_t>(packet.videoBytes->size());
           }
         }
       }
@@ -3836,7 +3837,17 @@
     packet.width = width;
     packet.height = height;
     packet.capturedAtMs = frame->capturedAtMs;
-    packet.videoBytes = frame->pixels;
+    // Published once per CAPTURED frame, then shared by every packet the pacer
+    // emits from it. capturedAtMs is the identity: the pacer hands the same
+    // frame back for each repeat, and re-copying it was pure waste.
+    if (!runtime->egressPublished ||
+        runtime->egressPublishedAtMs != frame->capturedAtMs ||
+        runtime->egressPublished->size() != frame->pixels.size()) {
+      runtime->egressPublished =
+        std::make_shared<const std::vector<std::uint8_t>>(frame->pixels);
+      runtime->egressPublishedAtMs = frame->capturedAtMs;
+    }
+    packet.videoBytes = runtime->egressPublished;
     // Cross-platform. This was inside #ifndef _WIN32, so on Windows the packet
     // NEVER carried audio -- the deck mix sat buffered and unread while the
     // encoder muxed silence. Gated on the writer actually having somewhere to
@@ -3981,6 +3992,8 @@
     // there is no handle to free, and clearing the latch only inside it would
     // mean a new renderer never got asked.
     runtime.egressReadbackUnavailable = false;
+    runtime.egressPublished.reset();
+    runtime.egressPublishedAtMs = 0;
     releaseOutputPreviewTap(runtime);
     runtime.compositorWidth = 0;
     runtime.compositorHeight = 0;

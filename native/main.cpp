@@ -1742,7 +1742,12 @@ struct OutputStreamPacket {
   int width = 0;
   int height = 0;
   Uint64 capturedAtMs = 0;                   // SDL tick when frame was captured
-  std::vector<std::uint8_t> videoBytes;       // Raw RGBA pixel data
+  // SHARED, not copied. This was a plain vector, so handing a frame to the
+  // writer copied the whole raster on the render thread -- 33MB at 4K, every
+  // frame, and again for every frame the CFR pacer repeats. The writer only
+  // ever reads it, so one immutable buffer can be handed to as many packets as
+  // the pacer emits.
+  std::shared_ptr<const std::vector<std::uint8_t>> videoBytes;
   std::vector<std::int16_t> audioSamples;     // Interleaved 16-bit PCM
 };
 
@@ -1818,6 +1823,12 @@ struct OutputRuntime {
   // Latched when the renderer turns out to have no asynchronous readback, so
   // the creation is not retried on the render thread every single frame.
   bool egressReadbackUnavailable = false;
+  // The captured picture, published once as an immutable buffer. The CFR pacer
+  // repeats the last picture to cover a gap, and every repeat used to copy the
+  // whole raster again -- 33MB at 4K, on the render thread, for pixels that had
+  // not changed.
+  std::shared_ptr<const std::vector<std::uint8_t>> egressPublished;
+  Uint64 egressPublishedAtMs = 0;
   // Which capture path this output's recording is on, so the choice is
   // reportable rather than deduced. -1 = not yet logged.
   int egressPathLogged = -1;

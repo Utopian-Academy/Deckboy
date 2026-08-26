@@ -358,8 +358,15 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
   // caller served the held picture every single frame, and the recording was
   // one still image with a perfect frame count. Every frame-count check passed
   // while the picture never moved, which is exactly how it went unnoticed.
+  static const bool bench = [] {
+    const char* e = std::getenv("DECKBOY_EGRESS_BENCH");
+    return e && *e;
+  }();
+  const Uint64 tCopy0 = SDL_GetPerformanceCounter();
   rb->context->CopyResource(rb->ring[rb->cursor], src);
+  const Uint64 tCopy1 = SDL_GetPerformanceCounter();
   rb->context->Flush();
+  const Uint64 tFlush = SDL_GetPerformanceCounter();
   rb->cursor = (rb->cursor + 1) % kStagingRingSize;
   if (rb->primed < kStagingRingSize) {
     rb->primed += 1;
@@ -386,6 +393,19 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
     }
   }
   rb->context->Unmap(rb->ring[oldest], 0);
+  if (bench) {
+    static int n = 0; static double sCopy = 0, sFlush = 0, sMap = 0;
+    const double f = static_cast<double>(SDL_GetPerformanceFrequency());
+    sCopy  += (tCopy1 - tCopy0) * 1000.0 / f;
+    sFlush += (tFlush - tCopy1) * 1000.0 / f;
+    sMap   += (SDL_GetPerformanceCounter() - tFlush) * 1000.0 / f;
+    if (++n == 60) {
+      std::cerr << "d3d11-readback copy=" << (sCopy / n) << " flush="
+                << (sFlush / n) << " map+copy=" << (sMap / n) << "ms "
+                << width << "x" << height << std::endl;
+      n = 0; sCopy = sFlush = sMap = 0;
+    }
+  }
   return ok;
 #else
   (void) handle; (void) source; (void) out; (void) outBytes;
