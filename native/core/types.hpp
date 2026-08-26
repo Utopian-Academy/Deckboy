@@ -25,6 +25,7 @@
 #ifndef DECKBOY_CORE_TYPES_HPP
 #define DECKBOY_CORE_TYPES_HPP
 
+#include "cue_effects.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -616,6 +617,9 @@ struct Cue {
   TimerSettings timer;
   // Tone generator settings. Only meaningful when kind == CueKind::Tone.
   ToneSettings tone;
+  // The operator's effect stack, applied in list order. Empty on every cue
+  // that has never had one, which is the common case and costs nothing.
+  std::vector<deckboy::effects::CueEffect> effects;
   // Only meaningful when kind == CueKind::VideoSynth.
   VideoSynthSettings videoSynth;
 

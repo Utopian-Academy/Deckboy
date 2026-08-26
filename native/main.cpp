@@ -2228,6 +2228,56 @@ void parseMarkerNames(Cue& cue, const std::string& field) {
   cue.markerNames.resize(cue.markerSeconds.size());
 }
 
+// Effect stack <-> one tab field. Colons inside an entry, pipes between them,
+// so a stack of any length occupies a single column.
+std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& stack) {
+  std::string out;
+  for (const auto& fx : stack) {
+    if (fx.kind == deckboy::effects::CueEffectKind::None) continue;
+    if (!out.empty()) out += '|';
+    std::ostringstream one;
+    one << deckboy::effects::cueEffectToken(fx.kind) << ':' << fx.amount
+        << ':' << fx.paramA << ':' << fx.paramB;
+    out += one.str();
+  }
+  return out;
+}
+
+std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text) {
+  std::vector<deckboy::effects::CueEffect> stack;
+  if (text.empty()) return stack;
+  std::size_t start = 0;
+  for (;;) {
+    const std::size_t bar = text.find('|', start);
+    const std::string item =
+      text.substr(start, bar == std::string::npos ? std::string::npos : bar - start);
+    if (!item.empty()) {
+      std::vector<std::string> parts;
+      std::size_t p0 = 0;
+      for (;;) {
+        const std::size_t colon = item.find(':', p0);
+        parts.push_back(
+          item.substr(p0, colon == std::string::npos ? std::string::npos : colon - p0));
+        if (colon == std::string::npos) break;
+        p0 = colon + 1;
+      }
+      deckboy::effects::CueEffect fx;
+      fx.kind = deckboy::effects::cueEffectFromToken(parts[0]);
+      // An unknown token means a show saved by a NEWER build. Skipping it
+      // keeps the rest of the stack rather than refusing the whole cue.
+      if (fx.kind != deckboy::effects::CueEffectKind::None) {
+        if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
+        if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
+        if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+        stack.push_back(fx);
+      }
+    }
+    if (bar == std::string::npos) break;
+    start = bar + 1;
+  }
+  return stack;
+}
+
 std::string escapeField(const std::string& value) {
   std::string out;
   out.reserve(value.size());
@@ -3576,6 +3626,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.spriteChaos
         << '\t' << escapeField(cue.timer.logoPath)
         << '\t' << cue.timer.logoHeightPercent
+        // Effect stack, appended at the END like every other addition.
+        // Packed into ONE field as "token:amount:a:b|..." so a stack of any
+        // length costs a single column -- a variable number of columns would
+        // shift every positional index after it, which is the trap the loader
+        // offsets already carry scars from.
+        << '\t' << escapeField(serializeCueEffects(cue.effects))
         << '\n';
     }
   }
@@ -4283,6 +4339,10 @@ Project loadProject(const fs::path& projectFile,
         // mid-record corrupts everything downstream of the insertion.
         cue.timer.logoPath          = safeString(fields, tb + 71);
         cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 72, 18), 2, 40);
+        // At the END, per the warning above. Absent on every show saved before
+        // effects existed, which safeString reports as empty and parses to an
+        // empty stack -- so an old show simply has no effects, which is right.
+        cue.effects = parseCueEffects(safeString(fields, tb + 73));
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
