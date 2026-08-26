@@ -574,6 +574,15 @@
       skipToPrevCue();
       return;
     }
+    if (command == "GOEND" || command == "SKIPEND") {
+      // Jump the playing cue to its last moment. The action existed and worked
+      // and NOTHING could reach it -- no button, no key, no verb -- which an
+      // audit of all 258 QuickActions turned up. A transport action nobody can
+      // invoke is the same defect as a control that does nothing, facing the
+      // other way.
+      dispatchQuickAction(QuickAction::TransportSkipEnd);
+      return;
+    }
     if (command == "PREV" || command == "PREVIOUS") {
       selectRelative(-1, false);
       return;
