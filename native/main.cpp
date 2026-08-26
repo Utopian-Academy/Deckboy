@@ -5263,6 +5263,7 @@ class App {
   // Cue transport: play/stop/seek/fade operations
 #include "app/app_cue_transport.ipp"
   // Quick-action command palette (Ctrl+K search)
+#include "app/app_numeric_params.ipp"
 #include "app/app_quick_action.ipp"
   // Cue list management: add/remove/reorder/duplicate cues
 #include "app/app_cue_mgmt.ipp"
@@ -5359,7 +5360,14 @@ class App {
                         QuickAction decAction, const std::string& value,
                         QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
                         bool isToggle = false, bool toggleOn = false, std::string tip = "",
-                        bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop) {
+                        bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop,
+                        int paramId = -1) {
+    // A paramId is the modern way to make a value typeable: it needs no
+    // per-control action, just a row in the numeric-parameter table.
+    if (paramId >= 0) {
+      valueEditable = true;
+      valueAction = QuickAction::EditNumericParam;
+    }
     constexpr int kBtnW = 28;
     int gap = ix.ellipsize ? 8 : 6;
     int rx = ix.ctrl.x + ix.inset;
@@ -5397,8 +5405,8 @@ class App {
       if (valueEditable) {
         std::string valueTip = tip.empty()
           ? "Drag value to scrub | click to type an exact number"
-          : tip + " | drag value to scrub, click to type exact";
-        quickButtons_.push_back({valRect, valueAction, valueTip});
+          : tip + " | drag to scrub (shift = fine), click to type exact";
+        quickButtons_.push_back({valRect, valueAction, valueTip, paramId});
       }
       // Every dec/inc row's value cell is scrubbable; the zone is checked
       // before quickButtons_ on mouse-down so a click without drag still
@@ -5406,7 +5414,7 @@ class App {
       if (decAction != incAction) {
         valueScrubZones_.push_back({valRect, decAction, incAction,
                                     valueEditable ? valueAction : QuickAction::ToggleLoop,
-                                    valueEditable});
+                                    valueEditable, paramId});
       }
 
       drawUIPanel(incBtn, pal.tile, pal.deep, pal.mid);
@@ -5798,7 +5806,9 @@ class App {
                      QuickAction::ToneLevelInc, QuickAction::ToggleLoop,
                      false, false,
                      "-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: "
-                     "this feeds a live PA.");
+                     "this feeds a live PA.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::ToneLevel));
     rowY += ix.rowStep;
 
     if (cue.tone.waveform == ToneWaveform::Sine) {
@@ -5807,7 +5817,9 @@ class App {
                        QuickAction::ToneFreqInc, QuickAction::ToggleLoop,
                        false, false,
                        "Steps in third-octaves, because the ear works in "
-                       "ratios. 1kHz is the convention.");
+                       "ratios. 1kHz is the convention.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::ToneFreq));
       rowY += ix.rowStep;
     } else if (cue.tone.waveform == ToneWaveform::Sweep) {
       rowY = inspDrawMessageRow(ix, rowY,
@@ -5869,7 +5881,9 @@ class App {
     inspDrawQuickRow(ix, rowY, "note", QuickAction::FdsNoteDec,
                      fdsNoteName(s.noteHz),
                      QuickAction::FdsNoteInc, QuickAction::ToggleLoop,
-                     false, false, "Pitch, in semitones.");
+                     false, false, "Pitch, in semitones.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::SynthNote));
     rowY += ix.rowStep;
 
     if (s.chip == SynthChip::Nes) {
@@ -5924,13 +5938,17 @@ class App {
                        std::to_string(s.modDepth),
                        QuickAction::FdsDepthInc, QuickAction::ToggleLoop,
                        false, false, "How far the modulator bends the pitch. "
-                       "0-63, the hardware's own gain range.");
+                       "0-63, the hardware's own gain range.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::FdsDepth));
       rowY += ix.rowStep;
       inspDrawQuickRow(ix, rowY, "ratio", QuickAction::FdsRatioDec,
                        fmtFloat(s.modRatio, 3),
                        QuickAction::FdsRatioInc, QuickAction::ToggleLoop,
                        false, false, "Modulator speed as a ratio of the note, "
-                       "so the bend tracks pitch.");
+                       "so the bend tracks pitch.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::FdsRatio));
       rowY += ix.rowStep;
     }
 
@@ -5970,13 +5988,17 @@ class App {
     inspDrawQuickRow(ix, rowY, "attack", QuickAction::SynthAttackDec,
                      fmtFloat(s.attackSeconds, 2) + "s",
                      QuickAction::SynthAttackInc, QuickAction::ToggleLoop,
-                     false, false, "How long the note takes to reach full level.");
+                     false, false, "How long the note takes to reach full level.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::SynthAttack));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "release", QuickAction::SynthReleaseDec,
                      fmtFloat(s.releaseSeconds, 2) + "s",
                      QuickAction::SynthReleaseInc, QuickAction::ToggleLoop,
                      false, false, "How long it takes to fall away after the "
-                     "attack. Only audible when retrigger is set.");
+                     "attack. Only audible when retrigger is set.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::SynthRelease));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "retrigger", QuickAction::FdsRetrigDec,
                      s.retriggerSeconds <= 0.0
@@ -5984,7 +6006,9 @@ class App {
                        : fmtFloat(s.retriggerSeconds, 2) + "s",
                      QuickAction::FdsRetrigInc, QuickAction::ToggleLoop,
                      false, false, "Re-strike the envelope this often. Hold "
-                     "sustains one note, which is what a drone wants.");
+                     "sustains one note, which is what a drone wants.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::FdsRetrig));
     rowY += ix.rowStep;
     return rowY;
   }
@@ -6013,51 +6037,67 @@ class App {
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "speed", QuickAction::VsSpeedDec,
                      fmtFloat(v.speed, 2), QuickAction::VsSpeedInc,
-                     QuickAction::ToggleLoop, false, false, "Master oscillator rate.");
+                     QuickAction::ToggleLoop, false, false, "Master oscillator rate.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsSpeed));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "scale", QuickAction::VsScaleDec,
                      fmtFloat(v.scale, 2), QuickAction::VsScaleInc,
                      QuickAction::ToggleLoop, false, false,
-                     "How many features fit on screen.");
+                     "How many features fit on screen.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsScale));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "feedback", QuickAction::VsFeedbackDec,
                      fmtFloat(v.feedbackAmount, 2), QuickAction::VsFeedbackInc,
                      QuickAction::ToggleLoop, false, false,
                      "Each frame blended into the next. This is the Hypno "
                      "signature -- at 0 it is a pattern generator, above it "
-                     "the picture starts feeding on itself.");
+                     "the picture starts feeding on itself.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsFeedback));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "zoom", QuickAction::VsZoomDec,
                      fmtFloat(v.feedbackZoom, 3), QuickAction::VsZoomInc,
                      QuickAction::ToggleLoop, false, false,
-                     "Above 1 tunnels inward, below 1 blooms outward.");
+                     "Above 1 tunnels inward, below 1 blooms outward.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsZoom));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "audio", QuickAction::VsReactDec,
                      fmtFloat(v.audioReactivity, 2), QuickAction::VsReactInc,
                      QuickAction::ToggleLoop, false, false,
                      "How much playing audio widens and brightens the "
-                     "pattern. 0 free-runs.");
+                     "pattern. 0 free-runs.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsReact));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "detail", QuickAction::VsResDec,
                      std::to_string(v.resolution), QuickAction::VsResInc,
                      QuickAction::ToggleLoop, false, false,
                      "Internal resolution, 1 chunkiest to 5 finest. This is an "
                      "aesthetic control as much as a speed one -- the 8-bit "
-                     "look comes from big pixels.");
+                     "look comes from big pixels.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsResolution));
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "smear", QuickAction::VsSortDec,
                      fmtFloat(v.pixelSort, 2), QuickAction::VsSortInc,
                      QuickAction::ToggleLoop, false, false,
                      "Pixel sort: runs of pixels sorted by brightness within a "
-                     "row, which is what makes datamosh look melted.");
+                     "row, which is what makes datamosh look melted.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsPixelSort));
     rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "glitch", QuickAction::VsGlitchDec,
                      fmtFloat(v.glitch, 2), QuickAction::VsGlitchInc,
                      QuickAction::ToggleLoop, false, false,
                      "Torn scanline bands and RGB separation. In text mode it "
                      "also corrupts CELLS -- whole rows lock to one repeating "
-                     "character, the way a real text screen loses sync.");
+                     "character, the way a real text screen loses sync.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsGlitch));
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "crt", QuickAction::VsCrtDec,
@@ -6065,7 +6105,9 @@ class App {
                      QuickAction::ToggleLoop, false, false,
                      "Scanlines, phosphor bloom and RGB fringing. The bloom is "
                      "the part that matters -- a phosphor spills sideways, "
-                     "which is why a CRT looks like it is emitting light.");
+                     "which is why a CRT looks like it is emitting light.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsCrt));
     rowY += ix.rowStep;
     // Sheet picking sits OUTSIDE the text-mode gate. It was inside, so a
     // sprite sheet could not be found without first toggling an unrelated
@@ -6091,7 +6133,9 @@ class App {
         inspDrawQuickRow(ix, rowY, "spin", QuickAction::VsFreeAngleDec,
                          fmtFloat(v.spriteFreeAngle, 0) + " deg/s",
                          QuickAction::VsFreeAngleInc, QuickAction::ToggleLoop,
-                         false, false, "Rotation speed, degrees per second.");
+                         false, false, "Rotation speed, degrees per second.",
+                     false, QuickAction::ToggleLoop,
+                     static_cast<int>(NumericParam::VsFreeAngle));
         rowY += ix.rowStep;
       }
       inspDrawQuickRow(ix, rowY, "flip", QuickAction::VsFlipCycle,
@@ -7570,6 +7614,7 @@ class App {
     QuickAction incAction = QuickAction::ToggleLoop;
     QuickAction clickAction = QuickAction::ToggleLoop;
     bool hasClickAction = false;
+    int param = -1;              // see QuickButton::param
   };
   std::vector<ValueScrubZone> valueScrubZones_;
   size_t cueSettingsScrubZoneStartIndex_ = 0;  // zones past this obey the settings viewport clip
