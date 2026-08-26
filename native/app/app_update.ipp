@@ -197,11 +197,8 @@
                   // Released inside the dead zone — treat as a click and open
                   // the exact-entry editor, anchored to the value cell.
                   lastInlineEditorAnchorRect_ = activeValueScrub_.rect;
-                  if (activeValueScrub_.clickAction == QuickAction::EditNumericParam) {
-                    editNumericParam(activeValueScrub_.param);
-                  } else {
-                    dispatchQuickAction(activeValueScrub_.clickAction);
-                  }
+                  dispatchQuickAction(activeValueScrub_.clickAction,
+                                      activeValueScrub_.param);
                 }
               }
               drag_.active = false;

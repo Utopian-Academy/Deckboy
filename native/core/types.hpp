@@ -1234,6 +1234,16 @@ enum class QuickAction {
   // it edits comes from QuickButton::param, so a new control needs a table
   // entry rather than a new action.
   EditNumericParam,
+  // Effect stack. All of these carry the effect's INDEX in QuickButton::param,
+  // which is what lets one action serve a list of arbitrary length.
+  EffectAdd,
+  EffectRemove,
+  EffectCycleKind,
+  EffectAmountDec,
+  EffectAmountInc,
+  EffectEditAmount,
+  EffectMoveUp,
+  EffectMoveDown,
   // -- Geometry: crop ------
   CropLDec, CropLInc,
   CropRDec, CropRInc,
@@ -1291,8 +1301,7 @@ enum class QuickAction {
   VsResDec, VsResInc,
   VsSortDec, VsSortInc,
   VsGlitchDec, VsGlitchInc,
-  VsAsciiToggle, VsAsciiGreenToggle,
-  VsAsciiColsDec, VsAsciiColsInc,
+  VsAsciiToggle,   VsAsciiColsDec, VsAsciiColsInc,
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
   SynthKeyboardToggle, SynthMidiToggle,

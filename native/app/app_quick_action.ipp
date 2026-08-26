@@ -18,7 +18,25 @@
 // ============================================================================
 
   // Execute a quick action. Most actions modify the selected cue's properties.
-  void dispatchQuickAction(QuickAction action) {
+  // `param` carries a payload for the actions that need one (the effect stack's
+  // index, the numeric-parameter id). -1 for everything else, which is most.
+  void dispatchQuickAction(QuickAction action, int param = -1) {
+    switch (action) {
+      case QuickAction::EditNumericParam: editNumericParam(param); return;
+      case QuickAction::EffectAdd:        effectStackAdd(); return;
+      case QuickAction::EffectRemove:     effectStackRemove(param); return;
+      case QuickAction::EffectCycleKind:  effectStackCycleKind(param); return;
+      case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
+      case QuickAction::EffectAmountInc:  effectStackNudge(param, +0.05f); return;
+      case QuickAction::EffectEditAmount: effectStackEditAmount(param); return;
+      case QuickAction::EffectMoveUp:     effectStackMove(param, -1); return;
+      case QuickAction::EffectMoveDown:   effectStackMove(param, +1); return;
+      default: break;
+    }
+    dispatchQuickActionPlain(action);
+  }
+
+  void dispatchQuickActionPlain(QuickAction action) {
     if (action == QuickAction::CopyCueSettings) {
       copySelectedCueSettings();
       return;
@@ -436,14 +454,6 @@
           c->videoSynth.ascii = !c->videoSynth.ascii;
           markProjectDirty();
           triggerToast(c->videoSynth.ascii ? "text mode" : "pixels");
-          playUiSound(UiSoundEffect::Toggle);
-        }
-        break;
-      case QuickAction::VsAsciiGreenToggle:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
-          c->videoSynth.asciiGreen = !c->videoSynth.asciiGreen;
-          markProjectDirty();
-          triggerToast(c->videoSynth.asciiGreen ? "terminal green" : "16 colour");
           playUiSound(UiSoundEffect::Toggle);
         }
         break;

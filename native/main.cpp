@@ -6074,6 +6074,75 @@ class App {
     return rowY;
   }
 
+  // Effect stack rows. One row per entry: kind (click to cycle), amount
+  // (dec/inc, drag to scrub, click to type), and the reorder/remove controls.
+  // Each carries its INDEX through QuickButton::param, which is what lets a
+  // list of arbitrary length work without an action per slot.
+  // Which cues can carry an effect stack: anything that produces pixels. An
+  // audio-only cue has nothing for an effect to act on, and offering one there
+  // would be a control that cannot do anything -- this codebase's signature
+  // bug, and not one worth adding on purpose.
+  static bool cueSupportsEffectStack(const Cue& cue) {
+    switch (cue.kind) {
+      case CueKind::Audio:
+        return false;
+      case CueKind::Tone:
+        return cue.tone.visualEnabled;   // a tone cue only has pixels if asked
+      default:
+        return true;
+    }
+  }
+
+  int inspDrawEffectRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    const auto& stack = cue.effects;
+    for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
+      const auto& fx = stack[i];
+      std::ostringstream amount;
+      amount << std::fixed << std::setprecision(2) << fx.amount;
+      inspDrawQuickRow(ix, rowY, deckboy::effects::cueEffectLabel(fx.kind),
+                       QuickAction::EffectAmountDec, amount.str(),
+                       QuickAction::EffectAmountInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Amount | click the name to change the effect | "
+                       "drag to scrub (shift = fine), click to type exact",
+                       true, QuickAction::EffectEditAmount, i);
+      rowY += ix.rowStep;
+      // Second row: what it is, where it sits, and getting rid of it. Split
+      // from the amount row because cramming six controls onto one line is how
+      // the inspector's text placement went wrong before.
+      {
+        const int gap = 4;
+        const int cellW = (ix.ctrlW - ix.inset * 2 - gap * 3) / 4;
+        int cx = ix.ctrl.x + ix.inset;
+        struct Cell { const char* label; QuickAction action; const char* tip; };
+        const Cell cells[4] = {
+          {"kind", QuickAction::EffectCycleKind, "Change which effect this is"},
+          {"up",   QuickAction::EffectMoveUp,    "Earlier in the stack"},
+          {"down", QuickAction::EffectMoveDown,  "Later in the stack"},
+          {"x",    QuickAction::EffectRemove,    "Remove this effect"},
+        };
+        for (const Cell& cell : cells) {
+          SDL_Rect r {cx, rowY, cellW, ix.rowH};
+          drawUIPanel(r, pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, cell.label, pal.fg);
+          quickButtons_.push_back({r, cell.action, cell.tip, i});
+          cx += cellW + gap;
+        }
+        rowY += ix.rowStep;
+      }
+    }
+    if (stack.empty()) {
+      rowY = inspDrawMessageRow(ix, rowY, "no effects", pal.tile, pal.inkSoft);
+    }
+    rowY = inspDrawActionRow(ix, rowY, "+ add effect", QuickAction::EffectAdd,
+                             "Append an effect to this cue's stack. Order is the "
+                             "effect: posterise then invert is not invert then "
+                             "posterise.",
+                             pal.tile, pal.fg);
+    return rowY;
+  }
+
   int inspDrawVideoSynthRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     if (cue.kind != CueKind::VideoSynth) return rowY;
@@ -6290,9 +6359,13 @@ class App {
     int rowY = startY;
     const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
     if (!fileBackedVideo) {
+      // NOT a return any more. Datamosh needs a file to transcode, but the
+      // effect stack works on whatever pixels a cue produces, so bailing out
+      // here hid the whole stack from cameras, synths and stills -- most of the
+      // cues an operator would want it on.
       rowY = inspDrawMessageRow(ix, rowY, "datamosh: file-backed video only",
                                 pal.mid, pal.deep);
-      return rowY;
+      return cueSupportsEffectStack(cue) ? inspDrawEffectRows(ix, rowY, cue) : rowY;
     }
     std::error_code moshEc;
     const bool prepared =
@@ -6318,6 +6391,9 @@ class App {
     if (cue.datamoshEnabled && !prepared) {
       rowY = inspDrawMessageRow(ix, rowY, "transcoding - plays clean until ready",
                                 pal.mid, pal.deep);
+    }
+    if (cueSupportsEffectStack(cue)) {
+      rowY = inspDrawEffectRows(ix, rowY, cue);
     }
     return rowY;
   }
