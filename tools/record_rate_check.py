@@ -85,6 +85,32 @@ def probe(path):
     }
 
 
+def distinct_pictures(path):
+    """How many visually distinct pictures the recording contains, sampled at
+    one frame per second.
+
+    Counting frames is not enough, and this is not hypothetical: the
+    asynchronous readback once failed on EVERY frame while the caller served
+    the previous picture, so recordings were a single still image with a
+    perfect frame count, exact duration and a silent dropped-frame alarm.
+    Every counter said the take was healthy; only the pixels disagreed.
+
+    Downscaled and quantised before hashing, so lossy re-encoding of an
+    unchanging picture does not read as motion -- comparing raw frames finds
+    differences between identical pictures encoded at different GOP positions.
+    """
+    out = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", path,
+         "-vf", "fps=1,scale=32:18,format=gray",
+         "-f", "rawvideo", "-"],
+        capture_output=True).stdout
+    size = 32 * 18
+    seen = set()
+    for i in range(0, len(out) - size + 1, size):
+        seen.add(bytes(b & 0xF0 for b in out[i:i + size]))
+    return len(seen)
+
+
 def run_case(args, standard):
     width, height, rate = parse_standard(standard)
     root = args.root
@@ -152,6 +178,7 @@ def run_case(args, standard):
     owed = int(round(info["fps"] * elapsed))
     return {
         "standard": standard,
+        "distinct": distinct_pictures(files[-1]),
         "file": os.path.basename(files[-1]),
         "raster": "%dx%d" % (info["width"], info["height"]),
         "fps": round(info["fps"], 3),
@@ -209,8 +236,9 @@ def main():
             shutil.rmtree(args.root, ignore_errors=True)
 
     print()
-    print("%-16s %-12s %8s %8s %9s %7s" %
-          ("standard", "raster", "frames", "owed", "shortfall", "alarms"))
+    print("%-16s %-12s %8s %8s %9s %7s %9s" %
+          ("standard", "raster", "frames", "owed", "shortfall", "alarms",
+           "distinct"))
     failures = 0
     for r in results:
         if "error" in r:
@@ -227,11 +255,17 @@ def main():
         #
         # An alarm is always a failure. A shortfall on its own is only a
         # failure when it is too big to be start-up and round-trip.
-        bad = r["alarms"] > 0 or r["shortfall"] > max(8, 0.05 * r["owed"])
+        #   distinct  -- whether the PICTURE moved. A recording can score
+        #                perfectly on every count above and still be one still
+        #                frame repeated; that is not a hypothetical failure
+        #                mode, it is what a broken readback actually produced.
+        frozen = r.get("distinct", 99) < 3
+        bad = frozen or r["alarms"] > 0 or               r["shortfall"] > max(8, 0.05 * r["owed"])
         failures += bad
-        print("%-16s %-12s %8d %8d %9d %7d  %s" %
+        print("%-16s %-12s %8d %8d %9d %7d %9d  %s" %
               (r["standard"], r["raster"], r["frames"], r["owed"],
-               r["shortfall"], r["alarms"], "FAIL" if bad else "ok"))
+               r["shortfall"], r["alarms"], r.get("distinct", -1),
+               "FROZEN" if frozen else ("FAIL" if bad else "ok")))
     return 1 if failures else 0
 
 
