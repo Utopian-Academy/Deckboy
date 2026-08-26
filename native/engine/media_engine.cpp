@@ -872,7 +872,6 @@ void MediaEngine::update() {
   }
 
   std::uint64_t targetFrame = static_cast<std::uint64_t>(std::floor(currentPosition_ * frameRate_));
-
   bool advancedDisplayFrame = false;
   std::uint64_t advancedFrameIndex = static_cast<std::uint64_t>(-1);
   {
