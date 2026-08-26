@@ -1587,6 +1587,19 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
 
   const VideoSynthSettings& vs = cue.videoSynth;
 
+  // DECKBOY_SYNTH_BENCH=1 reports where the frame time goes, averaged over 60
+  // frames. The synth is the one source that can hold the whole render loop
+  // down, so "it feels heavy" needs to become numbers before anything is
+  // changed on its account.
+  static const bool synthBench = [] {
+    const char* e = std::getenv("DECKBOY_SYNTH_BENCH");
+    return e && *e;
+  }();
+  using SynthClock = std::chrono::steady_clock;
+  const auto benchT0 = SynthClock::now();
+  auto benchSmall = benchT0, benchGlitch = benchT0, benchCrt = benchT0,
+       benchScale = benchT0;
+
   // Rate-limited to the DISPLAY. This ran on every update tick, and the update
   // loop has a 240Hz floor -- so on a 60Hz output it was generating (and
   // discarding) up to four frames for every one shown. rebuildPatternFrame has
@@ -1828,6 +1841,7 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       for (std::thread& t : pool) t.join();
     }
   }
+  if (synthBench) benchSmall = SynthClock::now();
 
   // ---- Glitch stack --------------------------------------------------------
   // Applied to the low-resolution buffer, in a fixed order. Each is skipped
@@ -1963,6 +1977,94 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   frame.pixels.assign(static_cast<std::size_t>(outW) * outH * 4, 0);
   for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
 
+  if (synthBench) benchGlitch = SynthClock::now();
+
+  // ---- CRT ------------------------------------------------------------
+  // Runs on the SMALL buffer, like every other stage.
+  //
+  // It used to run after the upscale, on the full output raster: a 33MB memcpy
+  // of the frame plus a windowed bloom in doubles for every one of 8.3 million
+  // pixels. MEASURED at 4K it cost 23ms of a 35ms frame -- two thirds of the
+  // synth's entire budget, and the reason a 4K video synth could not hold 30fps.
+  //
+  // Nothing about the effect needed that resolution. Every quantity in it was
+  // already expressed in BLOCKS, because a scanline is one source pixel tall
+  // and the bloom radius spans about one source pixel: at output scale those
+  // were being reconstructed by multiplying back up by the block size. Done
+  // here they are simply 1, the picture is 100x smaller, and the nearest-
+  // neighbour upscale carries the result out unchanged -- the blocks it
+  // produces are exactly the blocks the effect was drawn in terms of.
+  //
+  // The one thing that genuinely lived at output scale was the gun
+  // misalignment, a third of a block. At small scale that is a third of a
+  // pixel, so it becomes a weighted blend with the neighbour instead of a
+  // sample from it -- which is what a third-of-a-pixel offset means anyway,
+  // and it now applies evenly rather than only near block edges.
+  const double crtAmt = std::clamp(vs.crt, 0.0, 1.0);
+  if (crtAmt > 0.01) {
+    const int rowBytes = W * 4;
+    const int radius = std::max(1, static_cast<int>(std::lround(0.4 + crtAmt * 0.9)));
+    if (vsynthCrtSrc_.size() != small.size()) {
+      vsynthCrtSrc_.resize(small.size());
+    }
+    std::memcpy(vsynthCrtSrc_.data(), small.data(), small.size());
+    const std::vector<std::uint8_t>& src = vsynthCrtSrc_;
+    // A third of a pixel of separation, applied as a blend.
+    const double fringeMix = crtAmt * 0.35 / 3.0;
+
+    auto crtRows = [&](int y0, int y1) {
+      int sum[3] = {0, 0, 0};
+      for (int y = y0; y < y1; ++y) {
+        const std::uint8_t* s = src.data() + static_cast<std::size_t>(y) * rowBytes;
+        std::uint8_t* dst = small.data() + static_cast<std::size_t>(y) * rowBytes;
+
+        // One dark line per source row: after the upscale that is one dark
+        // block row, which is what a scanline looks like.
+        const double lineGain = (y & 1) ? (1.0 - crtAmt * 0.5) : 1.0;
+
+        sum[0] = sum[1] = sum[2] = 0;
+        for (int k = -radius; k <= radius; ++k) {
+          const int sx = std::clamp(k, 0, W - 1);
+          const std::size_t o = static_cast<std::size_t>(sx) * 4;
+          sum[0] += s[o + 0]; sum[1] += s[o + 1]; sum[2] += s[o + 2];
+        }
+        const int window = radius * 2 + 1;
+
+        for (int x = 0; x < W; ++x) {
+          const std::size_t o = static_cast<std::size_t>(x) * 4;
+          // Bloom ADDS, so edges stay sharp and only the light spills.
+          const double bloom = crtAmt * 0.9;
+          double ob = s[o + 0] + (sum[0] / static_cast<double>(window)) * bloom;
+          double og = s[o + 1] + (sum[1] / static_cast<double>(window)) * bloom;
+          double orr = s[o + 2] + (sum[2] / static_cast<double>(window)) * bloom;
+
+          const int xr = std::min(x + 1, W - 1);
+          const int xb = std::max(x - 1, 0);
+          orr = orr * (1.0 - fringeMix) +
+                s[static_cast<std::size_t>(xr) * 4 + 2] * fringeMix;
+          ob = ob * (1.0 - fringeMix) +
+               s[static_cast<std::size_t>(xb) * 4 + 0] * fringeMix;
+
+          dst[o + 0] = static_cast<std::uint8_t>(std::clamp(ob * lineGain, 0.0, 255.0));
+          dst[o + 1] = static_cast<std::uint8_t>(std::clamp(og * lineGain, 0.0, 255.0));
+          dst[o + 2] = static_cast<std::uint8_t>(std::clamp(orr * lineGain, 0.0, 255.0));
+
+          const int addX = std::min(x + radius + 1, W - 1);
+          const int dropX = std::max(x - radius, 0);
+          const std::size_t oa = static_cast<std::size_t>(addX) * 4;
+          const std::size_t od = static_cast<std::size_t>(dropX) * 4;
+          sum[0] += s[oa + 0] - s[od + 0];
+          sum[1] += s[oa + 1] - s[od + 1];
+          sum[2] += s[oa + 2] - s[od + 2];
+        }
+      }
+    };
+    // Small enough now that spawning a thread pool would cost more than the
+    // work; the whole pass is a fraction of a millisecond.
+    crtRows(0, H);
+  }
+
+  if (synthBench) benchCrt = SynthClock::now();
   if (vs.ascii) {
     // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
     // edges stay crisp -- rendering them small and scaling up would blur the
@@ -2328,118 +2430,34 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     }
   }
 
-  // ---- CRT ------------------------------------------------------------
-  // Rewritten: the first version was invisible AND expensive, which is the
-  // worst combination. Two measured reasons.
-  //
-  // The bloom radius was in OUTPUT pixels -- 2 to 4 of them -- while at the
-  // default resolution each source pixel occupies an 8-pixel block. So the
-  // glow reached a quarter of one block and never crossed a visible edge. The
-  // radius is now expressed relative to the BLOCK size, so it always spans
-  // real picture features whatever the detail setting.
-  //
-  // The scanlines darkened alternate OUTPUT rows: one pixel in 1080, which no
-  // display shows and no eye resolves. They are now the height of a source
-  // pixel, which is what a scanline actually is.
-  //
-  // And it cost 18 million single-threaded operations a frame. The blur is now
-  // a RUNNING SUM -- each step adds one sample and drops one, so the cost no
-  // longer depends on the radius at all -- and it is threaded by row.
-  const double crtAmt = std::clamp(vs.crt, 0.0, 1.0);
-  if (crtAmt > 0.01) {
-    const int rowBytes = outW * 4;
-    const int blockW = std::max(1, outW / W);
-    const int blockH = std::max(1, outH / H);
-    // Radius spans roughly one block at full amount, so the glow always
-    // crosses an edge and is visible at any detail setting.
-    const int radius = std::max(2, static_cast<int>(blockW * (0.4 + crtAmt * 0.9)));
-    // Reused. This allocated and copied the entire output raster -- about
-    // 8MB at 1080p -- every single frame.
-    if (vsynthCrtSrc_.size() != frame.pixels.size()) {
-      vsynthCrtSrc_.resize(frame.pixels.size());
-    }
-    std::memcpy(vsynthCrtSrc_.data(), frame.pixels.data(), frame.pixels.size());
-    const std::vector<std::uint8_t>& src = vsynthCrtSrc_;
-
-    auto crtRows = [&](int y0, int y1) {
-      std::vector<int> sum(3, 0);
-      for (int y = y0; y < y1; ++y) {
-        const std::uint8_t* s = src.data() + static_cast<std::size_t>(y) * rowBytes;
-        std::uint8_t* dst = frame.pixels.data() + static_cast<std::size_t>(y) * rowBytes;
-
-        // Scanline gain at SOURCE pixel height: one dark line per block row.
-        const bool darkLine = ((y / blockH) & 1) != 0;
-        const double lineGain = darkLine ? (1.0 - crtAmt * 0.5) : 1.0;
-
-        // Prime the running sum for x = 0.
-        sum[0] = sum[1] = sum[2] = 0;
-        for (int k = -radius; k <= radius; ++k) {
-          const int sx = std::clamp(k, 0, outW - 1);
-          const std::size_t o = static_cast<std::size_t>(sx) * 4;
-          sum[0] += s[o + 0]; sum[1] += s[o + 1]; sum[2] += s[o + 2];
-        }
-        const int window = radius * 2 + 1;
-
-        for (int x = 0; x < outW; ++x) {
-          const std::size_t o = static_cast<std::size_t>(x) * 4;
-          // Bloom ADDS, so edges stay sharp and only the light spills.
-          // Replacing would just be a blur, which is not what a phosphor does.
-          const double bloom = crtAmt * 0.9;
-          double ob = s[o + 0] + (sum[0] / static_cast<double>(window)) * bloom;
-          double og = s[o + 1] + (sum[1] / static_cast<double>(window)) * bloom;
-          double orr = s[o + 2] + (sum[2] / static_cast<double>(window)) * bloom;
-
-          // Gun misalignment, also at block scale so it is visible.
-          const int fringe = std::max(1, blockW / 3);
-          const int xr = std::clamp(x + fringe, 0, outW - 1);
-          const int xb = std::clamp(x - fringe, 0, outW - 1);
-          orr = orr * (1.0 - crtAmt * 0.35) +
-                s[static_cast<std::size_t>(xr) * 4 + 2] * crtAmt * 0.35;
-          ob = ob * (1.0 - crtAmt * 0.35) +
-               s[static_cast<std::size_t>(xb) * 4 + 0] * crtAmt * 0.35;
-
-          dst[o + 0] = static_cast<std::uint8_t>(std::clamp(ob * lineGain, 0.0, 255.0));
-          dst[o + 1] = static_cast<std::uint8_t>(std::clamp(og * lineGain, 0.0, 255.0));
-          dst[o + 2] = static_cast<std::uint8_t>(std::clamp(orr * lineGain, 0.0, 255.0));
-
-          // Slide the window: add the sample entering, drop the one leaving.
-          const int addX = std::clamp(x + radius + 1, 0, outW - 1);
-          const int dropX = std::clamp(x - radius, 0, outW - 1);
-          const std::size_t oa = static_cast<std::size_t>(addX) * 4;
-          const std::size_t od = static_cast<std::size_t>(dropX) * 4;
-          sum[0] += s[oa + 0] - s[od + 0];
-          sum[1] += s[oa + 1] - s[od + 1];
-          sum[2] += s[oa + 2] - s[od + 2];
-        }
-      }
-    };
-
-    unsigned hw = std::thread::hardware_concurrency();
-    if (hw == 0) hw = 1;
-    const int workers = std::max(1, std::min<int>(static_cast<int>(hw),
-                                                  std::max(1, outH / 32)));
-    if (workers <= 1) {
-      crtRows(0, outH);
-    } else {
-      std::vector<std::thread> pool;
-      pool.reserve(static_cast<std::size_t>(workers - 1));
-      const int span = (outH + workers - 1) / workers;
-      for (int w = 1; w < workers; ++w) {
-        const int b = std::min(outH, w * span);
-        const int e = std::min(outH, b + span);
-        if (b >= e) break;
-        pool.emplace_back(crtRows, b, e);
-      }
-      crtRows(0, std::min(outH, span));
-      for (std::thread& t : pool) t.join();
-    }
-  }
+  if (synthBench) benchScale = SynthClock::now();
 
   // NOW the buffers can trade places: everything that needed to read this
   // frame has read it. Next frame renders into what is currently `prev` and
   // reads what is currently `small`, so neither is ever copied.
   if (feedbackOn) {
     vsynthSmall_.swap(vsynthPrev_);
+  }
+
+  if (synthBench) {
+    const auto end = SynthClock::now();
+    auto ms = [](auto a, auto b) {
+      return std::chrono::duration<double, std::milli>(b - a).count();
+    };
+    static int n = 0;
+    static double sSmall = 0, sGlitch = 0, sScale = 0, sCrt = 0, sTotal = 0;
+    sSmall  += ms(benchT0, benchSmall);
+    sGlitch += ms(benchSmall, benchGlitch);
+    sCrt    += ms(benchGlitch, benchCrt);
+    sScale  += ms(benchCrt, benchScale);
+    sTotal  += ms(benchT0, end);
+    if (++n == 20) {
+      std::cerr << "synth-bench small=" << (sSmall / n) << " glitch="
+                << (sGlitch / n) << " upscale=" << (sScale / n) << " crt="
+                << (sCrt / n) << " total=" << (sTotal / n) << "ms  internal="
+                << W << "x" << H << " out=" << outW << "x" << outH << std::endl;
+      n = 0; sSmall = sGlitch = sScale = sCrt = sTotal = 0;
+    }
   }
 
   displayFrame_ = std::move(frame);
