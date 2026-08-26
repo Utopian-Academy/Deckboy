@@ -642,11 +642,7 @@
       }
       if (pointInRect(x, y, qb.rect)) {
         lastInlineEditorAnchorRect_ = qb.rect;
-        if (qb.action == QuickAction::EditNumericParam) {
-          editNumericParam(qb.param);
-        } else {
-          dispatchQuickAction(qb.action);
-        }
+        dispatchQuickAction(qb.action, qb.param);
         return;
       }
     }
@@ -715,7 +711,7 @@
                                              : activeValueScrub_.decAction;
           int count = std::min(std::abs(steps), 40);  // sanity cap per motion event
           for (int s = 0; s < count; ++s) {
-            dispatchQuickAction(stepAction);
+            dispatchQuickAction(stepAction, activeValueScrub_.param);
           }
         }
       }

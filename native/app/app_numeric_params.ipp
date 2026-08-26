@@ -247,3 +247,108 @@ void editNumericParam(int rawId) {
       markProjectDirty();
     });
 }
+
+// ---------------------------------------------------------------------------
+// Effect stack editing. Every one of these takes the effect's INDEX, which the
+// row supplied through QuickButton::param -- that is what lets eight actions
+// serve a list of any length rather than needing eight per slot.
+// ---------------------------------------------------------------------------
+
+std::vector<deckboy::effects::CueEffect>* selectedEffectStack() {
+  Cue* cue = selectedCueMutable();
+  return cue ? &cue->effects : nullptr;
+}
+
+void effectStackAdd() {
+  auto* stack = selectedEffectStack();
+  if (!stack) {
+    return;
+  }
+  if (stack->size() >= 12) {
+    // A cap, because the stack runs per pixel per frame and an operator who
+    // stacks thirty of them at 4K will blame the app rather than the stack.
+    triggerToast("effect stack full (12)");
+    return;
+  }
+  deckboy::effects::CueEffect fx;
+  fx.kind = deckboy::effects::CueEffectKind::Invert;
+  fx.amount = 1.0f;
+  fx.paramA = 0.5f;
+  stack->push_back(fx);
+  triggerToast(std::string("effect added: ") + deckboy::effects::cueEffectLabel(fx.kind));
+  markProjectDirty();
+}
+
+bool effectIndexValid(const std::vector<deckboy::effects::CueEffect>* stack, int index) {
+  return stack && index >= 0 && index < static_cast<int>(stack->size());
+}
+
+void effectStackRemove(int index) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  const std::string gone = deckboy::effects::cueEffectLabel((*stack)[index].kind);
+  stack->erase(stack->begin() + index);
+  triggerToast("effect removed: " + gone);
+  markProjectDirty();
+}
+
+void effectStackCycleKind(int index) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  int next = static_cast<int>((*stack)[index].kind) + 1;
+  if (next >= static_cast<int>(deckboy::effects::CueEffectKind::Count)) {
+    next = 1;   // skip None: an entry in the list is never "no effect"
+  }
+  (*stack)[index].kind = static_cast<deckboy::effects::CueEffectKind>(next);
+  triggerToast(deckboy::effects::cueEffectLabel((*stack)[index].kind));
+  markProjectDirty();
+}
+
+void effectStackNudge(int index, float delta) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  auto& fx = (*stack)[index];
+  fx.amount = std::clamp(fx.amount + delta, 0.0f, 1.0f);
+  markProjectDirty();
+}
+
+void effectStackMove(int index, int direction) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  const int target = index + direction;
+  if (target < 0 || target >= static_cast<int>(stack->size())) {
+    return;
+  }
+  // ORDER IS THE EFFECT. Posterise then invert is not invert then posterise,
+  // so moving an entry is a real edit and not a cosmetic reshuffle.
+  std::swap((*stack)[index], (*stack)[target]);
+  markProjectDirty();
+}
+
+void effectStackEditAmount(int index) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  std::ostringstream current;
+  current << std::fixed << std::setprecision(2) << (*stack)[index].amount;
+  openInlineNumericExpressionEditor(
+    "cue.effect.amount", deckboy::effects::cueEffectLabel((*stack)[index].kind),
+    "Amount 0-1 (supports + - * / and ())", current.str(),
+    [this, index](double value) {
+      auto* live = selectedEffectStack();
+      if (!effectIndexValid(live, index)) {
+        return;   // the selection moved while the editor was open
+      }
+      (*live)[index].amount = std::clamp(static_cast<float>(value), 0.0f, 1.0f);
+      markProjectDirty();
+    });
+}
