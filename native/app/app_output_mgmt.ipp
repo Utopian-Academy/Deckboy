@@ -2358,7 +2358,7 @@
       writer->failed = true;
       writer->failureReason = reason ? reason : "stream write failed";
       writer->stop = true;
-      writer->hasPendingPacket = false;
+      writer->queue.clear();
       return false;
     }
     return true;
@@ -2412,7 +2412,7 @@
       writer->failed = true;
       writer->failureReason = reason ? reason : "stream write failed";
       writer->stop = true;
-      writer->hasPendingPacket = false;
+      writer->queue.clear();
       return false;
     }
     return true;
@@ -2441,13 +2441,13 @@
         {
           std::unique_lock<std::mutex> lock(writer->mutex);
           writer->cv.wait(lock, [&]() {
-            return writer->stop || writer->hasPendingPacket;
+            return writer->stop || !writer->queue.empty();
           });
           if (writer->stop) {
             break;
           }
-          packet = std::move(writer->pendingPacket);
-          writer->hasPendingPacket = false;
+          packet = std::move(writer->queue.front());
+          writer->queue.pop_front();
         }
 
         // Audio is handed to its own thread (see OutputStreamWriterState): the
@@ -2575,7 +2575,7 @@
       {
         std::lock_guard<std::mutex> lock(writer->mutex);
         writer->stop = true;
-        writer->hasPendingPacket = false;
+        writer->queue.clear();
       }
       writer->cv.notify_all();
       writer->audioCv.notify_all();
@@ -2664,6 +2664,8 @@
     // Per TAKE, not per session: take two must start its own frame clock.
     runtime.recordPacerStartMs = 0;
     runtime.recordFramesWritten = 0;
+    runtime.recordFreshFrames = 0;
+    runtime.lastFreshCaptureMs = 0;
     // Per TAKE, not per segment: a roll is the same take continuing.
     if (!rollingSegment) {
       runtime.recordTakeFrames = 0;
@@ -3757,11 +3759,17 @@
       stopOutputStreamRuntime(*runtime, /*rollingSegment=*/true);
       return;
     }
+    // Captured this tick, or the same picture the pacer is repeating?
+    const bool frameIsFresh =
+      runtime->lastStreamCaptureSentAtMs != frame->capturedAtMs;
+    int pacerRepeats = 1;
     if (toFileSink) {
       const Uint64 nowMs = SDL_GetTicks();
       if (runtime->recordPacerStartMs == 0) {
         runtime->recordPacerStartMs = nowMs;
         runtime->recordFramesWritten = 0;
+        runtime->recordFreshFrames = 0;
+        runtime->lastFreshCaptureMs = nowMs;
       }
       const double rate = std::max(1.0, recordingFps(fpsHint));
       const std::uint64_t owed = static_cast<std::uint64_t>(
@@ -3795,6 +3803,34 @@
       const std::uint64_t pacerAllowance = std::max<std::uint64_t>(
         static_cast<std::uint64_t>(deckboy::gpu::kAsyncReadbackDepth) + 2u,
         static_cast<std::uint64_t>(rate / 4.0));
+      // Two different faults, and they need two different tests.
+      //
+      // Counting FRESH frames against the recording rate looks right and is
+      // not: a 30fps source recorded at 60 is half repeats BY DEFINITION, so
+      // that test fires on a perfectly good take. It was fired on every
+      // standard above the source rate before this was noticed.
+      //
+      // What actually matters is whether the picture has gone STALE -- the
+      // capture stopped producing anything new -- because the pacer will
+      // happily paper over that with repeats and hand back a duration-correct
+      // file of one still image, reporting no fault at all.
+      if (runtime->lastFreshCaptureMs != 0 &&
+          nowMs - runtime->lastFreshCaptureMs > 500) {
+        if (nowMs - runtime->lastDropWarnMs >= 1000) {
+          runtime->lastDropWarnMs = nowMs;
+          const std::string msg =
+            "RECORDING PICTURE STALLED - no new frame for " +
+            std::to_string((nowMs - runtime->lastFreshCaptureMs) / 1000) + "s";
+          setOutputHealthState(outputIndex, OutputHealthState::Error, msg);
+          triggerToast(msg);
+          showLog("RECORD STALL", msg);
+          std::cerr << "record-drop: " << msg << " (output " << outputIndex
+                    << ")" << std::endl;
+        }
+      }
+      // And the original: are we DELIVERING what the timeline owes? With the
+      // catch-up in place this should not happen, which is exactly why it is
+      // worth keeping -- if it fires, the writer is not draining.
       if (owed > runtime->recordFramesWritten + pacerAllowance) {
         const std::uint64_t behind = owed - runtime->recordFramesWritten;
         if (nowMs - runtime->lastDropWarnMs >= 1000) {
@@ -3818,6 +3854,22 @@
       if (runtime->recordFramesWritten >= owed) {
         return;   // ahead of schedule; nothing is due yet
       }
+      // CATCH UP, within reason. One frame per render tick can never close a
+      // deficit -- if the loop runs at 9fps and the recording wants 30, the
+      // file comes out a third of its length however long the take is.
+      //
+      // Two earlier attempts at this wedged the encoder, and it is worth being
+      // clear why they cannot now: back then every packet COPIED the raster
+      // (33MB at 4K) and the writer had a single mailbox slot, so a burst
+      // meant megabytes of copying to produce one written frame. Packets now
+      // share one immutable buffer and the writer has a real queue, so a
+      // repeat costs a pointer.
+      //
+      // Capped at four a tick and bounded by the queue anyway: a recorder that
+      // is behind should recover over a second, not empty its deficit into the
+      // encoder in one go and lurch.
+      const std::uint64_t behindNow = owed - runtime->recordFramesWritten;
+      pacerRepeats = static_cast<int>(std::min<std::uint64_t>(behindNow, 4u));
 
     } else if (runtime->lastStreamCaptureSentAtMs == frame->capturedAtMs) {
       return;
@@ -3891,17 +3943,37 @@
       }
       return;
     }
+    int accepted = 0;
     {
       std::lock_guard<std::mutex> lock(writer->mutex);
-      writer->pendingPacket = std::move(packet);
-      writer->hasPendingPacket = true;
-      writer->packetsQueued += 1;
+      for (int repeat = 0; repeat < pacerRepeats; ++repeat) {
+        if (writer->queue.size() >= OutputStreamWriterState::kMaxQueuedPackets) {
+          // Genuinely lost: the encoder is not draining. Counted so the pacer's
+          // accounting stays honest -- it used to increment regardless, so a
+          // file that ran short still reported every frame delivered.
+          writer->packetsDropped += 1;
+          break;
+        }
+        // The last repeat may move; the others share the same buffer, so each
+        // costs a pointer rather than a raster.
+        writer->queue.push_back(repeat + 1 < pacerRepeats ? packet
+                                                          : std::move(packet));
+        writer->packetsQueued += 1;
+        ++accepted;
+      }
+    }
+    if (accepted == 0) {
+      return;
     }
     writer->cv.notify_one();
     runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
     if (toFileSink) {
-      runtime->recordFramesWritten += 1;
-      runtime->recordTakeFrames += 1;
+      runtime->recordFramesWritten += static_cast<std::uint64_t>(accepted);
+      runtime->recordTakeFrames += static_cast<std::uint64_t>(accepted);
+      if (frameIsFresh) {
+        runtime->recordFreshFrames += 1;
+        runtime->lastFreshCaptureMs = SDL_GetTicks();
+      }
     }
   }
 
