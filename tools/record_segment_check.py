@@ -31,6 +31,9 @@ import sys
 import tempfile
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import deckboy_testroot  # noqa: E402
+
 
 def send(port, command, timeout=5.0):
     with socket.create_connection(("127.0.0.1", port), timeout=timeout) as sock:
@@ -106,6 +109,7 @@ def main():
 
     root = tempfile.mkdtemp(prefix="deckboy-segcheck-")
     os.makedirs(os.path.join(root, "data"), exist_ok=True)
+    deckboy_testroot.populate(root)
     env = dict(os.environ)
     env["DECKBOY_ROOT"] = root
     env["DECKBOY_COMPANION_PORT"] = str(args.port)
