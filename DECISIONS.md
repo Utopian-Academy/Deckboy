@@ -110,11 +110,16 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D82 | The D3D11 async readback stays Windows-only; the fallback is MEASURED, not assumed | **CLAUDE** | 2026-08-24. `DECKBOY_EGRESS_READBACK=sync` forces the portable path on a Windows desk: frame-exact at 1080p50, 1080p59.94 and 2160p25, behind only at 4K above 30p where the alarm fires. A portable ping-pong readback was tried and measured no better (311 vs 326 frames) -- SDL maps and copies in one call. Closing the 4K gap needs GL PBOs or a Metal blit, which is real work and not to be shipped untested to a field-test Mac. |
 | D83 | 4K up to at least 60 must work on ALL THREE platforms | **OWNER** | 2026-08-24: "4k up to at least 60 is important!", in answer to my shipping 0.85.0 with macOS/Linux frame-exact only to 2160p30. Not a nice-to-have; it set the next piece of work. |
 | D84 | Async readback via SDL_GPU, and output windows use the "gpu" renderer on macOS/Linux | **CLAUDE** | 2026-08-24. SDL3.4 exposes no route to the MTLTexture behind an SDL texture, so a Metal-specific readback cannot be written; SDL_GPU's `SDL_DownloadFromGPUTexture` is genuinely asynchronous and covers Metal, Vulkan and D3D12 in ONE implementation. Windows stays on D3D11 -- faster there, and the only backend where zero-copy decode works. `DECKBOY_OUTPUT_RENDERER` overrides either way. VERIFIED on Windows by forcing the gpu renderer: readback 3.2ms against 19ms synchronous, 1080p60 1199/1201, 2160p30 599/601, and the recorded 4K picture is correct. Still wants a look on the field-test Mac. |
+| D85 | Per-cue effects suite; do NOT build on the existing glitch stack | **OWNER** | 2026-08-26: "i would still try to think up some unique effects. building upon what we have seems wrong for that." Survey confirms the field is recycling four techniques from 2010-2012, so copying it produces derivative work by construction. Plan in docs/EFFECTS_PLAN.md; the new material is in adjacent fields (seam carving, optical flow, slit-scan) and in what Deckboy uniquely is (transport, running order, in-process decoder). |
 
 ---
 
 ## Open questions awaiting the owner
 
 - Destructive vs non-destructive prep output naming (`<stem>_mosh.mp4`).
+- Effects: where video-cue effects run. The synth's stages run on a small
+  internal raster because the CRT stage cost 23ms at 4K when it did not; the
+  existing `applyCueVisualEffectsToPixels` runs at full raster. Small working
+  raster for video effects too, or full raster with a budget?
 
 _Resolved and removed 2026-08-21: prep-on-toggle (yes), H.264 vs MPEG-4 for the mosh preset (MPEG-4, D71), and the v0.83.2 release question (v0.84.0 has since shipped)._
