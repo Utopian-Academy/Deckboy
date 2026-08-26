@@ -642,7 +642,11 @@
       }
       if (pointInRect(x, y, qb.rect)) {
         lastInlineEditorAnchorRect_ = qb.rect;
-        dispatchQuickAction(qb.action);
+        if (qb.action == QuickAction::EditNumericParam) {
+          editNumericParam(qb.param);
+        } else {
+          dispatchQuickAction(qb.action);
+        }
         return;
       }
     }
@@ -692,7 +696,12 @@
     }
     if (valueScrubPending_ || valueScrubEngaged_) {
       constexpr int kScrubEngagePx = 5;   // dead zone so a click stays a click
-      constexpr int kScrubPxPerStep = 4;  // mouse px per dec/inc step
+      // FINE ADJUST: hold shift and the same drag moves the value a quarter as
+      // far. The step itself belongs to the dec/inc action and is the same
+      // whichever way the value is changed, so the only honest way to make a
+      // control finer is to demand more travel per step.
+      const bool fineScrub = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+      const int kScrubPxPerStep = fineScrub ? 16 : 4;  // mouse px per dec/inc step
       if (!valueScrubEngaged_ && std::abs(x - valueScrubStartX_) >= kScrubEngagePx) {
         valueScrubEngaged_ = true;
         valueScrubPending_ = false;

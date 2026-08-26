@@ -1226,6 +1226,10 @@ enum class QuickAction {
   // -- Geometry: rotation --
   RotDec, RotInc,
   EditRotation,
+  // Generic "type an exact value" for any numeric inspector row. Which value
+  // it edits comes from QuickButton::param, so a new control needs a table
+  // entry rather than a new action.
+  EditNumericParam,
   // -- Geometry: crop ------
   CropLDec, CropLInc,
   CropRDec, CropRInc,
@@ -1366,6 +1370,11 @@ struct QuickButton {
   SDL_Rect rect;          // screen-space bounding box (set during layout)
   QuickAction action;     // which action to fire on click
   std::string tip;        // tooltip text shown on hover
+  // Which numeric parameter this button edits, for the generic
+  // EditNumericParam action. -1 for everything else. Without a payload every
+  // editable value needed its own QuickAction, which is why the synth and
+  // timer values were left with no way to type an exact number.
+  int param = -1;
 };
 
 // ---------------------------------------------------------------------------
