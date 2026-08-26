@@ -78,6 +78,7 @@
 #include "engine/media_engine.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
+#include "engine/motion_field.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/dynamic_library.hpp"
 #include "platform/ltc_api.hpp"
@@ -8442,6 +8443,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
+  {"--motion-probe <file> [frames]", "read the clip's motion vectors, report coverage"},
   {"--ltc-generate <out.wav> [tc] [fps] [seconds]", "write a SMPTE LTC timecode WAV"},
 };
 
@@ -8457,6 +8459,7 @@ constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
+  "--motion-probe",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -8747,6 +8750,66 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
   }
+  if (mode == "--motion-probe") {
+    if (ops.empty()) return missing("<file> [frames]");
+    int wanted = 60;
+    if (ops.size() > 1) {
+      wanted = std::max(1, std::atoi(ops[1].c_str()));
+    }
+    void* src = deckboy::motion::openMotionSource(ops[0]);
+    if (!src) {
+      std::cerr << "motion-probe: could not open " << ops[0]
+                << " (built without in-process decode?)\n";
+      return 1;
+    }
+    deckboy::motion::MotionField field;
+    int frames = 0, withVectors = 0, emptyFrames = 0;
+    double sumMagnitude = 0.0, peakMagnitude = 0.0;
+    std::size_t movingCells = 0, totalCells = 0;
+    const Uint64 startMs = SDL_GetTicks();
+    while (frames < wanted && deckboy::motion::readMotionField(src, field)) {
+      ++frames;
+      if (field.empty()) {
+        ++emptyFrames;
+        continue;
+      }
+      ++withVectors;
+      totalCells += field.dx.size();
+      for (std::size_t i = 0; i < field.dx.size(); ++i) {
+        const double m = std::sqrt(static_cast<double>(field.dx[i]) * field.dx[i] +
+                                   static_cast<double>(field.dy[i]) * field.dy[i]);
+        if (m > 0.01) ++movingCells;
+        sumMagnitude += m;
+        peakMagnitude = std::max(peakMagnitude, m);
+      }
+    }
+    const Uint64 elapsedMs = SDL_GetTicks() - startMs;
+    deckboy::motion::closeMotionSource(src);
+
+    std::cout << "motion-probe " << ops[0] << "\n";
+    std::cout << "  frames read      " << frames << "\n";
+    std::cout << "  with vectors     " << withVectors << "\n";
+    std::cout << "  empty (I-frames) " << emptyFrames << "\n";
+    if (withVectors > 0 && totalCells > 0) {
+      std::cout << "  grid             " << field.cols << "x" << field.rows
+                << " cells over " << field.sourceWidth << "x" << field.sourceHeight << "\n";
+      std::cout << "  cells in motion  "
+                << (100.0 * static_cast<double>(movingCells) /
+                    static_cast<double>(totalCells)) << "%\n";
+      std::cout << "  mean magnitude   "
+                << (sumMagnitude / static_cast<double>(totalCells)) << " px\n";
+      std::cout << "  peak magnitude   " << peakMagnitude << " px\n";
+    }
+    std::cout << "  decode time      " << elapsedMs << "ms for " << frames
+              << " frames (" << (frames > 0 ? (1000.0 * frames / std::max<Uint64>(1, elapsedMs)) : 0.0)
+              << " fps)\n";
+    // The question this probe exists to answer.
+    const bool usable = withVectors > 0 && movingCells > 0;
+    std::cout << "  VERDICT          "
+              << (usable ? "vectors usable" : "NO USABLE VECTORS") << "\n";
+    return usable ? 0 : 1;
+  }
+
   if (mode == "--decode-bench") {
     if (ops.empty()) return missing("<file> [seconds] [cli]");
     double benchSeconds = 10.0;

@@ -396,6 +396,9 @@ add_executable(deckboy-native
   # living in libav_decoder.cpp meant a build with in-process decode off
   # did not have it at all.
   native/engine/gpu_readback.cpp
+  # Always compiled; the libav half is guarded inside, so a build without
+  # in-process decode gets stubs rather than a link error.
+  native/engine/motion_field.cpp
   # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
   native/platform/ptp_client.cpp
   # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
