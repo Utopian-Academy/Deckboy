@@ -160,6 +160,7 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
   if (rb->width != width || rb->height != height) {
     return false;   // caller recreates on a raster change
   }
+
   SDL_GPUTexture* tex = textureGpuHandle(source);
   if (!tex) {
     return false;
@@ -346,8 +347,19 @@ bool d3d11ReadbackFrame(void* handle, SDL_Texture* source,
   if (!src) {
     return false;
   }
-  // Issue this frame's copy; it completes on the GPU's own schedule.
+  // Issue this frame's copy, then FLUSH.
+  //
+  // Without the flush this never worked at all. D3D11 defers submission: the
+  // CopyResource sits in the immediate context's command buffer until
+  // something else forces it out, so the staging texture is still "in use" when
+  // the map comes round and D3D11_MAP_FLAG_DO_NOT_WAIT dutifully refuses.
+  // MEASURED before this line existed: 240 calls, 0 successes, 237 map
+  // failures -- the readback returned "nothing ready" every single frame, the
+  // caller served the held picture every single frame, and the recording was
+  // one still image with a perfect frame count. Every frame-count check passed
+  // while the picture never moved, which is exactly how it went unnoticed.
   rb->context->CopyResource(rb->ring[rb->cursor], src);
+  rb->context->Flush();
   rb->cursor = (rb->cursor + 1) % kStagingRingSize;
   if (rb->primed < kStagingRingSize) {
     rb->primed += 1;
