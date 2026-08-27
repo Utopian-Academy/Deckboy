@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include "../engine/motion_field.hpp"
+
 namespace deckboy::effects {
 
 enum class CueEffectKind : int {
@@ -46,6 +48,7 @@ enum class CueEffectKind : int {
   Scanlines,
   ChannelOffset,
   TemporalDither,
+  MotionPuppet,
   Count,
 };
 
@@ -60,6 +63,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Scanlines:      return "scanlines";
     case CueEffectKind::ChannelOffset:  return "rgb split";
     case CueEffectKind::TemporalDither: return "temporal dither";
+    case CueEffectKind::MotionPuppet:   return "motion puppet";
     default:                            return "none";
   }
 }
@@ -77,6 +81,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Scanlines:      return "scanlines";
     case CueEffectKind::ChannelOffset:  return "channel_offset";
     case CueEffectKind::TemporalDither: return "temporal_dither";
+    case CueEffectKind::MotionPuppet:   return "motion_puppet";
     default:                            return "none";
   }
 }
@@ -104,6 +109,10 @@ struct CueEffectContext {
   int width = 0;
   int height = 0;
   std::uint64_t frameIndex = 0;   // for anything that advances per frame
+  // The driver clip's motion for THIS frame, when one is armed. Null the rest
+  // of the time, which is almost always -- so MotionPuppet costs nothing on a
+  // cue that has not been given a driver.
+  const deckboy::motion::MotionField* motion = nullptr;
 };
 
 namespace detail {
@@ -295,6 +304,67 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const double q = std::round((p[c] + bias) / step) * step;
               p[c] = detail::clamp8(p[c] * (1.0 - amt) + q * amt);
             }
+          }
+        }
+        break;
+      }
+      case CueEffectKind::MotionPuppet: {
+        // ONE CLIP'S MOTION, ANOTHER'S PIXELS.
+        //
+        // The driver clip is decoded only for the per-macroblock vectors its
+        // codec already computed -- its pictures are thrown away. Those vectors
+        // displace THIS cue's pixels, so a camera feed can be puppeteered by a
+        // crowd scene, or a synth by a dancer.
+        //
+        // The field is coarse by nature: a macroblock is 16 pixels, so it is
+        // sampled bilinearly rather than pretending to per-pixel precision the
+        // data does not have. Rewriting vectors offline is mature practice;
+        // doing it live, across two sources, is the part a file-based
+        // toolchain cannot put on a cue.
+        if (!ctx.motion || ctx.motion->empty()) {
+          break;   // an I-frame, or no driver armed: leave the picture alone
+        }
+        const auto& mf = *ctx.motion;
+        // Vectors are in the DRIVER's pixels; this cue may be a different size.
+        const double sx = mf.sourceWidth > 0
+          ? static_cast<double>(ctx.width) / mf.sourceWidth : 1.0;
+        const double sy = mf.sourceHeight > 0
+          ? static_cast<double>(ctx.height) / mf.sourceHeight : 1.0;
+        const double gain = amt * 4.0;   // 1.0 reads as a shove, not a nudge
+
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        for (int y = 0; y < ctx.height; ++y) {
+          const double gy = (static_cast<double>(y) / std::max(1, ctx.height)) * mf.rows;
+          const int r0 = std::clamp(static_cast<int>(gy), 0, mf.rows - 1);
+          const int r1 = std::min(r0 + 1, mf.rows - 1);
+          const double fy = gy - r0;
+          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+          for (int x = 0; x < ctx.width; ++x) {
+            const double gx = (static_cast<double>(x) / std::max(1, ctx.width)) * mf.cols;
+            const int c0 = std::clamp(static_cast<int>(gx), 0, mf.cols - 1);
+            const int c1 = std::min(c0 + 1, mf.cols - 1);
+            const double fx2 = gx - c0;
+            auto at = [&](int r, int c, bool wantX) {
+              const std::size_t i = static_cast<std::size_t>(r) * mf.cols + c;
+              return static_cast<double>(wantX ? mf.dx[i] : mf.dy[i]);
+            };
+            const double dxv =
+              (at(r0, c0, true) * (1 - fx2) + at(r0, c1, true) * fx2) * (1 - fy) +
+              (at(r1, c0, true) * (1 - fx2) + at(r1, c1, true) * fx2) * fy;
+            const double dyv =
+              (at(r0, c0, false) * (1 - fx2) + at(r0, c1, false) * fx2) * (1 - fy) +
+              (at(r1, c0, false) * (1 - fx2) + at(r1, c1, false) * fx2) * fy;
+            // MINUS: the vector says where the block came FROM, so sampling
+            // backwards along it moves the picture the way the driver moved.
+            const int srcX = std::clamp(
+              static_cast<int>(std::lround(x - dxv * sx * gain)), 0, ctx.width - 1);
+            const int srcY = std::clamp(
+              static_cast<int>(std::lround(y - dyv * sy * gain)), 0, ctx.height - 1);
+            const std::uint8_t* sp =
+              source.data() + (static_cast<std::size_t>(srcY) * ctx.width + srcX) * 4;
+            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+            dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
           }
         }
         break;

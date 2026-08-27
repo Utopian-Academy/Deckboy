@@ -3632,6 +3632,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // shift every positional index after it, which is the trap the loader
         // offsets already carry scars from.
         << '\t' << escapeField(serializeCueEffects(cue.effects))
+        << '\t' << escapeField(cue.motionDriverPath)
         << '\n';
     }
   }
@@ -4343,6 +4344,7 @@ Project loadProject(const fs::path& projectFile,
         // effects existed, which safeString reports as empty and parses to an
         // empty stack -- so an old show simply has no effects, which is right.
         cue.effects = parseCueEffects(safeString(fields, tb + 73));
+        cue.motionDriverPath = safeString(fields, tb + 74);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -7787,6 +7789,68 @@ class App {
   bool cueSectionToneOpen_ = true;      // test tone generator controls
   bool cueSectionSynthOpen_ = true;    // chip voice controls
   bool cueSectionVideoSynthOpen_ = true;  // video synth controls
+
+  // Motion drivers, one per deck. The driver clip is decoded ONLY for the
+  // vectors its codec already computed -- 900fps for 720p, measured -- so this
+  // costs a fraction of a millisecond a frame and its pictures are discarded.
+  struct MotionDriver {
+    std::string path;
+    void* handle = nullptr;
+    deckboy::motion::MotionField field;
+    bool exhausted = false;
+  };
+  std::unordered_map<int, MotionDriver> motionDrivers_;
+
+  // Opens or re-points the deck's driver, advances it one frame, and returns
+  // the field to displace by -- or null when nothing is armed. Loops, because
+  // the driver has no transport of its own and a puppet that stops moving when
+  // its driver ends is a puppet that looks broken.
+  const deckboy::motion::MotionField* advanceMotionDriver(int deckIndex,
+                                                          const Cue& cue) {
+    const std::string& want = cue.motionDriverPath;
+    MotionDriver& driver = motionDrivers_[deckIndex];
+    if (driver.path != want) {
+      if (driver.handle) {
+        deckboy::motion::closeMotionSource(driver.handle);
+        driver.handle = nullptr;
+      }
+      driver.path = want;
+      driver.field = {};
+      driver.exhausted = false;
+      if (!want.empty()) {
+        driver.handle = deckboy::motion::openMotionSource(want);
+        if (!driver.handle) {
+          // Said once, not every frame: a driver that will not open is an
+          // operator problem, and a toast per frame is unusable.
+          triggerToast("motion driver would not open");
+          driver.exhausted = true;
+        }
+      }
+    }
+    if (!driver.handle || driver.exhausted) {
+      return nullptr;
+    }
+    if (!deckboy::motion::readMotionField(driver.handle, driver.field)) {
+      deckboy::motion::rewindMotionSource(driver.handle);
+      if (!deckboy::motion::readMotionField(driver.handle, driver.field)) {
+        driver.exhausted = true;   // a file that yields nothing twice is done
+        return nullptr;
+      }
+    }
+    return &driver.field;
+  }
+
+  void closeMotionDrivers() {
+    for (auto& [deckIndex, driver] : motionDrivers_) {
+      (void) deckIndex;
+      if (driver.handle) {
+        deckboy::motion::closeMotionSource(driver.handle);
+        driver.handle = nullptr;
+      }
+    }
+    motionDrivers_.clear();
+  }
+
   // Smoothed output level, 0..1, for anything that reacts to audio.
   // Smoothed because a raw peak makes a visualiser twitch rather than move.
   double reactiveAudioLevel_ = 0.0;

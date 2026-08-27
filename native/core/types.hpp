@@ -620,6 +620,10 @@ struct Cue {
   // The operator's effect stack, applied in list order. Empty on every cue
   // that has never had one, which is the common case and costs nothing.
   std::vector<deckboy::effects::CueEffect> effects;
+  // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
+  // shown -- only the per-macroblock vectors its codec already computed -- so
+  // it can be small, and it loops independently of this cue's transport.
+  std::string motionDriverPath;
   // Only meaningful when kind == CueKind::VideoSynth.
   VideoSynthSettings videoSynth;
 
