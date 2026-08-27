@@ -564,6 +564,12 @@
             fxCtx.width = sourceFrame->width;
             fxCtx.height = sourceFrame->height;
             fxCtx.frameIndex = sourceFrame->index;
+            // Only advance a driver when something will actually read it --
+            // decoding a clip nobody is puppeteering would be a cost with no
+            // picture to show for it.
+            if (!sourceCue->motionDriverPath.empty()) {
+              fxCtx.motion = advanceMotionDriver(sourceDeckIndex, *sourceCue);
+            }
             deckboy::effects::applyCueEffectStack(
               outputRuntime->layerBridgeScratchPixels, sourceCue->effects, fxCtx);
           }
