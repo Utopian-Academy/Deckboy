@@ -425,6 +425,49 @@ void effectStackNudge(int index, float delta) {
   refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
+// paramA and paramB, by index rather than by name: the two are handled
+// identically and the only thing that differs is which float is touched.
+// Neither changes whether the CPU pixel path is needed -- only amount does
+// that -- so there is no refresh here.
+void effectStackNudgeParam(int index, int which, float delta) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  auto& fx = (*stack)[index];
+  float& value = which == 0 ? fx.paramA : fx.paramB;
+  value = std::clamp(value + delta, 0.0f, 1.0f);
+  markProjectDirty();
+}
+
+void effectStackEditParam(int index, int which) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
+  }
+  const auto& fx = (*stack)[index];
+  const char* label = deckboy::effects::cueEffectParamLabel(fx.kind, which);
+  if (!label) {
+    return;   // this effect has no such parameter; nothing to type into
+  }
+  std::ostringstream current;
+  current << std::fixed << std::setprecision(2)
+          << (which == 0 ? fx.paramA : fx.paramB);
+  openInlineNumericExpressionEditor(
+    which == 0 ? "cue.effect.paramA" : "cue.effect.paramB", label,
+    "0-1 (supports + - * / and ())", current.str(),
+    [this, index, which](double value) {
+      auto* live = selectedEffectStack();
+      if (!effectIndexValid(live, index)) {
+        return;   // the selection moved while the editor was open
+      }
+      auto& target = (*live)[index];
+      (which == 0 ? target.paramA : target.paramB) =
+        std::clamp(static_cast<float>(value), 0.0f, 1.0f);
+      markProjectDirty();
+    });
+}
+
 void effectStackMove(int index, int direction) {
   auto* stack = selectedEffectStack();
   if (!effectIndexValid(stack, index)) {

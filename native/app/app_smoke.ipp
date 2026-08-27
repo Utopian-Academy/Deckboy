@@ -1231,6 +1231,105 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runEffectDump — `--effect-dump <token[:amount[:a[:b]]]> <in.ppm> <out.ppm>`
+  //
+  // Apply one effect to one picture and write the result, with no window, no
+  // decoder and no timing.
+  //
+  // Judging an effect from a screenshot of the running app does not work: the
+  // capture lands on whatever frame the seek happened to reach, so a baseline
+  // and a treated shot differ everywhere before the effect has done anything,
+  // and the comparison says "changed" no matter what. This renders the effect
+  // itself, deterministically, which is the only way to tell whether it looks
+  // the way it is supposed to.
+  //
+  // `frame` sets the frame index for the effects that advance with time.
+  // ---------------------------------------------------------------------------
+  static int runEffectDump(const std::string& spec, const std::string& inPath,
+                           const std::string& outPath, int frameIndex) {
+    // token:amount:paramA:paramB — everything after the token is optional.
+    std::vector<std::string> parts;
+    std::size_t start = 0;
+    for (;;) {
+      const std::size_t colon = spec.find(':', start);
+      parts.push_back(spec.substr(start, colon == std::string::npos
+                                           ? std::string::npos : colon - start));
+      if (colon == std::string::npos) break;
+      start = colon + 1;
+    }
+    deckboy::effects::CueEffect fx;
+    fx.kind = deckboy::effects::cueEffectFromToken(parts[0]);
+    if (fx.kind == deckboy::effects::CueEffectKind::None) {
+      std::cerr << "effect-dump: unknown effect '" << parts[0] << "'. Known: ";
+      for (int i = 1; i < static_cast<int>(deckboy::effects::CueEffectKind::Count); ++i) {
+        if (i > 1) std::cerr << ", ";
+        std::cerr << deckboy::effects::cueEffectToken(
+          static_cast<deckboy::effects::CueEffectKind>(i));
+      }
+      std::cerr << '\n';
+      return 2;
+    }
+    if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
+    if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
+    if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+
+    std::ifstream in(inPath, std::ios::binary);
+    if (!in) {
+      std::cerr << "effect-dump: cannot read " << inPath << '\n';
+      return 1;
+    }
+    std::string magic;
+    int w = 0, h = 0, maxval = 0;
+    in >> magic >> w >> h >> maxval;
+    if (magic != "P6" || w <= 0 || h <= 0 || maxval != 255) {
+      std::cerr << "effect-dump: " << inPath << " is not a binary 8-bit PPM\n";
+      return 1;
+    }
+    in.get();   // the single whitespace byte before the raster
+    const std::size_t count = static_cast<std::size_t>(w) * h;
+    std::vector<std::uint8_t> rgb(count * 3);
+    in.read(reinterpret_cast<char*>(rgb.data()), static_cast<std::streamsize>(rgb.size()));
+    if (in.gcount() != static_cast<std::streamsize>(rgb.size())) {
+      std::cerr << "effect-dump: " << inPath << " is short\n";
+      return 1;
+    }
+    // The effects work on the decoder's own layout, which is RGBA: byte 0 is
+    // red. Feeding them anything else would render a picture that is correct
+    // in shape and wrong in colour, which is worse than failing.
+    std::vector<std::uint8_t> pixels(count * 4, 255);
+    for (std::size_t i = 0; i < count; ++i) {
+      pixels[i * 4 + 0] = rgb[i * 3 + 0];
+      pixels[i * 4 + 1] = rgb[i * 3 + 1];
+      pixels[i * 4 + 2] = rgb[i * 3 + 2];
+    }
+
+    deckboy::effects::CueEffectContext ctx;
+    ctx.width = w;
+    ctx.height = h;
+    ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex));
+    const auto began = std::chrono::steady_clock::now();
+    deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
+    const double ms = std::chrono::duration<double, std::milli>(
+      std::chrono::steady_clock::now() - began).count();
+
+    std::ofstream out(outPath, std::ios::binary | std::ios::trunc);
+    if (!out) {
+      std::cerr << "effect-dump: cannot write " << outPath << '\n';
+      return 1;
+    }
+    out << "P6\n" << w << ' ' << h << "\n255\n";
+    for (std::size_t i = 0; i < count; ++i) {
+      out.put(static_cast<char>(pixels[i * 4 + 0]));
+      out.put(static_cast<char>(pixels[i * 4 + 1]));
+      out.put(static_cast<char>(pixels[i * 4 + 2]));
+    }
+    std::cout << "effect-dump: " << deckboy::effects::cueEffectToken(fx.kind)
+              << " amount=" << fx.amount << " a=" << fx.paramA << " b=" << fx.paramB
+              << " on " << w << "x" << h << " took " << ms << "ms -> " << outPath << '\n';
+    return 0;
+  }
+
+  // ---------------------------------------------------------------------------
   // runPatternBench — `--pattern-bench <pattern-id> [WxH] [frames]`
   //
   // Times buildPatternFrame in isolation: no window, no texture upload, no file

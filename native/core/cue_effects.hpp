@@ -56,6 +56,9 @@ enum class CueEffectKind : int {
   LumaDisplace,
   Ripple,
   Kaleidoscope,
+  DyeAdvect,
+  ReactionBloom,
+  Relativistic,
   Count,
 };
 
@@ -78,6 +81,9 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::LumaDisplace:   return "luma displace";
     case CueEffectKind::Ripple:         return "ripple";
     case CueEffectKind::Kaleidoscope:   return "kaleidoscope";
+    case CueEffectKind::DyeAdvect:      return "dye advect";
+    case CueEffectKind::ReactionBloom:  return "reaction bloom";
+    case CueEffectKind::Relativistic:   return "lightspeed";
     default:                            return "none";
   }
 }
@@ -103,7 +109,74 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::LumaDisplace:   return "luma_displace";
     case CueEffectKind::Ripple:         return "ripple";
     case CueEffectKind::Kaleidoscope:   return "kaleidoscope";
+    case CueEffectKind::DyeAdvect:      return "dye_advect";
+    case CueEffectKind::ReactionBloom:  return "reaction_bloom";
+    case CueEffectKind::Relativistic:   return "relativistic";
     default:                            return "none";
+  }
+}
+
+// What an effect's two extra parameters MEAN, or null when it has none.
+//
+// paramA and paramB existed from the start and nothing in the UI could reach
+// them, so solarise always folded at its default pivot and kaleidoscope always
+// cut the same number of wedges. A parameter the operator cannot set is a
+// parameter that does not exist -- and the effects added since (dye advect,
+// reaction bloom, lightspeed) carry two thirds of their character in these.
+//
+// Naming them here rather than in the inspector keeps the meaning next to the
+// code that reads it, so a parameter cannot be repurposed without the label
+// moving too.
+inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
+  switch (kind) {
+    case CueEffectKind::Solarise:
+      return which == 0 ? "fold point" : nullptr;
+    case CueEffectKind::Threshold:
+      return which == 0 ? "pivot" : nullptr;
+    case CueEffectKind::Kaleidoscope:
+      return which == 0 ? "wedges" : nullptr;
+    case CueEffectKind::DyeAdvect:
+      return which == 0 ? "bleed" : "curl detail";
+    case CueEffectKind::ReactionBloom:
+      return which == 0 ? "feed rate" : "growth";
+    case CueEffectKind::Relativistic:
+      return which == 0 ? "field of view" : "doppler";
+    default:
+      return nullptr;
+  }
+}
+
+// The one-line explanation the inspector shows for that parameter.
+inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
+  switch (kind) {
+    case CueEffectKind::Solarise:
+      return "Where highlights fold back through black. Low folds most of the "
+             "picture, high folds only the brightest.";
+    case CueEffectKind::Threshold:
+      return "The brightness that decides black from white.";
+    case CueEffectKind::Kaleidoscope:
+      return "Two is a mirror, twelve is a snowflake, and they are completely "
+             "different pictures.";
+    case CueEffectKind::DyeAdvect:
+      return which == 0
+        ? "0 flows ALONG the edges, so colour orbits the shapes. 1 flows across "
+          "them, which bleeds the picture into itself."
+        : "How many steps each pixel walks. More steps curve further around "
+          "the shapes; the total distance does not change.";
+    case CueEffectKind::ReactionBloom:
+      return which == 0
+        ? "The character of the growth: low is coral and veins, high is spots "
+          "that divide."
+        : "How long the reaction runs each frame. Short is a stain, long is an "
+          "organism.";
+    case CueEffectKind::Relativistic:
+      return which == 0
+        ? "How wide a view is being compressed. Narrow is a punch down the "
+          "middle, wide folds the whole frame into the centre."
+        : "Blueshift toward the direction of travel and redshift at the rim. "
+          "Zero leaves the colour alone and it reads as a lens instead.";
+    default:
+      return "";
   }
 }
 
@@ -338,7 +411,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double pivot = 255.0 * std::clamp(static_cast<double>(fx.paramA), 0.02, 0.98);
         for (std::size_t i = 0; i < count; ++i) {
           std::uint8_t* p = pixels.data() + i * 4;
-          const double luma = p[2] * 0.299 + p[1] * 0.587 + p[0] * 0.114;
+          const double luma = p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
           const double hit = luma >= pivot ? 255.0 : 0.0;
           for (int c = 0; c < 3; ++c) {
             p[c] = detail::clamp8(p[c] * (1.0 - amt) + hit * amt);
@@ -522,17 +595,46 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
       case CueEffectKind::PolarWarp:
       case CueEffectKind::LumaDisplace:
       case CueEffectKind::Ripple:
+      case CueEffectKind::Relativistic:
       case CueEffectKind::Kaleidoscope: {
-        // All four RESAMPLE: every output pixel is fetched from somewhere else
+        // These all RESAMPLE: every output pixel is fetched from somewhere else
         // in the source, so they need an untouched copy to read from. Written
         // as one block because the only thing that differs is where each pixel
-        // looks, and four near-identical loops would drift apart.
+        // looks, and near-identical loops would drift apart.
         std::vector<std::uint8_t> source(pixels.begin(),
                                          pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
         const double cx = ctx.width * 0.5;
         const double cy = ctx.height * 0.5;
         const double maxR = std::sqrt(cx * cx + cy * cy);
         const double t = static_cast<double>(ctx.frameIndex) * 0.08;
+        // Lightspeed's constants, hoisted: they do not vary per pixel, and a
+        // sqrt for gamma would otherwise be paid four million times at 4K.
+        const double beta = std::clamp(amt, 0.0, 1.0) * 0.995;
+        const double gamma = 1.0 / std::sqrt(std::max(1e-6, 1.0 - beta * beta));
+        const double halfFov = (12.0 + std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0)
+                                * 68.0) * 0.017453292519943295;
+        const double dopplerAmt = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+        // Both halves of lightspeed depend on ONE thing: distance from the
+        // centre. So they are a radial lookup built once, not an acos and two
+        // cosines per pixel -- which is the difference between 11ms and under
+        // 2ms on a small frame, and between unusable and fine at 4K.
+        constexpr int kBoostTableSize = 1024;
+        std::vector<float> boostRadius, boostGain;
+        if (fx.kind == CueEffectKind::Relativistic) {
+          boostRadius.resize(kBoostTableSize);
+          boostGain.resize(kBoostTableSize);
+          for (int i = 0; i < kBoostTableSize; ++i) {
+            const double frac = static_cast<double>(i) / (kBoostTableSize - 1);
+            const double cosSeen = std::cos(frac * halfFov);
+            const double denom = 1.0 - beta * cosSeen;
+            const double cosRest = std::clamp(
+              (cosSeen - beta) / (std::fabs(denom) < 1e-6 ? 1e-6 : denom), -1.0, 1.0);
+            boostRadius[i] = static_cast<float>((std::acos(cosRest) / halfFov) * maxR);
+            const double doppler = 1.0 / std::max(1e-6, gamma * denom);
+            boostGain[i] = static_cast<float>(
+              std::tanh((doppler - 1.0) * 1.2) * dopplerAmt);
+          }
+        }
         for (int y = 0; y < ctx.height; ++y) {
           std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
           for (int x = 0; x < ctx.width; ++x) {
@@ -560,10 +662,37 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 // distorts along its own structure rather than along a grid.
                 const std::uint8_t* p =
                   source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
-                const double luma = (p[2] * 0.299 + p[1] * 0.587 + p[0] * 0.114) / 255.0;
+                const double luma = (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0;
                 const double push = (luma - 0.5) * amt * ctx.width * 0.25;
                 sxf = x + push;
                 syf = y + push * 0.35;
+                break;
+              }
+              case CueEffectKind::Relativistic: {
+                // What the frame looks like from something travelling into it
+                // at a fraction of c. Relativistic aberration folds the forward
+                // hemisphere toward the direction of travel, so the centre
+                // opens out and the rim smears away -- which is why the view
+                // from a near-light ship is a bright compressed disc and not a
+                // zoom.
+                //
+                // The aberration formula is inverted here, because the loop
+                // walks OUTPUT pixels and has to find where each came from:
+                //   cos t' = (cos t + B) / (1 + B cos t)   is the forward map,
+                //   cos t  = (cos t' - B) / (1 - B cos t') is the one wanted.
+                const double ax = x - cx;
+                const double ay = y - cy;
+                const double ar = std::sqrt(ax * ax + ay * ay);
+                if (ar < 0.5 || maxR < 1.0) {
+                  break;                        // the centre maps to itself
+                }
+                const double slot = std::clamp(ar / maxR, 0.0, 1.0) * (kBoostTableSize - 1);
+                const int i0 = static_cast<int>(slot);
+                const int i1 = std::min(kBoostTableSize - 1, i0 + 1);
+                const double frac = slot - i0;
+                const double srcR = boostRadius[i0] * (1.0 - frac) + boostRadius[i1] * frac;
+                sxf = cx + ax / ar * srcR;
+                syf = cy + ay / ar * srcR;
                 break;
               }
               case CueEffectKind::Ripple: {
@@ -600,10 +729,278 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             const std::uint8_t* sp =
               source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
             std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+            if (fx.kind == CueEffectKind::Relativistic && dopplerAmt > 0.0005) {
+              // The other half of the physics: light from ahead arrives
+              // blueshifted and brighter, light from the sides redshifted and
+              // dimmer. Without it the warp reads as a lens; with it, as speed.
+              const double bx = x - cx;
+              const double by = y - cy;
+              const double br = std::clamp(
+                std::sqrt(bx * bx + by * by) / std::max(1.0, maxR), 0.0, 1.0);
+              // Already squashed through tanh when the table was built, so a
+              // high beta tints the picture instead of clipping it to blue.
+              const double shift =
+                boostGain[static_cast<int>(br * (kBoostTableSize - 1))];
+              const double gain = 1.0 + shift * 0.6;      // the headlight effect
+              dp[0] = detail::clamp8(sp[0] * gain * (1.0 - shift * 0.55));   // R
+              dp[1] = detail::clamp8(sp[1] * gain);                          // G
+              dp[2] = detail::clamp8(sp[2] * gain * (1.0 + shift * 0.55));   // B
+            } else {
+              dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
+            }
+          }
+        }
+        break;
+      }
+      case CueEffectKind::DyeAdvect: {
+        // The picture treated as dye in a fluid, and carried along the flow of
+        // its own structure.
+        //
+        // The velocity field is the PERPENDICULAR of the luma gradient, which
+        // is the part that matters: a gradient points across an edge, so its
+        // perpendicular runs ALONG one. Advecting down the gradient would only
+        // smear the picture into mush across its own boundaries; advecting
+        // along it makes colour orbit the shapes instead, and edges survive as
+        // the banks of a river. paramA bleeds the field back toward the raw
+        // gradient for when that is wanted.
+        //
+        // Each output pixel walks BACKWARD through the field for several steps
+        // and fetches from where it ends up -- semi-Lagrangian advection, the
+        // standard way to move a quantity through a velocity field without it
+        // diffusing away. Several short steps rather than one long one, because
+        // a single jump follows a straight line and the curl is the whole point.
+        //
+        // No state is kept between frames. A persistent dye buffer drifts
+        // toward its own fixed point and stops being about the picture;
+        // re-deriving the field every frame means the flow always describes
+        // what is on screen NOW, and it moves because the picture does.
+        const int gw = std::clamp(ctx.width / 8, 8, 256);
+        const int gh = std::clamp(ctx.height / 8, 8, 256);
+        std::vector<float> luma(static_cast<std::size_t>(gw) * gh, 0.0f);
+        for (int gy = 0; gy < gh; ++gy) {
+          const int sy = std::min(ctx.height - 1, gy * ctx.height / gh);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int sx = std::min(ctx.width - 1, gx * ctx.width / gw);
+            const std::uint8_t* p =
+              pixels.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+            luma[static_cast<std::size_t>(gy) * gw + gx] =
+              static_cast<float>(p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0f;
+          }
+        }
+        const double bleed = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0);
+        std::vector<float> vx(static_cast<std::size_t>(gw) * gh, 0.0f);
+        std::vector<float> vy(static_cast<std::size_t>(gw) * gh, 0.0f);
+        for (int gy = 0; gy < gh; ++gy) {
+          const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
+            const float gxv = luma[static_cast<std::size_t>(gy) * gw + xp] -
+                              luma[static_cast<std::size_t>(gy) * gw + xm];
+            const float gyv = luma[static_cast<std::size_t>(yp) * gw + gx] -
+                              luma[static_cast<std::size_t>(ym) * gw + gx];
+            const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+            // Perpendicular at bleed 0, straight down the gradient at bleed 1.
+            vx[i] = static_cast<float>(-gyv * (1.0 - bleed) + gxv * bleed);
+            vy[i] = static_cast<float>( gxv * (1.0 - bleed) + gyv * bleed);
+          }
+        }
+        const int steps = 3 + static_cast<int>(
+          std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 13.0);
+        // Total travel is what the operator set; the step count only decides
+        // how CURVED the path is. Otherwise raising the detail would also raise
+        // the strength and neither control would mean anything on its own.
+        const double travel = amt * std::max(ctx.width, ctx.height) * 0.09;
+        const double stepLen = travel / steps;
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        // Scale factors, not divisions. The inner loop runs once per step per
+        // pixel -- eleven million times on a 4K frame at the default detail --
+        // and two integer divides in there were most of the cost.
+        const double gxScale = static_cast<double>(gw) / ctx.width;
+        const double gyScale = static_cast<double>(gh) / ctx.height;
+        for (int y = 0; y < ctx.height; ++y) {
+          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+          for (int x = 0; x < ctx.width; ++x) {
+            double px = x;
+            double py = y;
+            for (int step = 0; step < steps; ++step) {
+              const int gx = std::clamp(static_cast<int>(px * gxScale), 0, gw - 1);
+              const int gy = std::clamp(static_cast<int>(py * gyScale), 0, gh - 1);
+              const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+              px -= vx[i] * stepLen;
+              py -= vy[i] * stepLen;
+            }
+            const int sx = std::clamp(static_cast<int>(std::lround(px)), 0, ctx.width - 1);
+            const int sy = std::clamp(static_cast<int>(std::lround(py)), 0, ctx.height - 1);
+            const std::uint8_t* sp =
+              source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
             dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
           }
         }
-        (void) maxR;
+        break;
+      }
+      case CueEffectKind::ReactionBloom: {
+        // Gray-Scott reaction-diffusion, seeded by the picture and grown for a
+        // few dozen iterations every frame.
+        //
+        // Two notional chemicals: U is everywhere, V is dropped wherever the
+        // picture is bright. V consumes U, both diffuse, and that single rule
+        // is enough to produce the coral, veins and dividing cells Turing
+        // predicted in 1952. The pattern is not drawn -- it GROWS, and it grows
+        // out of whatever is on screen.
+        //
+        // Re-seeded from the frame each time rather than carried forward. A
+        // persistent grid settles into its own attractor and stops having
+        // anything to do with the video; re-seeding means the growth tracks the
+        // picture, and a cut to a new shot grows a new organism.
+        // The grid stays small and the ITERATION COUNT is what the operator
+        // buys with it. Gray-Scott needs hundreds of steps before anything
+        // grows -- at a few dozen it has only blurred the seed, which is what
+        // the first version of this did, and it looked like a coloured haze
+        // because that is all it was. Cells are cheap; steps are the effect.
+        const int gw = std::clamp(ctx.width / 6, 32, 192);
+        const int gh = std::clamp(ctx.height / 6, 32, 192);
+        const std::size_t cells = static_cast<std::size_t>(gw) * gh;
+        std::vector<float> u(cells, 1.0f), v(cells, 0.0f);
+        for (int gy = 0; gy < gh; ++gy) {
+          const int sy = std::min(ctx.height - 1, gy * ctx.height / gh);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int sx = std::min(ctx.width - 1, gx * ctx.width / gw);
+            const std::uint8_t* p =
+              pixels.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+            const float l =
+              static_cast<float>(p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0f;
+            // SPARSE seeds in a full field of U, which is what Gray-Scott
+            // needs and the reason a first attempt grew nothing. Seeding V
+            // across every bright pixel leaves those cells with no U around
+            // them to consume: U is eaten in one step, V then decays 9% a step
+            // while feed replenishes U at 3%, and the whole field is dead long
+            // before it could organise. (It was also four times SLOWER that
+            // way -- a field decaying toward zero spends its last few hundred
+            // steps in denormal arithmetic.)
+            //
+            // Scattered seeds in a full reservoir is the arrangement every
+            // working Gray-Scott uses: each one eats outward into the U around
+            // it, and the front is the pattern.
+            const std::size_t ci = static_cast<std::size_t>(gy) * gw + gx;
+            // Seeded in 2x2 BLOCKS, not single cells. A lone cell of V is
+            // mostly boundary: it diffuses into the surrounding U faster than
+            // the reaction can consume it, and the gentler presets (solitons,
+            // mitosis, worms) all died on contact. A block has an interior and
+            // survives long enough to organise.
+            std::uint32_t h = static_cast<std::uint32_t>((gx >> 1) * 374761393 +
+                                                         (gy >> 1) * 668265263);
+            h = (h ^ (h >> 13)) * 1274126177u;
+            const float pick = static_cast<float>(h >> 8) / 16777216.0f;
+            v[ci] = pick < l * l * 0.30f ? 1.0f : 0.0f;
+            u[ci] = 1.0f;
+          }
+        }
+        // Feed and kill are NOT independent knobs here, and that is deliberate.
+        // Gray-Scott only produces anything over a thin curved sliver of the
+        // (F,k) plane; almost everywhere else the reaction dies out flat or
+        // floods solid, and a first attempt at this shipped a pair sitting in
+        // the dead zone -- 500 iterations of nothing, which looked like a
+        // coloured haze because that is all it was. So paramA walks ALONG the
+        // living region instead of across it: one knob, and every position on
+        // it grows something.
+        // paramA walks a curve through PRESETS THAT ARE KNOWN TO LIVE, rather
+        // than interpolating F and k independently. Two earlier attempts picked
+        // plausible-looking pairs and both died: one showed nothing at all, the
+        // other grew for a hundred steps and had vanished by nine hundred. The
+        // living region is a thin sliver and it does not run along either axis,
+        // so the only reliable way to stay inside it is to steer between points
+        // that are documented to work.
+        static const struct { float feed, kill; } kLiving[] = {
+          {0.0390f, 0.0580f},   // waves
+          {0.0460f, 0.0594f},   // labyrinth
+          {0.0545f, 0.0620f},   // coral
+          {0.0580f, 0.0650f},   // worms
+          {0.0620f, 0.0610f},   // holes, on the edge of chaos
+        };
+        const int kLivingCount = static_cast<int>(sizeof(kLiving) / sizeof(kLiving[0]));
+        const double along = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0)
+                             * (kLivingCount - 1);
+        const int lo = std::min(kLivingCount - 1, static_cast<int>(along));
+        const int hi = std::min(kLivingCount - 1, lo + 1);
+        const float blend = static_cast<float>(along - lo);
+        const float feed = kLiving[lo].feed + blend * (kLiving[hi].feed - kLiving[lo].feed);
+        const float kill = kLiving[lo].kill + blend * (kLiving[hi].kill - kLiving[lo].kill);
+        // Karl Sims' weights and rates, which are the ones known to actually
+        // evolve: a 9-point laplacian normalised to a -1 centre, and diffusion
+        // an order of magnitude faster than a naive 5-point stencil can carry.
+        // The earlier 5-point version was stable but so slow that hundreds of
+        // steps moved nothing.
+        const int iters = 60 + static_cast<int>(
+          std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 440.0);
+        std::vector<float> un(cells), vn(cells);
+        for (int it = 0; it < iters; ++it) {
+          for (int gy = 0; gy < gh; ++gy) {
+            const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+            for (int gx = 0; gx < gw; ++gx) {
+              const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
+              const std::size_t i  = static_cast<std::size_t>(gy) * gw + gx;
+              const std::size_t l  = static_cast<std::size_t>(gy) * gw + xm;
+              const std::size_t r  = static_cast<std::size_t>(gy) * gw + xp;
+              const std::size_t up = static_cast<std::size_t>(ym) * gw + gx;
+              const std::size_t dn = static_cast<std::size_t>(yp) * gw + gx;
+              const std::size_t ul = static_cast<std::size_t>(ym) * gw + xm;
+              const std::size_t ur = static_cast<std::size_t>(ym) * gw + xp;
+              const std::size_t dl = static_cast<std::size_t>(yp) * gw + xm;
+              const std::size_t dr = static_cast<std::size_t>(yp) * gw + xp;
+              const float lapU = (u[l] + u[r] + u[up] + u[dn]) * 0.2f +
+                                 (u[ul] + u[ur] + u[dl] + u[dr]) * 0.05f - u[i];
+              const float lapV = (v[l] + v[r] + v[up] + v[dn]) * 0.2f +
+                                 (v[ul] + v[ur] + v[dl] + v[dr]) * 0.05f - v[i];
+              const float uvv = u[i] * v[i] * v[i];
+              un[i] = std::clamp(u[i] + (1.0f * lapU - uvv + feed * (1.0f - u[i])),
+                                 0.0f, 1.0f);
+              const float nv = v[i] + (0.5f * lapV + uvv - (feed + kill) * v[i]);
+              // Flushed rather than merely clamped: a value decaying toward
+              // zero goes denormal and denormal arithmetic costs an order of
+              // magnitude, which showed up as the effect getting slower the
+              // less it had to say.
+              vn[i] = nv < 1e-7f ? 0.0f : std::clamp(nv, 0.0f, 1.0f);
+            }
+          }
+          u.swap(un);
+          v.swap(vn);
+        }
+        // V is where the reaction ran, and that is what gets drawn: the picture
+        // folds through its own negative wherever the growth reached, so the
+        // veins read as light coming THROUGH the image rather than paint on it.
+        // Sampled bilinearly on the way out. The reaction grid is a fraction
+        // of the raster, and reading it nearest-neighbour drew the pattern as
+        // visible rectangles -- the growth is organic and it should not arrive
+        // looking like a spreadsheet.
+        for (int y = 0; y < ctx.height; ++y) {
+          const double fy = std::clamp((y + 0.5) * gh / ctx.height - 0.5, 0.0, gh - 1.0);
+          const int gy0 = static_cast<int>(fy);
+          const int gy1 = std::min(gh - 1, gy0 + 1);
+          const double wy = fy - gy0;
+          std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+          for (int x = 0; x < ctx.width; ++x) {
+            const double fxs = std::clamp((x + 0.5) * gw / ctx.width - 0.5, 0.0, gw - 1.0);
+            const int gx0 = static_cast<int>(fxs);
+            const int gx1 = std::min(gw - 1, gx0 + 1);
+            const double wx = fxs - gx0;
+            const double top =
+              v[static_cast<std::size_t>(gy0) * gw + gx0] * (1.0 - wx) +
+              v[static_cast<std::size_t>(gy0) * gw + gx1] * wx;
+            const double bot =
+              v[static_cast<std::size_t>(gy1) * gw + gx0] * (1.0 - wx) +
+              v[static_cast<std::size_t>(gy1) * gw + gx1] * wx;
+            const double grown =
+              std::clamp((top * (1.0 - wy) + bot * wy) * 3.2, 0.0, 1.0);
+            if (grown <= 0.002) continue;
+            const double mix = grown * amt;
+            std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+            for (int c = 0; c < 3; ++c) {
+              p[c] = detail::clamp8(p[c] * (1.0 - mix) + (255 - p[c]) * mix);
+            }
+          }
+        }
         break;
       }
       case CueEffectKind::Datamosh:

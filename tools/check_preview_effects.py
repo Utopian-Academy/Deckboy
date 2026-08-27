@@ -57,6 +57,9 @@ EFFECTS = [
     ("luma_displace",   "1:0.5"),
     ("ripple",          "1:0.5"),
     ("kaleidoscope",    "1:0.5"),
+    ("dye_advect",      "1:0.2"),
+    ("reaction_bloom",  "1:0.45"),
+    ("relativistic",    "0.9:0.6"),
 ]
 
 # Both need something a paused frame cannot give them.
