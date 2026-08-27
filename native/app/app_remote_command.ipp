@@ -574,6 +574,73 @@
       skipToPrevCue();
       return;
     }
+    if (command == "FX") {
+      // Effect stack over the wire. Added because the effect stack could only
+      // be driven by clicking, which meant the RUNTIME path -- adding an effect
+      // to a cue that is already playing -- could not be tested at all, and
+      // that is exactly where it was reported broken.
+      auto* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("FX: no cue selected");
+        return;
+      }
+      const std::string sub = parts.size() < 2 ? std::string("list") : toUpper(parts[1]);
+      if (sub == "LIST") {
+        std::string reply;
+        for (std::size_t k = 0; k < cue->effects.size(); ++k) {
+          const auto& fx = cue->effects[k];
+          if (!reply.empty()) reply += ", ";
+          reply += std::to_string(k + 1) + ":" +
+                   deckboy::effects::cueEffectToken(fx.kind) +
+                   (fx.bypassed ? "(byp)" : "");
+        }
+        triggerToast(reply.empty() ? "no effects" : reply);
+        showLog("FX LIST", reply);
+        return;
+      }
+      if (sub == "ADD" && parts.size() >= 3) {
+        const auto kind = deckboy::effects::cueEffectFromToken(toLower(parts[2]));
+        if (kind == deckboy::effects::CueEffectKind::None) {
+          failRemoteCommand("FX ADD: unknown effect \"" + parts[2] + "\"");
+          return;
+        }
+        const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
+        deckboy::effects::CueEffect fx;
+        fx.kind = kind;
+        fx.amount = parts.size() >= 4
+          ? std::clamp(static_cast<float>(std::atof(parts[3].c_str())), 0.0f, 1.0f) : 1.0f;
+        fx.paramA = 0.5f;
+        cue->effects.push_back(fx);
+        markProjectDirty();
+        syncDatamoshFromStack();
+        refreshLiveCueIfPixelPathChanged(wasNeeded);
+        triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(kind));
+        return;
+      }
+      if (sub == "CLEAR") {
+        const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
+        cue->effects.clear();
+        markProjectDirty();
+        syncDatamoshFromStack();
+        refreshLiveCueIfPixelPathChanged(wasNeeded);
+        return;
+      }
+      if (sub == "AMOUNT" && parts.size() >= 4) {
+        const int idx = std::atoi(parts[2].c_str()) - 1;
+        if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX AMOUNT: no effect at that index");
+          return;
+        }
+        const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
+        cue->effects[idx].amount =
+          std::clamp(static_cast<float>(std::atof(parts[3].c_str())), 0.0f, 1.0f);
+        markProjectDirty();
+        refreshLiveCueIfPixelPathChanged(wasNeeded);
+        return;
+      }
+      failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | CLEAR");
+      return;
+    }
     if (command == "GOEND" || command == "SKIPEND") {
       // Jump the playing cue to its last moment. The action existed and worked
       // and NOTHING could reach it -- no button, no key, no verb -- which an
