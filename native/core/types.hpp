@@ -624,6 +624,12 @@ struct Cue {
   // shown -- only the per-macroblock vectors its codec already computed -- so
   // it can be small, and it loops independently of this cue's transport.
   std::string motionDriverPath;
+  // The driver has no transport of its own -- it is not a cue, it never
+  // reaches the screen. These are how an operator drives it.
+  float motionDriverSpeed = 1.0f;      // fields per rendered frame, 0.05..4
+  bool motionDriverPaused = false;     // hold the current field
+  bool motionDriverRestartOnTake = true;  // every take starts the puppetry the
+                                          // same way, which a show needs
   // Only meaningful when kind == CueKind::VideoSynth.
   VideoSynthSettings videoSynth;
 
@@ -1244,6 +1250,11 @@ enum class QuickAction {
   // Pick / clear the clip whose motion drives the motion-puppet effect.
   MotionDriverPick,
   MotionDriverClear,
+  MotionDriverSpeedDec,
+  MotionDriverSpeedInc,
+  MotionDriverPauseToggle,
+  MotionDriverRestart,
+  MotionDriverRestartOnTakeToggle,
   EffectRemove,
   EffectCycleKind,
   EffectAmountDec,

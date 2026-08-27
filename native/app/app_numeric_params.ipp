@@ -33,6 +33,9 @@ enum class NumericParam : int {
   ToneLevel,
   ToneFreq,
 
+  // Motion driver
+  MotionDriverSpeed,
+
   // Chip synth
   SynthNote,
   SynthAttack,
@@ -121,6 +124,12 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        "Hertz, 20-20000", 20.0, 20000.0, 1, false};
       return &s;
     }
+    case NumericParam::MotionDriverSpeed: {
+      static const NumericParamSpec s {"motion.speed", "Driver speed",
+                                       "Fields per frame, 0-4 (1 = one field "
+                                       "per rendered frame)", 0.0, 4.0, 2, false};
+      return &s;
+    }
     case NumericParam::SynthNote: {
       static const NumericParamSpec s {"synth.note", "Note",
                                        "Pitch in hertz, 20-8000", 20.0, 8000.0, 2, false};
@@ -175,6 +184,7 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
     case NumericParam::VsFreeAngle:  out = v.spriteFreeAngle; return true;
     case NumericParam::ToneLevel:    out = cue.tone.levelDbfs; return true;
     case NumericParam::ToneFreq:     out = cue.tone.frequencyHz; return true;
+    case NumericParam::MotionDriverSpeed: out = cue.motionDriverSpeed; return true;
     case NumericParam::SynthNote:    out = cue.tone.synth.noteHz; return true;
     case NumericParam::SynthAttack:  out = cue.tone.synth.attackSeconds; return true;
     case NumericParam::SynthRelease: out = cue.tone.synth.releaseSeconds; return true;
@@ -200,6 +210,8 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::VsFreeAngle:  v.spriteFreeAngle = value; break;
     case NumericParam::ToneLevel:    cue.tone.levelDbfs = value; break;
     case NumericParam::ToneFreq:     cue.tone.frequencyHz = value; break;
+    case NumericParam::MotionDriverSpeed:
+      cue.motionDriverSpeed = static_cast<float>(value); break;
     case NumericParam::SynthNote:    cue.tone.synth.noteHz = value; break;
     case NumericParam::SynthAttack:  cue.tone.synth.attackSeconds = value; break;
     case NumericParam::SynthRelease: cue.tone.synth.releaseSeconds = value; break;
@@ -409,4 +421,36 @@ void clearMotionDriver() {
   cue->motionDriverPath.clear();
   triggerToast("motion driver cleared");
   markProjectDirty();
+}
+
+void nudgeMotionDriverSpeed(float delta) {
+  Cue* cue = selectedCueMutable();
+  if (!cue) return;
+  cue->motionDriverSpeed = std::clamp(cue->motionDriverSpeed + delta, 0.0f, 4.0f);
+  markProjectDirty();
+}
+
+void toggleMotionDriverPaused() {
+  Cue* cue = selectedCueMutable();
+  if (!cue) return;
+  cue->motionDriverPaused = !cue->motionDriverPaused;
+  // Paused HOLDS the last field rather than stopping the effect: the picture
+  // stays displaced by whatever the driver was doing, which is a look. Saying
+  // "held" rather than "paused" is the honest word for that.
+  triggerToast(cue->motionDriverPaused ? "driver held" : "driver running");
+  markProjectDirty();
+}
+
+void toggleMotionDriverRestartOnTake() {
+  Cue* cue = selectedCueMutable();
+  if (!cue) return;
+  cue->motionDriverRestartOnTake = !cue->motionDriverRestartOnTake;
+  triggerToast(cue->motionDriverRestartOnTake ? "driver restarts on take"
+                                              : "driver free-runs");
+  markProjectDirty();
+}
+
+void restartSelectedMotionDriver() {
+  restartMotionDriver(project_.focusedDeckIndex);
+  triggerToast("driver restarted");
 }
