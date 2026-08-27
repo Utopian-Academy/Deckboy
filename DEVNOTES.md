@@ -1,5 +1,106 @@
 # DEVNOTES
 
+## The Readback That Never Ran (v0.86.0)
+
+**One missing `Flush()` meant every recording was a still frame.** D3D11 defers
+submission: the `CopyResource` into the staging ring sat in the immediate
+context's command buffer until something forced it out. Nothing did -- the
+recording output has no window, so it never presents -- so the staging texture
+was still in use when the map came round and `D3D11_MAP_FLAG_DO_NOT_WAIT`
+correctly refused. Measured over ten seconds: 240 calls, 0 successes, 237 map
+failures. With the flush: 237 successes, 0 failures.
+
+**Why it survived three tools and a week of measurement.** The readback
+returning "nothing ready" is a legitimate, expected condition: the caller keeps
+the previous picture and the CFR pacer repeats it, which is exactly right for a
+momentary miss. When it happens on *every* frame, the file is one still image
+and every counter still reads perfect -- frames delivered equals frames owed,
+duration exact, alarm silent, file size plausible.
+
+Two lessons worth more than the fix:
+
+- **A fallback that is correct for a rare case will hide a permanent failure of
+  the fast path.** The graceful degradation was the camouflage.
+- **Any check that counts frames must also look at one.** `record_rate_check.py`
+  now samples the finished file at 1fps, quantises, and counts distinct
+  pictures. The quantise matters: comparing raw frames finds differences between
+  identical pictures encoded at different GOP positions and reads lossy noise as
+  motion.
+
+## The Writer Had A Mailbox (v0.86.0)
+
+`OutputStreamWriterState` held a single `pendingPacket`. A second frame pushed
+before the writer drained the first *silently replaced it*, while the pacer
+counted both as written. That is the whole explanation for two separate
+mysteries: recordings that ran short whenever capture outpaced the writer, and
+two earlier attempts at filling the cadence with repeats that achieved nothing
+because every repeat landed in the same slot and one was written.
+
+It is a `std::deque` bounded at eight frames now. The pacer catches up to four
+frames a tick, which it can afford because packets carry a
+`shared_ptr<const vector>` rather than a copy -- a repeat costs a pointer
+instead of 33MB at 4K.
+
+**Bound it in FRAMES, deliberately small.** A deep queue means a recording that
+lags seconds behind the programme before anyone notices.
+
+## Alarms That Cry Wolf Are Worse Than No Alarm (v0.86.0)
+
+The dropped-frame alarm was rewritten twice and both mistakes are instructive.
+
+**First it fired on every 4K take.** The asynchronous readback is a pipeline:
+the frame handed to the writer is `kAsyncReadbackDepth` behind the one just
+rendered, so a healthy recording sits a constant few frames behind what the
+pacer says is owed. The tolerance was two frames. Every 4K take raised
+"RECORDING DROPPING FRAMES - 3 behind" once a second for its whole length while
+delivering 449 frames of 450.
+
+**Then the fix over-corrected.** Counting FRESH frames against the recording
+rate looks obviously right and is not: a 30fps source recorded at 60 is half
+repeats *by definition*, so it fired on every standard above the source rate --
+including 2160p25 and 1080p50, both perfectly healthy.
+
+The right question turned out to be neither. It is whether the picture has gone
+**stale** -- the capture stopped producing anything new -- because the pacer
+will paper over a dead capture with repeats and hand back a duration-correct
+file of one still image, reporting no fault at all.
+
+## Effects Run Per-Effect, Not Per-Stack (v0.86.0)
+
+The CRT stage cost 23ms at 4K until it moved to the small buffer, and the rule
+that came out of it applies to the whole effect stack:
+
+- A **single-pass per-pixel** operation (invert, posterise, threshold, grain,
+  vignette, scanlines, dither) reads one pixel and writes one. Downscaling first
+  would soften a colour grade for no reason. Full raster.
+- Anything with a **window or an iteration** (blur, bloom, sort, seam carve,
+  flow) computes its field small and applies it at full resolution.
+
+**The trap that made the first effect invisible:** the engine picks NV12 -- and
+on Windows, zero-copy GPU decode -- unless a cue needs RGBA. That predicate knew
+about chroma key and colour controls but not about the new stack, so the pixels
+never reached a CPU buffer for the effects to run on and the whole stack was
+silently skipped.
+
+## Motion Vectors Are Free (v0.86.0)
+
+H.264 and MPEG-4 already contain a per-macroblock description of what moved
+where; decoding normally throws it away. `flags2 +export_mvs` keeps it, and the
+decoder computed it regardless.
+
+Two constraints, both found rather than assumed:
+
+- **Software decode only.** A d3d11va frame is a GPU surface and the hardware
+  decoder does not surface what it used. Affordable here because the driver
+  clip's *pixels are discarded* -- only its motion is wanted -- so it can be
+  decoded small. Measured 909fps for 720p, 230fps for 4K.
+- **An I-frame carries no vectors**, because it predicted nothing. Reported as
+  an empty field, not a failure, and the caller holds the previous picture.
+
+Where a macroblock splits into several vectors the cell takes the **largest**,
+not the average: averaging a split block's opposing halves cancels them to
+nothing, which would render the busiest part of the picture as the stillest.
+
 ## Recording Egress: Getting The Frame Off The GPU (v0.85.0)
 
 **The readback was the whole bottleneck.** `SDL_RenderReadPixels` is
