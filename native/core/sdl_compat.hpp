@@ -92,6 +92,36 @@ inline bool SDL_RenderTextureRotated(SDL_Renderer* renderer, SDL_Texture* textur
 
 // Format is Uint32 because the codebase stores pixel formats in Uint32
 // variables (SDL2 convention); SDL3 made SDL_PixelFormat a real enum.
+
+// ---------------------------------------------------------------------------
+// deckboyCreateRenderer — a renderer, with the backends we actually test.
+//
+// SDL_CreateRenderer(window, nullptr) lets SDL walk its own driver list, and on
+// Windows that list ends up at the DIRECT3D 9 backend when the ones above it
+// fail to create. That backend crashes inside the NVIDIA driver -- 0xC0000005
+// in nvd3dumx.dll, under D3D_CreateRenderer -- and D3D11 does fail sometimes,
+// under GPU resource pressure with several instances holding devices at once.
+//
+// The symptom is horrible to chase: recordings that die at random, blamed on
+// whatever feature happened to be under test at the time.
+//
+// So the order is named. Every entry is a backend this app is tested on, and
+// D3D9 is not among them. Software is the last resort and always works.
+inline SDL_Renderer* deckboyCreateRenderer(SDL_Window* window) {
+  if (!window) {
+    return nullptr;
+  }
+  static const char* const kDrivers[] = {
+    "direct3d11", "direct3d12", "opengl", "metal", "gpu",
+  };
+  for (const char* driver : kDrivers) {
+    if (SDL_Renderer* renderer = SDL_CreateRenderer(window, driver)) {
+      return renderer;
+    }
+  }
+  return SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
+}
+
 inline SDL_Texture* deckboyCreateTexture(SDL_Renderer* renderer, Uint32 format,
                                          SDL_TextureAccess access, int w, int h) {
   SDL_Texture* texture = SDL_CreateTexture(renderer, static_cast<SDL_PixelFormat>(format), access, w, h);

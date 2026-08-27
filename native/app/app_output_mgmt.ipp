@@ -3340,10 +3340,17 @@
       return r;
     }
 #endif
-    if (SDL_Renderer* r = SDL_CreateRenderer(window, nullptr)) {
-      return r;
-    }
-    return SDL_CreateRenderer(window, SDL_SOFTWARE_RENDERER);
+    // NAMED ORDER, not SDL's default. Passing null lets SDL walk its own list,
+    // and when D3D11 creation fails -- which it does under GPU resource
+    // pressure, several app instances holding devices at once -- it falls
+    // through to the DIRECT3D 9 renderer, which crashes inside the NVIDIA
+    // driver: 0xC0000005 in nvd3dumx.dll under D3D_CreateRenderer. Caught by a
+    // test harness whose recordings died at random, which looked for a while
+    // like a bug in the effects it happened to be exercising.
+    //
+    // So the fallbacks are spelled out and D3D9 is not among them. Every one of
+    // these is a renderer this app is actually tested on.
+    return deckboyCreateRenderer(window);
   }
 
   bool captureOutputFrameForEgress(int outputIndex,
@@ -5913,10 +5920,11 @@
     // decode/upload target, never an egress surface, so it has nothing to gain
     // from a backend chosen for asynchronous readback -- and on Windows it is
     // where zero-copy D3D11 decode lives, which a different backend would cost.
-    runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, nullptr);
-    if (!runtime.outputRenderer) {
-      runtime.outputRenderer = SDL_CreateRenderer(runtime.outputWindow, SDL_SOFTWARE_RENDERER);
-    }
+    // Same named order as an output renderer, and for the same reason: passing
+    // null lets SDL fall through to its Direct3D 9 backend, which crashes in
+    // the NVIDIA driver. This one still wants D3D11 FIRST regardless, because
+    // it is where zero-copy decode lives.
+    runtime.outputRenderer = deckboyCreateRenderer(runtime.outputWindow);
     if (!runtime.outputRenderer) {
       destroyDeckRuntime(runtime);
       return false;
@@ -6240,7 +6248,7 @@
       }
       SDL_SetWindowPosition(win,
         bounds.x + (bounds.w - w) / 2, bounds.y + (bounds.h - h) / 2);
-      SDL_Renderer* ren = SDL_CreateRenderer(win, nullptr);
+      SDL_Renderer* ren = deckboyCreateRenderer(win);
       if (!ren) {
         SDL_DestroyWindow(win);
         continue;

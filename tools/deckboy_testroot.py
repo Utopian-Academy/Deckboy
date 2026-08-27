@@ -64,3 +64,41 @@ def populate(root, source_data=None, verbose=False):
     if verbose and copied:
         print("test root dressed with: %s" % ", ".join(copied))
     return copied
+
+
+def warn_if_stale(exe, quiet=False):
+    """Shout if the binary predates the newest source file.
+
+    Twice now a whole round of testing has been run against a stale
+    executable -- once from a build directory nobody had rebuilt in days, once
+    from a build loop that matched the word "Deckboy.exe" inside a LINK ERROR
+    and reported success. Both times the results were confidently wrong and the
+    conclusions drawn from them were nonsense.
+
+    A binary older than the source is never worth testing, so say so.
+    """
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        built = os.path.getmtime(exe)
+    except OSError:
+        return False
+    newest = 0.0
+    newest_name = ""
+    for base in ("native", "tools"):
+        for dirpath, _dirs, files in os.walk(os.path.join(root, base)):
+            for name in files:
+                if not name.endswith((".cpp", ".hpp", ".ipp")):
+                    continue
+                try:
+                    stamp = os.path.getmtime(os.path.join(dirpath, name))
+                except OSError:
+                    continue
+                if stamp > newest:
+                    newest, newest_name = stamp, name
+    if newest > built:
+        if not quiet:
+            print("!! STALE BINARY: %s was built before %s changed." % (
+                os.path.basename(exe), newest_name))
+            print("!! Rebuild before trusting anything below.")
+        return True
+    return False

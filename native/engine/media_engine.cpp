@@ -1856,99 +1856,14 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       return seed;
     };
 
-    // PIXEL SORT. Runs of pixels within a row, sorted by brightness. This is
-    // what produces the dragged, melted, datamosh look: bright material slides
-    // along the row and pools against whatever stops it.
-    const double sortAmt = std::clamp(vs.pixelSort, 0.0, 1.0);
-    if (sortAmt > 0.01) {
-      // The threshold falls as the amount rises, so more of each row qualifies
-      // and the runs grow longer. Driving run LENGTH directly instead would
-      // cut spans at arbitrary points and look like banding rather than flow.
-      const int threshold = static_cast<int>(200.0 - sortAmt * 170.0);
-      auto luma = [&](std::size_t o) {
-        return (small[o + 2] * 77 + small[o + 1] * 151 + small[o + 0] * 28) >> 8;
-      };
-      std::vector<std::uint32_t> run;
-      for (int y = 0; y < H; ++y) {
-        const std::size_t rowOff = static_cast<std::size_t>(y) * W * 4;
-        int x = 0;
-        while (x < W) {
-          if (static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) < threshold) {
-            ++x; continue;
-          }
-          const int begin = x;
-          while (x < W &&
-                 static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) >= threshold) {
-            ++x;
-          }
-          const int len = x - begin;
-          if (len < 3) continue;
-          run.clear();
-          run.reserve(static_cast<std::size_t>(len));
-          for (int i = 0; i < len; ++i) {
-            std::uint32_t px = 0;
-            std::memcpy(&px, small.data() + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
-            run.push_back(px);
-          }
-          std::sort(run.begin(), run.end(), [](std::uint32_t a, std::uint32_t b) {
-            const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
-            const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
-            return la < lb;
-          });
-          for (int i = 0; i < len; ++i) {
-            std::memcpy(small.data() + rowOff + static_cast<std::size_t>(begin + i) * 4,
-                        &run[static_cast<std::size_t>(i)], 4);
-          }
-        }
-      }
-    }
-
-    // BLOCK GLITCH. Displaced scanline bands plus RGB channel separation --
-    // the corrupted-frame look. Bands are whole rows because that is how real
-    // decode corruption presents: a block row loses sync and the remainder of
-    // the line arrives shifted.
-    const double glitchAmt = std::clamp(vs.glitch, 0.0, 1.0);
-    if (glitchAmt > 0.01) {
-      const int bands = 1 + static_cast<int>(glitchAmt * 14.0);
-      std::vector<std::uint8_t> rowCopy(static_cast<std::size_t>(W) * 4);
-      for (int b = 0; b < bands; ++b) {
-        const int y0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, H)));
-        const int hgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
-          std::max(1, static_cast<int>(H * glitchAmt / 8) + 1)));
-        const int shift = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, W / 3))) -
-                          (W / 6);
-        for (int y = y0; y < std::min(H, y0 + hgt); ++y) {
-          std::uint8_t* row = small.data() + static_cast<std::size_t>(y) * W * 4;
-          std::memcpy(rowCopy.data(), row, rowCopy.size());
-          for (int x = 0; x < W; ++x) {
-            // WRAPPED, not clamped: a shifted band that clamps smears its edge
-            // pixel across the gap, which reads as a stretch. Wrapping reads
-            // as torn, which is what corruption actually looks like.
-            int sx = x - shift;
-            sx = ((sx % W) + W) % W;
-            std::memcpy(row + static_cast<std::size_t>(x) * 4,
-                        rowCopy.data() + static_cast<std::size_t>(sx) * 4, 4);
-          }
-        }
-      }
-      // Channel separation. Red and blue pull apart horizontally, which is the
-      // single most recognisable glitch cue and costs one pass.
-      const int sep = static_cast<int>(glitchAmt * (W / 60.0)) + 1;
-      if (sep > 0) {
-        for (int y = 0; y < H; ++y) {
-          std::uint8_t* row = small.data() + static_cast<std::size_t>(y) * W * 4;
-          std::memcpy(rowCopy.data(), row, rowCopy.size());
-          for (int x = 0; x < W; ++x) {
-            const int xr = std::clamp(x + sep, 0, W - 1);
-            const int xb = std::clamp(x - sep, 0, W - 1);
-            row[static_cast<std::size_t>(x) * 4 + 2] =
-              rowCopy[static_cast<std::size_t>(xr) * 4 + 2];   // R
-            row[static_cast<std::size_t>(x) * 4 + 0] =
-              rowCopy[static_cast<std::size_t>(xb) * 4 + 0];   // B
-          }
-        }
-      }
-    }
+    // PIXEL SORT and BLOCK GLITCH now live in cue_effects.hpp, so the same
+    // code serves a synth cue and any other cue's effect stack. They were
+    // synth-only, which was a waste: a pixel sort is at least as interesting
+    // on a face as on an oscillator.
+    deckboy::effects::applyPixelSort(small.data(), W, H,
+                                     std::clamp(vs.pixelSort, 0.0, 1.0));
+    deckboy::effects::applyBlockGlitch(small.data(), W, H,
+                                       std::clamp(vs.glitch, 0.0, 1.0), seed);
   }
 
   if (feedbackOn) {
