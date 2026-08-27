@@ -266,6 +266,32 @@ void editNumericParam(int rawId) {
 // serve a list of any length rather than needing eight per slot.
 // ---------------------------------------------------------------------------
 
+
+// Whether this cue currently needs the CPU pixel path at all. The decode
+// format is chosen at TAKE and FROZEN there, so a cue taken with an empty
+// stack is decoding NV12 -- on Windows, zero-copy on the GPU -- and there are
+// no CPU pixels for an effect to run on. Adding an effect to a LIVE cue
+// therefore did nothing at all until the next take, which looks exactly like a
+// broken effect and is how it was reported.
+bool cueNeedsCpuPixelPath(const Cue& cue) {
+  return cue.chromaKeyEnabled ||
+         cueHasColorControls(cue) ||
+         deckboy::effects::cueEffectStackActive(cue.effects);
+}
+
+// Re-take the live cue when that answer CHANGES, so the decoder is reopened in
+// a format the effects can act on. Only on a change: doing it on every amount
+// nudge would restart playback under the operator's hand mid-scrub.
+void refreshLiveCueIfPixelPathChanged(bool wasNeeded) {
+  const Cue* cue = selectedCueMutable();
+  if (!cue) {
+    return;
+  }
+  if (cueNeedsCpuPixelPath(*cue) != wasNeeded) {
+    refreshFocusedLiveCueRuntimeIfSelected();
+  }
+}
+
 std::vector<deckboy::effects::CueEffect>* selectedEffectStack() {
   Cue* cue = selectedCueMutable();
   return cue ? &cue->effects : nullptr;
@@ -313,10 +339,13 @@ void effectStackAdd() {
     }
     fx.amount = 1.0f;
     fx.paramA = 0.5f;
+    Cue* liveCue = selectedCueMutable();
+    const bool wasNeeded = liveCue ? cueNeedsCpuPixelPath(*liveCue) : false;
     live->push_back(fx);
     triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(fx.kind));
     markProjectDirty();
     syncDatamoshFromStack();
+    refreshLiveCueIfPixelPathChanged(wasNeeded);
   });
 }
 
@@ -329,11 +358,14 @@ void effectStackRemove(int index) {
   if (!effectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   const std::string gone = deckboy::effects::cueEffectLabel((*stack)[index].kind);
   stack->erase(stack->begin() + index);
   triggerToast("effect removed: " + gone);
   markProjectDirty();
   syncDatamoshFromStack();
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 void effectStackCycleKind(int index) {
@@ -367,6 +399,8 @@ void effectStackToggleBypass(int index) {
   if (!effectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   auto& fx = (*stack)[index];
   fx.bypassed = !fx.bypassed;
   // Bypass RETURNS the setting; turning the amount to zero throws it away.
@@ -374,6 +408,7 @@ void effectStackToggleBypass(int index) {
                (fx.bypassed ? " bypassed" : " active"));
   markProjectDirty();
   syncDatamoshFromStack();
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 void effectStackNudge(int index, float delta) {
@@ -381,9 +416,13 @@ void effectStackNudge(int index, float delta) {
   if (!effectIndexValid(stack, index)) {
     return;
   }
+  const Cue* beforeCue = selectedCueMutable();
+  const bool wasNeeded = beforeCue ? cueNeedsCpuPixelPath(*beforeCue) : false;
   auto& fx = (*stack)[index];
   fx.amount = std::clamp(fx.amount + delta, 0.0f, 1.0f);
   markProjectDirty();
+  // An amount crossing zero flips whether the CPU path is needed at all.
+  refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
 void effectStackMove(int index, int direction) {
