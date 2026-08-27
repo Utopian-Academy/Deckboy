@@ -4742,7 +4742,7 @@ class App {
     }
     SDL_SetWindowMinimumSize(controlWindow_, minW, minH);
 
-    controlRenderer_ = SDL_CreateRenderer(controlWindow_, nullptr);
+    controlRenderer_ = deckboyCreateRenderer(controlWindow_);
     if (!controlRenderer_) {
       std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
       return false;
@@ -4774,7 +4774,7 @@ class App {
     if (monitorsWindow_) {
       applyDeckboyWindowIcon(monitorsWindow_);
       SDL_SetWindowMinimumSize(monitorsWindow_, 640, 400);
-      monitorsRenderer_ = SDL_CreateRenderer(monitorsWindow_, nullptr);
+      monitorsRenderer_ = deckboyCreateRenderer(monitorsWindow_);
       if (!monitorsRenderer_) {
         SDL_DestroyWindow(monitorsWindow_);
         monitorsWindow_ = nullptr;

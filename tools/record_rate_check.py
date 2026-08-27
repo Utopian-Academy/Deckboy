@@ -227,6 +227,7 @@ def main():
         args.standard = ["3840x2160@60", "3840x2160@50", "3840x2160@30",
                          "1920x1080@60", "1920x1080@59.94"]
     args.exe = os.path.abspath(args.exe)
+    deckboy_testroot.warn_if_stale(exe)
     args.media = os.path.abspath(args.media)
     if not os.path.exists(args.exe):
         sys.exit("no binary at %s" % args.exe)
