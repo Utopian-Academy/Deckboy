@@ -60,6 +60,30 @@ bool readMotionField(void* handle, MotionField& out);
 // Back to the first frame, for a looping driver clip.
 void rewindMotionSource(void* handle);
 
+// Where the driver has got to, and how long it is.
+//
+// The driver is not a cue and never reaches the screen, so nothing else in the
+// app knows anything about it -- which meant an operator arming one had no way
+// to tell whether it was running, where it was, or whether the clip they picked
+// was the one they meant. This is what the inspector shows.
+struct MotionSourceStatus {
+  double positionSeconds = 0.0;
+  double durationSeconds = 0.0;   // 0 when the container will not say
+  std::uint64_t frameIndex = 0;
+  int thumbWidth = 0;             // 0 until a frame has been decoded
+  int thumbHeight = 0;
+};
+bool motionSourceStatus(void* handle, MotionSourceStatus& out);
+
+// The last decoded picture as a tiny luma thumbnail, or null before the first
+// frame. Owned by the source and valid until the next read; the pixels come
+// free because the decoder produced them on the way to the vectors.
+const std::uint8_t* motionSourceThumbnail(void* handle);
+
+// Jump the driver to a position in seconds. Falls back to a rewind when the
+// container cannot seek.
+void seekMotionSource(void* handle, double seconds);
+
 void closeMotionSource(void* handle);
 
 }  // namespace deckboy::motion

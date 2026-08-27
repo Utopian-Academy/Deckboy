@@ -311,7 +311,7 @@ attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
 - Cue geometry (scale/offset/crop/rotation): per-cue, in `Cue`
 - All color/geometry values normalized (0–1 for fractions, degrees for rotation)
 - **Operators see pixels, storage keeps fractions**: cue geometry (v0.76.21), AOI rect + edge blend in settings (v0.80.0). Convert at the UI edge only (`focusedOutputAoiRectPx`/`applyFocusedOutputAoiRectPx` pattern)
-- Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]` — all scriptable for screenshot verification
+- Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]`, `--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]` (one effect on one picture, headless), `--inspector-scroll <px>` (reach the inspector below the fold) — all scriptable for verification. **A bare `show.deckboy` argument opens it AND skips the splash**, which is how a scripted run gets past the boot screen: scripted input does not reach SDL3, neither PostMessage clicks/keys NOR synthesised mouse wheel.
 - **Every change must work on Windows, macOS AND Linux** — same quality, not
   necessarily the same solution. Windows is where the work usually gets done, but
   a feature is not finished until the `#ifdef` structure has been checked and the
