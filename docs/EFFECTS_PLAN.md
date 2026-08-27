@@ -195,3 +195,31 @@ live control surface for it does not.
 
 Flow-sort, seam tremor and the self-referential time map are the ones worth
 real effort after that.
+
+## 9. Drivers that are not files (proposed 2026-08-27)
+
+The motion driver currently reads vectors out of an encoded file, because that
+is where a codec leaves them. The owner asked whether the VIDEO SYNTH could be a
+driver too, and it should be -- but not by that route. A synth has no bitstream,
+so there is nothing to read.
+
+It has something better: it knows its own motion **analytically**. The synth
+already tracks `vsynthRotation_`, `feedbackZoom` and `speed`, and a rotate-plus-
+zoom about the centre has a closed-form displacement per cell:
+
+    dx = (cos t - 1) * x' - sin t * y'      (x', y' relative to centre, scaled)
+    dy =  sin t      * x' + (cos t - 1) * y'
+
+So a synth driver would be exact rather than estimated, cost nothing to compute,
+and carry no I-frame gaps -- strictly better than what a file can offer. The
+same is true of any generated source whose transform is known: patterns, the
+timer, a still with cue geometry animating.
+
+That suggests the driver should not be "a file path" at all but a SOURCE:
+
+  - a file            -> motion vectors from its bitstream (built)
+  - a generated cue   -> its transform, evaluated (proposed)
+  - another deck      -> whichever of the two that deck is running
+
+Worth doing after the vector path has been used in anger, so the shape of the
+abstraction comes from two working implementations rather than one and a guess.

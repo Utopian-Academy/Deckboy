@@ -1,5 +1,110 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-27 - v0.86.0 (recordings that move, effects, a faster synth)
+
+The headline is a correction. **Every recording 0.85.0 made was a single
+still frame**, and every counter said it was fine.
+
+### The recording was frozen
+
+The asynchronous readback never once succeeded. D3D11 defers submission, so
+the copy into the staging ring sat unsubmitted in the command buffer, the
+staging texture was still in use when the map came round, and
+`D3D11_MAP_FLAG_DO_NOT_WAIT` correctly refused -- every frame, for the whole
+take. Measured over ten seconds: 240 calls, 0 successes, 237 map failures. One
+`Flush()` after the copy fixes it: 237 successes, 0 failures.
+
+What hid it is that "nothing ready" is a *legitimate* condition -- the caller
+serves the previous picture and the pacer repeats it, which is right for a
+momentary miss. When it happens on every frame the file is one still image and
+every number still reads perfect: frames delivered equals frames owed, duration
+exact, alarm silent. Three separate test tools passed it.
+
+`tools/record_rate_check.py` now samples the finished file and counts *distinct
+pictures*, and fails any run with fewer than three. A check that only counts
+cannot see a frozen picture.
+
+### The writer had a mailbox, not a queue
+
+A single `pendingPacket` slot meant a second frame pushed before the writer
+drained the first silently replaced it -- while the pacer counted both as
+written. That is why a recording ran short whenever capture outpaced the
+writer, and why two previous attempts at filling the cadence with repeats
+achieved nothing: every repeat landed in the same slot.
+
+It is a bounded queue now, and the pacer catches up to four frames a tick.
+Packets share one immutable buffer rather than copying the raster, so a repeat
+costs a pointer instead of 33MB. The deliberately starved case -- forced
+synchronous readback at 4K60, which used to yield 325 frames of 901 -- now
+lands 896 of 902.
+
+### Segmented recordings carry continuous timecode
+
+Every segment was handed the take's start value, so rolling a take into four
+files gave four files all starting at 10:00:00:00 -- impossible to lay end to
+end. A segment now starts at the take's start plus every frame already written,
+which needs real SMPTE arithmetic because drop-frame is a renumbering and
+frames and timecode are not interchangeable. Verified across a minute boundary
+that correctly does not drop, being a tenth minute.
+
+### The dropped-frame alarm tells the truth
+
+It was crying wolf on every 4K take: the readback is a three-deep pipeline, so
+a healthy recording sits a constant few frames behind, and the tolerance was
+two. Then the first fix over-corrected -- counting fresh frames against the
+recording rate fires on any 30fps source recorded at 60, which is half repeats
+by definition. It now warns when the picture has gone STALE, which is the thing
+that matters, and separately checks that the writer is draining.
+
+### The video synth is six times faster
+
+35-40ms a frame at 4K, down to 6.1ms. The CRT stage ran after the upscale on
+the full raster and cost 23ms; every quantity in it was already expressed in
+source-pixel blocks, so it belongs on the small buffer where the rest of the
+synth lives. And two lines allocated and zero-filled 33MB per frame, then
+walked 8.3 million alpha bytes, which the upscale immediately overwrote.
+
+Recording a synth cue went from 233 frames of 360 with twelve alarms to 354
+with none.
+
+### Per-cue effects
+
+An ordered stack on each cue, applied in the order you arrange it: invert,
+posterise, solarise, threshold, vignette, grain, scanlines, RGB split,
+temporal dither and motion puppet.
+
+**Temporal dither** quantises hard to a tiny palette but advances the dither
+every frame, so at 60Hz the eye integrates shades that are not in the palette
+at all -- and it freezes into visible checkerboard the moment you pause.
+
+**Motion puppet** is the one to try. A cue can name a *driver* clip, which is
+decoded only for the per-macroblock motion vectors its codec already computed;
+its pictures are never shown. Those vectors displace this cue's pixels, so a
+camera feed can be puppeteered by a crowd scene. `--motion-probe <file>` tells
+you whether a clip makes a good driver before you wonder -- a mostly static
+clip moves 1.7% of its cells and does nothing visible; a rotating one moves 50%
+and is violent.
+
+### Inspector
+
+Eighteen values on the video synth, tone generator and chip synth can now be
+clicked and typed instead of only nudged: speed, scale, feedback, zoom, audio
+reactivity, detail, smear, glitch, CRT, sprite spin, level, frequency, note,
+attack, release, mod depth, mod ratio and retrigger. Holding shift while
+dragging a value is a fine adjust.
+
+### Elsewhere
+
+- Cue schedules no longer fire on LAUNCH. Opening a show at 2pm sent every cue
+  scheduled earlier that day straight to air.
+- `GOEND` over the wire jumps the playing cue to its last moment -- the action
+  existed and worked and nothing could reach it.
+- `tools/audit_actions.py` finds dead controls: actions with no handler,
+  actions nothing can fire, and duplicate settings ids. 257 actions, no
+  orphans.
+- macOS and Linux get the asynchronous readback through SDL_GPU. SDL 3.4 is
+  now the floor.
+
 ## 2026-08-24 - v0.85.0 (program recording, audio in, the synth sources)
 
 Deckboy can now record what it puts to air, take audio *in*, and generate its
