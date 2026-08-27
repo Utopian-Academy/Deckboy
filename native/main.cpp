@@ -7835,6 +7835,9 @@ class App {
   // uploaded. Composite frames already carry the cue's geometry, so the
   // monitor must draw them plainly instead of re-applying it.
   bool controlPreviewIsComposite_ = false;
+  // Scratch for the preview's graded/effected copy, so the decoded frame
+  // itself is never mutated -- other consumers still need it clean.
+  DecodedFrame controlPreviewLookFrame_;
   std::uint64_t controlPreviewTapSerial_ = 0;
   std::vector<QuickButton> quickButtons_;
   // Value scrubbing: click-hold-drag horizontally on an inspector value cell

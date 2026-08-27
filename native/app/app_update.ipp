@@ -878,9 +878,46 @@
       if (frame && frame->width > 0 && frame->height > 0 &&
           frame->index != controlPreviewFrameIdx_) {
         controlPreviewFrameIdx_ = frame->index;
-        syncFrameTexture(controlRenderer_, controlPreviewTex_,
-                         controlPreviewTexW_, controlPreviewTexH_,
-                         controlPreviewTexFormat_, *frame);
+        // Run the cue's LOOK on the preview too.
+        //
+        // This path is the fallback used when no output window is armed, and
+        // it uploaded the raw decoded frame -- so with no output up, the
+        // preview showed the cue ungraded and with none of its effects, and
+        // arming an output made them all appear at once. Reported as "the
+        // effects didn't show up in preview until output was activated", which
+        // is exactly what it was.
+        //
+        // The composite tap above already carries the look, because it is
+        // sampled from the output's finished picture. This makes the fallback
+        // agree with it.
+        //
+        // It costs a full-raster copy and grade per preview frame, which is why
+        // it is gated on the cue actually HAVING a look. It only ever runs with
+        // no output armed -- the moment one is, the tap takes over and this
+        // path stops being reached at all.
+        const Cue* previewCue = activeCuePtr(project_.focusedDeckIndex);
+        const bool wantsLook =
+          previewCue && frame->format == FramePixelFormat::RGBA32 &&
+          !frame->pixels.empty() &&
+          (cueHasPixelEffects(*previewCue) ||
+           deckboy::effects::cueEffectStackActive(previewCue->effects));
+        if (wantsLook) {
+          controlPreviewLookFrame_ = *frame;
+          applyCueVisualEffectsToPixels(controlPreviewLookFrame_.pixels, *previewCue);
+          deckboy::effects::CueEffectContext fxCtx;
+          fxCtx.width = controlPreviewLookFrame_.width;
+          fxCtx.height = controlPreviewLookFrame_.height;
+          fxCtx.frameIndex = controlPreviewLookFrame_.index;
+          deckboy::effects::applyCueEffectStack(
+            controlPreviewLookFrame_.pixels, previewCue->effects, fxCtx);
+          syncFrameTexture(controlRenderer_, controlPreviewTex_,
+                           controlPreviewTexW_, controlPreviewTexH_,
+                           controlPreviewTexFormat_, controlPreviewLookFrame_);
+        } else {
+          syncFrameTexture(controlRenderer_, controlPreviewTex_,
+                           controlPreviewTexW_, controlPreviewTexH_,
+                           controlPreviewTexFormat_, *frame);
+        }
       } else if (!frame) {
         // Clear preview when nothing is loaded
         clearControlPreviewTexture();
