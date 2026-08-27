@@ -49,6 +49,7 @@ enum class CueEffectKind : int {
   ChannelOffset,
   TemporalDither,
   MotionPuppet,
+  Datamosh,
   Count,
 };
 
@@ -64,6 +65,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::ChannelOffset:  return "rgb split";
     case CueEffectKind::TemporalDither: return "temporal dither";
     case CueEffectKind::MotionPuppet:   return "motion puppet";
+    case CueEffectKind::Datamosh:       return "datamosh";
     default:                            return "none";
   }
 }
@@ -82,6 +84,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::ChannelOffset:  return "channel_offset";
     case CueEffectKind::TemporalDither: return "temporal_dither";
     case CueEffectKind::MotionPuppet:   return "motion_puppet";
+    case CueEffectKind::Datamosh:       return "datamosh";
     default:                            return "none";
   }
 }
@@ -101,6 +104,11 @@ struct CueEffect {
   float amount = 1.0f;    // 0 = inactive; every effect is skipped entirely at 0
   float paramA = 0.0f;
   float paramB = 0.0f;
+  // BYPASS is not the same as amount 0. Turning an effect down to nothing
+  // loses the setting you spent time on; bypass takes it out of the chain and
+  // gives it back. Every serious tool has both and they are not
+  // interchangeable.
+  bool bypassed = false;
 };
 
 // What an effect needs beyond the pixels. Kept in one struct so adding a
@@ -154,8 +162,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
 
   for (const CueEffect& fx : stack) {
     const double amt = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
-    if (fx.kind == CueEffectKind::None || amt <= 0.0005) {
-      continue;   // zero costs nothing, as the synth's glitch stack does
+    if (fx.kind == CueEffectKind::None || fx.bypassed || amt <= 0.0005) {
+      continue;   // zero and bypass both cost nothing
     }
     switch (fx.kind) {
       case CueEffectKind::Invert: {
@@ -369,6 +377,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         }
         break;
       }
+      case CueEffectKind::Datamosh:
+        // Deliberately nothing here. Datamosh is not a pixel operation: it
+        // works by withholding keyframes from the DECODER, so by the time a
+        // frame reaches this function the effect has already happened or it
+        // has not. It sits in this list because from where the operator
+        // stands it is an effect like any other, and having one effect
+        // permanently present while the rest had to be added was incoherent.
+        break;
       default:
         break;
     }
@@ -377,7 +393,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
 
 inline bool cueEffectStackActive(const std::vector<CueEffect>& stack) {
   for (const CueEffect& fx : stack) {
-    if (fx.kind != CueEffectKind::None && fx.amount > 0.0005f) {
+    if (fx.kind != CueEffectKind::None && !fx.bypassed && fx.amount > 0.0005f) {
       return true;
     }
   }

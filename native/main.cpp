@@ -2237,7 +2237,7 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     if (!out.empty()) out += '|';
     std::ostringstream one;
     one << deckboy::effects::cueEffectToken(fx.kind) << ':' << fx.amount
-        << ':' << fx.paramA << ':' << fx.paramB;
+        << ':' << fx.paramA << ':' << fx.paramB << ':' << (fx.bypassed ? 1 : 0);
     out += one.str();
   }
   return out;
@@ -2269,6 +2269,7 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
         if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
         if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+        if (parts.size() > 4) fx.bypassed = std::atoi(parts[4].c_str()) != 0;
         stack.push_back(fx);
       }
     }
@@ -6107,16 +6108,66 @@ class App {
     const auto& stack = cue.effects;
     for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
       const auto& fx = stack[i];
+      // NAME OPENS THE PICKER. The label doubles as the control that changes
+      // it, so the effect's identity and the way to change it are the same
+      // object -- there is no separate "kind" button to hunt for.
+      {
+        SDL_Rect nameRect {ix.ctrl.x + ix.inset, rowY,
+                           ix.ctrlW - ix.inset * 2, ix.rowH};
+        drawUIPanel(nameRect, fx.bypassed ? pal.mid : pal.tile, pal.deep, pal.mid);
+        std::string name = std::to_string(i + 1);
+        name += ". ";
+        name += deckboy::effects::cueEffectLabel(fx.kind);
+        if (fx.bypassed) {
+          name += "  (bypassed)";
+        }
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {nameRect.x + 6, nameRect.y, nameRect.w - 20, nameRect.h},
+                     name, fx.bypassed ? pal.inkSoft : pal.fg);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect {nameRect.x + nameRect.w - 16, nameRect.y, 14, nameRect.h},
+                             "â¼", pal.inkSoft);
+        quickButtons_.push_back({nameRect, QuickAction::EffectCycleKind,
+                                 "Choose which effect this is", i});
+        rowY += ix.rowStep;
+      }
+      // Datamosh carries its own state instead of an amount: it is a decode
+      // behaviour, not a per-pixel strength, and showing it a 0-1 slider it
+      // does not use would be a control that does nothing.
+      if (fx.kind == deckboy::effects::CueEffectKind::Datamosh) {
+        const bool fileBacked = cue.kind == CueKind::Video && !cue.path.empty();
+        if (!fileBacked) {
+          rowY = inspDrawMessageRow(ix, rowY,
+                                    "needs file-backed video", pal.mid, pal.deep);
+        } else {
+          std::error_code moshEc;
+          const bool prepared =
+            !cue.moshPath.empty() && fs::exists(fs::path(cue.moshPath), moshEc);
+          rowY = inspDrawMessageRow(
+            ix, rowY,
+            cue.datamoshEnabled ? (prepared ? "ready" : "transcoding - plays clean until ready")
+                                : "off",
+            pal.tile, cue.datamoshEnabled ? pal.fg : pal.inkSoft);
+          inspDrawQuickRow(ix, rowY, "look", QuickAction::DatamoshLookPrev,
+                           moshLookLabelFor(cue.datamoshLook),
+                           QuickAction::DatamoshLookNext, QuickAction::ToggleLoop,
+                           false, false,
+                           "SUBTLE self-heals (H.264). CLASSIC is the real smear "
+                           "(MPEG-4). EXTREME is chunkier and smears constantly. "
+                           "Changing this re-prepares the cue.");
+          rowY += ix.rowStep;
+        }
+      } else {
       std::ostringstream amount;
       amount << std::fixed << std::setprecision(2) << fx.amount;
-      inspDrawQuickRow(ix, rowY, deckboy::effects::cueEffectLabel(fx.kind),
+      inspDrawQuickRow(ix, rowY, "amount",
                        QuickAction::EffectAmountDec, amount.str(),
                        QuickAction::EffectAmountInc, QuickAction::ToggleLoop,
                        false, false,
-                       "Amount | click the name to change the effect | "
-                       "drag to scrub (shift = fine), click to type exact",
+                       "Drag to scrub (shift = fine), click to type exact",
                        true, QuickAction::EffectEditAmount, i);
       rowY += ix.rowStep;
+      }
       // Second row: what it is, where it sits, and getting rid of it. Split
       // from the amount row because cramming six controls onto one line is how
       // the inspector's text placement went wrong before.
@@ -6124,17 +6175,22 @@ class App {
         const int gap = 4;
         const int cellW = (ix.ctrlW - ix.inset * 2 - gap * 3) / 4;
         int cx = ix.ctrl.x + ix.inset;
-        struct Cell { const char* label; QuickAction action; const char* tip; };
+        struct Cell { const char* label; QuickAction action; const char* tip; bool lit; };
         const Cell cells[4] = {
-          {"kind", QuickAction::EffectCycleKind, "Change which effect this is"},
-          {"up",   QuickAction::EffectMoveUp,    "Earlier in the stack"},
-          {"down", QuickAction::EffectMoveDown,  "Later in the stack"},
-          {"x",    QuickAction::EffectRemove,    "Remove this effect"},
+          {"B", QuickAction::EffectToggleBypass,
+           "Bypass: take it out of the chain but KEEP its settings. Turning the "
+           "amount to zero throws them away.", fx.bypassed},
+          {"â²", QuickAction::EffectMoveUp,   "Earlier in the stack", false},
+          {"â¼", QuickAction::EffectMoveDown, "Later in the stack", false},
+          {"X", QuickAction::EffectRemove,      "Remove this effect", false},
         };
         for (const Cell& cell : cells) {
           SDL_Rect r {cx, rowY, cellW, ix.rowH};
-          drawUIPanel(r, pal.tile, pal.deep, pal.mid);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, cell.label, pal.fg);
+          // A bypassed effect reads as OFF at a glance, which is the whole
+          // point of having the control at all.
+          drawUIPanel(r, cell.lit ? pal.dark : pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, cell.label,
+                               cell.lit ? pal.light : pal.fg);
           quickButtons_.push_back({r, cell.action, cell.tip, i});
           cx += cellW + gap;
         }
@@ -6425,47 +6481,18 @@ class App {
   }
 
   int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
-    int rowY = startY;
-    const bool fileBackedVideo = cue.kind == CueKind::Video && !cue.path.empty();
-    if (!fileBackedVideo) {
-      // NOT a return any more. Datamosh needs a file to transcode, but the
-      // effect stack works on whatever pixels a cue produces, so bailing out
-      // here hid the whole stack from cameras, synths and stills -- most of the
-      // cues an operator would want it on.
-      rowY = inspDrawMessageRow(ix, rowY, "datamosh: file-backed video only",
-                                pal.mid, pal.deep);
-      return cueSupportsEffectStack(cue) ? inspDrawEffectRows(ix, rowY, cue) : rowY;
-    }
-    std::error_code moshEc;
-    const bool prepared =
-      !cue.moshPath.empty() && fs::exists(fs::path(cue.moshPath), moshEc);
-    inspDrawQuickRow(ix, rowY, "datamosh", QuickAction::DatamoshToggle,
-                     cue.datamoshEnabled ? (prepared ? "ON" : "preparing...") : "off",
-                     QuickAction::DatamoshToggle, QuickAction::DatamoshToggle,
-                     true, cue.datamoshEnabled,
-                     "Withhold keyframes so the picture smears. Prepares the "
-                     "cue automatically the first time it is enabled.");
-    rowY += ix.rowStep;
-    // The look lives next to the toggle, not in the Encoder tab: it is a
-    // property of this clip, and an operator who has just switched datamosh on
-    // and found it underwhelming looks HERE for the strength control.
-    inspDrawQuickRow(ix, rowY, "look", QuickAction::DatamoshLookPrev,
-                     moshLookLabelFor(cue.datamoshLook),
-                     QuickAction::DatamoshLookNext, QuickAction::DatamoshLookNext,
-                     false, false,
-                     "SUBTLE self-heals (H.264). CLASSIC is the real smear "
-                     "(MPEG-4). EXTREME is chunkier and smears constantly. "
-                     "Changing this re-prepares the cue.");
-    rowY += ix.rowStep;
-    if (cue.datamoshEnabled && !prepared) {
-      rowY = inspDrawMessageRow(ix, rowY, "transcoding - plays clean until ready",
+    // ONE LIST. Datamosh used to be permanently present here while every other
+    // effect had to be added, which meant the section had two different rules
+    // in it and no way to see what was on offer. It is an entry in the stack
+    // now like anything else, and refuses with a message on cues it cannot
+    // work on rather than being silently absent.
+    if (!cueSupportsEffectStack(cue)) {
+      return inspDrawMessageRow(ix, startY, "no effects for this cue type",
                                 pal.mid, pal.deep);
     }
-    if (cueSupportsEffectStack(cue)) {
-      rowY = inspDrawEffectRows(ix, rowY, cue);
-    }
-    return rowY;
+    return inspDrawEffectRows(ix, startY, cue);
   }
+
   int inspDrawKeyRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     if (!cueSupportsKeying(&cue)) return rowY;
