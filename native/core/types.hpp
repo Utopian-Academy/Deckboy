@@ -1241,6 +1241,9 @@ enum class QuickAction {
   // Effect stack. All of these carry the effect's INDEX in QuickButton::param,
   // which is what lets one action serve a list of arbitrary length.
   EffectAdd,
+  // Pick / clear the clip whose motion drives the motion-puppet effect.
+  MotionDriverPick,
+  MotionDriverClear,
   EffectRemove,
   EffectCycleKind,
   EffectAmountDec,
