@@ -46,6 +46,8 @@
       case QuickAction::EffectParamBDec:  effectStackNudgeParam(param, 1, -0.05f); return;
       case QuickAction::EffectParamBInc:  effectStackNudgeParam(param, 1, +0.05f); return;
       case QuickAction::EffectParamBEdit: effectStackEditParam(param, 1); return;
+      case QuickAction::EffectChainCopy:  copySelectedEffectChain(); return;
+      case QuickAction::EffectChainPaste: pasteSelectedEffectChain(); return;
       default: break;
     }
     dispatchQuickActionPlain(action);

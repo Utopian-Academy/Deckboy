@@ -1271,6 +1271,8 @@ enum class QuickAction {
   EffectParamBDec,
   EffectParamBInc,
   EffectParamBEdit,
+  EffectChainCopy,
+  EffectChainPaste,
   // -- Geometry: crop ------
   CropLDec, CropLInc,
   CropRDec, CropRInc,

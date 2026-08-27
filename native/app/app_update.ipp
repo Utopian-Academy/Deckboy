@@ -204,6 +204,7 @@
               drag_.active = false;
               drag_.cueIndex = -1;
               masterFaderDragActive_ = false;
+              motionDriverScrubActive_ = false;
               trimDragMode_ = TrimDragMode::None;
               if (timelineScrubActive_ && scrubWasPlaying_) {
                 if (MediaEngine* engine = focusedMediaEngine()) {
@@ -809,6 +810,8 @@
       }
       }
     }
+    ++motionDriverFrameCounter_;
+    applyPendingInspectorScroll();
     updateStatusSnapshot();
     // Update control window preview texture from focused engine's current frame.
     {
@@ -908,6 +911,14 @@
           fxCtx.width = controlPreviewLookFrame_.width;
           fxCtx.height = controlPreviewLookFrame_.height;
           fxCtx.frameIndex = controlPreviewLookFrame_.index;
+          // The driver, same as the output composite does it. Without this a
+          // motion puppet was the one effect the preview still could not show
+          // -- and the driver was never opened at all, so the inspector had
+          // nothing to preview or scrub either.
+          if (!previewCue->motionDriverPath.empty()) {
+            fxCtx.motion =
+              advanceMotionDriver(project_.focusedDeckIndex, *previewCue);
+          }
           deckboy::effects::applyCueEffectStack(
             controlPreviewLookFrame_.pixels, previewCue->effects, fxCtx);
           syncFrameTexture(controlRenderer_, controlPreviewTex_,

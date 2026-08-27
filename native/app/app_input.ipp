@@ -634,6 +634,21 @@
       }
     }
 
+    // The driver scrub bar, before the quick buttons: where along it you
+    // pressed IS the value, and a quick button only knows that it was hit.
+    // Clipped to the inspector viewport like the cue-settings buttons are, so
+    // a bar scrolled out of sight cannot be grabbed through the panel edge.
+    if (motionDriverScrubRect_.w > 0 && motionDriverScrubDuration_ > 0.0 &&
+        pointInRect(x, y, motionDriverScrubRect_) &&
+        pointInRect(x, y, cueSettingsViewportRect_)) {
+      const double frac = std::clamp(
+        static_cast<double>(x - motionDriverScrubRect_.x) /
+          static_cast<double>(motionDriverScrubRect_.w), 0.0, 1.0);
+      seekMotionDriver(motionDriverScrubDeck_, frac * motionDriverScrubDuration_);
+      motionDriverScrubActive_ = true;   // keep tracking: it is a scrub, not a button
+      return;
+    }
+
     for (size_t i = 0; i < quickButtons_.size(); ++i) {
       const auto& qb = quickButtons_[i];
       bool isCueSettingsButton = i >= cueSettingsQuickButtonStartIndex_;
@@ -684,6 +699,14 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (motionDriverScrubActive_ && motionDriverScrubRect_.w > 0 &&
+        motionDriverScrubDuration_ > 0.0) {
+      const double frac = std::clamp(
+        static_cast<double>(x - motionDriverScrubRect_.x) /
+          static_cast<double>(motionDriverScrubRect_.w), 0.0, 1.0);
+      seekMotionDriver(motionDriverScrubDeck_, frac * motionDriverScrubDuration_);
+      return;
+    }
     if (masterFaderDragActive_ && masterFaderRect_.w > 0) {
       double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
       project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
