@@ -65,6 +65,7 @@ cmake --build build/windows --config Release
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
 | `tools/audit_actions.py` | Find dead controls: QuickActions with no handler, actions nothing can fire, and duplicate settings action ids. `--strict` fails on unreachable actions too. Run it before claiming a control works |
+| `tools/check_preview_effects.py` | Sweep every pixel effect through the CONTROL PREVIEW with **no output armed** (seeks + pauses so each case is the same frame). `check_effects.py` only proves an effect reaches the recording, which is the output's composite -- it cannot see a preview-only fault |
 | `tools/linux_build.sh` | Dependencies + build on a fresh Debian/Ubuntu box, including building SDL 3.4 from source where the distro's is older |
 | `tools/record_rate_check.py` | Record a known duration and count what landed in the file: frames delivered vs owed, plus the app's own dropped-frame alarm. `--renderer` / `--readback` pin the backend so one platform's behaviour can be measured from another |
 | `tools/deckboy.iss` | Inno Setup Windows installer (Start Menu, `.deckboy` assoc, uninstaller). Needs the zip packager's staging dir. `iscc /DDeckboyVersion=<ver> tools\deckboy.iss` |
@@ -90,6 +91,13 @@ handles still make sense), and `controlPreviewIsComposite_` tells
 composite already has it baked in. When no window output is armed it falls back
 to the old decoder-frame path. Don't restore the ~10fps hwframe-download path as
 the primary source; that was the "preview lags the output" bug.
+
+**The fallback must apply the cue's look itself** (`applyCueVisualEffectsToPixels`
++ `applyCueEffectStack` in `app_update.ipp`). The tap gets the grade and the
+effect stack for free because it is sampled from the finished composite; the
+decoder frame is raw. When the fallback uploaded it untouched, effects appeared
+only once an output was armed. `tools/check_preview_effects.py` guards this: it
+never arms an output.
 
 ---
 

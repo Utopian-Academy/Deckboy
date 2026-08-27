@@ -82,13 +82,14 @@ def build_project(root, template, media, driver, effect_field):
     lines = []
     for line in io.open(template, encoding="utf-8", errors="replace").read().split("\n"):
         f = line.split("\t")
-        if f and f[0] == "cue" and len(f) >= 155 and "CHECKME" in line:
-            while len(f) < 156:
+        if f and f[0] == "cue" and "CHECKME" in line:
+            # Computed, never hardcoded -- see cue_effects_field_index.
+            idx = deckboy_testroot.cue_effects_field_index(f)
+            while len(f) <= idx + 1:
                 f.append("")
             f[2] = esc(media)
-            f[154] = effect_field
-            f[155] = esc(driver) if driver else ""
-            line = "\t".join(f)
+            f[idx] = effect_field
+            f[idx + 1] = esc(driver) if driver else ""
         lines.append(line)
     io.open(os.path.join(root, "data", "default.deckboy"), "w",
             encoding="utf-8", newline="").write("\n".join(lines))

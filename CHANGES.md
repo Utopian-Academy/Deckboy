@@ -85,6 +85,18 @@ you whether a clip makes a good driver before you wonder -- a mostly static
 clip moves 1.7% of its cells and does nothing visible; a rotating one moves 50%
 and is violent.
 
+**The preview shows them now.** It did not, unless an output window was armed.
+The preview has two sources -- the output's finished composite, which carries
+the look because it is sampled after it is applied, and the raw decoded frame
+when nothing is armed. The second one skipped the grade and the whole effect
+stack, so setting up a look with no output up showed you the untouched clip,
+and arming an output made every effect appear at once. The fallback now runs
+the same grade and stack before it uploads.
+
+`tools/check_preview_effects.py` sweeps all fifteen pixel effects through that
+path with no output armed, seeking and pausing so every case is the same frame
+and only the effect differs. All fifteen change the picture.
+
 ### Inspector
 
 Eighteen values on the video synth, tone generator and chip synth can now be
