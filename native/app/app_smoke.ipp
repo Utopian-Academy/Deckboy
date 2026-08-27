@@ -1431,7 +1431,7 @@
       return 1;
     }
     SDL_Window* window = SDL_CreateWindow("Deckboy decode bench", 1280, 720, SDL_WINDOW_HIDDEN);
-    SDL_Renderer* renderer = window ? SDL_CreateRenderer(window, nullptr) : nullptr;
+    SDL_Renderer* renderer = window ? deckboyCreateRenderer(window) : nullptr;
     if (!renderer) {
       std::cout << "decode-bench: renderer create failed: " << SDL_GetError() << '\n';
       SDL_Quit();

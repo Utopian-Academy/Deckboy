@@ -36,6 +36,8 @@ import deckboy_testroot  # noqa: E402
 EFFECTS = [
     "invert", "posterise", "solarise", "threshold", "vignette",
     "grain", "scanlines", "channel_offset", "temporal_dither",
+    "pixel_sort", "block_glitch", "polar_warp", "luma_displace",
+    "ripple", "kaleidoscope",
     "motion_puppet", "datamosh",
 ]
 
@@ -94,19 +96,34 @@ def build_project(root, template, media, driver, effect_field):
 
 
 def record(exe, root, port, seconds):
+    """One take. `port` must differ per case: reusing one control port across
+    consecutive runs leaves the previous app's socket lingering, the next app
+    fails to bind, and the harness then talks to nothing and reports a crash
+    that never happened."""
     env = dict(os.environ)
     env["DECKBOY_ROOT"] = root
     env["DECKBOY_COMPANION_PORT"] = str(port)
     env["DECKBOY_PROJECT"] = os.path.join(root, "data", "default.deckboy")
+    # Captured, not discarded. When this harness reported "connection refused"
+    # the app's own output was the only thing that could say whether it had
+    # died, refused to bind, or was perfectly healthy and being talked to on
+    # the wrong port -- and it was being thrown away.
+    logpath = os.path.join(root, "app.log")
+    applog = open(logpath, "w")
     proc = subprocess.Popen([exe], env=env, cwd=os.path.dirname(exe) or ".",
-                            stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+                            stdout=applog, stderr=subprocess.STDOUT)
     try:
+        ready = False
         for _ in range(120):
             try:
                 send(port, "HELP", timeout=1.0)
+                ready = True
                 break
             except OSError:
                 time.sleep(0.5)
+        if not ready:
+            # Loudly, rather than carrying on and blaming the app.
+            raise RuntimeError("control port %d never came up" % port)
         send(port, "MASTERVOL 0")
         send(port, "OUT on")
         send(port, "RECFORMAT 960x540 30")
@@ -121,12 +138,25 @@ def record(exe, root, port, seconds):
         time.sleep(seconds)
         send(port, "RECORD off")
         time.sleep(3.0)
+    except Exception as exc:
+        alive = proc.poll() is None
+        applog.flush()
+        tail = ""
+        try:
+            tail = open(logpath, errors="replace").read()[-600:]
+        except OSError:
+            pass
+        print("  case failed: %s" % exc)
+        print("  app alive=%s exit=%s" % (alive, proc.poll()))
+        print("  app said: %s" % (tail.strip() or "(nothing)"))
+        raise
     finally:
         proc.terminate()
         try:
             proc.wait(timeout=15)
         except subprocess.TimeoutExpired:
             proc.kill()
+        applog.close()
     files = sorted(glob.glob(os.path.join(root, "data", "recordings", "*.*")),
                    key=os.path.getmtime)
     return files[-1] if files else None
@@ -146,6 +176,7 @@ def main():
     args = parser.parse_args()
 
     exe = os.path.abspath(args.exe)
+    deckboy_testroot.warn_if_stale(exe)
     workdir = tempfile.mkdtemp(prefix="deckboy-fxcheck-")
     root = os.path.join(workdir, "root")
 
@@ -171,7 +202,8 @@ def main():
         field = "%s:1:0.5:0:0" % effect
         build_project(root, args.template, os.path.abspath(args.media),
                       args.driver, field)
-        path = record(exe, root, args.port, args.seconds)
+        # A fresh port per case, for the reason record() documents.
+        path = record(exe, root, args.port + 1 + EFFECTS.index(effect), args.seconds)
         if not path:
             results.append((effect, "FAIL", "no recording"))
             continue

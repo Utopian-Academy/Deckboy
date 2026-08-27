@@ -50,6 +50,12 @@ enum class CueEffectKind : int {
   TemporalDither,
   MotionPuppet,
   Datamosh,
+  PixelSort,
+  BlockGlitch,
+  PolarWarp,
+  LumaDisplace,
+  Ripple,
+  Kaleidoscope,
   Count,
 };
 
@@ -66,6 +72,12 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::TemporalDither: return "temporal dither";
     case CueEffectKind::MotionPuppet:   return "motion puppet";
     case CueEffectKind::Datamosh:       return "datamosh";
+    case CueEffectKind::PixelSort:      return "pixel sort";
+    case CueEffectKind::BlockGlitch:    return "block glitch";
+    case CueEffectKind::PolarWarp:      return "polar warp";
+    case CueEffectKind::LumaDisplace:   return "luma displace";
+    case CueEffectKind::Ripple:         return "ripple";
+    case CueEffectKind::Kaleidoscope:   return "kaleidoscope";
     default:                            return "none";
   }
 }
@@ -85,6 +97,12 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::TemporalDither: return "temporal_dither";
     case CueEffectKind::MotionPuppet:   return "motion_puppet";
     case CueEffectKind::Datamosh:       return "datamosh";
+    case CueEffectKind::PixelSort:      return "pixel_sort";
+    case CueEffectKind::BlockGlitch:    return "block_glitch";
+    case CueEffectKind::PolarWarp:      return "polar_warp";
+    case CueEffectKind::LumaDisplace:   return "luma_displace";
+    case CueEffectKind::Ripple:         return "ripple";
+    case CueEffectKind::Kaleidoscope:   return "kaleidoscope";
     default:                            return "none";
   }
 }
@@ -141,6 +159,120 @@ inline int bayer4(int x, int y) {
 }
 
 }  // namespace detail
+
+
+// ---------------------------------------------------------------------------
+// Stages shared with the video synth.
+//
+// These began life inside rebuildVideoSynthFrame and were only ever available
+// to a synth cue, which is a waste: a pixel sort is at least as interesting on
+// a face as on an oscillator. They live here now and the synth calls them, so
+// there is ONE implementation rather than two that drift.
+//
+// All of them take a raw buffer plus its dimensions, because the synth runs
+// them on its small internal raster while a cue runs them on the frame.
+// ---------------------------------------------------------------------------
+
+// Runs of bright pixels within a row, sorted by brightness. The dragged,
+// melted look: bright material slides along the row and pools against whatever
+// stops it.
+inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
+  if (!pixels || w <= 2 || h <= 0 || amount <= 0.01) {
+    return;
+  }
+  // The threshold FALLS as the amount rises, so more of each row qualifies and
+  // the runs grow longer. Driving run length directly instead would cut spans
+  // at arbitrary points and read as banding rather than flow.
+  const int threshold = static_cast<int>(200.0 - std::clamp(amount, 0.0, 1.0) * 170.0);
+  auto luma = [&](std::size_t o) {
+    return (pixels[o + 2] * 77 + pixels[o + 1] * 151 + pixels[o + 0] * 28) >> 8;
+  };
+  std::vector<std::uint32_t> run;
+  for (int y = 0; y < h; ++y) {
+    const std::size_t rowOff = static_cast<std::size_t>(y) * w * 4;
+    int x = 0;
+    while (x < w) {
+      if (static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) < threshold) {
+        ++x;
+        continue;
+      }
+      const int begin = x;
+      while (x < w &&
+             static_cast<int>(luma(rowOff + static_cast<std::size_t>(x) * 4)) >= threshold) {
+        ++x;
+      }
+      const int len = x - begin;
+      if (len < 3) {
+        continue;
+      }
+      run.clear();
+      run.reserve(static_cast<std::size_t>(len));
+      for (int i = 0; i < len; ++i) {
+        std::uint32_t px = 0;
+        std::memcpy(&px, pixels + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
+        run.push_back(px);
+      }
+      std::sort(run.begin(), run.end(), [](std::uint32_t a, std::uint32_t b) {
+        const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
+        const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
+        return la < lb;
+      });
+      for (int i = 0; i < len; ++i) {
+        std::memcpy(pixels + rowOff + static_cast<std::size_t>(begin + i) * 4,
+                    &run[static_cast<std::size_t>(i)], 4);
+      }
+    }
+  }
+}
+
+// Displaced scanline bands plus red/blue separation: the corrupted-frame look.
+// Bands are whole rows because that is how real decode corruption presents --
+// a block row loses sync and the rest of the line arrives shifted.
+inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
+                             std::uint32_t seed) {
+  if (!pixels || w <= 2 || h <= 0 || amount <= 0.01) {
+    return;
+  }
+  amount = std::clamp(amount, 0.0, 1.0);
+  std::uint32_t state = seed | 1u;
+  auto rnd = [&state]() {
+    state ^= state << 13; state ^= state >> 17; state ^= state << 5;
+    return state;
+  };
+  const int bands = 1 + static_cast<int>(amount * 14.0);
+  std::vector<std::uint8_t> rowCopy(static_cast<std::size_t>(w) * 4);
+  for (int b = 0; b < bands; ++b) {
+    const int y0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, h)));
+    const int hgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
+      std::max(1, static_cast<int>(h * amount / 8) + 1)));
+    const int shift = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, w / 3))) -
+                      (w / 6);
+    for (int y = y0; y < std::min(h, y0 + hgt); ++y) {
+      std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
+      std::memcpy(rowCopy.data(), row, rowCopy.size());
+      for (int x = 0; x < w; ++x) {
+        // WRAPPED, not clamped: a clamped shift smears its edge pixel across
+        // the gap, which reads as a stretch. Wrapping reads as torn, which is
+        // what corruption actually looks like.
+        int sx = x - shift;
+        sx = ((sx % w) + w) % w;
+        std::memcpy(row + static_cast<std::size_t>(x) * 4,
+                    rowCopy.data() + static_cast<std::size_t>(sx) * 4, 4);
+      }
+    }
+  }
+  const int sep = static_cast<int>(amount * (w / 60.0)) + 1;
+  for (int y = 0; y < h; ++y) {
+    std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
+    std::memcpy(rowCopy.data(), row, rowCopy.size());
+    for (int x = 0; x < w; ++x) {
+      const int xr = std::clamp(x + sep, 0, w - 1);
+      const int xb = std::clamp(x - sep, 0, w - 1);
+      row[static_cast<std::size_t>(x) * 4 + 2] = rowCopy[static_cast<std::size_t>(xr) * 4 + 2];
+      row[static_cast<std::size_t>(x) * 4 + 0] = rowCopy[static_cast<std::size_t>(xb) * 4 + 0];
+    }
+  }
+}
 
 // ---------------------------------------------------------------------------
 // applyCueEffectStack — run the operator's stack over a BGRA/RGBA buffer.
@@ -375,6 +507,103 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
           }
         }
+        break;
+      }
+      case CueEffectKind::PixelSort:
+        applyPixelSort(pixels.data(), ctx.width, ctx.height, amt);
+        break;
+      case CueEffectKind::BlockGlitch:
+        // Seeded from the FRAME, not a running generator, so the same frame
+        // always glitches the same way -- scrubbing back gives you the picture
+        // you saw, not a new one.
+        applyBlockGlitch(pixels.data(), ctx.width, ctx.height, amt,
+                         static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u));
+        break;
+      case CueEffectKind::PolarWarp:
+      case CueEffectKind::LumaDisplace:
+      case CueEffectKind::Ripple:
+      case CueEffectKind::Kaleidoscope: {
+        // All four RESAMPLE: every output pixel is fetched from somewhere else
+        // in the source, so they need an untouched copy to read from. Written
+        // as one block because the only thing that differs is where each pixel
+        // looks, and four near-identical loops would drift apart.
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const double cx = ctx.width * 0.5;
+        const double cy = ctx.height * 0.5;
+        const double maxR = std::sqrt(cx * cx + cy * cy);
+        const double t = static_cast<double>(ctx.frameIndex) * 0.08;
+        for (int y = 0; y < ctx.height; ++y) {
+          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+          for (int x = 0; x < ctx.width; ++x) {
+            double sxf = x;
+            double syf = y;
+            switch (fx.kind) {
+              case CueEffectKind::PolarWarp: {
+                // Read the picture as if its rows were rings and its columns
+                // were angles. Straight lines become spirals; a face becomes a
+                // weather system.
+                const double nx = (x - cx) / std::max(1.0, cx);
+                const double ny = (y - cy) / std::max(1.0, cy);
+                const double r = std::sqrt(nx * nx + ny * ny);
+                double a = std::atan2(ny, nx);
+                if (a < 0.0) a += 6.283185307179586;
+                const double u = (a / 6.283185307179586) * ctx.width;
+                const double v = r * ctx.height;
+                sxf = x * (1.0 - amt) + u * amt;
+                syf = y * (1.0 - amt) + v * amt;
+                break;
+              }
+              case CueEffectKind::LumaDisplace: {
+                // The picture bends by its OWN brightness -- bright regions
+                // reach further for their colour than dark ones, so an image
+                // distorts along its own structure rather than along a grid.
+                const std::uint8_t* p =
+                  source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+                const double luma = (p[2] * 0.299 + p[1] * 0.587 + p[0] * 0.114) / 255.0;
+                const double push = (luma - 0.5) * amt * ctx.width * 0.25;
+                sxf = x + push;
+                syf = y + push * 0.35;
+                break;
+              }
+              case CueEffectKind::Ripple: {
+                const double dx = x - cx;
+                const double dy = y - cy;
+                const double r = std::sqrt(dx * dx + dy * dy);
+                const double wave = std::sin(r * 0.06 - t * 3.0) * amt * 24.0;
+                const double inv = r > 0.001 ? 1.0 / r : 0.0;
+                sxf = x + dx * inv * wave;
+                syf = y + dy * inv * wave;
+                break;
+              }
+              default: {   // Kaleidoscope
+                // Fold the frame into wedges about its centre. paramA picks how
+                // many, because two is a mirror and twelve is a snowflake and
+                // they are completely different pictures.
+                const int wedges = 2 + static_cast<int>(std::clamp(
+                  static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0);
+                const double nx = x - cx;
+                const double ny = y - cy;
+                const double r = std::sqrt(nx * nx + ny * ny);
+                const double seg = 6.283185307179586 / wedges;
+                double a = std::atan2(ny, nx);
+                a = std::fabs(std::fmod(a + seg * 0.5, seg) - seg * 0.5);
+                const double fx2 = cx + std::cos(a) * r;
+                const double fy2 = cy + std::sin(a) * r;
+                sxf = x * (1.0 - amt) + fx2 * amt;
+                syf = y * (1.0 - amt) + fy2 * amt;
+                break;
+              }
+            }
+            const int sx = std::clamp(static_cast<int>(std::lround(sxf)), 0, ctx.width - 1);
+            const int sy = std::clamp(static_cast<int>(std::lround(syf)), 0, ctx.height - 1);
+            const std::uint8_t* sp =
+              source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+            dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
+          }
+        }
+        (void) maxR;
         break;
       }
       case CueEffectKind::Datamosh:
