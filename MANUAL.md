@@ -28,17 +28,18 @@ the primary platform; Linux and macOS builds share the same core.
 11. [Multi-Deck Operation](#11-multi-deck-operation)
 12. [Outputs & Routing](#12-outputs--routing)
 13. [Recording](#13-recording)
-14. [Output Geometry: AOI, Warp, Edge Blend](#14-output-geometry-aoi-warp-edge-blend)
-15. [Overlays: PiP & Lower Thirds](#15-overlays-pip--lower-thirds)
-16. [Audio](#16-audio)
-17. [Test Patterns](#17-test-patterns)
-18. [Timecode & Chase](#18-timecode--chase)
-19. [Show Files, Bundling & Missing Media](#19-show-files-bundling--missing-media)
-20. [Themes](#20-themes)
-21. [Remote Control](#21-remote-control)
-22. [Reliability & Soak Testing](#22-reliability--soak-testing)
-23. [Keyboard Reference](#23-keyboard-reference)
-24. [Command-Line Flags](#24-command-line-flags)
+14. [Per-Cue Effects](#14-per-cue-effects)
+15. [Output Geometry: AOI, Warp, Edge Blend](#15-output-geometry-aoi-warp-edge-blend)
+16. [Overlays: PiP & Lower Thirds](#16-overlays-pip--lower-thirds)
+17. [Audio](#17-audio)
+18. [Test Patterns](#18-test-patterns)
+19. [Timecode & Chase](#19-timecode--chase)
+20. [Show Files, Bundling & Missing Media](#20-show-files-bundling--missing-media)
+21. [Themes](#21-themes)
+22. [Remote Control](#22-remote-control)
+23. [Reliability & Soak Testing](#23-reliability--soak-testing)
+24. [Keyboard Reference](#24-keyboard-reference)
+25. [Command-Line Flags](#25-command-line-flags)
 
 ---
 
@@ -134,7 +135,7 @@ timeline lanes, down to give the height back.
 |------|--------|
 | **Video** | A video file (any FFmpeg-readable container/codec, incl. HAP, ProRes, H.264/265 hardware-decoded) |
 | **Image** | A still (held for a set duration or until taken away) |
-| **Pattern** | A generated test pattern (see §17) |
+| **Pattern** | A generated test pattern (see §18) |
 | **Browser** | A live web page rendered via WebView2 (Windows) |
 | **Window / Screen** | Desktop window or screen capture |
 | **Camera** | A capture device |
@@ -175,7 +176,7 @@ have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
   speed (0.25–4×, pitch-corrected audio), fade in/out, in/out trim, pause
   points, end action, goto target, next-transition toggle.
 - **AUDIO** — per-cue gain, pan, mono, independent audio fades, loudness
-  normalize, and output-pair routing (see §16).
+  normalize, and output-pair routing (see §17).
 - **GEOMETRY** — scale mode (fit/fill/stretch/unscaled), scale, offset, crop,
   rotation, and colour controls (brightness/contrast/saturation/hue).
 - **KEY** — chroma key colour, tolerance, and softness.
@@ -221,7 +222,7 @@ Deck modes (toolbar toggles):
   seeded from a real entropy source at launch, so the order differs every run.
 
 Missing cues are skipped on auto-advance so a single missing file can't stop
-the show (see §19).
+the show (see §20).
 
 ---
 
@@ -322,7 +323,40 @@ Over the wire: `RECORD [on|off|toggle]`, `RECFORMAT <WxH|program> [fps|program]`
 
 ---
 
-## 14. Output Geometry: AOI, Warp, Edge Blend
+## 14. Per-Cue Effects
+
+Each cue carries an ordered **effect stack**, built in the inspector's EFFECTS
+section and saved with the show. Effects run in the order you arrange them, and
+order is part of the effect — posterise then invert is not invert then
+posterise. Each row has the amount (nudge, drag to scrub, hold shift for fine,
+or click the value to type an exact number) and a second row for changing the
+effect, moving it up or down, and removing it.
+
+Available: invert, posterise, solarise, threshold, vignette, grain, scanlines,
+RGB split, temporal dither and motion puppet. Every one costs nothing at zero.
+
+**Temporal dither** is worth trying on its own. It quantises hard to a tiny
+palette but advances the dither pattern every frame, so at 60Hz your eye
+integrates shades that are not in the palette at all — and it freezes into
+visible checkerboard the moment you pause the deck. The still and the moving
+image are deliberately different pictures.
+
+**Motion puppet** drives this cue's pixels with a *different* clip's movement.
+Choose a driver in the EFFECTS section: that clip is decoded only for the
+per-macroblock motion vectors its codec already measured — its pictures are
+never shown — and those vectors displace this cue. A camera feed can be
+puppeteered by a crowd scene.
+
+A driver is only as good as its motion. `Deckboy --motion-probe <file>` reports
+what a clip offers before you commit to it: a mostly static clip moves a couple
+of percent of its cells and will do nothing visible, while something with
+whole-frame movement moves half of them and is violent. A keyframe carries no
+vectors at all, so the picture is briefly left alone — that is the codec, not
+a fault.
+
+---
+
+## 15. Output Geometry: AOI, Warp, Edge Blend
 
 Applied per output (not per cue):
 
@@ -337,7 +371,7 @@ inspector instead (§7).
 
 ---
 
-## 15. Overlays: PiP & Lower Thirds
+## 16. Overlays: PiP & Lower Thirds
 
 Lower-third and PiP cues fire into an overlay slot independently of the main
 program cue, so you can bring a name strap or inset up over whatever is live.
@@ -347,7 +381,7 @@ another cue/camera/NDI source. `G` adds the selected cue as a graphic overlay;
 
 ---
 
-## 16. Audio
+## 17. Audio
 
 Video, audio, and browser cues play through the focused deck's selected audio
 device (`Settings → AUDIO OUTPUT`). UI click sounds use a separate device so
@@ -402,7 +436,7 @@ the material is converted rather than refused.
 
 ---
 
-## 17. Test Patterns
+## 18. Test Patterns
 
 Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
@@ -426,7 +460,7 @@ smooth, and diagonal; full-frame solid colours have no motion option.
 
 ---
 
-## 18. Timecode & Chase
+## 19. Timecode & Chase
 
 Each deck can **chase** incoming timecode (follow an external master),
 **run/generate** timecode, and **trigger** cues at set SMPTE times. MTC and LTC
@@ -435,7 +469,7 @@ deck's frame rate and freewheel behaviour in the timecode controls.
 
 ---
 
-## 19. Show Files, Bundling & Missing Media
+## 20. Show Files, Bundling & Missing Media
 
 Shows are `.deckboy` files (plain text, tab-delimited).
 
@@ -465,7 +499,7 @@ skips missing cues instead of cascading to black.
 
 ---
 
-## 20. Themes
+## 21. Themes
 
 Deckboy ships many console-inspired colourways (`Settings → theme`), from the
 default **gameboy** green through famicom, super-famicom, gamecube, n64,
@@ -489,7 +523,7 @@ audit.
 
 ---
 
-## 21. Remote Control
+## 22. Remote Control
 
 All remote inputs normalise to plain-text commands.
 
@@ -513,7 +547,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 22. Reliability & Soak Testing
+## 23. Reliability & Soak Testing
 
 - **Decode watchdog** — a wedged decode reracks the deck dark and toasts the
   operator rather than hanging the show; if the file is gone it reports
@@ -529,7 +563,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 23. Keyboard Reference
+## 24. Keyboard Reference
 
 | Key | Action |
 |-----|--------|
@@ -568,7 +602,7 @@ Commands are case-insensitive. Examples: `TAKE`, `STOP`, `VOLUME 75`,
 
 ---
 
-## 24. Command-Line Flags
+## 25. Command-Line Flags
 
 ```
 Deckboy.exe --self-check            # verify dependencies + backend wiring
@@ -576,6 +610,7 @@ Deckboy.exe --smoke                 # automated smoke test (exit 0 = pass)
 Deckboy.exe --soak [minutes]        # long-run stability harness (default 24h)
 Deckboy.exe --decode-bench FILE [seconds] [cli]  # decode benchmark; 'cli' forces the subprocess path
 Deckboy.exe --sync-pop-test         # verify the pocket-test audio sync path
+Deckboy.exe --motion-probe FILE [frames]  # is this clip a usable motion driver?
 Deckboy.exe --no-inproc-decode      # force the FFmpeg subprocess decode path
 Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
 ```
