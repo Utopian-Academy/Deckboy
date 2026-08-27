@@ -3633,6 +3633,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         // offsets already carry scars from.
         << '\t' << escapeField(serializeCueEffects(cue.effects))
         << '\t' << escapeField(cue.motionDriverPath)
+        << '\t' << cue.motionDriverSpeed
+        << '\t' << (cue.motionDriverPaused ? 1 : 0)
+        << '\t' << (cue.motionDriverRestartOnTake ? 1 : 0)
         << '\n';
     }
   }
@@ -4345,6 +4348,10 @@ Project loadProject(const fs::path& projectFile,
         // empty stack -- so an old show simply has no effects, which is right.
         cue.effects = parseCueEffects(safeString(fields, tb + 73));
         cue.motionDriverPath = safeString(fields, tb + 74);
+        cue.motionDriverSpeed = std::clamp(
+          static_cast<float>(safeDouble(fields, tb + 75, 1.0)), 0.0f, 4.0f);
+        cue.motionDriverPaused = safeBool(fields, tb + 76, false);
+        cue.motionDriverRestartOnTake = safeBool(fields, tb + 77, true);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6158,6 +6165,40 @@ class App {
                                "its codec already measured.",
                                pal.tile, pal.fg);
       if (!cue.motionDriverPath.empty()) {
+        // The driver is not a cue and never reaches the screen, so it has no
+        // transport of its own. These are it.
+        std::ostringstream speed;
+        speed << std::fixed << std::setprecision(2) << cue.motionDriverSpeed;
+        inspDrawQuickRow(ix, rowY, "driver speed", QuickAction::MotionDriverSpeedDec,
+                         speed.str(), QuickAction::MotionDriverSpeedInc,
+                         QuickAction::ToggleLoop, false, false,
+                         "Fields per rendered frame. 1 is one for one, 0.5 holds "
+                         "each field for two frames, 0 freezes it.",
+                         false, QuickAction::ToggleLoop,
+                         static_cast<int>(NumericParam::MotionDriverSpeed));
+        rowY += ix.rowStep;
+        inspDrawQuickRow(ix, rowY, "driver", QuickAction::MotionDriverPauseToggle,
+                         cue.motionDriverPaused ? "HELD" : "running",
+                         QuickAction::MotionDriverPauseToggle,
+                         QuickAction::MotionDriverPauseToggle,
+                         true, cue.motionDriverPaused,
+                         "Held keeps the last displacement rather than removing "
+                         "it -- the picture stays bent the way the driver left it.");
+        rowY += ix.rowStep;
+        inspDrawQuickRow(ix, rowY, "restart on take",
+                         QuickAction::MotionDriverRestartOnTakeToggle,
+                         cue.motionDriverRestartOnTake ? "on" : "off",
+                         QuickAction::MotionDriverRestartOnTakeToggle,
+                         QuickAction::MotionDriverRestartOnTakeToggle,
+                         true, cue.motionDriverRestartOnTake,
+                         "Every take starts the puppetry the same way, so a "
+                         "rehearsed look repeats instead of depending on how "
+                         "long the app has been open.");
+        rowY += ix.rowStep;
+        rowY = inspDrawActionRow(ix, rowY, "restart driver now",
+                                 QuickAction::MotionDriverRestart,
+                                 "Jump the driver back to its first frame",
+                                 pal.tile, pal.fg);
         rowY = inspDrawActionRow(ix, rowY, "clear driver",
                                  QuickAction::MotionDriverClear,
                                  "Stop puppeteering this cue", pal.tile, pal.inkSoft);
@@ -7824,6 +7865,12 @@ class App {
     void* handle = nullptr;
     deckboy::motion::MotionField field;
     bool exhausted = false;
+    bool haveField = false;
+    // Fractional advance. Speed is fields per RENDERED frame, so 0.5 holds
+    // each field for two frames and 2.0 skips one. Accumulating rather than
+    // rounding per frame keeps a slow driver smooth instead of stuttering
+    // between "advance" and "do not".
+    double advanceCredit = 0.0;
   };
   std::unordered_map<int, MotionDriver> motionDrivers_;
 
@@ -7843,6 +7890,8 @@ class App {
       driver.path = want;
       driver.field = {};
       driver.exhausted = false;
+      driver.haveField = false;
+      driver.advanceCredit = 0.0;
       if (!want.empty()) {
         driver.handle = deckboy::motion::openMotionSource(want);
         if (!driver.handle) {
@@ -7856,14 +7905,46 @@ class App {
     if (!driver.handle || driver.exhausted) {
       return nullptr;
     }
-    if (!deckboy::motion::readMotionField(driver.handle, driver.field)) {
-      deckboy::motion::rewindMotionSource(driver.handle);
+    // PAUSED holds the current field rather than stopping the effect: the
+    // picture stays displaced by whatever the driver was doing, which is a
+    // usable look in itself. Stopping would just snap back to undisplaced.
+    if (cue.motionDriverPaused) {
+      return driver.haveField ? &driver.field : nullptr;
+    }
+    driver.advanceCredit +=
+      std::clamp(static_cast<double>(cue.motionDriverSpeed), 0.0, 4.0);
+    int steps = static_cast<int>(driver.advanceCredit);
+    if (steps <= 0) {
+      // Slower than one field per frame: hold what we have until enough
+      // credit accrues.
+      return driver.haveField ? &driver.field : nullptr;
+    }
+    driver.advanceCredit -= steps;
+    steps = std::min(steps, 4);   // a speed spike must not decode unbounded
+    for (int i = 0; i < steps; ++i) {
       if (!deckboy::motion::readMotionField(driver.handle, driver.field)) {
-        driver.exhausted = true;   // a file that yields nothing twice is done
-        return nullptr;
+        deckboy::motion::rewindMotionSource(driver.handle);
+        if (!deckboy::motion::readMotionField(driver.handle, driver.field)) {
+          driver.exhausted = true;   // yields nothing twice: it is done
+          return nullptr;
+        }
       }
+      driver.haveField = true;
     }
     return &driver.field;
+  }
+
+  // Back to the driver's first frame. Called on TAKE when the cue asks for it,
+  // so a rehearsed look repeats exactly rather than depending on how long the
+  // app has been open.
+  void restartMotionDriver(int deckIndex) {
+    auto it = motionDrivers_.find(deckIndex);
+    if (it == motionDrivers_.end() || !it->second.handle) {
+      return;
+    }
+    deckboy::motion::rewindMotionSource(it->second.handle);
+    it->second.advanceCredit = 0.0;
+    it->second.exhausted = false;
   }
 
   void closeMotionDrivers() {

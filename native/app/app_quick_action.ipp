@@ -26,6 +26,12 @@
       case QuickAction::EffectAdd:        effectStackAdd(); return;
       case QuickAction::MotionDriverPick:  pickMotionDriver(); return;
       case QuickAction::MotionDriverClear: clearMotionDriver(); return;
+      case QuickAction::MotionDriverSpeedDec: nudgeMotionDriverSpeed(-0.1f); return;
+      case QuickAction::MotionDriverSpeedInc: nudgeMotionDriverSpeed(+0.1f); return;
+      case QuickAction::MotionDriverPauseToggle: toggleMotionDriverPaused(); return;
+      case QuickAction::MotionDriverRestart: restartSelectedMotionDriver(); return;
+      case QuickAction::MotionDriverRestartOnTakeToggle:
+        toggleMotionDriverRestartOnTake(); return;
       case QuickAction::EffectRemove:     effectStackRemove(param); return;
       case QuickAction::EffectCycleKind:  effectStackCycleKind(param); return;
       case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
