@@ -1263,6 +1263,14 @@ enum class QuickAction {
   EffectEditAmount,
   EffectMoveUp,
   EffectMoveDown,
+  // paramA / paramB. Which one an effect uses, and what it means, comes from
+  // cueEffectParamLabel -- an effect with no second parameter draws no row.
+  EffectParamADec,
+  EffectParamAInc,
+  EffectParamAEdit,
+  EffectParamBDec,
+  EffectParamBInc,
+  EffectParamBEdit,
   // -- Geometry: crop ------
   CropLDec, CropLInc,
   CropRDec, CropRInc,

@@ -97,6 +97,76 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### Three effects that are not in anything else
+
+**Dye advect** treats the picture as dye in a fluid and carries it along the
+flow of its own structure. The velocity field is the *perpendicular* of the
+luma gradient, which is the part that matters: a gradient points across an
+edge, so its perpendicular runs along one. Advecting down the gradient smears
+the picture into mush across its own boundaries; advecting along it makes
+colour orbit the shapes instead, and edges survive as the banks of a river.
+Every pixel walks backward through the field for several short steps rather
+than one long one, because a single jump follows a straight line and the curl
+is the whole point.
+
+**Reaction bloom** is Gray-Scott reaction-diffusion, seeded by the picture and
+grown a few hundred iterations every frame. Two notional chemicals; one rule;
+the coral, veins and dividing spots Turing predicted in 1952. The pattern is
+not drawn, it *grows*, and it grows out of whatever is on screen -- so a cut to
+a new shot grows a new organism.
+
+Getting it to grow at all took three attempts, and each failure looked like
+success from the outside. Seeding V across every bright pixel leaves those
+cells with no U around them to eat: the field is dead within a few steps, and
+what reaches the screen is a coloured haze. Scattering single-cell seeds into a
+full reservoir is better but a lone cell is all boundary and diffuses away
+before it organises, so the gentler presets still died. Blocks of seed in a
+full field is the arrangement that works. And feed and kill are not offered as
+two knobs, because the living region is a thin curved sliver of that plane and
+almost every pair outside it dies flat or floods solid -- one knob walks
+*along* documented living presets instead: waves, labyrinth, coral, worms,
+holes.
+
+A dying field is also four times SLOWER, which is how the second attempt was
+caught: a value decaying toward zero goes denormal and denormal arithmetic
+costs an order of magnitude. An effect that gets slower the less it has to say
+is not computing anything.
+
+**Lightspeed** is what the frame looks like from something travelling into it
+at a fraction of c. Relativistic aberration folds the forward hemisphere toward
+the direction of travel, so the centre opens out and the rim smears away --
+which is why the view from a near-light ship is a bright compressed disc and
+not a zoom. Doppler is the other half: light from ahead arrives blueshifted and
+brighter, light from the sides redshifted and dimmer. Without it the warp reads
+as a lens; with it, as speed. Both halves depend only on distance from the
+centre, so they are a radial lookup built once per frame rather than an `acos`
+and two cosines per pixel.
+
+### The effect parameters were unreachable
+
+`paramA` and `paramB` existed from the start and nothing in the UI could set
+them, so solarise always folded at its default pivot and kaleidoscope always
+cut the same number of wedges. They have rows now, named by the effect itself
+(`cueEffectParamLabel`), and an effect that does not use one draws no row --
+so the inspector still never shows a control that cannot do anything.
+
+### Red and blue were swapped in every luma calculation
+
+The decoder's pipe format is `rgba` and `SDL_PIXELFORMAT_RGBA32` is
+`ABGR8888` on little-endian, so byte 0 is red. Four luma calculations weighted
+it as blue and vice versa. Close enough to look plausible on most footage, and
+wrong; luma displace in particular bent the picture by a luma that was not one.
+
+### Judging an effect from a screenshot does not work
+
+`--effect-dump <token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]` applies one
+effect to one picture with no window, no decoder and no timing, and reports
+what it cost. The app-driven sweeps take minutes and land on whatever frame the
+seek reached, so a baseline and a treated shot differ everywhere before the
+effect has done anything -- two effects were called working on that evidence
+while doing nothing at all. `tools/check_effects_offline.py` runs the whole set
+through it in seconds and can write a contact sheet.
+
 ### Inspector
 
 Eighteen values on the video synth, tone generator and chip synth can now be
