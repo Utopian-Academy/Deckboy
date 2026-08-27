@@ -443,6 +443,8 @@
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN <dB> AUDIONORM SPEED <0.25-4>\n"
         "output: OUT <on|off> FULLSCREEN <on|off> DISPLAY <n> TC <hh:mm:ss:ff>\n"
+        "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX CLEAR\n"
+        "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "record: RECORD [on|off|toggle]  (same action as the RECORD button on the bar)\n"
         "        RECFORMAT <WxH|program> [fps|program]  (recording standard + rate)\n"
         "        RECCODEC <h264|hevc|prores_lt|prores_422|prores_hq|prores_4444|dnxhr_lb|dnxhr_sq|dnxhr_hq|dnxhr_hqx>\n"
@@ -2165,6 +2167,7 @@
 
     for (const auto& command : pending) {
       remoteCommandRecognized_ = true;
+      remoteCommandDetail_.clear();
       handleRemoteCommand(command.text);
       if (command.replyTo == kInvalidSocket) {
         continue;
@@ -2180,6 +2183,12 @@
         reply = "ERR unknown command: " + verb;
       } else if (!remoteCommandError_.empty()) {
         reply = "ERR " + verb + ": " + remoteCommandError_;
+      } else if (!remoteCommandDetail_.empty()) {
+        // A query that ran on the main thread and has something to SAY. The
+        // bare "OK VERB" is honest but useless to a script asking what the
+        // state is -- FX LIST answered OK and put the list in a toast, where
+        // nothing over the wire could read it.
+        reply = "OK " + verb + ": " + remoteCommandDetail_;
       } else {
         reply = "OK " + verb;
       }

@@ -5113,6 +5113,31 @@ class App {
     openProjectFromPath(normalizeProjectPath(resolved));
   }
 
+  // Scroll the cue inspector from the command line.
+  //
+  // Everything below the first screenful of the inspector -- effect
+  // parameters, the chain clipboard, the motion driver's preview -- was
+  // unverifiable from a script, because scripted input does not reach SDL3
+  // (PostMessage clicks and keys were already known not to; synthesised wheel
+  // events turn out not to either). The app already carries dev flags for
+  // exactly this reason: --settings opens a settings tab, --pattern-dump
+  // renders a pattern headless. This is the same idea for the inspector.
+  void debugScrollInspector(int pixels) {
+    // Held, not applied. The scroll is clamped to cueSettingsScrollMax_ every
+    // frame, and that maximum is only known once the inspector has measured
+    // its own content -- so a value set before the first frame is clamped
+    // straight back to zero and the flag looks like it does nothing.
+    pendingInspectorScroll_ = std::max(0, pixels);
+  }
+
+  void applyPendingInspectorScroll() {
+    if (pendingInspectorScroll_ < 0 || cueSettingsScrollMax_ <= 0) {
+      return;
+    }
+    cueSettingsScroll_ = std::min(pendingInspectorScroll_, cueSettingsScrollMax_);
+    pendingInspectorScroll_ = -1;
+  }
+
   void debugOpenSettings(int tab, int videoSubTab = 0) {
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
@@ -6105,6 +6130,10 @@ class App {
 
   int inspDrawEffectRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
+    // Cleared every pass and set again only if the bar is actually drawn. A
+    // stale rect left behind by a cue that no longer has a driver would be an
+    // invisible control that still swallowed clicks.
+    motionDriverScrubRect_ = {0, 0, 0, 0};
     const auto& stack = cue.effects;
     for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
       const auto& fx = stack[i];
@@ -6278,6 +6307,87 @@ class App {
                          "rehearsed look repeats instead of depending on how "
                          "long the app has been open.");
         rowY += ix.rowStep;
+      // A PREVIEW AND A TRANSPORT FOR THE DRIVER.
+      //
+      // The driver is not a cue: it never reaches the screen, nothing else in
+      // the app reports on it, and until now an operator who armed one had no
+      // way to tell whether it was running, where it had got to, or even
+      // whether the clip they picked was the one they meant. Two controls fix
+      // that -- a thumbnail so it can be recognised, and a bar so it can be
+      // placed.
+      //
+      // The picture costs nothing: the decoder produced it on the way to the
+      // vectors and was throwing it away.
+      if (const MotionDriver* driver = motionDriverForDeck(project_.focusedDeckIndex)) {
+        deckboy::motion::MotionSourceStatus status;
+        if (driver->handle &&
+            deckboy::motion::motionSourceStatus(driver->handle, status)) {
+          const int previewH = ix.rowH * 2;
+          SDL_Rect previewRect {ix.ctrl.x + ix.inset, rowY,
+                                previewH * 16 / 9, previewH};
+          drawUIPanel(previewRect, pal.deep, pal.deep, pal.mid);
+          if (const std::uint8_t* luma =
+                deckboy::motion::motionSourceThumbnail(driver->handle)) {
+            if (status.frameIndex != motionDriverThumbFrame_ ||
+                !motionDriverThumbTex_) {
+              motionDriverThumbFrame_ = status.frameIndex;
+              std::vector<std::uint8_t> rgba(
+                static_cast<std::size_t>(status.thumbWidth) * status.thumbHeight * 4);
+              for (std::size_t i = 0; i + 0 < rgba.size() / 4; ++i) {
+                rgba[i * 4 + 0] = luma[i];
+                rgba[i * 4 + 1] = luma[i];
+                rgba[i * 4 + 2] = luma[i];
+                rgba[i * 4 + 3] = 255;
+              }
+              syncTexture(controlRenderer_, motionDriverThumbTex_,
+                          motionDriverThumbW_, motionDriverThumbH_,
+                          status.thumbWidth, status.thumbHeight,
+                          rgba.data(), status.thumbWidth * 4);
+            }
+            if (motionDriverThumbTex_) {
+              SDL_Rect inner {previewRect.x + 2, previewRect.y + 2,
+                              previewRect.w - 4, previewRect.h - 4};
+              SDL_RenderTexture(controlRenderer_, motionDriverThumbTex_, nullptr, &inner);
+            }
+          }
+          // The numbers next to it, because a thumbnail says "running" and
+          // nothing else. Seconds and the field count are what an operator
+          // needs to rehearse against.
+          std::ostringstream where;
+          where << std::fixed << std::setprecision(1) << status.positionSeconds;
+          if (status.durationSeconds > 0.0) {
+            where << " / " << status.durationSeconds;
+          }
+          where << "s  field " << status.frameIndex;
+          SDL_Rect textRect {previewRect.x + previewRect.w + 6, rowY,
+                             ix.ctrlW - ix.inset * 2 - previewRect.w - 6, ix.rowH};
+          drawTextSafe(controlRenderer_, fontSmall_, textRect, where.str(),
+                       pal.fgSoft);
+          // The bar. Registered as a scrub rect rather than a quick button:
+          // where along it you pressed IS the value, and a quick button only
+          // knows that it was hit.
+          SDL_Rect barRect {textRect.x, rowY + ix.rowH + 2,
+                            std::max(20, textRect.w), ix.rowH - 4};
+          drawUIPanel(barRect, pal.tile, pal.deep, pal.mid);
+          if (status.durationSeconds > 0.0) {
+            const double frac = std::clamp(
+              status.positionSeconds / status.durationSeconds, 0.0, 1.0);
+            SDL_Rect fill {barRect.x + 2, barRect.y + 2,
+                           std::max(2, static_cast<int>((barRect.w - 4) * frac)),
+                           barRect.h - 4};
+            Primitives::fillRect(controlRenderer_, fill, pal.fg);
+          } else {
+            // A container that will not report a duration cannot be scrubbed
+            // against one, and drawing a bar that goes nowhere would be a lie.
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, barRect,
+                                 "no duration", pal.inkSoft);
+          }
+          motionDriverScrubRect_ = barRect;
+          motionDriverScrubDuration_ = status.durationSeconds;
+          motionDriverScrubDeck_ = project_.focusedDeckIndex;
+          rowY += previewH + 4;
+        }
+      }
         rowY = inspDrawActionRow(ix, rowY, "restart driver now",
                                  QuickAction::MotionDriverRestart,
                                  "Jump the driver back to its first frame",
@@ -6292,6 +6402,33 @@ class App {
                              "effect: posterise then invert is not invert then "
                              "posterise.",
                              pal.tile, pal.fg);
+    // Moving a LOOK between cues, without dragging geometry and fades along
+    // with it. The whole-cue COPY above brings everything; this brings the
+    // chain and the driver and nothing else.
+    {
+      const int gap = 4;
+      const int cellW = (ix.ctrlW - ix.inset * 2 - gap) / 2;
+      SDL_Rect copyRect {ix.ctrl.x + ix.inset, rowY, cellW, ix.rowH};
+      SDL_Rect pasteRect {copyRect.x + cellW + gap, rowY, cellW, ix.rowH};
+      const bool haveChain = !effectChainClipboard_.empty();
+      drawUIPanel(copyRect, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, copyRect,
+                           "copy chain", stack.empty() ? pal.inkSoft : pal.fg);
+      quickButtons_.push_back({copyRect, QuickAction::EffectChainCopy,
+                               "Copy this cue's whole effect chain", 0});
+      // Lit when there is something to paste, so the button says whether it
+      // will do anything before it is pressed.
+      drawUIPanel(pasteRect, haveChain ? pal.dark : pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, pasteRect,
+                           haveChain ? ("paste " + std::to_string(effectChainClipboard_.size())).c_str()
+                                     : "paste chain",
+                           haveChain ? pal.light : pal.inkSoft);
+      quickButtons_.push_back({pasteRect, QuickAction::EffectChainPaste,
+                               "Replace the effect chain on every selected cue "
+                               "with the copied one. Geometry, fades and colour "
+                               "are left alone.", 0});
+      rowY += ix.rowStep;
+    }
     return rowY;
   }
 
@@ -7789,6 +7926,11 @@ class App {
   };
   std::vector<WarpPreset> warpPresets_;
   std::optional<Cue> cueSettingsClipboard_;
+  // The effect chain on its own, separate from the whole-cue clipboard above:
+  // copying a cue also brings its geometry, fades and crop, which is not what
+  // is wanted when only the LOOK is worth keeping.
+  std::vector<deckboy::effects::CueEffect> effectChainClipboard_;
+  std::string effectChainClipboardDriver_;
   std::optional<Deck> warpSettingsClipboard_;
 
   // Master fader
@@ -7895,6 +8037,7 @@ class App {
   size_t cueSettingsQuickButtonStartIndex_ = 0;
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
+  int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
   int cueSettingsScrollMax_ = 0;
   SDL_Rect settingsVideoViewport_ {};
   int settingsVideoScroll_ = 0;
@@ -7928,8 +8071,44 @@ class App {
     // rounding per frame keeps a slow driver smooth instead of stuttering
     // between "advance" and "do not".
     double advanceCredit = 0.0;
+    // The driver has more than one consumer now -- the output composite and
+    // the control preview both ask for it, and an NDI-only show has the first
+    // without the second. Advancing per ASKER would run the driver at a
+    // multiple of its speed depending on what happened to be armed, so the
+    // first ask of each frame advances and the rest are served the same field.
+    std::uint64_t lastAdvancedFrame = 0;
   };
+  std::uint64_t motionDriverFrameCounter_ = 0;
   std::unordered_map<int, MotionDriver> motionDrivers_;
+
+  // The inspector's driver preview and scrub bar. The driver has no cue, no
+  // engine and no transport of its own, so this is the only place any of its
+  // state is visible.
+  const MotionDriver* motionDriverForDeck(int deckIndex) const {
+    auto it = motionDrivers_.find(deckIndex);
+    return it == motionDrivers_.end() ? nullptr : &it->second;
+  }
+
+  void seekMotionDriver(int deckIndex, double seconds) {
+    auto it = motionDrivers_.find(deckIndex);
+    if (it == motionDrivers_.end() || !it->second.handle) {
+      return;
+    }
+    deckboy::motion::seekMotionSource(it->second.handle, std::max(0.0, seconds));
+    it->second.advanceCredit = 0.0;
+    it->second.exhausted = false;
+  }
+
+  SDL_Texture* motionDriverThumbTex_ = nullptr;
+  int motionDriverThumbW_ = 0;
+  int motionDriverThumbH_ = 0;
+  std::uint64_t motionDriverThumbFrame_ = UINT64_MAX;
+  // Set while the bar is on screen and cleared when it is not, so a press
+  // cannot scrub a driver that is no longer being shown.
+  SDL_Rect motionDriverScrubRect_ {0, 0, 0, 0};
+  double motionDriverScrubDuration_ = 0.0;
+  int motionDriverScrubDeck_ = -1;
+  bool motionDriverScrubActive_ = false;
 
   // Opens or re-points the deck's driver, advances it one frame, and returns
   // the field to displace by -- or null when nothing is armed. Loops, because
@@ -7962,6 +8141,10 @@ class App {
     if (!driver.handle || driver.exhausted) {
       return nullptr;
     }
+    if (driver.lastAdvancedFrame == motionDriverFrameCounter_) {
+      return driver.haveField ? &driver.field : nullptr;   // already this frame
+    }
+    driver.lastAdvancedFrame = motionDriverFrameCounter_;
     // PAUSED holds the current field rather than stopping the effect: the
     // picture stays displaced by whatever the driver was doing, which is a
     // usable look in itself. Stopping would just snap back to undisplaced.
@@ -8338,6 +8521,9 @@ class App {
   // Set by failRemoteCommand() when a verb was understood but its arguments
   // were not — an ERR with a reason, not a bare OK.
   std::string remoteCommandError_;
+  // Set by a verb that ran and has something to report back. Appended to the
+  // OK reply, so a query answers with its answer instead of only a toast.
+  std::string remoteCommandDetail_;
   std::mutex statusSnapshotMutex_;
   std::string statusSnapshot_;
   std::string statusSnapshotJson_;
@@ -9266,6 +9452,7 @@ int runDeckboyMain(int argc, char** argv) {
   std::vector<std::string> importPathsArg;
   fs::path startupProjectArg;
   int openSettingsTab = -1;
+  int inspectorScrollArg = -1;
   int openSettingsSubTab = 0;
   for (size_t i = 0; i < rest.size(); ++i) {
     const std::string& arg = rest[i];
@@ -9275,6 +9462,14 @@ int runDeckboyMain(int argc, char** argv) {
         return 2;
       }
       importPathsArg.push_back(rest[++i]);
+      continue;
+    }
+    if (arg == "--inspector-scroll") {
+      if (i + 1 >= rest.size()) {
+        printCliError("--inspector-scroll needs a pixel offset");
+        return 2;
+      }
+      inspectorScrollArg = std::atoi(rest[++i].c_str());
       continue;
     }
     if (arg == "--settings") {
@@ -9353,6 +9548,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (openSettingsTab >= 0) {
     app.debugOpenSettings(openSettingsTab, openSettingsSubTab);
+  }
+  if (inspectorScrollArg >= 0) {
+    app.debugScrollInspector(inspectorScrollArg);
   }
   app.run();
   app.shutdown();

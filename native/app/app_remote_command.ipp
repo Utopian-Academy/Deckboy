@@ -596,6 +596,7 @@
         }
         triggerToast(reply.empty() ? "no effects" : reply);
         showLog("FX LIST", reply);
+        remoteCommandDetail_ = reply.empty() ? "no effects" : reply;
         return;
       }
       if (sub == "ADD" && parts.size() >= 3) {
@@ -615,6 +616,16 @@
         syncDatamoshFromStack();
         refreshLiveCueIfPixelPathChanged(wasNeeded);
         triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(kind));
+        return;
+      }
+      // The same clipboard the inspector's buttons use, so a chain can be
+      // moved from a controller or a script and not only by hand.
+      if (sub == "COPY") {
+        copySelectedEffectChain();
+        return;
+      }
+      if (sub == "PASTE") {
+        pasteSelectedEffectChain();
         return;
       }
       if (sub == "CLEAR") {

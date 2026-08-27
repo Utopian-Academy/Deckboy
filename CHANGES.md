@@ -142,6 +142,57 @@ as a lens; with it, as speed. Both halves depend only on distance from the
 centre, so they are a radial lookup built once per frame rather than an `acos`
 and two cosines per pixel.
 
+### Effect chains move between cues
+
+`copy chain` / `paste chain` at the foot of the effects section, and `FX COPY`
+/ `FX PASTE` over the wire. Separate from the whole-cue COPY on purpose: that
+one brings geometry, fades, crop and colour with it, which is not what is
+wanted when the only thing worth keeping is the look that took twenty minutes
+to dial in. Paste applies to every selected cue, and the driver travels with
+the chain -- a motion puppet pasted without its driver is an effect that does
+nothing and gives no reason why.
+
+The whole-cue COPY was also silently dropping the effect stack and the motion
+driver, so copying a cue you had spent time grading gave back everything except
+the look. It carries them now.
+
+### The motion driver has a preview and a scrub bar
+
+The driver is not a cue. It never reaches the screen, nothing else in the app
+reports on it, and an operator who armed one had no way to tell whether it was
+running, where it had got to, or even whether the clip they picked was the one
+they meant. The inspector now shows a thumbnail of it, its position and field
+count, and a bar that can be clicked or dragged to place it.
+
+The thumbnail costs nothing: the decoder produced the picture on the way to the
+vectors and was throwing it away.
+
+### Motion puppet did not work in the preview
+
+The driver was only advanced on the output's render pass, so with no output
+armed it was never opened -- the one effect the fixed preview still could not
+show, and the reason the inspector had nothing to preview or scrub either. The
+preview advances it now, and because the driver has two consumers, the first
+ask of each frame advances it and the rest are served the same field. Advancing
+per asker would have run the driver at a multiple of its speed depending on
+what happened to be armed.
+
+### FX was missing from HELP, and FX LIST answered nothing
+
+`HELP` never mentioned the effects verbs at all, and `FX LIST` replied `OK FX`
+and put the list in a toast -- where nothing over the wire could read it. A
+verb that ran and has something to report now says it in the reply.
+
+### --inspector-scroll
+
+Everything below the first screenful of the inspector was unverifiable from a
+script: scripted input does not reach SDL3, and synthesised wheel events turn
+out not to either. This scrolls it from the command line, the same way
+`--settings` opens a settings tab. It is applied once the inspector has
+measured its own content, because the scroll is clamped to a maximum that is
+zero until then -- set it before the first frame and it is clamped straight
+back to nothing.
+
 ### The effect parameters were unreachable
 
 `paramA` and `paramB` existed from the start and nothing in the UI could set

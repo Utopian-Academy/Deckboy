@@ -8,6 +8,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/mathematics.h>
 #include <libavutil/motion_vector.h>
 }
 #endif
@@ -17,6 +18,13 @@ namespace deckboy::motion {
 #if DECKBOY_INPROC_DECODE
 namespace {
 
+// The driver preview is deliberately tiny. It exists so the operator can see
+// WHICH clip is armed and that it is running, not to be watched -- and the
+// pixels are free, because the decoder produced them on the way to the vectors
+// and was throwing them away.
+constexpr int kMotionThumbW = 64;
+constexpr int kMotionThumbH = 36;
+
 struct MotionSource {
   AVFormatContext* fmt = nullptr;
   AVCodecContext* codec = nullptr;
@@ -25,6 +33,9 @@ struct MotionSource {
   int streamIndex = -1;
   int cellPixels = 16;
   std::uint64_t frameIndex = 0;
+  double positionSeconds = 0.0;
+  double durationSeconds = 0.0;
+  std::vector<std::uint8_t> thumb;   // kMotionThumbW * kMotionThumbH luma
 };
 
 void accumulate(MotionField& field, const AVMotionVector& mv, int cellPixels) {
@@ -88,6 +99,9 @@ void* openMotionSource(const std::string& path, int cellPixels) {
     closeMotionSource(src);
     return nullptr;
   }
+  if (src->fmt->duration > 0) {
+    src->durationSeconds = static_cast<double>(src->fmt->duration) / AV_TIME_BASE;
+  }
   src->packet = av_packet_alloc();
   src->frame = av_frame_alloc();
   if (!src->packet || !src->frame) {
@@ -132,6 +146,28 @@ bool readMotionField(void* handle, MotionField& out) {
         out.dx.clear();
         out.dy.clear();
       }
+      // Where we are, from the frame's own timestamp rather than a frame
+      // counter: a driver clip may be variable-rate like any other, and the
+      // position bar should agree with the file.
+      if (src->frame->best_effort_timestamp != AV_NOPTS_VALUE) {
+        src->positionSeconds =
+          static_cast<double>(src->frame->best_effort_timestamp) *
+          av_q2d(src->fmt->streams[src->streamIndex]->time_base);
+      }
+      // Point-sampled luma, straight off plane 0. No scaler, no colour
+      // conversion: it is 64x36 and it is there to be recognised, not admired.
+      if (src->frame->data[0] && src->frame->width > 0 && src->frame->height > 0) {
+        src->thumb.resize(static_cast<std::size_t>(kMotionThumbW) * kMotionThumbH);
+        for (int ty = 0; ty < kMotionThumbH; ++ty) {
+          const int sy = ty * src->frame->height / kMotionThumbH;
+          const std::uint8_t* srcRow =
+            src->frame->data[0] + static_cast<std::ptrdiff_t>(sy) * src->frame->linesize[0];
+          for (int tx = 0; tx < kMotionThumbW; ++tx) {
+            src->thumb[static_cast<std::size_t>(ty) * kMotionThumbW + tx] =
+              srcRow[tx * src->frame->width / kMotionThumbW];
+          }
+        }
+      }
       av_frame_unref(src->frame);
       return true;
     }
@@ -164,8 +200,63 @@ void rewindMotionSource(void* handle) {
   av_seek_frame(src->fmt, src->streamIndex, 0, AVSEEK_FLAG_BACKWARD);
   avcodec_flush_buffers(src->codec);
   src->frameIndex = 0;
+  src->positionSeconds = 0.0;
 #else
   (void) handle;
+#endif
+}
+
+bool motionSourceStatus(void* handle, MotionSourceStatus& out) {
+#if DECKBOY_INPROC_DECODE
+  auto* src = static_cast<MotionSource*>(handle);
+  if (!src || !src->fmt) {
+    return false;
+  }
+  out.positionSeconds = src->positionSeconds;
+  out.durationSeconds = src->durationSeconds;
+  out.frameIndex = src->frameIndex;
+  out.thumbWidth = src->thumb.empty() ? 0 : kMotionThumbW;
+  out.thumbHeight = src->thumb.empty() ? 0 : kMotionThumbH;
+  return true;
+#else
+  (void) handle; (void) out;
+  return false;
+#endif
+}
+
+const std::uint8_t* motionSourceThumbnail(void* handle) {
+#if DECKBOY_INPROC_DECODE
+  auto* src = static_cast<MotionSource*>(handle);
+  return (src && !src->thumb.empty()) ? src->thumb.data() : nullptr;
+#else
+  (void) handle;
+  return nullptr;
+#endif
+}
+
+void seekMotionSource(void* handle, double seconds) {
+#if DECKBOY_INPROC_DECODE
+  auto* src = static_cast<MotionSource*>(handle);
+  if (!src || !src->fmt) {
+    return;
+  }
+  if (seconds <= 0.0) {
+    rewindMotionSource(handle);
+    return;
+  }
+  const std::int64_t target = static_cast<std::int64_t>(seconds * AV_TIME_BASE);
+  const std::int64_t stamp = av_rescale_q(target, AVRational{1, AV_TIME_BASE},
+                                          src->fmt->streams[src->streamIndex]->time_base);
+  if (av_seek_frame(src->fmt, src->streamIndex, stamp, AVSEEK_FLAG_BACKWARD) < 0) {
+    // Not every container can seek. Rewinding is the honest fallback: it is
+    // wrong about WHERE, but it never leaves the driver wedged.
+    rewindMotionSource(handle);
+    return;
+  }
+  avcodec_flush_buffers(src->codec);
+  src->positionSeconds = seconds;
+#else
+  (void) handle; (void) seconds;
 #endif
 }
 

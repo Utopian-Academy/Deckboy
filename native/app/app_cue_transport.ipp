@@ -775,6 +775,82 @@
     target.hueShift = std::clamp(source.hueShift, -180.0f, 180.0f);
     target.endAction = source.endAction;
     target.pausePoints = source.pausePoints;
+    // The effect stack is an inspector setting like any other, and it was the
+    // one thing COPY silently dropped -- so copying a cue you had spent time
+    // grading gave you back everything except the look.
+    target.effects = source.effects;
+    target.motionDriverPath = source.motionDriverPath;
+    target.motionDriverSpeed = source.motionDriverSpeed;
+    target.motionDriverPaused = source.motionDriverPaused;
+    target.motionDriverRestartOnTake = source.motionDriverRestartOnTake;
+  }
+
+  // ---------------------------------------------------------------------------
+  // The effect chain on its own.
+  //
+  // Separate from the whole-cue clipboard on purpose. Copying a cue brings its
+  // geometry, fades, crop and colour with it, which is not what is wanted when
+  // the only thing worth keeping is the look that took twenty minutes to dial
+  // in. This moves the chain and nothing else.
+  // ---------------------------------------------------------------------------
+  void copySelectedEffectChain() {
+    const Cue* cue = selectedCueMutable();
+    if (!cue) {
+      triggerToast("effects copy: select a cue");
+      return;
+    }
+    if (cue->effects.empty()) {
+      triggerToast("effects copy: this cue has no effects");
+      return;
+    }
+    effectChainClipboard_ = cue->effects;
+    effectChainClipboardDriver_ = cue->motionDriverPath;
+    triggerToast("copied " + std::to_string(effectChainClipboard_.size()) +
+                 (effectChainClipboard_.size() == 1 ? " effect" : " effects"));
+    playUiSound(UiSoundEffect::Navigate);
+  }
+
+  void pasteSelectedEffectChain() {
+    if (effectChainClipboard_.empty()) {
+      triggerToast("effects paste: copy a chain first");
+      return;
+    }
+    Deck& deck = focusedDeckMutable();
+    auto indices = selectedCueIndices(deck);
+    if (indices.empty()) {
+      triggerToast("effects paste: select a cue");
+      return;
+    }
+    pushUndoSnapshot();
+    int applied = 0;
+    for (int index : indices) {
+      if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      Cue& target = deck.cues[index];
+      target.effects = effectChainClipboard_;
+      // The driver travels with the chain when there is one, because a motion
+      // puppet pasted without its driver is an effect that does nothing and
+      // gives no reason why.
+      if (!effectChainClipboardDriver_.empty()) {
+        target.motionDriverPath = effectChainClipboardDriver_;
+      }
+      ++applied;
+    }
+    if (applied <= 0) {
+      triggerToast("effects paste: no targets");
+      return;
+    }
+    // Datamosh is a decode behaviour rather than a pixel one, so a pasted
+    // chain containing it has to be reconciled with the cue's own flag, and
+    // the decoder has to be reopened in a format the new chain can act on.
+    syncDatamoshFromStack();
+    refreshFocusedLiveCueRuntimeIfSelected();
+    triggerToast(applied == 1
+                   ? "effect chain pasted"
+                   : ("effect chain pasted x" + std::to_string(applied)));
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
   }
 
   void copySelectedCueSettings() {
