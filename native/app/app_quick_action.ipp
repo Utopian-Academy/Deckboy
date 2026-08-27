@@ -34,6 +34,7 @@
         toggleMotionDriverRestartOnTake(); return;
       case QuickAction::EffectRemove:     effectStackRemove(param); return;
       case QuickAction::EffectCycleKind:  effectStackCycleKind(param); return;
+      case QuickAction::EffectToggleBypass: effectStackToggleBypass(param); return;
       case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
       case QuickAction::EffectAmountInc:  effectStackNudge(param, +0.05f); return;
       case QuickAction::EffectEditAmount: effectStackEditAmount(param); return;
