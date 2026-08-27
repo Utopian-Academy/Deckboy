@@ -494,6 +494,13 @@
     // A cue whose file has vanished must not be taken: the decode would fail
     // to black in ~100 ms and (on auto-advance) cascade through the playlist.
     // Flag it, tell the operator, keep whatever is on the output.
+    // The motion driver is not a cue and does not get taken, so it needs
+    // telling. Without this a rehearsed puppet look depended on how long the
+    // app had been open, which is not something a show can rely on.
+    if (deck.cues[deck.selectedIndex].motionDriverRestartOnTake &&
+        !deck.cues[deck.selectedIndex].motionDriverPath.empty()) {
+      restartMotionDriver(deckIndex);
+    }
     if (!cueMediaAvailableForTake(deck.cues[deck.selectedIndex])) {
       showLog("TAKE-BLOCKED", showLogCueRef(deckIndex, deck.selectedIndex) + " media missing");
       triggerToast("MEDIA MISSING: " + deck.cues[deck.selectedIndex].name + " — take blocked");
