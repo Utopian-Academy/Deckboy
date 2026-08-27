@@ -271,6 +271,19 @@ std::vector<deckboy::effects::CueEffect>* selectedEffectStack() {
   return cue ? &cue->effects : nullptr;
 }
 
+// Every effect, as dropdown choices. One list, built once, used both for
+// adding and for changing an existing entry -- so the operator always picks
+// from a visible list and never cycles blind through options they cannot see.
+std::vector<std::pair<std::string, std::string>> cueEffectChoices() {
+  std::vector<std::pair<std::string, std::string>> choices;
+  for (int i = 1; i < static_cast<int>(deckboy::effects::CueEffectKind::Count); ++i) {
+    const auto kind = static_cast<deckboy::effects::CueEffectKind>(i);
+    choices.push_back({deckboy::effects::cueEffectToken(kind),
+                       deckboy::effects::cueEffectLabel(kind)});
+  }
+  return choices;
+}
+
 void effectStackAdd() {
   auto* stack = selectedEffectStack();
   if (!stack) {
@@ -282,13 +295,29 @@ void effectStackAdd() {
     triggerToast("effect stack full (12)");
     return;
   }
-  deckboy::effects::CueEffect fx;
-  fx.kind = deckboy::effects::CueEffectKind::Invert;
-  fx.amount = 1.0f;
-  fx.paramA = 0.5f;
-  stack->push_back(fx);
-  triggerToast(std::string("effect added: ") + deckboy::effects::cueEffectLabel(fx.kind));
-  markProjectDirty();
+  // PICK from the list rather than appending a default and making the operator
+  // cycle to what they wanted. Adding "invert" to everyone who asked for an
+  // effect was the worst part of the first version of this.
+  const auto choices = cueEffectChoices();
+  openDropdown("cue.effect.add", lastInlineEditorAnchorRect_, choices,
+               choices.front().first,
+               [this](const std::string& token) {
+    auto* live = selectedEffectStack();
+    if (!live || live->size() >= 12) {
+      return;
+    }
+    deckboy::effects::CueEffect fx;
+    fx.kind = deckboy::effects::cueEffectFromToken(token);
+    if (fx.kind == deckboy::effects::CueEffectKind::None) {
+      return;
+    }
+    fx.amount = 1.0f;
+    fx.paramA = 0.5f;
+    live->push_back(fx);
+    triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(fx.kind));
+    markProjectDirty();
+    syncDatamoshFromStack();
+  });
 }
 
 bool effectIndexValid(const std::vector<deckboy::effects::CueEffect>* stack, int index) {
@@ -304,6 +333,7 @@ void effectStackRemove(int index) {
   stack->erase(stack->begin() + index);
   triggerToast("effect removed: " + gone);
   markProjectDirty();
+  syncDatamoshFromStack();
 }
 
 void effectStackCycleKind(int index) {
@@ -311,13 +341,39 @@ void effectStackCycleKind(int index) {
   if (!effectIndexValid(stack, index)) {
     return;
   }
-  int next = static_cast<int>((*stack)[index].kind) + 1;
-  if (next >= static_cast<int>(deckboy::effects::CueEffectKind::Count)) {
-    next = 1;   // skip None: an entry in the list is never "no effect"
+  // Named "cycle" for historical reasons; it opens the PICKER. Cycling through
+  // ten effects with a button, unable to see what the options are or what you
+  // have, is not a way to choose anything.
+  const auto choices = cueEffectChoices();
+  openDropdown("cue.effect.kind", lastInlineEditorAnchorRect_, choices,
+               deckboy::effects::cueEffectToken((*stack)[index].kind),
+               [this, index](const std::string& token) {
+    auto* live = selectedEffectStack();
+    if (!effectIndexValid(live, index)) {
+      return;
+    }
+    const auto kind = deckboy::effects::cueEffectFromToken(token);
+    if (kind == deckboy::effects::CueEffectKind::None) {
+      return;
+    }
+    (*live)[index].kind = kind;
+    markProjectDirty();
+    syncDatamoshFromStack();
+  });
+}
+
+void effectStackToggleBypass(int index) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) {
+    return;
   }
-  (*stack)[index].kind = static_cast<deckboy::effects::CueEffectKind>(next);
-  triggerToast(deckboy::effects::cueEffectLabel((*stack)[index].kind));
+  auto& fx = (*stack)[index];
+  fx.bypassed = !fx.bypassed;
+  // Bypass RETURNS the setting; turning the amount to zero throws it away.
+  triggerToast(std::string(deckboy::effects::cueEffectLabel(fx.kind)) +
+               (fx.bypassed ? " bypassed" : " active"));
   markProjectDirty();
+  syncDatamoshFromStack();
 }
 
 void effectStackNudge(int index, float delta) {
@@ -453,4 +509,44 @@ void toggleMotionDriverRestartOnTake() {
 void restartSelectedMotionDriver() {
   restartMotionDriver(project_.focusedDeckIndex);
   triggerToast("driver restarted");
+}
+
+// Datamosh lives in the effect stack like everything else, but the machinery
+// behind it is not a pixel pass -- it withholds keyframes at decode and needs a
+// background transcode first. So the stack entry is the UI and `datamoshEnabled`
+// remains the thing the engine reads; this keeps the two in step.
+//
+// Reuses toggleSelectedDatamosh() rather than reimplementing it, which means
+// the refusal on cues that cannot support it, the prepare-on-enable and the
+// swap back to the original clip all behave exactly as they always did.
+void syncDatamoshFromStack() {
+  Cue* cue = selectedCueMutable();
+  if (!cue) {
+    return;
+  }
+  bool want = false;
+  int entry = -1;
+  for (int i = 0; i < static_cast<int>(cue->effects.size()); ++i) {
+    const auto& fx = cue->effects[i];
+    if (fx.kind == deckboy::effects::CueEffectKind::Datamosh) {
+      entry = i;
+      if (!fx.bypassed && fx.amount > 0.0005f) {
+        want = true;
+      }
+      break;
+    }
+  }
+  if (want == cue->datamoshEnabled) {
+    return;
+  }
+  toggleSelectedDatamosh();
+  // If it REFUSED -- a still, a camera, a synth, anything not file-backed
+  // video -- the flag will not have moved. Bypass the entry so the stack
+  // stops asking every frame, and leave it visible so the operator can see
+  // what was refused rather than having it silently vanish.
+  cue = selectedCueMutable();
+  if (cue && want && !cue->datamoshEnabled && entry >= 0 &&
+      entry < static_cast<int>(cue->effects.size())) {
+    cue->effects[entry].bypassed = true;
+  }
 }

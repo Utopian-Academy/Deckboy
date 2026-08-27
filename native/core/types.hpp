@@ -1257,6 +1257,7 @@ enum class QuickAction {
   MotionDriverRestartOnTakeToggle,
   EffectRemove,
   EffectCycleKind,
+  EffectToggleBypass,
   EffectAmountDec,
   EffectAmountInc,
   EffectEditAmount,
