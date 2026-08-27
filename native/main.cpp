@@ -6137,6 +6137,32 @@ class App {
     if (stack.empty()) {
       rowY = inspDrawMessageRow(ix, rowY, "no effects", pal.tile, pal.inkSoft);
     }
+    // The driver row only appears when the stack actually contains a puppet:
+    // a "motion driver" control on a cue with no motion-puppet effect is a
+    // control that cannot do anything.
+    bool hasPuppet = false;
+    for (const auto& fx : stack) {
+      if (fx.kind == deckboy::effects::CueEffectKind::MotionPuppet) {
+        hasPuppet = true;
+        break;
+      }
+    }
+    if (hasPuppet || !cue.motionDriverPath.empty()) {
+      const std::string driver = cue.motionDriverPath.empty()
+        ? std::string("none - click to choose")
+        : fs::path(cue.motionDriverPath).filename().string();
+      rowY = inspDrawActionRow(ix, rowY, "driver: " + driver,
+                               QuickAction::MotionDriverPick,
+                               "The clip whose MOTION drives this one. Its "
+                               "pictures are never shown -- only the movement "
+                               "its codec already measured.",
+                               pal.tile, pal.fg);
+      if (!cue.motionDriverPath.empty()) {
+        rowY = inspDrawActionRow(ix, rowY, "clear driver",
+                                 QuickAction::MotionDriverClear,
+                                 "Stop puppeteering this cue", pal.tile, pal.inkSoft);
+      }
+    }
     rowY = inspDrawActionRow(ix, rowY, "+ add effect", QuickAction::EffectAdd,
                              "Append an effect to this cue's stack. Order is the "
                              "effect: posterise then invert is not invert then "

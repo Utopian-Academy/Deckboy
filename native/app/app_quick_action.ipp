@@ -24,6 +24,8 @@
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
       case QuickAction::EffectAdd:        effectStackAdd(); return;
+      case QuickAction::MotionDriverPick:  pickMotionDriver(); return;
+      case QuickAction::MotionDriverClear: clearMotionDriver(); return;
       case QuickAction::EffectRemove:     effectStackRemove(param); return;
       case QuickAction::EffectCycleKind:  effectStackCycleKind(param); return;
       case QuickAction::EffectAmountDec:  effectStackNudge(param, -0.05f); return;
