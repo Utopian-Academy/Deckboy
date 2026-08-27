@@ -11,14 +11,20 @@ This file gives Claude Code the architectural context it needs to work on Deckbo
 cd native
 cmake -B ../build/windows -G "Visual Studio 17 2022" -A x64 \
   -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-cmake --build ../build/windows --config Release
+cmake --build build/windows-sdl3 --config Release
 ```
-Binary lands at `build/windows/Release/Deckboy.exe`.
-Run from `build/windows/Release/` (needs `data/` in the working dir, resolved via walk-up).
+**The working build directory is `build/windows-sdl3`, not `build/windows`.**
+Binary lands at `build/windows-sdl3/Release/Deckboy.exe`; run from there (needs
+`data/` in the working dir, resolved via walk-up). `build/windows` is an older
+tree that this document used to point at, and a stale binary sitting in it has
+now caused two separate confusions: a 0.84.0 executable packaged into an 0.86.0
+zip, and an operator seeing a three-day-old inspector and reporting the new
+effects as missing. If you find a Deckboy.exe in `build/windows/Release`, it is
+almost certainly not the one you just built.
 
 **Quick rebuild (no reconfigure)**
 ```
-cmake --build ../build/windows --config Release
+cmake --build build/windows-sdl3 --config Release
 ```
 
 ---
