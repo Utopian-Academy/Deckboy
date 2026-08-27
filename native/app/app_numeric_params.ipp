@@ -352,3 +352,61 @@ void effectStackEditAmount(int index) {
       markProjectDirty();
     });
 }
+
+// ---------------------------------------------------------------------------
+// Motion driver: the clip whose movement puppeteers this cue.
+// ---------------------------------------------------------------------------
+
+void pickMotionDriver() {
+  if (!selectedCueMutable()) {
+    return;
+  }
+  // Video only. The driver is decoded for its MOTION VECTORS, which a still
+  // does not have and an audio file certainly does not -- offering them would
+  // be a picker that cannot produce a working answer.
+  static const SDL_DialogFileFilter kDriverFilters[] = {
+    {"Video", "mp4;mov;mkv;avi;m4v;webm;mpg;mpeg;ts;m2ts"},
+    {"All files", "*"},
+  };
+  showOpenFileDialog(
+    std::vector<SDL_DialogFileFilter>(std::begin(kDriverFilters), std::end(kDriverFilters)),
+    /*allowMany=*/false,
+    [this](std::vector<std::string> files) {
+      if (files.empty()) {
+        return;
+      }
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        return;   // selection moved while the dialog was open
+      }
+      cue->motionDriverPath = files.front();
+      // Arm the effect too if it is not already in the stack. Choosing a driver
+      // and then finding nothing happens because the effect was never added is
+      // the sort of two-step that makes a feature feel broken.
+      bool haveEffect = false;
+      for (const auto& fx : cue->effects) {
+        if (fx.kind == deckboy::effects::CueEffectKind::MotionPuppet) {
+          haveEffect = true;
+          break;
+        }
+      }
+      if (!haveEffect) {
+        deckboy::effects::CueEffect fx;
+        fx.kind = deckboy::effects::CueEffectKind::MotionPuppet;
+        fx.amount = 1.0f;
+        cue->effects.push_back(fx);
+      }
+      triggerToast("motion driver set");
+      markProjectDirty();
+    });
+}
+
+void clearMotionDriver() {
+  Cue* cue = selectedCueMutable();
+  if (!cue || cue->motionDriverPath.empty()) {
+    return;
+  }
+  cue->motionDriverPath.clear();
+  triggerToast("motion driver cleared");
+  markProjectDirty();
+}
