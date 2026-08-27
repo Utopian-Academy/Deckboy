@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""Render every effect through `--effect-dump` and check it changed the picture.
+
+The other two sweeps drive the running app. They are worth having -- one proves
+an effect reaches the recording, the other proves it reaches the preview -- but
+neither is any use while WRITING an effect, because each case launches the app,
+takes a cue and screenshots it, so a run costs minutes and the comparison is at
+the mercy of which frame the seek landed on. Two effects were called working on
+that evidence when they were doing nothing at all.
+
+This calls the effect maths directly on one picture. A run is a couple of
+seconds, it is exactly repeatable, and it can also write a contact sheet so the
+question "does it change the picture" can be followed by the one that matters,
+which is "does it look like anything".
+
+    python3 tools/check_effects_offline.py
+    python3 tools/check_effects_offline.py --sheet sheet.png --source my.png
+
+Needs ffmpeg only to make the source and the sheet; the effects themselves run
+in the app binary.
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+import tempfile
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import deckboy_testroot  # noqa: E402
+
+# token: the amount:paramA:paramB to exercise it at. Kept here rather than
+# derived, so adding an effect and forgetting this list fails loudly instead of
+# quietly shrinking the sweep.
+EFFECTS = [
+    ("invert",          "0.9:0.5:0.5"),
+    ("posterise",       "0.9:0.5:0.5"),
+    ("solarise",        "0.9:0.5:0.5"),
+    ("threshold",       "0.9:0.5:0.5"),
+    ("vignette",        "0.9:0.5:0.5"),
+    ("grain",           "0.9:0.5:0.5"),
+    ("scanlines",       "0.9:0.5:0.5"),
+    ("channel_offset",  "0.9:0.5:0.5"),
+    ("temporal_dither", "0.9:0.5:0.5"),
+    ("pixel_sort",      "0.9:0.5:0.5"),
+    ("block_glitch",    "0.9:0.5:0.5"),
+    ("polar_warp",      "0.9:0.5:0.5"),
+    ("luma_displace",   "0.9:0.5:0.5"),
+    ("ripple",          "0.9:0.5:0.5"),
+    ("kaleidoscope",    "0.9:0.5:0.5"),
+    ("dye_advect",      "0.9:0.0:0.6"),
+    ("reaction_bloom",  "0.85:0.5:0.6"),
+    ("relativistic",    "0.85:0.55:0.8"),
+]
+
+# Neither is a pixel operation, so neither can be dumped. Datamosh happens at
+# the DECODER and motion puppet needs a driver clip's vectors.
+NOT_PIXEL_EFFECTS = [
+    ("datamosh", "happens at decode, not on the pixels"),
+    ("motion_puppet", "needs a driver clip's motion vectors"),
+]
+
+
+def raster(path):
+    """The pixel bytes of a binary PPM, without its header."""
+    with open(path, "rb") as handle:
+        data = handle.read()
+    return data[data.index(b"255\n") + 4:]
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--exe", default=os.path.join(
+        REPO, "build", "windows", "Release", "Deckboy.exe"))
+    parser.add_argument("--source", help="picture to run the effects on "
+                                         "(default: a generated fractal)")
+    parser.add_argument("--frame", type=int, default=7,
+                        help="frame index, for the effects that advance with time")
+    parser.add_argument("--sheet", help="write a contact sheet here (PNG)")
+    args = parser.parse_args()
+
+    exe = os.path.abspath(args.exe)
+    if not os.path.exists(exe):
+        print("no binary at %s" % exe)
+        return 1
+    deckboy_testroot.warn_if_stale(exe)
+
+    work = tempfile.mkdtemp(prefix="deckboy-fx-offline-")
+    src = os.path.join(work, "src.ppm")
+    if args.source:
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", args.source,
+                        "-frames:v", "1", "-pix_fmt", "rgb24", src], check=True)
+    else:
+        # Something with structure at every scale. Flat colour bars are a poor
+        # test for anything that reacts to image content, and they made a dead
+        # reaction-diffusion look identical to a live one.
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi",
+                        "-i", "mandelbrot=size=640x360:rate=1",
+                        "-frames:v", "1", "-pix_fmt", "rgb24", src], check=True)
+    base = raster(src)
+
+    rows, outputs, failures = [], [], 0
+    for token, params in EFFECTS:
+        out = os.path.join(work, token + ".ppm")
+        proc = subprocess.run([exe, "--effect-dump", "%s:%s" % (token, params),
+                               src, out, str(args.frame)],
+                              capture_output=True, text=True)
+        if proc.returncode != 0 or not os.path.exists(out):
+            rows.append((token, "FAIL", (proc.stderr or proc.stdout).strip()[:70]))
+            failures += 1
+            continue
+        shot = raster(out)
+        if len(shot) != len(base):
+            rows.append((token, "FAIL", "wrong size out"))
+            failures += 1
+            continue
+        # Sampled rather than exhaustive: a stride keeps this instant on a 4K
+        # source and no real effect changes only the bytes a stride skips.
+        changed = sum(1 for a, b in zip(base[::97], shot[::97]) if abs(a - b) > 8)
+        pct = 100.0 * changed / len(base[::97])
+        ms = ""
+        for word in proc.stdout.split():
+            if word.endswith("ms"):
+                ms = " " + word
+        if pct < 0.5:
+            rows.append((token, "NO CHANGE", "identical to the source"))
+            failures += 1
+        else:
+            rows.append((token, "ok", "%.1f%% of bytes changed%s" % (pct, ms)))
+        outputs.append(out)
+
+    if args.sheet and outputs:
+        cols = 3
+        inputs = []
+        for path in [src] + outputs:
+            inputs += ["-i", path]
+        scaled = "".join("[%d]scale=426:-1[s%d];" % (i, i)
+                         for i in range(len(outputs) + 1))
+        stacks, row_labels = "", []
+        for start in range(0, len(outputs) + 1, cols):
+            group = list(range(start, min(start + cols, len(outputs) + 1)))
+            if len(group) < cols:
+                break                      # drop a ragged last row
+            name = "r%d" % start
+            stacks += "".join("[s%d]" % i for i in group) + "hstack=%d[%s];" % (cols, name)
+            row_labels.append(name)
+        graph = scaled + stacks + "".join("[%s]" % n for n in row_labels) + \
+            "vstack=%d" % len(row_labels)
+        subprocess.run(["ffmpeg", "-y", "-v", "error"] + inputs +
+                       ["-filter_complex", graph, args.sheet], check=False)
+        print("contact sheet: %s (source first, then %s)"
+              % (args.sheet, ", ".join(t for t, _ in EFFECTS)))
+
+    print()
+    print("%-18s %-10s %s" % ("effect", "verdict", "detail"))
+    for token, verdict, detail in rows:
+        print("%-18s %-10s %s" % (token, verdict, detail))
+    for token, why in NOT_PIXEL_EFFECTS:
+        print("%-18s %-10s %s" % (token, "n/a", why))
+    print("\n%s" % ("FAIL" if failures else
+                    "every effect changes the picture"))
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

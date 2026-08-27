@@ -40,6 +40,12 @@
       case QuickAction::EffectEditAmount: effectStackEditAmount(param); return;
       case QuickAction::EffectMoveUp:     effectStackMove(param, -1); return;
       case QuickAction::EffectMoveDown:   effectStackMove(param, +1); return;
+      case QuickAction::EffectParamADec:  effectStackNudgeParam(param, 0, -0.05f); return;
+      case QuickAction::EffectParamAInc:  effectStackNudgeParam(param, 0, +0.05f); return;
+      case QuickAction::EffectParamAEdit: effectStackEditParam(param, 0); return;
+      case QuickAction::EffectParamBDec:  effectStackNudgeParam(param, 1, -0.05f); return;
+      case QuickAction::EffectParamBInc:  effectStackNudgeParam(param, 1, +0.05f); return;
+      case QuickAction::EffectParamBEdit: effectStackEditParam(param, 1); return;
       default: break;
     }
     dispatchQuickActionPlain(action);

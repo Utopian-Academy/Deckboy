@@ -6167,6 +6167,33 @@ class App {
                        "Drag to scrub (shift = fine), click to type exact",
                        true, QuickAction::EffectEditAmount, i);
       rowY += ix.rowStep;
+      // The extra parameters, named by the effect itself. An effect that does
+      // not use one draws no row for it, so the inspector never shows a
+      // control that cannot do anything -- and one that DOES use it is no
+      // longer stuck at whatever the default happened to be.
+      for (int which = 0; which < 2; ++which) {
+        const char* paramLabel =
+          deckboy::effects::cueEffectParamLabel(fx.kind, which);
+        if (!paramLabel) {
+          continue;
+        }
+        std::ostringstream value;
+        value << std::fixed << std::setprecision(2)
+              << (which == 0 ? fx.paramA : fx.paramB);
+        inspDrawQuickRow(ix, rowY, paramLabel,
+                         which == 0 ? QuickAction::EffectParamADec
+                                    : QuickAction::EffectParamBDec,
+                         value.str(),
+                         which == 0 ? QuickAction::EffectParamAInc
+                                    : QuickAction::EffectParamBInc,
+                         QuickAction::ToggleLoop, false, false,
+                         deckboy::effects::cueEffectParamTip(fx.kind, which),
+                         true,
+                         which == 0 ? QuickAction::EffectParamAEdit
+                                    : QuickAction::EffectParamBEdit,
+                         i);
+        rowY += ix.rowStep;
+      }
       }
       // Second row: what it is, where it sits, and getting rid of it. Split
       // from the amount row because cramming six controls onto one line is how
@@ -8779,7 +8806,9 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
-  {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
+  {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
+     "apply one effect to one picture, no window"},
+    {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
   {"--motion-probe <file> [frames]", "read the clip's motion vectors, report coverage"},
   {"--ltc-generate <out.wav> [tc] [fps] [seconds]", "write a SMPTE LTC timecode WAV"},
 };
@@ -8794,7 +8823,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
-  "--pattern-bench", "--pattern-dump", "--decode-bench", "--ltc-generate",
+  "--pattern-bench", "--pattern-dump", "--effect-dump", "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe",
 };
@@ -9086,6 +9115,11 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (parsed >= 0.0) dumpT = parsed;
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--effect-dump") {
+    if (ops.size() < 3) return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
+    const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
+    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame);
   }
   if (mode == "--motion-probe") {
     if (ops.empty()) return missing("<file> [frames]");
