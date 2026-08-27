@@ -102,3 +102,21 @@ def warn_if_stale(exe, quiet=False):
             print("!! Rebuild before trusting anything below.")
         return True
     return False
+
+
+def cue_effects_field_index(fields):
+    """Where the effects string lives in a cue record, given its fields.
+
+    It is NOT a fixed column. The record carries its composite slots inline, so
+    every field after them shifts by 11 per slot. Hardcoding 154 works only for
+    a cue with no composite slots; on any other cue it writes into the
+    motion-driver path instead, and the effect silently never arrives -- which
+    looks exactly like a broken effect.
+
+    The driver path is the field immediately after.
+    """
+    try:
+        slots = int(fields[68] or 0)
+    except (IndexError, ValueError):
+        slots = 0
+    return 154 + slots * 11
