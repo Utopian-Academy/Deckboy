@@ -8061,6 +8061,16 @@ class App {
   // The VJ crossfader: a drag rect like the master fader, because where along
   // it you press IS the value.
   SDL_Rect vjCrossfaderRect_ {};
+  // A and B preview monitors, and their textures. Uploaded from each deck's
+  // own decoded frame, which is the only picture of a deck the control window
+  // can get without a second decode.
+  SDL_Rect vjPreviewRectA_ {};
+  SDL_Rect vjPreviewRectB_ {};
+  SDL_Texture* vjPreviewTex_[2] = {nullptr, nullptr};
+  int vjPreviewTexW_[2] = {0, 0};
+  int vjPreviewTexH_[2] = {0, 0};
+  Uint32 vjPreviewTexFormat_[2] = {0, 0};
+  std::uint64_t vjPreviewFrameIdx_[2] = {UINT64_MAX, UINT64_MAX};
   bool vjCrossfaderDragActive_ = false;
   // Smoothed position, for the handle's lean. The real value snaps; this is
   // what chases it.

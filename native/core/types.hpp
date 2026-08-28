@@ -638,7 +638,10 @@ struct Cue {
   // CODE SOURCE. The expression a "code" pattern evaluates per pixel: one
   // expression, or three separated by commas for red, green and blue.
   // Compiled when it changes, not parsed per pixel -- see code_source.hpp.
-  std::string codeExpression = "sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r";
+  // Defaults to the plasma example: a new code cue should look like something
+  // the moment it is taken, not like a black rectangle waiting to be typed at.
+  std::string codeExpression =
+    "sin(x*8+t)*0.5+0.5, sin(y*8+t*1.3)*0.5+0.5, sin((x+y)*8-t)*0.5+0.5";
   // Which mosh recipe this cue was prepared with. Per-cue because it is a look
   // choice about THIS clip, and because a global flag could not be saved with
   // the show -- it reset to the weakest flavour on every launch, so the toggle

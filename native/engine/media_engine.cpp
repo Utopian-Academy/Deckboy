@@ -3714,10 +3714,16 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // took the NV12 fast path and the whole stack was silently skipped -- the
   // pixels never reached a CPU buffer for it to run on. Same trap the chroma
   // key would have hit if this predicate had not existed.
+  // forcePixelFrames_ is VJ mode asking for frames it can SEE. A zero-copy
+  // NV12 surface has no pixels on the CPU side, so the control window cannot
+  // make an A or B preview out of it -- and a mixer whose preview monitors are
+  // blank is a mixer you are fading blind. The cost is the zero-copy path, and
+  // only while VJ mode is on, which is exactly when both decks need looking at.
   const bool needsRgbaForEffects =
     cue.chromaKeyEnabled ||
     colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
-    deckboy::effects::cueEffectStackActive(cue.effects);
+    deckboy::effects::cueEffectStackActive(cue.effects) ||
+    forcePixelFrames_;
   const FramePixelFormat decodeFormat =
     needsRgbaForEffects ? FramePixelFormat::RGBA32 : FramePixelFormat::NV12;
   const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";

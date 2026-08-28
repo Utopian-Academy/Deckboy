@@ -1792,6 +1792,15 @@
       {0, 0, 0, 0},
       [this]() { addNdiSourceCueFromPrompt(); }
     });
+    // Code source. It is built on the pattern machinery, so it was reachable
+    // only from the PATTERN picker -- and nobody looking for a SOURCE called
+    // "code source" thinks to open the pattern list. Where a thing lives in
+    // the code is not where an operator expects to find it.
+    contextItems_.push_back({
+      "  Code (live expression)",
+      {0, 0, 0, 0},
+      [this]() { addPatternCue("code"); }
+    });
     // Stage timer. Without this the Timer cue was only reachable over the wire
     // (TIMERCUE), i.e. not reachable at all from inside the app.
     contextItems_.push_back({
@@ -4349,6 +4358,23 @@
       return std::clamp(cueIn + engine.position(), cueIn, cueOut);
     }
     return std::clamp(engine.position(), 0.0, cueDuration);
+  }
+
+  // Re-take the live cue on EVERY deck. The focused-deck version above is for
+  // an edit to the selected cue; this is for a change that alters how every
+  // deck must decode -- VJ mode asking for CPU-side pixels, for instance,
+  // which is decided when a cue is taken and not per frame.
+  void refreshAllLiveCueRuntimes() {
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      const Deck& deck = project_.decks[deckIndex];
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+        continue;
+      }
+      DeckRuntime* runtime = runtimeForDeck(deckIndex);
+      if (runtime && runtime->mediaEngine) {
+        runtime->mediaEngine->refreshActiveCueRuntime(&deck.cues[deck.activeIndex]);
+      }
+    }
   }
 
   void refreshFocusedLiveCueRuntimeIfSelected() {
