@@ -46,6 +46,12 @@
       case QuickAction::EffectParamBDec:  effectStackNudgeParam(param, 1, -0.05f); return;
       case QuickAction::EffectParamBInc:  effectStackNudgeParam(param, 1, +0.05f); return;
       case QuickAction::EffectParamBEdit: effectStackEditParam(param, 1); return;
+      case QuickAction::EffectParamCDec:  effectStackNudgeParam(param, 2, -0.05f); return;
+      case QuickAction::EffectParamCInc:  effectStackNudgeParam(param, 2, +0.05f); return;
+      case QuickAction::EffectParamCEdit: effectStackEditParam(param, 2); return;
+      case QuickAction::EffectParamDDec:  effectStackNudgeParam(param, 3, -0.05f); return;
+      case QuickAction::EffectParamDInc:  effectStackNudgeParam(param, 3, +0.05f); return;
+      case QuickAction::EffectParamDEdit: effectStackEditParam(param, 3); return;
       case QuickAction::EffectChainCopy:  copySelectedEffectChain(); return;
       case QuickAction::EffectChainPaste: pasteSelectedEffectChain(); return;
       default: break;

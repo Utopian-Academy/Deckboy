@@ -439,7 +439,8 @@ void effectStackNudgeParam(int index, int which, float delta) {
     return;
   }
   auto& fx = (*stack)[index];
-  float& value = which == 0 ? fx.paramA : fx.paramB;
+  float& value = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+               : which == 2 ? fx.paramC : fx.paramD;
   value = std::clamp(value + delta, 0.0f, 1.0f);
   markProjectDirty();
 }
@@ -456,9 +457,11 @@ void effectStackEditParam(int index, int which) {
   }
   std::ostringstream current;
   current << std::fixed << std::setprecision(2)
-          << (which == 0 ? fx.paramA : fx.paramB);
+          << (which == 0 ? fx.paramA : which == 1 ? fx.paramB
+             : which == 2 ? fx.paramC : fx.paramD);
   openInlineNumericExpressionEditor(
-    which == 0 ? "cue.effect.paramA" : "cue.effect.paramB", label,
+    which == 0 ? "cue.effect.paramA" : which == 1 ? "cue.effect.paramB"
+    : which == 2 ? "cue.effect.paramC" : "cue.effect.paramD", label,
     "0-1 (supports + - * / and ())", current.str(),
     [this, index, which](double value) {
       auto* live = selectedEffectStack();
@@ -466,7 +469,8 @@ void effectStackEditParam(int index, int which) {
         return;   // the selection moved while the editor was open
       }
       auto& target = (*live)[index];
-      (which == 0 ? target.paramA : target.paramB) =
+      (which == 0 ? target.paramA : which == 1 ? target.paramB
+       : which == 2 ? target.paramC : target.paramD) =
         std::clamp(static_cast<float>(value), 0.0f, 1.0f);
       markProjectDirty();
     });

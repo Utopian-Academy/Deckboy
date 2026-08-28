@@ -1272,6 +1272,11 @@
     if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
     if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
     if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+    // Note the CLI spec is amount:a:b:c:d -- it is NOT the save format, which
+    // carries bypassed between b and c. This is a dev flag, and a straight run
+    // of the four parameters is what someone typing it expects.
+    if (parts.size() > 4) fx.paramC = static_cast<float>(std::atof(parts[4].c_str()));
+    if (parts.size() > 5) fx.paramD = static_cast<float>(std::atof(parts[5].c_str()));
 
     std::ifstream in(inPath, std::ios::binary);
     if (!in) {
@@ -1361,6 +1366,8 @@
     if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
     if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
     if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+    if (parts.size() > 4) fx.paramC = static_cast<float>(std::atof(parts[4].c_str()));
+    if (parts.size() > 5) fx.paramD = static_cast<float>(std::atof(parts[5].c_str()));
 
     const std::size_t count = static_cast<std::size_t>(w) * h;
     // A deterministic picture with real structure in it. A flat fill would let

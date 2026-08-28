@@ -577,6 +577,7 @@
       {"Enter",           "Take selected cue live"},
       {"Space",           "Play / Pause"},
       {". / ,",           "Skip to next / previous cue"},
+      {"PgDn / PgUp",     "Same, for a presenter remote"},
       {"S",               "Stop active cue"},
       {"Ctrl+R",          "Rerack (rewind to start)"},
       {"Up / Down",       "Navigate cue list"},
