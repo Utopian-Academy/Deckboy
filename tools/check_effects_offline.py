@@ -54,6 +54,36 @@ EFFECTS = [
     ("relativistic",    "0.85:0.55:0.8"),
 ]
 
+# Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
+# Kept here rather than parsed, so the two diverging fails loudly: --params
+# checks that each one actually moves the picture, which is the dead-control
+# bug this codebase keeps producing, applied to effect parameters.
+PARAM_SLOTS = {
+    "invert":          ["pivot", "channel spread"],
+    "posterise":       ["band curve", "channel skew"],
+    "solarise":        ["fold point", "knee"],
+    "threshold":       ["pivot", "softness"],
+    "vignette":        ["size", "falloff"],
+    "grain":           ["grain size", "colour"],
+    "scanlines":       ["pitch", "darkness"],
+    "channel_offset":  ["angle", "green split"],
+    "temporal_dither": ["palette", "hold"],
+    "pixel_sort":      ["threshold", "reverse"],
+    "block_glitch":    ["bands", "tear width"],
+    "polar_warp":      ["twist", "radial zoom"],
+    "luma_displace":   ["vertical bias", "pivot"],
+    "ripple":          ["frequency", "speed"],
+    "kaleidoscope":    ["wedges", "rotation"],
+    "dye_advect":      ["bleed", "curl detail", "swirl"],
+    "reaction_bloom":  ["feed rate", "growth", "seed density", "glow"],
+    "relativistic":    ["field of view", "doppler", "off-axis"],
+}
+
+# What a show saved before a parameter existed carries, and what it must still
+# mean. Moving one of these breaks every show that already used the effect.
+NEUTRAL = [0.5, 0.0, 0.0, 0.0]
+MOVED = [0.9, 0.8, 0.8, 0.8]
+
 # Neither is a pixel operation, so neither can be dumped. Datamosh happens at
 # the DECODER and motion puppet needs a driver clip's vectors.
 NOT_PIXEL_EFFECTS = [
@@ -69,6 +99,47 @@ def raster(path):
     return data[data.index(b"255\n") + 4:]
 
 
+def check_params(exe, src, base, work):
+    """Every named parameter should change the picture, and the neutral
+    position should leave it exactly as it was."""
+    def render(token, params, frame=7):
+        out = os.path.join(work, "param.ppm")
+        spec = "%s:0.9:%g:%g:%g:%g" % ((token,) + tuple(params))
+        subprocess.run([exe, "--effect-dump", spec, src, out, str(frame)],
+                       capture_output=True)
+        return raster(out) if os.path.exists(out) else b""
+
+    dead = 0
+    print("%-16s %-15s %-6s %s" % ("effect", "parameter", "verdict", "detail"))
+    for token, names in PARAM_SLOTS.items():
+        neutral = render(token, NEUTRAL)
+        if not neutral:
+            print("%-16s %-15s %-6s %s" % (token, "-", "FAIL", "no render"))
+            dead += 1
+            continue
+        for slot, name in enumerate(names):
+            params = list(NEUTRAL)
+            params[slot] = MOVED[slot]
+            shot = render(token, params)
+            if len(shot) != len(neutral):
+                print("%-16s %-15s %-6s %s" % (token, name, "FAIL", "bad render"))
+                dead += 1
+                continue
+            changed = sum(1 for a, b in zip(neutral[::53], shot[::53])
+                          if abs(a - b) > 6)
+            pct = 100.0 * changed / len(neutral[::53])
+            verdict = "ok" if pct >= 0.5 else "DEAD"
+            if verdict == "DEAD":
+                dead += 1
+            print("%-16s %-15s %-6s %.1f%% of the picture moved"
+                  % (token, name, verdict, pct))
+    summary = ("FAIL: %d parameter(s) do nothing" % dead if dead else
+               "every named parameter changes the picture")
+    print()
+    print(summary)
+    return 1 if dead else 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -79,6 +150,8 @@ def main():
     parser.add_argument("--frame", type=int, default=7,
                         help="frame index, for the effects that advance with time")
     parser.add_argument("--sheet", help="write a contact sheet here (PNG)")
+    parser.add_argument("--params", action="store_true",
+                        help="check every named parameter moves the picture")
     args = parser.parse_args()
 
     exe = os.path.abspath(args.exe)
@@ -100,6 +173,9 @@ def main():
                         "-i", "mandelbrot=size=640x360:rate=1",
                         "-frames:v", "1", "-pix_fmt", "rgb24", src], check=True)
     base = raster(src)
+
+    if args.params:
+        return check_params(exe, src, base, work)
 
     rows, outputs, failures = [], [], 0
     for token, params in EFFECTS:
