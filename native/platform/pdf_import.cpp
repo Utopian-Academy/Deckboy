@@ -1,0 +1,288 @@
+#include "pdf_import.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <cstdio>
+#include <system_error>
+
+#ifdef _WIN32
+#include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Data.Pdf.h>
+#elif defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
+#include <ImageIO/ImageIO.h>
+#else
+#include "core/subprocess.hpp"
+#endif
+
+namespace fs = std::filesystem;
+
+namespace deckboy::platform {
+namespace {
+
+std::string lowerExtension(const fs::path& path) {
+  std::string ext = path.extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) {
+    return static_cast<char>(std::tolower(ch));
+  });
+  return ext;
+}
+
+// Zero-padded, so a hundred-page deck sorts correctly in a folder listing and
+// in any tool the operator opens it with. "page9" before "page10" is the kind
+// of thing that only shows up on the day it matters.
+std::string pageFileName(int index) {
+  char name[32];
+  std::snprintf(name, sizeof(name), "page%04d.png", index + 1);
+  return name;
+}
+
+}  // namespace
+
+bool isPdfDocumentPath(const fs::path& path) {
+  return lowerExtension(path) == ".pdf";
+}
+
+bool isPresentationDocumentPath(const fs::path& path) {
+  const std::string ext = lowerExtension(path);
+  return ext == ".pptx" || ext == ".ppt" || ext == ".key" ||
+         ext == ".odp" || ext == ".pps" || ext == ".ppsx";
+}
+
+// ---------------------------------------------------------------------------
+// Windows — Windows.Data.Pdf
+// ---------------------------------------------------------------------------
+#ifdef _WIN32
+
+bool pdfRasterAvailable(std::string& whyNot) {
+  whyNot.clear();
+  return true;   // ships with the OS
+}
+
+PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
+                             double scale,
+                             const std::function<void(int, int)>& onProgress) {
+  PdfRasterResult result;
+  std::error_code ec;
+  fs::create_directories(outputDir, ec);
+  if (ec) {
+    result.error = "could not create " + outputDir.string();
+    return result;
+  }
+  // This runs on a worker thread, so it needs its own apartment. Multi-threaded
+  // rather than single: there is no message pump out here to service an STA.
+  winrt::init_apartment(winrt::apartment_type::multi_threaded);
+  try {
+    auto file = winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(
+      winrt::hstring(pdfPath.wstring())).get();
+    auto doc = winrt::Windows::Data::Pdf::PdfDocument::LoadFromFileAsync(file).get();
+    auto folder = winrt::Windows::Storage::StorageFolder::GetFolderFromPathAsync(
+      winrt::hstring(outputDir.wstring())).get();
+
+    const uint32_t pageCount = doc.PageCount();
+    if (pageCount == 0) {
+      result.error = "the document has no pages";
+      return result;
+    }
+    for (uint32_t i = 0; i < pageCount; ++i) {
+      if (onProgress) {
+        onProgress(static_cast<int>(i), static_cast<int>(pageCount));
+      }
+      auto page = doc.GetPage(i);
+      const auto size = page.Size();
+      winrt::Windows::Data::Pdf::PdfPageRenderOptions options;
+      options.DestinationWidth(
+        static_cast<uint32_t>(std::max(1.0, size.Width * scale)));
+      options.DestinationHeight(
+        static_cast<uint32_t>(std::max(1.0, size.Height * scale)));
+
+      const std::string name = pageFileName(static_cast<int>(i));
+      auto target = folder.CreateFileAsync(
+        winrt::hstring(fs::path(name).wstring()),
+        winrt::Windows::Storage::CreationCollisionOption::ReplaceExisting).get();
+      auto stream = target.OpenAsync(
+        winrt::Windows::Storage::FileAccessMode::ReadWrite).get();
+      page.RenderToStreamAsync(stream, options).get();
+      stream.Close();
+      result.pagePaths.push_back((outputDir / name).string());
+    }
+  } catch (winrt::hresult_error const& e) {
+    char message[256];
+    std::snprintf(message, sizeof(message), "0x%08X",
+                  static_cast<unsigned>(e.code()));
+    result.error = std::string("Windows could not read the PDF (") + message + ")";
+    result.pagePaths.clear();
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// macOS — CoreGraphics
+// ---------------------------------------------------------------------------
+#elif defined(__APPLE__)
+
+bool pdfRasterAvailable(std::string& whyNot) {
+  whyNot.clear();
+  return true;   // CoreGraphics ships with the OS
+}
+
+PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
+                             double scale,
+                             const std::function<void(int, int)>& onProgress) {
+  PdfRasterResult result;
+  std::error_code ec;
+  fs::create_directories(outputDir, ec);
+  if (ec) {
+    result.error = "could not create " + outputDir.string();
+    return result;
+  }
+  CFStringRef pathRef = CFStringCreateWithCString(
+    nullptr, pdfPath.c_str(), kCFStringEncodingUTF8);
+  CFURLRef url = CFURLCreateWithFileSystemPath(
+    nullptr, pathRef, kCFURLPOSIXPathStyle, false);
+  CGPDFDocumentRef doc = url ? CGPDFDocumentCreateWithURL(url) : nullptr;
+  if (url) CFRelease(url);
+  if (pathRef) CFRelease(pathRef);
+  if (!doc) {
+    result.error = "macOS could not read the PDF";
+    return result;
+  }
+  const size_t pageCount = CGPDFDocumentGetNumberOfPages(doc);
+  if (pageCount == 0) {
+    CGPDFDocumentRelease(doc);
+    result.error = "the document has no pages";
+    return result;
+  }
+  CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+  for (size_t i = 0; i < pageCount; ++i) {
+    if (onProgress) {
+      onProgress(static_cast<int>(i), static_cast<int>(pageCount));
+    }
+    // Pages are 1-based in CGPDFDocument.
+    CGPDFPageRef page = CGPDFDocumentGetPage(doc, i + 1);
+    if (!page) continue;
+    const CGRect box = CGPDFPageGetBoxRect(page, kCGPDFCropBox);
+    const size_t w = static_cast<size_t>(std::max(1.0, box.size.width * scale));
+    const size_t h = static_cast<size_t>(std::max(1.0, box.size.height * scale));
+    CGContextRef context = CGBitmapContextCreate(
+      nullptr, w, h, 8, 0, space,
+      kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
+    if (!context) continue;
+    // A PDF page has no background of its own. Without this a slide with white
+    // text on a transparent ground arrives as white text on black.
+    CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
+    CGContextFillRect(context, CGRectMake(0, 0, static_cast<CGFloat>(w),
+                                          static_cast<CGFloat>(h)));
+    CGContextScaleCTM(context, scale, scale);
+    CGContextTranslateCTM(context, -box.origin.x, -box.origin.y);
+    CGContextDrawPDFPage(context, page);
+
+    CGImageRef image = CGBitmapContextCreateImage(context);
+    const std::string name = pageFileName(static_cast<int>(i));
+    const fs::path outPath = outputDir / name;
+    CFStringRef outRef = CFStringCreateWithCString(
+      nullptr, outPath.c_str(), kCFStringEncodingUTF8);
+    CFURLRef outUrl = CFURLCreateWithFileSystemPath(
+      nullptr, outRef, kCFURLPOSIXPathStyle, false);
+    CGImageDestinationRef dest = outUrl
+      ? CGImageDestinationCreateWithURL(outUrl, CFSTR("public.png"), 1, nullptr)
+      : nullptr;
+    if (dest && image) {
+      CGImageDestinationAddImage(dest, image, nullptr);
+      if (CGImageDestinationFinalize(dest)) {
+        result.pagePaths.push_back(outPath.string());
+      }
+    }
+    if (dest) CFRelease(dest);
+    if (outUrl) CFRelease(outUrl);
+    if (outRef) CFRelease(outRef);
+    if (image) CGImageRelease(image);
+    CGContextRelease(context);
+  }
+  CGColorSpaceRelease(space);
+  CGPDFDocumentRelease(doc);
+  if (result.pagePaths.empty()) {
+    result.error = "no pages could be rendered";
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Linux — pdftoppm (poppler-utils)
+// ---------------------------------------------------------------------------
+#else
+
+namespace {
+
+bool haveTool(const std::string& tool) {
+  auto found = readAllText({"/bin/sh", "-c", "command -v " + tool});
+  return found.has_value() && !found->empty();
+}
+
+}  // namespace
+
+bool pdfRasterAvailable(std::string& whyNot) {
+  if (haveTool("pdftoppm")) {
+    whyNot.clear();
+    return true;
+  }
+  whyNot = "pdftoppm is not installed (apt install poppler-utils)";
+  return false;
+}
+
+PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
+                             double scale,
+                             const std::function<void(int, int)>& onProgress) {
+  PdfRasterResult result;
+  std::string whyNot;
+  if (!pdfRasterAvailable(whyNot)) {
+    result.error = whyNot;
+    return result;
+  }
+  std::error_code ec;
+  fs::create_directories(outputDir, ec);
+  if (ec) {
+    result.error = "could not create " + outputDir.string();
+    return result;
+  }
+  if (onProgress) {
+    // pdftoppm renders the whole document in one run and reports nothing as it
+    // goes, so the operator gets a start and an end rather than a count.
+    onProgress(0, 0);
+  }
+  // 72dpi is a PDF point, so the scale factor is the same number as everywhere
+  // else in this file.
+  const int dpi = std::max(36, static_cast<int>(72.0 * scale));
+  const fs::path prefix = outputDir / "page";
+  auto run = readAllText({
+    "pdftoppm", "-png", "-r", std::to_string(dpi),
+    pdfPath.string(), prefix.string()});
+  if (!run.has_value()) {
+    result.error = "pdftoppm failed on " + pdfPath.filename().string();
+    return result;
+  }
+  // pdftoppm names its output page-1.png, page-01.png or page-001.png
+  // depending on the page count, so collect and sort rather than predicting.
+  std::vector<fs::path> produced;
+  for (fs::directory_iterator it(outputDir, ec), end; !ec && it != end; ++it) {
+    if (it->is_regular_file(ec) && lowerExtension(it->path()) == ".png") {
+      produced.push_back(it->path());
+    }
+  }
+  std::sort(produced.begin(), produced.end());
+  for (const fs::path& page : produced) {
+    result.pagePaths.push_back(page.string());
+  }
+  if (result.pagePaths.empty()) {
+    result.error = "pdftoppm produced no pages";
+  }
+  return result;
+}
+
+#endif
+
+}  // namespace deckboy::platform

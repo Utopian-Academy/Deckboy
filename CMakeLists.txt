@@ -379,6 +379,7 @@ add_executable(deckboy-native
   native/core/subprocess.cpp
   native/engine/media_engine.cpp
   native/platform/browser.cpp
+  native/platform/pdf_import.cpp
   native/platform/capture_backend.cpp
   native/platform/integration_backend.cpp
   native/platform/output_backend.cpp
@@ -500,6 +501,10 @@ if(NOT MSVC)
 endif()
 add_dependencies(deckboy-native deckboy_generate_version)
 if(WIN32)
+  # WindowsApp.lib is the WinRT entry point. It is here for Windows.Data.Pdf,
+  # which renders imported slide decks -- the same engine Edge uses, so a PDF
+  # needs no bundled rasteriser and no third-party licence.
+  target_link_libraries(deckboy-native PRIVATE windowsapp)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
 
   # Embed the application icon as resource IDI_DECKBOY_APP_ICON. This drives the

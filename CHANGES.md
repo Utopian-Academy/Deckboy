@@ -97,6 +97,59 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### Slide decks import as cues
+
+Drop a PDF on Deckboy and it becomes one image cue per page, named after the
+document -- "keynote 1", "keynote 2" -- in order, each one holding until it is
+taken. Page Down on a presenter's clicker walks them.
+
+After the import a slide is an ORDINARY CUE. It fades, it carries effects, it
+crossfades to the next one, it can be reordered, and nothing during the show
+depends on a document renderer. That is not a shortcut, it is the point: a
+renderer that stalls mid-keynote is a black screen in front of an audience.
+
+**Each platform's own engine, no bundled library.** Windows renders through
+`Windows.Data.Pdf`, which is what Edge uses. macOS goes through CoreGraphics,
+which is what Preview uses. Linux uses `pdftoppm` from poppler-utils, which is
+what the desktop already renders PDFs with, and says so plainly if it is not
+installed. Bundling a rasteriser instead would have meant either an AGPL engine
+that Deckboy cannot link, or vendoring something the size of pdfium for a job
+the operating system already does well.
+
+Pages render at twice their natural size, because a slide is mostly type and
+type is the first thing to fall apart scaled up to a 4K output -- and once the
+page is a PNG the detail cannot be recovered. They go to the state directory,
+never next to the operator's document, whose folder is read-only as often as
+not.
+
+Rendering happens on a worker thread. A hundred-page deck takes seconds, and
+doing it inline would freeze the app during load-in with no indication why.
+
+Each page is set to HOLD rather than to auto-advance. The deck defaults would
+have given every slide an eight second duration and moved on by itself, which
+is the single worst thing this feature could do while a presenter is still
+talking.
+
+### What a PDF cannot carry, and what to do instead
+
+**PowerPoint flattens every build to its final state on export, and drops
+transitions entirely.** No PDF-based route can recover them; the information is
+not in the file. So:
+
+- A deck of **static slides** imports perfectly, and Deckboy's own cue
+  transitions handle slide-to-slide -- which is arguably better, because they
+  match the rest of the show rather than PowerPoint's idea of a wipe.
+- **Keynote** can export one page per build stage. Those arrive as one cue per
+  stage, so clicking through reproduces the builds exactly.
+- A **PowerPoint deck that genuinely animates** should not be flattened at all.
+  Run it in PowerPoint and capture it with a window-source cue: the builds and
+  transitions are then the real ones, and the presenter's own clicker drives
+  them.
+
+Dropping a `.pptx`, `.ppt`, `.key`, `.odp` or `.pps` says so, rather than
+failing with "unsupported file" and leaving the operator guessing at 10am on a
+show day.
+
 ### Every effect has real controls now
 
 Forty named parameters across the eighteen effects, up from six. Invert has a
