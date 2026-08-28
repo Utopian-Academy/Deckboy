@@ -339,32 +339,60 @@ void editCodeExpression() {
   });
 }
 
-// Worked expressions to start from. A blank box and a list of variables is a
-// poor welcome; these are things worth seeing on a screen, and each one shows
-// a different corner of the language.
+// Worked expressions to start from.
+//
+// A blank box and a list of variables is a poor welcome. These are things
+// worth putting on a screen, and each one shows a different corner of the
+// language: interference between two waves, polar coordinates, a folded angle,
+// a warp fed by another wave, two distance fields beating against each other.
+// Every one was rendered and looked at before it went in here.
+struct CodeExample { const char* name; const char* expression; };
+
+static const std::vector<CodeExample>& codeExamples() {
+  static const std::vector<CodeExample> kExamples = {
+    {"plasma",
+     "sin(x*8+t)*0.5+0.5, sin(y*8+t*1.3)*0.5+0.5, sin((x+y)*8-t)*0.5+0.5"},
+    {"tunnel",
+     "fract(r*4-t), fract(a/pi*3+t*0.2), 1-r"},
+    {"kaleido rings",
+     "abs(sin(a*8+sin(r*6-t)*2)), fract(r*5-t*0.5), 0.4"},
+    {"checker drift",
+     "step(0.5,fract(x*8+sin(y*4+t)*0.3)), step(0.5,fract(y*8+t*0.2)), 0.6"},
+    {"starburst",
+     "abs(sin(a*12))*step(r,0.9), abs(sin(a*12+t))*0.6, r*0.5"},
+    {"ripple grid",
+     "sin(r*24-t*3)*0.5+0.5, fract(x*10), fract(y*10)"},
+    {"interference",
+     "abs(sin(r*20-t*2)), abs(sin(sqrt((cx-0.4)^2+cy^2)*20-t*2)), 0.3"},
+    {"warp bands",
+     "fract(x*6+sin(y*3+t)*0.8), 0.5, fract(y*6-sin(x*3-t)*0.8)"},
+    {"vortex",
+     "fract(a/pi*4+r*6-t), r, 1-fract(r*3+t*0.3)"},
+    {"pulse",
+     "abs(sin(t))*step(r,0.7), r*abs(cos(t*0.7)), fract(a/pi*2)"},
+  };
+  return kExamples;
+}
+
 void cycleCodeExample() {
   Cue* cue = selectedCueMutable();
   if (!cue) {
     return;
   }
-  static const char* kExamples[] = {
-    "sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r",
-    "step(0.5,fract(r*6-t)), r, 1-r",
-    "sin(a*6+t)*0.5+0.5, fract(r*4), step(0.3,fract(x*8))",
-    "fract(x*8+sin(y*6+t)), fract(y*8), 0.5",
-    "mix(x,y,sin(t)*0.5+0.5)",
-    "abs(sin(r*10-t*2))",
-  };
-  const int count = static_cast<int>(sizeof(kExamples) / sizeof(kExamples[0]));
+  const auto& examples = codeExamples();
   int next = 0;
-  for (int i = 0; i < count; ++i) {
-    if (cue->codeExpression == kExamples[i]) {
-      next = (i + 1) % count;
+  for (std::size_t i = 0; i < examples.size(); ++i) {
+    if (cue->codeExpression == examples[i].expression) {
+      next = static_cast<int>((i + 1) % examples.size());
       break;
     }
   }
-  cue->codeExpression = kExamples[next];
-  triggerToast("example " + std::to_string(next + 1) + " of " + std::to_string(count));
+  cue->codeExpression = examples[next].expression;
+  // Named, because "example 4 of 10" tells the operator nothing about what
+  // they are looking at or what to change.
+  triggerToast(std::string(examples[next].name) + "  (" +
+               std::to_string(next + 1) + "/" +
+               std::to_string(examples.size()) + ")");
   markProjectDirty();
 }
 

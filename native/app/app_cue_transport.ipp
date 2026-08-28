@@ -928,6 +928,17 @@
     if (on && project_.vjDeckB == project_.vjDeckA && deckCount > 1) {
       project_.vjDeckB = (project_.vjDeckA + 1) % deckCount;
     }
+    // Ask every deck for CPU-side pixels while the mixer is up, then re-take
+    // the live cues so the change actually reaches the decoders -- the format
+    // is chosen when a cue is taken, not per frame.
+    for (int deckIndex = 0; deckIndex < static_cast<int>(project_.decks.size()); ++deckIndex) {
+      if (DeckRuntime* runtime = runtimeForDeck(deckIndex)) {
+        if (runtime->mediaEngine) {
+          runtime->mediaEngine->setForcePixelFrames(on);
+        }
+      }
+    }
+    refreshAllLiveCueRuntimes();
     triggerToast(on ? "VJ mode on" : "VJ mode off");
     markProjectDirty();
   }

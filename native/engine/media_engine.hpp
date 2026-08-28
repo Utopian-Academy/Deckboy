@@ -83,6 +83,7 @@ inline float transitionSourceGainForLoadCue(const Cue* activeCue, TransportState
 // ============================================================================
 class MediaEngine {
  public:
+  void setForcePixelFrames(bool on) { forcePixelFrames_ = on; }
   // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
@@ -688,6 +689,9 @@ class MediaEngine {
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
+  // Set while VJ mode is on: decode to CPU pixels so the control window can
+  // build A and B previews from them. Takes effect on the next take.
+  bool forcePixelFrames_ = false;
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames
