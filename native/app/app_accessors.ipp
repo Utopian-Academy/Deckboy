@@ -478,6 +478,20 @@
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return entries;
     }
+    // VJ MODE: two decks, A under B, and the crossfader decides how much of
+    // B you see. This hook has always returned a single deck, but the
+    // layering it was built for is exactly what a mixer needs -- so the mixer
+    // uses it instead of adding a second path through the compositor.
+    if (project_.vjModeEnabled && project_.decks.size() > 1) {
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int deckA = std::clamp(project_.vjDeckA, 0, deckCount - 1);
+      const int deckB = std::clamp(project_.vjDeckB, 0, deckCount - 1);
+      entries.emplace_back(0, deckA);
+      if (deckB != deckA) {
+        entries.emplace_back(1, deckB);
+      }
+      return entries;
+    }
     // Single-deck: just deck 0 at layer 0.
     if (!project_.decks.empty()) {
       entries.emplace_back(0, 0);

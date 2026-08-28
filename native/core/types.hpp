@@ -1025,6 +1025,29 @@ struct Project {
   // pick it up. Persist in the project so a show authored on a 4K monitor
   // doesn't have to re-pick the scale every launch.
   double uiScale = 1.0;
+
+  // ── VJ MODE ────────────────────────────────────────────────────────────
+  //
+  // Off, Deckboy is a cue deck: one deck feeds an output and takes are
+  // deliberate. On, it is a mixer: two decks run at once and a crossfader
+  // decides what the audience sees.
+  //
+  // The decks themselves were always there -- Project::decks is a vector and
+  // each one has had its own engine, playlist and transport for as long as
+  // there have been decks. What was missing is that an output could only ever
+  // be fed by ONE of them. That is the whole difference.
+  bool vjModeEnabled = false;
+  int vjDeckA = 0;                // which deck sits on the left of the fader
+  int vjDeckB = 1;                // and which on the right
+  double vjMixPosition = 0.0;     // 0 = all A, 1 = all B
+  std::string vjBlendMode = "dissolve";   // dissolve | add | multiply
+  // Tempo. Tapped in by the operator, because a VJ knows the tempo before any
+  // analysis would and the track is usually coming off someone else's desk.
+  double vjTempoBpm = 120.0;
+  // Hold a take until the next beat. The point of tempo in a video mixer is
+  // not that anything moves by itself -- it is that what the operator does
+  // lands ON the music instead of a moment after it.
+  bool vjQuantiseTakes = false;
   // Geometry aspect link: editing a cue's output width also scales its
   // height proportionally (and vice versa). Toggleable from the GEOMETRY
   // inspector section, like the chain-link in most media software.

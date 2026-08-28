@@ -307,7 +307,15 @@
                                     int textureWidth,
                                     int textureHeight,
                                     const Cue* cue,
-                                    const SDL_Rect& target) {
+                                    const SDL_Rect& target,
+                                    // The caller's blend mode. Defaulted, so
+                                    // every existing call site is unchanged --
+                                    // but no longer forced, because this
+                                    // function used to overwrite whatever the
+                                    // caller had just set and that silently
+                                    // discarded the VJ mixer's add and
+                                    // multiply while dissolve appeared to work.
+                                    SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND) {
     if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
       return;
     }
@@ -356,7 +364,7 @@
       drawW,
       drawH
     };
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(texture, blendMode);
     // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
     SDL_Rect prevClip;
     bool hadClip = SDL_RenderClipEnabled(renderer);
@@ -449,6 +457,37 @@
     }
   }
 
+  // How much of this deck the crossfader is letting through, and how it
+  // combines with what is under it.
+  //
+  // Both decks fade rather than only the incoming one, because they are drawn
+  // over black: holding A at full until B covered it would be a wipe, not a
+  // dissolve. Add and multiply are ways of COMBINING two pictures, so there
+  // the base stays at full and only the incoming deck rides the fader.
+  double vjLayerGain(int deckIndex, SDL_BlendMode& blendOut) const {
+    blendOut = SDL_BLENDMODE_BLEND;
+    if (!project_.vjModeEnabled || project_.decks.size() < 2) {
+      return 1.0;
+    }
+    const int deckCount = static_cast<int>(project_.decks.size());
+    const int deckA = std::clamp(project_.vjDeckA, 0, deckCount - 1);
+    const int deckB = std::clamp(project_.vjDeckB, 0, deckCount - 1);
+    if (deckA == deckB) {
+      return 1.0;
+    }
+    const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
+    const bool dissolve = project_.vjBlendMode == "dissolve";
+    if (deckIndex == deckB) {
+      if (project_.vjBlendMode == "add") blendOut = SDL_BLENDMODE_ADD;
+      else if (project_.vjBlendMode == "multiply") blendOut = SDL_BLENDMODE_MOD;
+      return mix;
+    }
+    if (deckIndex == deckA) {
+      return dissolve ? (1.0 - mix) : 1.0;
+    }
+    return 1.0;
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
     if (!outputRuntime || !outputRuntime->outputRenderer) {
@@ -488,10 +527,21 @@
           }
           float gpuDeckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
           float gpuFadeGain = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+          // THE CROSSFADER, on the zero-copy path as well.
+          //
+          // This is the branch an ordinary H.264 clip actually takes, and
+          // patching only the CPU bridge below left the mixer half-built: the
+          // dissolve appeared to work because both decks happened to inherit
+          // the same wrong alpha, and add and multiply did nothing at all.
+          SDL_BlendMode gpuBlend = SDL_BLENDMODE_BLEND;
+          gpuDeckOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, gpuBlend));
           Uint8 gpuAlpha = static_cast<Uint8>(std::lround(gpuDeckOpacity * gpuFadeGain * 255.0f));
+          SDL_SetTextureBlendMode(gpuTexture, gpuBlend);
           SDL_SetTextureAlphaMod(gpuTexture, gpuAlpha);
           renderTextureWithCueGeometry(outputRuntime->outputRenderer, gpuTexture,
-                                       sourceFrame->width, sourceFrame->height, sourceCue, target);
+                                       sourceFrame->width, sourceFrame->height, sourceCue,
+                                       target, gpuBlend);
+          SDL_SetTextureBlendMode(gpuTexture, SDL_BLENDMODE_BLEND);
           SDL_SetTextureAlphaMod(gpuTexture, 255);
           return;
         }
@@ -582,9 +632,19 @@
     }
     float deckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
     float fadeGain = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+    // THE CROSSFADER, folded into the opacity this deck already had rather than
+    // replacing it -- a deck faded down or mid cue-fade must stay faded down.
+    // Outside VJ mode the multiplier is 1 and every existing show renders
+    // exactly as before, through the same call.
+    SDL_BlendMode layerBlend = SDL_BLENDMODE_BLEND;
+    deckOpacity *= static_cast<float>(vjLayerGain(sourceDeckIndex, layerBlend));
     Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
+    SDL_SetTextureBlendMode(bridgeTexture, layerBlend);
     SDL_SetTextureAlphaMod(bridgeTexture, alpha);
-    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target, layerBlend);
+    // Left as found: this texture is reused, and a mix must not leak into
+    // whatever draws with it next.
+    SDL_SetTextureBlendMode(bridgeTexture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
   }
 
@@ -632,8 +692,6 @@
       outputRuntime.overlayBridgeCueKeys[overlayKey] = std::move(cueKey);
     }
     SDL_SetTextureAlphaMod(bridgeTexture, 255);
-    renderTextureWithCueGeometry(outputRuntime.outputRenderer, bridgeTexture,
-                                 sourceFrame.width, sourceFrame.height, &renderCue, target);
   }
 
   void renderOutputTestCard(int outputIndex, SDL_Renderer* renderer, int width, int height) {
