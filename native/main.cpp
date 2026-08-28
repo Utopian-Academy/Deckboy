@@ -4718,11 +4718,21 @@ class App {
         startH = std::min(startH, usable.h);
       }
     }
+    // CREATED HIDDEN, shown once there is a frame in it.
+    //
+    // A window exists the moment it is created, but it has nothing in it until
+    // something is presented -- and everything between here and the first
+    // present (renderer, fonts, themes, splash art, the show itself) takes long
+    // enough to see. The operator got a black rectangle first and the splash
+    // afterwards, which reads as the app hanging on launch.
+    //
+    // revealControlWindow() puts it up after the first present, so the first
+    // thing on screen is the first thing drawn.
     controlWindow_ = SDL_CreateWindow(
       kAppTitle.data(),
       startW,
       startH,
-      SDL_WINDOW_RESIZABLE
+      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN
     );
     if (!controlWindow_) {
       std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
@@ -7945,6 +7955,20 @@ class App {
     std::string mode;
   };
   std::vector<WarpPreset> warpPresets_;
+  // Put the control window up, once, after the first frame has been presented.
+  // Called from every path that presents it, because which one draws first
+  // depends on whether a show is loading, and a window that never appears is a
+  // worse bug than one that flashes.
+  void revealControlWindow() {
+    if (controlWindowRevealed_ || !controlWindow_) {
+      return;
+    }
+    controlWindowRevealed_ = true;
+    SDL_ShowWindow(controlWindow_);
+    SDL_RaiseWindow(controlWindow_);
+  }
+  bool controlWindowRevealed_ = false;
+
   std::optional<Cue> cueSettingsClipboard_;
   // The effect chain on its own, separate from the whole-cue clipboard above:
   // copying a cue also brings its geometry, fades and crop, which is not what
