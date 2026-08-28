@@ -913,6 +913,7 @@
       SDL_RenderTexture(controlRenderer_, scanlineOverlay_, nullptr, &dst);
     }
     SDL_RenderPresent(controlRenderer_);
+    revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();
     lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
