@@ -2055,3 +2055,88 @@ What already helps when GPU upload comes:
 
 3D projection mapping, FBX import, marker calibration, Notch/Unreal/TouchDesigner
 blocks, cloud collaboration. Different products, not features.
+
+## PROPOSAL — Deck mixing for VJ work (not built; design notes)
+
+Raised by James 2026-08-28 as research toward "superdeckboy". Nothing here is
+implemented. Written down because the shape of the answer is not what it looks
+like from outside.
+
+### The second deck already exists
+
+`Project::decks` is a vector and always has been. Each deck carries its own
+playlist, transport, `MediaEngine`, cues, geometry and effects, and they run
+simultaneously today — the five-deck demo shows in `tests/` are exactly that.
+Every `OutputTarget` names one source deck through `hostDeckIndex`, and
+`app_render_output.ipp` renders that deck's active cue into the output's
+compositor texture.
+
+So the work is not "add a second deck". It is that **an output can only be fed
+by one deck**, and there is no way to blend two. That single constraint is what
+separates a cue deck from a VJ mixer.
+
+### What has to change, smallest first
+
+**1. An output can name a B source.** `OutputTarget` gains `mixDeckIndexB`
+(-1 = no mix), `mixPosition` (0.0 = all A, 1.0 = all B) and `mixBlendMode`.
+Nothing else about the output changes, and an output with `mixDeckIndexB == -1`
+behaves exactly as today — which matters, because every existing show is that
+case and must stay pixel-identical.
+
+**2. The compositor renders twice.** Where it renders deck A's cue into
+`compositorTexture` it renders A, then B over it with the fader's alpha. Both
+decks already produce compositor-ready output, so this is a texture operation
+at the point where the picture is assembled, not a change to decode, effects or
+geometry.
+
+**3. Blend modes.** `SDL_BLENDMODE_BLEND` gives dissolve, `ADD` gives additive,
+`MOD` gives multiply — all free. Screen, difference and luma-key need
+`SDL_ComposeCustomBlendMode` or a pass over pixels. Start with the three that
+are free; they are also the three a VJ reaches for most.
+
+**4. Audio follows the fader, or does not.** A video crossfade with a hard
+audio cut is worse than no crossfade. Deck faders already exist, so the mix
+position should drive them unless the operator unlinks it — that unlink is a
+real control, because "video mixes, audio stays on A" is a normal request.
+
+### What it looks like
+
+The current layout is one deck: playlist left, program centre, inspector right.
+A VJ layout is a **mode**, not a replacement — the existing one stays for
+cue-deck work.
+
+    ┌──────────┬───────────────────────┬──────────┐
+    │ DECK A   │        PROGRAM        │ DECK B   │
+    │ playlist │                       │ playlist │
+    │          ├───────────────────────┤          │
+    │          │  A ▓▓▓▓▓▓░░░░░░░░ B    │          │  ← crossfader
+    │          │  [dissolve][add][mul] │          │
+    └──────────┴───────────────────────┴──────────┘
+
+The crossfader is the `masterFaderRect_` pattern already in `app_input.ipp`:
+a rect, a drag flag, position from mouse x. That idiom is proven and takes
+about twenty lines.
+
+Two monitors would be better than one — A and B previews either side of the
+program — but that is a layout question, and the program-monitor tap
+(`captureOutputPreviewTap`) already knows how to sample a deck's picture
+without a second decode, so it is not a new mechanism.
+
+### What is genuinely hard, and worth knowing up front
+
+- **Two decks at 4K.** One 4K decode plus effects is already most of a frame.
+  Two, plus a blend, will not hold 60 at 4K on modest hardware. The honest
+  answer is that VJ mixing is a 1080p feature unless the machine is large, and
+  the effect benchmarks (`--effect-bench`) already make that measurable rather
+  than a guess.
+- **Effects are per cue.** A VJ wants them per DECK — grab the deck, wreck it,
+  bring it back. The stack is on `Cue`, so a per-deck stack would either be a
+  second stack applied after the cue's, or a "deck cue" that the whole deck
+  inherits. The former is simpler and composes better.
+- **Tempo.** Beat-matching is the thing that makes a VJ set feel played rather
+  than triggered. `SPEED` (0.25–4) exists per deck already; what does not is a
+  tempo source, a per-cue beat length, and a loop that respects it. That is its
+  own project and probably the real content of "superdeckboy".
+- **The mix must survive a panic.** `runPanicOutputsOff` assumes one source per
+  output. A mix has two, and both have to go.
+
