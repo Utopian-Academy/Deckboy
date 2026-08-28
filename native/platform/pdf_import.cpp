@@ -220,10 +220,19 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     CGPDFPageRef page = CGPDFDocumentGetPage(doc, i + 1);
     if (!page) continue;
     const CGRect box = CGPDFPageGetBoxRect(page, kCGPDFCropBox);
-    const double scale = box.size.width > 0.0
-      ? static_cast<double>(targetWidthPixels) / box.size.width : 1.0;
+    // ROTATION IS PART OF THE PAGE. A landscape deck is often stored as
+    // portrait with /Rotate 90, and the crop box does not account for it -- so
+    // measuring straight off the box gives the wrong aspect and renders the
+    // slide sideways or clipped. Windows and pdftoppm both apply it for free;
+    // CoreGraphics makes it the caller's job.
+    const int rotation = ((CGPDFPageGetRotationAngle(page) % 360) + 360) % 360;
+    const bool quarterTurned = (rotation == 90 || rotation == 270);
+    const double pageWidth = quarterTurned ? box.size.height : box.size.width;
+    const double pageHeight = quarterTurned ? box.size.width : box.size.height;
+    const double scale = pageWidth > 0.0
+      ? static_cast<double>(targetWidthPixels) / pageWidth : 1.0;
     const size_t w = static_cast<size_t>(std::max(1, targetWidthPixels));
-    const size_t h = static_cast<size_t>(std::max(1.0, box.size.height * scale));
+    const size_t h = static_cast<size_t>(std::max(1.0, pageHeight * scale));
     CGContextRef context = CGBitmapContextCreate(
       nullptr, w, h, 8, 0, space,
       kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
@@ -233,8 +242,13 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     CGContextSetRGBFillColor(context, 1.0, 1.0, 1.0, 1.0);
     CGContextFillRect(context, CGRectMake(0, 0, static_cast<CGFloat>(w),
                                           static_cast<CGFloat>(h)));
-    CGContextScaleCTM(context, scale, scale);
-    CGContextTranslateCTM(context, -box.origin.x, -box.origin.y);
+    // The transform CoreGraphics itself computes for fitting a page into a
+    // rect: it applies the rotation, the crop box origin and the flip in one
+    // step, which hand-rolled scale-and-translate does not.
+    CGContextConcatCTM(context, CGPDFPageGetDrawingTransform(
+      page, kCGPDFCropBox,
+      CGRectMake(0, 0, static_cast<CGFloat>(w), static_cast<CGFloat>(h)),
+      0, true));
     CGContextDrawPDFPage(context, page);
 
     CGImageRef image = CGBitmapContextCreateImage(context);
