@@ -1270,9 +1270,21 @@
         jumpToCurrentCue();
         break;
       case SDLK_PERIOD:
+      // PAGE DOWN AND PAGE UP ARE THE PRESENTER REMOTE.
+      //
+      // Every presentation clicker -- D'San Perfect Cue, Logitech, Kensington,
+      // the cheap ones -- appears as a USB keyboard sending Page Down to
+      // advance and Page Up to go back, because that is what PowerPoint and
+      // Keynote listen for. Deckboy listened for neither, so plugging one in
+      // did nothing at all and there was no way to tell from the app why.
+      //
+      // Advancing a slide is taking the next cue, which is what these already
+      // do, so the remote works by pointing the two keys at them.
+      case SDLK_PAGEDOWN:
         skipToNextCue();
         break;
       case SDLK_COMMA:
+      case SDLK_PAGEUP:
         skipToPrevCue();
         break;
       case SDLK_LEFTBRACKET:

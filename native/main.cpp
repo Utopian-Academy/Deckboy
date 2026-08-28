@@ -2236,8 +2236,12 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     if (fx.kind == deckboy::effects::CueEffectKind::None) continue;
     if (!out.empty()) out += '|';
     std::ostringstream one;
+    // C and D go AFTER bypassed, not between B and it. Appending keeps every
+    // show ever saved readable, and keeps a show saved here readable by a build
+    // that predates them -- it just ignores the two extra fields.
     one << deckboy::effects::cueEffectToken(fx.kind) << ':' << fx.amount
-        << ':' << fx.paramA << ':' << fx.paramB << ':' << (fx.bypassed ? 1 : 0);
+        << ':' << fx.paramA << ':' << fx.paramB << ':' << (fx.bypassed ? 1 : 0)
+        << ':' << fx.paramC << ':' << fx.paramD;
     out += one.str();
   }
   return out;
@@ -2270,6 +2274,8 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
         if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
         if (parts.size() > 4) fx.bypassed = std::atoi(parts[4].c_str()) != 0;
+        if (parts.size() > 5) fx.paramC = static_cast<float>(std::atof(parts[5].c_str()));
+        if (parts.size() > 6) fx.paramD = static_cast<float>(std::atof(parts[6].c_str()));
         stack.push_back(fx);
       }
     }
@@ -6155,7 +6161,7 @@ class App {
                      name, fx.bypassed ? pal.inkSoft : pal.fg);
         drawCenteredTextSafe(controlRenderer_, fontSmall_,
                              SDL_Rect {nameRect.x + nameRect.w - 16, nameRect.y, 14, nameRect.h},
-                             "â¼", pal.inkSoft);
+                             "v", pal.inkSoft);
         quickButtons_.push_back({nameRect, QuickAction::EffectCycleKind,
                                  "Choose which effect this is", i});
         rowY += ix.rowStep;
@@ -6200,7 +6206,7 @@ class App {
       // not use one draws no row for it, so the inspector never shows a
       // control that cannot do anything -- and one that DOES use it is no
       // longer stuck at whatever the default happened to be.
-      for (int which = 0; which < 2; ++which) {
+      for (int which = 0; which < 4; ++which) {
         const char* paramLabel =
           deckboy::effects::cueEffectParamLabel(fx.kind, which);
         if (!paramLabel) {
@@ -6208,18 +6214,25 @@ class App {
         }
         std::ostringstream value;
         value << std::fixed << std::setprecision(2)
-              << (which == 0 ? fx.paramA : fx.paramB);
+              << (which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                 : which == 2 ? fx.paramC : fx.paramD);
         inspDrawQuickRow(ix, rowY, paramLabel,
                          which == 0 ? QuickAction::EffectParamADec
-                                    : QuickAction::EffectParamBDec,
+                         : which == 1 ? QuickAction::EffectParamBDec
+                         : which == 2 ? QuickAction::EffectParamCDec
+                                      : QuickAction::EffectParamDDec,
                          value.str(),
                          which == 0 ? QuickAction::EffectParamAInc
-                                    : QuickAction::EffectParamBInc,
+                         : which == 1 ? QuickAction::EffectParamBInc
+                         : which == 2 ? QuickAction::EffectParamCInc
+                                      : QuickAction::EffectParamDInc,
                          QuickAction::ToggleLoop, false, false,
                          deckboy::effects::cueEffectParamTip(fx.kind, which),
                          true,
                          which == 0 ? QuickAction::EffectParamAEdit
-                                    : QuickAction::EffectParamBEdit,
+                         : which == 1 ? QuickAction::EffectParamBEdit
+                         : which == 2 ? QuickAction::EffectParamCEdit
+                                      : QuickAction::EffectParamDEdit,
                          i);
         rowY += ix.rowStep;
       }
@@ -6236,8 +6249,8 @@ class App {
           {"B", QuickAction::EffectToggleBypass,
            "Bypass: take it out of the chain but KEEP its settings. Turning the "
            "amount to zero throws them away.", fx.bypassed},
-          {"â²", QuickAction::EffectMoveUp,   "Earlier in the stack", false},
-          {"â¼", QuickAction::EffectMoveDown, "Later in the stack", false},
+          {"^", QuickAction::EffectMoveUp,   "Earlier in the stack", false},
+          {"v", QuickAction::EffectMoveDown, "Later in the stack", false},
           {"X", QuickAction::EffectRemove,      "Remove this effect", false},
         };
         for (const Cell& cell : cells) {

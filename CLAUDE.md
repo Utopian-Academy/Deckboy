@@ -118,6 +118,18 @@ Three rules, all of them learned by measuring:
   barrier: reaction-diffusion with per-step dispatch was 1.8x SLOWER than a
   single core.
 
+**Adding a parameter to an existing effect**: a show saved before it carries
+`paramA = 0.5`, `paramB = 0`, and no C or D. Define the mapping so those values
+reproduce what the effect did WITHOUT the parameter, or every show that already
+used it is silently restaged. Name it in `cueEffectParamLabel` (the inspector
+draws a row per named slot and nothing for an unnamed one) and add it to
+`PARAM_SLOTS` in `tools/check_effects_offline.py`, whose `--params` mode checks
+it actually moves the picture. paramC/paramD serialise AFTER the bypass flag so
+old shows still load.
+
+Keep button glyphs ASCII. The effect move arrows were written as UTF-8 arrows,
+went into the source double-encoded, and the app drew mojibake.
+
 Verify with `tools/check_effects_offline.py` (seconds, exactly repeatable, and
 `--sheet` writes a contact sheet) and `--effect-bench`. To prove an optimisation
 changed nothing, compile the old header into a second binary and compare the

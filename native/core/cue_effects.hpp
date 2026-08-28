@@ -119,31 +119,55 @@ inline const char* cueEffectToken(CueEffectKind kind) {
   }
 }
 
-// What an effect's two extra parameters MEAN, or null when it has none.
+// What an effect's shaping parameters MEAN, or null when it has no such slot.
 //
-// paramA and paramB existed from the start and nothing in the UI could reach
-// them, so solarise always folded at its default pivot and kaleidoscope always
-// cut the same number of wedges. A parameter the operator cannot set is a
-// parameter that does not exist -- and the effects added since (dye advect,
-// reaction bloom, lightspeed) carry two thirds of their character in these.
+// `which` is 0-3 for paramA-paramD. Naming them here rather than in the
+// inspector keeps the meaning next to the code that reads it, so a parameter
+// cannot be repurposed without the label moving with it.
 //
-// Naming them here rather than in the inspector keeps the meaning next to the
-// code that reads it, so a parameter cannot be repurposed without the label
-// moving too.
+// Read the neutral-value note on CueEffect before adding one: A=0.5, B=0, C=0,
+// D=0 must reproduce what the effect did before the parameter existed.
 inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
   switch (kind) {
+    case CueEffectKind::Invert:
+      return which == 0 ? "pivot" : which == 1 ? "channel spread" : nullptr;
+    case CueEffectKind::Posterise:
+      return which == 0 ? "band curve" : which == 1 ? "channel skew" : nullptr;
     case CueEffectKind::Solarise:
-      return which == 0 ? "fold point" : nullptr;
+      return which == 0 ? "fold point" : which == 1 ? "knee" : nullptr;
     case CueEffectKind::Threshold:
-      return which == 0 ? "pivot" : nullptr;
+      return which == 0 ? "pivot" : which == 1 ? "softness" : nullptr;
+    case CueEffectKind::Vignette:
+      return which == 0 ? "size" : which == 1 ? "falloff" : nullptr;
+    case CueEffectKind::Grain:
+      return which == 0 ? "grain size" : which == 1 ? "colour" : nullptr;
+    case CueEffectKind::Scanlines:
+      return which == 0 ? "pitch" : which == 1 ? "darkness" : nullptr;
+    case CueEffectKind::ChannelOffset:
+      return which == 0 ? "angle" : which == 1 ? "green split" : nullptr;
+    case CueEffectKind::TemporalDither:
+      return which == 0 ? "palette" : which == 1 ? "hold" : nullptr;
+    case CueEffectKind::PixelSort:
+      return which == 0 ? "threshold" : which == 1 ? "reverse" : nullptr;
+    case CueEffectKind::BlockGlitch:
+      return which == 0 ? "bands" : which == 1 ? "tear width" : nullptr;
+    case CueEffectKind::PolarWarp:
+      return which == 0 ? "twist" : which == 1 ? "radial zoom" : nullptr;
+    case CueEffectKind::LumaDisplace:
+      return which == 0 ? "vertical bias" : which == 1 ? "pivot" : nullptr;
+    case CueEffectKind::Ripple:
+      return which == 0 ? "frequency" : which == 1 ? "speed" : nullptr;
     case CueEffectKind::Kaleidoscope:
-      return which == 0 ? "wedges" : nullptr;
+      return which == 0 ? "wedges" : which == 1 ? "rotation" : nullptr;
     case CueEffectKind::DyeAdvect:
-      return which == 0 ? "bleed" : "curl detail";
+      return which == 0 ? "bleed" : which == 1 ? "curl detail"
+           : which == 2 ? "swirl" : nullptr;
     case CueEffectKind::ReactionBloom:
-      return which == 0 ? "feed rate" : "growth";
+      return which == 0 ? "feed rate" : which == 1 ? "growth"
+           : which == 2 ? "seed density" : which == 3 ? "glow" : nullptr;
     case CueEffectKind::Relativistic:
-      return which == 0 ? "field of view" : "doppler";
+      return which == 0 ? "field of view" : which == 1 ? "doppler"
+           : which == 2 ? "off-axis" : nullptr;
     default:
       return nullptr;
   }
@@ -152,32 +176,107 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
 // The one-line explanation the inspector shows for that parameter.
 inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
   switch (kind) {
+    case CueEffectKind::Invert:
+      return which == 0
+        ? "What the picture folds around. Centre is a straight negative; move "
+          "it and the highlights or the shadows survive."
+        : "Inverts the channels by different amounts, so the negative comes "
+          "back coloured instead of grey.";
+    case CueEffectKind::Posterise:
+      return which == 0
+        ? "Where the bands bunch up. Centre spaces them evenly; either side "
+          "crowds them into the shadows or the highlights."
+        : "Gives each channel a different number of bands, which is what turns "
+          "posterising into false colour.";
     case CueEffectKind::Solarise:
-      return "Where highlights fold back through black. Low folds most of the "
-             "picture, high folds only the brightest.";
+      return which == 0
+        ? "Where highlights fold back through black. Low folds most of the "
+          "picture, high folds only the brightest."
+        : "Softens the fold so it ramps instead of creasing.";
     case CueEffectKind::Threshold:
-      return "The brightness that decides black from white.";
+      return which == 0 ? "The brightness that decides black from white."
+                        : "Widens the decision into a ramp, so edges keep "
+                          "their shape instead of jagging.";
+    case CueEffectKind::Vignette:
+      return which == 0 ? "How far out the darkening starts."
+                        : "How abruptly it arrives. Low is a soft cloud, high "
+                          "is a hard porthole.";
+    case CueEffectKind::Grain:
+      return which == 0
+        ? "Fine sensor noise at the bottom, chunky film at the top."
+        : "Zero is one noise value across all three channels, which reads as "
+          "film. Higher gives each channel its own, which reads as video.";
+    case CueEffectKind::Scanlines:
+      return which == 0
+        ? "Line pitch in pixels, so this reads at 4K as well as at 720."
+        : "How dark the dark lines go. All the way up is black between lines.";
+    case CueEffectKind::ChannelOffset:
+      return which == 0
+        ? "Which way red and blue pull apart. Centre is horizontal, the "
+          "classic; turn it for a diagonal or vertical fringe."
+        : "Drags green the other way, which turns a two-colour fringe into a "
+          "full prism.";
+    case CueEffectKind::TemporalDither:
+      return which == 0
+        ? "How many shades survive the quantise."
+        : "Holds the dither pattern for more than one frame. At zero it "
+          "advances every frame and the eye integrates it; wind it up and the "
+          "checkerboard stops moving and becomes visible.";
+    case CueEffectKind::PixelSort:
+      return which == 0
+        ? "How bright a pixel has to be to join a run. Lower catches more of "
+          "the picture and the runs grow longer."
+        : "Sorts the runs the other way, so they pour from light to dark.";
+    case CueEffectKind::BlockGlitch:
+      return which == 0 ? "How many torn bands per frame."
+                        : "How far a band can slide.";
+    case CueEffectKind::PolarWarp:
+      return which == 0 ? "Rotates the reading, so straight lines wind into "
+                          "spirals rather than rings."
+                        : "Pushes the rings in or out of the centre.";
+    case CueEffectKind::LumaDisplace:
+      return which == 0
+        ? "How much of the push goes downward rather than sideways."
+        : "The brightness that stays put. Everything above it reaches one way "
+          "and everything below it the other.";
+    case CueEffectKind::Ripple:
+      return which == 0 ? "How closely spaced the rings are."
+                        : "How fast they travel outward.";
     case CueEffectKind::Kaleidoscope:
-      return "Two is a mirror, twelve is a snowflake, and they are completely "
-             "different pictures.";
+      return which == 0
+        ? "Two is a mirror, twelve is a snowflake, and they are completely "
+          "different pictures."
+        : "Turns the whole arrangement, so the fold lines do not sit on the "
+          "same part of the picture all night.";
     case CueEffectKind::DyeAdvect:
       return which == 0
-        ? "0 flows ALONG the edges, so colour orbits the shapes. 1 flows across "
-          "them, which bleeds the picture into itself."
-        : "How many steps each pixel walks. More steps curve further around "
-          "the shapes; the total distance does not change.";
+        ? "0 flows ALONG the edges, so colour orbits the shapes. 1 flows "
+          "across them, which bleeds the picture into itself."
+        : which == 1
+        ? "How many steps each pixel walks. More steps curve further around "
+          "the shapes; the total distance does not change."
+        : "Rotates the whole flow field, which turns orbiting into spiralling "
+          "inward or outward.";
     case CueEffectKind::ReactionBloom:
       return which == 0
-        ? "The character of the growth: low is coral and veins, high is spots "
-          "that divide."
-        : "How long the reaction runs each frame. Short is a stain, long is an "
-          "organism.";
+        ? "The character of the growth: low is waves, then labyrinth, coral, "
+          "worms, and holes at the top."
+        : which == 1
+        ? "How long the reaction runs each frame. Short is a stain, long is an "
+          "organism."
+        : which == 2
+        ? "How much of the picture is seeded. Sparse grows a few large "
+          "colonies; dense grows a crowded one."
+        : "Draws the growth as light instead of as a negative.";
     case CueEffectKind::Relativistic:
       return which == 0
         ? "How wide a view is being compressed. Narrow is a punch down the "
           "middle, wide folds the whole frame into the centre."
-        : "Blueshift toward the direction of travel and redshift at the rim. "
-          "Zero leaves the colour alone and it reads as a lens instead.";
+        : which == 1
+        ? "Blueshift toward the direction of travel and redshift at the rim. "
+          "Zero leaves the colour alone and it reads as a lens instead."
+        : "Moves the direction of travel off the centre of frame, so the "
+          "picture rushes past rather than straight at you.";
     default:
       return "";
   }
@@ -196,8 +295,18 @@ inline CueEffectKind cueEffectFromToken(const std::string& token) {
 struct CueEffect {
   CueEffectKind kind = CueEffectKind::None;
   float amount = 1.0f;    // 0 = inactive; every effect is skipped entirely at 0
+  // Four shaping parameters, all 0-1.
+  //
+  // THE NEUTRAL VALUES ARE LOAD-BEARING. A show saved before an effect grew a
+  // parameter carries paramA = 0.5 (what the UI wrote when the effect was
+  // added), paramB = 0, and no C or D at all. So every parameter is defined so
+  // that A=0.5, B=0, C=0, D=0 reproduces exactly what that effect did before it
+  // had them -- otherwise adding a control would silently restage every show
+  // that already used the effect.
   float paramA = 0.0f;
   float paramB = 0.0f;
+  float paramC = 0.0f;
+  float paramD = 0.0f;
   // BYPASS is not the same as amount 0. Turning an effect down to nothing
   // loses the setting you spent time on; bypass takes it out of the chain and
   // gives it back. Every serious tool has both and they are not
@@ -420,14 +529,19 @@ inline void iteratedBands(int rounds, int rows, int minRowsPerBand,
 // Runs of bright pixels within a row, sorted by brightness. The dragged,
 // melted look: bright material slides along the row and pools against whatever
 // stops it.
-inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
+inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount,
+                           double bias = 0.5, bool reverse = false) {
   if (!pixels || w <= 2 || h <= 0 || amount <= 0.01) {
     return;
   }
   // The threshold FALLS as the amount rises, so more of each row qualifies and
   // the runs grow longer. Driving run length directly instead would cut spans
   // at arbitrary points and read as banding rather than flow.
-  const int threshold = static_cast<int>(200.0 - std::clamp(amount, 0.0, 1.0) * 170.0);
+  // bias moves the qualifying brightness up or down. At 0.5 it contributes
+  // nothing and the threshold is what amount alone decided.
+  const int threshold = std::clamp(static_cast<int>(
+    200.0 - std::clamp(amount, 0.0, 1.0) * 170.0 +
+    (std::clamp(bias, 0.0, 1.0) - 0.5) * 2.0 * 60.0), 2, 253);
   auto luma = [&](std::size_t o) {
     return (pixels[o + 2] * 77 + pixels[o + 1] * 151 + pixels[o + 0] * 28) >> 8;
   };
@@ -461,10 +575,10 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
         std::memcpy(&px, pixels + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
         run.push_back(px);
       }
-      std::sort(run.begin(), run.end(), [](std::uint32_t a, std::uint32_t b) {
+      std::sort(run.begin(), run.end(), [reverse](std::uint32_t a, std::uint32_t b) {
         const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
         const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
-        return la < lb;
+        return reverse ? lb < la : la < lb;
       });
       for (int i = 0; i < len; ++i) {
         std::memcpy(pixels + rowOff + static_cast<std::size_t>(begin + i) * 4,
@@ -479,7 +593,8 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
 // Bands are whole rows because that is how real decode corruption presents --
 // a block row loses sync and the rest of the line arrives shifted.
 inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
-                             std::uint32_t seed) {
+                             std::uint32_t seed, double bandScale = 0.5,
+                             double tearScale = 0.0) {
   if (!pixels || w <= 2 || h <= 0 || amount <= 0.01) {
     return;
   }
@@ -489,14 +604,19 @@ inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
     state ^= state << 13; state ^= state >> 17; state ^= state << 5;
     return state;
   };
-  const int bands = 1 + static_cast<int>(amount * 14.0);
+  // bands scales how many tears there are, tear width how far one can slide.
+  // At 0.5 and 0 respectively both are what they were before they existed.
+  const int bands = std::max(1, static_cast<int>(
+    (1.0 + amount * 14.0) * (0.5 + std::clamp(bandScale, 0.0, 1.0))));
+  const double tearWidth = 1.0 + std::clamp(tearScale, 0.0, 1.0) * 2.0;
   std::vector<std::uint8_t> rowCopy(static_cast<std::size_t>(w) * 4);
   for (int b = 0; b < bands; ++b) {
     const int y0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, h)));
     const int hgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
       std::max(1, static_cast<int>(h * amount / 8) + 1)));
-    const int shift = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, w / 3))) -
-                      (w / 6);
+    const int shift = static_cast<int>(
+      (static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, w / 3))) -
+       (w / 6)) * tearWidth);
     for (int y = y0; y < std::min(h, y0 + hgt); ++y) {
       std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
       std::memcpy(rowCopy.data(), row, rowCopy.size());
@@ -551,16 +671,41 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
 
   for (const CueEffect& fx : stack) {
     const double amt = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
+    // Named once. See the note on CueEffect: A=0.5, B=0, C=0, D=0 is the
+    // "as it was before this parameter existed" position for every effect.
+    const double pA = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0);
+    const double pB = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+    const double pC = std::clamp(static_cast<double>(fx.paramC), 0.0, 1.0);
+    const double pD = std::clamp(static_cast<double>(fx.paramD), 0.0, 1.0);
+    (void) pC; (void) pD;
     if (fx.kind == CueEffectKind::None || fx.bypassed || amt <= 0.0005) {
       continue;   // zero and bypass both cost nothing
     }
     switch (fx.kind) {
       case CueEffectKind::Invert: {
-        std::uint8_t lut[256];
-        detail::buildChannelLut(lut, [&](int v) {
-          return detail::clamp8(v * (1.0 - amt) + (255 - v) * amt);
+        // pivot: the picture folds around pA rather than always around mid
+        // grey. At 0.5 that is 255-v, which is what this always did.
+        // spread: each channel inverts by a different amount, so the negative
+        // comes back coloured. At 0 all three match and nothing changes.
+        const double pivot = pA * 255.0;
+        std::uint8_t lut[3][256];
+        for (int c = 0; c < 3; ++c) {
+          const double channelAmt = amt * (1.0 - pB * (c * 0.5));
+          for (int v = 0; v < 256; ++v) {
+            const double folded = 2.0 * pivot - v;
+            lut[c][v] = detail::clamp8(v * (1.0 - channelAmt) + folded * channelAmt);
+          }
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              p[0] = lut[0][p[0]];
+              p[1] = lut[1][p[1]];
+              p[2] = lut[2][p[2]];
+            }
+          }
         });
-        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Posterise: {
@@ -568,28 +713,64 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // barely touch it. Inverted deliberately -- "more effect" should mean
         // "fewer levels", which is not what a naive mapping gives.
         const int levels = std::max(2, static_cast<int>(std::lround(2 + (1.0 - amt) * 30)));
-        const double step = 255.0 / (levels - 1);
-        std::uint8_t lut[256];
-        detail::buildChannelLut(lut, [&](int v) {
-          return detail::clamp8(std::round(v / step) * step);
+        // band curve: quantise through a gamma so the bands bunch into the
+        // shadows or the highlights. At 0.5 the exponent is 1 and the spacing
+        // is even, which is what this always did.
+        // channel skew: a different level count per channel, which is what
+        // turns posterising into false colour. At 0 all three match.
+        const double curve = std::pow(2.0, (pA - 0.5) * 2.0);
+        std::uint8_t lut[3][256];
+        for (int c = 0; c < 3; ++c) {
+          const int channelLevels = std::max(2, levels - static_cast<int>(
+            std::lround(pB * c * (levels - 2) * 0.5)));
+          const double channelStep = 255.0 / (channelLevels - 1);
+          for (int v = 0; v < 256; ++v) {
+            if (curve == 1.0) {
+              lut[c][v] = detail::clamp8(std::round(v / channelStep) * channelStep);
+            } else {
+              const double shaped = std::pow(v / 255.0, curve) * 255.0;
+              const double banded = std::round(shaped / channelStep) * channelStep;
+              lut[c][v] = detail::clamp8(
+                std::pow(std::clamp(banded / 255.0, 0.0, 1.0), 1.0 / curve) * 255.0);
+            }
+          }
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              p[0] = lut[0][p[0]];
+              p[1] = lut[1][p[1]];
+              p[2] = lut[2][p[2]];
+            }
+          }
         });
-        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Solarise: {
         // Everything above the threshold inverts, which is the darkroom
         // effect: highlights fold back through black.
-        const double pivot = 255.0 * std::clamp(static_cast<double>(fx.paramA), 0.05, 0.95);
+        const double pivot = 255.0 * std::clamp(pA, 0.05, 0.95);
+        // knee: how wide a ramp the fold takes. At 0 it is the hard crease
+        // this always had.
+        const double knee = pB * 96.0;
         std::uint8_t lut[256];
         detail::buildChannelLut(lut, [&](int v) {
-          const double folded = v > pivot ? (255.0 - v) : v;
+          double folded;
+          if (knee <= 0.5) {
+            folded = v > pivot ? (255.0 - v) : v;
+          } else {
+            const double t = std::clamp((v - (pivot - knee)) / (2.0 * knee), 0.0, 1.0);
+            const double eased = t * t * (3.0 - 2.0 * t);
+            folded = v * (1.0 - eased) + (255.0 - v) * eased;
+          }
           return detail::clamp8(v * (1.0 - amt) + folded * amt);
         });
         detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Threshold: {
-        const double pivot = 255.0 * std::clamp(static_cast<double>(fx.paramA), 0.02, 0.98);
+        const double pivot = 255.0 * std::clamp(pA, 0.02, 0.98);
         std::uint8_t lutLit[256], lutDark[256];
         detail::buildChannelLut(lutLit, [&](int v) {
           return detail::clamp8(v * (1.0 - amt) + 255.0 * amt);
@@ -597,15 +778,27 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         detail::buildChannelLut(lutDark, [&](int v) {
           return detail::clamp8(v * (1.0 - amt) + 0.0 * amt);
         });
+        // softness: widens the decision into a ramp. At 0 it is the hard
+        // comparison this always made, and the two tables are used directly.
+        const double soft = pB * 110.0;
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
             for (int x = 0; x < ctx.width; ++x, p += 4) {
               const double luma = p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
-              const std::uint8_t* lut = luma >= pivot ? lutLit : lutDark;
-              p[0] = lut[p[0]];
-              p[1] = lut[p[1]];
-              p[2] = lut[p[2]];
+              if (soft <= 0.5) {
+                const std::uint8_t* lut = luma >= pivot ? lutLit : lutDark;
+                p[0] = lut[p[0]];
+                p[1] = lut[p[1]];
+                p[2] = lut[p[2]];
+              } else {
+                const double t = std::clamp((luma - (pivot - soft)) / (2.0 * soft), 0.0, 1.0);
+                const double eased = t * t * (3.0 - 2.0 * t);
+                for (int c = 0; c < 3; ++c) {
+                  p[c] = detail::clamp8(lutDark[p[c]] * (1.0 - eased) +
+                                        lutLit[p[c]] * eased);
+                }
+              }
             }
           }
         });
@@ -615,15 +808,22 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double cx = ctx.width * 0.5;
         const double cy = ctx.height * 0.5;
         const double maxR = std::sqrt(cx * cx + cy * cy);
+        const double vignetteSize = std::max(0.05, pA * 2.0);
+        const double vignetteFalloff = 2.0 + pB * 6.0;
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
             const double dy = y - cy;
             for (int x = 0; x < ctx.width; ++x) {
               const double dx = x - cx;
-              const double r = std::sqrt(dx * dx + dy * dy) / maxR;
-              // Squared falloff, so the centre stays clean and the corners go.
-              const double gain = 1.0 - amt * r * r;
+              // size: how far out the darkening starts. At 0.5 the divisor is
+              // 1 and it begins at the centre, as it always did.
+              // falloff: the exponent. At 0 it is the square this always used,
+              // which keeps the centre clean and takes the corners.
+              const double r = std::sqrt(dx * dx + dy * dy) / maxR / vignetteSize;
+              const double shaped = vignetteFalloff == 2.0
+                ? r * r : std::pow(std::clamp(r, 0.0, 4.0), vignetteFalloff);
+              const double gain = 1.0 - amt * std::clamp(shaped, 0.0, 1.0);
               std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
               for (int c = 0; c < 3; ++c) {
                 p[c] = detail::clamp8(p[c] * gain);
@@ -640,17 +840,36 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const std::uint32_t seed =
           static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u) | 1u;
         const double strength = amt * 64.0;
+        // grain size: hash a coarser cell so the noise clumps into film grain
+        // rather than sensor noise. At 0.5 the cell is one pixel, as before.
+        // colour: at 0 one value goes to all three channels, which is what
+        // film does and what this always did; higher gives each its own.
+        const int grainCell = 1 + static_cast<int>(std::max(0.0, pA - 0.5) * 2.0 * 7.0);
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::size_t i = static_cast<std::size_t>(y) * ctx.width;
             std::uint8_t* p = pixels.data() + i * 4;
             for (int x = 0; x < ctx.width; ++x, ++i, p += 4) {
-              std::uint32_t h = static_cast<std::uint32_t>(i) ^ seed;
+              const std::size_t cell = grainCell == 1
+                ? i
+                : static_cast<std::size_t>(y / grainCell) *
+                    static_cast<std::size_t>(ctx.width) + (x / grainCell);
+              std::uint32_t h = static_cast<std::uint32_t>(cell) ^ seed;
               h ^= h << 13; h ^= h >> 17; h ^= h << 5;
               const double n = (static_cast<double>(h & 0xFFFF) / 32768.0 - 1.0) * strength;
-              p[0] = detail::clamp8(p[0] + n);
-              p[1] = detail::clamp8(p[1] + n);
-              p[2] = detail::clamp8(p[2] + n);
+              if (pB <= 0.0005) {
+                p[0] = detail::clamp8(p[0] + n);
+                p[1] = detail::clamp8(p[1] + n);
+                p[2] = detail::clamp8(p[2] + n);
+              } else {
+                for (int c = 0; c < 3; ++c) {
+                  std::uint32_t hc = h ^ static_cast<std::uint32_t>(c * 0x9E3779B9u);
+                  hc ^= hc << 13; hc ^= hc >> 17; hc ^= hc << 5;
+                  const double nc =
+                    (static_cast<double>(hc & 0xFFFF) / 32768.0 - 1.0) * strength;
+                  p[c] = detail::clamp8(p[c] + n * (1.0 - pB) + nc * pB);
+                }
+              }
             }
           }
         });
@@ -660,11 +879,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // Every other line darkened. paramA sets the line pitch in pixels so
         // this reads at 4K as well as at 720 -- a one-pixel line on a 2160-line
         // raster is invisible, which is the mistake the synth's CRT made.
-        const int pitch = std::max(2, static_cast<int>(std::lround(
-          2.0 + std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0)));
+        const int pitch = std::max(2, static_cast<int>(std::lround(2.0 + pA * 10.0)));
+        // darkness: how far the dark lines go. At 0 it is the 0.7 this was
+        // fixed at; all the way up is black between the lines.
+        const double lineDark = 0.7 + pB * 0.3;
         std::uint8_t lut[256];
         detail::buildChannelLut(lut, [&](int v) {
-          return detail::clamp8(v * (1.0 - amt * 0.7));
+          return detail::clamp8(v * (1.0 - amt * lineDark));
         });
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
@@ -686,21 +907,58 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // the outer colour channels, which holds for both BGRA and RGBA -- the
         // direction of the fringe flips between them and neither is wrong.
         const int shift = std::max(1, static_cast<int>(std::lround(amt * ctx.width * 0.02)));
-        // The row scratch lives INSIDE the band: one shared buffer across
-        // threads would be a race, and it is the only mutable state here.
-        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
-        std::vector<std::uint8_t> row(static_cast<std::size_t>(ctx.width) * 4);
-        for (int y = firstRow; y < lastRow; ++y) {
-          std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          std::memcpy(row.data(), dst, row.size());
-          for (int x = 0; x < ctx.width; ++x) {
-            const int xr = std::clamp(x + shift, 0, ctx.width - 1);
-            const int xb = std::clamp(x - shift, 0, ctx.width - 1);
-            dst[static_cast<std::size_t>(x) * 4 + 2] = row[static_cast<std::size_t>(xr) * 4 + 2];
-            dst[static_cast<std::size_t>(x) * 4 + 0] = row[static_cast<std::size_t>(xb) * 4 + 0];
+        // angle: which way the channels pull apart. At 0.5 the offset is
+        // purely horizontal, which is what this always did -- and the row-copy
+        // path is kept for exactly that case, because it is much faster than
+        // a two-dimensional gather.
+        // green split: drags green the opposite way, turning a two-colour
+        // fringe into a prism. At 0 green does not move, as before.
+        const double angle = (pA - 0.5) * 2.0 * 3.14159265358979323846;
+        const bool horizontal = std::fabs(angle) < 1e-6;
+        const int greenShift = static_cast<int>(std::lround(shift * pB));
+        if (horizontal && greenShift == 0) {
+          detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          std::vector<std::uint8_t> row(static_cast<std::size_t>(ctx.width) * 4);
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            std::memcpy(row.data(), dst, row.size());
+            for (int x = 0; x < ctx.width; ++x) {
+              const int xr = std::clamp(x + shift, 0, ctx.width - 1);
+              const int xb = std::clamp(x - shift, 0, ctx.width - 1);
+              dst[static_cast<std::size_t>(x) * 4 + 2] = row[static_cast<std::size_t>(xr) * 4 + 2];
+              dst[static_cast<std::size_t>(x) * 4 + 0] = row[static_cast<std::size_t>(xb) * 4 + 0];
+            }
           }
+          });
+        } else {
+          const double ox = std::cos(angle) * shift;
+          const double oy = std::sin(angle) * shift;
+          std::vector<std::uint8_t> source(pixels.begin(),
+                                           pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+          detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+            auto tap = [&](int x, int y, int channel) {
+              const int sx = std::clamp(x, 0, ctx.width - 1);
+              const int sy = std::clamp(y, 0, ctx.height - 1);
+              return source[(static_cast<std::size_t>(sy) * ctx.width + sx) * 4 + channel];
+            };
+            for (int y = firstRow; y < lastRow; ++y) {
+              std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+              for (int x = 0; x < ctx.width; ++x) {
+                const int rx = x + static_cast<int>(std::lround(ox));
+                const int ry = y + static_cast<int>(std::lround(oy));
+                const int bx = x - static_cast<int>(std::lround(ox));
+                const int by = y - static_cast<int>(std::lround(oy));
+                dst[static_cast<std::size_t>(x) * 4 + 2] = tap(rx, ry, 2);
+                dst[static_cast<std::size_t>(x) * 4 + 0] = tap(bx, by, 0);
+                if (greenShift != 0) {
+                  dst[static_cast<std::size_t>(x) * 4 + 1] =
+                    tap(x + static_cast<int>(std::lround(oy * pB)),
+                        y - static_cast<int>(std::lround(ox * pB)), 1);
+                }
+              }
+            }
+          });
         }
-        });
         break;
       }
       case CueEffectKind::TemporalDither: {
@@ -710,11 +968,18 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // colour picture reads as continuous tone -- and freezes into visible
         // checkerboard the moment the deck is paused. The still and the moving
         // image are deliberately different pictures.
+        // palette: scales the surviving shade count. At 0.5 the scale is 1
+        // and the count is what amount alone decided, as before.
+        // hold: how many frames a dither phase lasts. At 0 it advances every
+        // frame -- which is the whole trick, because the eye integrates it --
+        // and winding it up freezes the checkerboard into visibility.
+        const double paletteScale = 0.5 + pA;
         const int levels = std::max(2, static_cast<int>(std::lround(
-          2.0 + (1.0 - amt) * 6.0)));
+          (2.0 + (1.0 - amt) * 6.0) * paletteScale)));
         const double step = 255.0 / (levels - 1);
         // Rotate the matrix through its four phases, one per frame.
-        const int phase = static_cast<int>(ctx.frameIndex & 3);
+        const int holdFrames = 1 + static_cast<int>(std::lround(pB * 15.0));
+        const int phase = static_cast<int>((ctx.frameIndex / holdFrames) & 3);
         std::uint8_t lut[16][256];
         for (int cell = 0; cell < 16; ++cell) {
           const double bias = (cell / 16.0 - 0.5) * step;
@@ -802,14 +1067,15 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         break;
       }
       case CueEffectKind::PixelSort:
-        applyPixelSort(pixels.data(), ctx.width, ctx.height, amt);
+        applyPixelSort(pixels.data(), ctx.width, ctx.height, amt, pA, pB > 0.5);
         break;
       case CueEffectKind::BlockGlitch:
         // Seeded from the FRAME, not a running generator, so the same frame
         // always glitches the same way -- scrubbing back gives you the picture
         // you saw, not a new one.
         applyBlockGlitch(pixels.data(), ctx.width, ctx.height, amt,
-                         static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u));
+                         static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u),
+                         pA, pB);
         break;
       case CueEffectKind::PolarWarp:
       case CueEffectKind::LumaDisplace:
@@ -830,9 +1096,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // sqrt for gamma would otherwise be paid four million times at 4K.
         const double beta = std::clamp(amt, 0.0, 1.0) * 0.995;
         const double gamma = 1.0 / std::sqrt(std::max(1e-6, 1.0 - beta * beta));
-        const double halfFov = (12.0 + std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0)
-                                * 68.0) * 0.017453292519943295;
-        const double dopplerAmt = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+        const double halfFov = (12.0 + pA * 68.0) * 0.017453292519943295;
+        const double dopplerAmt = pB;
+        const double boostOffsetX = (fx.kind == CueEffectKind::Relativistic)
+          ? pC * cx * 0.8 : 0.0;
         // Both halves of lightspeed depend on ONE thing: distance from the
         // centre. So they are a radial lookup built once, not an acos and two
         // cosines per pixel -- which is the difference between 11ms and under
@@ -871,8 +1138,12 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   const double r = std::sqrt(nx * nx + ny * ny);
                   double a = std::atan2(ny, nx);
                   if (a < 0.0) a += 6.283185307179586;
+                  // twist: winds the angle with the radius, so straight lines
+                  // become spirals rather than rings. At 0.5 there is no wind.
+                  // radial zoom: pushes the rings in or out. At 0 it is 1:1.
+                  a += (pA - 0.5) * 2.0 * r * 6.283185307179586;
                   const double u = (a / 6.283185307179586) * ctx.width;
-                  const double v = r * ctx.height;
+                  const double v = r * ctx.height * (1.0 + pB * 2.0);
                   sxf = x * (1.0 - amt) + u * amt;
                   syf = y * (1.0 - amt) + v * amt;
                   break;
@@ -884,9 +1155,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   const std::uint8_t* p =
                     source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
                   const double luma = (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0;
-                  const double push = (luma - 0.5) * amt * ctx.width * 0.25;
+                  // pivot: the brightness that stays put. At 0 it is mid grey,
+                  // which is what this always used.
+                  // vertical bias: how much of the push goes downward. At 0.5
+                  // that is 0.35, the ratio this was fixed at.
+                  const double pivotLuma = 0.5 + pB * 0.5;
+                  const double push = (luma - pivotLuma) * amt * ctx.width * 0.25;
                   sxf = x + push;
-                  syf = y + push * 0.35;
+                  syf = y + push * (0.35 + (pA - 0.5) * 2.0 * 0.65);
                   break;
                 }
                 case CueEffectKind::Relativistic: {
@@ -901,7 +1177,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   // walks OUTPUT pixels and has to find where each came from:
                   //   cos t' = (cos t + B) / (1 + B cos t)   is the forward map,
                   //   cos t  = (cos t' - B) / (1 - B cos t') is the one wanted.
-                  const double ax = x - cx;
+                  // off-axis: moves the direction of travel away from the
+                  // centre of frame, so the picture rushes past rather than
+                  // straight at you. At 0 it is dead centre, as before.
+                  const double ax = x - (cx + boostOffsetX);
                   const double ay = y - cy;
                   const double ar = std::sqrt(ax * ax + ay * ay);
                   if (ar < 0.5 || maxR < 1.0) {
@@ -920,7 +1199,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   const double dx = x - cx;
                   const double dy = y - cy;
                   const double r = std::sqrt(dx * dx + dy * dy);
-                  const double wave = std::sin(r * 0.06 - t * 3.0) * amt * 24.0;
+                  // frequency and speed. At paramA 0.5 the spacing is the 0.06
+                // this had, and at paramB 0 the rings travel at the 3.0 it had.
+                const double wave =
+                  std::sin(r * (0.06 * pA * 2.0) - t * (3.0 + pB * 9.0)) * amt * 24.0;
                   const double inv = r > 0.001 ? 1.0 / r : 0.0;
                   sxf = x + dx * inv * wave;
                   syf = y + dy * inv * wave;
@@ -930,13 +1212,15 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   // Fold the frame into wedges about its centre. paramA picks how
                   // many, because two is a mirror and twelve is a snowflake and
                   // they are completely different pictures.
-                  const int wedges = 2 + static_cast<int>(std::clamp(
-                    static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0);
+                  const int wedges = 2 + static_cast<int>(pA * 10.0);
                   const double nx = x - cx;
                   const double ny = y - cy;
                   const double r = std::sqrt(nx * nx + ny * ny);
                   const double seg = 6.283185307179586 / wedges;
-                  double a = std::atan2(ny, nx);
+                  // rotation: turns the whole arrangement so the fold lines do
+                  // not sit on the same part of the picture all night. At 0 it
+                  // is where it always was.
+                  double a = std::atan2(ny, nx) + pB * 6.283185307179586;
                   a = std::fabs(std::fmod(a + seg * 0.5, seg) - seg * 0.5);
                   const double fx2 = cx + std::cos(a) * r;
                   const double fy2 = cy + std::sin(a) * r;
@@ -1009,7 +1293,12 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               static_cast<float>(p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0f;
           }
         }
-        const double bleed = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0);
+        const double bleed = pA;
+        // swirl: rotates the whole flow field, which turns orbiting into
+        // spiralling inward or outward. At 0 the field is untouched.
+        const double swirl = pC * 6.283185307179586;
+        const double swirlCos = std::cos(swirl);
+        const double swirlSin = std::sin(swirl);
         std::vector<float> vx(static_cast<std::size_t>(gw) * gh, 0.0f);
         std::vector<float> vy(static_cast<std::size_t>(gw) * gh, 0.0f);
         for (int gy = 0; gy < gh; ++gy) {
@@ -1022,12 +1311,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                               luma[static_cast<std::size_t>(ym) * gw + gx];
             const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
             // Perpendicular at bleed 0, straight down the gradient at bleed 1.
-            vx[i] = static_cast<float>(-gyv * (1.0 - bleed) + gxv * bleed);
-            vy[i] = static_cast<float>( gxv * (1.0 - bleed) + gyv * bleed);
+            const double fieldX = -gyv * (1.0 - bleed) + gxv * bleed;
+            const double fieldY =  gxv * (1.0 - bleed) + gyv * bleed;
+            vx[i] = static_cast<float>(fieldX * swirlCos - fieldY * swirlSin);
+            vy[i] = static_cast<float>(fieldX * swirlSin + fieldY * swirlCos);
           }
         }
-        const int steps = 3 + static_cast<int>(
-          std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 13.0);
+        const int steps = 3 + static_cast<int>(pB * 13.0);
         // Total travel is what the operator set; the step count only decides
         // how CURVED the path is. Otherwise raising the detail would also raise
         // the strength and neither control would mean anything on its own.
@@ -1095,6 +1385,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const int gw = std::clamp(ctx.width / 6, 32, 192);
         const int gh = std::clamp(ctx.height / 6, 32, 192);
         const std::size_t cells = static_cast<std::size_t>(gw) * gh;
+        const float seedDensity = static_cast<float>(0.30 + pC * 0.55);
         std::vector<float> u(cells, 1.0f), v(cells, 0.0f);
         for (int gy = 0; gy < gh; ++gy) {
           const int sy = std::min(ctx.height - 1, gy * ctx.height / gh);
@@ -1126,7 +1417,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                                                          (gy >> 1) * 668265263);
             h = (h ^ (h >> 13)) * 1274126177u;
             const float pick = static_cast<float>(h >> 8) / 16777216.0f;
-            v[ci] = pick < l * l * 0.30f ? 1.0f : 0.0f;
+            // seed density: how much of the picture is seeded. At 0 it is
+            // the 0.30 this was fixed at.
+            v[ci] = pick < l * l * seedDensity ? 1.0f : 0.0f;
             u[ci] = 1.0f;
           }
         }
@@ -1153,8 +1446,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
           {0.0620f, 0.0610f},   // holes, on the edge of chaos
         };
         const int kLivingCount = static_cast<int>(sizeof(kLiving) / sizeof(kLiving[0]));
-        const double along = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0)
-                             * (kLivingCount - 1);
+        const double along = pA * (kLivingCount - 1);
         const int lo = std::min(kLivingCount - 1, static_cast<int>(along));
         const int hi = std::min(kLivingCount - 1, lo + 1);
         const float blend = static_cast<float>(along - lo);
@@ -1165,8 +1457,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // an order of magnitude faster than a naive 5-point stencil can carry.
         // The earlier 5-point version was stable but so slow that hundreds of
         // steps moved nothing.
-        const int iters = 60 + static_cast<int>(
-          std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 440.0);
+        const int iters = 60 + static_cast<int>(pB * 440.0);
         std::vector<float> un(cells), vn(cells);
         // Hundreds of small DEPENDENT steps, so the threads are created once
         // and parked on a barrier between them. Handing the work out per step
@@ -1244,7 +1535,12 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const double mix = grown * amt;
               std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
               for (int c = 0; c < 3; ++c) {
-                p[c] = detail::clamp8(p[c] * (1.0 - mix) + (255 - p[c]) * mix);
+                // glow: at 0 the growth folds the picture through its own
+                // negative, which is what this always did. Wound up, it lifts
+                // toward white instead, so the veins read as light on top of the
+                // picture rather than through it.
+                const double target = (255 - p[c]) * (1.0 - pD) + 255.0 * pD;
+                p[c] = detail::clamp8(p[c] * (1.0 - mix) + target * mix);
               }
             }
           }

@@ -97,6 +97,49 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### Every effect has real controls now
+
+Forty named parameters across the eighteen effects, up from six. Invert has a
+pivot and a channel spread, so the negative can come back coloured and fold
+around something other than mid grey. Vignette has size and falloff. Grain has
+grain size and whether the noise is one value across all three channels (film)
+or three (video). Scanlines has darkness. RGB split has an angle and a green
+split, so a two-colour fringe becomes a prism. Pixel sort can run its runs
+backwards. Ripple has frequency and speed. Kaleidoscope rotates. Reaction bloom
+gained seed density and a glow mode that lifts the growth toward white instead
+of folding the picture through its negative.
+
+**The neutral values are load-bearing.** A show saved before an effect grew a
+parameter carries paramA = 0.5 (what the UI wrote when the effect was added),
+paramB = 0, and no C or D at all -- so every parameter is defined so that those
+values reproduce exactly what the effect did before it had them. That is
+checked, not asserted: the pre-change header is compiled into a second binary,
+and all fifteen pre-existing effects render byte-identically at the settings
+existing shows carry.
+
+`tools/check_effects_offline.py --params` then goes the other way and checks
+that every named parameter actually MOVES the picture. A control that does
+nothing is this codebase's signature bug, and the effects had six of them
+sitting in the struct unreachable before this.
+
+paramC and paramD serialise AFTER the bypass flag rather than between it and
+paramB, so every show ever saved still loads, and a show saved here still loads
+in a build that predates them.
+
+### A presenter remote works now
+
+Page Down and Page Up take the next and previous cue. Every presentation
+clicker -- D'San Perfect Cue, Logitech, Kensington -- appears as a USB keyboard
+sending exactly those two keys, because that is what PowerPoint and Keynote
+listen for. Deckboy listened for neither, so plugging one in did nothing at all
+and there was no way to tell from the app why.
+
+### The effect move buttons were mojibake
+
+The up and down arrows added with the effects UI went into the source
+double-encoded, and the app drew them as "a-tilde" soup. They are ASCII now,
+which is what the rest of the UI already uses.
+
 ### Every effect now fits inside a 60fps frame at 1080p
 
 Measured with `--effect-bench`, median of eleven frames, 1920x1080:
