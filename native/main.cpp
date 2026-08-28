@@ -9016,6 +9016,8 @@ constexpr CliFlagHelp kCliModeHelp[] = {
      "apply one effect to one picture, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
      "time one effect per frame at a raster"},
+    {"--pdf-probe <file.pdf> [outdir] [width]",
+     "rasterise a slide deck, no window"},
     {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
   {"--motion-probe <file> [frames]", "read the clip's motion vectors, report coverage"},
   {"--ltc-generate <out.wav> [tc] [fps] [seconds]", "write a SMPTE LTC timecode WAV"},
@@ -9034,7 +9036,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe",
+  "--motion-probe", "--pdf-probe",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -9339,6 +9341,12 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     if (ops.size() < 3) return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
     const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
     return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame);
+  }
+  if (mode == "--pdf-probe") {
+    if (ops.empty()) return missing("<file.pdf> [outdir] [width]");
+    const std::string outDir = ops.size() > 1 ? ops[1] : std::string();
+    const int width = ops.size() > 2 ? std::atoi(ops[2].c_str()) : 3840;
+    return App::runPdfProbe(ops[0], outDir, width > 0 ? width : 3840);
   }
   if (mode == "--motion-probe") {
     if (ops.empty()) return missing("<file> [frames]");

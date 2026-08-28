@@ -116,11 +116,30 @@ installed. Bundling a rasteriser instead would have meant either an AGPL engine
 that Deckboy cannot link, or vendoring something the size of pdfium for a job
 the operating system already does well.
 
-Pages render at twice their natural size, because a slide is mostly type and
-type is the first thing to fall apart scaled up to a 4K output -- and once the
-page is a PNG the detail cannot be recovered. They go to the state directory,
-never next to the operator's document, whose folder is read-only as often as
-not.
+Pages render **3840 wide**, whatever shape the page is, because a slide is
+mostly type and type is the first thing to fall apart scaled up to a 4K output
+-- and once the page is a PNG the detail cannot be recovered. They go to the
+state directory, never next to the operator's document, whose folder is
+read-only as often as not.
+
+A target width rather than a scale factor, because the three engines measure a
+page in three different units: WinRT reports device-independent pixels at
+96dpi, CoreGraphics reports points at 72dpi, pdftoppm wants a dpi. The same
+"2x" produced 1632px on Windows and 1224px on Linux for the same document.
+
+Windows then needed one more thing. Windows.Data.Pdf renders in DEVICE pixels,
+so on a display at 140% every page asked for at 3840 arrived at 5376 -- and the
+system DPI cannot be read back from a process that is not DPI-aware, which
+answers 96 and means it. Rather than predict the factor, the first page is
+rendered, its width read from the PNG header, and the request corrected by
+whatever the machine actually applied. That costs one extra render of one page
+and fixes any systematic scaling, not only this one. Without it a deck would
+import at a different resolution depending on the scaling of the monitor the
+operator happened to be sitting at, which is invisible until it is a show.
+
+Verified on both: the same PDF now renders 3840 wide on Windows and on Linux
+(Mint, poppler 24.02), to within a pixel of height from each engine rounding
+the aspect its own way.
 
 Rendering happens on a worker thread. A hundred-page deck takes seconds, and
 doing it inline would freeze the app during load-in with no indication why.
