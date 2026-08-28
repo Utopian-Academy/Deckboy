@@ -341,9 +341,6 @@
       case QuickAction::KeyToggle:
         toggleSelectedChromaKey();
         break;
-      case QuickAction::DatamoshToggle:
-        toggleSelectedDatamosh();
-        break;
       case QuickAction::TimerChimeAmberToggle:
         toggleTimerFlag(&TimerSettings::chimeAtAmber, "chime amber"); break;
       case QuickAction::TimerChimeRedToggle:
