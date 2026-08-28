@@ -858,6 +858,107 @@
     markProjectDirty();
   }
 
+  // ── VJ mixer + tempo ─────────────────────────────────────────────────────
+
+  void setVjMode(bool on) {
+    if (project_.vjModeEnabled == on) {
+      return;
+    }
+    project_.vjModeEnabled = on;
+    if (on && project_.decks.size() < 2) {
+      // A mixer needs something to mix. Adding the deck here rather than
+      // refusing means turning the mode on does what it says on a show file
+      // that has only ever had one deck, which is most of them.
+      //
+      // rebuildDeckRuntimes tears down every engine, so this stops playback --
+      // acceptable for a mode switch during setup, and said out loud below so
+      // it is not a surprise if someone flips it mid-show.
+      project_.decks.push_back(Deck {});
+      rebuildDeckRuntimes();
+    }
+    const int deckCount = static_cast<int>(project_.decks.size());
+    project_.vjDeckA = std::clamp(project_.vjDeckA, 0, std::max(0, deckCount - 1));
+    project_.vjDeckB = std::clamp(project_.vjDeckB, 0, std::max(0, deckCount - 1));
+    if (on && project_.vjDeckB == project_.vjDeckA && deckCount > 1) {
+      project_.vjDeckB = (project_.vjDeckA + 1) % deckCount;
+    }
+    triggerToast(on ? "VJ mode on" : "VJ mode off");
+    markProjectDirty();
+  }
+
+  void setVjMix(double position) {
+    project_.vjMixPosition = std::clamp(position, 0.0, 1.0);
+    markProjectDirty();
+  }
+
+  void setVjBlend(const std::string& mode) {
+    project_.vjBlendMode =
+      (mode == "add" || mode == "multiply") ? mode : "dissolve";
+    triggerToast("mix: " + project_.vjBlendMode);
+    markProjectDirty();
+  }
+
+  // TAP TEMPO.
+  //
+  // Averaged over the recent taps rather than taken from the last interval,
+  // because no one taps evenly and a single interval makes the tempo jump
+  // around on every beat. Taps more than two seconds apart start a new
+  // measurement: that is a person starting again, not a 25bpm track.
+  double tapVjTempo() {
+    const double now = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    if (!vjTapTimes_.empty() && now - vjTapTimes_.back() > 2.0) {
+      vjTapTimes_.clear();
+    }
+    vjTapTimes_.push_back(now);
+    if (vjTapTimes_.size() > 8) {
+      vjTapTimes_.erase(vjTapTimes_.begin());
+    }
+    if (vjTapTimes_.size() >= 2) {
+      const double span = vjTapTimes_.back() - vjTapTimes_.front();
+      const double intervals = static_cast<double>(vjTapTimes_.size() - 1);
+      if (span > 0.05) {
+        project_.vjTempoBpm = std::clamp(60.0 * intervals / span, 20.0, 300.0);
+        // The downbeat is the tap that set the tempo, so the beat grid lines up
+        // with the hand that tapped it rather than with when the app started.
+        vjBeatOrigin_ = vjTapTimes_.back();
+        markProjectDirty();
+      }
+    }
+    return project_.vjTempoBpm;
+  }
+
+  void setVjTempo(double bpm) {
+    project_.vjTempoBpm = std::clamp(bpm, 20.0, 300.0);
+    vjBeatOrigin_ = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    markProjectDirty();
+  }
+
+  // Where we are between beats, 0 at the beat and approaching 1 just before the
+  // next. Derived from a wall clock rather than counted per frame, so it cannot
+  // drift when a frame is late.
+  double vjBeatPhase() const {
+    const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
+    const double beatSeconds = 60.0 / bpm;
+    const double now = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    const double since = now - vjBeatOrigin_;
+    const double phase = std::fmod(since, beatSeconds) / beatSeconds;
+    return phase < 0.0 ? phase + 1.0 : phase;
+  }
+
+  double vjSecondsToNextBeat() const {
+    const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
+    const double beatSeconds = 60.0 / bpm;
+    return beatSeconds * (1.0 - vjBeatPhase());
+  }
+
+  std::vector<double> vjTapTimes_;
+  double vjBeatOrigin_ = 0.0;
+  // A take waiting for the downbeat. Quantising is the whole point of tempo in
+  // a video mixer: not that anything moves by itself, but that what the
+  // operator does lands ON the music instead of a moment after it.
+  bool vjTakePending_ = false;
+  double vjTakeDueAt_ = 0.0;
+
   void copySelectedCueSettings() {
     Cue* cue = selectedCueMutable();
     if (!cue) {
