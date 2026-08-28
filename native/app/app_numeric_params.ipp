@@ -365,6 +365,7 @@ void effectStackRemove(int index) {
   triggerToast("effect removed: " + gone);
   markProjectDirty();
   syncDatamoshFromStack();
+  pruneUnusedMotionDriver();
   refreshLiveCueIfPixelPathChanged(wasNeeded);
 }
 
@@ -391,6 +392,9 @@ void effectStackCycleKind(int index) {
     (*live)[index].kind = kind;
     markProjectDirty();
     syncDatamoshFromStack();
+    // Changing the last puppet into something else leaves the driver with
+    // nothing to drive, exactly as removing it would.
+    pruneUnusedMotionDriver();
   });
 }
 
@@ -549,6 +553,27 @@ void pickMotionDriver() {
       triggerToast("motion driver set");
       markProjectDirty();
     });
+}
+
+// Drop the driver when nothing is left that could use it.
+//
+// A driver with no puppet is a clip being decoded every frame for a field
+// nothing reads, and an inspector row for a control that cannot do anything --
+// which is this codebase's signature bug. Called after any edit that can
+// remove the last puppet.
+void pruneUnusedMotionDriver() {
+  Cue* cue = selectedCueMutable();
+  if (!cue || cue->motionDriverPath.empty()) {
+    return;
+  }
+  if (deckboy::effects::cueEffectStackNeedsDriver(cue->effects)) {
+    return;
+  }
+  cue->motionDriverPath.clear();
+  // Said out loud: the driver was something the operator chose, and taking it
+  // away silently would look like the app losing it.
+  triggerToast("driver cleared - nothing left to puppet");
+  markProjectDirty();
 }
 
 void clearMotionDriver() {

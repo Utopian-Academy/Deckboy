@@ -31,6 +31,9 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #include "../engine/motion_field.hpp"
@@ -231,6 +234,174 @@ inline int bayer4(int x, int y) {
   return kMatrix[y & 3][x & 3];
 }
 
+// How many workers to split a frame across.
+//
+// Capped rather than "all of them": a show is not only compositing, and taking
+// every core for an effect stack starves the decoder threads that are feeding
+// it. Sixteen is well past the point where memory bandwidth, not arithmetic,
+// is the limit for this kind of work.
+inline unsigned effectWorkers() {
+  static const unsigned workers = [] {
+    unsigned hw = std::thread::hardware_concurrency();
+    if (hw == 0) hw = 4;              // the standard is allowed to say "no idea"
+    return std::min(hw, 16u);
+  }();
+  return workers;
+}
+
+// Run `fn(firstRow, lastRow)` over the frame, split into bands.
+//
+// Every effect here writes each output row from inputs that are either in that
+// same row or in an untouched COPY of the frame, so the bands cannot see each
+// other's work and the result is identical to running it serially. The two that
+// are not row-independent (block glitch, which shifts overlapping random bands
+// in a fixed RNG order) simply do not use this.
+//
+// Threads are created per call rather than pooled. A pool would save roughly
+// two tenths of a millisecond per effect, and the effects it matters for take
+// tens of milliseconds; a race in the render path would cost far more than that
+// is worth. The size gate keeps the hand-off from dominating small frames.
+template <typename Fn>
+inline void parallelRows(int height, int width, Fn fn) {
+  const unsigned workers = effectWorkers();
+  if (workers < 2 || height < 2 ||
+      static_cast<long long>(height) * width < 120000) {
+    fn(0, height);
+    return;
+  }
+  const int bands = static_cast<int>(std::min<unsigned>(
+    workers, static_cast<unsigned>(height)));
+  const int rowsPerBand = (height + bands - 1) / bands;
+  std::vector<std::thread> helpers;
+  helpers.reserve(static_cast<std::size_t>(bands - 1));
+  for (int band = 1; band < bands; ++band) {
+    const int first = band * rowsPerBand;
+    const int last = std::min(height, first + rowsPerBand);
+    if (first >= last) {
+      break;
+    }
+    helpers.emplace_back([&fn, first, last] { fn(first, last); });
+  }
+  // The calling thread takes the first band instead of idling.
+  fn(0, std::min(height, rowsPerBand));
+  for (std::thread& helper : helpers) {
+    helper.join();
+  }
+}
+
+// A 256-entry table for any effect whose output channel depends only on its
+// input channel.
+//
+// Invert, posterise, solarise and the rest were evaluating the same handful of
+// double expressions two million times a frame to produce, at most, 256
+// distinct answers. Building the table with the SAME expression keeps the
+// result identical to the arithmetic it replaces -- this is a lookup of the old
+// answer, not a new approximation of it.
+template <typename Fn>
+inline void buildChannelLut(std::uint8_t (&lut)[256], Fn f) {
+  for (int v = 0; v < 256; ++v) {
+    lut[v] = f(v);
+  }
+}
+
+// Apply a channel table across the frame. Alpha is left alone.
+inline void applyChannelLut(std::uint8_t* pixels, int width, int height,
+                            const std::uint8_t (&lut)[256]) {
+  parallelRows(height, width, [&](int firstRow, int lastRow) {
+    for (int y = firstRow; y < lastRow; ++y) {
+      std::uint8_t* p = pixels + static_cast<std::size_t>(y) * width * 4;
+      for (int x = 0; x < width; ++x, p += 4) {
+        p[0] = lut[p[0]];
+        p[1] = lut[p[1]];
+        p[2] = lut[p[2]];
+      }
+    }
+  });
+}
+
+// A reusable barrier, for work that is many small DEPENDENT steps.
+//
+// parallelRows above creates its threads per call, which is right for one pass
+// over a frame and wrong for reaction-diffusion: that is hundreds of steps on a
+// small grid, and paying the hand-off once per step made the effect 1.8x
+// SLOWER than running it on one core. Measured, not guessed.
+//
+// So the threads are created once and parked here between steps instead.
+class Barrier {
+ public:
+  explicit Barrier(int parties) : parties_(parties) {}
+
+  void arriveAndWait() {
+    std::unique_lock<std::mutex> lock(mutex_);
+    const unsigned long long myGeneration = generation_;
+    if (++waiting_ == parties_) {
+      waiting_ = 0;
+      ++generation_;          // releases everyone parked on this generation
+      condition_.notify_all();
+    } else {
+      condition_.wait(lock, [&] { return generation_ != myGeneration; });
+    }
+  }
+
+ private:
+  std::mutex mutex_;
+  std::condition_variable condition_;
+  int parties_;
+  int waiting_ = 0;
+  unsigned long long generation_ = 0;
+};
+
+// Run `step(round, firstRow, lastRow)` for every round, split into bands, with
+// every band finished before `between(round)` runs and `between` finished
+// before the next round starts.
+//
+// The two barriers are the whole contract: the first says every band has
+// written its output, the second says the coordinator's swap has happened. A
+// band that raced past either would read a half-updated grid.
+template <typename Step, typename Between>
+inline void iteratedBands(int rounds, int rows, int minRowsPerBand,
+                          Step step, Between between) {
+  const unsigned workers = effectWorkers();
+  const int bands = static_cast<int>(std::min<long long>(
+    workers, std::max(1, rows / std::max(1, minRowsPerBand))));
+  if (rounds <= 0) {
+    return;
+  }
+  if (bands < 2) {
+    for (int round = 0; round < rounds; ++round) {
+      step(round, 0, rows);
+      between(round);
+    }
+    return;
+  }
+  const int rowsPerBand = (rows + bands - 1) / bands;
+  Barrier barrier(bands);
+  std::vector<std::thread> helpers;
+  helpers.reserve(static_cast<std::size_t>(bands - 1));
+  for (int band = 1; band < bands; ++band) {
+    const int first = std::min(rows, band * rowsPerBand);
+    const int last = std::min(rows, first + rowsPerBand);
+    helpers.emplace_back([&, first, last] {
+      for (int round = 0; round < rounds; ++round) {
+        if (first < last) {
+          step(round, first, last);
+        }
+        barrier.arriveAndWait();   // everyone has written
+        barrier.arriveAndWait();   // the coordinator has swapped
+      }
+    });
+  }
+  for (int round = 0; round < rounds; ++round) {
+    step(round, 0, std::min(rows, rowsPerBand));
+    barrier.arriveAndWait();
+    between(round);
+    barrier.arriveAndWait();
+  }
+  for (std::thread& helper : helpers) {
+    helper.join();
+  }
+}
+
 }  // namespace detail
 
 
@@ -260,8 +431,13 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
   auto luma = [&](std::size_t o) {
     return (pixels[o + 2] * 77 + pixels[o + 1] * 151 + pixels[o + 0] * 28) >> 8;
   };
+  // Rows are independent -- each one only ever reads and writes itself -- so
+  // this splits across cores. The run buffer moves INSIDE the band: one shared
+  // scratch vector across threads would be a race, and it is the only mutable
+  // state here.
+  detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
   std::vector<std::uint32_t> run;
-  for (int y = 0; y < h; ++y) {
+  for (int y = firstRow; y < lastRow; ++y) {
     const std::size_t rowOff = static_cast<std::size_t>(y) * w * 4;
     int x = 0;
     while (x < w) {
@@ -296,6 +472,7 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount) {
       }
     }
   }
+  });
 }
 
 // Displaced scanline bands plus red/blue separation: the corrupted-frame look.
@@ -323,14 +500,21 @@ inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
     for (int y = y0; y < std::min(h, y0 + hgt); ++y) {
       std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
       std::memcpy(rowCopy.data(), row, rowCopy.size());
-      for (int x = 0; x < w; ++x) {
-        // WRAPPED, not clamped: a clamped shift smears its edge pixel across
-        // the gap, which reads as a stretch. Wrapping reads as torn, which is
-        // what corruption actually looks like.
-        int sx = x - shift;
-        sx = ((sx % w) + w) % w;
-        std::memcpy(row + static_cast<std::size_t>(x) * 4,
-                    rowCopy.data() + static_cast<std::size_t>(sx) * 4, 4);
+      // WRAPPED, not clamped: a clamped shift smears its edge pixel across the
+      // gap, which reads as a stretch. Wrapping reads as torn, which is what
+      // corruption actually looks like.
+      //
+      // A wrapped shift is a ROTATION, so it is two bulk copies rather than a
+      // four-byte memcpy per pixel. The per-pixel version moved the same bytes
+      // and cost 27ms on a 4K frame doing it.
+      const int rot = ((shift % w) + w) % w;   // dst[x] = src[(x - rot) mod w]
+      if (rot == 0) {
+        std::memcpy(row, rowCopy.data(), rowCopy.size());
+      } else {
+        const std::size_t head = static_cast<std::size_t>(rot) * 4;
+        const std::size_t tail = static_cast<std::size_t>(w - rot) * 4;
+        std::memcpy(row, rowCopy.data() + tail, head);
+        std::memcpy(row + head, rowCopy.data(), tail);
       }
     }
   }
@@ -372,12 +556,11 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
     }
     switch (fx.kind) {
       case CueEffectKind::Invert: {
-        for (std::size_t i = 0; i < count; ++i) {
-          std::uint8_t* p = pixels.data() + i * 4;
-          for (int c = 0; c < 3; ++c) {
-            p[c] = detail::clamp8(p[c] * (1.0 - amt) + (255 - p[c]) * amt);
-          }
-        }
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          return detail::clamp8(v * (1.0 - amt) + (255 - v) * amt);
+        });
+        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Posterise: {
@@ -386,57 +569,68 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // "fewer levels", which is not what a naive mapping gives.
         const int levels = std::max(2, static_cast<int>(std::lround(2 + (1.0 - amt) * 30)));
         const double step = 255.0 / (levels - 1);
-        for (std::size_t i = 0; i < count; ++i) {
-          std::uint8_t* p = pixels.data() + i * 4;
-          for (int c = 0; c < 3; ++c) {
-            p[c] = detail::clamp8(std::round(p[c] / step) * step);
-          }
-        }
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          return detail::clamp8(std::round(v / step) * step);
+        });
+        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Solarise: {
         // Everything above the threshold inverts, which is the darkroom
         // effect: highlights fold back through black.
         const double pivot = 255.0 * std::clamp(static_cast<double>(fx.paramA), 0.05, 0.95);
-        for (std::size_t i = 0; i < count; ++i) {
-          std::uint8_t* p = pixels.data() + i * 4;
-          for (int c = 0; c < 3; ++c) {
-            const double folded = p[c] > pivot ? (255.0 - p[c]) : p[c];
-            p[c] = detail::clamp8(p[c] * (1.0 - amt) + folded * amt);
-          }
-        }
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          const double folded = v > pivot ? (255.0 - v) : v;
+          return detail::clamp8(v * (1.0 - amt) + folded * amt);
+        });
+        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Threshold: {
         const double pivot = 255.0 * std::clamp(static_cast<double>(fx.paramA), 0.02, 0.98);
-        for (std::size_t i = 0; i < count; ++i) {
-          std::uint8_t* p = pixels.data() + i * 4;
-          const double luma = p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
-          const double hit = luma >= pivot ? 255.0 : 0.0;
-          for (int c = 0; c < 3; ++c) {
-            p[c] = detail::clamp8(p[c] * (1.0 - amt) + hit * amt);
+        std::uint8_t lutLit[256], lutDark[256];
+        detail::buildChannelLut(lutLit, [&](int v) {
+          return detail::clamp8(v * (1.0 - amt) + 255.0 * amt);
+        });
+        detail::buildChannelLut(lutDark, [&](int v) {
+          return detail::clamp8(v * (1.0 - amt) + 0.0 * amt);
+        });
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              const double luma = p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
+              const std::uint8_t* lut = luma >= pivot ? lutLit : lutDark;
+              p[0] = lut[p[0]];
+              p[1] = lut[p[1]];
+              p[2] = lut[p[2]];
+            }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::Vignette: {
         const double cx = ctx.width * 0.5;
         const double cy = ctx.height * 0.5;
         const double maxR = std::sqrt(cx * cx + cy * cy);
-        for (int y = 0; y < ctx.height; ++y) {
-          std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          const double dy = y - cy;
-          for (int x = 0; x < ctx.width; ++x) {
-            const double dx = x - cx;
-            const double r = std::sqrt(dx * dx + dy * dy) / maxR;
-            // Squared falloff, so the centre stays clean and the corners go.
-            const double gain = 1.0 - amt * r * r;
-            std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-            for (int c = 0; c < 3; ++c) {
-              p[c] = detail::clamp8(p[c] * gain);
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            const double dy = y - cy;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double dx = x - cx;
+              const double r = std::sqrt(dx * dx + dy * dy) / maxR;
+              // Squared falloff, so the centre stays clean and the corners go.
+              const double gain = 1.0 - amt * r * r;
+              std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                p[c] = detail::clamp8(p[c] * gain);
+              }
             }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::Grain: {
@@ -446,15 +640,20 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const std::uint32_t seed =
           static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u) | 1u;
         const double strength = amt * 64.0;
-        for (std::size_t i = 0; i < count; ++i) {
-          std::uint32_t h = static_cast<std::uint32_t>(i) ^ seed;
-          h ^= h << 13; h ^= h >> 17; h ^= h << 5;
-          const double n = (static_cast<double>(h & 0xFFFF) / 32768.0 - 1.0) * strength;
-          std::uint8_t* p = pixels.data() + i * 4;
-          for (int c = 0; c < 3; ++c) {
-            p[c] = detail::clamp8(p[c] + n);
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::size_t i = static_cast<std::size_t>(y) * ctx.width;
+            std::uint8_t* p = pixels.data() + i * 4;
+            for (int x = 0; x < ctx.width; ++x, ++i, p += 4) {
+              std::uint32_t h = static_cast<std::uint32_t>(i) ^ seed;
+              h ^= h << 13; h ^= h >> 17; h ^= h << 5;
+              const double n = (static_cast<double>(h & 0xFFFF) / 32768.0 - 1.0) * strength;
+              p[0] = detail::clamp8(p[0] + n);
+              p[1] = detail::clamp8(p[1] + n);
+              p[2] = detail::clamp8(p[2] + n);
+            }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::Scanlines: {
@@ -463,18 +662,23 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // raster is invisible, which is the mistake the synth's CRT made.
         const int pitch = std::max(2, static_cast<int>(std::lround(
           2.0 + std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0)));
-        for (int y = 0; y < ctx.height; ++y) {
-          if (((y / (pitch / 2)) & 1) == 0) {
-            continue;
-          }
-          std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-            for (int c = 0; c < 3; ++c) {
-              p[c] = detail::clamp8(p[c] * (1.0 - amt * 0.7));
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          return detail::clamp8(v * (1.0 - amt * 0.7));
+        });
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            if (((y / (pitch / 2)) & 1) == 0) {
+              continue;
+            }
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              p[0] = lut[p[0]];
+              p[1] = lut[p[1]];
+              p[2] = lut[p[2]];
             }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::ChannelOffset: {
@@ -482,8 +686,11 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // the outer colour channels, which holds for both BGRA and RGBA -- the
         // direction of the fringe flips between them and neither is wrong.
         const int shift = std::max(1, static_cast<int>(std::lround(amt * ctx.width * 0.02)));
+        // The row scratch lives INSIDE the band: one shared buffer across
+        // threads would be a race, and it is the only mutable state here.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
         std::vector<std::uint8_t> row(static_cast<std::size_t>(ctx.width) * 4);
-        for (int y = 0; y < ctx.height; ++y) {
+        for (int y = firstRow; y < lastRow; ++y) {
           std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
           std::memcpy(row.data(), dst, row.size());
           for (int x = 0; x < ctx.width; ++x) {
@@ -493,6 +700,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             dst[static_cast<std::size_t>(x) * 4 + 0] = row[static_cast<std::size_t>(xb) * 4 + 0];
           }
         }
+        });
         break;
       }
       case CueEffectKind::TemporalDither: {
@@ -507,18 +715,26 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double step = 255.0 / (levels - 1);
         // Rotate the matrix through its four phases, one per frame.
         const int phase = static_cast<int>(ctx.frameIndex & 3);
-        for (int y = 0; y < ctx.height; ++y) {
-          std::uint8_t* rowp = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            const double bias =
-              (detail::bayer4(x + phase, y + (phase >> 1)) / 16.0 - 0.5) * step;
-            std::uint8_t* p = rowp + static_cast<std::size_t>(x) * 4;
-            for (int c = 0; c < 3; ++c) {
-              const double q = std::round((p[c] + bias) / step) * step;
-              p[c] = detail::clamp8(p[c] * (1.0 - amt) + q * amt);
-            }
+        std::uint8_t lut[16][256];
+        for (int cell = 0; cell < 16; ++cell) {
+          const double bias = (cell / 16.0 - 0.5) * step;
+          for (int v = 0; v < 256; ++v) {
+            const double q = std::round((v + bias) / step) * step;
+            lut[cell][v] = detail::clamp8(v * (1.0 - amt) + q * amt);
           }
         }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              const std::uint8_t* cell =
+                lut[detail::bayer4(x + phase, y + (phase >> 1))];
+              p[0] = cell[p[0]];
+              p[1] = cell[p[1]];
+              p[2] = cell[p[2]];
+            }
+          }
+        });
         break;
       }
       case CueEffectKind::MotionPuppet: {
@@ -547,39 +763,42 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
 
         std::vector<std::uint8_t> source(pixels.begin(),
                                          pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
-        for (int y = 0; y < ctx.height; ++y) {
-          const double gy = (static_cast<double>(y) / std::max(1, ctx.height)) * mf.rows;
-          const int r0 = std::clamp(static_cast<int>(gy), 0, mf.rows - 1);
-          const int r1 = std::min(r0 + 1, mf.rows - 1);
-          const double fy = gy - r0;
-          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            const double gx = (static_cast<double>(x) / std::max(1, ctx.width)) * mf.cols;
-            const int c0 = std::clamp(static_cast<int>(gx), 0, mf.cols - 1);
-            const int c1 = std::min(c0 + 1, mf.cols - 1);
-            const double fx2 = gx - c0;
-            auto at = [&](int r, int c, bool wantX) {
-              const std::size_t i = static_cast<std::size_t>(r) * mf.cols + c;
-              return static_cast<double>(wantX ? mf.dx[i] : mf.dy[i]);
-            };
-            const double dxv =
-              (at(r0, c0, true) * (1 - fx2) + at(r0, c1, true) * fx2) * (1 - fy) +
-              (at(r1, c0, true) * (1 - fx2) + at(r1, c1, true) * fx2) * fy;
-            const double dyv =
-              (at(r0, c0, false) * (1 - fx2) + at(r0, c1, false) * fx2) * (1 - fy) +
-              (at(r1, c0, false) * (1 - fx2) + at(r1, c1, false) * fx2) * fy;
-            // MINUS: the vector says where the block came FROM, so sampling
-            // backwards along it moves the picture the way the driver moved.
-            const int srcX = std::clamp(
-              static_cast<int>(std::lround(x - dxv * sx * gain)), 0, ctx.width - 1);
-            const int srcY = std::clamp(
-              static_cast<int>(std::lround(y - dyv * sy * gain)), 0, ctx.height - 1);
-            const std::uint8_t* sp =
-              source.data() + (static_cast<std::size_t>(srcY) * ctx.width + srcX) * 4;
-            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
-            dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
+        // Split across cores: every pixel reads the untouched source copy.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double gy = (static_cast<double>(y) / std::max(1, ctx.height)) * mf.rows;
+            const int r0 = std::clamp(static_cast<int>(gy), 0, mf.rows - 1);
+            const int r1 = std::min(r0 + 1, mf.rows - 1);
+            const double fy = gy - r0;
+            std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double gx = (static_cast<double>(x) / std::max(1, ctx.width)) * mf.cols;
+              const int c0 = std::clamp(static_cast<int>(gx), 0, mf.cols - 1);
+              const int c1 = std::min(c0 + 1, mf.cols - 1);
+              const double fx2 = gx - c0;
+              auto at = [&](int r, int c, bool wantX) {
+                const std::size_t i = static_cast<std::size_t>(r) * mf.cols + c;
+                return static_cast<double>(wantX ? mf.dx[i] : mf.dy[i]);
+              };
+              const double dxv =
+                (at(r0, c0, true) * (1 - fx2) + at(r0, c1, true) * fx2) * (1 - fy) +
+                (at(r1, c0, true) * (1 - fx2) + at(r1, c1, true) * fx2) * fy;
+              const double dyv =
+                (at(r0, c0, false) * (1 - fx2) + at(r0, c1, false) * fx2) * (1 - fy) +
+                (at(r1, c0, false) * (1 - fx2) + at(r1, c1, false) * fx2) * fy;
+              // MINUS: the vector says where the block came FROM, so sampling
+              // backwards along it moves the picture the way the driver moved.
+              const int srcX = std::clamp(
+                static_cast<int>(std::lround(x - dxv * sx * gain)), 0, ctx.width - 1);
+              const int srcY = std::clamp(
+                static_cast<int>(std::lround(y - dyv * sy * gain)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(srcY) * ctx.width + srcX) * 4;
+              std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+              dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
+            }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::PixelSort:
@@ -635,121 +854,124 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               std::tanh((doppler - 1.0) * 1.2) * dopplerAmt);
           }
         }
-        for (int y = 0; y < ctx.height; ++y) {
-          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            double sxf = x;
-            double syf = y;
-            switch (fx.kind) {
-              case CueEffectKind::PolarWarp: {
-                // Read the picture as if its rows were rings and its columns
-                // were angles. Straight lines become spirals; a face becomes a
-                // weather system.
-                const double nx = (x - cx) / std::max(1.0, cx);
-                const double ny = (y - cy) / std::max(1.0, cy);
-                const double r = std::sqrt(nx * nx + ny * ny);
-                double a = std::atan2(ny, nx);
-                if (a < 0.0) a += 6.283185307179586;
-                const double u = (a / 6.283185307179586) * ctx.width;
-                const double v = r * ctx.height;
-                sxf = x * (1.0 - amt) + u * amt;
-                syf = y * (1.0 - amt) + v * amt;
-                break;
-              }
-              case CueEffectKind::LumaDisplace: {
-                // The picture bends by its OWN brightness -- bright regions
-                // reach further for their colour than dark ones, so an image
-                // distorts along its own structure rather than along a grid.
-                const std::uint8_t* p =
-                  source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
-                const double luma = (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0;
-                const double push = (luma - 0.5) * amt * ctx.width * 0.25;
-                sxf = x + push;
-                syf = y + push * 0.35;
-                break;
-              }
-              case CueEffectKind::Relativistic: {
-                // What the frame looks like from something travelling into it
-                // at a fraction of c. Relativistic aberration folds the forward
-                // hemisphere toward the direction of travel, so the centre
-                // opens out and the rim smears away -- which is why the view
-                // from a near-light ship is a bright compressed disc and not a
-                // zoom.
-                //
-                // The aberration formula is inverted here, because the loop
-                // walks OUTPUT pixels and has to find where each came from:
-                //   cos t' = (cos t + B) / (1 + B cos t)   is the forward map,
-                //   cos t  = (cos t' - B) / (1 - B cos t') is the one wanted.
-                const double ax = x - cx;
-                const double ay = y - cy;
-                const double ar = std::sqrt(ax * ax + ay * ay);
-                if (ar < 0.5 || maxR < 1.0) {
-                  break;                        // the centre maps to itself
+        // Split across cores: every pixel reads the untouched source copy.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              double sxf = x;
+              double syf = y;
+              switch (fx.kind) {
+                case CueEffectKind::PolarWarp: {
+                  // Read the picture as if its rows were rings and its columns
+                  // were angles. Straight lines become spirals; a face becomes a
+                  // weather system.
+                  const double nx = (x - cx) / std::max(1.0, cx);
+                  const double ny = (y - cy) / std::max(1.0, cy);
+                  const double r = std::sqrt(nx * nx + ny * ny);
+                  double a = std::atan2(ny, nx);
+                  if (a < 0.0) a += 6.283185307179586;
+                  const double u = (a / 6.283185307179586) * ctx.width;
+                  const double v = r * ctx.height;
+                  sxf = x * (1.0 - amt) + u * amt;
+                  syf = y * (1.0 - amt) + v * amt;
+                  break;
                 }
-                const double slot = std::clamp(ar / maxR, 0.0, 1.0) * (kBoostTableSize - 1);
-                const int i0 = static_cast<int>(slot);
-                const int i1 = std::min(kBoostTableSize - 1, i0 + 1);
-                const double frac = slot - i0;
-                const double srcR = boostRadius[i0] * (1.0 - frac) + boostRadius[i1] * frac;
-                sxf = cx + ax / ar * srcR;
-                syf = cy + ay / ar * srcR;
-                break;
+                case CueEffectKind::LumaDisplace: {
+                  // The picture bends by its OWN brightness -- bright regions
+                  // reach further for their colour than dark ones, so an image
+                  // distorts along its own structure rather than along a grid.
+                  const std::uint8_t* p =
+                    source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+                  const double luma = (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0;
+                  const double push = (luma - 0.5) * amt * ctx.width * 0.25;
+                  sxf = x + push;
+                  syf = y + push * 0.35;
+                  break;
+                }
+                case CueEffectKind::Relativistic: {
+                  // What the frame looks like from something travelling into it
+                  // at a fraction of c. Relativistic aberration folds the forward
+                  // hemisphere toward the direction of travel, so the centre
+                  // opens out and the rim smears away -- which is why the view
+                  // from a near-light ship is a bright compressed disc and not a
+                  // zoom.
+                  //
+                  // The aberration formula is inverted here, because the loop
+                  // walks OUTPUT pixels and has to find where each came from:
+                  //   cos t' = (cos t + B) / (1 + B cos t)   is the forward map,
+                  //   cos t  = (cos t' - B) / (1 - B cos t') is the one wanted.
+                  const double ax = x - cx;
+                  const double ay = y - cy;
+                  const double ar = std::sqrt(ax * ax + ay * ay);
+                  if (ar < 0.5 || maxR < 1.0) {
+                    break;                        // the centre maps to itself
+                  }
+                  const double slot = std::clamp(ar / maxR, 0.0, 1.0) * (kBoostTableSize - 1);
+                  const int i0 = static_cast<int>(slot);
+                  const int i1 = std::min(kBoostTableSize - 1, i0 + 1);
+                  const double frac = slot - i0;
+                  const double srcR = boostRadius[i0] * (1.0 - frac) + boostRadius[i1] * frac;
+                  sxf = cx + ax / ar * srcR;
+                  syf = cy + ay / ar * srcR;
+                  break;
+                }
+                case CueEffectKind::Ripple: {
+                  const double dx = x - cx;
+                  const double dy = y - cy;
+                  const double r = std::sqrt(dx * dx + dy * dy);
+                  const double wave = std::sin(r * 0.06 - t * 3.0) * amt * 24.0;
+                  const double inv = r > 0.001 ? 1.0 / r : 0.0;
+                  sxf = x + dx * inv * wave;
+                  syf = y + dy * inv * wave;
+                  break;
+                }
+                default: {   // Kaleidoscope
+                  // Fold the frame into wedges about its centre. paramA picks how
+                  // many, because two is a mirror and twelve is a snowflake and
+                  // they are completely different pictures.
+                  const int wedges = 2 + static_cast<int>(std::clamp(
+                    static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0);
+                  const double nx = x - cx;
+                  const double ny = y - cy;
+                  const double r = std::sqrt(nx * nx + ny * ny);
+                  const double seg = 6.283185307179586 / wedges;
+                  double a = std::atan2(ny, nx);
+                  a = std::fabs(std::fmod(a + seg * 0.5, seg) - seg * 0.5);
+                  const double fx2 = cx + std::cos(a) * r;
+                  const double fy2 = cy + std::sin(a) * r;
+                  sxf = x * (1.0 - amt) + fx2 * amt;
+                  syf = y * (1.0 - amt) + fy2 * amt;
+                  break;
+                }
               }
-              case CueEffectKind::Ripple: {
-                const double dx = x - cx;
-                const double dy = y - cy;
-                const double r = std::sqrt(dx * dx + dy * dy);
-                const double wave = std::sin(r * 0.06 - t * 3.0) * amt * 24.0;
-                const double inv = r > 0.001 ? 1.0 / r : 0.0;
-                sxf = x + dx * inv * wave;
-                syf = y + dy * inv * wave;
-                break;
+              const int sx = std::clamp(static_cast<int>(std::lround(sxf)), 0, ctx.width - 1);
+              const int sy = std::clamp(static_cast<int>(std::lround(syf)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+              if (fx.kind == CueEffectKind::Relativistic && dopplerAmt > 0.0005) {
+                // The other half of the physics: light from ahead arrives
+                // blueshifted and brighter, light from the sides redshifted and
+                // dimmer. Without it the warp reads as a lens; with it, as speed.
+                const double bx = x - cx;
+                const double by = y - cy;
+                const double br = std::clamp(
+                  std::sqrt(bx * bx + by * by) / std::max(1.0, maxR), 0.0, 1.0);
+                // Already squashed through tanh when the table was built, so a
+                // high beta tints the picture instead of clipping it to blue.
+                const double shift =
+                  boostGain[static_cast<int>(br * (kBoostTableSize - 1))];
+                const double gain = 1.0 + shift * 0.6;      // the headlight effect
+                dp[0] = detail::clamp8(sp[0] * gain * (1.0 - shift * 0.55));   // R
+                dp[1] = detail::clamp8(sp[1] * gain);                          // G
+                dp[2] = detail::clamp8(sp[2] * gain * (1.0 + shift * 0.55));   // B
+              } else {
+                dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
               }
-              default: {   // Kaleidoscope
-                // Fold the frame into wedges about its centre. paramA picks how
-                // many, because two is a mirror and twelve is a snowflake and
-                // they are completely different pictures.
-                const int wedges = 2 + static_cast<int>(std::clamp(
-                  static_cast<double>(fx.paramA), 0.0, 1.0) * 10.0);
-                const double nx = x - cx;
-                const double ny = y - cy;
-                const double r = std::sqrt(nx * nx + ny * ny);
-                const double seg = 6.283185307179586 / wedges;
-                double a = std::atan2(ny, nx);
-                a = std::fabs(std::fmod(a + seg * 0.5, seg) - seg * 0.5);
-                const double fx2 = cx + std::cos(a) * r;
-                const double fy2 = cy + std::sin(a) * r;
-                sxf = x * (1.0 - amt) + fx2 * amt;
-                syf = y * (1.0 - amt) + fy2 * amt;
-                break;
-              }
-            }
-            const int sx = std::clamp(static_cast<int>(std::lround(sxf)), 0, ctx.width - 1);
-            const int sy = std::clamp(static_cast<int>(std::lround(syf)), 0, ctx.height - 1);
-            const std::uint8_t* sp =
-              source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
-            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
-            if (fx.kind == CueEffectKind::Relativistic && dopplerAmt > 0.0005) {
-              // The other half of the physics: light from ahead arrives
-              // blueshifted and brighter, light from the sides redshifted and
-              // dimmer. Without it the warp reads as a lens; with it, as speed.
-              const double bx = x - cx;
-              const double by = y - cy;
-              const double br = std::clamp(
-                std::sqrt(bx * bx + by * by) / std::max(1.0, maxR), 0.0, 1.0);
-              // Already squashed through tanh when the table was built, so a
-              // high beta tints the picture instead of clipping it to blue.
-              const double shift =
-                boostGain[static_cast<int>(br * (kBoostTableSize - 1))];
-              const double gain = 1.0 + shift * 0.6;      // the headlight effect
-              dp[0] = detail::clamp8(sp[0] * gain * (1.0 - shift * 0.55));   // R
-              dp[1] = detail::clamp8(sp[1] * gain);                          // G
-              dp[2] = detail::clamp8(sp[2] * gain * (1.0 + shift * 0.55));   // B
-            } else {
-              dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
             }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::DyeAdvect: {
@@ -811,6 +1033,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // the strength and neither control would mean anything on its own.
         const double travel = amt * std::max(ctx.width, ctx.height) * 0.09;
         const double stepLen = travel / steps;
+        // Fold the step length into the field once rather than multiplying by
+        // it inside the walk. The walk runs `steps` times per pixel -- twenty
+        // million multiplies on a 1080p frame at the default detail -- and the
+        // product is the same every time.
+        for (std::size_t i = 0; i < vx.size(); ++i) {
+          vx[i] = static_cast<float>(vx[i] * stepLen);
+          vy[i] = static_cast<float>(vy[i] * stepLen);
+        }
         std::vector<std::uint8_t> source(pixels.begin(),
                                          pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
         // Scale factors, not divisions. The inner loop runs once per step per
@@ -818,26 +1048,29 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // and two integer divides in there were most of the cost.
         const double gxScale = static_cast<double>(gw) / ctx.width;
         const double gyScale = static_cast<double>(gh) / ctx.height;
-        for (int y = 0; y < ctx.height; ++y) {
-          std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            double px = x;
-            double py = y;
-            for (int step = 0; step < steps; ++step) {
-              const int gx = std::clamp(static_cast<int>(px * gxScale), 0, gw - 1);
-              const int gy = std::clamp(static_cast<int>(py * gyScale), 0, gh - 1);
-              const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
-              px -= vx[i] * stepLen;
-              py -= vy[i] * stepLen;
+        // Split across cores: every pixel reads the untouched source copy.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              double px = x;
+              double py = y;
+              for (int step = 0; step < steps; ++step) {
+                const int gx = std::clamp(static_cast<int>(px * gxScale), 0, gw - 1);
+                const int gy = std::clamp(static_cast<int>(py * gyScale), 0, gh - 1);
+                const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+                px -= vx[i];
+                py -= vy[i];
+              }
+              const int sx = std::clamp(static_cast<int>(std::lround(px)), 0, ctx.width - 1);
+              const int sy = std::clamp(static_cast<int>(std::lround(py)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+              dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
             }
-            const int sx = std::clamp(static_cast<int>(std::lround(px)), 0, ctx.width - 1);
-            const int sy = std::clamp(static_cast<int>(std::lround(py)), 0, ctx.height - 1);
-            const std::uint8_t* sp =
-              source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
-            std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
-            dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2];
           }
-        }
+        });
         break;
       }
       case CueEffectKind::ReactionBloom: {
@@ -935,38 +1168,50 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const int iters = 60 + static_cast<int>(
           std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 440.0);
         std::vector<float> un(cells), vn(cells);
-        for (int it = 0; it < iters; ++it) {
-          for (int gy = 0; gy < gh; ++gy) {
+        // Hundreds of small DEPENDENT steps, so the threads are created once
+        // and parked on a barrier between them. Handing the work out per step
+        // instead -- which is what suits a single pass over a frame -- made
+        // this 1.8x SLOWER than one core, measured.
+        //
+        // Row pointers, too: recomputing gy*gw+gx nine times a cell was most
+        // of what was left after the threading.
+        detail::iteratedBands(iters, gh, 24,
+          [&](int, int firstRow, int lastRow) {
+          for (int gy = firstRow; gy < lastRow; ++gy) {
             const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+            const float* uMid = u.data() + static_cast<std::size_t>(gy) * gw;
+            const float* uUp  = u.data() + static_cast<std::size_t>(ym) * gw;
+            const float* uDn  = u.data() + static_cast<std::size_t>(yp) * gw;
+            const float* vMid = v.data() + static_cast<std::size_t>(gy) * gw;
+            const float* vUp  = v.data() + static_cast<std::size_t>(ym) * gw;
+            const float* vDn  = v.data() + static_cast<std::size_t>(yp) * gw;
+            float* uOut = un.data() + static_cast<std::size_t>(gy) * gw;
+            float* vOut = vn.data() + static_cast<std::size_t>(gy) * gw;
             for (int gx = 0; gx < gw; ++gx) {
-              const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
-              const std::size_t i  = static_cast<std::size_t>(gy) * gw + gx;
-              const std::size_t l  = static_cast<std::size_t>(gy) * gw + xm;
-              const std::size_t r  = static_cast<std::size_t>(gy) * gw + xp;
-              const std::size_t up = static_cast<std::size_t>(ym) * gw + gx;
-              const std::size_t dn = static_cast<std::size_t>(yp) * gw + gx;
-              const std::size_t ul = static_cast<std::size_t>(ym) * gw + xm;
-              const std::size_t ur = static_cast<std::size_t>(ym) * gw + xp;
-              const std::size_t dl = static_cast<std::size_t>(yp) * gw + xm;
-              const std::size_t dr = static_cast<std::size_t>(yp) * gw + xp;
-              const float lapU = (u[l] + u[r] + u[up] + u[dn]) * 0.2f +
-                                 (u[ul] + u[ur] + u[dl] + u[dr]) * 0.05f - u[i];
-              const float lapV = (v[l] + v[r] + v[up] + v[dn]) * 0.2f +
-                                 (v[ul] + v[ur] + v[dl] + v[dr]) * 0.05f - v[i];
-              const float uvv = u[i] * v[i] * v[i];
-              un[i] = std::clamp(u[i] + (1.0f * lapU - uvv + feed * (1.0f - u[i])),
-                                 0.0f, 1.0f);
-              const float nv = v[i] + (0.5f * lapV + uvv - (feed + kill) * v[i]);
+              const int xm = gx > 0 ? gx - 1 : 0;
+              const int xp = gx + 1 < gw ? gx + 1 : gw - 1;
+              const float lapU = (uMid[xm] + uMid[xp] + uUp[gx] + uDn[gx]) * 0.2f +
+                                 (uUp[xm] + uUp[xp] + uDn[xm] + uDn[xp]) * 0.05f - uMid[gx];
+              const float lapV = (vMid[xm] + vMid[xp] + vUp[gx] + vDn[gx]) * 0.2f +
+                                 (vUp[xm] + vUp[xp] + vDn[xm] + vDn[xp]) * 0.05f - vMid[gx];
+              const float uvv = uMid[gx] * vMid[gx] * vMid[gx];
+              uOut[gx] = std::clamp(
+                uMid[gx] + (1.0f * lapU - uvv + feed * (1.0f - uMid[gx])), 0.0f, 1.0f);
+              const float nv = vMid[gx] + (0.5f * lapV + uvv - (feed + kill) * vMid[gx]);
               // Flushed rather than merely clamped: a value decaying toward
               // zero goes denormal and denormal arithmetic costs an order of
               // magnitude, which showed up as the effect getting slower the
               // less it had to say.
-              vn[i] = nv < 1e-7f ? 0.0f : std::clamp(nv, 0.0f, 1.0f);
+              vOut[gx] = nv < 1e-7f ? 0.0f : std::clamp(nv, 0.0f, 1.0f);
             }
           }
-          u.swap(un);
-          v.swap(vn);
-        }
+          },
+          [&](int) {
+            // Between steps, with every band stopped: the swap is the one
+            // moment the grid is not safe to read.
+            u.swap(un);
+            v.swap(vn);
+          });
         // V is where the reaction ran, and that is what gets drawn: the picture
         // folds through its own negative wherever the growth reached, so the
         // veins read as light coming THROUGH the image rather than paint on it.
@@ -974,33 +1219,36 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // of the raster, and reading it nearest-neighbour drew the pattern as
         // visible rectangles -- the growth is organic and it should not arrive
         // looking like a spreadsheet.
-        for (int y = 0; y < ctx.height; ++y) {
-          const double fy = std::clamp((y + 0.5) * gh / ctx.height - 0.5, 0.0, gh - 1.0);
-          const int gy0 = static_cast<int>(fy);
-          const int gy1 = std::min(gh - 1, gy0 + 1);
-          const double wy = fy - gy0;
-          std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
-          for (int x = 0; x < ctx.width; ++x) {
-            const double fxs = std::clamp((x + 0.5) * gw / ctx.width - 0.5, 0.0, gw - 1.0);
-            const int gx0 = static_cast<int>(fxs);
-            const int gx1 = std::min(gw - 1, gx0 + 1);
-            const double wx = fxs - gx0;
-            const double top =
-              v[static_cast<std::size_t>(gy0) * gw + gx0] * (1.0 - wx) +
-              v[static_cast<std::size_t>(gy0) * gw + gx1] * wx;
-            const double bot =
-              v[static_cast<std::size_t>(gy1) * gw + gx0] * (1.0 - wx) +
-              v[static_cast<std::size_t>(gy1) * gw + gx1] * wx;
-            const double grown =
-              std::clamp((top * (1.0 - wy) + bot * wy) * 3.2, 0.0, 1.0);
-            if (grown <= 0.002) continue;
-            const double mix = grown * amt;
-            std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-            for (int c = 0; c < 3; ++c) {
-              p[c] = detail::clamp8(p[c] * (1.0 - mix) + (255 - p[c]) * mix);
+        // Split across cores: the reaction grid is read-only here.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double fy = std::clamp((y + 0.5) * gh / ctx.height - 0.5, 0.0, gh - 1.0);
+            const int gy0 = static_cast<int>(fy);
+            const int gy1 = std::min(gh - 1, gy0 + 1);
+            const double wy = fy - gy0;
+            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double fxs = std::clamp((x + 0.5) * gw / ctx.width - 0.5, 0.0, gw - 1.0);
+              const int gx0 = static_cast<int>(fxs);
+              const int gx1 = std::min(gw - 1, gx0 + 1);
+              const double wx = fxs - gx0;
+              const double top =
+                v[static_cast<std::size_t>(gy0) * gw + gx0] * (1.0 - wx) +
+                v[static_cast<std::size_t>(gy0) * gw + gx1] * wx;
+              const double bot =
+                v[static_cast<std::size_t>(gy1) * gw + gx0] * (1.0 - wx) +
+                v[static_cast<std::size_t>(gy1) * gw + gx1] * wx;
+              const double grown =
+                std::clamp((top * (1.0 - wy) + bot * wy) * 3.2, 0.0, 1.0);
+              if (grown <= 0.002) continue;
+              const double mix = grown * amt;
+              std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                p[c] = detail::clamp8(p[c] * (1.0 - mix) + (255 - p[c]) * mix);
+              }
             }
           }
-        }
+        });
         break;
       }
       case CueEffectKind::Datamosh:
@@ -1015,6 +1263,27 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         break;
     }
   }
+}
+
+// Does this effect need a driver clip to do anything?
+//
+// Only motion puppet, today. Asked as a question about the KIND rather than
+// tested against it at the call sites, so a second driver-fed effect cannot be
+// added without this answering for it too.
+inline bool cueEffectNeedsDriver(CueEffectKind kind) {
+  return kind == CueEffectKind::MotionPuppet;
+}
+
+// A BYPASSED puppet still counts. Bypass is a temporary "not right now" and
+// throwing the operator's driver away because they muted an effect for a
+// moment would be losing their work to a toggle.
+inline bool cueEffectStackNeedsDriver(const std::vector<CueEffect>& stack) {
+  for (const CueEffect& fx : stack) {
+    if (cueEffectNeedsDriver(fx.kind)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 inline bool cueEffectStackActive(const std::vector<CueEffect>& stack) {

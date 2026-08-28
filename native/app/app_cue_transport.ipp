@@ -835,6 +835,11 @@
       if (!effectChainClipboardDriver_.empty()) {
         target.motionDriverPath = effectChainClipboardDriver_;
       }
+      // And a chain with no puppet in it leaves no driver behind on the cue
+      // it landed on, the same as removing the last puppet by hand.
+      if (!deckboy::effects::cueEffectStackNeedsDriver(target.effects)) {
+        target.motionDriverPath.clear();
+      }
       ++applied;
     }
     if (applied <= 0) {

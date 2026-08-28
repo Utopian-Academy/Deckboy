@@ -1330,6 +1330,87 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runEffectBench — `--effect-bench <token[:amount[:a[:b]]]> [WxH] [frames]`
+  //
+  // What one effect costs per frame at a given raster, and what fraction of a
+  // 60fps budget that is.
+  //
+  // --effect-dump reports the time for a single application, which is enough to
+  // notice something pathological and useless for judging an optimisation: one
+  // run on a cold cache with the frame index fixed is mostly noise. This runs
+  // the effect repeatedly on the same buffer with an advancing frame index, so
+  // the time-varying effects do their real work, and reports the median rather
+  // than the mean so one scheduling hiccup cannot flatter or damn a change.
+  // ---------------------------------------------------------------------------
+  static int runEffectBench(const std::string& spec, int w, int h, int frames) {
+    std::vector<std::string> parts;
+    std::size_t start = 0;
+    for (;;) {
+      const std::size_t colon = spec.find(':', start);
+      parts.push_back(spec.substr(start, colon == std::string::npos
+                                           ? std::string::npos : colon - start));
+      if (colon == std::string::npos) break;
+      start = colon + 1;
+    }
+    deckboy::effects::CueEffect fx;
+    fx.kind = deckboy::effects::cueEffectFromToken(parts[0]);
+    if (fx.kind == deckboy::effects::CueEffectKind::None) {
+      std::cerr << "effect-bench: unknown effect '" << parts[0] << "'\n";
+      return 2;
+    }
+    if (parts.size() > 1) fx.amount = static_cast<float>(std::atof(parts[1].c_str()));
+    if (parts.size() > 2) fx.paramA = static_cast<float>(std::atof(parts[2].c_str()));
+    if (parts.size() > 3) fx.paramB = static_cast<float>(std::atof(parts[3].c_str()));
+
+    const std::size_t count = static_cast<std::size_t>(w) * h;
+    // A deterministic picture with real structure in it. A flat fill would let
+    // anything with a branch on content look faster than it is, and pixel sort
+    // in particular is only honest on something with detail to sort.
+    std::vector<std::uint8_t> pristine(count * 4, 255);
+    for (int y = 0; y < h; ++y) {
+      for (int x = 0; x < w; ++x) {
+        std::uint32_t n = static_cast<std::uint32_t>(x * 374761393 + y * 668265263);
+        n = (n ^ (n >> 13)) * 1274126177u;
+        std::uint8_t* p = pristine.data() + (static_cast<std::size_t>(y) * w + x) * 4;
+        p[0] = static_cast<std::uint8_t>((x * 255 / std::max(1, w - 1)) ^ (n >> 24));
+        p[1] = static_cast<std::uint8_t>(y * 255 / std::max(1, h - 1));
+        p[2] = static_cast<std::uint8_t>((n >> 16) & 0xFF);
+      }
+    }
+
+    std::vector<std::uint8_t> pixels;
+    std::vector<double> samples;
+    samples.reserve(static_cast<std::size_t>(frames));
+    for (int i = 0; i < frames; ++i) {
+      // Restored every pass. Effects are destructive, and letting one chew on
+      // its own output measures something that never happens in a show.
+      pixels = pristine;
+      deckboy::effects::CueEffectContext ctx;
+      ctx.width = w;
+      ctx.height = h;
+      ctx.frameIndex = static_cast<std::uint64_t>(i);
+      const auto began = std::chrono::steady_clock::now();
+      deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
+      samples.push_back(std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - began).count());
+    }
+    if (samples.empty()) {
+      std::cerr << "effect-bench: no frames\n";
+      return 1;
+    }
+    std::sort(samples.begin(), samples.end());
+    const double median = samples[samples.size() / 2];
+    const double best = samples.front();
+    std::cout << "effect-bench: " << deckboy::effects::cueEffectToken(fx.kind)
+              << ' ' << w << 'x' << h
+              << "  median " << median << "ms"
+              << "  best " << best << "ms"
+              << "  " << (median > 0.0 ? 1000.0 / median : 0.0) << "fps-if-alone"
+              << "  " << (median / 16.667 * 100.0) << "% of a 60fps frame\n";
+    return 0;
+  }
+
+  // ---------------------------------------------------------------------------
   // runPatternBench — `--pattern-bench <pattern-id> [WxH] [frames]`
   //
   // Times buildPatternFrame in isolation: no window, no texture upload, no file

@@ -100,6 +100,29 @@ decoder frame is raw. When the fallback uploaded it untouched, effects appeared
 only once an output was armed. `tools/check_preview_effects.py` guards this: it
 never arms an output.
 
+## Writing an effect (`native/core/cue_effects.hpp`)
+
+Three rules, all of them learned by measuring:
+
+- **If the output channel depends only on the input channel, build a 256-entry
+  table** (`detail::buildChannelLut` + `applyChannelLut`). Build it with the same
+  expression the per-pixel code used and the result is byte-identical. This is
+  worth 10-66x.
+- **Wrap the row loop in `detail::parallelRows`** unless the rows genuinely are
+  not independent (block glitch is the only one: it shifts overlapping random
+  bands in RNG order). Any per-row scratch buffer must move INSIDE the band --
+  a shared one is a race.
+- **Match the threading to the shape of the work.** `parallelRows` creates its
+  threads per call, which suits one pass over a frame. For many small DEPENDENT
+  steps use `detail::iteratedBands`, which creates them once and parks them on a
+  barrier: reaction-diffusion with per-step dispatch was 1.8x SLOWER than a
+  single core.
+
+Verify with `tools/check_effects_offline.py` (seconds, exactly repeatable, and
+`--sheet` writes a contact sheet) and `--effect-bench`. To prove an optimisation
+changed nothing, compile the old header into a second binary and compare the
+rendered frames byte for byte -- `--effect-dump` exists for that.
+
 ---
 
 ## Settings Action Constants
