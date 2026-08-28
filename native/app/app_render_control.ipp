@@ -999,9 +999,7 @@
     SDL_Rect colHeader {col.x, col.y, col.w, kPlaylistHeaderH};
     drawUIPanel(colHeader, pal.dark,
                 pal.deep, pal.mid);
-    drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
-                 {colHeader.x + 8, colHeader.y + 6, colHeader.w - 16, 20},
-                 playlistColumnTitle(deckIndex), pal.light);
+    drawPanelHeaderTitle(colHeader, playlistColumnTitle(deckIndex));
     // "Jump to live cue" button — snaps the (possibly huge) list back to the
     // cue that's playing. Only for the focused deck's column (the one the
     // keyboard acts on). Sized to its label so the text never ellipsizes
