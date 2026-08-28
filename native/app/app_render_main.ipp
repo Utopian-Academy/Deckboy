@@ -212,6 +212,158 @@
     int innerY = programBody.y;
     int innerW = std::max(0, programBody.w);
     int innerH = std::max(0, programBody.h);
+    // ── THE VJ BAR ──────────────────────────────────────────────────────────
+    //
+    // A band that exists ONLY in VJ mode, across the whole width of the
+    // program column, in a colour nothing else in the UI uses.
+    //
+    // That is deliberate and it is the point. VJ mode changes what a take
+    // means and puts a second deck live, and an operator who wandered into it
+    // without noticing would be running a show where the fader, not the take,
+    // decides what the audience sees. A mode you can enter without noticing is
+    // a mode that ruins a show, so this is impossible to miss and it carries
+    // the controls rather than just announcing itself.
+    if (project_.vjModeEnabled) {
+      const int barH = std::min(76, std::max(56, innerH / 9));
+      // The bar DROPS IN rather than appearing. A third of a second of eased
+      // travel is enough for the eye to register that the room changed, which
+      // a hard cut does not give you -- and the layout below settles into its
+      // new size with it instead of jumping.
+      const double sinceReveal =
+        (animationNow_ - vjBarRevealAt_) / 340.0;
+      const double reveal = sinceReveal >= 1.0 ? 1.0
+        : (sinceReveal <= 0.0 ? 0.0
+           : 1.0 - std::pow(1.0 - sinceReveal, 3.0));   // ease-out cubic
+      const int shownH = static_cast<int>(std::lround(barH * reveal));
+      SDL_Rect vjBar {innerX, innerY + shownH - barH, innerW, barH};
+      innerY += shownH + 8;
+      innerH = std::max(0, innerH - shownH - 8);
+      // Clipped while it travels, so it slides out from under the top bar
+      // instead of overlapping what is above it.
+      const bool hadBarClip = SDL_RenderClipEnabled(controlRenderer_);
+      SDL_Rect prevBarClip {};
+      if (hadBarClip) SDL_GetRenderClipRect(controlRenderer_, &prevBarClip);
+      SDL_Rect barClip {innerX, vjBar.y + (barH - shownH), innerW, shownH};
+      if (reveal < 1.0) {
+        SDL_SetRenderClipRect(controlRenderer_, &barClip);
+      }
+
+      // Accent. Warm against a UI that is otherwise its theme's own colour, so
+      // peripheral vision catches it even when the operator is reading a cue
+      // list.
+      const SDL_Color vjInk {255, 232, 120, 255};
+      const SDL_Color vjEdge {255, 176, 32, 255};
+      drawUIPanel(vjBar, pal.deep, vjEdge, vjEdge);
+
+      int cx = vjBar.x + 8;
+      const int rowY = vjBar.y + 6;
+      const int rowH = vjBar.h - 12;
+
+      // The badge, first and largest.
+      // The badge BREATHES ON THE BEAT -- a squash that decays across the beat
+      // rather than a blink, so it reads as a pulse the eye can follow and the
+      // operator can see the tempo the app is holding without looking at the
+      // number. Information, not decoration.
+      const double beat = vjBeatPhase();
+      const double punch = std::pow(1.0 - beat, 4.0);        // sharp on, soft off
+      const int squash = static_cast<int>(std::lround(punch * 4.0));
+      SDL_Rect badge {cx, rowY + squash, 92, std::max(8, rowH - squash * 2)};
+      Primitives::fillRect(controlRenderer_, badge, vjEdge);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, badge, "VJ MODE", pal.deep);
+      cx += 92 + 10;
+
+      // Which decks are on the fader, named, because "A" and "B" mean nothing
+      // if you cannot see which playlist each one is.
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int deckA = std::clamp(project_.vjDeckA, 0, std::max(0, deckCount - 1));
+      const int deckB = std::clamp(project_.vjDeckB, 0, std::max(0, deckCount - 1));
+      SDL_Rect aLbl {cx, rowY, 74, rowH};
+      drawUIPanel(aLbl, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, aLbl,
+                           "A: " + std::to_string(deckA + 1), vjInk);
+      cx += aLbl.w + 6;
+
+      // The crossfader. Sized to take whatever is left after the fixed
+      // controls, because it is the control the hands live on.
+      const int tapW = 66, bpmW = 92, blendW = 96, bLblW = 74;
+      const int tail = bLblW + 6 + blendW + 6 + tapW + 6 + bpmW + 8;
+      const int faderW = std::max(120, vjBar.x + vjBar.w - cx - tail);
+      vjCrossfaderRect_ = SDL_Rect {cx, rowY, faderW, rowH};
+      drawUIPanel(vjCrossfaderRect_, pal.tile, pal.deep, pal.mid);
+      {
+        const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
+        // Fill from the left so the bar reads as "how much B", and a handle so
+        // the exact position is visible at a glance from across a room.
+        SDL_Rect fill {vjCrossfaderRect_.x + 2, vjCrossfaderRect_.y + 2,
+                       std::max(0, static_cast<int>((vjCrossfaderRect_.w - 4) * mix)),
+                       vjCrossfaderRect_.h - 4};
+        Primitives::fillRect(controlRenderer_, fill, vjEdge);
+        const int handleX = vjCrossfaderRect_.x + 2 +
+          static_cast<int>((vjCrossfaderRect_.w - 4 - 6) * mix);
+        // The handle LEANS the way it is travelling and settles back when it
+        // stops -- the same trick as the mascot's drift, and it makes a slow
+        // crossfade look like a hand moving rather than a value updating.
+        const double travel = std::clamp((mix - vjMixShown_) * 26.0, -5.0, 5.0);
+        vjMixShown_ += (mix - vjMixShown_) * 0.25;
+        const int lean = static_cast<int>(std::lround(travel));
+        SDL_Rect handle {handleX + lean, vjCrossfaderRect_.y, 6, vjCrossfaderRect_.h};
+        Primitives::fillRect(controlRenderer_, handle, vjInk);
+        // A wake behind it while it moves, which fades as it settles.
+        if (std::abs(lean) > 0) {
+          SDL_Rect wake {lean > 0 ? handleX : handleX + lean, vjCrossfaderRect_.y + 2,
+                         std::abs(lean) + 6, vjCrossfaderRect_.h - 4};
+          SDL_Color wakeInk = vjInk;
+          wakeInk.a = static_cast<Uint8>(std::min(160, std::abs(lean) * 28));
+          Primitives::fillRect(controlRenderer_, wake, wakeInk);
+        }
+        std::ostringstream pos;
+        pos << std::fixed << std::setprecision(2) << mix;
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, vjCrossfaderRect_, pos.str(),
+                             mix > 0.5 ? pal.deep : vjInk);
+      }
+      cx += faderW + 6;
+
+      SDL_Rect bLbl {cx, rowY, bLblW, rowH};
+      drawUIPanel(bLbl, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, bLbl,
+                           "B: " + std::to_string(deckB + 1), vjInk);
+      cx += bLblW + 6;
+
+      SDL_Rect blendBtn {cx, rowY, blendW, rowH};
+      drawUIPanel(blendBtn, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, blendBtn,
+                           project_.vjBlendMode, vjInk);
+      quickButtons_.push_back({blendBtn, QuickAction::VjCycleBlend,
+                               "How the two decks combine: dissolve, add, multiply"});
+      cx += blendW + 6;
+
+      // TAP flashes on the beat, which is the only way to know at a glance
+      // whether the tempo it is holding is the one in the room.
+      SDL_Rect tapBtn {cx, rowY, tapW, rowH};
+      const bool onBeat = vjBeatPhase() < 0.18;
+      drawUIPanel(tapBtn, onBeat ? vjEdge : pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, tapBtn, "TAP",
+                           onBeat ? pal.deep : vjInk);
+      quickButtons_.push_back({tapBtn, QuickAction::VjTapTempo,
+                               "Tap the beat four times or more to set the tempo"});
+      cx += tapW + 6;
+
+      SDL_Rect bpmBox {cx, rowY, bpmW, rowH};
+      drawUIPanel(bpmBox, pal.tile, pal.deep, pal.mid);
+      std::ostringstream bpm;
+      bpm << std::fixed << std::setprecision(1) << project_.vjTempoBpm << " BPM";
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, bpmBox, bpm.str(),
+                           project_.vjQuantiseTakes ? vjEdge : vjInk);
+      quickButtons_.push_back({bpmBox, QuickAction::VjToggleQuantise,
+                               "Hold takes until the next beat, so what you do "
+                               "lands ON the music"});
+      if (reveal < 1.0) {
+        SDL_SetRenderClipRect(controlRenderer_, hadBarClip ? &prevBarClip : nullptr);
+      }
+    } else {
+      vjCrossfaderRect_ = SDL_Rect {0, 0, 0, 0};
+    }
+
     int x = innerX;
     int y = innerY;
     quickButtons_.clear();

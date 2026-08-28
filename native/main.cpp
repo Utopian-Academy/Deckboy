@@ -8003,6 +8003,15 @@ class App {
 
   // Master fader
   SDL_Rect masterFaderRect_ {};
+  // The VJ crossfader: a drag rect like the master fader, because where along
+  // it you press IS the value.
+  SDL_Rect vjCrossfaderRect_ {};
+  bool vjCrossfaderDragActive_ = false;
+  // Smoothed position, for the handle's lean. The real value snaps; this is
+  // what chases it.
+  double vjMixShown_ = 0.0;
+  // When the bar started dropping in, so the reveal can be eased.
+  double vjBarRevealAt_ = 0.0;
 
   // HyperDeck server
   int hyperDeckPort_ = 9992;

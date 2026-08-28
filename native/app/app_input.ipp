@@ -669,6 +669,15 @@
       }
     }
 
+    // The crossfader, before the quick buttons: where along it you press IS
+    // the value, which a quick button cannot express.
+    if (project_.vjModeEnabled && vjCrossfaderRect_.w > 0 &&
+        pointInRect(x, y, vjCrossfaderRect_)) {
+      setVjMix(static_cast<double>(x - vjCrossfaderRect_.x) /
+               static_cast<double>(vjCrossfaderRect_.w));
+      vjCrossfaderDragActive_ = true;   // a fader, not a button
+      return;
+    }
     if (pointInRect(x, y, masterFaderRect_) && masterFaderRect_.w > 0) {
       double frac = static_cast<double>(x - masterFaderRect_.x) / static_cast<double>(masterFaderRect_.w);
       project_.masterVolume = std::clamp(frac * 2.0, 0.0, 2.0);
@@ -699,6 +708,11 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (vjCrossfaderDragActive_ && vjCrossfaderRect_.w > 0) {
+      setVjMix(static_cast<double>(x - vjCrossfaderRect_.x) /
+               static_cast<double>(vjCrossfaderRect_.w));
+      return;
+    }
     if (motionDriverScrubActive_ && motionDriverScrubRect_.w > 0 &&
         motionDriverScrubDuration_ > 0.0) {
       const double frac = std::clamp(

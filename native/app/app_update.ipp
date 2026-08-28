@@ -205,6 +205,7 @@
               drag_.cueIndex = -1;
               masterFaderDragActive_ = false;
               motionDriverScrubActive_ = false;
+              vjCrossfaderDragActive_ = false;
               trimDragMode_ = TrimDragMode::None;
               if (timelineScrubActive_ && scrubWasPlaying_) {
                 if (MediaEngine* engine = focusedMediaEngine()) {

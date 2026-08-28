@@ -1300,6 +1300,9 @@ enum class QuickAction {
   EffectParamDDec,
   EffectParamDInc,
   EffectParamDEdit,
+  VjCycleBlend,
+  VjTapTempo,
+  VjToggleQuantise,
   EffectChainCopy,
   EffectChainPaste,
   // -- Geometry: crop ------

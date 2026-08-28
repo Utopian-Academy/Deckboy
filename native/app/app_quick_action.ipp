@@ -52,6 +52,17 @@
       case QuickAction::EffectParamDDec:  effectStackNudgeParam(param, 3, -0.05f); return;
       case QuickAction::EffectParamDInc:  effectStackNudgeParam(param, 3, +0.05f); return;
       case QuickAction::EffectParamDEdit: effectStackEditParam(param, 3); return;
+      case QuickAction::VjCycleBlend:
+        setVjBlend(project_.vjBlendMode == "dissolve" ? "add"
+                   : project_.vjBlendMode == "add" ? "multiply" : "dissolve");
+        return;
+      case QuickAction::VjTapTempo:      tapVjTempo(); return;
+      case QuickAction::VjToggleQuantise:
+        project_.vjQuantiseTakes = !project_.vjQuantiseTakes;
+        triggerToast(project_.vjQuantiseTakes ? "takes land on the beat"
+                                              : "takes are immediate");
+        markProjectDirty();
+        return;
       case QuickAction::EffectChainCopy:  copySelectedEffectChain(); return;
       case QuickAction::EffectChainPaste: pasteSelectedEffectChain(); return;
       default: break;
