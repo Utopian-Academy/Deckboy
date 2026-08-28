@@ -97,6 +97,40 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### A code source you can write during a show
+
+A pattern type called **Code**: the picture is an expression, evaluated per
+pixel, edited while it runs.
+
+    sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r
+
+One expression, or three separated by commas for red, green and blue.
+Variables are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
+centre), `r` (radius), `a` (angle) and `t` (seconds), with `sin cos tan abs
+floor fract sqrt min max mod pow atan2 step clamp mix` to build from.
+
+**Why not GLSL.** Deckboy draws through SDL_Renderer, whose backend is D3D11,
+D3D12, Metal or OpenGL depending on the machine, and SDL's own shader path
+wants SPIR-V, DXIL or MSL -- already compiled. Accepting GLSL at runtime on
+every platform would mean bundling a shader compiler, tens of megabytes and a
+per-backend translation step, to run arithmetic that fits in a few hundred
+lines. So it is evaluated on the CPU, which is viable for the same reason the
+effect stack is: the frame splits across cores.
+
+The expression is compiled ONCE into a flat instruction list, cached against
+its own text, and the inner loop sees only the instructions -- never a syntax
+tree, which would spend its time chasing pointers instead of drawing.
+
+**A compile error does not black the output.** The cue keeps drawing what it
+last drew and the error appears in the inspector. Someone editing live is
+mid-keystroke most of the time, and a source that goes black on every
+half-typed function is unusable on a stage.
+
+The language has its own test suite, and it earned its keep immediately:
+multi-argument functions did not compile, unary minus bound so loosely that
+`-3+5` came out as -8, and `^` was left-associative. Division by zero, mod by
+zero and the square root of a negative are all bounded rather than producing
+infinities or NaN, because an operator typing at speed will produce all three.
 ### VJ mode
 
 A toggle. Off, Deckboy is a cue deck and every existing show renders exactly as
