@@ -2875,10 +2875,11 @@
     triggerToast("slides: rendering " + title + "...");
 
     std::thread([this, document, pagesDir, title]() {
-      // 2x the page's natural size. A slide is mostly type, and type is the
-      // first thing to fall apart when a still is scaled up to a 4K output;
-      // once the page is a PNG the detail cannot be recovered.
-      auto result = deckboy::platform::rasterisePdf(document, pagesDir, 2.0, nullptr);
+      // 3840 wide, whatever shape the page is. A slide is mostly type, type is
+      // the first thing to fall apart scaled up to a 4K output, and once the
+      // page is a PNG the detail cannot be recovered -- so it renders for the
+      // largest output this app supports rather than the one currently armed.
+      auto result = deckboy::platform::rasterisePdf(document, pagesDir, 3840, nullptr);
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
       sdlDialogActions_.emplace_back([this, result, title]() {
         if (!result.ok()) {

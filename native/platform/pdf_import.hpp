@@ -52,18 +52,25 @@ struct PdfRasterResult {
   bool ok() const { return error.empty() && !pagePaths.empty(); }
 };
 
-// Render every page of `pdfPath` into `outputDir` as PNG, at `scale` times the
-// page's natural size, and return the files in order.
+// Render every page of `pdfPath` into `outputDir` as PNG, each page scaled to
+// `targetWidthPixels` wide with its aspect kept, and return the files in order.
 //
-// `scale` is the only place the resolution is decided: once a page is a PNG the
-// detail is gone, so this renders generously rather than to the current output
-// size, which the operator may change after importing.
+// A TARGET WIDTH, not a scale factor. The three engines measure a page in three
+// different units -- WinRT reports device-independent pixels at 96dpi,
+// CoreGraphics reports PDF points at 72dpi, pdftoppm wants a dpi -- so the same
+// "2x" produced 1632px wide on Windows and 1224px on Linux for the same
+// document. A deck must not import at a different resolution depending on which
+// machine it was loaded on.
+//
+// This is the only place the resolution is decided. Once a page is a PNG the
+// detail is gone, so it renders for the largest output the app supports rather
+// than the one currently configured, which the operator may change afterwards.
 //
 // `onProgress(pageIndex, pageCount)` is called from THIS thread as it goes;
 // callers running it in the background must marshal anything it touches.
 PdfRasterResult rasterisePdf(const std::filesystem::path& pdfPath,
                              const std::filesystem::path& outputDir,
-                             double scale,
+                             int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress);
 
 // Whether this build can rasterise at all, and what to tell the operator when

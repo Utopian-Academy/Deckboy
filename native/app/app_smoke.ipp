@@ -1418,6 +1418,50 @@
   }
 
   // ---------------------------------------------------------------------------
+  // runPdfProbe — `--pdf-probe <file.pdf> [outdir] [scale]`
+  //
+  // Rasterise a document and report what came out, with no window.
+  //
+  // The import path itself needs a GUI and a drop, which makes the one thing
+  // worth checking on a headless box -- does THIS platform's PDF engine work at
+  // all -- the one thing that cannot be checked there. Each platform uses a
+  // different engine (Windows.Data.Pdf, CoreGraphics, pdftoppm), so "it worked
+  // on Windows" says nothing about the other two.
+  // ---------------------------------------------------------------------------
+  static int runPdfProbe(const std::string& file, const std::string& outDir,
+                         int targetWidth) {
+    std::string whyNot;
+    if (!deckboy::platform::pdfRasterAvailable(whyNot)) {
+      std::cout << "pdf-probe: unavailable -- " << whyNot << std::endl;
+      return 1;
+    }
+    const fs::path out = outDir.empty()
+      ? (fs::temp_directory_path() / "deckboy-pdf-probe") : fs::path(outDir);
+    const auto began = std::chrono::steady_clock::now();
+    auto result = deckboy::platform::rasterisePdf(file, out, targetWidth, nullptr);
+    const double ms = std::chrono::duration<double, std::milli>(
+      std::chrono::steady_clock::now() - began).count();
+    if (!result.ok()) {
+      std::cout << "pdf-probe: FAILED -- "
+                << (result.error.empty() ? "no pages" : result.error) << std::endl;
+      return 1;
+    }
+    std::cout << "pdf-probe: " << result.pagePaths.size() << " page(s) in "
+              << ms << "ms at " << targetWidth << "px wide -> " << out.string() << std::endl;
+    for (std::size_t i = 0; i < result.pagePaths.size() && i < 4; ++i) {
+      std::error_code ec;
+      const auto bytes = fs::file_size(result.pagePaths[i], ec);
+      std::cout << "  " << fs::path(result.pagePaths[i]).filename().string()
+                << "  " << (ec ? 0 : bytes) << " bytes" << std::endl;
+    }
+    if (result.pagePaths.size() > 4) {
+      std::cout << "  ... and " << (result.pagePaths.size() - 4) << " more"
+                << std::endl;
+    }
+    return 0;
+  }
+
+  // ---------------------------------------------------------------------------
   // runPatternBench — `--pattern-bench <pattern-id> [WxH] [frames]`
   //
   // Times buildPatternFrame in isolation: no window, no texture upload, no file

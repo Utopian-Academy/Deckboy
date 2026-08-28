@@ -2,10 +2,12 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <system_error>
 
 #ifdef _WIN32
+#include <windows.h>
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Storage.h>
@@ -31,6 +33,24 @@ std::string lowerExtension(const fs::path& path) {
   });
   return ext;
 }
+
+#ifdef _WIN32
+// The width of a PNG, straight out of its header. Big-endian at a fixed offset;
+// no decoder needed and none of the pixels are read.
+int pngWidth(const fs::path& path) {
+  std::FILE* file = nullptr;
+  if (_wfopen_s(&file, path.wstring().c_str(), L"rb") != 0 || !file) {
+    return 0;
+  }
+  unsigned char header[24] = {};
+  const std::size_t got = std::fread(header, 1, sizeof(header), file);
+  std::fclose(file);
+  if (got < sizeof(header)) {
+    return 0;
+  }
+  return (header[16] << 24) | (header[17] << 16) | (header[18] << 8) | header[19];
+}
+#endif
 
 // Zero-padded, so a hundred-page deck sorts correctly in a folder listing and
 // in any tool the operator opens it with. "page9" before "page10" is the kind
@@ -64,7 +84,7 @@ bool pdfRasterAvailable(std::string& whyNot) {
 }
 
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
-                             double scale,
+                             int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress) {
   PdfRasterResult result;
   std::error_code ec;
@@ -88,17 +108,36 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
       result.error = "the document has no pages";
       return result;
     }
-    for (uint32_t i = 0; i < pageCount; ++i) {
+    // MEASURE WHAT COMES OUT, then correct, rather than predicting it.
+    //
+    // Windows.Data.Pdf renders in DEVICE pixels: on a display at 140% every
+    // page asked for at 3840 wide arrived at 5376, and the system DPI cannot
+    // be read back reliably from a process that is not DPI-aware -- it answers
+    // 96 and means it. So the first page is rendered, its width read from the
+    // PNG header, and the request corrected by whatever factor the machine
+    // actually applied. That fixes any systematic scaling, not only this one,
+    // and it costs one extra render of one page.
+    //
+    // It matters because otherwise a deck imports at a different resolution
+    // depending on the scaling of the monitor the operator happened to be
+    // sitting at, which is invisible until it is a show.
+    double widthCorrection = 1.0;
+    for (int attempt = 0; attempt < 2; ++attempt) {
+      for (uint32_t i = 0; i < pageCount; ++i) {
       if (onProgress) {
         onProgress(static_cast<int>(i), static_cast<int>(pageCount));
       }
       auto page = doc.GetPage(i);
       const auto size = page.Size();
       winrt::Windows::Data::Pdf::PdfPageRenderOptions options;
-      options.DestinationWidth(
-        static_cast<uint32_t>(std::max(1.0, size.Width * scale)));
+      // Rounded, not truncated: the correction is fractional, and truncating
+      // the request landed the output a pixel short of the other platforms.
+      const double askWidth = std::max(
+        1.0, static_cast<double>(std::lround(targetWidthPixels * widthCorrection)));
+      const double pageScale = size.Width > 0.0f ? askWidth / size.Width : 1.0;
+      options.DestinationWidth(static_cast<uint32_t>(askWidth));
       options.DestinationHeight(
-        static_cast<uint32_t>(std::max(1.0, size.Height * scale)));
+        static_cast<uint32_t>(std::max(1.0, size.Height * pageScale)));
 
       const std::string name = pageFileName(static_cast<int>(i));
       auto target = folder.CreateFileAsync(
@@ -109,6 +148,21 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
       page.RenderToStreamAsync(stream, options).get();
       stream.Close();
       result.pagePaths.push_back((outputDir / name).string());
+
+      // First page of the first pass: find out what the machine actually did.
+      if (attempt == 0 && i == 0) {
+        const int actual = pngWidth(outputDir / name);
+        if (actual > 0 && std::abs(actual - targetWidthPixels) > 1) {
+          widthCorrection =
+            static_cast<double>(targetWidthPixels) / static_cast<double>(actual);
+          result.pagePaths.clear();
+          break;            // start again, now that the factor is known
+        }
+      }
+      }
+      if (widthCorrection == 1.0 || attempt == 1) {
+        break;              // nothing to correct, or already corrected
+      }
     }
   } catch (winrt::hresult_error const& e) {
     char message[256];
@@ -131,7 +185,7 @@ bool pdfRasterAvailable(std::string& whyNot) {
 }
 
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
-                             double scale,
+                             int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress) {
   PdfRasterResult result;
   std::error_code ec;
@@ -166,7 +220,9 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     CGPDFPageRef page = CGPDFDocumentGetPage(doc, i + 1);
     if (!page) continue;
     const CGRect box = CGPDFPageGetBoxRect(page, kCGPDFCropBox);
-    const size_t w = static_cast<size_t>(std::max(1.0, box.size.width * scale));
+    const double scale = box.size.width > 0.0
+      ? static_cast<double>(targetWidthPixels) / box.size.width : 1.0;
+    const size_t w = static_cast<size_t>(std::max(1, targetWidthPixels));
     const size_t h = static_cast<size_t>(std::max(1.0, box.size.height * scale));
     CGContextRef context = CGBitmapContextCreate(
       nullptr, w, h, 8, 0, space,
@@ -235,7 +291,7 @@ bool pdfRasterAvailable(std::string& whyNot) {
 }
 
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
-                             double scale,
+                             int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress) {
   PdfRasterResult result;
   std::string whyNot;
@@ -254,12 +310,14 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     // goes, so the operator gets a start and an end rather than a count.
     onProgress(0, 0);
   }
-  // 72dpi is a PDF point, so the scale factor is the same number as everywhere
-  // else in this file.
-  const int dpi = std::max(36, static_cast<int>(72.0 * scale));
+  // -scale-to-x with -scale-to-y -1 fixes the width and keeps the aspect,
+  // which is the same contract as the other two backends without any dpi
+  // arithmetic to get wrong.
   const fs::path prefix = outputDir / "page";
   auto run = readAllText({
-    "pdftoppm", "-png", "-r", std::to_string(dpi),
+    "pdftoppm", "-png",
+    "-scale-to-x", std::to_string(std::max(1, targetWidthPixels)),
+    "-scale-to-y", "-1",
     pdfPath.string(), prefix.string()});
   if (!run.has_value()) {
     result.error = "pdftoppm failed on " + pdfPath.filename().string();
