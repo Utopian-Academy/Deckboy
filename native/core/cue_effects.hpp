@@ -575,10 +575,22 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount,
         std::memcpy(&px, pixels + rowOff + static_cast<std::size_t>(begin + i) * 4, 4);
         run.push_back(px);
       }
+      // A TOTAL ORDER, not just a luma comparison.
+      //
+      // std::sort says nothing about how it orders elements it considers
+      // equal, and two standard libraries do not have to agree. Sorting by
+      // luma alone left every equal-luma pixel free to land anywhere, so the
+      // same cue rendered visibly differently on macOS than on Windows --
+      // caught by diffing the two byte for byte, and invisible any other way.
+      // Breaking the tie on the pixel itself makes the result the same
+      // everywhere without a stable sort's allocation.
       std::sort(run.begin(), run.end(), [reverse](std::uint32_t a, std::uint32_t b) {
         const int la = ((a >> 16) & 0xFF) * 77 + ((a >> 8) & 0xFF) * 151 + (a & 0xFF) * 28;
         const int lb = ((b >> 16) & 0xFF) * 77 + ((b >> 8) & 0xFF) * 151 + (b & 0xFF) * 28;
-        return reverse ? lb < la : la < lb;
+        if (la != lb) {
+          return reverse ? lb < la : la < lb;
+        }
+        return a < b;
       });
       for (int i = 0; i < len; ++i) {
         std::memcpy(pixels + rowOff + static_cast<std::size_t>(begin + i) * 4,
