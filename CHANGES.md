@@ -97,6 +97,81 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### Every effect now fits inside a 60fps frame at 1080p
+
+Measured with `--effect-bench`, median of eleven frames, 1920x1080:
+
+| effect | before | after | |
+|---|---|---|---|
+| temporal dither | 49.1ms | 0.74ms | 66x |
+| posterise | 26.9ms | 0.67ms | 40x |
+| solarise | 25.5ms | 0.64ms | 40x |
+| threshold | 11.1ms | 0.93ms | 12x |
+| invert | 7.5ms | 0.78ms | 10x |
+| pixel sort | 78.6ms | 9.13ms | 8.6x |
+| dye advect | 162.6ms | 14.9ms | 11x |
+| kaleidoscope | 85.2ms | 10.8ms | 7.9x |
+| polar warp | 46.2ms | 7.50ms | 6.2x |
+| relativistic | 59.0ms | 8.05ms | 7.3x |
+| ripple | 41.8ms | 7.19ms | 5.8x |
+| reaction bloom | 74.3ms | 15.6ms | 4.8x |
+| luma displace | 25.5ms | 5.59ms | 4.6x |
+| grain | 9.1ms | 1.74ms | 5.2x |
+| vignette | 10.6ms | 2.29ms | 4.6x |
+| scanlines | 2.9ms | 0.65ms | 4.5x |
+| channel offset | 3.2ms | 0.87ms | 3.7x |
+| block glitch | 6.8ms | 2.70ms | 2.5x |
+
+**Every one of these is byte-identical to what it replaced.** That is checked,
+not asserted: the pre-change header is compiled into a second binary and both
+render the same frames, and the outputs are compared byte for byte.
+
+Four things did it.
+
+**A table instead of the arithmetic.** Invert, posterise, solarise, threshold,
+scanlines and temporal dither were evaluating the same few double expressions
+two million times a frame to produce at most 256 distinct answers. Building the
+table with the *same* expression makes it a lookup of the old answer rather
+than a new approximation of it. Temporal dither has sixteen tables, one per
+Bayer cell, which is why it moved furthest.
+
+**The frame split across cores.** Every effect writes each output row from
+inputs in that same row or in an untouched copy of the frame, so the bands
+cannot observe each other. Block glitch is the exception and stays on one
+thread: it shifts overlapping random bands in a fixed RNG order, so its rows
+are not independent.
+
+**Threads created to fit the shape of the work.** Reaction-diffusion is
+hundreds of small *dependent* steps, and handing the work out once per step --
+which is right for a single pass over a frame -- made it **1.8x slower than one
+core**. It gets threads created once and parked on a barrier between steps
+instead. Along with row pointers in place of recomputing `gy*gw+gx` nine times
+per cell, that is 74ms to 16ms.
+
+**Bulk moves instead of per-pixel ones.** Block glitch's wrapped shift is a
+rotation, so it is two `memcpy`s per row rather than a four-byte `memcpy` per
+pixel; it was moving the same bytes and charging 27ms on a 4K frame to do it.
+
+At 4K the picture is honest rather than solved: the table-driven effects are
+1.5-2.6ms, but the ones that gather from somewhere else in the frame -- pixel
+sort, the warps, dye advect -- are 25-70ms, and that is dominated by random
+access across a 33MB buffer rather than by arithmetic. Lowering an effect's
+detail parameter is the lever there.
+
+`--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]` reports the median cost
+per frame and what share of a 60fps budget it is.
+
+### A driver with nothing to drive is removed
+
+Remove the last motion puppet from a chain -- or change it into another effect,
+or clear the chain, or paste a chain that has no puppet in it -- and the motion
+driver goes with it. It was decoding a clip every frame for a field nothing
+read, and showing an inspector full of controls that could not do anything.
+
+A *bypassed* puppet still counts. Bypass is a temporary "not right now", and
+throwing away the driver the operator chose because they muted an effect for a
+moment would be losing their work to a toggle.
+
 ### Three effects that are not in anything else
 
 **Dye advect** treats the picture as dye in a fluid and carries it along the

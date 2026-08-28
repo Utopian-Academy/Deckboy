@@ -8994,6 +8994,8 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
+    {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
+     "time one effect per frame at a raster"},
     {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
   {"--motion-probe <file> [frames]", "read the clip's motion vectors, report coverage"},
   {"--ltc-generate <out.wav> [tc] [fps] [seconds]", "write a SMPTE LTC timecode WAV"},
@@ -9009,7 +9011,8 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--sync-pop-test",
-  "--pattern-bench", "--pattern-dump", "--effect-dump", "--decode-bench", "--ltc-generate",
+  "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
+  "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe",
 };
@@ -9301,6 +9304,16 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (parsed >= 0.0) dumpT = parsed;
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--effect-bench") {
+    if (ops.empty()) return missing("<token[:amount[:a[:b]]]> [WxH] [frames]");
+    int bw = 1920, bh = 1080, bframes = 30;
+    for (size_t i = 1; i < ops.size(); ++i) {
+      if (parseCliRaster(ops[i], bw, bh)) continue;
+      const int n = std::atoi(ops[i].c_str());
+      if (n > 0) bframes = n;
+    }
+    return App::runEffectBench(ops[0], bw, bh, bframes);
   }
   if (mode == "--effect-dump") {
     if (ops.size() < 3) return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
