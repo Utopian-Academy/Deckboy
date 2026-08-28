@@ -812,6 +812,7 @@
       }
     }
     ++motionDriverFrameCounter_;
+    serviceVjQuantisedTake();
     applyPendingInspectorScroll();
     updateStatusSnapshot();
     // Update control window preview texture from focused engine's current frame.

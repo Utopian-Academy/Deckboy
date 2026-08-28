@@ -592,7 +592,50 @@
   }
 
   void jumpSelectedCue() {
+    // QUANTISED TAKES. The point of tempo in a video mixer is not that
+    // anything moves by itself -- it is that what the OPERATOR does lands on
+    // the music instead of a moment after it. So the take is held until the
+    // next beat rather than being fired by a metronome.
+    //
+    // Held only when the wait is worth having: past nine tenths of the way to
+    // the beat a human already hit it, and delaying would push the cue a whole
+    // beat late, which is the opposite of the intent.
+    if (project_.vjModeEnabled && project_.vjQuantiseTakes && !vjTakeFiring_) {
+      const double wait = vjSecondsToNextBeat();
+      const double beatSeconds = 60.0 / std::clamp(project_.vjTempoBpm, 20.0, 300.0);
+      if (wait > beatSeconds * 0.1) {
+        vjTakePending_ = true;
+        vjTakeDueAt_ = static_cast<double>(SDL_GetTicks()) / 1000.0 + wait;
+        vjTakeDeck_ = project_.focusedDeckIndex;
+        return;
+      }
+    }
     takeSelected(jumpTriggersPlayback(), project_.jumpTransitionEnabled);
+  }
+
+  // Called every update: fire a held take when its beat arrives.
+  void serviceVjQuantisedTake() {
+    if (!vjTakePending_) {
+      return;
+    }
+    if (!project_.vjModeEnabled || !project_.vjQuantiseTakes) {
+      vjTakePending_ = false;   // the mode went away under it
+      return;
+    }
+    if (static_cast<double>(SDL_GetTicks()) / 1000.0 < vjTakeDueAt_) {
+      return;
+    }
+    vjTakePending_ = false;
+    // The deck the operator was on when they asked, not whichever one has
+    // focus a beat later.
+    const int restore = project_.focusedDeckIndex;
+    if (vjTakeDeck_ >= 0 && vjTakeDeck_ < static_cast<int>(project_.decks.size())) {
+      project_.focusedDeckIndex = vjTakeDeck_;
+    }
+    vjTakeFiring_ = true;      // so the take does not queue itself again
+    jumpSelectedCue();
+    vjTakeFiring_ = false;
+    project_.focusedDeckIndex = restore;
   }
 
   // Fire the selected cue on every deck simultaneously.
