@@ -865,6 +865,9 @@
       return;
     }
     project_.vjModeEnabled = on;
+    // Start the drop-in. Set on both edges so leaving the mode is as visible
+    // as entering it.
+    vjBarRevealAt_ = animationNow_;
     if (on && project_.decks.size() < 2) {
       // A mixer needs something to mix. Adding the deck here rather than
       // refusing means turning the mode on does what it says on a show file

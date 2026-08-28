@@ -914,6 +914,30 @@
     }
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame
+    // VJ MODE FRAMES THE WHOLE WINDOW.
+    //
+    // The bar alone is visible, but an operator glancing at a rack from the
+    // other side of a room needs to know which mode this machine is in before
+    // they touch it -- VJ mode puts a second deck live and makes a fader, not
+    // a take, decide what the audience sees. Running a normal show in it by
+    // accident is the failure worth designing against, so the entire window
+    // is edged in a colour that appears nowhere else.
+    //
+    // It breathes on the beat: alive enough to catch the eye, slow enough to
+    // ignore while working, and it doubles as a tempo readout you can see
+    // without looking directly at it.
+    if (project_.vjModeEnabled) {
+      int winW = 0, winH = 0;
+      SDL_GetCurrentRenderOutputSize(controlRenderer_, &winW, &winH);
+      const double pulse = std::pow(1.0 - vjBeatPhase(), 3.0);
+      const int thickness = 3 + static_cast<int>(std::lround(pulse * 2.0));
+      SDL_Color edge {255, 176, 32,
+                      static_cast<Uint8>(170 + static_cast<int>(pulse * 85))};
+      for (int t = 0; t < thickness; ++t) {
+        SDL_Rect ring {t, t, winW - t * 2, winH - t * 2};
+        Primitives::strokeRect(controlRenderer_, ring, edge);
+      }
+    }
     auto uiFrameEnd = std::chrono::steady_clock::now();
     lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
