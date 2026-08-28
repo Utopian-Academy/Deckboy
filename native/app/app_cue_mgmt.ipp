@@ -2016,6 +2016,10 @@
     static const std::vector<std::pair<std::string, std::string>> types = [] {
       std::vector<std::pair<std::string, std::string>> list = patternBaseTypes();
       // Always VALID (old saves, remote commands) even while picker-hidden.
+      // A live-coded source: the picture is whatever expression the operator
+      // types, evaluated per pixel. Listed with the patterns because that is
+      // what it is -- a procedural source that rebuilds at the output raster.
+      list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
       list.emplace_back("pocket-day",    "Pocket Test (day)");

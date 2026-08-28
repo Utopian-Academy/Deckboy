@@ -310,6 +310,64 @@ std::vector<std::pair<std::string, std::string>> cueEffectChoices() {
   return choices;
 }
 
+// ── Code source ─────────────────────────────────────────────────────────────
+
+// Edit the expression in place. The inline editor is what every other typed
+// value here uses, and it keeps the picture on screen while you type -- which
+// is the whole point of a live-coded source.
+void editCodeExpression() {
+  Cue* cue = selectedCueMutable();
+  if (!cue) {
+    return;
+  }
+  openInlineTextEditor("cue.code", "Expression",
+                       "x y (0-1)  cx cy (-1..1)  r  a  t   |  sin cos min max "
+                       "clamp mix step fract floor sqrt",
+                       cue->codeExpression,
+                       [this](const std::string& text) {
+    Cue* live = selectedCueMutable();
+    if (!live) {
+      return;
+    }
+    live->codeExpression = text;
+    // Say what is wrong immediately rather than leaving the operator to
+    // wonder why the picture stopped changing.
+    deckboy::code::CompiledSource compiled = deckboy::code::compile(text);
+    triggerToast(compiled.ok() ? "expression compiled"
+                               : ("code: " + compiled.error));
+    markProjectDirty();
+  });
+}
+
+// Worked expressions to start from. A blank box and a list of variables is a
+// poor welcome; these are things worth seeing on a screen, and each one shows
+// a different corner of the language.
+void cycleCodeExample() {
+  Cue* cue = selectedCueMutable();
+  if (!cue) {
+    return;
+  }
+  static const char* kExamples[] = {
+    "sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r",
+    "step(0.5,fract(r*6-t)), r, 1-r",
+    "sin(a*6+t)*0.5+0.5, fract(r*4), step(0.3,fract(x*8))",
+    "fract(x*8+sin(y*6+t)), fract(y*8), 0.5",
+    "mix(x,y,sin(t)*0.5+0.5)",
+    "abs(sin(r*10-t*2))",
+  };
+  const int count = static_cast<int>(sizeof(kExamples) / sizeof(kExamples[0]));
+  int next = 0;
+  for (int i = 0; i < count; ++i) {
+    if (cue->codeExpression == kExamples[i]) {
+      next = (i + 1) % count;
+      break;
+    }
+  }
+  cue->codeExpression = kExamples[next];
+  triggerToast("example " + std::to_string(next + 1) + " of " + std::to_string(count));
+  markProjectDirty();
+}
+
 void effectStackAdd() {
   auto* stack = selectedEffectStack();
   if (!stack) {
