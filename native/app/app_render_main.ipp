@@ -155,6 +155,25 @@
 
   // Render the main panel split into program area (left) and inspector (right).
   // The inspector width is adjustable via a splitter drag handle.
+  // ONE PLACE THAT PLACES A PANEL TITLE.
+  //
+  // The three titled columns each did it differently -- PLAYLIST at x+8/y+6
+  // through the rect-centring helper, TIMELINE and CUE INSPECTOR at x+6/y+4
+  // through drawText at a HAND-COMPUTED position. That is the thing the text
+  // placement contract exists to stop: the labels sat at different heights in
+  // identical-looking headers and crowded the top edge, which is exactly how
+  // it looked.
+  //
+  // Centred vertically in the header it is given, with one inset, so every
+  // panel title sits in the same place as every other.
+  void drawPanelHeaderTitle(const SDL_Rect& header, const std::string& title) {
+    constexpr int kTitleInsetX = 8;
+    drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
+                 SDL_Rect {header.x + kTitleInsetX, header.y,
+                           std::max(0, header.w - kTitleInsetX * 2), header.h},
+                 title, pal.light);
+  }
+
   void renderMainPanel(const SDL_Rect& panel) {
     const Deck& deck = focusedDeck();
     const MediaEngine* engine = focusedMediaEngine();
@@ -178,12 +197,12 @@
     {
       SDL_Rect hdr {programShell.x, programShell.y, programShell.w, kOpHeaderH};
       drawUIPanel(hdr, pal.dark, pal.deep, pal.mid);
-      drawText(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, "TIMELINE", pal.light, hdr.x + 6, hdr.y + 4);
+      drawPanelHeaderTitle(hdr, "TIMELINE");
     }
     {
       SDL_Rect hdr {inspectorShell.x, inspectorShell.y, inspectorShell.w, kOpHeaderH};
       drawUIPanel(hdr, pal.dark, pal.deep, pal.mid);
-      drawText(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_, "CUE INSPECTOR", pal.light, hdr.x + 6, hdr.y + 4);
+      drawPanelHeaderTitle(hdr, "CUE INSPECTOR");
     }
     if (inspectorSplitterRect_.w > 0 && inspectorSplitterRect_.h > 0) {
       bool active = layoutDragMode_ == LayoutDragMode::Inspector;
