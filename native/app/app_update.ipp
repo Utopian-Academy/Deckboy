@@ -813,6 +813,38 @@
     }
     ++motionDriverFrameCounter_;
     serviceVjQuantisedTake();
+    // A and B preview textures, from each deck's own decoded frame.
+    //
+    // This is the only picture of an individual deck the control window can
+    // get: the output tap is the finished COMPOSITE, which in VJ mode is the
+    // mix rather than either source. A frame that lives only on the GPU has no
+    // pixels to upload and is left showing whatever it last had, rather than
+    // paying for a full-raster download twice a frame to fill a thumbnail.
+    if (project_.vjModeEnabled && project_.decks.size() > 1) {
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int wanted[2] = {std::clamp(project_.vjDeckA, 0, deckCount - 1),
+                             std::clamp(project_.vjDeckB, 0, deckCount - 1)};
+      for (int side = 0; side < 2; ++side) {
+        const DeckRuntime* runtime = runtimeForDeck(wanted[side]);
+        const DecodedFrame* frame =
+          (runtime && runtime->mediaEngine) ? runtime->mediaEngine->currentFrame() : nullptr;
+        // Any pixel format will do: syncFrameTexture picks the SDL format from
+        // the frame and handles NV12 as well as RGBA. Insisting on RGBA here
+        // left both previews permanently empty, because the decoder hands back
+        // NV12 for ordinary video -- the pixels were there all along.
+        if (!frame || frame->width <= 0 || frame->height <= 0 ||
+            frame->pixels.empty()) {
+          continue;
+        }
+        if (frame->index == vjPreviewFrameIdx_[side]) {
+          continue;
+        }
+        vjPreviewFrameIdx_[side] = frame->index;
+        syncFrameTexture(controlRenderer_, vjPreviewTex_[side],
+                         vjPreviewTexW_[side], vjPreviewTexH_[side],
+                         vjPreviewTexFormat_[side], *frame);
+      }
+    }
     applyPendingInspectorScroll();
     updateStatusSnapshot();
     // Update control window preview texture from focused engine's current frame.

@@ -502,9 +502,34 @@
 
     int monitorH = std::max(160, monitorAreaH);
 
+    // VJ MODE: A AND B GET THEIR OWN MONITORS, either side of the program.
+    //
+    // Without them the crossfader is a blind control. The playlists show cue
+    // NAMES, and a name does not tell you what a clip looks like at the moment
+    // you would bring it in front of an audience -- which is the whole reason
+    // a mixer has two buses and not one.
+    //
+    // They take a quarter of the width each and leave the program the middle
+    // half, because the program is still the thing being judged; these are for
+    // knowing what is there, not for grading it.
+    vjPreviewRectA_ = SDL_Rect {0, 0, 0, 0};
+    vjPreviewRectB_ = SDL_Rect {0, 0, 0, 0};
+    if (project_.vjModeEnabled && project_.decks.size() > 1 && programMonitorW > 420) {
+      const int sideW = std::clamp(programMonitorW / 4, 140, 420);
+      vjPreviewRectA_ = SDL_Rect {x, monitorY, sideW, monitorH};
+      vjPreviewRectB_ = SDL_Rect {x + programMonitorW - sideW, monitorY, sideW, monitorH};
+      x += sideW + 6;
+      programMonitorW = std::max(200, programMonitorW - sideW * 2 - 12);
+    }
     SDL_Rect programMonitorRect {x, monitorY, programMonitorW, monitorH};
+    // The VU sits after the whole monitor ROW, not after the program monitor.
+    // Deriving it from the program rect put it on top of the B preview the
+    // moment VJ mode shrank that rect to make room.
+    const int monitorRowRight = vjPreviewRectB_.w > 0
+      ? vjPreviewRectB_.x + vjPreviewRectB_.w
+      : programMonitorRect.x + programMonitorRect.w;
     SDL_Rect vuMeterRect {
-      programMonitorRect.x + programMonitorRect.w + kVuMeterGap,
+      monitorRowRight + kVuMeterGap,
       monitorY,
       vuMeterW,
       monitorH
@@ -1249,6 +1274,42 @@
                    hasLiveVideo ? pal.mid : (showMascot ? pal.inkSoft : pal.dark));
     }
 
+    // Draw A and B either side of the program. After the program monitor is
+    // laid out, so they never fight it for space.
+    if (vjPreviewRectA_.w > 0) {
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int decks[2] = {std::clamp(project_.vjDeckA, 0, deckCount - 1),
+                            std::clamp(project_.vjDeckB, 0, deckCount - 1)};
+      const SDL_Rect rects[2] = {vjPreviewRectA_, vjPreviewRectB_};
+      const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
+      for (int side = 0; side < 2; ++side) {
+        const SDL_Rect& box = rects[side];
+        // The one the audience is mostly seeing is edged, so a glance says
+        // which way the fader is sitting without reading its number.
+        const bool winning = side == 0 ? mix < 0.5 : mix > 0.5;
+        drawUIPanel(box, pal.deep, pal.deep,
+                    winning ? SDL_Color {255, 176, 32, 255} : pal.mid);
+        SDL_Rect label {box.x + 4, box.y + 3, box.w - 8, 20};
+        drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
+                     label,
+                     (side == 0 ? "A - DECK " : "B - DECK ") +
+                       std::to_string(decks[side] + 1),
+                     winning ? SDL_Color {255, 232, 120, 255} : pal.inkSoft);
+        SDL_Rect inner {box.x + 4, box.y + 26, box.w - 8, box.h - 34};
+        SDL_Texture* tex = vjPreviewTex_[side];
+        if (tex && vjPreviewTexW_[side] > 0 && vjPreviewTexH_[side] > 0) {
+          const Cue* deckCue = activeCuePtr(decks[side]);
+          renderTextureWithCueGeometry(controlRenderer_, tex, vjPreviewTexW_[side],
+                                       vjPreviewTexH_[side], deckCue, inner);
+        } else {
+          // Say WHY there is no picture rather than showing an empty box: a
+          // deck with nothing taken looks identical to one that is broken.
+          const Cue* deckCue = activeCuePtr(decks[side]);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, inner,
+                               deckCue ? "no preview" : "nothing taken", pal.inkSoft);
+        }
+      }
+    }
     warpMonitorInner_ = {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 48};
     previewMonitorInner_ = {};
     if (hasLiveVideo) {
