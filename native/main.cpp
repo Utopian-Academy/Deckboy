@@ -8012,6 +8012,8 @@ class App {
   double vjMixShown_ = 0.0;
   // When the bar started dropping in, so the reveal can be eased.
   double vjBarRevealAt_ = 0.0;
+  int vjTakeDeck_ = -1;        // which deck asked for the held take
+  bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
 
   // HyperDeck server
   int hyperDeckPort_ = 9992;
