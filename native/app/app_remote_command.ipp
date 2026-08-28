@@ -633,6 +633,7 @@
         cue->effects.clear();
         markProjectDirty();
         syncDatamoshFromStack();
+        pruneUnusedMotionDriver();   // an emptied stack cannot puppet anything
         refreshLiveCueIfPixelPathChanged(wasNeeded);
         return;
       }
