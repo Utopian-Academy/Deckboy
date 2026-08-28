@@ -500,10 +500,6 @@ if(NOT MSVC)
   target_link_options(deckboy-native PRIVATE -rdynamic)
 endif()
 add_dependencies(deckboy-native deckboy_generate_version)
-if(WIN32)
-  # WindowsApp.lib is the WinRT entry point. It is here for Windows.Data.Pdf,
-  # which renders imported slide decks -- the same engine Edge uses, so a PDF
-  # needs no bundled rasteriser and no third-party licence.
 # Slide-deck import renders PDF pages through CoreGraphics and writes them
 # with ImageIO. Not behind a feature flag, because importing a deck is not
 # optional -- and CI caught this the hard way: the code compiled and only the
@@ -512,6 +508,10 @@ if(APPLE)
   deckboy_target_link_frameworks(deckboy-native CoreGraphics ImageIO CoreFoundation)
 endif()
 
+if(WIN32)
+  # WindowsApp.lib is the WinRT entry point. It is here for Windows.Data.Pdf,
+  # which renders imported slide decks -- the same engine Edge uses, so a PDF
+  # needs no bundled rasteriser and no third-party licence.
   target_link_libraries(deckboy-native PRIVATE windowsapp)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
 
