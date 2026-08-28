@@ -574,6 +574,62 @@
       skipToPrevCue();
       return;
     }
+    // ── VJ <sub> ──────────────────────────────────────────────────────────
+    // The mixer over the wire, so it can be driven from a controller and
+    // tested from a script. A crossfader is a fader, and a fader is the one
+    // control nobody wants to be reaching for with a mouse.
+    if (command == "VJ") {
+      const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      if (sub == "ON" || sub == "OFF") {
+        setVjMode(sub == "ON");
+        remoteCommandDetail_ = project_.vjModeEnabled ? "on" : "off";
+        return;
+      }
+      if (sub == "MIX" && parts.size() >= 3) {
+        setVjMix(std::atof(parts[2].c_str()));
+        return;
+      }
+      if (sub == "BLEND" && parts.size() >= 3) {
+        setVjBlend(toLower(parts[2]));
+        return;
+      }
+      if (sub == "TAP") {
+        std::ostringstream bpm;
+        bpm << std::fixed << std::setprecision(1) << tapVjTempo();
+        remoteCommandDetail_ = bpm.str() + " bpm";
+        return;
+      }
+      if (sub == "BPM" && parts.size() >= 3) {
+        setVjTempo(std::atof(parts[2].c_str()));
+        return;
+      }
+      if (sub == "QUANTISE" && parts.size() >= 3) {
+        project_.vjQuantiseTakes = (toLower(parts[2]) == "on");
+        markProjectDirty();
+        return;
+      }
+      if (sub == "DECKS" && parts.size() >= 4) {
+        const int deckCount = static_cast<int>(project_.decks.size());
+        project_.vjDeckA = std::clamp(std::atoi(parts[2].c_str()) - 1, 0, deckCount - 1);
+        project_.vjDeckB = std::clamp(std::atoi(parts[3].c_str()) - 1, 0, deckCount - 1);
+        markProjectDirty();
+        return;
+      }
+      if (sub == "STATUS") {
+        std::ostringstream state;
+        state << (project_.vjModeEnabled ? "on" : "off")
+              << " A=" << (project_.vjDeckA + 1) << " B=" << (project_.vjDeckB + 1)
+              << " mix=" << std::fixed << std::setprecision(2) << project_.vjMixPosition
+              << " " << project_.vjBlendMode
+              << " " << std::setprecision(1) << project_.vjTempoBpm << "bpm"
+              << (project_.vjQuantiseTakes ? " quantised" : "");
+        remoteCommandDetail_ = state.str();
+        return;
+      }
+      failRemoteCommand("VJ: expected ON|OFF|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
+      return;
+    }
+
     if (command == "FX") {
       // Effect stack over the wire. Added because the effect stack could only
       // be driven by clicking, which meant the RUNTIME path -- adding an effect

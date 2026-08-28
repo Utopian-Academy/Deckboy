@@ -3312,6 +3312,15 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
+  // VJ mode. Written as project scalars so a show that never turns it on
+  // carries the defaults and behaves exactly as it always did.
+  output << "vj_mode\t" << (project.vjModeEnabled ? 1 : 0) << '\n';
+  output << "vj_deck_a\t" << project.vjDeckA << '\n';
+  output << "vj_deck_b\t" << project.vjDeckB << '\n';
+  output << "vj_mix\t" << project.vjMixPosition << '\n';
+  output << "vj_blend\t" << project.vjBlendMode << '\n';
+  output << "vj_bpm\t" << project.vjTempoBpm << '\n';
+  output << "vj_quantise\t" << (project.vjQuantiseTakes ? 1 : 0) << '\n';
   output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "osc_query_enabled\t" << (project.oscQueryEnabled ? 1 : 0) << '\n';
@@ -3806,6 +3815,21 @@ Project loadProject(const fs::path& projectFile,
       project.terrariumUnlocked = safeBool(fields, 1, false);
     } else if (fields[0] == "geometry_aspect_link") {
       project.geometryAspectLinked = safeBool(fields, 1, true);
+    } else if (fields[0] == "vj_mode") {
+      project.vjModeEnabled = safeBool(fields, 1, false);
+    } else if (fields[0] == "vj_deck_a") {
+      project.vjDeckA = std::max(0, safeInt(fields, 1, 0));
+    } else if (fields[0] == "vj_deck_b") {
+      project.vjDeckB = std::max(0, safeInt(fields, 1, 1));
+    } else if (fields[0] == "vj_mix") {
+      project.vjMixPosition = std::clamp(safeDouble(fields, 1, 0.0), 0.0, 1.0);
+    } else if (fields[0] == "vj_blend") {
+      const std::string mode = safeString(fields, 1);
+      project.vjBlendMode = (mode == "add" || mode == "multiply") ? mode : "dissolve";
+    } else if (fields[0] == "vj_bpm") {
+      project.vjTempoBpm = std::clamp(safeDouble(fields, 1, 120.0), 20.0, 300.0);
+    } else if (fields[0] == "vj_quantise") {
+      project.vjQuantiseTakes = safeBool(fields, 1, false);
     } else if (fields[0] == "ui_scale") {
       project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
     } else if (fields[0] == "interaction_mode") {
