@@ -569,6 +569,28 @@
       ltCue.lowerThirdText = "Hello World";
       ltCue.lowerThirdSubtext = "subtitle here";
       ltCue.lowerThirdBgAlpha = 200;
+      // An effect stack with ALL FOUR parameters set, a non-default bypass, and
+      // a motion driver. paramC and paramD serialise AFTER the bypass flag so
+      // older shows still load -- exactly the kind of ordering that survives a
+      // code review and dies on a save/load round trip.
+      {
+        deckboy::effects::CueEffect fx;
+        fx.kind = deckboy::effects::CueEffectKind::ReactionBloom;
+        fx.amount = 0.85f;
+        fx.paramA = 0.25f;
+        fx.paramB = 0.5f;
+        fx.paramC = 0.4f;
+        fx.paramD = 0.3f;
+        cue.effects.push_back(fx);
+        deckboy::effects::CueEffect puppet;
+        puppet.kind = deckboy::effects::CueEffectKind::MotionPuppet;
+        puppet.amount = 0.6f;
+        puppet.bypassed = true;
+        cue.effects.push_back(puppet);
+        cue.motionDriverPath = "smoke-driver.mp4";
+        cue.motionDriverSpeed = 1.75f;
+        cue.motionDriverPaused = true;
+      }
       deck.cues.push_back(cue);      // [0]: video — trim/tc/transition tests
       deck.cues.push_back(imgCue);   // [1]: image still — stillDuration test
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
@@ -623,6 +645,20 @@
                loaded.dmxArtNetEnabled &&
                loaded.artNetPort == 16454,
                "integration settings persisted");
+        expect(loadedCue.effects.size() == 2 &&
+               loadedCue.effects[0].kind == deckboy::effects::CueEffectKind::ReactionBloom &&
+               std::abs(loadedCue.effects[0].paramA - 0.25f) < 0.01f &&
+               std::abs(loadedCue.effects[0].paramB - 0.5f) < 0.01f &&
+               std::abs(loadedCue.effects[0].paramC - 0.4f) < 0.01f &&
+               std::abs(loadedCue.effects[0].paramD - 0.3f) < 0.01f &&
+               !loadedCue.effects[0].bypassed &&
+               loadedCue.effects[1].kind == deckboy::effects::CueEffectKind::MotionPuppet &&
+               loadedCue.effects[1].bypassed,
+               "effect stack persisted with all four parameters and bypass");
+        expect(loadedCue.motionDriverPath == "smoke-driver.mp4" &&
+               std::abs(loadedCue.motionDriverSpeed - 1.75f) < 0.01f &&
+               loadedCue.motionDriverPaused,
+               "motion driver persisted");
         expect(loaded.jumpMode == "load" && !loaded.jumpTransitionEnabled, "jump mode persisted");
         expect(loaded.panicProfile == "fade_rewind", "panic profile persisted");
         expect(std::abs(loaded.panicFadeSeconds - 1.4) < 0.01 && loaded.panicAutoRestore, "panic options persisted");

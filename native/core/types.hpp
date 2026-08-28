@@ -1354,7 +1354,10 @@ enum class QuickAction {
   SynthReleaseDec, SynthReleaseInc,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
   TimerCycleColorBackground,
-  DatamoshToggle,
+  // DatamoshToggle was removed with the effects-UI rework: datamosh is an
+  // entry in the effect stack now, and syncDatamoshFromStack calls
+  // toggleSelectedDatamosh directly. The action had a handler and nothing
+  // left that could fire it.
   DatamoshLookPrev, DatamoshLookNext,
   // Stage timer. Run/Reset/Nudge act on the CLOCK, not the transport.
   CueSectionTimerToggle,
