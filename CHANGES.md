@@ -97,6 +97,60 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### VJ mode
+
+A toggle. Off, Deckboy is a cue deck and every existing show renders exactly as
+it did, through the same code path. On, two decks run at once and a crossfader
+decides what the audience sees.
+
+The decks were never the missing piece. `Project::decks` has always been a
+vector and each deck has always had its own engine, playlist and transport --
+what was missing is that an output could only ever be fed by ONE of them. So
+this uses the layering hook that was already there and folds a mix gain into
+the opacity each deck layer already carried, which means a deck faded down or
+mid cue-fade stays faded down.
+
+Both decks fade on a dissolve, not just the incoming one: they are drawn over
+black, so holding A at full until B covered it would be a wipe. **Add** and
+**multiply** are ways of combining two pictures, so there the base stays at
+full and only the incoming deck rides the fader. Verified by recording the
+composite with deck A solid red under deck B solid blue -- dissolve walks
+250/0/0 to 0/0/253 through 64/0/127, add gives magenta, multiply gives black.
+Colours in neither clip, which is the proof they are combined and not switched.
+
+**Tap tempo** averages the recent taps rather than taking the last interval:
+nobody taps evenly, and one interval makes the tempo jump on every beat. Taps
+more than two seconds apart start again, because that is a person restarting
+and not a 25bpm track. **Quantised takes** hold until the next beat -- the
+point of tempo in a video mixer is not that anything moves by itself, it is
+that what the operator does lands ON the music. Measured at 60bpm: unquantised
+takes fire in 0.04s, quantised ones wait between 0.16s and 0.81s depending on
+where in the beat they were asked for.
+
+**It announces itself.** A mode you can enter without noticing is a mode that
+ruins a show, so there are two signals: a band across the program column that
+exists only in VJ mode and carries the controls rather than just announcing
+itself, and the whole window edged in a colour used nowhere else -- for the
+glance across a room before anyone touches the machine. Both playlists are on
+screen side by side, each headed with which side of the crossfader it is,
+because two lists both saying PLAYLIST is how the wrong clip reaches an
+audience.
+
+The animation carries information rather than decorating. The bar drops in over
+a third of a second so the layout settles instead of jumping; the badge and the
+frame breathe on the beat, which doubles as a tempo readout you can see without
+looking at the number; and the fader handle leans the way it is travelling and
+trails a wake that fades as it settles.
+
+`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
+QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a crossfader
+is a fader and a fader is the one control nobody wants to reach for with a
+mouse.
+
+Two bugs found building it, both invisible from outside:
+`renderTextureWithCueGeometry` overwrote the caller's blend mode, silently
+discarding add and multiply while dissolve appeared to work; and the crossfader
+had to be applied on the GPU zero-copy path as well as the CPU bridge.
 ### No black window before the splash
 
 The control window was created VISIBLE and then painted for the first time

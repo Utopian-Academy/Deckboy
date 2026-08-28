@@ -850,6 +850,15 @@
     int playlistW = playlistPaneWidth_ > 0
       ? std::clamp(playlistPaneWidth_, kPlaylistMinW, playlistMaxW)
       : std::clamp(contentW / 5, kPlaylistMinW, 336);
+    // VJ MODE SHOWS BOTH DECKS AT ONCE, side by side, so the column takes the
+    // width for two. A mixer where you can only see the playlist you are
+    // fading away from is not a mixer -- and those two lists are exactly what
+    // the crossfader is choosing between, so they belong next to each other.
+    const bool vjSplitDecks = project_.vjModeEnabled && project_.decks.size() > 1;
+    if (vjSplitDecks) {
+      playlistW = std::clamp(playlistW * 2 + kLayoutPanelGap, kPlaylistMinW * 2,
+                             std::max(kPlaylistMinW * 2, contentW - 460));
+    }
     SDL_Rect playlistCol {contentArea.x, contentArea.y, playlistW, contentArea.h};
     SDL_Rect mainPanel {contentArea.x + playlistW + kLayoutPanelGap, contentArea.y,
                         std::max(0, contentArea.w - playlistW - kLayoutPanelGap), contentArea.h};
@@ -858,7 +867,23 @@
     playlistSplitterRect_ = {playlistCol.x + playlistCol.w, contentArea.y, kLayoutPanelGap, contentArea.h};
     cueRowActionHits_.clear();
 
-    renderPlaylistColumn(playlistCol, 0);
+    if (vjSplitDecks) {
+      // A on the left and B on the right, matching the bar above and the way
+      // a hand moves across a fader.
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int deckA = std::clamp(project_.vjDeckA, 0, deckCount - 1);
+      const int deckB = std::clamp(project_.vjDeckB, 0, deckCount - 1);
+      const int halfW = (playlistCol.w - kLayoutPanelGap) / 2;
+      SDL_Rect colA {playlistCol.x, playlistCol.y, halfW, playlistCol.h};
+      SDL_Rect colB {playlistCol.x + halfW + kLayoutPanelGap, playlistCol.y,
+                     playlistCol.w - halfW - kLayoutPanelGap, playlistCol.h};
+      renderPlaylistColumn(colA, deckA);
+      if (deckB != deckA) {
+        renderPlaylistColumn(colB, deckB);
+      }
+    } else {
+      renderPlaylistColumn(playlistCol, 0);
+    }
     if (mainPanel.w > 60 && mainPanel.h > 60) {
       renderMainPanel(mainPanel);
     } else {
@@ -943,6 +968,23 @@
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
   }
 
+  // What a playlist column calls itself. In VJ mode two of them are on screen
+  // and both saying "PLAYLIST" is the ambiguity that puts the wrong clip in
+  // front of an audience, so each says which side of the crossfader it is.
+  std::string playlistColumnTitle(int deckIndex) const {
+    if (!project_.vjModeEnabled || project_.decks.size() < 2) {
+      return "PLAYLIST";
+    }
+    const int deckCount = static_cast<int>(project_.decks.size());
+    if (deckIndex == std::clamp(project_.vjDeckA, 0, deckCount - 1)) {
+      return "A - DECK " + std::to_string(deckIndex + 1);
+    }
+    if (deckIndex == std::clamp(project_.vjDeckB, 0, deckCount - 1)) {
+      return "B - DECK " + std::to_string(deckIndex + 1);
+    }
+    return "PLAYLIST";
+  }
+
   void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
     const Deck& deck = project_.decks[deckIndex];
     if (deckOpacityFaderRects_.size() < project_.decks.size()) {
@@ -959,7 +1001,7 @@
                 pal.deep, pal.mid);
     drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontSmall_,
                  {colHeader.x + 8, colHeader.y + 6, colHeader.w - 16, 20},
-                 "PLAYLIST", pal.light);
+                 playlistColumnTitle(deckIndex), pal.light);
     // "Jump to live cue" button — snaps the (possibly huge) list back to the
     // cue that's playing. Only for the focused deck's column (the one the
     // keyboard acts on). Sized to its label so the text never ellipsizes
