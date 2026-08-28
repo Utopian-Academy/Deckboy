@@ -97,6 +97,18 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
+### No black window before the splash
+
+The control window was created VISIBLE and then painted for the first time
+only after the renderer, fonts, themes, splash art and the show itself had
+loaded. A window exists the moment it is created but has nothing in it until
+something is presented, so the operator got a black rectangle first and the
+splash afterwards -- which reads as the app hanging on launch.
+
+It is created hidden now and shown after the first present, from whichever
+path draws first (the main frame, or the loading overlay when a show is
+already opening). The first thing on screen is the first thing drawn.
+
 ### Slide decks import as cues
 
 Drop a PDF on Deckboy and it becomes one image cue per page, named after the

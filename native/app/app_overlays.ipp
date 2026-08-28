@@ -391,6 +391,7 @@
                          kQuips[quip], pal.mid);
 
     SDL_RenderPresent(controlRenderer_);
+    revealControlWindow();  // the loading overlay, which can be the first frame when a show is opening
   }
 
   void renderDependencyPrompt() {
