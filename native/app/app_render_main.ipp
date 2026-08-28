@@ -2538,6 +2538,7 @@
       }
       finishInspectorSection(keySection, ry);
 
+
     } else if (selectedCue && selectedCue->kind == CueKind::Video) {
       int volPct = static_cast<int>(std::round((engine ? engine->volume() : 1.0f) * 100.0f));
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
@@ -2819,6 +2820,7 @@
       }
 
       // EFFECTS - per-cue image effects that are not keying. Datamosh is the
+
       // first; this is where later ones belong.
       auto fxSection = beginInspectorSection(geoY, "EFFECTS", cueSectionEffectsOpen_,
                                              QuickAction::CueSectionEffectsToggle,
@@ -3255,6 +3257,24 @@
         sectionY = drawKeyRows(sectionY, *selectedCue);
       }
       finishInspectorSection(keySection, sectionY);
+
+      // CODE - the live expression, and only on a code-source pattern.
+      //
+      // In THIS branch because this is the one that handles Image, Pattern,
+      // Browser and the source kinds. Two earlier attempts put it in the
+      // video-only branch and then in the multi-selection branch, where a
+      // single pattern cue never goes -- the section compiled, ran, and was
+      // simply never reached.
+      if (cueIsCodeSource(*selectedCue)) {
+        auto codeSection = beginInspectorSection(sectionY, "CODE", cueSectionCodeOpen_,
+                                                 QuickAction::CueSectionCodeToggle,
+                                                 "Collapse/expand the live expression");
+        sectionY = codeSection.bodyStartY;
+        if (cueSectionCodeOpen_) {
+          sectionY = inspDrawCodeRows(ix, sectionY, *selectedCue);
+        }
+        finishInspectorSection(codeSection, sectionY);
+      }
 
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings

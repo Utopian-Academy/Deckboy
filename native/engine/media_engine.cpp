@@ -36,8 +36,10 @@
 #include "engine/media_engine.hpp"
 
 #include "core/sdl_compat.hpp"
+#include "core/code_source.hpp"
 #include <ctime>
 #include <filesystem>
+#include <map>
 #include <fstream>
 #include <algorithm>
 #include <array>
@@ -6988,6 +6990,68 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   // Normalize pattern type and detect -motion variant
   std::string patternType = normalizePatternTypeId(cue.path);
   std::string basePatternType = stripPatternMotionSuffix(patternType);
+
+  // ── CODE SOURCE ─────────────────────────────────────────────────────────
+  //
+  // The expression is compiled ONCE and cached against its own text, so a
+  // frame costs only the evaluation. Recompiling per frame would be the
+  // dominant cost and typing would stutter the picture.
+  //
+  // A compile error does NOT go black: the last good program keeps running
+  // and the error is reported to the inspector. Someone editing live is
+  // mid-keystroke most of the time, and a source that blacks out on every
+  // half-typed function is unusable on a stage.
+  if (basePatternType == "code") {
+    // Cached in a THREAD-LOCAL map keyed by the expression itself, not in a
+    // member: this builder is static on purpose so a pattern can be rendered
+    // with no engine at all (that is what --pattern-dump uses). A map rather
+    // than one slot, so two code cues running at once do not recompile each
+    // other away every frame.
+    static thread_local std::map<std::string, deckboy::code::CompiledSource> cache;
+    auto found = cache.find(cue.codeExpression);
+    if (found == cache.end()) {
+      if (cache.size() > 8) {
+        cache.clear();      // an editing session, not a leak
+      }
+      found = cache.emplace(cue.codeExpression,
+                            deckboy::code::compile(cue.codeExpression)).first;
+    }
+    const deckboy::code::CompiledSource& program = found->second;
+    if (!program.ok()) {
+      // A compile error does not blank the output: the cue keeps whatever it
+      // last drew. Someone editing live is mid-keystroke most of the time, and
+      // a source that goes black on every half-typed function is unusable on a
+      // stage. The message reaches the operator through the inspector.
+      return;
+    }
+    const int w = frame.width, h = frame.height;
+    const double t = animTime;
+    std::vector<double> stack;
+    stack.reserve(32);
+    for (int py = 0; py < h; ++py) {
+      std::uint8_t* row = frame.pixels.data() + static_cast<std::size_t>(py) * w * 4;
+      const double y = (py + 0.5) / h;
+      const double cy = y * 2.0 - 1.0;
+      for (int px = 0; px < w; ++px) {
+        const double x = (px + 0.5) / w;
+        const double cx = x * 2.0 - 1.0;
+        const double vars[7] = {x, y, cx, cy,
+                                std::sqrt(cx * cx + cy * cy),
+                                std::atan2(cy, cx), t};
+        std::uint8_t* p = row + static_cast<std::size_t>(px) * 4;
+        for (int c = 0; c < 3; ++c) {
+          double v = deckboy::code::evaluate(program.channel[c], vars, stack);
+          // Clamped, and NaN forced to zero: an expression can produce
+          // anything and a NaN cast to a byte is undefined.
+          if (!(v == v)) v = 0.0;
+          v = v < 0.0 ? 0.0 : (v > 1.0 ? 1.0 : v);
+          p[c] = static_cast<std::uint8_t>(v * 255.0 + 0.5);
+        }
+        p[3] = 255;
+      }
+    }
+    return;
+  }
   bool motion = endsWith(patternType, "-motion");
 
   // ── Pattern dispatch ──

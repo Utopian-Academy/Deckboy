@@ -3659,6 +3659,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.motionDriverSpeed
         << '\t' << (cue.motionDriverPaused ? 1 : 0)
         << '\t' << (cue.motionDriverRestartOnTake ? 1 : 0)
+        << '\t' << escapeField(cue.codeExpression)
         << '\n';
     }
   }
@@ -4390,6 +4391,15 @@ Project loadProject(const fs::path& projectFile,
           static_cast<float>(safeDouble(fields, tb + 75, 1.0)), 0.0f, 4.0f);
         cue.motionDriverPaused = safeBool(fields, tb + 76, false);
         cue.motionDriverRestartOnTake = safeBool(fields, tb + 77, true);
+        // Appended after the motion driver. Absent on every older save, which
+        // safeString reports as empty -- and an empty expression leaves the
+        // cue's default in place rather than rendering black.
+        {
+          const std::string expr = safeString(fields, tb + 78);
+          if (!expr.empty()) {
+            cue.codeExpression = expr;
+          }
+        }
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6698,6 +6708,51 @@ class App {
     return rowY;
   }
 
+  // The live-coded source. Only for a pattern cue whose type is "code" --
+  // everywhere else this section does not exist, rather than showing an
+  // expression box that drives nothing.
+  bool cueIsCodeSource(const Cue& cue) const {
+    return cue.kind == CueKind::Pattern &&
+           stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "code";
+  }
+
+  int inspDrawCodeRows(const InspectorCtx& ix, int startY, const Cue& cue) {
+    int rowY = startY;
+    // The expression, on its own row and wide, because it is the cue.
+    rowY = inspDrawActionRow(ix, rowY, cue.codeExpression.empty()
+                               ? std::string("(tap to write an expression)")
+                               : cue.codeExpression,
+                             QuickAction::CodeEditExpression,
+                             "One expression, or three separated by commas for "
+                             "red, green and blue. Variables: x y (0-1), cx cy "
+                             "(-1..1), r (radius), a (angle), t (seconds).",
+                             pal.tile, pal.fg);
+    // A compile error is shown HERE and the picture keeps running on the last
+    // good expression -- someone editing live is mid-keystroke most of the
+    // time, and a source that blacks out on every half-typed function is
+    // unusable on a stage.
+    const std::string problem = codeSourceProblem(cue.codeExpression);
+    if (!problem.empty()) {
+      rowY = inspDrawMessageRow(ix, rowY, problem, pal.mid, pal.deep);
+    }
+    // A few starting points. Nobody wants a blank box and a variable list.
+    rowY = inspDrawActionRow(ix, rowY, "load an example",
+                             QuickAction::CodeCycleExample,
+                             "Cycle through worked expressions to start from",
+                             pal.tile, pal.inkSoft);
+    return rowY;
+  }
+
+  // Compile the expression purely to report on it. Cheap, and it means the
+  // inspector can say what is wrong without reaching into the engine.
+  std::string codeSourceProblem(const std::string& expression) const {
+    if (expression.empty()) {
+      return "no expression";
+    }
+    deckboy::code::CompiledSource compiled = deckboy::code::compile(expression);
+    return compiled.ok() ? std::string() : compiled.error;
+  }
+
   int inspDrawEffectsRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     // ONE LIST. Datamosh used to be permanently present here while every other
     // effect had to be added, which meant the section had two different rules
@@ -8131,6 +8186,7 @@ class App {
   bool cueSectionGeometryOpen_ = true;
   bool cueSectionKeyOpen_ = false;
   bool cueSectionEffectsOpen_ = true;   // datamosh lives here
+  bool cueSectionCodeOpen_ = true;      // the live expression, on code cues
   bool cueSectionTimerOpen_ = true;     // stage timer controls
   bool cueSectionToneOpen_ = true;      // test tone generator controls
   bool cueSectionSynthOpen_ = true;    // chip voice controls

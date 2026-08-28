@@ -53,6 +53,7 @@
 
 #include "core/constants.hpp"
 #include "core/subprocess.hpp"
+#include "core/code_source.hpp"
 #include "core/types.hpp"
 
 #if DECKBOY_INPROC_DECODE
