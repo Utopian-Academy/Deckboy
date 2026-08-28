@@ -2849,7 +2849,60 @@
     addPatternCue(patternDefaultTypeId_);
   }
 
-  void importPaths(const std::vector<std::string>& rawPaths) {
+  // ── Slide decks ─────────────────────────────────────────────────────────
+  //
+  // A PDF becomes one IMAGE CUE PER PAGE, rendered once at import. That is the
+  // whole design: after this a slide is an ordinary cue, so it fades, carries
+  // effects, crossfades to the next one, and walks under Page Down from the
+  // presenter's clicker. Nothing during the show depends on a document
+  // renderer, which is not a shortcut but the point -- a renderer that stalls
+  // mid-keynote is a black screen in front of an audience.
+  //
+  // Rendered on a worker thread. A hundred-page deck takes seconds, and doing
+  // it inline would freeze the app during load-in with no indication why.
+  void importSlideDeck(const fs::path& document) {
+    std::string whyNot;
+    if (!deckboy::platform::pdfRasterAvailable(whyNot)) {
+      triggerToast("slides: " + whyNot);
+      return;
+    }
+    // Pages live under the state dir, never next to the operator's document:
+    // their folder is read-only as often as not, and a show should not scatter
+    // renders through someone's Dropbox.
+    const fs::path pagesDir = Paths::stateDir() / "_converted" /
+                              (document.stem().string() + "_pages");
+    const std::string title = document.stem().string();
+    triggerToast("slides: rendering " + title + "...");
+
+    std::thread([this, document, pagesDir, title]() {
+      // 2x the page's natural size. A slide is mostly type, and type is the
+      // first thing to fall apart when a still is scaled up to a 4K output;
+      // once the page is a PNG the detail cannot be recovered.
+      auto result = deckboy::platform::rasterisePdf(document, pagesDir, 2.0, nullptr);
+      std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+      sdlDialogActions_.emplace_back([this, result, title]() {
+        if (!result.ok()) {
+          triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
+                                                          : result.error));
+          return;
+        }
+        // Straight back through the ordinary import, so the pages get deck
+        // defaults, probing, thumbnails and undo exactly like any other still.
+        importPaths(result.pagePaths, title);
+        triggerToast(title + ": " + std::to_string(result.pagePaths.size()) +
+                     " slides imported");
+      });
+    }).detach();
+  }
+
+  // `slideDeckName`, when set, says these files are the PAGES OF ONE DOCUMENT
+  // and changes two things that matter on a show day: the cues are named after
+  // the deck rather than after the render's filenames, and each one HOLDS
+  // instead of auto-advancing. A slide that changes itself after eight seconds
+  // while the presenter is still talking is the single worst thing this could
+  // do, and it is what the deck defaults would have done.
+  void importPaths(const std::vector<std::string>& rawPaths,
+                   const std::string& slideDeckName = std::string()) {
     int deckIndex = project_.focusedDeckIndex;
     Deck& deck = focusedDeckMutable();
 
@@ -2879,6 +2932,26 @@
       }
     }
 
+    // A document is not a cue. Pull them out here rather than letting the
+    // loop below make a video cue out of a PDF, which is what it would do.
+    std::vector<fs::path> media;
+    for (const fs::path& path : files) {
+      if (deckboy::platform::isPdfDocumentPath(path)) {
+        importSlideDeck(path);
+        continue;
+      }
+      if (deckboy::platform::isPresentationDocumentPath(path)) {
+        // Say what to do about it. PowerPoint and Keynote cannot be rendered
+        // here, and "unsupported file" leaves the operator guessing at 10am on
+        // a show day.
+        triggerToast(path.filename().string() +
+                     ": export it as PDF and import that");
+        continue;
+      }
+      media.push_back(path);
+    }
+    files.swap(media);
+
     bool changed = false;
     int addedCount = 0;
     for (const auto& path : files) {
@@ -2892,6 +2965,11 @@
                        : isAudioPath(path) ? CueKind::Audio
                        : CueKind::Video;
       applyDeckDefaultsToCue(placeholder, deck);
+      if (!slideDeckName.empty()) {
+        placeholder.name = slideDeckName + " " + std::to_string(addedCount + 1);
+        placeholder.transitionToNext = false;   // wait for the click
+        placeholder.pauseOnLastFrame = true;
+      }
       deck.cues.push_back(std::move(placeholder));
       changed = true;
       addedCount += 1;

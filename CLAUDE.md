@@ -53,6 +53,7 @@ cmake --build build/windows --config Release
 | `native/platform/ndi_trigger_api.hpp` | NDI recv + find runtime (dynamic load) |
 | `native/platform/integration_backend.cpp` | Backend catalog for ATEM/NDI/MTC/LTC/Art-Net |
 | `native/platform/capture_backend.cpp/hpp` | Source capture (camera/window/screen) |
+| `native/platform/pdf_import.hpp/cpp` | Slide decks. A PDF imports as one image cue per page, rendered once at import via each platform's OWN engine -- `Windows.Data.Pdf` (Edge's), CoreGraphics (Preview's), `pdftoppm` on Linux -- so nothing is bundled and nothing during a show depends on a document renderer. PowerPoint flattens builds and drops transitions on export; capture it live with a window-source cue instead |
 | `native/app/app_render_settings.ipp` | Settings modal render + action handler |
 | `native/app/app_render_output.ipp` | Output compositor → window/NDI/DeckLink/Spout blit |
 | `native/app/app_output_mgmt.ipp` | Output lifecycle: windows, streams, NDI, DeckLink, Spout |

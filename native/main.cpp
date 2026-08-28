@@ -89,6 +89,7 @@
 #include "platform/integration_backend.hpp"
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
+#include "platform/pdf_import.hpp"
 #include "platform/decklink.hpp"
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
@@ -3087,6 +3088,12 @@ bool isAudioPath(const fs::path& path) {
 // True for files we accept when a folder is dropped/imported (video/image/audio).
 bool isAcceptableMediaPath(const fs::path& path) {
   if (isImagePath(path) || isAudioPath(path)) {
+    return true;
+  }
+  // A PDF is acceptable to IMPORT even though it never becomes a cue itself --
+  // importPaths turns it into one still per page. Without this, dropping a
+  // folder of show material silently skipped the slide decks in it.
+  if (deckboy::platform::isPdfDocumentPath(path)) {
     return true;
   }
   std::string ext = path.extension().string();
