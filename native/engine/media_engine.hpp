@@ -216,6 +216,12 @@ class MediaEngine {
   void rebuildVideoSynthFrame(const Cue& cue, double wallSeconds, double audioLevel);
   // Row-aware copy into a locked STREAMING texture. See the definition for
   // why this is not SDL_UpdateTexture.
+  // Tell the engine its renderer is a PRIVATE, HIDDEN upload target that
+  // nothing else will ever present. Every deck has one: a hidden window whose
+  // only job is to be somewhere frames can be uploaded to. See uploadFrame for
+  // why that is a memory leak unless somebody presents it.
+  void setHiddenUploadTarget(bool hidden) { hiddenUploadTarget_ = hidden; }
+
   static void writeStreamingTexture(SDL_Texture* texture,
                                     const std::uint8_t* rgba,
                                     int width, int height);
@@ -699,6 +705,7 @@ class MediaEngine {
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
+  bool hiddenUploadTarget_ = false;   // see setHiddenUploadTarget
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
   // Persistent workers for the synth's row loops. Creating a pool per frame
   // is what ran the machine out of committed memory: 31 threads a rebuild on

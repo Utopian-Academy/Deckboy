@@ -3262,6 +3262,37 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
   // accumulate. SDL_UpdateTexture stays as the fallback for the case where a
   // lock is refused, which is rare but must not black the picture out.
   writeStreamingTexture(texture_, uploadPixels, frame.width, frame.height);
+
+  // RETIRE THE UPLOAD.
+  //
+  // Every CPU-to-GPU texture write stages through a temporary, and the driver
+  // holds those temporaries until a Present on that swapchain retires them.
+  // Each deck's engine draws into a window created HIDDEN purely as an upload
+  // target (createDeckRuntime), and nothing ever presents it -- so the staged
+  // copies accumulated one whole frame at a time, for as long as a cue was
+  // live, and were never freed.
+  //
+  // Measured on a 4K display: about 16 MB/s with the video synth's small
+  // internal raster, and 1.6 GB/s in text mode, which is the one mode that has
+  // to emit at full size. That is 250 MB to 3.4 GB in two seconds, and a 32 GB
+  // machine down to 100 MB free. It was never specific to the synth -- every
+  // cue leaked in proportion to the bytes it uploaded; the synth in text mode
+  // was simply the fastest way to see it.
+  //
+  // Bisected to here: skipping the write holds flat, writing a single pixel
+  // holds flat, copying the same bytes into our own buffer holds flat, and
+  // adding this one Present holds flat. It is not a D3D11 quirk -- the OpenGL
+  // backend behaves identically -- and SDL_FlushRenderer does NOT help,
+  // because it flushes SDL's command queue rather than the device.
+  //
+  // Presenting a hidden window costs nothing anybody sees: there is no
+  // composition and no vsync wait on an occluded swapchain. Only the deck's
+  // private target is presented this way. An engine drawing into a real
+  // output, or into the control window, leaves the presenting to whoever owns
+  // that renderer -- doing it here would tear the picture.
+  if (hiddenUploadTarget_) {
+    SDL_RenderPresent(outputRenderer_);
+  }
 }
 
 // One row-aware copy into a locked streaming texture. The pitch the backend

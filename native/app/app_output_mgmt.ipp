@@ -4266,6 +4266,10 @@
         // animate at its refresh rate (project override wins).
         [this]() { return primaryOutputMode(); }
       );
+      // This deck's renderer belongs to a window created HIDDEN, purely as an
+      // upload target -- so nothing else will ever present it, and without a
+      // present the driver never frees what we upload. See uploadFrame.
+      runtime->mediaEngine->setHiddenUploadTarget(true);
       runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
     }
     if (oldStream) {
