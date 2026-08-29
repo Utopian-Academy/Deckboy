@@ -116,6 +116,33 @@ multi-argument functions did not compile, unary minus bound so loosely that
 zero and the square root of a negative are all bounded rather than producing
 infinities or NaN, because an operator typing at speed will produce all three.
 
+### Releases now build and publish themselves
+
+The scripts to build an installer and a portable package for all three
+platforms have existed for a long time. CI built exactly one of the six --
+the macOS .dmg -- and attached it to nothing; the Windows zip was made by hand
+on a developer machine, and Linux shipped nothing at all. The README promised
+an installer and a portable build for every platform, and only the macOS half
+of that had ever been true. v0.86.0 was tagged and never released.
+
+Tagging now produces all six and publishes them: `-windows-x64-setup.exe` and
+`-windows-x64.zip`, `-macos-arm64.dmg` and `.zip`, `.AppImage` and
+`-linux-x86_64.tar.gz`.
+
+Nothing is built in the publish step. Every file is downloaded from the job
+that already tested it, so what reaches the release page is the same file that
+passed `--smoke` -- and both new packaging jobs unpack their own output and run
+the binary from inside it before uploading, because an installer nobody has run
+is a guess. The release refuses to publish unless all six are present: a
+half-empty release page looks like a release.
+
+The notes come from this changelog's own section for the version being tagged,
+so the release page and CHANGES.md cannot drift apart.
+
+Packaging runs on every push to main, not only on tags. Only the publishing is
+tag-gated -- so the packaging is exercised continuously rather than discovered
+to be broken at the moment somebody wants to ship.
+
 ### The effect chain tells you what it costs
 
 A cue has always been capped at twelve effects, but a cap only bounds the

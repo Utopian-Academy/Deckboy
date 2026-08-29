@@ -145,6 +145,46 @@ jobs:
           name: Deckboy-linux-${{ needs.version-check.outputs.version }}
           path: build/Deckboy
 
+      # The shippable Linux artefacts. Both packagers default to build/, which
+      # is where this job already built, so they need nothing but ffmpeg —
+      # which they BUNDLE, so the tarball runs on a machine that has none.
+      - name: Package portable tarball and AppImage
+        if: matrix.features == 'all'
+        run: |
+          sudo apt-get install -y ffmpeg file desktop-file-utils
+          ./tools/package_linux.sh
+          ./tools/package_linux_appimage.sh
+
+      # A tarball that unpacks to nothing, or an AppImage that will not start,
+      # is worse than no artefact: it looks like a release. Both are exercised
+      # here rather than trusted.
+      - name: The packaged builds must actually run
+        if: matrix.features == 'all'
+        run: |
+          set -e
+          mkdir -p /tmp/unpack
+          tar -xzf dist/Deckboy-*.tar.gz -C /tmp/unpack
+          BIN="$(find /tmp/unpack -name Deckboy -type f | head -1)"
+          "$BIN" --self-check
+          "$BIN" --smoke
+          # Deckboy-* explicitly: appimagetool is also a .AppImage and lives in
+          # the same directory, and which one a bare glob picks first
+          # depends on the locale.
+          APPIMAGE="$(ls dist/Deckboy-*.AppImage | head -1)"
+          chmod +x "$APPIMAGE"
+          # --appimage-extract-and-run: the runners have no FUSE.
+          "$APPIMAGE" --appimage-extract-and-run --self-check
+
+      - name: Upload Linux packages
+        if: matrix.features == 'all'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-linux-packages
+          path: |
+            dist/Deckboy-*.tar.gz
+            dist/Deckboy-*.AppImage
+          if-no-files-found: error
+
   macos-build:
     name: macOS Build (Apple Silicon/Intel)
     needs: version-check
@@ -381,3 +421,147 @@ jobs:
 
       - name: Smoke tests
         run: .\build\Release\Deckboy.exe --smoke
+
+      # The shippable Windows artefacts. The installer script stages the
+      # portable payload itself, so one call produces BOTH the zip and the
+      # setup.exe — they cannot drift apart because they are the same staging
+      # directory.
+      #
+      # ffmpeg is bundled into the payload rather than required on the operator's
+      # machine, so it has to be present here to be copied.
+      - name: Install ffmpeg and Inno Setup
+        if: matrix.features == 'all'
+        run: choco install ffmpeg innosetup -y --no-progress
+
+      - name: Package portable zip and installer
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          # The REAL binaries, not Chocolatey's shims.
+          #
+          # `Get-Command ffmpeg` resolves to a shim in chocolatey\bin, and a shim
+          # copied into the package is a stub that looks for a binary the
+          # operator's machine has never had. The package must carry the actual
+          # ffmpeg.exe and ffprobe.exe, so find them in choco's library.
+          $real = Get-ChildItem -Path "C:\ProgramData\chocolatey\lib" -Recurse `
+                    -Filter ffmpeg.exe -ErrorAction SilentlyContinue |
+                  Where-Object { Test-Path (Join-Path $_.DirectoryName "ffprobe.exe") } |
+                  Select-Object -First 1
+          if (-not $real) { throw "no real ffmpeg.exe/ffprobe.exe pair found to bundle" }
+          $ffmpeg = $real.DirectoryName
+          Write-Host "bundling ffmpeg from $ffmpeg"
+          # -BuildDir because CI builds to build\Release, while the script's
+          # default is the build\windows\Release a local build uses.
+          .\tools\package_windows_installer.ps1 -FfmpegDir $ffmpeg -BuildDir "build\Release"
+
+      # An installer nobody has run is a guess. This unpacks the portable zip
+      # and starts the binary out of it, which is the same payload the setup.exe
+      # installs.
+      - name: The packaged build must actually run
+        if: matrix.features == 'all'
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem dist\*.zip | Select-Object -First 1
+          Expand-Archive -Path $zip.FullName -DestinationPath dist\unpack -Force
+          $exe = Get-ChildItem dist\unpack -Recurse -Filter Deckboy.exe | Select-Object -First 1
+          & $exe.FullName --self-check
+          if ($LASTEXITCODE -ne 0) { throw "self-check failed from the packaged build" }
+          & $exe.FullName --smoke
+          if ($LASTEXITCODE -ne 0) { throw "smoke failed from the packaged build" }
+
+      - name: Upload Windows packages
+        if: matrix.features == 'all'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-windows-packages
+          path: |
+            dist/Deckboy-*.zip
+            dist/Deckboy-*-setup.exe
+          if-no-files-found: error
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Publish, on a tag only.
+  #
+  # Before this, every artefact was built and then thrown away: the macOS .dmg
+  # was made on every run and attached to nothing, the Windows zip was built by
+  # hand on a developer's machine, and Linux shipped nothing at all. The README
+  # promised an installer and a portable build for all three, and only the macOS
+  # half of that was ever true.
+  #
+  # Nothing is BUILT here. Everything is downloaded from the jobs that already
+  # tested it, so the file published is the same file that ran --smoke.
+  # ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: Publish Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [version-check, linux-build, macos-package, windows-build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect the shippable files
+        run: |
+          set -e
+          mkdir -p release
+          # Deckboy-* only. The AppImage packager downloads appimagetool INTO
+          # dist/, and it is itself a .AppImage -- so a bare extension match
+          # publishes the build tool as though it were the product.
+          find artifacts -type f \( \
+            -name 'Deckboy-*.zip' -o -name 'Deckboy-*.dmg' \
+            -o -name 'Deckboy-*-setup.exe' -o -name 'Deckboy-*.tar.gz' \
+            -o -name 'Deckboy-*.AppImage' \) \
+            -exec cp -v {} release/ \;
+          ls -la release
+
+      # Six files: an installer and a portable build for each of the three
+      # platforms. Anything missing means a packaging job silently produced
+      # nothing, and a half-empty release is worse than a failed build.
+      - name: Every platform must have shipped something
+        run: |
+          set -e
+          cd release
+          for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
+                         '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage'; do
+            count=$(ls $pattern 2>/dev/null | wc -l)
+            if [ "$count" -eq 0 ]; then
+              echo "MISSING: nothing matched $pattern" >&2
+              exit 1
+            fi
+          done
+          echo "all six artefacts present"
+
+      # The notes are the changelog's own section for this version, so the
+      # release page and CHANGES.md cannot disagree.
+      - name: Extract the release notes
+        run: |
+          python3 - <<'PY'
+          import io, os, re
+          version = os.environ["VERSION"]
+          text = io.open("CHANGES.md", encoding="utf-8").read()
+          start = re.search(r"^## .*v%s\b.*$" % re.escape(version), text, re.M)
+          if not start:
+              raise SystemExit("no CHANGES.md section for v%s" % version)
+          rest = text[start.end():]
+          nxt = re.search(r"^## \d{4}-", rest, re.M)
+          body = rest[: nxt.start()] if nxt else rest
+          io.open("release-notes.md", "w", encoding="utf-8").write(body.strip() + "\n")
+          print("release notes: %d characters" % len(body))
+          PY
+        env:
+          VERSION: ${{ needs.version-check.outputs.version }}
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version-check.outputs.version }}
+        run: |
+          gh release create "v$VERSION" \
+            --title "Deckboy v$VERSION" \
+            --notes-file release-notes.md \
+            release/*
