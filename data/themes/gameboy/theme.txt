@@ -13,3 +13,6 @@ screen_ink_soft	4A7A2AFF
 button_bezel	7B8B5EFF
 delete_bezel	8B3A3AFF
 scanline_alpha	18
+# Creatures. They live on the chrome, never over a control, and they
+# hide themselves the moment an output goes live.
+creature	moth	2

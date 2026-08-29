@@ -73,6 +73,7 @@
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/code_source.hpp"
+#include "core/creatures.hpp"
 #include "core/io_utils.hpp"
 #include "core/subtitle_parser.hpp"
 #include "core/system_browser.hpp"
@@ -3367,6 +3368,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
+  output << "creatures\t" << (project.creaturesEnabled ? 1 : 0) << '\n';
   // VJ mode. Written as project scalars so a show that never turns it on
   // carries the defaults and behaves exactly as it always did.
   output << "vj_mode\t" << (project.vjModeEnabled ? 1 : 0) << '\n';
@@ -3886,6 +3888,8 @@ Project loadProject(const fs::path& projectFile,
       project.vjTempoBpm = std::clamp(safeDouble(fields, 1, 120.0), 20.0, 300.0);
     } else if (fields[0] == "vj_quantise") {
       project.vjQuantiseTakes = safeBool(fields, 1, false);
+    } else if (fields[0] == "creatures") {
+      project.creaturesEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "ui_scale") {
       project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
     } else if (fields[0] == "interaction_mode") {
@@ -5460,6 +5464,7 @@ class App {
   // Render: output window compositor → NDI/DeckLink/Siphon blit
 #include "app/app_render_output.ipp"
   // Reusable UI widget functions (buttons, sliders, dropdowns, toggles)
+#include "app/app_creatures.ipp"
 #include "app/app_code_editor.ipp"
 #include "app/app_ui_widgets.ipp"
   // Render: settings modal dialog (all tabs)
@@ -7316,6 +7321,7 @@ class App {
       try { return static_cast<std::uint32_t>(std::stoul(s, nullptr, 16)); }
       catch (...) { return 0xFFFFFFFFu; }
     };
+    themeCreatures_.clear();
     bool sawFg = false;
     bool sawTile = false;
     bool sawFgSoft = false;
@@ -7342,6 +7348,23 @@ class App {
       else if (key == "screen_fg_soft"){ kScreenFgSoftColor  = c; sawFgSoft = true; }
       else if (key == "button_bezel")    kButtonBezelColor   = c;
       else if (key == "delete_bezel")    kDeleteBezelColor   = c;
+      // creature<TAB><species><TAB><count> -- a theme asking for company.
+      // Unknown species are ignored rather than refused: a theme written for
+      // a newer build should still load, minus the animal this one has never
+      // heard of.
+      else if (key == "creature") {
+        const auto sep = val.find('	');
+        const std::string species = val.substr(0, sep);
+        int count = 1;
+        if (sep != std::string::npos) {
+          try { count = std::clamp(std::stoi(val.substr(sep + 1)), 1, 12); }
+          catch (...) { count = 1; }
+        }
+        deckboy::creatures::Species kind;
+        if (deckboy::creatures::speciesFromToken(species, kind)) {
+          themeCreatures_.push_back({kind, count});
+        }
+      }
       else if (key == "scanline_alpha") {
         try { pal.scanlineAlpha = static_cast<Uint8>(std::clamp(std::stoi(val), 0, 255)); }
         catch (...) { pal.scanlineAlpha = 18; }
@@ -7364,6 +7387,7 @@ class App {
     applyThemeFromFile(themePath);
     rebuildPalette();
     currentThemeName_ = name;
+    rebuildCreatures();
   }
 
   void loadThemeFromEnv() {
@@ -8059,6 +8083,11 @@ class App {
   static constexpr int kSettingsActionAudioInputGainInc = 781;
   static constexpr int kSettingsActionAudioInputClipClear = 782;
   static constexpr int kSettingsActionAudioInputMono = 783;
+
+  // 784: the theme creatures. A theme has to ASK for them before anything
+  // appears, so this is for an operator who wants a themed machine without the
+  // company -- not a guard against surprise.
+  static constexpr int kSettingsActionCreaturesToggle = 784;
   static constexpr int kSettingsActionAsioDropdown   = 775;
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
@@ -8256,6 +8285,17 @@ class App {
   // the preview, so every LFO in the show is at the same moment in both.
   double lfoSeconds_ = 0.0;
   double lfoBeats_ = 0.0;
+
+  // The theme's creatures. Empty for every theme that does not ask, which is
+  // every theme that existed before this.
+  std::vector<deckboy::creatures::Request> themeCreatures_;
+  std::vector<deckboy::creatures::Creature> creatures_;
+  deckboy::creatures::Habitat creatureHabitat_ {};
+  double creatureFade_ = 0.0;       // eased, so they leave rather than blink out
+  double creatureLastTime_ = 0.0;
+  SDL_Rect playlistFreeRect_ {};    // the empty part of the focused playlist
+  double creatureLureX_ = 0.0;      // what the moths steer toward
+  double creatureLureY_ = 0.0;
 
   CodeEditorState codeEditor_;
   static constexpr std::size_t kCodeEditorMaxChars = 512;

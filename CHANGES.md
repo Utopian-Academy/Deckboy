@@ -1,5 +1,46 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-29 - v0.88.0 (the themes have things living in them)
+
+Some themes now have creatures in them.
+
+They live in the empty part of the playlist, below the last cue: a moth that
+flutters toward the program monitor because moths go to the light, fireflies
+that drift and breathe, fish that turn lazily, a crab that scuttles along the
+bottom and stops to think, and a cat asleep in the corner that stretches every
+now and then and flicks its tail.
+
+Three rules, and they are what make this safe to ship in show software rather
+than a novelty that gets switched off after the first gig:
+
+- **They never sit over a control.** The space below the last cue contains no
+  value, no level and no cue name. A creature that covers a number would be a
+  bug in a way that one asleep on an empty shelf is not. The first attempt put
+  them on the strip above the bottom bar, which turned out to overlap the
+  transport row -- a firefly ended up sitting on a button.
+- **They vanish the moment an output is live.** During a show the only thing
+  moving on that machine should be the show. They fade out over half a second
+  rather than blinking off, and come back when the outputs go down.
+- **They are theme data.** A theme asks for them by name and count; a theme
+  that asks for nothing gets nothing, which is every theme that existed before
+  this. The renderer has no opinion about which themes should have animals in
+  them, exactly as it has none about their colours.
+
+Fourteen themes ask for something suited to them -- fish in Dolphin and Wave
+Race, fireflies in the dark terminals and Zelda, crabs in Mario and Ice
+Climber, a cat in Peach and Kirby. The rest are untouched.
+
+They are drawn from primitives rather than sprite art, so each one takes its
+ink from the palette and reads correctly on every theme without a single
+per-theme asset -- the same reason the startup mascot is drawn rather than
+loaded. Both colours are inks ON TILE, which the first version got wrong: it
+used the bright fill role for the wings, so on a theme with a bright tile a
+moth was one dark pixel with nothing attached to it.
+
+Settings has a switch, shown only when the current theme actually has any.
+
+---
+
 ## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)
 
 Two decks, a crossfader and a tempo; a source you write instead of load, with
