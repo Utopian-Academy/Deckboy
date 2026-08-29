@@ -24,7 +24,12 @@ param(
   [string]$RepoRoot     = (Resolve-Path (Join-Path $PSScriptRoot "..")),
   [string]$Configuration = "Release",
   [string]$FfmpegDir    = "C:\ffmpeg\bin",
-  [string]$Iscc         = ""
+  [string]$Iscc         = "",
+  # Where the built Deckboy.exe is. Forwarded to package_windows.ps1, which
+  # otherwise assumes build\windows\<config> -- true for a local build and not
+  # for CI, which builds to build\<config>. Without this the installer could
+  # only ever be built on a developer's own machine.
+  [string]$BuildDir     = ""
 )
 $ErrorActionPreference = "Stop"
 
@@ -61,7 +66,13 @@ function Invoke-Sign([string]$file) {
 }
 
 # 1. Stage the portable payload (this is what the .iss packages).
-& (Join-Path $PSScriptRoot "package_windows.ps1") -RepoRoot $RepoRoot -Configuration $Configuration -FfmpegDir $FfmpegDir
+$StageArgs = @{
+  RepoRoot      = $RepoRoot
+  Configuration = $Configuration
+  FfmpegDir     = $FfmpegDir
+}
+if ($BuildDir) { $StageArgs.BuildDir = $BuildDir }
+& (Join-Path $PSScriptRoot "package_windows.ps1") @StageArgs
 
 # 2. Sign the app binary BEFORE it is packaged, so the INSTALLED Deckboy.exe is
 #    signed too, not only the installer.
