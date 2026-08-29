@@ -386,6 +386,15 @@ changes half the monitor.
 A check that passes for the wrong reason is worse than no check, and this one
 was passing for the wrong reason on every effect at once.
 
+It was also blind to a whole CLASS of effect. Counting differing pixels
+cannot see a smear: stroking along a feature preserves the local average
+almost exactly, so grain flow read as 0.8% while visibly softening the
+picture. The sweep now also measures the monitor's total edge energy, which
+a smear unmistakably drops -- grain flow comes out at -11%. And the test
+clip is one frame held for its whole length, half fractal and half colour
+bars, so the result no longer depends on where the seek landed or on which
+kind of content a given effect happens to need.
+
 ### Smaller things
 
 - `--effect-dump` takes a pass count, so an effect whose whole subject is what
