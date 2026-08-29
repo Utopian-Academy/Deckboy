@@ -52,6 +52,7 @@
 #include <vector>
 
 #include "core/constants.hpp"
+#include "core/row_workers.hpp"
 #include "core/subprocess.hpp"
 #include "core/code_source.hpp"
 #include "core/types.hpp"
@@ -213,6 +214,16 @@ class MediaEngine {
   // synth free-runs when nothing is playing, because a visualiser that shows
   // nothing without audio is useless during setup.
   void rebuildVideoSynthFrame(const Cue& cue, double wallSeconds, double audioLevel);
+  // Row-aware copy into a locked STREAMING texture. See the definition for
+  // why this is not SDL_UpdateTexture.
+  static void writeStreamingTexture(SDL_Texture* texture,
+                                    const std::uint8_t* rgba,
+                                    int width, int height);
+  // Rebuilt at DISPLAY rate, not render-loop rate. The render loop has a
+  // 240 Hz floor, so without this the synth generated four frames for every
+  // one anybody saw -- and each of those built a thread pool. Patterns
+  // already worked this way; the synth never did.
+  double lastVsynthRebuildSeconds_ = -1.0;
   // One sample of the FDS voice. Advances the carrier, modulator and
   // envelope by dt seconds.
   double fdsNextSample(const ToneSettings& tone, double dt);
@@ -689,6 +700,11 @@ class MediaEngine {
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
+  // Persistent workers for the synth's row loops. Creating a pool per frame
+  // is what ran the machine out of committed memory: 31 threads a rebuild on
+  // a 32-core box, thousands a second, each committing a stack the OS could
+  // not reclaim fast enough.
+  deckboy::RowWorkers vsynthWorkers_;
   // Set while VJ mode is on: decode to CPU pixels so the control window can
   // build A and B previews from them. Takes effect on the next take.
   bool forcePixelFrames_ = false;
