@@ -399,6 +399,52 @@ export function buildActions(self) {
 			},
 		},
 
+		text_mode: {
+			name: 'Video synth: text mode on/off',
+			description: 'Switch the selected video synth cue between pixels and a character grid.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'TOGGLE',
+					choices: [
+						{ id: 'ON', label: 'On' },
+						{ id: 'OFF', label: 'Off' },
+						{ id: 'TOGGLE', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`ASCII ${options.state}`),
+		},
+
+		text_glyphs: {
+			name: 'Video synth: custom glyphs',
+			description:
+				'Characters the picture is built from, darkest first. Empty restores the chosen glyph set.',
+			options: [
+				{ type: 'textinput', label: 'Characters', id: 'glyphs', default: '', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const glyphs = (await self.parseVariablesInString(options.glyphs)).trim()
+				send(glyphs.length > 0 ? `ASCII GLYPHS ${glyphs}` : 'ASCII GLYPHS')
+			},
+		},
+
+		text_phrases: {
+			name: 'Video synth: phrases',
+			description: 'Words to surface in the character field, separated by | . Empty clears them.',
+			options: [
+				{ type: 'textinput', label: 'Phrases', id: 'phrases', default: '', useVariables: true },
+				{ type: 'number', label: 'Hold (seconds, 0 hides)', id: 'hold', default: 2.5, min: 0, max: 60 },
+			],
+			callback: async ({ options }) => {
+				const phrases = (await self.parseVariablesInString(options.phrases)).trim()
+				send(phrases.length > 0 ? `ASCII PHRASES ${phrases}` : 'ASCII PHRASES')
+				send(`ASCII HOLD ${options.hold}`)
+			},
+		},
+
 		custom: {
 			name: 'Custom command',
 			description:
