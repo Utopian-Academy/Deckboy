@@ -925,10 +925,24 @@
       // the output deliberately -- a preview that animates while the programme
       // freezes is worse than both of them freezing.
       const Cue* gateCue = activeCuePtr(project_.focusedDeckIndex);
+      // WHETHER to re-run, and WHAT CLOCK to run against, are two questions.
+      //
+      // Re-running is not restricted by cue kind, because it must match the
+      // output, which never was. It got a kind restriction here by mistake and
+      // the two then disagreed on a paused CLIP: the output kept evolving and
+      // the preview did not. Worse for a stateful effect, whose first call only
+      // seeds its memory -- "renders once" becomes "never renders at all",
+      // which is exactly how scotopic came out as no change.
       const bool previewStackAnimates =
-        gateCue && isDefaultStillDurationCueKind(gateCue->kind) &&
-        (deckboy::effects::cueEffectStackAnimates(gateCue->effects) ||
-         deckboy::effects::cueEffectStackHasLfo(gateCue->effects));
+        gateCue && (deckboy::effects::cueEffectStackAnimates(gateCue->effects) ||
+                    deckboy::effects::cueEffectStackHasLfo(gateCue->effects));
+      // The CLOCK is kind-restricted, and stays that way. A still has no frame
+      // progression of its own to offer so the app's counter stands in; a video
+      // keeps following its source frame, so a given frame of a clip always
+      // grades the same way and a recording stays reproducible.
+      const bool previewUseFrameCounter =
+        previewStackAnimates && gateCue &&
+        isDefaultStillDurationCueKind(gateCue->kind);
       if (frame && frame->width > 0 && frame->height > 0 &&
           (frame->index != controlPreviewFrameIdx_ || previewStackAnimates)) {
         controlPreviewFrameIdx_ = frame->index;
@@ -961,7 +975,7 @@
           deckboy::effects::CueEffectContext fxCtx;
           fxCtx.width = controlPreviewLookFrame_.width;
           fxCtx.height = controlPreviewLookFrame_.height;
-          fxCtx.frameIndex = previewStackAnimates
+          fxCtx.frameIndex = previewUseFrameCounter
             ? motionDriverFrameCounter_
             : controlPreviewLookFrame_.index;
           // The driver, same as the output composite does it. Without this a
@@ -975,7 +989,8 @@
           // A SEPARATE buffer from the output's. Sharing one would advance the
           // loop twice on any frame where both ran, and the preview would then
           // disagree with what is going out.
-          fxCtx.feedback = previewFeedbackBufferForDeck(project_.focusedDeckIndex);
+          fxCtx.effectState = previewEffectStateForDeck(
+            project_.focusedDeckIndex, previewCue->effects.size());
           // The same clock the output used this frame, so the monitor shows the
           // oscillator where the audience sees it.
           std::vector<deckboy::effects::CueEffect> previewModulated;

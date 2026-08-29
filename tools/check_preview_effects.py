@@ -41,6 +41,13 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Serialised tokens from cue_effects.hpp, with the amount:paramA each one wants.
 # Kept here rather than parsed, so adding an effect and forgetting this list
 # fails loudly instead of quietly shrinking the sweep.
+# These are written straight into the SAVE format, whose fields are
+#   token:amount:paramA:paramB:BYPASSED:paramC:paramD
+#
+# Note the fourth one. It is NOT paramC -- that is the --effect-dump CLI order,
+# and putting a parameter there instead sets "bypassed" to a non-zero value and
+# switches the effect off, which then reports as the effect doing nothing. Any
+# entry that needs a C or D has to write the 0 for bypassed explicitly.
 EFFECTS = [
     ("invert",          "1:0.5"),
     ("posterise",       "1:0.15"),
@@ -60,8 +67,14 @@ EFFECTS = [
     ("dye_advect",      "1:0.2"),
     ("reaction_bloom",  "1:0.45"),
     ("relativistic",    "0.9:0.6"),
-    ("caustics",        "0.8:0.45"),
+    ("caustics",        "0.8:0.45:0.4:0:0.7"),
     ("feedback",        "0.9:0.62:0.55"),
+    ("schlieren",       "0.95:0.12:0.55"),
+    ("chladni",         "0.9:0.45:0.7"),
+    ("wavefront",       "1.0:0.7:0.8:0:0.15:0.6"),
+    ("crystallise",     "0.95:0.22:0.6"),
+    ("scotopic",        "0.95:0.7:0.6"),
+    ("grain_flow",      "1.0:0.95:0.0:0:0.15"),
 ]
 
 # Both need something a paused frame cannot give them.
@@ -129,6 +142,18 @@ def build_root(root, template, media, effect_field):
                 f.append("")
             f[2] = media.replace("\\", "\\\\")
             f[3] = "FXCHECK"
+            # The KIND, too.
+            #
+            # Rewriting only the path left the cue whatever the template's first
+            # cue happened to be. On a machine whose saved show starts with a
+            # pattern cue, the path was simply ignored and every effect was
+            # being checked against a generated test card instead of the clip --
+            # which passed for most of them and made "night eyes" look dead,
+            # because an effect whose job is removing colour does nothing
+            # visible to a near-monochrome card. The template is an ordinary
+            # local show file and its first cue is not ours to assume.
+            if len(f) > 4:
+                f[4] = "video"
             f[idx] = effect_field
             f[idx + 1] = ""                    # no motion driver
             line = "\t".join(f)

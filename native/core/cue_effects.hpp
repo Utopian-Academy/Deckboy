@@ -64,6 +64,12 @@ enum class CueEffectKind : int {
   Relativistic,
   Caustics,
   Feedback,
+  Schlieren,
+  Chladni,
+  Wavefront,
+  Crystallise,
+  Scotopic,
+  GrainFlow,
   Count,
 };
 
@@ -91,6 +97,12 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Relativistic:   return "lightspeed";
     case CueEffectKind::Caustics:       return "caustics";
     case CueEffectKind::Feedback:       return "feedback";
+    case CueEffectKind::Schlieren:      return "schlieren";
+    case CueEffectKind::Chladni:        return "chladni";
+    case CueEffectKind::Wavefront:      return "wavefront";
+    case CueEffectKind::Crystallise:    return "crystallise";
+    case CueEffectKind::Scotopic:       return "night eyes";
+    case CueEffectKind::GrainFlow:      return "grain flow";
     default:                            return "none";
   }
 }
@@ -121,6 +133,12 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Relativistic:   return "relativistic";
     case CueEffectKind::Caustics:       return "caustics";
     case CueEffectKind::Feedback:       return "feedback";
+    case CueEffectKind::Schlieren:      return "schlieren";
+    case CueEffectKind::Chladni:        return "chladni";
+    case CueEffectKind::Wavefront:      return "wavefront";
+    case CueEffectKind::Crystallise:    return "crystallise";
+    case CueEffectKind::Scotopic:       return "scotopic";
+    case CueEffectKind::GrainFlow:      return "grain_flow";
     default:                            return "none";
   }
 }
@@ -151,6 +169,7 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Caustics:
     // Carry state between calls, so they move without reading the index.
     case CueEffectKind::Feedback:
+    case CueEffectKind::Scotopic:
     case CueEffectKind::MotionPuppet:
       return true;
     default:
@@ -215,6 +234,24 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Feedback:
       return which == 0 ? "zoom" : which == 1 ? "spin"
            : which == 2 ? "drift" : which == 3 ? "colour bleed" : nullptr;
+    case CueEffectKind::Schlieren:
+      return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
+           : which == 2 ? "colour" : nullptr;
+    case CueEffectKind::Chladni:
+      return which == 0 ? "mode" : which == 1 ? "second mode"
+           : which == 2 ? "gather" : which == 3 ? "line glow" : nullptr;
+    case CueEffectKind::Wavefront:
+      return which == 0 ? "stiffness" : which == 1 ? "steps"
+           : which == 2 ? "damping" : which == 3 ? "relief" : nullptr;
+    case CueEffectKind::Crystallise:
+      return which == 0 ? "grain size" : which == 1 ? "facet light"
+           : which == 2 ? "irregularity" : which == 3 ? "edges" : nullptr;
+    case CueEffectKind::Scotopic:
+      return which == 0 ? "colour lag" : which == 1 ? "rod bias"
+           : which == 2 ? "purkinje" : nullptr;
+    case CueEffectKind::GrainFlow:
+      return which == 0 ? "stroke" : which == 1 ? "across the grain"
+           : which == 2 ? "coherence" : nullptr;
     default:
       return nullptr;
   }
@@ -350,6 +387,66 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         ? "How fast the surface moves."
         : "How hard the light gathers where the rays converge. This is the "
           "part that makes it read as water rather than as a wobble.";
+    case CueEffectKind::Schlieren:
+      return which == 0
+        ? "Which way the knife edge lies. Only gradients ACROSS the edge show, "
+          "so turning it swaps which features appear and which vanish."
+        : which == 1
+        ? "How faint a gradient still registers. High turns the quietest "
+          "shading into visible structure."
+        : "Tints the two directions apart, so light bending one way and the "
+          "other are different colours instead of both being grey.";
+    case CueEffectKind::Chladni:
+      return which == 0
+        ? "The plate's first vibration mode. Whole numbers give clean figures; "
+          "between them the pattern is unresolved, as a real plate would be."
+        : which == 1
+        ? "The second mode it is beating against. Equal to the first gives "
+          "nothing; far apart gives a dense lattice."
+        : which == 2
+        ? "How hard the picture is pulled onto the still lines."
+        : "Lights the nodal lines themselves, the way sand piled on a plate "
+          "catches the light.";
+    case CueEffectKind::Wavefront:
+      return which == 0
+        ? "How fast the wave travels. Faster spreads further in the same time "
+          "and interferes more."
+        : which == 1
+        ? "How long it is allowed to run. More steps means the ripples have "
+          "crossed and reflected more times."
+        : which == 2
+        ? "How quickly it dies away. None rings forever; a lot leaves only "
+          "the first wave."
+        : "Lights the wave as a surface instead of only displacing the "
+          "picture, so you can see the shape of it.";
+    case CueEffectKind::Crystallise:
+      return which == 0
+        ? "How big the crystals grow before they meet."
+        : which == 1
+        ? "How much each facet catches the light, which is what makes them "
+          "read as faceted rather than as flat blobs."
+        : which == 2
+        ? "How irregular the growth is. Low gives an even honeycomb, high "
+          "gives long shards."
+        : "Darkens the boundaries where crystals meet.";
+    case CueEffectKind::Scotopic:
+      return which == 0
+        ? "How far behind the colour runs. The rods are fast and see no "
+          "colour; the cones are slow, so movement goes grey and colour "
+          "catches up afterwards."
+        : which == 1
+        ? "How dark it has to be before the rods take over."
+        : "The Purkinje shift: as the rods take over, sensitivity slides "
+          "toward the blue end, which is why night looks blue.";
+    case CueEffectKind::GrainFlow:
+      return which == 0
+        ? "How far each stroke is dragged along the grain."
+        : which == 1
+        ? "Turns the strokes across the grain instead of along it, which "
+          "combs the picture apart rather than smoothing it."
+        : "How strongly the direction has to agree before it is followed. Low "
+          "smears everything; high leaves flat areas alone and only strokes "
+          "where there is real structure.";
     default:
       return "";
   }
@@ -513,21 +610,27 @@ struct CueEffectContext {
   // of the time, which is almost always -- so MotionPuppet costs nothing on a
   // cue that has not been given a driver.
   const deckboy::motion::MotionField* motion = nullptr;
-  // Somewhere to keep the LAST frame, for feedback. Owned by the caller and
-  // one per deck, because the stack itself is deliberately stateless -- an
+  // Scratch for the effects that remember things, ONE SLOT PER STACK POSITION.
+  //
+  // Owned by the caller, because the stack itself is deliberately stateless: an
   // effect that remembered things internally could not be run twice, could not
   // be dumped headlessly, and would have to guess which cue it belonged to.
-  // Null everywhere that has no such buffer, and feedback then does nothing
-  // rather than pretending.
-  std::vector<std::uint8_t>* feedback = nullptr;
+  //
+  // Per position rather than one shared buffer, because there is now more than
+  // one effect that needs memory -- feedback keeps the last frame, scotopic
+  // keeps a lagging colour signal -- and a single buffer would have had them
+  // overwriting each other the moment both were in one chain. Null everywhere
+  // that has no scratch to offer, and those effects then do nothing rather than
+  // pretend.
+  std::vector<std::vector<std::uint8_t>>* effectState = nullptr;
 
   // Set when this is NOT the first consumer of the deck this frame -- a second
-  // output showing the same deck, say. The loop then reads the same previous
-  // frame the first consumer read and does not step, so every output gets the
-  // identical picture instead of each one advancing the echo again and the two
+  // output showing the same deck, say. Every stateful effect then reads what
+  // the first consumer read and does not step, so all the outputs get the
+  // identical picture instead of each one advancing the state again and the
   // screens drifting apart. The same fault the motion driver had, and the same
   // shape of answer.
-  bool feedbackHold = false;
+  bool stateHold = false;
 };
 
 namespace detail {
@@ -885,7 +988,16 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
     return;
   }
 
-  for (const CueEffect& fx : stack) {
+  for (std::size_t stackIndex = 0; stackIndex < stack.size(); ++stackIndex) {
+    const CueEffect& fx = stack[stackIndex];
+    // The scratch this effect is allowed to remember things in, or null. Keyed
+    // by POSITION in the stack, so two effects that both need memory get one
+    // each and neither can tread on the other -- which is what a single shared
+    // buffer would have meant the moment a second stateful effect existed.
+    std::vector<std::uint8_t>* state =
+      (ctx.effectState && stackIndex < ctx.effectState->size())
+        ? &(*ctx.effectState)[stackIndex] : nullptr;
+    (void) state;
     const double amt = std::clamp(static_cast<double>(fx.amount), 0.0, 1.0);
     // Named once. See the note on CueEffect: A=0.5, B=0, C=0, D=0 is the
     // "as it was before this parameter existed" position for every effect.
@@ -1879,7 +1991,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // the last and the loop cannot run away. Real feedback blows out to
         // white the moment the gain passes unity and there is no getting it
         // back during a show; here the worst case is a long trail.
-        if (!ctx.feedback) {
+        if (!state) {
           break;   // no buffer from this caller: do nothing rather than pretend
         }
         // TWO planes and a cursor byte, all inside the one buffer the caller
@@ -1890,7 +2002,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // one is written to the other and to the picture at the same time, so
         // there is no allocation, no copy back, and the read and the write can
         // never alias.
-        std::vector<std::uint8_t>& store = *ctx.feedback;
+        std::vector<std::uint8_t>& store = *state;
         const std::size_t bytes = count * 4;
         const std::size_t wanted = bytes * 2 + 1;
         if (store.size() != wanted) {
@@ -1906,7 +2018,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // the plane the step already read, which is the one the cursor does not
         // name, and writes nothing.
         const bool secondPlaneIsLatest = store[bytes * 2] != 0;
-        const bool hold = ctx.feedbackHold;
+        const bool hold = ctx.stateHold;
         const std::uint8_t* previous =
           store.data() + ((secondPlaneIsLatest != hold) ? bytes : 0);
         std::uint8_t* record =
@@ -1998,6 +2110,726 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               }
               lp[3] = 255;
               if (kp) kp[3] = 255;
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Schlieren: {
+        // SCHLIEREN — the instrument physicists use to photograph air.
+        //
+        // You cannot see a shockwave, a candle's plume or the heat off a road,
+        // because air is transparent. Schlieren photography makes them visible
+        // anyway: light bent by a density gradient is either passed or blocked
+        // by a knife edge at the focus, so a gradient the eye could never see
+        // becomes brightness. It is how every photograph of a bullet's shockwave
+        // was taken.
+        //
+        // Here the PICTURE is the density field. What comes out is not the
+        // image and not its edges: it is the rate at which the image is
+        // changing, in one chosen direction, with everything flat turned to
+        // mid-grey. Rotating the knife swaps which features exist and which
+        // disappear entirely, which is the part that reads as an instrument
+        // rather than as a filter.
+        const double knife = pA * 6.283185307179586;   // the edge's angle
+        const double kx = std::cos(knife), ky = std::sin(knife);
+        // A real bench has a sensitivity set by focal length and knife
+        // position. This is that knob.
+        const double gain = 0.6 + pB * 14.0;
+        const double tint = pC;
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int ym = std::max(0, y - 1), yp = std::min(ctx.height - 1, y + 1);
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const int xm = std::max(0, x - 1), xp = std::min(ctx.width - 1, x + 1);
+              auto lumaAt = [&](int px, int py) {
+                const std::uint8_t* p =
+                  source.data() + (static_cast<std::size_t>(py) * ctx.width + px) * 4;
+                return (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0;
+              };
+              // The gradient, projected onto the knife's normal. Only the
+              // component ACROSS the edge is passed -- light bent along it
+              // misses the knife entirely and contributes nothing, which is
+              // exactly why turning the knife changes what you can see.
+              const double gx = lumaAt(xp, y) - lumaAt(xm, y);
+              const double gy = lumaAt(x, yp) - lumaAt(x, ym);
+              const double cut = (gx * kx + gy * ky) * gain;
+              // Mid-grey is "no deflection", which is what an undisturbed
+              // schlieren image looks like: a flat grey field with only the
+              // disturbances in it.
+              const double lit = 0.5 + cut * 0.5;
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              // Colour schlieren replaces the knife with a filter, so the
+              // direction of bending reads as hue rather than as brightness.
+              const double warm = lit + cut * tint * 0.6;
+              const double cool = lit - cut * tint * 0.6;
+              const double out[3] = {warm, lit, cool};
+              for (int c = 0; c < 3; ++c) {
+                dp[c] = detail::clamp8(sp[c] * (1.0 - amt) + out[c] * 255.0 * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Chladni: {
+        // CHLADNI -- the shape a sound makes.
+        //
+        // Bow the edge of a metal plate with sand on it and the sand runs away
+        // from everywhere that is moving, piling up along the lines that happen
+        // to be standing still. Those lines are the nodes of the plate's
+        // vibration; Chladni catalogued them in 1787, and they are why violins
+        // are the shape they are.
+        //
+        // The picture is the sand. Every pixel walks DOWN the slope of the
+        // plate's amplitude until it is standing somewhere that is not moving,
+        // so the image gathers itself into the figure of whichever note the
+        // plate is being played at.
+        //
+        // The mode numbers are the note. Whole numbers give the clean classical
+        // figures; between them the plate is being driven at a frequency it
+        // does not want and the pattern is correspondingly unresolved -- which
+        // is what a real plate does, and worth keeping rather than quantising
+        // away.
+        const double m = 1.0 + pA * 8.0;
+        const double n = 1.0 + pB * 8.0;
+        const double pull = amt * std::max(ctx.width, ctx.height) * 0.06 * (0.2 + pC);
+        const double glow = pD;
+        const double kPi = 3.141592653589793;
+        // SEPARABLE, so the sines are tables rather than per-pixel work.
+        //
+        // The plate is sin(m.pi.u).sin(n.pi.v) - sin(n.pi.u).sin(m.pi.v), and
+        // the first attempt evaluated that five times per pixel to get the
+        // value and its slope: twenty sines per pixel, which cost 24ms at 1080p
+        // and was the entire effect. But u depends only on x and v only on y,
+        // so two tables of width and three rows of constants replace all of it,
+        // and the inner loop does no trigonometry at all.
+        std::vector<double> sinMu(static_cast<std::size_t>(ctx.width));
+        std::vector<double> sinNu(static_cast<std::size_t>(ctx.width));
+        const double invW = 1.0 / std::max(1, ctx.width - 1);
+        const double invH = 1.0 / std::max(1, ctx.height - 1);
+        for (int x = 0; x < ctx.width; ++x) {
+          const double u = x * invW;
+          sinMu[static_cast<std::size_t>(x)] = std::sin(m * kPi * u);
+          sinNu[static_cast<std::size_t>(x)] = std::sin(n * kPi * u);
+        }
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int yUp = std::max(0, y - 1);
+            const int yDn = std::min(ctx.height - 1, y + 1);
+            // Three rows of constants: this row and the two the vertical
+            // difference needs.
+            const double sinMv = std::sin(m * kPi * (y * invH));
+            const double sinNv = std::sin(n * kPi * (y * invH));
+            const double sinMvUp = std::sin(m * kPi * (yUp * invH));
+            const double sinNvUp = std::sin(n * kPi * (yUp * invH));
+            const double sinMvDn = std::sin(m * kPi * (yDn * invH));
+            const double sinNvDn = std::sin(n * kPi * (yDn * invH));
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const int xm = std::max(0, x - 1);
+              const int xp = std::min(ctx.width - 1, x + 1);
+              const double su = sinMu[static_cast<std::size_t>(x)];
+              const double sn = sinNu[static_cast<std::size_t>(x)];
+              const double a = su * sinNv - sn * sinMv;
+              const double mag = std::fabs(a);
+              // Downhill on |amplitude|, by one finite difference each way. A
+              // grain of sand does not know where the node is; it only knows
+              // which way is quieter, and that is enough to find it.
+              const double dx =
+                std::fabs(sinMu[static_cast<std::size_t>(xp)] * sinNv -
+                          sinNu[static_cast<std::size_t>(xp)] * sinMv) -
+                std::fabs(sinMu[static_cast<std::size_t>(xm)] * sinNv -
+                          sinNu[static_cast<std::size_t>(xm)] * sinMv);
+              const double dy = std::fabs(su * sinNvDn - sn * sinMvDn) -
+                                std::fabs(su * sinNvUp - sn * sinMvUp);
+              const double len = std::sqrt(dx * dx + dy * dy) + 1e-6;
+              // Scaled by how far from a node it is: pixels already on a line
+              // stay put and ones out in the middle of a moving region travel
+              // furthest, which is what makes the lines sharpen rather than the
+              // whole picture sliding sideways.
+              const double travel = pull * std::min(1.0, mag * 2.0);
+              const int sx = std::clamp(
+                static_cast<int>(std::lround(x - dx / len * travel)), 0, ctx.width - 1);
+              const int sy = std::clamp(
+                static_cast<int>(std::lround(y - dy / len * travel)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              // The lines themselves lit, the way a ridge of sand catches a
+              // raking light.
+              const double onNode = 1.0 - std::min(1.0, mag * 3.0);
+              const double onLine = glow * onNode * onNode * onNode;
+              for (int c = 0; c < 3; ++c) {
+                dp[c] = detail::clamp8(sp[c] + onLine * 200.0);
+              }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Wavefront: {
+        // WAVEFRONT — the wave equation, not a wobble.
+        //
+        // Every "ripple" in every video app is a sine function of distance from
+        // a point: it looks like a wave and behaves like nothing. This solves
+        // the actual equation, d2u/dt2 = c^2 * laplacian(u), on a grid seeded
+        // from the picture's own brightness. Which means it has INERTIA -- the
+        // thing sine displacement has not got.
+        //
+        // What inertia buys you: waves that leave their source and keep going;
+        // that pass THROUGH each other and interfere, adding where crests meet
+        // and cancelling where a crest meets a trough; and that reflect off the
+        // edges of the frame and come back. None of that can be faked with a
+        // sine, and all of it is what a real surface does.
+        // A coarse field on purpose: this is a WAVE, and the fronts are large
+        // compared with a pixel. A quarter-resolution grid cost 17ms at 1080p
+        // to resolve detail the wave does not have.
+        const int gw = std::clamp(ctx.width / 6, 32, 360);
+        const int gh = std::clamp(ctx.height / 6, 32, 360);
+        const std::size_t cells = static_cast<std::size_t>(gw) * gh;
+        // Courant limit: above ~0.5 for a 2D grid the integration goes
+        // unstable and the whole field explodes into noise within a few steps.
+        // This is a hard ceiling, not a taste decision.
+        const double c2 = 0.06 + pA * 0.36;
+        const int iters = 6 + static_cast<int>(pB * 54.0);
+        const double damp = 1.0 - (0.0005 + pC * 0.02);
+        std::vector<float> u(cells, 0.0f), uPrev(cells, 0.0f), uNext(cells, 0.0f);
+        // Seeded from brightness, AVERAGED over the cell it stands for and
+        // mean-removed.
+        //
+        // Point-sampling one pixel per cell seeds the plate with the picture's
+        // highest frequencies, and a wave equation handed noise gives noise
+        // back -- correctly, which is the trap. Averaging the block makes the
+        // initial displacement smooth enough that what propagates is a
+        // wavefront rather than the aliasing. Removing the mean matters too:
+        // leave it in and the whole plate starts displaced the same way and
+        // sloshes as one lump instead of rippling.
+        double mean = 0.0;
+        for (int gy = 0; gy < gh; ++gy) {
+          const int y0 = gy * ctx.height / gh;
+          const int y1 = std::max(y0 + 1, (gy + 1) * ctx.height / gh);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int x0 = gx * ctx.width / gw;
+            const int x1 = std::max(x0 + 1, (gx + 1) * ctx.width / gw);
+            double sum = 0.0;
+            int n = 0;
+            for (int sy = y0; sy < y1; ++sy) {
+              const std::uint8_t* row =
+                pixels.data() + static_cast<std::size_t>(sy) * ctx.width * 4;
+              for (int sx = x0; sx < x1; ++sx) {
+                const std::uint8_t* p = row + static_cast<std::size_t>(sx) * 4;
+                sum += p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114;
+                ++n;
+              }
+            }
+            const double l = sum / (std::max(1, n) * 255.0);
+            u[static_cast<std::size_t>(gy) * gw + gx] = static_cast<float>(l);
+            mean += l;
+          }
+        }
+        mean /= static_cast<double>(cells);
+        for (float& value : u) value -= static_cast<float>(mean);
+        uPrev = u;
+        // Persistent threads on a barrier, as reaction-diffusion learned: many
+        // small DEPENDENT steps, and dispatching each one was 1.8x slower than
+        // a single core.
+        detail::iteratedBands(iters, gh, 24, [&](int, int firstRow, int lastRow) {
+          for (int gy = firstRow; gy < lastRow; ++gy) {
+            const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+            const float* mid = u.data() + static_cast<std::size_t>(gy) * gw;
+            const float* up  = u.data() + static_cast<std::size_t>(ym) * gw;
+            const float* dn  = u.data() + static_cast<std::size_t>(yp) * gw;
+            const float* old = uPrev.data() + static_cast<std::size_t>(gy) * gw;
+            float* out = uNext.data() + static_cast<std::size_t>(gy) * gw;
+            for (int gx = 0; gx < gw; ++gx) {
+              const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
+              const float lap = mid[xm] + mid[xp] + up[gx] + dn[gx] - 4.0f * mid[gx];
+              // The two-step form: the new displacement depends on the
+              // previous TWO, which is where the memory of motion lives.
+              out[gx] = static_cast<float>(
+                (2.0 * mid[gx] - old[gx] + c2 * lap) * damp);
+            }
+          }
+        }, [&](int) { u.swap(uPrev); u.swap(uNext); });
+        // Slope displaces the picture; height lights it.
+        //
+        // The scale is small ON PURPOSE. The first version used half the frame
+        // width per unit of slope, and since the grid slopes are order 0.1 that
+        // is a hundred-pixel jump between neighbouring cells: the picture came
+        // out as speckle and looked like an unstable solver rather than what it
+        // was, an enormous displacement of a perfectly good wave.
+        const double bend = amt * std::max(ctx.width, ctx.height) * 0.02;
+        const double relief = pD;
+        const double gxScale = static_cast<double>(gw) / ctx.width;
+        const double gyScale = static_cast<double>(gh) / ctx.height;
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        // The field is read BILINEARLY, not per grid cell.
+        //
+        // Taking the nearest cell put visible square blocks across the picture
+        // — the grid showing through, which is the one thing a wave must not
+        // look like. Interpolating costs four reads instead of one and the
+        // blocks go away entirely; the wave is smooth by nature, so this is
+        // reconstructing it rather than smoothing it over.
+        auto fieldAt = [&](double fx, double fy) {
+          fx = std::clamp(fx, 0.0, gw - 1.0);
+          fy = std::clamp(fy, 0.0, gh - 1.0);
+          const int x0 = static_cast<int>(fx), y0 = static_cast<int>(fy);
+          const int x1 = std::min(gw - 1, x0 + 1), y1 = std::min(gh - 1, y0 + 1);
+          const double tx = fx - x0, ty = fy - y0;
+          const double a = u[static_cast<std::size_t>(y0) * gw + x0];
+          const double b = u[static_cast<std::size_t>(y0) * gw + x1];
+          const double c = u[static_cast<std::size_t>(y1) * gw + x0];
+          const double e = u[static_cast<std::size_t>(y1) * gw + x1];
+          return (a * (1.0 - tx) + b * tx) * (1.0 - ty) +
+                 (c * (1.0 - tx) + e * tx) * ty;
+        };
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double fy = y * gyScale;
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double fx = x * gxScale;
+              const double here = fieldAt(fx, fy);
+              const double sx = fieldAt(fx + 1.0, fy) - fieldAt(fx - 1.0, fy);
+              const double sy = fieldAt(fx, fy + 1.0) - fieldAt(fx, fy - 1.0);
+              const int px = std::clamp(
+                static_cast<int>(std::lround(x + sx * bend)), 0, ctx.width - 1);
+              const int py = std::clamp(
+                static_cast<int>(std::lround(y + sy * bend)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(py) * ctx.width + px) * 4;
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              const double lift = 1.0 + here * relief * 3.0;
+              for (int c = 0; c < 3; ++c) {
+                dp[c] = detail::clamp8(sp[c] * lift);
+              }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Crystallise: {
+        // CRYSTALLISE — grain growth, not a mosaic.
+        //
+        // A mosaic filter divides the frame into a grid. Metal does not
+        // solidify on a grid: crystals NUCLEATE at scattered points and grow
+        // outward until they run into each other, and where they meet is a
+        // grain boundary. The cell each pixel ends up in is the one whose seed
+        // reached it first, which is a Voronoi diagram — and if the seeds grow
+        // at different speeds it stops being Voronoi and starts being the
+        // irregular, shard-like structure you see in a polished metal section.
+        //
+        // Each grain then gets a facet NORMAL from the direction back to its
+        // own seed, so the light catches it. That is what separates this from
+        // a blur into blobs: the grains have faces, and faces have angles.
+        const int cell = std::max(4, static_cast<int>(6 + pA * 90.0));
+        const double facet = pB;
+        const double wobble = pC;
+        const double edgeDark = pD;
+        // Seeds on a jittered lattice: one per cell, displaced inside it. A
+        // regular lattice gives a honeycomb, full jitter gives natural
+        // scattering, and the difference between those is what "irregularity"
+        // means here.
+        const int cols = std::max(1, ctx.width / cell + 2);
+        const int rows = std::max(1, ctx.height / cell + 2);
+        struct Seed { float x, y, speed; };
+        std::vector<Seed> seeds(static_cast<std::size_t>(cols) * rows);
+        for (int r = 0; r < rows; ++r) {
+          for (int c = 0; c < cols; ++c) {
+            std::uint32_t h = static_cast<std::uint32_t>(c * 374761393 + r * 668265263);
+            h = (h ^ (h >> 13)) * 1274126177u;
+            const double jx = ((h >> 8) & 0xFFFF) / 65535.0 - 0.5;
+            const double jy = ((h >> 20) & 0x7FF) / 2047.0 - 0.5;
+            const double js = ((h >> 3) & 0x1F) / 31.0;
+            Seed& s = seeds[static_cast<std::size_t>(r) * cols + c];
+            s.x = static_cast<float>((c - 0.5) * cell + jx * cell * wobble);
+            s.y = static_cast<float>((r - 0.5) * cell + jy * cell * wobble);
+            // Different growth RATES are what make it crystals rather than
+            // Voronoi cells: a fast grain swallows its slower neighbours and
+            // comes out long and angular.
+            s.speed = static_cast<float>(1.0 - js * wobble * 0.75);
+          }
+        }
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            const int r0 = std::clamp(y / cell, 0, rows - 1);
+            for (int x = 0; x < ctx.width; ++x) {
+              const int c0 = std::clamp(x / cell, 0, cols - 1);
+              // Only the neighbouring lattice cells can own this pixel, so the
+              // search is nine seeds rather than all of them -- which is the
+              // difference between real time and not.
+              double best = 1e30, second = 1e30;
+              int bestIdx = -1;
+              for (int dr = 0; dr <= 2; ++dr) {
+                const int rr = std::clamp(r0 + dr - 1, 0, rows - 1);
+                for (int dc = 0; dc <= 2; ++dc) {
+                  const int cc = std::clamp(c0 + dc - 1, 0, cols - 1);
+                  const std::size_t si = static_cast<std::size_t>(rr) * cols + cc;
+                  const double ddx = x - seeds[si].x;
+                  const double ddy = y - seeds[si].y;
+                  // Divided by growth rate: "when did this grain arrive
+                  // here", not "how far away is the seed".
+                  //
+                  // Compared SQUARED. The ordering is identical because both
+                  // are positive, and it takes nine square roots per pixel out
+                  // of the inner loop -- eighteen million a frame at 1080p,
+                  // which was most of what this cost.
+                  const double sp2 = std::max(0.15f, seeds[si].speed);
+                  const double t = (ddx * ddx + ddy * ddy) / (sp2 * sp2);
+                  if (t < best) { second = best; best = t; bestIdx = static_cast<int>(si); }
+                  else if (t < second) { second = t; }
+                }
+              }
+              if (bestIdx < 0) continue;
+              const Seed& s = seeds[static_cast<std::size_t>(bestIdx)];
+              const int sx = std::clamp(static_cast<int>(std::lround(s.x)), 0, ctx.width - 1);
+              const int sy = std::clamp(static_cast<int>(std::lround(s.y)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              // The facet: the direction from the seed out to this pixel IS
+              // the surface normal of that face, so one dot product with a
+              // fixed light gives the shading.
+              const double nx = (x - s.x) / std::max(1.0, static_cast<double>(cell));
+              const double ny = (y - s.y) / std::max(1.0, static_cast<double>(cell));
+              const double lit = 1.0 + (nx * 0.7 + ny * -0.7) * facet;
+              // Where the two nearest arrival times are close, the pixel is on
+              // a boundary -- the standard way to find a Voronoi edge without
+              // tracing one.
+              // Back to real distances for the boundary test, which is the
+              // only place the actual arrival TIME matters rather than its
+              // order. Two roots per pixel instead of nine.
+              const double edge = 1.0 - edgeDark *
+                std::exp(-std::fabs(std::sqrt(best) - std::sqrt(second)) * 0.55);
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              for (int ch = 0; ch < 3; ++ch) {
+                const double crystal = sp[ch] * lit * edge;
+                const std::uint8_t* orig =
+                  source.data() + (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+                dp[ch] = detail::clamp8(orig[ch] * (1.0 - amt) + crystal * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Scotopic: {
+        // SCOTOPIC — your own eyes, as an effect.
+        //
+        // The retina has two systems. Rods are fast, sensitive, and completely
+        // colour-blind. Cones see colour and are slow and need light. In the
+        // dark the rods take over, which is why night has no colour, why you
+        // see faint things better by not looking straight at them, and why
+        // moonlight photographs blue but never looks blue at the time.
+        //
+        // So: the brightness runs at full speed and the COLOUR lags behind it.
+        // Move something and it goes grey as it moves, its colour catching up
+        // a moment later. Nothing else in any effects rack does this, and
+        // everybody has experienced it.
+        //
+        // The Purkinje shift is the other half — as the rods take over, peak
+        // sensitivity slides from yellow-green toward blue-green, which is the
+        // real reason night reads as blue.
+        if (!state) {
+          break;   // no memory from this caller: do nothing rather than pretend
+        }
+        std::vector<std::uint8_t>& lag = *state;
+        const std::size_t bytes = count * 4;
+        if (lag.size() != bytes) {
+          // Seed and CARRY ON, rather than seeding and returning.
+          //
+          // Only the lag needs a previous frame; the rod/cone mix is a property
+          // of this frame alone and has no reason to wait. Returning here meant
+          // the first call left the picture untouched -- and on a PAUSED clip
+          // there is no second call, so the one unchanged upload was all you
+          // ever saw. The effect read as completely dead while being perfectly
+          // correct on the second frame it never got.
+          lag.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(bytes));
+        }
+        // How far behind the cones run. At full lag the colour takes about a
+        // second to arrive, which is roughly true of dark adaptation and is
+        // also about as long as looks intentional rather than broken.
+        const double follow = 1.0 - amt * (0.5 + pA * 0.46);
+        // How dark it has to be before the rods win.
+        const double threshold = 0.15 + pB * 0.7;
+        const double purkinje = pC;
+        const bool hold = ctx.stateHold;
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::size_t row = static_cast<std::size_t>(y) * ctx.width * 4;
+            std::uint8_t* live = pixels.data() + row;
+            std::uint8_t* slow = lag.data() + row;
+            for (int x = 0; x < ctx.width; ++x) {
+              std::uint8_t* lp = live + static_cast<std::size_t>(x) * 4;
+              std::uint8_t* mp = slow + static_cast<std::size_t>(x) * 4;
+              // The rod signal: fast, achromatic, and weighted toward the
+              // green-blue the rods are actually most sensitive to rather than
+              // the broadcast luma curve.
+              const double rod = (lp[0] * 0.18 + lp[1] * 0.55 + lp[2] * 0.27) / 255.0;
+              // How much this pixel is being seen by rods rather than cones.
+              // Smooth rather than a hard cut, so the rods take over
+              // gradually the way they actually do -- a step here would make
+              // an edge appear across the picture at one brightness.
+              const double t01 = std::clamp(rod / std::max(1e-6, threshold), 0.0, 1.0);
+              const double dark = 1.0 - t01 * t01 * (3.0 - 2.0 * t01);
+              for (int c = 0; c < 3; ++c) {
+                // The cone signal chases the live one and is what carries
+                // colour. Held rather than stepped for any consumer after the
+                // first, so two outputs cannot advance it twice.
+                const double chased = hold ? mp[c]
+                  : mp[c] + (lp[c] - mp[c]) * (1.0 - follow);
+                if (!hold) mp[c] = detail::clamp8(chased);
+                // Toward the blue-green end as the rods take over: peak
+                // sensitivity really does move about 40nm.
+                const double tilt = (c == 2 ? 1.0 + purkinje * 0.5
+                                   : c == 1 ? 1.0 + purkinje * 0.15
+                                            : 1.0 - purkinje * 0.35);
+                const double seen = rod * 255.0 * tilt;
+                const double mixed = chased * (1.0 - dark) + seen * dark;
+                lp[c] = detail::clamp8(lp[c] * (1.0 - amt) + mixed * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::GrainFlow: {
+        // GRAIN FLOW -- smeared along the picture's own grain.
+        //
+        // Line integral convolution is how a vector field gets drawn in
+        // scientific visualisation: smear noise along the field lines and the
+        // flow becomes visible. Point it at an IMAGE's own structure instead of
+        // at a fluid and every stroke follows the direction that part of the
+        // picture is already running -- along a hair, around a jaw, down the
+        // length of a shadow.
+        //
+        // The direction comes from the STRUCTURE TENSOR, which is the standard
+        // way to ask "which way is this bit of picture going": average the
+        // gradient outer product over a neighbourhood and take the eigenvector
+        // of the smaller eigenvalue. That is the direction of least change --
+        // along the feature rather than across it -- and a plain gradient
+        // cannot give it, because a gradient says which way is uphill, not
+        // which way the ridge runs.
+        //
+        // The result looks painted rather than filtered, and it comes out of
+        // the picture's own content rather than a texture laid over the top.
+        //
+        // COMPUTED AT HALF RESOLUTION. Measured at full raster this was 119ms
+        // at 1080p, and 20ms even with the stroke length turned all the way
+        // down -- so the floor alone was over a frame before any smearing
+        // happened. The stroke is a SMEAR: its whole job is to destroy detail
+        // along one axis, so computing it at half resolution and scaling the
+        // result back up loses almost nothing, while the expensive part (a
+        // scattered gather per pixel, which is what actually costs) drops by
+        // four. The same answer caustics and the video synth reached.
+        const double reach = 2.0 + pA * 22.0;
+        const double across = pB * 1.5707963267948966;   // rotate the strokes
+        const double coherence = pC;
+        const int workW = std::max(64, ctx.width / 3);
+        const int workH = std::max(64, ctx.height / 3);
+        const std::size_t workCount = static_cast<std::size_t>(workW) * workH;
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        // The working picture, box-averaged down. Averaged rather than
+        // point-sampled so the gradients below are of the picture and not of
+        // its aliasing.
+        std::vector<std::uint8_t> small(workCount * 4, 255);
+        detail::parallelRows(workH, workW, [&](int firstRow, int lastRow) {
+          for (int wy = firstRow; wy < lastRow; ++wy) {
+            const int y0 = wy * ctx.height / workH;
+            const int y1 = std::max(y0 + 1, (wy + 1) * ctx.height / workH);
+            std::uint8_t* out = small.data() + static_cast<std::size_t>(wy) * workW * 4;
+            for (int wx = 0; wx < workW; ++wx) {
+              const int x0 = wx * ctx.width / workW;
+              const int x1 = std::max(x0 + 1, (wx + 1) * ctx.width / workW);
+              int acc[3] = {0, 0, 0};
+              int n = 0;
+              for (int sy = y0; sy < y1; ++sy) {
+                const std::uint8_t* row =
+                  source.data() + static_cast<std::size_t>(sy) * ctx.width * 4;
+                for (int sx = x0; sx < x1; ++sx) {
+                  const std::uint8_t* p = row + static_cast<std::size_t>(sx) * 4;
+                  acc[0] += p[0]; acc[1] += p[1]; acc[2] += p[2];
+                  ++n;
+                }
+              }
+              std::uint8_t* dp = out + static_cast<std::size_t>(wx) * 4;
+              n = std::max(1, n);
+              dp[0] = static_cast<std::uint8_t>(acc[0] / n);
+              dp[1] = static_cast<std::uint8_t>(acc[1] / n);
+              dp[2] = static_cast<std::uint8_t>(acc[2] / n);
+            }
+          }
+        });
+        // Luma and both gradients, ONCE.
+        //
+        // Written the obvious way -- a lambda converting RGB to luma, called
+        // from inside the 3x3 tensor loop -- each pixel converted thirty-six
+        // neighbours out of RGB, every one of which a neighbouring pixel had
+        // already converted. Two cheap passes first, and the per-pixel work
+        // drops to nine reads.
+        std::vector<float> luma(workCount), gradX(workCount), gradY(workCount);
+        detail::parallelRows(workH, workW, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::uint8_t* row = small.data() + static_cast<std::size_t>(y) * workW * 4;
+            float* out = luma.data() + static_cast<std::size_t>(y) * workW;
+            for (int x = 0; x < workW; ++x) {
+              const std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+              out[x] = static_cast<float>(
+                (p[0] * 0.299 + p[1] * 0.587 + p[2] * 0.114) / 255.0);
+            }
+          }
+        });
+        detail::parallelRows(workH, workW, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int ym = std::max(0, y - 1), yp = std::min(workH - 1, y + 1);
+            const float* mid = luma.data() + static_cast<std::size_t>(y) * workW;
+            const float* up  = luma.data() + static_cast<std::size_t>(ym) * workW;
+            const float* dn  = luma.data() + static_cast<std::size_t>(yp) * workW;
+            float* gx = gradX.data() + static_cast<std::size_t>(y) * workW;
+            float* gy = gradY.data() + static_cast<std::size_t>(y) * workW;
+            for (int x = 0; x < workW; ++x) {
+              const int xm = std::max(0, x - 1), xp = std::min(workW - 1, x + 1);
+              gx[x] = mid[xp] - mid[xm];
+              gy[x] = dn[x] - up[x];
+            }
+          }
+        });
+        // Half the reach, because the raster is half the size and the stroke
+        // is measured in pictures rather than in pixels.
+        const int steps = std::clamp(static_cast<int>(reach) / 3, 1, 9);
+        const double spacing = 1.5;
+        // Hoisted: constant for the whole frame, and computing them per pixel
+        // was four million trig calls.
+        const double turn = std::cos(across), lift = std::sin(across);
+        std::vector<double> taper(static_cast<std::size_t>(steps) * 2 + 1);
+        double taperTotal = 0.0;
+        for (int s = -steps; s <= steps; ++s) {
+          const double t = static_cast<double>(s) / steps;
+          const double w = 1.0 - t * t;
+          taper[static_cast<std::size_t>(s + steps)] = w;
+          taperTotal += w;
+        }
+        const double taperInv = 1.0 / std::max(1e-9, taperTotal);
+        // The coherence curve as a table: std::pow with a runtime exponent,
+        // once per pixel, is a lot of calls to a function only ever asked
+        // about a value between 0 and 1.
+        double anisLut[257];
+        for (int i = 0; i <= 256; ++i) {
+          anisLut[i] = std::pow(i / 256.0, 1.0 + coherence * 4.0);
+        }
+        std::vector<std::uint8_t> stroked(workCount * 4, 255);
+        std::vector<float> weightField(workCount, 0.0f);
+        detail::parallelRows(workH, workW, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int ym = std::max(0, y - 1), yp = std::min(workH - 1, y + 1);
+            std::uint8_t* dst = stroked.data() + static_cast<std::size_t>(y) * workW * 4;
+            float* wOut = weightField.data() + static_cast<std::size_t>(y) * workW;
+            for (int x = 0; x < workW; ++x) {
+              const int xm = std::max(0, x - 1), xp = std::min(workW - 1, x + 1);
+              double jxx = 0.0, jyy = 0.0, jxy = 0.0;
+              for (int wy = ym; wy <= yp; ++wy) {
+                const float* gxRow = gradX.data() + static_cast<std::size_t>(wy) * workW;
+                const float* gyRow = gradY.data() + static_cast<std::size_t>(wy) * workW;
+                for (int wx = xm; wx <= xp; ++wx) {
+                  const double gx = gxRow[wx], gy = gyRow[wx];
+                  jxx += gx * gx;
+                  jyy += gy * gy;
+                  jxy += gx * gy;
+                }
+              }
+              const double diff = jxx - jyy;
+              const double root = std::sqrt(diff * diff + 4.0 * jxy * jxy);
+              const double lambdaBig = 0.5 * (jxx + jyy + root);
+              const double lambdaSmall = 0.5 * (jxx + jyy - root);
+              double dirX = jxy;
+              double dirY = lambdaBig - jxx;
+              const double len = std::sqrt(dirX * dirX + dirY * dirY);
+              if (len < 1e-9) {
+                dirX = 1.0;
+                dirY = 0.0;
+              } else {
+                dirX /= len;
+                dirY /= len;
+              }
+              const double fx = dirX * turn - dirY * lift;
+              const double fy = dirX * lift + dirY * turn;
+              // How ANISOTROPIC this neighbourhood is. A flat area has no
+              // direction worth following, and stroking it anyway is what makes
+              // a naive version look like a plain blur.
+              const double sum = lambdaBig + lambdaSmall + 1e-9;
+              const double anis = (lambdaBig - lambdaSmall) / sum;
+              wOut[x] = static_cast<float>(
+                anisLut[std::clamp(static_cast<int>(anis * 256.0), 0, 256)]);
+              double acc[3] = {0.0, 0.0, 0.0};
+              for (int s = -steps; s <= steps; ++s) {
+                const double w = taper[static_cast<std::size_t>(s + steps)];
+                const int px = std::clamp(
+                  static_cast<int>(std::lround(x + fx * s * spacing)), 0, workW - 1);
+                const int py = std::clamp(
+                  static_cast<int>(std::lround(y + fy * s * spacing)), 0, workH - 1);
+                const std::uint8_t* sp =
+                  small.data() + (static_cast<std::size_t>(py) * workW + px) * 4;
+                acc[0] += sp[0] * w;
+                acc[1] += sp[1] * w;
+                acc[2] += sp[2] * w;
+              }
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                dp[c] = detail::clamp8(acc[c] * taperInv);
+              }
+            }
+          }
+        });
+        // Back up to full size, bilinear, and blended against the original by
+        // how much structure there was to follow. Bilinear rather than nearest
+        // because a stroke scaled up with nearest gets a staircase along its
+        // own length, which is the one direction it must be smooth in.
+        const double sxScale = static_cast<double>(workW) / ctx.width;
+        const double syScale = static_cast<double>(workH) / ctx.height;
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double fy = std::clamp(y * syScale - 0.5, 0.0, workH - 1.0);
+            const int y0 = static_cast<int>(fy);
+            const int y1 = std::min(workH - 1, y0 + 1);
+            const double ty = fy - y0;
+            std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            const std::uint8_t* src = source.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              const double fx2 = std::clamp(x * sxScale - 0.5, 0.0, workW - 1.0);
+              const int x0 = static_cast<int>(fx2);
+              const int x1 = std::min(workW - 1, x0 + 1);
+              const double tx = fx2 - x0;
+              const std::size_t i00 = (static_cast<std::size_t>(y0) * workW + x0);
+              const std::size_t i01 = (static_cast<std::size_t>(y0) * workW + x1);
+              const std::size_t i10 = (static_cast<std::size_t>(y1) * workW + x0);
+              const std::size_t i11 = (static_cast<std::size_t>(y1) * workW + x1);
+              const double w00 = (1.0 - tx) * (1.0 - ty), w01 = tx * (1.0 - ty);
+              const double w10 = (1.0 - tx) * ty,         w11 = tx * ty;
+              const double weight = weightField[i00] * w00 + weightField[i01] * w01 +
+                                    weightField[i10] * w10 + weightField[i11] * w11;
+              const double blend = amt * weight;
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              const std::uint8_t* here = src + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                const double s = stroked[i00 * 4 + c] * w00 + stroked[i01 * 4 + c] * w01 +
+                                 stroked[i10 * 4 + c] * w10 + stroked[i11 * 4 + c] * w11;
+                dp[c] = detail::clamp8(here[c] * (1.0 - blend) + s * blend);
+              }
             }
           }
         });
