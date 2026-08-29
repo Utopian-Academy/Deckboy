@@ -255,6 +255,7 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {listClip.x + 4, listClip.y + 8, listClip.w - 8, 16},
                    "(empty — import media)", pal.inkSoft);
+
     } else {
       int totalCueH = cueCount * (kCueRowH + kCueRowGap) - kCueRowGap;
       int scrollMax = std::max(0, totalCueH - listClip.h);
@@ -914,6 +915,44 @@
     }
 
     renderButtons();
+    // The theme's creatures, on the chrome between the panels.
+    //
+    // AFTER the panels, so they are not painted over, and BEFORE every popup,
+    // toast and modal, so nothing they do can obscure something the operator
+    // needs to read. Their habitat is the strip of shell along the bottom,
+    // which carries no information at all -- and they steer toward the program
+    // monitor, because a moth that ignored the brightest thing in the room
+    // would not be a moth.
+    // The empty part of the playlist, when there is enough of it. That space
+    // is inside a panel but contains NOTHING -- no control, no value, no cue
+    // -- and it is the part of the window an operator looks at between cues.
+    // The first attempt used the strip above the bottom bar, which turned out
+    // to overlap the transport row: a firefly ended up sitting on a button,
+    // which is exactly what these are not allowed to do.
+    //
+    // Below about 70px there is not enough room to move, so they stay away
+    // rather than jitter in a slot.
+    if (playlistFreeRect_.h >= 70 && playlistFreeRect_.w >= 80) {
+      creatureHabitat_ = deckboy::creatures::Habitat {
+        playlistFreeRect_.x, playlistFreeRect_.y,
+        playlistFreeRect_.w, playlistFreeRect_.h, true};
+    } else {
+      creatureHabitat_ = deckboy::creatures::Habitat {};
+    }
+    // Repopulate once there is somewhere to live -- which may be several
+    // frames after the theme loaded, because the habitat is measured from a
+    // laid-out playlist.
+    {
+      std::size_t wanted = 0;
+      for (const auto& r : themeCreatures_) wanted += r.count;
+      if (creatures_.size() != wanted) rebuildCreatures();
+    }
+    creatureLureX_ = programAreaRect_.w > 0
+      ? programAreaRect_.x + programAreaRect_.w * 0.5 : width * 0.5;
+    creatureLureY_ = programAreaRect_.h > 0
+      ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
+    updateCreatures(static_cast<double>(animationNow_) / 1000.0);
+    renderCreatures();
     renderToast(width);
     if (confirmQuit_) {
       renderQuitConfirm();
@@ -1111,6 +1150,18 @@
     }
     deckScrolls_[deckIndex] = std::clamp(deckScrolls_[deckIndex], 0,
                                          primaryScrollMax + kDeckScrollOverscroll);
+    // What is left of the list below the last cue.
+    //
+    // This is where the theme's creatures live: genuinely empty, containing
+    // no control and no value, and the part of the window an operator's eye
+    // rests on between cues. It shrinks as the playlist grows, and when there
+    // is nothing left they simply have nowhere to be.
+    if (deckIndex == project_.focusedDeckIndex) {
+      const int used = std::max(0, primaryTotalH - deckScrolls_[deckIndex]);
+      playlistFreeRect_ = SDL_Rect {
+        primaryClip.x, primaryClip.y + used + 8,
+        primaryClip.w, std::max(0, primaryClip.h - used - 12)};
+    }
     int y = primaryClip.y - deckScrolls_[deckIndex];
     for (int cueIndex : primaryIndices) {
       SDL_Rect row {primaryClip.x, y, primaryClip.w, kRowHeight};

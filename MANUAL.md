@@ -705,6 +705,31 @@ audit.
 
 ---
 
+### Creatures
+
+Some themes have things living in them. They occupy the empty part of the
+playlist below your last cue: a moth that drifts toward the program monitor,
+fireflies that breathe, fish, a crab that scuttles and stops, a cat asleep in
+the corner.
+
+They never sit over a control, and **they disappear the moment any output goes
+live** — during a show the only thing moving should be the show. They come back
+when the outputs go down.
+
+Fourteen themes ask for them; the rest have none. `Settings → CREATURES` turns
+them off, and only appears when the theme you are using has any.
+
+**Writing your own.** Add lines to a theme's `theme.txt`:
+
+    creature	firefly	4
+    creature	cat	1
+
+The species are `moth`, `crab`, `fish`, `firefly` and `cat`, up to twelve of
+each. A species this build does not know is ignored rather than refused, so a
+theme written for a later version still loads.
+
+---
+
 ## 22. Remote Control
 
 All remote inputs normalise to plain-text commands.
