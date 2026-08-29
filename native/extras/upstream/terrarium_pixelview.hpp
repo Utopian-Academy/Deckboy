@@ -133,8 +133,11 @@ inline float pixelviewCloudF(float fx, float fy, float scale, uint32_t salt) {
 // slow group envelope (waves arrive in sets). Island mode propagates
 // radially inward; mainland follows the wind. Used by BOTH the deep and
 // the shallows so sets roll continuously from open sea into the break.
+// No per-cell hash here any more, by design: everything this returns is a
+// property of the WATER at a place, not of the cell that happens to be
+// drawing it. That is what makes neighbours agree.
 inline float pixelviewSwell(const World& w, int x, int y, float animT,
-                            uint32_t h, float* grpOut, float* chopOut = nullptr) {
+                            float* grpOut, float* chopOut = nullptr) {
   // A sea current, not a bullseye: one coherent directional flow across
   // the whole ocean (radial island waves read as a clock face). Wind sets
   // the heading; it veers slowly (~10 min) so the sea never goes static.
@@ -158,16 +161,31 @@ inline float pixelviewSwell(const World& w, int x, int y, float animT,
   float base2 = (float)x * std::cos(wa2) + (float)y * std::sin(wa2);
   float s2 = std::sin(0.21f * base2 + animT * 1.02f +
                       0.5f * std::sin(ang * 0.7f - animT * 0.09f));
-  // Chop: short, fast, wind-aligned, and incoherent — the surface texture.
-  float chop = std::sin(1.35f * base + animT * 5.2f + (float)(h & 15u) * 0.41f) *
-               0.6f +
-               std::sin(1.90f * (base * 0.7f + along * 0.7f) - animT * 6.4f +
-                        (float)((h >> 4) & 15u) * 0.37f) * 0.4f;
-
   // Sets: long groups, so the sea breathes instead of pulsing evenly.
   float grp = 0.55f + 0.45f * std::sin(0.045f * base + animT * 0.30f +
                                        0.7f * std::sin(along * 0.02f));
   if (grpOut) *grpOut = grp;
+
+  // Chop: short, fast, wind-aligned — the surface texture.
+  //
+  // Its phase used to come from the cell's own hash, spanning very nearly a
+  // full cycle. That was called "incoherent", and it is, but at one LED per
+  // cell incoherent is not texture: neighbouring cells sat at unrelated
+  // points of the same six-radians-a-second oscillation, so the sea fizzed
+  // rather than rippled. The wavelengths here are already short — about 4.7
+  // and 3.3 cells — and that is where fine texture actually comes from.
+  //
+  // Replacing the hash with a couple of smooth sines fixed the fizz and gave
+  // back a knitted corrugation instead, which is the failure this file
+  // already warns about eight lines up. So the phase is dragged around by
+  // the SWELL, and the amplitude by the sets: chop rides on the long waves
+  // and is rougher in a big set than between them, which is both what the
+  // sea does and free, since s1, s2 and grp are all already in hand.
+  float cw = 1.5f * s1 + 1.2f * s2;
+  float chop = (std::sin(1.35f * base + animT * 5.2f + cw) * 0.6f +
+                std::sin(1.90f * (base * 0.7f + along * 0.7f) - animT * 6.4f +
+                         cw * 1.3f) * 0.4f) *
+               (0.55f + 0.45f * grp);
   // Wave energy follows the wind (live mode: the real wind).
   float energy = 0.70f + 0.10f * (float)w.wind.strength;
   if (chopOut) *chopOut = chop * (0.35f + 0.65f * energy);
@@ -298,7 +316,7 @@ struct PixelviewSkyCast {
   float ufoSpeed = 0.f, ufoVX = 0.f, ufoVY = 0.f;
   // A long eastern dragon, carried as a chain of body segments so it can
   // undulate. Serpentine, not winged — the body IS the animation.
-  static const int kDragonSegs = 16;
+  static const int kDragonSegs = 32;
   bool dragonUp = false;
   float dragX[kDragonSegs], dragY[kDragonSegs], dragR[kDragonSegs];
   uint32_t dragHue = 0;
@@ -308,6 +326,19 @@ struct PixelviewSkyCast {
   // A witch on a broom, with a companion on the tail.
   bool witchUp = false;
   float witchX = 0.f, witchY = 0.f, witchDir = 1.f, witchAge = 0.f;
+  // A banner plane. Level flight, one heading, held for a long crossing.
+  bool bannerUp = false;
+  float banX = 0.f, banY = 0.f, banDir = 1.f, banAge = 0.f;
+  uint32_t banHue = 0;
+  // A helicopter towing a video wall on a chain. `wallX/Y` lags the aircraft
+  // and swings, so it is stored rather than derived at draw time.
+  bool chopUp = false;
+  float chopX = 0.f, chopY = 0.f, chopDir = 1.f, chopAge = 0.f;
+  float wallX = 0.f, wallY = 0.f;
+  // A fantasy airship. Slow, level, and long.
+  bool airUp = false;
+  float airX = 0.f, airY = 0.f, airDir = 1.f, airAge = 0.f;
+  uint32_t airHue = 0;
   static const int kBirds = 9;
   float birdX[kBirds], birdY[kBirds];
   bool flamingo = false;
@@ -469,22 +500,52 @@ inline PixelviewSkyCast& pixelviewSkyCast(float animT) {
       float p = age / cross;
       float dir = ((hh >> 3) & 1u) ? 1.f : -1.f;
       float lane = 0.22f + 0.5f * (float)((hh >> 8) & 255u) / 255.f;
-      float headU = -0.25f + p * 1.5f;                // travel, with margin
+      // The head is not the dragon. Every segment lags the one in front, so
+      // the TAIL is half a screen behind the head — and the travel used to
+      // end when the HEAD was clear, which left the back two thirds of the
+      // creature still over the disc when the crossing expired. It did not
+      // fly off; it was switched off, mid-body, in plain view. The span now
+      // carries the whole animal clear at both ends, derived from the lag
+      // rather than guessed, so lengthening the dragon cannot bring it back.
+      // SPACING IS THE WHOLE PROBLEM. Segments used to sit 0.035 screens
+      // apart — 4.9 cells — while carrying a radius of 2.15. Two circles 4.9
+      // apart whose radii total 4.3 DO NOT TOUCH, so the "body" was a row of
+      // evenly spaced identical beads swinging in step: a Newton's cradle,
+      // which is exactly what the owner called it. A serpent has to be one
+      // continuous mass, so the segments are now close enough to overlap
+      // heavily and there are twice as many of them for the same length.
+      const float kSegLag = 0.0125f;         // 1.75 cells at 140 wide
+      const float kTailLag = (float)(PixelviewSkyCast::kDragonSegs - 1) * kSegLag;
+      float headU = -0.28f + p * (1.56f + kTailLag);
       S.dragHue = hh;
       for (int i = 0; i < PixelviewSkyCast::kDragonSegs; ++i) {
-        float lag = (float)i * 0.035f;
+        float lag = (float)i * kSegLag;
         float uu = headU - lag;
         float sx2 = (dir > 0.f) ? uu * fw : fw - uu * fw;
         // The body swims: a wave that travels DOWN it, plus a slow overall
-        // rise and fall so it is not pinned to one altitude.
+        // rise and fall so it is not pinned to one altitude. The spatial
+        // frequency is tuned to the BODY, not the screen — a bit over one
+        // full wave along its length, so you read a serpent mid-undulation
+        // rather than a gentle arc.
         float sy2 = fh * lane
-                  + 7.5f * std::sin(uu * 9.0f - animT * 2.1f)
+                  + 6.0f * std::sin(uu * 20.0f - animT * 2.1f)
                   + 4.0f * std::sin(uu * 3.1f + animT * 0.5f);
         S.dragX[i] = sx2;
         S.dragY[i] = sy2;
-        // Thick at the shoulders, tapering to the tail.
+        // A proper profile: a head noticeably bigger than the neck, a swell
+        // at the shoulders, a long taper, and a floor on the radius so the
+        // tail stays joined instead of breaking back into beads at the tip.
+        // PROPORTION. The first attempt at this was 54 cells long and 3
+        // thick — a 15:1 ratio, which is a caterpillar. A dragon of this
+        // kind runs nearer 8:1, with a heavy head and shoulders and a long
+        // fall away to the tail.
         float t2 = (float)i / (float)(PixelviewSkyCast::kDragonSegs - 1);
-        S.dragR[i] = (i == 0) ? 2.5f : 2.15f * (1.f - t2 * 0.78f);
+        float body = 1.30f + 2.20f * std::pow(1.f - t2, 0.8f);
+        body *= 1.f + 0.16f * std::sin(3.14159f * std::min(1.f, t2 * 4.f));
+        // The last few widen again into a tail fin — a chain that simply
+        // stops reads as a chain; a creature ends in something.
+        if (t2 > 0.88f) body += 1.9f * (t2 - 0.88f) / 0.12f;
+        S.dragR[i] = (i == 0) ? 4.2f : body;
       }
     }
   }
@@ -522,6 +583,82 @@ inline PixelviewSkyCast& pixelviewSkyCast(float animT) {
     }
   }
 
+  // A little plane towing a banner. Dead level and slow — the banner needs
+  // time to pass, because the pleasure of one is watching it stream out
+  // behind and take its own time about leaving.
+  {
+    float age = 0.f; uint32_t hh = 0u;
+    const float cross = SKY_BANNER.dwell;
+    S.bannerUp = skyFlyerUp(SKY_BANNER, animT, &age, &hh);
+    if (S.bannerUp) {
+      float p = age / cross;
+      S.banDir = ((hh >> 7) & 1u) ? 1.f : -1.f;
+      float lane = 0.22f + 0.5f * (float)((hh >> 13) & 255u) / 255.f;
+      // The span clears the panel by the full length of the banner at both
+      // ends, or the tail of it would wink out over the disc. The cloth ends
+      // 26.5 cells behind the aircraft, and 30 left the tail exactly ONE
+      // cell inside the visible disc at the end of a crossing — close enough
+      // that the old 4000s test window sampled a single crossing and passed.
+      // Widening that window found it. 38 clears with room.
+      const float kTow = 38.f;
+      S.banX = (S.banDir > 0.f) ? (-kTow + p * (fw + kTow * 2.f))
+                                : (fw + kTow - p * (fw + kTow * 2.f));
+      S.banY = fh * lane + 1.1f * std::sin(animT * 0.7f);   // a gentle bob
+      S.banAge = age;
+      S.banHue = hh;
+    }
+  }
+
+  // A helicopter towing a video wall on a chain. The wall does NOT sit where
+  // the aircraft is: it hangs behind and below, and it swings. That lag is
+  // the whole thing — a rigidly attached rectangle reads as one object, and
+  // a swinging one reads as something genuinely dangling from a chain.
+  {
+    float age = 0.f; uint32_t hh = 0u;
+    const float cross = SKY_CHOPPER.dwell;
+    S.chopUp = skyFlyerUp(SKY_CHOPPER, animT, &age, &hh);
+    if (S.chopUp) {
+      float p = age / cross;
+      S.chopDir = ((hh >> 3) & 1u) ? 1.f : -1.f;
+      float lane = 0.16f + 0.34f * (float)((hh >> 10) & 255u) / 255.f;
+      const float kHang = 34.f;
+      S.chopX = (S.chopDir > 0.f) ? (-kHang + p * (fw + kHang * 2.f))
+                                  : (fw + kHang - p * (fw + kHang * 2.f));
+      S.chopY = fh * lane + 1.4f * std::sin(animT * 0.9f);
+      S.chopAge = age;
+      // Pendulum: two periods beating against each other so the swing never
+      // settles into a metronome, and always trailing the direction of
+      // travel because that is where drag puts it.
+      float swing = 3.4f * std::sin(animT * 0.62f) + 1.5f * std::sin(animT * 0.29f);
+      S.wallX = S.chopX - S.chopDir * 3.2f + swing;
+      S.wallY = S.chopY + 13.5f + 0.9f * std::cos(animT * 0.62f);
+    }
+  }
+
+  // The airship. Dead level and very slow: it holds its altitude to within a
+  // cell or two across the whole crossing, which is what separates it from
+  // the balloons (which drift wherever the wind goes) and from everything
+  // else up here (which is in a hurry). Majestic is a speed.
+  {
+    float age = 0.f; uint32_t hh = 0u;
+    const float cross = SKY_AIRSHIP.dwell;
+    S.airUp = skyFlyerUp(SKY_AIRSHIP, animT, &age, &hh);
+    if (S.airUp) {
+      float p = age / cross;
+      S.airDir = ((hh >> 9) & 1u) ? 1.f : -1.f;
+      float lane = 0.20f + 0.46f * (float)((hh >> 15) & 255u) / 255.f;
+      // The stern streamer reaches 18.5 cells behind the hull, and 20 was
+      // not enough to carry it clear — --selftest caught the flag popping
+      // out on the first run, which is exactly what that probe is for.
+      const float kHalf = 30.f;
+      S.airX = (S.airDir > 0.f) ? (-kHalf + p * (fw + kHalf * 2.f))
+                                : (fw + kHalf - p * (fw + kHalf * 2.f));
+      S.airY = fh * lane + 1.3f * std::sin(animT * 0.33f);
+      S.airAge = age;
+      S.airHue = hh;
+    }
+  }
+
   // A skein in proper V FORMATION, not a scatter of dots. Birds fly in a
   // vee because each one rides the vortex off the wingtip ahead, and drawn
   // that way a handful of pixels reads instantly as birds — a random cloud
@@ -547,6 +684,99 @@ inline PixelviewSkyCast& pixelviewSkyCast(float animT) {
   return S;
 }
 
+// The three cloud decks, evaluated ONCE PER FRAME into buffers.
+//
+// This is not premature optimisation, it is the difference between the
+// kiosk running and not. Sampled per pixel, each deck needed one field
+// value plus four more for the shading gradient, and each field value is
+// eight noise evaluations (two to warp, three smooth, three billow) — 120
+// noise evaluations per pixel, which measured 27.5 ms/frame against 7-13
+// for every other biome and crawled on the Pi.
+//
+// Evaluated once per cell per frame instead, the gradient comes from the
+// NEIGHBOURING cells for free — and it is a better gradient, because it is
+// a true difference over the drawn image rather than a re-sample of the
+// underlying function at an arbitrary epsilon.
+struct PixelviewSkyDeckCfg {
+  float scale, speed, cover, soft, lit, stretch;
+};
+inline const PixelviewSkyDeckCfg* pixelviewSkyDecks() {
+  // `stretch` elongates the deck ALONG the wind: cirrus is combed out into
+  // long streaks by the fast air it sits in, while the low cumulus is much
+  // closer to round.
+  static const PixelviewSkyDeckCfg decks[3] = {
+      {30.f, 1.55f, 0.36f, 0.30f, 1.06f, 3.4f},   // high cirrus
+      {19.f, 0.85f, 0.37f, 0.17f, 1.00f, 1.9f},   // fair-weather cumulus
+      {11.f, 0.42f, 0.28f, 0.12f, 0.94f, 1.35f},  // low and close
+  };
+  return decks;
+}
+
+struct PixelviewSkyField {
+  float t = -1e9f;
+  uint32_t seed = 0;
+  std::vector<float> d[3];
+};
+
+inline const PixelviewSkyField& pixelviewSkyFieldAt(const World& w,
+                                                    float animT) {
+  static PixelviewSkyField F;
+  if (F.t == animT && F.seed == w.worldSeed) return F;
+  F.t = animT;
+  F.seed = w.worldSeed;
+
+  float wx = (w.wind.dx == 0 && w.wind.dy == 0) ? 0.55f : (float)w.wind.dx;
+  float wy = (float)w.wind.dy;
+  float wind = 0.85f + 0.35f * (float)w.wind.strength;
+  float wlen = std::sqrt(wx * wx + wy * wy);
+  if (wlen < 0.001f) { wx = 1.f; wy = 0.f; wlen = 1.f; }
+  float ca = wx / wlen, sa = wy / wlen;
+
+  // Evaluated on a HALF-RESOLUTION lattice and bilinearly expanded. The
+  // smallest feature any deck carries is a couple of cells across, and a
+  // cloud is a soft object — so sampling every other cell and interpolating
+  // is visually indistinguishable while costing a quarter as much. This is
+  // the step that brings the sky back in line with the other biomes.
+  const int HWn = (W + 1) / 2 + 1, HHn = (H + 1) / 2 + 1;
+  static std::vector<float> tmp;
+  if (tmp.size() != (size_t)HWn * HHn) tmp.assign((size_t)HWn * HHn, 0.f);
+
+  const PixelviewSkyDeckCfg* decks = pixelviewSkyDecks();
+  for (int L = 0; L < 3; ++L) {
+    const PixelviewSkyDeckCfg& D = decks[L];
+    if (F.d[L].size() != (size_t)W * H) F.d[L].assign((size_t)W * H, 0.f);
+    float drift = animT * D.speed * wind * 2.4f * wlen;
+    float stretch = D.stretch * (1.f + 0.45f * (float)w.wind.strength);
+    uint32_t salt = w.worldSeed ^ (0x51000u + (uint32_t)L * 0x77u);
+
+    for (int hy = 0; hy < HHn; ++hy) {
+      for (int hx = 0; hx < HWn; ++hx) {
+        float px2 = (float)(hx * 2) - ca * drift;
+        float py2 = (float)(hy * 2) - sa * drift;
+        float u = px2 * ca + py2 * sa;
+        float v = -px2 * sa + py2 * ca;
+        tmp[(size_t)hy * HWn + hx] =
+            pixelviewCloudF(u / stretch, v, D.scale, salt);
+      }
+    }
+    for (int y = 0; y < H; ++y) {
+      int iy = y >> 1;
+      float fy2 = (y & 1) ? 0.5f : 0.f;
+      const float* r0 = &tmp[(size_t)iy * HWn];
+      const float* r1 = &tmp[(size_t)(iy + 1) * HWn];
+      float* out = &F.d[L][(size_t)y * W];
+      for (int x = 0; x < W; ++x) {
+        int ix = x >> 1;
+        float fx2 = (x & 1) ? 0.5f : 0.f;
+        float a0 = r0[ix] + (r0[ix + 1] - r0[ix]) * fx2;
+        float a1 = r1[ix] + (r1[ix + 1] - r1[ix]) * fx2;
+        out[x] = a0 + (a1 - a0) * fy2;
+      }
+    }
+  }
+  return F;
+}
+
 // The whole sky, for one cell. Returns the colour directly — there is no
 // terrain underneath to blend with, so this replaces the palette outright
 // the way ALIEN does rather than tinting anything.
@@ -555,7 +785,6 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
                              float& bb) {
   const float fw = (float)W, fh = (float)H;
   const float fx = (float)x, fy = (float)y;
-  float br = displayBrightness();
 
   // ---- The air itself ----
   // Looking up, the deepest colour is at the zenith and it pales toward the
@@ -598,7 +827,7 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
     uint32_t sh = hash3((uint32_t)x, (uint32_t)y, w.worldSeed ^ 0x57A25u);
     if ((sh % 190u) == 0u) {
       float tw = 0.55f + 0.45f * std::sin(animT * 1.7f + (float)(sh & 63u));
-      float p = sNight * tw * br;
+      float p = sNight * tw;
       rr += 190.f * p; gg += 200.f * p; bb += 225.f * p;
     }
   }
@@ -616,20 +845,10 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
   // sparse for the sky to stay a sky: at 0.24/0.26/0.18 roughly half the
   // panel is open air, which is what lets the blue read and gives the
   // traffic something to cross.
-  // `stretch` elongates the deck ALONG the wind: cirrus is combed out into
-  // long streaks by the fast air it sits in, while the low cumulus is much
-  // closer to round.
-  struct Deck { float scale, speed, cover, soft, lit, stretch; };
-  static const Deck decks[3] = {
-      // High cirrus: thin, fast, wispy, barely there.
-      {30.f, 1.55f, 0.36f, 0.30f, 1.06f, 3.4f},
-      // Mid deck: the classic fair-weather cumulus field.
-      {19.f, 0.85f, 0.37f, 0.17f, 1.00f, 1.9f},
-      // Low and close: big, slow, and it passes right over you.
-      {11.f, 0.42f, 0.28f, 0.12f, 0.94f, 1.35f},
-  };
+  const PixelviewSkyDeckCfg* decks = pixelviewSkyDecks();
+  const PixelviewSkyField& F = pixelviewSkyFieldAt(w, animT);
 
-  // The wind's frame — everything below is sampled along/across it.
+  // The wind's frame — the streaks below still use it.
   float wlen = std::sqrt(wx * wx + wy * wy);
   if (wlen < 0.001f) { wx = 1.f; wy = 0.f; wlen = 1.f; }
   float ca = wx / wlen, sa = wy / wlen;
@@ -641,23 +860,14 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
   float sunX = std::cos(sunA), sunY = std::sin(sunA);
 
   for (int L = 0; L < 3; ++L) {
-    const Deck& D = decks[L];
-    // Drift: this deck's own speed. The parallax between the three is the
-    // depth cue, so they must not share a rate.
-    float drift = animT * D.speed * wind * 2.4f * wlen;
-    float px2 = (float)x - ca * drift;
-    float py2 = (float)y - sa * drift;
-    // Into the wind's frame, then STRETCHED along it. Wind shears a cloud
-    // out in the direction it is pushing, and that elongation is most of
-    // what makes even a still frame look like it is being blown.
-    float u = px2 * ca + py2 * sa;
-    float v = -px2 * sa + py2 * ca;
-    float stretch = D.stretch * (1.f + 0.45f * (float)w.wind.strength);
-    uint32_t salt = w.worldSeed ^ (0x51000u + (uint32_t)L * 0x77u);
-    auto field = [&](float uu, float vv) {
-      return pixelviewCloudF(uu / stretch, vv, D.scale, salt);
+    const PixelviewSkyDeckCfg& D = decks[L];
+    const std::vector<float>& buf = F.d[L];
+    auto at = [&](int xx, int yy) {
+      xx = std::clamp(xx, 0, W - 1);
+      yy = std::clamp(yy, 0, H - 1);
+      return buf[(size_t)yy * W + xx];
     };
-    float n = field(u, v);
+    float n = at(x, y);
 
     // The world's own weather opens and closes the sky, so an overcast in
     // the sim is an overcast up here too.
@@ -675,14 +885,12 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
     float depth = std::clamp((n - thr) / 0.22f, 0.f, 1.f);
 
     // Shading from the real GRADIENT of the field, lit from the sun's
-    // azimuth, instead of one offset sample. Where the cloud rises toward
-    // the sun it catches light; the lee side falls into its own shadow.
-    const float e2 = 1.6f;
-    float gu = field(u + e2, v) - field(u - e2, v);
-    float gv = field(u, v + e2) - field(u, v - e2);
-    float gx2 = gu * ca - gv * sa;      // gradient back into world axes
-    float gy2 = gu * sa + gv * ca;
-    float lit = std::clamp(0.5f + (gx2 * sunX + gy2 * sunY) * 7.0f, 0.f, 1.f);
+    // azimuth. Taken from the neighbouring cells of the cached deck, so it
+    // is free — and it is already in world axes, needing no rotation back
+    // out of the wind frame.
+    float gx2 = (at(x + 1, y) - at(x - 1, y)) * 0.5f;
+    float gy2 = (at(x, y + 1) - at(x, y - 1)) * 0.5f;
+    float lit = std::clamp(0.5f + (gx2 * sunX + gy2 * sunY) * 16.f, 0.f, 1.f);
 
     // From below you are looking at undersides, so the base sits in shade
     // and only the shoulders take the sun. A cloud's shadow is lit by the
@@ -729,9 +937,9 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
   const PixelviewSkyCast& S = pixelviewSkyCast(animT);
   auto paint = [&](float pr, float pg, float pb, float amt) {
     amt = std::clamp(amt, 0.f, 1.f);
-    rr += (pr * br - rr) * amt;
-    gg += (pg * br - gg) * amt;
-    bb += (pb * br - bb) * amt;
+    rr += (pr - rr) * amt;
+    gg += (pg - gg) * amt;
+    bb += (pb - bb) * amt;
   };
 
   // Contrails first: everything else flies in front of them.
@@ -878,6 +1086,309 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
     }
   }
 
+  // The banner plane. A stubby aircraft and a long streamer on a tow line.
+  if (S.bannerUp) {
+    float d = S.banDir;
+    float bx = (fx - S.banX) * d, by = fy - S.banY;
+    // An old BIPLANE, not a jet. At one cell per LED the silhouette is all
+    // you get, and the thing that reads as vintage is TWO STACKED WINGS with
+    // daylight between them — a single wing is a jet at any scale. So: a
+    // short fat fuselage, an upper and a lower wing joined by a strut, a
+    // tall rudder, and a big prop disc on the nose.
+    bool fuse = std::fabs(bx) < 2.3f && std::fabs(by + 0.1f) < 0.85f;
+    bool upper = std::fabs(bx - 0.2f) < 2.1f && std::fabs(by + 2.0f) < 0.55f;
+    bool lower = std::fabs(bx - 0.1f) < 1.7f && std::fabs(by - 1.0f) < 0.5f;
+    bool strut = std::fabs(bx - 1.1f) < 0.4f && by > -2.0f && by < 1.0f;
+    bool rudder = bx < -1.6f && bx > -2.6f && by < 0.1f && by > -2.2f;
+    bool tailpl = bx < -1.5f && bx > -2.8f && std::fabs(by - 0.1f) < 1.2f;
+    if (fuse || upper || lower || strut || rudder || tailpl) {
+      // Vintage livery: a red airframe with a cream flash along the
+      // fuselage. Warm and old, and nothing like the silver airliners that
+      // cross much higher up.
+      bool flash = fuse && by < -0.1f;
+      if (flash) paint(246.f, 236.f, 206.f, 1.f);
+      else       paint(178.f, 52.f, 48.f, 1.f);
+    } else if (std::fabs(bx - 2.9f) < 0.8f && std::fabs(by) < 1.9f) {
+      // Prop disc: a smear, not blades. At 1px/cell a spinning propeller is
+      // a translucent arc and nothing else reads as one.
+      float sp = 0.32f + 0.30f * std::sin(animT * 22.f + by * 1.7f);
+      paint(250.f, 250.f, 240.f, sp);
+    }
+    // The banner. It starts a few cells behind the tail and streams back,
+    // rippling with a wave that travels ALONG it away from the aircraft —
+    // fabric shed off a tow point, which is what makes it read as cloth
+    // rather than as a painted rectangle.
+    const float kStart = 4.5f, kLen = 22.f;
+    float s = -bx - kStart;                       // 0 at the leading edge
+    if (s > 0.f && s < kLen) {
+      float ripple = 1.5f * std::sin(s * 0.55f - animT * 3.2f) * (0.35f + s / kLen);
+      float halfH = 1.9f - 0.25f * (s / kLen);    // tapers very slightly
+      if (std::fabs(by - ripple) < halfH) {
+        // Vertical colour bands, so it reads as lettering-at-a-distance:
+        // you cannot resolve words at this scale, but you CAN resolve that
+        // there is something written on it, which is the whole effect.
+        // The ground is always PALE and the ink always dark or hot. The first
+        // version had a blue-on-yellow option, and blue ink over a blue sky
+        // meant the ribbon broke into disconnected yellow chunks with sky
+        // showing through the letters. A banner has to hold together as one
+        // object first and carry marks second — so nothing here is allowed to
+        // be the colour of what it is flying against.
+        static const uint8_t kBan[4][6] = {
+            {198,  40,  58,  255, 246, 232},   // red on white
+            { 40,  52,  92,  252, 232,  96},   // navy on yellow
+            {180,  46, 140,  255, 250, 250},   // magenta on white
+            { 26,  92,  74,  255, 244, 214},   // deep green on cream
+        };
+        const uint8_t* pal = kBan[S.banHue % 4u];
+        // Wider marks: at one cell per LED a two-cell block is a speck. These
+        // read as blocky lettering seen from too far away to resolve, which
+        // is exactly what a banner looks like from the ground.
+        uint32_t blk = (uint32_t)(s * 0.55f);
+        bool ink = ((blk ^ (S.banHue >> 4)) % 3u) == 0u;
+        // Shade the cloth by the slope of the ripple, so it has a surface.
+        float slope = std::cos(s * 0.55f - animT * 3.2f);
+        float lit = 0.84f + 0.16f * slope;
+        // A pale HEM along both edges, always the ground colour. Without it
+        // the dark marks touch the sky directly and the ribbon reads as a
+        // row of separate floating blocks rather than one piece of cloth —
+        // the eye needs an unbroken outline to bind them into an object.
+        bool hem = std::fabs(by - ripple) > halfH - 0.75f;
+        const uint8_t* c = (ink && !hem) ? pal : pal + 3;
+        paint((float)c[0] * lit, (float)c[1] * lit, (float)c[2] * lit, 1.f);
+      }
+      // The tow line, from the tail back to the leading edge of the cloth.
+      else if (s < 0.8f && std::fabs(by) < 0.6f) {
+        paint(210.f, 205.f, 190.f, 0.55f);
+      }
+    }
+  }
+
+  // THE AIRSHIP. What makes this a fantasy airship rather than a Hindenburg
+  // is entirely the things hanging off it: a wooden ship's HULL instead of a
+  // cabin, and PENNANTS. A grey envelope with a box under it is history; the
+  // same envelope in stripes with a boat and flags is a story. At this scale
+  // those two details are most of the object's character.
+  if (S.airUp) {
+    float d = S.airDir;
+    float ax = (fx - S.airX) * d, ay = fy - S.airY;
+    static const uint8_t kShip[4][6] = {
+        {186,  62,  72,  248, 234, 208},   // carmine / cream
+        { 92,  70, 160,  246, 214, 128},   // violet / gold
+        { 38, 118, 118,  242, 236, 214},   // teal / bone
+        {166,  96,  40,  250, 226, 178},   // rust / sand
+    };
+    const uint8_t* pal = kShip[S.airHue % 4u];
+
+    // ---- Envelope ----
+    // Pointed at both ends rather than a plain ellipse: raising the profile
+    // to a power under 1 pulls the nose and tail out into a taper, which is
+    // the difference between an airship and a sausage.
+    // The ENVELOPE has to dominate. The first attempt made it 21 cells long
+    // and 7 tall with the hull nearly as big, and banded it lengthwise into
+    // five stripes — which came out as a stack of planks with a boat under
+    // it, a flying raft rather than an airship. The gas bag is the object;
+    // everything else hangs off it and should be small by comparison.
+    const float kLen = 10.5f, kTall = 4.8f;
+    float u2 = ax / kLen;
+    if (std::fabs(u2) < 1.f) {
+      float prof = kTall * std::pow(1.f - u2 * u2, 0.62f);
+      if (std::fabs(ay) < prof) {
+        // Lit along the top, shaded underneath — a big smooth volume needs
+        // that gradient or it reads as a flat decal.
+        float vv = ay / std::max(0.6f, prof);
+        float lit = 0.74f + 0.32f * (0.5f - vv);
+        // ONE bold stripe along the centreline over a pale envelope, which
+        // is how airships have always been painted and reads far cleaner at
+        // this size than any repeating band.
+        bool stripe = std::fabs(vv + 0.05f) < 0.30f;
+        const uint8_t* c = stripe ? pal : pal + 3;
+        paint((float)c[0] * lit, (float)c[1] * lit, (float)c[2] * lit, 1.f);
+        // A nose cap, so the front is distinguishable from the back at a
+        // glance and the ship has a direction.
+        if (u2 > 0.84f)
+          paint((float)pal[0] * 0.85f, (float)pal[1] * 0.85f,
+                (float)pal[2] * 0.85f, 0.9f);
+      }
+    }
+    // ---- Tail fins ----
+    // A small cruciform tail right at the stern. Oversized fins read as an
+    // arrowhead stuck on the back.
+    if (ax < -8.0f && ax > -11.4f) {
+      float reach = 3.3f * (1.f - (std::fabs(ax) - 8.0f) / 3.4f) + 1.4f;
+      if (std::fabs(ay) < reach && std::fabs(ay) > 0.8f)
+        paint((float)pal[0] * 0.92f, (float)pal[1] * 0.92f,
+              (float)pal[2] * 0.92f, 1.f);
+    }
+    // ---- The hull ----
+    // A little wooden boat, slung under the envelope on two short cables.
+    // Flat sheer line on top, curved forefoot and stern below. Deliberately
+    // small: it is a jolly boat under a gas bag, not a barge.
+    float hy = ay - 6.9f;
+    float hull = 3.8f;
+    if (std::fabs(ax + 0.4f) < hull && hy > -1.2f) {
+      float uh = (ax + 0.4f) / hull;
+      float depth = 2.0f * std::pow(1.f - uh * uh, 0.55f);
+      if (hy < depth) {
+        // Planking: alternate two timber tones by row.
+        bool plank = ((int)std::floor(hy + 4.f) & 1) == 0;
+        float tr = plank ? 162.f : 132.f, tg = plank ? 112.f : 88.f,
+              tb = plank ? 66.f : 50.f;
+        // A painted strake along the gunwale, in the ship's own colour.
+        if (hy < -0.4f) { tr = (float)pal[0]; tg = (float)pal[1]; tb = (float)pal[2]; }
+        paint(tr, tg, tb, 1.f);
+        // Portholes, lit after dark. At night this is nearly all you see of
+        // the hull, and a row of warm dots under a dark envelope is the
+        // whole picture of somebody being aboard.
+        if (lv < 0.45f && hy > 0.1f && hy < 1.1f) {
+          float ph = std::fmod(std::fabs(ax + 0.4f), 2.0f);
+          if (ph < 0.75f) paint(255.f, 206.f, 128.f, 0.95f);
+        }
+      }
+    }
+    // Suspension cables from the hull's gunwale up into the envelope.
+    for (int s2 = -1; s2 <= 1; s2 += 2) {
+      float cxx = (float)s2 * 2.7f - 0.4f;
+      if (std::fabs(ax - cxx) < 0.5f && ay > 3.6f && ay < 6.0f)
+        paint(70.f, 58.f, 46.f, 0.8f);
+    }
+    // ---- Pennants ----
+    // One at the masthead and one off the stern, both rippling. Flags are
+    // what stop this being an aircraft and make it a SHIP.
+    {
+      // Masthead: a short staff above the envelope, forward of centre.
+      float stx = 3.0f;
+      if (std::fabs(ax - stx) < 0.45f && ay < -4.3f && ay > -7.1f)
+        paint(90.f, 72.f, 54.f, 0.9f);
+      for (int k = 0; k < 9; ++k) {
+        float f2 = (float)k / 8.f;
+        float flx = stx - 0.6f - f2 * 6.4f;
+        float fly = -6.7f + 1.25f * std::sin(f2 * 4.2f - animT * 4.6f) * f2;
+        float thick = 0.80f * (1.f - f2 * 0.72f);   // tapers to a point
+        if (std::fabs(ax - flx) < 0.62f && std::fabs(ay - fly) < thick)
+          paint((float)pal[3] * 0.98f, (float)pal[4] * 0.98f,
+                (float)pal[5] * 0.98f, 0.95f);
+      }
+      // Stern streamer, longer and thinner.
+      for (int k = 0; k < 9; ++k) {
+        float f2 = (float)k / 8.f;
+        float flx = -12.0f - f2 * 6.5f;
+        float fly = 0.4f + 1.9f * std::sin(f2 * 3.6f - animT * 3.9f) * f2;
+        if (std::fabs(ax - flx) < 0.6f && std::fabs(ay - fly) < 0.62f)
+          paint((float)pal[3], (float)pal[4], (float)pal[5], 0.9f);
+      }
+    }
+  }
+
+  // The helicopter and its video wall. Drawn wall-first, chain, then the
+  // aircraft on top.
+  if (S.chopUp) {
+    float d = S.chopDir;
+    // ---- The LED wall ----
+    // A KAWAII RAINBOW PARTY, which is a specific thing and not merely
+    // "colourful": a scrolling rainbow ground, a bouncing face with two eyes
+    // and a smile, and sparkles. The wall is the only object in the sky that
+    // EMITS, so it stays at full brightness after dark while everything else
+    // sinks — at night it is the brightest thing on the panel, and it should
+    // be.
+    const float kW = 5.5f, kH = 3.6f;
+    float wxr = fx - S.wallX, wyr = fy - S.wallY;
+    if (std::fabs(wxr) < kW + 0.9f && std::fabs(wyr) < kH + 0.9f) {
+      bool inScreen = std::fabs(wxr) < kW && std::fabs(wyr) < kH;
+      if (!inScreen) {
+        paint(48.f, 46.f, 58.f, 1.f);             // the frame
+      } else {
+        // Screen coordinates, 0..1.
+        float u = (wxr + kW) / (2.f * kW);
+        float v = (wyr + kH) / (2.f * kH);
+        // Rainbow ground, scrolling. Six stops around the hue circle, hard
+        // banded rather than smooth — a smooth ramp at six cells wide is a
+        // grey-ish blur, and bands read as RAINBOW.
+        static const uint8_t kRain[6][3] = {
+            {255,  74,  92}, {255, 168,  56}, {252, 236,  80},
+            { 92, 226, 128}, { 86, 176, 255}, {198, 120, 250}};
+        float phase = u * 6.f + animT * 2.1f;
+        int bi = ((int)phase % 6 + 6) % 6;
+        float rr2 = kRain[bi][0], gg2 = kRain[bi][1], bb2 = kRain[bi][2];
+        // The character: a round face that bounces, with big eyes and a
+        // smile. Blinks occasionally, because a face that never blinks is
+        // a mask.
+        float bounce = 0.16f * std::sin(animT * 4.4f);
+        float cxf = (u - 0.5f), cyf = (v - 0.52f - bounce);
+        float rface = std::sqrt(cxf * cxf * 1.7f + cyf * cyf * 2.6f);
+        if (rface < 0.30f) {
+          rr2 = 255.f; gg2 = 246.f; bb2 = 236.f;    // face
+          bool blink = std::sin(animT * 0.9f) > 0.955f;
+          float eyeY = cyf + 0.05f;
+          bool eye = (std::fabs(std::fabs(cxf) - 0.11f) < 0.045f) &&
+                     (blink ? std::fabs(eyeY) < 0.018f
+                            : std::fabs(eyeY) < 0.055f);
+          bool mouth = cyf > 0.08f && cyf < 0.15f && std::fabs(cxf) < 0.075f;
+          if (eye)   { rr2 =  58.f; gg2 =  44.f; bb2 =  70.f; }
+          if (mouth) { rr2 = 244.f; gg2 = 110.f; bb2 = 150.f; }
+          // Blush.
+          if (std::fabs(std::fabs(cxf) - 0.20f) < 0.04f &&
+              std::fabs(cyf - 0.06f) < 0.03f) {
+            rr2 = 255.f; gg2 = 168.f; bb2 = 186.f;
+          }
+        } else {
+          // Sparkles over the rainbow, popping on and off in their own time.
+          // Keyed to the SCREEN grid, not the panel, so they sit still on the
+          // wall while the wall swings — otherwise they crawl across it and
+          // read as interference rather than as content.
+          uint32_t sh = hash3((uint32_t)(u * 20.f), (uint32_t)(v * 20.f),
+                              0x59A6Cu);
+          float ph = (float)(sh & 255u) / 255.f * 6.283f;
+          float tw = std::sin(animT * 5.5f + ph);
+          if ((sh % 7u) == 0u && tw > 0.55f) {
+            float k = (tw - 0.55f) / 0.45f;
+            rr2 += (255.f - rr2) * k;
+            gg2 += (255.f - gg2) * k;
+            bb2 += (255.f - bb2) * k;
+          }
+        }
+        paint(rr2, gg2, bb2, 1.f);
+      }
+    }
+    // ---- The chain ----
+    // Drawn as discrete links between the aircraft's belly and the top of
+    // the wall, so it bends with the swing instead of being a rigid strut.
+    {
+      float ax = S.chopX, ay = S.chopY + 1.6f;
+      float bx2 = S.wallX, by2 = S.wallY - kH - 0.9f;
+      for (int k = 1; k < 9; ++k) {
+        float t2 = (float)k / 9.f;
+        // Sag: the chain hangs, so it is not a straight line between ends.
+        float lx = ax + (bx2 - ax) * t2;
+        float ly = ay + (by2 - ay) * t2 + 1.6f * std::sin(t2 * 3.14159f);
+        if (std::fabs(fx - lx) < 0.55f && std::fabs(fy - ly) < 0.55f)
+          paint(150.f, 148.f, 156.f, 0.85f);
+      }
+    }
+    // ---- The helicopter ----
+    float hx3 = (fx - S.chopX) * d, hy3 = fy - S.chopY;
+    bool cabin = (hx3 * hx3) / 6.8f + (hy3 * hy3) / 1.9f < 1.f;
+    bool boom = hx3 < -1.6f && hx3 > -5.4f && std::fabs(hy3 + 0.2f) < 0.55f;
+    bool tailfin = hx3 < -4.6f && hx3 > -5.6f && hy3 < 0.2f && hy3 > -1.8f;
+    if (cabin || boom || tailfin) {
+      float lit = 0.88f + 0.12f * hy3;
+      paint(74.f * lit, 92.f * lit, 122.f * lit, 1.f);
+      // A lit cockpit window at the nose.
+      if (hx3 > 0.7f && hx3 < 2.0f && std::fabs(hy3 + 0.2f) < 0.7f)
+        paint(180.f, 220.f, 246.f, 0.9f);
+    }
+    // The main rotor: a fast translucent disc above the cabin. Same
+    // reasoning as the propeller — you draw the blur, never the blades.
+    if (std::fabs(hy3 + 2.3f) < 0.7f && std::fabs(hx3) < 6.2f) {
+      float sp = 0.22f + 0.30f * std::fabs(std::sin(animT * 26.f + hx3 * 0.9f));
+      paint(228.f, 232.f, 240.f, sp);
+    }
+    // Tail rotor.
+    if (std::fabs(hx3 + 5.2f) < 0.8f && std::fabs(hy3 + 0.8f) < 1.5f) {
+      float sp = 0.20f + 0.28f * std::fabs(std::sin(animT * 34.f + hy3));
+      paint(224.f, 228.f, 236.f, sp);
+    }
+  }
+
   // The dragon. Drawn tail-first so the head lands on top of the neck.
   if (S.dragonUp) {
     static const uint8_t kScale[3][6] = {
@@ -889,6 +1400,9 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
     for (int i = PixelviewSkyCast::kDragonSegs - 1; i >= 0; --i) {
       float ddx = fx - S.dragX[i], ddy = fy - S.dragY[i];
       float R = S.dragR[i];
+      // Cheap rejection before the divide: with 32 segments most of them are
+      // nowhere near any given cell.
+      if (std::fabs(ddx) > R || std::fabs(ddy) > R) continue;
       float d2 = (ddx * ddx + ddy * ddy) / (R * R);
       if (d2 >= 1.f) continue;
       // Rounded body with a lighter belly ridge along the underside.
@@ -908,9 +1422,86 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
           paint(255.f, 196.f, 70.f, 1.f);
       }
       // A mane runs the first third of the body.
-      if (i > 0 && i < 6 && ddy < -R * 0.55f) {
-        float m = 0.6f + 0.4f * std::sin(animT * 3.f + (float)i);
+      if (i > 0 && i < 11 && ddy < -R * 0.55f) {
+        float m = 0.6f + 0.4f * std::sin(animT * 3.f + (float)i * 0.5f);
         paint(250.f, 232.f, 170.f, 0.55f * m);
+      }
+    }
+    // DORSAL CREST, drawn ON TOP of the body. It was originally drawn first,
+    // on the theory that the body's edge would tidy up the base — but on a
+    // curving body each spine's base falls inside the NEXT segment's circle,
+    // so the body painted over nearly all of it and what survived read as
+    // gold confetti floating alongside the animal. A crest sits on the
+    // creature; it is not underneath it.
+    //
+    // Every segment gets one, so the ridge is continuous and serrated rather
+    // than a row of isolated spikes, and each stands off the normal to the
+    // local tangent so it stays on the back through the undulation instead
+    // of swinging out of the belly on the downstroke.
+    // Which way the animal is going, taken over its whole length. The side
+    // the crest sits on is chosen from THAT and not from the local slope:
+    // testing "is this normal pointing up" flips the crest to the underside
+    // wherever the body turns past vertical, which put the ridge on the
+    // dragon's belly at the end of every upstroke.
+    const float trav =
+        (S.dragX[0] > S.dragX[PixelviewSkyCast::kDragonSegs - 1]) ? 1.f : -1.f;
+    for (int i = 1; i < PixelviewSkyCast::kDragonSegs - 2; ++i) {
+      float R = S.dragR[i];
+      float tx2 = S.dragX[i] - S.dragX[i + 1];
+      float ty2 = S.dragY[i] - S.dragY[i + 1];
+      float tl = std::sqrt(tx2 * tx2 + ty2 * ty2);
+      if (tl < 0.001f) continue;
+      tx2 /= tl; ty2 /= tl;
+      float nx2 = trav * ty2, ny2 = -trav * tx2;
+      // Alternating heights give the ridge its saw edge.
+      float hgt = (1.05f + ((i & 1) ? 0.75f : 0.f)) * (R / 3.0f);
+      for (int k = 0; k < 3; ++k) {
+        float f2 = (float)k / 2.f;
+        float px2 = S.dragX[i] + nx2 * (R - 0.7f + hgt * f2);
+        float py2 = S.dragY[i] + ny2 * (R - 0.7f + hgt * f2);
+        float wdt = 0.78f * (1.f - f2 * 0.55f);
+        // Gold, not a shade of the scales: against a pale belly a pale spine
+        // is invisible. It also matches the mane, so crest and mane read as
+        // one ridge running the whole length.
+        if (std::fabs(fx - px2) < wdt && std::fabs(fy - py2) < wdt)
+          paint(250.f, 222.f, 138.f, 0.95f);
+      }
+    }
+
+    // LIMBS. Two pairs of little clawed legs, at the shoulders and the hips,
+    // paddling as it swims. An Eastern dragon's legs are small and mostly
+    // decorative, which is perfect here: four short strokes off the body
+    // remove any remaining reading of this as a chain of beads.
+    {
+      const int kHip[2] = {5, 17};
+      for (int L = 0; L < 2; ++L) {
+        int i = kHip[L];
+        float bx3 = S.dragX[i], by3 = S.dragY[i];
+        // Which way the body is heading, so the legs hang off its side.
+        float axx = S.dragX[i] - S.dragX[i + 1];
+        float ayy = S.dragY[i] - S.dragY[i + 1];
+        float al = std::sqrt(axx * axx + ayy * ayy);
+        if (al < 0.001f) continue;
+        axx /= al; ayy /= al;
+        for (int s2 = -1; s2 <= 1; s2 += 2) {
+          // Perpendicular to travel, with a paddling swing.
+          float sw = 0.55f * std::sin(animT * 3.6f + (float)L * 2.0f +
+                                      (float)s2 * 1.1f);
+          for (int k = 1; k <= 3; ++k) {
+            // Start at the body's surface, or the leg's first joints are
+            // buried inside it and only the claw shows.
+            float ext = S.dragR[i] * 0.75f + 0.85f * (float)k;
+            float lx = bx3 - ayy * (float)s2 * ext + axx * sw * (float)k;
+            float ly = by3 + axx * (float)s2 * ext + ayy * sw * (float)k;
+            if (std::fabs(fx - lx) < 0.62f && std::fabs(fy - ly) < 0.62f) {
+              // The last joint is a claw, and paler.
+              bool claw = (k == 3);
+              paint(claw ? 250.f : (float)pal[0] * 1.25f,
+                    claw ? 240.f : (float)pal[1] * 1.25f,
+                    claw ? 200.f : (float)pal[2] * 1.25f, claw ? 0.95f : 1.f);
+            }
+          }
+        }
       }
     }
     // Whiskers, trailing back from the head.
@@ -1115,6 +1706,22 @@ inline void pixelviewSkyCell(const World& w, int x, int y, float animT,
       paint(255.f, 246.f, 210.f, 0.75f * tw);
     }
   }
+
+  // The brightness knob, applied ONCE, to everything, at the very end.
+  //
+  // Everywhere else in the renderer brightness rides along on each element —
+  // every window, every firefly carries its own `* br` — because there is
+  // terrain underneath that has already been dimmed, and the element has to
+  // match it. Up here there is no terrain: the air, the clouds and the wind
+  // streaks are all painted as absolute colours, so each one had to remember
+  // the knob for itself and the background never did. Turning the panel down
+  // left the sky at 99% of full, which on a round LED disc at night is the
+  // whole piece shouting.
+  //
+  // One multiply at the exit is the only version of this that cannot rot: the
+  // next thing that flies past cannot forget to be dimmable.
+  float br = displayBrightness();
+  rr *= br; gg *= br; bb *= br;
 }
 
 // ---------------------------------------------------------------------
@@ -1636,9 +2243,40 @@ inline void pixelviewBiomeGrade(Biome bi, int& r, int& g, int& b) {
 inline void pixelviewBiomeSoil(Biome bi, int j, int x, int y, uint32_t seed,
                                int& r, int& g, int& b) {
   switch (bi) {
-    case MEADOW:   r = 84 + j / 2; g = 80 + j / 2; b = 52; break;  // dry olive
+    case MEADOW: {
+      // THE GROUND BETWEEN THE TUFTS, and it has to stay dark. A meadow is
+      // a third bare ground by area, and when per-biome soils came in this
+      // one went from luminance 23 to 81 — against grass at ~100 the value
+      // ratio collapsed from about 4:1 to 1.2:1, the vegetation stopped
+      // reading as sculpted masses, and the hillshade and canopy occlusion
+      // had nothing left to bite on. That is the whole reason the meadow
+      // stopped looking the way it did when the shading went in.
+      // Dark earth in the hollows, dry thatch where the sun reaches it,
+      // graded across a smooth field so it is soil rather than a flat mat.
+      float dry = pixelviewFbm2(x, y, 8.0f, seed ^ 0x6EA00u);
+      dry = std::clamp((dry - 0.32f) * 1.8f, 0.f, 1.f);
+      r = (int)(30.f + 32.f * dry) + j / 2;
+      g = (int)(26.f + 28.f * dry) + j / 2;
+      b = (int)(18.f + 15.f * dry);
+      break;
+    }
     case WETLAND:  r = 48 + j / 2; g = 46 + j / 2; b = 38; break;  // peat
-    case ALPINE:   r = 92 + j / 2; g = 96 + j / 2; b = 104; break; // scree
+    case ALPINE: {
+      // Scree, with FORM. It went from luminance 23 to a flat 92 in the same
+      // change that flattened the meadow, and a uniform mid-grey covering
+      // most of a mountain leaves the sparse alpine growth nothing to stand
+      // out against — the frames came out as one lavender-grey sheet. Rock
+      // is not one value: it is lit faces, shadowed hollows and darker wet
+      // stone. Two octaves so the mountain has both broad flanks and the
+      // broken texture of loose scree on top.
+      float f = pixelviewFbm2(x, y, 11.0f, seed ^ 0x5C2EEu);
+      float g2 = pixelviewValueNoise(x, y, 3.5f, seed ^ 0x10C5u);
+      float v = std::clamp(f * 0.74f + g2 * 0.26f, 0.f, 1.f);
+      r = (int)(46.f + 62.f * v) + j / 2;
+      g = (int)(50.f + 64.f * v) + j / 2;
+      b = (int)(56.f + 66.f * v);
+      break;
+    }
     case TROPICAL: {
       // Bare ground is the second most common thing in a tropical frame
       // (670 cells in 12100), and it was ALL near-black loam at luminance
@@ -1767,6 +2405,101 @@ inline uint8_t pixelviewCloudAt(const World& w, int x, int y) {
   return (uint8_t)std::min<int>(255, (int)(c * w.cloudOpacity));
 }
 
+// ---------------------------------------------------------------------------
+// FLOWERS
+//
+// For a long time there were five colours, shared by every temperate biome
+// and drawn per cell — fewer species than any real verge, and scattered like
+// confetti. Three things change that, and they compound:
+//
+//  1. Each biome gets its OWN species list. Alpine gentians are not meadow
+//     poppies, and a desert that blooms in six colours is a desert in spring.
+//     This alone roughly triples the palette across a voyage.
+//  2. Blooms come in DRIFTS. A low-frequency field gives each patch of ground
+//     a dominant species that most of its flowers take, with the rest drawn
+//     freely — so you get a spill of yellow here and blue over there, mixing
+//     at the edges, instead of an even sprinkle of all colours everywhere.
+//     Real flowers spread from a parent; they do not shuffle.
+//  3. Every individual takes a small tone jitter, so no two are stamped from
+//     the same die.
+//
+// These stay exempt from the biome grade (grading them turned white petals
+// yellow and every desert bloom orange); only their LIGHT is shared. Big
+// blooms ('&', '!') draw from the back of each list, where the boldest
+// colours live, so the rarer glyph is also the rarer sight.
+struct PixelviewBloom { uint8_t r, g, b; };
+
+inline const PixelviewBloom* pixelviewBloomList(Biome bi, int& n) {
+  // Temperate verge: poppy, buttercup, knapweed, oxeye daisy, cornflower,
+  // red campion, cowslip, viper's bugloss, field scabious.
+  static const PixelviewBloom kMeadow[] = {
+      {225,  70,  55}, {255, 215,  90}, {175, 120, 235}, {248, 246, 238},
+      {120, 190, 250}, {236, 120, 160}, {250, 232, 150}, {130, 120, 225},
+      {190, 165, 225}};
+  // Gentian, edelweiss, alpine aster, alpenrose, arnica, moss campion.
+  static const PixelviewBloom kAlpine[] = {
+      { 60, 110, 225}, {240, 240, 228}, {150, 120, 220}, {226,  90, 120},
+      {250, 200,  80}, {224, 110, 180}, {245, 238, 205}};
+  // Marsh marigold, ragged robin, purple loosestrife, water forget-me-not,
+  // meadowsweet, flag iris.
+  static const PixelviewBloom kWetland[] = {
+      {250, 206,  70}, {232, 130, 175}, {190,  90, 190}, {150, 205, 245},
+      {246, 240, 215}, {252, 220,  90}};
+  // Prickly pear, desert marigold, ocotillo, brittlebush, desert lupine,
+  // evening primrose. A desert in bloom is not orange — that was the bug.
+  static const PixelviewBloom kDesert[] = {
+      {226,  80, 150}, {252, 208,  70}, {230,  72,  58}, {250, 186,  60},
+      {140, 120, 215}, {250, 244, 230}};
+  // Hibiscus, plumeria, bird-of-paradise, orchid, bougainvillea, flame vine,
+  // jade vine (that turquoise is a real flower and nothing else here is that
+  // colour), heliconia.
+  static const PixelviewBloom kTropical[] = {
+      {255,  95, 125}, {255, 225, 150}, {255, 150,  45}, {230, 105, 220},
+      {255, 125, 175}, {250,  80,  50}, {110, 225, 205}, {255, 180,  60}};
+  switch (bi) {
+    case ALPINE:  n = 7; return kAlpine;
+    case WETLAND: n = 6; return kWetland;
+    case DESERT:  n = 6; return kDesert;
+    case TROPICAL: n = 8; return kTropical;
+    // Ocean is atolls, and an atoll flowers like the tropics it sits in.
+    case OCEAN:   n = 8; return kTropical;
+    default:      n = 9; return kMeadow;
+  }
+}
+
+// `species` is for the audit harness: the per-flower tone jitter below hides
+// the drift structure from anything measuring final colour, so the test needs
+// to see which bloom was chosen, not what it ended up looking like.
+inline void pixelviewFlowerColor(const World& w, char t, int x, int y,
+                                 uint32_t h, int& r, int& g, int& b,
+                                 int* species = nullptr) {
+  int n = 0;
+  const PixelviewBloom* list = pixelviewBloomList(w.biome, n);
+
+  // The drift. One dominant species per region of ~13 cells; most flowers in
+  // a patch take it, the rest are drawn freely so the edges mix rather than
+  // butting up against each other.
+  float dn = pixelviewValueNoise(x, y, 13.f, w.worldSeed ^ 0xB100Du);
+  int dom = std::min(n - 1, (int)(dn * (float)n));
+  int free = (int)((h >> 5) % (uint32_t)n);
+  bool takeDom = ((h >> 17) & 255u) < 148u;          // ~58% follow the drift
+  int idx = takeDom ? dom : free;
+
+  // Big blooms favour the back of the list, where the bolder colours sit.
+  if (t == '&' || t == '!') idx = (idx + n / 2) % n;
+  if (species) *species = idx;
+
+  const PixelviewBloom& p = list[idx];
+  // Per-flower tone jitter: a little lighter or darker, and a slight warm or
+  // cool push. Small — enough to break the stamp, not enough to change what
+  // species it reads as.
+  float v = 0.88f + 0.24f * (float)((h >> 9) & 63u) / 63.f;
+  float warm = ((float)((h >> 21) & 31u) / 31.f - 0.5f) * 18.f;
+  r = std::clamp((int)((float)p.r * v + warm), 0, 255);
+  g = std::clamp((int)((float)p.g * v), 0, 255);
+  b = std::clamp((int)((float)p.b * v - warm), 0, 255);
+}
+
 // Shaded per-cell color: entities, overlays, water, terrain, then season,
 // cloud shadow, lightning, and the day/night cycle.
 // animT: seconds for water motion; pass wall-clock time for smooth flow
@@ -1833,14 +2566,39 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
     if (((h >> 4) + (uint32_t)(tick / 6)) % 97u == 0u) { r = g = b = 235; }
 
     // Coral colonies glow through the shallow water.
+    //
+    // Kept as a colour rather than only written into r/g/b, because the wave
+    // model below ASSIGNS the sea colour instead of blending into it — so
+    // everything painted up here was thrown away before the frame ended, and
+    // a reef in open water rendered as a pale glassy patch of surf. Coral is
+    // SEABED: the sea body goes down, the seabed tints it, and the foam goes
+    // on top. That order is applied at the sea-body assignment below.
+    bool coral = false;
+    int cor[3] = {0, 0, 0};
     if (t == 'C' && d <= 3) {
-      switch ((h >> 5) % 4u) {
-        case 0:  r = 235; g = 110; b = 140; break;  // pink
-        case 1:  r = 240; g = 140; b = 70;  break;  // orange
-        case 2:  r = 175; g = 110; b = 220; break;  // violet
-        default: r = 245; g = 205; b = 160; break;  // cream
-      }
-      r -= d * 14; g -= d * 8; b += d * 4;  // seen through the water
+      // A reef is COLONIES, not confetti. Picking the colour from a per-cell
+      // hash gave every neighbouring polyp an unrelated one, so a reef read
+      // as scattered sweets on the seabed rather than as stands of coral —
+      // the same defect the flowers had, and the same cure: one dominant
+      // species per region from a low-frequency field, with a minority drawn
+      // freely so colonies mingle at their edges instead of tiling.
+      static const uint8_t kCoral[5][3] = {
+          {235, 110, 140},   // pink
+          {240, 140,  70},   // orange
+          {175, 110, 220},   // violet
+          {245, 205, 160},   // cream
+          {212,  92, 104},   // red
+      };
+      float dn = pixelviewValueNoise(x, y, 9.f, w.worldSeed ^ 0xC02A1u);
+      int dom = std::min(4, (int)(dn * 5.f));
+      int idx = (((h >> 17) & 255u) < 178u) ? dom : (int)((h >> 5) % 5u);
+      float v = 0.90f + 0.20f * (float)((h >> 9) & 63u) / 63.f;
+      cor[0] = (int)((float)kCoral[idx][0] * v);
+      cor[1] = (int)((float)kCoral[idx][1] * v);
+      cor[2] = (int)((float)kCoral[idx][2] * v);
+      cor[0] -= d * 14; cor[1] -= d * 8; cor[2] += d * 4;  // through the water
+      coral = true;
+      r = cor[0]; g = cor[1]; b = cor[2];
     }
 
     // Water in motion. Rivers (steep gradient) flow in EVERY biome — a
@@ -1874,12 +2632,50 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
       // rendered as standing whitewater: the flat grey sheets. Narrow water
       // takes the flowing-ripple path instead, whatever the gradient says.
       bool channel = landNear >= 16;
+      const int grad = std::abs(gx) + std::abs(gy);
+
+      // AND A LAGOON IS NOT A WATERCOURSE. The rule above also caught the
+      // inside of an atoll — enclosed water, ringed by its own reef, with no
+      // fall to it whatever — and sent it down the flowing-river path. That
+      // path takes its direction from the SIGN of the local height gradient,
+      // and on a lagoon floor, which the sim lays down perfectly flat, that
+      // sign is noise: every cell rippled along its own axis, at its own
+      // random phase (`h & 7`), several times a second. Coherence between
+      // neighbouring cells measured 0.04 — statistically, television static.
+      // That is the glassy shimmer that crawled over the coral.
+      //
+      // Water going nowhere gets its own treatment below. It is neither a
+      // river nor a sea, and pretending it is either is what went wrong.
+      // A RIVER IS A WATERCOURSE IN A LAND BIOME. The old rule made any
+      // shallow cell with a gradient of 2 a river, and a seabed is bumpy —
+      // so a census found 97.8% of all shallow water in TROPICAL taking the
+      // river path. The entire shallows of both sea biomes have been
+      // rendering as flowing water since the rule was written; the atoll is
+      // simply where it is most obvious, because there the ripple has no
+      // real swell around it to hide in.
+      //
+      // In the sea, enclosed shallow water is a lagoon and everything else
+      // is sea. On land, the narrow-channel test and the gradient test both
+      // still stand: that is what they were written for.
+      bool seaBiome = (w.biome == OCEAN || w.biome == TROPICAL);
+      bool lagoon = seaBiome && channel;
       // >=2 catches the gentle ~0.7/cell ramps of carved through-rivers,
       // not just steep mountain streams.
-      bool river = ((std::abs(gx) + std::abs(gy) >= 2) && d <= 3) || channel;
+      bool river = !lagoon &&
+                   (channel || (!seaBiome && grad >= 2 && d <= 3));
       bool stillBiome = (w.biome == WETLAND || w.biome == DESERT);
 
-      if (river) {
+      if (lagoon) {
+        // Sheltered water. One long, slow swell shared by the whole basin —
+        // phase from WORLD position only, so neighbouring cells are on the
+        // same wave and it reads as a surface rather than as a boil. No
+        // break and no glint: there is no fetch in here to build either.
+        float ph = 0.28f * ((float)x + 0.62f * (float)y) - animT * 0.75f;
+        float ripple = 0.68f * std::sin(ph) +
+                       0.32f * std::sin(ph * 0.43f + 1.7f);
+        int lift = (int)(ripple * 7.f);
+        r += lift / 2; g += lift; b += lift;
+      } else if (river) {
         float fx = (float)((gx > 0) - (gx < 0));
         float fy = (float)((gy > 0) - (gy < 0));
         float ph = 0.8f * ((float)x * fx + (float)y * fy) - animT * 2.8f;
@@ -1895,7 +2691,7 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
         // Previously the deep and the shallows ran different maths, so big
         // bands marched across open water and never broke on anything.
         float grp, chop;
-        float swell = pixelviewSwell(w, x, y, animT, h, &grp, &chop);
+        float swell = pixelviewSwell(w, x, y, animT, &grp, &chop);
 
         // How much this cell feels the bottom: 0 in the deep, 1 in the surf.
         float shoal = std::clamp((5.f - (float)d) / 4.f, 0.f, 1.f);
@@ -1930,6 +2726,17 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
         r = (int)((float)kSea[lvl][0] + pale * 0.7f + (float)(j / 3));
         g = (int)((float)kSea[lvl][1] + pale + (float)(j / 2));
         b = (int)((float)kSea[lvl][2] + pale * 0.8f + (float)(j / 2));
+
+        // The seabed, back on top of the water it is under. Strong in a
+        // knee-deep colony and fading with every cell of water above it —
+        // the glitter, the break and the wash all still run after this, so a
+        // wave breaking over the reef whites it out exactly as it should.
+        if (coral) {
+          float k = std::clamp(0.92f - 0.20f * (float)(d - 1), 0.f, 1.f);
+          r = (int)((float)r + ((float)cor[0] - (float)r) * k);
+          g = (int)((float)g + ((float)cor[1] - (float)g) * k);
+          b = (int)((float)b + ((float)cor[2] - (float)b) * k);
+        }
 
         // The lit face under a crest — again, only once it is shoaling.
         if (surf > 0.28f && surf <= 0.72f && shoal > 0.12f) {
@@ -1981,12 +2788,21 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
         if (shore > 0.f) {
           float washPh = surf * 0.5f + 0.5f;
           float wash = shore * (0.35f + 0.45f * grp) * washPh;
-          uint32_t wh2 = hash3((uint32_t)x, (uint32_t)y,
-                               (uint32_t)(animT * 5.f) * 2654435761u);
-          if ((wh2 % 5u) < 2u) {
-            r = (int)(r + (232 - r) * wash);
-            g = (int)(g + (242 - g) * wash);
-            b = (int)(b + (248 - b) * wash);
+          // Foam is a THING ON THE WATER, not a coin flipped per cell per
+          // frame. The old dither re-rolled two cells in five, five times a
+          // second, with no agreement between neighbours whatsoever — which
+          // is a working definition of television static, and on a panel
+          // where one cell is one LED that is exactly how it read. A noise
+          // field drifting shorewards gives the same broken, patchy cover
+          // and gives it somewhere to be going.
+          float fn = pixelviewValueNoiseF((float)x + animT * 1.7f,
+                                          (float)y + animT * 1.1f, 5.5f,
+                                          w.worldSeed ^ 0xF0AAu);
+          if (fn > 0.50f) {
+            float k = wash * std::min(1.f, (fn - 0.50f) / 0.18f);
+            r = (int)(r + (232 - r) * k);
+            g = (int)(g + (242 - g) * k);
+            b = (int)(b + (248 - b) * k);
           }
         }
 
@@ -2050,27 +2866,7 @@ inline PixelviewRGB pixelviewCellColor(const World& w, int x, int y, int tick,
         }
         break;
       case 'f': case '+': case '&': case '!':
-        if (w.biome == TROPICAL) {
-          // Lush island blooms: hibiscus, plumeria, bird-of-paradise,
-          // orchid, bougainvillea.
-          switch ((h >> 5) % 5u) {
-            case 0:  r = 255; g = 95 + j; b = 125; break;
-            case 1:  r = 255; g = 225 + j; b = 150; break;
-            case 2:  r = 255; g = 150 + j; b = 45; break;
-            case 3:  r = 230; g = 105 + j; b = 220; break;
-            default: r = 255; g = 125 + j; b = 175; break;
-          }
-        } else {
-          // Wildflower mix per-cell: poppy, marigold, orchid, white,
-          // cornflower.
-          switch ((h >> 5) % 5u) {
-            case 0:  r = 225; g = 70 + j; b = 55; break;
-            case 1:  r = 255; g = 215 + j; b = 90; break;
-            case 2:  r = 175; g = 120 + j; b = 235; break;
-            case 3:  r = 248; g = 246; b = 238; break;
-            default: r = 120; g = 190 + j; b = 250; break;
-          }
-        }
+        pixelviewFlowerColor(w, t, x, y, h, r, g, b);
         break;
       // ---- City ----
       case CITY_ROAD: {

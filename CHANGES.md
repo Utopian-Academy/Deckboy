@@ -51,6 +51,30 @@ moth was one dark pixel with nothing attached to it.
 
 Settings has a switch, shown only when the current theme actually has any.
 
+### The Terrarium easter egg was 68 commits behind
+
+The vendored copy was taken on 2026-08-07 and had drifted three weeks and
+sixty-eight commits by the time anyone looked -- missing the sky biome, the
+open ocean, seasons, per-biome palettes, the airship, ten new modulation
+sources, and the fixes for the sky ignoring its brightness knob and for most of
+the "sea" turning out to be a river.
+
+It is current now. The vendoring rules paid for themselves exactly as intended:
+the three files are byte-identical to upstream by design, so re-syncing was a
+plain copy with no merge, and it built and passed both terrarium smoke checks
+first time. UPSTREAM.md records the new commit.
+
+Recording the commit tells you WHETHER you have drifted; it does not stop you
+drifting. That is now written down where the next person will read it.
+
+### The creatures switch is always in Settings
+
+`Settings → System → Appearance → CREATURES`. It was hidden on themes with no
+animals, on the "no control for something that cannot happen" rule -- but this
+is a global preference, not a control over the current theme. Hidden, an
+operator on the default look could not find the switch to decide about them
+before changing theme, and a setting that appears and disappears while you
+browse themes is worse than one that is simply always there.
 ---
 
 ## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)

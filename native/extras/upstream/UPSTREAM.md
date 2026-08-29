@@ -4,9 +4,9 @@ Source: https://github.com/Utopian-Academy/terrarium  (`~/terrarium`)
 
 | | |
 |---|---|
-| Upstream commit | `4931aa0` |
+| Upstream commit | `6133297` |
 | Working-tree state at copy | clean (committed) |
-| Copied | 2026-08-07 |
+| Copied | 2026-08-29 |
 | Files | `terrarium_core.hpp`, `terrarium_core.cpp`, `terrarium_pixelview.hpp` |
 
 ## Rules
@@ -19,6 +19,13 @@ the namespace wrapper and the RGBA renderer — live one directory up, in
 This file exists because the previous vendored copy recorded no provenance at
 all, and drifted five weeks stale without anyone noticing. If you update these,
 update the commit above in the same change.
+
+It drifted again anyway: the 2026-08-07 copy was **68 commits behind** by
+2026-08-29, missing the sky biome, the open ocean, seasons, per-biome palettes,
+the airship, and the fixes for the sky ignoring the brightness knob and most of
+the "sea" actually being a river. Recording the commit tells you WHETHER you
+have drifted; it does not stop you drifting. Worth checking whenever the
+easter egg is touched.
 
 Upstream has **no namespace**; Deckboy needs one (`step`, `clamp01` and
 friends are global there and Deckboy is effectively one huge translation unit).

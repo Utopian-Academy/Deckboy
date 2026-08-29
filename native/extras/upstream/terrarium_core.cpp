@@ -236,7 +236,8 @@ float skyTraffic01(float seconds) {
   struct Entry { const SkyFlyer* f; float weight; };
   static const Entry kAll[] = {
       {&SKY_DRAGON, 1.00f}, {&SKY_UNICORN, 0.85f}, {&SKY_UFO, 0.80f},
-      {&SKY_RIDER, 0.55f},  {&SKY_WITCH, 0.65f},
+      {&SKY_RIDER, 0.55f},  {&SKY_WITCH, 0.65f},   {&SKY_BANNER, 0.45f},
+      {&SKY_CHOPPER, 0.95f}, {&SKY_AIRSHIP, 0.70f},
   };
   float sum = 0.f;
   for (const Entry& e : kAll) {
