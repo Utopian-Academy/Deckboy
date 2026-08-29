@@ -427,6 +427,25 @@ which is *along* a feature rather than across it — so strokes run along a hair
 around a jaw, down the length of a shadow. Flat areas are left alone; turn
 "across the grain" up and it combs the picture apart instead.
 
+### How many effects is too many
+
+A cue holds up to **twelve** effects, but the count is the wrong thing to
+watch: a dozen cheap ones are free and four expensive ones at 4K are not. So
+the EFFECTS section shows what the chain **actually costs per frame**, measured
+on your machine at your raster, once the cue has been live. A 60fps frame is
+16.7ms; over that, it says so.
+
+If you do go over, nothing breaks and nothing drifts. **Audio is the master
+clock**, so sound continues in real time and the picture slaves to it — you
+lose frames, not sync, and the show stays where it should be. The output fps
+counter (toggle it on the output bar) and `output_fps` in a `STATUS` reply both
+show it happening.
+
+Cheapest ways back under budget, in order: drop the output raster (almost
+everything here scales with pixel count), bypass rather than delete while you
+find the culprit, and check the expensive ones first — `--effect-bench <token>
+3840x2160` will tell you what any of them costs on your hardware.
+
 ### An LFO on any parameter
 
 Every parameter — and the effect's amount — has a **`~`** at the right of its

@@ -1,7 +1,7 @@
 /*
  * Actions — every button press becomes one plain-text Deckboy command.
  *
- * Deckboy's remote vocabulary is much larger than this (see MANUAL.md §20);
+ * Deckboy's remote vocabulary is much larger than this (see MANUAL.md §22);
  * what is exposed here is the set an operator drives from a Stream Deck during
  * a show. Anything else is reachable through the "Custom command" action at the
  * bottom, so the module never becomes the reason something isn't possible.
@@ -201,10 +201,208 @@ export function buildActions(self) {
 		find_prev: { name: 'Find: previous match', options: [], callback: () => send('FINDPREV') },
 		find_take: { name: 'Find: take current match', options: [], callback: () => send('FINDTAKE') },
 
+		// ── VJ mode ─────────────────────────────────────────────────────────
+		//
+		// These are the ones a hardware surface earns its keep on. A crossfader
+		// and a tap tempo are exactly what you do not want to reach for with a
+		// mouse, which is the whole argument for the surface.
+		vj_mode: {
+			name: 'VJ mode',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'toggle',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VJ ${options.state.toUpperCase()}`),
+		},
+		vj_mix: {
+			name: 'VJ crossfader',
+			description: 'Where the fader sits: 0 is all deck A, 1 is all deck B.',
+			options: [
+				{ type: 'number', label: 'Position', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 },
+			],
+			callback: ({ options }) => send(`VJ MIX ${options.value}`),
+		},
+		vj_blend: {
+			name: 'VJ blend mode',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Blend',
+					id: 'blend',
+					default: 'dissolve',
+					choices: [
+						{ id: 'dissolve', label: 'Dissolve' },
+						{ id: 'add', label: 'Add' },
+						{ id: 'multiply', label: 'Multiply' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VJ BLEND ${options.blend}`),
+		},
+		vj_tap: {
+			name: 'VJ tap tempo',
+			description: 'Tap four times or more. Taps over two seconds apart start again.',
+			options: [],
+			callback: () => send('VJ TAP'),
+		},
+		vj_bpm: {
+			name: 'VJ tempo (BPM)',
+			options: [{ type: 'number', label: 'BPM', id: 'value', default: 120, min: 20, max: 300 }],
+			callback: ({ options }) => send(`VJ BPM ${options.value}`),
+		},
+		vj_quantise: {
+			name: 'VJ quantised takes',
+			description: 'Hold takes until the next beat, so what you do lands on the music.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`VJ QUANTISE ${options.state}`),
+		},
+		vj_decks: {
+			name: 'VJ deck assignment',
+			description: 'Which decks sit on the A and B sides of the crossfader.',
+			options: [
+				{ type: 'number', label: 'Deck A', id: 'a', default: 1, min: 1, max: 8 },
+				{ type: 'number', label: 'Deck B', id: 'b', default: 2, min: 1, max: 8 },
+			],
+			callback: ({ options }) => send(`VJ DECKS ${options.a} ${options.b}`),
+		},
+
+		// ── Effects ─────────────────────────────────────────────────────────
+		fx_add: {
+			name: 'Add an effect',
+			description: 'Adds to the selected cue. The token is the effect name, e.g. schlieren.',
+			options: [
+				{ type: 'textinput', label: 'Effect', id: 'effect', default: '', useVariables: true },
+				{ type: 'number', label: 'Amount', id: 'amount', default: 1, min: 0, max: 1, step: 0.01 },
+			],
+			callback: async ({ options }) => {
+				const effect = (await self.parseVariablesInString(options.effect)).trim()
+				if (effect.length > 0) send(`FX ADD ${effect} ${options.amount}`)
+			},
+		},
+		fx_amount: {
+			name: 'Effect amount',
+			options: [
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{ type: 'number', label: 'Amount', id: 'value', default: 1, min: 0, max: 1, step: 0.01 },
+			],
+			callback: ({ options }) => send(`FX AMOUNT ${options.index} ${options.value}`),
+		},
+		fx_param: {
+			name: 'Effect parameter',
+			description: "The effect's own shaping controls, A to D.",
+			options: [
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{
+					type: 'dropdown',
+					label: 'Parameter',
+					id: 'slot',
+					default: 'A',
+					choices: ['A', 'B', 'C', 'D'].map((id) => ({ id, label: id })),
+				},
+				{ type: 'number', label: 'Value', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 },
+			],
+			callback: ({ options }) => send(`FX PARAM ${options.index} ${options.slot} ${options.value}`),
+		},
+		fx_lfo: {
+			name: 'Effect parameter LFO',
+			description: 'Hand a parameter to an oscillator. E is the effect amount.',
+			options: [
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32 },
+				{
+					type: 'dropdown',
+					label: 'Parameter',
+					id: 'slot',
+					default: 'A',
+					choices: ['A', 'B', 'C', 'D', 'E'].map((id) => ({ id, label: id })),
+				},
+				{
+					type: 'dropdown',
+					label: 'Setting',
+					id: 'what',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'shape', label: 'Shape' },
+						{ id: 'rate', label: 'Rate (Hz)' },
+						{ id: 'depth', label: 'Depth' },
+						{ id: 'phase', label: 'Phase' },
+						{ id: 'sync', label: 'Follow the tempo' },
+						{ id: 'beats', label: 'Cycle length in beats' },
+					],
+				},
+				{
+					type: 'textinput',
+					label: 'Value (blank for on/off)',
+					id: 'value',
+					default: '',
+					useVariables: true,
+				},
+			],
+			callback: async ({ options }) => {
+				const value = (await self.parseVariablesInString(options.value)).trim()
+				send(`FX LFO ${options.index} ${options.slot} ${options.what}${value ? ' ' + value : ''}`)
+			},
+		},
+		fx_clear: {
+			name: 'Clear the effect chain',
+			options: [],
+			callback: () => send('FX CLEAR'),
+		},
+		fx_copy_paste: {
+			name: 'Copy or paste an effect chain',
+			description: 'The chain only — not geometry, fades or crop.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Action',
+					id: 'action',
+					default: 'copy',
+					choices: [
+						{ id: 'copy', label: 'Copy' },
+						{ id: 'paste', label: 'Paste' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`FX ${options.action.toUpperCase()}`),
+		},
+		code_set: {
+			name: 'Set the code source expression',
+			description:
+				'One expression, or three separated by commas for red, green and blue. Refused if it does not compile.',
+			options: [
+				{ type: 'textinput', label: 'Expression', id: 'expression', default: '', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const expression = (await self.parseVariablesInString(options.expression)).trim()
+				if (expression.length > 0) send(`CODE SET ${expression}`)
+			},
+		},
+
 		custom: {
 			name: 'Custom command',
 			description:
-				'Any Deckboy remote command, sent verbatim. See MANUAL.md section 20 for the full vocabulary.',
+				'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',
 			options: [{ type: 'textinput', label: 'Command', id: 'command', default: '', useVariables: true }],
 			callback: async ({ options }) => {
 				const command = await self.parseVariablesInString(options.command)

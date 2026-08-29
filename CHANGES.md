@@ -116,6 +116,42 @@ multi-argument functions did not compile, unary minus bound so loosely that
 zero and the square root of a negative are all bounded rather than producing
 infinities or NaN, because an operator typing at speed will produce all three.
 
+### The effect chain tells you what it costs
+
+A cue has always been capped at twelve effects, but a cap only bounds the
+damage — a dozen cheap ones are free and four expensive ones at 4K are not, so
+the count an operator can already see is the wrong number.
+
+The EFFECTS section now shows what the chain **actually costs per frame**,
+measured on that machine at that raster while the cue is live, against the
+16.7ms a 60fps frame allows. Over budget, it says so. That is the difference
+between "it is stuttering, why" and "this chain costs 47ms".
+
+Measured rather than predicted, and only once it has run: a figure added up
+from per-effect benchmarks would be a guess about somebody else's hardware,
+which is exactly what the number is there to avoid.
+
+Going over is not a failure, and it is worth knowing what it does. **Audio is
+the master clock**: sound continues in real time and the picture slaves to it,
+so you lose frames rather than sync.
+
+### The Companion module knows about all of it
+
+VJ mode, the effect stack and the code source were reachable from a control
+surface only through the "custom command" box. There are now proper actions for
+the crossfader, blend mode, tap tempo, BPM, quantised takes and deck
+assignment; for adding an effect, its amount, its parameters and its LFOs; and
+for setting a code-source expression.
+
+The crossfader and the tap are the point of it. Those are precisely the two
+controls nobody wants to reach for with a mouse, which is the whole argument
+for having a surface at all.
+
+Building it turned up a dead control before it shipped: a toggle button sent a
+bare `VJ`, which reports STATUS rather than toggling. `VJ TOGGLE` exists now —
+a button on a surface has one action and two meanings, and making it ask the
+app which state it is in first defeats the object.
+
 ### Six effects that are not in anything else
 
 Each of these comes out of something real -- an instrument, a physical

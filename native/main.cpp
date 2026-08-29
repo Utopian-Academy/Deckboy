@@ -6971,7 +6971,38 @@ class App {
       return inspDrawMessageRow(ix, startY, "no effects for this cue type",
                                 pal.mid, pal.deep);
     }
-    return inspDrawEffectRows(ix, startY, cue);
+    int rowY = startY;
+    // WHAT THE CHAIN COSTS, measured on this machine at this raster.
+    //
+    // There is a cap of twelve effects, and a cap only bounds the damage: a
+    // dozen cheap ones are free while four expensive ones at 4K are not, so
+    // the count an operator can already see is the wrong number. This is the
+    // real one, and it is the difference between "it is stuttering, why" and
+    // "this chain costs 47ms and a 60fps frame is 16.7".
+    //
+    // Shown only once it has been measured, which means once the cue has been
+    // live: a figure invented from per-effect benchmarks would be a guess
+    // about the operator's machine, and the whole point is that it is not.
+    const double costMs = effectChainCostForDeck(project_.focusedDeckIndex);
+    if (costMs > 0.05 && deckboy::effects::cueEffectStackActive(cue.effects)) {
+      // 60fps is the reference because it is the rate the app targets; an
+      // output running slower has more room, and is told so by being under.
+      constexpr double kFrameMs = 1000.0 / 60.0;
+      const double share = 100.0 * costMs / kFrameMs;
+      std::ostringstream line;
+      line << std::fixed << std::setprecision(1) << costMs << " ms/frame  ("
+           << std::setprecision(0) << share << "% of a 60fps frame)";
+      const bool over = costMs >= kFrameMs;
+      rowY = inspDrawMessageRow(ix, rowY, line.str(),
+                                over ? pal.mid : pal.tile,
+                                over ? pal.deep : pal.inkSoft);
+      if (over) {
+        rowY = inspDrawMessageRow(ix, rowY,
+                                  "over budget - video will drop frames",
+                                  pal.mid, pal.deep);
+      }
+    }
+    return inspDrawEffectRows(ix, rowY, cue);
   }
 
   int inspDrawKeyRows(const InspectorCtx& ix, int startY, const Cue& cue) {
@@ -8493,6 +8524,28 @@ class App {
     EffectStateSlots& s = effectStateBuffers_[deckIndex];
     if (s.size() < slots) s.resize(slots);
     return &s;
+  }
+
+  // What this deck's effect chain actually costs per frame, on this machine, at
+  // this raster.
+  //
+  // There is a cap of twelve effects, but a cap only bounds the damage: twelve
+  // cheap ones are free and four expensive ones at 4K are not, so a count is
+  // the wrong thing to tell an operator. This is the measurement, smoothed,
+  // shown in the inspector next to the chain that caused it.
+  //
+  // Smoothed rather than instantaneous because the number is being READ: a
+  // figure that flickers between 8 and 40 tells you nothing you can act on.
+  std::unordered_map<int, double> effectChainCostMs_;
+
+  void noteEffectChainCost(int deckIndex, double ms) {
+    double& held = effectChainCostMs_[deckIndex];
+    held = held <= 0.0 ? ms : held * 0.9 + ms * 0.1;
+  }
+
+  double effectChainCostForDeck(int deckIndex) const {
+    auto it = effectChainCostMs_.find(deckIndex);
+    return it == effectChainCostMs_.end() ? 0.0 : it->second;
   }
 
   // True for the FIRST consumer of this deck this frame, false for every one
