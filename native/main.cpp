@@ -4403,7 +4403,7 @@ Project loadProject(const fs::path& projectFile,
         // reference-pitch column holds videoSynth.palette, an int 0-4, and a
         // reference pitch is 380-480. Nothing overlaps, so one comparison
         // separates them, and every offset below hangs off the result.
-        const bool hasSynthTuning = safeDouble(fields, tb + 42, 0.0) >= 100.0;
+        const bool hasSynthTuning = safeDouble(fields, tb + 42, 0.0) >= 100.0;   // layout-probe
         const std::size_t vs = hasSynthTuning ? tb + 43 : tb + 41;
         if (hasSynthTuning) {
           cue.tone.synth.tuning = static_cast<SynthTuning>(

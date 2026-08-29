@@ -56,6 +56,23 @@ jobs:
           npm install --no-audit --no-fund
           npm test
 
+      # Source-level checks, so they need no toolchain and fail before any of
+      # the three platform builds start.
+      #
+      # The show file is POSITIONAL: a field inserted into the middle of the
+      # writer shifts every column after it, and the reader goes on addressing
+      # the old positions. That skew does not crash -- the wrong values clamp
+      # back into range and look plausible, which is how one of them survived
+      # years of round-trip smoke tests -- so only comparing the two orders
+      # directly will find it.
+      - name: The show writer and reader must agree on every column
+        run: python3 tools/audit_record_layout.py
+
+      # A QuickAction with no handler, or one nothing can fire, is a control
+      # that looks real and does nothing.
+      - name: No dead controls
+        run: python3 tools/audit_actions.py --strict
+
   linux-build:
     name: Linux Build (Ubuntu)
     needs: version-check
