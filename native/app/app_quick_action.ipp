@@ -123,7 +123,6 @@
       case QuickAction::OutInc:          adjustSelectedOut( 0.5); break;
       case QuickAction::TransDec:        adjustSelectedCueTransition(-0.25); break;
       case QuickAction::TransInc:        adjustSelectedCueTransition( 0.25); break;
-      case QuickAction::CycleTransStyle: cycleSelectedCueTransStyle(); break;
       case QuickAction::LowerBgDec:      adjustSelectedLowerAlpha(-16); break;
       case QuickAction::LowerBgInc:      adjustSelectedLowerAlpha( 16); break;
       case QuickAction::DurDec:          adjustSelectedStillDuration(-1.0); break;
@@ -676,12 +675,6 @@
         break;
       case QuickAction::HueShiftInc:
         adjustSelectedHueShift(5.0f);
-        break;
-      case QuickAction::PatternTypePrev:
-        cycleSelectedPatternType(-1);
-        break;
-      case QuickAction::PatternTypeNext:
-        cycleSelectedPatternType(1);
         break;
       case QuickAction::TogglePatternMotion:
         toggleSelectedPatternMotion();

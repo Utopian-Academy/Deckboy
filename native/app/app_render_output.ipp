@@ -620,6 +620,8 @@
             if (!sourceCue->motionDriverPath.empty()) {
               fxCtx.motion = advanceMotionDriver(sourceDeckIndex, *sourceCue);
             }
+            fxCtx.feedback = feedbackBufferForDeck(sourceDeckIndex);
+            fxCtx.feedbackHold = !claimDeckFeedbackAdvance(sourceDeckIndex);
             deckboy::effects::applyCueEffectStack(
               outputRuntime->layerBridgeScratchPixels, sourceCue->effects, fxCtx);
           }

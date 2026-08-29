@@ -544,26 +544,6 @@
     markProjectDirty();
   }
 
-  void cycleSelectedCueTransStyle() {
-    Cue* cue = selectedCueMutable();
-    if (!cue) return;
-    static const std::vector<std::string> kStyles = {"cut", "crossfade", "dip"};
-    std::string cur = cue->cueTransitionStyle.empty() ? focusedDeck().transitionStyle : cue->cueTransitionStyle;
-    auto it = std::find(kStyles.begin(), kStyles.end(), cur);
-    std::string nextStyle = (it == kStyles.end() || std::next(it) == kStyles.end())
-      ? kStyles.front()
-      : *std::next(it);
-    bool changed = false;
-    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
-      each.cueTransitionStyle = nextStyle;
-      changed = true;
-    });
-    if (!changed) {
-      return;
-    }
-    triggerToast("cue style: " + nextStyle);
-    markProjectDirty();
-  }
 
   void adjustSelectedLowerAlpha(int delta) {
     int sample = 0;
@@ -2114,33 +2094,6 @@
     return true;
   }
 
-  void cycleSelectedPatternType(int direction) {
-    const Cue* cue = selectedCuePtr();
-    if (!cue || cue->kind != CueKind::Pattern) {
-      return;
-    }
-    std::string currentType = normalizePatternTypeId(cue->path);
-    bool motion = endsWith(currentType, "-motion");
-    std::string baseType = stripPatternMotionSuffix(currentType);
-    const auto bases = patternPickerTypes();
-    if (bases.empty()) {
-      return;
-    }
-    int currentIndex = 0;
-    for (int i = 0; i < static_cast<int>(bases.size()); ++i) {
-      if (bases[i].first == baseType) {
-        currentIndex = i;
-        break;
-      }
-    }
-    int step = direction < 0 ? -1 : 1;
-    int nextIndex = (currentIndex + step + static_cast<int>(bases.size())) % static_cast<int>(bases.size());
-    std::string nextType = bases[nextIndex].first;
-    if (motion && patternTypeSupportsMotion(nextType)) {
-      nextType += "-motion";
-    }
-    applyPatternTypeToSelectedCue(nextType, true);
-  }
 
   void toggleSelectedPatternMotion() {
     const Cue* cue = selectedCuePtr();

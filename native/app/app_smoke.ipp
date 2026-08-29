@@ -1279,10 +1279,15 @@
   // itself, deterministically, which is the only way to tell whether it looks
   // the way it is supposed to.
   //
-  // `frame` sets the frame index for the effects that advance with time.
+  // `frame` sets the frame index for the effects that advance with time, and
+  // `passes` runs the effect that many times, feeding the SAME picture round a
+  // persistent feedback buffer. One pass is the default and is what every
+  // effect but feedback wants; feedback needs at least two before there is
+  // anything to see, because the first only fills the buffer.
   // ---------------------------------------------------------------------------
   static int runEffectDump(const std::string& spec, const std::string& inPath,
-                           const std::string& outPath, int frameIndex) {
+                           const std::string& outPath, int frameIndex,
+                           int passes = 1) {
     // token:amount:paramA:paramB — everything after the token is optional.
     std::vector<std::string> parts;
     std::size_t start = 0;
@@ -1344,14 +1349,22 @@
       pixels[i * 4 + 2] = rgb[i * 3 + 2];
     }
 
-    deckboy::effects::CueEffectContext ctx;
-    ctx.width = w;
-    ctx.height = h;
-    ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex));
-    const auto began = std::chrono::steady_clock::now();
-    deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
-    const double ms = std::chrono::duration<double, std::milli>(
-      std::chrono::steady_clock::now() - began).count();
+    // Lives across the passes, exactly as the app's per-deck buffer lives
+    // across frames.
+    std::vector<std::uint8_t> feedbackBuffer;
+    double ms = 0.0;
+    const int passCount = std::max(1, passes);
+    for (int pass = 0; pass < passCount; ++pass) {
+      deckboy::effects::CueEffectContext ctx;
+      ctx.width = w;
+      ctx.height = h;
+      ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex) + pass);
+      ctx.feedback = &feedbackBuffer;
+      const auto began = std::chrono::steady_clock::now();
+      deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
+      ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - began).count();
+    }
 
     std::ofstream out(outPath, std::ios::binary | std::ios::trunc);
     if (!out) {
@@ -1422,6 +1435,9 @@
     }
 
     std::vector<std::uint8_t> pixels;
+    // Persists across frames, the way the app's per-deck buffer does, so a
+    // feedback bench measures the real loop and not a first frame forever.
+    std::vector<std::uint8_t> feedbackBuffer;
     std::vector<double> samples;
     samples.reserve(static_cast<std::size_t>(frames));
     for (int i = 0; i < frames; ++i) {
@@ -1432,6 +1448,7 @@
       ctx.width = w;
       ctx.height = h;
       ctx.frameIndex = static_cast<std::uint64_t>(i);
+      ctx.feedback = &feedbackBuffer;
       const auto began = std::chrono::steady_clock::now();
       deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
       samples.push_back(std::chrono::duration<double, std::milli>(

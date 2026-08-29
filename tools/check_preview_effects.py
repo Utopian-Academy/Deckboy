@@ -60,6 +60,8 @@ EFFECTS = [
     ("dye_advect",      "1:0.2"),
     ("reaction_bloom",  "1:0.45"),
     ("relativistic",    "0.9:0.6"),
+    ("caustics",        "0.8:0.45"),
+    ("feedback",        "0.9:0.62:0.55"),
 ]
 
 # Both need something a paused frame cannot give them.
