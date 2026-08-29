@@ -118,6 +118,26 @@ Three rules, all of them learned by measuring:
   steps use `detail::iteratedBands`, which creates them once and parks them on a
   barrier: reaction-diffusion with per-step dispatch was 1.8x SLOWER than a
   single core.
+- **Hoist anything that does not vary per pixel, and table anything that
+  depends only on one byte.** Grain flow computed `cos`/`sin` of a constant and
+  a `std::pow` inside the pixel loop — four million trig calls and two million
+  pows a frame. Chladni evaluated twenty `sin` per pixel until the separable
+  form made it two tables and zero: **24ms → 7ms**.
+- **A smear can be computed small.** Anything whose job is to destroy detail
+  (grain flow's strokes, caustics' light field, wavefront's wave) runs on a
+  reduced raster and scales back up; grain flow went **119ms → 13ms** that way,
+  and the third-resolution result is visually indistinguishable. Sample the
+  small buffer BILINEARLY on the way back up — wavefront read its grid per cell
+  and put visible squares across the picture.
+- **An effect that needs to remember something** takes a slot from
+  `CueEffectContext::effectState`, indexed by its position in the stack (so two
+  stateful effects in one chain cannot tread on each other), and honours
+  `ctx.stateHold` — true for every consumer after the first in a frame, so two
+  outputs showing one deck do not each advance the state and drift apart. It
+  must also be listed in `cueEffectKindAnimates`, or it freezes on a still cue.
+
+**`near` is a macro** in the Windows headers. So are `min`, `max`, `small` and
+`far`. A local variable with one of those names silently stops being C++.
 
 **Adding a parameter to an existing effect**: a show saved before it carries
 `paramA = 0.5`, `paramB = 0`, and no C or D. Define the mapping so those values
@@ -127,6 +147,27 @@ draws a row per named slot and nothing for an unnamed one) and add it to
 `PARAM_SLOTS` in `tools/check_effects_offline.py`, whose `--params` mode checks
 it actually moves the picture. paramC/paramD serialise AFTER the bypass flag so
 old shows still load.
+
+**Checklist for a NEW effect** — miss one of these and it half-works in a way
+nothing catches:
+
+1. `CueEffectKind` entry, label, and token (two separate switches).
+2. `cueEffectParamLabel` + `cueEffectParamTip` for every slot it uses.
+3. `cueEffectKindAnimates` if it advances with the frame index OR carries state.
+   Wrong here and it renders once on a still cue and freezes.
+4. `EFFECTS` and `PARAM_SLOTS` in `tools/check_effects_offline.py`, plus
+   `ANIMATES_BY_INDEX` / `ANIMATES_BY_STATE`, and a line in
+   `tools/check_preview_effects.py`.
+5. `--effect-bench <token> 1920x1080` — it has to fit inside a 60fps frame.
+6. Look at it. `--effect-dump` and an actual contact sheet: wavefront passed
+   every automated check while rendering visible square blocks.
+
+**Parameter LFOs**: any parameter (and the amount) can be driven by
+`ParamLfo`. The oscillators are evaluated OUTSIDE the effects, by
+`modulateCueEffectStack`, into a modulated copy of the stack — the effects
+themselves stay pure functions of their inputs, which is what keeps them
+dumpable, benchable, and runnable by the output and the preview independently.
+Both paths read one clock (`sampleLfoClock`) so they cannot disagree.
 
 Keep button glyphs ASCII. The effect move arrows were written as UTF-8 arrows,
 went into the source double-encoded, and the app drew mojibake.

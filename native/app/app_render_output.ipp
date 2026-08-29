@@ -641,8 +641,9 @@
             if (!sourceCue->motionDriverPath.empty()) {
               fxCtx.motion = advanceMotionDriver(sourceDeckIndex, *sourceCue);
             }
-            fxCtx.feedback = feedbackBufferForDeck(sourceDeckIndex);
-            fxCtx.feedbackHold = !claimDeckFeedbackAdvance(sourceDeckIndex);
+            fxCtx.effectState =
+              effectStateForDeck(sourceDeckIndex, sourceCue->effects.size());
+            fxCtx.stateHold = !claimDeckFeedbackAdvance(sourceDeckIndex);
             // Any armed LFO, evaluated for this frame. Returns false and costs
             // nothing when the cue has none, which is almost every cue.
             std::vector<deckboy::effects::CueEffect> modulated;

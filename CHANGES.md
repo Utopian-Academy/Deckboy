@@ -1,9 +1,11 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
-## 2026-08-28 - v0.87.0 (VJ mode, a code source, and two effects nobody has)
+## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)
 
-Two decks, a crossfader and a tempo; a source you write instead of load; and
-the effect stack gains water and a feedback loop that cannot run away.
+Two decks, a crossfader and a tempo; a source you write instead of load, with
+a real editor and a friend to explain it; an LFO on every effect parameter; and
+eight new effects, six of which come out of physics rather than out of another
+plugin.
 
 ### VJ mode
 
@@ -113,6 +115,84 @@ multi-argument functions did not compile, unary minus bound so loosely that
 `-3+5` came out as -8, and `^` was left-associative. Division by zero, mod by
 zero and the square root of a negative are all bounded rather than producing
 infinities or NaN, because an operator typing at speed will produce all three.
+
+### Six effects that are not in anything else
+
+Each of these comes out of something real -- an instrument, a physical
+experiment, a solid-state process, or your own retina -- rather than from
+stacking two existing filters. All six fit inside a 60fps frame at 1080p.
+
+**Schlieren** is how physicists photograph air. You cannot see a shockwave or
+the heat off a road, but light bent by a density gradient can be passed or
+blocked by a knife edge at the focus, which turns an invisible gradient into
+brightness -- it is how every photograph of a bullet's shockwave was taken. Here
+the picture is the density field, and what comes out is not the image and not
+its edges but the RATE at which it is changing, in one chosen direction, with
+everything flat left as mid-grey. Turning the knife changes which features exist
+at all, because gradients running along the edge miss it entirely. 4.7ms.
+
+**Chladni** is the shape a sound makes. Sand on a bowed metal plate runs away
+from everything that is moving and piles up along the lines standing still;
+Chladni catalogued those figures in 1787 and they are why violins are the shape
+they are. Your picture is the sand. The two mode numbers are the note: whole
+numbers give the clean classical figures, and between them the plate is being
+driven at a frequency it does not want, which is exactly what a real plate does.
+7.2ms.
+
+**Wavefront** solves the actual wave equation, seeded from the picture's own
+brightness -- so unlike every sine-based ripple in every video app, it has
+INERTIA. Waves leave their source and keep going, pass through each other and
+interfere, and reflect off the edges of the frame and come back. None of that
+can be faked with a sine, and all of it is what a real surface does. 14.9ms.
+
+**Crystallise** is grain growth, not a mosaic. A mosaic divides the frame into a
+grid; metal does not solidify on a grid. Crystals nucleate at scattered points
+and grow until they collide, so the cell a pixel lands in is the one whose seed
+reached it first -- and because the seeds grow at DIFFERENT SPEEDS, the result
+is the irregular shard structure of a polished metal section rather than a
+honeycomb. Each grain takes a facet normal from the direction back to its own
+seed, so the light catches it. 15.7ms.
+
+**Night eyes** is your own retina. Rods are fast, sensitive and completely
+colour-blind; cones see colour and are slow and need light. So the brightness
+runs at full speed and the COLOUR LAGS BEHIND IT: move something and it goes
+grey as it moves, its colour catching up a moment later. The purkinje control is
+the other half -- as the rods take over, peak sensitivity slides toward blue,
+which is the real reason night looks blue and moonlight photographs that way.
+3.8ms.
+
+**Grain flow** smears the picture along its own grain. Line integral convolution
+is how a vector field is drawn in scientific visualisation; pointed at an image's
+own structure it makes every stroke follow the direction that part of the picture
+is already running -- along a hair, around a jaw, down the length of a shadow.
+The direction comes from the structure tensor, the direction in which each
+neighbourhood changes least, which a plain gradient cannot give you: a gradient
+says which way is uphill, not which way the ridge runs. Flat areas are left
+alone. 13.0ms.
+
+Getting them inside the frame was most of the work, and the cost was never where
+it looked. Grain flow started at **119ms** -- it was converting each pixel's
+thirty-six neighbours out of RGB after its neighbours had already done it, then
+calling `cos`, `sin` and `pow` inside the pixel loop, and after both of those
+were fixed it was still 20ms with the stroke length at zero, because what
+actually costs is a scattered gather per pixel. It runs on a third-resolution
+raster now, which for an effect whose job is to destroy detail along one axis is
+indistinguishable. Chladni went from **24ms to 7ms** when the plate equation was
+written in its separable form and twenty sines per pixel became two tables and
+none.
+
+And wavefront made the same mistake twice in different clothes: first it
+rendered as speckle, which looks exactly like an unstable solver and was
+actually a displacement scale a hundred times too large; then, fixed, it showed
+visible square blocks, which was the coarse field being read one cell at a time
+instead of interpolated.
+
+**At 4K the budget is a different question**, and it always has been. Measured
+at 3840x2160: night eyes 14ms and schlieren 17ms still fit; chladni is 27ms,
+grain flow 46ms, crystallise 54ms and wavefront 57ms -- one to three frames
+each, alongside existing effects like caustics at 23ms. 1080p is the promise;
+4K is one heavy effect at a time on a fast machine, and the app tells you what
+any of them costs on YOUR machine with `--effect-bench <token> 3840x2160`.
 
 ### An LFO on any effect parameter
 
@@ -288,6 +368,23 @@ the same way and a recording stays reproducible.
 indices and fails if the header's list disagrees with what the pixels do. This
 is exactly the class of bug that hides: the effect renders correctly, once, and
 every other check passes.
+
+### The preview sweep was checking effects against a test card
+
+For however long it has existed, `check_preview_effects.py` rewrote the test
+cue's media PATH but not its KIND. On a machine whose saved show happens to
+start with a pattern cue, the path was simply ignored and every effect was
+being verified against a generated test card rather than the clip it thought
+it was using.
+
+Most effects changed the card enough to pass anyway, which is why it went
+unnoticed. Night eyes did not — an effect whose job is removing colour does
+almost nothing visible to a near-monochrome test card — so it reported as
+completely dead while being perfectly correct. Against the actual clip it
+changes half the monitor.
+
+A check that passes for the wrong reason is worse than no check, and this one
+was passing for the wrong reason on every effect at once.
 
 ### Smaller things
 
