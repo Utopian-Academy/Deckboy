@@ -553,11 +553,30 @@ struct SkyFlyer {
   uint32_t modv;  // shows up when (hash % modv) == modr
   uint32_t modr;
 };
-inline constexpr SkyFlyer SKY_DRAGON  = {400.f, 62.f, 0xD2A6047u, 0x11FEu, 3u, 0u};
+// The dragon is the biggest thing in the sky by a wide margin — it spans
+// most of the disc — and at one crossing every ~17 minutes it stopped being
+// an event and became the weather. `modv` is the rarity dial: the flyer is
+// up on 1 epoch in `modv`, so at a 400s period this is now roughly one
+// crossing every 87 minutes. Rare enough that seeing it is luck, often
+// enough that a long sitting will catch one.
+inline constexpr SkyFlyer SKY_DRAGON  = {400.f, 62.f, 0xD2A6047u, 0x11FEu, 13u, 0u};
 inline constexpr SkyFlyer SKY_UNICORN = {260.f, 46.f, 0x5EC2E7u, 0x0417u, 3u, 0u};
 inline constexpr SkyFlyer SKY_UFO     = {330.f, 52.f, 0x0F0B12u, 0x5A0CEu, 4u, 0u};
 inline constexpr SkyFlyer SKY_RIDER   = {290.f, 30.f, 0x21DE2u, 0xC10DDu, 3u, 1u};
 inline constexpr SkyFlyer SKY_WITCH   = {355.f, 40.f, 0x17C4Bu, 0xB2003u, 3u, 2u};
+// A little plane towing an advertising banner. Low, level and SLOW — that is
+// its whole identity next to the airliners, which are high, fast, and take
+// any heading they like. Its crossing is long because a banner you cannot
+// read the length of is just a smear.
+inline constexpr SkyFlyer SKY_BANNER  = {310.f, 54.f, 0xBA22E7u, 0x9F10Du, 3u, 1u};
+// A helicopter towing an LED video wall on a chain. The rarest thing in the
+// sky and the only one that is itself a light source.
+inline constexpr SkyFlyer SKY_CHOPPER = {430.f, 72.f, 0xC40FFEu, 0x3E1A5u, 4u, 1u};
+// A fantasy airship: a striped envelope with a little wooden ship's hull
+// slung underneath. The SLOWEST thing up here bar the balloons, and the
+// longest crossing of anything — it is scenery rather than an event, and it
+// should take its time getting across.
+inline constexpr SkyFlyer SKY_AIRSHIP = {340.f, 96.f, 0xA125B7u, 0x6D30Cu, 3u, 0u};
 
 // Is this flyer crossing right now? `age` is how far into the crossing it
 // is, and `h` the epoch hash the caller uses to pick lanes/colours.

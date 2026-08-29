@@ -574,17 +574,21 @@
         (project_.splashCharacter == "deckgirl") ? "Deckgirl" : "Deckbot";
       drawUIDropdown(mascotBtn, "Mascot", mascotLabel, "settings.mascot");
       settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
-      // The theme's creatures. Only worth showing when the current theme has
-      // any -- a switch for something that cannot happen is worse than no
-      // switch, and most themes ask for nothing.
-      if (!themeCreatures_.empty()) {
-        SDL_Rect critterBtn {appX, appY, appW, sRowH};
-        appY += sRowH + sGap;
-        drawPillToggle(critterBtn, project_.creaturesEnabled,
-                       "CREATURES ON", "CREATURES OFF");
-        settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
-                                 "creatures_toggle"});
-      }
+      // The theme's creatures. ALWAYS shown, even on a theme that has none.
+      //
+      // It was hidden in that case at first, on the "no control for something
+      // that cannot happen" rule -- but this is a global PREFERENCE, not a
+      // control over the current theme. Hiding it means an operator on the
+      // default look, which deliberately has no animals, cannot find the
+      // switch to decide about them before changing theme; and a setting that
+      // appears and disappears as you browse themes is worse than one that is
+      // simply always there.
+      SDL_Rect critterBtn {appX, appY, appW, sRowH};
+      appY += sRowH + sGap;
+      drawPillToggle(critterBtn, project_.creaturesEnabled,
+                     "CREATURES ON", "CREATURES OFF");
+      settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
+                               "creatures_toggle"});
       // UI scale dropdown — multiplies every font point size at load, and (as
       // of v0.81.0) the settings chrome scales with it too.
       SDL_Rect scaleBtn {appX, appY, appW, sTallH};
