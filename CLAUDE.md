@@ -139,6 +139,13 @@ Three rules, all of them learned by measuring:
 **`near` is a macro** in the Windows headers. So are `min`, `max`, `small` and
 `far`. A local variable with one of those names silently stops being C++.
 
+**Deckboy is a GUI-subsystem binary on Windows**, so PowerShell does NOT wait
+for it: `& .\Deckboy.exe --smoke` returns immediately, `$LASTEXITCODE` is
+never set from it, and any check written that way passes no matter what the
+app did. Use `Start-Process -Wait -PassThru` and read `.ExitCode`, or pipe the
+call so the pipeline forces a wait. Two CI gates were vacuous for exactly this
+reason; the tell is the app's output appearing after the step that ran it.
+
 **Adding a parameter to an existing effect**: a show saved before it carries
 `paramA = 0.5`, `paramB = 0`, and no C or D. Define the mapping so those values
 reproduce what the effect did WITHOUT the parameter, or every show that already

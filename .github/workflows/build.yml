@@ -416,11 +416,28 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
+      # Start-Process -Wait, NOT the call operator.
+      #
+      # Deckboy is a GUI-subsystem binary and PowerShell does not wait for
+      # those: the call returns immediately, $LASTEXITCODE is never set from it,
+      # and the step passes whatever the app actually did. Both of these gates
+      # had been vacuous on Windows for exactly that reason — the tell is that
+      # the app's output arrives in the log AFTER the step that supposedly ran
+      # it. Linux and macOS were never affected; their binaries are console
+      # subsystem and the shell waits.
       - name: Self-check
-        run: .\build\Release\Deckboy.exe --self-check
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath .\build\Release\Deckboy.exe `
+                 -ArgumentList "--self-check" -Wait -NoNewWindow -PassThru
+          if ($p.ExitCode -ne 0) { throw "self-check failed ($($p.ExitCode))" }
 
       - name: Smoke tests
-        run: .\build\Release\Deckboy.exe --smoke
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath .\build\Release\Deckboy.exe `
+                 -ArgumentList "--smoke" -Wait -NoNewWindow -PassThru
+          if ($p.ExitCode -ne 0) { throw "smoke tests failed ($($p.ExitCode))" }
 
       # The shippable Windows artefacts. The installer script stages the
       # portable payload itself, so one call produces BOTH the zip and the
@@ -464,10 +481,16 @@ jobs:
           $zip = Get-ChildItem dist\Deckboy-*.zip | Select-Object -First 1
           Expand-Archive -Path $zip.FullName -DestinationPath dist\unpack -Force
           $exe = Get-ChildItem dist\unpack -Recurse -Filter Deckboy.exe | Select-Object -First 1
-          & $exe.FullName --self-check
-          $selfCheck = $LASTEXITCODE
-          & $exe.FullName --smoke
-          $smoke = $LASTEXITCODE
+          # Start-Process for the same reason as the gates above: the call
+          # operator does not wait for a GUI binary and leaves $LASTEXITCODE
+          # unset, which is how this step first reported a failure with no exit
+          # code in it at all.
+          $selfCheck = (Start-Process -FilePath $exe.FullName `
+                          -ArgumentList "--self-check" `
+                          -Wait -NoNewWindow -PassThru).ExitCode
+          $smoke = (Start-Process -FilePath $exe.FullName `
+                      -ArgumentList "--smoke" `
+                      -Wait -NoNewWindow -PassThru).ExitCode
           # Reported as NUMBERS before anything is thrown. A bare "it failed"
           # cannot tell a deliberate non-zero apart from a crash on the way out,
           # and the difference is the whole diagnosis: 1 is the app saying no,
