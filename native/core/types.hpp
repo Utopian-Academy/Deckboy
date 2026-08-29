@@ -1233,7 +1233,12 @@ enum class QuickAction {
   // -- In/out points (trim) --
   InDec, InInc, OutDec, OutInc,
   // -- Per-cue transition --
-  TransDec, TransInc, CycleTransStyle,
+  TransDec, TransInc,
+  // CycleTransStyle and PatternTypePrev/Next removed 2026-08-28: each had a
+  // working handler and nothing left in the UI that could fire it, having been
+  // superseded by the transition dropdown and the pattern picker. A control
+  // that cannot be reached is this codebase's signature bug; keeping the enum
+  // entry only makes the audit report it forever.
   // -- Lower third ---------
   LowerBgDec, LowerBgInc,
   // -- Duration (stills/browsers) --
@@ -1338,7 +1343,6 @@ enum class QuickAction {
   SaturationDec, SaturationInc,
   HueShiftDec, HueShiftInc,
   // -- Pattern cue options --
-  PatternTypePrev, PatternTypeNext,
   TogglePatternMotion,
   // -- Inspector section visibility toggles --
   CueSectionPlaybackToggle,

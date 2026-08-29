@@ -124,8 +124,30 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D96 | A driver with no puppet is removed automatically | **JAMES** | 2026-08-27. His call. Removing the last driver-fed effect, changing it to another kind, clearing the chain or pasting one without a puppet all drop the driver. A BYPASSED puppet keeps it -- bypass is temporary and must not cost the operator their driver. |
 | D97 | Slide decks rasterise at IMPORT, never during a show | **CLAUDE** | 2026-08-27. Pages become ordinary image cues, so they fade, carry effects and crossfade like anything else, and no live playback depends on a document renderer. Each page holds rather than auto-advancing -- the deck default would have moved the slide on by itself after eight seconds. |
 | D98 | Each platform's own PDF engine, nothing bundled | **CLAUDE** | 2026-08-27. James asked for the highest-quality option. Windows.Data.Pdf is Edge's renderer, CoreGraphics is Preview's, pdftoppm is what the Linux desktop already uses. Bundling instead meant an AGPL engine Deckboy cannot link (MuPDF, Ghostscript) or vendoring pdfium for a job the OS already does well. |
+| D99 | VJ mode is a MODE, and it announces itself | **JAMES** | 2026-08-28. His ask, and his condition: "it should be quite noticeable when the switch is made between modes so an operator isn't accidentally running a normal Show in vj mode." Hence a warm bar in a colour nothing else in the UI uses, carrying the controls rather than only announcing itself, and an eased reveal so the eye registers the room changing. |
+| D100 | The second deck was never the hard part | **CLAUDE** | 2026-08-28. `Project::decks` has always been a vector and the engines already run simultaneously; the missing pieces were a crossfader folded into layer opacity, a blend mode per layer, and a tempo. Building a parallel "deck B" would have duplicated the transport, the effects and the serialisation for nothing. |
+| D101 | The crossfader multiplies the deck's own opacity | **CLAUDE** | 2026-08-28. Replacing it would have overridden a deck faded down by hand or mid cue-fade. Outside VJ mode the multiplier is exactly 1, so every existing show renders as before through the same call. |
+| D102 | Both decks on screen, at the operator's ask | **JAMES** | 2026-08-28. "Also maybe both decks become smaller side by side to fit in the ui?" -- and separately, three preview monitors: A, B and the mix, because a mixer where you cannot see what you are mixing into is a guess. |
+| D103 | Quantised takes are opt-in | **CLAUDE** | 2026-08-28. Holding a take until the next beat is what makes a mix land on the music and is exactly wrong for a show cue, so it is a toggle on the BPM box and off by default. |
+| D104 | The code source is its own small language, not a scripting runtime | **CLAUDE** | 2026-08-28. James asked for a place to live-code effects. Embedding Lua or JS means a dependency, a sandbox and a way to hang the render thread; a compiled expression over x, y, cx, cy, r, a, t evaluates a flat program with no allocation, cannot loop forever, and cannot reach anything. Division by zero and the root of a negative return finite values rather than NaN. |
+| D105 | The code source ships with examples | **JAMES** | 2026-08-28. "IT SHOULD SHIP WITH A FEW LANGUAGE EXAMPLES THAT HAVE FUN INTERACTIONS" -- so it is a source kind in the SOURCE menu with worked examples rather than an empty box with a syntax reference. |
+| D106 | Feedback is bounded by construction, not by a limiter | **CLAUDE** | 2026-08-28. James asked for "video feedback in a controlled manner". The physical version is additive and its fixed point is several times the input, so it clips to white in a third of a second; taking the brighter of the live pixel and the decayed echo has its fixed point at the input itself. Proven stable over 120 passes. A limiter on top of a runaway loop would still be a runaway loop. |
+| D107 | The feedback loop is cleared at every take | **CLAUDE** | 2026-08-28. It belongs to what was on the deck, not to the deck. Without this the first frame of a new cue carries a ghost of the last frame of the old one, on the output, at the take. |
+| D108 | Motion puppetry gained memory, and memory 0 is the old behaviour | **JAMES** | 2026-08-28. He asked to "increase the depth of the motion puppetry". A spring and an accumulator make the displacement build and settle instead of tracking one frame's vectors, and paramB = 0 -- what every existing show carries -- returns the raw per-frame field exactly as before. |
+| D109 | A UI signal is not built until it has been SEEN | **CLAUDE** | 2026-08-28. The VJ window frame was drawn after SDL_RenderPresent and had never appeared; the bar overflowed its column; the fader readout was the same ink as the fader handle. All three passed every automated check and all three were found by screenshotting the running app and looking at it. Anything whose purpose is to be noticed gets looked at before it is called done. |
 
 ---
+
+## Asked for, not yet built
+
+James's standing wishlist. Not questions -- these are wanted, and waiting for a
+release to land in.
+
+- **Animated themes, with creatures living throughout the UI** (asked
+  2026-08-28, for the push after v0.87.0). The startup mascot proved the idea
+  works; this is the same warmth spread across the whole interface rather than
+  one panel of it. Theme-level, so it stays a DATA contract and never becomes a
+  renderer hack.
 
 ## Open questions awaiting the owner
 

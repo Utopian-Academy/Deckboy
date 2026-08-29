@@ -62,6 +62,8 @@ enum class CueEffectKind : int {
   DyeAdvect,
   ReactionBloom,
   Relativistic,
+  Caustics,
+  Feedback,
   Count,
 };
 
@@ -87,6 +89,8 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::DyeAdvect:      return "dye advect";
     case CueEffectKind::ReactionBloom:  return "reaction bloom";
     case CueEffectKind::Relativistic:   return "lightspeed";
+    case CueEffectKind::Caustics:       return "caustics";
+    case CueEffectKind::Feedback:       return "feedback";
     default:                            return "none";
   }
 }
@@ -115,6 +119,8 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::DyeAdvect:      return "dye_advect";
     case CueEffectKind::ReactionBloom:  return "reaction_bloom";
     case CueEffectKind::Relativistic:   return "relativistic";
+    case CueEffectKind::Caustics:       return "caustics";
+    case CueEffectKind::Feedback:       return "feedback";
     default:                            return "none";
   }
 }
@@ -159,6 +165,8 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
       return which == 0 ? "frequency" : which == 1 ? "speed" : nullptr;
     case CueEffectKind::Kaleidoscope:
       return which == 0 ? "wedges" : which == 1 ? "rotation" : nullptr;
+    case CueEffectKind::MotionPuppet:
+      return which == 0 ? "spring" : which == 1 ? "memory" : nullptr;
     case CueEffectKind::DyeAdvect:
       return which == 0 ? "bleed" : which == 1 ? "curl detail"
            : which == 2 ? "swirl" : nullptr;
@@ -168,6 +176,12 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Relativistic:
       return which == 0 ? "field of view" : which == 1 ? "doppler"
            : which == 2 ? "off-axis" : nullptr;
+    case CueEffectKind::Caustics:
+      return which == 0 ? "chop" : which == 1 ? "swell speed"
+           : which == 2 ? "focus" : nullptr;
+    case CueEffectKind::Feedback:
+      return which == 0 ? "zoom" : which == 1 ? "spin"
+           : which == 2 ? "drift" : which == 3 ? "colour bleed" : nullptr;
     default:
       return nullptr;
   }
@@ -242,6 +256,14 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
     case CueEffectKind::Ripple:
       return which == 0 ? "How closely spaced the rings are."
                         : "How fast they travel outward.";
+    case CueEffectKind::MotionPuppet:
+      return which == 0
+        ? "How quickly the picture springs back to rest once the driver stops "
+          "pushing it. Only does anything when memory is up."
+        : "How much of the driver's movement the picture KEEPS. At zero it "
+          "follows the driver frame by frame, which is a twitch. Wind it up "
+          "and the motion accumulates, so the driver sculpts the picture over "
+          "time and it holds the pose -- which is what puppetry means.";
     case CueEffectKind::Kaleidoscope:
       return which == 0
         ? "Two is a mirror, twelve is a snowflake, and they are completely "
@@ -277,6 +299,24 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "Zero leaves the colour alone and it reads as a lens instead."
         : "Moves the direction of travel off the centre of frame, so the "
           "picture rushes past rather than straight at you.";
+    case CueEffectKind::Feedback:
+      return which == 0
+        ? "How much the echo grows or shrinks each pass. Centre holds still; "
+          "up pulls a tunnel toward you, down sucks it away."
+        : which == 1
+        ? "How far the echo turns each pass. A little makes a spiral."
+        : which == 2
+        ? "Slides the echo sideways, which turns the tunnel into a comet."
+        : "Lets the channels decay at different rates, so the trail changes "
+          "colour as it fades instead of just going dim.";
+    case CueEffectKind::Caustics:
+      return which == 0
+        ? "How fine the water is. Long ocean swell at one end, rain on a "
+          "puddle at the other."
+        : which == 1
+        ? "How fast the surface moves."
+        : "How hard the light gathers where the rays converge. This is the "
+          "part that makes it read as water rather than as a wobble.";
     default:
       return "";
   }
@@ -324,6 +364,21 @@ struct CueEffectContext {
   // of the time, which is almost always -- so MotionPuppet costs nothing on a
   // cue that has not been given a driver.
   const deckboy::motion::MotionField* motion = nullptr;
+  // Somewhere to keep the LAST frame, for feedback. Owned by the caller and
+  // one per deck, because the stack itself is deliberately stateless -- an
+  // effect that remembered things internally could not be run twice, could not
+  // be dumped headlessly, and would have to guess which cue it belonged to.
+  // Null everywhere that has no such buffer, and feedback then does nothing
+  // rather than pretending.
+  std::vector<std::uint8_t>* feedback = nullptr;
+
+  // Set when this is NOT the first consumer of the deck this frame -- a second
+  // output showing the same deck, say. The loop then reads the same previous
+  // frame the first consumer read and does not step, so every output gets the
+  // identical picture instead of each one advancing the echo again and the two
+  // screens drifting apart. The same fault the motion driver had, and the same
+  // shape of answer.
+  bool feedbackHold = false;
 };
 
 namespace detail {
@@ -1554,6 +1609,246 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 const double target = (255 - p[c]) * (1.0 - pD) + 255.0 * pD;
                 p[c] = detail::clamp8(p[c] * (1.0 - mix) + target * mix);
               }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Caustics: {
+        // The picture seen through moving water -- and unlike every other
+        // "water" effect, the LIGHT is computed rather than only the bend.
+        //
+        // A refracting surface does two things at once: it displaces what you
+        // see through it, and it concentrates or spreads the light doing so.
+        // Where neighbouring rays are pushed TOWARD each other the brightness
+        // piles up, and those bright filaments are caustics -- the moving net
+        // of light on the floor of a swimming pool. Displacement alone is a
+        // wobble; the wobble plus the focusing is what the eye reads as water.
+        //
+        // The focusing term is the DIVERGENCE of the displacement field. Where
+        // it is negative the rays converge and the pixel brightens, where it is
+        // positive they spread and it dims. One finite difference per cell, and
+        // it is the whole difference between this and a ripple.
+        const int gw = std::clamp(ctx.width / 6, 16, 320);
+        const int gh = std::clamp(ctx.height / 6, 16, 320);
+        const double phase = static_cast<double>(ctx.frameIndex) * 0.05 *
+                             (0.35 + pB * 2.4);
+        // Four crossed waves at different angles and rates, which is what stops
+        // it reading as a regular grid. paramA is how fine the chop is: long
+        // ocean swell at one end, rain on a puddle at the other.
+        const double chop = 3.0 + pA * 26.0;
+        std::vector<float> height(static_cast<std::size_t>(gw) * gh, 0.0f);
+        for (int gy = 0; gy < gh; ++gy) {
+          const double v = static_cast<double>(gy) / gh;
+          for (int gx = 0; gx < gw; ++gx) {
+            const double u = static_cast<double>(gx) / gw;
+            double h = std::sin((u * chop) + phase);
+            h += std::sin((v * chop * 0.87) - phase * 1.31);
+            h += std::sin((u * 0.7 + v * 0.7) * chop * 1.19 + phase * 0.63);
+            h += std::sin((u * 0.6 - v * 0.8) * chop * 1.53 - phase * 0.41);
+            height[static_cast<std::size_t>(gy) * gw + gx] = static_cast<float>(h * 0.25);
+          }
+        }
+        // Slope gives the bend; the change in slope gives the focusing.
+        const double bend = amt * std::max(ctx.width, ctx.height) * 0.045;
+        std::vector<float> dxField(static_cast<std::size_t>(gw) * gh, 0.0f);
+        std::vector<float> dyField(static_cast<std::size_t>(gw) * gh, 0.0f);
+        std::vector<float> light(static_cast<std::size_t>(gw) * gh, 1.0f);
+        for (int gy = 0; gy < gh; ++gy) {
+          const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
+            const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+            dxField[i] = height[static_cast<std::size_t>(gy) * gw + xp] -
+                         height[static_cast<std::size_t>(gy) * gw + xm];
+            dyField[i] = height[static_cast<std::size_t>(yp) * gw + gx] -
+                         height[static_cast<std::size_t>(ym) * gw + gx];
+          }
+        }
+        for (int gy = 0; gy < gh; ++gy) {
+          const int ym = std::max(0, gy - 1), yp = std::min(gh - 1, gy + 1);
+          for (int gx = 0; gx < gw; ++gx) {
+            const int xm = std::max(0, gx - 1), xp = std::min(gw - 1, gx + 1);
+            const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+            const double divergence =
+              (dxField[static_cast<std::size_t>(gy) * gw + xp] -
+               dxField[static_cast<std::size_t>(gy) * gw + xm]) +
+              (dyField[static_cast<std::size_t>(yp) * gw + gx] -
+               dyField[static_cast<std::size_t>(ym) * gw + gx]);
+            // Converging rays brighten, spreading rays dim.
+            //
+            // The scaling matters more than it looks. A steep tanh saturates
+            // on almost every cell, which turns the water into hard black and
+            // white bands -- it stops being light and becomes a stencil. A
+            // gentler curve, a smaller amplitude and a floor above zero keep
+            // the filaments bright while the troughs stay picture rather than
+            // going to nothing.
+            light[i] = static_cast<float>(std::clamp(
+              1.0 + std::tanh(-divergence * 5.0) * (0.10 + pC * 0.55),
+              0.35, 1.85));
+          }
+        }
+        std::vector<std::uint8_t> source(pixels.begin(),
+                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const double gxScale = static_cast<double>(gw) / ctx.width;
+        const double gyScale = static_cast<double>(gh) / ctx.height;
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            const int gy = std::clamp(static_cast<int>(y * gyScale), 0, gh - 1);
+            for (int x = 0; x < ctx.width; ++x) {
+              const int gx = std::clamp(static_cast<int>(x * gxScale), 0, gw - 1);
+              const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
+              const int sx = std::clamp(
+                static_cast<int>(std::lround(x + dxField[i] * bend)), 0, ctx.width - 1);
+              const int sy = std::clamp(
+                static_cast<int>(std::lround(y + dyField[i] * bend)), 0, ctx.height - 1);
+              const std::uint8_t* sp =
+                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
+              const double gain = light[i];
+              dp[0] = detail::clamp8(sp[0] * gain);
+              dp[1] = detail::clamp8(sp[1] * gain);
+              dp[2] = detail::clamp8(sp[2] * gain);
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Feedback: {
+        // Video feedback: a camera pointed at its own monitor, except the
+        // transform between passes is chosen rather than accidental.
+        //
+        // The whole character of feedback is what happens to the picture on its
+        // way round the loop. Scale it slightly up and the echo walks toward
+        // you as a tunnel; scale it down and it retreats; add a turn and the
+        // tunnel becomes a spiral; slide it and it smears into a comet. Those
+        // are the controls, because they are the loop.
+        //
+        // CONTROLLED, which is what makes it usable on a stage: the echo is
+        // always mixed at LESS than one, so each pass is strictly dimmer than
+        // the last and the loop cannot run away. Real feedback blows out to
+        // white the moment the gain passes unity and there is no getting it
+        // back during a show; here the worst case is a long trail.
+        if (!ctx.feedback) {
+          break;   // no buffer from this caller: do nothing rather than pretend
+        }
+        // TWO planes and a cursor byte, all inside the one buffer the caller
+        // carries. The obvious version allocated a whole frame every pass and
+        // copied it back afterwards -- at 1080p that is eight megabytes of
+        // allocation plus eight of memcpy per frame, and it was most of the
+        // cost. Here the previous frame is READ from one plane while the new
+        // one is written to the other and to the picture at the same time, so
+        // there is no allocation, no copy back, and the read and the write can
+        // never alias.
+        std::vector<std::uint8_t>& store = *ctx.feedback;
+        const std::size_t bytes = count * 4;
+        const std::size_t wanted = bytes * 2 + 1;
+        if (store.size() != wanted) {
+          // First frame, or the raster changed. Both planes start as the
+          // current picture, so the effect fades UP rather than flashing black.
+          store.assign(wanted, 0);
+          std::memcpy(store.data(), pixels.data(), bytes);
+          std::memcpy(store.data() + bytes, pixels.data(), bytes);
+          break;
+        }
+        // The cursor names the plane holding the newest frame. Stepping reads
+        // that one and writes the other, then moves the cursor; holding reads
+        // the plane the step already read, which is the one the cursor does not
+        // name, and writes nothing.
+        const bool secondPlaneIsLatest = store[bytes * 2] != 0;
+        const bool hold = ctx.feedbackHold;
+        const std::uint8_t* previous =
+          store.data() + ((secondPlaneIsLatest != hold) ? bytes : 0);
+        std::uint8_t* record =
+          hold ? nullptr : store.data() + (secondPlaneIsLatest ? 0 : bytes);
+        if (!hold) {
+          store[bytes * 2] = secondPlaneIsLatest ? 0 : 1;
+        }
+
+        // Capped below 1: at amount 1.0 the echo is 0.92 per pass, which is a
+        // very long trail and still strictly decaying.
+        const double echo = amt * 0.92;
+        const double zoom = 1.0 + (pA - 0.5) * 0.24;      // 0.5 holds still
+        const double spin = (pB - 0.5) * 0.12;            // radians per pass
+        const double drift = (pC - 0.5) * 0.06 * ctx.width;
+        // Per-channel decay, so a trail can change colour as it fades instead
+        // of only going dim.
+        const double bleed = pD * 0.35;
+        const double chanEcho[3] = {echo, echo * (1.0 - bleed * 0.5),
+                                    echo * (1.0 - bleed)};
+        const double cx = ctx.width * 0.5;
+        const double cy = ctx.height * 0.5;
+        const double cosSpin = std::cos(spin);
+        const double sinSpin = std::sin(spin);
+        // The echo is a fixed function of one byte, so it is three tables
+        // rather than three multiplies and a clamp per pixel -- the same trick
+        // the channel effects use, for the same reason.
+        std::uint8_t echoLut[3][256];
+        for (int c = 0; c < 3; ++c) {
+          for (int v = 0; v < 256; ++v) {
+            echoLut[c][v] = detail::clamp8(v * chanEcho[c]);
+          }
+        }
+        // The source coordinate is affine in x, so it is a start and a step
+        // per row in fixed point instead of two rotations and two lrounds per
+        // pixel. Rounding is floor(v + 0.5), which agrees with lround
+        // everywhere except an exact -0.5, and that lands outside the frame.
+        //
+        // 32 fractional bits, not 16: at 16 the step's own rounding error
+        // accumulates to about four thousandths of a pixel across a 1080p row,
+        // which is enough to flip a sample that sits near a half and moved a
+        // few dozen pixels of a colour bar. At 32 the drift across a row is
+        // under a millionth of a pixel and the result matches the plain double
+        // version byte for byte.
+        const std::int64_t kOne = static_cast<std::int64_t>(1) << 32;
+        const std::int64_t stepX =
+          static_cast<std::int64_t>(std::llround((cosSpin / zoom) * 4294967296.0));
+        const std::int64_t stepY =
+          static_cast<std::int64_t>(std::llround((sinSpin / zoom) * 4294967296.0));
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const double ny = (y - cy) / zoom;
+            std::int64_t accX = static_cast<std::int64_t>(std::llround(
+              (cx - cx * cosSpin / zoom - ny * sinSpin + drift) * 4294967296.0)) +
+              kOne / 2;
+            std::int64_t accY = static_cast<std::int64_t>(std::llround(
+              (cy - cx * sinSpin / zoom + ny * cosSpin) * 4294967296.0)) + kOne / 2;
+            const std::size_t rowBase = static_cast<std::size_t>(y) * ctx.width * 4;
+            std::uint8_t* live = pixels.data() + rowBase;
+            std::uint8_t* keep = record ? record + rowBase : nullptr;
+            for (int x = 0; x < ctx.width; ++x, accX += stepX, accY += stepY) {
+              const int sx = static_cast<int>(accX >> 32);
+              const int sy = static_cast<int>(accY >> 32);
+              std::uint8_t* lp = live + static_cast<std::size_t>(x) * 4;
+              std::uint8_t* kp = keep ? keep + static_cast<std::size_t>(x) * 4 : nullptr;
+              if (sx < 0 || sy < 0 || sx >= ctx.width || sy >= ctx.height) {
+                // Off the edge is not black: there is simply no echo there, so
+                // the live picture stands alone and the frame keeps its border.
+                if (kp) {
+                  kp[0] = lp[0]; kp[1] = lp[1]; kp[2] = lp[2]; kp[3] = 255;
+                }
+                continue;
+              }
+              const std::uint8_t* pp =
+                previous + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              for (int c = 0; c < 3; ++c) {
+                // LIGHTEN, not add. This is the whole safety argument, and it
+                // was arrived at by watching the additive version turn a colour
+                // bar to white in twenty frames -- a third of a second, on
+                // stage. Adding has a fixed point at L/(1-echo), several times
+                // the input and therefore clipped white; taking the brighter of
+                // the two has its fixed point at L, so the picture can never
+                // come out brighter than the picture went in. The echo is
+                // strictly dimmer each pass, so trails decay to nothing and the
+                // loop is bounded however long it runs.
+                const std::uint8_t echoed = echoLut[c][pp[c]];
+                const std::uint8_t v = echoed > lp[c] ? echoed : lp[c];
+                lp[c] = v;
+                if (kp) kp[c] = v;
+              }
+              lp[3] = 255;
+              if (kp) kp[3] = 255;
             }
           }
         });

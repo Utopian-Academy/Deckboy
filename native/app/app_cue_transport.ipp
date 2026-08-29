@@ -507,6 +507,10 @@
       playUiSound(UiSoundEffect::Error);
       return;
     }
+    // The feedback loop belongs to what was on this deck, not to the deck. Left
+    // alone, the first frame of a new cue would echo the last frame of the old
+    // one -- a ghost of the previous clip, on the output, at the take.
+    resetDeckFeedback(deckIndex);
     const Cue& cue = deck.cues[deck.selectedIndex];
     // Overlay cues go to the overlay slot, not the main slot.
     if (cue.kind == CueKind::LowerThird || cue.kind == CueKind::Pip) {

@@ -937,8 +937,6 @@
       SDL_Rect dst {0, 0, ww, wh};
       SDL_RenderTexture(controlRenderer_, scanlineOverlay_, nullptr, &dst);
     }
-    SDL_RenderPresent(controlRenderer_);
-    revealControlWindow();  // the main control-window frame
     // VJ MODE FRAMES THE WHOLE WINDOW.
     //
     // The bar alone is visible, but an operator glancing at a rack from the
@@ -947,6 +945,11 @@
     // a take, decide what the audience sees. Running a normal show in it by
     // accident is the failure worth designing against, so the entire window
     // is edged in a colour that appears nowhere else.
+    //
+    // Drawn BEFORE the present, which is the whole of why it never appeared:
+    // it sat after SDL_RenderPresent, painting onto a back buffer nothing ever
+    // showed and the next frame cleared. It rendered perfectly, every frame,
+    // into nothing.
     //
     // It breathes on the beat: alive enough to catch the eye, slow enough to
     // ignore while working, and it doubles as a tempo readout you can see
@@ -963,6 +966,8 @@
         Primitives::strokeRect(controlRenderer_, ring, edge);
       }
     }
+    SDL_RenderPresent(controlRenderer_);
+    revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();
     lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();

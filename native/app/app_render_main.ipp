@@ -278,6 +278,39 @@
       const int rowY = vjBar.y + 6;
       const int rowH = vjBar.h - 12;
 
+      // EVERY CONTROL FITS, whatever the column is worth.
+      //
+      // The bar was authored at its natural widths and simply drawn left to
+      // right, which needs 670px. VJ mode also puts both playlists on screen,
+      // and on a 1080-wide window that leaves the program column around 500 --
+      // so TAP and the tempo ran off the right edge and were clipped away. The
+      // two controls you reach for on the beat were the two that vanished.
+      //
+      // So the fixed controls are squeezed together toward a floor, the fader
+      // keeps whatever is left, and the labels that cannot survive the squeeze
+      // say less rather than being cut in half.
+      const int kBarPad = 8;
+      const int kBadgeNat = 92, kLblNat = 74, kBlendNat = 96;
+      const int kTapNat = 66, kBpmNat = 92;
+      const int kBarGaps = 10 + 6 * 5;      // after the badge, then between the rest
+      const int fixedNat = kBadgeNat + kLblNat * 2 + kBlendNat + kTapNat + kBpmNat;
+      const int barAvail = std::max(0, vjBar.w - kBarPad * 2 - kBarGaps);
+      double squeeze = 1.0;
+      if (barAvail < fixedNat + 120) {
+        // Leave the fader at least a thumb's width; below 0.45 the controls
+        // stop being hittable, and at that point the window is too small for
+        // VJ mode regardless.
+        squeeze = std::clamp(static_cast<double>(barAvail - 72) / fixedNat, 0.45, 1.0);
+      }
+      auto squeezed = [squeeze](int natural, int floorW) {
+        return std::max(floorW, static_cast<int>(std::lround(natural * squeeze)));
+      };
+      const int badgeW = squeezed(kBadgeNat, 44);
+      const int lblW   = squeezed(kLblNat, 34);
+      const int blendW = squeezed(kBlendNat, 52);
+      const int tapW   = squeezed(kTapNat, 34);
+      const int bpmW   = squeezed(kBpmNat, 52);
+
       // The badge, first and largest.
       // The badge BREATHES ON THE BEAT -- a squash that decays across the beat
       // rather than a blink, so it reads as a pulse the eye can follow and the
@@ -286,17 +319,18 @@
       const double beat = vjBeatPhase();
       const double punch = std::pow(1.0 - beat, 4.0);        // sharp on, soft off
       const int squash = static_cast<int>(std::lround(punch * 4.0));
-      SDL_Rect badge {cx, rowY + squash, 92, std::max(8, rowH - squash * 2)};
+      SDL_Rect badge {cx, rowY + squash, badgeW, std::max(8, rowH - squash * 2)};
       Primitives::fillRect(controlRenderer_, badge, vjEdge);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, badge, "VJ MODE", pal.deep);
-      cx += 92 + 10;
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, badge,
+                           badgeW >= 76 ? "VJ MODE" : "VJ", pal.deep);
+      cx += badgeW + 10;
 
       // Which decks are on the fader, named, because "A" and "B" mean nothing
       // if you cannot see which playlist each one is.
       const int deckCount = static_cast<int>(project_.decks.size());
       const int deckA = std::clamp(project_.vjDeckA, 0, std::max(0, deckCount - 1));
       const int deckB = std::clamp(project_.vjDeckB, 0, std::max(0, deckCount - 1));
-      SDL_Rect aLbl {cx, rowY, 74, rowH};
+      SDL_Rect aLbl {cx, rowY, lblW, rowH};
       drawUIPanel(aLbl, pal.tile, pal.deep, pal.mid);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, aLbl,
                            "A: " + std::to_string(deckA + 1), vjInk);
@@ -304,9 +338,12 @@
 
       // The crossfader. Sized to take whatever is left after the fixed
       // controls, because it is the control the hands live on.
-      const int tapW = 66, bpmW = 92, blendW = 96, bLblW = 74;
-      const int tail = bLblW + 6 + blendW + 6 + tapW + 6 + bpmW + 8;
-      const int faderW = std::max(120, vjBar.x + vjBar.w - cx - tail);
+      const int bLblW = lblW;
+      const int tail = bLblW + 6 + blendW + 6 + tapW + 6 + bpmW + kBarPad;
+      // No lower clamp: a floor here is exactly how the tail got pushed off the
+      // edge. The fader takes what is left, and the squeeze above is what keeps
+      // that a usable amount.
+      const int faderW = std::max(40, vjBar.x + vjBar.w - cx - tail);
       vjCrossfaderRect_ = SDL_Rect {cx, rowY, faderW, rowH};
       drawUIPanel(vjCrossfaderRect_, pal.tile, pal.deep, pal.mid);
       {
@@ -335,10 +372,27 @@
           wakeInk.a = static_cast<Uint8>(std::min(160, std::abs(lean) * 28));
           Primitives::fillRect(controlRenderer_, wake, wakeInk);
         }
+        // The readout sits in its own well.
+        //
+        // Drawn straight onto the fader it was the SAME ink as the handle, so
+        // whenever the handle passed under the number a digit disappeared into
+        // it -- and the handle passes under the number at exactly the position
+        // an operator cares about most. A dark plate behind it means the value
+        // is legible over the fill, over the handle, and at every position in
+        // between.
         std::ostringstream pos;
         pos << std::fixed << std::setprecision(2) << mix;
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, vjCrossfaderRect_, pos.str(),
-                             mix > 0.5 ? pal.deep : vjInk);
+        int posW = 0;
+        if (fontSmall_) {
+          TTF_GetStringSize(fontSmall_, pos.str().c_str(), 0, &posW, nullptr);
+        }
+        posW = std::min(vjCrossfaderRect_.w - 6, posW + 10);
+        if (posW > 12) {
+          SDL_Rect well {vjCrossfaderRect_.x + (vjCrossfaderRect_.w - posW) / 2,
+                         vjCrossfaderRect_.y + 3, posW, vjCrossfaderRect_.h - 6};
+          Primitives::fillRect(controlRenderer_, well, pal.deep);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, well, pos.str(), vjInk);
+        }
       }
       cx += faderW + 6;
 
@@ -370,7 +424,10 @@
       SDL_Rect bpmBox {cx, rowY, bpmW, rowH};
       drawUIPanel(bpmBox, pal.tile, pal.deep, pal.mid);
       std::ostringstream bpm;
-      bpm << std::fixed << std::setprecision(1) << project_.vjTempoBpm << " BPM";
+      bpm << std::fixed << std::setprecision(1) << project_.vjTempoBpm;
+      // The unit is the first thing to go: a number ellipsized to "12..." is
+      // worse than a number with no label on a box that is obviously the tempo.
+      if (bpmW >= 80) bpm << " BPM";
       drawCenteredTextSafe(controlRenderer_, fontSmall_, bpmBox, bpm.str(),
                            project_.vjQuantiseTakes ? vjEdge : vjInk);
       quickButtons_.push_back({bpmBox, QuickAction::VjToggleQuantise,
@@ -501,6 +558,12 @@
     int programMonitorW = monitorContentW;
 
     int monitorH = std::max(160, monitorAreaH);
+    // The program monitor's own left edge. VJ mode pushes it right to make room
+    // for the A preview, and it must be a SEPARATE value from the column's x:
+    // advancing x itself shifted the timeline info, both lanes and the whole
+    // transport row right by the same amount while they kept the full column
+    // width, so they ran off the right edge and were clipped by the inspector.
+    int programMonitorX = x;
 
     // VJ MODE: A AND B GET THEIR OWN MONITORS, either side of the program.
     //
@@ -518,10 +581,10 @@
       const int sideW = std::clamp(programMonitorW / 4, 140, 420);
       vjPreviewRectA_ = SDL_Rect {x, monitorY, sideW, monitorH};
       vjPreviewRectB_ = SDL_Rect {x + programMonitorW - sideW, monitorY, sideW, monitorH};
-      x += sideW + 6;
+      programMonitorX += sideW + 6;
       programMonitorW = std::max(200, programMonitorW - sideW * 2 - 12);
     }
-    SDL_Rect programMonitorRect {x, monitorY, programMonitorW, monitorH};
+    SDL_Rect programMonitorRect {programMonitorX, monitorY, programMonitorW, monitorH};
     // The VU sits after the whole monitor ROW, not after the program monitor.
     // Deriving it from the program rect put it on top of the B preview the
     // moment VJ mode shrank that rect to make room.
@@ -1312,7 +1375,36 @@
     }
     warpMonitorInner_ = {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 48};
     previewMonitorInner_ = {};
-    if (hasLiveVideo) {
+    // IN VJ MODE, WITH NOTHING ARMED, THE PROGRAM MONITOR SHOWS THE MIX.
+    //
+    // The composite tap is the real thing, but it only exists once a window
+    // output is up. Without one the monitor fell back to a single deck's frame
+    // -- which in a mixer is a lie: it shows a source, labelled PROGRAM, while
+    // the fader says something else entirely.
+    //
+    // The two preview textures are already here and already current, so the
+    // mix is drawn from them with the same gains the compositor uses. No
+    // second decode, no CPU blend.
+    const bool vjMixPreview = project_.vjModeEnabled && project_.decks.size() > 1 &&
+                              !controlPreviewIsComposite_ &&
+                              vjPreviewTex_[0] && vjPreviewTex_[1];
+    if (vjMixPreview) {
+      SDL_Rect inner = warpMonitorInner_;
+      const int deckCount = static_cast<int>(project_.decks.size());
+      const int decks[2] = {std::clamp(project_.vjDeckA, 0, deckCount - 1),
+                            std::clamp(project_.vjDeckB, 0, deckCount - 1)};
+      for (int side = 0; side < 2; ++side) {
+        SDL_BlendMode blend = SDL_BLENDMODE_BLEND;
+        const double gain = vjLayerGain(decks[side], blend);
+        SDL_SetTextureAlphaMod(vjPreviewTex_[side],
+                               static_cast<Uint8>(std::lround(gain * 255.0)));
+        renderTextureWithCueGeometry(controlRenderer_, vjPreviewTex_[side],
+                                     vjPreviewTexW_[side], vjPreviewTexH_[side],
+                                     activeCuePtr(decks[side]), inner, blend);
+        SDL_SetTextureBlendMode(vjPreviewTex_[side], SDL_BLENDMODE_BLEND);
+        SDL_SetTextureAlphaMod(vjPreviewTex_[side], 255);
+      }
+    } else if (hasLiveVideo) {
       SDL_Rect inner = warpMonitorInner_;
       // A composite tap is the finished output frame: scale/offset/crop/
       // rotation and every layer are already baked in, so pass no cue and let
@@ -3106,6 +3198,27 @@
                                || isSourceCueKind(selectedCue->kind))) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
       constexpr int kRowStep = kInspectorRowStep;
+      // CODE, and FIRST when there is one.
+      //
+      // In THIS branch because it is the one that handles Image, Pattern,
+      // Browser and the source kinds; two earlier attempts put it in the
+      // video-only branch and then in the multi-selection branch, where a
+      // single pattern cue never goes, so it compiled, ran, and was never
+      // reached. And at the TOP because the expression IS the cue -- below
+      // playback, metadata, geometry and key it took four sections of
+      // scrolling to reach the only thing that defines this source, which is
+      // the same fault as it living in the pattern picker.
+      if (cueIsCodeSource(*selectedCue)) {
+        auto codeSection = beginInspectorSection(ry, "CODE", cueSectionCodeOpen_,
+                                                 QuickAction::CueSectionCodeToggle,
+                                                 "Collapse/expand the live expression");
+        int codeY = codeSection.bodyStartY;
+        if (cueSectionCodeOpen_) {
+          codeY = inspDrawCodeRows(ix, codeY, *selectedCue);
+        }
+        finishInspectorSection(codeSection, codeY);
+        ry = codeY + kInspectorSectionGap;
+      }
       auto playbackSection = beginInspectorSection(ry, "PLAYBACK", cueSectionPlaybackOpen_,
                                                    QuickAction::CueSectionPlaybackToggle,
                                                    "Still, pattern, browser, and source playback settings");
@@ -3318,24 +3431,6 @@
         sectionY = drawKeyRows(sectionY, *selectedCue);
       }
       finishInspectorSection(keySection, sectionY);
-
-      // CODE - the live expression, and only on a code-source pattern.
-      //
-      // In THIS branch because this is the one that handles Image, Pattern,
-      // Browser and the source kinds. Two earlier attempts put it in the
-      // video-only branch and then in the multi-selection branch, where a
-      // single pattern cue never goes -- the section compiled, ran, and was
-      // simply never reached.
-      if (cueIsCodeSource(*selectedCue)) {
-        auto codeSection = beginInspectorSection(sectionY, "CODE", cueSectionCodeOpen_,
-                                                 QuickAction::CueSectionCodeToggle,
-                                                 "Collapse/expand the live expression");
-        sectionY = codeSection.bodyStartY;
-        if (cueSectionCodeOpen_) {
-          sectionY = inspDrawCodeRows(ix, sectionY, *selectedCue);
-        }
-        finishInspectorSection(codeSection, sectionY);
-      }
 
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings

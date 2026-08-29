@@ -953,6 +953,10 @@
             fxCtx.motion =
               advanceMotionDriver(project_.focusedDeckIndex, *previewCue);
           }
+          // A SEPARATE buffer from the output's. Sharing one would advance the
+          // loop twice on any frame where both ran, and the preview would then
+          // disagree with what is going out.
+          fxCtx.feedback = previewFeedbackBufferForDeck(project_.focusedDeckIndex);
           deckboy::effects::applyCueEffectStack(
             controlPreviewLookFrame_.pixels, previewCue->effects, fxCtx);
           syncFrameTexture(controlRenderer_, controlPreviewTex_,
