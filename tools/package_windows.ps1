@@ -109,8 +109,22 @@ Copy-Item (Join-Path $FfmpegDir "ffprobe.exe") -Destination $StageDir
 # what lets the target machine run Deckboy without installing the Visual C++
 # Redistributable. We pick the highest-numbered redist directory installed
 # alongside the VS 2022 toolchain so a freshly updated VS still works.
-$RedistRoot = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Redist\MSVC"
-if (Test-Path $RedistRoot) {
+# EVERY VS edition, not just Community.
+#
+# The path was hardcoded to Community, so on a machine with Enterprise,
+# Professional or just the Build Tools the redist was "not found", the warning
+# scrolled past, and the zip shipped WITHOUT the runtime -- which is precisely
+# the machine that builds a release in CI. The README promises the target
+# machine does not need the Visual C++ Redistributable, and on those builds it
+# would have.
+$RedistRoot = $null
+foreach ($Edition in @("Enterprise", "Professional", "Community", "BuildTools")) {
+    $Candidate = "C:\Program Files\Microsoft Visual Studio\2022\$Edition\VC\Redist\MSVC"
+    if (Test-Path $Candidate) { $RedistRoot = $Candidate; break }
+    $Candidate = "C:\Program Files (x86)\Microsoft Visual Studio\2022\$Edition\VC\Redist\MSVC"
+    if (Test-Path $Candidate) { $RedistRoot = $Candidate; break }
+}
+if ($RedistRoot) {
     $CrtDir = Get-ChildItem $RedistRoot -Directory |
               Where-Object { Test-Path (Join-Path $_.FullName "x64\Microsoft.VC143.CRT") } |
               Sort-Object Name -Descending |
@@ -125,7 +139,9 @@ if (Test-Path $RedistRoot) {
         Write-Warning "VS 2022 redist root exists but no VC143.CRT/x64 dir found under $RedistRoot. The zip may require the Visual C++ Redistributable on the target machine."
     }
 } else {
-    Write-Warning "VS 2022 redist directory not found at $RedistRoot. The zip may require the Visual C++ Redistributable on the target machine."
+    Write-Warning ("No VS 2022 redist directory found for any edition. " +
+                   "The zip will require the Visual C++ Redistributable on the " +
+                   "target machine, which the README says it does not.")
 }
 
 # --- Copy data + license ----------------------------------------------------
@@ -235,15 +251,26 @@ $ReadmeBody | Set-Content -Path (Join-Path $StageDir "README.txt") -Encoding UTF
 # downloads it.
 $StagedExe = Join-Path $StageDir "Deckboy.exe"
 Write-Host "Checking the staged build starts"
-# Piped, which forces PowerShell to WAIT. Deckboy is a GUI-subsystem
-# binary, and the call operator does not wait for those on its own -- an
-# unpiped call returns instantly with no output and no exit code, so a
-# check written that way passes even when the binary cannot start.
-$StagedVersion = (& $StagedExe --version 2>&1 | Select-Object -First 1)
-if ($LASTEXITCODE -ne 0 -or -not $StagedVersion) {
-    throw ("The staged Deckboy.exe would not run (exit $LASTEXITCODE). " +
-           "Usually a DLL that CMake did not place next to the binary: " +
-           "compare the build directory with $StageDir.")
+# Start-Process -Wait, with the output redirected to a file.
+#
+# Deckboy is a GUI-subsystem binary and PowerShell does not wait for those. A
+# piped call operator looked like it would be enough and was not: this check
+# reported a failure with an EMPTY exit code, which is indistinguishable from
+# the binary genuinely refusing to start. Start-Process waits and returns a real
+# number, and the number is the whole point of the check.
+$StagedOut = Join-Path $env:TEMP ("deckboy-staged-" + [guid]::NewGuid() + ".txt")
+$Proc = Start-Process -FilePath $StagedExe -ArgumentList "--version" `
+                      -Wait -NoNewWindow -PassThru `
+                      -RedirectStandardOutput $StagedOut
+$StagedVersion = ""
+if (Test-Path $StagedOut) {
+    $StagedVersion = (Get-Content $StagedOut -TotalCount 1)
+    Remove-Item $StagedOut -Force -ErrorAction SilentlyContinue
+}
+if ($Proc.ExitCode -ne 0 -or -not $StagedVersion) {
+    throw ("The staged Deckboy.exe would not run (exit $($Proc.ExitCode), " +
+           "printed '$StagedVersion'). Usually a DLL that CMake did not place " +
+           "next to the binary: compare $BuildDir with $StageDir.")
 }
 $StagedVersion = ($StagedVersion -replace '^Deckboy\s+v?', '').Trim()
 if ($StagedVersion -ne $Version) {
