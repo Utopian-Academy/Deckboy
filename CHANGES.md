@@ -116,6 +116,27 @@ multi-argument functions did not compile, unary minus bound so loosely that
 zero and the square root of a negative are all bounded rather than producing
 infinities or NaN, because an operator typing at speed will produce all three.
 
+### The Windows CI gates were passing without checking anything
+
+Deckboy is a GUI-subsystem binary on Windows, and PowerShell does not wait for
+those: `& .\Deckboy.exe --smoke` returns immediately, `$LASTEXITCODE` is never
+set from it, and the step passes whatever the app actually did. The Windows
+`--self-check` and `--smoke` steps had been doing this, so on that platform
+they had been reporting success without ever reading a result.
+
+The tell was there in every log: the app's output appears AFTER the step that
+was supposed to have run it. It was found by a new packaging gate failing with
+no exit code in its message at all -- an empty value, rather than a number.
+
+All three now use `Start-Process -Wait -PassThru` and read the real exit code.
+Linux and macOS were never affected; their binaries are console subsystem and
+the shell waits.
+
+The Windows packager also runs the STAGED copy now, not just the one in the
+build directory. The build tree has every DLL the build machine happens to
+have; the staged tree is what people download, and it had never been started
+before being zipped.
+
 ### Releases now build and publish themselves
 
 The scripts to build an installer and a portable package for all three

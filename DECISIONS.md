@@ -157,6 +157,8 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D129 | Publishing never builds; it only gathers | **CLAUDE** | 2026-08-29. Every file on the release page is downloaded from the job that already ran --smoke on it, so what ships is what was tested rather than a rebuild that happens to share a version number. |
 | D130 | Packaging runs on every push, publishing only on tags | **CLAUDE** | 2026-08-29. Packaging that runs only at release time is discovered to be broken at the exact moment somebody wants to ship. It now runs continuously and only the publish step is gated. |
 | D131 | The release ships the FEATURE build | **CLAUDE** | 2026-08-29. The packaging steps first hung off the bare matrix leg, which would have shipped releases without MIDI or Spout. They run on the full-feature leg. |
+| D132 | Windows CI must Start-Process -Wait, never the call operator | **CLAUDE** | 2026-08-29. Deckboy is a GUI-subsystem binary and PowerShell does not wait for those, so `& .\Deckboy.exe --smoke` returns instantly, leaves $LASTEXITCODE unset, and the step passes regardless. The Windows self-check and smoke gates had been vacuous for that reason. The tell is the app's output appearing in the log after the step that ran it. |
+| D133 | The packager runs the STAGED binary, not the build one | **CLAUDE** | 2026-08-29. The version check ran the exe in the build directory, where every DLL the build machine has is already to hand. That proves nothing about the thing being shipped, which is the staged copy, and which had never been started before being zipped. |
 
 ---
 

@@ -515,6 +515,30 @@ if(WIN32)
   target_link_libraries(deckboy-native PRIVATE windowsapp)
   set_target_properties(deckboy-native PROPERTIES WIN32_EXECUTABLE TRUE)
 
+  # EVERY runtime DLL the binary actually imports, put beside it.
+  #
+  # vcpkg deploys the DLLs of the packages it resolved through CONFIG targets,
+  # which covered SDL3, freetype and the rest -- and silently did not cover
+  # RtMidi, which is found through pkg-config on some paths. So a feature build
+  # produced a Deckboy.exe with no rtmidi.dll next to it, the packager copied
+  # "every .dll CMake placed here" and got a set with a hole in it, and the
+  # zipped build would not START on any machine that did not already have
+  # RtMidi installed. It ran fine on the machine that built it, which is the
+  # worst possible way for this to behave.
+  #
+  # TARGET_RUNTIME_DLLS asks the linker what was actually imported instead of
+  # maintaining a list by hand, so the next optional dependency cannot repeat
+  # it. CMake 3.21+; the project floor is 3.20, so it is guarded rather than
+  # made a new requirement.
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21)
+    add_custom_command(TARGET deckboy-native POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+              "$<TARGET_RUNTIME_DLLS:deckboy-native>"
+              "$<TARGET_FILE_DIR:deckboy-native>"
+      COMMAND_EXPAND_LISTS
+      VERBATIM)
+  endif()
+
   # Embed the application icon as resource IDI_DECKBOY_APP_ICON. This drives the
   # Explorer/Alt-Tab/taskbar-pin icon AND is loaded at runtime by
   # applyDeckboyWindowIcon() (WM_SETICON) for the live window/taskbar icon.
