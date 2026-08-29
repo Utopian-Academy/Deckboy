@@ -78,6 +78,12 @@
       showSplashOverlay_ = false;
       return;
     }
+    // The code editor is modal over everything but the splash: it covers the
+    // window, so a click that reached the controls underneath would act on
+    // something the operator cannot see.
+    if (handleCodeEditorClick(x, y)) {
+      return;
+    }
     if (showStartupDialog_) {
       bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
       if (pointInRect(x, y, startupNewBtn_)) {
@@ -969,6 +975,12 @@
       } else if (key == SDLK_ESCAPE) {
         showStartupDialog_ = false;
       }
+      return;
+    }
+
+    // Before the inline editor: both cannot be open at once, and the code
+    // editor takes the whole keyboard while it is.
+    if (handleCodeEditorKey(key, mod)) {
       return;
     }
 

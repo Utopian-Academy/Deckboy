@@ -630,6 +630,54 @@
       return;
     }
 
+    if (command == "CODE") {
+      // The code source, over the wire.
+      //
+      // SET is the useful half: an expression can come from a controller or a
+      // script, which is how a code cue gets driven by something other than a
+      // person typing. EDIT is the other half and is honestly mostly for
+      // testing -- the editor covers the window and scripted clicks and keys do
+      // not reach SDL3, so without this there is no way to open it and LOOK at
+      // it, and this codebase has learned twice over what happens to UI nobody
+      // has looked at.
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("CODE: no cue selected");
+        return;
+      }
+      if (!cueIsCodeSource(*cue)) {
+        failRemoteCommand("CODE: the selected cue is not a code source");
+        return;
+      }
+      const std::string sub = parts.size() < 2 ? std::string("get") : toUpper(parts[1]);
+      if (sub == "GET") {
+        remoteCommandDetail_ = cue->codeExpression;
+        triggerToast(cue->codeExpression.empty() ? "no expression"
+                                                 : cue->codeExpression);
+        return;
+      }
+      if (sub == "EDIT") {
+        openCodeEditor();
+        return;
+      }
+      if (sub == "SET" && parts.size() >= 3) {
+        const std::string expr = joinParts(parts, 2);
+        // Refused rather than accepted-and-broken: a cue whose expression does
+        // not compile draws nothing, and finding that out on stage is worse
+        // than being told here.
+        const auto compiled = deckboy::code::compile(expr);
+        if (!compiled.ok()) {
+          failRemoteCommand("CODE SET: " + compiled.error);
+          return;
+        }
+        cue->codeExpression = expr;
+        markProjectDirty();
+        triggerToast("expression set");
+        return;
+      }
+      failRemoteCommand("CODE: use GET | SET <expression> | EDIT");
+      return;
+    }
     if (command == "FX") {
       // Effect stack over the wire. Added because the effect stack could only
       // be driven by clicking, which meant the RUNTIME path -- adding an effect
@@ -706,7 +754,54 @@
         refreshLiveCueIfPixelPathChanged(wasNeeded);
         return;
       }
-      failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | CLEAR");
+      // PARAM <n> <A|B|C|D> <v> -- the shaping controls, over the wire.
+      //
+      // The same gap FX itself was added to close, one level down. Every effect
+      // grew real parameters and the ONLY way to move one was to click it, so
+      // the runtime path -- changing a parameter on a cue that is already
+      // playing -- could not be driven by a controller, a script or a test. The
+      // amount was reachable and the four things that decide what the effect
+      // actually looks like were not.
+      if (sub == "PARAM" && parts.size() >= 5) {
+        const int idx = std::atoi(parts[2].c_str()) - 1;
+        if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX PARAM: no effect at that index");
+          return;
+        }
+        const std::string slotName = toUpper(parts[3]);
+        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'D') {
+          failRemoteCommand("FX PARAM: slot must be A, B, C or D");
+          return;
+        }
+        const int slot = slotName[0] - 'A';
+        auto& fx = cue->effects[idx];
+        // Refused rather than clamped, the same as MASTERVOL: a value out of
+        // range is a caller bug, and silently clamping it is how MASTERVOL hid
+        // a unit mismatch for years.
+        const double value = std::atof(parts[4].c_str());
+        if (value < 0.0 || value > 1.0) {
+          failRemoteCommand("FX PARAM: value is 0-1");
+          return;
+        }
+        // Named here too, so a script gets told when it is setting a slot the
+        // effect does not use rather than writing into nothing.
+        if (!deckboy::effects::cueEffectParamLabel(fx.kind, slot)) {
+          failRemoteCommand(std::string("FX PARAM: ") +
+                            deckboy::effects::cueEffectToken(fx.kind) +
+                            " has no " + slotName + " parameter");
+          return;
+        }
+        const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
+        float* slots[4] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD};
+        *slots[slot] = static_cast<float>(value);
+        markProjectDirty();
+        refreshLiveCueIfPixelPathChanged(wasNeeded);
+        triggerToast(std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) +
+                     " " + parts[4]);
+        return;
+      }
+      failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | "
+                        "PARAM <n> <A-D> <0-1> | COPY | PASTE | CLEAR");
       return;
     }
     if (command == "GOEND" || command == "SKIPEND") {

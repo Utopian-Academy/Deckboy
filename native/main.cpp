@@ -72,6 +72,7 @@
 #include "core/cue_helpers.hpp"
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
+#include "core/code_source.hpp"
 #include "core/io_utils.hpp"
 #include "core/subtitle_parser.hpp"
 #include "core/system_browser.hpp"
@@ -5179,6 +5180,10 @@ class App {
   // events turn out not to either). The app already carries dev flags for
   // exactly this reason: --settings opens a settings tab, --pattern-dump
   // renders a pattern headless. This is the same idea for the inspector.
+  // Same reason as debugScrollInspector: the editor covers the window and
+  // nothing scriptable can open it, so --code-editor does.
+  void debugOpenCodeEditor() { openCodeEditor(); }
+
   void debugScrollInspector(int pixels) {
     // Held, not applied. The scroll is clamped to cueSettingsScrollMax_ every
     // frame, and that maximum is only known once the inspector has measured
@@ -5380,6 +5385,7 @@ class App {
   // Render: output window compositor → NDI/DeckLink/Siphon blit
 #include "app/app_render_output.ipp"
   // Reusable UI widget functions (buttons, sliders, dropdowns, toggles)
+#include "app/app_code_editor.ipp"
 #include "app/app_ui_widgets.ipp"
   // Render: settings modal dialog (all tabs)
 #include "app/app_render_settings.ipp"
@@ -6722,7 +6728,7 @@ class App {
     rowY = inspDrawActionRow(ix, rowY, cue.codeExpression.empty()
                                ? std::string("(tap to write an expression)")
                                : cue.codeExpression,
-                             QuickAction::CodeEditExpression,
+                             QuickAction::CodeOpenEditor,
                              "One expression, or three separated by commas for "
                              "red, green and blue. Variables: x y (0-1), cx cy "
                              "(-1..1), r (radius), a (angle), t (seconds).",
@@ -6735,11 +6741,14 @@ class App {
     if (!problem.empty()) {
       rowY = inspDrawMessageRow(ix, rowY, problem, pal.mid, pal.deep);
     }
-    // A few starting points. Nobody wants a blank box and a variable list.
-    rowY = inspDrawActionRow(ix, rowY, "load an example",
-                             QuickAction::CodeCycleExample,
-                             "Cycle through worked expressions to start from",
-                             pal.tile, pal.inkSoft);
+    // Into the real editor. The inspector column is 500-odd pixels wide and an
+    // expression is a program: it needs room, colour and a caret you can place,
+    // none of which belong in a value row.
+    rowY = inspDrawActionRow(ix, rowY, "open the code editor",
+                             QuickAction::CodeOpenEditor,
+                             "Full editor: syntax colour, the list of what you "
+                             "can use, and the examples",
+                             pal.dark, pal.light);
     return rowY;
   }
 
@@ -7992,6 +8001,34 @@ class App {
     bool freshEntry = false;
     std::function<void(const std::string&)> onSubmit;
   };
+  // The live-coding editor. Its own overlay rather than a mode of the inline
+  // editor, because it needs a caret you can place, wrapped text, colour and a
+  // helper rail -- none of which a one-line value field should grow.
+  struct CodeEditorState {
+    bool open = false;
+    std::string text;
+    std::size_t caret = 0;
+    // The cue is remembered by INDEX rather than by pointer: the editor stays
+    // open across frames and a pointer into the deck's vector does not survive
+    // a cue being added or removed underneath it.
+    int deckIndex = -1;
+    int cueIndex = -1;
+    SDL_Rect panelRect {};
+    SDL_Rect fieldRect {};
+    SDL_Rect applyRect {};
+    SDL_Rect cancelRect {};
+    SDL_Rect clearRect {};
+    std::vector<SDL_Rect> chipRects;
+    std::vector<deckboy::code::LanguageEntry> chips;
+    std::vector<SDL_Rect> exampleRects;
+  };
+  CodeEditorState codeEditor_;
+  static constexpr std::size_t kCodeEditorMaxChars = 512;
+  static constexpr int kCodeFieldPad = 8;
+  int codeEditorCellW_ = 0;    // one monospaced advance, measured per frame
+  int codeEditorLineH_ = 0;
+  int codeEditorCols_ = 1;
+
   InlineTextEditorState inlineEditor_;
   SDL_Rect lastInlineEditorAnchorRect_ {};
   SDL_Rect bottomBarRect_ {};
@@ -9720,6 +9757,7 @@ int runDeckboyMain(int argc, char** argv) {
   fs::path startupProjectArg;
   int openSettingsTab = -1;
   int inspectorScrollArg = -1;
+  bool openCodeEditorArg = false;
   int openSettingsSubTab = 0;
   for (size_t i = 0; i < rest.size(); ++i) {
     const std::string& arg = rest[i];
@@ -9729,6 +9767,14 @@ int runDeckboyMain(int argc, char** argv) {
         return 2;
       }
       importPathsArg.push_back(rest[++i]);
+      continue;
+    }
+    // Opens the code editor at boot. Scripted clicks and keys do not reach
+    // SDL3, so without a flag the editor cannot be screenshotted -- and this
+    // codebase has learned twice over that a UI element nobody has LOOKED at is
+    // not finished.
+    if (arg == "--code-editor") {
+      openCodeEditorArg = true;
       continue;
     }
     if (arg == "--inspector-scroll") {
@@ -9815,6 +9861,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (openSettingsTab >= 0) {
     app.debugOpenSettings(openSettingsTab, openSettingsSubTab);
+  }
+  if (openCodeEditorArg) {
+    app.debugOpenCodeEditor();
   }
   if (inspectorScrollArg >= 0) {
     app.debugScrollInspector(inspectorScrollArg);
