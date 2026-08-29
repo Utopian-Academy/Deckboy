@@ -221,6 +221,36 @@ Reporting issues / source code:
 "@
 $ReadmeBody | Set-Content -Path (Join-Path $StageDir "README.txt") -Encoding UTF8
 
+# --- The staged copy has to actually start ----------------------------------
+#
+# The version check near the top runs the exe in the BUILD directory, where
+# every DLL the machine has is already to hand. That proves the build is the
+# right version and nothing about whether the thing we are shipping works.
+#
+# A feature build once staged without rtmidi.dll -- because CMake never put it
+# beside the exe, so "copy every DLL here" copied a set with a hole in it. The
+# zip could not start on any machine that did not already have RtMidi, and it
+# ran perfectly on the machine that built it. That is the worst way for a
+# packaging fault to behave, and it is caught here now rather than by whoever
+# downloads it.
+$StagedExe = Join-Path $StageDir "Deckboy.exe"
+Write-Host "Checking the staged build starts"
+# Piped, which forces PowerShell to WAIT. Deckboy is a GUI-subsystem
+# binary, and the call operator does not wait for those on its own -- an
+# unpiped call returns instantly with no output and no exit code, so a
+# check written that way passes even when the binary cannot start.
+$StagedVersion = (& $StagedExe --version 2>&1 | Select-Object -First 1)
+if ($LASTEXITCODE -ne 0 -or -not $StagedVersion) {
+    throw ("The staged Deckboy.exe would not run (exit $LASTEXITCODE). " +
+           "Usually a DLL that CMake did not place next to the binary: " +
+           "compare the build directory with $StageDir.")
+}
+$StagedVersion = ($StagedVersion -replace '^Deckboy\s+v?', '').Trim()
+if ($StagedVersion -ne $Version) {
+    throw "The staged build reports '$StagedVersion', not $Version."
+}
+Write-Host "  staged build reports v$StagedVersion"
+
 # --- Zip --------------------------------------------------------------------
 if (Test-Path $ZipPath) {
     Remove-Item $ZipPath -Force
