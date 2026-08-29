@@ -1881,9 +1881,36 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     vsynthPrevW_ = vsynthPrevH_ = 0;
   }
 
+  // EMIT THE SMALL PICTURE and let the GPU scale it, except in text mode.
+  //
+  // The synth renders internally at a fraction of the output -- 384x216 for a
+  // 4K raster -- applies the glitch and CRT stages there, and only then blew it
+  // up to full size on the CPU. That produced a 33MB frame, every frame, which
+  // then had to be uploaded to the GPU: measured at 4K the synth itself took
+  // 5.8ms while the app managed 38fps, so most of a 26ms frame was going into
+  // pushing pixels that carry no more information than the 330KB they came
+  // from.
+  //
+  // The upscale is nearest-neighbour, and Deckboy creates every texture with
+  // nearest filtering, so handing the small frame to the existing pipeline
+  // produces the same picture by the same method -- just on the GPU, for free,
+  // after a hundredth of the upload.
+  //
+  // TEXT MODE is the exception and stays full raster: its glyphs are drawn at
+  // output resolution on purpose, because scaling them up blurs the one thing
+  // that look depends on.
+  // DECKBOY_SYNTH_FULLRASTER=1 forces the old CPU upscale back. Kept because
+  // the claim "the picture is identical" deserves a way to check it rather
+  // than a reassurance, and because it is the escape hatch if a machine ever
+  // scales differently from the way this assumes.
+  static const bool forceFullRaster = [] {
+    const char* e = std::getenv("DECKBOY_SYNTH_FULLRASTER");
+    return e && *e;
+  }();
+  const bool emitSmall = !vs.ascii && !forceFullRaster;
   DecodedFrame frame;
-  frame.width = outW;
-  frame.height = outH;
+  frame.width = emitSmall ? W : outW;
+  frame.height = emitSmall ? H : outH;
   frame.format = FramePixelFormat::RGBA32;
   // Opaque BLACK, not white. The buffer was filled with 255 -- white, fully
   // opaque -- and in text mode the cell grid only covers outH/cellH whole
@@ -1903,7 +1930,8 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // grid only covers outH/cellH whole rows and any remainder would otherwise
   // show whatever the last frame left there. That remainder is the bright edge
   // the original clear was added to fix, so it still gets one.
-  const std::size_t frameBytes = static_cast<std::size_t>(outW) * outH * 4;
+  const std::size_t frameBytes =
+    static_cast<std::size_t>(frame.width) * frame.height * 4;
   if (displayFrame_ && displayFrame_->pixels.size() == frameBytes) {
     frame.pixels = std::move(displayFrame_->pixels);
   } else {
