@@ -1170,6 +1170,103 @@
       expect(litPixels(f) > runningPx, "paused timer draws the hold marker");
     }
 
+    // ── Parameter LFOs ──────────────────────────────────────────────────────
+    //
+    // The whole feature is invisible in any single frame — what it does happens
+    // BETWEEN frames — so this samples the oscillator across time. Four things
+    // would each ruin a show on their own: an LFO that does not move, one that
+    // moves while switched off, one that pushes a parameter outside 0–1, and
+    // one that drifts off the beat it is supposed to be locked to.
+    {
+      using namespace deckboy::effects;
+      ParamLfo lfo;
+      lfo.on = true;
+      lfo.rateHz = 1.0f;
+      lfo.depth = 1.0f;
+      double lo = 2.0, hi = -1.0, sum = 0.0;
+      const int n = 400;
+      for (int i = 0; i < n; ++i) {
+        const double v = lfoApply(lfo, 0.5f, i / 200.0, 0.0);
+        lo = std::min(lo, v);
+        hi = std::max(hi, v);
+        sum += v;
+      }
+      expect(hi - lo > 0.9, "an LFO at full depth swings the whole range");
+      expect(lo >= 0.0 && hi <= 1.0, "and never leaves 0-1");
+      expect(std::fabs(sum / n - 0.5) < 0.02,
+             "and averages to the value the operator set");
+
+      // The rails matter most at the ENDS of the range, where the swing has to
+      // go lopsided rather than out of bounds.
+      bool inside = true;
+      for (float base : {0.0f, 0.05f, 0.95f, 1.0f}) {
+        for (int i = 0; i < 100; ++i) {
+          const float v = lfoApply(lfo, base, i / 50.0, 0.0);
+          if (v < 0.0f || v > 1.0f) inside = false;
+        }
+      }
+      expect(inside, "an LFO stays in range from any base value");
+
+      ParamLfo off;
+      bool untouched = true;
+      for (int i = 0; i < 50; ++i) {
+        if (lfoApply(off, 0.37f, i * 0.1, i * 0.25) != 0.37f) untouched = false;
+      }
+      expect(untouched, "an LFO that is off changes nothing at all");
+
+      // Sample-and-hold has to be REPEATABLE: a random that differs between the
+      // rehearsal and the show is not usable.
+      ParamLfo hold;
+      hold.on = true;
+      hold.shape = LfoShape::Sample;
+      hold.rateHz = 1.0f;
+      hold.depth = 1.0f;
+      expect(std::fabs(lfoApply(hold, 0.5f, 3.10, 0.0) -
+                       lfoApply(hold, 0.5f, 3.90, 0.0)) < 1e-9,
+             "sample-and-hold holds its value across a cycle");
+      expect(std::fabs(lfoApply(hold, 0.5f, 3.10, 0.0) -
+                       lfoApply(hold, 0.5f, 4.10, 0.0)) > 1e-9,
+             "and steps at the cycle boundary");
+
+      ParamLfo synced;
+      synced.on = true;
+      synced.beatSync = true;
+      synced.beats = 4.0f;
+      synced.depth = 1.0f;
+      synced.shape = LfoShape::Saw;
+      expect(std::fabs(lfoApply(synced, 0.5f, 999.0, 0.0) -
+                       lfoApply(synced, 0.5f, 12.5, 4.0)) < 1e-6,
+             "a 4-beat LFO repeats every 4 beats");
+      expect(std::fabs(lfoApply(synced, 0.5f, 0.0, 1.0) -
+                       lfoApply(synced, 0.5f, 500.0, 1.0)) < 1e-6,
+             "and ignores the wall clock entirely");
+
+      std::vector<CueEffect> stack(2);
+      stack[0].kind = CueEffectKind::Invert;
+      stack[1].kind = CueEffectKind::Ripple;
+      stack[1].paramA = 0.5f;
+      std::vector<CueEffect> out;
+      expect(!modulateCueEffectStack(stack, 1.0, 0.0, out),
+             "a stack with no LFO does not pay for a copy");
+      stack[1].lfo[0] = lfo;
+      // Across a whole cycle, not at one moment: a sine passes through its own
+      // centre twice per cycle, so a single sample can legitimately equal the
+      // base value and prove nothing. The first version of this failed for
+      // exactly that reason.
+      bool moved = false, neighbourMoved = false;
+      for (int i = 0; i < 40; ++i) {
+        modulateCueEffectStack(stack, i / 40.0, 0.0, out);
+        if (out[1].paramA != stack[1].paramA) moved = true;
+        if (out[0].paramA != stack[0].paramA) neighbourMoved = true;
+      }
+      expect(moved, "an armed LFO moves the parameter it is on");
+      expect(!neighbourMoved, "and leaves every other effect alone");
+      expect(stack[1].paramA == 0.5f,
+             "and never writes back over what the operator set");
+      stack[1].bypassed = true;
+      expect(!cueEffectStackHasLfo(stack), "a bypassed effect's LFO does not run");
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }

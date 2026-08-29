@@ -589,8 +589,13 @@
     // that does not move, a ripple standing still, and caustics and feedback,
     // whose whole subject is motion, reduced to one arbitrary frame. The gate
     // is right for what it was written for; it cannot know about these.
+    // An LFO counts as animation for this purpose: a parameter moving on its
+    // own needs the stack re-run each frame exactly as much as an effect that
+    // advances with the frame index does, and on a still nothing else will
+    // trigger it.
     const bool stackAnimates =
-      deckboy::effects::cueEffectStackAnimates(sourceCue->effects);
+      deckboy::effects::cueEffectStackAnimates(sourceCue->effects) ||
+      deckboy::effects::cueEffectStackHasLfo(sourceCue->effects);
     bool needsUpload =
       frameIt == outputRuntime->layerBridgeFrameIndices.end() ||
       cueIt == outputRuntime->layerBridgeCueKeys.end() ||
@@ -638,8 +643,14 @@
             }
             fxCtx.feedback = feedbackBufferForDeck(sourceDeckIndex);
             fxCtx.feedbackHold = !claimDeckFeedbackAdvance(sourceDeckIndex);
+            // Any armed LFO, evaluated for this frame. Returns false and costs
+            // nothing when the cue has none, which is almost every cue.
+            std::vector<deckboy::effects::CueEffect> modulated;
+            const bool moving = deckboy::effects::modulateCueEffectStack(
+              sourceCue->effects, lfoSeconds_, lfoBeats_, modulated);
             deckboy::effects::applyCueEffectStack(
-              outputRuntime->layerBridgeScratchPixels, sourceCue->effects, fxCtx);
+              outputRuntime->layerBridgeScratchPixels,
+              moving ? modulated : sourceCue->effects, fxCtx);
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
