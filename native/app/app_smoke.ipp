@@ -591,6 +591,47 @@
         cue.motionDriverSpeed = 1.75f;
         cue.motionDriverPaused = true;
       }
+      // Every video-synth field, each set to something that cannot be
+      // confused with a neighbour or with its own default. The record is
+      // POSITIONAL: a field added to the writer without a matching read
+      // shifts every column after it, and the loader had exactly that -- the
+      // synth tuning pair was written mid-record and read from the end, so
+      // twenty-three video-synth fields were read two columns early and
+      // nothing noticed, because each wrong value still clamped into range.
+      // Distinctive values are the whole point: 20 read from a column holding
+      // 1 still clamps to 20 and looks correct.
+      cue.tone.synth.tuning = static_cast<SynthTuning>(3);
+      cue.tone.synth.referenceHz = 432.0;
+      cue.videoSynth.shape = static_cast<VideoSynthShape>(3);
+      cue.videoSynth.mirror = static_cast<VideoSynthMirror>(1);
+      cue.videoSynth.palette = static_cast<VideoSynthPalette>(2);
+      cue.videoSynth.speed = 2.75;
+      cue.videoSynth.scale = 3.25;
+      cue.videoSynth.warp = 1.5;
+      cue.videoSynth.feedbackAmount = 0.77;
+      cue.videoSynth.feedbackZoom = 1.11;
+      cue.videoSynth.feedbackRotate = -4.5;
+      cue.videoSynth.audioReactivity = 0.66;
+      cue.videoSynth.resolution = 4;
+      cue.videoSynth.pixelSort = 0.44;
+      cue.videoSynth.glitch = 0.33;
+      cue.videoSynth.ascii = true;
+      cue.videoSynth.asciiCols = 137;
+      cue.videoSynth.crt = 0.22;
+      cue.videoSynth.asciiCharSet = 4;
+      cue.videoSynth.asciiShuffle = 7;
+      cue.videoSynth.asciiInk = 3;
+      cue.videoSynth.spriteSheetPath = "smoke-sheet.png";
+      cue.videoSynth.spriteTileW = 24;
+      cue.videoSynth.spriteTileH = 40;
+      cue.videoSynth.spriteRotate = 2;
+      cue.videoSynth.spriteFreeAngle = 90.0;
+      cue.videoSynth.spriteFlip = 3;
+      cue.videoSynth.spriteJitter = 0.55;
+      cue.videoSynth.spriteChaos = 0.88;
+      cue.videoSynth.asciiGlyphs = ".oO@";
+      cue.videoSynth.asciiPhrases = "DECKBOY|GO LIVE";
+      cue.videoSynth.asciiPhraseHold = 4.5;
       deck.cues.push_back(cue);      // [0]: video — trim/tc/transition tests
       deck.cues.push_back(imgCue);   // [1]: image still — stillDuration test
       deck.cues.push_back(ltCue);    // [2]: lower_third — lowerThird tests
@@ -655,6 +696,49 @@
                loadedCue.effects[1].kind == deckboy::effects::CueEffectKind::MotionPuppet &&
                loadedCue.effects[1].bypassed,
                "effect stack persisted with all four parameters and bypass");
+        // The positional record, checked field by field. One assertion per
+        // field rather than one for the block: a skew shifts a RUN of them,
+        // and naming the first one that moved says immediately where the
+        // writer and the reader parted company.
+        const VideoSynthSettings& lv = loadedCue.videoSynth;
+        expect(static_cast<int>(loadedCue.tone.synth.tuning) == 3 &&
+               std::abs(loadedCue.tone.synth.referenceHz - 432.0) < 0.001,
+               "synth tuning and reference pitch persisted");
+        expect(static_cast<int>(lv.shape) == 3, "video synth shape persisted");
+        expect(static_cast<int>(lv.mirror) == 1, "video synth mirror persisted");
+        expect(static_cast<int>(lv.palette) == 2, "video synth palette persisted");
+        expect(std::abs(lv.speed - 2.75) < 0.001 &&
+               std::abs(lv.scale - 3.25) < 0.001 &&
+               std::abs(lv.warp - 1.5) < 0.001,
+               "video synth speed/scale/warp persisted");
+        expect(std::abs(lv.feedbackAmount - 0.77) < 0.001 &&
+               std::abs(lv.feedbackZoom - 1.11) < 0.001 &&
+               std::abs(lv.feedbackRotate + 4.5) < 0.001,
+               "video synth feedback persisted");
+        expect(std::abs(lv.audioReactivity - 0.66) < 0.001 &&
+               lv.resolution == 4,
+               "video synth reactivity and detail persisted");
+        expect(std::abs(lv.pixelSort - 0.44) < 0.001 &&
+               std::abs(lv.glitch - 0.33) < 0.001 &&
+               std::abs(lv.crt - 0.22) < 0.001,
+               "video synth smear/glitch/crt persisted");
+        expect(lv.ascii && lv.asciiCols == 137,
+               "text mode and column count persisted");
+        expect(lv.asciiCharSet == 4 && lv.asciiShuffle == 7 && lv.asciiInk == 3,
+               "text mode glyph set, shuffle and ink persisted");
+        expect(lv.asciiGlyphs == ".oO@" &&
+               lv.asciiPhrases == "DECKBOY|GO LIVE" &&
+               std::abs(lv.asciiPhraseHold - 4.5) < 0.001,
+               "custom glyphs and phrases persisted");
+        expect(lv.spriteSheetPath == "smoke-sheet.png" &&
+               lv.spriteTileW == 24 && lv.spriteTileH == 40,
+               "sprite sheet and tile size persisted");
+        expect(lv.spriteRotate == 2 &&
+               std::abs(lv.spriteFreeAngle - 90.0) < 0.001 &&
+               lv.spriteFlip == 3 &&
+               std::abs(lv.spriteJitter - 0.55) < 0.001 &&
+               std::abs(lv.spriteChaos - 0.88) < 0.001,
+               "sprite rotate/flip/jitter/chaos persisted");
         expect(loadedCue.motionDriverPath == "smoke-driver.mp4" &&
                std::abs(loadedCue.motionDriverSpeed - 1.75f) < 0.01f &&
                loadedCue.motionDriverPaused,
