@@ -2499,8 +2499,6 @@
     return fs::path(cue.videoSynth.spriteSheetPath).filename().string();
   }
 
-  // Step through the installed sets. Wraps back to none so a set can be turned
-  // off without opening a file dialog.
   // The two text-valued text-mode settings. Both go through the inline editor
   // rather than a dropdown because the whole point of them is that the
   // operator supplies characters nobody anticipated -- a band's initials, a
@@ -2541,6 +2539,8 @@
                          });
   }
 
+  // Step through the installed sets. Wraps back to none so a set can be turned
+  // off without opening a file dialog.
   void cycleSpriteSet(int direction) {
     Cue* cue = selectedVideoSynthCueMutable();
     if (!cue) return;
