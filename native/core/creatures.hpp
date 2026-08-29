@@ -42,6 +42,12 @@ enum class Species : std::uint8_t {
   Fish,      // drifts in open space, turns lazily
   Firefly,   // wanders slowly and blinks
   Cat,       // sleeps in a corner, stretches, resettles
+  Snail,     // crawls the ledge slowly, shell on its back
+  Spider,    // drops on a thread from above, climbs back up
+  Mouse,     // darts along the bottom, FREEZES, darts again
+  Frog,      // sits, then hops in an arc
+  Jellyfish, // pulses upward, then sinks while it rests
+  Bird,      // hops along the ledge and turns its head
   Count
 };
 
@@ -51,8 +57,14 @@ inline const char* speciesToken(Species s) {
     case Species::Crab:    return "crab";
     case Species::Fish:    return "fish";
     case Species::Firefly: return "firefly";
-    case Species::Cat:     return "cat";
-    default:               return "moth";
+    case Species::Cat:       return "cat";
+    case Species::Snail:     return "snail";
+    case Species::Spider:    return "spider";
+    case Species::Mouse:     return "mouse";
+    case Species::Frog:      return "frog";
+    case Species::Jellyfish: return "jellyfish";
+    case Species::Bird:      return "bird";
+    default:                 return "moth";
   }
 }
 
@@ -114,6 +126,26 @@ inline void place(Creature& c, const Habitat& home, std::uint32_t seed) {
       c.x = home.x + rx * std::max(1, home.w);
       c.y = home.y + home.h - 4.0;
       c.vx = c.facing * (10.0 + ry * 14.0);
+      break;
+    case Species::Snail:
+    case Species::Mouse:
+    case Species::Frog:
+    case Species::Bird:
+      // Ground dwellers start ON the floor, not hovering above it.
+      c.x = home.x + rx * std::max(1, home.w);
+      c.y = home.y + home.h - 8.0;
+      c.vx = c.facing * (c.species == Species::Snail ? 3.0 : 20.0 + ry * 20.0);
+      break;
+    case Species::Spider:
+      // Hangs from the top edge; the thread pays out from where it started.
+      c.x = home.x + 20.0 + rx * std::max(1.0, home.w - 40.0);
+      c.y = home.y + 6.0;
+      c.restUntil = ry * 6.0;
+      break;
+    case Species::Jellyfish:
+      c.x = home.x + rx * std::max(1, home.w);
+      c.y = home.y + ry * std::max(1, home.h);
+      c.vy = -6.0;
       break;
     case Species::Cat:
       // Cats pick a corner and stay in it.
@@ -191,6 +223,85 @@ inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
         c.y = bottom - 2.0;
         c.vy = 0.0;
         break;
+      case Species::Snail:
+        // Slow enough that you only notice it moved by looking twice, which
+        // is the entire joke.
+        c.y = bottom;
+        c.vy = 0.0;
+        if (c.vx == 0.0) c.vx = c.facing * 3.0;
+        break;
+      case Species::Mouse: {
+        // Dart, FREEZE, dart. A mouse that moved steadily would read as a
+        // beetle; the stillness between runs is what makes it a mouse.
+        c.y = bottom;
+        c.vy = 0.0;
+        if (now < c.restUntil) {
+          c.vx = 0.0;
+        } else if (c.vx == 0.0) {
+          c.facing = hash01(static_cast<std::uint32_t>(now * 9.0) + 5u) < 0.5 ? -1.0 : 1.0;
+          c.vx = c.facing * (52.0 + hash01(static_cast<std::uint32_t>(now * 11.0)) * 34.0);
+        } else if (hash01(static_cast<std::uint32_t>(now * 6.0) +
+                          static_cast<std::uint32_t>(c.phase * 71)) > 0.97) {
+          c.restUntil = now + 0.6 + hash01(static_cast<std::uint32_t>(now * 3.0)) * 2.0;
+          c.vx = 0.0;
+        }
+        break;
+      }
+      case Species::Frog: {
+        // Sits, then leaves the ground entirely. The arc is real gravity, so
+        // the landing is not a guess.
+        const bool airborne = c.y < bottom - 0.5;
+        if (airborne) {
+          c.vy += 220.0 * dt;
+        } else if (now < c.restUntil) {
+          c.vx = 0.0;
+          c.vy = 0.0;
+          c.y = bottom;
+        } else {
+          c.facing = hash01(static_cast<std::uint32_t>(now * 8.0) + 23u) < 0.5 ? -1.0 : 1.0;
+          c.vx = c.facing * 34.0;
+          c.vy = -78.0;
+          c.restUntil = now + 1.6 + hash01(static_cast<std::uint32_t>(now * 5.0)) * 3.0;
+        }
+        break;
+      }
+      case Species::Jellyfish:
+        // Pulse up, sink back. The rest is longer than the push, which is why
+        // it drifts downward overall and has to keep swimming.
+        c.blink = 0.5 + 0.5 * std::sin(now * 1.1 + c.phase);
+        c.vy = c.blink > 0.8 ? -14.0 : 5.0;
+        c.vx = std::sin(now * 0.3 + c.phase) * 4.0;
+        break;
+      case Species::Spider:
+        // Down the thread and back up it, pausing at the bottom.
+        if (now < c.restUntil) {
+          c.vy = 0.0;
+        } else {
+          const double swing = std::sin(now * 0.4 + c.phase);
+          c.vy = swing > 0.0 ? 11.0 : -11.0;
+          if (swing > 0.0 && c.y > bottom - 30.0 &&
+              hash01(static_cast<std::uint32_t>(now * 5.0)) > 0.98) {
+            c.restUntil = now + 1.0 + hash01(static_cast<std::uint32_t>(now * 7.0)) * 2.0;
+          }
+        }
+        c.vx = std::sin(now * 0.7 + c.phase) * 2.0;
+        break;
+      case Species::Bird: {
+        // Hops rather than walks, and stops to look around.
+        c.y = bottom;
+        c.vy = 0.0;
+        if (now < c.restUntil) {
+          c.vx = 0.0;
+        } else if (c.vx == 0.0) {
+          c.facing = hash01(static_cast<std::uint32_t>(now * 7.0) + 31u) < 0.5 ? -1.0 : 1.0;
+          c.vx = c.facing * 26.0;
+        } else if (hash01(static_cast<std::uint32_t>(now * 5.0) +
+                          static_cast<std::uint32_t>(c.phase * 43)) > 0.975) {
+          c.restUntil = now + 1.2 + hash01(static_cast<std::uint32_t>(now * 4.0)) * 2.5;
+          c.vx = 0.0;
+        }
+        break;
+      }
       case Species::Cat:
         // Asleep, mostly. The stretch is the whole performance.
         c.vx = 0.0;
