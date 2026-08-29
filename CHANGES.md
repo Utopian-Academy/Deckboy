@@ -75,6 +75,39 @@ is a global preference, not a control over the current theme. Hidden, an
 operator on the default look could not find the switch to decide about them
 before changing theme, and a setting that appears and disappears while you
 browse themes is worse than one that is simply always there.
+
+### The video synth was drawing every 4K frame twice
+
+It renders internally at a divisor of the output -- 384x216 for a 4K raster --
+and was then nearest-upscaling that back to 3840x2160 on one thread before
+handing it over, only for the compositor to scale it again on its way to the
+screen. The frame now leaves at the size it was rendered and the compositor's
+scaler does the enlargement on the GPU, where it was always going to happen.
+**38.2fps to 60.0**, and the picture is structurally identical.
+
+Text mode is the exception and still emits at full size: its glyphs are drawn
+at output resolution on purpose, and it is the one case where upscaling would
+show.
+
+### Text mode takes your own characters and your own words
+
+Two settings on the video synth, next to the glyph set:
+
+- **custom glyphs** -- the characters the picture is built from, darkest
+  first. Two characters gives you binary rain; a word gives you that word as
+  texture; box-drawing pieces give you something that looks like a schematic.
+  Empty keeps whichever built-in set is chosen.
+- **phrases** -- words separated by `|`, one showing at a time, landing in a
+  new place each time it moves. **phrase hold** sets how long each one stays,
+  and zero hides them without losing the list.
+
+The corruption still eats them when it lands on their row, which is correct: a
+terminal that can be corrupted can be corrupted while it is saying something.
+
+`ASCII ON|OFF|TOGGLE | GLYPHS <chars> | PHRASES <a|b|c> | HOLD <seconds>` over
+the wire, so a control surface can drive all of it. Text mode itself had no
+remote verb at all until now -- the one mode an operator most wants to flip
+mid-set could only be reached by clicking.
 ---
 
 ## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)

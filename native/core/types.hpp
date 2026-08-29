@@ -181,6 +181,22 @@ struct VideoSynthSettings {
   // repeatable and stays put when the show is reopened.
   int asciiShuffle = 0;            // 0 = ordered by density
 
+  // YOUR OWN GLYPHS. When this is not empty the grid is built from exactly
+  // these characters, in the order given, mapped darkest-to-brightest. Two
+  // characters is a legitimate answer and so is thirty; a set of "01" gives
+  // falling code, ". o O @" gives a dot ramp, and a single character gives a
+  // field of that character at varying ink.
+  std::string asciiGlyphs;
+
+  // PHRASES woven into the field. Separated by |, one shown at a time, moving
+  // to a new place every few seconds. The point is words surfacing out of
+  // noise and sinking back, which is a thing text mode could suggest but not
+  // do -- until now it could only ever say what the picture's brightness said.
+  std::string asciiPhrases;
+  // Seconds each phrase holds its place before moving. 0 turns them off even
+  // when phrases are set, so an operator can mute them without losing them.
+  double asciiPhraseHold = 2.5;
+
   // Ink colour. The old on/off green toggle only offered two of these.
   //   0 picture   colour sampled from the image, 16-colour quantised
   //   1 green     terminal phosphor
@@ -1399,6 +1415,7 @@ enum class QuickAction {
   VsAsciiToggle,   VsAsciiColsDec, VsAsciiColsInc,
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
+  VsAsciiGlyphsEdit, VsAsciiPhrasesEdit, VsAsciiHoldDec, VsAsciiHoldInc,
   SynthKeyboardToggle, SynthMidiToggle,
   SynthCycleTuning, SynthRefDec, SynthRefInc,
   VsSheetPick, VsSheetClear,

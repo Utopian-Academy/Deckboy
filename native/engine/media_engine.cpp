@@ -2034,10 +2034,58 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
     // edges stay crisp -- rendering them small and scaling up would blur the
     // one thing the look depends on.
+    // Worked out ONCE per frame rather than per cell: eight thousand cells
+    // parsing the same two strings would be the most expensive thing in the
+    // mode.
+    std::vector<int> customGlyphs;
+    for (char ch : vs.asciiGlyphs) {
+      const int gi = static_cast<int>(static_cast<unsigned char>(ch)) - 32;
+      if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
+    }
+    // Which phrase is showing, and where. It moves on a slow clock and lands
+    // somewhere derived from that clock, so it is repeatable rather than
+    // jittering to a new place every frame.
+    std::string phraseText;
+    int phraseRow = -1, phraseCol = 0, phraseLen = 0;
+    if (!vs.asciiPhrases.empty() && vs.asciiPhraseHold > 0.01) {
+      std::vector<std::string> phrases;
+      std::size_t at = 0;
+      while (at <= vs.asciiPhrases.size()) {
+        const std::size_t bar = vs.asciiPhrases.find('|', at);
+        std::string one = vs.asciiPhrases.substr(
+          at, bar == std::string::npos ? std::string::npos : bar - at);
+        while (!one.empty() && one.front() == ' ') one.erase(one.begin());
+        while (!one.empty() && one.back() == ' ') one.pop_back();
+        if (!one.empty()) phrases.push_back(one);
+        if (bar == std::string::npos) break;
+        at = bar + 1;
+      }
+      if (!phrases.empty()) {
+        const double seconds = static_cast<double>(displayFrameSerial_) / 60.0;
+        const std::uint64_t slot =
+          static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
+        std::uint32_t h = static_cast<std::uint32_t>(slot * 2654435761u);
+        h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+        phraseText = phrases[h % phrases.size()];
+        phraseLen = static_cast<int>(phraseText.size());
+      }
+    }
     const int cols = std::clamp(vs.asciiCols, 20, 200);
     const int cellW = std::max(3, outW / cols);
     const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
     const int rows = std::max(1, outH / cellH);
+    if (phraseLen > 0) {
+      const double seconds = static_cast<double>(displayFrameSerial_) / 60.0;
+      const std::uint64_t slot =
+        static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
+      std::uint32_t p = static_cast<std::uint32_t>(slot * 40503u + 17u);
+      p ^= p >> 11; p *= 2654435761u; p ^= p >> 15;
+      phraseRow = static_cast<int>(p % static_cast<std::uint32_t>(std::max(1, rows)));
+      const int room = std::max(1, cols - phraseLen);
+      phraseCol = static_cast<int>((p >> 8) % static_cast<std::uint32_t>(room));
+      // A phrase wider than the grid would wrap into nonsense; clip it.
+      phraseLen = std::min(phraseLen, cols - phraseCol);
+    }
     std::uint32_t cseed = static_cast<std::uint32_t>(displayFrameSerial_ * 2246822519u) | 1u;
     auto crnd = [&cseed]() {
       cseed ^= cseed << 13; cseed ^= cseed >> 17; cseed ^= cseed << 5;
@@ -2118,6 +2166,29 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                                        vs.asciiShuffle * 40503u);
           h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
           rampIndex = static_cast<int>(h % static_cast<std::uint32_t>(setCount));
+        }
+        // YOUR OWN GLYPHS, if any were given. The ASCII table is stored in
+        // character order starting at space, so a character maps to a glyph
+        // by subtraction and no lookup table is needed.
+        if (!customGlyphs.empty()) {
+          const int slot = std::clamp(
+            (luma * (static_cast<int>(customGlyphs.size()) - 1)) / 255,
+            0, static_cast<int>(customGlyphs.size()) - 1);
+          set = kCellAsciiFull;
+          setCount = kCellAsciiFullCount;
+          rampIndex = customGlyphs[static_cast<std::size_t>(slot)];
+        }
+        // A PHRASE, if one is showing and this cell is inside it. Overrides
+        // whatever the brightness chose, because the word is the point.
+        if (phraseLen > 0 && cy == phraseRow &&
+            cx >= phraseCol && cx < phraseCol + phraseLen) {
+          const char ch = phraseText[static_cast<std::size_t>(cx - phraseCol)];
+          const int gi = static_cast<int>(ch) - 32;
+          if (gi >= 0 && gi < kCellAsciiFullCount) {
+            set = kCellAsciiFull;
+            setCount = kCellAsciiFullCount;
+            rampIndex = gi;
+          }
         }
         const std::uint8_t* glyph = set[rampIndex];
 
@@ -2364,6 +2435,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
       renderCellRows(0, std::min(rows, cspan));
       for (std::thread& t : cpool) t.join();
     }
+  } else if (emitSmall) {
+    // Straight out, at the size it was rendered. One 330KB copy instead of a
+    // 33MB upscale, and the scaling happens on the GPU where it is free.
+    std::memcpy(frame.pixels.data(), small.data(), frameBytes);
   } else {
     // Nearest-neighbour upscale. Deliberately not interpolated: soft edges
     // would undo the posterisation and the hard shapes the look depends on.

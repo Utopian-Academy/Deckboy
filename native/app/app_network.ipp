@@ -450,6 +450,7 @@
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
+        "text mode: ASCII GLYPHS <chars> | ASCII PHRASES <a|b|c> | ASCII HOLD <s>\n"
         "record: RECORD [on|off|toggle]  (same action as the RECORD button on the bar)\n"
         "        RECFORMAT <WxH|program> [fps|program]  (recording standard + rate)\n"
         "        RECCODEC <h264|hevc|prores_lt|prores_422|prores_hq|prores_4444|dnxhr_lb|dnxhr_sq|dnxhr_hq|dnxhr_hqx>\n"
