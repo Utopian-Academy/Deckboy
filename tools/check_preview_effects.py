@@ -213,6 +213,29 @@ def capture(exe, root, port, shot, seek, script):
         log.close()
 
 
+MONITOR_W = 140          # the width monitor_pixels() scales to
+MONITOR_H = 68
+
+
+def edge_energy(pixels, width):
+    """Total absolute horizontal + vertical gradient across the monitor.
+
+    A smear removes detail without moving the local average, which a per-pixel
+    difference cannot see. This can: softening the picture drops this number,
+    sharpening raises it.
+    """
+    rows = len(pixels) // width
+    total = 0
+    for y in range(rows - 1):
+        row = y * width
+        nxt = row + width
+        for x in range(width - 1):
+            here = pixels[row + x]
+            total += abs(here - pixels[row + x + 1])
+            total += abs(here - pixels[nxt + x])
+    return total
+
+
 def monitor_pixels(path):
     """The program-monitor region, greyscale, as raw bytes.
 
@@ -252,8 +275,27 @@ def main():
     media = args.media
     if not media:
         media = os.path.join(work, "pattern.mp4")
-        subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i",
-                        "testsrc2=size=1280x720:rate=30:duration=12",
+        # ONE frame, held for the whole clip, with BOTH kinds of content in it.
+        #
+        # No single source suits every effect, and swapping between them only
+        # moves which ones go quiet — measured both ways round. testsrc2 is
+        # mostly large flat fields, so anything acting on EDGES (caustics
+        # displacing by a surface slope, grain flow stroking along the grain)
+        # barely moves it. A fractal is the opposite: all structure and no flat
+        # colour, which is where the colour effects went quiet instead. So the
+        # frame is half of each.
+        #
+        # And it is a single frame repeated, so the comparison no longer depends
+        # on where in the clip the seek happened to land. That dependence was
+        # never worth having in a check.
+        still = os.path.join(work, "still.png")
+        subprocess.run(["ffmpeg", "-y", "-v", "error",
+                        "-f", "lavfi", "-i", "mandelbrot=size=640x720:rate=1",
+                        "-f", "lavfi", "-i", "testsrc2=size=640x720:rate=1",
+                        "-filter_complex", "[0:v][1:v]hstack=2",
+                        "-frames:v", "1", still], check=True)
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-loop", "1",
+                        "-i", still, "-t", "12", "-r", "30",
                         "-c:v", "libx264", "-pix_fmt", "yuv420p", media],
                        check=True)
     media = os.path.abspath(media)
@@ -287,10 +329,27 @@ def main():
             continue
         changed = sum(1 for a, b in zip(base, shot_px) if abs(a - b) > 16)
         pct = 100.0 * changed / len(base)
-        # 1% of the monitor is well clear of the noise on a paused picture, and
-        # low enough to catch the subtle ones (grain, scanlines).
-        results.append((token, "ok" if pct >= 1.0 else "NO CHANGE",
-                        "%.1f%% of the monitor differs" % pct))
+        # A SECOND measure, because the first one is structurally blind to a
+        # whole class of effect.
+        #
+        # Counting differing pixels cannot see a SMEAR. Blurring or stroking
+        # along a feature preserves the local average almost exactly, so grain
+        # flow reported 0.8% while visibly softening the picture. What a smear
+        # unmistakably does is remove high-frequency energy -- so this also
+        # measures the total edge energy in the monitor and treats a big move in
+        # EITHER as the effect having arrived.
+        detail = "%.1f%% of the monitor differs" % pct
+        arrived = pct >= 1.0
+        if not arrived:
+            sharp_base = edge_energy(base, MONITOR_W)
+            sharp_shot = edge_energy(shot_px, MONITOR_W)
+            if sharp_base > 0:
+                delta = 100.0 * abs(sharp_shot - sharp_base) / sharp_base
+                if delta >= 8.0:
+                    arrived = True
+                detail = "%s, edge energy %+.0f%%" % (
+                    detail, 100.0 * (sharp_shot - sharp_base) / sharp_base)
+        results.append((token, "ok" if arrived else "NO CHANGE", detail))
 
     if args.keep:
         print("\nscreenshots kept in %s" % work)
