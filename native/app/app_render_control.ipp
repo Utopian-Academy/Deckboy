@@ -930,6 +930,8 @@
     renderDropdownPopover();
     renderShortcutsOverlay();
     renderInlineTextEditor();
+    // Last, and over everything: it is modal.
+    renderCodeEditor();
     renderSplashOverlay();
     if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
       int ww, wh;

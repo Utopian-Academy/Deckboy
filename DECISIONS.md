@@ -136,6 +136,10 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D108 | Motion puppetry gained memory, and memory 0 is the old behaviour | **JAMES** | 2026-08-28. He asked to "increase the depth of the motion puppetry". A spring and an accumulator make the displacement build and settle instead of tracking one frame's vectors, and paramB = 0 -- what every existing show carries -- returns the raw per-frame field exactly as before. |
 | D109 | A UI signal is not built until it has been SEEN | **CLAUDE** | 2026-08-28. The VJ window frame was drawn after SDL_RenderPresent and had never appeared; the bar overflowed its column; the fader readout was the same ink as the fader handle. All three passed every automated check and all three were found by screenshotting the running app and looking at it. Anything whose purpose is to be noticed gets looked at before it is called done. |
 | D110 | A still re-renders only for effects that actually animate | **CLAUDE** | 2026-08-28. Re-running the stack on every still would cost a full-raster grade and effect pass per frame for cues that do not need one. The stack reports whether anything in it advances, and only those stills pay. Video keeps following the SOURCE frame index so a recording stays reproducible -- the app frame counter drives only the stills, which have no frame progression of their own to offer. |
+| D111 | The code source gets a real editor, not a value row | **JAMES** | 2026-08-29. "code source needs a much bigger better field for entery with colours and helpers for syntax. also examples could use a picker." An expression is a program: it needs room, a caret you can place, colour that distinguishes a function from a typo, and the list of what you can use. A one-line ellipsized field is the right widget for a number and the wrong one for this. |
+| D112 | Syntax colour is fixed, not themed | **CLAUDE** | 2026-08-29. Every other surface takes its colours from the theme; this one must not. The colour IS the meaning, and eight roles that shifted per colourway would say something different in each theme and could not be held legible across all 25 OLED terminals. The field is its own dark well, the same call the boot console makes. |
+| D113 | The highlighter reads the compiler's own tables | **CLAUDE** | 2026-08-29. deckboy::code::highlight() resolves names through varSlot and functionOp, the same functions compileExpression uses. A highlighter with its own copy of the list is wrong the first time either changes, and "shown in red" has to mean exactly "the compiler will refuse this". |
+| D114 | A friend explains the syntax | **JAMES** | 2026-08-29. "a little friend who helps explain the coding syntax would be cute too." The startup mascot, in the editor, saying what the name under the pointer does — and the compile error when there is one. A reference table is the same information with nobody attached to it. |
 
 ---
 
@@ -149,6 +153,18 @@ release to land in.
   works; this is the same warmth spread across the whole interface rather than
   one panel of it. Theme-level, so it stays a DATA contract and never becomes a
   renderer hack.
+
+- **An LFO per parameter, switchable on, the way Resolume Arena does it**
+  (asked 2026-08-29). Any effect parameter -- and "other relevant parameters"
+  -- can be handed to a low-frequency oscillator instead of a fixed value.
+  Shape, rate and depth per parameter, and the rate wants to be able to follow
+  the VJ tempo rather than being its own free-running number, since the tempo
+  is already there. This is the piece that turns the effect stack from
+  something you SET into something that moves on its own.
+
+- **Half a dozen more effects nobody else has** (asked 2026-08-29, softly:
+  "i'd almost want to ask"). Treated as wanted rather than requested until he
+  says so.
 
 ## Open questions awaiting the owner
 

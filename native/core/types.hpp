@@ -1312,8 +1312,10 @@ enum class QuickAction {
   EffectParamDDec,
   EffectParamDInc,
   EffectParamDEdit,
-  CodeEditExpression,
-  CodeCycleExample,
+  CodeOpenEditor,
+  // CodeEditExpression and CodeCycleExample removed 2026-08-29: the one-line
+  // value field and the cycle button were both replaced by the code editor,
+  // which does what each of them did and can be seen while doing it.
   CueSectionCodeToggle,
   VjCycleBlend,
   VjTapTempo,

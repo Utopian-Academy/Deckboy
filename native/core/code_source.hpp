@@ -282,6 +282,133 @@ inline bool compileExpression(const std::string& source, Program& out,
 // Compile "rExpr, gExpr, bExpr". One expression is allowed and drives all
 // three channels, because a greyscale field is the most common thing anyone
 // types first and asking for it three times is a poor welcome.
+// ---------------------------------------------------------------------------
+// Showing the language, as opposed to running it.
+//
+// The editor has to colour what has been typed and to offer a list of what
+// there is to type. Both need the same tables the COMPILER uses, and a
+// highlighter that keeps its own copy is one that is wrong the first time
+// either list changes -- so both read from here, and a name shown as "unknown"
+// is exactly one the compiler will refuse.
+// ---------------------------------------------------------------------------
+
+enum class Syntax {
+  Space,
+  Number,
+  Variable,     // x y cx cy r a t, and pi
+  Function,     // sin, clamp, mix ...
+  Operator,
+  Bracket,
+  Comma,        // the channel separator: worth its own colour
+  Unknown,      // a name the compiler will reject
+};
+
+struct SyntaxRun {
+  std::size_t begin = 0;
+  std::size_t end = 0;      // one past the last byte
+  Syntax kind = Syntax::Space;
+};
+
+// What an operator can put in, as a list to click rather than a syntax to
+// recall. Each carries the plain-language hint that goes with it.
+struct LanguageEntry {
+  const char* name;
+  const char* hint;
+  bool callable;            // insert with brackets, caret left inside them
+};
+
+inline const std::vector<LanguageEntry>& languageVariables() {
+  static const std::vector<LanguageEntry> kVars = {
+    {"x",  "across the frame, 0 at the left, 1 at the right", false},
+    {"y",  "down the frame, 0 at the top, 1 at the bottom", false},
+    {"cx", "across from the centre, -1 to 1", false},
+    {"cy", "down from the centre, -1 to 1", false},
+    {"r",  "distance from the centre", false},
+    {"a",  "angle from the centre, in radians", false},
+    {"t",  "seconds since the cue was taken", false},
+    {"pi", "3.14159...  half a turn, in radians", false},
+  };
+  return kVars;
+}
+
+inline const std::vector<LanguageEntry>& languageFunctions() {
+  static const std::vector<LanguageEntry> kFns = {
+    {"sin",   "a wave, -1 to 1", true},
+    {"cos",   "a wave, a quarter turn ahead of sin", true},
+    {"tan",   "steep near a quarter turn", true},
+    {"abs",   "drop the sign", true},
+    {"floor", "round down to a whole number", true},
+    {"fract", "only the fractional part: a sawtooth", true},
+    {"sqrt",  "square root", true},
+    {"min",   "the smaller of two", true},
+    {"max",   "the larger of two", true},
+    {"mod",   "remainder: makes a range repeat", true},
+    {"pow",   "raise to a power", true},
+    {"atan2", "the angle of a direction", true},
+    {"step",  "0 below the edge, 1 above it", true},
+    {"clamp", "hold a value between two others", true},
+    {"mix",   "blend between two, by a third", true},
+  };
+  return kFns;
+}
+
+// Whitespace, by code point rather than as escapes. Written this way after a
+// tool ate the backslashes on the way into this file and left the test
+// comparing against a real tab and a real newline, which is an unterminated
+// character constant. By value there is nothing left to mangle.
+inline bool isSpaceChar(char c) {
+  return c == ' ' || c == 0x09 || c == 0x0A || c == 0x0D;
+}
+
+// Every run in the source, in order, covering it completely so a caller can
+// walk this and draw. Never fails: a character the compiler would reject comes
+// back as Unknown rather than stopping the walk, because the whole point is to
+// colour text that is still being typed and is therefore usually invalid.
+inline std::vector<SyntaxRun> highlight(const std::string& src) {
+  std::vector<SyntaxRun> runs;
+  auto push = [&runs](std::size_t begin, std::size_t end, Syntax kind) {
+    if (end > begin) runs.push_back({begin, end, kind});
+  };
+  std::size_t i = 0;
+  while (i < src.size()) {
+    const char c = src[i];
+    const std::size_t start = i;
+    if (isSpaceChar(c)) {
+      while (i < src.size() && isSpaceChar(src[i])) ++i;
+      push(start, i, Syntax::Space);
+    } else if ((c >= '0' && c <= '9') || c == '.') {
+      while (i < src.size() && ((src[i] >= '0' && src[i] <= '9') ||
+                                src[i] == '.')) ++i;
+      push(start, i, Syntax::Number);
+    } else if (detail::isNameChar(c)) {
+      while (i < src.size() && detail::isNameChar(src[i])) ++i;
+      const std::string name = src.substr(start, i - start);
+      Op op = Op::Add;
+      int args = 0;
+      Syntax kind = Syntax::Unknown;
+      if (detail::varSlot(name) >= 0 || name == "pi") {
+        kind = Syntax::Variable;
+      } else if (detail::functionOp(name, op, args)) {
+        kind = Syntax::Function;
+      }
+      push(start, i, kind);
+    } else if (c == '(' || c == ')') {
+      ++i;
+      push(start, i, Syntax::Bracket);
+    } else if (c == ',') {
+      ++i;
+      push(start, i, Syntax::Comma);
+    } else if (std::string("+-*/%^<>").find(c) != std::string::npos) {
+      ++i;
+      push(start, i, Syntax::Operator);
+    } else {
+      ++i;
+      push(start, i, Syntax::Unknown);
+    }
+  }
+  return runs;
+}
+
 inline CompiledSource compile(const std::string& source) {
   CompiledSource compiled;
   std::vector<std::string> parts;

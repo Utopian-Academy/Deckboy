@@ -249,7 +249,11 @@
           break;
         case SDL_EVENT_TEXT_INPUT:
           if (event.text.windowID == SDL_GetWindowID(controlWindow_)) {
-            handleInlineTextEditorTextInput(event.text.text);
+            if (codeEditorOpen()) {
+              handleCodeEditorTextInput(event.text.text);
+            } else {
+              handleInlineTextEditorTextInput(event.text.text);
+            }
           }
           break;
         case SDL_EVENT_DISPLAY_ADDED:
