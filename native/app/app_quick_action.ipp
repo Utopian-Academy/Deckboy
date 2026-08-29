@@ -437,6 +437,14 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsAsciiGlyphsEdit: editAsciiGlyphs(); break;
+      case QuickAction::VsAsciiPhrasesEdit: editAsciiPhrases(); break;
+      case QuickAction::VsAsciiHoldDec:
+        adjustVs(&VideoSynthSettings::asciiPhraseHold, -0.5, 0.0, 60.0, "phrase hold");
+        break;
+      case QuickAction::VsAsciiHoldInc:
+        adjustVs(&VideoSynthSettings::asciiPhraseHold, 0.5, 0.0, 60.0, "phrase hold");
+        break;
       case QuickAction::VsSpriteSetPrev: cycleSpriteSet(-1); break;
       case QuickAction::VsSpriteSetNext: cycleSpriteSet(1); break;
       case QuickAction::VsRotateCycle:
