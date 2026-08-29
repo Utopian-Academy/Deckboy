@@ -4390,49 +4390,66 @@ Project loadProject(const fs::path& projectFile,
           std::clamp(safeInt(fields, tb + 38, 2), 0, 3));
         cue.tone.synth.nesNoiseShort = safeBool(fields, tb + 39, false);
         cue.tone.synth.nesQuantise = safeBool(fields, tb + 40, true);
-        cue.tone.synth.tuning = static_cast<SynthTuning>(
-          std::clamp(safeInt(fields, tb + 64, 0), 0, 6));
-        cue.tone.synth.referenceHz =
-          std::clamp(safeDouble(fields, tb + 65, 440.0), 380.0, 480.0);
+        // WHERE THE SAVER PUTS THEM. These two are written mid-record, right
+        // after the NES flags, but were read from tb+64/65 as though they had
+        // been appended after the video-synth block. The result was a
+        // two-column skew across every video-synth field from shape to
+        // spriteTileH: text mode came back holding the pixel-sort value, the
+        // sprite path came back holding the glyph shuffle seed, and a saved
+        // reference pitch came back as a sprite tile height.
+        //
+        // A show written before these fields existed has neither column, so
+        // the layout is DETECTED rather than assumed: in the older record the
+        // reference-pitch column holds videoSynth.palette, an int 0-4, and a
+        // reference pitch is 380-480. Nothing overlaps, so one comparison
+        // separates them, and every offset below hangs off the result.
+        const bool hasSynthTuning = safeDouble(fields, tb + 42, 0.0) >= 100.0;
+        const std::size_t vs = hasSynthTuning ? tb + 43 : tb + 41;
+        if (hasSynthTuning) {
+          cue.tone.synth.tuning = static_cast<SynthTuning>(
+            std::clamp(safeInt(fields, tb + 41, 0), 0, 6));
+          cue.tone.synth.referenceHz =
+            std::clamp(safeDouble(fields, tb + 42, 440.0), 380.0, 480.0);
+        }
         // Video synth. Written at the same time as the feature rather than
         // discovered missing on reload, which is how the last three went.
         cue.videoSynth.shape = static_cast<VideoSynthShape>(
-          std::clamp(safeInt(fields, tb + 41, 0), 0, 4));
+          std::clamp(safeInt(fields, vs + 0, 0), 0, 4));
         cue.videoSynth.mirror = static_cast<VideoSynthMirror>(
-          std::clamp(safeInt(fields, tb + 42, 2), 0, 3));
+          std::clamp(safeInt(fields, vs + 1, 2), 0, 3));
         cue.videoSynth.palette = static_cast<VideoSynthPalette>(
-          std::clamp(safeInt(fields, tb + 43, 0), 0, 4));
-        cue.videoSynth.speed = std::clamp(safeDouble(fields, tb + 44, 1.0), 0.05, 8.0);
-        cue.videoSynth.scale = std::clamp(safeDouble(fields, tb + 45, 1.0), 0.1, 8.0);
-        cue.videoSynth.warp = std::clamp(safeDouble(fields, tb + 46, 0.35), 0.0, 2.0);
-        cue.videoSynth.feedbackAmount = std::clamp(safeDouble(fields, tb + 47, 0.55), 0.0, 0.95);
-        cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, tb + 48, 1.02), 0.90, 1.15);
-        cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, tb + 49, 0.6), -10.0, 10.0);
-        cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, tb + 50, 0.5), 0.0, 1.0);
-        cue.videoSynth.resolution = std::clamp(safeInt(fields, tb + 51, 2), 1, 5);
-        cue.videoSynth.pixelSort = std::clamp(safeDouble(fields, tb + 52, 0.0), 0.0, 1.0);
-        cue.videoSynth.glitch = std::clamp(safeDouble(fields, tb + 53, 0.0), 0.0, 1.0);
-        cue.videoSynth.ascii = safeBool(fields, tb + 54, false);
-        cue.videoSynth.asciiCols = std::clamp(safeInt(fields, tb + 55, 80), 20, 200);
-        cue.videoSynth.asciiGreen = safeBool(fields, tb + 56, true);
-        cue.videoSynth.crt = std::clamp(safeDouble(fields, tb + 57, 0.0), 0.0, 1.0);
-        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, tb + 58, 0), 0, 5);
-        cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, tb + 59, 0), 0, 8);
+          std::clamp(safeInt(fields, vs + 2, 0), 0, 4));
+        cue.videoSynth.speed = std::clamp(safeDouble(fields, vs + 3, 1.0), 0.05, 8.0);
+        cue.videoSynth.scale = std::clamp(safeDouble(fields, vs + 4, 1.0), 0.1, 8.0);
+        cue.videoSynth.warp = std::clamp(safeDouble(fields, vs + 5, 0.35), 0.0, 2.0);
+        cue.videoSynth.feedbackAmount = std::clamp(safeDouble(fields, vs + 6, 0.55), 0.0, 0.95);
+        cue.videoSynth.feedbackZoom = std::clamp(safeDouble(fields, vs + 7, 1.02), 0.90, 1.15);
+        cue.videoSynth.feedbackRotate = std::clamp(safeDouble(fields, vs + 8, 0.6), -10.0, 10.0);
+        cue.videoSynth.audioReactivity = std::clamp(safeDouble(fields, vs + 9, 0.5), 0.0, 1.0);
+        cue.videoSynth.resolution = std::clamp(safeInt(fields, vs + 10, 2), 1, 5);
+        cue.videoSynth.pixelSort = std::clamp(safeDouble(fields, vs + 11, 0.0), 0.0, 1.0);
+        cue.videoSynth.glitch = std::clamp(safeDouble(fields, vs + 12, 0.0), 0.0, 1.0);
+        cue.videoSynth.ascii = safeBool(fields, vs + 13, false);
+        cue.videoSynth.asciiCols = std::clamp(safeInt(fields, vs + 14, 80), 20, 200);
+        cue.videoSynth.asciiGreen = safeBool(fields, vs + 15, true);
+        cue.videoSynth.crt = std::clamp(safeDouble(fields, vs + 16, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiCharSet = std::clamp(safeInt(fields, vs + 17, 0), 0, 5);
+        cue.videoSynth.asciiShuffle = std::clamp(safeInt(fields, vs + 18, 0), 0, 8);
         // Older shows carry only the green boolean; map it onto the ink mode
         // so they reopen looking the way they were left.
         cue.videoSynth.asciiInk =
-          std::clamp(safeInt(fields, tb + 60, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
-        cue.videoSynth.spriteSheetPath = safeString(fields, tb + 61);
-        cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, tb + 62, 16), 8, 128);
-        cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, tb + 63, 16), 8, 128);
-        cue.videoSynth.spriteRotate = std::clamp(safeInt(fields, tb + 66, 0), 0, 5);
+          std::clamp(safeInt(fields, vs + 19, cue.videoSynth.asciiGreen ? 1 : 0), 0, 5);
+        cue.videoSynth.spriteSheetPath = safeString(fields, vs + 20);
+        cue.videoSynth.spriteTileW = std::clamp(safeInt(fields, vs + 21, 16), 8, 128);
+        cue.videoSynth.spriteTileH = std::clamp(safeInt(fields, vs + 22, 16), 8, 128);
+        cue.videoSynth.spriteRotate = std::clamp(safeInt(fields, vs + 23, 0), 0, 5);
         cue.videoSynth.spriteFreeAngle =
-          std::clamp(safeDouble(fields, tb + 67, 0.0), -720.0, 720.0);
-        cue.videoSynth.spriteFlip = std::clamp(safeInt(fields, tb + 68, 0), 0, 3);
+          std::clamp(safeDouble(fields, vs + 24, 0.0), -720.0, 720.0);
+        cue.videoSynth.spriteFlip = std::clamp(safeInt(fields, vs + 25, 0), 0, 3);
         cue.videoSynth.spriteJitter =
-          std::clamp(safeDouble(fields, tb + 69, 0.0), 0.0, 1.0);
+          std::clamp(safeDouble(fields, vs + 26, 0.0), 0.0, 1.0);
         cue.videoSynth.spriteChaos =
-          std::clamp(safeDouble(fields, tb + 70, 0.0), 0.0, 1.0);
+          std::clamp(safeDouble(fields, vs + 27, 0.0), 0.0, 1.0);
         // APPENDED, so they read from the END of the record — which is where
         // saveProject writes them. They were read from tb+22/tb+23 instead,
         // i.e. inserted into the MIDDLE, which silently shifted the loader's
@@ -4444,32 +4461,32 @@ Project loadProject(const fs::path& projectFile,
         //
         // Append new cue fields at the END and read them at the END. Inserting
         // mid-record corrupts everything downstream of the insertion.
-        cue.timer.logoPath          = safeString(fields, tb + 71);
-        cue.timer.logoHeightPercent = std::clamp(safeInt(fields, tb + 72, 18), 2, 40);
+        cue.timer.logoPath          = safeString(fields, vs + 28);
+        cue.timer.logoHeightPercent = std::clamp(safeInt(fields, vs + 29, 18), 2, 40);
         // At the END, per the warning above. Absent on every show saved before
         // effects existed, which safeString reports as empty and parses to an
         // empty stack -- so an old show simply has no effects, which is right.
-        cue.effects = parseCueEffects(safeString(fields, tb + 73));
-        cue.motionDriverPath = safeString(fields, tb + 74);
+        cue.effects = parseCueEffects(safeString(fields, vs + 30));
+        cue.motionDriverPath = safeString(fields, vs + 31);
         cue.motionDriverSpeed = std::clamp(
-          static_cast<float>(safeDouble(fields, tb + 75, 1.0)), 0.0f, 4.0f);
-        cue.motionDriverPaused = safeBool(fields, tb + 76, false);
-        cue.motionDriverRestartOnTake = safeBool(fields, tb + 77, true);
+          static_cast<float>(safeDouble(fields, vs + 32, 1.0)), 0.0f, 4.0f);
+        cue.motionDriverPaused = safeBool(fields, vs + 33, false);
+        cue.motionDriverRestartOnTake = safeBool(fields, vs + 34, true);
         // Appended after the motion driver. Absent on every older save, which
         // safeString reports as empty -- and an empty expression leaves the
         // cue's default in place rather than rendering black.
         {
-          const std::string expr = safeString(fields, tb + 78);
+          const std::string expr = safeString(fields, vs + 35);
           if (!expr.empty()) {
             cue.codeExpression = expr;
           }
         }
-        cue.videoSynth.asciiGlyphs = safeString(fields, tb + 79);
-        cue.videoSynth.asciiPhrases = safeString(fields, tb + 80);
+        cue.videoSynth.asciiGlyphs = safeString(fields, vs + 36);
+        cue.videoSynth.asciiPhrases = safeString(fields, vs + 37);
         // Absent on older shows, where safeDouble returns the default. 2.5s is
         // the pace a phrase can be read at before it moves.
         cue.videoSynth.asciiPhraseHold =
-          std::clamp(safeDouble(fields, tb + 81, 2.5), 0.0, 30.0);
+          std::clamp(safeDouble(fields, vs + 38, 2.5), 0.0, 60.0);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6813,82 +6830,12 @@ class App {
                      false, QuickAction::ToggleLoop,
                      static_cast<int>(NumericParam::VsCrt));
     rowY += ix.rowStep;
-    // Sheet picking sits OUTSIDE the text-mode gate. It was inside, so a
-    // sprite sheet could not be found without first toggling an unrelated
-    // control -- the same discoverability trap the chip synths had, and the
-    // owner hit it twice. Picking a sheet turns text mode on by itself.
-    inspDrawQuickRow(ix, rowY, "sprites", QuickAction::VsSpriteSetPrev,
-                     currentSpriteSetLabel(cue),
-                     QuickAction::VsSpriteSetNext, QuickAction::ToggleLoop,
-                     false, false,
-                     "Sprite sets installed in data/sprites. Each folder there "
-                     "is a set; cycling picks one and wraps back to none.");
-    rowY += ix.rowStep;
-    if (!v.spriteSheetPath.empty()) {
-      inspDrawQuickRow(ix, rowY, "rotate", QuickAction::VsRotateCycle,
-                       vsRotateLabel(v.spriteRotate),
-                       QuickAction::VsRotateCycle, QuickAction::ToggleLoop,
-                       false, false,
-                       "Quarter turns are exact and stay crisp. Spinning "
-                       "samples at an angle, which tears pixel art -- "
-                       "sometimes that is what you want.");
-      rowY += ix.rowStep;
-      if (v.spriteRotate == 5) {
-        inspDrawQuickRow(ix, rowY, "spin", QuickAction::VsFreeAngleDec,
-                         fmtFloat(v.spriteFreeAngle, 0) + " deg/s",
-                         QuickAction::VsFreeAngleInc, QuickAction::ToggleLoop,
-                         false, false, "Rotation speed, degrees per second.",
-                     false, QuickAction::ToggleLoop,
-                     static_cast<int>(NumericParam::VsFreeAngle));
-        rowY += ix.rowStep;
-      }
-      inspDrawQuickRow(ix, rowY, "flip", QuickAction::VsFlipCycle,
-                       vsFlipLabel(v.spriteFlip),
-                       QuickAction::VsFlipCycle, QuickAction::ToggleLoop,
-                       false, false,
-                       "Alternating mirrors by cell position, which reads as "
-                       "pattern where random flipping reads as noise.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "jitter", QuickAction::VsJitterDec,
-                       fmtFloat(v.spriteJitter, 2),
-                       QuickAction::VsJitterInc, QuickAction::ToggleLoop,
-                       false, false,
-                       "Vary tile size per cell, so the grid stops looking "
-                       "like a grid.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsChaosDec,
-                       fmtFloat(v.spriteChaos, 2),
-                       QuickAction::VsChaosInc, QuickAction::ToggleLoop,
-                       false, false,
-                       "0 picks tiles by brightness so the picture reads. 1 "
-                       "picks at random so the grid becomes texture.");
-      rowY += ix.rowStep;
-    }
-
-    inspDrawQuickRow(ix, rowY, "sheet", QuickAction::VsSheetPick,
-                     v.spriteSheetPath.empty()
-                       ? std::string("none")
-                       : fs::path(v.spriteSheetPath).filename().string(),
-                     QuickAction::VsSheetPick, QuickAction::VsSheetClear,
-                     false, false,
-                     "Load a sprite sheet and use its tiles as the alphabet. "
-                     "Tiles are picked by brightness like glyphs are. "
-                     "Right-click clears.");
-    rowY += ix.rowStep;
-    if (!v.spriteSheetPath.empty()) {
-      inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
-                       std::to_string(v.spriteTileW),
-                       QuickAction::VsTileWInc, QuickAction::ToggleLoop,
-                       false, false,
-                       "Tile width in pixels. Must match the sheet's grid or "
-                       "the slices land across neighbouring sprites.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
-                       std::to_string(v.spriteTileH),
-                       QuickAction::VsTileHInc, QuickAction::ToggleLoop,
-                       false, false, "Tile height in pixels.");
-      rowY += ix.rowStep;
-    }
+    // TEXT MODE FIRST, then sprites. It used to be the other way round, with
+    // seven sprite rows sitting between the CRT control and the character
+    // grid, so the text-mode settings landed at the very bottom of a
+    // twenty-five row section and the ones added last could not be found.
+    // Sprites are a text-mode ALPHABET -- picking a sheet switches the grid
+    // to it -- so they belong after the grid they draw into, not before it.
     inspDrawQuickRow(ix, rowY, "text mode", QuickAction::VsAsciiToggle,
                      v.ascii ? "on" : "off",
                      QuickAction::VsAsciiToggle, QuickAction::VsAsciiToggle,
@@ -6925,12 +6872,11 @@ class App {
                        "cyan are terminal phosphors. Palette locks the text to "
                        "whichever hardware palette is selected above.");
       rowY += ix.rowStep;
-      // Your own characters and your own words. These are the two settings
-      // that stop text mode looking like the same demo every time, so they
-      // live here next to the glyph set rather than being wire-only.
+      // Your own characters and your own words, immediately under the glyph
+      // set they replace.
       rowY = inspDrawActionRow(ix, rowY,
                                v.asciiGlyphs.empty()
-                                 ? std::string("custom glyphs: (set above)")
+                                 ? std::string("custom glyphs: (using the set above)")
                                  : "custom glyphs: " + v.asciiGlyphs,
                                QuickAction::VsAsciiGlyphsEdit,
                                "Build the picture from characters you choose, "
@@ -6957,6 +6903,85 @@ class App {
                          "hides them without losing the list.");
         rowY += ix.rowStep;
       }
+    }
+
+    // ONE sprite control, not two. There were two rows -- "sprites" cycling
+    // the sets in data/sprites, and "sheet" file-picking one -- both writing
+    // the same spriteSheetPath, both reading "none" until one was chosen, and
+    // separated by five rows that only exist once a sheet is loaded. So the
+    // row that turns sprites ON appeared BELOW the settings that configure
+    // them, and the two looked like duplicates of each other because they
+    // were.
+    //
+    // The value row cycles; loading an arbitrary file is a VERB and now looks
+    // like one. Both stay outside the text-mode gate: picking a sheet turns
+    // text mode on by itself, and hiding that behind an unrelated toggle was
+    // a discoverability trap the owner hit twice.
+    inspDrawQuickRow(ix, rowY, "sprites", QuickAction::VsSpriteSetPrev,
+                     currentSpriteSetLabel(cue),
+                     QuickAction::VsSpriteSetNext, QuickAction::VsSheetClear,
+                     false, false,
+                     "Sprite sets installed in data/sprites. Each folder there "
+                     "is a set; cycling picks one and wraps back to none. "
+                     "Right-click turns them off.");
+    rowY += ix.rowStep;
+    rowY = inspDrawActionRow(ix, rowY, "load a sprite sheet from a file...",
+                             QuickAction::VsSheetPick,
+                             "Any image laid out as a grid of tiles. Its tiles "
+                             "become the alphabet, picked by brightness the "
+                             "way glyphs are.",
+                             pal.dark, pal.light);
+    if (!v.spriteSheetPath.empty()) {
+      inspDrawQuickRow(ix, rowY, "tile w", QuickAction::VsTileWDec,
+                       std::to_string(v.spriteTileW),
+                       QuickAction::VsTileWInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Tile width in pixels. Must match the sheet's grid or "
+                       "the slices land across neighbouring sprites.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "tile h", QuickAction::VsTileHDec,
+                       std::to_string(v.spriteTileH),
+                       QuickAction::VsTileHInc, QuickAction::ToggleLoop,
+                       false, false, "Tile height in pixels.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "rotate", QuickAction::VsRotateCycle,
+                       vsRotateLabel(v.spriteRotate),
+                       QuickAction::VsRotateCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Quarter turns are exact and stay crisp. Spinning "
+                       "samples at an angle, which tears pixel art -- "
+                       "sometimes that is what you want.");
+      rowY += ix.rowStep;
+      if (v.spriteRotate == 5) {
+        inspDrawQuickRow(ix, rowY, "spin", QuickAction::VsFreeAngleDec,
+                         fmtFloat(v.spriteFreeAngle, 0) + " deg/s",
+                         QuickAction::VsFreeAngleInc, QuickAction::ToggleLoop,
+                         false, false, "Rotation speed, degrees per second.",
+                         false, QuickAction::ToggleLoop,
+                         static_cast<int>(NumericParam::VsFreeAngle));
+        rowY += ix.rowStep;
+      }
+      inspDrawQuickRow(ix, rowY, "flip", QuickAction::VsFlipCycle,
+                       vsFlipLabel(v.spriteFlip),
+                       QuickAction::VsFlipCycle, QuickAction::ToggleLoop,
+                       false, false,
+                       "Alternating mirrors by cell position, which reads as "
+                       "pattern where random flipping reads as noise.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "jitter", QuickAction::VsJitterDec,
+                       fmtFloat(v.spriteJitter, 2),
+                       QuickAction::VsJitterInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "Vary tile size per cell, so the grid stops looking "
+                       "like a grid.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsChaosDec,
+                       fmtFloat(v.spriteChaos, 2),
+                       QuickAction::VsChaosInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "0 picks tiles by brightness so the picture reads. 1 "
+                       "picks at random so the grid becomes texture.");
+      rowY += ix.rowStep;
     }
     return rowY;
   }
