@@ -1581,6 +1581,27 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
 
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                          double audioLevel) {
+  // DISPLAY RATE, not render-loop rate. The render loop runs to a 240 Hz
+  // floor; the synth was rebuilding on every tick of it, so three of every
+  // four frames were generated, uploaded and thrown away -- and each one
+  // built and joined a thread pool to do it. rebuildPatternFrame has had this
+  // gate for a long time; this function was written without it.
+  //
+  // A negative clock means "never built", which is the take path: it must
+  // always produce the first frame.
+  double vsRefreshHz = 60.0;
+  if (outputSizeProvider_) {
+    const OutputModeHint mode = outputSizeProvider_();
+    if (mode.refreshHz >= 1.0) {
+      vsRefreshHz = std::clamp(mode.refreshHz, 23.0, 240.0);
+    }
+  }
+  if (displayFrame_ && lastVsynthRebuildSeconds_ >= 0.0 &&
+      wallSeconds - lastVsynthRebuildSeconds_ < (1.0 / vsRefreshHz) * 0.98) {
+    return;
+  }
+  lastVsynthRebuildSeconds_ = wallSeconds;
+
   auto size = currentOutputSizeHint();
   const int outW = size.first;
   const int outH = size.second;
@@ -1826,21 +1847,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     unsigned hw = std::thread::hardware_concurrency();
     if (hw == 0) hw = 1;
     const int workers = std::max(1, std::min<int>(static_cast<int>(hw), std::max(1, H / 16)));
-    if (workers <= 1) {
-      renderRows(0, H);
-    } else {
-      std::vector<std::thread> pool;
-      pool.reserve(static_cast<std::size_t>(workers - 1));
-      const int span = (H + workers - 1) / workers;
-      for (int w = 1; w < workers; ++w) {
-        const int b = std::min(H, w * span);
-        const int e = std::min(H, b + span);
-        if (b >= e) break;
-        pool.emplace_back(renderRows, b, e);
-      }
-      renderRows(0, std::min(H, span));
-      for (std::thread& t : pool) t.join();
-    }
+    // 16 rows is the point where splitting pays for the wakeup. Below it the
+    // pool runs the whole range on this thread and costs nothing.
+    (void)workers;
+    vsynthWorkers_.run(H, 16, renderRows);
   }
   if (synthBench) benchSmall = SynthClock::now();
 
@@ -1908,7 +1918,24 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     return e && *e;
   }();
   const bool emitSmall = !vs.ascii && !forceFullRaster;
-  DecodedFrame frame;
+  // BUILD IN PLACE, into the frame we already hold.
+  //
+  // This used to construct a local DecodedFrame and try to recycle the old
+  // buffer into it by move. The move only happened when the previous frame
+  // was exactly the same size, and the local was then moved back into
+  // displayFrame_ at the end -- so the steady state still churned full-raster
+  // allocations, and at 4K that is 33 MB a frame. It went unnoticed because
+  // every OTHER path here now emits the small internal raster, where the same
+  // churn is 330 KB and invisible. Text mode is the one mode that must emit at
+  // full size, so it was the one that showed it: measured on a 4K display,
+  // 250 MB to 3.4 GB in two seconds, and a 32 GB machine down to 100 MB free.
+  //
+  // rebuildPatternFrame was fixed for exactly this, and carries exactly this
+  // comment. This function was written without the lesson.
+  if (!displayFrame_) {
+    displayFrame_.emplace();
+  }
+  DecodedFrame& frame = *displayFrame_;
   frame.width = emitSmall ? W : outW;
   frame.height = emitSmall ? H : outH;
   frame.format = FramePixelFormat::RGBA32;
@@ -1932,10 +1959,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   // the original clear was added to fix, so it still gets one.
   const std::size_t frameBytes =
     static_cast<std::size_t>(frame.width) * frame.height * 4;
-  if (displayFrame_ && displayFrame_->pixels.size() == frameBytes) {
-    frame.pixels = std::move(displayFrame_->pixels);
-  } else {
-    frame.pixels.resize(frameBytes);
+  // Only a raster change costs an allocation now; every other frame reuses
+  // the buffer it already has.
+  if (frame.pixels.size() != frameBytes) {
+    frame.pixels.assign(frameBytes, 0);
   }
   if (vs.ascii) {
     std::memset(frame.pixels.data(), 0, frameBytes);
@@ -2416,25 +2443,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     }
     };   // renderCellRows
 
-    unsigned chw = std::thread::hardware_concurrency();
-    if (chw == 0) chw = 1;
-    const int cworkers = std::max(1, std::min<int>(static_cast<int>(chw),
-                                                   std::max(1, rows / 4)));
-    if (cworkers <= 1) {
-      renderCellRows(0, rows);
-    } else {
-      std::vector<std::thread> cpool;
-      cpool.reserve(static_cast<std::size_t>(cworkers - 1));
-      const int cspan = (rows + cworkers - 1) / cworkers;
-      for (int w = 1; w < cworkers; ++w) {
-        const int b = std::min(rows, w * cspan);
-        const int e = std::min(rows, b + cspan);
-        if (b >= e) break;
-        cpool.emplace_back(renderCellRows, b, e);
-      }
-      renderCellRows(0, std::min(rows, cspan));
-      for (std::thread& t : cpool) t.join();
-    }
+    // The same persistent pool. A text screen is few rows and each one writes
+    // a whole band of the OUTPUT raster, so 4 rows a band is worth splitting;
+    // building a pool to do it was not.
+    vsynthWorkers_.run(rows, 4, renderCellRows);
   } else if (emitSmall) {
     // Straight out, at the size it was rendered. One 330KB copy instead of a
     // 33MB upscale, and the scaling happens on the GPU where it is free.
@@ -2500,9 +2512,8 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     }
   }
 
-  displayFrame_ = std::move(frame);
-  displayFrame_->index = ++displayFrameSerial_;
-  uploadFrame(*displayFrame_);
+  frame.index = ++displayFrameSerial_;
+  uploadFrame(frame);
 }
 
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
@@ -3239,7 +3250,47 @@ void MediaEngine::uploadFrame(const DecodedFrame& frame) {
       hueShift_);
     uploadPixels = keyedPixelsScratch_.data();
   }
-  SDL_UpdateTexture(texture_, nullptr, uploadPixels, frame.width * 4);
+  // LOCK, don't UPDATE. SDL_UpdateTexture on a STREAMING texture makes the
+  // backend stage the pixels through a temporary resource, and when updates
+  // outpace presents those temporaries pile up: measured on a 4K text-mode
+  // synth cue, 250 MB to 3.4 GB of committed memory in two seconds, and a
+  // 32 GB machine down to 100 MB free. Proven by skipping this one call --
+  // the same cue then held flat at 357 MB.
+  //
+  // Lock/unlock is what STREAMING access is for: it maps the texture's own
+  // storage and discards the previous contents, so there is nothing to
+  // accumulate. SDL_UpdateTexture stays as the fallback for the case where a
+  // lock is refused, which is rare but must not black the picture out.
+  writeStreamingTexture(texture_, uploadPixels, frame.width, frame.height);
+}
+
+// One row-aware copy into a locked streaming texture. The pitch the backend
+// hands back is NOT always the row length -- it is whatever alignment the
+// driver wants -- so a single memcpy of the whole buffer is only valid when
+// they happen to match.
+void MediaEngine::writeStreamingTexture(SDL_Texture* texture,
+                                        const std::uint8_t* rgba,
+                                        int width, int height) {
+  if (!texture || !rgba || width <= 0 || height <= 0) {
+    return;
+  }
+  void* dst = nullptr;
+  int pitch = 0;
+  if (!SDL_LockTexture(texture, nullptr, &dst, &pitch) || !dst) {
+    SDL_UpdateTexture(texture, nullptr, rgba, width * 4);
+    return;
+  }
+  const std::size_t rowBytes = static_cast<std::size_t>(width) * 4;
+  if (pitch == static_cast<int>(rowBytes)) {
+    std::memcpy(dst, rgba, rowBytes * static_cast<std::size_t>(height));
+  } else {
+    std::uint8_t* out = static_cast<std::uint8_t*>(dst);
+    for (int y = 0; y < height; ++y) {
+      std::memcpy(out + static_cast<std::size_t>(y) * pitch,
+                  rgba + static_cast<std::size_t>(y) * rowBytes, rowBytes);
+    }
+  }
+  SDL_UnlockTexture(texture);
 }
 
 // Join the still-image decode thread and clean up its process and pending frame.
