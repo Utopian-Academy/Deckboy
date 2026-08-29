@@ -912,8 +912,17 @@
         }
       }
 #endif
+      // The same still-cue gate the output has, and the same exception: an
+      // effect that advances with time gets nothing to advance ON when the cue
+      // decodes one frame and this test never passes again. Kept in step with
+      // the output deliberately -- a preview that animates while the programme
+      // freezes is worse than both of them freezing.
+      const Cue* gateCue = activeCuePtr(project_.focusedDeckIndex);
+      const bool previewStackAnimates =
+        gateCue && deckboy::effects::cueEffectStackAnimates(gateCue->effects) &&
+        isDefaultStillDurationCueKind(gateCue->kind);
       if (frame && frame->width > 0 && frame->height > 0 &&
-          frame->index != controlPreviewFrameIdx_) {
+          (frame->index != controlPreviewFrameIdx_ || previewStackAnimates)) {
         controlPreviewFrameIdx_ = frame->index;
         // Run the cue's LOOK on the preview too.
         //
@@ -944,7 +953,9 @@
           deckboy::effects::CueEffectContext fxCtx;
           fxCtx.width = controlPreviewLookFrame_.width;
           fxCtx.height = controlPreviewLookFrame_.height;
-          fxCtx.frameIndex = controlPreviewLookFrame_.index;
+          fxCtx.frameIndex = previewStackAnimates
+            ? motionDriverFrameCounter_
+            : controlPreviewLookFrame_.index;
           // The driver, same as the output composite does it. Without this a
           // motion puppet was the one effect the preview still could not show
           // -- and the driver was never opened at all, so the inspector had

@@ -63,6 +63,21 @@ EFFECTS = [
 # chewing on their own output.
 PASSES = {"feedback": 12}
 
+# Effects that look different from one frame to the next on an unchanging
+# picture -- mirroring cueEffectKindAnimates in cue_effects.hpp, which the
+# render paths use to decide whether a STILL cue must re-run its stack. Get
+# this wrong in the header and a time-based effect freezes on a still (or every
+# still pays for a full-raster re-render it does not need), and neither shows up
+# in any other check. --animation renders each effect at nine frame indices and
+# fails if the pixels disagree with this list.
+#
+# feedback and motion_puppet move by carrying STATE rather than by reading the
+# frame index, so they animate in the app while rendering identically here.
+# They are listed as state-driven rather than measured.
+ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
+                     "caustics"}
+ANIMATES_BY_STATE = {"feedback", "motion_puppet"}
+
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
 # checks that each one actually moves the picture, which is the dead-control
@@ -161,6 +176,41 @@ def check_params(exe, src, base, work):
     return 1 if dead else 0
 
 
+def check_animation(exe, src, work):
+    """Does each effect move over time exactly when the header says it does?"""
+    frames = (0, 1, 2, 3, 5, 8, 13, 40, 97)
+    wrong = 0
+    print("%-16s %-10s %s" % ("effect", "verdict", "detail"))
+    for token, params in EFFECTS:
+        if token in ANIMATES_BY_STATE:
+            print("%-16s %-10s %s"
+                  % (token, "state", "moves by carrying state, not by the index"))
+            continue
+        seen = set()
+        for frame in frames:
+            out = os.path.join(work, "anim.ppm")
+            subprocess.run([exe, "--effect-dump", "%s:%s" % (token, params),
+                            src, out, str(frame), str(PASSES.get(token, 1))],
+                           capture_output=True)
+            seen.add(raster(out) if os.path.exists(out) else b"")
+        moves = len(seen) > 1
+        listed = token in ANIMATES_BY_INDEX
+        if moves == listed:
+            print("%-16s %-10s %s"
+                  % (token, "ok", "moves" if moves else "still, as listed"))
+        else:
+            wrong += 1
+            print("%-16s %-10s %s"
+                  % (token, "WRONG",
+                     "the pixels move and the header says they do not"
+                     if moves else
+                     "the header says it animates and the pixels do not"))
+    print()
+    print("FAIL: %d effect(s) misfiled in cueEffectKindAnimates" % wrong if wrong
+          else "the animating effects are exactly the ones the header lists")
+    return 1 if wrong else 0
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -173,6 +223,8 @@ def main():
     parser.add_argument("--sheet", help="write a contact sheet here (PNG)")
     parser.add_argument("--params", action="store_true",
                         help="check every named parameter moves the picture")
+    parser.add_argument("--animation", action="store_true",
+                        help="check cueEffectKindAnimates matches the pixels")
     args = parser.parse_args()
 
     exe = os.path.abspath(args.exe)
@@ -195,6 +247,8 @@ def main():
                         "-frames:v", "1", "-pix_fmt", "rgb24", src], check=True)
     base = raster(src)
 
+    if args.animation:
+        return check_animation(exe, src, work)
     if args.params:
         return check_params(exe, src, base, work)
 

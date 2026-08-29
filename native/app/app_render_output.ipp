@@ -584,11 +584,19 @@
     std::string cueKey = cuePreviewCacheKey(*sourceCue);
     auto frameIt = outputRuntime->layerBridgeFrameIndices.find(sourceDeckIndex);
     auto cueIt = outputRuntime->layerBridgeCueKeys.find(sourceDeckIndex);
+    // A STILL CUE DECODES ONE FRAME, and this gate then never fires again --
+    // so an effect that advances with time ran exactly once and froze. Grain
+    // that does not move, a ripple standing still, and caustics and feedback,
+    // whose whole subject is motion, reduced to one arbitrary frame. The gate
+    // is right for what it was written for; it cannot know about these.
+    const bool stackAnimates =
+      deckboy::effects::cueEffectStackAnimates(sourceCue->effects);
     bool needsUpload =
       frameIt == outputRuntime->layerBridgeFrameIndices.end() ||
       cueIt == outputRuntime->layerBridgeCueKeys.end() ||
       frameIt->second != sourceFrame->index ||
-      cueIt->second != cueKey;
+      cueIt->second != cueKey ||
+      stackAnimates;
     if (needsUpload) {
       if (sourceFrame->format == FramePixelFormat::NV12) {
         // NV12 cues never carry CPU effects — MediaEngine only chooses NV12
@@ -613,7 +621,15 @@
             deckboy::effects::CueEffectContext fxCtx;
             fxCtx.width = sourceFrame->width;
             fxCtx.height = sourceFrame->height;
-            fxCtx.frameIndex = sourceFrame->index;
+            // The SOURCE frame drives the look, so a given frame of a clip
+            // always grades the same way and a recording is reproducible. A
+            // still has no frame progression to offer, so an animating stack on
+            // one is driven by the app's own frame counter instead -- the only
+            // clock available when the picture itself never moves.
+            fxCtx.frameIndex =
+              (stackAnimates && isDefaultStillDurationCueKind(sourceCue->kind))
+                ? motionDriverFrameCounter_
+                : sourceFrame->index;
             // Only advance a driver when something will actually read it --
             // decoding a clip nobody is puppeteering would be a cost with no
             // picture to show for it.

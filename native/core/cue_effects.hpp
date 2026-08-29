@@ -125,6 +125,39 @@ inline const char* cueEffectToken(CueEffectKind kind) {
   }
 }
 
+// Whether this effect looks DIFFERENT from one frame to the next on an
+// unchanging picture.
+//
+// This matters because a still cue decodes exactly one frame, and both render
+// paths skip re-applying the stack when the source frame has not changed. An
+// effect that advances with time therefore ran once on a still and froze --
+// grain that does not move, a ripple standing perfectly still, and caustics and
+// feedback, whose entire subject is motion, reduced to one arbitrary frame of
+// themselves. The gate is right for the effects it was written for; it just
+// cannot know about these.
+//
+// Two ways an effect can move: it reads ctx.frameIndex, or it carries state
+// between calls. Both are listed here, and tools/check_effects_offline.py
+// --animation renders each effect at nine frame indices and fails if this list
+// disagrees with what the pixels do -- so a new effect cannot be misfiled here
+// without something saying so.
+inline bool cueEffectKindAnimates(CueEffectKind kind) {
+  switch (kind) {
+    // Advance with the frame index.
+    case CueEffectKind::Grain:
+    case CueEffectKind::TemporalDither:
+    case CueEffectKind::BlockGlitch:
+    case CueEffectKind::Ripple:
+    case CueEffectKind::Caustics:
+    // Carry state between calls, so they move without reading the index.
+    case CueEffectKind::Feedback:
+    case CueEffectKind::MotionPuppet:
+      return true;
+    default:
+      return false;
+  }
+}
+
 // What an effect's shaping parameters MEAN, or null when it has no such slot.
 //
 // `which` is 0-3 for paramA-paramD. Naming them here rather than in the
@@ -1883,6 +1916,15 @@ inline bool cueEffectNeedsDriver(CueEffectKind kind) {
 inline bool cueEffectStackNeedsDriver(const std::vector<CueEffect>& stack) {
   for (const CueEffect& fx : stack) {
     if (cueEffectNeedsDriver(fx.kind)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+inline bool cueEffectStackAnimates(const std::vector<CueEffect>& stack) {
+  for (const CueEffect& fx : stack) {
+    if (!fx.bypassed && cueEffectKindAnimates(fx.kind)) {
       return true;
     }
   }
