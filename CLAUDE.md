@@ -136,6 +136,27 @@ Three rules, all of them learned by measuring:
   outputs showing one deck do not each advance the state and drift apart. It
   must also be listed in `cueEffectKindAnimates`, or it freezes on a still cue.
 
+## Theme creatures (`native/core/creatures.hpp`, `app_creatures.ipp`)
+
+A theme can ask for animals with `creature<TAB><species><TAB><count>`. The
+simulation is SDL-free and lives in core; the drawing and the "should any of
+this be happening" decision live in the app half.
+
+Three constraints, all load-bearing:
+
+- **Never over a control.** The habitat is `playlistFreeRect_`, the space below
+  the last cue. An earlier version used the strip above the bottom bar and it
+  overlapped the transport row.
+- **Nothing moves while an output is live.** `creaturesShouldBeAwake()` is the
+  single place that decides; it fades rather than cutting.
+- **Both colours are inks ON TILE** (`pal.fg` / `pal.fgSoft`), because the
+  habitat is a tile-filled panel. Using `pal.light` — a bright FILL role — made
+  a moth invisible on bright themes.
+
+Creatures are placed against the habitat, so `rebuildCreatures()` refuses to
+run until there IS one; placing against an empty rect pins everything to 0,0
+and it stays clamped to an edge for the session.
+
 **`near` is a macro** in the Windows headers. So are `min`, `max`, `small` and
 `far`. A local variable with one of those names silently stops being C++.
 

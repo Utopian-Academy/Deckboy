@@ -13,3 +13,6 @@ screen_ink_soft	8A6A16FF
 button_bezel	7A6C4EFF
 delete_bezel	8B3A3AFF
 scanline_alpha	18
+# Creatures. They live on the chrome, never over a control, and they
+# hide themselves the moment an output goes live.
+creature	firefly	3

@@ -1031,6 +1031,12 @@ struct Project {
   // layout-chrome scale lives downstream of this field — for now only fonts
   // pick it up. Persist in the project so a show authored on a 4K monitor
   // doesn't have to re-pick the scale every launch.
+  // Whether the theme's creatures are allowed out. On by default: a theme has
+  // to ask for them before anything appears, so this switch is for an operator
+  // who wants a themed machine WITHOUT the company rather than a guard against
+  // surprise. They hide themselves whenever an output is live regardless.
+  bool creaturesEnabled = true;
+
   double uiScale = 1.0;
 
   // ── VJ MODE ────────────────────────────────────────────────────────────

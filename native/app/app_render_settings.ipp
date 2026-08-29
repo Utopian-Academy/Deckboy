@@ -574,6 +574,17 @@
         (project_.splashCharacter == "deckgirl") ? "Deckgirl" : "Deckbot";
       drawUIDropdown(mascotBtn, "Mascot", mascotLabel, "settings.mascot");
       settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
+      // The theme's creatures. Only worth showing when the current theme has
+      // any -- a switch for something that cannot happen is worse than no
+      // switch, and most themes ask for nothing.
+      if (!themeCreatures_.empty()) {
+        SDL_Rect critterBtn {appX, appY, appW, sRowH};
+        appY += sRowH + sGap;
+        drawPillToggle(critterBtn, project_.creaturesEnabled,
+                       "CREATURES ON", "CREATURES OFF");
+        settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
+                                 "creatures_toggle"});
+      }
       // UI scale dropdown — multiplies every font point size at load, and (as
       // of v0.81.0) the settings chrome scales with it too.
       SDL_Rect scaleBtn {appX, appY, appW, sTallH};
@@ -3508,6 +3519,10 @@
         } else {
           triggerToast("nmos: clipboard unavailable");
         }
+      } else if (sb.action == kSettingsActionCreaturesToggle) {
+        project_.creaturesEnabled = !project_.creaturesEnabled;
+        triggerToast(project_.creaturesEnabled ? "creatures on" : "creatures off");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionMascotToggle) {
         // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the
         // path from the chosen character and lazy-reloads the texture.
