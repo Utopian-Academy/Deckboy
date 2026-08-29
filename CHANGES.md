@@ -181,6 +181,28 @@ the sampled bytes differing, by as much as 226. The comparator now falls back
 to the packed pixel value, which is a total order, and both platforms render
 the same frame.
 
+### Time-based effects were frozen on stills
+
+A still cue decodes exactly one frame, and both render paths skip re-applying
+the effect stack when the source frame has not changed. That gate is right for
+the effects it was written for and it cannot know about the ones that advance
+with time -- so on a still, grain did not move, a ripple stood perfectly still,
+and caustics and feedback, whose entire subject is motion, were one arbitrary
+frame of themselves. Measured on a static colour-bar cue: 0.0% of the monitor
+changed between two shots a second apart. It is now 9.7% with grain, 2.0% with
+a ripple, 2.8% with caustics.
+
+The stack knows which of its effects animate, so a still re-renders only when
+one of them is present, and it is driven by the app's frame counter -- the only
+clock available when the picture itself never moves. Video is untouched: the
+look still follows the SOURCE frame, so a given frame of a clip always grades
+the same way and a recording stays reproducible.
+
+`check_effects_offline.py --animation` renders every effect at nine frame
+indices and fails if the header's list disagrees with what the pixels do. This
+is exactly the class of bug that hides: the effect renders correctly, once, and
+every other check passes.
+
 ### Smaller things
 
 - `--effect-dump` takes a pass count, so an effect whose whole subject is what
