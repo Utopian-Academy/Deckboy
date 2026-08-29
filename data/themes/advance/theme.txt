@@ -13,3 +13,8 @@ screen_ink_soft	607868FF
 button_bezel	5858C0FF
 delete_bezel	B04040FF
 scanline_alpha	10
+
+# Creatures. They live in the empty part of the playlist, never over a
+# control, and they hide the moment an output goes live.
+creature	moth	2
+creature	spider	1

@@ -716,7 +716,10 @@ They never sit over a control, and **they disappear the moment any output goes
 live** — during a show the only thing moving should be the show. They come back
 when the outputs go down.
 
-Fourteen themes ask for them; the rest have none. `Settings → CREATURES` turns
+Twenty-eight themes have their own cast, most of them two species. **Game Boy
+and the plain dark terminal deliberately have none** — the signature look and
+the theme a fresh install lands on stay perfectly still, so if you want a
+machine that does not move, pick one of those. `Settings → CREATURES` turns
 them off, and only appears when the theme you are using has any.
 
 **Writing your own.** Add lines to a theme's `theme.txt`:
@@ -724,7 +727,8 @@ them off, and only appears when the theme you are using has any.
     creature	firefly	4
     creature	cat	1
 
-The species are `moth`, `crab`, `fish`, `firefly` and `cat`, up to twelve of
+The species are `moth`, `crab`, `fish`, `firefly`, `cat`, `snail`, `spider`,
+`mouse`, `frog`, `jellyfish` and `bird`, up to twelve of
 each. A species this build does not know is ignored rather than refused, so a
 theme written for a later version still loads.
 

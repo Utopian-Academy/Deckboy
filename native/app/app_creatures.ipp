@@ -154,6 +154,77 @@
         dot(face > 0 ? -8 : 6, -2 + flick, 3, 1, ink);  // tail
         break;
       }
+      case Species::Snail: {
+        // A shell with a spiral suggested by one darker pixel, and feelers.
+        dot(-4, -1, 7, 2, ink);                      // foot
+        dot(-2, -5, 5, 4, accent);                   // shell
+        dot(-1, -4, 2, 2, ink);                      // the whorl
+        dot(face > 0 ? 3 : -5, -3, 2, 1, ink);       // feelers
+        break;
+      }
+      case Species::Spider: {
+        // The THREAD is what makes it a spider rather than a bug: a line back
+        // up to wherever it started.
+        const int drop = std::max(0, y - creatureHabitat_.y - 6);
+        Primitives::fillRect(controlRenderer_,
+          SDL_Rect {x, creatureHabitat_.y + 6, 1, drop}, accent);
+        dot(-2, 0, 5, 4, ink);                       // body
+        const int leg = static_cast<int>(std::lround(
+          std::sin(t * 6.0 + c.phase)));
+        dot(-4, 1 + leg, 2, 1, ink);                 // legs
+        dot(3, 1 - leg, 2, 1, ink);
+        break;
+      }
+      case Species::Mouse: {
+        const bool running = std::fabs(c.vx) > 0.5;
+        dot(-4, -3, 8, 3, ink);                      // body
+        dot(face > 0 ? 3 : -5, -5, 2, 2, ink);       // head
+        dot(face > 0 ? 4 : -5, -6, 1, 1, accent);    // ear
+        // The tail trails behind and only whips while it is moving.
+        const int whip = running ? static_cast<int>(std::lround(
+          std::sin(t * 16.0 + c.phase) * 2.0)) : 1;
+        dot(face > 0 ? -7 : 4, -2 + whip, 3, 1, ink);
+        break;
+      }
+      case Species::Frog: {
+        const bool airborne = std::fabs(c.vy) > 1.0;
+        // Legs tuck in the air and splay on the ground, which is the whole
+        // difference between a hop and a slide.
+        dot(-3, -4, 7, 4, ink);                      // body
+        dot(face > 0 ? 2 : -3, -6, 2, 2, ink);       // head
+        dot(face > 0 ? 3 : -3, -6, 1, 1, accent);    // eye
+        if (airborne) {
+          dot(-4, -2, 2, 2, ink);
+          dot(3, -2, 2, 2, ink);
+        } else {
+          dot(-5, -1, 3, 1, ink);
+          dot(3, -1, 3, 1, ink);
+        }
+        break;
+      }
+      case Species::Jellyfish: {
+        // The bell squashes on the push and relaxes on the sink.
+        const int squash = static_cast<int>(std::lround(c.blink * 2.0));
+        dot(-3, -2 - squash, 7, 3 + squash, accent);   // bell
+        for (int leg = 0; leg < 3; ++leg) {
+          const int sway = static_cast<int>(std::lround(
+            std::sin(t * 2.4 + c.phase + leg) * 1.5));
+          dot(-2 + leg * 2 + sway, 1, 1, 3 - squash, ink);   // tentacles
+        }
+        break;
+      }
+      case Species::Bird: {
+        const bool hopping = std::fabs(c.vx) > 0.5;
+        const int hop = hopping ? static_cast<int>(std::lround(
+          std::fabs(std::sin(t * 7.0 + c.phase)) * 2.0)) : 0;
+        dot(-3, -5 - hop, 6, 4, ink);                // body
+        dot(face > 0 ? 2 : -4, -8 - hop, 3, 3, ink); // head
+        dot(face > 0 ? 5 : -5, -7 - hop, 1, 1, accent);  // beak
+        dot(face > 0 ? -4 : 3, -4 - hop, 2, 2, accent); // tail
+        dot(-2, -1, 1, 1 + hop, ink);                // legs
+        dot(1, -1, 1, 1 + hop, ink);
+        break;
+      }
       default:
         break;
     }

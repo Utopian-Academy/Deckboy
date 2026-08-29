@@ -17,3 +17,7 @@ screen_tile	150A08FF
 button_bezel	7A2A24FF
 delete_bezel	E89830FF
 scanline_alpha	14
+
+# Creatures. They live in the empty part of the playlist, never over a
+# control, and they hide the moment an output goes live.
+creature	mouse	2

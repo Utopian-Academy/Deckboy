@@ -163,6 +163,8 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D135 | They live in empty playlist space, never over a control | **CLAUDE** | 2026-08-29. The space below the last cue holds no value, level or name. The first attempt used the strip above the bottom bar and it overlapped the transport row -- a firefly sat on a button, which is the one thing these must never do. |
 | D136 | Outputs live means nothing moves | **CLAUDE** | 2026-08-29. During a show the only thing moving on the machine should be the show. They fade out rather than blink off, so it reads as them noticing rather than as a glitch. |
 | D137 | Both creature colours are inks ON TILE | **CLAUDE** | 2026-08-29. The first version used pal.light for accents -- a bright FILL role, not an ink -- so on a theme with a bright tile the wings matched the background and a moth was a single dark pixel. The chrome contract already says tile is inked with fg/fgSoft; creatures are not an exception to it. |
+| D138 | The default look stays perfectly still | **JAMES** | 2026-08-29. "lets keep animations out of the default theme". Game Boy is the signature look and the one a fresh install lands on, and the plain dark terminal is the one people pick when they want nothing happening. Both have no creatures at all, so there is always a way to have a machine that does not move. |
+| D139 | A different cast per theme, usually two species | **JAMES** | 2026-08-29. "different animals (sometimes multiple) in each theme". Chosen to suit each one rather than sprinkled: fish and jellyfish in Dolphin, a bird and a crab on Ice Climber's shoreline, spiders in Ganon and Midna, mice in the Famicom and R.O.B. |
 
 ---
 
