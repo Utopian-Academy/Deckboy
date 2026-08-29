@@ -435,6 +435,84 @@ void effectStackNudge(int index, float delta) {
 // identically and the only thing that differs is which float is touched.
 // Neither changes whether the CPU pixel path is needed -- only amount does
 // that -- so there is no refresh here.
+// ── Parameter LFOs ─────────────────────────────────────────────────────────
+//
+// Every one of these takes the PACKED id described on the QuickAction enum:
+// effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
+deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  auto* stack = selectedEffectStack();
+  const int index = packed / 8;
+  const int slot = packed % 8;
+  if (!effectIndexValid(stack, index) || slot < 0 || slot > 4) {
+    return nullptr;
+  }
+  return &(*stack)[index].lfo[slot];
+}
+
+void effectLfoToggle(int packed) {
+  if (auto* lfo = effectLfoAt(packed)) {
+    lfo->on = !lfo->on;
+    // Said out loud, because an LFO is the one control whose effect you might
+    // not notice for several seconds -- a slow one at low depth looks exactly
+    // like nothing happening until it has had time to move.
+    triggerToast(lfo->on ? "lfo on" : "lfo off");
+    markProjectDirty();
+  }
+}
+
+void effectLfoCycleShape(int packed) {
+  if (auto* lfo = effectLfoAt(packed)) {
+    const int count = static_cast<int>(deckboy::effects::LfoShape::Count);
+    lfo->shape = static_cast<deckboy::effects::LfoShape>(
+      (static_cast<int>(lfo->shape) + 1) % count);
+    triggerToast(deckboy::effects::lfoShapeToken(lfo->shape));
+    markProjectDirty();
+  }
+}
+
+void effectLfoNudgeRate(int packed, int direction) {
+  auto* lfo = effectLfoAt(packed);
+  if (!lfo) {
+    return;
+  }
+  if (lfo->beatSync) {
+    // In beats, the useful values are musical ones. Stepping through the list
+    // rather than by a fixed amount means every stop is a length someone would
+    // actually choose, and half a beat is reachable without twenty clicks.
+    static const float kBeats[] = {0.25f, 0.5f, 1.0f, 2.0f, 3.0f, 4.0f,
+                                   6.0f, 8.0f, 12.0f, 16.0f, 32.0f};
+    const int n = static_cast<int>(sizeof(kBeats) / sizeof(kBeats[0]));
+    int at = 0;
+    for (int i = 0; i < n; ++i) {
+      if (std::fabs(kBeats[i] - lfo->beats) < 0.01f) { at = i; break; }
+      if (kBeats[i] < lfo->beats) at = i;
+    }
+    lfo->beats = kBeats[std::clamp(at + direction, 0, n - 1)];
+  } else {
+    // Multiplied, not added: the interesting range runs from one cycle a
+    // minute to several a second, and a fixed step would take a hundred
+    // clicks at one end and skip the whole useful part at the other.
+    lfo->rateHz = std::clamp(lfo->rateHz * (direction > 0 ? 1.25f : 0.8f),
+                             0.01f, 20.0f);
+  }
+  markProjectDirty();
+}
+
+void effectLfoNudgeDepth(int packed, float delta) {
+  if (auto* lfo = effectLfoAt(packed)) {
+    lfo->depth = std::clamp(lfo->depth + delta, 0.0f, 1.0f);
+    markProjectDirty();
+  }
+}
+
+void effectLfoToggleSync(int packed) {
+  if (auto* lfo = effectLfoAt(packed)) {
+    lfo->beatSync = !lfo->beatSync;
+    triggerToast(lfo->beatSync ? "lfo follows the tempo" : "lfo runs free");
+    markProjectDirty();
+  }
+}
+
 void effectStackNudgeParam(int index, int which, float delta) {
   auto* stack = selectedEffectStack();
   if (!effectIndexValid(stack, index)) {

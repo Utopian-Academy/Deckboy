@@ -1313,6 +1313,18 @@ enum class QuickAction {
   EffectParamDInc,
   EffectParamDEdit,
   CodeOpenEditor,
+  // Parameter LFOs. Every one of these carries a PACKED id in the action's
+  // param: effectIndex * 8 + slot, where slot 0-3 is paramA-D and 4 is the
+  // effect's amount. Packed rather than one action per slot because the slot is
+  // data, not a different intent, and eight actions per slot would be forty
+  // enum entries doing one job.
+  EffectLfoToggle,
+  EffectLfoShape,
+  EffectLfoRateDec,
+  EffectLfoRateInc,
+  EffectLfoDepthDec,
+  EffectLfoDepthInc,
+  EffectLfoSync,
   // CodeEditExpression and CodeCycleExample removed 2026-08-29: the one-line
   // value field and the cycle button were both replaced by the code editor,
   // which does what each of them did and can be seen while doing it.

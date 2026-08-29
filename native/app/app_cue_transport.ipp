@@ -997,6 +997,29 @@
   // Where we are between beats, 0 at the beat and approaching 1 just before the
   // next. Derived from a wall clock rather than counted per frame, so it cannot
   // drift when a frame is late.
+  // Beats since the tempo origin, FRACTIONAL and running.
+  //
+  // vjBeatPhase wraps inside one beat, which is what a flashing badge wants and
+  // useless to an LFO with a four-beat cycle -- that needs to know which beat
+  // it is on, not just where it sits inside the current one.
+  double vjBeatCount() const {
+    const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
+    const double beatSeconds = 60.0 / bpm;
+    const double now = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    return (now - vjBeatOrigin_) / beatSeconds;
+  }
+
+  // ONE clock for every LFO in the show.
+  //
+  // The preview and the output both modulate the stack, and if each read its
+  // own clock the operator's monitor would show a slightly different moment of
+  // the same oscillator than the audience saw. Sampled once per frame and
+  // handed to both.
+  void sampleLfoClock() {
+    lfoSeconds_ = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    lfoBeats_ = vjBeatCount();
+  }
+
   double vjBeatPhase() const {
     const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
     const double beatSeconds = 60.0 / bpm;

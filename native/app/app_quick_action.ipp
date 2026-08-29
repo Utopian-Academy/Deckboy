@@ -55,6 +55,13 @@
       case QuickAction::CueSectionCodeToggle:
         cueSectionCodeOpen_ = !cueSectionCodeOpen_; return;
       case QuickAction::CodeOpenEditor:     openCodeEditor(); return;
+      case QuickAction::EffectLfoToggle:    effectLfoToggle(param); return;
+      case QuickAction::EffectLfoShape:     effectLfoCycleShape(param); return;
+      case QuickAction::EffectLfoRateDec:   effectLfoNudgeRate(param, -1); return;
+      case QuickAction::EffectLfoRateInc:   effectLfoNudgeRate(param, +1); return;
+      case QuickAction::EffectLfoDepthDec:  effectLfoNudgeDepth(param, -0.05f); return;
+      case QuickAction::EffectLfoDepthInc:  effectLfoNudgeDepth(param, +0.05f); return;
+      case QuickAction::EffectLfoSync:      effectLfoToggleSync(param); return;
       case QuickAction::VjCycleBlend:
         setVjBlend(project_.vjBlendMode == "dissolve" ? "add"
                    : project_.vjBlendMode == "add" ? "multiply" : "dissolve");
