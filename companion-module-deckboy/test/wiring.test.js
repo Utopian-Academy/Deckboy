@@ -141,6 +141,73 @@ test('actions emit the expected Deckboy commands', async () => {
 	assert.deepEqual(self.sent, [], 'an empty custom command sends nothing')
 })
 
+test('VJ actions emit the expected commands', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+
+	// A bare VJ reports STATUS rather than toggling, so a toggle button needs a
+	// verb of its own -- otherwise the surface has to know which state the app
+	// is in before it can pick between ON and OFF, which is the thing the
+	// surface exists to save you.
+	await built.vj_mode.callback({ options: { state: 'toggle' } })
+	assert.deepEqual(self.sent, ['VJ TOGGLE'])
+
+	self.sent.length = 0
+	await built.vj_mode.callback({ options: { state: 'on' } })
+	assert.deepEqual(self.sent, ['VJ ON'])
+
+	self.sent.length = 0
+	await built.vj_mix.callback({ options: { value: 0.35 } })
+	assert.deepEqual(self.sent, ['VJ MIX 0.35'])
+
+	self.sent.length = 0
+	await built.vj_blend.callback({ options: { blend: 'multiply' } })
+	assert.deepEqual(self.sent, ['VJ BLEND multiply'])
+
+	self.sent.length = 0
+	await built.vj_tap.callback({ options: {} })
+	await built.vj_bpm.callback({ options: { value: 124 } })
+	await built.vj_quantise.callback({ options: { state: 'on' } })
+	await built.vj_decks.callback({ options: { a: 1, b: 3 } })
+	assert.deepEqual(self.sent, ['VJ TAP', 'VJ BPM 124', 'VJ QUANTISE on', 'VJ DECKS 1 3'])
+})
+
+test('effect actions emit the expected commands', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+
+	await built.fx_add.callback({ options: { effect: ' schlieren ', amount: 0.9 } })
+	assert.deepEqual(self.sent, ['FX ADD schlieren 0.9'], 'the effect name is trimmed')
+
+	self.sent.length = 0
+	await built.fx_add.callback({ options: { effect: '   ', amount: 1 } })
+	assert.deepEqual(self.sent, [], 'no effect name sends nothing')
+
+	self.sent.length = 0
+	await built.fx_amount.callback({ options: { index: 2, value: 0.4 } })
+	await built.fx_param.callback({ options: { index: 1, slot: 'C', value: 0.7 } })
+	assert.deepEqual(self.sent, ['FX AMOUNT 2 0.4', 'FX PARAM 1 C 0.7'])
+
+	// on/off carry no value, and must not emit a trailing space -- the parser
+	// splits on whitespace and an empty final token is not the same as none.
+	self.sent.length = 0
+	await built.fx_lfo.callback({ options: { index: 1, slot: 'A', what: 'on', value: '' } })
+	assert.deepEqual(self.sent, ['FX LFO 1 A on'])
+
+	self.sent.length = 0
+	await built.fx_lfo.callback({ options: { index: 1, slot: 'E', what: 'beats', value: '4' } })
+	assert.deepEqual(self.sent, ['FX LFO 1 E beats 4'])
+
+	self.sent.length = 0
+	await built.fx_clear.callback({ options: {} })
+	await built.fx_copy_paste.callback({ options: { action: 'paste' } })
+	assert.deepEqual(self.sent, ['FX CLEAR', 'FX PASTE'])
+
+	self.sent.length = 0
+	await built.code_set.callback({ options: { expression: ' r, y, 0.5 ' } })
+	assert.deepEqual(self.sent, ['CODE SET r, y, 0.5'])
+})
+
 test('feedbacks read the polled state', async () => {
 	const self = stubInstance()
 	const built = buildFeedbacks(self)

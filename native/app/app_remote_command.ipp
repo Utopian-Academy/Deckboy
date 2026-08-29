@@ -585,6 +585,15 @@
         remoteCommandDetail_ = project_.vjModeEnabled ? "on" : "off";
         return;
       }
+      // TOGGLE, because a button on a control surface has one action and two
+      // meanings. Without it a Stream Deck key needs to know which state the
+      // app is in before it can pick between ON and OFF, which is exactly the
+      // thing the surface is there to save you.
+      if (sub == "TOGGLE") {
+        setVjMode(!project_.vjModeEnabled);
+        remoteCommandDetail_ = project_.vjModeEnabled ? "on" : "off";
+        return;
+      }
       if (sub == "MIX" && parts.size() >= 3) {
         setVjMix(std::atof(parts[2].c_str()));
         return;
@@ -626,7 +635,8 @@
         remoteCommandDetail_ = state.str();
         return;
       }
-      failRemoteCommand("VJ: expected ON|OFF|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
+      failRemoteCommand("VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|"
+                        "BPM <n>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
       return;
     }
 
