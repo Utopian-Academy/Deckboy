@@ -692,8 +692,8 @@
       }
       if (sub == "HOLD" && parts.size() >= 3) {
         const double v = std::atof(parts[2].c_str());
-        if (v < 0.0 || v > 30.0) {
-          failRemoteCommand("ASCII HOLD: seconds, 0-30 (0 mutes the phrases)");
+        if (v < 0.0 || v > 60.0) {
+          failRemoteCommand("ASCII HOLD: seconds, 0-60 (0 mutes the phrases)");
           return;
         }
         cue->videoSynth.asciiPhraseHold = v;

@@ -536,6 +536,26 @@ the same reason the effect stack is: the frame splits across cores.
 
 `CODE GET | CODE SET <expression> | CODE EDIT` over the wire.
 
+### Text mode
+
+The video synth can render as a character grid instead of as pixels, with a
+16-colour indexed palette and its own corruption. Alongside the built-in glyph
+sets, two settings make the field yours:
+
+- **custom glyphs** — the characters the picture is built from, darkest first.
+  Two characters gives binary rain; a word gives that word as texture;
+  box-drawing pieces read as a schematic. Empty uses the chosen glyph set.
+- **phrases** — words separated by `|`, one showing at a time, landing
+  somewhere new each time it moves. **phrase hold** is how long each one stays;
+  zero hides them without losing the list.
+
+The corruption still overwrites a phrase when it lands on that row, which is
+the intent: a terminal that can be corrupted can be corrupted mid-sentence.
+
+`ASCII ON|OFF|TOGGLE | ASCII GLYPHS <chars> | ASCII PHRASES <a|b|c> |
+ASCII HOLD <seconds>` over the wire; `GLYPHS` and `PHRASES` with no argument
+clear them.
+
 ---
 
 ## 15. Output Geometry: AOI, Warp, Edge Blend
