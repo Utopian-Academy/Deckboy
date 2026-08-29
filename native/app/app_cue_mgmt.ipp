@@ -2501,6 +2501,46 @@
 
   // Step through the installed sets. Wraps back to none so a set can be turned
   // off without opening a file dialog.
+  // The two text-valued text-mode settings. Both go through the inline editor
+  // rather than a dropdown because the whole point of them is that the
+  // operator supplies characters nobody anticipated -- a band's initials, a
+  // set of box-drawing pieces, the name of the venue.
+  void editAsciiGlyphs() {
+    Cue* c = selectedVideoSynthCueMutable();
+    if (!c) {
+      return;
+    }
+    openInlineTextEditor("vsynth.ascii_glyphs", "Custom Glyphs",
+                         "Characters to build the picture from, darkest first. "
+                         "Empty uses the chosen glyph set.",
+                         c->videoSynth.asciiGlyphs,
+                         [this](const std::string& value) {
+                           if (Cue* cue = selectedVideoSynthCueMutable()) {
+                             cue->videoSynth.asciiGlyphs = value;
+                             markProjectDirty();
+                             refreshAllLiveCueRuntimes();
+                           }
+                         });
+  }
+
+  void editAsciiPhrases() {
+    Cue* c = selectedVideoSynthCueMutable();
+    if (!c) {
+      return;
+    }
+    openInlineTextEditor("vsynth.ascii_phrases", "Phrases",
+                         "Words to surface in the field, separated by | . One "
+                         "shows at a time, moving on the hold clock.",
+                         c->videoSynth.asciiPhrases,
+                         [this](const std::string& value) {
+                           if (Cue* cue = selectedVideoSynthCueMutable()) {
+                             cue->videoSynth.asciiPhrases = value;
+                             markProjectDirty();
+                             refreshAllLiveCueRuntimes();
+                           }
+                         });
+  }
+
   void cycleSpriteSet(int direction) {
     Cue* cue = selectedVideoSynthCueMutable();
     if (!cue) return;

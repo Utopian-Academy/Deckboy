@@ -640,6 +640,70 @@
       return;
     }
 
+    // ASCII <GLYPHS <chars> | PHRASES <a|b|c> | HOLD <seconds>>
+    //
+    // Text mode could only ever say what the picture's brightness said. These
+    // let an operator put their OWN marks and their own words in it, which is
+    // the difference between a filter and an instrument.
+    if (command == "ASCII") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("ASCII: no cue selected");
+        return;
+      }
+      if (cue->kind != CueKind::VideoSynth) {
+        failRemoteCommand("ASCII: the selected cue is not a video synth");
+        return;
+      }
+      const std::string sub = parts.size() < 2 ? std::string("") : toUpper(parts[1]);
+      // Text mode itself had no verb at all, so the one mode an operator most
+      // wants to flip mid-set could only be reached by clicking.
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        cue->videoSynth.ascii = (sub == "TOGGLE") ? !cue->videoSynth.ascii
+                                                  : (sub == "ON");
+        markProjectDirty();
+        refreshAllLiveCueRuntimes();
+        triggerToast(cue->videoSynth.ascii ? "text mode on" : "text mode off");
+        return;
+      }
+      if (sub == "GLYPHS" && parts.size() >= 3) {
+        cue->videoSynth.asciiGlyphs = joinParts(parts, 2);
+        markProjectDirty();
+        triggerToast("glyphs: " + cue->videoSynth.asciiGlyphs);
+        return;
+      }
+      if (sub == "GLYPHS") {   // no argument clears them
+        cue->videoSynth.asciiGlyphs.clear();
+        markProjectDirty();
+        triggerToast("glyphs: the built-in set");
+        return;
+      }
+      if (sub == "PHRASES" && parts.size() >= 3) {
+        cue->videoSynth.asciiPhrases = joinParts(parts, 2);
+        markProjectDirty();
+        triggerToast("phrases set");
+        return;
+      }
+      if (sub == "PHRASES") {
+        cue->videoSynth.asciiPhrases.clear();
+        markProjectDirty();
+        triggerToast("phrases cleared");
+        return;
+      }
+      if (sub == "HOLD" && parts.size() >= 3) {
+        const double v = std::atof(parts[2].c_str());
+        if (v < 0.0 || v > 30.0) {
+          failRemoteCommand("ASCII HOLD: seconds, 0-30 (0 mutes the phrases)");
+          return;
+        }
+        cue->videoSynth.asciiPhraseHold = v;
+        markProjectDirty();
+        return;
+      }
+      failRemoteCommand("ASCII: use ON|OFF|TOGGLE | GLYPHS <chars> | "
+                          "PHRASES <a|b|c> | HOLD <seconds>");
+      return;
+    }
     if (command == "CODE") {
       // The code source, over the wire.
       //

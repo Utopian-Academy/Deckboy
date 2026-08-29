@@ -3717,6 +3717,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << (cue.motionDriverPaused ? 1 : 0)
         << '\t' << (cue.motionDriverRestartOnTake ? 1 : 0)
         << '\t' << escapeField(cue.codeExpression)
+        // Appended after the expression, so every show saved before text mode
+        // could carry words still loads and simply has none.
+        << '\t' << escapeField(cue.videoSynth.asciiGlyphs)
+        << '\t' << escapeField(cue.videoSynth.asciiPhrases)
+        << '\t' << cue.videoSynth.asciiPhraseHold
         << '\n';
     }
   }
@@ -4459,6 +4464,12 @@ Project loadProject(const fs::path& projectFile,
             cue.codeExpression = expr;
           }
         }
+        cue.videoSynth.asciiGlyphs = safeString(fields, tb + 79);
+        cue.videoSynth.asciiPhrases = safeString(fields, tb + 80);
+        // Absent on older shows, where safeDouble returns the default. 2.5s is
+        // the pace a phrase can be read at before it moves.
+        cue.videoSynth.asciiPhraseHold =
+          std::clamp(safeDouble(fields, tb + 81, 2.5), 0.0, 30.0);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6914,6 +6925,38 @@ class App {
                        "cyan are terminal phosphors. Palette locks the text to "
                        "whichever hardware palette is selected above.");
       rowY += ix.rowStep;
+      // Your own characters and your own words. These are the two settings
+      // that stop text mode looking like the same demo every time, so they
+      // live here next to the glyph set rather than being wire-only.
+      rowY = inspDrawActionRow(ix, rowY,
+                               v.asciiGlyphs.empty()
+                                 ? std::string("custom glyphs: (set above)")
+                                 : "custom glyphs: " + v.asciiGlyphs,
+                               QuickAction::VsAsciiGlyphsEdit,
+                               "Build the picture from characters you choose, "
+                               "darkest first. Two characters gives binary; a "
+                               "word gives that word as texture.",
+                               pal.tile, pal.fg);
+      rowY = inspDrawActionRow(ix, rowY,
+                               v.asciiPhrases.empty()
+                                 ? std::string("phrases: (none)")
+                                 : "phrases: " + v.asciiPhrases,
+                               QuickAction::VsAsciiPhrasesEdit,
+                               "Words to surface in the field, separated by | . "
+                               "One at a time, in a new place each time.",
+                               pal.tile, pal.fg);
+      if (!v.asciiPhrases.empty()) {
+        std::ostringstream hold;
+        hold << std::fixed << std::setprecision(1) << v.asciiPhraseHold << "s";
+        inspDrawQuickRow(ix, rowY, "phrase hold", QuickAction::VsAsciiHoldDec,
+                         v.asciiPhraseHold <= 0.0 ? std::string("off")
+                                                  : hold.str(),
+                         QuickAction::VsAsciiHoldInc, QuickAction::ToggleLoop,
+                         false, false,
+                         "How long each phrase stays before it moves. Zero "
+                         "hides them without losing the list.");
+        rowY += ix.rowStep;
+      }
     }
     return rowY;
   }
