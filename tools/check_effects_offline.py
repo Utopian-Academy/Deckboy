@@ -54,6 +54,12 @@ EFFECTS = [
     ("relativistic",    "0.85:0.55:0.8"),
     ("caustics",        "0.8:0.45:0.4:0.7"),
     ("feedback",        "1.0:0.85:0.62:0.62:0.4"),
+    ("schlieren",       "0.95:0.12:0.55:0.5"),
+    ("chladni",         "0.9:0.45:0.7:0.6:0.5"),
+    ("wavefront",       "0.9:0.5:0.45:0.3:0.4"),
+    ("crystallise",     "0.95:0.22:0.6:0.7:0.5"),
+    ("scotopic",        "0.95:0.7:0.6:0.6"),
+    ("grain_flow",      "0.95:0.5:0.0:0.4"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -61,7 +67,7 @@ EFFECTS = [
 # fills the buffer it will later echo. --effect-dump takes a pass count for
 # exactly this, and running the rest more than once would only measure them
 # chewing on their own output.
-PASSES = {"feedback": 12}
+PASSES = {"feedback": 12, "scotopic": 6}
 
 # Effects that look different from one frame to the next on an unchanging
 # picture -- mirroring cueEffectKindAnimates in cue_effects.hpp, which the
@@ -76,7 +82,7 @@ PASSES = {"feedback": 12}
 # They are listed as state-driven rather than measured.
 ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "caustics"}
-ANIMATES_BY_STATE = {"feedback", "motion_puppet"}
+ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -103,12 +109,39 @@ PARAM_SLOTS = {
     "relativistic":    ["field of view", "doppler", "off-axis"],
     "caustics":        ["chop", "swell speed", "focus"],
     "feedback":        ["zoom", "spin", "drift", "colour bleed"],
+    "schlieren":       ["knife angle", "sensitivity", "colour"],
+    "chladni":         ["mode", "second mode", "gather", "line glow"],
+    "wavefront":       ["stiffness", "steps", "damping", "relief"],
+    "crystallise":     ["grain size", "facet light", "irregularity", "edges"],
+    "scotopic":        ["colour lag", "rod bias", "purkinje"],
+    "grain_flow":      ["stroke", "across the grain", "coherence"],
     "motion_puppet":   ["spring", "memory"],
 }
 
 # What a show saved before a parameter existed carries, and what it must still
 # mean. Moving one of these breaks every show that already used the effect.
 NEUTRAL = [0.5, 0.0, 0.0, 0.0]
+
+# Where a parameter can only do anything once ANOTHER one is engaged, the check
+# starts from here instead of from neutral.
+#
+# scotopic's purkinje shift only acts where the rods have taken over, and at
+# neutral rod bias almost nothing in a normal picture is dark enough for that.
+# Testing it from neutral asks whether a night-vision tint works in daylight,
+# gets "no", and calls a working control dead.
+PARAM_BASE = {
+    "scotopic": [0.5, 0.85, 0.0, 0.0],
+}
+
+# Parameters whose whole subject is what happens BETWEEN frames, on a picture
+# that is CHANGING. This harness renders one still picture repeatedly, so a
+# value that controls how fast the effect catches up with a new picture has
+# nothing to catch up with: every pass converges to the same place whatever the
+# rate. Covered instead by the oscillator checks in --smoke and by watching a
+# moving clip.
+TEMPORAL_PARAMS = {
+    ("scotopic", "colour lag"),
+}
 MOVED = [0.9, 0.8, 0.8, 0.8]
 
 # Neither is a pixel operation, so neither can be dumped. Datamosh happens at
@@ -129,6 +162,9 @@ def raster(path):
 def check_params(exe, src, base, work):
     """Every named parameter should change the picture, and the neutral
     position should leave it exactly as it was."""
+    def base_for(token):
+        return list(PARAM_BASE.get(token, NEUTRAL))
+
     def render(token, params, frame=7):
         out = os.path.join(work, "param.ppm")
         spec = "%s:0.9:%g:%g:%g:%g" % ((token,) + tuple(params))
@@ -148,13 +184,19 @@ def check_params(exe, src, base, work):
             print("%-16s %-15s %-6s %s"
                   % (token, "-", "n/a", undumpable[token]))
             continue
-        neutral = render(token, NEUTRAL)
+        base = base_for(token)
+        neutral = render(token, base)
         if not neutral:
             print("%-16s %-15s %-6s %s" % (token, "-", "FAIL", "no render"))
             dead += 1
             continue
         for slot, name in enumerate(names):
-            params = list(NEUTRAL)
+            if (token, name) in TEMPORAL_PARAMS:
+                print("%-16s %-15s %-6s %s"
+                      % (token, name, "n/a",
+                         "only shows on a picture that is changing"))
+                continue
+            params = base_for(token)
             params[slot] = MOVED[slot]
             shot = render(token, params)
             if len(shot) != len(neutral):

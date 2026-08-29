@@ -8478,14 +8478,21 @@ class App {
   };
   std::uint64_t motionDriverFrameCounter_ = 0;
   std::unordered_map<int, MotionDriver> motionDrivers_;
-  // One previous-frame buffer per deck, for the feedback effect. Kept here
-  // rather than inside the effect because the stack is stateless by design:
-  // it has to be runnable twice, dumpable headlessly, and it does not know
-  // which cue it is working on.
-  std::unordered_map<int, std::vector<std::uint8_t>> feedbackBuffers_;
+  // Per-deck scratch for the effects that remember things, one slot per
+  // position in that deck's chain. Kept here rather than inside the effects
+  // because the stack is stateless by design: it has to be runnable twice,
+  // dumpable headlessly, and it does not know which cue it is working on.
+  //
+  // Keyed by stack POSITION, so feedback and scotopic in one chain get a slot
+  // each. Sized on demand and never shrunk while a cue is live -- a chain that
+  // gains an effect must not renumber the memory of the ones already running.
+  using EffectStateSlots = std::vector<std::vector<std::uint8_t>>;
+  std::unordered_map<int, EffectStateSlots> effectStateBuffers_;
 
-  std::vector<std::uint8_t>* feedbackBufferForDeck(int deckIndex) {
-    return &feedbackBuffers_[deckIndex];
+  EffectStateSlots* effectStateForDeck(int deckIndex, std::size_t slots) {
+    EffectStateSlots& s = effectStateBuffers_[deckIndex];
+    if (s.size() < slots) s.resize(slots);
+    return &s;
   }
 
   // True for the FIRST consumer of this deck this frame, false for every one
@@ -8503,22 +8510,25 @@ class App {
     return true;
   }
 
-  // The control preview keeps its OWN loop. It runs at a different rate and
-  // sometimes not at all, and sharing the output's buffer would advance the
-  // feedback twice on any frame where both ran -- so the preview would show a
+  // The control preview keeps its OWN memory. It runs at a different rate and
+  // sometimes not at all, and sharing the output's would advance every stateful
+  // effect twice on any frame where both ran -- so the preview would show a
   // faster decay than the audience sees.
-  std::unordered_map<int, std::vector<std::uint8_t>> previewFeedbackBuffers_;
-  std::vector<std::uint8_t>* previewFeedbackBufferForDeck(int deckIndex) {
-    return &previewFeedbackBuffers_[deckIndex];
+  std::unordered_map<int, EffectStateSlots> previewEffectStateBuffers_;
+  EffectStateSlots* previewEffectStateForDeck(int deckIndex, std::size_t slots) {
+    EffectStateSlots& s = previewEffectStateBuffers_[deckIndex];
+    if (s.size() < slots) s.resize(slots);
+    return &s;
   }
 
-  // Both loops for one deck, emptied. The effect re-seeds from the picture it
-  // is next handed, so this fades up rather than flashing black.
+  // Everything this deck's effects were remembering, forgotten. Each one
+  // re-seeds from the picture it is next handed, so this fades up rather than
+  // flashing black.
   void resetDeckFeedback(int deckIndex) {
-    auto output = feedbackBuffers_.find(deckIndex);
-    if (output != feedbackBuffers_.end()) output->second.clear();
-    auto preview = previewFeedbackBuffers_.find(deckIndex);
-    if (preview != previewFeedbackBuffers_.end()) preview->second.clear();
+    auto output = effectStateBuffers_.find(deckIndex);
+    if (output != effectStateBuffers_.end()) output->second.clear();
+    auto preview = previewEffectStateBuffers_.find(deckIndex);
+    if (preview != previewEffectStateBuffers_.end()) preview->second.clear();
   }
 
   // The inspector's driver preview and scrub bar. The driver has no cue, no

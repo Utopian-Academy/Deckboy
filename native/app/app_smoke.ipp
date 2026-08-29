@@ -1448,7 +1448,8 @@
 
     // Lives across the passes, exactly as the app's per-deck buffer lives
     // across frames.
-    std::vector<std::uint8_t> feedbackBuffer;
+    // One scratch slot per effect in the chain, exactly as the app gives it.
+    std::vector<std::vector<std::uint8_t>> effectState(1);
     double ms = 0.0;
     const int passCount = std::max(1, passes);
     for (int pass = 0; pass < passCount; ++pass) {
@@ -1456,7 +1457,7 @@
       ctx.width = w;
       ctx.height = h;
       ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex) + pass);
-      ctx.feedback = &feedbackBuffer;
+      ctx.effectState = &effectState;
       const auto began = std::chrono::steady_clock::now();
       deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
       ms = std::chrono::duration<double, std::milli>(
@@ -1534,7 +1535,8 @@
     std::vector<std::uint8_t> pixels;
     // Persists across frames, the way the app's per-deck buffer does, so a
     // feedback bench measures the real loop and not a first frame forever.
-    std::vector<std::uint8_t> feedbackBuffer;
+    // One scratch slot per effect in the chain, exactly as the app gives it.
+    std::vector<std::vector<std::uint8_t>> effectState(1);
     std::vector<double> samples;
     samples.reserve(static_cast<std::size_t>(frames));
     for (int i = 0; i < frames; ++i) {
@@ -1545,7 +1547,7 @@
       ctx.width = w;
       ctx.height = h;
       ctx.frameIndex = static_cast<std::uint64_t>(i);
-      ctx.feedback = &feedbackBuffer;
+      ctx.effectState = &effectState;
       const auto began = std::chrono::steady_clock::now();
       deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);
       samples.push_back(std::chrono::duration<double, std::milli>(

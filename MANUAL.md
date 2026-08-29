@@ -29,6 +29,7 @@ the primary platform; Linux and macOS builds share the same core.
 12. [Outputs & Routing](#12-outputs--routing)
 13. [Recording](#13-recording)
 14. [Per-Cue Effects](#14-per-cue-effects)
+14a. [The Code Source](#14a-the-code-source)
 15. [Output Geometry: AOI, Warp, Edge Blend](#15-output-geometry-aoi-warp-edge-blend)
 16. [Overlays: PiP & Lower Thirds](#16-overlays-pip--lower-thirds)
 17. [Audio](#17-audio)
@@ -150,6 +151,7 @@ timeline lanes, down to give the height back.
 | **Timer** | A stage/speaker countdown with its own clock, thresholds, chimes and messages |
 | **Video Synth** | Generated picture — oscillators, feedback, glitch stack, text mode, sprite sets |
 | **Synth** | A playable chip voice (2A03 / FDS), driven from MIDI or the computer keyboard |
+| **Code** | A live-coded picture: an expression evaluated per pixel, edited while it runs (see §14a) |
 
 ---
 
@@ -247,6 +249,33 @@ Multiple decks each have independent transport and playlists. Assign decks to
 outputs via layer assignments; deck opacity and auto-fade let stacked decks mix
 on a shared output. The focused deck is the one the keyboard/transport act on.
 
+### VJ mode
+
+A toggle. Off, Deckboy is a cue deck and every show behaves exactly as it always
+has. On, **two decks run at once and a crossfader decides what the audience
+sees** — and it is impossible to enter by accident: the whole window is edged in
+a colour used nowhere else, breathing on the beat, and a bar across the program
+column carries the controls.
+
+- **Crossfader** between deck A and deck B, folded into the opacity each deck
+  already had — so a deck faded down or mid cue-fade stays faded down.
+- **Blend**: dissolve, add or multiply. On a dissolve both decks fade (they are
+  drawn over black, so holding A up until B covered it would be a wipe); on add
+  and multiply the base stays at full and only the incoming deck rides the
+  fader.
+- **Tap tempo**, averaged over recent taps rather than the last interval —
+  nobody taps evenly. Taps more than two seconds apart start again.
+- **Quantised takes** hold until the next beat. The point of tempo in a video
+  mixer is not that anything moves by itself, it is that **what you do lands on
+  the music**.
+- Both playlists are on screen side by side, each headed with which side of the
+  crossfader it is, and A, the mix, and B each get their own monitor — a
+  crossfader you cannot see both sides of is a blind control.
+
+`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
+QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
+the one control nobody wants to reach for with a mouse.
+
 ---
 
 ## 12. Outputs & Routing
@@ -329,17 +358,106 @@ Each cue carries an ordered **effect stack**, built in the inspector's EFFECTS
 section and saved with the show. Effects run in the order you arrange them, and
 order is part of the effect — posterise then invert is not invert then
 posterise. Each row has the amount (nudge, drag to scrub, hold shift for fine,
-or click the value to type an exact number) and a second row for changing the
-effect, moving it up or down, and removing it.
+or click the value to type an exact number), the effect's own parameters
+underneath, and a row for changing the effect, moving it up or down, and
+removing it. **copy chain** / **paste chain** move a whole look between cues
+without dragging geometry, fades or crop along with it.
 
-Available: invert, posterise, solarise, threshold, vignette, grain, scanlines,
-RGB split, temporal dither and motion puppet. Every one costs nothing at zero.
+Effects work on **every kind of cue** — video, stills, patterns, cameras, NDI,
+streams and the code source. Everything costs nothing at amount zero, and
+**bypass** is not the same as amount zero: turning an effect down loses the
+setting you spent time on, bypass takes it out of the chain and gives it back.
 
-**Temporal dither** is worth trying on its own. It quantises hard to a tiny
-palette but advances the dither pattern every frame, so at 60Hz your eye
-integrates shades that are not in the palette at all — and it freezes into
-visible checkerboard the moment you pause the deck. The still and the moving
-image are deliberately different pictures.
+### The stack
+
+| Effect | What it does |
+|--------|--------------|
+| invert, posterise, solarise, threshold | Level shaping, each with a pivot and a channel skew |
+| vignette, scanlines, grain | The classic framing and texture set |
+| RGB split | Channel offset with an angle |
+| temporal dither | See below |
+| pixel sort, block glitch, datamosh | Glitch: sorted runs, torn bands, and real codec smear |
+| polar warp, luma displace, ripple, kaleidoscope | Geometry |
+| lightspeed | Relativistic aberration: field-of-view compression and Doppler shift |
+| dye advect, reaction bloom | Fluid: curl-noise advection, and Gray–Scott growth |
+| caustics | Refraction *and* the light gathering — see below |
+| feedback | A controlled camera-into-monitor loop |
+| motion puppet | Driven by another clip's movement |
+| schlieren, chladni, wavefront, crystallise, night eyes, grain flow | See below |
+
+Every effect fits inside a 60fps frame at 1080p; `--effect-bench <token>`
+reports what any of them costs on your machine.
+
+### The six that are not in anything else
+
+**Schlieren** is the instrument physicists photograph air with. You cannot see
+a shockwave or the heat off a road, but light bent by a density gradient can be
+passed or blocked by a knife edge at the focus, which turns an invisible
+gradient into brightness. Here the picture is the density field. Rotating the
+knife changes *which features exist at all* — gradients along the edge miss it
+entirely — and that is what makes it read as an instrument rather than a filter.
+
+**Chladni** is the shape a sound makes. Sand on a bowed metal plate runs away
+from everything that is moving and piles up on the lines standing still. Your
+picture is the sand. The two mode numbers are the note: whole numbers give the
+clean classical figures, and between them the plate is being driven at a
+frequency it does not want.
+
+**Wavefront** solves the actual wave equation, seeded from the picture's own
+brightness — so unlike every sine-based ripple it has *inertia*. Waves leave
+their source and keep going, pass through each other and interfere, and reflect
+off the edges of the frame and come back.
+
+**Crystallise** is grain growth, not a mosaic. Crystals nucleate at scattered
+points and grow until they collide, so the cell a pixel lands in is the one
+whose seed reached it first — and because the seeds grow at *different speeds*
+the result is the irregular shard structure of a polished metal section rather
+than a honeycomb. Each grain gets a facet normal, so the light catches it.
+
+**Night eyes** is your own retina. Rods are fast and colour-blind, cones are
+slow and need light, so in the dark the brightness runs at full speed and the
+**colour lags behind it**: move something and it goes grey as it moves, its
+colour catching up a moment later. The purkinje control is the other half — as
+the rods take over, sensitivity slides toward blue, which is the real reason
+night looks blue.
+
+**Grain flow** smears the picture along its own grain. The direction comes from
+the structure tensor — the direction in which each neighbourhood changes least,
+which is *along* a feature rather than across it — so strokes run along a hair,
+around a jaw, down the length of a shadow. Flat areas are left alone; turn
+"across the grain" up and it combs the picture apart instead.
+
+### An LFO on any parameter
+
+Every parameter — and the effect's amount — has a **`~`** at the right of its
+row. Switch it on and that parameter moves on its own, with shape, rate and
+depth on the line underneath.
+
+- **Shapes**: sine, triangle, saw, ramp, square, and sample-and-hold (one random
+  value per cycle, held — and repeatable, so the same moment of the show always
+  gives the same value).
+- **Locked to the tempo** or free-running. Locked, the cycle is measured in
+  beats and follows the VJ tap tempo, so what moves is on the music.
+- The swing is **centred on the value you set**, so switching an LFO on never
+  jumps the picture — it starts from where the parameter already was and
+  averages back to it.
+
+`FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [value]` does the
+same over the wire, where `E` is the amount.
+
+### Two worth trying on their own
+
+**Temporal dither** quantises hard to a tiny palette but advances the dither
+pattern every frame, so at 60Hz your eye integrates shades that are not in the
+palette at all — and it freezes into a visible checkerboard the moment you pause
+the deck. The still and the moving image are deliberately different pictures.
+
+**Caustics** computes what water does to the *light*, not just how it bends the
+picture. Where neighbouring rays are pushed together the brightness piles up,
+and those bright filaments are the moving net you see on the floor of a pool.
+Displacement alone is a wobble; the focusing is what the eye reads as water.
+
+### Motion puppet
 
 **Motion puppet** drives this cue's pixels with a *different* clip's movement.
 Choose a driver in the EFFECTS section: that clip is decoded only for the
@@ -347,12 +465,57 @@ per-macroblock motion vectors its codec already measured — its pictures are
 never shown — and those vectors displace this cue. A camera feed can be
 puppeteered by a crowd scene.
 
+Its **memory** and **spring** decide how the displacement accumulates: memory is
+how much each frame's motion adds to what is already there, spring how fast it
+returns to rest. Both are needed — memory alone runs away, a return alone never
+builds. At memory 0 it follows a single frame's vectors, which is what it did
+before it had the control.
+
 A driver is only as good as its motion. `Deckboy --motion-probe <file>` reports
 what a clip offers before you commit to it: a mostly static clip moves a couple
 of percent of its cells and will do nothing visible, while something with
 whole-frame movement moves half of them and is violent. A keyframe carries no
 vectors at all, so the picture is briefly left alone — that is the codec, not
 a fault.
+
+---
+
+## 14a. The Code Source
+
+**SOURCE → Code (live expression)** makes a cue whose picture *is* an
+expression, evaluated once per pixel and edited while it runs.
+
+    sin(x*8+t)*0.5+0.5, sin(y*8+t*1.3)*0.5+0.5, sin((x+y)*8-t)*0.5+0.5
+
+One expression, or three separated by commas for red, green and blue. The
+values available are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
+centre), `r` (distance from the centre), `a` (angle) and `t` (seconds), with
+`sin cos tan abs floor fract sqrt min max mod pow atan2 step clamp mix` and
+`pi` to build from.
+
+The cue inspector's **CODE** section opens the editor. It is syntax coloured —
+functions, values, numbers, brackets, operators and the commas that split the
+channels each have their own colour, and **a name the compiler will refuse is
+red while you type it**. Click into the text to place the cursor; click any
+value or function to insert it (a function arrives with its brackets and the
+cursor already inside). Ten worked examples are one click each, and a friend in
+the corner tells you what the name under your pointer does.
+
+**A compile error never blacks the output.** The cue keeps drawing the last
+expression that worked and the error appears in the editor. Someone editing
+live is mid-keystroke most of the time.
+
+Division by zero, mod by zero and the square root of a negative are all bounded
+rather than producing infinities, because an operator typing at speed will
+produce all three.
+
+Not GLSL, deliberately: Deckboy draws through SDL_Renderer, whose backend is
+D3D11, D3D12, Metal or OpenGL depending on the machine, and accepting GLSL at
+runtime everywhere would mean bundling a shader compiler to run arithmetic that
+fits in a few hundred lines. It is evaluated on the CPU, which is viable for
+the same reason the effect stack is: the frame splits across cores.
+
+`CODE GET | CODE SET <expression> | CODE EDIT` over the wire.
 
 ---
 
@@ -613,6 +776,13 @@ Deckboy.exe --sync-pop-test         # verify the pocket-test audio sync path
 Deckboy.exe --motion-probe FILE [frames]  # is this clip a usable motion driver?
 Deckboy.exe --no-inproc-decode      # force the FFmpeg subprocess decode path
 Deckboy.exe --allow-multi-instance  # bypass the single-instance lock (debug)
+Deckboy.exe --effect-bench TOKEN[:amount[:a[:b]]] [WxH] [frames]   # what one effect costs
+Deckboy.exe --effect-dump TOKEN IN.ppm OUT.ppm [frame] [passes]   # one effect, headless
+Deckboy.exe --pattern-dump ID OUT.ppm [WxH] [t]     # one pattern, headless
+Deckboy.exe --import FILE           # import at launch, skipping the splash
+Deckboy.exe --settings [tab[.subtab]]               # open settings at boot
+Deckboy.exe --inspector-scroll PX   # scroll the inspector (a big number means the bottom)
+Deckboy.exe --code-editor           # open the code editor at boot
 ```
 
 Environment: `DECKBOY_PROJECT` (open a specific show), `DECKBOY_THEME` (force a

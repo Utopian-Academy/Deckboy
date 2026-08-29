@@ -145,6 +145,11 @@ Legend: **[OWNER]** = their call, binding. **[CLAUDE]** = mine, open to challeng
 | D117 | The swing is centred on the value the operator set | **CLAUDE** | 2026-08-29. Switching an LFO on must not jump the picture. It moves from where the parameter already was and averages back to it; near the ends of 0-1 the swing goes lopsided rather than out of bounds, which beats moving the centre or refusing to oscillate. |
 | D118 | Sample-and-hold is hashed from the cycle, not drawn | **CLAUDE** | 2026-08-29. A random value that differs between the rehearsal and the performance is not usable in a show. The same moment always gives the same value. |
 | D119 | Effects belong on every cue kind, not just video | **CLAUDE** | 2026-08-29. Found while trying to screenshot the LFO row: the EFFECTS section was only in the video branch, while the engine had always applied the stack to patterns, stills, cameras, NDI and streams. The feature existed for most cue kinds with UI on one of them. |
+| D120 | Six new effects, each from something real | **JAMES** | 2026-08-29. He asked for half a dozen never-before-seen effects. Each one comes out of an instrument, an experiment, a solid-state process or the retina -- schlieren, Chladni, the wave equation, grain growth, rod/cone persistence, structure-tensor flow -- rather than from stacking two existing filters, which is what makes them things nobody else has rather than variants of things everybody has. |
+| D121 | An expensive effect runs on a reduced raster | **CLAUDE** | 2026-08-29. Grain flow was 119ms at 1080p and still 20ms with its stroke length at zero, because the cost is a scattered gather per pixel. It runs at a third resolution and scales back up. Legitimate specifically because the effect destroys detail along one axis by design; the result is indistinguishable. Answers the long-standing open question about video effects at 4K in favour of a small working raster. |
+| D122 | Per-effect state slots, keyed by stack position | **CLAUDE** | 2026-08-29. Feedback owned the single scratch buffer. Scotopic needs memory too, and a shared buffer would have had them overwriting each other the moment both were in one chain. Keyed by position so each gets its own; proven byte-identical for feedback after the change. |
+| D123 | Re-running is not restricted by cue kind; the CLOCK is | **CLAUDE** | 2026-08-29. The preview had a cue-kind restriction the output never had, so on a paused clip the output kept evolving and the preview did not -- and for a stateful effect, whose first call only seeds its memory, 'renders once' means 'never renders'. Whether to re-run now matches the output; only the choice of frame index stays kind-gated, so a video still grades deterministically. |
+| D124 | A harness must set the cue KIND, not just the path | **CLAUDE** | 2026-08-29. check_preview_effects.py rewrote the media path and left the cue kind alone, so on a machine whose saved show starts with a pattern cue every effect was verified against a generated test card. Most passed anyway; night eyes reported dead while being correct. The template is an ordinary local show file and its first cue is not the harness's to assume. |
 
 ---
 
@@ -174,9 +179,7 @@ release to land in.
 ## Open questions awaiting the owner
 
 - Destructive vs non-destructive prep output naming (`<stem>_mosh.mp4`).
-- Effects: where video-cue effects run. The synth's stages run on a small
-  internal raster because the CRT stage cost 23ms at 4K when it did not; the
-  existing `applyCueVisualEffectsToPixels` runs at full raster. Small working
-  raster for video effects too, or full raster with a budget?
 
 _Resolved and removed 2026-08-21: prep-on-toggle (yes), H.264 vs MPEG-4 for the mosh preset (MPEG-4, D71), and the v0.83.2 release question (v0.84.0 has since shipped)._
+
+_Resolved and removed 2026-08-29: where video-cue effects run (a small working raster where the effect can take it, D121)._
