@@ -8222,9 +8222,62 @@ class App {
     // multiple of its speed depending on what happened to be armed, so the
     // first ask of each frame advances and the rest are served the same field.
     std::uint64_t lastAdvancedFrame = 0;
+    // ACCUMULATED displacement. The raw field is what the driver moved in ONE
+    // frame, which is a twitch. A puppet holds its pose: this integrates the
+    // motion so a driver clip SCULPTS the picture over time and then lets it
+    // spring back, which is the difference between a wobble and being
+    // puppeteered.
+    deckboy::motion::MotionField accumulated;
+    // What the last caller was handed. The guards below serve the SAME field to
+    // every consumer in a frame, and after the preview started advancing the
+    // driver too there are two -- so serving the raw field there quietly undid
+    // the accumulation for whichever asked second, which was the output.
+    const deckboy::motion::MotionField* served = nullptr;
   };
   std::uint64_t motionDriverFrameCounter_ = 0;
   std::unordered_map<int, MotionDriver> motionDrivers_;
+  // One previous-frame buffer per deck, for the feedback effect. Kept here
+  // rather than inside the effect because the stack is stateless by design:
+  // it has to be runnable twice, dumpable headlessly, and it does not know
+  // which cue it is working on.
+  std::unordered_map<int, std::vector<std::uint8_t>> feedbackBuffers_;
+
+  std::vector<std::uint8_t>* feedbackBufferForDeck(int deckIndex) {
+    return &feedbackBuffers_[deckIndex];
+  }
+
+  // True for the FIRST consumer of this deck this frame, false for every one
+  // after it. Two window outputs showing the same deck both run the stack, and
+  // without this the second would step the echo again -- so the two screens
+  // would show different frames of the same loop.
+  std::unordered_map<int, std::uint64_t> feedbackAdvancedFrame_;
+  bool claimDeckFeedbackAdvance(int deckIndex) {
+    auto it = feedbackAdvancedFrame_.find(deckIndex);
+    if (it != feedbackAdvancedFrame_.end() &&
+        it->second == motionDriverFrameCounter_) {
+      return false;
+    }
+    feedbackAdvancedFrame_[deckIndex] = motionDriverFrameCounter_;
+    return true;
+  }
+
+  // The control preview keeps its OWN loop. It runs at a different rate and
+  // sometimes not at all, and sharing the output's buffer would advance the
+  // feedback twice on any frame where both ran -- so the preview would show a
+  // faster decay than the audience sees.
+  std::unordered_map<int, std::vector<std::uint8_t>> previewFeedbackBuffers_;
+  std::vector<std::uint8_t>* previewFeedbackBufferForDeck(int deckIndex) {
+    return &previewFeedbackBuffers_[deckIndex];
+  }
+
+  // Both loops for one deck, emptied. The effect re-seeds from the picture it
+  // is next handed, so this fades up rather than flashing black.
+  void resetDeckFeedback(int deckIndex) {
+    auto output = feedbackBuffers_.find(deckIndex);
+    if (output != feedbackBuffers_.end()) output->second.clear();
+    auto preview = previewFeedbackBuffers_.find(deckIndex);
+    if (preview != previewFeedbackBuffers_.end()) preview->second.clear();
+  }
 
   // The inspector's driver preview and scrub bar. The driver has no cue, no
   // engine and no transport of its own, so this is the only place any of its
@@ -8287,14 +8340,15 @@ class App {
       return nullptr;
     }
     if (driver.lastAdvancedFrame == motionDriverFrameCounter_) {
-      return driver.haveField ? &driver.field : nullptr;   // already this frame
+      return driver.served;   // same field to every consumer this frame
     }
     driver.lastAdvancedFrame = motionDriverFrameCounter_;
     // PAUSED holds the current field rather than stopping the effect: the
     // picture stays displaced by whatever the driver was doing, which is a
     // usable look in itself. Stopping would just snap back to undisplaced.
     if (cue.motionDriverPaused) {
-      return driver.haveField ? &driver.field : nullptr;
+      return driver.served ? driver.served
+                           : (driver.haveField ? &driver.field : nullptr);
     }
     driver.advanceCredit +=
       std::clamp(static_cast<double>(cue.motionDriverSpeed), 0.0, 4.0);
@@ -8316,7 +8370,51 @@ class App {
       }
       driver.haveField = true;
     }
-    return &driver.field;
+    return integrateMotionDriver(driver, cue);
+  }
+
+  // Fold this frame's motion into the driver's memory and hand back whichever
+  // field the cue actually asked for.
+  //
+  // memory 0 returns the raw per-frame field, which is exactly what this did
+  // before it had a memory -- and it is what every existing show carries, so
+  // none of them change.
+  const deckboy::motion::MotionField* integrateMotionDriver(MotionDriver& driver,
+                                                            const Cue& cue) {
+    double memory = 0.0;
+    double spring = 0.5;
+    for (const auto& fx : cue.effects) {
+      if (fx.kind == deckboy::effects::CueEffectKind::MotionPuppet && !fx.bypassed) {
+        spring = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0);
+        memory = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+        break;
+      }
+    }
+    if (memory <= 0.0005 || driver.field.empty()) {
+      driver.served = driver.haveField ? &driver.field : nullptr;
+      return driver.served;
+    }
+    // Reshape on the first frame or if the driver changed size.
+    if (driver.accumulated.cols != driver.field.cols ||
+        driver.accumulated.rows != driver.field.rows ||
+        driver.accumulated.dx.size() != driver.field.dx.size()) {
+      driver.accumulated = driver.field;
+      std::fill(driver.accumulated.dx.begin(), driver.accumulated.dx.end(), 0.0f);
+      std::fill(driver.accumulated.dy.begin(), driver.accumulated.dy.end(), 0.0f);
+    }
+    driver.accumulated.sourceWidth = driver.field.sourceWidth;
+    driver.accumulated.sourceHeight = driver.field.sourceHeight;
+    driver.accumulated.frameIndex = driver.field.frameIndex;
+    // Spring is how fast it returns to rest, memory how much each frame adds.
+    // Both are needed: memory alone runs away, and a return alone never builds.
+    const float keep = static_cast<float>(1.0 - (0.02 + spring * 0.28));
+    const float add = static_cast<float>(0.3 + memory * 1.7);
+    for (std::size_t i = 0; i < driver.accumulated.dx.size(); ++i) {
+      driver.accumulated.dx[i] = driver.accumulated.dx[i] * keep + driver.field.dx[i] * add;
+      driver.accumulated.dy[i] = driver.accumulated.dy[i] * keep + driver.field.dy[i] * add;
+    }
+    driver.served = &driver.accumulated;
+    return driver.served;
   }
 
   // Back to the driver's first frame. Called on TAKE when the cue asks for it,
@@ -9463,9 +9561,12 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     return App::runEffectBench(ops[0], bw, bh, bframes);
   }
   if (mode == "--effect-dump") {
-    if (ops.size() < 3) return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
+    if (ops.size() < 3) {
+      return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame] [passes]");
+    }
     const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
-    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame);
+    const int dumpPasses = ops.size() > 4 ? std::atoi(ops[4].c_str()) : 1;
+    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, dumpPasses);
   }
   if (mode == "--pdf-probe") {
     if (ops.empty()) return missing("<file.pdf> [outdir] [width]");

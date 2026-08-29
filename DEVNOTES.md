@@ -1,5 +1,59 @@
 # DEVNOTES
 
+## A Stateless Stack With Two Frames Of Memory (v0.87.0)
+
+The effect stack is deliberately stateless: it is a free function over a pixel
+buffer, so it can be run twice, dumped headlessly by `--effect-dump`, benched,
+and applied by the output and the preview independently. Video feedback is the
+first effect that needs to remember the last frame, and the temptation is to
+put a static buffer inside the effect. That would break every one of those
+properties at once, and it would not know which deck it was working for.
+
+So the memory lives with the caller. `CueEffectContext::feedback` points at a
+buffer the app owns, one per deck, and the effect does nothing at all when it
+is null -- which is what a caller with no buffer deserves, rather than a
+pretend result.
+
+**Two planes and a cursor byte, in that one buffer.** The obvious shape
+allocates a frame, renders into it, copies it back over the picture and keeps
+it for next time. At 1080p that is eight megabytes of allocation and eight of
+memcpy every frame. Instead the buffer holds two whole frames plus a trailing
+byte naming which one is newest: the effect reads the newest, and writes the
+result to the other plane AND to the picture in the same pass. No allocation,
+no copy back, and the read and the write can never alias.
+
+**A hold, for the second consumer.** Two window outputs showing the same deck
+both run the stack. Whoever asks first steps the loop; everyone after gets
+`feedbackHold`, reads the same previous frame the step read, and writes
+nothing -- so both screens show the identical picture instead of drifting one
+frame of echo apart. This is the same fault the motion driver had (D93) and the
+same shape of answer. The control preview keeps a SEPARATE buffer rather than
+holding on the output's, because it runs at its own rate and sometimes not at
+all.
+
+**Cleared at every take.** The loop belongs to what was on the deck, not to the
+deck. Left alone, the first frame of a new cue echoes the last frame of the old
+one -- a ghost of the previous clip, on the output, at the take.
+
+**Lighten, not add.** Written additively first, which is what feedback
+physically is, and a colour bar went to clipped white in twenty frames -- a
+third of a second, on stage. Adding has a fixed point at L/(1-echo), several
+times the input; taking the brighter of the live pixel and the decayed echo has
+its fixed point at L, so the picture can never come out brighter than it went
+in. Measured over 120 passes the result is stable to within three levels and
+the mean stops moving. That bound is the whole reason this is shippable and not
+a party trick.
+
+**32.32 fixed point, not 16.16.** The source coordinate is affine in x, so it
+is a start and a step per row rather than two rotations and two `lround`s per
+pixel; with the echo as three 256-entry tables the effect went from 5.5ms to
+1.0ms at 1080p. At 16 fractional bits the step's own rounding error accumulates
+to about four thousandths of a pixel across a 1080p row, which was enough to
+move a few dozen pixels of a colour-bar edge and break byte-identity with the
+plain double version. At 32 bits the drift is under a millionth of a pixel and
+the two agree exactly, which is the standard this codebase holds optimisations
+to (D95).
+
 ## The Readback That Never Ran (v0.86.0)
 
 **One missing `Flush()` meant every recording was a still frame.** D3D11 defers
@@ -2056,11 +2110,12 @@ What already helps when GPU upload comes:
 3D projection mapping, FBX import, marker calibration, Notch/Unreal/TouchDesigner
 blocks, cloud collaboration. Different products, not features.
 
-## PROPOSAL — Deck mixing for VJ work (not built; design notes)
+## Deck mixing for VJ work (proposed and then BUILT in v0.87.0)
 
-Raised by James 2026-08-28 as research toward "superdeckboy". Nothing here is
-implemented. Written down because the shape of the answer is not what it looks
-like from outside.
+Raised by James 2026-08-28 as research toward "superdeckboy", written down as a
+proposal, and built the same day as VJ mode. Kept as written because the design
+reasoning is still what the code does, and because the shape of the answer is
+not what it looks like from outside.
 
 ### The second deck already exists
 

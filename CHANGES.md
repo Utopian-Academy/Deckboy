@@ -1,5 +1,197 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-28 - v0.87.0 (VJ mode, a code source, and two effects nobody has)
+
+Two decks, a crossfader and a tempo; a source you write instead of load; and
+the effect stack gains water and a feedback loop that cannot run away.
+
+### VJ mode
+
+A toggle. Off, Deckboy is a cue deck and every existing show renders exactly as
+it did, through the same code path. On, two decks run at once and a crossfader
+decides what the audience sees.
+
+The decks were never the missing piece. `Project::decks` has always been a
+vector and each deck has always had its own engine, playlist and transport --
+what was missing is that an output could only ever be fed by ONE of them. So
+this uses the layering hook that was already there and folds a mix gain into
+the opacity each deck layer already carried, which means a deck faded down or
+mid cue-fade stays faded down.
+
+Both decks fade on a dissolve, not just the incoming one: they are drawn over
+black, so holding A at full until B covered it would be a wipe. **Add** and
+**multiply** are ways of combining two pictures, so there the base stays at
+full and only the incoming deck rides the fader. Verified by recording the
+composite with deck A solid red under deck B solid blue -- dissolve walks
+250/0/0 to 0/0/253 through 64/0/127, add gives magenta, multiply gives black.
+Colours in neither clip, which is the proof they are combined and not switched.
+
+**Tap tempo** averages the recent taps rather than taking the last interval:
+nobody taps evenly, and one interval makes the tempo jump on every beat. Taps
+more than two seconds apart start again, because that is a person restarting
+and not a 25bpm track. **Quantised takes** hold until the next beat -- the
+point of tempo in a video mixer is not that anything moves by itself, it is
+that what the operator does lands ON the music. Measured at 60bpm: unquantised
+takes fire in 0.04s, quantised ones wait between 0.16s and 0.81s depending on
+where in the beat they were asked for.
+
+**It announces itself.** A mode you can enter without noticing is a mode that
+ruins a show, so there are two signals: a band across the program column that
+exists only in VJ mode and carries the controls rather than just announcing
+itself, and the whole window edged in a colour used nowhere else -- for the
+glance across a room before anyone touches the machine. Both playlists are on
+screen side by side, each headed with which side of the crossfader it is,
+because two lists both saying PLAYLIST is how the wrong clip reaches an
+audience.
+
+The animation carries information rather than decorating. The bar drops in over
+a third of a second so the layout settles instead of jumping; the badge and the
+frame breathe on the beat, which doubles as a tempo readout you can see without
+looking at the number; and the fader handle leans the way it is travelling and
+trails a wake that fades as it settles.
+
+`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
+QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a crossfader
+is a fader and a fader is the one control nobody wants to reach for with a
+mouse.
+
+Five bugs found building it. Two in the mix itself, both invisible from
+outside: `renderTextureWithCueGeometry` overwrote the caller's blend mode,
+silently discarding add and multiply while dissolve appeared to work, and the
+crossfader had to be applied on the GPU zero-copy path as well as the CPU
+bridge. Three in the look of it, all found by screenshotting the thing rather
+than reasoning about it:
+
+- The window edge was drawn AFTER `SDL_RenderPresent` -- painting every frame,
+  perfectly, onto a back buffer nothing ever showed. The signal designed to be
+  impossible to miss had never once appeared.
+- VJ mode pushed the program monitor right to make room for the A preview by
+  advancing the column's own x, so the timeline lanes and the entire transport
+  row moved right with it while keeping the full column width, and ran off the
+  edge. TAKE-adjacent controls, clipped away, in the mode where the second deck
+  is live.
+- The bar was authored at fixed widths totalling 670px and VJ mode leaves the
+  program column around 500, so TAP and the tempo -- the two controls you reach
+  for on the beat -- were the two that fell off the end. The controls squeeze
+  toward a floor now, the fader takes what is left, and labels that cannot
+  survive the squeeze say less instead of being cut in half.
+
+And the crossfader's own readout was the same colour as its handle, so the
+handle ate a digit whenever it passed under the number. It sits in a dark well
+now, legible at every position.
+### A code source you can write during a show
+
+A pattern type called **Code**: the picture is an expression, evaluated per
+pixel, edited while it runs.
+
+    sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r
+
+One expression, or three separated by commas for red, green and blue.
+Variables are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
+centre), `r` (radius), `a` (angle) and `t` (seconds), with `sin cos tan abs
+floor fract sqrt min max mod pow atan2 step clamp mix` to build from.
+
+**Why not GLSL.** Deckboy draws through SDL_Renderer, whose backend is D3D11,
+D3D12, Metal or OpenGL depending on the machine, and SDL's own shader path
+wants SPIR-V, DXIL or MSL -- already compiled. Accepting GLSL at runtime on
+every platform would mean bundling a shader compiler, tens of megabytes and a
+per-backend translation step, to run arithmetic that fits in a few hundred
+lines. So it is evaluated on the CPU, which is viable for the same reason the
+effect stack is: the frame splits across cores.
+
+The expression is compiled ONCE into a flat instruction list, cached against
+its own text, and the inner loop sees only the instructions -- never a syntax
+tree, which would spend its time chasing pointers instead of drawing.
+
+**A compile error does not black the output.** The cue keeps drawing what it
+last drew and the error appears in the inspector. Someone editing live is
+mid-keystroke most of the time, and a source that goes black on every
+half-typed function is unusable on a stage.
+
+The language has its own test suite, and it earned its keep immediately:
+multi-argument functions did not compile, unary minus bound so loosely that
+`-3+5` came out as -8, and `^` was left-associative. Division by zero, mod by
+zero and the square root of a negative are all bounded rather than producing
+infinities or NaN, because an operator typing at speed will produce all three.
+### Caustics: the light, not just the bend
+
+Every "water" effect displaces the picture. This one also computes what the
+water does to the LIGHT, which is the part the eye actually reads as water.
+
+A refracting surface bends what you see through it and, in the same motion,
+concentrates or spreads the rays doing so. Where neighbouring rays are pushed
+toward each other the brightness piles up, and those bright filaments are
+caustics -- the moving net of light on the floor of a swimming pool. The
+focusing term is the DIVERGENCE of the displacement field: one finite
+difference per cell, and it is the whole difference between this and a ripple.
+
+Four crossed waves at different angles and rates, so it never reads as a grid.
+**Chop** runs from long ocean swell to rain on a puddle, **swell speed** sets
+the rate, **focus** how hard the light gathers -- through a tanh, so a strong
+swell makes filaments instead of clipping to white. It saturated into hard
+black and white bands on the first attempt; the curve is the fix. 1.9ms at
+1080p.
+
+### Feedback that cannot run away
+
+A camera pointed at its own monitor, except the transform between passes is
+chosen rather than accidental -- and bounded, which is what makes it usable on
+a stage.
+
+Scale the echo slightly up and it walks toward you as a tunnel; scale it down
+and it retreats; add a turn and the tunnel becomes a spiral; slide it and it
+smears into a comet. Those are the four controls, because that is the loop:
+**zoom**, **spin**, **drift**, and **colour bleed** for a trail that changes
+colour as it fades rather than only going dim.
+
+Real feedback blows out to white the moment the loop gain passes one, and there
+is no getting it back during a show. Written the physical way -- add the echo
+to the picture -- a colour bar went to clipped white in twenty frames, a third
+of a second. So the echo LIGHTENS instead of adding: the brighter of the live
+pixel and the decayed echo. Adding has a fixed point several times the input;
+lightening has its fixed point at the input, so the picture can never come out
+brighter than the picture went in. Measured over 120 passes it settles and
+stops moving, to within three levels out of 255.
+
+The loop is cleared at every take, so a new cue never opens with a ghost of the
+last frame of the old one. Two outputs showing the same deck step it once
+between them, not once each. 1.0ms at 1080p, after the source coordinate became
+fixed-point stepping and the echo became three tables -- 5.4x faster than the
+straightforward version, and byte for byte the same picture.
+
+### Motion puppetry has memory now
+
+The puppet followed one frame of the driver's motion and let go of it
+immediately, so it could only ever twitch. It now has a spring and an
+accumulator: **memory** is how much each frame's motion adds to what is already
+there, **spring** how fast it returns to rest. Both are needed -- memory alone
+runs away, a return alone never builds. Measured on the same driver, the mean
+displacement went from 10.5 to 25.9 grey levels per pixel.
+
+memory 0 returns the raw per-frame field, which is exactly what it did before
+and what every show saved until today carries, so none of them change.
+
+### Pixel sort rendered differently on macOS than on Windows
+
+`std::sort` says nothing about how it orders elements the comparator considers
+equal, and two standard libraries do not have to agree. Sorting a run by luma
+alone left every equal-luma pixel free to land anywhere, so the same cue on the
+same frame came out visibly different under libc++ than under MSVC -- 102 of
+the sampled bytes differing, by as much as 226. The comparator now falls back
+to the packed pixel value, which is a total order, and both platforms render
+the same frame.
+
+### Smaller things
+
+- `--effect-dump` takes a pass count, so an effect whose whole subject is what
+  happens across frames can be rendered headlessly. Feedback's first pass only
+  fills its buffer; there is nothing to look at until the second.
+- `tools/check_effects_offline.py --params` was reporting motion puppet's two
+  parameters as dead on every run -- it has no motion vectors when called
+  directly, which the main sweep already knew and the parameter sweep did not.
+  A gate that always fails is a gate nobody reads.
+- The text timeline and the cue inspector sat hard against their margins.
+
 ## 2026-08-27 - v0.86.0 (recordings that move, effects, a faster synth)
 
 The headline is a correction. **Every recording 0.85.0 made was a single
@@ -97,94 +289,6 @@ the same grade and stack before it uploads.
 path with no output armed, seeking and pausing so every case is the same frame
 and only the effect differs. All fifteen change the picture.
 
-### A code source you can write during a show
-
-A pattern type called **Code**: the picture is an expression, evaluated per
-pixel, edited while it runs.
-
-    sin(x*12+t)*0.5+0.5, sin(y*9-t)*0.5+0.5, r
-
-One expression, or three separated by commas for red, green and blue.
-Variables are `x` `y` (0-1 across the frame), `cx` `cy` (-1..1 from the
-centre), `r` (radius), `a` (angle) and `t` (seconds), with `sin cos tan abs
-floor fract sqrt min max mod pow atan2 step clamp mix` to build from.
-
-**Why not GLSL.** Deckboy draws through SDL_Renderer, whose backend is D3D11,
-D3D12, Metal or OpenGL depending on the machine, and SDL's own shader path
-wants SPIR-V, DXIL or MSL -- already compiled. Accepting GLSL at runtime on
-every platform would mean bundling a shader compiler, tens of megabytes and a
-per-backend translation step, to run arithmetic that fits in a few hundred
-lines. So it is evaluated on the CPU, which is viable for the same reason the
-effect stack is: the frame splits across cores.
-
-The expression is compiled ONCE into a flat instruction list, cached against
-its own text, and the inner loop sees only the instructions -- never a syntax
-tree, which would spend its time chasing pointers instead of drawing.
-
-**A compile error does not black the output.** The cue keeps drawing what it
-last drew and the error appears in the inspector. Someone editing live is
-mid-keystroke most of the time, and a source that goes black on every
-half-typed function is unusable on a stage.
-
-The language has its own test suite, and it earned its keep immediately:
-multi-argument functions did not compile, unary minus bound so loosely that
-`-3+5` came out as -8, and `^` was left-associative. Division by zero, mod by
-zero and the square root of a negative are all bounded rather than producing
-infinities or NaN, because an operator typing at speed will produce all three.
-### VJ mode
-
-A toggle. Off, Deckboy is a cue deck and every existing show renders exactly as
-it did, through the same code path. On, two decks run at once and a crossfader
-decides what the audience sees.
-
-The decks were never the missing piece. `Project::decks` has always been a
-vector and each deck has always had its own engine, playlist and transport --
-what was missing is that an output could only ever be fed by ONE of them. So
-this uses the layering hook that was already there and folds a mix gain into
-the opacity each deck layer already carried, which means a deck faded down or
-mid cue-fade stays faded down.
-
-Both decks fade on a dissolve, not just the incoming one: they are drawn over
-black, so holding A at full until B covered it would be a wipe. **Add** and
-**multiply** are ways of combining two pictures, so there the base stays at
-full and only the incoming deck rides the fader. Verified by recording the
-composite with deck A solid red under deck B solid blue -- dissolve walks
-250/0/0 to 0/0/253 through 64/0/127, add gives magenta, multiply gives black.
-Colours in neither clip, which is the proof they are combined and not switched.
-
-**Tap tempo** averages the recent taps rather than taking the last interval:
-nobody taps evenly, and one interval makes the tempo jump on every beat. Taps
-more than two seconds apart start again, because that is a person restarting
-and not a 25bpm track. **Quantised takes** hold until the next beat -- the
-point of tempo in a video mixer is not that anything moves by itself, it is
-that what the operator does lands ON the music. Measured at 60bpm: unquantised
-takes fire in 0.04s, quantised ones wait between 0.16s and 0.81s depending on
-where in the beat they were asked for.
-
-**It announces itself.** A mode you can enter without noticing is a mode that
-ruins a show, so there are two signals: a band across the program column that
-exists only in VJ mode and carries the controls rather than just announcing
-itself, and the whole window edged in a colour used nowhere else -- for the
-glance across a room before anyone touches the machine. Both playlists are on
-screen side by side, each headed with which side of the crossfader it is,
-because two lists both saying PLAYLIST is how the wrong clip reaches an
-audience.
-
-The animation carries information rather than decorating. The bar drops in over
-a third of a second so the layout settles instead of jumping; the badge and the
-frame breathe on the beat, which doubles as a tempo readout you can see without
-looking at the number; and the fader handle leans the way it is travelling and
-trails a wake that fades as it settles.
-
-`VJ ON|OFF | MIX <0-1> | BLEND <dissolve|add|multiply> | TAP | BPM <n> |
-QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a crossfader
-is a fader and a fader is the one control nobody wants to reach for with a
-mouse.
-
-Two bugs found building it, both invisible from outside:
-`renderTextureWithCueGeometry` overwrote the caller's blend mode, silently
-discarding add and multiply while dissolve appeared to work; and the crossfader
-had to be applied on the GPU zero-copy path as well as the CPU bridge.
 ### No black window before the splash
 
 The control window was created VISIBLE and then painted for the first time

@@ -52,7 +52,16 @@ EFFECTS = [
     ("dye_advect",      "0.9:0.0:0.6"),
     ("reaction_bloom",  "0.85:0.5:0.6"),
     ("relativistic",    "0.85:0.55:0.8"),
+    ("caustics",        "0.8:0.45:0.4:0.7"),
+    ("feedback",        "1.0:0.85:0.62:0.62:0.4"),
 ]
+
+# Effects whose whole subject is what happens ACROSS frames need more than one
+# application before there is anything to look at: feedback's first pass only
+# fills the buffer it will later echo. --effect-dump takes a pass count for
+# exactly this, and running the rest more than once would only measure them
+# chewing on their own output.
+PASSES = {"feedback": 12}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -77,6 +86,9 @@ PARAM_SLOTS = {
     "dye_advect":      ["bleed", "curl detail", "swirl"],
     "reaction_bloom":  ["feed rate", "growth", "seed density", "glow"],
     "relativistic":    ["field of view", "doppler", "off-axis"],
+    "caustics":        ["chop", "swell speed", "focus"],
+    "feedback":        ["zoom", "spin", "drift", "colour bleed"],
+    "motion_puppet":   ["spring", "memory"],
 }
 
 # What a show saved before a parameter existed carries, and what it must still
@@ -105,13 +117,22 @@ def check_params(exe, src, base, work):
     def render(token, params, frame=7):
         out = os.path.join(work, "param.ppm")
         spec = "%s:0.9:%g:%g:%g:%g" % ((token,) + tuple(params))
-        subprocess.run([exe, "--effect-dump", spec, src, out, str(frame)],
-                       capture_output=True)
+        subprocess.run([exe, "--effect-dump", spec, src, out, str(frame),
+                        str(PASSES.get(token, 1))], capture_output=True)
         return raster(out) if os.path.exists(out) else b""
 
     dead = 0
+    # The same exemption the main sweep uses. Without it this check reported
+    # motion puppet's two parameters as dead on every run -- they are not, it
+    # simply has no motion vectors to work from when it is called directly --
+    # and a gate that always fails is a gate nobody reads.
+    undumpable = dict(NOT_PIXEL_EFFECTS)
     print("%-16s %-15s %-6s %s" % ("effect", "parameter", "verdict", "detail"))
     for token, names in PARAM_SLOTS.items():
+        if token in undumpable:
+            print("%-16s %-15s %-6s %s"
+                  % (token, "-", "n/a", undumpable[token]))
+            continue
         neutral = render(token, NEUTRAL)
         if not neutral:
             print("%-16s %-15s %-6s %s" % (token, "-", "FAIL", "no render"))
@@ -181,7 +202,8 @@ def main():
     for token, params in EFFECTS:
         out = os.path.join(work, token + ".ppm")
         proc = subprocess.run([exe, "--effect-dump", "%s:%s" % (token, params),
-                               src, out, str(args.frame)],
+                               src, out, str(args.frame),
+                               str(PASSES.get(token, 1))],
                               capture_output=True, text=True)
         if proc.returncode != 0 or not os.path.exists(out):
             rows.append((token, "FAIL", (proc.stderr or proc.stdout).strip()[:70]))
