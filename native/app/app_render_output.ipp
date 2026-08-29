@@ -649,9 +649,17 @@
             std::vector<deckboy::effects::CueEffect> modulated;
             const bool moving = deckboy::effects::modulateCueEffectStack(
               sourceCue->effects, lfoSeconds_, lfoBeats_, modulated);
+            // Timed, because "why is it stuttering" is a question an operator
+            // should not have to answer by deleting effects one at a time. This
+            // is the REAL cost on this machine at this raster, not an estimate.
+            const auto fxBegan = std::chrono::steady_clock::now();
             deckboy::effects::applyCueEffectStack(
               outputRuntime->layerBridgeScratchPixels,
               moving ? modulated : sourceCue->effects, fxCtx);
+            noteEffectChainCost(
+              sourceDeckIndex,
+              std::chrono::duration<double, std::milli>(
+                std::chrono::steady_clock::now() - fxBegan).count());
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }

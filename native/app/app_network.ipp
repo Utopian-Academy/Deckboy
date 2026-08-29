@@ -443,7 +443,7 @@
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN <dB> AUDIONORM SPEED <0.25-4>\n"
         "output: OUT <on|off> FULLSCREEN <on|off> DISPLAY <n> TC <hh:mm:ss:ff>\n"
-        "vj: VJ ON|OFF | VJ MIX <0-1> | VJ BLEND <dissolve|add|multiply>\n"
+        "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND <dissolve|add|multiply>\n"
         "    VJ TAP | VJ BPM <n> | VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX CLEAR\n"
         "         FX PARAM <n> <A-D> <0-1>   (each effect's own shaping controls)\n"
