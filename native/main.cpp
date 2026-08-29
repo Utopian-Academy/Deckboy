@@ -2244,6 +2244,26 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     one << deckboy::effects::cueEffectToken(fx.kind) << ':' << fx.amount
         << ':' << fx.paramA << ':' << fx.paramB << ':' << (fx.bypassed ? 1 : 0)
         << ':' << fx.paramC << ':' << fx.paramD;
+    // The LFOs go on the END, and only when at least one is armed.
+    //
+    // Appending keeps every show ever saved readable and keeps a show saved
+    // here readable by a build that predates them -- it stops at paramD and
+    // ignores the rest, which is exactly right, because an older build has no
+    // oscillators to run. Written only when armed so the format does not grow
+    // by seven numbers per parameter on every cue that never touched one.
+    //
+    // Semicolons between the LFOs and commas inside them: the colon and the
+    // pipe are already spoken for one and two levels up.
+    if (deckboy::effects::cueEffectStackHasLfo({fx})) {
+      one << ':';
+      for (int i = 0; i < 5; ++i) {
+        const auto& lfo = fx.lfo[i];
+        if (i) one << ';';
+        one << (lfo.on ? 1 : 0) << ',' << static_cast<int>(lfo.shape) << ','
+            << lfo.rateHz << ',' << lfo.depth << ',' << lfo.phase << ','
+            << (lfo.beatSync ? 1 : 0) << ',' << lfo.beats;
+      }
+    }
     out += one.str();
   }
   return out;
@@ -2278,6 +2298,40 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         if (parts.size() > 4) fx.bypassed = std::atoi(parts[4].c_str()) != 0;
         if (parts.size() > 5) fx.paramC = static_cast<float>(std::atof(parts[5].c_str()));
         if (parts.size() > 6) fx.paramD = static_cast<float>(std::atof(parts[6].c_str()));
+        // The LFO block, when the show that wrote this had one. Absent on every
+        // older save, which leaves every oscillator off -- which is what those
+        // shows meant.
+        if (parts.size() > 7) {
+          std::size_t at = 0;
+          for (int i = 0; i < 5 && at != std::string::npos; ++i) {
+            const std::size_t semi = parts[7].find(';', at);
+            const std::string one = parts[7].substr(
+              at, semi == std::string::npos ? std::string::npos : semi - at);
+            std::vector<std::string> f;
+            std::size_t c0 = 0;
+            for (;;) {
+              const std::size_t comma = one.find(',', c0);
+              f.push_back(one.substr(c0, comma == std::string::npos
+                                           ? std::string::npos : comma - c0));
+              if (comma == std::string::npos) break;
+              c0 = comma + 1;
+            }
+            auto& lfo = fx.lfo[i];
+            if (f.size() > 0) lfo.on = std::atoi(f[0].c_str()) != 0;
+            if (f.size() > 1) {
+              const int shape = std::atoi(f[1].c_str());
+              lfo.shape = static_cast<deckboy::effects::LfoShape>(
+                std::clamp(shape, 0,
+                           static_cast<int>(deckboy::effects::LfoShape::Count) - 1));
+            }
+            if (f.size() > 2) lfo.rateHz = static_cast<float>(std::atof(f[2].c_str()));
+            if (f.size() > 3) lfo.depth = static_cast<float>(std::atof(f[3].c_str()));
+            if (f.size() > 4) lfo.phase = static_cast<float>(std::atof(f[4].c_str()));
+            if (f.size() > 5) lfo.beatSync = std::atoi(f[5].c_str()) != 0;
+            if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
+            at = semi == std::string::npos ? std::string::npos : semi + 1;
+          }
+        }
         stack.push_back(fx);
       }
     }
@@ -5196,8 +5250,29 @@ class App {
     if (pendingInspectorScroll_ < 0 || cueSettingsScrollMax_ <= 0) {
       return;
     }
-    cueSettingsScroll_ = std::min(pendingInspectorScroll_, cueSettingsScrollMax_);
-    pendingInspectorScroll_ = -1;
+    // HELD until it is satisfied, not applied once.
+    //
+    // The maximum is measured from what was drawn THIS frame, so it only ever
+    // extends about one viewport past wherever the inspector is currently
+    // scrolled. Scrolling by wheel works because each notch reveals a little
+    // more and the maximum grows with it; a single jump to 2000px clamped to
+    // one viewport and stopped, which is why asking for 1900 and for 2600 both
+    // landed in exactly the same place and the effects section stayed out of
+    // reach.
+    //
+    // So the request is kept and re-applied each frame, and given up only when
+    // the maximum stops growing -- which means the bottom really has been
+    // reached.
+    const int want = std::min(pendingInspectorScroll_, cueSettingsScrollMax_);
+    lastInspectorScrollMax_ = cueSettingsScrollMax_;
+    cueSettingsScroll_ = want;
+    // Asking for more than there is means the BOTTOM, and it keeps meaning the
+    // bottom as the inspector grows. A request that gave up on arrival looked
+    // right until a section appeared below it -- arming an LFO adds a row, and
+    // the row it added was the one thing the screenshot needed to show.
+    if (pendingInspectorScroll_ <= cueSettingsScrollMax_) {
+      pendingInspectorScroll_ = -1;   // an exact position: arrived, done
+    }
   }
 
   void debugOpenSettings(int tab, int videoSubTab = 0) {
@@ -5520,7 +5595,17 @@ class App {
                         QuickAction incAction, QuickAction toggleAction = QuickAction::ToggleLoop,
                         bool isToggle = false, bool toggleOn = false, std::string tip = "",
                         bool valueEditable = false, QuickAction valueAction = QuickAction::ToggleLoop,
-                        int paramId = -1) {
+                        int paramId = -1,
+                        // An optional chip on the right-hand end of the row.
+                        // Added for the parameter LFOs, where the switch has to
+                        // sit ON the parameter it modulates -- a separate list
+                        // of "things that are oscillating" somewhere else in the
+                        // inspector would be one more place to keep in sync
+                        // with reality.
+                        QuickAction trailAction = QuickAction::ToggleLoop,
+                        bool trailOn = false, int trailParam = -1,
+                        const char* trailLabel = "~",
+                        std::string trailTip = "") {
     // A paramId is the modern way to make a value typeable: it needs no
     // per-control action, just a row in the numeric-parameter table.
     if (paramId >= 0) {
@@ -5543,7 +5628,9 @@ class App {
       drawTextSafe(controlRenderer_, ix.valueFont, labelRect, text, ink);
       quickButtons_.push_back({btn, toggleAction, tip});
     } else {
-      int fixedW = kBtnW * 2 + gap * 3;
+      const bool hasTrail = trailAction != QuickAction::ToggleLoop;
+      const int trailW = hasTrail ? 24 : 0;
+      int fixedW = kBtnW * 2 + gap * 3 + (hasTrail ? trailW + gap : 0);
       int minValueW = ix.ellipsize ? 76 : 68;
       int labelW = inspLabelColumnWidth(ix, contentW, fixedW);
       int valueW = std::max(minValueW, contentW - labelW - fixedW);
@@ -5551,6 +5638,14 @@ class App {
       SDL_Rect decBtn {labelRect.x + labelRect.w + gap, rowY, kBtnW, ix.rowH};
       SDL_Rect valRect {decBtn.x + decBtn.w + gap, rowY, valueW, ix.rowH};
       SDL_Rect incBtn {valRect.x + valRect.w + gap, rowY, kBtnW, ix.rowH};
+      if (hasTrail) {
+        SDL_Rect trailBtn {incBtn.x + incBtn.w + gap, rowY, trailW, ix.rowH};
+        drawUIPanel(trailBtn, trailOn ? pal.dark : pal.tile, pal.deep,
+                    trailOn ? pal.light : pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, trailBtn, trailLabel,
+                             trailOn ? pal.light : pal.inkSoft);
+        quickButtons_.push_back({trailBtn, trailAction, trailTip, trailParam});
+      }
 
       drawTextSafe(controlRenderer_, ix.labelFont, labelRect, label, pal.fg);
       drawUIPanel(decBtn, pal.tile, pal.deep, pal.mid);
@@ -5580,6 +5675,100 @@ class App {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, incBtn, "+", pal.fg);
       quickButtons_.push_back({incBtn, incAction, tip});
     }
+  }
+
+  // The oscillator's own controls, under the parameter it is driving.
+  //
+  // Drawn ONLY when the LFO is armed. A shape, a rate and a depth under every
+  // parameter of every effect would triple the length of the effects section
+  // for the ninety-odd per cent of parameters nobody is modulating -- so the
+  // row appears when the "~" is switched on and takes its space back when it
+  // is switched off.
+  //
+  // Three cells on one line rather than three rows, because the inspector is a
+  // narrow column and these three belong together: what shape, how fast, how
+  // far.
+  int inspDrawLfoRow(const InspectorCtx& ix, int rowY,
+                     const deckboy::effects::CueEffect& fx, int slot,
+                     int effectIndex) {
+    if (slot < 0 || slot > 4 || !fx.lfo[slot].on) {
+      return rowY;
+    }
+    const auto& lfo = fx.lfo[slot];
+    const int packed = effectIndex * 8 + slot;
+    const int inset = ix.inset;
+    const int contentW = ix.ctrlW - inset * 2;
+    // Indented, so it reads as belonging to the row above rather than as
+    // another parameter of the effect.
+    const int indent = 14;
+    const int x0 = ix.ctrl.x + inset + indent;
+    const int w = contentW - indent;
+    const int gap = 4;
+    const int cellW = (w - gap * 2) / 3;
+
+    SDL_Rect shapeBtn {x0, rowY, cellW, ix.rowH};
+    drawUIPanel(shapeBtn, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, shapeBtn,
+                         deckboy::effects::lfoShapeToken(lfo.shape), pal.fg);
+    quickButtons_.push_back({shapeBtn, QuickAction::EffectLfoShape,
+                             "sine, triangle, saw, ramp, square, or sample "
+                             "(one random value per cycle, held)", packed});
+
+    // Rate, and whether it is free-running or locked to the tempo. The tap
+    // tempo already exists for VJ mode; an LFO that could not use it would be
+    // a second clock in a machine that already knows what the music is doing.
+    SDL_Rect rateBtn {shapeBtn.x + cellW + gap, rowY, cellW, ix.rowH};
+    std::ostringstream rate;
+    if (lfo.beatSync) {
+      rate << std::fixed << std::setprecision(lfo.beats < 1.0f ? 2 : 0)
+           << lfo.beats << (lfo.beats == 1.0f ? " beat" : " beats");
+    } else {
+      rate << std::fixed << std::setprecision(2) << lfo.rateHz << " hz";
+    }
+    drawUIPanel(rateBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, rateBtn,
+                         ellipsizeToPixelWidth(fontSmall_, rate.str(), rateBtn.w - 8),
+                         lfo.beatSync ? pal.light : pal.fg);
+    // Click cycles the value; right-click is already spoken for elsewhere, so
+    // the sync toggle rides the SAME cell as a long-press would be worse: it
+    // gets its own narrow control below instead.
+    quickButtons_.push_back({rateBtn, QuickAction::EffectLfoRateInc,
+                             lfo.beatSync
+                               ? "Cycle length in beats — follows the tap tempo"
+                               : "Cycles per second",
+                             packed});
+    valueScrubZones_.push_back({rateBtn, QuickAction::EffectLfoRateDec,
+                                QuickAction::EffectLfoRateInc,
+                                QuickAction::ToggleLoop, false, packed});
+
+    SDL_Rect depthBtn {rateBtn.x + cellW + gap, rowY, cellW, ix.rowH};
+    std::ostringstream depth;
+    depth << "depth " << std::fixed << std::setprecision(2) << lfo.depth;
+    drawUIPanel(depthBtn, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, depthBtn,
+                         ellipsizeToPixelWidth(fontSmall_, depth.str(), depthBtn.w - 8),
+                         pal.fg);
+    quickButtons_.push_back({depthBtn, QuickAction::EffectLfoDepthInc,
+                             "How far it swings either side of the value you "
+                             "set — drag to scrub", packed});
+    valueScrubZones_.push_back({depthBtn, QuickAction::EffectLfoDepthDec,
+                                QuickAction::EffectLfoDepthInc,
+                                QuickAction::ToggleLoop, false, packed});
+    rowY += ix.rowStep;
+
+    // The tempo switch, its own narrow row, because it changes what the middle
+    // cell above MEANS and that is worth its own control rather than a
+    // modifier-click nobody would find.
+    SDL_Rect syncBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
+    drawUIPanel(syncBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep,
+                lfo.beatSync ? pal.light : pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, syncBtn,
+                         lfo.beatSync ? "locked to the tempo" : "free running",
+                         lfo.beatSync ? pal.light : pal.inkSoft);
+    quickButtons_.push_back({syncBtn, QuickAction::EffectLfoSync,
+                             "Follow the tapped tempo instead of a fixed rate",
+                             packed});
+    return rowY + ix.rowStep - 4;
   }
 
   int inspDrawMessageRow(const InspectorCtx& ix, int rowY, const std::string& text,
@@ -6257,8 +6446,13 @@ class App {
                        QuickAction::EffectAmountInc, QuickAction::ToggleLoop,
                        false, false,
                        "Drag to scrub (shift = fine), click to type exact",
-                       true, QuickAction::EffectEditAmount, i);
+                       true, QuickAction::EffectEditAmount, i,
+                       // Slot 4 is the amount: "how much of this effect" is the
+                       // parameter people most often want breathing.
+                       QuickAction::EffectLfoToggle, fx.lfo[4].on, i * 8 + 4, "~",
+                       "Hand this to an oscillator so it moves on its own");
       rowY += ix.rowStep;
+      rowY = inspDrawLfoRow(ix, rowY, fx, 4, i);
       // The extra parameters, named by the effect itself. An effect that does
       // not use one draws no row for it, so the inspector never shows a
       // control that cannot do anything -- and one that DOES use it is no
@@ -6290,8 +6484,13 @@ class App {
                          : which == 1 ? QuickAction::EffectParamBEdit
                          : which == 2 ? QuickAction::EffectParamCEdit
                                       : QuickAction::EffectParamDEdit,
-                         i);
+                         i,
+                         QuickAction::EffectLfoToggle, fx.lfo[which].on,
+                         i * 8 + which, "~",
+                         "Hand this parameter to an oscillator so it moves on "
+                         "its own");
         rowY += ix.rowStep;
+        rowY = inspDrawLfoRow(ix, rowY, fx, which, i);
       }
       }
       // Second row: what it is, where it sits, and getting rid of it. Split
@@ -8022,6 +8221,11 @@ class App {
     std::vector<deckboy::code::LanguageEntry> chips;
     std::vector<SDL_Rect> exampleRects;
   };
+  // Sampled once per frame by sampleLfoClock() and read by both the output and
+  // the preview, so every LFO in the show is at the same moment in both.
+  double lfoSeconds_ = 0.0;
+  double lfoBeats_ = 0.0;
+
   CodeEditorState codeEditor_;
   static constexpr std::size_t kCodeEditorMaxChars = 512;
   static constexpr int kCodeFieldPad = 8;
@@ -8219,6 +8423,7 @@ class App {
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
+  int lastInspectorScrollMax_ = -1;   // to tell "still growing" from "at the end"
   int cueSettingsScrollMax_ = 0;
   SDL_Rect settingsVideoViewport_ {};
   int settingsVideoScroll_ = 0;

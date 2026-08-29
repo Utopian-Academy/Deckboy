@@ -800,8 +800,74 @@
                      " " + parts[4]);
         return;
       }
+      // LFO <n> <A-E> <on|off|shape|rate|depth|phase|beats|sync> [value]
+      //
+      // E is the effect's AMOUNT, which is the parameter people most often want
+      // breathing, and which has no letter of its own anywhere else.
+      if (sub == "LFO" && parts.size() >= 4) {
+        const int idx = std::atoi(parts[2].c_str()) - 1;
+        if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX LFO: no effect at that index");
+          return;
+        }
+        const std::string slotName = toUpper(parts[3]);
+        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'E') {
+          failRemoteCommand("FX LFO: slot must be A-D, or E for the amount");
+          return;
+        }
+        auto& lfo = cue->effects[idx].lfo[slotName[0] - 'A'];
+        const std::string what = parts.size() > 4 ? toUpper(parts[4]) : std::string("ON");
+        const std::string valueText = parts.size() > 5 ? parts[5] : std::string();
+        const double value = std::atof(valueText.c_str());
+        if (what == "ON")       { lfo.on = true; }
+        else if (what == "OFF") { lfo.on = false; }
+        else if (what == "SYNC") {
+          lfo.beatSync = valueText.empty() || toUpper(valueText) == "ON" ||
+                         valueText == "1";
+        } else if (what == "SHAPE") {
+          const std::string want = toLower(valueText);
+          int found = -1;
+          for (int s = 0; s < static_cast<int>(deckboy::effects::LfoShape::Count); ++s) {
+            if (want == deckboy::effects::lfoShapeToken(
+                          static_cast<deckboy::effects::LfoShape>(s))) {
+              found = s;
+              break;
+            }
+          }
+          if (found < 0) {
+            failRemoteCommand("FX LFO SHAPE: sine, triangle, saw, ramp, square or sample");
+            return;
+          }
+          lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
+        } else if (what == "RATE") {
+          if (value <= 0.0 || value > 40.0) {
+            failRemoteCommand("FX LFO RATE: hertz, 0-40");
+            return;
+          }
+          lfo.rateHz = static_cast<float>(value);
+        } else if (what == "DEPTH" || what == "PHASE") {
+          if (value < 0.0 || value > 1.0) {
+            failRemoteCommand("FX LFO " + what + ": 0-1");
+            return;
+          }
+          (what == "DEPTH" ? lfo.depth : lfo.phase) = static_cast<float>(value);
+        } else if (what == "BEATS") {
+          if (value < 0.25 || value > 64.0) {
+            failRemoteCommand("FX LFO BEATS: 0.25-64");
+            return;
+          }
+          lfo.beats = static_cast<float>(value);
+        } else {
+          failRemoteCommand("FX LFO: on | off | shape <s> | rate <hz> | "
+                            "depth <0-1> | phase <0-1> | sync <on|off> | beats <n>");
+          return;
+        }
+        markProjectDirty();
+        return;
+      }
       failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | "
-                        "PARAM <n> <A-D> <0-1> | COPY | PASTE | CLEAR");
+                        "PARAM <n> <A-D> <0-1> | LFO <n> <A-E> ... | "
+                        "COPY | PASTE | CLEAR");
       return;
     }
     if (command == "GOEND" || command == "SKIPEND") {

@@ -816,6 +816,9 @@
       }
     }
     ++motionDriverFrameCounter_;
+    // Both consumers of the LFOs read this one sample, so the preview and the
+    // output are always at the same moment of the same oscillator.
+    sampleLfoClock();
     serviceVjQuantisedTake();
     // A and B preview textures, from each deck's own decoded frame.
     //
@@ -923,8 +926,9 @@
       // freezes is worse than both of them freezing.
       const Cue* gateCue = activeCuePtr(project_.focusedDeckIndex);
       const bool previewStackAnimates =
-        gateCue && deckboy::effects::cueEffectStackAnimates(gateCue->effects) &&
-        isDefaultStillDurationCueKind(gateCue->kind);
+        gateCue && isDefaultStillDurationCueKind(gateCue->kind) &&
+        (deckboy::effects::cueEffectStackAnimates(gateCue->effects) ||
+         deckboy::effects::cueEffectStackHasLfo(gateCue->effects));
       if (frame && frame->width > 0 && frame->height > 0 &&
           (frame->index != controlPreviewFrameIdx_ || previewStackAnimates)) {
         controlPreviewFrameIdx_ = frame->index;
@@ -972,8 +976,14 @@
           // loop twice on any frame where both ran, and the preview would then
           // disagree with what is going out.
           fxCtx.feedback = previewFeedbackBufferForDeck(project_.focusedDeckIndex);
+          // The same clock the output used this frame, so the monitor shows the
+          // oscillator where the audience sees it.
+          std::vector<deckboy::effects::CueEffect> previewModulated;
+          const bool previewMoving = deckboy::effects::modulateCueEffectStack(
+            previewCue->effects, lfoSeconds_, lfoBeats_, previewModulated);
           deckboy::effects::applyCueEffectStack(
-            controlPreviewLookFrame_.pixels, previewCue->effects, fxCtx);
+            controlPreviewLookFrame_.pixels,
+            previewMoving ? previewModulated : previewCue->effects, fxCtx);
           syncFrameTexture(controlRenderer_, controlPreviewTex_,
                            controlPreviewTexW_, controlPreviewTexH_,
                            controlPreviewTexFormat_, controlPreviewLookFrame_);

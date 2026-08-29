@@ -3432,6 +3432,25 @@
       }
       finishInspectorSection(keySection, sectionY);
 
+      // EFFECTS, here too.
+      //
+      // This section lived only in the VIDEO branch, and the engine has never
+      // cared: a pattern, a still, a camera, an NDI feed or a stream carries an
+      // effect stack and renders it exactly like a clip does — proven by adding
+      // grain, caustics and a vignette to a colour-bar pattern over the wire
+      // and watching them come out. There was simply no way to reach any of it
+      // without a video cue selected. A whole feature, applied to most of the
+      // cue kinds, with UI on one of them.
+      auto fxSection = beginInspectorSection(sectionY, "EFFECTS",
+                                             cueSectionEffectsOpen_,
+                                             QuickAction::CueSectionEffectsToggle,
+                                             "Collapse/expand per-cue effects");
+      sectionY = fxSection.bodyStartY;
+      if (cueSectionEffectsOpen_) {
+        sectionY = drawEffectsRows(sectionY, *selectedCue);
+      }
+      finishInspectorSection(fxSection, sectionY);
+
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;

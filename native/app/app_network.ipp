@@ -447,6 +447,7 @@
         "    VJ TAP | VJ BPM <n> | VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX CLEAR\n"
         "         FX PARAM <n> <A-D> <0-1>   (each effect's own shaping controls)\n"
+        "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
         "record: RECORD [on|off|toggle]  (same action as the RECORD button on the bar)\n"

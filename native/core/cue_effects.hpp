@@ -365,6 +365,110 @@ inline CueEffectKind cueEffectFromToken(const std::string& token) {
   return CueEffectKind::None;
 }
 
+// ---------------------------------------------------------------------------
+// A low-frequency oscillator, per parameter.
+// ---------------------------------------------------------------------------
+
+enum class LfoShape : std::uint8_t {
+  Sine,      // the default: moves fastest through the middle, eases at the ends
+  Triangle,  // constant speed, hard turn
+  Saw,       // ramp up, snap back
+  Ramp,      // ramp down, snap up
+  Square,    // two values, nothing between
+  Sample,    // a new random value each cycle, HELD -- steps, not noise
+  Count
+};
+
+inline const char* lfoShapeToken(LfoShape shape) {
+  switch (shape) {
+    case LfoShape::Sine:     return "sine";
+    case LfoShape::Triangle: return "triangle";
+    case LfoShape::Saw:      return "saw";
+    case LfoShape::Ramp:     return "ramp";
+    case LfoShape::Square:   return "square";
+    case LfoShape::Sample:   return "sample";
+    default:                 return "sine";
+  }
+}
+
+struct ParamLfo {
+  bool on = false;
+  LfoShape shape = LfoShape::Sine;
+  // Free-running rate. Slow by default: an LFO you notice is usually too fast,
+  // and a quarter of a hertz is a four-second breath.
+  float rateHz = 0.25f;
+  // How far it swings, as a fraction of the whole 0-1 parameter range. The
+  // centre is the value the operator SET, so turning an LFO on never jumps the
+  // picture -- it starts moving from where it already was.
+  float depth = 0.5f;
+  float phase = 0.0f;      // 0-1, for running two parameters out of step
+  // Follow the tempo instead of the clock. The tap tempo already exists for VJ
+  // mode, so an LFO that ignored it would be the second, disagreeing clock in a
+  // machine that already knows what the music is doing.
+  bool beatSync = false;
+  float beats = 4.0f;      // cycle length in beats when synced
+};
+
+// The oscillator itself, 0-1 out.
+//
+// `seconds` is a shared clock and `beatPhase` is where we are inside the
+// current beat (0-1). Both come from the caller so that the preview and the
+// output evaluate the SAME oscillator at the same moment -- two clocks would
+// mean the operator's monitor and the audience's screen disagreed.
+inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01) {
+  double phase = 0.0;
+  if (lfo.beatSync) {
+    const double cycle = std::max(0.25, static_cast<double>(lfo.beats));
+    phase = beats01 / cycle;
+  } else {
+    phase = seconds * std::max(0.001, static_cast<double>(lfo.rateHz));
+  }
+  phase += lfo.phase;
+  phase -= std::floor(phase);
+  switch (lfo.shape) {
+    case LfoShape::Triangle:
+      return phase < 0.5 ? phase * 2.0 : 2.0 - phase * 2.0;
+    case LfoShape::Saw:
+      return phase;
+    case LfoShape::Ramp:
+      return 1.0 - phase;
+    case LfoShape::Square:
+      return phase < 0.5 ? 0.0 : 1.0;
+    case LfoShape::Sample: {
+      // One value per cycle, held. Hashed from the cycle NUMBER rather than
+      // drawn from a generator, so it is the same every time the show reaches
+      // the same moment -- a random that changes between rehearsal and
+      // performance is not usable.
+      const std::uint64_t cycle = static_cast<std::uint64_t>(
+        std::floor(lfo.beatSync ? beats01 / std::max(0.25, static_cast<double>(lfo.beats))
+                                : seconds * std::max(0.001, static_cast<double>(lfo.rateHz))));
+      std::uint64_t h = cycle * 6364136223846793005ull + 1442695040888963407ull;
+      h ^= h >> 33; h *= 0xff51afd7ed558ccdull; h ^= h >> 33;
+      return static_cast<double>(h >> 11) / static_cast<double>(1ull << 53);
+    }
+    case LfoShape::Sine:
+    default:
+      return 0.5 - 0.5 * std::cos(phase * 6.283185307179586);
+  }
+}
+
+// The value a parameter actually takes this frame.
+//
+// Centred on what the operator set, so switching an LFO on does not jump the
+// picture, and clamped because every parameter here is 0-1. Near the ends of
+// the range the swing is necessarily lopsided; that is better than either
+// moving the centre or refusing to oscillate.
+inline float lfoApply(const ParamLfo& lfo, float base, double seconds,
+                      double beats01) {
+  if (!lfo.on) {
+    return base;
+  }
+  const double unit = lfoUnitValue(lfo, seconds, beats01);
+  const double swing = (unit - 0.5) * 2.0 * static_cast<double>(lfo.depth);
+  const double out = static_cast<double>(base) + swing * 0.5;
+  return static_cast<float>(out < 0.0 ? 0.0 : (out > 1.0 ? 1.0 : out));
+}
+
 struct CueEffect {
   CueEffectKind kind = CueEffectKind::None;
   float amount = 1.0f;    // 0 = inactive; every effect is skipped entirely at 0
@@ -385,6 +489,18 @@ struct CueEffect {
   // gives it back. Every serious tool has both and they are not
   // interchangeable.
   bool bypassed = false;
+
+  // One LFO per parameter, off by default.
+  //
+  // An effect stack you have to hold with your hands is a stack that does one
+  // thing while you are touching it and nothing while you are not. A parameter
+  // handed to an oscillator moves on its own, which is the difference between a
+  // look and a performance -- and it is what Resolume operators reach for
+  // first.
+  //
+  // Index 0-3 is paramA-paramD, and index 4 is the AMOUNT, because "how much of
+  // this effect" is the parameter people want breathing most of all.
+  ParamLfo lfo[5];
 };
 
 // What an effect needs beyond the pixels. Kept in one struct so adding a
@@ -1929,6 +2045,49 @@ inline bool cueEffectStackAnimates(const std::vector<CueEffect>& stack) {
     }
   }
   return false;
+}
+
+// Is anything in this stack moving on its own?
+//
+// Used to decide whether a STILL has to re-render every frame, the same way
+// cueEffectStackAnimates does for the effects that advance with the frame
+// index: an LFO on a still with no LFO-aware gate would set the parameter once
+// and then sit there.
+inline bool cueEffectStackHasLfo(const std::vector<CueEffect>& stack) {
+  for (const CueEffect& fx : stack) {
+    if (fx.bypassed) continue;
+    for (const ParamLfo& lfo : fx.lfo) {
+      if (lfo.on) return true;
+    }
+  }
+  return false;
+}
+
+// The stack as it stands THIS FRAME, with every armed LFO evaluated.
+//
+// Done here rather than inside the effects because the stack is a pure function
+// of its inputs and must stay one: it is dumped headlessly, benched, run twice,
+// and applied by both the output and the preview. An effect that read a clock
+// itself could not be any of those things. So the caller asks for a modulated
+// copy and everything downstream is unchanged.
+//
+// Returns false when nothing is modulated, so the ordinary case does not pay
+// for a copy of the stack every frame.
+inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
+                                   double seconds, double beats01,
+                                   std::vector<CueEffect>& out) {
+  if (!cueEffectStackHasLfo(stack)) {
+    return false;
+  }
+  out = stack;
+  for (CueEffect& fx : out) {
+    if (fx.bypassed) continue;
+    float* slots[5] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD, &fx.amount};
+    for (int i = 0; i < 5; ++i) {
+      *slots[i] = lfoApply(fx.lfo[i], *slots[i], seconds, beats01);
+    }
+  }
+  return true;
 }
 
 inline bool cueEffectStackActive(const std::vector<CueEffect>& stack) {
