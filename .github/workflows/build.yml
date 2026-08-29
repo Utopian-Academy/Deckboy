@@ -461,13 +461,24 @@ jobs:
         if: matrix.features == 'all'
         shell: pwsh
         run: |
-          $zip = Get-ChildItem dist\*.zip | Select-Object -First 1
+          $zip = Get-ChildItem dist\Deckboy-*.zip | Select-Object -First 1
           Expand-Archive -Path $zip.FullName -DestinationPath dist\unpack -Force
           $exe = Get-ChildItem dist\unpack -Recurse -Filter Deckboy.exe | Select-Object -First 1
           & $exe.FullName --self-check
-          if ($LASTEXITCODE -ne 0) { throw "self-check failed from the packaged build" }
+          $selfCheck = $LASTEXITCODE
           & $exe.FullName --smoke
-          if ($LASTEXITCODE -ne 0) { throw "smoke failed from the packaged build" }
+          $smoke = $LASTEXITCODE
+          # Reported as NUMBERS before anything is thrown. A bare "it failed"
+          # cannot tell a deliberate non-zero apart from a crash on the way out,
+          # and the difference is the whole diagnosis: 1 is the app saying no,
+          # -1073741819 is an access violation.
+          Write-Host "self-check exit: $selfCheck   smoke exit: $smoke"
+          if ($selfCheck -ne 0 -or $smoke -ne 0) {
+            Write-Host "--- what the package actually contains ---"
+            Get-ChildItem $exe.DirectoryName | Select-Object Name, Length |
+              Format-Table -AutoSize | Out-String | Write-Host
+            throw "the packaged build did not run (self-check $selfCheck, smoke $smoke)"
+          }
 
       - name: Upload Windows packages
         if: matrix.features == 'all'
