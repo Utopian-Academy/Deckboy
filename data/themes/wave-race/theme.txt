@@ -15,6 +15,9 @@ screen_ink_soft	177A6CFF
 button_bezel	4E6264FF
 delete_bezel	8B3A3AFF
 scanline_alpha	18
-# Creatures. They live on the chrome, never over a control, and they
 # hide themselves the moment an output goes live.
+
+# Creatures. They live in the empty part of the playlist, never over a
+# control, and they hide the moment an output goes live.
 creature	fish	3
+creature	crab	2

@@ -26,9 +26,21 @@ than a novelty that gets switched off after the first gig:
   this. The renderer has no opinion about which themes should have animals in
   them, exactly as it has none about their colours.
 
-Fourteen themes ask for something suited to them -- fish in Dolphin and Wave
-Race, fireflies in the dark terminals and Zelda, crabs in Mario and Ice
-Climber, a cat in Peach and Kirby. The rest are untouched.
+Eleven species: a moth that goes to the light, fireflies that breathe, fish, a
+crab that scuttles and stops, a cat asleep in the corner, a snail slow enough
+that you only notice by looking twice, a spider that drops on a thread and
+climbs back up, a mouse that darts and FREEZES, a frog that sits and then hops
+on a real gravity arc, a jellyfish that pulses up and sinks, and a bird that
+hops along the floor and stops to look around.
+
+Twenty-eight themes have their own cast, most of them two species, chosen to
+suit the theme: fish and jellyfish in Dolphin, a bird and a crab on Ice
+Climber's shoreline, spiders in Ganon and Midna, mice in the Famicom and R.O.B.,
+frogs and fireflies in Luigi, a cat and moths in Peach and Kirby.
+
+**Game Boy and the plain dark terminal deliberately have none.** The signature
+look and the theme a fresh install lands on stay perfectly still; if you want
+a machine that does not move, that is the one to pick.
 
 They are drawn from primitives rather than sprite art, so each one takes its
 ink from the palette and reads correctly on every theme without a single
