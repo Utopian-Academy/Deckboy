@@ -67,9 +67,19 @@ jobs:
           node tools/pack.js
 
       # The module Companion actually installs, rather than the source tree.
-      - name: Companion module package
-        working-directory: companion-module-deckboy
-        run: npx companion-module-build
+      #
+      # NOT BUILT YET. Bitfocus's packager refuses GPL-3.0-or-later: they
+      # require module SOURCE to be MIT so it stays portable, with the
+      # distribution licence declared in companion/manifest.json instead. That
+      # is a relicensing decision for the owner, not something to work around
+      # -- and pinning an older tools version to dodge the check would only
+      # move the refusal to submission time.
+      #
+      # Until then the module is installed from source, which works, and the
+      # release ships the Stream Deck plugin only.
+      # - name: Companion module package
+      #   working-directory: companion-module-deckboy
+      #   run: npx companion-module-build
 
       # Attached to the release below. Without this the plugins exist only for
       # someone who clones and builds, which is not how an operator gets one.
@@ -79,7 +89,6 @@ jobs:
           name: Deckboy-plugins
           path: |
             streamdeck-plugin-deckboy/dist/*.streamDeckPlugin
-            companion-module-deckboy/*.tgz
           if-no-files-found: error
 
       # Source-level checks, so they need no toolchain and fail before any of
@@ -596,12 +605,12 @@ jobs:
             -name 'Deckboy-*.zip' -o -name 'Deckboy-*.dmg' \
             -o -name 'Deckboy-*-setup.exe' -o -name 'Deckboy-*.tar.gz' \
             -o -name 'Deckboy-*.AppImage' \
-            -o -name '*.streamDeckPlugin' -o -name 'deckboy-*.tgz' \) \
+            -o -name '*.streamDeckPlugin' \) \
             -exec cp -v {} release/ \;
           ls -la release
 
-      # Eight files: an installer and a portable build for each of the three
-      # platforms, plus the two plugins. Anything missing means a packaging job
+      # Seven files: an installer and a portable build for each of the three
+      # platforms, plus the Stream Deck plugin. Anything missing means a packaging job
       # silently produced nothing, and a half-empty release is worse than a
       # failed build.
       - name: Every platform must have shipped something
@@ -610,14 +619,14 @@ jobs:
           cd release
           for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
                          '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage' \
-                         '*.streamDeckPlugin' 'deckboy-*.tgz'; do
+                         '*.streamDeckPlugin'; do
             count=$(ls $pattern 2>/dev/null | wc -l)
             if [ "$count" -eq 0 ]; then
               echo "MISSING: nothing matched $pattern" >&2
               exit 1
             fi
           done
-          echo "all eight artefacts present"
+          echo "all seven artefacts present"
 
       # The notes are the changelog's own section for this version, so the
       # release page and CHANGES.md cannot disagree.
