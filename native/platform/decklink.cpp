@@ -718,7 +718,7 @@ bool DeckLinkOutput::sendAudio(const std::int16_t* samples, int sampleCount,
 class DeckLinkInput::Impl final : public IDeckLinkInputCallback {
  public:
   Impl() = default;
-  ~Impl() override = default;
+  ~Impl() = default;
 
   // ── IUnknown. The SDK holds a reference for as long as it may call us. ──
   HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override {
@@ -788,17 +788,33 @@ class DeckLinkInput::Impl final : public IDeckLinkInputCallback {
         (videoFrame->GetFlags() & bmdFrameHasNoInputSource) == 0;
       hasSignal_ = valid;
       if (valid) {
-        void* bytes = nullptr;
-        if (videoFrame->GetBytes(&bytes) == S_OK && bytes) {
-          const int w = static_cast<int>(videoFrame->GetWidth());
-          const int h = static_cast<int>(videoFrame->GetHeight());
-          const int stride = static_cast<int>(videoFrame->GetRowBytes());
-          detectedWidth_ = w;
-          detectedHeight_ = h;
-          std::lock_guard<std::mutex> lock(callbackMutex_);
-          if (frameCallback_) {
-            frameCallback_(static_cast<const std::uint8_t*>(bytes), w, h, stride);
+        // PIXELS COME THROUGH IDeckLinkVideoBuffer.
+        //
+        // SDK 16 moved GetBytes off the frame and onto a buffer interface that
+        // has to be opened for reading and closed again -- the frame itself
+        // now only describes the picture. StartAccess/EndAccess is what lets
+        // the driver hand out memory it may still be filling, so skipping it
+        // reads a frame that is not finished.
+        IDeckLinkVideoBuffer* buffer = nullptr;
+        if (videoFrame->QueryInterface(IID_IDeckLinkVideoBuffer,
+                                       reinterpret_cast<void**>(&buffer)) == S_OK &&
+            buffer) {
+          void* bytes = nullptr;
+          if (buffer->StartAccess(bmdBufferAccessRead) == S_OK) {
+            if (buffer->GetBytes(&bytes) == S_OK && bytes) {
+              const int w = static_cast<int>(videoFrame->GetWidth());
+              const int h = static_cast<int>(videoFrame->GetHeight());
+              const int stride = static_cast<int>(videoFrame->GetRowBytes());
+              detectedWidth_ = w;
+              detectedHeight_ = h;
+              std::lock_guard<std::mutex> lock(callbackMutex_);
+              if (frameCallback_) {
+                frameCallback_(static_cast<const std::uint8_t*>(bytes), w, h, stride);
+              }
+            }
+            buffer->EndAccess(bmdBufferAccessRead);
           }
+          buffer->Release();
         }
       }
     }
@@ -881,9 +897,11 @@ bool DeckLinkInput::start(int deviceId, DeckLinkMode mode, bool detectFormat,
   IDeckLinkProfileAttributes* attrs = nullptr;
   if (chosen->QueryInterface(IID_IDeckLinkProfileAttributes,
                              reinterpret_cast<void**>(&attrs)) == S_OK) {
-    bool supported = false;
+    // The SDK's own BOOL, which is not bool: on Windows it is an int, and
+    // taking the address of a bool here is a type error rather than a warning.
+    BOOL supported = FALSE;
     if (attrs->GetFlag(BMDDeckLinkSupportsInputFormatDetection, &supported) == S_OK) {
-      canDetect = supported;
+      canDetect = supported != FALSE;
     }
     attrs->Release();
   }
