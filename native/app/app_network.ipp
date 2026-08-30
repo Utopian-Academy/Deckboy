@@ -1558,6 +1558,9 @@
     }
     midiRt_.onNoteOn([this](int note, int velocity) { onMidiNoteOn(note, velocity); });
     midiRt_.onControlChange([this](int controller, int value) { onMidiControlChange(controller, value); });
+    midiRt_.onSysEx([this](const std::vector<std::uint8_t>& data) {
+      onMidiSysEx(data);
+    });
     if (!midiRt_.open(deviceId)) {
       return false;
     }
@@ -1565,6 +1568,82 @@
 #else
     return false;
 #endif
+  }
+
+  // ── MIDI Show Control ──────────────────────────────────────────────────────
+  //
+  // A desk sends GO with a cue number and everything in the rig answering to
+  // that number goes at once. The number is TEXT -- "12.4.1" and "A" are both
+  // legitimate cue numbers -- so it is matched the way an operator reads it,
+  // through the same lookup TAKE <token> uses.
+  //
+  // Everything understood is written to the show log whether or not it changed
+  // anything. When a cue fails to fire the first question is always whether
+  // the message reached the machine, and silence is not an answer to that.
+  void onMidiSysEx(const std::vector<std::uint8_t>& data) {
+    const auto message =
+      deckboy::showcontrol::parse(data, project_.showControlDeviceId);
+    if (!message.ok()) {
+      return;
+    }
+    using deckboy::showcontrol::Action;
+    showLog(std::string("MSC ") + deckboy::showcontrol::actionName(message.action),
+            message.cue.empty() ? std::string() : "cue " + message.cue);
+
+    auto selectByNumber = [this](const std::string& token) {
+      const Deck& deck = focusedDeck();
+      if (auto index = cueIndexByToken(deck, token); index) {
+        selectCueInDeck(project_.focusedDeckIndex, *index, false, false);
+        return true;
+      }
+      return false;
+    };
+
+    switch (message.action) {
+      case Action::Go:
+      case Action::MmcPlay:
+        // A GO with no cue number means "the next one", which is how a desk
+        // drives a straight rundown.
+        if (!message.cue.empty() && !selectByNumber(message.cue)) {
+          triggerToast("MSC: no cue " + message.cue);
+          return;
+        }
+        jumpSelectedCue();
+        break;
+      case Action::Load:
+        // Preselect without firing: the desk is arming the next one.
+        if (!message.cue.empty() && !selectByNumber(message.cue)) {
+          triggerToast("MSC: no cue " + message.cue);
+        }
+        break;
+      case Action::Stop:
+      case Action::MmcStop:
+        stopTransport();
+        break;
+      case Action::MmcPause:
+      case Action::Resume:
+        // RESUME is the counterpart of MSC STOP, and pauseTransport already
+        // toggles -- one control for both directions, as the transport button
+        // does.
+        pauseTransport();
+        break;
+      case Action::AllOff:
+        // No safety context: a desk sending ALL OFF has already decided.
+        runPanicOutputsOff(false, 0);
+        break;
+      case Action::Reset:
+        rerackTransport();
+        break;
+      case Action::MmcLocate:
+        if (message.locateSeconds >= 0.0) {
+          if (MediaEngine* engine = focusedMediaEngine()) {
+            engine->seek(message.locateSeconds);
+          }
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   void stopMidiInput() {
