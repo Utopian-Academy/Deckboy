@@ -212,6 +212,7 @@ std::string cueKindLabel(CueKind kind) {
     case CueKind::Audio:      return "Audio";
     case CueKind::SrtStream:  return "Stream";
     case CueKind::NdiSource:  return "NDI Source";
+    case CueKind::DeckLinkSource: return "DeckLink Input";
     case CueKind::Video:
     default:                         return "Video";
   }
@@ -238,6 +239,7 @@ std::string cueKindToken(CueKind kind) {
     case CueKind::Syphon:       return "syphon";
     case CueKind::SrtStream:    return "srt_stream";
     case CueKind::NdiSource:    return "ndi_source";
+    case CueKind::DeckLinkSource: return "decklink_source";
     case CueKind::Pip:          return "pip";
     case CueKind::LowerThird:   return "lower_third";
     case CueKind::Composite:    return "composite";
