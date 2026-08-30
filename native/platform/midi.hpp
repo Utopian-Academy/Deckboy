@@ -65,6 +65,12 @@ class MidiInput {
   using NoteOnCallback = std::function<void(int note, int velocity)>;  // note 0-127, velocity 0-127
   using NoteOffCallback = std::function<void(int note)>;
   using ProgramChangeCallback = std::function<void(int program)>;  // program 0-127
+  // Raw System Exclusive, F0 through F7 inclusive.
+  //
+  // Handed over whole rather than parsed here: SysEx carries MIDI Show
+  // Control, MIDI Machine Control and every manufacturer's own dialect, and
+  // this layer has no business knowing which is which.
+  using SysExCallback = std::function<void(const std::vector<std::uint8_t>& data)>;
 
   MidiInput();
   ~MidiInput();
@@ -89,6 +95,7 @@ class MidiInput {
   void onNoteOn(NoteOnCallback callback);
   void onNoteOff(NoteOffCallback callback);
   void onProgramChange(ProgramChangeCallback callback);
+  void onSysEx(SysExCallback callback);
 
  private:
   class Impl;

@@ -45,6 +45,7 @@ class MidiInput::Impl {
   MidiInput::NoteOnCallback noteOnCallback_;
   MidiInput::NoteOffCallback noteOffCallback_;
   MidiInput::ProgramChangeCallback progChangeCallback_;
+  MidiInput::SysExCallback sysExCallback_;
 
   bool isOpen_ = false;
   int deviceId_ = -1;
@@ -97,7 +98,11 @@ bool MidiInput::open(int deviceId) {
     }
     impl_->midiIn_->openPort(static_cast<unsigned int>(deviceId));
     // Don't ignore sysex, timing, or active sensing — let parseMidiMessage handle all
-    impl_->midiIn_->ignoreTypes(true, true, true);
+    // SysEx is NOT ignored: MSC and MMC are carried in nothing else, and the
+    // default here is to throw them away. Timing clock and active sensing stay
+    // ignored -- they arrive hundreds of times a second and mean nothing to a
+    // cue deck.
+    impl_->midiIn_->ignoreTypes(false, true, true);
     impl_->deviceId_ = deviceId;
     impl_->isOpen_ = true;
     return true;
@@ -145,6 +150,15 @@ void MidiInput::update() {
 
     // Convert to uint8_t for parseMidiMessage
     std::vector<std::uint8_t> data(message.begin(), message.end());
+    // SysEx first: it is the one message that is not a status byte plus one or
+    // two data bytes, so the channel-voice parser cannot speak for it.
+    if (!data.empty() && data.front() == 0xF0) {
+      if (impl_->sysExCallback_) {
+        impl_->sysExCallback_(data);
+      }
+      continue;
+    }
+
     auto parsed = parseMidiMessage(data);
     if (!parsed) continue;
 
@@ -175,6 +189,10 @@ void MidiInput::update() {
     }
   }
 #endif
+}
+
+void MidiInput::onSysEx(SysExCallback callback) {
+  impl_->sysExCallback_ = std::move(callback);
 }
 
 void MidiInput::onControlChange(ControlChangeCallback callback) {

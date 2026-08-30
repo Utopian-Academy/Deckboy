@@ -151,7 +151,11 @@ if(DECKBOY_INPROC_DECODE)
 endif()
 
 # Pro Features Feature Gates
-option(ENABLE_DECKLINK "Build with Blackmagic DeckLink 10-bit SDI/HDMI output" OFF)
+# ON by default: the SDK headers are vendored in native/extras/decklink-sdk, so
+# there is nothing to download and no reason for a downloaded build to arrive
+# unable to talk to a card. The runtime comes from Blackmagic's Desktop Video
+# package, and a machine without it simply reports no devices.
+option(ENABLE_DECKLINK "Build with Blackmagic DeckLink capture and playout" ON)
 option(ENABLE_MIDI "Build with RtMidi cross-platform MIDI input" OFF)
 option(ENABLE_SIPHON "Build with macOS Siphon interprocess texture sharing" OFF)
 option(ENABLE_SPOUT "Build with Windows Spout interprocess texture sharing" OFF)
@@ -196,6 +200,11 @@ if(ENABLE_DECKLINK)
   # Also accept the older env var name
   if(NOT DECKLINK_SDK_DIR)
     set(DECKLINK_SDK_DIR "$ENV{DECKLINK_SDK}")
+  endif()
+
+  # The vendored headers, used unless something else was named explicitly.
+  if(NOT DECKLINK_SDK_DIR)
+    set(DECKLINK_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/native/extras/decklink-sdk")
   endif()
 
   if(WIN32)
