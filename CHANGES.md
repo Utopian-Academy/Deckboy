@@ -1,166 +1,77 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
-## 2026-08-29 - v0.88.0 (the themes have things living in them)
+## 2026-08-29 - v0.88.0 (text mode everywhere, and a language to write in)
 
-### Text mode works on anything now
+### Text mode is an effect, so it works on anything
 
-The character grid was part of the video synth, which meant the one thing
-people most want to do to a camera or a capture card was the one thing they
-could only do to an oscillator. It is an effect now: put TEXT MODE on a clip,
-a capture card, a camera, a browser cue or a still, and it draws as characters.
+The character grid is no longer part of the video synth. Put **TEXT MODE** on
+a clip, a capture card, a camera, a browser cue or a still, and it draws as
+characters — the same grid, the same glyph sets, the same phosphors, on
+whatever the cue happens to be.
 
-The renderer never cared. It samples its source with `cx * width / cols`, so
-any picture and any size has always worked -- the only thing tying it to the
-synth was the names of the buffers it happened to reach for.
+A cue carrying the effect gets its own TEXT MODE section in the inspector with
+the full set of controls: columns, glyph set, shuffle, ink, custom glyphs,
+phrases and phrase hold. Four of them — columns, corruption, glyph set and ink
+— are also effect parameters, so the ones worth grabbing mid-set sit on faders
+and can take an LFO.
 
-**All the same controls.** The grid's settings live on the cue, so a clip
-carrying the effect gets its own TEXT MODE section in the inspector with the
-same rows the synth has: columns, glyph set, shuffle, ink, custom glyphs,
-phrases and phrase hold. The four effect parameters -- columns, corruption,
-glyph set, ink -- ride on top of those, so the things worth grabbing mid-set
-are on faders and can take an LFO, and everything else stays where it can be
-read.
+Its amount is a **mix**, not a switch. At 1.0 the grid replaces the picture;
+part way it sits over the original like a screen door, which is where a lot of
+the best-looking settings turn out to be.
 
-**Amount is a mix, not a switch.** At 1.0 the grid replaces the picture, which
-is the point of it. Part way it sits over the original like a screen door, and
-that is where most of the good-looking settings turn out to be.
+### Bring your own characters and your own words
 
-### The video synth ate memory until the machine had none left
+Text mode takes a custom alphabet and a list of phrases:
 
-A Video Synth take took a 32 GB machine from 250 MB to 3.4 GB in two seconds
-and to 38 GB inside a minute. See the entry under FIXES; it was never really
-about the synth.
+- **custom glyphs** — the characters the picture is built from, darkest first.
+  Two characters gives binary rain; a word gives that word as texture;
+  box-drawing pieces read as a schematic.
+- **phrases** — words separated by `|`, one showing at a time, landing
+  somewhere new each time it moves. **phrase hold** sets the dwell.
 
-### Three things that were there but could not be reached
+Over the wire as `ASCII ON|OFF|TOGGLE`, `ASCII GLYPHS`, `ASCII PHRASES` and
+`ASCII HOLD`, with Companion actions for all of it.
 
-- **VJ mode had no switch.** `setVjMode` was called from exactly two places,
-  both in the remote command handler, so the only way to turn on the mode that
-  changes what the whole application is was to send it a line over a socket.
-  It is in `Settings -> System -> SHOW FLOW` now, at the top, above the jump
-  controls.
-- **The APPEARANCE card was one row short.** Adding the CREATURES toggle grew
-  the controls without growing the card's hand-computed height, so the last
-  control fell outside it -- and the scroll range is derived from those same
-  heights, so it could not be scrolled to either. Two ways to lose a control
-  from one number. The scroll range now follows what the columns ACTUALLY
-  drew, measured as they were drawn, so a stale constant can make a card look
-  cramped but can never put a control out of reach.
-- **The creatures were invisible in normal use.** "Nothing moves while an
-  output is live" was a rule I wrote, and an operator always has an output
-  armed -- so a feature that only appears when the machine is doing nothing is
-  a feature nobody has. The switch is three-state now: off, out when idle (the
-  default, and the safe one), or out regardless.
+### The code source is a language now
 
-### The themes have things living in them
+It reads like code because it is. Name values, build on them, and end with what
+the channels should be:
 
+```
+ox = sin(t)*0.55;
+oy = cos(t*0.8)*0.4;
+d  = length(cx-ox, cy-oy);
+glow = smoothstep(0.45, 0.0, d);
+glow, glow*0.35, 1-glow*0.6
+```
 
-Some themes now have creatures in them.
+Named values are also faster: a distance used by three channels is computed
+once rather than three times. A source with no semicolon in it is exactly the
+one-line form, so everything already written keeps working and keeps meaning
+the same thing.
 
-They live in the empty part of the playlist, below the last cue: a moth that
-flutters toward the program monitor because moths go to the light, fireflies
-that drift and breathe, fish that turn lazily, a crab that scuttles along the
-bottom and stops to think, and a cat asleep in the corner that stretches every
-now and then and flicks its tail.
+Seven more functions — `length`, `smoothstep`, `if`, `sign`, `exp`, `log`,
+`atan` — and the editor grew to match: **Shift+Enter** for a new line, the
+field sized to the lines in it, your own names syntax-coloured as names, and
+six worked examples that start from the statement form. The helper alongside
+it is set in a bigger, brighter face and explains each function as you reach
+for it.
 
-Three rules, and they are what make this safe to ship in show software rather
-than a novelty that gets switched off after the first gig:
+### VJ mode has a switch
 
-- **They never sit over a control.** The space below the last cue contains no
-  value, no level and no cue name. A creature that covers a number would be a
-  bug in a way that one asleep on an empty shelf is not. The first attempt put
-  them on the strip above the bottom bar, which turned out to overlap the
-  transport row -- a firefly ended up sitting on a button.
-- **They vanish the moment an output is live.** During a show the only thing
-  moving on that machine should be the show. They fade out over half a second
-  rather than blinking off, and come back when the outputs go down.
-- **They are theme data.** A theme asks for them by name and count; a theme
-  that asks for nothing gets nothing, which is every theme that existed before
-  this. The renderer has no opinion about which themes should have animals in
-  them, exactly as it has none about their colours.
+`Settings → System → SHOW FLOW`, at the top: one deck and a playlist, or two
+decks and a crossfader.
 
-Eleven species: a moth that goes to the light, fireflies that breathe, fish, a
-crab that scuttles and stops, a cat asleep in the corner, a snail slow enough
-that you only notice by looking twice, a spider that drops on a thread and
-climbs back up, a mouse that darts and FREEZES, a frog that sits and then hops
-on a real gravity arc, a jellyfish that pulses up and sinks, and a bird that
-hops along the floor and stops to look around.
+### The creatures come out when you want them
 
-Twenty-eight themes have their own cast, most of them two species, chosen to
-suit the theme: fish and jellyfish in Dolphin, a bird and a crab on Ice
-Climber's shoreline, spiders in Ganon and Midna, mice in the Famicom and R.O.B.,
-frogs and fireflies in Luigi, a cat and moths in Peach and Kirby.
+The switch is three-state: **off**, **when idle**, or **always**. "When idle"
+stays the default and keeps the chrome still during a show; "always" is for
+anyone who would rather have them there regardless.
 
-**Game Boy and the plain dark terminal deliberately have none.** The signature
-look and the theme a fresh install lands on stay perfectly still; if you want
-a machine that does not move, that is the one to pick.
+### Steadier through long sessions
 
-They are drawn from primitives rather than sprite art, so each one takes its
-ink from the palette and reads correctly on every theme without a single
-per-theme asset -- the same reason the startup mascot is drawn rather than
-loaded. Both colours are inks ON TILE, which the first version got wrong: it
-used the bright fill role for the wings, so on a theme with a bright tile a
-moth was one dark pixel with nothing attached to it.
-
-Settings has a switch, shown only when the current theme actually has any.
-
-### The Terrarium easter egg was 68 commits behind
-
-The vendored copy was taken on 2026-08-07 and had drifted three weeks and
-sixty-eight commits by the time anyone looked -- missing the sky biome, the
-open ocean, seasons, per-biome palettes, the airship, ten new modulation
-sources, and the fixes for the sky ignoring its brightness knob and for most of
-the "sea" turning out to be a river.
-
-It is current now. The vendoring rules paid for themselves exactly as intended:
-the three files are byte-identical to upstream by design, so re-syncing was a
-plain copy with no merge, and it built and passed both terrarium smoke checks
-first time. UPSTREAM.md records the new commit.
-
-Recording the commit tells you WHETHER you have drifted; it does not stop you
-drifting. That is now written down where the next person will read it.
-
-### The creatures switch is always in Settings
-
-`Settings → System → Appearance → CREATURES`. It was hidden on themes with no
-animals, on the "no control for something that cannot happen" rule -- but this
-is a global preference, not a control over the current theme. Hidden, an
-operator on the default look could not find the switch to decide about them
-before changing theme, and a setting that appears and disappears while you
-browse themes is worse than one that is simply always there.
-
-### The video synth was drawing every 4K frame twice
-
-It renders internally at a divisor of the output -- 384x216 for a 4K raster --
-and was then nearest-upscaling that back to 3840x2160 on one thread before
-handing it over, only for the compositor to scale it again on its way to the
-screen. The frame now leaves at the size it was rendered and the compositor's
-scaler does the enlargement on the GPU, where it was always going to happen.
-**38.2fps to 60.0**, and the picture is structurally identical.
-
-Text mode is the exception and still emits at full size: its glyphs are drawn
-at output resolution on purpose, and it is the one case where upscaling would
-show.
-
-### Text mode takes your own characters and your own words
-
-Two settings on the video synth, next to the glyph set:
-
-- **custom glyphs** -- the characters the picture is built from, darkest
-  first. Two characters gives you binary rain; a word gives you that word as
-  texture; box-drawing pieces give you something that looks like a schematic.
-  Empty keeps whichever built-in set is chosen.
-- **phrases** -- words separated by `|`, one showing at a time, landing in a
-  new place each time it moves. **phrase hold** sets how long each one stays,
-  and zero hides them without losing the list.
-
-The corruption still eats them when it lands on their row, which is correct: a
-terminal that can be corrupted can be corrupted while it is saying something.
-
-`ASCII ON|OFF|TOGGLE | GLYPHS <chars> | PHRASES <a|b|c> | HOLD <seconds>` over
-the wire, so a control surface can drive all of it. Text mode itself had no
-remote verb at all until now -- the one mode an operator most wants to flip
-mid-set could only be reached by clicking.
----
+The video synth holds a flat memory footprint however long a cue stays live,
+and runs at full frame rate at 4K. Text mode renders at 60fps on a 4K raster.
 
 ## 2026-08-29 - v0.87.0 (VJ mode, a code source, and eight effects nobody has)
 
