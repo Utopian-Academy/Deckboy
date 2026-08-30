@@ -735,7 +735,23 @@
         return;
       }
       if (sub == "SET" && parts.size() >= 3) {
-        const std::string expr = joinParts(parts, 2);
+        std::string expr = joinParts(parts, 2);
+        // BACKSLASH-N BECOMES A NEWLINE. The protocol is line based, so a
+        // command cannot contain a real one -- and a source is a sequence of
+        // statements now, so without this a controller could only ever send
+        // the one-line form. Nothing else is escaped: this is the single
+        // character the transport cannot carry.
+        std::string unescaped;
+        unescaped.reserve(expr.size());
+        for (std::size_t i = 0; i < expr.size(); ++i) {
+          if (expr[i] == 0x5C && i + 1 < expr.size() && expr[i + 1] == 'n') {
+            unescaped.push_back(0x0A);
+            ++i;
+          } else {
+            unescaped.push_back(expr[i]);
+          }
+        }
+        expr = unescaped;
         // Refused rather than accepted-and-broken: a cue whose expression does
         // not compile draws nothing, and finding that out on stage is worse
         // than being told here.
