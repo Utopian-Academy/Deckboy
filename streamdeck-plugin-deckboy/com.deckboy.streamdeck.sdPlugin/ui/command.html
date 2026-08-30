@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font: 9pt "Segoe UI", -apple-system, sans-serif; color: #d8d8d8;
+         background: #2d2d2d; margin: 0; padding: 10px; }
+  .row { display: flex; align-items: center; margin-bottom: 8px; }
+  label { width: 92px; text-align: right; margin-right: 8px; opacity: 0.85; }
+  input { flex: 1; background: #3d3d3d; border: 1px solid #4f4f4f;
+          color: #e8e8e8; padding: 4px 6px; border-radius: 3px; }
+  input:focus { outline: none; border-color: #77a8d9; }
+  .note { opacity: 0.6; margin: 10px 0 0 100px; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="row">
+  <label>Command</label>
+  <input type="text" data-setting="command" placeholder="e.g. FX ADD text_mode 1">
+</div>
+<div class="row">
+  <label>Deckboy host</label>
+  <input type="text" data-setting="host" placeholder="127.0.0.1">
+</div>
+<div class="row">
+  <label>Port</label>
+  <input type="text" data-setting="port" placeholder="5510">
+</div>
+<p class="note">Any Deckboy command, sent exactly as typed. The whole
+vocabulary is in MANUAL.md &mdash; anything Deckboy can be told, this key can
+tell it.</p>
+<script src="common.js"></script>
+</body>
+</html>

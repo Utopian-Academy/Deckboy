@@ -56,6 +56,15 @@ jobs:
           npm install --no-audit --no-fund
           npm test
 
+      # The Stream Deck plugin has no dependencies at all, so there is nothing
+      # to install -- the build assembles the .sdPlugin folder and checks every
+      # path the manifest names, which is the failure Stream Deck reports worst.
+      - name: Stream Deck plugin
+        working-directory: streamdeck-plugin-deckboy
+        run: |
+          node tools/build.js
+          npm test
+
       # Source-level checks, so they need no toolchain and fail before any of
       # the three platform builds start.
       #
