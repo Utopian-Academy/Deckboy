@@ -536,6 +536,19 @@ the same reason the effect stack is: the frame splits across cores.
 
 `CODE GET | CODE SET <expression> | CODE EDIT` over the wire.
 
+### Caption formats
+
+Captions load from **SubRip** (`.srt`), **WebVTT** (`.vtt`), **SCC**
+(`.scc`) and **TTML/DFXP** (`.ttml`, `.dfxp`) — whichever a job arrives in.
+
+SCC is the broadcast one: not text with timestamps but the CEA-608 byte pairs
+an encoder would put on line 21, written as hex against drop-frame timecode.
+Deckboy decodes it, including the distinction between drop-frame and non-drop
+— the two differ by 3.6 seconds an hour, which is a caption on the wrong shot.
+
+`SUBTITLE CONVERT <path>` writes the cue's captions out again as `.srt` or
+`.vtt`, so moving between formats needs nothing else installed.
+
 ### Text mode
 
 Available two ways: as the video synth's own mode, and as the **TEXT MODE**

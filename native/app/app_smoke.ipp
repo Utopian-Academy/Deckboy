@@ -663,6 +663,88 @@
       project.outputBitDepth = 10;
       normalizeProject(project);
 
+      // ── Caption formats ──────────────────────────────────────────────────
+      {
+        using namespace deckboy::captions;
+        expect(formatForPath("a.vtt") == Format::WebVtt &&
+               formatForPath("a.SCC") == Format::Scc &&
+               formatForPath("a.dfxp") == Format::Ttml &&
+               formatForPath("a.srt") == Format::Srt,
+               "caption files are recognised by extension");
+
+        const std::string vtt =
+          "WEBVTT\n\n"
+          "00:00:01.000 --> 00:00:03.500 align:middle\n"
+          "First line\n"
+          "second line\n\n"
+          "00:01:00.000 --> 00:01:02.000\n"
+          "Later\n";
+        const SubtitleTrack fromVtt = parseWebVtt(vtt);
+        expect(fromVtt.entries.size() == 2, "WebVTT yields both cues");
+        expect(std::abs(fromVtt.entries[0].startSeconds - 1.0) < 0.001 &&
+               std::abs(fromVtt.entries[0].endSeconds - 3.5) < 0.001,
+               "WebVTT times are read, and cue settings after them ignored");
+        expect(fromVtt.entries[0].text.find("second line") != std::string::npos,
+               "WebVTT keeps a cue's second line");
+        expect(std::abs(fromVtt.entries[1].startSeconds - 60.0) < 0.001,
+               "WebVTT reads minutes past the first");
+
+        // A round trip has to survive, or the converter is a shredder.
+        const SubtitleTrack again = parseWebVtt(writeWebVtt(fromVtt));
+        expect(again.entries.size() == fromVtt.entries.size() &&
+               std::abs(again.entries[0].startSeconds -
+                        fromVtt.entries[0].startSeconds) < 0.002,
+               "WebVTT survives being written and read again");
+
+        const SubtitleTrack fromSrtText =
+          deckboy::core::parseSrtText(writeSrt(fromVtt));
+        expect(fromSrtText.entries.size() == 2 &&
+               std::abs(fromSrtText.entries[1].startSeconds - 60.0) < 0.002,
+               "a track written as SubRip reads back the same");
+
+        // SCC: real byte pairs. 9420 is Resume Caption Loading, 942F is
+        // End of Caption, and the pairs between them are two characters each.
+        // "C8C5" is "HE", "CCCC" is "LL", "CF" with a null is "O".
+        const std::string scc =
+          "Scenarist_SCC V1.0\n\n"
+          "00:00:02:00\t9420 9420 C8C5 CCCC CF80 942f 942f\n\n"
+          "00:00:06:00\t9420 9420 5745 5254 C580 942f 942f\n";
+        const SubtitleTrack fromScc = parseScc(scc);
+        expect(fromScc.entries.size() == 2, "SCC yields a caption per timecode");
+        expect(fromScc.entries[0].text.find("HELLO") != std::string::npos,
+               "SCC decodes 608 character pairs into text");
+        expect(std::abs(fromScc.entries[0].startSeconds - 2.0) < 0.05,
+               "SCC non-drop timecode resolves to seconds");
+        expect(fromScc.entries[0].endSeconds <= fromScc.entries[1].startSeconds + 0.001,
+               "an SCC caption ends when the next one displaces it");
+
+        // Drop-frame counts by skipping numbers, not by running slow. At one
+        // hour the two differ by about 3.6 seconds, which on air is a caption
+        // on the wrong shot.
+        bool dropped = false;
+        const double ndf = deckboy::captions::detail::parseSccTime("01:00:00:00", dropped);
+        expect(!dropped, "a colon before the frames means non-drop");
+        const double df = deckboy::captions::detail::parseSccTime("01;00;00;00", dropped);
+        expect(dropped, "a semicolon before the frames means drop-frame");
+        expect(std::abs((ndf - df) - 3.6) < 0.2,
+               "drop-frame and non-drop differ by ~3.6s at one hour");
+
+        const std::string ttml =
+          "<tt><body><div>"
+          "<p begin=\"00:00:04.000\" end=\"00:00:06.000\">Line<br/>Break</p>"
+          "</div></body></tt>";
+        const SubtitleTrack fromTtml = parseTtml(ttml);
+        expect(fromTtml.entries.size() == 1 &&
+               std::abs(fromTtml.entries[0].startSeconds - 4.0) < 0.001,
+               "TTML paragraphs carry their times");
+        expect(fromTtml.entries[0].text.find("\n") != std::string::npos,
+               "TTML line breaks become line breaks");
+
+        expect(parseWebVtt("").entries.empty() && parseScc("").entries.empty() &&
+               parseTtml("").entries.empty(),
+               "an empty caption file yields no captions rather than one bad one");
+      }
+
       // ── MIDI Show Control ────────────────────────────────────────────────
       {
         using namespace deckboy::showcontrol;

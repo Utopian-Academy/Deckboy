@@ -3054,6 +3054,45 @@
         }
         return;
       }
+      // CONVERT: read the cue's caption file and write it out in whatever
+      // format the destination extension asks for. Deckboy can read SubRip,
+      // WebVTT, SCC and TTML, so being able to write three of them makes it
+      // the converter an operator would otherwise have gone looking for.
+      if (sub == "CONVERT" && parts.size() >= 3) {
+        Cue* cue = selectedCueMutable();
+        if (!cue || cue->subtitlePath.empty()) {
+          failRemoteCommand("SUBTITLE CONVERT: the cue has no caption file");
+          return;
+        }
+        const std::string destination = joinParts(parts, 2);
+        const auto target = deckboy::captions::formatForPath(destination);
+        if (target == deckboy::captions::Format::Unknown ||
+            target == deckboy::captions::Format::Scc ||
+            target == deckboy::captions::Format::Ttml) {
+          // SCC and TTML are read but not written: writing SCC means encoding
+          // 608 byte pairs and choosing a timebase, which is a real piece of
+          // work and not one to half-do.
+          failRemoteCommand("SUBTITLE CONVERT: destination must be .srt or .vtt");
+          return;
+        }
+        const deckboy::core::SubtitleTrack track = loadSubtitleTrack(*cue);
+        if (track.entries.empty()) {
+          failRemoteCommand("SUBTITLE CONVERT: nothing to convert");
+          return;
+        }
+        const std::string text = target == deckboy::captions::Format::WebVtt
+          ? deckboy::captions::writeWebVtt(track)
+          : deckboy::captions::writeSrt(track);
+        std::ofstream out(destination, std::ios::binary);
+        if (!out) {
+          failRemoteCommand("SUBTITLE CONVERT: could not write " + destination);
+          return;
+        }
+        out << text;
+        triggerToast("captions converted: " +
+                     std::to_string(track.entries.size()) + " lines");
+        return;
+      }
       if (sub == "FILE" || sub == "PATH" || sub == "SRT") {
         Cue* cue = selectedCueMutable();
         if (cue && parts.size() >= 3) {

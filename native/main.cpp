@@ -77,6 +77,7 @@
 #include "core/creatures.hpp"
 #include "core/io_utils.hpp"
 #include "core/subtitle_parser.hpp"
+#include "core/caption_formats.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
 #include "engine/hap_decoder.hpp"
@@ -4665,6 +4666,20 @@ static std::string extractEmbeddedSubtitles(const std::string& mediaPath, const 
 static deckboy::core::SubtitleTrack loadSubtitleTrack(const Cue& cue) {
   // Prefer external SRT file
   if (!cue.subtitlePath.empty()) {
+    // WHATEVER IT IS. Captions arrive as WebVTT from the web side, as SCC from
+    // anyone working to a US broadcast spec and as TTML from an archive, and
+    // an operator who has been handed one of those should not have to go and
+    // find a converter before they can start.
+    const auto format = deckboy::captions::formatForPath(cue.subtitlePath);
+    if (format != deckboy::captions::Format::Unknown &&
+        format != deckboy::captions::Format::Srt) {
+      std::ifstream file(cue.subtitlePath, std::ios::binary);
+      if (file) {
+        std::ostringstream buffer;
+        buffer << file.rdbuf();
+        return deckboy::captions::parseText(buffer.str(), format);
+      }
+    }
     return deckboy::core::parseSrtFile(cue.subtitlePath);
   }
   // Fall back to embedded subtitle stream
