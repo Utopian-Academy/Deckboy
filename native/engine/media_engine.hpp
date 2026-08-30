@@ -52,6 +52,7 @@
 #include <vector>
 
 #include "core/constants.hpp"
+#include "platform/decklink.hpp"
 #include "core/row_workers.hpp"
 #include "core/subprocess.hpp"
 #include "core/code_source.hpp"
@@ -286,6 +287,16 @@ class MediaEngine {
   void stopBrowserCapture();
   bool startBrowserFrameMode(int w, int h, double transSecs, TransitionStyle transStyle);
   void pushBrowserFrame(const uint8_t* rgba, int w, int h); // receive a frame from browser backend
+  // Start capturing from a Blackmagic input. Native SDK rather than an ffmpeg
+  // pipe: the bundled ffmpeg has no decklink demuxer, and the SDK is already
+  // linked here for playout.
+  bool startDeckLinkCapture(const Cue& cue);
+  void stopDeckLinkCapture();
+  bool isDeckLinkCapturing() const { return deckLinkCapturing_; }
+  // What the card reports it is receiving. Zero until the first frame lands,
+  // which is the difference between "connected" and "has a picture".
+  int deckLinkSignalWidth() const;
+  int deckLinkSignalHeight() const;
 
   // -- Source capture interface (called from platform/capture_backend.*) --------
   bool startSourceCapture(const Cue& cue);
@@ -729,6 +740,10 @@ class MediaEngine {
   int browserCaptureW_ = 1280;               // browser frame width
   int browserCaptureH_ = 720;                // browser frame height
   std::uint64_t browserFrameIdx_ = 0;        // sequential browser frame counter
+  std::unique_ptr<deckboy::platform::video::DeckLinkInput> deckLinkInput_;
+  bool deckLinkCapturing_ = false;
+  std::uint64_t deckLinkFrameIdx_ = 0;
+  std::vector<std::uint8_t> deckLinkRgba_;   // BGRA -> RGBA scratch, reused
 
   // -- State: source capture ---------------------------------------------------
   bool isSourceCapturing_ = false;           // source capture is active

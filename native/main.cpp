@@ -4180,6 +4180,7 @@ Project loadProject(const fs::path& projectFile,
         (kind == "syphon" || kind == "spout") ? CueKind::Syphon :
         kind == "srt_stream" ? CueKind::SrtStream :
         kind == "ndi_source" ? CueKind::NdiSource :
+        kind == "decklink_source" ? CueKind::DeckLinkSource :
         kind == "pip" ? CueKind::Pip :
         kind == "lower_third" ? CueKind::LowerThird :
         kind == "composite" ? CueKind::Composite :
