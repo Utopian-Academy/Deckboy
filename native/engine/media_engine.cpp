@@ -1997,10 +1997,137 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     }
     };   // renderCellRows
 
+    // ── Glitch marks ─────────────────────────────────────────────────────────
+    //
+    // A SECOND PASS, because marks belong to a cell but land outside it. The
+    // grid is drawn in parallel row bands; a mark climbing two cells from its
+    // own would write into another band's rows, which is a race. So each band
+    // instead asks which marks land on ITS rows and derives them from the
+    // originating cell -- the same answer from either side, computed twice
+    // rather than shared.
+    // The marks take the SAME ink the text does, resolved once: a mark in a
+    // different colour reads as an overlay rather than as part of the
+    // character it is escaping from.
+    std::uint8_t zalgoInk[3] = {255, 255, 255};
+    {
+      int inkIdx = vs.asciiInk == 1 ? 10 : vs.asciiInk == 2 ? 14
+                 : vs.asciiInk == 3 ? 11 : 15;
+      zalgoInk[0] = kCellPalette[inkIdx][0];
+      zalgoInk[1] = kCellPalette[inkIdx][1];
+      zalgoInk[2] = kCellPalette[inkIdx][2];
+    }
+    const double zalgoUp = std::clamp(vs.asciiZalgoUp, 0.0, 1.0);
+    const double zalgoDown = std::clamp(vs.asciiZalgoDown, 0.0, 1.0);
+    const double zalgoMid = std::clamp(vs.asciiZalgoMid, 0.0, 1.0);
+    const int zalgoReach = std::clamp(vs.asciiZalgoReach, 1, 6);
+    const bool zalgoOn = zalgoUp > 0.001 || zalgoDown > 0.001 || zalgoMid > 0.001;
+    // Drift re-rolls the marks over time. At 0 they are welded to their cell,
+    // which is what makes a still image look engraved rather than boiling.
+    const std::uint32_t zalgoEpoch = vs.asciiZalgoDrift <= 0.001
+      ? 0u
+      : static_cast<std::uint32_t>(
+          static_cast<double>(serial) * std::clamp(vs.asciiZalgoDrift, 0.0, 1.0) * 0.5);
+
+    // Eight marks in a 5x3 box: ticks, dots, rings, bars and slashes. Small
+    // and open, because a solid block above a letter reads as a block and not
+    // as a mark.
+    static const std::uint8_t kMarks[8][3] = {
+      {0x04, 0x00, 0x00},   // a dot
+      {0x0A, 0x00, 0x00},   // two dots
+      {0x04, 0x0A, 0x00},   // a caret
+      {0x1F, 0x00, 0x00},   // a bar
+      {0x08, 0x04, 0x02},   // a slash
+      {0x02, 0x04, 0x08},   // the other slash
+      {0x0E, 0x0A, 0x0E},   // a ring
+      {0x15, 0x00, 0x15},   // scatter
+    };
+
+    auto drawMarkRows = [&](int rowBegin, int rowEnd) {
+      const int yStart = rowBegin * cellH;
+      const int yEnd = std::min(dstH, rowEnd * cellH);
+      for (int cx = 0; cx < cols; ++cx) {
+        const int px0 = cx * cellW;
+        const int spanW = std::min(cellW, dstW - px0);
+        if (spanW <= 0) continue;
+        // Every cell whose marks could reach these rows, including the ones
+        // outside this band -- that is what makes the answer the same from
+        // either side.
+        for (int cy = rowBegin - zalgoReach; cy < rowEnd + zalgoReach; ++cy) {
+          if (cy < 0 || cy >= rows) continue;
+          for (int slot = 0; slot < zalgoReach * 2; ++slot) {
+            // One hash decides everything about one mark, so the whole field
+            // is reproducible from the cell, the slot and the epoch.
+            std::uint32_t h = static_cast<std::uint32_t>(cx) * 73856093u ^
+                              static_cast<std::uint32_t>(cy) * 19349663u ^
+                              static_cast<std::uint32_t>(slot) * 83492791u ^
+                              (zalgoEpoch * 2654435761u) ^
+                              (static_cast<std::uint32_t>(vs.asciiShuffle) * 40503u);
+            h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+            const bool above = (slot % 2) == 0;
+            const int step = slot / 2 + 1;              // 1..reach cells away
+            const double density = above ? zalgoUp : zalgoDown;
+            // Thinner the further it climbs: a stack that does not taper reads
+            // as a second row of text rather than as something escaping.
+            const double taper = 1.0 - (step - 1) / static_cast<double>(zalgoReach + 1);
+            if ((h % 1000u) >= static_cast<std::uint32_t>(density * taper * 1000.0)) {
+              continue;
+            }
+            // SCALED TO THE CELL, like the glyphs are. Drawn at its native
+            // 5x3 it is three pixels tall in a cell of thirty and reads as
+            // dirt on the screen rather than as a mark on a character.
+            const int markH = std::max(3, cellH / 2);
+            const int markY = above ? (cy * cellH - step * markH)
+                                    : (cy * cellH + cellH + (step - 1) * markH);
+            if (markY + markH <= yStart || markY >= yEnd) continue;
+            const std::uint8_t* mark = kMarks[(h >> 8) % 8];
+            // A sideways nudge, so a stack is not a perfect column.
+            const int nudge = static_cast<int>((h >> 16) % 5u) - 2;
+            for (int ry = 0; ry < markH; ++ry) {
+              const int y = markY + ry;
+              if (y < yStart || y >= yEnd || y < 0 || y >= dstH) continue;
+              const int my = std::min(2, (ry * 3) / markH);
+              std::uint8_t* row = dst + (static_cast<std::size_t>(y) * dstW) * 4;
+              for (int rx = 0; rx < spanW; ++rx) {
+                const int mx = std::min(4, (rx * 5) / spanW);
+                if (((mark[my] >> (4 - mx)) & 1) == 0) continue;
+                const int x = px0 + rx + nudge;
+                if (x < 0 || x >= dstW) continue;
+                std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+                p[0] = zalgoInk[0]; p[1] = zalgoInk[1]; p[2] = zalgoInk[2];
+                p[3] = 255;
+              }
+            }
+          }
+          // Through the character: a strike that sits ON the cell rather than
+          // outside it, so it damages the glyph instead of decorating it.
+          if (zalgoMid > 0.001) {
+            std::uint32_t h = static_cast<std::uint32_t>(cx) * 2654435761u ^
+                              static_cast<std::uint32_t>(cy) * 40503u ^
+                              (zalgoEpoch * 19349663u);
+            h ^= h >> 15; h *= 2246822519u; h ^= h >> 13;
+            if ((h % 1000u) < static_cast<std::uint32_t>(zalgoMid * 1000.0)) {
+              const int y = cy * cellH + static_cast<int>((h >> 9) % static_cast<std::uint32_t>(std::max(1, cellH)));
+              if (y >= yStart && y < yEnd && y >= 0 && y < dstH) {
+                std::uint8_t* row = dst + (static_cast<std::size_t>(y) * dstW) * 4;
+                for (int rx = 0; rx < spanW; ++rx) {
+                  std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+                  p[0] = zalgoInk[0]; p[1] = zalgoInk[1]; p[2] = zalgoInk[2];
+                  p[3] = 255;
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
     // The same persistent pool. A text screen is few rows and each one writes
     // a whole band of the OUTPUT raster, so 4 rows a band is worth splitting;
     // building a pool to do it was not.
     vsynthWorkers_.run(rows, 4, renderCellRows);
+    if (zalgoOn) {
+      vsynthWorkers_.run(rows, 4, drawMarkRows);
+    }
 }
 
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,

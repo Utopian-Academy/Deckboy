@@ -437,6 +437,41 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsZalgoUpDec:
+        adjustVs(&VideoSynthSettings::asciiZalgoUp, -0.05, 0.0, 1.0, "glitch up");
+        break;
+      case QuickAction::VsZalgoUpInc:
+        adjustVs(&VideoSynthSettings::asciiZalgoUp, 0.05, 0.0, 1.0, "glitch up");
+        break;
+      case QuickAction::VsZalgoDownDec:
+        adjustVs(&VideoSynthSettings::asciiZalgoDown, -0.05, 0.0, 1.0, "glitch down");
+        break;
+      case QuickAction::VsZalgoDownInc:
+        adjustVs(&VideoSynthSettings::asciiZalgoDown, 0.05, 0.0, 1.0, "glitch down");
+        break;
+      case QuickAction::VsZalgoMidDec:
+        adjustVs(&VideoSynthSettings::asciiZalgoMid, -0.02, 0.0, 1.0, "glitch through");
+        break;
+      case QuickAction::VsZalgoMidInc:
+        adjustVs(&VideoSynthSettings::asciiZalgoMid, 0.02, 0.0, 1.0, "glitch through");
+        break;
+      case QuickAction::VsZalgoDriftDec:
+        adjustVs(&VideoSynthSettings::asciiZalgoDrift, -0.05, 0.0, 1.0, "glitch drift");
+        break;
+      case QuickAction::VsZalgoDriftInc:
+        adjustVs(&VideoSynthSettings::asciiZalgoDrift, 0.05, 0.0, 1.0, "glitch drift");
+        break;
+      case QuickAction::VsZalgoReachDec:
+      case QuickAction::VsZalgoReachInc:
+        if (Cue* c = selectedVideoSynthCueMutable()) {
+          const int step = action == QuickAction::VsZalgoReachInc ? 1 : -1;
+          c->videoSynth.asciiZalgoReach =
+            std::clamp(c->videoSynth.asciiZalgoReach + step, 1, 6);
+          markProjectDirty();
+          triggerToast("glitch reach: " +
+                       std::to_string(c->videoSynth.asciiZalgoReach));
+        }
+        break;
       case QuickAction::VsAsciiGlyphsEdit: editAsciiGlyphs(); break;
       case QuickAction::VsAsciiPhrasesEdit: editAsciiPhrases(); break;
       case QuickAction::VsAsciiHoldDec:
