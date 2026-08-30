@@ -24,12 +24,19 @@ anywhere else, so anything Deckboy can be told, a key can tell it.
 
 ## Installing
 
+Download `Deckboy-<version>.streamDeckPlugin` from the
+[releases page](https://github.com/Utopian-Academy/Deckboy/releases) and
+double-click it. Stream Deck installs it and the actions appear under
+**Deckboy**.
+
+To build one instead:
+
 ```
-npm run build
+npm run build && node tools/pack.js
 ```
 
-Then copy `com.deckboy.streamdeck.sdPlugin` into the Stream Deck plugins
-folder and restart Stream Deck:
+Or copy `com.deckboy.streamdeck.sdPlugin` into the plugins folder by hand and
+restart Stream Deck:
 
 - **Windows** `%APPDATA%\Elgato\StreamDeck\Plugins\`
 - **macOS** `~/Library/Application Support/com.elgato.StreamDeck/Plugins/`
