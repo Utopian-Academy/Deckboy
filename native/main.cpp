@@ -61,6 +61,7 @@
 #endif
 
 #include "core/constants.hpp"
+#include "core/show_control.hpp"
 #include "core/types.hpp"
 #include "core/utils.hpp"
 #include "deckboy_version.hpp"
@@ -3370,6 +3371,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "creatures\t" << (project.creaturesEnabled ? 1 : 0) << '\n';
   output << "creatures_while_live\t" << (project.creaturesWhileLive ? 1 : 0) << '\n';
+  output << "show_control_device\t" << project.showControlDeviceId << '\n';
   // VJ mode. Written as project scalars so a show that never turns it on
   // carries the defaults and behaves exactly as it always did.
   output << "vj_mode\t" << (project.vjModeEnabled ? 1 : 0) << '\n';
@@ -3898,6 +3900,8 @@ Project loadProject(const fs::path& projectFile,
       project.creaturesEnabled = safeBool(fields, 1, true);
     } else if (fields[0] == "creatures_while_live") {
       project.creaturesWhileLive = safeBool(fields, 1, false);
+    } else if (fields[0] == "show_control_device") {
+      project.showControlDeviceId = std::clamp(safeInt(fields, 1, 0), 0, 127);
     } else if (fields[0] == "ui_scale") {
       project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
     } else if (fields[0] == "interaction_mode") {
