@@ -82,10 +82,13 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: ""
-          # ENABLE_DECKLINK is not exercised here: the Blackmagic SDK is a
-          # manual download and CMake hard-fails without it. decklink.cpp's
-          # no-SDK stub path is what the `none` build covers.
+            cmake_args: "-DENABLE_DECKLINK=OFF"
+          # ENABLE_DECKLINK is ON by default now that the SDK headers are
+          # vendored in native/extras/decklink-sdk, so the `all` leg compiles
+          # the real capture and playout code on every push. The `none` leg
+          # turns it off explicitly, which keeps the no-SDK stub path covered
+          # too -- both halves of that file are built, which is what stopped
+          # being true when the SDK was a manual download.
           - features: all
             cmake_args: "-DENABLE_MIDI=ON"
     steps:
@@ -211,7 +214,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: ""
+            cmake_args: "-DENABLE_DECKLINK=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON"
     steps:
@@ -385,7 +388,7 @@ jobs:
       matrix:
         include:
           - features: none
-            cmake_args: ""
+            cmake_args: "-DENABLE_DECKLINK=OFF"
           - features: all
             cmake_args: "-DENABLE_MIDI=ON -DENABLE_SPOUT=ON"
     steps:
