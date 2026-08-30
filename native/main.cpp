@@ -3369,6 +3369,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "creatures\t" << (project.creaturesEnabled ? 1 : 0) << '\n';
+  output << "creatures_while_live\t" << (project.creaturesWhileLive ? 1 : 0) << '\n';
   // VJ mode. Written as project scalars so a show that never turns it on
   // carries the defaults and behaves exactly as it always did.
   output << "vj_mode\t" << (project.vjModeEnabled ? 1 : 0) << '\n';
@@ -3895,6 +3896,8 @@ Project loadProject(const fs::path& projectFile,
       project.vjQuantiseTakes = safeBool(fields, 1, false);
     } else if (fields[0] == "creatures") {
       project.creaturesEnabled = safeBool(fields, 1, true);
+    } else if (fields[0] == "creatures_while_live") {
+      project.creaturesWhileLive = safeBool(fields, 1, false);
     } else if (fields[0] == "ui_scale") {
       project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
     } else if (fields[0] == "interaction_mode") {
@@ -6734,6 +6737,86 @@ class App {
     return rowY;
   }
 
+  // Does this cue carry the text-mode effect, live?
+  //
+  // The settings for the character grid live on the cue whatever its kind, so
+  // the only question is whether anything is going to READ them.
+  bool cueHasTextModeEffect(const Cue& cue) const {
+    for (const auto& fx : cue.effects) {
+      if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // The character grid's own controls. Drawn inside the VIDEO SYNTH section
+  // for a synth cue, and in a TEXT MODE section of its own for anything else
+  // carrying the effect -- same rows, same order, one implementation.
+  int inspDrawTextModeRows(const InspectorCtx& ix, int startY,
+                           const VideoSynthSettings& v, const Cue& cue) {
+    int rowY = startY;
+    inspDrawQuickRow(ix, rowY, "columns", QuickAction::VsAsciiColsDec,
+                     std::to_string(v.asciiCols), QuickAction::VsAsciiColsInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Characters across. Fewer means bigger cells.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "glyphs", QuickAction::VsCharSetCycle,
+                     vsCharSetLabel(v.asciiCharSet),
+                     QuickAction::VsCharSetCycle, QuickAction::ToggleLoop,
+                     false, false,
+                     "Blocks and dithers read as density; the ASCII ramp "
+                     "reads as text; symbols read as wreckage.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "shuffle", QuickAction::VsShuffleCycle,
+                     v.asciiShuffle == 0 ? std::string("by density")
+                                         : std::to_string(v.asciiShuffle),
+                     QuickAction::VsShuffleCycle, QuickAction::ToggleLoop,
+                     false, false,
+                     "Scramble which glyph means which brightness. Same set, "
+                     "different handwriting. Seeded, so it stays put.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
+                     vsInkLabel(v.asciiInk),
+                     QuickAction::VsInkCycle, QuickAction::ToggleLoop,
+                     false, false,
+                     "Picture takes colour from the image. Green, amber and "
+                     "cyan are terminal phosphors. Palette locks the text to "
+                     "the selected hardware palette.");
+    rowY += ix.rowStep;
+    rowY = inspDrawActionRow(ix, rowY,
+                             v.asciiGlyphs.empty()
+                               ? std::string("custom glyphs: (using the set above)")
+                               : "custom glyphs: " + v.asciiGlyphs,
+                             QuickAction::VsAsciiGlyphsEdit,
+                             "Build the picture from characters you choose, "
+                             "darkest first. Two characters gives binary; a "
+                             "word gives that word as texture.",
+                             pal.tile, pal.fg);
+    rowY = inspDrawActionRow(ix, rowY,
+                             v.asciiPhrases.empty()
+                               ? std::string("phrases: (none)")
+                               : "phrases: " + v.asciiPhrases,
+                             QuickAction::VsAsciiPhrasesEdit,
+                             "Words to surface in the field, separated by | . "
+                             "One at a time, in a new place each time.",
+                             pal.tile, pal.fg);
+    if (!v.asciiPhrases.empty()) {
+      std::ostringstream hold;
+      hold << std::fixed << std::setprecision(1) << v.asciiPhraseHold << "s";
+      inspDrawQuickRow(ix, rowY, "phrase hold", QuickAction::VsAsciiHoldDec,
+                       v.asciiPhraseHold <= 0.0 ? std::string("off")
+                                                : hold.str(),
+                       QuickAction::VsAsciiHoldInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "How long each phrase stays before it moves. Zero "
+                       "hides them without losing the list.");
+      rowY += ix.rowStep;
+    }
+    (void)cue;
+    return rowY;
+  }
+
   int inspDrawVideoSynthRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     if (cue.kind != CueKind::VideoSynth) return rowY;
@@ -6844,66 +6927,7 @@ class App {
                      "palette, rather than as pixels.");
     rowY += ix.rowStep;
     if (v.ascii) {
-      inspDrawQuickRow(ix, rowY, "columns", QuickAction::VsAsciiColsDec,
-                       std::to_string(v.asciiCols), QuickAction::VsAsciiColsInc,
-                       QuickAction::ToggleLoop, false, false,
-                       "Characters across. Fewer means bigger cells.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "glyphs", QuickAction::VsCharSetCycle,
-                       vsCharSetLabel(v.asciiCharSet),
-                       QuickAction::VsCharSetCycle, QuickAction::ToggleLoop,
-                       false, false,
-                       "Blocks and dithers read as density; the ASCII ramp "
-                       "reads as text; symbols read as wreckage.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "shuffle", QuickAction::VsShuffleCycle,
-                       v.asciiShuffle == 0 ? std::string("by density")
-                                           : std::to_string(v.asciiShuffle),
-                       QuickAction::VsShuffleCycle, QuickAction::ToggleLoop,
-                       false, false,
-                       "Scramble which glyph means which brightness. Same set, "
-                       "different handwriting. Seeded, so it stays put.");
-      rowY += ix.rowStep;
-      inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
-                       vsInkLabel(v.asciiInk),
-                       QuickAction::VsInkCycle, QuickAction::ToggleLoop,
-                       false, false,
-                       "Picture takes colour from the image. Green, amber and "
-                       "cyan are terminal phosphors. Palette locks the text to "
-                       "whichever hardware palette is selected above.");
-      rowY += ix.rowStep;
-      // Your own characters and your own words, immediately under the glyph
-      // set they replace.
-      rowY = inspDrawActionRow(ix, rowY,
-                               v.asciiGlyphs.empty()
-                                 ? std::string("custom glyphs: (using the set above)")
-                                 : "custom glyphs: " + v.asciiGlyphs,
-                               QuickAction::VsAsciiGlyphsEdit,
-                               "Build the picture from characters you choose, "
-                               "darkest first. Two characters gives binary; a "
-                               "word gives that word as texture.",
-                               pal.tile, pal.fg);
-      rowY = inspDrawActionRow(ix, rowY,
-                               v.asciiPhrases.empty()
-                                 ? std::string("phrases: (none)")
-                                 : "phrases: " + v.asciiPhrases,
-                               QuickAction::VsAsciiPhrasesEdit,
-                               "Words to surface in the field, separated by | . "
-                               "One at a time, in a new place each time.",
-                               pal.tile, pal.fg);
-      if (!v.asciiPhrases.empty()) {
-        std::ostringstream hold;
-        hold << std::fixed << std::setprecision(1) << v.asciiPhraseHold << "s";
-        inspDrawQuickRow(ix, rowY, "phrase hold", QuickAction::VsAsciiHoldDec,
-                         v.asciiPhraseHold <= 0.0 ? std::string("off")
-                                                  : hold.str(),
-                         QuickAction::VsAsciiHoldInc, QuickAction::ToggleLoop,
-                         false, false,
-                         "How long each phrase stays before it moves. Zero "
-                         "hides them without losing the list.");
-        rowY += ix.rowStep;
-      }
-    }
+      rowY = inspDrawTextModeRows(ix, rowY, v, cue);    }
 
     // ONE sprite control, not two. There were two rows -- "sprites" cycling
     // the sets in data/sprites, and "sheet" file-picking one -- both writing
@@ -8187,6 +8211,14 @@ class App {
   static constexpr int kSettingsActionNmosPortPrompt = 712;
   static constexpr int kSettingsActionNmosInterfacePrompt = 713;
   static constexpr int kSettingsActionNmosShowUrl = 714;
+  // VJ mode had no control anywhere in the UI -- only the wire verb.
+  //
+  // 722, not 715: the 700s are NOT one contiguous block. The NMOS ids stop at
+  // 714 and the ENCODER ids start again at 715, so "next after NMOS" landed
+  // straight on kSettingsActionEncoderPresetDelivery -- which is the
+  // double-allocation that once silently killed whichever handler ran second.
+  // audit_actions.py caught it. GREP THE VALUE before allocating another.
+  static constexpr int kSettingsActionVjModeToggle = 722;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -8569,6 +8601,10 @@ class App {
   // System tab scroll: only engages when the cards are taller than the modal,
   // which happens at large UI scales.
   int settingsSystemScroll_ = 0;
+  // How tall the System tab actually drew last frame. The card heights above
+  // it are hand-computed and can be too small; this is measured, so nothing
+  // can end up unreachable because a constant was not kept in step.
+  int settingsSystemDrawnH_ = 0;
   int settingsSystemScrollMax_ = 0;
   SDL_Rect settingsSystemViewport_ {0, 0, 0, 0};
   int settingsVideoScrollMax_ = 0;

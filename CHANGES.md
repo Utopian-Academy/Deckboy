@@ -2,6 +2,58 @@
 
 ## 2026-08-29 - v0.88.0 (the themes have things living in them)
 
+### Text mode works on anything now
+
+The character grid was part of the video synth, which meant the one thing
+people most want to do to a camera or a capture card was the one thing they
+could only do to an oscillator. It is an effect now: put TEXT MODE on a clip,
+a capture card, a camera, a browser cue or a still, and it draws as characters.
+
+The renderer never cared. It samples its source with `cx * width / cols`, so
+any picture and any size has always worked -- the only thing tying it to the
+synth was the names of the buffers it happened to reach for.
+
+**All the same controls.** The grid's settings live on the cue, so a clip
+carrying the effect gets its own TEXT MODE section in the inspector with the
+same rows the synth has: columns, glyph set, shuffle, ink, custom glyphs,
+phrases and phrase hold. The four effect parameters -- columns, corruption,
+glyph set, ink -- ride on top of those, so the things worth grabbing mid-set
+are on faders and can take an LFO, and everything else stays where it can be
+read.
+
+**Amount is a mix, not a switch.** At 1.0 the grid replaces the picture, which
+is the point of it. Part way it sits over the original like a screen door, and
+that is where most of the good-looking settings turn out to be.
+
+### The video synth ate memory until the machine had none left
+
+A Video Synth take took a 32 GB machine from 250 MB to 3.4 GB in two seconds
+and to 38 GB inside a minute. See the entry under FIXES; it was never really
+about the synth.
+
+### Three things that were there but could not be reached
+
+- **VJ mode had no switch.** `setVjMode` was called from exactly two places,
+  both in the remote command handler, so the only way to turn on the mode that
+  changes what the whole application is was to send it a line over a socket.
+  It is in `Settings -> System -> SHOW FLOW` now, at the top, above the jump
+  controls.
+- **The APPEARANCE card was one row short.** Adding the CREATURES toggle grew
+  the controls without growing the card's hand-computed height, so the last
+  control fell outside it -- and the scroll range is derived from those same
+  heights, so it could not be scrolled to either. Two ways to lose a control
+  from one number. The scroll range now follows what the columns ACTUALLY
+  drew, measured as they were drawn, so a stale constant can make a card look
+  cramped but can never put a control out of reach.
+- **The creatures were invisible in normal use.** "Nothing moves while an
+  output is live" was a rule I wrote, and an operator always has an output
+  armed -- so a feature that only appears when the machine is doing nothing is
+  a feature nobody has. The switch is three-state now: off, out when idle (the
+  default, and the safe one), or out regardless.
+
+### The themes have things living in them
+
+
 Some themes now have creatures in them.
 
 They live in the empty part of the playlist, below the last cue: a moth that

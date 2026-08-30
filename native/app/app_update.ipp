@@ -991,6 +991,10 @@
           // disagree with what is going out.
           fxCtx.effectState = previewEffectStateForDeck(
             project_.focusedDeckIndex, previewCue->effects.size());
+          // The same binding the output uses, so the monitor and the
+          // programme agree about what the cue looks like.
+          fxCtx.textMode =
+            textModeRendererFor(project_.focusedDeckIndex, *previewCue);
           // The same clock the output used this frame, so the monitor shows the
           // oscillator where the audience sees it.
           std::vector<deckboy::effects::CueEffect> previewModulated;

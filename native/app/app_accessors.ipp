@@ -68,6 +68,59 @@
     return runtime ? runtime->mediaEngine.get() : nullptr;
   }
 
+  // A callable that draws a picture as a character grid, using THIS cue's
+  // text-mode settings and THIS deck's engine (which owns any sprite sheet).
+  //
+  // Returned empty when the cue carries no text-mode effect, so the common
+  // case builds no std::function and the stack sees a null callback and skips
+  // the work entirely.
+  //
+  // The four effect parameters are folded into a copy of the cue's settings
+  // rather than replacing them: everything the character grid can do stays
+  // reachable in the inspector, and the four here are the ones worth having
+  // on a fader.
+  std::function<void(std::uint8_t*, int, int)> textModeRendererFor(
+      int deckIndex, const Cue& cue) {
+    bool wanted = false;
+    deckboy::effects::CueEffect chosen;
+    for (const auto& fx : cue.effects) {
+      if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+        wanted = true;
+        chosen = fx;
+        break;
+      }
+    }
+    if (!wanted) {
+      return {};
+    }
+    MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (!engine) {
+      return {};
+    }
+    VideoSynthSettings vs = cue.videoSynth;
+    vs.ascii = true;
+    // paramA..D ride ON TOP of the cue's own settings. The neutral values a
+    // freshly added effect carries (A=0.5, B=0, C=0, D=0) have to land
+    // somewhere sensible, because that is what the operator sees first: 0.5
+    // gives a middling grid, and zero corruption, glyph set and ink are all
+    // the defaults anyone would expect.
+    vs.asciiCols = std::clamp(
+      static_cast<int>(std::lround(20.0 + chosen.paramA * 180.0)), 20, 200);
+    vs.glitch = std::clamp(static_cast<double>(chosen.paramB), 0.0, 1.0);
+    vs.asciiCharSet = std::clamp(
+      static_cast<int>(std::lround(chosen.paramC * 5.0)), 0, 5);
+    vs.asciiInk = std::clamp(
+      static_cast<int>(std::lround(chosen.paramD * 5.0)), 0, 5);
+    const std::uint64_t serial = motionDriverFrameCounter_;
+    const double seconds = static_cast<double>(animationNow_) / 1000.0;
+    return [engine, vs, serial, seconds](std::uint8_t* pixels, int w, int h) {
+      // In place: the grid is drawn from the picture into the same buffer,
+      // which the renderer supports because it reads a cell's worth of source
+      // before it writes that cell.
+      engine->renderTextMode(pixels, w, h, pixels, w, h, vs, serial, seconds);
+    };
+  }
+
   MediaEngine* mediaEngineForDeck(int deckIndex) {
     auto* runtime = runtimeForDeck(deckIndex);
     return runtime ? runtime->mediaEngine.get() : nullptr;

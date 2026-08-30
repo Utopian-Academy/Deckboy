@@ -1052,6 +1052,11 @@ struct Project {
   // who wants a themed machine WITHOUT the company rather than a guard against
   // surprise. They hide themselves whenever an output is live regardless.
   bool creaturesEnabled = true;
+  // Whether they stay out while an output is live. Off by default: during a
+  // show the only thing moving on this machine should be the show. On for
+  // anyone who would rather have them regardless -- which is the only way to
+  // see them at all if you always have an output armed.
+  bool creaturesWhileLive = false;
 
   double uiScale = 1.0;
 
