@@ -125,6 +125,14 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "terrarium-pico" ||             // same world, 1px per cell
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
+         // A CODE SOURCE IS ALWAYS ANIMATED. Its expression has `t` in it and
+         // the whole point of it is that you edit it while it runs -- but it
+         // was not on this list, so it was drawn once at take and never again.
+         // Two symptoms from one omission: nothing you typed changed the
+         // picture, and any expression using `t` sat frozen on its first
+         // frame. Both were reported as "editing the code doesn't do
+         // anything", which is exactly what it looked like.
+         normalized == "code" ||
          normalized.find("kawaii") != std::string::npos || // legacy alias for pocket
          endsWith(normalized, "-motion");               // motion variant of static pattern
 }

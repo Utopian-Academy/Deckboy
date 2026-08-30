@@ -82,7 +82,7 @@ PASSES = {"feedback": 12, "scotopic": 6}
 # They are listed as state-driven rather than measured.
 ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "caustics"}
-ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic"}
+ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -115,6 +115,7 @@ PARAM_SLOTS = {
     "crystallise":     ["grain size", "facet light", "irregularity", "edges"],
     "scotopic":        ["colour lag", "rod bias", "purkinje"],
     "grain_flow":      ["stroke", "across the grain", "coherence"],
+    "text_mode":       ["columns", "corruption", "glyph set", "ink"],
     "motion_puppet":   ["spring", "memory"],
 }
 
@@ -149,6 +150,13 @@ MOVED = [0.9, 0.8, 0.8, 0.8]
 NOT_PIXEL_EFFECTS = [
     ("datamosh", "happens at decode, not on the pixels"),
     ("motion_puppet", "needs a driver clip's motion vectors"),
+    # Text mode IS a pixel operation, but the renderer that draws the character
+    # grid lives on the media engine (it owns the sprite-sheet state) and the
+    # settings that drive it live on the cue, so the stack is handed a callback
+    # rather than doing the work itself. Headless there is no engine to hand it
+    # one, and the effect correctly passes the picture through instead of
+    # pretending. Verified by looking at it on a real clip, not by this sweep.
+    ("text_mode", "needs the engine's character-grid renderer"),
 ]
 
 

@@ -508,9 +508,16 @@
       int rightW = std::max(uiScaled(320), content.w - uiScaled(12) - colGap - leftW);
       const int kCardGap = uiScaled(10);
 
-      int appearanceH = sCardHeaderH + sTallH + sRowH * 3 + sTallH + sGap * 4 + sPad;
+      // APPEARANCE, in the order it is laid out below: theme (tall), sound
+      // effects, mascot, creatures, UI scale (tall), Pocket 3. Six controls,
+      // five gaps. This was one row short of the six for a while, which
+      // clipped the Pocket 3 button off the bottom AND shortened the scroll
+      // range so it could not be reached -- keep it in step with the rows.
+      int appearanceH = sCardHeaderH + sTallH * 2 + sRowH * 4 + sGap * 5 + sPad;
       int safetyH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
-      int flowH = sCardHeaderH + sRowH * 3 + sLineH + uiScaled(4) + sGap * 2 + sPad;
+      // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
+      // and its row. Grew by a row when VJ mode got a switch.
+      int flowH = sCardHeaderH + sRowH * 4 + sLineH + uiScaled(4) + sGap * 3 + sPad;
       int cueToolsH = sCardHeaderH + sLineH * 2 + sGap + sRowH + sPad;
       int prefsH = sCardHeaderH + sRowH * 5 + sLineH + sGap * 2 + uiScaled(4) * 3 + sPad;
 
@@ -519,9 +526,21 @@
       // At 1x nothing overflows and the scroll is inert.
       int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
       int rightNeeded = cueToolsH + kCardGap + prefsH;
-      settingsSystemScrollMax_ = std::max(0, std::max(leftNeeded, rightNeeded) - colH);
+      // MEASURED, not predicted. These heights are hand-computed constants
+      // that must match the controls laid out under them, and when one of
+      // them was too small the control that fell outside its card could not be
+      // scrolled to either -- the same number produced both faults. The
+      // measurement taken while drawing the previous frame wins whenever it is
+      // larger, so a stale constant can make a card look cramped but can never
+      // put a control out of reach. One frame of lag, which nobody can see.
+      settingsSystemScrollMax_ = std::max(
+        0, std::max(std::max(leftNeeded, rightNeeded),
+                    settingsSystemDrawnH_) - colH);
       settingsSystemScroll_ = std::clamp(settingsSystemScroll_, 0, settingsSystemScrollMax_);
       settingsSystemViewport_ = content;
+      // Rebuilt below as the columns are drawn. Read one line above, before
+      // this reset, which is what gives the measurement its one-frame lag.
+      settingsSystemDrawnH_ = 0;
       bool systemScrolls = settingsSystemScrollMax_ > 0;
       int colTop = cy - settingsSystemScroll_;
 
@@ -585,8 +604,14 @@
       // simply always there.
       SDL_Rect critterBtn {appX, appY, appW, sRowH};
       appY += sRowH + sGap;
+      // Three states, one button: off, out only when no output is live, or
+      // out regardless. The middle one is the default and the safe one; the
+      // last exists because an operator who always has an output armed would
+      // otherwise never see them at all.
       drawPillToggle(critterBtn, project_.creaturesEnabled,
-                     "CREATURES ON", "CREATURES OFF");
+                     project_.creaturesWhileLive ? "CREATURES ALWAYS"
+                                                 : "CREATURES WHEN IDLE",
+                     "CREATURES OFF");
       settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
                                "creatures_toggle"});
       // UI scale dropdown — multiplies every font point size at load, and (as
@@ -605,6 +630,13 @@
                           project_.interactionMode == "touch";
       drawPillToggle(pocketBtn, pocketActive, "POCKET 3 / TOUCH", "POCKET 3 / TOUCH");
       settingsBtns_.push_back({pocketBtn, kSettingsActionPocket3Preset, "pocket3_preset"});
+
+      // What APPEARANCE actually used, measured at the point its last control
+      // was placed. Compared against the card it was given so an overflow
+      // cannot silently clip.
+      settingsSystemDrawnH_ = std::max(
+        settingsSystemDrawnH_,
+        (appY + sRowH + sPad) - colTop);
 
       drawCard(safetyRect, "SAFETY / TIMECODE", "Emergency fade and sync behavior");
       const int safetyX = cardBodyX(safetyRect);
@@ -659,9 +691,19 @@
       settingsBtns_.push_back({tcFwIncBtn, 215, "tc_freewheel_inc"});
 
       drawCard(flowRect, "SHOW FLOW", "Global jump and panic behavior");
+      // VJ MODE. This changes what the application IS -- one deck and a
+      // playlist, or two decks and a crossfader -- and until now the only way
+      // to reach it was a line over the socket. It sits at the top of SHOW
+      // FLOW because everything else in this card describes how the deck
+      // behaves, and this decides how many decks there are.
       const int flowX = cardBodyX(flowRect);
       const int flowW = cardBodyW(flowRect);
-      SDL_Rect jumpModeBtn {flowX, cardBodyY(flowRect), uiScaled(150), sRowH};
+      SDL_Rect vjModeBtn {flowX, cardBodyY(flowRect), flowW, sRowH};
+      drawPillToggle(vjModeBtn, project_.vjModeEnabled,
+                     "VJ MODE ON  (two decks + crossfader)",
+                     "VJ MODE OFF  (cue deck)");
+      settingsBtns_.push_back({vjModeBtn, kSettingsActionVjModeToggle, "vj_mode"});
+      SDL_Rect jumpModeBtn {flowX, vjModeBtn.y + sRowH + sGap, uiScaled(150), sRowH};
       SDL_Rect jumpTransBtn {jumpModeBtn.x + jumpModeBtn.w + sPad, jumpModeBtn.y,
                              std::max(uiScaled(40), flowW - jumpModeBtn.w - sPad), sRowH};
       Primitives::drawFramedPanel(controlRenderer_, jumpModeBtn, pal.mid,
@@ -3523,9 +3565,25 @@
         } else {
           triggerToast("nmos: clipboard unavailable");
         }
+      } else if (sb.action == kSettingsActionVjModeToggle) {
+        // setVjMode does the real work -- it rebuilds the deck layout -- so
+        // this only flips the intent and lets that decide what has to happen.
+        setVjMode(!project_.vjModeEnabled);
+        triggerToast(project_.vjModeEnabled ? "vj mode on" : "vj mode off");
       } else if (sb.action == kSettingsActionCreaturesToggle) {
-        project_.creaturesEnabled = !project_.creaturesEnabled;
-        triggerToast(project_.creaturesEnabled ? "creatures on" : "creatures off");
+        // off -> when idle -> always -> off
+        if (!project_.creaturesEnabled) {
+          project_.creaturesEnabled = true;
+          project_.creaturesWhileLive = false;
+          triggerToast("creatures: when idle");
+        } else if (!project_.creaturesWhileLive) {
+          project_.creaturesWhileLive = true;
+          triggerToast("creatures: always, even during a show");
+        } else {
+          project_.creaturesEnabled = false;
+          project_.creaturesWhileLive = false;
+          triggerToast("creatures off");
+        }
         markProjectDirty();
       } else if (sb.action == kSettingsActionMascotToggle) {
         // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the

@@ -30,6 +30,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <string>
 #include <condition_variable>
 #include <mutex>
@@ -70,6 +71,7 @@ enum class CueEffectKind : int {
   Crystallise,
   Scotopic,
   GrainFlow,
+  TextMode,
   Count,
 };
 
@@ -103,6 +105,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Crystallise:    return "crystallise";
     case CueEffectKind::Scotopic:       return "night eyes";
     case CueEffectKind::GrainFlow:      return "grain flow";
+    case CueEffectKind::TextMode:       return "text mode";
     default:                            return "none";
   }
 }
@@ -139,6 +142,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Crystallise:    return "crystallise";
     case CueEffectKind::Scotopic:       return "scotopic";
     case CueEffectKind::GrainFlow:      return "grain_flow";
+    case CueEffectKind::TextMode:       return "text_mode";
     default:                            return "none";
   }
 }
@@ -171,6 +175,9 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Feedback:
     case CueEffectKind::Scotopic:
     case CueEffectKind::MotionPuppet:
+    // Phrases move on their own clock and the cell corruption re-rolls every
+    // frame, so a still cue must keep re-rendering or the screen freezes.
+    case CueEffectKind::TextMode:
       return true;
     default:
       return false;
@@ -252,6 +259,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::GrainFlow:
       return which == 0 ? "stroke" : which == 1 ? "across the grain"
            : which == 2 ? "coherence" : nullptr;
+    case CueEffectKind::TextMode:
+      return which == 0 ? "columns" : which == 1 ? "corruption"
+           : which == 2 ? "glyph set" : which == 3 ? "ink" : nullptr;
     default:
       return nullptr;
   }
@@ -429,6 +439,18 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         ? "How irregular the growth is. Low gives an even honeycomb, high "
           "gives long shards."
         : "Darkens the boundaries where crystals meet.";
+    case CueEffectKind::TextMode:
+      return which == 0
+        ? "Characters across. Fewer means bigger cells and less of the "
+          "picture surviving, which is usually the point."
+        : which == 1
+        ? "Rows lose sync and repeat one character, the way a real text "
+          "screen breaks up. At 0 the grid is clean."
+        : which == 2
+        ? "Blocks and dithers read as density; the ASCII ramp reads as text; "
+          "symbols read as wreckage."
+        : "Picture takes its colour from the image. The rest are terminal "
+          "phosphors.";
     case CueEffectKind::Scotopic:
       return which == 0
         ? "How far behind the colour runs. The rods are fast and see no "
@@ -623,6 +645,21 @@ struct CueEffectContext {
   // that has no scratch to offer, and those effects then do nothing rather than
   // pretend.
   std::vector<std::vector<std::uint8_t>>* effectState = nullptr;
+  // Draws a picture as a grid of character cells, in place.
+  //
+  // TEXT MODE IS A LOOK, NOT A CUE KIND. It began as part of the video synth,
+  // which meant the one thing people most want to do to a camera or a capture
+  // card was the one thing they could only do to an oscillator. The renderer
+  // never cared -- it samples its source with `cx * width / cols`, so any
+  // picture has always worked.
+  //
+  // It arrives as a callback rather than as a call into the engine, because
+  // the stack must stay a pure function of its inputs: that is what lets every
+  // effect be dumped headlessly, benched, and run by the output and the
+  // preview independently without either knowing about the other. Null when
+  // nobody supplied one, and the effect then passes the picture through
+  // unchanged rather than pretending.
+  std::function<void(std::uint8_t*, int, int)> textMode;
 
   // Set when this is NOT the first consumer of the deck this frame -- a second
   // output showing the same deck, say. Every stateful effect then reads what
@@ -2843,6 +2880,52 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // stands it is an effect like any other, and having one effect
         // permanently present while the rest had to be added was incoherent.
         break;
+
+      case CueEffectKind::TextMode: {
+        // The character grid, on any picture at all.
+        //
+        // The renderer is supplied by the caller (ctx.textMode) because it
+        // needs the cue's own text-mode settings -- the glyph set, the ink,
+        // the custom characters, the phrases -- and there are far more of
+        // those than four effect parameters. So the four here are the ones
+        // worth reaching for mid-set, the caller folds them into the settings
+        // it hands over, and everything else stays in the inspector next to
+        // the glyph set where it can be read.
+        //
+        // Nothing supplied means pass the picture through untouched. An
+        // effect that blacked the frame out because its host had not wired
+        // something up would be worse than one that does nothing.
+        if (!ctx.textMode) {
+          break;
+        }
+        // AMOUNT IS A MIX, not a switch. Text mode at 1.0 destroys the
+        // picture, which is the point of it; part way it sits over the
+        // original like a screen door, and that turns out to be where most of
+        // the good-looking settings are.
+        if (amt >= 0.999) {
+          ctx.textMode(pixels.data(), ctx.width, ctx.height);
+          break;
+        }
+        std::vector<std::uint8_t> celled(pixels);
+        ctx.textMode(celled.data(), ctx.width, ctx.height);
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            std::uint8_t* dst = pixels.data() +
+              (static_cast<std::size_t>(y) * ctx.width) * 4;
+            const std::uint8_t* src = celled.data() +
+              (static_cast<std::size_t>(y) * ctx.width) * 4;
+            for (int x = 0; x < ctx.width; ++x) {
+              std::uint8_t* dp = dst + static_cast<std::size_t>(x) * 4;
+              const std::uint8_t* sp = src + static_cast<std::size_t>(x) * 4;
+              for (int ch = 0; ch < 3; ++ch) {
+                dp[ch] = detail::clamp8(dp[ch] * (1.0 - amt) + sp[ch] * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
       default:
         break;
     }

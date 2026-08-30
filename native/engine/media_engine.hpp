@@ -221,6 +221,14 @@ class MediaEngine {
   // only job is to be somewhere frames can be uploaded to. See uploadFrame for
   // why that is a memory leak unless somebody presents it.
   void setHiddenUploadTarget(bool hidden) { hiddenUploadTarget_ = hidden; }
+  // Draw one picture as a grid of character cells. Public because text mode
+  // is no longer a property of the video synth: it is a look that can be put
+  // on ANY picture -- a clip, a capture card, a camera -- through the effect
+  // stack. Any source size in, any destination size out.
+  void renderTextMode(const std::uint8_t* src, int srcW, int srcH,
+                      std::uint8_t* dst, int dstW, int dstH,
+                      const VideoSynthSettings& vs, std::uint64_t serial,
+                      double seconds);
 
   static void writeStreamingTexture(SDL_Texture* texture,
                                     const std::uint8_t* rgba,

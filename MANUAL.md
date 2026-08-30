@@ -538,6 +538,15 @@ the same reason the effect stack is: the frame splits across cores.
 
 ### Text mode
 
+Available two ways: as the video synth's own mode, and as the **TEXT MODE**
+effect, which puts the same character grid on any cue at all -- a clip, a
+capture card, a camera, a browser cue or a still. Adding the effect gives the
+cue its own TEXT MODE section in the inspector with the same rows the synth
+has, and the effect's four parameters (columns, corruption, glyph set, ink)
+ride on top of them so the useful ones are on faders and can take an LFO.
+Its amount is a MIX rather than a switch: at 1.0 the grid replaces the
+picture, and part way it sits over the original.
+
 The video synth can render as a character grid instead of as pixels, with a
 16-colour indexed palette and its own corruption. Alongside the built-in glyph
 sets, two settings make the field yours:
