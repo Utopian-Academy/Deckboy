@@ -7247,6 +7247,10 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     const double t = animTime;
     std::vector<double> stack;
     stack.reserve(32);
+    // Scratch for the source's own named values, one slot per name. Allocated
+    // once for the whole frame rather than per pixel, and rewritten by the
+    // prelude on each one.
+    std::vector<double> named(program.names.size(), 0.0);
     for (int py = 0; py < h; ++py) {
       std::uint8_t* row = frame.pixels.data() + static_cast<std::size_t>(py) * w * 4;
       const double y = (py + 0.5) / h;
@@ -7258,8 +7262,15 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
                                 std::sqrt(cx * cx + cy * cy),
                                 std::atan2(cy, cx), t};
         std::uint8_t* p = row + static_cast<std::size_t>(px) * 4;
+        // The named values first: computed once here and then read by whichever
+        // channels want them, instead of the old form's only option, which was
+        // to repeat the sub-expression in all three.
+        if (!program.prelude.empty()) {
+          deckboy::code::evaluate(program.prelude, vars, stack, &named);
+        }
         for (int c = 0; c < 3; ++c) {
-          double v = deckboy::code::evaluate(program.channel[c], vars, stack);
+          double v = deckboy::code::evaluate(program.channel[c], vars, stack,
+                                             &named);
           // Clamped, and NaN forced to zero: an expression can produce
           // anything and a NaN cast to a byte is undefined.
           if (!(v == v)) v = 0.0;
