@@ -35,7 +35,7 @@ cmake --build build/windows --config Release
 - Single source of truth: `VERSION` file (root)
 - CMake reads it, generates `native/core/deckboy_version.hpp`
 - CHANGES.md must have a dated entry for each version
-- DEVNOTES.md must be updated when architectural decisions are made
+- `private-notes/DEVNOTES.md` must be updated when architectural decisions are made
 - Tag CI validates VERSION matches git tag before builds run
 - **Never hardcode version strings** in source code
 
@@ -61,7 +61,7 @@ cmake --build build/windows --config Release
 | `native/platform/nmos_node.hpp/cpp` | NMOS IS-04 registration + Node API and IS-05 Connection API for the ST 2110 senders. Own HTTP server + registration threads. Tear down ONLY via `shutdownNmosNode()` — see DEVNOTES |
 | `native/platform/siphon_spout.hpp/cpp` | Spout (Windows) / Syphon (macOS) texture sharing |
 | `CHANGES.md` | User-facing changelog |
-| `DEVNOTES.md` | Internal architectural decisions (must be kept updated) |
+| `private-notes/DEVNOTES.md` | Internal architectural decisions (must be kept updated). NOT in the public repo — `private-notes/` is gitignored and carries its own local git history. See `private-notes/README.md` |
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
