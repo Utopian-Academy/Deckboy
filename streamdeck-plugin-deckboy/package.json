@@ -1,0 +1,16 @@
+{
+	"name": "streamdeck-plugin-deckboy",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Native Stream Deck plugin for Deckboy. No Companion required.",
+	"license": "GPL-3.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Utopian-Academy/Deckboy.git",
+		"directory": "streamdeck-plugin-deckboy"
+	},
+	"scripts": {
+		"test": "node --test test/*.test.js",
+		"build": "node tools/build.js"
+	}
+}

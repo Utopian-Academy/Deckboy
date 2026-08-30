@@ -1,0 +1,77 @@
+{
+	"Name": "Deckboy",
+	"Version": "1.0.0",
+	"Author": "Utopian Academy",
+	"URL": "https://github.com/Utopian-Academy/Deckboy",
+	"Description": "Drive Deckboy from a Stream Deck. Transport, cues, outputs and looks, with keys that read Deckboy's state back so a button knows whether the cue it fired is live.",
+	"Category": "Deckboy",
+	"CategoryIcon": "imgs/category",
+	"Icon": "imgs/plugin",
+	"CodePath": "bin/plugin.js",
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.4"
+	},
+	"OS": [
+		{ "Platform": "windows", "MinimumVersion": "10" },
+		{ "Platform": "mac", "MinimumVersion": "12" }
+	],
+	"Actions": [
+		{
+			"Name": "Take",
+			"UUID": "com.deckboy.streamdeck.take",
+			"Icon": "imgs/actions/take",
+			"Tooltip": "Take the selected cue, or a cue by number.",
+			"PropertyInspectorPath": "ui/take.html",
+			"Controllers": ["Keypad"],
+			"States": [
+				{ "Image": "imgs/actions/take", "TitleAlignment": "bottom" }
+			]
+		},
+		{
+			"Name": "Stop",
+			"UUID": "com.deckboy.streamdeck.stop",
+			"Icon": "imgs/actions/stop",
+			"Tooltip": "Stop the focused deck.",
+			"Controllers": ["Keypad"],
+			"States": [{ "Image": "imgs/actions/stop", "TitleAlignment": "bottom" }]
+		},
+		{
+			"Name": "Pause",
+			"UUID": "com.deckboy.streamdeck.pause",
+			"Icon": "imgs/actions/pause",
+			"Tooltip": "Pause or resume the focused deck.",
+			"Controllers": ["Keypad"],
+			"States": [{ "Image": "imgs/actions/pause", "TitleAlignment": "bottom" }]
+		},
+		{
+			"Name": "Panic",
+			"UUID": "com.deckboy.streamdeck.panic",
+			"Icon": "imgs/actions/panic",
+			"Tooltip": "Outputs off and engines stopped. Held for a moment so it cannot be hit by accident.",
+			"Controllers": ["Keypad"],
+			"States": [{ "Image": "imgs/actions/panic", "TitleAlignment": "bottom" }]
+		},
+		{
+			"Name": "Blackout",
+			"UUID": "com.deckboy.streamdeck.blackout",
+			"Icon": "imgs/actions/blackout",
+			"Tooltip": "Toggle blackout on the outputs.",
+			"Controllers": ["Keypad"],
+			"States": [{ "Image": "imgs/actions/blackout", "TitleAlignment": "bottom" }]
+		},
+		{
+			"Name": "Command",
+			"UUID": "com.deckboy.streamdeck.command",
+			"Icon": "imgs/actions/command",
+			"Tooltip": "Any Deckboy command, sent verbatim. The whole vocabulary is in MANUAL.md.",
+			"PropertyInspectorPath": "ui/command.html",
+			"Controllers": ["Keypad"],
+			"States": [{ "Image": "imgs/actions/command", "TitleAlignment": "bottom" }]
+		}
+	]
+}
