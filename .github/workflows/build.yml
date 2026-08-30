@@ -64,6 +64,23 @@ jobs:
         run: |
           node tools/build.js
           npm test
+          node tools/pack.js
+
+      # The module Companion actually installs, rather than the source tree.
+      - name: Companion module package
+        working-directory: companion-module-deckboy
+        run: npx companion-module-build
+
+      # Attached to the release below. Without this the plugins exist only for
+      # someone who clones and builds, which is not how an operator gets one.
+      - name: Upload plugin packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Deckboy-plugins
+          path: |
+            streamdeck-plugin-deckboy/dist/*.streamDeckPlugin
+            companion-module-deckboy/*.tgz
+          if-no-files-found: error
 
       # Source-level checks, so they need no toolchain and fail before any of
       # the three platform builds start.
@@ -557,7 +574,7 @@ jobs:
   release:
     name: Publish Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [version-check, linux-build, macos-package, windows-build]
+    needs: [version-check, companion-module, linux-build, macos-package, windows-build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -578,26 +595,29 @@ jobs:
           find artifacts -type f \( \
             -name 'Deckboy-*.zip' -o -name 'Deckboy-*.dmg' \
             -o -name 'Deckboy-*-setup.exe' -o -name 'Deckboy-*.tar.gz' \
-            -o -name 'Deckboy-*.AppImage' \) \
+            -o -name 'Deckboy-*.AppImage' \
+            -o -name '*.streamDeckPlugin' -o -name 'deckboy-*.tgz' \) \
             -exec cp -v {} release/ \;
           ls -la release
 
-      # Six files: an installer and a portable build for each of the three
-      # platforms. Anything missing means a packaging job silently produced
-      # nothing, and a half-empty release is worse than a failed build.
+      # Eight files: an installer and a portable build for each of the three
+      # platforms, plus the two plugins. Anything missing means a packaging job
+      # silently produced nothing, and a half-empty release is worse than a
+      # failed build.
       - name: Every platform must have shipped something
         run: |
           set -e
           cd release
           for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
-                         '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage'; do
+                         '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage' \
+                         '*.streamDeckPlugin' 'deckboy-*.tgz'; do
             count=$(ls $pattern 2>/dev/null | wc -l)
             if [ "$count" -eq 0 ]; then
               echo "MISSING: nothing matched $pattern" >&2
               exit 1
             fi
           done
-          echo "all six artefacts present"
+          echo "all eight artefacts present"
 
       # The notes are the changelog's own section for this version, so the
       # release page and CHANGES.md cannot disagree.
