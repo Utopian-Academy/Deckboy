@@ -45,7 +45,18 @@
   #include <comdef.h>
   #include "DeckLinkAPI_h.h"
 #else
+  #if defined(__APPLE__)
+    #include <CoreFoundation/CoreFoundation.h>
+  #endif
   #include "DeckLinkAPI.h"
+#endif
+
+// GetFlag takes the platform's own boolean: BOOL on Windows, plain bool
+// everywhere else. One alias rather than a conditional at every call site.
+#if defined(_WIN32)
+using DeckLinkFlag = BOOL;
+#else
+using DeckLinkFlag = bool;
 #endif
 
 // ── Platform-specific COM / string helpers ──────────────────────────────────
@@ -349,6 +360,41 @@ static std::string getDeckLinkDisplayName(IDeckLink* deckLink) {
   if (deckLink->GetDisplayName(&name) == S_OK && name) {
     std::string result = bstrToString(name);
     ::SysFreeString(name);
+    return result;
+  }
+  return {};
+}
+#elif defined(__APPLE__)
+// macOS is NOT Linux here. The SDK returns CFStringRef on one and a malloc'd
+// const char* on the other, so grouping them as "not Windows" is a type error
+// -- which went unseen for as long as the DeckLink path was never compiled on
+// a Mac.
+static std::string cfStringToStd(CFStringRef text) {
+  if (!text) return {};
+  const CFIndex length = CFStringGetLength(text);
+  const CFIndex capacity =
+    CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+  std::string out(static_cast<std::size_t>(capacity), '\0');
+  if (!CFStringGetCString(text, out.data(), capacity, kCFStringEncodingUTF8)) {
+    return {};
+  }
+  out.resize(std::strlen(out.c_str()));
+  return out;
+}
+static std::string getDeckLinkModelName(IDeckLink* deckLink) {
+  CFStringRef name = nullptr;
+  if (deckLink->GetModelName(&name) == S_OK && name) {
+    std::string result = cfStringToStd(name);
+    CFRelease(name);
+    return result;
+  }
+  return {};
+}
+static std::string getDeckLinkDisplayName(IDeckLink* deckLink) {
+  CFStringRef name = nullptr;
+  if (deckLink->GetDisplayName(&name) == S_OK && name) {
+    std::string result = cfStringToStd(name);
+    CFRelease(name);
     return result;
   }
   return {};
@@ -897,11 +943,10 @@ bool DeckLinkInput::start(int deviceId, DeckLinkMode mode, bool detectFormat,
   IDeckLinkProfileAttributes* attrs = nullptr;
   if (chosen->QueryInterface(IID_IDeckLinkProfileAttributes,
                              reinterpret_cast<void**>(&attrs)) == S_OK) {
-    // The SDK's own BOOL, which is not bool: on Windows it is an int, and
-    // taking the address of a bool here is a type error rather than a warning.
-    BOOL supported = FALSE;
+    // The platform's own boolean, which is not the same type everywhere.
+    DeckLinkFlag supported = DeckLinkFlag();
     if (attrs->GetFlag(BMDDeckLinkSupportsInputFormatDetection, &supported) == S_OK) {
-      canDetect = supported != FALSE;
+      canDetect = supported ? true : false;
     }
     attrs->Release();
   }
