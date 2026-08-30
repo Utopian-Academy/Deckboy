@@ -1061,6 +1061,11 @@ struct Project {
   // anyone who would rather have them regardless -- which is the only way to
   // see them at all if you always have an output armed.
   bool creaturesWhileLive = false;
+  // Which device ID this machine answers to in MIDI Show Control, 0-127.
+  // A desk addresses 127 to reach everything in the rig; anything else has to
+  // match exactly, because acting on a GO meant for the lighting desk is worse
+  // than missing one.
+  int showControlDeviceId = 0;
 
   double uiScale = 1.0;
 

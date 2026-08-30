@@ -663,6 +663,83 @@
       project.outputBitDepth = 10;
       normalizeProject(project);
 
+      // ── MIDI Show Control ────────────────────────────────────────────────
+      {
+        using namespace deckboy::showcontrol;
+        auto msc = [](std::initializer_list<int> bytes) {
+          std::vector<std::uint8_t> out;
+          for (int b : bytes) out.push_back(static_cast<std::uint8_t>(b));
+          return out;
+        };
+        // F0 7F <id> 02 <format> <command> [cue] F7
+        // GO on cue "5", addressed to device 3, video format.
+        auto go = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x01, '5', 0xF7}), 3);
+        expect(go.action == Action::Go && go.cue == "5",
+               "MSC GO carries its cue number");
+
+        // A multi-part cue number, which is what a real desk sends.
+        auto dotted = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x01,
+                                 '1', '2', '.', '4', 0xF7}), 3);
+        expect(dotted.cue == "12.4", "MSC cue numbers keep their dots");
+
+        // Cue, list and path are separated by 00.
+        auto listed = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x01,
+                                 '7', 0x00, '2', 0xF7}), 3);
+        expect(listed.cue == "7" && listed.cueList == "2",
+               "MSC cue list is read after the separator");
+
+        // 127 is everybody, and must be honoured whatever we are set to.
+        auto all = parse(msc({0xF0, 0x7F, 0x7F, 0x02, 0x30, 0x01, '1', 0xF7}), 9);
+        expect(all.action == Action::Go, "MSC device 127 addresses everything");
+
+        // A message for another device is not ours.
+        auto other = parse(msc({0xF0, 0x7F, 0x05, 0x02, 0x30, 0x01, '1', 0xF7}), 3);
+        expect(other.action == Action::None, "MSC ignores another device's cue");
+
+        // A GO to the LIGHTING rig arriving on our wire is not ours either.
+        // This is the one that matters: acting on it would fire video when the
+        // desk asked for a lamp.
+        auto lighting = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x01, 0x01, '1', 0xF7}), 3);
+        expect(lighting.action == Action::None,
+               "MSC ignores commands addressed to another kind of device");
+
+        // All-types reaches us.
+        auto every = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x7F, 0x01, '1', 0xF7}), 3);
+        expect(every.action == Action::Go, "MSC all-types format reaches video");
+
+        auto stop = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x02, 0xF7}), 3);
+        expect(stop.action == Action::Stop, "MSC STOP");
+        auto resume = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x03, 0xF7}), 3);
+        expect(resume.action == Action::Resume, "MSC RESUME");
+        auto load = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x05, '9', 0xF7}), 3);
+        expect(load.action == Action::Load && load.cue == "9",
+               "MSC LOAD preselects a cue");
+        auto off = parse(msc({0xF0, 0x7F, 0x03, 0x02, 0x30, 0x08, 0xF7}), 3);
+        expect(off.action == Action::AllOff, "MSC ALL OFF");
+
+        // ── MIDI Machine Control ───────────────────────────────────────────
+        auto play = parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x02, 0xF7}), 3);
+        expect(play.action == Action::MmcPlay, "MMC PLAY");
+        auto mstop = parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x01, 0xF7}), 3);
+        expect(mstop.action == Action::MmcStop, "MMC STOP");
+        auto pause = parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x09, 0xF7}), 3);
+        expect(pause.action == Action::MmcPause, "MMC PAUSE");
+
+        // LOCATE to 00:01:30:00 at 25fps. The hours byte carries the rate in
+        // its top bits, which is why it is masked before it is read as hours.
+        auto locate = parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x44, 0x06, 0x01,
+                                 0x20, 0x01, 0x1E, 0x00, 0xF7}), 3);
+        expect(locate.action == Action::MmcLocate &&
+               std::abs(locate.locateSeconds - 90.0) < 0.001,
+               "MMC LOCATE resolves to a position in seconds");
+
+        // Rubbish must not be mistaken for a command.
+        expect(!parse(msc({0xF0, 0x7F, 0x03, 0xF7}), 3).ok(),
+               "a truncated message is not a command");
+        expect(!parse(msc({0xF0, 0x7E, 0x03, 0x02, 0x30, 0x01, 0xF7}), 3).ok(),
+               "a non-realtime universal message is not show control");
+      }
+
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);
