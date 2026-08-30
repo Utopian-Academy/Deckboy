@@ -403,6 +403,15 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   cueOutPointSeconds_ = std::clamp(cueOutPointSeconds_, cueInPointSeconds_, std::max(cueInPointSeconds_, cue->duration));
   duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
 
+  // A DeckLink input is captured natively rather than decoded, so it takes its
+  // own path and never reaches the ffmpeg pipeline: the bundled ffmpeg has no
+  // decklink demuxer, and the SDK is already here for playout.
+  if (cue->kind == CueKind::DeckLinkSource) {
+    if (!startDeckLinkCapture(*cue)) {
+      std::cerr << "DeckLink input unavailable for " << cue->path << std::endl;
+    }
+    return;
+  }
   startDecoderThreads(*cue, cueInPointSeconds_, 0.0);
   state_ = autoplay ? TransportState::Playing : TransportState::Paused;
   playbackClockStart_ = std::chrono::steady_clock::now();
@@ -1843,8 +1852,8 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             case 2: quarter = 2; break;
             case 3: quarter = 3; break;
             case 4: quarter = (luma * 4) / 256; break;   // by brightness
-            case 5:
-              freeRad = seconds * vs.spriteFreeAngle * 0.017453292519943295;
+            case 5:
+              freeRad = seconds * vs.spriteFreeAngle * 0.017453292519943295;
               break;
             default: break;
           }
@@ -2704,6 +2713,92 @@ bool MediaEngine::startBrowserFrameMode(int w, int h, double transSecs, Transiti
 // Receive a single RGBA frame from the browser backend and queue it for display.
 // Called from the browser backend thread — must be thread-safe via frameMutex_.
 // Keeps at most 2 frames buffered (drops stale ones) to minimize latency.
+// ── DeckLink capture ────────────────────────────────────────────────────────
+//
+// The card calls us on its own thread. That is the same arrangement the
+// browser backend has, so the frames go in through the same mutex-guarded
+// push and everything downstream -- upload, effects, compositing -- is
+// unchanged.
+bool MediaEngine::startDeckLinkCapture(const Cue& cue) {
+  stopDeckLinkCapture();
+  // decklink://<index>, mirroring ndi://<name>. The index is what the SDK
+  // enumerates, and the UI writes it when the operator picks a device.
+  const std::string prefix = "decklink://";
+  if (cue.path.rfind(prefix, 0) != 0) {
+    return false;
+  }
+  int deviceId = 0;
+  try {
+    deviceId = std::stoi(cue.path.substr(prefix.size()));
+  } catch (...) {
+    deviceId = 0;
+  }
+  deckLinkInput_ = std::make_unique<deckboy::platform::video::DeckLinkInput>();
+  deckLinkInput_->onFrame([this](const std::uint8_t* bgra, int w, int h, int stride) {
+    if (!bgra || w <= 0 || h <= 0) {
+      return;
+    }
+    // BGRA off the card, RGBA for the pipeline. The scratch is a member so the
+    // driver thread never allocates -- it will not wait for us and an
+    // allocation here would show up as dropped frames rather than as a stall.
+    const std::size_t need = static_cast<std::size_t>(w) * h * 4;
+    if (deckLinkRgba_.size() != need) {
+      deckLinkRgba_.assign(need, 0);
+    }
+    for (int y = 0; y < h; ++y) {
+      const std::uint8_t* src = bgra + static_cast<std::size_t>(y) * stride;
+      std::uint8_t* dst = deckLinkRgba_.data() + static_cast<std::size_t>(y) * w * 4;
+      for (int x = 0; x < w; ++x) {
+        dst[0] = src[2];
+        dst[1] = src[1];
+        dst[2] = src[0];
+        dst[3] = 255;
+        src += 4;
+        dst += 4;
+      }
+    }
+    DecodedFrame frame;
+    frame.width = w;
+    frame.height = h;
+    frame.format = FramePixelFormat::RGBA32;
+    frame.index = deckLinkFrameIdx_++;
+    frame.pixels = deckLinkRgba_;
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    while (frameQueue_.size() >= 2) frameQueue_.pop_front();
+    frameQueue_.push_back(std::move(frame));
+  });
+  // The starting guess only matters until the card reports what is actually
+  // arriving, which it does on the first frame when it supports detection.
+  const bool started = deckLinkInput_->start(
+    deviceId, deckboy::platform::video::DeckLinkMode::HD1080p5994, true, 2);
+  if (!started) {
+    deckLinkInput_.reset();
+    return false;
+  }
+  deckLinkCapturing_ = true;
+  duration_ = 0.0;              // a live input runs until it is taken off
+  currentPosition_ = 0.0;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  state_ = TransportState::Playing;
+  return true;
+}
+
+void MediaEngine::stopDeckLinkCapture() {
+  if (deckLinkInput_) {
+    deckLinkInput_->stop();
+    deckLinkInput_.reset();
+  }
+  deckLinkCapturing_ = false;
+}
+
+int MediaEngine::deckLinkSignalWidth() const {
+  return deckLinkInput_ ? deckLinkInput_->detectedWidth() : 0;
+}
+
+int MediaEngine::deckLinkSignalHeight() const {
+  return deckLinkInput_ ? deckLinkInput_->detectedHeight() : 0;
+}
+
 void MediaEngine::pushBrowserFrame(const uint8_t* rgba, int w, int h) {
   if (!isBrowserCapturing_ || !rgba || w <= 0 || h <= 0) return;
   DecodedFrame frame;

@@ -51,6 +51,10 @@ enum class CueKind {
   Syphon,        // macOS Syphon / Windows Spout texture sharing
   SrtStream,     // live stream input (srt://, rtmp://, rtsp://, udp://)
   NdiSource,     // NDI receive input (ndi://SOURCE_NAME)
+  DeckLinkSource,// Blackmagic capture input (decklink://DEVICE_INDEX)
+                 // Native SDK capture rather than an ffmpeg pipe: the bundled
+                 // ffmpeg has no decklink demuxer, and the SDK is already
+                 // linked here for playout. See platform/decklink.*
   Pip,           // picture-in-picture composite (references another cue)
   LowerThird,    // text overlay with optional background bar
   Composite,     // multi-slot layout (quad-split, side-by-side, etc.)

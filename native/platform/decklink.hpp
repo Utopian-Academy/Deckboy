@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -63,6 +64,7 @@ struct DeckLinkDeviceInfo {
   int id = -1;
   std::string displayName;
   std::string modelName;
+  bool supportsInput = false;
   bool supportsOutput = false;
   bool supportsSDI = false;
   bool supportsHDMI = false;
@@ -85,6 +87,62 @@ int deckLinkModeHeight(DeckLinkMode mode);
 
 // Frame rate numerator/denominator for a given mode
 void deckLinkModeFrameRate(DeckLinkMode mode, int& numerator, int& denominator);
+
+// Live capture from a DeckLink / UltraStudio input.
+//
+// The counterpart of DeckLinkOutput, on the same devices and the same modes.
+// A card that can do both can run both at once, which is the ordinary
+// arrangement: play out of one connector while taking a camera in on another.
+//
+// MODE DETECTION IS AUTOMATIC where the hardware supports it. An operator
+// plugging a camera in does not know, and should not have to know, whether it
+// is arriving as 1080i59.94 or 1080p29.97 -- and getting it wrong produces a
+// black frame rather than an error. A card without format detection falls back
+// to the mode it is asked for.
+class DeckLinkInput {
+ public:
+  // One captured frame. BGRA, top-down, tightly packed unless stride says
+  // otherwise. Delivered on the SDK's own thread: the callback must be quick
+  // and must not touch the renderer.
+  using FrameCallback = std::function<void(const std::uint8_t* bgra, int width,
+                                           int height, int stride)>;
+  // Interleaved 16-bit PCM at 48kHz, which is the only rate the SDK captures.
+  using AudioCallback = std::function<void(const std::int16_t* samples,
+                                           int sampleCount, int channels)>;
+
+  DeckLinkInput();
+  ~DeckLinkInput();
+
+  DeckLinkInput(const DeckLinkInput&) = delete;
+  DeckLinkInput& operator=(const DeckLinkInput&) = delete;
+
+  // Devices that can capture. A subset of listDevices(): plenty of cards are
+  // playout only, and offering those as sources is a dead control.
+  static std::vector<DeckLinkDeviceInfo> listInputDevices();
+
+  // mode is the starting guess; with detectFormat the card corrects it as soon
+  // as it sees signal. audioChannels of 0 captures no audio.
+  bool start(int deviceId, DeckLinkMode mode, bool detectFormat = true,
+             int audioChannels = 2);
+  bool isRunning() const;
+  void stop();
+
+  void onFrame(FrameCallback callback);
+  void onAudio(AudioCallback callback);
+
+  // What the card is actually receiving, which after format detection is not
+  // necessarily what start() was asked for. Zero width means no signal yet.
+  int detectedWidth() const;
+  int detectedHeight() const;
+  double detectedFps() const;
+  // True once a frame has arrived. An input with a cable but no source stays
+  // false, which is the difference the operator needs to see.
+  bool hasSignal() const;
+
+ private:
+  class Impl;
+  std::unique_ptr<Impl> impl_;
+};
 
 class DeckLinkOutput {
  public:

@@ -1362,6 +1362,32 @@
     markProjectDirty();
   }
 
+  void addDeckLinkSourceCue(int deviceId, const std::string& deviceName) {
+    auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
+    Cue cue;
+    cue.kind = CueKind::DeckLinkSource;
+    cue.path = "decklink://" + std::to_string(deviceId);
+    cue.name = deviceName.empty() ? "DeckLink Input" : deviceName;
+    cue.width = rasterW;
+    cue.height = rasterH;
+    // A live input runs until it is taken off, like NDI and the streams.
+    cue.duration = 0.0;
+    cue.stillDurationSeconds = 0.0;
+    cue.hasAudio = true;
+    cue.formatName = "decklink";
+    cue.videoCodec = "decklink";
+    cue.audioCodec = "pcm_s16le";
+    cue.color = SDL_Color {72, 120, 190, 255};
+    Deck& deck = focusedDeckMutable();
+    applyDeckDefaultsToCue(cue, deck);
+    deck.cues.push_back(cue);
+    deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
+    onSelectionChanged();
+    triggerToast("DeckLink input cue added");
+    playUiSound(UiSoundEffect::Import);
+    markProjectDirty();
+  }
+
   void addNdiSourceCueFromPrompt() {
     openInlineTextEditor("tool.add_ndi",
                          "Add NDI Source Cue",
@@ -1772,6 +1798,22 @@
       {0, 0, 0, 0},
       [this]() { addNdiSourceCueFromPrompt(); }
     });
+    // ONE ENTRY PER CARD, rather than a chooser behind a chooser. NDI has to
+    // be typed because its sources are names on a network that come and go; a
+    // capture card is hardware in this machine and the SDK will say which ones
+    // are here, so asking for an index would be asking for something already
+    // known. Nothing is listed when nothing is installed.
+    for (const auto& device :
+         deckboy::platform::video::DeckLinkInput::listInputDevices()) {
+      const std::string label = device.displayName.empty() ? device.modelName
+                                                           : device.displayName;
+      const int deviceId = device.id;
+      contextItems_.push_back({
+        "  DeckLink: " + label,
+        {0, 0, 0, 0},
+        [this, deviceId, label]() { addDeckLinkSourceCue(deviceId, label); }
+      });
+    }
     // Code source. It is built on the pattern machinery, so it was reachable
     // only from the PATTERN picker -- and nobody looking for a SOURCE called
     // "code source" thinks to open the pattern list. Where a thing lives in

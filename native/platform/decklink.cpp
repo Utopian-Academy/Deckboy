@@ -31,6 +31,8 @@
 #include "decklink.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <mutex>
 #include <cstring>
 #include <iostream>
 
@@ -77,6 +79,39 @@
 #endif // DECKBOY_HAS_DECKLINK
 
 namespace deckboy::platform::video {
+
+#if defined(DECKBOY_HAS_DECKLINK)
+// ONE mode table, shared by playout and capture. A second copy would be a
+// second thing to update when a card gains a mode.
+static BMDDisplayMode deckLinkModeToBmd(DeckLinkMode m) {
+  switch (m) {
+    case DeckLinkMode::HD1080i50:     return bmdModeHD1080i50;
+    case DeckLinkMode::HD1080i5994:   return bmdModeHD1080i5994;
+    case DeckLinkMode::HD1080i60:     return bmdModeHD1080i6000;
+    case DeckLinkMode::HD1080p2398:   return bmdModeHD1080p2398;
+    case DeckLinkMode::HD1080p24:     return bmdModeHD1080p24;
+    case DeckLinkMode::HD1080p25:     return bmdModeHD1080p25;
+    case DeckLinkMode::HD1080p2997:   return bmdModeHD1080p2997;
+    case DeckLinkMode::HD1080p30:     return bmdModeHD1080p30;
+    case DeckLinkMode::HD1080p50:     return bmdModeHD1080p50;
+    case DeckLinkMode::HD1080p5994:   return bmdModeHD1080p5994;
+    case DeckLinkMode::HD1080p60:     return bmdModeHD1080p6000;
+    case DeckLinkMode::HD720p50:      return bmdModeHD720p50;
+    case DeckLinkMode::HD720p5994:    return bmdModeHD720p5994;
+    case DeckLinkMode::HD720p60:      return bmdModeHD720p60;
+    case DeckLinkMode::UHD2160p2398:  return bmdMode4K2160p2398;
+    case DeckLinkMode::UHD2160p24:    return bmdMode4K2160p24;
+    case DeckLinkMode::UHD2160p25:    return bmdMode4K2160p25;
+    case DeckLinkMode::UHD2160p2997:  return bmdMode4K2160p2997;
+    case DeckLinkMode::UHD2160p30:    return bmdMode4K2160p30;
+    case DeckLinkMode::UHD2160p50:    return bmdMode4K2160p50;
+    case DeckLinkMode::UHD2160p5994:  return bmdMode4K2160p5994;
+    case DeckLinkMode::UHD2160p60:    return bmdMode4K2160p60;
+  }
+  return bmdModeHD1080p6000;
+}
+#endif  // DECKBOY_HAS_DECKLINK
+
 
 // ── Mode helpers ────────────────────────────────────────────────────────────
 // These functions convert between the DeckLinkMode enum and various
@@ -276,33 +311,7 @@ class DeckLinkOutput::Impl {
   std::uint64_t frameCount_ = 0;
 
   // Converts our DeckLinkMode enum to the SDK's BMDDisplayMode constants.
-  BMDDisplayMode toBmdMode(DeckLinkMode m) const {
-    switch (m) {
-      case DeckLinkMode::HD1080i50:     return bmdModeHD1080i50;
-      case DeckLinkMode::HD1080i5994:   return bmdModeHD1080i5994;
-      case DeckLinkMode::HD1080i60:     return bmdModeHD1080i6000;
-      case DeckLinkMode::HD1080p2398:   return bmdModeHD1080p2398;
-      case DeckLinkMode::HD1080p24:     return bmdModeHD1080p24;
-      case DeckLinkMode::HD1080p25:     return bmdModeHD1080p25;
-      case DeckLinkMode::HD1080p2997:   return bmdModeHD1080p2997;
-      case DeckLinkMode::HD1080p30:     return bmdModeHD1080p30;
-      case DeckLinkMode::HD1080p50:     return bmdModeHD1080p50;
-      case DeckLinkMode::HD1080p5994:   return bmdModeHD1080p5994;
-      case DeckLinkMode::HD1080p60:     return bmdModeHD1080p6000;
-      case DeckLinkMode::HD720p50:      return bmdModeHD720p50;
-      case DeckLinkMode::HD720p5994:    return bmdModeHD720p5994;
-      case DeckLinkMode::HD720p60:      return bmdModeHD720p60;
-      case DeckLinkMode::UHD2160p2398:  return bmdMode4K2160p2398;
-      case DeckLinkMode::UHD2160p24:    return bmdMode4K2160p24;
-      case DeckLinkMode::UHD2160p25:    return bmdMode4K2160p25;
-      case DeckLinkMode::UHD2160p2997:  return bmdMode4K2160p2997;
-      case DeckLinkMode::UHD2160p30:    return bmdMode4K2160p30;
-      case DeckLinkMode::UHD2160p50:    return bmdMode4K2160p50;
-      case DeckLinkMode::UHD2160p5994:  return bmdMode4K2160p5994;
-      case DeckLinkMode::UHD2160p60:    return bmdMode4K2160p60;
-    }
-    return bmdModeHD1080p6000;
-  }
+  BMDDisplayMode toBmdMode(DeckLinkMode m) const { return deckLinkModeToBmd(m); }
 
   // Ensure COM is initialized on this thread (Windows only).
   // Safe to call multiple times — tracks init state.
@@ -396,6 +405,15 @@ std::vector<DeckLinkDeviceInfo> DeckLinkOutput::listDevices() {
     info.displayName = getDeckLinkDisplayName(deckLink);
     if (info.displayName.empty()) {
       info.displayName = info.modelName;
+    }
+
+    // Capture capability, asked separately: plenty of cards do one and not the
+    // other, and offering a playout-only card as a source is a dead control.
+    IDeckLinkInput* inputProbe = nullptr;
+    if (deckLink->QueryInterface(IID_IDeckLinkInput,
+                                 reinterpret_cast<void**>(&inputProbe)) == S_OK) {
+      info.supportsInput = true;
+      inputProbe->Release();
     }
 
     IDeckLinkOutput* output = nullptr;
@@ -686,6 +704,279 @@ bool DeckLinkOutput::sendAudio(const std::int16_t* samples, int sampleCount,
 }
 
 // ── Stub implementation (DeckLink SDK not available) ────────────────────────
+// ── DeckLinkInput ───────────────────────────────────────────────────────────
+//
+// The SDK delivers frames by calling us back on its own thread, so this class
+// is a COM callback object plus the state it needs. Everything the callback
+// touches is either atomic or guarded, because the thread it runs on is the
+// driver's and it will not wait for us.
+//
+// FORMAT DETECTION is on by default. An operator plugging a camera in does not
+// know whether it is arriving as 1080i59.94 or 1080p29.97, and guessing wrong
+// gives a black picture rather than an error -- so the card is asked to tell
+// us, and the stream is restarted on the mode it reports.
+class DeckLinkInput::Impl final : public IDeckLinkInputCallback {
+ public:
+  Impl() = default;
+  ~Impl() override = default;
+
+  // ── IUnknown. The SDK holds a reference for as long as it may call us. ──
+  HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, LPVOID* ppv) override {
+    if (!ppv) return E_POINTER;
+    *ppv = nullptr;
+#if defined(_WIN32)
+    if (iid == IID_IUnknown || iid == IID_IDeckLinkInputCallback) {
+      *ppv = static_cast<IDeckLinkInputCallback*>(this);
+      AddRef();
+      return S_OK;
+    }
+#else
+    // REFUSED on Linux and macOS, deliberately.
+    //
+    // The two platforms spell REFIID differently -- macOS as CFUUIDBytes,
+    // Linux as a plain 16-byte struct -- and answering properly would mean
+    // CoreFoundation on one and a memcmp on the other, in a function the SDK
+    // never calls. SetCallback keeps the pointer it is given; it does not go
+    // looking for another interface on it. Blackmagic's own Linux samples
+    // refuse here for the same reason.
+    (void)iid;
+#endif
+    return E_NOINTERFACE;
+  }
+  ULONG STDMETHODCALLTYPE AddRef() override { return ++refCount_; }
+  ULONG STDMETHODCALLTYPE Release() override {
+    const ULONG remaining = --refCount_;
+    return remaining;   // lifetime is owned by DeckLinkInput, not by refcount
+  }
+
+  // ── The card has noticed the incoming format is not what we asked for. ──
+  HRESULT STDMETHODCALLTYPE VideoInputFormatChanged(
+      BMDVideoInputFormatChangedEvents /*events*/,
+      IDeckLinkDisplayMode* newMode,
+      BMDDetectedVideoInputFormatFlags /*flags*/) override {
+    if (!input_ || !newMode) return S_OK;
+    // Restart on the mode the card reports. PauseStreams is not enough: the
+    // pixel format and the frame size both change with it.
+    input_->StopStreams();
+    input_->DisableVideoInput();
+    const BMDDisplayMode mode = newMode->GetDisplayMode();
+    input_->EnableVideoInput(mode, bmdFormat8BitBGRA,
+                             detectFormat_ ? bmdVideoInputEnableFormatDetection
+                                           : bmdVideoInputFlagDefault);
+    detectedWidth_ = static_cast<int>(newMode->GetWidth());
+    detectedHeight_ = static_cast<int>(newMode->GetHeight());
+    BMDTimeValue frameDuration = 0;
+    BMDTimeScale timeScale = 0;
+    if (newMode->GetFrameRate(&frameDuration, &timeScale) == S_OK &&
+        frameDuration > 0) {
+      detectedFps_ = static_cast<double>(timeScale) /
+                     static_cast<double>(frameDuration);
+    }
+    input_->StartStreams();
+    return S_OK;
+  }
+
+  // ── One captured frame, on the driver's thread. ──
+  HRESULT STDMETHODCALLTYPE VideoInputFrameArrived(
+      IDeckLinkVideoInputFrame* videoFrame,
+      IDeckLinkAudioInputPacket* audioPacket) override {
+    if (videoFrame) {
+      // NO INPUT SOURCE means a cable with nothing on it. The SDK still
+      // delivers frames at the nominal rate, and they are garbage -- reporting
+      // them as signal would light the tally on a black input.
+      const bool valid =
+        (videoFrame->GetFlags() & bmdFrameHasNoInputSource) == 0;
+      hasSignal_ = valid;
+      if (valid) {
+        void* bytes = nullptr;
+        if (videoFrame->GetBytes(&bytes) == S_OK && bytes) {
+          const int w = static_cast<int>(videoFrame->GetWidth());
+          const int h = static_cast<int>(videoFrame->GetHeight());
+          const int stride = static_cast<int>(videoFrame->GetRowBytes());
+          detectedWidth_ = w;
+          detectedHeight_ = h;
+          std::lock_guard<std::mutex> lock(callbackMutex_);
+          if (frameCallback_) {
+            frameCallback_(static_cast<const std::uint8_t*>(bytes), w, h, stride);
+          }
+        }
+      }
+    }
+    if (audioPacket) {
+      void* bytes = nullptr;
+      if (audioPacket->GetBytes(&bytes) == S_OK && bytes) {
+        const int frames = static_cast<int>(audioPacket->GetSampleFrameCount());
+        std::lock_guard<std::mutex> lock(callbackMutex_);
+        if (audioCallback_ && frames > 0) {
+          audioCallback_(static_cast<const std::int16_t*>(bytes),
+                         frames * audioChannels_, audioChannels_);
+        }
+      }
+    }
+    return S_OK;
+  }
+
+  IDeckLink* device_ = nullptr;
+  IDeckLinkInput* input_ = nullptr;
+  std::atomic<ULONG> refCount_ {1};
+  std::mutex callbackMutex_;
+  FrameCallback frameCallback_;
+  AudioCallback audioCallback_;
+  int audioChannels_ = 2;
+  bool detectFormat_ = true;
+  std::atomic<int> detectedWidth_ {0};
+  std::atomic<int> detectedHeight_ {0};
+  std::atomic<double> detectedFps_ {0.0};
+  std::atomic<bool> hasSignal_ {false};
+  bool running_ = false;
+};
+
+DeckLinkInput::DeckLinkInput() : impl_(std::make_unique<Impl>()) {}
+DeckLinkInput::~DeckLinkInput() { stop(); }
+
+std::vector<DeckLinkDeviceInfo> DeckLinkInput::listInputDevices() {
+  std::vector<DeckLinkDeviceInfo> capable;
+  for (const DeckLinkDeviceInfo& info : DeckLinkOutput::listDevices()) {
+    if (info.supportsInput) {
+      capable.push_back(info);
+    }
+  }
+  return capable;
+}
+
+bool DeckLinkInput::start(int deviceId, DeckLinkMode mode, bool detectFormat,
+                          int audioChannels) {
+  stop();
+  IDeckLinkIterator* iterator = createDeckLinkIterator();
+  if (!iterator) {
+    return false;
+  }
+  IDeckLink* deckLink = nullptr;
+  int index = 0;
+  IDeckLink* chosen = nullptr;
+  while (iterator->Next(&deckLink) == S_OK) {
+    if (index == deviceId) {
+      chosen = deckLink;
+      break;
+    }
+    deckLink->Release();
+    ++index;
+  }
+  iterator->Release();
+  if (!chosen) {
+    return false;
+  }
+
+  IDeckLinkInput* input = nullptr;
+  if (chosen->QueryInterface(IID_IDeckLinkInput,
+                             reinterpret_cast<void**>(&input)) != S_OK) {
+    chosen->Release();
+    return false;
+  }
+
+  // Format detection is a card capability, not a given. Asked for rather than
+  // assumed, so an older card starts on the requested mode instead of failing
+  // EnableVideoInput outright.
+  bool canDetect = false;
+  IDeckLinkProfileAttributes* attrs = nullptr;
+  if (chosen->QueryInterface(IID_IDeckLinkProfileAttributes,
+                             reinterpret_cast<void**>(&attrs)) == S_OK) {
+    bool supported = false;
+    if (attrs->GetFlag(BMDDeckLinkSupportsInputFormatDetection, &supported) == S_OK) {
+      canDetect = supported;
+    }
+    attrs->Release();
+  }
+  const bool useDetection = detectFormat && canDetect;
+
+  impl_->device_ = chosen;
+  impl_->input_ = input;
+  impl_->detectFormat_ = useDetection;
+  impl_->audioChannels_ = audioChannels > 0 ? audioChannels : 2;
+  impl_->detectedWidth_ = deckLinkModeWidth(mode);
+  impl_->detectedHeight_ = deckLinkModeHeight(mode);
+  impl_->hasSignal_ = false;
+
+  input->SetCallback(impl_.get());
+
+  // BGRA in, because that is what the rest of the pipeline speaks. The card
+  // converts from whatever is on the wire, which costs nothing on the host.
+  const BMDDisplayMode bmdMode = deckLinkModeToBmd(mode);
+  if (input->EnableVideoInput(bmdMode, bmdFormat8BitBGRA,
+                              useDetection ? bmdVideoInputEnableFormatDetection
+                                           : bmdVideoInputFlagDefault) != S_OK) {
+    stop();
+    return false;
+  }
+  if (audioChannels > 0) {
+    // 48kHz is the only rate the SDK captures, which is also what the engine
+    // wants, so nothing resamples.
+    input->EnableAudioInput(bmdAudioSampleRate48kHz, bmdAudioSampleType16bitInteger,
+                            static_cast<uint32_t>(audioChannels));
+  }
+  if (input->StartStreams() != S_OK) {
+    stop();
+    return false;
+  }
+  impl_->running_ = true;
+  return true;
+}
+
+bool DeckLinkInput::isRunning() const { return impl_ && impl_->running_; }
+
+void DeckLinkInput::stop() {
+  if (!impl_ || !impl_->running_) {
+    // Still release anything a failed start left behind.
+    if (impl_ && impl_->input_) {
+      impl_->input_->SetCallback(nullptr);
+      impl_->input_->Release();
+      impl_->input_ = nullptr;
+    }
+    if (impl_ && impl_->device_) {
+      impl_->device_->Release();
+      impl_->device_ = nullptr;
+    }
+    return;
+  }
+  if (impl_->input_) {
+    impl_->input_->StopStreams();
+    impl_->input_->DisableVideoInput();
+    impl_->input_->DisableAudioInput();
+    // Cleared BEFORE release: the driver may have a call in flight, and
+    // dropping the callback first means it finds nothing to call rather than a
+    // half-destroyed object.
+    impl_->input_->SetCallback(nullptr);
+    impl_->input_->Release();
+    impl_->input_ = nullptr;
+  }
+  if (impl_->device_) {
+    impl_->device_->Release();
+    impl_->device_ = nullptr;
+  }
+  {
+    std::lock_guard<std::mutex> lock(impl_->callbackMutex_);
+    impl_->frameCallback_ = nullptr;
+    impl_->audioCallback_ = nullptr;
+  }
+  impl_->running_ = false;
+  impl_->hasSignal_ = false;
+}
+
+void DeckLinkInput::onFrame(FrameCallback callback) {
+  std::lock_guard<std::mutex> lock(impl_->callbackMutex_);
+  impl_->frameCallback_ = std::move(callback);
+}
+
+void DeckLinkInput::onAudio(AudioCallback callback) {
+  std::lock_guard<std::mutex> lock(impl_->callbackMutex_);
+  impl_->audioCallback_ = std::move(callback);
+}
+
+int DeckLinkInput::detectedWidth() const { return impl_ ? impl_->detectedWidth_.load() : 0; }
+int DeckLinkInput::detectedHeight() const { return impl_ ? impl_->detectedHeight_.load() : 0; }
+double DeckLinkInput::detectedFps() const { return impl_ ? impl_->detectedFps_.load() : 0.0; }
+bool DeckLinkInput::hasSignal() const { return impl_ && impl_->hasSignal_.load(); }
+
 #else  // !DECKBOY_HAS_DECKLINK — stub implementation
 
 class DeckLinkOutput::Impl {
@@ -708,6 +999,26 @@ void DeckLinkOutput::shutdown() { impl_->isInitialized_ = false; }
 
 bool DeckLinkOutput::sendFrame(const std::uint8_t*, int, int, int) { return false; }
 bool DeckLinkOutput::sendAudio(const std::int16_t*, int, int, int) { return false; }
+
+// DeckLinkInput without the SDK: reports no devices and refuses to start, so
+// the UI can offer the source type and say why it is unavailable rather than
+// the whole translation unit vanishing and taking the symbols with it.
+class DeckLinkInput::Impl {};
+
+DeckLinkInput::DeckLinkInput() : impl_(nullptr) {}
+DeckLinkInput::~DeckLinkInput() = default;
+
+std::vector<DeckLinkDeviceInfo> DeckLinkInput::listInputDevices() { return {}; }
+
+bool DeckLinkInput::start(int, DeckLinkMode, bool, int) { return false; }
+bool DeckLinkInput::isRunning() const { return false; }
+void DeckLinkInput::stop() {}
+void DeckLinkInput::onFrame(FrameCallback) {}
+void DeckLinkInput::onAudio(AudioCallback) {}
+int DeckLinkInput::detectedWidth() const { return 0; }
+int DeckLinkInput::detectedHeight() const { return 0; }
+double DeckLinkInput::detectedFps() const { return 0.0; }
+bool DeckLinkInput::hasSignal() const { return false; }
 
 #endif  // DECKBOY_HAS_DECKLINK
 
