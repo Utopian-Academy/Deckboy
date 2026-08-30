@@ -184,6 +184,14 @@ struct VideoSynthSettings {
   // handwriting -- and it is a seed rather than live randomness so the look is
   // repeatable and stays put when the show is reopened.
   int asciiShuffle = 0;            // 0 = ordered by density
+  // GLITCH TEXT. Marks stacked above, below and through the characters, the
+  // way combining diacritics overflow a line -- drawn rather than borrowed
+  // from a font, so where they go and how far is ours to decide.
+  double asciiZalgoUp = 0.0;       // density of marks above, 0-1
+  double asciiZalgoDown = 0.0;     // density of marks below, 0-1
+  double asciiZalgoMid = 0.0;      // density of marks through the character
+  int asciiZalgoReach = 2;         // how many cells they may climb, 1-6
+  double asciiZalgoDrift = 0.0;    // 0 holds still, 1 re-rolls every frame
 
   // YOUR OWN GLYPHS. When this is not empty the grid is built from exactly
   // these characters, in the order given, mapped darkest-to-brightest. Two
@@ -1430,6 +1438,9 @@ enum class QuickAction {
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
   VsAsciiGlyphsEdit, VsAsciiPhrasesEdit, VsAsciiHoldDec, VsAsciiHoldInc,
+  VsZalgoUpDec, VsZalgoUpInc, VsZalgoDownDec, VsZalgoDownInc,
+  VsZalgoMidDec, VsZalgoMidInc, VsZalgoReachDec, VsZalgoReachInc,
+  VsZalgoDriftDec, VsZalgoDriftInc,
   SynthKeyboardToggle, SynthMidiToggle,
   SynthCycleTuning, SynthRefDec, SynthRefInc,
   VsSheetPick, VsSheetClear,

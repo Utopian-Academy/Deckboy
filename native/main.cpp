@@ -3725,6 +3725,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.videoSynth.asciiGlyphs)
         << '\t' << escapeField(cue.videoSynth.asciiPhrases)
         << '\t' << cue.videoSynth.asciiPhraseHold
+        << '\t' << cue.videoSynth.asciiZalgoUp
+        << '\t' << cue.videoSynth.asciiZalgoDown
+        << '\t' << cue.videoSynth.asciiZalgoMid
+        << '\t' << cue.videoSynth.asciiZalgoReach
+        << '\t' << cue.videoSynth.asciiZalgoDrift
         << '\n';
     }
   }
@@ -4495,6 +4500,18 @@ Project loadProject(const fs::path& projectFile,
         // the pace a phrase can be read at before it moves.
         cue.videoSynth.asciiPhraseHold =
           std::clamp(safeDouble(fields, vs + 38, 2.5), 0.0, 60.0);
+        // Absent on every show written before glitch text existed, where
+        // safeDouble returns the default and the marks stay switched off.
+        cue.videoSynth.asciiZalgoUp =
+          std::clamp(safeDouble(fields, vs + 39, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiZalgoDown =
+          std::clamp(safeDouble(fields, vs + 40, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiZalgoMid =
+          std::clamp(safeDouble(fields, vs + 41, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiZalgoReach =
+          std::clamp(safeInt(fields, vs + 42, 2), 1, 6);
+        cue.videoSynth.asciiZalgoDrift =
+          std::clamp(safeDouble(fields, vs + 43, 0.0), 0.0, 1.0);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
@@ -6806,6 +6823,42 @@ class App {
                              "Words to surface in the field, separated by | . "
                              "One at a time, in a new place each time.",
                              pal.tile, pal.fg);
+    // GLITCH TEXT: marks that climb out of the characters. Up and down are
+    // separate because a stack that only grows one way is a different look
+    // from one that grows both.
+    inspDrawQuickRow(ix, rowY, "glitch up", QuickAction::VsZalgoUpDec,
+                     fmtFloat(v.asciiZalgoUp, 2), QuickAction::VsZalgoUpInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Marks stacked ABOVE the characters, the way combining "
+                     "accents overflow a line.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "glitch down", QuickAction::VsZalgoDownDec,
+                     fmtFloat(v.asciiZalgoDown, 2), QuickAction::VsZalgoDownInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Marks stacked BELOW.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "glitch through", QuickAction::VsZalgoMidDec,
+                     fmtFloat(v.asciiZalgoMid, 2), QuickAction::VsZalgoMidInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Strikes drawn ACROSS the cell, damaging the character "
+                     "rather than decorating it.");
+    rowY += ix.rowStep;
+    if (v.asciiZalgoUp > 0.001 || v.asciiZalgoDown > 0.001) {
+      inspDrawQuickRow(ix, rowY, "glitch reach", QuickAction::VsZalgoReachDec,
+                       std::to_string(v.asciiZalgoReach),
+                       QuickAction::VsZalgoReachInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "How many cells the marks may climb. They thin out as "
+                       "they go, so a tall reach trails rather than doubles.");
+      rowY += ix.rowStep;
+      inspDrawQuickRow(ix, rowY, "glitch drift", QuickAction::VsZalgoDriftDec,
+                       fmtFloat(v.asciiZalgoDrift, 2),
+                       QuickAction::VsZalgoDriftInc, QuickAction::ToggleLoop,
+                       false, false,
+                       "0 welds them to their cell, which reads as engraved. "
+                       "Above it they re-roll, which reads as boiling.");
+      rowY += ix.rowStep;
+    }
     if (!v.asciiPhrases.empty()) {
       std::ostringstream hold;
       hold << std::fixed << std::setprecision(1) << v.asciiPhraseHold << "s";

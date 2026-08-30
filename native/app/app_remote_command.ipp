@@ -690,6 +690,24 @@
         triggerToast("phrases cleared");
         return;
       }
+      // GLITCH up down mid reach drift -- the marks that climb out of the
+      // characters. Five numbers because they are five independent things and
+      // an operator reaching for this wants to push one of them.
+      if (sub == "GLITCH" && parts.size() >= 4) {
+        auto num = [&](std::size_t i, double fallback) {
+          return parts.size() > i ? std::atof(parts[i].c_str()) : fallback;
+        };
+        cue->videoSynth.asciiZalgoUp = std::clamp(num(2, 0.0), 0.0, 1.0);
+        cue->videoSynth.asciiZalgoDown = std::clamp(num(3, 0.0), 0.0, 1.0);
+        cue->videoSynth.asciiZalgoMid = std::clamp(num(4, 0.0), 0.0, 1.0);
+        cue->videoSynth.asciiZalgoReach =
+          std::clamp(static_cast<int>(num(5, 2.0)), 1, 6);
+        cue->videoSynth.asciiZalgoDrift = std::clamp(num(6, 0.0), 0.0, 1.0);
+        markProjectDirty();
+        refreshAllLiveCueRuntimes();
+        triggerToast("glitch text set");
+        return;
+      }
       if (sub == "HOLD" && parts.size() >= 3) {
         const double v = std::atof(parts[2].c_str());
         if (v < 0.0 || v > 60.0) {
