@@ -75,6 +75,11 @@ EFFECTS = [
     ("crystallise",     "0.95:0.22:0.6"),
     ("scotopic",        "0.95:0.7:0.6"),
     ("grain_flow",      "1.0:0.95:0.0:0:0.15"),
+    # The character grid, on whatever the cue happens to be. This one goes
+    # through the app rather than the offline dump, because the renderer it
+    # needs lives on the media engine -- so this sweep is the only automated
+    # check it gets.
+    ("text_mode",       "1.0:0.25:0.0:0:0.2:0.0"),
 ]
 
 # Both need something a paused frame cannot give them.
@@ -262,6 +267,12 @@ def main():
     parser.add_argument("--port", type=int, default=5840)
     parser.add_argument("--keep", action="store_true",
                         help="keep the screenshots for eyeballing")
+    # This sweep launches the app once per effect, so a full run is minutes.
+    # When one effect is in question -- a regression, or a new one being
+    # written -- running just that one is the difference between a workflow
+    # and a coffee break.
+    parser.add_argument("--only", metavar="TOKEN", action="append",
+                        help="check only these effects (repeatable)")
     args = parser.parse_args()
 
     exe = os.path.abspath(args.exe)
@@ -310,8 +321,41 @@ def main():
         print("no baseline capture; aborting")
         return 1
 
+    # THE SAME PICTURE, TWICE. Everything measured below is a difference from
+    # the baseline, and a difference has a floor: two captures of one paused
+    # frame still disagree slightly, because decode timing, the compositor and
+    # the screen grab all wobble. Measuring that here means the thresholds can
+    # be stated as multiples of what an UNCHANGED picture actually scores on
+    # this machine, instead of constants picked by feel -- which is how an
+    # 8% edge-energy threshold chosen for a smear came to fail grain at +7%.
+    print("noise floor (the same baseline, captured again) ...")
+    root = os.path.join(work, "baseline2")
+    build_root(root, args.template, media, "")
+    floor_shot = os.path.join(work, "baseline2.png")
+    capture(exe, root, args.port + 900, floor_shot, args.seek, script)
+    floor_px = monitor_pixels(floor_shot) if os.path.exists(floor_shot) else b""
+    floor_pct = 0.0
+    floor_edge = 0.0
+    if floor_px and len(floor_px) == len(base):
+        same = sum(1 for a, b in zip(base, floor_px) if abs(a - b) > 16)
+        floor_pct = 100.0 * same / len(base)
+        e0 = edge_energy(base, MONITOR_W)
+        e1 = edge_energy(floor_px, MONITOR_W)
+        if e0 > 0:
+            floor_edge = 100.0 * abs(e1 - e0) / e0
+    # Three times the floor, and never below the old hand-picked values' floor
+    # of usefulness. A dead effect scores the floor; a real one clears it by a
+    # wide margin, and the margin is now visible instead of assumed.
+    pct_gate = max(1.0, floor_pct * 3.0)
+    edge_gate = max(3.0, floor_edge * 3.0)
+    print("floor: %.2f%% of pixels, %.2f%% edge energy  ->  "
+          "gates %.2f%% / %.2f%%" % (floor_pct, floor_edge, pct_gate, edge_gate))
+
     results = []
+    wanted = set(args.only) if args.only else None
     for i, (token, params) in enumerate(EFFECTS):
+        if wanted is not None and token not in wanted:
+            continue
         print("%s ..." % token)
         root = os.path.join(work, token)
         build_root(root, args.template, media, "%s:%s:0:0" % (token, params))
@@ -339,13 +383,13 @@ def main():
         # measures the total edge energy in the monitor and treats a big move in
         # EITHER as the effect having arrived.
         detail = "%.1f%% of the monitor differs" % pct
-        arrived = pct >= 1.0
+        arrived = pct >= pct_gate
         if not arrived:
             sharp_base = edge_energy(base, MONITOR_W)
             sharp_shot = edge_energy(shot_px, MONITOR_W)
             if sharp_base > 0:
                 delta = 100.0 * abs(sharp_shot - sharp_base) / sharp_base
-                if delta >= 8.0:
+                if delta >= edge_gate:
                     arrived = True
                 detail = "%s, edge energy %+.0f%%" % (
                     detail, 100.0 * (sharp_shot - sharp_base) / sharp_base)

@@ -57,6 +57,39 @@ struct CodeExample { const char* name; const char* expression; };
 
 static const std::vector<CodeExample>& codeExamples() {
   static const std::vector<CodeExample> kExamples = {
+    // The first several NAME their values, because that is the shape the
+    // language is now and the examples are how anybody finds that out. Each
+    // one is also a reason to bother: a distance used three times is computed
+    // once here and three times in the old one-line form.
+    {"spotlight",
+     "d = length(cx, cy);\n"
+     "fall = exp(-d*d*4);\n"
+     "fall, fall*0.7, fall*0.35"},
+    {"rings",
+     "d = length(cx, cy);\n"
+     "ring = abs(sin(d*12 - t*2));\n"
+     "ring, ring*0.5, 1-ring"},
+    {"orbit",
+     "ox = sin(t)*0.55;\n"
+     "oy = cos(t*0.8)*0.4;\n"
+     "d = length(cx-ox, cy-oy);\n"
+     "glow = smoothstep(0.45, 0.0, d);\n"
+     "glow, glow*0.35, 1-glow*0.6"},
+    {"grid lines",
+     "u = fract(x*8);\n"
+     "v = fract(y*8);\n"
+     "edge = min(min(u, 1-u), min(v, 1-v));\n"
+     "line = smoothstep(0.09, 0.0, edge);\n"
+     "line, line*0.6, 0.35"},
+    {"two suns",
+     "a1 = length(cx-0.45, cy);\n"
+     "a2 = length(cx+0.45, cy);\n"
+     "beat = abs(sin(a1*14-t) - sin(a2*14-t));\n"
+     "beat, beat*0.4, 1-beat"},
+    {"inside out",
+     "d = length(cx, cy);\n"
+     "band = if(fract(d*4 - t*0.5) < 0.5, 1, 0);\n"
+     "band, 1-band, fract(a/pi*2)"},
     {"plasma",
      "sin(x*8+t)*0.5+0.5, sin(y*8+t*1.3)*0.5+0.5, sin((x+y)*8-t)*0.5+0.5"},
     {"tunnel",
@@ -82,6 +115,40 @@ static const std::vector<CodeExample>& codeExamples() {
 }
 
   bool codeEditorOpen() const { return codeEditor_.open; }
+
+  // Where every character sits, and where the caret sits after the last one.
+  //
+  // Returns cells[i] = (column, row) for character i, plus one extra entry for
+  // the end of the text so the caret always has somewhere to be. A newline
+  // ends its row and is itself given the cell it occupies, so clicking just
+  // past the end of a line puts the caret before the break rather than after
+  // it.
+  //
+  // Shared by the drawing, the caret and click-to-place. They used to each
+  // divide by the column count themselves, which agreed only for as long as
+  // the answer was i / cols.
+  std::vector<std::pair<int, int>> codeEditorCells(const std::string& text,
+                                                   int cols) const {
+    std::vector<std::pair<int, int>> cells;
+    cells.reserve(text.size() + 1);
+    int col = 0;
+    int row = 0;
+    for (char ch : text) {
+      cells.emplace_back(col, row);
+      if (ch == 0x0A) {
+        col = 0;
+        ++row;
+        continue;
+      }
+      ++col;
+      if (cols > 0 && col >= cols) {
+        col = 0;
+        ++row;
+      }
+    }
+    cells.emplace_back(col, row);
+    return cells;
+  }
 
   // Break a line to a width. The label helpers all ellipsize -- which is right
   // for a control whose text must not change the layout, and wrong for the
@@ -237,9 +304,19 @@ static const std::vector<CodeExample>& codeExamples() {
         return true;
       case SDLK_RETURN:
       case SDLK_KP_ENTER:
-        // Enter applies and closes, as every other editor here does. The
-        // expression is one line by definition — up to three comma-separated
-        // channels — so there is no newline to insert.
+        // SHIFT+ENTER breaks the line; ENTER applies and closes, as every
+        // other editor here does.
+        //
+        // This used to be Enter-only, on the reasoning that a source was one
+        // line by definition. That stopped being true when it gained
+        // statements: a source that names three values and then uses them is
+        // four lines of code crammed onto one, and unreadable for it. Text
+        // input never delivers a newline of its own, so without this there is
+        // no way to type one at all.
+        if ((mod & SDL_KMOD_SHIFT) != 0) {
+          codeEditorInsert("\n");
+          return true;
+        }
         closeCodeEditor(true);
         return true;
       case SDLK_LEFT:
@@ -305,10 +382,24 @@ static const std::vector<CodeExample>& codeExamples() {
     if (pointInRect(x, y, codeEditor_.fieldRect) && codeEditorCellW_ > 0) {
       const int col = (x - (codeEditor_.fieldRect.x + kCodeFieldPad)) / codeEditorCellW_;
       const int row = (y - (codeEditor_.fieldRect.y + kCodeFieldPad)) / codeEditorLineH_;
-      const int cols = std::max(1, codeEditorCols_);
-      const long long at = static_cast<long long>(row) * cols + col;
-      codeEditor_.caret = static_cast<std::size_t>(
-        std::clamp<long long>(at, 0, static_cast<long long>(codeEditor_.text.size())));
+      const auto cells = codeEditorCells(codeEditor_.text,
+                                         std::max(1, codeEditorCols_));
+      // The closest cell ON THAT ROW, so clicking past the end of a short line
+      // lands at its end rather than somewhere on the line below.
+      std::size_t best = cells.size() - 1;
+      long long bestScore = -1;
+      for (std::size_t i = 0; i < cells.size(); ++i) {
+        const long long rowGap =
+          std::llabs(static_cast<long long>(cells[i].second) - row);
+        const long long colGap =
+          std::llabs(static_cast<long long>(cells[i].first) - col);
+        const long long score = rowGap * 10000 + colGap;
+        if (bestScore < 0 || score < bestScore) {
+          bestScore = score;
+          best = i;
+        }
+      }
+      codeEditor_.caret = best;
       return true;
     }
     for (std::size_t i = 0; i < codeEditor_.chipRects.size(); ++i) {
@@ -365,7 +456,9 @@ static const std::vector<CodeExample>& codeExamples() {
     // How much of the width the friend takes, when there is room for them at
     // all. Below that the editor is the only thing that matters and they sit
     // this one out rather than crowd it.
-    const int friendW = panelW >= 760 ? std::clamp(panelW / 4, 210, 300) : 0;
+    // Wider than it was, because the tip is now set in the base face and a
+    // narrow column in a bigger font is a column of two-word lines.
+    const int friendW = panelW >= 760 ? std::clamp(panelW / 4, 260, 360) : 0;
     const int bodyW = panelW - friendW - (friendW > 0 ? 12 : 0);
 
     // The panel is exactly as tall as what goes in it.
@@ -375,9 +468,22 @@ static const std::vector<CodeExample>& codeExamples() {
     // chip rows are the only part whose height depends on the width, so they
     // are measured here with the same arithmetic that lays them out.
     const int chipsW = bodyW - 32;
-    const int fieldH = std::max(4, static_cast<int>(codeEditor_.text.size()) /
-                                     std::max(1, (bodyW - 32 - kCodeFieldPad * 2) / cellW) + 3)
-                       * codeEditorLineH_;
+    // Tall enough for the LINES, not just for the characters.
+    //
+    // The height was the character count divided by the column count, which is
+    // right for one long wrapped run and short by a line for every break in a
+    // source that has them. A five-line source came out with three lines
+    // visible and the rest below the bottom of the field.
+    const int fieldCols = std::max(1, (bodyW - 32 - kCodeFieldPad * 2) / cellW);
+    int fieldLines = 1;
+    {
+      int used = 0;
+      for (char ch : codeEditor_.text) {
+        if (ch == 0x0A) { ++fieldLines; used = 0; continue; }
+        if (++used >= fieldCols) { ++fieldLines; used = 0; }
+      }
+    }
+    const int fieldH = std::clamp(fieldLines + 2, 4, 16) * codeEditorLineH_;
     const int valueRows = codeChipRows(deckboy::code::languageVariables(), chipsW);
     const int fnRows = codeChipRows(deckboy::code::languageFunctions(), chipsW);
     const int exampleRows = codeChipRows2(codeExamples(), chipsW);
@@ -399,8 +505,8 @@ static const std::vector<CodeExample>& codeExamples() {
              panel.x + 16, panel.y + 12);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {panel.x + 16, panel.y + 36, bodyW - 32, 18},
-                 "click the text to place the cursor  |  click a name to insert it"
-                 "  |  Enter applies, Esc cancels",
+                 "name values with  d = ...;  end with one expression, or three "
+                 "for red green blue  |  Shift+Enter: new line  |  Enter: apply",
                  pal.dark);
 
     // ── The field ────────────────────────────────────────────────────────────
@@ -418,14 +524,15 @@ static const std::vector<CodeExample>& codeExamples() {
     // an index by dividing. Measuring run by run instead accumulates a
     // fraction of a pixel per run, and the caret slowly stops agreeing with the
     // text under it.
+    const auto cells = codeEditorCells(codeEditor_.text, cols);
     const auto runs = deckboy::code::highlight(codeEditor_.text);
     for (const auto& run : runs) {
       const SDL_Color ink = codeSyntaxColour(run.kind);
       for (std::size_t i = run.begin; i < run.end && i < codeEditor_.text.size(); ++i) {
         const char ch = codeEditor_.text[i];
-        if (ch == ' ') continue;
-        const int col = static_cast<int>(i) % cols;
-        const int row = static_cast<int>(i) / cols;
+        if (ch == ' ' || ch == 0x0A) continue;
+        const int col = cells[i].first;
+        const int row = cells[i].second;
         const int gy = field.y + kCodeFieldPad + row * codeEditorLineH_;
         if (gy + codeEditorLineH_ > field.y + field.h) break;
         const char glyph[2] = {ch, '\0'};
@@ -434,8 +541,9 @@ static const std::vector<CodeExample>& codeExamples() {
       }
     }
     if ((animationNow_ / 450) % 2 == 0) {
-      const int col = static_cast<int>(codeEditor_.caret) % cols;
-      const int row = static_cast<int>(codeEditor_.caret) / cols;
+      const std::size_t at = std::min(codeEditor_.caret, cells.size() - 1);
+      const int col = cells[at].first;
+      const int row = cells[at].second;
       SDL_Rect caret {field.x + kCodeFieldPad + col * cellW,
                       field.y + kCodeFieldPad + row * codeEditorLineH_,
                       std::max(2, cellW / 5), cellH};
@@ -591,7 +699,11 @@ static const std::vector<CodeExample>& codeExamples() {
       // wrong for a sentence explaining what mix() does -- it came out as
       // "commas split red, gree...". So the face is given the space above and
       // the words are laid out underneath it.
-      TTF_Font* sayFont = fontSmall_;
+      // BASE, not small. This is the one piece of prose in the editor -- it
+      // explains what a function does while you are reaching for it -- and it
+      // was set in the smallest face in the application, which made the thing
+      // whose entire job is to be read the hardest thing on screen to read.
+      TTF_Font* sayFont = fontBase_ ? fontBase_ : fontSmall_;
       const auto lines = codeWrapText(sayFont, say, nook.w - 20);
       const int lineH = std::max(16, textLineHeight(sayFont) + 2);
       const int sayH = static_cast<int>(lines.size()) * lineH + 8;
@@ -599,9 +711,13 @@ static const std::vector<CodeExample>& codeExamples() {
       drawStartupMascot(faceArea, animationNow_, "");
       int sayY = faceArea.y + faceArea.h;
       for (const auto& line : lines) {
+        // pal.light, matching the mascot above it. The well is a fixed near
+        // black rather than a theme colour, so pal.fg -- which is a dark ink
+        // on any light theme -- would have been invisible on exactly the
+        // themes where the rest of the editor reads best.
         drawCenteredTextSafe(controlRenderer_, sayFont,
                              SDL_Rect {nook.x + 10, sayY, nook.w - 20, lineH},
-                             line, pal.fg);
+                             line, pal.light);
         sayY += lineH;
       }
     }

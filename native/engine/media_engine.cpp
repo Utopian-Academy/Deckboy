@@ -1579,6 +1579,421 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
   return !spriteTilesByLuma_.empty();
 }
 
+// ---------------------------------------------------------------------------
+// Text mode.
+//
+// Draws a source raster as a grid of character cells. It lived inside
+// rebuildVideoSynthFrame, which made "render this as text" a property of one
+// cue kind rather than something that can be done to a picture -- and a
+// picture is a picture whether it came from an oscillator, a file, a capture
+// card or a camera. Nothing in here ever cared: cells sample the source with
+// `cx * srcW / cols`, so any size in and any size out has always worked.
+//
+// Cells are drawn at DESTINATION resolution deliberately. Rendering them small
+// and scaling up would blur the glyph edges, which is the one thing the look
+// depends on.
+// ---------------------------------------------------------------------------
+void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
+                                 std::uint8_t* dst, int dstW, int dstH,
+                                 const VideoSynthSettings& vs,
+                                 std::uint64_t serial, double seconds) {
+  if (!src || !dst || srcW <= 0 || srcH <= 0 || dstW <= 0 || dstH <= 0) {
+    return;
+  }
+
+    // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
+    // edges stay crisp -- rendering them small and scaling up would blur the
+    // one thing the look depends on.
+    // Worked out ONCE per frame rather than per cell: eight thousand cells
+    // parsing the same two strings would be the most expensive thing in the
+    // mode.
+    std::vector<int> customGlyphs;
+    for (char ch : vs.asciiGlyphs) {
+      const int gi = static_cast<int>(static_cast<unsigned char>(ch)) - 32;
+      if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
+    }
+    // Which phrase is showing, and where. It moves on a slow clock and lands
+    // somewhere derived from that clock, so it is repeatable rather than
+    // jittering to a new place every frame.
+    std::string phraseText;
+    int phraseRow = -1, phraseCol = 0, phraseLen = 0;
+    if (!vs.asciiPhrases.empty() && vs.asciiPhraseHold > 0.01) {
+      std::vector<std::string> phrases;
+      std::size_t at = 0;
+      while (at <= vs.asciiPhrases.size()) {
+        const std::size_t bar = vs.asciiPhrases.find('|', at);
+        std::string one = vs.asciiPhrases.substr(
+          at, bar == std::string::npos ? std::string::npos : bar - at);
+        while (!one.empty() && one.front() == ' ') one.erase(one.begin());
+        while (!one.empty() && one.back() == ' ') one.pop_back();
+        if (!one.empty()) phrases.push_back(one);
+        if (bar == std::string::npos) break;
+        at = bar + 1;
+      }
+      if (!phrases.empty()) {
+        const double seconds = static_cast<double>(serial) / 60.0;
+        const std::uint64_t slot =
+          static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
+        std::uint32_t h = static_cast<std::uint32_t>(slot * 2654435761u);
+        h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+        phraseText = phrases[h % phrases.size()];
+        phraseLen = static_cast<int>(phraseText.size());
+      }
+    }
+    const int cols = std::clamp(vs.asciiCols, 20, 200);
+    const int cellW = std::max(3, dstW / cols);
+    const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
+    const int rows = std::max(1, dstH / cellH);
+    if (phraseLen > 0) {
+      const double seconds = static_cast<double>(serial) / 60.0;
+      const std::uint64_t slot =
+        static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
+      std::uint32_t p = static_cast<std::uint32_t>(slot * 40503u + 17u);
+      p ^= p >> 11; p *= 2654435761u; p ^= p >> 15;
+      phraseRow = static_cast<int>(p % static_cast<std::uint32_t>(std::max(1, rows)));
+      const int room = std::max(1, cols - phraseLen);
+      phraseCol = static_cast<int>((p >> 8) % static_cast<std::uint32_t>(room));
+      // A phrase wider than the grid would wrap into nonsense; clip it.
+      phraseLen = std::min(phraseLen, cols - phraseCol);
+    }
+    std::uint32_t cseed = static_cast<std::uint32_t>(serial * 2246822519u) | 1u;
+    auto crnd = [&cseed]() {
+      cseed ^= cseed << 13; cseed ^= cseed >> 17; cseed ^= cseed << 5;
+      return cseed;
+    };
+    const double corrupt = std::clamp(vs.glitch, 0.0, 1.0);
+    // Sheet mode only engages if the sheet actually loaded. A missing file
+    // falls back to blocks rather than drawing nothing, because an empty
+    // screen gives the operator no clue which of the two went wrong.
+    // Uses the sheet only if it is ALREADY loaded. This used to call
+    // ensureSpriteSheet from here, which on a folder spawns two subprocesses
+    // per file -- two hundred of them for a hundred sprites -- synchronously,
+    // in the middle of drawing a frame. The app froze hard.
+    //
+    // Loading now happens when the operator CHOOSES a set, which is a moment
+    // that can afford to take a second, and this only ever reads the result.
+    const bool useSprites = vs.asciiCharSet == 5 &&
+      spriteSheetLoaded_ == vs.spriteSheetPath &&
+      !spriteTilesByLuma_.empty() && spriteSheetCols_ > 0;
+
+    // Threaded by cell row. Text mode writes the ENTIRE output raster one
+    // cell at a time, which at 1080p is two million pixels on a single thread
+    // -- the largest remaining cost once the CRT was fixed.
+    auto renderCellRows = [&](int rowBegin, int rowEnd) {
+    for (int cy = rowBegin; cy < rowEnd; ++cy) {
+      // ROW LOCK. A corrupted text screen does not scatter random cells -- a
+      // row loses sync and repeats ONE character across its whole width, in
+      // one colour pair. That banding is the signature of the reference
+      // images, and scattering instead just looks like noise.
+      const bool rowLocked = corrupt > 0.05 &&
+        (crnd() % 100u) < static_cast<std::uint32_t>(corrupt * 35.0);
+      const int lockGlyph = static_cast<int>(crnd() % static_cast<std::uint32_t>(kCellJunkCount));
+      const int lockInk = static_cast<int>(crnd() % 16u);
+      const int lockBg = static_cast<int>(crnd() % 16u);
+
+      for (int cx = 0; cx < cols; ++cx) {
+        // Average the source cell rather than point-sampling: a single pixel
+        // from a dithered pattern reports whichever phase it landed on and the
+        // grid flickers.
+        int sr = 0, sg = 0, sb = 0, count = 0;
+        const int sx0 = (cx * srcW) / cols;
+        const int sx1 = std::max(sx0 + 1, ((cx + 1) * srcW) / cols);
+        const int sy0 = (cy * srcH) / rows;
+        const int sy1 = std::max(sy0 + 1, ((cy + 1) * srcH) / rows);
+        for (int sy = sy0; sy < std::min(sy1, srcH); ++sy) {
+          for (int sx = sx0; sx < std::min(sx1, srcW); ++sx) {
+            const std::size_t o = (static_cast<std::size_t>(sy) * srcW + sx) * 4;
+            sb += src[o + 0]; sg += src[o + 1]; sr += src[o + 2];
+            ++count;
+          }
+        }
+        if (count == 0) count = 1;
+        sr /= count; sg /= count; sb /= count;
+
+        const int luma = (sr * 77 + sg * 151 + sb * 28) >> 8;
+        int setCount = 0;
+        const std::uint8_t (*set)[7] = cellSetFor(vs.asciiCharSet, setCount);
+        // Mixed draws from both the density ramp and the structural glyphs,
+        // chosen by position rather than at random -- random per frame would
+        // make every cell flicker between alphabets.
+        if (vs.asciiCharSet == 3) {
+          if (((cx * 7 + cy * 13) & 3) == 0) { set = kCellJunk; setCount = kCellJunkCount; }
+          else { set = kCellRamp; setCount = kCellRampCount; }
+        }
+        int rampIndex = (luma * (setCount - 1)) / 255;
+        rampIndex = std::clamp(rampIndex, 0, setCount - 1);
+        // Set 1 walks the ASCII font in DENSITY order so brightness maps to
+        // ink coverage and the picture still reads. Set 4 walks it in raw
+        // ASCII order instead: the mapping is then arbitrary, which is the
+        // point -- it looks like text rather than like a gradient.
+        if (vs.asciiCharSet == 1) {
+          rampIndex = asciiRampOrder()[static_cast<std::size_t>(rampIndex)];
+        }
+        if (vs.asciiShuffle > 0) {
+          // A fixed permutation from the seed: same glyphs, different
+          // handwriting. Deterministic, so the look is repeatable.
+          std::uint32_t h = static_cast<std::uint32_t>(rampIndex * 2654435761u +
+                                                       vs.asciiShuffle * 40503u);
+          h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+          rampIndex = static_cast<int>(h % static_cast<std::uint32_t>(setCount));
+        }
+        // YOUR OWN GLYPHS, if any were given. The ASCII table is stored in
+        // character order starting at space, so a character maps to a glyph
+        // by subtraction and no lookup table is needed.
+        if (!customGlyphs.empty()) {
+          const int slot = std::clamp(
+            (luma * (static_cast<int>(customGlyphs.size()) - 1)) / 255,
+            0, static_cast<int>(customGlyphs.size()) - 1);
+          set = kCellAsciiFull;
+          setCount = kCellAsciiFullCount;
+          rampIndex = customGlyphs[static_cast<std::size_t>(slot)];
+        }
+        // A PHRASE, if one is showing and this cell is inside it. Overrides
+        // whatever the brightness chose, because the word is the point.
+        if (phraseLen > 0 && cy == phraseRow &&
+            cx >= phraseCol && cx < phraseCol + phraseLen) {
+          const char ch = phraseText[static_cast<std::size_t>(cx - phraseCol)];
+          const int gi = static_cast<int>(ch) - 32;
+          if (gi >= 0 && gi < kCellAsciiFullCount) {
+            set = kCellAsciiFull;
+            setCount = kCellAsciiFullCount;
+            rampIndex = gi;
+          }
+        }
+        const std::uint8_t* glyph = set[rampIndex];
+
+        // Ink. The old boolean offered green or picture-colour and nothing
+        // else; these are the phosphors people actually mean, plus a mode that
+        // locks the text to the selected hardware palette.
+        int inkIdx;
+        switch (vs.asciiInk) {
+          case 1:  inkIdx = 10; break;   // green
+          case 2:  inkIdx = 14; break;   // amber
+          case 3:  inkIdx = 11; break;   // cyan
+          case 4:  inkIdx = 15; break;   // white
+          case 5: {
+            // Palette-locked: quantise the cell's own colour into the palette
+            // already chosen for the picture, so text mode and pixel mode
+            // agree about what machine this is.
+            double pr = 0, pg = 0, pb = 0;
+            const double u = luma / 255.0;
+            switch (vs.palette) {
+              case VideoSynthPalette::C64:     samplePalette(kPalC64, 16, u, pr, pg, pb); break;
+              case VideoSynthPalette::Gameboy: samplePalette(kPalGameboy, 4, u, pr, pg, pb); break;
+              case VideoSynthPalette::Cga:     samplePalette(kPalCga, 4, u, pr, pg, pb); break;
+              case VideoSynthPalette::Nes:     samplePalette(kPalNes, 12, u, pr, pg, pb); break;
+              case VideoSynthPalette::Vapor:   samplePalette(kPalVapor, 8, u, pr, pg, pb); break;
+              default: pr = sr / 255.0; pg = sg / 255.0; pb = sb / 255.0; break;
+            }
+            inkIdx = nearestPaletteIndex(static_cast<int>(pr * 255),
+                                         static_cast<int>(pg * 255),
+                                         static_cast<int>(pb * 255));
+            break;
+          }
+          default: inkIdx = nearestPaletteIndex(sr, sg, sb); break;
+        }
+        const bool monoInk = vs.asciiInk >= 1 && vs.asciiInk <= 4;
+        int bgIdx = 0;
+
+        if (rowLocked) {
+          glyph = kCellJunk[lockGlyph];
+          // A mono phosphor screen corrupts by BRIGHTNESS, not by hue -- a
+          // green terminal cannot suddenly show magenta. Colour-pair
+          // corruption belongs to the palette modes.
+          if (!monoInk) { inkIdx = lockInk; bgIdx = lockBg; }
+        } else if (corrupt > 0.05 &&
+                   (crnd() % 1000u) < static_cast<std::uint32_t>(corrupt * 90.0)) {
+          // Scattered single-cell corruption on top of the row banding.
+          glyph = kCellJunk[crnd() % static_cast<std::uint32_t>(kCellJunkCount)];
+          if (!monoInk) inkIdx = static_cast<int>(crnd() % 16u);
+        }
+
+        // Cell origin, needed by BOTH the sprite branch below and the glyph
+        // path after it, so it is computed once here.
+        const int px0 = cx * cellW;
+        const int py0 = cy * cellH;
+
+        if (useSprites) {
+          // Draw a TILE instead of a glyph, chosen by the same brightness the
+          // glyph ramp uses, so the picture still reads through the sprites.
+          const std::size_t n = spriteTilesByLuma_.size();
+          std::size_t pick = static_cast<std::size_t>(luma) * n / 256u;
+          if (pick >= n) pick = n - 1;
+          if (rowLocked) pick = static_cast<std::size_t>(lockGlyph) % n;
+          // CHAOS mixes a position-hashed random pick against the
+          // brightness-ranked one. Hashed rather than time-random: a tile that
+          // reshuffles every frame is a flicker, not a texture.
+          if (vs.spriteChaos > 0.001) {
+            std::uint32_t h = static_cast<std::uint32_t>(cx * 73856093u ^ cy * 19349663u);
+            h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+            const double mix = (h & 0xFFFFu) / 65535.0;
+            if (mix < vs.spriteChaos) pick = (h >> 16) % n;
+          }
+          const int tile = spriteTilesByLuma_[pick].second;
+          const int tx0 = (tile % spriteSheetCols_) * spriteSheetTileW_;
+          const int ty0 = (tile / spriteSheetCols_) * spriteSheetTileH_;
+
+          // Per-cell transform. Quarter turns are index swaps rather than real
+          // rotation, so they stay pixel-exact; only free rotation samples at
+          // an angle, and it is opt-in for that reason.
+          int quarter = 0;
+          double freeRad = 0.0;
+          switch (vs.spriteRotate) {
+            case 1: quarter = 1; break;
+            case 2: quarter = 2; break;
+            case 3: quarter = 3; break;
+            case 4: quarter = (luma * 4) / 256; break;   // by brightness
+            case 5:
+              freeRad = seconds * vs.spriteFreeAngle * 0.017453292519943295;
+              break;
+            default: break;
+          }
+          bool flipX = vs.spriteFlip == 1;
+          bool flipY = vs.spriteFlip == 2;
+          if (vs.spriteFlip == 3) {
+            // Alternating by cell position: a checkerboard of mirrored tiles,
+            // which reads as deliberate pattern where random flipping reads as
+            // noise.
+            flipX = ((cx + cy) & 1) != 0;
+            flipY = ((cx ^ cy) & 2) != 0;
+          }
+          // Jitter shrinks a cell's tile, hashed by position so it holds still.
+          double jitter = 1.0;
+          if (vs.spriteJitter > 0.001) {
+            std::uint32_t jh = static_cast<std::uint32_t>(cx * 2654435761u ^ cy * 40503u);
+            jh ^= jh >> 15;
+            jitter = 1.0 - vs.spriteJitter * ((jh & 0xFFFFu) / 65535.0) * 0.6;
+          }
+          // Nothing to transform: take the integer path. The transform below
+          // does two divisions per PIXEL plus trig when spinning, which at
+          // 1080p is millions of floating-point operations a frame -- and the
+          // default is no transform at all, so paying for it unconditionally
+          // was a straight regression.
+          const bool plain = (quarter == 0) && (freeRad == 0.0) &&
+                             !flipX && !flipY && (jitter > 0.999);
+          if (plain) {
+            for (int ry = 0; ry < cellH; ++ry) {
+              if (py0 + ry >= dstH) break;
+              const int sy = ty0 + (ry * spriteSheetTileH_) / cellH;
+              std::uint8_t* row = dst +
+                (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
+              for (int rx = 0; rx < cellW; ++rx) {
+                if (px0 + rx >= dstW) break;
+                const int sx = tx0 + (rx * spriteSheetTileW_) / cellW;
+                const std::size_t so =
+                  (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
+                std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+                if (so + 3 >= spriteSheetRgba_.size() ||
+                    spriteSheetRgba_[so + 3] < 32) {
+                  p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255;
+                  continue;
+                }
+                p[0] = spriteSheetRgba_[so + 0];
+                p[1] = spriteSheetRgba_[so + 1];
+                p[2] = spriteSheetRgba_[so + 2];
+                p[3] = 255;
+              }
+            }
+            continue;
+          }
+
+          for (int ry = 0; ry < cellH; ++ry) {
+            if (py0 + ry >= dstH) break;
+            // Cell-local coordinates, centred, so every transform is about
+            // the tile's middle rather than its corner.
+            double lx = (static_cast<double>(ry) / cellH) - 0.5;
+            std::uint8_t* row = dst +
+              (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
+            for (int rx = 0; rx < cellW; ++rx) {
+              if (px0 + rx >= dstW) break;
+              double ux = (static_cast<double>(rx) / cellW) - 0.5;
+              double uy = lx;
+              if (jitter < 0.999) { ux /= jitter; uy /= jitter; }
+              if (freeRad != 0.0) {
+                const double cs = std::cos(freeRad), sn = std::sin(freeRad);
+                const double rxr = ux * cs - uy * sn;
+                uy = ux * sn + uy * cs;
+                ux = rxr;
+              }
+              for (int q = 0; q < quarter; ++q) {
+                const double tmp = ux;
+                ux = -uy;
+                uy = tmp;
+              }
+              if (flipX) ux = -ux;
+              if (flipY) uy = -uy;
+              // Outside the tile after transforming: leave it transparent
+              // rather than clamping, which would smear the edge pixel into a
+              // streak across the cell.
+              if (ux < -0.5 || ux >= 0.5 || uy < -0.5 || uy >= 0.5) {
+                std::uint8_t* pc = row + static_cast<std::size_t>(px0 + rx) * 4;
+                pc[0] = 0; pc[1] = 0; pc[2] = 0; pc[3] = 255;
+                continue;
+              }
+              const int sx = tx0 + static_cast<int>((ux + 0.5) * spriteSheetTileW_);
+              const int sy = ty0 + static_cast<int>((uy + 0.5) * spriteSheetTileH_);
+              const std::size_t so =
+                (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
+              if (so + 3 >= spriteSheetRgba_.size()) continue;
+              const int a = spriteSheetRgba_[so + 3];
+              std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+              if (a < 32) { p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255; continue; }
+              p[0] = spriteSheetRgba_[so + 0];
+              p[1] = spriteSheetRgba_[so + 1];
+              p[2] = spriteSheetRgba_[so + 2];
+              p[3] = 255;
+            }
+          }
+          continue;
+        }
+
+
+        const std::uint8_t* ink = kCellPalette[inkIdx];
+        const std::uint8_t* bg = kCellPalette[bgIdx];
+
+        // A 5x7 glyph in a cell many pixels tall means each glyph row repeats
+        // over several output rows. Draw it once and memcpy the repeats: the
+        // per-pixel path ran for the entire output raster, which in text mode
+        // was the dominant cost.
+        int prevGy = -1;
+        const std::uint8_t* prevRowStart = nullptr;
+        const int spanW = std::min(cellW, dstW - px0);
+        if (spanW <= 0) continue;
+        for (int ry = 0; ry < cellH; ++ry) {
+          if (py0 + ry >= dstH) break;
+          std::uint8_t* row = dst +
+            (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
+          std::uint8_t* cellStart = row + static_cast<std::size_t>(px0) * 4;
+          const int gy = std::min(6, (ry * 7) / cellH);
+          if (gy == prevGy && prevRowStart) {
+            std::memcpy(cellStart, prevRowStart, static_cast<std::size_t>(spanW) * 4);
+            continue;
+          }
+          for (int rx = 0; rx < spanW; ++rx) {
+            const int gx = std::min(4, (rx * 5) / cellW);
+            const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
+            const std::uint8_t* c = on ? ink : bg;
+            std::uint8_t* p = cellStart + static_cast<std::size_t>(rx) * 4;
+            // RGBA32: byte 0 is RED. This wrote c[2] -- blue -- into it, so
+            // every palette colour came out with red and blue exchanged.
+            // Amber rendered as cyan and cyan as amber, which is how it
+            // was spotted. fillTimerRect writes r,g,b in order and its
+            // digits were always correct, which is the reference.
+            p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
+          }
+          prevGy = gy;
+          prevRowStart = cellStart;
+        }
+      }
+    }
+    };   // renderCellRows
+
+    // The same persistent pool. A text screen is few rows and each one writes
+    // a whole band of the OUTPUT raster, so 4 rows a band is worth splitting;
+    // building a pool to do it was not.
+    vsynthWorkers_.run(rows, 4, renderCellRows);
+}
+
 void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
                                          double audioLevel) {
   // DISPLAY RATE, not render-loop rate. The render loop runs to a 240 Hz
@@ -2058,395 +2473,8 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
 
   if (synthBench) benchCrt = SynthClock::now();
   if (vs.ascii) {
-    // Text-mode render. Cells are drawn at OUTPUT resolution so the glyph
-    // edges stay crisp -- rendering them small and scaling up would blur the
-    // one thing the look depends on.
-    // Worked out ONCE per frame rather than per cell: eight thousand cells
-    // parsing the same two strings would be the most expensive thing in the
-    // mode.
-    std::vector<int> customGlyphs;
-    for (char ch : vs.asciiGlyphs) {
-      const int gi = static_cast<int>(static_cast<unsigned char>(ch)) - 32;
-      if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
-    }
-    // Which phrase is showing, and where. It moves on a slow clock and lands
-    // somewhere derived from that clock, so it is repeatable rather than
-    // jittering to a new place every frame.
-    std::string phraseText;
-    int phraseRow = -1, phraseCol = 0, phraseLen = 0;
-    if (!vs.asciiPhrases.empty() && vs.asciiPhraseHold > 0.01) {
-      std::vector<std::string> phrases;
-      std::size_t at = 0;
-      while (at <= vs.asciiPhrases.size()) {
-        const std::size_t bar = vs.asciiPhrases.find('|', at);
-        std::string one = vs.asciiPhrases.substr(
-          at, bar == std::string::npos ? std::string::npos : bar - at);
-        while (!one.empty() && one.front() == ' ') one.erase(one.begin());
-        while (!one.empty() && one.back() == ' ') one.pop_back();
-        if (!one.empty()) phrases.push_back(one);
-        if (bar == std::string::npos) break;
-        at = bar + 1;
-      }
-      if (!phrases.empty()) {
-        const double seconds = static_cast<double>(displayFrameSerial_) / 60.0;
-        const std::uint64_t slot =
-          static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
-        std::uint32_t h = static_cast<std::uint32_t>(slot * 2654435761u);
-        h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
-        phraseText = phrases[h % phrases.size()];
-        phraseLen = static_cast<int>(phraseText.size());
-      }
-    }
-    const int cols = std::clamp(vs.asciiCols, 20, 200);
-    const int cellW = std::max(3, outW / cols);
-    const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
-    const int rows = std::max(1, outH / cellH);
-    if (phraseLen > 0) {
-      const double seconds = static_cast<double>(displayFrameSerial_) / 60.0;
-      const std::uint64_t slot =
-        static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
-      std::uint32_t p = static_cast<std::uint32_t>(slot * 40503u + 17u);
-      p ^= p >> 11; p *= 2654435761u; p ^= p >> 15;
-      phraseRow = static_cast<int>(p % static_cast<std::uint32_t>(std::max(1, rows)));
-      const int room = std::max(1, cols - phraseLen);
-      phraseCol = static_cast<int>((p >> 8) % static_cast<std::uint32_t>(room));
-      // A phrase wider than the grid would wrap into nonsense; clip it.
-      phraseLen = std::min(phraseLen, cols - phraseCol);
-    }
-    std::uint32_t cseed = static_cast<std::uint32_t>(displayFrameSerial_ * 2246822519u) | 1u;
-    auto crnd = [&cseed]() {
-      cseed ^= cseed << 13; cseed ^= cseed >> 17; cseed ^= cseed << 5;
-      return cseed;
-    };
-    const double corrupt = std::clamp(vs.glitch, 0.0, 1.0);
-    // Sheet mode only engages if the sheet actually loaded. A missing file
-    // falls back to blocks rather than drawing nothing, because an empty
-    // screen gives the operator no clue which of the two went wrong.
-    // Uses the sheet only if it is ALREADY loaded. This used to call
-    // ensureSpriteSheet from here, which on a folder spawns two subprocesses
-    // per file -- two hundred of them for a hundred sprites -- synchronously,
-    // in the middle of drawing a frame. The app froze hard.
-    //
-    // Loading now happens when the operator CHOOSES a set, which is a moment
-    // that can afford to take a second, and this only ever reads the result.
-    const bool useSprites = vs.asciiCharSet == 5 &&
-      spriteSheetLoaded_ == vs.spriteSheetPath &&
-      !spriteTilesByLuma_.empty() && spriteSheetCols_ > 0;
-
-    // Threaded by cell row. Text mode writes the ENTIRE output raster one
-    // cell at a time, which at 1080p is two million pixels on a single thread
-    // -- the largest remaining cost once the CRT was fixed.
-    auto renderCellRows = [&](int rowBegin, int rowEnd) {
-    for (int cy = rowBegin; cy < rowEnd; ++cy) {
-      // ROW LOCK. A corrupted text screen does not scatter random cells -- a
-      // row loses sync and repeats ONE character across its whole width, in
-      // one colour pair. That banding is the signature of the reference
-      // images, and scattering instead just looks like noise.
-      const bool rowLocked = corrupt > 0.05 &&
-        (crnd() % 100u) < static_cast<std::uint32_t>(corrupt * 35.0);
-      const int lockGlyph = static_cast<int>(crnd() % static_cast<std::uint32_t>(kCellJunkCount));
-      const int lockInk = static_cast<int>(crnd() % 16u);
-      const int lockBg = static_cast<int>(crnd() % 16u);
-
-      for (int cx = 0; cx < cols; ++cx) {
-        // Average the source cell rather than point-sampling: a single pixel
-        // from a dithered pattern reports whichever phase it landed on and the
-        // grid flickers.
-        int sr = 0, sg = 0, sb = 0, count = 0;
-        const int sx0 = (cx * W) / cols;
-        const int sx1 = std::max(sx0 + 1, ((cx + 1) * W) / cols);
-        const int sy0 = (cy * H) / rows;
-        const int sy1 = std::max(sy0 + 1, ((cy + 1) * H) / rows);
-        for (int sy = sy0; sy < std::min(sy1, H); ++sy) {
-          for (int sx = sx0; sx < std::min(sx1, W); ++sx) {
-            const std::size_t o = (static_cast<std::size_t>(sy) * W + sx) * 4;
-            sb += small[o + 0]; sg += small[o + 1]; sr += small[o + 2];
-            ++count;
-          }
-        }
-        if (count == 0) count = 1;
-        sr /= count; sg /= count; sb /= count;
-
-        const int luma = (sr * 77 + sg * 151 + sb * 28) >> 8;
-        int setCount = 0;
-        const std::uint8_t (*set)[7] = cellSetFor(vs.asciiCharSet, setCount);
-        // Mixed draws from both the density ramp and the structural glyphs,
-        // chosen by position rather than at random -- random per frame would
-        // make every cell flicker between alphabets.
-        if (vs.asciiCharSet == 3) {
-          if (((cx * 7 + cy * 13) & 3) == 0) { set = kCellJunk; setCount = kCellJunkCount; }
-          else { set = kCellRamp; setCount = kCellRampCount; }
-        }
-        int rampIndex = (luma * (setCount - 1)) / 255;
-        rampIndex = std::clamp(rampIndex, 0, setCount - 1);
-        // Set 1 walks the ASCII font in DENSITY order so brightness maps to
-        // ink coverage and the picture still reads. Set 4 walks it in raw
-        // ASCII order instead: the mapping is then arbitrary, which is the
-        // point -- it looks like text rather than like a gradient.
-        if (vs.asciiCharSet == 1) {
-          rampIndex = asciiRampOrder()[static_cast<std::size_t>(rampIndex)];
-        }
-        if (vs.asciiShuffle > 0) {
-          // A fixed permutation from the seed: same glyphs, different
-          // handwriting. Deterministic, so the look is repeatable.
-          std::uint32_t h = static_cast<std::uint32_t>(rampIndex * 2654435761u +
-                                                       vs.asciiShuffle * 40503u);
-          h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
-          rampIndex = static_cast<int>(h % static_cast<std::uint32_t>(setCount));
-        }
-        // YOUR OWN GLYPHS, if any were given. The ASCII table is stored in
-        // character order starting at space, so a character maps to a glyph
-        // by subtraction and no lookup table is needed.
-        if (!customGlyphs.empty()) {
-          const int slot = std::clamp(
-            (luma * (static_cast<int>(customGlyphs.size()) - 1)) / 255,
-            0, static_cast<int>(customGlyphs.size()) - 1);
-          set = kCellAsciiFull;
-          setCount = kCellAsciiFullCount;
-          rampIndex = customGlyphs[static_cast<std::size_t>(slot)];
-        }
-        // A PHRASE, if one is showing and this cell is inside it. Overrides
-        // whatever the brightness chose, because the word is the point.
-        if (phraseLen > 0 && cy == phraseRow &&
-            cx >= phraseCol && cx < phraseCol + phraseLen) {
-          const char ch = phraseText[static_cast<std::size_t>(cx - phraseCol)];
-          const int gi = static_cast<int>(ch) - 32;
-          if (gi >= 0 && gi < kCellAsciiFullCount) {
-            set = kCellAsciiFull;
-            setCount = kCellAsciiFullCount;
-            rampIndex = gi;
-          }
-        }
-        const std::uint8_t* glyph = set[rampIndex];
-
-        // Ink. The old boolean offered green or picture-colour and nothing
-        // else; these are the phosphors people actually mean, plus a mode that
-        // locks the text to the selected hardware palette.
-        int inkIdx;
-        switch (vs.asciiInk) {
-          case 1:  inkIdx = 10; break;   // green
-          case 2:  inkIdx = 14; break;   // amber
-          case 3:  inkIdx = 11; break;   // cyan
-          case 4:  inkIdx = 15; break;   // white
-          case 5: {
-            // Palette-locked: quantise the cell's own colour into the palette
-            // already chosen for the picture, so text mode and pixel mode
-            // agree about what machine this is.
-            double pr = 0, pg = 0, pb = 0;
-            const double u = luma / 255.0;
-            switch (vs.palette) {
-              case VideoSynthPalette::C64:     samplePalette(kPalC64, 16, u, pr, pg, pb); break;
-              case VideoSynthPalette::Gameboy: samplePalette(kPalGameboy, 4, u, pr, pg, pb); break;
-              case VideoSynthPalette::Cga:     samplePalette(kPalCga, 4, u, pr, pg, pb); break;
-              case VideoSynthPalette::Nes:     samplePalette(kPalNes, 12, u, pr, pg, pb); break;
-              case VideoSynthPalette::Vapor:   samplePalette(kPalVapor, 8, u, pr, pg, pb); break;
-              default: pr = sr / 255.0; pg = sg / 255.0; pb = sb / 255.0; break;
-            }
-            inkIdx = nearestPaletteIndex(static_cast<int>(pr * 255),
-                                         static_cast<int>(pg * 255),
-                                         static_cast<int>(pb * 255));
-            break;
-          }
-          default: inkIdx = nearestPaletteIndex(sr, sg, sb); break;
-        }
-        const bool monoInk = vs.asciiInk >= 1 && vs.asciiInk <= 4;
-        int bgIdx = 0;
-
-        if (rowLocked) {
-          glyph = kCellJunk[lockGlyph];
-          // A mono phosphor screen corrupts by BRIGHTNESS, not by hue -- a
-          // green terminal cannot suddenly show magenta. Colour-pair
-          // corruption belongs to the palette modes.
-          if (!monoInk) { inkIdx = lockInk; bgIdx = lockBg; }
-        } else if (corrupt > 0.05 &&
-                   (crnd() % 1000u) < static_cast<std::uint32_t>(corrupt * 90.0)) {
-          // Scattered single-cell corruption on top of the row banding.
-          glyph = kCellJunk[crnd() % static_cast<std::uint32_t>(kCellJunkCount)];
-          if (!monoInk) inkIdx = static_cast<int>(crnd() % 16u);
-        }
-
-        // Cell origin, needed by BOTH the sprite branch below and the glyph
-        // path after it, so it is computed once here.
-        const int px0 = cx * cellW;
-        const int py0 = cy * cellH;
-
-        if (useSprites) {
-          // Draw a TILE instead of a glyph, chosen by the same brightness the
-          // glyph ramp uses, so the picture still reads through the sprites.
-          const std::size_t n = spriteTilesByLuma_.size();
-          std::size_t pick = static_cast<std::size_t>(luma) * n / 256u;
-          if (pick >= n) pick = n - 1;
-          if (rowLocked) pick = static_cast<std::size_t>(lockGlyph) % n;
-          // CHAOS mixes a position-hashed random pick against the
-          // brightness-ranked one. Hashed rather than time-random: a tile that
-          // reshuffles every frame is a flicker, not a texture.
-          if (vs.spriteChaos > 0.001) {
-            std::uint32_t h = static_cast<std::uint32_t>(cx * 73856093u ^ cy * 19349663u);
-            h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
-            const double mix = (h & 0xFFFFu) / 65535.0;
-            if (mix < vs.spriteChaos) pick = (h >> 16) % n;
-          }
-          const int tile = spriteTilesByLuma_[pick].second;
-          const int tx0 = (tile % spriteSheetCols_) * spriteSheetTileW_;
-          const int ty0 = (tile / spriteSheetCols_) * spriteSheetTileH_;
-
-          // Per-cell transform. Quarter turns are index swaps rather than real
-          // rotation, so they stay pixel-exact; only free rotation samples at
-          // an angle, and it is opt-in for that reason.
-          int quarter = 0;
-          double freeRad = 0.0;
-          switch (vs.spriteRotate) {
-            case 1: quarter = 1; break;
-            case 2: quarter = 2; break;
-            case 3: quarter = 3; break;
-            case 4: quarter = (luma * 4) / 256; break;   // by brightness
-            case 5: freeRad = t * vs.spriteFreeAngle * 0.017453292519943295; break;
-            default: break;
-          }
-          bool flipX = vs.spriteFlip == 1;
-          bool flipY = vs.spriteFlip == 2;
-          if (vs.spriteFlip == 3) {
-            // Alternating by cell position: a checkerboard of mirrored tiles,
-            // which reads as deliberate pattern where random flipping reads as
-            // noise.
-            flipX = ((cx + cy) & 1) != 0;
-            flipY = ((cx ^ cy) & 2) != 0;
-          }
-          // Jitter shrinks a cell's tile, hashed by position so it holds still.
-          double jitter = 1.0;
-          if (vs.spriteJitter > 0.001) {
-            std::uint32_t jh = static_cast<std::uint32_t>(cx * 2654435761u ^ cy * 40503u);
-            jh ^= jh >> 15;
-            jitter = 1.0 - vs.spriteJitter * ((jh & 0xFFFFu) / 65535.0) * 0.6;
-          }
-          // Nothing to transform: take the integer path. The transform below
-          // does two divisions per PIXEL plus trig when spinning, which at
-          // 1080p is millions of floating-point operations a frame -- and the
-          // default is no transform at all, so paying for it unconditionally
-          // was a straight regression.
-          const bool plain = (quarter == 0) && (freeRad == 0.0) &&
-                             !flipX && !flipY && (jitter > 0.999);
-          if (plain) {
-            for (int ry = 0; ry < cellH; ++ry) {
-              if (py0 + ry >= outH) break;
-              const int sy = ty0 + (ry * spriteSheetTileH_) / cellH;
-              std::uint8_t* row = frame.pixels.data() +
-                (static_cast<std::size_t>(py0 + ry) * outW) * 4;
-              for (int rx = 0; rx < cellW; ++rx) {
-                if (px0 + rx >= outW) break;
-                const int sx = tx0 + (rx * spriteSheetTileW_) / cellW;
-                const std::size_t so =
-                  (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
-                std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
-                if (so + 3 >= spriteSheetRgba_.size() ||
-                    spriteSheetRgba_[so + 3] < 32) {
-                  p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255;
-                  continue;
-                }
-                p[0] = spriteSheetRgba_[so + 0];
-                p[1] = spriteSheetRgba_[so + 1];
-                p[2] = spriteSheetRgba_[so + 2];
-                p[3] = 255;
-              }
-            }
-            continue;
-          }
-
-          for (int ry = 0; ry < cellH; ++ry) {
-            if (py0 + ry >= outH) break;
-            // Cell-local coordinates, centred, so every transform is about
-            // the tile's middle rather than its corner.
-            double lx = (static_cast<double>(ry) / cellH) - 0.5;
-            std::uint8_t* row = frame.pixels.data() +
-              (static_cast<std::size_t>(py0 + ry) * outW) * 4;
-            for (int rx = 0; rx < cellW; ++rx) {
-              if (px0 + rx >= outW) break;
-              double ux = (static_cast<double>(rx) / cellW) - 0.5;
-              double uy = lx;
-              if (jitter < 0.999) { ux /= jitter; uy /= jitter; }
-              if (freeRad != 0.0) {
-                const double cs = std::cos(freeRad), sn = std::sin(freeRad);
-                const double rxr = ux * cs - uy * sn;
-                uy = ux * sn + uy * cs;
-                ux = rxr;
-              }
-              for (int q = 0; q < quarter; ++q) {
-                const double tmp = ux;
-                ux = -uy;
-                uy = tmp;
-              }
-              if (flipX) ux = -ux;
-              if (flipY) uy = -uy;
-              // Outside the tile after transforming: leave it transparent
-              // rather than clamping, which would smear the edge pixel into a
-              // streak across the cell.
-              if (ux < -0.5 || ux >= 0.5 || uy < -0.5 || uy >= 0.5) {
-                std::uint8_t* pc = row + static_cast<std::size_t>(px0 + rx) * 4;
-                pc[0] = 0; pc[1] = 0; pc[2] = 0; pc[3] = 255;
-                continue;
-              }
-              const int sx = tx0 + static_cast<int>((ux + 0.5) * spriteSheetTileW_);
-              const int sy = ty0 + static_cast<int>((uy + 0.5) * spriteSheetTileH_);
-              const std::size_t so =
-                (static_cast<std::size_t>(sy) * spriteSheetW_ + sx) * 4;
-              if (so + 3 >= spriteSheetRgba_.size()) continue;
-              const int a = spriteSheetRgba_[so + 3];
-              std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
-              if (a < 32) { p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255; continue; }
-              p[0] = spriteSheetRgba_[so + 0];
-              p[1] = spriteSheetRgba_[so + 1];
-              p[2] = spriteSheetRgba_[so + 2];
-              p[3] = 255;
-            }
-          }
-          continue;
-        }
-
-
-        const std::uint8_t* ink = kCellPalette[inkIdx];
-        const std::uint8_t* bg = kCellPalette[bgIdx];
-
-        // A 5x7 glyph in a cell many pixels tall means each glyph row repeats
-        // over several output rows. Draw it once and memcpy the repeats: the
-        // per-pixel path ran for the entire output raster, which in text mode
-        // was the dominant cost.
-        int prevGy = -1;
-        const std::uint8_t* prevRowStart = nullptr;
-        const int spanW = std::min(cellW, outW - px0);
-        if (spanW <= 0) continue;
-        for (int ry = 0; ry < cellH; ++ry) {
-          if (py0 + ry >= outH) break;
-          std::uint8_t* row = frame.pixels.data() +
-            (static_cast<std::size_t>(py0 + ry) * outW) * 4;
-          std::uint8_t* cellStart = row + static_cast<std::size_t>(px0) * 4;
-          const int gy = std::min(6, (ry * 7) / cellH);
-          if (gy == prevGy && prevRowStart) {
-            std::memcpy(cellStart, prevRowStart, static_cast<std::size_t>(spanW) * 4);
-            continue;
-          }
-          for (int rx = 0; rx < spanW; ++rx) {
-            const int gx = std::min(4, (rx * 5) / cellW);
-            const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
-            const std::uint8_t* c = on ? ink : bg;
-            std::uint8_t* p = cellStart + static_cast<std::size_t>(rx) * 4;
-            // RGBA32: byte 0 is RED. This wrote c[2] -- blue -- into it, so
-            // every palette colour came out with red and blue exchanged.
-            // Amber rendered as cyan and cyan as amber, which is how it
-            // was spotted. fillTimerRect writes r,g,b in order and its
-            // digits were always correct, which is the reference.
-            p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
-          }
-          prevGy = gy;
-          prevRowStart = cellStart;
-        }
-      }
-    }
-    };   // renderCellRows
-
-    // The same persistent pool. A text screen is few rows and each one writes
-    // a whole band of the OUTPUT raster, so 4 rows a band is worth splitting;
-    // building a pool to do it was not.
-    vsynthWorkers_.run(rows, 4, renderCellRows);
+    renderTextMode(small.data(), W, H, frame.pixels.data(), outW, outH, vs,
+                   displayFrameSerial_, t);
   } else if (emitSmall) {
     // Straight out, at the size it was rendered. One 330KB copy instead of a
     // 33MB upscale, and the scaling happens on the GPU where it is free.

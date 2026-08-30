@@ -46,6 +46,12 @@ enum class Op : std::uint8_t {
   Add, Sub, Mul, Div, Mod, Pow, Neg,
   Sin, Cos, Tan, Abs, Floor, Fract, Sqrt, Min, Max, Clamp, Step, Mix, Atan2,
   LessThan, GreaterThan,
+  // Named values: read one, write one. The slot is an index into the caller's
+  // per-pixel scratch, sized by the number of names the source declared.
+  PushUser, StoreUser,
+  // Enough of a standard library that the common shapes are one call rather
+  // than a line of algebra: a distance, a soft edge, a choice.
+  Length, Smoothstep, Sign, Exp, Log, Atan, If,
 };
 
 struct Instruction {
@@ -58,7 +64,14 @@ struct Instruction {
 using Program = std::vector<Instruction>;
 
 struct CompiledSource {
+  // Everything before the last statement: the named values, computed once per
+  // pixel and then read by whichever channels want them.
+  Program prelude;
   Program channel[3];
+  // One entry per name the source declared, in the order the slots were
+  // allocated. The editor colours these as variables, and the evaluator sizes
+  // its scratch from the count.
+  std::vector<std::string> names;
   std::string error;        // empty when it compiled
   bool ok() const { return error.empty(); }
 };
@@ -131,6 +144,10 @@ inline bool functionOp(const std::string& name, Op& op, int& args) {
     {"sqrt", Op::Sqrt, 1}, {"min", Op::Min, 2},     {"max", Op::Max, 2},
     {"mod", Op::Mod, 2},   {"pow", Op::Pow, 2},     {"atan2", Op::Atan2, 2},
     {"step", Op::Step, 2}, {"clamp", Op::Clamp, 3}, {"mix", Op::Mix, 3},
+    {"length", Op::Length, 2},     {"smoothstep", Op::Smoothstep, 3},
+    {"sign", Op::Sign, 1},         {"exp", Op::Exp, 1},
+    {"log", Op::Log, 1},           {"atan", Op::Atan, 1},
+    {"if", Op::If, 3},
   };
   for (const Entry& e : kTable) {
     if (name == e.name) { op = e.op; args = e.args; return true; }
@@ -163,7 +180,8 @@ inline Op binaryOp(const std::string& op) {
 // output is already in the order the evaluator wants and nothing needs walking
 // per pixel.
 inline bool compileExpression(const std::string& source, Program& out,
-                              std::string& error) {
+                              std::string& error,
+                              const std::vector<std::string>& names = {}) {
   out.clear();
   std::vector<detail::Token> tokens = detail::tokenise(source, error);
   if (!error.empty()) return false;
@@ -204,8 +222,20 @@ inline bool compileExpression(const std::string& source, Program& out,
         stack.push_back({Entry::Kind::Function, fnOp, 0, false});
         expectValue = true;
       } else {
-        error = "unknown name '" + token.text + "'";
-        return false;
+        // A name the source declared earlier. Searched AFTER the built-ins, so
+        // no assignment can shadow x, t or sin -- a source that redefined its
+        // own coordinates would be a puzzle rather than a feature.
+        int userSlot = -1;
+        for (std::size_t i = 0; i < names.size(); ++i) {
+          if (names[i] == token.text) { userSlot = static_cast<int>(i); break; }
+        }
+        if (userSlot >= 0) {
+          out.push_back({Op::PushUser, 0.0, userSlot});
+          expectValue = false;
+        } else {
+          error = "unknown name '" + token.text + "'";
+          return false;
+        }
       }
     } else if (token.kind == Kind::Op) {
       if (expectValue) {
@@ -348,6 +378,13 @@ inline const std::vector<LanguageEntry>& languageFunctions() {
     {"step",  "0 below the edge, 1 above it", true},
     {"clamp", "hold a value between two others", true},
     {"mix",   "blend between two, by a third", true},
+    {"length", "distance to a point: length(cx, cy) is the radius", true},
+    {"smoothstep", "like step, but with a soft edge between two values", true},
+    {"if",    "if(test, yes, no) -- picks one of two", true},
+    {"sign",  "-1, 0 or 1, whichever way the value leans", true},
+    {"exp",   "grows fast; good for glows and falloff", true},
+    {"log",   "grows slowly; tames a value that runs away", true},
+    {"atan",  "the angle of a slope", true},
   };
   return kFns;
 }
@@ -365,6 +402,30 @@ inline bool isSpaceChar(char c) {
 // back as Unknown rather than stopping the walk, because the whole point is to
 // colour text that is still being typed and is therefore usually invalid.
 inline std::vector<SyntaxRun> highlight(const std::string& src) {
+  // FIRST, the names this source gives itself.
+  //
+  // Anything of the form `name =` (and not `==`, `<=` or `>=`) declares a
+  // value, and every later mention of it is a variable like x or t. Without
+  // this pass they came back Unknown, which is the colour that means the
+  // compiler will refuse it -- on names the compiler accepts perfectly well.
+  //
+  // Collected over the WHOLE source before colouring any of it, so a name
+  // reads the same on the line that declares it as on the lines that use it.
+  std::vector<std::string> declared;
+  for (std::size_t k = 0; k < src.size(); ++k) {
+    if (src[k] != '=') continue;
+    if (k + 1 < src.size() && src[k + 1] == '=') continue;
+    if (k > 0 && (src[k - 1] == '<' || src[k - 1] == '>' || src[k - 1] == '=')) {
+      continue;
+    }
+    std::size_t e = k;
+    while (e > 0 && isSpaceChar(src[e - 1])) --e;
+    std::size_t b = e;
+    while (b > 0 && detail::isNameChar(src[b - 1])) --b;
+    if (b < e) {
+      declared.push_back(src.substr(b, e - b));
+    }
+  }
   std::vector<SyntaxRun> runs;
   auto push = [&runs](std::size_t begin, std::size_t end, Syntax kind) {
     if (end > begin) runs.push_back({begin, end, kind});
@@ -390,6 +451,10 @@ inline std::vector<SyntaxRun> highlight(const std::string& src) {
         kind = Syntax::Variable;
       } else if (detail::functionOp(name, op, args)) {
         kind = Syntax::Function;
+      } else {
+        for (const std::string& own : declared) {
+          if (own == name) { kind = Syntax::Variable; break; }
+        }
       }
       push(start, i, kind);
     } else if (c == '(' || c == ')') {
@@ -409,15 +474,15 @@ inline std::vector<SyntaxRun> highlight(const std::string& src) {
   return runs;
 }
 
-inline CompiledSource compile(const std::string& source) {
-  CompiledSource compiled;
+// Split on a character, ignoring anything inside parentheses.
+inline std::vector<std::string> splitTop(const std::string& source, char sep) {
   std::vector<std::string> parts;
   int depth = 0;
   std::string current;
   for (char c : source) {
     if (c == '(') ++depth;
     if (c == ')') --depth;
-    if (c == ',' && depth == 0) {
+    if (c == sep && depth == 0) {
       parts.push_back(current);
       current.clear();
       continue;
@@ -425,6 +490,78 @@ inline CompiledSource compile(const std::string& source) {
     current.push_back(c);
   }
   parts.push_back(current);
+  return parts;
+}
+
+inline std::string trimmed(const std::string& s) {
+  std::size_t a = 0, b = s.size();
+  while (a < b && isSpaceChar(s[a])) ++a;
+  while (b > a && isSpaceChar(s[b - 1])) --b;
+  return s.substr(a, b - a);
+}
+
+inline CompiledSource compile(const std::string& source) {
+  CompiledSource compiled;
+  // STATEMENTS, then the channels.
+  //
+  // Everything before the last semicolon names a value; what follows is the
+  // one or three expressions the channels take. A source with no semicolon in
+  // it is the whole of the old language, unchanged -- which is why every
+  // expression written before this still compiles and still means the same
+  // thing.
+  std::vector<std::string> statements = splitTop(source, ';');
+  while (statements.size() > 1 && trimmed(statements.back()).empty()) {
+    statements.pop_back();   // a trailing semicolon is not an empty statement
+  }
+  for (std::size_t s = 0; s + 1 < statements.size(); ++s) {
+    const std::string& statement = statements[s];
+    const std::size_t eq = statement.find('=');
+    if (eq == std::string::npos) {
+      compiled.error = "every line before the last one names a value, "
+                       "like  d = length(cx, cy);";
+      return compiled;
+    }
+    const std::string name = trimmed(statement.substr(0, eq));
+    if (name.empty()) {
+      compiled.error = "a name is missing before '='";
+      return compiled;
+    }
+    for (char c : name) {
+      if (!detail::isNameChar(c)) {
+        compiled.error = "'" + name + "' is not a name";
+        return compiled;
+      }
+    }
+    if (detail::varSlot(name) >= 0 || name == "pi") {
+      compiled.error = "'" + name + "' is already part of the language";
+      return compiled;
+    }
+    Op unusedOp = Op::Add; int unusedArgs = 0;
+    if (detail::functionOp(name, unusedOp, unusedArgs)) {
+      compiled.error = "'" + name + "' is already a function";
+      return compiled;
+    }
+    std::string error;
+    // Compiled against the names declared SO FAR, so a value can build on the
+    // ones above it and a forward reference is reported rather than silently
+    // reading zero.
+    if (!compileExpression(statement.substr(eq + 1), compiled.prelude, error,
+                           compiled.names)) {
+      compiled.error = name + ": " + error;
+      return compiled;
+    }
+    int slot = -1;
+    for (std::size_t i = 0; i < compiled.names.size(); ++i) {
+      if (compiled.names[i] == name) { slot = static_cast<int>(i); break; }
+    }
+    if (slot < 0) {
+      slot = static_cast<int>(compiled.names.size());
+      compiled.names.push_back(name);
+    }
+    compiled.prelude.push_back({Op::StoreUser, 0.0, slot});
+  }
+
+  std::vector<std::string> parts = splitTop(statements.back(), ',');
   if (parts.size() == 1) {
     parts.push_back(parts[0]);
     parts.push_back(parts[0]);
@@ -435,7 +572,8 @@ inline CompiledSource compile(const std::string& source) {
   }
   for (int c = 0; c < 3; ++c) {
     std::string error;
-    if (!compileExpression(parts[c], compiled.channel[c], error)) {
+    if (!compileExpression(parts[c], compiled.channel[c], error,
+                           compiled.names)) {
       compiled.error = std::string(c == 0 ? "red: " : c == 1 ? "green: " : "blue: ") + error;
       return compiled;
     }
@@ -446,7 +584,8 @@ inline CompiledSource compile(const std::string& source) {
 // Run one compiled channel. The stack is the caller's, reused across pixels so
 // nothing allocates in the inner loop.
 inline double evaluate(const Program& program, const double (&vars)[7],
-                       std::vector<double>& stack) {
+                       std::vector<double>& stack,
+                       std::vector<double>* names = nullptr) {
   stack.clear();
   auto pop = [&stack]() {
     if (stack.empty()) return 0.0;
@@ -458,6 +597,32 @@ inline double evaluate(const Program& program, const double (&vars)[7],
     switch (in.op) {
       case Op::PushConst: stack.push_back(in.value); break;
       case Op::PushVar:   stack.push_back(vars[in.slot]); break;
+      case Op::PushUser:
+        stack.push_back(names && in.slot < static_cast<int>(names->size())
+                          ? (*names)[in.slot] : 0.0);
+        break;
+      case Op::StoreUser: {
+        const double v = pop();
+        if (names && in.slot < static_cast<int>(names->size())) {
+          (*names)[in.slot] = v;
+        }
+        break;
+      }
+      case Op::Sign:      { const double v = pop();
+                            stack.push_back(v < 0 ? -1.0 : (v > 0 ? 1.0 : 0.0)); break; }
+      case Op::Exp:       stack.push_back(std::exp(std::min(pop(), 60.0))); break;
+      case Op::Log:       { const double v = pop();
+                            stack.push_back(v > 1e-12 ? std::log(v) : 0.0); break; }
+      case Op::Atan:      stack.push_back(std::atan(pop())); break;
+      case Op::Length:    { const double b = pop(), a = pop();
+                            stack.push_back(std::sqrt(a * a + b * b)); break; }
+      case Op::Smoothstep: { const double v = pop(), hi = pop(), lo = pop();
+                            double f = std::fabs(hi - lo) < 1e-9
+                                         ? 0.0 : (v - lo) / (hi - lo);
+                            f = f < 0 ? 0 : (f > 1 ? 1 : f);
+                            stack.push_back(f * f * (3.0 - 2.0 * f)); break; }
+      case Op::If:        { const double no = pop(), yes = pop(), cond = pop();
+                            stack.push_back(cond > 0.5 ? yes : no); break; }
       case Op::Neg:       stack.push_back(-pop()); break;
       case Op::Sin:       stack.push_back(std::sin(pop())); break;
       case Op::Cos:       stack.push_back(std::cos(pop())); break;

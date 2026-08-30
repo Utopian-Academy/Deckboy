@@ -2945,6 +2945,7 @@
         finishInspectorSection(vsSection, geoY);
       }
 
+
       // SYNTH - only for the chip voice, and above TONE because when it is a
       // synth the chip parameters are what the operator is reaching for.
       if (selectedCue->kind == CueKind::Tone &&
@@ -3829,6 +3830,32 @@
                    SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, textLineHeight(fontSmall_)},
                    "no per-cue settings for this type",
                    pal.inkSoft);
+    }
+
+    // TEXT MODE, for any cue kind at all.
+    //
+    // OUTSIDE the per-kind chain above, deliberately. That chain has one
+    // branch per CueKind and each draws its own sections, which is why the
+    // first attempt at this -- placed next to the VIDEO SYNTH section -- sat
+    // inside the Video branch and never drew for the clip, the pattern or the
+    // camera it was written for. The whole point of the effect is that the
+    // character grid is no longer tied to one cue kind, so its controls must
+    // not be either.
+    //
+    // Continues from wherever the branch above finished, which is what
+    // inspectorSectionBottomMax_ already tracks for the scroll extent.
+    if (selectedCue && selectedCue->kind != CueKind::VideoSynth &&
+        cueHasTextModeEffect(*selectedCue)) {
+      int tmY = inspectorSectionBottomMax_;
+      auto tmSection = beginInspectorSection(tmY, "TEXT MODE",
+                                             cueSectionVideoSynthOpen_,
+                                             QuickAction::CueSectionVideoSynthToggle,
+                                             "Collapse/expand the character grid controls");
+      tmY = tmSection.bodyStartY;
+      if (cueSectionVideoSynthOpen_) {
+        tmY = inspDrawTextModeRows(ix, tmY, selectedCue->videoSynth, *selectedCue);
+      }
+      finishInspectorSection(tmSection, tmY);
     }
 
     SDL_SetRenderClipRect(controlRenderer_, nullptr);

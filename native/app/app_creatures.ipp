@@ -30,9 +30,11 @@
     if (creatureHabitat_.w < 80 || creatureHabitat_.h < 70) {
       return false;   // a full playlist leaves them nowhere to be
     }
-    for (const auto& output : project_.outputs) {
-      if (output.enabled) {
-        return false;
+    if (!project_.creaturesWhileLive) {
+      for (const auto& output : project_.outputs) {
+        if (output.enabled) {
+          return false;
+        }
       }
     }
     return true;
