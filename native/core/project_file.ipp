@@ -23,7 +23,25 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   if (resolved.has_parent_path()) {
     fs::create_directories(resolved.parent_path());
   }
-  std::ofstream output(resolved, std::ios::binary | std::ios::trunc);
+
+  // WRITE BESIDE IT, THEN RENAME OVER IT.
+  //
+  // This opened the operator's show with ios::trunc and wrote in place, so the
+  // file was empty from the instant the save began until it finished. Anything
+  // interrupting the write -- a crash, a power cut, a full disk, a USB stick
+  // pulled -- left a truncated show, and the previous good copy was already
+  // gone. That is not a rare window: the app writes this file 300ms after any
+  // edit, and after unattended metadata repairs, so it saves constantly during
+  // a show.
+  //
+  // A rename within one directory is atomic, so a reader sees either the whole
+  // old show or the whole new one, never a half-written file. The temp sits
+  // beside the target rather than in the system temp dir because a rename
+  // across volumes is a copy, which reopens the same window.
+  const fs::path temp = resolved.parent_path().empty()
+    ? fs::path(resolved.string() + ".saving")
+    : (resolved.parent_path() / (resolved.filename().string() + ".saving"));
+  std::ofstream output(temp, std::ios::binary | std::ios::trunc);
   if (!output) {
     return false;
   }
@@ -439,6 +457,23 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
     }
   }
 
+  // Everything above is buffered. Close BEFORE the rename and check the
+  // stream: a disk that filled up reports it here, and the operator's
+  // existing show has to survive that rather than be replaced by a short
+  // file.
+  output.close();
+  if (!output) {
+    std::error_code ignored;
+    fs::remove(temp, ignored);
+    return false;
+  }
+  std::error_code renameError;
+  fs::rename(temp, resolved, renameError);
+  if (renameError) {
+    std::error_code ignored;
+    fs::remove(temp, ignored);
+    return false;
+  }
   return true;
 }
 
