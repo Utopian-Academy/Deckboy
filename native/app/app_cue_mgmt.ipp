@@ -485,7 +485,7 @@
     double sample = 0.0;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (cue.kind != CueKind::Video) {
+      if (!cueSupportsTrimPoints(cue.kind)) {
         return;
       }
       cue.inPointSeconds = std::clamp(cue.inPointSeconds + delta, 0.0, cue.duration > 0.0 ? cue.duration : 3600.0);
@@ -505,7 +505,7 @@
     double sample = 0.0;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (cue.kind != CueKind::Video) {
+      if (!cueSupportsTrimPoints(cue.kind)) {
         return;
       }
       double cur = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
