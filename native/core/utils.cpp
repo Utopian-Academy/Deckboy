@@ -203,19 +203,44 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
 // ============================================================================
 
 // Human-readable labels for cue kinds (shown in UI inspector and cue list).
+//
+// EVERY CueKind must appear here, for the same reason cueKindToken must: a kind
+// that falls through is LABELLED "Video", so a DeckLink input reads as a video
+// file in the playlist and the inspector, and nothing about it looks wrong
+// enough to question.
+//
+// This function had a SECOND DEFINITION, in main.cpp's anonymous namespace,
+// with a different set of cases -- one function below the comment warning that
+// cueKindToken had done the same thing. Being anonymous it is not an ODR
+// violation and nothing warns: main.cpp and everything included into it simply
+// got the other one. Between them the two copies covered every kind and neither
+// covered all of them -- main.cpp knew the source kinds and Timer, this one knew
+// DeckLink -- so the label a cue showed depended on which file asked. This is
+// the only definition now; do not add another.
+//
+// No `default`: every kind is listed, so adding one to the enum without
+// labelling it is a compiler warning rather than a cue that lies about itself.
 std::string cueKindLabel(CueKind kind) {
   switch (kind) {
-    case CueKind::Image:      return "Still";
-    case CueKind::Pattern:    return "Pattern";
-    case CueKind::Browser:    return "Browser";
-    case CueKind::LowerThird: return "Lower Third";
-    case CueKind::Audio:      return "Audio";
-    case CueKind::SrtStream:  return "Stream";
-    case CueKind::NdiSource:  return "NDI Source";
+    case CueKind::Video:          return "Video";
+    case CueKind::Image:          return "Still";
+    case CueKind::Pattern:        return "Pattern";
+    case CueKind::Browser:        return "Browser";
+    case CueKind::WindowSource:   return "Window Source";
+    case CueKind::Camera:         return "Camera Source";
+    case CueKind::Syphon:         return "Syphon/Spout Source";
+    case CueKind::SrtStream:      return "Stream";
+    case CueKind::NdiSource:      return "NDI Source";
     case CueKind::DeckLinkSource: return "DeckLink Input";
-    case CueKind::Video:
-    default:                         return "Video";
+    case CueKind::Pip:            return "PIP";
+    case CueKind::LowerThird:     return "Lower Third";
+    case CueKind::Composite:      return "Composite";
+    case CueKind::Audio:          return "Audio";
+    case CueKind::Timer:          return "Timer";
+    case CueKind::Tone:           return "Tone";
+    case CueKind::VideoSynth:     return "Video Synth";
   }
+  return "Video";
 }
 
 // Machine-readable tokens for cue kinds (used in serialization and OSC commands).
@@ -347,10 +372,16 @@ double easeOutCubic(double value) {
 // Parse a "#RRGGBB" hex color string to SDL_Color. Returns DMG dark green
 // as the fallback for malformed input. Used by the chroma key color picker
 // and OSC color commands.
-SDL_Color parseColor(std::string_view input) {
+// Parse "#RRGGBB" or "#RRGGBBAA", or nothing if it is neither.
+//
+// This copy could only read six digits, so an alpha colour anywhere outside
+// main.cpp silently lost its alpha and fell back to the default green. main.cpp
+// had a second copy that read both, and which behaviour a caller got depended
+// on which file it was compiled into.
+std::optional<SDL_Color> tryParseColor(std::string_view input) {
   std::string value(input);
-  if (value.size() != 7 || value[0] != '#') {
-    return {48, 98, 48, 255};
+  if ((value.size() != 7 && value.size() != 9) || value[0] != '#') {
+    return std::nullopt;
   }
   auto fromHex = [](char ch) -> int {
     if (ch >= '0' && ch <= '9') {
@@ -364,7 +395,6 @@ SDL_Color parseColor(std::string_view input) {
     }
     return -1;
   };
-
   auto readByte = [&](int offset) -> int {
     int hi = fromHex(value[offset]);
     int lo = fromHex(value[offset + 1]);
@@ -377,10 +407,21 @@ SDL_Color parseColor(std::string_view input) {
   int r = readByte(1);
   int g = readByte(3);
   int b = readByte(5);
-  if (r < 0 || g < 0 || b < 0) {
-    return {48, 98, 48, 255};
+  int a = value.size() == 9 ? readByte(7) : 255;
+  if (r < 0 || g < 0 || b < 0 || a < 0) {
+    return std::nullopt;
   }
-  return {static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), 255};
+  return SDL_Color {static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g),
+                    static_cast<std::uint8_t>(b), static_cast<std::uint8_t>(a)};
+}
+
+// Same, but with the default cue green for anything unparseable. Use
+// tryParseColor where "no colour given" has to be told from black.
+SDL_Color parseColor(std::string_view input) {
+  if (auto parsed = tryParseColor(input)) {
+    return *parsed;
+  }
+  return {48, 98, 48, 255};
 }
 
 // Convert SDL_Color to "#rrggbb" hex string (lowercase). Used by OSC feedback
@@ -522,6 +563,17 @@ std::string safeString(const std::vector<std::string>& fields, size_t index) {
 }
 
 // Parse an integer from the field at `index`, or return `fallback` on failure.
+double safeDouble(const std::vector<std::string>& fields, size_t index, double fallback) {
+  if (index >= fields.size()) {
+    return fallback;
+  }
+  try {
+    return std::stod(fields[index]);
+  } catch (...) {
+    return fallback;
+  }
+}
+
 int safeInt(const std::vector<std::string>& fields, size_t index, int fallback) {
   if (index >= fields.size()) {
     return fallback;
@@ -539,8 +591,9 @@ std::uintmax_t safeSize(const std::vector<std::string>& fields, size_t index, st
     return fallback;
   }
   try {
-    unsigned long val = std::stoul(fields[index]);
-    return static_cast<std::uintmax_t>(val);
+    // stoull, not stoul: unsigned long is 32 bits on Windows, so a media file
+    // over 4GB threw here and the cue reported the fallback size instead.
+    return static_cast<std::uintmax_t>(std::stoull(fields[index]));
   } catch (...) {
     return fallback;
   }
