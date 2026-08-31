@@ -4215,6 +4215,69 @@
     return fallback;
   }
 
+  // Put each deck back on the device its operator asked for, whenever the set
+  // of devices changes.
+  //
+  // Two directions, and both matter in a venue:
+  //
+  //   GONE   -- the interface a deck is playing through has been unplugged, or
+  //             powered off, or its driver has restarted. The logical device is
+  //             dead and SDL will not migrate it, so audio stops with nothing
+  //             on screen to say why. Reopening lands on the system default,
+  //             which is at least audible.
+  //   BACK   -- the interface named in the show has appeared. That is the
+  //             ordinary case of a rack powered on after the PC, and until now
+  //             it needed a restart: the fallback was permanent for the run.
+  //
+  // A deck that asked for the system default is left alone. SDL follows the
+  // system default on its own for a stream opened that way, and reopening it
+  // would interrupt audio to achieve nothing.
+  void reconcileDeckAudioDevices() {
+    std::vector<std::string> present;
+    int count = 0;
+    if (SDL_AudioDeviceID* ids = SDL_GetAudioPlaybackDevices(&count)) {
+      present.reserve(static_cast<std::size_t>(count));
+      for (int i = 0; i < count; ++i) {
+        if (const char* name = SDL_GetAudioDeviceName(ids[i])) {
+          present.emplace_back(name);
+        }
+      }
+      SDL_free(ids);
+    }
+    // An empty list is not the same as "every device went away" -- it is also
+    // what a driver reports mid-restart. Acting on it would move every deck to
+    // a default that is itself missing, so wait for the next event.
+    if (present.empty()) {
+      return;
+    }
+    auto isPresent = [&present](const std::string& name) {
+      return std::find(present.begin(), present.end(), name) != present.end();
+    };
+
+    for (std::size_t deckIndex = 0; deckIndex < project_.decks.size(); ++deckIndex) {
+      DeckRuntime* runtime = runtimeForDeck(static_cast<int>(deckIndex));
+      if (!runtime || !runtime->audioStream) {
+        continue;
+      }
+      const std::string wanted = project_.decks[deckIndex].audioOutputDeviceName;
+      if (wanted.empty()) {
+        continue;                       // on the default, which follows itself
+      }
+      const std::string inUse = runtime->audioDeviceInUse;
+      const bool onIt = (inUse == wanted);
+      if (onIt && isPresent(wanted)) {
+        continue;                       // where it should be, and it is there
+      }
+      if (!onIt && !isPresent(wanted)) {
+        continue;                       // still absent; already on the fallback
+      }
+      if (reopenDeckAudioOutput(static_cast<int>(deckIndex), wanted) &&
+          runtime->audioDeviceInUse == wanted) {
+        triggerToast("audio: deck " + std::to_string(deckIndex + 1) + " back on " + wanted);
+      }
+    }
+  }
+
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
@@ -4231,7 +4294,19 @@
 
     SDL_AudioStream* oldStream = runtime->audioStream;
     runtime->audioStream = newMain;
-    deck.audioOutputDeviceName = effectiveName;
+    // The REQUEST is kept, not the result.
+    //
+    // This used to store the effective name here, so a named interface that
+    // was not present at open -- the rack powered on after the PC, a USB
+    // device still enumerating, anything on a switched PDU -- silently
+    // replaced the operator's routing with "system default", and the next save
+    // wrote that away permanently. The request is what belongs in the show
+    // file; what we actually got belongs to this run.
+    deck.audioOutputDeviceName = preferredDeviceName;
+    runtime->audioDeviceInUse = effectiveName;
+    if (!preferredDeviceName.empty() && effectiveName != preferredDeviceName) {
+      triggerToast("audio: " + preferredDeviceName + " not found — using system default");
+    }
     if (runtime->mediaEngine) {
       // Hot-swap the output device on the existing engine so a device change
       // mid-cue keeps playing instead of tearing the engine down.

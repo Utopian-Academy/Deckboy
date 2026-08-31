@@ -2106,6 +2106,13 @@ struct DeckRuntime {
   SDL_Window* outputWindow = nullptr;    // Legacy (unused — outputs moved to OutputRuntime)
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioStream* audioStream = nullptr;  // device-bound SDL3 stream for this deck's audio output
+  // WHAT WE ACTUALLY GOT, which is not always what was asked for. Deck::
+  // audioOutputDeviceName is the operator's REQUEST and is persisted; this is
+  // the device currently open, empty for the system default. They differ while
+  // a named interface is absent -- powered off, still enumerating, or unplugged
+  // mid-show -- and keeping them apart is what lets the request survive that
+  // and be honoured when the device comes back.
+  std::string audioDeviceInUse;
   std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
   std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;  // For Browser/LowerThird cues
   bool browserCueLive = false;           // Whether a browser cue is currently active
@@ -7926,6 +7933,8 @@ class App {
   // count alone misses same-count swaps and resolution changes.
   std::vector<std::string> displaySignatureEntries_;
   Uint64 displayTopologyRecheckAtMs_ = 0;  // debounce deadline for the display-event burst
+  Uint64 audioDeviceRecheckAtMs_ = 0;      // and for the audio-device-event burst
+  Uint64 lastAudioDevicePollMs_ = 0;       // backstop for drivers that emit neither
   bool projectDirty_ = false;
   std::chrono::steady_clock::time_point projectDirtyAt_;
   bool engineCueSyncPending_ = false;  // refresh engine cue snapshots next tick (set by markProjectDirty)
@@ -8439,6 +8448,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
   {"--import <path>", "import media at launch (skips splash and startup menu)"},
   {"--settings [tab[.subtab]]", "open the settings modal at boot, e.g. --settings 3.1"},
   {"--soak [minutes]", "long-run stability harness (default 1440); logs to deckboy-soak.log"},
+  {"--devices", "list the audio, display and capture hardware this machine offers"},
   {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
   {"--allow-multi-instance", "bypass the single-instance lock"},
 };
@@ -8448,7 +8458,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe", "--pdf-probe",
+  "--motion-probe", "--pdf-probe", "--devices",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -8714,6 +8724,9 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     std::cerr << "hap-probe: this build has no in-process decoder" << '\n';
     return 2;
 #endif
+  }
+  if (mode == "--devices") {
+    return App::runDeviceReport();
   }
   if (mode == "--sync-pop-test") {
     return App::runSyncPopTest();
