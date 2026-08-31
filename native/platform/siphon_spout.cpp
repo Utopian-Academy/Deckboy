@@ -124,8 +124,8 @@ bool SiphonSpoutSender::sendFrame(SDL_Texture* texture) {
   // SDL_RenderReadPixels reads from the current render target.
   // The caller should have set this texture as the render target before calling.
   // We read as BGRA (SDL_PIXELFORMAT_ARGB8888 = BGRA in memory on little-endian).
-  SDL_Renderer* renderer = nullptr;
-  // SDL2 doesn't have SDL_GetRendererFromTexture, so we read via lock.
+  // Read via lock: there is no way to get a renderer back from a texture,
+  // which is what the abandoned local here was waiting for.
   void* pixels = nullptr;
   int pitch = 0;
   if (!SDL_LockTexture(texture, nullptr, &pixels, &pitch)) {

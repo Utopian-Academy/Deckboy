@@ -723,14 +723,14 @@
         Deck& deck = project_.decks[deckIndex];
         bool keepEndedFrameVisible = false;
         if (deck.activeIndex >= 0 && !deck.cues.empty()) {
-          const Cue& activeCue = deck.cues[deck.activeIndex];
+          const Cue& endedCue = deck.cues[deck.activeIndex];
 
           // Cue end behavior follows the cue itself: hold = hold, hold off = next.
-          bool shouldAdvance = cueAdvancesWhenFinished(activeCue);
+          bool shouldAdvance = cueAdvancesWhenFinished(endedCue);
 
           // Goto target / shuffle / adjacent + missing-media walk — shared
           // with the manual SKIP action (resolveAutoAdvanceIndex).
-          int nextIndex = resolveAutoAdvanceIndex(deck, activeCue, shouldAdvance);
+          int nextIndex = resolveAutoAdvanceIndex(deck, endedCue, shouldAdvance);
 
           if (nextIndex >= 0) {
             if (deck.selectedIndex != nextIndex) {
@@ -748,7 +748,7 @@
               // is the visible transition on the output path (the legacy
               // crossfade inside MediaEngine::render() is not visible on
               // output — see v0.76.4 / v0.76.7 DEVNOTES).
-              takeSelected(true, activeCue.transitionToNext, false);
+              takeSelected(true, endedCue.transitionToNext, false);
               project_.focusedDeckIndex = previousFocus;
             }
           }
