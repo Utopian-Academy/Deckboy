@@ -33,7 +33,8 @@ import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_SRC = os.path.join(REPO, 'native', 'main.cpp')
+# The show file's reader and writer, which used to be in main.cpp.
+DEFAULT_SRC = os.path.join(REPO, 'native', 'core', 'project_file.ipp')
 
 MEMBER = re.compile(r'\bcue\.([A-Za-z_][A-Za-z0-9_.]*)')
 READ = re.compile(r'\bcue\.([A-Za-z_][A-Za-z0-9_.]*)\s*=[^;]*?'
@@ -48,7 +49,16 @@ def writer_order(text: str) -> list[tuple[int, str]]:
     field, not one per line, so brace depth gates the counting.
     """
     lines = text.split('\n')
-    start = next(i for i, L in enumerate(lines) if L.strip() == '<< "cue\\t"')
+    try:
+        start = next(i for i, L in enumerate(lines)
+                     if L.strip() == '<< "cue\\t"')
+    except StopIteration:
+        # Said plainly, because the alternative is a stack trace that reads
+        # like the tool is broken when the code it audits has simply moved.
+        raise SystemExit(
+            "no cue record writer in this file. The show file is "
+            "written by saveProject; point --source at wherever "
+            "that now lives.")
     fields: list[tuple[int, str]] = []
     col = 0
     depth = 0

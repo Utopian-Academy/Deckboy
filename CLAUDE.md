@@ -45,7 +45,8 @@ cmake --build build/windows --config Release
 
 | Path | Purpose |
 |------|---------|
-| `native/main.cpp` | Everything: UI, input, render, OSC, companion, timecode, settings |
+| `native/main.cpp` | The App class, the CLI and the UI helpers. The show file used to live here too |
+| `native/core/project_file.ipp` | saveProject / loadProject — the whole `.deckboy` format. Included into main.cpp's anonymous namespace at the point the functions used to sit, so every helper they rely on is still in scope |
 | `native/engine/media_engine.cpp/hpp` | Core playback: decode, transport, fade, transition |
 | `native/core/types.hpp` | All domain types: `Cue`, `Deck`, `OutputTarget`, `Project` |
 | `native/core/constants.hpp` | `kOutputWidth/Height`, `kMaxVideoFrames`, `kAppTitle`, etc. |
@@ -226,7 +227,7 @@ Tab-delimited `.deckboy` project files. Fields appended at end of record; backwa
 
 Current field counts:
 - **OutputTarget**: 28 base fields + 4 AOI (28–31) + 2 Spout (32–33) + streamKey (34) + displayName (35) → guard `>= 36`
-- **Cue**: check existing guard indices in saveProject/loadProject in `main.cpp`
+- **Cue**: check existing guard indices in `native/core/project_file.ipp`
 - Careful: `app_smoke.ipp` constructs `OutputTarget` with positional aggregate init — adding a struct member mid-struct breaks those sites (prefer appending or update them)
 - **Project scalars** serialize as `key\tvalue` lines (not positional): e.g. `splash_character`, `ui_scale`, `theme` (the saved colorway dir under `data/themes/`, applied on open + at boot unless empty). Add new ones as a `<<` write in saveProject + an `else if (fields[0] == "...")` branch in loadProject.
 
