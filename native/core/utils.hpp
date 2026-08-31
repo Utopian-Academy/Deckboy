@@ -84,6 +84,7 @@ double easeOutCubic(double value);
 // Colors are stored as SDL_Color (RGBA bytes) or packed uint32 (0xRRGGBBAAu).
 
 SDL_Color parseColor(std::string_view input);              // parse "#RRGGBB" or "#RRGGBBAA" hex string
+std::optional<SDL_Color> tryParseColor(std::string_view input);  // the same, but says so when it cannot
 std::string colorToHex(SDL_Color color);                   // convert to "#RRGGBB" hex string
 SDL_Color colorFromRgba(std::uint32_t rgba);               // unpack 0xRRGGBBAAu → SDL_Color
 SDL_Color colorTagToSdl(const std::string& tag, std::uint8_t alpha = 255); // "red"/"blue"/etc. → SDL_Color
@@ -109,6 +110,7 @@ bool pointInRect(int x, int y, const SDL_Rect& rect);     // true if (x,y) is in
 // empty/malformed. Used exclusively by loadProject() in app_project_state.ipp.
 
 std::string safeString(const std::vector<std::string>& fields, size_t index);
+double safeDouble(const std::vector<std::string>& fields, size_t index, double fallback = 0.0);
 int safeInt(const std::vector<std::string>& fields, size_t index, int fallback = 0);
 std::uintmax_t safeSize(const std::vector<std::string>& fields, size_t index, std::uintmax_t fallback = 0);
 bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallback = false);

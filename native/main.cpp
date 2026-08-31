@@ -322,25 +322,12 @@ std::string ellipsizeToPixelWidth(TTF_Font* font, const std::string& text, int m
 }
 
 // Returns the human-readable display label for a CueKind (shown in UI).
-std::string cueKindLabel(CueKind kind) {
-  switch (kind) {
-    case CueKind::Image:      return "Still";
-    case CueKind::Pattern:    return "Pattern";
-    case CueKind::Browser:    return "Browser";
-    case CueKind::WindowSource: return "Window Source";
-    case CueKind::Camera:     return "Camera Source";
-    case CueKind::Syphon:     return "Syphon/Spout Source";
-    case CueKind::SrtStream:  return "Stream";
-    case CueKind::NdiSource:  return "NDI Source";
-    case CueKind::Pip:        return "PIP";
-    case CueKind::LowerThird: return "Lower Third";
-    case CueKind::Composite:  return "Composite";
-    case CueKind::Audio:      return "Audio";
-    case CueKind::Timer:      return "Timer";
-    case CueKind::Video:
-    default:                  return "Video";
-  }
-}
+// cueKindLabel lives in core/utils.cpp -- it is declared in core/utils.hpp and
+// this file had a SECOND definition of it in the anonymous namespace below,
+// missing DeckLink, Tone and Video Synth while the other was missing six kinds
+// this one had. Nothing warns about that: the UI is compiled into this file, so
+// the UI got this copy, and a DeckLink cue called itself a video everywhere in
+// the playlist and the inspector.
 
 // Returns the serialization token for a CueKind (used in .deckboy project files).
 // cueKindToken lives in core/utils.cpp -- it is declared in core/utils.hpp and
@@ -667,49 +654,11 @@ std::string panicProfileLabelFromToken(const std::string& token) {
   return "Outputs Off";
 }
 
-std::optional<SDL_Color> tryParseColor(std::string_view input) {
-  std::string value(input);
-  if ((value.size() != 7 && value.size() != 9) || value[0] != '#') {
-    return std::nullopt;
-  }
-  auto fromHex = [](char ch) -> int {
-    if (ch >= '0' && ch <= '9') {
-      return ch - '0';
-    }
-    if (ch >= 'a' && ch <= 'f') {
-      return ch - 'a' + 10;
-    }
-    if (ch >= 'A' && ch <= 'F') {
-      return ch - 'A' + 10;
-    }
-    return -1;
-  };
 
-  auto readByte = [&](int offset) -> int {
-    int hi = fromHex(value[offset]);
-    int lo = fromHex(value[offset + 1]);
-    if (hi < 0 || lo < 0) {
-      return -1;
-    }
-    return hi * 16 + lo;
-  };
-
-  int r = readByte(1);
-  int g = readByte(3);
-  int b = readByte(5);
-  int a = value.size() == 9 ? readByte(7) : 255;
-  if (r < 0 || g < 0 || b < 0 || a < 0) {
-    return std::nullopt;
-  }
-  return SDL_Color {static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b), static_cast<Uint8>(a)};
-}
-
-SDL_Color parseColor(std::string_view input) {
-  if (auto parsed = tryParseColor(input)) {
-    return *parsed;
-  }
-  return {48, 98, 48, 255};
-}
+// tryParseColor and parseColor live in core/utils.cpp. This file had its own
+// copies; the shared ones could not read the alpha digits, so which behaviour a
+// caller got depended on which file it was compiled into. The alpha-reading
+// pair is now the only pair.
 
 std::string normalizeCueIdShort(std::string value) {
   std::string out;
@@ -2400,93 +2349,18 @@ std::vector<std::string> splitEscapedTabs(const std::string& line) {
   return fields;
 }
 
-std::string safeString(const std::vector<std::string>& fields, size_t index) {
-  if (index >= fields.size()) {
-    return "";
-  }
-  return fields[index];
-}
 
-double safeDouble(const std::vector<std::string>& fields, size_t index, double fallback = 0.0) {
-  if (index >= fields.size()) {
-    return fallback;
-  }
-  try {
-    return std::stod(fields[index]);
-  } catch (...) {
-    return fallback;
-  }
-}
 
-int safeInt(const std::vector<std::string>& fields, size_t index, int fallback = 0) {
-  if (index >= fields.size()) {
-    return fallback;
-  }
-  try {
-    return std::stoi(fields[index]);
-  } catch (...) {
-    return fallback;
-  }
-}
 
-std::uintmax_t safeSize(const std::vector<std::string>& fields, size_t index, std::uintmax_t fallback = 0) {
-  if (index >= fields.size()) {
-    return fallback;
-  }
-  try {
-    return static_cast<std::uintmax_t>(std::stoull(fields[index]));
-  } catch (...) {
-    return fallback;
-  }
-}
 
-bool safeBool(const std::vector<std::string>& fields, size_t index, bool fallback = false) {
-  if (index >= fields.size()) {
-    return fallback;
-  }
-  return fields[index] == "1" || fields[index] == "true";
-}
+// safeString / safeDouble / safeInt / safeSize / safeBool live in
+// core/utils.cpp. This file had a second set, and the two disagreed: this one's
+// safeSize used stoul, which is 32 bits on Windows and threw on any file over
+// 4GB, and its safeBool ignored the caller's fallback for a value it did not
+// recognise. The show file is read through these, so it was being read by
+// whichever copy the calling file happened to see. There is one set now.
 
-std::string escapeJson(const std::string& value) {
-  std::string out;
-  out.reserve(value.size() + 8);
-  for (char ch : value) {
-    switch (ch) {
-      case '\\':
-        out += "\\\\";
-        break;
-      case '"':
-        out += "\\\"";
-        break;
-      case '\b':
-        out += "\\b";
-        break;
-      case '\f':
-        out += "\\f";
-        break;
-      case '\n':
-        out += "\\n";
-        break;
-      case '\r':
-        out += "\\r";
-        break;
-      case '\t':
-        out += "\\t";
-        break;
-      default:
-        if (static_cast<unsigned char>(ch) < 0x20) {
-          std::ostringstream escaped;
-          escaped << "\\u" << std::hex << std::setw(4) << std::setfill('0')
-                  << static_cast<int>(static_cast<unsigned char>(ch));
-          out += escaped.str();
-        } else {
-          out.push_back(ch);
-        }
-        break;
-    }
-  }
-  return out;
-}
+// escapeJson lives in core/utils.cpp; this file had an identical second copy.
 
 std::string escapeHtml(const std::string& value) {
   std::string out;
