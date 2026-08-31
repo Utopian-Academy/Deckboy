@@ -733,11 +733,12 @@ std::vector<CaptureWindowInfo> listCaptureWindows() {
     int len = GetWindowTextLengthW(hwnd);
     if (len <= 0) return TRUE;
 
-    // Skip cloaked UWP windows (hidden system overlays)
-    DWORD cloaked = 0;
-    // DwmGetWindowAttribute may not be available, use GetWindowLong check instead
+    // Tool windows are system overlays and palettes, not things anyone means
+    // to capture. Cloaked UWP windows were meant to be skipped here too, via
+    // DwmGetWindowAttribute; that was never written, and the variable for it
+    // sat unread ever since.
     LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-    if (exStyle & WS_EX_TOOLWINDOW) return TRUE;  // Skip tool windows
+    if (exStyle & WS_EX_TOOLWINDOW) return TRUE;
 
     // Get the window title
     std::vector<wchar_t> buf(static_cast<size_t>(len) + 1);

@@ -1930,8 +1930,7 @@
     cue.pipSourceType = "media";
 
     if (const Cue* sourceCue = selectedCuePtr()) {
-      int selectedIndex = focusedDeck().selectedIndex;
-      if (sourceCue->kind != CueKind::Pip && sourceCue->kind != CueKind::LowerThird &&
+        if (sourceCue->kind != CueKind::Pip && sourceCue->kind != CueKind::LowerThird &&
           sourceCue->kind != CueKind::Audio && cueCanBePipSource(*sourceCue)) {
         if (sourceCue->kind == CueKind::Browser) {
           applyPipSourceToCue(cue, "browser", sourceCue->path);
@@ -4236,7 +4235,6 @@
     transportGroupRect_ = groups.cell(1, 0);
     outputGroupRect_ = groups.cell(2, 0);
 
-    int buttonY = barY + 46;
     int buttonH = kLayoutButtonHeight;
     int buttonW = std::clamp((std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3, 96, 144);
 

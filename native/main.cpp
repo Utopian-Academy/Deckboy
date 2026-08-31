@@ -6660,16 +6660,17 @@ class App {
       //
       // The picture costs nothing: the decoder produced it on the way to the
       // vectors and was throwing it away.
-      if (const MotionDriver* driver = motionDriverForDeck(project_.focusedDeckIndex)) {
+      if (const MotionDriver* focusedDriver =
+            motionDriverForDeck(project_.focusedDeckIndex)) {
         deckboy::motion::MotionSourceStatus status;
-        if (driver->handle &&
-            deckboy::motion::motionSourceStatus(driver->handle, status)) {
+        if (focusedDriver->handle &&
+            deckboy::motion::motionSourceStatus(focusedDriver->handle, status)) {
           const int previewH = ix.rowH * 2;
           SDL_Rect previewRect {ix.ctrl.x + ix.inset, rowY,
                                 previewH * 16 / 9, previewH};
           drawUIPanel(previewRect, pal.deep, pal.deep, pal.mid);
           if (const std::uint8_t* luma =
-                deckboy::motion::motionSourceThumbnail(driver->handle)) {
+                deckboy::motion::motionSourceThumbnail(focusedDriver->handle)) {
             if (status.frameIndex != motionDriverThumbFrame_ ||
                 !motionDriverThumbTex_) {
               motionDriverThumbFrame_ = status.frameIndex;

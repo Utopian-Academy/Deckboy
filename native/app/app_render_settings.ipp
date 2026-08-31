@@ -1289,8 +1289,7 @@
       if (streamUrl.empty()) {
         streamUrl = defaultOutputStreamUrl(streamProtocol, focusedOutputIndex);
       }
-      int outputAlphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
-      int outputDelayMs = std::clamp(outputTarget.outputDelayMs, 0, 5000);
+        int outputDelayMs = std::clamp(outputTarget.outputDelayMs, 0, 5000);
       std::string outputColorSpace = normalizeOutputColorSpace(outputTarget.outputColorSpace);
       std::string outputLayoutMode = normalizeOutputLayoutMode(outputTarget.outputLayoutMode);
       int outputOrientation = normalizeOutputOrientationDegrees(outputTarget.outputOrientationDegrees);

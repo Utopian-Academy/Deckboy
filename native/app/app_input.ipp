@@ -668,9 +668,9 @@
       }
     }
 
-    for (const auto& button : buttons_) {
-      if (pointInRect(x, y, button.rect)) {
-        triggerButton(button.label);
+    for (const auto& entry : buttons_) {
+      if (pointInRect(x, y, entry.rect)) {
+        triggerButton(entry.label);
         return;
       }
     }

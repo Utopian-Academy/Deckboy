@@ -1640,7 +1640,11 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         at = bar + 1;
       }
       if (!phrases.empty()) {
-        const double seconds = static_cast<double>(serial) / 60.0;
+        // The clock passed in, not the frame count. This divided the frame
+        // serial by an assumed 60, so a phrase set to hold for two seconds
+        // held for two and a half on a 50Hz display and five on a 24Hz one --
+        // and the accurate clock was already sitting in a parameter this
+        // local was shadowing.
         const std::uint64_t slot =
           static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
         std::uint32_t h = static_cast<std::uint32_t>(slot * 2654435761u);
@@ -1654,7 +1658,6 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
     const int rows = std::max(1, dstH / cellH);
     if (phraseLen > 0) {
-      const double seconds = static_cast<double>(serial) / 60.0;
       const std::uint64_t slot =
         static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
       std::uint32_t p = static_cast<std::uint32_t>(slot * 40503u + 17u);
@@ -2609,8 +2612,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
 
   if (synthBench) benchCrt = SynthClock::now();
   if (vs.ascii) {
+    // WALL seconds, not the speed-scaled pattern clock. Phrase hold is stated
+    // in seconds and sprite spin in degrees per second, so both want real
+    // time; the speed knob belongs to the oscillators that make the picture.
     renderTextMode(small.data(), W, H, frame.pixels.data(), outW, outH, vs,
-                   displayFrameSerial_, t);
+                   displayFrameSerial_, wallSeconds);
   } else if (emitSmall) {
     // Straight out, at the size it was rendered. One 330KB copy instead of a
     // 33MB upscale, and the scaling happens on the GPU where it is free.
@@ -6903,8 +6909,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
       for (int b = 0; b < bands; ++b) {
         const double hz = 31.5 * std::pow(2.0, b / 3.0 * 1.0);
         if (hz > kAudioRate / 2.0) break;
-        const double w = 2.0 * 3.14159265358979323846 * hz / kAudioRate;
-        const double coeff = 2.0 * std::cos(w);
+        const double omega = 2.0 * 3.14159265358979323846 * hz / kAudioRate;
+        const double coeff = 2.0 * std::cos(omega);
         double s0 = 0.0, s1 = 0.0, s2 = 0.0;
         for (std::size_t i = 0; i < n; ++i) {
           s0 = (toneScopeL_[i] / 32768.0) + coeff * s1 - s2;
@@ -7187,13 +7193,13 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
     if (const TimerLogoCache* logo = timerLogoFor(cfg.logoPath, logoH)) {
       const int lx = (W - logo->w) / 2;
       const int ly = H / 24;
-      for (int y = 0; y < logo->h; ++y) {
-        const int dy = ly + y;
+      for (int ry = 0; ry < logo->h; ++ry) {
+        const int dy = ly + ry;
         if (dy < 0 || dy >= H) continue;
-        for (int x = 0; x < logo->w; ++x) {
-          const int dx = lx + x;
+        for (int rx = 0; rx < logo->w; ++rx) {
+          const int dx = lx + rx;
           if (dx < 0 || dx >= W) continue;
-          const std::size_t s = (static_cast<std::size_t>(y) * logo->w + x) * 4;
+          const std::size_t s = (static_cast<std::size_t>(ry) * logo->w + rx) * 4;
           const int a = logo->rgba[s + 3];
           if (a == 0) continue;
           const std::size_t o = (static_cast<std::size_t>(dy) * W + dx) * 4;

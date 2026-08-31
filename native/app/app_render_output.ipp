@@ -999,8 +999,7 @@
             std::string cleanText = deckboy::core::stripSubtitleTags(entry->text);
             auto lines = splitLines(cleanText);
             int lineH = 28;
-            int padX = 16;
-            int padY = 8;
+                    int padY = 8;
             int totalTextH = static_cast<int>(lines.size()) * lineH;
             int bgH = totalTextH + padY * 2;
             int bgY = renderH - bgH - 40;
