@@ -1048,6 +1048,11 @@ struct Project {
   // so opening an older, theme-less show doesn't override the operator's pick.
   // Saved with the show so a chosen colorway survives restarts.
   std::string theme = "";
+  // The MIDI input port, BY NAME. It lived only in memory, so every restart
+  // fell back to "whichever port enumerates first" -- on a machine with a DAW's
+  // virtual ports that is not a control surface at all, and a stray note from
+  // it fires cues.
+  std::string midiDeviceName = "";
   // Terrarium is the Konami-code secret: it only appears in pattern pickers
   // once unlocked, and the unlock belongs to the SAVE (cheeky secrets don't
   // leak across shows). Saved cues load fine either way.

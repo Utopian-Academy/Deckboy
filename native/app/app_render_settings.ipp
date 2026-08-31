@@ -1024,7 +1024,7 @@
       Primitives::drawFramedPanel(controlRenderer_, midiPortBtn, pal.mid,
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_,
-                       midiDeviceName_.empty() ? "Set MIDI Port..." : ellipsizeToPixelWidth(fontSmall_, midiDeviceName_, midiPortBtn.w - 12),
+                       midiDeviceName_().empty() ? "Set MIDI Port..." : ellipsizeToPixelWidth(fontSmall_, midiDeviceName_(), midiPortBtn.w - 12),
                        ink, midiPortBtn);
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
 

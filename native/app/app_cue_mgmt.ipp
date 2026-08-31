@@ -1474,9 +1474,10 @@
     openInlineTextEditor("settings.midi_port",
                          "ALSA MIDI Port",
                          "e.g. 20:0 or client name",
-                         midiDeviceName_,
+                         midiDeviceName_(),
                          [this](const std::string& value) {
-                           midiDeviceName_ = trim(value);
+                           midiDeviceName_() = trim(value);
+                           markProjectDirty();
                            if (midiEnabled_) {
                              stopMidiInput();
                              startMidiInput();

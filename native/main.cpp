@@ -8120,7 +8120,10 @@ class App {
   // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
   deckboy::platform::midi::MidiInput midiRt_;
 #endif
-  std::string midiDeviceName_;
+  // The chosen MIDI port lives in the show now (Project::midiDeviceName) so it
+  // survives a restart. This accessor keeps the call sites short.
+  std::string& midiDeviceName_() { return project_.midiDeviceName; }
+  const std::string& midiDeviceName_() const { return project_.midiDeviceName; }
 #if defined(DECKBOY_HAS_ALSA)
   snd_seq_t* midiSeq_ = nullptr;
   int midiSeqPort_ = -1;
