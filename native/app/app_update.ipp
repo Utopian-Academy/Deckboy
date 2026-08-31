@@ -256,6 +256,20 @@
             }
           }
           break;
+        case SDL_EVENT_AUDIO_DEVICE_ADDED:
+        case SDL_EVENT_AUDIO_DEVICE_REMOVED:
+          // A deck pinned to a named interface loses its audio for good when
+          // that interface goes away: SDL follows the system default for a
+          // stream opened as DEFAULT_PLAYBACK, but a stream opened by id is
+          // simply dead, and nothing here was listening. The show carries on
+          // with no sound and nothing on screen says so, which is the worst
+          // shape a fault can take during a show.
+          //
+          // Debounced like the display burst below, and for the same reason:
+          // a driver emits several of these while it settles, and the device
+          // list is half-built partway through.
+          audioDeviceRecheckAtMs_ = SDL_GetTicks() + 600;
+          break;
         case SDL_EVENT_DISPLAY_ADDED:
         case SDL_EVENT_DISPLAY_REMOVED:
         case SDL_EVENT_DISPLAY_MOVED:
@@ -489,6 +503,20 @@
     }
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
+
+    // Debounced response to the SDL audio-device-event burst.
+    if (audioDeviceRecheckAtMs_ != 0 && now >= audioDeviceRecheckAtMs_) {
+      audioDeviceRecheckAtMs_ = 0;
+      reconcileDeckAudioDevices();
+    }
+    // Backstop poll, for the same reason the display topology has one below:
+    // a driver that never emits the events leaves the deck silent forever, and
+    // that is not a failure mode worth trusting an event for. Every two
+    // seconds, and it does nothing at all unless a deck is on the wrong device.
+    if (now - lastAudioDevicePollMs_ >= 2000) {
+      lastAudioDevicePollMs_ = now;
+      reconcileDeckAudioDevices();
+    }
 
     // Debounced response to the SDL display-event burst.
     if (displayTopologyRecheckAtMs_ != 0 && now >= displayTopologyRecheckAtMs_) {

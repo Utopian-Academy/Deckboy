@@ -1524,6 +1524,75 @@
   // the cue's audio toggle / device routing; FAIL means the synth path is
   // broken in code.
   // ---------------------------------------------------------------------------
+  // What hardware does this machine actually offer?
+  //
+  // Written because a show file names its audio interface as a STRING, and a
+  // name that does not match what the driver reports is indistinguishable, from
+  // inside the app, from a device that is not plugged in. This prints the names
+  // exactly as SDL spells them, which is what the show file has to contain.
+  //
+  // It is also the first thing to ask of a venue machine that "has no sound" or
+  // "will not go full screen", because it separates a Deckboy fault from a
+  // machine that genuinely cannot see the hardware.
+  static int runDeviceReport() {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+      std::cout << "devices: SDL init failed: " << SDL_GetError() << '\n';
+      return 1;
+    }
+    std::cout << "audio driver: "
+              << (SDL_GetCurrentAudioDriver() ? SDL_GetCurrentAudioDriver() : "(none)")
+              << '\n';
+    for (int recording = 0; recording < 2; ++recording) {
+      int count = 0;
+      SDL_AudioDeviceID* ids = recording ? SDL_GetAudioRecordingDevices(&count)
+                                         : SDL_GetAudioPlaybackDevices(&count);
+      std::cout << (recording ? "audio in:  " : "audio out: ") << count << '\n';
+      if (ids) {
+        for (int i = 0; i < count; ++i) {
+          const char* name = SDL_GetAudioDeviceName(ids[i]);
+          std::cout << "  " << (name ? name : "(unnamed)");
+          SDL_AudioSpec spec {};
+          int frames = 0;
+          if (SDL_GetAudioDeviceFormat(ids[i], &spec, &frames)) {
+            std::cout << "  [" << spec.freq << " Hz, " << static_cast<int>(spec.channels)
+                      << " ch, " << frames << " frame buffer]";
+          }
+          std::cout << '\n';
+        }
+        SDL_free(ids);
+      }
+    }
+
+    std::cout << "video driver: "
+              << (SDL_GetCurrentVideoDriver() ? SDL_GetCurrentVideoDriver() : "(none)")
+              << '\n';
+    int displayCount = 0;
+    if (SDL_DisplayID* displays = SDL_GetDisplays(&displayCount)) {
+      std::cout << "displays: " << displayCount << '\n';
+      for (int i = 0; i < displayCount; ++i) {
+        const char* name = SDL_GetDisplayName(displays[i]);
+        std::cout << "  " << (name ? name : "(unnamed)");
+        if (const SDL_DisplayMode* dm = SDL_GetCurrentDisplayMode(displays[i])) {
+          // The refresh rate is the number that matters: a 50 Hz projector and
+          // a 144 Hz monitor are both ordinary and neither is 60.
+          std::cout << "  " << dm->w << "x" << dm->h << " @ " << dm->refresh_rate << " Hz";
+        }
+        std::cout << "  scale " << SDL_GetDisplayContentScale(displays[i]) << '\n';
+      }
+      SDL_free(displays);
+    }
+
+    int renderCount = SDL_GetNumRenderDrivers();
+    std::cout << "render drivers: ";
+    for (int i = 0; i < renderCount; ++i) {
+      const char* name = SDL_GetRenderDriver(i);
+      std::cout << (i ? ", " : "") << (name ? name : "?");
+    }
+    std::cout << '\n';
+    SDL_Quit();
+    return 0;
+  }
+
   static int runSyncPopTest() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
       std::cout << "sync-pop-test: SDL init failed: " << SDL_GetError() << '\n';

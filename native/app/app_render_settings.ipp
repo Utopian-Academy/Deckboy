@@ -861,7 +861,19 @@
       drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
       const int smallLineH = sLineH;
       const int audioX = cardBodyX(audioRect);
-      std::string devName = focusedDeck().audioOutputDeviceName.empty() ? "(default system device)" : focusedDeck().audioOutputDeviceName;
+      // Says what was ASKED FOR, and says so when that is not what is playing.
+      // The request used to be overwritten by the fallback, so a missing
+      // interface looked like a deck that had always been on the default and
+      // there was nothing to tell the operator otherwise.
+      std::string devName = focusedDeck().audioOutputDeviceName.empty()
+        ? std::string("(default system device)")
+        : focusedDeck().audioOutputDeviceName;
+      if (const DeckRuntime* devRt = runtimeForDeck(project_.focusedDeckIndex)) {
+        if (!focusedDeck().audioOutputDeviceName.empty() &&
+            devRt->audioDeviceInUse != focusedDeck().audioOutputDeviceName) {
+          devName += "  (not found — on default)";
+        }
+      }
       SDL_Rect devBtn {audioX, cardBodyY(audioRect), cardBodyW(audioRect), sTallH};
       drawUIDropdown(devBtn, "Device", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
