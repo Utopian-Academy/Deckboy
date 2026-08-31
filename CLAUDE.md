@@ -66,6 +66,7 @@ cmake --build build/windows --config Release
 | `docs/CODEMAP.md` | Full structural code map: file inventory, data flow, threading model |
 | `docs/VERSION_FLOW.md` | Version flow doc |
 | `tools/package_windows.ps1` | Build portable `dist\Deckboy-<VERSION>-windows-x64.zip`. Defaults to `build\windows\Release` — pass `-BuildDir` if you built elsewhere. It verifies the binary reports the VERSION it is named after and refuses otherwise |
+| `tools/audit_warnings.py` | Fail the build on a name that hides another or a local nothing reads. Reads a build log (MSVC or GCC/Clang), exempts `native/extras/upstream`. CMakeLists promotes just those warnings out of level 4, where the several hundred int-to-float conversions into SDL's float APIs would bury them |
 | `tools/audit_actions.py` | Find dead controls: QuickActions with no handler, actions nothing can fire, and duplicate settings action ids. `--strict` fails on unreachable actions too. Run it before claiming a control works |
 | `tools/check_preview_effects.py` | Sweep every pixel effect through the CONTROL PREVIEW with **no output armed** (seeks + pauses so each case is the same frame). `check_effects.py` only proves an effect reaches the recording, which is the output's composite -- it cannot see a preview-only fault |
 | `tools/check_effects_offline.py` | Run every effect through `--effect-dump` on one picture: seconds, exactly repeatable, and `--sheet` writes a contact sheet. Use this while WRITING an effect -- the app-driven sweeps cost minutes and land on whatever frame the seek reached |
@@ -325,11 +326,38 @@ The settings click handler is split across three functions to stay under MSVC's 
 
 ## Cue Kinds (CueKind enum)
 
-`Video`, `Image`, `Pattern`, `Browser`, `WindowSource`, `Camera`, `Syphon`, `SrtStream`, `NdiSource`, `Pip`, `LowerThird`, `Composite`, `Audio`
+`Video`, `Image`, `Pattern`, `Browser`, `WindowSource`, `Camera`, `Syphon`,
+`SrtStream`, `NdiSource`, `DeckLinkSource`, `Pip`, `LowerThird`, `Composite`,
+`Audio`, `Timer`, `Tone`, `VideoSynth` — the enum in `core/types.hpp` is the
+list; this one was four kinds out of date and that is not a harmless drift. Four
+places have to know about every kind, and each fails differently when one is
+missed:
+
+| Place | What a missed kind does |
+|-------|-------------------------|
+| `cueKindToken` (`core/utils.cpp`) | Saved as `"video"`, comes back a video cue pointed at a `timer://` path, racks and never plays |
+| `cueKindLabel` (`core/utils.cpp`) | The cue calls itself a Video everywhere in the UI |
+| The inspector's per-kind chain (`app_render_main.ipp`) | "no per-cue settings for this type" |
+| `isSourceCueKind` / friends (`core/cue_helpers.hpp`) | Routed into the wrong capture backend, or out of one it needs |
+
+**There must be exactly one definition of each of those functions.** Both have
+been defined twice — once in `core/utils.cpp` and once in `main.cpp`'s anonymous
+namespace, with different sets of cases. That is not an ODR violation and
+nothing warns; the UI is compiled into main.cpp, so the UI silently got the
+copy that had never heard of the newest kind. See DEVNOTES, "Two definitions of
+one function", for the sweep that finds the next one.
 
 - **SrtStream**: live stream input — `cue.path` = full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`). Skips ffprobe and `-ss`. Added via SOURCE menu → "Stream Cue".
 - **NdiSource**: NDI receive input — `cue.path` = `ndi://SOURCE_NAME`. Skips ffprobe; uses `-f libndi_newtek -i NAME`. Added via SOURCE menu → "NDI Source Cue".
 - Both use kind checks in `startDecoderThreads` (`isLiveStream`, `isNdiSource`); URL prefix detection no longer used.
+- **DeckLinkSource**: Blackmagic capture — `cue.path` = `decklink://DEVICE_INDEX`.
+  Native SDK capture, NOT an ffmpeg pipe and NOT the `source://` capture backend,
+  so it is deliberately absent from `isSourceCueKind`. The inspector asks
+  `cueUsesLivePictureInspector` instead, which is about what a cue looks like
+  rather than where its pixels come from.
+- Sections that belong to EVERY kind (EFFECTS, TEXT MODE) are drawn **after**
+  the per-kind chain, continuing from `inspectorSectionBottomMax_`. Putting one
+  inside a branch is how both of them ended up invisible on most cue kinds.
 
 ---
 

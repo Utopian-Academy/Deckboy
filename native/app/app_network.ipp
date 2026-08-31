@@ -408,7 +408,9 @@
 
     auto sendSnapshot = [&](const std::string& payload) {
       if (!payload.empty()) {
-        send(client, payload.c_str(), payload.size(), kSocketSendFlags);
+        // Winsock's send takes an int length; a reply is never near that, but
+        // saying so beats a silent narrowing.
+        send(client, payload.c_str(), static_cast<int>(payload.size()), kSocketSendFlags);
       }
     };
 
@@ -1825,7 +1827,7 @@
     std::string cmd = line;
     // Lowercase for matching
     std::string cmdL;
-    for (char ch : cmd) cmdL += std::tolower(static_cast<unsigned char>(ch));
+    for (char ch : cmd) cmdL += static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
 
     auto enqueueAndWait = [this](const std::string& rc) {
       enqueueRemoteCommand(rc);

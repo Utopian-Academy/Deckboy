@@ -185,7 +185,13 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake_args }}
 
       - name: Build
-        run: cmake --build build -j"$(nproc)"
+        run: |
+          set -o pipefail
+          cmake --build build -j"$(nproc)" 2>&1 | tee build.log
+
+      # See the Windows job for why these two are worth a gate of their own.
+      - name: No hidden names, no unread locals
+        run: python3 tools/audit_warnings.py build.log
 
       - name: Self-check
         run: ./build/Deckboy --self-check
@@ -469,7 +475,20 @@ jobs:
             ${{ matrix.cmake_args }}
 
       - name: Build
-        run: cmake --build build --config Release
+        shell: bash
+        run: |
+          set -o pipefail
+          cmake --build build --config Release 2>&1 | tee build.log
+
+      # A name that hides another, or a local nothing reads. Both have cost
+      # real time here: a duplicated block whose second copy shadowed the first
+      # meant a fix applied to half the cases, and an unread local gave a later
+      # loop something to shadow. CMakeLists promotes exactly these two out of
+      # warning level 4, where they sat among several hundred int-to-float
+      # conversions into SDL's float APIs and nobody was ever going to see them.
+      - name: No hidden names, no unread locals
+        shell: bash
+        run: python tools/audit_warnings.py build.log
 
       # Start-Process -Wait, NOT the call operator.
       #
