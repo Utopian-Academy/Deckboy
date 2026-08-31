@@ -2973,18 +2973,6 @@
         finishInspectorSection(toneSection, geoY);
       }
 
-      // EFFECTS - per-cue image effects that are not keying. Datamosh is the
-
-      // first; this is where later ones belong.
-      auto fxSection = beginInspectorSection(geoY, "EFFECTS", cueSectionEffectsOpen_,
-                                             QuickAction::CueSectionEffectsToggle,
-                                             "Collapse/expand per-cue effects");
-      geoY = fxSection.bodyStartY;
-      if (cueSectionEffectsOpen_) {
-        geoY = drawEffectsRows(geoY, *selectedCue);
-      }
-      finishInspectorSection(fxSection, geoY);
-
     } else if (selectedCue && selectedCue->kind == CueKind::Composite) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
       constexpr int kRowStep = kInspectorRowStep;
@@ -3441,24 +3429,6 @@
       }
       finishInspectorSection(keySection, sectionY);
 
-      // EFFECTS, here too.
-      //
-      // This section lived only in the VIDEO branch, and the engine has never
-      // cared: a pattern, a still, a camera, an NDI feed or a stream carries an
-      // effect stack and renders it exactly like a clip does — proven by adding
-      // grain, caustics and a vignette to a colour-bar pattern over the wire
-      // and watching them come out. There was simply no way to reach any of it
-      // without a video cue selected. A whole feature, applied to most of the
-      // cue kinds, with UI on one of them.
-      auto fxSection = beginInspectorSection(sectionY, "EFFECTS",
-                                             cueSectionEffectsOpen_,
-                                             QuickAction::CueSectionEffectsToggle,
-                                             "Collapse/expand per-cue effects");
-      sectionY = fxSection.bodyStartY;
-      if (cueSectionEffectsOpen_) {
-        sectionY = drawEffectsRows(sectionY, *selectedCue);
-      }
-      finishInspectorSection(fxSection, sectionY);
 
     } else if (selectedCue && selectedCue->kind == CueKind::Audio) {
       // Audio-only cue settings
@@ -3838,6 +3808,30 @@
                    SDL_Rect {ctrl.x + 10, ctrlSettingsY + 24, kCtrlW - 20, textLineHeight(fontSmall_)},
                    "no per-cue settings for this type",
                    pal.inkSoft);
+    }
+
+    // EFFECTS, for any cue kind at all.
+    //
+    // OUTSIDE the per-kind chain, for the same reason TEXT MODE is below, and
+    // after the same bug twice. It began in the VIDEO branch only; the fix for
+    // that COPIED it into the branch that draws stills, patterns and the source
+    // kinds, which left the other six picture-producing kinds -- Pip,
+    // Composite, Lower Third, the streams, Timer and Video Synth -- carrying an
+    // effect stack the engine renders and the inspector would not show. A
+    // section that belongs to every kind cannot live in a branch; two copies is
+    // the same mistake as one, just harder to notice.
+    //
+    // Continues from inspectorSectionBottomMax_, wherever the branch finished.
+    if (selectedCue && cueSupportsEffectStack(*selectedCue)) {
+      int fxY = inspectorSectionBottomMax_;
+      auto fxSection = beginInspectorSection(fxY, "EFFECTS", cueSectionEffectsOpen_,
+                                             QuickAction::CueSectionEffectsToggle,
+                                             "Collapse/expand per-cue effects");
+      fxY = fxSection.bodyStartY;
+      if (cueSectionEffectsOpen_) {
+        fxY = drawEffectsRows(fxY, *selectedCue);
+      }
+      finishInspectorSection(fxSection, fxY);
     }
 
     // TEXT MODE, for any cue kind at all.
