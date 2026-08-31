@@ -1519,16 +1519,35 @@
       SND_SEQ_PORT_TYPE_APPLICATION);
     if (midiSeqPort_ < 0) { snd_seq_close(midiSeq_); midiSeq_ = nullptr; return false; }
 
-    // If a specific port was configured, connect it
+    // A CONFIGURED PORT THAT WILL NOT CONNECT IS A FAILURE, NOT A DETAIL.
+    //
+    // This used to parse the address, subscribe, and ignore the result of both
+    // -- then return true regardless. So a port that had been renamed, or was
+    // not plugged in, left the deck with an ALSA port created, nothing
+    // subscribed to it, and the operator told MIDI was on. Nothing would ever
+    // fire a cue and there was no way to tell that from a quiet desk. It is the
+    // same fault as the RtMidi path opening whatever port came first, wearing
+    // different clothes: one binds to a stranger, this one binds to nobody.
+    //
+    // With NO port configured the bare port is correct and stays: it advertises
+    // SUBS_WRITE, so an operator can `aconnect` anything to it by hand, which is
+    // how this is normally done on Linux.
     if (!midiDeviceName_().empty()) {
       snd_seq_addr_t sender;
-      if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_().c_str()) == 0) {
-        snd_seq_port_subscribe_t* sub;
-        snd_seq_port_subscribe_alloca(&sub);
-        snd_seq_port_subscribe_set_sender(sub, &sender);
-        snd_seq_addr_t dest {static_cast<unsigned char>(snd_seq_client_id(midiSeq_)), static_cast<unsigned char>(midiSeqPort_)};
-        snd_seq_port_subscribe_set_dest(sub, &dest);
-        snd_seq_subscribe_port(midiSeq_, sub);
+      if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_().c_str()) != 0) {
+        triggerToast("midi: " + midiDeviceName_() + " not found");
+        stopMidiInput();
+        return false;
+      }
+      snd_seq_port_subscribe_t* sub;
+      snd_seq_port_subscribe_alloca(&sub);
+      snd_seq_port_subscribe_set_sender(sub, &sender);
+      snd_seq_addr_t dest {static_cast<unsigned char>(snd_seq_client_id(midiSeq_)), static_cast<unsigned char>(midiSeqPort_)};
+      snd_seq_port_subscribe_set_dest(sub, &dest);
+      if (snd_seq_subscribe_port(midiSeq_, sub) < 0) {
+        triggerToast("midi: " + midiDeviceName_() + " refused the connection");
+        stopMidiInput();
+        return false;
       }
     }
 

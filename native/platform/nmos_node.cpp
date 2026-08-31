@@ -993,7 +993,11 @@ void NmosNode::rebuildResources() {
           if (sender.channels == 2) {
             json << jsonQuote(symbol);
           } else {
-            char buffer[8];
+            // Sized for any int the compiler can imagine, not for the channel
+            // counts we expect: at 8 bytes GCC could not prove "U%02d" fits and
+            // was right not to -- a truncated symbol would be a silently wrong
+            // channel label in the IS-04 description.
+            char buffer[16];
             std::snprintf(buffer, sizeof(buffer), "U%02d", c + 1);
             json << jsonQuote(buffer);
           }

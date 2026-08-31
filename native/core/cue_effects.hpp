@@ -2417,12 +2417,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // look like. Interpolating costs four reads instead of one and the
         // blocks go away entirely; the wave is smooth by nature, so this is
         // reconstructing it rather than smoothing it over.
-        auto fieldAt = [&](double fx, double fy) {
-          fx = std::clamp(fx, 0.0, gw - 1.0);
-          fy = std::clamp(fy, 0.0, gh - 1.0);
-          const int x0 = static_cast<int>(fx), y0 = static_cast<int>(fy);
+        // sampleX / sampleY, not fx / fy: `fx` is the CueEffect being applied,
+        // in scope for this whole function.
+        auto fieldAt = [&](double sampleX, double sampleY) {
+          sampleX = std::clamp(sampleX, 0.0, gw - 1.0);
+          sampleY = std::clamp(sampleY, 0.0, gh - 1.0);
+          const int x0 = static_cast<int>(sampleX), y0 = static_cast<int>(sampleY);
           const int x1 = std::min(gw - 1, x0 + 1), y1 = std::min(gh - 1, y0 + 1);
-          const double tx = fx - x0, ty = fy - y0;
+          const double tx = sampleX - x0, ty = sampleY - y0;
           const double a = u[static_cast<std::size_t>(y0) * gw + x0];
           const double b = u[static_cast<std::size_t>(y0) * gw + x1];
           const double c = u[static_cast<std::size_t>(y1) * gw + x0];
@@ -2435,10 +2437,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             const double fy = y * gyScale;
             std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
             for (int x = 0; x < ctx.width; ++x) {
-              const double fx = x * gxScale;
-              const double here = fieldAt(fx, fy);
-              const double sx = fieldAt(fx + 1.0, fy) - fieldAt(fx - 1.0, fy);
-              const double sy = fieldAt(fx, fy + 1.0) - fieldAt(fx, fy - 1.0);
+              const double sampleX = x * gxScale;
+              const double here = fieldAt(sampleX, fy);
+              const double sx = fieldAt(sampleX + 1.0, fy) - fieldAt(sampleX - 1.0, fy);
+              const double sy = fieldAt(sampleX, fy + 1.0) - fieldAt(sampleX, fy - 1.0);
               const int px = std::clamp(
                 static_cast<int>(std::lround(x + sx * bend)), 0, ctx.width - 1);
               const int py = std::clamp(
@@ -2803,8 +2805,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 dirX /= len;
                 dirY /= len;
               }
-              const double fx = dirX * turn - dirY * lift;
-              const double fy = dirX * lift + dirY * turn;
+              // flowX / flowY: the stroke direction, not the effect.
+              const double flowX = dirX * turn - dirY * lift;
+              const double flowY = dirX * lift + dirY * turn;
               // How ANISOTROPIC this neighbourhood is. A flat area has no
               // direction worth following, and stroking it anyway is what makes
               // a naive version look like a plain blur.
@@ -2816,9 +2819,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               for (int s = -steps; s <= steps; ++s) {
                 const double w = taper[static_cast<std::size_t>(s + steps)];
                 const int px = std::clamp(
-                  static_cast<int>(std::lround(x + fx * s * spacing)), 0, workW - 1);
+                  static_cast<int>(std::lround(x + flowX * s * spacing)), 0, workW - 1);
                 const int py = std::clamp(
-                  static_cast<int>(std::lround(y + fy * s * spacing)), 0, workH - 1);
+                  static_cast<int>(std::lround(y + flowY * s * spacing)), 0, workH - 1);
                 const std::uint8_t* sp =
                   small.data() + (static_cast<std::size_t>(py) * workW + px) * 4;
                 acc[0] += sp[0] * w;

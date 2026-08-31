@@ -1629,6 +1629,7 @@
     // MIDI, because a control surface is hardware too and the show names its
     // port as a string exactly like the audio device does. The ORDER matters
     // here: with no name configured the app opens the first port in this list.
+#if defined(DECKBOY_HAS_MIDI)
     {
       auto midiDevices = deckboy::platform::midi::MidiInput::listDevices();
       std::cout << "midi in:   " << midiDevices.size() << '\n';
@@ -1636,6 +1637,14 @@
         std::cout << "  [" << dev.id << "] " << dev.name << '\n';
       }
     }
+#else
+    // midi.cpp is only compiled when ENABLE_MIDI is on, so this has to be
+    // guarded rather than merely returning an empty list -- calling it in a
+    // build without it is a LINK error, which the Windows dev build (MIDI on)
+    // never sees. Saying so is more useful than printing "0 ports" and letting
+    // someone conclude their controller is broken.
+    std::cout << "midi in:   (this build has no MIDI support)" << '\n';
+#endif
 
     int renderCount = SDL_GetNumRenderDrivers();
     std::cout << "render drivers: ";
