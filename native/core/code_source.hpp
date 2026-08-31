@@ -226,8 +226,11 @@ inline bool compileExpression(const std::string& source, Program& out,
         // no assignment can shadow x, t or sin -- a source that redefined its
         // own coordinates would be a puzzle rather than a feature.
         int userSlot = -1;
-        for (std::size_t slot = 0; slot < names.size(); ++slot) {
-          if (names[slot] == token.text) { userSlot = static_cast<int>(slot); break; }
+        for (std::size_t nameIndex = 0; nameIndex < names.size(); ++nameIndex) {
+          if (names[nameIndex] == token.text) {
+            userSlot = static_cast<int>(nameIndex);
+            break;
+          }
         }
         if (userSlot >= 0) {
           out.push_back({Op::PushUser, 0.0, userSlot});
