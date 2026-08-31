@@ -441,7 +441,6 @@
     }
 
     int x = innerX;
-    int y = innerY;
     quickButtons_.clear();
     valueScrubZones_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;

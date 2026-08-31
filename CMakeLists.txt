@@ -784,6 +784,32 @@ target_compile_definitions(deckboy-native PRIVATE
 
 if(MSVC)
   target_compile_options(deckboy-native PRIVATE /bigobj)
+  # Two warnings promoted out of level 4, where nobody was ever going to see
+  # them, because both have already cost real time here:
+  #
+  #   C4456-C4459  a name that hides another. Whoever edits the inner scope has
+  #                no indication the outer one exists, which is how the wrong
+  #                variable gets used. A duplicated block whose second copy
+  #                shadowed the first meant a fix applied to half the cases.
+  #   C4189        a local that is initialised and never read -- the leftover of
+  #                an approach that was replaced, still reading as though it
+  #                matters, and it gave a later loop something to shadow.
+  #
+  # Level 1 so they appear in an ordinary build, not just under /W4, whose
+  # other 380 warnings are int-to-float conversions into SDL's float APIs and
+  # would bury these. tools/audit_warnings.py is the gate.
+  target_compile_options(deckboy-native PRIVATE
+    /w14456 /w14457 /w14458 /w14459 /w14189)
+else()
+  # The same two, as GCC and Clang spell them. -Wshadow=local rather than
+  # -Wshadow: the full form also fires on a local that shadows a member, and
+  # this codebase's App class has hundreds of members.
+  target_compile_options(deckboy-native PRIVATE -Wunused-variable)
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(deckboy-native PRIVATE -Wshadow=local)
+  else()
+    target_compile_options(deckboy-native PRIVATE -Wshadow)
+  endif()
 endif()
 
 if(WIN32)

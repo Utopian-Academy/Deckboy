@@ -1967,11 +1967,11 @@
             return;
           }
           try {
-            double value = std::stod(parts[3]);
-            if (value > 1.0) {
-              value /= 100.0;
+            double alpha = std::stod(parts[3]);
+            if (alpha > 1.0) {
+              alpha /= 100.0;
             }
-            setFocusedOutputAlpha(static_cast<float>(value));
+            setFocusedOutputAlpha(static_cast<float>(alpha));
           } catch (...) {
           }
           return;

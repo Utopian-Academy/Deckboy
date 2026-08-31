@@ -1929,28 +1929,27 @@
     cue.stillDurationSeconds = 0.0;
     cue.pipSourceType = "media";
 
-    if (const Cue* sourceCue = selectedCuePtr()) {
-        if (sourceCue->kind != CueKind::Pip && sourceCue->kind != CueKind::LowerThird &&
-          sourceCue->kind != CueKind::Audio && cueCanBePipSource(*sourceCue)) {
-        if (sourceCue->kind == CueKind::Browser) {
-          applyPipSourceToCue(cue, "browser", sourceCue->path);
-        } else if (isSourceCueKind(sourceCue->kind)) {
-          applyPipSourceToCue(cue, sourceCueTokenForKind(sourceCue->kind), sourceCueRefFromCue(*sourceCue));
-        } else if (sourceCue->kind == CueKind::Video || sourceCue->kind == CueKind::Image) {
-          applyPipSourceToCue(cue, "media", resolvedCueFilesystemPathString(*sourceCue, currentProjectFile_));
-        }
+    // Point the new PIP at whatever cue the operator is looking at: the
+    // selection first, the live cue if nothing is selected. Both arms did this
+    // identically, written out twice, and the second sourceCue shadowed the
+    // first -- so a change to one arm silently applied to half the cases.
+    auto adoptPipSource = [&](const Cue& src) {
+      if (src.kind == CueKind::Pip || src.kind == CueKind::LowerThird ||
+          src.kind == CueKind::Audio || !cueCanBePipSource(src)) {
+        return;
       }
-    } else if (const Cue* sourceCue = activeCuePtr()) {
-      if (sourceCue->kind != CueKind::Pip && sourceCue->kind != CueKind::LowerThird &&
-          sourceCue->kind != CueKind::Audio && cueCanBePipSource(*sourceCue)) {
-        if (sourceCue->kind == CueKind::Browser) {
-          applyPipSourceToCue(cue, "browser", sourceCue->path);
-        } else if (isSourceCueKind(sourceCue->kind)) {
-          applyPipSourceToCue(cue, sourceCueTokenForKind(sourceCue->kind), sourceCueRefFromCue(*sourceCue));
-        } else if (sourceCue->kind == CueKind::Video || sourceCue->kind == CueKind::Image) {
-          applyPipSourceToCue(cue, "media", resolvedCueFilesystemPathString(*sourceCue, currentProjectFile_));
-        }
+      if (src.kind == CueKind::Browser) {
+        applyPipSourceToCue(cue, "browser", src.path);
+      } else if (isSourceCueKind(src.kind)) {
+        applyPipSourceToCue(cue, sourceCueTokenForKind(src.kind), sourceCueRefFromCue(src));
+      } else if (src.kind == CueKind::Video || src.kind == CueKind::Image) {
+        applyPipSourceToCue(cue, "media", resolvedCueFilesystemPathString(src, currentProjectFile_));
       }
+    };
+    if (const Cue* selected = selectedCuePtr()) {
+      adoptPipSource(*selected);
+    } else if (const Cue* live = activeCuePtr()) {
+      adoptPipSource(*live);
     }
     if (cue.path != "graphic://pip") {
       cue.name = "PIP · " + pipSourceTypeLabel(pipSourceTypeTokenFromCue(cue));
