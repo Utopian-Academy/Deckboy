@@ -1520,9 +1520,9 @@
     if (midiSeqPort_ < 0) { snd_seq_close(midiSeq_); midiSeq_ = nullptr; return false; }
 
     // If a specific port was configured, connect it
-    if (!midiDeviceName_.empty()) {
+    if (!midiDeviceName_().empty()) {
       snd_seq_addr_t sender;
-      if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_.c_str()) == 0) {
+      if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_().c_str()) == 0) {
         snd_seq_port_subscribe_t* sub;
         snd_seq_port_subscribe_alloca(&sub);
         snd_seq_port_subscribe_set_sender(sub, &sender);
@@ -1549,13 +1549,34 @@
     if (devices.empty()) {
       return false;
     }
-    int deviceId = devices.front().id;
-    if (!midiDeviceName_.empty()) {
+    // A CONFIGURED PORT THAT IS ABSENT IS AN ERROR, NOT A REASON TO GUESS.
+    //
+    // This used to start from devices.front() and only overwrite it on a name
+    // match, so a controller that was unplugged, renamed by its driver, or
+    // simply not switched on handed control of the deck to whatever enumerated
+    // first. That is rarely a control surface: a machine with a DAW installed
+    // answers this question with its plugin bridge ports, and a stray note from
+    // one of those fires cues. Refuse, say which port was wanted, and let the
+    // operator pick again -- `deckboy --devices` lists the names.
+    int deviceId = -1;
+    if (!midiDeviceName_().empty()) {
       for (const auto& device : devices) {
-        if (device.name == midiDeviceName_) {
+        if (device.name == midiDeviceName_()) {
           deviceId = device.id;
           break;
         }
+      }
+      if (deviceId < 0) {
+        triggerToast("midi: " + midiDeviceName_() + " not found");
+        return false;
+      }
+    } else {
+      // Nothing chosen: the first port is a reasonable guess when there is only
+      // one, and worth naming out loud when there is not.
+      deviceId = devices.front().id;
+      if (devices.size() > 1) {
+        triggerToast("midi: using " + devices.front().name +
+                     " (" + std::to_string(devices.size()) + " ports — pick one in settings)");
       }
     }
     midiRt_.onNoteOn([this](int note, int velocity) { onMidiNoteOn(note, velocity); });

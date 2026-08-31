@@ -230,7 +230,7 @@ Current field counts:
 - **OutputTarget**: 28 base fields + 4 AOI (28–31) + 2 Spout (32–33) + streamKey (34) + displayName (35) → guard `>= 36`
 - **Cue**: check existing guard indices in `native/core/project_file.ipp`
 - Careful: `app_smoke.ipp` constructs `OutputTarget` with positional aggregate init — adding a struct member mid-struct breaks those sites (prefer appending or update them)
-- **Project scalars** serialize as `key\tvalue` lines (not positional): e.g. `splash_character`, `ui_scale`, `theme` (the saved colorway dir under `data/themes/`, applied on open + at boot unless empty). Add new ones as a `<<` write in saveProject + an `else if (fields[0] == "...")` branch in loadProject.
+- **Project scalars** serialize as `key\tvalue` lines (not positional): e.g. `splash_character`, `ui_scale`, `midi_device`, `theme` (the saved colorway dir under `data/themes/`, applied on open + at boot unless empty). Add new ones as a `<<` write in saveProject + an `else if (fields[0] == "...")` branch in loadProject.
 
 ---
 
@@ -445,6 +445,23 @@ attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
 - Cue geometry (scale/offset/crop/rotation): per-cue, in `Cue`
 - All color/geometry values normalized (0–1 for fractions, degrees for rotation)
 - **Operators see pixels, storage keeps fractions**: cue geometry (v0.76.21), AOI rect + edge blend in settings (v0.80.0). Convert at the UI edge only (`focusedOutputAoiRectPx`/`applyFocusedOutputAoiRectPx` pattern)
+- **Hardware first**: `--devices` prints the audio devices with their real rates
+  and channel counts, the displays with their real refresh and content scale,
+  the MIDI ports **in the order the app would pick from**, and the render
+  drivers. Run it before believing any report of "no sound", "wrong controller"
+  or "looks soft" — it separates a Deckboy fault from a machine that cannot see
+  the hardware, and it spells device names the way a show file has to.
+- **A device is named, not numbered, and the name is the REQUEST.**
+  `Deck::audioOutputDeviceName` and `Project::midiDeviceName` are what the
+  operator asked for and are persisted; what actually opened lives in the
+  runtime (`DeckRuntime::audioDeviceInUse`). Never write the effective device
+  back over the request — that is how powering the rack on after the PC used to
+  erase the routing. A named device that is absent is reported, never silently
+  swapped: audio falls back to the system default and says so,
+  MIDI refuses outright rather than binding to whatever port enumerates first.
+  `reconcileDeckAudioDevices()` (debounced on the SDL device events, with a 2s
+  backstop poll) moves a deck off a device that disappears and back when it
+  returns.
 - Dev/test CLI: `--import <file>` (import at launch, skip splash/startup menu), `--settings [tab[.subtab]]` (open settings modal at boot), `--pattern-dump <id> <out.ppm> [WxH] [t]`, `--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]` (one effect on one picture, headless), `--inspector-scroll <px>` (reach the inspector below the fold) — all scriptable for verification. **A bare `show.deckboy` argument opens it AND skips the splash**, which is how a scripted run gets past the boot screen: scripted input does not reach SDL3, neither PostMessage clicks/keys NOR synthesised mouse wheel.
 - **Every change must work on Windows, macOS AND Linux** — same quality, not
   necessarily the same solution. Windows is where the work usually gets done, but
