@@ -3196,7 +3196,7 @@
     } else if (selectedCue && (selectedCue->kind == CueKind::Image
                                || selectedCue->kind == CueKind::Pattern
                                || selectedCue->kind == CueKind::Browser
-                               || isSourceCueKind(selectedCue->kind))) {
+                               || cueUsesLivePictureInspector(selectedCue->kind))) {
       int ry = ctrlSettingsY + 22 - cueSettingsScroll_;
       constexpr int kRowStep = kInspectorRowStep;
       // CODE, and FIRST when there is one.
@@ -3396,6 +3396,14 @@
                                      "Reload page each time the browser cue is taken"});
             metadataY += kInspectorRowStep;
           }
+        }
+
+        // Which card this cue is watching. Chosen from the SOURCE menu when the
+        // cue is added, so this reports rather than controls -- but without it a
+        // rack with two cards gives no way to tell two DeckLink cues apart.
+        if (selectedCue->kind == CueKind::DeckLinkSource) {
+          metadataY = drawInspectorStatusRow(metadataY, "device",
+                                             deckLinkCueDeviceLabel(*selectedCue), false);
         }
 
         metadataY = drawCueTechnicalRows(metadataY, *selectedCue);
