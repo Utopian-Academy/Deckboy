@@ -5953,7 +5953,6 @@
 
     std::string label = output.name.empty() ? outputDefaultName(outputIndex) : output.name;
     bool streamType = output.outputType == "stream";
-    bool windowOutputEnabled = output.enabled && !streamType;
     std::string title = std::string(kOutputTitle) + " - " + label + (streamType ? " [stream]" : "");
     Uint32 windowFlags = streamType
       ? SDL_WINDOW_HIDDEN
