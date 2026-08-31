@@ -39,6 +39,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "nmos_interface\t" << escapeField(project.nmosInterfaceName) << '\n';
   output << "ltc_out\t" << (project.ltcOutputEnabled ? 1 : 0) << '\n';
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
+  output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
@@ -584,6 +585,8 @@ Project loadProject(const fs::path& projectFile,
     } else if (fields[0] == "splash_character") {
       std::string v = safeString(fields, 1);
       project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+    } else if (fields[0] == "midi_device") {
+      project.midiDeviceName = safeString(fields, 1);
     } else if (fields[0] == "theme") {
       project.theme = safeString(fields, 1);
     } else if (fields[0] == "terrarium_unlocked") {

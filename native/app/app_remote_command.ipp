@@ -467,7 +467,18 @@
       bool want = state ? *state : !midiEnabled_;
       if (want) {
         midiEnabled_ = startMidiInput();
-        triggerToast(midiEnabled_ ? "midi: on" : "midi: no input device");
+        if (!midiEnabled_) {
+          // MIDI ON answered OK whether or not it turned anything on, which is
+          // the failure this protocol is explicitly built to avoid: a surface
+          // gets an acknowledgement and the operator believes the deck is
+          // listening. The reason travels with it now -- the port named in the
+          // show is missing, or there is no MIDI input on the machine at all.
+          failRemoteCommand(midiDeviceName_().empty()
+                              ? std::string("no midi input device")
+                              : (midiDeviceName_() + " not found"));
+          return;
+        }
+        triggerToast("midi: on");
       } else {
         stopMidiInput();
         midiEnabled_ = false;

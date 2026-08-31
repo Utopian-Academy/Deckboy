@@ -661,6 +661,9 @@
       project.outputs[1].outputOrientationDegrees = 270;
       project.outputs[1].outputTestCardEnabled = false;
       project.outputBitDepth = 10;
+      // The chosen MIDI port. It used to live only in memory, so every restart
+      // fell back to whichever port enumerated first.
+      project.midiDeviceName = "APC40 mkII Control";
       normalizeProject(project);
 
       // ── Caption formats ──────────────────────────────────────────────────
@@ -830,6 +833,8 @@
         const Deck& loadedDeck = loaded.decks[0];
         const Cue& loadedCue = loadedDeck.cues[0];
         expect(loaded.outputBitDepth == 10, "output bit depth persisted");
+        expect(loaded.midiDeviceName == "APC40 mkII Control",
+               "midi port persisted");
         expect(loaded.outputCanvasEnabled && loaded.outputCanvasWidth == 5760 && loaded.outputCanvasHeight == 2160,
                "output canvas persisted");
         expect(loaded.oscQueryEnabled &&
@@ -1619,6 +1624,17 @@
                                                               : "  (SCALED -- output renders at the point size)")
                 << '\n';
       SDL_DestroyWindow(probe);
+    }
+
+    // MIDI, because a control surface is hardware too and the show names its
+    // port as a string exactly like the audio device does. The ORDER matters
+    // here: with no name configured the app opens the first port in this list.
+    {
+      auto midiDevices = deckboy::platform::midi::MidiInput::listDevices();
+      std::cout << "midi in:   " << midiDevices.size() << '\n';
+      for (const auto& dev : midiDevices) {
+        std::cout << "  [" << dev.id << "] " << dev.name << '\n';
+      }
     }
 
     int renderCount = SDL_GetNumRenderDrivers();
