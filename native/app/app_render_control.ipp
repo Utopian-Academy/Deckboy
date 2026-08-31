@@ -1503,14 +1503,14 @@
     bool toggleHover = false;
     auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
       SDL_Rect btn {buttonX, row.y + 48, kCueActionBtnW, kCueActionBtnH};
-      SDL_Color fill = !enabled
+      SDL_Color btnFill = !enabled
         ? pal.mid
         : (on ? pal.dark : pal.light);
-      SDL_Color accent = enabled && on ? pal.light : pal.mid;
+      SDL_Color btnAccent = enabled && on ? pal.light : pal.mid;
       SDL_Color iconInk = !enabled
         ? pal.inkSoft
         : (on ? pal.light : pal.deep);
-      drawUIPanel(btn, fill, pal.deep, accent);
+      drawUIPanel(btn, btnFill, pal.deep, btnAccent);
       // The icon must use the SAME rect the button was painted with. This used
       // to pass snapRectToGrid(btn) while drawUIPanel painted btn unsnapped, so
       // box and glyph lived in different coordinate spaces and every icon sat up
