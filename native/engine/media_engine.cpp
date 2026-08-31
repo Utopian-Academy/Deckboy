@@ -1154,6 +1154,45 @@ const std::uint8_t kCellJunk[][7] = {
 };
 constexpr int kCellJunkCount = static_cast<int>(sizeof(kCellJunk) / sizeof(kCellJunk[0]));
 
+// Music and sparkle: the decorative set, drawn here rather than typed.
+//
+// The grid is built from 5x7 bitmaps baked into this file, not from a font, so
+// a character only exists if it is drawn. That is why typing a note into the
+// custom-glyph field does nothing -- every byte outside printable ASCII is
+// dropped. These are the marks that field was reaching for: a dot, a small
+// plus, a ring high and a ring low, a star, a diamond, and a quaver, a pair and
+// a beamed pair.
+//
+// ORDERED BY INK, like every other set here, so the picture still reads as a
+// picture rather than as texture: an empty cell through to a double-beamed
+// pair at 24 lit pixels. The table is generated sorted -- adding a mark means
+// re-sorting, not appending, or it lands at the wrong brightness.
+//
+// asciiShuffle already re-maps which glyph carries which density, from a seed,
+// so the same set gives a different handwriting and stays repeatable across a
+// reopen. That is the randomiser; this is the alphabet it draws from.
+const std::uint8_t kCellSparkle[][7] = {
+  {0x00,0x00,0x00,0x00,0x00,0x00,0x00},   // (blank)
+  {0x00,0x00,0x00,0x04,0x00,0x00,0x00},   // middle dot
+  {0x00,0x00,0x0A,0x00,0x00,0x00,0x00},   // two dots
+  {0x00,0x00,0x00,0x15,0x00,0x00,0x00},   // three dots
+  {0x00,0x00,0x0E,0x11,0x00,0x00,0x00},   // arc
+  {0x00,0x00,0x00,0x00,0x04,0x0E,0x04},   // small plus, low
+  {0x00,0x00,0x08,0x15,0x02,0x00,0x00},   // tilde
+  {0x00,0x04,0x0A,0x11,0x0A,0x04,0x00},   // open diamond
+  {0x0E,0x0A,0x0E,0x00,0x00,0x00,0x00},   // ring above
+  {0x00,0x00,0x00,0x00,0x0E,0x0A,0x0E},   // small circle, low
+  {0x00,0x11,0x0A,0x04,0x0A,0x11,0x00},   // cross
+  {0x04,0x04,0x04,0x04,0x04,0x0C,0x0C},   // quarter note
+  {0x00,0x04,0x15,0x0E,0x15,0x04,0x00},   // star
+  {0x00,0x04,0x0E,0x1F,0x0E,0x04,0x00},   // diamond sparkle
+  {0x07,0x05,0x04,0x04,0x04,0x0E,0x0E},   // quaver
+  {0x1F,0x11,0x11,0x11,0x11,0x1B,0x1B},   // beamed pair
+  {0x1F,0x1F,0x11,0x11,0x11,0x1B,0x1B},   // double-beamed pair
+};
+constexpr int kCellSparkleCount =
+  static_cast<int>(sizeof(kCellSparkle) / sizeof(kCellSparkle[0]));
+
 // A conventional ASCII density ramp, drawn rather than borrowed from the timer
 // font so the set is self-contained and ordered exactly by ink coverage.
 // space . : - + * o X # @
@@ -1306,6 +1345,7 @@ inline const std::uint8_t (*cellSetFor(int set, int& count))[7] {
     case 1:  count = kCellAsciiFullCount; return kCellAsciiFull;   // 95 glyphs
     case 2:  count = kCellJunkCount;      return kCellJunk;
     case 4:  count = kCellAsciiFullCount; return kCellAsciiFull;
+    case 6:  count = kCellSparkleCount;   return kCellSparkle;
     default: count = kCellRampCount;      return kCellRamp;
   }
 }
@@ -1616,10 +1656,68 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     // Worked out ONCE per frame rather than per cell: eight thousand cells
     // parsing the same two strings would be the most expensive thing in the
     // mode.
+    // YOUR OWN GLYPHS, decoded as UTF-8.
+    //
+    // This walked the string a BYTE at a time and kept only printable ASCII,
+    // so pasting a row of marks off a kaomoji site produced nothing at all:
+    // every lead byte of a multi-byte character fell outside the table and was
+    // dropped in silence. The marks that exist are drawn in kCellSparkle, so a
+    // pasted one can be recognised and pointed at the glyph that means it --
+    // several spellings each, because a star arrives as any of a dozen
+    // codepoints depending where it was copied from.
+    //
+    // Each entry packs WHICH TABLE in the high bits, since a custom set can now
+    // mix ASCII and marks.
+    struct MarkAlias { std::uint32_t code; int glyph; };
+    static const MarkAlias kMarkAliases[] = {
+      {0x00B7, 1}, {0x2022, 1}, {0x30FB, 1}, {0xFF65, 1}, {0x2027, 1}, // dot
+      {0x2025, 2}, {0x00A8, 2},                                        // two dots
+      {0x2026, 3}, {0x22EF, 3},                                        // three dots
+      {0x2312, 4}, {0x25E0, 4},                                        // arc
+      {0x208A, 5}, {0xFF0B, 5}, {0x271A, 5},                           // small plus
+      {0x301C, 6}, {0xFF5E, 6}, {0x223C, 6}, {0x3030, 6},              // tilde
+      {0x25C7, 7}, {0x2662, 7}, {0x22C4, 7}, {0x25CA, 7},              // open diamond
+      {0x02DA, 8}, {0x00B0, 8}, {0x309C, 8}, {0xFF9F, 8}, {0x25E6, 8}, // ring above
+      {0x3002, 9}, {0xFF61, 9}, {0x25CB, 9}, {0x25CF, 9},              // small circle
+      {0x2715, 10}, {0x00D7, 10}, {0x2717, 10}, {0x2716, 10},          // cross
+      {0x2669, 11},                                                    // quarter note
+      {0x22C6, 12}, {0x2605, 12}, {0x2606, 12}, {0x2734, 12},
+      {0x2739, 12}, {0x272A, 12}, {0x2B50, 12},                        // star
+      {0x2726, 13}, {0x2727, 13}, {0x25C6, 13}, {0x2666, 13},
+      {0x2728, 13}, {0x274B, 13},                                      // sparkle
+      {0x266A, 14},                                                    // quaver
+      {0x266B, 15},                                                    // beamed pair
+      {0x266C, 16},                                                    // double beam
+    };
+    constexpr int kCustomTableShift = 16;
     std::vector<int> customGlyphs;
-    for (char ch : vs.asciiGlyphs) {
-      const int gi = static_cast<int>(static_cast<unsigned char>(ch)) - 32;
-      if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
+    for (std::size_t at = 0; at < vs.asciiGlyphs.size(); ) {
+      const unsigned char lead = static_cast<unsigned char>(vs.asciiGlyphs[at]);
+      std::uint32_t code = lead;
+      std::size_t width = 1;
+      if (lead >= 0xF0)      { code = lead & 0x07u; width = 4; }
+      else if (lead >= 0xE0) { code = lead & 0x0Fu; width = 3; }
+      else if (lead >= 0xC0) { code = lead & 0x1Fu; width = 2; }
+      if (width > 1) {
+        if (at + width > vs.asciiGlyphs.size()) break;   // truncated tail
+        for (std::size_t k = 1; k < width; ++k) {
+          const unsigned char cont = static_cast<unsigned char>(vs.asciiGlyphs[at + k]);
+          if ((cont & 0xC0u) != 0x80u) { code = 0xFFFFFFFFu; break; }
+          code = (code << 6) | (cont & 0x3Fu);
+        }
+      }
+      at += width;
+      if (code < 128u) {
+        const int gi = static_cast<int>(code) - 32;
+        if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
+        continue;
+      }
+      for (const MarkAlias& alias : kMarkAliases) {
+        if (alias.code == code) {
+          customGlyphs.push_back((1 << kCustomTableShift) | alias.glyph);
+          break;
+        }
+      }
     }
     // Which phrase is showing, and where. It moves on a slow clock and lands
     // somewhere derived from that clock, so it is repeatable rather than
@@ -1756,9 +1854,15 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
           const int slot = std::clamp(
             (luma * (static_cast<int>(customGlyphs.size()) - 1)) / 255,
             0, static_cast<int>(customGlyphs.size()) - 1);
-          set = kCellAsciiFull;
-          setCount = kCellAsciiFullCount;
-          rampIndex = customGlyphs[static_cast<std::size_t>(slot)];
+          const int packed = customGlyphs[static_cast<std::size_t>(slot)];
+          if ((packed >> kCustomTableShift) != 0) {
+            set = kCellSparkle;
+            setCount = kCellSparkleCount;
+          } else {
+            set = kCellAsciiFull;
+            setCount = kCellAsciiFullCount;
+          }
+          rampIndex = packed & ((1 << kCustomTableShift) - 1);
         }
         // A PHRASE, if one is showing and this cell is inside it. Overrides
         // whatever the brightness chose, because the word is the point.

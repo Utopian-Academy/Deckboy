@@ -825,6 +825,18 @@
                "a non-realtime universal message is not show control");
       }
 
+      // The clock has to carry. %04.1f rounds after the minute is split off,
+      // so a value in the last twentieth of a second used to print :60.0 --
+      // an out-point of 899.983s read "14:60.0" in the inspector.
+      expect(formatSeconds(899.983) == "15:00.0",
+             "formatSeconds carries into the minute");
+      expect(formatSeconds(59.97) == "01:00.0",
+             "formatSeconds carries at the first minute");
+      expect(formatSeconds(0.0) == "00:00.0", "formatSeconds at zero");
+      expect(formatSeconds(61.25) == "01:01.3", "formatSeconds mid-minute");
+      expect(formatSeconds(3599.999) == "60:00.0",
+             "formatSeconds carries at the hour");
+
       fs::path smokePath = fs::path("/tmp") / "deckboy-smoke.deckboy";
       expect(saveProject(smokePath, project), "project save");
       Project loaded = loadProject(smokePath);

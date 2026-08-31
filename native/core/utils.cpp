@@ -93,8 +93,19 @@ std::string formatSeconds(double seconds) {
   }
   int wholeMinutes = static_cast<int>(seconds / 60.0);
   double remaining = seconds - wholeMinutes * 60.0;
+  // ROUND TO THE TENTH WE ARE ABOUT TO PRINT, THEN CARRY.
+  //
+  // %04.1f rounds after the split, so anything in the last twentieth of a
+  // second printed as :60.0 -- an out-point of 899.983s read "14:60.0" in the
+  // inspector instead of "15:00.0". A minute has sixty seconds in it and the
+  // readout has to agree.
+  double tenths = std::round(remaining * 10.0);
+  if (tenths >= 600.0) {
+    tenths -= 600.0;
+    wholeMinutes += 1;
+  }
   char buf[16];
-  snprintf(buf, sizeof(buf), "%02d:%04.1f", wholeMinutes, remaining);
+  snprintf(buf, sizeof(buf), "%02d:%04.1f", wholeMinutes, tenths / 10.0);
   return buf;
 }
 

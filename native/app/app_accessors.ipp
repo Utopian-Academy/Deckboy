@@ -107,8 +107,16 @@
     vs.asciiCols = std::clamp(
       static_cast<int>(std::lround(20.0 + chosen.paramA * 180.0)), 20, 200);
     vs.glitch = std::clamp(static_cast<double>(chosen.paramB), 0.0, 1.0);
+    // paramC picks the glyph set. The top slot used to land on SPRITE SHEET,
+    // which an effect can never draw -- an effect carries no sheet path, so it
+    // fell through to blocks and paramC=1 looked identical to paramC=0. That
+    // dead slot is the marks set now, which leaves 0..4 mapping exactly where
+    // they always did: no show is restaged by this.
     vs.asciiCharSet = std::clamp(
       static_cast<int>(std::lround(chosen.paramC * 5.0)), 0, 5);
+    if (vs.asciiCharSet == 5) {
+      vs.asciiCharSet = 6;
+    }
     vs.asciiInk = std::clamp(
       static_cast<int>(std::lround(chosen.paramD * 5.0)), 0, 5);
     const std::uint64_t serial = motionDriverFrameCounter_;
