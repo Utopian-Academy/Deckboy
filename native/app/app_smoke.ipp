@@ -1567,7 +1567,11 @@
               << (SDL_GetCurrentVideoDriver() ? SDL_GetCurrentVideoDriver() : "(none)")
               << '\n';
     int displayCount = 0;
+    int displayCount2 = 0;
+    std::vector<SDL_DisplayID> probeDisplays;
     if (SDL_DisplayID* displays = SDL_GetDisplays(&displayCount)) {
+      probeDisplays.assign(displays, displays + displayCount);
+      displayCount2 = displayCount;
       std::cout << "displays: " << displayCount << '\n';
       for (int i = 0; i < displayCount; ++i) {
         const char* name = SDL_GetDisplayName(displays[i]);
@@ -1580,6 +1584,41 @@
         std::cout << "  scale " << SDL_GetDisplayContentScale(displays[i]) << '\n';
       }
       SDL_free(displays);
+    }
+
+    // What a window on this display ACTUALLY gets.
+    //
+    // A display's mode is in pixels and its content scale is separate, so a
+    // 4K panel at 150% reports 3840x2160 and 1.5. What matters for output
+    // quality is whether a window there is backed by as many pixels as it
+    // covers: if the size in points and the size in pixels differ, the
+    // programme is being rendered at the smaller one and scaled up by the
+    // compositor, and the operator sees a soft picture with no setting to
+    // explain it. Measured with a HIDDEN window so nothing appears on a screen
+    // that may be showing a programme.
+    for (int i = 0; i < displayCount2; ++i) {
+      SDL_Window* probe = SDL_CreateWindow("Deckboy device probe", 1280, 720,
+                                           SDL_WINDOW_HIDDEN);
+      if (!probe) {
+        continue;
+      }
+      SDL_SetWindowPosition(probe, SDL_WINDOWPOS_CENTERED_DISPLAY(probeDisplays[i]),
+                            SDL_WINDOWPOS_CENTERED_DISPLAY(probeDisplays[i]));
+      int pointsW = 0, pointsH = 0, pixelsW = 0, pixelsH = 0;
+      SDL_GetWindowSize(probe, &pointsW, &pointsH);
+      SDL_GetWindowSizeInPixels(probe, &pixelsW, &pixelsH);
+      const char* dispName = SDL_GetDisplayName(probeDisplays[i]);
+      // The size that comes back is not always the size asked for -- a window
+      // centred on a display the same size as itself can be adjusted by the
+      // window manager -- so both are printed. What matters here is the ratio
+      // between the two, not either number.
+      std::cout << "  window on " << (dispName ? dispName : "?") << ": asked 1280x720, got "
+                << pointsW << "x" << pointsH << " points, "
+                << pixelsW << "x" << pixelsH << " pixels"
+                << ((pointsW == pixelsW && pointsH == pixelsH) ? "  (1:1)"
+                                                              : "  (SCALED -- output renders at the point size)")
+                << '\n';
+      SDL_DestroyWindow(probe);
     }
 
     int renderCount = SDL_GetNumRenderDrivers();
