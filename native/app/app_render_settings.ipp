@@ -3236,8 +3236,8 @@
         openInlineTextEditor("settings.spout_name", "Spout Sender Name",
                              "Name visible to receivers", initial,
                              [this](const std::string& value) {
-                               OutputTarget& output = focusedOutputMutable();
-                               output.spoutSenderName = trim(value);
+                               OutputTarget& target = focusedOutputMutable();
+                               target.spoutSenderName = trim(value);
                                // Shutdown so it re-inits with the new name
                                auto& rt = outputRuntimes_[project_.focusedOutputIndex];
                                shutdownOutputSpout(rt);

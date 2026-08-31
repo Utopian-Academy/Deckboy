@@ -1717,9 +1717,9 @@
       if (channel.empty()) {
         return 0.0f;
       }
-      int n = static_cast<int>(channel.size());
+      int bucketCount = static_cast<int>(channel.size());
       // Map pixel to a range of buckets and take the max to preserve transients
-      int i0 = pixelIndex * n / std::max(1, w);
+      int i0 = pixelIndex * bucketCount / std::max(1, w);
       int i1 = (pixelIndex + 1) * n / std::max(1, w);
       i0 = std::clamp(i0, 0, n - 1);
       i1 = std::clamp(i1, i0, n - 1);
@@ -2676,13 +2676,15 @@
     thumbnailLoading_.store(true);
     int fd = thumbnailProcess_.readFd;
     thumbnailThread_ = std::thread([this, fd, cacheKey = selectedThumbnailCueKey_]() {
-      constexpr int kThumbW = 320;
-      constexpr int kThumbH = 180;
+      // Named apart from the caller's pair: this runs on the decode thread and
+      // the two are not guaranteed to stay the same number.
+      constexpr int kThreadThumbW = 320;
+      constexpr int kThreadThumbH = 180;
       DecodedFrame frame;
-      frame.width = kThumbW;
-      frame.height = kThumbH;
+      frame.width = kThreadThumbW;
+      frame.height = kThreadThumbH;
       frame.index = 0;
-      frame.pixels.resize(static_cast<size_t>(kThumbW) * kThumbH * 4u);
+      frame.pixels.resize(static_cast<size_t>(kThreadThumbW) * kThreadThumbH * 4u);
       if (readExact(fd, frame.pixels.data(), frame.pixels.size())) {
         std::lock_guard<std::mutex> lk(thumbnailMutex_);
         selectedThumbnailCache_[cacheKey] = frame;
