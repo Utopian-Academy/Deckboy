@@ -2468,6 +2468,7 @@
       case 3:  return "mixed";
       case 4:  return "ASCII 95 (raw)";
       case 5:  return "sprite sheet";
+      case 6:  return "music & sparkle";
       default: return "blocks";
     }
   }

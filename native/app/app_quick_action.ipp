@@ -416,10 +416,20 @@
       case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCharSetCycle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
-          // Sheet mode is only offered once a sheet exists, so the cycle
-          // never lands on a mode that cannot draw anything.
-          const int sets = c->videoSynth.spriteSheetPath.empty() ? 5 : 6;
-          c->videoSynth.asciiCharSet = (c->videoSynth.asciiCharSet + 1) % sets;
+          // An explicit order rather than modulo arithmetic: sheet mode is
+          // only offered once a sheet exists, so the cycle never lands on a
+          // mode that cannot draw anything, and the sets that are always
+          // available no longer have to be contiguous with it.
+          static const int kWithoutSheet[] = {0, 1, 2, 3, 4, 6};
+          static const int kWithSheet[]    = {0, 1, 2, 3, 4, 6, 5};
+          const bool sheet = !c->videoSynth.spriteSheetPath.empty();
+          const int* order = sheet ? kWithSheet : kWithoutSheet;
+          const int count = sheet ? 7 : 6;
+          int at = 0;
+          for (int i = 0; i < count; ++i) {
+            if (order[i] == c->videoSynth.asciiCharSet) { at = i; break; }
+          }
+          c->videoSynth.asciiCharSet = order[(at + 1) % count];
           markProjectDirty();
           triggerToast(std::string("characters: ") + vsCharSetLabel(c->videoSynth.asciiCharSet));
           playUiSound(UiSoundEffect::Toggle);
