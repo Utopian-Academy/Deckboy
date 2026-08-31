@@ -97,6 +97,22 @@ inline std::string deckLinkCueDeviceLabel(const Cue& cue) {
   return index.empty() ? name : (name + " [" + index + "]");
 }
 
+// Can this cue be trimmed to an in and an out point?
+//
+// File-backed media with a real duration: a clip and a sound file. The engine
+// applies the trim to BOTH -- loadCue() returns early only for Browser, Lower
+// Third and Composite -- so an audio cue reaches the same clamp, the same
+// duration_ and the same seek to the in-point as a clip does. The adjusters
+// tested for Video alone, which made the trim on an audio cue reachable by
+// editing the show file and by no other means.
+//
+// Deliberately not the live kinds: a stream, an NDI feed or a capture input has
+// no duration to trim against, and the clamp would let an operator dial an
+// in-point of up to an hour into something that has none.
+inline bool cueSupportsTrimPoints(CueKind kind) {
+  return kind == CueKind::Video || kind == CueKind::Audio;
+}
+
 // Resolve the actual end action for a cue, handling the "Inherit" case.
 // When a cue's endAction is Inherit, the behavior is derived from its
 // boolean flags: loop → Loop, pauseOnLastFrame → PauseOnLast, else → AutoNext.

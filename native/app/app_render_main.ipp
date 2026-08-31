@@ -3448,6 +3448,25 @@
         drawQuickRow(playbackY, "fade out", QuickAction::FadeOutDec, formatSeconds(selectedCue->fadeOutSeconds),
                      QuickAction::FadeOutInc, QuickAction::ToggleLoop, false, false, "Fade-out duration");
         playbackY += kRowStep;
+        // IN and OUT, which the engine has always honoured for an audio cue and
+        // the inspector only ever offered on a video one. loadCue() returns
+        // early for Browser, Lower Third and Composite and for nothing else, so
+        // an audio cue reaches the same clamp, the same duration_, and the same
+        // seek to the in-point as a clip does -- the trim was reachable by
+        // editing the show file and by no other means. A music bed that has to
+        // start eight bars in is not an unusual ask.
+        drawQuickRow(playbackY, "in", QuickAction::InDec, formatSeconds(selectedCue->inPointSeconds),
+                     QuickAction::InInc, QuickAction::ToggleLoop, false, false,
+                     "In-point: cue starts playback here");
+        playbackY += kRowStep;
+        {
+          double outVal = selectedCue->outPointSeconds > 0.0 ? selectedCue->outPointSeconds
+                                                             : selectedCue->duration;
+          drawQuickRow(playbackY, "out", QuickAction::OutDec, formatSeconds(outVal),
+                       QuickAction::OutInc, QuickAction::ToggleLoop, false, false,
+                       "Out-point: cue stops playback here");
+        }
+        playbackY += kRowStep;
         {
           int rx = ctrl.x + 10;
           int ty = playbackY;

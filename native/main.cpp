@@ -2417,7 +2417,14 @@ void normalizeCueTiming(Cue& cue) {
   cue.inPointSeconds = std::max(0.0, cue.inPointSeconds);
   cue.outPointSeconds = std::max(0.0, cue.outPointSeconds);
 
-  if (cue.kind != CueKind::Video || cue.duration <= 0.0) {
+  // THE AUTHORITATIVE GATE, and it runs constantly: focusedDeckMutable() calls
+  // normalizeProject() on every call, so this executes after any edit and any
+  // access. It was the reason trim was Video-only everywhere -- the adjusters
+  // and the remote setters each tested for Video as well, but even with those
+  // opened up an audio cue's in-point was written, reported set, and zeroed
+  // again before anything could read it. A show file carrying a trim on an
+  // audio cue had it erased at load, too.
+  if (!cueSupportsTrimPoints(cue.kind) || cue.duration <= 0.0) {
     cue.inPointSeconds = 0.0;
     cue.outPointSeconds = 0.0;
     return;
