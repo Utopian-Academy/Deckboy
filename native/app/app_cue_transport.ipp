@@ -2193,16 +2193,16 @@
     return std::clamp(snapped, 0.0, duration);
   }
 
-  void setSelectedTrimIn(double seconds) {
+  bool setSelectedTrimIn(double seconds) {
     if (!firstFocusedSelectedCueMutable([&](const Cue& cue) {
-      return cue.kind == CueKind::Video;
+      return cueSupportsTrimPoints(cue.kind);
     })) {
-      return;
+      return false;
     }
     double sampleNext = 0.0;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (cue.kind != CueKind::Video) {
+      if (!cueSupportsTrimPoints(cue.kind)) {
         return;
       }
       double duration = std::max(0.0, cue.duration);
@@ -2217,22 +2217,23 @@
       changed = true;
     });
     if (!changed) {
-      return;
+      return false;
     }
     triggerToast("in " + formatSeconds(sampleNext));
     markProjectDirty();
+    return true;
   }
 
-  void setSelectedTrimOut(double seconds) {
+  bool setSelectedTrimOut(double seconds) {
     if (!firstFocusedSelectedCueMutable([&](const Cue& cue) {
-      return cue.kind == CueKind::Video;
+      return cueSupportsTrimPoints(cue.kind);
     })) {
-      return;
+      return false;
     }
     double sampleNext = 0.0;
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (cue.kind != CueKind::Video) {
+      if (!cueSupportsTrimPoints(cue.kind)) {
         return;
       }
       double duration = std::max(0.0, cue.duration);
@@ -2244,16 +2245,17 @@
       changed = true;
     });
     if (!changed) {
-      return;
+      return false;
     }
     triggerToast("out " + formatSeconds(sampleNext));
     markProjectDirty();
+    return true;
   }
 
   void clearSelectedTrim() {
     bool changed = false;
     forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (cue.kind != CueKind::Video) {
+      if (!cueSupportsTrimPoints(cue.kind)) {
         return;
       }
       cue.inPointSeconds = 0.0;
@@ -2273,7 +2275,7 @@
       return false;
     }
     Cue& cue = deck.cues[deck.activeIndex];
-    if (cue.kind != CueKind::Video) {
+    if (!cueSupportsTrimPoints(cue.kind)) {
       return false;
     }
     MediaEngine* engine = focusedMediaEngine();

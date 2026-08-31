@@ -1194,17 +1194,24 @@
       }
       return;
     }
+    // IN and OUT answered OK whether or not they moved anything -- no number
+    // parsed, nothing selected, or a cue kind that cannot be trimmed all looked
+    // like success to a surface. Say which.
     if (command == "IN" || command == "TRIMIN") {
       auto value = parseNumber(1);
-      if (value) {
-        setSelectedTrimIn(*value);
+      if (!value) {
+        failRemoteCommand("expected a number of seconds");
+      } else if (!setSelectedTrimIn(*value)) {
+        failRemoteCommand("no trimmable cue selected");
       }
       return;
     }
     if (command == "OUT" || command == "TRIMOUT") {
       auto value = parseNumber(1);
-      if (value) {
-        setSelectedTrimOut(*value);
+      if (!value) {
+        failRemoteCommand("expected a number of seconds");
+      } else if (!setSelectedTrimOut(*value)) {
+        failRemoteCommand("no trimmable cue selected");
       }
       return;
     }
