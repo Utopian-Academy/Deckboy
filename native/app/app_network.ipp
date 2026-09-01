@@ -1857,24 +1857,30 @@
     }
     updateRunningInstaller_ = fs::path(installer).filename().string();
     showLog("UPDATE-RUN", updateRunningInstaller_);
+    // EACH BRANCH IS SELF-CONTAINED, deliberately. The first version declared
+    // `args` in the Windows and macOS arms and shared the spawn below the
+    // #endif -- which the Linux arm, having returned early, never declares, so
+    // the shared code did not compile there at all. Windows never sees that
+    // branch, which is why it took CI to find. Build the other configurations.
+#if defined(_WIN32) || defined(__APPLE__)
 #if defined(_WIN32)
-    std::vector<std::string> args {installer};
-#elif defined(__APPLE__)
-    std::vector<std::string> args {"open", installer};
+    const std::vector<std::string> args {installer};
 #else
-    // A Linux build is an AppImage: there is nothing to run, so show the
-    // operator where it landed and let them put it where they keep things.
-    revealFileInFileManager(installer);
-    triggerToast("update: downloaded to " + installer);
-    return;
+    const std::vector<std::string> args {"open", installer};
 #endif
     ChildProcess child;
-    if (!spawnProcess(
-          child, args, SpawnOptions::detachedSilent())) {
+    if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
       triggerToast("update: could not start the installer");
       return;
     }
     gShouldQuit.store(true);   // the installer replaces this build; step aside
+#else
+    // A Linux build is an AppImage or a tarball: there is nothing to run, so
+    // show the operator where it landed and let them put it where they keep
+    // things.
+    deckboy::platform::revealFileInFileManager(installer);
+    triggerToast("update: downloaded to " + installer);
+#endif
   }
 
   bool startMidiInput(bool quiet = false) {
