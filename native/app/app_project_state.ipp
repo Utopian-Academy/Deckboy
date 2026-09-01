@@ -11,7 +11,8 @@
 //   Save/load:
 //     saveProject()            — serialize project to .deckboy file
 //     loadProject()            — deserialize project from .deckboy file
-//     autoSaveProject()        — periodic auto-save with dirty tracking
+//     flushDirtyProject()      — the periodic auto-save: writes 300ms after
+//                                the project is marked dirty, via persistProject()
 //     markProjectDirty()       — flag unsaved changes
 //
 //   Import/export:
@@ -454,6 +455,16 @@
              << " in=" << formatSeconds(activeCue->inPointSeconds)
              << " out=" << formatSeconds(activeCue->outPointSeconds > 0.0 ? activeCue->outPointSeconds : activeCue->duration)
              << " tc_mark=" << (activeCue->triggerTimecodeSeconds >= 0.0 ? formatTimecode(activeCue->triggerTimecodeSeconds, deck.timecodeFps) : "--:--:--:--");
+    }
+    // The SELECTED cue's trim, which is the one an operator is editing.
+    // in=/out= above are the LIVE cue's, so trimming a cue that had not been
+    // taken yet was invisible over the wire -- a surface could set it and had
+    // no way to read it back, and finding that out took a screenshot.
+    if (selectedCue) {
+      output << " sel_in=" << formatSeconds(selectedCue->inPointSeconds)
+             << " sel_out=" << formatSeconds(selectedCue->outPointSeconds > 0.0
+                                               ? selectedCue->outPointSeconds
+                                               : selectedCue->duration);
     }
     if (engine) {
       output << " pos=" << formatSeconds(engine->position())
@@ -1554,6 +1565,19 @@
     // Soak mode rewires end actions to force a loop; none of that may ever
     // be persisted into the operator's show file.
     if (soakMode_) {
+      return;
+    }
+    // NOR MAY A SHOW WE COULD NOT FULLY READ.
+    //
+    // Opening a file is not editing it, and this save fires unattended: a
+    // metadata repair probe landing after an open marks the project dirty, so
+    // merely OPENING a show rewrote it 300ms later with no operator action at
+    // all. On a damaged file that replaced the original with our best guess at
+    // it and threw away whatever a recovery tool could still have used --
+    // measured, on a show truncated mid-cue. An explicit Save still writes,
+    // because that is the operator deciding to; this is the app deciding for
+    // them, and it has no business doing that to a file it did not understand.
+    if (!project_.loadedCleanly) {
       return;
     }
     auto age = std::chrono::steady_clock::now() - projectDirtyAt_;
