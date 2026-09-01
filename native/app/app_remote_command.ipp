@@ -657,13 +657,16 @@
     // let an operator put their OWN marks and their own words in it, which is
     // the difference between a filter and an instrument.
     if (command == "ASCII") {
-      Cue* cue = selectedCueMutable();
+      // ANY cue whose text mode is on screen -- a video synth cue, where the
+      // grid is native, or anything carrying the TEXT MODE effect. This
+      // demanded a video synth cue, which is the same assumption that made
+      // every control in the inspector's TEXT MODE section inert on a clip.
+      Cue* cue = selectedTextModeCueMutable();
       if (!cue) {
-        failRemoteCommand("ASCII: no cue selected");
-        return;
-      }
-      if (cue->kind != CueKind::VideoSynth) {
-        failRemoteCommand("ASCII: the selected cue is not a video synth");
+        failRemoteCommand(selectedCueMutable()
+                            ? "ASCII: the selected cue has no text mode "
+                              "(add the TEXT MODE effect, or select a video synth cue)"
+                            : "ASCII: no cue selected");
         return;
       }
       const std::string sub = parts.size() < 2 ? std::string("") : toUpper(parts[1]);
@@ -675,6 +678,54 @@
         markProjectDirty();
         refreshAllLiveCueRuntimes();
         triggerToast(cue->videoSynth.ascii ? "text mode on" : "text mode off");
+        return;
+      }
+      // The cycles the inspector rows drive, so the same controls can be
+      // reached from a surface -- and, just as usefully, TESTED. Every one of
+      // these was dead on a clip and nothing could see it, because the only way
+      // to fire them was to click.
+      if (sub == "INK") {
+        dispatchQuickAction(QuickAction::VsInkCycle);
+        return;
+      }
+      if (sub == "SET" || sub == "CHARSET") {
+        dispatchQuickAction(QuickAction::VsCharSetCycle);
+        return;
+      }
+      if (sub == "SHUFFLE") {
+        dispatchQuickAction(QuickAction::VsShuffleCycle);
+        return;
+      }
+      if (sub == "CHAOS") {
+        auto value = parseNumber(2);
+        if (!value) {
+          failRemoteCommand("ASCII CHAOS: expected 0..1");
+          return;
+        }
+        cue->videoSynth.asciiChaos = std::clamp(*value, 0.0, 1.0);
+        markProjectDirty();
+        triggerToast("chaos " + fmtFloat(cue->videoSynth.asciiChaos, 2));
+        return;
+      }
+      if (sub == "COLS" || sub == "COLUMNS") {
+        auto value = parseNumber(2);
+        if (!value) {
+          failRemoteCommand("ASCII COLS: expected a column count");
+          return;
+        }
+        const int want = std::clamp(static_cast<int>(std::lround(*value)), 20, 200);
+        // Through the same adjuster the row uses, so the effect parameter is
+        // written when there is one and the cue field when there is not.
+        int guard = 0;
+        while (guard++ < 40) {
+          VideoSynthSettings shown = cue->videoSynth;
+          if (const deckboy::effects::CueEffect* fx = textModeEffectFor(*cue)) {
+            applyTextModeParams(*fx, shown);
+          }
+          if (shown.asciiCols == want) break;
+          dispatchQuickAction(shown.asciiCols < want ? QuickAction::VsAsciiColsInc
+                                                     : QuickAction::VsAsciiColsDec);
+        }
         return;
       }
       if (sub == "GLYPHS" && parts.size() >= 3) {

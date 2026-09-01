@@ -410,12 +410,12 @@
       case QuickAction::VsGlitchInc:  adjustVs(&VideoSynthSettings::glitch, 0.1, 0.0, 1.0, "glitch"); break;
       case QuickAction::VsResDec:     adjustVsInt(&VideoSynthSettings::resolution, -1, 1, 5, "detail"); break;
       case QuickAction::VsResInc:     adjustVsInt(&VideoSynthSettings::resolution, 1, 1, 5, "detail"); break;
-      case QuickAction::VsAsciiColsDec: adjustVsInt(&VideoSynthSettings::asciiCols, -10, 20, 200, "columns"); break;
-      case QuickAction::VsAsciiColsInc: adjustVsInt(&VideoSynthSettings::asciiCols, 10, 20, 200, "columns"); break;
+      case QuickAction::VsAsciiColsDec: adjustVsInt(&VideoSynthSettings::asciiCols, -10, 20, 200, "columns", true); break;
+      case QuickAction::VsAsciiColsInc: adjustVsInt(&VideoSynthSettings::asciiCols, 10, 20, 200, "columns", true); break;
       case QuickAction::VsCrtDec: adjustVs(&VideoSynthSettings::crt, -0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCrtInc: adjustVs(&VideoSynthSettings::crt, 0.1, 0.0, 1.0, "crt"); break;
       case QuickAction::VsCharSetCycle:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
+        if (Cue* c = selectedTextModeCueMutable()) {
           // An explicit order rather than modulo arithmetic: sheet mode is
           // only offered once a sheet exists, so the cycle never lands on a
           // mode that cannot draw anything, and the sets that are always
@@ -454,8 +454,14 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsAsciiChaosDec:
+        adjustVs(&VideoSynthSettings::asciiChaos, -0.05, 0.0, 1.0, "chaos", true);
+        break;
+      case QuickAction::VsAsciiChaosInc:
+        adjustVs(&VideoSynthSettings::asciiChaos, 0.05, 0.0, 1.0, "chaos", true);
+        break;
       case QuickAction::VsShuffleCycle:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
+        if (Cue* c = selectedTextModeCueMutable()) {
           // Steps through seeds rather than randomising live: the same seed
           // must give the same look every time the show is opened.
           c->videoSynth.asciiShuffle = (c->videoSynth.asciiShuffle + 1) % 9;
@@ -467,32 +473,32 @@
         }
         break;
       case QuickAction::VsZalgoUpDec:
-        adjustVs(&VideoSynthSettings::asciiZalgoUp, -0.05, 0.0, 1.0, "glitch up");
+        adjustVs(&VideoSynthSettings::asciiZalgoUp, -0.05, 0.0, 1.0, "glitch up", true);
         break;
       case QuickAction::VsZalgoUpInc:
-        adjustVs(&VideoSynthSettings::asciiZalgoUp, 0.05, 0.0, 1.0, "glitch up");
+        adjustVs(&VideoSynthSettings::asciiZalgoUp, 0.05, 0.0, 1.0, "glitch up", true);
         break;
       case QuickAction::VsZalgoDownDec:
-        adjustVs(&VideoSynthSettings::asciiZalgoDown, -0.05, 0.0, 1.0, "glitch down");
+        adjustVs(&VideoSynthSettings::asciiZalgoDown, -0.05, 0.0, 1.0, "glitch down", true);
         break;
       case QuickAction::VsZalgoDownInc:
-        adjustVs(&VideoSynthSettings::asciiZalgoDown, 0.05, 0.0, 1.0, "glitch down");
+        adjustVs(&VideoSynthSettings::asciiZalgoDown, 0.05, 0.0, 1.0, "glitch down", true);
         break;
       case QuickAction::VsZalgoMidDec:
-        adjustVs(&VideoSynthSettings::asciiZalgoMid, -0.02, 0.0, 1.0, "glitch through");
+        adjustVs(&VideoSynthSettings::asciiZalgoMid, -0.02, 0.0, 1.0, "glitch through", true);
         break;
       case QuickAction::VsZalgoMidInc:
-        adjustVs(&VideoSynthSettings::asciiZalgoMid, 0.02, 0.0, 1.0, "glitch through");
+        adjustVs(&VideoSynthSettings::asciiZalgoMid, 0.02, 0.0, 1.0, "glitch through", true);
         break;
       case QuickAction::VsZalgoDriftDec:
-        adjustVs(&VideoSynthSettings::asciiZalgoDrift, -0.05, 0.0, 1.0, "glitch drift");
+        adjustVs(&VideoSynthSettings::asciiZalgoDrift, -0.05, 0.0, 1.0, "glitch drift", true);
         break;
       case QuickAction::VsZalgoDriftInc:
-        adjustVs(&VideoSynthSettings::asciiZalgoDrift, 0.05, 0.0, 1.0, "glitch drift");
+        adjustVs(&VideoSynthSettings::asciiZalgoDrift, 0.05, 0.0, 1.0, "glitch drift", true);
         break;
       case QuickAction::VsZalgoReachDec:
       case QuickAction::VsZalgoReachInc:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
+        if (Cue* c = selectedTextModeCueMutable()) {
           const int step = action == QuickAction::VsZalgoReachInc ? 1 : -1;
           c->videoSynth.asciiZalgoReach =
             std::clamp(c->videoSynth.asciiZalgoReach + step, 1, 6);
@@ -504,10 +510,10 @@
       case QuickAction::VsAsciiGlyphsEdit: editAsciiGlyphs(); break;
       case QuickAction::VsAsciiPhrasesEdit: editAsciiPhrases(); break;
       case QuickAction::VsAsciiHoldDec:
-        adjustVs(&VideoSynthSettings::asciiPhraseHold, -0.5, 0.0, 60.0, "phrase hold");
+        adjustVs(&VideoSynthSettings::asciiPhraseHold, -0.5, 0.0, 60.0, "phrase hold", true);
         break;
       case QuickAction::VsAsciiHoldInc:
-        adjustVs(&VideoSynthSettings::asciiPhraseHold, 0.5, 0.0, 60.0, "phrase hold");
+        adjustVs(&VideoSynthSettings::asciiPhraseHold, 0.5, 0.0, 60.0, "phrase hold", true);
         break;
       case QuickAction::VsSpriteSetPrev: cycleSpriteSet(-1); break;
       case QuickAction::VsSpriteSetNext: cycleSpriteSet(1); break;
@@ -554,7 +560,7 @@
       case QuickAction::VsTileHDec: adjustVsInt(&VideoSynthSettings::spriteTileH, -8, 8, 128, "tile h"); break;
       case QuickAction::VsTileHInc: adjustVsInt(&VideoSynthSettings::spriteTileH, 8, 8, 128, "tile h"); break;
       case QuickAction::VsInkCycle:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
+        if (Cue* c = selectedTextModeCueMutable()) {
           // Ink lives in paramD on a cue carrying the effect. This wrote the
           // cue's field, which the renderer then overwrote -- so the row read
           // "green" while the picture came out in full colour, because paramD

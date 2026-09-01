@@ -453,6 +453,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.asciiZalgoMid
         << '\t' << cue.videoSynth.asciiZalgoReach
         << '\t' << cue.videoSynth.asciiZalgoDrift
+        // APPENDED, never inserted: the record is positional.
+        << '\t' << cue.videoSynth.asciiChaos
         << '\n';
     }
   }
@@ -1278,6 +1280,10 @@ Project loadProject(const fs::path& projectFile,
           std::clamp(safeInt(fields, vs + 42, 2), 1, 6);
         cue.videoSynth.asciiZalgoDrift =
           std::clamp(safeDouble(fields, vs + 43, 0.0), 0.0, 1.0);
+        // Defaults to 0 -- strictly by brightness -- so every show saved before
+        // this existed looks exactly as it did.
+        cue.videoSynth.asciiChaos =
+          std::clamp(safeDouble(fields, vs + 44, 0.0), 0.0, 1.0);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

@@ -1865,13 +1865,47 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
           h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
           rampIndex = static_cast<int>(h % static_cast<std::uint32_t>(setCount));
         }
+        // CHAOS. How much the cell stops caring what the picture says.
+        //
+        // At 0 the glyph is whatever the brightness ranked; at 1 it is any
+        // glyph in the set. That is what makes a set of seventeen marks show
+        // seventeen marks -- ranked strictly by ink, a flat area of picture
+        // picks one of them and the rest never appear.
+        //
+        // Hashed from the CELL POSITION, not from the frame: a cell that
+        // re-rolls every frame is a flicker, not a texture. Same reasoning,
+        // and the same hash, as the sprite path above.
+        if (vs.asciiChaos > 0.001 && setCount > 1) {
+          std::uint32_t h = static_cast<std::uint32_t>(cx) * 73856093u ^
+                            static_cast<std::uint32_t>(cy) * 19349663u ^
+                            static_cast<std::uint32_t>(vs.asciiShuffle) * 83492791u;
+          h ^= h >> 13; h *= 2246822519u; h ^= h >> 16;
+          const double mix = (h & 0xFFFFu) / 65535.0;
+          if (mix < std::clamp(vs.asciiChaos, 0.0, 1.0)) {
+            rampIndex = static_cast<int>((h >> 16) % static_cast<std::uint32_t>(setCount));
+          }
+        }
+
         // YOUR OWN GLYPHS, if any were given. The ASCII table is stored in
         // character order starting at space, so a character maps to a glyph
         // by subtraction and no lookup table is needed.
         if (!customGlyphs.empty()) {
-          const int slot = std::clamp(
+          int slot = std::clamp(
             (luma * (static_cast<int>(customGlyphs.size()) - 1)) / 255,
             0, static_cast<int>(customGlyphs.size()) - 1);
+          // Chaos applies HERE too, and within the operator's own set rather
+          // than the whole table behind it -- a random pick across all 95 ASCII
+          // glyphs would ignore the very thing they typed.
+          if (vs.asciiChaos > 0.001 && customGlyphs.size() > 1) {
+            std::uint32_t hc = static_cast<std::uint32_t>(cx) * 73856093u ^
+                               static_cast<std::uint32_t>(cy) * 19349663u ^
+                               static_cast<std::uint32_t>(vs.asciiShuffle) * 83492791u;
+            hc ^= hc >> 13; hc *= 2246822519u; hc ^= hc >> 16;
+            if ((hc & 0xFFFFu) / 65535.0 < std::clamp(vs.asciiChaos, 0.0, 1.0)) {
+              slot = static_cast<int>((hc >> 16) %
+                       static_cast<std::uint32_t>(customGlyphs.size()));
+            }
+          }
           const int packed = customGlyphs[static_cast<std::size_t>(slot)];
           if ((packed >> kCustomTableShift) != 0) {
             set = kCellSparkle;

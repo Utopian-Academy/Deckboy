@@ -1,5 +1,38 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-31 - v0.89.3 (the text mode section works on any cue, and a chaos knob)
+
+### The controls work on a clip
+
+Every control in the TEXT MODE section — columns, glyph set, shuffle, ink, the
+glitch amounts, the custom glyphs and the phrases — was reachable only on a
+video synth cue. On a clip, a still or a camera carrying the TEXT MODE effect,
+which is the ordinary way to use it, the rows drew and did nothing. They work on
+any cue with the effect now.
+
+### CHAOS
+
+A new row in the TEXT MODE section. At 0 each cell draws the glyph its
+brightness asks for, so the picture reads. At 1 it draws any glyph in the set,
+so the whole alphabet appears at once and the grid becomes texture. In between
+is the interesting part.
+
+This is how you get every mark in **music & sparkle** on screen: ranked strictly
+by ink, a flat area of picture picks one mark and the rest never appear. Turn
+chaos up and they all do. It works on custom glyph sets too, picking within what
+you typed rather than the table behind it, and it is hashed from the cell
+position rather than the frame, so it is texture rather than flicker.
+
+Fewer columns means bigger cells, which is where the notes become legible rather
+than reading as dots.
+
+### Also
+
+`ASCII INK`, `ASCII SET`, `ASCII SHUFFLE`, `ASCII COLS <n>` and
+`ASCII CHAOS <0..1>` over the control protocol, so a surface can drive the
+character grid — and the same commands work on any cue carrying the effect.
+
+
 ## 2026-08-31 - v0.89.2 (the text mode controls drive the picture)
 
 Columns, glyph set and ink in the TEXT MODE section now change what you see. On
