@@ -2469,6 +2469,7 @@
       case 4:  return "ASCII 95 (raw)";
       case 5:  return "sprite sheet";
       case 6:  return "music & sparkle";
+      case 7:  return "font (type anything)";
       default: return "blocks";
     }
   }

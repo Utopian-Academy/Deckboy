@@ -383,6 +383,28 @@ class MediaEngine {
   // Current visual fade gain (0–1) factoring in fade-in and fade-out curves.
   double currentVisualFadeGain() const { return visualFadeGainAt(position()); }
 
+  // ── Font-drawn glyphs ──────────────────────────────────────────────────────
+  //
+  // The character grid is otherwise built from 5x7 bitmaps compiled into
+  // media_engine.cpp, so a character exists only if somebody drew it -- which
+  // caps the alphabet at the hundred-odd that were. Rendering through a FONT
+  // lifts that cap entirely: anything an operator can type or paste can be
+  // drawn, including emoji where the platform has a colour font for them.
+  //
+  // Rasterised ONCE per character per cell size and cached, because the cell
+  // loop is threaded and runs for every cell of every frame. The key carries
+  // the glyph string and the cell size, so a change to either rebuilds it and
+  // nothing else does.
+  struct FontCellGlyph {
+    std::vector<std::uint8_t> rgba;   // cellW * cellH * 4
+    bool colour = false;              // a colour emoji: ink must not tint it
+  };
+  std::vector<FontCellGlyph> fontGlyphs_;
+  std::string fontGlyphsKey_;
+  int fontGlyphW_ = 0;
+  int fontGlyphH_ = 0;
+  void rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH);
+
  private:
   // -- Internal helpers -------------------------------------------------------
   double visualFadeGainAt(double positionSeconds) const;  // fade gain for visual (may suppress fade-out for auto-advance)

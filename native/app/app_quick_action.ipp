@@ -420,11 +420,11 @@
           // only offered once a sheet exists, so the cycle never lands on a
           // mode that cannot draw anything, and the sets that are always
           // available no longer have to be contiguous with it.
-          static const int kWithoutSheet[] = {0, 1, 2, 3, 4, 6};
-          static const int kWithSheet[]    = {0, 1, 2, 3, 4, 6, 5};
+          static const int kWithoutSheet[] = {0, 1, 2, 3, 4, 6, 7};
+          static const int kWithSheet[]    = {0, 1, 2, 3, 4, 6, 7, 5};
           const bool sheet = !c->videoSynth.spriteSheetPath.empty();
           const int* order = sheet ? kWithSheet : kWithoutSheet;
-          const int count = sheet ? 7 : 6;
+          const int count = sheet ? 8 : 7;
           // On a cue carrying the EFFECT the glyph set lives in paramC and the
           // cue's own field is overwritten before it reaches the renderer, so
           // this cycled a number nothing read. A sprite sheet is not reachable
@@ -438,7 +438,7 @@
             current = shown.asciiCharSet;
             order = kWithoutSheet;
           }
-          const int steps = fx ? 6 : count;
+          const int steps = fx ? 7 : count;
           int at = 0;
           for (int i = 0; i < steps; ++i) {
             if (order[i] == current) { at = i; break; }
