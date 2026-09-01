@@ -1,5 +1,37 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-01 - v0.90.0 (type anything, including emoji)
+
+### Any character you can type
+
+Text mode's alphabet was whatever had been drawn as a 5x7 bitmap in the source —
+about a hundred characters, and nothing outside them. Paste a row of symbols
+into the custom glyphs field and the ones nobody had drawn were dropped in
+silence.
+
+Now anything you type or paste is drawn, rendered through a font on the machine:
+stars, notes, flowers, arrows, box drawing, dingbats, scripts — whatever the
+system has a face for. Each character is looked up across several fonts, so a
+symbol missing from one is found in another instead of coming out as an empty
+box, and it is rasterised once per size and cached.
+
+Mixing is just typing: `A♪★b✿` is four ordinary letters and symbols in one set,
+ordered darkest to brightest like any other glyph set.
+
+### Emoji
+
+They work, in colour, wherever the platform has a colour emoji font — Windows
+and macOS have one as standard, and most Linux installs can add one. A colour
+emoji keeps its own colours and ignores the ink setting, which is the whole
+point of drawing one.
+
+### Also
+
+The glyph set list gains **font (type anything)**, which forces the font path
+even for plain letters. You rarely need it: typing a character no built-in set
+has switches to the font on its own.
+
+
 ## 2026-09-01 - v0.89.5 (picture ink means the picture)
 
 Text mode's **picture** ink now draws each cell in the clip's own colour. It was

@@ -36,6 +36,7 @@
 #include "engine/media_engine.hpp"
 
 #include "core/sdl_compat.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 #include "core/code_source.hpp"
 #include <ctime>
 #include <filesystem>
@@ -1642,6 +1643,144 @@ bool MediaEngine::ensureSpriteSheet(const std::string& path, int tileW, int tile
 // and scaling up would blur the glyph edges, which is the one thing the look
 // depends on.
 // ---------------------------------------------------------------------------
+// Fonts with broad symbol and emoji coverage, in the order worth trying.
+//
+// A system font rather than a bundled one: the bundled faces are a pixel face
+// and a sans, neither of which has a note or a star in it, and shipping a font
+// with tens of thousands of glyphs would add tens of megabytes to every
+// download for a feature not everyone uses. What IS on the machine is what gets
+// used, and the fallback chain ends at the app's own font so there is always
+// something.
+const char* const kFontGlyphCandidates[] = {
+#if defined(_WIN32)
+  "C:/Windows/Fonts/seguiemj.ttf",     // Segoe UI Emoji -- colour emoji
+  "C:/Windows/Fonts/seguisym.ttf",     // Segoe UI Symbol -- notes, stars, arrows
+  "C:/Windows/Fonts/segoeui.ttf",
+  "C:/Windows/Fonts/arial.ttf",
+#elif defined(__APPLE__)
+  "/System/Library/Fonts/Apple Color Emoji.ttc",
+  "/System/Library/Fonts/Apple Symbols.ttf",
+  "/System/Library/Fonts/Helvetica.ttc",
+#else
+  "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
+  "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+  "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+#endif
+};
+
+// Decode one UTF-8 character, returning its byte length. Length 0 means the
+// string is exhausted or malformed.
+std::size_t utf8Advance(const std::string& text, std::size_t at, std::string& outChar) {
+  if (at >= text.size()) return 0;
+  const unsigned char lead = static_cast<unsigned char>(text[at]);
+  std::size_t width = 1;
+  if (lead >= 0xF0)      width = 4;
+  else if (lead >= 0xE0) width = 3;
+  else if (lead >= 0xC0) width = 2;
+  if (at + width > text.size()) return 0;
+  outChar = text.substr(at, width);
+  return width;
+}
+
+void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH) {
+  const std::string key = std::to_string(cellW) + "x" + std::to_string(cellH) + ":" + glyphs;
+  if (key == fontGlyphsKey_ && !fontGlyphs_.empty()) {
+    return;                       // already have exactly these, at this size
+  }
+  fontGlyphsKey_ = key;
+  fontGlyphs_.clear();
+  fontGlyphW_ = cellW;
+  fontGlyphH_ = cellH;
+  if (cellW < 2 || cellH < 2 || glyphs.empty()) {
+    return;
+  }
+
+  // Sized to the cell. A little under, so a tall glyph has somewhere to go
+  // rather than being clipped at the cap height.
+  const int pt = std::max(6, static_cast<int>(cellH * 0.9));
+
+  // EVERY candidate, not the first that opens.
+  //
+  // The first version took the first font that loaded, which on Windows is the
+  // emoji face -- and that has no musical notes, no dingbats and no stars, so
+  // most of a pasted row came out as the empty box a font draws for a character
+  // it does not have. Coverage is per CHARACTER, not per font: ask each face in
+  // turn whether it actually has this one.
+  std::vector<TTF_Font*> faces;
+  for (const char* path : kFontGlyphCandidates) {
+    if (TTF_Font* f = TTF_OpenFont(path, static_cast<float>(pt))) {
+      faces.push_back(f);
+    }
+  }
+  if (faces.empty()) {
+    return;                       // no usable font: the caller falls back
+  }
+
+  for (std::size_t at = 0; at < glyphs.size(); ) {
+    std::string one;
+    const std::size_t width = utf8Advance(glyphs, at, one);
+    if (width == 0) break;
+    at += width;
+
+    // The codepoint, so coverage can be asked about it.
+    std::uint32_t code = static_cast<unsigned char>(one[0]);
+    if (width == 2)      code = ((code & 0x1Fu) << 6) | (one[1] & 0x3Fu);
+    else if (width == 3) code = ((code & 0x0Fu) << 12) | ((one[1] & 0x3Fu) << 6) | (one[2] & 0x3Fu);
+    else if (width == 4) code = ((code & 0x07u) << 18) | ((one[1] & 0x3Fu) << 12) |
+                                ((one[2] & 0x3Fu) << 6) | (one[3] & 0x3Fu);
+    TTF_Font* font = faces.front();
+    for (TTF_Font* f : faces) {
+      if (TTF_FontHasGlyph(f, code)) { font = f; break; }
+    }
+
+    FontCellGlyph cell;
+    cell.rgba.assign(static_cast<std::size_t>(cellW) * cellH * 4, 0);
+    SDL_Surface* rendered = TTF_RenderText_Blended(
+      font, one.c_str(), one.size(), SDL_Color {255, 255, 255, 255});
+    if (rendered) {
+      SDL_Surface* rgba = SDL_ConvertSurface(rendered, SDL_PIXELFORMAT_ARGB8888);
+      SDL_DestroySurface(rendered);
+      if (rgba) {
+        // Centre it, scaling down if the face drew wider than the cell -- some
+        // emoji are square and much wider than a text glyph of the same size.
+        const double scale = std::min(1.0,
+          std::min(static_cast<double>(cellW) / std::max(1, rgba->w),
+                   static_cast<double>(cellH) / std::max(1, rgba->h)));
+        const int drawW = std::max(1, static_cast<int>(rgba->w * scale));
+        const int drawH = std::max(1, static_cast<int>(rgba->h * scale));
+        const int offX = (cellW - drawW) / 2;
+        const int offY = (cellH - drawH) / 2;
+        const std::uint8_t* srcPix = static_cast<const std::uint8_t*>(rgba->pixels);
+        bool sawColour = false;
+        for (int y = 0; y < drawH; ++y) {
+          const int sy = std::min(rgba->h - 1, static_cast<int>(y / scale));
+          for (int x = 0; x < drawW; ++x) {
+            const int sx = std::min(rgba->w - 1, static_cast<int>(x / scale));
+            const std::uint8_t* sp = srcPix + static_cast<std::size_t>(sy) * rgba->pitch + sx * 4;
+            const int dx = offX + x, dy = offY + y;
+            if (dx < 0 || dy < 0 || dx >= cellW || dy >= cellH) continue;
+            std::uint8_t* dp = cell.rgba.data() +
+              (static_cast<std::size_t>(dy) * cellW + dx) * 4;
+            dp[0] = sp[0]; dp[1] = sp[1]; dp[2] = sp[2]; dp[3] = sp[3];
+            // ARGB8888 on a little-endian machine lands as B,G,R,A. A glyph
+            // drawn in white stays white; anything else came from a colour
+            // font and must keep its own colours.
+            if (sp[3] > 8 && (std::abs(sp[0] - sp[1]) > 24 || std::abs(sp[1] - sp[2]) > 24)) {
+              sawColour = true;
+            }
+          }
+        }
+        cell.colour = sawColour;
+        SDL_DestroySurface(rgba);
+      }
+    }
+    fontGlyphs_.push_back(std::move(cell));
+  }
+  for (TTF_Font* f : faces) {
+    TTF_CloseFont(f);
+  }
+}
+
 void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                                  std::uint8_t* dst, int dstW, int dstH,
                                  const VideoSynthSettings& vs,
@@ -1691,6 +1830,11 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     };
     constexpr int kCustomTableShift = 16;
     std::vector<int> customGlyphs;
+    // Set when the operator typed something no bitmap in this file can draw.
+    // That is the signal to render the whole set through a FONT instead: the
+    // alternative is what used to happen, which was dropping the character in
+    // silence and leaving them wondering why nothing changed.
+    bool glyphsNeedFont = false;
     for (std::size_t at = 0; at < vs.asciiGlyphs.size(); ) {
       const unsigned char lead = static_cast<unsigned char>(vs.asciiGlyphs[at]);
       std::uint32_t code = lead;
@@ -1712,11 +1856,16 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         if (gi >= 0 && gi < kCellAsciiFullCount) customGlyphs.push_back(gi);
         continue;
       }
+      bool drawn = false;
       for (const MarkAlias& alias : kMarkAliases) {
         if (alias.code == code) {
           customGlyphs.push_back((1 << kCustomTableShift) | alias.glyph);
+          drawn = true;
           break;
         }
+      }
+      if (!drawn) {
+        glyphsNeedFont = true;
       }
     }
     // Which phrase is showing, and where. It moves on a slow clock and lands
@@ -1803,6 +1952,21 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     const bool useSprites = vs.asciiCharSet == 5 &&
       spriteSheetLoaded_ == vs.spriteSheetPath &&
       !spriteTilesByLuma_.empty() && spriteSheetCols_ > 0;
+
+    // FONT GLYPHS, if this cue is drawing with them. Built here, before the
+    // cell loop is threaded: rasterising a glyph touches SDL_ttf, which is not
+    // safe to call from several threads at once, and doing it per cell would
+    // be the most expensive thing in the mode by a wide margin.
+    // Font rendering is chosen EXPLICITLY, by picking the font glyph set, or
+    // IMPLICITLY, by typing a character no bitmap here can draw. The implicit
+    // route is the one that matters: an operator pasting a row of symbols is
+    // not going to hunt for a mode first, and the old behaviour -- drop it and
+    // say nothing -- is what made the field look broken.
+    const bool useFontGlyphs =
+      (vs.asciiCharSet == 7 || glyphsNeedFont) && !vs.asciiGlyphs.empty();
+    if (useFontGlyphs) {
+      rebuildFontGlyphs(vs.asciiGlyphs, nomCellW, nomCellH);
+    }
 
     // Threaded by cell row. Text mode writes the ENTIRE output raster one
     // cell at a time, which at 1080p is two million pixels on a single thread
@@ -1995,6 +2159,72 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         const int py0 = rowEdge(cy);
         const int cellW = colEdge(cx + 1) - px0;
         const int cellH = rowEdge(cy + 1) - py0;
+
+        // A FONT-DRAWN CELL takes a different path entirely: it is a cached
+        // RGBA bitmap rather than a 5x7 bit pattern, so it is blitted here and
+        // the glyph machinery below is skipped.
+        if (useFontGlyphs && !fontGlyphs_.empty()) {
+          int pick = std::clamp(
+            (luma * (static_cast<int>(fontGlyphs_.size()) - 1)) / 255,
+            0, static_cast<int>(fontGlyphs_.size()) - 1);
+          if (vs.asciiChaos > 0.001 && fontGlyphs_.size() > 1) {
+            std::uint32_t hf = static_cast<std::uint32_t>(cx) * 73856093u ^
+                               static_cast<std::uint32_t>(cy) * 19349663u ^
+                               static_cast<std::uint32_t>(vs.asciiShuffle) * 83492791u;
+            hf ^= hf >> 13; hf *= 2246822519u; hf ^= hf >> 16;
+            if ((hf & 0xFFFFu) / 65535.0 < std::clamp(vs.asciiChaos, 0.0, 1.0)) {
+              pick = static_cast<int>((hf >> 16) %
+                       static_cast<std::uint32_t>(fontGlyphs_.size()));
+            }
+          }
+          const FontCellGlyph& fg = fontGlyphs_[static_cast<std::size_t>(pick)];
+          // The ink applies to a monochrome glyph. A colour emoji carries its
+          // own colours and tinting it would throw away the only reason to
+          // draw one.
+          std::uint8_t tint[3] = {
+            static_cast<std::uint8_t>(std::clamp(sr, 0, 255)),
+            static_cast<std::uint8_t>(std::clamp(sg, 0, 255)),
+            static_cast<std::uint8_t>(std::clamp(sb, 0, 255))
+          };
+          if (vs.asciiInk >= 1 && vs.asciiInk <= 4) {
+            const int idx = vs.asciiInk == 1 ? 10 : vs.asciiInk == 2 ? 14
+                          : vs.asciiInk == 3 ? 11 : 15;
+            tint[0] = kCellPalette[idx][0];
+            tint[1] = kCellPalette[idx][1];
+            tint[2] = kCellPalette[idx][2];
+          }
+          for (int ry = 0; ry < cellH; ++ry) {
+            const int gy = (ry * fontGlyphH_) / std::max(1, cellH);
+            if (py0 + ry < 0 || py0 + ry >= dstH) continue;
+            std::uint8_t* row = dst + (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
+            for (int rx = 0; rx < cellW; ++rx) {
+              const int gx = (rx * fontGlyphW_) / std::max(1, cellW);
+              if (px0 + rx < 0 || px0 + rx >= dstW) continue;
+              const std::size_t gi2 =
+                (static_cast<std::size_t>(std::min(gy, fontGlyphH_ - 1)) * fontGlyphW_ +
+                 std::min(gx, fontGlyphW_ - 1)) * 4;
+              if (gi2 + 3 >= fg.rgba.size()) continue;
+              const int alpha = fg.rgba[gi2 + 3];
+              std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
+              if (alpha < 8) {
+                p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 255;
+                continue;
+              }
+              if (fg.colour) {
+                p[0] = fg.rgba[gi2 + 0];
+                p[1] = fg.rgba[gi2 + 1];
+                p[2] = fg.rgba[gi2 + 2];
+              } else {
+                p[0] = static_cast<std::uint8_t>(tint[2] * alpha / 255);
+                p[1] = static_cast<std::uint8_t>(tint[1] * alpha / 255);
+                p[2] = static_cast<std::uint8_t>(tint[0] * alpha / 255);
+              }
+              p[3] = 255;
+            }
+          }
+          continue;
+        }
+
 
         if (useSprites) {
           // Draw a TILE instead of a glyph, chosen by the same brightness the

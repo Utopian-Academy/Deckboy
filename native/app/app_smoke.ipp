@@ -892,6 +892,14 @@
               dstPix[i + 0] = 255; dstPix[i + 1] = 0; dstPix[i + 2] = 255; dstPix[i + 3] = 255;
             }
             tvs.asciiCols = cols;
+            // Alternate between the bitmap sets and a glyph string that can
+            // only be drawn through a FONT. On a machine with no usable font
+            // the cache comes back empty and the bitmap path has to take over
+            // -- if it did not, this would leave the raster half drawn, and
+            // that fallback is the part most likely to differ between a dev
+            // box and a CI runner.
+            tvs.asciiGlyphs = (cols % 20 == 0) ? std::string("âªâ")
+                                               : std::string();
             textEngine.renderTextMode(srcPix.data(), W, H, dstPix.data(), W, H, tvs, 0, 0.0);
             std::size_t stillMagenta = 0;
             for (std::size_t i = 0; i < dstPix.size(); i += 4) {
