@@ -1506,7 +1506,56 @@
     }
   }
 
-  bool startMidiInput() {
+  // Put MIDI back on the port its operator asked for, when it comes back.
+  //
+  // The audio path grew this first and the reasoning is identical: a control
+  // surface knocked out of a USB hub, or a rack powered on after the PC, left
+  // the deck with MIDI armed and nothing connected until somebody restarted the
+  // application. The difference is that MIDI now REFUSES an absent port rather
+  // than binding to a stranger, so the recovery is simply to try again once the
+  // port list changes -- there is no wrong device to move off first.
+  //
+  // Runs on a slow poll rather than an event: neither RtMidi nor the ALSA
+  // sequencer gives us a device-change callback here, and the cost is one
+  // enumeration every few seconds while MIDI is armed and not connected.
+  void reconcileMidiInput() {
+    if (!midiEnabled_ || midiDeviceName_().empty()) {
+      // Nothing armed, or no particular port asked for. A refused arm is left
+      // refused on purpose: the operator asked once and was told why, and a
+      // deck that silently connects itself minutes later is worse than one that
+      // waits to be asked again.
+      return;
+    }
+    if (midiDeviceInUse_ == midiDeviceName_()) {
+      // Where it should be -- unless the surface has since been unplugged, and
+      // nothing else would ever notice. RtMidi holds a port that has gone away
+      // without erroring; the callbacks simply stop, which from the operator's
+      // side is indistinguishable from a quiet desk.
+#if defined(DECKBOY_HAS_MIDI)
+      bool stillThere = false;
+      for (const auto& device : deckboy::platform::midi::MidiInput::listDevices()) {
+        if (device.name == midiDeviceName_()) {
+          stillThere = true;
+          break;
+        }
+      }
+      if (!stillThere) {
+        triggerToast("midi: " + midiDeviceName_() + " disconnected");
+        stopMidiInput();
+        midiDeviceInUse_.clear();   // the poll below reclaims it when it returns
+      }
+#endif
+      return;
+    }
+    // QUIETLY. The retry runs every few seconds forever while the surface is
+    // away, and startMidiInput says "not found" on each failure -- which as a
+    // one-off is exactly right and as a repeating toast is unusable.
+    if (startMidiInput(/*quiet=*/true)) {
+      triggerToast("midi: back on " + midiDeviceName_());
+    }
+  }
+
+  bool startMidiInput(bool quiet = false) {
 #if defined(DECKBOY_HAS_ALSA)
     stopMidiInput();
     midiStop_ = false;
@@ -1535,7 +1584,9 @@
     if (!midiDeviceName_().empty()) {
       snd_seq_addr_t sender;
       if (snd_seq_parse_address(midiSeq_, &sender, midiDeviceName_().c_str()) != 0) {
-        triggerToast("midi: " + midiDeviceName_() + " not found");
+        if (!quiet) {
+          triggerToast("midi: " + midiDeviceName_() + " not found");
+        }
         stopMidiInput();
         return false;
       }
@@ -1545,12 +1596,15 @@
       snd_seq_addr_t dest {static_cast<unsigned char>(snd_seq_client_id(midiSeq_)), static_cast<unsigned char>(midiSeqPort_)};
       snd_seq_port_subscribe_set_dest(sub, &dest);
       if (snd_seq_subscribe_port(midiSeq_, sub) < 0) {
-        triggerToast("midi: " + midiDeviceName_() + " refused the connection");
+        if (!quiet) {
+          triggerToast("midi: " + midiDeviceName_() + " refused the connection");
+        }
         stopMidiInput();
         return false;
       }
     }
 
+    midiDeviceInUse_ = midiDeviceName_();
     midiThread_ = std::thread([this]() { midiLoop(); });
     return true;
 #elif defined(DECKBOY_HAS_MIDI)
@@ -1586,14 +1640,16 @@
         }
       }
       if (deviceId < 0) {
-        triggerToast("midi: " + midiDeviceName_() + " not found");
+        if (!quiet) {
+          triggerToast("midi: " + midiDeviceName_() + " not found");
+        }
         return false;
       }
     } else {
       // Nothing chosen: the first port is a reasonable guess when there is only
       // one, and worth naming out loud when there is not.
       deviceId = devices.front().id;
-      if (devices.size() > 1) {
+      if (devices.size() > 1 && !quiet) {
         triggerToast("midi: using " + devices.front().name +
                      " (" + std::to_string(devices.size()) + " ports — pick one in settings)");
       }
@@ -1606,6 +1662,7 @@
     if (!midiRt_.open(deviceId)) {
       return false;
     }
+    midiDeviceInUse_ = midiDeviceName_().empty() ? devices.front().name : midiDeviceName_();
     return true;
 #else
     return false;

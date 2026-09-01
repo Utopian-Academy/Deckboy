@@ -517,6 +517,13 @@
       lastAudioDevicePollMs_ = now;
       reconcileDeckAudioDevices();
     }
+    // The same for a control surface that comes back. Slower, because MIDI
+    // refuses an absent port outright rather than sitting on a wrong one, so
+    // nothing is misrouted while we wait -- there is just no surface yet.
+    if (now - lastMidiDevicePollMs_ >= 4000) {
+      lastMidiDevicePollMs_ = now;
+      reconcileMidiInput();
+    }
 
     // Debounced response to the SDL display-event burst.
     if (displayTopologyRecheckAtMs_ != 0 && now >= displayTopologyRecheckAtMs_) {

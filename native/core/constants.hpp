@@ -66,6 +66,23 @@ constexpr int kAudioChannels = 2;      // stereo output (all decode is mixed to 
 // ---------------------------------------------------------------------------
 constexpr size_t kMaxVideoFrames = 6;
 
+// How many decks a show file may ask for.
+//
+// The loader used to create a deck for whatever index a record named, with no
+// upper bound -- and every deck gets a hidden window, a renderer and its OWN
+// AUDIO DEVICE at startup. A show file saying `deck 9999` therefore asked the
+// machine for ten thousand audio devices and the application stopped answering
+// before it finished. Found by feeding the loader a deliberately corrupt show;
+// it is one mistyped field away from a hand-edited file.
+//
+// Sixteen is far above any real show -- VJ mode wants two -- and small enough
+// that the worst case is merely slow.
+constexpr int kMaxDecks = 16;
+
+// And how many outputs, for the same reason: an output record names its index
+// too, and every output gets a window and a renderer.
+constexpr int kMaxOutputs = 16;
+
 // ---------------------------------------------------------------------------
 // Theme colors — DMG Game Boy 4-tone palette (default theme).
 //

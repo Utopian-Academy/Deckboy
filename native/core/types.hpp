@@ -1053,6 +1053,11 @@ struct Project {
   // virtual ports that is not a control surface at all, and a stray note from
   // it fires cues.
   std::string midiDeviceName = "";
+  // NOT SERIALISED -- true for this run only. False when the loader met a line
+  // it did not understand, which is what a truncated or damaged show looks
+  // like. The unattended auto-save refuses to write over a file in that state;
+  // an explicit Save still does, because that is the operator deciding.
+  bool loadedCleanly = true;
   // Terrarium is the Konami-code secret: it only appears in pattern pickers
   // once unlocked, and the unlock belongs to the SAVE (cheeky secrets don't
   // leak across shows). Saved cues load fine either way.

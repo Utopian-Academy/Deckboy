@@ -1,5 +1,57 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-31 - v0.89.0 (marks to draw with, devices that come back)
+
+### A marks alphabet for text mode
+
+A new glyph set, **music & sparkle**: dots, rings, an arc, a tilde, plusses,
+crosses, diamonds, a star, and quarter, quaver, beamed and double-beamed notes.
+Cycle to it on the GLYPHS row like any other set, or reach it from the text mode
+effect's glyph-set parameter — so an LFO can sweep the alphabet along with
+everything else.
+
+The custom glyph field understands pasted characters now. Type or paste a row of
+marks and they map to the ones that are drawn, with several spellings each — a
+star arrives as a different character depending where it was copied from, and
+they all land on the star. Custom sets can mix ordinary letters and marks
+freely, and the existing SHUFFLE seed re-maps which mark carries which
+brightness, so one set gives many different hands.
+
+### Devices you named, kept
+
+A deck remembers the audio interface you chose, even when it is not there yet.
+Start the machine before the rack is powered on and the deck says so — "not
+found, on default" — instead of quietly forgetting what you asked for. When the
+interface appears, the deck moves back to it on its own; when one is unplugged
+mid-show, the deck moves to the system default rather than going silent.
+
+The same for a control surface. The chosen MIDI port is saved with the show now,
+so it survives a restart, and a port that is not present is reported by name
+rather than replaced with whichever one happened to be first. Unplug the surface
+and Deckboy says so; plug it back in and it reconnects itself.
+
+**`deckboy --devices`** prints the audio devices, displays, MIDI ports and
+render drivers this machine offers, with each device's real rate and channel
+count and each display's real refresh and scaling — and it spells the names the
+way a show file needs them.
+
+### Audio cues can be trimmed
+
+In and out points on an audio cue, in the inspector and over the control
+protocol, the same as a clip. A music bed can start eight bars in.
+
+### Steadier
+
+- The show file is written beside itself and renamed into place, so it is never
+  half-written on disk.
+- Opening a show no longer writes to it.
+- Streams and capture inputs get GEOMETRY, KEY and EFFECTS in the inspector.
+- A DeckLink input has a full inspector, and names the card it is watching.
+- Timecode readouts roll over correctly at the minute.
+- `IN`, `OUT` and `MIDI` over the control protocol report what they actually
+  did, with the reason when they could not.
+
+
 ## 2026-08-29 - v0.88.0 (text mode everywhere, and a language to write in)
 
 ### Text mode is an effect, so it works on anything
