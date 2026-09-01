@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-31 - v0.89.4 (collapsing a section no longer overlaps the rest)
+
+Fold the inspector's sections down to reach the effects and everything stayed
+where it belonged. EFFECTS and TEXT MODE are drawn after the per-cue-kind
+sections, continuing from wherever those finished — and a collapsed section was
+not counted, so those two drew on top of the folded headers. With everything
+folded they landed at the top of the panel, over the lot.
+
+`SECTION playback|metadata|geometry|key|effects|timer|tone|text` over the
+control protocol folds a section from a surface.
+
+
 ## 2026-08-31 - v0.89.3 (the text mode section works on any cue, and a chaos knob)
 
 ### The controls work on a clip
