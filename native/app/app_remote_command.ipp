@@ -758,6 +758,65 @@
         dispatchQuickAction(QuickAction::VsShuffleCycle);
         return;
       }
+      if (sub == "WOBBLE") {
+        auto value = parseNumber(2);
+        if (!value) {
+          failRemoteCommand("ASCII WOBBLE: expected 0..1");
+          return;
+        }
+        cue->videoSynth.asciiWobble = std::clamp(*value, 0.0, 1.0);
+        markProjectDirty();
+        triggerToast("wobble " + fmtFloat(cue->videoSynth.asciiWobble, 2));
+        return;
+      }
+      if (sub == "WOBBLEMODE") {
+        if (parts.size() >= 3) {
+          const std::string want = toLower(parts[2]);
+          cue->videoSynth.asciiWobbleMode =
+            want == "flow" ? 1 : want == "hue" ? 2 : 0;
+        } else {
+          cue->videoSynth.asciiWobbleMode = (cue->videoSynth.asciiWobbleMode + 1) % 3;
+        }
+        markProjectDirty();
+        triggerToast(std::string("wobble: ") +
+                     vsWobbleModeLabel(cue->videoSynth.asciiWobbleMode));
+        return;
+      }
+      if (sub == "PRESET") {
+        if (parts.size() < 3) {
+          std::string names;
+          for (const auto& preset : glyphPresets()) {
+            if (!names.empty()) names += ", ";
+            names += preset.name;
+          }
+          remoteCommandDetail_ = names;
+          triggerToast("presets: " + names);
+          return;
+        }
+        const std::string want = toLower(joinParts(parts, 2));
+        for (const auto& preset : glyphPresets()) {
+          if (toLower(preset.name) == want) {
+            cue->videoSynth.asciiGlyphs = preset.glyphs;
+            markProjectDirty();
+            triggerToast(std::string("glyphs: ") + preset.name);
+            return;
+          }
+        }
+        failRemoteCommand("ASCII PRESET: no set called \"" + joinParts(parts, 2) + "\"");
+        return;
+      }
+      if (sub == "FONT") {
+        if (parts.size() < 3) {
+          cue->videoSynth.asciiFontPath.clear();
+          markProjectDirty();
+          triggerToast("font: automatic");
+          return;
+        }
+        cue->videoSynth.asciiFontPath = joinParts(parts, 2);
+        markProjectDirty();
+        triggerToast("font: " + cue->videoSynth.asciiFontPath);
+        return;
+      }
       if (sub == "CHAOS") {
         auto value = parseNumber(2);
         if (!value) {

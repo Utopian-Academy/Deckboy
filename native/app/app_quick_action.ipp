@@ -454,6 +454,45 @@
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
+      case QuickAction::VsAsciiWobbleDec:
+        adjustVs(&VideoSynthSettings::asciiWobble, -0.05, 0.0, 1.0, "wobble", true);
+        break;
+      case QuickAction::VsAsciiWobbleInc:
+        adjustVs(&VideoSynthSettings::asciiWobble, 0.05, 0.0, 1.0, "wobble", true);
+        break;
+      case QuickAction::VsAsciiWobbleModeCycle:
+        if (Cue* c = selectedTextModeCueMutable()) {
+          c->videoSynth.asciiWobbleMode = (c->videoSynth.asciiWobbleMode + 1) % 3;
+          markProjectDirty();
+          triggerToast(std::string("wobble: ") +
+                       vsWobbleModeLabel(c->videoSynth.asciiWobbleMode));
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsAsciiPresetPrev:
+      case QuickAction::VsAsciiPresetNext:
+        if (Cue* c = selectedTextModeCueMutable()) {
+          const auto& presets = glyphPresets();
+          const int count = static_cast<int>(presets.size());
+          // Where we are is worked out from the glyph string itself rather than
+          // remembered, so an operator who edited it by hand is not snapped
+          // back to a preset they are no longer using.
+          int at = -1;
+          for (int i = 0; i < count; ++i) {
+            if (c->videoSynth.asciiGlyphs == presets[i].glyphs) { at = i; break; }
+          }
+          const int step = action == QuickAction::VsAsciiPresetNext ? 1 : -1;
+          const int next = (at < 0) ? (step > 0 ? 0 : count - 1)
+                                    : ((at + step) % count + count) % count;
+          c->videoSynth.asciiGlyphs = presets[next].glyphs;
+          markProjectDirty();
+          triggerToast(std::string("glyphs: ") + presets[next].name);
+          playUiSound(UiSoundEffect::Toggle);
+        }
+        break;
+      case QuickAction::VsAsciiFontPick:
+        pickAsciiFont();
+        break;
       case QuickAction::VsAsciiChaosDec:
         adjustVs(&VideoSynthSettings::asciiChaos, -0.05, 0.0, 1.0, "chaos", true);
         break;

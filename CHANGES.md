@@ -1,5 +1,46 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-01 - v0.92.0 (curated sets, a typeface of your choosing, and wobble)
+
+### Thirty-two curated sets
+
+A **preset** row in TEXT MODE, cycling through sets of symbols and emoji: dots,
+stars, sparkles, music, hearts, flowers, arrows, geometry, blocks, box drawing,
+circles, weather, zodiac, chess & cards, runes, greek, braille, currency, maths,
+dice, faces — and a dozen emoji sets from faces and nature through show,
+party, creatures, space and fruit.
+
+Picking one fills the custom glyphs field and leaves it editable, so a preset is
+a starting point rather than a mode. Each is ordered light to heavy, which is
+the order text mode maps brightness onto.
+
+### Choose the typeface
+
+A **font** row picks the face the characters are drawn with; click it again for
+automatic. A chosen font is tried first and the system fonts still cover
+anything it lacks, so picking something for its stars does not cost you the
+letters it has not got.
+
+A character no font on the machine can draw is now left out of the set rather
+than drawn as the empty box fonts use for missing glyphs.
+
+### Wobble
+
+Each character rocks as though it were a card being tilted — a squash on one
+axis, a stretch on the other, and a shear between them. Every cell has its own
+phase, so the grid breathes rather than sliding about as one sheet.
+
+**wobble by** decides what aims each tilt:
+
+- **drift** — its own position. Time only.
+- **flow** — the picture's luma gradient, so characters lean the way the image
+  does and an edge combs the grid along itself.
+- **hue** — the cell's colour, so the picture steers the tilt by what it is
+  rather than by where its edges are.
+
+It costs nothing at zero.
+
+
 ## 2026-09-01 - v0.91.0 (it can tell you there is a new one)
 
 An **UPDATES** card in the System settings. It asks GitHub whether there is a

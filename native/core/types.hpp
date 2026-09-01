@@ -200,6 +200,28 @@ struct VideoSynthSettings {
   // Position-hashed, not per-frame random. A cell that re-rolls every frame is
   // a flicker rather than a texture -- the same reason spriteChaos is hashed.
   double asciiChaos = 0.0;
+  // WHICH FACE to draw the glyphs with. Empty means the automatic chain: the
+  // platform's emoji and symbol fonts, tried in order.
+  //
+  // A named font is tried FIRST and the chain still backs it up per character,
+  // so picking a decorative face for its stars does not cost you letters it
+  // does not have.
+  std::string asciiFontPath;
+  // WOBBLE. Each cell rocks as though the character were a card being tilted:
+  // a squash across one axis, a stretch across the other and a shear between
+  // them, which the eye reads as depth even though nothing is projected.
+  //
+  // 0 is still. The phase is per CELL, so the grid breathes rather than sliding
+  // about as one sheet -- the same thing that makes the startup mascot look
+  // alive rather than animated.
+  double asciiWobble = 0.0;
+  // Where each cell's tilt points.
+  //   0 drift  -- its own phase, from its position. Time only.
+  //   1 flow   -- along the picture's luma gradient, so characters lean the way
+  //               the image does and edges comb the grid.
+  //   2 hue    -- from the cell's colour, so the picture steers the tilt by
+  //               what it is rather than by where its edges are.
+  int asciiWobbleMode = 0;
   // GLITCH TEXT. Marks stacked above, below and through the characters, the
   // way combining diacritics overflow a line -- drawn rather than borrowed
   // from a font, so where they go and how far is ours to decide.
@@ -1471,6 +1493,8 @@ enum class QuickAction {
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
   VsAsciiChaosDec, VsAsciiChaosInc,
+  VsAsciiPresetPrev, VsAsciiPresetNext, VsAsciiFontPick,
+  VsAsciiWobbleDec, VsAsciiWobbleInc, VsAsciiWobbleModeCycle,
   VsAsciiGlyphsEdit, VsAsciiPhrasesEdit, VsAsciiHoldDec, VsAsciiHoldInc,
   VsZalgoUpDec, VsZalgoUpInc, VsZalgoDownDec, VsZalgoDownInc,
   VsZalgoMidDec, VsZalgoMidInc, VsZalgoReachDec, VsZalgoReachInc,

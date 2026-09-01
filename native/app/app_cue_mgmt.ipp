@@ -2473,6 +2473,13 @@
       default: return "blocks";
     }
   }
+  static const char* vsWobbleModeLabel(int m) {
+    switch (m) {
+      case 1:  return "flow (follows the picture)";
+      case 2:  return "hue (follows the colour)";
+      default: return "drift";
+    }
+  }
   static const char* vsInkLabel(int i) {
     switch (i) {
       case 1:  return "green";
@@ -2568,6 +2575,43 @@
   // rather than a dropdown because the whole point of them is that the
   // operator supplies characters nobody anticipated -- a band's initials, a
   // set of box-drawing pieces, the name of the venue.
+  // Pick the typeface text mode draws with, or clear it back to automatic.
+  //
+  // The chosen face is tried FIRST and the platform chain still backs it up per
+  // character, so a decorative font picked for its stars does not cost you the
+  // letters it does not have.
+  void pickAsciiFont() {
+    Cue* c = selectedTextModeCueMutable();
+    if (!c) {
+      return;
+    }
+    if (!c->videoSynth.asciiFontPath.empty()) {
+      c->videoSynth.asciiFontPath.clear();
+      markProjectDirty();
+      triggerToast("font: automatic");
+      return;
+    }
+    // SDL requires the filter array to outlive the callback, so it is static --
+    // a temporary here is the bug the file-dialog notes warn about.
+    static const std::vector<SDL_DialogFileFilter> kFontFilters {
+      {"Fonts", "ttf;otf;ttc;otc"},
+      {"All files", "*"},
+    };
+    showOpenFileDialog(kFontFilters, /*allowMany=*/false,
+                       [this](std::vector<std::string> picked) {
+      if (picked.empty()) {
+        return;
+      }
+      Cue* target = selectedTextModeCueMutable();
+      if (!target) {
+        return;
+      }
+      target->videoSynth.asciiFontPath = picked.front();
+      markProjectDirty();
+      triggerToast("font: " + fs::path(picked.front()).filename().string());
+    });
+  }
+
   void editAsciiGlyphs() {
     Cue* c = selectedTextModeCueMutable();
     if (!c) {

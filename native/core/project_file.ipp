@@ -456,6 +456,9 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.asciiZalgoDrift
         // APPENDED, never inserted: the record is positional.
         << '\t' << cue.videoSynth.asciiChaos
+        << '\t' << escapeField(cue.videoSynth.asciiFontPath)
+        << '\t' << cue.videoSynth.asciiWobble
+        << '\t' << cue.videoSynth.asciiWobbleMode
         << '\n';
     }
   }
@@ -1308,6 +1311,11 @@ Project loadProject(const fs::path& projectFile,
         // this existed looks exactly as it did.
         cue.videoSynth.asciiChaos =
           std::clamp(safeDouble(fields, vs + 44, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiFontPath = safeString(fields, vs + 45);
+        cue.videoSynth.asciiWobble =
+          std::clamp(safeDouble(fields, vs + 46, 0.0), 0.0, 1.0);
+        cue.videoSynth.asciiWobbleMode =
+          std::clamp(safeInt(fields, vs + 47, 0), 0, 2);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {
