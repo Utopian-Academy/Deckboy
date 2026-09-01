@@ -230,7 +230,7 @@ Current field counts:
 - **OutputTarget**: 28 base fields + 4 AOI (28–31) + 2 Spout (32–33) + streamKey (34) + displayName (35) → guard `>= 36`
 - **Cue**: check existing guard indices in `native/core/project_file.ipp`
 - Careful: `app_smoke.ipp` constructs `OutputTarget` with positional aggregate init — adding a struct member mid-struct breaks those sites (prefer appending or update them)
-- **Project scalars** serialize as `key\tvalue` lines (not positional): e.g. `splash_character`, `ui_scale`, `midi_device`, `theme` (the saved colorway dir under `data/themes/`, applied on open + at boot unless empty). Add new ones as a `<<` write in saveProject + an `else if (fields[0] == "...")` branch in loadProject.
+- **Project scalars** serialize as `key\tvalue` lines (not positional): e.g. `splash_character`, `ui_scale`, `midi_device`, `theme` (the saved colorway dir under `data/themes/`, applied on open + at boot unless empty). Add new ones as a `<<` write in saveProject + a branch in **`applyProjectScalarLine`** — NOT in loadProject itself. That chain reached 112 `else if` branches and MSVC refused it (C1061, the same wall `handleSettingsClick` was split for), so the scalar keys were lifted into their own function. `update_check` is the newest one.
 
 ---
 
