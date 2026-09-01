@@ -3765,6 +3765,37 @@
       }
       finishInspectorSection(metadataSection, metadataY);
 
+      // GEOMETRY and KEY, which a stream wants for exactly the reasons a clip
+      // does: an incoming feed is composited into the programme like anything
+      // else, and framing and keying it are the two things most often needed on
+      // one. EFFECTS is drawn after the chain for every kind already.
+      //
+      // The kinds still without these -- Composite, Lower Third, Timer, Video
+      // Synth -- each carry their own layout controls, and two controls for one
+      // thing is worse than none. That is a judgement per kind, not an
+      // oversight; see AUDIT_ROADMAP.
+      int streamGeoY = cueSectionMetadataOpen_ ? (metadataY + kInspectorSectionGap)
+                                               : (metadataSection.bodyStartY + kInspectorSectionGap);
+      auto streamGeometry = beginInspectorSection(streamGeoY, "GEOMETRY",
+                                                  cueSectionGeometryOpen_,
+                                                  QuickAction::CueSectionGeometryToggle,
+                                                  "Collapse/expand geometry controls");
+      streamGeoY = streamGeometry.bodyStartY;
+      if (cueSectionGeometryOpen_) {
+        streamGeoY = drawGeometryRows(streamGeoY, *selectedCue, true);
+        streamGeoY = drawColorRows(streamGeoY, *selectedCue);
+      }
+      finishInspectorSection(streamGeometry, streamGeoY);
+
+      auto streamKey = beginInspectorSection(streamGeoY, "KEY", cueSectionKeyOpen_,
+                                             QuickAction::CueSectionKeyToggle,
+                                             "Collapse/expand key controls");
+      streamGeoY = streamKey.bodyStartY;
+      if (cueSectionKeyOpen_) {
+        streamGeoY = drawKeyRows(streamGeoY, *selectedCue);
+      }
+      finishInspectorSection(streamKey, streamGeoY);
+
     } else if (selectedCue && selectedCue->kind == CueKind::Timer) {
       // Timer cues get their own branch. They previously fell through to
       // "no per-cue settings for this type", which meant the stage clock was

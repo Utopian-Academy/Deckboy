@@ -497,6 +497,27 @@ Project loadProject(const fs::path& projectFile,
       totalBytes = 0;
     }
   }
+  // DID THE FILE END WHERE A FILE SHOULD END?
+  //
+  // Every record the writer emits is terminated, so a complete show ends with a
+  // newline. One that does not was cut off mid-record -- a power cut during the
+  // old in-place save, a USB stick pulled, a half-finished copy.
+  //
+  // This is the check that matters, because the OTHER signal is not enough on
+  // its own: a truncation landing inside a `cue` line still matches the cue
+  // branch and simply reads short fields, so nothing downstream notices. That
+  // is precisely the file that got silently rewritten during testing.
+  if (totalBytes > 0) {
+    std::ifstream tail(resolved, std::ios::binary);
+    if (tail) {
+      tail.seekg(static_cast<std::streamoff>(totalBytes) - 1);
+      char lastByte = 0;
+      if (tail.get(lastByte) && lastByte != '\n') {
+        project.loadedCleanly = false;
+      }
+    }
+  }
+
   std::size_t lineCounter = 0;
 
   project.decks.clear();
@@ -504,7 +525,10 @@ Project loadProject(const fs::path& projectFile,
   project.outputs.clear();
 
   auto ensureDeck = [&](int deckIndex) -> Deck& {
-    int normalizedIndex = std::max(0, deckIndex);
+    // Clamped, not grown to fit: see kMaxDecks. A real show never comes near
+    // this, and a corrupt one no longer asks the machine for thousands of
+    // audio devices.
+    int normalizedIndex = std::clamp(deckIndex, 0, kMaxDecks - 1);
     while (normalizedIndex >= static_cast<int>(project.decks.size())) {
       Deck deck;
       deck.name = deckDefaultName(static_cast<int>(project.decks.size()));
@@ -725,7 +749,7 @@ Project loadProject(const fs::path& projectFile,
       project.outputCanvasHeight = safeInt(fields, 1, 2160);
     } else if (fields[0] == "output_target") {
       int outputIndex = safeInt(fields, 1, static_cast<int>(project.outputs.size()));
-      int normalizedIndex = std::max(0, outputIndex);
+      int normalizedIndex = std::clamp(outputIndex, 0, kMaxOutputs - 1);
       while (normalizedIndex >= static_cast<int>(project.outputs.size())) {
         project.outputs.push_back(OutputTarget {});
       }
@@ -1261,6 +1285,16 @@ Project loadProject(const fs::path& projectFile,
         }
         ensureDeck(deckIndex).cues.push_back(cue);
       }
+    } else {
+      // A LINE WE DO NOT UNDERSTAND.
+      //
+      // Which is what the back half of a truncated show looks like, and what a
+      // show written by a newer build looks like. Either way this project is
+      // not a faithful reading of that file, and the auto-save must not write
+      // it back over the original 300ms later -- which is exactly what happened
+      // to a show truncated mid-cue during testing, destroying the bytes a
+      // recovery tool could still have used.
+      project.loadedCleanly = false;
     }
   }
 

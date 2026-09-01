@@ -5836,13 +5836,26 @@ class App {
     // about the operator's machine, and the whole point is that it is not.
     const double costMs = effectChainCostForDeck(project_.focusedDeckIndex);
     if (costMs > 0.05 && deckboy::effects::cueEffectStackActive(cue.effects)) {
-      // 60fps is the reference because it is the rate the app targets; an
-      // output running slower has more room, and is told so by being under.
-      constexpr double kFrameMs = 1000.0 / 60.0;
+      // THE BUDGET IS THE OUTPUT'S FRAME, not an assumed 60.
+      //
+      // This read "% of a 60fps frame" whatever the output was actually doing.
+      // On a 50Hz projector that is pessimistic and merely unhelpful; on a
+      // 120Hz wall it is optimistic and actively misleading -- 15ms shows as
+      // 90% of a frame while it is in fact 180% of one, and the operator is
+      // told there is headroom while the output drops frames. primaryOutputMode
+      // already carries the real refresh, so use it and say which rate the
+      // figure is against.
+      const double refreshHz = [&]() {
+        const double hz = primaryOutputMode().refreshHz;
+        return (std::isfinite(hz) && hz > 1.0) ? hz : 60.0;
+      }();
+      const double kFrameMs = 1000.0 / refreshHz;
       const double share = 100.0 * costMs / kFrameMs;
       std::ostringstream line;
       line << std::fixed << std::setprecision(1) << costMs << " ms/frame  ("
-           << std::setprecision(0) << share << "% of a 60fps frame)";
+           << std::setprecision(0) << share << "% of a "
+           << std::setprecision(refreshHz < 100.0 && refreshHz != std::floor(refreshHz) ? 2 : 0)
+           << refreshHz << "fps frame)";
       const bool over = costMs >= kFrameMs;
       rowY = inspDrawMessageRow(ix, rowY, line.str(),
                                 over ? pal.mid : pal.tile,
@@ -8123,6 +8136,11 @@ class App {
   double panicRestoreDimmerTarget_ = 1.0;
   std::vector<SettingsButton> settingsBtns_;
   bool midiEnabled_ = false;
+  // The port actually open, which is not always the one requested: a control
+  // surface that is unplugged, not switched on, or still enumerating leaves the
+  // request standing and nothing connected. Same split as the audio device.
+  std::string midiDeviceInUse_;
+  Uint64 lastMidiDevicePollMs_ = 0;
 #if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
   // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
   deckboy::platform::midi::MidiInput midiRt_;
