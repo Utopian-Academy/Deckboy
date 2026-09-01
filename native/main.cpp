@@ -3730,6 +3730,15 @@ class App {
     refreshDisplayTopology(false);
     selectionChangedAt_ = SDL_GetTicks();
     lastUpdateTickMs_ = selectionChangedAt_;
+    // Anything left in the update folder has already done its job -- it was
+    // either installed, in which case this build is its work, or abandoned. A
+    // 90MB installer should not sit there forever.
+    removeStaleUpdateDownloads();
+    if (project_.updateCheckEnabled) {
+      // Quietly, at startup, with nothing live. It never installs anything --
+      // see checkForUpdateAsync.
+      checkForUpdateAsync(/*quiet=*/true);
+    }
     startCompanionControl();
     if (project_.oscQueryEnabled) {
       startOscQueryServer();
@@ -7075,6 +7084,11 @@ class App {
   // double-allocation that once silently killed whichever handler ran second.
   // audit_actions.py caught it. GREP THE VALUE before allocating another.
   static constexpr int kSettingsActionVjModeToggle = 722;
+  // 723-725: the update checker. Next free id is 726.
+  static constexpr int kSettingsActionUpdateCheckToggle = 723;
+  static constexpr int kSettingsActionUpdateCheckNow = 724;
+  static constexpr int kSettingsActionUpdateDownload = 725;
+  static constexpr int kSettingsActionUpdateInstall = 726;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -8566,6 +8580,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
   {"--settings [tab[.subtab]]", "open the settings modal at boot, e.g. --settings 3.1"},
   {"--soak [minutes]", "long-run stability harness (default 1440); logs to deckboy-soak.log"},
   {"--devices", "list the audio, display and capture hardware this machine offers"},
+  {"--check-update", "ask GitHub whether there is a newer release, print it, and exit"},
   {"--no-inproc-decode", "keep every decode on the ffmpeg CLI pipe path"},
   {"--allow-multi-instance", "bypass the single-instance lock"},
 };
@@ -8575,7 +8590,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe", "--pdf-probe", "--devices",
+  "--motion-probe", "--pdf-probe", "--devices", "--check-update",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -8844,6 +8859,9 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
   }
   if (mode == "--devices") {
     return App::runDeviceReport();
+  }
+  if (mode == "--check-update") {
+    return App::runUpdateCheckReport();
   }
   if (mode == "--sync-pop-test") {
     return App::runSyncPopTest();

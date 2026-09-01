@@ -1069,6 +1069,13 @@ struct Project {
   // virtual ports that is not a control surface at all, and a stray note from
   // it fires cues.
   std::string midiDeviceName = "";
+  // Ask GitHub, at startup, whether there is a newer release. OFF BY DEFAULT
+  // and deliberately so: this is the only outbound connection Deckboy makes on
+  // its own, and a machine sitting on a venue's network should do nothing
+  // nobody asked it to. Checking never installs anything -- see
+  // checkForUpdateAsync.
+  bool updateCheckEnabled = false;
+
   // NOT SERIALISED -- true for this run only. False when the loader met a line
   // it did not understand, which is what a truncated or damaged show looks
   // like. The unattended auto-save refuses to write over a file in that state;

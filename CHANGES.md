@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-01 - v0.91.0 (it can tell you there is a new one)
+
+An **UPDATES** card in the System settings. It asks GitHub whether there is a
+newer release, tells you, and offers to fetch it — and that is all it does on
+its own.
+
+- **Off until you switch it on.** This is the only connection Deckboy opens
+  outward by itself, and a machine on a venue network should do nothing nobody
+  asked for. CHECK NOW works whether or not the startup check is on.
+- **It never installs anything by itself.** Checking is a check. Downloading is
+  a button. Installing is another button, and it restarts.
+- **It refuses while anything is live.** Not the download and not the install:
+  an update is a restart, and a restart mid-show is the worst thing this
+  program could do to you.
+- **It tidies up.** A finished installer is deleted at the next start, so a
+  90MB file does not sit in your state folder forever.
+
+The download is checked against the size the release reports, so a connection
+that drops halfway leaves nothing to run rather than a broken installer.
+
+`deckboy --check-update` prints the answer and exits, and
+`UPDATE check|download|install|status` drives it from a surface.
+
+
 ## 2026-09-01 - v0.90.0 (type anything, including emoji)
 
 ### Any character you can type

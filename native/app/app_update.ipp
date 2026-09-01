@@ -509,6 +509,22 @@
       audioDeviceRecheckAtMs_ = 0;
       reconcileDeckAudioDevices();
     }
+    // A finished update check, announced on the main thread rather than from
+    // the worker that did it.
+    {
+      std::string announce;
+      {
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        if (updateAnnouncePending_) {
+          updateAnnouncePending_ = false;
+          announce = updateStatus_;
+        }
+      }
+      if (!announce.empty()) {
+        triggerToast("update: " + announce);
+      }
+    }
+
     // Backstop poll, for the same reason the display topology has one below:
     // a driver that never emits the events leaves the deck silent forever, and
     // that is not a failure mode worth trusting an event for. Every two
