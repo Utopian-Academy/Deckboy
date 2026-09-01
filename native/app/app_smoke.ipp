@@ -1643,6 +1643,30 @@
   // It is also the first thing to ask of a venue machine that "has no sound" or
   // "will not go full screen", because it separates a Deckboy fault from a
   // machine that genuinely cannot see the hardware.
+  // Ask GitHub what the newest release is and say so, without starting the
+  // application. The check the app does at startup is the same call; this is
+  // how it gets tested, and how an operator on a locked-down machine can find
+  // out whether the network path works at all.
+  static int runUpdateCheckReport() {
+    App probe;
+    std::string error;
+    UpdateInfo info = probe.fetchLatestRelease(error);
+    std::cout << "running: " << deckboy::core::version::kVersionTag << '\n';
+    if (!error.empty()) {
+      std::cout << "result:  " << error << '\n';
+      return 1;
+    }
+    if (info.version.empty()) {
+      std::cout << "result:  up to date" << '\n';
+      return 0;
+    }
+    std::cout << "result:  " << info.version << " is available" << '\n';
+    std::cout << "asset:   " << info.assetName
+              << "  (" << (info.assetSize / (1024 * 1024)) << " MB)" << '\n';
+    std::cout << "url:     " << info.assetUrl << '\n';
+    return 0;
+  }
+
   static int runDeviceReport() {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
       std::cout << "devices: SDL init failed: " << SDL_GetError() << '\n';

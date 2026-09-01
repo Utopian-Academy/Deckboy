@@ -58,6 +58,7 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   output << "ltc_out\t" << (project.ltcOutputEnabled ? 1 : 0) << '\n';
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
+  output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
@@ -483,6 +484,339 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
 // draw a loading overlay while this blocks. Progress is measured in BYTES READ
 // rather than lines, because a show's line count isn't known until it has been
 // read — and byte position is exact and free.
+// The project-level scalars: one key per line, `key<TAB>value`.
+//
+// LIFTED OUT OF loadProject because MSVC counts every `else if` as a nested
+// block and refuses past a limit -- C1061, the same wall handleSettingsClick
+// hit and was split for. There were a hundred and twelve of these and adding
+// one more broke the build, which is a poor reason for a show file to stop
+// gaining settings.
+//
+// Returns true when the line was a scalar it knows, so the caller can tell a
+// key it does not recognise from one it simply has nothing to do for.
+template <typename EnsureDeck>
+bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fields,
+                            EnsureDeck&& ensureDeck) {
+  if (fields[0] == "title") {
+    project.title = safeString(fields, 1);
+  } else if (fields[0] == "focused_deck") {
+    project.focusedDeckIndex = safeInt(fields, 1, 0);
+  } else if (fields[0] == "focused_output") {
+    project.focusedOutputIndex = safeInt(fields, 1, 0);
+  } else if (fields[0] == "focused_group" || fields[0] == "layer_names") {
+    // Legacy fields — ignored (single-deck, no layer assignments or group presets).
+  } else if (fields[0] == "advanced_mode") {
+    project.advancedOutputMode = safeBool(fields, 1, false);
+  } else if (fields[0] == "ptp_domain") {
+    project.ptpDomain = std::clamp(safeInt(fields, 1, 127), 0, 127);
+  } else if (fields[0] == "nmos_enabled") {
+    project.nmosEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "nmos_registry") {
+    project.nmosRegistryUrl = safeString(fields, 1);
+  } else if (fields[0] == "nmos_port") {
+    project.nmosPort = std::clamp(safeInt(fields, 1, 3210), 1, 65535);
+  } else if (fields[0] == "nmos_interface") {
+    project.nmosInterfaceName = safeString(fields, 1);
+  } else if (fields[0] == "ltc_out") {
+    project.ltcOutputEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "ltc_out_device") {
+    project.ltcOutputDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "ltc_out_fps") {
+    project.ltcOutputFps = std::clamp(safeDouble(fields, 1, 30.0), 23.0, 60.0);
+  } else if (fields[0] == "ltc_out_channel") {
+    project.ltcOutputChannel = std::clamp(safeInt(fields, 1, 0), 0, 7);
+  } else if (fields[0] == "ltc_out_channels") {
+    project.ltcOutputChannelCount = std::clamp(safeInt(fields, 1, 2), 1, 8);
+  } else if (fields[0] == "selected") {
+    ensureDeck(0).selectedIndex = safeInt(fields, 1, -1);
+  } else if (fields[0] == "active") {
+    ensureDeck(0).activeIndex = safeInt(fields, 1, -1);
+  } else if (fields[0] == "auto_advance") {
+    // Legacy field: cue endings now follow per-cue hold/end settings.
+  } else if (fields[0] == "playlist_loop") {
+    ensureDeck(0).playlistLoop = safeBool(fields, 1, false);
+  } else if (fields[0] == "ui_sounds") {
+    project.uiSoundsEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "ui_transitions") {
+    project.uiTransitionsEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "hap_suggestion_dismissed") {
+    project.hapSuggestionDismissed = safeBool(fields, 1, false);
+  } else if (fields[0] == "synth_keyboard") {
+    project.synthKeyboardEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "synth_octave") {
+    project.synthKeyboardOctave = std::clamp(safeInt(fields, 1, 4), 0, 8);
+  } else if (fields[0] == "midi_to_synth") {
+    project.midiToSynth = safeBool(fields, 1, false);
+  } else if (fields[0] == "audio_input_device") {
+    project.audioInputDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "audio_input_enabled") {
+    project.audioInputEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "audio_input_mono") {
+    project.audioInputMono = safeBool(fields, 1, true);
+  } else if (fields[0] == "audio_input_to_program") {
+    project.audioInputToProgram = safeBool(fields, 1, true);
+  } else if (fields[0] == "audio_input_gain_db") {
+    project.audioInputGainDb = std::clamp(safeDouble(fields, 1, 0.0), -40.0, 40.0);
+  } else if (fields[0] == "asio_driver") {
+    project.asioDriverName = safeString(fields, 1);
+  } else if (fields[0] == "asio_channels") {
+    project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, 64);
+  } else if (fields[0] == "recording_dir") {
+    project.recordingDir = safeString(fields, 1);
+  } else if (fields[0] == "recording_width") {
+    project.recordingWidth = safeInt(fields, 1, 0);
+  } else if (fields[0] == "recording_height") {
+    project.recordingHeight = safeInt(fields, 1, 0);
+  } else if (fields[0] == "recording_fps") {
+    project.recordingFps = safeDouble(fields, 1, 0.0);
+  } else if (fields[0] == "recording_codec") {
+    project.recordingCodec = safeString(fields, 1);
+  } else if (fields[0] == "recording_tc_mode") {
+    project.recordingTimecodeMode = safeString(fields, 1);
+  } else if (fields[0] == "recording_tc_start") {
+    project.recordingTimecodeStart = safeString(fields, 1);
+  } else if (fields[0] == "recording_tc_df") {
+    project.recordingTimecodeDropFrame = safeString(fields, 1);
+  } else if (fields[0] == "recording_segment_minutes") {
+    project.recordingSegmentMinutes = safeInt(fields, 1, 0);
+  } else if (fields[0] == "recording_segment_mb") {
+    project.recordingSegmentMegabytes = safeInt(fields, 1, 0);
+  } else if (fields[0] == "recording_remux") {
+    project.recordingRemuxOnStop = safeBool(fields, 1, true);
+  } else if (fields[0] == "splash_character") {
+    std::string v = safeString(fields, 1);
+    project.splashCharacter = v.empty() ? std::string("deckbot") : v;
+  } else if (fields[0] == "update_check") {
+    project.updateCheckEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "midi_device") {
+    project.midiDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "theme") {
+    project.theme = safeString(fields, 1);
+  } else if (fields[0] == "terrarium_unlocked") {
+    project.terrariumUnlocked = safeBool(fields, 1, false);
+  } else if (fields[0] == "geometry_aspect_link") {
+    project.geometryAspectLinked = safeBool(fields, 1, true);
+  } else if (fields[0] == "vj_mode") {
+    project.vjModeEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "vj_deck_a") {
+    project.vjDeckA = std::max(0, safeInt(fields, 1, 0));
+  } else if (fields[0] == "vj_deck_b") {
+    project.vjDeckB = std::max(0, safeInt(fields, 1, 1));
+  } else if (fields[0] == "vj_mix") {
+    project.vjMixPosition = std::clamp(safeDouble(fields, 1, 0.0), 0.0, 1.0);
+  } else if (fields[0] == "vj_blend") {
+    const std::string mode = safeString(fields, 1);
+    project.vjBlendMode = (mode == "add" || mode == "multiply") ? mode : "dissolve";
+  } else if (fields[0] == "vj_bpm") {
+    project.vjTempoBpm = std::clamp(safeDouble(fields, 1, 120.0), 20.0, 300.0);
+  } else if (fields[0] == "vj_quantise") {
+    project.vjQuantiseTakes = safeBool(fields, 1, false);
+  } else if (fields[0] == "creatures") {
+    project.creaturesEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "creatures_while_live") {
+    project.creaturesWhileLive = safeBool(fields, 1, false);
+  } else if (fields[0] == "show_control_device") {
+    project.showControlDeviceId = std::clamp(safeInt(fields, 1, 0), 0, 127);
+  } else if (fields[0] == "ui_scale") {
+    project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
+  } else if (fields[0] == "interaction_mode") {
+    std::string v = safeString(fields, 1);
+    project.interactionMode = (v == "touch") ? "touch" : "mouse";
+  } else if (fields[0] == "allow_remote_network") {
+    project.allowRemoteNetwork = safeBool(fields, 1, false);
+  } else if (fields[0] == "osc_query_enabled") {
+    project.oscQueryEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "osc_query_port") {
+    project.oscQueryPort = safeInt(fields, 1, 5511);
+  } else if (fields[0] == "osc_feedback_mirror") {
+    project.oscFeedbackMirrorEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "osc_feedback_rate_ms") {
+    project.oscFeedbackRateMs = safeInt(fields, 1, 120);
+  } else if (fields[0] == "integration_atem_trigger") {
+    project.atemTriggerEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_ndi_trigger") {
+    project.ndiTriggerEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_nmc_sync") {
+    project.nmcSyncEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_mtc_ingest") {
+    project.mtcIngestEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_ltc_ingest") {
+    project.ltcIngestEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_dmx_artnet") {
+    project.dmxArtNetEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_artnet_port") {
+    project.artNetPort = safeInt(fields, 1, 6454);
+  } else if (fields[0] == "integration_tsl_tally") {
+    project.tslTallyEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "integration_tsl_port") {
+    project.tslTallyPort = std::clamp(safeInt(fields, 1, 5800), 1, 65535);
+  } else if (fields[0] == "integration_tsl_address") {
+    { std::string v = safeString(fields, 1); project.tslTallyAddress = v.empty() ? "255.255.255.255" : v; }
+  } else if (fields[0] == "audio_buffer_samples") {
+    int v = safeInt(fields, 1, 1024);
+    // Snap to valid sizes only
+    if (v <= 256) v = 256; else if (v <= 512) v = 512; else if (v <= 1024) v = 1024; else v = 2048;
+    project.audioBufferSamples = v;
+  } else if (fields[0] == "audio_delay_ms") {
+    project.audioDelayMs = std::clamp(safeInt(fields, 1, 0), 0, 1000);
+  } else if (fields[0] == "jump_mode") {
+    project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
+  } else if (fields[0] == "jump_transition") {
+    project.jumpTransitionEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "panic_profile") {
+    project.panicProfile = normalizePanicProfileToken(safeString(fields, 1));
+  } else if (fields[0] == "panic_fade_seconds") {
+    project.panicFadeSeconds = safeDouble(fields, 1, 0.9);
+  } else if (fields[0] == "panic_auto_restore") {
+    project.panicAutoRestore = safeBool(fields, 1, false);
+  } else if (fields[0] == "master_volume") {
+    // Range is 0..2 (values above 1.0 are boost) — the old 0..1 clamp here
+    // silently flattened saved boost levels on load.
+    project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 2.0);
+  } else if (fields[0] == "master_dimmer") {
+    project.masterDimmer = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
+  } else if (fields[0] == "output_follow_display") {
+    project.outputFollowDisplay = safeBool(fields, 1, true);
+  } else if (fields[0] == "output_render_width") {
+    project.outputRenderWidth = safeInt(fields, 1, 1920);
+  } else if (fields[0] == "output_render_height") {
+    project.outputRenderHeight = safeInt(fields, 1, 1080);
+  } else if (fields[0] == "output_refresh_hz") {
+    project.outputRefreshRateHz = std::max(0.0, safeDouble(fields, 1, 0.0));
+  } else if (fields[0] == "output_bit_depth") {
+    project.outputBitDepth = safeInt(fields, 1, 0);
+  } else if (fields[0] == "output_canvas_enabled") {
+    project.outputCanvasEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "output_canvas_width") {
+    project.outputCanvasWidth = safeInt(fields, 1, 3840);
+  } else if (fields[0] == "output_canvas_height") {
+    project.outputCanvasHeight = safeInt(fields, 1, 2160);
+  } else if (fields[0] == "output_target") {
+    int outputIndex = safeInt(fields, 1, static_cast<int>(project.outputs.size()));
+    int normalizedIndex = std::clamp(outputIndex, 0, kMaxOutputs - 1);
+    while (normalizedIndex >= static_cast<int>(project.outputs.size())) {
+      project.outputs.push_back(OutputTarget {});
+    }
+    OutputTarget& outputTarget = project.outputs[normalizedIndex];
+    outputTarget.name = safeString(fields, 2);
+    outputTarget.hostDeckIndex = safeInt(fields, 3, 0);
+    outputTarget.displayIndex = safeInt(fields, 4, 0);
+    outputTarget.enabled = safeBool(fields, 5, false);
+    outputTarget.streamEnabled = safeBool(fields, 6, false);
+    outputTarget.streamProtocol = safeString(fields, 7);
+    outputTarget.streamUrl = safeString(fields, 8);
+    outputTarget.streamBitrateKbps = safeInt(fields, 9, 6000);
+    if (fields.size() >= 17) {
+      outputTarget.ndiEnabled = safeBool(fields, 10, false);
+      outputTarget.ndiSourceName = safeString(fields, 11);
+      outputTarget.ndiKeyEnabled = safeBool(fields, 12, false);
+      outputTarget.ndiKeySourceName = safeString(fields, 13);
+      outputTarget.outputType = safeString(fields, 14);
+      outputTarget.mirrorSourceOutputIndex = safeInt(fields, 15, -1);
+      outputTarget.outputId = safeString(fields, 16);
+      if (fields.size() >= 21) {
+        outputTarget.outputAlpha = static_cast<float>(safeDouble(fields, 17, 1.0));
+        outputTarget.outputDelayMs = safeInt(fields, 18, 0);
+        outputTarget.outputTimeOverlayEnabled = safeBool(fields, 19, false);
+        outputTarget.outputColorSpace = safeString(fields, 20);
+        if (fields.size() >= 24) {
+          outputTarget.outputLayoutMode = safeString(fields, 21);
+          outputTarget.outputOrientationDegrees = safeInt(fields, 22, 0);
+          outputTarget.outputTestCardEnabled = safeBool(fields, 23, false);
+          if (fields.size() >= 28) {
+            outputTarget.deckLinkEnabled = safeBool(fields, 24, false);
+            outputTarget.deckLinkDeviceId = safeInt(fields, 25, -1);
+            outputTarget.deckLinkMode = safeString(fields, 26);
+            outputTarget.deckLink10Bit = safeBool(fields, 27, true);
+            if (fields.size() >= 32) {
+              outputTarget.aoiLeft   = static_cast<float>(safeDouble(fields, 28, 0.0));
+              outputTarget.aoiRight  = static_cast<float>(safeDouble(fields, 29, 0.0));
+              outputTarget.aoiTop    = static_cast<float>(safeDouble(fields, 30, 0.0));
+              outputTarget.aoiBottom = static_cast<float>(safeDouble(fields, 31, 0.0));
+              if (fields.size() >= 34) {
+                outputTarget.spoutEnabled = safeBool(fields, 32, false);
+                outputTarget.spoutSenderName = safeString(fields, 33);
+                if (fields.size() >= 35) {
+                  outputTarget.streamKey = safeString(fields, 34);
+                  if (fields.size() >= 36) {
+                    outputTarget.displayName = safeString(fields, 35);
+                    if (fields.size() >= 41) {
+                      outputTarget.st2110Enabled = safeBool(fields, 36, false);
+                      outputTarget.st2110Address = safeString(fields, 37);
+                      outputTarget.st2110Interface = safeString(fields, 38);
+                      outputTarget.st2110Port = safeInt(fields, 39, 20000);
+                      outputTarget.st2110TenBit = safeBool(fields, 40, true);
+                      if (trim(outputTarget.st2110Address).empty()) {
+                        outputTarget.st2110Address = "239.20.10.1";
+                      }
+                      if (fields.size() >= 46) {
+                        outputTarget.srtLatencyMs = std::clamp(safeInt(fields, 41, 120), 20, 8000);
+                        outputTarget.srtPassphrase = safeString(fields, 42);
+                        outputTarget.srtStreamId = safeString(fields, 43);
+                        outputTarget.srtMode =
+                          (safeString(fields, 44) == "listener") ? "listener" : "caller";
+                        outputTarget.streamKeyframeSeconds =
+                          std::clamp(safeInt(fields, 45, 2), 1, 10);
+                        // Appended after the keyframe field; older
+                        // shows take the previous hardcoded 160.
+                        outputTarget.streamAudioBitrateKbps =
+                          std::clamp(safeInt(fields, 46, 160), 32, 512);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      // Backward compatibility with older 13-column output_target lines.
+      outputTarget.outputType = safeString(fields, 10);
+      outputTarget.mirrorSourceOutputIndex = safeInt(fields, 11, -1);
+      outputTarget.outputId = safeString(fields, 12);
+    }
+  } else if (fields[0] == "layer_assignment" || fields[0] == "group_preset" ||
+             fields[0] == "group_slot" || fields[0] == "group_preset_meta") {
+    // Legacy fields — ignored (single-deck, no layer assignments or group presets).
+  } else if (fields[0] == "audio_output") {
+    ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
+  } else if (fields[0] == "display_index") {
+    ensureDeck(0).outputDisplayIndex = safeInt(fields, 1, 0);
+  } else if (fields[0] == "ndi_enabled") {
+    ensureDeck(0).ndiEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "ndi_name") {
+    ensureDeck(0).ndiSourceName = safeString(fields, 1);
+  } else if (fields[0] == "ndi_key_enabled") {
+    ensureDeck(0).ndiKeyEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "ndi_key_name") {
+    ensureDeck(0).ndiKeySourceName = safeString(fields, 1);
+  } else if (fields[0] == "time_overlay") {
+    ensureDeck(0).timeOverlayEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "transition_seconds") {
+    ensureDeck(0).transitionSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
+  } else if (fields[0] == "transition_style") {
+    ensureDeck(0).transitionStyle = safeString(fields, 1);
+  } else if (fields[0] == "timecode_chase") {
+    ensureDeck(0).timecodeChaseEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "timecode_run") {
+    ensureDeck(0).timecodeRunEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "timecode_trigger") {
+    ensureDeck(0).timecodeTriggerEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "timecode_jam") {
+    ensureDeck(0).timecodeJamSyncEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "timecode_freewheel") {
+    ensureDeck(0).timecodeFreewheelSeconds = safeDouble(fields, 1, 1.0);
+  } else if (fields[0] == "timecode_fps") {
+    ensureDeck(0).timecodeFps = safeDouble(fields, 1, 30.0);
+  } else if (fields[0] == "timecode_current") {
+    ensureDeck(0).timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
+  } else {
+    return false;
+  }
+  return true;
+}
+
 Project loadProject(const fs::path& projectFile,
                     const std::function<void(double)>& onProgress = {}) {
   Project project;
@@ -557,318 +891,8 @@ Project loadProject(const fs::path& projectFile,
       continue;
     }
 
-    if (fields[0] == "title") {
-      project.title = safeString(fields, 1);
-    } else if (fields[0] == "focused_deck") {
-      project.focusedDeckIndex = safeInt(fields, 1, 0);
-    } else if (fields[0] == "focused_output") {
-      project.focusedOutputIndex = safeInt(fields, 1, 0);
-    } else if (fields[0] == "focused_group" || fields[0] == "layer_names") {
-      // Legacy fields — ignored (single-deck, no layer assignments or group presets).
-    } else if (fields[0] == "advanced_mode") {
-      project.advancedOutputMode = safeBool(fields, 1, false);
-    } else if (fields[0] == "ptp_domain") {
-      project.ptpDomain = std::clamp(safeInt(fields, 1, 127), 0, 127);
-    } else if (fields[0] == "nmos_enabled") {
-      project.nmosEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "nmos_registry") {
-      project.nmosRegistryUrl = safeString(fields, 1);
-    } else if (fields[0] == "nmos_port") {
-      project.nmosPort = std::clamp(safeInt(fields, 1, 3210), 1, 65535);
-    } else if (fields[0] == "nmos_interface") {
-      project.nmosInterfaceName = safeString(fields, 1);
-    } else if (fields[0] == "ltc_out") {
-      project.ltcOutputEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "ltc_out_device") {
-      project.ltcOutputDeviceName = safeString(fields, 1);
-    } else if (fields[0] == "ltc_out_fps") {
-      project.ltcOutputFps = std::clamp(safeDouble(fields, 1, 30.0), 23.0, 60.0);
-    } else if (fields[0] == "ltc_out_channel") {
-      project.ltcOutputChannel = std::clamp(safeInt(fields, 1, 0), 0, 7);
-    } else if (fields[0] == "ltc_out_channels") {
-      project.ltcOutputChannelCount = std::clamp(safeInt(fields, 1, 2), 1, 8);
-    } else if (fields[0] == "selected") {
-      ensureDeck(0).selectedIndex = safeInt(fields, 1, -1);
-    } else if (fields[0] == "active") {
-      ensureDeck(0).activeIndex = safeInt(fields, 1, -1);
-    } else if (fields[0] == "auto_advance") {
-      // Legacy field: cue endings now follow per-cue hold/end settings.
-    } else if (fields[0] == "playlist_loop") {
-      ensureDeck(0).playlistLoop = safeBool(fields, 1, false);
-    } else if (fields[0] == "ui_sounds") {
-      project.uiSoundsEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "ui_transitions") {
-      project.uiTransitionsEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "hap_suggestion_dismissed") {
-      project.hapSuggestionDismissed = safeBool(fields, 1, false);
-    } else if (fields[0] == "synth_keyboard") {
-      project.synthKeyboardEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "synth_octave") {
-      project.synthKeyboardOctave = std::clamp(safeInt(fields, 1, 4), 0, 8);
-    } else if (fields[0] == "midi_to_synth") {
-      project.midiToSynth = safeBool(fields, 1, false);
-    } else if (fields[0] == "audio_input_device") {
-      project.audioInputDeviceName = safeString(fields, 1);
-    } else if (fields[0] == "audio_input_enabled") {
-      project.audioInputEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "audio_input_mono") {
-      project.audioInputMono = safeBool(fields, 1, true);
-    } else if (fields[0] == "audio_input_to_program") {
-      project.audioInputToProgram = safeBool(fields, 1, true);
-    } else if (fields[0] == "audio_input_gain_db") {
-      project.audioInputGainDb = std::clamp(safeDouble(fields, 1, 0.0), -40.0, 40.0);
-    } else if (fields[0] == "asio_driver") {
-      project.asioDriverName = safeString(fields, 1);
-    } else if (fields[0] == "asio_channels") {
-      project.asioChannels = std::clamp(safeInt(fields, 1, 2), 2, 64);
-    } else if (fields[0] == "recording_dir") {
-      project.recordingDir = safeString(fields, 1);
-    } else if (fields[0] == "recording_width") {
-      project.recordingWidth = safeInt(fields, 1, 0);
-    } else if (fields[0] == "recording_height") {
-      project.recordingHeight = safeInt(fields, 1, 0);
-    } else if (fields[0] == "recording_fps") {
-      project.recordingFps = safeDouble(fields, 1, 0.0);
-    } else if (fields[0] == "recording_codec") {
-      project.recordingCodec = safeString(fields, 1);
-    } else if (fields[0] == "recording_tc_mode") {
-      project.recordingTimecodeMode = safeString(fields, 1);
-    } else if (fields[0] == "recording_tc_start") {
-      project.recordingTimecodeStart = safeString(fields, 1);
-    } else if (fields[0] == "recording_tc_df") {
-      project.recordingTimecodeDropFrame = safeString(fields, 1);
-    } else if (fields[0] == "recording_segment_minutes") {
-      project.recordingSegmentMinutes = safeInt(fields, 1, 0);
-    } else if (fields[0] == "recording_segment_mb") {
-      project.recordingSegmentMegabytes = safeInt(fields, 1, 0);
-    } else if (fields[0] == "recording_remux") {
-      project.recordingRemuxOnStop = safeBool(fields, 1, true);
-    } else if (fields[0] == "splash_character") {
-      std::string v = safeString(fields, 1);
-      project.splashCharacter = v.empty() ? std::string("deckbot") : v;
-    } else if (fields[0] == "midi_device") {
-      project.midiDeviceName = safeString(fields, 1);
-    } else if (fields[0] == "theme") {
-      project.theme = safeString(fields, 1);
-    } else if (fields[0] == "terrarium_unlocked") {
-      project.terrariumUnlocked = safeBool(fields, 1, false);
-    } else if (fields[0] == "geometry_aspect_link") {
-      project.geometryAspectLinked = safeBool(fields, 1, true);
-    } else if (fields[0] == "vj_mode") {
-      project.vjModeEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "vj_deck_a") {
-      project.vjDeckA = std::max(0, safeInt(fields, 1, 0));
-    } else if (fields[0] == "vj_deck_b") {
-      project.vjDeckB = std::max(0, safeInt(fields, 1, 1));
-    } else if (fields[0] == "vj_mix") {
-      project.vjMixPosition = std::clamp(safeDouble(fields, 1, 0.0), 0.0, 1.0);
-    } else if (fields[0] == "vj_blend") {
-      const std::string mode = safeString(fields, 1);
-      project.vjBlendMode = (mode == "add" || mode == "multiply") ? mode : "dissolve";
-    } else if (fields[0] == "vj_bpm") {
-      project.vjTempoBpm = std::clamp(safeDouble(fields, 1, 120.0), 20.0, 300.0);
-    } else if (fields[0] == "vj_quantise") {
-      project.vjQuantiseTakes = safeBool(fields, 1, false);
-    } else if (fields[0] == "creatures") {
-      project.creaturesEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "creatures_while_live") {
-      project.creaturesWhileLive = safeBool(fields, 1, false);
-    } else if (fields[0] == "show_control_device") {
-      project.showControlDeviceId = std::clamp(safeInt(fields, 1, 0), 0, 127);
-    } else if (fields[0] == "ui_scale") {
-      project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
-    } else if (fields[0] == "interaction_mode") {
-      std::string v = safeString(fields, 1);
-      project.interactionMode = (v == "touch") ? "touch" : "mouse";
-    } else if (fields[0] == "allow_remote_network") {
-      project.allowRemoteNetwork = safeBool(fields, 1, false);
-    } else if (fields[0] == "osc_query_enabled") {
-      project.oscQueryEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "osc_query_port") {
-      project.oscQueryPort = safeInt(fields, 1, 5511);
-    } else if (fields[0] == "osc_feedback_mirror") {
-      project.oscFeedbackMirrorEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "osc_feedback_rate_ms") {
-      project.oscFeedbackRateMs = safeInt(fields, 1, 120);
-    } else if (fields[0] == "integration_atem_trigger") {
-      project.atemTriggerEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_ndi_trigger") {
-      project.ndiTriggerEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_nmc_sync") {
-      project.nmcSyncEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_mtc_ingest") {
-      project.mtcIngestEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_ltc_ingest") {
-      project.ltcIngestEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_dmx_artnet") {
-      project.dmxArtNetEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_artnet_port") {
-      project.artNetPort = safeInt(fields, 1, 6454);
-    } else if (fields[0] == "integration_tsl_tally") {
-      project.tslTallyEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "integration_tsl_port") {
-      project.tslTallyPort = std::clamp(safeInt(fields, 1, 5800), 1, 65535);
-    } else if (fields[0] == "integration_tsl_address") {
-      { std::string v = safeString(fields, 1); project.tslTallyAddress = v.empty() ? "255.255.255.255" : v; }
-    } else if (fields[0] == "audio_buffer_samples") {
-      int v = safeInt(fields, 1, 1024);
-      // Snap to valid sizes only
-      if (v <= 256) v = 256; else if (v <= 512) v = 512; else if (v <= 1024) v = 1024; else v = 2048;
-      project.audioBufferSamples = v;
-    } else if (fields[0] == "audio_delay_ms") {
-      project.audioDelayMs = std::clamp(safeInt(fields, 1, 0), 0, 1000);
-    } else if (fields[0] == "jump_mode") {
-      project.jumpMode = normalizeJumpModeToken(safeString(fields, 1));
-    } else if (fields[0] == "jump_transition") {
-      project.jumpTransitionEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "panic_profile") {
-      project.panicProfile = normalizePanicProfileToken(safeString(fields, 1));
-    } else if (fields[0] == "panic_fade_seconds") {
-      project.panicFadeSeconds = safeDouble(fields, 1, 0.9);
-    } else if (fields[0] == "panic_auto_restore") {
-      project.panicAutoRestore = safeBool(fields, 1, false);
-    } else if (fields[0] == "master_volume") {
-      // Range is 0..2 (values above 1.0 are boost) — the old 0..1 clamp here
-      // silently flattened saved boost levels on load.
-      project.masterVolume = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 2.0);
-    } else if (fields[0] == "master_dimmer") {
-      project.masterDimmer = std::clamp(safeDouble(fields, 1, 1.0), 0.0, 1.0);
-    } else if (fields[0] == "output_follow_display") {
-      project.outputFollowDisplay = safeBool(fields, 1, true);
-    } else if (fields[0] == "output_render_width") {
-      project.outputRenderWidth = safeInt(fields, 1, 1920);
-    } else if (fields[0] == "output_render_height") {
-      project.outputRenderHeight = safeInt(fields, 1, 1080);
-    } else if (fields[0] == "output_refresh_hz") {
-      project.outputRefreshRateHz = std::max(0.0, safeDouble(fields, 1, 0.0));
-    } else if (fields[0] == "output_bit_depth") {
-      project.outputBitDepth = safeInt(fields, 1, 0);
-    } else if (fields[0] == "output_canvas_enabled") {
-      project.outputCanvasEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "output_canvas_width") {
-      project.outputCanvasWidth = safeInt(fields, 1, 3840);
-    } else if (fields[0] == "output_canvas_height") {
-      project.outputCanvasHeight = safeInt(fields, 1, 2160);
-    } else if (fields[0] == "output_target") {
-      int outputIndex = safeInt(fields, 1, static_cast<int>(project.outputs.size()));
-      int normalizedIndex = std::clamp(outputIndex, 0, kMaxOutputs - 1);
-      while (normalizedIndex >= static_cast<int>(project.outputs.size())) {
-        project.outputs.push_back(OutputTarget {});
-      }
-      OutputTarget& outputTarget = project.outputs[normalizedIndex];
-      outputTarget.name = safeString(fields, 2);
-      outputTarget.hostDeckIndex = safeInt(fields, 3, 0);
-      outputTarget.displayIndex = safeInt(fields, 4, 0);
-      outputTarget.enabled = safeBool(fields, 5, false);
-      outputTarget.streamEnabled = safeBool(fields, 6, false);
-      outputTarget.streamProtocol = safeString(fields, 7);
-      outputTarget.streamUrl = safeString(fields, 8);
-      outputTarget.streamBitrateKbps = safeInt(fields, 9, 6000);
-      if (fields.size() >= 17) {
-        outputTarget.ndiEnabled = safeBool(fields, 10, false);
-        outputTarget.ndiSourceName = safeString(fields, 11);
-        outputTarget.ndiKeyEnabled = safeBool(fields, 12, false);
-        outputTarget.ndiKeySourceName = safeString(fields, 13);
-        outputTarget.outputType = safeString(fields, 14);
-        outputTarget.mirrorSourceOutputIndex = safeInt(fields, 15, -1);
-        outputTarget.outputId = safeString(fields, 16);
-        if (fields.size() >= 21) {
-          outputTarget.outputAlpha = static_cast<float>(safeDouble(fields, 17, 1.0));
-          outputTarget.outputDelayMs = safeInt(fields, 18, 0);
-          outputTarget.outputTimeOverlayEnabled = safeBool(fields, 19, false);
-          outputTarget.outputColorSpace = safeString(fields, 20);
-          if (fields.size() >= 24) {
-            outputTarget.outputLayoutMode = safeString(fields, 21);
-            outputTarget.outputOrientationDegrees = safeInt(fields, 22, 0);
-            outputTarget.outputTestCardEnabled = safeBool(fields, 23, false);
-            if (fields.size() >= 28) {
-              outputTarget.deckLinkEnabled = safeBool(fields, 24, false);
-              outputTarget.deckLinkDeviceId = safeInt(fields, 25, -1);
-              outputTarget.deckLinkMode = safeString(fields, 26);
-              outputTarget.deckLink10Bit = safeBool(fields, 27, true);
-              if (fields.size() >= 32) {
-                outputTarget.aoiLeft   = static_cast<float>(safeDouble(fields, 28, 0.0));
-                outputTarget.aoiRight  = static_cast<float>(safeDouble(fields, 29, 0.0));
-                outputTarget.aoiTop    = static_cast<float>(safeDouble(fields, 30, 0.0));
-                outputTarget.aoiBottom = static_cast<float>(safeDouble(fields, 31, 0.0));
-                if (fields.size() >= 34) {
-                  outputTarget.spoutEnabled = safeBool(fields, 32, false);
-                  outputTarget.spoutSenderName = safeString(fields, 33);
-                  if (fields.size() >= 35) {
-                    outputTarget.streamKey = safeString(fields, 34);
-                    if (fields.size() >= 36) {
-                      outputTarget.displayName = safeString(fields, 35);
-                      if (fields.size() >= 41) {
-                        outputTarget.st2110Enabled = safeBool(fields, 36, false);
-                        outputTarget.st2110Address = safeString(fields, 37);
-                        outputTarget.st2110Interface = safeString(fields, 38);
-                        outputTarget.st2110Port = safeInt(fields, 39, 20000);
-                        outputTarget.st2110TenBit = safeBool(fields, 40, true);
-                        if (trim(outputTarget.st2110Address).empty()) {
-                          outputTarget.st2110Address = "239.20.10.1";
-                        }
-                        if (fields.size() >= 46) {
-                          outputTarget.srtLatencyMs = std::clamp(safeInt(fields, 41, 120), 20, 8000);
-                          outputTarget.srtPassphrase = safeString(fields, 42);
-                          outputTarget.srtStreamId = safeString(fields, 43);
-                          outputTarget.srtMode =
-                            (safeString(fields, 44) == "listener") ? "listener" : "caller";
-                          outputTarget.streamKeyframeSeconds =
-                            std::clamp(safeInt(fields, 45, 2), 1, 10);
-                          // Appended after the keyframe field; older
-                          // shows take the previous hardcoded 160.
-                          outputTarget.streamAudioBitrateKbps =
-                            std::clamp(safeInt(fields, 46, 160), 32, 512);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      } else {
-        // Backward compatibility with older 13-column output_target lines.
-        outputTarget.outputType = safeString(fields, 10);
-        outputTarget.mirrorSourceOutputIndex = safeInt(fields, 11, -1);
-        outputTarget.outputId = safeString(fields, 12);
-      }
-    } else if (fields[0] == "layer_assignment" || fields[0] == "group_preset" ||
-               fields[0] == "group_slot" || fields[0] == "group_preset_meta") {
-      // Legacy fields — ignored (single-deck, no layer assignments or group presets).
-    } else if (fields[0] == "audio_output") {
-      ensureDeck(0).audioOutputDeviceName = safeString(fields, 1);
-    } else if (fields[0] == "display_index") {
-      ensureDeck(0).outputDisplayIndex = safeInt(fields, 1, 0);
-    } else if (fields[0] == "ndi_enabled") {
-      ensureDeck(0).ndiEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "ndi_name") {
-      ensureDeck(0).ndiSourceName = safeString(fields, 1);
-    } else if (fields[0] == "ndi_key_enabled") {
-      ensureDeck(0).ndiKeyEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "ndi_key_name") {
-      ensureDeck(0).ndiKeySourceName = safeString(fields, 1);
-    } else if (fields[0] == "time_overlay") {
-      ensureDeck(0).timeOverlayEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "transition_seconds") {
-      ensureDeck(0).transitionSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
-    } else if (fields[0] == "transition_style") {
-      ensureDeck(0).transitionStyle = safeString(fields, 1);
-    } else if (fields[0] == "timecode_chase") {
-      ensureDeck(0).timecodeChaseEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "timecode_run") {
-      ensureDeck(0).timecodeRunEnabled = safeBool(fields, 1, false);
-    } else if (fields[0] == "timecode_trigger") {
-      ensureDeck(0).timecodeTriggerEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "timecode_jam") {
-      ensureDeck(0).timecodeJamSyncEnabled = safeBool(fields, 1, true);
-    } else if (fields[0] == "timecode_freewheel") {
-      ensureDeck(0).timecodeFreewheelSeconds = safeDouble(fields, 1, 1.0);
-    } else if (fields[0] == "timecode_fps") {
-      ensureDeck(0).timecodeFps = safeDouble(fields, 1, 30.0);
-    } else if (fields[0] == "timecode_current") {
-      ensureDeck(0).timecodeCurrentSeconds = std::max(0.0, safeDouble(fields, 1, 0.0));
+    if (applyProjectScalarLine(project, fields, ensureDeck)) {
+      // handled above
     } else if (fields[0] == "deck") {
       int deckIndex = safeInt(fields, 1, static_cast<int>(project.decks.size()) - 1);
       Deck& deck = ensureDeck(deckIndex);

@@ -520,12 +520,16 @@
       int flowH = sCardHeaderH + sRowH * 4 + sLineH + uiScaled(4) + sGap * 3 + sPad;
       int cueToolsH = sCardHeaderH + sLineH * 2 + sGap + sRowH + sPad;
       int prefsH = sCardHeaderH + sRowH * 5 + sLineH + sGap * 2 + uiScaled(4) * 3 + sPad;
+      // One toggle, one row of two buttons, one status line. Counted rather
+      // than guessed: a card whose height does not match what it draws is how
+      // the APPEARANCE card ended up a row short once.
+      int updateH = sCardHeaderH + sRowH * 2 + sLineH + sGap * 2 + sPad;
 
       // At large UI scales the cards are genuinely taller than the window can
       // show, so the tab scrolls rather than silently cropping the bottom card.
       // At 1x nothing overflows and the scroll is inert.
       int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
-      int rightNeeded = cueToolsH + kCardGap + prefsH;
+      int rightNeeded = cueToolsH + kCardGap + prefsH + kCardGap + updateH;
       // MEASURED, not predicted. These heights are hand-computed constants
       // that must match the controls laid out under them, and when one of
       // them was too small the control that fell outside its card could not be
@@ -568,9 +572,11 @@
       int rightY = rightCol.y;
       SDL_Rect cueToolsRect {rightCol.x, rightY, rightCol.w, cueToolsH};
       rightY += cueToolsRect.h + kCardGap;
-      SDL_Rect prefsRect {rightCol.x, rightY, rightCol.w,
-                          systemScrolls ? prefsH
-                                        : std::max(prefsH, rightCol.y + rightCol.h - rightY)};
+      SDL_Rect prefsRect {rightCol.x, rightY, rightCol.w, prefsH};
+      rightY += prefsRect.h + kCardGap;
+      SDL_Rect updateRect {rightCol.x, rightY, rightCol.w,
+                           systemScrolls ? updateH
+                                         : std::max(updateH, rightCol.y + rightCol.h - rightY)};
 
       drawCard(appearanceRect, "APPEARANCE", "Theme and operator feedback");
       std::string themeName = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
@@ -821,6 +827,56 @@
       SDL_Rect nextTransT {prefsX, toggleY4, prefsW, toggleH};
       drawPillToggle(nextTransT, prefDeck.playlistDefaultTransitionToNext, "NEXT TRANSITION ON", "NEXT TRANSITION OFF");
       settingsBtns_.push_back({nextTransT, kSettingsActionPlaylistDefaultNextTransitionToggle, "playlist_default_nexttrans"});
+
+      // UPDATES. Off by default and deliberately so: this is the only
+      // connection Deckboy opens outward of its own accord, and a machine on a
+      // venue's network should do nothing nobody asked it to. Checking never
+      // installs; installing is the button below it, and it refuses while
+      // anything is live.
+      drawCard(updateRect, "UPDATES", "Ask GitHub; never installs on its own");
+      const int updX = cardBodyX(updateRect);
+      const int updW = cardBodyW(updateRect);
+      int updY = cardBodyY(updateRect);
+      SDL_Rect updToggle {updX, updY, updW, sRowH};
+      updY += sRowH + sGap;
+      drawPillToggle(updToggle, project_.updateCheckEnabled,
+                     "CHECK AT STARTUP", "CHECK OFF");
+      settingsBtns_.push_back({updToggle, kSettingsActionUpdateCheckToggle, "update_check_toggle"});
+
+      std::string updateLine;
+      bool updateReady = false;
+      {
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        updateLine = updateStatus_;
+        updateReady = !updateReadyInstaller_.empty();
+      }
+      const int updHalf = (updW - sGap) / 2;
+      SDL_Rect updCheckBtn {updX, updY, updHalf, sRowH};
+      SDL_Rect updActBtn {updX + updHalf + sGap, updY, updW - updHalf - sGap, sRowH};
+      updY += sRowH + sGap;
+      Primitives::drawFramedPanel(controlRenderer_, updCheckBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "CHECK NOW", ink, updCheckBtn);
+      settingsBtns_.push_back({updCheckBtn, kSettingsActionUpdateCheckNow, "update_check_now"});
+      // One button that changes what it offers: nothing to fetch until a check
+      // has found something, and nothing to install until a fetch has finished.
+      const bool updateOffered = !updateLine.empty() &&
+        updateLine.find("available") != std::string::npos;
+      Primitives::drawFramedPanel(controlRenderer_, updActBtn,
+                                  (updateReady || updateOffered) ? pal.light : pal.tile,
+                                  pal.deep, pal.mid);
+      drawCenteredText(controlRenderer_, fontSmall_,
+                       updateReady ? "INSTALL & RESTART" : "DOWNLOAD",
+                       (updateReady || updateOffered) ? pal.deep : pal.inkSoft, updActBtn);
+      settingsBtns_.push_back({updActBtn,
+                               updateReady ? kSettingsActionUpdateInstall
+                                           : kSettingsActionUpdateDownload,
+                               "update_action"});
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{updX, updY, updW, sLineH},
+                   updateLine.empty()
+                     ? std::string("running ") + deckboy::core::version::kVersionTag
+                     : updateLine,
+                   pal.inkSoft);
 
       SDL_SetRenderClipRect(controlRenderer_, hadSettingsClip ? &previousSettingsClip : nullptr);
       // Scrolled-away controls are painted outside the viewport by the clip, so
@@ -3576,6 +3632,18 @@
         } else {
           triggerToast("nmos: clipboard unavailable");
         }
+      } else if (sb.action == kSettingsActionUpdateCheckToggle) {
+        project_.updateCheckEnabled = !project_.updateCheckEnabled;
+        markProjectDirty();
+        triggerToast(project_.updateCheckEnabled
+                       ? "update: will check at startup"
+                       : "update: checking off");
+      } else if (sb.action == kSettingsActionUpdateCheckNow) {
+        checkForUpdateAsync(/*quiet=*/false);
+      } else if (sb.action == kSettingsActionUpdateDownload) {
+        downloadAndInstallUpdate();
+      } else if (sb.action == kSettingsActionUpdateInstall) {
+        runDownloadedUpdate();
       } else if (sb.action == kSettingsActionVjModeToggle) {
         // setVjMode does the real work -- it rebuilds the deck layout -- so
         // this only flips the intent and lets that decide what has to happen.

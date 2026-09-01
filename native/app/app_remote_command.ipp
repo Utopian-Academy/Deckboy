@@ -656,6 +656,38 @@
     // Text mode could only ever say what the picture's brightness said. These
     // let an operator put their OWN marks and their own words in it, which is
     // the difference between a filter and an instrument.
+    // The update checker, from a surface or a script.
+    //
+    // CHECK asks and reports. DOWNLOAD fetches the installer and verifies its
+    // size. INSTALL runs what was downloaded and quits. They are three verbs
+    // rather than one because the middle step is the one worth doing ahead of
+    // time -- fetching 90MB over a venue connection while nothing is live, and
+    // installing later, in the gap.
+    if (command == "UPDATE") {
+      const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      if (sub == "CHECK") {
+        checkForUpdateAsync(/*quiet=*/false);
+        return;
+      }
+      if (sub == "DOWNLOAD") {
+        downloadAndInstallUpdate();
+        return;
+      }
+      if (sub == "INSTALL") {
+        runDownloadedUpdate();
+        return;
+      }
+      if (sub == "STATUS") {
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        remoteCommandDetail_ = updateStatus_.empty()
+          ? std::string("no check has run") : updateStatus_;
+        triggerToast("update: " + remoteCommandDetail_);
+        return;
+      }
+      failRemoteCommand("UPDATE: expected check|download|install|status");
+      return;
+    }
+
     // Collapse or expand an inspector section.
     //
     // Added because the sections could only be folded by clicking, and folding

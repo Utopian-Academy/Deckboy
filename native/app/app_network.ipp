@@ -1555,6 +1555,328 @@
     }
   }
 
+  // ── Update check ──────────────────────────────────────────────────────────
+  //
+  // THE RULES THIS OBEYS, because it is a live-show tool:
+  //
+  //   It never installs anything by itself. It asks, it tells you, and the
+  //   installing is a button you press.
+  //   It never runs while anything is live. Not the check, not the download,
+  //   and certainly not the installer.
+  //   It is off until switched on. This is the only connection Deckboy opens
+  //   outward of its own accord, and a machine on a venue's network should do
+  //   nothing nobody asked for.
+  //
+  // The fetching is curl, which ships with Windows 10 and later, with macOS,
+  // and with essentially every Linux. That keeps TLS out of this codebase
+  // entirely -- the alternative was linking a TLS stack to read one number.
+
+  struct UpdateInfo {
+    std::string version;        // "0.90.0", empty when there is nothing newer
+    std::string assetName;
+    std::string assetUrl;
+    std::uintmax_t assetSize = 0;
+  };
+
+  // Declared here rather than with the rest of the app's state, because
+  // UpdateInfo is declared here: this file is included into the class body, so
+  // a member of that type has to come after it.
+  //
+  // Written by a worker (the curl call blocks for as long as the network takes)
+  // and read by the render loop, so everything but the running flag is under
+  // the mutex.
+  std::atomic<bool> updateCheckRunning_ {false};
+  std::mutex updateMutex_;
+  UpdateInfo updateFound_;              // version empty = nothing newer
+  std::string updateStatus_;            // one line, shown in settings
+  std::string updateReadyInstaller_;    // a verified download waiting to be run
+  std::string updateRunningInstaller_;  // spared from the startup sweep
+  bool updateAnnouncePending_ = false;  // the render loop owes a toast
+
+  // "v1.2.3" / "1.2.3" -> {1,2,3}. Anything unparseable sorts as {0,0,0}, so a
+  // tag we do not understand can never look newer than what is running.
+  static std::array<int, 3> parseVersionTriple(const std::string& text) {
+    std::array<int, 3> out {0, 0, 0};
+    std::size_t at = (!text.empty() && (text[0] == 'v' || text[0] == 'V')) ? 1 : 0;
+    for (int part = 0; part < 3 && at < text.size(); ++part) {
+      int value = 0;
+      bool any = false;
+      while (at < text.size() && text[at] >= '0' && text[at] <= '9') {
+        if (value < 100000) value = value * 10 + (text[at] - '0');
+        any = true;
+        ++at;
+      }
+      if (!any) break;
+      out[static_cast<std::size_t>(part)] = value;
+      if (at < text.size() && text[at] == '.') ++at;
+    }
+    return out;
+  }
+
+  // Pull one string field out of the releases JSON.
+  //
+  // A hand parser rather than a JSON library, because this reads exactly three
+  // fields from one endpoint whose shape is fixed, and adding a dependency to
+  // do that would be the larger change. It is deliberately literal: find the
+  // key, expect a quoted value, stop at the closing quote.
+  static std::string jsonStringField(const std::string& json, const std::string& key,
+                                     std::size_t from = 0) {
+    const std::string needle = "\"" + key + "\"";
+    std::size_t at = json.find(needle, from);
+    if (at == std::string::npos) return "";
+    at = json.find(':', at + needle.size());
+    if (at == std::string::npos) return "";
+    ++at;
+    while (at < json.size() && (json[at] == ' ' || json[at] == '\t')) ++at;
+    if (at >= json.size() || json[at] != '"') return "";
+    ++at;
+    std::string out;
+    while (at < json.size() && json[at] != '"') {
+      if (json[at] == '\\' && at + 1 < json.size()) ++at;   // keep it simple: unescape one level
+      out += json[at++];
+    }
+    return out;
+  }
+
+  // Which artefact this build should be offered.
+  static std::string updateAssetPatternForPlatform() {
+#if defined(_WIN32)
+    return "-windows-x64-setup.exe";
+#elif defined(__APPLE__)
+    return "-macos-arm64.dmg";
+#else
+    return "-x86_64.AppImage";
+#endif
+  }
+
+  bool anythingIsLive() const {
+    for (const auto& runtime : deckRuntimes_) {
+      if (runtime.mediaEngine &&
+          runtime.mediaEngine->state() != TransportState::Stopped) {
+        return true;
+      }
+    }
+    for (const auto& output : project_.outputs) {
+      if (output.enabled || output.streamEnabled) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Ask GitHub what the newest release is. Blocking, so it is called from a
+  // worker; the caller owns the thread.
+  UpdateInfo fetchLatestRelease(std::string& error) const {
+    UpdateInfo info;
+    const std::vector<std::string> args {
+      "curl", "-sS", "-L", "--max-time", "20", "--fail",
+      "-H", "Accept: application/vnd.github+json",
+      "-A", std::string("Deckboy/") + deckboy::core::version::kVersion,
+      "https://api.github.com/repos/Utopian-Academy/Deckboy/releases/latest"
+    };
+    auto body = readAllText(args);
+    if (!body || body->empty()) {
+      error = "could not reach github";
+      return info;
+    }
+    const std::string tag = jsonStringField(*body, "tag_name");
+    if (tag.empty()) {
+      error = "no release found";
+      return info;
+    }
+    const auto latest = parseVersionTriple(tag);
+    const auto running = parseVersionTriple(deckboy::core::version::kVersion);
+    if (!(latest > running)) {
+      return info;                       // up to date; version stays empty
+    }
+    // Find the artefact for this platform, and take the URL and size that sit
+    // beside its name in the same asset object.
+    const std::string want = updateAssetPatternForPlatform();
+    std::size_t at = 0;
+    while ((at = body->find("\"name\"", at)) != std::string::npos) {
+      const std::string name = jsonStringField(*body, "name", at);
+      if (name.size() > want.size() &&
+          name.compare(name.size() - want.size(), want.size(), want) == 0) {
+        info.assetName = name;
+        info.assetUrl = jsonStringField(*body, "browser_download_url", at);
+        const std::size_t sizeAt = body->find("\"size\"", at);
+        if (sizeAt != std::string::npos) {
+          info.assetSize = static_cast<std::uintmax_t>(
+            std::strtoull(body->c_str() + body->find(':', sizeAt) + 1, nullptr, 10));
+        }
+        break;
+      }
+      at += 6;
+    }
+    if (info.assetUrl.empty()) {
+      error = "release has no build for this platform";
+      return info;
+    }
+    info.version = tag;
+    return info;
+  }
+
+  // Kick the check off on a worker. Never blocks the render loop, and never
+  // runs twice at once.
+  void checkForUpdateAsync(bool quiet) {
+    if (updateCheckRunning_.exchange(true)) {
+      return;
+    }
+    if (!quiet) {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      updateStatus_ = "checking...";
+    }
+    std::thread([this, quiet]() {
+      std::string error;
+      UpdateInfo info = fetchLatestRelease(error);
+      {
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        updateFound_ = info;
+        if (!error.empty()) {
+          updateStatus_ = error;
+        } else if (info.version.empty()) {
+          updateStatus_ = std::string("up to date (") + deckboy::core::version::kVersionTag + ")";
+        } else {
+          updateStatus_ = info.version + " is available";
+        }
+        updateAnnouncePending_ = !quiet || !info.version.empty();
+      }
+      updateCheckRunning_ = false;
+    }).detach();
+  }
+
+  // Where a downloaded installer lives: under the state dir, never beside the
+  // application, which may sit in a read-only or signed location.
+  fs::path updateDownloadDir() const {
+    return deckboy::core::Paths::stateDir() / "updates";
+  }
+
+  // TIDY UP AFTER OURSELVES.
+  //
+  // Run at startup: anything left in the update folder has already served its
+  // purpose -- either it was installed, in which case this build IS the
+  // installer's work, or it was abandoned. Either way a 90MB file should not
+  // sit there forever, which is the part of this James asked for by name.
+  void removeStaleUpdateDownloads() {
+    std::error_code ec;
+    const fs::path dir = updateDownloadDir();
+    if (!fs::exists(dir, ec)) {
+      return;
+    }
+    int removed = 0;
+    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+      if (ec) break;
+      if (!entry.is_regular_file(ec)) continue;
+      // Never delete the one we are about to run.
+      if (entry.path().filename().string() == updateRunningInstaller_) continue;
+      std::error_code rmEc;
+      if (fs::remove(entry.path(), rmEc)) ++removed;
+    }
+    if (removed > 0) {
+      showLog("UPDATE-CLEAN", std::to_string(removed) + " old download(s) removed");
+    }
+  }
+
+  // Download the offered build and hand it to the system installer.
+  //
+  // Refuses while anything is live. An update is a restart, and a restart in
+  // the middle of a show is the worst thing this program could do to somebody.
+  void downloadAndInstallUpdate() {
+    UpdateInfo info;
+    {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      info = updateFound_;
+    }
+    if (info.version.empty() || info.assetUrl.empty()) {
+      triggerToast("update: nothing to install");
+      return;
+    }
+    if (anythingIsLive()) {
+      triggerToast("update: stop playback and disarm outputs first");
+      return;
+    }
+    if (updateCheckRunning_.exchange(true)) {
+      return;
+    }
+    {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      updateStatus_ = "downloading " + info.assetName + "...";
+    }
+    std::thread([this, info]() {
+      std::error_code ec;
+      const fs::path dir = updateDownloadDir();
+      fs::create_directories(dir, ec);
+      const fs::path target = dir / info.assetName;
+      std::error_code rmEc;
+      fs::remove(target, rmEc);
+      const std::vector<std::string> args {
+        "curl", "-sS", "-L", "--fail", "--max-time", "1800",
+        "-A", std::string("Deckboy/") + deckboy::core::version::kVersion,
+        "-o", target.string(), info.assetUrl
+      };
+      const bool fetched = readAllText(args).has_value();
+      std::uintmax_t got = 0;
+      if (fetched) {
+        got = fs::file_size(target, ec);
+        if (ec) got = 0;
+      }
+      // SIZE IS THE CHECK. The release carries no digest to compare against, so
+      // this proves only that the whole file arrived -- which is the failure
+      // that actually happens on a venue connection. A partial installer that
+      // ran anyway would be far worse than one that refuses.
+      const bool complete = fetched && info.assetSize > 0 && got == info.assetSize;
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      if (!complete) {
+        std::error_code cleanEc;
+        fs::remove(target, cleanEc);
+        updateStatus_ = fetched ? "download was incomplete" : "download failed";
+        updateReadyInstaller_.clear();
+      } else {
+        updateReadyInstaller_ = target.string();
+        updateStatus_ = "ready to install " + info.version;
+      }
+      updateAnnouncePending_ = true;
+      updateCheckRunning_ = false;
+    }).detach();
+  }
+
+  // Launch the downloaded installer and step out of its way.
+  void runDownloadedUpdate() {
+    std::string installer;
+    {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      installer = updateReadyInstaller_;
+    }
+    if (installer.empty()) {
+      triggerToast("update: nothing downloaded");
+      return;
+    }
+    if (anythingIsLive()) {
+      triggerToast("update: stop playback and disarm outputs first");
+      return;
+    }
+    updateRunningInstaller_ = fs::path(installer).filename().string();
+    showLog("UPDATE-RUN", updateRunningInstaller_);
+#if defined(_WIN32)
+    std::vector<std::string> args {installer};
+#elif defined(__APPLE__)
+    std::vector<std::string> args {"open", installer};
+#else
+    // A Linux build is an AppImage: there is nothing to run, so show the
+    // operator where it landed and let them put it where they keep things.
+    revealFileInFileManager(installer);
+    triggerToast("update: downloaded to " + installer);
+    return;
+#endif
+    ChildProcess child;
+    if (!spawnProcess(
+          child, args, SpawnOptions::detachedSilent())) {
+      triggerToast("update: could not start the installer");
+      return;
+    }
+    gShouldQuit.store(true);   // the installer replaces this build; step aside
+  }
+
   bool startMidiInput(bool quiet = false) {
 #if defined(DECKBOY_HAS_ALSA)
     stopMidiInput();
