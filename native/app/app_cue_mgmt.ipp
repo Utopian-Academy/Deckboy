@@ -2488,6 +2488,28 @@
     return (cue && cue->kind == CueKind::VideoSynth) ? cue : nullptr;
   }
 
+  // THE CUE WHOSE TEXT MODE CONTROLS ARE ON SCREEN.
+  //
+  // A video synth cue, where the character grid is native -- OR any cue at all
+  // carrying the TEXT MODE effect, which is now the ordinary way to use it.
+  //
+  // Every control in the TEXT MODE section used to go through
+  // selectedVideoSynthCueMutable, which answers null for anything that is not a
+  // synth cue. So on a clip, a still, a camera -- every cue the effect exists
+  // for -- the whole section was inert: columns, glyph set, shuffle, ink, the
+  // glitch amounts, the custom glyphs and the phrases. The rows drew, the
+  // hitboxes registered, the handlers ran, and each one returned immediately.
+  Cue* selectedTextModeCueMutable() {
+    Cue* cue = selectedCueMutable();
+    if (!cue) {
+      return nullptr;
+    }
+    if (cue->kind == CueKind::VideoSynth) {
+      return cue;
+    }
+    return cueHasTextModeEffect(*cue) ? cue : nullptr;
+  }
+
   // Sprite sets that ship with the install, or that the operator has dropped
   // into data/sprites. Each subfolder is one set, named by its folder.
   //
@@ -2546,7 +2568,7 @@
   // operator supplies characters nobody anticipated -- a band's initials, a
   // set of box-drawing pieces, the name of the venue.
   void editAsciiGlyphs() {
-    Cue* c = selectedVideoSynthCueMutable();
+    Cue* c = selectedTextModeCueMutable();
     if (!c) {
       return;
     }
@@ -2564,7 +2586,7 @@
   }
 
   void editAsciiPhrases() {
-    Cue* c = selectedVideoSynthCueMutable();
+    Cue* c = selectedTextModeCueMutable();
     if (!c) {
       return;
     }
@@ -2690,8 +2712,9 @@
   }
 
   void adjustVsInt(int VideoSynthSettings::*field, int delta,
-                   int lo, int hi, const char* label) {
-    Cue* cue = selectedVideoSynthCueMutable();
+                   int lo, int hi, const char* label, bool textModeRow = false) {
+    Cue* cue = textModeRow ? selectedTextModeCueMutable()
+                           : selectedVideoSynthCueMutable();
     if (!cue) return;
     // EDIT WHAT RENDERS. On a cue carrying the text-mode EFFECT the picture
     // comes from the effect's parameters and the cue's own synth fields are
@@ -2715,8 +2738,9 @@
   }
 
   void adjustVs(double VideoSynthSettings::*field, double delta,
-                double lo, double hi, const char* label) {
-    Cue* cue = selectedVideoSynthCueMutable();
+                double lo, double hi, const char* label, bool textModeRow = false) {
+    Cue* cue = textModeRow ? selectedTextModeCueMutable()
+                           : selectedVideoSynthCueMutable();
     if (!cue) return;
     double& v = cue->videoSynth.*field;
     v = std::clamp(v + delta, lo, hi);

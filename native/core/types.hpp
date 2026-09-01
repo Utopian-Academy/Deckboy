@@ -184,6 +184,22 @@ struct VideoSynthSettings {
   // handwriting -- and it is a seed rather than live randomness so the look is
   // repeatable and stays put when the show is reopened.
   int asciiShuffle = 0;            // 0 = ordered by density
+  // HOW MUCH THE GRID STOPS CARING WHAT THE PICTURE SAYS.
+  //
+  // 0 picks strictly by brightness, so the image reads. 1 picks at random per
+  // cell, so the whole alphabet appears at once and the grid becomes texture.
+  // In between is where it is interesting: enough order to read a face,
+  // enough disorder that every mark in the set turns up.
+  //
+  // Sprites have had this since they arrived (spriteChaos) and glyphs never
+  // did, which is why a set of seventeen marks could only ever show as many
+  // distinct marks as the picture had distinct brightnesses -- a flat area
+  // picked ONE. Shuffle does not help: it permutes which mark means which
+  // brightness, so a flat area still picks one, just a different one.
+  //
+  // Position-hashed, not per-frame random. A cell that re-rolls every frame is
+  // a flicker rather than a texture -- the same reason spriteChaos is hashed.
+  double asciiChaos = 0.0;
   // GLITCH TEXT. Marks stacked above, below and through the characters, the
   // way combining diacritics overflow a line -- drawn rather than borrowed
   // from a font, so where they go and how far is ours to decide.
@@ -1447,6 +1463,7 @@ enum class QuickAction {
   VsAsciiToggle,   VsAsciiColsDec, VsAsciiColsInc,
   VsCrtDec, VsCrtInc,
   VsCharSetCycle, VsShuffleCycle, VsInkCycle,
+  VsAsciiChaosDec, VsAsciiChaosInc,
   VsAsciiGlyphsEdit, VsAsciiPhrasesEdit, VsAsciiHoldDec, VsAsciiHoldInc,
   VsZalgoUpDec, VsZalgoUpInc, VsZalgoDownDec, VsZalgoDownInc,
   VsZalgoMidDec, VsZalgoMidInc, VsZalgoReachDec, VsZalgoReachInc,

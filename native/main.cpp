@@ -5559,6 +5559,14 @@ class App {
                      "Scramble which glyph means which brightness. Same set, "
                      "different handwriting. Seeded, so it stays put.");
     rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsAsciiChaosDec,
+                     fmtFloat(v.asciiChaos, 2), QuickAction::VsAsciiChaosInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "0 picks the glyph the brightness asks for, 1 picks any "
+                     "glyph in the set. Turn it up to see the whole alphabet: "
+                     "ranked strictly by ink, a flat area picks one mark and "
+                     "the rest never appear.");
+    rowY += ix.rowStep;
     inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
                      vsInkLabel(v.asciiInk),
                      QuickAction::VsInkCycle, QuickAction::ToggleLoop,
