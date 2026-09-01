@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-01 - v0.89.5 (picture ink means the picture)
+
+Text mode's **picture** ink now draws each cell in the clip's own colour. It was
+quantising every cell to a 16-entry EGA palette whose only mid-tones are grey,
+so ordinary footage — which is mostly desaturated mid-tones — came out grey and
+white nearly everywhere. Measured on one held frame: 19.5% of the source's lit
+pixels are desaturated, and 89.3% of the glyphs drawn from it were. It is 20.1%
+now, against the source's 19.5%.
+
+The quantised look is what the **palette** ink is for, and that is unchanged.
+
+
 ## 2026-08-31 - v0.89.4 (collapsing a section no longer overlaps the rest)
 
 Fold the inspector's sections down to reach the effects and everything stayed

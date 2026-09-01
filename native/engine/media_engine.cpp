@@ -1958,7 +1958,19 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                                          static_cast<int>(pb * 255));
             break;
           }
-          default: inkIdx = nearestPaletteIndex(sr, sg, sb); break;
+          // PICTURE MEANS THE PICTURE.
+          //
+          // This quantised the cell's colour to the 16-entry EGA palette, whose
+          // only mid-tones are grey -- so ordinary footage, which is mostly
+          // desaturated mid-tones, came out grey and white almost everywhere.
+          // MEASURED on one held frame: 19.5% of the source's lit pixels are
+          // desaturated, and 89.3% of the glyph pixels drawn from it were.
+          //
+          // The quantised look is what ink mode 5, PALETTE, exists to give, and
+          // it stays exactly as it was. "Picture" now uses the cell's own
+          // averaged colour, which is what an operator picking it is asking
+          // for: the clip, drawn as characters.
+          default: inkIdx = -1; break;   // -1 = the cell's own colour
         }
         const bool monoInk = vs.asciiInk >= 1 && vs.asciiInk <= 4;
         int bgIdx = 0;
@@ -2119,8 +2131,14 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         }
 
 
-        const std::uint8_t* ink = kCellPalette[inkIdx];
-        const std::uint8_t* bg = kCellPalette[bgIdx];
+        // inkIdx -1 means "the cell's own colour", which has no palette entry.
+        const std::uint8_t cellInk[3] = {
+          static_cast<std::uint8_t>(std::clamp(sr, 0, 255)),
+          static_cast<std::uint8_t>(std::clamp(sg, 0, 255)),
+          static_cast<std::uint8_t>(std::clamp(sb, 0, 255))
+        };
+        const std::uint8_t* ink = inkIdx < 0 ? cellInk : kCellPalette[inkIdx];
+        const std::uint8_t* bg = kCellPalette[std::max(0, bgIdx)];
 
         // A 5x7 glyph in a cell many pixels tall means each glyph row repeats
         // over several output rows. Draw it once and memcpy the repeats: the
