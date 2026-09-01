@@ -5584,6 +5584,51 @@ class App {
                      "cyan are terminal phosphors. Palette locks the text to "
                      "the selected hardware palette.");
     rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "wobble", QuickAction::VsAsciiWobbleDec,
+                     fmtFloat(v.asciiWobble, 2), QuickAction::VsAsciiWobbleInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Each character rocks as though it were a card being "
+                     "tilted. Every cell has its own phase, so the grid "
+                     "breathes instead of sliding about as one sheet.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "wobble by", QuickAction::VsAsciiWobbleModeCycle,
+                     vsWobbleModeLabel(v.asciiWobbleMode),
+                     QuickAction::VsAsciiWobbleModeCycle,
+                     QuickAction::ToggleLoop, false, false,
+                     "What aims each tilt: its own position, the picture's "
+                     "luma gradient so characters lean the way the image does, "
+                     "or the cell's hue.");
+    rowY += ix.rowStep;
+    // The curated sets. Each is just a string of characters drawn through a
+    // font, so picking one fills the custom glyph field below and leaves it
+    // editable -- a starting point rather than a mode.
+    {
+      const auto& presets = glyphPresets();
+      std::string presetName = "custom";
+      for (const auto& preset : presets) {
+        if (v.asciiGlyphs == preset.glyphs) { presetName = preset.name; break; }
+      }
+      if (v.asciiGlyphs.empty()) {
+        presetName = "(none)";
+      }
+      inspDrawQuickRow(ix, rowY, "preset", QuickAction::VsAsciiPresetPrev,
+                       presetName, QuickAction::VsAsciiPresetNext,
+                       QuickAction::ToggleLoop, false, false,
+                       "Curated sets of symbols and emoji -- stars, notes, "
+                       "flowers, arrows, weather, runes, faces. Picking one "
+                       "fills the custom glyphs below, which stays editable.");
+      rowY += ix.rowStep;
+    }
+    rowY = inspDrawActionRow(ix, rowY,
+                             v.asciiFontPath.empty()
+                               ? std::string("font: automatic")
+                               : "font: " + fs::path(v.asciiFontPath).filename().string(),
+                             QuickAction::VsAsciiFontPick,
+                             "Choose the typeface the glyphs are drawn with. "
+                             "Click again to go back to automatic. A chosen "
+                             "face is tried first and the system fonts still "
+                             "cover anything it lacks.",
+                             pal.tile, pal.fg);
     rowY = inspDrawActionRow(ix, rowY,
                              v.asciiGlyphs.empty()
                                ? std::string("custom glyphs: (using the set above)")

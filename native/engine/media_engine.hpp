@@ -403,7 +403,8 @@ class MediaEngine {
   std::string fontGlyphsKey_;
   int fontGlyphW_ = 0;
   int fontGlyphH_ = 0;
-  void rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH);
+  void rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH,
+                         const std::string& fontPath);
 
  private:
   // -- Internal helpers -------------------------------------------------------

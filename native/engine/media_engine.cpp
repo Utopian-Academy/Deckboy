@@ -1655,16 +1655,21 @@ const char* const kFontGlyphCandidates[] = {
 #if defined(_WIN32)
   "C:/Windows/Fonts/seguiemj.ttf",     // Segoe UI Emoji -- colour emoji
   "C:/Windows/Fonts/seguisym.ttf",     // Segoe UI Symbol -- notes, stars, arrows
+  "C:/Windows/Fonts/seguihis.ttf",     // Segoe UI Historic -- runic, ogham, old scripts
+  "C:/Windows/Fonts/cambria.ttc",      // maths and technical
   "C:/Windows/Fonts/segoeui.ttf",
   "C:/Windows/Fonts/arial.ttf",
+  "C:/Windows/Fonts/ARIALUNI.TTF",     // Arial Unicode MS, where it is installed
 #elif defined(__APPLE__)
   "/System/Library/Fonts/Apple Color Emoji.ttc",
   "/System/Library/Fonts/Apple Symbols.ttf",
   "/System/Library/Fonts/Helvetica.ttc",
 #else
   "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
+  "/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf",
   "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
   "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+  "/usr/share/fonts/truetype/freefont/FreeSerif.ttf",
 #endif
 };
 
@@ -1682,8 +1687,10 @@ std::size_t utf8Advance(const std::string& text, std::size_t at, std::string& ou
   return width;
 }
 
-void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH) {
-  const std::string key = std::to_string(cellW) + "x" + std::to_string(cellH) + ":" + glyphs;
+void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int cellH,
+                                    const std::string& fontPath) {
+  const std::string key = std::to_string(cellW) + "x" + std::to_string(cellH) +
+                          ":" + fontPath + ":" + glyphs;
   if (key == fontGlyphsKey_ && !fontGlyphs_.empty()) {
     return;                       // already have exactly these, at this size
   }
@@ -1707,6 +1714,14 @@ void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int ce
   // it does not have. Coverage is per CHARACTER, not per font: ask each face in
   // turn whether it actually has this one.
   std::vector<TTF_Font*> faces;
+  // The operator's choice goes FIRST and the platform chain still backs it up
+  // per character, so picking a face for its stars does not cost you the
+  // letters it happens not to have.
+  if (!fontPath.empty()) {
+    if (TTF_Font* chosen = TTF_OpenFont(fontPath.c_str(), static_cast<float>(pt))) {
+      faces.push_back(chosen);
+    }
+  }
   for (const char* path : kFontGlyphCandidates) {
     if (TTF_Font* f = TTF_OpenFont(path, static_cast<float>(pt))) {
       faces.push_back(f);
@@ -1728,11 +1743,37 @@ void MediaEngine::rebuildFontGlyphs(const std::string& glyphs, int cellW, int ce
     else if (width == 3) code = ((code & 0x0Fu) << 12) | ((one[1] & 0x3Fu) << 6) | (one[2] & 0x3Fu);
     else if (width == 4) code = ((code & 0x07u) << 18) | ((one[1] & 0x3Fu) << 12) |
                                 ((one[2] & 0x3Fu) << 6) | (one[3] & 0x3Fu);
-    TTF_Font* font = faces.front();
-    for (TTF_Font* f : faces) {
-      if (TTF_FontHasGlyph(f, code)) { font = f; break; }
+    // DRAW WHAT CAN BE DRAWN, and leave out what cannot.
+    //
+    // A character no face provides used to be rendered anyway, which gets you
+    // the empty box a font draws for a glyph it does not have -- so a set of
+    // runes on a machine without a runic face came out as a field of boxes
+    // rather than as anything. Skipping it means the set is whatever the
+    // machine can actually show, and an empty set falls back to the bitmap
+    // glyphs instead of drawing nothing but tofu.
+    // THE EMOJI FACE ONLY FOR EMOJI.
+    //
+    // It sits first in the list because colour emoji have to come from it, but
+    // it also claims plenty of ordinary symbols and draws some of them as
+    // something else entirely -- a star operator came out as an accented
+    // letter. So for anything below the emoji planes, the symbol faces are
+    // asked first and the emoji face is the last resort.
+    const bool isEmoji = code >= 0x1F000u ||
+                         (code >= 0x2600u && code <= 0x27BFu && code != 0x2605u && code != 0x2606u);
+    TTF_Font* font = nullptr;
+    if (!isEmoji && faces.size() > 1) {
+      for (std::size_t i = 1; i < faces.size(); ++i) {
+        if (TTF_FontHasGlyph(faces[i], code)) { font = faces[i]; break; }
+      }
     }
-
+    if (!font) {
+      for (TTF_Font* f : faces) {
+        if (TTF_FontHasGlyph(f, code)) { font = f; break; }
+      }
+    }
+    if (!font) {
+      continue;
+    }
     FontCellGlyph cell;
     cell.rgba.assign(static_cast<std::size_t>(cellW) * cellH * 4, 0);
     SDL_Surface* rendered = TTF_RenderText_Blended(
@@ -1965,7 +2006,7 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     const bool useFontGlyphs =
       (vs.asciiCharSet == 7 || glyphsNeedFont) && !vs.asciiGlyphs.empty();
     if (useFontGlyphs) {
-      rebuildFontGlyphs(vs.asciiGlyphs, nomCellW, nomCellH);
+      rebuildFontGlyphs(vs.asciiGlyphs, nomCellW, nomCellH, vs.asciiFontPath);
     }
 
     // Threaded by cell row. Text mode writes the ENTIRE output raster one
@@ -2160,6 +2201,62 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         const int cellW = colEdge(cx + 1) - px0;
         const int cellH = rowEdge(cy + 1) - py0;
 
+        // WOBBLE: the cell tilts as though the character were a card.
+        //
+        // Not a projection -- a squash on one axis, a stretch on the other and
+        // a shear between them, which the eye reads as depth for a fraction of
+        // the cost. Each cell carries its own PHASE so the grid breathes
+        // instead of sliding about as one sheet.
+        //
+        // Where the tilt points depends on the mode: its own position (drift),
+        // the picture's luma gradient (flow), or the cell's hue. Flow is the
+        // interesting one -- characters lean the way the image does, so an edge
+        // combs the grid along itself.
+        double wobCos = 1.0, wobSin = 0.0, wobSquash = 1.0;
+        const double wobAmt = std::clamp(vs.asciiWobble, 0.0, 1.0);
+        if (wobAmt > 0.001) {
+          double dir = 0.0;
+          if (vs.asciiWobbleMode == 1) {
+            // Luma gradient from the four neighbouring cells, sampled straight
+            // out of the source rather than kept from the previous pass: one
+            // pixel each, and it costs four reads on a cell that already did
+            // dozens.
+            auto lumaAt = [&](int ccx, int ccy) -> int {
+              const int sx = std::clamp(((ccx * 2 + 1) * srcW) / (cols * 2), 0, srcW - 1);
+              const int sy = std::clamp(((ccy * 2 + 1) * srcH) / (rows * 2), 0, srcH - 1);
+              const std::uint8_t* q = src + (static_cast<std::size_t>(sy) * srcW + sx) * 4;
+              return (q[2] * 77 + q[1] * 151 + q[0] * 28) >> 8;
+            };
+            const int gxL = lumaAt(std::max(0, cx - 1), cy);
+            const int gxR = lumaAt(std::min(cols - 1, cx + 1), cy);
+            const int gyU = lumaAt(cx, std::max(0, cy - 1));
+            const int gyD = lumaAt(cx, std::min(rows - 1, cy + 1));
+            dir = std::atan2(static_cast<double>(gyD - gyU),
+                             static_cast<double>(gxR - gxL));
+          } else if (vs.asciiWobbleMode == 2) {
+            const int mx = std::max(sr, std::max(sg, sb));
+            const int mn = std::min(sr, std::min(sg, sb));
+            if (mx > mn) {
+              const double c = static_cast<double>(mx - mn);
+              double h = 0.0;
+              if (mx == sr)      h = std::fmod((sg - sb) / c, 6.0);
+              else if (mx == sg) h = (sb - sr) / c + 2.0;
+              else               h = (sr - sg) / c + 4.0;
+              dir = h * 1.04719755;            // sextants to radians
+            }
+          } else {
+            dir = (cx * 0.7 + cy * 1.3);
+          }
+          // One clock for the rocking, offset per cell so neighbours are never
+          // in step.
+          const double phase = seconds * 2.2 + dir + (cx * 0.37 + cy * 0.61);
+          const double tilt = std::sin(phase) * wobAmt * 0.45;
+          wobCos = std::cos(tilt);
+          wobSin = std::sin(tilt);
+          wobSquash = 1.0 - std::abs(tilt) * 0.35;   // the far edge foreshortens
+        }
+        const bool wobbling = wobAmt > 0.001;
+
         // A FONT-DRAWN CELL takes a different path entirely: it is a cached
         // RGBA bitmap rather than a 5x7 bit pattern, so it is blitted here and
         // the glyph machinery below is skipped.
@@ -2194,11 +2291,24 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             tint[2] = kCellPalette[idx][2];
           }
           for (int ry = 0; ry < cellH; ++ry) {
-            const int gy = (ry * fontGlyphH_) / std::max(1, cellH);
+            const int gyPlain = (ry * fontGlyphH_) / std::max(1, cellH);
             if (py0 + ry < 0 || py0 + ry >= dstH) continue;
             std::uint8_t* row = dst + (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
+            const double vNorm = (static_cast<double>(ry) / std::max(1, cellH)) - 0.5;
             for (int rx = 0; rx < cellW; ++rx) {
-              const int gx = (rx * fontGlyphW_) / std::max(1, cellW);
+              int gx = (rx * fontGlyphW_) / std::max(1, cellW);
+              int gy = gyPlain;
+              if (wobbling) {
+                // Sample the glyph THROUGH the tilt rather than transforming
+                // drawn pixels: reading from a rotated position costs one
+                // multiply-add per pixel and never leaves a gap behind.
+                const double uNorm = (static_cast<double>(rx) / std::max(1, cellW)) - 0.5;
+                const double su = (uNorm * wobCos - vNorm * wobSin) / std::max(0.35, wobSquash);
+                const double sv = (uNorm * wobSin + vNorm * wobCos);
+                if (su < -0.5 || su > 0.5 || sv < -0.5 || sv > 0.5) continue;
+                gx = static_cast<int>((su + 0.5) * fontGlyphW_);
+                gy = static_cast<int>((sv + 0.5) * fontGlyphH_);
+              }
               if (px0 + rx < 0 || px0 + rx >= dstW) continue;
               const std::size_t gi2 =
                 (static_cast<std::size_t>(std::min(gy, fontGlyphH_ - 1)) * fontGlyphW_ +
@@ -2383,13 +2493,26 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
           std::uint8_t* row = dst +
             (static_cast<std::size_t>(py0 + ry) * dstW) * 4;
           std::uint8_t* cellStart = row + static_cast<std::size_t>(px0) * 4;
-          const int gy = std::min(6, (ry * 7) / cellH);
-          if (gy == prevGy && prevRowStart) {
+          const int gyPlain = std::min(6, (ry * 7) / cellH);
+          const double wobV = (static_cast<double>(ry) / std::max(1, cellH)) - 0.5;
+          // The repeat trick draws one glyph row and copies it down the cell.
+          // A wobbling cell samples differently on every row, so there is
+          // nothing to repeat and the copy would smear the tilt away.
+          if (!wobbling && gyPlain == prevGy && prevRowStart) {
             std::memcpy(cellStart, prevRowStart, static_cast<std::size_t>(spanW) * 4);
             continue;
           }
           for (int rx = 0; rx < spanW; ++rx) {
-            const int gx = std::min(4, (rx * 5) / cellW);
+            int gx = std::min(4, (rx * 5) / cellW);
+            int gy = gyPlain;
+            if (wobbling) {
+              const double wobU = (static_cast<double>(rx) / std::max(1, cellW)) - 0.5;
+              const double su = (wobU * wobCos - wobV * wobSin) / std::max(0.35, wobSquash);
+              const double sv = (wobU * wobSin + wobV * wobCos);
+              if (su < -0.5 || su > 0.5 || sv < -0.5 || sv > 0.5) continue;
+              gx = std::clamp(static_cast<int>((su + 0.5) * 5.0), 0, 4);
+              gy = std::clamp(static_cast<int>((sv + 0.5) * 7.0), 0, 6);
+            }
             const bool on = ((glyph[gy] >> (4 - gx)) & 1) != 0;
             const std::uint8_t* c = on ? ink : bg;
             std::uint8_t* p = cellStart + static_cast<std::size_t>(rx) * 4;
@@ -2400,7 +2523,7 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             // digits were always correct, which is the reference.
             p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
           }
-          prevGy = gy;
+          prevGy = wobbling ? -1 : gyPlain;
           prevRowStart = cellStart;
         }
       }
