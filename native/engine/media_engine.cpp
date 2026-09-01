@@ -1752,9 +1752,27 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
       }
     }
     const int cols = std::clamp(vs.asciiCols, 20, 200);
-    const int cellW = std::max(3, dstW / cols);
-    const int cellH = std::max(4, (cellW * 7) / 5);   // 5x7 glyph aspect
-    const int rows = std::max(1, dstH / cellH);
+    // THE GRID COVERS THE WHOLE RASTER.
+    //
+    // Cell size used to be dstW/cols and dstH/cellH -- integer division, with
+    // the remainder simply never drawn. At 1280 wide and 74 columns that is a
+    // 17px cell, 74 of them reach 1258, and the last 22 COLUMNS OF PIXELS were
+    // not part of the picture at all: a bare strip down the right edge, and
+    // another along the bottom. As the video synth it showed as a black band
+    // (there is a clear() further down whose whole job was to stop that
+    // remainder showing white); as an EFFECT over a clip it showed the
+    // untouched video, which is how it was spotted.
+    //
+    // The fix is to put the cell EDGES on proportional boundaries, the same
+    // arithmetic the source sampling above already uses. Cells then differ by
+    // a pixel here and there, the last one lands exactly on the raster edge,
+    // and nothing is left over. The nominal size below is only used to choose
+    // a row count that keeps the 5x7 glyph aspect roughly right.
+    const int nomCellW = std::max(3, dstW / cols);
+    const int nomCellH = std::max(4, (nomCellW * 7) / 5);   // 5x7 glyph aspect
+    const int rows = std::max(1, dstH / nomCellH);
+    auto colEdge = [&](int c) { return (c * dstW) / cols; };
+    auto rowEdge = [&](int r) { return (r * dstH) / rows; };
     if (phraseLen > 0) {
       const std::uint64_t slot =
         static_cast<std::uint64_t>(seconds / vs.asciiPhraseHold);
@@ -1924,10 +1942,13 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
           if (!monoInk) inkIdx = static_cast<int>(crnd() % 16u);
         }
 
-        // Cell origin, needed by BOTH the sprite branch below and the glyph
-        // path after it, so it is computed once here.
-        const int px0 = cx * cellW;
-        const int py0 = cy * cellH;
+        // Cell origin AND extent, needed by BOTH the sprite branch below and
+        // the glyph path after it, so they are computed once here. Both come
+        // from the proportional edges, so cells tile the raster exactly.
+        const int px0 = colEdge(cx);
+        const int py0 = rowEdge(cy);
+        const int cellW = colEdge(cx + 1) - px0;
+        const int cellH = rowEdge(cy + 1) - py0;
 
         if (useSprites) {
           // Draw a TILE instead of a glyph, chosen by the same brightness the
@@ -2150,11 +2171,13 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     };
 
     auto drawMarkRows = [&](int rowBegin, int rowEnd) {
-      const int yStart = rowBegin * cellH;
-      const int yEnd = std::min(dstH, rowEnd * cellH);
+      // Same proportional edges as the glyph pass, or the marks would drift
+      // out of their cells at the right of the frame.
+      const int yStart = rowEdge(rowBegin);
+      const int yEnd = std::min(dstH, rowEdge(rowEnd));
       for (int cx = 0; cx < cols; ++cx) {
-        const int px0 = cx * cellW;
-        const int spanW = std::min(cellW, dstW - px0);
+        const int px0 = colEdge(cx);
+        const int spanW = std::min(colEdge(cx + 1) - px0, dstW - px0);
         if (spanW <= 0) continue;
         // Every cell whose marks could reach these rows, including the ones
         // outside this band -- that is what makes the answer the same from
@@ -2182,9 +2205,11 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             // SCALED TO THE CELL, like the glyphs are. Drawn at its native
             // 5x3 it is three pixels tall in a cell of thirty and reads as
             // dirt on the screen rather than as a mark on a character.
-            const int markH = std::max(3, cellH / 2);
-            const int markY = above ? (cy * cellH - step * markH)
-                                    : (cy * cellH + cellH + (step - 1) * markH);
+            const int cellTop = rowEdge(cy);
+            const int cellBottom = rowEdge(cy + 1);
+            const int markH = std::max(3, (cellBottom - cellTop) / 2);
+            const int markY = above ? (cellTop - step * markH)
+                                    : (cellBottom + (step - 1) * markH);
             if (markY + markH <= yStart || markY >= yEnd) continue;
             const std::uint8_t* mark = kMarks[(h >> 8) % 8];
             // A sideways nudge, so a stack is not a perfect column.
@@ -2213,7 +2238,10 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                               (zalgoEpoch * 19349663u);
             h ^= h >> 15; h *= 2246822519u; h ^= h >> 13;
             if ((h % 1000u) < static_cast<std::uint32_t>(zalgoMid * 1000.0)) {
-              const int y = cy * cellH + static_cast<int>((h >> 9) % static_cast<std::uint32_t>(std::max(1, cellH)));
+              const int cellTop = rowEdge(cy);
+              const int cellSpan = std::max(1, rowEdge(cy + 1) - cellTop);
+              const int y = cellTop + static_cast<int>((h >> 9) %
+                                        static_cast<std::uint32_t>(cellSpan));
               if (y >= yStart && y < yEnd && y >= 0 && y < dstH) {
                 std::uint8_t* row = dst + (static_cast<std::size_t>(y) * dstW) * 4;
                 for (int rx = 0; rx < spanW; ++rx) {
