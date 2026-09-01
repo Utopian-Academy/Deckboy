@@ -2693,6 +2693,21 @@
                    int lo, int hi, const char* label) {
     Cue* cue = selectedVideoSynthCueMutable();
     if (!cue) return;
+    // EDIT WHAT RENDERS. On a cue carrying the text-mode EFFECT the picture
+    // comes from the effect's parameters and the cue's own synth fields are
+    // overwritten on the way to the renderer, so writing them here moved the
+    // number in the inspector and changed nothing on screen.
+    if (deckboy::effects::CueEffect* fx = textModeEffectMutable(*cue)) {
+      if (field == &VideoSynthSettings::asciiCols) {
+        VideoSynthSettings shown = cue->videoSynth;
+        applyTextModeParams(*fx, shown);
+        const int next = std::clamp(shown.asciiCols + delta, lo, hi);
+        fx->paramA = textModeParamForCols(next);
+        markProjectDirty();
+        triggerToast(std::string(label) + " " + std::to_string(next));
+        return;
+      }
+    }
     int& v = cue->videoSynth.*field;
     v = std::clamp(v + delta, lo, hi);
     markProjectDirty();

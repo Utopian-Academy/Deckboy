@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-31 - v0.89.2 (the text mode controls drive the picture)
+
+Columns, glyph set and ink in the TEXT MODE section now change what you see. On
+a cue carrying the effect the picture is built from the effect's four
+parameters, and those three rows were writing to the cue's own synth settings
+instead — so the numbers moved and the frame did not, and the ink row could read
+"green" over a full-colour picture. The rows read and write the parameters now,
+which is also how you reach **music & sparkle**: cycle the GLYPHS row.
+
+One mapping between the four parameters and the grid, shared by the renderer and
+the inspector, so the two cannot drift apart again.
+
+
 ## 2026-08-31 - v0.89.1 (text mode fills the frame)
 
 The character grid now reaches every edge of the raster. Cell edges land on

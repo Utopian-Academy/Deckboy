@@ -104,21 +104,10 @@
     // somewhere sensible, because that is what the operator sees first: 0.5
     // gives a middling grid, and zero corruption, glyph set and ink are all
     // the defaults anyone would expect.
-    vs.asciiCols = std::clamp(
-      static_cast<int>(std::lround(20.0 + chosen.paramA * 180.0)), 20, 200);
-    vs.glitch = std::clamp(static_cast<double>(chosen.paramB), 0.0, 1.0);
-    // paramC picks the glyph set. The top slot used to land on SPRITE SHEET,
-    // which an effect can never draw -- an effect carries no sheet path, so it
-    // fell through to blocks and paramC=1 looked identical to paramC=0. That
-    // dead slot is the marks set now, which leaves 0..4 mapping exactly where
-    // they always did: no show is restaged by this.
-    vs.asciiCharSet = std::clamp(
-      static_cast<int>(std::lround(chosen.paramC * 5.0)), 0, 5);
-    if (vs.asciiCharSet == 5) {
-      vs.asciiCharSet = 6;
-    }
-    vs.asciiInk = std::clamp(
-      static_cast<int>(std::lround(chosen.paramD * 5.0)), 0, 5);
+    // ONE mapping, shared with the inspector -- see applyTextModeParams. When
+    // these were written out twice the two drifted, and every control in the
+    // TEXT MODE section was dead against a picture that ignored it.
+    applyTextModeParams(chosen, vs);
     const std::uint64_t serial = motionDriverFrameCounter_;
     const double seconds = static_cast<double>(animationNow_) / 1000.0;
     return [engine, vs, serial, seconds](std::uint8_t* pixels, int w, int h) {

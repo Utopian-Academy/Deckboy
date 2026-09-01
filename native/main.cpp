@@ -5459,6 +5459,60 @@ class App {
   //
   // The settings for the character grid live on the cue whatever its kind, so
   // the only question is whether anything is going to READ them.
+  // THE ONE MAPPING BETWEEN THE EFFECT'S FOUR PARAMETERS AND THE GRID.
+  //
+  // Used by the renderer AND by the inspector, because they disagreed and that
+  // is the whole bug: the TEXT MODE section edited cue.videoSynth while the
+  // effect overwrote columns, glyph set and ink from paramA, paramC and paramD
+  // on its way to the renderer. So the rows moved, the numbers changed, and
+  // nothing happened to the picture -- and the ink row read "green" while the
+  // frame came out in full colour, because paramD sat at its default.
+  //
+  // Only SHUFFLE appeared to work, and only because nothing overrode it.
+  static void applyTextModeParams(const deckboy::effects::CueEffect& fx,
+                                  VideoSynthSettings& vs) {
+    vs.asciiCols = std::clamp(
+      static_cast<int>(std::lround(20.0 + fx.paramA * 180.0)), 20, 200);
+    vs.glitch = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+    // The top slot used to mean SPRITE SHEET, which an effect can never draw
+    // for want of a sheet path, so it fell through to blocks and paramC=1
+    // looked identical to paramC=0. It is the marks set now; 0..4 are unmoved.
+    int set = std::clamp(static_cast<int>(std::lround(fx.paramC * 5.0)), 0, 5);
+    vs.asciiCharSet = (set == 5) ? 6 : set;
+    vs.asciiInk = std::clamp(static_cast<int>(std::lround(fx.paramD * 5.0)), 0, 5);
+  }
+
+  // The inverse, so a control can write the parameter that will be read back.
+  static float textModeParamForCols(int cols) {
+    return static_cast<float>(std::clamp((cols - 20) / 180.0, 0.0, 1.0));
+  }
+  static float textModeParamForCharSet(int set) {
+    return static_cast<float>((set == 6 ? 5 : std::clamp(set, 0, 4)) / 5.0);
+  }
+  static float textModeParamForInk(int ink) {
+    return static_cast<float>(std::clamp(ink, 0, 5) / 5.0);
+  }
+
+  // The live text-mode effect on a cue, or null. The controls edit THIS when it
+  // exists, because it is what the renderer reads.
+  const deckboy::effects::CueEffect* textModeEffectFor(const Cue& cue) const {
+    for (const auto& fx : cue.effects) {
+      if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+        return &fx;
+      }
+    }
+    return nullptr;
+  }
+
+  deckboy::effects::CueEffect* textModeEffectMutable(Cue& cue) const {
+    for (auto& fx : cue.effects) {
+      if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+        return &fx;
+      }
+    }
+    return nullptr;
+  }
+
   bool cueHasTextModeEffect(const Cue& cue) const {
     for (const auto& fx : cue.effects) {
       if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
@@ -5472,7 +5526,18 @@ class App {
   // for a synth cue, and in a TEXT MODE section of its own for anything else
   // carrying the effect -- same rows, same order, one implementation.
   int inspDrawTextModeRows(const InspectorCtx& ix, int startY,
-                           const VideoSynthSettings& v, const Cue& cue) {
+                           const VideoSynthSettings& vRaw, const Cue& cue) {
+    // SHOW WHAT WILL RENDER.
+    //
+    // For a cue carrying the effect, the picture comes from the effect's four
+    // parameters, not from cue.videoSynth -- so displaying the cue's own
+    // columns, glyph set and ink meant the rows showed one thing and the
+    // output did another. Same mapping the renderer uses.
+    VideoSynthSettings shown = vRaw;
+    if (const deckboy::effects::CueEffect* fx = textModeEffectFor(cue)) {
+      applyTextModeParams(*fx, shown);
+    }
+    const VideoSynthSettings& v = shown;
     int rowY = startY;
     inspDrawQuickRow(ix, rowY, "columns", QuickAction::VsAsciiColsDec,
                      std::to_string(v.asciiCols), QuickAction::VsAsciiColsInc,

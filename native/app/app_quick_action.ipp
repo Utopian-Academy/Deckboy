@@ -425,13 +425,32 @@
           const bool sheet = !c->videoSynth.spriteSheetPath.empty();
           const int* order = sheet ? kWithSheet : kWithoutSheet;
           const int count = sheet ? 7 : 6;
-          int at = 0;
-          for (int i = 0; i < count; ++i) {
-            if (order[i] == c->videoSynth.asciiCharSet) { at = i; break; }
+          // On a cue carrying the EFFECT the glyph set lives in paramC and the
+          // cue's own field is overwritten before it reaches the renderer, so
+          // this cycled a number nothing read. A sprite sheet is not reachable
+          // from an effect either -- it has no sheet path -- so that arm cycles
+          // the six sets that can actually draw.
+          deckboy::effects::CueEffect* fx = textModeEffectMutable(*c);
+          int current = c->videoSynth.asciiCharSet;
+          if (fx) {
+            VideoSynthSettings shown = c->videoSynth;
+            applyTextModeParams(*fx, shown);
+            current = shown.asciiCharSet;
+            order = kWithoutSheet;
           }
-          c->videoSynth.asciiCharSet = order[(at + 1) % count];
+          const int steps = fx ? 6 : count;
+          int at = 0;
+          for (int i = 0; i < steps; ++i) {
+            if (order[i] == current) { at = i; break; }
+          }
+          const int next = order[(at + 1) % steps];
+          if (fx) {
+            fx->paramC = textModeParamForCharSet(next);
+          } else {
+            c->videoSynth.asciiCharSet = next;
+          }
           markProjectDirty();
-          triggerToast(std::string("characters: ") + vsCharSetLabel(c->videoSynth.asciiCharSet));
+          triggerToast(std::string("characters: ") + vsCharSetLabel(next));
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
@@ -536,9 +555,21 @@
       case QuickAction::VsTileHInc: adjustVsInt(&VideoSynthSettings::spriteTileH, 8, 8, 128, "tile h"); break;
       case QuickAction::VsInkCycle:
         if (Cue* c = selectedVideoSynthCueMutable()) {
-          c->videoSynth.asciiInk = (c->videoSynth.asciiInk + 1) % 6;
+          // Ink lives in paramD on a cue carrying the effect. This wrote the
+          // cue's field, which the renderer then overwrote -- so the row read
+          // "green" while the picture came out in full colour, because paramD
+          // was still sitting at its default.
+          int nextInk = (c->videoSynth.asciiInk + 1) % 6;
+          if (deckboy::effects::CueEffect* fx = textModeEffectMutable(*c)) {
+            VideoSynthSettings shown = c->videoSynth;
+            applyTextModeParams(*fx, shown);
+            nextInk = (shown.asciiInk + 1) % 6;
+            fx->paramD = textModeParamForInk(nextInk);
+          } else {
+            c->videoSynth.asciiInk = nextInk;
+          }
           markProjectDirty();
-          triggerToast(std::string("ink: ") + vsInkLabel(c->videoSynth.asciiInk));
+          triggerToast(std::string("ink: ") + vsInkLabel(nextInk));
           playUiSound(UiSoundEffect::Toggle);
         }
         break;

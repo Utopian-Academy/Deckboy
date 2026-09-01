@@ -825,6 +825,42 @@
                "a non-realtime universal message is not show control");
       }
 
+      // THE TEXT MODE ROWS MUST EDIT WHAT THE RENDERER READS.
+      //
+      // On a cue carrying the effect the picture comes from paramA..D, and the
+      // inspector was editing cue.videoSynth instead -- which the renderer
+      // overwrote on the way past. Every control in the section moved a number
+      // and changed nothing, and the ink row read "green" over a full-colour
+      // picture because paramD was still at its default of 0, which is
+      // "picture".
+      //
+      // A control is only live if writing the parameter reads the value back,
+      // so that is what this checks: the mapping and its inverse must agree for
+      // every value the rows can produce.
+      {
+        deckboy::effects::CueEffect fx;
+        VideoSynthSettings probe;
+        for (int set : {0, 1, 2, 3, 4, 6}) {
+          fx.paramC = textModeParamForCharSet(set);
+          applyTextModeParams(fx, probe);
+          expect(probe.asciiCharSet == set,
+                 std::string("glyph set ") + std::to_string(set) + " survives the round trip");
+        }
+        for (int ink = 0; ink <= 5; ++ink) {
+          fx.paramD = textModeParamForInk(ink);
+          applyTextModeParams(fx, probe);
+          expect(probe.asciiInk == ink,
+                 std::string("ink ") + std::to_string(ink) + " survives the round trip");
+        }
+        bool colsOk = true;
+        for (int cols = 20; cols <= 200; cols += 10) {
+          fx.paramA = textModeParamForCols(cols);
+          applyTextModeParams(fx, probe);
+          if (probe.asciiCols != cols) colsOk = false;
+        }
+        expect(colsOk, "column counts survive the round trip");
+      }
+
       // TEXT MODE MUST COVER THE WHOLE RASTER.
       //
       // The cell grid was sized by integer division -- dstW/cols -- and the
