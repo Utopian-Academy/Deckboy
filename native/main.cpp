@@ -5976,8 +5976,24 @@ class App {
   }
 
   void inspFinishSection(const InspectorSectionScope& section, int bodyBottom) {
-    if (!section.open) return;
-    int shellBottom = std::max(section.headerRect.y + section.headerRect.h, bodyBottom + 2);
+    const int headerBottom = section.headerRect.y + section.headerRect.h;
+    if (!section.open) {
+      // A COLLAPSED SECTION STILL OCCUPIES ITS HEADER.
+      //
+      // This returned without touching inspectorSectionBottomMax_, which is the
+      // anchor the sections drawn AFTER the per-kind chain start from -- EFFECTS
+      // and TEXT MODE. So collapsing the sections above them left the anchor
+      // pointing at wherever the last OPEN section ended, and they drew on top
+      // of the collapsed headers. Collapse them all and the anchor is still at
+      // its initial value, the top of the panel, and everything lands in a heap
+      // there.
+      //
+      // Which is exactly what an operator does: collapse what they are not
+      // using to get down to the effects.
+      inspectorSectionBottomMax_ = std::max(inspectorSectionBottomMax_, headerBottom);
+      return;
+    }
+    int shellBottom = std::max(headerBottom, bodyBottom + 2);
     // Track the deepest section bottom so the cue-settings scroll range covers
     // trailing non-interactive rows (status/message rows push no quickButtons_,
     // so the button-based scroll-max alone can leave them unreachable).

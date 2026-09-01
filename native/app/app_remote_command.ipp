@@ -656,6 +656,36 @@
     // Text mode could only ever say what the picture's brightness said. These
     // let an operator put their OWN marks and their own words in it, which is
     // the difference between a filter and an instrument.
+    // Collapse or expand an inspector section.
+    //
+    // Added because the sections could only be folded by clicking, and folding
+    // them is what an operator does to reach the effects -- which is where the
+    // layout broke. A whole class of inspector fault had no way to be
+    // reproduced except by hand.
+    if (command == "SECTION") {
+      if (parts.size() < 2) {
+        failRemoteCommand("SECTION: expected playback|metadata|geometry|key|effects|timer|tone|synth");
+        return;
+      }
+      const std::string which = toUpper(parts[1]);
+      std::optional<QuickAction> action;
+      if (which == "PLAYBACK")      action = QuickAction::CueSectionPlaybackToggle;
+      else if (which == "METADATA") action = QuickAction::CueSectionMetadataToggle;
+      else if (which == "GEOMETRY") action = QuickAction::CueSectionGeometryToggle;
+      else if (which == "KEY")      action = QuickAction::CueSectionKeyToggle;
+      else if (which == "EFFECTS")  action = QuickAction::CueSectionEffectsToggle;
+      else if (which == "TIMER")    action = QuickAction::CueSectionTimerToggle;
+      else if (which == "TONE")     action = QuickAction::CueSectionToneToggle;
+      else if (which == "SYNTH" || which == "TEXT")
+        action = QuickAction::CueSectionVideoSynthToggle;
+      if (!action) {
+        failRemoteCommand("SECTION: unknown section \"" + parts[1] + "\"");
+        return;
+      }
+      dispatchQuickAction(*action);
+      return;
+    }
+
     if (command == "ASCII") {
       // ANY cue whose text mode is on screen -- a video synth cue, where the
       // grid is native, or anything carrying the TEXT MODE effect. This
