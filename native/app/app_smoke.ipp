@@ -825,6 +825,54 @@
                "a non-realtime universal message is not show control");
       }
 
+      // TEXT MODE MUST COVER THE WHOLE RASTER.
+      //
+      // The cell grid was sized by integer division -- dstW/cols -- and the
+      // remainder was simply never drawn, leaving a bare strip down the right
+      // edge and along the bottom. It showed as a black band in the synth and
+      // as untouched video when text mode ran as an effect over a clip.
+      //
+      // Rendered over a flat MAGENTA source: any pixel still magenta is a pixel
+      // the grid never reached. The sizes are chosen to divide badly on purpose
+      // -- 1280/74 leaves 22 columns, 1920/113 leaves 17 -- because the sizes
+      // that divide evenly were never the problem.
+      {
+        MediaEngine textEngine(nullptr, nullptr, {}, {}, {}, {});
+        VideoSynthSettings tvs;
+        tvs.ascii = true;
+        tvs.asciiCharSet = 6;                 // music & sparkle
+        int uncoveredCases = 0;
+        for (auto wh : {std::pair<int,int>{1280, 720},
+                        std::pair<int,int>{1920, 1080},
+                        std::pair<int,int>{640, 360}}) {
+          for (int cols : {74, 113, 37, 200, 20}) {
+            const int W = wh.first, H = wh.second;
+            std::vector<std::uint8_t> srcPix(static_cast<std::size_t>(W) * H * 4);
+            for (std::size_t i = 0; i < srcPix.size(); i += 4) {
+              srcPix[i + 0] = 40; srcPix[i + 1] = 90; srcPix[i + 2] = 200; srcPix[i + 3] = 255;
+            }
+            std::vector<std::uint8_t> dstPix(static_cast<std::size_t>(W) * H * 4);
+            for (std::size_t i = 0; i < dstPix.size(); i += 4) {
+              dstPix[i + 0] = 255; dstPix[i + 1] = 0; dstPix[i + 2] = 255; dstPix[i + 3] = 255;
+            }
+            tvs.asciiCols = cols;
+            textEngine.renderTextMode(srcPix.data(), W, H, dstPix.data(), W, H, tvs, 0, 0.0);
+            std::size_t stillMagenta = 0;
+            for (std::size_t i = 0; i < dstPix.size(); i += 4) {
+              if (dstPix[i] == 255 && dstPix[i + 1] == 0 && dstPix[i + 2] == 255) {
+                ++stillMagenta;
+              }
+            }
+            if (stillMagenta > 0) {
+              ++uncoveredCases;
+              std::cout << "      " << W << "x" << H << " at " << cols
+                        << " cols left " << stillMagenta << " pixels undrawn" << '\n';
+            }
+          }
+        }
+        expect(uncoveredCases == 0, "text mode covers the whole raster");
+      }
+
       // The clock has to carry. %04.1f rounds after the minute is split off,
       // so a value in the last twentieth of a second used to print :60.0 --
       // an out-point of 899.983s read "14:60.0" in the inspector.

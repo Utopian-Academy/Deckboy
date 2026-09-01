@@ -1,5 +1,14 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-08-31 - v0.89.1 (text mode fills the frame)
+
+The character grid now reaches every edge of the raster. Cell edges land on
+proportional boundaries instead of a fixed cell size, so the last column and the
+last row finish exactly on the frame edge at any column count and any output
+size — no strip left along the right or the bottom. The glitch marks follow the
+same grid, so they stay in their cells out to the edge.
+
+
 ## 2026-08-31 - v0.89.0 (marks to draw with, devices that come back)
 
 ### A marks alphabet for text mode
