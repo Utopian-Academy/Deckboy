@@ -199,6 +199,9 @@ const fs::path kUiPackRelativePathV3 = fs::path("ui") / "deckboy_ui_pack_v3";  /
 const fs::path kUiPackRelativePathV2 = fs::path("ui") / "deckboy_ui_pack_v2";  // Legacy UI pack path
 
 std::atomic<bool> gShouldQuit = false;  // Global quit flag (set by signal handlers)
+// The thread that creates the windows and does all the drawing. Recorded so a
+// crash report can say whether the fault was on it.
+std::atomic<unsigned long> gMainThreadId {0};
 
 // ── Version and platform utilities ──────────────────────────────────────────
 
@@ -8407,6 +8410,17 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     log << "\n=== Deckboy crash " << deckboy::core::version::kVersionTag << " ===\n";
     log << "time: " << now << "\n";
+    // WHICH THREAD, and whether it is the one that owns the renderers.
+    //
+    // Four crashes are now logged with byte-identical stacks -- an access
+    // violation inside SDL's D3D11 vertex buffer, reached from an ordinary
+    // rectangle draw -- across v0.83.1, v0.83.2, v0.87.0 and v0.91.0. The stack
+    // alone cannot separate the two candidate causes: a renderer used after its
+    // device went away, or a renderer touched from two threads at once. This
+    // separates them, and costs nothing until something goes wrong.
+    log << "thread: " << GetCurrentThreadId()
+        << (GetCurrentThreadId() == gMainThreadId.load() ? "  (main)" : "  (NOT main)")
+        << "  main: " << gMainThreadId.load() << "\n";
     if (info && info->ExceptionRecord) {
       log << "code: 0x" << std::hex << info->ExceptionRecord->ExceptionCode << std::dec
           << "  address: " << info->ExceptionRecord->ExceptionAddress << "\n";
@@ -9050,6 +9064,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
 
 int runDeckboyMain(int argc, char** argv) {
 #ifdef _WIN32
+  gMainThreadId.store(GetCurrentThreadId());
   SetUnhandledExceptionFilter(deckboyCrashHandler);
 #else
   installPosixCrashHandler();

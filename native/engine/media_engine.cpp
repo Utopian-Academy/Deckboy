@@ -2584,6 +2584,19 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         const int px0 = colEdge(cx);
         const int spanW = std::min(colEdge(cx + 1) - px0, dstW - px0);
         if (spanW <= 0) continue;
+        // THE MARKS TAKE THE PICTURE'S COLOUR under picture ink.
+        //
+        // They were drawn in whatever the phosphor was, and picture ink has no
+        // phosphor -- the lookup fell through to palette entry 15, pure white.
+        // So a glitch over a coloured clip came out as white confetti sitting
+        // on top of it rather than as damage to it.
+        std::uint8_t markInk[3] = {zalgoInk[0], zalgoInk[1], zalgoInk[2]};
+        if (vs.asciiInk == 0) {
+          const int sxm = std::clamp(((cx * 2 + 1) * srcW) / (cols * 2), 0, srcW - 1);
+          const int sym = std::clamp(((rowBegin * 2 + 1) * srcH) / (rows * 2), 0, srcH - 1);
+          const std::uint8_t* q = src + (static_cast<std::size_t>(sym) * srcW + sxm) * 4;
+          markInk[0] = q[2]; markInk[1] = q[1]; markInk[2] = q[0];
+        }
         // Every cell whose marks could reach these rows, including the ones
         // outside this band -- that is what makes the answer the same from
         // either side.
@@ -2617,6 +2630,31 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                                     : (cellBottom + (step - 1) * markH);
             if (markY + markH <= yStart || markY >= yEnd) continue;
             const std::uint8_t* mark = kMarks[(h >> 8) % 8];
+            // CHANNEL SPLIT on a third of them. Digital corruption separates
+            // into its channels -- that fringing is most of what makes a
+            // glitch read as a glitch rather than as decoration. Cheap here:
+            // drop one channel of the mark's colour rather than re-drawing the
+            // cell three times at an offset.
+            // MULTIPLICATIVE, not additive. The first version subtracted from
+            // one channel and ADDED a constant to another, which on the dark
+            // parts of a picture invents brightness that was never there and
+            // turns a muted cell into a saturated primary -- red, green and
+            // blue confetti, which is not what damage to this picture looks
+            // like. Scaling keeps the cell's own hue and its own level: a
+            // glitch on a dark area stays dark.
+            std::uint8_t drawInk[3] = {markInk[0], markInk[1], markInk[2]};
+            {
+              // Lifted a little so the mark reads as damage rather than
+              // vanishing into the cell it sits beside.
+              for (int ch = 0; ch < 3; ++ch) {
+                drawInk[ch] = static_cast<std::uint8_t>(
+                  std::min(255, static_cast<int>(drawInk[ch] * 1.35 + 18)));
+              }
+              if (((h >> 19) & 1u) != 0u) {
+                const std::uint32_t split = (h >> 21) % 3u;
+                drawInk[split] = static_cast<std::uint8_t>(drawInk[split] * 0.3);
+              }
+            }
             // A sideways nudge, so a stack is not a perfect column.
             const int nudge = static_cast<int>((h >> 16) % 5u) - 2;
             for (int ry = 0; ry < markH; ++ry) {
@@ -2630,7 +2668,7 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                 const int x = px0 + rx + nudge;
                 if (x < 0 || x >= dstW) continue;
                 std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-                p[0] = zalgoInk[0]; p[1] = zalgoInk[1]; p[2] = zalgoInk[2];
+                p[0] = drawInk[2]; p[1] = drawInk[1]; p[2] = drawInk[0];
                 p[3] = 255;
               }
             }
@@ -2651,7 +2689,9 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                 std::uint8_t* row = dst + (static_cast<std::size_t>(y) * dstW) * 4;
                 for (int rx = 0; rx < spanW; ++rx) {
                   std::uint8_t* p = row + static_cast<std::size_t>(px0 + rx) * 4;
-                  p[0] = zalgoInk[0]; p[1] = zalgoInk[1]; p[2] = zalgoInk[2];
+                  // The strike THROUGH a character keeps the cell's colour --
+                  // it is damage to the glyph, not a mark sitting beside it.
+                  p[0] = markInk[2]; p[1] = markInk[1]; p[2] = markInk[0];
                   p[3] = 255;
                 }
               }
