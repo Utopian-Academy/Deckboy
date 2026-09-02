@@ -1873,7 +1873,23 @@
     if (outFrac < 1.0f) drawMarker(outFrac, 220, 80, 80);
   }
 
-  void triggerToast(std::string message, SDL_Color fill = {155, 188, 15, 220}, SDL_Color ink = {15, 56, 15, 255}, Uint32 durationMs = 1200) {
+  // The default toast and how long it stays.
+  //
+  // 1200ms is right for a toast that CONFIRMS something the operator just did:
+  // they know what they pressed and the message only says it landed. It is far
+  // too short for one that tells them something they did not know and must act
+  // on -- a file that cannot be converted, a tool that is missing. Those went
+  // by before they could be read, which is the same as not showing them.
+  //
+  // So there are two durations and two colours, and the rule is which kind of
+  // message it is, not how important it feels.
+  static constexpr SDL_Color kToastFill     = {155, 188,  15, 220};
+  static constexpr SDL_Color kToastInk      = { 15,  56,  15, 255};
+  static constexpr SDL_Color kToastWarnFill = {206, 145,  40, 235};
+  static constexpr SDL_Color kToastWarnInk  = { 32,  20,   0, 255};
+  static constexpr Uint32    kToastReadableMs = 6500;
+
+  void triggerToast(std::string message, SDL_Color fill = kToastFill, SDL_Color ink = kToastInk, Uint32 durationMs = 1200) {
     if (!project_.uiTransitionsEnabled) {
       return;
     }

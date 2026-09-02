@@ -41,10 +41,50 @@ namespace deckboy::platform {
 // Is this a document this module can turn into pages?
 bool isPdfDocumentPath(const std::filesystem::path& path);
 
-// A presentation that is NOT a PDF (.pptx, .ppt, .key, .odp). These cannot be
-// rendered here; the caller tells the operator to export a PDF. Kept as its own
-// question so the app can say something useful instead of "unsupported file".
+// A presentation that is NOT a PDF (.pptx, .ppt, .key, .odp). Nothing in this
+// module can rasterise one directly -- they go through convertPresentationToPdf
+// first. Kept as its own question so the app can treat them as a class.
 bool isPresentationDocumentPath(const std::filesystem::path& path);
+
+// ── Presentations, by way of the application that owns the format ───────────
+//
+// A .pptx is not a document format anyone should reimplement: it is a bag of
+// XML whose meaning is whatever PowerPoint does with it, and a half-right
+// renderer that puts a slide's type in the wrong place is worse on a show day
+// than an honest refusal. So Deckboy does not render one. It asks whatever is
+// already on the machine to export a PDF, and then rasterises that with the
+// engine it already trusts.
+//
+// In preference order, per platform:
+//
+//   Windows  PowerPoint itself (COM), then LibreOffice.
+//   macOS    Keynote for .key, then LibreOffice, then PowerPoint if present.
+//   Linux    LibreOffice.
+//
+// PowerPoint before LibreOffice on Windows because a format's owner is the
+// authority on it; LibreOffice before PowerPoint on macOS only for the formats
+// PowerPoint does not own. Where none is installed the operator is told which
+// to install, which is a better answer than "unsupported file".
+//
+// THE CAVEAT FROM ABOVE STILL HOLDS: exporting to PDF flattens builds and drops
+// transitions. This makes the import work; it does not make an animated deck
+// animate.
+struct PresentationConversion {
+  std::filesystem::path pdfPath;   // the PDF that was produced
+  std::string converter;           // human-readable name of what did it
+  std::string error;               // empty on success
+  bool ok() const { return error.empty() && !pdfPath.empty(); }
+};
+
+// Is anything on this machine able to convert a presentation? `whyNot` is set
+// to something an operator can act on when the answer is no.
+bool presentationConvertAvailable(std::string& whyNot);
+
+// Export `source` to a PDF inside `outputDir` and return where it landed.
+// Blocking, and slow enough to matter -- Office can take tens of seconds on a
+// large deck -- so callers run it off the UI thread.
+PresentationConversion convertPresentationToPdf(
+  const std::filesystem::path& source, const std::filesystem::path& outputDir);
 
 struct PdfRasterResult {
   std::vector<std::string> pagePaths;   // in page order

@@ -2992,10 +2992,30 @@
   //
   // Rendered on a worker thread. A hundred-page deck takes seconds, and doing
   // it inline would freeze the app during load-in with no indication why.
+  // What the rendering card shows. The two counts are written by the render
+  // worker and read by the draw, so they are atomic; the flag and the title
+  // are only ever touched on the main thread.
+  bool slideRenderActive_ = false;
+  std::string slideRenderTitle_;
+  std::atomic<int> slideRenderPage_{0};
+  std::atomic<int> slideRenderTotal_{0};
+
   void importSlideDeck(const fs::path& document) {
     std::string whyNot;
     if (!deckboy::platform::pdfRasterAvailable(whyNot)) {
-      triggerToast("slides: " + whyNot);
+      triggerToast("slides: " + whyNot, kToastWarnFill, kToastWarnInk,
+                   kToastReadableMs);
+      return;
+    }
+    // A presentation is converted to PDF first, by whatever owns the format.
+    // Checked here rather than inside the worker so the operator is told the
+    // converter is missing straight away instead of after a spinner.
+    const bool needsConversion =
+      deckboy::platform::isPresentationDocumentPath(document);
+    if (needsConversion &&
+        !deckboy::platform::presentationConvertAvailable(whyNot)) {
+      triggerToast(document.filename().string() + ": " + whyNot,
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
       return;
     }
     // Pages live under the state dir, never next to the operator's document:
@@ -3004,26 +3024,73 @@
     const fs::path pagesDir = Paths::stateDir() / "_converted" /
                               (document.stem().string() + "_pages");
     const std::string title = document.stem().string();
-    triggerToast("slides: rendering " + title + "...");
+    // STAYS UP FOR THE WHOLE JOB. A hundred-slide deck takes half a minute to
+    // convert and render, and the ordinary toast is gone in a second -- so the
+    // operator got one flash and then a window that looked like it had ignored
+    // them. The finish toast replaces this one, so the message on screen is
+    // always the current one.
+    slideRenderActive_ = true;
+    slideRenderTitle_ = title;
+    slideRenderPage_.store(0, std::memory_order_relaxed);
+    slideRenderTotal_.store(0, std::memory_order_relaxed);
 
-    std::thread([this, document, pagesDir, title]() {
+    std::thread([this, document, pagesDir, title, needsConversion]() {
+      // The conversion lands beside the pages, under the state dir. It is kept
+      // rather than deleted: re-importing the same deck is common, and the PDF
+      // is the expensive half.
+      fs::path source = document;
+      std::string converter;
+      if (needsConversion) {
+        auto converted =
+          deckboy::platform::convertPresentationToPdf(document, pagesDir);
+        if (!converted.ok()) {
+          std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+          sdlDialogActions_.emplace_back([this, converted, title]() {
+            slideRenderActive_ = false;
+            triggerToast(title + ": " + converted.error, kToastWarnFill,
+                         kToastWarnInk, kToastReadableMs);
+          });
+          return;
+        }
+        source = converted.pdfPath;
+        converter = converted.converter;
+      }
       // 3840 wide, whatever shape the page is. A slide is mostly type, type is
       // the first thing to fall apart scaled up to a 4K output, and once the
       // page is a PNG the detail cannot be recovered -- so it renders for the
       // largest output this app supports rather than the one currently armed.
-      auto result = deckboy::platform::rasterisePdf(document, pagesDir, 3840, nullptr);
+      // Straight into the atomics the card reads. Called once per page from
+      // the render thread, which is why they are atomic and why nothing here
+      // touches the renderer.
+      auto onProgress = [this](int page, int total) {
+        slideRenderTotal_.store(total, std::memory_order_relaxed);
+        slideRenderPage_.store(page, std::memory_order_relaxed);
+      };
+      auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress);
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-      sdlDialogActions_.emplace_back([this, result, title]() {
+      sdlDialogActions_.emplace_back([this, result, title, converter]() {
+        slideRenderActive_ = false;
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
-                                                          : result.error));
+                                                          : result.error),
+                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
           return;
         }
         // Straight back through the ordinary import, so the pages get deck
         // defaults, probing, thumbnails and undo exactly like any other still.
         importPaths(result.pagePaths, title);
+        // Naming the converter is not trivia: LibreOffice substitutes fonts it
+        // has not got, so an operator who sees it named knows to check the
+        // slides rather than discover a reflowed heading in front of a room.
+        const std::string via =
+          (converter.empty() || converter == "PowerPoint" ||
+           converter == "Keynote")
+            ? std::string()
+            : ("  (converted by " + converter + " -- check the fonts)");
         triggerToast(title + ": " + std::to_string(result.pagePaths.size()) +
-                     " slides imported");
+                       " slides imported" + via,
+                     kToastFill, kToastInk,
+                     via.empty() ? 1800u : kToastReadableMs);
       });
     }).detach();
   }
@@ -3046,6 +3113,14 @@
       std::error_code ec;
       fs::path path = fs::absolute(trim(raw), ec);
       if (ec || !fs::exists(path, ec)) {
+        // SAY SO. This skipped silently, so importing something that is not
+        // there -- media on a drive that has been unplugged, a file whose
+        // folder has been renamed, a path that arrived with its quoting
+        // mangled -- looked exactly like an app that had ignored the drop.
+        // It cost an hour to diagnose here; on a show day it is worse.
+        triggerToast(fs::path(trim(raw)).filename().string() +
+                       ": not found (has the drive gone away?)",
+                     kToastWarnFill, kToastWarnInk, kToastReadableMs);
         continue;
       }
       if (fs::is_directory(path, ec)) {
@@ -3074,11 +3149,11 @@
         continue;
       }
       if (deckboy::platform::isPresentationDocumentPath(path)) {
-        // Say what to do about it. PowerPoint and Keynote cannot be rendered
-        // here, and "unsupported file" leaves the operator guessing at 10am on
-        // a show day.
-        triggerToast(path.filename().string() +
-                     ": export it as PDF and import that");
+        // Converted to PDF by whatever owns the format, then rasterised like
+        // any other document. This used to tell the operator to go and export
+        // a PDF by hand -- which is exactly the work the machine can do, and
+        // the message went by too fast to read besides.
+        importSlideDeck(path);
         continue;
       }
       media.push_back(path);

@@ -1,5 +1,43 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.94.0 (import a PowerPoint or a Keynote)
+
+### Drop the deck in
+
+`.pptx`, `.ppt`, `.pps`, `.key` and `.odp` import directly now. Deckboy asks
+whatever owns the format to export a PDF — PowerPoint on Windows, Keynote for
+`.key` on macOS, LibreOffice anywhere it is installed — and then renders the
+pages the way it already renders a PDF: one still per slide, 3840 wide, each
+one holding until you take the next.
+
+**The format's own application does the export, so nothing is reinterpreted.**
+Fonts stay the fonts, every box stays where it was put, and images keep their
+resolution. Measured on a test-pattern deck, the finest hatching in the card
+comes through fully resolved rather than averaged to grey. Where LibreOffice
+is the only converter available it is named when the import finishes, because
+it substitutes fonts it does not have and that is worth a look before you go
+on air.
+
+What a PDF cannot carry, and so neither can this: builds, transitions, and
+video or audio embedded in a slide. For a deck that genuinely animates, take
+it live with a window-capture source instead.
+
+### Something to watch while it works
+
+A hundred-slide deck takes about half a minute to convert and render. Deckboy
+now shows you the friend from the startup screen while it does, counting the
+slides off with a bar that moves — so the wait has a face on it.
+
+### Smaller things
+
+Messages that tell you something you need to act on now stay up long enough to
+read, and stand out from the ones that just confirm what you pressed.
+
+Importing something that is not there — media on a drive that has been
+unplugged, a folder that has been renamed — says so, instead of appearing to
+do nothing at all.
+
+
 ## 2026-09-02 - v0.93.1 (the picture-following wobble follows the picture)
 
 **flow** mode now follows the parts of the picture that have something to
