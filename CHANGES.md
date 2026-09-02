@@ -1,5 +1,47 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.93.0 (text that turns, and a show that keeps a spare)
+
+### The wobble turns
+
+Text mode's wobble is a rotation now. Each character sits on its own small card
+turning about two axes at once, drawn through the same perspective a camera
+would give it: the edges converge, the near side catches the light and the far
+side falls away. Large glyphs read as objects with a front and a back rather
+than as a picture being waved.
+
+There is one knob. At zero nothing happens and nothing is spent.
+
+### The picture stays behind the text
+
+Large rotating characters used to let the clip show through around them, which
+pulled the eye to the source instead of the type. The space around a turning
+character is the background now, whatever size the characters are and however
+far they have turned.
+
+### Presets are a starting point, not a mode
+
+The preset row has a **none** position, so the built-in character sets are
+always one step away. Choosing a built-in set while a preset is loaded now
+takes you to that set and says so, and the row tells you when a custom set is
+in force. Whichever row you reach for is the row that answers.
+
+The controls that override one another — preset, font and custom glyphs — sit
+together directly under the set they override, in the order they apply.
+
+### A show keeps a spare
+
+Deckboy writes a `.bak` beside a show before it first overwrites it, holding
+the show as it was when Deckboy opened it. Saves were already all-or-nothing;
+this adds somewhere to go back to.
+
+### Reading the deck back
+
+`ASCII STATUS` answers with the whole TEXT MODE section on one line — ink, set,
+preset, columns, chaos, wobble and typeface — so a control surface can show
+what a cue is actually doing rather than only tell it what to do.
+
+
 ## 2026-09-01 - v0.92.1 (the glitch takes the picture's colour)
 
 The marks that climb out of the characters are drawn in the clip's own colour
