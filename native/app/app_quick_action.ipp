@@ -488,22 +488,35 @@
           // a preset was picked there was no way back to the built-in sets
           // except clearing the field by hand, which made that row look broken.
           //
-          // Worked out from the glyph string rather than remembered, so an
-          // operator who edited it is not snapped back to a preset.
+          // Worked out from the glyph string rather than remembered, so the
+          // cycle follows what the cue actually holds.
+          //
+          // A set typed by hand matches no preset and so sits at 0 alongside
+          // "none" -- stepping from it lands on the first or last preset and
+          // overwrites what was typed. That is the same trade the glyph-set
+          // row makes, and it says so when it does it; saying nothing here
+          // meant an operator's own glyphs vanished with a toast naming the
+          // preset that replaced them and no hint that anything was lost.
           int at = 0;                                   // 0 = none
+          bool matched = false;
           for (int i = 0; i < count; ++i) {
-            if (c->videoSynth.asciiGlyphs == presets[i].glyphs) { at = i + 1; break; }
+            if (c->videoSynth.asciiGlyphs == presets[i].glyphs) {
+              at = i + 1; matched = true; break;
+            }
           }
+          const std::string replaced =
+            (!matched && !c->videoSynth.asciiGlyphs.empty())
+              ? "  (replaced your glyphs)" : std::string();
           const int step = action == QuickAction::VsAsciiPresetNext ? 1 : -1;
           const int total = count + 1;
           const int next = ((at + step) % total + total) % total;
           if (next == 0) {
             c->videoSynth.asciiGlyphs.clear();
             triggerToast(std::string("glyphs: the built-in set (") +
-                         vsCharSetLabel(c->videoSynth.asciiCharSet) + ")");
+                         vsCharSetLabel(c->videoSynth.asciiCharSet) + ")" + replaced);
           } else {
             c->videoSynth.asciiGlyphs = presets[next - 1].glyphs;
-            triggerToast(std::string("glyphs: ") + presets[next - 1].name);
+            triggerToast(std::string("glyphs: ") + presets[next - 1].name + replaced);
           }
           markProjectDirty();
           playUiSound(UiSoundEffect::Toggle);

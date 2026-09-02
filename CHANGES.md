@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.93.1 (the picture-following wobble follows the picture)
+
+**flow** mode now follows the parts of the picture that have something to
+follow. The direction came from the luma gradient, and across a flat area
+there is no gradient to take a direction from — so those characters pointed
+every which way and the mode lost the coherence that makes the turn read as a
+surface. Where the picture has an edge the flow follows it; where it has
+nothing, the characters keep to the wave. **hue** mode is weighted the same way
+by how much colour a cell actually has.
+
+Naming a wobble mode over the wire now works: `flow` and `hue` are the modes,
+`luma` and `colour` reach the same two, and a name that is not a mode is
+refused instead of quietly meaning `drift`.
+
+A character set typed by hand now says when a preset replaces it, the way the
+character-set row already did.
+
+Fixed: with a glitch running, the area around a turned character took the
+corrupted background colour with red and blue exchanged, so one cell showed
+two versions of the same background.
+
+
 ## 2026-09-02 - v0.93.0 (text that turns, and a show that keeps a spare)
 
 ### The wobble turns
