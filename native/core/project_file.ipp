@@ -486,6 +486,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   // show as it was when Deckboy opened it rather than as it was a second ago --
   // which is the version worth having, because a mistake is usually noticed
   // after several autosaves, not before the next one.
+  // Not guarded, because every path into saveProject is the main thread:
+  // saveProjectNow and persistProject are called from the update loop, and the
+  // one that arrives from a file dialog is marshalled into sdlDialogActions_
+  // and run at a safe point rather than on whatever thread SDL used. If a save
+  // is ever moved onto a worker, this needs a lock.
   static std::set<std::string> backedUp;
   const std::string key = resolved.string();
   if (backedUp.find(key) == backedUp.end()) {

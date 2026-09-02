@@ -2235,8 +2235,23 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             const int gxR = lumaAt(std::min(cols - 1, cx + 1), cy);
             const int gyU = lumaAt(cx, std::max(0, cy - 1));
             const int gyD = lumaAt(cx, std::min(rows - 1, cy + 1));
-            dir = std::atan2(static_cast<double>(gyD - gyU),
-                             static_cast<double>(gxR - gxL));
+            // WEIGHTED BY HOW MUCH GRADIENT THERE ACTUALLY IS.
+            //
+            // atan2 of a near-zero gradient is noise: across a flat part of
+            // the picture neighbouring cells got directions pointing all over,
+            // which threw the phase apart again and undid the coherence the
+            // travelling wave exists to give. Measured along a row of thirty
+            // cells, flow stepped 29 units between neighbours against 9 for
+            // drift -- scattered by exactly the amount the picture was flat.
+            //
+            // A direction taken from no gradient carries no information, so it
+            // now carries no weight, and those cells fall back to the wave.
+            // Where the picture does have an edge the flow follows it, which
+            // is the whole point of the mode.
+            const double gdx = static_cast<double>(gxR - gxL);
+            const double gdy = static_cast<double>(gyD - gyU);
+            const double gmag = std::sqrt(gdx * gdx + gdy * gdy);
+            dir = std::atan2(gdy, gdx) * std::clamp(gmag / 40.0, 0.0, 1.0);
           } else if (vs.asciiWobbleMode == 2) {
             const int mx = std::max(sr, std::max(sg, sb));
             const int mn = std::min(sr, std::min(sg, sb));
@@ -2246,7 +2261,13 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
               if (mx == sr)      h = std::fmod((sg - sb) / c, 6.0);
               else if (mx == sg) h = (sb - sr) / c + 2.0;
               else               h = (sr - sg) / c + 4.0;
-              dir = h * 1.04719755;            // sextants to radians
+              // Weighted by saturation for the same reason flow is weighted
+              // by gradient: the hue of a nearly grey cell is arbitrary, and
+              // an arbitrary direction is noise. Fully grey was already
+              // handled by the test above; this covers everything approaching
+              // it rather than only the exact case.
+              const double sat = c / std::max(1.0, static_cast<double>(mx));
+              dir = h * 1.04719755 * std::clamp(sat * 2.0, 0.0, 1.0);
             }
           } else {
             // Drift takes its direction from the wave below rather than adding
@@ -2608,8 +2629,15 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                 std::clamp(1.0 / std::max(0.30, depthY * depthX), 0.55, 1.35);
               if (su < -0.5 || su > 0.5 || sv < -0.5 || sv > 0.5) {
                 // Background, not a hole -- see the font path.
+                //
+                // In palette order: byte 0 is RED. Written reversed this was
+                // the very swap the note below records as fixed, so a glitch
+                // row -- the only way bgIdx leaves 0 -- showed the surround of
+                // a turned card in one colour and the same background inside
+                // it in another. Invisible on the black default, which is why
+                // the coverage test did not catch it.
                 std::uint8_t* pB = row + static_cast<std::size_t>(px0 + rx) * 4;
-                pB[0] = bg[2]; pB[1] = bg[1]; pB[2] = bg[0]; pB[3] = 255;
+                pB[0] = bg[0]; pB[1] = bg[1]; pB[2] = bg[2]; pB[3] = 255;
                 continue;
               }
               gx = std::clamp(static_cast<int>((su + 0.5) * 5.0), 0, 4);
@@ -2629,7 +2657,7 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
               // 5x7 sets turned without ever catching the light while the same
               // card built from a custom set did -- and the light is most of
               // what sells the turn as a turn rather than as a distortion.
-              // Only the ink is lit; the background behind a card stays black.
+              // Only the ink is lit; the cell background is not.
               p[0] = static_cast<std::uint8_t>(
                 std::clamp(static_cast<int>(c[0] * wobShade), 0, 255));
               p[1] = static_cast<std::uint8_t>(

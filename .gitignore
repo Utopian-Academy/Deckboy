@@ -7,6 +7,10 @@ builds/
 
 # Project data (user-specific)
 data/*.deckboy
+# The rollback copy saveProject writes before it first overwrites a show.
+# A show holds absolute media paths, so this is as private as the show is,
+# and .bak does not match the rule above.
+*.deckboy.bak
 data/project.json
 data/posters/
 data/last_project.txt

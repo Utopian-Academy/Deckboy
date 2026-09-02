@@ -809,9 +809,26 @@
       }
       if (sub == "WOBBLEMODE") {
         if (parts.size() >= 3) {
+          // ANY name that was not "flow" or "hue" silently meant drift, and
+          // the command still answered OK -- so asking for a mode that does
+          // not exist looked exactly like getting the one you asked for.
+          //
+          // The aliases are the words the modes are described BY: flow
+          // follows luma and hue follows colour, so those are what somebody
+          // reaches for. Refusing them to insist on the internal name would
+          // be pedantry; accepting them silently as drift was worse.
           const std::string want = toLower(parts[2]);
-          cue->videoSynth.asciiWobbleMode =
-            want == "flow" ? 1 : want == "hue" ? 2 : 0;
+          int mode = -1;
+          if (want == "drift" || want == "none" || want == "off")      mode = 0;
+          else if (want == "flow" || want == "luma" ||
+                   want == "luminance")                                 mode = 1;
+          else if (want == "hue" || want == "colour" || want == "color") mode = 2;
+          if (mode < 0) {
+            failRemoteCommand("ASCII WOBBLEMODE: drift | flow (follows luma) "
+                              "| hue (follows colour); no argument cycles");
+            return;
+          }
+          cue->videoSynth.asciiWobbleMode = mode;
         } else {
           cue->videoSynth.asciiWobbleMode = (cue->videoSynth.asciiWobbleMode + 1) % 3;
         }
@@ -942,7 +959,7 @@
       failRemoteCommand(
         "ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET "
         "[name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | "
-        "WOBBLE <0-1> | WOBBLEMODE [drift|luma|colour] | COLS <n> | "
+        "WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | "
         "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
