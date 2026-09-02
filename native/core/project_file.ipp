@@ -18,6 +18,17 @@
 // which compares the writer's order against the reader's and is the only
 // check that catches this.
 // ═══════════════════════════════════════════════════════════════════════════
+// Does this cue carry an unbypassed TEXT MODE effect? Free, because both the
+// writer and the migration ask it.
+inline bool cueHasTextModeEffect(const Cue& cue) {
+  for (const auto& fx : cue.effects) {
+    if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool saveProject(const fs::path& projectFile, const Project& project) {
   fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
   if (resolved.has_parent_path()) {
@@ -416,7 +427,21 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.resolution
         << '\t' << cue.videoSynth.pixelSort
         << '\t' << cue.videoSynth.glitch
-        << '\t' << (cue.videoSynth.ascii ? "1" : "0")
+        // A BRIDGE FOR OLDER BUILDS, not the switch any more. Text mode is the
+        // effect now, and this is written as "does this cue have one" so a
+        // show saved here still opens with its character grid in a build that
+        // predates the change. It cannot be dropped either way -- the record
+        // is positional, and removing a field from the middle shifts every
+        // column after it.
+        //
+        // It still NAMES the member, for two reasons. The layout audit anchors
+        // a column by the member it mentions and cannot check what it cannot
+        // name. And a Project built in memory that has never been through the
+        // loader may still carry the retired flag; writing only the derived
+        // value would drop it, which is a way to lose a setting rather than
+        // retire one.
+        << '\t' << ((cueHasTextModeEffect(cue) || cue.videoSynth.ascii)
+                      ? "1" : "0")
         << '\t' << cue.videoSynth.asciiCols
         << '\t' << (cue.videoSynth.asciiGreen ? "1" : "0")
         << '\t' << cue.videoSynth.crt
@@ -851,6 +876,54 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     return false;
   }
   return true;
+}
+
+// TEXT MODE USED TO HAVE TWO SWITCHES. A video synth cue turned its own
+// character grid on with videoSynth.ascii; every other cue got there by
+// carrying the TEXT MODE effect. Same renderer, two ways in -- and every
+// control had to work through both, which is the seam three separate bugs
+// lived in.
+//
+// There is one way now: the effect. A cue saved by an older build with the
+// flag set and no effect gets one here, carrying the settings it already had,
+// so a show opens looking exactly as it did. The flag is then cleared: it is
+// still written to the file (the record is positional and a field cannot be
+// removed from the middle of it) and now means "this cue has text mode", which
+// keeps an older build able to open a show this one wrote.
+//
+// Runs before normalizeProject so the effect it adds is normalised with the
+// rest.
+inline void migrateVideoSynthTextMode(Project& project) {
+  for (Deck& deck : project.decks) {
+    for (Cue& cue : deck.cues) {
+      if (!cue.videoSynth.ascii) {
+        continue;
+      }
+      bool hasTextMode = false;
+      for (const auto& fx : cue.effects) {
+        if (fx.kind == deckboy::effects::CueEffectKind::TextMode) {
+          hasTextMode = true;
+          break;
+        }
+      }
+      cue.videoSynth.ascii = false;
+      if (hasTextMode) {
+        continue;
+      }
+      deckboy::effects::CueEffect fx;
+      fx.kind = deckboy::effects::CueEffectKind::TextMode;
+      fx.amount = 1.0f;
+      // The four the effect carries, taken from what the cue was already set
+      // to, so the picture does not change on opening.
+      fx.paramA = ::textModeParamForCols(cue.videoSynth.asciiCols);
+      fx.paramB = static_cast<float>(
+        std::clamp(cue.videoSynth.glitch, 0.0, 1.0));
+      fx.paramC = ::textModeParamForCharSet(cue.videoSynth.asciiCharSet);
+      fx.paramD = static_cast<float>(
+        std::clamp(cue.videoSynth.asciiInk, 0, 5) / 5.0);
+      cue.effects.push_back(fx);
+    }
+  }
 }
 
 Project loadProject(const fs::path& projectFile,
@@ -1369,6 +1442,7 @@ Project loadProject(const fs::path& projectFile,
     }
   }
 
+  migrateVideoSynthTextMode(project);
   normalizeProject(project);
   return project;
 }

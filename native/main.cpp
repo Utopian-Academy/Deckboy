@@ -5483,26 +5483,22 @@ class App {
   // Only SHUFFLE appeared to work, and only because nothing overrode it.
   static void applyTextModeParams(const deckboy::effects::CueEffect& fx,
                                   VideoSynthSettings& vs) {
-    vs.asciiCols = std::clamp(
-      static_cast<int>(std::lround(20.0 + fx.paramA * 180.0)), 20, 200);
+    vs.asciiCols = ::textModeColsForParam(fx.paramA);
     vs.glitch = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
-    // The top slot used to mean SPRITE SHEET, which an effect can never draw
-    // for want of a sheet path, so it fell through to blocks and paramC=1
-    // looked identical to paramC=0. It is the marks set now; 0..4 are unmoved.
-    int set = std::clamp(static_cast<int>(std::lround(fx.paramC * 5.0)), 0, 5);
-    vs.asciiCharSet = (set == 5) ? 6 : set;
-    vs.asciiInk = std::clamp(static_cast<int>(std::lround(fx.paramD * 5.0)), 0, 5);
+    vs.asciiCharSet = ::textModeCharSetForParam(fx.paramC);
+    vs.asciiInk = ::textModeInkForParam(fx.paramD);
   }
 
   // The inverse, so a control can write the parameter that will be read back.
   static float textModeParamForCols(int cols) {
-    return static_cast<float>(std::clamp((cols - 20) / 180.0, 0.0, 1.0));
+    return ::textModeParamForCols(cols);
   }
   static float textModeParamForCharSet(int set) {
-    return static_cast<float>((set == 6 ? 5 : std::clamp(set, 0, 4)) / 5.0);
+    return ::textModeParamForCharSet(set);
   }
+
   static float textModeParamForInk(int ink) {
-    return static_cast<float>(std::clamp(ink, 0, 5) / 5.0);
+    return ::textModeParamForInk(ink);
   }
 
   // The live text-mode effect on a cue, or null. The controls edit THIS when it
@@ -6371,7 +6367,7 @@ class App {
       // a newer build should still load, minus the animal this one has never
       // heard of.
       else if (key == "creature") {
-        const auto sep = val.find('	');
+        const auto sep = val.find('\t');
         const std::string species = val.substr(0, sep);
         int count = 1;
         if (sep != std::string::npos) {

@@ -651,10 +651,14 @@
         }
         break;
       case QuickAction::VsAsciiToggle:
-        if (Cue* c = selectedVideoSynthCueMutable()) {
-          c->videoSynth.ascii = !c->videoSynth.ascii;
+        // ADDS OR REMOVES THE EFFECT, on any cue. This flipped a flag that
+        // only a video synth cue had, which is why text mode had two switches
+        // and every control had to work through both.
+        if (Cue* c = selectedCueMutable()) {
+          const bool on = toggleTextModeEffect(*c);
           markProjectDirty();
-          triggerToast(c->videoSynth.ascii ? "text mode" : "pixels");
+          refreshAllLiveCueRuntimes();
+          triggerToast(on ? "text mode" : "pixels");
           playUiSound(UiSoundEffect::Toggle);
         }
         break;

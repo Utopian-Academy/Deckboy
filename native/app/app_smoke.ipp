@@ -615,7 +615,10 @@
       cue.videoSynth.resolution = 4;
       cue.videoSynth.pixelSort = 0.44;
       cue.videoSynth.glitch = 0.33;
-      cue.videoSynth.ascii = true;
+      // NOT videoSynth.ascii. That flag is retired: setting it here would mean
+      // "this cue came from an old show", and the loader would rightly add a
+      // TEXT MODE effect to it -- giving this fixture an effect stack it did
+      // not ask for. The migration has its own test below.
       cue.videoSynth.asciiCols = 137;
       cue.videoSynth.crt = 0.22;
       cue.videoSynth.asciiCharSet = 4;
@@ -990,8 +993,50 @@
                std::abs(lv.glitch - 0.33) < 0.001 &&
                std::abs(lv.crt - 0.22) < 0.001,
                "video synth smear/glitch/crt persisted");
-        expect(lv.ascii && lv.asciiCols == 137,
-               "text mode and column count persisted");
+        // The flag is no longer round-tripped as a switch -- the writer emits
+        // it as "has the effect" for older builds, so a cue with the flag and
+        // no effect cannot survive a save by design. The migration itself is
+        // tested directly below, against the shape an old FILE has.
+        expect(lv.asciiCols == 137,
+               "text mode column count persisted");
+
+        // ── The migration, on the shape an OLD FILE has ──────────────────
+        //
+        // A cue carrying the retired videoSynth.ascii flag and no TEXT MODE
+        // effect is what every show written before this change looks like.
+        // It must come back with the effect, carrying the settings it had, so
+        // the show opens looking exactly as it did.
+        {
+          Project old;
+          old.decks.resize(1);
+          Cue oldCue;
+          oldCue.kind = CueKind::VideoSynth;
+          oldCue.videoSynth.ascii = true;
+          oldCue.videoSynth.asciiCols = 137;
+          oldCue.videoSynth.asciiCharSet = 4;
+          oldCue.videoSynth.asciiInk = 3;
+          oldCue.videoSynth.glitch = 0.25;
+          old.decks[0].cues.push_back(oldCue);
+          migrateVideoSynthTextMode(old);
+          const Cue& m = old.decks[0].cues[0];
+          const deckboy::effects::CueEffect* fx = nullptr;
+          for (const auto& e : m.effects) {
+            if (e.kind == deckboy::effects::CueEffectKind::TextMode) { fx = &e; break; }
+          }
+          expect(fx != nullptr && !m.videoSynth.ascii,
+                 "an old text-mode flag becomes a TEXT MODE effect");
+          expect(fx && ::textModeColsForParam(fx->paramA) == 137 &&
+                 ::textModeCharSetForParam(fx->paramC) == 4 &&
+                 ::textModeInkForParam(fx->paramD) == 3,
+                 "and the settings it had arrive unchanged in the effect");
+          // A cue that already has one must not collect a second.
+          migrateVideoSynthTextMode(old);
+          int count = 0;
+          for (const auto& e : old.decks[0].cues[0].effects) {
+            if (e.kind == deckboy::effects::CueEffectKind::TextMode) ++count;
+          }
+          expect(count == 1, "and migrating twice does not stack two of them");
+        }
         expect(lv.asciiCharSet == 4 && lv.asciiShuffle == 7 && lv.asciiInk == 3,
                "text mode glyph set, shuffle and ink persisted");
         expect(lv.asciiGlyphs == ".oO@" &&
