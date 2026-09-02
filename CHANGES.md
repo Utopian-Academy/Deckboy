@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.95.1 (the video synth's text mode row reads the effect)
+
+The **text mode** row in a video synth cue's settings read the switch that
+v0.95.0 retired, so it showed "off" whatever the cue was set to, and the
+character-grid rows underneath it never appeared — on the one kind of cue that
+has no other way to reach them.
+
+
 ## 2026-09-02 - v0.95.0 (one text mode)
 
 Text mode had two switches. A video synth cue turned its own character grid on;

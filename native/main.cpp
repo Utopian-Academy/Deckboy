@@ -5812,15 +5812,21 @@ class App {
     // twenty-five row section and the ones added last could not be found.
     // Sprites are a text-mode ALPHABET -- picking a sheet switches the grid
     // to it -- so they belong after the grid they draw into, not before it.
+    // THE EFFECT, not the retired flag. videoSynth.ascii is always false now,
+    // so reading it here would have left this row saying "off" however the cue
+    // was actually set, and hidden every text-mode row underneath it -- on the
+    // one cue kind that has no other way to reach them.
+    const bool textModeOn = cueHasTextModeEffect(cue);
     inspDrawQuickRow(ix, rowY, "text mode", QuickAction::VsAsciiToggle,
-                     v.ascii ? "on" : "off",
+                     textModeOn ? "on" : "off",
                      QuickAction::VsAsciiToggle, QuickAction::VsAsciiToggle,
-                     true, v.ascii,
+                     true, textModeOn,
                      "Render as a character grid with a 16-colour indexed "
                      "palette, rather than as pixels.");
     rowY += ix.rowStep;
-    if (v.ascii) {
-      rowY = inspDrawTextModeRows(ix, rowY, v, cue);    }
+    if (textModeOn) {
+      rowY = inspDrawTextModeRows(ix, rowY, v, cue);
+    }
 
     // ONE sprite control, not two. There were two rows -- "sprites" cycling
     // the sets in data/sprites, and "sheet" file-picking one -- both writing
