@@ -38,6 +38,17 @@ jobs:
               echo "Tag ${GITHUB_REF_NAME} does not match VERSION ${expected}" >&2
               exit 1
             fi
+
+            # The release notes come out of CHANGES.md, and that extraction ran
+            # in the publish job -- LAST, after six platform builds. A missing
+            # section is a thirty-second omission that cost a full matrix to
+            # discover, twice. It is knowable now, so it is checked now.
+            if ! grep -qE "^## .*v${version}([^0-9]|$)" CHANGES.md; then
+              echo "No CHANGES.md section for v${version}." >&2
+              echo "Add a '## <date> - v${version} (...)' heading; the publish" >&2
+              echo "job takes the release notes from everything under it." >&2
+              exit 1
+            fi
           fi
 
   # The Companion module is plain Node with no native deps, so it is by far the
