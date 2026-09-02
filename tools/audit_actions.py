@@ -116,6 +116,22 @@ def main():
 
     print("QuickAction values: %d" % len(actions))
 
+    # Nothing found is not a pass.
+    #
+    # Every check below asks whether a list is EMPTY, so an audit that parsed
+    # no actions at all reports no unhandled ones, no duplicate ids, and
+    # "clean" -- a perfect score for having looked at nothing. That is how
+    # audit_warnings.py came to pass on an empty log while a dead local went
+    # to CI. If the enum is ever renamed or moved, this says so instead.
+    if not actions:
+        print("")
+        print("FAIL: no QuickAction values found at all. The enum has")
+        print("moved or been renamed; this audit is reading the wrong")
+        print("thing and its 'clean' would mean nothing.")
+        print("or been renamed; this audit is reading the wrong thing and its")
+        print("'clean' would mean nothing.")
+        return 2
+
     print("\n[1] no handler -- fires and nothing happens: %d" % len(no_handler))
     for action in no_handler:
         print("      %s" % action)
