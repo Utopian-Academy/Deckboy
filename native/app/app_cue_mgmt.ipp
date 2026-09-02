@@ -2621,8 +2621,13 @@
                          "Characters to build the picture from, darkest first. "
                          "Empty uses the chosen glyph set.",
                          c->videoSynth.asciiGlyphs,
+                         // THE SAME CUE IT READ. This wrote through the video
+                         // synth accessor, so on a clip carrying the TEXT MODE
+                         // effect the row opened with the right value, took
+                         // what you typed, and dropped it -- which looks
+                         // exactly like a field that does not work.
                          [this](const std::string& value) {
-                           if (Cue* cue = selectedVideoSynthCueMutable()) {
+                           if (Cue* cue = selectedTextModeCueMutable()) {
                              cue->videoSynth.asciiGlyphs = value;
                              markProjectDirty();
                              refreshAllLiveCueRuntimes();
@@ -2639,8 +2644,9 @@
                          "Words to surface in the field, separated by | . One "
                          "shows at a time, moving on the hold clock.",
                          c->videoSynth.asciiPhrases,
+                         // Same fault as the glyphs row above.
                          [this](const std::string& value) {
-                           if (Cue* cue = selectedVideoSynthCueMutable()) {
+                           if (Cue* cue = selectedTextModeCueMutable()) {
                              cue->videoSynth.asciiPhrases = value;
                              markProjectDirty();
                              refreshAllLiveCueRuntimes();

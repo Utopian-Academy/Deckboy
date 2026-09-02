@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.94.1 (type your own text into TEXT MODE)
+
+The **glyphs** and **phrases** rows now keep what you type on an ordinary clip.
+Both opened with the right value and then discarded the edit, so on anything
+but a video synth cue they looked like fields that did nothing.
+
+Picking a **font** now uses that font. It was only consulted when the
+characters happened to be ones the built-in 5x7 face cannot draw, so choosing
+a typeface and then typing plain letters got the blocky built-in one with no
+sign why.
+
+
 ## 2026-09-02 - v0.94.0 (import a PowerPoint or a Keynote)
 
 ### Drop the deck in
