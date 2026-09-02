@@ -2004,7 +2004,13 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
     // not going to hunt for a mode first, and the old behaviour -- drop it and
     // say nothing -- is what made the field look broken.
     const bool useFontGlyphs =
-      (vs.asciiCharSet == 7 || glyphsNeedFont) && !vs.asciiGlyphs.empty();
+      // A CHOSEN FONT IS A CHOICE, so honour it. This asked only whether the
+      // set was "font" or whether the glyphs contained something the 5x7
+      // bitmap cannot draw -- so picking a typeface and then typing plain
+      // letters got the blocky built-in face and no sign why. The font row
+      // exists to be used; using it is the request.
+      (vs.asciiCharSet == 7 || glyphsNeedFont || !vs.asciiFontPath.empty()) &&
+      !vs.asciiGlyphs.empty();
     if (useFontGlyphs) {
       rebuildFontGlyphs(vs.asciiGlyphs, nomCellW, nomCellH, vs.asciiFontPath);
     }
