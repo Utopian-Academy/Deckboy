@@ -2093,8 +2093,37 @@
     }
     const fs::path out = outDir.empty()
       ? (fs::temp_directory_path() / "deckboy-pdf-probe") : fs::path(outDir);
+
+    // A PRESENTATION GOES THROUGH ITS CONVERTER FIRST, and the probe reports
+    // which one -- because "it did not import" has three different causes
+    // (no converter, the converter refused the file, the render failed) that
+    // look identical from the outside, and a toast cannot be read by a script.
+    fs::path source = file;
+    if (deckboy::platform::isPresentationDocumentPath(source)) {
+      std::string why;
+      if (!deckboy::platform::presentationConvertAvailable(why)) {
+        std::cout << "pdf-probe: no converter -- " << why << std::endl;
+        return 1;
+      }
+      std::cout << "pdf-probe: converting the presentation..." << std::endl;
+      const auto convBegan = std::chrono::steady_clock::now();
+      auto converted = deckboy::platform::convertPresentationToPdf(source, out);
+      const double convMs = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - convBegan).count();
+      if (!converted.ok()) {
+        std::cout << "pdf-probe: CONVERSION FAILED -- " << converted.error
+                  << std::endl;
+        return 1;
+      }
+      std::error_code sizeEc;
+      const auto bytes = fs::file_size(converted.pdfPath, sizeEc);
+      std::cout << "pdf-probe: converted by " << converted.converter << " in "
+                << convMs << "ms -> " << converted.pdfPath.string() << " ("
+                << (sizeEc ? 0 : bytes) << " bytes)" << std::endl;
+      source = converted.pdfPath;
+    }
     const auto began = std::chrono::steady_clock::now();
-    auto result = deckboy::platform::rasterisePdf(file, out, targetWidth, nullptr);
+    auto result = deckboy::platform::rasterisePdf(source, out, targetWidth, nullptr);
     const double ms = std::chrono::duration<double, std::milli>(
       std::chrono::steady_clock::now() - began).count();
     if (!result.ok()) {

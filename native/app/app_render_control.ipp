@@ -953,6 +953,7 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
+    renderSlideRenderCard(width, height);
     renderToast(width);
     if (confirmQuit_) {
       renderQuitConfirm();
@@ -1856,6 +1857,74 @@
 
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
       }
+    }
+  }
+
+  // The wait while a slide deck converts and renders.
+  //
+  // A hundred-slide deck is half a minute of nothing, and a toast that says
+  // "rendering..." and then fades is indistinguishable from an app that
+  // ignored you. This is the same friend from the empty program monitor,
+  // told what it is doing -- so the wait has a face on it and a bar that
+  // visibly moves, and the operator can see the machine is working.
+  void renderSlideRenderCard(int windowWidth, int windowHeight) {
+    if (!slideRenderActive_) {
+      return;
+    }
+    const int done = slideRenderPage_.load(std::memory_order_relaxed);
+    const int total = slideRenderTotal_.load(std::memory_order_relaxed);
+
+    const int cardW = std::min(uiScaled(360), std::max(uiScaled(220), windowWidth - uiScaled(80)));
+    const int cardH = uiScaled(250);
+    SDL_Rect card {(windowWidth - cardW) / 2, (windowHeight - cardH) / 2, cardW, cardH};
+    Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.shellShadow, pal.mid);
+
+    // The face gets the top of the card; the bar and the words sit under it.
+    SDL_Rect face {card.x + uiScaled(12), card.y + uiScaled(10),
+                   card.w - uiScaled(24), cardH - uiScaled(76)};
+    // Counting pages only once the renderer has reported one: before that the
+    // honest thing to say is that the converter is still running, because it
+    // is, and a "0 of 0" would look stuck.
+    std::string tip;
+    if (total > 0) {
+      tip = "rendering slide " + std::to_string(std::min(done + 1, total)) +
+            " of " + std::to_string(total);
+    } else {
+      tip = slideRenderTitle_.empty() ? std::string("converting the deck...")
+                                      : ("converting " + slideRenderTitle_ + "...");
+    }
+    drawStartupMascot(face, animationNow_, tip.c_str());
+
+    SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(46),
+                  card.w - uiScaled(40), uiScaled(14)};
+    Primitives::drawFramedPanel(controlRenderer_, bar, pal.deep, pal.deep, pal.mid);
+    if (total > 0) {
+      SDL_Rect fill = bar;
+      fill.w = static_cast<int>(bar.w * std::clamp(
+        static_cast<double>(done) / static_cast<double>(total), 0.0, 1.0));
+      if (fill.w > 0) {
+        SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g,
+                               pal.light.b, 255);
+        SDL_FRect f {static_cast<float>(fill.x), static_cast<float>(fill.y),
+                     static_cast<float>(fill.w), static_cast<float>(fill.h)};
+        SDL_RenderFillRect(controlRenderer_, &f);
+      }
+    } else {
+      // NOTHING TO MEASURE YET, so the bar paces rather than pretending to a
+      // percentage. The converter is another application and reports nothing
+      // on its way through; inventing a number for it would be a lie that
+      // stalls at 40%.
+      const double t = static_cast<double>(animationNow_ % 1400) / 1400.0;
+      const int runW = std::max(uiScaled(24), bar.w / 5);
+      SDL_Rect fill = bar;
+      fill.w = runW;
+      fill.x = bar.x + static_cast<int>((bar.w - runW) *
+                                        (0.5 - 0.5 * std::cos(t * 6.2831853)));
+      SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g,
+                             pal.light.b, 255);
+      SDL_FRect f {static_cast<float>(fill.x), static_cast<float>(fill.y),
+                   static_cast<float>(fill.w), static_cast<float>(fill.h)};
+      SDL_RenderFillRect(controlRenderer_, &f);
     }
   }
 

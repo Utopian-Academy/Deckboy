@@ -8640,7 +8640,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
      "apply one effect to one picture, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
      "time one effect per frame at a raster"},
-    {"--pdf-probe <file.pdf> [outdir] [width]",
+    {"--pdf-probe <file> [outdir] [width]",
      "rasterise a slide deck, no window"},
     {"--decode-bench <file> [seconds] [cli]", "decode a file, report gpu/cpu frame counts"},
   {"--motion-probe <file> [frames]", "read the clip's motion vectors, report coverage"},
