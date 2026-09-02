@@ -6,9 +6,14 @@
 
 Text mode's wobble is a rotation now. Each character sits on its own small card
 turning about two axes at once, drawn through the same perspective a camera
-would give it: the edges converge, the near side catches the light and the far
-side falls away. Large glyphs read as objects with a front and a back rather
-than as a picture being waved.
+would give it: the edges converge, the near side comes forward and the far side
+falls away. Large glyphs read as objects with a front and a back rather than as
+a picture being waved.
+
+The turn travels across the grid as a wave, so a run of neighbouring characters
+moves as one surface and the light sweeps over it — and the light is real: a
+character turned edge-on to you goes dark and comes back to full as it faces
+you again. That is the cue that makes a turn read as a turn.
 
 There is one knob. At zero nothing happens and nothing is spent.
 
