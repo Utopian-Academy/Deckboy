@@ -2216,6 +2216,7 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
         // flatten back to the shear this replaced.
         constexpr double kWobFocal = 1.6;
         double wobCosY = 1.0, wobSinY = 0.0, wobCosX = 1.0, wobSinX = 0.0;
+        double wobFacing = 1.0;
         const double wobAmt = std::clamp(vs.asciiWobble, 0.0, 1.0);
         if (wobAmt > 0.001) {
           double dir = 0.0;
@@ -2248,16 +2249,44 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
               dir = h * 1.04719755;            // sextants to radians
             }
           } else {
-            dir = (cx * 0.7 + cy * 1.3);
+            // Drift takes its direction from the wave below rather than adding
+            // a second, faster one of its own.
+            dir = 0.0;
           }
-          // One clock, offset per cell so neighbours are never in step.
-          const double phase = seconds * 2.0 + dir + (cx * 0.37 + cy * 0.61);
+          // A WAVE THAT TRAVELS ACROSS THE GRID, not a phase thrown per cell.
+          //
+          // This stepped about a radian per column and nearly two per row, so
+          // neighbouring cards faced almost opposite ways -- deliberately, to
+          // keep them out of step. That is why the perspective did not read as
+          // depth on anything but solid blocks: a card only looks like a card
+          // if the ones beside it agree roughly where the surface is going, and
+          // with the phase scattered the depth shading came out as noise
+          // instead of as a gradient across the picture.
+          //
+          // At these steps a wavelength spans some thirty cells, so a run of
+          // neighbours turns together as one sheet and the light travels over
+          // it. Cells still differ -- just over a distance the eye can follow.
+          const double phase = seconds * 2.0 + dir + (cx * 0.18 + cy * 0.26);
           // Turned about BOTH axes, a quarter out of step, which is what makes
           // it tumble rather than swing like a gate on a hinge.
           const double angY = std::sin(phase) * wobAmt * 1.15;
           const double angX = std::sin(phase * 0.73 + 1.57) * wobAmt * 0.75;
           wobCosY = std::cos(angY); wobSinY = std::sin(angY);
           wobCosX = std::cos(angX); wobSinX = std::sin(angX);
+          // HOW SQUARELY THIS CARD FACES THE EYE, which is the light.
+          //
+          // The shading was taken from the projected depth alone, and that
+          // sits so close to 1 across most of a card that ink already at full
+          // brightness simply clamped: measured across a row of thirty cells
+          // the ink ran 245-255 with the wobble at 0.85, so there was no
+          // lighting cue at all and the turn read as distortion.
+          //
+          // A surface turned away from the eye catches less light -- the
+          // cosine of its angle, which after rotating about both axes is just
+          // the product of the two cosines already worked out. One multiply
+          // per cell, no per-pixel cost, and it is the cue the eye actually
+          // uses: edge-on goes dark, face-on comes back to full.
+          wobFacing = std::clamp(wobCosY * wobCosX, 0.22, 1.0);
         }
         const bool wobbling = wobAmt > 0.001;
         // THE HORIZONTAL HALF OF THE PROJECTION DOES NOT DEPEND ON THE ROW.
@@ -2342,7 +2371,8 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                 const double depthX = 1.0 + tPos * wobSinX * kWobInvFocal;
                 const double su = sPos * depthX;
                 const double sv = tPos;
-                wobShade = std::clamp(1.0 / std::max(0.30, depthY * depthX), 0.35, 1.6);
+                wobShade = wobFacing *
+                std::clamp(1.0 / std::max(0.30, depthY * depthX), 0.55, 1.35);
                 if (su < -0.5 || su > 0.5 || sv < -0.5 || sv > 0.5) {
                   // TURNED OFF THE EDGE OF ITS OWN CELL.
                   //
@@ -2574,7 +2604,8 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
               const double depthX = 1.0 + tPos * wobSinX * kWobInvFocal;
               const double su = sPos * depthX;
               const double sv = tPos;
-              wobShade = std::clamp(1.0 / std::max(0.30, depthY * depthX), 0.35, 1.6);
+              wobShade = wobFacing *
+                std::clamp(1.0 / std::max(0.30, depthY * depthX), 0.55, 1.35);
               if (su < -0.5 || su > 0.5 || sv < -0.5 || sv > 0.5) {
                 // Background, not a hole -- see the font path.
                 std::uint8_t* pB = row + static_cast<std::size_t>(px0 + rx) * 4;
@@ -2592,7 +2623,23 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             // Amber rendered as cyan and cyan as amber, which is how it
             // was spotted. fillTimerRect writes r,g,b in order and its
             // digits were always correct, which is the reference.
-            p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
+            if (wobbling && on) {
+              // THE LIGHT THE FONT PATH ALREADY HAD. wobShade was worked out
+              // here and then thrown away, so a card built from the built-in
+              // 5x7 sets turned without ever catching the light while the same
+              // card built from a custom set did -- and the light is most of
+              // what sells the turn as a turn rather than as a distortion.
+              // Only the ink is lit; the background behind a card stays black.
+              p[0] = static_cast<std::uint8_t>(
+                std::clamp(static_cast<int>(c[0] * wobShade), 0, 255));
+              p[1] = static_cast<std::uint8_t>(
+                std::clamp(static_cast<int>(c[1] * wobShade), 0, 255));
+              p[2] = static_cast<std::uint8_t>(
+                std::clamp(static_cast<int>(c[2] * wobShade), 0, 255));
+              p[3] = 255;
+            } else {
+              p[0] = c[0]; p[1] = c[1]; p[2] = c[2]; p[3] = 255;
+            }
           }
           prevGy = wobbling ? -1 : gyPlain;
           prevRowStart = cellStart;
