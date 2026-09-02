@@ -79,18 +79,18 @@ jobs:
 
       # The module Companion actually installs, rather than the source tree.
       #
-      # NOT BUILT YET. Bitfocus's packager refuses GPL-3.0-or-later: they
-      # require module SOURCE to be MIT so it stays portable, with the
-      # distribution licence declared in companion/manifest.json instead. That
-      # is a relicensing decision for the owner, not something to work around
-      # -- and pinning an older tools version to dodge the check would only
-      # move the refusal to submission time.
+      # This sat commented out under a note saying the packager refuses
+      # GPL-3.0-or-later. It does not: @companion-module/tools has no licence
+      # check anywhere in it, and the build succeeds and produces a well-formed
+      # tarball. The claim was never tested -- a package had in fact been built
+      # by hand in this directory while the note said it could not be.
       #
-      # Until then the module is installed from source, which works, and the
-      # release ships the Stream Deck plugin only.
-      # - name: Companion module package
-      #   working-directory: companion-module-deckboy
-      #   run: npx companion-module-build
+      # Whether Bitfocus's own registry asks for MIT before LISTING a module is
+      # a separate question, and one that does not touch this: an operator
+      # installs a .tgz by hand from the release either way.
+      - name: Companion module package
+        working-directory: companion-module-deckboy
+        run: npx companion-module-build
 
       # Attached to the release below. Without this the plugins exist only for
       # someone who clones and builds, which is not how an operator gets one.
@@ -100,6 +100,7 @@ jobs:
           name: Deckboy-plugins
           path: |
             streamdeck-plugin-deckboy/dist/*.streamDeckPlugin
+            companion-module-deckboy/*.tgz
           if-no-files-found: error
 
       # Source-level checks, so they need no toolchain and fail before any of
@@ -635,12 +636,12 @@ jobs:
             -name 'Deckboy-*.zip' -o -name 'Deckboy-*.dmg' \
             -o -name 'Deckboy-*-setup.exe' -o -name 'Deckboy-*.tar.gz' \
             -o -name 'Deckboy-*.AppImage' \
-            -o -name '*.streamDeckPlugin' \) \
+            -o -name '*.streamDeckPlugin' -o -name 'deckboy-*.tgz' \) \
             -exec cp -v {} release/ \;
           ls -la release
 
-      # Seven files: an installer and a portable build for each of the three
-      # platforms, plus the Stream Deck plugin. Anything missing means a packaging job
+      # Eight files: an installer and a portable build for each of the three
+      # platforms, plus both plugins. Anything missing means a packaging job
       # silently produced nothing, and a half-empty release is worse than a
       # failed build.
       - name: Every platform must have shipped something
@@ -649,14 +650,14 @@ jobs:
           cd release
           for pattern in '*-windows-x64.zip' '*-windows-x64-setup.exe' \
                          '*-macos-*.zip' '*.dmg' '*.tar.gz' '*.AppImage' \
-                         '*.streamDeckPlugin'; do
+                         '*.streamDeckPlugin' 'deckboy-*.tgz'; do
             count=$(ls $pattern 2>/dev/null | wc -l)
             if [ "$count" -eq 0 ]; then
               echo "MISSING: nothing matched $pattern" >&2
               exit 1
             fi
           done
-          echo "all seven artefacts present"
+          echo "all eight artefacts present"
 
       # The notes are the changelog's own section for this version, so the
       # release page and CHANGES.md cannot disagree.

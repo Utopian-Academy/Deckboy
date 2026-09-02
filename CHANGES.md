@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.93.2 (the Companion module ships with the release)
+
+The Bitfocus Companion module is attached to the release now, as the packaged
+`.tgz` Companion installs directly, alongside the Stream Deck plugin. Both
+plugins arrive with every build, so neither needs a clone and a toolchain to
+get hold of.
+
+
 ## 2026-09-02 - v0.93.1 (the picture-following wobble follows the picture)
 
 **flow** mode now follows the parts of the picture that have something to
