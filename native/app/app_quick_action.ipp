@@ -449,8 +449,16 @@
           } else {
             c->videoSynth.asciiCharSet = next;
           }
+          // A custom set overrides this row entirely, so changing the set while
+          // one is loaded moved a label and nothing else. Clearing it is what
+          // makes the control mean what it says; the preset row puts one back.
+          std::string cleared;
+          if (!c->videoSynth.asciiGlyphs.empty()) {
+            c->videoSynth.asciiGlyphs.clear();
+            cleared = "  (custom glyphs cleared)";
+          }
           markProjectDirty();
-          triggerToast(std::string("characters: ") + vsCharSetLabel(next));
+          triggerToast(std::string("characters: ") + vsCharSetLabel(next) + cleared);
           playUiSound(UiSoundEffect::Toggle);
         }
         break;
@@ -474,19 +482,30 @@
         if (Cue* c = selectedTextModeCueMutable()) {
           const auto& presets = glyphPresets();
           const int count = static_cast<int>(presets.size());
-          // Where we are is worked out from the glyph string itself rather than
-          // remembered, so an operator who edited it by hand is not snapped
-          // back to a preset they are no longer using.
-          int at = -1;
+          // Position 0 is "none" -- the built-in glyph sets. It has to be
+          // reachable, because a preset fills the custom glyph field and the
+          // custom field OVERRIDES the set chosen on the glyphs row above; once
+          // a preset was picked there was no way back to the built-in sets
+          // except clearing the field by hand, which made that row look broken.
+          //
+          // Worked out from the glyph string rather than remembered, so an
+          // operator who edited it is not snapped back to a preset.
+          int at = 0;                                   // 0 = none
           for (int i = 0; i < count; ++i) {
-            if (c->videoSynth.asciiGlyphs == presets[i].glyphs) { at = i; break; }
+            if (c->videoSynth.asciiGlyphs == presets[i].glyphs) { at = i + 1; break; }
           }
           const int step = action == QuickAction::VsAsciiPresetNext ? 1 : -1;
-          const int next = (at < 0) ? (step > 0 ? 0 : count - 1)
-                                    : ((at + step) % count + count) % count;
-          c->videoSynth.asciiGlyphs = presets[next].glyphs;
+          const int total = count + 1;
+          const int next = ((at + step) % total + total) % total;
+          if (next == 0) {
+            c->videoSynth.asciiGlyphs.clear();
+            triggerToast(std::string("glyphs: the built-in set (") +
+                         vsCharSetLabel(c->videoSynth.asciiCharSet) + ")");
+          } else {
+            c->videoSynth.asciiGlyphs = presets[next - 1].glyphs;
+            triggerToast(std::string("glyphs: ") + presets[next - 1].name);
+          }
           markProjectDirty();
-          triggerToast(std::string("glyphs: ") + presets[next].name);
           playUiSound(UiSoundEffect::Toggle);
         }
         break;

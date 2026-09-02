@@ -5556,52 +5556,26 @@ class App {
                      QuickAction::ToggleLoop, false, false,
                      "Characters across. Fewer means bigger cells.");
     rowY += ix.rowStep;
+    // Says so when it is being overridden. A custom glyph string wins over
+    // this row, so while one is loaded the label described a set that was not
+    // being drawn -- which is what made cycling it look broken.
     inspDrawQuickRow(ix, rowY, "glyphs", QuickAction::VsCharSetCycle,
-                     vsCharSetLabel(v.asciiCharSet),
+                     v.asciiGlyphs.empty()
+                       ? std::string(vsCharSetLabel(v.asciiCharSet))
+                       : std::string(vsCharSetLabel(v.asciiCharSet)) + "  (overridden)",
                      QuickAction::VsCharSetCycle, QuickAction::ToggleLoop,
                      false, false,
                      "Blocks and dithers read as density; the ASCII ramp "
-                     "reads as text; symbols read as wreckage.");
+                     "reads as text; symbols read as wreckage. Cycling this "
+                     "clears a custom glyph string, since that would override "
+                     "it -- the preset row puts one back.");
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "shuffle", QuickAction::VsShuffleCycle,
-                     v.asciiShuffle == 0 ? std::string("by density")
-                                         : std::to_string(v.asciiShuffle),
-                     QuickAction::VsShuffleCycle, QuickAction::ToggleLoop,
-                     false, false,
-                     "Scramble which glyph means which brightness. Same set, "
-                     "different handwriting. Seeded, so it stays put.");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsAsciiChaosDec,
-                     fmtFloat(v.asciiChaos, 2), QuickAction::VsAsciiChaosInc,
-                     QuickAction::ToggleLoop, false, false,
-                     "0 picks the glyph the brightness asks for, 1 picks any "
-                     "glyph in the set. Turn it up to see the whole alphabet: "
-                     "ranked strictly by ink, a flat area picks one mark and "
-                     "the rest never appear.");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
-                     vsInkLabel(v.asciiInk),
-                     QuickAction::VsInkCycle, QuickAction::ToggleLoop,
-                     false, false,
-                     "Picture takes colour from the image. Green, amber and "
-                     "cyan are terminal phosphors. Palette locks the text to "
-                     "the selected hardware palette.");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "wobble", QuickAction::VsAsciiWobbleDec,
-                     fmtFloat(v.asciiWobble, 2), QuickAction::VsAsciiWobbleInc,
-                     QuickAction::ToggleLoop, false, false,
-                     "Each character rocks as though it were a card being "
-                     "tilted. Every cell has its own phase, so the grid "
-                     "breathes instead of sliding about as one sheet.");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "wobble by", QuickAction::VsAsciiWobbleModeCycle,
-                     vsWobbleModeLabel(v.asciiWobbleMode),
-                     QuickAction::VsAsciiWobbleModeCycle,
-                     QuickAction::ToggleLoop, false, false,
-                     "What aims each tilt: its own position, the picture's "
-                     "luma gradient so characters lean the way the image does, "
-                     "or the cell's hue.");
-    rowY += ix.rowStep;
+    // The four controls above and below decide WHAT IS DRAWN, and they
+    // override one another in that order: a custom glyph string beats the
+    // built-in set, and a preset is just a quick way to fill that string.
+    // They sit together because that relationship is invisible otherwise --
+    // picking a preset and then cycling the set looked like the set row had
+    // stopped working.
     // The curated sets. Each is just a string of characters drawn through a
     // font, so picking one fills the custom glyph field below and leaves it
     // editable -- a starting point rather than a mode.
@@ -5641,6 +5615,45 @@ class App {
                              "darkest first. Two characters gives binary; a "
                              "word gives that word as texture.",
                              pal.tile, pal.fg);
+    inspDrawQuickRow(ix, rowY, "shuffle", QuickAction::VsShuffleCycle,
+                     v.asciiShuffle == 0 ? std::string("by density")
+                                         : std::to_string(v.asciiShuffle),
+                     QuickAction::VsShuffleCycle, QuickAction::ToggleLoop,
+                     false, false,
+                     "Scramble which glyph means which brightness. Same set, "
+                     "different handwriting. Seeded, so it stays put.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "chaos", QuickAction::VsAsciiChaosDec,
+                     fmtFloat(v.asciiChaos, 2), QuickAction::VsAsciiChaosInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "0 picks the glyph the brightness asks for, 1 picks any "
+                     "glyph in the set. Turn it up to see the whole alphabet: "
+                     "ranked strictly by ink, a flat area picks one mark and "
+                     "the rest never appear.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "ink", QuickAction::VsInkCycle,
+                     vsInkLabel(v.asciiInk),
+                     QuickAction::VsInkCycle, QuickAction::ToggleLoop,
+                     false, false,
+                     "Picture takes colour from the image. Green, amber and "
+                     "cyan are terminal phosphors. Palette locks the text to "
+                     "the selected hardware palette.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "wobble", QuickAction::VsAsciiWobbleDec,
+                     fmtFloat(v.asciiWobble, 2), QuickAction::VsAsciiWobbleInc,
+                     QuickAction::ToggleLoop, false, false,
+                     "Each character rocks as though it were a card being "
+                     "tilted. Every cell has its own phase, so the grid "
+                     "breathes instead of sliding about as one sheet.");
+    rowY += ix.rowStep;
+    inspDrawQuickRow(ix, rowY, "wobble by", QuickAction::VsAsciiWobbleModeCycle,
+                     vsWobbleModeLabel(v.asciiWobbleMode),
+                     QuickAction::VsAsciiWobbleModeCycle,
+                     QuickAction::ToggleLoop, false, false,
+                     "What aims each tilt: its own position, the picture's "
+                     "luma gradient so characters lean the way the image does, "
+                     "or the cell's hue.");
+    rowY += ix.rowStep;
     rowY = inspDrawActionRow(ix, rowY,
                              v.asciiPhrases.empty()
                                ? std::string("phrases: (none)")
