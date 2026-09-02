@@ -2512,9 +2512,10 @@
     if (!cue) {
       return nullptr;
     }
-    if (cue->kind == CueKind::VideoSynth) {
-      return cue;
-    }
+    // ONE QUESTION NOW: does this cue carry the effect. A video synth cue used
+    // to answer yes on the strength of its kind, because it had a text-mode
+    // switch of its own -- which is exactly the second way in that this change
+    // removes.
     return cueHasTextModeEffect(*cue) ? cue : nullptr;
   }
 
@@ -2612,6 +2613,51 @@
     });
   }
 
+  // Turn text mode on or off for ANY cue, by adding or removing the effect.
+  // Returns what it is now.
+  //
+  // Removing takes the effect out rather than bypassing it, so the cue's own
+  // text-mode settings survive but the stack does not carry a dead entry an
+  // operator would have to find and delete later.
+  // Text mode on, whether or not it already was. Used where a control only
+  // makes sense with the grid showing.
+  void ensureTextModeEffect(Cue& cue) {
+    if (!cueHasTextModeEffect(cue)) {
+      toggleTextModeEffect(cue);
+    }
+  }
+
+  bool toggleTextModeEffect(Cue& cue) {
+    for (std::size_t i = 0; i < cue.effects.size(); ++i) {
+      if (cue.effects[i].kind == deckboy::effects::CueEffectKind::TextMode) {
+        // KEEP WHAT THE EFFECT WAS CARRYING. Four of the settings live in its
+        // parameters and nowhere else while it exists, so deleting it threw
+        // them away: switching text mode off and straight back on came back as
+        // blocks in green, whatever it had been. Decoding them into the cue
+        // first makes the round trip lossless, and makes the cue's own fields
+        // the durable store with the parameters as the live surface over them.
+        const deckboy::effects::CueEffect& fx = cue.effects[i];
+        cue.videoSynth.asciiCols = ::textModeColsForParam(fx.paramA);
+        cue.videoSynth.glitch = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
+        cue.videoSynth.asciiCharSet = ::textModeCharSetForParam(fx.paramC);
+        cue.videoSynth.asciiInk = ::textModeInkForParam(fx.paramD);
+        cue.effects.erase(cue.effects.begin() + static_cast<std::ptrdiff_t>(i));
+        return false;
+      }
+    }
+    deckboy::effects::CueEffect fx;
+    fx.kind = deckboy::effects::CueEffectKind::TextMode;
+    fx.amount = 1.0f;
+    // Carrying whatever the cue is already set to, so turning text mode on
+    // shows the settings in the inspector rather than snapping to defaults.
+    fx.paramA = ::textModeParamForCols(cue.videoSynth.asciiCols);
+    fx.paramB = static_cast<float>(std::clamp(cue.videoSynth.glitch, 0.0, 1.0));
+    fx.paramC = ::textModeParamForCharSet(cue.videoSynth.asciiCharSet);
+    fx.paramD = ::textModeParamForInk(cue.videoSynth.asciiInk);
+    cue.effects.push_back(fx);
+    return true;
+  }
+
   void editAsciiGlyphs() {
     Cue* c = selectedTextModeCueMutable();
     if (!c) {
@@ -2680,7 +2726,9 @@
     } else {
       cue->videoSynth.spriteSheetPath = sets[static_cast<std::size_t>(index - 1)].first;
       cue->videoSynth.asciiCharSet = 5;
-      cue->videoSynth.ascii = true;
+      // Sheet mode only draws through the character grid, so picking a set
+      // turns text mode on -- which is the effect now, not a flag.
+      ensureTextModeEffect(*cue);
       loadSpriteSetForCue(*cue);
       triggerToast("sprites: " + sets[static_cast<std::size_t>(index - 1)].second);
     }
@@ -2726,7 +2774,7 @@
       // a second control to see it is the discoverability trap the chip synths
       // already fell into.
       c->videoSynth.asciiCharSet = 5;
-      c->videoSynth.ascii = true;
+      ensureTextModeEffect(*c);
       markProjectDirty();
       triggerToast("sprite sheet loaded");
     });

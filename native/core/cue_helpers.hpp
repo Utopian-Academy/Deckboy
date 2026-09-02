@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <string>
 #include "types.hpp"
 #include "utils.hpp"
@@ -188,4 +190,76 @@ inline CueEndAction resolvedCueEndAction(const Cue& cue) {
 // Used by the transition system to decide whether to prepare the next cue.
 inline bool cueAdvancesWhenFinished(const Cue& cue) {
   return resolvedCueEndAction(cue) == CueEndAction::AutoNext;
+}
+
+// ── The four TEXT MODE effect parameters, and what they mean ────────────────
+//
+// ONE DEFINITION, because there are three callers -- the renderer, the
+// inspector's controls, and the loader that migrates an older show -- and when
+// this mapping was written out twice before, the two drifted and every control
+// in the TEXT MODE section went dead against a picture that ignored them.
+//
+// A=0.5, B=0, C=0, D=0 is the "as it was before this parameter existed"
+// position a freshly added effect carries.
+
+// paramC <-> character set. ELEVEN STEPS, and the EVEN ones are exactly the
+// six this used to have. Widening it to eight evenly-spaced steps would have
+// moved every existing show: 0.6 means MIXED today and would have become
+// ASCII 95 (raw). So the original six keep their exact values at the even
+// steps, and the two sets that had no representation at all -- sprite sheet
+// and "font (type anything)", reachable before only from a video synth cue --
+// take the gaps at 0.1 and 0.3. Odd steps otherwise repeat their neighbour, so
+// a fader swept across paramC never lands on nothing.
+inline int textModeCharSetForParam(float paramC) {
+  static const int kSetForStep[11] = {
+    0,   // 0.0  blocks              (unmoved)
+    5,   // 0.1  sprite sheet        (was unreachable)
+    1,   // 0.2  ASCII 95 density    (unmoved)
+    7,   // 0.3  font, type anything (was unreachable)
+    2,   // 0.4  symbols             (unmoved)
+    2,   // 0.5  -- repeats 0.4
+    3,   // 0.6  mixed               (unmoved)
+    3,   // 0.7  -- repeats 0.6
+    4,   // 0.8  ASCII 95 raw        (unmoved)
+    4,   // 0.9  -- repeats 0.8
+    6,   // 1.0  music & sparkle     (unmoved)
+  };
+  const int step = std::clamp(
+    static_cast<int>(std::lround(static_cast<double>(paramC) * 10.0)), 0, 10);
+  return kSetForStep[step];
+}
+
+// The inverse, so a control writes the parameter that reads back as the set it
+// asked for. A set not on the table falls back to blocks rather than to a
+// neighbour, which would be a silent substitution.
+inline float textModeParamForCharSet(int set) {
+  switch (set) {
+    case 5:  return 0.1f;   // sprite sheet
+    case 1:  return 0.2f;
+    case 7:  return 0.3f;   // font, type anything
+    case 2:  return 0.4f;
+    case 3:  return 0.6f;
+    case 4:  return 0.8f;
+    case 6:  return 1.0f;
+    default: return 0.0f;   // blocks
+  }
+}
+
+inline int textModeColsForParam(float paramA) {
+  return std::clamp(
+    static_cast<int>(std::lround(20.0 + static_cast<double>(paramA) * 180.0)),
+    20, 200);
+}
+
+inline float textModeParamForCols(int cols) {
+  return static_cast<float>(std::clamp((cols - 20) / 180.0, 0.0, 1.0));
+}
+
+inline int textModeInkForParam(float paramD) {
+  return std::clamp(
+    static_cast<int>(std::lround(static_cast<double>(paramD) * 5.0)), 0, 5);
+}
+
+inline float textModeParamForInk(int ink) {
+  return static_cast<float>(std::clamp(ink, 0, 5) / 5.0);
 }

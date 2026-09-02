@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.95.0 (one text mode)
+
+Text mode had two switches. A video synth cue turned its own character grid on;
+every other cue got there by carrying the **TEXT MODE** effect. Same renderer,
+two ways in — so every control had to work through both, and the ones that
+only worked through one looked broken.
+
+There is one way now: the effect, on any cue. **Your shows open exactly as they
+were** — a cue saved with the old switch gains the effect on loading, carrying
+the settings it already had, and a show saved by this build still opens in an
+older one.
+
+Two character sets were reachable only from a video synth cue, because the
+effect's glyph-set parameter had six positions for eight sets. **Sprite sheet**
+and **font (type anything)** can be chosen anywhere now, and every existing
+show keeps the set it had.
+
+Turning text mode off and on again keeps your settings. Four of them lived in
+the effect and nowhere else, so switching off used to discard them.
+
+
 ## 2026-09-02 - v0.94.1 (type your own text into TEXT MODE)
 
 The **glyphs** and **phrases** rows now keep what you type on an ordinary clip.

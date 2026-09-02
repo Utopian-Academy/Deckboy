@@ -723,7 +723,11 @@
       // grid is native, or anything carrying the TEXT MODE effect. This
       // demanded a video synth cue, which is the same assumption that made
       // every control in the inspector's TEXT MODE section inert on a clip.
-      Cue* cue = selectedTextModeCueMutable();
+      // ON has to reach a cue that has no text mode yet, so the on/off verbs
+      // take any selected cue; everything else needs one that is showing.
+      const std::string sub0 = parts.size() < 2 ? std::string("") : toUpper(parts[1]);
+      const bool switching = (sub0 == "ON" || sub0 == "OFF" || sub0 == "TOGGLE");
+      Cue* cue = switching ? selectedCueMutable() : selectedTextModeCueMutable();
       if (!cue) {
         failRemoteCommand(selectedCueMutable()
                             ? "ASCII: the selected cue has no text mode "
@@ -760,7 +764,7 @@
         std::snprintf(line, sizeof(line),
                       "on=%d via=%s ink=%s set=%s preset=%s custom=%d "
                       "cols=%d shuffle=%d chaos=%.2f wobble=%.2f wobblemode=%s font=%s",
-                      (vs.ascii || viaEffect) ? 1 : 0,
+                      viaEffect ? 1 : 0,
                       viaEffect ? "effect" : "cue", vsInkLabel(vs.asciiInk),
                       vsCharSetLabel(vs.asciiCharSet), presetName.c_str(),
                       vs.asciiGlyphs.empty() ? 0 : 1, vs.asciiCols, vs.asciiShuffle,
@@ -773,11 +777,15 @@
       // Text mode itself had no verb at all, so the one mode an operator most
       // wants to flip mid-set could only be reached by clicking.
       if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
-        cue->videoSynth.ascii = (sub == "TOGGLE") ? !cue->videoSynth.ascii
-                                                  : (sub == "ON");
+        // Adds or removes the effect, which is the only switch now.
+        const bool have = textModeEffectFor(*cue) != nullptr;
+        const bool want = (sub == "TOGGLE") ? !have : (sub == "ON");
+        if (want != have) {
+          toggleTextModeEffect(*cue);
+        }
         markProjectDirty();
         refreshAllLiveCueRuntimes();
-        triggerToast(cue->videoSynth.ascii ? "text mode on" : "text mode off");
+        triggerToast(want ? "text mode on" : "text mode off");
         return;
       }
       // The cycles the inspector rows drive, so the same controls can be
