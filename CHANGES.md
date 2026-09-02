@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-01 - v0.92.1 (the glitch takes the picture's colour)
+
+The marks that climb out of the characters are drawn in the clip's own colour
+now. They were drawn in the phosphor colour — and **picture** ink has no
+phosphor, so the lookup fell through to white and a glitch over a coloured clip
+came out as white confetti sitting on top of it rather than as damage to it.
+
+A third of the marks are drawn with one colour channel pulled down, which is the
+fringing that separates real digital corruption from decoration. It scales the
+cell's own colour rather than adding brightness, so a glitch on a dark part of
+the picture stays dark.
+
+Crash reports now name the thread that faulted and whether it was the one that
+owns the drawing.
+
+
 ## 2026-09-01 - v0.92.0 (curated sets, a typeface of your choosing, and wobble)
 
 ### Thirty-two curated sets
