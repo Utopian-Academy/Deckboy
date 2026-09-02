@@ -473,6 +473,34 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
     fs::remove(temp, ignored);
     return false;
   }
+  // ONE GENERATION OF ROLLBACK, kept from the first save of each session.
+  //
+  // The save is atomic, so a show can never be half-written -- but atomic only
+  // means the overwrite is complete, not that it was wanted. Deckboy autosaves,
+  // so anything that changes a cue is on disk moments later with nothing to go
+  // back to: an effect stack cleared by a misfired command, a show opened on a
+  // machine that could not find the media. I destroyed a cue's effect stack in
+  // exactly this way while testing and there was nothing to restore from.
+  //
+  // The copy is taken ONCE per run, before the first overwrite, so it holds the
+  // show as it was when Deckboy opened it rather than as it was a second ago --
+  // which is the version worth having, because a mistake is usually noticed
+  // after several autosaves, not before the next one.
+  static std::set<std::string> backedUp;
+  const std::string key = resolved.string();
+  if (backedUp.find(key) == backedUp.end()) {
+    backedUp.insert(key);
+    std::error_code exists;
+    if (fs::exists(resolved, exists) && !exists) {
+      std::error_code copyError;
+      fs::copy_file(resolved, fs::path(key + ".bak"),
+                    fs::copy_options::overwrite_existing, copyError);
+      // A failed backup must not stop the save: the operator asked to save,
+      // and refusing because a spare copy could not be made would lose the
+      // very work the copy was meant to protect.
+    }
+  }
+
   std::error_code renameError;
   fs::rename(temp, resolved, renameError);
   if (renameError) {

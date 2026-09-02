@@ -56,12 +56,39 @@ def findings(lines):
         yield '%s:%s  %s: %s' % (short, m.group('line'), m.group('code'), text)
 
 
+# Evidence that a compiler actually ran. Without this check the audit reads an
+# empty input -- no log argument and nothing on the pipe -- finds no warnings in
+# it, and reports CLEAN. That is exactly how a dead local shipped to CI on
+# v0.93.0 while this tool said "no shadowed names and no unread locals" on my
+# own machine: I ran it with nothing piped in.
+#
+# A gate that passes when handed no evidence is worse than no gate, because it
+# is trusted.
+BUILT = re.compile(r'\.vcxproj|\.cpp|\.hpp|\.ipp|Building CXX|cl\.exe|'
+                   r'ninja|CMakeFiles|warning|error')
+
+
 def main():
     if len(sys.argv) > 1:
         with open(sys.argv[1], encoding='utf-8', errors='replace') as fh:
-            found = list(findings(fh))
+            lines = fh.readlines()
     else:
-        found = list(findings(sys.stdin))
+        lines = sys.stdin.readlines()
+
+    if not any(BUILT.search(l) for l in lines):
+        print('NOT A BUILD LOG: %d lines, none of which look like a compiler '
+              'ran.' % len(lines))
+        print('')
+        print('This audit only sees what the compiler printed, so an empty')
+        print('input has no warnings in it and would otherwise pass. Build')
+        print('first and give it the log:')
+        print('')
+        print('  cmake --build build/windows --config Release 2>&1 | '
+              'tee build.log')
+        print('  python tools/audit_warnings.py build.log')
+        return 2
+
+    found = list(findings(lines))
 
     if not found:
         print('no shadowed names and no unread locals')

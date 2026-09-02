@@ -732,6 +732,44 @@
         return;
       }
       const std::string sub = parts.size() < 2 ? std::string("") : toUpper(parts[1]);
+      // Read the whole section back in one line.
+      //
+      // Every verb above SETS something and nothing reported, so the only way
+      // to know what a cue was actually doing was to look at the screen --
+      // which a surface cannot do, and which made every one of these verbs
+      // untestable without a human watching. A control you cannot read back is
+      // half a control.
+      if (sub == "STATUS") {
+        // THE EFFECTIVE VIEW, not the cue's raw fields. A cue carrying the
+        // TEXT MODE effect takes its columns, glitch, character set and ink
+        // from the effect's parameters, which overwrite the cue's own before
+        // the renderer sees them -- so reading the cue reported a set and an
+        // ink that were not the ones on screen. That gap is what made these
+        // controls look dead in the first place; a readback that repeats it
+        // would confirm the wrong answer instead of catching it.
+        VideoSynthSettings vs = cue->videoSynth;
+        const bool viaEffect = textModeEffectFor(*cue) != nullptr;
+        if (const deckboy::effects::CueEffect* fx = textModeEffectFor(*cue)) {
+          applyTextModeParams(*fx, vs);
+        }
+        std::string presetName = "none";
+        for (const auto& p : glyphPresets()) {
+          if (vs.asciiGlyphs == p.glyphs) { presetName = p.name; break; }
+        }
+        char line[512];
+        std::snprintf(line, sizeof(line),
+                      "on=%d via=%s ink=%s set=%s preset=%s custom=%d "
+                      "cols=%d shuffle=%d chaos=%.2f wobble=%.2f wobblemode=%s font=%s",
+                      (vs.ascii || viaEffect) ? 1 : 0,
+                      viaEffect ? "effect" : "cue", vsInkLabel(vs.asciiInk),
+                      vsCharSetLabel(vs.asciiCharSet), presetName.c_str(),
+                      vs.asciiGlyphs.empty() ? 0 : 1, vs.asciiCols, vs.asciiShuffle,
+                      vs.asciiChaos, vs.asciiWobble,
+                      vsWobbleModeLabel(vs.asciiWobbleMode),
+                      vs.asciiFontPath.empty() ? "built-in" : "custom");
+        remoteCommandDetail_ = line;
+        return;
+      }
       // Text mode itself had no verb at all, so the one mode an operator most
       // wants to flip mid-set could only be reached by clicking.
       if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
@@ -901,8 +939,11 @@
         markProjectDirty();
         return;
       }
-      failRemoteCommand("ASCII: use ON|OFF|TOGGLE | GLYPHS <chars> | "
-                          "PHRASES <a|b|c> | HOLD <seconds>");
+      failRemoteCommand(
+        "ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET "
+        "[name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | "
+        "WOBBLE <0-1> | WOBBLEMODE [drift|luma|colour] | COLS <n> | "
+        "GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>");
       return;
     }
     if (command == "CODE") {

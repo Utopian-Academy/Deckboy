@@ -2331,7 +2331,6 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
                 // Sample the glyph THROUGH the tilt rather than transforming
                 // drawn pixels: reading from a rotated position costs one
                 // multiply-add per pixel and never leaves a gap behind.
-                const double uNorm = (static_cast<double>(rx) / std::max(1, cellW)) - 0.5;
                 // The column half comes from the table built for this cell;
                 // only the row half is left to solve per pixel.
                 const double sPos = wobColS[static_cast<std::size_t>(rx)];
@@ -2564,7 +2563,6 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
             int gx = std::min(4, (rx * 5) / cellW);
             int gy = gyPlain;
             if (wobbling) {
-              const double wobU = (static_cast<double>(rx) / std::max(1, cellW)) - 0.5;
               // The column half comes from the table built for this cell;
               // only the row half is left to solve per pixel.
               const double sPos = wobColS[static_cast<std::size_t>(rx)];
