@@ -86,6 +86,24 @@ jobs:
       # -- and pinning an older tools version to dodge the check would only
       # move the refusal to submission time.
       #
+      # VERIFIED 2026-09-02, THE HARD WAY. Enabling this failed CI with:
+      #
+      #   LICENSE ERROR: Your module source is licensed as GPL-3.0-or-later in
+      #   package.json, but the Companion project requires module source to be
+      #   MIT so it stays portable.
+      #
+      # It builds CLEANLY ON A DEVELOPER MACHINE, which is what made me think
+      # this note was wrong and turn the step back on. The check arrived in
+      # @companion-module/tools 3.x; package.json asks for ^2.7.2, a stale
+      # node_modules keeps serving 2.7.2, and CI's fresh install resolves 3.1.0
+      # and enforces it. A tarball built by hand here is not evidence, and
+      # neither is a green local run -- only a clean install is.
+      #
+      # The refusal also names GPL-3.0-only and GPL-2.0-only as acceptable for
+      # the PUBLISHED licence, but that clears only the first of the two
+      # errors; the second wants MIT source regardless. Untested, because a
+      # local test cannot answer this question.
+      #
       # Until then the module is installed from source, which works, and the
       # release ships the Stream Deck plugin only.
       # - name: Companion module package
