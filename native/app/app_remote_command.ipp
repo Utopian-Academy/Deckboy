@@ -2734,6 +2734,108 @@
       }
       return;
     }
+    // EVERY NAMED PROJECT SETTING, readable and writable.
+    //
+    // Taken from what Resolume gets right: a surface should be able to ask what
+    // a setting IS, not only tell it what to be. Deckboy had 86 project
+    // settings with names, defaults and validated setters -- all of it built
+    // for the show file -- and not one of them reachable over the wire. The
+    // only way to change most was to edit a .deckboy by hand, which is exactly
+    // how several things got tested today.
+    //
+    // BOTH DIRECTIONS GO THROUGH THE SHOW FILE'S OWN CODE. SET builds the same
+    // "key<TAB>value" line the loader reads and hands it to
+    // applyProjectScalarLine, so every clamp and alias applies unchanged; GET
+    // runs the writer into a string and reads the line back. A second table
+    // mapping names to fields would drift the first time a setting was added,
+    // and drift here means a command that silently sets nothing -- which is
+    // the exact fault this session kept finding.
+    if (command == "GET" || command == "SET") {
+      std::ostringstream dump;
+      writeProjectScalars(dump, project_);
+      const std::string scalars = dump.str();
+
+      if (parts.size() < 2) {
+        // No key: list them, so the space is discoverable rather than
+        // something you have to read the source to learn.
+        std::ostringstream keys;
+        std::istringstream in(scalars);
+        std::string line;
+        int n = 0;
+        while (std::getline(in, line)) {
+          const std::size_t tab = line.find('	');
+          if (tab == std::string::npos) continue;
+          if (n++) keys << ' ';
+          keys << line.substr(0, tab);
+        }
+        remoteCommandDetail_ = std::to_string(n) + " keys: " + keys.str();
+        return;
+      }
+
+      const std::string key = toLower(parts[1]);
+      auto valueOf = [&](const std::string& want) -> std::optional<std::string> {
+        std::istringstream in(scalars);
+        std::string line;
+        while (std::getline(in, line)) {
+          const std::size_t tab = line.find('	');
+          if (tab == std::string::npos) continue;
+          if (line.substr(0, tab) == want) {
+            return line.substr(tab + 1);
+          }
+        }
+        return std::nullopt;
+      };
+
+      if (command == "GET") {
+        if (auto value = valueOf(key)) {
+          remoteCommandDetail_ = key + " = " + *value;
+          return;
+        }
+        failRemoteCommand("GET: no setting called \"" + key +
+                          "\" (GET with no key lists them)");
+        return;
+      }
+
+      if (parts.size() < 3) {
+        failRemoteCommand("SET: needs a value -- SET <key> <value>");
+        return;
+      }
+      // Refused rather than ignored. applyProjectScalarLine returns false for
+      // a name it does not know, and answering OK to that would be the same
+      // silent-success fault as everything else fixed today.
+      if (!valueOf(key)) {
+        failRemoteCommand("SET: no setting called \"" + key +
+                          "\" (GET with no key lists them)");
+        return;
+      }
+      std::vector<std::string> fields {key, joinParts(parts, 2)};
+      auto ensureDeck = [this](std::size_t index) -> Deck& {
+        while (project_.decks.size() <= index) {
+          project_.decks.emplace_back();
+        }
+        return project_.decks[index];
+      };
+      if (!applyProjectScalarLine(project_, fields, ensureDeck)) {
+        failRemoteCommand("SET: \"" + key + "\" is not a settable scalar");
+        return;
+      }
+      markProjectDirty();
+      // Read back what it BECAME, not what was asked for: these setters clamp,
+      // and an operator is owed the number that actually took.
+      std::ostringstream after;
+      writeProjectScalars(after, project_);
+      std::istringstream in(after.str());
+      std::string line;
+      while (std::getline(in, line)) {
+        const std::size_t tab = line.find('	');
+        if (tab != std::string::npos && line.substr(0, tab) == key) {
+          remoteCommandDetail_ = key + " = " + line.substr(tab + 1);
+          break;
+        }
+      }
+      return;
+    }
+
     // THE OUTPUT ITSELF, and the sinks that had no verb.
     //
     // NDI and DeckLink have had commands since they were written; Spout never
