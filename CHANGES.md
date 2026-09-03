@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.302 (Spout input works)
+
+**A Syphon/Spout source cue receives a picture.** Spout senders on this machine
+can be taken as a cue and mixed like any other source — Resolume, OBS, another
+Deckboy — instead of showing the striped placeholder they always used to.
+
+`SPOUTCUE <sender name>` adds one, or leave the name off to take whatever is
+sending.
+
+Also fixed: stopping a live cue — Spout, NDI or DeckLink — now actually stops
+the capture. It kept reading the card, the network or the shared texture until
+the cue was replaced.
+
+
 ## 2026-09-03 - v0.99.301 (a source that cannot capture says so)
 
 Adding a **Syphon/Spout source** cue now tells you that this platform cannot
