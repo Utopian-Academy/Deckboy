@@ -5485,7 +5485,16 @@ class App {
                                   VideoSynthSettings& vs) {
     vs.asciiCols = ::textModeColsForParam(fx.paramA);
     vs.glitch = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
-    vs.asciiCharSet = ::textModeCharSetForParam(fx.paramC);
+    // paramC CANNOT SAY "sprite sheet" or "font", so when the cue holds one of
+    // those it keeps it. Those two were the reason paramC was widened, and
+    // widening it moved the meaning of every value between the six original
+    // steps -- which is how James's show lost its symbols. Letting the cue
+    // field carry what the parameter has no way to express costs nothing and
+    // moves nothing.
+    const int cueChosenSet = vs.asciiCharSet;
+    if (cueChosenSet != 5 && cueChosenSet != 7) {
+      vs.asciiCharSet = ::textModeCharSetForParam(fx.paramC);
+    }
     vs.asciiInk = ::textModeInkForParam(fx.paramD);
   }
 
@@ -7417,6 +7426,32 @@ class App {
   Uint32 vjPreviewTexFormat_[2] = {0, 0};
   std::uint64_t vjPreviewFrameIdx_[2] = {UINT64_MAX, UINT64_MAX};
   bool vjCrossfaderDragActive_ = false;
+  // Which deck's opacity fader is being dragged, or -1. A fader you can only
+  // CLICK is a fader you cannot trim: to move it you had to guess a pixel and
+  // click again, and to reach an end you had to hit the last pixel exactly.
+  int deckOpacityDragIndex_ = -1;
+
+  // A rail position as a 0..1 value, with the ends made reachable.
+  //
+  // Straight linear mapping means 0 and 1 each occupy a SINGLE PIXEL at the
+  // very edge of the rail -- so "full" and "off", the two positions an
+  // operator reaches for most and the only two that must be exact, were the
+  // two hardest to hit. Anything within the end zone snaps; the rest is
+  // untouched, so the fader still resolves as finely as it always did in the
+  // middle where that matters.
+  static double faderValueFromX(int x, const SDL_Rect& rail) {
+    if (rail.w <= 0) {
+      return 0.0;
+    }
+    const double raw = std::clamp(
+      static_cast<double>(x - rail.x) / static_cast<double>(rail.w), 0.0, 1.0);
+    // Proportional so it feels the same on a narrow rail and a wide one, with
+    // a floor so it never shrinks back to the pixel-hunt it replaces.
+    const double zone = std::max(0.04, 6.0 / static_cast<double>(rail.w));
+    if (raw <= zone) return 0.0;
+    if (raw >= 1.0 - zone) return 1.0;
+    return raw;
+  }
   // Smoothed position, for the handle's lean. The real value snaps; this is
   // what chases it.
   double vjMixShown_ = 0.0;

@@ -433,6 +433,58 @@
       sendSnapshot(reply);
       return true;
     }
+    // EVERY verb, for anyone building a surface. The summary below is what
+    // fits on a screen and covers a quarter of the protocol; a Companion or
+    // Stream Deck author reading only that would never learn that PIP,
+    // LOWERTHIRD, TIMER, SUBTITLE, ENCODE, SCHEDULE or MULTIVIEW exist.
+    //
+    // Kept honest by tools/audit_remote_help.py, which fails the build when a
+    // verb the dispatcher handles is missing from this list. That is the only
+    // reason a hand-maintained list is defensible: nothing here can drift
+    // without something saying so.
+    if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
+      sendSnapshot(
+        "DECKBOY_0.01 every verb (257)\n"
+        "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
+        "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
+        "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOGAIN AUDIOMONO\n"
+        "AUDIONORM AUDIOOUTS AUDIOPAN AUTOADVANCE AUTOID AUTONEXT BLACKOUT\n"
+        "BLEND BROWSER CAMERACUE CANVAS CC CLEAR CLEAROVERLAY CODE COLOR\n"
+        "COLORTAG COMPOSITE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
+        "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
+        "CUEIDSHORT CUENOTES CUESHORTID CUEXNEXT DATAMOSH DECK DECKADD\n"
+        "DECKAUTOFADE DECKDIM DECKFADE DECKLINK DECKNEXT DECKOPACITY\n"
+        "DECKPREV DECKPREVIOUS DELETE DIMMER DISPLAY DMX DMXARTNET DMXPORT\n"
+        "DMX_ARTNET DURATION ENCODE ENCODEALL ENCODEFORMAT ENCODEPAUSE\n"
+        "ENCODEPRESET ENDACTION FADEIN FADEOUT FIND FINDCLEAR FINDNEXT\n"
+        "FINDPREV FINDPREVIOUS FINDRESET FINDSTATUS FINDTAKE FULLSCREEN FX\n"
+        "GO GOEND GOTO GOTOTARGET GRAPHIC GROUP GROUPPRESET HEIGHT HOLD\n"
+        "HOLDLAST IN INTEGRATION INTEGRATIONS JUMPMODE JUMPTRANS\n"
+        "JUMPTRANSITION JUMP_MODE JUMP_XFADE LAYER LAYERNAME LOOP LOOPCOUNT\n"
+        "LOWERALPHA LOWERSUB LOWERTEXT LOWERTHIRD LTC LTCEXT LTCINGEST\n"
+        "LTCOUT LTC_INGEST MARK MARKER MASTER MASTERCUE MASTERVOL\n"
+        "MASTERVOLUME MIDI MIDIINPUT MIDI_INPUT MOSH MOSHLOOK MTC MTCEXT\n"
+        "MTCINGEST MTC_INGEST MULTIVIEW NDI NDICUE NDIEVENT NDIKEY NDIKEYER\n"
+        "NDIKEYNAME NDINAME NDITRIGGER NDI_TRIGGER NEWDECK NEXT NEXTTRANS\n"
+        "NMC NMCEVENT NMCSYNC NMC_SYNC NMOS OSCFEEDBACK OSCFEEDBACKRATE\n"
+        "OSCQUERY OSCQUERYPORT OSC_FEEDBACK OSC_FEEDBACK_RATE OSC_QUERY\n"
+        "OSC_QUERY_PORT OUT OUTPUTMODE OVERLAY PANIC PANICAUTORESTORE\n"
+        "PANICFADE PANICPROFILE PANIC_FADE PANIC_PROFILE PANIC_RESTORE\n"
+        "PATTERN PAUSE PAUSEATBEGIN PAUSEATEND PAUSEBEGIN PAUSEEND\n"
+        "PAUSESTART PING PIP PLAY PLAYLISTAUTOFADE PLAYLISTFADE PLAYLISTLOOP\n"
+        "PLAYLISTOPACITY PRESET PREV PREVIOUS REC RECCODEC RECFORMAT RECORD\n"
+        "RECSEGMENT RECTC RENUMBER RERACK ROUTE SCALE SCALEX SCALEY SCENE\n"
+        "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTID SFX SHORTID SHUFFLE\n"
+        "SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110 STILLDUR\n"
+        "STOP SUB SUBTITLE SUBTITLES SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
+        "SYNTHNOTEON SYPHONCUE TAKE TAKEID TC TCMARK TIMECODE TIMECODEEXT\n"
+        "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
+        "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
+        "UPDATE VIDEO VIEW VJ VOLUME WARP WIDTH WINDOWSOURCE XFADE\n"
+        "cue indices are 1-based; every command answers OK or ERR.\n"
+      );
+      return true;
+    }
     if (upper == "HELP" || upper == "?") {
       // Discoverability over the wire. The only way to learn the protocol used
       // to be reading the source or guessing, and a guess that missed looked
@@ -444,15 +496,19 @@
         "navigation: SELECT <n> GOTO <n> FIND <text> FINDNEXT FINDTAKE DECK <n> [command] DECKNEXT DECKPREV\n"
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN <dB> AUDIONORM SPEED <0.25-4>\n"
-        "output: OUT <on|off> FULLSCREEN <on|off> DISPLAY <n> TC <hh:mm:ss:ff>\n"
-        "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND <dissolve|add|multiply>\n"
+        "output: FULLSCREEN DISPLAY <n> TC <hh:mm:ss:ff>   (OUT is trim-out, not output on/off)\n"
+        "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND [mode]\n"
+        "    blends: dissolve add screen multiply lighten darken subtract\n"
+        "            undercut infiltrate ember   (no argument cycles)\n"
         "    VJ TAP | VJ BPM <n> | VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX CLEAR\n"
         "         FX PARAM <n> <A-D> <0-1>   (each effect's own shaping controls)\n"
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
         "         FX COPY | FX PASTE   (the chain only, not geometry or fades)\n"
         "code: CODE GET | CODE SET <expression> | CODE EDIT\n"
-        "text mode: ASCII GLYPHS <chars> | ASCII PHRASES <a|b|c> | ASCII HOLD <s>\n"
+        "text mode: ASCII ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET\n"
+        "           ASCII FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1>\n"
+        "           ASCII WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH | PHRASES | HOLD\n"
         "record: RECORD [on|off|toggle]  (same action as the RECORD button on the bar)\n"
         "        RECFORMAT <WxH|program> [fps|program]  (recording standard + rate)\n"
         "        RECCODEC <h264|hevc|prores_lt|prores_422|prores_hq|prores_4444|dnxhr_lb|dnxhr_sq|dnxhr_hq|dnxhr_hqx>\n"

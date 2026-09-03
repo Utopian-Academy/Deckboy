@@ -476,16 +476,84 @@
       return 1.0;
     }
     const double mix = std::clamp(project_.vjMixPosition, 0.0, 1.0);
-    const bool dissolve = project_.vjBlendMode == "dissolve";
+    const std::string& mode = project_.vjBlendMode;
+    // Only DISSOLVE fades A out as B comes in. Every other mode leaves A at
+    // full and brings B in over it, which is what makes them look like
+    // themselves rather than like a crossfade wearing a costume.
+    const bool dissolve = mode == "dissolve";
     if (deckIndex == deckB) {
-      if (project_.vjBlendMode == "add") blendOut = SDL_BLENDMODE_ADD;
-      else if (project_.vjBlendMode == "multiply") blendOut = SDL_BLENDMODE_MOD;
+      blendOut = vjBlendModeFor(mode);
       return mix;
     }
     if (deckIndex == deckA) {
       return dissolve ? (1.0 - mix) : 1.0;
     }
     return 1.0;
+  }
+
+  // The blend the B deck is drawn with.
+  //
+  // There were three modes: dissolve, add, and a "multiply" that used
+  // SDL_BLENDMODE_MOD -- which ignores the source alpha entirely, so it
+  // snapped to full the moment the fader left zero instead of mixing in. The
+  // rest are composed from SDL's blend factors and operations, which is enough
+  // for the classic set and for several that a video mixer rarely offers:
+  // MINIMUM and MAXIMUM blending are in every paint program and almost no VJ
+  // desk.
+  //
+  // Composed once each and cached: SDL_ComposeCustomBlendMode is cheap but
+  // this runs per deck per output per frame.
+  static SDL_BlendMode vjBlendModeFor(const std::string& mode) {
+    auto compose = [](SDL_BlendFactor srcF, SDL_BlendFactor dstF,
+                      SDL_BlendOperation op) {
+      // Alpha is left alone -- these are colour operations, and letting the
+      // operation loose on alpha is what turns "darken" into "vanish".
+      return SDL_ComposeCustomBlendMode(srcF, dstF, op,
+                                        SDL_BLENDFACTOR_ONE,
+                                        SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                                        SDL_BLENDOPERATION_ADD);
+    };
+    // src is scaled by its own alpha throughout, so every mode still RESPONDS
+    // TO THE FADER instead of snapping on at the first touch.
+    static const SDL_BlendMode kScreen = compose(
+      SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_ADD);
+    static const SDL_BlendMode kMultiply = compose(
+      SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+      SDL_BLENDOPERATION_ADD);
+    static const SDL_BlendMode kLighten = compose(
+      SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_MAXIMUM);
+    static const SDL_BlendMode kDarken = compose(
+      SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_MINIMUM);
+    static const SDL_BlendMode kSubtract = compose(
+      SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_SUBTRACT);
+    static const SDL_BlendMode kUndercut = compose(
+      SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_REV_SUBTRACT);
+    // B is admitted only where A is already dark, so the incoming picture
+    // grows out of the shadows of the outgoing one.
+    static const SDL_BlendMode kInfiltrate = compose(
+      SDL_BLENDFACTOR_ONE_MINUS_DST_COLOR, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+      SDL_BLENDOPERATION_ADD);
+    // The opposite: B is admitted only where A is already bright, so it burns
+    // in through the highlights.
+    static const SDL_BlendMode kEmberIn = compose(
+      SDL_BLENDFACTOR_DST_COLOR, SDL_BLENDFACTOR_ONE,
+      SDL_BLENDOPERATION_ADD);
+
+    if (mode == "screen")     return kScreen;
+    if (mode == "multiply")   return kMultiply;
+    if (mode == "lighten")    return kLighten;
+    if (mode == "darken")     return kDarken;
+    if (mode == "subtract")   return kSubtract;
+    if (mode == "undercut")   return kUndercut;
+    if (mode == "infiltrate") return kInfiltrate;
+    if (mode == "ember")      return kEmberIn;
+    if (mode == "add")        return SDL_BLENDMODE_ADD;
+    return SDL_BLENDMODE_BLEND;   // dissolve
   }
 
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target) {

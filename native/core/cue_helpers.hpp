@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <vector>
 #include <string>
 #include "types.hpp"
 #include "utils.hpp"
@@ -202,46 +203,41 @@ inline bool cueAdvancesWhenFinished(const Cue& cue) {
 // A=0.5, B=0, C=0, D=0 is the "as it was before this parameter existed"
 // position a freshly added effect carries.
 
-// paramC <-> character set. ELEVEN STEPS, and the EVEN ones are exactly the
-// six this used to have. Widening it to eight evenly-spaced steps would have
-// moved every existing show: 0.6 means MIXED today and would have become
-// ASCII 95 (raw). So the original six keep their exact values at the even
-// steps, and the two sets that had no representation at all -- sprite sheet
-// and "font (type anything)", reachable before only from a video synth cue --
-// take the gaps at 0.1 and 0.3. Odd steps otherwise repeat their neighbour, so
-// a fader swept across paramC never lands on nothing.
+// paramC <-> character set. THE ORIGINAL SIX STEPS, unchanged.
+//
+// This was widened to eleven steps so that sprite sheet and "font (type
+// anything)" -- which had no representation at all -- became reachable. The
+// six original values still decoded to the six original sets, which is what I
+// checked, and it was not enough: a saved show holds whatever paramC a fader
+// or an older quantisation left in it, and 0.333333 meant SYMBOLS under six
+// steps and FONT under eleven. James's own show carried exactly that value, so
+// its character grid went from symbols to blocks. He described it as gutted,
+// and it was.
+//
+// The lesson is in the verification, not the arithmetic: a mapping is not
+// preserved by checking the points you designed for. The CONTINUUM has to
+// agree, because that is what saved files contain.
+//
+// So paramC keeps its exact original meaning and the two sets it cannot
+// express are reached another way -- see applyTextModeParams, where a cue that
+// explicitly holds sprite sheet or font keeps it rather than being overwritten
+// by a parameter that has no way to say so.
 inline int textModeCharSetForParam(float paramC) {
-  static const int kSetForStep[11] = {
-    0,   // 0.0  blocks              (unmoved)
-    5,   // 0.1  sprite sheet        (was unreachable)
-    1,   // 0.2  ASCII 95 density    (unmoved)
-    7,   // 0.3  font, type anything (was unreachable)
-    2,   // 0.4  symbols             (unmoved)
-    2,   // 0.5  -- repeats 0.4
-    3,   // 0.6  mixed               (unmoved)
-    3,   // 0.7  -- repeats 0.6
-    4,   // 0.8  ASCII 95 raw        (unmoved)
-    4,   // 0.9  -- repeats 0.8
-    6,   // 1.0  music & sparkle     (unmoved)
-  };
   const int step = std::clamp(
-    static_cast<int>(std::lround(static_cast<double>(paramC) * 10.0)), 0, 10);
-  return kSetForStep[step];
+    static_cast<int>(std::lround(static_cast<double>(paramC) * 5.0)), 0, 5);
+  return (step == 5) ? 6 : step;
 }
 
-// The inverse, so a control writes the parameter that reads back as the set it
-// asked for. A set not on the table falls back to blocks rather than to a
-// neighbour, which would be a silent substitution.
+// The inverse. Sets 5 and 7 are not expressible in paramC at all; they return
+// the neutral value and rely on the cue field holding the real choice.
 inline float textModeParamForCharSet(int set) {
   switch (set) {
-    case 5:  return 0.1f;   // sprite sheet
     case 1:  return 0.2f;
-    case 7:  return 0.3f;   // font, type anything
     case 2:  return 0.4f;
     case 3:  return 0.6f;
     case 4:  return 0.8f;
     case 6:  return 1.0f;
-    default: return 0.0f;   // blocks
+    default: return 0.0f;   // blocks, and the two paramC cannot carry
   }
 }
 
@@ -262,4 +258,44 @@ inline int textModeInkForParam(float paramD) {
 
 inline float textModeParamForInk(int ink) {
   return static_cast<float>(std::clamp(ink, 0, 5) / 5.0);
+}
+
+// ── VJ blend modes ─────────────────────────────────────────────────────────
+//
+// ONE list. The cycle, the remote verb, the label and the renderer all read it,
+// because a mode that the cycle can reach and the renderer does not know is
+// invisible, and a mode the renderer has that the cycle cannot reach may as
+// well not exist. Both had happened.
+inline const std::vector<std::string>& vjBlendModes() {
+  static const std::vector<std::string> kModes = {
+    "dissolve",    // the only one that fades A out as B comes in
+    "add",         // light piles up; the classic VJ additive mix
+    "screen",      // add that cannot clip -- brightens without blowing out
+    "multiply",    // true multiply, and it responds to the fader
+    "lighten",     // per channel, whichever deck is brighter wins
+    "darken",      // per channel, whichever deck is darker wins
+    "subtract",    // B eats light out of A
+    "undercut",    // the reverse: A eats light out of B
+    "infiltrate",  // B appears only where A is dark, growing from the shadows
+    "ember",       // B appears only where A is bright, burning in through it
+  };
+  return kModes;
+}
+
+// The next mode in the cycle, wrapping. An unknown name starts from the top.
+inline std::string vjBlendModeAfter(const std::string& current) {
+  const auto& modes = vjBlendModes();
+  for (std::size_t i = 0; i < modes.size(); ++i) {
+    if (modes[i] == current) {
+      return modes[(i + 1) % modes.size()];
+    }
+  }
+  return modes.front();
+}
+
+// Is this a mode the renderer knows? Used to refuse a typo rather than
+// silently fall back to dissolve.
+inline bool isVjBlendMode(const std::string& name) {
+  const auto& modes = vjBlendModes();
+  return std::find(modes.begin(), modes.end(), name) != modes.end();
 }

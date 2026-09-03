@@ -63,8 +63,11 @@
       case QuickAction::EffectLfoDepthInc:  effectLfoNudgeDepth(param, +0.05f); return;
       case QuickAction::EffectLfoSync:      effectLfoToggleSync(param); return;
       case QuickAction::VjCycleBlend:
-        setVjBlend(project_.vjBlendMode == "dissolve" ? "add"
-                   : project_.vjBlendMode == "add" ? "multiply" : "dissolve");
+        // ONE ORDER, shared with the remote verb and the label, so the cycle
+        // cannot offer a mode the renderer does not know or skip one it does.
+        // A chain of ternaries had to be edited in three places to add a mode
+        // and silently ended at "dissolve" if any of them disagreed.
+        setVjBlend(vjBlendModeAfter(project_.vjBlendMode));
         return;
       case QuickAction::VjTapTempo:      tapVjTempo(); return;
       case QuickAction::VjToggleQuantise:

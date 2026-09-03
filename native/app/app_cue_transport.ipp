@@ -953,8 +953,12 @@
   }
 
   void setVjBlend(const std::string& mode) {
-    project_.vjBlendMode =
-      (mode == "add" || mode == "multiply") ? mode : "dissolve";
+    // AGAINST THE SHARED LIST. This carried its own copy of the modes -- the
+    // fourth place they were written out -- so a mode the renderer, the cycle
+    // and the remote verb all knew about arrived here, failed an `== "add" ||
+    // == "multiply"` test written before it existed, and became dissolve. The
+    // command still answered OK, so it looked like a mode that does nothing.
+    project_.vjBlendMode = isVjBlendMode(mode) ? mode : "dissolve";
     triggerToast("mix: " + project_.vjBlendMode);
     markProjectDirty();
   }
