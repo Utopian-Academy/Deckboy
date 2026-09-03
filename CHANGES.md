@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.96.0 (Spout output, the right way up and the right colour)
+
+Spout output now arrives correctly in a receiver. It was upside down, and red
+and blue were exchanged — so a Deckboy feed into Resolume needed a flip and a
+colour fix applied at the other end to be usable. Verified against the test
+card in Resolume with no correction of any kind on the receiving side.
+
+The send is also considerably cheaper. The composited frame was being copied
+into a texture created for the purpose each frame, then read back out again —
+about 66MB of copying at 4K to arrive at the pixels it started from. It goes
+straight from the capture buffer now.
+
+
 ## 2026-09-02 - v0.95.2 (a converter that fails now says why)
 
 When a presentation cannot be converted, Deckboy shows what the converter

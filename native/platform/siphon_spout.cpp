@@ -109,61 +109,59 @@ void SiphonSpoutSender::shutdown() {
   std::cerr << "[Spout] Sender shut down: " << impl_->name_ << "\n";
 }
 
-bool SiphonSpoutSender::sendFrame(SDL_Texture* texture) {
-  if (!impl_->isInitialized_ || !texture || !impl_->spout_) {
+bool SiphonSpoutSender::sendFrame(const void* pixels, int width, int height,
+                                 int stride) {
+  if (!impl_->isInitialized_ || !pixels || !impl_->spout_ ||
+      width <= 0 || height <= 0) {
     return false;
   }
+  impl_->width_ = width;
+  impl_->height_ = height;
 
-  // Query texture dimensions (SDL3: float out-params, format via properties)
-  float texWf = 0.0f, texHf = 0.0f;
-  if (!SDL_GetTextureSize(texture, &texWf, &texHf)) {
-    return false;
+  // RGBA, PACKED, BUILT IN ONE PASS.
+  //
+  // The capture buffer is SDL_PIXELFORMAT_BGRA32 -- B,G,R,A in memory -- and
+  // this used to hand it over declared as GL_BGRA, which is a true statement
+  // that Spout does not act on: the bytes arrive at the receiver unswapped and
+  // are read as RGBA. Measured in Resolume against the test card, the bar
+  // order came back white/cyan/yellow/green/magenta/blue/red/black instead of
+  // white/yellow/cyan/green/magenta/red/blue/black -- left-to-right order
+  // intact, yellow swapped with cyan and red with blue, which is exactly an
+  // R/B exchange and not a mirror.
+  //
+  // So the swap is done here and the format declared as what is actually sent.
+  // One pass over the frame, which also absorbs a non-tight stride, and still
+  // less work than the two full-frame copies this path used to make.
+  const std::size_t tight = static_cast<std::size_t>(width) * 4;
+  const std::size_t need = tight * static_cast<std::size_t>(height);
+  if (impl_->pixelBuf_.size() != need) {
+    impl_->pixelBuf_.resize(need);
   }
-  int texW = static_cast<int>(texWf), texH = static_cast<int>(texHf);
-
-  // Resize pixel buffer if texture dimensions changed
-  size_t bufSize = static_cast<size_t>(texW) * texH * 4;
-  if (impl_->pixelBuf_.size() != bufSize) {
-    impl_->pixelBuf_.resize(bufSize);
-    impl_->width_ = texW;
-    impl_->height_ = texH;
+  const unsigned char* src = static_cast<const unsigned char*>(pixels);
+  for (int y = 0; y < height; ++y) {
+    const unsigned char* s = src + static_cast<std::size_t>(y) * stride;
+    unsigned char* dstRow = impl_->pixelBuf_.data() + static_cast<std::size_t>(y) * tight;
+    for (int x = 0; x < width; ++x) {
+      dstRow[x * 4 + 0] = s[x * 4 + 2];   // R <- R (third byte of BGRA)
+      dstRow[x * 4 + 1] = s[x * 4 + 1];   // G
+      dstRow[x * 4 + 2] = s[x * 4 + 0];   // B <- B (first byte of BGRA)
+      dstRow[x * 4 + 3] = s[x * 4 + 3];   // A
+    }
   }
 
-  // Read pixels from SDL_Texture into CPU buffer.
-  // SDL_RenderReadPixels reads from the current render target.
-  // The caller should have set this texture as the render target before calling.
-  // We read as BGRA (SDL_PIXELFORMAT_ARGB8888 = BGRA in memory on little-endian).
-  // Read via lock: there is no way to get a renderer back from a texture,
-  // which is what the abandoned local here was waiting for.
-  void* pixels = nullptr;
-  int pitch = 0;
-  if (!SDL_LockTexture(texture, nullptr, &pixels, &pitch)) {
-    // Texture may not be lockable (render target). Fall back to render read.
-    // The caller must ensure the texture is the current render target.
-    return false;
-  }
-
-  // Copy pixels row by row (pitch may differ from width * 4)
-  for (int y = 0; y < texH; ++y) {
-    const unsigned char* src = static_cast<const unsigned char*>(pixels) + y * pitch;
-    unsigned char* dst = impl_->pixelBuf_.data() + y * texW * 4;
-    std::memcpy(dst, src, static_cast<size_t>(texW) * 4);
-  }
-  SDL_UnlockTexture(texture);
-
-  // Spout SendImage expects GL_RGBA or GL_BGRA pixel format.
-  // SDL textures are typically ARGB8888 which is BGRA in memory.
-  // GL_BGRA = 0x80E1
-  constexpr GLenum GL_BGRA_EXT = 0x80E1;
-  bool ok = impl_->spout_->SendImage(
-    impl_->pixelBuf_.data(),
-    static_cast<unsigned int>(texW),
-    static_cast<unsigned int>(texH),
-    GL_BGRA_EXT,
-    true  // bInvert: flip vertically (Spout expects bottom-up, SDL is top-down)
-  );
-
-  return ok;
+  // NO FLIP. This passed bInvert=true on the reasoning that Spout is bottom-up
+  // and Deckboy is top-down -- true of Spout's OpenGL heritage, and not of the
+  // DirectX11 shared texture it uses on Windows, which is top-down like us.
+  // The flip was correcting a difference that is not there.
+  //
+  // Verified from our side rather than the receiver's: DECKBOY_SPOUT_DUMP
+  // writes the exact buffer handed over, and it is top-down with the colour
+  // bars in the right order.
+  return impl_->spout_->SendImage(impl_->pixelBuf_.data(),
+                                  static_cast<unsigned int>(width),
+                                  static_cast<unsigned int>(height),
+                                  GL_RGBA,
+                                  false);
 }
 
 bool SiphonSpoutSender::setName(const std::string& name) {
@@ -229,8 +227,9 @@ void SiphonSpoutSender::shutdown() {
   impl_->isInitialized_ = false;
 }
 
-bool SiphonSpoutSender::sendFrame(SDL_Texture* texture) {
-  (void)texture;
+bool SiphonSpoutSender::sendFrame(const void* pixels, int width, int height,
+                                 int stride) {
+  (void) pixels; (void) width; (void) height; (void) stride;
   return impl_->isInitialized_;
 }
 

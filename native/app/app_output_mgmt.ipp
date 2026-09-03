@@ -4853,27 +4853,62 @@
     if (fw <= 0 || fh <= 0) {
       return;
     }
-    // Create a temporary texture, upload the captured pixels, and send
-    SDL_Texture* tempTex = deckboyCreateTexture(
-      outputRuntime.outputRenderer, SDL_PIXELFORMAT_ARGB8888,
-      SDL_TEXTUREACCESS_STREAMING, fw, fh);
-    if (!tempTex) {
-      return;
-    }
-    void* texPixels = nullptr;
-    int texPitch = 0;
-    if (SDL_LockTexture(tempTex, nullptr, &texPixels, &texPitch)) {
-      int stride = fw * 4;
-      for (int y = 0; y < fh; ++y) {
-        std::memcpy(
-          static_cast<unsigned char*>(texPixels) + y * texPitch,
-          frameCapture.pixels.data() + y * stride,
-          static_cast<size_t>(stride));
+    // Straight out of the capture buffer, the way DeckLink and ST2110 below
+    // are already fed. This used to build a streaming texture every frame,
+    // copy the capture into it, and hand that over -- and the sender locked it
+    // and copied the pixels back out to get to the bytes that were already
+    // here. Two full-frame copies and a texture create/destroy per frame, some
+    // 66MB of memcpy at 4K, for no change to the pixels.
+    // DECKBOY_SPOUT_DUMP writes ONE frame of exactly what goes to the sender,
+    // as a PPM, and says what the corners and the alpha are. When a receiver
+    // shows the picture flipped or the wrong colour, the first question is
+    // whether the fault is in what we sent or in how it was interpreted, and
+    // that cannot be answered by looking at the receiver.
+    static bool dumpedSpoutFrame = false;
+    if (!dumpedSpoutFrame) {
+      if (const char* dumpPath = std::getenv("DECKBOY_SPOUT_DUMP")) {
+        // THE FIRST FRAME WITH SOMETHING IN IT. Dumping frame one caught the
+        // black frame that precedes the first take, which looks exactly like
+        // a send path that is transmitting nothing -- and did, for a while.
+        bool anyContent = false;
+        for (std::size_t i = 0; i + 3 < frameCapture.pixels.size() && !anyContent; i += 4) {
+          anyContent = frameCapture.pixels[i] || frameCapture.pixels[i + 1] ||
+                       frameCapture.pixels[i + 2];
+        }
+        if (!anyContent) {
+          return;
+        }
+        dumpedSpoutFrame = true;
+        const std::uint8_t* px = frameCapture.pixels.data();
+        auto at = [&](int x, int y) { return px + (static_cast<std::size_t>(y) * fw + x) * 4; };
+        std::fprintf(stderr,
+          "spout-dump: %dx%d  BGRA bytes  topleft=%u,%u,%u,%u  "
+          "topright=%u,%u,%u,%u  bottomleft=%u,%u,%u,%u\n",
+          fw, fh,
+          at(2, 2)[0], at(2, 2)[1], at(2, 2)[2], at(2, 2)[3],
+          at(fw - 3, 2)[0], at(fw - 3, 2)[1], at(fw - 3, 2)[2], at(fw - 3, 2)[3],
+          at(2, fh - 3)[0], at(2, fh - 3)[1], at(2, fh - 3)[2], at(2, fh - 3)[3]);
+        if (std::FILE* f = std::fopen(dumpPath, "wb")) {
+          std::fprintf(f, "P6\n%d %d\n255\n", fw, fh);
+          std::vector<std::uint8_t> row(static_cast<std::size_t>(fw) * 3);
+          for (int y = 0; y < fh; ++y) {
+            const std::uint8_t* s = at(0, y);
+            for (int x = 0; x < fw; ++x) {
+              // BGRA in memory -> RGB out, so the PPM shows what the pixels
+              // MEAN rather than repeating any confusion about their order.
+              row[static_cast<std::size_t>(x) * 3 + 0] = s[x * 4 + 2];
+              row[static_cast<std::size_t>(x) * 3 + 1] = s[x * 4 + 1];
+              row[static_cast<std::size_t>(x) * 3 + 2] = s[x * 4 + 0];
+            }
+            std::fwrite(row.data(), 1, row.size(), f);
+          }
+          std::fclose(f);
+          std::fprintf(stderr, "spout-dump: wrote %s\n", dumpPath);
+        }
       }
-      SDL_UnlockTexture(tempTex);
-      outputRuntime.spoutSender->sendFrame(tempTex);
     }
-    SDL_DestroyTexture(tempTex);
+    outputRuntime.spoutSender->sendFrame(frameCapture.pixels.data(), fw, fh,
+                                         fw * 4);
 #else
     (void) outputIndex;
     (void) outputRuntime;
