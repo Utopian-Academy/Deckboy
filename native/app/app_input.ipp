@@ -402,13 +402,14 @@
           deckOpacityFaderRects_[deckIndex].w > 0) {
         bool altHeld = (SDL_GetModState() & SDL_KMOD_ALT) != 0;
         const SDL_Rect& rail = deckOpacityFaderRects_[deckIndex];
-        float value = static_cast<float>(std::clamp(
-          static_cast<double>(x - rail.x) / static_cast<double>(rail.w),
-          0.0,
-          1.0));
+        float value = static_cast<float>(faderValueFromX(x, rail));
         if (altHeld) {
           value = value >= 0.5f ? 1.0f : 0.0f;
         }
+        // Held, so the fader can be TRIMMED rather than only placed. It was
+        // click-only: every adjustment meant guessing a pixel and clicking
+        // again, with no way to slide up to the value you wanted.
+        deckOpacityDragIndex_ = deckIndex;
         setDeckPlaylistOpacity(deckIndex, value, true);
         return;
       }
@@ -715,8 +716,19 @@
 
   void handleMouseMotion(int x, int y) {
     if (vjCrossfaderDragActive_ && vjCrossfaderRect_.w > 0) {
-      setVjMix(static_cast<double>(x - vjCrossfaderRect_.x) /
-               static_cast<double>(vjCrossfaderRect_.w));
+      // Through the same helper as every other fader, so the crossfader's own
+      // ends -- full A and full B, the two positions a VJ actually holds -- are
+      // reachable without hitting a single pixel.
+      setVjMix(faderValueFromX(x, vjCrossfaderRect_));
+      return;
+    }
+    if (deckOpacityDragIndex_ >= 0 &&
+        deckOpacityDragIndex_ < static_cast<int>(deckOpacityFaderRects_.size())) {
+      const SDL_Rect& rail = deckOpacityFaderRects_[deckOpacityDragIndex_];
+      if (rail.w > 0) {
+        setDeckPlaylistOpacity(deckOpacityDragIndex_,
+                               static_cast<float>(faderValueFromX(x, rail)), true);
+      }
       return;
     }
     if (motionDriverScrubActive_ && motionDriverScrubRect_.w > 0 &&

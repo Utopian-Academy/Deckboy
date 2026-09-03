@@ -1,5 +1,34 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.98.0 (ten blend modes, faders you can reach the ends of)
+
+### Ten ways to mix two decks
+
+**dissolve, add, screen, multiply, lighten, darken, subtract, undercut,
+infiltrate** and **ember**. Only dissolve fades the outgoing deck away; the
+rest leave it at full and bring the incoming one in over it, which is what
+makes each look like itself.
+
+*lighten* and *darken* pick the brighter or darker deck channel by channel.
+*undercut* is subtract in reverse — the outgoing deck eats light out of the
+incoming one. *infiltrate* lets the new deck appear only where the old one is
+dark, so it grows out of the shadows; *ember* is its opposite and burns in
+through the highlights.
+
+`VJ BLEND` with no argument cycles, and a name it does not know is refused
+rather than quietly becoming dissolve.
+
+*multiply* now responds to the fader. It used a blend that ignores opacity, so
+it snapped to full the instant the fader left zero.
+
+### Faders you can reach the ends of
+
+The deck opacity faders can be **dragged**, not just clicked — and 0 and 100
+now have a landing zone at each end instead of being one pixel wide. The
+crossfader gets the same, so full A and full B are reachable without taking
+aim. The middle of the rail is as fine as it ever was.
+
+
 ## 2026-09-02 - v0.97.0 (NDI output verified, NDI input tells the truth)
 
 **NDI output is correct** — checked frame by frame against a receiver rather

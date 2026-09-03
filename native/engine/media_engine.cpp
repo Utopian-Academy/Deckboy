@@ -3200,7 +3200,28 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
     const char* e = std::getenv("DECKBOY_SYNTH_FULLRASTER");
     return e && *e;
   }();
-  const bool emitSmall = !vs.ascii && !forceFullRaster;
+  // A CUE CARRYING THE TEXT MODE EFFECT NEEDS THE FULL RASTER.
+  //
+  // The synth normally emits a small frame and lets the scaler take it up,
+  // which is right for a picture made of soft gradients and wrong for a
+  // character grid: the grid wants one cell per output cell, not a grid drawn
+  // small and then magnified.
+  //
+  // vs.ascii used to carry that, and text mode moving to an effect (v0.95.0)
+  // made vs.ascii permanently false -- so a synth cue with a character grid
+  // started emitting small and the effect drew its grid into a low-resolution
+  // frame that was then scaled up. The result reads as a coarser, simpler
+  // version of the same effect, which is exactly how it was described.
+  //
+  // The engine has the cue's effect stack, so it can just ask.
+  bool textModeDownstream = false;
+  for (const auto& fx : cue.effects) {
+    if (fx.kind == deckboy::effects::CueEffectKind::TextMode && !fx.bypassed) {
+      textModeDownstream = true;
+      break;
+    }
+  }
+  const bool emitSmall = !vs.ascii && !textModeDownstream && !forceFullRaster;
   // BUILD IN PLACE, into the frame we already hold.
   //
   // This used to construct a local DecodedFrame and try to recycle the old

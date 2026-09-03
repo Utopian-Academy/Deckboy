@@ -206,6 +206,7 @@
               masterFaderDragActive_ = false;
               motionDriverScrubActive_ = false;
               vjCrossfaderDragActive_ = false;
+              deckOpacityDragIndex_ = -1;
               trimDragMode_ = TrimDragMode::None;
               if (timelineScrubActive_ && scrubWasPlaying_) {
                 if (MediaEngine* engine = focusedMediaEngine()) {

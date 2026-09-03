@@ -610,7 +610,25 @@
         return;
       }
       if (sub == "BLEND" && parts.size() >= 3) {
-        setVjBlend(toLower(parts[2]));
+        // REFUSED rather than silently accepted. setVjBlend took any string,
+        // and the renderer falls back to dissolve for a name it does not know
+        // -- so a typo looked exactly like a mode that does nothing.
+        const std::string want = toLower(parts[2]);
+        if (!isVjBlendMode(want)) {
+          std::string names;
+          for (const auto& m : vjBlendModes()) {
+            names += (names.empty() ? "" : " | ") + m;
+          }
+          failRemoteCommand("VJ BLEND: " + names);
+          return;
+        }
+        setVjBlend(want);
+        return;
+      }
+      if (sub == "BLEND") {
+        // No argument cycles, matching every other mode control here.
+        setVjBlend(vjBlendModeAfter(project_.vjBlendMode));
+        remoteCommandDetail_ = project_.vjBlendMode;
         return;
       }
       if (sub == "TAP") {
