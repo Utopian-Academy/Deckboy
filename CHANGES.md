@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.301 (a source that cannot capture says so)
+
+Adding a **Syphon/Spout source** cue now tells you that this platform cannot
+receive one yet, instead of taking it and showing a striped placeholder that
+could just as easily be a signal. Spout receive on Windows and Syphon receive
+on macOS are still to come; the reason is now the one the capture backend
+itself gives.
+
+Sources that DO work — window, camera — are unaffected and say nothing extra.
+
+
 ## 2026-09-03 - v0.99.3 (an output can be driven from a surface)
 
 **`OUTPUT`** — arm an output, route it to Spout, name the sender, and read the

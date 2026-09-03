@@ -1744,7 +1744,33 @@
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
-    triggerToast("source cue added");
+    // SAY WHEN THE PLATFORM CANNOT ACTUALLY CAPTURE THIS.
+    //
+    // Spout receive on Windows and Syphon receive on macOS are scaffolds:
+    // planSourceCapture answers supported=false with a reason, the engine
+    // falls back to a striped placeholder, and the operator is left looking
+    // at a pattern that could equally be a signal. The reason string has
+    // always existed and was never shown to anybody.
+    deckboy::platform::SourceCaptureRequest probe;
+    probe.kind = (kind == CueKind::Camera)
+      ? deckboy::platform::SourceCaptureKind::Camera
+      : (kind == CueKind::Syphon
+           ? deckboy::platform::SourceCaptureKind::AppTexture
+           : deckboy::platform::SourceCaptureKind::Window);
+    probe.sourceRef = sourceRef;
+    probe.width = cue.width;
+    probe.height = cue.height;
+    const auto probePlan = deckboy::platform::planSourceCapture(probe);
+    if (!probePlan.supported) {
+      triggerToast(std::string("source cue added, but it will show a "
+                               "placeholder: ") +
+                     (probePlan.reasonUnavailable.empty()
+                        ? "this platform cannot capture that source"
+                        : probePlan.reasonUnavailable),
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+    } else {
+      triggerToast("source cue added");
+    }
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
   }
