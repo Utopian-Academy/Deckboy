@@ -4867,16 +4867,22 @@
     static bool dumpedSpoutFrame = false;
     if (!dumpedSpoutFrame) {
       if (const char* dumpPath = std::getenv("DECKBOY_SPOUT_DUMP")) {
-        // THE FIRST FRAME WITH SOMETHING IN IT. Dumping frame one caught the
-        // black frame that precedes the first take, which looks exactly like
-        // a send path that is transmitting nothing -- and did, for a while.
-        bool anyContent = false;
-        for (std::size_t i = 0; i + 3 < frameCapture.pixels.size() && !anyContent; i += 4) {
-          anyContent = frameCapture.pixels[i] || frameCapture.pixels[i + 1] ||
-                       frameCapture.pixels[i + 2];
+        // A PROPERLY LIT FRAME, not merely a non-black one. Requiring "any
+        // content" caught the first frame of a fade-in -- 5% of the raster
+        // lit -- and made a faithful render of a nearly-black picture look
+        // like an effect that covers a quarter of the screen. The dump is
+        // for judging what the output looks like, so it has to wait for a
+        // frame worth judging.
+        std::size_t litPixels = 0;
+        const std::size_t pixelCount = frameCapture.pixels.size() / 4;
+        for (std::size_t i = 0; i + 3 < frameCapture.pixels.size(); i += 4) {
+          if (frameCapture.pixels[i] > 8 || frameCapture.pixels[i + 1] > 8 ||
+              frameCapture.pixels[i + 2] > 8) {
+            ++litPixels;
+          }
         }
-        if (!anyContent) {
-          return;
+        if (pixelCount == 0 || litPixels * 5 < pixelCount) {
+          return;   // under 20% lit: still fading in, or genuinely dark
         }
         dumpedSpoutFrame = true;
         const std::uint8_t* px = frameCapture.pixels.data();

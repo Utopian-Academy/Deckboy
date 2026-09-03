@@ -2585,10 +2585,26 @@ void MediaEngine::renderTextMode(const std::uint8_t* src, int srcW, int srcH,
 
 
         // inkIdx -1 means "the cell's own colour", which has no palette entry.
+        //
+        // LIFTED TO FULL VALUE, hue and saturation kept. A 5x7 glyph covers
+        // roughly a third of its cell, so drawing it in the source colour
+        // made the cell average about a third of the source brightness --
+        // and the glyph CHOSEN for a dark cell is sparser still, so the two
+        // multiply. Tone was being carried twice, by the density of the
+        // character and again by the colour of it, and the picture came out
+        // crushed nearly to black: measured on a normal frame, 46% of the
+        // raster lit and almost all of it within a few levels of zero.
+        //
+        // Coloured character art carries tone with the DENSITY and colour
+        // with the ink, which is what this does now. The cell keeps its hue
+        // exactly -- the channel ratios are untouched -- and the glyph is
+        // drawn at the brightness that hue can reach.
+        const int cellPeak = std::max(1, std::max(sr, std::max(sg, sb)));
+        const int inkLift = std::min(255 * 256 / cellPeak, 256 * 4);
         const std::uint8_t cellInk[3] = {
-          static_cast<std::uint8_t>(std::clamp(sr, 0, 255)),
-          static_cast<std::uint8_t>(std::clamp(sg, 0, 255)),
-          static_cast<std::uint8_t>(std::clamp(sb, 0, 255))
+          static_cast<std::uint8_t>(std::clamp(sr * inkLift / 256, 0, 255)),
+          static_cast<std::uint8_t>(std::clamp(sg * inkLift / 256, 0, 255)),
+          static_cast<std::uint8_t>(std::clamp(sb * inkLift / 256, 0, 255))
         };
         const std::uint8_t* ink = inkIdx < 0 ? cellInk : kCellPalette[inkIdx];
         const std::uint8_t* bg = kCellPalette[std::max(0, bgIdx)];
