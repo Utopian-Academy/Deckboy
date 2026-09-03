@@ -7964,6 +7964,11 @@ class App {
     // carry an offer to act (convert these cues) as well as a download link,
     // rather than growing a second prompt system beside this one.
     std::function<void()> onCta;
+    // Run when the operator CLOSES the prompt. A suggestion that should never
+    // come back needs somewhere to record that, and closing was the only
+    // signal available: dismissDependencyPrompt is shared by every prompt and
+    // could not tell which one it was shutting.
+    std::function<void()> onDismiss;
     SDL_Rect ctaRect {};
     SDL_Rect closeRect {};
   };

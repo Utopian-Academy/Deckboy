@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.98.1 (dismissing the HAP suggestion means dismissed)
+
+Closing the "HAP would help this show" suggestion now keeps it closed. It said
+it would never return once dismissed and returned every launch, because there
+was nothing anywhere that could record the dismissal.
+
+
 ## 2026-09-03 - v0.98.0 (ten blend modes, faders you can reach the ends of)
 
 ### Ten ways to mix two decks
