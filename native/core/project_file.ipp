@@ -164,6 +164,17 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
   }
 
   writeProjectScalars(output, project);
+  // ONE LINE PER SLOT, and none at all when the dashboard is empty -- which is
+  // every show that predates it. A key/value record rather than a positional
+  // one, so a field can be added later without shifting the ones after it.
+  for (std::size_t i = 0; i < project.dashboard.size(); ++i) {
+    const DashboardSlot& slot = project.dashboard[i];
+    output << "dashboard\t" << i
+           << '\t' << escapeField(slot.label)
+           << '\t' << escapeField(slot.command)
+           << '\t' << escapeField(slot.glyph)
+           << '\t' << slot.colorIndex << '\n';
+  }
   for (size_t outputIndex = 0; outputIndex < project.outputs.size(); ++outputIndex) {
     const auto& outputTarget = project.outputs[outputIndex];
     output
@@ -581,6 +592,20 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.focusedOutputIndex = safeInt(fields, 1, 0);
   } else if (fields[0] == "focused_group" || fields[0] == "layer_names") {
     // Legacy fields — ignored (single-deck, no layer assignments or group presets).
+  } else if (fields[0] == "dashboard") {
+    // Addressed by its own index rather than appended in file order, so a
+    // show hand-edited out of order still lands each slot where it belongs.
+    const std::size_t at = safeSize(fields, 1, 0);
+    if (at < 512) {   // a bound, so a corrupt index cannot allocate the world
+      if (project.dashboard.size() <= at) {
+        project.dashboard.resize(at + 1);
+      }
+      DashboardSlot& slot = project.dashboard[at];
+      slot.label = safeString(fields, 2);
+      slot.command = safeString(fields, 3);
+      slot.glyph = safeString(fields, 4);
+      slot.colorIndex = std::clamp(safeInt(fields, 5, 0), 0, 15);
+    }
   } else if (fields[0] == "advanced_mode") {
     project.advancedOutputMode = safeBool(fields, 1, false);
   } else if (fields[0] == "ptp_domain") {

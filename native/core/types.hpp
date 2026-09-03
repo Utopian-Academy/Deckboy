@@ -928,12 +928,33 @@ struct OutputTarget {
 // (app/app_render_settings.ipp) reads and writes most of these fields.
 // Remote commands (app/app_remote_command.ipp) can also modify them.
 // ---------------------------------------------------------------------------
+// One button on the dashboard.
+//
+// A slot is a LABEL, A GLYPH AND A COMMAND -- and the command is any line the
+// remote protocol accepts. That is the whole design, and everything else falls
+// out of it: the panel and a control surface become two front-ends to the same
+// list, so a slot an operator builds works identically pressed on screen or
+// fired from Companion with DASH <n>. A second mechanism for "custom actions"
+// would have needed its own storage, its own dispatch and its own way to drift
+// out of step with the protocol.
+//
+// The glyph is a character, not an icon file: Deckboy already carries every
+// symbol and emoji text mode can draw, so a dashboard can be decorated from
+// the same alphabet without shipping any art.
+struct DashboardSlot {
+  std::string label;    // what it says on the button
+  std::string command;  // any remote command line, e.g. "VJ BLEND ember"
+  std::string glyph;    // one character, decoration only
+  int colorIndex = 0;   // 0..15, the same indexed palette cue tags use
+};
+
 struct Project {
   std::string title = std::string(kAppTitle); // show file title (displayed in title bar)
   std::vector<Deck> decks {Deck {}};          // all decks (at least one always exists)
   int focusedDeckIndex = 0;                   // which deck the UI is currently showing
   std::vector<OutputTarget> outputs {OutputTarget {}}; // all outputs (at least one)
   int focusedOutputIndex = 0;                 // which output is selected in settings UI
+  std::vector<DashboardSlot> dashboard;       // operator-assembled buttons
 
   // -- UI preferences ----------------------------------------------------------
   // -- SMPTE LTC generator (timecode OUT) --------------------------------------

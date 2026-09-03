@@ -2734,6 +2734,118 @@
       }
       return;
     }
+    // THE DASHBOARD, which is a list of commands with labels on.
+    //
+    // Firing a slot RUNS ITS COMMAND through this same dispatcher, so a slot
+    // can do anything the protocol can and needs no dispatch of its own. That
+    // is why the on-screen panel and a Companion button are the same feature:
+    // both end up here, at DASH <n>, running the line the operator wrote.
+    //
+    // Guarded against a slot that fires DASH, which would otherwise be a way
+    // to build a loop that takes the show down with it.
+    if (command == "DASH" || command == "DASHBOARD") {
+      const std::string sub = parts.size() < 2 ? std::string("LIST") : toUpper(parts[1]);
+
+      if (sub == "LIST") {
+        if (project_.dashboard.empty()) {
+          remoteCommandDetail_ = "empty (DASH SET <n> <label> | <command>)";
+          return;
+        }
+        std::ostringstream s;
+        for (std::size_t n = 0; n < project_.dashboard.size(); ++n) {
+          const DashboardSlot& slot = project_.dashboard[n];
+          if (n) s << " | ";
+          s << (n + 1) << ':';
+          if (!slot.glyph.empty()) s << slot.glyph << ' ';
+          s << (slot.label.empty() ? "(unset)" : slot.label);
+          if (!slot.command.empty()) s << " -> " << slot.command;
+        }
+        remoteCommandDetail_ = s.str();
+        return;
+      }
+
+      if (sub == "SET" && parts.size() >= 3) {
+        // DASH SET <n> <label> | <command> [| <glyph>]
+        int at = 0;
+        try {
+          at = std::stoi(parts[2]) - 1;
+        } catch (...) {
+          failRemoteCommand("DASH SET: <n> <label> | <command> [| <glyph>]");
+          return;
+        }
+        if (at < 0 || at >= 512) {
+          failRemoteCommand("DASH SET: slot number out of range");
+          return;
+        }
+        const std::string rest = parts.size() > 3 ? joinParts(parts, 3) : std::string();
+        std::vector<std::string> bits;
+        std::size_t from = 0;
+        for (;;) {
+          const std::size_t bar = rest.find('|', from);
+          bits.push_back(trim(rest.substr(from, bar == std::string::npos
+                                                  ? std::string::npos : bar - from)));
+          if (bar == std::string::npos) break;
+          from = bar + 1;
+        }
+        if (bits.size() < 2 || bits[1].empty()) {
+          failRemoteCommand("DASH SET: needs a command -- "
+                            "DASH SET <n> <label> | <command> [| <glyph>]");
+          return;
+        }
+        if (toUpper(bits[1]).rfind("DASH", 0) == 0) {
+          // A slot that fires the dashboard is a loop waiting to happen, and
+          // it would run during a show rather than while it was written.
+          failRemoteCommand("DASH SET: a slot cannot fire the dashboard");
+          return;
+        }
+        if (static_cast<int>(project_.dashboard.size()) <= at) {
+          project_.dashboard.resize(at + 1);
+        }
+        DashboardSlot& slot = project_.dashboard[at];
+        slot.label = bits[0];
+        slot.command = bits[1];
+        if (bits.size() > 2) slot.glyph = bits[2];
+        markProjectDirty();
+        remoteCommandDetail_ = std::to_string(at + 1) + ": " + slot.label +
+                               " -> " + slot.command;
+        return;
+      }
+
+      if (sub == "CLEAR" && parts.size() >= 3) {
+        int at = -1;
+        try { at = std::stoi(parts[2]) - 1; } catch (...) { at = -1; }
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+          failRemoteCommand("DASH CLEAR: no slot " + (parts.size() > 2 ? parts[2] : ""));
+          return;
+        }
+        project_.dashboard[at] = DashboardSlot{};
+        markProjectDirty();
+        remoteCommandDetail_ = "slot " + std::to_string(at + 1) + " cleared";
+        return;
+      }
+
+      // A bare number fires that slot -- the whole point, and the shortest
+      // thing to bind a Companion button to.
+      int at = -1;
+      try { at = std::stoi(parts[1]) - 1; } catch (...) { at = -1; }
+      if (at >= 0 && at < static_cast<int>(project_.dashboard.size())) {
+        const DashboardSlot slot = project_.dashboard[at];
+        if (slot.command.empty()) {
+          failRemoteCommand("DASH: slot " + std::to_string(at + 1) + " is empty");
+          return;
+        }
+        handleRemoteCommand(slot.command);
+        // The slot's own answer, not the inner command's, so a surface sees
+        // what it pressed.
+        remoteCommandRecognized_ = true;
+        remoteCommandError_.clear();
+        remoteCommandDetail_ = slot.label.empty() ? slot.command : slot.label;
+        return;
+      }
+      failRemoteCommand("DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>");
+      return;
+    }
+
     // EVERY NAMED PROJECT SETTING, readable and writable.
     //
     // Taken from what Resolume gets right: a surface should be able to ask what
