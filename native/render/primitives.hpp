@@ -4,7 +4,7 @@
 // See LICENSE for details.
 
 // ============================================================================
-// primitives.hpp — Low-level SDL2 drawing primitives for the Deckboy UI.
+// primitives.hpp — Low-level drawing primitives for the Deckboy UI.
 //
 // Stateless utility class providing basic 2D drawing operations used by
 // all Deckboy UI components. All methods are static — no state is held.

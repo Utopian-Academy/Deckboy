@@ -4,7 +4,7 @@
 // See LICENSE for details.
 
 // ============================================================================
-// text_renderer.hpp — SDL2 + SDL_ttf text rendering utilities.
+// text_renderer.hpp — SDL_ttf text rendering utilities.
 //
 // Stateless utility class for rendering UTF-8 text via SDL_ttf. All methods
 // are static — no font ownership or caching is performed here (fonts are
@@ -15,7 +15,9 @@
 //   getTextDimensions() — measure text size without rendering
 //   textToTexture()     — create a cached SDL_Texture from text
 //
-// All text rendering uses TTF_RenderUTF8_Blended for anti-aliased output.
+// All text rendering uses TTF_RenderText_Blended for anti-aliased output.
+// The text is UTF-8 and the length argument is 0, which means "to the first
+// NUL" -- the SDL3 signature takes an explicit length.
 // The textToTexture() method is useful for text that doesn't change every
 // frame (e.g. labels) — the caller must manage the texture lifetime.
 //

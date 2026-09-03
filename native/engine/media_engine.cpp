@@ -4794,7 +4794,7 @@ bool MediaEngine::buildSourceCaptureArgs(const Cue& cue, int w, int h, std::vect
 // Audio pipeline:
 //   ffmpeg -ss <start> -i <path> -map 0:a:0 -vn
 //          -f s16le -ar 48000 -ac 2 pipe:1
-//   → audioThread_ reads raw PCM via readSome() → SDL_QueueAudio()
+//   → audioThread_ reads raw PCM via readSome() → SDL_PutAudioStreamData()
 //
 // Special cases:
 //   - Live streams (SRT/NDI): skip -ss (no seek) and -hwaccel (latency)

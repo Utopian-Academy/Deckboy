@@ -4,7 +4,7 @@
 // See LICENSE for details.
 
 // ============================================================================
-// primitives.cpp — SDL2 drawing primitives implementation.
+// primitives.cpp — drawing primitives implementation.
 //
 // Implements the stateless Primitives class for basic 2D rendering operations.
 // The drawFramedPanel() bevel effect auto-detects raised vs. sunken style

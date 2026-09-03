@@ -14,9 +14,18 @@
 //   Linux / no SDK: Stub — all methods return success but do nothing.
 //
 // The sender takes an SDL_Texture, reads its pixels into a CPU buffer, and
-// sends them via the platform API. While Spout can also share GPU textures
-// directly, CPU pixel path is used here because Deckboy's SDL2 renderer
-// doesn't expose raw OpenGL/DirectX texture handles portably.
+// sends them via the platform API. Spout can also share a GPU texture
+// directly, which would skip the readback entirely.
+//
+// THE REASON GIVEN FOR NOT DOING SO IS OUT OF DATE. It said the SDL2 renderer
+// exposed no raw DirectX handle portably, which was true of SDL2 and is not
+// true now: SDL3 hands back the ID3D11Texture2D through
+// SDL_GetTextureProperties(SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER). A
+// zero-copy path is therefore available on the Windows backend.
+//
+// It stays on the CPU path until somebody can test it against a real Spout
+// receiver -- swapping the transport of a live output on an argument alone is
+// how a show loses its feed.
 //
 // Header: siphon_spout.hpp
 // Used by: app_render_output.ipp (sends composited output to VJ software).
