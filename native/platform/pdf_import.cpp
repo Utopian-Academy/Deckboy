@@ -104,16 +104,76 @@ fs::path convertedPdfPath(const fs::path& source, const fs::path& outputDir) {
   return outputDir / (source.stem().string() + ".pdf");
 }
 
-// Run a helper and say only whether it worked. Output is captured rather than
-// inherited so a converter cannot print over the app's own console.
+// Run a helper and keep what it said, however it ended.
+//
+// This used readAllText, which discards the output on a non-zero exit -- so a
+// converter that failed AND EXPLAINED ITSELF came back with an empty string
+// and the caller could only say "it failed". PowerPoint's "can't save ^0 to
+// ^1" names its fault exactly; losing it turned a five-minute diagnosis into
+// an hour. Output is captured rather than inherited so a converter cannot
+// print over the app's own console.
 bool runQuietly(const std::vector<std::string>& args, std::string& output) {
-  auto text = readAllText(args);
-  if (!text.has_value()) {
-    output.clear();
-    return false;
+  ProcessCapture captured = runCaptured(args);
+  output = captured.output;
+  return captured.ok();
+}
+
+// The last line a tool printed, which is usually the one that says what went
+// wrong; the rest is banners and progress. Trimmed to something a toast can
+// carry without becoming a wall of text.
+// THE LINE THAT SAYS WHAT WENT WRONG, which is neither the first nor the
+// last. A PowerShell error record is several lines of scaffolding around one
+// sentence: the message, then "At <script>:<line>", then CategoryInfo, then
+// FullyQualifiedErrorId. Taking the last line handed the operator
+// "FullyQualifiedErrorId : ...WriteErrorException,_export.ps1", which is true
+// and useless. osascript and soffice put their message first instead.
+//
+// So: the first substantive line, skipping the scaffolding by shape rather
+// than by matching any one tool.
+// WHAT THE TOOL SAID, from a line it was asked to tag.
+//
+// The scripts Deckboy drives print their own failure as "DECKBOY-ERROR: ..."
+// on a single line, because PowerShell's own error rendering wraps at a
+// width that depends on whether it has a console -- through a pipe it split
+// the script path across two lines mid-word, which defeated every attempt to
+// recognise it by shape. A tag we choose is the one thing that survives.
+//
+// Falls back to the first substantive line for tools that were not written
+// here (osascript, soffice), which print a plain message and nothing else.
+std::string toolMessage(const std::string& text, std::size_t limit = 160) {
+  const std::string kTag = "DECKBOY-ERROR: ";
+  const std::size_t tagged = text.find(kTag);
+  if (tagged != std::string::npos) {
+    const std::size_t from = tagged + kTag.size();
+    const std::size_t nl = text.find('\n', from);
+    std::string line = text.substr(from, nl == std::string::npos ? std::string::npos
+                                                                 : nl - from);
+    const std::size_t last = line.find_last_not_of(" \t\r");
+    line = (last == std::string::npos) ? std::string() : line.substr(0, last + 1);
+    if (line.size() > limit) {
+      line.resize(limit);
+    }
+    return line;
   }
-  output = *text;
-  return true;
+  std::size_t at = 0;
+  while (at < text.size()) {
+    const std::size_t nl = text.find('\n', at);
+    std::string line = text.substr(at, nl == std::string::npos ? std::string::npos
+                                                               : nl - at);
+    at = (nl == std::string::npos) ? text.size() : nl + 1;
+    const std::size_t first = line.find_first_not_of(" \t\r");
+    if (first == std::string::npos) {
+      continue;
+    }
+    line = line.substr(first);
+    const std::size_t last = line.find_last_not_of(" \t\r");
+    line = line.substr(0, last + 1);
+    if (line.size() > limit) {
+      line.resize(limit);
+    }
+    return line;
+  }
+  return {};
 }
 
 // LibreOffice, wherever this platform keeps it. Empty when it is not installed.
@@ -155,14 +215,17 @@ bool convertWithLibreOffice(const fs::path& soffice, const fs::path& source,
     soffice.string(), profileUrl, "--headless", "--norestore",
     "--convert-to", "pdf:impress_pdf_Export",
     "--outdir", outputDir.string(), source.string()}, output);
-  if (!ran) {
-    error = "LibreOffice could not be run";
-    return false;
-  }
   if (!fs::exists(convertedPdfPath(source, outputDir), ec)) {
-    error = "LibreOffice produced no PDF";
+    // Whether it ran matters less than what it said: LibreOffice exits 0 while
+    // refusing a file often enough that the PDF's absence is the real test.
+    const std::string said = toolMessage(output);
+    error = said.empty()
+      ? std::string(ran ? "LibreOffice produced no PDF"
+                        : "LibreOffice could not be run")
+      : ("LibreOffice: " + said);
     return false;
   }
+  (void) ran;
   return true;
 }
 
@@ -211,7 +274,14 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
         << "    $pres.SaveAs($Target, 32)\n"
         << "  }\n"
         << "} catch {\n"
-        << "  Write-Error $_.Exception.Message; exit 1\n"
+        // A MARKED, PLAIN LINE rather than Write-Error. PowerShell renders
+        // an error record as several lines wrapped at a width that depends
+        // on whether it has a console -- and through a pipe it wrapped the
+        // script path itself mid-word, which no line-shape heuristic can
+        // survive. Emitting one tagged line is the only reliable way to
+        // get the message back out.
+        << "  Write-Output (\"DECKBOY-ERROR: \" + $_.Exception.Message)\n"
+        << "  exit 1\n"
         << "} finally {\n"
         << "  if ($pres) { try { $pres.Close() } catch {} }\n"
         << "  if ($app) { try { $app.Quit() } catch {} }\n"
@@ -238,9 +308,10 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
   if (!fs::exists(target, ec)) {
     // PowerPoint's own words are more use than ours: it is the thing that
     // knows the file could not be opened, or that the deck is protected.
-    error = output.empty()
+    const std::string said = toolMessage(output);
+    error = said.empty()
       ? std::string("PowerPoint could not export this file")
-      : ("PowerPoint: " + output.substr(0, 200));
+      : ("PowerPoint: " + said);
     return false;
   }
   return true;
@@ -282,11 +353,12 @@ bool convertWithKeynote(const fs::path& source, const fs::path& outputDir,
   std::string output;
   runQuietly({"osascript", "-e", script}, output);
   if (!fs::exists(target, ec)) {
-    error = output.empty()
+    const std::string said = toolMessage(output);
+    error = said.empty()
       ? std::string("Keynote could not export this file (it may need "
                     "permission to be automated: System Settings > Privacy "
                     "& Security > Automation)")
-      : ("Keynote: " + output.substr(0, 200));
+      : ("Keynote: " + said);
     return false;
   }
   return true;
