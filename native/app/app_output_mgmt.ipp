@@ -4552,6 +4552,49 @@
     setFocusedOutputDeckLinkEnabled(!focusedOutput().deckLinkEnabled);
   }
 
+  // SPOUT HAD NO SETTER AT ALL, and so no verb, no hotkey and no OSC path --
+  // the only way to route an output to Spout was to edit the show file by
+  // hand, which is how it was tested. NDI and DeckLink beside it have had
+  // these since they were written.
+  void setFocusedOutputSpoutEnabled(bool enabled) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    if (output.spoutEnabled == enabled) {
+      return;
+    }
+    output.spoutEnabled = enabled;
+    // A sender with no name is invisible to a receiver, so give it one the
+    // first time it is turned on rather than leaving that to be discovered.
+    if (enabled && trim(output.spoutSenderName).empty()) {
+      output.spoutSenderName = "Deckboy";
+    }
+    playUiSound(UiSoundEffect::Toggle);
+    triggerToast(enabled ? ("spout: " + output.spoutSenderName) : "spout: off");
+    markProjectDirty();
+  }
+
+  void toggleFocusedOutputSpout() {
+    setFocusedOutputSpoutEnabled(!focusedOutput().spoutEnabled);
+  }
+
+  void setFocusedOutputSpoutName(const std::string& requestedName) {
+    normalizeProject(project_);
+    if (project_.outputs.empty()) {
+      return;
+    }
+    OutputTarget& output = focusedOutputMutable();
+    std::string normalized = trim(requestedName);
+    if (normalized.empty()) {
+      normalized = "Deckboy";
+    }
+    output.spoutSenderName = normalized;
+    triggerToast("spout name: " + normalized);
+    markProjectDirty();
+  }
+
   void setFocusedOutputNdiName(const std::string& requestedName) {
     normalizeProject(project_);
     if (project_.outputs.empty()) {

@@ -2734,6 +2734,87 @@
       }
       return;
     }
+    // THE OUTPUT ITSELF, and the sinks that had no verb.
+    //
+    // NDI and DeckLink have had commands since they were written; Spout never
+    // did, and neither did the output's own enable -- so arming an output or
+    // routing it to Spout could not be done from a surface at all. Testing it
+    // meant editing the show file by hand, which is exactly what it took.
+    //
+    // OUT is the trim out-point and cannot be reused, which is also why HELP
+    // advertising "OUT <on|off>" was wrong.
+    if (command == "OUTPUT") {
+      const std::string sub = parts.size() < 2 ? std::string("STATUS") : toUpper(parts[1]);
+      if (sub == "STATUS") {
+        if (project_.outputs.empty()) {
+          failRemoteCommand("OUTPUT: no outputs");
+          return;
+        }
+        const OutputTarget& o = focusedOutput();
+        std::ostringstream s;
+        s << (project_.focusedOutputIndex + 1) << "/" << project_.outputs.size()
+          << " \"" << o.name << "\""
+          << " enabled=" << (o.enabled ? 1 : 0)
+          << " type=" << o.outputType
+          << " display=" << o.displayIndex
+          << " ndi=" << (o.ndiEnabled ? 1 : 0)
+          << " spout=" << (o.spoutEnabled ? 1 : 0)
+          << " decklink=" << (o.deckLinkEnabled ? 1 : 0)
+          << " stream=" << (o.streamEnabled ? 1 : 0)
+          << " health=" << outputHealthLabel(project_.focusedOutputIndex);
+        remoteCommandDetail_ = s.str();
+        return;
+      }
+      if (sub == "LIST") {
+        std::ostringstream s;
+        for (std::size_t n = 0; n < project_.outputs.size(); ++n) {
+          if (n) s << " | ";
+          s << (n + 1) << ":" << project_.outputs[n].name
+            << (project_.outputs[n].enabled ? "(on)" : "(off)");
+        }
+        remoteCommandDetail_ = s.str();
+        return;
+      }
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        const bool want = (sub == "TOGGLE") ? !focusedOutput().enabled : (sub == "ON");
+        if (want != focusedOutput().enabled) {
+          toggleFocusedOutputEnabled();
+        }
+        remoteCommandDetail_ = focusedOutput().enabled ? "on" : "off";
+        return;
+      }
+      if (sub == "SPOUT") {
+        if (parts.size() >= 4 && toUpper(parts[2]) == "NAME") {
+          setFocusedOutputSpoutName(joinParts(parts, 3));
+          remoteCommandDetail_ = focusedOutput().spoutSenderName;
+          return;
+        }
+        const std::string arg = parts.size() < 3 ? std::string("TOGGLE") : toUpper(parts[2]);
+        if (arg == "ON" || arg == "OFF" || arg == "TOGGLE") {
+          setFocusedOutputSpoutEnabled(arg == "TOGGLE" ? !focusedOutput().spoutEnabled
+                                                       : (arg == "ON"));
+          remoteCommandDetail_ = focusedOutput().spoutEnabled
+            ? ("on as \"" + focusedOutput().spoutSenderName + "\"") : "off";
+          return;
+        }
+        failRemoteCommand("OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>");
+        return;
+      }
+      // A bare number focuses that output, so every other verb here can stay
+      // about "the focused one" rather than growing an index argument.
+      try {
+        const int want = std::stoi(parts[1]) - 1;
+        if (want >= 0 && want < static_cast<int>(project_.outputs.size())) {
+          project_.focusedOutputIndex = want;
+          remoteCommandDetail_ = focusedOutput().name;
+          return;
+        }
+      } catch (...) {
+      }
+      failRemoteCommand("OUTPUT: STATUS | LIST | ON|OFF|TOGGLE | SPOUT ... | <n>");
+      return;
+    }
+
     if (command == "NDI") {
       if (parts.size() == 1) {
         toggleFocusedOutputNdi();

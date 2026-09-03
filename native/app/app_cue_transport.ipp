@@ -55,7 +55,11 @@
       toggleRecording();
     } else if (label == "SETTINGS") {
       settingsOpen_ = true;
-      settingsTab_ = 3;
+      // SYSTEM, which is what the tab strip starts on and what the field
+      // defaults to. This forced tab 3 (Video Outputs), so the button always
+      // opened on the fourth tab regardless of what the operator last used or
+      // what they pressed the button to do.
+      settingsTab_ = 0;
       uiWatchdogPopupEvent("settings_modal", true);
     }
   }

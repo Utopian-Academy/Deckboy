@@ -1,5 +1,25 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.3 (an output can be driven from a surface)
+
+**`OUTPUT`** — arm an output, route it to Spout, name the sender, and read the
+whole thing back:
+
+    OUTPUT              what the focused output is doing
+    OUTPUT LIST         every output and whether it is on
+    OUTPUT ON|OFF|TOGGLE
+    OUTPUT SPOUT ON|OFF|TOGGLE | SPOUT NAME <sender name>
+    OUTPUT <n>          focus that output
+
+Spout had no command, no hotkey and no OSC path of any kind — NDI and DeckLink
+beside it have had them since they were written — so routing an output to Spout
+meant editing the show file by hand. The output's own enable had no command
+either.
+
+**Settings opens on System again.** The SETTINGS button forced the Video
+Outputs tab, so it always opened on the fourth tab whatever you pressed it for.
+
+
 ## 2026-09-03 - v0.99.2 (NDI input works)
 
 **An NDI source cue receives a picture.** It is taken straight from the NDI
