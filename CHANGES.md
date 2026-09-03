@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.303 (build fix)
+
+v0.99.302 did not build on macOS or Linux, or on Windows without Spout. No
+behaviour change here; the Spout input from that release is unaffected where it
+did build.
+
+
 ## 2026-09-03 - v0.99.302 (Spout input works)
 
 **A Syphon/Spout source cue receives a picture.** Spout senders on this machine
