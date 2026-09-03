@@ -1336,8 +1336,25 @@
                          });
   }
 
+  // Can the ffmpeg we actually run receive NDI at all?
+  //
+  // Asked once and remembered, because it cannot change while we are running
+  // and the answer costs a process launch.
+  bool ffmpegCanReceiveNdi() {
+    static const bool can = [] {
+      ProcessCapture probe = runCaptured({"ffmpeg", "-hide_banner", "-devices"});
+      return probe.output.find("libndi") != std::string::npos;
+    }();
+    return can;
+  }
+
   void addNdiSourceCue(const std::string& sourceName) {
     std::string name = trim(sourceName);
+    // Checked here, reported in the toast at the end of this function. Raising
+    // it now instead would be pointless: the "cue added" toast below replaces
+    // whatever is on screen, so the warning would appear and vanish inside the
+    // same call. Only the LAST toast a function raises is seen.
+    const bool ndiUsable = ffmpegCanReceiveNdi();
     auto [rasterW, rasterH] = outputRenderSizeForOutput(project_.focusedOutputIndex);
     Cue cue;
     cue.kind = CueKind::NdiSource;
@@ -1357,7 +1374,18 @@
     deck.cues.push_back(cue);
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     onSelectionChanged();
-    triggerToast("NDI source cue added");
+    // SAY IT NOW, not at showtime. NDI input is decoded through ffmpeg's
+    // libndi_newtek device, which upstream removed in 2021, so on any current
+    // ffmpeg the cue is created, named, and never shows a frame with nothing
+    // said. An operator who adds one deserves to learn that while they are
+    // building the show rather than in front of a room.
+    if (ndiUsable) {
+      triggerToast("NDI source cue added");
+    } else {
+      triggerToast("NDI cue added, but it will stay blank: this ffmpeg has no "
+                   "libndi_newtek input (removed upstream in 2021)",
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+    }
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
   }
