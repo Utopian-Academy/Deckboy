@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
-## 2026-09-03 - v0.100.0 (NDI input works)
+## 2026-09-03 - v0.99.2 (NDI input works)
 
 **An NDI source cue receives a picture.** It is taken straight from the NDI
 runtime now, the way a DeckLink input is captured, rather than asked of an
