@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.97.0 (NDI output verified, NDI input tells the truth)
+
+**NDI output is correct** — checked frame by frame against a receiver rather
+than by eye: 3840x2160, right way up, colour bars in the right order. No change
+was needed; it simply had never been looked at.
+
+**An NDI source cue now says when it cannot work.** NDI input is decoded
+through ffmpeg's `libndi_newtek` device, which ffmpeg removed in 2021 — so on
+any current build the cue was created, named, and stayed blank for ever with
+nothing said. It says so now, when you add it, rather than at showtime.
+
+`NDICUE <source name>` adds an NDI input from a control surface. It was the
+only live-source kind with no command, reachable just from a dialog.
+
+
 ## 2026-09-02 - v0.96.0 (Spout output, the right way up and the right colour)
 
 Spout output now arrives correctly in a receiver. It was upside down, and red

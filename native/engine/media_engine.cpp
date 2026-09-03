@@ -4922,7 +4922,26 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     decodeW != cue.width || decodeH != cue.height || std::abs(speed - 1.0) > 0.01;
 
   // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
-  // NDI sources use ffmpeg's libndi_newtek input device; path format: ndi://SOURCE_NAME
+  // NDI sources ask ffmpeg for the libndi_newtek input device; the path format
+  // is ndi://SOURCE_NAME.
+  //
+  // THIS CANNOT WORK ON ANY CURRENT FFMPEG. libndi_newtek was removed upstream
+  // in 2021 (FFmpeg 5.0) over the NewTek SDK's licence, and the build shipped
+  // here is 8.1.2 -- `ffmpeg -devices` lists dshow, gdigrab, lavfi, openal and
+  // vfwcap, and nothing else. So the process starts, ffmpeg exits immediately
+  // with "Unknown input format", and the cue sits on screen with its name and
+  // no picture, for ever, with nothing said.
+  //
+  // Verified 2026-09-02 against a real NDI source (the NDI Tools test pattern,
+  // confirmed sending 1920x1080 with content by an independent receiver): the
+  // cue is created and named correctly and never shows a frame.
+  //
+  // THE FIX IS NOT ANOTHER FFMPEG. Deckboy already links the NDI SDK for
+  // output, and platform/ndi_trigger_api.hpp already loads recv_create_v3,
+  // recv_capture_v3 and recv_destroy at runtime. A native receive path is
+  // perhaps forty lines of capture plus the plumbing DeckLinkSource already
+  // demonstrates for getting native frames into the engine without a pipe.
+  // Until that exists this reports rather than pretending.
   std::vector<std::string> videoArgs = {
     "ffmpeg", "-hide_banner", "-loglevel", "error",
     "-threads", std::to_string(cliDecodeThreads)

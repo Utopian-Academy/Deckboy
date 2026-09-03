@@ -1840,13 +1840,20 @@
       return;
     }
     if (command == "SOURCE" || command == "SRC" || command == "WINDOWSOURCE" ||
-        command == "CAMERACUE" || command == "SYPHONCUE" || command == "SPOUTCUE") {
+        command == "CAMERACUE" || command == "SYPHONCUE" || command == "SPOUTCUE" ||
+        command == "NDICUE") {
       CueKind kind = CueKind::WindowSource;
       size_t refStartIndex = 1;
       if (command == "CAMERACUE") {
         kind = CueKind::Camera;
       } else if (command == "SYPHONCUE" || command == "SPOUTCUE") {
         kind = CueKind::Syphon;
+      } else if (command == "NDICUE") {
+        // NDI was the one live-source kind with no verb: addNdiSourceCue
+        // existed and could only be reached from a prompt in the UI, so an NDI
+        // input could not be added from a surface -- or tested without a human
+        // typing into a dialog.
+        kind = CueKind::NdiSource;
       } else if (parts.size() > 1) {
         std::string typeArg = toUpper(parts[1]);
         if (typeArg == "WINDOW" || typeArg == "WINDOWSOURCE" || typeArg == "WINDOWS") {
@@ -1858,10 +1865,21 @@
         } else if (typeArg == "SYPHON" || typeArg == "SIPHON" || typeArg == "SPOUT") {
           kind = CueKind::Syphon;
           refStartIndex = 2;
+        } else if (typeArg == "NDI") {
+          kind = CueKind::NdiSource;
+          refStartIndex = 2;
         }
       }
       std::string sourceRef = parts.size() > refStartIndex ? joinParts(parts, refStartIndex) : "";
-      addSourceCue(kind, sourceRef);
+      // NDI has its OWN builder, and it is not interchangeable: an NDI cue's
+      // path is "ndi://<name>" while addSourceCue writes "source://<kind>/...".
+      // Routing it through the general one would have produced a cue that
+      // looked right in the list and resolved to nothing.
+      if (kind == CueKind::NdiSource) {
+        addNdiSourceCue(sourceRef);
+      } else {
+        addSourceCue(kind, sourceRef);
+      }
       return;
     }
     if (command == "STILLDUR" || command == "DURATION") {
