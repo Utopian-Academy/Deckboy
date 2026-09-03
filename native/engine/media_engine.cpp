@@ -204,6 +204,7 @@ void MediaEngine::stopAll() {
   // stopDecoderThreads knows nothing about them.
   stopDeckLinkCapture();
   stopNdiCapture();
+  stopSpoutCapture();
   isBrowserCapturing_ = false;
   isSourceCapturing_ = false;
   clearVisualOnReachedEnd_ = false;
@@ -384,6 +385,20 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     rebuildTimerFrame(*cue, 0.0, false);
     return;
   }
+
+  // Spout on Windows. The platform capture backend reports this kind as
+  // scaffold-only, and the engine then drew a striped placeholder -- so a
+  // Syphon/Spout cue has never shown a picture. Received natively here, the
+  // way NDI and DeckLink are, because no ffmpeg build can do it either.
+#if defined(DECKBOY_HAS_SPOUT)
+  if (cue->kind == CueKind::Syphon) {
+    if (startSpoutCapture(*cue)) {
+      return;
+    }
+    // Falls through to the placeholder when the receiver could not start,
+    // which is an honest picture of "nothing is arriving".
+  }
+#endif
 
   if (isSourceCueKind(cue->kind)) {
     loadSourceFrame(*cue);
@@ -630,6 +645,26 @@ void MediaEngine::stop(bool clearVisual) {
     clearTexture();
     clearTransitionTexture();
   };
+  // A NATIVE CAPTURE IS NOT A DECODER PIPELINE, so neither branch below stops
+  // it: NdiSource, DeckLinkSource and a Spout source are not source-cue kinds
+  // (they do not use the source:// capture backend) and are not Video or
+  // Audio, so stop() fell through to "pause and return" and left the card,
+  // the network stream or the shared texture being read.
+  //
+  // I said this was fixed when NDI shipped and it was not: that edit lived in
+  // a script which failed its own assertion before writing anything, and only
+  // the stopAll() half was re-applied afterwards. The commit message ran ahead
+  // of the code.
+  if (deckLinkCapturing_ || ndiCapturing_ || spoutCapturing_) {
+    stopDeckLinkCapture();
+    stopNdiCapture();
+    stopSpoutCapture();
+    state_ = TransportState::Paused;
+    pausedPosition_ = 0.0;
+    currentPosition_ = 0.0;
+    applyVisualClear();
+    return;
+  }
   if (isSourceCueKind(activeCue_->kind)) {
     if (isSourceCapturing_) {
       stopDecoderThreads();
@@ -820,7 +855,8 @@ void MediaEngine::update() {
   // noticed. NDI inherited it by following the same pattern, which is how it
   // came to light.
   if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ &&
-      !isSourceCapturing_ && !deckLinkCapturing_ && !ndiCapturing_) {
+      !isSourceCapturing_ && !deckLinkCapturing_ && !ndiCapturing_ &&
+      !spoutCapturing_) {
     // Pocket-test A/V sync pop: the test card's buoy lamp flashes on each
     // wall-clock second; synthesize the matching 1 kHz pop into the deck's
     // audio stream so flash and pop leave Deckboy together. Keyed to the
@@ -3787,6 +3823,85 @@ void MediaEngine::stopNdiCapture() {
 
 std::string MediaEngine::ndiCaptureError() const {
   return ndiInput_ ? ndiInput_->lastError() : std::string();
+}
+
+bool MediaEngine::startSpoutCapture(const Cue& cue) {
+  stopSpoutCapture();
+#if defined(DECKBOY_HAS_SPOUT)
+  // source://spout/<sender name>, written by addSourceCue. An empty name is
+  // legitimate and means "whatever is sending", which is what a receiver with
+  // nothing chosen should do.
+  std::string senderName;
+  const std::string prefix = "source://";
+  if (cue.path.rfind(prefix, 0) == 0) {
+    const std::size_t slash = cue.path.find('/', prefix.size());
+    if (slash != std::string::npos) {
+      senderName = cue.path.substr(slash + 1);
+    }
+  }
+  if (senderName == "default-bus" || senderName == "default") {
+    senderName.clear();
+  }
+  spoutInput_ = std::make_unique<deckboy::platform::video::SpoutInput>();
+  spoutInput_->onFrame([this](const std::uint8_t* bgra, int w, int h, int stride) {
+    if (!bgra || w <= 0 || h <= 0) {
+      return;
+    }
+    const std::size_t need = static_cast<std::size_t>(w) * h * 4;
+    if (spoutRgba_.size() != need) {
+      spoutRgba_.assign(need, 0);
+    }
+    for (int y = 0; y < h; ++y) {
+      const std::uint8_t* src = bgra + static_cast<std::size_t>(y) * stride;
+      std::uint8_t* dst = spoutRgba_.data() + static_cast<std::size_t>(y) * w * 4;
+      for (int x = 0; x < w; ++x) {
+        dst[0] = src[2];
+        dst[1] = src[1];
+        dst[2] = src[0];
+        dst[3] = 255;
+        src += 4;
+        dst += 4;
+      }
+    }
+    DecodedFrame frame;
+    frame.width = w;
+    frame.height = h;
+    frame.format = FramePixelFormat::RGBA32;
+    frame.index = spoutFrameIdx_++;
+    frame.pixels = spoutRgba_;
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    while (frameQueue_.size() >= 2) frameQueue_.pop_front();
+    frameQueue_.push_back(std::move(frame));
+  });
+  if (!spoutInput_->start(senderName)) {
+    spoutInput_.reset();
+    return false;
+  }
+  spoutCapturing_ = true;
+  // See startNdiCapture: a live input is shown as it arrives rather than paced
+  // against a clock it has no relationship to.
+  frameRate_ = 120.0;
+  duration_ = 0.0;
+  currentPosition_ = 0.0;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  state_ = TransportState::Playing;
+  return true;
+#else
+  (void) cue;
+  return false;
+#endif
+}
+
+void MediaEngine::stopSpoutCapture() {
+  if (spoutInput_) {
+    spoutInput_->stop();
+    spoutInput_.reset();
+  }
+  spoutCapturing_ = false;
+}
+
+std::string MediaEngine::spoutCaptureError() const {
+  return spoutInput_ ? spoutInput_->lastError() : std::string();
 }
 
 int MediaEngine::deckLinkSignalWidth() const {

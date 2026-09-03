@@ -1760,7 +1760,16 @@
     probe.sourceRef = sourceRef;
     probe.width = cue.width;
     probe.height = cue.height;
-    const auto probePlan = deckboy::platform::planSourceCapture(probe);
+    auto probePlan = deckboy::platform::planSourceCapture(probe);
+    // SPOUT NO LONGER GOES THROUGH THAT BACKEND. It is received natively now
+    // (see MediaEngine::startSpoutCapture), so the capture backend's
+    // "scaffold only" verdict is answering a question that is no longer asked
+    // -- and warning on it would be the mirror of the fault this check exists
+    // to catch: telling the operator something is broken when it works.
+    if (kind == CueKind::Syphon &&
+        deckboy::platform::video::SpoutInput::available(nullptr)) {
+      probePlan.supported = true;
+    }
     if (!probePlan.supported) {
       triggerToast(std::string("source cue added, but it will show a "
                                "placeholder: ") +

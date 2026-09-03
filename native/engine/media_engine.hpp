@@ -54,6 +54,7 @@
 #include "core/constants.hpp"
 #include "platform/decklink.hpp"
 #include "platform/ndi_input.hpp"
+#include "platform/spout_input.hpp"
 #include "core/row_workers.hpp"
 #include "core/subprocess.hpp"
 #include "core/code_source.hpp"
@@ -300,6 +301,13 @@ class MediaEngine {
   bool startNdiCapture(const Cue& cue);
   void stopNdiCapture();
   bool isNdiCapturing() const { return ndiCapturing_; }
+
+  // Spout input, received natively for the same reason NDI is: no ffmpeg can
+  // do it, and the platform capture backend has only ever been a scaffold.
+  bool startSpoutCapture(const Cue& cue);
+  void stopSpoutCapture();
+  bool isSpoutCapturing() const { return spoutCapturing_; }
+  std::string spoutCaptureError() const;
   // Why there is no picture, in words an operator can act on. Empty when the
   // source is arriving.
   std::string ndiCaptureError() const;
@@ -781,6 +789,10 @@ class MediaEngine {
   bool ndiCapturing_ = false;
   std::uint64_t ndiFrameIdx_ = 0;
   std::vector<std::uint8_t> ndiRgba_;        // BGRA -> RGBA scratch, reused
+  std::unique_ptr<deckboy::platform::video::SpoutInput> spoutInput_;
+  bool spoutCapturing_ = false;
+  std::uint64_t spoutFrameIdx_ = 0;
+  std::vector<std::uint8_t> spoutRgba_;      // BGRA -> RGBA scratch, reused
 
   // -- State: source capture ---------------------------------------------------
   bool isSourceCapturing_ = false;           // source capture is active

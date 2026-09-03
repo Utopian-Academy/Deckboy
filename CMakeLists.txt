@@ -577,6 +577,11 @@ endif()
 # has DeckLink enabled.
 target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
 target_sources(deckboy-native PRIVATE native/platform/ndi_input.cpp)
+# Spout receive needs an OpenGL context of its own -- see spout_input.hpp.
+if(ENABLE_SPOUT)
+  target_sources(deckboy-native PRIVATE native/platform/spout_input.cpp)
+  target_link_libraries(deckboy-native PRIVATE opengl32)
+endif()
 
 if(ENABLE_DECKLINK)
   if(WIN32)
