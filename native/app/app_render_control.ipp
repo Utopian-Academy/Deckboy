@@ -1868,7 +1868,7 @@
   // told what it is doing -- so the wait has a face on it and a bar that
   // visibly moves, and the operator can see the machine is working.
   void renderSlideRenderCard(int windowWidth, int windowHeight) {
-    if (!slideRenderActive_) {
+    if (slideRenderJobs_ <= 0) {
       return;
     }
     const int done = slideRenderPage_.load(std::memory_order_relaxed);
@@ -1892,6 +1892,9 @@
     } else {
       tip = slideRenderTitle_.empty() ? std::string("converting the deck...")
                                       : ("converting " + slideRenderTitle_ + "...");
+    }
+    if (slideRenderJobs_ > 1) {
+      tip += "  (" + std::to_string(slideRenderJobs_) + " decks)";
     }
     drawStartupMascot(face, animationNow_, tip.c_str());
 

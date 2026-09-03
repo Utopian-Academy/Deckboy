@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-02 - v0.95.2 (a converter that fails now says why)
+
+When a presentation cannot be converted, Deckboy shows what the converter
+itself said — "PowerPoint: Exception from HRESULT: 0x80CB4002" — instead of a
+flat "could not export this file". The tool that failed is the one that knows
+why, and its answer was being thrown away.
+
+Importing two slide decks at once keeps the progress card up until both have
+finished, and says how many are running. The first to finish used to clear it
+while the other was still going.
+
+
 ## 2026-09-02 - v0.95.1 (the video synth's text mode row reads the effect)
 
 The **text mode** row in a video synth cue's settings read the switch that

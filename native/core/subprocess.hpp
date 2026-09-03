@@ -205,8 +205,24 @@ bool spawnProcess(ChildProcess& process,
                   const std::vector<std::string>& args,
                   const SpawnOptions& options = SpawnOptions::pipedStdout());
 
+// What a subprocess said AND how it ended.
+//
+// readAllText below answers only "did it work", which throws away the one
+// thing a failing tool reliably provides: its reason. Use this wherever the
+// failure is going to be shown to somebody.
+struct ProcessCapture {
+  std::string output;      // stdout and stderr, merged, however it ended
+  int exitCode = -1;       // -1 when it could not be run, or died by signal
+  bool ran = false;        // false means the process never started
+  bool ok() const { return ran && exitCode == 0; }
+};
+
 // Execute command, capture all stdout+stderr, wait for exit.
-// Returns std::nullopt on failure or non-zero exit code.
+ProcessCapture runCaptured(const std::vector<std::string>& args);
+
+// Execute command, capture all stdout+stderr, wait for exit.
+// Returns std::nullopt on failure or non-zero exit code -- so a caller that
+// wants to report WHY should use runCaptured instead.
 std::optional<std::string> readAllText(const std::vector<std::string>& args);
 
 // ---------------------------------------------------------------------------

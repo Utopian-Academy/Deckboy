@@ -578,15 +578,31 @@ bool spawnProcess(ChildProcess& process,
 // readAllText — run, capture, wait
 // ===========================================================================
 
-std::optional<std::string> readAllText(const std::vector<std::string>& args) {
-  if (args.empty()) return std::nullopt;
+// A TOOL THAT FAILS HAS USUALLY JUST EXPLAINED WHY, and readAllText throws
+// that explanation away: it reads the whole of stdout and stderr, then returns
+// nullopt on a non-zero exit and drops the text it is already holding.
+//
+// Which is exactly backwards. A caller that got an empty answer can only say
+// "it failed"; the tool's own words are what tell an operator what to do about
+// it. This cost real time on the PowerPoint converter -- it reported "could
+// not export this file" while PowerPoint had said "can't save ^0 to ^1", which
+// names the fault (a path it would not accept) precisely.
+//
+// So the capture is one function now, and readAllText is a thin wrapper that
+// keeps its old contract for the callers that only want the success case.
+ProcessCapture runCaptured(const std::vector<std::string>& args) {
+  ProcessCapture result;
+  if (args.empty()) {
+    return result;
+  }
 
   ChildProcess proc;
   if (!spawnProcess(proc, args, SpawnOptions::captureAll())) {
-    return std::nullopt;
+    return result;
   }
+  result.ran = true;
 
-  std::string output;
+  std::string& output = result.output;
   std::array<char, 4096> buffer{};
 
 #ifdef _WIN32
@@ -603,9 +619,7 @@ std::optional<std::string> readAllText(const std::vector<std::string>& args) {
   CloseHandle(proc.hProcess);
   proc.hProcess = INVALID_HANDLE_VALUE;
 
-  if (exitCode != 0) {
-    return std::nullopt;
-  }
+  result.exitCode = static_cast<int>(exitCode);
 #else
   ssize_t bytesRead = 0;
   while ((bytesRead = read(proc.readFd, buffer.data(), buffer.size())) > 0) {
@@ -620,11 +634,19 @@ std::optional<std::string> readAllText(const std::vector<std::string>& args) {
   proc.pid = -1; // prevent double-kill in destructor
 
   (void) savedPid;
-  if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+  // A process killed by a signal never "exited"; report it as failure rather
+  // than as whatever WEXITSTATUS makes of an undefined value.
+  result.exitCode = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+#endif
+  return result;
+}
+
+std::optional<std::string> readAllText(const std::vector<std::string>& args) {
+  ProcessCapture captured = runCaptured(args);
+  if (!captured.ok()) {
     return std::nullopt;
   }
-#endif
-  return output;
+  return captured.output;
 }
 
 // ===========================================================================

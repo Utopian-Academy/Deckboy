@@ -3049,7 +3049,11 @@
   // What the rendering card shows. The two counts are written by the render
   // worker and read by the draw, so they are atomic; the flag and the title
   // are only ever touched on the main thread.
-  bool slideRenderActive_ = false;
+  // A COUNT, not a flag. Dropping two decks at once starts two renders, and a
+  // flag meant the first to finish cleared the card while the second was still
+  // going -- so the operator watched the progress vanish and the app fall
+  // silent for another half minute.
+  int slideRenderJobs_ = 0;
   std::string slideRenderTitle_;
   std::atomic<int> slideRenderPage_{0};
   std::atomic<int> slideRenderTotal_{0};
@@ -3083,7 +3087,7 @@
     // operator got one flash and then a window that looked like it had ignored
     // them. The finish toast replaces this one, so the message on screen is
     // always the current one.
-    slideRenderActive_ = true;
+    ++slideRenderJobs_;
     slideRenderTitle_ = title;
     slideRenderPage_.store(0, std::memory_order_relaxed);
     slideRenderTotal_.store(0, std::memory_order_relaxed);
@@ -3100,7 +3104,7 @@
         if (!converted.ok()) {
           std::lock_guard<std::mutex> lock(sdlDialogMutex_);
           sdlDialogActions_.emplace_back([this, converted, title]() {
-            slideRenderActive_ = false;
+            slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
             triggerToast(title + ": " + converted.error, kToastWarnFill,
                          kToastWarnInk, kToastReadableMs);
           });
@@ -3123,7 +3127,7 @@
       auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress);
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
       sdlDialogActions_.emplace_back([this, result, title, converter]() {
-        slideRenderActive_ = false;
+        slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
                                                           : result.error),
