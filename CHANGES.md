@@ -1,5 +1,29 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.305 (the dashboard: your own buttons)
+
+**Build your own buttons.** A dashboard slot is a label, a glyph and any
+command Deckboy accepts — so a button can panic the show, switch the blend to
+*ember*, arm an output, rename the act, anything you can type:
+
+    DASH SET 1 Panic | PANIC | (warning sign)
+    DASH SET 2 Ember | VJ BLEND ember | (fire)
+    DASH SET 3 Act Two | SET title Act Two | (clapper)
+
+    DASH LIST       what you have built
+    DASH 2          fire slot 2
+    DASH CLEAR 3
+
+**And it is the same list from Companion.** Because a slot IS a command, a
+surface button bound to `DASH 2` does exactly what pressing it on screen will —
+there is no second mechanism to fall out of step. The glyph can be any symbol
+or emoji Deckboy can draw, which is all of them.
+
+Slots are saved with the show. A slot that tries to fire the dashboard is
+refused, because that is a loop that would run during a show rather than while
+it was being written.
+
+
 ## 2026-09-03 - v0.99.304 (every project setting, over the wire)
 
 **`GET` and `SET`.** All 86 named project settings can now be read and changed
