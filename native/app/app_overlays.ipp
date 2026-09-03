@@ -250,13 +250,27 @@
     if (roomOnDisk) {
       depPrompt_.onCta = [this, targets]() { convertCuesToHap(targets); };
     }
+    // CLOSING IT MEANS NEVER AGAIN, which is what the note above this
+    // function has always promised. project_.hapSuggestionDismissed is saved
+    // with the show and was read here and set NOWHERE, so the suggestion came
+    // back every launch with no way to stop it -- the session flag only holds
+    // until the app restarts.
+    depPrompt_.onDismiss = [this]() {
+      if (!project_.hapSuggestionDismissed) {
+        project_.hapSuggestionDismissed = true;
+        markProjectDirty();
+      }
+    };
     depPrompt_.active = true;
   }
 
   void dismissDependencyPrompt() {
-    depPrompt_.active = false;
-    depPrompt_.ctaRect = {};
-    depPrompt_.closeRect = {};
+    if (depPrompt_.onDismiss) {
+      depPrompt_.onDismiss();
+    }
+    // Cleared whole rather than field by field, so a prompt cannot leave a
+    // callback behind for the next one to run.
+    depPrompt_ = DependencyPromptState{};
   }
 
   // Modal informing the operator that a runtime dependency is missing.
