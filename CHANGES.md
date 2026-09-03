@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.304 (every project setting, over the wire)
+
+**`GET` and `SET`.** All 86 named project settings can now be read and changed
+from a control surface or a script:
+
+    GET                     list every key
+    GET <key>               what it is
+    SET <key> <value>       change it
+
+Most of these had no command of any kind — the only way to change them was to
+edit a show file by hand.
+
+A value that gets clamped reports back what it actually became, not what was
+asked for: `SET ptp_domain 9999` answers `ptp_domain = 127`. A key that does
+not exist is refused rather than quietly ignored.
+
+
 ## 2026-09-03 - v0.99.303 (build fix)
 
 v0.99.302 did not build on macOS or Linux, or on Windows without Spout. No
