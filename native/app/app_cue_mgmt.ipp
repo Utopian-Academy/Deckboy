@@ -3104,10 +3104,27 @@
                    kToastWarnFill, kToastWarnInk, kToastReadableMs);
       return;
     }
-    // Pages live under the state dir, never next to the operator's document:
-    // their folder is read-only as often as not, and a show should not scatter
-    // renders through someone's Dropbox.
-    const fs::path pagesDir = Paths::stateDir() / "_converted" /
+    // PAGES LIVE WITH THE SHOW. They are not a cache -- they ARE the cues
+    // media, and every cue points at one -- so they belong beside the file
+    // that references them: they travel with the show, a copy of the folder
+    // is a complete copy, and deleting the show takes its renders with it.
+    //
+    // They used to go under the state dir, on the reasoning that a document
+    // folder is read-only as often as not and a show should not scatter
+    // renders through someone's Dropbox. True of the SOURCE document's
+    // folder; not true of the show's own, which Deckboy already writes to
+    // every time it saves. And the state dir had no eviction of any kind, so
+    // it grew without limit -- a hundred-slide deck is a quarter of a
+    // gigabyte of stills that nothing would ever remove.
+    //
+    // An unsaved show has nowhere of its own yet, so that still uses the
+    // state dir; saving does not move what is already rendered, which would
+    // break the cue paths pointing at it.
+    const fs::path showFolder = currentProjectFile_.empty()
+      ? (Paths::stateDir() / "_converted")
+      : (currentProjectFile_.parent_path() /
+         (currentProjectFile_.stem().string() + "_media"));
+    const fs::path pagesDir = showFolder /
                               (document.stem().string() + "_pages");
     const std::string title = document.stem().string();
     // STAYS UP FOR THE WHOLE JOB. A hundred-slide deck takes half a minute to
