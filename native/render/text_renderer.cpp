@@ -4,7 +4,7 @@
 // See LICENSE for details.
 
 // ============================================================================
-// text_renderer.cpp — SDL2 text rendering implementation.
+// text_renderer.cpp — text rendering implementation.
 //
 // All methods follow the same pattern: render UTF-8 text to an SDL_Surface
 // via TTF_RenderText_Blended(anti-aliased, alpha-blended, 0), convert to an
@@ -82,8 +82,8 @@ void TextRenderer::drawCenteredText(SDL_Renderer* renderer, TTF_Font* font,
   SDL_DestroyTexture(texture);
 }
 
-// Measure text dimensions without rendering. Uses TTF_SizeUTF8 which
-// calculates the bounding box of the rendered string.
+// Measure text dimensions without rendering. TTF_GetStringSize calculates
+// the bounding box the rendered string would occupy.
 void TextRenderer::getTextDimensions(TTF_Font* font, const std::string& text,
                                      int& outWidth, int& outHeight) {
   outWidth = 0;

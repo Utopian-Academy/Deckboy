@@ -8189,7 +8189,8 @@ class App {
   float vuDisplayRmsRight_ = 0.0f;
   float vuDisplayPeakLeft_ = 0.0f;
   float vuDisplayPeakRight_ = 0.0f;
-  // Per-cue row display cache — avoids TTF_SizeUTF8 loop in ellipsizeToPixelWidth every frame
+  // Per-cue row display cache — avoids a measuring loop in
+  // ellipsizeToPixelWidth every frame
   struct CueRowDisplayCache {
     // Inputs (for staleness check)
     std::string name;
