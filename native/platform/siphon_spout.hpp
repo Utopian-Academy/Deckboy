@@ -47,8 +47,23 @@ class SiphonSpoutSender {
   bool isInitialized() const;
   void shutdown();
 
-  // Send frame (called each render pass)
-  bool sendFrame(SDL_Texture* texture);
+  // Send frame (called each render pass).
+  //
+  // TAKES THE PIXELS, like every other sender here. The caller already holds
+  // the composited frame in a CPU buffer -- DeckLink and ST2110 are handed it
+  // directly -- and the SDL_Texture form made it travel a full round trip to
+  // arrive back where it started: a streaming texture created per frame, the
+  // frame copied into it, then locked and copied out again. Two full-frame
+  // copies and an allocation, at 4K about 66MB of memcpy a frame, to produce
+  // bytes the caller was already holding.
+  //
+  // It was also reading a texture lock, which SDL documents as write-only
+  // staging memory whose contents are undefined -- it happened to work only
+  // because the same buffer had just been written.
+  //
+  // `stride` is the source row length in bytes; rows are copied out when it
+  // differs from width * 4.
+  bool sendFrame(const void* pixels, int width, int height, int stride);
 
   // Configuration
   bool setName(const std::string& name);
