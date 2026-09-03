@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.0 (text mode is bright again)
+
+**Text mode was rendering the picture far too dark, and always had been.**
+
+A character covers about a third of its cell, and it was being drawn in the
+source colour — so a mid-tone came out at a third of a mid-tone. Then the glyph
+chosen for a darker cell is sparser still, and the two multiplied. Tone was
+being carried twice over, by the density of the character and again by the
+colour of it, and the picture was crushed nearly to black.
+
+Coloured character art carries tone with the density and colour with the ink.
+The cell keeps its hue exactly — the channel ratios are untouched — and the
+character is drawn at the brightness that hue can reach. Measured on an
+ordinary frame, the average lit pixel went from 49 to 195 out of 255, and the
+scene is legible instead of a smear.
+
+The phosphor inks — green, amber, cyan and the palette modes — are unchanged.
+
+
 ## 2026-09-03 - v0.98.1 (dismissing the HAP suggestion means dismissed)
 
 Closing the "HAP would help this show" suggestion now keeps it closed. It said
