@@ -200,6 +200,10 @@ MediaEngine::~MediaEngine() {
 // and when the deck is cleared (no cue loaded).
 void MediaEngine::stopAll() {
   stopDecoderThreads();
+  // Native captures too -- they run on their own threads and
+  // stopDecoderThreads knows nothing about them.
+  stopDeckLinkCapture();
+  stopNdiCapture();
   isBrowserCapturing_ = false;
   isSourceCapturing_ = false;
   clearVisualOnReachedEnd_ = false;
@@ -410,6 +414,15 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   if (cue->kind == CueKind::DeckLinkSource) {
     if (!startDeckLinkCapture(*cue)) {
       std::cerr << "DeckLink input unavailable for " << cue->path << std::endl;
+    }
+    return;
+  }
+  // NDI likewise. It used to go down the ffmpeg path asking for the
+  // libndi_newtek input device, which upstream removed in 2021 -- so ffmpeg
+  // exited immediately and the cue sat there named and blank for ever.
+  if (cue->kind == CueKind::NdiSource) {
+    if (!startNdiCapture(*cue)) {
+      std::cerr << "NDI input unavailable for " << cue->path << std::endl;
     }
     return;
   }
@@ -797,7 +810,17 @@ void MediaEngine::update() {
     return;
   }
 
-  if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ && !isSourceCapturing_) {
+  // NATIVE CAPTURES COUNT AS LIVE PICTURES HERE. Below this point is the only
+  // code that drains frameQueue_ into displayFrame_, and a DeckLink or NDI cue
+  // is none of Video, browser or source:// -- so it returned early, the frames
+  // its capture thread pushed were never consumed, and the queue cap threw
+  // them away. The capture worked perfectly and nothing was ever drawn.
+  //
+  // DeckLink has had this since it was written; there is no card here to have
+  // noticed. NDI inherited it by following the same pattern, which is how it
+  // came to light.
+  if (activeCue_->kind != CueKind::Video && !isBrowserCapturing_ &&
+      !isSourceCapturing_ && !deckLinkCapturing_ && !ndiCapturing_) {
     // Pocket-test A/V sync pop: the test card's buoy lamp flashes on each
     // wall-clock second; synthesize the matching 1 kHz pop into the deck's
     // audio stream so flash and pop leave Deckboy together. Keyed to the
@@ -3675,6 +3698,9 @@ bool MediaEngine::startDeckLinkCapture(const Cue& cue) {
     return false;
   }
   deckLinkCapturing_ = true;
+  // See the note in startNdiCapture: a live input is shown as it arrives
+  // rather than paced against a clock it has no relationship to.
+  frameRate_ = 120.0;
   duration_ = 0.0;              // a live input runs until it is taken off
   currentPosition_ = 0.0;
   playbackClockStart_ = std::chrono::steady_clock::now();
@@ -3688,6 +3714,79 @@ void MediaEngine::stopDeckLinkCapture() {
     deckLinkInput_.reset();
   }
   deckLinkCapturing_ = false;
+}
+
+bool MediaEngine::startNdiCapture(const Cue& cue) {
+  stopNdiCapture();
+  // ndi://<source name>, mirroring decklink://<index>.
+  const std::string prefix = "ndi://";
+  if (cue.path.rfind(prefix, 0) != 0) {
+    return false;
+  }
+  const std::string sourceName = cue.path.substr(prefix.size());
+  ndiInput_ = std::make_unique<deckboy::platform::video::NdiInput>();
+  ndiInput_->onFrame([this](const std::uint8_t* bgra, int w, int h, int stride) {
+    if (!bgra || w <= 0 || h <= 0) {
+      return;
+    }
+    // BGRA off the wire, RGBA for the pipeline. The scratch is a member so the
+    // receive thread never allocates: NDI will not wait for us, and an
+    // allocation here would show up as dropped frames rather than as a stall.
+    const std::size_t need = static_cast<std::size_t>(w) * h * 4;
+    if (ndiRgba_.size() != need) {
+      ndiRgba_.assign(need, 0);
+    }
+    for (int y = 0; y < h; ++y) {
+      const std::uint8_t* src = bgra + static_cast<std::size_t>(y) * stride;
+      std::uint8_t* dst = ndiRgba_.data() + static_cast<std::size_t>(y) * w * 4;
+      for (int x = 0; x < w; ++x) {
+        dst[0] = src[2];
+        dst[1] = src[1];
+        dst[2] = src[0];
+        dst[3] = 255;
+        src += 4;
+        dst += 4;
+      }
+    }
+    DecodedFrame frame;
+    frame.width = w;
+    frame.height = h;
+    frame.format = FramePixelFormat::RGBA32;
+    frame.index = ndiFrameIdx_++;
+    frame.pixels = ndiRgba_;
+    std::lock_guard<std::mutex> lock(frameMutex_);
+    while (frameQueue_.size() >= 2) frameQueue_.pop_front();
+    frameQueue_.push_back(std::move(frame));
+  });
+  if (!ndiInput_->start(sourceName)) {
+    ndiInput_.reset();
+    return false;
+  }
+  ndiCapturing_ = true;
+  // SHOW WHAT ARRIVES. The frame consumer drains everything whose index is at
+  // or below currentPosition_ * frameRate_, which is right for a file being
+  // paced against its own clock and wrong for a live input: there is nothing
+  // to pace against, and a sender running faster than the assumed rate would
+  // have frames queue up and be dropped. A high nominal rate makes the target
+  // outrun the arrivals, so each frame is shown as soon as it lands.
+  frameRate_ = 120.0;
+  duration_ = 0.0;              // a live input runs until it is taken off
+  currentPosition_ = 0.0;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  state_ = TransportState::Playing;
+  return true;
+}
+
+void MediaEngine::stopNdiCapture() {
+  if (ndiInput_) {
+    ndiInput_->stop();
+    ndiInput_.reset();
+  }
+  ndiCapturing_ = false;
+}
+
+std::string MediaEngine::ndiCaptureError() const {
+  return ndiInput_ ? ndiInput_->lastError() : std::string();
 }
 
 int MediaEngine::deckLinkSignalWidth() const {
@@ -4959,26 +5058,14 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     decodeW != cue.width || decodeH != cue.height || std::abs(speed - 1.0) > 0.01;
 
   // Build ffmpeg video args. Live streams skip seek and hwaccel (avoids latency/compat issues).
-  // NDI sources ask ffmpeg for the libndi_newtek input device; the path format
-  // is ndi://SOURCE_NAME.
-  //
-  // THIS CANNOT WORK ON ANY CURRENT FFMPEG. libndi_newtek was removed upstream
-  // in 2021 (FFmpeg 5.0) over the NewTek SDK's licence, and the build shipped
-  // here is 8.1.2 -- `ffmpeg -devices` lists dshow, gdigrab, lavfi, openal and
-  // vfwcap, and nothing else. So the process starts, ffmpeg exits immediately
-  // with "Unknown input format", and the cue sits on screen with its name and
-  // no picture, for ever, with nothing said.
-  //
-  // Verified 2026-09-02 against a real NDI source (the NDI Tools test pattern,
-  // confirmed sending 1920x1080 with content by an independent receiver): the
-  // cue is created and named correctly and never shows a frame.
-  //
-  // THE FIX IS NOT ANOTHER FFMPEG. Deckboy already links the NDI SDK for
-  // output, and platform/ndi_trigger_api.hpp already loads recv_create_v3,
-  // recv_capture_v3 and recv_destroy at runtime. A native receive path is
-  // perhaps forty lines of capture plus the plumbing DeckLinkSource already
-  // demonstrates for getting native frames into the engine without a pipe.
-  // Until that exists this reports rather than pretending.
+  // NDI IS NOT DECODED HERE AT ALL any more, so the isNdiSource arms below
+  // are unreachable and kept only until the next pass through this function.
+  // It used to ask ffmpeg for the libndi_newtek input device, which upstream
+  // removed in 2021 (FFmpeg 5.0) over the NewTek SDK licence -- so the process
+  // started, ffmpeg exited immediately, and the cue sat there named and blank
+  // for ever with nothing said. It is received natively now, through the SDK,
+  // the way a DeckLink input is captured: see MediaEngine::startNdiCapture,
+  // which load() routes NdiSource cues to before reaching this code.
   std::vector<std::string> videoArgs = {
     "ffmpeg", "-hide_banner", "-loglevel", "error",
     "-threads", std::to_string(cliDecodeThreads)

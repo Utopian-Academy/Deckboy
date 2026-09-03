@@ -53,6 +53,7 @@
 
 #include "core/constants.hpp"
 #include "platform/decklink.hpp"
+#include "platform/ndi_input.hpp"
 #include "core/row_workers.hpp"
 #include "core/subprocess.hpp"
 #include "core/code_source.hpp"
@@ -293,6 +294,15 @@ class MediaEngine {
   bool startDeckLinkCapture(const Cue& cue);
   void stopDeckLinkCapture();
   bool isDeckLinkCapturing() const { return deckLinkCapturing_; }
+
+  // NDI input, received natively for the same reason DeckLink is captured
+  // natively: no ffmpeg build has carried the libndi_newtek device since 2021.
+  bool startNdiCapture(const Cue& cue);
+  void stopNdiCapture();
+  bool isNdiCapturing() const { return ndiCapturing_; }
+  // Why there is no picture, in words an operator can act on. Empty when the
+  // source is arriving.
+  std::string ndiCaptureError() const;
   // What the card reports it is receiving. Zero until the first frame lands,
   // which is the difference between "connected" and "has a picture".
   int deckLinkSignalWidth() const;
@@ -767,6 +777,10 @@ class MediaEngine {
   bool deckLinkCapturing_ = false;
   std::uint64_t deckLinkFrameIdx_ = 0;
   std::vector<std::uint8_t> deckLinkRgba_;   // BGRA -> RGBA scratch, reused
+  std::unique_ptr<deckboy::platform::video::NdiInput> ndiInput_;
+  bool ndiCapturing_ = false;
+  std::uint64_t ndiFrameIdx_ = 0;
+  std::vector<std::uint8_t> ndiRgba_;        // BGRA -> RGBA scratch, reused
 
   // -- State: source capture ---------------------------------------------------
   bool isSourceCapturing_ = false;           // source capture is active

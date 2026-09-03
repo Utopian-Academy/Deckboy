@@ -576,6 +576,7 @@ endif()
 # at link time. That never showed up locally because the Windows dev build
 # has DeckLink enabled.
 target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
+target_sources(deckboy-native PRIVATE native/platform/ndi_input.cpp)
 
 if(ENABLE_DECKLINK)
   if(WIN32)

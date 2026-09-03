@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v1.0.0 (NDI input works)
+
+**An NDI source cue receives a picture.** It is taken straight from the NDI
+runtime now, the way a DeckLink input is captured, rather than asked of an
+ffmpeg input device that has not existed since 2021.
+
+Add one with `NDICUE <source name>`, or from the cue menu. The name is matched
+loosely, so a show can say "Test Pattern" without knowing which machine will be
+sending it on the day, and a cue whose source is not up yet keeps looking —
+the other machine is often still booting.
+
+Also fixed: a live input — NDI or DeckLink — is now stopped when its cue is
+stopped. It carried on reading the network or the card until the cue was
+replaced.
+
+
 ## 2026-09-03 - v0.99.1 (rendered slides live with the show)
 
 Slides rendered from a PowerPoint or Keynote now go in a `<show>_media` folder
