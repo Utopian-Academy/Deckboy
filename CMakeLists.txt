@@ -577,9 +577,15 @@ endif()
 # has DeckLink enabled.
 target_sources(deckboy-native PRIVATE native/platform/decklink.cpp)
 target_sources(deckboy-native PRIVATE native/platform/ndi_input.cpp)
-# Spout receive needs an OpenGL context of its own -- see spout_input.hpp.
+# ALWAYS COMPILED, like every other platform file here: the whole body is
+# behind DECKBOY_HAS_SPOUT and collapses to stubs without it, and callers ask
+# SpoutInput::available() unconditionally. Gating the SOURCE on ENABLE_SPOUT
+# instead left those callers with nothing to link against and broke all three
+# platforms at once -- including Windows, in the configuration without Spout.
+target_sources(deckboy-native PRIVATE native/platform/spout_input.cpp)
+# The GL context Spout receive needs -- see spout_input.hpp. Only when it is
+# actually built with Spout; nothing else in Deckboy uses OpenGL.
 if(ENABLE_SPOUT)
-  target_sources(deckboy-native PRIVATE native/platform/spout_input.cpp)
   target_link_libraries(deckboy-native PRIVATE opengl32)
 endif()
 
