@@ -1,5 +1,18 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.1 (rendered slides live with the show)
+
+Slides rendered from a PowerPoint or Keynote now go in a `<show>_media` folder
+beside the show file, rather than into Deckboy's own state folder. They are not
+a cache — every cue points at one — so they belong with the file that
+references them: copying the show folder copies the whole show, and deleting it
+takes the renders with it.
+
+An unsaved show has nowhere of its own yet and still uses the state folder.
+Saving does not move renders that already exist, which would break the cues
+pointing at them.
+
+
 ## 2026-09-03 - v0.99.0 (text mode is bright again)
 
 **Text mode was rendering the picture far too dark, and always had been.**
