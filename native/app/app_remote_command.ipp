@@ -2932,6 +2932,24 @@
         return;
       }
       markProjectDirty();
+      // SOME SETTINGS NEED APPLYING, not just storing.
+      //
+      // applyProjectScalarLine assigns the field, which is all the show file
+      // loader needs -- the loader is followed by a startup pass that applies
+      // everything. Reached from a command there is no such pass, so SET theme
+      // stored the name, answered OK, and left the old palette on screen.
+      // Which is the silent success this whole verb exists to avoid, shipped
+      // in the verb itself.
+      //
+      // Only the keys with a side effect are listed; the rest are read where
+      // they are used and need nothing.
+      if (key == "theme" && !project_.theme.empty()) {
+        loadTheme(project_.theme);
+      } else if (key == "ui_scale") {
+        applyUiScale();
+      } else if (key == "splash_character") {
+        refreshSplashAsset();
+      }
       // Read back what it BECAME, not what was asked for: these setters clamp,
       // and an operator is owed the number that actually took.
       std::ostringstream after;

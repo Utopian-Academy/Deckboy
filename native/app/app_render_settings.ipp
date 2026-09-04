@@ -466,8 +466,21 @@
     Primitives::drawFramedPanel(controlRenderer_, content, pal.tile, pal.deep, pal.mid);
 
     int cx = content.x + uiScaled(12), cy = content.y + uiScaled(10);
-    SDL_Color ink = pal.deep;
-    SDL_Color soft = pal.inkSoft;
+    // THE ON-BODY INK ROLES, not the panel colour.
+    //
+    // Every card and the About masthead are filled with pal.shellInner, and
+    // this took its ink from pal.deep -- which IS a panel background. On a
+    // light theme deep happens to be dark and it reads; on a dark-cased theme
+    // it is dark ink on a dark panel. Reported on game-and-watch, where the
+    // About page came out unreadable.
+    //
+    // pal.fg exists for exactly this: on-body text ink, bright on terminal
+    // themes and EQUAL TO deep on light ones -- so light themes are unchanged
+    // to the pixel and dark ones stop hiding their own text. Same fix as the
+    // dialogs got in v0.79.3, applied to the page that was missed. A theme
+    // role, not a renderer hack.
+    SDL_Color ink = pal.fg;
+    SDL_Color soft = pal.fgSoft;
 
     // ── Shared layout metrics for every tab ─────────────────────────────────
     // Rows are sized from the font and every constant goes through uiScaled(),
@@ -596,7 +609,9 @@
       SDL_Rect mascotBtn {appX, appY, appW, sRowH};
       appY += sRowH + sGap;
       std::string mascotLabel =
-        (project_.splashCharacter == "deckgirl") ? "Deckgirl" : "Deckbot";
+        (project_.splashCharacter == "deckgirl") ? "Deckgirl"
+        : (project_.splashCharacter == "none") ? "None"
+        : "Deckbot";
       drawUIDropdown(mascotBtn, "Mascot", mascotLabel, "settings.mascot");
       settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
       // The theme's creatures. ALWAYS shown, even on a theme that has none.
@@ -3670,6 +3685,7 @@
         std::vector<std::pair<std::string, std::string>> choices = {
           {"deckbot",  "Deckbot  (default)"},
           {"deckgirl", "Deckgirl"},
+          {"none",     "None  (no character art)"},
         };
         openDropdown("settings.mascot", sb.rect, choices, project_.splashCharacter,
           [this](const std::string& value) {
