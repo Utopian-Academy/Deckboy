@@ -26,7 +26,8 @@ import sys
 TYPES = os.path.join('native', 'core', 'types.hpp')
 
 # Structs whose fields are operator-visible settings.
-STRUCTS = ('Project', 'OutputTarget', 'Deck', 'Cue', 'VideoSynthSettings')
+STRUCTS = ('Project', 'OutputTarget', 'Deck', 'Cue', 'VideoSynthSettings',
+           'DashboardSlot')
 
 # Fields that are deliberately not settable by hand.
 EXPECT_UNSETTABLE = {

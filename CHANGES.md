@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-03 - v0.99.306 (readable About, and a mascot you can turn off)
+
+**The About page is readable on dark themes.** It drew its text in a panel
+colour, which happens to be dark ink on light themes and dark ink on a dark
+panel everywhere else. Reported on game-and-watch.
+
+**The mascot can be set to None.** No character art on the splash or the About
+masthead. The setting also now takes effect immediately rather than at the next
+launch.
+
+Choosing a mascot is also honoured properly: if the chosen character's art were
+ever missing, the splash fell back to the other character's illustration while
+the setting still named the one you picked.
+
+`SET` applies settings that need applying. `SET theme` stored the name and left
+the old palette on screen; the same for ui scale and the mascot.
+
+
 ## 2026-09-03 - v0.99.305 (the dashboard: your own buttons)
 
 **Build your own buttons.** A dashboard slot is a label, a glyph and any

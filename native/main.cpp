@@ -6433,11 +6433,20 @@ class App {
   // the tail so a stripped pack still boots without a missing-asset hole.
   std::vector<fs::path> pickSplashCandidates(const std::string& character) {
     std::string name = character.empty() ? std::string("deckbot") : character;
+    // "none" MEANS NONE. No art is offered, so the splash draws nothing and
+    // the boot goes straight to the deck.
+    if (name == "none") {
+      return {};
+    }
     return {
       fs::path("splash") / (std::string("deckboy_splash_") + name + ".mp4"),
       fs::path("splash") / (std::string("deckboy_splash_") + name + ".gif"),
       fs::path("splash") / (std::string("deckboy_splash_") + name + ".png"),
-      fs::path("splash") / "splash_boot_deckgirl@1x.png",
+      // THE GENERIC FALLBACK ONLY. This used to list the deckgirl boot image
+      // ahead of it, for every character -- so choosing Deckbot and having its
+      // art go missing put the deckgirl illustration back on screen, with the
+      // setting still saying Deckbot. A fallback that ignores the choice is
+      // not a fallback, it is the setting not working.
       fs::path("splash") / "deckboy_splash_v074.png"
     };
   }
@@ -6606,6 +6615,25 @@ class App {
     if (!uiPackAvailable_) {
       return;
     }
+    // THE ABOUT MASTHEAD TOO, because it carries the same illustrated
+    // character and the mascot setting governs both. Its path is resolved once
+    // at startup, so changing the setting mid-session left the art on screen
+    // with the control saying it was off -- the setting appearing not to work,
+    // which is worse than not having it.
+    {
+      const bool wantNone = project_.splashCharacter == "none";
+      const bool haveLogo = !uiAboutLogo_.path.empty();
+      if (wantNone && haveLogo) {
+        releaseUiImage(uiAboutLogo_);
+        uiAboutLogo_.path.clear();
+      } else if (!wantNone && !haveLogo) {
+        const fs::path logo = uiPackRoot_ / "header" / "about_logo.png";
+        std::error_code logoEc;
+        if (fs::exists(logo, logoEc)) {
+          uiAboutLogo_.path = logo;
+        }
+      }
+    }
     fs::path chosen;
     std::error_code ec;
     // Every boot draws a different splash, on EVERY theme. This used to be
@@ -6722,9 +6750,13 @@ class App {
       fs::path("header") / "header_default.png",
       fs::path("header") / "header_default@1x.png"
     });
-    uiAboutLogo_.path = pick({
-      fs::path("header") / "about_logo.png"
-    });
+    // The About masthead art carries the same illustrated character as the
+    // splash, so the mascot setting governs it too -- "none" means the
+    // character does not appear anywhere, which is what turning it off means.
+    // The wordmark and the rest of the page are untouched.
+    uiAboutLogo_.path = (project_.splashCharacter == "none")
+      ? fs::path()
+      : pick({fs::path("header") / "about_logo.png"});
     // Splash is selected from project_.splashCharacter ("deckbot" or
     // "deckgirl"). The named PNGs live next to a legacy fallback; future
     // animated forms (.gif/.mp4) will be picked up by extending the
