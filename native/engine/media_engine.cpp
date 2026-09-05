@@ -254,6 +254,9 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   beginTransition(transitionSeconds, transitionStyle, outgoingGain);
   clearTexture();
   clearAudio();
+  // With the audio goes the picture OF the audio, or the incoming cue's
+  // visualiser draws the outgoing cue's sound until its own arrives.
+  clearScopeSamples();
   // Own a snapshot of the cue. The caller's pointer typically aims into
   // Deck::cues, which the UI mutates freely (import push_back reallocates,
   // delete shifts) while decode threads and the render path still read the
@@ -513,6 +516,60 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   if (audioStream_) {
     deckboySetAudioPaused(audioStream_, state_ != TransportState::Playing);
   }
+}
+
+// Trim edited while the cue is playing.
+//
+// THE CACHED TRIM IS THE ONE THAT MATTERS. syncActiveCueSnapshot copies the
+// operator's new in/out into the engine's cue, but the transport does not read
+// them from there -- it runs on cueInPointSeconds_/cueOutPointSeconds_ and the
+// duration_ derived from them, and those were only ever recomputed by loadCue
+// and refreshActiveCueRuntime. So editing the points of a LIVE cue changed the
+// numbers in the inspector and nothing else: a looping cue kept looping the old
+// range until it was re-taken, which is exactly what was reported.
+//
+// The two edits are not the same job:
+//
+//   OUT moved -- nothing about the pass in flight changes except where it
+//   ends. The position basis is untouched and the frames already decoded stay
+//   valid, so the bounds are updated in place and the picture never flinches.
+//   Pulling the out point behind the playhead makes duration_ < position,
+//   which the end check reads as "over" and loops immediately -- right.
+//
+//   IN moved -- the basis itself moves. Position is measured FROM the in
+//   point and so are the indices on every frame already in the queue, so
+//   shifting it without re-seating the decode would have the renderer asking
+//   for frame numbers that no longer mean what the decoder meant by them.
+//   refreshActiveCueRuntime re-seeks and keeps the same absolute frame on
+//   screen across it.
+void MediaEngine::applyActiveCueTrimEdit(const Cue& cue) {
+  if (!activeCue_) {
+    return;
+  }
+  if (activeCue_->kind != CueKind::Video && activeCue_->kind != CueKind::Audio) {
+    return;
+  }
+
+  const double newIn = std::clamp(cue.inPointSeconds, 0.0, std::max(0.0, cue.duration));
+  double newOut = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
+  newOut = std::clamp(newOut, newIn, std::max(newIn, cue.duration));
+
+  // A tenth of a frame at 240fps: far below anything an operator can set, and
+  // far above the rounding in a double that has been through a frame snap.
+  constexpr double kEpsilon = 0.0004;
+  const bool inMoved = std::abs(newIn - cueInPointSeconds_) > kEpsilon;
+  const bool outMoved = std::abs(newOut - cueOutPointSeconds_) > kEpsilon;
+  if (!inMoved && !outMoved) {
+    return;
+  }
+
+  if (inMoved) {
+    refreshActiveCueRuntime(&cue);
+    return;
+  }
+
+  cueOutPointSeconds_ = newOut;
+  duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
 }
 
 // Resume playback from the current position. For source cues (camera/window),
@@ -994,6 +1051,22 @@ void MediaEngine::update() {
 
 // Check and consume the decode-stall watchdog latch. Returns true once per
 // stall; the transport handler reracks the deck and toasts the operator.
+void MediaEngine::latchAudioStartFailure(std::string reason) {
+  std::lock_guard<std::mutex> lock(audioStartFailureMutex_);
+  // FIRST reason wins. A later one is usually a consequence of the first, and
+  // the operator wants the cause, not the last thing that went wrong.
+  if (audioStartFailure_.empty()) {
+    audioStartFailure_ = std::move(reason);
+  }
+}
+
+std::string MediaEngine::consumeAudioStartFailure() {
+  std::lock_guard<std::mutex> lock(audioStartFailureMutex_);
+  std::string out;
+  out.swap(audioStartFailure_);
+  return out;
+}
+
 bool MediaEngine::consumeDecodeStall() {
   if (decodeStallLatched_) {
     decodeStallLatched_ = false;
@@ -5254,6 +5327,22 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   });
 
   audioClockValid_ = false;
+  // A CUE THAT SHOULD HAVE SOUND AND GETS NONE MUST SAY SO.
+  //
+  // Both audio paths failed into silence without a toast, a log line or a
+  // counter, which is how an audio-only cue could play with a dead VU meter
+  // and still look completely healthy.
+  // An AUDIO cue with no audio is a contradiction, so say which of the three
+  // things the gate below wants was missing rather than leaving it silent.
+  if (cue.kind == CueKind::Audio &&
+      !(audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled)) {
+    latchAudioStartFailure(
+      std::string("audio not started (device=") + (audioStream_ ? "yes" : "NO") +
+      " track=" + (cue.hasAudio ? "yes" : "NO") +
+      " enabled=" + (cue.audioEnabled ? "yes" : "NO") + ")");
+  } else if (cue.hasAudio && cue.audioEnabled && audioStream_ == nullptr) {
+    latchAudioStartFailure("no audio device open on this deck");
+  }
   if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     syncAudioFadeParams();  // publish before the audio thread spawns
     audioFramesQueued_.store(0, std::memory_order_relaxed);
@@ -5451,6 +5540,68 @@ void MediaEngine::applyPeakLimiter() {
 // the delay FIFO so audio reaches the device Project::audioDelayMs late —
 // the knob that lines Deckboy up with lagging displays/PA DSP. The tap sees
 // the DELAYED stream so VU meters match what the room hears.
+// Keep the tail of what was just emitted, for the on-screen scope. Sized to
+// about 40ms: a few cycles at 100Hz and plenty at 1kHz.
+//
+// Called from the tone generator on the MAIN thread and from the decode path
+// on the AUDIO thread, which is why it locks. It is a ring rather than a queue
+// because a visualiser wants the most recent 40ms whenever it happens to draw,
+// and must never be able to make the audio path wait on it.
+void MediaEngine::pushScopeSamples(const std::int16_t* interleaved,
+                                   std::size_t frames, int channels) {
+  if (!interleaved || frames == 0 || channels <= 0) {
+    return;
+  }
+  const std::size_t keep = static_cast<std::size_t>(kAudioRate) / 25;
+  std::lock_guard<std::mutex> lock(scopeMutex_);
+  if (toneScopeL_.size() != keep) {
+    toneScopeL_.assign(keep, 0);
+    toneScopeR_.assign(keep, 0);
+    toneScopePos_ = 0;
+  }
+  // A burst longer than the ring would overwrite itself; only its tail can
+  // still be seen, so only its tail is stored.
+  std::size_t first = 0;
+  if (frames > keep) {
+    first = frames - keep;
+  }
+  const std::size_t rightLane = channels > 1 ? 1u : 0u;
+  for (std::size_t f = first; f < frames; ++f) {
+    toneScopeL_[toneScopePos_] =
+      interleaved[f * static_cast<std::size_t>(channels)];
+    toneScopeR_[toneScopePos_] =
+      interleaved[f * static_cast<std::size_t>(channels) + rightLane];
+    toneScopePos_ = (toneScopePos_ + 1) % keep;
+  }
+}
+
+// Forget what the LAST cue sounded like.
+//
+// The ring is per-engine and outlives a cue, so without this a visualiser on a
+// cue that emits nothing draws the previous cue's audio -- confidently, and
+// with no sign that it is stale. That is worse than drawing nothing, because
+// there is no way to tell from the picture that it is wrong. Called whenever
+// the engine takes a new cue or stops.
+void MediaEngine::clearScopeSamples() {
+  std::lock_guard<std::mutex> lock(scopeMutex_);
+  toneScopeL_.clear();
+  toneScopeR_.clear();
+  toneScopePos_ = 0;
+}
+
+bool MediaEngine::copyScopeSamples(std::vector<std::int16_t>& left,
+                                   std::vector<std::int16_t>& right,
+                                   std::size_t& writePos) const {
+  std::lock_guard<std::mutex> lock(scopeMutex_);
+  if (toneScopeL_.empty()) {
+    return false;
+  }
+  left = toneScopeL_;
+  right = toneScopeR_;
+  writePos = toneScopePos_;
+  return true;
+}
+
 void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
   const std::size_t holdValues =
     static_cast<std::size_t>(audioDelayMs_.load(std::memory_order_relaxed)) * 48u * 2u;
@@ -5458,6 +5609,7 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
     if (audioTap_) {
       audioTap_(samples);
     }
+    pushScopeSamples(samples.data(), samples.size() / 2, 2);
     putAudioToStream(samples);
     return;
   }
@@ -5474,6 +5626,7 @@ void MediaEngine::queueDelayedAudio(std::vector<std::int16_t>& samples) {
   if (audioTap_) {
     audioTap_(emit);
   }
+  pushScopeSamples(emit.data(), emit.size() / 2, 2);
   putAudioToStream(emit);
 }
 
@@ -5690,6 +5843,22 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
   }
 
   audioClockValid_ = false;
+  // A CUE THAT SHOULD HAVE SOUND AND GETS NONE MUST SAY SO.
+  //
+  // Both audio paths failed into silence without a toast, a log line or a
+  // counter, which is how an audio-only cue could play with a dead VU meter
+  // and still look completely healthy.
+  // An AUDIO cue with no audio is a contradiction, so say which of the three
+  // things the gate below wants was missing rather than leaving it silent.
+  if (cue.kind == CueKind::Audio &&
+      !(audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled)) {
+    latchAudioStartFailure(
+      std::string("audio not started (device=") + (audioStream_ ? "yes" : "NO") +
+      " track=" + (cue.hasAudio ? "yes" : "NO") +
+      " enabled=" + (cue.audioEnabled ? "yes" : "NO") + ")");
+  } else if (cue.hasAudio && cue.audioEnabled && audioStream_ == nullptr) {
+    latchAudioStartFailure("no audio device open on this deck");
+  }
   if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
     deckboy::libav::AudioOpenParams audioParams;
     audioParams.path = mediaPath;
@@ -5697,7 +5866,10 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     audioParams.speed = speed;
     audioPipeline_ = std::make_unique<deckboy::libav::AudioPipeline>();
     if (!audioPipeline_->open(audioParams)) {
-      audioPipeline_.reset();  // run silent — same as a failed CLI spawn
+      audioPipeline_.reset();
+      // Was a bare "run silent" comment. Silence that explains itself is a
+      // fault you can fix; silence that does not is one you argue about.
+      latchAudioStartFailure("could not open this file's audio stream");
     } else {
       syncAudioFadeParams();  // publish before the audio thread spawns
       audioFramesQueued_.store(0, std::memory_order_relaxed);
@@ -5708,6 +5880,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
       audioThread_ = std::thread([this, cueStartSeconds]() {
         std::vector<std::int16_t> samples(4096);
         double audioTime = cueStartSeconds;
+        std::uint64_t produced = 0;
         while (!decoderStop_.load()) {
           // ~120 ms queued (5760 frames) at the stream's channel count.
           if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
@@ -5716,8 +5889,15 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           }
           int got = audioPipeline_->read(samples.data(), static_cast<int>(samples.size()));
           if (got <= 0) {
+            // An audio thread that ends WITHOUT EVER PRODUCING A SAMPLE has
+            // not finished playing, it has failed to start -- and it used to
+            // end exactly as quietly either way.
+            if (produced == 0) {
+              latchAudioStartFailure("audio decoder produced no samples");
+            }
             break;
           }
+          produced += static_cast<std::uint64_t>(got);
           std::vector<std::int16_t> scaled(samples.begin(), samples.begin() + got);
           applyGainAndQueueAudio(scaled, audioTime);
         }
@@ -7740,19 +7920,7 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
 
   // Keep the tail of what we just produced for the on-screen scope. Sized to
   // about 40ms, which is a few cycles at 100Hz and plenty at 1kHz.
-  {
-    const std::size_t keep = static_cast<std::size_t>(kAudioRate) / 25;
-    if (toneScopeL_.size() != keep) {
-      toneScopeL_.assign(keep, 0);
-      toneScopeR_.assign(keep, 0);
-      toneScopePos_ = 0;
-    }
-    for (std::size_t f = 0; f < frames; ++f) {
-      toneScopeL_[toneScopePos_] = out[f * channels + 0];
-      toneScopeR_[toneScopePos_] = out[f * channels + (channels > 1 ? 1 : 0)];
-      toneScopePos_ = (toneScopePos_ + 1) % keep;
-    }
-  }
+  pushScopeSamples(out.data(), frames, channels);
 
   // Feed the metering/egress tap. The tap is invoked from queueDelayedAudio,
   // which ONLY the decode path goes through -- a generated tone went straight
@@ -7851,11 +8019,13 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
   const SDL_Color dim   {60, 90, 70, 255};
 
   // Draw the diagnostic BEHIND the text, so the card stays readable across it.
-  if (cue.tone.visualEnabled && cue.tone.visual != ToneVisual::None &&
-      !toneScopeL_.empty()) {
+  std::vector<std::int16_t> scopeL, scopeR;
+  std::size_t scopePos = 0;
+  const bool haveScope = copyScopeSamples(scopeL, scopeR, scopePos);
+  if (cue.tone.visualEnabled && cue.tone.visual != ToneVisual::None && haveScope) {
     const int plotH = H / 3;
     const int plotY = H / 2 - plotH / 2;
-    const std::size_t n = toneScopeL_.size();
+    const std::size_t n = scopeL.size();
     const int dot = std::max(1, W / 400);
 
     if (cue.tone.visual == ToneVisual::Scope) {
@@ -7863,8 +8033,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
       // offset or asymmetric clipping, which is half the point of a scope.
       fillTimerRect(frame, 0, plotY + plotH / 2, W, std::max(1, dot / 2), dim);
       for (int x = 0; x < W; ++x) {
-        const std::size_t i = (toneScopePos_ + (static_cast<std::size_t>(x) * n) / W) % n;
-        const double v = toneScopeL_[i] / 32768.0;
+        const std::size_t i = (scopePos + (static_cast<std::size_t>(x) * n) / W) % n;
+        const double v = scopeL[i] / 32768.0;
         const int y = plotY + plotH / 2 - static_cast<int>(v * (plotH / 2 - 2));
         fillTimerRect(frame, x, y, dot, dot, green);
       }
@@ -7878,8 +8048,8 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
       fillTimerRect(frame, cx - size / 2, cy, size, std::max(1, dot / 2), dim);
       fillTimerRect(frame, cx, cy - size / 2, std::max(1, dot / 2), size, dim);
       for (std::size_t i = 0; i < n; ++i) {
-        const double lx = toneScopeL_[i] / 32768.0;
-        const double ly = toneScopeR_[i] / 32768.0;
+        const double lx = scopeL[i] / 32768.0;
+        const double ly = scopeR[i] / 32768.0;
         const int px = cx + static_cast<int>(lx * (size / 2 - 2));
         const int py = cy - static_cast<int>(ly * (size / 2 - 2));
         fillTimerRect(frame, px, py, dot, dot, green);
@@ -7900,7 +8070,7 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
         const double coeff = 2.0 * std::cos(omega);
         double s0 = 0.0, s1 = 0.0, s2 = 0.0;
         for (std::size_t i = 0; i < n; ++i) {
-          s0 = (toneScopeL_[i] / 32768.0) + coeff * s1 - s2;
+          s0 = (scopeL[i] / 32768.0) + coeff * s1 - s2;
           s2 = s1;
           s1 = s0;
         }

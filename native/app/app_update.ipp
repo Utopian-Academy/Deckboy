@@ -701,6 +701,16 @@
           ? vu : reactiveAudioLevel_ + (vu - reactiveAudioLevel_) * 0.08;
       }
       maybeSuggestHapConversion();
+      // A CUE THAT SHOULD HAVE SOUND AND GOT NONE SAYS SO.
+      //
+      // Silence is the one fault an operator cannot see: the cue racks, the
+      // clock runs, the waveform is drawn from a peaks file, and nothing on
+      // screen is wrong. It used to fail into a bare "run silent" comment.
+      if (std::string why = engine->consumeAudioStartFailure(); !why.empty()) {
+        const std::string msg = "no audio: " + why;
+        triggerToast(msg);
+        showLog("AUDIO", msg);
+      }
       if (engine->consumeDecodeStall()) {
         engine->stop(true);
         ++decodeStallTotal_;

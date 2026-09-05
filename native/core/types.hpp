@@ -282,6 +282,24 @@ enum class ToneVisual {
   Spectrum,   // third-octave bars via a Goertzel bank
 };
 
+// What an AUDIO cue puts on the screen while it plays.
+//
+// An audio cue has always drawn one thing -- the whole file's peaks with a
+// playhead crossing them -- which is the right picture for finding your place
+// in a track and the wrong one for a house PA, where the screen is showing an
+// audience a piece of music rather than showing an operator a file.
+//
+// Waveform is FIRST so it is the zero value: every show saved before this
+// existed loads with the picture it has always had.
+enum class AudioVisual {
+  Waveform,   // the file's peaks, playhead, in/out and pause points (default)
+  Scope,      // live samples against time
+  Lissajous,  // left against right -- phase and polarity at a glance
+  Spectrum,   // third-octave bars via a Goertzel bank
+  Level,      // large peak/RMS meters
+  Cover,      // the cue name and clock alone, on a clean field
+};
+
 enum class ToneWaveform {
   Sine,      // the line-up tone. 1kHz unless changed
   Pink,      // equal energy per octave -- what a PA is tuned with
@@ -671,6 +689,9 @@ struct Cue {
   // mono) stereo lands on: 0 = outs 1-2, 1 = outs 3-4, ... Pairs beyond the
   // device's opened channel count clamp back to 1-2 at play time.
   int audioOutputPair = 0;
+  // What this cue draws while it plays. Only consulted for Audio cues -- a
+  // video cue's picture is its own.
+  AudioVisual audioVisual = AudioVisual::Waveform;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -1375,6 +1396,7 @@ enum class QuickAction {
   AudioFadeInDec, AudioFadeInInc,
   AudioFadeOutDec, AudioFadeOutInc,
   AudioOutPairDec, AudioOutPairInc,
+  AudioVisualPrev, AudioVisualNext,
   CueSectionAudioToggle,
   // -- Metadata / labels ---
   CycleColorTag,

@@ -62,9 +62,13 @@
 
     const double kPi = 3.14159265358979;
     double t = static_cast<double>(nowMs) / 1000.0;
-    int unit = std::clamp(std::min(area.w, area.h) / 9, 14, 40);
+    // BIGGER. It was sized to a ninth of the smaller edge and capped at 40,
+    // which in a wide empty programme monitor left a small face adrift in a
+    // lot of nothing.
+    int unit = std::clamp(std::min(area.w, area.h) / 6, 18, 64);
     const SDL_Color glow = pal.light;
     const int thick = std::max(3, unit / 4);
+
 
     // Face centre — a gentle overall hover.
     int cx = area.x + area.w / 2 + static_cast<int>(std::lround(std::sin(t * 0.8) * 4.0));
@@ -101,17 +105,34 @@
 
     // Each eye drifts and breathes on its own phase, so they float slightly
     // out of sync (the individual-element life you asked for).
-    auto drawEye = [&](double sideSign, double phase) {
+    // ONE EYE, ON ITS OWN, EVERY NOW AND THEN.
+    //
+    // Everything the face did was continuous -- drifting, breathing, blinking
+    // on a timer -- which reads as idling rather than as doing something. A
+    // wink is discrete: it starts, it happens, it is over, and you can catch
+    // it happening. That is the difference between alive and animated.
+    constexpr Uint64 kWinkEveryMs = 9000;
+    constexpr Uint64 kWinkLenMs = 420;
+    const Uint64 intoWink = nowMs % kWinkEveryMs;
+    double winkMul = 1.0;
+    if (intoWink < kWinkLenMs) {
+      // Down and back up on a half sine, so it closes and opens smoothly
+      // rather than snapping shut for a frame.
+      const double w = static_cast<double>(intoWink) / kWinkLenMs;
+      winkMul = 1.0 - 0.92 * std::sin(w * kPi);
+    }
+
+    auto drawEye = [&](double sideSign, double phase, double openMul) {
       double dx = std::sin(t * 1.1 + phase) * unit * 0.10;
       double dy = std::sin(t * 0.9 + phase * 1.7) * unit * 0.10;
       double breathe = 1.0 + std::sin(t * 1.3 + phase) * 0.10;
-      int eh = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen * breathe)));
+      int eh = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen * openMul * breathe)));
       int X, Y;
       place(sideSign * eyeGap / 2 + dx, -static_cast<double>(unit) + dy, X, Y);
       Primitives::fillRect(controlRenderer_, SDL_Rect{X - eyeW / 2, Y - eh / 2, eyeW, eh}, glow);
     };
-    drawEye(-1.0, 0.0);
-    drawEye( 1.0, 2.3);
+    drawEye(-1.0, 0.0, 1.0);
+    drawEye( 1.0, 2.3, winkMul);
 
     // Mouth — a breathing smile parabola with its own drift; each sample is
     // placed through the face tilt, so the smile rocks with the wobble.
@@ -133,7 +154,21 @@
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
     for (int s = 0; s < 3; ++s) {
       double ph = t * 0.6 + s * (2.0 * kPi / 3.0);
-      double rad = unit * 3.2 + std::sin(t * 0.7 + s) * unit * 0.4;
+      // BOUNDED BY THE PANEL, not just by the face.
+      //
+      // The orbit was a fixed multiple of the face size, which was fine while
+      // the face was small and capped at 40 -- once it grew, the stars swung
+      // straight out of the monitor. The orbit is now the largest that still
+      // fits the area it is drawn in, so it scales with the face until the
+      // panel is the limit and then stops.
+      const double starPad = unit * 0.7;
+      const double maxRadX = (area.w * 0.5 - starPad) / 1.5;
+      const double maxRadY =
+        (std::min(cy - area.y, area.y + area.h - cy) - starPad) / 0.7;
+      double baseRad = std::min({unit * 3.2, maxRadX, maxRadY});
+      // Never let it collapse onto the face on a cramped panel.
+      baseRad = std::max(baseRad, static_cast<double>(unit) * 1.3);
+      double rad = baseRad + std::sin(t * 0.7 + s) * baseRad * 0.12;
       int sx = cx + static_cast<int>(std::lround(std::cos(ph) * rad * 1.5));
       int sy = cy - unit + static_cast<int>(std::lround(std::sin(ph) * rad * 0.7));
       SDL_Color star = glow;
@@ -143,14 +178,37 @@
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
 
-    // Rotating tip under the face — bigger text, no box.
-    int tipIdx = static_cast<int>(nowMs / 4500) % tipCount;
+    // IT TALKS. The line is typed out with a cursor rather than appearing all
+    // at once, which is the whole difference between a character saying
+    // something and a label being swapped.
+    //
+    // Still bare text under the face, no chatbox -- that was asked for and
+    // settled. An overrideTip is a caller's status line, not speech, so it is
+    // shown whole.
     TTF_Font* tipFont = fontBase_ ? fontBase_ : fontSmall_;
     int tipH = std::max(22, textLineHeight(tipFont) + 4);
     int tipY = std::min(area.y + area.h - tipH - 6, cy + unit * 3);
     SDL_Rect tipRect {area.x + 12, tipY, area.w - 24, tipH};
-    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect,
-                         overrideTip ? overrideTip : kTips[tipIdx], pal.fg);
+
+    std::string spoken;
+    if (overrideTip) {
+      spoken = overrideTip;
+    } else {
+      constexpr Uint64 kLineMs = 5600;   // type, then hold, then the next one
+      constexpr Uint64 kMsPerChar = 38;
+      const int tipIdx = static_cast<int>(nowMs / kLineMs) % tipCount;
+      const std::string full = kTips[tipIdx];
+      const Uint64 into = nowMs % kLineMs;
+      const std::size_t shown =
+        std::min<std::size_t>(full.size(), static_cast<std::size_t>(into / kMsPerChar));
+      spoken.assign(full, 0, shown);
+      // A cursor while it is still speaking; nothing once the line is out, so
+      // a finished sentence sits clean rather than blinking at you.
+      if (shown < full.size()) {
+        spoken += ((nowMs / 320) % 2) ? "_" : " ";
+      }
+    }
+    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect, spoken, pal.fg);
   }
 
   // Render the main panel split into program area (left) and inspector (right).
@@ -970,11 +1028,14 @@
       if (!timelineStripFailed) {
         drawTimelineLoadingAnimation(progressBarRect_);
       }
-    } else if (timelineCue && timelineCue->kind == CueKind::Image &&
-               timelineHasCurrentSelectedThumb) {
-      SDL_Rect dst = progressBarRect_;
-      SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
-      SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+    // A STILL IS NOT EXEMPT FROM ITS OWN ASPECT RATIO.
+    //
+    // Image cues used to have a branch of their own here that drew the
+    // thumbnail across the whole lane with no source rect -- a 16:9 picture
+    // squashed into a strip about a thousand pixels wide and sixty tall, which
+    // is why a still looked wrong in the timeline and nothing else did. Every
+    // other non-video kind already fell through to the tiled, aspect-preserving
+    // branch below; images now do too, so one rule covers the lot.
     } else if (timelineCue &&
                timelineHasCurrentSelectedThumb &&
                timelineCue->kind != CueKind::Video &&
@@ -1029,6 +1090,61 @@
         Primitives::fillRect(controlRenderer_, shade, SDL_Color{8, 14, 8, 170});
       }
       SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+      // SAY THAT THE VIEW IS TRIMMED.
+      //
+      // The timeline already zooms to the trim region -- it always has -- and
+      // that is exactly why nothing looked like it happened: zoomed, the in
+      // point sits at 0 and the out point at 1, so both shades above have zero
+      // width and the bar is drawn identically to an untrimmed clip. The
+      // playhead sweeps the full width either way. Reported as "it doesn't
+      // zoom in, or indicate it enough"; it was the second half.
+      //
+      // Caps at the two ends in the in/out colours used everywhere else, and
+      // the range in words, so the view states what it is showing.
+      if (timelineZoomedToTrim && progressBarRect_.w > 0) {
+        const int capW = std::max(3, uiScaled(4));
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect{progressBarRect_.x, progressBarRect_.y,
+                                      capW, progressBarRect_.h},
+                             SDL_Color{80, 220, 80, 255});
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect{progressBarRect_.x + progressBarRect_.w - capW,
+                                      progressBarRect_.y, capW, progressBarRect_.h},
+                             SDL_Color{220, 80, 80, 255});
+        TTF_Font* trimFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+        if (trimFont) {
+          // THE RANGE, and not the source total. The total was in this string
+          // and kept being ellipsized away at ordinary window widths -- and
+          // widening the rect to fit only moved where it broke. It is already
+          // on the playlist row and in the inspector; what is NOT anywhere
+          // else is that this view is showing a trimmed region, which is the
+          // whole point of the readout.
+          const std::string range =
+            "TRIM " + formatSeconds(timelineCueIn) + " - " +
+            formatSeconds(timelineCueOut);
+          int tw = 0, th = 0;
+          TTF_GetStringSize(trimFont, range.c_str(), 0, &tw, &th);
+          // Centred in the bar when it fits, and simply left out when it does
+          // not -- a truncated readout of a time range is worse than none.
+          // drawText, NOT drawTextSafe. drawTextSafe insets by 12px before it
+          // ellipsizes, so a rect sized to the measured width loses the last
+          // characters however the string is shortened -- "of 25...", then
+          // "01:..." once the total was dropped. The ruler labels a few lines
+          // below already use drawText for exactly this reason, and say so.
+          if (tw + capW * 4 < progressBarRect_.w && th < progressBarRect_.h) {
+            const int tx = progressBarRect_.x + (progressBarRect_.w - tw) / 2;
+            const int ty = progressBarRect_.y + (progressBarRect_.h - th) / 2;
+            SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+            Primitives::fillRect(controlRenderer_,
+                                 SDL_Rect{tx - 5, ty - 1, tw + 10, th + 2},
+                                 SDL_Color{8, 14, 8, 190});
+            SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+            drawText(controlRenderer_, trimFont, range,
+                     SDL_Color{200, 230, 200, 255}, tx, ty);
+          }
+        }
+      }
     }
 
     if (timelineCue && !timelinePausePoints.empty() && timelineDuration > 0.0) {
@@ -1107,10 +1223,16 @@
       // Timeline ruler labels — drawn inside the video lane content area (progressBarRect_)
       // so they don't overlap with the "VIDEO" label in the outer panel border region.
       // Use drawText directly: safeTextRect's 12px inset on 96px rects truncates time strings.
+      //
+      // WHEN ZOOMED, THE RULER READS THE SOURCE'S CLOCK, not the trim's. The
+      // bar is a window onto the middle of a clip, so labelling its left edge
+      // "0:00" says the trimmed section is the whole file -- which is exactly
+      // the impression this whole change exists to correct.
       int rulerY = progressBarRect_.y + 2;
-      std::string leftStr = "0:00";
-      std::string midStr = formatSeconds(timelineDuration / 2.0);
-      std::string rightStr = formatSeconds(timelineDuration);
+      const double rulerBase = timelineZoomedToTrim ? timelineCueIn : 0.0;
+      std::string leftStr = timelineZoomedToTrim ? formatSeconds(rulerBase) : std::string("0:00");
+      std::string midStr = formatSeconds(rulerBase + timelineDuration / 2.0);
+      std::string rightStr = formatSeconds(rulerBase + timelineDuration);
       drawText(controlRenderer_, fontSmall_, leftStr, pal.dark,
                progressBarRect_.x + 4, rulerY);
       int midW = 0, midH = 0;
@@ -1429,16 +1551,13 @@
       }
     } else if (activeCue->kind == CueKind::Audio) {
       SDL_Rect inner {programMonitorRect.x + 4, programMonitorRect.y + 28, programMonitorRect.w - 8, programMonitorRect.h - 54};
-      bool _wfPending = false;
-      WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*activeCue, currentProjectFile_), _wfPending);
-      double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
-      float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
-      float outFrac = activeCue->outPointSeconds > 0.0
-                    ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
-      float playFrac = engine ? static_cast<float>(std::clamp(engine->position() / dur, 0.0, 1.0)) : -1.0f;
-      drawWaveform(controlRenderer_, inner, peaks, activeCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                   activeCue->pausePoints, dur, waveformGainScale(*activeCue));
-      drawAudioFadeEnvelope(inner, *activeCue);
+      drawAudioCueVisual(controlRenderer_, inner, *activeCue, engine);
+      // The fade envelope is an EDITING aid -- it shows where the ramps sit in
+      // the file -- so it belongs on the operator's monitor and only over the
+      // waveform, which is the only mode drawn against the file's timeline.
+      if (activeCue->audioVisual == AudioVisual::Waveform) {
+        drawAudioFadeEnvelope(inner, *activeCue);
+      }
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {programMonitorRect.x + 10, programMonitorRect.y + programMonitorRect.h - 48, programMonitorRect.w - 20, 22},
                    activeCue->name, pal.light);
@@ -2179,6 +2298,16 @@
             drawQuickRow(ay, "outs", QuickAction::AudioOutPairDec, outsLabel,
                          QuickAction::AudioOutPairInc, QuickAction::ToggleLoop, false, false,
                          "Device output pair this cue's audio plays on");
+            ay += kInspectorRowStep;
+          }
+          // Audio cues only: a video cue's picture is its own, so offering to
+          // choose one would be a control that does nothing.
+          if (selectedCue->kind == CueKind::Audio) {
+            drawQuickRow(ay, "visual", QuickAction::AudioVisualPrev,
+                         audioVisualLabel(selectedCue->audioVisual),
+                         QuickAction::AudioVisualNext, QuickAction::ToggleLoop, false, false,
+                         "What this cue shows while it plays: waveform, scope, "
+                         "Lissajous, spectrum, meters or a name card");
             ay += kInspectorRowStep;
           }
           auto audioFadeLabel = [](float v) {

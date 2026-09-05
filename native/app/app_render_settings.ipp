@@ -2058,7 +2058,21 @@
         {
           const char* kProtoIds[2] = {"srt", "rtmp"};
           const char* kProtoNames[2] = {"SRT", "RTMP / RTMPS"};
-          int destH = (subContentH - kSectionGap) / 3;
+          // Sized from CONTENT, not by cutting the panel in three. A
+          // destination grew a row (the live readout) and the fixed third
+          // stopped being enough, so the last two rows drew over the section
+          // below them. Text placement is a contract; a section is as tall as
+          // what is in it.
+          const int recordH = (subContentH - kSectionGap) / 3;
+          auto destHeightFor = [&](bool isLive) {
+            //  toggle, url, two pairs, bitrate pair, audio = 6, plus the
+            //  readout when live. Counted wrong the first time and the audio
+            //  bitrate row was clipped off the bottom -- so count the rows the
+            //  branch below actually draws, not the ones you remember.
+            const int rows = 6 + (isLive ? 1 : 0);
+            return settingsHeaderHeight(fontSmall_) + rows * (kRowH + kRowGap)
+                 + kRowGap * 2;
+          };
           for (int dest = 0; dest < 2; ++dest) {
             const std::string protoId = kProtoIds[dest];
             const bool isSrt = (dest == 0);
@@ -2066,6 +2080,7 @@
             const bool exists = outIdx >= 0;
             const OutputTarget* st = exists ? &project_.outputs[outIdx] : nullptr;
             const bool live = exists && st->enabled && st->streamEnabled;
+            const int destH = destHeightFor(live);
 
             SDL_Rect destSection {cx, sy, subContentW, destH};
             SDL_Rect dBody2 = drawSectionFrame(destSection, kProtoNames[dest]);
@@ -2100,12 +2115,43 @@
                                     row.w - halfR - badge.w - 16, kRowH},
                            state, soft);
             }
+            if (live) {
+              // WHAT IT IS ACTUALLY DOING, not what it was asked to do. The
+              // panel could only ever read back the settings before this, and
+              // a settings readout cannot tell you a stream has died -- which
+              // is exactly the failure this one exists to make visible.
+              const std::string telemetry = outputStreamTelemetryLine(outIdx);
+              if (!telemetry.empty()) {
+                SDL_Rect row = dl.takeFixed(kRowH);
+                drawTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect{row.x + 4, row.y + 4, row.w - 8, kRowH},
+                             telemetry, soft);
+              }
+            }
             {
               SDL_Rect row = dl.takeFixed(kRowH);
               std::string url = exists ? trim(st->streamUrl) : std::string();
               if (url.empty()) url = defaultOutputStreamUrl(protoId, 0);
               drawActionBtn(row, (isSrt ? "URL: " : "Server: ") + url,
                             act(kStreamFieldUrl));
+            }
+            if (!isSrt) {
+              // ONE CLICK FOR THE PLACES PEOPLE ACTUALLY STREAM TO.
+              //
+              // Every service wants the same three things set together -- its
+              // ingest URL, a keyframe interval it will accept, and a bitrate
+              // that suits it -- and getting any one of them wrong fails in a
+              // way the service explains badly or not at all. YouTube rejects
+              // a GOP longer than four seconds; both want two.
+              SDL_Rect row = dl.takeFixed(kRowH);
+              const int third = (row.w - 8) / 3;
+              drawActionBtn(SDL_Rect{row.x, row.y, third, kRowH},
+                            "YouTube", act(kStreamFieldPresetYouTube));
+              drawActionBtn(SDL_Rect{row.x + third + 4, row.y, third, kRowH},
+                            "Twitch", act(kStreamFieldPresetTwitch));
+              drawActionBtn(SDL_Rect{row.x + third * 2 + 8, row.y,
+                                     row.w - third * 2 - 8, kRowH},
+                            "Custom", act(kStreamFieldPresetCustom));
             }
             {
               SDL_Rect row = dl.takeFixed(kRowH);
@@ -2171,7 +2217,7 @@
           // one egress an operator starts and stops by hand mid-show.
           {
             const bool rec = recordingActive();
-            SDL_Rect recSection {cx, sy, subContentW, destH};
+            SDL_Rect recSection {cx, sy, subContentW, recordH};
             SDL_Rect rBody = drawSectionFrame(recSection, "RECORD TO DISK");
             VerticalLayout rl(rBody, kRowGap);
             {
@@ -2216,7 +2262,7 @@
                            "same disk as Deckboy - a separate drive is safer",
                            pal.inkSoft);
             }
-            sy += destH + kSectionGap;
+            sy += recordH + kSectionGap;
           }
         }
       }
@@ -3375,6 +3421,46 @@
                                      } catch (...) { triggerToast("bitrate: invalid"); }
                                    });
               break;
+            // ── Destination presets ────────────────────────────────────────
+            //
+            // These set the ingest URL, the keyframe interval and a starting
+            // bitrate TOGETHER, because they are only correct together: a GOP
+            // the service will not accept is refused with a message that
+            // rarely mentions the GOP. Both of these want two seconds, and
+            // YouTube will not take more than four.
+            //
+            // The stream KEY is never touched. It is the one thing that is
+            // yours, it is a secret, and a preset that cleared it would be a
+            // preset that silently unpublished your stream.
+            case kStreamFieldPresetYouTube:
+            case kStreamFieldPresetTwitch:
+            case kStreamFieldPresetCustom: {
+              OutputTarget& target = project_.outputs[outIdx];
+              if (field == kStreamFieldPresetYouTube) {
+                target.streamProtocol = "rtmps";
+                target.streamUrl = "rtmps://a.rtmp.youtube.com/live2";
+                target.streamKeyframeSeconds = 2;
+                target.streamBitrateKbps = 6000;
+                triggerToast("YouTube: paste your stream key next");
+              } else if (field == kStreamFieldPresetTwitch) {
+                target.streamProtocol = "rtmp";
+                // The ingest hostname is regional; this is the one Twitch
+                // hands out as the default, and it redirects.
+                target.streamUrl = "rtmp://live.twitch.tv/app";
+                target.streamKeyframeSeconds = 2;
+                target.streamBitrateKbps = 6000;
+                triggerToast("Twitch: paste your stream key next");
+              } else {
+                target.streamProtocol = "rtmp";
+                target.streamUrl.clear();
+                triggerToast("custom: set your own server and key");
+              }
+              // The whole lot is baked into the encoder command line, so a
+              // live stream has to be re-dialled to pick any of it up.
+              stopOutputStream(outIdx);
+              markProjectDirty();
+              break;
+            }
             case kStreamFieldAudioBitrate:
               openInlineTextEditor("settings.stream_abr_" + protoId, "Audio bitrate",
                                    "kbps (32-512; 160 is a sane default)",

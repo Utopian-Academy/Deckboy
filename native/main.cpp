@@ -1873,6 +1873,21 @@ struct OutputRuntime {
   std::map<int, std::uint64_t> ndiAudioReadSamplesByDeck;
   double ndiAudioSampleRemainder = 0.0;
   std::string streamSpec;
+  // The frame rate a LIVE NETWORK stream was opened with, held for the life of
+  // the connection. See ensureOutputStreamRunning: the rate is declared to the
+  // encoder when it starts, and a stream that re-declares it has to reconnect.
+  double streamLockedFps = 0.0;
+  // Is the encoder actually SWALLOWING what it is handed? packetsWritten only
+  // climbs when a write to it returns, so a frozen count with a full queue is
+  // a stalled sink -- which is the state that used to be reported as "live".
+  Uint64 streamLastDrainAtMs = 0;
+  std::uint64_t streamLastSeenWritten = 0;
+  Uint64 streamStartedAtMs = 0;
+  // Sampled once a second so the panel can show a real rate rather than a
+  // configured one; the two differ exactly when something is wrong.
+  Uint64 streamRateSampledAtMs = 0;
+  std::uint64_t streamRateSampleBytes = 0;
+  double streamMeasuredKbps = 0.0;
   std::string streamCommand;
   std::vector<std::uint8_t> streamFrameBuffer;
   int streamFrameWidth = 0;
@@ -5145,6 +5160,53 @@ class App {
     }
   }
 
+  // What a parameter actually SETS, in the units the operator thinks in.
+  //
+  // Every effect parameter is stored 0..1, and that is not going to change --
+  // it is what lets any of them be handed to an LFO. But 0..1 is not what any
+  // of them MEAN, and the inspector printed the raw fraction and nothing else.
+  // "glyph set 0.40" tells you nothing about the picture, which is showing
+  // SYMBOLS; "columns 0.42" is a grid 96 characters wide. The number the
+  // operator needs was there all along and was being converted away.
+  //
+  // For the quantised ones, read the value back through the SAME mapping the
+  // renderer uses (cue_helpers.hpp keeps exactly one definition of each), and
+  // for the character set and the ink read the CUE's own field rather than
+  // re-deriving it -- paramC cannot express sprite sheet or font at all, so a
+  // cue holding one of those would otherwise be labelled with something it is
+  // not rendering.
+  std::string inspEffectParamValueText(const Cue& cue,
+                                       const deckboy::effects::CueEffect& fx,
+                                       int which, float raw) const {
+    if (fx.kind == deckboy::effects::CueEffectKind::TextMode) {
+      switch (which) {
+        case 0: return std::to_string(::textModeColsForParam(raw)) + " cols";
+        case 2: {
+          // Read the PARAMETER back, not the cue's field: the field is
+          // downstream of it and has not necessarily caught up (setting the
+          // parameter over the network left it a whole glyph set behind, and
+          // the row cheerfully said "blocks" about a picture full of symbols).
+          //
+          // The one exception is the one applyTextModeParams already makes:
+          // paramC cannot express sprite sheet or font AT ALL, so a cue
+          // holding either keeps it and the field is the only place it lives.
+          const int held = cue.videoSynth.asciiCharSet;
+          return vsCharSetLabel((held == 5 || held == 7)
+                                  ? held : ::textModeCharSetForParam(raw));
+        }
+        case 3: return vsInkLabel(::textModeInkForParam(raw));
+        default: break;
+      }
+    }
+    // Everything else is a genuine proportion. Shown as a percentage because
+    // that reads as a setting, where a bare "0.42" reads as the storage format
+    // leaking into the panel.
+    char buf[16];
+    std::snprintf(buf, sizeof(buf), "%d%%",
+                  static_cast<int>(std::lround(raw * 100.0f)));
+    return buf;
+  }
+
   int inspDrawEffectRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     // Cleared every pass and set again only if the bar is actually drawn. A
@@ -5204,10 +5266,14 @@ class App {
           rowY += ix.rowStep;
         }
       } else {
-      std::ostringstream amount;
-      amount << std::fixed << std::setprecision(2) << fx.amount;
+      // Percent, like every parameter row below it. It read "1.00" directly
+      // above "corruption 0%", which is two notations for the same kind of
+      // quantity in adjacent rows.
+      char amountBuf[16];
+      std::snprintf(amountBuf, sizeof(amountBuf), "%d%%",
+                    static_cast<int>(std::lround(fx.amount * 100.0f)));
       inspDrawQuickRow(ix, rowY, "amount",
-                       QuickAction::EffectAmountDec, amount.str(),
+                       QuickAction::EffectAmountDec, std::string(amountBuf),
                        QuickAction::EffectAmountInc, QuickAction::ToggleLoop,
                        false, false,
                        "Drag to scrub (shift = fine), click to type exact",
@@ -5228,16 +5294,16 @@ class App {
         if (!paramLabel) {
           continue;
         }
-        std::ostringstream value;
-        value << std::fixed << std::setprecision(2)
-              << (which == 0 ? fx.paramA : which == 1 ? fx.paramB
-                 : which == 2 ? fx.paramC : fx.paramD);
+        const float rawParam = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                             : which == 2 ? fx.paramC : fx.paramD;
+        const std::string paramText =
+          inspEffectParamValueText(cue, fx, which, rawParam);
         inspDrawQuickRow(ix, rowY, paramLabel,
                          which == 0 ? QuickAction::EffectParamADec
                          : which == 1 ? QuickAction::EffectParamBDec
                          : which == 2 ? QuickAction::EffectParamCDec
                                       : QuickAction::EffectParamDDec,
-                         value.str(),
+                         paramText,
                          which == 0 ? QuickAction::EffectParamAInc
                          : which == 1 ? QuickAction::EffectParamBInc
                          : which == 2 ? QuickAction::EffectParamCInc
@@ -7167,6 +7233,10 @@ class App {
   static constexpr int kStreamFieldSrtStreamId = 7;
   static constexpr int kStreamFieldSrtMode = 8;
   static constexpr int kStreamFieldAudioBitrate = 9;
+  // Destination presets. The stride is 16, so 10-15 are free here.
+  static constexpr int kStreamFieldPresetYouTube = 10;
+  static constexpr int kStreamFieldPresetTwitch = 11;
+  static constexpr int kStreamFieldPresetCustom = 12;
   // LTC generator (Audio tab).
   static constexpr int kSettingsActionLtcOutToggle = 702;
   static constexpr int kSettingsActionLtcOutDevice = 703;

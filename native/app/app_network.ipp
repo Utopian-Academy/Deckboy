@@ -444,11 +444,12 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (257)\n"
+        "DECKBOY_0.01 every verb (264)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOGAIN AUDIOMONO\n"
-        "AUDIONORM AUDIOOUTS AUDIOPAN AUTOADVANCE AUTOID AUTONEXT BLACKOUT\n"
+        "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
+        "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROWSER CAMERACUE CANVAS CC CLEAR CLEAROVERLAY CODE COLOR\n"
         "COLORTAG COMPOSITE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
@@ -497,6 +498,7 @@
         "navigation: SELECT <n> GOTO <n> FIND <text> FINDNEXT FINDTAKE DECK <n> [command] DECKNEXT DECKPREV\n"
         "show: PANIC ALLSTOP ALLPAUSE BLACKOUT [on|off|toggle] DIMMER <0-100> SHUFFLE <on|off>\n"
         "audio: MASTERVOL <0-200 percent> VOLUME <0-100> AUDIOGAIN <dB> AUDIONORM SPEED <0.25-4>\n"
+        "       AUDIOVIS [waveform|scope|lissajous|spectrum|level|cover]  (what an audio cue shows)\n"
         "output: OUTPUT [STATUS|LIST|ON|OFF|TOGGLE|SPOUT ...|<n>]\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"

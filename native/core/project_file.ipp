@@ -510,6 +510,8 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << escapeField(cue.videoSynth.asciiFontPath)
         << '\t' << cue.videoSynth.asciiWobble
         << '\t' << cue.videoSynth.asciiWobbleMode
+        // What an Audio cue draws while it plays. APPENDED, never inserted.
+        << '\t' << static_cast<int>(cue.audioVisual)
         << '\n';
     }
   }
@@ -1462,6 +1464,12 @@ Project loadProject(const fs::path& projectFile,
           std::clamp(safeDouble(fields, vs + 46, 0.0), 0.0, 1.0);
         cue.videoSynth.asciiWobbleMode =
           std::clamp(safeInt(fields, vs + 47, 0), 0, 2);
+        // Audio visualiser, appended last. 0 is Waveform, which is the only
+        // thing an audio cue could draw before this existed, so every show
+        // saved until now reopens showing exactly what it always showed.
+        cue.audioVisual = static_cast<AudioVisual>(
+          std::clamp(safeInt(fields, vs + 48, 0), 0,
+                     static_cast<int>(AudioVisual::Cover)));
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

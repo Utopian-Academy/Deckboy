@@ -213,6 +213,47 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps) {
 // 3. Enum-to-string conversions
 // ============================================================================
 
+// What an audio cue draws. Token for the show file, label for the inspector.
+//
+// No `default` on either switch, for the reason the cue-kind ones say at
+// length: an unlisted value should be a compiler warning, not a cue that
+// silently claims to be something else.
+std::string audioVisualToken(AudioVisual visual) {
+  switch (visual) {
+    case AudioVisual::Waveform:  return "waveform";
+    case AudioVisual::Scope:     return "scope";
+    case AudioVisual::Lissajous: return "lissajous";
+    case AudioVisual::Spectrum:  return "spectrum";
+    case AudioVisual::Level:     return "level";
+    case AudioVisual::Cover:     return "cover";
+  }
+  return "waveform";
+}
+
+std::string audioVisualLabel(AudioVisual visual) {
+  switch (visual) {
+    case AudioVisual::Waveform:  return "Waveform";
+    case AudioVisual::Scope:     return "Oscilloscope";
+    case AudioVisual::Lissajous: return "Lissajous (L/R phase)";
+    case AudioVisual::Spectrum:  return "Spectrum";
+    case AudioVisual::Level:     return "Level Meters";
+    case AudioVisual::Cover:     return "Name Card";
+  }
+  return "Waveform";
+}
+
+// An unknown token is the DEFAULT, not an error: a show written by a later
+// Deckboy with a mode this build has never heard of should open and play with
+// the picture audio cues have always had, rather than refusing the cue.
+AudioVisual parseAudioVisualToken(const std::string& token) {
+  if (token == "scope")     return AudioVisual::Scope;
+  if (token == "lissajous") return AudioVisual::Lissajous;
+  if (token == "spectrum")  return AudioVisual::Spectrum;
+  if (token == "level")     return AudioVisual::Level;
+  if (token == "cover")     return AudioVisual::Cover;
+  return AudioVisual::Waveform;
+}
+
 // Human-readable labels for cue kinds (shown in UI inspector and cue list).
 //
 // EVERY CueKind must appear here, for the same reason cueKindToken must: a kind

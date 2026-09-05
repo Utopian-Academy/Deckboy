@@ -1705,6 +1705,169 @@
     return std::pow(10.0f, std::clamp(cue.audioGainDb, kCueAudioGainMinDb, kCueAudioGainMaxDb) / 20.0f);
   }
 
+  // Draw the picture an AUDIO cue puts on the screen.
+  //
+  // ONE function, called by both the program monitor and every armed output.
+  // Those two drew the audio card separately before this, and the monitor's
+  // copy carried a fade envelope the output's did not, so what an operator
+  // checked was never quite what an audience saw.
+  //
+  // The live modes read the DECK'S OWN scope ring, not the app's VU buffer:
+  // the VU buffer belongs to the focused deck, so an audio cue playing on any
+  // other deck would have drawn a picture of a different deck's audio. They
+  // fall back to the waveform until something has actually been emitted --
+  // before playback a flat scope line and a silent spectrum are
+  // indistinguishable from a visualiser that does not work.
+  void drawAudioCueVisual(SDL_Renderer* ren, SDL_Rect dest, const Cue& cue,
+                          const MediaEngine* eng) {
+    const double dur = cue.duration > 0.0 ? cue.duration : 1.0;
+    const float playFrac = eng
+      ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
+
+    AudioVisual mode = cue.audioVisual;
+    std::vector<std::int16_t> scopeL, scopeR;
+    std::size_t scopePos = 0;
+    const bool live = eng && eng->copyScopeSamples(scopeL, scopeR, scopePos);
+    if (mode != AudioVisual::Waveform && mode != AudioVisual::Cover && !live) {
+      mode = AudioVisual::Waveform;
+    }
+
+    if (mode == AudioVisual::Waveform) {
+      bool pending = false;
+      WaveformPeaks peaks =
+        getWaveformPeaks(resolvedCueFilesystemPathString(cue, currentProjectFile_), pending);
+      const float inFrac = static_cast<float>(cue.inPointSeconds / dur);
+      const float outFrac = cue.outPointSeconds > 0.0
+                          ? static_cast<float>(cue.outPointSeconds / dur) : 1.0f;
+      drawWaveform(ren, dest, peaks, cue.audioChannels >= 2, playFrac, inFrac, outFrac,
+                   cue.pausePoints, dur, waveformGainScale(cue));
+      return;
+    }
+
+    Primitives::fillRect(ren, dest, pal.deep);
+    Primitives::strokeRect(ren, dest, pal.mid);
+    const int x0 = dest.x + 2, y0 = dest.y + 2;
+    const int w = dest.w - 4, h = dest.h - 4;
+    if (w <= 0 || h <= 0) {
+      return;
+    }
+    // The same trim the waveform gets, so changing mode does not change how
+    // loud the picture looks.
+    const float gain = waveformGainScale(cue);
+    const SDL_Color trace = pal.light;
+    const SDL_Color faint = pal.mid;
+
+    if (mode == AudioVisual::Cover) {
+      return;  // name and clock only; the caller draws those over a clean field
+    }
+
+    if (mode == AudioVisual::Scope) {
+      const std::size_t n = scopeL.size();
+      Primitives::fillRect(ren, SDL_Rect{x0, y0 + h / 2, w, 1}, faint);
+      int prevY = y0 + h / 2;
+      for (int x = 0; x < w; ++x) {
+        const std::size_t i =
+          (scopePos + (static_cast<std::size_t>(x) * n) / static_cast<std::size_t>(w)) % n;
+        const double v = std::clamp(scopeL[i] / 32768.0 * gain, -1.0, 1.0);
+        const int y = y0 + h / 2 - static_cast<int>(v * (h / 2 - 1));
+        // JOINED to the previous sample. Plotting points alone leaves a dotted
+        // line wherever the signal moves faster than one pixel per column,
+        // which on anything percussive is most of them.
+        const int top = std::min(prevY, y);
+        const int bot = std::max(prevY, y);
+        Primitives::fillRect(ren, SDL_Rect{x0 + x, top, 1, std::max(1, bot - top)}, trace);
+        prevY = y;
+      }
+      return;
+    }
+
+    if (mode == AudioVisual::Lissajous) {
+      const std::size_t n = scopeL.size();
+      const int size = std::min(w, h);
+      const int cx = x0 + w / 2;
+      const int cy = y0 + h / 2;
+      Primitives::fillRect(ren, SDL_Rect{cx - size / 2, cy, size, 1}, faint);
+      Primitives::fillRect(ren, SDL_Rect{cx, cy - size / 2, 1, size}, faint);
+      for (std::size_t i = 0; i < n; ++i) {
+        const double lx = std::clamp(scopeL[i] / 32768.0 * gain, -1.0, 1.0);
+        const double ly = std::clamp(scopeR[i] / 32768.0 * gain, -1.0, 1.0);
+        const int px = cx + static_cast<int>(lx * (size / 2 - 2));
+        const int py = cy - static_cast<int>(ly * (size / 2 - 2));
+        Primitives::fillRect(ren, SDL_Rect{px, py, 2, 2}, trace);
+      }
+      return;
+    }
+
+    if (mode == AudioVisual::Spectrum) {
+      // Goertzel per band, exactly as the tone card does it: third-octaves are
+      // how a PA is actually measured, and sixteen of them is far less work
+      // than an FFT plus a window plus a power-of-two buffer.
+      const std::size_t n = scopeL.size();
+      constexpr double kPi = 3.14159265358979323846;
+      constexpr double kRate = 48000.0;
+      constexpr int bands = 16;
+      const int barW = std::max(2, w / (bands * 2));
+      const int gap = std::max(1, barW / 2);
+      const int totalW = bands * (barW + gap) - gap;
+      int bx = x0 + (w - totalW) / 2;
+      for (int b = 0; b < bands; ++b) {
+        const double hz = 31.5 * std::pow(2.0, b / 3.0);
+        if (hz > kRate / 2.0) break;
+        const double omega = 2.0 * kPi * hz / kRate;
+        const double coeff = 2.0 * std::cos(omega);
+        double s0 = 0.0, s1 = 0.0, s2 = 0.0;
+        for (std::size_t i = 0; i < n; ++i) {
+          s0 = (scopeL[i] / 32768.0 * gain) + coeff * s1 - s2;
+          s2 = s1;
+          s1 = s0;
+        }
+        const double power = s1 * s1 + s2 * s2 - coeff * s1 * s2;
+        const double mag = std::sqrt(std::max(0.0, power)) / static_cast<double>(n);
+        // dB, floored at -60 so a silent band is a stub rather than nothing.
+        const double db = 20.0 * std::log10(std::max(mag, 1e-6));
+        const double norm = std::clamp((db + 60.0) / 60.0, 0.0, 1.0);
+        const int barH = std::max(1, static_cast<int>(norm * h));
+        Primitives::fillRect(ren, SDL_Rect{bx, y0 + h - barH, barW, barH}, trace);
+        bx += barW + gap;
+      }
+      return;
+    }
+
+    if (mode == AudioVisual::Level) {
+      // Peak AND RMS per channel, drawn big. Peak is the thin line saying how
+      // close to clipping this is; RMS is the block saying how loud it sounds.
+      // Both are needed and they are not the same number.
+      const std::size_t n = scopeL.size();
+      double peakL = 0.0, peakR = 0.0, sumL = 0.0, sumR = 0.0;
+      for (std::size_t i = 0; i < n; ++i) {
+        const double l = std::abs(scopeL[i] / 32768.0 * gain);
+        const double r = std::abs(scopeR[i] / 32768.0 * gain);
+        peakL = std::max(peakL, l);
+        peakR = std::max(peakR, r);
+        sumL += l * l;
+        sumR += r * r;
+      }
+      const double rmsL = n ? std::sqrt(sumL / static_cast<double>(n)) : 0.0;
+      const double rmsR = n ? std::sqrt(sumR / static_cast<double>(n)) : 0.0;
+      const int laneH = h / 2 - 4;
+      const double lanes[2][2] = {{rmsL, peakL}, {rmsR, peakR}};
+      for (int lane = 0; lane < 2; ++lane) {
+        const int ly = y0 + lane * (laneH + 8);
+        Primitives::fillRect(ren, SDL_Rect{x0, ly, w, laneH}, pal.dark);
+        const int rmsW = static_cast<int>(std::clamp(lanes[lane][0], 0.0, 1.0) * w);
+        Primitives::fillRect(ren, SDL_Rect{x0, ly, rmsW, laneH}, trace);
+        const int peakX =
+          x0 + static_cast<int>(std::clamp(lanes[lane][1], 0.0, 1.0) * (w - 2));
+        // Red only within 1dB of full scale -- the one part of the scale an
+        // operator needs warning about.
+        const SDL_Color peakInk =
+          lanes[lane][1] > 0.891 ? SDL_Color{220, 60, 60, 255} : pal.fg;
+        Primitives::fillRect(ren, SDL_Rect{peakX, ly, 2, laneH}, peakInk);
+      }
+      return;
+    }
+  }
+
   // Draw a waveform bar graph into dest. playFrac/inFrac/outFrac in [0,1].
   // gainScale multiplies drawn amplitudes (clamped at full scale).
   void drawWaveform(SDL_Renderer* ren, SDL_Rect dest, const WaveformPeaks& peaks,

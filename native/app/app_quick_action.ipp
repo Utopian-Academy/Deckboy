@@ -152,6 +152,8 @@
       case QuickAction::AudioFadeOutInc: adjustSelectedAudioFade(false,  0.25); break;
       case QuickAction::AudioOutPairDec: adjustSelectedAudioOutPair(-1); break;
       case QuickAction::AudioOutPairInc: adjustSelectedAudioOutPair(1); break;
+      case QuickAction::AudioVisualPrev: cycleSelectedAudioVisual(-1); break;
+      case QuickAction::AudioVisualNext: cycleSelectedAudioVisual(1); break;
       case QuickAction::CycleColorTag:   cycleSelectedColorTag(); break;
       case QuickAction::CycleScaleMode:  cycleSelectedScaleMode(); break;
       case QuickAction::EditNotes: {

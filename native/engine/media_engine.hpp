@@ -144,6 +144,13 @@ class MediaEngine {
   // so live-editable fields (fade in/out, etc.) stay current. No-op when
   // nothing is loaded.
   void syncActiveCueSnapshot(const Cue& cue);
+
+  // The operator moved an in/out point on a cue that is ON AIR.
+  //
+  // Cheap and idempotent: it compares against the trim the engine is actually
+  // running on and returns immediately when nothing moved, so it is safe to
+  // call from the per-tick snapshot sync.
+  void applyActiveCueTrimEdit(const Cue& cue);
   void play();                            // resume playback
   // Hot-swap the SDL output device (the engine never owns it) without
   // disturbing the loaded cue, decode, or transport — used when the operator
@@ -213,6 +220,20 @@ class MediaEngine {
   void pumpToneAudio(const Cue& cue);
   // The cue's on-screen card: what is playing, at what level, on which output.
   void rebuildToneFrame(const Cue& cue);
+
+  // The last ~40ms of what this deck actually PUT OUT, left and right, for a
+  // live visualiser to draw. Returns false when nothing has been emitted yet.
+  //
+  // Written by two different threads -- the tone generator on the main thread
+  // and the decode path on the audio thread -- so it is copied under a lock
+  // rather than handed out by reference. It is 40ms of int16 either way, which
+  // is a 2KB copy per drawn frame and not worth being clever about.
+  bool copyScopeSamples(std::vector<std::int16_t>& left,
+                        std::vector<std::int16_t>& right,
+                        std::size_t& writePos) const;
+
+  // Drop the ring, so a new cue cannot be drawn with the last one's audio.
+  void clearScopeSamples();
   // Oscillator video with feedback. `audioLevel` is 0..1 and may be 0 -- the
   // synth free-runs when nothing is playing, because a visualiser that shows
   // nothing without audio is useless during setup.
@@ -351,6 +372,11 @@ class MediaEngine {
   bool inprocDecodeActive() const { return inprocDecodeActive_; }
   void* activeDecodeDevice() const { return activeDecodeDevice_; }
   bool consumeDecodeStall();
+
+  // A cue that should have had sound and got none. Returns the reason ONCE,
+  // then empties -- same shape as consumeDecodeStall, polled by the transport.
+  // Silence is the one fault an operator cannot see, so it has to be said.
+  std::string consumeAudioStartFailure();
   // Latches true once when a still-image cue failed to decode (unsupported
   // format or corrupt file). The app polls this and tells the operator, instead
   // of the cue silently showing nothing. Cleared on read.
@@ -540,9 +566,14 @@ class MediaEngine {
   // The last fraction of a second of generated audio, kept so the card can
   // draw what was ACTUALLY emitted rather than re-deriving it and possibly
   // drawing something the operator is not hearing.
+  // Fed by BOTH the tone generator and the decode path (see pushScopeSamples),
+  // so an audio cue's visualiser draws the same signal a tone card does.
   std::vector<std::int16_t> toneScopeL_;
   std::vector<std::int16_t> toneScopeR_;
   std::size_t toneScopePos_ = 0;
+  mutable std::mutex scopeMutex_;
+  void pushScopeSamples(const std::int16_t* interleaved, std::size_t frames,
+                        int channels);
   // FDS voice state. Phases are kept in the 0..64 and 0..32 table domains
   // rather than radians, because that is how the hardware addresses them and
   // it keeps the wrap arithmetic exact.
@@ -764,6 +795,9 @@ class MediaEngine {
   void* activeDecodeDevice_ = nullptr;       // device zero-copy frames live on (null = CPU)
   std::atomic<Uint64> lastFramePushMs_ {0};  // decode watchdog: last frame produced
   bool decodeStallLatched_ = false;          // watchdog tripped (consumed by transport)
+  std::mutex audioStartFailureMutex_;
+  std::string audioStartFailure_;            // why this cue has no sound
+  void latchAudioStartFailure(std::string reason);
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
   bool hiddenUploadTarget_ = false;   // see setHiddenUploadTarget
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)

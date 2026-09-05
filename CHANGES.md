@@ -1,5 +1,116 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-04 - v0.99.307 (streaming actually streams, and macOS opens again)
+
+**A trimmed clip now looks trimmed.** The timeline already zoomed to the in/out
+range, but once zoomed the trim markers sat exactly on the two ends of the bar
+and drew nothing, so a trimmed clip and an untrimmed one were identical. There
+are now green and red end caps and a "TRIM 00:30.0 - 01:30.0" readout across
+the bar, and the ruler underneath counts in the SOURCE's own time rather than
+restarting at zero.
+
+**In and out points apply to a cue that is already on air.** A live cue set to
+loop kept looping the range it was taken with; the new points showed in the
+inspector and had to be re-taken to take effect. The transport does not read
+the cue's in/out directly - it runs on its own copy, and that copy was only
+ever rebuilt when a cue was taken. Moving the out point now applies with no
+interruption to the picture at all; moving the in point re-seats the decode and
+keeps the same frame on screen. Pulling the out point behind the playhead loops
+immediately, as it should.
+
+**The build opens on older macOS again.** Nothing set a deployment target, so
+clang stamped the build machine's own OS as the minimum and the release simply
+would not launch on anything older - reported from the field on Sonoma. There
+is a floor now, and the packaging job is pinned to fixed runner images rather
+than "latest", because the bundle carries Homebrew's libraries and those are
+built for whatever macOS the runner happens to be. Both architectures are
+built: an Intel bundle (macOS 13 and up, which Apple Silicon also runs) and a
+native Apple Silicon one (macOS 14 and up).
+
+**A cue that should have sound and gets none now says so.** Both audio paths
+failed into silence with no toast, no log line and no counter. They report a
+reason now - which device, which file, or a decoder that produced nothing -
+because silence is the one fault an operator cannot see: the cue racks, the
+clock runs, the waveform is drawn from a peaks file, and nothing on screen
+looks wrong.
+
+**A still looks like itself in the timeline.** Image cues had a branch of
+their own that drew the thumbnail across the whole lane with no regard for its
+shape - a 16:9 picture squashed into a strip a thousand pixels wide and sixty
+tall. Every other kind already used the tiled, aspect-preserving path; stills
+do too now.
+
+**The slide renderer has its own animation.** It used to borrow the startup
+face and change the caption, so one character stood for two unrelated things.
+Converting a deck now shows the work instead: sheets drawn from a hopper, swept
+by a scan bar, landing on a stack that grows with the pages as they land.
+
+**The startup face talks, and does something.** Its line is typed out with a
+cursor rather than swapped in whole, and it winks - one eye, on its own, every
+few seconds. Everything it did before was continuous drift and breathing, which
+reads as idling rather than as being there.
+
+**Streaming works.** It used to deliver about half a second and stop dead,
+on every protocol, while still reporting itself healthy. Two faults, both
+fixed:
+
+Audio was only ever delivered attached to a video frame, so audio and video
+shared one small queue. Starve the audio and the encoder stops taking video;
+the writer blocks, the queue fills, and no further audio can be sent either -
+a loop with no way out of itself. Audio now goes straight to the audio thread,
+which always had its own pipe.
+
+And a live stream was being re-dialled whenever the frame rate changed, which
+happens the moment a cue is taken. Down a wire that is fatal rather than
+untidy: the old encoder still holds the socket and a listener accepts one
+caller, so the replacement waits for a connection it can never get. A stream
+now keeps the rate it dialled with for the life of the connection.
+
+Measured after the fix: thirty seconds of SRT arrives as thirty seconds, 900
+packets at exactly 30fps, and audio and video stay within a frame of each
+other. RTMP and UDP the same. Pull the far end away and it reconnects on its
+own.
+
+**You can see what a stream is doing.** The panel showed you the settings you
+typed, which cannot tell you a stream has died - and "live" is exactly what it
+said for eleven seconds about a stream that had stopped. There is now a live
+readout of the delivered frame rate, uptime, frames sent and frames dropped,
+and a stream whose far end stops accepting frames says so instead of claiming
+to be live. One-click destinations for YouTube and Twitch set the ingest URL,
+keyframe interval and bitrate together, since they are only correct together.
+
+**Effect parameters say what they are setting.** Every parameter is stored
+0-1, which is what lets any of them be handed to an LFO - but the inspector
+printed that raw fraction and nothing else, so "glyph set 0.40" told you
+nothing about a picture that was showing symbols. Parameters that map onto a
+real quantity now read as one: "100 cols", "symbols", "green". The rest read as
+a percentage, which is the same information in the units the control is in.
+`FX PARAM` answers the same way, instead of echoing back the number it was
+handed.
+
+**Audio cues can choose what they show.** An audio cue drew one thing: the
+file's peaks with a playhead. It can now be a waveform, an oscilloscope, a
+Lissajous figure (left against right, so a polarity-flipped cable is obvious),
+a third-octave spectrum, big peak/RMS meters, or a plain name card. Set it in
+the cue inspector's AUDIO section, or over the network with
+`AUDIOVIS <mode>` - so it can live on a Companion button.
+
+The program monitor and the outputs draw that picture through ONE function now.
+They had separate copies before, and the monitor's carried a fade envelope the
+outputs did not, so what an operator checked was never quite what an audience
+saw.
+
+**An isolated test run can no longer write to your show.** Setting
+`DECKBOY_STATE_DIR` moves everything Deckboy writes into a scratch directory -
+except that the first-run migration copied `last_project.txt` in as well, and
+that file holds an absolute path to the real show. The "isolated" run then
+opened, edited and auto-saved over it. The pointer no longer travels when the
+state directory was set explicitly.
+
+`HELP ALL` counts itself correctly. It announced 257 verbs while listing 263,
+and `tools/audit_remote_help.py` now checks that number along with the names.
+
+
 ## 2026-09-03 - v0.99.306 (readable About, and a mascot you can turn off)
 
 **The About page is readable on dark themes.** It drew its text in a panel

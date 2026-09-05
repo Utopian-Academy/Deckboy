@@ -259,6 +259,16 @@ bool directoryIsWritable(const fs::path& dir) {
   return true;
 }
 
+// Was the state dir FORCED by the environment, rather than worked out?
+//
+// It matters for one thing only -- see ensureDataDir -- but it matters a lot:
+// an explicit override is a caller saying "this run is isolated", and that is
+// a promise the migration below can otherwise break.
+bool stateDirWasOverridden() {
+  const char* env = std::getenv("DECKBOY_STATE_DIR");
+  return env && env[0] != '\0';
+}
+
 fs::path resolveStateDir() {
   if (const char* env = std::getenv("DECKBOY_STATE_DIR"); env && env[0] != '\0') {
     std::error_code ec;
@@ -322,7 +332,25 @@ bool Paths::ensureDataDir() {
   // data/. When that is no longer where we write, carry them across once so an
   // upgrade in place doesn't look like the operator's show disappeared.
   if (!dataEc && !stateEc && stateDir() != dataDir()) {
+    // The show file is COPIED, so carrying it across is harmless: the new
+    // state dir gets its own.
+    //
+    // last_project.txt is NOT a copy of anything -- it is an ABSOLUTE PATH,
+    // and usually a path to data/default.deckboy. Migrating it into a state
+    // dir that was forced by DECKBOY_STATE_DIR hands an "isolated" run a
+    // pointer straight back out to the operator's real show, which it then
+    // opens, edits and autosaves over. The isolation looks like it took and
+    // does not, which is the worst way for it to fail. That happened, and it
+    // cost a live show file.
+    //
+    // So the pointer travels only when the state dir MOVED ON ITS OWN -- the
+    // upgrade-in-place case the migration exists for, where the operator
+    // genuinely wants their last show back.
+    const bool isolated = stateDirWasOverridden();
     for (const char* name : {"default.deckboy", "last_project.txt"}) {
+      if (isolated && std::string(name) == "last_project.txt") {
+        continue;
+      }
       std::error_code ec;
       fs::path from = dataDir() / name;
       fs::path to = stateDir() / name;
