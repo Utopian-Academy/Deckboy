@@ -34,6 +34,11 @@ import deckboy_testroot  # noqa: E402
 # derived, so adding an effect and forgetting this list fails loudly instead of
 # quietly shrinking the sweep.
 EFFECTS = [
+    ("ferrofluid",      "0.9:0.5:0.5"),
+    ("shatter",         "0.9:0.5:0.5"),
+    ("edge_ignite",     "0.9:0.5:0.5"),
+    ("relight",         "0.9:0.5:0.5"),
+    ("depth_split",     "0.9:0.5:0.5"),
     ("invert",          "0.9:0.5:0.5"),
     ("posterise",       "0.9:0.5:0.5"),
     ("solarise",        "0.9:0.5:0.5"),
@@ -81,14 +86,25 @@ PASSES = {"feedback": 12, "scotopic": 6}
 # frame index, so they animate in the app while rendering identically here.
 # They are listed as state-driven rather than measured.
 ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
-                     "caustics"}
-ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode"}
+                     "caustics",
+                     # Added 2026-09-05.
+                     "ferrofluid", "shatter", "edge_ignite", "relight",
+                     "depth_split"}
+ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode",
+                     # Holds the swept frame between calls.
+                     "slit_scan"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
 # checks that each one actually moves the picture, which is the dead-control
 # bug this codebase keeps producing, applied to effect parameters.
 PARAM_SLOTS = {
+    "slit_scan":       ["sweep speed", "slit width", "direction"],
+    "ferrofluid":      ["spike length", "spike count", "threshold"],
+    "shatter":         ["shard size", "drift", "rotation"],
+    "edge_ignite":     ["catch", "heat", "flicker"],
+    "relight":         ["relief", "light angle", "orbit speed"],
+    "depth_split":     ["parallax", "convergence", "sway"],
     "invert":          ["pivot", "channel spread"],
     "posterise":       ["band curve", "channel skew"],
     "solarise":        ["fold point", "knee"],
@@ -157,6 +173,11 @@ NOT_PIXEL_EFFECTS = [
     # one, and the effect correctly passes the picture through instead of
     # pretending. Verified by looking at it on a real clip, not by this sweep.
     ("text_mode", "needs the engine's character-grid renderer"),
+    # Slit scan holds a frame and refreshes a moving band of it, so on a
+    # SINGLE frame every column is the same moment and the output is the
+    # input -- identical by construction, not broken. It is checked by the
+    # --animation pass and by looking at it on a moving clip.
+    ("slit_scan", "identical on one frame; needs successive ones"),
 ]
 
 

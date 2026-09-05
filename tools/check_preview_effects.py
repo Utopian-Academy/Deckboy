@@ -80,6 +80,13 @@ EFFECTS = [
     # needs lives on the media engine -- so this sweep is the only automated
     # check it gets.
     ("text_mode",       "1.0:0.25:0.0:0:0.2:0.0"),
+    # Added 2026-09-05.
+    ("slit_scan",       "0.9:0.5:0.5"),
+    ("ferrofluid",      "0.9:0.5:0.5"),
+    ("shatter",         "0.9:0.5:0.5"),
+    ("edge_ignite",     "0.9:0.5:0.5"),
+    ("relight",         "0.9:0.5:0.5"),
+    ("depth_split",     "0.9:0.5:0.5"),
 ]
 
 # Both need something a paused frame cannot give them.
