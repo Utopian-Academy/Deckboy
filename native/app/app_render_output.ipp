@@ -386,6 +386,11 @@
     // taken from the picture. Falls back to the ordinary blit whenever the
     // brightness field is not available, so a mesh cue on a source that
     // cannot be sampled still shows its picture rather than nothing.
+    // NOT filtered linearly. Setting SDL_SCALEMODE_LINEAR on this texture
+    // for the mesh draw -- an obvious-looking fix for the stipple that
+    // point sampling gives a warped surface -- made the whole layer render
+    // BLACK. Measured: mesh off 16, mesh on 0. Left nearest until that is
+    // understood; a stippled surface beats no surface.
     if (cue && cue->meshEnabled && cue->meshHeight > 0.001f &&
         renderDisplacementMesh(renderer, texture, destination,
                                meshLumaField_, meshLumaW_, meshLumaH_,
