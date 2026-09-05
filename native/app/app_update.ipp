@@ -921,6 +921,29 @@
       const MediaEngine* eng = focusedMediaEngine();
       const DecodedFrame* frame = eng ? eng->currentFrame() : nullptr;
       bool haveLiveFrame = frame && frame->width > 0 && frame->height > 0;
+      // The heightfield for a displacement-mesh cue.
+      //
+      // From the decoded frame when it has CPU pixels, and from the output
+      // tap otherwise. On the zero-copy GPU path frame->pixels is EMPTY --
+      // the whole point of that path is that the picture never comes back
+      // to the CPU -- so sampling only there left the field empty and the
+      // mesh silently fell back to a flat quad on exactly the cues most
+      // likely to use it. The tap is the finished composite and is
+      // populated on both paths.
+      if (haveLiveFrame && !frame->pixels.empty()) {
+        updateMeshLumaField(*frame);
+      } else if (std::optional<int> meshTapIdx = previewTapOutputIndex();
+                 meshTapIdx.has_value()) {
+        if (const OutputRuntime* meshTap = runtimeForOutput(*meshTapIdx);
+            meshTap && !meshTap->previewTapPixels.empty() &&
+            meshTap->previewTapW > 0 && meshTap->previewTapH > 0) {
+          DecodedFrame tapFrame;
+          tapFrame.width = meshTap->previewTapW;
+          tapFrame.height = meshTap->previewTapH;
+          tapFrame.pixels = meshTap->previewTapPixels;
+          updateMeshLumaField(tapFrame);
+        }
+      }
 
       // Preferred source: the program-monitor tap taken on the output's own
       // render pass (see captureOutputPreviewTap). It is already the finished

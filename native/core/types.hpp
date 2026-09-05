@@ -692,6 +692,24 @@ struct Cue {
   // What this cue draws while it plays. Only consulted for Audio cues -- a
   // video cue's picture is its own.
   AudioVisual audioVisual = AudioVisual::Waveform;
+
+  // -- The picture as a surface in space ----------------------------------
+  //
+  // Deckboy is a 2D compositor: a cue is a textured quad. This bends that
+  // quad into a grid and pushes each vertex out of the plane by the
+  // brightness of the picture underneath it, so the video becomes a
+  // landscape of itself, turning slowly under a viewpoint.
+  //
+  // Real geometry, not a shader trick: the same SDL_RenderGeometry call the
+  // perspective warp already uses, with more vertices and a Z that feeds the
+  // projection. Off by default and free at zero height, so a show that never
+  // touches it is unchanged.
+  bool meshEnabled = false;
+  float meshHeight = 0.35f;     // 0-1: how far bright pixels stand out
+  float meshTiltX = 0.25f;      // -1..1 pitch
+  float meshTiltY = 0.0f;       // -1..1 yaw
+  float meshSpin = 0.15f;       // 0-1: how fast the yaw drifts on its own
+  int meshGrid = 48;            // cells across; the cost is this squared
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black

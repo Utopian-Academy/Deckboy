@@ -7455,6 +7455,10 @@ class App {
   double creatureLastTime_ = 0.0;
   SDL_Rect playlistFreeRect_ {};    // the empty part of the focused playlist
   SDL_Rect inspectorBodyRect_ {};   // the inspector column, for its free space
+  // Coarse brightness of the current frame, for the displacement mesh.
+  std::vector<float> meshLumaField_;
+  int meshLumaW_ = 0;
+  int meshLumaH_ = 0;
   double creatureLureX_ = 0.0;      // what the moths steer toward
   double creatureLureY_ = 0.0;
 

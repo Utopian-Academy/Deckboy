@@ -2853,6 +2853,44 @@
     requestRowThumbnail(deck.cues[cueIndex]);
   }
 
+  // The yaw a mesh cue is turned to right now: its own setting plus a slow
+  // drift, so a surface that is left alone still moves.
+  double meshDriftYaw(const Cue& cue) const {
+    return cue.meshTiltY + std::sin(static_cast<double>(animationNow_) * 0.0004)
+                            * cue.meshSpin;
+  }
+
+  // Brightness of the frame, on a small grid, for the displacement mesh.
+  //
+  // Sampled here rather than read back from the texture: the pixels are
+  // already in hand at this point in the frame, and a readback would stall the
+  // renderer once per cue. Coarse on purpose -- the mesh interpolates between
+  // these, and a heightfield finer than the eye can see costs vertices for
+  // nothing.
+  void updateMeshLumaField(const DecodedFrame& frame) {
+    constexpr int kW = 64;
+    constexpr int kH = 36;
+    if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
+      meshLumaField_.clear();
+      meshLumaW_ = meshLumaH_ = 0;
+      return;
+    }
+    meshLumaField_.assign(static_cast<std::size_t>(kW) * kH, 0.0f);
+    meshLumaW_ = kW;
+    meshLumaH_ = kH;
+    for (int y = 0; y < kH; ++y) {
+      const int sy = std::clamp(y * frame.height / kH, 0, frame.height - 1);
+      for (int x = 0; x < kW; ++x) {
+        const int sx = std::clamp(x * frame.width / kW, 0, frame.width - 1);
+        const std::size_t at = (static_cast<std::size_t>(sy) * frame.width + sx) * 4;
+        if (at + 2 >= frame.pixels.size()) continue;
+        meshLumaField_[static_cast<std::size_t>(y) * kW + x] =
+          static_cast<float>((frame.pixels[at] * 0.114 + frame.pixels[at + 1] * 0.587
+                            + frame.pixels[at + 2] * 0.299) / 255.0);
+      }
+    }
+  }
+
   void requestThumbnail(const Cue& cue) { requestThumbnailFor(cue, true); }
 
   // The same decode, for a cue that is NOT the selection.
