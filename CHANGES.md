@@ -1,5 +1,24 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.314 (the parts nobody had read)
+
+**A row of ST 2110 with an odd width no longer writes past its buffer.** The
+converter sized its output for the pixel count but emits four samples for every
+two pixels, so an odd width overran by two. Not reachable today - the one
+caller rounds the width down to even - but the function did not defend itself,
+and that guarantee sat a long way from the code relying on it.
+
+**A new guard: nothing may hand a runtime string to a shell.**
+`tools/audit_shell_safety.py` refuses `std::system` and `popen` across the
+whole source tree, so the class of bug fixed in v0.99.313 cannot come back. It
+was checked against a planted call before being trusted - a check that cannot
+fail is not a check.
+
+This closes a sweep of the least-reviewed files in the codebase, ranked by how
+often each had ever been touched. Read and cleared: the PTP client, the NMOS
+JSON and HTTP parsers, the caption formats, the motion field, the code editor's
+cursor arithmetic, the socket helpers, the library loader and the worker pool.
+
 ## 2026-09-06 - v0.99.313 (nothing goes through a shell)
 
 **Opening a file or a link no longer goes through a shell.** "Show in explorer"
