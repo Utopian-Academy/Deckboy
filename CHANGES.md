@@ -1,5 +1,20 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.313 (nothing goes through a shell)
+
+**Opening a file or a link no longer goes through a shell.** "Show in explorer"
+and the dependency links built a command line by pasting the path or URL inside
+double quotes and handing it to the system shell. Double quotes do not disarm a
+shell, and a media path comes out of the show file - a document people send
+each other. A cue whose path contained the right punctuation ran whatever it
+liked the moment an operator picked "show in explorer" on it. Both now hand the
+opener an argument list directly, with no command line to escape and no shell
+to escape from. Windows was already doing that and is unchanged.
+
+It also reports honestly now: a backgrounded shell command returns success
+whether or not the opener exists, so this claimed to have worked on a machine
+with no xdg-open at all.
+
 ## 2026-09-06 - v0.99.312 (an audit of the parts nobody had read)
 
 **The cue overlay bin was unreachable.** Two different verbs were both called
