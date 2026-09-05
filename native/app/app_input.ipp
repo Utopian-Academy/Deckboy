@@ -133,6 +133,25 @@
       return;
     }
 
+    // THE DASHBOARD IS MODAL. Tested before anything underneath it, and a
+    // click anywhere inside its panel is consumed either way -- a modal that
+    // lets clicks through to the controls it covers fires the wrong thing.
+    if (dashboardOverlayOpen_) {
+      for (const auto& db : dashButtons_) {
+        if (pointInRect(x, y, db.rect)) {
+          lastInlineEditorAnchorRect_ = db.rect;
+          dispatchQuickAction(db.action, db.param);
+          return;
+        }
+      }
+      if (pointInRect(x, y, dashModalRect_)) {
+        return;
+      }
+      // Outside the panel: close it, the way clicking off a modal should.
+      dashboardOverlayOpen_ = false;
+      return;
+    }
+
     if (playlistSplitterRect_.w > 0 && pointInRect(x, y, playlistSplitterRect_)) {
       layoutDragMode_ = LayoutDragMode::Playlist;
       return;

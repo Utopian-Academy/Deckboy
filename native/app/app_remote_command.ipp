@@ -1509,6 +1509,29 @@
     // The one cue property that changes HOW the picture is drawn rather than
     // what is in it: the quad becomes a displaced grid. Named sub-verbs, not
     // an index, for the same reason AUDIOVIS uses names.
+    // CLICK <x> <y> -- a development verb, not part of the operator surface.
+    //
+    // Drives the real mouse-down chain at a window coordinate. Synthetic
+    // OS clicks cannot be relied on here: SetForegroundWindow fails
+    // silently unless the calling process holds foreground rights, so a
+    // scripted click can produce a run where nothing happened and no error
+    // either -- indistinguishable from a real bug, and it cost several
+    // rounds of chasing one that was not there. This enters at
+    // handleMouseDown, so everything that decides WHICH control was hit is
+    // exercised, which is the layer those bugs live in.
+    if (command == "CLICK") {
+      if (parts.size() < 3) {
+        failRemoteCommand("CLICK: expected x y");
+        return;
+      }
+      try {
+        handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
+        remoteCommandDetail_ = "clicked " + parts[1] + "," + parts[2];
+      } catch (...) {
+        failRemoteCommand("CLICK: expected two numbers");
+      }
+      return;
+    }
     if (command == "MESH" || command == "MESH3D") {
       Cue* cue = selectedCueMutable();
       if (!cue) {

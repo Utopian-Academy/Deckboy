@@ -364,6 +364,15 @@
       drawW,
       drawH
     };
+    {
+      static Uint64 sayB = 0;
+      if (SDL_GetTicks() - sayB > 1000) {
+        sayB = SDL_GetTicks();
+        showLog("PROBE-B", std::string("blit cue=") + (cue ? "yes" : "NO")
+                + " mesh=" + (cue && cue->meshEnabled ? "1" : "0")
+                + " luma=" + std::to_string(meshLumaField_.size()));
+      }
+    }
     SDL_SetTextureBlendMode(texture, blendMode);
     // Clip to target so Fill/Unscaled modes don't overflow into other UI elements
     SDL_Rect prevClip;
@@ -581,6 +590,15 @@
       return;
     }
     const Cue* sourceCue = activeCuePtr(sourceDeckIndex);
+    {
+      static Uint64 sayA = 0;
+      if (SDL_GetTicks() - sayA > 1000) {
+        sayA = SDL_GetTicks();
+        showLog("PROBE-A", std::string("layer deck=") + std::to_string(sourceDeckIndex)
+                + " cue=" + (sourceCue ? "yes" : "NO")
+                + " mesh=" + (sourceCue && sourceCue->meshEnabled ? "1" : "0"));
+      }
+    }
     if (!sourceCue) {
       return;
     }

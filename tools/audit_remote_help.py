@@ -36,7 +36,7 @@ EXPECT_UNDOCUMENTED = {
     'TRIMOUT', 'TRIMIN', 'COLUMNS', 'CHARSET', 'SIPHON', 'SYPHONCUE',
     'CAMERACUE', 'WINDOWCUE', 'SPOUTCUE', 'NDICUE', 'DURATION', 'STILLDUR',
     # Development and diagnostic verbs, not part of the operator surface.
-    'SECTION', 'CODE', 'IMPORT',
+    'SECTION', 'CODE', 'IMPORT', 'CLICK',
     'AUDIOVISUAL',
 }
 

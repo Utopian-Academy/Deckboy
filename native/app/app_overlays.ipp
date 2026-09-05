@@ -601,6 +601,8 @@
   }
 
   void renderDashboardOverlay() {
+    dashButtons_.clear();
+    dashModalRect_ = SDL_Rect {};
     if (!dashboardOverlayOpen_) return;
     int ww = 0, wh = 0;
     SDL_GetWindowSize(controlWindow_, &ww, &wh);
@@ -615,6 +617,7 @@
     const int mw = std::min(uiScaled(900), ww - 40);
     const int mh = std::min(uiScaled(640), wh - 40);
     SDL_Rect modal {(ww - mw) / 2, (wh - mh) / 2, mw, mh};
+    dashModalRect_ = modal;
     Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
     drawTextSafe(controlRenderer_, fontBase_,
                  SDL_Rect {modal.x + 16, modal.y + 10, mw - 200, 24},
@@ -678,7 +681,7 @@
                              SDL_Rect{tile.x, tile.y + tile.h - uiScaled(22),
                                       tile.w, uiScaled(16)},
                              "add a button", pal.fgSoft);
-        quickButtons_.push_back({tile, QuickAction::DashSlotAdd,
+        dashButtons_.push_back({tile, QuickAction::DashSlotAdd,
                                  "Add a dashboard button", i});
         continue;
       }
@@ -710,17 +713,17 @@
                         uiScaled(18), uiScaled(13)};
       SDL_Rect colBtn {tile.x + uiScaled(4), tile.y + tile.h - uiScaled(16),
                        uiScaled(18), uiScaled(13)};
-      quickButtons_.push_back({tile, QuickAction::DashSlotFire,
+      dashButtons_.push_back({tile, QuickAction::DashSlotFire,
                                slot.command.empty() ? "Empty - use the pencil to set a command"
                                                     : ("Run: " + slot.command), i});
       Primitives::drawFramedPanel(controlRenderer_, colBtn,
                                   dashboardSlotColor(slot.colorIndex + 1), pal.deep, pal.deep);
-      quickButtons_.push_back({colBtn, QuickAction::DashSlotColor, "Change this tile's colour", i});
+      dashButtons_.push_back({colBtn, QuickAction::DashSlotColor, "Change this tile's colour", i});
       // On its own plate. Drawn straight onto the tile it was ink-on-ink at
       // several tints and simply vanished.
       Primitives::drawFramedPanel(controlRenderer_, editBtn, pal.shellInner, pal.deep, pal.deep);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "...", pal.fg);
-      quickButtons_.push_back({editBtn, QuickAction::DashSlotEdit,
+      dashButtons_.push_back({editBtn, QuickAction::DashSlotEdit,
                                "Set this button's label, command and glyph", i});
     }
 

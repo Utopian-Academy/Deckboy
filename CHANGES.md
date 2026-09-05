@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.310 (the dashboard responds, and clips look right)
+
+**Dashboard buttons work.** Clicking a tile - including "add a button" - did
+nothing at all. Two faults: the tiles were registered in the shared control
+list, where everything added after the inspector is treated as an inspector
+control and tested against the inspector's viewport, so a centred overlay's
+buttons were checked against a rectangle they are nowhere near; and the check
+sat below dozens of tests for controls the overlay is covering. The dashboard
+now keeps its own hit list and is tested with the other modals, before anything
+underneath it. A click anywhere on the panel is consumed, and a click off it
+closes the page.
+
+**Clip thumbnails are the right shape.** They were drawn straight into a tall
+slot, so a 16:9 frame came out portrait. The slot is now the picture's own
+shape, so they fill it with no letterboxing.
+
 ## 2026-09-06 - v0.99.309 (you can see your clips)
 
 **Creatures live throughout the shell, not just under the playlist.** A theme's

@@ -1297,10 +1297,17 @@
     // has no still yet it asks for one -- the first row to ask each frame wins,
     // so a thousand-cue list spawns one ffmpeg at a time and fills in as it is
     // looked at, rather than all at once.
-    SDL_Rect thumbRect {row.x + 50, row.y + 3, 44, row.h - 6};
+    // THE BOX IS THE PICTURE'S SHAPE, so there is nothing to letterbox.
+    //
+    // Drawn into a 44x74 slot a 16:9 still came out portrait. Fitting it
+    // inside that slot fixed the squash but left bars above and below,
+    // which is the wrong fix: the thumbnails are decoded to 320x180 and
+    // padded there, so they are ALWAYS 16:9 and a 16:9 box holds one
+    // exactly. The fit below stays as the guard for the day that changes.
+    SDL_Rect thumbBox {row.x + 50, row.y + (row.h - 38) / 2, 68, 38};
     if (cueUsesFilesystemMedia(cue) &&
         (cue.kind == CueKind::Video || cue.kind == CueKind::Image) &&
-        thumbRect.w > 8 && thumbRect.h > 6) {
+        thumbBox.w > 8 && thumbBox.h > 6) {
       const std::string key = cueVisualCacheKey(cue);
       SDL_Texture* tex = nullptr;
       auto found = rowThumbTex_.find(key);
@@ -1314,17 +1321,30 @@
         }
       }
       if (tex) {
-        Primitives::fillRect(controlRenderer_, thumbRect, pal.deep);
-        SDL_RenderTexture(controlRenderer_, tex, nullptr, &thumbRect);
+        Primitives::fillRect(controlRenderer_, thumbBox, pal.deep);
+        float texW = 0.0f, texH = 0.0f;
+        SDL_GetTextureSize(tex, &texW, &texH);
+        const double aspect = (texW > 0.0f && texH > 0.0f)
+                            ? static_cast<double>(texW) / texH : 16.0 / 9.0;
+        int fitW = thumbBox.w;
+        int fitH = static_cast<int>(std::lround(fitW / aspect));
+        if (fitH > thumbBox.h) {
+          fitH = thumbBox.h;
+          fitW = static_cast<int>(std::lround(fitH * aspect));
+        }
+        SDL_Rect fitted {thumbBox.x + (thumbBox.w - fitW) / 2,
+                         thumbBox.y + (thumbBox.h - fitH) / 2,
+                         std::max(1, fitW), std::max(1, fitH)};
+        SDL_RenderTexture(controlRenderer_, tex, nullptr, &fitted);
       } else {
-        Primitives::fillRect(controlRenderer_, thumbRect, pal.dark);
+        Primitives::fillRect(controlRenderer_, thumbBox, pal.dark);
         if (rowThumbWantedKey_.empty()) {
           rowThumbWantedKey_ = key;
           rowThumbWantedDeck_ = deckIndex;
           rowThumbWantedCue_ = index;
         }
       }
-      Primitives::strokeRect(controlRenderer_, thumbRect, pal.deep);
+      Primitives::strokeRect(controlRenderer_, thumbBox, pal.deep);
     }
     SDL_Rect chip {row.x + 4, row.y + 4, 6, row.h - 8};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
@@ -1368,14 +1388,14 @@
     constexpr int kCueActionBtnGap = 4;
     constexpr int kCueActionCount = 5;
     int actionStripW = kCueActionCount * kCueActionBtnW + (kCueActionCount - 1) * kCueActionBtnGap;
-    bool showActionStrip = row.w >= 302;  // nameX(100)+minName(52)+gap(8)+strip(136)+margin(6)
+    bool showActionStrip = row.w >= 326;  // nameX(124)+minName(52)+gap(8)+strip(136)+margin(6)
     int actionStripX = row.x + row.w - actionStripW - 6;
 
-    // Clear of the still (x+50 through x+94), and aligned with the cue number
+    // Clear of the still (x+50 through x+118). Moved for every row, including
     // the ones with no picture, because a name column that steps in and out
     // depending on whether a thumbnail has decoded yet is worse than a wider
     // margin.
-    int nameX = row.x + 100;
+    int nameX = row.x + 124;
     // The action strip used to sit on the NAME line, right-aligned, which cost
     // the name 144px and truncated most real filenames to "Rick and Mo...".
     // It now sits on the metadata line, so the name gets the full row width and
@@ -1420,18 +1440,18 @@
     }
 
     // Cue ID and Type — line 1 (top of row)
-    SDL_Rect tokenRect {row.x + 100, row.y + 4, 50, 18};
+    SDL_Rect tokenRect {row.x + 124, row.y + 4, 50, 18};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
       UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
-      SDL_Rect iconRect {row.x + 154, row.y + 3, 22, 22};
+      SDL_Rect iconRect {row.x + 178, row.y + 3, 22, 22};
       if (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect)) {
         // Icon drawn — show kind label shifted right
-        SDL_Rect typeRect {row.x + 178, row.y + 5, 72, 18};
+        SDL_Rect typeRect {row.x + 202, row.y + 5, 72, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       } else {
-        SDL_Rect typeRect {row.x + 154, row.y + 5, 96, 18};
+        SDL_Rect typeRect {row.x + 178, row.y + 5, 96, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       }
     }
