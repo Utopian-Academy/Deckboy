@@ -312,7 +312,23 @@ jobs:
   macos-package:
     name: macOS Portable Bundle
     needs: macos-build
-    runs-on: macos-latest
+    # PINNED, NOT macos-latest. The bundle carries Homebrew's dylibs, and a
+    # bottle is built for the runner's own macOS -- so whatever image this job
+    # lands on becomes the oldest macOS the release can open on. On
+    # macos-latest that silently tracked GitHub's newest image, and the build
+    # stopped opening on Sonoma.
+    #
+    # There is no universal binary (see tools/package_macos.sh), so both
+    # architectures are built and the packager names each zip after its own.
+    # macos-13 is the Intel image and also covers Apple Silicon via Rosetta;
+    # macos-14 is the native arm64 one.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: macos-13     # x86_64, floor macOS 13 Ventura
+          - image: macos-14     # arm64,  floor macOS 14 Sonoma
+    runs-on: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -441,7 +457,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: deckboy-macos-portable
+          name: deckboy-macos-portable-${{ matrix.image }}
           path: |
             dist/*.zip
             dist/*.dmg

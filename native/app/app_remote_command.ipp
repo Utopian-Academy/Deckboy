@@ -714,7 +714,7 @@
     // reproduced except by hand.
     if (command == "SECTION") {
       if (parts.size() < 2) {
-        failRemoteCommand("SECTION: expected playback|metadata|geometry|key|effects|timer|tone|synth");
+        failRemoteCommand("SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth");
         return;
       }
       const std::string which = toUpper(parts[1]);
@@ -723,6 +723,7 @@
       else if (which == "METADATA") action = QuickAction::CueSectionMetadataToggle;
       else if (which == "GEOMETRY") action = QuickAction::CueSectionGeometryToggle;
       else if (which == "KEY")      action = QuickAction::CueSectionKeyToggle;
+      else if (which == "AUDIO")    action = QuickAction::CueSectionAudioToggle;
       else if (which == "EFFECTS")  action = QuickAction::CueSectionEffectsToggle;
       else if (which == "TIMER")    action = QuickAction::CueSectionTimerToggle;
       else if (which == "TONE")     action = QuickAction::CueSectionToneToggle;
@@ -1171,8 +1172,15 @@
         *slots[slot] = static_cast<float>(value);
         markProjectDirty();
         refreshLiveCueIfPixelPathChanged(wasNeeded);
+        // The SAME words the inspector shows. This echoed the raw 0-1 it had
+        // just been handed, which tells the operator what they typed rather
+        // than what it did: "glyph set 0.40" instead of "glyph set symbols".
+        const std::string shown =
+          inspEffectParamValueText(*cue, fx, slot, *slots[slot]);
         triggerToast(std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) +
-                     " " + parts[4]);
+                     " " + shown);
+        remoteCommandDetail_ =
+          std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) + " = " + shown;
         return;
       }
       // LFO <n> <A-E> <on|off|shape|rate|depth|phase|beats|sync> [value]
@@ -1489,6 +1497,44 @@
           setSelectedTrimOut(*number);
         }
       }
+      return;
+    }
+    // What the selected AUDIO cue draws while it plays.
+    //
+    // Named modes, not an index: a surface button that sends "3" would follow
+    // the enum if a mode were ever inserted, and silently start selecting a
+    // different picture on every show that used it.
+    if (command == "AUDIOVIS" || command == "AUDIOVISUAL") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Audio) {
+        failRemoteCommand("no audio cue selected");
+        return;
+      }
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = audioVisualToken(cue->audioVisual);
+        return;
+      }
+      const std::string want = toLower(parts[1]);
+      // parseAudioVisualToken falls back to waveform for anything it does not
+      // know, which is right when READING A SHOW FILE and wrong here: a surface
+      // sending a misspelled mode must be told, not quietly given the default.
+      if (want != audioVisualToken(AudioVisual::Waveform) &&
+          parseAudioVisualToken(want) == AudioVisual::Waveform) {
+        failRemoteCommand("expected waveform|scope|lissajous|spectrum|level|cover");
+        return;
+      }
+      const AudioVisual mode = parseAudioVisualToken(want);
+      bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        if (each.kind == CueKind::Audio) {
+          each.audioVisual = mode;
+        }
+      });
+      if (!any) {
+        failRemoteCommand("no audio cue selected");
+        return;
+      }
+      markProjectDirty();
+      triggerToast("audio visual: " + audioVisualLabel(mode));
       return;
     }
     if (command == "OVERLAY" || command == "TIMEOVERLAY") {
@@ -2443,6 +2489,26 @@
         }
         if ((streamArg == "URL" || streamArg == "TARGET") && parts.size() > 3) {
           setFocusedOutputStreamUrl(joinParts(parts, 3));
+          return;
+        }
+        // The stream key. NEVER ECHOED -- not in the reply, not in the toast,
+        // not in the show log. It is the one field here that is a credential:
+        // anyone holding it can broadcast to the channel, and a value that
+        // gets read back is a value that ends up in a screenshot.
+        if (streamArg == "KEY" && parts.size() > 3) {
+          const std::string key = trim(joinParts(parts, 3));
+          project_.outputs[project_.focusedOutputIndex].streamKey = key;
+          stopOutputStream(project_.focusedOutputIndex);
+          markProjectDirty();
+          triggerToast("stream key set (" + std::to_string(key.size()) + " chars)");
+          remoteCommandDetail_ = "stream key set (" + std::to_string(key.size()) + " chars)";
+          return;
+        }
+        if (streamArg == "KEY") {   // no argument clears it
+          project_.outputs[project_.focusedOutputIndex].streamKey.clear();
+          stopOutputStream(project_.focusedOutputIndex);
+          markProjectDirty();
+          triggerToast("stream key cleared");
           return;
         }
         if ((streamArg == "BITRATE" || streamArg == "RATE") && parts.size() > 3) {

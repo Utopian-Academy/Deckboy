@@ -64,6 +64,10 @@ std::optional<double> parseTimecodeSeconds(std::string value, double fps);
 std::string cueKindLabel(::CueKind kind);          // e.g. "Video", "Browser", "SRT Stream"
 std::string cueKindToken(::CueKind kind);          // e.g. "video", "browser", "srt_stream"
 
+std::string audioVisualToken(::AudioVisual visual);      // e.g. "waveform", "spectrum"
+std::string audioVisualLabel(::AudioVisual visual);      // e.g. "Waveform", "Spectrum"
+::AudioVisual parseAudioVisualToken(const std::string& token);
+
 std::string cueEndActionToken(::CueEndAction action);    // e.g. "stop", "loop", "auto_next"
 std::string cueEndActionLabel(::CueEndAction action);    // e.g. "Stop", "Loop", "Auto Next"
 ::CueEndAction parseCueEndAction(const std::string& token);

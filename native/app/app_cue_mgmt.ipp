@@ -281,6 +281,28 @@
     }
   }
 
+  // What the selected audio cue puts on the screen. WRAPS rather than clamps:
+  // there are six modes and no natural end to the list, so a clamp would just
+  // make the last one feel broken.
+  void cycleSelectedAudioVisual(int delta) {
+    const Cue* cue = selectedCuePtr();
+    if (!cue || cue->kind != CueKind::Audio) {
+      return;
+    }
+    constexpr int count = static_cast<int>(AudioVisual::Cover) + 1;
+    const int next = ((static_cast<int>(cue->audioVisual) + delta) % count + count) % count;
+    const AudioVisual mode = static_cast<AudioVisual>(next);
+    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      if (each.kind == CueKind::Audio) {
+        each.audioVisual = mode;
+      }
+    });
+    if (any) {
+      markProjectDirty();
+      triggerToast("audio visual: " + audioVisualLabel(mode));
+    }
+  }
+
   void toggleSelectedCueMono() {
     const Cue* cue = selectedCuePtr();
     if (!cue || !cue->hasAudio) {
@@ -4727,6 +4749,11 @@
       }
       if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
         engine->syncActiveCueSnapshot(deck.cues[deck.activeIndex]);
+        // Trim is not just data on the cue -- the transport runs on its own
+        // copy. Done here rather than in the trim setters so that EVERY way of
+        // moving a point (inspector, keyboard, timeline, remote) reaches the
+        // engine, instead of the three that happened to remember to ask.
+        engine->applyActiveCueTrimEdit(deck.cues[deck.activeIndex]);
       }
     }
   }

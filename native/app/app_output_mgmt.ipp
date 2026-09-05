@@ -1711,6 +1711,41 @@
     return raster + " @ " + rate;
   }
 
+  // What the stream is DOING, in one line: rate, throughput, uptime, losses.
+  //
+  // Deliberately the measured numbers rather than the configured ones. A panel
+  // that reads back the settings you typed cannot tell you the stream is in
+  // trouble, and this one is here precisely for the moments when it is.
+  std::string outputStreamTelemetryLine(int outputIndex) const {
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->streamWriter || runtime->streamStartedAtMs == 0) {
+      return {};
+    }
+    std::uint64_t written = 0, dropped = 0;
+    {
+      std::lock_guard<std::mutex> lock(runtime->streamWriter->mutex);
+      written = runtime->streamWriter->packetsWritten;
+      dropped = runtime->streamWriter->packetsDropped;
+    }
+    const Uint64 upMs = SDL_GetTicks() - runtime->streamStartedAtMs;
+    const int secs = static_cast<int>(upMs / 1000) % 60;
+    const int mins = static_cast<int>(upMs / 60000) % 60;
+    const int hours = static_cast<int>(upMs / 3600000);
+    char buf[160];
+    if (hours > 0) {
+      std::snprintf(buf, sizeof(buf), "%.1f fps   up %d:%02d:%02d   %llu sent   %llu dropped",
+                    runtime->streamMeasuredKbps, hours, mins, secs,
+                    static_cast<unsigned long long>(written),
+                    static_cast<unsigned long long>(dropped));
+    } else {
+      std::snprintf(buf, sizeof(buf), "%.1f fps   up %d:%02d   %llu sent   %llu dropped",
+                    runtime->streamMeasuredKbps, mins, secs,
+                    static_cast<unsigned long long>(written),
+                    static_cast<unsigned long long>(dropped));
+    }
+    return buf;
+  }
+
   double outputStreamFps(double fpsHint) const {
     if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
       return std::clamp(project_.outputRefreshRateHz, 1.0, 120.0);
@@ -2418,6 +2453,33 @@
     return true;
   }
 
+  // Hand PCM to the writer's audio thread.
+  //
+  // Bounded at about two seconds of 48k stereo: if the audio pipe ever does
+  // stall, drop the oldest rather than grow without limit -- a gap beats the
+  // app eating memory during a show.
+  static void pushOutputStreamAudio(
+      const std::shared_ptr<OutputStreamWriterState>& writer,
+      const std::vector<std::int16_t>& samples) {
+    if (!writer || samples.empty()) {
+      return;
+    }
+    {
+      std::lock_guard<std::mutex> lock(writer->audioMutex);
+      constexpr std::size_t kMaxPendingSamples = 48000 * 2 * 2;
+      writer->pendingAudio.insert(writer->pendingAudio.end(),
+                                  samples.begin(), samples.end());
+      if (writer->pendingAudio.size() > kMaxPendingSamples) {
+        writer->pendingAudio.erase(
+          writer->pendingAudio.begin(),
+          writer->pendingAudio.begin() +
+            static_cast<std::ptrdiff_t>(writer->pendingAudio.size() -
+                                        kMaxPendingSamples));
+      }
+    }
+    writer->audioCv.notify_one();
+  }
+
   void startOutputStreamWriter(OutputRuntime& runtime) {
 #ifdef _WIN32
     int videoPipeFd = runtime.streamProcess.writeFd;
@@ -2454,24 +2516,7 @@
         // video write below BLOCKS, and doing both here is what deadlocked the
         // encoder.
         if (!packet.audioSamples.empty()) {
-          {
-            std::lock_guard<std::mutex> lock(writer->audioMutex);
-            // Bounded: about two seconds of 48k stereo. If the audio pipe ever
-            // does stall, drop the oldest rather than grow without limit -- a
-            // gap in a recording beats the app eating memory during a show.
-            constexpr std::size_t kMaxPendingSamples = 48000 * 2 * 2;
-            writer->pendingAudio.insert(writer->pendingAudio.end(),
-                                        packet.audioSamples.begin(),
-                                        packet.audioSamples.end());
-            if (writer->pendingAudio.size() > kMaxPendingSamples) {
-              writer->pendingAudio.erase(
-                writer->pendingAudio.begin(),
-                writer->pendingAudio.begin() +
-                  static_cast<std::ptrdiff_t>(writer->pendingAudio.size() -
-                                              kMaxPendingSamples));
-            }
-          }
-          writer->audioCv.notify_one();
+          pushOutputStreamAudio(writer, packet.audioSamples);
         }
 
         if (packet.videoBytes && !packet.videoBytes->empty() &&
@@ -2552,6 +2597,9 @@
   }
 
   void stopOutputStreamRuntime(OutputRuntime& runtime, bool rollingSegment = false) {
+    runtime.streamLockedFps = 0.0;
+    runtime.streamStartedAtMs = 0;
+    runtime.streamMeasuredKbps = 0.0;
     // Captured BEFORE the platform split and acted on after it: the remux is
     // not a Windows feature, and it lived inside the #ifdef so a macOS or
     // Linux recording stayed fragmented forever.
@@ -3090,6 +3138,28 @@
     runtime->streamSpec = desiredSpec;
     runtime->streamToFile = outputStreamProtocolIsFile(
       normalizeOutputStreamProtocol(project_.outputs[outputIndex].streamProtocol));
+    // A LIVE STREAM KEEPS THE RATE IT DIALLED WITH.
+    //
+    // The rate is part of the encoder's command line, so changing it means a
+    // new encoder, which means dropping the connection and dialling again. It
+    // changes the moment a cue is taken -- the hint comes from the cue's own
+    // fps, so 30.00 becomes 23.98 and the stream reconnects underneath the
+    // operator at the worst possible moment.
+    //
+    // Down a wire that is fatal rather than untidy: the first encoder still
+    // holds the socket, and an SRT or RTMP listener accepts ONE caller, so the
+    // replacement blocks on connect for ever. It never reads its input, the
+    // writer's blocking write never returns, and the stream is dead with the
+    // health readout still saying "live". UDP survived only because it has no
+    // connection to lose.
+    runtime->streamLockedFps = runtime->streamToFile ? 0.0
+                                                     : outputStreamFps(fpsHint);
+    runtime->streamStartedAtMs = SDL_GetTicks();
+    runtime->streamLastDrainAtMs = runtime->streamStartedAtMs;
+    runtime->streamLastSeenWritten = 0;
+    runtime->streamRateSampledAtMs = runtime->streamStartedAtMs;
+    runtime->streamRateSampleBytes = 0;
+    runtime->streamMeasuredKbps = 0.0;
     runtime->streamCommand = shellCommandString(args);
     runtime->streamFrameWidth = width;
     runtime->streamFrameHeight = height;
@@ -3921,11 +3991,37 @@
       haveAudioSink = runtime->streamAudioPipeFd >= 0;
 #endif
       if (haveAudioSink) {
-        packet.audioSamples = collectOutputAudioFrameSamples(
+        std::vector<std::int16_t> samples = collectOutputAudioFrameSamples(
           outputIndex,
           runtime->streamAudioReadSamplesByDeck,
           runtime->streamAudioSampleRemainder,
           fpsHint);
+        if (toFileSink) {
+          // A recording rides the packet, because the pacer may emit the same
+          // frame several times and the audio has to be counted against the
+          // frames that are actually written. That path works; leave it.
+          packet.audioSamples = std::move(samples);
+        } else {
+          // A NETWORK SINK MUST NEVER WAIT ON THE VIDEO QUEUE FOR ITS AUDIO.
+          //
+          // The encoder is given two inputs -- raw video on a pipe, PCM on a
+          // second one -- and it reads them in one loop. Starve the audio and
+          // it blocks there, which means it stops draining video, which means
+          // the writer's 3.7MB blocking write never returns, which means the
+          // queue fills, which means no further packet can be enqueued -- and
+          // the audio only ever travelled ON a packet. That loop has no way
+          // out of itself: measured, every network stream delivered exactly
+          // two frames and 66ms of audio and then sat there for ever with the
+          // health readout still saying "live".
+          //
+          // So audio goes straight to the audio thread, which has always had
+          // its own pipe, its own mutex and its own condition variable. It is
+          // one frame's worth per captured frame either way (the collector
+          // pads with silence when a deck is quiet, so a silent show still
+          // feeds the encoder), which is what keeps the counts -- and
+          // therefore the sync -- aligned.
+          pushOutputStreamAudio(runtime->streamWriter, samples);
+        }
       }
     }
 
@@ -3968,6 +4064,57 @@
         writer->packetsQueued += 1;
         ++accepted;
       }
+    }
+    // ── Is it draining? ────────────────────────────────────────────────────
+    //
+    // Health used to be set to Live purely because a process existed and a
+    // socket had opened. It said "live" for eleven seconds about a stream that
+    // had delivered two frames and would never deliver another. A sink that
+    // has not accepted a packet in three seconds while frames are waiting is
+    // not live, and the operator is the person who most needs to know.
+    if (!toFileSink) {
+      const Uint64 nowMs = SDL_GetTicks();
+      std::uint64_t written = 0;
+      std::uint64_t queued = 0;
+      std::uint64_t vbytes = 0;
+      {
+        std::lock_guard<std::mutex> lock(writer->mutex);
+        written = writer->packetsWritten;
+        queued = writer->queue.size();
+        vbytes = writer->videoBytesWritten;
+      }
+      if (written != runtime->streamLastSeenWritten) {
+        runtime->streamLastSeenWritten = written;
+        runtime->streamLastDrainAtMs = nowMs;
+      } else if (queued > 0 && runtime->streamLastDrainAtMs > 0 &&
+                 nowMs - runtime->streamLastDrainAtMs > 3000) {
+        setOutputHealthState(outputIndex, OutputHealthState::Error,
+                             "stream stalled - the far end is not taking frames");
+      }
+      // DELIVERED FRAMES PER SECOND, sampled about once a second.
+      //
+      // Not a bit rate: videoBytesWritten counts the BGRA handed to the
+      // encoder, which at 720p24 is 707 Mb/s of raster and says nothing about
+      // what reaches the far end -- ffmpeg owns the compressed size and does
+      // not report it back. Frames delivered is the number that actually
+      // answers "is it keeping up", and it is ours to measure honestly.
+      (void) vbytes;
+      if (runtime->streamRateSampledAtMs > 0 &&
+          nowMs - runtime->streamRateSampledAtMs >= 1000) {
+        const double secs = static_cast<double>(nowMs - runtime->streamRateSampledAtMs) / 1000.0;
+        const std::uint64_t delta =
+          written >= runtime->streamRateSampleBytes ? written - runtime->streamRateSampleBytes : 0;
+        runtime->streamMeasuredKbps = static_cast<double>(delta) / secs;   // fps
+        runtime->streamRateSampledAtMs = nowMs;
+        runtime->streamRateSampleBytes = written;
+      }
+    }
+    if (!toFileSink) {
+      // Mark the capture dealt with even when the queue refused it. Its audio
+      // has already gone, and the next capture is 16ms away -- retrying a
+      // stale frame would collect that frame's audio a second time and walk
+      // the two apart.
+      runtime->lastStreamCaptureSentAtMs = frame->capturedAtMs;
     }
     if (accepted == 0) {
       return;

@@ -37,6 +37,7 @@ EXPECT_UNDOCUMENTED = {
     'CAMERACUE', 'WINDOWCUE', 'SPOUTCUE', 'NDICUE', 'DURATION', 'STILLDUR',
     # Development and diagnostic verbs, not part of the operator surface.
     'SECTION', 'CODE', 'IMPORT',
+    'AUDIOVISUAL',
 }
 
 
@@ -61,6 +62,18 @@ def help_text(text):
 def documented_verbs(help_body):
     """Words in HELP that look like verbs: capitals at a word boundary."""
     return set(re.findall(r'\b([A-Z][A-Z0-9_]{1,})\b', help_body))
+
+
+def listing_claim(text):
+    """The number HELP ALL claims it is about to print.
+
+    A count is a promise the same way a verb name is, and this one had drifted
+    to 257 while the listing below it held 263 -- so a surface author counting
+    on it to know whether their build was current was told the wrong thing by
+    the one line that exists to say so.
+    """
+    m = re.search(r'DECKBOY_0\.01 every verb \((\d+)\)', text)
+    return int(m.group(1)) if m else None
 
 
 def full_listing(text):
@@ -110,7 +123,10 @@ def main():
     # to fit on a screen. HELP ALL is the reference, and a verb missing from it
     # cannot be discovered by anyone building a surface.
     listing = full_listing(network_text)
+    listing.discard('DECKBOY_0')
     unlisted = sorted(v for v in handled if v not in listing)
+    claimed = listing_claim(network_text)
+    miscounted = claimed is not None and claimed != len(listing)
 
     print('verbs handled: %d   words documented: %d' % (len(handled), len(documented)))
     print()
@@ -124,8 +140,12 @@ def main():
     print('[3] handled but MISSING FROM HELP ALL: %d' % len(unlisted))
     for v in unlisted:
         print('      %s' % v)
+    print()
+    print('[4] HELP ALL counts itself correctly: %s'
+          % ('no -- says %d, lists %d' % (claimed, len(listing))
+             if miscounted else 'yes (%d)' % len(listing)))
 
-    failed = bool(real_promises) or bool(unlisted)
+    failed = bool(real_promises) or bool(unlisted) or miscounted
     print()
     print('FAIL' if failed else 'clean')
     return 1 if failed else 0

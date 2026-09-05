@@ -979,16 +979,8 @@
       if (activeCue && activeCue->kind == CueKind::Audio) {
         int margin = renderW / 10;
         SDL_Rect wfRect {margin, renderH / 4, renderW - margin * 2, renderH / 3};
-        bool _wfPending = false;
-        WaveformPeaks peaks = getWaveformPeaks(resolvedCueFilesystemPathString(*activeCue, currentProjectFile_), _wfPending);
-        double dur = activeCue->duration > 0.0 ? activeCue->duration : 1.0;
         const MediaEngine* eng = mediaEngineForDeck(hostDeckIndex);
-        float playFrac = eng ? static_cast<float>(std::clamp(eng->position() / dur, 0.0, 1.0)) : -1.0f;
-        float inFrac  = static_cast<float>(activeCue->inPointSeconds / dur);
-        float outFrac = activeCue->outPointSeconds > 0.0
-                      ? static_cast<float>(activeCue->outPointSeconds / dur) : 1.0f;
-        drawWaveform(runtime->outputRenderer, wfRect, peaks, activeCue->audioChannels >= 2, playFrac, inFrac, outFrac,
-                     activeCue->pausePoints, dur, waveformGainScale(*activeCue));
+        drawAudioCueVisual(runtime->outputRenderer, wfRect, *activeCue, eng);
         // Cue name
         drawText(runtime->outputRenderer, fontBase_, activeCue->name,
                  pal.light, wfRect.x, wfRect.y - 36);
@@ -1162,6 +1154,13 @@
         fpsHint = std::max(1.0, layerCue->fps);
         break;
       }
+    }
+    // Hold the rate steady while a network stream is up. Done here, before
+    // anything reads fpsHint, so the encoder's declared rate, the egress
+    // capture interval and the samples-per-frame the audio is cut into cannot
+    // disagree with each other -- they are all derived from this one number.
+    if (runtime->streamLockedFps > 1.0 && streamRouteActive && !runtime->streamToFile) {
+      fpsHint = runtime->streamLockedFps;
     }
     SDL_Rect egressRect {0, 0, renderW, renderH};
     if (usingCompositor) {

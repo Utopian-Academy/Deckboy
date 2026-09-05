@@ -14,6 +14,25 @@ set(DECKBOY_VERSION_PATCH "${CMAKE_MATCH_3}")
 set(DECKBOY_VERSION_PRERELEASE "${CMAKE_MATCH_4}")
 set(DECKBOY_VERSION_TAG "v${DECKBOY_VERSION_STRING}")
 
+# HOW OLD A macOS THIS BINARY WILL RUN ON.
+#
+# Must be set BEFORE project(), because that is when the compiler is probed.
+#
+# With nothing here, clang stamps the BUILD machine's OS as the minimum, and
+# the OS refuses to launch a binary whose minimum is newer than itself. CI
+# builds on a GitHub runner, so the release bundle quietly acquired whatever
+# macOS that image happened to be -- and would not open on Sonoma, which is
+# exactly what was reported from the field.
+#
+# This floor is only half of it. The bundle also carries Homebrew's dylibs,
+# and a Homebrew bottle is built for the runner's own OS, so the REAL floor is
+# the runner image. That is why the packaging job is pinned rather than left on
+# macos-latest; see .github/workflows/build.yml.
+if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING
+      "Oldest macOS this build will run on" FORCE)
+endif()
+
 project(deckboy_native VERSION
   ${DECKBOY_VERSION_MAJOR}.${DECKBOY_VERSION_MINOR}.${DECKBOY_VERSION_PATCH}
   LANGUAGES CXX

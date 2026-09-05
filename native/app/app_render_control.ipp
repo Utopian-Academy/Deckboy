@@ -1867,6 +1867,105 @@
   // ignored you. This is the same friend from the empty program monitor,
   // told what it is doing -- so the wait has a face on it and a bar that
   // visibly moves, and the operator can see the machine is working.
+  // THE SLIDE RENDERER HAS ITS OWN ANIMATION.
+  //
+  // It used to borrow the startup mascot and just change the line of text
+  // underneath, so the face that greets an empty programme monitor also stood
+  // in for "a converter is running" -- two unrelated things wearing one
+  // costume, and the only thing telling them apart was a caption.
+  //
+  // This one is about the work rather than about a character: sheets are drawn
+  // out of a hopper, swept by a scan bar on the way across, and land on a
+  // stack that grows as the pages actually land. It is driven by the real
+  // counts, so when it looks nearly done it IS nearly done.
+  void drawSlideRenderAnimation(const SDL_Rect& area, Uint64 nowMs,
+                                const char* tip, int done, int total) {
+    if (area.w < uiScaled(60) || area.h < uiScaled(40)) {
+      return;
+    }
+    const double t = static_cast<double>(nowMs) * 0.001;
+
+    // Ink on a shell panel, and paper as a small raised fill -- the chrome
+    // contract: light/deep for small raised things, fg/fgSoft for ink.
+    const SDL_Color paper = pal.light;
+    const SDL_Color edge = pal.deep;
+    const SDL_Color ink = pal.fg;
+    const SDL_Color soft = pal.fgSoft;
+
+    // Reserve the bottom strip for the caption so the art never runs into it.
+    const int capH = uiScaled(18);
+    SDL_Rect stage {area.x, area.y, area.w, std::max(uiScaled(24), area.h - capH - uiScaled(4))};
+
+    const int sheetW = std::max(uiScaled(14), stage.w / 7);
+    const int sheetH = std::max(uiScaled(10), sheetW * 3 / 4);
+    const int baseY = stage.y + stage.h - sheetH - uiScaled(2);
+
+    // ── The hopper, left: the pages still to go ─────────────────────────────
+    const int hopperX = stage.x + uiScaled(2);
+    const int remaining = (total > 0) ? std::max(0, total - done) : 3;
+    const int hopperLeaves = std::min(4, std::max(0, remaining));
+    for (int i = 0; i < hopperLeaves; ++i) {
+      SDL_Rect leaf {hopperX + i, baseY - i * uiScaled(2), sheetW, sheetH};
+      Primitives::fillRect(controlRenderer_, leaf, paper);
+      Primitives::strokeRect(controlRenderer_, leaf, edge);
+    }
+
+    // ── The out-tray, right: the pages that have landed ─────────────────────
+    const int trayX = stage.x + stage.w - sheetW - uiScaled(2);
+    const int landed = (total > 0) ? std::min(done, total) : 0;
+    const int trayLeaves = std::min(5, landed);
+    for (int i = 0; i < trayLeaves; ++i) {
+      SDL_Rect leaf {trayX - i, baseY - i * uiScaled(2), sheetW, sheetH};
+      Primitives::fillRect(controlRenderer_, leaf, paper);
+      Primitives::strokeRect(controlRenderer_, leaf, edge);
+    }
+
+    // ── The sheets in flight ────────────────────────────────────────────────
+    //
+    // Three of them, evenly out of phase, so there is always one crossing
+    // rather than a gap and a rush. The arc is a half sine: it lifts off the
+    // hopper, peaks in the middle and settles onto the stack.
+    const int travelFrom = hopperX + sheetW;
+    const int travelTo = trayX - sheetW / 2;
+    const int travel = std::max(uiScaled(8), travelTo - travelFrom);
+    const double lift = static_cast<double>(stage.h) * 0.45;
+    for (int s = 0; s < 3; ++s) {
+      const double phase = std::fmod(t * 0.55 + s / 3.0, 1.0);
+      const int x = travelFrom + static_cast<int>(phase * travel);
+      const int y = baseY - static_cast<int>(std::sin(phase * 3.14159265358979323846) * lift);
+      // Squashed horizontally at the ends, so it reads as turning rather than
+      // sliding flat across.
+      const int w = std::max(uiScaled(4),
+                             static_cast<int>(sheetW * (0.45 + 0.55 * std::sin(phase * 3.14159265358979323846))));
+      SDL_Rect fly {x, y, w, sheetH};
+      Primitives::fillRect(controlRenderer_, fly, paper);
+      Primitives::strokeRect(controlRenderer_, fly, edge);
+      // Two ruled lines, so a sheet looks like a slide and not a blank card.
+      if (w > uiScaled(8)) {
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect{fly.x + 2, fly.y + sheetH / 3, w - 4, 1}, soft);
+        Primitives::fillRect(controlRenderer_,
+                             SDL_Rect{fly.x + 2, fly.y + (sheetH * 2) / 3, w - 4, 1}, soft);
+      }
+    }
+
+    // ── The scan bar ────────────────────────────────────────────────────────
+    // Sweeps the full stage on its own slower clock, the one part that says
+    // "something is being rendered" rather than "something is being moved".
+    const double sweep = std::fmod(t * 0.8, 1.0);
+    const int sx = stage.x + static_cast<int>(sweep * std::max(1, stage.w - 2));
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_Color glow {ink.r, ink.g, ink.b, 120};
+    Primitives::fillRect(controlRenderer_, SDL_Rect{sx, stage.y, uiScaled(2), stage.h}, glow);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    // ── The caption ─────────────────────────────────────────────────────────
+    if (tip && tip[0] && fontSmall_) {
+      SDL_Rect capRect {area.x, area.y + area.h - capH, area.w, capH};
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, capRect, tip, ink);
+    }
+  }
+
   void renderSlideRenderCard(int windowWidth, int windowHeight) {
     if (slideRenderJobs_ <= 0) {
       return;
@@ -1896,7 +1995,7 @@
     if (slideRenderJobs_ > 1) {
       tip += "  (" + std::to_string(slideRenderJobs_) + " decks)";
     }
-    drawStartupMascot(face, animationNow_, tip.c_str());
+    drawSlideRenderAnimation(face, animationNow_, tip.c_str(), done, total);
 
     SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(46),
                   card.w - uiScaled(40), uiScaled(14)};
