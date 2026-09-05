@@ -512,6 +512,13 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
         << '\t' << cue.videoSynth.asciiWobbleMode
         // What an Audio cue draws while it plays. APPENDED, never inserted.
         << '\t' << static_cast<int>(cue.audioVisual)
+        // The displacement mesh. APPENDED, never inserted.
+        << '\t' << (cue.meshEnabled ? "1" : "0")
+        << '\t' << cue.meshHeight
+        << '\t' << cue.meshTiltX
+        << '\t' << cue.meshTiltY
+        << '\t' << cue.meshSpin
+        << '\t' << cue.meshGrid
         << '\n';
     }
   }
@@ -1470,6 +1477,18 @@ Project loadProject(const fs::path& projectFile,
         cue.audioVisual = static_cast<AudioVisual>(
           std::clamp(safeInt(fields, vs + 48, 0), 0,
                      static_cast<int>(AudioVisual::Cover)));
+        // Mesh, appended last. Disabled by default, so every show saved
+        // before it existed reopens as the flat quad it has always been.
+        cue.meshEnabled = safeBool(fields, vs + 49, false);
+        cue.meshHeight = std::clamp(
+          static_cast<float>(safeDouble(fields, vs + 50, 0.35)), 0.0f, 1.0f);
+        cue.meshTiltX = std::clamp(
+          static_cast<float>(safeDouble(fields, vs + 51, 0.25)), -1.0f, 1.0f);
+        cue.meshTiltY = std::clamp(
+          static_cast<float>(safeDouble(fields, vs + 52, 0.0)), -1.0f, 1.0f);
+        cue.meshSpin = std::clamp(
+          static_cast<float>(safeDouble(fields, vs + 53, 0.15)), 0.0f, 1.0f);
+        cue.meshGrid = std::clamp(safeInt(fields, vs + 54, 48), 8, 160);
       }
       if (!cue.path.empty()) {
         if (cue.name.empty()) {

@@ -370,6 +370,22 @@
     bool hadClip = SDL_RenderClipEnabled(renderer);
     if (hadClip) SDL_GetRenderClipRect(renderer, &prevClip);
     SDL_SetRenderClipRect(renderer, &target);
+    // THE ONE PLACE THIS IS NOT A FLAT QUAD.
+    //
+    // A cue with the mesh armed is drawn as a displaced grid instead of a
+    // rectangle: same texture, same destination, more vertices, and a height
+    // taken from the picture. Falls back to the ordinary blit whenever the
+    // brightness field is not available, so a mesh cue on a source that
+    // cannot be sampled still shows its picture rather than nothing.
+    if (cue && cue->meshEnabled && cue->meshHeight > 0.001f &&
+        renderDisplacementMesh(renderer, texture, destination,
+                               meshLumaField_, meshLumaW_, meshLumaH_,
+                               cue->meshHeight, cue->meshTiltX,
+                               static_cast<float>(meshDriftYaw(*cue)),
+                               cue->meshGrid, 1.0f)) {
+      SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
+      return;
+    }
     SDL_Point center {destination.w / 2, destination.h / 2};
     SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
     SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);

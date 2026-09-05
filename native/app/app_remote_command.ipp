@@ -1504,6 +1504,68 @@
     // Named modes, not an index: a surface button that sends "3" would follow
     // the enum if a mode were ever inserted, and silently start selecting a
     // different picture on every show that used it.
+    // MESH <on|off|toggle|height|tilt|yaw|spin|grid> [value]
+    //
+    // The one cue property that changes HOW the picture is drawn rather than
+    // what is in it: the quad becomes a displaced grid. Named sub-verbs, not
+    // an index, for the same reason AUDIOVIS uses names.
+    if (command == "MESH" || command == "MESH3D") {
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("MESH: no cue selected");
+        return;
+      }
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      auto number = [&](int at, float lo, float hi, float& into) {
+        if (parts.size() <= static_cast<std::size_t>(at)) return false;
+        try {
+          into = std::clamp(std::stof(parts[at]), lo, hi);
+          return true;
+        } catch (...) { return false; }
+      };
+      if (sub == "STATUS") {
+        std::ostringstream s;
+        s << (cue->meshEnabled ? "on" : "off")
+          << " height=" << cue->meshHeight
+          << " tilt=" << cue->meshTiltX
+          << " yaw=" << cue->meshTiltY
+          << " spin=" << cue->meshSpin
+          << " grid=" << cue->meshGrid;
+        remoteCommandDetail_ = s.str();
+        return;
+      }
+      if (sub == "ON" || sub == "OFF" || sub == "TOGGLE") {
+        cue->meshEnabled = (sub == "TOGGLE") ? !cue->meshEnabled : (sub == "ON");
+        markProjectDirty();
+        triggerToast(cue->meshEnabled ? "mesh on" : "mesh off");
+        return;
+      }
+      if (sub == "HEIGHT" && number(2, 0.0f, 1.0f, cue->meshHeight)) {
+        markProjectDirty();
+        return;
+      }
+      if (sub == "TILT" && number(2, -1.0f, 1.0f, cue->meshTiltX)) {
+        markProjectDirty();
+        return;
+      }
+      if (sub == "YAW" && number(2, -1.0f, 1.0f, cue->meshTiltY)) {
+        markProjectDirty();
+        return;
+      }
+      if (sub == "SPIN" && number(2, 0.0f, 1.0f, cue->meshSpin)) {
+        markProjectDirty();
+        return;
+      }
+      if (sub == "GRID" && parts.size() > 2) {
+        try {
+          cue->meshGrid = std::clamp(std::stoi(parts[2]), 8, 160);
+          markProjectDirty();
+          return;
+        } catch (...) {}
+      }
+      failRemoteCommand("MESH: expected on|off|toggle|height|tilt|yaw|spin|grid");
+      return;
+    }
     if (command == "AUDIOVIS" || command == "AUDIOVISUAL") {
       Cue* cue = selectedCueMutable();
       if (!cue || cue->kind != CueKind::Audio) {

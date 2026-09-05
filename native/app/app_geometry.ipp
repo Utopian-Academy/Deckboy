@@ -159,6 +159,123 @@
                               indices.data(), static_cast<int>(indices.size()));
   }
 
+  // ---------------------------------------------------------------------------
+  // renderDisplacementMesh - the picture as a landscape of itself.
+  //
+  // Deckboy composites in 2D: every cue is a textured quad. This is the one
+  // place that is not true. The quad becomes a grid, each vertex is pushed out
+  // of the plane by the brightness of the picture at that point, and the whole
+  // surface is turned under a viewpoint and projected back.
+  //
+  // It is REAL GEOMETRY. SDL_RenderGeometry already draws arbitrary textured
+  // triangles -- the perspective warp uses it -- so this needs no new
+  // dependency, no shader and no depth buffer. What it does need is the
+  // brightness field, which is why it is handed a small luma grid sampled from
+  // the frame rather than reading the texture back every frame.
+  //
+  // Two things are deliberately absent:
+  //
+  //   * No depth SORTING. Triangles are emitted back-to-front by row, which is
+  //     correct for a heightfield seen from above the horizon -- the case this
+  //     is for. Tilt past vertical and it will self-overlap; that is a knob an
+  //     operator can see and hear about rather than a per-triangle sort that
+  //     would cost more than the mesh.
+  //   * No lighting. relight already does that as an effect, on the pixels,
+  //     where it composes with everything else in the stack.
+  static bool renderDisplacementMesh(SDL_Renderer* renderer,
+                                     SDL_Texture* texture,
+                                     const SDL_Rect& target,
+                                     const std::vector<float>& luma,
+                                     int lumaW, int lumaH,
+                                     float height, float tiltX, float tiltY,
+                                     int grid, float alpha) {
+    if (!renderer || !texture || luma.empty() || lumaW < 2 || lumaH < 2) {
+      return false;
+    }
+    const int cells = std::clamp(grid, 8, 160);
+    const int verts = cells + 1;
+
+    // The viewpoint: pitch, then yaw, then a weak perspective divide. Weak on
+    // purpose -- a full projection at this field of view makes the near edge
+    // of the surface race off the screen the moment it tilts.
+    const double px = std::clamp(static_cast<double>(tiltX), -1.0, 1.0) * 0.9;
+    const double py = std::clamp(static_cast<double>(tiltY), -1.0, 1.0) * 0.9;
+    const double cx = std::cos(px), sx = std::sin(px);
+    const double cy = std::cos(py), sy = std::sin(py);
+    const double lift = std::clamp(static_cast<double>(height), 0.0, 1.0);
+
+    const double halfW = target.w * 0.5;
+    const double halfH = target.h * 0.5;
+    const double midX = target.x + halfW;
+    const double midY = target.y + halfH;
+
+    std::vector<SDL_Vertex> vertices;
+    vertices.reserve(static_cast<std::size_t>(verts) * verts);
+    const SDL_FColor tint {1.0f, 1.0f, 1.0f, std::clamp(alpha, 0.0f, 1.0f)};
+
+    for (int row = 0; row < verts; ++row) {
+      const double v = static_cast<double>(row) / cells;
+      for (int col = 0; col < verts; ++col) {
+        const double u = static_cast<double>(col) / cells;
+        // Brightness at this vertex, bilinear from the small luma grid so the
+        // surface is smooth rather than stepped at the sample spacing.
+        const double fx = u * (lumaW - 1);
+        const double fy = v * (lumaH - 1);
+        const int x0 = std::clamp(static_cast<int>(fx), 0, lumaW - 1);
+        const int y0 = std::clamp(static_cast<int>(fy), 0, lumaH - 1);
+        const int x1 = std::min(x0 + 1, lumaW - 1);
+        const int y1 = std::min(y0 + 1, lumaH - 1);
+        const double tx = fx - x0, ty = fy - y0;
+        const double l00 = luma[static_cast<std::size_t>(y0) * lumaW + x0];
+        const double l10 = luma[static_cast<std::size_t>(y0) * lumaW + x1];
+        const double l01 = luma[static_cast<std::size_t>(y1) * lumaW + x0];
+        const double l11 = luma[static_cast<std::size_t>(y1) * lumaW + x1];
+        const double l = (l00 * (1 - tx) + l10 * tx) * (1 - ty)
+                       + (l01 * (1 - tx) + l11 * tx) * ty;
+
+        // Model space, centred, with brightness as height.
+        double mx = (u - 0.5) * 2.0;
+        double my = (v - 0.5) * 2.0;
+        double mz = (l - 0.5) * 2.0 * lift;
+
+        // Pitch about X, then yaw about Y.
+        double ry = my * cx - mz * sx;
+        double rz = my * sx + mz * cx;
+        double rx = mx * cy + rz * sy;
+        rz = -mx * sy + rz * cy;
+
+        // Weak perspective. The 2.6 is a camera distance in model units: any
+        // closer and the divide swings the near row across the whole frame.
+        const double persp = 2.6 / (2.6 + rz);
+        SDL_Vertex vert;
+        vert.position.x = static_cast<float>(midX + rx * halfW * persp);
+        vert.position.y = static_cast<float>(midY + ry * halfH * persp);
+        vert.tex_coord.x = static_cast<float>(u);
+        vert.tex_coord.y = static_cast<float>(v);
+        vert.color = tint;
+        vertices.push_back(vert);
+      }
+    }
+
+    std::vector<int> indices;
+    indices.reserve(static_cast<std::size_t>(cells) * cells * 6);
+    for (int row = 0; row < cells; ++row) {
+      for (int col = 0; col < cells; ++col) {
+        const int tl = row * verts + col;
+        const int tr = tl + 1;
+        const int bl = (row + 1) * verts + col;
+        const int br = bl + 1;
+        indices.push_back(tl); indices.push_back(tr); indices.push_back(br);
+        indices.push_back(tl); indices.push_back(br); indices.push_back(bl);
+      }
+    }
+
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    return SDL_RenderGeometry(renderer, texture,
+                              vertices.data(), static_cast<int>(vertices.size()),
+                              indices.data(), static_cast<int>(indices.size()));
+  }
+
   static bool solve8x8(double matrix[8][9]) {
     for (int pivot = 0; pivot < 8; ++pivot) {
       int pivotRow = pivot;
