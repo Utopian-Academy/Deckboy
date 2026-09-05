@@ -1861,6 +1861,9 @@
     }
 
     // --- Cue Inspector panel (with thumbnail at top) ---
+    // Kept so the creature colonies can find the empty part of this
+    // column, the same way they find the empty part of the playlist.
+    inspectorBodyRect_ = inspectorBody;
     SDL_Rect ctrl = inspectorBody;
     // Fill the inspector body with shell_inner so the bare row labels (drawn
     // in pal.deep) have the legible fill the palette.hpp contract assumes for

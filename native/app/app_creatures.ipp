@@ -27,8 +27,8 @@
     if (themeCreatures_.empty()) {
       return false;   // the theme did not ask for any
     }
-    if (creatureHabitat_.w < 80 || creatureHabitat_.h < 70) {
-      return false;   // a full playlist leaves them nowhere to be
+    if (colonies_.empty()) {
+      return false;   // a full playlist and a full inspector leave nowhere to be
     }
     if (!project_.creaturesWhileLive) {
       for (const auto& output : project_.outputs) {
@@ -51,34 +51,77 @@
     if (creatureFade_ < 0.01 && target == 0.0) {
       return;   // nothing on screen: do not pay to simulate
     }
-    if (creatureHabitat_.w > 8 && creatureHabitat_.h > 8) {
-      deckboy::creatures::step(creatures_, creatureHabitat_, dt, nowSeconds,
-                               creatureLureX_, creatureLureY_);
+    // Each colony is stepped against ITS OWN habitat. step() bounds a
+    // creature to the band it was given, so sharing one habitat across two
+    // panels would let an animal walk out of one and hover over the other.
+    for (auto& colony : colonies_) {
+      if (colony.home.w > 8 && colony.home.h > 8) {
+        deckboy::creatures::step(colony.creatures, colony.home, dt, nowSeconds,
+                                 creatureLureX_, creatureLureY_);
+      }
     }
   }
 
   // Rebuild the population from whatever the current theme asked for.
+  // Every gap in the shell the layout has told us about. A creature may only
+  // ever live in one of these, which is what keeps the rule that they are
+  // never drawn over a control -- the app finds the gaps, the creatures know
+  // nothing about panels.
+  std::vector<deckboy::creatures::Habitat> creatureHabitats() const {
+    std::vector<deckboy::creatures::Habitat> out;
+    auto consider = [&out](const SDL_Rect& r, bool ledge) {
+      if (r.w >= 80 && r.h >= 70) {
+        out.push_back(deckboy::creatures::Habitat {r.x, r.y, r.w, r.h, ledge});
+      }
+    };
+    // The empty part of the playlist, under the last cue. A ledge: the row
+    // above it is a surface things can walk along.
+    consider(playlistFreeRect_, true);
+    // The empty part of the inspector, under its last open section. No ledge --
+    // it is a wall of panel, so this is where the fliers go.
+    if (inspectorBodyRect_.w > 0 && inspectorSectionBottomMax_ > 0) {
+      const int top = inspectorSectionBottomMax_ + 10;
+      const int bottom = inspectorBodyRect_.y + inspectorBodyRect_.h - 6;
+      consider(SDL_Rect {inspectorBodyRect_.x + 6, top,
+                         inspectorBodyRect_.w - 12, std::max(0, bottom - top)}, false);
+    }
+    return out;
+  }
+
   void rebuildCreatures() {
+    colonies_.clear();
     creatures_.clear();
     // Nowhere to put them yet. Placing against an empty habitat pinned every
     // animal to 0,0 and left it clamped against an edge for the rest of the
     // session -- the cat was there the whole time, drawn half outside the
     // panel and clipped away.
-    if (creatureHabitat_.w < 80 || creatureHabitat_.h < 70) {
+    const std::vector<deckboy::creatures::Habitat> homes = creatureHabitats();
+    if (homes.empty()) {
       return;
     }
+    // The theme's cast is DEALT ROUND the habitats rather than duplicated into
+    // each: a theme that asks for two moths gets two moths in the window, not
+    // two per gap. With one habitat this is exactly what it always did.
     std::uint32_t seed = 1u;
+    colonies_.resize(homes.size());
+    for (std::size_t i = 0; i < homes.size(); ++i) {
+      colonies_[i].home = homes[i];
+    }
+    std::size_t next = 0;
     for (const auto& request : themeCreatures_) {
       for (int i = 0; i < request.count; ++i) {
+        Colony& colony = colonies_[next % colonies_.size()];
+        ++next;
         deckboy::creatures::Creature c;
         c.species = request.species;
-        deckboy::creatures::place(c, creatureHabitat_, seed++);
-        creatures_.push_back(c);
+        deckboy::creatures::place(c, colony.home, seed++);
+        colony.creatures.push_back(c);
       }
     }
   }
 
-  void drawOneCreature(const deckboy::creatures::Creature& c, Uint8 alpha) {
+  void drawOneCreature(const deckboy::creatures::Creature& c, Uint8 alpha,
+                       const deckboy::creatures::Habitat& home) {
     using deckboy::creatures::Species;
     const int x = static_cast<int>(std::lround(c.x));
     const int y = static_cast<int>(std::lround(c.y));
@@ -167,9 +210,12 @@
       case Species::Spider: {
         // The THREAD is what makes it a spider rather than a bug: a line back
         // up to wherever it started.
-        const int drop = std::max(0, y - creatureHabitat_.y - 6);
+        // From the top of ITS OWN gap. With one habitat this was the same
+        // number; with a spider in the inspector it was a thread anchored to
+        // the playlist, drawn across everything in between.
+        const int drop = std::max(0, y - home.y - 6);
         Primitives::fillRect(controlRenderer_,
-          SDL_Rect {x, creatureHabitat_.y + 6, 1, drop}, accent);
+          SDL_Rect {x, home.y + 6, 1, drop}, accent);
         dot(-2, 0, 5, 4, ink);                       // body
         const int leg = static_cast<int>(std::lround(
           std::sin(t * 6.0 + c.phase)));
@@ -233,13 +279,15 @@
   }
 
   void renderCreatures() {
-    if (creatureFade_ < 0.01 || creatures_.empty()) {
+    if (creatureFade_ < 0.01 || colonies_.empty()) {
       return;
     }
     const Uint8 alpha = static_cast<Uint8>(std::clamp(creatureFade_, 0.0, 1.0) * 205.0);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    for (const auto& c : creatures_) {
-      drawOneCreature(c, alpha);
+    for (const auto& colony : colonies_) {
+      for (const auto& c : colony.creatures) {
+        drawOneCreature(c, alpha, colony.home);
+      }
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
   }
