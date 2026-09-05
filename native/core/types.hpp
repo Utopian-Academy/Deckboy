@@ -1397,6 +1397,8 @@ enum class QuickAction {
   AudioFadeOutDec, AudioFadeOutInc,
   AudioOutPairDec, AudioOutPairInc,
   AudioVisualPrev, AudioVisualNext,
+  // Dashboard tiles. Each carries its slot index in QuickButton::param.
+  DashSlotFire, DashSlotEdit, DashSlotColor, DashSlotAdd,
   CueSectionAudioToggle,
   // -- Metadata / labels ---
   CycleColorTag,

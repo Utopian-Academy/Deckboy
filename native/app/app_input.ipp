@@ -1034,6 +1034,10 @@
       return;
     }
 
+    if (dashboardOverlayOpen_ && key == SDLK_ESCAPE) {
+      dashboardOverlayOpen_ = false;
+      return;
+    }
     if (shortcutsOverlayOpen_) {
       if (key == SDLK_ESCAPE || key == SDLK_SLASH) {
         shortcutsOverlayOpen_ = false;
@@ -1091,6 +1095,11 @@
     }
     if (ctrl && shift && key == SDLK_V) {
       pasteFocusedWarpSettings();
+      return;
+    }
+    // Ctrl+D — the dashboard
+    if (ctrl && key == SDLK_D) {
+      dashboardOverlayOpen_ = !dashboardOverlayOpen_;
       return;
     }
     // Ctrl+/ — keyboard shortcuts overlay

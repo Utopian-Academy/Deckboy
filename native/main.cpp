@@ -7477,6 +7477,11 @@ class App {
 
   // Keyboard shortcuts overlay
   bool shortcutsOverlayOpen_ = false;
+  bool dashboardOverlayOpen_ = false;
+  // Which tile was fired last and when, so it can squish on press. Purely
+  // cosmetic and runtime-only.
+  int dashPressedSlot_ = -1;
+  Uint64 dashPressedAtMs_ = 0;
 
   // Undo/redo state snapshots
   std::vector<Project> undoStack_;
