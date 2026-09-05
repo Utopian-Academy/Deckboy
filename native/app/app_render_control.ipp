@@ -614,9 +614,14 @@
 
       // Place right-anchored buttons first so fader can fill what's left
       int rx = toolbar.x + toolbar.w - 8;
+      // MEASURE WITH THE FONT THAT DRAWS. This sized every toolbar button with
+      // fontSmall_ while drawTBtn renders with btnFont (the pixel face), so the
+      // moment those two differed in width the label no longer fitted the
+      // button that was sized for it -- at Pocket/touch scale NEW, OPEN, SAVE
+      // and BUNDLE came out completely blank, ellipsized away to nothing.
       auto autoW = [&](const char* text, int minW = 60) -> int {
-        int tw = 0; TTF_GetStringSize(fontSmall_, text, 0, &tw, nullptr);
-        return std::max(minW, tw + 20);
+        int tw = 0; TTF_GetStringSize(btnFont, text, 0, &tw, nullptr);
+        return std::max(uiScaled(minW), tw + uiScaled(20));
       };
       bool isFullscreen = isAnyOutputFullscreen();
       constexpr int kIconBtnW = 44;
@@ -729,12 +734,20 @@
       }
 
       // Left-anchored buttons
-      int ax = toolbar.x + 8;
-      fileNewBtnRect_    = {ax, ty, 60, kTBtnH}; ax += 60 + kTBtnGap;
-      fileOpenBtnRect_   = {ax, ty, 72, kTBtnH}; ax += 72 + kTBtnGap;
-      fileSaveBtnRect_   = {ax, ty, 60, kTBtnH}; ax += 60 + kTGrpGap;
+      // MEASURED, not guessed. These were 60, 72 and 92 raw pixels, which is
+      // what a 1x pixel font needs and nothing like what a doubled one does --
+      // at Pocket scale NEW, OPEN, SAVE and BUNDLE were drawn as four empty
+      // boxes, their labels ellipsized away to nothing inside them.
+      int ax = toolbar.x + uiScaled(8);
+      const int newW    = autoW("NEW", 60);
+      const int openW   = autoW("OPEN", 72);
+      const int saveW   = autoW("SAVE", 60);
+      const int bundleW = autoW("BUNDLE", 92);
+      fileNewBtnRect_    = {ax, ty, newW, kTBtnH};    ax += newW + kTBtnGap;
+      fileOpenBtnRect_   = {ax, ty, openW, kTBtnH};   ax += openW + kTBtnGap;
+      fileSaveBtnRect_   = {ax, ty, saveW, kTBtnH};   ax += saveW + kTGrpGap;
       fileSaveAsBtnRect_ = SDL_Rect {};  // SAVE always prompts, so no separate SAVE AS
-      fileBundleBtnRect_ = {ax, ty, 92, kTBtnH}; ax += 92 + kTGrpGap;
+      fileBundleBtnRect_ = {ax, ty, bundleW, kTBtnH}; ax += bundleW + kTGrpGap;
       drawTBtn(fileNewBtnRect_,  "NEW");
       drawTBtn(fileOpenBtnRect_, "OPEN");
       drawTBtn(fileSaveBtnRect_, "SAVE");
@@ -744,11 +757,16 @@
       // warning, not another file action.
       fileRelinkBtnRect_ = SDL_Rect {};
       if (missingMediaCount_ > 0) {
-        fileRelinkBtnRect_ = {ax, ty, 104, kTBtnH}; ax += 104 + kTGrpGap;
+        // Measured like its neighbours: 104 raw pixels held "RELINK 3" at 1x
+        // and showed "RELI..." at Pocket scale. The count makes the label a
+        // variable width, so guessing was never right for long.
+        const std::string relinkLabel = "RELINK " + std::to_string(missingMediaCount_);
+        const int relinkW = autoW(relinkLabel.c_str(), 104);
+        fileRelinkBtnRect_ = {ax, ty, relinkW, kTBtnH}; ax += relinkW + kTGrpGap;
         drawUIPanel(fileRelinkBtnRect_, SDL_Color {160, 18, 18, 255}, pal.deep, pal.mid);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, fileRelinkBtnRect_,
-                             "RELINK " + std::to_string(missingMediaCount_),
-                             SDL_Color {255, 210, 210, 255});
+        // Drawn with the font it was measured with -- see autoW.
+        drawCenteredTextSafe(controlRenderer_, btnFont, fileRelinkBtnRect_,
+                             relinkLabel, SDL_Color {255, 210, 210, 255});
       }
 
       SDL_Rect sep1 {ax, ty + 4, 2, kTBtnH - 8};
@@ -1845,7 +1863,9 @@
 
       if (icon && icon->texture) {
         // Icon on left, label on right
-        int iconSize = std::min(24, button.rect.h - 16);
+        // Also scaled: a 24px icon in a doubled button looked like a speck,
+        // and the fixed 8px inset left the label starting in the wrong place.
+        int iconSize = std::min(uiScaled(24), button.rect.h - uiScaled(16));
         int iconX = button.rect.x + 8;
         int iconY = button.rect.y + (button.rect.h - iconSize) / 2;
         SDL_Rect iconRect {iconX, iconY, iconSize, iconSize};
@@ -1861,8 +1881,12 @@
         drawCenteredTextSafe(controlRenderer_, btnFont, labelRect, clipped, button.text);
       } else {
         // Text only — centered, prefer pixel font for that Nintendo feel
+        // "Is this button small?" is a question about the LAYOUT, so the
+        // thresholds have to move with it. At 2x every button is over 112px
+        // wide and was judged roomy while carrying a doubled font.
         TTF_Font* titleFont = fontPixelSmall_ ? fontPixelSmall_ :
-                              ((button.rect.h < 34 || button.rect.w < 112 || button.label.size() > 7)
+                              ((button.rect.h < uiScaled(34) || button.rect.w < uiScaled(112)
+                                || button.label.size() > 7)
                               ? fontSmall_ : fontBase_);
         std::string clipped = ellipsizeToPixelWidth(titleFont, button.label, std::max(0, button.rect.w - 10));
         SDL_Rect titleRect {button.rect.x + 4, button.rect.y + 8, button.rect.w - 8, button.rect.h - 14};

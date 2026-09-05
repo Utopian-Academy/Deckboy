@@ -1,5 +1,21 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.315 (Pocket and touch mode is legible again)
+
+**The bottom bar says what its buttons do at touch scale.** IMPORT read
+"IM...", BLACKOUT read "B...", and the toolbar's NEW, OPEN, SAVE and BUNDLE
+were four completely empty boxes. Three separate causes, all the same mistake:
+sizes authored in raw pixels while the font follows the UI scale. The toolbar
+also measured its buttons with one font and drew them with another, so the
+label never had a chance of fitting the button sized for it.
+
+**Where a row genuinely will not fit, it wraps instead of shrinking the
+words.** Ten buttons at double size do not fit across a small screen, which is
+the whole situation Pocket mode is for - but the group boxes were mostly empty
+below their single row. They now take the second row that was already there
+and keep full-width labels, and a button left alone on a row gets the width it
+is owed rather than the two-up width. At 1x nothing moves.
+
 ## 2026-09-06 - v0.99.314 (the parts nobody had read)
 
 **A row of ST 2110 with an odd width no longer writes past its buffer.** The

@@ -4590,7 +4590,21 @@
     outputGroupRect_ = groups.cell(2, 0);
 
     int buttonH = kLayoutButtonHeight;
-    int buttonW = std::clamp((std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3, 96, 144);
+    // SCALED BOUNDS. The kLayout* metrics follow uiScale but these two numbers
+    // did not, so at Pocket/touch scale the font doubled inside a button that
+    // could still be no wider than 144px: IMPORT became "IM...", SOURCE became
+    // "SO...", and the whole bottom bar stopped saying what its buttons do.
+    // A MINIMUM THAT DOES NOT FIT IS NOT A MINIMUM, IT IS AN OVERLAP.
+    //
+    // This wanted a comfortable touch target, so it clamped UP to one. At
+    // Pocket scale that floor (192px) was wider than a third of the group, and
+    // three of them ran straight out of the box: PATTERN was drawn across
+    // TRANSPORT, RERACK across OUTPUT. The available width is the hard limit
+    // and the preferred size is only a preference -- a button that is smaller
+    // than ideal is readable, one drawn on top of its neighbour is not.
+    const int fitsPerButton =
+      (std::min(mediaGroupRect_.w, transportGroupRect_.w) - (kLayoutButtonGap * 4)) / 3;
+    int buttonW = std::clamp(fitsPerButton, 1, uiScaled(144));
 
     auto push = [&](std::string label, SDL_Color fill, std::string tip = "") {
       Button button;
@@ -4635,21 +4649,88 @@
     }
     push("SETTINGS",   pal.mid, "Open settings");
 
+    // WRAP RATHER THAN SHRINK THE WORDS.
+    //
+    // At Pocket/touch scale ten buttons in a row cannot hold a doubled font at
+    // this width -- IMPORT came out "IM...", BLACKOUT as "B...", which is
+    // exactly the information a bottom bar exists to carry. But these group
+    // boxes are mostly EMPTY below the buttons: one row of controls in a box
+    // deep enough for two.
+    //
+    // So when a row will not fit, take the second row that is already there.
+    // Two rows of wide buttons say what they do; one row of narrow ones does
+    // not, and shrinking the label on a touch target is the wrong trade twice
+    // over.
     auto placeGroupButtons = [&](int startIndex, int count, const SDL_Rect& groupRect, int overrideW = 0) {
-      int bw = overrideW > 0 ? overrideW : buttonW;
-      int totalW = count * bw + (count - 1) * kLayoutButtonGap;
-      int x = groupRect.x + std::max(kLayoutSpacingUnit, (groupRect.w - totalW) / 2);
-      int y = groupRect.y + 36;
+      const int titleH = 36;
+      const int avail = groupRect.w - kLayoutSpacingUnit * 2;
+
+      // THE TRIGGER IS THE LABEL, NOT THE ROW.
+      //
+      // First version asked whether the buttons fitted the row -- which they
+      // always do, because their width is computed from the row in the first
+      // place. The question that matters is whether the WORD fits the BUTTON,
+      // so measure it with the font that will draw it.
+      TTF_Font* labelFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      int widestLabel = 0;
       for (int i = 0; i < count; ++i) {
-        buttons_[startIndex + i].rect = {x, y, bw, buttonH};
-        x += bw + kLayoutButtonGap;
+        int tw = 0;
+        if (labelFont) {
+          TTF_GetStringSize(labelFont, buttons_[startIndex + i].label.c_str(), 0, &tw, nullptr);
+        }
+        widestLabel = std::max(widestLabel, tw);
+      }
+      // Icon+text buttons keep an icon to the left of the word.
+      const int needW = widestLabel + uiScaled(34);
+
+      int perRow = count;
+      int bw = overrideW > 0 ? overrideW : buttonW;
+      if (bw < needW) {
+        // Split as evenly as possible: 3 becomes 2+1, 4 becomes 2+2.
+        perRow = (count + 1) / 2;
+        const int wider = (avail - (perRow - 1) * kLayoutButtonGap) / std::max(1, perRow);
+        // Only worth it if the second row actually buys width AND there is
+        // room below for it.
+        const int rowsH = buttonH * 2 + kLayoutButtonGap;
+        if (wider > bw && groupRect.h - titleH >= rowsH) {   // the second row buys width
+          bw = std::min(wider, uiScaled(144) * 2);
+        } else {
+          perRow = count;   // no better; stay on one row and let it ellipsize
+        }
+      }
+
+      const int rows = (count + perRow - 1) / perRow;
+      const int rowsH = rows * buttonH + (rows - 1) * kLayoutButtonGap;
+      int y = groupRect.y + titleH;
+      // Centre the block vertically in whatever is left, so a two-row group
+      // does not sit jammed under its title with a gap beneath it.
+      y += std::max(0, (groupRect.h - titleH - rowsH) / 2);
+
+      for (int i = 0; i < count; ++i) {
+        const int row = i / perRow;
+        const int col = i % perRow;
+        const int inRow = std::min(perRow, count - row * perRow);
+        // A SHORT ROW GETS THE WIDTH IT IS OWED. PATTERN ended up alone on
+        // the second row and still drawn at the two-up width, so it was the
+        // one button left saying "PAT...". Capped so a lone button does not
+        // become a banner twice the size of its neighbours.
+        const int rowBw = (inRow < perRow)
+          ? std::min((avail - (inRow - 1) * kLayoutButtonGap) / std::max(1, inRow),
+                     uiScaled(144) * 2)
+          : bw;
+        const int rowW = inRow * rowBw + (inRow - 1) * kLayoutButtonGap;
+        const int x = groupRect.x + std::max(kLayoutSpacingUnit, (groupRect.w - rowW) / 2)
+                    + col * (rowBw + kLayoutButtonGap);
+        buttons_[startIndex + i].rect = {x, y + row * (buttonH + kLayoutButtonGap),
+                                         rowBw, buttonH};
       }
     };
     if (buttons_.size() == 10) {
       placeGroupButtons(0, 3, mediaGroupRect_);
       placeGroupButtons(3, 3, transportGroupRect_);
       // OUTPUT now holds four: BLACKOUT, CLEAR, RECORD, SETTINGS.
-      int outBtnW = std::clamp((outputGroupRect_.w - kLayoutButtonGap * 5) / 4, 72, buttonW);
+      // Four buttons in this group, and the same rule: fit first.
+      int outBtnW = std::clamp((outputGroupRect_.w - kLayoutButtonGap * 5) / 4, 1, buttonW);
       placeGroupButtons(6, 4, outputGroupRect_, outBtnW);
     }
   }
