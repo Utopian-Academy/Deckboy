@@ -1,5 +1,19 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.309 (you can see your clips)
+
+**The playlist shows each clip's own picture.** A list of filenames is a list
+you have to read; a still turns it into one you can scan, which is what it is
+for during a show. Every video and still cue draws its own frame at the head of
+its row.
+
+It never blocks: a row draws only from the cache, and the first row that finds
+itself without a picture asks for one. So a thousand-cue playlist runs one
+decode at a time and fills in as you look at it, rather than launching a
+thousand at once. The stills come from the cache that already existed for the
+selected cue - it could always decode any cue, it had simply only ever been
+asked for one.
+
 ## 2026-09-05 - v0.99.308 (a dashboard, six new effects, and nothing unreachable)
 
 **Six new effects.** *Slit scan* holds one frame and refreshes a moving band

@@ -968,6 +968,8 @@
     renderContextMenu();
     renderSettingsModal();
     renderDropdownPopover();
+    // One decode per frame, after the list has said what it is missing.
+    servicePendingRowThumbnail();
     renderDashboardOverlay();
     renderShortcutsOverlay();
     renderInlineTextEditor();
@@ -1282,6 +1284,48 @@
     drawUIPanel(row, fill, border, accent);
 
     // Color tag chip
+    // ── The clip's own picture, at the head of its row ──────────────────
+    //
+    // A playlist of filenames is a playlist you have to READ. A still turns it
+    // into one you can scan, which is what it is for during a show.
+    //
+    // Sits after the state indicator, and the whole top line of the row --
+    // placed at x+14 first, which is where those already live, and the number
+    // drew straight through the picture.
+    //
+    // Drawn only from the shared cache; a row never blocks on a decode. If it
+    // has no still yet it asks for one -- the first row to ask each frame wins,
+    // so a thousand-cue list spawns one ffmpeg at a time and fills in as it is
+    // looked at, rather than all at once.
+    SDL_Rect thumbRect {row.x + 50, row.y + 3, 44, row.h - 6};
+    if (cueUsesFilesystemMedia(cue) &&
+        (cue.kind == CueKind::Video || cue.kind == CueKind::Image) &&
+        thumbRect.w > 8 && thumbRect.h > 6) {
+      const std::string key = cueVisualCacheKey(cue);
+      SDL_Texture* tex = nullptr;
+      auto found = rowThumbTex_.find(key);
+      if (found != rowThumbTex_.end()) {
+        tex = found->second;
+      } else {
+        std::lock_guard<std::mutex> lk(thumbnailMutex_);
+        auto cached = selectedThumbnailCache_.find(key);
+        if (cached != selectedThumbnailCache_.end() && !cached->second.pixels.empty()) {
+          tex = uploadRowThumbTexture(key, cached->second);
+        }
+      }
+      if (tex) {
+        Primitives::fillRect(controlRenderer_, thumbRect, pal.deep);
+        SDL_RenderTexture(controlRenderer_, tex, nullptr, &thumbRect);
+      } else {
+        Primitives::fillRect(controlRenderer_, thumbRect, pal.dark);
+        if (rowThumbWantedKey_.empty()) {
+          rowThumbWantedKey_ = key;
+          rowThumbWantedDeck_ = deckIndex;
+          rowThumbWantedCue_ = index;
+        }
+      }
+      Primitives::strokeRect(controlRenderer_, thumbRect, pal.deep);
+    }
     SDL_Rect chip {row.x + 4, row.y + 4, 6, row.h - 8};
     SDL_Color chipColor = !cue.colorTag.empty() ? colorTagToSdl(cue.colorTag) : cue.color;
     Primitives::fillRect(controlRenderer_, chip, chipColor);
@@ -1324,10 +1368,14 @@
     constexpr int kCueActionBtnGap = 4;
     constexpr int kCueActionCount = 5;
     int actionStripW = kCueActionCount * kCueActionBtnW + (kCueActionCount - 1) * kCueActionBtnGap;
-    bool showActionStrip = row.w >= 254;  // nameX(52)+minName(52)+gap(8)+strip(136)+margin(6)
+    bool showActionStrip = row.w >= 302;  // nameX(100)+minName(52)+gap(8)+strip(136)+margin(6)
     int actionStripX = row.x + row.w - actionStripW - 6;
 
-    int nameX = row.x + 52;
+    // Clear of the still (x+50 through x+94), and aligned with the cue number
+    // the ones with no picture, because a name column that steps in and out
+    // depending on whether a thumbnail has decoded yet is worse than a wider
+    // margin.
+    int nameX = row.x + 100;
     // The action strip used to sit on the NAME line, right-aligned, which cost
     // the name 144px and truncated most real filenames to "Rick and Mo...".
     // It now sits on the metadata line, so the name gets the full row width and
@@ -1372,18 +1420,18 @@
     }
 
     // Cue ID and Type — line 1 (top of row)
-    SDL_Rect tokenRect {row.x + 52, row.y + 4, 50, 18};
+    SDL_Rect tokenRect {row.x + 100, row.y + 4, 50, 18};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
       UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
-      SDL_Rect iconRect {row.x + 106, row.y + 3, 22, 22};
+      SDL_Rect iconRect {row.x + 154, row.y + 3, 22, 22};
       if (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect)) {
         // Icon drawn — show kind label shifted right
-        SDL_Rect typeRect {row.x + 130, row.y + 5, 72, 18};
+        SDL_Rect typeRect {row.x + 178, row.y + 5, 72, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       } else {
-        SDL_Rect typeRect {row.x + 106, row.y + 5, 96, 18};
+        SDL_Rect typeRect {row.x + 154, row.y + 5, 96, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       }
     }

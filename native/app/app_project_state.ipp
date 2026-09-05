@@ -2802,21 +2802,87 @@
     pipOverlayRuntimes_.clear();
   }
 
-  void requestThumbnail(const Cue& cue) {
+  // Upload one cached still into a small texture for a playlist row, keeping
+  // the map bounded. Nearest-neighbour would fizz at this size, so these go
+  // through the linear-filtered creator like the timeline filmstrip does.
+  SDL_Texture* uploadRowThumbTexture(const std::string& key, const DecodedFrame& frame) {
+    if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) {
+      return nullptr;
+    }
+    SDL_Texture* tex = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                            SDL_TEXTUREACCESS_STATIC,
+                                            frame.width, frame.height);
+    if (!tex) {
+      return nullptr;
+    }
+    SDL_SetTextureScaleMode(tex, SDL_SCALEMODE_LINEAR);
+    SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    rowThumbTex_[key] = tex;
+    rowThumbOrder_.push_back(key);
+    while (rowThumbOrder_.size() > kRowThumbLimit) {
+      const std::string stale = rowThumbOrder_.front();
+      rowThumbOrder_.pop_front();
+      auto at = rowThumbTex_.find(stale);
+      if (at != rowThumbTex_.end()) {
+        if (at->second) SDL_DestroyTexture(at->second);
+        rowThumbTex_.erase(at);
+      }
+    }
+    return tex;
+  }
+
+  // Ask for the one still the playlist noticed it was missing. Called after
+  // the column has drawn, so at most one decode is ever in flight no matter
+  // how long the list is.
+  void servicePendingRowThumbnail() {
+    if (rowThumbWantedKey_.empty()) {
+      return;
+    }
+    const int deckIndex = rowThumbWantedDeck_;
+    const int cueIndex = rowThumbWantedCue_;
+    rowThumbWantedKey_.clear();
+    rowThumbWantedDeck_ = -1;
+    rowThumbWantedCue_ = -1;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    requestRowThumbnail(deck.cues[cueIndex]);
+  }
+
+  void requestThumbnail(const Cue& cue) { requestThumbnailFor(cue, true); }
+
+  // The same decode, for a cue that is NOT the selection.
+  //
+  // The playlist wants a still for every row it can see, and this already
+  // decoded one for any cue and cached it -- it simply also assumed the result
+  // was for the selected-cue preview, and would have overwritten it. So the
+  // two jobs are named apart: `forSelection` is the only difference, and it
+  // decides whether the finished frame is published to the preview or only
+  // left in the cache for the rows to find.
+  void requestRowThumbnail(const Cue& cue) { requestThumbnailFor(cue, false); }
+
+  void requestThumbnailFor(const Cue& cue, bool forSelection) {
     if (cue.kind != CueKind::Video && cue.kind != CueKind::Image) {
-      clearSelectedThumbnail();
+      if (forSelection) clearSelectedThumbnail();
       return;
     }
     std::string mediaPath = resolvedCueFilesystemPathString(cue, currentProjectFile_);
     if (trim(mediaPath).empty()) {
-      clearSelectedThumbnail();
+      if (forSelection) clearSelectedThumbnail();
       return;
     }
     std::string cacheKey = cueVisualCacheKey(cue);
     bool sameCueVisual = selectedThumbnailCueKey_ == cacheKey;
-    if (selectedThumbnailCueKey_ == cacheKey &&
+    if (forSelection && selectedThumbnailCueKey_ == cacheKey &&
         (selectedThumbnailTex_ || thumbnailLoading_.load())) {
       return;  // already loaded or loading
+    }
+    if (!forSelection && thumbnailLoading_.load()) {
+      return;  // one decode at a time; the row will ask again next frame
     }
     if (thumbnailThread_.joinable()) {
       thumbnailProcess_.killProcessOnly();
@@ -2829,7 +2895,7 @@
     }
     thumbnailPending_.store(false);
     thumbnailLoading_.store(false);
-    if (!sameCueVisual && selectedThumbnailTex_) {
+    if (forSelection && !sameCueVisual && selectedThumbnailTex_) {
       SDL_DestroyTexture(selectedThumbnailTex_);
       selectedThumbnailTex_ = nullptr;
       selectedThumbnailTexW_ = 0;
@@ -2838,6 +2904,9 @@
     {
       std::lock_guard<std::mutex> lk(thumbnailMutex_);
       auto it = selectedThumbnailCache_.find(cacheKey);
+      if (it != selectedThumbnailCache_.end() && !forSelection) {
+        return;   // already cached; the row will pick it up when it draws
+      }
       if (it != selectedThumbnailCache_.end()) {
         selectedThumbnailCacheOrder_.erase(
           std::remove(selectedThumbnailCacheOrder_.begin(), selectedThumbnailCacheOrder_.end(), cacheKey),
@@ -2872,13 +2941,15 @@
                              "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"});
 
     if (!spawnPipeProcess(thumbnailProcess_, args)) {
-      selectedThumbnailCueKey_.clear();
+      if (forSelection) selectedThumbnailCueKey_.clear();
       return;
     }
-    selectedThumbnailCueKey_ = std::move(cacheKey);
+    if (forSelection) {
+      selectedThumbnailCueKey_ = cacheKey;
+    }
     thumbnailLoading_.store(true);
     int fd = thumbnailProcess_.readFd;
-    thumbnailThread_ = std::thread([this, fd, cacheKey = selectedThumbnailCueKey_]() {
+    thumbnailThread_ = std::thread([this, fd, cacheKey, forSelection]() {
       // Named apart from the caller's pair: this runs on the decode thread and
       // the two are not guaranteed to stay the same number.
       constexpr int kThreadThumbW = 320;
@@ -2900,8 +2971,13 @@
           selectedThumbnailCacheOrder_.pop_front();
           selectedThumbnailCache_.erase(staleKey);
         }
-        pendingThumbnail_ = std::move(frame);
-        thumbnailPending_.store(true);
+        if (forSelection) {
+          // Only the selection publishes to the preview. A row thumbnail that
+          // did so would replace the picture the inspector and the timeline
+          // are showing with whatever row happened to decode last.
+          pendingThumbnail_ = std::move(frame);
+          thumbnailPending_.store(true);
+        }
       }
       thumbnailLoading_.store(false);
     });

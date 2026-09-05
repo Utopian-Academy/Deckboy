@@ -7991,6 +7991,17 @@ class App {
     int readyTiles = 0;
   };
   static constexpr size_t kThumbnailCacheLimit = 24;
+  // One small texture per playlist row that has a still. Uploaded from the
+  // shared thumbnail cache the first time a row draws, and bounded well above
+  // a screenful so scrolling does not thrash it.
+  static constexpr size_t kRowThumbLimit = 64;
+  std::map<std::string, SDL_Texture*> rowThumbTex_;
+  std::deque<std::string> rowThumbOrder_;
+  // The next row that wants one. Filled during the playlist pass, acted on
+  // after it, so exactly one decode is in flight however long the list is.
+  std::string rowThumbWantedKey_;
+  int rowThumbWantedDeck_ = -1;
+  int rowThumbWantedCue_ = -1;
   static constexpr size_t kTimelineStripCacheLimit = 24;
   // 9 stills per clip (was 5) so the filmstrip reads as a continuous strip
   // and samples the clip densely enough now that the timeline lane can be
