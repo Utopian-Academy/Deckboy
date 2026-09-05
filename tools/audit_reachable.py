@@ -35,6 +35,11 @@ EXPECT_UNSETTABLE = {
     'outputId', 'cueId', 'shortId', 'autoId',
     # Runtime-only, never meant to persist a user choice.
     'loadedCleanly',
+    # MIGRATION FIELDS. Read from an old show to seed the setting that replaced
+    # them, and never written by a control on purpose -- giving one a button
+    # would wire the UI to a flag the renderer no longer reads.
+    # asciiGreen seeds asciiInk (project_file.ipp: safeInt(..., asciiGreen ? 1 : 0)).
+    'asciiGreen',
 }
 
 FIELD = re.compile(

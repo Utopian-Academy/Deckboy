@@ -7219,6 +7219,14 @@ class App {
   static constexpr int kSettingsActionAsioChannelsDec = 776;
   static constexpr int kSettingsActionAsioChannelsInc = 777;
   static constexpr int kSettingsActionRecordToggle   = 770;
+  // Five settings that were STORED, PERSISTED AND UNREACHABLE. Each was saved
+  // in the show and read back on load, and no control anywhere could set it --
+  // found by tools/audit_reachable.py, wired 2026-09-05.
+  static constexpr int kSettingsActionSt2110Interface = 785;
+  static constexpr int kSettingsActionPtpDomain       = 786;
+  static constexpr int kSettingsActionRecordRemux     = 787;
+  static constexpr int kSettingsActionAsioChannels    = 788;
+  static constexpr int kSettingsActionShowControlId   = 789;
   static constexpr int kSettingsActionRecordDirPick  = 771;
   static constexpr int kSettingsActionRecordDirClear = 772;
   static constexpr int kSettingsActionStreamDestBase = 670;

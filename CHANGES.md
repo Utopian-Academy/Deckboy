@@ -2,6 +2,13 @@
 
 ## 2026-09-05 - v0.99.308 (a dashboard of your own buttons)
 
+**Five settings you could not reach.** Each was saved in the show and read
+back on load, and no control anywhere could set it: the ST 2110 network
+interface, the PTP domain, whether a recording is remuxed to an ordinary MP4
+when the take stops, how many ASIO outputs to open, and the MSC device id the
+rig addresses us by. All five now have controls where they belong. Nothing in
+settings is stored-but-unsettable any more.
+
 **The dashboard has a page.** It had a model, saved slots and network verbs,
 and nowhere to look at them. Ctrl+D opens a grid of your own buttons: each one
 runs any command the network protocol understands, so anything the app can do

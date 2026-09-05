@@ -1056,6 +1056,16 @@
       Primitives::drawFramedPanel(controlRenderer_, bufBtn, pal.mid, pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, bufLabel, ink, bufBtn);
       settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
+      // How many ASIO outputs to open. Saved in the show and settable by
+      // nothing, so a multi-output interface could only ever be asked for the
+      // two channels the default names.
+      {
+        SDL_Rect chBtn {bufBtn.x, bufBtn.y + bufBtn.h + uiScaled(6), uiScaled(160), sRowH};
+        Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_,
+                         "ASIO outs: " + std::to_string(project_.asioChannels), ink, chBtn);
+        settingsBtns_.push_back({chBtn, kSettingsActionAsioChannels, "asio_channels"});
+      }
       // Chain A/V offset: -/+ buttons around the current delay readout.
       SDL_Rect delayDecBtn {bufBtn.x + bufBtn.w + uiScaled(12), bufBtn.y, uiScaled(24), sRowH};
       SDL_Rect delayLabel {delayDecBtn.x + delayDecBtn.w + uiScaled(4), bufBtn.y, uiScaled(120), sRowH};
@@ -1112,6 +1122,20 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{midiX, mapY + smallLineH * 3, midiTextW, sLineH},
                    "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft);
+      // WHICH device on the rig we answer to. 127 is all-call; anything else
+      // has to match exactly, because acting on a GO meant for the lighting
+      // desk is worse than missing one. Saved in the show, previously with no
+      // way to set it.
+      {
+        SDL_Rect idBtn {midiX, mapY + smallLineH * 4 + uiScaled(4), uiScaled(200), sRowH};
+        Primitives::drawFramedPanel(controlRenderer_, idBtn, pal.mid, pal.deep, pal.light);
+        const std::string idLabel =
+          project_.showControlDeviceId >= 127
+            ? std::string("MSC id: 127 (all-call)")
+            : ("MSC id: " + std::to_string(project_.showControlDeviceId));
+        drawCenteredText(controlRenderer_, fontSmall_, idLabel, ink, idBtn);
+        settingsBtns_.push_back({idBtn, kSettingsActionShowControlId, "show_control_device_id"});
+      }
 
       // ── LTC generator (timecode OUT) ─────────────────────────────────────
       // Deckboy can chase timecode; this is what lets it BE the master.
@@ -1949,6 +1973,19 @@
             drawActionBtn(sdpBtn, "SHOW SDP", kSettingsActionSt2110CopySdp);
           }
           {
+            // The NIC to send from, and the PTP domain the facility runs on.
+            // Both were saved in the show and settable by nothing.
+            SDL_Rect row = stLayout.takeFixed(kRowH);
+            int nicW = (row.w - 4) * 2 / 3;
+            std::string nic = trim(outputTarget.st2110Interface);
+            drawActionBtn(SDL_Rect{row.x, row.y, nicW, kRowH},
+                          "NIC: " + (nic.empty() ? std::string("default route") : nic),
+                          kSettingsActionSt2110Interface);
+            drawActionBtn(SDL_Rect{row.x + nicW + 4, row.y, row.w - nicW - 4, kRowH},
+                          "PTP domain: " + std::to_string(project_.ptpDomain),
+                          kSettingsActionPtpDomain);
+          }
+          {
             SDL_Rect noteRect = stLayout.takeFixed(kLabelH);
             // Live sender telemetry when armed, the caveat when not. Pacing
             // error is the number that says whether the wide-model schedule is
@@ -2220,6 +2257,17 @@
             SDL_Rect recSection {cx, sy, subContentW, recordH};
             SDL_Rect rBody = drawSectionFrame(recSection, "RECORD TO DISK");
             VerticalLayout rl(rBody, kRowGap);
+            // Drawn first so it is visible without scrolling the section: it
+            // changes what you are handed at the END of a take, which is the
+            // worst possible moment to discover it was set the other way.
+            {
+              SDL_Rect row = rl.takeFixed(kRowH);
+              drawActionBtn(row,
+                            project_.recordingRemuxOnStop
+                              ? "On stop: remux to an ordinary MP4"
+                              : "On stop: leave the crash-resilient file as it is",
+                            kSettingsActionRecordRemux, project_.recordingRemuxOnStop);
+            }
             {
               SDL_Rect row = rl.takeFixed(kRowH);
               int halfR = (row.w - 4) / 2;
@@ -2678,6 +2726,66 @@
       if (sb.action == kSettingsActionEncoderCancelAll)   { cancelAllConversions(); continue; }
       if (sb.action == kSettingsActionEncoderMoshLook)    { toggleMoshLook(); continue; }
       if (sb.action == kSettingsActionRecordToggle)   { toggleRecording(); continue; }
+      // ── The five that were saved but unreachable ────────────────────────
+      if (sb.action == kSettingsActionRecordRemux) {
+        project_.recordingRemuxOnStop = !project_.recordingRemuxOnStop;
+        triggerToast(project_.recordingRemuxOnStop
+                       ? "recordings remux to MP4 when the take stops"
+                       : "recordings are left as written");
+        markProjectDirty();
+        continue;
+      }
+      if (sb.action == kSettingsActionAsioChannels) {
+        // Cycles the counts an interface actually offers rather than stepping
+        // one at a time: stereo, quad, then the two common multi-out widths.
+        static const int kCounts[] = {2, 4, 8, 16};
+        int at = 0;
+        for (int i = 0; i < 4; ++i) {
+          if (kCounts[i] == project_.asioChannels) { at = i; break; }
+        }
+        project_.asioChannels = kCounts[(at + 1) % 4];
+        triggerToast("ASIO outputs: " + std::to_string(project_.asioChannels)
+                     + " (takes effect when the driver is re-armed)");
+        markProjectDirty();
+        continue;
+      }
+      if (sb.action == kSettingsActionShowControlId) {
+        openInlineTextEditor("settings.msc_id", "MSC device id",
+                             "0-127; 127 is all-call",
+                             std::to_string(project_.showControlDeviceId),
+                             [this](const std::string& v) {
+                               try {
+                                 project_.showControlDeviceId =
+                                   std::clamp(std::stoi(trim(v)), 0, 127);
+                                 markProjectDirty();
+                               } catch (...) { triggerToast("MSC id: invalid"); }
+                             });
+        continue;
+      }
+      if (sb.action == kSettingsActionPtpDomain) {
+        openInlineTextEditor("settings.ptp_domain", "PTP domain",
+                             "0-127; the domain the facility's clock runs on",
+                             std::to_string(project_.ptpDomain),
+                             [this](const std::string& v) {
+                               try {
+                                 project_.ptpDomain =
+                                   std::clamp(std::stoi(trim(v)), 0, 127);
+                                 markProjectDirty();
+                               } catch (...) { triggerToast("PTP domain: invalid"); }
+                             });
+        continue;
+      }
+      if (sb.action == kSettingsActionSt2110Interface) {
+        openInlineTextEditor("settings.st2110_nic", "ST 2110 network interface",
+                             "NIC address or name; empty = the default route",
+                             focusedOutput().st2110Interface,
+                             [this](const std::string& v) {
+                               project_.outputs[project_.focusedOutputIndex]
+                                 .st2110Interface = trim(v);
+                               markProjectDirty();
+                             });
+        continue;
+      }
       if (sb.action == kSettingsActionRecordDirPick)  { pickRecordingDir(); continue; }
       if (sb.action == kSettingsActionRecordDirClear) {
         project_.recordingDir.clear();
