@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
-## 2026-09-05 - v0.99.308 (a dashboard of your own buttons)
+## 2026-09-05 - v0.99.308 (a dashboard, six new effects, and nothing unreachable)
 
 **Six new effects.** *Slit scan* holds one frame and refreshes a moving band
 of it, so a single picture ends up containing many different moments - move in
