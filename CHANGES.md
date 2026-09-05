@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.311 (the picture as a surface in space)
+
+**The displacement mesh works.** A cue can be drawn as a landscape of itself:
+the quad becomes a grid, every vertex is pushed out of the plane by the
+brightness of the picture at that point, and the surface turns under a
+viewpoint. Real geometry through the same call the perspective warp uses - no
+new dependency, no shader, no depth buffer. `MESH ON`, then height, tilt, yaw,
+spin and grid; off by default, so a show that never arms it is unchanged.
+
+It shipped last release labelled as not drawing. It always drew - every
+measurement that said otherwise was looking at the wrong thing.
+
 ## 2026-09-06 - v0.99.310 (the dashboard responds, and clips look right)
 
 **Dashboard buttons work.** Clicking a tile - including "add a button" - did
