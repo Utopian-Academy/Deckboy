@@ -209,13 +209,13 @@ release to land in.
   one panel of it. Theme-level, so it stays a DATA contract and never becomes a
   renderer hack.
 
-- **An LFO per parameter, switchable on, the way Resolume Arena does it**
-  (asked 2026-08-29). Any effect parameter -- and "other relevant parameters"
-  -- can be handed to a low-frequency oscillator instead of a fixed value.
-  Shape, rate and depth per parameter, and the rate wants to be able to follow
-  the VJ tempo rather than being its own free-running number, since the tempo
-  is already there. This is the piece that turns the effect stack from
-  something you SET into something that moves on its own.
+- ~~**An LFO per parameter, switchable on, the way Resolume Arena does it**~~
+  **DELIVERED.** `ParamLfo` carries shape, rate, depth and phase per parameter,
+  plus `beatSync` and `beats` so the rate follows the VJ tempo instead of being
+  a second, disagreeing clock. Reachable from the inspector (a row per
+  parameter, and one for the amount) and over the network with `LFO`. Left on
+  this list long after it shipped, which is exactly how a wishlist causes work
+  to be done twice -- checked 2026-09-04.
 
 - **Half a dozen more effects nobody else has** (asked 2026-08-29, softly:
   "i'd almost want to ask"). Treated as wanted rather than requested until he
