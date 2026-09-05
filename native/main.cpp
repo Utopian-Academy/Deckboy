@@ -7499,6 +7499,13 @@ class App {
   // Keyboard shortcuts overlay
   bool shortcutsOverlayOpen_ = false;
   bool dashboardOverlayOpen_ = false;
+  // The dashboard's OWN hit list. Not quickButtons_: everything pushed there
+  // after cueSettingsQuickButtonStartIndex_ is treated as an inspector
+  // control and gated to the inspector's viewport, so a centred overlay's
+  // buttons were tested against a rectangle they are nowhere near and every
+  // click was thrown away. That is why 'add a button' did nothing.
+  std::vector<QuickButton> dashButtons_;
+  SDL_Rect dashModalRect_ {};
   // Which tile was fired last and when, so it can squish on press. Purely
   // cosmetic and runtime-only.
   int dashPressedSlot_ = -1;
