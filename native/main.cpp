@@ -7441,11 +7441,20 @@ class App {
   // The theme's creatures. Empty for every theme that does not ask, which is
   // every theme that existed before this.
   std::vector<deckboy::creatures::Request> themeCreatures_;
+  // A creature and the gap it lives in. There used to be one list and one
+  // habitat; a theme's animals now live in several places at once, and each
+  // group is bounded by its own gap so nothing can wander onto a control.
+  struct Colony {
+    deckboy::creatures::Habitat home {};
+    std::vector<deckboy::creatures::Creature> creatures;
+  };
+  std::vector<Colony> colonies_;
   std::vector<deckboy::creatures::Creature> creatures_;
   deckboy::creatures::Habitat creatureHabitat_ {};
   double creatureFade_ = 0.0;       // eased, so they leave rather than blink out
   double creatureLastTime_ = 0.0;
   SDL_Rect playlistFreeRect_ {};    // the empty part of the focused playlist
+  SDL_Rect inspectorBodyRect_ {};   // the inspector column, for its free space
   double creatureLureX_ = 0.0;      // what the moths steer toward
   double creatureLureY_ = 0.0;
 

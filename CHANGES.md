@@ -2,6 +2,18 @@
 
 ## 2026-09-06 - v0.99.309 (you can see your clips)
 
+**Creatures live throughout the shell, not just under the playlist.** A theme's
+animals now find every gap the layout leaves them - the empty part of the
+playlist under the last cue, and the empty part of the inspector under its last
+open section - and the cast is dealt round those gaps rather than duplicated
+into each, so a theme that asks for two moths still gets two moths.
+
+Each group is bounded by its own gap, which is what keeps the rule that they
+are never drawn over a control: the app finds the gaps, and the creatures know
+nothing about panels. A spider now hangs its thread from the top of its own
+gap; anchored to the one habitat that used to exist, a spider in the inspector
+would have trailed a line across everything in between.
+
 **The playlist shows each clip's own picture.** A list of filenames is a list
 you have to read; a still turns it into one you can scan, which is what it is
 for during a show. Every video and still cue draws its own frame at the head of
