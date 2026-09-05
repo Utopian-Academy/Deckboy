@@ -821,6 +821,20 @@
                std::abs(locate.locateSeconds - 90.0) < 0.001,
                "MMC LOCATE resolves to a position in seconds");
 
+        // A LOCATE that is one byte short must be REFUSED, not guessed at.
+        // The last byte of an 11-byte message is the F7 terminator, and it
+        // used to be read as the frame count -- 0xF7 & 0x7F is 119 frames,
+        // so this exact message resolved to 00:01:34.76 and moved the
+        // video five seconds.
+        expect(!parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x44, 0x06, 0x01,
+                           0x20, 0x01, 0x1E, 0xF7}), 3).ok(),
+               "a truncated MMC LOCATE is refused, not guessed at");
+        // 44 01 is LOCATE to an information field, not to a timecode. Its
+        // bytes are not hours and minutes and must not be read as them.
+        expect(!parse(msc({0xF0, 0x7F, 0x03, 0x06, 0x44, 0x01, 0x00,
+                           0x20, 0x01, 0x1E, 0x00, 0xF7}), 3).ok(),
+               "MMC LOCATE to an information field is not a seek");
+
         // Rubbish must not be mistaken for a command.
         expect(!parse(msc({0xF0, 0x7F, 0x03, 0xF7}), 3).ok(),
                "a truncated message is not a command");
