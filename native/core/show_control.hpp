@@ -123,7 +123,18 @@ inline Message parse(const std::vector<std::uint8_t>& data, int myDeviceId) {
         // rate in its top bits, which is not something a cue deck needs -- the
         // position is what matters, and the frames are dropped into it at the
         // rate the message says.
-        if (data.size() >= 11) {
+        // TWELVE, not eleven. At eleven the last byte IS the F7
+        // terminator, and it was read as the frame count: a truncated
+        // LOCATE resolved to 00:01:34.76 instead of being rejected,
+        // because 0xF7 & 0x7F is 119 frames. A desk that stutters out a
+        // short message would have moved the video five seconds.
+        //
+        // The sub-command is checked too: 44 06 01 is LOCATE TARGET, the
+        // one that carries a timecode. The other LOCATE form (44 01 ...)
+        // addresses an information field and its bytes mean something
+        // else entirely -- reading those as hours and minutes is how you
+        // seek somewhere nobody asked for.
+        if (data.size() >= 12 && data[5] == 0x06 && data[6] == 0x01) {
           const int hours = data[7] & 0x1F;
           const int minutes = data[8] & 0x7F;
           const int seconds = data[9] & 0x7F;

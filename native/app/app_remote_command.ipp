@@ -1622,7 +1622,68 @@
       triggerToast("audio visual: " + audioVisualLabel(mode));
       return;
     }
+    // TWO VERBS WERE CALLED "OVERLAY" AND THE FIRST ONE WON.
+    //
+    // This is the time-code overlay toggle. Further down there is a second
+    // `command == "OVERLAY"` for the cue overlay bin -- PUSH, POP, CLEAR --
+    // and it was unreachable: every OVERLAY message stopped here. Worse than
+    // dead, it was WRONG. "OVERLAY PUSH 3" is not a toggle word, so it fell
+    // into the no-argument branch and flipped the timecode burn-in on air,
+    // answering OK for a cue overlay it never pushed.
+    //
+    // This one now claims only what is its own -- a bare OVERLAY, or one
+    // followed by a toggle word -- and anything else falls through to the
+    // cue overlay handler that was always meant to have it.
+    // ONE BRANCH FOR ONE VERB.
+    //
+    // OVERLAY used to be tested twice at the top level: this timecode
+    // burn-in toggle, and a second branch for the cue overlay bin. The
+    // first won, so PUSH/POP/CLEAR were unreachable -- and "OVERLAY PUSH 3"
+    // is not a toggle word, so it fell into the no-argument branch and
+    // flipped the burn-in on air while answering OK.
+    //
+    // Both live here now, so there is no order to get wrong.
     if (command == "OVERLAY" || command == "TIMEOVERLAY") {
+      const std::string overlaySub =
+        (command == "OVERLAY" && parts.size() > 1) ? toUpper(parts[1]) : std::string();
+      if (overlaySub == "PUSH" || overlaySub == "POP" || overlaySub == "CLEAR") {
+        std::string sub = toUpper(parts[1]);
+        if (sub == "CLEAR") { clearOverlay(); return; }
+        if (sub == "POP")   { popOverlay();   return; }
+        if (sub == "PUSH") {
+          if (parts.size() < 3) {
+            failRemoteCommand("PUSH expects a cue number");
+            return;
+          }
+          int idx = 0;
+          try {
+            idx = std::stoi(parts[2]) - 1;  // 1-based
+          } catch (...) {
+            failRemoteCommand("PUSH expects a cue number, got \""
+                              + parts[2] + "\"");
+            return;
+          }
+          Deck& deck = focusedDeckMutable();
+          if (idx < 0 || idx >= static_cast<int>(deck.cues.size())) {
+            failRemoteCommand("no cue " + parts[2] + " to push");
+            return;
+          }
+          auto& ov = deck.overlayActiveIndices;
+          if (std::find(ov.begin(), ov.end(), idx) != ov.end()) {
+            // Not a failure -- it is already up. Said out loud so a surface is
+            // not left wondering whether the press registered.
+            remoteCommandDetail_ = deck.cues[idx].name + " is already an overlay";
+            return;
+          }
+          if (ov.size() >= 4) ov.erase(ov.begin());
+          ov.push_back(idx);
+          triggerToast("overlay pushed: " + deck.cues[idx].name);
+          markProjectDirty();
+          return;
+        }
+        return;
+        return;
+      }
       auto state = parseToggleWord(1);
       if (!state) {
         toggleTimeOverlayEnabled();
@@ -2032,20 +2093,37 @@
       return;
     }
     if (command == "STILLDUR" || command == "DURATION") {
-      if (parts.size() > 1) {
-        try {
-          double dur = std::stod(parts[1]);
-          if (Cue* cue = selectedCueMutable()) {
-            if (cue->kind != CueKind::Video) {
-              cue->stillDurationSeconds = std::max(0.0, dur);
-              triggerToast(cue->stillDurationSeconds > 0.0
-                ? "still dur " + formatSeconds(cue->stillDurationSeconds)
-                : "still dur: hold");
-              markProjectDirty();
-            }
-          }
-        } catch (...) {}
+      // FOUR WAYS THIS USED TO ANSWER "OK" HAVING DONE NOTHING: no argument, an
+      // argument that is not a number, no cue selected, and a cue this does not
+      // apply to. Each returned through a swallowed exception or a false `if`,
+      // and the caller was told it had worked -- the exact silent success the
+      // remote contract exists to stop.
+      if (parts.size() < 2) {
+        failRemoteCommand("expected a number of seconds");
+        return;
       }
+      double dur = 0.0;
+      try {
+        dur = std::stod(parts[1]);
+      } catch (...) {
+        failRemoteCommand("expected a number of seconds, got \"" + parts[1] + "\"");
+        return;
+      }
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("no cue selected");
+        return;
+      }
+      if (cue->kind == CueKind::Video) {
+        failRemoteCommand("a video cue's duration comes from its file; "
+                          "still duration applies to stills, patterns and browsers");
+        return;
+      }
+      cue->stillDurationSeconds = std::max(0.0, dur);
+      triggerToast(cue->stillDurationSeconds > 0.0
+        ? "still dur " + formatSeconds(cue->stillDurationSeconds)
+        : "still dur: hold");
+      markProjectDirty();
       return;
     }
     if (command == "GRAPHIC" || command == "LOWERTHIRD") {
@@ -2083,44 +2161,34 @@
       return;
     }
     if (command == "LOWERALPHA") {
-      if (parts.size() > 1) {
-        try {
-          int alpha = std::stoi(parts[1]);
-          if (Cue* cue = selectedCueMutable()) {
-            if (cue->kind == CueKind::LowerThird) {
-              cue->lowerThirdBgAlpha = std::clamp(alpha, 0, 255);
-              triggerToast("overlay alpha " + std::to_string(cue->lowerThirdBgAlpha));
-              markProjectDirty();
-            }
-          }
-        } catch (...) {}
+      // Same four silent paths as STILLDUR had.
+      if (parts.size() < 2) {
+        failRemoteCommand("expected an alpha, 0-255");
+        return;
       }
+      int alpha = 0;
+      try {
+        alpha = std::stoi(parts[1]);
+      } catch (...) {
+        failRemoteCommand("expected an alpha 0-255, got \"" + parts[1] + "\"");
+        return;
+      }
+      Cue* cue = selectedCueMutable();
+      if (!cue) {
+        failRemoteCommand("no cue selected");
+        return;
+      }
+      if (cue->kind != CueKind::LowerThird) {
+        failRemoteCommand("the background alpha belongs to a lower third");
+        return;
+      }
+      cue->lowerThirdBgAlpha = std::clamp(alpha, 0, 255);
+      triggerToast("overlay alpha " + std::to_string(cue->lowerThirdBgAlpha));
+      markProjectDirty();
       return;
     }
     if (command == "CLEAROVERLAY") {
       clearOverlay();
-      return;
-    }
-    if (command == "OVERLAY" && parts.size() > 1) {
-      std::string sub = toUpper(parts[1]);
-      if (sub == "CLEAR") { clearOverlay(); return; }
-      if (sub == "POP")   { popOverlay();   return; }
-      if (sub == "PUSH" && parts.size() > 2) {
-        try {
-          int idx = std::stoi(parts[2]) - 1;  // 1-based
-          Deck& deck = focusedDeckMutable();
-          if (idx >= 0 && idx < static_cast<int>(deck.cues.size())) {
-            auto& ov = deck.overlayActiveIndices;
-            if (std::find(ov.begin(), ov.end(), idx) == ov.end()) {
-              if (ov.size() >= 4) ov.erase(ov.begin());
-              ov.push_back(idx);
-              triggerToast("overlay pushed: " + deck.cues[idx].name);
-              markProjectDirty();
-            }
-          }
-        } catch (...) {}
-        return;
-      }
       return;
     }
     if (command == "BROWSER") {

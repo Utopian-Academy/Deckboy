@@ -49,6 +49,42 @@ def handled_verbs(text):
     return found
 
 
+def duplicate_handlers(text):
+    """Verbs the dispatcher tests for MORE THAN ONCE.
+
+    The first branch wins and every later one is unreachable -- and worse than
+    unreachable, because the first branch then answers for messages it was
+    never meant to see. OVERLAY was handled twice: the time-code toggle
+    claimed it, so the cue overlay bin (PUSH/POP/CLEAR) could not be reached at
+    all, and "OVERLAY PUSH 3" silently flipped the timecode burn-in instead
+    while replying OK.
+
+    Counted as OCCURRENCES, not names. Both branches spell the verb
+    identically, so the set of handled names -- which is what every other
+    check here uses -- cannot see it.
+    """
+    # Only TOP-LEVEL branches count. The dispatcher's own `if (command == ...)`
+    # sits at four spaces; a verb tested again at six or more is INSIDE its own
+    # branch, which is how `if (A || B)` then `if (A)` reads -- perfectly
+    # reachable, and the first version of this check called eight of those a
+    # collision. Continuation lines of the same `if` are folded in so a chain
+    # spread over several lines is still one branch.
+    seen = {}
+    lines = text.split(chr(10))
+    for i, line in enumerate(lines):
+        if not re.match(r'^ {4}if \(command ==', line):
+            continue
+        logical = line
+        for extra in lines[i + 1:i + 3]:
+            if re.match(r'^ {6,}', extra) and 'command ==' in extra:
+                logical += ' ' + extra
+            else:
+                break
+        for name in set(re.findall(r'command\s*==\s*"([A-Z][A-Z0-9_]*)"', logical)):
+            seen[name] = seen.get(name, 0) + 1
+    return dict((name, n) for name, n in seen.items() if n > 1)
+
+
 def help_text(text):
     """The HELP reply, as one string."""
     start = text.index('"DECKBOY_0.01 help')
@@ -145,7 +181,14 @@ def main():
           % ('no -- says %d, lists %d' % (claimed, len(listing))
              if miscounted else 'yes (%d)' % len(listing)))
 
-    failed = bool(real_promises) or bool(unlisted) or miscounted
+    dupes = duplicate_handlers(dispatch)
+    print()
+    print('[5] verbs the dispatcher tests more than once: %d' % len(dupes))
+    for name in sorted(dupes):
+        print('      %s (%d branches; only the first can ever run)'
+              % (name, dupes[name]))
+
+    failed = bool(real_promises) or bool(unlisted) or miscounted or bool(dupes)
     print()
     print('FAIL' if failed else 'clean')
     return 1 if failed else 0

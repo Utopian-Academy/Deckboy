@@ -1,5 +1,27 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.312 (an audit of the parts nobody had read)
+
+**The cue overlay bin was unreachable.** Two different verbs were both called
+OVERLAY, and the first one won: PUSH, POP and CLEAR could never run, and
+`OVERLAY PUSH 3` fell through to the no-argument branch of the OTHER overlay -
+flipping the timecode burn-in on air while answering OK. Both meanings now live
+in one branch, so there is no order to get wrong.
+
+**A truncated MMC LOCATE no longer moves the video.** The bounds check was one
+byte short, so the F7 that ends the message was read as the frame count -
+0xF7 masked is 119 frames, and a short LOCATE seeked to 00:01:34.76 instead of
+being refused. It also accepted LOCATE to an information field, whose bytes are
+not a timecode at all, and read them as one.
+
+**Three commands stopped claiming to have worked.** STILLDUR, LOWERALPHA and
+OVERLAY PUSH each had four ways to answer OK having done nothing: no argument,
+an argument that is not a number, no cue selected, and a cue the command does
+not apply to. Every one of them now says which.
+
+`tools/audit_remote_help.py` gained the check that would have found the OVERLAY
+collision: a verb the dispatcher tests more than once at the top level.
+
 ## 2026-09-06 - v0.99.311 (the picture as a surface in space)
 
 **The displacement mesh works.** A cue can be drawn as a landscape of itself:
