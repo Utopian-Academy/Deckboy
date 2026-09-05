@@ -2890,6 +2890,16 @@
         return;
       }
 
+      // Put the page on screen. A surface that can fire a slot should also
+      // be able to show the operator the page those slots live on.
+      if (sub == "SHOW" || sub == "HIDE" || sub == "TOGGLE") {
+        dashboardOverlayOpen_ = (sub == "TOGGLE") ? !dashboardOverlayOpen_
+                                                  : (sub == "SHOW");
+        remoteCommandDetail_ = dashboardOverlayOpen_ ? "dashboard shown"
+                                                     : "dashboard hidden";
+        return;
+      }
+
       // A bare number fires that slot -- the whole point, and the shortest
       // thing to bind a Companion button to.
       int at = -1;

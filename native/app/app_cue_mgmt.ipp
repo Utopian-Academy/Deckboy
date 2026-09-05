@@ -303,6 +303,51 @@
     }
   }
 
+  // Edit one dashboard button.
+  //
+  // ONE LINE, three fields: "label | command | glyph". A dialog per field would
+  // be three modals to change a button, and this is a thing operators fiddle
+  // with between cues rather than configure once.
+  void editDashboardSlot(int at) {
+    if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+      return;
+    }
+    const DashboardSlot& slot = project_.dashboard[at];
+    std::string current = slot.label + " | " + slot.command;
+    if (!slot.glyph.empty()) {
+      current += " | " + slot.glyph;
+    }
+    openInlineTextEditor(
+      "dashboard.slot" + std::to_string(at),
+      "Dashboard button " + std::to_string(at + 1),
+      "label | command | glyph      (empty label|command removes it)",
+      current,
+      [this, at](const std::string& value) {
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+          return;
+        }
+        std::vector<std::string> parts;
+        std::string cur;
+        for (char ch : value) {
+          if (ch == '|') { parts.push_back(trim(cur)); cur.clear(); }
+          else { cur += ch; }
+        }
+        parts.push_back(trim(cur));
+        DashboardSlot& target = project_.dashboard[at];
+        target.label = parts.size() > 0 ? parts[0] : std::string();
+        target.command = parts.size() > 1 ? parts[1] : std::string();
+        // One character. A glyph is decoration, and a whole word here would
+        // draw over the label underneath it.
+        target.glyph = parts.size() > 2 && !parts[2].empty()
+                     ? parts[2].substr(0, 1) : std::string();
+        if (target.label.empty() && target.command.empty()) {
+          project_.dashboard.erase(project_.dashboard.begin() + at);
+          triggerToast("button removed");
+        }
+        markProjectDirty();
+      });
+  }
+
   void toggleSelectedCueMono() {
     const Cue* cue = selectedCuePtr();
     if (!cue || !cue->hasAudio) {

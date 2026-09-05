@@ -968,6 +968,7 @@
     renderContextMenu();
     renderSettingsModal();
     renderDropdownPopover();
+    renderDashboardOverlay();
     renderShortcutsOverlay();
     renderInlineTextEditor();
     // Last, and over everything: it is modal.

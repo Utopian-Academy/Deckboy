@@ -1,5 +1,23 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-05 - v0.99.308 (a dashboard of your own buttons)
+
+**The dashboard has a page.** It had a model, saved slots and network verbs,
+and nowhere to look at them. Ctrl+D opens a grid of your own buttons: each one
+runs any command the network protocol understands, so anything the app can do
+can go on a tile - and it is the SAME slot a Companion button fires with
+`DASH <n>`, so the desk and the screen stay one dashboard instead of two that
+drift apart.
+
+Modular: the grid flows to the window, and adding or removing a button reflows
+the rest. Customisable: a pencil on each tile sets its label, command and
+glyph on one line, and a chip cycles its colour - drawn from the theme, so a
+dashboard looks like the colourway it is sitting in. Animated: every tile
+drifts on its own phase and springs when it is fired, so the page breathes
+rather than sitting there.
+
+`DASH SHOW` puts it on screen from a surface.
+
 ## 2026-09-04 - v0.99.307 (streaming actually streams, and macOS opens again)
 
 **A trimmed clip now looks trimmed.** The timeline already zoomed to the in/out

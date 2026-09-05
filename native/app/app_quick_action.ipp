@@ -23,6 +23,46 @@
   void dispatchQuickAction(QuickAction action, int param = -1) {
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
+      // ── Dashboard tiles ──────────────────────────────────────────────
+      //
+      // The slot index rides in QuickButton::param, so one action serves any
+      // number of tiles rather than needing an action apiece.
+      case QuickAction::DashSlotFire: {
+        const int at = param;
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) break;
+        dashPressedSlot_ = at;
+        dashPressedAtMs_ = SDL_GetTicks();
+        const std::string command = project_.dashboard[at].command;
+        if (command.empty()) {
+          triggerToast("that button has no command yet");
+          return;
+        }
+        // THE SAME PATH DASH <n> TAKES. A tile and a Companion button must do
+        // the same thing, or the dashboard on screen and the one on the desk
+        // are two different dashboards.
+        handleRemoteCommand(command);
+        return;
+      }
+      case QuickAction::DashSlotColor: {
+        const int at = param;
+        if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) break;
+        DashboardSlot& slot = project_.dashboard[at];
+        slot.colorIndex = (slot.colorIndex + 1) % 8;
+        markProjectDirty();
+        return;
+      }
+      case QuickAction::DashSlotAdd: {
+        project_.dashboard.push_back(DashboardSlot{});
+        markProjectDirty();
+        // Straight into editing it: a button that appears blank and unexplained
+        // is a worse outcome than one more dialog.
+        editDashboardSlot(static_cast<int>(project_.dashboard.size()) - 1);
+        return;
+      }
+      case QuickAction::DashSlotEdit: {
+        editDashboardSlot(param);
+        return;
+      }
       case QuickAction::EffectAdd:        effectStackAdd(); return;
       case QuickAction::MotionDriverPick:  pickMotionDriver(); return;
       case QuickAction::MotionDriverClear: clearMotionDriver(); return;

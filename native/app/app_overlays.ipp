@@ -556,6 +556,183 @@
   }
 
 
+  // ── THE DASHBOARD ──────────────────────────────────────────────────────────
+  //
+  // A page of the operator's own buttons. Each tile runs any command the remote
+  // protocol understands, so anything the app can do can be put on one -- and
+  // the same slots are what Companion fires with DASH <n>, so a surface and the
+  // screen stay the same dashboard rather than two that drift.
+  //
+  // MODULAR: the grid flows to the window. Tiles are added and removed, and the
+  // rest reflow around them; nothing is positioned by hand.
+  //
+  // ANIMATED: every tile floats on its own phase, so the page breathes instead
+  // of sitting there, and a fired tile squishes and springs back. The motion is
+  // per-tile and slow -- a dashboard that jitters is a dashboard nobody can
+  // read at a glance across a room.
+  //
+  // The colours come out of the THEME, not out of a fixed sixteen: an indexed
+  // palette of its own would be the one thing on screen ignoring the colourway.
+  SDL_Color dashboardSlotColor(int index) const {
+    // Four tints between the theme's own roles, so a slot's colour means
+    // "different from its neighbour" in every theme rather than "red".
+    const int i = ((index % 8) + 8) % 8;
+    const SDL_Color a = pal.light;
+    const SDL_Color b = pal.mid;
+    const SDL_Color c = pal.fg;
+    auto mix = [](SDL_Color x, SDL_Color y, double f) {
+      SDL_Color o;
+      o.r = static_cast<Uint8>(std::lround(x.r * (1.0 - f) + y.r * f));
+      o.g = static_cast<Uint8>(std::lround(x.g * (1.0 - f) + y.g * f));
+      o.b = static_cast<Uint8>(std::lround(x.b * (1.0 - f) + y.b * f));
+      o.a = 255;
+      return o;
+    };
+    switch (i) {
+      case 0:  return a;
+      case 1:  return mix(a, b, 0.35);
+      case 2:  return mix(a, c, 0.30);
+      case 3:  return b;
+      case 4:  return mix(b, c, 0.35);
+      case 5:  return mix(a, b, 0.65);
+      case 6:  return mix(b, a, 0.20);
+      default: return mix(c, a, 0.55);
+    }
+  }
+
+  void renderDashboardOverlay() {
+    if (!dashboardOverlayOpen_) return;
+    int ww = 0, wh = 0;
+    SDL_GetWindowSize(controlWindow_, &ww, &wh);
+    const double t = static_cast<double>(animationNow_) / 1000.0;
+
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 190);
+    SDL_Rect full {0, 0, ww, wh};
+    SDL_RenderFillRect(controlRenderer_, &full);
+    SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+
+    const int mw = std::min(uiScaled(900), ww - 40);
+    const int mh = std::min(uiScaled(640), wh - 40);
+    SDL_Rect modal {(ww - mw) / 2, (wh - mh) / 2, mw, mh};
+    Primitives::drawFramedPanel(controlRenderer_, modal, pal.shellInner, pal.deep, pal.shellOuter);
+    drawTextSafe(controlRenderer_, fontBase_,
+                 SDL_Rect {modal.x + 16, modal.y + 10, mw - 200, 24},
+                 "DASHBOARD", pal.fg);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {modal.x + mw - 190, modal.y + 14, 180, 16},
+                 "Ctrl+D or Esc to close", pal.fgSoft);
+
+    // ── The grid ────────────────────────────────────────────────────────────
+    const int pad = uiScaled(14);
+    // Clear of the title AND its baseline. At 40 the first row of tiles rode
+    // up over the word DASHBOARD -- the tiles float by a couple of pixels, so
+    // a gap that only just fits is a gap that intermittently does not.
+    const int headerH = uiScaled(56);
+    SDL_Rect area {modal.x + pad, modal.y + headerH,
+                   mw - pad * 2, mh - headerH - pad};
+    const int tileW = uiScaled(150);
+    const int tileH = uiScaled(96);
+    const int gap = uiScaled(10);
+    const int cols = std::max(1, (area.w + gap) / (tileW + gap));
+
+    const int slots = static_cast<int>(project_.dashboard.size());
+    // One trailing tile to add another, so the page is never a dead end.
+    const int cells = slots + 1;
+
+    for (int i = 0; i < cells; ++i) {
+      const int col = i % cols;
+      const int row = i / cols;
+      int tx = area.x + col * (tileW + gap);
+      int ty = area.y + row * (tileH + gap);
+      if (ty + tileH > area.y + area.h) {
+        break;   // the page is full; the rest wait for a bigger window
+      }
+
+      // Each tile drifts on its own phase. Slow, and only a couple of pixels:
+      // enough to be alive, not enough to make a target move under a finger.
+      const double phase = i * 0.7;
+      const int fx = static_cast<int>(std::lround(std::sin(t * 0.8 + phase) * 2.0));
+      const int fy = static_cast<int>(std::lround(std::sin(t * 0.6 + phase * 1.3) * 2.5));
+
+      // A fired tile squishes and springs back over a third of a second.
+      double squish = 0.0;
+      if (dashPressedSlot_ == i && animationNow_ >= dashPressedAtMs_) {
+        const double age = static_cast<double>(animationNow_ - dashPressedAtMs_) / 320.0;
+        if (age < 1.0) {
+          squish = std::sin(age * 3.14159265358979) * (1.0 - age) * 6.0;
+        }
+      }
+      const int sq = static_cast<int>(std::lround(squish));
+      SDL_Rect tile {tx + fx + sq, ty + fy + sq / 2,
+                     tileW - sq * 2, tileH - sq};
+
+      const bool isAdd = (i >= slots);
+      if (isAdd) {
+        Primitives::drawFramedPanel(controlRenderer_, tile, pal.shellInner, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_,
+                             SDL_Rect{tile.x, tile.y + tile.h / 2 - uiScaled(16),
+                                      tile.w, uiScaled(28)},
+                             "+", pal.fgSoft);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                             SDL_Rect{tile.x, tile.y + tile.h - uiScaled(22),
+                                      tile.w, uiScaled(16)},
+                             "add a button", pal.fgSoft);
+        quickButtons_.push_back({tile, QuickAction::DashSlotAdd,
+                                 "Add a dashboard button", i});
+        continue;
+      }
+
+      const DashboardSlot& slot = project_.dashboard[i];
+      const SDL_Color tint = dashboardSlotColor(slot.colorIndex);
+      Primitives::drawFramedPanel(controlRenderer_, tile, tint, pal.deep, pal.shellOuter);
+
+      // The glyph breathes very slightly on its own clock, which is what makes
+      // the tile read as a little creature rather than a rectangle.
+      const std::string glyph = slot.glyph.empty() ? std::string("*") : slot.glyph;
+      const int glyphDrop = static_cast<int>(std::lround(std::sin(t * 1.4 + phase) * 1.5));
+      drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_,
+                           SDL_Rect{tile.x, tile.y + uiScaled(10) + glyphDrop,
+                                    tile.w, uiScaled(30)},
+                           glyph, pal.deep);
+
+      const std::string label = slot.label.empty()
+        ? (slot.command.empty() ? std::string("(empty)") : slot.command)
+        : slot.label;
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect{tile.x + 4, tile.y + tile.h - uiScaled(34),
+                                    tile.w - 8, uiScaled(16)},
+                           label, pal.deep);
+
+      // Firing is the whole tile; the two small controls sit in the bottom
+      // corners so a fat finger aiming at the middle can never hit them.
+      SDL_Rect editBtn {tile.x + tile.w - uiScaled(22), tile.y + tile.h - uiScaled(16),
+                        uiScaled(18), uiScaled(13)};
+      SDL_Rect colBtn {tile.x + uiScaled(4), tile.y + tile.h - uiScaled(16),
+                       uiScaled(18), uiScaled(13)};
+      quickButtons_.push_back({tile, QuickAction::DashSlotFire,
+                               slot.command.empty() ? "Empty - use the pencil to set a command"
+                                                    : ("Run: " + slot.command), i});
+      Primitives::drawFramedPanel(controlRenderer_, colBtn,
+                                  dashboardSlotColor(slot.colorIndex + 1), pal.deep, pal.deep);
+      quickButtons_.push_back({colBtn, QuickAction::DashSlotColor, "Change this tile's colour", i});
+      // On its own plate. Drawn straight onto the tile it was ink-on-ink at
+      // several tints and simply vanished.
+      Primitives::drawFramedPanel(controlRenderer_, editBtn, pal.shellInner, pal.deep, pal.deep);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, editBtn, "...", pal.fg);
+      quickButtons_.push_back({editBtn, QuickAction::DashSlotEdit,
+                               "Set this button's label, command and glyph", i});
+    }
+
+    if (slots == 0) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect{area.x, area.y + area.h - uiScaled(26),
+                                    area.w, uiScaled(18)},
+                           "a button can run any command the network protocol understands",
+                           pal.fgSoft);
+    }
+  }
+
   void renderShortcutsOverlay() {
     if (!shortcutsOverlayOpen_) return;
     int ww = 0, wh = 0;
