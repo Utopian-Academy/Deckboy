@@ -72,6 +72,13 @@ enum class CueEffectKind : int {
   Scotopic,
   GrainFlow,
   TextMode,
+  // Six added 2026-09-05.
+  SlitScan,
+  Ferrofluid,
+  Shatter,
+  EdgeIgnite,
+  Relight,
+  DepthSplit,
   Count,
 };
 
@@ -106,6 +113,12 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Scotopic:       return "night eyes";
     case CueEffectKind::GrainFlow:      return "grain flow";
     case CueEffectKind::TextMode:       return "text mode";
+    case CueEffectKind::SlitScan:       return "slit scan";
+    case CueEffectKind::Ferrofluid:     return "ferrofluid";
+    case CueEffectKind::Shatter:        return "shatter";
+    case CueEffectKind::EdgeIgnite:     return "edge ignite";
+    case CueEffectKind::Relight:        return "relight";
+    case CueEffectKind::DepthSplit:     return "depth split";
     default:                            return "none";
   }
 }
@@ -143,6 +156,12 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Scotopic:       return "scotopic";
     case CueEffectKind::GrainFlow:      return "grain_flow";
     case CueEffectKind::TextMode:       return "text_mode";
+    case CueEffectKind::SlitScan:       return "slit_scan";
+    case CueEffectKind::Ferrofluid:     return "ferrofluid";
+    case CueEffectKind::Shatter:        return "shatter";
+    case CueEffectKind::EdgeIgnite:     return "edge_ignite";
+    case CueEffectKind::Relight:        return "relight";
+    case CueEffectKind::DepthSplit:     return "depth_split";
     default:                            return "none";
   }
 }
@@ -178,6 +197,15 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     // Phrases move on their own clock and the cell corruption re-rolls every
     // frame, so a still cue must keep re-rendering or the screen freezes.
     case CueEffectKind::TextMode:
+    // Slit scan and shatter carry a frame between calls; the other four are
+    // driven by the frame index, so a still cue must keep re-rendering or they
+    // freeze in place.
+    case CueEffectKind::SlitScan:
+    case CueEffectKind::Ferrofluid:
+    case CueEffectKind::Shatter:
+    case CueEffectKind::EdgeIgnite:
+    case CueEffectKind::Relight:
+    case CueEffectKind::DepthSplit:
       return true;
     default:
       return false;
@@ -262,6 +290,24 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::TextMode:
       return which == 0 ? "columns" : which == 1 ? "corruption"
            : which == 2 ? "glyph set" : which == 3 ? "ink" : nullptr;
+    case CueEffectKind::SlitScan:
+      return which == 0 ? "sweep speed" : which == 1 ? "slit width"
+           : which == 2 ? "direction" : nullptr;
+    case CueEffectKind::Ferrofluid:
+      return which == 0 ? "spike length" : which == 1 ? "spike count"
+           : which == 2 ? "threshold" : nullptr;
+    case CueEffectKind::Shatter:
+      return which == 0 ? "shard size" : which == 1 ? "drift"
+           : which == 2 ? "rotation" : nullptr;
+    case CueEffectKind::EdgeIgnite:
+      return which == 0 ? "catch" : which == 1 ? "heat"
+           : which == 2 ? "flicker" : nullptr;
+    case CueEffectKind::Relight:
+      return which == 0 ? "relief" : which == 1 ? "light angle"
+           : which == 2 ? "orbit speed" : nullptr;
+    case CueEffectKind::DepthSplit:
+      return which == 0 ? "parallax" : which == 1 ? "convergence"
+           : which == 2 ? "sway" : nullptr;
     default:
       return nullptr;
   }
@@ -282,6 +328,43 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "crowds them into the shadows or the highlights."
         : "Gives each channel a different number of bands, which is what turns "
           "posterising into false colour.";
+    case CueEffectKind::SlitScan:
+      return which == 0 ? "How fast the open slit crosses the picture. Slow "
+                          "smears a long moment across the frame."
+           : which == 1 ? "How much of the picture is live at once. Narrow is "
+                          "a scanner; wide is barely an effect."
+                        : "Which way the slit travels, and whether it runs "
+                          "down the frame instead of across it.";
+    case CueEffectKind::Ferrofluid:
+      return which == 0 ? "How far the bright parts pull away from the "
+                          "surface."
+           : which == 1 ? "How many spikes the field breaks into."
+                        : "How bright a pixel has to be before it lifts at "
+                          "all, so only the highlights spike.";
+    case CueEffectKind::Shatter:
+      return which == 0 ? "How big the shards are. Small is frosted glass, "
+                          "large is a dropped plate."
+           : which == 1 ? "How far each shard slides from where it belongs."
+                        : "How much each shard turns on its own centre.";
+    case CueEffectKind::EdgeIgnite:
+      return which == 0 ? "How readily an edge catches. Low sets the whole "
+                          "picture alight, high only the hardest lines."
+           : which == 1 ? "How far the burn spreads off the edge, and how hot "
+                          "its colour runs."
+                        : "How much the flame gutters frame to frame.";
+    case CueEffectKind::Relight:
+      return which == 0 ? "How deep the picture is treated as being. The "
+                          "brightness becomes height and is lit from the side."
+           : which == 1 ? "Where the light stands, in degrees around the frame."
+                        : "How fast the light walks around it. Zero holds it "
+                          "still.";
+    case CueEffectKind::DepthSplit:
+      return which == 0 ? "How far the two eyes disagree. Brightness is read "
+                          "as nearness."
+           : which == 1 ? "The distance that sits ON the screen. Either side "
+                          "of it comes forward or falls behind."
+                        : "A slow rocking of the viewpoint, which is what "
+                          "makes the depth read without glasses.";
     case CueEffectKind::Solarise:
       return which == 0
         ? "Where highlights fold back through black. Low folds most of the "
@@ -2883,6 +2966,277 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // stands it is an effect like any other, and having one effect
         // permanently present while the rest had to be added was incoherent.
         break;
+
+      case CueEffectKind::SlitScan: {
+        // SLIT SCAN — one frame holding many different moments.
+        //
+        // A film camera with a slit instead of a shutter records a different
+        // instant in every column. Here the same thing: the output is a stored
+        // frame, and only a narrow band of it is refreshed from the live
+        // picture each time, sweeping across. Everything the band has already
+        // passed is a photograph of when it passed.
+        //
+        // Move in front of it and you smear across the frame; hold still and
+        // it resolves back into an ordinary picture. That is the whole trick,
+        // and it costs one frame of memory rather than a queue of them.
+        if (!state) {
+          break;   // no memory from this caller: leave the picture alone
+        }
+        std::vector<std::uint8_t>& held = *state;
+        const std::size_t bytes = count * 4;
+        if (held.size() != bytes) {
+          held.assign(pixels.begin(), pixels.end());
+        }
+        const bool vertical = pC > 0.5;
+        const bool backwards = std::fmod(pC, 0.5) > 0.25;
+        const int span = vertical ? ctx.height : ctx.width;
+        // The slit is at least one line wide however low the parameter goes:
+        // a zero-width slit refreshes nothing and the picture freezes solid.
+        const int slit = std::max(1, static_cast<int>(span * (0.02 + pB * 0.35)));
+        const double rate = 0.15 + pA * 2.5;
+        int head = static_cast<int>(std::llround(ctx.frameIndex * rate)) % std::max(1, span);
+        if (backwards) head = span - 1 - head;
+        if (!ctx.stateHold) {
+          // Refresh the band, then hand back the whole stored frame.
+          for (int k = 0; k < slit; ++k) {
+            const int line = ((head + k) % span + span) % span;
+            if (vertical) {
+              const std::size_t row = static_cast<std::size_t>(line) * ctx.width * 4;
+              std::copy(pixels.begin() + row, pixels.begin() + row + ctx.width * 4,
+                        held.begin() + row);
+            } else {
+              for (int y = 0; y < ctx.height; ++y) {
+                const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + line) * 4;
+                held[at] = pixels[at];
+                held[at + 1] = pixels[at + 1];
+                held[at + 2] = pixels[at + 2];
+              }
+            }
+          }
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          const std::size_t from = static_cast<std::size_t>(y0) * ctx.width * 4;
+          const std::size_t to = static_cast<std::size_t>(y1) * ctx.width * 4;
+          for (std::size_t i = from; i < to; i += 4) {
+            pixels[i] = detail::clamp8(pixels[i] * (1.0 - amt) + held[i] * amt);
+            pixels[i + 1] = detail::clamp8(pixels[i + 1] * (1.0 - amt) + held[i + 1] * amt);
+            pixels[i + 2] = detail::clamp8(pixels[i + 2] * (1.0 - amt) + held[i + 2] * amt);
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Ferrofluid: {
+        // FERROFLUID — the bright parts stand up in spikes.
+        //
+        // A magnetised fluid over a magnet breaks into a field of cones,
+        // because the field pulls the surface up and gravity pulls it back and
+        // the two settle into spikes. Brightness is the field here: the lit
+        // parts of the picture lift away from the surface along spokes, the
+        // dark parts stay flat, and the whole field turns slowly.
+        const double lift = amt * (2.0 + pA * 60.0);
+        const int spikes = 3 + static_cast<int>(std::lround(pB * 21.0));
+        const double floorLuma = pC * 0.9;
+        const double turn = ctx.frameIndex * 0.004;
+        const std::vector<std::uint8_t> src(pixels);
+        const double cx = ctx.width * 0.5, cy = ctx.height * 0.5;
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            for (int x = 0; x < ctx.width; ++x) {
+              const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              const double l = (src[at] * 0.114 + src[at + 1] * 0.587 + src[at + 2] * 0.299) / 255.0;
+              double pull = (l - floorLuma) / std::max(0.05, 1.0 - floorLuma);
+              if (pull <= 0.0) { continue; }
+              pull = std::min(1.0, pull);
+              const double dx = x - cx, dy = y - cy;
+              const double ang = std::atan2(dy, dx);
+              // Along the nearest spoke, so the surface gathers into cones
+              // instead of blooming evenly outward.
+              const double spoke = std::cos(ang * spikes + turn) * 0.5 + 0.5;
+              const double d = lift * pull * spoke;
+              // The direction to pull along is the radius vector we already
+              // have, normalised -- cos(atan2(dy,dx)) IS dx/r. Two of the three
+              // trig calls per pixel were computing a number already in hand,
+              // which at 1080p is four million of them a frame.
+              const double r = std::sqrt(dx * dx + dy * dy);
+              const double ux = r > 0.0001 ? dx / r : 0.0;
+              const double uy = r > 0.0001 ? dy / r : 0.0;
+              const int sx = std::clamp(static_cast<int>(std::lround(x - ux * d)), 0, ctx.width - 1);
+              const int sy = std::clamp(static_cast<int>(std::lround(y - uy * d)), 0, ctx.height - 1);
+              const std::size_t from = (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              pixels[at] = src[from];
+              pixels[at + 1] = src[from + 1];
+              pixels[at + 2] = src[from + 2];
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Shatter: {
+        // SHATTER — the picture as a dropped pane.
+        //
+        // A grid of shards, each sliding and turning about its own centre and
+        // sampling the picture from where it USED to be. The seams are the
+        // point: a shard that has moved shows a piece of somewhere else, so
+        // the image stays readable while visibly coming apart.
+        const int shard = std::max(4, static_cast<int>(8 + (1.0 - pA) * 120.0));
+        const double drift = amt * pB * shard * 1.2;
+        const double spin = amt * pC * 0.9;
+        const double t = ctx.frameIndex * 0.02;
+        const std::vector<std::uint8_t> src(pixels);
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            for (int x = 0; x < ctx.width; ++x) {
+              const int gx = x / shard, gy = y / shard;
+              // A cheap stable hash per shard: the same shard must move the
+              // same way every frame or the pane boils instead of breaking.
+              const std::uint32_t h = static_cast<std::uint32_t>(gx * 73856093) ^
+                                      static_cast<std::uint32_t>(gy * 19349663);
+              const double r1 = ((h >> 8) & 0xff) / 255.0 - 0.5;
+              const double r2 = ((h >> 16) & 0xff) / 255.0 - 0.5;
+              const double r3 = ((h >> 3) & 0xff) / 255.0 - 0.5;
+              const double ox = r1 * drift * (0.6 + 0.4 * std::sin(t + r3 * 6.0));
+              const double oy = r2 * drift * (0.6 + 0.4 * std::cos(t + r1 * 6.0));
+              const double a = r3 * spin * (0.6 + 0.4 * std::sin(t * 0.7 + r2 * 6.0));
+              const double ccx = gx * shard + shard * 0.5;
+              const double ccy = gy * shard + shard * 0.5;
+              const double rx = x - ccx, ry = y - ccy;
+              const double ca = std::cos(a), sa = std::sin(a);
+              const int sx = std::clamp(static_cast<int>(std::lround(ccx + rx * ca - ry * sa + ox)), 0, ctx.width - 1);
+              const int sy = std::clamp(static_cast<int>(std::lround(ccy + rx * sa + ry * ca + oy)), 0, ctx.height - 1);
+              const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              const std::size_t from = (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              pixels[at] = src[from];
+              pixels[at + 1] = src[from + 1];
+              pixels[at + 2] = src[from + 2];
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::EdgeIgnite: {
+        // EDGE IGNITE — the outlines catch fire.
+        //
+        // A Sobel gradient finds the edges, and everything above the catch
+        // threshold is added back as heat: dull red at the threshold, through
+        // orange, to white where the edge is hardest. The picture underneath
+        // survives, so it reads as the drawing burning rather than as an edge
+        // detector with a colour map on it.
+        const std::vector<std::uint8_t> src(pixels);
+        // MEASURED, not guessed. A Sobel over 0-1 luma scaled by 0.25 put an
+        // ordinary edge around 0.1-0.3, so a threshold that started at 0.04 and
+        // ran to 0.59 never caught anything on real material -- the sweep
+        // reported the effect as doing nothing at all, which it was.
+        const double catchAt = 0.015 + pA * 0.22;
+        const double heat = 0.4 + pB * 2.2;
+        // Always guttering a little. At pC = 0 this is a candle in a still
+        // room rather than a frozen picture, which is what the animates flag
+        // says it is; the parameter takes it up to a draught.
+        const double gutter = 0.10 + pC * 0.5;
+        const double flick = 1.0 - gutter * 0.5
+                           + gutter * 0.5 * std::sin(ctx.frameIndex * 0.31);
+        auto luma = [&](int x, int y) {
+          const std::size_t at = (static_cast<std::size_t>(std::clamp(y, 0, ctx.height - 1)) * ctx.width
+                                + std::clamp(x, 0, ctx.width - 1)) * 4;
+          return (src[at] * 0.114 + src[at + 1] * 0.587 + src[at + 2] * 0.299) / 255.0;
+        };
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            for (int x = 0; x < ctx.width; ++x) {
+              const double gx = -luma(x - 1, y - 1) - 2 * luma(x - 1, y) - luma(x - 1, y + 1)
+                              + luma(x + 1, y - 1) + 2 * luma(x + 1, y) + luma(x + 1, y + 1);
+              const double gy = -luma(x - 1, y - 1) - 2 * luma(x, y - 1) - luma(x + 1, y - 1)
+                              + luma(x - 1, y + 1) + 2 * luma(x, y + 1) + luma(x + 1, y + 1);
+              double e = std::sqrt(gx * gx + gy * gy) * 0.5;
+              if (e < catchAt) { continue; }
+              e = std::min(1.0, (e - catchAt) / std::max(0.05, 1.0 - catchAt)) * heat * flick * amt;
+              const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              // Blue last and least, so the hot core goes white while the
+              // cooler edges stay in the reds -- a flame's own ramp.
+              pixels[at + 2] = detail::clamp8(pixels[at + 2] + e * 255.0);
+              pixels[at + 1] = detail::clamp8(pixels[at + 1] + e * e * 210.0);
+              pixels[at] = detail::clamp8(pixels[at] + e * e * e * 180.0);
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Relight: {
+        // RELIGHT — read the picture as a surface and light it from the side.
+        //
+        // Brightness is treated as height, the slope of that height gives a
+        // normal, and the normal is lit by a lamp that can walk around the
+        // frame. Flat areas go mid-grey and detail springs into relief, so a
+        // picture becomes an object with a light on it.
+        const std::vector<std::uint8_t> src(pixels);
+        const double relief = 0.5 + pA * 8.0;
+        // The lamp always drifts a little; pC is how fast it walks. A zero
+        // there used to freeze the effect outright while the header claimed it
+        // animated.
+        const double ang = pB * 6.28318530718
+                         + ctx.frameIndex * (0.0015 + 0.02 * pC);
+        const double lx = std::cos(ang), ly = std::sin(ang), lz = 0.65;
+        auto luma = [&](int x, int y) {
+          const std::size_t at = (static_cast<std::size_t>(std::clamp(y, 0, ctx.height - 1)) * ctx.width
+                                + std::clamp(x, 0, ctx.width - 1)) * 4;
+          return (src[at] * 0.114 + src[at + 1] * 0.587 + src[at + 2] * 0.299) / 255.0;
+        };
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            for (int x = 0; x < ctx.width; ++x) {
+              const double dzdx = (luma(x + 1, y) - luma(x - 1, y)) * relief;
+              const double dzdy = (luma(x, y + 1) - luma(x, y - 1)) * relief;
+              // Normal of the height field, normalised, then dotted with the
+              // lamp direction.
+              const double len = std::sqrt(dzdx * dzdx + dzdy * dzdy + 1.0);
+              const double nx = -dzdx / len, ny = -dzdy / len, nz = 1.0 / len;
+              const double lit = std::clamp(nx * lx + ny * ly + nz * lz, 0.0, 1.0);
+              const std::size_t at = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                // Keeps the original colour and re-shades it, rather than
+                // replacing the picture with a grey relief map.
+                const double shaded = src[at + c] * (0.35 + 1.15 * lit);
+                pixels[at + c] = detail::clamp8(src[at + c] * (1.0 - amt) + shaded * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::DepthSplit: {
+        // DEPTH SPLIT — brightness read as nearness, and the eyes disagreeing.
+        //
+        // Bright is near, dark is far, and the two colour channels are shifted
+        // apart by how near each pixel is. Everything at the convergence
+        // distance sits ON the screen; nearer things come forward and further
+        // things fall behind. The slow sway is what sells it without glasses --
+        // parallax is a stronger depth cue than the colour split is.
+        const std::vector<std::uint8_t> src(pixels);
+        const double par = amt * (1.0 + pA * 40.0);
+        const double conv = pB;
+        // Parallax is the depth cue that actually works without glasses, so
+        // there is always a little of it.
+        const double sway = std::sin(ctx.frameIndex * 0.013) * (0.08 + pC);
+        detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
+          for (int y = y0; y < y1; ++y) {
+            const std::size_t row = static_cast<std::size_t>(y) * ctx.width;
+            for (int x = 0; x < ctx.width; ++x) {
+              const std::size_t at = (row + x) * 4;
+              const double l = (src[at] * 0.114 + src[at + 1] * 0.587 + src[at + 2] * 0.299) / 255.0;
+              const double d = (l - conv) * par * (1.0 + sway);
+              const int xr = std::clamp(static_cast<int>(std::lround(x - d)), 0, ctx.width - 1);
+              const int xb = std::clamp(static_cast<int>(std::lround(x + d)), 0, ctx.width - 1);
+              pixels[at + 2] = src[(row + xr) * 4 + 2];   // R from one eye
+              pixels[at] = src[(row + xb) * 4];           // B from the other
+            }
+          }
+        });
+        break;
+      }
 
       case CueEffectKind::TextMode: {
         // The character grid, on any picture at all.

@@ -2,6 +2,19 @@
 
 ## 2026-09-05 - v0.99.308 (a dashboard of your own buttons)
 
+**Six new effects.** *Slit scan* holds one frame and refreshes a moving band
+of it, so a single picture ends up containing many different moments - move in
+front of it and you smear across the frame. *Ferrofluid* reads brightness as a
+magnetic field and the lit parts stand up in spikes. *Shatter* breaks the
+picture into shards that slide and turn on their own centres. *Edge ignite*
+finds the outlines and sets them alight, dull red through to white at the
+hardest edges. *Relight* treats brightness as height and lights the picture
+from the side with a lamp that walks around it. *Depth split* reads brightness
+as nearness and lets the two eyes disagree about it.
+
+All six run inside a 60fps frame at 1080p and are covered by the offline sweep,
+the animation check and the preview sweep.
+
 **Five settings you could not reach.** Each was saved in the show and read
 back on load, and no control anywhere could set it: the ST 2110 network
 interface, the PTP domain, whether a recording is remuxed to an ordinary MP4
