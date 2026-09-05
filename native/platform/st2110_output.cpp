@@ -317,7 +317,10 @@ bool St2110Output::open(const St2110Config& config) {
   packet_.assign(kRtpHeaderBytes + kPayloadHeaderBytes +
                      static_cast<std::size_t>(std::max(256, config_.maxPayloadBytes)),
                  0);
-  rowSamples_.assign(static_cast<std::size_t>(config_.width) * 2u, 0);
+  // Same rounding as convertRowToYCbCr422 uses; this is only the
+  // pre-allocation, but a short one here would just be resized on the
+  // first row and the two must agree to be readable.
+  rowSamples_.assign(((static_cast<std::size_t>(config_.width) + 1u) / 2u) * 4u, 0);
   framesSent_.store(0, std::memory_order_relaxed);
   framesDropped_.store(0, std::memory_order_relaxed);
   pacingErrorMicros_.store(0.0, std::memory_order_relaxed);
@@ -367,7 +370,16 @@ void St2110Output::convertRowToYCbCr422(const std::uint8_t* srcRowBgra, int widt
   const double chromaCentre = tenBit ? 512.0 : 128.0;
   const double chromaRange = tenBit ? 896.0 : 224.0;
 
-  out.resize(static_cast<std::size_t>(width) * 2u);
+  // SIZED FOR THE PAIRS ACTUALLY WRITTEN, not for the pixel count.
+  //
+  // The loop steps in twos and emits four samples per step (Cb Y Cr Y),
+  // so it runs ceil(width/2) times. At an EVEN width that is exactly
+  // width*2 and the old size was right; at an ODD width it is width*2+2,
+  // and the last iteration wrote two samples past the end of the vector.
+  // operator[] does not bounds-check, so it was a quiet heap overflow on
+  // any raster with an odd width.
+  const std::size_t pairs = (static_cast<std::size_t>(width) + 1u) / 2u;
+  out.resize(pairs * 4u);
   std::size_t outIndex = 0;
 
   // 4:2:2 subsampling: co-sited chroma averaged across each horizontal pair,
