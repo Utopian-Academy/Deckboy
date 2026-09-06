@@ -2299,7 +2299,7 @@
         first == "SCROLL" || first == "CLICK" || first == "SCROLLBAR" ||
         first == "BACK" || first == "FORWARD" || first == "RELOAD" ||
         first == "URL" || first == "TOP" || first == "BOTTOM" ||
-        first == "INTERACT";
+        first == "INTERACT" || first == "TYPE" || first == "KEY";
       if (!isSubVerb) {
         std::string url = joinParts(parts, 1);
         if (!url.empty()) {
@@ -2386,6 +2386,34 @@
         project_.browserScrollbars = show;
         markProjectDirty();
         remoteCommandDetail_ = show ? "scrollbar shown" : "scrollbar hidden";
+        return;
+      }
+      if (first == "TYPE") {
+        // Types into whatever the page has focused. The reason this exists is
+        // logging in: a click can dismiss a banner, but only a keystroke gets
+        // past a sign-in form.
+        const std::string text = joinParts(parts, 2);
+        if (text.empty()) {
+          failRemoteCommand("BROWSER TYPE: expected some text");
+          return;
+        }
+        if (!page->sendText(text)) {
+          failRemoteCommand("BROWSER TYPE: this browser backend cannot type");
+          return;
+        }
+        remoteCommandDetail_ = std::to_string(text.size()) + " characters";
+        return;
+      }
+      if (first == "KEY") {
+        const std::string name = parts.size() > 2 ? parts[2] : std::string();
+        if (name.empty()) {
+          failRemoteCommand("BROWSER KEY: expected Enter|Tab|Backspace|Escape");
+          return;
+        }
+        if (!page->sendKey(name)) {
+          failRemoteCommand("BROWSER KEY: this backend cannot send \"" + name + "\"");
+          return;
+        }
         return;
       }
       if (first == "INTERACT") {

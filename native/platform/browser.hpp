@@ -126,6 +126,15 @@ class BrowserRenderer {
   bool setInteractive(bool interactive);
   bool isInteractive() const;
 
+  // Type a UTF-8 string into the page. Windows and macOS route it through the
+  // focused element with JavaScript; Linux presses real keys on the cue's
+  // display, which is the only way a browser's own password field, autofill
+  // and 2FA box see it.
+  bool sendText(const std::string& utf8);
+
+  // One named key: "Enter", "Tab", "Backspace", "Escape".
+  bool sendKey(const std::string& name);
+
   // Configuration
   void setUserAgent(const std::string& agent);
   void setZoomLevel(double scale);

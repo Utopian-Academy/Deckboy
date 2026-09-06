@@ -56,6 +56,8 @@
 
 #if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>          // XkbKeycodeToKeysym, for typing
+#include <X11/keysym.h>          // XK_Shift_L
 #include <X11/extensions/XTest.h>
 // X11 defines these as bare macros, and they collide with ordinary C++ names
 // -- `None` is an enumerator of BrowserStartPhase, and `Status` is a word any
@@ -1176,6 +1178,174 @@ bool BrowserRenderer::sendHelperCommand(const std::string& command) {
 }
 #endif
 
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+namespace {
+
+// Press one keysym, with shift if the layout needs it.
+//
+// A keysym the current layout does not carry has no keycode, so it cannot be
+// pressed at all. Rather than drop the character, a SPARE keycode is
+// temporarily remapped to it, pressed, and put back -- which is how every
+// synthetic-typing tool on X handles accented and non-Latin input.
+void pressKeysym(Display* display, KeySym symbol) {
+  if (symbol == NoSymbol) {
+    return;
+  }
+  KeyCode code = XKeysymToKeycode(display, symbol);
+  bool remapped = false;
+  bool needsShift = false;
+
+  if (code != 0) {
+    // Is it the shifted form? Column 0 is unshifted, column 1 is shifted.
+    const KeySym plain = XkbKeycodeToKeysym(display, code, 0, 0);
+    const KeySym shifted = XkbKeycodeToKeysym(display, code, 0, 1);
+    if (plain != symbol && shifted == symbol) {
+      needsShift = true;
+    }
+  } else {
+    // Borrow a keycode. The high end of the range is where X leaves spares.
+    int minCode = 0;
+    int maxCode = 0;
+    XDisplayKeycodes(display, &minCode, &maxCode);
+    for (int candidate = maxCode; candidate > minCode; --candidate) {
+      if (XkbKeycodeToKeysym(display, static_cast<KeyCode>(candidate), 0, 0) == NoSymbol) {
+        KeySym mapping[2] = {symbol, symbol};
+        XChangeKeyboardMapping(display, candidate, 2, mapping, 1);
+        XSync(display, 0);
+        code = static_cast<KeyCode>(candidate);
+        remapped = true;
+        break;
+      }
+    }
+    if (code == 0) {
+      return;   // no spare keycode; this character cannot be typed
+    }
+  }
+
+  const KeyCode shiftCode = XKeysymToKeycode(display, XK_Shift_L);
+  if (needsShift && shiftCode != 0) {
+    XTestFakeKeyEvent(display, shiftCode, 1, CurrentTime);
+  }
+  XTestFakeKeyEvent(display, code, 1, CurrentTime);
+  XTestFakeKeyEvent(display, code, 0, CurrentTime);
+  if (needsShift && shiftCode != 0) {
+    XTestFakeKeyEvent(display, shiftCode, 0, CurrentTime);
+  }
+  XFlush(display);
+
+  if (remapped) {
+    // Put the borrowed keycode back, or the operator's own keyboard starts
+    // producing whatever was last typed into a browser cue.
+    KeySym cleared[2] = {NoSymbol, NoSymbol};
+    XChangeKeyboardMapping(display, code, 2, cleared, 1);
+    XSync(display, 0);
+  }
+}
+
+// UTF-8 -> Unicode code point. Returns the bytes consumed.
+std::size_t decodeUtf8(const std::string& text, std::size_t at, unsigned long& out) {
+  const unsigned char lead = static_cast<unsigned char>(text[at]);
+  if (lead < 0x80) { out = lead; return 1; }
+  auto cont = [&](std::size_t i) {
+    return at + i < text.size()
+         ? (static_cast<unsigned char>(text[at + i]) & 0x3F) : 0u;
+  };
+  if ((lead & 0xE0) == 0xC0 && at + 1 < text.size()) {
+    out = ((lead & 0x1Fu) << 6) | cont(1);
+    return 2;
+  }
+  if ((lead & 0xF0) == 0xE0 && at + 2 < text.size()) {
+    out = ((lead & 0x0Fu) << 12) | (cont(1) << 6) | cont(2);
+    return 3;
+  }
+  if ((lead & 0xF8) == 0xF0 && at + 3 < text.size()) {
+    out = ((lead & 0x07u) << 18) | (cont(1) << 12) | (cont(2) << 6) | cont(3);
+    return 4;
+  }
+  out = lead;
+  return 1;
+}
+
+}  // namespace
+#endif
+
+bool BrowserRenderer::sendText(const std::string& utf8) {
+  if (utf8.empty() || !impl_->isRunning_) {
+    return false;
+  }
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+  if (!impl_->virtualDisplayId_.empty()) {
+    ScopedDisplay display(impl_->virtualDisplayId_);
+    if (display) {
+      for (std::size_t at = 0; at < utf8.size(); ) {
+        unsigned long code = 0;
+        at += decodeUtf8(utf8, at, code);
+        // Latin-1 maps straight onto keysyms; everything else uses X's
+        // Unicode keysym range.
+        const KeySym symbol = (code < 0x100)
+          ? static_cast<KeySym>(code)
+          : static_cast<KeySym>(code | 0x01000000);
+        pressKeysym(display.get(), symbol);
+      }
+      return true;
+    }
+  }
+  return false;
+#else
+  // Windows and macOS both have a JavaScript channel, so the text goes to
+  // whatever the page has focused. Quotes and backslashes are escaped because
+  // this is built into a script.
+  std::string escaped;
+  escaped.reserve(utf8.size() + 8);
+  for (char ch : utf8) {
+    if (ch == '\\' || ch == '\'') {
+      escaped.push_back('\\');
+    }
+    if (ch == '\n' || ch == '\r') {
+      continue;
+    }
+    escaped.push_back(ch);
+  }
+  const std::string js =
+    "(function(){var el=document.activeElement;if(!el)return;"
+    "var t='" + escaped + "';"
+    "if('value' in el){el.value=(el.value||'')+t;"
+    "el.dispatchEvent(new Event('input',{bubbles:true}));"
+    "el.dispatchEvent(new Event('change',{bubbles:true}));}"
+    "else if(el.isContentEditable){el.textContent=(el.textContent||'')+t;}})()";
+  return executeJavaScript(js);
+#endif
+}
+
+bool BrowserRenderer::sendKey(const std::string& name) {
+  if (name.empty() || !impl_->isRunning_) {
+    return false;
+  }
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+  if (!impl_->virtualDisplayId_.empty()) {
+    ScopedDisplay display(impl_->virtualDisplayId_);
+    if (display) {
+      const KeySym symbol = XStringToKeysym(name.c_str());
+      if (symbol == NoSymbol) {
+        return false;
+      }
+      pressKeysym(display.get(), symbol);
+      return true;
+    }
+  }
+  return false;
+#else
+  // A named key as a real KeyboardEvent, so a form's own Enter handler fires.
+  const std::string js =
+    "(function(){var el=document.activeElement||document.body;"
+    "['keydown','keyup'].forEach(function(t){"
+    "el.dispatchEvent(new KeyboardEvent(t,{key:'" + name +
+    "',bubbles:true,cancelable:true}));});"
+    "if('" + name + "'==='Enter'&&el.form){el.form.requestSubmit&&el.form.requestSubmit();}})()";
+  return executeJavaScript(js);
+#endif
+}
+
 bool BrowserRenderer::isInteractive() const {
   return impl_->interactive_;
 }
@@ -1201,36 +1371,24 @@ bool BrowserRenderer::setInteractive(bool interactive) {
   }
   impl_->interactive_ = interactive;
   return true;
-#elif defined(__linux__)
-  // The page lives on a private Xvfb display that no monitor is showing, so
-  // there is no window to raise. A second Chromium is opened on the OPERATOR'S
-  // display against the SAME profile directory instead -- which is the part
-  // that matters, because cookies and logins live in the profile, so signing
-  // in there is picked up by the cue when it reloads.
-  if (!interactive) {
-    impl_->interactiveProcess_.stop();
-    impl_->interactive_ = false;
-    return true;
-  }
-  if (impl_->interactive_) {
-    return true;
-  }
-  if (impl_->browserExecutable_.empty() || impl_->browserProfileDir_.empty()) {
-    return false;
-  }
-  // No --app here: the operator wants the address bar, the back button and a
-  // place to type.
-  std::vector<std::string> args {
-    impl_->browserExecutable_,
-    "--no-first-run",
-    "--new-window",
-    "--user-data-dir=" + impl_->browserProfileDir_.string(),
-    impl_->url_
-  };
-  if (!spawnDetachedProcess(impl_->interactiveProcess_, args)) {
-    return false;
-  }
-  impl_->interactive_ = true;
+#elif defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+  // LINUX TYPES INTO THE PAGE INSTEAD OF SHOWING A WINDOW.
+  //
+  // The first attempt here opened a second Chromium with --new-window against
+  // the same profile, on the theory that a login taken there would be picked
+  // up by the cue. It was measured and it does not work: Chromium hands
+  // --new-window to the ALREADY-RUNNING instance for that profile, which owns
+  // the cue's private Xvfb -- so the window opened on the hidden display where
+  // nobody could see it (4 windows -> 5 on :21, none on the operator's), and
+  // INTERACT off could not close it because the process it spawned had already
+  // exited after handing off.
+  //
+  // There is no window to show on Linux, so interaction is delivered the same
+  // way clicks and scrolling already are: straight into the cue's display with
+  // XTEST. Turning it on routes the operator's KEYBOARD there too, which is
+  // what makes signing in possible -- the thing that motivated the whole
+  // feature.
+  impl_->interactive_ = interactive;
   return true;
 #else
   (void) interactive;
