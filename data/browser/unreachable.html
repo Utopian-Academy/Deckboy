@@ -1,0 +1,43 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Deckboy — page unreachable</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  /* Amber, not red: the cue is doing its job, the page is not there. Read as a
+     warning from the back of a room, and unmistakably NOT the content anyone
+     meant to put on air. */
+  #card {
+    position: fixed; inset: 0; background: #1a1206; color: #ffc53d;
+    display: flex; flex-direction: column; gap: 2.4vh;
+    align-items: center; justify-content: center; text-align: center;
+    font: 700 6vh/1.1 -apple-system, "Segoe UI", "Liberation Sans", system-ui, sans-serif;
+    padding: 4vh 6vw; box-sizing: border-box;
+  }
+  #stripe {
+    position: fixed; inset: 0 0 auto 0; height: 1.6vh;
+    background: repeating-linear-gradient(135deg,
+      #ffc53d 0 3vh, #1a1206 3vh 6vh);
+  }
+  #stripe.bottom { inset: auto 0 0 0; }
+  #what { font-size: 2.4vh; letter-spacing: .22em; opacity: .75; font-weight: 600; }
+  #url {
+    font: 500 2.4vh/1.4 ui-monospace, "Cascadia Mono", "Liberation Mono", monospace;
+    color: #fff3d6; opacity: .9; word-break: break-all; max-width: 80vw;
+  }
+</style>
+<div id="stripe"></div>
+<div id="stripe" class="bottom"></div>
+<div id="card">
+  <div id="what">DECKBOY · BROWSER CUE</div>
+  <div>COULD NOT REACH THIS PAGE</div>
+  <div id="url">—</div>
+  <div id="what">CHECK THE NETWORK, OR THE URL IN THE CUE INSPECTOR</div>
+</div>
+<script>
+  // The failed address arrives as the fragment so the card needs no server and
+  // no query parsing on the app side.
+  try {
+    var raw = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+    if (raw) { document.getElementById('url').textContent = raw; }
+  } catch (e) { /* a card that cannot show the URL still shows the warning */ }
+</script>

@@ -37,9 +37,9 @@
 #include "browser.hpp"
 
 #include "core/subprocess.hpp"
-#if defined(__APPLE__)
-#include "core/paths.hpp"   // the helper lives beside the executable
-#endif
+// Not macOS-only any more: the warning card for an unreachable page is a
+// bundled data file, and every platform has to be able to find it.
+#include "core/paths.hpp"
 
 #include <algorithm>
 #include <array>
@@ -315,6 +315,51 @@ int findFreeVirtualDisplay() {
   return -1;
 }
 #endif
+
+// THE CARD A BROWSER CUE SHOWS WHEN THE PAGE IS NOT THERE.
+//
+// Every backend's own error page is a different shape, in a different language,
+// and none of them say which cue is at fault -- and a browser cue that fails
+// quietly is worse: it is a black rectangle, indistinguishable from broken. So
+// a failed navigation lands here instead: one card, the same on all three
+// platforms, naming the address that would not load.
+//
+// The failed address travels as the URL fragment, so the card needs nothing
+// from the app beyond being opened.
+std::string unreachableCardUrl(const std::string& failedUrl) {
+  std::error_code error;
+  const fs::path card =
+    deckboy::core::Paths::dataDir() / "browser" / "unreachable.html";
+  if (!fs::exists(card, error)) {
+    return {};
+  }
+  std::string out = "file://" + fs::absolute(card, error).string();
+  if (!failedUrl.empty()) {
+    out += "#";
+    // Percent-encode everything that is not plainly safe: an address with a
+    // '#' of its own would otherwise truncate the fragment it is being carried
+    // in, and the card would name the wrong page.
+    for (unsigned char c : failedUrl) {
+      const bool safe = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                        (c >= '0' && c <= '9') || c == '-' || c == '_' ||
+                        c == '.' || c == '~';
+      if (safe) {
+        out.push_back(static_cast<char>(c));
+      } else {
+        char buf[4];
+        std::snprintf(buf, sizeof(buf), "%%%02X", c);
+        out += buf;
+      }
+    }
+  }
+  return out;
+}
+
+// A failure while SHOWING the card must not send us back to the card.
+bool isUnreachableCard(const std::string& url) {
+  return url.find("browser/unreachable.html") != std::string::npos ||
+         url.find("browser\unreachable.html") != std::string::npos;
+}
 
 }  // namespace
 
@@ -656,6 +701,16 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
                       BOOL success = FALSE;
                       if (args) args->get_IsSuccess(&success);
                       wv2Log("NavigationCompleted success=%d", (int)success);
+                      // A page that did not load leaves the last picture up --
+                      // or nothing at all, which on air is a black rectangle
+                      // nobody can tell from a broken cue. Say so instead.
+                      if (!success && !isUnreachableCard(p->url_)) {
+                        const std::string card = unreachableCardUrl(p->url_);
+                        if (!card.empty()) {
+                          wv2Log("navigating to the unreachable card");
+                          p->webview_->Navigate(utf8ToWide(card).c_str());
+                        }
+                      }
                       p->captureHangTicks_ = 0;
                       // If a CapturePreview was stuck in-flight during navigation,
                       // clear it now so the next timer tick can issue a fresh one.
@@ -928,12 +983,23 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
   options.stdinMode = StdioMode::Pipe;    // commands: js / interact / url
   options.stdoutMode = StdioMode::Pipe;   // the window id comes back here
   options.stderrMode = StdioMode::Null;
-  if (!spawnProcess(impl_->webviewProcess_, {
-        helper.string(),
-        "--url", impl_->url_,
-        "--width", std::to_string(width),
-        "--height", std::to_string(height)
-      }, options)) {
+  // The helper is told where the warning card lives rather than working it out:
+  // it sits beside the executable, but the data tree is in Contents/Resources,
+  // and only the app knows how its own install is laid out.
+  std::vector<std::string> helperArgs {
+    helper.string(),
+    "--url", impl_->url_,
+    "--width", std::to_string(width),
+    "--height", std::to_string(height)
+  };
+  {
+    const std::string card = unreachableCardUrl({});
+    if (!card.empty()) {
+      helperArgs.push_back("--fallback");
+      helperArgs.push_back(card);
+    }
+  }
+  if (!spawnProcess(impl_->webviewProcess_, helperArgs, options)) {
     impl_->lastError_ = "browser helper launch failed";
     return false;
   }

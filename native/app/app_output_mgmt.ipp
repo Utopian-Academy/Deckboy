@@ -3593,6 +3593,9 @@
       return false;
     }
 
+    // A second at 30fps: long enough that a slow GPU or a filling ring is not
+    // mistaken for a stall, short enough that a bad take is not lost.
+    constexpr int kEgressAsyncStallFrames = 30;
     bool asyncCaptured = false;
     // ── Asynchronous path ──────────────────────────────────────────────────
     // Only for the scaled recording target, which is a plain RGBA render target
@@ -3628,6 +3631,31 @@
         // recorded UNROTATED on the asynchronous path and rotated on the
         // synchronous one. Falling through means both paths agree.
         asyncCaptured = got;
+        // A HELD FRAME IS ONLY EVER A STOPGAP.
+        //
+        // Missing a frame is normal: the ring is filling, or the GPU is a frame
+        // behind, and repeating the last picture is exactly right. Missing
+        // EVERY frame is not -- the recording becomes one still image for its
+        // whole length while the capture reports itself healthy, which is what
+        // a macOS take did: three recordings of different live content came
+        // back byte-identical.
+        //
+        // So the miss is counted, and after a second of nothing the
+        // asynchronous path is retired for the session and the synchronous read
+        // takes over. Slower, and it always produces a picture.
+        if (got) {
+          runtime.egressReadbackMisses = 0;
+        } else if (++runtime.egressReadbackMisses >= kEgressAsyncStallFrames) {
+          std::cerr << "recording-capture: asynchronous readback produced nothing for "
+                    << runtime.egressReadbackMisses
+                    << " frames; falling back to the synchronous read"
+                    << std::endl;
+          showLog("RECORD PATH", "async stalled -- switched to synchronous readback");
+          deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
+          runtime.egressReadback = nullptr;
+          runtime.egressReadbackUnavailable = true;
+          runtime.egressReadbackMisses = 0;
+        }
         // Nothing ready: keep the previous picture. The CFR pacer will repeat
         // it, which is exactly the right behaviour -- a held frame, never a
         // gap in the timeline. The held frame was already rotated when it was

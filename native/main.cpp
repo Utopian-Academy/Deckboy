@@ -1806,6 +1806,12 @@ struct OutputRuntime {
   // Latched when the renderer turns out to have no asynchronous readback, so
   // the creation is not retried on the render thread every single frame.
   bool egressReadbackUnavailable = false;
+  // Consecutive frames the asynchronous readback has produced nothing. One or
+  // two is ordinary -- the ring is filling, or the GPU is a frame behind, and
+  // the caller repeats the previous picture. Forever is not: it means the
+  // recording is one still frame for its whole length, which is what a macOS
+  // take looked like, and every status line said the capture was healthy.
+  int egressReadbackMisses = 0;
   // The captured picture, published once as an immutable buffer. The CFR pacer
   // repeats the last picture to cover a gap, and every repeat used to copy the
   // whole raster again -- 33MB at 4K, on the render thread, for pixels that had

@@ -476,6 +476,11 @@ if(APPLE)
   add_executable(deckboy-sckcapture native/platform/sckcapture.mm)
   set_target_properties(deckboy-sckcapture PROPERTIES OUTPUT_NAME "deckboy-sckcapture")
   target_link_libraries(deckboy-sckcapture PRIVATE
+    # AppKit for NSApplicationLoad: ScreenCaptureKit aborts a process with no
+    # window-server connection (CGS_REQUIRE_INIT), and connecting is AppKit's
+    # job. Building this helper by hand with -framework AppKit is what hid the
+    # missing link line here.
+    "-framework AppKit"
     "-framework ScreenCaptureKit"
     "-framework CoreMedia"
     "-framework CoreVideo"

@@ -142,11 +142,14 @@ static void wvLog(const char* fmt, ...) {
 @property(nonatomic, assign) BOOL interactive;
 @property(nonatomic, assign) NSInteger pageWidth;
 @property(nonatomic, assign) NSInteger pageHeight;
+@property(nonatomic, copy) NSString* fallbackCard;
+@property(nonatomic, copy) NSString* pendingUrl;
 - (instancetype)initWithURL:(NSString*)url width:(NSInteger)w height:(NSInteger)h;
 - (void)setInteractive:(BOOL)on;
 - (NSPoint)parkedOrigin;
 - (void)runCommand:(const std::string&)line;
 - (void)logPainted;
+- (void)showUnreachableCard;
 @end
 
 @implementation DeckboyWebHost
@@ -234,6 +237,10 @@ static void wvLog(const char* fmt, ...) {
   if (!target) {
     return;
   }
+  // On a provisional failure the web view's own URL is still the PREVIOUS page
+  // (or empty on the very first load), so the address being attempted has to be
+  // remembered here or the warning card names the wrong page.
+  self.pendingUrl = address;
   if (target.isFileURL) {
     // A file:// page needs explicit read access to its own directory, or
     // WebKit loads a blank frame and says nothing about why.
@@ -347,6 +354,7 @@ static void wvLog(const char* fmt, ...) {
             withError:(NSError*)error {
   (void)webView; (void)navigation;
   wvLog("load FAILED: %s", error.localizedDescription.UTF8String);
+  [self showUnreachableCard];
 }
 
 - (void)webView:(WKWebView*)webView
@@ -354,6 +362,36 @@ static void wvLog(const char* fmt, ...) {
                        withError:(NSError*)error {
   (void)webView; (void)navigation;
   wvLog("load FAILED (provisional): %s", error.localizedDescription.UTF8String);
+  [self showUnreachableCard];
+}
+
+// A page that did not load leaves the last picture up -- or nothing, which on
+// air is a black rectangle nobody can tell from a broken cue. The card names
+// the address that would not load, and carries it as the URL fragment.
+//
+// A failure while showing the card must not send us back to the card: that is
+// an endless navigation loop on a machine with no network at all.
+- (void)showUnreachableCard {
+  if (_fallbackCard.length == 0) {
+    return;
+  }
+  NSString* current = _webView.URL.absoluteString ?: @"";
+  if ([current containsString:@"browser/unreachable.html"]) {
+    wvLog("the card itself failed; not looping");
+    return;
+  }
+  NSString* failed = _pendingUrl.length > 0 ? _pendingUrl : current;
+  NSCharacterSet* allowed = [NSCharacterSet URLHostAllowedCharacterSet];
+  NSString* encoded =
+    [failed stringByAddingPercentEncodingWithAllowedCharacters:allowed] ?: @"";
+  NSString* target = [NSString stringWithFormat:@"%@#%@", _fallbackCard, encoded];
+  NSURL* url = [NSURL URLWithString:target];
+  if (!url) {
+    return;
+  }
+  wvLog("showing the unreachable card for %s", failed.UTF8String);
+  [_webView loadFileURL:url
+   allowingReadAccessToURL:[url URLByDeletingLastPathComponent]];
 }
 
 - (void)webViewWebContentProcessDidTerminate:(WKWebView*)webView {
@@ -428,6 +466,7 @@ static void wvLog(const char* fmt, ...) {
 int main(int argc, const char* argv[]) {
   @autoreleasepool {
     const std::string url = argValue(argc, argv, "--url", "");
+    const std::string fallback = argValue(argc, argv, "--fallback", "");
     const int width = argInt(argc, argv, "--width", 1920);
     const int height = argInt(argc, argv, "--height", 1080);
 
@@ -464,6 +503,13 @@ int main(int argc, const char* argv[]) {
     DeckboyWebHost* host = [[DeckboyWebHost alloc] initWithURL:address
                                                         width:width
                                                        height:height];
+    // Set before the run loop starts, so it is in place for the very first
+    // navigation's failure -- the delegate callbacks cannot fire until [NSApp
+    // run] below.
+    if (!fallback.empty()) {
+      host.fallbackCard = [NSString stringWithUTF8String:fallback.c_str()];
+    }
+
     if (!host || !host.window) {
       std::fprintf(stderr, "deckboy-webview: window creation failed\n");
       return 3;

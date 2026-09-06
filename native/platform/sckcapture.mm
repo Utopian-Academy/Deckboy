@@ -305,13 +305,13 @@ int main(int argc, const char* argv[]) {
       if (chosenWindow) {
         const CGRect wr = chosenWindow.frame;
         sckLog("--- capturing window %u '%s' (%s) %.0fx%.0f at %.0f,%.0f "
-               "onScreen=%d active=%d -> config %dx%d @%dfps",
+               "onScreen=%d -> config %dx%d @%dfps",
                (unsigned)chosenWindow.windowID,
                chosenWindow.title.UTF8String ? chosenWindow.title.UTF8String : "",
                chosenWindow.owningApplication.applicationName.UTF8String
                  ? chosenWindow.owningApplication.applicationName.UTF8String : "?",
                wr.size.width, wr.size.height, wr.origin.x, wr.origin.y,
-               (int)chosenWindow.isOnScreen, (int)chosenWindow.isActive,
+               (int)chosenWindow.isOnScreen,
                g_width, g_height, g_fps);
       } else {
         sckLog("--- capturing a display -> config %dx%d @%dfps",
