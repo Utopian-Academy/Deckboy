@@ -641,6 +641,29 @@
         setVjTempo(std::atof(parts[2].c_str()));
         return;
       }
+      if (sub == "CLOCK") {
+        // VJ CLOCK on|off|status -- follow an incoming MIDI clock instead of
+        // the tapped tempo.
+        const std::string arg = parts.size() >= 3 ? toUpper(parts[2]) : std::string("STATUS");
+        if (arg == "ON" || arg == "OFF" || arg == "TOGGLE") {
+          project_.midiClockSlave = (arg == "TOGGLE") ? !project_.midiClockSlave
+                                                      : (arg == "ON");
+          markProjectDirty();
+          triggerToast(project_.midiClockSlave ? "tempo follows MIDI clock"
+                                               : "tempo is tapped");
+        }
+        std::ostringstream state;
+        state << (project_.midiClockSlave ? "slave" : "internal");
+        if (midiClockBpm_ > 0.0) {
+          state << " measured " << std::fixed << std::setprecision(1) << midiClockBpm_ << " bpm";
+        }
+        // Whether ticks are still arriving matters more than the last number:
+        // a slaved deck on a dead cable would otherwise report a tempo it is
+        // no longer being given.
+        state << (midiClockAlive() ? " (receiving)" : " (no clock)");
+        remoteCommandDetail_ = state.str();
+        return;
+      }
       if (sub == "QUANTISE" && parts.size() >= 3) {
         project_.vjQuantiseTakes = (toLower(parts[2]) == "on");
         markProjectDirty();
@@ -665,7 +688,7 @@
         return;
       }
       failRemoteCommand("VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|"
-                        "BPM <n>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
+                        "BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
       return;
     }
 
@@ -1539,6 +1562,48 @@
       } catch (...) {
         failRemoteCommand("CLICK: expected two numbers");
       }
+      return;
+    }
+    if (command == "MIDICLOCK") {
+      // DEV VERB, like CLICK and HOVER. Feeds the clock follower a run of
+      // ticks at a known spacing so the tempo maths can be checked without a
+      // MIDI cable, a virtual port, or a controller on the desk. It drives the
+      // SAME function the real clock drives -- a test that exercised a copy of
+      // the maths would prove nothing about the copy that ships.
+      if (parts.size() < 3 || toUpper(parts[1]) != "SIM") {
+        failRemoteCommand("MIDICLOCK: expected SIM <bpm> [beats]");
+        return;
+      }
+      double bpm = 0.0;
+      int beats = 4;
+      try {
+        bpm = std::stod(parts[2]);
+        if (parts.size() > 3) {
+          beats = std::clamp(std::stoi(parts[3]), 1, 64);
+        }
+      } catch (...) {
+        failRemoteCommand("MIDICLOCK SIM: expected a number");
+        return;
+      }
+      if (bpm < 20.0 || bpm > 600.0) {
+        failRemoteCommand("MIDICLOCK SIM: bpm must be 20..600");
+        return;
+      }
+      // Synthetic timestamps: a beat is 60000/bpm ms, and 24 ticks divide it.
+      const double beatMs = 60000.0 / bpm;
+      Uint64 stamp = SDL_GetTicks();
+      onMidiRealtime(0xFA, stamp);
+      for (int beat = 0; beat < beats; ++beat) {
+        for (int tick = 1; tick <= 24; ++tick) {
+          const double at = beatMs * beat + (beatMs * tick) / 24.0;
+          onMidiRealtime(0xF8, stamp + static_cast<Uint64>(std::llround(at)));
+        }
+      }
+      std::ostringstream out;
+      out << "fed " << beats << " beats at " << std::fixed << std::setprecision(1)
+          << bpm << "; measured " << std::setprecision(2) << midiClockBpm_
+          << "; vj tempo " << std::setprecision(2) << project_.vjTempoBpm;
+      remoteCommandDetail_ = out.str();
       return;
     }
     if (command == "HOVER") {

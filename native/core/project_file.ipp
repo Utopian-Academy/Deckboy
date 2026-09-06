@@ -57,6 +57,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
   output << "browser_scrollbars\t" << (project.browserScrollbars ? 1 : 0) << '\n';
+  output << "midi_clock_slave\t" << (project.midiClockSlave ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
@@ -653,6 +654,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.hoverTipsEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "browser_scrollbars") {
     project.browserScrollbars = safeBool(fields, 1, false);
+  } else if (fields[0] == "midi_clock_slave") {
+    project.midiClockSlave = safeBool(fields, 1, false);
   } else if (fields[0] == "ui_transitions") {
     project.uiTransitionsEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "hap_suggestion_dismissed") {

@@ -1044,6 +1044,10 @@ struct Project {
   // Browser cues hide their scrollbars by default. A scrollbar is chrome, and
   // a cue is a picture the audience sees -- BROWSER SCROLL moves the page.
   bool browserScrollbars = false;
+  // Follow an incoming MIDI clock instead of the tapped tempo. Off by default:
+  // a controller that sends clock all the time would otherwise silently take
+  // the tempo away from whoever tapped it.
+  bool midiClockSlave = false;
   bool uiTransitionsEnabled = true; // animate UI transitions (panel slides, fades)
   // Splash mascot identity. Maps to data/ui/.../splash/deckboy_splash_<name>.png.
   // Default is "deckbot"; "deckgirl" is the legacy v2-pack illustration.

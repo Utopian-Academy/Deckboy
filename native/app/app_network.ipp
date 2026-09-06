@@ -444,12 +444,12 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (269)\n"
+        "DECKBOY_0.01 every verb (270)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "CLICK HOVER\n"
+        "CLICK HOVER MIDICLOCK\n"
         "MESH MESH3D\n"
         "AUTOID AUTONEXT BLACKOUT\n"
         "BLEND BROWSER CAMERACUE CANVAS CC CLEAR CLEAROVERLAY CODE COLOR\n"
@@ -513,7 +513,8 @@
         "vj: VJ ON|OFF|TOGGLE | VJ MIX <0-1> | VJ BLEND [mode]\n"
         "    blends: dissolve add screen multiply lighten darken subtract\n"
         "            undercut infiltrate ember   (no argument cycles)\n"
-        "    VJ TAP | VJ BPM <n> | VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
+        "    VJ TAP | VJ BPM <n> | VJ CLOCK <on|off>  (follow an external MIDI clock)\n"
+        "    VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX CLEAR\n"
         "         FX PARAM <n> <A-D> <0-1>   (each effect's own shaping controls)\n"
         "         FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [v]\n"
@@ -2053,6 +2054,7 @@
     }
     midiRt_.onNoteOn([this](int note, int velocity) { onMidiNoteOn(note, velocity); });
     midiRt_.onControlChange([this](int controller, int value) { onMidiControlChange(controller, value); });
+    midiRt_.onRealtime([this](std::uint8_t status) { onMidiRealtime(status); });
     midiRt_.onSysEx([this](const std::vector<std::uint8_t>& data) {
       onMidiSysEx(data);
     });
@@ -2161,6 +2163,96 @@
   // Polled from the update tick: the RtMidi wrapper dispatches its callbacks
   // from here, so they land on the main thread. No-op on ALSA (that path has
   // its own reader thread) and when MIDI isn't compiled in.
+  // ---- FOLLOWING AN EXTERNAL MIDI CLOCK ----------------------------------
+  //
+  // MIDI clock is 24 ticks per quarter note and carries no tempo of its own --
+  // the tempo IS the tick rate, so it has to be measured. Timing a single tick
+  // would read whatever jitter the sender, the USB stack and the OS scheduler
+  // put on that one message; timing a whole beat (24 ticks) divides that
+  // jitter by 24 before it reaches the number.
+  //
+  // The result is then smoothed, because a VJ tempo that twitches in the third
+  // decimal is worse than one that lags a beat.
+  // `nowMs` is a parameter rather than read inside, so the tempo maths can be
+  // exercised with known timings instead of whatever the machine happened to
+  // be doing. Real callers pass SDL_GetTicks(); nothing else changes.
+  void onMidiRealtime(std::uint8_t status, Uint64 nowMs) {
+    const Uint64 now = nowMs;
+    switch (status) {
+      case 0xFA:   // Start -- from the top
+      case 0xFB:   // Continue
+        midiClockRunning_ = true;
+        midiClockTicks_ = 0;
+        midiClockBeatStartMs_ = now;
+        break;
+      case 0xFC:   // Stop
+        midiClockRunning_ = false;
+        midiClockTicks_ = 0;
+        break;
+      case 0xF8: {  // Timing clock
+        midiClockLastTickMs_ = now;
+        // A sender that never sends Start still sends clock; treat the first
+        // tick as the start rather than ignoring the device entirely.
+        if (!midiClockRunning_) {
+          midiClockRunning_ = true;
+          midiClockTicks_ = 0;
+          midiClockBeatStartMs_ = now;
+          break;
+        }
+        if (midiClockBeatStartMs_ == 0) {
+          midiClockBeatStartMs_ = now;
+          midiClockTicks_ = 0;
+          break;
+        }
+        if (++midiClockTicks_ < 24) {
+          break;
+        }
+        const Uint64 beatMs = now - midiClockBeatStartMs_;
+        midiClockTicks_ = 0;
+        midiClockBeatStartMs_ = now;
+        if (beatMs < 100 || beatMs > 3000) {
+          break;   // 20..600 bpm; anything else is a dropout, not a tempo
+        }
+        const double bpm = 60000.0 / static_cast<double>(beatMs);
+        // SMOOTH THE JITTER, FOLLOW THE CHANGE.
+        //
+        // Easing every reading equally was measured taking four beats to get
+        // within 8 bpm of a new tempo -- fine for jitter, useless when someone
+        // actually changes tempo. A reading more than 5% away is not jitter, it
+        // is a different tempo, so it is taken whole; anything closer is eased,
+        // which is where the jitter lives.
+        if (midiClockBpm_ <= 0.0 ||
+            std::fabs(bpm - midiClockBpm_) > midiClockBpm_ * 0.05) {
+          midiClockBpm_ = bpm;
+        } else {
+          midiClockBpm_ = midiClockBpm_ * 0.7 + bpm * 0.3;
+        }
+        if (project_.midiClockSlave) {
+          setVjTempo(midiClockBpm_);
+        }
+        break;
+      }
+      default:
+        break;   // 0xFE active sensing, 0xFF reset: nothing to do here
+    }
+  }
+
+  void onMidiRealtime(std::uint8_t status) {
+    onMidiRealtime(status, SDL_GetTicks());
+  }
+
+  // True while clock ticks are still arriving. Used by the readout: a slaved
+  // deck with a dead cable should say so rather than sit on a stale number.
+  bool midiClockAlive() const {
+    if (!midiClockRunning_ || midiClockLastTickMs_ == 0) {
+      return false;
+    }
+    // Unsigned subtraction, so a stamp ahead of now would wrap to an enormous
+    // "age" and report a live clock as dead. Compare rather than subtract.
+    const Uint64 now = SDL_GetTicks();
+    return midiClockLastTickMs_ >= now || (now - midiClockLastTickMs_) < 1000;
+  }
+
   void pumpMidiInput() {
 #if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
     if (midiEnabled_) {
@@ -2199,6 +2291,21 @@
             std::ostringstream ss; ss << std::fixed << std::setprecision(2) << spd;
             cmd = "SPEED " + ss.str();
           }
+          break;
+        // ALSA names these rather than handing over the status byte, so they
+        // are mapped back onto the one follower -- the tempo maths must not
+        // exist twice or the two platforms will drift apart.
+        case SND_SEQ_EVENT_CLOCK:
+          onMidiRealtime(0xF8);
+          break;
+        case SND_SEQ_EVENT_START:
+          onMidiRealtime(0xFA);
+          break;
+        case SND_SEQ_EVENT_CONTINUE:
+          onMidiRealtime(0xFB);
+          break;
+        case SND_SEQ_EVENT_STOP:
+          onMidiRealtime(0xFC);
           break;
         case SND_SEQ_EVENT_QFRAME: {
           auto decoded = decodeMidiMtcQuarterFrame(ev->data.control.value);

@@ -46,6 +46,7 @@ class MidiInput::Impl {
   MidiInput::NoteOffCallback noteOffCallback_;
   MidiInput::ProgramChangeCallback progChangeCallback_;
   MidiInput::SysExCallback sysExCallback_;
+  MidiInput::RealtimeCallback realtimeCallback_;
 
   bool isOpen_ = false;
   int deviceId_ = -1;
@@ -99,10 +100,16 @@ bool MidiInput::open(int deviceId) {
     impl_->midiIn_->openPort(static_cast<unsigned int>(deviceId));
     // Don't ignore sysex, timing, or active sensing — let parseMidiMessage handle all
     // SysEx is NOT ignored: MSC and MMC are carried in nothing else, and the
-    // default here is to throw them away. Timing clock and active sensing stay
-    // ignored -- they arrive hundreds of times a second and mean nothing to a
-    // cue deck.
-    impl_->midiIn_->ignoreTypes(false, true, true);
+    // default here is to throw them away.
+    //
+    // TIMING IS NO LONGER IGNORED EITHER. It was, on the grounds that clock
+    // ticks arrive hundreds of times a second and mean nothing to a cue deck --
+    // true until the deck grew a tempo. 24 ticks a beat is how a VJ rig follows
+    // the desk it is plugged into, and the app throws away all but one in 24
+    // (see the clock follower), so the rate costs nothing.
+    //
+    // Active sensing stays ignored: it is a keep-alive and says nothing.
+    impl_->midiIn_->ignoreTypes(false, false, true);
     impl_->deviceId_ = deviceId;
     impl_->isOpen_ = true;
     return true;
@@ -158,6 +165,16 @@ void MidiInput::update() {
       }
       continue;
     }
+    // System Real-Time next: one byte, 0xF8..0xFF, no channel and no data.
+    // parseMidiMessage masks the channel nibble off the status byte, which
+    // would turn a 0xF8 clock tick into a nonsense 0xF0 -- so these have to be
+    // taken before it ever sees them.
+    if (data.size() == 1 && data.front() >= 0xF8) {
+      if (impl_->realtimeCallback_) {
+        impl_->realtimeCallback_(data.front());
+      }
+      continue;
+    }
 
     auto parsed = parseMidiMessage(data);
     if (!parsed) continue;
@@ -193,6 +210,10 @@ void MidiInput::update() {
 
 void MidiInput::onSysEx(SysExCallback callback) {
   impl_->sysExCallback_ = std::move(callback);
+}
+
+void MidiInput::onRealtime(RealtimeCallback callback) {
+  impl_->realtimeCallback_ = std::move(callback);
 }
 
 void MidiInput::onControlChange(ControlChangeCallback callback) {

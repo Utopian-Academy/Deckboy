@@ -8438,6 +8438,14 @@ class App {
   // allowed to reach a deck other than the focused one only if the operator
   // can SEE that deck's selection -- see forEachSelectedCueEverywhere.
   std::vector<int> visiblePlaylistDecks_;
+  // ---- MIDI clock follower ------------------------------------------------
+  // 24 ticks to the quarter note. Only every 24th is timed, so the tempo comes
+  // from a whole beat rather than from one tick's jitter.
+  Uint64 midiClockBeatStartMs_ = 0;
+  int midiClockTicks_ = 0;
+  double midiClockBpm_ = 0.0;
+  Uint64 midiClockLastTickMs_ = 0;
+  bool midiClockRunning_ = false;
   // WHAT THE POINTER IS RESTING ON.
   //
   // Set by drawHoverTip -- so every tip source feeds it, whatever drew it --

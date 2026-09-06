@@ -72,6 +72,12 @@ class MidiInput {
   // this layer has no business knowing which is which.
   using SysExCallback = std::function<void(const std::vector<std::uint8_t>& data)>;
 
+  // System Real-Time: a single status byte, no data, and it may arrive in the
+  // MIDDLE of another message. Handed over raw because the only ones that
+  // matter here are Clock (0xF8), Start (0xFA), Continue (0xFB) and Stop
+  // (0xFC), and what they mean is the caller's business, not this layer's.
+  using RealtimeCallback = std::function<void(std::uint8_t status)>;
+
   MidiInput();
   ~MidiInput();
 
@@ -96,6 +102,7 @@ class MidiInput {
   void onNoteOff(NoteOffCallback callback);
   void onProgramChange(ProgramChangeCallback callback);
   void onSysEx(SysExCallback callback);
+  void onRealtime(RealtimeCallback callback);
 
  private:
   class Impl;
