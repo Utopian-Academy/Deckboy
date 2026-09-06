@@ -103,6 +103,19 @@ else
   echo "  ! deckboy-sckcapture not found in $BUILD_DIR - screen capture will be unavailable" >&2
 fi
 
+# --- deckboy-webview (WKWebView browser cue backend) ------------------------
+# Browser cues spawn this next to the app and capture its window through
+# deckboy-sckcapture above. Caught by testing a real bundle on a real Mac: the
+# backend compiled, the app ran, and every browser cue would have failed with
+# "deckboy-webview helper missing" because the packager did not know about it.
+if [ -f "$BUILD_DIR/deckboy-webview" ]; then
+  cp "$BUILD_DIR/deckboy-webview" "$MACOS_DIR/deckboy-webview"
+  chmod +x "$MACOS_DIR/deckboy-webview"
+  echo "  + deckboy-webview"
+else
+  echo "  ! deckboy-webview not found in $BUILD_DIR - browser cues will be unavailable" >&2
+fi
+
 # --- libltc (LTC timecode) --------------------------------------------------
 # Deckboy dlopen()s libltc at runtime; it is never linked, so the dependency
 # walk below cannot find it. Copy it in explicitly (ltc_api.hpp looks in
@@ -221,7 +234,7 @@ is_system_lib() {
 }
 
 WORKLIST=()
-for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture"; do
+for f in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
   [ -f "$f" ] && WORKLIST+=("$f")
 done
 
@@ -283,7 +296,7 @@ for lib in "$FRAMEWORKS_DIR"/*.dylib; do
   install_name_tool -add_rpath "@loader_path" "$lib" 2>/dev/null || true
 done
 
-for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture"; do
+for exe in "$MACOS_DIR/Deckboy" "$MACOS_DIR/ffmpeg" "$MACOS_DIR/ffprobe" "$MACOS_DIR/deckboy-sckcapture" "$MACOS_DIR/deckboy-webview"; do
   [ -f "$exe" ] || continue
   retarget "$exe"
   install_name_tool -add_rpath "@executable_path/../Frameworks" "$exe" 2>/dev/null || true
@@ -325,6 +338,13 @@ done
 if [ -f "$MACOS_DIR/deckboy-sckcapture" ]; then
   codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.sckcapture \
     "$MACOS_DIR/deckboy-sckcapture" >/dev/null 2>&1 || true
+fi
+# Same reasoning for the browser helper: its window is what the capture helper
+# records, so it is part of the same permission story and wants a stable
+# identifier rather than one minted from the build's content hash.
+if [ -f "$MACOS_DIR/deckboy-webview" ]; then
+  codesign "${SIGN_ARGS[@]}" --identifier org.utopianacademy.deckboy.webview \
+    "$MACOS_DIR/deckboy-webview" >/dev/null 2>&1 || true
 fi
 # Seal the bundle over the already-signed nested code, inside-out. NOT --deep:
 # that would re-sign the helper and re-mint the identifier we just pinned.
