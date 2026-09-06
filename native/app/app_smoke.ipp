@@ -1840,6 +1840,38 @@
       std::cout << (i ? ", " : "") << (name ? name : "?");
     }
     std::cout << '\n';
+
+    // ---- WHICH TYPEFACES THIS MACHINE ACTUALLY RESOLVED --------------------
+    //
+    // The app looked different on every platform for a long time and nobody
+    // could see why, because the font search silently falls back: it names a
+    // bundled face first, then the machine's own. If the bundled one is not
+    // there the app still runs, just wearing a different face -- and the only
+    // way to tell was to look at it.
+    //
+    // So it says. "bundled" means the face travelled with the app and every
+    // platform will look the same; "system" means this machine substituted its
+    // own and will not.
+    {
+      const auto dataDir = deckboy::core::Paths::dataDir();
+      auto report = [&](const char* label, deckboy::core::Paths::FontName which) {
+        const auto path = deckboy::core::Paths::fontPath(which);
+        std::error_code ec;
+        const bool exists = std::filesystem::exists(path, ec);
+        // Bundled == inside the app's own data directory.
+        const auto pathStr = path.string();
+        const auto dataStr = dataDir.string();
+        const bool bundled = !dataStr.empty() && pathStr.rfind(dataStr, 0) == 0;
+        std::cout << "  " << label << ": " << pathStr
+                  << (exists ? (bundled ? "  [bundled]" : "  [SYSTEM - this machine will not match the others]")
+                             : "  [MISSING - falling back further]")
+                  << '\n';
+      };
+      std::cout << "fonts:\n";
+      report("sans ", deckboy::core::Paths::FontName::Sans);
+      report("mono ", deckboy::core::Paths::FontName::Mono);
+      report("pixel", deckboy::core::Paths::FontName::Pixel);
+    }
     SDL_Quit();
     return 0;
   }

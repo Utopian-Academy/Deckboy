@@ -127,10 +127,17 @@ int main(int argc, const char* argv[]) {
 
       // Enumerate shareable content. Fails (or returns nothing) without the
       // Screen Recording permission.
+      __block NSUInteger shareableWindowCount = 0;
+      __block NSUInteger shareableDisplayCount = 0;
       [SCShareableContent getShareableContentWithCompletionHandler:^(
           SCShareableContent* content, NSError* error) {
         contentError = error;
         if (content) {
+          // Kept so the failure paths below can tell a missing PERMISSION
+          // (nothing shared at all) from a missing WINDOW (plenty shared, just
+          // not that one).
+          shareableWindowCount = content.windows.count;
+          shareableDisplayCount = content.displays.count;
           if (g_windowId > 0) {
             // Find the specific window the picker chose, by its CGWindowID.
             for (SCWindow* w in content.windows) {
@@ -147,15 +154,43 @@ int main(int argc, const char* argv[]) {
       }];
       dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10LL * NSEC_PER_SEC));
 
+      // TELL THE TWO FAILURES APART.
+      //
+      // "not capturable (closed, or permission denied)" covered a missing
+      // permission AND a window that simply is not there, and those need
+      // completely different fixes -- one is a click in System Settings, the
+      // other is a bug in whoever asked for that window. Chasing the wrong one
+      // of those cost a long afternoon.
+      //
+      // The distinction is available: with NO permission the enumeration
+      // returns nothing at all (or errors); WITH permission it returns a list
+      // that simply does not contain the requested id. So count what came back.
+      const NSUInteger sawWindows = shareableWindowCount;
+      const NSUInteger sawDisplays = shareableDisplayCount;
+      const bool permissionLooksDenied = (sawWindows == 0 && sawDisplays == 0);
+
+      if (contentError && permissionLooksDenied) {
+        fprintf(stderr, "sckcapture: cannot see any windows or displays: %s\n",
+                contentError.localizedDescription.UTF8String);
+      }
       if (g_windowId > 0 && !chosenWindow) {
-        // The requested window is gone (closed/minimised) or permission denied.
-        fprintf(stderr, "sckcapture: requested window %ld not capturable "
-                        "(closed, or Screen Recording permission denied)\n", g_windowId);
+        if (permissionLooksDenied) {
+          fprintf(stderr, "sckcapture: SCREEN RECORDING PERMISSION DENIED -- the "
+                          "system shared nothing at all. Grant it to Deckboy in "
+                          "System Settings > Privacy & Security > Screen Recording.\n");
+        } else {
+          fprintf(stderr, "sckcapture: window %ld is not in the shareable list "
+                          "(permission IS granted -- %lu windows visible -- so that "
+                          "window is closed, minimised, on an inactive display, or "
+                          "not shareable)\n",
+                  g_windowId, (unsigned long)sawWindows);
+        }
         return 2;
       }
       if (!chosenWindow && !chosen) {
-        fprintf(stderr, "sckcapture: no capturable display "
-                        "(Screen Recording permission may be denied)\n");
+        fprintf(stderr, "sckcapture: SCREEN RECORDING PERMISSION DENIED -- no "
+                        "displays shared. Grant it in System Settings > Privacy & "
+                        "Security > Screen Recording.\n");
         return 2;
       }
 

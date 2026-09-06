@@ -55,12 +55,23 @@
 
 namespace {
 
-// Parked here rather than at 0,0: the window has to be ORDERED IN for the
-// window server to give ScreenCaptureKit any pixels, but it must not be in
-// front of the operator. Far off to the left of every plausible display
-// arrangement, which keeps it real without keeping it visible.
-constexpr double kParkedX = -100000.0;
-constexpr double kParkedY = -100000.0;
+// ON SCREEN, BUT UNDERNEATH EVERYTHING.
+//
+// The first version parked this far off to the left (-100000) on the theory
+// that an ordered-in window is rendered wherever it sits. It is not: macOS
+// marks a fully off-screen window NotVisible -- the log says
+// "running-active-NotVisible" -- the window server stops rendering it, and
+// ScreenCaptureKit then has no window to share, so the capture helper exits
+// and the cue never gets a frame.
+//
+// This is the same trap the Windows backend documents at its own window
+// creation ("off-screen at negative coords -> no DComp surface"), and the same
+// answer: keep it at the origin, real and rendered, and push it to the BACK of
+// the z-order so it is never in front of the operator. ScreenCaptureKit
+// captures a named window's content even when another window covers it, which
+// is exactly why it is the right API for this.
+constexpr double kParkedX = 0.0;
+constexpr double kParkedY = 0.0;
 
 std::string argValue(int argc, const char* argv[], const char* name,
                      const std::string& fallback) {
@@ -105,6 +116,7 @@ std::string trimmed(const std::string& text) {
 @property(nonatomic, assign) NSInteger pageHeight;
 - (instancetype)initWithURL:(NSString*)url width:(NSInteger)w height:(NSInteger)h;
 - (void)setInteractive:(BOOL)on;
+- (NSPoint)parkedOrigin;
 - (void)runCommand:(const std::string&)line;
 @end
 
@@ -143,9 +155,17 @@ std::string trimmed(const std::string& text) {
   _window.releasedWhenClosed = NO;
   // Never in the way, never in a screenshot of something else, and not
   // something the operator can tab into by accident while it is parked.
-  _window.level = NSNormalWindowLevel;
+  // Below every ordinary window, so it cannot end up in front of the operator
+  // even momentarily, while still being a window the server renders.
+  _window.level = NSNormalWindowLevel - 1;
   _window.excludedFromWindowsMenu = YES;
-  [_window setFrameOrigin:NSMakePoint(kParkedX, kParkedY)];
+  // Follow the operator between spaces rather than being left behind on one:
+  // a window on an inactive space stops being rendered, which is the same
+  // failure as being off-screen.
+  _window.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces
+                             | NSWindowCollectionBehaviorStationary
+                             | NSWindowCollectionBehaviorIgnoresCycle;
+  [_window setFrameOrigin:[self parkedOrigin]];
   // orderBack rather than orderFront: it has to be ordered IN so the window
   // server renders it (ScreenCaptureKit gets nothing from a window that was
   // never shown), but it must not come forward.
@@ -155,6 +175,29 @@ std::string trimmed(const std::string& text) {
     [self navigateTo:url];
   }
   return self;
+}
+
+// WHERE "PARKED" ACTUALLY IS.
+//
+// (0,0) in Cocoa's global space is the bottom-left of the PRIMARY screen, which
+// is not necessarily a screen that is on: with the lid shut, or the built-in
+// display asleep while an external one drives the desk, a window placed there
+// is on a display nothing is rendering -- and an unrendered window is one
+// ScreenCaptureKit will not share, which is the same dead end as putting it
+// off-screen entirely.
+//
+// So it is parked on whatever screen is actually there, at that screen's own
+// origin, and pushed to the back of the z-order rather than out of sight.
+- (NSPoint)parkedOrigin {
+  NSScreen* screen = [NSScreen mainScreen];
+  if (!screen && [NSScreen screens].count > 0) {
+    screen = [NSScreen screens][0];
+  }
+  if (!screen) {
+    return NSMakePoint(kParkedX, kParkedY);
+  }
+  const NSRect frame = screen.frame;
+  return NSMakePoint(frame.origin.x + kParkedX, frame.origin.y + kParkedY);
 }
 
 - (void)navigateTo:(NSString*)address {
@@ -203,7 +246,8 @@ std::string trimmed(const std::string& text) {
     _window.styleMask = NSWindowStyleMaskBorderless;
     // Back to the cue's own raster, or the next captured frame is the wrong
     // shape for the rest of the pipeline.
-    [_window setFrame:NSMakeRect(kParkedX, kParkedY, _pageWidth, _pageHeight)
+    const NSPoint parked = [self parkedOrigin];
+    [_window setFrame:NSMakeRect(parked.x, parked.y, _pageWidth, _pageHeight)
               display:YES];
     [_window orderBack:nil];
   }
