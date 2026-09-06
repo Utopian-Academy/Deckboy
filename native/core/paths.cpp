@@ -402,8 +402,25 @@ fs::path Paths::fontPath(FontName name) {
   switch (name) {
     case FontName::Sans:
       envKey = "DECKBOY_FONT_SANS";
-      // Bundled DejaVu Sans (preferred — guaranteed consistent cross-platform)
-      candidates = { data / "DejaVuSans.ttf", data / "fonts" / "DejaVuSans.ttf" };
+      // ONE FACE ON EVERY PLATFORM, AND IT TRAVELS WITH THE APP.
+      //
+      // This list used to name a bundled DejaVu Sans first and call it
+      // "guaranteed consistent cross-platform" — but it was never actually
+      // shipped, so every platform fell through to whatever it had: Segoe UI on
+      // Windows, Arial or Helvetica on macOS, Liberation Sans on Linux. Three
+      // different-looking desks from one build, most visibly on the splash.
+      //
+      // Liberation Sans is the one to carry, not DejaVu: the layout is built
+      // around its metrics. It is metric-compatible with Arial and close enough
+      // to Segoe UI that the fixed-width chips and button labels fit, which is
+      // exactly why the Linux search below already preferred it — DejaVu is
+      // markedly wider and ellipsized labels that fitted everywhere else.
+      //
+      // The system fonts stay in the list underneath, so a build without the
+      // data directory still runs.
+      candidates = { data / "fonts" / "LiberationSans-Regular.ttf",
+                     data / "LiberationSans-Regular.ttf",
+                     data / "DejaVuSans.ttf", data / "fonts" / "DejaVuSans.ttf" };
       if (!xdgFonts.empty()) candidates.push_back(xdgFonts / "DejaVuSans.ttf");
 #if defined(__APPLE__)
       if (!homeDir.empty()) candidates.push_back(homeDir / "Library/Fonts/Arial.ttf");
@@ -446,8 +463,12 @@ fs::path Paths::fontPath(FontName name) {
       break;
     case FontName::Mono:
       envKey = "DECKBOY_FONT_MONO";
-      // Bundled DejaVu Sans Mono (used for timecodes, technical readouts)
-      candidates = { data / "DejaVuSansMono.ttf", data / "fonts" / "DejaVuSansMono.ttf" };
+      // Liberation Mono for the same reason as the sans above: timecodes and
+      // technical readouts are laid out to fixed widths, and a mono face that
+      // differs per platform moves them.
+      candidates = { data / "fonts" / "LiberationMono-Regular.ttf",
+                     data / "LiberationMono-Regular.ttf",
+                     data / "DejaVuSansMono.ttf", data / "fonts" / "DejaVuSansMono.ttf" };
       if (!xdgFonts.empty()) candidates.push_back(xdgFonts / "DejaVuSansMono.ttf");
 #if defined(__APPLE__)
       if (!homeDir.empty()) candidates.push_back(homeDir / "Library/Fonts/Menlo.ttc");

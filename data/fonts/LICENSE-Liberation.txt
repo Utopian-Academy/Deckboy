@@ -1,0 +1,31 @@
+Liberation Fonts — bundled with Deckboy
+=======================================
+
+LiberationSans-Regular.ttf and LiberationMono-Regular.ttf are redistributed
+here under the SIL Open Font License, Version 1.1.
+
+    Digitized data copyright (c) 2010 Google Corporation
+      with Reserved Font Names Arimo, Tinos and Cousine.
+    Copyright (c) 2012 Red Hat, Inc.
+      with Reserved Font Name Liberation.
+
+    Licensed under the SIL Open Font License, Version 1.1.
+    The full licence text and FAQ: https://scripts.sil.org/OFL
+    Upstream: https://github.com/liberationfonts
+
+WHY THEY ARE BUNDLED
+--------------------
+Deckboy looked different on every platform. Nothing was bundled but the pixel
+face, so the sans and mono fell through to whatever the machine had: Segoe UI
+on Windows, Arial or Helvetica on macOS, Liberation Sans on Linux. Same build,
+three different-looking desks — and the splash was the most obvious place it
+showed.
+
+Liberation Sans is the right one to carry rather than any other, because the
+layout is already built around its metrics: it is metric-compatible with Arial
+and close enough to Segoe UI that the fixed-width chips and button labels fit.
+That is exactly why the Linux font search already preferred it over DejaVu Sans,
+which is markedly wider and ellipsized labels that fitted everywhere else.
+
+A machine's own fonts remain in the search as fallbacks, so a build without this
+directory still runs.
