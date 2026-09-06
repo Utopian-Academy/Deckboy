@@ -143,6 +143,26 @@ if(UNIX AND NOT APPLE AND DECKBOY_ENABLE_ALSA_MTC)
   )
 endif()
 
+# XTEST — driving a browser cue on Linux.
+#
+# The Linux browser backend is Chromium on a private Xvfb display, so there is
+# no JavaScript channel the way WebView2 gives one on Windows. XTEST sends REAL
+# pointer events to that display instead, which is strictly better: it drives
+# the page exactly as a person would, including anything a synthetic DOM event
+# would miss.
+#
+# Optional, and found rather than required: libXtst is present on any desktop
+# Linux, but a headless build box may not have it, and a browser cue that
+# cannot be clicked is a smaller loss than a build that will not configure.
+if(UNIX AND NOT APPLE)
+  find_path(DECKBOY_XTEST_INCLUDE_DIR
+    NAMES X11/extensions/XTest.h
+    PATHS /usr/include /usr/local/include
+  )
+  find_library(DECKBOY_XTEST_LIBRARY NAMES Xtst)
+  find_library(DECKBOY_X11_LIBRARY NAMES X11)
+endif()
+
 # In-process libav* decode (GPU decode rewrite, docs/GPU_DECODE_PLAN.md).
 # When ON and the FFmpeg dev libraries are found, file-backed Video/Audio
 # cues decode in-process (d3d11va zero-copy on Windows) instead of spawning
@@ -804,6 +824,17 @@ endif()
 
 if(UNIX AND NOT APPLE)
   target_link_libraries(deckboy-native PRIVATE dl)
+endif()
+
+if(UNIX AND NOT APPLE AND DECKBOY_XTEST_INCLUDE_DIR
+   AND DECKBOY_XTEST_LIBRARY AND DECKBOY_X11_LIBRARY)
+  target_include_directories(deckboy-native PRIVATE ${DECKBOY_XTEST_INCLUDE_DIR})
+  target_link_libraries(deckboy-native PRIVATE
+    ${DECKBOY_XTEST_LIBRARY} ${DECKBOY_X11_LIBRARY})
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_XTEST=1)
+  message(STATUS "Browser cue input: XTEST enabled (Linux pages can be clicked and scrolled)")
+elseif(UNIX AND NOT APPLE)
+  message(STATUS "Browser cue input: XTEST not found - Linux browser cues will not take input")
 endif()
 
 target_compile_definitions(deckboy-native PRIVATE

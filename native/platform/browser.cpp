@@ -51,6 +51,11 @@
 #include <system_error>
 #include <thread>
 
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+#include <X11/Xlib.h>
+#include <X11/extensions/XTest.h>
+#endif
+
 #ifdef _WIN32
 #ifdef DECKBOY_HAS_WEBVIEW
 #include <wrl/client.h>
@@ -301,6 +306,9 @@ class BrowserRenderer::Impl {
   int height_ = 0;
   bool isRunning_ = false;
   bool capturePending_ = false;
+  // Scrollbars are chrome, and a cue is a picture an audience sees. Hidden
+  // unless the operator asks otherwise; on Linux this becomes a launch flag.
+  bool hideScrollbars_ = true;
   double zoomLevel_ = 1.0;
   double devicePixelRatio_ = 1.0;
   BrowserStartPhase phase_ = BrowserStartPhase::None;
@@ -911,7 +919,48 @@ bool BrowserRenderer::executeJavaScript(const std::string& script) {
 // A page can restyle itself at any time, so the rule is marked !important and
 // re-applied rather than set once: a single injection at load is undone by the
 // first framework that writes its own overflow style.
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+// REAL POINTER EVENTS ON THE CUE'S OWN DISPLAY.
+//
+// Windows drives the page through WebView2's JavaScript channel. Linux has no
+// such channel -- the backend is Chromium on a private Xvfb display -- so it
+// drives the page the way a person would, with XTEST. That is not a lesser
+// substitute: synthetic DOM events only reach content that listens for them,
+// while a real button press reaches everything, the browser's own scrolling
+// included.
+//
+// The display is opened per call rather than held: a cue's display comes and
+// goes with the cue, and a stale Display* outliving its Xvfb is a crash the
+// operator would see as "the browser cue killed the show".
+namespace {
+
+class ScopedDisplay {
+ public:
+  explicit ScopedDisplay(const std::string& name)
+    : display_(name.empty() ? nullptr : XOpenDisplay(name.c_str())) {}
+  ~ScopedDisplay() { if (display_) XCloseDisplay(display_); }
+  ScopedDisplay(const ScopedDisplay&) = delete;
+  ScopedDisplay& operator=(const ScopedDisplay&) = delete;
+  Display* get() const { return display_; }
+  explicit operator bool() const { return display_ != nullptr; }
+ private:
+  Display* display_;
+};
+
+}  // namespace
+#endif
+
 bool BrowserRenderer::setScrollbarsVisible(bool visible) {
+#if defined(__linux__)
+  // On Linux this is decided at launch (see --hide-scrollbars above), so the
+  // preference is recorded for the next take. Saying "yes" for a page already
+  // on screen with the other setting would be a lie, and this codebase has
+  // been bitten enough times by calls that report success and do nothing.
+  const bool wanted = !visible;
+  const bool alreadyRight = impl_->hideScrollbars_ == wanted;
+  impl_->hideScrollbars_ = wanted;
+  return alreadyRight;
+#endif
   const char* kHide =
     "(function(){var s=document.getElementById('__deckboy_sb');"
     "if(!s){s=document.createElement('style');s.id='__deckboy_sb';"
@@ -926,6 +975,32 @@ bool BrowserRenderer::setScrollbarsVisible(bool visible) {
 }
 
 bool BrowserRenderer::scrollBy(int dx, int dy) {
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+  if (impl_->isRunning_ && !impl_->virtualDisplayId_.empty()) {
+    ScopedDisplay display(impl_->virtualDisplayId_);
+    if (display) {
+      // X wheel buttons: 4 up, 5 down, 6 left, 7 right. One notch is roughly
+      // three lines, so the pixel request is turned into notches rather than
+      // pretending to a precision the wheel does not have.
+      auto wheel = [&](unsigned int button, int notches) {
+        for (int i = 0; i < notches; ++i) {
+          XTestFakeButtonEvent(display.get(), button, True, CurrentTime);
+          XTestFakeButtonEvent(display.get(), button, False, CurrentTime);
+        }
+      };
+      const int vertical = std::abs(dy) / 53;
+      const int horizontal = std::abs(dx) / 53;
+      if (vertical > 0) {
+        wheel(dy > 0 ? 5u : 4u, std::min(vertical, 40));
+      }
+      if (horizontal > 0) {
+        wheel(dx > 0 ? 7u : 6u, std::min(horizontal, 40));
+      }
+      XFlush(display.get());
+      return vertical > 0 || horizontal > 0;
+    }
+  }
+#endif
   // behavior:'instant' matters: a smooth scroll animates over several frames,
   // and a cue being captured frame by frame would show the tween.
   std::string js = "window.scrollBy({left:" + std::to_string(dx) +
@@ -937,6 +1012,27 @@ bool BrowserRenderer::clickAtFraction(double fx, double fy) {
   if (fx < 0.0 || fx > 1.0 || fy < 0.0 || fy > 1.0) {
     return false;
   }
+#if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
+  if (impl_->isRunning_ && !impl_->virtualDisplayId_.empty()
+      && impl_->width_ > 0 && impl_->height_ > 0) {
+    ScopedDisplay display(impl_->virtualDisplayId_);
+    if (display) {
+      const int x = static_cast<int>(fx * impl_->width_);
+      const int y = static_cast<int>(fy * impl_->height_);
+      XTestFakeMotionEvent(display.get(), -1, x, y, CurrentTime);
+      XFlush(display.get());
+      // A beat between arriving and pressing: hover states and menus that open
+      // on mouseover need the pointer to have been somewhere before the click,
+      // and a press in the same instant as the move can land on the old
+      // element.
+      std::this_thread::sleep_for(std::chrono::milliseconds(30));
+      XTestFakeButtonEvent(display.get(), 1, True, CurrentTime);
+      XTestFakeButtonEvent(display.get(), 1, False, CurrentTime);
+      XFlush(display.get());
+      return true;
+    }
+  }
+#endif
   // elementFromPoint takes VIEWPORT coordinates, so the fraction is of the
   // window, not of the document -- which is what the preview shows.
   //
@@ -995,6 +1091,13 @@ void BrowserRenderer::tick() {
       "--user-data-dir=" + impl_->browserProfileDir_.string(),
       "--start-maximized"
     };
+    // Chromium's own switch, which is the Linux equivalent of the CSS the
+    // Windows backend injects. It is a launch flag, so it settles the question
+    // before the first frame rather than racing the page's own styling -- and
+    // unlike the CSS it cannot be undone by a framework mounting.
+    if (impl_->hideScrollbars_) {
+      args.insert(args.begin() + 1, "--hide-scrollbars");
+    }
     std::vector<std::string> envArgs {
       "env",
       "DISPLAY=" + impl_->virtualDisplayId_,
