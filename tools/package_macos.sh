@@ -213,6 +213,13 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleVersion</key><string>${VERSION}</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
+  <!-- App Nap MUST be off. macOS throttles a backgrounded app's timers and
+       drawing, and a cue deck spends most of a show not being the frontmost
+       window - the operator is in a browser, a spreadsheet, anything. Napped,
+       the update loop stops: the network port still answers queries from its
+       own thread while every queued command is silently never executed, which
+       is exactly what it looked like in testing before this key was added. -->
+  <key>LSAppNapIsDisabled</key><true/>
 ${ICON_PLIST_ENTRY}
   <key>NSCameraUsageDescription</key>
   <string>Deckboy uses the camera for live Camera cues.</string>
