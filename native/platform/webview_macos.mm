@@ -49,6 +49,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <thread>
 #include <unistd.h>
@@ -104,6 +107,31 @@ std::string trimmed(const std::string& text) {
   return text.substr(first, last - first + 1);
 }
 
+// A browser cue that fails quietly is the hardest kind to diagnose: the window
+// opens, capture runs, frames flow, and every one of them is empty. Windows has
+// wv2debug.log in the temp directory for exactly this; this is its counterpart.
+static void wvLog(const char* fmt, ...) {
+  static std::string s_path;
+  if (s_path.empty()) {
+    const char* tmp = std::getenv("TMPDIR");
+    s_path = std::string(tmp && *tmp ? tmp : "/tmp/");
+    if (s_path.back() != '/') {
+      s_path.push_back('/');
+    }
+    s_path += "deckboy-webview.log";
+  }
+  std::FILE* f = std::fopen(s_path.c_str(), "a");
+  if (!f) {
+    return;
+  }
+  va_list ap;
+  va_start(ap, fmt);
+  std::vfprintf(f, fmt, ap);
+  va_end(ap);
+  std::fputc('\n', f);
+  std::fclose(f);
+}
+
 }  // namespace
 
 // ---------------------------------------------------------------------------
@@ -118,6 +146,7 @@ std::string trimmed(const std::string& text) {
 - (void)setInteractive:(BOOL)on;
 - (NSPoint)parkedOrigin;
 - (void)runCommand:(const std::string&)line;
+- (void)logPainted;
 @end
 
 @implementation DeckboyWebHost
@@ -299,6 +328,99 @@ std::string trimmed(const std::string& text) {
   }
 }
 
+
+// --- WKNavigationDelegate: say what happened, every time ------------------
+//
+// Without these a page that never loads looks exactly like a page that loaded
+// fine: the window is there either way, and the capture happily streams empty
+// frames on top of it.
+
+- (void)webView:(WKWebView*)webView didFinishNavigation:(WKNavigation*)navigation {
+  (void)navigation;
+  NSString* where = webView.URL.absoluteString ?: @"?";
+  wvLog("loaded: %s", where.UTF8String);
+  [self logPainted];
+}
+
+- (void)webView:(WKWebView*)webView
+    didFailNavigation:(WKNavigation*)navigation
+            withError:(NSError*)error {
+  (void)webView; (void)navigation;
+  wvLog("load FAILED: %s", error.localizedDescription.UTF8String);
+}
+
+- (void)webView:(WKWebView*)webView
+    didFailProvisionalNavigation:(WKNavigation*)navigation
+                       withError:(NSError*)error {
+  (void)webView; (void)navigation;
+  wvLog("load FAILED (provisional): %s", error.localizedDescription.UTF8String);
+}
+
+- (void)webViewWebContentProcessDidTerminate:(WKWebView*)webView {
+  (void)webView;
+  wvLog("web content process TERMINATED");
+}
+
+// IS THE PAGE ACTUALLY PAINTING?
+//
+// Snapshotting renders the web content directly, with no window server and no
+// screen-recording permission in the way. So if the snapshot has colour in it
+// while the captured frames are black, the fault is in the capture rather than
+// the page -- the one thing the frame data alone can never tell apart.
+- (void)logPainted {
+  WKSnapshotConfiguration* config = [[WKSnapshotConfiguration alloc] init];
+  [_webView takeSnapshotWithConfiguration:config
+                        completionHandler:^(NSImage* image, NSError* error) {
+    if (!image) {
+      wvLog("paint check: no snapshot (%s)",
+            error ? error.localizedDescription.UTF8String : "no reason given");
+      return;
+    }
+    NSBitmapImageRep* rep = nil;
+    for (NSImageRep* candidate in image.representations) {
+      if ([candidate isKindOfClass:[NSBitmapImageRep class]]) {
+        rep = (NSBitmapImageRep*)candidate;
+        break;
+      }
+    }
+    if (!rep) {
+      CGImageRef cg = [image CGImageForProposedRect:NULL context:nil hints:nil];
+      if (cg) {
+        rep = [[NSBitmapImageRep alloc] initWithCGImage:cg];
+      }
+    }
+    if (!rep) {
+      wvLog("paint check: snapshot had no readable bitmap");
+      return;
+    }
+    // Nine spread samples rather than one mean: a mean can be dragged to near
+    // black by a large dark area on a page that is plainly rendering.
+    const NSInteger w = rep.pixelsWide;
+    const NSInteger h = rep.pixelsHigh;
+    int lit = 0;
+    NSString* first = nil;
+    for (int sy = 1; sy <= 3; ++sy) {
+      for (int sx = 1; sx <= 3; ++sx) {
+        NSColor* c = [rep colorAtX:(w * sx) / 4 y:(h * sy) / 4];
+        NSColor* rgb = [c colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+        if (!rgb) {
+          continue;
+        }
+        const CGFloat a = rgb.alphaComponent;
+        if (a > 0.05 && (rgb.redComponent + rgb.greenComponent
+                         + rgb.blueComponent) > 0.05) {
+          ++lit;
+        }
+        if (!first) {
+          first = [NSString stringWithFormat:@"r%.2f g%.2f b%.2f a%.2f",
+                   rgb.redComponent, rgb.greenComponent, rgb.blueComponent, a];
+        }
+      }
+    }
+    wvLog("paint check: %ldx%ld, %d/9 samples lit, first sample %s",
+          (long)w, (long)h, lit, first ? first.UTF8String : "-");
+  }];
+}
 @end
 
 // ---------------------------------------------------------------------------
@@ -315,6 +437,24 @@ int main(int argc, const char* argv[]) {
     }
 
     [NSApplication sharedApplication];
+
+    // KEEP DRAWING WHILE COVERED.
+    //
+    // The window is deliberately behind everything, and macOS rewards that by
+    // marking it occluded and telling WebKit to stop rendering it -- the log
+    // says "running-active-NotVisible". ScreenCaptureKit then faithfully
+    // captures a window nobody is painting, which is why the cue went live,
+    // frames flowed at a real rate, and every one of them was black.
+    //
+    // Turning occlusion detection off is how every screen-source
+    // implementation on this platform handles it. It is a private key, so it
+    // is set defensively: if a future macOS drops it the helper carries on and
+    // the worst case is the picture it had before.
+    @try {
+      [NSApp setValue:@NO forKey:@"_windowOcclusionDetectionEnabled"];
+    } @catch (NSException* ignored) {
+      (void) ignored;
+    }
     // Accessory, not Regular: no dock icon and no menu bar for a helper that
     // is usually invisible. It can still be activated when the operator asks
     // to interact.
@@ -332,6 +472,11 @@ int main(int argc, const char* argv[]) {
     // The parent needs this to start capturing, so it goes out immediately and
     // unbuffered -- a helper that has drawn its first frame but not said which
     // window it is looks exactly like one that failed to start.
+    const NSRect placed = host.window.frame;
+    wvLog("--- window %ld at %.0f,%.0f %.0fx%.0f, screen=%s visible=%d",
+          (long)[host.window windowNumber], placed.origin.x, placed.origin.y,
+          placed.size.width, placed.size.height,
+          host.window.screen ? "yes" : "NONE", (int)host.window.isVisible);
     std::printf("WINDOWID %ld\n", (long)[host.window windowNumber]);
     std::fflush(stdout);
 

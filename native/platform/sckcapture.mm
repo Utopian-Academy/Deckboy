@@ -26,6 +26,7 @@
 // exits non-zero, which Deckboy surfaces through the usual capture-failure path.
 
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>          // NSApplicationLoad -- see main()
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
 #import <CoreMedia/CoreMedia.h>
 #import <CoreVideo/CoreVideo.h>
@@ -34,6 +35,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
 #include <string>
 #include <unistd.h>
 
@@ -56,6 +58,34 @@ int parseIntArg(const char* v, int fallback) {
 
 // Receives frames and writes them, swizzled to RGBA, to stdout.
 API_AVAILABLE(macos(12.3))
+// Same idea as the browser helper's log: a capture that streams perfectly
+// shaped black frames is indistinguishable from a working one at every other
+// level of the pipeline, so it has to say what it is actually sending.
+static std::string sckTempPath(const char* name) {
+  const char* tmp = getenv("TMPDIR");
+  std::string path(tmp && *tmp ? tmp : "/tmp/");
+  if (path.back() != '/') path.push_back('/');
+  return path + name;
+}
+
+static void sckLog(const char* fmt, ...) {
+  static std::string s_path;
+  if (s_path.empty()) {
+    const char* tmp = getenv("TMPDIR");
+    s_path = std::string(tmp && *tmp ? tmp : "/tmp/");
+    if (s_path.back() != '/') s_path.push_back('/');
+    s_path += "deckboy-sckcapture.log";
+  }
+  FILE* f = fopen(s_path.c_str(), "a");
+  if (!f) return;
+  va_list ap;
+  va_start(ap, fmt);
+  vfprintf(f, fmt, ap);
+  va_end(ap);
+  fputc('\n', f);
+  fclose(f);
+}
+
 @interface DeckboySCKOutput : NSObject <SCStreamOutput, SCStreamDelegate>
 @end
 
@@ -79,9 +109,66 @@ API_AVAILABLE(macos(12.3))
   const uint8_t* base = static_cast<const uint8_t*>(CVPixelBufferGetBaseAddress(pixelBuffer));
 
   if (base && w > 0 && h > 0) {
+    // Every 60th frame, say whether what is going down the pipe has any light
+    // in it. Nine spread samples, taken from the source buffer before the
+    // swizzle so this measures what ScreenCaptureKit handed over.
+    static long s_frame = 0;
+    if ((s_frame++ % 60) == 0) {
+      int lit = 0;
+      unsigned first[4] = {0, 0, 0, 0};
+      for (int sy = 1; sy <= 3; ++sy) {
+        for (int sx = 1; sx <= 3; ++sx) {
+          const uint8_t* p = base + ((h * sy) / 4) * stride + ((w * sx) / 4) * 4;
+          if (sy == 1 && sx == 1) {
+            first[0] = p[2]; first[1] = p[1]; first[2] = p[0]; first[3] = p[3];
+          }
+          if (p[0] + p[1] + p[2] > 12) ++lit;
+        }
+      }
+      sckLog("frame %ld: %zux%zu stride %zu, %d/9 lit, first rgba %u %u %u %u",
+             s_frame - 1, w, h, stride, lit, first[0], first[1], first[2], first[3]);
+    }
     // ScreenCaptureKit gives BGRA; Deckboy reads RGBA. Swizzle B<->R per row and
     // write exactly w*4 bytes per row (dropping any stride padding), so the
     // frame the app reads is tightly packed at the size it expects.
+      // ONE FRAME TO DISK, ON REQUEST.
+      //
+      // Deckboy holds the Screen Recording grant; an SSH session does not, and
+      // a grant belongs to the code identity that earned it. So the only way to
+      // see what this machine's screen really looks like -- to check a layout,
+      // or confirm a capture is pointed at the thing it claims -- is to ask the
+      // helper that is already allowed to look.
+      //
+      // Triggered by a file rather than an environment variable: the helper
+      // inherits its environment from an app the operator launched from Finder,
+      // so an env var would mean relaunching the app to ask a question about
+      // it. Drop the request file, take the cue, collect the frame.
+      static bool s_dumped = false;
+      if (!s_dumped && s_frame > 8) {
+        const std::string request = sckTempPath("deckboy-sck-dump-request");
+        if (FILE* probe = fopen(request.c_str(), "rb")) {
+          fclose(probe);
+          s_dumped = true;
+          remove(request.c_str());
+          const std::string target = sckTempPath("deckboy-sck-frame.ppm");
+          if (FILE* out = fopen(target.c_str(), "wb")) {
+            fprintf(out, "P6\n%zu %zu\n255\n", w, h);
+            for (size_t yy = 0; yy < h; ++yy) {
+              const uint8_t* srcRow = base + yy * stride;
+              for (size_t xx = 0; xx < w; ++xx) {
+                const uint8_t* p = srcRow + xx * 4;
+                const uint8_t rgb[3] = {p[2], p[1], p[0]};
+                fwrite(rgb, 1, 3, out);
+              }
+            }
+            fclose(out);
+            sckLog("dumped one frame to %s", target.c_str());
+          } else {
+            sckLog("could not write %s", target.c_str());
+          }
+        }
+      }
+
     if (_rowbuf.size() < w * 4) _rowbuf.resize(w * 4);
     uint8_t* row = reinterpret_cast<uint8_t*>(&_rowbuf[0]);
     for (size_t y = 0; y < h; ++y) {
@@ -110,6 +197,27 @@ API_AVAILABLE(macos(12.3))
 @end
 
 int main(int argc, const char* argv[]) {
+  // CONNECT TO THE WINDOW SERVER BEFORE TOUCHING SCREENCAPTUREKIT.
+  //
+  // This is a plain command-line tool, so nothing has initialised the Cocoa
+  // side of the process -- and SCStream reaches CoreGraphics, which aborts a
+  // process that has no window-server connection:
+  //
+  //   Assertion failed: (did_initialize), function CGS_REQUIRE_INIT,
+  //   file CGInitialization.c, line 44          (exit code 134)
+  //
+  // It hid for a long time because it only fires AFTER the enumeration
+  // succeeds: without Screen Recording the helper exits earlier, with a
+  // permission message, and never reaches the crash. So the symptom for a user
+  // who HAS granted permission was a capture that died instantly, a black
+  // output, and -- because the helper's stderr was being discarded -- no
+  // explanation anywhere.
+  //
+  // NSApplicationLoad() is the documented one-liner for exactly this: it
+  // initialises Cocoa for a command-line program without turning it into a
+  // full app (no dock icon, no menu bar, no run loop taken over).
+  NSApplicationLoad();
+
   for (int i = 1; i + 1 < argc; i += 2) {
     if (std::strcmp(argv[i], "--display") == 0) g_displayIndex = parseIntArg(argv[i + 1], 0);
     else if (std::strcmp(argv[i], "--width") == 0) g_width = parseIntArg(argv[i + 1], 1280);
@@ -192,6 +300,22 @@ int main(int argc, const char* argv[]) {
                         "displays shared. Grant it in System Settings > Privacy & "
                         "Security > Screen Recording.\n");
         return 2;
+      }
+
+      if (chosenWindow) {
+        const CGRect wr = chosenWindow.frame;
+        sckLog("--- capturing window %u '%s' (%s) %.0fx%.0f at %.0f,%.0f "
+               "onScreen=%d active=%d -> config %dx%d @%dfps",
+               (unsigned)chosenWindow.windowID,
+               chosenWindow.title.UTF8String ? chosenWindow.title.UTF8String : "",
+               chosenWindow.owningApplication.applicationName.UTF8String
+                 ? chosenWindow.owningApplication.applicationName.UTF8String : "?",
+               wr.size.width, wr.size.height, wr.origin.x, wr.origin.y,
+               (int)chosenWindow.isOnScreen, (int)chosenWindow.isActive,
+               g_width, g_height, g_fps);
+      } else {
+        sckLog("--- capturing a display -> config %dx%d @%dfps",
+               g_width, g_height, g_fps);
       }
 
       SCContentFilter* filter =
