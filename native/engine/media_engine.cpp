@@ -884,6 +884,10 @@ void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
 // This must be called every frame from the main thread (not a decode thread).
 // ---------------------------------------------------------------------------
 void MediaEngine::update() {
+  // Colour and key edits are adopted here rather than in render(): the output
+  // window does not go through render() at all.
+  syncPixelEffectsFromCue();
+
   // Catch-all publish: fade params, duration, and suppress flags can change
   // from several paths (handlePlaybackEnd loop re-assert, browser duration
   // restore, snapshot sync). One relaxed store set per tick keeps the audio
@@ -1146,7 +1150,22 @@ const DecodedFrame* MediaEngine::currentFrame() const {
 // uses a separate path (app_render_output.ipp) that reads currentFrame()
 // directly and composites with its own AOI/warp/edge-blend pipeline.
 // ---------------------------------------------------------------------------
-void MediaEngine::render(SDL_Rect target) {
+// ---------------------------------------------------------------------------
+// syncPixelEffectsFromCue -- adopt the cue's colour/key settings, and re-upload
+// the current frame if they changed.
+//
+// This used to live inside render(), which is the INLINE PREVIEW path only --
+// the output window composites from currentFrame() through its own pipeline and
+// never ran this. So brightness, contrast, saturation, hue and the chroma key
+// updated live in the preview and did nothing on the output until the cue was
+// retaken, which is where the operator actually sees them. A playing video hid
+// it, because the next decoded frame uploads anyway; a still, a pattern or a
+// paused clip sat unchanged.
+//
+// Called once per tick from update(), so every view gets the same picture and
+// the re-upload happens once a frame rather than once per view.
+// ---------------------------------------------------------------------------
+void MediaEngine::syncPixelEffectsFromCue() {
   bool pixelEffectsChanged = false;
   if (activeCue_) {
     bool prevKeyEnabled = chromaKeyEnabled_;
@@ -1192,6 +1211,11 @@ void MediaEngine::render(SDL_Rect target) {
   if (pixelEffectsChanged && displayFrame_) {
     uploadFrame(*displayFrame_);
   }
+}
+
+void MediaEngine::render(SDL_Rect target) {
+  syncPixelEffectsFromCue();
+
 
   SDL_SetRenderDrawColor(outputRenderer_, 0, 0, 0, 255);
   SDL_RenderFillRect(outputRenderer_, nullptr);
@@ -8544,6 +8568,49 @@ void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// The doodles behind "Frame Count (emoji)".
+//
+// Drawn rather than typed. A pattern is built as raw pixels with no font in
+// reach, and a system emoji font would put a different picture on each of the
+// three platforms -- which is the one thing a card used to compare two screens
+// must never do. Eight 8x8 sprites, a shape mask and a detail mask each, so
+// every machine scatters exactly the same doodles.
+// ---------------------------------------------------------------------------
+struct FrameCountDoodle {
+  std::uint8_t shape[8];
+  std::uint8_t detail[8];
+  SDL_Color fill;
+};
+
+static const FrameCountDoodle kFrameCountDoodles[] = {
+  // smiley
+  {{0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0x7E,0x3C},
+   {0x00,0x00,0x42,0x00,0x00,0x81,0x7E,0x00}, {255, 214,  92, 255}},
+  // heart
+  {{0x66,0xFF,0xFF,0xFF,0x7E,0x3C,0x18,0x00},
+   {0x00,0x18,0x00,0x00,0x00,0x00,0x00,0x00}, {244,  87, 108, 255}},
+  // star
+  {{0x18,0x18,0xFF,0x7E,0x3C,0x66,0x42,0x00},
+   {0x00,0x00,0x18,0x18,0x00,0x00,0x00,0x00}, {255, 238, 130, 255}},
+  // ghost
+  {{0x3C,0x7E,0xFF,0xFF,0xFF,0xFF,0xFF,0xAB},
+   {0x00,0x00,0x42,0x42,0x00,0x00,0x00,0x00}, {238, 244, 255, 255}},
+  // cat
+  {{0xC3,0xE7,0xFF,0xFF,0xFF,0x7E,0x3C,0x00},
+   {0x00,0x00,0x42,0x00,0x18,0x00,0x00,0x00}, {255, 168,  76, 255}},
+  // flower
+  {{0x3C,0x7E,0xFF,0xE7,0xE7,0xFF,0x7E,0x3C},
+   {0x00,0x00,0x00,0x18,0x18,0x00,0x00,0x00}, {236, 130, 214, 255}},
+  // lightning
+  {{0x0E,0x1C,0x38,0x7E,0x1C,0x38,0x70,0xE0},
+   {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}, {255, 226,  74, 255}},
+  // skull
+  {{0x3C,0x7E,0xFF,0xFF,0xFF,0x7E,0x56,0x00},
+   {0x00,0x00,0x42,0x42,0x00,0x00,0x00,0x00}, {236, 240, 236, 255}},
+};
+
 // ---------------------------------------------------------------------------
 // buildFrameCount — "Frame Count", a drop/duplicate and latency card.
 //
@@ -8556,7 +8623,8 @@ void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
 // Deliberately legible rather than pretty: one enormous number, one colour, and
 // a small exact readout for when a still is being measured properly.
 // ---------------------------------------------------------------------------
-void MediaEngine::buildFrameCount(DecodedFrame& frame, double t) {
+void MediaEngine::buildFrameCount(DecodedFrame& frame, double t,
+                                  bool emojiBackdrop) {
   const int W = frame.width;
   const int H = frame.height;
   if (W <= 0 || H <= 0) {
@@ -8590,6 +8658,44 @@ void MediaEngine::buildFrameCount(DecodedFrame& frame, double t) {
 
   const SDL_Color field = hueToRgb(static_cast<double>(tick % 17) / 17.0);
   rect(0, 0, W, H, field);
+
+  // The doodle backdrop, when this is the emoji variant. Scattered from a hash
+  // of the tick, so every number gets its own arrangement and the same number
+  // always gets the SAME arrangement -- a card used to compare two screens has
+  // to be reproducible, or it is decoration.
+  if (emojiBackdrop) {
+    const int cellPx = std::max(2, H / 90);          // one sprite pixel
+    const int spriteW = cellPx * 8;
+    const int count = std::max(8, (W * H) / (spriteW * spriteW * 9));
+    for (int i = 0; i < count; ++i) {
+      // A cheap deterministic hash. Mixing the index INTO the tick rather than
+      // seeding once keeps neighbouring frames from sharing a layout.
+      std::uint64_t hash = static_cast<std::uint64_t>(tick) * 0x9E3779B97F4A7C15ull
+                         + static_cast<std::uint64_t>(i) * 0xBF58476D1CE4E5B9ull;
+      hash ^= hash >> 31;
+      hash *= 0x94D049BB133111EBull;
+      hash ^= hash >> 29;
+      const int px = static_cast<int>(hash % static_cast<std::uint64_t>(
+                       std::max(1, W - spriteW)));
+      const int py = static_cast<int>((hash >> 20) % static_cast<std::uint64_t>(
+                       std::max(1, H - spriteW)));
+      const FrameCountDoodle& doodle =
+        kFrameCountDoodles[(hash >> 40) % (sizeof(kFrameCountDoodles) /
+                                           sizeof(kFrameCountDoodles[0]))];
+      for (int ry = 0; ry < 8; ++ry) {
+        for (int rx = 0; rx < 8; ++rx) {
+          const std::uint8_t bit = static_cast<std::uint8_t>(0x80 >> rx);
+          if (doodle.detail[ry] & bit) {
+            rect(px + rx * cellPx, py + ry * cellPx, cellPx, cellPx,
+                 SDL_Color {24, 20, 28, 255});
+          } else if (doodle.shape[ry] & bit) {
+            rect(px + rx * cellPx, py + ry * cellPx, cellPx, cellPx, doodle.fill);
+          }
+        }
+      }
+    }
+  }
+
 
   // 3x5 glyphs, scaled -- the same shapes the sync card uses, so the two
   // patterns read as a matched pair.
@@ -8849,9 +8955,12 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "test-bars") {
     // Broadcast motion diagnostics — always animated, no -motion variant.
     buildTestBars(frame, animTime);
+  } else if (basePatternType == "frame-count-emoji") {
+    // Same card, doodles behind the number.
+    buildFrameCount(frame, animTime, true);
   } else if (basePatternType == "frame-count") {
     // Drop/duplicate + latency card -- always animated.
-    buildFrameCount(frame, animTime);
+    buildFrameCount(frame, animTime, false);
   } else if (basePatternType == "test-clock") {
     // Sync/latency card — always animated, no -motion variant.
     buildTestClock(frame, animTime);

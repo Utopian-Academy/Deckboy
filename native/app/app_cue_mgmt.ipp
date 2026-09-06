@@ -2383,6 +2383,7 @@
       {"test-bars",    "Test Bars (motion diagnostics)"},
       {"test-clock",   "Test Clock (sync + latency)"},
       {"frame-count",  "Frame Count (drops + latency)"},
+      {"frame-count-emoji", "Frame Count (emoji)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},

@@ -358,7 +358,7 @@ std::string unreachableCardUrl(const std::string& failedUrl) {
 // A failure while SHOWING the card must not send us back to the card.
 bool isUnreachableCard(const std::string& url) {
   return url.find("browser/unreachable.html") != std::string::npos ||
-         url.find("browser\unreachable.html") != std::string::npos;
+         url.find("browser\\unreachable.html") != std::string::npos;
 }
 
 }  // namespace

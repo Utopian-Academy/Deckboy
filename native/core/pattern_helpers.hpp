@@ -129,6 +129,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
          normalized == "frame-count" ||                // a counter that does not count is no counter
+         normalized == "frame-count-emoji" ||
          // A CODE SOURCE IS ALWAYS ANIMATED. Its expression has `t` in it and
          // the whole point of it is that you edit it while it runs -- but it
          // was not on this list, so it was drawn once at take and never again.
