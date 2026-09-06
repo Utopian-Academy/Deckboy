@@ -74,8 +74,13 @@
           triggerToast("this browser backend cannot show a window");
           return;
         }
+#if defined(__linux__)
+        triggerToast(want ? "hands-on: clicks and keys go to the page"
+                          : "hands-on off");
+#else
         triggerToast(want ? "browser window open - click, type, log in"
                           : "browser window closed");
+#endif
         return;
       }
       case QuickAction::EffectAdd:        effectStackAdd(); return;

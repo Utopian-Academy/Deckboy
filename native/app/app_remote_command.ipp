@@ -2423,11 +2423,16 @@
         const bool want = parts.size() > 2 ? (toUpper(parts[2]) == "ON")
                                            : !page->isInteractive();
         if (!page->setInteractive(want)) {
-          failRemoteCommand("BROWSER INTERACT: this browser backend cannot show a window");
+          failRemoteCommand("BROWSER INTERACT: this browser backend has no hands-on mode");
           return;
         }
+#if defined(__linux__)
+        remoteCommandDetail_ = want ? "hands-on: clicks and keys go to the page"
+                                    : "hands-on off";
+#else
         remoteCommandDetail_ = want ? "browser window shown - click, type, log in"
                                     : "browser window hidden";
+#endif
         return;
       }
       if (first == "BACK") {

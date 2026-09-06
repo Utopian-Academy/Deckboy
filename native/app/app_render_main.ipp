@@ -3851,17 +3851,33 @@
           // page to hand over until there is one.
           if (deckHasLiveBrowserCue(project_.focusedDeckIndex)) {
             const bool showing = liveBrowserIsInteractive();
+            // THE LABEL HAS TO MATCH WHAT THE PLATFORM ACTUALLY DOES.
+            //
+            // Windows and macOS show the real browser window. Linux has no
+            // window to show -- the page lives on a private Xvfb nobody is
+            // looking at -- so hands-on mode routes the KEYBOARD there instead.
+            // Calling that "open browser window" would be a promise the Linux
+            // build cannot keep.
+#if defined(__linux__)
+            const char* onLabel  = "hands-on: keys go to the page";
+            const char* offLabel = "take control (click, type, log in)";
+            const char* onTip    = "Typing goes to the page instead of the desk";
+            const char* offTip   = "Send clicks and keystrokes to the page - dismiss a "
+                                   "cookie banner, or sign in. The cue stays on air";
+#else
+            const char* onLabel  = "hide browser window";
+            const char* offLabel = "open browser window (click, type, log in)";
+            const char* onTip    = "Put the browser back offscreen";
+            const char* offTip   = "Show the real browser window - dismiss a cookie "
+                                   "banner, or sign in. The cue stays on air";
+#endif
             SDL_Rect handBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
             drawUIPanel(handBtn, showing ? pal.dark : pal.light, pal.deep, pal.mid);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, handBtn,
-                                 showing ? "hide browser window"
-                                         : "open browser window (click, type, log in)",
+                                 showing ? onLabel : offLabel,
                                  showing ? pal.light : pal.deep);
             quickButtons_.push_back({handBtn, QuickAction::ToggleBrowserInteract,
-                                     showing
-                                       ? "Put the browser back offscreen"
-                                       : "Show the real browser window - dismiss a cookie "
-                                         "banner, or sign in. The cue stays on air"});
+                                     showing ? onTip : offTip});
             metadataY += kInspectorRowStep;
           }
         }
