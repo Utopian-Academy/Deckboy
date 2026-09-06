@@ -1666,7 +1666,15 @@
         currentValue = defaultSourceRefForKind(sourceCueKindFromToken(sourceType));
       }
     } else if (sourceType == "browser") {
-      currentValue = currentValue == "graphic://pip" ? "https://example.com" : currentValue;
+      // Deckboy's own card rather than someone else's website: a PiP just
+      // switched to a browser source should show something that says what it
+      // is, and it works with no network.
+      if (currentValue == "graphic://pip") {
+        currentValue = defaultBrowserPageUrl();
+        if (currentValue.empty()) {
+          currentValue = "https://example.com";
+        }
+      }
     } else if (currentValue == "graphic://pip") {
       currentValue.clear();
     }

@@ -1593,6 +1593,23 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
   return std::nullopt;
 }
 
+// THE PAGE A BROWSER CUE SHOWS WHEN NOBODY HAS PICKED ONE.
+//
+// A browser cue with no URL used to be a black rectangle, which is exactly what
+// a broken one looks like. This card is unmistakable and self-describing, so an
+// empty cue reads as "ready, tell me where to go" -- and because it exercises
+// the whole chain (helper, page load, capture, compositor), seeing it also
+// means the browser backend on this machine works.
+std::string defaultBrowserPageUrl() {
+  std::error_code error;
+  const fs::path page =
+    deckboy::core::Paths::dataDir() / "browser" / "welcome.html";
+  if (!fs::exists(page, error)) {
+    return {};
+  }
+  return "file://" + fs::absolute(page, error).string();
+}
+
 std::string normalizeBrowserUrl(std::string value) {
   value = trim(value);
   if (value.empty()) {

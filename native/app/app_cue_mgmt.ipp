@@ -1616,6 +1616,12 @@
                          "https://duckduckgo.com",
                          [this](const std::string& value) {
                            std::string normalized = normalizeBrowserUrl(trim(value));
+                           // Submitting nothing is a request for the default
+                           // page, not a mistake: the operator wanted a browser
+                           // cue and has not decided where it points yet.
+                           if (normalized.empty()) {
+                             normalized = defaultBrowserPageUrl();
+                           }
                            if (normalized.empty()) {
                              triggerToast("browser url: invalid");
                              return;
@@ -1935,34 +1941,6 @@
   // Enumerate visible top-level window titles for the window-source picker.
   // Skips unowned invisible windows, empty titles, and Deckboy's own
   // windows (capturing yourself is feedback, not a source).
-  std::vector<std::string> listCaptureWindowTitles() {
-    std::vector<std::string> titles;
-    EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
-      auto* out = reinterpret_cast<std::vector<std::string>*>(lp);
-      if (!IsWindowVisible(hwnd) || GetWindow(hwnd, GW_OWNER) != nullptr) {
-        return TRUE;
-      }
-      int len = GetWindowTextLengthW(hwnd);
-      if (len <= 0) {
-        return TRUE;
-      }
-      std::wstring wide(static_cast<size_t>(len) + 1, L'\0');
-      GetWindowTextW(hwnd, wide.data(), len + 1);
-      wide.resize(static_cast<size_t>(len));
-      int need = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, nullptr, 0, nullptr, nullptr);
-      if (need <= 0) {
-        return TRUE;
-      }
-      std::string title(static_cast<size_t>(need), '\0');
-      WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, title.data(), need, nullptr, nullptr);
-      if (!title.empty() && title.rfind("Deckboy", 0) != 0) {
-        out->push_back(std::move(title));
-      }
-      return TRUE;
-    }, reinterpret_cast<LPARAM>(&titles));
-    return titles;
-  }
-
   // Enumerate DirectShow video devices (webcams, HDMI capture sticks,
   // Blackmagic WDM, virtual cameras) by parsing ffmpeg's device listing.
   // Lines look like: [dshow @ 0x...] "HD WebCam" (video)
@@ -1992,27 +1970,31 @@
       return;
     }
     std::string sourceRef = trim(rawRef);
-#ifdef _WIN32
-    // A camera cue with the placeholder ref opens the device picker —
-    // webcams and capture devices are all DirectShow video devices, so one
-    // picker covers both. The cue is created bound to a real device; TAKE
-    // starts capture (dshow devices are exclusive-open, so we don't grab
-    // the device just to preview it).
-    // A window cue with the placeholder ref opens a window picker — the old
-    // default silently captured the ENTIRE desktop, which read as "window
-    // cues only partially work". gdigrab matches titles exactly, so apps
-    // that retitle (browsers per tab) need re-picking after a title change.
+    // ASK WHICH WINDOW, ON EVERY PLATFORM.
+    //
+    // This picker used to be inside #ifdef _WIN32, so a window cue added on
+    // macOS or Linux was given the "active-window" placeholder, which resolves
+    // to the whole desktop -- the operator picked "Window Source" and silently
+    // got a screen grab. listCaptureWindows() has been cross-platform since the
+    // inspector dropdown was written; this just uses it.
+    //
+    // The trigger is deliberately NOT "desktop": that is a real choice the
+    // picker itself offers, and treating it as "undecided" would reopen the
+    // picker forever.
     if (kind == CueKind::WindowSource) {
-      std::string refLower = toLower(sourceRef);
-      if (sourceRef.empty() || refLower == "active-window" || refLower == "desktop") {
-        auto titles = listCaptureWindowTitles();
+      const std::string refLower = toLower(sourceRef);
+      if (sourceRef.empty() || refLower == "active-window") {
+        auto windows = deckboy::platform::listCaptureWindows();
         std::vector<std::pair<std::string, std::string>> choices;
-        choices.push_back({"region:0,0", "Entire Desktop"});
-        for (const auto& title : titles) {
-          choices.push_back({"title:" + title, title});
+        for (const auto& window : windows) {
+          choices.push_back({window.id, window.displayName});
+        }
+        if (choices.empty()) {
+          addSourceCue(kind, "desktop");
+          return;
         }
         if (choices.size() == 1) {
-          addSourceCue(kind, "region:0,0");
+          addSourceCue(kind, choices.front().first);
           return;
         }
         openDropdown("source.window_target", lastInlineEditorAnchorRect_, choices,
@@ -2023,6 +2005,7 @@
         return;
       }
     }
+#ifdef _WIN32
     if (kind == CueKind::Camera) {
       std::string refLower = toLower(sourceRef);
       if (sourceRef.empty() || refLower == "default-camera" || refLower == "default") {
@@ -2399,6 +2382,7 @@
       {"pocket-test",   "Pocket Test (test card + scene cycle)"},
       {"test-bars",    "Test Bars (motion diagnostics)"},
       {"test-clock",   "Test Clock (sync + latency)"},
+      {"frame-count",  "Frame Count (drops + latency)"},
       {"smpte-bars",   "SMPTE 75% Colour Bars"},
       {"crosshatch",   "Crosshatch"},
       {"checkerboard", "Checkerboard"},

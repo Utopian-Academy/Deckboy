@@ -8545,6 +8545,127 @@ void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
 }
 
 // ---------------------------------------------------------------------------
+// buildFrameCount — "Frame Count", a drop/duplicate and latency card.
+//
+// test-clock answers "are these two feeds in sync"; this answers a blunter
+// question: "did every frame arrive, and how far behind is the far end". The
+// whole field changes colour on every tick, so a repeated or missing frame is
+// visible from across a room and survives a phone photo of two screens -- point
+// a camera at the source and the output and the two numbers ARE the latency.
+//
+// Deliberately legible rather than pretty: one enormous number, one colour, and
+// a small exact readout for when a still is being measured properly.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildFrameCount(DecodedFrame& frame, double t) {
+  const int W = frame.width;
+  const int H = frame.height;
+  if (W <= 0 || H <= 0) {
+    return;
+  }
+  t = std::max(0.0, t);
+
+  auto rect = [&](int x, int y, int w, int h, SDL_Color c) {
+    fillPixelRect(frame, x, y, w, h, c);
+  };
+
+  // Ten ticks a second: fast enough that a dropped frame shows, slow enough
+  // that the number stays readable on a moving camera.
+  const long long tick = static_cast<long long>(t * 10.0);
+
+  // A big hue step per tick rather than a slow sweep -- consecutive ticks have
+  // to be told apart at a glance, so neighbouring values must not be
+  // neighbouring colours.
+  auto hueToRgb = [](double h) {
+    h = h - std::floor(h);
+    double r = std::clamp(std::abs(std::fmod(h * 6.0 + 0.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    double g = std::clamp(std::abs(std::fmod(h * 6.0 + 4.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    double b = std::clamp(std::abs(std::fmod(h * 6.0 + 2.0, 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    // Held off full saturation so the black number stays readable on every
+    // step, including the ones that would otherwise come out near-black.
+    auto mix = [](double v) {
+      return static_cast<Uint8>(std::lround((0.30 + 0.62 * v) * 255.0));
+    };
+    return SDL_Color {mix(r), mix(g), mix(b), 255};
+  };
+
+  const SDL_Color field = hueToRgb(static_cast<double>(tick % 17) / 17.0);
+  rect(0, 0, W, H, field);
+
+  // 3x5 glyphs, scaled -- the same shapes the sync card uses, so the two
+  // patterns read as a matched pair.
+  auto glyphRows = [](char c) -> const std::uint8_t* {
+    static const std::uint8_t digits[10][5] = {
+      {7,5,5,5,7}, {2,6,2,2,7}, {7,1,7,4,7}, {7,1,3,1,7}, {5,5,7,1,1},
+      {7,4,7,1,7}, {7,4,7,5,7}, {7,1,1,2,2}, {7,5,7,5,7}, {7,5,7,1,7},
+    };
+    static const std::uint8_t colon[5]   = {0,2,0,2,0};
+    static const std::uint8_t dot[5]     = {0,0,0,0,2};
+    static const std::uint8_t letterF[5] = {7,4,6,4,4};
+    static const std::uint8_t letterT[5] = {7,2,2,2,2};
+    static const std::uint8_t blank[5]   = {0,0,0,0,0};
+    if (c >= '0' && c <= '9') return digits[c - '0'];
+    if (c == ':') return colon;
+    if (c == '.') return dot;
+    if (c == 'F') return letterF;
+    if (c == 'T') return letterT;
+    return blank;
+  };
+  auto glyphWidth = [](std::size_t chars, int scale) {
+    return static_cast<int>(chars) * 4 * scale - scale;
+  };
+  auto drawGlyphs = [&](int x, int y, const std::string& s, int scale, SDL_Color color) {
+    int cx = x;
+    for (char c : s) {
+      const std::uint8_t* rows = glyphRows(c);
+      for (int ry = 0; ry < 5; ++ry) {
+        for (int rx = 0; rx < 3; ++rx) {
+          if (rows[ry] & (4 >> rx)) {
+            rect(cx + rx * scale, y + ry * scale, scale, scale, color);
+          }
+        }
+      }
+      cx += 4 * scale;
+    }
+  };
+
+  // The count, as large as the raster allows.
+  char big[16];
+  std::snprintf(big, sizeof(big), "%04lld", tick % 10000);
+  const std::string bigText(big);
+  int bigScale = std::max(2, std::min(H / 9, W / (4 * static_cast<int>(bigText.size()))));
+  int bigW = glyphWidth(bigText.size(), bigScale);
+  int bigH = 5 * bigScale;
+  drawGlyphs((W - bigW) / 2, (H - bigH) / 2 - bigScale, bigText, bigScale,
+             {16, 16, 16, 255});
+
+  // Exact timecode and absolute count underneath, on a plate, for when the
+  // measurement is being taken off a still rather than by eye.
+  int totalSeconds = static_cast<int>(t);
+  int millis = static_cast<int>(t * 1000.0) % 1000;
+  char line[40];
+  std::snprintf(line, sizeof(line), "T %02d:%02d:%02d.%03d F %06lld",
+                (totalSeconds / 3600) % 100, (totalSeconds / 60) % 60,
+                totalSeconds % 60, millis, tick);
+  const std::string readout(line);
+  int smallScale = std::max(1, H / 240);
+  int smallW = glyphWidth(readout.size(), smallScale);
+  int pad = 3 * smallScale;
+  int plateX = std::clamp((W - smallW) / 2 - pad, 0, std::max(0, W - smallW - pad * 2));
+  int plateY = std::clamp((H + bigH) / 2 + bigScale, 0,
+                          std::max(0, H - 5 * smallScale - pad * 2));
+  rect(plateX, plateY, smallW + pad * 2, 5 * smallScale + pad * 2, {0, 0, 0, 255});
+  drawGlyphs(plateX + pad, plateY + pad, readout, smallScale, {255, 255, 255, 255});
+
+  // A corner tally block that moves one step per tick: a second, purely
+  // positional read of the same number for when the picture is too small or
+  // too far away for the digits.
+  int cell = std::max(3, H / 40);
+  int cells = std::max(4, W / cell);
+  int marchX = static_cast<int>(tick % cells) * cell;
+  rect(marchX, H - cell, cell, cell, {16, 16, 16, 255});
+}
+
+// ---------------------------------------------------------------------------
 // buildPatternFrame — Static factory: generate a procedural test pattern frame.
 //
 // This is the main dispatch function for all pattern types. It:
@@ -8728,6 +8849,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "test-bars") {
     // Broadcast motion diagnostics — always animated, no -motion variant.
     buildTestBars(frame, animTime);
+  } else if (basePatternType == "frame-count") {
+    // Drop/duplicate + latency card -- always animated.
+    buildFrameCount(frame, animTime);
   } else if (basePatternType == "test-clock") {
     // Sync/latency card — always animated, no -motion variant.
     buildTestClock(frame, animTime);

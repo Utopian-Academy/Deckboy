@@ -65,6 +65,9 @@ inline std::string normalizePatternTypeId(std::string value) {
   } else if (value == "testsrc1" || value == "sync-card" || value == "syncclock" ||
              value == "sync-clock" || value == "latency-clock" || value == "testclock") {
     value = "test-clock";            // sync/latency card
+  } else if (value == "framecount" || value == "frame-counter" ||
+             value == "counter" || value == "drop-test") {
+    value = "frame-count";           // drop/duplicate + latency counter
   } else if (value == "kawaii" || value == "kawaii-pocket") {
     value = "pocket-test";           // retro pixel art test pattern
   } else if (value == "pocket-daytime" || value == "pocket-sunny") {
@@ -125,6 +128,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "terrarium-pico" ||             // same world, 1px per cell
          normalized == "test-bars" ||                  // motion diagnostics: the point IS motion
          normalized == "test-clock" ||                 // sync card: a frozen clock proves nothing
+         normalized == "frame-count" ||                // a counter that does not count is no counter
          // A CODE SOURCE IS ALWAYS ANIMATED. Its expression has `t` in it and
          // the whole point of it is that you edit it while it runs -- but it
          // was not on this list, so it was drawn once at take and never again.
