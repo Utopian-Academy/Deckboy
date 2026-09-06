@@ -1171,7 +1171,19 @@ bool BrowserRenderer::sendHelperCommand(const std::string& command) {
   if (!impl_->isRunning_ || impl_->webviewProcess_.writeFd < 0) {
     return false;
   }
-  const std::string line = command + "\n";
+  // THE PROTOCOL IS ONE COMMAND PER LINE, so an embedded newline is not a
+  // character -- it is a command separator. A URL or a string carrying one
+  // would inject a second command into the helper, which is a real hole given
+  // a cue's URL can come from a show file or the network. Folded to spaces
+  // HERE, at the one place that writes to the pipe, rather than trusting every
+  // caller to remember.
+  std::string safe = command;
+  for (char& ch : safe) {
+    if (ch == '\n' || ch == '\r') {
+      ch = ' ';
+    }
+  }
+  const std::string line = safe + "\n";
   const auto written = ::write(impl_->webviewProcess_.writeFd,
                                line.data(), line.size());
   return written == static_cast<decltype(written)>(line.size());
@@ -1295,16 +1307,33 @@ bool BrowserRenderer::sendText(const std::string& utf8) {
   // Windows and macOS both have a JavaScript channel, so the text goes to
   // whatever the page has focused. Quotes and backslashes are escaped because
   // this is built into a script.
+  // Escaped for a single-quoted JavaScript string literal. Backslash and quote
+  // are the obvious two; U+2028 and U+2029 are the ones that get missed --
+  // JavaScript treats them as line terminators INSIDE a string literal, so a
+  // pasted character nobody can see would end the string and run whatever
+  // followed as code.
   std::string escaped;
   escaped.reserve(utf8.size() + 8);
-  for (char ch : utf8) {
+  for (std::size_t i = 0; i < utf8.size(); ++i) {
+    const unsigned char ch = static_cast<unsigned char>(utf8[i]);
+    if (ch == 0xE2 && i + 2 < utf8.size()
+        && static_cast<unsigned char>(utf8[i + 1]) == 0x80
+        && (static_cast<unsigned char>(utf8[i + 2]) == 0xA8
+            || static_cast<unsigned char>(utf8[i + 2]) == 0xA9)) {
+      escaped += (static_cast<unsigned char>(utf8[i + 2]) == 0xA8) ? "\\u2028"
+                                                                   : "\\u2029";
+      i += 2;
+      continue;
+    }
     if (ch == '\\' || ch == '\'') {
       escaped.push_back('\\');
+      escaped.push_back(static_cast<char>(ch));
+      continue;
     }
     if (ch == '\n' || ch == '\r') {
       continue;
     }
-    escaped.push_back(ch);
+    escaped.push_back(static_cast<char>(ch));
   }
   const std::string js =
     "(function(){var el=document.activeElement;if(!el)return;"
@@ -1335,6 +1364,14 @@ bool BrowserRenderer::sendKey(const std::string& name) {
   }
   return false;
 #else
+  // The name is pasted into a script, so it is checked rather than escaped: a
+  // key name is letters and digits and nothing else, and anything else is a
+  // caller trying to run code, not press a key.
+  for (char ch : name) {
+    if (!std::isalnum(static_cast<unsigned char>(ch))) {
+      return false;
+    }
+  }
   // A named key as a real KeyboardEvent, so a form's own Enter handler fires.
   const std::string js =
     "(function(){var el=document.activeElement||document.body;"
