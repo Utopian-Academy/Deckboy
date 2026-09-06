@@ -1595,19 +1595,15 @@ std::optional<std::string> mapOscToRemoteCommand(const OscMessage& message) {
 
 // THE PAGE A BROWSER CUE SHOWS WHEN NOBODY HAS PICKED ONE.
 //
+// James's pick, and it is a better joke than a test card: a browser cue that
+// has not been told where to go explains what a VJ is.
+//
 // A browser cue with no URL used to be a black rectangle, which is exactly what
-// a broken one looks like. This card is unmistakable and self-describing, so an
-// empty cue reads as "ready, tell me where to go" -- and because it exercises
-// the whole chain (helper, page load, capture, compositor), seeing it also
-// means the browser backend on this machine works.
+// a broken one looks like. This is unmistakable either way -- on a machine with
+// no network it shows the browser's own "cannot reach" page, which still says
+// the browser backend is alive and the fault is the network.
 std::string defaultBrowserPageUrl() {
-  std::error_code error;
-  const fs::path page =
-    deckboy::core::Paths::dataDir() / "browser" / "welcome.html";
-  if (!fs::exists(page, error)) {
-    return {};
-  }
-  return "file://" + fs::absolute(page, error).string();
+  return "https://en.wikipedia.org/wiki/Video_jockey";
 }
 
 std::string normalizeBrowserUrl(std::string value) {
