@@ -21,6 +21,31 @@
     return project_.decks[project_.focusedDeckIndex];
   }
 
+  // The live browser page on the focused deck, or nullptr. Everything that
+  // drives a page goes through here so there is one definition of "the page
+  // the operator means".
+  // Is the cue currently live on this deck a browser page? Both cue kinds that
+  // use the browser backend count -- a lower third is a page too.
+  bool activeCueIsBrowser(int deckIndex) const {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
+      return false;
+    }
+    const Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return false;
+    }
+    const CueKind kind = deck.cues[deck.activeIndex].kind;
+    return kind == CueKind::Browser || kind == CueKind::LowerThird;
+  }
+
+  deckboy::platform::browser::BrowserRenderer* liveBrowserRenderer() {
+    DeckRuntime* runtime = runtimeForDeck(project_.focusedDeckIndex);
+    if (!runtime || !runtime->browserRenderer) {
+      return nullptr;
+    }
+    return runtime->browserRenderer.get();
+  }
+
   const Deck& focusedDeck() const {
     if (project_.decks.empty()) {
       static Deck fallback;

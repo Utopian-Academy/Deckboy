@@ -604,6 +604,12 @@
       appY += sRowH + sGap;
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
+      // Hover tips. Beside SFX because they are the same kind of decision:
+      // helpful while you are learning the desk, noise once you know it.
+      SDL_Rect tipsBtn {appX, appY, appW, sRowH};
+      appY += sRowH + sGap;
+      drawPillToggle(tipsBtn, project_.hoverTipsEnabled, "HOVER TIPS ON", "HOVER TIPS OFF");
+      settingsBtns_.push_back({tipsBtn, 656, "hover_tips_toggle"});
       // Mascot dropdown: deckbot (default) or deckgirl. Picks the splash
       // character; refreshSplashAsset re-resolves the art on change.
       SDL_Rect mascotBtn {appX, appY, appW, sRowH};
@@ -2851,6 +2857,10 @@
         return;
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
+        markProjectDirty();
+      } else if (sb.action == 656) {
+        project_.hoverTipsEnabled = !project_.hoverTipsEnabled;
+        triggerToast(project_.hoverTipsEnabled ? "hover tips on" : "hover tips off");
         markProjectDirty();
       } else if (sb.action == 203) {
         toggleJumpMode();

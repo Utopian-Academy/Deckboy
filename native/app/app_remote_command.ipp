@@ -1526,9 +1526,42 @@
       }
       try {
         handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
-        remoteCommandDetail_ = "clicked " + parts[1] + "," + parts[2];
+        // Reports WHICH modal was up afterwards. A click that lands on a
+        // covered control is silently swallowed by whatever claimed it first,
+        // and without this the only symptom is "the button does nothing".
+        remoteCommandDetail_ = "clicked " + parts[1] + "," + parts[2]
+          + " [splash=" + std::to_string(showSplashOverlay_ ? 1 : 0)
+          + " startup=" + std::to_string(showStartupDialog_ ? 1 : 0)
+          + " dash=" + std::to_string(dashboardOverlayOpen_ ? 1 : 0)
+          + " dashbtns=" + std::to_string(dashButtons_.size())
+          + " editor=" + std::to_string(inlineEditor_.open ? 1 : 0)
+          + " drop=" + std::to_string(dropdown_.open ? 1 : 0) + "]";
       } catch (...) {
         failRemoteCommand("CLICK: expected two numbers");
+      }
+      return;
+    }
+    if (command == "HOVER") {
+      // CLICK's sibling. Hover state drives the tips and the mascot's advice,
+      // and none of that could be exercised without a way to put the pointer
+      // somewhere -- a test that cannot move the mouse cannot test a tooltip.
+      if (parts.size() < 3) {
+        failRemoteCommand("HOVER: expected x y");
+        return;
+      }
+      try {
+        // BOTH halves, exactly as SDL_EVENT_MOUSE_MOTION does them: the event
+        // handler sets mouseX_/mouseY_ and THEN calls handleMouseMotion, which
+        // only deals with drags. Calling the handler alone moved nothing, so
+        // every hover reported "no tip" while looking like it had worked.
+        mouseX_ = std::stoi(parts[1]);
+        mouseY_ = std::stoi(parts[2]);
+        handleMouseMotion(mouseX_, mouseY_);
+        remoteCommandDetail_ = "hover " + parts[1] + "," + parts[2]
+          + (hoverTipLast_.empty() ? std::string(" [no tip]")
+                                   : (" [" + hoverTipLast_ + "]"));
+      } catch (...) {
+        failRemoteCommand("HOVER: expected two numbers");
       }
       return;
     }
@@ -2192,9 +2225,124 @@
       return;
     }
     if (command == "BROWSER") {
-      std::string url = joinParts(parts, 1);
-      if (!url.empty()) {
-        addBrowserCue(url);
+      // BROWSER <url> still makes a cue, because that is what it has always
+      // done. The sub-verbs drive the page that is already live on the focused
+      // deck -- scrolling it, clicking through whatever it has put in the way,
+      // and going back if that was the wrong link.
+      const std::string first = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      const bool isSubVerb =
+        first == "SCROLL" || first == "CLICK" || first == "SCROLLBAR" ||
+        first == "BACK" || first == "FORWARD" || first == "RELOAD" ||
+        first == "URL" || first == "TOP" || first == "BOTTOM";
+      if (!isSubVerb) {
+        std::string url = joinParts(parts, 1);
+        if (!url.empty()) {
+          addBrowserCue(url);
+        }
+        return;
+      }
+
+      deckboy::platform::browser::BrowserRenderer* page = liveBrowserRenderer();
+      if (!page) {
+        failRemoteCommand("BROWSER: no browser cue is live on this deck");
+        return;
+      }
+      if (first == "SCROLL") {
+        // One argument scrolls vertically, which is what a page needs 99 times
+        // in 100; two scroll both ways.
+        int dy = 0;
+        int dx = 0;
+        try {
+          if (parts.size() > 2) {
+            dy = std::stoi(parts[2]);
+          } else {
+            failRemoteCommand("BROWSER SCROLL: expected pixels (negative is up)");
+            return;
+          }
+          if (parts.size() > 3) {
+            dx = dy;
+            dy = std::stoi(parts[3]);
+          }
+        } catch (...) {
+          failRemoteCommand("BROWSER SCROLL: expected a number");
+          return;
+        }
+        // SAY SO WHEN THE BACKEND CANNOT DO IT.
+        //
+        // These are delivered as JavaScript, and only the Windows WebView2
+        // backend implements executeJavaScript today -- the Linux Xvfb path
+        // and the macOS scaffold both return false. Reporting OK for a command
+        // that did nothing is the exact failure this codebase keeps finding;
+        // an honest ERR is worth more than a tidy reply.
+        if (!page->scrollBy(dx, dy)) {
+          failRemoteCommand("BROWSER SCROLL: this browser backend cannot drive the page");
+          return;
+        }
+        remoteCommandDetail_ = "scrolled " + std::to_string(dy);
+        return;
+      }
+      if (first == "TOP" || first == "BOTTOM") {
+        if (!page->scrollBy(0, first == "TOP" ? -100000 : 100000)) {
+          failRemoteCommand("BROWSER: this browser backend cannot drive the page");
+        }
+        return;
+      }
+      if (first == "CLICK") {
+        // Fractions of the frame, so a Companion button or a click in the
+        // preview means the same thing at any raster size.
+        double fx = 0.5;
+        double fy = 0.5;
+        try {
+          if (parts.size() > 3) {
+            fx = std::stod(parts[2]);
+            fy = std::stod(parts[3]);
+          }
+        } catch (...) {
+          failRemoteCommand("BROWSER CLICK: expected two fractions 0..1");
+          return;
+        }
+        if (fx < 0.0 || fx > 1.0 || fy < 0.0 || fy > 1.0) {
+          failRemoteCommand("BROWSER CLICK: fractions must be 0..1");
+          return;
+        }
+        if (!page->clickAtFraction(fx, fy)) {
+          failRemoteCommand("BROWSER CLICK: this browser backend cannot drive the page");
+          return;
+        }
+        return;
+      }
+      if (first == "SCROLLBAR") {
+        const bool show = parts.size() > 2 && toUpper(parts[2]) == "ON";
+        if (!page->setScrollbarsVisible(show)) {
+          failRemoteCommand("BROWSER SCROLLBAR: this browser backend cannot drive the page");
+          return;
+        }
+        project_.browserScrollbars = show;
+        markProjectDirty();
+        remoteCommandDetail_ = show ? "scrollbar shown" : "scrollbar hidden";
+        return;
+      }
+      if (first == "BACK") {
+        page->goBack();
+        return;
+      }
+      if (first == "FORWARD") {
+        page->goForward();
+        return;
+      }
+      if (first == "RELOAD") {
+        page->reload();
+        return;
+      }
+      if (first == "URL") {
+        const std::string url = joinParts(parts, 2);
+        if (url.empty()) {
+          failRemoteCommand("BROWSER URL: expected an address");
+          return;
+        }
+        page->loadUrl(url);
+        remoteCommandDetail_ = url;
+        return;
       }
       return;
     }
@@ -3046,6 +3194,10 @@
       // Put the page on screen. A surface that can fire a slot should also
       // be able to show the operator the page those slots live on.
       if (sub == "SHOW" || sub == "HIDE" || sub == "TOGGLE") {
+        if (showStartupDialog_ || showSplashOverlay_) {
+          failRemoteCommand("DASH: the startup dialog is up");
+          return;
+        }
         dashboardOverlayOpen_ = (sub == "TOGGLE") ? !dashboardOverlayOpen_
                                                   : (sub == "SHOW");
         remoteCommandDetail_ = dashboardOverlayOpen_ ? "dashboard shown"
@@ -3729,11 +3881,25 @@
       // Per-cue gain trim in dB (range: kCueAudioGainMinDb..kCueAudioGainMaxDb)
       // — same write path as the inspector gain row, applied live with no
       // decode restart.
+      // A BARE AUDIOGAIN IS A QUESTION, and it used to answer "OK" while
+      // saying nothing at all -- so there was no way to check what normalize
+      // had actually done except by eye.
+      if (parts.size() < 2) {
+        const Cue* cue = selectedCuePtr();
+        if (!cue) {
+          failRemoteCommand("AUDIOGAIN: no cue selected");
+          return;
+        }
+        char buf[48];
+        std::snprintf(buf, sizeof(buf), "%+.1f dB", cue->audioGainDb);
+        remoteCommandDetail_ = buf;
+        return;
+      }
       auto value = parseNumber(1);
       if (value && setSelectedAudioGainDb(*value)) {
         char buf[32];
         std::snprintf(buf, sizeof(buf), "gain %+.1f dB", std::clamp(*value, static_cast<double>(kCueAudioGainMinDb), static_cast<double>(kCueAudioGainMaxDb)));
-        triggerToast(buf);
+        triggerToast(std::string(buf) + audioEditScopeSuffix());
       }
       return;
     }
@@ -3752,7 +3918,21 @@
       }
       return;
     }
+    if (command == "SELECTALL") {
+      // Ctrl+A's verb. Companion needs it to drive the multi-select edits, and
+      // without it the cross-deck audio edits could not be exercised at all.
+      selectAllCuesInFocusedDeck();
+      const Deck& deck = focusedDeck();
+      remoteCommandDetail_ = std::to_string(deck.selectedIndices.size()) + " selected";
+      return;
+    }
     if (command == "AUDIONORM") {
+      // AUDIONORM ALL matches every cue in the focused deck, which is the
+      // whole point of normalising: levels that agree with each other.
+      if (parts.size() > 1 && toUpper(parts[1]) == "ALL") {
+        normalizeAllCuesInFocusedDeck();
+        return;
+      }
       normalizeSelectedCueAudio();  // async; result toasts when the analysis lands
       return;
     }

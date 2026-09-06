@@ -29,6 +29,272 @@
   // Glowing + theme-tinted; up until the first clip loads this session.
   // overrideTip replaces the rotating hint line, so the same face can front
   // other waits (the media encoder) without inventing a second mascot.
+  // ── THE VJ BOX ────────────────────────────────────────────────────────────
+  //
+  // In VJ mode with nothing taken there are three empty panes -- A, the
+  // programme, and B -- and the startup mascot was drawn ONCE across the whole
+  // area, so a single face straddled both dividers and read as a rendering
+  // fault rather than a character.
+  //
+  // Three faces instead, one to a pane, and they talk to each other: a booth
+  // full of hecklers who have seen every set you are about to play. Statler and
+  // Waldorf, if the balcony were a video desk.
+  //
+  // They are drawn ONLY where there is nothing to show. The instant a deck has
+  // a picture the pane is a picture -- nobody wants a cartoon over their
+  // programme.
+  //
+  // Deliberately not the startup mascot with a different hat: that one is a
+  // friendly assistant and these three are not friendly. Different eyes,
+  // different mouths, different rhythm.
+  static const char* vjHecklerLine(int who, int index) {
+    // Six each, so a pane does not repeat inside a set. The jokes are about
+    // VJing because the person reading them is a VJ waiting for a cue to load.
+    static const char* kA[] = {
+      "deck A. empty, like the promoter's promises.",
+      "you know you have to LOAD something?",
+      "in my day we had one projector. and it was broken.",
+      "still nothing. bold choice.",
+      "the beat drops in four. no pressure.",
+      "i have seen better. i have seen worse. mostly worse.",
+    };
+    static const char* kMid[] = {
+      "programme out: absolutely nothing. crisp though.",
+      "that is the cleanest mix you have ever done.",
+      "no clips, no clipping. i call that a win.",
+      "the crowd is going mild.",
+      "hold this shot. it is your best work.",
+      "black is a look. it is not much of a set.",
+    };
+    static const char* kB[] = {
+      "deck B, reporting for duty. no duty found.",
+      "i could crossfade this into nothing and improve it.",
+      "two empty decks. a matched pair.",
+      "press I. i will wait. i have nothing else on.",
+      "somewhere a VU meter is asleep.",
+      "if you drop this now it lands silently.",
+    };
+    const int n = 6;
+    const int i = ((index % n) + n) % n;
+    return who == 0 ? kA[i] : (who == 1 ? kMid[i] : kB[i]);
+  }
+
+  // Returns false when the pane is too small to hold a face, so the caller can
+  // fall back to plain text instead of drawing nothing at all.
+  bool drawVjHeckler(const SDL_Rect& area, Uint64 nowMs, int who) {
+    if (area.w < 80 || area.h < 70) {
+      return false;   // no room to be funny in
+    }
+    TTF_Font* font = fontSmall_;
+    const double t = static_cast<double>(nowMs) / 1000.0;
+    // Each one on its own clock, so they bob out of step like three people
+    // rather than one animation drawn three times.
+    const double phase = who * 2.1;
+
+    // DRAWN ON A DEEP PANEL, SO THE INK IS pal.light.
+    //
+    // First pass used pal.fg, which is the on-BODY ink -- right for the shell,
+    // and all but invisible against the dark preview pane. The startup mascot
+    // has always used pal.light here, for exactly this reason.
+    const SDL_Color ink = pal.light;
+    const SDL_Color soft {ink.r, ink.g, ink.b, 200};
+
+    // -- The line, laid out first --------------------------------------------
+    //
+    // These panes are NARROW -- a third of the monitor each -- so a joke on one
+    // line ellipsized down to "the beat drop...", which is not a joke. It wraps
+    // instead, and whatever it needs comes off the face's share rather than the
+    // other way round.
+    constexpr Uint64 kLineMs = 7000;
+    constexpr Uint64 kStagger = 2300;
+    const Uint64 clock = nowMs + static_cast<Uint64>(who) * kStagger;
+    const std::string full = vjHecklerLine(who, static_cast<int>(clock / kLineMs));
+    const std::size_t shown =
+      std::min<std::size_t>(full.size(), static_cast<std::size_t>((clock % kLineMs) / 34));
+
+    // MEASURE AGAINST WHAT THE DRAW WILL ACTUALLY ALLOW.
+    //
+    // drawCenteredTextSafe insets the rect it is handed and then ellipsizes to
+    // what remains, so wrapping to the full width got every line ellipsized a
+    // second time -- "the beat drops..." over "four. no pressu...", which is
+    // both halves of the joke ruined. Wrap to the inner width, draw into the
+    // outer one.
+    const int textW = area.w - 10;
+    const int wrapW = area.w - 24;
+    std::vector<std::string> wrapped;
+    if (font) {
+      // Greedy word wrap over the WHOLE line, not just the typed part, so the
+      // block does not reflow under the reader as it types.
+      std::string line;
+      std::size_t pos = 0;
+      while (pos <= full.size()) {
+        const std::size_t space = full.find(' ', pos);
+        const std::string word = full.substr(
+          pos, space == std::string::npos ? std::string::npos : space - pos);
+        const std::string trial = line.empty() ? word : line + " " + word;
+        int tw = 0;
+        TTF_GetStringSize(font, trial.c_str(), 0, &tw, nullptr);
+        if (tw > wrapW && !line.empty()) {
+          wrapped.push_back(line);
+          line = word;
+        } else {
+          line = trial;
+        }
+        if (space == std::string::npos) {
+          break;
+        }
+        pos = space + 1;
+      }
+      if (!line.empty()) {
+        wrapped.push_back(line);
+      }
+    }
+    const int lineH = font ? std::max(13, textLineHeight(font)) : 0;
+    // Never let the words take more than half the pane; the character has to
+    // fit above them.
+    const int maxLines = wrapped.empty() ? 0
+      : std::max(1, std::min<int>(static_cast<int>(wrapped.size()),
+                                  (area.h / 2) / std::max(1, lineH)));
+    const int textH = maxLines * lineH + (maxLines > 0 ? 6 : 0);
+
+    // -- The face, in what is left -------------------------------------------
+    const SDL_Rect stage {area.x, area.y, area.w, std::max(40, area.h - textH)};
+    const int unit = std::clamp(std::min(stage.w, stage.h) / 6, 5, 26);
+    const int cx = stage.x + stage.w / 2
+                 + static_cast<int>(std::lround(std::sin(t * 0.7 + phase) * 2.0));
+    const int cy = stage.y + stage.h / 2
+                 + static_cast<int>(std::lround(std::sin(t * 1.1 + phase) * 1.5));
+
+    // Blink on each character's own timer, so they never all shut at once.
+    const double bp = std::fmod(t + who * 1.7, 3.4 + who * 0.4);
+    double open = 1.0;
+    if (bp < 0.16) {
+      open = 1.0 - 0.9 * std::sin(bp / 0.16 * 3.14159265358979);
+    }
+
+    const int eyeGap = unit * 3;
+    auto dot = [&](int ox, int oy, int w, int h, SDL_Color c) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect{cx + ox, cy + oy, std::max(1, w), std::max(1, h)}, c);
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    };
+
+    if (who == 0) {
+      // THE SCEPTIC. Tall narrow eyes, one brow up, mouth a flat line.
+      const int eh = std::max(2, static_cast<int>(unit * 1.5 * open));
+      const int ew = std::max(3, unit * 2 / 3);
+      dot(-eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      dot(eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      // The raised brow does the whole job; it lifts a little as it judges you.
+      const int brow = static_cast<int>(std::lround(std::sin(t * 0.9) * 2.0));
+      dot(eyeGap / 2 - unit / 2, -unit * 2 - unit / 2 + brow, unit, std::max(2, unit / 4), soft);
+      dot(-unit, unit, unit * 2, std::max(2, unit / 4), ink);
+    } else if (who == 1) {
+      // THE ENTHUSIAST. Small round eyes and a wide grin that keeps going even
+      // when there is nothing at all to be pleased about.
+      const int eh = std::max(2, static_cast<int>(unit * 0.9 * open));
+      const int ew = std::max(3, unit / 2);
+      dot(-eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      dot(eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      const int span = unit * 3;
+      const int nib = std::max(2, unit / 3);
+      for (int i = 0; i <= 10; ++i) {
+        const double f = static_cast<double>(i) / 10.0 * 2.0 - 1.0;
+        dot(static_cast<int>(f * span / 2) - nib / 2,
+            static_cast<int>(unit * 0.6 + (1.0 - f * f) * unit * 0.9), nib, nib, ink);
+      }
+    } else {
+      // THE GRUMP. Heavy lids, moustache, mouth turned down at the corners.
+      const int eh = std::max(2, static_cast<int>(unit * 1.1 * open));
+      const int ew = std::max(3, unit * 2 / 3);
+      dot(-eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      dot(eyeGap / 2 - ew / 2, -unit - eh / 2, ew, eh, ink);
+      // Lids sit ON the eyes, which is what makes it read as unimpressed
+      // rather than asleep.
+      const int lid = std::max(2, unit / 3);
+      dot(-eyeGap / 2 - ew / 2, -unit - eh / 2, ew, lid, soft);
+      dot(eyeGap / 2 - ew / 2, -unit - eh / 2, ew, lid, soft);
+      dot(-unit * 3 / 2, unit / 3, unit * 3, std::max(2, unit / 3), soft);   // moustache
+      const int span = unit * 5 / 2;
+      const int nib = std::max(2, unit / 3);
+      for (int i = 0; i <= 8; ++i) {
+        const double f = static_cast<double>(i) / 8.0 * 2.0 - 1.0;
+        dot(static_cast<int>(f * span / 2) - nib / 2,
+            static_cast<int>(unit * 1.5 - (1.0 - f * f) * unit * 0.5), nib, nib, ink);
+      }
+    }
+
+    // -- The words -----------------------------------------------------------
+    if (maxLines > 0) {
+      // Draw only as much of the wrapped block as has been typed, counted
+      // character-for-character against the lines already laid out.
+      std::size_t budget = shown;
+      int y = area.y + area.h - textH + 3;
+      for (int i = 0; i < maxLines; ++i) {
+        const std::string& lineText = wrapped[static_cast<std::size_t>(i)];
+        const std::size_t take = std::min(budget, lineText.size());
+        if (take > 0) {
+          std::string piece = lineText.substr(0, take);
+          if (take < lineText.size() && (nowMs / 320) % 2) {
+            piece += "_";
+          }
+          SDL_Rect where {area.x + 5, y, textW, lineH};
+          drawCenteredTextSafe(controlRenderer_, font, where, piece, soft);
+        }
+        budget -= take;
+        if (budget > 0) {
+          budget -= 1;   // the space the wrap consumed between lines
+        }
+        y += lineH;
+      }
+    }
+    return true;
+  }
+
+
+  // ---- WHAT THE FACE SAYS WHEN YOU ARE READING A TIP ---------------------
+  //
+  // A tip says what a button IS. This says what it is FOR -- the next thing
+  // worth knowing once you have read the label, which is the part a one-line
+  // tooltip has no room for.
+  //
+  // Matched on a distinctive word from the tip rather than on a control id, so
+  // it works for every tip source in the app -- bottom bar, toolbar, cue-row
+  // toggles, inspector quick actions -- without a registry to keep in step.
+  // No match means no advice, and the face goes back to its own thoughts.
+  static const char* mascotAdviceForTip(const std::string& tip) {
+    struct Advice { const char* needle; const char* line; };
+    static const Advice kAdvice[] = {
+      {"import media",     "drop a folder in too - it reads the whole tree"},
+      {"source cue",       "cameras, windows, NDI, screens - all live sources"},
+      {"pattern cue",      "test cards and generators - no file needed"},
+      {"take selected",    "space bar does this too, without moving your hand"},
+      {"stop active",      "stops the cue. ESC stops EVERYTHING"},
+      {"rewind",           "back to the in point, not to zero"},
+      {"picture off",      "the safe one: audio and playback keep running"},
+      {"fade out, drop",   "the thorough one. blackout is the reversible one"},
+      {"write back over",  "save as makes a new file instead"},
+      {"NEW file",         "for a copy before you change something risky"},
+      {"portable folder",  "this is what you carry to the venue"},
+      {"empty show",       "the show on disk is untouched until you save"},
+      {"fade in",          "per cue. the deck has its own default too"},
+      {"fade out",         "stills hold instead - a fade would dip the frame"},
+      {"loop",             "loops between the in and out points, not the file"},
+      {"hold on last",     "the frame stays up. good for slides"},
+      {"cue audio",        "gain, pan and normalise live in the inspector"},
+      {"no audio",         "this clip has no audio track to enable"},
+      {"seek",             "drag to scrub. the audio follows"},
+      {"normalize",        "AUDIONORM ALL matches the whole playlist at once"},
+    };
+    for (const Advice& advice : kAdvice) {
+      if (tip.find(advice.needle) != std::string::npos) {
+        return advice.line;
+      }
+    }
+    return nullptr;
+  }
+
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
@@ -161,19 +427,42 @@
       // straight out of the monitor. The orbit is now the largest that still
       // fits the area it is drawn in, so it scales with the face until the
       // panel is the limit and then stops.
-      const double starPad = unit * 0.7;
-      const double maxRadX = (area.w * 0.5 - starPad) / 1.5;
+      const int sz = 2 + (s % 2) + (std::sin(t * 2.0 + s) > 0.6 ? 1 : 0);
+      const double starPad = unit * 0.7 + sz;
+      // MEASURED FROM WHERE THE STAR ACTUALLY IS.
+      //
+      // Two things defeated the previous bound. It measured the vertical room
+      // from `cy` while the stars are drawn a whole `unit` higher, so they rode
+      // that much further up than the maths allowed -- straight over the
+      // OUTPUT / DECODE / STREAM readouts along the top of the monitor. And it
+      // then applied a "never collapse onto the face" floor AFTER the clamp,
+      // which on a cramped panel simply put them back outside: a minimum
+      // applied after a maximum is not a minimum, it is the old bug in a hat.
+      //
+      // So: measure from the orbit's true centre, and from the wobbling `cx`
+      // rather than the panel's middle. If what is left is too small to orbit
+      // in, draw no stars at all -- an empty corner is fine, a star over a
+      // readout is not.
+      const int starCy = cy - unit;
+      const double maxRadX =
+        (std::min(cx - area.x, area.x + area.w - cx) - starPad) / 1.5;
       const double maxRadY =
-        (std::min(cy - area.y, area.y + area.h - cy) - starPad) / 0.7;
-      double baseRad = std::min({unit * 3.2, maxRadX, maxRadY});
-      // Never let it collapse onto the face on a cramped panel.
-      baseRad = std::max(baseRad, static_cast<double>(unit) * 1.3);
-      double rad = baseRad + std::sin(t * 0.7 + s) * baseRad * 0.12;
-      int sx = cx + static_cast<int>(std::lround(std::cos(ph) * rad * 1.5));
-      int sy = cy - unit + static_cast<int>(std::lround(std::sin(ph) * rad * 0.7));
+        (std::min(starCy - area.y, area.y + area.h - starCy) - starPad) / 0.7;
+      const double baseRad = std::min({unit * 3.2, maxRadX, maxRadY});
+      if (baseRad < unit * 0.8) {
+        continue;   // no room to orbit in
+      }
+      const double rad = baseRad + std::sin(t * 0.7 + s) * baseRad * 0.12;
+      // The orbit is bounded, and then the star is clamped as well. The maths
+      // above is the intent; this is the guarantee.
+      const int sx = std::clamp(
+        cx + static_cast<int>(std::lround(std::cos(ph) * rad * 1.5)),
+        area.x + sz, area.x + area.w - sz - 1);
+      const int sy = std::clamp(
+        starCy + static_cast<int>(std::lround(std::sin(ph) * rad * 0.7)),
+        area.y + sz, area.y + area.h - sz - 1);
       SDL_Color star = glow;
       star.a = static_cast<Uint8>(60 + 150 * std::fabs(std::sin(t * 1.6 + s * 1.3)));
-      int sz = 2 + (s % 2) + (std::sin(t * 2.0 + s) > 0.6 ? 1 : 0);
       drawStar(controlRenderer_, sx, sy, sz, star);
     }
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
@@ -1488,9 +1777,17 @@
         } else {
           // Say WHY there is no picture rather than showing an empty box: a
           // deck with nothing taken looks identical to one that is broken.
+          //
+          // "Nothing taken" is the idle state, so it gets a heckler -- side 0
+          // is the sceptic, side 1 the grump. "No preview" is a FAULT and keeps
+          // its plain words; a cartoon over a broken deck would be hiding it.
           const Cue* deckCue = activeCuePtr(decks[side]);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, inner,
-                               deckCue ? "no preview" : "nothing taken", pal.inkSoft);
+          if (!deckCue && drawVjHeckler(inner, animationNow_, side == 0 ? 0 : 2)) {
+            // the character said it
+          } else {
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, inner,
+                                 deckCue ? "no preview" : "nothing taken", pal.inkSoft);
+          }
         }
       }
     }
@@ -1541,8 +1838,36 @@
       SDL_Rect inner = warpMonitorInner_;
       renderCompositeCuePlaceholder(controlRenderer_, inner, *activeCue, true);
     } else if (!activeCue) {
-      if (showMascot) {
-        drawStartupMascot(warpMonitorInner_, animationNow_);
+      // IN VJ MODE THE MIDDLE PANE GETS ITS OWN CHARACTER.
+      //
+      // The startup mascot is drawn to fill the monitor, and in the three-up VJ
+      // split that meant one face spread across both dividers -- it read as a
+      // rendering fault, not a friend. The enthusiast lives here instead, and
+      // he is bounded by this pane like the other two are by theirs.
+      const bool vjEmpty = project_.vjModeEnabled && vjPreviewRectA_.w > 0;
+      // THE MIDDLE ONE GETS THE MIDDLE STRIP.
+      //
+      // warpMonitorInner_ is the whole monitor, and A and B are drawn over its
+      // ends BEFORE this runs -- so a face centred in it had its words running
+      // out from underneath both neighbours. He gets the gap between them, and
+      // stops short of the bottom where the "Output 1 3840x2160" caption lives.
+      SDL_Rect midPane = warpMonitorInner_;
+      if (vjEmpty) {
+        const int leftEdge = vjPreviewRectA_.x + vjPreviewRectA_.w + 4;
+        const int rightEdge = vjPreviewRectB_.x - 4;
+        midPane.x = std::max(midPane.x, leftEdge);
+        midPane.w = std::max(0, std::min(midPane.x + midPane.w, rightEdge) - midPane.x);
+        midPane.h = std::max(0, midPane.h - 24);
+      }
+      if (vjEmpty && drawVjHeckler(midPane, animationNow_, 1)) {
+        // he covered it
+      } else if (showMascot && !vjEmpty) {
+        // READS OVER YOUR SHOULDER. While the pointer is resting on something
+        // with a tip, the face stops offering random advice and answers the
+        // thing you are actually looking at.
+        const char* advice = hoverTipLast_.empty()
+          ? nullptr : mascotAdviceForTip(hoverTipLast_);
+        drawStartupMascot(warpMonitorInner_, animationNow_, advice);
       } else {
         SDL_Rect emptyRect {programMonitorRect.x + 12, programMonitorRect.y + programMonitorRect.h / 2 - 10, programMonitorRect.w - 24, 20};
         drawCenteredTextSafe(controlRenderer_, fontSmall_, emptyRect,

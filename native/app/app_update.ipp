@@ -112,6 +112,25 @@
             if (handleDropdownMouseWheel(static_cast<int>(event.wheel.y))) {
               break;
             }
+            // THE WHEEL OVER A LIVE BROWSER CUE SCROLLS THE PAGE.
+            //
+            // The scrollbars are hidden -- deliberately, they are chrome an
+            // audience should not see -- so this is how the page moves. Only
+            // while a browser cue is actually live in the monitor, so it never
+            // takes the wheel away from anything else.
+            if (warpMonitorInner_.w > 0 &&
+                pointInRect(mouseX_, mouseY_, warpMonitorInner_) &&
+                activeCueIsBrowser(project_.focusedDeckIndex)) {
+              // Only consume the wheel if the page actually took it. On a
+              // backend that cannot drive the page, the event must fall
+              // through to whatever would otherwise have handled it rather
+              // than vanishing into a browser cue that ignored it.
+              if (auto* page = liveBrowserRenderer()) {
+                if (page->scrollBy(0, -static_cast<int>(event.wheel.y) * 90)) {
+                  break;
+                }
+              }
+            }
             if (settingsOpen_ && settingsTab_ == 0 &&
                 settingsSystemViewport_.w > 0 && settingsSystemViewport_.h > 0 &&
                 pointInRect(mouseX_, mouseY_, settingsSystemViewport_) &&
@@ -386,6 +405,11 @@
         ++it;
       }
     }
+    // A probe just finished may have freed a slot; fill it before the frame
+    // ends so a long import keeps moving without waiting on the next one.
+    pumpProbeQueue();
+    pumpNormalizeQueue();
+
     // Poll async media conversion jobs
     for (auto it = conversionJobs_.begin(); it != conversionJobs_.end(); ) {
       if (it->state != ConversionState::Running) {

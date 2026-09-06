@@ -7393,6 +7393,8 @@
       runtime->browserRenderer.reset();
     }
     runtime->browserCueLive = false;
+    runtime->browserScrollbarNextMs = 0;
+    runtime->browserScrollbarUntilMs = 0;
   }
 
   void stopBrowserCue() {
@@ -7441,6 +7443,26 @@
 
     std::string prevError = runtime->browserRenderer->lastError();
     runtime->browserRenderer->tick();
+
+    // SCROLLBARS OFF, REPEATEDLY, FOR THE FIRST FEW SECONDS.
+    //
+    // A page can restyle itself whenever it likes -- a framework mounting,
+    // fonts landing, a consent banner unlocking the body's overflow -- so one
+    // injection at load is not enough: the bar comes back a moment later,
+    // which is exactly how it was reported ("the raster opened with a scroll
+    // bar"). Re-applied on a slow cadence while the page settles, then left
+    // alone; the rule is !important and idempotent, so this is cheap.
+    if (!project_.browserScrollbars && runtime->browserRenderer->isRunning()) {
+      const Uint64 now = SDL_GetTicks();
+      if (runtime->browserScrollbarNextMs == 0) {
+        runtime->browserScrollbarNextMs = now;
+        runtime->browserScrollbarUntilMs = now + 8000;
+      }
+      if (now >= runtime->browserScrollbarNextMs && now <= runtime->browserScrollbarUntilMs) {
+        runtime->browserRenderer->setScrollbarsVisible(false);
+        runtime->browserScrollbarNextMs = now + 700;
+      }
+    }
     std::string nowError = runtime->browserRenderer->lastError();
     if (!nowError.empty()) {
       if (prevError.empty()) {

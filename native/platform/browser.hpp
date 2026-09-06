@@ -91,6 +91,27 @@ class BrowserRenderer {
   // Script execution
   bool executeJavaScript(const std::string& script);
 
+  // ---- Driving the page ----------------------------------------------------
+  //
+  // All three are JavaScript, because that is the one input path every backend
+  // already has -- WebView2 on Windows, WKWebView on macOS, Chromium on Linux.
+  // Synthetic DOM events reach page CONTENT (banners, consent buttons, links,
+  // form controls), which is what a cue actually needs; they do not drive the
+  // browser's own chrome, and nothing here pretends otherwise.
+
+  // Hide the scrollbars without making the page unscrollable. A cue is a
+  // picture on a screen -- a scrollbar down its edge is furniture the audience
+  // should never see, and scrollBy below is how it moves instead.
+  bool setScrollbarsVisible(bool visible);
+
+  // Scroll the page. Pixels, positive dy is down.
+  bool scrollBy(int dx, int dy);
+
+  // Click at a point given as a FRACTION of the rendered frame (0..1), so the
+  // caller does not have to know the browser's pixel size -- it clicks where
+  // the operator clicked in the preview.
+  bool clickAtFraction(double fx, double fy);
+
   // Configuration
   void setUserAgent(const std::string& agent);
   void setZoomLevel(double scale);

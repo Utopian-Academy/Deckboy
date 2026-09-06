@@ -908,6 +908,55 @@ bool BrowserRenderer::executeJavaScript(const std::string& script) {
   return false;
 }
 
+// A page can restyle itself at any time, so the rule is marked !important and
+// re-applied rather than set once: a single injection at load is undone by the
+// first framework that writes its own overflow style.
+bool BrowserRenderer::setScrollbarsVisible(bool visible) {
+  const char* kHide =
+    "(function(){var s=document.getElementById('__deckboy_sb');"
+    "if(!s){s=document.createElement('style');s.id='__deckboy_sb';"
+    "document.documentElement.appendChild(s);}"
+    "s.textContent='::-webkit-scrollbar{width:0!important;height:0!important;"
+    "display:none!important}html{scrollbar-width:none!important;"
+    "-ms-overflow-style:none!important}';})()";
+  const char* kShow =
+    "(function(){var s=document.getElementById('__deckboy_sb');"
+    "if(s){s.remove();}})()";
+  return executeJavaScript(visible ? kShow : kHide);
+}
+
+bool BrowserRenderer::scrollBy(int dx, int dy) {
+  // behavior:'instant' matters: a smooth scroll animates over several frames,
+  // and a cue being captured frame by frame would show the tween.
+  std::string js = "window.scrollBy({left:" + std::to_string(dx) +
+                   ",top:" + std::to_string(dy) + ",behavior:'instant'})";
+  return executeJavaScript(js);
+}
+
+bool BrowserRenderer::clickAtFraction(double fx, double fy) {
+  if (fx < 0.0 || fx > 1.0 || fy < 0.0 || fy > 1.0) {
+    return false;
+  }
+  // elementFromPoint takes VIEWPORT coordinates, so the fraction is of the
+  // window, not of the document -- which is what the preview shows.
+  //
+  // The full pointerdown/mouseup/click sequence, not just .click(): consent
+  // dialogs and anything built on pointer events ignore a bare click().
+  std::string js =
+    "(function(){var x=Math.round(window.innerWidth*" + std::to_string(fx) +
+    "),y=Math.round(window.innerHeight*" + std::to_string(fy) + ");"
+    "var el=document.elementFromPoint(x,y);if(!el)return;"
+    "var o={bubbles:true,cancelable:true,composed:true,clientX:x,clientY:y,"
+    "button:0,buttons:1};"
+    "try{el.dispatchEvent(new PointerEvent('pointerdown',o));}catch(e){}"
+    "el.dispatchEvent(new MouseEvent('mousedown',o));"
+    "try{el.dispatchEvent(new PointerEvent('pointerup',o));}catch(e){}"
+    "el.dispatchEvent(new MouseEvent('mouseup',o));"
+    "el.dispatchEvent(new MouseEvent('click',o));"
+    "if(typeof el.focus==='function'){el.focus();}})()";
+  return executeJavaScript(js);
+}
+
 void BrowserRenderer::setUserAgent(const std::string& agent) {
   impl_->userAgent_ = agent;
 }

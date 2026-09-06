@@ -1,5 +1,53 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.316 (browser cues you can drive, and a desk that explains itself)
+
+**Browser cues take input.** Clicking the programme monitor clicks the page, so
+a cookie wall or a consent dialog can be dismissed from the desk, and the wheel
+scrolls it. `BROWSER SCROLL`, `TOP`, `BOTTOM`, `CLICK`, `BACK`, `FORWARD`,
+`RELOAD` and `URL` do the same from Companion or a network client. Scrollbars
+are hidden by default - a cue is a picture an audience sees, and the page moves
+by scrolling it rather than by dragging furniture down its edge.
+
+**Text fields are text fields.** Every inline editor in the app now has a
+caret, arrow keys, Home and End, word jumps with Ctrl, and clipboard paste,
+copy and cut. Long values scroll under the caret instead of running off the
+end, so a URL can be pasted in and a typo fixed in the middle of it.
+
+**Hover a control and it tells you what it does.** Tips across the toolbar, the
+bottom bar, the playlist's loop and shuffle buttons and the per-cue toggles,
+with a short dwell so they appear when you pause rather than as you sweep past.
+The startup mascot reads along and offers the next thing worth knowing about
+whatever the pointer is resting on. Settings > Appearance turns them off.
+
+**Dashboard buttons are chosen from a menu.** Thirty-four ready-made actions -
+transport, show, audio, decks, VJ, picture, output - each with its own label and
+glyph, and a free-text option for anything else.
+
+**Importing thousands of cues stays responsive.** A large import now reads its
+media a few files at a time behind a progress readout, and a dropped folder is
+walked in the background, so the window keeps drawing and answering while it
+works.
+
+**Normalise the whole playlist at once.** `AUDIONORM ALL` measures every
+file-backed cue in the deck and matches them to the same loudness target, and
+the drawn waveform grows with the trim so the change is visible. Gain, pan, mono
+and normalise now apply across both decks when the VJ split has both playlists
+on screen.
+
+**SAVE saves.** It writes back over the show that is open; SAVE AS is a separate
+button for making a new file.
+
+**The cue list keeps its commands.** Narrowing the playlist column no longer
+takes the per-cue toggles away - the still yields first, then the buttons narrow,
+and the picture and the commands sit together at the default width. Audio cues
+draw their own waveform where the still would be, and other cue kinds show their
+type icon, so a mixed list reads as varied rather than gappy.
+
+**Three characters mind the VJ panes.** With nothing loaded, the A, programme
+and B panes each get their own commentator instead of one face spread across all
+three.
+
 ## 2026-09-06 - v0.99.315 (Pocket and touch mode is legible again)
 
 **The bottom bar says what its buttons do at touch scale.** IMPORT read

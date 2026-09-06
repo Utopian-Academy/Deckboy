@@ -2133,6 +2133,9 @@ struct DeckRuntime {
   std::string audioDeviceInUse;
   std::unique_ptr<MediaEngine> mediaEngine;   // Core playback engine
   std::unique_ptr<deckboy::platform::browser::BrowserRenderer> browserRenderer;  // For Browser/LowerThird cues
+  // When to next re-apply the hide-scrollbars rule, and when to stop bothering.
+  Uint64 browserScrollbarNextMs = 0;
+  Uint64 browserScrollbarUntilMs = 0;
   bool browserCueLive = false;           // Whether a browser cue is currently active
 };
 
@@ -7410,6 +7413,10 @@ class App {
     // character (or backspace) replaces it, so the operator can just type the
     // new value and hit enter without clearing the old one first.
     bool freshEntry = false;
+    // Byte offset of the caret within `value`. UTF-8 aware: it only ever sits
+    // on a character boundary, because every move steps over continuation
+    // bytes rather than counting one at a time.
+    std::size_t caret = 0;
     std::function<void(const std::string&)> onSubmit;
   };
   // The live-coding editor. Its own overlay rather than a mode of the inline
@@ -8020,6 +8027,10 @@ class App {
   // The next row that wants one. Filled during the playlist pass, acted on
   // after it, so exactly one decode is in flight however long the list is.
   std::string rowThumbWantedKey_;
+  // The audio row that asked for a waveform this frame. One per frame, for the
+  // same reason as the thumbnail above it: the analysis costs a thread and an
+  // ffmpeg apiece.
+  std::string rowWaveWantedPath_;
   int rowThumbWantedDeck_ = -1;
   int rowThumbWantedCue_ = -1;
   static constexpr size_t kTimelineStripCacheLimit = 24;
@@ -8404,7 +8415,60 @@ class App {
     std::string path;  // filesystem path, used to find cue in deck
     std::future<std::optional<Cue>> future;
   };
+  // PROBES ARE QUEUED, NOT LAUNCHED ON SIGHT.
+  //
+  // importPaths used to fire one std::async(launch::async) per file the moment
+  // it made the cue. Each of those is an OS thread that immediately spawns an
+  // ffprobe process, so dropping in two thousand cues asked Windows for two
+  // thousand threads and two thousand processes inside one frame -- which is
+  // the freeze, not the cue-making. Same shape as the encoder queue below: a
+  // waiting list, and a small number in flight.
+  struct QueuedProbe {
+    int deckIndex = -1;
+    std::string path;
+  };
   std::vector<PendingProbe> probeFutures_;
+  std::deque<QueuedProbe> probeQueue_;
+  // Loudness analysis rides the same kind of queue, for the same reason.
+  struct QueuedNormalize {
+    std::string cueId;
+    std::string path;
+  };
+  // Which decks were drawn as playlist columns on the last frame. An edit is
+  // allowed to reach a deck other than the focused one only if the operator
+  // can SEE that deck's selection -- see forEachSelectedCueEverywhere.
+  std::vector<int> visiblePlaylistDecks_;
+  // WHAT THE POINTER IS RESTING ON.
+  //
+  // Set by drawHoverTip -- so every tip source feeds it, whatever drew it --
+  // and read a frame later by the mascot, which is drawn earlier in the frame
+  // than most of the controls. One frame of lag is not visible; reaching into
+  // the future is not possible.
+  std::string hoverTipPending_;
+  std::string hoverTipLast_;
+  // The toolbar's tip is drawn after the toolbar rather than inside it: a tip
+  // panel is taller than the gap above a button on the top row, so drawn in
+  // place it covered the very button being explained.
+  std::string toolbarHoverTip_;
+  SDL_Rect toolbarHoverAt_ {};
+  // Dwell timing, so a tip does not flash up on every control the pointer
+  // merely crosses on its way somewhere else.
+  int hoverTipReqAnchorX_ = 0;
+  int hoverTipReqAnchorY_ = 0;
+  bool hoverTipReqBelow_ = false;
+  std::string hoverTipDwellText_;
+  Uint64 hoverTipDwellSinceMs_ = 0;
+  std::deque<QueuedNormalize> normalizeQueue_;
+  std::atomic<int> normalizeRunning_ {0};
+  int normalizeBatchTotal_ = 0;
+  // Denominator for the progress readout: how many were asked for in the run
+  // that is currently draining. Reset to 0 when the queue empties.
+  int probeBatchTotal_ = 0;
+  // Set while a folder drop is being walked on a worker thread. The count is
+  // what the walk has found so far, so the card counts up as it goes.
+  std::atomic<bool> importScanBusy_ {false};
+  std::atomic<int> importScanFound_ {0};
+  std::string importScanLabel_;
   // ── Built-in media converter ───────────────────────────────────────────
   // Async ffmpeg transcode of cues Deckboy can't play (or would play poorly)
   // into a compatible H.264 MP4, kept portable in <show>/_converted/.

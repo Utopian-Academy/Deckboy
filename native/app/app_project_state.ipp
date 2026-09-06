@@ -2520,6 +2520,64 @@
     return changed;
   }
 
+  // EVERY DECK THAT HAS A SELECTION, not just the focused one.
+  //
+  // Selection is per-deck, so cues can be selected in A and in B at the same
+  // time -- and every per-cue edit went through the focused-deck iterator
+  // above, so only one of them ever changed. In VJ mode both playlists are on
+  // screen side by side, which makes that especially odd to watch: you select
+  // in both, set a gain, and one column moves.
+  //
+  // Returns the number of DECKS touched so the caller can say so; an edit that
+  // silently reaches further than the operator is looking has to announce
+  // itself.
+  template <typename Fn>
+  int forEachSelectedCueEverywhere(Fn&& fn) {
+    int decksTouched = 0;
+    const int focused = project_.focusedDeckIndex;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      Deck& deck = project_.decks[d];
+      // ONLY THE DECKS THE OPERATOR CAN SEE.
+      //
+      // `selectedIndices` is not a reliable "they meant it" signal: a plain
+      // single click clears it and pushes the clicked cue, so every deck that
+      // has ever been touched carries one. Reaching every deck through that
+      // meant a gain edit silently rewrote a cue in a deck that was not even
+      // on screen -- which is worse than the bug it was fixing.
+      //
+      // The rule that holds up is SIDE-BY-SIDE VISIBILITY. With one playlist
+      // column on screen there is only one list to have a selection in, so an
+      // edit stays on the focused deck -- visibility alone was not enough,
+      // because the single column shows deck 1 even while the inspector is
+      // editing deck 2. It takes two columns, which is the VJ split: both
+      // selections in view, and an edit that lands on both is what you see
+      // yourself asking for.
+      const bool sideBySide = visiblePlaylistDecks_.size() > 1;
+      if (d != focused
+          && (!sideBySide
+              || std::find(visiblePlaylistDecks_.begin(), visiblePlaylistDecks_.end(), d)
+                   == visiblePlaylistDecks_.end())) {
+        continue;
+      }
+      std::vector<int> indices = selectedCueIndices(deck);
+      if (indices.empty()) {
+        continue;
+      }
+      bool touched = false;
+      for (int index : indices) {
+        if (index < 0 || index >= static_cast<int>(deck.cues.size())) {
+          continue;
+        }
+        fn(deck.cues[index], index);
+        touched = true;
+      }
+      if (touched) {
+        ++decksTouched;
+      }
+    }
+    return decksTouched;
+  }
+
   template <typename Pred>
   Cue* firstFocusedSelectedCueMutable(Pred&& pred) {
     Deck& deck = focusedDeckMutable();
@@ -2834,6 +2892,18 @@
   // Ask for the one still the playlist noticed it was missing. Called after
   // the column has drawn, so at most one decode is ever in flight no matter
   // how long the list is.
+  // The audio equivalent of servicePendingRowThumbnail: at most one waveform
+  // analysis started per frame, so a playlist of audio cues fills in as it is
+  // scrolled rather than launching an ffmpeg per row at once.
+  void servicePendingRowWaveform() {
+    if (rowWaveWantedPath_.empty()) {
+      return;
+    }
+    const std::string path = rowWaveWantedPath_;
+    rowWaveWantedPath_.clear();
+    triggerWaveformAnalysis(path);
+  }
+
   void servicePendingRowThumbnail() {
     if (rowThumbWantedKey_.empty()) {
       return;

@@ -176,18 +176,30 @@
   // markProjectDirty → engine snapshot sync → the audio thread's atomic
   // mirrors pick them up next tick — no decode restart.
 
+  // How many decks the last audio edit reached, so the toast can say so.
+  int lastAudioEditDeckCount_ = 0;
+
   bool setSelectedAudioGainDb(double db) {
     double clamped = std::clamp(db, static_cast<double>(kCueAudioGainMinDb),
                                 static_cast<double>(kCueAudioGainMaxDb));
-    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+    lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
       if (each.hasAudio) {
         each.audioGainDb = static_cast<float>(clamped);
       }
     });
+    const bool any = lastAudioEditDeckCount_ > 0;
     if (any) {
       markProjectDirty();
     }
     return any;
+  }
+
+  // Appended to an audio toast when the edit reached past the deck the
+  // operator is looking at.
+  std::string audioEditScopeSuffix() const {
+    return lastAudioEditDeckCount_ > 1
+      ? ("  (" + std::to_string(lastAudioEditDeckCount_) + " decks)")
+      : std::string();
   }
 
   void adjustSelectedAudioGain(double deltaDb) {
@@ -203,11 +215,12 @@
     if (std::abs(clamped) < 0.025) {
       clamped = 0.0;  // snap to center
     }
-    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+    lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
       if (each.hasAudio) {
         each.audioPan = static_cast<float>(clamped);
       }
     });
+    const bool any = lastAudioEditDeckCount_ > 0;
     if (any) {
       markProjectDirty();
     }
@@ -223,11 +236,12 @@
   }
 
   bool setSelectedAudioMono(bool mono) {
-    bool any = forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+    lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& each, int) {
       if (each.hasAudio) {
         each.audioMono = mono;
       }
     });
+    const bool any = lastAudioEditDeckCount_ > 0;
     if (any) {
       markProjectDirty();
     }
@@ -308,7 +322,133 @@
   // ONE LINE, three fields: "label | command | glyph". A dialog per field would
   // be three modals to change a button, and this is a thing operators fiddle
   // with between cues rather than configure once.
+  // ---- WHAT A DASHBOARD BUTTON CAN BE ------------------------------------
+  //
+  // A slot runs any line the network protocol understands, which is powerful
+  // and completely unguessable: the editor asked for "label | command | glyph"
+  // and left you to already know the verb. So the button did nothing, because
+  // nothing had been typed that would do anything.
+  //
+  // This is the menu. Everything here is a real command from HELP, already
+  // labelled and already carrying a glyph, and the last entry still drops you
+  // into the free-text editor for anything not on the list.
+  struct DashboardActionPreset {
+    const char* group;
+    const char* label;
+    const char* command;
+    const char* glyph;
+  };
+
+  static const std::vector<DashboardActionPreset>& dashboardActionPresets() {
+    static const std::vector<DashboardActionPreset> kPresets = {
+      {"transport", "Take",            "TAKE",             ">"},
+      {"transport", "Go",              "GO",               ">"},
+      {"transport", "Stop",            "STOP",             "#"},
+      {"transport", "Play / pause",    "TOGGLE",           "="},
+      {"transport", "Re-rack",         "RERACK",           "|"},
+      {"transport", "Next cue",        "NEXT",             "+"},
+      {"transport", "Previous cue",    "PREV",             "-"},
+      {"transport", "Clear output",    "CLEAR",            "o"},
+
+      {"show",      "PANIC",           "PANIC",            "!"},
+      {"show",      "All stop",        "ALLSTOP",          "#"},
+      {"show",      "All pause",       "ALLPAUSE",         "="},
+      {"show",      "Blackout",        "BLACKOUT toggle",  "B"},
+      {"show",      "Dim to 50%",      "DIMMER 50",        "d"},
+      {"show",      "Full brightness", "DIMMER 100",       "D"},
+      {"show",      "Shuffle on",      "SHUFFLE on",       "?"},
+      {"show",      "Shuffle off",     "SHUFFLE off",      "?"},
+
+      {"audio",     "Mute master",     "MASTERVOL 0",      "m"},
+      {"audio",     "Master to 100%",  "MASTERVOL 100",    "M"},
+      {"audio",     "Normalise cue",   "AUDIONORM",        "n"},
+      {"audio",     "Normalise ALL",   "AUDIONORM ALL",    "N"},
+
+      {"decks",     "Next deck",       "DECKNEXT",         "]"},
+      {"decks",     "Previous deck",   "DECKPREV",         "["},
+      {"decks",     "Go to cue 1",     "GOTO 1",           "1"},
+
+      {"vj",        "VJ mode",         "VJ TOGGLE",        "V"},
+      {"vj",        "Tap tempo",       "VJ TAP",           "t"},
+      {"vj",        "Fade to A",       "VJ MIX 0",         "A"},
+      {"vj",        "Fade to B",       "VJ MIX 1",         "B"},
+      {"vj",        "Next blend mode", "VJ BLEND",         "x"},
+
+      {"picture",   "Mesh warp",       "MESH toggle",      "~"},
+      {"picture",   "Clear effects",   "FX CLEAR",         "c"},
+
+      {"output",    "Output on/off",   "OUTPUT TOGGLE",    "O"},
+      {"output",    "Fullscreen",      "FULLSCREEN",       "F"},
+      {"output",    "Record",          "RECORD toggle",    "R"},
+    };
+    return kPresets;
+  }
+
+  // The tile the pencil belongs to, so the menu opens ON the button being
+  // changed rather than somewhere else on the screen.
+  SDL_Rect dashboardSlotAnchor(int at) const {
+    for (const auto& button : dashButtons_) {
+      if (button.param == at && button.action == QuickAction::DashSlotFire) {
+        return button.rect;
+      }
+    }
+    return lastInlineEditorAnchorRect_;
+  }
+
   void editDashboardSlot(int at) {
+    if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+      return;
+    }
+    const auto& presets = dashboardActionPresets();
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.reserve(presets.size() + 1);
+    for (std::size_t i = 0; i < presets.size(); ++i) {
+      // The group rides in the visible label, so typing "vj" in the dropdown's
+      // filter narrows to the VJ actions -- the filter searches the label.
+      choices.push_back({std::to_string(i),
+                         std::string(presets[i].group) + " - " + presets[i].label});
+    }
+    choices.push_back({"custom", "type a command myself..."});
+
+    // A brand-new slot opens at the TOP of the list. Defaulting to "custom"
+    // scrolled the menu to its last entry, so the first thing a new button
+    // offered you was the free-text editor it is meant to save you from.
+    const std::string currentCommand = project_.dashboard[at].command;
+    std::string selectedId = currentCommand.empty() ? std::string("0")
+                                                    : std::string("custom");
+    for (std::size_t i = 0; i < presets.size(); ++i) {
+      if (currentCommand == presets[i].command) {
+        selectedId = std::to_string(i);
+        break;
+      }
+    }
+
+    openDropdown("dashboard.slot" + std::to_string(at), dashboardSlotAnchor(at),
+                 choices, selectedId, [this, at](const std::string& chosen) {
+      if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
+        return;
+      }
+      if (chosen == "custom") {
+        editDashboardSlotAsText(at);
+        return;
+      }
+      const auto& list = dashboardActionPresets();
+      const std::size_t index = static_cast<std::size_t>(std::atoi(chosen.c_str()));
+      if (index >= list.size()) {
+        return;
+      }
+      DashboardSlot& target = project_.dashboard[at];
+      target.label = list[index].label;
+      target.command = list[index].command;
+      target.glyph = list[index].glyph;
+      markProjectDirty();
+      triggerToast(std::string("button set to ") + list[index].command);
+    });
+  }
+
+  // The old editor, kept for anything the menu does not cover -- and for
+  // removing a button, which is still "clear the label and the command".
+  void editDashboardSlotAsText(int at) {
     if (at < 0 || at >= static_cast<int>(project_.dashboard.size())) {
       return;
     }
@@ -381,24 +521,38 @@
   // lands so the operator knows when the limiter will be working.
   static constexpr double kNormalizeTargetLufs = kNormalizeTargetLufsDefault;
 
-  void normalizeSelectedCueAudio() {
-    int launched = 0;
-    forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
-      if (!cue.hasAudio || !cueUsesFilesystemMedia(cue)) {
-        return;
-      }
-      std::string path = resolvedCueFilesystemPathString(cue, currentProjectFile_);
-      if (path.empty()) {
-        return;
-      }
-      std::string cueId = cue.id;
-      ++launched;
-      std::thread([this, path, cueId]() {
+  // NORMALIZE IS QUEUED, like probing, and for the same reason: it used to
+  // launch one detached thread and one ffmpeg PER CUE the instant it was
+  // asked. On a selection of two that is fine. On "all cues" of a real show
+  // file it is thousands of both, which is the freeze this app has already
+  // been taught not to cause once.
+  bool enqueueNormalize(const Cue& cue) {
+    if (!cue.hasAudio || !cueUsesFilesystemMedia(cue)) {
+      return false;
+    }
+    const std::string path = resolvedCueFilesystemPathString(cue, currentProjectFile_);
+    if (path.empty()) {
+      return false;
+    }
+    normalizeQueue_.push_back(QueuedNormalize{cue.id, path});
+    normalizeBatchTotal_ += 1;
+    return true;
+  }
+
+  // Starts whatever the cap has room for. Same cap as probing -- these are the
+  // same kind of job competing for the same disk.
+  void pumpNormalizeQueue() {
+    const int cap = probeConcurrencyCap();
+    while (!normalizeQueue_.empty()
+           && normalizeRunning_.load(std::memory_order_acquire) < cap) {
+      QueuedNormalize job = std::move(normalizeQueue_.front());
+      normalizeQueue_.pop_front();
+      normalizeRunning_.fetch_add(1, std::memory_order_acq_rel);
+      std::thread([this, path = job.path, cueId = job.cueId]() {
         NormalizeResult result;
         result.cueId = cueId;
         // peak=true adds a "True peak: / Peak: -x.x dBFS" block to the summary,
-        // which is what lets the boost be limited by real headroom rather than
-        // by an arbitrary number.
+        // which is what lets the toast say where the boost lands.
         auto out = readAllText({
           "ffmpeg", "-hide_banner", "-nostats",
           "-i", path, "-map", "a:0", "-af", "ebur128=peak=true", "-f", "null", "-"
@@ -418,17 +572,17 @@
 
               // "Peak:" (capital P) is the summary value; the "True peak:"
               // heading above it is lower-case, so rfind lands on the number.
-              // Measured for REPORTING only — it no longer holds the gain back.
+              // Measured for REPORTING only — it does not hold the gain back.
               size_t peakPos = out->rfind("Peak:");
               if (peakPos != std::string::npos) {
                 double peakDb = std::strtod(out->c_str() + peakPos + 5, nullptr);
                 // True peak legitimately exceeds 0 dBFS on hot masters
-                // (inter-sample peaks), so the sanity window must not assume <= 0.
+                // (inter-sample peaks), so the window must not assume <= 0.
                 if (std::isfinite(peakDb) && peakDb < 24.0 && peakDb > -120.0) {
                   result.measuredPeakDb = peakDb;
                   result.hasPeak = true;
-                  // Where the peaks will actually land once the trim is applied.
-                  // Above the ceiling just means the limiter has work to do.
+                  // Where the peaks land once the trim is applied. Above the
+                  // ceiling just means the limiter has work to do.
                   result.projectedPeakDb = peakDb + gain;
                   result.peakLimited = result.projectedPeakDb > kNormalizeTruePeakCeilingDb;
                 }
@@ -438,19 +592,75 @@
             }
           }
         }
-        std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
-        normalizeResults_.push_back(std::move(result));
+        {
+          std::lock_guard<std::mutex> lock(normalizeResultsMutex_);
+          normalizeResults_.push_back(std::move(result));
+        }
+        normalizeRunning_.fetch_sub(1, std::memory_order_acq_rel);
       }).detach();
+    }
+  }
+
+  int normalizeOutstanding() const {
+    return static_cast<int>(normalizeQueue_.size())
+         + normalizeRunning_.load(std::memory_order_acquire);
+  }
+
+  void normalizeSelectedCueAudio() {
+    int launched = 0;
+    // Across every deck with a selection, like gain, pan and mono -- the AUDIO
+    // section should not have one control that means something different.
+    lastAudioEditDeckCount_ = forEachSelectedCueEverywhere([&](Cue& cue, int) {
+      if (enqueueNormalize(cue)) {
+        ++launched;
+      }
     });
+    pumpNormalizeQueue();
     if (launched > 0) {
-      triggerToast(launched == 1 ? "analyzing loudness..."
-                                 : "analyzing loudness (" + std::to_string(launched) + " cues)...");
+      triggerToast(launched == 1
+        ? ("analyzing loudness..." + audioEditScopeSuffix())
+        : ("analyzing loudness (" + std::to_string(launched) + " cues)..."
+           + audioEditScopeSuffix()));
     } else {
       // Previously a silent no-op — the operator clicked NORMALIZE and
       // nothing visibly happened.
       triggerToast("normalize: selection has no file-backed audio");
     }
   }
+
+  // THE WHOLE PLAYLIST AT ONCE.
+  //
+  // "analyze the cue or ALL cues" was half the asked-for behaviour and the
+  // half that was missing: matching levels across a show is the entire point
+  // of normalising, and doing it a cue at a time is the work nobody wants.
+  void normalizeAllCuesInFocusedDeck() {
+    if (project_.decks.empty()) {
+      return;
+    }
+    Deck& deck = focusedDeckMutable();
+    int launched = 0;
+    int skipped = 0;
+    for (Cue& cue : deck.cues) {
+      if (enqueueNormalize(cue)) {
+        ++launched;
+      } else if (cue.hasAudio) {
+        ++skipped;   // has audio but nothing on disk to measure
+      }
+    }
+    pumpNormalizeQueue();
+    if (launched == 0) {
+      triggerToast("normalize all: no file-backed audio in this deck");
+      return;
+    }
+    std::string message = "analyzing loudness on " + std::to_string(launched) + " cues";
+    if (skipped > 0) {
+      // Say what was left out rather than quietly reporting a smaller number
+      // than the operator can count in front of them.
+      message += " (" + std::to_string(skipped) + " skipped, no file)";
+    }
+    triggerToast(message, kToastFill, kToastInk, kToastReadableMs);
+  }
+
 
   // Drained once per tick on the main thread.
   void drainNormalizeResults() {
@@ -902,6 +1112,43 @@
     requestDeleteCueIndices(project_.focusedDeckIndex, std::move(indices));
   }
 
+  // At most this many ffprobes at once. Small deliberately: each is a process
+  // doing disk I/O, and past a handful they queue on the drive anyway while
+  // costing a thread apiece.
+  static int probeConcurrencyCap() {
+    const unsigned hw = std::thread::hardware_concurrency();
+    return static_cast<int>(std::clamp<unsigned>(hw ? hw : 4u, 2u, 8u));
+  }
+
+  void enqueueProbe(int deckIndex, const std::string& path) {
+    probeQueue_.push_back(QueuedProbe{deckIndex, path});
+    probeBatchTotal_ += 1;
+  }
+
+  // Called once a frame. Starts whatever the cap has room for and no more.
+  void pumpProbeQueue() {
+    const int cap = probeConcurrencyCap();
+    while (!probeQueue_.empty() && static_cast<int>(probeFutures_.size()) < cap) {
+      QueuedProbe next = std::move(probeQueue_.front());
+      probeQueue_.pop_front();
+      PendingProbe pp;
+      pp.deckIndex = next.deckIndex;
+      pp.path = next.path;
+      pp.future = std::async(std::launch::async, [path = next.path]() {
+        return probeCue(fs::path(path));
+      });
+      probeFutures_.push_back(std::move(pp));
+    }
+    if (probeQueue_.empty() && probeFutures_.empty()) {
+      probeBatchTotal_ = 0;   // nothing outstanding; the readout goes away
+    }
+  }
+
+  // How many probes are still owed, for the progress readout.
+  int probesOutstanding() const {
+    return static_cast<int>(probeQueue_.size() + probeFutures_.size());
+  }
+
   void handleDropFile(const char* rawPath) {
     if (!rawPath) {
       return;
@@ -1122,6 +1369,24 @@
                            openProjectFromPath(normalizeProjectPath(fs::path(files[0])));
                          }
                        });
+  }
+
+  // SAVE WRITES BACK OVER THE SHOW THAT IS OPEN.
+  //
+  // Every save route -- the button, Ctrl+S, Ctrl+Shift+S -- used to go through
+  // the file picker, so keeping the show you had open meant picking it out of a
+  // dialog and confirming an overwrite EVERY time. Mid-show that is three
+  // interactions to do the one thing you meant.
+  //
+  // Now SAVE writes to the file that is open, and SAVE AS is the separate,
+  // deliberate act of making a new one. A show that has never been written
+  // anywhere has no file to write back to, so the first save still asks.
+  void saveProjectInPlace() {
+    if (currentProjectFile_.empty()) {
+      saveProjectAsFromPicker();
+      return;
+    }
+    saveProjectNow(true);
   }
 
   void saveProjectAsFromPicker() {
@@ -3318,17 +3583,55 @@
         continue;
       }
       if (fs::is_directory(path, ec)) {
-        std::vector<fs::path> found;
-        std::error_code itEc;
-        for (fs::recursive_directory_iterator it(path, fs::directory_options::skip_permission_denied, itEc), end;
-             !itEc && it != end; it.increment(itEc)) {
-          std::error_code fileEc;
-          if (it->is_regular_file(fileEc) && isAcceptableMediaPath(it->path())) {
-            found.push_back(it->path());
-          }
+        // WALKED ON A WORKER, NOT HERE.
+        //
+        // A deep folder is thousands of stat() calls, and doing them inline
+        // meant the app drew no frame and answered no click until the whole
+        // tree had been read -- which is indistinguishable from a hang, and is
+        // what it looked like. The walk goes to a thread; the import restarts
+        // on the main thread once it has the list, through the same queue the
+        // file dialogs use.
+        if (importScanBusy_.load(std::memory_order_acquire)) {
+          triggerToast("still reading the last folder -- one at a time",
+                       kToastWarnFill, kToastWarnInk, kToastReadableMs);
+          continue;
         }
-        std::sort(found.begin(), found.end());
-        files.insert(files.end(), found.begin(), found.end());
+        importScanBusy_.store(true, std::memory_order_release);
+        importScanFound_.store(0, std::memory_order_relaxed);
+        importScanLabel_ = path.filename().string();
+        const std::string deckName = slideDeckName;
+        std::thread([this, path, deckName]() {
+          std::vector<fs::path> found;
+          std::error_code itEc;
+          for (fs::recursive_directory_iterator it(path, fs::directory_options::skip_permission_denied, itEc), end;
+               !itEc && it != end; it.increment(itEc)) {
+            std::error_code fileEc;
+            if (it->is_regular_file(fileEc) && isAcceptableMediaPath(it->path())) {
+              found.push_back(it->path());
+              importScanFound_.store(static_cast<int>(found.size()),
+                                     std::memory_order_relaxed);
+            }
+          }
+          std::sort(found.begin(), found.end());
+          std::vector<std::string> asStrings;
+          asStrings.reserve(found.size());
+          for (const fs::path& f : found) {
+            asStrings.push_back(f.string());
+          }
+          std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+          sdlDialogActions_.emplace_back(
+            [this, asStrings = std::move(asStrings), deckName]() {
+              importScanBusy_.store(false, std::memory_order_release);
+              if (asStrings.empty()) {
+                triggerToast(importScanLabel_ + ": no media in that folder",
+                             kToastWarnFill, kToastWarnInk, kToastReadableMs);
+                return;
+              }
+              // Plain files now, so this cannot recurse back into the walk.
+              importPaths(asStrings, deckName);
+            });
+        }).detach();
+        continue;
       } else {
         files.push_back(path);
       }
@@ -3376,14 +3679,8 @@
       changed = true;
       addedCount += 1;
 
-      // Launch async probe
-      PendingProbe pp;
-      pp.deckIndex = deckIndex;
-      pp.path = pathStr;
-      pp.future = std::async(std::launch::async, [pathStr]() {
-        return probeCue(fs::path(pathStr));
-      });
-      probeFutures_.push_back(std::move(pp));
+      // Queue the probe. pumpProbeQueue starts them a few at a time.
+      enqueueProbe(deckIndex, pathStr);
     }
 
     if (!changed) {

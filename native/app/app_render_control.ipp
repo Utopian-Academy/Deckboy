@@ -307,6 +307,14 @@
                          deck.shuffle ? "SHUFFLE" : "ORDER",
                          deck.shuffle ? pal.light : pal.deep);
     shuffleBtnRect_ = shuffleBtn;
+    if (pointInRect(mouseX_, mouseY_, shuffleBtn)) {
+      drawHoverTip(deck.shuffle ? "SHUFFLE - the next cue is picked at random"
+                                : "ORDER - cues advance down the list",
+                   shuffleBtn.x + shuffleBtn.w / 2, shuffleBtn.y);
+    } else if (pointInRect(mouseX_, mouseY_, endBtn)) {
+      drawHoverTip("What this cue does when it ends - click to change",
+                   endBtn.x + endBtn.w / 2, endBtn.y);
+    }
 
     SDL_Rect opRail {footer.x + 4, footer.y + footer.h - 14, footer.w - 8, 8};
     Primitives::drawFramedPanel(controlRenderer_, opRail, pal.light,
@@ -597,15 +605,23 @@
                 pal.deep, pal.shellOuter);
     {
       TTF_Font* btnFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
+      // The tip is part of the button, not a separate registry that can drift
+      // out of step with it: a button drawn without one simply has none.
       auto drawTBtn = [&](SDL_Rect& r, const std::string& label,
-                          bool lit = false, bool danger = false) {
+                          bool lit = false, bool danger = false,
+                          const char* tip = nullptr) {
         SDL_Color fill = danger ? SDL_Color{160,18,18,255}
                        : (lit ? pal.dark : pal.tile);
         SDL_Color ink  = danger ? SDL_Color{255,200,200,255}
                        : (lit ? pal.light : pal.fg);
         drawUIPanel(r, fill, pal.deep, pal.mid);
         drawCenteredTextSafe(controlRenderer_, btnFont, r, label, ink);
+        if (tip && tip[0] && pointInRect(mouseX_, mouseY_, r)) {
+          toolbarHoverTip_ = tip;
+          toolbarHoverAt_ = r;
+        }
       };
+      toolbarHoverTip_.clear();
 
       constexpr int kTBtnH = kToolbarH - 8;
       constexpr int kTBtnGap = 6;
@@ -742,16 +758,26 @@
       const int newW    = autoW("NEW", 60);
       const int openW   = autoW("OPEN", 72);
       const int saveW   = autoW("SAVE", 60);
+      const int saveAsW = autoW("SAVE AS", 84);
       const int bundleW = autoW("BUNDLE", 92);
       fileNewBtnRect_    = {ax, ty, newW, kTBtnH};    ax += newW + kTBtnGap;
       fileOpenBtnRect_   = {ax, ty, openW, kTBtnH};   ax += openW + kTBtnGap;
-      fileSaveBtnRect_   = {ax, ty, saveW, kTBtnH};   ax += saveW + kTGrpGap;
-      fileSaveAsBtnRect_ = SDL_Rect {};  // SAVE always prompts, so no separate SAVE AS
+      fileSaveBtnRect_   = {ax, ty, saveW, kTBtnH};   ax += saveW + kTBtnGap;
+      // SAVE AS is a separate button again now that SAVE overwrites in place.
+      // The two are different acts and the toolbar should not make you guess
+      // which one you are about to get.
+      fileSaveAsBtnRect_ = {ax, ty, saveAsW, kTBtnH}; ax += saveAsW + kTGrpGap;
       fileBundleBtnRect_ = {ax, ty, bundleW, kTBtnH}; ax += bundleW + kTGrpGap;
-      drawTBtn(fileNewBtnRect_,  "NEW");
-      drawTBtn(fileOpenBtnRect_, "OPEN");
-      drawTBtn(fileSaveBtnRect_, "SAVE");
-      drawTBtn(fileBundleBtnRect_, "BUNDLE");
+      drawTBtn(fileNewBtnRect_,  "NEW", false, false,
+               "Start an empty show (the open one is left on disk)");
+      drawTBtn(fileOpenBtnRect_, "OPEN", false, false,
+               "Open a .deckboy show file");
+      drawTBtn(fileSaveBtnRect_, "SAVE", false, false,
+               "Ctrl+S - write back over the show that is open");
+      drawTBtn(fileSaveAsBtnRect_, "SAVE AS", false, false,
+               "Ctrl+Shift+S - write the show to a NEW file");
+      drawTBtn(fileBundleBtnRect_, "BUNDLE", false, false,
+               "Copy the show AND its media into one portable folder");
 
       // RELINK — only exists while media is missing; red so it reads as a
       // warning, not another file action.
@@ -798,6 +824,19 @@
         UiImageAsset& shuffIcon = focDeck.shuffle ? uiModeShuffleOn_ : uiModeOrder_;
         drawModeBtn(deckLoopBtnRect_, loopIcon, focDeck.playlistLoop);
         drawModeBtn(deckShuffleBtnRect_, shuffIcon, focDeck.shuffle);
+        // These two are ICON ONLY, which is where a tip is worth most: there
+        // is no label to read and no way to tell loop from once by looking.
+        if (pointInRect(mouseX_, mouseY_, deckLoopBtnRect_)) {
+          toolbarHoverTip_ = focDeck.playlistLoop
+            ? "Playlist LOOP - the list restarts at the top"
+            : "Playlist ONCE - the list stops at the end";
+          toolbarHoverAt_ = deckLoopBtnRect_;
+        } else if (pointInRect(mouseX_, mouseY_, deckShuffleBtnRect_)) {
+          toolbarHoverTip_ = focDeck.shuffle
+            ? "SHUFFLE - the next cue is picked at random"
+            : "ORDER - cues advance down the list";
+          toolbarHoverAt_ = deckShuffleBtnRect_;
+        }
       }
 
       SDL_Rect sep2 {ax, ty + 4, 2, kTBtnH - 8};
@@ -885,6 +924,7 @@
     mainPanelLayoutRect_ = mainPanel;
     playlistSplitterRect_ = {playlistCol.x + playlistCol.w, contentArea.y, kLayoutPanelGap, contentArea.h};
     cueRowActionHits_.clear();
+    visiblePlaylistDecks_.clear();
 
     if (vjSplitDecks) {
       // A on the left and B on the right, matching the bar above and the way
@@ -972,6 +1012,7 @@
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
     renderSlideRenderCard(width, height);
+    renderImportProgress(width, height);
     renderToast(width);
     if (confirmQuit_) {
       renderQuitConfirm();
@@ -985,12 +1026,31 @@
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();
-    renderDropdownPopover();
     // One decode per frame, after the list has said what it is missing.
     servicePendingRowThumbnail();
+    servicePendingRowWaveform();
     renderDashboardOverlay();
     renderShortcutsOverlay();
+    // A DROPDOWN BELONGS ON TOP OF WHATEVER OPENED IT.
+    //
+    // This drew before the dashboard, so the dashboard's action picker
+    // opened -- correctly -- and then the modal that asked for it was drawn
+    // straight over the top. From the outside that is a button that does
+    // nothing, which is exactly how it was reported. Anything an overlay can
+    // open has to be drawn after EVERY overlay, not in the middle of them.
+    renderDropdownPopover();
     renderInlineTextEditor();
+    // The toolbar's tip opens downwards; requested here so it beats the
+    // controls underneath it when both are under the pointer.
+    if (!toolbarHoverTip_.empty() && toolbarHoverAt_.w > 0) {
+      drawHoverTip(toolbarHoverTip_, toolbarHoverAt_.x + toolbarHoverAt_.w / 2,
+                   toolbarHoverAt_.y + toolbarHoverAt_.h, true);
+    }
+    paintHoverTip();
+    // One frame behind, for the mascot: it is drawn well before most of the
+    // controls that can carry a tip.
+    hoverTipLast_ = hoverTipPending_;
+    hoverTipPending_.clear();
     // Last, and over everything: it is modal.
     renderCodeEditor();
     renderSplashOverlay();
@@ -1054,6 +1114,12 @@
   }
 
   void renderPlaylistColumn(const SDL_Rect& col, int deckIndex) {
+    // Recorded here rather than at the call sites so a column can never be
+    // drawn without being counted.
+    if (std::find(visiblePlaylistDecks_.begin(), visiblePlaylistDecks_.end(), deckIndex)
+        == visiblePlaylistDecks_.end()) {
+      visiblePlaylistDecks_.push_back(deckIndex);
+    }
     const Deck& deck = project_.decks[deckIndex];
     if (deckOpacityFaderRects_.size() < project_.decks.size()) {
       deckOpacityFaderRects_.resize(project_.decks.size(), SDL_Rect {});
@@ -1322,8 +1388,57 @@
     // which is the wrong fix: the thumbnails are decoded to 320x180 and
     // padded there, so they are ALWAYS 16:9 and a 16:9 box holds one
     // exactly. The fit below stays as the guard for the day that changes.
+    //
+    // WHAT YIELDS WHEN THE COLUMN NARROWS.
+    //
+    // The per-cue commands used to vanish below row.w 326 -- and 124px of that
+    // budget is this still plus the margin it needs. That is backwards. The
+    // toggles are what the row is FOR; the picture is what makes it pleasant to
+    // read. So the picture yields first, then the name, and only then do the
+    // buttons narrow. They do not disappear.
+    constexpr int kCueActionBtnW = 24;   // multiple of 8 — matches drawUIPanel's grid snap
+    constexpr int kCueActionBtnH = 16;   // multiple of 8
+    constexpr int kCueActionBtnGap = 4;
+    constexpr int kCueActionCount = 5;
+    constexpr int kCueActionBtnMinW = 18;  // below this the icons stop being icons
+    constexpr int kCueStripMargin = 6;
+    // Wide enough for the NAME on line two and the DURATION on line three --
+    // "00:08.0" came out "00:0..." when this only budgeted for the name, and a
+    // cue list that will not tell you how long a cue is has lost the argument.
+    constexpr int kCueMinNameW = 56;
+    auto cueStripWidthFor = [](int bw) {
+      return kCueActionCount * bw + (kCueActionCount - 1) * kCueActionBtnGap;
+    };
+    constexpr int kNameXWithThumb = 124;   // clear of the still (x+50 .. x+118)
+    constexpr int kNameXNoThumb = 56;      // clear of the state indicator only
+
+    // Try to keep BOTH first, letting the buttons come down a few pixels, and
+    // only give the picture up when even the smallest usable strip will not fit
+    // beside it. Dropping the still the moment the row was one pixel under the
+    // comfortable width took it away at the DEFAULT column width, which traded
+    // one complaint for another.
+    auto stripFits = [&](int nameOffset, int bw) {
+      return row.w - nameOffset - kCueMinNameW - 8 - kCueStripMargin
+               >= cueStripWidthFor(bw);
+    };
+    const bool showRowThumb = stripFits(kNameXWithThumb, kCueActionBtnMinW);
+    const int nameXOffset = showRowThumb ? kNameXWithThumb : kNameXNoThumb;
+
+    int cueActionBtnW = kCueActionBtnW;
+    if (!stripFits(nameXOffset, cueActionBtnW)) {
+      const int forStrip = row.w - nameXOffset - kCueMinNameW - 8 - kCueStripMargin;
+      cueActionBtnW = std::clamp(
+        (forStrip - (kCueActionCount - 1) * kCueActionBtnGap) / kCueActionCount,
+        kCueActionBtnMinW, kCueActionBtnW);
+    }
+    const int actionStripW = cueStripWidthFor(cueActionBtnW);
+    // Only a row with no room for the buttons at their smallest loses them, and
+    // at that width there is no row left to speak of.
+    const bool showActionStrip = row.w >= actionStripW + kCueStripMargin + 24;
+    const int actionStripX = row.x + row.w - actionStripW - kCueStripMargin;
+
     SDL_Rect thumbBox {row.x + 50, row.y + (row.h - 38) / 2, 68, 38};
-    if (cueUsesFilesystemMedia(cue) &&
+    if (showRowThumb && cueUsesFilesystemMedia(cue) &&
         (cue.kind == CueKind::Video || cue.kind == CueKind::Image) &&
         thumbBox.w > 8 && thumbBox.h > 6) {
       const std::string key = cueVisualCacheKey(cue);
@@ -1360,6 +1475,56 @@
           rowThumbWantedKey_ = key;
           rowThumbWantedDeck_ = deckIndex;
           rowThumbWantedCue_ = index;
+        }
+      }
+      Primitives::strokeRect(controlRenderer_, thumbBox, pal.deep);
+    } else if (showRowThumb && thumbBox.w > 8 && thumbBox.h > 6) {
+      // NOTHING IS WORSE THAN A HOLE.
+      //
+      // The still is only drawn for file-backed video and stills, but the name
+      // column steps past the slot on EVERY row -- so an audio cue, a pattern,
+      // a browser or a live source carried a blank 68x38 gap where its
+      // neighbours have a picture, and a list of mixed kinds read as broken
+      // rather than varied.
+      //
+      // An audio cue already has peaks measured, so it gets its own waveform,
+      // which is genuinely the most useful thing that slot could show. Every
+      // other kind gets its type icon, big, in the same box.
+      Primitives::fillRect(controlRenderer_, thumbBox, pal.deep);
+      bool filled = false;
+      if (cue.kind == CueKind::Audio && cueUsesFilesystemMedia(cue)) {
+        bool pending = false;
+        const std::string wavePath =
+          resolvedCueFilesystemPathString(cue, currentProjectFile_);
+        WaveformPeaks peaks = getWaveformPeaks(wavePath, pending);
+        if (peaks.left.empty() && !pending && rowWaveWantedPath_.empty()) {
+          // ONE ANALYSIS PER FRAME, like the thumbnails right above.
+          // triggerWaveformAnalysis spawns a thread and an ffmpeg per call, so
+          // asking for every visible audio row at once is the import freeze
+          // again in a different costume. The list fills in as it is looked at.
+          rowWaveWantedPath_ = wavePath;
+        }
+        if (!peaks.left.empty()) {
+          // Inset by a pixel so the trace never touches the frame.
+          SDL_Rect inner {thumbBox.x + 1, thumbBox.y + 1, thumbBox.w - 2, thumbBox.h - 2};
+          drawWaveform(controlRenderer_, inner, peaks, false, -1.0f, 0.0f, 1.0f,
+                       {}, cue.duration > 0.0 ? cue.duration : 1.0,
+                       waveformGainScale(cue));
+          filled = true;
+        }
+      }
+      if (!filled) {
+        UiImageAsset* icon = cueIconAssetForKind(cue.kind);
+        const int side = std::min(thumbBox.h - 8, thumbBox.w - 8);
+        SDL_Rect iconRect {thumbBox.x + (thumbBox.w - side) / 2,
+                           thumbBox.y + (thumbBox.h - side) / 2, side, side};
+        // LIGHT INK ON A DEEP BOX. drawUiImageContainTinted tints with
+        // pal.deep, which is right for a bright row and invisible here.
+        if (!icon || !drawUiImageContain(*icon, iconRect, 255, pal.light)) {
+          // No art for this kind: the kind's own word, which still beats a
+          // blank box.
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, thumbBox,
+                               toUpper(cueKindLabel(cue.kind)), pal.light);
         }
       }
       Primitives::strokeRect(controlRenderer_, thumbBox, pal.deep);
@@ -1401,19 +1566,12 @@
       drawCenteredTextSafe(controlRenderer_, fontBase_, indicatorRect, "\xe2\x96\xb8", ink); // ▸
     }
 
-    constexpr int kCueActionBtnW = 24;  // multiple of 8 — matches grid snap in drawUIPanel
-    constexpr int kCueActionBtnH = 16;  // multiple of 8
-    constexpr int kCueActionBtnGap = 4;
-    constexpr int kCueActionCount = 5;
-    int actionStripW = kCueActionCount * kCueActionBtnW + (kCueActionCount - 1) * kCueActionBtnGap;
-    bool showActionStrip = row.w >= 326;  // nameX(124)+minName(52)+gap(8)+strip(136)+margin(6)
-    int actionStripX = row.x + row.w - actionStripW - 6;
-
-    // Clear of the still (x+50 through x+118). Moved for every row, including
-    // the ones with no picture, because a name column that steps in and out
-    // depending on whether a thumbnail has decoded yet is worse than a wider
-    // margin.
-    int nameX = row.x + 124;
+    // Clear of the still when there is one. Moved for every row at that width,
+    // including the ones whose picture has not decoded yet, because a name
+    // column that steps in and out as thumbnails arrive is worse than a wider
+    // margin. It steps only when the COLUMN is resized -- a deliberate act,
+    // whose result you can see while you are doing it.
+    const int nameX = row.x + nameXOffset;
     // The action strip used to sit on the NAME line, right-aligned, which cost
     // the name 144px and truncated most real filenames to "Rick and Mo...".
     // It now sits on the metadata line, so the name gets the full row width and
@@ -1458,18 +1616,18 @@
     }
 
     // Cue ID and Type — line 1 (top of row)
-    SDL_Rect tokenRect {row.x + 124, row.y + 4, 50, 18};
+    SDL_Rect tokenRect {nameX, row.y + 4, 50, 18};
     drawTextSafe(controlRenderer_, fontMono_, tokenRect, dc.token, subInk);
 
     {
       UiImageAsset* cueIcon = cueIconAssetForKind(cue.kind);
-      SDL_Rect iconRect {row.x + 178, row.y + 3, 22, 22};
+      SDL_Rect iconRect {nameX + 54, row.y + 3, 22, 22};
       if (cueIcon && drawUiImageContainTinted(*cueIcon, iconRect)) {
         // Icon drawn — show kind label shifted right
-        SDL_Rect typeRect {row.x + 202, row.y + 5, 72, 18};
+        SDL_Rect typeRect {nameX + 78, row.y + 5, 72, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       } else {
-        SDL_Rect typeRect {row.x + 178, row.y + 5, 96, 18};
+        SDL_Rect typeRect {nameX + 54, row.y + 5, 96, 18};
         drawTextSafe(controlRenderer_, fontSmall_, typeRect, dc.kindUpper, subInk);
       }
     }
@@ -1590,7 +1748,7 @@
 
     bool toggleHover = false;
     auto drawCueActionButton = [&](int buttonX, QuickAction action, bool on, bool enabled, const std::string& tip) {
-      SDL_Rect btn {buttonX, row.y + 48, kCueActionBtnW, kCueActionBtnH};
+      SDL_Rect btn {buttonX, row.y + 48, cueActionBtnW, kCueActionBtnH};
       SDL_Color btnFill = !enabled
         ? pal.mid
         : (on ? pal.dark : pal.light);
@@ -1619,16 +1777,16 @@
       int bx = actionStripX;
       drawCueActionButton(bx, QuickAction::ToggleFadeIn, cue.fadeInSeconds > 0.001,
                           true, "Toggle fade in");
-      bx += kCueActionBtnW + kCueActionBtnGap;
+      bx += cueActionBtnW + kCueActionBtnGap;
       drawCueActionButton(bx, QuickAction::ToggleFadeOut, cue.fadeOutSeconds > 0.001,
                           true, "Toggle fade out");
-      bx += kCueActionBtnW + kCueActionBtnGap;
+      bx += cueActionBtnW + kCueActionBtnGap;
       drawCueActionButton(bx, QuickAction::ToggleLoop, cue.loop,
                           true, "Toggle loop");
-      bx += kCueActionBtnW + kCueActionBtnGap;
+      bx += cueActionBtnW + kCueActionBtnGap;
       drawCueActionButton(bx, QuickAction::ToggleHold, cue.pauseOnLastFrame,
                           true, "Toggle hold on last frame");
-      bx += kCueActionBtnW + kCueActionBtnGap;
+      bx += cueActionBtnW + kCueActionBtnGap;
       drawCueActionButton(bx, QuickAction::ToggleCueAudio, cue.audioEnabled,
                           cue.hasAudio, cue.hasAudio ? "Toggle cue audio" : "Cue has no audio");
     }
@@ -1671,26 +1829,120 @@
   }
 
   // Draw a small floating tooltip panel anchored below/above (ax, ay).
-  void drawHoverTip(const std::string& tip, int ax, int ay) {
-    if (tip.empty()) return;
-    int w = 0;
-    TTF_GetStringSize(fontSmall_, tip.c_str(), 0, &w, nullptr);
-    w += 20;
-    int h = 26;
-    int x = ax - w / 2;
-    int y = ay - h - 6;
-    // Keep on screen
+  // `below` puts the panel under the anchor instead of over it, for controls
+  // that live at the top of the window where there is nothing above them.
+  // ONE TIP PER FRAME, DRAWN LAST.
+  //
+  // This used to paint where it was called, which put two things wrong. The
+  // dwell timer was shared, so any two controls that both matched the pointer
+  // in one frame -- and several regions overlap -- handed it back and forth and
+  // it never reached the threshold. And a tip painted mid-frame is painted over
+  // by everything drawn after it, which for a tooltip is most of the window.
+  //
+  // So callers REQUEST, the last request in the frame wins (that is the
+  // topmost control, since it drew last), and paintHoverTip draws it after
+  // everything else.
+  void drawHoverTip(const std::string& tip, int ax, int ay, bool below = false) {
+    if (tip.empty() || !project_.hoverTipsEnabled) {
+      return;
+    }
+    hoverTipPending_ = tip;
+    hoverTipReqAnchorX_ = ax;
+    hoverTipReqAnchorY_ = ay;
+    hoverTipReqBelow_ = below;
+  }
+
+  void paintHoverTip() {
+    const std::string tip = hoverTipPending_;
+    const int ax = hoverTipReqAnchorX_;
+    const int ay = hoverTipReqAnchorY_;
+    const bool below = hoverTipReqBelow_;
+    if (tip.empty() || !project_.hoverTipsEnabled) {
+      hoverTipDwellText_.clear();
+      return;
+    }
+
+    // ---- DWELL, THEN FADE ------------------------------------------------
+    //
+    // Appearing the instant the pointer touches a control makes the whole desk
+    // twitch as you move across it. The tip waits a beat, then eases in; a new
+    // control restarts the wait, so crossing five buttons on the way to a sixth
+    // shows nothing at all.
+    if (tip != hoverTipDwellText_) {
+      hoverTipDwellText_ = tip;
+      hoverTipDwellSinceMs_ = animationNow_;
+    }
+    constexpr Uint64 kDwellMs = 340;
+    constexpr Uint64 kFadeMs = 130;
+    const Uint64 held = animationNow_ - hoverTipDwellSinceMs_;
+    if (held < kDwellMs) {
+      return;
+    }
+    const float appear = std::clamp(
+      static_cast<float>(held - kDwellMs) / static_cast<float>(kFadeMs), 0.0f, 1.0f);
+    // Eased, so it arrives rather than snaps.
+    const float ease = appear * appear * (3.0f - 2.0f * appear);
+    const Uint8 alpha = static_cast<Uint8>(std::lround(255.0f * ease));
+
+    // ---- The panel -------------------------------------------------------
+    //
+    // AN INVERTED CHIP: deep fill, light ink.
+    //
+    // Theme roles rather than the hard-coded {15,56,15} it used to paint --
+    // that was a Game Boy green baked into every theme, and muddy on the OLED
+    // terminal ones. But the first attempt used shellInner/fg, the ordinary
+    // panel pair, and a tip floating over the bottom bar was then
+    // shell-on-shell: painting 39 times a second and completely invisible.
+    //
+    // A tooltip floats over EVERYTHING, so it cannot borrow the colours of any
+    // one surface. deep/light is the one pair guaranteed to be the far ends of
+    // the range, which is why the screens use it.
+    TTF_Font* font = fontSmall_;
+    if (!font) {
+      return;
+    }
+    int textW = 0;
+    int textH = 0;
+    TTF_GetStringSize(font, tip.c_str(), 0, &textW, &textH);
+    const int padX = uiScaled(10);
+    const int padY = uiScaled(5);
+    const int w = textW + padX * 2;
+    const int h = std::max(textH + padY * 2, uiScaled(22));
+    const int lift = uiScaled(7);
+
     int winW = 0, winH = 0;
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
-    x = std::clamp(x, 6, winW - w - 6);
-    y = std::max(y, 6);
-    SDL_Rect panel {x, y, w, h};
+    int x = std::clamp(ax - w / 2, 6, std::max(6, winW - w - 6));
+    int y = std::clamp(below ? ay + lift : ay - h - lift, 6, std::max(6, winH - h - 6));
+    // Slides the last couple of pixels into place as it fades in.
+    y += static_cast<int>(std::lround((1.0f - ease) * (below ? -3.0 : 3.0)));
+
+    const SDL_Rect panel {x, y, w, h};
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
-    SDL_Color bg {15, 56, 15, 230};
-    Primitives::fillRect(controlRenderer_, panel, bg);
+    // A soft drop shadow gives it somewhere to float above, which is most of
+    // what makes a tooltip read as ON TOP rather than drawn into the panel.
+    SDL_Color shadow {pal.shellShadow.r, pal.shellShadow.g, pal.shellShadow.b,
+                      static_cast<Uint8>(alpha / 2)};
+    Primitives::fillRect(controlRenderer_,
+                         SDL_Rect{panel.x + 2, panel.y + 2, panel.w, panel.h}, shadow);
+    SDL_Color fill {pal.deep.r, pal.deep.g, pal.deep.b, alpha};
+    Primitives::fillRect(controlRenderer_, panel, fill);
+    // A notch pointing at the control, so a tip that has been nudged sideways
+    // to stay on screen still says which button it belongs to.
+    const int notch = uiScaled(4);
+    const int nx = std::clamp(ax, panel.x + notch + 2, panel.x + panel.w - notch - 2);
+    for (int i = 0; i < notch; ++i) {
+      const int ny = below ? (panel.y - notch + i) : (panel.y + panel.h + notch - 1 - i);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect{nx - (below ? (notch - i) : (notch - i)), ny,
+                                    (notch - i) * 2, 1}, fill);
+    }
+    SDL_Color edge {pal.light.r, pal.light.g, pal.light.b, static_cast<Uint8>(alpha / 2)};
+    Primitives::strokeRect(controlRenderer_, panel, edge);
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
-    Primitives::strokeRect(controlRenderer_, panel, pal.dark);
-    drawText(controlRenderer_, fontSmall_, tip, pal.light, panel.x + 10, panel.y + 6);
+
+    SDL_Color ink {pal.light.r, pal.light.g, pal.light.b, alpha};
+    drawCenteredTextSafe(controlRenderer_, font, panel, tip, ink);
   }
 
   void renderButtons() {
@@ -2056,6 +2308,67 @@
     if (tip && tip[0] && fontSmall_) {
       SDL_Rect capRect {area.x, area.y + area.h - capH, area.w, capH};
       drawCenteredTextSafe(controlRenderer_, fontSmall_, capRect, tip, ink);
+    }
+  }
+
+  // ── "IT IS DOING SOMETHING" ──────────────────────────────────────────────
+  //
+  // Two long jobs that used to happen in silence: walking a dropped folder, and
+  // probing what came out of it. A couple of thousand cues meant a long quiet
+  // pause, and a quiet pause is indistinguishable from a crash.
+  //
+  // Deliberately a STRIP and not the slide card: the cues are already in the
+  // list and already playable while their metadata fills in, so this must not
+  // sit over the show. The folder walk is indeterminate (nobody knows the file
+  // count until the walk ends) and gets a sweep; probing knows its denominator
+  // and gets a real bar.
+  void renderImportProgress(int windowWidth, int windowHeight) {
+    const bool scanning = importScanBusy_.load(std::memory_order_acquire);
+    const int outstanding = probesOutstanding();
+    if (!scanning && outstanding <= 0) {
+      return;
+    }
+
+    const int barW = std::min(uiScaled(340), std::max(uiScaled(180), windowWidth - uiScaled(60)));
+    const int barH = uiScaled(30);
+    SDL_Rect strip {(windowWidth - barW) / 2, windowHeight - barH - uiScaled(18), barW, barH};
+    Primitives::drawFramedPanel(controlRenderer_, strip, pal.shellInner, pal.shellShadow, pal.mid);
+
+    SDL_Rect track {strip.x + uiScaled(8), strip.y + strip.h - uiScaled(9),
+                    strip.w - uiScaled(16), uiScaled(4)};
+    Primitives::fillRect(controlRenderer_, track, pal.deep);
+
+    std::string label;
+    if (scanning) {
+      const int found = importScanFound_.load(std::memory_order_relaxed);
+      label = "reading " + (importScanLabel_.empty() ? std::string("folder") : importScanLabel_)
+            + "  -  " + std::to_string(found) + " found";
+      // Indeterminate: a lozenge that runs the track, because a percentage we
+      // do not have is a lie and a bar stuck at zero reads as stuck.
+      const double sweep = std::fmod(static_cast<double>(animationNow_) / 1400.0, 1.0);
+      const int runW = std::max(uiScaled(24), track.w / 5);
+      const int rx = track.x + static_cast<int>(sweep * (track.w + runW)) - runW;
+      SDL_Rect run {std::max(track.x, rx), track.y,
+                    std::min(runW, track.x + track.w - std::max(track.x, rx)), track.h};
+      if (run.w > 0) {
+        Primitives::fillRect(controlRenderer_, run, pal.light);
+      }
+    } else {
+      const int total = std::max(probeBatchTotal_, outstanding);
+      const int done = std::max(0, total - outstanding);
+      label = "reading media  -  " + std::to_string(done) + " of " + std::to_string(total);
+      SDL_Rect fill = track;
+      fill.w = static_cast<int>(track.w * std::clamp(
+        total > 0 ? static_cast<double>(done) / static_cast<double>(total) : 0.0, 0.0, 1.0));
+      if (fill.w > 0) {
+        Primitives::fillRect(controlRenderer_, fill, pal.light);
+      }
+    }
+
+    if (fontSmall_) {
+      SDL_Rect textRect {strip.x + uiScaled(8), strip.y + uiScaled(4),
+                         strip.w - uiScaled(16), uiScaled(16)};
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, textRect, label, pal.fgSoft);
     }
   }
 

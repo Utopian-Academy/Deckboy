@@ -883,6 +883,7 @@
     inlineEditor_.title = title;
     inlineEditor_.prompt = prompt;
     inlineEditor_.value = initialValue;
+    inlineEditor_.caret = initialValue.size();
     inlineEditor_.freshEntry = true;  // old value acts selected: first keystroke replaces it
     inlineEditor_.anchorRect = lastInlineEditorAnchorRect_;
     inlineEditor_.onSubmit = std::move(onSubmit);
@@ -934,10 +935,80 @@
     return true;
   }
 
+  // ---- A REAL TEXT FIELD -------------------------------------------------
+  //
+  // This used to be append-and-backspace-from-the-end: no caret, no arrow
+  // keys, and no paste. Which is survivable for a number and hopeless for a
+  // URL -- you could not put one in without retyping it, and could not fix a
+  // typo in the middle without deleting everything after it.
+  //
+  // Now: a caret, Left/Right/Home/End, Ctrl+Left/Right by word, Delete and
+  // Backspace either side of it, and clipboard through SDL. `freshEntry`
+  // still means "the whole value is selected", which is what makes typing
+  // over a pre-filled value work.
+
+  // UTF-8: step to the previous/next character boundary, never into the
+  // middle of a multi-byte sequence.
+  static std::size_t utf8Prev(const std::string& s, std::size_t at) {
+    if (at == 0) return 0;
+    --at;
+    while (at > 0 && (static_cast<unsigned char>(s[at]) & 0xC0) == 0x80) {
+      --at;
+    }
+    return at;
+  }
+
+  static std::size_t utf8Next(const std::string& s, std::size_t at) {
+    if (at >= s.size()) return s.size();
+    ++at;
+    while (at < s.size() && (static_cast<unsigned char>(s[at]) & 0xC0) == 0x80) {
+      ++at;
+    }
+    return at;
+  }
+
+  static std::size_t wordLeft(const std::string& s, std::size_t at) {
+    while (at > 0 && std::isspace(static_cast<unsigned char>(s[at - 1]))) --at;
+    while (at > 0 && !std::isspace(static_cast<unsigned char>(s[at - 1]))) --at;
+    return at;
+  }
+
+  static std::size_t wordRight(const std::string& s, std::size_t at) {
+    while (at < s.size() && !std::isspace(static_cast<unsigned char>(s[at]))) ++at;
+    while (at < s.size() && std::isspace(static_cast<unsigned char>(s[at]))) ++at;
+    return at;
+  }
+
+  void inlineEditorInsert(const std::string& text) {
+    if (text.empty()) {
+      return;
+    }
+    if (inlineEditor_.freshEntry) {
+      inlineEditor_.value.clear();
+      inlineEditor_.caret = 0;
+      inlineEditor_.freshEntry = false;
+    }
+    inlineEditor_.caret = std::min(inlineEditor_.caret, inlineEditor_.value.size());
+    // Room left before the 180-byte cap, so a long paste truncates instead of
+    // being dropped: half a URL you can finish beats nothing happening.
+    const std::size_t room = inlineEditor_.value.size() >= 180
+                           ? 0 : (180 - inlineEditor_.value.size());
+    const std::string piece = text.substr(0, room);
+    if (piece.empty()) {
+      return;
+    }
+    inlineEditor_.value.insert(inlineEditor_.caret, piece);
+    inlineEditor_.caret += piece.size();
+  }
+
   bool handleInlineTextEditorKey(SDL_Keycode key, Uint16 mod) {
     if (!inlineEditor_.open) {
       return false;
     }
+    const bool ctrl = (mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
+    std::string& value = inlineEditor_.value;
+    inlineEditor_.caret = std::min(inlineEditor_.caret, value.size());
+
     if (key == SDLK_ESCAPE) {
       closeInlineTextEditor(false);
       return true;
@@ -946,18 +1017,88 @@
       closeInlineTextEditor(true);
       return true;
     }
-    if (key == SDLK_BACKSPACE) {
-      if (inlineEditor_.freshEntry) {   // treat the pre-filled value as selected: clear it
-        inlineEditor_.value.clear();
+
+    // ---- Clipboard -------------------------------------------------------
+    if (ctrl && key == SDLK_V) {
+      if (char* text = SDL_GetClipboardText()) {
+        // One line only: a pasted newline would otherwise sit invisibly in a
+        // URL and fail the load with nothing to see.
+        std::string pasted(text);
+        SDL_free(text);
+        std::string flat;
+        flat.reserve(pasted.size());
+        for (char ch : pasted) {
+          if (ch != '\n' && ch != '\r' && ch != '\t') {
+            flat += ch;
+          }
+        }
+        inlineEditorInsert(trim(flat));
+      }
+      return true;
+    }
+    if (ctrl && (key == SDLK_C || key == SDLK_X)) {
+      SDL_SetClipboardText(value.c_str());
+      if (key == SDLK_X) {
+        value.clear();
+        inlineEditor_.caret = 0;
         inlineEditor_.freshEntry = false;
-      } else if (!inlineEditor_.value.empty()) {
-        inlineEditor_.value.pop_back();
+      }
+      return true;
+    }
+    if (ctrl && key == SDLK_A) {
+      inlineEditor_.freshEntry = true;   // "all selected": the next key replaces it
+      inlineEditor_.caret = value.size();
+      return true;
+    }
+
+    // ---- Moving ----------------------------------------------------------
+    if (key == SDLK_LEFT) {
+      inlineEditor_.caret = ctrl ? wordLeft(value, inlineEditor_.caret)
+                                 : utf8Prev(value, inlineEditor_.caret);
+      inlineEditor_.freshEntry = false;
+      return true;
+    }
+    if (key == SDLK_RIGHT) {
+      inlineEditor_.caret = ctrl ? wordRight(value, inlineEditor_.caret)
+                                 : utf8Next(value, inlineEditor_.caret);
+      inlineEditor_.freshEntry = false;
+      return true;
+    }
+    if (key == SDLK_HOME) {
+      inlineEditor_.caret = 0;
+      inlineEditor_.freshEntry = false;
+      return true;
+    }
+    if (key == SDLK_END) {
+      inlineEditor_.caret = value.size();
+      inlineEditor_.freshEntry = false;
+      return true;
+    }
+
+    // ---- Erasing ---------------------------------------------------------
+    if (key == SDLK_BACKSPACE) {
+      if (inlineEditor_.freshEntry) {   // the pre-filled value is selected
+        value.clear();
+        inlineEditor_.caret = 0;
+        inlineEditor_.freshEntry = false;
+      } else if (inlineEditor_.caret > 0) {
+        const std::size_t from = ctrl ? wordLeft(value, inlineEditor_.caret)
+                                      : utf8Prev(value, inlineEditor_.caret);
+        value.erase(from, inlineEditor_.caret - from);
+        inlineEditor_.caret = from;
       }
       return true;
     }
     if (key == SDLK_DELETE) {
-      inlineEditor_.value.clear();
-      inlineEditor_.freshEntry = false;
+      if (inlineEditor_.freshEntry) {
+        value.clear();
+        inlineEditor_.caret = 0;
+        inlineEditor_.freshEntry = false;
+      } else if (inlineEditor_.caret < value.size()) {
+        const std::size_t to = ctrl ? wordRight(value, inlineEditor_.caret)
+                                    : utf8Next(value, inlineEditor_.caret);
+        value.erase(inlineEditor_.caret, to - inlineEditor_.caret);
+      }
       return true;
     }
     return true;
@@ -967,14 +1108,7 @@
     if (!inlineEditor_.open || text.empty()) {
       return;
     }
-    if (inlineEditor_.freshEntry) {   // first character replaces the pre-filled value
-      inlineEditor_.value.clear();
-      inlineEditor_.freshEntry = false;
-    }
-    inlineEditor_.value += text;
-    if (inlineEditor_.value.size() > 180) {
-      inlineEditor_.value.resize(180);
-    }
+    inlineEditorInsert(text);
   }
 
   void renderInlineTextEditor() {
@@ -1046,13 +1180,74 @@
                                 pal.deep,
                                 pal.dark,
                                 pal.dark);
-    std::string shown = inlineEditor_.value;
-    if ((animationNow_ / 450) % 2 == 0) {
-      shown += "_";
+    // ---- THE CARET, AND KEEPING IT IN VIEW -------------------------------
+    //
+    // This used to append an underscore to the END of the value and ellipsize
+    // from the end, so on anything longer than the box -- a URL, always -- you
+    // saw the beginning of the string and a cursor that was nowhere near where
+    // you were typing. Now the text scrolls under a caret drawn at the real
+    // insertion point, and the whole value is shown highlighted while it
+    // counts as selected, so "type to replace" is visible rather than a
+    // surprise.
+    {
+      TTF_Font* editFont = fontMono_ ? fontMono_ : fontSmall_;
+      const std::string& text = inlineEditor_.value;
+      const std::size_t caret = std::min(inlineEditor_.caret, text.size());
+      const int viewW = inputRect.w - 12;
+
+      auto widthOf = [&](const std::string& s) {
+        int w = 0;
+        if (editFont && !s.empty()) {
+          TTF_GetStringSize(editFont, s.c_str(), 0, &w, nullptr);
+        }
+        return w;
+      };
+      const int caretPx = widthOf(text.substr(0, caret));
+      const int fullPx = widthOf(text);
+      // Scroll only as far as needed to keep the caret inside, and never past
+      // the end of the string.
+      int scroll = 0;
+      if (caretPx > viewW - 8) {
+        scroll = caretPx - (viewW - 8);
+      }
+      scroll = std::min(scroll, std::max(0, fullPx - viewW));
+
+      // Same save/restore idiom as the VJ bar: ask whether a clip is enabled
+      // first -- SDL_GetRenderClipRect answers "did the call work", not
+      // "was there one".
+      const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
+      SDL_Rect prevClip {};
+      if (hadClip) {
+        SDL_GetRenderClipRect(controlRenderer_, &prevClip);
+      }
+      SDL_Rect clip {inputRect.x + 3, inputRect.y + 2, inputRect.w - 6, inputRect.h - 4};
+      SDL_SetRenderClipRect(controlRenderer_, &clip);
+
+      const int textX = inputRect.x + 6 - scroll;
+      const int textY = inputRect.y + 8;
+      if (inlineEditor_.freshEntry && !text.empty()) {
+        // Selected: a filled band behind the text, dark ink on it.
+        SDL_Rect sel {textX - 1, inputRect.y + 5, fullPx + 2, inputRect.h - 10};
+        Primitives::fillRect(controlRenderer_, sel, pal.light);
+        drawText(controlRenderer_, editFont, text, pal.deep, textX, textY);
+      } else {
+        drawText(controlRenderer_, editFont, text, pal.light, textX, textY);
+        // A bar, not a trailing underscore: it has to be able to sit BETWEEN
+        // two characters.
+        if ((animationNow_ / 450) % 2 == 0) {
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect{textX + caretPx, inputRect.y + 5,
+                                        std::max(1, uiScaled(2)), inputRect.h - 10},
+                               pal.light);
+        }
+      }
+
+      if (hadClip) {
+        SDL_SetRenderClipRect(controlRenderer_, &prevClip);
+      } else {
+        SDL_SetRenderClipRect(controlRenderer_, nullptr);
+      }
     }
-    drawText(controlRenderer_, fontMono_,
-             ellipsizeToPixelWidth(fontMono_, shown, inputRect.w - 12),
-             pal.light, inputRect.x + 6, inputRect.y + 8);
 
     SDL_Rect applyRect {panel.x + panel.w - 136, panel.y + panel.h - 38, 58, 28};
     SDL_Rect cancelRect {panel.x + panel.w - 72, panel.y + panel.h - 38, 58, 28};

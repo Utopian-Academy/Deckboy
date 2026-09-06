@@ -152,6 +152,31 @@
       return;
     }
 
+    // CLICKING THE PREVIEW CLICKS THE PAGE.
+    //
+    // Reported as "there is no way to click through a prompt on a page" --
+    // cookie walls, consent dialogs, anything modal the site puts up. The
+    // click is forwarded as a fraction of the frame, so it lands where the
+    // operator aimed whatever the raster is.
+    //
+    // Gated on a browser cue actually being live, so the monitor keeps every
+    // other behaviour it has; and warp edit mode wins, because dragging a
+    // corner is a deliberate mode you are already in.
+    if (!warpEditMode_ && warpMonitorInner_.w > 0 &&
+        pointInRect(x, y, warpMonitorInner_) &&
+        activeCueIsBrowser(project_.focusedDeckIndex)) {
+      if (auto* page = liveBrowserRenderer()) {
+        const double fx = static_cast<double>(x - warpMonitorInner_.x)
+                        / std::max(1, warpMonitorInner_.w);
+        const double fy = static_cast<double>(y - warpMonitorInner_.y)
+                        / std::max(1, warpMonitorInner_.h);
+        // Same rule as the wheel: only swallow the click if it was delivered.
+        if (page->clickAtFraction(std::clamp(fx, 0.0, 1.0), std::clamp(fy, 0.0, 1.0))) {
+          return;
+        }
+      }
+    }
+
     if (playlistSplitterRect_.w > 0 && pointInRect(x, y, playlistSplitterRect_)) {
       layoutDragMode_ = LayoutDragMode::Playlist;
       return;
@@ -480,7 +505,7 @@
       return;
     }
     if (pointInRect(x, y, fileSaveBtnRect_)) {
-      saveProjectAsFromPicker();
+      saveProjectInPlace();
       return;
     }
     if (pointInRect(x, y, fileBundleBtnRect_)) {
@@ -1118,6 +1143,13 @@
     }
     // Ctrl+D — the dashboard
     if (ctrl && key == SDLK_D) {
+      // NOT OVER THE STARTUP DIALOG. That dialog consumes every click before
+      // the dashboard branch is reached, so a dashboard opened on top of it
+      // draws normally and answers nothing at all.
+      if (showStartupDialog_ || showSplashOverlay_) {
+        triggerToast("choose a show first");
+        return;
+      }
       dashboardOverlayOpen_ = !dashboardOverlayOpen_;
       return;
     }
@@ -1183,7 +1215,7 @@
       return;
     }
     if (ctrl && !shift && key == SDLK_S) {
-      saveProjectAsFromPicker();
+      saveProjectInPlace();   // Ctrl+S keeps the file you have open
       return;
     }
     if (ctrl && shift && key == SDLK_S) {
