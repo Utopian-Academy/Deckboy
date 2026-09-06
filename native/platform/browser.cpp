@@ -734,16 +734,58 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
         if (wantInteractive) {
           exStyle &= ~static_cast<LONG_PTR>(WS_EX_NOACTIVATE);
           SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle);
-          SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-          SetForegroundWindow(hwnd);
+
+          // FIT IT TO THE SCREEN, AND MEAN IT.
+          //
+          // The window is the CUE's raster -- 3840x2160 for a 4K show -- and
+          // at that size on a 1080p desk the operator sees the top-left
+          // quarter of the page and cannot reach a centred consent button.
+          //
+          // Measured before writing this: resizing the host window does NOT
+          // disturb the cue (435 identical pixels of the page on air, at the
+          // same coordinates, before and after), because CapturePreview
+          // follows the CONTROLLER's bounds and not the window's. Which is
+          // also why the bounds have to be moved deliberately here -- with the
+          // window alone resized, the operator gets a crop.
+          const int screenW = GetSystemMetrics(SM_CXSCREEN);
+          const int screenH = GetSystemMetrics(SM_CYSCREEN);
+          const int fitW = std::min(p->width_, screenW * 4 / 5);
+          const int fitH = std::min(p->height_, screenH * 4 / 5);
+          SetWindowPos(hwnd, HWND_TOP,
+                       (screenW - fitW) / 2, (screenH - fitH) / 2,
+                       fitW, fitH, SWP_SHOWWINDOW);
           if (p->controller_) {
+            // THE VIEW KEEPS ITS SIZE. ONLY ITS ORIGIN MOVES.
+            //
+            // Fitting the CONTROLLER to the window was tried and measured, and
+            // it reflows the page -- the picture on air went from 435 to 651
+            // pixels of the same element the instant the operator opened the
+            // window. A cue that restages itself because someone reached for a
+            // cookie banner is not acceptable during a show.
+            //
+            // So the WebView stays exactly the cue's raster, which is what
+            // CapturePreview follows, and is instead SHIFTED so its middle sits
+            // in the smaller window. The operator sees the centre of the page,
+            // where consent dialogs live, and the audience sees no change at
+            // all. On a screen bigger than the raster nothing shifts.
+            const int dx = (p->width_ - fitW) / 2;
+            const int dy = (p->height_ - fitH) / 2;
+            RECT bounds {-dx, -dy, -dx + p->width_, -dy + p->height_};
+            p->controller_->put_Bounds(bounds);
             p->controller_->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
           }
+          SetForegroundWindow(hwnd);
         } else {
           exStyle |= static_cast<LONG_PTR>(WS_EX_NOACTIVATE);
           SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle);
-          SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
-                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+          // Back to the cue's raster, or the next captured frame is the wrong
+          // shape for everything downstream.
+          SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, p->width_, p->height_,
+                       SWP_NOACTIVATE);
+          if (p->controller_) {
+            RECT bounds {0, 0, p->width_, p->height_};
+            p->controller_->put_Bounds(bounds);
+          }
         }
       } else if (msg.hwnd == hwnd && msg.message == WM_TIMER
                  && msg.wParam == WV2_CAPTURE_TIMER_ID) {
