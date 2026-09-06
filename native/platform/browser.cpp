@@ -54,6 +54,16 @@
 #if defined(__linux__) && defined(DECKBOY_HAS_XTEST)
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
+// X11 defines these as bare macros, and they collide with ordinary C++ names
+// -- `None` is an enumerator of BrowserStartPhase, and `Status` is a word any
+// codebase will reach for eventually. Undefined immediately so the pollution
+// cannot travel past this include; the XTEST calls below use plain 1/0 rather
+// than X's True/False so they do not depend on what survives.
+#undef None
+#undef Status
+#undef Success
+#undef Always
+#undef Bool
 #endif
 
 #ifdef _WIN32
@@ -984,8 +994,8 @@ bool BrowserRenderer::scrollBy(int dx, int dy) {
       // pretending to a precision the wheel does not have.
       auto wheel = [&](unsigned int button, int notches) {
         for (int i = 0; i < notches; ++i) {
-          XTestFakeButtonEvent(display.get(), button, True, CurrentTime);
-          XTestFakeButtonEvent(display.get(), button, False, CurrentTime);
+          XTestFakeButtonEvent(display.get(), button, 1, CurrentTime);
+          XTestFakeButtonEvent(display.get(), button, 0, CurrentTime);
         }
       };
       const int vertical = std::abs(dy) / 53;
@@ -1026,8 +1036,8 @@ bool BrowserRenderer::clickAtFraction(double fx, double fy) {
       // and a press in the same instant as the move can land on the old
       // element.
       std::this_thread::sleep_for(std::chrono::milliseconds(30));
-      XTestFakeButtonEvent(display.get(), 1, True, CurrentTime);
-      XTestFakeButtonEvent(display.get(), 1, False, CurrentTime);
+      XTestFakeButtonEvent(display.get(), 1, 1, CurrentTime);
+      XTestFakeButtonEvent(display.get(), 1, 0, CurrentTime);
       XFlush(display.get());
       return true;
     }
