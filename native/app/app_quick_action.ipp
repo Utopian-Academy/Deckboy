@@ -63,6 +63,21 @@
         editDashboardSlot(param);
         return;
       }
+      case QuickAction::ToggleBrowserInteract: {
+        auto* page = liveBrowserRenderer();
+        if (!page) {
+          triggerToast("no browser cue is live on this deck");
+          return;
+        }
+        const bool want = !page->isInteractive();
+        if (!page->setInteractive(want)) {
+          triggerToast("this browser backend cannot show a window");
+          return;
+        }
+        triggerToast(want ? "browser window open - click, type, log in"
+                          : "browser window closed");
+        return;
+      }
       case QuickAction::EffectAdd:        effectStackAdd(); return;
       case QuickAction::MotionDriverPick:  pickMotionDriver(); return;
       case QuickAction::MotionDriverClear: clearMotionDriver(); return;

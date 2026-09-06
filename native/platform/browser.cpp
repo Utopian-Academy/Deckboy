@@ -349,6 +349,10 @@ class BrowserRenderer::Impl {
   // its stdin and captured by window id like any other window source.
   ChildProcess webviewProcess_;
   std::string webviewWindowId_;
+  // "window:<CGWindowID>", handed to the capture layer. Declared per-arm
+  // because each backend means something different by it -- the non-WebView
+  // Windows path uses a screen region, this one a window.
+  std::string captureSourceRef_;
 #elif defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
   // WebView2 offscreen rendering via CapturePreview (WIC PNG decode)
   std::thread wv2Thread_;
@@ -981,6 +985,10 @@ bool BrowserRenderer::consumeCaptureRequest(std::string& outSourceRef, int& outW
 
 #ifdef __linux__
   outSourceRef = impl_->virtualDisplayId_;
+#elif defined(__APPLE__)
+  // "window:<CGWindowID>" -- the sckcapture helper resolves it, so a browser
+  // cue reaches the screen through the same path as any window source.
+  outSourceRef = impl_->captureSourceRef_;
 #elif defined(_WIN32) && !defined(DECKBOY_HAS_WEBVIEW)
   outSourceRef = impl_->captureSourceRef_;
 #endif

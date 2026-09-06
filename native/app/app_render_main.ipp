@@ -3840,6 +3840,30 @@
                                      "Reload page each time the browser cue is taken"});
             metadataY += kInspectorRowStep;
           }
+          // ---- THE HAND ----------------------------------------------------
+          //
+          // Mitti's idea, and the right one: rather than try to synthesise
+          // input, hand the operator the REAL browser window. Cookie walls,
+          // consent dialogs and -- the one nothing else solves -- logging in,
+          // which needs a keyboard, a password manager and sometimes a phone.
+          //
+          // Only offered while the cue is actually live, because there is no
+          // page to hand over until there is one.
+          if (deckHasLiveBrowserCue(project_.focusedDeckIndex)) {
+            const bool showing = liveBrowserIsInteractive();
+            SDL_Rect handBtn {ctrl.x + 10, metadataY, kCtrlW - 20, 30};
+            drawUIPanel(handBtn, showing ? pal.dark : pal.light, pal.deep, pal.mid);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, handBtn,
+                                 showing ? "hide browser window"
+                                         : "open browser window (click, type, log in)",
+                                 showing ? pal.light : pal.deep);
+            quickButtons_.push_back({handBtn, QuickAction::ToggleBrowserInteract,
+                                     showing
+                                       ? "Put the browser back offscreen"
+                                       : "Show the real browser window - dismiss a cookie "
+                                         "banner, or sign in. The cue stays on air"});
+            metadataY += kInspectorRowStep;
+          }
         }
 
         // Which card this cue is watching. Chosen from the SOURCE menu when the

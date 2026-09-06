@@ -38,6 +38,22 @@
     return kind == CueKind::Browser || kind == CueKind::LowerThird;
   }
 
+  // A browser cue is LIVE on this deck and its renderer is up. Both halves
+  // matter: the cue can be selected without being taken, and the renderer can
+  // be gone while the cue is still the active one.
+  bool deckHasLiveBrowserCue(int deckIndex) {
+    if (!activeCueIsBrowser(deckIndex)) {
+      return false;
+    }
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    return runtime && runtime->browserRenderer && runtime->browserRenderer->isRunning();
+  }
+
+  bool liveBrowserIsInteractive() {
+    const auto* page = const_cast<App*>(this)->liveBrowserRenderer();
+    return page && page->isInteractive();
+  }
+
   deckboy::platform::browser::BrowserRenderer* liveBrowserRenderer() {
     DeckRuntime* runtime = runtimeForDeck(project_.focusedDeckIndex);
     if (!runtime || !runtime->browserRenderer) {

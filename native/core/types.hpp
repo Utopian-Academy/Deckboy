@@ -1641,7 +1641,8 @@ enum class QuickAction {
   // -- Trim reset ----------
   TrimReset,            // clear in/out points back to defaults
   // -- Browser options -----
-  ToggleRefreshOnTake   // toggle browser cue page reload on every take
+  ToggleRefreshOnTake,  // toggle browser cue page reload on every take
+  ToggleBrowserInteract // show/hide the real browser window for hands-on use
 };
 
 // ---------------------------------------------------------------------------
