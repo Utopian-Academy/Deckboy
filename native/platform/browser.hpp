@@ -112,12 +112,32 @@ class BrowserRenderer {
   // the operator clicked in the preview.
   bool clickAtFraction(double fx, double fy);
 
+  // ---- HAND THE PAGE OVER TO THE OPERATOR --------------------------------
+  //
+  // The approach Mitti takes, and it is the right one: rather than synthesise
+  // input, SHOW the real browser window and let the operator use it with a
+  // real mouse and keyboard -- cookie banners, consent dialogs, and the one
+  // thing no amount of synthetic clicking can do, which is LOG IN. Typing a
+  // password, a 2FA code, or picking from a password manager all need a real
+  // window; a fabricated click event does not get you there.
+  //
+  // Offscreen is the normal state and the cue keeps rendering throughout; this
+  // just stops hiding the window that was always there.
+  bool setInteractive(bool interactive);
+  bool isInteractive() const;
+
   // Configuration
   void setUserAgent(const std::string& agent);
   void setZoomLevel(double scale);
   void setDevicePixelRatio(double ratio);
 
  private:
+#if defined(__APPLE__)
+  // One line down the helper's stdin. macOS only, where the page lives in the
+  // deckboy-webview child process.
+  bool sendHelperCommand(const std::string& command);
+#endif
+
   class Impl;
   std::unique_ptr<Impl> impl_;
 

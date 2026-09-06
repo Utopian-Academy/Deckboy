@@ -37,6 +37,9 @@
 #include "browser.hpp"
 
 #include "core/subprocess.hpp"
+#if defined(__APPLE__)
+#include "core/paths.hpp"   // the helper lives beside the executable
+#endif
 
 #include <algorithm>
 #include <array>
@@ -225,6 +228,11 @@ static constexpr UINT WM_WV2_NAVIGATE      = WM_USER + 1;
 static constexpr UINT WM_WV2_RELOAD        = WM_USER + 2;
 static constexpr UINT WM_WV2_EXEC_JS       = WM_USER + 3;
 static constexpr UINT WM_WV2_CLOSE_AND_QUIT = WM_USER + 4;
+// Show or hide the host window for hands-on interaction. Handled on the STA
+// thread that owns the window, like every other message here -- SetWindowPos
+// from another thread on a window owned by a message pump is a deadlock
+// waiting for a quiet afternoon.
+static constexpr UINT WM_WV2_SET_INTERACTIVE = WM_USER + 5;
 // WM_TIMER timer-id for the ~30fps CapturePreview loop
 static constexpr UINT_PTR WV2_CAPTURE_TIMER_ID = 1;
 
@@ -319,6 +327,8 @@ class BrowserRenderer::Impl {
   // Scrollbars are chrome, and a cue is a picture an audience sees. Hidden
   // unless the operator asks otherwise; on Linux this becomes a launch flag.
   bool hideScrollbars_ = true;
+  // True while the real browser window is on screen for the operator to use.
+  bool interactive_ = false;
   double zoomLevel_ = 1.0;
   double devicePixelRatio_ = 1.0;
   BrowserStartPhase phase_ = BrowserStartPhase::None;
@@ -329,8 +339,16 @@ class BrowserRenderer::Impl {
   std::string browserExecutable_;
   ChildProcess browserProcess_;
   ChildProcess xvfbProcess_;
+  // The hands-on window, on the operator's own display. Separate from the cue
+  // browser so closing it cannot take the cue off air.
+  ChildProcess interactiveProcess_;
   fs::path browserProfileDir_;
   std::string virtualDisplayId_;
+#elif defined(__APPLE__)
+  // The deckboy-webview helper: a WKWebView in a parked window, spoken to over
+  // its stdin and captured by window id like any other window source.
+  ChildProcess webviewProcess_;
+  std::string webviewWindowId_;
 #elif defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
   // WebView2 offscreen rendering via CapturePreview (WIC PNG decode)
   std::thread wv2Thread_;
@@ -367,7 +385,16 @@ class BrowserRenderer::Impl {
   }
 
   void stopProcesses(bool clearError) {
-#ifdef __linux__
+#if defined(__APPLE__)
+    // Closing its stdin is the polite stop -- the helper reads EOF and
+    // terminates itself, which lets WebKit tear down in its own time. stop()
+    // is the guarantee behind it.
+    webviewProcess_.stop();
+    webviewWindowId_.clear();
+#elif defined(__linux__)
+    // The hands-on window first: it holds the profile directory open, and the
+    // profile is deleted below.
+    interactiveProcess_.stop();
     browserProcess_.stop();
     xvfbProcess_.stop();
     if (!browserProfileDir_.empty()) {
@@ -429,6 +456,7 @@ class BrowserRenderer::Impl {
 #endif
     isRunning_ = false;
     capturePending_ = false;
+    interactive_ = false;
     phase_ = BrowserStartPhase::None;
     if (clearError) {
       clearFailure();
@@ -679,6 +707,40 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
         if (p->webview_ && !script.empty()) {
           p->webview_->ExecuteScript(script.c_str(), nullptr);
         }
+      } else if (msg.hwnd == nullptr && msg.message == WM_WV2_SET_INTERACTIVE) {
+        // HAND THE PAGE OVER, THE WAY MITTI DOES.
+        //
+        // The host window has been there all along -- full size at (0,0),
+        // pushed to HWND_BOTTOM behind every real window, and marked
+        // NOACTIVATE so it can never steal focus. Interaction is simply
+        // undoing that: bring it forward, let it take focus, and let the
+        // operator use the page with a real mouse and keyboard.
+        //
+        // This is the only way to LOG IN. A synthetic click cannot type a
+        // password, satisfy a 2FA prompt, or open a password manager, and
+        // those are exactly what stands between a cue and the page it wants.
+        //
+        // The window is NOT resized or moved: WebView2's DirectComposition
+        // pipeline is fussy about this window's geometry (see the notes where
+        // it is created -- hiding it, shrinking it or layering it corrupts the
+        // surface), and the capture keeps running throughout, so the cue stays
+        // on air while the operator works.
+        const bool wantInteractive = (msg.wParam != 0);
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        if (wantInteractive) {
+          exStyle &= ~static_cast<LONG_PTR>(WS_EX_NOACTIVATE);
+          SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle);
+          SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+          SetForegroundWindow(hwnd);
+          if (p->controller_) {
+            p->controller_->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+          }
+        } else {
+          exStyle |= static_cast<LONG_PTR>(WS_EX_NOACTIVATE);
+          SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle);
+          SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
       } else if (msg.hwnd == hwnd && msg.message == WM_TIMER
                  && msg.wParam == WV2_CAPTURE_TIMER_ID) {
         // ~30fps capture tick: call CapturePreview if no capture is in-flight.
@@ -802,6 +864,70 @@ bool BrowserRenderer::start(const std::string& url, int width, int height) {
   impl_->phase_ = BrowserStartPhase::WaitChrome;
   impl_->phaseStartedAt_ = std::chrono::steady_clock::now();
   return true;
+#elif defined(__APPLE__)
+  // The helper is next to the app, exactly like deckboy-sckcapture.
+  // Beside the executable (Contents/MacOS/ in a bundle), the same way
+  // capture_backend.cpp finds deckboy-sckcapture.
+  const fs::path helper =
+    deckboy::core::Paths::executablePath().parent_path() / "deckboy-webview";
+  std::error_code helperErr;
+  if (!fs::exists(helper, helperErr)) {
+    impl_->lastError_ = "deckboy-webview helper missing";
+    return false;
+  }
+
+  SpawnOptions options;
+  options.stdinMode = StdioMode::Pipe;    // commands: js / interact / url
+  options.stdoutMode = StdioMode::Pipe;   // the window id comes back here
+  options.stderrMode = StdioMode::Null;
+  if (!spawnProcess(impl_->webviewProcess_, {
+        helper.string(),
+        "--url", impl_->url_,
+        "--width", std::to_string(width),
+        "--height", std::to_string(height)
+      }, options)) {
+    impl_->lastError_ = "browser helper launch failed";
+    return false;
+  }
+
+  // The helper prints "WINDOWID <n>" as soon as the window exists. Read it
+  // before capture can start -- there is nothing to capture until we know
+  // which window, and a helper that has not said is one that failed to open.
+  std::string line;
+  char ch = 0;
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+  while (std::chrono::steady_clock::now() < deadline) {
+    const auto got = ::read(impl_->webviewProcess_.readFd, &ch, 1);
+    if (got <= 0) {
+      break;
+    }
+    if (ch == '\n') {
+      break;
+    }
+    line.push_back(ch);
+  }
+  const std::string marker = "WINDOWID ";
+  if (line.rfind(marker, 0) != 0) {
+    impl_->stopProcesses(false);
+    impl_->lastError_ = "browser helper did not report a window";
+    return false;
+  }
+  impl_->webviewWindowId_ = trimCopy(line.substr(marker.size()));
+  if (impl_->webviewWindowId_.empty()) {
+    impl_->stopProcesses(false);
+    impl_->lastError_ = "browser helper reported an empty window";
+    return false;
+  }
+
+  // From here it is an ordinary window source, so the ScreenCaptureKit path
+  // that already exists does the rest and nothing downstream has to know a
+  // browser was involved.
+  impl_->captureSourceRef_ = "window:" + impl_->webviewWindowId_;
+  impl_->isRunning_ = true;
+  impl_->capturePending_ = true;
+  impl_->phase_ = BrowserStartPhase::WaitCapture;
+  impl_->phaseStartedAt_ = std::chrono::steady_clock::now();
+  return true;
 #else
   impl_->lastError_ = "native browser backend not implemented";
   return false;
@@ -876,6 +1002,12 @@ void BrowserRenderer::markCaptureFailed(const std::string& error) {
 }
 
 bool BrowserRenderer::loadUrl(const std::string& url) {
+#if defined(__APPLE__)
+  if (!url.empty()) {
+    impl_->url_ = trimCopy(url);
+    return sendHelperCommand("url " + impl_->url_);
+  }
+#endif
   impl_->url_ = trimCopy(url);
   if (!impl_->isRunning_) {
     return false;
@@ -892,14 +1024,23 @@ bool BrowserRenderer::loadUrl(const std::string& url) {
 }
 
 bool BrowserRenderer::goBack() {
+#if defined(__APPLE__)
+  return sendHelperCommand("back");
+#endif
   return false;
 }
 
 bool BrowserRenderer::goForward() {
+#if defined(__APPLE__)
+  return sendHelperCommand("forward");
+#endif
   return false;
 }
 
 bool BrowserRenderer::reload() {
+#if defined(__APPLE__)
+  return sendHelperCommand("reload");
+#endif
 #if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
   if (!impl_->isRunning_) return false;
   DWORD tid = impl_->wv2ThreadId_.load();
@@ -913,6 +1054,16 @@ bool BrowserRenderer::reload() {
 
 bool BrowserRenderer::executeJavaScript(const std::string& script) {
   if (script.empty() || !impl_->isRunning_) return false;
+#if defined(__APPLE__)
+  // WKWebView's evaluateJavaScript:, one process along. A script with a
+  // newline in it would be read as two commands, so they are folded to spaces
+  // -- JavaScript does not care, and the alternative is a helper that
+  // silently runs half a statement.
+  std::string flat = script;
+  std::replace(flat.begin(), flat.end(), '\n', ' ');
+  std::replace(flat.begin(), flat.end(), '\r', ' ');
+  return sendHelperCommand("js " + flat);
+#endif
 #if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
   DWORD tid = impl_->wv2ThreadId_.load();
   if (tid != 0 && impl_->wv2Initialized_.load()) {
@@ -959,6 +1110,83 @@ class ScopedDisplay {
 
 }  // namespace
 #endif
+
+#if defined(__APPLE__)
+// Every macOS page control is one line down the helper's stdin. Kept in one
+// function so the newline discipline and the "is it even running" check cannot
+// drift between callers.
+bool BrowserRenderer::sendHelperCommand(const std::string& command) {
+  if (!impl_->isRunning_ || impl_->webviewProcess_.writeFd < 0) {
+    return false;
+  }
+  const std::string line = command + "\n";
+  const auto written = ::write(impl_->webviewProcess_.writeFd,
+                               line.data(), line.size());
+  return written == static_cast<decltype(written)>(line.size());
+}
+#endif
+
+bool BrowserRenderer::isInteractive() const {
+  return impl_->interactive_;
+}
+
+bool BrowserRenderer::setInteractive(bool interactive) {
+  if (!impl_->isRunning_) {
+    return false;
+  }
+#if defined(_WIN32) && defined(DECKBOY_HAS_WEBVIEW)
+  DWORD tid = impl_->wv2ThreadId_.load();
+  if (tid == 0 || !impl_->wv2Initialized_.load()) {
+    return false;
+  }
+  impl_->interactive_ = interactive;
+  PostThreadMessageW(tid, WM_WV2_SET_INTERACTIVE, interactive ? 1u : 0u, 0);
+  return true;
+#elif defined(__APPLE__)
+  // The helper owns the window, so it does the showing. Everything AppKit
+  // touches has to happen on that process's main thread, which is exactly why
+  // this is a message rather than a call.
+  if (!sendHelperCommand(interactive ? "interact 1" : "interact 0")) {
+    return false;
+  }
+  impl_->interactive_ = interactive;
+  return true;
+#elif defined(__linux__)
+  // The page lives on a private Xvfb display that no monitor is showing, so
+  // there is no window to raise. A second Chromium is opened on the OPERATOR'S
+  // display against the SAME profile directory instead -- which is the part
+  // that matters, because cookies and logins live in the profile, so signing
+  // in there is picked up by the cue when it reloads.
+  if (!interactive) {
+    impl_->interactiveProcess_.stop();
+    impl_->interactive_ = false;
+    return true;
+  }
+  if (impl_->interactive_) {
+    return true;
+  }
+  if (impl_->browserExecutable_.empty() || impl_->browserProfileDir_.empty()) {
+    return false;
+  }
+  // No --app here: the operator wants the address bar, the back button and a
+  // place to type.
+  std::vector<std::string> args {
+    impl_->browserExecutable_,
+    "--no-first-run",
+    "--new-window",
+    "--user-data-dir=" + impl_->browserProfileDir_.string(),
+    impl_->url_
+  };
+  if (!spawnDetachedProcess(impl_->interactiveProcess_, args)) {
+    return false;
+  }
+  impl_->interactive_ = true;
+  return true;
+#else
+  (void) interactive;
+  return false;
+#endif
+}
 
 bool BrowserRenderer::setScrollbarsVisible(bool visible) {
 #if defined(__linux__)

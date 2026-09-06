@@ -505,6 +505,7 @@
         "browser: BROWSER <url>  (makes a cue)   -- on the LIVE browser cue:\n"
         "         BROWSER SCROLL <px> | TOP | BOTTOM | CLICK <x0-1> <y0-1>\n"
         "         BROWSER BACK | FORWARD | RELOAD | URL <addr> | SCROLLBAR on|off\n"
+        "         BROWSER INTERACT [on|off]  (show the real window: type, log in)\n"
         "output: OUTPUT [STATUS|LIST|ON|OFF|TOGGLE|SPOUT ...|<n>]\n"
         "settings: GET [key] | SET <key> <value>   (GET alone lists all 86)\n"
         "dashboard: DASH LIST | DASH <n> | DASH SET <n> <label> | <cmd> [| <glyph>]\n"

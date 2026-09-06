@@ -484,6 +484,18 @@ if(APPLE)
   # Deckboy depends on the helper existing next to it, so build it alongside.
   add_dependencies(deckboy-native deckboy-sckcapture)
 
+  # The browser cue backend. A WKWebView in a parked NSWindow, captured through
+  # the sckcapture helper above as an ordinary "window:<id>" source -- so the
+  # browser cue reuses the whole macOS capture path rather than growing a
+  # second one.
+  add_executable(deckboy-webview native/platform/webview_macos.mm)
+  set_target_properties(deckboy-webview PROPERTIES OUTPUT_NAME "deckboy-webview")
+  target_link_libraries(deckboy-webview PRIVATE
+    "-framework Cocoa"
+    "-framework WebKit"
+    "-framework Foundation")
+  add_dependencies(deckboy-native deckboy-webview)
+
   # The main app's window picker (listCaptureWindows in capture_backend.cpp)
   # enumerates on-screen windows via CoreGraphics/CoreFoundation, so the app
   # itself must link them (the helper's own link line above is separate).

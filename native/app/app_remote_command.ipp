@@ -2298,7 +2298,8 @@
       const bool isSubVerb =
         first == "SCROLL" || first == "CLICK" || first == "SCROLLBAR" ||
         first == "BACK" || first == "FORWARD" || first == "RELOAD" ||
-        first == "URL" || first == "TOP" || first == "BOTTOM";
+        first == "URL" || first == "TOP" || first == "BOTTOM" ||
+        first == "INTERACT";
       if (!isSubVerb) {
         std::string url = joinParts(parts, 1);
         if (!url.empty()) {
@@ -2385,6 +2386,20 @@
         project_.browserScrollbars = show;
         markProjectDirty();
         remoteCommandDetail_ = show ? "scrollbar shown" : "scrollbar hidden";
+        return;
+      }
+      if (first == "INTERACT") {
+        // The hand icon, as a verb. Shows the real browser window so the
+        // operator can click, scroll, type and LOG IN -- the things no
+        // synthetic event can do.
+        const bool want = parts.size() > 2 ? (toUpper(parts[2]) == "ON")
+                                           : !page->isInteractive();
+        if (!page->setInteractive(want)) {
+          failRemoteCommand("BROWSER INTERACT: this browser backend cannot show a window");
+          return;
+        }
+        remoteCommandDetail_ = want ? "browser window shown - click, type, log in"
+                                    : "browser window hidden";
         return;
       }
       if (first == "BACK") {
