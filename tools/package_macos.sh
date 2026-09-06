@@ -32,8 +32,10 @@
 #     the one-line fix. Building locally, or transferring by USB/AirDrop, avoids
 #     it entirely.
 #   * No universal binary. The bundle is whatever architecture it was built on.
-#   * Browser cues (WebView2), Spout and d3d11va zero-copy decode are Windows
-#     features and are absent by construction, not broken.
+#   * Spout and d3d11va zero-copy decode are Windows features and are absent
+#     by construction, not broken. Browser cues USED to be on that list; they
+#     are not any more -- deckboy-webview (WKWebView) is bundled below and
+#     captured through deckboy-sckcapture.
 #
 # Usage:
 #   ./tools/package_macos.sh                     # expects an existing build/
