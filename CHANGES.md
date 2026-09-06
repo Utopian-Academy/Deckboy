@@ -1,5 +1,31 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.317 (browser cues on macOS, and one window source everywhere)
+
+**Browser cues run on macOS.** A page renders, takes clicks and typing, and
+goes to air like any other cue - the same `BROWSER CLICK`, `TYPE`, `KEY`,
+`SCROLL` and `URL` verbs as everywhere else. A cue with no address of its own
+opens the Video Jockey page, and if a page cannot be reached the cue shows a
+warning card naming the address instead of going dark.
+
+**Window sources speak one language on all three platforms.** `desktop`,
+`screen:N`, `window:<id>`, `title:<text>` and `region:X,Y,W,H` mean the same
+thing on Windows, macOS and Linux, so a show carries between machines. The
+window picker now appears on every platform when a window source is added, and
+a source a machine cannot capture says so plainly rather than quietly showing
+something else.
+
+**Frame Count, a new test pattern.** Test Clock answers "are these two feeds in
+sync"; Frame Count answers "did every frame arrive, and how far behind is the
+far end". The whole field steps colour on every tick, so a dropped or repeated
+frame is visible from across a room, and photographing the source and the
+output together makes the two numbers the latency. There is an emoji variant,
+because there should be.
+
+**Colour controls apply as you turn them.** Brightness, contrast, saturation,
+hue and the chroma key now update on the output the moment they change, on
+stills and patterns and live sources as well as playing video.
+
 ## 2026-09-06 - v0.99.316 (browser cues you can drive, and a desk that explains itself)
 
 **Browser cues take input.** Clicking the programme monitor clicks the page, so
