@@ -3661,8 +3661,24 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
   if (!plan.supported || plan.ffmpegArgs.empty()) {
     return false;
   }
-  if (!spawnPipeProcess(videoProcess_, plan.ffmpegArgs)) {
-    return false;
+  // KEEP THE HELPER'S STDERR.
+  //
+  // This spawned with stderr sent to /dev/null, so when a capture backend
+  // refused -- wrong window, missing permission, unsupported size -- it said so
+  // into nothing and the operator got a black output with no reason anywhere.
+  // That cost a long session on macOS: the helper was printing exactly what was
+  // wrong and every word was being discarded.
+  //
+  // Same reasoning as runCaptured() in the subprocess layer: a tool that fails
+  // has usually just explained why.
+  {
+    SpawnOptions options;
+    options.stdinMode = StdioMode::Null;
+    options.stdoutMode = StdioMode::Pipe;   // the frames
+    options.stderrMode = StdioMode::Inherit; // straight to Deckboy's own stderr
+    if (!spawnProcess(videoProcess_, plan.ffmpegArgs, options)) {
+      return false;
+    }
   }
 
   // Spawn decode thread — identical pattern to startDecoderThreads video thread
