@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.324 (INSTALL & RESTART restarts, via the installer)
+
+**The update restarts Deckboy.** The installer already knew how to launch the
+app when it finished - the entry was just marked as a checkbox on the final
+page, so it only happened if you noticed it and left it ticked. It now runs by
+itself, which is what the button always promised.
+
 ## 2026-09-07 - v0.99.323 (a target to update to)
 
 No functional change over v0.99.322. Cut so that the repaired updater in
