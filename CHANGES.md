@@ -1,5 +1,10 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.328 (a target to update to)
+
+No functional change over v0.99.327. Cut so the update cycle in v0.99.327 has a
+newer release to install on each platform.
+
 ## 2026-09-07 - v0.99.327 (the installer is on screen where you can reach it)
 
 **The Windows installer actually appears.** It was being started in a way that
