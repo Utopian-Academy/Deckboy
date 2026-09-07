@@ -83,3 +83,27 @@ Root: HKA; Subkey: "Software\Classes\Deckboy.Show\shell\open\command"; ValueType
 ; is what the button promised. skipifsilent stays: a silent install is
 ; somebody scripting a deployment, and they do not want a window.
 Filename: "{app}\Deckboy.exe"; Description: "Launch Deckboy now"; Flags: nowait skipifsilent
+
+; CLEAN UP THE INSTALLER WE CAME FROM.
+;
+; An update leaves a ~94MB setup.exe behind, and the app cannot tidy it up
+; afterwards: once the update completes you are running the NEWLY INSTALLED
+; Deckboy, whose state directory is a different folder from the one the
+; download landed in. So the old copy's data/updates keeps the installer
+; forever, and every update adds another.
+;
+; Only when Deckboy's own updater started us. Someone who downloaded the
+; installer deliberately and ran it themselves should still have it afterwards
+; -- silently deleting a file out of somebody's Downloads folder is not ours to
+; do. Deckboy passes /fromupdater=1; nothing else does.
+;
+; cmd rather than Inno: a running installer cannot delete itself, so a detached
+; shell waits a few seconds for us to exit and then removes it.
+Filename: "{cmd}"; Parameters: "/c ping -n 5 127.0.0.1 >nul & del /f /q ""{srcexe}"""; Flags: nowait runhidden; Check: LaunchedByUpdater
+
+[Code]
+// True only when Deckboy's updater launched this installer (/fromupdater=1).
+function LaunchedByUpdater: Boolean;
+begin
+  Result := ExpandConstant('{param:fromupdater|0}') = '1';
+end;

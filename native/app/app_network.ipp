@@ -1819,6 +1819,22 @@
 
   // Where a downloaded installer lives: under the state dir, never beside the
   // application, which may sit in a read-only or signed location.
+#if defined(__APPLE__)
+  // The .app bundle this process is running from, or empty when we are not in
+  // one (a bare binary during development). Contents/MacOS/Deckboy -> up three.
+  fs::path macAppBundlePath() const {
+    const fs::path exe = deckboy::core::Paths::executablePath();
+    if (exe.empty()) {
+      return {};
+    }
+    const fs::path bundle = exe.parent_path().parent_path().parent_path();
+    if (bundle.extension() == ".app") {
+      return bundle;
+    }
+    return {};
+  }
+#endif
+
   fs::path updateDownloadDir() const {
     return deckboy::core::Paths::stateDir() / "updates";
   }
@@ -1953,7 +1969,10 @@
     //
     // Which leaves nothing for this to do but start the installer and get out
     // of its way.
-    const std::vector<std::string> args {installer};
+    // /fromupdater=1 tells the installer WE started it, which is what lets it
+    // delete itself afterwards. Without the flag it leaves the file alone --
+    // an installer somebody downloaded and ran themselves is theirs to keep.
+    const std::vector<std::string> args {installer, "/fromupdater=1"};
     ChildProcess child;
     if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
       triggerToast("update: could not start the installer");
@@ -1961,23 +1980,162 @@
     }
     gShouldQuit.store(true);   // the installer replaces this build; step aside
 #elif defined(__APPLE__)
-    // A macOS asset is a .dmg the operator drags to Applications themselves,
-    // so there is no moment at which "restart" would mean anything -- the new
-    // build is not in place yet. Opening it and saying so is the honest
-    // behaviour; the button says INSTALL rather than INSTALL & RESTART.
-    const std::vector<std::string> args {"open", installer};
-    ChildProcess child;
-    if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
-      triggerToast("update: could not open the download");
+    // INSTALL IT, DON'T JUST SHOW IT.
+    //
+    // This used to `open` the .dmg and tell the operator to drag Deckboy to
+    // Applications -- which is not an update, it is a file manager. The whole
+    // cycle is meant to be download, install, relaunch, tidy up.
+    //
+    // An app cannot replace its own bundle while it is running, so the work
+    // goes to a detached helper script: it waits for us to exit, mounts the
+    // image, copies the new bundle over this one, unmounts, deletes the .dmg
+    // and reopens Deckboy. Unlike the Windows attempt at this, a detached
+    // POSIX child genuinely survives its parent, so the trap that bit that
+    // version does not exist here.
+    //
+    // ditto rather than cp: it preserves the bundle's symlinks, permissions
+    // and extended attributes, and a Deckboy.app copied with plain cp will not
+    // launch.
+    const fs::path bundlePath = macAppBundlePath();
+    if (bundlePath.empty()) {
+      triggerToast("update: cannot find this app bundle to replace");
       return;
     }
-    triggerToast("update: drag Deckboy to Applications, then reopen it");
+    const fs::path script = fs::path(installer).parent_path() / "deckboy-install.sh";
+    {
+      std::ofstream out(script, std::ios::binary | std::ios::trunc);
+      if (!out) {
+        triggerToast("update: could not write the install helper");
+        return;
+      }
+      auto q = [](const std::string& value) {
+        std::string escaped;
+        for (char ch : value) {
+          if (ch == '\'') {
+            escaped += "'\''";
+          } else {
+            escaped.push_back(ch);
+          }
+        }
+        return "'" + escaped + "'";
+      };
+      out << "#!/bin/bash\n"
+          << "set -u\n"
+          << "LOG=" << q((fs::path(installer).parent_path() / "install.log").string()) << "\n"
+          << "exec >>\"$LOG\" 2>&1\n"
+          << "echo \"--- $(date) install helper\"\n"
+          // Wait for Deckboy to go, so the bundle is not being replaced under a
+          // running process.
+          << "for i in $(seq 1 120); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          << "MNT=$(mktemp -d /tmp/deckboy-dmg-XXXXXX)\n"
+          << "hdiutil attach " << q(installer)
+          << " -nobrowse -quiet -mountpoint \"$MNT\" || { echo 'attach failed'; exit 1; }\n"
+          << "NEW=$(find \"$MNT\" -maxdepth 2 -name 'Deckboy.app' | head -1)\n"
+          << "if [ -n \"$NEW\" ]; then\n"
+          << "  rm -rf " << q(bundlePath.string()) << ".old\n"
+          << "  mv " << q(bundlePath.string()) << " " << q(bundlePath.string()) << ".old || true\n"
+          << "  if ditto \"$NEW\" " << q(bundlePath.string()) << "; then\n"
+          << "    rm -rf " << q(bundlePath.string()) << ".old\n"
+          << "    echo 'replaced bundle'\n"
+          << "  else\n"
+          // Put the old one back rather than leave the operator with nothing.
+          << "    echo 'ditto failed - restoring'\n"
+          << "    rm -rf " << q(bundlePath.string()) << "\n"
+          << "    mv " << q(bundlePath.string()) << ".old " << q(bundlePath.string()) << "\n"
+          << "  fi\n"
+          << "else\n"
+          << "  echo 'no Deckboy.app inside the image'\n"
+          << "fi\n"
+          << "hdiutil detach \"$MNT\" -quiet 2>/dev/null\n"
+          << "rmdir \"$MNT\" 2>/dev/null\n"
+          << "rm -f " << q(installer) << "\n"
+          << "open " << q(bundlePath.string()) << "\n"
+          << "rm -f \"$0\"\n";
+    }
+    std::error_code chmodErr;
+    fs::permissions(script,
+                    fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec,
+                    fs::perm_options::replace, chmodErr);
+    {
+      ChildProcess child;
+      const std::vector<std::string> args {"/bin/bash", script.string()};
+      if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
+        triggerToast("update: could not start the install helper");
+        return;
+      }
+    }
+    gShouldQuit.store(true);   // the helper replaces this bundle; step aside
 #else
-    // A Linux build is an AppImage or a tarball: there is nothing to run, so
-    // show the operator where it landed and let them put it where they keep
-    // things.
-    deckboy::platform::revealFileInFileManager(installer);
-    triggerToast("update: downloaded to " + installer);
+    // INSTALL IT, DON'T JUST POINT AT IT.
+    //
+    // This used to reveal the download in a file manager and leave the rest to
+    // the operator. An AppImage IS the application, though -- one executable
+    // file -- so replacing it in place is the whole install, and we can do the
+    // full cycle here too.
+    //
+    // Only when we are actually RUNNING from an AppImage. The runtime sets
+    // APPIMAGE to its own path; a tarball or distro build has no single file to
+    // swap and no business being overwritten by us, so that case still just
+    // reveals the download and says where it went.
+    const char* appImagePath = std::getenv("APPIMAGE");
+    if (appImagePath == nullptr || *appImagePath == '\0') {
+      deckboy::platform::revealFileInFileManager(installer);
+      triggerToast("update: downloaded to " + installer);
+      return;
+    }
+    const fs::path target(appImagePath);
+    const fs::path script = fs::path(installer).parent_path() / "deckboy-install.sh";
+    {
+      std::ofstream out(script, std::ios::binary | std::ios::trunc);
+      if (!out) {
+        triggerToast("update: could not write the install helper");
+        return;
+      }
+      auto q = [](const std::string& value) {
+        std::string escaped;
+        for (char ch : value) {
+          if (ch == '\'') {
+            escaped += "'\''";
+          } else {
+            escaped.push_back(ch);
+          }
+        }
+        return "'" + escaped + "'";
+      };
+      out << "#!/bin/bash\n"
+          << "set -u\n"
+          << "LOG=" << q((fs::path(installer).parent_path() / "install.log").string()) << "\n"
+          << "exec >>\"$LOG\" 2>&1\n"
+          << "echo \"--- $(date) install helper\"\n"
+          // The running AppImage keeps its file open; wait for us to exit.
+          << "for i in $(seq 1 120); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          << "chmod +x " << q(installer) << "\n"
+          // Keep the old one until the new is in place, then drop it.
+          << "cp -f " << q(target.string()) << " " << q(target.string()) << ".old 2>/dev/null\n"
+          << "if mv -f " << q(installer) << " " << q(target.string()) << "; then\n"
+          << "  chmod +x " << q(target.string()) << "\n"
+          << "  rm -f " << q(target.string()) << ".old\n"
+          << "  echo 'replaced appimage'\n"
+          << "else\n"
+          << "  echo 'replace failed - restoring'\n"
+          << "  mv -f " << q(target.string()) << ".old " << q(target.string()) << " 2>/dev/null\n"
+          << "fi\n"
+          << "setsid " << q(target.string()) << " >/dev/null 2>&1 &\n"
+          << "rm -f \"$0\"\n";
+    }
+    std::error_code chmodErr;
+    fs::permissions(script,
+                    fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec,
+                    fs::perm_options::replace, chmodErr);
+    {
+      ChildProcess child;
+      const std::vector<std::string> args {"/bin/bash", script.string()};
+      if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
+        triggerToast("update: could not start the install helper");
+        return;
+      }
+    }
+    gShouldQuit.store(true);   // the helper replaces this AppImage; step aside
 #endif
   }
 
