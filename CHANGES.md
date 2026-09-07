@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.323 (a target to update to)
+
+No functional change over v0.99.322. Cut so that the repaired updater in
+v0.99.322 has a newer release to actually update TO, which is the only way to
+prove the restart end to end rather than in halves.
+
 ## 2026-09-07 - v0.99.322 (the updater's restart actually restarts)
 
 **INSTALL & RESTART brings Deckboy back.** The relauncher was being started and
