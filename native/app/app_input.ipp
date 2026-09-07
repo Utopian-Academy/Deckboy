@@ -95,6 +95,19 @@
       } else if (pointInRect(x, y, startupOpenSavedBtn_)) {
         openProjectFromPicker();
         showStartupDialog_ = false;
+      } else {
+        // The recent rows. Read the list again rather than caching it beside
+        // the rects: the rects were built during the last render and this is
+        // the click that follows, so re-reading is the cheap way to be sure
+        // the row that was drawn is the file that opens.
+        const std::vector<fs::path> recents = loadRecentProjects();
+        for (std::size_t i = 0; i < startupRecentBtns_.size(); ++i) {
+          if (pointInRect(x, y, startupRecentBtns_[i]) && i < recents.size()) {
+            openProjectFromPath(recents[i]);
+            showStartupDialog_ = false;
+            break;
+          }
+        }
       }
       return;
     }
@@ -1026,6 +1039,14 @@
           showStartupDialog_ = false;
         } else {
           openProjectFromPicker();
+          showStartupDialog_ = false;
+        }
+      } else if (key >= SDLK_1 && key <= SDLK_5) {
+        // The digits match the numbers printed on the rows.
+        const int wanted = static_cast<int>(key - SDLK_1);
+        const std::vector<fs::path> recents = loadRecentProjects();
+        if (wanted < static_cast<int>(recents.size())) {
+          openProjectFromPath(recents[wanted]);
           showStartupDialog_ = false;
         }
       } else if (key == SDLK_ESCAPE) {

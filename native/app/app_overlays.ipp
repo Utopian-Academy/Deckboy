@@ -474,60 +474,139 @@
     }
     // +28 covers drawCenteredText's inset and the framed-panel bevel; 184 keeps
     // the original size as a floor so Segoe UI is unchanged.
-    const int startupBtnW = std::max(184, startupWidest + 28);
-    const int startupBtnGap = 10;
-    const int startupMargin = 36;
+    const int startupBtnW = std::max(uiScaled(184), startupWidest + uiScaled(28));
+    const int startupBtnGap = uiScaled(10);
+    const int startupMargin = uiScaled(36);
     const int startupRowW = startupBtnW * 3 + startupBtnGap * 2;
 
-    // Dialog panel — wide enough for the button row plus margins, never narrower
-    // than the original 660.
-    const int kDW = std::max(660, startupRowW + startupMargin * 2);
-    const int kDH = 440;
+    // THE RECENT SHOWS, AND WHY THE DIALOG IS MEASURED RATHER THAN 440 TALL.
+    //
+    // "Open a show file" was already here -- OPEN SAVED, and the O key, open
+    // the picker. What was missing is the list: Deckboy remembered exactly one
+    // previous show, so an operator keeping a house show, a rehearsal file and
+    // last night's on one machine went through the picker for all but the most
+    // recent of them.
+    //
+    // The number of rows is not fixed, so neither is the height. The old
+    // dialog was 440 tall with every element at a hand-typed offset (24, 78,
+    // 116, 152, 176, 270, 352, 374) and none of them scaled -- the same
+    // arrangement that put SAFETY / TIMECODE through the UI Scale picker on
+    // the settings page. It flows from a cursor now and the panel is sized
+    // from where the cursor ended.
+    const std::vector<fs::path> recents = loadRecentProjects();
+    const int kRecentRows = std::min<int>(5, static_cast<int>(recents.size()));
+
+    const int lineH = std::max(uiScaled(18), textLineHeight(fontSmall_));
+    const int bodyH = std::max(uiScaled(24), textLineHeight(fontBase_));
+    const int gap = uiScaled(8);
+    const int rowH = std::max(uiScaled(26), textLineHeight(fontSmall_) + uiScaled(10));
+    TTF_Font* titleFont = fontPixelTitle_ ? fontPixelTitle_
+                        : (fontPixel_ ? fontPixel_ : fontLarge_);
+    const int titleH = std::max(uiScaled(52), textLineHeight(titleFont) + uiScaled(8));
+    const int buttonH = uiScaled(58);
+
+    // Height, from the rows that are actually about to be drawn.
+    int neededH = uiScaled(24) + titleH               // wordmark
+                + lineH + uiScaled(16)                // subtitle
+                + bodyH + gap                         // "Choose startup mode:"
+                + lineH + uiScaled(4) + lineH + gap;  // previous-file pair
+    if (kRecentRows > 0) {
+      neededH += lineH + uiScaled(4)                  // "Recent shows:"
+               + kRecentRows * (rowH + uiScaled(4)) + uiScaled(16);
+    }
+    neededH += buttonH + gap                          // the button row
+             + lineH + uiScaled(4) + lineH            // two hint lines
+             + uiScaled(24);                          // bottom margin
+
+    const int kDW = std::max(uiScaled(660), startupRowW + startupMargin * 2);
+    // The floor is a floor, not the size. It used to be a flat 440 because
+    // every row inside was at a fixed offset; now that the panel is measured,
+    // holding it at 440 with no recents just leaves 120px of empty green under
+    // the hint lines, which reads as an unfinished dialog.
+    const int kDH = std::min(std::max(uiScaled(260), neededH),
+                             std::max(uiScaled(240), height - uiScaled(20)));
     SDL_Rect dialog {(width - kDW) / 2, (height - kDH) / 2, kDW, kDH};
     Primitives::drawFramedPanel(controlRenderer_, dialog, pal.shellInner, pal.deep, pal.shellOuter);
 
     // Title — the WORDMARK is headline-sized; the version stays small on
     // the subtitle line (it's metadata, not brand).
-    int tx = dialog.x + 36;
-    TTF_Font* titleFont = fontPixelTitle_ ? fontPixelTitle_
-                        : (fontPixel_ ? fontPixel_ : fontLarge_);
+    const int tx = dialog.x + startupMargin;
+    const int tw = dialog.w - startupMargin * 2;
+    int y = dialog.y + uiScaled(24);
     drawTextSafe(controlRenderer_, titleFont,
-                 SDL_Rect {tx, dialog.y + 24, dialog.w - 72, 52},
+                 SDL_Rect {tx, y, tw, titleH},
                  std::string(kAppTitle), pal.fg);
+    y += titleH;
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {tx, dialog.y + 78, dialog.w - 72, 18},
+                 SDL_Rect {tx, y, tw, lineH},
                  "dot-matrix cue deck  -  " + std::string(kAppVersionTag), pal.inkSoft);
+    y += lineH + uiScaled(16);
+
     // The dialog panel is shell_inner (near-black on terminal themes), so its
     // body text rides the on-body ink roles, not the dark screen_deep/dark.
     SDL_Color dlgInk = pal.fg;
     SDL_Color dlgSub = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontBase_,
-                 SDL_Rect {tx, dialog.y + 116, dialog.w - 72, 24},
+                 SDL_Rect {tx, y, tw, bodyH},
                  "Choose startup mode:", dlgInk);
+    y += bodyH + gap;
 
     std::string fname = currentProjectFile_.empty() ? "default.deckboy" : currentProjectFile_.filename().string();
     bool hasSavedFile = !currentProjectFile_.empty() && fs::exists(currentProjectFile_);
     if (hasSavedFile) {
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {tx, dialog.y + 152, dialog.w - 72, 18},
+                   SDL_Rect {tx, y, tw, lineH},
                    "Previous show file:", dlgInk);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {tx, dialog.y + 176, dialog.w - 72, 18},
+                   SDL_Rect {tx, y + lineH + uiScaled(4), tw, lineH},
                    fname, dlgSub);
     } else {
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {tx, dialog.y + 160, dialog.w - 72, 18},
+                   SDL_Rect {tx, y, tw, lineH},
                    "No previous show file found at startup path.", dlgSub);
+    }
+    y += lineH + uiScaled(4) + lineH + gap;
+
+    // Recent shows: named, clickable, and numbered so the keyboard reaches
+    // them too. The folder goes on the row as well -- two shows called
+    // "show.deckboy" in different venues is the normal case, not the odd one.
+    startupRecentBtns_.clear();
+    if (kRecentRows > 0) {
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {tx, y, tw, lineH}, "Recent shows:", dlgInk);
+      y += lineH + uiScaled(4);
+      for (int i = 0; i < kRecentRows; ++i) {
+        SDL_Rect row {tx, y, tw, rowH};
+        const bool hot = pointInRect(mouseX_, mouseY_, row);
+        Primitives::drawFramedPanel(controlRenderer_, row,
+                                    hot ? pal.dark : pal.mid, pal.deep, pal.light);
+        const std::string name = recents[i].filename().string();
+        const std::string folder = recents[i].parent_path().filename().string();
+        const SDL_Color rowInk = hot ? pal.light : pal.deep;
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {row.x + uiScaled(8), row.y, tw / 2, rowH},
+                     std::to_string(i + 1) + ".  " + name, rowInk);
+        if (!folder.empty()) {
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect {row.x + tw / 2, row.y,
+                                 tw / 2 - uiScaled(8), rowH},
+                       folder, rowInk);
+        }
+        startupRecentBtns_.push_back(row);
+        y += rowH + uiScaled(4);
+      }
+      // The list and the buttons are different kinds of thing; without real
+      // air between them the last recent reads as a fourth button.
+      y += uiScaled(16) - uiScaled(4);
     }
 
     // Buttons — centred as a row using the measured width computed above, so
     // they stay inside the (possibly widened) dialog on every font.
-    int buttonY = dialog.y + 270;
-    int buttonH = 58;
     int buttonRowX = dialog.x + (dialog.w - startupRowW) / 2;
-    startupNewBtn_ = {buttonRowX, buttonY, startupBtnW, buttonH};
-    startupLoadBtn_ = {startupNewBtn_.x + startupBtnW + startupBtnGap, buttonY, startupBtnW, buttonH};
-    startupOpenSavedBtn_ = {startupLoadBtn_.x + startupBtnW + startupBtnGap, buttonY, startupBtnW, buttonH};
+    startupNewBtn_ = {buttonRowX, y, startupBtnW, buttonH};
+    startupLoadBtn_ = {startupNewBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
+    startupOpenSavedBtn_ = {startupLoadBtn_.x + startupBtnW + startupBtnGap, y, startupBtnW, buttonH};
+    y += buttonH + gap;
 
     Primitives::drawFramedPanel(controlRenderer_, startupNewBtn_, pal.mid,
                                 pal.deep, pal.light);
@@ -546,11 +625,14 @@
 
     SDL_Color hintInk = pal.inkSoft;
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {tx, dialog.y + 352, dialog.w - 72, 18},
-                 "N=new  Enter/P=previous  O=open saved picker",
+                 SDL_Rect {tx, y, tw, lineH},
+                 kRecentRows > 0
+                   ? "N=new  Enter/P=previous  O=open saved picker  1-" +
+                       std::to_string(kRecentRows) + "=recent"
+                   : std::string("N=new  Enter/P=previous  O=open saved picker"),
                  hintInk);
     drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {tx, dialog.y + 374, dialog.w - 72, 18},
+                 SDL_Rect {tx, y + lineH + uiScaled(4), tw, lineH},
                  "Esc=continue with current session",
                  hintInk);
   }

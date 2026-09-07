@@ -8223,6 +8223,9 @@ class App {
   SDL_Rect startupLoadBtn_ {};
   SDL_Rect startupNewBtn_ {};
   SDL_Rect startupOpenSavedBtn_ {};
+  // Recent-show rows on the splash, in the order they are drawn: index i is
+  // recent i, which is also the digit that opens it.
+  std::vector<SDL_Rect> startupRecentBtns_;
   // SDL3 native file-dialog results, marshalled from the dialog callback onto
   // the main thread. See the async dialog helpers in app_cue_mgmt.ipp — this
   // replaces the osascript/powershell/zenity subprocess pickers, which had to

@@ -43,6 +43,74 @@
     return Paths::stateDir() / "last_project.txt";
   }
 
+  // The last few shows, newest first.
+  //
+  // last_project.txt remembers exactly one, which is all "OPEN PREVIOUS"
+  // needs. An operator running several shows off one machine -- a venue with
+  // a house show, a rehearsal file and last night's -- has to go through the
+  // file picker for every one of them except the most recent. Kept beside the
+  // pointer file rather than inside it: the pointer is read at startup before
+  // anything else and its one-line format is not worth changing.
+  fs::path recentProjectsFile() const {
+    return Paths::stateDir() / "recent_projects.txt";
+  }
+
+  static constexpr std::size_t kRecentProjectsKept = 8;
+
+  // Filtered by existence at READ time, not at write time. A show on a drive
+  // that is not mounted right now has not stopped being recent, and dropping
+  // it the moment the drive is unplugged is how a recents list quietly empties
+  // itself. It just does not appear until the path is there again.
+  std::vector<fs::path> loadRecentProjects(bool existingOnly = true) const {
+    std::vector<fs::path> out;
+    std::ifstream input(recentProjectsFile(), std::ios::binary);
+    if (!input) {
+      return out;
+    }
+    std::string line;
+    while (std::getline(input, line) && out.size() < kRecentProjectsKept) {
+      fs::path candidate = normalizeProjectPath(trim(line));
+      if (candidate.empty()) {
+        continue;
+      }
+      if (existingOnly && !fs::exists(candidate)) {
+        continue;
+      }
+      bool seen = false;
+      for (const fs::path& have : out) {
+        if (have == candidate) { seen = true; break; }
+      }
+      if (!seen) {
+        out.push_back(candidate);
+      }
+    }
+    return out;
+  }
+
+  void noteRecentProject(const fs::path& projectFile) const {
+    if (projectFile.empty()) {
+      return;
+    }
+    fs::path normalized = normalizeProjectPath(projectFile);
+    // Read unfiltered: a rewrite must not silently drop the entries whose
+    // drive happens to be absent while we are writing.
+    std::vector<fs::path> kept = loadRecentProjects(false);
+    kept.erase(std::remove(kept.begin(), kept.end(), normalized), kept.end());
+    kept.insert(kept.begin(), normalized);
+    if (kept.size() > kRecentProjectsKept) {
+      kept.resize(kRecentProjectsKept);
+    }
+    std::error_code ec;
+    fs::create_directories(recentProjectsFile().parent_path(), ec);
+    std::ofstream output(recentProjectsFile(), std::ios::binary | std::ios::trunc);
+    if (!output) {
+      return;
+    }
+    for (const fs::path& entry : kept) {
+      output << entry.string() << "\n";
+    }
+  }
+
   fs::path startupProjectFile() const {
     const char* envPath = std::getenv("DECKBOY_PROJECT");
     if (envPath && *envPath) {
@@ -65,6 +133,10 @@
     if (projectFile.empty()) {
       return;
     }
+    // Every path that remembers "the last one" is a path that has just opened
+    // or saved a show, so the recents list is maintained from the same three
+    // call sites rather than a fourth set that could miss one.
+    noteRecentProject(projectFile);
     fs::path normalized = normalizeProjectPath(projectFile);
     std::error_code ec;
     fs::create_directories(lastOpenedProjectPointerFile().parent_path(), ec);

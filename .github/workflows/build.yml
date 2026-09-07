@@ -330,9 +330,21 @@ jobs:
           cp data/*.ttf "$DECKBOY_ROOT/data/" 2>/dev/null
           for tab in 0 1 2 3.1 3.2 5; do
             name=$(echo "$tab" | tr '.' '_')
-            ./build/Deckboy --settings "$tab"               --ui-dump "ui-shots/macos_tab${name}.bmp" 150
+            ./build/Deckboy --settings "$tab" --ui-dump "ui-shots/macos_tab${name}.bmp" 150
             echo "tab $tab -> rc=$?"
           done
+          # The splash, with a seeded recents list -- it is the first thing an
+          # operator sees and the one screen that is different on a fresh
+          # install, so it is worth a picture of its own.
+          mkdir -p "$RUNNER_TEMP/shows/Playhouse" "$RUNNER_TEMP/shows/Gigs"
+          printf 'ui_scale\t1.0\n' > "$RUNNER_TEMP/shows/Playhouse/house-rig.deckboy"
+          printf 'ui_scale\t1.0\n' > "$RUNNER_TEMP/shows/Gigs/gig-night.deckboy"
+          {
+            echo "$RUNNER_TEMP/shows/Playhouse/house-rig.deckboy"
+            echo "$RUNNER_TEMP/shows/Gigs/gig-night.deckboy"
+          } > "$DECKBOY_ROOT/data/recent_projects.txt"
+          ./build/Deckboy --ui-dump "ui-shots/macos_splash.bmp" 400
+          echo "splash -> rc=$?"
           ls -la ui-shots || true
 
       - name: Upload settings screenshots
