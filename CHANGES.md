@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.320 (the mascot speaks up, and the crossfader gets its width back)
+
+**The mascot's tips are readable.** The face appears over a deliberately
+darkened programme monitor, and its words were drawn in the on-body ink meant
+for panels - so the face was there and the line under it was not.
+
+**VJ mode keeps its crossfader.** In a narrower window the fixed controls held
+their ground and the fader took whatever was left, which was a sliver. The
+tempo, TAP and blend controls now step aside instead, until the fader has a
+width worth dragging - and none of them shortens its label to fit, because half
+a word reads as broken rather than as shorthand.
+
 ## 2026-09-07 - v0.99.319 (the updater restarts, as it always said it would)
 
 **"INSTALL & RESTART" now restarts.** Installing an update launched the
