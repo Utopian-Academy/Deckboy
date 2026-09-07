@@ -893,7 +893,17 @@
                                   (updateReady || updateOffered) ? pal.light : pal.tile,
                                   pal.deep, pal.mid);
       drawCenteredText(controlRenderer_, fontSmall_,
+                       // Only Windows can genuinely restart into the new
+                       // build: a macOS asset is a .dmg the operator drags
+                       // to Applications, and a Linux one is an AppImage or
+                       // tarball they place themselves. Promising a restart
+                       // there is a label writing a cheque the platform
+                       // cannot cash.
+#if defined(_WIN32)
                        updateReady ? "INSTALL & RESTART" : "DOWNLOAD",
+#else
+                       updateReady ? "INSTALL" : "DOWNLOAD",
+#endif
                        (updateReady || updateOffered) ? pal.deep : pal.inkSoft, updActBtn);
       settingsBtns_.push_back({updActBtn,
                                updateReady ? kSettingsActionUpdateInstall

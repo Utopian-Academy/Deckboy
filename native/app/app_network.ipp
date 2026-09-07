@@ -1934,18 +1934,74 @@
     // #endif -- which the Linux arm, having returned early, never declares, so
     // the shared code did not compile there at all. Windows never sees that
     // branch, which is why it took CI to find. Build the other configurations.
-#if defined(_WIN32) || defined(__APPLE__)
 #if defined(_WIN32)
-    const std::vector<std::string> args {installer};
-#else
-    const std::vector<std::string> args {"open", installer};
-#endif
+    // "INSTALL & RESTART" HAS TO ACTUALLY RESTART.
+    //
+    // This used to spawn the installer and set gShouldQuit, and that was the
+    // whole of it: Deckboy stepped aside, the installer replaced it, and
+    // nothing ever brought it back. The button had promised a restart since
+    // the day it was written.
+    //
+    // It cannot be done in this process -- we are the thing being overwritten,
+    // and we have to be gone before the installer can replace our exe. So a
+    // tiny relauncher is written out and detached: it waits for the installer
+    // to finish, then starts the new build.
+    //
+    // -Wait, not a fixed sleep. An installer that elevates hands off to a
+    // child, and guessing how long that takes is how you relaunch the OLD
+    // binary halfway through its own replacement.
+    const fs::path exePath = deckboy::core::Paths::executablePath();
+    const fs::path relaunchScript =
+      fs::path(installer).parent_path() / "deckboy-relaunch.ps1";
+    {
+      std::ofstream out(relaunchScript, std::ios::binary | std::ios::trunc);
+      if (out) {
+        // Single-quoted PowerShell literals; a quote inside a path is doubled.
+        auto psQuote = [](std::string value) {
+          std::string escaped;
+          for (char ch : value) {
+            if (ch == '\'') escaped += "''";
+            else escaped.push_back(ch);
+          }
+          return "'" + escaped + "'";
+        };
+        out << "try { Start-Process -FilePath " << psQuote(installer)
+            << " -Wait } catch {}\n"
+            // The installer's own exit does not guarantee the file is closed;
+            // a moment's settle costs nothing next to a failed relaunch.
+            << "Start-Sleep -Seconds 2\n"
+            << "try { Start-Process -FilePath " << psQuote(exePath.string())
+            << " } catch {}\n"
+            << "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path "
+               "-Force -ErrorAction SilentlyContinue\n";
+      }
+    }
+    std::error_code scriptEc;
+    const bool haveScript = fs::exists(relaunchScript, scriptEc);
+    const std::vector<std::string> args = haveScript
+      ? std::vector<std::string>{"powershell", "-NoProfile", "-NonInteractive",
+                                 "-WindowStyle", "Hidden",
+                                 "-ExecutionPolicy", "Bypass",
+                                 "-File", relaunchScript.string()}
+      : std::vector<std::string>{installer};   // no relauncher: still install
     ChildProcess child;
     if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
       triggerToast("update: could not start the installer");
       return;
     }
     gShouldQuit.store(true);   // the installer replaces this build; step aside
+#elif defined(__APPLE__)
+    // A macOS asset is a .dmg the operator drags to Applications themselves,
+    // so there is no moment at which "restart" would mean anything -- the new
+    // build is not in place yet. Opening it and saying so is the honest
+    // behaviour; the button says INSTALL rather than INSTALL & RESTART.
+    const std::vector<std::string> args {"open", installer};
+    ChildProcess child;
+    if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
+      triggerToast("update: could not open the download");
+      return;
+    }
+    triggerToast("update: drag Deckboy to Applications, then reopen it");
 #else
     // A Linux build is an AppImage or a tarball: there is nothing to run, so
     // show the operator where it landed and let them put it where they keep

@@ -1,5 +1,16 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.319 (the updater restarts, as it always said it would)
+
+**"INSTALL & RESTART" now restarts.** Installing an update launched the
+installer and stepped aside, and nothing ever brought Deckboy back - the button
+had promised a restart it never performed. It now waits for the installer to
+finish and starts the new build itself.
+
+On macOS and Linux the same button reads **INSTALL**, because a .dmg or an
+AppImage is placed by hand: there is no moment at which a restart would mean
+anything, and a label should not promise what the platform cannot do.
+
 ## 2026-09-06 - v0.99.318 (browser cues on every platform, and a pointer of our own)
 
 **Browser cues are green on Windows, macOS and Linux.** A page renders, takes
