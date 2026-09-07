@@ -417,27 +417,26 @@ bool spawnProcess(ChildProcess& process,
   std::wstring cmdline = buildCommandLine(launchArgs);
 
   // --- Launch ---
-  // A DETACHED CHILD HAS TO OUTLIVE US.
+  // A DETACHED CHILD HAS TO OUTLIVE US -- AND STILL BE ABLE TO START.
   //
-  // options.detached was honoured everywhere except the one place it decides
-  // anything: the creation flags. So a "detached" spawn was an ordinary child
-  // sharing our console and job, and when this process exited a moment later
-  // the child went with it.
+  // DETACHED_PROCESS looks like the right flag and is a trap for anything
+  // console-based. It gives the child NO console at all, and powershell.exe
+  // then fails to initialise: CreateProcess reports success, hands back a
+  // pid, and the script never runs. Measured, four ways:
   //
-  // That is what broke INSTALL & RESTART. The relauncher script was written to
-  // disk (it is still there afterwards, unrun), PowerShell was started, and
-  // Deckboy then quit to get out of the installer's way -- taking PowerShell
-  // with it before it could run the installer or bring the new build back.
+  //   CREATE_NO_WINDOW                      -> script ran
+  //   NO_WINDOW | NEW_PROCESS_GROUP         -> script ran
+  //   NO_WINDOW | NEW_GROUP | BREAKAWAY     -> script ran
+  //   DETACHED_PROCESS                      -> NEVER ran
   //
-  // DETACHED_PROCESS instead of CREATE_NO_WINDOW: both mean "no console
-  // window", but only the first cuts the console link. CREATE_BREAKAWAY_FROM_JOB
-  // matters when Deckboy was itself launched inside a job object that kills its
-  // children -- and it FAILS the whole CreateProcess when the job forbids
-  // breakaway, so it is attempted and then dropped rather than assumed.
+  // So CREATE_NO_WINDOW stays -- it gives the child its OWN console with no
+  // window, rather than none at all. A new process group keeps the parent's
+  // console signals off it, and breakaway escapes a job that would otherwise
+  // kill it with us. Breakaway FAILS the whole call where a job forbids it,
+  // so it is attempted and dropped rather than assumed.
   DWORD creationFlags = CREATE_NO_WINDOW;
   if (options.detached) {
-    creationFlags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
-                  | CREATE_BREAKAWAY_FROM_JOB;
+    creationFlags |= CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB;
   }
   PROCESS_INFORMATION pi {};
   BOOL ok = CreateProcessW(

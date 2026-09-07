@@ -73,4 +73,13 @@ Root: HKA; Subkey: "Software\Classes\Deckboy.Show\DefaultIcon"; ValueType: strin
 Root: HKA; Subkey: "Software\Classes\Deckboy.Show\shell\open\command"; ValueType: string; ValueData: """{app}\Deckboy.exe"" ""%1"""; Tasks: associate
 
 [Run]
-Filename: "{app}\Deckboy.exe"; Description: "Launch Deckboy now"; Flags: nowait postinstall skipifsilent
+; INSTALL & RESTART MEANS RESTART.
+; "postinstall" made this a CHECKBOX on the finish page, so the app only came
+; back if the operator noticed it and left it ticked. Deckboy's updater quits
+; the app and hands over to this installer, so from the desk it looked like
+; INSTALL & RESTART simply never restarted.
+;
+; Without postinstall it runs automatically when the install finishes, which
+; is what the button promised. skipifsilent stays: a silent install is
+; somebody scripting a deployment, and they do not want a window.
+Filename: "{app}\Deckboy.exe"; Description: "Launch Deckboy now"; Flags: nowait skipifsilent

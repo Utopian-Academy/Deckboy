@@ -1935,79 +1935,25 @@
     // the shared code did not compile there at all. Windows never sees that
     // branch, which is why it took CI to find. Build the other configurations.
 #if defined(_WIN32)
-    // "INSTALL & RESTART" HAS TO ACTUALLY RESTART.
+    // HAND OVER TO THE INSTALLER AND LET IT DO THE RESTART.
     //
-    // This used to spawn the installer and set gShouldQuit, and that was the
-    // whole of it: Deckboy stepped aside, the installer replaced it, and
-    // nothing ever brought it back. The button had promised a restart since
-    // the day it was written.
+    // The first attempt at this wrote a PowerShell relauncher that waited for
+    // us, ran the installer, then started the new build. It never worked, in
+    // two different ways: with the original flags PowerShell ran and was
+    // killed when we exited, and with DETACHED_PROCESS it could not start at
+    // all. Both left the script sitting on disk unrun, which is exactly what
+    // the operator saw -- an app that quit and never came back.
     //
-    // It cannot be done in this process -- we are the thing being overwritten,
-    // and we have to be gone before the installer can replace our exe. So a
-    // tiny relauncher is written out and detached: it waits for the installer
-    // to finish, then starts the new build.
+    // The installer was always the better answer. It is a GUI process, so it
+    // outlives us without any flag cleverness, it knows precisely when the
+    // files are in place, and Inno already had a [Run] entry to launch
+    // Deckboy afterwards -- it was just marked "postinstall", which makes it
+    // a CHECKBOX the operator has to notice. That flag is gone, so the
+    // installer now relaunches on its own.
     //
-    // -Wait, not a fixed sleep. An installer that elevates hands off to a
-    // child, and guessing how long that takes is how you relaunch the OLD
-    // binary halfway through its own replacement.
-    const fs::path exePath = deckboy::core::Paths::executablePath();
-    const fs::path relaunchScript =
-      fs::path(installer).parent_path() / "deckboy-relaunch.ps1";
-    {
-      std::ofstream out(relaunchScript, std::ios::binary | std::ios::trunc);
-      if (out) {
-        // Single-quoted PowerShell literals; a quote inside a path is doubled.
-        auto psQuote = [](std::string value) {
-          std::string escaped;
-          for (char ch : value) {
-            if (ch == '\'') escaped += "''";
-            else escaped.push_back(ch);
-          }
-          return "'" + escaped + "'";
-        };
-        // WAIT FOR US TO BE GONE FIRST.
-        //
-        // Two things go wrong if this starts immediately. The installer cannot
-        // replace an exe that is still running; and the relaunch lands while the
-        // old process still holds Deckboy's single-instance lock, so the new one
-        // refuses to launch and exits without a word. That is exactly what
-        // happened on the first attempt at this fix: PowerShell survived, ran the
-        // whole script and deleted itself, and no Deckboy came back.
-        // LEAVE A TRACE. An updater that fails silently is the worst kind:
-        // the operator clicks INSTALL & RESTART, the app disappears, and there
-        // is nothing anywhere to say what happened next. The transcript sits
-        // beside the download and is overwritten each time.
-        out << "try { Start-Transcript -Path "
-            << psQuote((fs::path(installer).parent_path() / "relaunch.log").string())
-            << " -Force | Out-Null } catch {}\n";
-        out << "try { Wait-Process -Id " << GetCurrentProcessId()
-            << " -Timeout 60 -ErrorAction SilentlyContinue } catch {}\n"
-            << "try { Start-Process -FilePath " << psQuote(installer)
-            << " -Wait } catch {}\n"
-            // The installer's own exit does not guarantee the file is closed;
-            // a moment's settle costs nothing next to a failed relaunch.
-            << "Start-Sleep -Seconds 2\n"
-            << "try { Start-Process -FilePath " << psQuote(exePath.string())
-            << " } catch {}\n"
-            // One retry. The lock is released as the old process dies, and a slow
-            // shutdown can still be holding it when the first attempt lands.
-            << "Start-Sleep -Seconds 4\n"
-            << "if (-not (Get-Process -Name Deckboy -ErrorAction SilentlyContinue))"
-               " { try { Start-Process -FilePath "
-            << psQuote(exePath.string()) << " } catch {} }\n"
-            << "try { Stop-Transcript | Out-Null } catch {}\n"
-            << "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path "
-               "-Force -ErrorAction SilentlyContinue\n";
-      }
-    }
-    std::error_code scriptEc;
-    const bool haveScript = fs::exists(relaunchScript, scriptEc);
-    const std::vector<std::string> args = haveScript
-      ? std::vector<std::string>{"powershell", "-NoProfile", "-NonInteractive",
-                                 "-WindowStyle", "Hidden",
-                                 "-ExecutionPolicy", "Bypass",
-                                 "-File", relaunchScript.string()}
-      : std::vector<std::string>{installer};   // no relauncher: still install
+    // Which leaves nothing for this to do but start the installer and get out
+    // of its way.
+    const std::vector<std::string> args {installer};
     ChildProcess child;
     if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
       triggerToast("update: could not start the installer");
