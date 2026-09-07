@@ -914,8 +914,37 @@
     // the crossfader is choosing between, so they belong next to each other.
     const bool vjSplitDecks = project_.vjModeEnabled && project_.decks.size() > 1;
     if (vjSplitDecks) {
-      playlistW = std::clamp(playlistW * 2 + kLayoutPanelGap, kPlaylistMinW * 2,
-                             std::max(kPlaylistMinW * 2, contentW - 460));
+      // TWO DECKS, NOT TWICE THE WIDTH.
+      //
+      // This used to DOUBLE the playlist area, which is what made VJ mode
+      // unusable on a laptop: at 1470 it took ~590px for cue lists and left the
+      // monitor row about 360, below the 420 gate that shows the A/B previews.
+      // So the previews never appeared, the hecklers with them, and the VJ bar
+      // had nowhere to put its controls -- all from this one line.
+      //
+      // Three halves instead of two, so each deck's column is about 75% of the
+      // single-deck width. Cue names stay readable, and the ~150px that frees
+      // is what lets the monitor row carry both previews AND a programme worth
+      // looking at. Never below the minimum for two columns, which is what the
+      // lower clamp is for.
+      // A VJ COLUMN IS ALLOWED TO BE TIGHTER THAN A SOLO ONE.
+      //
+      // kPlaylistMinW (236) is sized for the single list you EDIT in -- names,
+      // thumbnails, per-cue buttons. In VJ mode the lists are there to be
+      // chosen from, not worked in, and the previews above them carry the
+      // picture. Holding both columns to the editing minimum left the monitor
+      // row at 392px, still under the 420 it needs to show the previews at all,
+      // so the whole feature stayed invisible on a laptop for the sake of 36px
+      // of cue list.
+      constexpr int kVjPlaylistMinW = 170;
+      // Six fifths, not three halves and certainly not double. Two VJ columns
+      // together take only a fifth more room than the single list did, which is
+      // what leaves the monitor row enough to carry both previews AND a
+      // programme -- the thing VJ mode exists to show.
+      playlistW = std::clamp(playlistW * 6 / 5 + kLayoutPanelGap,
+                             kVjPlaylistMinW * 2 + kLayoutPanelGap,
+                             std::max(kVjPlaylistMinW * 2 + kLayoutPanelGap,
+                                      contentW - 460));
     }
     SDL_Rect playlistCol {contentArea.x, contentArea.y, playlistW, contentArea.h};
     SDL_Rect mainPanel {contentArea.x + playlistW + kLayoutPanelGap, contentArea.y,

@@ -538,9 +538,22 @@
     constexpr int kInspectorMinW = 360;
     constexpr int kProgramMinW = 420;
     int inspectorShellMaxW = std::max(kInspectorMinW, panel.w - kProgramMinW);
+    // IN VJ MODE THE INSPECTOR TAKES THE SMALL END OF ITS RANGE.
+    //
+    // Left to itself the inspector claims half the panel -- 545px on a
+    // 1470-wide desk -- and that is the right default when you are EDITING
+    // cues. While mixing you are on the fader, and the width is worth far more
+    // to the monitor row, which needs ~492 to show both previews and a
+    // programme. Narrowing the playlists alone freed room the inspector simply
+    // absorbed; this is what actually delivers it.
+    //
+    // Only when the operator has not set a width themselves: a dragged
+    // splitter is a decision, and this does not overrule it.
+    const bool vjWantsRoom = project_.vjModeEnabled && project_.decks.size() > 1;
     int inspectorShellW = inspectorPaneWidth_ > 0
       ? std::clamp(inspectorPaneWidth_, kInspectorMinW, inspectorShellMaxW)
-      : std::clamp(panel.w / 2, 420, 560);
+      : (vjWantsRoom ? std::max(kInspectorMinW, 420)
+                     : std::clamp(panel.w / 2, 420, 560));
     if (panel.w - inspectorShellW < kProgramMinW) {
       inspectorShellW = std::max(kInspectorMinW, panel.w - kProgramMinW);
     }
@@ -1017,8 +1030,19 @@
     // knowing what is there, not for grading it.
     vjPreviewRectA_ = SDL_Rect {0, 0, 0, 0};
     vjPreviewRectB_ = SDL_Rect {0, 0, 0, 0};
-    if (project_.vjModeEnabled && project_.decks.size() > 1 && programMonitorW > 420) {
-      const int sideW = std::clamp(programMonitorW / 4, 140, 420);
+    // THE GATE HAS TO MATCH WHAT THE ROW ACTUALLY NEEDS.
+    //
+    // 420 was a guess, and it was under the real cost: two previews at their
+    // 140 floor, a programme at its 200 floor, and the gaps between them come
+    // to ~492. Between those numbers the row was allowed through at a width
+    // it could not fit into, so the pieces overlapped instead of the row
+    // politely staying away.
+    constexpr int kVjPreviewMinW = 140;
+    constexpr int kVjProgramMinW = 200;
+    constexpr int kVjMonitorRowMinW = kVjPreviewMinW * 2 + kVjProgramMinW + 12;
+    if (project_.vjModeEnabled && project_.decks.size() > 1 &&
+        programMonitorW >= kVjMonitorRowMinW) {
+      const int sideW = std::clamp(programMonitorW / 4, kVjPreviewMinW, 420);
       vjPreviewRectA_ = SDL_Rect {x, monitorY, sideW, monitorH};
       vjPreviewRectB_ = SDL_Rect {x + programMonitorW - sideW, monitorY, sideW, monitorH};
       programMonitorX += sideW + 6;
