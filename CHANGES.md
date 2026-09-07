@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.322 (the updater's restart actually restarts)
+
+**INSTALL & RESTART brings Deckboy back.** The relauncher was being started and
+then dying with the app it was waiting for, because a detached spawn on Windows
+was not detached at all - it shared the console and job of the process that
+immediately quit. It now genuinely detaches, waits for Deckboy to exit before
+running the installer, and starts the new build afterwards.
+
+**And it leaves a record.** The relauncher writes `relaunch.log` beside the
+download, so if an update ever fails there is something to read rather than an
+app that vanished and never came back.
+
 ## 2026-09-07 - v0.99.321 (VJ mode fits on a laptop, and geometry answers for itself)
 
 **VJ mode fits a 1470-wide desk.** Its bar spans the programme and inspector
