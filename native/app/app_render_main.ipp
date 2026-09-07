@@ -322,7 +322,7 @@
     if (area.w < 150 || area.h < 120) {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, area,
                            overrideTip ? overrideTip : "hi! press I to import a clip",
-                           pal.fg);
+                           pal.light);
       return;
     }
 
@@ -497,7 +497,16 @@
         spoken += ((nowMs / 320) % 2) ? "_" : " ";
       }
     }
-    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect, spoken, pal.fg);
+    // pal.light, NOT pal.fg. The mascot only appears while the programme
+    // monitor is EMPTY, and that state deliberately darkens the backdrop
+    // (darkMonitorBg). pal.fg is on-body ink, meant for a panel; over the
+    // dark monitor it is near-invisible, so the face drew in pal.light and
+    // said nothing readable underneath -- "face visible, says nothing".
+    //
+    // Same fault the VJ hecklers had, in the same monitor, fixed the same
+    // way: deep/light are the one pair guaranteed to be opposite ends of
+    // every theme, so they are what anything floating over the monitor uses.
+    drawCenteredTextSafe(controlRenderer_, tipFont, tipRect, spoken, pal.light);
   }
 
   // Render the main panel split into program area (left) and inspector (right).
@@ -649,12 +658,70 @@
         // VJ mode regardless.
         squeeze = std::clamp(static_cast<double>(barAvail - 72) / fixedNat, 0.45, 1.0);
       }
+
+      // THE FADER IS NOT WHAT YIELDS.
+      //
+      // Squeezing alone was not enough. Each control has a floor it will not go
+      // below, and once every floor is reached the fixed controls stop giving
+      // anything back -- so the fader, which takes "whatever is left", took the
+      // 40px minimum and became a sliver with the mix number crammed in it. In
+      // a 1470-wide window (a MacBook, or a laptop at a gig) that is exactly
+      // what happened: TAP and the tempo survived and the crossfader did not.
+      //
+      // Which is backwards. A missing BPM readout is a number you can look up;
+      // a 40px crossfader is the one control your hands live on, gone. So when
+      // the bar cannot hold everything, the OPTIONAL controls drop -- tempo
+      // first, then TAP, then the blend mode -- until the fader has a width
+      // worth dragging. All three remain reachable from the keyboard and the
+      // remote; the fader is the thing that has to be there.
+      constexpr int kFaderUsable = 150;
+      bool showBpm = true, showTap = true, showBlend = true;
+      {
+        auto floored = [squeeze](int natural, int floorW) {
+          return std::max(floorW, static_cast<int>(std::lround(natural * squeeze)));
+        };
+        const int badge = floored(kBadgeNat, 44);
+        const int lbl   = floored(kLblNat, 34);
+        int blendNeedEarly = 0;
+        if (fontSmall_) {
+          TTF_GetStringSize(fontSmall_, project_.vjBlendMode.c_str(), 0,
+                            &blendNeedEarly, nullptr);
+        }
+        const int blendCost = std::max(floored(kBlendNat, 52), blendNeedEarly + 16);
+        int tail = blendCost + floored(kTapNat, 34) + floored(kBpmNat, 52);
+        int gaps = kBarGaps;
+        auto faderWould = [&]() { return barAvail - badge - lbl * 2 - tail; };
+        (void) gaps;
+        if (faderWould() < kFaderUsable) {
+          showBpm = false;
+          tail -= floored(kBpmNat, 52);
+        }
+        if (!showBpm && faderWould() < kFaderUsable) {
+          showTap = false;
+          tail -= floored(kTapNat, 34);
+        }
+        if (!showTap && faderWould() < kFaderUsable) {
+          showBlend = false;
+          tail -= blendCost;
+        }
+      }
       auto squeezed = [squeeze](int natural, int floorW) {
         return std::max(floorW, static_cast<int>(std::lround(natural * squeeze)));
       };
       const int badgeW = squeezed(kBadgeNat, 44);
       const int lblW   = squeezed(kLblNat, 34);
-      const int blendW = squeezed(kBlendNat, 52);
+      // WIDE ENOUGH FOR THE WHOLE WORD, or not shown at all. James: "don't
+      // abbreviate". The mode names are words an operator reads at a glance
+      // -- dissolve, multiply, add -- and half of one is worse than none,
+      // because "diss..." reads as broken rather than as shorthand. So the
+      // button is measured against its own label and, if the bar cannot
+      // afford that, it is one of the controls that drops.
+      int blendNeed = 0;
+      if (fontSmall_) {
+        TTF_GetStringSize(fontSmall_, project_.vjBlendMode.c_str(), 0,
+                          &blendNeed, nullptr);
+      }
+      const int blendW = std::max(squeezed(kBlendNat, 52), blendNeed + 16);
       const int tapW   = squeezed(kTapNat, 34);
       const int bpmW   = squeezed(kBpmNat, 52);
 
@@ -686,7 +753,10 @@
       // The crossfader. Sized to take whatever is left after the fixed
       // controls, because it is the control the hands live on.
       const int bLblW = lblW;
-      const int tail = bLblW + 6 + blendW + 6 + tapW + 6 + bpmW + kBarPad;
+      const int tail = bLblW + 6
+                     + (showBlend ? blendW + 6 : 0)
+                     + (showTap ? tapW + 6 : 0)
+                     + (showBpm ? bpmW : 0) + kBarPad;
       // No lower clamp: a floor here is exactly how the tail got pushed off the
       // edge. The fader takes what is left, and the squeeze above is what keeps
       // that a usable amount.
@@ -749,37 +819,43 @@
                            "B: " + std::to_string(deckB + 1), vjInk);
       cx += bLblW + 6;
 
-      SDL_Rect blendBtn {cx, rowY, blendW, rowH};
-      drawUIPanel(blendBtn, pal.tile, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, blendBtn,
-                           project_.vjBlendMode, vjInk);
-      quickButtons_.push_back({blendBtn, QuickAction::VjCycleBlend,
-                               "How the two decks combine: dissolve, add, multiply"});
-      cx += blendW + 6;
+      if (showBlend) {
+        SDL_Rect blendBtn {cx, rowY, blendW, rowH};
+        drawUIPanel(blendBtn, pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, blendBtn,
+                             project_.vjBlendMode, vjInk);
+        quickButtons_.push_back({blendBtn, QuickAction::VjCycleBlend,
+                                 "How the two decks combine: dissolve, add, multiply"});
+        cx += blendW + 6;
+      }
 
       // TAP flashes on the beat, which is the only way to know at a glance
       // whether the tempo it is holding is the one in the room.
-      SDL_Rect tapBtn {cx, rowY, tapW, rowH};
-      const bool onBeat = vjBeatPhase() < 0.18;
-      drawUIPanel(tapBtn, onBeat ? vjEdge : pal.tile, pal.deep, pal.mid);
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, tapBtn, "TAP",
-                           onBeat ? pal.deep : vjInk);
-      quickButtons_.push_back({tapBtn, QuickAction::VjTapTempo,
-                               "Tap the beat four times or more to set the tempo"});
-      cx += tapW + 6;
+      if (showTap) {
+        SDL_Rect tapBtn {cx, rowY, tapW, rowH};
+        const bool onBeat = vjBeatPhase() < 0.18;
+        drawUIPanel(tapBtn, onBeat ? vjEdge : pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, tapBtn, "TAP",
+                             onBeat ? pal.deep : vjInk);
+        quickButtons_.push_back({tapBtn, QuickAction::VjTapTempo,
+                                 "Tap the beat four times or more to set the tempo"});
+        cx += tapW + 6;
+      }
 
-      SDL_Rect bpmBox {cx, rowY, bpmW, rowH};
-      drawUIPanel(bpmBox, pal.tile, pal.deep, pal.mid);
-      std::ostringstream bpm;
-      bpm << std::fixed << std::setprecision(1) << project_.vjTempoBpm;
-      // The unit is the first thing to go: a number ellipsized to "12..." is
-      // worse than a number with no label on a box that is obviously the tempo.
-      if (bpmW >= 80) bpm << " BPM";
-      drawCenteredTextSafe(controlRenderer_, fontSmall_, bpmBox, bpm.str(),
-                           project_.vjQuantiseTakes ? vjEdge : vjInk);
-      quickButtons_.push_back({bpmBox, QuickAction::VjToggleQuantise,
-                               "Hold takes until the next beat, so what you do "
-                               "lands ON the music"});
+      if (showBpm) {
+        SDL_Rect bpmBox {cx, rowY, bpmW, rowH};
+        drawUIPanel(bpmBox, pal.tile, pal.deep, pal.mid);
+        std::ostringstream bpm;
+        bpm << std::fixed << std::setprecision(1) << project_.vjTempoBpm;
+        // The unit is the first thing to go: a number ellipsized to "12..." is
+        // worse than a number with no label on a box that is obviously the tempo.
+        if (bpmW >= 80) bpm << " BPM";
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, bpmBox, bpm.str(),
+                             project_.vjQuantiseTakes ? vjEdge : vjInk);
+        quickButtons_.push_back({bpmBox, QuickAction::VjToggleQuantise,
+                                 "Hold takes until the next beat, so what you do "
+                                 "lands ON the music"});
+      }
       if (reveal < 1.0) {
         SDL_SetRenderClipRect(controlRenderer_, hadBarClip ? &prevBarClip : nullptr);
       }
