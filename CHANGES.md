@@ -1,5 +1,22 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.331 (recent shows on the splash, settings pages that line up)
+
+**The startup screen lists your recent shows.** Up to five of them, newest
+first, each with the folder it lives in - so a house show, a rehearsal file and
+last night's gig are one click apart instead of a trip through the file picker.
+Click a row, or press its number. Deckboy remembers the last eight, and a show
+on a drive that is not plugged in right now keeps its place in the list until
+it is back.
+
+**The settings pages line up.** Every card and section is now sized from the
+rows it actually draws, so nothing sits on top of anything else and nothing
+runs past the edge of its panel: the Audio page reads as one column, the
+Video Outputs page scrolls when there is more below, and the Encoder page's
+format chips are legible on every theme with the selected one clearly marked.
+All of it scales properly with the UI Scale setting, and the three platforms
+render the same layout - each naming the hardware it actually has.
+
 ## 2026-09-07 - v0.99.330 (a target to update to)
 
 No functional change over v0.99.329.
