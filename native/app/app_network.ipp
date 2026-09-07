@@ -1980,6 +1980,34 @@
       triggerToast("update: could not start the installer");
       return;
     }
+    // MAKE SURE IT ACTUALLY STARTED BEFORE WE WALK AWAY.
+    //
+    // spawnProcess only reports that CreateProcess accepted the request. The
+    // installer can still die a moment later -- and this code then set
+    // gShouldQuit regardless, so Deckboy vanished and nothing replaced it. From
+    // the desk that is indistinguishable from the button doing nothing, which
+    // is exactly what James saw, twice, with no window and no prompt.
+    //
+    // So: give it a moment, then check it is still alive. If it is not, stay
+    // running and SAY SO, with the exit code, rather than quitting into
+    // silence. An updater that cannot install must at least leave the operator
+    // with the application they already had.
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+      DWORD code = STILL_ACTIVE;
+      const bool gotCode = child.hProcess != INVALID_HANDLE_VALUE &&
+                           GetExitCodeProcess(child.hProcess, &code);
+      if (gotCode && code != STILL_ACTIVE) {
+        std::ostringstream why;
+        why << "update: the installer exited immediately (code " << code
+            << ") - not restarting";
+        triggerToast(why.str(), kToastWarnFill, kToastWarnInk, kToastReadableMs);
+        showLog("UPDATE-FAIL", "installer exited " + std::to_string(code));
+        std::cerr << "update: installer " << installer << " exited with "
+                  << code << " straight after launch\n";
+        return;
+      }
+    }
     gShouldQuit.store(true);   // the installer replaces this build; step aside
 #elif defined(__APPLE__)
     // INSTALL IT, DON'T JUST SHOW IT.

@@ -498,6 +498,25 @@
     auto cardBodyY = [&](const SDL_Rect& card) { return card.y + sCardHeaderH; };
     auto cardBodyX = [&](const SDL_Rect& card) { return card.x + sPad; };
     auto cardBodyW = [&](const SDL_Rect& card) { return card.w - sPad * 2; };
+    // A card's height, from the list of rows it is about to draw.
+    //
+    // Card heights used to be arithmetic -- "sTallH * 2 + sRowH * 4 + sGap * 5"
+    // -- written once at the top of a tab and the rows themselves written
+    // eighty lines further down. The two drift: APPEARANCE has now been a row
+    // short twice (when Pocket 3 arrived, and again when HOVER TIPS and MIAMI
+    // CURSOR did), and a card that is shorter than its contents draws the next
+    // card straight over its last control. Passing the row heights in the
+    // order they are drawn makes the size and the layout the same statement.
+    auto stackH = [&](std::initializer_list<int> rows) {
+      int h = sCardHeaderH + sPad;
+      bool first = true;
+      for (int r : rows) {
+        if (!first) h += sGap;
+        h += r;
+        first = false;
+      }
+      return h;
+    };
 
     if (settingsTab_ == 0) {
       const Deck& tcDeck = focusedDeck();
@@ -521,12 +540,14 @@
       int rightW = std::max(uiScaled(320), content.w - uiScaled(12) - colGap - leftW);
       const int kCardGap = uiScaled(10);
 
-      // APPEARANCE, in the order it is laid out below: theme (tall), sound
-      // effects, mascot, creatures, UI scale (tall), Pocket 3. Six controls,
-      // five gaps. This was one row short of the six for a while, which
-      // clipped the Pocket 3 button off the bottom AND shortened the scroll
-      // range so it could not be reached -- keep it in step with the rows.
-      int appearanceH = sCardHeaderH + sTallH * 2 + sRowH * 4 + sGap * 5 + sPad;
+      // APPEARANCE, in the order it is laid out below: theme, SFX, hover tips,
+      // Miami cursor, mascot, creatures, UI scale, Pocket 3. Eight rows, and
+      // the list says so instead of an arithmetic expression that has to be
+      // kept in step by hand -- it was not, twice: the arithmetic still said
+      // four standard rows after hover tips and the Miami cursor were added, so
+      // SAFETY / TIMECODE was drawn across the bottom of the UI Scale picker.
+      int appearanceH = stackH({sTallH, sRowH, sRowH, sRowH, sRowH, sRowH,
+                                sTallH, sRowH});
       int safetyH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
       // and its row. Grew by a row when VJ mode got a switch.
@@ -893,17 +914,16 @@
                                   (updateReady || updateOffered) ? pal.light : pal.tile,
                                   pal.deep, pal.mid);
       drawCenteredText(controlRenderer_, fontSmall_,
-                       // Only Windows can genuinely restart into the new
-                       // build: a macOS asset is a .dmg the operator drags
-                       // to Applications, and a Linux one is an AppImage or
-                       // tarball they place themselves. Promising a restart
-                       // there is a label writing a cheque the platform
-                       // cannot cash.
-#if defined(_WIN32)
+                       // One label on all three platforms, because all
+                       // three now do the same four things: download, install,
+                       // relaunch, delete the installer. This used to read
+                       // INSTALL off Windows, over a comment explaining that a
+                       // macOS asset is a .dmg to drag and a Linux one an
+                       // AppImage to place by hand -- true when it was
+                       // written, and untrue since runDownloadedUpdate grew a
+                       // real arm for each platform. A menu that describes an
+                       // older version of the program is its own kind of bug.
                        updateReady ? "INSTALL & RESTART" : "DOWNLOAD",
-#else
-                       updateReady ? "INSTALL" : "DOWNLOAD",
-#endif
                        (updateReady || updateOffered) ? pal.deep : pal.inkSoft, updActBtn);
       settingsBtns_.push_back({updActBtn,
                                updateReady ? kSettingsActionUpdateInstall
@@ -946,15 +966,75 @@
                          on ? pal.light : pal.deep, rect);
       };
 
-      int audioH = sCardHeaderH + sTallH + sGap + sRowH + sGap + sLineH + sPad;
-      SDL_Rect audioRect {cx, cy, content.w - uiScaled(24), audioH};
-      int midiTop = audioRect.y + audioRect.h + uiScaled(10);
-      SDL_Rect midiRect {cx, midiTop, content.w - uiScaled(24),
-                         std::max(uiScaled(180), content.y + content.h - uiScaled(10) - midiTop)};
-
-      drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
+      // TWO COLUMNS, AND EVERY CARD SIZED FROM WHAT IT ACTUALLY DRAWS.
+      //
+      // This tab used to give each card a hand-written height and then let
+      // several controls compute their own Y from the same anchor, so:
+      //   - the live-input block (Input / GAIN / MONO / MIC->RECORDING) was
+      //     drawn from devBtn downwards while rowY ALSO restarted at devBtn,
+      //     which put the ASIO dropdown, the buffer row and the hint line
+      //     straight through those four controls;
+      //   - the MSC id button and the LTC card were placed two pixels apart,
+      //     so the card was painted over the button;
+      //   - audioH counted neither the input rows nor the ASIO row, so the
+      //     card's contents spilled out of its own frame into MIDI CONTROL.
+      //
+      // Heights are now derived from the same row list that draws them, so a
+      // card cannot be the wrong size, and the optional rows (mic live, ASIO
+      // build) grow the card instead of overflowing it. Two columns keep the
+      // stack inside the modal on every platform.
+      const int colGap = uiScaled(10);
+      const int fullW = content.w - uiScaled(24);
+      const int leftW = (fullW - colGap) / 2;
+      const int rightW = fullW - colGap - leftW;
+      const int rightX = cx + leftW + colGap;
       const int smallLineH = sLineH;
+
+      const bool micLive = audioInputRunning();
+
+      // The control chips wrap when they run out of column, so the row count
+      // is a property of the widths -- not a number typed in twice. The
+      // measure below and the draw further down share this rule, which is why
+      // they cannot disagree.
+      const int chipBufW   = uiScaled(160);
+#if defined(DECKBOY_HAS_ASIO)
+      const int chipAsioW  = uiScaled(160);
+#endif
+      const int chipDelayW = uiScaled(24) + uiScaled(4) + uiScaled(120) + uiScaled(4) + uiScaled(24);
+      const int chipOutsW  = uiScaled(110);
+      std::vector<int> chipW {chipBufW};
+#if defined(DECKBOY_HAS_ASIO)
+      chipW.push_back(chipAsioW);
+#endif
+      chipW.push_back(chipDelayW);
+      chipW.push_back(chipOutsW);
+      const int audioBodyW = leftW - sPad * 2;
+      auto chipRowCount = [&](int avail) {
+        int rows = 1, x = 0;
+        for (int w : chipW) {
+          if (x > 0 && x + w > avail) { ++rows; x = 0; }
+          x += w + sGap;
+        }
+        return rows;
+      };
+      const int chipRows = chipRowCount(audioBodyW);
+
+      int audioH = sCardHeaderH
+                 + sTallH + sGap          // output device
+                 + sTallH + sGap;         // live input
+      if (micLive) audioH += (sRowH + sGap) * 3;   // gain / mono / to-recording
+#if defined(DECKBOY_HAS_ASIO)
+      audioH += sTallH + sGap;                     // ASIO driver
+#endif
+      audioH += (sRowH + sGap) * chipRows
+              + sLineH * 2 + sPad;                 // two-line hint
+
+      SDL_Rect audioRect {cx, cy, leftW, audioH};
+      drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
       const int audioX = cardBodyX(audioRect);
+      const int audioW = cardBodyW(audioRect);
+      int rowY = cardBodyY(audioRect);
+
       // Says what was ASKED FOR, and says so when that is not what is playing.
       // The request used to be overwritten by the fallback, so a missing
       // interface looked like a deck that had always been on the default and
@@ -965,21 +1045,23 @@
       if (const DeckRuntime* devRt = runtimeForDeck(project_.focusedDeckIndex)) {
         if (!focusedDeck().audioOutputDeviceName.empty() &&
             devRt->audioDeviceInUse != focusedDeck().audioOutputDeviceName) {
-          devName += "  (not found — on default)";
+          devName += "  (not found -- on default)";
         }
       }
-      SDL_Rect devBtn {audioX, cardBodyY(audioRect), cardBodyW(audioRect), sTallH};
+      SDL_Rect devBtn {audioX, rowY, audioW, sTallH};
       drawUIDropdown(devBtn, "Device", devName, "settings.audio_device");
       settingsBtns_.push_back({devBtn, 200, "audio_device"});
+      rowY += sTallH + sGap;
+
       {
         // Live input. Sits with the output device because they are the two ends
         // of the same question: where audio comes from, and where it goes.
-        SDL_Rect inBtn {audioX, devBtn.y + devBtn.h + 4, cardBodyW(audioRect), sTallH};
-        std::string inLabel = audioInputRunning()
+        SDL_Rect inBtn {audioX, rowY, audioW, sTallH};
+        std::string inLabel = micLive
           ? (audioInputActiveDevice_.empty() ? std::string("System default input")
                                              : audioInputActiveDevice_)
           : std::string("off");
-        if (audioInputRunning()) {
+        if (micLive) {
           // A live meter: the only question an operator has about a microphone
           // is whether it is hearing anything.
           const int bars = static_cast<int>(audioInputPeak_ * 10.0);
@@ -990,14 +1072,15 @@
         settingsBtns_.push_back({inBtn, kSettingsActionAudioInputDropdown,
                                  "Microphone or line input. Drives the video "
                                  "synth's audio reactivity."});
-        if (audioInputRunning()) {
+        rowY += sTallH + sGap;
+
+        if (micLive) {
           // Gain, with the value between the steps. This existed as a setting
           // with NO control at all -- saved, loaded, applied, and unreachable.
-          SDL_Rect gainRow {audioX, inBtn.y + inBtn.h + 4, cardBodyW(audioRect), sRowH};
-          const int gw = gainRow.w / 5;
-          SDL_Rect gDec {gainRow.x, gainRow.y, gw, sRowH};
-          SDL_Rect gVal {gDec.x + gw + 4, gainRow.y, gainRow.w - gw * 3 - 8, sRowH};
-          SDL_Rect gInc {gVal.x + gVal.w + 4, gainRow.y, gw, sRowH};
+          const int gw = audioW / 5;
+          SDL_Rect gDec {audioX, rowY, gw, sRowH};
+          SDL_Rect gVal {gDec.x + gw + sGap, rowY, audioW - gw * 2 - sGap * 2, sRowH};
+          SDL_Rect gInc {gVal.x + gVal.w + sGap, rowY, gw, sRowH};
           auto stepBtn = [&](const SDL_Rect& r, const char* label, int action) {
             drawUIPanel(r, pal.mid, pal.deep, pal.light);
             drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label, ink);
@@ -1020,16 +1103,18 @@
                                      "you about the transient that distorted."});
           }
           stepBtn(gInc, "GAIN +", kSettingsActionAudioInputGainInc);
+          rowY += sRowH + sGap;
 
-          SDL_Rect monoBtn {audioX, gainRow.y + sRowH + 4, cardBodyW(audioRect), sRowH};
+          SDL_Rect monoBtn {audioX, rowY, audioW, sRowH};
           drawPillToggle(monoBtn, project_.audioInputMono,
                          "MONO (summed)", "STEREO");
           settingsBtns_.push_back({monoBtn, kSettingsActionAudioInputMono,
                                    "A microphone is a mono source. Captured as "
                                    "stereo it lands in one leg with silence in "
                                    "the other."});
+          rowY += sRowH + sGap;
 
-          SDL_Rect progBtn {audioX, monoBtn.y + sRowH + 4, cardBodyW(audioRect), sRowH};
+          SDL_Rect progBtn {audioX, rowY, audioW, sRowH};
           drawPillToggle(progBtn, project_.audioInputToProgram,
                          "MIC -> RECORDING", "MIC NOT RECORDED");
           settingsBtns_.push_back({progBtn, kSettingsActionAudioInputToProgram,
@@ -1037,14 +1122,16 @@
                                    "recorded. It does NOT go to the speakers: "
                                    "monitoring a room mic through the machine "
                                    "driving the PA is a feedback loop."});
+          rowY += sRowH + sGap;
         }
       }
+
 #if defined(DECKBOY_HAS_ASIO)
       {
         // ASIO sits directly under the system device, because it REPLACES it.
         // Enumerating drivers loads nothing and is safe mid-show; arming is
         // what touches hardware.
-        SDL_Rect asioBtn {audioX, devBtn.y + devBtn.h + 4, cardBodyW(audioRect), sTallH};
+        SDL_Rect asioBtn {audioX, rowY, audioW, sTallH};
         std::string label = project_.asioDriverName.empty()
           ? std::string("System audio (SDL)")
           : project_.asioDriverName;
@@ -1069,108 +1156,157 @@
                                  "Play through an ASIO driver instead of the "
                                  "system device: lower latency and more "
                                  "channels. The driver comes from your interface."});
+        rowY += sTallH + sGap;
       }
 #endif
-      // Audio buffer size cycle button
-      int bufSamples = project_.audioBufferSamples;
-      std::string bufLabel = "Buffer: " + std::to_string(bufSamples) + " smp";
-      const int bufBtnY = devBtn.y + devBtn.h + sGap;
-      SDL_Rect bufBtn {audioX, bufBtnY, uiScaled(160), sRowH};
-      Primitives::drawFramedPanel(controlRenderer_, bufBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_, bufLabel, ink, bufBtn);
-      settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
-      // How many ASIO outputs to open. Saved in the show and settable by
-      // nothing, so a multi-output interface could only ever be asked for the
-      // two channels the default names.
-      {
-        SDL_Rect chBtn {bufBtn.x, bufBtn.y + bufBtn.h + uiScaled(6), uiScaled(160), sRowH};
-        Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.mid, pal.deep, pal.light);
-        drawCenteredText(controlRenderer_, fontSmall_,
-                         "ASIO outs: " + std::to_string(project_.asioChannels), ink, chBtn);
-        settingsBtns_.push_back({chBtn, kSettingsActionAsioChannels, "asio_channels"});
-      }
-      // Chain A/V offset: -/+ buttons around the current delay readout.
-      SDL_Rect delayDecBtn {bufBtn.x + bufBtn.w + uiScaled(12), bufBtn.y, uiScaled(24), sRowH};
-      SDL_Rect delayLabel {delayDecBtn.x + delayDecBtn.w + uiScaled(4), bufBtn.y, uiScaled(120), sRowH};
-      SDL_Rect delayIncBtn {delayLabel.x + delayLabel.w + uiScaled(4), bufBtn.y, uiScaled(24), sRowH};
-      Primitives::drawFramedPanel(controlRenderer_, delayDecBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_, "-", ink, delayDecBtn);
-      Primitives::drawFramedPanel(controlRenderer_, delayLabel, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_,
-                       "A/V delay: " + std::to_string(project_.audioDelayMs) + " ms",
-                       ink, delayLabel);
-      Primitives::drawFramedPanel(controlRenderer_, delayIncBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_, "+", ink, delayIncBtn);
-      settingsBtns_.push_back({delayDecBtn, kSettingsActionAudioDelayDec, "audio_delay_dec"});
-      settingsBtns_.push_back({delayIncBtn, kSettingsActionAudioDelayInc, "audio_delay_inc"});
-      // Device channel count (2/4/6/8) — reopens the deck device; cues then
-      // route their stereo onto a pair of these outs (AUDIO section: "outs").
-      SDL_Rect chanBtn {delayIncBtn.x + delayIncBtn.w + uiScaled(12), bufBtn.y, uiScaled(110), sRowH};
-      Primitives::drawFramedPanel(controlRenderer_, chanBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_,
-                       "Outs: " + std::to_string(focusedDeck().audioOutputChannels) + " ch",
-                       ink, chanBtn);
-      settingsBtns_.push_back({chanBtn, kSettingsActionAudioChannelsCycle, "audio_channels"});
-      const int audioFootY = bufBtn.y + bufBtn.h + sGap;
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{audioX, audioFootY, cardBodyW(audioRect), sLineH},
-                   "Smaller buffer = lower latency. A/V delay holds audio back for lagging displays — dial in with the Pocket Test beacon.", soft);
 
+      // The control chips: buffer, ASIO outs, A/V delay, device outs. Each is
+      // placed after the last and wraps to a new row when the column runs out,
+      // by the same rule chipRowCount measured with. A Windows build has one
+      // more chip than a Mac or Linux build; wrapping is what keeps all three
+      // looking the same instead of one of them running off the card.
+      {
+        int chipX = audioX;
+        auto placeChip = [&](int w) {
+          if (chipX > audioX && chipX + w > audioX + audioW) {
+            chipX = audioX;
+            rowY += sRowH + sGap;
+          }
+          SDL_Rect r {chipX, rowY, w, sRowH};
+          chipX += w + sGap;
+          return r;
+        };
+
+        int bufSamples = project_.audioBufferSamples;
+        SDL_Rect bufBtn = placeChip(chipBufW);
+        Primitives::drawFramedPanel(controlRenderer_, bufBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, bufBtn,
+                             "Buffer: " + std::to_string(bufSamples) + " smp", ink);
+        settingsBtns_.push_back({bufBtn, kSettingsActionAudioBufferCycle, "audio_buffer_samples"});
+
+#if defined(DECKBOY_HAS_ASIO)
+        // How many ASIO outputs to open. Saved in the show and settable by
+        // nothing, so a multi-output interface could only ever be asked for the
+        // two channels the default names. Inside the ASIO guard: it is an ASIO
+        // setting, and offering it on a build with no ASIO is a control that
+        // cannot do anything.
+        SDL_Rect chBtn = placeChip(chipAsioW);
+        Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, chBtn,
+                             "ASIO outs: " + std::to_string(project_.asioChannels), ink);
+        settingsBtns_.push_back({chBtn, kSettingsActionAsioChannels, "asio_channels"});
+#endif
+
+        // Chain A/V offset: -/+ buttons around the current delay readout. Asked
+        // for as one chip so the three pieces can never be split by a wrap.
+        SDL_Rect delayGroup = placeChip(chipDelayW);
+        SDL_Rect delayDecBtn {delayGroup.x, delayGroup.y, uiScaled(24), sRowH};
+        SDL_Rect delayLabel {delayDecBtn.x + delayDecBtn.w + uiScaled(4), delayGroup.y,
+                             uiScaled(120), sRowH};
+        SDL_Rect delayIncBtn {delayLabel.x + delayLabel.w + uiScaled(4), delayGroup.y,
+                              uiScaled(24), sRowH};
+        Primitives::drawFramedPanel(controlRenderer_, delayDecBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_, "-", ink, delayDecBtn);
+        Primitives::drawFramedPanel(controlRenderer_, delayLabel, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, delayLabel,
+                             "A/V delay: " + std::to_string(project_.audioDelayMs) + " ms", ink);
+        Primitives::drawFramedPanel(controlRenderer_, delayIncBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_, "+", ink, delayIncBtn);
+        settingsBtns_.push_back({delayDecBtn, kSettingsActionAudioDelayDec, "audio_delay_dec"});
+        settingsBtns_.push_back({delayIncBtn, kSettingsActionAudioDelayInc, "audio_delay_inc"});
+
+        // Device channel count (2/4/6/8) -- reopens the deck device; cues then
+        // route their stereo onto a pair of these outs (AUDIO section: "outs").
+        SDL_Rect chanBtn = placeChip(chipOutsW);
+        Primitives::drawFramedPanel(controlRenderer_, chanBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, chanBtn,
+                             "Outs: " + std::to_string(focusedDeck().audioOutputChannels) + " ch", ink);
+        settingsBtns_.push_back({chanBtn, kSettingsActionAudioChannelsCycle, "audio_channels"});
+        rowY += sRowH + sGap;
+      }
+
+      // Two short lines rather than one long one: at half-column width a single
+      // sentence shrinks its own font to fit and ends up smaller than every
+      // other label on the page.
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{audioX, rowY, audioW, sLineH},
+                   "Smaller buffer = lower latency.", soft);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{audioX, rowY + sLineH, audioW, sLineH},
+                   "A/V delay holds audio back for lagging displays.", soft);
+
+      // Right column: MIDI, then LTC as its own card.
+      const int midiH = sCardHeaderH
+                      + sRowH + sGap                 // enable + port
+                      + sLineH                       // "Mappings"
+                      + sLineH * 4                   // the four mapping lines
+                      + sGap + sRowH + sPad;         // MSC id
+      SDL_Rect midiRect {rightX, cy, rightW, midiH};
       drawCard(midiRect, "MIDI CONTROL", "Optional external transport and cue control");
       const int midiX = cardBodyX(midiRect);
-      SDL_Rect midiEnBtn {midiX, cardBodyY(midiRect), uiScaled(120), sRowH};
+      const int midiW = cardBodyW(midiRect);
+      int midiY = cardBodyY(midiRect);
+
+      SDL_Rect midiEnBtn {midiX, midiY, uiScaled(120), sRowH};
       drawPillToggle(midiEnBtn, midiEnabled_, "MIDI ON", "MIDI OFF");
       settingsBtns_.push_back({midiEnBtn, 210, "midi_toggle"});
-      SDL_Rect midiPortBtn {midiEnBtn.x + midiEnBtn.w + sPad, midiEnBtn.y,
-                            std::max(uiScaled(40),
-                                     midiRect.x + midiRect.w - sPad - (midiEnBtn.x + midiEnBtn.w + sPad)),
-                            sRowH};
+      SDL_Rect midiPortBtn {midiEnBtn.x + midiEnBtn.w + sGap, midiY,
+                            std::max(uiScaled(40), midiW - midiEnBtn.w - sGap), sRowH};
       Primitives::drawFramedPanel(controlRenderer_, midiPortBtn, pal.mid,
                                   pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_,
-                       midiDeviceName_().empty() ? "Set MIDI Port..." : ellipsizeToPixelWidth(fontSmall_, midiDeviceName_(), midiPortBtn.w - 12),
-                       ink, midiPortBtn);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, midiPortBtn,
+                           midiDeviceName_().empty() ? std::string("Set MIDI Port...")
+                                                     : midiDeviceName_(), ink);
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
+      midiY += sRowH + sGap;
 
-      int mapY = midiEnBtn.y + midiEnBtn.h + sGap;
-      int midiTextW = cardBodyW(midiRect);
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiX, mapY, midiTextW, sLineH}, "Mappings", pal.fg);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiX, mapY + smallLineH, midiTextW, sLineH},
-                   "Note 0-127 -> trigger cue index in the focused playlist", soft);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiX, mapY + smallLineH * 2, midiTextW, sLineH},
-                   "CC 7 -> master volume   |   CC 20 -> playback speed", soft);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiX, mapY + smallLineH * 3, midiTextW, sLineH},
-                   "MMC Play / Stop / Goto -> transport   |   MSC Trigger -> cue by id", soft);
+                   SDL_Rect{midiX, midiY, midiW, sLineH}, "Mappings", pal.fg);
+      midiY += smallLineH;
+      // One mapping per line. Two-per-line ran past a half-width column and the
+      // shrink-to-fit made these the smallest text in the dialog.
+      const char* kMidiMappings[] = {
+        "Note 0-127 -> cue index in the focused playlist",
+        "CC 7 -> master volume    CC 20 -> playback speed",
+        "MMC Play / Stop / Goto -> transport",
+        "MSC Trigger -> cue by id",
+      };
+      for (const char* line : kMidiMappings) {
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{midiX, midiY, midiW, sLineH}, line, soft);
+        midiY += smallLineH;
+      }
+      midiY += sGap;
+
       // WHICH device on the rig we answer to. 127 is all-call; anything else
       // has to match exactly, because acting on a GO meant for the lighting
       // desk is worse than missing one. Saved in the show, previously with no
       // way to set it.
       {
-        SDL_Rect idBtn {midiX, mapY + smallLineH * 4 + uiScaled(4), uiScaled(200), sRowH};
+        SDL_Rect idBtn {midiX, midiY, std::min(midiW, uiScaled(200)), sRowH};
         Primitives::drawFramedPanel(controlRenderer_, idBtn, pal.mid, pal.deep, pal.light);
         const std::string idLabel =
           project_.showControlDeviceId >= 127
             ? std::string("MSC id: 127 (all-call)")
             : ("MSC id: " + std::to_string(project_.showControlDeviceId));
-        drawCenteredText(controlRenderer_, fontSmall_, idLabel, ink, idBtn);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, idBtn, idLabel, ink);
         settingsBtns_.push_back({idBtn, kSettingsActionShowControlId, "show_control_device_id"});
       }
 
-      // ── LTC generator (timecode OUT) ─────────────────────────────────────
-      // Deckboy can chase timecode; this is what lets it BE the master.
-      // Individually routable on purpose: LTC is a control signal, so it gets
-      // its own device and its own channel, with the rest held silent. Putting
-      // it in the programme mix would broadcast a buzzsaw.
+      // SMPTE LTC generator (timecode OUT). Deckboy can chase timecode; this is
+      // what lets it BE the master. Individually routable on purpose: LTC is a
+      // control signal, so it gets its own device and its own channel, with the
+      // rest held silent. Putting it in the programme mix would broadcast a
+      // buzzsaw.
+      //
+      // A sibling card, not a card drawn inside MIDI CONTROL: nested, it was
+      // both wider than its parent and laid on top of the MSC id button.
       {
-        int ltcY = mapY + smallLineH * 4 + sGap;
-        SDL_Rect ltcRect {midiX - sPad, ltcY, midiRect.w, sTallH * 3 + sLineH + sPad * 3};
+        const int ltcH = sCardHeaderH + (sRowH + sGap) * 3 + sLineH + sPad;
+        SDL_Rect ltcRect {rightX, midiRect.y + midiRect.h + uiScaled(10), rightW, ltcH};
         drawCard(ltcRect, "SMPTE LTC OUTPUT", "generate timecode for the rig to chase");
-        int lx = cardBodyX(ltcRect);
-        int lw = cardBodyW(ltcRect);
+        const int lx = cardBodyX(ltcRect);
+        const int lw = cardBodyW(ltcRect);
         int ly = cardBodyY(ltcRect);
         // The Audio tab has no drawActionBtn lambda (that one is local to the
         // Video Outputs tab), so mirror the idiom the MIDI port button uses.
@@ -1178,41 +1314,41 @@
                           bool active = false) {
           Primitives::drawFramedPanel(controlRenderer_, r,
                                       active ? pal.dark : pal.mid, pal.deep, pal.light);
-          drawCenteredTextSafe(controlRenderer_, fontSmall_, r,
-                               ellipsizeToPixelWidth(fontSmall_, label, r.w - 12),
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label,
                                active ? pal.light : ink);
           settingsBtns_.push_back({r, action, "ltc_out"});
         };
 
         SDL_Rect ltcEnBtn {lx, ly, std::max(uiScaled(120), lw / 3), sRowH};
         ltcBtn(ltcEnBtn,
-                      project_.ltcOutputEnabled ? "LTC OUT: ON" : "LTC OUT: OFF",
-                      kSettingsActionLtcOutToggle, project_.ltcOutputEnabled);
-        SDL_Rect ltcFpsBtn {ltcEnBtn.x + ltcEnBtn.w + sPad, ly,
-                            std::max(uiScaled(110), lw / 4), sRowH};
+               project_.ltcOutputEnabled ? "LTC OUT: ON" : "LTC OUT: OFF",
+               kSettingsActionLtcOutToggle, project_.ltcOutputEnabled);
+        SDL_Rect ltcFpsBtn {ltcEnBtn.x + ltcEnBtn.w + sGap, ly,
+                            std::max(uiScaled(110), lw - ltcEnBtn.w - sGap), sRowH};
         ltcBtn(ltcFpsBtn, "Rate: " + fmtFloat(project_.ltcOutputFps, 2) + " fps",
-                      kSettingsActionLtcOutFps);
+               kSettingsActionLtcOutFps);
+        ly += sRowH + sGap;
 
-        int ly2 = ly + sRowH + sPad;
-        SDL_Rect ltcDevBtn {lx, ly2, lw, sRowH};
+        SDL_Rect ltcDevBtn {lx, ly, lw, sRowH};
         ltcBtn(ltcDevBtn, "Device: " + (project_.ltcOutputDeviceName.empty()
-                                               ? std::string("(system default)")
-                                               : project_.ltcOutputDeviceName),
-                      kSettingsActionLtcOutDevice);
+                                          ? std::string("(system default)")
+                                          : project_.ltcOutputDeviceName),
+               kSettingsActionLtcOutDevice);
+        ly += sRowH + sGap;
 
-        int ly3 = ly2 + sRowH + sPad;
-        SDL_Rect ltcChBtn {lx, ly3, std::max(uiScaled(150), lw / 2 - sPad), sRowH};
+        SDL_Rect ltcChBtn {lx, ly, std::max(uiScaled(150), lw / 2 - sGap / 2), sRowH};
         ltcBtn(ltcChBtn, "Channel: " + std::to_string(project_.ltcOutputChannel + 1)
-                                 + " of " + std::to_string(project_.ltcOutputChannelCount),
-                      kSettingsActionLtcOutChannel);
-        SDL_Rect ltcChCntBtn {ltcChBtn.x + ltcChBtn.w + sPad, ly3,
-                              lw - ltcChBtn.w - sPad, sRowH};
+                           + " of " + std::to_string(project_.ltcOutputChannelCount),
+               kSettingsActionLtcOutChannel);
+        SDL_Rect ltcChCntBtn {ltcChBtn.x + ltcChBtn.w + sGap, ly,
+                              std::max(uiScaled(60), lw - ltcChBtn.w - sGap), sRowH};
         ltcBtn(ltcChCntBtn, "Device channels: "
-                                    + std::to_string(project_.ltcOutputChannelCount),
-                      kSettingsActionLtcOutChannelCount);
+                              + std::to_string(project_.ltcOutputChannelCount),
+               kSettingsActionLtcOutChannelCount);
+        ly += sRowH + sGap;
 
         drawTextSafe(controlRenderer_, fontSmall_,
-                     SDL_Rect{lx, ly3 + sRowH + 2, lw, sLineH},
+                     SDL_Rect{lx, ly, lw, sLineH},
                      project_.ltcOutputEnabled
                        ? ("emitting " + formatTimecode(ltcOutputTimecodeSeconds(),
                             std::clamp(project_.ltcOutputFps, 23.0, 60.0))
@@ -1449,9 +1585,38 @@
 
       int availW = content.w - uiScaled(24);
       const int kRowH = sTallH;
-      constexpr int kLabelH = 16;
+      // Was a bare 16 and a bare 14 -- the two constants on this tab that did
+      // not scale. At 2x every row, gap and font around them doubled while
+      // these stayed put, so the section labels and the gaps between sections
+      // shrank to half-size relative to everything else. Same metrics as the
+      // other tabs now, which is what makes a section header here line up with
+      // a card header there.
+      const int kLabelH = sLineH;
       const int kRowGap = uiScaled(5);
-      constexpr int kSectionGap = 14;
+      // The gap between two controls sharing a row. Was a bare 4 repeated at
+      // twenty sites, so at 2x every pair on this tab sat half a gap apart
+      // while the buttons either side had doubled.
+      const int kCtlGap = uiScaled(4);
+      // How tall a framed section has to be to hold these rows.
+      //
+      // Every section here reserved `rows * (kRowH + kRowGap)` and every one
+      // of them was a few pixels short, because VerticalLayout does not use
+      // the numbers it is given verbatim: it snaps each slice UP to the 8px
+      // layout grid and snaps the section body DOWN to it. At 1x a 30px row
+      // costs 32, so DECKLINK's four rows needed 143px inside a body of 140
+      // and the fourth -- the 10-BIT toggle -- was clamped to a squashed
+      // sliver on every platform. Reserve what the layout will actually take.
+      auto sectionH = [&](std::initializer_list<int> rows) {
+        int h = settingsHeaderHeight(fontSmall_) + sPad + kLayoutSpacingUnit;
+        bool first = true;
+        for (int r : rows) {
+          if (!first) h += kRowGap;
+          h += snapUpToGrid(r);
+          first = false;
+        }
+        return h;
+      };
+      const int kSectionGap = uiScaled(14);
 
       // Section frame helper — same cartridge label-plate treatment as
       // drawSettingsCard; body rect is unchanged so section content is
@@ -1461,9 +1626,9 @@
       auto drawSectionFrame = [&](const SDL_Rect& rect, const std::string& title) {
         Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner, pal.deep, pal.light);
         SDL_Rect hdr = drawSettingsPlate(rect, title, fontSmall_);
-        int bodyTop = hdr.y + hdr.h + 6;
-        return SDL_Rect {rect.x + 8, bodyTop, rect.w - 16,
-                         std::max(0, rect.y + rect.h - bodyTop - 8)};
+        int bodyTop = hdr.y + hdr.h + uiScaled(6);
+        return SDL_Rect {rect.x + sPad, bodyTop, rect.w - sPad * 2,
+                         std::max(0, rect.y + rect.h - bodyTop - sPad)};
       };
       auto sectionHeaderRect = [&](const SDL_Rect& rect) {
         return settingsPlateRect(rect, fontSmall_);
@@ -1506,8 +1671,23 @@
 
       // ─── Sub-tab content area ───
       int subContentW = availW;
-      int subContentH = content.y + content.h - cy - 4;
-      int sy = cy; // content Y cursor
+      int subContentH = content.y + content.h - cy - kCtlGap;
+      const int subContentTop = cy;
+      // Scrolled, and clipped to the frame while it is. The sections below run
+      // past the bottom of the modal on Devices at 1x -- AMWA NMOS was drawn
+      // half outside it and, with the scroll switched off, could not be
+      // reached by any means -- and every sub-tab runs past it at 2x.
+      settingsVideoScroll_ = std::max(0, settingsVideoScroll_);
+      int sy = cy - settingsVideoScroll_; // content Y cursor
+
+      SDL_Rect previousVideoClip {};
+      bool hadVideoClip = SDL_RenderClipEnabled(controlRenderer_) == true;
+      if (hadVideoClip) {
+        SDL_GetRenderClipRect(controlRenderer_, &previousVideoClip);
+      }
+      SDL_Rect videoViewport {content.x, subContentTop, content.w,
+                              std::max(0, content.y + content.h - subContentTop)};
+      SDL_SetRenderClipRect(controlRenderer_, &videoViewport);
 
       // ═══════════════════════════════════════════════════════════════
       if (settingsVideoSubTab_ == 0) {
@@ -1516,7 +1696,7 @@
 
         // Display & Raster — 3 rows (display, resolution, fullscreen+orientation)
         // 4 rows now (display, resolution, raster/refresh/depth, fullscreen+orientation).
-        int dispSectionH = settingsHeaderHeight(fontSmall_) + 4 * (kRowH + kRowGap) + 8;
+        int dispSectionH = sectionH({kRowH, kRowH, kRowH, kRowH});
         SDL_Rect displaySection {cx, sy, subContentW, dispSectionH};
         SDL_Rect dBody = drawSectionFrame(displaySection, "DISPLAY & RASTER");
         VerticalLayout dLayout(dBody, kRowGap);
@@ -1551,13 +1731,13 @@
           // the button offers whichever the operator is not currently in.
           drawActionBtn(modeBtn, nativeMode ? "Raster: NATIVE" : "Raster: FIXED",
                         nativeMode ? 237 : 230, nativeMode);
-          SDL_Rect refreshBtn {row.x + thirdW + 4, row.y, thirdW, kRowH};
+          SDL_Rect refreshBtn {row.x + thirdW + kCtlGap, row.y, thirdW, kRowH};
           drawActionBtn(refreshBtn, "Refresh: " + outputRefreshRateLabel(), 241);
           // Cycle auto -> 8 -> 10 -> auto by dispatching the existing per-value
           // handlers; no new action id needed.
           const int depth = project_.outputBitDepth;
           const int depthAction = (depth == 0) ? 243 : (depth == 8) ? 244 : 242;
-          SDL_Rect depthBtn {row.x + (thirdW + 4) * 2, row.y, row.w - (thirdW + 4) * 2, kRowH};
+          SDL_Rect depthBtn {row.x + (thirdW + kCtlGap) * 2, row.y, row.w - (thirdW + kCtlGap) * 2, kRowH};
           drawActionBtn(depthBtn, "Depth: " + outputBitDepthModeLabel(), depthAction);
         }
 
@@ -1565,7 +1745,7 @@
         // better than stacked full-width bars in a card this wide.
         SDL_Rect pairRow = dLayout.takeFixed(kRowH);
         SDL_Rect fsBtn {pairRow.x, pairRow.y, (pairRow.w - 8) / 2, pairRow.h};
-        SDL_Rect orientBtn {pairRow.x + (pairRow.w - 8) / 2 + 8, pairRow.y,
+        SDL_Rect orientBtn {pairRow.x + (pairRow.w - sPad) / 2 + sPad, pairRow.y,
                             pairRow.w - (pairRow.w - 8) / 2 - 8, pairRow.h};
         drawActionBtn(fsBtn, "Toggle Fullscreen", 236);
         std::string orientLabel = outputOrientation == 0 ? "0\xc2\xb0 (Normal)"
@@ -1637,26 +1817,26 @@
           ebRasterH = std::max(16, ebRasterH);
           // Sized from the shared header + row metrics, not a magic number: rows are
           // font-derived now, so a fixed height clipped the last control.
-          int blendH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap) + 8;
+          int blendH = sectionH({kRowH, kRowH});
           SDL_Rect blendSection {cx, sy, subContentW, blendH};
           // "Feathering", not "blending": this softens THIS output's own edges.
           // True multi-projector edge blending (gamma-matched overlap between
           // two outputs) is a Super Deckboy job — see kSuperDeckboySpanningUi.
           SDL_Rect blendBody = drawSectionFrame(blendSection, "EDGE FEATHERING");
-          int bx = blendBody.x + 2;
+          int bx = blendBody.x + uiScaled(2);
           int labelY = blendBody.y;
           int btnY = rowYBelowLabel(labelY, fontSmall_, 2);
-          int bw = (blendBody.w - 18) / 4;
-          int bgap = 6;
+          int bw = (blendBody.w - uiScaled(18)) / 4;
+          int bgap = uiScaled(6);
           auto drawBlendCtrl = [&](const char* label, float val, int raster,
                                    int decAction, int incAction) {
             int px = static_cast<int>(std::lround(val * raster));
             std::string valStr = std::string(label) + ": " + std::to_string(px) + "px";
             drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{bx, labelY, bw, 16}, valStr, soft);
-            int btnW = (bw - 4) / 2;
-            SDL_Rect decBtn {bx, btnY, btnW, 24};
-            SDL_Rect incBtn {bx + btnW + 4, btnY, btnW, 24};
+                         SDL_Rect{bx, labelY, bw, sLineH}, valStr, soft);
+            int btnW = (bw - uiScaled(4)) / 2;
+            SDL_Rect decBtn {bx, btnY, btnW, sRowH};
+            SDL_Rect incBtn {bx + btnW + uiScaled(4), btnY, btnW, sRowH};
             Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "-", ink, decBtn);
             settingsBtns_.push_back({decBtn, decAction, "blend"});
@@ -1683,24 +1863,29 @@
           // Height is DERIVED from the two label+control rows below, never a
           // magic number — a hardcoded section height is what silently clipped
           // DeckLink's 10-bit toggle once rows became font-derived (v0.81.3).
-          const int aoiHdrH = 26;
+          // The plate's own height, so the first row sits exactly where a row
+          // sits in every other section on this tab.
+          const int aoiHdrH = settingsHeaderHeight(fontSmall_);
           const int aoiLabelH = textLineHeight(fontSmall_);
-          const int aoiCtrlH = 24;
-          const int aoiRowH = aoiLabelH + 4 + aoiCtrlH;
-          int aoiH = aoiHdrH + 6 + aoiRowH + kRowGap + aoiRowH + 10;
+          const int aoiCtrlH = sRowH;
+          const int aoiRowH = aoiLabelH + uiScaled(4) + aoiCtrlH;
+          int aoiH = aoiHdrH + aoiRowH + kRowGap + aoiRowH + sPad;
           SDL_Rect aoiSection {cx, sy, subContentW, aoiH};
           SDL_Color aoiFill = aoiActive ? pal.dark : pal.shellInner;
           SDL_Color aoiInk2 = aoiActive ? pal.light : ink;
           Primitives::drawFramedPanel(controlRenderer_, aoiSection, aoiFill, pal.deep, pal.light);
-          SDL_Rect aoiHdr {aoiSection.x, aoiSection.y, aoiSection.w, 26};
-          Primitives::drawFramedPanel(controlRenderer_, aoiHdr, aoiActive ? pal.dark : pal.mid, pal.deep, pal.light);
+          SDL_Rect aoiHdr = settingsPlateRect(aoiSection, fontSmall_);
+          Primitives::drawFramedPanel(controlRenderer_, aoiHdr, pal.dark, pal.deep, pal.mid);
           std::string aoiTitle = aoiActive
             ? "AREA OF INTEREST  " + std::to_string(aoi.w) + "x" + std::to_string(aoi.h)
               + " @ " + std::to_string(aoi.x) + "," + std::to_string(aoi.y)
             : "AREA OF INTEREST  full " + std::to_string(aoi.rasterW) + "x" + std::to_string(aoi.rasterH);
-          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{aoiHdr.x + 8, aoiHdr.y + 6, aoiHdr.w - 72, aoiHdr.h - 8},
-                       aoiTitle, aoiActive ? pal.light : pal.deep);
-          SDL_Rect aoiResetBtn {aoiSection.x + aoiSection.w - 56, aoiSection.y + 4, 50, 18};
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{aoiHdr.x + kCtlGap, aoiHdr.y,
+                                aoiHdr.w - uiScaled(72), aoiHdr.h},
+                       aoiTitle, pal.light);
+          SDL_Rect aoiResetBtn {aoiHdr.x + aoiHdr.w - uiScaled(54), aoiHdr.y + uiScaled(2),
+                                uiScaled(50), std::max(uiScaled(14), aoiHdr.h - uiScaled(4))};
           Primitives::drawFramedPanel(controlRenderer_, aoiResetBtn, pal.mid, pal.deep, pal.light);
           drawCenteredText(controlRenderer_, fontSmall_, "FULL", ink, aoiResetBtn);
           settingsBtns_.push_back({aoiResetBtn, kSettingsActionOutputAoiReset, "aoi_reset"});
@@ -1709,18 +1894,18 @@
           // Row 1 picks the region size; row 2 places it. WIDTH/HEIGHT keep
           // typed entry via the size dropdown's custom path, and the nudge
           // actions all still exist for remote/Companion control.
-          int abx = aoiSection.x + 16;
-          int ably = aoiSection.y + aoiHdrH + 6;
-          int aoBtnY = ably + aoiLabelH + 4;
-          int aoiInnerW = aoiSection.w - 32;
+          int abx = aoiSection.x + sPad * 2;
+          int ably = aoiSection.y + aoiHdrH;
+          int aoBtnY = ably + aoiLabelH + uiScaled(4);
+          int aoiInnerW = aoiSection.w - sPad * 4;
           int aoiRow2LabelY = aoBtnY + aoiCtrlH + kRowGap;
-          int aoiRow2Y = aoiRow2LabelY + aoiLabelH + 4;
+          int aoiRow2Y = aoiRow2LabelY + aoiLabelH + uiScaled(4);
 
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect{abx, ably, aoiInnerW, aoiLabelH}, "REGION SIZE",
                        aoiActive ? pal.light : soft);
-          int centreW = std::max(72, aoiInnerW / 4);
-          SDL_Rect aoiSizeBtn {abx, aoBtnY, aoiInnerW - centreW - 6, aoiCtrlH};
+          int centreW = std::max(uiScaled(72), aoiInnerW / 4);
+          SDL_Rect aoiSizeBtn {abx, aoBtnY, aoiInnerW - centreW - uiScaled(6), aoiCtrlH};
           std::string sizeLabel = aoiActive
             ? std::to_string(aoi.w) + "x" + std::to_string(aoi.h)
             : "Full  " + std::to_string(aoi.rasterW) + "x" + std::to_string(aoi.rasterH);
@@ -1734,17 +1919,19 @@
           drawTextSafe(controlRenderer_, fontSmall_,
                        SDL_Rect{abx, aoiRow2LabelY, aoiInnerW, aoiLabelH}, "POSITION",
                        aoiActive ? pal.light : soft);
-          int posW = (aoiInnerW - 8) / 2;
+          int posW = (aoiInnerW - sPad) / 2;
           auto drawAoiPosCtrl = [&](const char* label, int px, int slotX,
                                     int decAct, int incAct, int editAct) {
-            SDL_Rect lblRect {slotX, aoiRow2Y, 18, aoiCtrlH};
+            SDL_Rect lblRect {slotX, aoiRow2Y, uiScaled(18), aoiCtrlH};
             drawCenteredTextSafe(controlRenderer_, fontSmall_, lblRect, label,
                                  aoiActive ? pal.light : soft);
-            int nudgeW = 22;
-            int fieldX = slotX + 20;
-            int fieldW = posW - 20;
+            int nudgeW = uiScaled(22);
+            int fieldX = slotX + uiScaled(20);
+            int fieldW = posW - uiScaled(20);
             SDL_Rect decBtn {fieldX, aoiRow2Y, nudgeW, aoiCtrlH};
-            SDL_Rect valBtn {fieldX + nudgeW + 3, aoiRow2Y, fieldW - 2 * (nudgeW + 3), aoiCtrlH};
+            const int nudgeGap = uiScaled(3);
+            SDL_Rect valBtn {fieldX + nudgeW + nudgeGap, aoiRow2Y,
+                             fieldW - 2 * (nudgeW + nudgeGap), aoiCtrlH};
             SDL_Rect incBtn {fieldX + fieldW - nudgeW, aoiRow2Y, nudgeW, aoiCtrlH};
             Primitives::drawFramedPanel(controlRenderer_, decBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "-", aoiInk2, decBtn);
@@ -1770,27 +1957,32 @@
         // With canvas hidden the transition panel takes the full width rather
         // than leaving a conspicuous empty half.
         {
-          int halfW = kSuperDeckboySpanningUi ? (subContentW - 8) / 2 : subContentW;
-          int pairH = 68;
+          int halfW = kSuperDeckboySpanningUi ? (subContentW - sPad) / 2 : subContentW;
+          // These two panels wrote their own header -- plain ink on the panel
+          // body -- while EDGE FEATHERING and AREA OF INTEREST above them wore
+          // the label plate. Three sections stacked in one column, three
+          // different headers. They go through drawSectionFrame now, so the
+          // plate, the inset and the body origin are the tab's, not each
+          // panel's own idea of them.
+          int pairH = settingsHeaderHeight(fontSmall_) + kRowH + sPad;
 
           if (kSuperDeckboySpanningUi) {
             SDL_Rect canvasPanel {cx, sy, halfW, pairH};
-            Primitives::drawFramedPanel(controlRenderer_, canvasPanel, pal.shellInner, pal.deep, pal.light);
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{canvasPanel.x + 8, canvasPanel.y + 4, canvasPanel.w - 16, 16},
-                         "CANVAS MODE", ink);
-            SDL_Rect canvasToggle {canvasPanel.x + 8, canvasPanel.y + 26, std::min(130, halfW - 16), kRowH};
+            SDL_Rect canvasBody = drawSectionFrame(canvasPanel, "CANVAS MODE");
+            SDL_Rect canvasToggle {canvasBody.x, canvasBody.y,
+                                   std::min(uiScaled(130), canvasBody.w), kRowH};
             drawActionBtn(canvasToggle,
                           project_.outputCanvasEnabled ? "CANVAS: ON" : "CANVAS: OFF",
                           kSettingsActionCanvasToggle, project_.outputCanvasEnabled);
             if (project_.outputCanvasEnabled) {
-              int cBtnX = canvasToggle.x + canvasToggle.w + 6;
-              int cBtnW = std::max(56, (canvasPanel.x + canvasPanel.w - 8 - cBtnX - 4) / 2);
-              SDL_Rect cwBtn {cBtnX, canvasPanel.y + 26, cBtnW, kRowH};
+              int cBtnX = canvasToggle.x + canvasToggle.w + uiScaled(6);
+              int cBtnW = std::max(uiScaled(56),
+                                   (canvasBody.x + canvasBody.w - cBtnX - kCtlGap) / 2);
+              SDL_Rect cwBtn {cBtnX, canvasBody.y, cBtnW, kRowH};
               Primitives::drawFramedPanel(controlRenderer_, cwBtn, pal.light, pal.deep, pal.mid);
               drawCenteredText(controlRenderer_, fontSmall_, "W:" + std::to_string(project_.outputCanvasWidth), ink, cwBtn);
               settingsBtns_.push_back({cwBtn, kSettingsActionCanvasWidthPrompt, "canvas_w"});
-              SDL_Rect chBtn {cwBtn.x + cBtnW + 4, canvasPanel.y + 26, cBtnW, kRowH};
+              SDL_Rect chBtn {cwBtn.x + cBtnW + kCtlGap, canvasBody.y, cBtnW, kRowH};
               Primitives::drawFramedPanel(controlRenderer_, chBtn, pal.light, pal.deep, pal.mid);
               drawCenteredText(controlRenderer_, fontSmall_, "H:" + std::to_string(project_.outputCanvasHeight), ink, chBtn);
               settingsBtns_.push_back({chBtn, kSettingsActionCanvasHeightPrompt, "canvas_h"});
@@ -1798,28 +1990,25 @@
           }
           {
             const Deck& td = focusedDeck();
-            int transX = kSuperDeckboySpanningUi ? cx + halfW + 8 : cx;
+            int transX = kSuperDeckboySpanningUi ? cx + halfW + sPad : cx;
             SDL_Rect transPanel {transX, sy, halfW, pairH};
-            Primitives::drawFramedPanel(controlRenderer_, transPanel, pal.shellInner, pal.deep, pal.light);
-            drawTextSafe(controlRenderer_, fontSmall_,
-                         SDL_Rect{transPanel.x + 8, transPanel.y + 4, transPanel.w - 16, 16},
-                         "DEFAULT TRANSITION", ink);
-            int tx = transPanel.x + 8;
-            int ty = transPanel.y + 26;
-            int tBtnW = 32;
+            SDL_Rect transBody = drawSectionFrame(transPanel, "DEFAULT TRANSITION");
+            int tx = transBody.x;
+            int ty = transBody.y;
+            int tBtnW = uiScaled(32);
             SDL_Rect tDecBtn {tx, ty, tBtnW, kRowH};
             Primitives::drawFramedPanel(controlRenderer_, tDecBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "-", ink, tDecBtn);
             settingsBtns_.push_back({tDecBtn, kSettingsActionTransitionSecondsDec, "trans_dec"});
-            SDL_Rect tValRect {tx + tBtnW + 4, ty, 76, kRowH};
+            SDL_Rect tValRect {tx + tBtnW + kCtlGap, ty, uiScaled(76), kRowH};
             Primitives::drawFramedPanel(controlRenderer_, tValRect, pal.light, pal.deep, pal.mid);
             drawCenteredText(controlRenderer_, fontSmall_, formatSeconds(td.transitionSeconds), ink, tValRect);
-            SDL_Rect tIncBtn {tValRect.x + tValRect.w + 4, ty, tBtnW, kRowH};
+            SDL_Rect tIncBtn {tValRect.x + tValRect.w + kCtlGap, ty, tBtnW, kRowH};
             Primitives::drawFramedPanel(controlRenderer_, tIncBtn, pal.mid, pal.deep, pal.light);
             drawCenteredText(controlRenderer_, fontSmall_, "+", ink, tIncBtn);
             settingsBtns_.push_back({tIncBtn, kSettingsActionTransitionSecondsInc, "trans_inc"});
-            int styleX = tIncBtn.x + tIncBtn.w + 6;
-            int styleW = std::max(60, transPanel.x + transPanel.w - 8 - styleX);
+            int styleX = tIncBtn.x + tIncBtn.w + uiScaled(6);
+            int styleW = std::max(uiScaled(60), transBody.x + transBody.w - styleX);
             SDL_Rect tStyleBtn {styleX, ty, styleW, kRowH};
             std::string styleLabel = toUpper(td.transitionStyle.empty() ? "crossfade" : td.transitionStyle);
             Primitives::drawFramedPanel(controlRenderer_, tStyleBtn, pal.mid, pal.deep, pal.light);
@@ -1838,7 +2027,7 @@
         // because the stream encoder is the only thing that ever read it.
         {
           int osRows = kSuperDeckboySpanningUi ? 2 : 1;
-          int osH = settingsHeaderHeight(fontSmall_) + osRows * (kRowH + kRowGap) + 8;
+          int osH = osRows > 1 ? sectionH({kRowH, kRowH}) : sectionH({kRowH});
           SDL_Rect osSection {cx, sy, subContentW, osH};
           SDL_Rect osBody = drawSectionFrame(osSection, "THIS OUTPUT");
           VerticalLayout osLayout(osBody, kRowGap);
@@ -1848,7 +2037,7 @@
             SDL_Rect alphaBtn {row.x, row.y, halfW2, kRowH};
             int alphaPct = static_cast<int>(std::lround(std::clamp(outputTarget.outputAlpha, 0.0f, 1.0f) * 100.0f));
             drawActionBtn(alphaBtn, "Alpha: " + std::to_string(alphaPct) + "%", kSettingsActionOutputAlphaPrompt);
-            SDL_Rect delayBtn {row.x + halfW2 + 4, row.y, row.w - halfW2 - 4, kRowH};
+            SDL_Rect delayBtn {row.x + halfW2 + kCtlGap, row.y, row.w - halfW2 - kCtlGap, kRowH};
             drawActionBtn(delayBtn, "Delay: " + std::to_string(outputDelayMs) + "ms", kSettingsActionOutputDelayPrompt);
           }
           if (kSuperDeckboySpanningUi) {
@@ -1857,7 +2046,7 @@
             SDL_Rect layoutBtn {row.x, row.y, halfW2, kRowH};
             drawActionBtn(layoutBtn, "Layout: " + toUpper(outputLayoutMode), kSettingsActionOutputLayoutSpan,
                           outputLayoutMode == "span");
-            SDL_Rect mirrorBtn {row.x + halfW2 + 4, row.y, row.w - halfW2 - 4, kRowH};
+            SDL_Rect mirrorBtn {row.x + halfW2 + kCtlGap, row.y, row.w - halfW2 - kCtlGap, kRowH};
             drawUIDropdown(mirrorBtn, "Mirror", mirrorLabel, "settings.output_mirror");
             settingsBtns_.push_back({mirrorBtn, kSettingsActionOutputMirrorDropdown, "output_mirror"});
           }
@@ -1866,7 +2055,7 @@
 
         // NDI Network
         {
-          int ndiH = settingsHeaderHeight(fontSmall_) + 3 * (kRowH + kRowGap) + 8;
+          int ndiH = sectionH({kRowH, kRowH, kRowH});
           SDL_Rect ndiSection {cx, sy, subContentW, ndiH};
           SDL_Rect nBody = drawSectionFrame(ndiSection, "NDI\xc2\xae NETWORK");
           VerticalLayout nLayout(nBody, kRowGap);
@@ -1884,7 +2073,7 @@
             SDL_Rect ndiKeyBtn {row.x, row.y, halfN, kRowH};
             drawActionBtn(ndiKeyBtn, outputTarget.ndiKeyEnabled ? "NDI KEY: ON" : "NDI KEY: OFF",
                           273, outputTarget.ndiKeyEnabled);
-            SDL_Rect keyNameBtn {row.x + halfN + 4, row.y, row.w - halfN - 4, kRowH};
+            SDL_Rect keyNameBtn {row.x + halfN + kCtlGap, row.y, row.w - halfN - kCtlGap, kRowH};
             std::string keyName = trim(outputTarget.ndiKeySourceName);
             if (keyName.empty()) {
               keyName = defaultOutputNdiKeySourceName(outputTarget, focusedOutputIndex);
@@ -1899,7 +2088,7 @@
           int halfW = (subContentW - 8) / 2;
 
           // DeckLink
-          int dlH = settingsHeaderHeight(fontSmall_) + 4 * (kRowH + kRowGap) + 8;
+          int dlH = sectionH({kRowH, kRowH, kRowH, kRowH});
           SDL_Rect dlSection {cx, sy, halfW, dlH};
           SDL_Rect dlBody = drawSectionFrame(dlSection, "DECKLINK SDI / HDMI");
           VerticalLayout dlLayout(dlBody, kRowGap);
@@ -1936,10 +2125,22 @@
           drawActionBtn(bitBtn, outputTarget.deckLink10Bit ? "10-BIT: ON" : "10-BIT: OFF",
                         kSettingsActionDeckLink10BitToggle, outputTarget.deckLink10Bit);
 
-          // Spout
+          // Interprocess texture share. The rest of the app calls this pair
+          // "Syphon / Spout" -- the cue kind, the source picker, the remote
+          // grammar all do -- and only this section hardcoded the Windows half
+          // of the name, so a Mac operator was offered a section advertising a
+          // technology that does not exist on their machine. Named for what
+          // the running build actually has.
+#if defined(DECKBOY_HAS_SPOUT)
+          const char* kTextureShareTitle = "SPOUT TEXTURE SHARE";
+#elif defined(DECKBOY_HAS_SIPHON)
+          const char* kTextureShareTitle = "SYPHON TEXTURE SHARE";
+#else
+          const char* kTextureShareTitle = "SYPHON / SPOUT TEXTURE SHARE";
+#endif
           int spH = dlH; // match DeckLink height
-          SDL_Rect spSection {cx + halfW + 8, sy, halfW, spH};
-          SDL_Rect spBody = drawSectionFrame(spSection, "SPOUT TEXTURE SHARE");
+          SDL_Rect spSection {cx + halfW + sPad, sy, halfW, spH};
+          SDL_Rect spBody = drawSectionFrame(spSection, kTextureShareTitle);
           VerticalLayout spLayout(spBody, kRowGap);
           SDL_Rect spToggle = spLayout.takeFixed(kRowH);
           drawActionBtn(spToggle,
@@ -1954,6 +2155,15 @@
             drawUIDropdown(spNameBtn, "Sender", spName, "settings.spout_name");
             settingsBtns_.push_back({spNameBtn, kSettingsActionSpoutNamePrompt, "spout_name"});
           }
+#if !defined(DECKBOY_HAS_SPOUT) && !defined(DECKBOY_HAS_SIPHON)
+          // The controls stay: this is a SHOW setting, and a show authored here
+          // still has to carry it to the machine that can send. But an operator
+          // is owed the difference between "armed" and "armed on a build that
+          // cannot do it" rather than watching a toggle flip and nothing happen.
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{spBody.x, spLayout.takeFixed(kLabelH).y, spBody.w, kLabelH},
+                       "not in this build - saved with the show", soft);
+#endif
           sy += dlH + kSectionGap;
         }
 
@@ -1965,8 +2175,7 @@
           // 3 control rows + 2 status lines. The status lines are the ones that
           // get clipped if this is under-sized, and they are the ones that
           // matter (pacing + clock traceability), so give them real room.
-          int stH = settingsHeaderHeight(fontSmall_) + 3 * (kRowH + kRowGap)
-                  + 2 * (kLabelH + 4) + 12;
+          int stH = sectionH({kRowH, kRowH, kRowH, kRowH, kLabelH, kLabelH});
           SDL_Rect stSection {cx, sy, subContentW, stH};
           SDL_Rect stBody = drawSectionFrame(stSection, "SMPTE ST 2110-20  (EXPERIMENTAL)");
           VerticalLayout stLayout(stBody, kRowGap);
@@ -1981,7 +2190,7 @@
             std::string addr = trim(outputTarget.st2110Address);
             if (addr.empty()) addr = "239.20.10.1";
             drawActionBtn(addrBtn, "Group: " + addr, kSettingsActionSt2110AddressPrompt);
-            SDL_Rect portBtn {row.x + addrW + 4, row.y, row.w - addrW - 4, kRowH};
+            SDL_Rect portBtn {row.x + addrW + kCtlGap, row.y, row.w - addrW - kCtlGap, kRowH};
             drawActionBtn(portBtn, "Port: " + std::to_string(outputTarget.st2110Port),
                           kSettingsActionSt2110PortPrompt);
           }
@@ -1992,7 +2201,7 @@
             drawActionBtn(depthBtn,
                           outputTarget.st2110TenBit ? "4:2:2  10-BIT" : "4:2:2  8-BIT",
                           kSettingsActionSt2110DepthToggle, outputTarget.st2110TenBit);
-            SDL_Rect sdpBtn {row.x + halfSt + 4, row.y, row.w - halfSt - 4, kRowH};
+            SDL_Rect sdpBtn {row.x + halfSt + kCtlGap, row.y, row.w - halfSt - kCtlGap, kRowH};
             drawActionBtn(sdpBtn, "SHOW SDP", kSettingsActionSt2110CopySdp);
           }
           {
@@ -2053,8 +2262,7 @@
         // without it: with no 2110 output armed this node advertises nothing.
         {
           // 2 control rows + 1 status line.
-          int nmH = settingsHeaderHeight(fontSmall_) + 2 * (kRowH + kRowGap)
-                  + (kLabelH + 4) + 12;
+          int nmH = sectionH({kRowH, kRowH, kLabelH});
           SDL_Rect nmSection {cx, sy, subContentW, nmH};
           SDL_Rect nmBody = drawSectionFrame(nmSection, "AMWA NMOS  IS-04 / IS-05");
           VerticalLayout nmLayout(nmBody, kRowGap);
@@ -2065,7 +2273,7 @@
             SDL_Rect toggleBtn {row.x, row.y, halfNm, kRowH};
             drawActionBtn(toggleBtn, project_.nmosEnabled ? "NMOS: ON" : "NMOS: OFF",
                           kSettingsActionNmosToggle, project_.nmosEnabled);
-            SDL_Rect portBtn {row.x + halfNm + 4, row.y, row.w - halfNm - 4, kRowH};
+            SDL_Rect portBtn {row.x + halfNm + kCtlGap, row.y, row.w - halfNm - kCtlGap, kRowH};
             drawActionBtn(portBtn, "Node port: " + std::to_string(project_.nmosPort),
                           kSettingsActionNmosPortPrompt);
           }
@@ -2081,7 +2289,7 @@
                           registry.empty() ? std::string("Registry: NOT SET")
                                            : "Registry: " + registry,
                           kSettingsActionNmosRegistryPrompt);
-            SDL_Rect ifBtn {row.x + regW + 4, row.y, row.w - regW - 4, kRowH};
+            SDL_Rect ifBtn {row.x + regW + kCtlGap, row.y, row.w - regW - kCtlGap, kRowH};
             std::string ifName = trim(project_.nmosInterfaceName);
             if (ifName.empty()) ifName = "eth0";
             drawActionBtn(ifBtn, "NIC: " + ifName, kSettingsActionNmosInterfacePrompt);
@@ -2129,9 +2337,14 @@
             //  readout when live. Counted wrong the first time and the audio
             //  bitrate row was clipped off the bottom -- so count the rows the
             //  branch below actually draws, not the ones you remember.
-            const int rows = 6 + (isLive ? 1 : 0);
-            return settingsHeaderHeight(fontSmall_) + rows * (kRowH + kRowGap)
-                 + kRowGap * 2;
+            std::vector<int> rows(6, kRowH);
+            if (isLive) rows.push_back(kRowH);
+            int h = settingsHeaderHeight(fontSmall_) + sPad + kLayoutSpacingUnit;
+            for (std::size_t i = 0; i < rows.size(); ++i) {
+              if (i) h += kRowGap;
+              h += snapUpToGrid(rows[i]);
+            }
+            return h;
           };
           for (int dest = 0; dest < 2; ++dest) {
             const std::string protoId = kProtoIds[dest];
@@ -2158,7 +2371,8 @@
                             act(kStreamFieldToggle), live);
               // Animated on-air badge, then the words. The badge carries state
               // at a glance from across a room; the text carries the detail.
-              SDL_Rect badge {row.x + halfR + 8, row.y + 2, kRowH - 4, kRowH - 4};
+              SDL_Rect badge {row.x + halfR + sPad, row.y + uiScaled(2),
+                              kRowH - kCtlGap, kRowH - kCtlGap};
               drawStreamOnAirBadge(badge, exists, live,
                                    exists ? outputHealthStateForDisplay(outIdx)
                                           : OutputHealthState::Off,
@@ -2222,7 +2436,7 @@
                   (exists && st->srtMode == "listener") ? "LISTENER" : "CALLER";
                 drawActionBtn(modeBtn, "Mode: " + mode, act(kStreamFieldSrtMode),
                               exists && st->srtMode == "listener");
-                SDL_Rect latBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+                SDL_Rect latBtn {row.x + halfR + kCtlGap, row.y, row.w - halfR - kCtlGap, kRowH};
                 drawActionBtn(latBtn, "Latency: "
                               + std::to_string(exists ? st->srtLatencyMs : 120) + " ms",
                               act(kStreamFieldSrtLatency));
@@ -2243,7 +2457,7 @@
                 : std::string("none");
               drawActionBtn(passBtn, "Passphrase: " + pass,
                             act(kStreamFieldSrtPassphrase));
-              SDL_Rect sidBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              SDL_Rect sidBtn {row.x + halfR + kCtlGap, row.y, row.w - halfR - kCtlGap, kRowH};
               std::string sid = exists ? trim(st->srtStreamId) : std::string();
               drawActionBtn(sidBtn, "Stream ID: " + (sid.empty() ? "none" : sid),
                             act(kStreamFieldSrtStreamId));
@@ -2255,7 +2469,7 @@
               drawActionBtn(brBtn, "Bitrate: "
                             + std::to_string(exists ? st->streamBitrateKbps : 6000)
                             + " kbps", act(kStreamFieldBitrate));
-              SDL_Rect kfBtn {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              SDL_Rect kfBtn {row.x + halfR + kCtlGap, row.y, row.w - halfR - kCtlGap, kRowH};
               drawActionBtn(kfBtn, "Keyframe: "
                             + std::to_string(exists ? st->streamKeyframeSeconds : 2)
                             + "s", act(kStreamFieldKeyframe));
@@ -2297,7 +2511,7 @@
               SDL_Rect recBtn {row.x, row.y, halfR, kRowH};
               drawActionBtn(recBtn, rec ? "STOP RECORDING" : "START RECORDING",
                             kSettingsActionRecordToggle, rec);
-              SDL_Rect badge {row.x + halfR + 4, row.y, row.w - halfR - 4, kRowH};
+              SDL_Rect badge {row.x + halfR + kCtlGap, row.y, row.w - halfR - kCtlGap, kRowH};
               if (rec) {
                 // Elapsed AND bytes on disk. Elapsed alone cannot tell you the
                 // encoder is actually writing; a size that climbs can.
@@ -2315,14 +2529,14 @@
             {
               SDL_Rect row = rl.takeFixed(kRowH);
               int pickW = row.w / 4;
-              SDL_Rect pathRect {row.x, row.y, row.w - pickW * 2 - 8, kRowH};
+              SDL_Rect pathRect {row.x, row.y, row.w - pickW * 2 - sPad, kRowH};
               drawTextSafe(controlRenderer_, fontSmall_, pathRect,
                            ellipsizeToPixelWidth(fontSmall_, recordingDirLabel(), pathRect.w),
                            ink);
-              SDL_Rect pickBtn {pathRect.x + pathRect.w + 4, row.y, pickW, kRowH};
+              SDL_Rect pickBtn {pathRect.x + pathRect.w + kCtlGap, row.y, pickW, kRowH};
               drawActionBtn(pickBtn, "FOLDER...", kSettingsActionRecordDirPick,
                             !project_.recordingDir.empty());
-              SDL_Rect clrBtn {pickBtn.x + pickW + 4, row.y, pickW, kRowH};
+              SDL_Rect clrBtn {pickBtn.x + pickW + kCtlGap, row.y, pickW, kRowH};
               drawActionBtn(clrBtn, "DEFAULT", kSettingsActionRecordDirClear);
             }
             if (recordingSharesAppVolume()) {
@@ -2338,10 +2552,20 @@
         }
       }
 
-      // No scrollbar needed — each sub-tab fits in the viewport
-      settingsVideoViewport_ = {};
-      settingsVideoScrollMax_ = 0;
-      settingsVideoScroll_ = 0;
+      // MEASURED, not predicted: sy is where the last section actually
+      // finished, so a section height that is wrong still cannot put a control
+      // out of reach -- the same failure the System tab was given this
+      // treatment for.
+      if (hadVideoClip) {
+        SDL_SetRenderClipRect(controlRenderer_, &previousVideoClip);
+      } else {
+        SDL_SetRenderClipRect(controlRenderer_, nullptr);
+      }
+      const int videoDrawnH = (sy + settingsVideoScroll_) - subContentTop;
+      settingsVideoViewport_ = videoViewport;
+      settingsVideoScrollMax_ = std::max(0, videoDrawnH - videoViewport.h);
+      settingsVideoScroll_ = std::clamp(settingsVideoScroll_, 0, settingsVideoScrollMax_);
+      drawSettingsScrollHint(videoViewport, settingsVideoScroll_, settingsVideoScrollMax_);
 
     } else if (settingsTab_ == 4) {
       // About tab — masthead + credits. Two columns of labelled rows sharing
@@ -2355,7 +2579,7 @@
 
       // ── Masthead: art + wordmark + version ──
       int mastH = std::clamp(content.h * 30 / 100, 96, 190);
-      SDL_Rect mastRect {cx, cy, content.w - 24, mastH};
+      SDL_Rect mastRect {cx, cy, content.w - uiScaled(24), mastH};
       Primitives::drawFramedPanel(controlRenderer_, mastRect, pal.shellInner, pal.deep, pal.light);
       int artW = std::min(mastRect.w / 2 - 16, 300);
       if (uiAboutLogo_.texture || !uiAboutLogo_.path.empty()) {
@@ -2536,16 +2760,16 @@
         int pw = 0, ph = 0;
         TTF_GetStringSize(fontSmall_, pauseLabel, 0, &pw, &ph);
         SDL_Rect pauseBtn {addBtn.x + addBtn.w + sGap, ey, pw + uiScaled(20), sTallH};
-        drawUIPanel(pauseBtn, encoderQueuePaused_ ? pal.light : pal.mid, pal.deep, pal.light);
+        drawUIPanel(pauseBtn, encoderQueuePaused_ ? pal.dark : pal.mid, pal.deep, pal.light);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, pauseBtn, pauseLabel,
-                             encoderQueuePaused_ ? pal.deep : pal.light);
+                             encoderQueuePaused_ ? pal.light : ink);
         settingsBtns_.push_back({pauseBtn, kSettingsActionEncoderPauseToggle,
                                  "pause/resume the encode queue"});
         int cw = 0, ch = 0;
         TTF_GetStringSize(fontSmall_, "CANCEL ALL", 0, &cw, &ch);
         SDL_Rect cancelBtn {pauseBtn.x + pauseBtn.w + sGap, ey, cw + uiScaled(20), sTallH};
         drawUIPanel(cancelBtn, pal.mid, pal.deep, pal.light);
-        drawCenteredTextSafe(controlRenderer_, fontSmall_, cancelBtn, "CANCEL ALL", pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, cancelBtn, "CANCEL ALL", ink);
         settingsBtns_.push_back({cancelBtn, kSettingsActionEncoderCancelAll,
                                  "cancel running job and clear the queue"});
       }
@@ -2575,9 +2799,9 @@
           TTF_GetStringSize(fontSmall_, label, 0, &tw, &th);
           SDL_Rect chipRect {px, ey, tw + uiScaled(18), sChipH};
           bool on = encoderPreset_ == chip.preset;
-          drawUIPanel(chipRect, on ? pal.light : pal.mid, pal.deep, pal.light);
+          drawUIPanel(chipRect, on ? pal.dark : pal.mid, pal.deep, pal.light);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, chipRect, label,
-                               on ? pal.deep : pal.light);
+                               on ? pal.light : ink);
           settingsBtns_.push_back({chipRect, chip.action, "encode preset"});
           px += chipRect.w + sGap;
         }
@@ -2589,9 +2813,9 @@
           TTF_GetStringSize(fontSmall_, lookLabel.c_str(), 0, &lw, &lh);
           SDL_Rect lookRect {px, ey, lw + uiScaled(18), sChipH};
           bool moshActive = encoderPreset_ == EncoderPreset::DatamoshFriendly;
-          drawUIPanel(lookRect, moshActive ? pal.mid : pal.dark, pal.deep, pal.light);
+          drawUIPanel(lookRect, moshActive ? pal.dark : pal.mid, pal.deep, pal.light);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, lookRect, lookLabel,
-                               moshActive ? pal.light : pal.inkSoft);
+                               moshActive ? pal.light : ink);
           settingsBtns_.push_back({lookRect, kSettingsActionEncoderMoshLook,
                                    "smooth (H.264) or chunky (MPEG-4 Part 2)"});
         }
@@ -2622,9 +2846,9 @@
           }
           SDL_Rect r {fx, ey, chipW, sChipH};
           const bool on = encoderFormatId_ == fmt.id;
-          drawUIPanel(r, on ? pal.light : (haveFmt ? pal.mid : pal.dark), pal.deep, pal.light);
+          drawUIPanel(r, on ? pal.dark : pal.mid, pal.deep, pal.light);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, r, chipLabel,
-                               on ? pal.deep : (haveFmt ? pal.light : pal.inkSoft));
+                               on ? pal.light : (haveFmt ? ink : soft));
           if (haveFmt) {
             settingsBtns_.push_back({r,
               kSettingsActionEncoderFormatBase + static_cast<int>(&fmt - encoderFormatCatalog().data()),
@@ -2649,9 +2873,9 @@
           int cw = tw + uiScaled(16);
           if (ox + cw > ex + ew) { ox = ex; ey += sChipH + sGap / 2; }
           SDL_Rect r {ox, ey, cw, sChipH};
-          drawUIPanel(r, active ? pal.light : pal.mid, pal.deep, pal.light);
+          drawUIPanel(r, active ? pal.dark : pal.mid, pal.deep, pal.light);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, r, label,
-                               active ? pal.deep : pal.light);
+                               active ? pal.light : ink);
           settingsBtns_.push_back({r, action, tip});
           ox += cw + sGap / 2;
         };
@@ -2707,7 +2931,7 @@
       ey += sLineH + sGap;
       drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                    flagged.empty() ? "No cues need conversion." :
-                     (std::to_string(static_cast<int>(flagged.size())) + " cue(s) flagged:"), pal.light);
+                     (std::to_string(static_cast<int>(flagged.size())) + " cue(s) flagged:"), ink);
       ey += sLineH + sGap;
       const int rowH = sRowH;
       int maxRows = std::max(0, (encRect.y + encRect.h - sPad - ey) / rowH);
@@ -2718,7 +2942,7 @@
                          + "  " + f.label + "   (" + f.reason + ")"
                          + f.queueState;
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
-                     ellipsizeToPixelWidth(fontSmall_, line, ew), f.queueState.empty() ? pal.light : soft);
+                     ellipsizeToPixelWidth(fontSmall_, line, ew), f.queueState.empty() ? ink : soft);
         ey += rowH;
         ++shown;
       }
@@ -4249,5 +4473,9 @@
       } else if (sb.action >= kSettingsActionVideoSubTabBase &&
                  sb.action < kSettingsActionVideoSubTabBase + 4) {
         settingsVideoSubTab_ = sb.action - kSettingsActionVideoSubTabBase;
+        // Each sub-tab is a different height, so a scroll carried over from
+        // the last one lands somewhere arbitrary in this one.
+        settingsVideoScroll_ = 0;
+        settingsVideoScrollMax_ = 0;
       }
   }
