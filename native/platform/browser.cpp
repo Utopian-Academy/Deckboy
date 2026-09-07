@@ -1420,7 +1420,29 @@ bool BrowserRenderer::sendKey(const std::string& name) {
   if (!impl_->virtualDisplayId_.empty()) {
     ScopedDisplay display(impl_->virtualDisplayId_);
     if (display) {
-      const KeySym symbol = XStringToKeysym(name.c_str());
+      // X11 DOES NOT USE THE NAMES THE REST OF DECKBOY USES.
+      //
+      // The verb is documented as Enter|Tab|Backspace|Escape, and X calls two
+      // of those something else: "Return" and "BackSpace" (capital S). So
+      // XStringToKeysym returned NoSymbol and the operator was told "this
+      // backend cannot send Enter" -- for the single most useful key in the
+      // set, on the platform where a browser cue most often needs to submit a
+      // form. Tab and Escape happened to match, which is why the gap looked
+      // like a backend limitation rather than a spelling one.
+      std::string lower = name;
+      std::transform(lower.begin(), lower.end(), lower.begin(),
+                     [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+      std::string xName = name;
+      if (lower == "enter" || lower == "return") {
+        xName = "Return";
+      } else if (lower == "backspace") {
+        xName = "BackSpace";
+      } else if (lower == "tab") {
+        xName = "Tab";
+      } else if (lower == "escape" || lower == "esc") {
+        xName = "Escape";
+      }
+      const KeySym symbol = XStringToKeysym(xName.c_str());
       if (symbol == NoSymbol) {
         return false;
       }
