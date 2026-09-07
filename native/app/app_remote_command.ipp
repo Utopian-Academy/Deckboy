@@ -25,6 +25,16 @@
 
   // Process a remote command string (from OSC, Companion, or other sources).
   // Splits the command into verb + arguments and dispatches to the handler.
+  static const char* scaleModeToken(ScaleMode mode) {
+    switch (mode) {
+      case ScaleMode::Fit:      return "fit";
+      case ScaleMode::Fill:     return "fill";
+      case ScaleMode::Stretch:  return "stretch";
+      case ScaleMode::Unscaled: return "unscaled";
+    }
+    return "fit";
+  }
+
   void handleRemoteCommand(const std::string& rawCommand) {
     // Cleared only by falling off the end of this function (see the note
     // there); processRemoteCommands reads it to answer the caller OK or ERR.
@@ -4074,6 +4084,51 @@
                        + (project_.geometryAspectLinked ? "  (aspect linked)" : ""));
         }
       }
+      return;
+    }
+    if (command == "SCALEMODE") {
+      // How the source maps into the output: fit (letterbox), fill (cover and
+      // crop), stretch (ignore aspect), unscaled (1:1). Until now this was
+      // reachable only by clicking the inspector's cycle button -- so it could
+      // not be driven from Companion, and it could not be TESTED without a
+      // human at the desk, which is why "is fit/fill/stretch even working?"
+      // had no cheap answer.
+      //
+      // A bare SCALEMODE is a question, like a bare AUDIOGAIN.
+      const Cue* selected = selectedCuePtr();
+      if (parts.size() < 2) {
+        if (!selected) {
+          failRemoteCommand("SCALEMODE: no cue selected");
+          return;
+        }
+        remoteCommandDetail_ = scaleModeToken(selected->scaleMode);
+        return;
+      }
+      const std::string want = toLower(trim(parts[1]));
+      ScaleMode mode = ScaleMode::Fit;
+      if (want == "fit")            mode = ScaleMode::Fit;
+      else if (want == "fill")      mode = ScaleMode::Fill;
+      else if (want == "stretch")   mode = ScaleMode::Stretch;
+      else if (want == "unscaled" || want == "none" || want == "1:1")
+                                    mode = ScaleMode::Unscaled;
+      else {
+        failRemoteCommand("SCALEMODE: expected fit|fill|stretch|unscaled");
+        return;
+      }
+      bool changed = false;
+      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        if (!cueSupportsGeometry(&each)) {
+          return;
+        }
+        each.scaleMode = mode;
+        changed = true;
+      });
+      if (!changed) {
+        failRemoteCommand("SCALEMODE: selection has no cue with geometry");
+        return;
+      }
+      markProjectDirty();
+      remoteCommandDetail_ = scaleModeToken(mode);
       return;
     }
     if (command == "SCALE") {
