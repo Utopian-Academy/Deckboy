@@ -1,5 +1,15 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.327 (the installer is on screen where you can reach it)
+
+**The Windows installer actually appears.** It was being started in a way that
+gave it no window, so an update handed over to something nobody could see or
+click, and nothing happened.
+
+**An interrupted update no longer half-installs.** If Deckboy has not closed by
+the time the update helper is ready, it now stops instead of replacing the app
+underneath a running copy.
+
 ## 2026-09-07 - v0.99.326 (a target to update to)
 
 No functional change over v0.99.325. Cut so the full update cycle in v0.99.325
