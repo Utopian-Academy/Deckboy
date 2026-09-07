@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.329 (Deckboy closes cleanly on Linux)
+
+**Quitting no longer crashes on Linux.** Closing Deckboy ended in an abort and a
+core dump every time - harmless-looking, since the app was closing anyway, but
+it meant anything waiting for a clean exit never got one. That included the
+updater, which is how it came to light.
+
 ## 2026-09-07 - v0.99.328 (a target to update to)
 
 No functional change over v0.99.327. Cut so the update cycle in v0.99.327 has a
