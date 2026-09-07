@@ -87,6 +87,31 @@
     return out;
   }
 
+  // What the SPLASH offers: the recents, minus the show that already has its
+  // own button.
+  //
+  // The previous show was named twice on the startup screen -- once as
+  // "Previous show file", once as recent number 1 -- because it is both. They
+  // are not the same action (OPEN PREVIOUS continues the show already loaded
+  // at the startup path; the row opens a file) but they are the same file, and
+  // an operator reading a list does not care about that distinction. So the
+  // heading keeps it and the list drops it, which also buys the list a slot:
+  // five OTHER shows to switch to, rather than four plus the one already on a
+  // button.
+  //
+  // The render, the click and the number keys all come through here. Filtering
+  // in the drawing code alone would leave the click handler reading the
+  // unfiltered list, and every row would open the show one place above it.
+  std::vector<fs::path> startupRecentShows() const {
+    std::vector<fs::path> recents = loadRecentProjects();
+    if (!currentProjectFile_.empty() && fs::exists(currentProjectFile_)) {
+      const fs::path current = normalizeProjectPath(currentProjectFile_);
+      recents.erase(std::remove(recents.begin(), recents.end(), current),
+                    recents.end());
+    }
+    return recents;
+  }
+
   void noteRecentProject(const fs::path& projectFile) const {
     if (projectFile.empty()) {
       return;

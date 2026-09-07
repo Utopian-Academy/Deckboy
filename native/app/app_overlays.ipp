@@ -493,7 +493,7 @@
     // arrangement that put SAFETY / TIMECODE through the UI Scale picker on
     // the settings page. It flows from a cursor now and the panel is sized
     // from where the cursor ended.
-    const std::vector<fs::path> recents = loadRecentProjects();
+    const std::vector<fs::path> recents = startupRecentShows();
     const int kRecentRows = std::min<int>(5, static_cast<int>(recents.size()));
 
     const int lineH = std::max(uiScaled(18), textLineHeight(fontSmall_));
