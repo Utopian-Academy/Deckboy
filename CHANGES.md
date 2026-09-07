@@ -1,5 +1,9 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.330 (a target to update to)
+
+No functional change over v0.99.329.
+
 ## 2026-09-07 - v0.99.329 (Deckboy closes cleanly on Linux)
 
 **Quitting no longer crashes on Linux.** Closing Deckboy ended in an abort and a
