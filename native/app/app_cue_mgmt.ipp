@@ -2130,10 +2130,8 @@
     contextItems_.clear();
 
     // Only the capture sources whose backend works on this platform (same
-    // catalog-driven list the inspector's type dropdown uses). On macOS every
-    // capture backend is a scaffold, so this list is empty there and the menu
-    // falls through to the stream/NDI entries below rather than offering three
-    // cues that do nothing.
+    // catalog-driven list the inspector's type dropdown uses), so the menu can
+    // never offer a cue that would do nothing when taken.
     for (const auto& [token, label] : sourceCueTypeChoices()) {
       bool isDefault = (token == sourceDefaultTypeId_);
       contextItems_.push_back({
@@ -2147,15 +2145,16 @@
       });
     }
 
-    // Browser cues run on Windows (WebView2/Edge) and Linux (Xvfb+Chromium) but
-    // the macOS backend is a scaffold — do not offer what cannot run.
-#ifndef __APPLE__
+    // Browser cues run on all three: WebView2 on Windows, Xvfb+Chromium on
+    // Linux, and WKWebView through a helper on macOS. The macOS arm was a
+    // scaffold when this menu was written, so the entry was compiled out there
+    // -- and stayed compiled out after the backend was built, which is how you
+    // ship a working feature nobody can reach.
     contextItems_.push_back({
       "  Browser / URL",
       {0, 0, 0, 0},
       [this]() { addBrowserCueFromPrompt(); }
     });
-#endif
     contextItems_.push_back({
       "  Stream (SRT / RTMP / RTSP)",
       {0, 0, 0, 0},
@@ -5213,6 +5212,65 @@
     SDL_DestroyTexture(texture);
   }
 
+  // Restores a font size on the way out, so the early returns in the text
+  // funnels cannot leak a shrunken font to the next caller that shares it.
+  struct FontSizeRestore {
+    TTF_Font* font;
+    int size;
+    ~FontSizeRestore() {
+      if (font && size > 0) {
+        TTF_SetFontSize(font, static_cast<float>(size));
+      }
+    }
+  };
+
+  // A SMALLER WORD BEATS HALF A WORD.
+  //
+  // Every label in the app is centred through here, and when one did not fit it
+  // was cut: BLACKOUT became "BLA...", SETTINGS "SET...", a cue named "Browser
+  // Cue" became "BRO...". Those are the labels a bottom bar exists to carry, and
+  // an ellipsis hides exactly the part that distinguishes one button from its
+  // neighbour.
+  //
+  // The bottom bar already tries a second row first (see placeGroupButtons),
+  // which is the better answer when there is height for it. This is what
+  // happens when there is not: step the type down until the whole word fits,
+  // and only ellipsize if even the floor is too wide. The floor keeps it
+  // legible -- past that, a word rendered too small to read is no better than a
+  // truncated one.
+  //
+  // Sizing is restored before returning, because these fonts are shared by
+  // every other caller.
+  TTF_Font* fontThatFits(TTF_Font* font, const std::string& text, int maxWidth,
+                         int& outRestoreSize) const {
+    outRestoreSize = 0;
+    if (!font || text.empty() || maxWidth <= 0) {
+      return font;
+    }
+    int wide = 0;
+    if (!TTF_GetStringSize(font, text.c_str(), 0, &wide, nullptr) || wide <= maxWidth) {
+      return font;   // already fits: the common case, and it costs one measure
+    }
+    const int original = TTF_GetFontSize(font);
+    if (original <= 0) {
+      return font;
+    }
+    // Not below 78% of the intended size, and never below 9px: a label nobody
+    // can read is not a label that fits.
+    const int floorSize = std::max(9, (original * 78) / 100);
+    for (int size = original - 1; size >= floorSize; --size) {
+      if (!TTF_SetFontSize(font, static_cast<float>(size))) {
+        break;
+      }
+      if (TTF_GetStringSize(font, text.c_str(), 0, &wide, nullptr) && wide <= maxWidth) {
+        outRestoreSize = original;
+        return font;
+      }
+    }
+    TTF_SetFontSize(font, static_cast<float>(original));
+    return font;
+  }
+
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
                     const std::string& text, SDL_Color color) {
     if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {
@@ -5224,6 +5282,9 @@
     }
     // Panels now paint the caller's rect verbatim, so the label's usable width
     // is simply the inset rect — no grid-snapped right edge to compensate for.
+    int restoreSize = 0;
+    font = fontThatFits(font, text, safe.w, restoreSize);
+    const FontSizeRestore restore{font, restoreSize};
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;
@@ -5267,6 +5328,9 @@
     if (safe.w <= 0 || safe.h <= 0) {
       return;
     }
+    int restoreSize = 0;
+    font = fontThatFits(font, text, safe.w, restoreSize);
+    const FontSizeRestore restore{font, restoreSize};
     std::string clipped = ellipsizeToPixelWidth(font, text, safe.w);
     if (clipped.empty()) {
       return;

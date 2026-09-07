@@ -378,8 +378,9 @@
 
   std::vector<std::pair<std::string, std::string>> sourceCueTypeChoices() const {
     // Only offer capture sources whose backend actually works on THIS platform.
-    // Listing all three everywhere was theatre: on macOS every capture backend
-    // is a scaffold (a user picked "Camera" and nothing happened), and
+    // Listing all three everywhere was theatre: a user picked "Camera" and
+    // nothing happened. macOS window and camera capture are real now
+    // (ScreenCaptureKit and AVFoundation), so they appear there; and
     // Syphon/Spout *capture* is a scaffold on Windows too (Spout OUTPUT works;
     // capturing a Spout sender as input does not). The self-check already knows
     // this per platform — drive the menu from the same catalog so the two can
