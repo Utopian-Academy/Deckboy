@@ -320,14 +320,24 @@ jobs:
     #
     # There is no universal binary (see tools/package_macos.sh), so both
     # architectures are built and the packager names each zip after its own.
-    # macos-13 is the Intel image and also covers Apple Silicon via Rosetta;
-    # macos-14 is the native arm64 one.
+    #
+    # macos-13 WAS the Intel slot, until GitHub retired that image. A retired
+    # label does not fail -- the job simply queues for a runner that will never
+    # come. macos-package needs both matrix entries, and publish needs
+    # macos-package, so every release after that sat "queued" forever and
+    # NOTHING published. v0.99.317 was tagged, built green on all six other
+    # jobs, and never produced a release; the same would have happened to every
+    # tag after it, silently, because a queued job looks like a slow one.
+    #
+    # macos-15-intel is GitHub's Intel image now. If that is ever retired too,
+    # the symptom will be identical -- a job stuck in "queued" -- so check the
+    # runner label before suspecting the build.
     strategy:
       fail-fast: false
       matrix:
         include:
-          - image: macos-13     # x86_64, floor macOS 13 Ventura
-          - image: macos-14     # arm64,  floor macOS 14 Sonoma
+          - image: macos-15-intel  # x86_64
+          - image: macos-14        # arm64, floor macOS 14 Sonoma
     runs-on: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v4
