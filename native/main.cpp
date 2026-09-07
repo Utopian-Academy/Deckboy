@@ -8627,6 +8627,9 @@ class App {
   std::mutex companionClientsMutex_;  // protects companionClients_ + companionClientBuffers_
   std::vector<SocketHandle> companionClients_;
   std::map<SocketHandle, std::string> companionClientBuffers_;
+  // Which connections have already had their first line inspected (see the
+  // HTTP guard in app_network.ipp).
+  std::set<SocketHandle> companionClientFirstLine_;
   // Clients that half-closed (sent EOF) but are still owed an OK/ERR for a
   // command already queued. Value is the SDL_GetTicks deadline after which the
   // socket is closed regardless. See the linger note in the reader loop.
