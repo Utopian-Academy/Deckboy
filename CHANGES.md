@@ -1,5 +1,17 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.325 (updates install themselves on every platform)
+
+**macOS and Linux now actually install the update.** Both used to stop at the
+download - one opened the disk image and asked you to drag Deckboy to
+Applications, the other showed you the AppImage in a file manager. Now the
+update replaces the app and reopens it, the same as Windows.
+
+**And the installer no longer piles up.** Each Windows update used to leave a
+~94MB setup file behind, one per update, in a folder the newly installed build
+never looks at. It now removes itself once the update succeeds - and only when
+Deckboy started it, so an installer you downloaded yourself stays put.
+
 ## 2026-09-07 - v0.99.324 (INSTALL & RESTART restarts, via the installer)
 
 **The update restarts Deckboy.** The installer already knew how to launch the
