@@ -1,5 +1,12 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.332 (each show named once on the startup screen)
+
+The show you were last working on is the one with its own OPEN PREVIOUS button,
+so it no longer also appears in the recent list underneath. The list is five
+OTHER shows to switch to, and the show you already have a button for keeps its
+own line above them.
+
 ## 2026-09-07 - v0.99.331 (recent shows on the splash, settings pages that line up)
 
 **The startup screen lists your recent shows.** Up to five of them, newest
