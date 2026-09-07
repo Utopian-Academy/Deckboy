@@ -542,7 +542,11 @@
       && cue.refreshOnTake
       && browserRuntime && browserRuntime->browserRenderer
       && browserRuntime->browserRenderer->isRunning();
-    if (!browserRefreshInstead) stopBrowserCue();
+    // Same deck as everything else in this function. The no-argument overload
+    // stops the FOCUSED deck, so taking a cue on deck 2 tore down deck 1's
+    // browser and left deck 2's running -- one deck went dark, the other
+    // kept a page nobody asked for.
+    if (!browserRefreshInstead) stopBrowserCue(deckIndex);
     bool effectiveAutoplay = autoplay && !cue.pauseAtBeginning;
     if (deck.playlistAutoFade && autoplay) {
       deck.playlistOpacity = 0.0f;
@@ -576,7 +580,13 @@
         browserRuntime->browserRenderer->reload();
         triggerToast("browser refreshed");
       } else {
-        startBrowserCue(project_.focusedDeckIndex, cue);
+        // THE DECK THIS CUE IS ON, not whichever deck happens to be focused.
+        // Everything around it already uses deckIndex -- browserRuntime is
+        // resolved from it, and the refresh branch above reloads that deck --
+        // so a browser cue taken on an unfocused deck started the browser on
+        // the focused one instead: the wrong deck went live, and the deck the
+        // operator was cueing got nothing.
+        startBrowserCue(deckIndex, cue);
         triggerToast("browser jumped live");
       }
     } else if (cue.kind == CueKind::Composite) {
