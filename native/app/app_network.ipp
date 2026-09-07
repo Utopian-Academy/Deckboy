@@ -1965,13 +1965,37 @@
           }
           return "'" + escaped + "'";
         };
-        out << "try { Start-Process -FilePath " << psQuote(installer)
+        // WAIT FOR US TO BE GONE FIRST.
+        //
+        // Two things go wrong if this starts immediately. The installer cannot
+        // replace an exe that is still running; and the relaunch lands while the
+        // old process still holds Deckboy's single-instance lock, so the new one
+        // refuses to launch and exits without a word. That is exactly what
+        // happened on the first attempt at this fix: PowerShell survived, ran the
+        // whole script and deleted itself, and no Deckboy came back.
+        // LEAVE A TRACE. An updater that fails silently is the worst kind:
+        // the operator clicks INSTALL & RESTART, the app disappears, and there
+        // is nothing anywhere to say what happened next. The transcript sits
+        // beside the download and is overwritten each time.
+        out << "try { Start-Transcript -Path "
+            << psQuote((fs::path(installer).parent_path() / "relaunch.log").string())
+            << " -Force | Out-Null } catch {}\n";
+        out << "try { Wait-Process -Id " << GetCurrentProcessId()
+            << " -Timeout 60 -ErrorAction SilentlyContinue } catch {}\n"
+            << "try { Start-Process -FilePath " << psQuote(installer)
             << " -Wait } catch {}\n"
             // The installer's own exit does not guarantee the file is closed;
             // a moment's settle costs nothing next to a failed relaunch.
             << "Start-Sleep -Seconds 2\n"
             << "try { Start-Process -FilePath " << psQuote(exePath.string())
             << " } catch {}\n"
+            // One retry. The lock is released as the old process dies, and a slow
+            // shutdown can still be holding it when the first attempt lands.
+            << "Start-Sleep -Seconds 4\n"
+            << "if (-not (Get-Process -Name Deckboy -ErrorAction SilentlyContinue))"
+               " { try { Start-Process -FilePath "
+            << psQuote(exePath.string()) << " } catch {} }\n"
+            << "try { Stop-Transcript | Out-Null } catch {}\n"
             << "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path "
                "-Force -ErrorAction SilentlyContinue\n";
       }
