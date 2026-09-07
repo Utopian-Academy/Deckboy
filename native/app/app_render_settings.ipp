@@ -610,6 +610,13 @@
       appY += sRowH + sGap;
       drawPillToggle(tipsBtn, project_.hoverTipsEnabled, "HOVER TIPS ON", "HOVER TIPS OFF");
       settingsBtns_.push_back({tipsBtn, 656, "hover_tips_toggle"});
+      // The pointer, beside the tips: both are "what the desk shows you while
+      // you are looking for something", and both are taste.
+      SDL_Rect cursorBtn {appX, appY, appW, sRowH};
+      appY += sRowH + sGap;
+      drawPillToggle(cursorBtn, project_.miamiCursorEnabled,
+                     "MIAMI CURSOR ON", "MIAMI CURSOR OFF");
+      settingsBtns_.push_back({cursorBtn, 657, "miami_cursor_toggle"});
       // Mascot dropdown: deckbot (default) or deckgirl. Picks the splash
       // character; refreshSplashAsset re-resolves the art on change.
       SDL_Rect mascotBtn {appX, appY, appW, sRowH};
@@ -2861,6 +2868,12 @@
       } else if (sb.action == 656) {
         project_.hoverTipsEnabled = !project_.hoverTipsEnabled;
         triggerToast(project_.hoverTipsEnabled ? "hover tips on" : "hover tips off");
+        markProjectDirty();
+      } else if (sb.action == 657) {
+        project_.miamiCursorEnabled = !project_.miamiCursorEnabled;
+        refreshMiamiCursor();
+        triggerToast(project_.miamiCursorEnabled ? "miami cursor on"
+                                                 : "system cursor");
         markProjectDirty();
       } else if (sb.action == 203) {
         toggleJumpMode();

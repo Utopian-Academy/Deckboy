@@ -3729,6 +3729,8 @@ class App {
     }
     resolveFirstRunFlag();
     refreshSplashAsset();
+    // Deckboy's own pointer. Built once here; rebuilt only on a scale change.
+    refreshMiamiCursor();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
     applyUiScale();
     // Project may carry a saved color theme; apply it unless DECKBOY_THEME
@@ -3834,6 +3836,12 @@ class App {
 #endif
     ltcApi_.shutdown();
     if (uiAudioStream_) {
+      if (miamiCursor_) {
+        // Back to the system arrow before the cursor it points at goes away.
+        SDL_SetCursor(SDL_GetDefaultCursor());
+        SDL_DestroyCursor(miamiCursor_);
+        miamiCursor_ = nullptr;
+      }
       SDL_DestroyAudioStream(uiAudioStream_);
       uiAudioStream_ = nullptr;
     }
@@ -6665,9 +6673,13 @@ class App {
       releaseFonts();
       loadFonts(1.0);
       rebuildLayoutMetrics(1.0);
+      refreshMiamiCursor();
       return;
     }
     rebuildLayoutMetrics(project_.uiScale);
+    // The pointer is part of the furniture: it has to grow with everything
+    // else or it becomes a speck on a 4K desk.
+    refreshMiamiCursor();
   }
 
   // Re-resolve and reload the splash texture using the current project
@@ -7324,6 +7336,8 @@ class App {
   std::vector<SDL_Texture*> monitorsOutputTextures_;
   std::vector<int> monitorsOutputTexW_;
   std::vector<int> monitorsOutputTexH_;
+  SDL_Cursor* miamiCursor_ = nullptr;   // Deckboy's own pointer; null = system arrow
+  int miamiCursorScale_ = 0;            // whole-pixel scale it was built at
   TTF_Font* fontLarge_ = nullptr;
   TTF_Font* fontBase_ = nullptr;
   TTF_Font* fontSmall_ = nullptr;

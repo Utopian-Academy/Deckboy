@@ -58,6 +58,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
   output << "browser_scrollbars\t" << (project.browserScrollbars ? 1 : 0) << '\n';
   output << "midi_clock_slave\t" << (project.midiClockSlave ? 1 : 0) << '\n';
+  output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
+  output << "miami_cursor\t" << (project.miamiCursorEnabled ? 1 : 0) << '\n';
+  output << "browser_scrollbars\t" << (project.browserScrollbars ? 1 : 0) << '\n';
+  output << "midi_clock_slave\t" << (project.midiClockSlave ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "recording_dir\t" << escapeField(project.recordingDir) << '\n';
@@ -652,6 +656,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.uiSoundsEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "hover_tips") {
     project.hoverTipsEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "miami_cursor") {
+    project.miamiCursorEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "browser_scrollbars") {
     project.browserScrollbars = safeBool(fields, 1, false);
   } else if (fields[0] == "midi_clock_slave") {

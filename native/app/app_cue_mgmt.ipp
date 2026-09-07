@@ -5271,6 +5271,123 @@
     return font;
   }
 
+  // ---------------------------------------------------------------------------
+  // DECKBOY'S OWN POINTER.
+  //
+  // Miami, as asked for: hot pink at the tip running to cyan at the tail. But a
+  // VJ pointer has two jobs beyond looking right, and they set every choice
+  // here:
+  //
+  // VISIBILITY. The desk is dark most of the time and blinding white in the
+  // dialogs, and a cue list can be any colour a theme likes. So the arrow is
+  // drawn with a hard near-black outline AND a light inner edge: the outline
+  // carries it on the light backgrounds, the inner edge on the dark ones, and
+  // the saturated body reads against both. A single-colour cursor always loses
+  // one of those cases.
+  //
+  // PERFORMANCE. Built once and handed to SDL, which composites it in the
+  // window server -- not drawn by us, not touched per frame. It is rebuilt only
+  // when the UI scale changes, because the cursor has to grow with the rest of
+  // the furniture or it becomes a speck on a 4K desk.
+  // ---------------------------------------------------------------------------
+  void refreshMiamiCursor() {
+    if (!project_.miamiCursorEnabled) {
+      if (miamiCursor_) {
+        SDL_SetCursor(SDL_GetDefaultCursor());
+        SDL_DestroyCursor(miamiCursor_);
+        miamiCursor_ = nullptr;
+        miamiCursorScale_ = 0;
+      }
+      return;
+    }
+
+    // 12x19 cells. The classic arrow, because a cue deck is not the place to
+    // make someone hunt for the hotspot.
+    static const char* kArrow[] = {
+      "o...........",
+      "oo..........",
+      "oho.........",
+      "ohfo........",
+      "ohffo.......",
+      "ohfffo......",
+      "ohffffo.....",
+      "ohfffffo....",
+      "ohffffffo...",
+      "ohfffffffo..",
+      "ohffffffffo.",
+      "ohfffffffffo",
+      "ohffffffooooo",
+      "ohfffoffo...",
+      "ohffo.offo..",
+      "ohfo..offo..",
+      "oho....offo.",
+      "oo.....offo.",
+      "o.......ooo.",
+    };
+    const int rows = static_cast<int>(sizeof(kArrow) / sizeof(kArrow[0]));
+    int cols = 0;
+    for (int r = 0; r < rows; ++r) {
+      cols = std::max(cols, static_cast<int>(std::strlen(kArrow[r])));
+    }
+
+    // Whole-pixel scaling only: a fractionally scaled arrow has soft edges, and
+    // a soft edge is the thing that makes a pointer hard to find.
+    const int scale = std::max(1, uiScaled(20) / rows);
+    if (miamiCursor_ && miamiCursorScale_ == scale) {
+      return;   // nothing changed; do not churn the window server
+    }
+
+    SDL_Surface* surface =
+      SDL_CreateSurface(cols * scale, rows * scale, SDL_PIXELFORMAT_RGBA32);
+    if (!surface) {
+      return;
+    }
+    SDL_ClearSurface(surface, 0.0f, 0.0f, 0.0f, 0.0f);
+
+    const SDL_Color outline {14, 10, 24, 255};      // near-black, for light backdrops
+    const SDL_Color highlight {255, 255, 255, 235}; // inner edge, for dark ones
+    auto bodyAt = [&](int row) {
+      // Tip to tail: #FF2E88 -> #22E3E8. The gradient runs down the arrow so
+      // the tip -- the part that matters -- is the most saturated.
+      const double t = rows > 1 ? static_cast<double>(row) / (rows - 1) : 0.0;
+      auto mix = [t](int a, int b) {
+        return static_cast<Uint8>(std::lround(a + (b - a) * t));
+      };
+      return SDL_Color {mix(255, 34), mix(46, 227), mix(136, 232), 255};
+    };
+
+    for (int r = 0; r < rows; ++r) {
+      const SDL_Color body = bodyAt(r);
+      const int len = static_cast<int>(std::strlen(kArrow[r]));
+      for (int c = 0; c < len; ++c) {
+        SDL_Color ink;
+        switch (kArrow[r][c]) {
+          case 'o': ink = outline;   break;
+          case 'h': ink = highlight; break;
+          case 'f': ink = body;      break;
+          default:  continue;
+        }
+        SDL_Rect cell {c * scale, r * scale, scale, scale};
+        SDL_FillSurfaceRect(
+          surface, &cell,
+          SDL_MapSurfaceRGBA(surface, ink.r, ink.g, ink.b, ink.a));
+      }
+    }
+
+    // Hotspot at the tip, which is cell (0,0) whatever the scale.
+    SDL_Cursor* built = SDL_CreateColorCursor(surface, 0, 0);
+    SDL_DestroySurface(surface);
+    if (!built) {
+      return;
+    }
+    SDL_SetCursor(built);
+    if (miamiCursor_) {
+      SDL_DestroyCursor(miamiCursor_);   // only after the new one is in use
+    }
+    miamiCursor_ = built;
+    miamiCursorScale_ = scale;
+  }
+
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
                     const std::string& text, SDL_Color color) {
     if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {

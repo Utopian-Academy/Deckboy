@@ -1041,6 +1041,7 @@ struct Project {
   bool advancedOutputMode = false;
   bool uiSoundsEnabled = true;     // play UI sound effects (navigate, take, etc.)
   bool hoverTipsEnabled = true;    // show the little explainer under the pointer
+  bool miamiCursorEnabled = true;  // Deckboy's own pointer, not the system arrow
   // Browser cues hide their scrollbars by default. A scrollbar is chrome, and
   // a cue is a picture the audience sees -- BROWSER SCROLL moves the page.
   bool browserScrollbars = false;
