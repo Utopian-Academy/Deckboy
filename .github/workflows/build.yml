@@ -309,6 +309,41 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      # The settings menus, photographed on a real Mac.
+      #
+      # macOS is the one platform whose UI cannot be checked by hand from here:
+      # a GUI app will not render from an ssh session, `screencapture` over ssh
+      # has no Screen Recording grant, and granting one needs somebody at the
+      # keyboard. --ui-dump reads back our own renderer, so the runner can take
+      # the picture for us. Never fails the build -- it is evidence, not a gate.
+      - name: Settings menu screenshots
+        if: matrix.features == 'all'
+        continue-on-error: true
+        run: |
+          set +e
+          mkdir -p ui-shots
+          export DECKBOY_ROOT="$RUNNER_TEMP/deckboy-uiroot"
+          mkdir -p "$DECKBOY_ROOT/data"
+          for d in themes ui sprites fonts; do
+            [ -d "data/$d" ] && cp -R "data/$d" "$DECKBOY_ROOT/data/$d"
+          done
+          cp data/*.ttf "$DECKBOY_ROOT/data/" 2>/dev/null
+          for tab in 0 1 2 3.1 3.2 5; do
+            name=$(echo "$tab" | tr '.' '_')
+            ./build/Deckboy --settings "$tab"               --ui-dump "ui-shots/macos_tab${name}.bmp" 150
+            echo "tab $tab -> rc=$?"
+          done
+          ls -la ui-shots || true
+
+      - name: Upload settings screenshots
+        if: matrix.features == 'all'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: deckboy-macos-ui-shots
+          path: ui-shots/
+          if-no-files-found: warn
+
   macos-package:
     name: macOS Portable Bundle
     needs: macos-build
