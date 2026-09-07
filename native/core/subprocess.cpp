@@ -434,7 +434,7 @@ bool spawnProcess(ChildProcess& process,
   // console signals off it, and breakaway escapes a job that would otherwise
   // kill it with us. Breakaway FAILS the whole call where a job forbids it,
   // so it is attempted and dropped rather than assumed.
-  DWORD creationFlags = CREATE_NO_WINDOW;
+  DWORD creationFlags = options.showWindow ? 0u : CREATE_NO_WINDOW;
   if (options.detached) {
     creationFlags |= CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB;
   }

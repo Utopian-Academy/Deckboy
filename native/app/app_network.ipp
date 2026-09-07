@@ -1974,7 +1974,9 @@
     // an installer somebody downloaded and ran themselves is theirs to keep.
     const std::vector<std::string> args {installer, "/fromupdater=1"};
     ChildProcess child;
-    if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
+    // VISIBLE. The operator has to click through this; spawned silently it runs
+    // where nobody can see or reach it, and the update simply never happens.
+    if (!spawnProcess(child, args, SpawnOptions::detachedVisible())) {
       triggerToast("update: could not start the installer");
       return;
     }
@@ -2026,7 +2028,13 @@
           << "echo \"--- $(date) install helper\"\n"
           // Wait for Deckboy to go, so the bundle is not being replaced under a
           // running process.
-          << "for i in $(seq 1 120); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          << "for i in $(seq 1 300); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          // If it is somehow STILL there, do not replace an app that is running
+          // and do not relaunch into its instance lock. The first version pressed
+          // on regardless after two minutes: it swapped the file under the live
+          // process, then failed to relaunch because the old one still held the
+          // lock -- which is exactly what the Linux run did.
+          << "if kill -0 " << getpid() << " 2>/dev/null; then echo 'deckboy never exited - aborting'; exit 1; fi\n"
           << "MNT=$(mktemp -d /tmp/deckboy-dmg-XXXXXX)\n"
           << "hdiutil attach " << q(installer)
           << " -nobrowse -quiet -mountpoint \"$MNT\" || { echo 'attach failed'; exit 1; }\n"
@@ -2108,7 +2116,13 @@
           << "exec >>\"$LOG\" 2>&1\n"
           << "echo \"--- $(date) install helper\"\n"
           // The running AppImage keeps its file open; wait for us to exit.
-          << "for i in $(seq 1 120); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          << "for i in $(seq 1 300); do kill -0 " << getpid() << " 2>/dev/null || break; sleep 1; done\n"
+          // If it is somehow STILL there, do not replace an app that is running
+          // and do not relaunch into its instance lock. The first version pressed
+          // on regardless after two minutes: it swapped the file under the live
+          // process, then failed to relaunch because the old one still held the
+          // lock -- which is exactly what the Linux run did.
+          << "if kill -0 " << getpid() << " 2>/dev/null; then echo 'deckboy never exited - aborting'; exit 1; fi\n"
           << "chmod +x " << q(installer) << "\n"
           // Keep the old one until the new is in place, then drop it.
           << "cp -f " << q(target.string()) << " " << q(target.string()) << ".old 2>/dev/null\n"

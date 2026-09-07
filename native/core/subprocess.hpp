@@ -151,6 +151,12 @@ struct SpawnOptions {
   // If true, child is placed in its own process group / session so it
   // survives if the parent dies (and can be killed as a group).
   bool detached = false;
+  // Let the child show its own windows. CREATE_NO_WINDOW is right for a
+  // helper nobody should see, and wrong for anything the OPERATOR has to
+  // interact with -- an installer spawned that way runs where nobody can
+  // click it, which is exactly how "INSTALL & RESTART" appeared to do
+  // nothing at all on Windows.
+  bool showWindow = false;
 
   // ---------------------------------------------------------------------------
   // Convenience factory helpers — named presets matching old call patterns
@@ -175,6 +181,15 @@ struct SpawnOptions {
   }
 
   // Fully detached, all stdio silenced (old spawnDetachedProcess)
+  // Detached AND visible: for a child with a user interface, such as an
+  // installer. Same lifetime rules as detachedSilent, but it is allowed to
+  // put a window on screen.
+  static SpawnOptions detachedVisible() {
+    SpawnOptions o = detachedSilent();
+    o.showWindow = true;
+    return o;
+  }
+
   static SpawnOptions detachedSilent() {
     SpawnOptions o;
     o.stdinMode  = StdioMode::Null;
