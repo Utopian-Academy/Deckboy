@@ -610,15 +610,33 @@
         : (sinceReveal <= 0.0 ? 0.0
            : 1.0 - std::pow(1.0 - sinceReveal, 3.0));   // ease-out cubic
       const int shownH = static_cast<int>(std::lround(barH * reveal));
-      SDL_Rect vjBar {innerX, innerY + shownH - barH, innerW, barH};
+      // THE BAR SPANS THE PROGRAMME **AND** INSPECTOR COLUMNS.
+      //
+      // It used to live in the programme column alone -- and VJ mode is the
+      // very thing that starves that column, because turning it on puts a
+      // SECOND playlist beside the first. On a 1470-wide desk that left about
+      // 410px to hold a badge, two deck labels, a crossfader, a blend mode, TAP
+      // and a tempo. The words are small; the container was the problem, and
+      // squeezing controls into it was treating the symptom.
+      //
+      // Spanning to the inspector's right edge roughly doubles it, which fits
+      // everything with room left for a fader worth dragging. The inspector
+      // moves down by the same amount, so nothing is overlapped.
+      const int vjBarLeft = programBody.x;
+      const int vjBarRight = std::max(programBody.x + programBody.w,
+                                      inspectorBody.x + inspectorBody.w);
+      SDL_Rect vjBar {vjBarLeft, innerY + shownH - barH,
+                      std::max(0, vjBarRight - vjBarLeft), barH};
       innerY += shownH + 8;
       innerH = std::max(0, innerH - shownH - 8);
+      inspectorBody.y += shownH + 8;
+      inspectorBody.h = std::max(0, inspectorBody.h - shownH - 8);
       // Clipped while it travels, so it slides out from under the top bar
       // instead of overlapping what is above it.
       const bool hadBarClip = SDL_RenderClipEnabled(controlRenderer_);
       SDL_Rect prevBarClip {};
       if (hadBarClip) SDL_GetRenderClipRect(controlRenderer_, &prevBarClip);
-      SDL_Rect barClip {innerX, vjBar.y + (barH - shownH), innerW, shownH};
+      SDL_Rect barClip {vjBar.x, vjBar.y + (barH - shownH), vjBar.w, shownH};
       if (reveal < 1.0) {
         SDL_SetRenderClipRect(controlRenderer_, &barClip);
       }
