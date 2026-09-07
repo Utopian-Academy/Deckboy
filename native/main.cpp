@@ -3931,6 +3931,7 @@ class App {
       tickSoak();
       auto afterUpdate = std::chrono::steady_clock::now();
       render();
+      tickUiDump();
       auto afterRender = std::chrono::steady_clock::now();
       if (uiProfileEnabled_) {
         double frameMs = ms(afterRender - frameStart);
@@ -4082,6 +4083,53 @@ class App {
     if (pendingInspectorScroll_ <= cueSettingsScrollMax_) {
       pendingInspectorScroll_ = -1;   // an exact position: arrived, done
     }
+  }
+
+  // Photograph the control window from the inside, then quit.
+  //
+  // Checking a menu on three platforms means seeing it on three platforms, and
+  // the OS screenshot tools are the part that does not travel: on macOS
+  // `screencapture` over ssh returns "could not create image from display"
+  // because sshd holds no Screen Recording grant, and granting one needs
+  // somebody at the keyboard. Reading back our own renderer needs no grant
+  // from anybody -- it is our texture -- and it produces the same picture on
+  // Windows, macOS and Linux, headless included.
+  //
+  // BMP because SDL_SaveBMP is in core SDL. SDL_image would be a nicer file
+  // and a new link dependency for a test affordance.
+  void enableUiDump(const std::string& path, int afterFrames) {
+    uiDumpPath_ = path;
+    uiDumpFramesLeft_ = std::max(1, afterFrames);
+  }
+
+  // Called at the end of a rendered frame. Waits a few frames first: the first
+  // one lands before fonts, splash art and the theme have settled, and a
+  // screenshot of a half-dressed frame is how a test passes while showing
+  // nothing.
+  void tickUiDump() {
+    if (uiDumpPath_.empty()) {
+      return;
+    }
+    if (--uiDumpFramesLeft_ > 0) {
+      return;
+    }
+    SDL_Surface* shot = SDL_RenderReadPixels(controlRenderer_, nullptr);
+    if (!shot) {
+      std::fprintf(stderr, "ui-dump: read back failed: %s\n", SDL_GetError());
+      gShouldQuit.store(true);
+      uiDumpPath_.clear();
+      return;
+    }
+    if (!SDL_SaveBMP(shot, uiDumpPath_.c_str())) {
+      std::fprintf(stderr, "ui-dump: save failed: %s\n", SDL_GetError());
+    } else {
+      std::printf("ui-dump: wrote %s (%dx%d)\n", uiDumpPath_.c_str(),
+                  shot->w, shot->h);
+      std::fflush(stdout);
+    }
+    SDL_DestroySurface(shot);
+    uiDumpPath_.clear();
+    gShouldQuit.store(true);
   }
 
   void debugOpenSettings(int tab, int videoSubTab = 0) {
@@ -7737,6 +7785,8 @@ class App {
   SDL_Rect cueSettingsViewportRect_ {};
   int cueSettingsScroll_ = 0;
   int pendingInspectorScroll_ = -1;   // --inspector-scroll, applied once measurable
+  std::string uiDumpPath_;            // --ui-dump <file>, written once then quit
+  int uiDumpFramesLeft_ = 0;
   int lastInspectorScrollMax_ = -1;   // to tell "still growing" from "at the end"
   int cueSettingsScrollMax_ = 0;
   SDL_Rect settingsVideoViewport_ {};
@@ -8933,6 +8983,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--timer-dump <out.ppm> [dur] [elapsed]", "render one stage-timer frame to a PPM"},
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--pattern-dump <pattern> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--ui-dump <out.bmp> [frames]", "save one frame of the control window, then quit"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
     {"--effect-bench <token[:amt[:a[:b]]]> [WxH] [frames]",
@@ -9427,6 +9478,8 @@ int runDeckboyMain(int argc, char** argv) {
   fs::path startupProjectArg;
   int openSettingsTab = -1;
   int inspectorScrollArg = -1;
+  std::string uiDumpArg;
+  int uiDumpFramesArg = 90;   // ~1.5s at 60fps: fonts, theme and splash settled
   bool openCodeEditorArg = false;
   int openSettingsSubTab = 0;
   for (size_t i = 0; i < rest.size(); ++i) {
@@ -9453,6 +9506,19 @@ int runDeckboyMain(int argc, char** argv) {
         return 2;
       }
       inspectorScrollArg = std::atoi(rest[++i].c_str());
+      continue;
+    }
+    if (arg == "--ui-dump") {
+      if (i + 1 >= rest.size()) {
+        printCliError("--ui-dump needs an output .bmp path");
+        return 2;
+      }
+      uiDumpArg = rest[++i];
+      // Optional frame count: how long to let the UI settle first.
+      if (i + 1 < rest.size() && !rest[i + 1].empty() &&
+          rest[i + 1].find_first_not_of("0123456789") == std::string::npos) {
+        uiDumpFramesArg = std::atoi(rest[++i].c_str());
+      }
       continue;
     }
     if (arg == "--settings") {
@@ -9537,6 +9603,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (inspectorScrollArg >= 0) {
     app.debugScrollInspector(inspectorScrollArg);
+  }
+  if (!uiDumpArg.empty()) {
+    app.enableUiDump(uiDumpArg, uiDumpFramesArg);
   }
   app.run();
   app.shutdown();
