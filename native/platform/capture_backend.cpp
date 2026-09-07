@@ -540,6 +540,31 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
 // capture reports honestly unsupported rather than shipping an ffmpeg command
 // that captures nothing and hangs.
 #if defined(__APPLE__)
+// ASK FOR SCREEN RECORDING AS THE APP, BEFORE THE HELPER NEEDS IT.
+//
+// deckboy-sckcapture is a bare executable inside the bundle with no bundle
+// identity of its own, and macOS will not show a permission prompt on behalf of
+// one. It just answers "The user declined TCCs for application, window, display
+// capture" and exits -- so on a fresh install, or after any update changes the
+// binary, screen and window sources and every browser cue fail with a message
+// telling the operator to visit System Settings, and no prompt ever appears.
+//
+// CGRequestScreenCaptureAccess is the app asking in its own name, which is the
+// prompt people expect and the one the system will actually draw. Once granted,
+// the helper inherits it as a child of the responsible process.
+//
+// Called once per run: the system only prompts the first time, and a repeated
+// call on every cue would be a wasted round trip through TCC on the render path.
+bool ensureScreenCaptureAccess() {
+  static const bool granted = [] {
+    if (CGPreflightScreenCaptureAccess()) {
+      return true;
+    }
+    return static_cast<bool>(CGRequestScreenCaptureAccess());
+  }();
+  return granted;
+}
+
 class MacScreenCaptureBackend final : public SourceCaptureBackend {
  public:
   SourceCaptureKind kind() const override { return SourceCaptureKind::Window; }
@@ -560,6 +585,16 @@ class MacScreenCaptureBackend final : public SourceCaptureBackend {
       return plan;
     }
 
+    // Ask in the app's own name before the helper is spawned; without this the
+    // helper is refused with no prompt ever shown.
+    if (!ensureScreenCaptureAccess()) {
+      plan.supported = false;
+      plan.backendId = id();
+      plan.reasonUnavailable =
+        "screen recording permission not granted -- allow Deckboy in System "
+        "Settings > Privacy & Security > Screen Recording, then reopen Deckboy";
+      return plan;
+    }
     const ParsedSourceRef ref = parseSourceRef(request.sourceRef);
     int display = 0;
     std::string windowId;
