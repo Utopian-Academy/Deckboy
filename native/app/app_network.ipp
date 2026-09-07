@@ -214,7 +214,7 @@
       if (remaining.count() <= 0) break;  // deadline expired
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(client, &readFds);
+      watchFd(client, &readFds);
       timeval tv {};
       tv.tv_sec = static_cast<long>(remaining.count() / 1000000);
       tv.tv_usec = static_cast<long>(remaining.count() % 1000000);
@@ -309,7 +309,7 @@
       }
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(oscQueryTcpListen_, &readFds);
+      watchFd(oscQueryTcpListen_, &readFds);
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
@@ -325,7 +325,7 @@
       if (ready == 0) {
         continue;
       }
-      if (!FD_ISSET(oscQueryTcpListen_, &readFds)) {
+      if (!readyFd(oscQueryTcpListen_, &readFds)) {
         continue;
       }
 
@@ -840,7 +840,7 @@
     while (!atemBridgeStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(atemBridgeSocket_, &readFds);
+      watchFd(atemBridgeSocket_, &readFds);
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
@@ -848,7 +848,7 @@
       if (ready <= 0) {
         continue;
       }
-      if (!FD_ISSET(atemBridgeSocket_, &readFds)) {
+      if (!readyFd(atemBridgeSocket_, &readFds)) {
         continue;
       }
       std::array<char, 1024> buffer {};
@@ -909,7 +909,7 @@
     while (!artNetBridgeStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(artNetSocket_, &readFds);
+      watchFd(artNetSocket_, &readFds);
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
@@ -917,7 +917,7 @@
       if (ready <= 0) {
         continue;
       }
-      if (!FD_ISSET(artNetSocket_, &readFds)) {
+      if (!readyFd(artNetSocket_, &readFds)) {
         continue;
       }
       std::array<std::uint8_t, 1024> packet {};
@@ -978,7 +978,7 @@
     while (!nmcSyncStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(nmcSyncSocket_, &readFds);
+      watchFd(nmcSyncSocket_, &readFds);
       timeval timeout {};
       timeout.tv_sec = 0;
       timeout.tv_usec = 200000;
@@ -986,7 +986,7 @@
       if (ready <= 0) {
         continue;
       }
-      if (!FD_ISSET(nmcSyncSocket_, &readFds)) {
+      if (!readyFd(nmcSyncSocket_, &readFds)) {
         continue;
       }
       std::array<char, 1024> buffer {};
@@ -2576,7 +2576,7 @@
     while (hyperDeckRunning_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
-      FD_SET(hyperDeckListenFd_, &readFds);
+      watchFd(hyperDeckListenFd_, &readFds);
       timeval tv {0, 100000};  // 100ms timeout
       if (select(selectNfds(hyperDeckListenFd_), &readFds, nullptr, nullptr, &tv) <= 0) continue;
       sockaddr_in clientAddr {};
@@ -2774,16 +2774,70 @@ bool looksLikeHttpRequestLine(const std::string& line) {
   return false;
 }
 
+  // FD_SET ABORTS THE PROCESS ON A BAD DESCRIPTOR.
+  //
+  // glibc's fortified FD_SET does not return an error for a descriptor that is
+  // negative or >= FD_SETSIZE -- it terminates the program:
+  //
+  //   *** bit out of range 0 - FD_SETSIZE on fd_set ***: terminated
+  //
+  // Shutdown closes these sockets and sets them to kInvalidSocket (-1 on
+  // POSIX), and the loops here kept handing them to FD_SET. So quitting
+  // Deckboy on Linux ended in "Aborted (core dumped)" rather than an exit --
+  // which also stalled the updater, whose helper waits for this process to go
+  // away cleanly.
+  //
+  // Every FD_SET in this file goes through here now. A socket that is not
+  // valid is simply not watched, which is what the old code meant to do.
+  // AND THE SAME FOR FD_ISSET.
+  //
+  // glibc fortifies FD_ISSET exactly as it does FD_SET, so testing a closed
+  // socket aborts the process just as surely as adding one. Guarding only the
+  // FD_SET side moved the crash rather than fixing it -- the loop skipped the
+  // invalid socket, then asked whether it was ready and died there instead.
+  static bool readyFd(SocketHandle fd, const fd_set* set) {
+    if (fd == kInvalidSocket) {
+      return false;
+    }
+#ifndef _WIN32
+    if (fd < 0 || fd >= static_cast<SocketHandle>(FD_SETSIZE)) {
+      return false;
+    }
+#endif
+    return FD_ISSET(fd, set) != 0;
+  }
+
+  // Same guard where the caller sizes select() from the fd itself and keeps
+  // no running maximum.
+  static bool watchFd(SocketHandle fd, fd_set* set) {
+    SocketHandle ignored = 0;
+    return watchFd(fd, set, ignored);
+  }
+
+  static bool watchFd(SocketHandle fd, fd_set* set, SocketHandle& maxFd) {
+    if (fd == kInvalidSocket) {
+      return false;
+    }
+#ifndef _WIN32
+    if (fd < 0 || fd >= static_cast<SocketHandle>(FD_SETSIZE)) {
+      return false;
+    }
+#endif
+    FD_SET(fd, set);
+    if (fd > maxFd) {
+      maxFd = fd;
+    }
+    return true;
+  }
+
   void companionLoop() {
     while (!companionStop_.load()) {
       fd_set readFds;
       FD_ZERO(&readFds);
       SocketHandle maxFd = 0;
 
-      FD_SET(companionTcpListen_, &readFds);
-      maxFd = std::max(maxFd, companionTcpListen_);
-      FD_SET(companionUdpSocket_, &readFds);
-      maxFd = std::max(maxFd, companionUdpSocket_);
+      watchFd(companionTcpListen_, &readFds, maxFd);
+      watchFd(companionUdpSocket_, &readFds, maxFd);
 
       // Snapshot client list for select() FD setup (lock briefly, release before blocking select)
       std::vector<SocketHandle> clientSnapshot;
@@ -2799,8 +2853,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         }
       }
       for (auto client : clientSnapshot) {
-        FD_SET(client, &readFds);
-        maxFd = std::max(maxFd, client);
+        watchFd(client, &readFds);
       }
 
       timeval timeout {};
@@ -2823,7 +2876,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       }
 
       // Accept new TCP clients (capped at 32 concurrent connections)
-      if (FD_ISSET(companionTcpListen_, &readFds)) {
+      if (readyFd(companionTcpListen_, &readFds)) {
         sockaddr_in clientAddress {};
         socklen_t clientLength = sizeof(clientAddress);
         SocketHandle client = accept(companionTcpListen_, reinterpret_cast<sockaddr*>(&clientAddress), &clientLength);
@@ -2840,7 +2893,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
         }
       }
 
-      if (FD_ISSET(companionUdpSocket_, &readFds)) {
+      if (readyFd(companionUdpSocket_, &readFds)) {
         std::array<char, 2048> buffer {};
         sockaddr_in sender {};
         socklen_t senderLen = sizeof(sender);
@@ -2886,7 +2939,7 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       {
         std::lock_guard<std::mutex> lk(companionClientsMutex_);
         for (auto client : companionClients_) {
-          if (!FD_ISSET(client, &readFds) || companionDrainingClients_.count(client)) {
+          if (!readyFd(client, &readFds) || companionDrainingClients_.count(client)) {
             continue;
           }
 
