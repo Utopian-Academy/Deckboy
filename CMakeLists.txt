@@ -473,7 +473,21 @@ set_target_properties(deckboy-native PROPERTIES OUTPUT_NAME "Deckboy")
 # macOS build (no feature flag) so the bundle always ships it. @available guards
 # the 12.3+ symbols, so the deployment target stays at the app's minimum.
 if(APPLE)
+  # ARC, EXPLICITLY.
+  #
+  # clang does NOT enable ARC by default, and every .mm file here is written
+  # for it -- no retain, no release, strong properties, and __block object
+  # pointers that only hold a reference under ARC. Built without it,
+  # sckcapture.mm's `__block SCDisplay* chosen` does not retain what the
+  # completion handler assigns, so the display is gone by the time the filter
+  # is built: a segfault in -[SCContentFilter initWithDisplay:excludingWindows:],
+  # which macOS shows the operator as "Deckboy quit unexpectedly".
+  #
+  # This hid for a long time because building a helper by hand to test it
+  # means passing -fobjc-arc on the command line, so the hand-built one worked
+  # and only the packaged build crashed.
   add_executable(deckboy-sckcapture native/platform/sckcapture.mm)
+  target_compile_options(deckboy-sckcapture PRIVATE -fobjc-arc)
   set_target_properties(deckboy-sckcapture PROPERTIES OUTPUT_NAME "deckboy-sckcapture")
   target_link_libraries(deckboy-sckcapture PRIVATE
     # AppKit for NSApplicationLoad: ScreenCaptureKit aborts a process with no
@@ -494,6 +508,7 @@ if(APPLE)
   # browser cue reuses the whole macOS capture path rather than growing a
   # second one.
   add_executable(deckboy-webview native/platform/webview_macos.mm)
+  target_compile_options(deckboy-webview PRIVATE -fobjc-arc)
   set_target_properties(deckboy-webview PROPERTIES OUTPUT_NAME "deckboy-webview")
   target_link_libraries(deckboy-webview PRIVATE
     "-framework Cocoa"
@@ -743,6 +758,9 @@ if(ENABLE_SIPHON AND APPLE)
   # The Objective-C++ publisher and the frameworks it needs. Only pulled in with
   # ENABLE_SIPHON so a default macOS build stays free of Metal/Syphon.
   target_sources(deckboy-native PRIVATE native/platform/syphon_metal.mm)
+  # Same reasoning as the helpers above: written for ARC, so compile it that way.
+  set_source_files_properties(native/platform/syphon_metal.mm
+    PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
   deckboy_target_link_frameworks(deckboy-native Syphon Metal Foundation)
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SIPHON=1)
 endif()
