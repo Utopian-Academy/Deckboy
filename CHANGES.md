@@ -1,5 +1,28 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.321 (VJ mode fits on a laptop, and geometry answers for itself)
+
+**VJ mode fits a 1470-wide desk.** Its bar spans the programme and inspector
+columns instead of squeezing into one, so VJ MODE, both deck labels, a
+crossfader worth dragging, the blend mode, TAP and the tempo all sit there in
+full. The playlists take a fifth more room rather than double, and the
+inspector sits at the small end of its range while you are mixing - which is
+what finally leaves the monitor row enough width to show the A and B previews
+at all.
+
+**The hecklers turn up.** With the previews restored, all three faces are back
+on a laptop: one over deck A, one over the programme, one over deck B, each
+with its own opinion.
+
+**The mascot's tips are readable.** Its words were drawn in the ink meant for
+panels, over a monitor that deliberately darkens - so the face was there and
+the line under it was not.
+
+**SCALEMODE, on the wire.** `SCALEMODE fit|fill|stretch|unscaled` sets how a
+cue maps to the output from Companion, a surface or a script, and a bare
+`SCALEMODE` answers with the current one. It was previously reachable only by
+clicking the inspector's cycle button.
+
 ## 2026-09-07 - v0.99.320 (the mascot speaks up, and the crossfader gets its width back)
 
 **The mascot's tips are readable.** The face appears over a deliberately
