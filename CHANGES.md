@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-07 - v0.99.326 (a target to update to)
+
+No functional change over v0.99.325. Cut so the full update cycle in v0.99.325
+has a newer release to install, on each platform, rather than being taken on
+trust.
+
 ## 2026-09-07 - v0.99.325 (updates install themselves on every platform)
 
 **macOS and Linux now actually install the update.** Both used to stop at the
