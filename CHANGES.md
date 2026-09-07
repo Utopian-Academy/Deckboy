@@ -1,5 +1,43 @@
 # CHANGES - Incremental Updates (March-August 2026)
 
+## 2026-09-06 - v0.99.318 (browser cues on every platform, and a pointer of our own)
+
+**Browser cues are green on Windows, macOS and Linux.** A page renders, takes
+clicks, typing and keys, and goes to air like any other cue - now including
+`BROWSER KEY Enter` on Linux, and the browser entry appears in the source menu
+on macOS. If a page cannot be reached the cue shows a warning card naming the
+address instead of going dark, and a cue with no address of its own opens the
+Video Jockey page.
+
+**Deckboy has its own pointer.** Hot pink at the tip running to cyan at the
+tail, with a dark outline and a light inner edge so it stays findable on a
+black desk and in a white dialog alike. It grows with the UI scale and costs
+nothing per frame. Settings > Appearance turns it off.
+
+**Labels shrink instead of being cut.** A button too narrow for its word used
+to show "BLA..." or "SET..."; now the type steps down until the whole word
+fits, everywhere in the app, and only shortens if even the floor is too narrow.
+
+**Frame Count, a new test pattern**, with an emoji variant. Test Clock answers
+"are these two feeds in sync"; Frame Count answers "did every frame arrive, and
+how far behind is the far end" - the whole field steps colour every tick, so a
+dropped or repeated frame shows from across a room.
+
+**Window sources speak one language on all three platforms.** `desktop`,
+`screen:N`, `window:<id>`, `title:<text>` and `region:X,Y,W,H` mean the same
+thing everywhere, the window picker appears on every platform, and a source a
+machine cannot capture says so plainly instead of quietly showing something
+else.
+
+**Colour controls apply as you turn them** - brightness, contrast, saturation,
+hue and the chroma key reach the output the moment they change, on stills,
+patterns and live sources as well as playing video.
+
+**Steadier under the hood.** Recording keeps producing a live picture rather
+than holding a frame, a browser cue taken on an unfocused deck goes live on
+that deck, and the control port now refuses HTTP so only real control clients
+can drive the show.
+
 ## 2026-09-06 - v0.99.317 (browser cues on macOS, and one window source everywhere)
 
 **Browser cues run on macOS.** A page renders, takes clicks and typing, and
