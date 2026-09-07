@@ -260,7 +260,33 @@ int main(int argc, const char* argv[]) {
         }
         dispatch_semaphore_signal(sem);
       }];
-      dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 10LL * NSEC_PER_SEC));
+      // HONOUR THE TIMEOUT -- AND MAKE IT LONG ENOUGH FOR A PERSON.
+      //
+      // getShareableContent does not answer while the Screen Recording prompt
+      // is on screen: it waits for the human. Ten seconds was shorter than
+      // anyone can find and click a dialog, so the first run on a new install
+      // timed out EVERY time, and the operator was clicking Allow on a prompt
+      // whose helper had already died.
+      //
+      // This return value was ignored, so a callback that had not arrived in
+      // ten seconds did not stop anything: the code went on to build a filter
+      // from `chosen` while the completion block was still free to write to
+      // it, and those are the same stack slots. That is a segfault inside
+      // -[SCContentFilter initWithDisplay:excludingWindows:], retaining a
+      // pointer that was being assigned underneath it -- which macOS reports
+      // to the operator as "Deckboy quit unexpectedly", over and over, because
+      // the helper is respawned on every take.
+      //
+      // _exit rather than return: the block still holds these stack variables,
+      // so unwinding past them is the very thing being avoided.
+      if (dispatch_semaphore_wait(sem,
+                                  dispatch_time(DISPATCH_TIME_NOW,
+                                                90LL * NSEC_PER_SEC)) != 0) {
+        fprintf(stderr, "sckcapture: ScreenCaptureKit did not answer within "
+                        "90s -- nothing captured\n");
+        fflush(stderr);
+        _exit(4);
+      }
 
       // TELL THE TWO FAILURES APART.
       //
