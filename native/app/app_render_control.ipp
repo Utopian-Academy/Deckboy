@@ -1872,7 +1872,7 @@
   // topmost control, since it drew last), and paintHoverTip draws it after
   // everything else.
   void drawHoverTip(const std::string& tip, int ax, int ay, bool below = false) {
-    if (tip.empty() || !project_.hoverTipsEnabled) {
+    if (tip.empty() || !project_.hoverTipsEnabled || dropdown_.open || contextMenuOpen_) {
       return;
     }
     hoverTipPending_ = tip;

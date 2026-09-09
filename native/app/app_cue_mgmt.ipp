@@ -1291,6 +1291,7 @@
     if (!project_.theme.empty()) {
       loadTheme(project_.theme);
     }
+    applyUiScale();
     disarmAllOutputsForStartup();
     // Open lands on a neutral "nothing live" state, same as a fresh launch:
     // clear any saved active cue so the timeline and preview agree (the saved

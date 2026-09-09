@@ -504,11 +504,14 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
     // the device doesn't list EXACTLY, and does NOT snap to the nearest. On the
     // MacBook camera ffmpeg's own defaults are both rejected — 29.97 fps ("not
     // supported by the device") and yuv420p ("not supported... overriding") —
-    // which made the cue open then freeze with zero frames delivered. The device
-    // reports modes like 1280x720@[15,30] in nv12/uyvy422, so pin an explicit
-    // supported mode (1280x720 @ exactly 30 @ nv12) and let the scale filter
-    // resample to whatever size the cue reads. 1280x720@30 is near-universal;
-    // external webcams that lack it fail cleanly and the deck reracks.
+    // which made the cue open then freeze with zero frames delivered.
+    //
+    // We pin the framerate to 15 or 30 (the rates the MacBook camera lists) to
+    // avoid the 29.97 rejection, but we do NOT pin video_size or pixel_format:
+    // capture cards (Blackmagic via HDMI, ATEM Mini, etc.) enumerate at their
+    // input signal resolution (e.g. 1920x1080) and may not list 1280x720 at all,
+    // so pinning that size hard-rejects them. The scale filter at the end handles
+    // any resolution; avfoundation selects a compatible pixel format on its own.
     int camFps = (fps <= 22) ? 15 : 30;   // device lists 15 and 30 — snap to one
     plan.supported = true;
     plan.backendId = id();
@@ -518,8 +521,6 @@ class MacCameraCaptureBackend final : public SourceCaptureBackend {
       "-loglevel", "error",
       "-f", "avfoundation",
       "-framerate", std::to_string(camFps),
-      "-video_size", "1280x720",
-      "-pixel_format", "nv12",
       "-i", device + ":none",
       "-vf", "scale=" + std::to_string(w) + ":" + std::to_string(h) + ":flags=neighbor",
       "-f", "rawvideo",
