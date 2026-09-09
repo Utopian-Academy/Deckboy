@@ -119,14 +119,18 @@
     }
 
     if (enabled && autoFullscreenWhenEnabling && windowOutput) {
-      bool fullscreenOk = enableOutputFullscreen(outputIndex, false);
-      if (fullscreenOk) {
-        setOutputHealthState(outputIndex, OutputHealthState::Live);
-        triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
-      } else {
-        setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
-        triggerToast("output on (windowed): fullscreen failed");
+      // Defer fullscreen by one event loop tick so macOS commits the window to
+      // the target display (NSWindow.screen) before SDL_SetWindowFullscreen is
+      // called. Synchronous fullscreen here lands on the wrong display on macOS
+      // when an HDMI or Blackmagic switcher is the target.
+      if (OutputRuntime* runtime = runtimeForOutput(outputIndex)) {
+        runtime->fullscreenIntended = true;
+        runtime->pendingDisplayMoveFullscreen = true;
+        runtime->displayMoveRetryAtMs = SDL_GetTicks() + 100;
+        runtime->lastRecoveryAttemptMs = SDL_GetTicks();
       }
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "entering fullscreen");
+      triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
     } else {
       if (!enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Off);
@@ -165,11 +169,9 @@
     stopOutputStream(outputIndex);
     if (rebuildOutputRuntimes()) {
       if (project_.outputs[outputIndex].enabled && nextType == "window") {
-        if (enableOutputFullscreen(outputIndex, false)) {
-          setOutputHealthState(outputIndex, OutputHealthState::Live);
-        } else {
-          setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
-        }
+        // createOutputRuntime already scheduled deferred fullscreen via
+        // pendingDisplayMoveFullscreen — don't race it with a synchronous call here.
+        // Health state is set to Recovering inside createOutputRuntime.
       } else if (project_.outputs[outputIndex].enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Armed);
       } else {
@@ -6291,16 +6293,6 @@
     Uint32 windowFlags = streamType
       ? SDL_WINDOW_HIDDEN
       : (SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
-    int windowX = SDL_WINDOWPOS_UNDEFINED;
-    int windowY = SDL_WINDOWPOS_UNDEFINED;
-    if (!streamType) {
-      int displayCount = deckboyGetNumVideoDisplays();
-      int displayIndex = displayCount > 0
-        ? std::clamp(output.displayIndex, 0, displayCount - 1)
-        : 0;
-      windowX = SDL_WINDOWPOS_CENTERED_DISPLAY(deckboyDisplayIdFromIndex(displayIndex));
-      windowY = SDL_WINDOWPOS_CENTERED_DISPLAY(deckboyDisplayIdFromIndex(displayIndex));
-    }
     runtime.outputWindow = SDL_CreateWindow(
       title.c_str(),
       targetW,
@@ -6311,7 +6303,9 @@
       setOutputHealthState(outputIndex, OutputHealthState::Error, "window create failed");
       return false;
     }
-    SDL_SetWindowPosition(runtime.outputWindow, windowX, windowY);
+    // Initial position is applied by applyOutputDisplaySelection below, which
+    // uses real display bounds coordinates. The window starts hidden so no
+    // display assignment has been committed by the OS yet.
     applyDeckboyWindowIcon(runtime.outputWindow);
 
     runtime.outputRenderer = createOutputRenderer(runtime.outputWindow);
@@ -6343,9 +6337,16 @@
     applyOutputDisplaySelection(outputIndex);
     applyOutputNdiSettings(outputIndex, false);
     if (output.enabled && !streamType) {
-      if (!enableOutputFullscreen(outputIndex, false)) {
-        setOutputHealthState(outputIndex, OutputHealthState::Error, "fullscreen unavailable");
-      }
+      // Defer fullscreen by one event loop tick. On macOS, SDL_SetWindowFullscreen
+      // goes fullscreen on NSWindow.screen, which is only committed after the run
+      // loop processes the preceding SDL_SetWindowPosition / SDL_ShowWindow calls.
+      // Calling fullscreen synchronously in the same tick therefore lands on the
+      // wrong display when the output window was just created or recreated.
+      runtime.fullscreenIntended = true;
+      runtime.pendingDisplayMoveFullscreen = true;
+      runtime.displayMoveRetryAtMs = SDL_GetTicks() + 100;
+      runtime.lastRecoveryAttemptMs = SDL_GetTicks();
+      setOutputHealthState(outputIndex, OutputHealthState::Recovering, "entering fullscreen");
     } else if (output.enabled) {
       setOutputHealthState(outputIndex, OutputHealthState::Armed);
     } else {
@@ -6504,8 +6505,10 @@
         OutputRuntime* rebuiltRuntime = runtimeForOutput(outputIndex);
         if (rebuiltRuntime) {
           rebuiltRuntime->pendingDisplayRuntimeRebuild = false;
-          rebuiltRuntime->pendingDisplayMoveFullscreen = false;
-          rebuiltRuntime->displayMoveRetryAtMs = 0;
+          // Do NOT clear pendingDisplayMoveFullscreen or displayMoveRetryAtMs here.
+          // createOutputRuntime sets them to defer fullscreen entry by one tick so
+          // the macOS compositor has time to assign the window to the correct
+          // NSScreen before SDL_SetWindowFullscreen is called.
           rebuiltRuntime->suppressRecoveryUntilMs = now + 900;
           rebuiltRuntime->lastRecoveryAttemptMs = now;
         }
