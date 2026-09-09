@@ -1,11 +1,34 @@
-# CHANGES - Incremental Updates (March-August 2026)
+# CHANGES - Incremental Updates (March-September 2026)
+
+## 2026-09-09 - v0.99.333 (bug fixes: display locking, timer, hover tips, pocket mode)
+
+**The output window locks to the correct display on macOS.** When an output
+window was shown and put to fullscreen in the same event-loop tick, macOS had
+not committed the window to the target display yet — so fullscreen landed on the
+control monitor instead, covering it and trapping keyboard focus there. The
+fullscreen step is now deferred by one tick, giving the compositor time to
+assign the window to the right screen first.
+
+**Timer durations above five minutes are now reachable.** The duration +/−
+arrows were moving in 30-second steps, so setting a 30-minute timer took
+sixty clicks. Steps are now five minutes — the nudge buttons on the same panel
+still move one minute at a time for live adjustment during a running talk.
+
+**Hover tips no longer show over modal panels.** Tips from buttons behind the
+settings panel or the startup dialog were appearing on top of them.
+
+**Pocket 3 mode persists when opening a new show.** Opening a show while Pocket
+3 was active reset the interface scale and touch mode to their defaults rather
+than restoring the layout the show was saved with.
 
 ## 2026-09-07 - v0.99.332 (each show named once on the startup screen)
 
-The show you were last working on is the one with its own OPEN PREVIOUS button,
-so it no longer also appears in the recent list underneath. The list is five
-OTHER shows to switch to, and the show you already have a button for keeps its
-own line above them.
+**The startup screen shows your most recent show in its own place.** The show
+you were last working on has its own OPEN PREVIOUS button at the top of the
+splash screen. It was also appearing in the recent list below, taking up one of
+its five slots. The list now shows five other shows only — every slot is a
+different destination, and the show you already have a button for is never
+listed twice.
 
 ## 2026-09-07 - v0.99.331 (recent shows on the splash, settings pages that line up)
 
@@ -24,9 +47,10 @@ format chips are legible on every theme with the selected one clearly marked.
 All of it scales properly with the UI Scale setting, and the three platforms
 render the same layout - each naming the hardware it actually has.
 
-## 2026-09-07 - v0.99.330 (a target to update to)
+## 2026-09-07 - v0.99.330 (packaging release)
 
-No functional change over v0.99.329.
+No functional changes. v0.99.329's build is distributed across all platforms
+so the in-app updater finds a newer version on each.
 
 ## 2026-09-07 - v0.99.329 (Deckboy closes cleanly on Linux)
 
@@ -35,10 +59,10 @@ core dump every time - harmless-looking, since the app was closing anyway, but
 it meant anything waiting for a clean exit never got one. That included the
 updater, which is how it came to light.
 
-## 2026-09-07 - v0.99.328 (a target to update to)
+## 2026-09-07 - v0.99.328 (packaging release)
 
-No functional change over v0.99.327. Cut so the update cycle in v0.99.327 has a
-newer release to install on each platform.
+No functional changes. v0.99.327's build is distributed across all platforms
+so the installer-appears fix has a newer version to install.
 
 ## 2026-09-07 - v0.99.327 (the installer is on screen where you can reach it)
 
@@ -50,11 +74,10 @@ click, and nothing happened.
 the time the update helper is ready, it now stops instead of replacing the app
 underneath a running copy.
 
-## 2026-09-07 - v0.99.326 (a target to update to)
+## 2026-09-07 - v0.99.326 (packaging release)
 
-No functional change over v0.99.325. Cut so the full update cycle in v0.99.325
-has a newer release to install, on each platform, rather than being taken on
-trust.
+No functional changes. v0.99.325's build is distributed across all platforms
+so the automatic-install path can be proven end to end.
 
 ## 2026-09-07 - v0.99.325 (updates install themselves on every platform)
 
@@ -75,11 +98,10 @@ app when it finished - the entry was just marked as a checkbox on the final
 page, so it only happened if you noticed it and left it ticked. It now runs by
 itself, which is what the button always promised.
 
-## 2026-09-07 - v0.99.323 (a target to update to)
+## 2026-09-07 - v0.99.323 (packaging release)
 
-No functional change over v0.99.322. Cut so that the repaired updater in
-v0.99.322 has a newer release to actually update TO, which is the only way to
-prove the restart end to end rather than in halves.
+No functional changes. v0.99.322's build is distributed across all platforms
+so the update restart can be verified end to end.
 
 ## 2026-09-07 - v0.99.322 (the updater's restart actually restarts)
 
