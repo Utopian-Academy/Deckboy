@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (270)\n"
+        "DECKBOY_0.01 every verb (271)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOGAIN AUDIOMONO\n"
@@ -477,7 +477,7 @@
         "PATTERN PAUSE PAUSEATBEGIN PAUSEATEND PAUSEBEGIN PAUSEEND\n"
         "PAUSESTART PING PIP PLAY PLAYLISTAUTOFADE PLAYLISTFADE PLAYLISTLOOP\n"
         "PLAYLISTOPACITY PRESET PREV PREVIOUS REC RECCODEC RECFORMAT RECORD\n"
-        "RECSEGMENT RECTC RENUMBER RERACK ROUTE SCALE SCALEX SCALEY SCENE\n"
+        "RECSEGMENT RECTC RENUMBER RERACK ROUTE SCALE SCALEMODE SCALEX SCALEY SCENE\n"
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
         "SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110 STILLDUR\n"
         "STOP SUB SUBTITLE SUBTITLES SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
@@ -2766,40 +2766,40 @@
     return "109 unsupported parameter\r\n\r\n";
   }
 
-// A WEB PAGE MUST NOT BE ABLE TO DRIVE THE SHOW.
-//
-// The control port is loopback-only, which is not the protection it sounds
-// like: a page in ANY browser on this machine -- including one loaded in a
-// browser cue -- can reach loopback. It cannot open a raw socket, but it does
-// not need one. `fetch("http://127.0.0.1:5510", {method:"POST",
-// headers:{"Content-Type":"text/plain"}, body:"BLACKOUT on\nSTOP\n"})` needs no
-// CORS preflight, because text/plain is safelisted, and CORS only stops the
-// page READING the reply -- the request is still delivered.
-//
-// This line protocol then does exactly what it was built to do: the HTTP
-// request line and headers come out as unknown commands, and every line of the
-// BODY is a valid command. Measured, not theorised: blackout went on and
-// playback stopped from a single fetch().
-//
-// So a connection that opens with an HTTP request line is dropped without
-// executing anything on it. A browser can only speak HTTP or WebSocket to a TCP
-// port (a WebSocket handshake is itself a GET request line), so this closes the
-// whole class, while Companion, netcat and every other line client are
-// untouched -- none of them open with "GET / HTTP/1.1".
-bool looksLikeHttpRequestLine(const std::string& line) {
-  static const char* kMethods[] = {
-    "GET ", "POST ", "PUT ", "HEAD ", "DELETE ", "OPTIONS ",
-    "PATCH ", "TRACE ", "CONNECT ",
-  };
-  const std::string upper = toUpper(line);
-  for (const char* method : kMethods) {
-    if (upper.rfind(method, 0) == 0) {
-      // Require the HTTP version token too, so a hypothetical future verb
-      // named GET or PATCH is not collateral damage.
-      return upper.find(" HTTP/") != std::string::npos;
-    }
-  }
-  return false;
+// A WEB PAGE MUST NOT BE ABLE TO DRIVE THE SHOW.
+//
+// The control port is loopback-only, which is not the protection it sounds
+// like: a page in ANY browser on this machine -- including one loaded in a
+// browser cue -- can reach loopback. It cannot open a raw socket, but it does
+// not need one. `fetch("http://127.0.0.1:5510", {method:"POST",
+// headers:{"Content-Type":"text/plain"}, body:"BLACKOUT on\nSTOP\n"})` needs no
+// CORS preflight, because text/plain is safelisted, and CORS only stops the
+// page READING the reply -- the request is still delivered.
+//
+// This line protocol then does exactly what it was built to do: the HTTP
+// request line and headers come out as unknown commands, and every line of the
+// BODY is a valid command. Measured, not theorised: blackout went on and
+// playback stopped from a single fetch().
+//
+// So a connection that opens with an HTTP request line is dropped without
+// executing anything on it. A browser can only speak HTTP or WebSocket to a TCP
+// port (a WebSocket handshake is itself a GET request line), so this closes the
+// whole class, while Companion, netcat and every other line client are
+// untouched -- none of them open with "GET / HTTP/1.1".
+bool looksLikeHttpRequestLine(const std::string& line) {
+  static const char* kMethods[] = {
+    "GET ", "POST ", "PUT ", "HEAD ", "DELETE ", "OPTIONS ",
+    "PATCH ", "TRACE ", "CONNECT ",
+  };
+  const std::string upper = toUpper(line);
+  for (const char* method : kMethods) {
+    if (upper.rfind(method, 0) == 0) {
+      // Require the HTTP version token too, so a hypothetical future verb
+      // named GET or PATCH is not collateral damage.
+      return upper.find(" HTTP/") != std::string::npos;
+    }
+  }
+  return false;
 }
 
   // FD_SET ABORTS THE PROCESS ON A BAD DESCRIPTOR.

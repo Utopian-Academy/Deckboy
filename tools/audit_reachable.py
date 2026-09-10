@@ -120,6 +120,19 @@ def main():
             # containers.
             if re.search(r'(?:\.|->)' + re.escape(f) + r'\.[a-z]', reach):
                 continue
+            # Written through a REFERENCE out-parameter rather than by a visible
+            # `=`. The remote handlers parse-and-assign in one step:
+            #
+            #     if (sub == "HEIGHT" && number(2, 0.0f, 1.0f, cue->meshHeight))
+            #
+            # which sets the field if the argument parses and leaves it alone if
+            # it does not. Looking only for an `=` reported all five mesh
+            # controls as unreachable while MESH HEIGHT/TILT/YAW/SPIN/GRID were
+            # setting them from any control surface -- four phantom findings on
+            # every run, which is how a gate stops being read.
+            if re.search(r'\b\w+\s*\([^;]*(?:\.|->)' + re.escape(f) +
+                         r'\s*\)', reach):
+                continue
             missing.append(f)
         if missing:
             unreachable[struct] = missing
