@@ -535,15 +535,29 @@ void effectStackEditParam(int index, int which) {
   if (!label) {
     return;   // this effect has no such parameter; nothing to type into
   }
+  // SAME UNITS THE ROW IS SHOWING. inspEffectParamValueText draws every
+  // parameter as a percentage except text mode's three selector slots, which
+  // read as "100 cols", a glyph set name and an ink name. Opening a 0-1 editor
+  // over a row that says 40% is how someone types 45, means 45%, and gets the
+  // parameter pinned to its maximum.
+  const bool percentUnits =
+    !(fx.kind == deckboy::effects::CueEffectKind::TextMode &&
+      (which == 0 || which == 2 || which == 3));
+  const float raw = which == 0 ? fx.paramA : which == 1 ? fx.paramB
+                  : which == 2 ? fx.paramC : fx.paramD;
   std::ostringstream current;
-  current << std::fixed << std::setprecision(2)
-          << (which == 0 ? fx.paramA : which == 1 ? fx.paramB
-             : which == 2 ? fx.paramC : fx.paramD);
+  if (percentUnits) {
+    current << static_cast<int>(std::lround(raw * 100.0f));
+  } else {
+    current << std::fixed << std::setprecision(2) << raw;
+  }
   openInlineNumericExpressionEditor(
     which == 0 ? "cue.effect.paramA" : which == 1 ? "cue.effect.paramB"
     : which == 2 ? "cue.effect.paramC" : "cue.effect.paramD", label,
-    "0-1 (supports + - * / and ())", current.str(),
-    [this, index, which](double value) {
+    percentUnits ? "0-100% (supports + - * / and ())"
+                 : "0-1 (supports + - * / and ())",
+    current.str(),
+    [this, index, which, percentUnits](double value) {
       auto* live = selectedEffectStack();
       if (!effectIndexValid(live, index)) {
         return;   // the selection moved while the editor was open
@@ -551,7 +565,8 @@ void effectStackEditParam(int index, int which) {
       auto& target = (*live)[index];
       (which == 0 ? target.paramA : which == 1 ? target.paramB
        : which == 2 ? target.paramC : target.paramD) =
-        std::clamp(static_cast<float>(value), 0.0f, 1.0f);
+        std::clamp(static_cast<float>(percentUnits ? value / 100.0 : value),
+                   0.0f, 1.0f);
       markProjectDirty();
     });
 }
@@ -576,17 +591,29 @@ void effectStackEditAmount(int index) {
   if (!effectIndexValid(stack, index)) {
     return;
   }
+  // PERCENT, BECAUSE THAT IS WHAT THE ROW SAYS.
+  //
+  // The row reads "35%" and this editor used to open on "0.35" and ask for a
+  // number between 0 and 1. So the operator who saw 35%, wanted 37, and typed
+  // 37 got the value clamped to 1.0 -- the effect jumped to FULL. Two notations
+  // for one quantity, a keystroke apart, and the failure looks exactly like a
+  // control that refuses to take a specific value.
+  //
+  // The nudge buttons and the scrub step in fives, which is right for a thumb
+  // on a fader; typing is how an exact value is set, so it has to accept the
+  // units it is showing.
   std::ostringstream current;
-  current << std::fixed << std::setprecision(2) << (*stack)[index].amount;
+  current << static_cast<int>(std::lround((*stack)[index].amount * 100.0f));
   openInlineNumericExpressionEditor(
     "cue.effect.amount", deckboy::effects::cueEffectLabel((*stack)[index].kind),
-    "Amount 0-1 (supports + - * / and ())", current.str(),
+    "Amount 0-100% (supports + - * / and ())", current.str(),
     [this, index](double value) {
       auto* live = selectedEffectStack();
       if (!effectIndexValid(live, index)) {
         return;   // the selection moved while the editor was open
       }
-      (*live)[index].amount = std::clamp(static_cast<float>(value), 0.0f, 1.0f);
+      (*live)[index].amount =
+        std::clamp(static_cast<float>(value / 100.0), 0.0f, 1.0f);
       markProjectDirty();
     });
 }
