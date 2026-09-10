@@ -74,6 +74,15 @@ struct CompiledSource {
   std::vector<std::string> names;
   std::string error;        // empty when it compiled
   bool ok() const { return error.empty(); }
+
+  // Does the source actually READ the polar variables? `r` costs a sqrt and
+  // `a` an atan2, and the renderer was computing both for every pixel whether
+  // or not the expression mentioned them -- `sin(x*12+t)` paid for an atan2 it
+  // never looked at, eight million times a frame at 4K. The compiler already
+  // knows: a read is a PushVar carrying the slot, so this is a scan of the
+  // instruction list once, at compile time, instead of trig per pixel.
+  bool usesR = false;
+  bool usesA = false;
 };
 
 namespace detail {
@@ -580,6 +589,20 @@ inline CompiledSource compile(const std::string& source) {
       compiled.error = std::string(c == 0 ? "red: " : c == 1 ? "green: " : "blue: ") + error;
       return compiled;
     }
+  }
+  // Which of the two expensive variables does this source read? The prelude
+  // counts as well as the channels -- a named value can be the only thing that
+  // touches `a`, and the channels then read the name rather than the variable.
+  const auto scan = [&compiled](const Program& program) {
+    for (const Instruction& instruction : program) {
+      if (instruction.op != Op::PushVar) continue;
+      if (instruction.slot == static_cast<int>(Var::R)) compiled.usesR = true;
+      if (instruction.slot == static_cast<int>(Var::A)) compiled.usesA = true;
+    }
+  };
+  scan(compiled.prelude);
+  for (int c = 0; c < 3; ++c) {
+    scan(compiled.channel[c]);
   }
   return compiled;
 }

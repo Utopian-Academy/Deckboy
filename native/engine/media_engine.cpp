@@ -8873,22 +8873,39 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
     }
     const int w = frame.width, h = frame.height;
     const double t = animTime;
+    const bool usesR = program.usesR;
+    const bool usesA = program.usesA;
+    // Split the frame across cores, the way the effect stack does. Every pixel
+    // here is a pure function of x, y and t, so the rows are independent and
+    // this is the shape parallelRows is for -- code_source.hpp has said as
+    // much since it was written ("that viable already exists: the effect
+    // stack's parallelRows splits a frame"), but the loop was never handed to
+    // it and ran on one core. At 4K that is 8.3 million pixels evaluating a
+    // prelude and three channel programs each, single file.
+    //
+    // The scratch buffers move INSIDE the band. One shared stack and one
+    // shared named-value vector are correct for a single thread and a data
+    // race for several -- the rule the effect stack already documents.
+    deckboy::effects::detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
     std::vector<double> stack;
     stack.reserve(32);
     // Scratch for the source's own named values, one slot per name. Allocated
-    // once for the whole frame rather than per pixel, and rewritten by the
-    // prelude on each one.
+    // once per band rather than per pixel, and rewritten by the prelude on
+    // each one.
     std::vector<double> named(program.names.size(), 0.0);
-    for (int py = 0; py < h; ++py) {
+    for (int py = firstRow; py < lastRow; ++py) {
       std::uint8_t* row = frame.pixels.data() + static_cast<std::size_t>(py) * w * 4;
       const double y = (py + 0.5) / h;
       const double cy = y * 2.0 - 1.0;
       for (int px = 0; px < w; ++px) {
         const double x = (px + 0.5) / w;
         const double cx = x * 2.0 - 1.0;
+        // r and a are only paid for when the source reads them. An expression
+        // that never mentions them was still buying a sqrt and an atan2 per
+        // pixel; at 4K that is 8.3 million of each, for nothing.
         const double vars[7] = {x, y, cx, cy,
-                                std::sqrt(cx * cx + cy * cy),
-                                std::atan2(cy, cx), t};
+                                usesR ? std::sqrt(cx * cx + cy * cy) : 0.0,
+                                usesA ? std::atan2(cy, cx) : 0.0, t};
         std::uint8_t* p = row + static_cast<std::size_t>(px) * 4;
         // The named values first: computed once here and then read by whichever
         // channels want them, instead of the old form's only option, which was
@@ -8908,6 +8925,7 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
         p[3] = 255;
       }
     }
+    });
     return;
   }
   bool motion = endsWith(patternType, "-motion");
