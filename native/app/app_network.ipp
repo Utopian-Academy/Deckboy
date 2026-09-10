@@ -1711,29 +1711,66 @@
   }
 
   // Which artefact this build should be offered.
+  //
+  // macOS ships TWO of them. Since v0.99.307 every release carries both an
+  // Apple Silicon and an Intel bundle, and this asked for the arm64 one on
+  // both — so an Intel Mac was offered a build it cannot run, and the update
+  // either installed the wrong architecture or found nothing to install at
+  // all. Ask for the architecture this binary was compiled for; there is no
+  // universal build, so the running process already knows the answer.
   static std::string updateAssetPatternForPlatform() {
 #if defined(_WIN32)
     return "-windows-x64-setup.exe";
 #elif defined(__APPLE__)
+#  if defined(__aarch64__) || defined(__arm64__)
     return "-macos-arm64.dmg";
+#  else
+    return "-macos-x86_64.dmg";
+#  endif
 #else
     return "-x86_64.AppImage";
 #endif
   }
 
   bool anythingIsLive() const {
-    for (const auto& runtime : deckRuntimes_) {
+    return !whatIsLive().empty();
+  }
+
+  // WHICH thing is live, named, or empty when nothing is.
+  //
+  // The update refused with "stop playback and disarm outputs first" and left
+  // the operator to work out which of the two it meant. Reported from the
+  // field: outputs disarmed, button pressed again, same sentence. Two ways
+  // that happens and neither is visible from the message --
+  //
+  //   - a PAUSED deck is not Stopped, so playback still counts as live and
+  //     disarming outputs cannot help;
+  //   - disarming acts on the FOCUSED output while this asks about every one
+  //     of them, so a second armed output keeps refusing from off screen.
+  //
+  // Naming the blocker is the whole fix. It is the same rule the remote
+  // protocol already follows: a verb that cannot act says which part it could
+  // not do, rather than repeating that it could not.
+  std::string whatIsLive() const {
+    for (std::size_t i = 0; i < deckRuntimes_.size(); ++i) {
+      const auto& runtime = deckRuntimes_[i];
       if (runtime.mediaEngine &&
           runtime.mediaEngine->state() != TransportState::Stopped) {
-        return true;
+        const bool paused = runtime.mediaEngine->state() == TransportState::Paused;
+        return "deck " + std::to_string(i + 1) +
+               (paused ? " is paused, not stopped" : " is playing");
       }
     }
-    for (const auto& output : project_.outputs) {
-      if (output.enabled || output.streamEnabled) {
-        return true;
+    for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+      const OutputTarget& output = project_.outputs[i];
+      if (output.enabled) {
+        return "output " + std::to_string(i + 1) + " is armed";
+      }
+      if (output.streamEnabled) {
+        return "output " + std::to_string(i + 1) + " is streaming";
       }
     }
-    return false;
+    return {};
   }
 
   // Ask GitHub what the newest release is. Blocking, so it is called from a
@@ -1879,8 +1916,10 @@
       triggerToast("update: nothing to install");
       return;
     }
-    if (anythingIsLive()) {
-      triggerToast("update: stop playback and disarm outputs first");
+    if (const std::string live = whatIsLive(); !live.empty()) {
+      // Name it. "Disarm outputs first" with the outputs already disarmed is
+      // the report that produced this change.
+      triggerToast("update blocked: " + live);
       return;
     }
     if (updateCheckRunning_.exchange(true)) {
@@ -1939,8 +1978,10 @@
       triggerToast("update: nothing downloaded");
       return;
     }
-    if (anythingIsLive()) {
-      triggerToast("update: stop playback and disarm outputs first");
+    if (const std::string live = whatIsLive(); !live.empty()) {
+      // Name it. "Disarm outputs first" with the outputs already disarmed is
+      // the report that produced this change.
+      triggerToast("update blocked: " + live);
       return;
     }
     updateRunningInstaller_ = fs::path(installer).filename().string();
