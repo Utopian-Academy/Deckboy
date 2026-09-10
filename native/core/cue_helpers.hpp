@@ -20,6 +20,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <vector>
 #include <string>
@@ -47,6 +48,26 @@ inline std::string cueDisplayKindLabel(const Cue& cue) {
     return "Code Source";
   }
   return deckboy::core::utils::cueKindLabel(cue.kind);
+}
+
+// Has this cue announced an intention to leave?
+//
+// A cue named "I Believe I Can Fly", however the operator chose to punctuate
+// it, grows wings and goes. It is not a mode, a setting or a preference: the
+// NAME is the whole state, which is why nothing about it is persisted. Rename
+// the cue or delete it and the desk is a desk again.
+//
+// Compared on letters alone, so spacing, capitals, apostrophes and any
+// enthusiastic punctuation all reach the same answer.
+inline bool cueBelievesItCanFly(const Cue& cue) {
+  std::string letters;
+  letters.reserve(cue.name.size());
+  for (unsigned char c : cue.name) {
+    if (std::isalpha(c)) {
+      letters.push_back(static_cast<char>(std::tolower(c)));
+    }
+  }
+  return letters == "ibelieveicanfly" || letters == "believeicanfly";
 }
 
 // Is this a live source capture cue kind? (WindowSource, Camera, Syphon)

@@ -1677,7 +1677,53 @@
     // Name — line 2 (middle of row, prominent)
     int nameY = row.y + 26;
     SDL_Rect nameRect {nameX, nameY, nameW, 24};
-    drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
+    if (cueBelievesItCanFly(cue)) {
+      // IT SAID IT COULD, AND IT CAN.
+      //
+      // Entirely in the operator's chrome. Deckboy is used in front of
+      // audiences, so an easter egg that could reach the programme output is
+      // not an easter egg, it is a fault someone finds out about mid-keynote.
+      // Nothing here touches the output, the engine or the show file.
+      //
+      // The NAME is the state, so there is nothing to persist and nothing to
+      // clean up: rename the cue and it lands, delete it and it is gone.
+      const double t = static_cast<double>(animationNow_) / 1000.0
+                     + static_cast<double>(index) * 0.7;
+      const double flap = std::sin(t * 7.0);
+      // Rises and drifts right, then wraps back to the perch and climbs again
+      // -- it has not escaped the window, it is circling.
+      const double journey = std::fmod(t * 0.22, 1.0);
+      const int driftX = static_cast<int>(journey * (nameW + 40.0));
+      const int riseY  = static_cast<int>(-journey * 22.0 + flap * 1.5);
+
+      SDL_Rect flyRect {nameRect.x + driftX, nameRect.y + riseY, nameRect.w, nameRect.h};
+      const std::string shortName = ellipsizeToPixelWidth(fontSmall_, cue.name,
+                                                          std::max(24, nameW - driftX));
+      // Wings: two strokes either side of the name, opening and closing.
+      const int wingSpan = 7 + static_cast<int>(std::abs(flap) * 5.0);
+      const int wingY = flyRect.y + 12;
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, ink.r, ink.g, ink.b, 200);
+      for (int w = 1; w <= wingSpan; ++w) {
+        const int lift = static_cast<int>(flap * (w * 0.55));
+        SDL_RenderPoint(controlRenderer_,
+                        static_cast<float>(flyRect.x - 4 - w),
+                        static_cast<float>(wingY - lift));
+        SDL_RenderPoint(controlRenderer_,
+                        static_cast<float>(flyRect.x - 4 - w),
+                        static_cast<float>(wingY - lift + 1));
+      }
+      drawTextSafe(controlRenderer_, fontSmall_, flyRect, shortName, ink);
+      // The perch it left: the row keeps its place in the playlist, empty.
+      SDL_SetRenderDrawColor(controlRenderer_, subInk.r, subInk.g, subInk.b, 90);
+      for (int d = 0; d < 3; ++d) {
+        SDL_RenderPoint(controlRenderer_,
+                        static_cast<float>(nameRect.x + d * 4),
+                        static_cast<float>(nameRect.y + 18));
+      }
+    } else {
+      drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
+    }
 
     // Metadata — line 3 (bottom of row, within bounds)
     // Metadata shares the bottom line with the action strip, so it stops short
