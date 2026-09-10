@@ -895,6 +895,7 @@
       {"[ / ]",           "Shorten / lengthen fade"},
       {"Esc",             "Desk, then clear output, then quit"},
       {"Ctrl+/",          "This shortcut overlay"},
+      {"Ctrl+,",          "Preferences"},
       {"+/-",             "Volume up/down"},
       {"Shift+drag",      "Snap warp corners to grid"},
     };
@@ -1103,6 +1104,58 @@
         size_t pos = minPos + static_cast<size_t>(nextRand() % static_cast<uint32_t>(span + 1));
         startupBootLog_.insert(startupBootLog_.begin() + pos, kBootWhimsyPool[whimsyIdx[i]]);
       }
+      // ONCE IN A WHILE, THE CONSOLE ANSWERS DIFFERENTLY.
+      //
+      // Not a new joke line — a line the operator has read a hundred times,
+      // giving the wrong answer. That is the whole trick: a fresh gag reads as
+      // content, but "counting frame ghosts... 1 found" reads as the machine
+      // having seen something, and the only way to be sure you did not imagine
+      // it is to boot again, which will not reproduce it. Roughly one boot in
+      // forty, and only ever one line.
+      //
+      // Deliberately harmless: it swaps a string in a decorative log. Nothing
+      // downstream parses these lines, nothing on the output changes, and a
+      // show does not care. The Konami secret stays the real one.
+      {
+        struct WhimsyTwin { const char* ordinary; const char* uncanny; };
+        static const WhimsyTwin kTwins[] = {
+          {"counting frame ghosts... none found", "counting frame ghosts... 1 found"},
+          {"sweeping dead pixels... 0 swept",     "sweeping dead pixels... it moved"},
+          {"waking the intern... declined",       "waking the intern... they were already up"},
+          {"checking for y2k residue... clean",   "checking for y2k residue... 1997 detected"},
+          {"shooing moths from the beam... 2 shooed",
+           "shooing moths from the beam... they came back"},
+          {"petting the watchdog... good boy",    "petting the watchdog... it did not blink"},
+          {"consulting the show bible... canon",  "consulting the show bible... a page is missing"},
+          {"counting backstage flashlights... all lit",
+           "counting backstage flashlights... one is pointing at me"},
+        };
+        if (nextRand() % 40 == 0) {
+          // Choose from the twins THIS boot actually dealt, not from the whole
+          // table. Picking blind and hoping the line is on screen turns one in
+          // forty into nearer one in three hundred, which is not rare-and-
+          // delightful, it is nobody ever sees it.
+          std::vector<std::size_t> present;
+          for (std::size_t i = 0; i < startupBootLog_.size(); ++i) {
+            for (const WhimsyTwin& twin : kTwins) {
+              if (startupBootLog_[i] == twin.ordinary) {
+                present.push_back(i);
+                break;
+              }
+            }
+          }
+          if (!present.empty()) {
+            const std::size_t at = present[nextRand() % present.size()];
+            for (const WhimsyTwin& twin : kTwins) {
+              if (startupBootLog_[at] == twin.ordinary) {
+                startupBootLog_[at] = twin.uncanny;
+                break;    // one line, one boot
+              }
+            }
+          }
+        }
+      }
+
       // Konami hint + A/V clock line ride near the end every boot, then the
       // handoff to the operator.
       startupBootLog_.push_back("polling konami interrupt vector... hidden");
