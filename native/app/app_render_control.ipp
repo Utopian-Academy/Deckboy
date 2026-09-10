@@ -1042,7 +1042,6 @@
     renderCreatures();
     renderSlideRenderCard(width, height);
     renderImportProgress(width, height);
-    renderToast(width);
     if (confirmQuit_) {
       renderQuitConfirm();
     }
@@ -1055,6 +1054,20 @@
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();
+    // THE TOAST GOES ABOVE THE POPUPS, not below them.
+    //
+    // It used to be drawn before this block, so any message raised by a
+    // control INSIDE a menu or the settings modal was painted underneath the
+    // thing the operator was looking at. The worst case was the UPDATES card:
+    // its download button explains every refusal by toast -- "nothing to
+    // install", "stop playback and disarm outputs first" -- and every one of
+    // those explanations was hidden behind the settings panel the button lives
+    // in. From the outside the button did nothing at all, which is precisely
+    // how it was reported on macOS.
+    //
+    // A toast is a reply to something the operator just did. It has to be
+    // legible from wherever they did it.
+    renderToast(width);
     // One decode per frame, after the list has said what it is missing.
     servicePendingRowThumbnail();
     servicePendingRowWaveform();
