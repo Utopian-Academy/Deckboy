@@ -1,5 +1,75 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-10 - v0.99.334 (10-bit playback, a live coder that keeps up, motion mosh)
+
+**10-bit video plays on the GPU.** HEVC Main 10 — and VP9 Profile 2, and 10-bit
+AV1 — decode to a P010 surface, which the compositor could not read, so every
+frame was pulled off the GPU at full resolution, converted on the CPU and
+pushed back up. Those surfaces are wrapped directly now, the same way 8-bit
+already was. A 4K60 10-bit clip went from 39.6fps to the full 60, and a 720p
+10-bit x265 rip that was quietly paying a download per frame now pays nothing.
+The extra depth survives too: the old path converted 10-bit down to 8-bit on
+its way through and threw the rest away.
+
+**The live coder keeps up.** The code source evaluated its expression on one
+core, so a 4K raster meant 8.3 million pixels running a prelude and three
+channel programs single file. The frame splits across cores now, as the effect
+stack always has. It also stopped computing `r` and `a` for every pixel whether
+or not the expression reads them — an expression like `sin(x*12+t)` was paying
+for a square root and an arctangent it never looked at. Together: 8.8x at 4K
+and 8.3x at 1080p, 1.2fps to 10.4 and 4.8fps to 39.5, with the picture
+byte-for-byte identical.
+
+**Motion mosh — datamosh as an effect, live, on any cue.** The datamosh Deckboy
+already had is the codec trick: withhold the keyframe at a cut and the decoder
+drags the old picture around by the new shot's motion. It gives the real thing
+and it costs a transcode, a wait, and a file — a camera or an NDI feed cannot
+be moshed at all.
+
+This computes the same look per frame. The vectors the codec would have
+supplied are estimated by matching blocks between one picture and the next; the
+picture that refuses to be replaced is held by the effect itself; and the
+missing keyframe becomes **refresh**, a knob, rather than an accident of the
+encode. **hold** is how long the old picture survives and **block size** runs
+from the hard square edges people picture when they say datamosh through to
+something that flows. It runs on anything a cue can be, takes an LFO on every
+parameter, and writes nothing to disk. 4.6ms at 1080p.
+
+**Command is the shortcut key on macOS.** Every shortcut tested for Control
+alone, so Cmd+S, Cmd+O, Cmd+Z and Cmd-click did nothing at all on a Mac.
+Control still works alongside it, so nothing anyone had in their fingers has
+changed.
+
+**Ctrl+, opens preferences**, and closes them again — Cmd+, on macOS. The bare
+comma is still the previous-cue transport key.
+
+**A warning you cannot read is not a warning.** A message raised by a control
+inside a menu or the settings panel was drawn underneath it. The update card
+suffered worst: its download button explains every refusal by toast, and the
+card sits inside the settings panel, so from the outside the button did nothing.
+
+**The update says what is blocking it.** "Stop playback and disarm outputs
+first" named two conditions and never said which one held — and a paused deck
+counts as playing, while disarming acts on the focused output when any armed
+output blocks. It names the one in the way now.
+
+**Intel Macs get an Intel build.** The updater asked for the Apple Silicon disk
+image on every Mac, though releases have carried both since v0.99.307.
+
+**The recording folder is in System settings**, not only in Video Outputs — the
+tab about display routing, and not where anyone looks for where recordings go.
+
+**The live coder calls itself a source**, in the playlist and the inspector, as
+it already did in the SOURCE menu.
+
+**The recent-shows list stays on your machine.** It holds one absolute path per
+show opened here, and was not among the files the packagers strip, so a release
+build would have carried the packager's own show library.
+
+**SCALEMODE is listed in HELP ALL**, so a control surface asking Deckboy what it
+can do is told about it.
+
+
 ## 2026-09-09 - v0.99.333 (bug fixes: display locking, capture cards, timer, hover tips, pocket mode)
 
 **The output window locks to the correct display on macOS.** When an output
