@@ -92,7 +92,10 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "depth_split"}
 ANIMATES_BY_STATE = {"feedback", "motion_puppet", "scotopic", "text_mode",
                      # Holds the swept frame between calls.
-                     "slit_scan"}
+                     "slit_scan",
+                     # Holds the smeared picture AND the previous frame's luma,
+                     # so it keeps evolving on a still cue.
+                     "motion_mosh"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -105,6 +108,7 @@ PARAM_SLOTS = {
     "edge_ignite":     ["catch", "heat", "flicker"],
     "relight":         ["relief", "light angle", "orbit speed"],
     "depth_split":     ["parallax", "convergence", "sway"],
+    "motion_mosh":     ["hold", "block size", "refresh"],
     "invert":          ["pivot", "channel spread"],
     "posterise":       ["band curve", "channel skew"],
     "solarise":        ["fold point", "knee"],
@@ -166,6 +170,13 @@ MOVED = [0.9, 0.8, 0.8, 0.8]
 NOT_PIXEL_EFFECTS = [
     ("datamosh", "happens at decode, not on the pixels"),
     ("motion_puppet", "needs a driver clip's motion vectors"),
+    # Motion mosh IS a pixel operation, but it works by dragging a held picture
+    # along the motion BETWEEN two frames. This harness renders one still
+    # picture, so the matcher correctly finds no motion and the effect
+    # correctly passes the picture through. Sweeping it here would not measure
+    # the effect, it would measure the harness, and report a working effect
+    # dead — the exact shape of the motion-puppet gate that nobody read.
+    ("motion_mosh", "needs a moving picture; a still frame has no motion"),
     # Text mode IS a pixel operation, but the renderer that draws the character
     # grid lives on the media engine (it owns the sprite-sheet state) and the
     # settings that drive it live on the cue, so the stack is handed a callback

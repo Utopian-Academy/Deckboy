@@ -91,7 +91,12 @@ EFFECTS = [
 
 # Both need something a paused frame cannot give them.
 SKIP = [("motion_puppet", "needs a motion driver and a moving picture"),
-        ("datamosh", "works at decode; needs a background transcode first")]
+        ("datamosh", "works at decode; needs a background transcode first"),
+        # This sweep seeks and PAUSES so every case is the same frame, which is
+        # what makes it comparable — and is exactly what leaves motion mosh
+        # nothing to measure. It drags the held picture along the motion
+        # between two frames; a paused cue has none.
+        ("motion_mosh", "needs a moving picture; this sweep pauses on one frame")]
 
 CAPTURE_PS1 = '''
 param([int]$ProcId, [string]$Out)

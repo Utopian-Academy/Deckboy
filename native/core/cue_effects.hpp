@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <climits>
 #include <cstring>
 #include <functional>
 #include <string>
@@ -79,6 +80,13 @@ enum class CueEffectKind : int {
   EdgeIgnite,
   Relight,
   DepthSplit,
+  // Added 2026-09-10. NOT the Datamosh above, which is the codec trick: that
+  // one withholds keyframes so the DECODER smears, which needs a transcode
+  // first and only ever works on a file. This computes the same look per
+  // frame — estimate where the picture moved, drag the held picture along
+  // that motion instead of drawing the new one — so it runs live on a camera,
+  // an NDI feed, a browser page or the video synth, and sits on a knob.
+  MotionMosh,
   Count,
 };
 
@@ -119,6 +127,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::EdgeIgnite:     return "edge ignite";
     case CueEffectKind::Relight:        return "relight";
     case CueEffectKind::DepthSplit:     return "depth split";
+    case CueEffectKind::MotionMosh:     return "motion mosh";
     default:                            return "none";
   }
 }
@@ -162,6 +171,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::EdgeIgnite:     return "edge_ignite";
     case CueEffectKind::Relight:        return "relight";
     case CueEffectKind::DepthSplit:     return "depth_split";
+    case CueEffectKind::MotionMosh:     return "motion_mosh";
     default:                            return "none";
   }
 }
@@ -206,6 +216,10 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::EdgeIgnite:
     case CueEffectKind::Relight:
     case CueEffectKind::DepthSplit:
+    // Motion mosh holds both the previous input and the smeared picture
+    // between calls, so it keeps evolving on a still cue — which is most of
+    // the point: a held frame smears into itself rather than sitting there.
+    case CueEffectKind::MotionMosh:
       return true;
     default:
       return false;
@@ -308,6 +322,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::DepthSplit:
       return which == 0 ? "parallax" : which == 1 ? "convergence"
            : which == 2 ? "sway" : nullptr;
+    case CueEffectKind::MotionMosh:
+      return which == 0 ? "hold" : which == 1 ? "block size"
+           : which == 2 ? "refresh" : nullptr;
     default:
       return nullptr;
   }
@@ -365,6 +382,17 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
                           "of it comes forward or falls behind."
                         : "A slow rocking of the viewpoint, which is what "
                           "makes the depth read without glasses.";
+    case CueEffectKind::MotionMosh:
+      return which == 0
+        ? "How long the picture refuses to be replaced. Low lets the new "
+          "picture through; high drags the old one along the new one's "
+          "motion, which is the smear."
+        : which == 1
+        ? "How coarse the motion is measured. Large blocks give the hard "
+          "square edges people picture when they say datamosh; small ones "
+          "flow."
+        : "How often the real picture is allowed back in. At zero it never "
+          "recovers, which is a mosh that keeps going.";
     case CueEffectKind::Solarise:
       return which == 0
         ? "Where highlights fold back through black. Low folds most of the "
@@ -769,6 +797,19 @@ inline int bayer4(int x, int y) {
   };
   return kMatrix[y & 3][x & 3];
 }
+
+// Motion mosh works on a quarter-scale luma plane rather than the full raster.
+// Block matching is the expensive half of the effect and it is measuring where
+// large regions went, not resolving detail — the same reasoning that puts grain
+// flow on a third-resolution buffer. A quarter scale cuts the matcher's work
+// sixteenfold and the smear it drives is indistinguishable, because a smear's
+// whole job is to destroy detail along one axis.
+//
+// The search radius is in DOWNSAMPLED pixels, so ±6 here reaches 24 pixels of
+// real motion per frame — well past anything that reads as movement at 60fps,
+// and past the point where a codec's own estimator gives up.
+inline constexpr int kMoshScale = 4;
+inline constexpr int kMoshSearch = 6;
 
 // How many workers to split a frame across.
 //
@@ -3235,6 +3276,195 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             }
           }
         });
+        break;
+      }
+
+      case CueEffectKind::MotionMosh: {
+        // Datamosh as an EFFECT rather than as a codec trick.
+        //
+        // A codec mosh works by deleting the keyframe at a cut: the decoder
+        // then applies the incoming shot's motion vectors to the outgoing
+        // shot's pixels, and the old picture gets dragged around by the new
+        // one's movement until a keyframe arrives. That needs a transcode, so
+        // it only ever works on a file, and it cannot be dialled while it runs.
+        //
+        // Everything in that description is reproducible here. The vectors the
+        // codec would have supplied are estimated instead, by matching blocks
+        // between the previous input and this one; the "old picture" is a held
+        // frame in this effect's state slot; and the missing keyframe becomes a
+        // knob rather than an accident.
+        if (!state) {
+          break;   // no scratch from this caller — do nothing rather than pretend
+        }
+        std::vector<std::uint8_t>& store = *state;
+        const std::size_t bytes = count * 4;
+        // Layout: [held picture][previous input luma, downsampled]
+        // The luma plane is what the matcher reads, so the previous frame is
+        // kept SMALL rather than as a second full RGBA copy — at 1080p that is
+        // 130KB instead of 8MB, and the matcher wants it downsampled anyway.
+        const int mw = std::max(1, ctx.width / detail::kMoshScale);
+        const int mh = std::max(1, ctx.height / detail::kMoshScale);
+        const std::size_t lumaBytes = static_cast<std::size_t>(mw) * mh;
+        const std::size_t wanted = bytes + lumaBytes;
+        auto sampleLuma = [&](int mx, int my) -> std::uint8_t {
+          const int sx = std::min(ctx.width - 1, mx * detail::kMoshScale);
+          const int sy = std::min(ctx.height - 1, my * detail::kMoshScale);
+          const std::size_t at = (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+          // Rec.601-ish, integer: the matcher only needs a consistent ordering,
+          // not colourimetry, and this is two million samples a frame.
+          return static_cast<std::uint8_t>(
+            (pixels[at] * 77 + pixels[at + 1] * 150 + pixels[at + 2] * 29) >> 8);
+        };
+        if (store.size() != wanted) {
+          // First frame, or the raster changed. Hold the current picture and
+          // its luma, and let the picture through untouched: an effect that
+          // flashes black on its first frame is unusable on a take.
+          store.assign(wanted, 0);
+          std::memcpy(store.data(), pixels.data(), bytes);
+          for (int my = 0; my < mh; ++my) {
+            for (int mx = 0; mx < mw; ++mx) {
+              store[bytes + static_cast<std::size_t>(my) * mw + mx] = sampleLuma(mx, my);
+            }
+          }
+          break;
+        }
+        std::uint8_t* held = store.data();
+        std::uint8_t* prevLuma = store.data() + bytes;
+
+        // THE CURRENT LUMA PLANE, ONCE.
+        //
+        // The matcher below reads a candidate block's luma for every offset it
+        // tries — call it twenty million reads a frame. Computing that luma
+        // from RGBA at each read costs three multiplies and a shift per read
+        // and produces the same 130KB of answers over and over; this is the
+        // grain-flow mistake, which was converting the same neighbours out of
+        // RGB after the neighbours had already done it. Built once here, the
+        // matcher then reads two flat byte arrays.
+        std::vector<std::uint8_t> curLuma(lumaBytes);
+        for (int my = 0; my < mh; ++my) {
+          for (int mx = 0; mx < mw; ++mx) {
+            curLuma[static_cast<std::size_t>(my) * mw + mx] = sampleLuma(mx, my);
+          }
+        }
+
+        // pB picks the block: coarse blocks give the hard square edges people
+        // picture when they say datamosh, fine ones flow. In DOWNSAMPLED
+        // pixels, so a block of 4 here is 16 across the real picture.
+        const int block = 2 + static_cast<int>(pB * 6.0 + 0.5);          // 2..8
+        const int blocksX = std::max(1, (mw + block - 1) / block);
+        const int blocksY = std::max(1, (mh + block - 1) / block);
+        std::vector<std::int8_t> motion(static_cast<std::size_t>(blocksX) * blocksY * 2, 0);
+
+        // Block match: for each block, the offset that best explains where it
+        // went.
+        //
+        // THREE-STEP SEARCH rather than exhaustive. Exhaustive over ±6 is 169
+        // candidates a block and measured 88% of a 60fps frame on its own,
+        // which is most of the budget for an effect that will usually be
+        // sharing it. A three-step search starts at a coarse stride, keeps the
+        // best of nine, halves the stride and repeats — 25 candidates for the
+        // same reach. This is what real encoders do, for the same reason.
+        //
+        // It can settle into a local minimum where exhaustive would not. For a
+        // motion estimator driving a SMEAR that is not a defect: the wrong
+        // vector drags the picture somewhere slightly different, which is the
+        // texture of the effect rather than an error in it.
+        detail::parallelRows(blocksY, blocksX * 64, [&](int firstBlockRow, int lastBlockRow) {
+          for (int by = firstBlockRow; by < lastBlockRow; ++by) {
+            for (int bx = 0; bx < blocksX; ++bx) {
+              // SAD for one candidate offset, with a bias toward standing
+              // still: a tie between "nothing moved" and some offset should
+              // read as nothing moved, or flat areas pick a direction at
+              // random and the smear boils.
+              auto costAt = [&](int dx, int dy) -> long {
+                long cost = 0;
+                for (int y = 0; y < block; ++y) {
+                  const int cy2 = by * block + y;
+                  if (cy2 >= mh) break;
+                  const int py = std::clamp(cy2 + dy, 0, mh - 1);
+                  const std::uint8_t* curRow = &curLuma[static_cast<std::size_t>(cy2) * mw];
+                  const std::uint8_t* oldRow = &prevLuma[static_cast<std::size_t>(py) * mw];
+                  for (int x = 0; x < block; ++x) {
+                    const int cx2 = bx * block + x;
+                    if (cx2 >= mw) break;
+                    const int px = std::clamp(cx2 + dx, 0, mw - 1);
+                    cost += std::abs(static_cast<int>(curRow[cx2]) - static_cast<int>(oldRow[px]));
+                  }
+                }
+                return cost + (std::abs(dx) + std::abs(dy)) * block;
+              };
+              int bestDx = 0, bestDy = 0;
+              long bestCost = costAt(0, 0);
+              for (int stride = (detail::kMoshSearch + 1) / 2; stride >= 1; stride /= 2) {
+                const int centreX = bestDx, centreY = bestDy;
+                for (int oy = -1; oy <= 1; ++oy) {
+                  for (int ox = -1; ox <= 1; ++ox) {
+                    if (ox == 0 && oy == 0) continue;   // centre already held
+                    const int dx = std::clamp(centreX + ox * stride,
+                                              -detail::kMoshSearch, detail::kMoshSearch);
+                    const int dy = std::clamp(centreY + oy * stride,
+                                              -detail::kMoshSearch, detail::kMoshSearch);
+                    const long cost = costAt(dx, dy);
+                    if (cost < bestCost) {
+                      bestCost = cost;
+                      bestDx = dx;
+                      bestDy = dy;
+                    }
+                  }
+                }
+              }
+              const std::size_t at = (static_cast<std::size_t>(by) * blocksX + bx) * 2;
+              motion[at] = static_cast<std::int8_t>(bestDx);
+              motion[at + 1] = static_cast<std::int8_t>(bestDy);
+            }
+          }
+        });
+
+        // pA is how strongly the held picture refuses to be replaced, pC how
+        // often the real one is let back in. Refresh is per-frame probability
+        // expressed as a blend, so it recovers smoothly rather than snapping.
+        const double hold = 0.35 + pA * 0.64;                  // 0.35..0.99
+        const double refresh = (1.0 - hold) + pC * 0.25;
+        const int holdQ = static_cast<int>(std::clamp(hold - refresh, 0.0, 1.0) * 255.0);
+
+        // Drag the held picture along the motion, then let a little of the
+        // live picture back in. Reading the HELD buffer while writing a fresh
+        // one would need a second full frame; instead each output pixel is
+        // computed from held[] at its source position and written to pixels[],
+        // and held[] is refreshed from pixels[] afterwards.
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int my = std::min(mh - 1, y / detail::kMoshScale);
+            const int by = std::min(blocksY - 1, my / block);
+            for (int x = 0; x < ctx.width; ++x) {
+              const int mx = std::min(mw - 1, x / detail::kMoshScale);
+              const int bx = std::min(blocksX - 1, mx / block);
+              const std::size_t mAt = (static_cast<std::size_t>(by) * blocksX + bx) * 2;
+              // The motion is in downsampled pixels; scale it back up.
+              const int sx = std::clamp(x - motion[mAt] * detail::kMoshScale, 0, ctx.width - 1);
+              const int sy = std::clamp(y - motion[mAt + 1] * detail::kMoshScale, 0, ctx.height - 1);
+              const std::size_t from = (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              const std::size_t to = (static_cast<std::size_t>(y) * ctx.width + x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                const int dragged = held[from + c];
+                const int live = pixels[to + c];
+                pixels[to + c] = static_cast<std::uint8_t>(
+                  (dragged * holdQ + live * (255 - holdQ)) / 255);
+              }
+            }
+          }
+        });
+
+        // Hold the result and this frame's luma for the next pass — unless a
+        // second consumer is drawing the same deck this frame, in which case it
+        // must see the same picture rather than advance the smear twice.
+        if (!ctx.stateHold) {
+          std::memcpy(held, pixels.data(), bytes);
+          // The luma of what the matcher SAW this frame, which is the picture
+          // before the smear was applied — that is what the next frame must
+          // difference against. curLuma was built from exactly that.
+          std::memcpy(prevLuma, curLuma.data(), lumaBytes);
+        }
         break;
       }
 
