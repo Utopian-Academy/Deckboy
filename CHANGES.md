@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-09 - v0.99.333 (bug fixes: display locking, timer, hover tips, pocket mode)
+## 2026-09-09 - v0.99.333 (bug fixes: display locking, capture cards, timer, hover tips, pocket mode)
 
 **The output window locks to the correct display on macOS.** When an output
 window was shown and put to fullscreen in the same event-loop tick, macOS had
@@ -8,6 +8,15 @@ not committed the window to the target display yet — so fullscreen landed on t
 control monitor instead, covering it and trapping keyboard focus there. The
 fullscreen step is now deferred by one tick, giving the compositor time to
 assign the window to the right screen first.
+
+**Capture cards work on macOS.** A camera or capture cue pinned itself to
+1280x720 in nv12 — a mode the built-in camera lists and a capture card does not.
+A Blackmagic or an ATEM Mini enumerates at whatever its input signal happens to
+be, usually 1920x1080, so the request was rejected outright and the cue opened
+to nothing. Only the frame rate is pinned now, to the 15 and 30 the hardware
+actually offers, which is what avoids the 29.97 refusal; the resolution and
+pixel format are left to the device, and the scale filter takes the picture to
+whatever size the cue reads.
 
 **Timer durations above five minutes are now reachable.** The duration +/−
 arrows were moving in 30-second steps, so setting a 30-minute timer took
