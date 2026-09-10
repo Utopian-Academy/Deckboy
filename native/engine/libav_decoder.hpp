@@ -172,21 +172,26 @@ class AudioPipeline {
 // The ID3D11Device* backing an SDL renderer (SDL_PROP_RENDERER_D3D11_DEVICE_POINTER).
 void* rendererD3D11Device(SDL_Renderer* renderer);
 
-// Create a persistent NV12 ID3D11Texture2D on the renderer's device and wrap
-// it as an SDL_Texture (SDL_CreateTextureWithProperties). *outTexture2D
+// Create a persistent NV12 or P010 ID3D11Texture2D on the renderer's device
+// and wrap it as an SDL_Texture (SDL_CreateTextureWithProperties). The format
+// must MATCH the decoded surface being copied in — a P010 surface copied into
+// an NV12 wrap renders a wrong picture rather than failing. *outTexture2D
 // receives the raw texture, released with releaseD3D11Texture AFTER the
 // SDL_Texture is destroyed. Dimensions are rounded down to even.
-SDL_Texture* createWrappedNV12Texture(SDL_Renderer* renderer, int w, int h,
-                                      void** outTexture2D);
+SDL_Texture* createWrappedVideoTexture(SDL_Renderer* renderer, int w, int h,
+                                       FramePixelFormat format,
+                                       void** outTexture2D);
 void releaseD3D11Texture(void* texture2D);
 
 // GPU→GPU copy of a zero-copy frame's texture-array slice into a texture
-// created by createWrappedNV12Texture on the SAME device.
+// created by createWrappedVideoTexture on the SAME device.
 bool copyGpuFrameToTexture(const DecodedFrame& frame, void* dstTexture2D);
 
 // CPU download of a zero-copy frame (av_hwframe_transfer_data) into a packed
 // NV12 DecodedFrame — the fallback for consumers on a different device
-// (secondary outputs) and the throttled control-window preview.
+// (secondary outputs) and the throttled control-window preview. A 10-bit P010
+// surface is narrowed to 8-bit NV12 here, because that is what those CPU
+// consumers can read; the full-depth picture stays on the zero-copy path.
 bool downloadGpuFrameNV12(const DecodedFrame& frame, DecodedFrame& out);
 
 } // namespace deckboy::libav

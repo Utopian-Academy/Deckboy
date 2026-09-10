@@ -2484,8 +2484,8 @@
             if (gpuBridge) SDL_DestroyTexture(gpuBridge);
             deckboy::libav::releaseD3D11Texture(gpuBridgeTex2D);
             gpuBridgeTex2D = nullptr;
-            gpuBridge = deckboy::libav::createWrappedNV12Texture(
-              renderer, frame->width, frame->height, &gpuBridgeTex2D);
+            gpuBridge = deckboy::libav::createWrappedVideoTexture(
+              renderer, frame->width, frame->height, frame->format, &gpuBridgeTex2D);
             gpuBridgeW = frame->width;
             gpuBridgeH = frame->height;
           }

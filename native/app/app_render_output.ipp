@@ -205,14 +205,17 @@
   }
 
 #if DECKBOY_INPROC_DECODE
-  // Get-or-create the per-deck zero-copy bridge: a persistent NV12
+  // Get-or-create the per-deck zero-copy bridge: a persistent NV12 or P010
   // ID3D11Texture2D on this output renderer's device, wrapped once as an
   // SDL_Texture. Decoded d3d11va texture-array slices are GPU-copied into it
-  // each frame advance — no CPU download, no re-upload.
+  // each frame advance — no CPU download, no re-upload. `format` is the
+  // decoded surface's layout and must be carried through: taking a 10-bit cue
+  // after an 8-bit one has to rebuild the wrap, exactly as a size change does.
   SDL_Texture* ensureLayerGpuTexture(OutputRuntime& outputRuntime,
                                      int sourceDeckIndex,
                                      int width,
-                                     int height) {
+                                     int height,
+                                     FramePixelFormat format) {
     width &= ~1;
     height &= ~1;
     if (width <= 0 || height <= 0) {
@@ -221,8 +224,11 @@
     auto texIt = outputRuntime.layerGpuTextures.find(sourceDeckIndex);
     if (texIt != outputRuntime.layerGpuTextures.end()) {
       auto sizeIt = outputRuntime.layerGpuTextureSizes.find(sourceDeckIndex);
+      auto fmtIt = outputRuntime.layerGpuTextureFormats.find(sourceDeckIndex);
       if (sizeIt != outputRuntime.layerGpuTextureSizes.end() &&
-          sizeIt->second == std::make_pair(width, height)) {
+          sizeIt->second == std::make_pair(width, height) &&
+          fmtIt != outputRuntime.layerGpuTextureFormats.end() &&
+          fmtIt->second == format) {
         return texIt->second;
       }
       if (texIt->second) {
@@ -235,17 +241,19 @@
       }
       outputRuntime.layerGpuTextures.erase(texIt);
       outputRuntime.layerGpuTextureSizes.erase(sourceDeckIndex);
+      outputRuntime.layerGpuTextureFormats.erase(sourceDeckIndex);
       outputRuntime.layerGpuFrameIndices.erase(sourceDeckIndex);
     }
     void* texture2D = nullptr;
-    SDL_Texture* wrapped = deckboy::libav::createWrappedNV12Texture(
-      outputRuntime.outputRenderer, width, height, &texture2D);
+    SDL_Texture* wrapped = deckboy::libav::createWrappedVideoTexture(
+      outputRuntime.outputRenderer, width, height, format, &texture2D);
     if (!wrapped) {
       return nullptr;
     }
     outputRuntime.layerGpuTextures[sourceDeckIndex] = wrapped;
     outputRuntime.layerGpuTexture2Ds[sourceDeckIndex] = texture2D;
     outputRuntime.layerGpuTextureSizes[sourceDeckIndex] = {width, height};
+    outputRuntime.layerGpuTextureFormats[sourceDeckIndex] = format;
     outputRuntime.layerGpuFrameIndices.erase(sourceDeckIndex);
     return wrapped;
   }
@@ -622,7 +630,8 @@
         // Zero-copy: GPU-copy the decoded slice into this output's wrapped
         // NV12 texture on frame advance, then composite it like any texture.
         SDL_Texture* gpuTexture = ensureLayerGpuTexture(
-          *outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height);
+          *outputRuntime, sourceDeckIndex, sourceFrame->width, sourceFrame->height,
+          sourceFrame->format);
         if (gpuTexture) {
           auto gpuFrameIt = outputRuntime->layerGpuFrameIndices.find(sourceDeckIndex);
           if (gpuFrameIt == outputRuntime->layerGpuFrameIndices.end() ||

@@ -1875,6 +1875,11 @@ struct OutputRuntime {
   std::map<int, SDL_Texture*> layerGpuTextures;      // wrapped SDL textures
   std::map<int, void*> layerGpuTexture2Ds;           // backing ID3D11Texture2D*
   std::map<int, std::pair<int, int>> layerGpuTextureSizes;
+  // The wrap's layout must match the decoded surface, so a cue change from
+  // 8-bit to 10-bit content (NV12 → P010) has to rebuild the texture just as a
+  // size change does. Keyed here rather than folded into the size pair so the
+  // reason a rebuild happened stays readable.
+  std::map<int, FramePixelFormat> layerGpuTextureFormats;
   std::map<int, std::uint64_t> layerGpuFrameIndices;
   DecodedFrame gpuDownloadScratch;                   // device-mismatch fallback
   int gpuDownloadScratchDeck = -1;                   // deck the scratch holds

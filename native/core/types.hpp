@@ -1300,6 +1300,13 @@ struct Project {
 enum class FramePixelFormat {
   RGBA32,  // default, 32 bpp interleaved — works with all CPU pixel paths
   NV12,    // 12 bpp planar Y + interleaved UV — live video decode only
+  P010,    // 10-bit planar Y + interleaved UV, 16 bpp samples with the data in
+           // the HIGH bits. GPU-ONLY: this is what a d3d11va surface carries
+           // for HEVC Main 10 / VP9 Profile 2 / AV1 10-bit, and it exists in
+           // Deckboy solely as a zero-copy frame. Nothing ever produces P010
+           // CPU pixels — downloadGpuFrame() converts to NV12 on the way down
+           // — so every `pixels.data()` upload site can keep testing for NV12
+           // alone and stay correct.
 };
 
 // ---------------------------------------------------------------------------
@@ -1349,6 +1356,16 @@ inline std::size_t frameBufferSize(FramePixelFormat format, int width, int heigh
       std::size_t uv = y / 2u;
       return y + uv;
     }
+    case FramePixelFormat::P010: {
+      // NV12's layout at 16 bits a sample: 2 bytes per luma sample, and a
+      // half-resolution chroma plane carrying two 2-byte components per pair.
+      // Nothing allocates this today (P010 lives only as a GPU surface) but an
+      // enum case that falls through to 0 is a buffer waiting to be undersized.
+      int w = width & ~1;
+      int h = height & ~1;
+      std::size_t y = static_cast<std::size_t>(w) * static_cast<std::size_t>(h);
+      return y * 3u;
+    }
   }
   return 0;
 }
@@ -1359,6 +1376,7 @@ inline Uint32 sdlPixelFormat(FramePixelFormat format) {
   switch (format) {
     case FramePixelFormat::RGBA32: return SDL_PIXELFORMAT_RGBA32;
     case FramePixelFormat::NV12:   return SDL_PIXELFORMAT_NV12;
+    case FramePixelFormat::P010:   return SDL_PIXELFORMAT_P010;
   }
   return SDL_PIXELFORMAT_RGBA32;
 }

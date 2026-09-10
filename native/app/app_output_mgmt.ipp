@@ -4220,6 +4220,7 @@
     }
     runtime.layerGpuTexture2Ds.clear();
     runtime.layerGpuTextureSizes.clear();
+    runtime.layerGpuTextureFormats.clear();
     runtime.layerGpuFrameIndices.clear();
     runtime.gpuDownloadScratch = DecodedFrame{};
     if (runtime.rendererD3DDevice) {
@@ -4344,7 +4345,8 @@
         continue;
       }
       const DecodedFrame* frame = engine->currentFrame();
-      if (frame && frame->format != FramePixelFormat::NV12) {
+      if (frame && frame->format != FramePixelFormat::NV12 &&
+          frame->format != FramePixelFormat::P010) {
         continue;  // RGBA effects path — device is irrelevant
       }
       engine->refreshActiveCueRuntime();
