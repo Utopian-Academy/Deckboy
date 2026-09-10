@@ -749,9 +749,20 @@ jobs:
           done
           echo "all seven artefacts present"
 
-      # The notes are the changelog's own section for this version, so the
-      # release page and CHANGES.md cannot disagree.
-      - name: Extract the release notes
+      # A CHANGELOG ENTRY IS NOT A RELEASE PAGE.
+      #
+      # This step used to paste the changelog section into the release body and
+      # stop, which is why the pages read as fragments: no heading, no downloads,
+      # nothing telling a first-time visitor which of seven files to click or
+      # what to do about the unsigned-build warning. VLC keeps the two separate
+      # for exactly this reason -- NEWS is a terse engineering changelog, the
+      # release announcement is a product page -- and Deckboy had one file doing
+      # both jobs and therefore neither.
+      #
+      # The changelog section stays the source of WHAT CHANGED, so the release
+      # page and CHANGES.md still cannot disagree. Everything around it is built
+      # here from the artefacts that actually got published.
+      - name: Build the release page
         run: |
           python3 - <<'PY'
           import io, os, re
@@ -762,9 +773,57 @@ jobs:
               raise SystemExit("no CHANGES.md section for v%s" % version)
           rest = text[start.end():]
           nxt = re.search(r"^## \d{4}-", rest, re.M)
-          body = rest[: nxt.start()] if nxt else rest
-          io.open("release-notes.md", "w", encoding="utf-8").write(body.strip() + "\n")
-          print("release notes: %d characters" % len(body))
+          body = (rest[: nxt.start()] if nxt else rest).strip()
+
+          # Name the files from what is actually in release/, so a renamed or
+          # missing artefact shows up as a gap in the table rather than as a
+          # dead link. The artefact check above has already refused to publish
+          # if any of the seven are absent.
+          have = sorted(os.listdir("release"))
+          def find(*fragments):
+              for name in have:
+                  if all(f in name for f in fragments):
+                      return "`%s`" % name
+              return "—"
+
+          rows = [
+              ("**Windows**",              find("windows-x64-setup.exe"), find("windows-x64.zip")),
+              ("**macOS** (Apple Silicon)", find("macos-arm64.dmg"),       find("macos-arm64.zip")),
+              ("**macOS** (Intel)",         find("macos-x86_64.dmg"),      find("macos-x86_64.zip")),
+              ("**Linux** (x86_64)",        find(".AppImage"),             find("linux-x86_64.tar.gz")),
+          ]
+
+          page = []
+          page.append(body)
+          page.append("")
+          page.append("## Downloads")
+          page.append("")
+          page.append("| Platform | Installer | Portable |")
+          page.append("|---|---|---|")
+          for row in rows:
+              page.append("| %s | %s | %s |" % row)
+          page.append("")
+          page.append("Every build carries what it needs — the binary, ffmpeg and "
+                      "its runtime libraries. Nothing else to install.")
+          page.append("")
+          page.append("### First run")
+          page.append("")
+          page.append("Deckboy is free software and is not code-signed, so the OS "
+                      "does not recognise the publisher. One time only:")
+          page.append("")
+          page.append("- **macOS** — if it says the app is damaged: "
+                      "`xattr -dr com.apple.quarantine /Applications/Deckboy.app`")
+          page.append("- **Windows** — SmartScreen may appear: **More info → Run anyway**")
+          page.append("")
+          page.append("---")
+          page.append("")
+          page.append("Full history: [CHANGES.md](https://github.com/%s/blob/main/CHANGES.md)"
+                      % os.environ.get("GITHUB_REPOSITORY", "Utopian-Academy/Deckboy"))
+
+          out = "\n".join(page).rstrip() + "\n"
+          io.open("release-notes.md", "w", encoding="utf-8").write(out)
+          print("release page: %d characters, %d artefacts listed"
+                % (len(out), sum(1 for r in rows for c in r[1:] if c != "—")))
           PY
         env:
           VERSION: ${{ needs.version-check.outputs.version }}
