@@ -209,6 +209,28 @@ inline int deckboyGetWindowDisplayIndex(SDL_Window* window) {
   return deckboyDisplayIndexFromId(SDL_GetDisplayForWindow(window));
 }
 
+// ── The shortcut modifier: Command on macOS, Control everywhere else ───────
+// Every shortcut read SDL_KMOD_CTRL directly, which is right on Windows and
+// Linux and wrong on macOS, where the platform modifier is Command. Cmd+S,
+// Cmd+O, Cmd+Z and Cmd-click did nothing at all on a Mac. The one place that
+// DID accept Command -- the inline text editor -- accepted it unconditionally,
+// so on Windows the Windows key copied and pasted.
+//
+// macOS keeps Control working alongside Command, so nothing an operator has in
+// their fingers stops working and every documented Ctrl+<key> still applies.
+//
+// This is for SHORTCUTS only. A guard asking "is any modifier held, so this
+// keypress is not text" must keep testing the modifiers it cares about
+// directly: folding Command into one of those would be this same bug pointing
+// the other way.
+inline bool deckboyShortcutHeld(Uint16 mod) {
+#ifdef __APPLE__
+  return (mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
+#else
+  return (mod & SDL_KMOD_CTRL) != 0;
+#endif
+}
+
 // SDL2-style out-parameter desktop-mode query (SDL3 returns a pointer).
 inline bool deckboyGetDesktopDisplayMode(int index, SDL_DisplayMode* out) {
   const SDL_DisplayMode* mode = SDL_GetDesktopDisplayMode(deckboyDisplayIdFromIndex(index));

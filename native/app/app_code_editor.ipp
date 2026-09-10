@@ -332,7 +332,7 @@ static const std::vector<CodeExample>& codeExamples() {
         codeEditor_.caret = len;
         return true;
       case SDLK_BACKSPACE:
-        if ((mod & SDL_KMOD_CTRL) != 0) {
+        if (deckboyShortcutHeld(mod)) {
           codeEditor_.text.erase(0, codeEditor_.caret);
           codeEditor_.caret = 0;
         } else if (codeEditor_.caret > 0) {

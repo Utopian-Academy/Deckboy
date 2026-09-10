@@ -498,7 +498,7 @@
         SDL_Rect row {primaryClip.x, listY, primaryClip.w, kRowHeight};
         if (pointInRect(x, y, row)) {
           bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
+          bool ctrlHeld = deckboyShortcutHeld(SDL_GetModState());
           selectCueInDeck(deckIndex, cueIndex, shiftHeld, ctrlHeld);
           drag_.active = true;
           drag_.deckIndex = deckIndex;
@@ -996,7 +996,7 @@
   }
 
   void handleKeyDown(SDL_Keycode key, Uint16 mod, Uint32 sourceWindowId = 0, bool keyRepeat = false) {
-    bool ctrl = (mod & SDL_KMOD_CTRL) != 0;
+    bool ctrl = deckboyShortcutHeld(mod);
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
 
     if (showSplashOverlay_) {
@@ -1111,7 +1111,9 @@
     }
 
     if (settingsOpen_) {
-      if (key == SDLK_ESCAPE) {
+      // Ctrl+, (Cmd+, on macOS) closes as well as opens, the way every other
+      // application's preferences shortcut does. Escape still closes too.
+      if (key == SDLK_ESCAPE || (ctrl && key == SDLK_COMMA)) {
         settingsOpen_ = false;
         uiWatchdogPopupEvent("settings_modal", false);
       }
@@ -1177,6 +1179,15 @@
     // Ctrl+/ — keyboard shortcuts overlay
     if (ctrl && key == SDLK_SLASH) {
       shortcutsOverlayOpen_ = !shortcutsOverlayOpen_;
+      return;
+    }
+    // Ctrl+, / Cmd+, — preferences, which is where every other application
+    // puts them. Bare comma is the previous-cue transport key, so the two do
+    // not collide. Opens on SYSTEM, the same tab the SETTINGS button uses.
+    if (ctrl && key == SDLK_COMMA) {
+      settingsOpen_ = true;
+      settingsTab_ = 0;
+      uiWatchdogPopupEvent("settings_modal", true);
       return;
     }
     // Ctrl+Shift+Space — stop all decks (must be checked before Ctrl+Space)

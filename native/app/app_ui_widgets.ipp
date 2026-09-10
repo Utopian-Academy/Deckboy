@@ -1006,7 +1006,7 @@
     if (!inlineEditor_.open) {
       return false;
     }
-    const bool ctrl = (mod & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
+    const bool ctrl = deckboyShortcutHeld(mod);
     std::string& value = inlineEditor_.value;
     inlineEditor_.caret = std::min(inlineEditor_.caret, value.size());
 

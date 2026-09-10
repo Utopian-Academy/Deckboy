@@ -2342,7 +2342,7 @@
     if ((mod & SDL_KMOD_ALT) != 0) {
       stepSeconds = 1.0;
       stepLabel = "1s";
-    } else if ((mod & SDL_KMOD_CTRL) != 0) {
+    } else if (deckboyShortcutHeld(mod)) {
       stepSeconds = 10.0 / fps;
       stepLabel = "10f";
     } else if ((mod & SDL_KMOD_SHIFT) != 0) {
