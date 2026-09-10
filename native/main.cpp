@@ -3121,7 +3121,11 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     "-v",
     "error",
     "-show_entries",
-    "format=duration,format_name,size:stream=codec_type,codec_name,width,height,r_frame_rate,channels,sample_rate",
+    // nb_frames is here for one reason: telling an animated GIF from a still
+    // one. Duration cannot do it -- a two-frame GIF runs for under a tenth of
+    // a second, which is indistinguishable from the 0.04 a single frame
+    // reports -- and the difference decides whether the cue moves or freezes.
+    "format=duration,format_name,size:stream=codec_type,codec_name,width,height,r_frame_rate,channels,sample_rate,nb_frames",
     "-of",
     "default=noprint_wrappers=1",
     mediaPath.string()
@@ -3144,6 +3148,10 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
   std::string lastCodecType;
   std::string pendingCodecName;
   bool pendingApplied = false;
+  // Frames in the video stream, for the animated-GIF test below. A local
+  // rather than a Cue field: nothing else wants it, and a field nothing reads
+  // is the shape of problem the reachability audit exists to catch.
+  long videoStreamFrames = 0;
   auto tryApplyCodec = [&]() {
     if (pendingCodecName.empty() || lastCodecType.empty() || pendingApplied) return;
     pendingApplied = true;
@@ -3201,6 +3209,11 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
       cue.audioChannels = std::max(0, std::atoi(value.c_str()));
     } else if (key == "sample_rate" && lastCodecType == "audio") {
       cue.audioSampleRate = std::max(0, std::atoi(value.c_str()));
+    } else if (key == "nb_frames" && lastCodecType == "video") {
+      // "N/A" for anything the demuxer cannot count without decoding, which is
+      // most formats. A GIF is one of the few that reports honestly, and it is
+      // the only one this is asked about.
+      videoStreamFrames = std::strtol(value.c_str(), nullptr, 10);
     } else if (key == "duration" && (cue.kind == CueKind::Video || cue.duration == 0.0)) {
       double d = std::atof(value.c_str());
       if (d > 0.0) cue.duration = d;
@@ -3238,6 +3251,23 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     // Audio cues don't have video dimensions — give them nominal size
     if (cue.width <= 0) cue.width = 1;
     if (cue.height <= 0) cue.height = 1;
+  }
+  // AN ANIMATED GIF IS A MOVING PICTURE.
+  //
+  // .gif sits in the image extensions, which is right for the still ones and
+  // wrong for the rest: an animated GIF came in as an Image cue, which decodes
+  // exactly one frame, so it went to air as a frozen first frame with nothing
+  // said. Slide decks arrive full of them.
+  //
+  // Decided by what the FILE contains rather than by its extension, which is
+  // the same correction the audio-only branch above makes: a GIF reporting
+  // more than one frame is a video cue, and ffmpeg decodes it as one. A
+  // single-frame GIF stays a still, so nothing that already worked changes.
+  if (cue.kind == CueKind::Image && cue.videoCodec == "gif" && videoStreamFrames > 1) {
+    cue.kind = CueKind::Video;
+    if (cue.fps <= 0.0) {
+      cue.fps = 30.0;
+    }
   }
   if (cue.width <= 0 || cue.height <= 0) {
     return std::nullopt;
