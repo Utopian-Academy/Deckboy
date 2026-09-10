@@ -14,6 +14,11 @@ data/*.deckboy
 data/project.json
 data/posters/
 data/last_project.txt
+# The splash's recent-shows list (v0.99.331). Same reasoning as last_project:
+# it holds absolute paths to whatever shows this machine has opened, so it is
+# as private as the shows are, and it is per-machine state rather than an
+# asset. It appeared untracked and would otherwise have been committed.
+data/recent_projects.txt
 
 # Local screenshots
 /Deckboy Screenshots/

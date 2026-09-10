@@ -112,7 +112,10 @@ if [ -d "$REPO_ROOT/data" ]; then
   # last_project.txt holds the packager's own absolute paths, and
   # default.deckboy is gitignored scratch state (a release once shipped the
   # packager's webcam cue).
-  for stale in last_project.txt default.deckboy deckboy-crash.log deckboy-soak.log; do
+  # recent_projects.txt (v0.99.331) is the splash's recent-shows list: one
+  # absolute path per show opened on this machine. Same class as the rest.
+  for stale in last_project.txt recent_projects.txt default.deckboy \
+               deckboy-crash.log deckboy-soak.log; do
     if [ -e "$STAGE_DIR/data/$stale" ]; then
       rm -f "$STAGE_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"

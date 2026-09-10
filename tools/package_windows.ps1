@@ -160,7 +160,17 @@ if (Test-Path $DataSrc) {
     # was a CAMERA cue naming a specific webcam model — releases were carrying
     # the packager's hardware inventory, and a fresh install's first TAKE would
     # open a webcam. Both files are per-machine state; neither ships.
-    foreach ($StaleName in @("last_project.txt", "default.deckboy")) {
+    #
+    # recent_projects.txt (v0.99.331) is the same thing again, one file later:
+    # the splash's recent-shows list, holding an absolute path per show this
+    # machine has opened. It was added without being taught to any of the three
+    # packagers, so it would have shipped the packager's show library.
+    #
+    # The three packagers had also drifted apart — Linux stripped the crash and
+    # soak logs and these two did not. One list, kept the same in all three.
+    foreach ($StaleName in @("last_project.txt", "recent_projects.txt",
+                             "default.deckboy",
+                             "deckboy-crash.log", "deckboy-soak.log")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Force

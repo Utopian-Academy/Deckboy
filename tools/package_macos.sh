@@ -144,7 +144,11 @@ if [ -d "$REPO_ROOT/data" ]; then
   # Same per-machine state the Windows packager strips: last_project.txt holds
   # the packager's own absolute paths, and default.deckboy is gitignored scratch
   # state (a release once shipped the packager's webcam cue). Neither ships.
-  for stale in last_project.txt default.deckboy; do
+  # recent_projects.txt (v0.99.331) is the same class again: the splash's
+  # recent-shows list, one absolute path per show opened on this machine. Kept
+  # identical to the Windows and Linux lists, which had drifted apart.
+  for stale in last_project.txt recent_projects.txt default.deckboy \
+               deckboy-crash.log deckboy-soak.log; do
     if [ -e "$RESOURCES_DIR/data/$stale" ]; then
       rm -f "$RESOURCES_DIR/data/$stale"
       echo "  - stripped data/$stale (build-machine state)"
