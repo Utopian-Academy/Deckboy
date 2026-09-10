@@ -558,12 +558,19 @@
       // than guessed: a card whose height does not match what it draws is how
       // the APPEARANCE card ended up a row short once.
       int updateH = sCardHeaderH + sRowH * 2 + sLineH + sGap * 2 + sPad;
+      // RECORDING: one line naming the destination, one row of two buttons.
+      // The destination has always been settable, but only from Video Outputs
+      // — nobody looks for "where do my recordings go" under the tab about
+      // display routing. It is mirrored here rather than moved, so the control
+      // sits beside the RECORD button's own tab AND where people look first.
+      int recordH = sCardHeaderH + sLineH + sRowH + sGap * 2 + sPad;
 
       // At large UI scales the cards are genuinely taller than the window can
       // show, so the tab scrolls rather than silently cropping the bottom card.
       // At 1x nothing overflows and the scroll is inert.
       int leftNeeded = appearanceH + kCardGap + safetyH + kCardGap + flowH;
-      int rightNeeded = cueToolsH + kCardGap + prefsH + kCardGap + updateH;
+      int rightNeeded = cueToolsH + kCardGap + prefsH + kCardGap + updateH +
+                        kCardGap + recordH;
       // MEASURED, not predicted. These heights are hand-computed constants
       // that must match the controls laid out under them, and when one of
       // them was too small the control that fell outside its card could not be
@@ -608,9 +615,11 @@
       rightY += cueToolsRect.h + kCardGap;
       SDL_Rect prefsRect {rightCol.x, rightY, rightCol.w, prefsH};
       rightY += prefsRect.h + kCardGap;
-      SDL_Rect updateRect {rightCol.x, rightY, rightCol.w,
-                           systemScrolls ? updateH
-                                         : std::max(updateH, rightCol.y + rightCol.h - rightY)};
+      SDL_Rect updateRect {rightCol.x, rightY, rightCol.w, updateH};
+      rightY += updateRect.h + kCardGap;
+      SDL_Rect recordRect {rightCol.x, rightY, rightCol.w,
+                           systemScrolls ? recordH
+                                         : std::max(recordH, rightCol.y + rightCol.h - rightY)};
 
       drawCard(appearanceRect, "APPEARANCE", "Theme and operator feedback");
       std::string themeName = currentThemeName_.empty() ? "gameboy" : currentThemeName_;
@@ -935,6 +944,34 @@
                      ? std::string("running ") + deckboy::core::version::kVersionTag
                      : updateLine,
                    pal.inkSoft);
+
+      // RECORDING. The same destination control the Video Outputs tab carries,
+      // mirrored where an operator actually goes looking for it. Both drive
+      // project_.recordingDir through the same two actions, so there is one
+      // setting with two doors rather than two settings to disagree.
+      drawCard(recordRect, "RECORDING", "Where RECORD writes the programme");
+      const int recX = cardBodyX(recordRect);
+      const int recW = cardBodyW(recordRect);
+      int recY = cardBodyY(recordRect);
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect{recX, recY, recW, sLineH},
+                   ellipsizeToPixelWidth(fontSmall_, recordingDirLabel(), recW),
+                   pal.inkSoft);
+      recY += sLineH + sGap;
+      const int recHalf = (recW - sGap) / 2;
+      SDL_Rect recPick {recX, recY, recHalf, sRowH};
+      SDL_Rect recClear {recX + recHalf + sGap, recY, recW - recHalf - sGap, sRowH};
+      // drawActionBtn is local to the Video Outputs tab, so this uses the same
+      // framed-panel idiom the UPDATES buttons above it do. A set destination
+      // lights the FOLDER button, the way an armed control reads elsewhere.
+      Primitives::drawFramedPanel(controlRenderer_, recPick,
+                                  project_.recordingDir.empty() ? pal.mid : pal.light,
+                                  pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "FOLDER...", ink, recPick);
+      settingsBtns_.push_back({recPick, kSettingsActionRecordDirPick, "record_dir_pick"});
+      Primitives::drawFramedPanel(controlRenderer_, recClear, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_, "DEFAULT", ink, recClear);
+      settingsBtns_.push_back({recClear, kSettingsActionRecordDirClear, "record_dir_clear"});
 
       SDL_SetRenderClipRect(controlRenderer_, hadSettingsClip ? &previousSettingsClip : nullptr);
       // Scrolled-away controls are painted outside the viewport by the clip, so
@@ -4406,7 +4443,7 @@
         } else {
           int currentLayer = 0; // Single-deck: always layer 0
           bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
+          bool ctrlHeld = deckboyShortcutHeld(SDL_GetModState());
           int step = ctrlHeld ? 10 : 1;
           int delta = (sb.action == kSettingsActionRoutingLayerDec) ? -step : step;
           if (shiftHeld) {
@@ -4445,7 +4482,7 @@
           setFocusedOutputIndex(outputIndex);
           auto assignmentIndex = assignmentIndexForDeckOutput(deckIndex, outputIndex);
           bool shiftHeld = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
-          bool ctrlHeld = (SDL_GetModState() & SDL_KMOD_CTRL) != 0;
+          bool ctrlHeld = deckboyShortcutHeld(SDL_GetModState());
           if (routingMoveMode_) {
             if (assignmentIndex) {
               int currentLayer = 0; // Single-deck: always layer 0
