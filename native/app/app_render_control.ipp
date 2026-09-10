@@ -1553,7 +1553,7 @@
           // No art for this kind: the kind's own word, which still beats a
           // blank box.
           drawCenteredTextSafe(controlRenderer_, fontSmall_, thumbBox,
-                               toUpper(cueKindLabel(cue.kind)), pal.light);
+                               toUpper(cueDisplayKindLabel(cue)), pal.light);
         }
       }
       Primitives::strokeRect(controlRenderer_, thumbBox, pal.deep);
@@ -1630,7 +1630,7 @@
       dc.pathEmpty = cue.path.empty();
       // Recompute cached strings
       dc.token = cueDisplayToken(cue, index);
-      dc.kindUpper = toUpper(cueKindLabel(cue.kind));
+      dc.kindUpper = toUpper(cueDisplayKindLabel(cue));
       dc.ellipsizedName = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
       if (isProbing) {
         dc.meta = "probing...";
@@ -1852,7 +1852,7 @@
 
     // Hover tooltip logic preserved...
     if (!toggleHover && pointInRect(mouseX_, mouseY_, row)) {
-      std::string rowTip = cue.name + "  |  " + cueKindLabel(cue.kind);
+      std::string rowTip = cue.name + "  |  " + cueDisplayKindLabel(cue);
       drawHoverTip(rowTip, row.x + row.w / 2, row.y);
     }
   }

@@ -25,6 +25,29 @@
 #include <string>
 #include "types.hpp"
 #include "utils.hpp"
+#include "pattern_helpers.hpp"   // normalizePatternTypeId / stripPatternMotionSuffix
+
+// What this cue calls itself in the UI.
+//
+// cueKindLabel answers from the KIND alone, which is right for every cue but
+// one. The live-coded source is stored as a Pattern carrying "pattern://code",
+// because that is genuinely how it renders — a procedural picture rebuilt at
+// the output raster — and keeping that storage is what lets every show already
+// written keep loading. But it is not a test pattern and calling it one in the
+// playlist is wrong: a pattern is a diagnostic reference, and this is a source
+// the operator writes. The SOURCE menu already offers it as one; this makes the
+// cue row, the tooltip and the inspector agree with the menu.
+//
+// Kept next to the other cue predicates rather than inside cueKindLabel so the
+// kind→label mapping stays a pure switch that the compiler can still check for
+// a missed CueKind.
+inline std::string cueDisplayKindLabel(const Cue& cue) {
+  if (cue.kind == CueKind::Pattern &&
+      stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "code") {
+    return "Code Source";
+  }
+  return deckboy::core::utils::cueKindLabel(cue.kind);
+}
 
 // Is this a live source capture cue kind? (WindowSource, Camera, Syphon)
 // These cue kinds use the capture backend (platform/capture_backend.*) rather
