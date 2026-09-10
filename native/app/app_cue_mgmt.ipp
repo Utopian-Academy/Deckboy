@@ -3479,6 +3479,18 @@
     slideRenderTotal_.store(0, std::memory_order_relaxed);
 
     std::thread([this, document, pagesDir, title, needsConversion]() {
+      // NOTHING MAY LEAVE THIS THREAD BY EXCEPTION.
+      //
+      // A std::thread whose function throws calls std::terminate: no crash
+      // handler, no message, no log, the app simply gone. Dropping a PDF did
+      // exactly that, because the rasteriser could throw before its own try
+      // block. That is fixed at the source, but the guarantee belongs here as
+      // well -- this thread runs a document converter and a system PDF engine,
+      // and neither is ours to promise for.
+      //
+      // The catch reports through the same queue the success path uses, so a
+      // failure reaches the operator as a message instead of as silence.
+      try {
       // The conversion lands beside the pages, under the state dir. It is kept
       // rather than deleted: re-importing the same deck is common, and the PDF
       // is the expensive half.
@@ -3536,6 +3548,22 @@
                      kToastFill, kToastInk,
                      via.empty() ? 1800u : kToastReadableMs);
       });
+      } catch (const std::exception& e) {
+        const std::string what = e.what();
+        std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+        sdlDialogActions_.emplace_back([this, title, what]() {
+          slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+          triggerToast(title + ": " + what, kToastWarnFill, kToastWarnInk,
+                       kToastReadableMs);
+        });
+      } catch (...) {
+        std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+        sdlDialogActions_.emplace_back([this, title]() {
+          slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+          triggerToast(title + ": slide import failed", kToastWarnFill,
+                       kToastWarnInk, kToastReadableMs);
+        });
+      }
     }).detach();
   }
 

@@ -477,10 +477,35 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     result.error = "could not create " + outputDir.string();
     return result;
   }
-  // This runs on a worker thread, so it needs its own apartment. Multi-threaded
-  // rather than single: there is no message pump out here to service an STA.
-  winrt::init_apartment(winrt::apartment_type::multi_threaded);
   try {
+    // This runs on a worker thread, so it needs its own apartment.
+    // Multi-threaded rather than single: there is no message pump out here to
+    // service an STA.
+    //
+    // INSIDE the try, which it was not. init_apartment throws on failure --
+    // RPC_E_CHANGED_MODE when the thread already has an apartment of the other
+    // kind, and it is not the only way it can fail -- and from outside the try
+    // that throw escaped rasterisePdf, escaped the caller's lambda, and left a
+    // std::thread by exception. An exception leaving a thread function calls
+    // std::terminate, so the whole app died. That is what "I could not drop a
+    // PDF in" was: not a refusal, a crash, with nothing said and nothing
+    // written.
+    winrt::init_apartment(winrt::apartment_type::multi_threaded);
+    // AND LEAVE IT AGAIN ON THE WAY OUT.
+    //
+    // init_apartment was never paired with uninit_apartment, so every slide
+    // render left an initialised COM apartment behind on a worker thread that
+    // then exited. The import itself is unaffected -- pages render, cues
+    // appear, the app runs on quite happily -- and then the process faults on
+    // shutdown, tearing down an apartment whose thread is long gone. It landed
+    // late enough that the crash handler could open its log and not write to
+    // it: a zero-byte deckboy-crash.log and an app that vanished.
+    //
+    // A guard rather than a plain call at the end, because every failure path
+    // below returns early and each one has to leave the apartment too.
+    struct ApartmentGuard {
+      ~ApartmentGuard() { winrt::uninit_apartment(); }
+    } apartmentGuard;
     // ABSOLUTE AND BACKSLASHED. GetFileFromPathAsync takes only a fully
     // qualified native path: a relative one, or one carrying the forward
     // slashes a path picks up when it has been through generic_string(), comes
@@ -571,6 +596,14 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     std::snprintf(message, sizeof(message), "0x%08X",
                   static_cast<unsigned>(e.code()));
     result.error = std::string("Windows could not read the PDF (") + message + ")";
+    result.pagePaths.clear();
+  } catch (const std::exception& e) {
+    // Anything else at all. This is called from a worker thread, so an escape
+    // is not an error the operator sees, it is the process gone.
+    result.error = std::string("could not read the PDF: ") + e.what();
+    result.pagePaths.clear();
+  } catch (...) {
+    result.error = "could not read the PDF";
     result.pagePaths.clear();
   }
   return result;
