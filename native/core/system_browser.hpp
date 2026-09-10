@@ -84,7 +84,14 @@ inline bool openExternalUrl(const std::string& url) {
   // branch is #else-guarded so Windows never compiles it -- a namespace
   // that does not exist would have reached CI, not the desk.
   ChildProcess child;
-  return spawnDetachedProcess(child, {opener, url});
+  // Spawn, then RELEASE. Returning from here destroys `child`, and the
+  // destructor kills -- so the opener that was handing the URL to the
+  // browser got SIGKILLed on its way out the door.
+  if (!spawnDetachedProcess(child, {opener, url})) {
+    return false;
+  }
+  child.release();
+  return true;
 #endif
 }
 
@@ -115,7 +122,11 @@ inline bool revealFileInFileManager(const std::string& path) {
   return reinterpret_cast<INT_PTR>(result) > 32;
 #elif defined(__APPLE__)
   ChildProcess child;
-  return spawnDetachedProcess(child, {"open", "-R", path});
+  if (!spawnDetachedProcess(child, {"open", "-R", path})) {
+    return false;
+  }
+  child.release();   // Finder is not ours to kill on the way out
+  return true;
 #else
   // No portable "select" on Linux; open the containing directory.
   std::string dir = path;
@@ -124,7 +135,11 @@ inline bool revealFileInFileManager(const std::string& path) {
     dir = dir.substr(0, slash);
   }
   ChildProcess child;
-  return spawnDetachedProcess(child, {"xdg-open", dir});
+  if (!spawnDetachedProcess(child, {"xdg-open", dir})) {
+    return false;
+  }
+  child.release();   // the file manager outlives the call
+  return true;
 #endif
 }
 

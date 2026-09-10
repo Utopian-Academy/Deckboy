@@ -73,6 +73,25 @@ struct ChildProcess {
   /// Safe to call multiple times (idempotent). Called by destructor.
   void stop();
 
+  /// LET THE CHILD GO ON WITHOUT US.
+  ///
+  /// Forget the process without killing it: close our pipe ends, drop our
+  /// handle, and leave it running. The opposite of stop(), and the thing every
+  /// fire-and-forget spawn actually wants.
+  ///
+  /// It exists because "detached" was only half true. spawnProcess records the
+  /// pid for a detached child exactly as for any other, so a caller that let
+  /// its ChildProcess go out of scope -- which is what a fire-and-forget spawn
+  /// looks like -- ran the destructor, and the destructor kills. The update
+  /// installer, the relauncher, "show in explorer" and every external link
+  /// were all launching a helper and then SIGKILLing it a line later.
+  ///
+  /// Deliberately NOT the default for detached spawns: the browser runtime
+  /// spawns Xvfb and the browser detached and keeps the handles precisely so
+  /// it can stop them when the cue stops. Detached says how the child is
+  /// started; this says who owns it afterwards.
+  void release();
+
   /// Kill the child process only (does NOT close readFd).
   /// This is specifically designed for the decode thread shutdown sequence:
   ///   1. Call killProcessOnly() — kills ffmpeg, closing its pipe write end

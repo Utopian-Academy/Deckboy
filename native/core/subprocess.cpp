@@ -111,6 +111,38 @@ void ChildProcess::stop() {
 #endif
 }
 
+void ChildProcess::release() {
+#ifdef _WIN32
+  if (writeFd >= 0) {
+    _close(writeFd);
+    writeFd = -1;
+  }
+  if (readFd >= 0) {
+    _close(readFd);
+    readFd = -1;
+  }
+  if (hProcess != INVALID_HANDLE_VALUE) {
+    // Closing the handle drops OUR reference; on Windows that does not end the
+    // process. It carries on with no parent watching, which is the point.
+    CloseHandle(hProcess);
+    hProcess = INVALID_HANDLE_VALUE;
+  }
+#else
+  if (writeFd >= 0) {
+    close(writeFd);
+    writeFd = -1;
+  }
+  if (readFd >= 0) {
+    close(readFd);
+    readFd = -1;
+  }
+  // No kill and no waitpid: the child keeps running and we stop caring. It was
+  // spawned with setsid(), so it already has its own session and survives us.
+  pid = -1;
+  processGroup = false;
+#endif
+}
+
 void ChildProcess::killProcessOnly() {
 #ifdef _WIN32
   if (hProcess != INVALID_HANDLE_VALUE) {

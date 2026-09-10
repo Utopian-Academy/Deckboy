@@ -2048,6 +2048,12 @@
                   << code << " straight after launch\n";
         return;
       }
+      // LET IT GO, before the destructor does. `child` is a local, so leaving
+      // this function ran ~ChildProcess -> stop() -> TerminateProcess on the
+      // installer we had just checked was alive, plus a five-second wait for
+      // the corpse. Detached says how it was started; this says we no longer
+      // own it.
+      child.release();
     }
     gShouldQuit.store(true);   // the installer replaces this build; step aside
 #elif defined(__APPLE__)
@@ -2140,6 +2146,12 @@
         triggerToast("update: could not start the install helper");
         return;
       }
+      // LET IT GO. Without this the ChildProcess destructor fires as this
+      // scope closes and SIGKILLs the whole helper process group -- the helper
+      // that was about to wait for us to exit and replace the app. It was
+      // being started and killed a line later, so the install simply never
+      // happened and the app quit into nothing.
+      child.release();
     }
     gShouldQuit.store(true);   // the helper replaces this bundle; step aside
 #else
@@ -2217,6 +2229,12 @@
         triggerToast("update: could not start the install helper");
         return;
       }
+      // LET IT GO. Without this the ChildProcess destructor fires as this
+      // scope closes and SIGKILLs the whole helper process group -- the helper
+      // that was about to wait for us to exit and replace the app. It was
+      // being started and killed a line later, so the install simply never
+      // happened and the app quit into nothing.
+      child.release();
     }
     gShouldQuit.store(true);   // the helper replaces this AppImage; step aside
 #endif
