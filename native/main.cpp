@@ -99,6 +99,7 @@
 #include "platform/st2110_output.hpp"
 #include "platform/ptp_client.hpp"
 #include "platform/asio_audio.hpp"
+#include "core/i18n.hpp"
 #include "platform/nmos_node.hpp"
 #include "render/primitives.hpp"
 #include "render/layout.hpp"
@@ -3784,6 +3785,8 @@ class App {
     // was set (an explicit env override always wins at boot).
     {
       const char* themeEnv = std::getenv("DECKBOY_THEME");
+      // The show's language, at boot, for the same reason as the theme below.
+      applyProjectLanguage();
       if ((!themeEnv || !*themeEnv) && !project_.theme.empty()) {
         loadTheme(project_.theme);
       }
@@ -4060,6 +4063,20 @@ class App {
   // media as if dropped on the window, and open the settings modal at boot
   // so scripted screenshots can reach it.
   // Put the mascot egg into a given stage so each one can be screenshotted.
+  // Put the interface into the show's language.
+  //
+  // Reported rather than silently ignored when a catalogue is missing: a
+  // language that does not apply looks exactly like a setting that did not
+  // save, and the operator can act on "no catalogue for tlh" but not on
+  // nothing happening.
+  void applyProjectLanguage() {
+    std::string error;
+    const std::string want = project_.language.empty() ? std::string("en") : project_.language;
+    if (!deckboy::core::i18n::setLanguage(want, Paths::dataDir(), error)) {
+      triggerToast("language: " + error, kToastWarnFill, kToastWarnInk, kToastReadableMs);
+    }
+  }
+
   void debugPokeMascot(int pokes) {
     mascotPokes_ = pokes;
     mascotLastPokeMs_ = SDL_GetTicks();
@@ -7443,6 +7460,7 @@ class App {
   static constexpr int kSettingsActionOutputHouseOverlayToggle = 747;
   static constexpr int kSettingsActionOutputHouseOverlayOpacity = 748;
   static constexpr int kSettingsActionOutputHouseOverlayPick = 749;
+  static constexpr int kSettingsActionLanguageDropdown = 750;   // next free: 751
   // 730/731 are the encoder's -- the audit caught that collision.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
@@ -8425,6 +8443,12 @@ class App {
   // Startup mascot: an animated kawaii Deckboy face with rotating tips fills
   // the empty program monitor until the first clip is loaded into it this
   // session. Once a clip loads, it retires for the rest of the run.
+  // Scratch for the localised form of the string being drawn. A member rather
+  // than a local so the pass-through case can bind a reference and copy
+  // nothing; only ever touched by the two text helpers, on the main thread,
+  // and never held past the call that filled it.
+  std::string localisedScratch_;
+
   bool firstClipLoadedThisSession_ = false;
 
   // ── The mascot notices you ──────────────────────────────────────────────

@@ -423,6 +423,7 @@ endif()
 add_executable(deckboy-native
   native/main.cpp
   native/core/paths.cpp
+  native/core/i18n.cpp
   native/core/utils.cpp
   native/core/subprocess.cpp
   native/engine/media_engine.cpp

@@ -1,0 +1,82 @@
+#name Turkce
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	YENI
+OPEN	AC
+SAVE	KAYDET
+SAVE AS	FARKLI KAYDET
+BUNDLE	PAKETLE
+IMPORT	ICE AKTAR
+SOURCE	KAYNAK
+PATTERN	TEST DESENI
+SETTINGS	AYARLAR
+TAKE	
+STOP	DUR
+REBOOT	YENIDEN BASLAT
+BLACKOUT	SIYAH
+CLEAR	TEMIZLE
+RECORD	KAYIT
+PLAYLIST	CALMA LISTESI
+TIMELINE	ZAMAN CIZGISI
+MEDIA	ORTAM
+TRANSPORT	TASIMA
+OUTPUT	CIKIS
+PROGRAM	
+WARP	BUKME
+LIVE	CANLI
+DECODE	COZUM
+STREAM	
+System	Sistem
+Audio	Ses
+Network	Ag
+Video Outputs	Video cikislari
+About	Hakkinda
+Encoder	Kodlayici
+Screen	Ekran
+Geometry	Geometri
+Devices	Aygitlar
+Streaming	Yayin
+APPEARANCE	GORUNUM
+REMOTE CONTROL	UZAKTAN KUMANDA
+INTEGRATION ADAPTERS	ADAPTORLER
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	BAGLI EKRANLAR
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	OYNATMA
+COPY	KOPYALA
+PASTE	YAPISTIR
+RESET	SIFIRLA
+Theme	Tema
+Language	Dil
+Resolution	Cozunurluk
+Orientation	Yonlendirme
+Toggle Fullscreen	Tam ekran
+IDENTIFY	TANIMLA
+REGION SIZE	BOYUT
+POSITION	KONUM
+CENTRE	ORTALA
+FULL	TAM
+duration	sure
+transition	gecis
+fade in	acilis
+fade out	kapanis
+ON	ACIK
+OFF	KAPALI
+Stopped	Durdu
+Playing	Oynuyor
+Paused	Duraklatildi

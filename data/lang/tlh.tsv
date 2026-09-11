@@ -1,0 +1,77 @@
+#name tlhIngan Hol
+# tlhIngan Hol, Latin transliteration -- pIqaD is not in Unicode and no
+# bundled font has it. Capitalisation is phonemic here (D and d are different
+# consonants), so these deliberately do not follow the all-caps house style:
+# upper-casing them would misspell them.
+NEW	chu'
+OPEN	poSmoH
+SAVE	choqmoH
+SAVE AS	choqmoH pong
+BUNDLE	
+IMPORT	'el
+SOURCE	mung
+PATTERN	De'wI' mIllogh
+SETTINGS	chu'wI'mey
+TAKE	yIchu'
+STOP	yImev
+REBOOT	yItaghqa'
+BLACKOUT	Hurgh
+CLEAR	yIteq
+RECORD	qonwI'
+PLAYLIST	tetlh
+TIMELINE	poH tlhegh
+MEDIA	De'
+TRANSPORT	lupwI'
+OUTPUT	mej
+PROGRAM	nuq bej
+WARP	
+LIVE	DaH
+DECODE	
+STREAM	
+System	pat
+Audio	wab
+Network	jIH
+Video Outputs	mIllogh mej
+About	'ay'
+Encoder	ngoqwI'
+Screen	jIb
+Geometry	HoS chen
+Devices	jan
+Streaming	vIH
+APPEARANCE	nguv
+REMOTE CONTROL	Hop SeH
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	jIb rar
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	qaS
+COPY	velqa'
+PASTE	lan
+RESET	chu'qa'
+Theme	nguv
+Language	Hol
+Resolution	tIq
+Orientation	Dop
+Toggle Fullscreen	naQ jIb
+IDENTIFY	yISov
+REGION SIZE	'ab
+POSITION	Daq
+CENTRE	botlh
+FULL	naQ
+duration	poH
+transition	choH
+fade in	Hegh'egh
+fade out	HurghchoH
+ON	HIja'
+OFF	ghobe'
+Stopped	mev
+Playing	qaS
+Paused	loS

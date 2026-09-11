@@ -1,0 +1,82 @@
+#name Français
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	NOUVEAU
+OPEN	OUVRIR
+SAVE	ENREGISTRER
+SAVE AS	ENREGISTRER SOUS
+BUNDLE	REGROUPER
+IMPORT	IMPORTER
+SOURCE	SOURCE
+PATTERN	MIRE
+SETTINGS	RÉGLAGES
+TAKE	
+STOP	ARRÊT
+REBOOT	REDÉMARRER
+BLACKOUT	NOIR
+CLEAR	EFFACER
+RECORD	ENREGISTRER
+PLAYLIST	LISTE
+TIMELINE	CHRONOLOGIE
+MEDIA	MÉDIAS
+TRANSPORT	TRANSPORT
+OUTPUT	SORTIE
+PROGRAM	
+WARP	DÉFORMER
+LIVE	DIRECT
+DECODE	DÉCODAGE
+STREAM	
+System	Système
+Audio	Audio
+Network	Réseau
+Video Outputs	Sorties vidéo
+About	À propos
+Encoder	Encodeur
+Screen	Écran
+Geometry	Géométrie
+Devices	Périphériques
+Streaming	Diffusion
+APPEARANCE	APPARENCE
+REMOTE CONTROL	COMMANDE À DISTANCE
+INTEGRATION ADAPTERS	ADAPTATEURS
+DISCOVERY / NOTES	DÉCOUVERTE / NOTES
+DISPLAY & RASTER	AFFICHAGE ET TRAME
+CONNECTED DISPLAYS	ÉCRANS CONNECTÉS
+EDGE FEATHERING	ADOUCISSEMENT DES BORDS
+MATTE & OVERLAY	CACHE ET INCRUSTATION
+AREA OF INTEREST	ZONE D'INTÉRÊT
+DEFAULT TRANSITION	TRANSITION PAR DÉFAUT
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	INSPECTEUR DE CUE
+SELECTED CUE	CUE SÉLECTIONNÉ
+PLAYBACK	LECTURE
+COPY	COPIER
+PASTE	COLLER
+RESET	RÉINITIALISER
+Theme	Thème
+Language	Langue
+Resolution	Résolution
+Orientation	Orientation
+Toggle Fullscreen	Plein écran
+IDENTIFY	IDENTIFIER
+REGION SIZE	TAILLE
+POSITION	POSITION
+CENTRE	CENTRER
+FULL	PLEIN
+duration	durée
+transition	transition
+fade in	fondu d'entrée
+fade out	fondu de sortie
+ON	OUI
+OFF	NON
+Stopped	Arrêté
+Playing	Lecture
+Paused	En pause

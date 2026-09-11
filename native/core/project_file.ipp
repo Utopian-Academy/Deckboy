@@ -59,6 +59,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "atem_switcher_host\t" << project.atemSwitcherHost << '\n';
   output << "atem_tally_input\t" << project.atemTallyInput << '\n';
   output << "hyperdeck_enabled\t" << (project.hyperDeckEnabled ? 1 : 0) << '\n';
+  output << "language\t" << project.language << '\n';
   output << "nmc_mode\t" << project.nmcMode << '\n';
   output << "nmc_port\t" << project.nmcPort << '\n';
   output << "nmc_target_host\t" << project.nmcTargetHost << '\n';
@@ -747,6 +748,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.atemTallyInput = safeInt(fields, 1, 0);
   } else if (fields[0] == "hyperdeck_enabled") {
     project.hyperDeckEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "language") {
+    project.language = safeString(fields, 1);
   } else if (fields[0] == "nmc_mode") {
     project.nmcMode = safeString(fields, 1);
   } else if (fields[0] == "nmc_port") {

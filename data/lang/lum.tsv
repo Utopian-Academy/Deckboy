@@ -1,0 +1,87 @@
+#name Lumeni
+# Lumeni -- invented here, for this. It has a grammar, because a made-up
+# language without one is noise with a font on it.
+#
+#   Nouns end -a        luma   light        veka   picture
+#   Verbs end -i        lumi   to light     veki   to show
+#   Adjectives end -o   lumo   bright       niro   dark
+#   Plural  -ku         lumaku lights
+#   Negation  va-       vasoni  silent (un-sound)
+#   Compounds put the modifier FIRST, German-fashion: vekamira, picture-watcher.
+#
+# Roots: lum light - vek picture - son sound - ret net - tok time - kor core
+#   dek deck - mir see - sen send - hal hold - nir dark - pon ready - tam whole
+#   kis small - zar fast - ran edge - fes open - klu shut - gra write - set change
+#   nov new - gur keep - ala all - kae place - tir pull - dor door/way
+NEW	NOVA
+OPEN	FESI
+SAVE	GURI
+SAVE AS	GURI KAE
+BUNDLE	ALAKLU
+IMPORT	TIRI
+SOURCE	MUNGA
+PATTERN	VEKARETA
+SETTINGS	SETAKU
+TAKE	SENI
+STOP	HALI
+REBOOT	NOVATOKI
+BLACKOUT	NIRATAM
+CLEAR	NIRI
+RECORD	GRAI
+PLAYLIST	VEKAKU
+TIMELINE	TOKARANA
+MEDIA	VEKADORA
+TRANSPORT	TIRADORA
+OUTPUT	SENADORA
+PROGRAM	KORAVEKA
+WARP	RANSETI
+LIVE	LUMO
+DECODE	VEKAMIRI
+STREAM	RETASENI
+System	Korapata
+Audio	Sona
+Network	Reta
+Video Outputs	Vekasenaku
+About	Korasova
+Encoder	Grawia
+Screen	Vekadeka
+Geometry	Ranakora
+Devices	Janaku
+Streaming	Retasena
+APPEARANCE	Nirolumo
+REMOTE CONTROL	RETASETA
+INTEGRATION ADAPTERS	RETAJANAKU
+DISCOVERY / NOTES	MIRAKU
+DISPLAY & RASTER	VEKADEKA SO RANA
+CONNECTED DISPLAYS	VEKADEKAKU RETO
+EDGE FEATHERING	RANAKISO
+MATTE & OVERLAY	NIRARANA SO VEKALUMA
+AREA OF INTEREST	MIRAKAE
+DEFAULT TRANSITION	KORASETA
+NMC IN & OUT	TOKASENA TIRI SO SENI
+OSC QUERY / FEEDBACK	RETAMIRA
+CUE INSPECTOR	VEKAMIRA
+SELECTED CUE	VEKA MIRO
+PLAYBACK	LUMAKORA
+COPY	VELI
+PASTE	LANI
+RESET	NOVASETI
+Theme	Nirolumo
+Language	Hola
+Resolution	Vekatama
+Orientation	Ranadopa
+Toggle Fullscreen	Tamo vekadeka
+IDENTIFY	MIRI
+REGION SIZE	KAETAMA
+POSITION	KAE
+CENTRE	KORAKAE
+FULL	TAMO
+duration	toka
+transition	seta
+fade in	lumi-tiri
+fade out	lumi-hali
+ON	PONO
+OFF	VAPONO
+Stopped	Halo
+Playing	Lumo
+Paused	Halo kiso

@@ -1292,6 +1292,7 @@
       loadTheme(project_.theme);
     }
     applyUiScale();
+    applyProjectLanguage();
     disarmAllOutputsForStartup();
     // Open lands on a neutral "nothing live" state, same as a fresh launch:
     // clear any saved active cue so the timeline and preview agree (the saved
@@ -5434,10 +5435,17 @@
   }
 
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
-                    const std::string& text, SDL_Color color) {
-    if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {
+                    const std::string& textIn, SDL_Color color) {
+    if (!font || textIn.empty() || rect.w <= 0 || rect.h <= 0) {
       return;
     }
+    // THE LANGUAGE DOOR. Every drawn string in the program comes through
+    // here or through drawCenteredTextSafe below, so the interface is
+    // localised in two places instead of thirteen hundred. English is a
+    // pass-through with an early-out, so the default costs one bool test.
+    const std::string& text =
+      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
+        deckboy::core::i18n::translate(textIn));
     SDL_Rect safe = safeTextRect(rect);
     if (safe.w <= 0 || safe.h <= 0) {
       return;
@@ -5482,10 +5490,14 @@
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
-                            const std::string& text, SDL_Color color) {
-    if (!font || text.empty() || rect.w <= 0 || rect.h <= 0) {
+                            const std::string& textIn, SDL_Color color) {
+    if (!font || textIn.empty() || rect.w <= 0 || rect.h <= 0) {
       return;
     }
+    // See drawTextSafe: the other half of the language door.
+    const std::string& text =
+      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
+        deckboy::core::i18n::translate(textIn));
     SDL_Rect safe = safeTextRect(rect);
     if (safe.w <= 0 || safe.h <= 0) {
       return;

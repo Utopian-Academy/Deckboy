@@ -1254,6 +1254,11 @@ struct Project {
   // changes interaction feedback. Stored as a string so future modes can
   // land without a schema migration.
   std::string interactionMode = "mouse";
+  // INTERFACE LANGUAGE. Empty or "en" is English, which is the source text and
+  // therefore never a catalogue. Stored with the show for the same reason the
+  // theme is: a desk that travels should arrive looking and reading the way it
+  // was set up. See core/i18n.hpp.
+  std::string language;
 
   // -- Network / integration enables -------------------------------------------
   // Each integration follows the pattern in platform/integration_backend.*:

@@ -1,0 +1,82 @@
+#name Ελληνικά
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	ΝΕΟ
+OPEN	ΑΝΟΙΓΜΑ
+SAVE	ΑΠΟΘΗΚΕΥΣΗ
+SAVE AS	ΑΠΟΘΗΚΕΥΣΗ ΩΣ
+BUNDLE	
+IMPORT	ΕΙΣΑΓΩΓΗ
+SOURCE	ΠΗΓΗ
+PATTERN	ΜΟΤΙΒΟ
+SETTINGS	ΡΥΘΜΙΣΕΙΣ
+TAKE	
+STOP	ΣΤΟΠ
+REBOOT	ΕΠΑΝΕΚΚΙΝΗΣΗ
+BLACKOUT	ΜΑΥΡΟ
+CLEAR	ΚΑΘΑΡΙΣΜΟΣ
+RECORD	ΕΓΓΡΑΦΗ
+PLAYLIST	ΛΙΣΤΑ
+TIMELINE	ΧΡΟΝΟΓΡΑΜΜΗ
+MEDIA	ΜΕΣΑ
+TRANSPORT	ΜΕΤΑΦΟΡΑ
+OUTPUT	ΕΞΟΔΟΣ
+PROGRAM	
+WARP	
+LIVE	ΖΩΝΤΑΝΑ
+DECODE	
+STREAM	
+System	Σύστημα
+Audio	Ήχος
+Network	Δίκτυο
+Video Outputs	Έξοδοι βίντεο
+About	Σχετικά
+Encoder	Κωδικοποιητής
+Screen	Οθόνη
+Geometry	Γεωμετρία
+Devices	Συσκευές
+Streaming	Μετάδοση
+APPEARANCE	ΕΜΦΑΝΙΣΗ
+REMOTE CONTROL	ΑΠΟΜΑΚΡΥΣΜΕΝΟΣ ΕΛΕΓΧΟΣ
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	ΣΥΝΔΕΔΕΜΕΝΕΣ ΟΘΟΝΕΣ
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	ΑΝΑΠΑΡΑΓΩΓΗ
+COPY	ΑΝΤΙΓΡΑΦΗ
+PASTE	ΕΠΙΚΟΛΛΗΣΗ
+RESET	ΕΠΑΝΑΦΟΡΑ
+Theme	Θέμα
+Language	Γλώσσα
+Resolution	Ανάλυση
+Orientation	Προσανατολισμός
+Toggle Fullscreen	Πλήρης οθόνη
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	ΚΕΝΤΡΟ
+FULL	ΠΛΗΡΗΣ
+duration	διάρκεια
+transition	μετάβαση
+fade in	
+fade out	
+ON	ΝΑΙ
+OFF	ΟΧΙ
+Stopped	Σταματημένο
+Playing	Παίζει
+Paused	Παύση

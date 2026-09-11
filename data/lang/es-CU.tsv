@@ -1,0 +1,82 @@
+#name Español (Cuba)
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	NUEVO
+OPEN	ABRE
+SAVE	SALVA
+SAVE AS	SALVA COMO
+BUNDLE	EMPAQUETA
+IMPORT	METE
+SOURCE	FUENTE
+PATTERN	PATRÓN
+SETTINGS	LA PINCHA
+TAKE	
+STOP	PARA
+REBOOT	ARRANCA OTRA VEZ
+BLACKOUT	APAGÓN
+CLEAR	LIMPIA
+RECORD	GRABA
+PLAYLIST	LA LISTA
+TIMELINE	LÍNEA DE TIEMPO
+MEDIA	LOS CACHARROS
+TRANSPORT	TRANSPORTE
+OUTPUT	SALIDA
+PROGRAM	
+WARP	DEFORMAR
+LIVE	EN CANDELA
+DECODE	DECODIF.
+STREAM	
+System	Sistema
+Audio	Audio
+Network	Red
+Video Outputs	Salidas de vídeo
+About	Acerca de
+Encoder	Codificador
+Screen	Pantalla
+Geometry	Geometría
+Devices	Cacharros
+Streaming	Transmisión
+APPEARANCE	LA PINTA
+REMOTE CONTROL	MANDO A DISTANCIA
+INTEGRATION ADAPTERS	ADAPTADORES
+DISCOVERY / NOTES	QUÉ HAY POR AHÍ
+DISPLAY & RASTER	PANTALLA Y RÁSTER
+CONNECTED DISPLAYS	PANTALLAS QUE HAY
+EDGE FEATHERING	DIFUMINADO DE BORDES
+MATTE & OVERLAY	MÁSCARA Y SOBRECAPA
+AREA OF INTEREST	ÁREA DE INTERÉS
+DEFAULT TRANSITION	TRANSICIÓN POR DEFECTO
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	INSPECTOR DE CUE
+SELECTED CUE	CUE SELECCIONADO
+PLAYBACK	LA CANDELA
+COPY	COPIA
+PASTE	PEGA
+RESET	BORRÓN Y CUENTA NUEVA
+Theme	El look
+Language	Idioma
+Resolution	Resolución
+Orientation	Orientación
+Toggle Fullscreen	A pantalla completa
+IDENTIFY	¿CUÁL ES?
+REGION SIZE	TAMAÑO
+POSITION	POSICIÓN
+CENTRE	AL MEDIO
+FULL	TO'
+duration	duración
+transition	transición
+fade in	entrada
+fade out	salida
+ON	DALE
+OFF	NADA
+Stopped	Parao
+Playing	Sonando
+Paused	En pausa

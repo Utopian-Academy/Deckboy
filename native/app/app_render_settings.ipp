@@ -630,6 +630,13 @@
       appY += sTallH + sGap;
       drawUIDropdown(themeBtn, "Theme", themeName, "settings.theme");
       settingsBtns_.push_back({themeBtn, kSettingsActionThemeDropdown, "theme"});
+      // Beside the theme, because it is the same kind of decision: what this
+      // desk looks and reads like to whoever is standing at it.
+      SDL_Rect langBtn {appX, appY, appW, sTallH};
+      appY += sTallH + sGap;
+      drawUIDropdown(langBtn, "Language", deckboy::core::i18n::activeName(),
+                     "settings.language");
+      settingsBtns_.push_back({langBtn, kSettingsActionLanguageDropdown, "language"});
       SDL_Rect sfxBtn {appX, appY, appW, sRowH};
       appY += sRowH + sGap;
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
@@ -3980,6 +3987,25 @@
             project_.theme = value;
             markProjectDirty();
             triggerToast("theme: " + value);
+          });
+        return;
+      } else if (sb.action == kSettingsActionLanguageDropdown) {
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto& lang : deckboy::core::i18n::availableLanguages(Paths::dataDir())) {
+          choices.push_back({lang.code, lang.name});
+        }
+        openDropdown("settings.language", sb.rect, choices,
+                     deckboy::core::i18n::activeCode(),
+          [this](const std::string& value) {
+            std::string error;
+            if (!deckboy::core::i18n::setLanguage(value, Paths::dataDir(), error)) {
+              triggerToast("language: " + error, kToastWarnFill, kToastWarnInk,
+                           kToastReadableMs);
+              return;
+            }
+            project_.language = (value == "en") ? std::string() : value;
+            markProjectDirty();
+            triggerToast("language: " + deckboy::core::i18n::activeName());
           });
         return;
       } else if (sb.action == kSettingsActionTransitionSecondsDec) {

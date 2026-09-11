@@ -1,0 +1,82 @@
+#name Portugues (Brasil)
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	NOVO
+OPEN	ABRIR
+SAVE	SALVAR
+SAVE AS	SALVAR COMO
+BUNDLE	EMPACOTAR
+IMPORT	IMPORTAR
+SOURCE	FONTE
+PATTERN	PADRAO
+SETTINGS	AJUSTES
+TAKE	
+STOP	PARAR
+REBOOT	REINICIAR
+BLACKOUT	PRETO
+CLEAR	LIMPAR
+RECORD	GRAVAR
+PLAYLIST	LISTA
+TIMELINE	LINHA DO TEMPO
+MEDIA	MIDIA
+TRANSPORT	TRANSPORTE
+OUTPUT	SAIDA
+PROGRAM	
+WARP	DEFORMAR
+LIVE	AO VIVO
+DECODE	DECODIF.
+STREAM	
+System	Sistema
+Audio	Audio
+Network	Rede
+Video Outputs	Saidas de video
+About	Sobre
+Encoder	Codificador
+Screen	Tela
+Geometry	Geometria
+Devices	Dispositivos
+Streaming	Transmissao
+APPEARANCE	APARENCIA
+REMOTE CONTROL	CONTROLE REMOTO
+INTEGRATION ADAPTERS	ADAPTADORES
+DISCOVERY / NOTES	DESCOBERTA / NOTAS
+DISPLAY & RASTER	TELA E RASTER
+CONNECTED DISPLAYS	TELAS CONECTADAS
+EDGE FEATHERING	SUAVIZACAO DE BORDAS
+MATTE & OVERLAY	MASCARA E SOBREPOSICAO
+AREA OF INTEREST	AREA DE INTERESSE
+DEFAULT TRANSITION	TRANSICAO PADRAO
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	INSPETOR DE CUE
+SELECTED CUE	CUE SELECIONADO
+PLAYBACK	REPRODUCAO
+COPY	COPIAR
+PASTE	COLAR
+RESET	REDEFINIR
+Theme	Tema
+Language	Idioma
+Resolution	Resolucao
+Orientation	Orientacao
+Toggle Fullscreen	Tela cheia
+IDENTIFY	IDENTIFICAR
+REGION SIZE	TAMANHO
+POSITION	POSICAO
+CENTRE	CENTRALIZAR
+FULL	CHEIO
+duration	duracao
+transition	transicao
+fade in	entrada
+fade out	saida
+ON	SIM
+OFF	NAO
+Stopped	Parado
+Playing	Tocando
+Paused	Pausado

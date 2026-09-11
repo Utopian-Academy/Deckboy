@@ -1,0 +1,82 @@
+#name Deutsch
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	NEU
+OPEN	ÖFFNEN
+SAVE	SICHERN
+SAVE AS	SICHERN UNTER
+BUNDLE	BÜNDELN
+IMPORT	IMPORT
+SOURCE	QUELLE
+PATTERN	TESTBILD
+SETTINGS	EINSTELLUNGEN
+TAKE	
+STOP	STOPP
+REBOOT	NEUSTART
+BLACKOUT	SCHWARZ
+CLEAR	LEEREN
+RECORD	AUFNAHME
+PLAYLIST	LISTE
+TIMELINE	ZEITLEISTE
+MEDIA	MEDIEN
+TRANSPORT	TRANSPORT
+OUTPUT	AUSGANG
+PROGRAM	
+WARP	VERZERRUNG
+LIVE	LIVE
+DECODE	DEKODIERUNG
+STREAM	
+System	System
+Audio	Audio
+Network	Netzwerk
+Video Outputs	Videoausgänge
+About	Über
+Encoder	Encoder
+Screen	Bildschirm
+Geometry	Geometrie
+Devices	Geräte
+Streaming	Streaming
+APPEARANCE	DARSTELLUNG
+REMOTE CONTROL	FERNSTEUERUNG
+INTEGRATION ADAPTERS	ADAPTER
+DISCOVERY / NOTES	ERKENNUNG / NOTIZEN
+DISPLAY & RASTER	ANZEIGE UND RASTER
+CONNECTED DISPLAYS	ANGESCHLOSSENE ANZEIGEN
+EDGE FEATHERING	KANTENWEICHZEICHNUNG
+MATTE & OVERLAY	MASKE UND ÜBERLAGERUNG
+AREA OF INTEREST	BILDAUSSCHNITT
+DEFAULT TRANSITION	STANDARDÜBERGANG
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	CUE-INSPEKTOR
+SELECTED CUE	GEWÄHLTER CUE
+PLAYBACK	WIEDERGABE
+COPY	KOPIEREN
+PASTE	EINFÜGEN
+RESET	ZURÜCKSETZEN
+Theme	Thema
+Language	Sprache
+Resolution	Auflösung
+Orientation	Ausrichtung
+Toggle Fullscreen	Vollbild
+IDENTIFY	IDENTIFIZIEREN
+REGION SIZE	GRÖSSE
+POSITION	POSITION
+CENTRE	ZENTRIEREN
+FULL	VOLL
+duration	Dauer
+transition	Übergang
+fade in	Einblenden
+fade out	Ausblenden
+ON	EIN
+OFF	AUS
+Stopped	Gestoppt
+Playing	Läuft
+Paused	Pausiert

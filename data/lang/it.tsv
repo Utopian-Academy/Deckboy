@@ -1,0 +1,82 @@
+#name Italiano
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	NUOVO
+OPEN	APRI
+SAVE	SALVA
+SAVE AS	SALVA COME
+BUNDLE	RACCOGLI
+IMPORT	IMPORTA
+SOURCE	SORGENTE
+PATTERN	MONOSCOPIO
+SETTINGS	IMPOSTAZIONI
+TAKE	
+STOP	FERMA
+REBOOT	RIAVVIA
+BLACKOUT	NERO
+CLEAR	PULISCI
+RECORD	REGISTRA
+PLAYLIST	SCALETTA
+TIMELINE	LINEA TEMPORALE
+MEDIA	MEDIA
+TRANSPORT	TRASPORTO
+OUTPUT	USCITA
+PROGRAM	
+WARP	DEFORMA
+LIVE	IN ONDA
+DECODE	DECODIFICA
+STREAM	
+System	Sistema
+Audio	Audio
+Network	Rete
+Video Outputs	Uscite video
+About	Informazioni
+Encoder	Codificatore
+Screen	Schermo
+Geometry	Geometria
+Devices	Dispositivi
+Streaming	Streaming
+APPEARANCE	ASPETTO
+REMOTE CONTROL	CONTROLLO REMOTO
+INTEGRATION ADAPTERS	ADATTATORI
+DISCOVERY / NOTES	RILEVAMENTO / NOTE
+DISPLAY & RASTER	SCHERMO E RASTER
+CONNECTED DISPLAYS	SCHERMI COLLEGATI
+EDGE FEATHERING	SFUMATURA BORDI
+MATTE & OVERLAY	MASCHERA E SOVRAIMPRESSIONE
+AREA OF INTEREST	AREA DI INTERESSE
+DEFAULT TRANSITION	TRANSIZIONE PREDEFINITA
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	ISPETTORE CUE
+SELECTED CUE	CUE SELEZIONATO
+PLAYBACK	RIPRODUZIONE
+COPY	COPIA
+PASTE	INCOLLA
+RESET	RIPRISTINA
+Theme	Tema
+Language	Lingua
+Resolution	Risoluzione
+Orientation	Orientamento
+Toggle Fullscreen	Schermo intero
+IDENTIFY	IDENTIFICA
+REGION SIZE	DIMENSIONE
+POSITION	POSIZIONE
+CENTRE	CENTRA
+FULL	PIENO
+duration	durata
+transition	transizione
+fade in	dissolvenza in
+fade out	dissolvenza out
+ON	SI
+OFF	NO
+Stopped	Fermo
+Playing	In riproduzione
+Paused	In pausa

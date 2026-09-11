@@ -1,0 +1,82 @@
+#name Українська
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+NEW	НОВИЙ
+OPEN	ВІДКРИТИ
+SAVE	ЗБЕРЕГТИ
+SAVE AS	ЗБЕРЕГТИ ЯК
+BUNDLE	УПАКУВАТИ
+IMPORT	ІМПОРТ
+SOURCE	ДЖЕРЕЛО
+PATTERN	ТАБЛИЦЯ
+SETTINGS	НАЛАШТУВАННЯ
+TAKE	
+STOP	СТОП
+REBOOT	ПЕРЕЗАПУСК
+BLACKOUT	ЧОРНЕ
+CLEAR	ОЧИСТИТИ
+RECORD	ЗАПИС
+PLAYLIST	ПЛЕЙЛИСТ
+TIMELINE	ТАЙМЛАЙН
+MEDIA	МЕДІА
+TRANSPORT	ТРАНСПОРТ
+OUTPUT	ВИХІД
+PROGRAM	
+WARP	СПОТВОРЕННЯ
+LIVE	В ЕФІРІ
+DECODE	ДЕКОД.
+STREAM	
+System	Система
+Audio	Звук
+Network	Мережа
+Video Outputs	Відеовиходи
+About	Про програму
+Encoder	Кодувальник
+Screen	Екран
+Geometry	Геометрія
+Devices	Пристрої
+Streaming	Трансляція
+APPEARANCE	ВИГЛЯД
+REMOTE CONTROL	ВІДДАЛЕНЕ КЕРУВАННЯ
+INTEGRATION ADAPTERS	АДАПТЕРИ
+DISCOVERY / NOTES	ВИЯВЛЕННЯ / НОТАТКИ
+DISPLAY & RASTER	ЕКРАН І РАСТР
+CONNECTED DISPLAYS	ПІДКЛЮЧЕНІ ЕКРАНИ
+EDGE FEATHERING	ПОМ'ЯКШЕННЯ КРАЇВ
+MATTE & OVERLAY	МАСКА І НАКЛАДКА
+AREA OF INTEREST	ОБЛАСТЬ ІНТЕРЕСУ
+DEFAULT TRANSITION	ПЕРЕХІД ЗА ЗАМОВЧУВАННЯМ
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	ІНСПЕКТОР CUE
+SELECTED CUE	ОБРАНИЙ CUE
+PLAYBACK	ВІДТВОРЕННЯ
+COPY	КОПІЯ
+PASTE	ВСТАВИТИ
+RESET	СКИНУТИ
+Theme	Тема
+Language	Мова
+Resolution	Роздільність
+Orientation	Орієнтація
+Toggle Fullscreen	На весь екран
+IDENTIFY	ВПІЗНАТИ
+REGION SIZE	РОЗМІР
+POSITION	ПОЗИЦІЯ
+CENTRE	ПО ЦЕНТРУ
+FULL	ПОВНИЙ
+duration	тривалість
+transition	перехід
+fade in	наростання
+fade out	згасання
+ON	УВІМ
+OFF	ВИМ
+Stopped	Зупинено
+Playing	Грає
+Paused	Пауза
