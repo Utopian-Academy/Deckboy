@@ -321,6 +321,47 @@
       expect(startupLabelOk && liveLabelOk && failedLabelOk, "browser status summary");
     }
 
+    // ── The cyphers ────────────────────────────────────────────────────────
+    //
+    // A cypher covers every string in the program without a catalogue, which
+    // is its whole appeal and also means nothing else will ever catch it being
+    // wrong. These are exact transforms, so they can be checked exactly.
+    {
+      std::string err;
+      const std::filesystem::path noData;
+      auto say = [&](const char* code, const std::string& in) {
+        deckboy::core::i18n::setLanguage(code, noData, err);
+        return deckboy::core::i18n::translate(in);
+      };
+      expect(say("cy-rot13", "NEW") == "ARJ", "cypher: rot13");
+      expect(say("cy-rot13", say("cy-rot13", "TAKE")) == "TAKE", "cypher: rot13 is its own inverse");
+      expect(say("cy-atbash", "ABC") == "ZYX", "cypher: atbash");
+      expect(say("cy-leet", "SAVE AS") == "54V3 45", "cypher: leet");
+      expect(say("cy-morse", "NEW") == "-. . .--", "cypher: morse letters");
+      expect(say("cy-morse", "SAVE AS") == "... .- ...- . / .- ...", "cypher: morse word break");
+      // APPLIED EXACTLY ONCE, which the transforms above cannot tell you.
+      //
+      // The text helpers translate, then hand the finished string to the
+      // rasteriser -- which also translated, so every label went through twice.
+      // A catalogue survives that (the German is not itself a key) and 1337
+      // survives it, so German and 1337 both looked perfect while ROT13 drew
+      // the interface in ENGLISH and Morse drew it as a row of slashes.
+      //
+      // An involution is the only honest test for this: apply it twice and you
+      // are back where you started, which is indistinguishable from it never
+      // having run. That is the bug, so that is the check.
+      deckboy::core::i18n::setLanguage("cy-rot13", noData, err);
+      expect(deckboy::core::i18n::translate(deckboy::core::i18n::translate("NEW")) == "NEW",
+             "cypher: rot13 twice is the identity -- so the draw path must apply it once");
+      deckboy::core::i18n::setLanguage("cy-morse", noData, err);
+      expect(deckboy::core::i18n::translate(deckboy::core::i18n::translate("NEW")) != "-. . .--",
+             "cypher: morse twice is not morse once");
+
+      deckboy::core::i18n::setLanguage("en", noData, err);
+      expect(deckboy::core::i18n::passthrough(), "cypher: english is a pass-through");
+      expect(deckboy::core::i18n::translate("TAKE") == "TAKE", "cypher: english changes nothing");
+    }
+
     // ── The matte, as geometry ─────────────────────────────────────────────
     //
     // Four fill rects are hard to get wrong; deciding WHERE they go is not.

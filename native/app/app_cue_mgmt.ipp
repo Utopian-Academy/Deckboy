@@ -5236,16 +5236,26 @@
     return &deck.cues[deck.activeIndex];
   }
 
-  void drawText(SDL_Renderer* renderer, TTF_Font* font, const std::string& textIn, SDL_Color color, int x, int y) {
-    if (!font || textIn.empty()) {
+  // TRANSLATE EXACTLY ONCE.
+  //
+  // drawTextSafe and drawCenteredTextSafe translate, measure, fit a font and
+  // ellipsize -- and then hand the finished string here to be rasterised. If
+  // this translated as well, every label would go through the catalogue twice.
+  //
+  // For a catalogue that is harmless (the German is not itself a key), which is
+  // exactly why it was not noticed: German looked perfect. For a cypher it is
+  // fatal, and each one lies differently. ROT13 and Atbash are their own
+  // inverse, so the interface came out in ENGLISH while the setting said ROT13.
+  // Morse re-encoded its own dots and dashes into nothing and its spaces into
+  // slashes, so the toolbar read "/ /". 1337 is not an involution and so looked
+  // fine, which is how this survived being looked at.
+  //
+  // Hence two entry points: drawText for callers with a source string,
+  // drawTextRaw for callers holding a string that has already been through.
+  void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
+    if (!font || text.empty()) {
       return;
     }
-    // The third renderer, and the third half of the language door -- it draws
-    // at a point rather than into a rect, so it does not forward to either of
-    // the others and would otherwise have stayed in English on its own.
-    const std::string& text =
-      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
-        deckboy::core::i18n::translate(textIn));
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
       return;
@@ -5259,6 +5269,20 @@
     SDL_DestroySurface(surface);
     SDL_RenderTexture(renderer, texture, nullptr, &dst);
     SDL_DestroyTexture(texture);
+  }
+
+  // The translating entry point, for the ~45 sites that draw a source string
+  // at a point rather than into a rect.
+  void drawText(SDL_Renderer* renderer, TTF_Font* font, const std::string& textIn,
+                SDL_Color color, int x, int y) {
+    if (!font || textIn.empty()) {
+      return;
+    }
+    if (deckboy::core::i18n::passthrough()) {
+      drawTextRaw(renderer, font, textIn, color, x, y);
+      return;
+    }
+    drawTextRaw(renderer, font, deckboy::core::i18n::translate(textIn), color, x, y);
   }
 
   // Restores a font size on the way out, so the early returns in the text
@@ -5505,7 +5529,7 @@
       textClip = intersect;
     }
     SDL_SetRenderClipRect(renderer, &textClip);
-    drawText(renderer, font, clipped, color, safe.x, textY);
+    drawTextRaw(renderer, font, clipped, color, safe.x, textY);
     SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
@@ -5554,7 +5578,7 @@
       textClip = intersect;
     }
     SDL_SetRenderClipRect(renderer, &textClip);
-    drawText(renderer, font, clipped, color, textX, textY);
+    drawTextRaw(renderer, font, clipped, color, textX, textY);
     SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
