@@ -33,6 +33,9 @@ std::string gCode = "en";
 std::string gName = "English";
 std::string gFontFile;      // empty = the bundled face is fine
 bool gFontMissing = false;  // asked for a face that is not installed
+bool gRtl = false;          // catalogue said #rtl 1
+bool gRtlOk = false;        // the renderer accepted that direction
+bool gShaping = false;      // this build can shape/reorder at all
 int gCypher = 0;   // 0 = none; see kCyphers
 
 std::string lower(std::string s) {
@@ -204,7 +207,8 @@ fs::path catalogueDir(const fs::path& dataDir) { return dataDir / "lang"; }
 bool readCatalogue(const fs::path& file,
                    std::unordered_map<std::string, std::string>& into,
                    std::string& displayName,
-                   std::string* fontFile = nullptr) {
+                   std::string* fontFile = nullptr,
+                   bool* rtl = nullptr) {
   std::ifstream in(file);
   if (!in) return false;
   std::string line;
@@ -217,6 +221,11 @@ bool readCatalogue(const fs::path& file,
       const std::string fontTag = "#font";
       if (fontFile && line.rfind(fontTag, 0) == 0) {
         *fontFile = trim(line.substr(fontTag.size()));
+      }
+      const std::string rtlTag = "#rtl";
+      if (rtl && line.rfind(rtlTag, 0) == 0) {
+        const std::string v = trim(line.substr(rtlTag.size()));
+        *rtl = (v == "1" || lower(v) == "true" || lower(v) == "yes");
       }
       continue;
     }
@@ -251,7 +260,12 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       std::unordered_map<std::string, std::string> probe;
       std::string name = code;
       std::string font;
-      if (!readCatalogue(entry.path(), probe, name, &font)) continue;
+      bool rtl = false;
+      if (!readCatalogue(entry.path(), probe, name, &font, &rtl)) continue;
+      // Offering a right-to-left language that this build cannot shape means
+      // offering unjoined letters in the wrong order. Better absent, and
+      // --self-check says why.
+      if (rtl && !gShaping) continue;
       // An empty catalogue is a file somebody started, not a language anybody
       // can pick; offering it would just be English under another name.
       if (probe.empty()) continue;
@@ -288,6 +302,8 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
     gCode = "en";
     gName = "English";
     adoptFont({});
+    gRtl = false;
+    gRtlOk = false;
     return true;
   }
 
@@ -298,6 +314,8 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
       gCode = want;
       gName = kCyphers[i].name;
       adoptFont(kCyphers[i].font);
+      gRtl = false;
+      gRtlOk = false;
       return true;
     }
   }
@@ -307,12 +325,14 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
     std::unordered_map<std::string, std::string> loaded;
     std::string name = want;
     std::string font;
+    bool rtl = false;
     const fs::path file = catalogueDir(dataDir) / (want + ".tsv");
-    if (!readCatalogue(file, loaded, name, &font) || loaded.empty()) {
+    if (!readCatalogue(file, loaded, name, &font, &rtl) || loaded.empty()) {
       error = "no language catalogue for " + want;
       return false;
     }
-    loaded.emplace("font", font);
+    loaded.emplace("\x01" "font", font);
+    loaded.emplace("\x01" "rtl", rtl ? "1" : "0");
     // The display name rides along with the catalogue so the picker can show
     // it without re-reading every file.
     loaded.emplace("\x01" "name", name);
@@ -326,6 +346,9 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   gName = (nameAt == cached->second.end()) ? want : nameAt->second;
   const auto fontAt = cached->second.find("\x01" "font");
   adoptFont(fontAt == cached->second.end() ? std::string() : fontAt->second);
+  const auto rtlAt = cached->second.find("\x01" "rtl");
+  gRtl = rtlAt != cached->second.end() && rtlAt->second == "1";
+  gRtlOk = false;
   return true;
 }
 
@@ -350,6 +373,31 @@ std::vector<std::string> activeFontCandidates() {
 }
 
 bool activeFontMissing() { return gFontMissing; }
+bool activeIsRtl() { return gRtl; }
+void noteRtlSupported(bool supported) { gRtlOk = supported; }
+bool rtlSupported() { return gRtlOk; }
+void noteShapingAvailable(bool available) { gShaping = available; }
+bool shapingAvailable() { return gShaping; }
+
+std::vector<std::string> languagesAwaitingShaping(const fs::path& dataDir) {
+  std::vector<std::string> out;
+  if (gShaping) return out;
+  std::error_code ec;
+  const fs::path dir = catalogueDir(dataDir);
+  if (!fs::is_directory(dir, ec)) return out;
+  for (const auto& entry : fs::directory_iterator(dir, ec)) {
+    if (ec) break;
+    if (!entry.is_regular_file()) continue;
+    if (lower(entry.path().extension().string()) != ".tsv") continue;
+    std::unordered_map<std::string, std::string> probe;
+    std::string name = entry.path().stem().string();
+    std::string font;
+    bool rtl = false;
+    if (!readCatalogue(entry.path(), probe, name, &font, &rtl)) continue;
+    if (rtl) out.push_back(name);
+  }
+  return out;
+}
 void noteFontResolved(bool found) { gFontMissing = !gFontFile.empty() && !found; }
 
 bool passthrough() { return gActive == nullptr && gCypher == 0; }

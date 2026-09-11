@@ -6763,6 +6763,43 @@ class App {
     fontMono_       = TTF_OpenFont(mono.c_str(),  pt(18));
     fontPixel_      = TTF_OpenFont(pixel.c_str(), pt(24));
     fontPixelSmall_ = TTF_OpenFont(pixel.c_str(), pt(12));
+
+    // ── WHICH WAY THE LANGUAGE RUNS ─────────────────────────────────────────
+    //
+    // TTF_SetFontDirection returns false when the build cannot honour it, and
+    // that answer is the whole reason this is checked rather than assumed:
+    // SDL_ttf only shapes and reorders when it was built against HarfBuzz, and
+    // a build without it reverses glyphs without joining them. For Arabic that
+    // produces something that looks like Arabic to somebody who does not read
+    // it and is wrong to everybody who does.
+    //
+    // So the result is recorded, the language layer refuses to offer a script
+    // that needs shaping when shaping is absent, and nobody is quietly shown
+    // nonsense.
+    // ONE PROBE, ONCE. Ask any font to run right to left and see whether
+    // SDL_ttf agrees; a build without HarfBuzz refuses. Done on a font we then
+    // put straight back, so the answer costs nothing and the language picker
+    // can stop offering scripts this build would draw wrongly.
+    {
+      static bool probed = false;
+      if (!probed && fontSmall_) {
+        probed = true;
+        const bool can = TTF_SetFontDirection(fontSmall_, TTF_DIRECTION_RTL);
+        TTF_SetFontDirection(fontSmall_, TTF_DIRECTION_LTR);
+        deckboy::core::i18n::noteShapingAvailable(can);
+      }
+    }
+    if (deckboy::core::i18n::activeIsRtl()) {
+      bool ok = true;
+      for (TTF_Font* f : {fontLarge_, fontBase_, fontSmall_, fontMono_,
+                          fontPixel_, fontPixelSmall_, fontPixelTitle_}) {
+        if (!f) continue;
+        if (!TTF_SetFontDirection(f, TTF_DIRECTION_RTL)) ok = false;
+      }
+      deckboy::core::i18n::noteRtlSupported(ok);
+    } else {
+      deckboy::core::i18n::noteRtlSupported(false);
+    }
     fontPixelTitle_ = TTF_OpenFont(pixel.c_str(), pt(42));  // splash/startup headline
     // Kerning OFF for every UI font. At these pixel sizes a negative kern pair
     // rounds to a whole pixel or two, which tucks the second glyph under the

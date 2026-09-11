@@ -1,0 +1,85 @@
+#name العربية
+#font arial.ttf, segoeui.ttf, tahoma.ttf, ArabicTypesetting.ttf, GeezaPro.ttc, NotoSansArabic-Regular.ttf, truetype/noto/NotoSansArabic-Regular.ttf
+#rtl 1
+# Arabic needs two things the bundled faces cannot give it.
+#
+# The first is glyphs, and the line above names faces that have them; every one
+# of those ships with a stock install of the platform it belongs to.
+#
+# The second is SHAPING. An Arabic letter has a different form at the start,
+# middle and end of a word, and joining them is HarfBuzz's job -- which SDL_ttf
+# only does when it was built against it. This build reports whether it could
+# honour the direction at all, and the settings page says so plainly rather
+# than drawing unjoined letters backwards and calling it Arabic.
+NEW	جديد
+OPEN	فتح
+SAVE	حفظ
+SAVE AS	حفظ باسم
+BUNDLE	حزمة
+IMPORT	استيراد
+SOURCE	مصدر
+PATTERN	نمط اختبار
+SETTINGS	الإعدادات
+TAKE
+STOP	إيقاف
+REBOOT	إعادة تشغيل
+BLACKOUT	تعتيم
+CLEAR	مسح
+RECORD	تسجيل
+PLAYLIST	قائمة التشغيل
+TIMELINE	الخط الزمني
+MEDIA	الوسائط
+TRANSPORT	النقل
+OUTPUT	الخرج
+PROGRAM
+WARP
+LIVE	مباشر
+DECODE	فك الترميز
+STREAM
+System	النظام
+Audio	الصوت
+Network	الشبكة
+Video Outputs	مخارج الفيديو
+About	حول
+Encoder	المُرمِّز
+Screen	الشاشة
+Geometry	الهندسة
+Devices	الأجهزة
+Streaming	البث
+APPEARANCE	المظهر
+REMOTE CONTROL	التحكم عن بعد
+INTEGRATION ADAPTERS	محولات التكامل
+DISCOVERY / NOTES	الاكتشاف / ملاحظات
+DISPLAY & RASTER	العرض والنقاط
+CONNECTED DISPLAYS	الشاشات المتصلة
+EDGE FEATHERING	تنعيم الحواف
+MATTE & OVERLAY	القناع والتراكب
+AREA OF INTEREST	منطقة الاهتمام
+DEFAULT TRANSITION	الانتقال الافتراضي
+NMC IN & OUT
+OSC QUERY / FEEDBACK
+CUE INSPECTOR	مفتش الإشارات
+SELECTED CUE	الإشارة المحددة
+PLAYBACK	التشغيل
+COPY	نسخ
+PASTE	لصق
+RESET	إعادة ضبط
+Theme	السمة
+Language	اللغة
+Resolution	الدقة
+Orientation	الاتجاه
+Toggle Fullscreen	ملء الشاشة
+IDENTIFY	تعريف
+REGION SIZE	حجم المنطقة
+POSITION	الموضع
+CENTRE	توسيط
+FULL	كامل
+duration	المدة
+transition	انتقال
+fade in	تلاشي داخل
+fade out	تلاشي خارج
+ON	تشغيل
+OFF	إيقاف
+Stopped	متوقف
+Playing	قيد التشغيل
+Paused	مؤقت

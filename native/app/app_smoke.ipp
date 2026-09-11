@@ -48,6 +48,23 @@
 
   static int runSelfCheck() {
     std::cout << "Deckboy self-check\n";
+    // WHAT THE INTERFACE CAN BE READ IN, and what it cannot.
+    //
+    // A language missing from the picker looks like an oversight. Saying here
+    // that it is present but needs a text-shaping build turns "where is
+    // Arabic" into an answer somebody can act on.
+    {
+      const auto langs = deckboy::core::i18n::availableLanguages(Paths::dataDir());
+      std::cout << "languages: " << langs.size() << " available";
+      const auto waiting =
+        deckboy::core::i18n::languagesAwaitingShaping(Paths::dataDir());
+      if (!waiting.empty()) {
+        std::cout << "; " << waiting.size()
+                  << " right-to-left hidden (needs SDL_ttf built with HarfBuzz):";
+        for (const auto& w : waiting) std::cout << " " << w;
+      }
+      std::cout << "\n";
+    }
     std::cout << "version: " << deckboy::core::version::kVersionTag << '\n';
     std::cout << "project-root: " << Paths::projectRoot() << '\n';
     std::cout << "font-sans: " << (fs::exists(Paths::fontPath(Paths::FontName::Sans)) ? "ok" : "missing") << '\n';

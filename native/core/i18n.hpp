@@ -110,6 +110,38 @@ std::vector<std::string> activeFontCandidates();
 // draw as empty boxes, which callers that can warn, should.
 bool activeFontMissing();
 
+// IS THIS LANGUAGE WRITTEN RIGHT TO LEFT? Declared by the catalogue with an
+// `#rtl 1` line.
+//
+// Direction is only half of what such a script needs. The other half is
+// SHAPING: in Arabic a letter has a different form at the start, middle and end
+// of a word, and joining them is a job for HarfBuzz, which SDL_ttf only does if
+// it was built against it. Reversing unshaped glyphs produces something that
+// looks like Arabic to someone who does not read it and is wrong to everyone
+// who does -- so the two are reported separately and a language that needs
+// shaping is not offered unless shaping is actually present.
+bool activeIsRtl();
+
+// Whether the renderer could actually honour that direction. Set by the font
+// loader, which is the only thing that knows what SDL_ttf accepted.
+void noteRtlSupported(bool supported);
+bool rtlSupported();
+
+// CAN THIS BUILD SHAPE AT ALL? Probed once at startup by asking SDL_ttf to set
+// a right-to-left direction and seeing whether it agrees.
+//
+// A build without HarfBuzz refuses, and that refusal is the difference between
+// offering Arabic and offering a row of unjoined letters in the wrong order.
+// availableLanguages hides every right-to-left catalogue while this is false,
+// so a language is never listed that cannot be drawn as its readers write it.
+void noteShapingAvailable(bool available);
+bool shapingAvailable();
+
+// Right-to-left catalogues present but hidden for want of shaping. Empty when
+// there are none or when shaping works -- so --self-check can say WHY a
+// language somebody expected is not in the list.
+std::vector<std::string> languagesAwaitingShaping(const std::filesystem::path& dataDir);
+
 // Records what the loader actually managed to open, so activeFontMissing can
 // tell "asked for nothing" from "asked and did not get it".
 void noteFontResolved(bool found);

@@ -5533,7 +5533,14 @@
       textClip = intersect;
     }
     SDL_SetRenderClipRect(renderer, &textClip);
-    drawTextRaw(renderer, font, clipped, color, safe.x, textY);
+    // RIGHT TO LEFT STARTS AT THE RIGHT. A label left-aligned in a box is
+    // aligned to the side the reader finishes on, which puts every label in
+    // the interface at the wrong end of its own control.
+    const int startX =
+      (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported())
+        ? safe.x + std::max(0, safe.w - textW)
+        : safe.x;
+    drawTextRaw(renderer, font, clipped, color, startX, textY);
     SDL_SetRenderClipRect(renderer, hadClip ? &previousClip : nullptr);
   }
 
