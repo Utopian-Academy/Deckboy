@@ -244,6 +244,12 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
       << '\t' << escapeField(outputTarget.srtMode)
       << '\t' << outputTarget.streamKeyframeSeconds
       << '\t' << outputTarget.streamAudioBitrateKbps
+      // Matte & overlay (fields 47-51)
+      << '\t' << escapeField(outputTarget.matteAspect)
+      << '\t' << outputTarget.matteOpacity
+      << '\t' << escapeField(outputTarget.overlayImagePath)
+      << '\t' << outputTarget.overlayOpacity
+      << '\t' << (outputTarget.overlayEnabled ? 1 : 0)
       << '\n';
   }
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -936,6 +942,21 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
                         // shows take the previous hardcoded 160.
                         outputTarget.streamAudioBitrateKbps =
                           std::clamp(safeInt(fields, 46, 160), 32, 512);
+                        // Matte & overlay. A show saved before these had no
+                        // house frame, so the defaults must be "no mask, no
+                        // layer" or every old show gains black bars.
+                        if (fields.size() >= 52) {
+                          outputTarget.matteAspect = safeString(fields, 47);
+                          if (outputTarget.matteAspect.empty()) {
+                            outputTarget.matteAspect = "off";
+                          }
+                          outputTarget.matteOpacity =
+                            std::clamp(safeDouble(fields, 48, 1.0), 0.0, 1.0);
+                          outputTarget.overlayImagePath = safeString(fields, 49);
+                          outputTarget.overlayOpacity =
+                            std::clamp(safeDouble(fields, 50, 1.0), 0.0, 1.0);
+                          outputTarget.overlayEnabled = safeBool(fields, 51, false);
+                        }
                       }
                     }
                   }

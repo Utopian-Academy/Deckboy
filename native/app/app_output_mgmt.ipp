@@ -4163,6 +4163,12 @@
 
   void destroyOutputRuntime(OutputRuntime& runtime) {
     stopOutputStreamRuntime(runtime);
+    // The house overlay belongs to this output's renderer, so it dies with it.
+    if (runtime.overlayTexture) {
+      SDL_DestroyTexture(runtime.overlayTexture);
+      runtime.overlayTexture = nullptr;
+    }
+    runtime.overlayTexturePath.clear();
 #if defined(DECKBOY_HAS_NDI_SDK)
     if (runtime.ndiKeySender && ndiApi_.sendDestroyFn) {
       ndiApi_.sendDestroyFn(runtime.ndiKeySender);
@@ -4980,6 +4986,162 @@
       return;   // "nothing" -- and nothing is a legitimate answer
     }
     triggerToast(std::string(sourceLabel) + " tally: off program -- " + action);
+  }
+
+  // ── The house frame ─────────────────────────────────────────────────────
+  //
+  // A matte and a bug belong to the SCREEN, not to what is playing on it. A
+  // 2.39 letterbox or a station logo has to survive every cut, every clear and
+  // every panic -- doing it with an overlay cue means attaching it to all of
+  // them and losing it the moment anything goes wrong.
+  //
+  // Drawn into the output's own compositor while it is still the render target,
+  // so it reaches the recording, the stream, NDI and the program monitor as
+  // part of the one picture rather than as four separate near-misses.
+
+  // The largest centred rect of `aspect` that fits inside w x h.
+  //
+  // Returns the whole frame for "off" or anything unparseable: an unrecognised
+  // token must mean NO MASK. Guessing a ratio would black out part of a show
+  // over a typo.
+  static SDL_Rect matteContentRect(const std::string& aspect, int w, int h) {
+    SDL_Rect full {0, 0, w, h};
+    const std::string token = trim(aspect);
+    if (token.empty() || toUpper(token) == "OFF" || w <= 0 || h <= 0) {
+      return full;
+    }
+    double num = 0.0, den = 0.0;
+    const std::size_t colon = token.find(':');
+    if (colon == std::string::npos) {
+      return full;
+    }
+    try {
+      num = std::stod(token.substr(0, colon));
+      den = std::stod(token.substr(colon + 1));
+    } catch (...) {
+      return full;
+    }
+    if (!(num > 0.0) || !(den > 0.0)) {
+      return full;
+    }
+    const double want = num / den;
+    const double have = static_cast<double>(w) / static_cast<double>(h);
+    if (std::abs(want - have) < 0.0005) {
+      return full;   // already that shape; no bars to draw
+    }
+    SDL_Rect out = full;
+    if (want > have) {
+      // Wider than the raster: bars top and bottom.
+      out.h = std::max(1, static_cast<int>(std::lround(w / want)));
+      out.y = (h - out.h) / 2;
+    } else {
+      // Taller: bars left and right.
+      out.w = std::max(1, static_cast<int>(std::lround(h * want)));
+      out.x = (w - out.w) / 2;
+    }
+    return out;
+  }
+
+  // Decode the overlay still once and keep it against the path it came from.
+  //
+  // Through the same ffmpeg single-frame decode every other still in Deckboy
+  // uses, rather than a second image loader that would support a different set
+  // of formats than the rest of the app.
+  SDL_Texture* ensureOutputOverlayTexture(OutputRuntime& runtime, const std::string& path) {
+    if (path.empty()) {
+      if (runtime.overlayTexture) {
+        SDL_DestroyTexture(runtime.overlayTexture);
+        runtime.overlayTexture = nullptr;
+      }
+      runtime.overlayTexturePath.clear();
+      return nullptr;
+    }
+    if (runtime.overlayTexture && runtime.overlayTexturePath == path) {
+      return runtime.overlayTexture;
+    }
+    if (runtime.overlayTexture) {
+      SDL_DestroyTexture(runtime.overlayTexture);
+      runtime.overlayTexture = nullptr;
+    }
+    // Remembered even on failure, so a missing or unreadable file is attempted
+    // once rather than on every frame for the length of the show.
+    runtime.overlayTexturePath = path;
+    if (!runtime.outputRenderer || deckRuntimes_.empty() || !deckRuntimes_[0].mediaEngine) {
+      return nullptr;
+    }
+    ChildProcess decodeProcess;
+    auto frame = deckRuntimes_[0].mediaEngine->decodeSingleFrame(
+      decodeProcess, path, 0, 0, 0.0);
+    if (!frame || frame->width <= 0 || frame->height <= 0 || frame->pixels.empty()) {
+      triggerToast("overlay: could not read " + fs::path(path).filename().string(),
+                   kToastWarnFill, kToastWarnInk, kToastReadableMs);
+      return nullptr;
+    }
+    SDL_Texture* tex = deckboyCreateTexture(runtime.outputRenderer, SDL_PIXELFORMAT_RGBA32,
+                                            SDL_TEXTUREACCESS_STATIC,
+                                            frame->width, frame->height);
+    if (!tex) {
+      return nullptr;
+    }
+    // LINEAR, not the app default. This is scaled to the output raster and a
+    // nearest-neighbour bug crawls with jagged edges.
+    SDL_SetTextureScaleMode(tex, SDL_SCALEMODE_LINEAR);
+    SDL_UpdateTexture(tex, nullptr, frame->pixels.data(), frame->width * 4);
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    runtime.overlayTexture = tex;
+    return tex;
+  }
+
+  void drawOutputMatteAndOverlay(int outputIndex, OutputRuntime& runtime,
+                                 int renderW, int renderH) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        !runtime.outputRenderer) {
+      return;
+    }
+    const OutputTarget& output = project_.outputs[outputIndex];
+
+    const SDL_Rect content = matteContentRect(output.matteAspect, renderW, renderH);
+    const bool hasMatte = (content.w != renderW || content.h != renderH) &&
+                          output.matteOpacity > 0.001;
+    if (hasMatte) {
+      const Uint8 alpha = static_cast<Uint8>(
+        std::clamp(output.matteOpacity, 0.0, 1.0) * 255.0);
+      SDL_SetRenderDrawBlendMode(runtime.outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, alpha);
+      // All four, unconditionally: a rect of zero width or height draws
+      // nothing, so the letterbox and pillarbox cases need no branch.
+      const SDL_Rect bars[4] {
+        {0, 0, renderW, content.y},
+        {0, content.y + content.h, renderW, renderH - (content.y + content.h)},
+        {0, content.y, content.x, content.h},
+        {content.x + content.w, content.y, renderW - (content.x + content.w), content.h},
+      };
+      for (const SDL_Rect& bar : bars) {
+        if (bar.w > 0 && bar.h > 0) {
+          SDL_RenderFillRect(runtime.outputRenderer, &bar);
+        }
+      }
+      SDL_SetRenderDrawBlendMode(runtime.outputRenderer, SDL_BLENDMODE_NONE);
+    }
+
+    if (output.overlayEnabled && !output.overlayImagePath.empty() &&
+        output.overlayOpacity > 0.001) {
+      if (SDL_Texture* tex = ensureOutputOverlayTexture(runtime, output.overlayImagePath)) {
+        SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(
+          std::clamp(output.overlayOpacity, 0.0, 1.0) * 255.0));
+        // OVER THE WHOLE RASTER, including any matte bars. A bug that sits in
+        // the black of a letterbox is a normal thing to want, and a matte that
+        // covered it would make the two features contradict each other.
+        const SDL_Rect whole {0, 0, renderW, renderH};
+        SDL_RenderTexture(runtime.outputRenderer, tex, nullptr, &whole);
+      }
+    } else if (!output.overlayEnabled && runtime.overlayTexture) {
+      // Let go of the picture when it is switched off; a 4K still per output is
+      // real memory to hold for something nobody is looking at.
+      SDL_DestroyTexture(runtime.overlayTexture);
+      runtime.overlayTexture = nullptr;
+      runtime.overlayTexturePath.clear();
+    }
   }
 
   void sendOutputNdiFrame(int outputIndex, OutputRuntime& outputRuntime, int width, int height, double fpsHint) {

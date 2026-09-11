@@ -321,6 +321,38 @@
       expect(startupLabelOk && liveLabelOk && failedLabelOk, "browser status summary");
     }
 
+    // ── The matte, as geometry ─────────────────────────────────────────────
+    //
+    // Four fill rects are hard to get wrong; deciding WHERE they go is not.
+    // An unrecognised aspect in particular has to mean "no mask" -- guessing a
+    // ratio over a typo would black out part of somebody's show.
+    {
+      auto rect = [](const char* aspect, int w, int h) {
+        return matteContentRect(aspect, w, h);
+      };
+      const SDL_Rect off = rect("off", 1920, 1080);
+      expect(off.x == 0 && off.y == 0 && off.w == 1920 && off.h == 1080,
+             "matte: off covers the whole raster");
+      const SDL_Rect same = rect("16:9", 1920, 1080);
+      expect(same.w == 1920 && same.h == 1080,
+             "matte: an aspect the raster already is draws no bars");
+      const SDL_Rect wide = rect("2.39:1", 1920, 1080);
+      expect(wide.w == 1920 && wide.h == 803 && wide.x == 0 && wide.y == 138,
+             "matte: 2.39 letterboxes a 16:9 raster");
+      const SDL_Rect tall = rect("4:3", 1920, 1080);
+      expect(tall.h == 1080 && tall.w == 1440 && tall.y == 0 && tall.x == 240,
+             "matte: 4:3 pillarboxes a 16:9 raster");
+      const SDL_Rect junk = rect("not-an-aspect", 1920, 1080);
+      expect(junk.w == 1920 && junk.h == 1080,
+             "matte: an unparseable aspect masks nothing");
+      const SDL_Rect zero = rect("16:0", 1920, 1080);
+      expect(zero.w == 1920 && zero.h == 1080,
+             "matte: a zero denominator masks nothing");
+      const SDL_Rect portrait = rect("9:16", 1920, 1080);
+      expect(portrait.h == 1080 && portrait.w == 608,
+             "matte: 9:16 pillarboxes hard");
+    }
+
     // ── Tally: state versus event ──────────────────────────────────────────
     //
     // A switcher reports its program bus about once a second whether or not

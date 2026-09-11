@@ -922,6 +922,26 @@ struct OutputTarget {
   float outputAlpha = 1.0f;               // 0.0–1.0 master dimmer for this output
   int outputDelayMs = 0;                   // egress delay in ms (0–5000, for sync alignment)
   bool outputTimeOverlayEnabled = false;   // burn time/ID overlay onto this output
+
+  // -- Matte & overlay --------------------------------------------------------
+  // A MASK AND A LAYER THAT BELONG TO THE OUTPUT, NOT TO A CUE.
+  //
+  // A house frame is a property of the screen, not of what is playing on it: a
+  // 2.39 letterbox or a station bug has to survive every cut, every clear and
+  // every panic, and doing it with an overlay cue means remembering to attach
+  // it to all of them and losing it the moment anything goes wrong.
+  //
+  // Both are composited into the output's own picture before anything is taken
+  // off it, so the mask and the bug reach the recording, the stream, NDI and
+  // the program monitor identically -- there is one picture, and this is part
+  // of it.
+  //
+  // "off" | "16:9" | "4:3" | "2.39:1" | "1.85:1" | "1:1" | "9:16"
+  std::string matteAspect = "off";
+  double matteOpacity = 1.0;               // 0-1; solid bars at 1
+  std::string overlayImagePath;            // still image laid over the output
+  double overlayOpacity = 1.0;             // 0-1
+  bool overlayEnabled = false;
   std::string outputColorSpace = "auto";   // "auto" | "bt709" | "srgb"
   std::string outputLayoutMode = "span";   // "span" (portion of canvas) | "duplicate" (full copy)
   int outputOrientationDegrees = 0;        // rotation: 0 | 90 | 180 | 270 degrees

@@ -2017,6 +2017,88 @@
           sy += blendH + kSectionGap;
         }
 
+        // ── MATTE & OVERLAY ────────────────────────────────────────────────
+        //
+        // Belongs to the OUTPUT, beside AOI and edge feathering, because that
+        // is what it is: a property of the screen rather than of the show. Two
+        // rows -- the mask on top, the layer under it -- with the height
+        // derived from those rows rather than a number that would clip the
+        // moment the font changed, which is how DeckLink's 10-bit toggle went
+        // missing once.
+        {
+          const OutputTarget& mo = focusedOutputMutable();
+          const int moHdrH = settingsHeaderHeight(fontSmall_);
+          const int moLabelH = textLineHeight(fontSmall_);
+          const int moRowH = moLabelH + uiScaled(4) + sRowH;
+          int moH = moHdrH + moRowH + kRowGap + moRowH + sPad;
+          SDL_Rect moSection {cx, sy, subContentW, moH};
+          SDL_Rect moBody = drawSectionFrame(moSection, "MATTE & OVERLAY");
+
+          const int moGap = uiScaled(6);
+          int moLabelY = moBody.y;
+          int moBtnY = rowYBelowLabel(moLabelY, fontSmall_, 2);
+          const int moThirdW = (moBody.w - moGap * 2) / 3;
+
+          // Row 1: the mask.
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{moBody.x, moLabelY, moBody.w, moLabelH},
+                       "Matte — letterbox the output to a house aspect", soft);
+          SDL_Rect matteBtn {moBody.x, moBtnY, moThirdW, sRowH};
+          const bool matteOn = !mo.matteAspect.empty() &&
+                               toUpper(mo.matteAspect) != "OFF";
+          Primitives::drawFramedPanel(controlRenderer_, matteBtn,
+                                      matteOn ? pal.dark : pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_,
+                           matteOn ? toUpper(mo.matteAspect) : "OFF",
+                           matteOn ? pal.light : ink, matteBtn);
+          settingsBtns_.push_back({matteBtn, kSettingsActionOutputMatteCycle, "matte_aspect"});
+
+          SDL_Rect matteOpBtn {matteBtn.x + matteBtn.w + moGap, moBtnY, moThirdW, sRowH};
+          Primitives::drawFramedPanel(controlRenderer_, matteOpBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_,
+                           "BARS " + std::to_string(
+                             static_cast<int>(std::lround(mo.matteOpacity * 100.0))) + "%",
+                           ink, matteOpBtn);
+          settingsBtns_.push_back({matteOpBtn, kSettingsActionOutputMatteOpacity, "matte_opacity"});
+
+          // Row 2: the layer.
+          moLabelY = moBtnY + sRowH + kRowGap;
+          moBtnY = rowYBelowLabel(moLabelY, fontSmall_, 2);
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{moBody.x, moLabelY, moBody.w, moLabelH},
+                       "Overlay — a still laid over everything this output shows", soft);
+          SDL_Rect ovOnBtn {moBody.x, moBtnY, moThirdW, sRowH};
+          Primitives::drawFramedPanel(controlRenderer_, ovOnBtn,
+                                      mo.overlayEnabled ? pal.dark : pal.mid,
+                                      pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_,
+                           mo.overlayEnabled ? "OVERLAY ON" : "OVERLAY OFF",
+                           mo.overlayEnabled ? pal.light : ink, ovOnBtn);
+          settingsBtns_.push_back({ovOnBtn, kSettingsActionOutputHouseOverlayToggle, "overlay_on"});
+
+          SDL_Rect ovOpBtn {ovOnBtn.x + ovOnBtn.w + moGap, moBtnY, moThirdW, sRowH};
+          Primitives::drawFramedPanel(controlRenderer_, ovOpBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_,
+                           std::to_string(
+                             static_cast<int>(std::lround(mo.overlayOpacity * 100.0))) + "%",
+                           ink, ovOpBtn);
+          settingsBtns_.push_back({ovOpBtn, kSettingsActionOutputHouseOverlayOpacity, "overlay_opacity"});
+
+          SDL_Rect ovFileBtn {ovOpBtn.x + ovOpBtn.w + moGap, moBtnY,
+                              std::max(uiScaled(60),
+                                       moBody.x + moBody.w - (ovOpBtn.x + ovOpBtn.w + moGap)),
+                              sRowH};
+          Primitives::drawFramedPanel(controlRenderer_, ovFileBtn, pal.mid, pal.deep, pal.light);
+          drawCenteredText(controlRenderer_, fontSmall_,
+                           mo.overlayImagePath.empty()
+                             ? "CHOOSE IMAGE..."
+                             : fs::path(mo.overlayImagePath).filename().string(),
+                           ink, ovFileBtn);
+          settingsBtns_.push_back({ovFileBtn, kSettingsActionOutputHouseOverlayPick, "overlay_file"});
+
+          sy += moH + kSectionGap;
+        }
+
         // Area of Interest — edited as a pixel rect of the output raster
         // (a resolution + position, the way operators think about slices),
         // not four edge percentages. Fractions remain the storage format.
@@ -3443,6 +3525,73 @@
           [this](const std::string& val) {
             project_.tslTallyAddress = val.empty() ? "255.255.255.255" : val;
             markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionOutputMatteCycle) {
+        // The house shapes an operator actually asks for, and OFF first so a
+        // cycle always passes back through "no mask" within one pass.
+        static const std::array<const char*, 7> kMattes {{
+          "off", "16:9", "4:3", "2.39:1", "1.85:1", "1:1", "9:16"
+        }};
+        OutputTarget& mo = focusedOutputMutable();
+        std::size_t at = 0;
+        for (std::size_t i = 0; i < kMattes.size(); ++i) {
+          if (toUpper(mo.matteAspect) == toUpper(kMattes[i])) { at = i; break; }
+        }
+        mo.matteAspect = kMattes[(at + 1) % kMattes.size()];
+        markProjectDirty();
+        triggerToast(toUpper(mo.matteAspect) == "OFF"
+                       ? "matte off"
+                       : ("matte " + mo.matteAspect));
+      } else if (sb.action == kSettingsActionOutputMatteOpacity) {
+        OutputTarget& mo = focusedOutputMutable();
+        // 100 -> 75 -> 50 -> 25 -> 100. A partial matte dims rather than masks,
+        // which is what a rehearsal frame wants.
+        int pct = static_cast<int>(std::lround(mo.matteOpacity * 100.0));
+        pct = (pct <= 25) ? 100 : (pct - 25);
+        mo.matteOpacity = std::clamp(pct / 100.0, 0.0, 1.0);
+        markProjectDirty();
+        triggerToast("matte bars " + std::to_string(pct) + "%");
+      } else if (sb.action == kSettingsActionOutputHouseOverlayToggle) {
+        OutputTarget& mo = focusedOutputMutable();
+        mo.overlayEnabled = !mo.overlayEnabled;
+        markProjectDirty();
+        if (mo.overlayEnabled && mo.overlayImagePath.empty()) {
+          triggerToast("overlay on -- choose an image", kToastWarnFill, kToastWarnInk,
+                       kToastReadableMs);
+        } else {
+          triggerToast(mo.overlayEnabled ? "overlay on" : "overlay off");
+        }
+      } else if (sb.action == kSettingsActionOutputHouseOverlayOpacity) {
+        OutputTarget& mo = focusedOutputMutable();
+        int pct = static_cast<int>(std::lround(mo.overlayOpacity * 100.0));
+        pct = (pct <= 25) ? 100 : (pct - 25);
+        mo.overlayOpacity = std::clamp(pct / 100.0, 0.0, 1.0);
+        markProjectDirty();
+        triggerToast("overlay " + std::to_string(pct) + "%");
+      } else if (sb.action == kSettingsActionOutputHouseOverlayPick) {
+        // Static lifetime: SDL keeps the filter list until the callback fires,
+        // so it must outlive this call -- never a temporary.
+        static const std::vector<SDL_DialogFileFilter> kOverlayFilters {
+          {"Images", "png;jpg;jpeg;tga;bmp;webp;gif"},
+          {"All files", "*"},
+        };
+        // Captured by INDEX, not by reference: the callback runs later, on the
+        // main thread, and the operator may have focused a different output by
+        // then. The picture belongs to the output that was asked.
+        const int pickedOutput = std::clamp(project_.focusedOutputIndex, 0,
+                                            std::max(0, static_cast<int>(project_.outputs.size()) - 1));
+        showOpenFileDialog(kOverlayFilters, false,
+          [this, pickedOutput](std::vector<std::string> files) {
+            if (files.empty()) return;
+            if (pickedOutput < 0 ||
+                pickedOutput >= static_cast<int>(project_.outputs.size())) {
+              return;
+            }
+            OutputTarget& target = project_.outputs[pickedOutput];
+            target.overlayImagePath = files[0];
+            target.overlayEnabled = true;
+            markProjectDirty();
+            triggerToast("overlay: " + fs::path(files[0]).filename().string());
           });
       } else if (sb.action == kSettingsActionNmcModeCycle) {
         // Explicit either way once touched, so the show carries the direction

@@ -1164,6 +1164,14 @@
       SDL_RenderFillRect(runtime->outputRenderer, nullptr);
       SDL_SetRenderDrawBlendMode(runtime->outputRenderer, SDL_BLENDMODE_NONE);
     }
+    // THE HOUSE FRAME GOES ON LAST, AND INSIDE. Still the compositor's render
+    // target here, so the matte and the bug are part of the one picture that
+    // the recording, the stream, NDI and the program monitor are all taken
+    // from -- rather than something painted on the window afterwards that only
+    // the operator would ever see.
+    if (usingCompositor) {
+      drawOutputMatteAndOverlay(outputIndex, *runtime, renderW, renderH);
+    }
     if (usingCompositor) {
       SDL_SetRenderTarget(runtime->outputRenderer, nullptr);
       if (!streamType) {

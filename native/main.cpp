@@ -1927,6 +1927,13 @@ struct OutputRuntime {
   std::deque<CapturedFrame> delayFrames;
   Uint64 lastEgressCaptureAtMs = 0;
   Uint64 lastStreamCaptureSentAtMs = 0;
+  // House overlay: the still laid over this output's picture. Cached against
+  // the path it came from, so it is decoded once rather than every frame.
+  // Outside the NDI guard deliberately -- the matte and overlay belong to every
+  // output on every build, and a build without the NDI SDK still has them.
+  SDL_Texture* overlayTexture = nullptr;
+  std::string overlayTexturePath;
+
 #if defined(DECKBOY_HAS_NDI_SDK)
   NDIlib_send_instance_t ndiSender = nullptr;
   // Last tally state a receiver reported for this sender, and whether we have
@@ -7409,7 +7416,18 @@ class App {
   static constexpr int kSettingsActionNmcPortPrompt = 742;
   static constexpr int kSettingsActionNmcTargetPrompt = 743;
   static constexpr int kSettingsActionNmcSourcePrompt = 744;
-  // 730/731 are the encoder's -- the audit caught that collision. Next free: 745.
+  // Matte & house overlay, per output. Next free: 750.
+  //
+  // "House" in the names because kSettingsActionOutputOverlayToggle (283) is
+  // already the burned-in time/ID overlay -- two different things that both
+  // want to be called "the output overlay", and the compiler caught the second
+  // one trying.
+  static constexpr int kSettingsActionOutputMatteCycle = 745;
+  static constexpr int kSettingsActionOutputMatteOpacity = 746;
+  static constexpr int kSettingsActionOutputHouseOverlayToggle = 747;
+  static constexpr int kSettingsActionOutputHouseOverlayOpacity = 748;
+  static constexpr int kSettingsActionOutputHouseOverlayPick = 749;
+  // 730/731 are the encoder's -- the audit caught that collision.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
