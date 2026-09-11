@@ -802,7 +802,11 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
   } else if (fields[0] == "show_control_device") {
     project.showControlDeviceId = std::clamp(safeInt(fields, 1, 0), 0, 127);
   } else if (fields[0] == "ui_scale") {
-    project.uiScale = std::clamp(safeDouble(fields, 1, 1.0), 0.75, 3.0);
+    // 0 is "follow the desktop" and must survive the clamp; a saved sentinel
+    // turned into 0.75 by a range check is a setting that silently un-picks
+    // itself every time the show is opened.
+    const double savedScale = safeDouble(fields, 1, 0.0);
+    project.uiScale = (savedScale < 0.01) ? 0.0 : std::clamp(savedScale, 0.75, 3.0);
   } else if (fields[0] == "interaction_mode") {
     std::string v = safeString(fields, 1);
     project.interactionMode = (v == "touch") ? "touch" : "mouse";

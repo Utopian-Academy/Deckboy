@@ -1219,7 +1219,11 @@ struct Project {
   // than missing one.
   int showControlDeviceId = 0;
 
-  double uiScale = 1.0;
+  // 0 = follow the desktop's own scaling, which is what a machine whose
+  // desktop is at 125% or 150% should get without being asked. An explicit
+  // value overrides it, for a desk that wants to disagree with its OS.
+  // A show saved before this existed carries 1.0 and is unchanged.
+  double uiScale = 0.0;
 
   // ── VJ MODE ────────────────────────────────────────────────────────────
   //

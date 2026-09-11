@@ -51,6 +51,13 @@ page and part of the project file, and the page offers the field the chosen
 direction actually uses rather than both. A machine already started with the
 old environment variables keeps working exactly as it did.
 
+**The desk is the size the desktop says.** Windows hands a DPI-aware program
+real physical pixels, so on a display scaled to 125% or 150% Deckboy was
+drawing at 1:1 -- not blurry, just two thirds the size of everything else on
+that screen. UI scale now follows the desktop unless you tell it otherwise, and
+the setting says what it is actually doing rather than what is stored. A show
+saved before this carries its own scale and is unchanged.
+
 **The mascot notices you.** Poke the face that waits in an empty program
 monitor and it stops being a face. It looks back, it has opinions about being
 poked, and whichever part you actually hit answers for itself. Push your luck

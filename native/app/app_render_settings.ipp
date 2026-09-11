@@ -689,8 +689,14 @@
       // of v0.81.0) the settings chrome scales with it too.
       SDL_Rect scaleBtn {appX, appY, appW, sTallH};
       appY += sTallH + sGap;
-      char scaleLabel[16];
-      snprintf(scaleLabel, sizeof(scaleLabel), "%.2fx", project_.uiScale);
+      // Says what it is DOING, not what is stored: "0.00x" would be nonsense
+      // on a button and tells the operator nothing about how big the desk is.
+      char scaleLabel[40];
+      if (project_.uiScale > 0.01) {
+        snprintf(scaleLabel, sizeof(scaleLabel), "%.2fx", project_.uiScale);
+      } else {
+        snprintf(scaleLabel, sizeof(scaleLabel), "auto  %.2fx", effectiveUiScale());
+      }
       drawUIDropdown(scaleBtn, "UI Scale", scaleLabel, "settings.ui_scale");
       settingsBtns_.push_back({scaleBtn, kSettingsActionUiScaleDropdown, "ui_scale"});
       // Pocket 3 preset — one-click ergonomic bundle for the GPD Pocket 3
@@ -4595,21 +4601,41 @@
             markProjectDirty();
           });
       } else if (sb.action == kSettingsActionUiScaleDropdown) {
+        // AUTO FIRST, because it is the right answer on a machine whose
+        // desktop is already scaled -- which is most of them now. The explicit
+        // sizes stay for a desk that wants to disagree with its own OS, which
+        // is a legitimate thing to want on a stage.
+        char autoLabel[64];
+        snprintf(autoLabel, sizeof(autoLabel), "auto  (desktop is %.2fx)",
+                 desktopUiScale());
         std::vector<std::pair<std::string, std::string>> choices = {
+          {"0", autoLabel},
           {"1.00", "1.00x  (default 1080p)"},
           {"1.25", "1.25x  (large desktop)"},
           {"1.50", "1.50x  (4K desktop)"},
           {"2.00", "2.00x  (Pocket 3 / 4K small)"},
         };
         char current[16];
-        snprintf(current, sizeof(current), "%.2f", project_.uiScale);
+        if (project_.uiScale > 0.01) {
+          snprintf(current, sizeof(current), "%.2f", project_.uiScale);
+        } else {
+          snprintf(current, sizeof(current), "0");
+        }
         openDropdown("settings.ui_scale", sb.rect, choices, current,
           [this](const std::string& value) {
             double v = 1.0;
             try { v = std::stod(value); } catch (...) {}
-            project_.uiScale = std::clamp(v, 0.75, 3.0);
+            // 0 is the sentinel for "follow the desktop"; anything else is an
+            // explicit choice and is clamped to something legible.
+            project_.uiScale = (v < 0.01) ? 0.0 : std::clamp(v, 0.75, 3.0);
             applyUiScale();
-            triggerToast("ui scale: " + value + "x");
+            char msg[64];
+            if (project_.uiScale < 0.01) {
+              snprintf(msg, sizeof(msg), "ui scale: auto (%.2fx)", effectiveUiScale());
+            } else {
+              snprintf(msg, sizeof(msg), "ui scale: %.2fx", project_.uiScale);
+            }
+            triggerToast(msg);
             markProjectDirty();
           });
       } else if (sb.action == kSettingsActionPocket3Preset) {

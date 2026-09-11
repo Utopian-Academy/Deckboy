@@ -6795,9 +6795,36 @@ class App {
   // current UI scale. Safe to call from the settings handler — releaseFonts
   // drops the old textures and the existing rendering code picks the new
   // fonts and metrics up on the next frame.
+  // WHAT THE DESKTOP IS ALREADY SET TO.
+  //
+  // SDL makes the process DPI-aware on Windows, so on a desktop at 150% the
+  // window is handed real physical pixels and Deckboy drew into them at 1:1 --
+  // which is not blurry, it is SMALL. Every other application on that machine
+  // is already a size the operator chose; arriving at two thirds of it is
+  // Deckboy disagreeing with the desktop, not a preference.
+  //
+  // Returns 1.0 when the window is not up yet or the platform has no opinion,
+  // so nothing here can make the UI vanish before the first frame.
+  double desktopUiScale() const {
+    if (!controlWindow_) return 1.0;
+    const float scale = SDL_GetWindowDisplayScale(controlWindow_);
+    if (!(scale > 0.1f) || !(scale < 8.0f)) return 1.0;
+    return static_cast<double>(scale);
+  }
+
+  // The scale actually drawn at: the operator's choice, or the desktop's when
+  // they have not made one. uiScale <= 0 is the "follow the desktop" value,
+  // which is what a show saved before this existed does NOT contain -- those
+  // carry 1.0 and keep behaving exactly as they did.
+  double effectiveUiScale() const {
+    if (project_.uiScale > 0.01) return project_.uiScale;
+    return std::clamp(desktopUiScale(), 0.75, 3.0);
+  }
+
   void applyUiScale() {
+    const double scale = effectiveUiScale();
     releaseFonts();
-    if (!loadFonts(project_.uiScale)) {
+    if (!loadFonts(scale)) {
       // Fall back to 1.0× so the UI isn't fontless. The new value is still
       // persisted; the operator can try again or pick a smaller scale.
       releaseFonts();
@@ -6806,7 +6833,7 @@ class App {
       refreshMiamiCursor();
       return;
     }
-    rebuildLayoutMetrics(project_.uiScale);
+    rebuildLayoutMetrics(scale);
     // The pointer is part of the furniture: it has to grow with everything
     // else or it becomes a speck on a 4K desk.
     refreshMiamiCursor();
