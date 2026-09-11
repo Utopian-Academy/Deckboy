@@ -16,6 +16,31 @@ width. The counter is fed by the renderer as each page lands, so a sixty-page
 deck reports real progress the whole way through instead of arriving all at
 once at the end.
 
+**Going to air is the cue.** On a switched show the operator's hands are on the
+switcher, not on the playout machine -- so Deckboy can now watch the switcher
+and roll when it is put to air. Two ways, both off until asked for:
+
+Deckboy connects to an ATEM directly and watches its program bus. Set the
+switcher's address and pick which input Deckboy is -- from a dropdown of the
+switcher's own source names, read off the ATEM itself, so it says what the
+panel in the room says. It is a read-only connection: Deckboy never sends the
+switcher a command, because a playout machine that can cut the show is one that
+will eventually cut the show by accident.
+
+Or, with no switcher at all: an NDI receiver reports back to whatever it is
+watching, so a Deckboy output that a receiver has put on program knows it is
+live and rolls on that alone.
+
+Either way, coming back off air does what you chose -- load the next cue,
+pause, stop, clear, or nothing.
+
+**Deckboy answers as a deck.** HyperDeck emulation now speaks on the port the
+protocol is actually spoken on, so ATEM Software Control, Companion's HyperDeck
+module and anything else that talks to a deck can find it. The settings page
+shows the address to type in, worked out towards the switcher rather than
+guessed, and the emulation can be switched off for a rig that would rather
+Deckboy stayed quiet.
+
 **Crash reports say where.** When something does go wrong, the report Deckboy
 leaves behind now names the module and offset for every frame on the stack, and
 writes the essentials first — so the file is readable on its own, on any

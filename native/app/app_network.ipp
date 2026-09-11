@@ -1124,20 +1124,40 @@
     return {atemInputNames_.begin(), atemInputNames_.end()};
   }
 
+  enum class TallyEdge { None, OnAir, OffAir };
+
+  // DOES THIS PROGRAM-BUS READING MEAN ANYTHING TO US.
+  //
+  // Pure, and separate from the socket, because it is the part with rules
+  // rather than the part with I/O -- and the rules are the part that can be
+  // wrong in a way nothing notices until a show. The switcher reports program
+  // roughly once a second whether or not it changed, so the difference between
+  // "state" and "event" is the whole feature.
+  //
+  //   previous < 0   we have only just been told: state, not a transition. A
+  //                  client connecting while already on program must not fire
+  //                  a take for something that was true before it arrived.
+  //   ours <= 0      nobody has said which input Deckboy is. Guessing would
+  //                  mean rolling on somebody else's camera.
+  //   wasUs == isUs  the bus moved, but not across us. Not our business.
+  static TallyEdge atemTallyEdge(int previous, int current, int ours) {
+    if (ours <= 0) return TallyEdge::None;
+    if (previous < 0) return TallyEdge::None;
+    if (previous == current) return TallyEdge::None;
+    const bool wasUs = previous == ours;
+    const bool isUs = current == ours;
+    if (wasUs == isUs) return TallyEdge::None;
+    return isUs ? TallyEdge::OnAir : TallyEdge::OffAir;
+  }
+
   // The program bus moved. Only a change that crosses OUR input is an event.
   void atemProgramChanged(int source) {
     const int previous = atemProgramInput_.exchange(source);
-    if (previous == source) return;
-    const int ours = project_.atemTallyInput;
-    if (ours <= 0) return;            // nobody has said which input we are
-    // FIRST READING IS NOT A TRANSITION, for the same reason as NDI tally: a
-    // client that connects while already on program must not fire a take just
-    // because it has finally been told what it was looking at all along.
-    if (previous < 0) return;
-    const bool wasUs = previous == ours;
-    const bool isUs = source == ours;
-    if (wasUs == isUs) return;
-    enqueueRemoteCommand(isUs ? "TALLYEVENT ON ATEM" : "TALLYEVENT OFF ATEM");
+    switch (atemTallyEdge(previous, source, project_.atemTallyInput)) {
+      case TallyEdge::OnAir:  enqueueRemoteCommand("TALLYEVENT ON ATEM"); break;
+      case TallyEdge::OffAir: enqueueRemoteCommand("TALLYEVENT OFF ATEM"); break;
+      case TallyEdge::None:   break;
+    }
   }
 
   void startArtNetBridgeListener() {

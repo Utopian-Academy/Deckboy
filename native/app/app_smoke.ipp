@@ -321,6 +321,69 @@
       expect(startupLabelOk && liveLabelOk && failedLabelOk, "browser status summary");
     }
 
+    // ── Tally: state versus event ──────────────────────────────────────────
+    //
+    // A switcher reports its program bus about once a second whether or not
+    // anything moved, so the rule that separates "still on air" from "just went
+    // on air" is the entire feature. Sixty-one held readings were confirmed
+    // against a real ATEM to fire nothing; these cover the branches a bench
+    // test cannot reach without an operator standing at the panel.
+    {
+      const int us = 3;
+      expect(atemTallyEdge(1, 3, us) == TallyEdge::OnAir, "tally: cut to us is ON AIR");
+      expect(atemTallyEdge(3, 1, us) == TallyEdge::OffAir, "tally: cut away is OFF AIR");
+      expect(atemTallyEdge(3, 3, us) == TallyEdge::None, "tally: held on air is not an event");
+      expect(atemTallyEdge(1, 2, us) == TallyEdge::None, "tally: a cut between others is not ours");
+      expect(atemTallyEdge(-1, 3, us) == TallyEdge::None, "tally: first reading is state, not a cut");
+      expect(atemTallyEdge(1, 3, 0) == TallyEdge::None, "tally: no input chosen fires nothing");
+    }
+
+    // The ATEM packet parsers, against a packet built to the documented shape.
+    // Both run on a network thread against a datagram anyone on the LAN could
+    // have sent, so the bounds behaviour matters as much as the happy path.
+    {
+      auto block = [](std::vector<unsigned char>& into, const char* name,
+                      const std::vector<unsigned char>& payload) {
+        const unsigned len = 8 + static_cast<unsigned>(payload.size());
+        into.push_back(static_cast<unsigned char>(len >> 8));
+        into.push_back(static_cast<unsigned char>(len & 0xFF));
+        into.push_back(0);
+        into.push_back(0);
+        for (int i = 0; i < 4; ++i) into.push_back(static_cast<unsigned char>(name[i]));
+        into.insert(into.end(), payload.begin(), payload.end());
+      };
+      std::vector<unsigned char> packet(12, 0);          // header, contents unused here
+      std::vector<unsigned char> prgi {0, 0, 0, 4};      // ME 0, program = source 4
+      block(packet, "PrgI", prgi);
+      std::vector<unsigned char> inpr(22, 0);
+      inpr[0] = 0; inpr[1] = 4;
+      const char* label = "Camera 4";
+      for (int i = 0; label[i]; ++i) inpr[2 + i] = static_cast<unsigned char>(label[i]);
+      block(packet, "InPr", inpr);
+
+      const auto program =
+        atemProgramInputFromPacket(packet.data(), static_cast<unsigned>(packet.size()));
+      expect(program && *program == 4, "atem parse: program input");
+
+      std::map<int, std::string> names;
+      atemInputNamesFromPacket(packet.data(), static_cast<unsigned>(packet.size()), names);
+      expect(names.size() == 1 && names[4] == "Camera 4", "atem parse: input name");
+
+      // A truncated datagram must stop, not read past the end.
+      std::map<int, std::string> shortNames;
+      const unsigned half = static_cast<unsigned>(packet.size()) / 2;
+      atemInputNamesFromPacket(packet.data(), half, shortNames);
+      expect(shortNames.empty() || shortNames.count(4) == 0,
+             "atem parse: truncated packet reads nothing past the end");
+
+      // A zero-length block would otherwise spin forever.
+      std::vector<unsigned char> evil(12, 0);
+      evil.insert(evil.end(), {0, 0, 0, 0, 'P', 'r', 'g', 'I'});
+      const auto none =
+        atemProgramInputFromPacket(evil.data(), static_cast<unsigned>(evil.size()));
+      expect(!none, "atem parse: zero-length block terminates");
+    }
+
     {
       auto osc = buildOscStringMessage("/take", "3");
       std::string packet(reinterpret_cast<const char*>(osc.data()), osc.size());
