@@ -2278,7 +2278,7 @@
       return 2;
     }
 
-    unsigned session = 0x1337;
+    unsigned session = atemFreshSessionId();
     unsigned char hello[20] {};
     atemWriteHeader(hello, 0x02, 20, session, 0, 0);
     hello[12] = 0x01;
@@ -2319,6 +2319,7 @@
       const unsigned pktId = (static_cast<unsigned>(buffer[10]) << 8) | buffer[11];
 
       if ((flags & 0x02) != 0 && !greeted) {
+        // Echoes what we proposed; the switcher's own id arrives next packet.
         session = pktSession;
         greeted = true;
         std::cout << "  connected -- session 0x" << std::hex << session << std::dec << "\n";
@@ -2328,6 +2329,11 @@
                reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
         ++acked;
         continue;
+      }
+      if (greeted && pktSession != session) {
+        session = pktSession;
+        std::cout << "  switcher moved to session 0x" << std::hex << session
+                  << std::dec << "\n";
       }
       if ((flags & 0x01) != 0) {
         unsigned char ack[12] {};

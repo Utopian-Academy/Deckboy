@@ -910,6 +910,24 @@
   // for about ten seconds and then never again.
   static constexpr int kAtemUdpPort = 9910;
 
+  // A SESSION ID NOBODY ELSE IS ALREADY USING.
+  //
+  // The client proposes the id and the switcher keeps it, so a constant is a
+  // collision waiting to happen: 0x1337 is the value in every published example
+  // of this protocol, which means Deckboy, a second Deckboy, and any other tool
+  // written from the same references would all introduce themselves as the same
+  // session. The switcher then has one confused client instead of several
+  // working ones -- observed on the bench, where a probe and a control script
+  // both announced 0x1337 and commands were silently ignored.
+  //
+  // Kept inside the documented client range and away from 0.
+  static unsigned atemFreshSessionId() {
+    static std::atomic<unsigned> counter {0};
+    const unsigned seed = static_cast<unsigned>(
+      std::chrono::steady_clock::now().time_since_epoch().count());
+    return 0x1000u + ((seed + counter.fetch_add(0x2D9u)) % 0x6000u);
+  }
+
   void startAtemSwitcherClient() {
     stopAtemSwitcherClient();
     if (!project_.atemTallyTriggerEnabled || project_.atemSwitcherHost.empty()) {
@@ -971,7 +989,7 @@
       return false;
     }
 
-    unsigned session = 0x1337;
+    unsigned session = atemFreshSessionId();
     unsigned char hello[20] {};
     atemWriteHeader(hello, 0x02, 20, session, 0, 0);
     hello[12] = 0x01;
@@ -1018,7 +1036,16 @@
       const unsigned pktId = (static_cast<unsigned>(buffer[10]) << 8) | buffer[11];
 
       if ((flags & 0x02) != 0 && !greeted) {
-        // The hello answer carries the session id to use from here on.
+        // NOT the session to use from here on, despite appearances. The hello
+        // answer ECHOES the id we proposed -- so a client that adopts it and
+        // stops looking is addressing a session the switcher has already left.
+        // The real one arrives on the next packet, and is picked up below.
+        //
+        // Measured on an ATEM Mini Pro: we proposed 0x5B33, the greeting came
+        // back 0x5B33, and every packet after it was 0x98E0. Acks sent to the
+        // old id are ignored, which is survivable for a listener -- the
+        // switcher keeps talking -- and fatal for anything that wants to be
+        // heard.
         session = pktSession;
         greeted = true;
         atemSwitcherConnected_.store(true);
@@ -1027,6 +1054,12 @@
         sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
                reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
         continue;
+      }
+
+      // THE SWITCHER'S OWN ID WINS, from the first packet that carries one.
+      // See the note on the greeting above.
+      if (greeted && pktSession != session) {
+        session = pktSession;
       }
 
       if ((flags & 0x01) != 0) {
