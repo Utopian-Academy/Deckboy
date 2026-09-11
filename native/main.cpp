@@ -4077,6 +4077,8 @@ class App {
     }
   }
 
+  void debugAuditSettingsLayout() { auditSettingsLayout_ = true; }
+
   void debugPokeMascot(int pokes) {
     mascotPokes_ = pokes;
     mascotLastPokeMs_ = SDL_GetTicks();
@@ -8476,6 +8478,12 @@ class App {
   // and never held past the call that filled it.
   std::string localisedScratch_;
 
+  // One-shot request to report overlapping settings controls; see the audit at
+  // the end of renderSettingsModal.
+  bool auditSettingsLayout_ = false;
+  struct SettingsCardRect { SDL_Rect rect; std::string title; };
+  std::vector<SettingsCardRect> settingsCards_;
+
   bool firstClipLoadedThisSession_ = false;
 
   // ── The mascot notices you ──────────────────────────────────────────────
@@ -9912,6 +9920,7 @@ int runDeckboyMain(int argc, char** argv) {
   double soakMinutes = -1.0;
   std::vector<std::string> importPathsArg;
   int mascotPokesArg = 0;
+  bool auditSettingsLayoutArg = false;
   fs::path startupProjectArg;
   int openSettingsTab = -1;
   int inspectorScrollArg = -1;
@@ -9938,6 +9947,13 @@ int runDeckboyMain(int argc, char** argv) {
     // Scripted clicks do not reach SDL3 -- PostMessage input is ignored -- so
     // without this the egg's three stages could be built, shipped and never
     // once looked at. The same reason --code-editor exists.
+    // Report any settings control sitting on top of another, for the tab the
+    // run opens on. A dead control is invisible in a screenshot; an overlapping
+    // pair of rectangles is not.
+    if (arg == "--audit-settings-layout") {
+      auditSettingsLayoutArg = true;
+      continue;
+    }
     if (arg == "--mascot-pokes") {
       if (i + 1 >= rest.size()) {
         printCliError("--mascot-pokes needs a count");
@@ -10053,6 +10069,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (mascotPokesArg > 0) {
     app.debugPokeMascot(mascotPokesArg);
+  }
+  if (auditSettingsLayoutArg) {
+    app.debugAuditSettingsLayout();
   }
   if (inspectorScrollArg >= 0) {
     app.debugScrollInspector(inspectorScrollArg);

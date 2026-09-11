@@ -381,6 +381,14 @@
 
   void drawSettingsCard(const SDL_Rect& rect, const std::string& title,
                         const std::string& subtitle = std::string()) {
+    // Every card records where it is, so the layout audit can tell a control
+    // that overflowed its card from one that merely sits near the edge. A card
+    // is the thing a control is supposed to stay inside; without knowing where
+    // they are, "hidden behind something" is only checkable control-to-control,
+    // and the REMOTE CONTROL pill that spilled under the OSC card was neither.
+    if (auditSettingsLayout_) {
+      settingsCards_.push_back({rect, title});
+    }
     Primitives::drawFramedPanel(controlRenderer_, rect, pal.shellInner, pal.deep, pal.light);
     SDL_Rect plate = drawSettingsPlate(rect, title, fontBase_);
     if (!subtitle.empty()) {
@@ -546,7 +554,12 @@
       // kept in step by hand -- it was not, twice: the arithmetic still said
       // four standard rows after hover tips and the Miami cursor were added, so
       // SAFETY / TIMECODE was drawn across the bottom of the UI Scale picker.
-      int appearanceH = stackH({sTallH, sRowH, sRowH, sRowH, sRowH, sRowH,
+      // Theme picker, LANGUAGE picker, sfx, tips, cursor, mascot, creatures,
+      // ui-scale picker, pocket preset. The language row was added to the card
+      // without being added here, so the card kept its old height and the last
+      // control drifted across the edge into SAFETY / TIMECODE below -- which
+      // is the same way this card ended up a row short once before.
+      int appearanceH = stackH({sTallH, sTallH, sRowH, sRowH, sRowH, sRowH, sRowH,
                                 sTallH, sRowH});
       int safetyH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
@@ -1621,23 +1634,24 @@
       SDL_Rect atemBtn {pillX1, pillY, pillW, pillH};
       SDL_Rect ndiTrigBtn {pillX2, pillY, pillW, pillH};
       pillY += pillH + sGap;
-      SDL_Rect nmcBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect mtcBtn {pillX2, pillY, pillW, pillH};
+      // NMC IS NOT HERE. It has its own card on this page, with the direction,
+      // the port and the address it needs -- and a second switch for the same
+      // thing, eight rows away from the first, is how an operator ends up
+      // turning something on twice and off once.
+      SDL_Rect mtcBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect ltcBtn {pillX2, pillY, pillW, pillH};
       pillY += pillH + sGap;
-      SDL_Rect ltcBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect artNetBtn {pillX2, pillY, pillW, pillH};
+      SDL_Rect artNetBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect tslBtn2 {pillX2, pillY, pillW, pillH};
       drawPill(atemBtn, project_.atemTriggerEnabled, "ATEM ON", "ATEM OFF", kSettingsActionIntegrationAtemToggle);
       drawPill(ndiTrigBtn, project_.ndiTriggerEnabled, "NDI TRIGGER ON", "NDI TRIGGER OFF", kSettingsActionIntegrationNdiTriggerToggle);
-      drawPill(nmcBtn, project_.nmcSyncEnabled, "NMC ON", "NMC OFF", kSettingsActionIntegrationNmcToggle);
       drawPill(mtcBtn, project_.mtcIngestEnabled, "MTC ON", "MTC OFF", kSettingsActionIntegrationMtcToggle);
       drawPill(ltcBtn, project_.ltcIngestEnabled, "LTC ON", "LTC OFF", kSettingsActionIntegrationLtcToggle);
       drawPill(artNetBtn, project_.dmxArtNetEnabled, "ARTNET ON", "ARTNET OFF", kSettingsActionIntegrationArtNetToggle);
+      drawPill(tslBtn2, project_.tslTallyEnabled, "TSL TALLY ON", "TSL TALLY OFF", kSettingsActionIntegrationTslToggle);
       pillY += pillH + sGap;
-      SDL_Rect tslBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect tcChaseBtn {pillX2, pillY, pillW, pillH};
-      pillY += pillH + sGap;
-      SDL_Rect tcRunBtn {pillX1, pillY, pillW, pillH};
-      drawPill(tslBtn, project_.tslTallyEnabled, "TALLY ON", "TALLY OFF", kSettingsActionIntegrationTslToggle);
+      SDL_Rect tcChaseBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect tcRunBtn {pillX2, pillY, pillW, pillH};
       drawPill(tcChaseBtn, focusedDeck().timecodeChaseEnabled, "TC CHASE ON", "TC CHASE OFF", kSettingsActionIntegrationTimecodeChaseToggle);
       drawPill(tcRunBtn, focusedDeck().timecodeRunEnabled, "TC RUN ON", "TC RUN OFF", kSettingsActionIntegrationTimecodeRunToggle);
       pillY += pillH + sGap;
@@ -3210,6 +3224,70 @@
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect{ex, ey, ew, sLineH},
                      "  +" + std::to_string(static_cast<int>(flagged.size()) - shown) + " more", soft);
       }
+    }
+
+    // ── Is anything hidden behind anything else? ────────────────────────────
+    //
+    // Every control on this page registers a hit rect. Two rects that overlap
+    // mean one control is sitting on top of another: the top one takes the
+    // click and the bottom one is unreachable, which is invisible in a
+    // screenshot if the paint order happens to be kind and is a dead control
+    // either way.
+    //
+    // This is the machine-checkable form of "some things are hidden behind
+    // other things". Reported, not fixed automatically -- the right answer is
+    // always a layout change, and a silent nudge would just move the problem.
+    if (auditSettingsLayout_) {
+      const auto area = [](const SDL_Rect& r) { return r.w * r.h; };
+      // A control that leaves its own card is drawn over whatever is below it.
+      for (const auto& btn : settingsBtns_) {
+        const int cx = btn.rect.x + btn.rect.w / 2;
+        const int cy = btn.rect.y + btn.rect.h / 2;
+        for (const auto& card : settingsCards_) {
+          const SDL_Rect& c = card.rect;
+          const bool centreInside =
+            cx >= c.x && cx < c.x + c.w && cy >= c.y && cy < c.y + c.h;
+          if (!centreInside) continue;
+          const bool fullyInside =
+            btn.rect.x >= c.x && btn.rect.y >= c.y &&
+            btn.rect.x + btn.rect.w <= c.x + c.w &&
+            btn.rect.y + btn.rect.h <= c.y + c.h;
+          if (!fullyInside) {
+            std::cerr << "settings-overflow tab=" << settingsTab_
+                      << " \"" << btn.label << "\" escapes card \"" << card.title
+                      << "\" (top " << (c.y - btn.rect.y)
+                      << "px, bottom " << (btn.rect.y + btn.rect.h - (c.y + c.h))
+                      << "px; positive means it escapes that side)\n";
+          }
+          break;
+        }
+      }
+      int reported = 0;
+      for (std::size_t i = 0; i < settingsBtns_.size(); ++i) {
+        for (std::size_t j = i + 1; j < settingsBtns_.size(); ++j) {
+          const SDL_Rect& a = settingsBtns_[i].rect;
+          const SDL_Rect& b = settingsBtns_[j].rect;
+          SDL_Rect hit {};
+          if (!SDL_GetRectIntersection(&a, &b, &hit)) continue;
+          // A shared edge is not an overlap. Anything that actually covers
+          // pixels of another control is.
+          if (hit.w <= 1 || hit.h <= 1) continue;
+          ++reported;
+          std::cerr << "settings-overlap tab=" << settingsTab_
+                    << " \"" << settingsBtns_[i].label << "\" (" << a.x << "," << a.y
+                    << " " << a.w << "x" << a.h << ")"
+                    << " over \"" << settingsBtns_[j].label << "\" (" << b.x << "," << b.y
+                    << " " << b.w << "x" << b.h << ")"
+                    << " by " << hit.w << "x" << hit.h
+                    << (area(hit) >= std::min(area(a), area(b)) ? "  FULLY COVERED" : "")
+                    << "\n";
+        }
+      }
+      std::cerr << "settings-overlap tab=" << settingsTab_
+                << " controls=" << settingsBtns_.size()
+                << " overlaps=" << reported << "\n";
+      auditSettingsLayout_ = false;   // one report per request, not per frame
+      settingsCards_.clear();
     }
   }
 

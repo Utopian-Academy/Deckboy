@@ -4608,7 +4608,13 @@
     //
     // Continues from inspectorSectionBottomMax_, wherever the branch finished.
     if (selectedCue && cueSupportsEffectStack(*selectedCue)) {
-      int fxY = inspectorSectionBottomMax_;
+      // PLUS THE GAP. Every section in the per-kind chain above puts one
+      // between itself and the next; these two started flush against whatever
+      // came before. With the sections open a body fill hides it, but collapse
+      // them and the anchor becomes a header BOTTOM -- so KEY's header and
+      // EFFECTS' header met with nothing between them, which is exactly the
+      // state an operator collapses their way into to get down here.
+      int fxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
       auto fxSection = beginInspectorSection(fxY, "EFFECTS", cueSectionEffectsOpen_,
                                              QuickAction::CueSectionEffectsToggle,
                                              "Collapse/expand per-cue effects");
@@ -4633,7 +4639,7 @@
     // inspectorSectionBottomMax_ already tracks for the scroll extent.
     if (selectedCue && selectedCue->kind != CueKind::VideoSynth &&
         cueHasTextModeEffect(*selectedCue)) {
-      int tmY = inspectorSectionBottomMax_;
+      int tmY = inspectorSectionBottomMax_ + kInspectorSectionGap;   // see EFFECTS
       auto tmSection = beginInspectorSection(tmY, "TEXT MODE",
                                              cueSectionVideoSynthOpen_,
                                              QuickAction::CueSectionVideoSynthToggle,
