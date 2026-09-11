@@ -84,6 +84,14 @@ struct Paths {
   };
   static std::filesystem::path fontPath(FontName name);
 
+  // WHERE THIS MACHINE KEEPS ITS FONTS.
+  //
+  // Exposed because the interface language may need a script the bundled faces
+  // do not have, and the answer is almost always already installed -- Yu Gothic
+  // on Windows, Hiragino on macOS, Noto on most Linux desktops. Shipping those
+  // ourselves would mean carrying megabytes of glyphs the machine already has.
+  static std::filesystem::path systemFontDir();
+
   /// Normalize a project file path for save/load:
   ///   - Empty path → default project file location
   ///   - Missing extension → append ".deckboy"

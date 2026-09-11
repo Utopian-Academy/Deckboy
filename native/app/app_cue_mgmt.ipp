@@ -1291,8 +1291,12 @@
     if (!project_.theme.empty()) {
       loadTheme(project_.theme);
     }
-    applyUiScale();
+    // LANGUAGE BEFORE FONTS. applyUiScale loads the faces, and which faces to
+    // load is a question only the language can answer -- a show in Japanese
+    // needs a face with Japanese in it. Loading first and asking second is how
+    // the whole interface came up as empty boxes.
     applyProjectLanguage();
+    applyUiScale();
     disarmAllOutputsForStartup();
     // Open lands on a neutral "nothing live" state, same as a fresh launch:
     // clear any saved active cue so the timeline and preview agree (the saved

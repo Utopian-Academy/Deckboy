@@ -31,6 +31,8 @@ std::map<std::string, std::unordered_map<std::string, std::string>> gCatalogues;
 const std::unordered_map<std::string, std::string>* gActive = nullptr;
 std::string gCode = "en";
 std::string gName = "English";
+std::string gFontFile;      // empty = the bundled face is fine
+bool gFontMissing = false;  // asked for a face that is not installed
 int gCypher = 0;   // 0 = none; see kCyphers
 
 std::string lower(std::string s) {
@@ -61,14 +63,22 @@ std::string trim(const std::string& s) {
 struct Cypher {
   const char* code;
   const char* name;
+  // The face this cypher wants, if its symbols are not Latin letters. Empty
+  // means "the bundled font is fine".
+  const char* font;
 };
 
 const Cypher kCyphers[] = {
-  {"cy-rot13", "ROT13"},
-  {"cy-atbash", "Atbash"},
-  {"cy-leet", "1337"},
-  {"cy-morse", "Morse"},
-  {"cy-alienese2", "Alienese II"},
+  {"cy-rot13", "ROT13", ""},
+  {"cy-atbash", "Atbash", ""},
+  {"cy-leet", "1337", ""},
+  {"cy-morse", "Morse", ""},
+  // ALIEN LANGUAGE II IS A SCRIPT, not a way of spelling English. The cipher
+  // below is right either way -- it is the running-sum one from the show -- but
+  // drawn in Latin letters it is a puzzle answer rather than the alphabet. Put
+  // Alienese.ttf in data/fonts and it is drawn properly; without it the maths
+  // still works and the result is readable, which is the honest fallback.
+  {"cy-alienese2", "Alienese II", "Alienese.ttf"},
 };
 constexpr int kCypherCount = static_cast<int>(sizeof(kCyphers) / sizeof(kCyphers[0]));
 
@@ -193,7 +203,8 @@ fs::path catalogueDir(const fs::path& dataDir) { return dataDir / "lang"; }
 // `english<TAB>translation`, and blank or `#` lines are ignored.
 bool readCatalogue(const fs::path& file,
                    std::unordered_map<std::string, std::string>& into,
-                   std::string& displayName) {
+                   std::string& displayName,
+                   std::string* fontFile = nullptr) {
   std::ifstream in(file);
   if (!in) return false;
   std::string line;
@@ -203,6 +214,10 @@ bool readCatalogue(const fs::path& file,
     if (line[0] == '#') {
       const std::string tag = "#name";
       if (line.rfind(tag, 0) == 0) displayName = trim(line.substr(tag.size()));
+      const std::string fontTag = "#font";
+      if (fontFile && line.rfind(fontTag, 0) == 0) {
+        *fontFile = trim(line.substr(fontTag.size()));
+      }
       continue;
     }
     const auto tab = line.find('\t');
@@ -235,7 +250,8 @@ std::vector<LanguageInfo> availableLanguages(const fs::path& dataDir) {
       if (code == "en") continue;
       std::unordered_map<std::string, std::string> probe;
       std::string name = code;
-      if (!readCatalogue(entry.path(), probe, name)) continue;
+      std::string font;
+      if (!readCatalogue(entry.path(), probe, name, &font)) continue;
       // An empty catalogue is a file somebody started, not a language anybody
       // can pick; offering it would just be English under another name.
       if (probe.empty()) continue;
@@ -256,11 +272,22 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   error.clear();
   const std::string want = trim(code).empty() ? std::string("en") : trim(code);
 
+  // Whatever we end up choosing, the face question is answered here, once.
+  // Just remembers the request. Whether any of the candidates exists is the
+  // font loader's business -- it is the only thing that knows where it looked
+  // and what it managed to open -- and it reports back through noteFontResolved.
+  auto adoptFont = [&](const std::string& file) {
+    gFontFile = file;
+    gFontMissing = false;
+  };
+  (void)dataDir;
+
   if (want == "en") {
     gActive = nullptr;
     gCypher = 0;
     gCode = "en";
     gName = "English";
+    adoptFont({});
     return true;
   }
 
@@ -270,6 +297,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
       gCypher = i + 1;
       gCode = want;
       gName = kCyphers[i].name;
+      adoptFont(kCyphers[i].font);
       return true;
     }
   }
@@ -278,27 +306,51 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   if (cached == gCatalogues.end()) {
     std::unordered_map<std::string, std::string> loaded;
     std::string name = want;
+    std::string font;
     const fs::path file = catalogueDir(dataDir) / (want + ".tsv");
-    if (!readCatalogue(file, loaded, name) || loaded.empty()) {
+    if (!readCatalogue(file, loaded, name, &font) || loaded.empty()) {
       error = "no language catalogue for " + want;
       return false;
     }
+    loaded.emplace("font", font);
     // The display name rides along with the catalogue so the picker can show
     // it without re-reading every file.
-    loaded.emplace("\x01name", name);
+    loaded.emplace("\x01" "name", name);
     cached = gCatalogues.emplace(want, std::move(loaded)).first;
   }
 
   gActive = &cached->second;
   gCypher = 0;
   gCode = want;
-  const auto nameAt = cached->second.find("\x01name");
+  const auto nameAt = cached->second.find("\x01" "name");
   gName = (nameAt == cached->second.end()) ? want : nameAt->second;
+  const auto fontAt = cached->second.find("\x01" "font");
+  adoptFont(fontAt == cached->second.end() ? std::string() : fontAt->second);
   return true;
 }
 
 const std::string& activeCode() { return gCode; }
 const std::string& activeName() { return gName; }
+
+std::vector<std::string> activeFontCandidates() {
+  std::vector<std::string> out;
+  std::string item;
+  for (char c : gFontFile) {
+    if (c == ',') {
+      const std::string t = trim(item);
+      if (!t.empty()) out.push_back(t);
+      item.clear();
+    } else {
+      item += c;
+    }
+  }
+  const std::string t = trim(item);
+  if (!t.empty()) out.push_back(t);
+  return out;
+}
+
+bool activeFontMissing() { return gFontMissing; }
+void noteFontResolved(bool found) { gFontMissing = !gFontFile.empty() && !found; }
 
 bool passthrough() { return gActive == nullptr && gCypher == 0; }
 

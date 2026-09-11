@@ -1,0 +1,82 @@
+#name हिन्दी
+#font Nirmala.ttc, NirmalaS.ttf, NirmalaB.ttf, Kohinoor.ttc, NotoSansDevanagari-Regular.ttf, truetype/noto/NotoSansDevanagari-Regular.ttf
+# This script is not in the bundled faces, so the line above names the ones
+# that can draw it. They are tried in order: data/fonts first, then the
+# machine's own font directory. Every name here ships with a stock install of
+# the platform it belongs to, which is why nothing has to be downloaded.
+#
+# If none of them is present the text falls back to the bundled face and will
+# draw as empty boxes -- the settings page says so rather than leaving you to
+# work it out.
+NEW	नया
+OPEN	खोलें
+SAVE	सहेजें
+SAVE AS	इस रूप में सहेजें
+BUNDLE	
+IMPORT	आयात
+SOURCE	स्रोत
+PATTERN	
+SETTINGS	सेटिंग्स
+TAKE	
+STOP	रोकें
+REBOOT	पुनःप्रारंभ
+BLACKOUT	काला
+CLEAR	साफ़ करें
+RECORD	रिकॉर्ड
+PLAYLIST	सूची
+TIMELINE	समयरेखा
+MEDIA	मीडिया
+TRANSPORT	
+OUTPUT	आउटपुट
+PROGRAM	
+WARP	
+LIVE	लाइव
+DECODE	
+STREAM	
+System	सिस्टम
+Audio	ऑडियो
+Network	नेटवर्क
+Video Outputs	वीडियो आउटपुट
+About	बारे में
+Encoder	एनकोडर
+Screen	स्क्रीन
+Geometry	
+Devices	उपकरण
+Streaming	स्ट्रीमिंग
+APPEARANCE	दिखावट
+REMOTE CONTROL	
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	प्लेबैक
+COPY	प्रतिलिपि
+PASTE	चिपकाएँ
+RESET	रीसेट
+Theme	थीम
+Language	भाषा
+Resolution	रिज़ॉल्यूशन
+Orientation	
+Toggle Fullscreen	पूर्ण स्क्रीन
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	केंद्र
+FULL	पूर्ण
+duration	अवधि
+transition	संक्रमण
+fade in	
+fade out	
+ON	चालू
+OFF	बंद
+Stopped	रुका
+Playing	चल रहा
+Paused	ठहरा

@@ -1,0 +1,82 @@
+#name 日本語
+#font YuGothR.ttc, meiryo.ttc, msgothic.ttc, Hiragino Sans GB.ttc, PingFang.ttc, NotoSansCJK-Regular.ttc, opentype/noto/NotoSansCJK-Regular.ttc
+# This script is not in the bundled faces, so the line above names the ones
+# that can draw it. They are tried in order: data/fonts first, then the
+# machine's own font directory. Every name here ships with a stock install of
+# the platform it belongs to, which is why nothing has to be downloaded.
+#
+# If none of them is present the text falls back to the bundled face and will
+# draw as empty boxes -- the settings page says so rather than leaving you to
+# work it out.
+NEW	新規
+OPEN	開く
+SAVE	保存
+SAVE AS	名前を付けて保存
+BUNDLE	
+IMPORT	読み込み
+SOURCE	ソース
+PATTERN	テストパターン
+SETTINGS	設定
+TAKE	
+STOP	停止
+REBOOT	再起動
+BLACKOUT	ブラック
+CLEAR	クリア
+RECORD	録画
+PLAYLIST	プレイリスト
+TIMELINE	タイムライン
+MEDIA	メディア
+TRANSPORT	トランスポート
+OUTPUT	出力
+PROGRAM	
+WARP	
+LIVE	ライブ
+DECODE	デコード
+STREAM	
+System	システム
+Audio	オーディオ
+Network	ネットワーク
+Video Outputs	映像出力
+About	情報
+Encoder	エンコーダー
+Screen	画面
+Geometry	ジオメトリ
+Devices	デバイス
+Streaming	配信
+APPEARANCE	外観
+REMOTE CONTROL	リモート制御
+INTEGRATION ADAPTERS	連携アダプター
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	接続中のディスプレイ
+EDGE FEATHERING	エッジぼかし
+MATTE & OVERLAY	マットとオーバーレイ
+AREA OF INTEREST	対象領域
+DEFAULT TRANSITION	既定のトランジション
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	キュー インスペクター
+SELECTED CUE	選択中のキュー
+PLAYBACK	再生
+COPY	コピー
+PASTE	貼り付け
+RESET	リセット
+Theme	テーマ
+Language	言語
+Resolution	解像度
+Orientation	向き
+Toggle Fullscreen	全画面
+IDENTIFY	識別
+REGION SIZE	領域サイズ
+POSITION	位置
+CENTRE	中央
+FULL	全体
+duration	長さ
+transition	トランジション
+fade in	フェードイン
+fade out	フェードアウト
+ON	オン
+OFF	オフ
+Stopped	停止中
+Playing	再生中
+Paused	一時停止

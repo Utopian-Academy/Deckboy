@@ -86,6 +86,34 @@ bool setLanguage(const std::string& code, const std::filesystem::path& dataDir,
 const std::string& activeCode();
 const std::string& activeName();
 
+// THE FACE THIS LANGUAGE NEEDS, or empty for the bundled ones.
+//
+// Some writing systems are not a translation problem, they are a font problem:
+// the bundled Liberation faces have no CJK, no Devanagari, no Arabic, and
+// certainly no Alienese. A catalogue can name the file it wants with a
+// `#font <name>` line and a cypher can carry one too; the loader looks for it
+// in data/fonts and falls back to the bundled face if it is not there.
+//
+// Declared here rather than hardcoded in the font loader so that adding a
+// script is a matter of editing a .tsv -- no code, no rebuild.
+//
+// A LIST, tried in order, because the answer is different on every platform and
+// most of the time it is already installed. Japanese is Yu Gothic on Windows,
+// Hiragino on macOS and Noto on Linux; naming all three means Deckboy reads
+// Japanese on all three without shipping sixteen megabytes of glyphs that the
+// operating system already has. A name with no directory is looked for in
+// data/fonts first and then among the system faces, so a bundled file still
+// wins when somebody wants an exact look.
+std::vector<std::string> activeFontCandidates();
+
+// Does this language need a face we could not find? True means its text will
+// draw as empty boxes, which callers that can warn, should.
+bool activeFontMissing();
+
+// Records what the loader actually managed to open, so activeFontMissing can
+// tell "asked for nothing" from "asked and did not get it".
+void noteFontResolved(bool found);
+
 // True when nothing has to happen -- English, or no catalogue loaded. Every
 // caller checks this first so the default path does no work at all.
 bool passthrough();

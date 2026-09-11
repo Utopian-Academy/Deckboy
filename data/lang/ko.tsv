@@ -1,0 +1,82 @@
+#name 한국어
+#font malgun.ttf, AppleSDGothicNeo.ttc, NotoSansCJK-Regular.ttc
+# This script is not in the bundled faces, so the line above names the ones
+# that can draw it. They are tried in order: data/fonts first, then the
+# machine's own font directory. Every name here ships with a stock install of
+# the platform it belongs to, which is why nothing has to be downloaded.
+#
+# If none of them is present the text falls back to the bundled face and will
+# draw as empty boxes -- the settings page says so rather than leaving you to
+# work it out.
+NEW	새로 만들기
+OPEN	열기
+SAVE	저장
+SAVE AS	다른 이름으로 저장
+BUNDLE	
+IMPORT	가져오기
+SOURCE	소스
+PATTERN	테스트 패턴
+SETTINGS	설정
+TAKE	
+STOP	정지
+REBOOT	재시작
+BLACKOUT	블랙
+CLEAR	지우기
+RECORD	녹화
+PLAYLIST	재생 목록
+TIMELINE	타임라인
+MEDIA	미디어
+TRANSPORT	트랜스포트
+OUTPUT	출력
+PROGRAM	
+WARP	
+LIVE	라이브
+DECODE	디코딩
+STREAM	
+System	시스템
+Audio	오디오
+Network	네트워크
+Video Outputs	비디오 출력
+About	정보
+Encoder	인코더
+Screen	화면
+Geometry	지오메트리
+Devices	장치
+Streaming	스트리밍
+APPEARANCE	모양
+REMOTE CONTROL	원격 제어
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	연결된 디스플레이
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	재생
+COPY	복사
+PASTE	붙여넣기
+RESET	초기화
+Theme	테마
+Language	언어
+Resolution	해상도
+Orientation	방향
+Toggle Fullscreen	전체 화면
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	가운데
+FULL	전체
+duration	길이
+transition	전환
+fade in	
+fade out	
+ON	켜짐
+OFF	꺼짐
+Stopped	정지됨
+Playing	재생 중
+Paused	일시 정지

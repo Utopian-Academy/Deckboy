@@ -298,30 +298,30 @@
   void drawStartupMascot(const SDL_Rect& area, Uint64 nowMs,
                          const char* overrideTip = nullptr) {
     static const char* kTips[] = {
-      "hi! i'm deckboy :)",
-      "press I to import a clip",
-      "Enter takes a cue live",
-      "S stops the live cue",
-      "the timeline can be resized",
+      "Hi! I am Deckboy.",
+      "Press I to import a clip.",
+      "Enter takes a cue live.",
+      "S stops the live cue.",
+      "The timeline can be resized.",
       // Was "try a terminal theme in Settings (P)" — P adds a PATTERN cue, it
       // has never opened settings. Same false key the shortcuts overlay carried
       // (audited v0.81.5); if you add a tip that names a key, check
       // handleKeyDown first.
-      "try a terminal theme in Settings",
-      "RELINK finds media that moved",
-      "cues have their own gain & fades",
-      "trim with Ctrl+I / Ctrl+O",
-      "Ctrl+/ shows all shortcuts",
-      "J jumps to the live cue",
-      "normalize matches loudness across cues",
-      "Esc: desk, then clear output, then quit",
-      "stream SRT and RTMP at the same time",
+      "Try a terminal theme in Settings.",
+      "RELINK finds media that has moved.",
+      "Cues have their own gain and fades.",
+      "Trim with Ctrl+I and Ctrl+O.",
+      "Ctrl+/ shows every shortcut.",
+      "J jumps to the live cue.",
+      "Normalize matches loudness across cues.",
+      "Esc clears the desk, then the output, then quits.",
+      "Stream SRT and RTMP at the same time.",
     };
     const int tipCount = static_cast<int>(sizeof(kTips) / sizeof(kTips[0]));
 
     if (area.w < 150 || area.h < 120) {
       drawCenteredTextSafe(controlRenderer_, fontSmall_, area,
-                           overrideTip ? overrideTip : "hi! press I to import a clip",
+                           overrideTip ? overrideTip : "Hi! Press I to import a clip.",
                            pal.light);
       return;
     }
@@ -581,18 +581,21 @@
     // Escalating, because a single stock protest repeated ten times is a bug
     // and an escalating one is a character. Delivered whole rather than typed
     // out a letter at a time -- somebody yelping does not type.
+    // Sentences, capitalised and punctuated. A mascot is the friendliest thing
+    // on the desk and the one place an operator is most likely to look twice;
+    // lowercase mumbling reads as unfinished rather than as casual.
     static const char* kPokeLines[] = {
-      "hey!",
-      "quit it!",
-      "ow. rude.",
-      "i am a PROFESSIONAL",
-      "seriously?",
-      "this is my monitor",
-      "i'm telling the operator",
-      "okay. okay. wow.",
-      "right, that's it",
+      "Hey!",
+      "Quit it!",
+      "Ow. That was rude.",
+      "I am a professional.",
+      "Seriously?",
+      "This is my monitor.",
+      "I am telling the operator.",
+      "All right. Wow.",
+      "Right. That does it.",
     };
-    static const char* kFleeLine = "i'm out. good luck with the show";
+    static const char* kFleeLine = "I am leaving. Good luck with the show.";
 
     std::string spoken;
     if (mascotFleeStartedMs_ != 0) {

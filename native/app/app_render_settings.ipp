@@ -4101,14 +4101,24 @@
               return;
             }
             project_.language = (value == "en") ? std::string() : value;
+            // The new language may need a face the old one did not, so the
+            // fonts are reloaded rather than left pointing at Liberation.
+            applyUiScale();
             markProjectDirty();
-            triggerToast("language: " + deckboy::core::i18n::activeName());
+            if (deckboy::core::i18n::activeFontMissing()) {
+              triggerToast(deckboy::core::i18n::activeName() +
+                             ": no font on this machine can draw it",
+                           kToastWarnFill, kToastWarnInk, kToastReadableMs);
+            } else {
+              triggerToast("language: " + deckboy::core::i18n::activeName());
+            }
           });
         return;
       } else if (sb.action == kSettingsActionLanguagePanic) {
         std::string error;
         deckboy::core::i18n::setLanguage("en", Paths::dataDir(), error);
         project_.language.clear();
+        applyUiScale();
         markProjectDirty();
         // In English on purpose: the operator who pressed this could not read
         // the last message they were shown.

@@ -3779,14 +3779,17 @@ class App {
     refreshSplashAsset();
     // Deckboy's own pointer. Built once here; rebuilt only on a scale change.
     refreshMiamiCursor();
+    // LANGUAGE BEFORE FONTS. applyUiScale loads the faces, and which faces to
+    // load is a question only the language can answer -- a show in Japanese
+    // needs a face with Japanese in it. Loading first and asking second is how
+    // the whole interface came up as empty boxes.
+    applyProjectLanguage();
     // Project may also carry a non-1.0 UI scale (HiDPI / 4K / Pocket 3).
     applyUiScale();
     // Project may carry a saved color theme; apply it unless DECKBOY_THEME
     // was set (an explicit env override always wins at boot).
     {
       const char* themeEnv = std::getenv("DECKBOY_THEME");
-      // The show's language, at boot, for the same reason as the theme below.
-      applyProjectLanguage();
       if ((!themeEnv || !*themeEnv) && !project_.theme.empty()) {
         loadTheme(project_.theme);
       }
@@ -6711,9 +6714,41 @@ class App {
     auto pt = [&](int base) {
       return std::max(6, static_cast<int>(std::lround(base * k)));
     };
-    const auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
-    const auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
-    const auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
+    auto sans  = Paths::fontPath(Paths::FontName::Sans).string();
+    auto mono  = Paths::fontPath(Paths::FontName::Mono).string();
+    auto pixel = Paths::fontPath(Paths::FontName::Pixel).string();
+
+    // ── THE LANGUAGE MAY NEED A DIFFERENT FACE ──────────────────────────────
+    //
+    // Liberation has no CJK, no Devanagari, no Arabic and no Alienese, so a
+    // language written in those draws as empty boxes no matter how good the
+    // translation is. The language names the faces it can use, in order, and
+    // this looks for each one in data/fonts and then among the system fonts.
+    //
+    // Almost always it is already installed: Yu Gothic ships with Windows,
+    // Hiragino with macOS, Noto with most Linux desktops. Naming all three
+    // means Deckboy reads Japanese everywhere without carrying sixteen
+    // megabytes of glyphs that every one of those machines already has.
+    //
+    // BOTH faces are replaced, not just the sans. The chrome is drawn in the
+    // pixel face, and a pixel face that cannot draw the language is exactly the
+    // half of the interface an operator reads most.
+    {
+      const auto candidates = deckboy::core::i18n::activeFontCandidates();
+      std::string found;
+      for (const std::string& name : candidates) {
+        std::error_code fec;
+        const fs::path bundled = Paths::dataDir() / "fonts" / name;
+        if (fs::exists(bundled, fec)) { found = bundled.string(); break; }
+        const fs::path system = Paths::systemFontDir() / name;
+        if (fs::exists(system, fec)) { found = system.string(); break; }
+      }
+      deckboy::core::i18n::noteFontResolved(!found.empty());
+      if (!found.empty()) {
+        sans = found;
+        pixel = found;
+      }
+    }
     // HYBRID (the owner, 2026-08-19): pixel face on the CHROME, readable sans for
     // user text. Press Start 2P looks right and reads fine on short strings you
     // already know -- button labels, panel headers, section titles. It reads

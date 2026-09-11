@@ -1,0 +1,82 @@
+#name 简体中文
+#font msyh.ttc, simsun.ttc, YuGothR.ttc, meiryo.ttc, msgothic.ttc, Hiragino Sans GB.ttc, PingFang.ttc, NotoSansCJK-Regular.ttc, opentype/noto/NotoSansCJK-Regular.ttc
+# This script is not in the bundled faces, so the line above names the ones
+# that can draw it. They are tried in order: data/fonts first, then the
+# machine's own font directory. Every name here ships with a stock install of
+# the platform it belongs to, which is why nothing has to be downloaded.
+#
+# If none of them is present the text falls back to the bundled face and will
+# draw as empty boxes -- the settings page says so rather than leaving you to
+# work it out.
+NEW	新建
+OPEN	打开
+SAVE	保存
+SAVE AS	另存为
+BUNDLE	
+IMPORT	导入
+SOURCE	信号源
+PATTERN	测试图
+SETTINGS	设置
+TAKE	
+STOP	停止
+REBOOT	重启
+BLACKOUT	黑场
+CLEAR	清除
+RECORD	录制
+PLAYLIST	播放列表
+TIMELINE	时间线
+MEDIA	媒体
+TRANSPORT	传输
+OUTPUT	输出
+PROGRAM	
+WARP	
+LIVE	直播
+DECODE	解码
+STREAM	
+System	系统
+Audio	音频
+Network	网络
+Video Outputs	视频输出
+About	关于
+Encoder	编码器
+Screen	屏幕
+Geometry	几何
+Devices	设备
+Streaming	推流
+APPEARANCE	外观
+REMOTE CONTROL	远程控制
+INTEGRATION ADAPTERS	集成适配器
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	已连接显示器
+EDGE FEATHERING	边缘羽化
+MATTE & OVERLAY	遮罩与叠加
+AREA OF INTEREST	关注区域
+DEFAULT TRANSITION	默认转场
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	提示检查器
+SELECTED CUE	选中的提示
+PLAYBACK	播放
+COPY	复制
+PASTE	粘贴
+RESET	重置
+Theme	主题
+Language	语言
+Resolution	分辨率
+Orientation	方向
+Toggle Fullscreen	全屏
+IDENTIFY	识别
+REGION SIZE	区域大小
+POSITION	位置
+CENTRE	居中
+FULL	完整
+duration	时长
+transition	转场
+fade in	淡入
+fade out	淡出
+ON	开
+OFF	关
+Stopped	已停止
+Playing	播放中
+Paused	已暂停

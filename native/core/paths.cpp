@@ -374,6 +374,21 @@ bool Paths::ensureDataDir() {
 //   macOS:   /System/Library/Fonts/ and /Library/Fonts/
 //   Linux:   /usr/share/fonts/truetype/dejavu/ and variants
 // ---------------------------------------------------------------------------
+fs::path Paths::systemFontDir() {
+#ifdef _WIN32
+  const char* windirEnv = std::getenv("WINDIR");
+  return (windirEnv && windirEnv[0] != '\0') ? fs::path(windirEnv) / "Fonts"
+                                             : fs::path("C:/Windows/Fonts");
+#elif defined(__APPLE__)
+  // Supplemental holds the CJK faces on a stock install; the plain Fonts dir
+  // holds the system ones. Callers try a list of names, so returning the one
+  // that carries the interesting scripts is the useful answer.
+  return fs::path("/System/Library/Fonts/Supplemental");
+#else
+  return fs::path("/usr/share/fonts");
+#endif
+}
+
 fs::path Paths::fontPath(FontName name) {
   fs::path data = dataDir();
   const char* envKey = nullptr;
