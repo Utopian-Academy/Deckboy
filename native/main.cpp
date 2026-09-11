@@ -7781,6 +7781,20 @@ class App {
   // -1 means "has not been told yet", which is deliberately distinct from any
   // real input number: the first reading is state, not a transition.
   std::atomic<int> atemProgramInput_ {-1};
+  // WHAT THE THREAD IS ALLOWED TO READ.
+  //
+  // The switcher client runs on its own thread and must not reach into
+  // project_: the settings handlers write those fields on the main thread, and
+  // a worker reading a std::string mid-assignment is undefined behaviour, not
+  // a stale value. Restarting the client on change does not save it -- the
+  // write lands before the join.
+  //
+  // So the host is snapshotted into the thread at start (the same shape
+  // startNmcSyncBridge uses for its own config), and the input number is an
+  // atomic mirror, which also means changing which input Deckboy is does not
+  // need a reconnect.
+  std::string atemActiveHost_;
+  std::atomic<int> atemTallyInputLive_ {0};
   // What the switcher calls each of its inputs, as it told us on connect.
   std::map<int, std::string> atemInputNames_;
   std::mutex atemInputNamesMutex_;

@@ -1318,6 +1318,22 @@
     // the RELINK toast follows when it lands.
     startMediaPresenceScanAsync(true);
     queueAudioMetadataRepairProbes();
+    // A SHOW CARRIES ITS OWN NETWORK. NMC's direction and port, the switcher
+    // this show watches, whether it answers as a deck -- these arrived with
+    // the file, so the runtime has to be told. It never mattered while those
+    // settings came from environment variables, because opening a show could
+    // not change them; now it can, and a show opened on a running Deckboy
+    // would otherwise keep the previous show's rig.
+    applyProjectNetworkSettings();
+  }
+
+  // Re-point every per-show network service at what the open show asks for.
+  // Safe to call repeatedly: each start() stops whatever was running first.
+  void applyProjectNetworkSettings() {
+    startNmcSyncBridge();
+    startAtemSwitcherClient();
+    stopHyperDeckServer();
+    startHyperDeckServer();
   }
 
   // Cues saved before audioChannels/audioSampleRate existed load with 0 in

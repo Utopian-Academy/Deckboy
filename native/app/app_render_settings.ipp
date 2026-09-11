@@ -3674,6 +3674,8 @@
             std::to_string(project_.atemTallyInput),
             [this](const std::string& val) {
               project_.atemTallyInput = std::max(0, std::atoi(val.c_str()));
+              // The client thread reads the mirror, never project_.
+              atemTallyInputLive_.store(project_.atemTallyInput);
               markProjectDirty();
             });
         } else {
@@ -3687,6 +3689,8 @@
                        std::to_string(project_.atemTallyInput),
                        [this](const std::string& picked) {
                          project_.atemTallyInput = std::max(0, std::atoi(picked.c_str()));
+                         // The client thread reads the mirror, never project_.
+                         atemTallyInputLive_.store(project_.atemTallyInput);
                          markProjectDirty();
                        });
         }

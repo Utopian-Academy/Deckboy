@@ -951,6 +951,10 @@
     if (!project_.atemTallyTriggerEnabled || project_.atemSwitcherHost.empty()) {
       return;
     }
+    // Snapshotted before the thread exists, so the thread never touches
+    // project_ at all. See atemActiveHost_.
+    atemActiveHost_ = project_.atemSwitcherHost;
+    atemTallyInputLive_.store(project_.atemTallyInput);
     atemSwitcherStop_.store(false);
     atemSwitcherThread_ = std::thread([this]() { atemSwitcherLoop(); });
   }
@@ -1002,7 +1006,7 @@
     sockaddr_in dest {};
     dest.sin_family = AF_INET;
     dest.sin_port = htons(static_cast<unsigned short>(kAtemUdpPort));
-    if (inet_pton(AF_INET, project_.atemSwitcherHost.c_str(), &dest.sin_addr) != 1) {
+    if (inet_pton(AF_INET, atemActiveHost_.c_str(), &dest.sin_addr) != 1) {
       closeSocket(sock);
       return false;
     }
@@ -1204,7 +1208,7 @@
   // The program bus moved. Only a change that crosses OUR input is an event.
   void atemProgramChanged(int source) {
     const int previous = atemProgramInput_.exchange(source);
-    switch (atemTallyEdge(previous, source, project_.atemTallyInput)) {
+    switch (atemTallyEdge(previous, source, atemTallyInputLive_.load())) {
       case TallyEdge::OnAir:  enqueueRemoteCommand("TALLYEVENT ON ATEM"); break;
       case TallyEdge::OffAir: enqueueRemoteCommand("TALLYEVENT OFF ATEM"); break;
       case TallyEdge::None:   break;
