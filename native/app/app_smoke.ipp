@@ -54,6 +54,17 @@
     // that it is present but needs a text-shaping build turns "where is
     // Arabic" into an answer somebody can act on.
     {
+      // PROBE FIRST. This runs before any font has been opened, so without
+      // asking here the answer would always be "no shaping" and the report
+      // would blame the build for something it can do.
+      if (TTF_Init()) {
+        const auto face = Paths::fontPath(Paths::FontName::Sans).string();
+        if (TTF_Font* probe = TTF_OpenFont(face.c_str(), 16.0f)) {
+          deckboy::core::i18n::noteShapingAvailable(
+            TTF_SetFontDirection(probe, TTF_DIRECTION_RTL));
+          TTF_CloseFont(probe);
+        }
+      }
       const auto langs = deckboy::core::i18n::availableLanguages(Paths::dataDir());
       std::cout << "languages: " << langs.size() << " available";
       const auto waiting =

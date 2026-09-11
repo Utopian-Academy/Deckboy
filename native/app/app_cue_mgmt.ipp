@@ -5256,9 +5256,36 @@
   //
   // Hence two entry points: drawText for callers with a source string,
   // drawTextRaw for callers holding a string that has already been through.
+  // Does this string actually contain right-to-left script?
+  //
+  // Direction is a property of the FONT in SDL_ttf, not of the call, so a
+  // right-to-left language sets it once and then reverses everything -- which
+  // turned "VOLUME 95%" into "%59 EMULOV" on the Arabic toolbar. Real bidi is
+  // FriBidi's job and SDL_ttf does not do it; this is the ninety per cent of
+  // it that matters in an interface, where a label is almost always wholly one
+  // script or wholly the other.
+  static bool textIsRtlScript(const std::string& s) {
+    for (std::size_t i = 0; i + 1 < s.size(); ++i) {
+      const unsigned char a = static_cast<unsigned char>(s[i]);
+      const unsigned char b = static_cast<unsigned char>(s[i + 1]);
+      // Arabic U+0600-U+06FF and Hebrew U+0590-U+05FF in UTF-8 both begin
+      // 0xD6/0xD7/0xD8-0xDB; that range is enough to tell the scripts apart
+      // from Latin, Cyrillic and Greek, which is all this has to do.
+      if (a >= 0xD8 && a <= 0xDB) return true;
+      if (a == 0xD6 || a == 0xD7) { (void)b; return true; }
+    }
+    return false;
+  }
+
   void drawTextRaw(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
     if (!font || text.empty()) {
       return;
+    }
+    // Per string, not per language: a Latin label inside an Arabic interface
+    // still reads left to right.
+    if (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported()) {
+      TTF_SetFontDirection(font, textIsRtlScript(text) ? TTF_DIRECTION_RTL
+                                                       : TTF_DIRECTION_LTR);
     }
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
@@ -5537,7 +5564,8 @@
     // aligned to the side the reader finishes on, which puts every label in
     // the interface at the wrong end of its own control.
     const int startX =
-      (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported())
+      (deckboy::core::i18n::activeIsRtl() && deckboy::core::i18n::rtlSupported() &&
+       textIsRtlScript(clipped))
         ? safe.x + std::max(0, safe.w - textW)
         : safe.x;
     drawTextRaw(renderer, font, clipped, color, startX, textY);

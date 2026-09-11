@@ -1473,7 +1473,21 @@
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
                           std::max(notesH, leftCol.y + leftCol.h - leftY)};
-      SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, rightCol.h};
+      // The adapter grid no longer carries the tally controls, so it needs
+      // only the rows it actually has; the rest of the column goes to the
+      // tally card below it.
+      const int tallyCardH = sCardHeaderH + sLineH + uiScaled(4)
+                           + (sChipH + sGap) * 4 + sLineH + sPad;
+      // Sized from what it draws, not from what is left over. It lost four
+      // rows to the tally card and kept the whole column, which left a hand's
+      // width of nothing between the last pill and the footer.
+      const int integrationH = sCardHeaderH + sLineH * 2 + sGap
+                             + (sChipH + sGap) * 4
+                             + (sRowH + sGap) * 2 + sPad * 2;
+      SDL_Rect integrationRect {rightCol.x, rightCol.y, rightCol.w, integrationH};
+      SDL_Rect tallyRect {rightCol.x, rightCol.y + integrationH + kCardGap,
+                          rightCol.w, tallyCardH};
+      (void)tallyCardH;
 
       const int netLineH = sLineH;
 
@@ -1667,50 +1681,6 @@
       SDL_Rect tcRunBtn {pillX2, pillY, pillW, pillH};
       drawPill(tcChaseBtn, focusedDeck().timecodeChaseEnabled, "TC CHASE ON", "TC CHASE OFF", kSettingsActionIntegrationTimecodeChaseToggle);
       drawPill(tcRunBtn, focusedDeck().timecodeRunEnabled, "TC RUN ON", "TC RUN OFF", kSettingsActionIntegrationTimecodeRunToggle);
-      pillY += pillH + sGap;
-      // GOING TO AIR IS THE CUE. Paired deliberately: the trigger is only half
-      // the setting, and an operator who turns it on without deciding what
-      // happens on the way back down has armed a roll that never stops.
-      SDL_Rect ndiTallyBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect tallyOffBtn {pillX2, pillY, pillW, pillH};
-      drawPill(ndiTallyBtn, project_.ndiTallyTriggerEnabled, "NDI TALLY ON", "NDI TALLY OFF",
-               kSettingsActionNdiTallyTriggerToggle);
-      Primitives::drawFramedPanel(controlRenderer_, tallyOffBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_,
-                       "OFF AIR: " + tallySwitchOffLabel(project_.tallySwitchOffAction),
-                       ink, tallyOffBtn);
-      settingsBtns_.push_back({tallyOffBtn, kSettingsActionTallySwitchOffCycle, "tally_switch_off"});
-      pillY += pillH + sGap;
-      SDL_Rect atemTallyBtn {pillX1, pillY, pillW, pillH};
-      SDL_Rect atemHostBtn {pillX2, pillY, pillW, pillH};
-      drawPill(atemTallyBtn, project_.atemTallyTriggerEnabled, "ATEM TALLY ON", "ATEM TALLY OFF",
-               kSettingsActionAtemTallyTriggerToggle);
-      Primitives::drawFramedPanel(controlRenderer_, atemHostBtn, pal.mid, pal.deep, pal.light);
-      drawCenteredText(controlRenderer_, fontSmall_,
-                       project_.atemSwitcherHost.empty() ? "SWITCHER IP..."
-                                                         : project_.atemSwitcherHost,
-                       ink, atemHostBtn);
-      settingsBtns_.push_back({atemHostBtn, kSettingsActionAtemSwitcherHostPrompt, "atem_switcher_host"});
-      pillY += pillH + sGap;
-      SDL_Rect atemInputBtn {pillX1, pillY, pillW, pillH};
-      Primitives::drawFramedPanel(controlRenderer_, atemInputBtn, pal.mid, pal.deep, pal.light);
-      // Says CONNECTED only when a session is actually up, so an operator can
-      // tell "wrong IP" from "right IP, wrong input number" without guessing.
-      std::string atemInputLabel = "INPUT...";
-      if (project_.atemTallyInput > 0) {
-        atemInputLabel = std::to_string(project_.atemTallyInput);
-        for (const auto& [id, label] : atemInputListSnapshot()) {
-          if (id == project_.atemTallyInput) {
-            atemInputLabel += "  " + label;
-            break;
-          }
-        }
-      }
-      // LINKED means a live session, so "wrong IP" and "right IP, wrong input"
-      // can be told apart without guessing which one is wrong.
-      if (atemSwitcherConnected_.load()) atemInputLabel += "  LINKED";
-      drawCenteredText(controlRenderer_, fontSmall_, atemInputLabel, ink, atemInputBtn);
-      settingsBtns_.push_back({atemInputBtn, kSettingsActionAtemTallyInputPrompt, "atem_tally_input"});
 
       // Two footer rows pinned to the bottom of the card.
       const int integFooterRowH = sRowH;
@@ -1735,6 +1705,85 @@
                                   pal.deep, pal.light);
       drawCenteredText(controlRenderer_, fontSmall_, "Art-Net " + std::to_string(project_.artNetPort), ink, artNetPortBtn);
       settingsBtns_.push_back({artNetPortBtn, kSettingsActionIntegrationArtNetPortPrompt, "integration_artnet_port"});
+
+      // ── TALLY TRIGGERS ──────────────────────────────────────────────────
+      //
+      // Its own card, in labelled rows, because this is a FEATURE rather than
+      // a bag of switches. The adapter grid above is the right shape for
+      // things that are only on or off; tally is a trigger, a source, an input
+      // and a decision about what happens on the way back down, and four pills
+      // in a two-by-two grid say none of that.
+      //
+      // Label on the left, control on the right, one row per question -- so it
+      // reads as the sentence it is: watch THIS switcher, on THIS input, and
+      // when we come off air, do THIS.
+      drawCard(tallyRect, "TALLY TRIGGERS", "Roll when the show cuts to you");
+      {
+        const int tX = cardBodyX(tallyRect);
+        const int tW = cardBodyW(tallyRect);
+        int tY = cardBodyY(tallyRect);
+        const int labelW = std::max(uiScaled(96), tW / 3);
+        const int ctlX = tX + labelW + sPad;
+        const int ctlW = std::max(uiScaled(80), tX + tW - ctlX);
+
+        auto row = [&](const std::string& label) {
+          drawTextSafe(controlRenderer_, fontSmall_,
+                       SDL_Rect{tX, tY, labelW, sChipH}, label, soft);
+          SDL_Rect r {ctlX, tY, ctlW, sChipH};
+          tY += sChipH + sGap;
+          return r;
+        };
+
+        // ATEM: the switcher, the input, and whether we are watching.
+        SDL_Rect atemOnRow = row("ATEM switcher");
+        const int halfW = (ctlW - sPad) / 2;
+        SDL_Rect atemOnBtn {atemOnRow.x, atemOnRow.y, halfW, sChipH};
+        SDL_Rect atemHostBtn {atemOnRow.x + halfW + sPad, atemOnRow.y,
+                              ctlW - halfW - sPad, sChipH};
+        drawPill(atemOnBtn, project_.atemTallyTriggerEnabled, "WATCHING", "OFF",
+                 kSettingsActionAtemTallyTriggerToggle);
+        Primitives::drawFramedPanel(controlRenderer_, atemHostBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_,
+                         project_.atemSwitcherHost.empty() ? "address..."
+                                                           : project_.atemSwitcherHost,
+                         ink, atemHostBtn);
+        settingsBtns_.push_back({atemHostBtn, kSettingsActionAtemSwitcherHostPrompt,
+                                 "atem_switcher_host"});
+
+        // LINKED is the only thing that separates a wrong address from a right
+        // address and a wrong input, so it rides on the input row.
+        SDL_Rect inputRow = row("Deckboy is input");
+        Primitives::drawFramedPanel(controlRenderer_, inputRow, pal.mid, pal.deep, pal.light);
+        std::string inputLabel = "choose...";
+        if (project_.atemTallyInput > 0) {
+          inputLabel = std::to_string(project_.atemTallyInput);
+          for (const auto& [id, name] : atemInputListSnapshot()) {
+            if (id == project_.atemTallyInput) { inputLabel += "  " + name; break; }
+          }
+        }
+        if (atemSwitcherConnected_.load()) inputLabel += "   LINKED";
+        drawCenteredText(controlRenderer_, fontSmall_, inputLabel, ink, inputRow);
+        settingsBtns_.push_back({inputRow, kSettingsActionAtemTallyInputPrompt,
+                                 "atem_tally_input"});
+
+        // NDI needs no address: the receiver tells the sender.
+        SDL_Rect ndiRow = row("NDI receiver");
+        drawPill(ndiRow, project_.ndiTallyTriggerEnabled, "WATCHING", "OFF",
+                 kSettingsActionNdiTallyTriggerToggle);
+
+        // The decision that makes the trigger safe to arm.
+        SDL_Rect offRow = row("When taken off air");
+        Primitives::drawFramedPanel(controlRenderer_, offRow, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_,
+                         tallySwitchOffLabel(project_.tallySwitchOffAction), ink, offRow);
+        settingsBtns_.push_back({offRow, kSettingsActionTallySwitchOffPick, "tally_switch_off"});
+
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{tX, tY, tW, sLineH},
+                     "Going on air takes the cue. Deckboy never sends the switcher a command.",
+                     soft);
+      }
+
       bool allAdaptersEnabled = project_.atemTriggerEnabled && project_.ndiTriggerEnabled &&
                                 project_.nmcSyncEnabled && project_.mtcIngestEnabled &&
                                 project_.ltcIngestEnabled && project_.dmxArtNetEnabled;

@@ -205,7 +205,11 @@ jobs:
           # SDL_ttf has no 3.4 branch; 3.2 builds against SDL 3.4 unchanged.
           git clone --depth 1 --branch release-3.2.x --recurse-submodules \
             https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
-          cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON
+          # HARFBUZZ ON. Without it SDL_ttf cannot shape or reorder, so a
+          # right-to-left script draws as unjoined letters in the wrong order --
+          # and Deckboy, which checks, refuses to offer those languages at all.
+          # Vendored, so this needs nothing from the runner's package list.
+          cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release             -DSDLTTF_VENDORED=ON -DSDLTTF_HARFBUZZ=ON
           cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
           sudo cmake --install /tmp/SDL_ttf/build
           sudo ldconfig

@@ -82,6 +82,10 @@ const Cypher kCyphers[] = {
   // Alienese.ttf in data/fonts and it is drawn properly; without it the maths
   // still works and the result is readable, which is the honest fallback.
   {"cy-alienese2", "Alienese II", "Alienese.ttf"},
+  // Backwards. Every label reversed, which is readable with a little effort
+  // and completely disorienting for the first ten seconds, and unlike the
+  // others it needs no key at all -- you just read it the other way.
+  {"cy-mirror", "Backwards", ""},
 };
 constexpr int kCypherCount = static_cast<int>(sizeof(kCyphers) / sizeof(kCyphers[0]));
 
@@ -187,6 +191,27 @@ std::string applyAlienese2(const std::string& in) {
   return out;
 }
 
+// Reversed, by CHARACTER not by byte. Reversing the bytes of a UTF-8 string
+// destroys every multi-byte character in it, which for an interface that also
+// speaks Greek, Cyrillic and Japanese would turn the joke into mojibake.
+std::string applyMirror(const std::string& in) {
+  std::vector<std::string> glyphs;
+  for (std::size_t i = 0; i < in.size();) {
+    const unsigned char c = static_cast<unsigned char>(in[i]);
+    std::size_t len = 1;
+    if ((c & 0xE0) == 0xC0) len = 2;
+    else if ((c & 0xF0) == 0xE0) len = 3;
+    else if ((c & 0xF8) == 0xF0) len = 4;
+    if (i + len > in.size()) len = 1;
+    glyphs.push_back(in.substr(i, len));
+    i += len;
+  }
+  std::string out;
+  out.reserve(in.size());
+  for (auto it = glyphs.rbegin(); it != glyphs.rend(); ++it) out += *it;
+  return out;
+}
+
 std::string applyCypher(int which, const std::string& in) {
   switch (which) {
     case 1: return applyRot13(in);
@@ -194,6 +219,7 @@ std::string applyCypher(int which, const std::string& in) {
     case 3: return applyLeet(in);
     case 4: return applyMorse(in);
     case 5: return applyAlienese2(in);
+    case 6: return applyMirror(in);
     default: return in;
   }
 }
