@@ -86,6 +86,23 @@
       return std::nullopt;
     };
 
+    // A TALLY EDGE, from whichever integration saw it. The watchers run on
+    // their own threads and cannot touch the decks, so the edge comes through
+    // here and lands on the main thread like every other command.
+    if (command == "TALLYEVENT") {
+      if (parts.size() > 1) {
+        const std::string state = toUpper(parts[1]);
+        const std::string source = parts.size() > 2 ? parts[2] : std::string("tally");
+        if (state == "ON" || state == "OFF") {
+          handleTallyTransition(state == "ON", source.c_str());
+        } else {
+          failRemoteCommand("TALLYEVENT wants ON or OFF");
+        }
+      } else {
+        failRemoteCommand("TALLYEVENT wants ON or OFF");
+      }
+      return;
+    }
     if (command == "ATEMEVENT") {
       if (parts.size() > 1) {
         handleAtemEventPayload(joinParts(parts, 1));

@@ -1556,6 +1556,28 @@
                        "OFF AIR: " + tallySwitchOffLabel(project_.tallySwitchOffAction),
                        ink, tallyOffBtn);
       settingsBtns_.push_back({tallyOffBtn, kSettingsActionTallySwitchOffCycle, "tally_switch_off"});
+      pillY += pillH + sGap;
+      SDL_Rect atemTallyBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect atemHostBtn {pillX2, pillY, pillW, pillH};
+      drawPill(atemTallyBtn, project_.atemTallyTriggerEnabled, "ATEM TALLY ON", "ATEM TALLY OFF",
+               kSettingsActionAtemTallyTriggerToggle);
+      Primitives::drawFramedPanel(controlRenderer_, atemHostBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_,
+                       project_.atemSwitcherHost.empty() ? "SWITCHER IP..."
+                                                         : project_.atemSwitcherHost,
+                       ink, atemHostBtn);
+      settingsBtns_.push_back({atemHostBtn, kSettingsActionAtemSwitcherHostPrompt, "atem_switcher_host"});
+      pillY += pillH + sGap;
+      SDL_Rect atemInputBtn {pillX1, pillY, pillW, pillH};
+      Primitives::drawFramedPanel(controlRenderer_, atemInputBtn, pal.mid, pal.deep, pal.light);
+      // Says CONNECTED only when a session is actually up, so an operator can
+      // tell "wrong IP" from "right IP, wrong input number" without guessing.
+      const std::string atemInputLabel =
+        (project_.atemTallyInput > 0 ? "INPUT " + std::to_string(project_.atemTallyInput)
+                                     : "INPUT...")
+        + (atemSwitcherConnected_.load() ? "  LINKED" : "");
+      drawCenteredText(controlRenderer_, fontSmall_, atemInputLabel, ink, atemInputBtn);
+      settingsBtns_.push_back({atemInputBtn, kSettingsActionAtemTallyInputPrompt, "atem_tally_input"});
 
       // Two footer rows pinned to the bottom of the card.
       const int integFooterRowH = sRowH;
@@ -3327,6 +3349,38 @@
           project_.tslTallyAddress,
           [this](const std::string& val) {
             project_.tslTallyAddress = val.empty() ? "255.255.255.255" : val;
+            markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionAtemTallyTriggerToggle) {
+        project_.atemTallyTriggerEnabled = !project_.atemTallyTriggerEnabled;
+        markProjectDirty();
+        // Restarted rather than flagged: the client is a live session with a
+        // switcher, and turning it off should hang up, not stop listening.
+        startAtemSwitcherClient();
+        triggerToast(project_.atemTallyTriggerEnabled
+                       ? (project_.atemSwitcherHost.empty()
+                            ? "atem tally on -- set the switcher IP"
+                            : (project_.atemTallyInput <= 0
+                                 ? "atem tally on -- set which input Deckboy is"
+                                 : "atem tally on -- watching input "
+                                     + std::to_string(project_.atemTallyInput)))
+                       : "atem tally off");
+      } else if (sb.action == kSettingsActionAtemSwitcherHostPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("atem_switcher_host", "ATEM Switcher", "Switcher IP address",
+          project_.atemSwitcherHost,
+          [this](const std::string& val) {
+            project_.atemSwitcherHost = val;
+            markProjectDirty();
+            startAtemSwitcherClient();
+          });
+      } else if (sb.action == kSettingsActionAtemTallyInputPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("atem_tally_input", "ATEM Input",
+          "Which switcher input Deckboy is (0 = not set)",
+          std::to_string(project_.atemTallyInput),
+          [this](const std::string& val) {
+            project_.atemTallyInput = std::max(0, std::atoi(val.c_str()));
             markProjectDirty();
           });
       } else if (sb.action == kSettingsActionIntegrationAllToggle) {

@@ -3826,6 +3826,7 @@ class App {
       startOscQueryServer();
     }
     startHyperDeckServer();
+    startAtemSwitcherClient();
     startIntegrationBridges();
     // Lay out against the actual (possibly display-clamped) window size, not the
     // nominal constant, so the first frame is already correct on small screens.
@@ -3845,6 +3846,7 @@ class App {
     }
     stopIntegrationBridges();
     stopHyperDeckServer();
+    stopAtemSwitcherClient();
     stopMidiInput();
     stopOscQueryServer();
     // Before the output runtimes go away: this releases any IS-05 caller parked
@@ -7396,6 +7398,10 @@ class App {
   // Tally-driven playback: going to air is the cue. 727/728, next free is 729.
   static constexpr int kSettingsActionNdiTallyTriggerToggle = 727;
   static constexpr int kSettingsActionTallySwitchOffCycle = 728;
+  static constexpr int kSettingsActionAtemTallyTriggerToggle = 729;
+  static constexpr int kSettingsActionAtemSwitcherHostPrompt = 732;
+  static constexpr int kSettingsActionAtemTallyInputPrompt = 733;
+  // 730/731 are the encoder's -- the audit caught that collision. Next free: 734.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -7725,6 +7731,14 @@ class App {
   double vjBarRevealAt_ = 0.0;
   int vjTakeDeck_ = -1;        // which deck asked for the held take
   bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
+
+  // ATEM switcher client (read-only program-bus watcher)
+  std::thread atemSwitcherThread_;
+  std::atomic<bool> atemSwitcherStop_ {true};
+  std::atomic<bool> atemSwitcherConnected_ {false};
+  // -1 means "has not been told yet", which is deliberately distinct from any
+  // real input number: the first reading is state, not a transition.
+  std::atomic<int> atemProgramInput_ {-1};
 
   // HyperDeck server
   //
@@ -9231,7 +9245,8 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe", "--pdf-probe", "--pdf-render", "--devices", "--check-update",
+  "--motion-probe", "--pdf-probe", "--pdf-render", "--atem-probe",
+  "--devices", "--check-update",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -9589,6 +9604,17 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     std::cerr << "pdf-render: Windows only (other platforms rasterise in process)\n";
     return 2;
 #endif
+  }
+  // Watch a real switcher's program bus and say what it does.
+  //
+  // The tally trigger is the kind of feature that cannot be tested by reading
+  // it: either the handshake is right and the switcher talks, or it is not and
+  // nothing happens, and those look identical from inside the app. This makes
+  // the difference visible without a show, a cue, or an armed output.
+  if (mode == "--atem-probe") {
+    if (ops.empty()) return missing("<switcher-ip> [seconds]");
+    const int seconds = ops.size() > 1 ? std::max(1, std::atoi(ops[1].c_str())) : 20;
+    return App::runAtemProbe(ops[0], seconds);
   }
   if (mode == "--motion-probe") {
     if (ops.empty()) return missing("<file> [frames]");

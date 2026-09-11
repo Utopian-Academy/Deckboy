@@ -2175,6 +2175,124 @@
   // different engine (Windows.Data.Pdf, CoreGraphics, pdftoppm), so "it worked
   // on Windows" says nothing about the other two.
   // ---------------------------------------------------------------------------
+
+  // ── --atem-probe: watch a real switcher's program bus ────────────────────
+  //
+  // The tally trigger cannot be tested by reading it. Either the handshake is
+  // right and the switcher starts talking, or it is not and nothing happens --
+  // and from inside the app those two look exactly alike. This makes the
+  // difference visible, with no show open, no cue racked and no output armed.
+  //
+  // It runs the SAME header writer and the SAME packet parser the live client
+  // runs, so a pass here is evidence about the client rather than about a
+  // second implementation that happens to sit next to it.
+  static int runAtemProbe(const std::string& host, int seconds) {
+    // The probes run before the app has started, and on Windows a socket call
+    // before WSAStartup fails with no explanation at all -- which presented as
+    // "could not open a socket" and looked exactly like a switcher fault.
+#ifdef _WIN32
+    WSADATA wsaData {};
+    const bool winsockStarted = WSAStartup(MAKEWORD(2, 2), &wsaData) == 0;
+    if (!winsockStarted) {
+      std::cerr << "atem-probe: WSAStartup failed\n";
+      return 1;
+    }
+    struct WinsockGuard {
+      ~WinsockGuard() { WSACleanup(); }
+    } winsockGuard;
+#endif
+    SocketHandle sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == kInvalidSocket) {
+      std::cerr << "atem-probe: could not open a socket\n";
+      return 1;
+    }
+    sockaddr_in dest {};
+    dest.sin_family = AF_INET;
+    dest.sin_port = htons(9910);
+    if (inet_pton(AF_INET, host.c_str(), &dest.sin_addr) != 1) {
+      std::cerr << "atem-probe: " << host << " is not an IPv4 address\n";
+      closeSocket(sock);
+      return 2;
+    }
+
+    unsigned session = 0x1337;
+    unsigned char hello[20] {};
+    atemWriteHeader(hello, 0x02, 20, session, 0, 0);
+    hello[12] = 0x01;
+    sendto(sock, reinterpret_cast<const char*>(hello), 20, 0,
+           reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+    std::cout << "atem-probe " << host << ":9910 -- hello sent\n";
+
+    bool greeted = false;
+    int packets = 0, acked = 0, programReports = 0, lastProgram = -1;
+    const auto started = std::chrono::steady_clock::now();
+    std::array<unsigned char, 2048> buffer {};
+
+    while (std::chrono::steady_clock::now() - started < std::chrono::seconds(seconds)) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      watchFd(sock, &readFds);
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 200000;
+      if (select(selectNfds(sock), &readFds, nullptr, nullptr, &timeout) <= 0) continue;
+      if (!readyFd(sock, &readFds)) continue;
+
+      sockaddr_in from {};
+      socklen_t fromLen = sizeof(from);
+      const int bytes = recvfrom(sock, reinterpret_cast<char*>(buffer.data()),
+                                 static_cast<int>(buffer.size()), 0,
+                                 reinterpret_cast<sockaddr*>(&from), &fromLen);
+      if (bytes < 12) continue;
+      ++packets;
+
+      const unsigned first = (static_cast<unsigned>(buffer[0]) << 8) | buffer[1];
+      const unsigned flags = first >> 11;
+      const unsigned length = first & 0x07FFu;
+      const unsigned pktSession = (static_cast<unsigned>(buffer[2]) << 8) | buffer[3];
+      const unsigned pktId = (static_cast<unsigned>(buffer[10]) << 8) | buffer[11];
+
+      if ((flags & 0x02) != 0 && !greeted) {
+        session = pktSession;
+        greeted = true;
+        std::cout << "  connected -- session 0x" << std::hex << session << std::dec << "\n";
+        unsigned char ack[12] {};
+        atemWriteHeader(ack, 0x10, 12, session, 0, 0);
+        sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
+               reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+        ++acked;
+        continue;
+      }
+      if ((flags & 0x01) != 0) {
+        unsigned char ack[12] {};
+        atemWriteHeader(ack, 0x10, 12, session, pktId, 0);
+        sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
+               reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+        ++acked;
+      }
+
+      const unsigned usable = std::min<unsigned>(length, static_cast<unsigned>(bytes));
+      if (const auto source = atemProgramInputFromPacket(buffer.data(), usable)) {
+        ++programReports;
+        if (*source != lastProgram) {
+          std::cout << "  program input -> " << *source
+                    << (lastProgram < 0 ? "   (initial state)" : "   (CUT)") << "\n";
+          lastProgram = *source;
+        }
+      }
+    }
+    closeSocket(sock);
+
+    std::cout << "  packets " << packets << "  acks sent " << acked
+              << "  program reports " << programReports << "\n";
+    if (!greeted) {
+      std::cout << "  NOT CONNECTED -- no hello answer from " << host << "\n";
+      return 1;
+    }
+    std::cout << "  connected, program bus is input " << lastProgram << "\n";
+    return 0;
+  }
+
   static int runPdfProbe(const std::string& file, const std::string& outDir,
                          int targetWidth) {
     std::string whyNot;

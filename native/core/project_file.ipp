@@ -55,6 +55,9 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
   output << "ndi_tally_trigger\t" << (project.ndiTallyTriggerEnabled ? 1 : 0) << '\n';
   output << "tally_switch_off\t" << project.tallySwitchOffAction << '\n';
+  output << "atem_tally_trigger\t" << (project.atemTallyTriggerEnabled ? 1 : 0) << '\n';
+  output << "atem_switcher_host\t" << project.atemSwitcherHost << '\n';
+  output << "atem_tally_input\t" << project.atemTallyInput << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
@@ -720,6 +723,12 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
   } else if (fields[0] == "tally_switch_off") {
     const std::string tallyOff = safeString(fields, 1);
     project.tallySwitchOffAction = tallyOff.empty() ? std::string("nothing") : tallyOff;
+  } else if (fields[0] == "atem_tally_trigger") {
+    project.atemTallyTriggerEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "atem_switcher_host") {
+    project.atemSwitcherHost = safeString(fields, 1);
+  } else if (fields[0] == "atem_tally_input") {
+    project.atemTallyInput = safeInt(fields, 1, 0);
   } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "theme") {

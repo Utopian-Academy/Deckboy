@@ -1256,6 +1256,12 @@ struct Project {
   // Separate from ndiTriggerEnabled, which is the metadata command channel --
   // that one is somebody sending us instructions, this one is us noticing.
   bool ndiTallyTriggerEnabled = false;   // play when a receiver puts us on program
+  bool atemTallyTriggerEnabled = false;  // play when the ATEM puts our input on program
+  std::string atemSwitcherHost;          // switcher IP, e.g. "192.168.1.240"
+  // WHICH INPUT DECKBOY IS, on the switcher's own numbering. 0 = not set, and
+  // nothing fires until it is: guessing would mean rolling on somebody else's
+  // camera. This is the switcher's source id, the same number its panel shows.
+  int atemTallyInput = 0;
   // What to do when we come OFF program. Same vocabulary for every tally
   // source, so an ATEM and an NDI receiver cannot mean different things by it:
   // "nothing" | "next" (load the next cue, paused) | "pause" | "stop" | "clear"

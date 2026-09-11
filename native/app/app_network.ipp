@@ -444,7 +444,7 @@
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (271)\n"
+        "DECKBOY_0.01 every verb (272)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOGAIN AUDIOMONO\n"
@@ -481,7 +481,8 @@
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
         "SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110 STILLDUR\n"
         "STOP SUB SUBTITLE SUBTITLES SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
-        "SYNTHNOTEON SYPHONCUE TAKE TAKEID TC TCMARK TIMECODE TIMECODEEXT\n"
+        "SYNTHNOTEON SYPHONCUE TAKE TAKEID TALLYEVENT TC TCMARK TIMECODE\n"
+        "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
         "UPDATE VIDEO VIEW VJ VOLUME WARP WIDTH WINDOWSOURCE XFADE\n"
@@ -871,6 +872,225 @@
       }
       enqueueRemoteCommand("ATEMEVENT " + payload);
     }
+  }
+
+
+  // ── Talking to an actual ATEM ───────────────────────────────────────────
+  //
+  // Everything above named "ATEM" is a command bridge: a UDP port that accepts
+  // text somebody else took the trouble to send us. Useful, and not the thing
+  // an operator means by "trigger from the switcher". What they mean is that
+  // the switcher put Deckboy on program and the clip should roll -- with no
+  // middleman, no Companion, nothing to configure on a third machine.
+  //
+  // So this speaks the switcher's own protocol. It is a READ-ONLY client: it
+  // connects, it is told the state of the world, and it watches one number --
+  // which input is on the program bus. Deckboy never sends the switcher a
+  // command, because a playout machine that can cut the show is a playout
+  // machine that will eventually cut the show by accident.
+  //
+  // The protocol, only as much of it as this needs:
+  //
+  //   12-byte header, big endian:
+  //     0-1  (flags << 11) | total length
+  //     2-3  session id          6-9  unused
+  //     4-5  acked packet id    10-11 our packet id
+  //   flags: 0x01 wants-ack  0x02 hello  0x04 resend
+  //          0x08 request-next  0x10 ack
+  //
+  //   after the header, a run of command blocks:
+  //     0-1  block length, including these 8 bytes
+  //     2-3  reserved      4-7  four-character name
+  //     8..  payload
+  //
+  // The one this wants is PrgI: program input, as [ME, pad, source hi, lo].
+  //
+  // ACK EVERY PACKET THAT ASKS. A switcher that is not acked assumes the
+  // client has gone and drops the session -- which presents as tally working
+  // for about ten seconds and then never again.
+  static constexpr int kAtemUdpPort = 9910;
+
+  void startAtemSwitcherClient() {
+    stopAtemSwitcherClient();
+    if (!project_.atemTallyTriggerEnabled || project_.atemSwitcherHost.empty()) {
+      return;
+    }
+    atemSwitcherStop_.store(false);
+    atemSwitcherThread_ = std::thread([this]() { atemSwitcherLoop(); });
+  }
+
+  void stopAtemSwitcherClient() {
+    atemSwitcherStop_.store(true);
+    if (atemSwitcherThread_.joinable()) {
+      atemSwitcherThread_.join();
+    }
+    atemSwitcherConnected_.store(false);
+    atemProgramInput_.store(-1);
+  }
+
+  // Build the 12-byte header in place. Returns the header size.
+  static std::size_t atemWriteHeader(unsigned char* out, unsigned flags,
+                                     unsigned length, unsigned session,
+                                     unsigned ackedId, unsigned packetId) {
+    const unsigned first = (flags << 11) | (length & 0x07FFu);
+    out[0] = static_cast<unsigned char>((first >> 8) & 0xFF);
+    out[1] = static_cast<unsigned char>(first & 0xFF);
+    out[2] = static_cast<unsigned char>((session >> 8) & 0xFF);
+    out[3] = static_cast<unsigned char>(session & 0xFF);
+    out[4] = static_cast<unsigned char>((ackedId >> 8) & 0xFF);
+    out[5] = static_cast<unsigned char>(ackedId & 0xFF);
+    out[6] = 0; out[7] = 0; out[8] = 0; out[9] = 0;
+    out[10] = static_cast<unsigned char>((packetId >> 8) & 0xFF);
+    out[11] = static_cast<unsigned char>(packetId & 0xFF);
+    return 12;
+  }
+
+  void atemSwitcherLoop() {
+    while (!atemSwitcherStop_.load()) {
+      atemSwitcherSession();
+      // A switcher that is off, or on another subnet, is an ordinary condition
+      // on a show floor -- so this waits and tries again rather than giving up
+      // for the run. Two seconds, in 100ms steps so shutdown stays prompt.
+      for (int i = 0; i < 20 && !atemSwitcherStop_.load(); ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    }
+  }
+
+  // One session, start to finish. Returns when it ends, for any reason.
+  bool atemSwitcherSession() {
+    SocketHandle sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == kInvalidSocket) {
+      return false;
+    }
+    sockaddr_in dest {};
+    dest.sin_family = AF_INET;
+    dest.sin_port = htons(static_cast<unsigned short>(kAtemUdpPort));
+    if (inet_pton(AF_INET, project_.atemSwitcherHost.c_str(), &dest.sin_addr) != 1) {
+      closeSocket(sock);
+      return false;
+    }
+
+    unsigned session = 0x1337;
+    unsigned char hello[20] {};
+    atemWriteHeader(hello, 0x02, 20, session, 0, 0);
+    hello[12] = 0x01;
+    if (sendto(sock, reinterpret_cast<const char*>(hello), 20, 0,
+               reinterpret_cast<sockaddr*>(&dest), sizeof(dest)) <= 0) {
+      closeSocket(sock);
+      return false;
+    }
+
+    bool greeted = false;
+    auto lastHeard = std::chrono::steady_clock::now();
+    std::array<unsigned char, 2048> buffer {};
+
+    while (!atemSwitcherStop_.load()) {
+      fd_set readFds;
+      FD_ZERO(&readFds);
+      watchFd(sock, &readFds);
+      timeval timeout {};
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 200000;
+      const int ready = select(selectNfds(sock), &readFds, nullptr, nullptr, &timeout);
+      if (ready < 0) break;
+      if (ready == 0 || !readyFd(sock, &readFds)) {
+        // FIVE SECONDS OF SILENCE IS A DEAD SESSION. A connected switcher
+        // talks constantly, so a gap that long means the link or the box is
+        // gone and the right move is to start over, not to sit here.
+        if (std::chrono::steady_clock::now() - lastHeard > std::chrono::seconds(5)) {
+          break;
+        }
+        continue;
+      }
+      sockaddr_in from {};
+      socklen_t fromLen = sizeof(from);
+      const int bytes = recvfrom(sock, reinterpret_cast<char*>(buffer.data()),
+                                 static_cast<int>(buffer.size()), 0,
+                                 reinterpret_cast<sockaddr*>(&from), &fromLen);
+      if (bytes < 12) continue;
+      lastHeard = std::chrono::steady_clock::now();
+
+      const unsigned first = (static_cast<unsigned>(buffer[0]) << 8) | buffer[1];
+      const unsigned flags = first >> 11;
+      const unsigned length = first & 0x07FFu;
+      const unsigned pktSession = (static_cast<unsigned>(buffer[2]) << 8) | buffer[3];
+      const unsigned pktId = (static_cast<unsigned>(buffer[10]) << 8) | buffer[11];
+
+      if ((flags & 0x02) != 0 && !greeted) {
+        // The hello answer carries the session id to use from here on.
+        session = pktSession;
+        greeted = true;
+        atemSwitcherConnected_.store(true);
+        unsigned char ack[12] {};
+        atemWriteHeader(ack, 0x10, 12, session, 0, 0);
+        sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
+               reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+        continue;
+      }
+
+      if ((flags & 0x01) != 0) {
+        unsigned char ack[12] {};
+        atemWriteHeader(ack, 0x10, 12, session, pktId, 0);
+        sendto(sock, reinterpret_cast<const char*>(ack), 12, 0,
+               reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+      }
+
+      const unsigned usable =
+        std::min<unsigned>(length, static_cast<unsigned>(bytes));
+      atemParseCommands(buffer.data(), usable);
+    }
+
+    closeSocket(sock);
+    atemSwitcherConnected_.store(false);
+    return greeted;
+  }
+
+  // The program input this packet reports, if it reports one at all.
+  //
+  // Static and side-effect free so --atem-probe can run the same parser the
+  // live client runs. A probe that exercises a reimplementation of the thing
+  // it is meant to be testing proves nothing about the thing.
+  static std::optional<int> atemProgramInputFromPacket(const unsigned char* packet,
+                                                       unsigned length) {
+    std::optional<int> found;
+    unsigned offset = 12;
+    while (offset + 8 <= length) {
+      const unsigned blockLength =
+        (static_cast<unsigned>(packet[offset]) << 8) | packet[offset + 1];
+      // A zero-length or oversized block would spin here forever or walk off
+      // the end of the packet; both are things a malformed datagram can do.
+      if (blockLength < 8 || offset + blockLength > length) break;
+      const char* name = reinterpret_cast<const char*>(packet + offset + 4);
+      if (std::memcmp(name, "PrgI", 4) == 0 && blockLength >= 12) {
+        const unsigned char* data = packet + offset + 8;
+        found = (static_cast<int>(data[2]) << 8) | data[3];
+      }
+      offset += blockLength;
+    }
+    return found;
+  }
+
+  void atemParseCommands(const unsigned char* packet, unsigned length) {
+    if (const auto source = atemProgramInputFromPacket(packet, length)) {
+      atemProgramChanged(*source);
+    }
+  }
+
+  // The program bus moved. Only a change that crosses OUR input is an event.
+  void atemProgramChanged(int source) {
+    const int previous = atemProgramInput_.exchange(source);
+    if (previous == source) return;
+    const int ours = project_.atemTallyInput;
+    if (ours <= 0) return;            // nobody has said which input we are
+    // FIRST READING IS NOT A TRANSITION, for the same reason as NDI tally: a
+    // client that connects while already on program must not fire a take just
+    // because it has finally been told what it was looking at all along.
+    if (previous < 0) return;
+    const bool wasUs = previous == ours;
+    const bool isUs = source == ours;
+    if (wasUs == isUs) return;
+    enqueueRemoteCommand(isUs ? "TALLYEVENT ON ATEM" : "TALLYEVENT OFF ATEM");
   }
 
   void startArtNetBridgeListener() {
@@ -2815,9 +3035,15 @@
       return resp.str();
     }
     if (cmdL == "device info") {
-      return "500 device info:\r\n"
+      // 204, NOT 500. Checked against a real Blackmagic box on the bench:
+      // 5xx is the ASYNCHRONOUS range -- the unsolicited greeting and the
+      // status notifications -- and a reply to a command that arrives with
+      // an async code is a reply a strict controller will not match to the
+      // request it just sent. The greeting below is correctly 500.
+      return "204 device info:\r\n"
              "protocol version: 1.11\r\n"
              "model: HyperDeck Studio Mini\r\n"
+             "friendly name: Deckboy\r\n"
              "unique id: DECKBOY00001\r\n"
              "\r\n";
     }
