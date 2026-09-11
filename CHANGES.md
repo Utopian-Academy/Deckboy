@@ -1,5 +1,15 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-11 - v0.99.336 (the cyphers say what they mean)
+
+**ROT13, Atbash and Morse now read the way they should.** The four cyphers
+transform the English rather than translating it, and each label was being put
+through that transform twice on its way to the screen. Two of them are their own
+inverse, so the desk came up in plain English while the setting said otherwise;
+Morse came up as a row of slashes. The fourteen translated languages were never
+affected -- a translated word is not itself an English word, so the second pass
+did nothing to them.
+
 ## 2026-09-11 - v0.99.335 (slide decks in their own process, tally from the switcher, nineteen languages)
 
 **Importing a slide deck no longer borrows the show's graphics.** On Windows,
