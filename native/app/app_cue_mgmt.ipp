@@ -5239,10 +5239,16 @@
     return &deck.cues[deck.activeIndex];
   }
 
-  void drawText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, int x, int y) {
-    if (!font || text.empty()) {
+  void drawText(SDL_Renderer* renderer, TTF_Font* font, const std::string& textIn, SDL_Color color, int x, int y) {
+    if (!font || textIn.empty()) {
       return;
     }
+    // The third renderer, and the third half of the language door -- it draws
+    // at a point rather than into a rect, so it does not forward to either of
+    // the others and would otherwise have stayed in English on its own.
+    const std::string& text =
+      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
+        deckboy::core::i18n::translate(textIn));
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
     if (!surface) {
       return;
@@ -5548,7 +5554,12 @@
     drawCenteredTextSafe(renderer, font, rect, text, color);
   }
 
-  void drawCenteredTextUnclipped(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color, const SDL_Rect& rect) {
+  void drawCenteredTextUnclipped(SDL_Renderer* renderer, TTF_Font* font, const std::string& textIn, SDL_Color color, const SDL_Rect& rect) {
+    // Nothing calls this today, but it is a text renderer and the next thing
+    // that uses it must not be the one string left in English.
+    const std::string& text =
+      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
+        deckboy::core::i18n::translate(textIn));
     if (!font || text.empty()) {
       return;
     }
