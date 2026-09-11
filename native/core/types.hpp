@@ -1271,6 +1271,21 @@ struct Project {
   // "nothing" | "next" (load the next cue, paused) | "pause" | "stop" | "clear"
   std::string tallySwitchOffAction = "nothing";
   bool nmcSyncEnabled = false;           // NMC (Network Machine Control) time sync
+  // NMC IN AND OUT, as show settings rather than environment variables.
+  //
+  // Both directions have always worked -- input dispatches NMCEVENT, output
+  // sends PLAY/PAUSE/STOP/LOCATE as the transport moves -- but every knob was
+  // read from DECKBOY_NMC_* at launch, so using it meant setting environment
+  // variables before starting the app and it could not be saved with the show.
+  // A capability nobody can reach from the UI is not one the rig has.
+  //
+  // Empty means "use the old environment variable if one is set, else the
+  // default", so a machine already launched with DECKBOY_NMC_MODE keeps
+  // working exactly as it did.
+  std::string nmcMode;                   // "" | "input" | "output"
+  int nmcPort = 0;                       // 0 = default/env
+  std::string nmcTargetHost;             // output mode: where to send ("" = env, else broadcast)
+  std::string nmcSourceFilter;           // input mode: only accept from this sender
   bool mtcIngestEnabled = false;         // MIDI Timecode ingest (for TC chase)
   bool ltcIngestEnabled = false;         // Linear Timecode (audio) ingest
   bool dmxArtNetEnabled = false;         // Art-Net DMX universe receive

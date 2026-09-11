@@ -59,6 +59,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "atem_switcher_host\t" << project.atemSwitcherHost << '\n';
   output << "atem_tally_input\t" << project.atemTallyInput << '\n';
   output << "hyperdeck_enabled\t" << (project.hyperDeckEnabled ? 1 : 0) << '\n';
+  output << "nmc_mode\t" << project.nmcMode << '\n';
+  output << "nmc_port\t" << project.nmcPort << '\n';
+  output << "nmc_target_host\t" << project.nmcTargetHost << '\n';
+  output << "nmc_source_filter\t" << project.nmcSourceFilter << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
@@ -603,6 +607,11 @@ bool saveProject(const fs::path& projectFile, const Project& project) {
 //
 // Returns true when the line was a scalar it knows, so the caller can tell a
 // key it does not recognise from one it simply has nothing to do for.
+// The second half of the chain -- see the note at the split inside Part1.
+template <typename EnsureDeck>
+bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string>& fields,
+                                 EnsureDeck&& ensureDeck);
+
 template <typename EnsureDeck>
 bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fields,
                             EnsureDeck&& ensureDeck) {
@@ -732,7 +741,29 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.atemTallyInput = safeInt(fields, 1, 0);
   } else if (fields[0] == "hyperdeck_enabled") {
     project.hyperDeckEnabled = safeBool(fields, 1, true);
-  } else if (fields[0] == "midi_device") {
+  } else if (fields[0] == "nmc_mode") {
+    project.nmcMode = safeString(fields, 1);
+  } else if (fields[0] == "nmc_port") {
+    project.nmcPort = safeInt(fields, 1, 0);
+  } else if (fields[0] == "nmc_target_host") {
+    project.nmcTargetHost = safeString(fields, 1);
+  } else if (fields[0] == "nmc_source_filter") {
+    project.nmcSourceFilter = safeString(fields, 1);
+  } else {
+    // SPLIT, for the same reason this function exists at all: MSVC counts
+    // every `else if` as a nested block and refuses past a limit (C1061).
+    // The chain outgrew one function, so it continues in a second -- the
+    // same shape handleSettingsClick uses. Put new keys in Part2.
+    return applyProjectScalarLinePart2(project, fields,
+                                       std::forward<EnsureDeck>(ensureDeck));
+  }
+  return true;
+}
+
+template <typename EnsureDeck>
+bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string>& fields,
+                                 EnsureDeck&& ensureDeck) {
+  if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "theme") {
     project.theme = safeString(fields, 1);

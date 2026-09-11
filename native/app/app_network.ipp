@@ -708,12 +708,24 @@
     return normalizeArtNetPort(project_.artNetPort);
   }
 
+  // THE SHOW FIRST, THE ENVIRONMENT SECOND, THE DEFAULT LAST.
+  //
+  // Every one of these used to read the environment and nothing else, which
+  // made NMC unreachable without a launcher script and impossible to save with
+  // the show. The env vars still win over the default so an existing rig is
+  // unchanged; an explicit setting in the show wins over both.
   std::string resolvedNmcSyncMode() const {
+    if (!project_.nmcMode.empty()) {
+      return normalizeNmcSyncModeToken(project_.nmcMode);
+    }
     const char* env = std::getenv("DECKBOY_NMC_MODE");
     return normalizeNmcSyncModeToken(env ? env : "");
   }
 
   int resolvedNmcSyncPort() const {
+    if (project_.nmcPort > 0) {
+      return std::clamp(project_.nmcPort, 1, 65535);
+    }
     int port = kDefaultNmcSyncPort;
     const char* env = std::getenv("DECKBOY_NMC_PORT");
     if (env && *env) {
@@ -738,12 +750,18 @@
   }
 
   std::string resolvedNmcSyncTargetHost() const {
+    if (!project_.nmcTargetHost.empty()) {
+      return project_.nmcTargetHost;
+    }
     const char* env = std::getenv("DECKBOY_NMC_HOST");
     std::string value = env ? trim(env) : std::string();
     return value.empty() ? "255.255.255.255" : value;
   }
 
   std::string resolvedNmcSyncSourceFilter() const {
+    if (!project_.nmcSourceFilter.empty()) {
+      return project_.nmcSourceFilter;
+    }
     const char* env = std::getenv("DECKBOY_NMC_SOURCE");
     return env ? trim(env) : std::string();
   }

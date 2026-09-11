@@ -1426,6 +1426,11 @@
       int oscH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
       SDL_Rect oscRect {leftCol.x, leftY, leftCol.w, oscH};
       leftY += oscRect.h + kCardGap;
+      // NMC IN & OUT. Header, a control row, an address row, and one line
+      // saying what the chosen direction actually does.
+      int nmcH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sLineH + sPad;
+      SDL_Rect nmcRect {leftCol.x, leftY, leftCol.w, nmcH};
+      leftY += nmcRect.h + kCardGap;
       int notesH = sCardHeaderH + sLineH * 3 + sPad;
       SDL_Rect notesRect {leftCol.x, leftY, leftCol.w,
                           std::max(notesH, leftCol.y + leftCol.h - leftY)};
@@ -1505,6 +1510,67 @@
                        std::to_string(project_.oscFeedbackRateMs) + " ms",
                        ink, fbRateBtn);
       settingsBtns_.push_back({fbRateBtn, kSettingsActionOscFeedbackRatePrompt, "osc_feedback_rate"});
+
+      // ── NMC IN & OUT ────────────────────────────────────────────────────
+      //
+      // Both directions were built and both were reachable only by setting
+      // environment variables before launch, which meant they could not be
+      // saved with a show and effectively did not exist on a show floor.
+      //
+      // IN receives transport from another machine; OUT sends ours to one. The
+      // direction decides which of the two address fields matters, so only the
+      // relevant one is offered -- a target host in input mode and a source
+      // filter in output mode are each just something else to get wrong.
+      drawCard(nmcRect, "NMC IN & OUT", "Transport sync with another machine");
+      {
+        const int nmcX = cardBodyX(nmcRect);
+        const int nmcW = cardBodyW(nmcRect);
+        int nmcY = cardBodyY(nmcRect);
+        const bool nmcOut = resolvedNmcSyncMode() == "output";
+
+        const int nmcBtnW = std::max(uiScaled(96), (nmcW - sPad * 2) / 3);
+        SDL_Rect nmcOnBtn {nmcX, nmcY, nmcBtnW, sChipH};
+        drawPill(nmcOnBtn, project_.nmcSyncEnabled, "NMC ON", "NMC OFF",
+                 kSettingsActionIntegrationNmcToggle);
+
+        SDL_Rect nmcDirBtn {nmcOnBtn.x + nmcOnBtn.w + sPad, nmcY, nmcBtnW, sChipH};
+        Primitives::drawFramedPanel(controlRenderer_, nmcDirBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_,
+                         nmcOut ? "SENDING OUT" : "LISTENING IN", ink, nmcDirBtn);
+        settingsBtns_.push_back({nmcDirBtn, kSettingsActionNmcModeCycle, "nmc_mode"});
+
+        SDL_Rect nmcPortBtn {nmcDirBtn.x + nmcDirBtn.w + sPad, nmcY,
+                             std::max(uiScaled(60),
+                                      nmcX + nmcW - (nmcDirBtn.x + nmcDirBtn.w + sPad)),
+                             sChipH};
+        Primitives::drawFramedPanel(controlRenderer_, nmcPortBtn, pal.mid, pal.deep, pal.light);
+        drawCenteredText(controlRenderer_, fontSmall_,
+                         "PORT " + std::to_string(resolvedNmcSyncPort()), ink, nmcPortBtn);
+        settingsBtns_.push_back({nmcPortBtn, kSettingsActionNmcPortPrompt, "nmc_port"});
+
+        nmcY += sChipH + sGap;
+        SDL_Rect nmcAddrBtn {nmcX, nmcY, nmcW, sChipH};
+        Primitives::drawFramedPanel(controlRenderer_, nmcAddrBtn, pal.mid, pal.deep, pal.light);
+        std::string nmcAddrLabel;
+        if (nmcOut) {
+          nmcAddrLabel = "SEND TO  " + resolvedNmcSyncTargetHost();
+        } else {
+          const std::string filter = resolvedNmcSyncSourceFilter();
+          nmcAddrLabel = filter.empty() ? "ACCEPT FROM  anyone"
+                                        : ("ACCEPT FROM  " + filter);
+        }
+        drawCenteredText(controlRenderer_, fontSmall_, nmcAddrLabel, ink, nmcAddrBtn);
+        settingsBtns_.push_back({nmcAddrBtn,
+                                 nmcOut ? kSettingsActionNmcTargetPrompt
+                                        : kSettingsActionNmcSourcePrompt,
+                                 "nmc_addr"});
+
+        nmcY += sChipH + sGap;
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{nmcX, nmcY, nmcW, sLineH},
+                     nmcOut ? "Sends PLAY / PAUSE / STOP / LOCATE as the transport moves."
+                            : "Incoming transport arrives as NMCEVENT.", soft);
+      }
 
       drawCard(notesRect, "DISCOVERY / NOTES", "Network-facing runtime notes");
       const int notesX = cardBodyX(notesRect);
@@ -3377,6 +3443,43 @@
           [this](const std::string& val) {
             project_.tslTallyAddress = val.empty() ? "255.255.255.255" : val;
             markProjectDirty();
+          });
+      } else if (sb.action == kSettingsActionNmcModeCycle) {
+        // Explicit either way once touched, so the show carries the direction
+        // rather than inheriting whatever the launch environment happened to
+        // say -- which is the whole point of it being a setting.
+        project_.nmcMode = (resolvedNmcSyncMode() == "output") ? "input" : "output";
+        markProjectDirty();
+        startNmcSyncBridge();
+        triggerToast(project_.nmcMode == "output" ? "nmc: sending out" : "nmc: listening in");
+      } else if (sb.action == kSettingsActionNmcPortPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("nmc_port", "NMC Port", "UDP port for transport sync",
+          std::to_string(resolvedNmcSyncPort()),
+          [this](const std::string& val) {
+            project_.nmcPort = std::clamp(std::atoi(val.c_str()), 0, 65535);
+            markProjectDirty();
+            startNmcSyncBridge();
+          });
+      } else if (sb.action == kSettingsActionNmcTargetPrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("nmc_target", "NMC Target",
+          "Where to send transport (blank = broadcast)",
+          resolvedNmcSyncTargetHost(),
+          [this](const std::string& val) {
+            project_.nmcTargetHost = val;
+            markProjectDirty();
+            startNmcSyncBridge();
+          });
+      } else if (sb.action == kSettingsActionNmcSourcePrompt) {
+        settingsOpen_ = false;
+        openInlineTextEditor("nmc_source", "NMC Source",
+          "Only accept transport from this sender (blank = anyone)",
+          resolvedNmcSyncSourceFilter(),
+          [this](const std::string& val) {
+            project_.nmcSourceFilter = val;
+            markProjectDirty();
+            startNmcSyncBridge();
           });
       } else if (sb.action == kSettingsActionHyperDeckToggle) {
         project_.hyperDeckEnabled = !project_.hyperDeckEnabled;

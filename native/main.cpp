@@ -7402,7 +7402,14 @@ class App {
   static constexpr int kSettingsActionAtemSwitcherHostPrompt = 732;
   static constexpr int kSettingsActionAtemTallyInputPrompt = 733;
   static constexpr int kSettingsActionHyperDeckToggle = 734;
-  // 730/731 are the encoder's -- the audit caught that collision. Next free: 735.
+  // 735 is free, but 736-739 are kSettingsActionEncoderUpRowBase's four-wide
+  // block -- a base id reserves a RANGE, and only its first value greets you
+  // when you grep for it. Skipping the whole block.
+  static constexpr int kSettingsActionNmcModeCycle = 740;
+  static constexpr int kSettingsActionNmcPortPrompt = 742;
+  static constexpr int kSettingsActionNmcTargetPrompt = 743;
+  static constexpr int kSettingsActionNmcSourcePrompt = 744;
+  // 730/731 are the encoder's -- the audit caught that collision. Next free: 745.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;

@@ -41,6 +41,16 @@ shows the address to type in, worked out towards the switcher rather than
 guessed, and the emulation can be switched off for a rig that would rather
 Deckboy stayed quiet.
 
+**NMC in and out, where you can reach them.** Deckboy has been able to sync
+transport with another machine in both directions for a long time -- receiving
+someone else's play, pause, stop and locate, or sending its own -- but the
+direction, the port, the target and the source filter were read from
+environment variables at launch. That meant a launcher script, and it meant the
+settings could not travel with the show. They are now a card on the Network
+page and part of the project file, and the page offers the field the chosen
+direction actually uses rather than both. A machine already started with the
+old environment variables keeps working exactly as it did.
+
 **Crash reports say where.** When something does go wrong, the report Deckboy
 leaves behind now names the module and offset for every frame on the stack, and
 writes the essentials first — so the file is readable on its own, on any
