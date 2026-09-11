@@ -1929,6 +1929,11 @@ struct OutputRuntime {
   Uint64 lastStreamCaptureSentAtMs = 0;
 #if defined(DECKBOY_HAS_NDI_SDK)
   NDIlib_send_instance_t ndiSender = nullptr;
+  // Last tally state a receiver reported for this sender, and whether we have
+  // heard one at all yet. Per output: two outputs can be watched by two
+  // different receivers, and the one that changed is the one that means it.
+  bool ndiTallyOnProgram = false;
+  bool ndiTallySeen = false;
   std::string ndiSenderName;
   std::vector<std::uint8_t> ndiFrameBuffer;
   NDIlib_send_instance_t ndiKeySender = nullptr;
@@ -7388,6 +7393,9 @@ class App {
   static constexpr int kSettingsActionUpdateCheckNow = 724;
   static constexpr int kSettingsActionUpdateDownload = 725;
   static constexpr int kSettingsActionUpdateInstall = 726;
+  // Tally-driven playback: going to air is the cue. 727/728, next free is 729.
+  static constexpr int kSettingsActionNdiTallyTriggerToggle = 727;
+  static constexpr int kSettingsActionTallySwitchOffCycle = 728;
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -7719,7 +7727,16 @@ class App {
   bool vjTakeFiring_ = false;  // guards the deferred take against re-queueing
 
   // HyperDeck server
-  int hyperDeckPort_ = 9992;
+  //
+  // 9993, because that is the port the HyperDeck Ethernet Protocol is spoken
+  // on and therefore the only one anything will dial. ATEM Software Control,
+  // Companion's HyperDeck module, a Smart Videohub -- none of them ask where to
+  // look. This answered correctly on 9992 for a long time and nothing ever
+  // found it, which is the same as not having been built.
+  //
+  // DECKBOY_HYPERDECK_PORT still moves it, for a machine that also has a real
+  // HyperDeck's control port forwarded to it.
+  int hyperDeckPort_ = 9993;
   std::thread hyperDeckThread_;
   std::atomic<bool> hyperDeckRunning_ {false};
   SocketHandle hyperDeckListenFd_ = kInvalidSocket;

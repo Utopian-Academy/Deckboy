@@ -1448,7 +1448,7 @@
         drawTextSafe(controlRenderer_, fontSmall_,
                      SDL_Rect{noteX, portBtn.y,
                               std::max(0, remoteRect.x + remoteRect.w - sPad - noteX), portBtn.h},
-                     "HyperDeck emulation stays on at TCP 9992.", soft);
+                     "HyperDeck emulation stays on at TCP 9993.", soft);
       }
       const int remoteToggleY = portBtn.y + portBtn.h + sGap;
       SDL_Rect remoteToggle {remoteX, remoteToggleY, uiScaled(176), sChipH};
@@ -1543,6 +1543,19 @@
       drawPill(tslBtn, project_.tslTallyEnabled, "TALLY ON", "TALLY OFF", kSettingsActionIntegrationTslToggle);
       drawPill(tcChaseBtn, focusedDeck().timecodeChaseEnabled, "TC CHASE ON", "TC CHASE OFF", kSettingsActionIntegrationTimecodeChaseToggle);
       drawPill(tcRunBtn, focusedDeck().timecodeRunEnabled, "TC RUN ON", "TC RUN OFF", kSettingsActionIntegrationTimecodeRunToggle);
+      pillY += pillH + sGap;
+      // GOING TO AIR IS THE CUE. Paired deliberately: the trigger is only half
+      // the setting, and an operator who turns it on without deciding what
+      // happens on the way back down has armed a roll that never stops.
+      SDL_Rect ndiTallyBtn {pillX1, pillY, pillW, pillH};
+      SDL_Rect tallyOffBtn {pillX2, pillY, pillW, pillH};
+      drawPill(ndiTallyBtn, project_.ndiTallyTriggerEnabled, "NDI TALLY ON", "NDI TALLY OFF",
+               kSettingsActionNdiTallyTriggerToggle);
+      Primitives::drawFramedPanel(controlRenderer_, tallyOffBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredText(controlRenderer_, fontSmall_,
+                       "OFF AIR: " + tallySwitchOffLabel(project_.tallySwitchOffAction),
+                       ink, tallyOffBtn);
+      settingsBtns_.push_back({tallyOffBtn, kSettingsActionTallySwitchOffCycle, "tally_switch_off"});
 
       // Two footer rows pinned to the bottom of the card.
       const int integFooterRowH = sRowH;
@@ -2684,7 +2697,7 @@
       aboutRow(leftAbout, leftRowY, "",
                project_.allowRemoteNetwork ? "Remote: all interfaces"
                                            : "Remote: localhost only");
-      aboutRow(leftAbout, leftRowY, "", "HyperDeck 9992  |  OSC Query "
+      aboutRow(leftAbout, leftRowY, "", "HyperDeck 9993  |  OSC Query "
                  + std::to_string(project_.oscQueryPort));
       aboutRow(leftAbout, leftRowY, "Theme",
                currentThemeName_.empty() ? "gameboy" : currentThemeName_);
@@ -4147,6 +4160,14 @@
         downloadAndInstallUpdate();
       } else if (sb.action == kSettingsActionUpdateInstall) {
         runDownloadedUpdate();
+      } else if (sb.action == kSettingsActionNdiTallyTriggerToggle) {
+        project_.ndiTallyTriggerEnabled = !project_.ndiTallyTriggerEnabled;
+        markProjectDirty();
+        triggerToast(project_.ndiTallyTriggerEnabled
+                       ? "ndi tally trigger on -- program tally takes the cue"
+                       : "ndi tally trigger off");
+      } else if (sb.action == kSettingsActionTallySwitchOffCycle) {
+        cycleTallySwitchOffAction();
       } else if (sb.action == kSettingsActionVjModeToggle) {
         // setVjMode does the real work -- it rebuilds the deck layout -- so
         // this only flips the intent and lets that decide what has to happen.

@@ -64,6 +64,10 @@ struct NdiApi {
   void (*sendVideoFn)(NDIlib_send_instance_t, const NDIlib_video_frame_v2_t*) = nullptr;
   void (*sendAudioInterleaved16sFn)(NDIlib_send_instance_t, const NDIlib_audio_frame_interleaved_16s_t*) = nullptr;
   int (*sendConnectionsFn)(NDIlib_send_instance_t, uint32_t) = nullptr;
+  // WHO IS LOOKING AT US. An NDI receiver reports back to the sender whether it
+  // has this source on program or preview, which is the only way a playout
+  // machine can know it has just been put to air by a switcher two rooms away.
+  bool (*sendTallyFn)(NDIlib_send_instance_t, NDIlib_tally_t*, uint32_t) = nullptr;
 
   bool ensureLoaded() {
     if (attempted) {
@@ -105,6 +109,7 @@ struct NdiApi {
     sendVideoFn = lib_.loadSymbol<decltype(sendVideoFn)>("NDIlib_send_send_video_v2");
     sendAudioInterleaved16sFn = lib_.loadSymbol<decltype(sendAudioInterleaved16sFn)>("NDIlib_util_send_send_audio_interleaved_16s");
     sendConnectionsFn = lib_.loadSymbol<decltype(sendConnectionsFn)>("NDIlib_send_get_no_connections");
+    sendTallyFn = lib_.loadSymbol<decltype(sendTallyFn)>("NDIlib_send_get_tally");
 
     if (!initializeFn || !destroyFn || !sendCreateFn || !sendDestroyFn ||
         !sendVideoFn || !sendAudioInterleaved16sFn || !sendConnectionsFn) {

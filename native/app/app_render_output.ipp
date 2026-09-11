@@ -1237,6 +1237,10 @@
     }
     if (ndiRouteActive) {
       sendOutputNdiFrame(outputIndex, *runtime, width, height, fpsHint);
+      // After the frame, not before: a receiver's tally refers to the picture
+      // it is already showing, and polling first would act on the state that
+      // preceded the frame we are about to send.
+      pollOutputNdiTally(outputIndex, *runtime);
     }
     if (streamRouteActive) {
       sendOutputStreamFrame(outputIndex, width, height, fpsHint);

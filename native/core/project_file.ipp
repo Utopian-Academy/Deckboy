@@ -53,6 +53,8 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
+  output << "ndi_tally_trigger\t" << (project.ndiTallyTriggerEnabled ? 1 : 0) << '\n';
+  output << "tally_switch_off\t" << project.tallySwitchOffAction << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
@@ -713,6 +715,11 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.splashCharacter = v.empty() ? std::string("deckbot") : v;
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "ndi_tally_trigger") {
+    project.ndiTallyTriggerEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "tally_switch_off") {
+    const std::string tallyOff = safeString(fields, 1);
+    project.tallySwitchOffAction = tallyOff.empty() ? std::string("nothing") : tallyOff;
   } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "theme") {

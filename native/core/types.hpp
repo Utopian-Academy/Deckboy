@@ -1245,6 +1245,21 @@ struct Project {
   int oscFeedbackRateMs = 120;           // throttle interval for OSC feedback packets
   bool atemTriggerEnabled = false;       // ATEM switcher tally/trigger integration
   bool ndiTriggerEnabled = false;        // NDI source discovery + trigger integration
+
+  // -- Tally-driven playback ---------------------------------------------------
+  // GOING TO AIR IS THE CUE. On a switched show the operator's hands are on the
+  // switcher, not on Deckboy: the roll should start because the clip was just
+  // put to program, and stop behaving like it is on air the moment it is taken
+  // off. An NDI receiver tells its sender exactly that, for free, so a Deckboy
+  // output that is being watched knows when it is live.
+  //
+  // Separate from ndiTriggerEnabled, which is the metadata command channel --
+  // that one is somebody sending us instructions, this one is us noticing.
+  bool ndiTallyTriggerEnabled = false;   // play when a receiver puts us on program
+  // What to do when we come OFF program. Same vocabulary for every tally
+  // source, so an ATEM and an NDI receiver cannot mean different things by it:
+  // "nothing" | "next" (load the next cue, paused) | "pause" | "stop" | "clear"
+  std::string tallySwitchOffAction = "nothing";
   bool nmcSyncEnabled = false;           // NMC (Network Machine Control) time sync
   bool mtcIngestEnabled = false;         // MIDI Timecode ingest (for TC chase)
   bool ltcIngestEnabled = false;         // Linear Timecode (audio) ingest

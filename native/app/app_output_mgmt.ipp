@@ -4884,6 +4884,104 @@
 #endif
   }
 
+  // ── Going to air is the cue ─────────────────────────────────────────────
+  //
+  // An NDI receiver reports back to the sender whether it is showing that
+  // source on program or preview. On a switched show that is the only signal
+  // that matters: the operator's hands are on the switcher, and the roll should
+  // start because the clip was just put to air -- not because somebody also
+  // remembered to press GO on the playout machine.
+  //
+  // EDGE TRIGGERED, both ways. Tally is a level, and a level would re-fire the
+  // take on every frame it stayed high; only the transition is an event. The
+  // previous state is per output, because two outputs can be watched by two
+  // different receivers and the one that changed is the one that means it.
+  //
+  // Nothing here happens unless the operator asked for it. A machine that
+  // silently starts rolling because a receiver glanced at it is a worse show
+  // than one that does nothing.
+  void pollOutputNdiTally(int outputIndex, OutputRuntime& outputRuntime) {
+#if defined(DECKBOY_HAS_NDI_SDK)
+    if (!project_.ndiTallyTriggerEnabled || !outputRuntime.ndiSender ||
+        !ndiApi_.sendTallyFn) {
+      return;
+    }
+    NDIlib_tally_t tally {};
+    // Zero timeout: this is polled from the render loop and must never block a
+    // frame waiting on a receiver that has gone quiet.
+    ndiApi_.sendTallyFn(outputRuntime.ndiSender, &tally, 0);
+    const bool onProgram = tally.on_program;
+    if (onProgram == outputRuntime.ndiTallyOnProgram) {
+      return;
+    }
+    outputRuntime.ndiTallyOnProgram = onProgram;
+    // FIRST READING IS NOT A TRANSITION. A sender that comes up already on
+    // program would otherwise fire a take during startup, which is how a
+    // rehearsal becomes a broadcast.
+    if (!outputRuntime.ndiTallySeen) {
+      outputRuntime.ndiTallySeen = true;
+      return;
+    }
+    handleTallyTransition(onProgram, "NDI");
+#else
+    (void)outputIndex;
+    (void)outputRuntime;
+#endif
+  }
+
+  // The switch-off vocabulary, in one place, so the label an operator reads and
+  // the branch that runs can never drift apart.
+  static const std::vector<std::string>& tallySwitchOffOrder() {
+    static const std::vector<std::string> kOrder {
+      "nothing", "next", "pause", "stop", "clear"};
+    return kOrder;
+  }
+
+  static std::string tallySwitchOffLabel(const std::string& action) {
+    if (action == "next") return "LOAD NEXT";
+    if (action == "pause") return "PAUSE";
+    if (action == "stop") return "STOP";
+    if (action == "clear") return "CLEAR";
+    return "NOTHING";
+  }
+
+  void cycleTallySwitchOffAction() {
+    const auto& order = tallySwitchOffOrder();
+    auto it = std::find(order.begin(), order.end(), project_.tallySwitchOffAction);
+    const std::size_t next = (it == order.end()) ? 0
+                                                 : (static_cast<std::size_t>(it - order.begin()) + 1) % order.size();
+    project_.tallySwitchOffAction = order[next];
+    markProjectDirty();
+    triggerToast("off air: " + tallySwitchOffLabel(project_.tallySwitchOffAction));
+  }
+
+  // What a tally edge means, for every tally source there will ever be.
+  //
+  // Kept in one place deliberately: an ATEM's program bus and an NDI receiver's
+  // tally are the same statement about the same show, and an operator who sets
+  // "on switch-off: load next cue" must not have to discover that the two
+  // integrations interpret it differently.
+  void handleTallyTransition(bool onProgram, const char* sourceLabel) {
+    if (onProgram) {
+      handleRemoteCommand("TAKE");
+      triggerToast(std::string(sourceLabel) + " tally: on program -- take");
+      return;
+    }
+    const std::string& action = project_.tallySwitchOffAction;
+    if (action == "next") {
+      handleRemoteCommand("NEXT");
+    } else if (action == "pause") {
+      handleRemoteCommand("PAUSE");
+    } else if (action == "stop") {
+      handleRemoteCommand("STOP");
+    } else if (action == "clear") {
+      handleRemoteCommand("CLEAR");
+    } else {
+      return;   // "nothing" -- and nothing is a legitimate answer
+    }
+    triggerToast(std::string(sourceLabel) + " tally: off program -- " + action);
+  }
+
   void sendOutputNdiFrame(int outputIndex, OutputRuntime& outputRuntime, int width, int height, double fpsHint) {
 #if defined(DECKBOY_HAS_NDI_SDK)
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !outputRuntime.outputRenderer) {
