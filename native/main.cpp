@@ -8786,7 +8786,90 @@ class App {
 // (see the block comment above runDeckboyMain for the rules and `--help` for
 // the flags), runs a mode flag headless if one is present, otherwise:
 // acquire instance lock → App::init() → App::run() → App::shutdown()
+// WHERE THE CRASH LOG GOES, DECIDED AT STARTUP.
+//
+// Shared by both handlers. The POSIX one has always resolved this once into a
+// fixed buffer, for the good reason written above it: allocating inside a
+// SIGSEGV handler is how a crash reporter becomes a second crash.
+//
+// The Windows handler did not, and built the path with std::filesystem at the
+// moment of the fault instead. That works for a crash mid-show and fails for
+// exactly the crash worth having a logger for -- one during SHUTDOWN, where
+// Paths::stateDir() answers out of state that has already been torn down. It
+// returned empty, the log was opened relative to the working directory, and
+// what landed was a zero-byte file with no stack in it. A crash logger that
+// only works while the app is healthy is not a crash logger.
+static char g_crashLogPath[1024] = {0};
+
+static void captureCrashLogPath() {
+  const std::string path = (Paths::stateDir() / "deckboy-crash.log").string();
+  if (path.size() < sizeof(g_crashLogPath)) {
+    std::memcpy(g_crashLogPath, path.c_str(), path.size() + 1);
+  }
+}
+
 #ifdef _WIN32
+// ── Crash-time formatting, hand-rolled ──────────────────────────────────────
+// No CRT, and no wsprintfA either. The first raw handler used wsprintfA and the
+// exception code came out as 0x0000087A for a crash whose real code was
+// 0xC0000005: wsprintf is a Win16 inheritance with its own ideas about integer
+// widths, and a crash logger that lies about the exception code is worse than
+// one that stays quiet. These write bytes. There is nothing left to be wrong.
+namespace crashfmt {
+
+inline char* put(char* p, char* end, const char* s) {
+  while (*s && p < end) *p++ = *s++;
+  return p;
+}
+
+inline char* hex(char* p, char* end, unsigned long long v, int digits) {
+  static const char kHex[] = "0123456789ABCDEF";
+  for (int i = digits - 1; i >= 0 && p < end; --i) *p++ = kHex[(v >> (i * 4)) & 0xF];
+  return p;
+}
+
+inline char* dec(char* p, char* end, unsigned long long v) {
+  char tmp[24];
+  int n = 0;
+  do { tmp[n++] = static_cast<char>('0' + (v % 10)); v /= 10; } while (v && n < 24);
+  while (n && p < end) *p++ = tmp[--n];
+  return p;
+}
+
+// module+0xRVA for one address, or nothing if it belongs to no loaded module.
+//
+// This is the part that makes the log readable on its own. Raw addresses need a
+// module map from the same boot to mean anything, and by the time anybody reads
+// a crash log that map is long gone -- the first PDF stack had to be resolved by
+// relaunching the app and diffing base addresses, which only worked because the
+// machine had not been rebooted.
+inline char* module(char* p, char* end, unsigned long long addr) {
+  HMODULE mod = nullptr;
+  if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          reinterpret_cast<LPCWSTR>(addr), &mod) ||
+      !mod) {
+    return p;
+  }
+  wchar_t modPath[MAX_PATH] {};
+  if (!GetModuleFileNameW(mod, modPath, MAX_PATH)) return p;
+  const wchar_t* name = modPath;
+  for (const wchar_t* c = modPath; *c; ++c) {
+    if (*c == L'\\' || *c == L'/') name = c + 1;
+  }
+  char nameA[MAX_PATH] {};
+  if (!WideCharToMultiByte(CP_UTF8, 0, name, -1, nameA, MAX_PATH, nullptr, nullptr)) return p;
+  p = put(p, end, "  ");
+  p = put(p, end, nameA);
+  p = put(p, end, "+0x");
+  const unsigned long long rva = addr - reinterpret_cast<unsigned long long>(mod);
+  int digits = 1;
+  for (unsigned long long v = rva >> 4; v; v >>= 4) ++digits;
+  return hex(p, end, rva, digits);
+}
+
+}  // namespace crashfmt
+
 // ── Crash logger ────────────────────────────────────────────────────────────
 // Deckboy has been dying silently: Windows Error Reporting keeps a dump and a
 // module name, but the app leaves nothing behind, so a crash mid-show tells the
@@ -8797,13 +8880,84 @@ class App {
 // moment an unhandled SEH exception fires — before the process is gone. It is
 // diagnosis, not recovery: the app still dies, it just says why.
 LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
-  static std::atomic<bool> handled {false};
-  bool expected = false;
-  if (!handled.compare_exchange_strong(expected, true)) {
-    return EXCEPTION_EXECUTE_HANDLER;  // a second fault while logging the first
+  // BOUNDED, not one-shot. The guard used to stop after a single entry, so a
+  // fault raised while logging the first one was swallowed whole -- which is
+  // how the PDF shutdown crash produced an empty file for so long. The facts
+  // block below is now raw Win32 and self-contained, so letting a handful
+  // through costs nothing and a cascade still terminates.
+  static std::atomic<int> entries {0};
+  if (entries.fetch_add(1) >= 4) {
+    return EXCEPTION_EXECUTE_HANDLER;
   }
-  fs::path logPath = Paths::stateDir() / "deckboy-crash.log";
-  std::ofstream log(logPath, std::ios::app);
+  const bool firstEntry = entries.load() == 1;
+  // The path captured at startup, not one built now: see captureCrashLogPath.
+  const char* logPath = g_crashLogPath[0] != '\0' ? g_crashLogPath
+                                                  : "deckboy-crash.log";
+
+  // THE FACTS GO DOWN WITH RAW WIN32, BEFORE ANY C++ RUNTIME IS INVOLVED.
+  //
+  // The ofstream below is comfortable and cannot be trusted here. A crash
+  // during SHUTDOWN -- which is the crash a logger is most needed for -- runs
+  // after the CRT's own statics have gone, and operator<< reaches into locale
+  // and chrono machinery that no longer exists. The handler opened the file,
+  // faulted mid-format, and the re-entry guard swallowed the second fault: a
+  // zero-byte log, every time, for every shutdown crash this app has ever had.
+  //
+  // CreateFile/WriteFile and wsprintfA are Win32, not CRT, and hold no static
+  // state of their own. This is the Windows equivalent of the open/write the
+  // POSIX handler already restricts itself to, and for the same reason.
+  {
+    HANDLE raw = CreateFileA(logPath, FILE_APPEND_DATA, FILE_SHARE_READ, nullptr,
+                             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (raw != INVALID_HANDLE_VALUE) {
+      char head[4096];
+      char* const end = head + sizeof(head) - 1;
+      char* p = head;
+      const DWORD tid = GetCurrentThreadId();
+      const DWORD mainTid = gMainThreadId.load();
+      p = crashfmt::put(p, end, "\r\n=== Deckboy crash ");
+      p = crashfmt::put(p, end, deckboy::core::version::kVersionTag);
+      p = crashfmt::put(p, end, " ===\r\nthread: ");
+      p = crashfmt::dec(p, end, tid);
+      p = crashfmt::put(p, end, tid == mainTid ? "  (main)  main: " : "  (NOT main)  main: ");
+      p = crashfmt::dec(p, end, mainTid);
+      p = crashfmt::put(p, end, "\r\n");
+      if (info && info->ExceptionRecord) {
+        p = crashfmt::put(p, end, "code: 0x");
+        p = crashfmt::hex(p, end, info->ExceptionRecord->ExceptionCode, 8);
+        p = crashfmt::put(p, end, "  address: 0x");
+        p = crashfmt::hex(p, end,
+                          reinterpret_cast<unsigned long long>(
+                              info->ExceptionRecord->ExceptionAddress),
+                          16);
+        p = crashfmt::module(
+            p, end,
+            reinterpret_cast<unsigned long long>(info->ExceptionRecord->ExceptionAddress));
+        p = crashfmt::put(p, end, "\r\n");
+      }
+      // Raw frames, each tagged with module+RVA. Symbolising through DbgHelp is
+      // what tends to fault during shutdown, and module+RVA resolves offline
+      // against the matching build anyway -- so this is the version that has to
+      // survive, and the pretty one below is the bonus.
+      void* rawFrames[40] {};
+      const USHORT rawCount = CaptureStackBackTrace(0, 40, rawFrames, nullptr);
+      for (USHORT i = 0; i < rawCount && p < end - 96; ++i) {
+        const auto addr = reinterpret_cast<unsigned long long>(rawFrames[i]);
+        p = crashfmt::put(p, end, "  <");
+        p = crashfmt::dec(p, end, i);
+        p = crashfmt::put(p, end, "> 0x");
+        p = crashfmt::hex(p, end, addr, 16);
+        p = crashfmt::module(p, end, addr);
+        p = crashfmt::put(p, end, "\r\n");
+      }
+      DWORD wrote = 0;
+      WriteFile(raw, head, static_cast<DWORD>(p - head), &wrote, nullptr);
+      FlushFileBuffers(raw);
+      CloseHandle(raw);
+    }
+  }
+
+  std::ofstream log(firstEntry ? logPath : "", std::ios::app);
   if (log) {
     const auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     log << "\n=== Deckboy crash " << deckboy::core::version::kVersionTag << " ===\n";
@@ -8823,6 +8977,19 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
       log << "code: 0x" << std::hex << info->ExceptionRecord->ExceptionCode << std::dec
           << "  address: " << info->ExceptionRecord->ExceptionAddress << "\n";
     }
+    // FLUSH THE FACTS BEFORE ATTEMPTING THE LUXURIES.
+    //
+    // Everything below reaches into DbgHelp to turn addresses into names, and
+    // DbgHelp is not guaranteed to be in a fit state during shutdown -- which
+    // is exactly when the crash worth logging happens. If it faults, the
+    // re-entry guard above swallows the second fault and the process dies with
+    // this file still in the stream buffer: a zero-byte log, which is what the
+    // PDF shutdown crash produced every time.
+    //
+    // The code, the address and the thread are the part that cannot be
+    // reconstructed afterwards. They go to disk first, and the stack is a
+    // bonus on top.
+    log.flush();
     HANDLE process = GetCurrentProcess();
     SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES);
     SymInitialize(process, nullptr, TRUE);
@@ -8835,6 +9002,10 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
     for (USHORT i = 0; i < captured; ++i) {
       const DWORD64 addr = reinterpret_cast<DWORD64>(frames[i]);
       log << "  [" << i << "] " << frames[i];
+      // Per frame, for the same reason as the header flush: if resolving THIS
+      // frame is what faults, every frame already written is still on disk and
+      // the log stops where the trouble is instead of vanishing entirely.
+      log.flush();
       // Log module + RVA even when no PDB is loaded. Deckboy's own frames have
       // no runtime symbols, so SymFromAddr falls back to the nearest EXPORT
       // (wrong — e.g. "RtMidiError::what" for an App:: method). module+0xRVA is
@@ -8884,8 +9055,6 @@ LONG WINAPI deckboyCrashHandler(EXCEPTION_POINTERS* info) {
 // why the log path is resolved ONCE at startup into a fixed buffer rather than
 // being built with std::filesystem when the fault arrives — allocating inside a
 // SIGSEGV handler is how a crash reporter becomes a second crash.
-static char g_crashLogPath[1024] = {0};
-
 extern "C" void deckboyPosixCrashHandler(int sig) {
   static volatile sig_atomic_t handled = 0;
   if (handled) {
@@ -8927,10 +9096,7 @@ extern "C" void deckboyPosixCrashHandler(int sig) {
 }
 
 static void installPosixCrashHandler() {
-  const std::string path = (Paths::stateDir() / "deckboy-crash.log").string();
-  if (path.size() < sizeof(g_crashLogPath)) {
-    std::memcpy(g_crashLogPath, path.c_str(), path.size() + 1);
-  }
+  captureCrashLogPath();
   for (int sig : {SIGSEGV, SIGBUS, SIGFPE, SIGILL, SIGABRT}) {
     struct sigaction sa {};
     sa.sa_handler = deckboyPosixCrashHandler;
@@ -9048,7 +9214,7 @@ constexpr const char* kCliModeFlags[] = {
   "--pattern-bench", "--pattern-dump", "--effect-dump", "--effect-bench",
   "--decode-bench", "--ltc-generate",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
-  "--motion-probe", "--pdf-probe", "--devices", "--check-update",
+  "--motion-probe", "--pdf-probe", "--pdf-render", "--devices", "--check-update",
 };
 
 constexpr CliFlagHelp kCliEnvHelp[] = {
@@ -9369,6 +9535,44 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     const int width = ops.size() > 2 ? std::atoi(ops[2].c_str()) : 3840;
     return App::runPdfProbe(ops[0], outDir, width > 0 ? width : 3840);
   }
+  // ── The child half of the Windows PDF import ────────────────────────────
+  //
+  // Not a diagnostic like the probes around it: this is a working part of the
+  // feature. rasterisePdf spawns it, reads these lines, and the show process
+  // therefore never loads Edge's PDF renderer -- which is what stopped Deckboy
+  // crashing on exit after every PDF import. See pdf_import.cpp.
+  //
+  // One line per event, nothing else on stdout, so the parent can parse it
+  // without a format to get wrong:
+  //   PROGRESS <index> <count>     as each page finishes
+  //   PAGE <index> <count> <path>  the results, in order, at the end
+  //   ERROR <message>              nothing was produced
+  if (mode == "--pdf-render") {
+#ifdef _WIN32
+    if (ops.size() < 2) return missing("<file.pdf> <outdir> [width]");
+    const int width = ops.size() > 2 ? std::atoi(ops[2].c_str()) : 3840;
+    // PROGRESS goes out as each page lands, so the parent's import bar moves
+    // during the render rather than jumping at the end -- a 62-page deck takes
+    // long enough that the difference is the whole point of having a bar.
+    const auto r = deckboy::platform::rasterisePdfInProcess(
+        ops[0], ops[1], width > 0 ? width : 3840, [](int index, int count) {
+          std::cout << "PROGRESS " << index << " " << count << std::endl;
+        });
+    if (!r.error.empty()) {
+      std::cout << "ERROR " << r.error << std::endl;
+      return 1;
+    }
+    const int total = static_cast<int>(r.pagePaths.size());
+    for (int i = 0; i < total; ++i) {
+      std::cout << "PAGE " << (i + 1) << " " << total << " " << r.pagePaths[i] << std::endl;
+    }
+    std::cout.flush();
+    return 0;
+#else
+    std::cerr << "pdf-render: Windows only (other platforms rasterise in process)\n";
+    return 2;
+#endif
+  }
   if (mode == "--motion-probe") {
     if (ops.empty()) return missing("<file> [frames]");
     int wanted = 60;
@@ -9464,6 +9668,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
 int runDeckboyMain(int argc, char** argv) {
 #ifdef _WIN32
   gMainThreadId.store(GetCurrentThreadId());
+  captureCrashLogPath();   // before the filter, so a fault at any point has it
   SetUnhandledExceptionFilter(deckboyCrashHandler);
 #else
   installPosixCrashHandler();

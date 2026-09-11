@@ -21,8 +21,11 @@
 
 // Every platform now shells out for something: the presentation converters are
 // separate applications on all three.
+#include "core/io_utils.hpp"
+#include "core/paths.hpp"
 #include "core/subprocess.hpp"
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 
 namespace fs = std::filesystem;
@@ -466,9 +469,14 @@ bool pdfRasterAvailable(std::string& whyNot) {
   return true;   // ships with the OS
 }
 
-PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
-                             int targetWidthPixels,
-                             const std::function<void(int, int)>& onProgress) {
+// THE RENDER ITSELF, in whatever process is willing to host it.
+//
+// Public so the `--pdf-render` child can reach it; rasterisePdf below is what
+// the app calls, and it does not run this in the show's own process. See the
+// long note there.
+PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& outputDir,
+                                      int targetWidthPixels,
+                                      const std::function<void(int, int)>& onProgress) {
   std::error_code pathEc;
   PdfRasterResult result;
   std::error_code ec;
@@ -605,6 +613,111 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   } catch (...) {
     result.error = "could not read the PDF";
     result.pagePaths.clear();
+  }
+  return result;
+}
+
+// ── The PDF renderer does not get to live in the show process ───────────────
+//
+// Windows.Data.Pdf is Edge's rasteriser, and it brings Edge's shutdown with it.
+// Once that DLL has been loaded it registers static destructors that tear down
+// a D3D11 device at DLL_PROCESS_DETACH -- after the loader has already begun
+// unwinding the graphics stack Deckboy itself was using. The result was an
+// access violation on EXIT, every single time, for any show that had imported a
+// PDF. The import worked, the pages were correct, the slides played; the app
+// then died on the way out and took the "did everything save" question with it.
+//
+// The stack said so plainly once the crash handler could write one:
+//
+//   ntdll!LdrShutdownProcess -> Windows.Data.Pdf!DllMain(DETACH)
+//     -> ucrtbase static dtors -> Windows.Data.Pdf -> d3d11 -> dxgi -> fault
+//
+// Not a line of Deckboy in it. There is nothing to fix inside our own code,
+// because the fault is a third-party DLL's teardown order against the loader's.
+//
+// So the rasteriser runs in a child process instead -- which is exactly what
+// Linux has always done with pdftoppm, and no worse than what macOS does with
+// CoreGraphics, a library that has no such opinion about exiting. The child
+// loads Windows.Data.Pdf, writes the PNGs, prints its progress, and goes away.
+// The show process never loads the DLL at all, so it has nothing to detach.
+//
+// Two things fall out of this for free, and both matter more than the crash:
+// a malformed PDF that takes the renderer down with it now costs an import
+// instead of a show, and a slow render cannot wedge the UI thread through a
+// COM call that does not return.
+PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
+                             int targetWidthPixels,
+                             const std::function<void(int, int)>& onProgress) {
+  PdfRasterResult result;
+  std::error_code ec;
+  fs::create_directories(outputDir, ec);
+  if (ec) {
+    result.error = "could not create " + outputDir.string();
+    return result;
+  }
+
+  const fs::path self = core::Paths::executablePath();
+  if (self.empty()) {
+    // Nothing sane left to spawn. Render here rather than refuse the import;
+    // the exit fault is a bad trade but it is a better one than "no slides".
+    return rasterisePdfInProcess(pdfPath, outputDir, targetWidthPixels, onProgress);
+  }
+
+  ChildProcess child;
+  const std::vector<std::string> args {
+      self.string(), "--pdf-render", pdfPath.string(), outputDir.string(),
+      std::to_string(targetWidthPixels)};
+  if (!spawnProcess(child, args, SpawnOptions::pipedStdout())) {
+    result.error = "could not start the PDF renderer";
+    return result;
+  }
+
+  // The child speaks one line per event, and nothing else goes to stdout:
+  //   PROGRESS <index> <count>     as each page finishes
+  //   PAGE <index> <count> <path>  the results, in order, at the end
+  //   ERROR <message>              nothing was produced
+  std::string pending;
+  int pageCount = 0;
+  char buffer[4096];
+  for (;;) {
+    const int got = readSome(child.readFd, buffer, sizeof(buffer));
+    if (got <= 0) break;
+    pending.append(buffer, static_cast<std::size_t>(got));
+    std::size_t nl;
+    while ((nl = pending.find('\n')) != std::string::npos) {
+      std::string line = pending.substr(0, nl);
+      pending.erase(0, nl + 1);
+      while (!line.empty() && (line.back() == '\r' || line.back() == ' ')) line.pop_back();
+      if (line.rfind("PROGRESS ", 0) == 0) {
+        const char* c = line.c_str() + 9;
+        const int index = std::atoi(c);
+        if (const char* sp = std::strchr(c, ' ')) {
+          const int count = std::atoi(sp + 1);
+          if (count > 0) pageCount = count;
+        }
+        if (onProgress) onProgress(index, pageCount);
+      } else if (line.rfind("ERROR ", 0) == 0) {
+        result.error = line.substr(6);
+      } else if (line.rfind("PAGE ", 0) == 0) {
+        // PAGE <index> <count> <path> -- the path may contain spaces, so it is
+        // everything after the third field, not a token.
+        const char* c = line.c_str() + 5;
+        const int index = std::atoi(c);
+        const char* sp = std::strchr(c, ' ');
+        if (!sp) continue;
+        const int count = std::atoi(sp + 1);
+        const char* sp2 = std::strchr(sp + 1, ' ');
+        if (!sp2) continue;
+        result.pagePaths.emplace_back(sp2 + 1);
+        if (count > 0) pageCount = count;
+        (void)index;
+      }
+    }
+  }
+  child.stop();
+
+  if (result.error.empty() && result.pagePaths.empty()) {
+    result.error = "the PDF renderer produced no pages";
   }
   return result;
 }

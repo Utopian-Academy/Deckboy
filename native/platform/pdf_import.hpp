@@ -113,6 +113,20 @@ PdfRasterResult rasterisePdf(const std::filesystem::path& pdfPath,
                              int targetWidthPixels,
                              const std::function<void(int, int)>& onProgress);
 
+#ifdef _WIN32
+// The Windows rasteriser, run HERE rather than in a child process.
+//
+// rasterisePdf above spawns `Deckboy --pdf-render` and this is what that child
+// calls. Deliberately not what the app calls: loading Windows.Data.Pdf into the
+// show process makes the process crash on exit, for reasons written out in full
+// at rasterisePdf in the .cpp. Use it directly only from a process that is
+// about to end anyway.
+PdfRasterResult rasterisePdfInProcess(const std::filesystem::path& pdfPath,
+                                      const std::filesystem::path& outputDir,
+                                      int targetWidthPixels,
+                                      const std::function<void(int, int)>& onProgress);
+#endif
+
 // Whether this build can rasterise at all, and what to tell the operator when
 // it cannot. On Linux this is "is pdftoppm installed"; elsewhere it is always
 // available because the engine ships with the OS.

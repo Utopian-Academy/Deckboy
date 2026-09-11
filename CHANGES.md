@@ -1,5 +1,26 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
+## 2026-09-11 - v0.99.335 (slide decks render in their own process)
+
+**Importing a slide deck no longer borrows the show's graphics.** On Windows,
+Deckboy renders PDF pages with the same engine Edge uses, and that engine wants
+a graphics device of its own. It now gets one, in a separate process that does
+the render and then goes away — so a slide import touches nothing the show is
+using, and a deck that the renderer cannot make sense of costs an import rather
+than an evening. This is the shape the Linux side has always had, and macOS
+keeps rendering through CoreGraphics exactly as before.
+
+The import itself is unchanged from the operator's side: drop a PDF on the
+deck, watch the page counter climb, and get one still cue per page at full 4K
+width. The counter is fed by the renderer as each page lands, so a sixty-page
+deck reports real progress the whole way through instead of arriving all at
+once at the end.
+
+**Crash reports say where.** When something does go wrong, the report Deckboy
+leaves behind now names the module and offset for every frame on the stack, and
+writes the essentials first — so the file is readable on its own, on any
+machine, without needing the one it was written on.
+
 ## 2026-09-10 - v0.99.334 (10-bit playback, a live coder that keeps up, motion mosh)
 
 **10-bit video plays on the GPU.** HEVC Main 10 — and VP9 Profile 2, and 10-bit
