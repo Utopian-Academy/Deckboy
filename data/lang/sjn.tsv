@@ -1,0 +1,81 @@
+#name Sindarin
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	VEIN
+OPEN	EDRO
+SAVE	HEBO
+SAVE AS	HEBO SEV
+BUNDLE	
+IMPORT	TOGO
+SOURCE	CELU
+PATTERN	CENNAD
+SETTINGS	GWAEDH
+TAKE	MABO
+STOP	DARO
+REBOOT	ADTHUIA
+BLACKOUT	MORN
+CLEAR	GLAN
+RECORD	TEITHO
+PLAYLIST	PARF
+TIMELINE	LÛ-RÂD
+MEDIA	NAITH
+TRANSPORT	COLLO
+OUTPUT	ETHIR
+PROGRAM	
+WARP	
+LIVE	CUIN
+DECODE	
+STREAM	
+System	Gwaith
+Audio	Lamm
+Network	Raew
+Video Outputs	Ethir gwaew
+About	Am
+Encoder	Teithron
+Screen	Cenedril
+Geometry	Tass
+Devices	Gwaedhail
+Streaming	Sirio
+APPEARANCE	THÎW
+REMOTE CONTROL	TÛR HAER
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	CENEDRIL GOVANNEN
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	ADLEITHIAN
+COPY	OSTIRIO
+PASTE	PANNO
+RESET	ADGWAEDH
+Theme	Thîw
+Language	Lam
+Resolution	Nimp
+Orientation	Râd
+Toggle Fullscreen	Cenedril bant
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	ENEDH
+FULL	PANT
+duration	lû
+transition	gwanath
+fade in	echad
+fade out	dannen
+ON	NAU
+OFF	AVO
+Stopped	DARTHA
+Playing	CUINA
+Paused	HAR

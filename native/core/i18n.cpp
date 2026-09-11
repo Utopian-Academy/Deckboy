@@ -50,8 +50,9 @@ std::string trim(const std::string& s) {
 //
 // ASCII in, ASCII out, every one of them. That is not a limitation, it is the
 // selection rule: the bundled fonts have no Braille block and no runes, so a
-// cypher that reached for those would draw a wall of empty boxes. These four
-// are guaranteed to render on any build, on any platform, in any theme.
+// cypher that reached for those would draw a wall of empty boxes -- which is
+// also why Alienese II is written in Latin letters rather than its own glyphs.
+// These five render on any build, on any platform, in any theme.
 //
 // They also transform whatever they are given, including cue names and file
 // paths. That is intended -- "the whole desk is in runes" is the joke, and a
@@ -67,6 +68,7 @@ const Cypher kCyphers[] = {
   {"cy-atbash", "Atbash"},
   {"cy-leet", "1337"},
   {"cy-morse", "Morse"},
+  {"cy-alienese2", "Alienese II"},
 };
 constexpr int kCypherCount = static_cast<int>(sizeof(kCyphers) / sizeof(kCyphers[0]));
 
@@ -139,12 +141,46 @@ std::string applyMorse(const std::string& in) {
   return out;
 }
 
+// Alienese II, the running-sum cipher.
+//
+// Futurama's second alien language is not a letter-for-letter substitution
+// like its first: each symbol carries the RUNNING TOTAL of everything before
+// it, so the same letter encodes differently depending on what it follows.
+// That is the interesting part and it survives being written in Latin letters,
+// which is what this does -- the real glyphs are not in Unicode and no bundled
+// font has them, so drawing those would mean a wall of empty boxes.
+//
+// The sum runs per word: the show's own puzzles reset it at spaces, and a sum
+// carried across a whole interface would make every label depend on the one
+// before it, which is nonsense in a menu.
+std::string applyAlienese2(const std::string& in) {
+  std::string out;
+  out.reserve(in.size());
+  int running = 0;
+  for (char c : in) {
+    const char u = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+    if (u >= 'A' && u <= 'Z') {
+      const int v = u - 'A';
+      running = (running + v) % 26;
+      const char enc = static_cast<char>('A' + running);
+      out += (c >= 'a' && c <= 'z') ? static_cast<char>(enc - 'A' + 'a') : enc;
+    } else {
+      // Anything that is not a letter both passes through and RESETS the sum,
+      // so each word is independent and a digit cannot smear into the next one.
+      out += c;
+      running = 0;
+    }
+  }
+  return out;
+}
+
 std::string applyCypher(int which, const std::string& in) {
   switch (which) {
     case 1: return applyRot13(in);
     case 2: return applyAtbash(in);
     case 3: return applyLeet(in);
     case 4: return applyMorse(in);
+    case 5: return applyAlienese2(in);
     default: return in;
   }
 }

@@ -1,0 +1,81 @@
+#name Diné bizaad
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	ÁNÍÍDÍ
+OPEN	ÁNÍÍŁTSOS
+SAVE	HAZTʼIʼ
+SAVE AS	
+BUNDLE	
+IMPORT	YAH ANÍÍŁ
+SOURCE	BEEʼ
+PATTERN	
+SETTINGS	BEEʼÁLÍLÍ
+TAKE	
+STOP	TʼÁÁ
+REBOOT	
+BLACKOUT	ŁIZHIN
+CLEAR	ÁDIN
+RECORD	AKʼEʼELCHÍ
+PLAYLIST	NALTSOOS
+TIMELINE	
+MEDIA	NAALKAAH
+TRANSPORT	
+OUTPUT	CHʼÍNÍÍŁ
+PROGRAM	
+WARP	
+LIVE	HINÁ
+DECODE	
+STREAM	
+System	Álílí
+Audio	Diitsʼaʼ
+Network	Ałhidadiidzoh
+Video Outputs	
+About	Baa hane
+Encoder	
+Screen	Nʼdishchííʼ
+Geometry	
+Devices	Bee alʼįʼ
+Streaming	
+APPEARANCE	BINAʼADLO
+REMOTE CONTROL	
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	NÁÁNÁ
+COPY	ÁDAATʼÉ
+PASTE	
+RESET	ÁNÁÁNÍÍŁ
+Theme	Bináánééz
+Language	Saad
+Resolution	
+Orientation	
+Toggle Fullscreen	
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	AŁNÍÍʼ
+FULL	HAʼÁTʼÉ
+duration	
+transition	
+fade in	
+fade out	
+ON	HAZʼÁ
+OFF	ÁDIN
+Stopped	TʼÁÁ
+Playing	NAALNISH
+Paused	

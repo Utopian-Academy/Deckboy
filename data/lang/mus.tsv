@@ -1,0 +1,81 @@
+#name Mvskoke
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	MVCVSE
+OPEN	HVLWE
+SAVE	ESYVHIKV
+SAVE AS	
+BUNDLE	
+IMPORT	ETEHOYVNKV
+SOURCE	EMPONVKV
+PATTERN	
+SETTINGS	VHAKV
+TAKE	
+STOP	TVLKE
+REBOOT	
+BLACKOUT	LVSTE
+CLEAR	HVSSE
+RECORD	HOCEFKV
+PLAYLIST	NAKCOKV
+TIMELINE	
+MEDIA	NAKETV
+TRANSPORT	
+OUTPUT	OSSETV
+PROGRAM	
+WARP	
+LIVE	HESAKETV
+DECODE	
+STREAM	
+System	Vhakv
+Audio	Pohetv
+Network	Etemvhakv
+Video Outputs	
+About	Momen
+Encoder	
+Screen	Hecetv
+Geometry	
+Devices	Nakcokv
+Streaming	
+APPEARANCE	HECKV
+REMOTE CONTROL	
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	POHKV
+COPY	HOCEFKV
+PASTE	
+RESET	MVCVSE
+Theme	Heckv
+Language	Opunvkv
+Resolution	
+Orientation	
+Toggle Fullscreen	
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	NOKOSE
+FULL	ESKERRETV
+duration	
+transition	
+fade in	
+fade out	
+ON	OMES
+OFF	TVLKE
+Stopped	TVLKES
+Playing	POHKES
+Paused	

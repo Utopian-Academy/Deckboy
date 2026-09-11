@@ -1,0 +1,81 @@
+#name isiZulu
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	OKUSHA
+OPEN	VULA
+SAVE	LONDOLOZA
+SAVE AS	LONDOLOZA NJENGE
+BUNDLE	
+IMPORT	NGENISA
+SOURCE	UMTHOMBO
+PATTERN	IPHETHINI
+SETTINGS	IZILUNGISELELO
+TAKE	
+STOP	MISA
+REBOOT	QALA KABUSHA
+BLACKOUT	MNYAMA
+CLEAR	SULA
+RECORD	QOPHA
+PLAYLIST	UHLU
+TIMELINE	ULAYINI WESIKHATHI
+MEDIA	IMIDIYA
+TRANSPORT	UKUTHUTHA
+OUTPUT	OKUPHUMAYO
+PROGRAM	
+WARP	
+LIVE	BUKHOMA
+DECODE	
+STREAM	
+System	Isistimu
+Audio	Umsindo
+Network	Inethiwekhi
+Video Outputs	Okuphumayo kwevidiyo
+About	Mayelana
+Encoder	Isibhali
+Screen	Isikrini
+Geometry	Ijiyomethri
+Devices	Amadivayisi
+Streaming	Ukusakaza
+APPEARANCE	UKUBUKEKA
+REMOTE CONTROL	UKULAWULA KUDE
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	IZIKRINI EZIXHUNYIWE
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	UKUDLALA
+COPY	KOPISHA
+PASTE	NAMATHISELA
+RESET	SETHA KABUSHA
+Theme	Itimu
+Language	Ulimi
+Resolution	Ukucaca
+Orientation	Ukubheka
+Toggle Fullscreen	Isikrini esigcwele
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	MAPHAKATHI
+FULL	GCWELE
+duration	ubude
+transition	ukuguqula
+fade in	
+fade out	
+ON	VULIWE
+OFF	VALIWE
+Stopped	Kumisiwe
+Playing	Kuyadlala
+Paused	Kumisiwe okwesikhashana

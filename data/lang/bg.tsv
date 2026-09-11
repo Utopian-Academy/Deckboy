@@ -1,0 +1,81 @@
+#name Български
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	НОВ
+OPEN	ОТВОРИ
+SAVE	ЗАПАЗИ
+SAVE AS	ЗАПАЗИ КАТО
+BUNDLE	
+IMPORT	ВНОС
+SOURCE	ИЗТОЧНИК
+PATTERN	
+SETTINGS	НАСТРОЙКИ
+TAKE	
+STOP	СТОП
+REBOOT	РЕСТАРТ
+BLACKOUT	ЧЕРНО
+CLEAR	ИЗЧИСТИ
+RECORD	ЗАПИС
+PLAYLIST	СПИСЪК
+TIMELINE	ВРЕМЕВА ЛИНИЯ
+MEDIA	МЕДИЯ
+TRANSPORT	ТРАНСПОРТ
+OUTPUT	ИЗХОД
+PROGRAM	
+WARP	
+LIVE	НА ЖИВО
+DECODE	
+STREAM	
+System	Система
+Audio	Звук
+Network	Мрежа
+Video Outputs	Видео изходи
+About	Относно
+Encoder	Кодер
+Screen	Екран
+Geometry	Геометрия
+Devices	Устройства
+Streaming	Излъчване
+APPEARANCE	ВИД
+REMOTE CONTROL	ДИСТАНЦИОННО
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	СВЪРЗАНИ ЕКРАНИ
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	ВЪЗПРОИЗВЕЖДАНЕ
+COPY	КОПИЕ
+PASTE	ПОСТАВИ
+RESET	НУЛИРАЙ
+Theme	Тема
+Language	Език
+Resolution	Резолюция
+Orientation	Ориентация
+Toggle Fullscreen	Цял екран
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	ЦЕНТЪР
+FULL	ПЪЛЕН
+duration	времетраене
+transition	преход
+fade in	
+fade out	
+ON	ВКЛ
+OFF	ИЗКЛ
+Stopped	Спрян
+Playing	Възпроизвежда
+Paused	На пауза

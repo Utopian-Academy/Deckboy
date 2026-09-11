@@ -1,0 +1,81 @@
+#name Dansk
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	NY
+OPEN	ÅBN
+SAVE	GEM
+SAVE AS	GEM SOM
+BUNDLE	
+IMPORT	IMPORTÉR
+SOURCE	KILDE
+PATTERN	TESTBILLEDE
+SETTINGS	INDSTILLINGER
+TAKE	
+STOP	STOP
+REBOOT	GENSTART
+BLACKOUT	SORT
+CLEAR	RYD
+RECORD	OPTAG
+PLAYLIST	AFSPILNINGSLISTE
+TIMELINE	TIDSLINJE
+MEDIA	MEDIER
+TRANSPORT	TRANSPORT
+OUTPUT	UDGANG
+PROGRAM	
+WARP	
+LIVE	DIREKTE
+DECODE	
+STREAM	
+System	System
+Audio	Lyd
+Network	Netværk
+Video Outputs	Videoudgange
+About	Om
+Encoder	Koder
+Screen	Skærm
+Geometry	Geometri
+Devices	Enheder
+Streaming	Streaming
+APPEARANCE	UDSEENDE
+REMOTE CONTROL	FJERNBETJENING
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	TILSLUTTEDE SKÆRME
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	AFSPILNING
+COPY	KOPIÉR
+PASTE	SÆT IND
+RESET	NULSTIL
+Theme	Tema
+Language	Sprog
+Resolution	Opløsning
+Orientation	Retning
+Toggle Fullscreen	Fuld skærm
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	CENTRÉR
+FULL	FULD
+duration	varighed
+transition	overgang
+fade in	
+fade out	
+ON	TIL
+OFF	FRA
+Stopped	Stoppet
+Playing	Afspiller
+Paused	Pauset

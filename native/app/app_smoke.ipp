@@ -339,6 +339,14 @@
       expect(say("cy-leet", "SAVE AS") == "54V3 45", "cypher: leet");
       expect(say("cy-morse", "NEW") == "-. . .--", "cypher: morse letters");
       expect(say("cy-morse", "SAVE AS") == "... .- ...- . / .- ...", "cypher: morse word break");
+      // Alienese II carries a running total, so the same letter encodes
+      // differently depending on what it follows -- N,E,W is 13, then 13+4=17,
+      // then 17+22=13 again, so "NEW" is "NRN" and the two Ns are not the same
+      // N. A letter-for-letter table would get this wrong and look right.
+      expect(say("cy-alienese2", "NEW") == "NRN", "cypher: alienese II runs a total");
+      expect(say("cy-alienese2", "AAA") == "AAA", "cypher: alienese II holds at zero");
+      expect(say("cy-alienese2", "BBB") == "BCD", "cypher: alienese II accumulates");
+
       // APPLIED EXACTLY ONCE, which the transforms above cannot tell you.
       //
       // The text helpers translate, then hand the finished string to the

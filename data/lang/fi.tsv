@@ -1,0 +1,81 @@
+#name Suomi
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	UUSI
+OPEN	AVAA
+SAVE	TALLENNA
+SAVE AS	TALLENNA NIMELLÄ
+BUNDLE	
+IMPORT	TUO
+SOURCE	LÄHDE
+PATTERN	TESTIKUVA
+SETTINGS	ASETUKSET
+TAKE	
+STOP	SEIS
+REBOOT	UUDELLEENKÄYNNISTYS
+BLACKOUT	MUSTA
+CLEAR	TYHJENNÄ
+RECORD	TALLENNUS
+PLAYLIST	SOITTOLISTA
+TIMELINE	AIKAJANA
+MEDIA	MEDIA
+TRANSPORT	KULJETIN
+OUTPUT	ULOSTULO
+PROGRAM	
+WARP	
+LIVE	SUORA
+DECODE	
+STREAM	
+System	Järjestelmä
+Audio	Ääni
+Network	Verkko
+Video Outputs	Videolähdöt
+About	Tietoja
+Encoder	Enkooderi
+Screen	Näyttö
+Geometry	Geometria
+Devices	Laitteet
+Streaming	Suoratoisto
+APPEARANCE	ULKOASU
+REMOTE CONTROL	KAUKO-OHJAUS
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	KYTKETYT NÄYTÖT
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	TOISTO
+COPY	KOPIOI
+PASTE	LIITÄ
+RESET	NOLLAA
+Theme	Teema
+Language	Kieli
+Resolution	Tarkkuus
+Orientation	Suunta
+Toggle Fullscreen	Koko näyttö
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	KESKITÄ
+FULL	TÄYSI
+duration	kesto
+transition	siirtymä
+fade in	
+fade out	
+ON	PÄÄLLÄ
+OFF	POIS
+Stopped	Pysäytetty
+Playing	Toistaa
+Paused	Tauolla

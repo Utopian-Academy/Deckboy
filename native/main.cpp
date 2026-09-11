@@ -7489,7 +7489,8 @@ class App {
   static constexpr int kSettingsActionOutputHouseOverlayToggle = 747;
   static constexpr int kSettingsActionOutputHouseOverlayOpacity = 748;
   static constexpr int kSettingsActionOutputHouseOverlayPick = 749;
-  static constexpr int kSettingsActionLanguageDropdown = 750;   // next free: 751
+  static constexpr int kSettingsActionLanguageDropdown = 750;
+  static constexpr int kSettingsActionLanguagePanic = 751;      // next free: 752
   // 730/731 are the encoder's -- the audit caught that collision.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;

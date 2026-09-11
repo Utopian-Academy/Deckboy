@@ -5534,14 +5534,21 @@
   }
 
   void drawCenteredTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,
-                            const std::string& textIn, SDL_Color color) {
+                            const std::string& textIn, SDL_Color color,
+                            bool localise = true) {
     if (!font || textIn.empty() || rect.w <= 0 || rect.h <= 0) {
       return;
     }
     // See drawTextSafe: the other half of the language door.
+    //
+    // localise=false is the escape hatch, and it exists for exactly one thing:
+    // the button that gets you back to English. A label that the language
+    // system is allowed to touch cannot be the thing you reach for when the
+    // language system is why you are lost.
     const std::string& text =
-      deckboy::core::i18n::passthrough() ? textIn : (localisedScratch_ =
-        deckboy::core::i18n::translate(textIn));
+      (!localise || deckboy::core::i18n::passthrough())
+        ? textIn
+        : (localisedScratch_ = deckboy::core::i18n::translate(textIn));
     SDL_Rect safe = safeTextRect(rect);
     if (safe.w <= 0 || safe.h <= 0) {
       return;

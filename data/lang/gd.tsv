@@ -1,0 +1,81 @@
+#name Gàidhlig
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+NEW	ÙR
+OPEN	FOSGAIL
+SAVE	SÀBHAIL
+SAVE AS	SÀBHAIL MAR
+BUNDLE	
+IMPORT	IOMPAIR
+SOURCE	TÙS
+PATTERN	DEALBH DEUCHAINN
+SETTINGS	ROGHAINNEAN
+TAKE	
+STOP	STAD
+REBOOT	ATH-THÒISICH
+BLACKOUT	DUBH
+CLEAR	GLAN
+RECORD	CLÀRAICH
+PLAYLIST	LIOSTA
+TIMELINE	LÌNE-ÙINE
+MEDIA	MEADHANAN
+TRANSPORT	GIÙLAN
+OUTPUT	ÀS-CHUR
+PROGRAM	
+WARP	
+LIVE	BEÒ
+DECODE	
+STREAM	
+System	Siostam
+Audio	Fuaim
+Network	Lìonra
+Video Outputs	Às-chuir bhidio
+About	Mu dheidhinn
+Encoder	Còdaiche
+Screen	Sgrìn
+Geometry	Geoimeatraidh
+Devices	Innealan
+Streaming	Sruthadh
+APPEARANCE	COLTAS
+REMOTE CONTROL	SMACHD ASTAIR
+INTEGRATION ADAPTERS	
+DISCOVERY / NOTES	
+DISPLAY & RASTER	
+CONNECTED DISPLAYS	SGRÌNICHEAN CEANGAILTE
+EDGE FEATHERING	
+MATTE & OVERLAY	
+AREA OF INTEREST	
+DEFAULT TRANSITION	
+NMC IN & OUT	
+OSC QUERY / FEEDBACK	
+CUE INSPECTOR	
+SELECTED CUE	
+PLAYBACK	CLUICH
+COPY	LETHBHREAC
+PASTE	CUIR ANN
+RESET	ATH-SHUIDHICH
+Theme	Ùrlar
+Language	Cànan
+Resolution	Dùmhlachd
+Orientation	Comhair
+Toggle Fullscreen	Làn-sgrìn
+IDENTIFY	
+REGION SIZE	
+POSITION	
+CENTRE	MEADHAN
+FULL	LÀN
+duration	fad
+transition	gluasad
+fade in	
+fade out	
+ON	AIR
+OFF	DHETH
+Stopped	Stad
+Playing	A' cluich
+Paused	Na thàmh

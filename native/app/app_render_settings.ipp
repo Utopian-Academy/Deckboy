@@ -645,11 +645,24 @@
       settingsBtns_.push_back({themeBtn, kSettingsActionThemeDropdown, "theme"});
       // Beside the theme, because it is the same kind of decision: what this
       // desk looks and reads like to whoever is standing at it.
-      SDL_Rect langBtn {appX, appY, appW, sTallH};
+      // THE WAY BACK, and it is never translated.
+      //
+      // Pick a language you cannot read -- or a cypher, which is the whole
+      // point of a cypher -- and every label that could tell you how to undo it
+      // is also in that language. So this one is drawn raw, in English, always,
+      // and it is next to the control that got you here rather than three menus
+      // away. Small, because it is an exit and not a feature.
+      const int panicW = uiScaled(58);
+      SDL_Rect langBtn {appX, appY, std::max(uiScaled(60), appW - panicW - sGap), sTallH};
+      SDL_Rect panicBtn {langBtn.x + langBtn.w + sGap, appY, panicW, sTallH};
       appY += sTallH + sGap;
       drawUIDropdown(langBtn, "Language", deckboy::core::i18n::activeName(),
                      "settings.language");
       settingsBtns_.push_back({langBtn, kSettingsActionLanguageDropdown, "language"});
+      Primitives::drawFramedPanel(controlRenderer_, panicBtn, pal.mid, pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, panicBtn, "Help!", ink,
+                           /*localise=*/false);
+      settingsBtns_.push_back({panicBtn, kSettingsActionLanguagePanic, "language_panic"});
       SDL_Rect sfxBtn {appX, appY, appW, sRowH};
       appY += sRowH + sGap;
       drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
@@ -4092,6 +4105,14 @@
             triggerToast("language: " + deckboy::core::i18n::activeName());
           });
         return;
+      } else if (sb.action == kSettingsActionLanguagePanic) {
+        std::string error;
+        deckboy::core::i18n::setLanguage("en", Paths::dataDir(), error);
+        project_.language.clear();
+        markProjectDirty();
+        // In English on purpose: the operator who pressed this could not read
+        // the last message they were shown.
+        triggerToast("Language reset to English");
       } else if (sb.action == kSettingsActionTransitionSecondsDec) {
         setTransitionSeconds(std::max(0.0, focusedDeck().transitionSeconds - 0.1));
       } else if (sb.action == kSettingsActionTransitionSecondsInc) {
