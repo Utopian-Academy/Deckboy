@@ -2251,8 +2251,8 @@
     int kMenuW = 212;
     if (fontSmall_) {
       for (const auto& item : contextItems_) {
-        int tw = 0, th = 0;
-        if (TTF_GetStringSize(fontSmall_, item.label.c_str(), 0, &tw, &th)) {
+        const int tw = measuredTextWidth(fontSmall_, item.label);
+        if (tw > 0) {
           kMenuW = std::max(kMenuW, tw + 36); // 18px left pad + 18px right pad
         }
       }
@@ -5001,10 +5001,7 @@
       TTF_Font* labelFont = fontPixelSmall_ ? fontPixelSmall_ : fontSmall_;
       int widestLabel = 0;
       for (int i = 0; i < count; ++i) {
-        int tw = 0;
-        if (labelFont) {
-          TTF_GetStringSize(labelFont, buttons_[startIndex + i].label.c_str(), 0, &tw, nullptr);
-        }
+        const int tw = measuredTextWidth(labelFont, buttons_[startIndex + i].label);
         widestLabel = std::max(widestLabel, tw);
       }
       // Icon+text buttons keep an icon to the left of the word.
@@ -5438,6 +5435,23 @@
     }
     miamiCursor_ = built;
     miamiCursorScale_ = scale;
+  }
+
+  // HOW WIDE THAT LABEL WILL ACTUALLY BE.
+  //
+  // Anything that sizes a box to its own text has to measure the string that
+  // will be DRAWN, and since the interface learned other languages that is no
+  // longer the literal in the source. A menu measured in English and drawn in
+  // German is a menu with its own items cut off -- which reads as a layout
+  // bug and is really a measurement taken in the wrong language.
+  int measuredTextWidth(TTF_Font* font, const std::string& text) const {
+    if (!font || text.empty()) return 0;
+    const std::string shown = deckboy::core::i18n::passthrough()
+                                ? text
+                                : deckboy::core::i18n::translate(text);
+    int w = 0;
+    TTF_GetStringSize(font, shown.c_str(), 0, &w, nullptr);
+    return w;
   }
 
   void drawTextSafe(SDL_Renderer* renderer, TTF_Font* font, const SDL_Rect& rect,

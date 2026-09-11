@@ -10,8 +10,8 @@
 # one country has to be able to work it in another.
 NEW	НОВЫЙ
 OPEN	ОТКРЫТЬ
-SAVE	СОХРАНИТЬ
-SAVE AS	СОХРАНИТЬ КАК
+SAVE	СОХР.
+SAVE AS	СОХР. КАК
 BUNDLE	УПАКОВАТЬ
 IMPORT	ИМПОРТ
 SOURCE	ИСТОЧНИК
@@ -29,7 +29,7 @@ MEDIA	МЕДИА
 TRANSPORT	ТРАНСПОРТ
 OUTPUT	ВЫХОД
 PROGRAM	
-WARP	ИСКАЖЕНИЕ
+WARP	
 LIVE	В ЭФИРЕ
 DECODE	ДЕКОД.
 STREAM	
@@ -37,7 +37,7 @@ System	Система
 Audio	Звук
 Network	Сеть
 Video Outputs	Видеовыходы
-About	О программе
+About	О нас
 Encoder	Кодировщик
 Screen	Экран
 Geometry	Геометрия

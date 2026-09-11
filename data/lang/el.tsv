@@ -10,7 +10,7 @@
 # one country has to be able to work it in another.
 NEW	ΝΕΟ
 OPEN	ΑΝΟΙΓΜΑ
-SAVE	ΑΠΟΘΗΚΕΥΣΗ
+SAVE	ΑΠΟΘ.
 SAVE AS	ΑΠΟΘΗΚΕΥΣΗ ΩΣ
 BUNDLE	
 IMPORT	ΕΙΣΑΓΩΓΗ
@@ -19,7 +19,7 @@ PATTERN	ΜΟΤΙΒΟ
 SETTINGS	ΡΥΘΜΙΣΕΙΣ
 TAKE	
 STOP	ΣΤΟΠ
-REBOOT	ΕΠΑΝΕΚΚΙΝΗΣΗ
+REBOOT	ΕΠΑΝΕΚΚ.
 BLACKOUT	ΜΑΥΡΟ
 CLEAR	ΚΑΘΑΡΙΣΜΟΣ
 RECORD	ΕΓΓΡΑΦΗ
@@ -58,8 +58,8 @@ OSC QUERY / FEEDBACK
 CUE INSPECTOR	
 SELECTED CUE	
 PLAYBACK	ΑΝΑΠΑΡΑΓΩΓΗ
-COPY	ΑΝΤΙΓΡΑΦΗ
-PASTE	ΕΠΙΚΟΛΛΗΣΗ
+COPY	ΑΝΤΙΓΡ.
+PASTE	ΕΠΙΚΟΛΛ.
 RESET	ΕΠΑΝΑΦΟΡΑ
 Theme	Θέμα
 Language	Γλώσσα

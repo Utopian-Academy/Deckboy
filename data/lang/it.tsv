@@ -29,7 +29,7 @@ MEDIA	MEDIA
 TRANSPORT	TRASPORTO
 OUTPUT	USCITA
 PROGRAM	
-WARP	DEFORMA
+WARP	
 LIVE	IN ONDA
 DECODE	DECODIFICA
 STREAM	
@@ -37,7 +37,7 @@ System	Sistema
 Audio	Audio
 Network	Rete
 Video Outputs	Uscite video
-About	Informazioni
+About	Info
 Encoder	Codificatore
 Screen	Schermo
 Geometry	Geometria
@@ -73,10 +73,10 @@ CENTRE	CENTRA
 FULL	PIENO
 duration	durata
 transition	transizione
-fade in	dissolvenza in
-fade out	dissolvenza out
+fade in	diss. in
+fade out	diss. out
 ON	SI
 OFF	NO
 Stopped	Fermo
-Playing	In riproduzione
+Playing	In play
 Paused	In pausa

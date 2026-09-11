@@ -21,10 +21,24 @@
 //   Morse. These exist because they are funny, and because they are exact --
 //   a cypher cannot mistranslate.
 //
-// WHERE IT IS APPLIED: inside the five text helpers every drawn string already
-// goes through, not at the ~1,300 call sites. That is the whole reason this is
+// WHERE IT IS APPLIED: inside the four functions that actually rasterise text
+// -- drawTextSafe, drawCenteredTextSafe, drawText and drawCenteredTextUnclipped
+// -- rather than at the ~1,300 call sites. drawCenteredText forwards into the
+// second of those and so is covered without knowing anything about this. That is the whole reason this is
 // tractable. English is a pass-through with an early-out, so the default costs
 // a bool test per drawn string and nothing else.
+//
+// THE TRADE THIS MAKES, stated plainly because it is a real one. Translating
+// at the draw call means the catalogue is consulted for EVERY string drawn,
+// including the operator's own: a cue named exactly "LIVE" would come out
+// "EN VIVO" in Spanish. Composite labels cannot collide -- a playlist row is an
+// index, a name and a duration together -- so this needs a cue named exactly
+// like a piece of chrome, and it is cosmetic when it happens.
+//
+// The alternative is marking each of the ~1,300 call sites by hand, which
+// trades a rare cosmetic oddity for 1,300 chances to miss one. Under a cypher
+// the same behaviour is not a flaw at all: transforming the operator's own text
+// is the entire point.
 //
 // WHAT IS DELIBERATELY NOT TRANSLATED: the trade's own vocabulary. TAKE, CUE,
 // PROGRAM, PREVIEW, NDI, SRT, tally, DeckLink -- broadcast software is not

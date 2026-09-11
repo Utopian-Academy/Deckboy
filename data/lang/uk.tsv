@@ -10,8 +10,8 @@
 # one country has to be able to work it in another.
 NEW	НОВИЙ
 OPEN	ВІДКРИТИ
-SAVE	ЗБЕРЕГТИ
-SAVE AS	ЗБЕРЕГТИ ЯК
+SAVE	ЗБЕРЕГ.
+SAVE AS	ЗБЕРЕГ. ЯК
 BUNDLE	УПАКУВАТИ
 IMPORT	ІМПОРТ
 SOURCE	ДЖЕРЕЛО
@@ -29,7 +29,7 @@ MEDIA	МЕДІА
 TRANSPORT	ТРАНСПОРТ
 OUTPUT	ВИХІД
 PROGRAM	
-WARP	СПОТВОРЕННЯ
+WARP	
 LIVE	В ЕФІРІ
 DECODE	ДЕКОД.
 STREAM	
@@ -37,7 +37,7 @@ System	Система
 Audio	Звук
 Network	Мережа
 Video Outputs	Відеовиходи
-About	Про програму
+About	Про нас
 Encoder	Кодувальник
 Screen	Екран
 Geometry	Геометрія

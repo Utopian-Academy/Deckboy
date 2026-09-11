@@ -635,9 +635,15 @@
       // moment those two differed in width the label no longer fitted the
       // button that was sized for it -- at Pocket/touch scale NEW, OPEN, SAVE
       // and BUNDLE came out completely blank, ellipsized away to nothing.
+      // MEASURE WHAT WILL ACTUALLY BE DRAWN, not the English it was written in.
+      //
+      // These buttons already sized themselves to their labels -- and then the
+      // interface learned other languages, and the label being measured stopped
+      // being the label being drawn. German SICHERN was laid out as if it still
+      // said SAVE and came out "S...", which looks like a layout bug and is
+      // really a measurement taken in the wrong language.
       auto autoW = [&](const char* text, int minW = 60) -> int {
-        int tw = 0; TTF_GetStringSize(btnFont, text, 0, &tw, nullptr);
-        return std::max(uiScaled(minW), tw + uiScaled(20));
+        return std::max(uiScaled(minW), measuredTextWidth(btnFont, text) + uiScaled(20));
       };
       bool isFullscreen = isAnyOutputFullscreen();
       constexpr int kIconBtnW = 44;

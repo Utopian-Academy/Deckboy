@@ -34,7 +34,7 @@ MEDIA	VEKADORA
 TRANSPORT	TIRADORA
 OUTPUT	SENADORA
 PROGRAM	KORAVEKA
-WARP	RANSETI
+WARP	
 LIVE	LUMO
 DECODE	VEKAMIRI
 STREAM	RETASENI
@@ -80,8 +80,8 @@ duration	toka
 transition	seta
 fade in	lumi-tiri
 fade out	lumi-hali
-ON	PONO
-OFF	VAPONO
+ON	PON
+OFF	VAP
 Stopped	Halo
 Playing	Lumo
 Paused	Halo kiso

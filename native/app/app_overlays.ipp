@@ -466,11 +466,7 @@
     const char* kStartupLabels[3] = {"NEW SHOW FILE", "OPEN PREVIOUS", "OPEN SAVED"};
     int startupWidest = 0;
     for (const char* label : kStartupLabels) {
-      int lw = 0, lh = 0;
-      if (fontBase_) {
-        TTF_GetStringSize(fontBase_, label, std::strlen(label), &lw, &lh);
-      }
-      startupWidest = std::max(startupWidest, lw);
+      startupWidest = std::max(startupWidest, measuredTextWidth(fontBase_, label));
     }
     // +28 covers drawCenteredText's inset and the framed-panel bevel; 184 keeps
     // the original size as a floor so Segoe UI is unchanged.
