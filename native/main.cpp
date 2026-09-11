@@ -4059,6 +4059,22 @@ class App {
   // Dev/test conveniences (CLI: --import <file>, --settings [tab]) — import
   // media as if dropped on the window, and open the settings modal at boot
   // so scripted screenshots can reach it.
+  // Put the mascot egg into a given stage so each one can be screenshotted.
+  void debugPokeMascot(int pokes) {
+    mascotPokes_ = pokes;
+    mascotLastPokeMs_ = SDL_GetTicks();
+    // A place and a time as well as a count, so the flinch, the squint and the
+    // protest line are all on screen for the screenshot -- the reaction is the
+    // part worth looking at, and a count alone would show none of it.
+    mascotPokeAtMs_ = SDL_GetTicks();
+    mascotPokeDx_ = -0.45;
+    mascotPokeDy_ = -0.20;
+    mascotHoldReaction_ = true;
+    if (pokes >= kMascotFleeAfterPokes) {
+      mascotFleeStartedMs_ = SDL_GetTicks();
+    }
+  }
+
   void debugImportPath(const std::string& path) {
     // Scripted import goes straight to the deck — no splash, no startup menu.
     showStartupDialog_ = false;
@@ -8396,6 +8412,46 @@ class App {
   // the empty program monitor until the first clip is loaded into it this
   // session. Once a clip loads, it retires for the rest of the run.
   bool firstClipLoadedThisSession_ = false;
+
+  // ── The mascot notices you ──────────────────────────────────────────────
+  //
+  // Poke the startup face and it stops being a face. It looks back at the
+  // cursor, then shies away from it, then gives up and wanders off out of the
+  // monitor. Konami stays the real secret (Terrarium); this is the one that
+  // finds YOU, because it is discoverable by exactly the kind of person who
+  // idly clicks the thing on the screen while waiting for a show to load.
+  //
+  // Nothing here exists once a clip is loaded -- the mascot only lives in an
+  // empty program monitor -- so none of it can reach a live show.
+  int mascotPokes_ = 0;
+  Uint64 mascotLastPokeMs_ = 0;
+  Uint64 mascotFleeStartedMs_ = 0;   // 0 until it decides to leave
+  // Slow to start, quick to finish: the first step is the discovery, and by
+  // the time somebody has noticed the eyes move they are already committed.
+  static constexpr int kMascotWatchAfterPokes = 3;
+  static constexpr int kMascotShyAfterPokes = 6;
+  static constexpr int kMascotFleeAfterPokes = 10;
+  int mascotPointerX_ = 0;
+  int mascotPointerY_ = 0;
+  // WHERE THE FACE ACTUALLY IS, written by the renderer each frame.
+  //
+  // The face hovers, rocks and drifts, so the only honest hit test is against
+  // where it was last drawn. Poking the empty monitor a foot away from it is
+  // not poking it -- and the egg is much better when you have to actually hit
+  // the thing.
+  int mascotFaceCx_ = 0;
+  int mascotFaceCy_ = 0;
+  int mascotFaceRadius_ = 0;
+  // The last poke, as an offset from the face centre in units of its own size,
+  // and when it landed. This is what makes it react to WHERE it was poked
+  // rather than merely to having been poked.
+  double mascotPokeDx_ = 0.0;
+  double mascotPokeDy_ = 0.0;
+  Uint64 mascotPokeAtMs_ = 0;
+  // Test instrumentation: hold the poke reaction open instead of letting it
+  // decay, so --mascot-pokes can actually be screenshotted. A half-second
+  // flinch is the part worth looking at and the part a capture always misses.
+  bool mascotHoldReaction_ = false;
   // Warp editor state
   bool warpEditMode_ = false;
   int warpDragCorner_ = -1;  // -1=none, 0=TL, 1=TR, 2=BR, 3=BL
@@ -9790,6 +9846,7 @@ int runDeckboyMain(int argc, char** argv) {
 
   double soakMinutes = -1.0;
   std::vector<std::string> importPathsArg;
+  int mascotPokesArg = 0;
   fs::path startupProjectArg;
   int openSettingsTab = -1;
   int inspectorScrollArg = -1;
@@ -9811,6 +9868,19 @@ int runDeckboyMain(int argc, char** argv) {
     // SDL3, so without a flag the editor cannot be screenshotted -- and this
     // codebase has learned twice over that a UI element nobody has LOOKED at is
     // not finished.
+    // Poke the mascot from the command line.
+    //
+    // Scripted clicks do not reach SDL3 -- PostMessage input is ignored -- so
+    // without this the egg's three stages could be built, shipped and never
+    // once looked at. The same reason --code-editor exists.
+    if (arg == "--mascot-pokes") {
+      if (i + 1 >= rest.size()) {
+        printCliError("--mascot-pokes needs a count");
+        return 2;
+      }
+      mascotPokesArg = std::max(0, std::atoi(rest[++i].c_str()));
+      continue;
+    }
     if (arg == "--code-editor") {
       openCodeEditorArg = true;
       continue;
@@ -9915,6 +9985,9 @@ int runDeckboyMain(int argc, char** argv) {
   }
   if (openCodeEditorArg) {
     app.debugOpenCodeEditor();
+  }
+  if (mascotPokesArg > 0) {
+    app.debugPokeMascot(mascotPokesArg);
   }
   if (inspectorScrollArg >= 0) {
     app.debugScrollInspector(inspectorScrollArg);

@@ -51,6 +51,11 @@ page and part of the project file, and the page offers the field the chosen
 direction actually uses rather than both. A machine already started with the
 old environment variables keeps working exactly as it did.
 
+**The mascot notices you.** Poke the face that waits in an empty program
+monitor and it stops being a face. It looks back, it has opinions about being
+poked, and whichever part you actually hit answers for itself. Push your luck
+far enough and it leaves.
+
 **Crash reports say where.** When something does go wrong, the report Deckboy
 leaves behind now names the module and offset for every frame on the stack, and
 writes the essentials first — so the file is readable on its own, on any

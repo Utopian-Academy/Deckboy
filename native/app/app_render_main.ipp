@@ -341,6 +341,82 @@
     int cy = area.y + area.h / 2 - area.h / 9
              + static_cast<int>(std::lround(std::sin(t * 1.3) * 3.5 + std::sin(t * 0.55 + 1.0) * 2.0));
 
+    // ── It notices you ──────────────────────────────────────────────────
+    //
+    // Three stages, earned by poking it, and each one is the previous one plus
+    // a little more nerve:
+    //
+    //   from kMascotWatchAfterPokes  the eyes follow the cursor
+    //   from kMascotShyAfterPokes    the whole face edges away from it
+    //   at   kMascotFleeAfterPokes   it leaves
+    //
+    // The escalation is deliberately slow on the first step and quick on the
+    // last: the point is that somebody idly clicking notices the eyes move,
+    // and only then works out that it can be pushed further.
+    const bool mascotWatching = mascotPokes_ >= kMascotWatchAfterPokes;
+    const bool mascotShy = mascotPokes_ >= kMascotShyAfterPokes;
+    double lookX = 0.0, lookY = 0.0;      // -1..1, where it is looking
+    if (mascotWatching) {
+      const double dx = static_cast<double>(mascotPointerX_ - cx);
+      const double dy = static_cast<double>(mascotPointerY_ - cy);
+      const double reach = std::max(1.0, static_cast<double>(std::min(area.w, area.h)) * 0.5);
+      lookX = std::clamp(dx / reach, -1.0, 1.0);
+      lookY = std::clamp(dy / reach, -1.0, 1.0);
+      if (mascotShy) {
+        // Backs off along the line from the cursor, hardest when the cursor is
+        // right on top of it. It cannot be cornered out of its own monitor --
+        // the shove is clamped well inside the rect -- because a mascot stuck
+        // behind the VU meters is a bug, not a joke.
+        const double dist = std::sqrt(lookX * lookX + lookY * lookY);
+        const double shove = (1.0 - std::clamp(dist, 0.0, 1.0)) * (unit * 2.2);
+        if (dist > 0.001) {
+          cx -= static_cast<int>(std::lround(lookX / dist * shove));
+          cy -= static_cast<int>(std::lround(lookY / dist * shove));
+        }
+        const int margin = unit * 3;
+        cx = std::clamp(cx, area.x + margin, area.x + area.w - margin);
+        cy = std::clamp(cy, area.y + margin, area.y + area.h - margin);
+      }
+    }
+    // ── IT FELT THAT ────────────────────────────────────────────────────
+    //
+    // A poke is a discrete event with a place, so the reaction has both: the
+    // face recoils along the line you pushed it, and whichever part you
+    // actually hit answers for itself. Poke an eye and it squints; poke the
+    // smile and it goes round with surprise. Half a second, then it recovers --
+    // long enough to read, short enough to do again straight away.
+    constexpr Uint64 kMascotReactMs = 520;
+    double reactAmt = 0.0;
+    if (mascotPokeAtMs_ != 0 && nowMs >= mascotPokeAtMs_ &&
+        (mascotHoldReaction_ || nowMs - mascotPokeAtMs_ < kMascotReactMs)) {
+      const double u = mascotHoldReaction_
+                         ? 0.5
+                         : static_cast<double>(nowMs - mascotPokeAtMs_) / kMascotReactMs;
+      // Up fast, down slow: a flinch, not a wobble.
+      reactAmt = std::sin(u * kPi) * (1.0 - u * 0.35);
+      cx -= static_cast<int>(std::lround(mascotPokeDx_ * reactAmt * unit * 0.9));
+      cy -= static_cast<int>(std::lround(mascotPokeDy_ * reactAmt * unit * 0.9));
+    }
+    // Which part took it. The eyes sit above the centre and the mouth below,
+    // matching where they are actually drawn below.
+    const bool pokedMouth = reactAmt > 0.01 && mascotPokeDy_ > 0.25;
+    const bool pokedLeftEye = reactAmt > 0.01 && mascotPokeDy_ <= 0.25 && mascotPokeDx_ < -0.12;
+    const bool pokedRightEye = reactAmt > 0.01 && mascotPokeDy_ <= 0.25 && mascotPokeDx_ > 0.12;
+
+    if (mascotFleeStartedMs_ != 0) {
+      // AND THEN IT GOES. Eased, off whichever side it was nearest, and once
+      // it is past the edge it simply is not drawn -- no fade, because a thing
+      // that walks off is funnier than a thing that dissolves.
+      const double flee = static_cast<double>(nowMs - mascotFleeStartedMs_) / 1400.0;
+      if (flee >= 1.0) {
+        return;
+      }
+      const double eased = flee * flee * (3.0 - 2.0 * flee);
+      const int leftward = (cx < area.x + area.w / 2) ? -1 : 1;
+      cx += static_cast<int>(std::lround(eased * leftward * (area.w * 0.75 + unit * 6)));
+      cy += static_cast<int>(std::lround(std::sin(eased * kPi) * -unit * 1.5));
+    }
+
     // Balatro-style whole-face wobble: a small oscillating tilt so the face
     // gently rocks. Every element position is placed through this rotation
     // about the centre, so the eyes swing one way as the mouth swings the
@@ -391,14 +467,22 @@
     auto drawEye = [&](double sideSign, double phase, double openMul) {
       double dx = std::sin(t * 1.1 + phase) * unit * 0.10;
       double dy = std::sin(t * 0.9 + phase * 1.7) * unit * 0.10;
+      // LOOKING AT YOU. Added to the idle drift rather than replacing it, so
+      // the eyes still have their own life while they follow -- a face that
+      // locks rigidly onto the cursor reads as a turret, not a friend.
+      if (mascotWatching) {
+        dx += lookX * unit * 0.45;
+        dy += lookY * unit * 0.35;
+      }
       double breathe = 1.0 + std::sin(t * 1.3 + phase) * 0.10;
       int eh = std::max(thick, static_cast<int>(std::lround(eyeHFull * eyeOpen * openMul * breathe)));
       int X, Y;
       place(sideSign * eyeGap / 2 + dx, -static_cast<double>(unit) + dy, X, Y);
       Primitives::fillRect(controlRenderer_, SDL_Rect{X - eyeW / 2, Y - eh / 2, eyeW, eh}, glow);
     };
-    drawEye(-1.0, 0.0, 1.0);
-    drawEye( 1.0, 2.3, winkMul);
+    // The poked eye squints; the other one stays wide, which is what sells it.
+    drawEye(-1.0, 0.0, pokedLeftEye ? (1.0 - 0.75 * reactAmt) : 1.0);
+    drawEye( 1.0, 2.3, pokedRightEye ? std::min(winkMul, 1.0 - 0.75 * reactAmt) : winkMul);
 
     // Mouth — a breathing smile parabola with its own drift; each sample is
     // placed through the face tilt, so the smile rocks with the wobble.
@@ -406,6 +490,12 @@
     double mdy = std::sin(t * 1.05 + 0.4) * unit * 0.10;
     int mouthW = unit * 3;
     double depth = smile * unit;
+    if (pokedMouth) {
+      // An "o": the smile pulls in and the curve inverts, so it reads as
+      // surprise rather than as a smaller smile.
+      mouthW = static_cast<int>(std::lround(mouthW * (1.0 - 0.45 * reactAmt)));
+      depth = depth * (1.0 - 1.8 * reactAmt);
+    }
     int N = 12;
     for (int i = 0; i <= N; ++i) {
       double fx = static_cast<double>(i) / N * 2.0 - 1.0;
@@ -415,6 +505,13 @@
       place(ox, oy, X, Y);
       Primitives::fillRect(controlRenderer_, SDL_Rect{X - thick / 2, Y - thick / 2, thick, thick}, glow);
     }
+
+    // WHERE IT IS, for the click handler to test against next frame. Written
+    // here rather than guessed there, because only this function knows what the
+    // hover, the rock and the recoil did to it.
+    mascotFaceCx_ = cx;
+    mascotFaceCy_ = cy;
+    mascotFaceRadius_ = (mascotFleeStartedMs_ != 0) ? 0 : unit * 3;
 
     // --- Twinkling stars slowly orbiting the face, each with its own pulse ---
     SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
@@ -479,8 +576,32 @@
     int tipY = std::min(area.y + area.h - tipH - 6, cy + unit * 3);
     SDL_Rect tipRect {area.x + 12, tipY, area.w - 24, tipH};
 
+    // IT HAS SOMETHING TO SAY ABOUT BEING POKED.
+    //
+    // Escalating, because a single stock protest repeated ten times is a bug
+    // and an escalating one is a character. Delivered whole rather than typed
+    // out a letter at a time -- somebody yelping does not type.
+    static const char* kPokeLines[] = {
+      "hey!",
+      "quit it!",
+      "ow. rude.",
+      "i am a PROFESSIONAL",
+      "seriously?",
+      "this is my monitor",
+      "i'm telling the operator",
+      "okay. okay. wow.",
+      "right, that's it",
+    };
+    static const char* kFleeLine = "i'm out. good luck with the show";
+
     std::string spoken;
-    if (overrideTip) {
+    if (mascotFleeStartedMs_ != 0) {
+      spoken = kFleeLine;
+    } else if (mascotPokes_ > 0 && mascotPokeAtMs_ != 0 && nowMs >= mascotPokeAtMs_ &&
+               (mascotHoldReaction_ || nowMs - mascotPokeAtMs_ < 1800)) {
+      const int lines = static_cast<int>(sizeof(kPokeLines) / sizeof(kPokeLines[0]));
+      spoken = kPokeLines[std::min(mascotPokes_ - 1, lines - 1)];
+    } else if (overrideTip) {
       spoken = overrideTip;
     } else {
       constexpr Uint64 kLineMs = 5600;   // type, then hold, then the next one

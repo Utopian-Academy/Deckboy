@@ -190,6 +190,38 @@
       }
     }
 
+    // POKING THE MASCOT -- the face itself, not the monitor it floats in.
+    //
+    // Hit tested against where the renderer last drew it, because it hovers and
+    // rocks and drifts; anything else would count a click a foot away as a
+    // poke, and having to actually hit the thing is most of the fun. It does
+    // not return: the click still does whatever it would have done, because an
+    // easter egg must not take anything away.
+    if (!firstClipLoadedThisSession_ && !warpEditMode_ && mascotFaceRadius_ > 0 &&
+        mascotFleeStartedMs_ == 0) {
+      const double dx = static_cast<double>(x - mascotFaceCx_);
+      const double dy = static_cast<double>(y - mascotFaceCy_);
+      const double r = static_cast<double>(mascotFaceRadius_);
+      if (dx * dx + dy * dy <= r * r) {
+        const Uint64 now = SDL_GetTicks();
+        // IN A ROW means in a row: a poke long after the last one starts over,
+        // so somebody who clicks the monitor twice a day never triggers it.
+        if (mascotLastPokeMs_ != 0 && now - mascotLastPokeMs_ > 4000) {
+          mascotPokes_ = 0;
+        }
+        mascotLastPokeMs_ = now;
+        // Normalised against the face's own size, so the reaction is the same
+        // whether the monitor is a postage stamp or half a 4K screen.
+        mascotPokeDx_ = dx / r;
+        mascotPokeDy_ = dy / r;
+        mascotPokeAtMs_ = now;
+        ++mascotPokes_;
+        if (mascotPokes_ >= kMascotFleeAfterPokes) {
+          mascotFleeStartedMs_ = now;
+        }
+      }
+    }
+
     if (playlistSplitterRect_.w > 0 && pointInRect(x, y, playlistSplitterRect_)) {
       layoutDragMode_ = LayoutDragMode::Playlist;
       return;
@@ -772,6 +804,12 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    // Where the cursor is, for the mascot to look at. Recorded before every
+    // early return below, because the face has to keep tracking while the
+    // operator is doing something else entirely -- that is the whole charm of
+    // it. Two ints; it costs nothing.
+    mascotPointerX_ = x;
+    mascotPointerY_ = y;
     if (vjCrossfaderDragActive_ && vjCrossfaderRect_.w > 0) {
       // Through the same helper as every other fader, so the crossfader's own
       // ends -- full A and full B, the two positions a VJ actually holds -- are
