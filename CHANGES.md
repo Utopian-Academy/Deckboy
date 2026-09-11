@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-September 2026)
 
-## 2026-09-11 - v0.99.335 (slide decks render in their own process)
+## 2026-09-11 - v0.99.335 (slide decks in their own process, tally from the switcher, nineteen languages)
 
 **Importing a slide deck no longer borrows the show's graphics.** On Windows,
 Deckboy renders PDF pages with the same engine Edge uses, and that engine wants
@@ -50,6 +50,26 @@ settings could not travel with the show. They are now a card on the Network
 page and part of the project file, and the page offers the field the chosen
 direction actually uses rather than both. A machine already started with the
 old environment variables keeps working exactly as it did.
+
+**Deckboy reads in nineteen languages.** English, fourteen translations, and
+four cyphers. A translation is a file of english-and-its-equivalent, and a line
+nobody has done yet falls through to the English -- so an unfinished language
+is a partly translated desk rather than one with gaps in it. The trade's own
+vocabulary stays in English where the trade keeps it there, because an operator
+who learned this desk in one country has to be able to work it in another.
+
+A cypher is not a translation but a transform of the English, so it needs no
+word list and covers every label in the program: ROT13, Atbash, 1337 and Morse.
+Among the translations are Cuban Spanish, Klingon written the way Klingon is
+actually written, and Lumeni, which was invented for this and has a grammar.
+
+**A matte and a bug belong to the screen.** A house frame is a property of the
+output, not of what is playing on it: a 2.39 letterbox or a station logo has to
+survive every cut, every clear and every panic. Each output now carries its own
+matte -- 16:9 through 2.39:1, with bars that can dim rather than mask -- and its
+own still overlay. Both are composited into the output's picture before
+anything is taken off it, so the recording, the stream, NDI and the program
+monitor show the same frame instead of four near-misses.
 
 **The desk is the size the desktop says.** Windows hands a DPI-aware program
 real physical pixels, so on a display scaled to 125% or 150% Deckboy was
