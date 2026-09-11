@@ -379,6 +379,48 @@
     Primitives::fillRect(controlRenderer_, SDL_Rect{track.x, thumbY, track.w, thumbH}, pal.deep);
   }
 
+  // ── ONE QUESTION PER ROW ────────────────────────────────────────────────
+  //
+  // The house shape for every settings card: the question on the left, the
+  // control that answers it on the right, one per row. It reads as a sentence
+  // and it puts every control on the page at the same x, which is most of what
+  // "consistent" means when somebody glances at a panel they have not opened
+  // in a month.
+  //
+  // Before this, the same page mixed three shapes -- full-width pills whose
+  // own label carried the question ("HOVER TIPS ON"), bare buttons whose
+  // meaning came from position, and label-above-control pairs. Each is fine on
+  // its own; together they mean the eye has to work out the grammar of every
+  // card separately.
+  //
+  // Returns the rect for the control and advances y. The label is drawn in the
+  // soft ink because it is a caption, not a thing you press.
+  SDL_Rect settingsRow(int bodyX, int bodyW, int& y, int rowH,
+                       const std::string& label, int gap) {
+    const int labelW = std::max(uiScaled(92), bodyW * 2 / 5);
+    const int ctlX = bodyX + labelW + uiScaled(8);
+    const int ctlW = std::max(uiScaled(72), bodyX + bodyW - ctlX);
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect{bodyX, y, labelW, rowH}, label, pal.fgSoft);
+    SDL_Rect control {ctlX, y, ctlW, rowH};
+    y += rowH + gap;
+    return control;
+  }
+
+  // The one way a VALUE is shown on a settings page: a framed well with the
+  // current answer in it. Pressing it is how you change it, whether that opens
+  // a dropdown, a text prompt or a cycle -- which of those it is belongs to the
+  // handler, not to the way it looks.
+  //
+  // Uniform on purpose. When a value that opens a dropdown looks different from
+  // a value that opens a prompt, an operator has to learn which controls are
+  // which instead of learning what they do.
+  void drawUIValueControl(const SDL_Rect& rect, const std::string& value) {
+    Primitives::drawFramedPanel(controlRenderer_, rect, pal.mid, pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, rect,
+                         value.empty() ? std::string("--") : value, pal.deep);
+  }
+
   void drawSettingsCard(const SDL_Rect& rect, const std::string& title,
                         const std::string& subtitle = std::string()) {
     // Every card records where it is, so the layout audit can tell a control
@@ -559,8 +601,10 @@
       // without being added here, so the card kept its old height and the last
       // control drifted across the edge into SAFETY / TIMECODE below -- which
       // is the same way this card ended up a row short once before.
-      int appearanceH = stackH({sTallH, sTallH, sRowH, sRowH, sRowH, sRowH, sRowH,
-                                sTallH, sRowH});
+      // Nine rows, every one the same height now that they all follow the
+      // label-and-control shape.
+      int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH,
+                                sRowH, sRowH, sRowH, sRowH});
       int safetyH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
       // and its row. Grew by a row when VJ mode got a switch.
@@ -639,9 +683,8 @@
       int appY = cardBodyY(appearanceRect);
       const int appX = cardBodyX(appearanceRect);
       const int appW = cardBodyW(appearanceRect);
-      SDL_Rect themeBtn {appX, appY, appW, sTallH};
-      appY += sTallH + sGap;
-      drawUIDropdown(themeBtn, "Theme", themeName, "settings.theme");
+      SDL_Rect themeBtn = settingsRow(appX, appW, appY, sRowH, "Theme", sGap);
+      drawUIValueControl(themeBtn, themeName);
       settingsBtns_.push_back({themeBtn, kSettingsActionThemeDropdown, "theme"});
       // Beside the theme, because it is the same kind of decision: what this
       // desk looks and reads like to whoever is standing at it.
@@ -653,42 +696,41 @@
       // and it is next to the control that got you here rather than three menus
       // away. Small, because it is an exit and not a feature.
       const int panicW = uiScaled(58);
-      SDL_Rect langBtn {appX, appY, std::max(uiScaled(60), appW - panicW - sGap), sTallH};
-      SDL_Rect panicBtn {langBtn.x + langBtn.w + sGap, appY, panicW, sTallH};
-      appY += sTallH + sGap;
-      drawUIDropdown(langBtn, "Language", deckboy::core::i18n::activeName(),
-                     "settings.language");
+      SDL_Rect langRow = settingsRow(appX, appW, appY, sRowH, "Language", sGap);
+      SDL_Rect langBtn {langRow.x, langRow.y,
+                        std::max(uiScaled(60), langRow.w - panicW - sGap), sRowH};
+      SDL_Rect panicBtn {langBtn.x + langBtn.w + sGap, langRow.y, panicW, sRowH};
+      drawUIValueControl(langBtn, deckboy::core::i18n::activeName());
       settingsBtns_.push_back({langBtn, kSettingsActionLanguageDropdown, "language"});
       Primitives::drawFramedPanel(controlRenderer_, panicBtn, pal.mid, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, panicBtn, "Help!", ink,
                            /*localise=*/false);
       settingsBtns_.push_back({panicBtn, kSettingsActionLanguagePanic, "language_panic"});
-      SDL_Rect sfxBtn {appX, appY, appW, sRowH};
-      appY += sRowH + sGap;
-      drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "SFX ON", "SFX OFF");
+      // One question per row from here down; see settingsRow. The pills used to
+      // carry the question in their own label ("HOVER TIPS ON"), which meant
+      // every control on the card was a different width of sentence and the
+      // eye had nothing to line up on.
+      SDL_Rect sfxBtn = settingsRow(appX, appW, appY, sRowH, "Sound effects", sGap);
+      drawPillToggle(sfxBtn, project_.uiSoundsEnabled, "ON", "OFF");
       settingsBtns_.push_back({sfxBtn, 201, "sfx_toggle"});
       // Hover tips. Beside SFX because they are the same kind of decision:
       // helpful while you are learning the desk, noise once you know it.
-      SDL_Rect tipsBtn {appX, appY, appW, sRowH};
-      appY += sRowH + sGap;
-      drawPillToggle(tipsBtn, project_.hoverTipsEnabled, "HOVER TIPS ON", "HOVER TIPS OFF");
+      SDL_Rect tipsBtn = settingsRow(appX, appW, appY, sRowH, "Hover tips", sGap);
+      drawPillToggle(tipsBtn, project_.hoverTipsEnabled, "ON", "OFF");
       settingsBtns_.push_back({tipsBtn, 656, "hover_tips_toggle"});
       // The pointer, beside the tips: both are "what the desk shows you while
       // you are looking for something", and both are taste.
-      SDL_Rect cursorBtn {appX, appY, appW, sRowH};
-      appY += sRowH + sGap;
-      drawPillToggle(cursorBtn, project_.miamiCursorEnabled,
-                     "MIAMI CURSOR ON", "MIAMI CURSOR OFF");
+      SDL_Rect cursorBtn = settingsRow(appX, appW, appY, sRowH, "Miami cursor", sGap);
+      drawPillToggle(cursorBtn, project_.miamiCursorEnabled, "ON", "OFF");
       settingsBtns_.push_back({cursorBtn, 657, "miami_cursor_toggle"});
       // Mascot dropdown: deckbot (default) or deckgirl. Picks the splash
       // character; refreshSplashAsset re-resolves the art on change.
-      SDL_Rect mascotBtn {appX, appY, appW, sRowH};
-      appY += sRowH + sGap;
+      SDL_Rect mascotBtn = settingsRow(appX, appW, appY, sRowH, "Mascot", sGap);
       std::string mascotLabel =
         (project_.splashCharacter == "deckgirl") ? "Deckgirl"
         : (project_.splashCharacter == "none") ? "None"
         : "Deckbot";
-      drawUIDropdown(mascotBtn, "Mascot", mascotLabel, "settings.mascot");
+      drawUIValueControl(mascotBtn, mascotLabel);
       settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
       // The theme's creatures. ALWAYS shown, even on a theme that has none.
       //
@@ -699,22 +741,19 @@
       // switch to decide about them before changing theme; and a setting that
       // appears and disappears as you browse themes is worse than one that is
       // simply always there.
-      SDL_Rect critterBtn {appX, appY, appW, sRowH};
-      appY += sRowH + sGap;
+      SDL_Rect critterBtn = settingsRow(appX, appW, appY, sRowH, "Creatures", sGap);
       // Three states, one button: off, out only when no output is live, or
       // out regardless. The middle one is the default and the safe one; the
       // last exists because an operator who always has an output armed would
       // otherwise never see them at all.
       drawPillToggle(critterBtn, project_.creaturesEnabled,
-                     project_.creaturesWhileLive ? "CREATURES ALWAYS"
-                                                 : "CREATURES WHEN IDLE",
-                     "CREATURES OFF");
+                     project_.creaturesWhileLive ? "ALWAYS" : "WHEN IDLE",
+                     "OFF");
       settingsBtns_.push_back({critterBtn, kSettingsActionCreaturesToggle,
                                "creatures_toggle"});
       // UI scale dropdown — multiplies every font point size at load, and (as
       // of v0.81.0) the settings chrome scales with it too.
-      SDL_Rect scaleBtn {appX, appY, appW, sTallH};
-      appY += sTallH + sGap;
+      SDL_Rect scaleBtn = settingsRow(appX, appW, appY, sRowH, "UI scale", sGap);
       // Says what it is DOING, not what is stored: "0.00x" would be nonsense
       // on a button and tells the operator nothing about how big the desk is.
       char scaleLabel[40];
@@ -723,7 +762,7 @@
       } else {
         snprintf(scaleLabel, sizeof(scaleLabel), "auto  %.2fx", effectiveUiScale());
       }
-      drawUIDropdown(scaleBtn, "UI Scale", scaleLabel, "settings.ui_scale");
+      drawUIValueControl(scaleBtn, scaleLabel);
       settingsBtns_.push_back({scaleBtn, kSettingsActionUiScaleDropdown, "ui_scale"});
       // Pocket 3 preset — one-click ergonomic bundle for the GPD Pocket 3
       // and other small high-DPI handhelds. Pushes uiScale to 2.0 and
