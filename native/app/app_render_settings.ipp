@@ -1415,7 +1415,12 @@
       const int kCardGap = uiScaled(10);
 
       int leftY = leftCol.y;
-      int remoteH = sCardHeaderH + sLineH + uiScaled(2) + sRowH + sGap + sChipH + sPad;
+      // Header, the port row, then TWO chip rows: HyperDeck and remote-access.
+      // The height is computed from the contents on purpose -- when the second
+      // chip row was added without extending this, the card kept its old height
+      // and the last row was drawn underneath the panel below it.
+      int remoteH = sCardHeaderH + sLineH + uiScaled(2) + sRowH
+                    + (sGap + sChipH) * 2 + sPad;
       SDL_Rect remoteRect {leftCol.x, leftY, leftCol.w, remoteH};
       leftY += remoteRect.h + kCardGap;
       int oscH = sCardHeaderH + sLineH + uiScaled(4) + sChipH * 2 + sGap + sPad;
@@ -1448,9 +1453,22 @@
         drawTextSafe(controlRenderer_, fontSmall_,
                      SDL_Rect{noteX, portBtn.y,
                               std::max(0, remoteRect.x + remoteRect.w - sPad - noteX), portBtn.h},
-                     "HyperDeck emulation stays on at TCP 9993.", soft);
+                     project_.hyperDeckEnabled
+                       ? ("HyperDeck emulation on TCP 9993 at " + hyperDeckReachableAddress())
+                       : "HyperDeck emulation is off.", soft);
       }
-      const int remoteToggleY = portBtn.y + portBtn.h + sGap;
+      const int hyperToggleY = portBtn.y + portBtn.h + sGap;
+      SDL_Rect hyperToggle {remoteX, hyperToggleY, uiScaled(176), sChipH};
+      drawPill(hyperToggle, project_.hyperDeckEnabled, "HYPERDECK ON", "HYPERDECK OFF",
+               kSettingsActionHyperDeckToggle);
+      {
+        int noteX = hyperToggle.x + hyperToggle.w + sPad;
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect{noteX, hyperToggle.y,
+                              std::max(0, remoteRect.x + remoteRect.w - sPad - noteX), hyperToggle.h},
+                     "Answers ATEM Software Control as a deck.", soft);
+      }
+      const int remoteToggleY = hyperToggle.y + hyperToggle.h + sGap;
       SDL_Rect remoteToggle {remoteX, remoteToggleY, uiScaled(176), sChipH};
       drawPill(remoteToggle, project_.allowRemoteNetwork, "REMOTE ON", "LOCAL ONLY", kSettingsActionAllowRemoteToggle);
       {
@@ -1572,10 +1590,19 @@
       Primitives::drawFramedPanel(controlRenderer_, atemInputBtn, pal.mid, pal.deep, pal.light);
       // Says CONNECTED only when a session is actually up, so an operator can
       // tell "wrong IP" from "right IP, wrong input number" without guessing.
-      const std::string atemInputLabel =
-        (project_.atemTallyInput > 0 ? "INPUT " + std::to_string(project_.atemTallyInput)
-                                     : "INPUT...")
-        + (atemSwitcherConnected_.load() ? "  LINKED" : "");
+      std::string atemInputLabel = "INPUT...";
+      if (project_.atemTallyInput > 0) {
+        atemInputLabel = std::to_string(project_.atemTallyInput);
+        for (const auto& [id, label] : atemInputListSnapshot()) {
+          if (id == project_.atemTallyInput) {
+            atemInputLabel += "  " + label;
+            break;
+          }
+        }
+      }
+      // LINKED means a live session, so "wrong IP" and "right IP, wrong input"
+      // can be told apart without guessing which one is wrong.
+      if (atemSwitcherConnected_.load()) atemInputLabel += "  LINKED";
       drawCenteredText(controlRenderer_, fontSmall_, atemInputLabel, ink, atemInputBtn);
       settingsBtns_.push_back({atemInputBtn, kSettingsActionAtemTallyInputPrompt, "atem_tally_input"});
 
@@ -3351,6 +3378,14 @@
             project_.tslTallyAddress = val.empty() ? "255.255.255.255" : val;
             markProjectDirty();
           });
+      } else if (sb.action == kSettingsActionHyperDeckToggle) {
+        project_.hyperDeckEnabled = !project_.hyperDeckEnabled;
+        markProjectDirty();
+        stopHyperDeckServer();
+        startHyperDeckServer();
+        triggerToast(project_.hyperDeckEnabled
+                       ? ("hyperdeck emulation on at " + hyperDeckReachableAddress())
+                       : "hyperdeck emulation off");
       } else if (sb.action == kSettingsActionAtemTallyTriggerToggle) {
         project_.atemTallyTriggerEnabled = !project_.atemTallyTriggerEnabled;
         markProjectDirty();
@@ -3375,14 +3410,34 @@
             startAtemSwitcherClient();
           });
       } else if (sb.action == kSettingsActionAtemTallyInputPrompt) {
-        settingsOpen_ = false;
-        openInlineTextEditor("atem_tally_input", "ATEM Input",
-          "Which switcher input Deckboy is (0 = not set)",
-          std::to_string(project_.atemTallyInput),
-          [this](const std::string& val) {
-            project_.atemTallyInput = std::max(0, std::atoi(val.c_str()));
-            markProjectDirty();
-          });
+        // THE SWITCHER'S OWN NAMES, when it has told us them. Typing an input
+        // number means knowing that Deckboy is "3", which is the sort of thing
+        // that is true right up until somebody repatches. A connected switcher
+        // names its sources, so the picker can say what its panel says.
+        const auto inputs = atemInputListSnapshot();
+        if (inputs.empty()) {
+          settingsOpen_ = false;
+          openInlineTextEditor("atem_tally_input", "ATEM Input",
+            "Which switcher input Deckboy is (0 = not set)",
+            std::to_string(project_.atemTallyInput),
+            [this](const std::string& val) {
+              project_.atemTallyInput = std::max(0, std::atoi(val.c_str()));
+              markProjectDirty();
+            });
+        } else {
+          std::vector<std::pair<std::string, std::string>> choices;
+          choices.emplace_back("0", "(not set)");
+          for (const auto& [id, label] : inputs) {
+            choices.emplace_back(std::to_string(id),
+                                 std::to_string(id) + "  " + label);
+          }
+          openDropdown("settings.atem_input", sb.rect, choices,
+                       std::to_string(project_.atemTallyInput),
+                       [this](const std::string& picked) {
+                         project_.atemTallyInput = std::max(0, std::atoi(picked.c_str()));
+                         markProjectDirty();
+                       });
+        }
       } else if (sb.action == kSettingsActionIntegrationAllToggle) {
         bool allAdaptersEnabled = project_.atemTriggerEnabled && project_.ndiTriggerEnabled &&
                                   project_.nmcSyncEnabled && project_.mtcIngestEnabled &&

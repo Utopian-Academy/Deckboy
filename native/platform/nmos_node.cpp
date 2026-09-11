@@ -489,31 +489,6 @@ std::string versionStampNow() {
   return out.str();
 }
 
-// Best-effort local address: open a UDP socket "towards" the target and read
-// back which interface the routing table chose. No packet is sent.
-std::string localAddressTowards(const std::string& peer) {
-  SocketHandle probe = deckboy::platform::createDatagramSocket(false);
-  if (probe == kInvalidSocket) {
-    return {};
-  }
-  sockaddr_in target {};
-  target.sin_family = AF_INET;
-  target.sin_port = htons(53);
-  if (inet_pton(AF_INET, peer.empty() ? "8.8.8.8" : peer.c_str(), &target.sin_addr) != 1) {
-    closeSocket(probe);
-    return {};
-  }
-  std::string result;
-  if (::connect(probe, reinterpret_cast<sockaddr*>(&target), sizeof(target)) == 0) {
-    sockaddr_in local {};
-    socklen_t length = sizeof(local);
-    if (::getsockname(probe, reinterpret_cast<sockaddr*>(&local), &length) == 0) {
-      result = deckboy::platform::socketAddressToString(local);
-    }
-  }
-  closeSocket(probe);
-  return result;
-}
 
 // ── Tiny blocking HTTP/1.1 client, used only for registration ───────────────
 // Returns the numeric status code, or 0 when the request never completed.
@@ -612,6 +587,32 @@ int httpRequest(const std::string& host, int port, const std::string& method,
 }
 
 }  // namespace
+
+// Best-effort local address: open a UDP socket "towards" the target and read
+// back which interface the routing table chose. No packet is sent.
+std::string localAddressTowards(const std::string& peer) {
+  SocketHandle probe = deckboy::platform::createDatagramSocket(false);
+  if (probe == kInvalidSocket) {
+    return {};
+  }
+  sockaddr_in target {};
+  target.sin_family = AF_INET;
+  target.sin_port = htons(53);
+  if (inet_pton(AF_INET, peer.empty() ? "8.8.8.8" : peer.c_str(), &target.sin_addr) != 1) {
+    closeSocket(probe);
+    return {};
+  }
+  std::string result;
+  if (::connect(probe, reinterpret_cast<sockaddr*>(&target), sizeof(target)) == 0) {
+    sockaddr_in local {};
+    socklen_t length = sizeof(local);
+    if (::getsockname(probe, reinterpret_cast<sockaddr*>(&local), &length) == 0) {
+      result = deckboy::platform::socketAddressToString(local);
+    }
+  }
+  closeSocket(probe);
+  return result;
+}
 
 // ── Public helpers ──────────────────────────────────────────────────────────
 

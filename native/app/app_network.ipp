@@ -1046,6 +1046,41 @@
     return greeted;
   }
 
+  // WHAT THE SWITCHER CALLS ITS INPUTS.
+  //
+  // The ATEM sends an InPr block per source on connect: id, then a 20-byte long
+  // name and a 4-byte short one, both NUL-padded. Without this an operator has
+  // to know that Deckboy is "input 3" and type the 3; with it the picker says
+  // what the switcher's own panel says, which is the only naming anybody in the
+  // room has agreed on.
+  //
+  // Sources above 1000 are internal -- colour bars, media players, supersources,
+  // the black and the aux buses. They cannot be a Deckboy, so they are not
+  // offered as one.
+  static void atemInputNamesFromPacket(const unsigned char* packet, unsigned length,
+                                       std::map<int, std::string>& into) {
+    unsigned offset = 12;
+    while (offset + 8 <= length) {
+      const unsigned blockLength =
+        (static_cast<unsigned>(packet[offset]) << 8) | packet[offset + 1];
+      if (blockLength < 8 || offset + blockLength > length) break;
+      const char* name = reinterpret_cast<const char*>(packet + offset + 4);
+      if (std::memcmp(name, "InPr", 4) == 0 && blockLength >= 8 + 22) {
+        const unsigned char* data = packet + offset + 8;
+        const int source = (static_cast<int>(data[0]) << 8) | data[1];
+        if (source > 0 && source < 1000) {
+          // NUL-padded and not guaranteed terminated: take at most 20.
+          std::string label;
+          for (int i = 0; i < 20 && data[2 + i] != 0; ++i) {
+            label.push_back(static_cast<char>(data[2 + i]));
+          }
+          if (!label.empty()) into[source] = label;
+        }
+      }
+      offset += blockLength;
+    }
+  }
+
   // The program input this packet reports, if it reports one at all.
   //
   // Static and side-effect free so --atem-probe can run the same parser the
@@ -1072,9 +1107,21 @@
   }
 
   void atemParseCommands(const unsigned char* packet, unsigned length) {
+    {
+      // Under a lock: the settings UI reads this from the main thread while the
+      // switcher thread is still being told about sources.
+      std::lock_guard<std::mutex> lock(atemInputNamesMutex_);
+      atemInputNamesFromPacket(packet, length, atemInputNames_);
+    }
     if (const auto source = atemProgramInputFromPacket(packet, length)) {
       atemProgramChanged(*source);
     }
+  }
+
+  // A snapshot for the UI, in switcher order.
+  std::vector<std::pair<int, std::string>> atemInputListSnapshot() {
+    std::lock_guard<std::mutex> lock(atemInputNamesMutex_);
+    return {atemInputNames_.begin(), atemInputNames_.end()};
   }
 
   // The program bus moved. Only a change that crosses OUR input is an event.
@@ -1739,7 +1786,25 @@
   }
 #endif
 
+  // WHAT TO TYPE INTO THE OTHER BOX.
+  //
+  // A HyperDeck controller asks for an address, and the operator has to get it
+  // from somewhere. "Look it up in ipconfig" is not an answer on a show floor,
+  // and "the first NIC" is the wrong answer on any machine with more than one.
+  // Resolved towards the switcher when we know it, so a Deckboy on both a house
+  // network and a video LAN reports the address that side can actually reach.
+  std::string hyperDeckReachableAddress() {
+    std::string addr = deckboy::platform::video::localAddressTowards(
+      project_.atemSwitcherHost);
+    if (addr.empty()) addr = deckboy::platform::video::localAddressTowards({});
+    if (addr.empty()) addr = "127.0.0.1";
+    return addr + ":" + std::to_string(hyperDeckPort_);
+  }
+
   void startHyperDeckServer() {
+    if (!project_.hyperDeckEnabled) {
+      return;
+    }
     const char* portEnv = std::getenv("DECKBOY_HYPERDECK_PORT");
     if (portEnv && *portEnv) {
       try { hyperDeckPort_ = std::clamp(std::stoi(portEnv), 1, 65535); } catch (...) {}

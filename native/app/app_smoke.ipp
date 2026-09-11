@@ -2225,6 +2225,9 @@
 
     bool greeted = false;
     int packets = 0, acked = 0, programReports = 0, lastProgram = -1;
+    // The switcher's own names for its sources -- the same parse the input
+    // picker uses, so what prints here is what the picker will offer.
+    std::map<int, std::string> names;
     const auto started = std::chrono::steady_clock::now();
     std::array<unsigned char, 2048> buffer {};
 
@@ -2272,6 +2275,7 @@
       }
 
       const unsigned usable = std::min<unsigned>(length, static_cast<unsigned>(bytes));
+      atemInputNamesFromPacket(buffer.data(), usable, names);
       if (const auto source = atemProgramInputFromPacket(buffer.data(), usable)) {
         ++programReports;
         if (*source != lastProgram) {
@@ -2290,6 +2294,15 @@
       return 1;
     }
     std::cout << "  connected, program bus is input " << lastProgram << "\n";
+    if (names.empty()) {
+      std::cout << "  no input names reported\n";
+    } else {
+      std::cout << "  inputs the picker will offer:\n";
+      for (const auto& [id, label] : names) {
+        std::cout << "    " << id << "  " << label
+                  << (id == lastProgram ? "   <- on program" : "") << "\n";
+      }
+    }
     return 0;
   }
 

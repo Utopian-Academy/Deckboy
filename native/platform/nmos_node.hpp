@@ -289,6 +289,17 @@ class NmosNode {
 // saved route survive an app restart with nothing written to disk.
 std::string nmosDeterministicUuid(const std::string& seed);
 
+// WHICH ADDRESS OF OURS CAN THAT MACHINE REACH US ON.
+//
+// Opens a UDP socket towards the peer and reads back the interface the routing
+// table picked; no packet is sent. Pass an empty peer for the default route.
+//
+// Exposed because it is the honest answer to "what do I type into the other
+// box" -- which a HyperDeck controller, an NMOS registry and a stage manager
+// with a laptop all need, and which "the first NIC" gets wrong on every
+// multi-homed machine, i.e. most of them.
+std::string localAddressTowards(const std::string& peer);
+
 // Parse "http://host:port/base" into its parts. Returns false on anything it
 // does not understand rather than guessing at a default host.
 bool nmosParseUrl(const std::string& url, std::string& hostOut, int& portOut,

@@ -7401,7 +7401,8 @@ class App {
   static constexpr int kSettingsActionAtemTallyTriggerToggle = 729;
   static constexpr int kSettingsActionAtemSwitcherHostPrompt = 732;
   static constexpr int kSettingsActionAtemTallyInputPrompt = 733;
-  // 730/731 are the encoder's -- the audit caught that collision. Next free: 734.
+  static constexpr int kSettingsActionHyperDeckToggle = 734;
+  // 730/731 are the encoder's -- the audit caught that collision. Next free: 735.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;
   static constexpr int kSettingsActionRoutingModeToggle = 261;
@@ -7739,6 +7740,9 @@ class App {
   // -1 means "has not been told yet", which is deliberately distinct from any
   // real input number: the first reading is state, not a transition.
   std::atomic<int> atemProgramInput_ {-1};
+  // What the switcher calls each of its inputs, as it told us on connect.
+  std::map<int, std::string> atemInputNames_;
+  std::mutex atemInputNamesMutex_;
 
   // HyperDeck server
   //

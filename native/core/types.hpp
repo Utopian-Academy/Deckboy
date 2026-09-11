@@ -1262,6 +1262,10 @@ struct Project {
   // nothing fires until it is: guessing would mean rolling on somebody else's
   // camera. This is the switcher's source id, the same number its panel shows.
   int atemTallyInput = 0;
+  // HyperDeck emulation. On by default because it always has been, and a show
+  // that relied on it must not lose it by upgrading -- but an operator who does
+  // not want Deckboy answering as a deck can now say so.
+  bool hyperDeckEnabled = true;
   // What to do when we come OFF program. Same vocabulary for every tally
   // source, so an ATEM and an NDI receiver cannot mean different things by it:
   // "nothing" | "next" (load the next cue, paused) | "pause" | "stop" | "clear"

@@ -58,6 +58,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "atem_tally_trigger\t" << (project.atemTallyTriggerEnabled ? 1 : 0) << '\n';
   output << "atem_switcher_host\t" << project.atemSwitcherHost << '\n';
   output << "atem_tally_input\t" << project.atemTallyInput << '\n';
+  output << "hyperdeck_enabled\t" << (project.hyperDeckEnabled ? 1 : 0) << '\n';
   output << "ltc_out_fps\t" << project.ltcOutputFps << '\n';
   output << "ui_sounds\t" << (project.uiSoundsEnabled ? 1 : 0) << '\n';
   output << "hover_tips\t" << (project.hoverTipsEnabled ? 1 : 0) << '\n';
@@ -729,6 +730,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.atemSwitcherHost = safeString(fields, 1);
   } else if (fields[0] == "atem_tally_input") {
     project.atemTallyInput = safeInt(fields, 1, 0);
+  } else if (fields[0] == "hyperdeck_enabled") {
+    project.hyperDeckEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "midi_device") {
     project.midiDeviceName = safeString(fields, 1);
   } else if (fields[0] == "theme") {
